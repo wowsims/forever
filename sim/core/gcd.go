@@ -76,6 +76,9 @@ func (unit *Unit) pickAtCastEnd(sim *Simulation) {
 				panic(fmt.Sprintf("[USER_ERROR] Infinite loop detected, current action:\n%s", action))
 			}
 			action.Execute(sim)
+			if unit.spellQueuedAfterHardcast() {
+				unit.QueuedSpell.line = rot.lookLine
+			}
 		}
 		rot.inLoop = false
 	}

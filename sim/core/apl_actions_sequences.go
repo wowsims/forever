@@ -142,6 +142,8 @@ type APLActionStrictSequence struct {
 	hookedOnAction    func(*Simulation)
 
 	gate APLValue // A Strict Multidot's conditions; the sequence ends when it is false as its next cast can go out.
+
+	queuedAhead *PendingAction // The spell another action queued after a hardcast, which the sequence started ahead of.
 }
 
 func (rot *APLRotation) newActionStrictSequence(config *proto.APLActionStrictSequence) APLActionImpl {
@@ -172,6 +174,7 @@ func (action *APLActionStrictSequence) PostFinalize(rot *APLRotation) {
 }
 func (action *APLActionStrictSequence) Reset(*Simulation) {
 	action.curIdx = 0
+	action.queuedAhead = nil
 	action.unhookQueueAction()
 	action.unit.Rotation.inSequence = false
 }
@@ -182,19 +185,36 @@ func (action *APLActionStrictSequence) IsReady(sim *Simulation) bool {
 		action.unit.Rotation.inSequence = false
 		return false
 	}
-	if !action.subactions[0].IsReady(sim) {
+	if !action.subactions[0].IsReady(sim) || action.belowQueuedPick(sim) {
 		action.unit.Rotation.inSequence = false
 		return false
 	}
 
 	return true
 }
+
+// Whether a spell the pick queued after a hardcast is still to go off from the sequence's line or one above it,
+// or from a controlling action's step. The sequence then waits for it, so its steps never cut in ahead of a line
+// the priority list ranks as high or higher.
+func (action *APLActionStrictSequence) belowQueuedPick(sim *Simulation) bool {
+	unit := action.unit
+	if !unit.spellQueuedAfterHardcast() || unit.Hardcast.Expires > sim.CurrentTime {
+		return false
+	}
+	line := unit.Rotation.lookLine
+	return line < 0 || unit.QueuedSpell.line < 0 || line >= unit.QueuedSpell.line
+}
 func (action *APLActionStrictSequence) Execute(sim *Simulation) {
+	action.queuedAhead = nil
+	if unit := action.unit; unit.spellQueuedAfterHardcast() && unit.Hardcast.Expires <= sim.CurrentTime {
+		action.queuedAhead = unit.QueuedSpell.queueAction
+	}
 	action.unit.Rotation.inSequence = true
 	action.unit.Rotation.pushControllingAction(action)
 }
 func (action *APLActionStrictSequence) relinquishControl() {
 	action.curIdx = 0
+	action.queuedAhead = nil
 	action.unhookQueueAction()
 	action.unit.Rotation.inSequence = false
 	action.unit.Rotation.popControllingAction(action)
@@ -211,7 +231,18 @@ func (action *APLActionStrictSequence) current() *APLAction {
 	return action.subactions[action.curIdx]
 }
 func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction {
-	if nextAction := action.current(); nextAction.IsReady(sim) {
+	nextAction := action.current()
+	// Started after a hardcast ahead of the spell another action queued after it, a major cooldown first, the
+	// sequence casts the step that spell holds back in its place.
+	if queued := action.queuedAhead; queued != nil {
+		if unit := action.unit; !unit.spellQueuedAfterHardcast() || unit.QueuedSpell.queueAction != queued {
+			action.queuedAhead = nil
+		} else if nextAction.heldByQueuedSpell(sim) {
+			unit.CancelQueuedSpell(sim)
+			action.queuedAhead = nil
+		}
+	}
+	if nextAction.IsReady(sim) {
 		castReady := action.unit.GCD.IsReady(sim)
 		switch cast := nextAction.impl.(type) {
 		case *APLActionCastSpell:
@@ -278,7 +309,9 @@ func (action *APLActionStrictSequence) cooldownAheadOfStep(sim *Simulation) *APL
 	if !rot.majorCooldownMayGo(sim) {
 		return nil
 	}
-	for _, priorityAction := range rot.priorityList {
+	defer func(lookLine int) { rot.lookLine = lookLine }(rot.lookLine)
+	for i, priorityAction := range rot.priorityList {
+		rot.lookLine = i
 		if priorityAction.IsReady(sim) {
 			return Ternary(rot.isMajorCooldown(sim, priorityAction), priorityAction, nil)
 		}

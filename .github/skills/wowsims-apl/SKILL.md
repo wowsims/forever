@@ -141,6 +141,11 @@ for another race's racial or an untaken talent.
   rotation until its cast goes or its queued cast fires. If the cast can neither go nor be queued once the GCD is within
   400 ms, the sequence ends and the pick goes on down the list. A spender above it that is ready first keeps it from
   starting.
+- **A Strict Sequence waits for a spell the pick queued after a hardcast from its own line or a line above it**
+  (`belowQueuedPick`), even one queued for a cooldown that ends after the cast end. One on a higher line starts in the
+  cast-end pass when its first step is a major cooldown, and its next step on the GCD takes the queued spell's place
+  (`queuedAhead`): Presence of Mind with Arcane Wrath goes at a Pyroblast's cast end ahead of an Arcane Blast picked
+  lower down (`docs/rotation.md`).
 - **A channel's `until` clip is held when the next action would start the same channel again**, unless the channel
   line says `recast` (`shouldInterruptChannel` in `sim/core/apl.go`). The guard reads the rotation with the channel
   ended and its aura down, and walks into group references, so a line gated on `not target.aura(x).is_active` or

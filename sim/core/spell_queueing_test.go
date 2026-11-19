@@ -485,6 +485,88 @@ func TestRotationPicksAtCastEndBeforeLanding(t *testing.T) {
 		}
 	})
 
+	t.Run("a Strict Sequence led by a major cooldown goes at the cast end and its next step takes the pick's place", func(t *testing.T) {
+		potion := &testCooldown{}
+		cb := newHardcastTest(potion)
+		castOf := func(spell *Spell) *proto.APLAction {
+			return &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spell.ActionID.ToProto()}}}
+		}
+		strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{castOf(potion.spell), castOf(cb.nuke)}})
+		cb.start(strictSequence, cb.slowAtPull(), cb.castOf(cb.short))
+
+		cb.runUntil(castEnd + GCDDefault + time.Second)
+		if !slices.Equal(potion.castAt, []time.Duration{castEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) ||
+			!slices.Equal(cb.order, []string{"cooldown", "nuke"}) {
+			t.Fatalf("the sequence's potion, ready from 1.5 s, and its instant should both go at the 2 s cast end, ahead of the 1 s cast picked there, the potion at %v, instant at %v, in the order %v", potion.castAt, cb.nukeAt, cb.order)
+		}
+		if !slices.Equal(cb.shortAt, []time.Duration{castEnd + GCDDefault + time.Second}) {
+			t.Fatalf("the 1 s cast picked at the 2 s cast end should start when the instant's GCD ends at 3.5 s and land at 4.5 s, landed at %v", cb.shortAt)
+		}
+		if len(cb.rot.controllingActions) != 0 {
+			t.Fatalf("the Strict Sequence should hand the rotation back once its last step went off")
+		}
+	})
+
+	t.Run("a Strict Sequence led by a major cooldown takes the place of a spell a lower line queued for its cooldown", func(t *testing.T) {
+		potion := &testCooldown{}
+		cb := newHardcastTest(potion)
+		castOf := func(spell *Spell) *proto.APLAction {
+			return &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spell.ActionID.ToProto()}}}
+		}
+		cb.blast.CD.Set(castEnd + 100*time.Millisecond)
+		strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{castOf(potion.spell), castOf(cb.nuke)}})
+		cb.start(strictSequence, cb.castOf(cb.blast), cb.slowAtPull())
+
+		cb.runUntil(castEnd + GCDDefault + castEnd)
+		if !slices.Equal(potion.castAt, []time.Duration{castEnd}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) {
+			t.Fatalf("the sequence's potion and instant should go at the 2 s cast end, ahead of the blast picked there and due at 2.1 s, the potion at %v, instant at %v", potion.castAt, cb.nukeAt)
+		}
+		if !slices.Equal(cb.blastAt, []time.Duration{castEnd + GCDDefault + castEnd}) {
+			t.Fatalf("the blast should start when the instant's GCD ends at 3.5 s and land at 5.5 s, landed at %v", cb.blastAt)
+		}
+	})
+
+	t.Run("a Strict Sequence below the line of the spell picked at the cast end waits for that spell", func(t *testing.T) {
+		for _, due := range []struct {
+			name    string
+			readyAt time.Duration
+		}{{"due at the cast end", castEnd}, {"due 100 ms after the cast end", castEnd + 100*time.Millisecond}} {
+			potion := &testCooldown{}
+			cb := newHardcastTest(potion)
+			castOf := func(spell *Spell) *proto.APLAction {
+				return &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spell.ActionID.ToProto()}}}
+			}
+			cb.blast.CD.Set(due.readyAt)
+			strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{castOf(potion.spell), castOf(cb.nuke)}})
+			cb.start(cb.castOf(cb.blast), strictSequence, cb.slowAtPull())
+
+			blastLands := due.readyAt + castEnd
+			cb.runUntil(blastLands)
+			if !slices.Equal(cb.blastAt, []time.Duration{blastLands}) || !slices.Equal(potion.castAt, []time.Duration{blastLands}) ||
+				!slices.Equal(cb.nukeAt, []time.Duration{blastLands}) {
+				t.Fatalf("with the blast %s, the sequence below it should wait for the blast to land at %v and go then, the blast landed at %v, the potion at %v, instant at %v", due.name, blastLands, cb.blastAt, potion.castAt, cb.nukeAt)
+			}
+		}
+	})
+
+	t.Run("a Sequence's major cooldown step goes at the cast end, ahead of the pick", func(t *testing.T) {
+		potion := &testCooldown{}
+		cb := newHardcastTest(potion)
+		castOf := func(spell *Spell) *proto.APLAction {
+			return &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spell.ActionID.ToProto()}}}
+		}
+		sequence := cb.rot.newActionSequence(&proto.APLActionSequence{Actions: []*proto.APLAction{castOf(potion.spell), castOf(cb.nuke)}})
+		cb.start(sequence, cb.slowAtPull(), cb.castOf(cb.short))
+
+		cb.runUntil(castEnd + GCDDefault)
+		if !slices.Equal(potion.castAt, []time.Duration{castEnd}) || !slices.Equal(cb.shortAt, []time.Duration{castEnd + time.Second}) {
+			t.Fatalf("the sequence's potion, ready from 1.5 s, should go at the 2 s cast end ahead of the 1 s cast picked there, which lands at 3 s, the potion at %v, the 1 s cast landed at %v", potion.castAt, cb.shortAt)
+		}
+		if !slices.Equal(cb.nukeAt, []time.Duration{castEnd + GCDDefault}) {
+			t.Fatalf("the sequence's instant should go when the 1 s cast's GCD ends at 3.5 s, went at %v", cb.nukeAt)
+		}
+	})
+
 	t.Run("a prepull cast ending at the pull gets its pick at 0 before it lands", func(t *testing.T) {
 		// The pick at 0 goes before the cast's outcome, as at any cast end; a prepull action at 0 completes
 		// the cast first, so it runs after the pick.

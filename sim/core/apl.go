@@ -23,8 +23,8 @@ type APLRotation struct {
 	hasMoveKnown bool // hasMove's answer is set once, as it depends only on the rotation.
 	hasMoveValue bool
 
-	majorCooldownActionsKnown bool         // majorCooldownActions is set once, as it depends only on the rotation.
-	majorCooldownActions      []*APLAction // The priority list's actions that can be a major cooldown going ahead of the spell queued after a hardcast.
+	majorCooldownLinesKnown bool  // majorCooldownLines is set once, as it depends only on the rotation.
+	majorCooldownLines      []int // The priority list's lines that can be a major cooldown going ahead of the spell queued after a hardcast.
 
 	// Shared variable caches: all APLValueVariableRef instances for the same
 	// variable name share the same cache (but each has its own expression tree).
@@ -67,6 +67,9 @@ type APLRotation struct {
 
 	// The path of the entry whose action is running, kept only while the sim logs; empty outside one.
 	runningEntryPath string
+
+	// The priority list line a look is at, or -1 while a controlling action decides the look.
+	lookLine int
 
 	// Validation warnings that occur during proto parsing.
 	// We return these back to the user for display in the UI.
@@ -617,17 +620,20 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 func (apl *APLRotation) getNextAction(sim *Simulation) *APLAction {
 	apl.evalGeneration++
 
+	apl.lookLine = -1
 	if len(apl.controllingActions) != 0 {
 		return apl.controllingActions[len(apl.controllingActions)-1].GetNextAction(sim)
 	}
 
 	held := apl.unit.queuedSpellHoldsCasts(sim)
-	for _, action := range apl.priorityList {
+	for i, action := range apl.priorityList {
+		apl.lookLine = i
 		if !(held && action.heldByQueuedSpell(sim)) && action.IsReady(sim) {
 			return action
 		}
 	}
 
+	apl.lookLine = -1
 	return nil
 }
 
@@ -645,15 +651,22 @@ func (apl *APLRotation) firstAction(sim *Simulation) *APLAction {
 
 // Whether an action of the priority list that can be a major cooldown is ready.
 func (apl *APLRotation) majorCooldownMayGo(sim *Simulation) bool {
-	if !apl.majorCooldownActionsKnown {
-		apl.majorCooldownActionsKnown = true
-		apl.majorCooldownActions = FilterSlice(apl.priorityList, canBeMajorCooldown)
+	if !apl.majorCooldownLinesKnown {
+		apl.majorCooldownLinesKnown = true
+		for i, action := range apl.priorityList {
+			if canBeMajorCooldown(action) {
+				apl.majorCooldownLines = append(apl.majorCooldownLines, i)
+			}
+		}
 	}
 	// A Strict Sequence asked whether it is ready marks the rotation as in a sequence. Nothing asked here
-	// runs, so the mark is put back.
-	inSequence := apl.inSequence
-	mayGo := slices.ContainsFunc(apl.majorCooldownActions, func(action *APLAction) bool { return action.IsReady(sim) })
-	apl.inSequence = inSequence
+	// runs, so the mark and the look line are put back.
+	inSequence, lookLine := apl.inSequence, apl.lookLine
+	mayGo := slices.ContainsFunc(apl.majorCooldownLines, func(line int) bool {
+		apl.lookLine = line
+		return apl.priorityList[line].IsReady(sim)
+	})
+	apl.inSequence, apl.lookLine = inSequence, lookLine
 	return mayGo
 }
 
@@ -672,12 +685,17 @@ func canBeMajorCooldown(action *APLAction) bool {
 		return impl.spell.Flags.Matches(SpellFlagMCD)
 	case *APLActionGroupReference:
 		return impl.group != nil && slices.ContainsFunc(impl.group.actions, canBeMajorCooldown)
+	case *APLActionSequence:
+		return slices.ContainsFunc(impl.subactions, canBeMajorCooldown)
+	case *APLActionStrictSequence:
+		return canBeMajorCooldown(impl.subactions[0])
 	}
 	return false
 }
 
-// A major cooldown, or a group whose first ready action is one. canBeMajorCooldown must accept every action
-// this accepts.
+// A major cooldown, a group whose first ready action is one, or a sequence whose next step is one; a Strict
+// Sequence asked here has not started, so its next step is its first. canBeMajorCooldown must accept every
+// action this accepts.
 func (apl *APLRotation) isMajorCooldown(sim *Simulation, action *APLAction) bool {
 	switch impl := action.impl.(type) {
 	case *APLActionAutocastOtherCooldowns:
@@ -697,6 +715,10 @@ func (apl *APLRotation) isMajorCooldown(sim *Simulation, action *APLAction) bool
 				return apl.isMajorCooldown(sim, groupAction)
 			}
 		}
+	case *APLActionSequence:
+		return impl.curIdx < len(impl.subactions) && apl.isMajorCooldown(sim, impl.subactions[impl.curIdx])
+	case *APLActionStrictSequence:
+		return apl.isMajorCooldown(sim, impl.subactions[0])
 	}
 	return false
 }

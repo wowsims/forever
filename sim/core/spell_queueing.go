@@ -12,6 +12,7 @@ type QueuedSpell struct {
 
 	channelAction *APLActionChannelSpell // The channel action that queued the spell, which its cast carries when it fires.
 	afterHardcast bool                   // Queued under a hardcast that holds the rotation, as the cast that follows it.
+	line          int                    // The priority list line the pick queued it from after a hardcast; -1 for a controlling action's step.
 	entryPath     string                 // The path of the APL entry that queued the spell, which its cast carries when it fires.
 
 	// Stores the time at which QueueSpell() was called to ensure that only one spell can be queued up per timestep
@@ -201,6 +202,7 @@ func (spell *Spell) castOrQueue(sim *Simulation, target *Unit, channelAction *AP
 		spell.Unit.QueueSpell(sim, spell, target, queueTime)
 		spell.Unit.QueuedSpell.channelAction = channelAction
 		spell.Unit.QueuedSpell.entryPath = entryPath
+		spell.Unit.QueuedSpell.line = -1
 		spell.Unit.QueuedSpell.afterHardcast = spell.Unit.hardcastHoldsRotation(sim)
 	} else {
 		// Fallback to make sure there is always log output
