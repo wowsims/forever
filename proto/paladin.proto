@@ -103,6 +103,8 @@ message RetributionPaladin {
 		PaladinSeal seal                    = 3; // When Unsealed Wrath is not talented, this is the seal being kept up.
 		int32 pull_range                    = 4; // Where the paladin stands at the pull, in yards. 0 is 25 yd, and below 11 is 11.
 		int32 delay_major_cds               = 5; // Seconds into the fight before the other cooldowns are cast.
+		int32 uw_soc_stacks					= 6; // Amount of stacks of Echo of Command to pool before swapping to Seal of Righteousness
+		int32 uw_sor_stacks					= 7; // Amount of stacks of Echo of Righteousness to pool before swapping to Seal of Command
 	}
 
 	message Options {
