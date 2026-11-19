@@ -752,8 +752,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 733.45203
-  tps: 546.60228
+  dps: 733.99787
+  tps: 546.98983
   hps: 46.2075
  }
 }
@@ -1424,8 +1424,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Satyr'sLash-17752"
  value: {
-  dps: 731.46417
-  tps: 545.15096
+  dps: 731.5853
+  tps: 545.23697
   hps: 46.12278
  }
 }

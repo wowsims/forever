@@ -1082,9 +1082,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 500.94884
-  tps: 1667.85707
-  dtps: 299.24516
+  dps: 500.61224
+  tps: 1667.95054
+  dtps: 298.45247
   hps: 42.68083
  }
 }
@@ -1235,10 +1235,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 497.50486
-  tps: 1661.33997
-  dtps: 302.66179
-  hps: 41.79972
+  dps: 494.0394
+  tps: 1650.4819
+  dtps: 302.48705
+  hps: 41.69806
  }
 }
 dps_results: {
@@ -1361,10 +1361,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-HanzoSword-8190"
  value: {
-  dps: 508.48706
-  tps: 1702.41282
-  dtps: 304.62522
-  hps: 46.34083
+  dps: 507.63665
+  tps: 1700.37704
+  dtps: 306.10794
+  hps: 46.37472
  }
 }
 dps_results: {
@@ -1820,8 +1820,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-PhantomBlade-7961"
  value: {
-  dps: 505.58532
-  tps: 1694.28411
+  dps: 505.69374
+  tps: 1694.6068
   dtps: 303.60889
   hps: 45.20556
  }

@@ -894,8 +894,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 456.75175
-  tps: 2299.71169
+  dps: 457.35272
+  tps: 2301.00377
   dtps: 393.22357
   hps: 84.35117
  }
@@ -1659,8 +1659,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Satyr'sLash-17752"
  value: {
-  dps: 451.38697
-  tps: 2275.22759
+  dps: 451.53741
+  tps: 2275.55103
   dtps: 391.89679
   hps: 83.39811
  }

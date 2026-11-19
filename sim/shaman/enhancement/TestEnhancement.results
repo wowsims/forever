@@ -74,10 +74,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Angerforge'sBattleAxe-11816"
  value: {
-  dps: 842.34709
-  tps: 875.28312
-  dtps: 7.30766
-  hps: 28.77167
+  dps: 838.66139
+  tps: 871.75431
+  dtps: 7.3338
+  hps: 28.72083
  }
 }
 dps_results: {

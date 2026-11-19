@@ -74,8 +74,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Angerforge'sBattleAxe-11816"
  value: {
-  dps: 490.60818
-  tps: 420.09079
+  dps: 493.45958
+  tps: 422.41101
   dtps: 2.97628
   hps: 28.63611
  }
@@ -965,8 +965,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 528.65547
-  tps: 457.39625
+  dps: 528.85969
+  tps: 457.46249
   dtps: 2.94293
   hps: 44.85194
  }
@@ -1073,10 +1073,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 522.84623
-  tps: 453.84347
+  dps: 524.78182
+  tps: 455.00047
   dtps: 2.94293
-  hps: 44.36056
+  hps: 44.41139
  }
 }
 dps_results: {
@@ -1190,10 +1190,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-HanzoSword-8190"
  value: {
-  dps: 513.01928
-  tps: 445.69352
+  dps: 518.19315
+  tps: 450.61289
   dtps: 2.94293
-  hps: 48.42722
+  hps: 48.6475
  }
 }
 dps_results: {
@@ -1595,8 +1595,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-PhantomBlade-7961"
  value: {
-  dps: 514.15364
-  tps: 447.19636
+  dps: 514.24059
+  tps: 447.26486
   dtps: 2.94293
   hps: 47.25806
  }

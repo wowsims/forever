@@ -856,8 +856,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 792.06292
-  tps: 562.36467
+  dps: 792.74195
+  tps: 562.84678
   hps: 54.595
  }
 }
@@ -952,9 +952,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 775.039
-  tps: 550.27769
-  hps: 53.07
+  dps: 773.35124
+  tps: 549.07938
+  hps: 53.12083
  }
 }
 dps_results: {
@@ -1048,9 +1048,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-HanzoSword-8190"
  value: {
-  dps: 788.30048
-  tps: 559.69334
-  hps: 60.44083
+  dps: 790.95212
+  tps: 561.576
+  hps: 60.49167
  }
 }
 dps_results: {
@@ -1392,8 +1392,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-PhantomBlade-7961"
  value: {
-  dps: 781.66383
-  tps: 554.98132
+  dps: 781.72212
+  tps: 555.0227
   hps: 59.06833
  }
 }
@@ -1512,8 +1512,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Satyr'sLash-17752"
  value: {
-  dps: 798.13598
-  tps: 566.67655
+  dps: 798.14412
+  tps: 566.68233
   hps: 57.62806
  }
 }

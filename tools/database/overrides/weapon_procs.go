@@ -493,13 +493,20 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blunderflame Bone Bow: no proc row; a log fit not yet validated (EV-0146)",
 		Source:  "observed",
 	},
-	// Measured the same way with the reports up to 2026-11-18 added, a melee ability that deals no direct
-	// damage counted as a hit when it lands (EV-0153).
+	// Measured the same way with the reports up to 2026-11-18 added and paladin wearers left out, a melee
+	// ability that deals no direct damage counted as a hit when it lands (EV-0153).
 	{
 		ItemID:  869,
 		SpellID: 13752,
 		PPM:     2.6,
 		Reason:  "Dazzling Longsword: column reads 101",
+		Source:  "EV-0153",
+	},
+	{
+		ItemID:  1481,
+		SpellID: 1292158,
+		PPM:     2.05,
+		Reason:  "Grimclaw: no proc row",
 		Source:  "EV-0153",
 	},
 	{
@@ -514,13 +521,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 29638,
 		PPM:     5.1,
 		Reason:  "Bow of Searing Arrows: no proc row",
-		Source:  "EV-0153",
-	},
-	{
-		ItemID:  2915,
-		SpellID: 16415,
-		PPM:     0.95,
-		Reason:  "Taran Icebreaker: column reads 101",
 		Source:  "EV-0153",
 	},
 	{
@@ -540,43 +540,36 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  6681,
 		SpellID: 1293183,
-		PPM:     3.45,
+		PPM:     3.2,
 		Reason:  "Thornspike: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  6909,
 		SpellID: 1292657,
-		PPM:     2.15,
+		PPM:     1.95,
 		Reason:  "Strike of the Hydra: column reads 101",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  7710,
 		SpellID: 1293482,
-		PPM:     2.15,
+		PPM:     2,
 		Reason:  "Loksey's Training Stick: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  7961,
 		SpellID: 9806,
-		PPM:     2,
+		PPM:     2.05,
 		Reason:  "Phantom Blade: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  8190,
 		SpellID: 16405,
-		PPM:     1,
-		Reason:  "Hanzo Sword: column reads 101; shares the trigger with The Needler",
-		Source:  "EV-0153",
-	},
-	{
-		ItemID:  8223,
-		SpellID: 10351,
 		PPM:     1.05,
-		Reason:  "Blade of the Basilisk: no proc row",
+		Reason:  "Hanzo Sword: column reads 101; shares the trigger with The Needler",
 		Source:  "EV-0153",
 	},
 	{
@@ -589,36 +582,29 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  9446,
 		SpellID: 1292851,
-		PPM:     3.95,
+		PPM:     3.9,
 		Reason:  "Electrocutioner Leg: no proc row",
+		Source:  "EV-0153",
+	},
+	{
+		ItemID:  9475,
+		SpellID: 18206,
+		PPM:     1.75,
+		Reason:  "Diabolic Skiver: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  10772,
 		SpellID: 18075,
-		PPM:     2.2,
+		PPM:     2.1,
 		Reason:  "Glutton's Cleaver: column reads 101",
-		Source:  "EV-0153",
-	},
-	{
-		ItemID:  10804,
-		SpellID: 18084,
-		PPM:     3.1,
-		Reason:  "Fist of the Damned: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  11121,
 		SpellID: 16408,
-		PPM:     3.05,
+		PPM:     2.9,
 		Reason:  "Darkwater Talwar: no proc row",
-		Source:  "EV-0153",
-	},
-	{
-		ItemID:  11816,
-		SpellID: 1300783,
-		PPM:     2.05,
-		Reason:  "Angerforge's Battle Axe: no proc row",
 		Source:  "EV-0153",
 	},
 	{
@@ -631,15 +617,8 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  13016,
 		SpellID: 13318,
-		PPM:     0.95,
+		PPM:     0.9,
 		Reason:  "Killmaim: column reads 101",
-		Source:  "EV-0153",
-	},
-	{
-		ItemID:  13953,
-		SpellID: 1293654,
-		PPM:     1.55,
-		Reason:  "Silent Fang: no proc row; shares the trigger with Fight Club",
 		Source:  "EV-0153",
 	},
 	{
@@ -652,14 +631,14 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  17752,
 		SpellID: 1292155,
-		PPM:     1.95,
+		PPM:     2,
 		Reason:  "Satyr's Lash: no proc row; shares the trigger with Black Malice",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  272999,
 		SpellID: 1291551,
-		PPM:     3.25,
+		PPM:     3.3,
 		Reason:  "Barbaric Crossbow: no proc row",
 		Source:  "EV-0153",
 	},
@@ -673,7 +652,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  279895,
 		SpellID: 1322295,
-		PPM:     2.85,
+		PPM:     2.8,
 		Reason:  "Ironforge Greathammer: no proc row",
 		Source:  "EV-0153",
 	},
@@ -688,13 +667,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  1481,
-		SpellID: 1292158,
-		PPM:     1.9,
-		Reason:  "Grimclaw: no proc row; a log fit not yet validated (EV-0153)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  1982,
 		SpellID: 18211,
 		PPM:     2.1,
@@ -704,8 +676,15 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  2000,
 		SpellID: 18091,
-		PPM:     1,
+		PPM:     0.95,
 		Reason:  "Archeus: column reads 101; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  2915,
+		SpellID: 16415,
+		PPM:     0.95,
+		Reason:  "Taran Icebreaker: column reads 101; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	{
@@ -716,17 +695,31 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
+		ItemID:  8223,
+		SpellID: 10351,
+		PPM:     1.1,
+		Reason:  "Blade of the Basilisk: no proc row; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
 		ItemID:  8225,
 		SpellID: 13530,
-		PPM:     1.9,
+		PPM:     2,
 		Reason:  "Tainted Pierce: no proc row; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	{
-		ItemID:  9475,
-		SpellID: 18206,
-		PPM:     2.1,
-		Reason:  "Diabolic Skiver: no proc row; a log fit not yet validated (EV-0153)",
+		ItemID:  10804,
+		SpellID: 18084,
+		PPM:     3.35,
+		Reason:  "Fist of the Damned: no proc row; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  11816,
+		SpellID: 1300783,
+		PPM:     2,
+		Reason:  "Angerforge's Battle Axe: no proc row; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	{
@@ -739,8 +732,15 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  13218,
 		SpellID: 17331,
-		PPM:     1,
+		PPM:     0.95,
 		Reason:  "Fang of the Crystal Spider: no proc row; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  13953,
+		SpellID: 1293654,
+		PPM:     1.45,
+		Reason:  "Silent Fang: no proc row; shares the trigger with Fight Club; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	// Fitted the same way from too few wearers or too wide an interval to call final (EV-0136). The

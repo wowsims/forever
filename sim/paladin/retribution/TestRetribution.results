@@ -65,10 +65,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Angerforge'sBattleAxe-11816"
  value: {
-  dps: 820.3149
-  tps: 674.49566
-  dtps: 7.28811
-  hps: 29.29949
+  dps: 819.17466
+  tps: 673.1965
+  dtps: 6.70502
+  hps: 29.18257
  }
 }
 dps_results: {
@@ -524,10 +524,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DiabolicSkiver-9475"
  value: {
-  dps: 820.71197
-  tps: 672.89473
-  dtps: 6.06297
-  hps: 27.83803
+  dps: 815.28154
+  tps: 668.83733
+  dtps: 6.13075
+  hps: 27.97596
  }
 }
 dps_results: {
