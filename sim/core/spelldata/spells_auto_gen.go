@@ -13629,11 +13629,11 @@ var generatedSpells = []Spell{
 			{ID: 693152, SpellID: 16413, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 77, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 693153, SpellID: 16413, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 2, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
-	{ID: 16414, Name: "Drain Life", School: 32, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 45, MaxRange: 40, DefenseType: 1,
+	{ID: 16414, Name: "Drain Life", School: 32, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 45, MaxRange: 40, DefenseType: 1, VersusEffectIndex: 1, VersusMobTypes: []int32{8},
 		Effects: []Effect{
 			{ID: 693154, SpellID: 16414, Type: dbcenums.E_HEALTH_LEECH, BasePoints: 49, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1325773, SpellID: 16414, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against MobTypeUndead -- Drain Life: 'Deals $s2 times as much damage to Undead'
 	{ID: 16415, Name: "Fireball", School: 4, Attr: [17]uint32{0: 0x10000, 8: 0x200, 15: 0x2000}, SpellLevel: 60, CastTimeMs: 2000, DurationMs: 8000, MaxRange: 35, DefenseType: 1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 3}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 693820, SpellID: 16415, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 300, Variance: 0.20000000298023224, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},

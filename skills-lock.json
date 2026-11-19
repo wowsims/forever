@@ -55,7 +55,7 @@
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "e61300f0b7f87bb08c98914acd95a98ff05563d9777d1ac40c22eb153111ef07"
+      "computedHash": "142a21933b97de3d513a76373d45dd5e0ea8120b64a6ffa1fea01933b52bd422"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",

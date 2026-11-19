@@ -19,12 +19,15 @@ proc within 50 ms count once, unless the same spell, target and kind repeat (two
 that grants a damage shield counts once per apply or refresh of the shield. A target is keyed on its NPC id and its
 instance together, so two mobs of one NPC id stay apart.
 
-The rolling hits are the ones the class census (EV-0154) finds rolling a weapon proc, each on its own hand's weapon:
+The rolling hits are the ones the class census (EV-0155) finds rolling a weapon proc, each on its own hand's weapon:
 
 - landed white swings;
-- the main hand's melee specials (Sinister Strike, Eviscerate, Hemorrhage, Kick, Rupture, Revenge, Cleave, Heroic
-  Strike, Overpower, Slam, Hamstring, Stormstrike, Raptor Strike, Wing Clip), and the landings of Sunder Armor and Rend,
-  which log a debuff and no damage;
+- every other landed hit on the melee table the wearer casts, on the main hand: the specials the census reads
+  (Sinister Strike, Eviscerate, Hemorrhage, Kick, Revenge, Cleave, Heroic Strike, Overpower, Slam, Hamstring,
+  Stormstrike, Raptor Strike, Wing Clip) and those it reads on thin samples or does not settle (Backstab, Mortal Strike,
+  Bloodthirst, Gouge, Riposte, a two-hander's Whirlwind);
+- every landing of a melee-table ability that logs a debuff and no damage, on the main hand (Sunder Armor, Rend,
+  Rupture, Cheap Shot, Kidney Shot, Expose Armor, Disarm, Concussion Blow);
 - Windfury Weapon and Windfury Totem strikes, once each;
 - a hunter's Multi-Shot, Arcane Shot and Aimed Shot, and the landings of Serpent Sting, Concussive Shot and Scorpid
   Sting, on the ranged weapon;
@@ -36,7 +39,7 @@ The rolling hits are the ones the class census (EV-0154) finds rolling a weapon 
 Sap, Death Mark, Shield Slam, Shield Bash, Shank, Thunder Clap, Volley, periodic ticks, damage shields, Deep Wounds,
 Sweeping Strikes hits, poisons, imbue strikes, pets and spells roll nothing.
 
-Execute and Judgement of Command roll twice, and Mongoose Bite and Mocking Blow are suspected to (EV-0154). These
+Execute and Judgement of Command roll twice, and Mongoose Bite and Mocking Blow are suspected to (EV-0155). These
 two-roll abilities are left out: their hits count as no roll, and every proc from 20 ms before one of them to 50 ms
 after it is dropped.
 
@@ -47,7 +50,8 @@ several were due is dropped as the item swapped away, from the hits and from the
 
 The rate over all hits is the procs over the sum of each rolling hit's weapon base speed over 60. Its interval is 2,000
 bootstrap draws of whole wearers; under 5 wearers the section gives a Poisson interval as well. Hits split between the
-hands are fractional, so the class rows are rounded.
+hands are fractional, so the class rows are rounded. A class row counts every wearer of the class, those with no rolling
+hit included; a section's wearers count those with a rolling hit.
 
 Three rates over lone units check it. A lone unit is a hit with no other event of the wearer (any target, ability, tick,
 debuff or heal) within the proc's window before or after it, and a proc in that window counts once.
@@ -55,8 +59,9 @@ debuff or heal) within the proc's window before or after it, and a proc in that 
 - One-hand white: lone landed white swings of wearers with nothing in the off hand. Dual wielders' lone swings are split
   between the hands by timing and damage; about 10% get the wrong hand, so the dual-wield white rate reads low and is
   listed but never compared. For a ranged weapon, lone Auto Shots take the place of white swings.
-- Specials: the melee specials listed above and Rend's landing, on the main hand; Multi-Shot, Arcane Shot, Aimed Shot
-  and Serpent Sting's landing on a ranged weapon. Sunder Armor and Windfury strikes are not in it.
+- Specials: the specials the census reads, listed above, and Rend's landing, on the main hand; Multi-Shot, Arcane Shot,
+  Aimed Shot and Serpent Sting's landing on a ranged weapon. The other melee hits, Sunder Armor and Windfury strikes are
+  not in it.
 - Two-roll abilities, priced as one roll: a true double roll reads about twice the white rate. This checks the roll
   table and sets no rate.
 
@@ -65,10 +70,12 @@ after its flight, and its window is the 2nd to 98th percentile of the delay afte
 
 The rate is the rate over all hits, rounded to 0.05, where the one-hand white rate or the specials rate, each with 50 or
 more procs, agrees with it (their intervals overlap). Where they disagree, the rate is open, and the override row keeps
-its rate. A stacking debuff refreshed at full stacks often logs nothing, and a proc whose travel window passes 400 ms or
-reaches past the isolation has no usable lone unit: these take the rate over all hits as it stands, and so does a weapon
-whose lone-unit rates stay under 50 procs. A rate is measured when 5 or more wearers of more than one class give it and
-its interval lies within 10% of the read either side, and observed otherwise.
+its rate from the count on the reports up to 2026-11-18 by EV-0136's method, with Sunder Armor and Rend landings counted
+and paladins left out; the weapon's section gives that count. A stacking debuff refreshed at full stacks often logs
+nothing, and a proc whose travel window passes 400 ms or reaches past the isolation has no usable lone unit: these take
+the rate over all hits as it stands, and so does a weapon whose lone-unit rates stay under 50 procs. A rate is measured
+when 5 or more wearers of more than one class give it and its interval lies within 10% of the read either side, and
+observed otherwise.
 
 Scripts and inputs, in `forever-ppm-review-1108/final-1119`: `analyze.py` for the rates, `MEASUREMENT.md` for the
 method, and `targets_final.json` for each weapon's rate and call.
@@ -76,7 +83,7 @@ method, and `targets_final.json` for each weapon's rate and call.
 ## Rates
 
 Rate is the override row's rate, which an open weapon keeps. The one-hand white and specials columns give the read and,
-in brackets, the procs; Was is the row's rate before this count.
+in parentheses, the procs; Was is the row's rate before this count.
 
 | Weapon                     |   Item | Rate | Call     | All hits [95%]    |     Procs / hits | Wearers | One-hand white | Specials     |  Was |
 | -------------------------- | -----: | ---: | -------- | ----------------- | ---------------: | ------: | -------------- | ------------ | ---: |
@@ -129,12 +136,11 @@ in brackets, the procs; Was is the row's rate before this count.
 ## Angerforge's Battle Axe (item 11816, spell 1300783): open, the row keeps 2
 
 1,084 procs on 12,689 rolling hits, 14 wearers, 14 runs, in the main hand: all hits 1.97 [1.90, 2.05]. Open: the
-one-hand white swings read 1.62 [1.35, 1.89], below all hits, and the specials, at 1.73 on 27 procs, are too few to
-settle it. One-hand white: 1.62 [1.35, 1.89], 298 procs on 4,236 lone units, 14 wearers. Specials: 1.73 [0.00, 2.08], 27
-procs on 361 lone units, 11 wearers. Two-roll abilities, priced as one roll: 0.00, 0 procs on 3 lone units. Direct: the
-proc logs within [-10, 100] ms of its hit (median 0 ms, 98th percentile 0 ms, 257 isolated hits). The row keeps 2 from
-the earlier count on the reports up to 2026-11-18, by EV-0136's method with Sunder Armor and Rend landings counted and
-paladins left out: 2.01 [1.91, 2.12], 697 procs on 8,001 hits, 10 wearers. Reports from 2026-11-10 to 2026-11-19.
+one-hand white swings read below all hits, and the specials, on 27 procs, are too few to settle it. One-hand white: 1.62
+[1.35, 1.89], 298 procs on 4,236 lone units, 14 wearers. Specials: 1.73 [0.00, 2.08], 27 procs on 361 lone units, 11
+wearers. Two-roll abilities, priced as one roll: 0.00, 0 procs on 3 lone units. Direct: window [-10, 100] ms, median 0
+ms, 98th percentile 0 ms, 257 isolated hits. The row keeps 2 from the earlier count: 2.01 [1.91, 2.12], 697 procs on
+8,001 hits, 10 wearers. Reports from 2026-11-10 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -151,9 +157,8 @@ HZpdWaVtA8TM6bqX 1; Kfk36GzDwnPVbHaN 1-18; cgmhtvNdTGCn7f6L 73-84; dnDg7j9kRw6Wt
 226 procs on 4,475 rolling hits, 27 wearers, 30 runs, in the main hand: all hits 0.92 [0.79, 1.05]. The rate is all
 hits, which the one-hand white rate agrees with. Observed: its interval reaches further than 10% from the read. One-hand
 white: 0.80 [0.63, 0.99], 69 procs on 1,564 lone units, 27 wearers. Specials: 0.83 [0.58, 1.17], 32 procs on 701 lone
-units, 23 wearers. Two-roll abilities, priced as one roll: 1.62, 8 procs on 90 lone units. Direct: the proc logs within
-[-10, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 108 isolated hits). The row had 0.95 from the count on the
-reports up to 2026-11-18. Reports from 2026-11-10 to 2026-11-19.
+units, 23 wearers. Two-roll abilities, priced as one roll: 1.62, 8 procs on 90 lone units. Direct: window [-10, 100] ms,
+median 0 ms, 98th percentile 1 ms, 108 isolated hits. Reports from 2026-11-10 to 2026-11-19.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -171,11 +176,9 @@ z1APqCWaMYvxbkd7 1-3; z4WhK2CnLbaHgNVQ 1-6.
 ## Barbaric Crossbow (item 272999, spell 1291551): 2.9, measured
 
 4,128 procs on 42,797 rolling hits, 58 wearers, 72 runs, in the ranged slot: all hits 2.89 [2.83, 2.96]. The rate is all
-hits, which the specials rate and the lone Auto Shot rate agree with. Measured: 58 wearers of 3 classes, and the
-interval lies within 10% of the read. Lone Auto Shots: 2.90 [2.78, 3.01], 2,035 procs on 21,088 lone units, 57 wearers.
-Specials: 3.04 [2.88, 3.22], 994 procs on 9,811 lone units, 44 wearers. Direct: the proc logs within [-10, 100] ms of
-its hit (median 19 ms, 98th percentile 44 ms, 2,400 isolated hits). The row had 3.3 from the count on the reports up to
-2026-11-18. Reports from 2026-11-07 to 2026-11-19.
+hits, which the specials rate and the lone Auto Shot rate agree with. Lone Auto Shots: 2.90 [2.78, 3.01], 2,035 procs on
+21,088 lone units, 57 wearers. Specials: 3.04 [2.88, 3.22], 994 procs on 9,811 lone units, 44 wearers. Direct: window
+[-10, 100] ms, median 19 ms, 98th percentile 44 ms, 2,400 isolated hits. Reports from 2026-11-07 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -204,9 +207,8 @@ wmT1zqYBat3fHDLy 1-5, 8-9; xrGFH2DzcNBZq3Cv 1-3; zcL8MvJnPXxYhNyC 1.
 157 procs on 4,564 rolling hits, 5 wearers, 5 runs, in the main hand: all hits 1.09 [0.94, 1.24]. The rate is all hits,
 which the one-hand white rate agrees with. Observed: every wearer is a warrior and its interval reaches further than 10%
 from the read. One-hand white: 1.14 [1.00, 1.23], 55 procs on 1,529 lone units, 5 wearers. Specials: 1.00 [0.79, 1.25],
-22 procs on 698 lone units, 5 wearers. Direct: the proc logs within [-11, 100] ms of its hit (median 0 ms, 98th
-percentile 0 ms, 56 isolated hits). The row had 1.1 from the count on the reports up to 2026-11-18. Reports from
-2026-11-16 to 2026-11-18.
+22 procs on 698 lone units, 5 wearers. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 0 ms, 56 isolated
+hits. Reports from 2026-11-16 to 2026-11-18.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -220,11 +222,10 @@ xH8TDPQKb6mYragf 1.
 491 procs on 12,461 rolling hits, 31 wearers, 32 runs, in the main hand: all hits 0.99 [0.89, 1.10]. The rate is all
 hits, which the one-hand white rate and the specials rate agree with. Observed: its interval reaches further than 10%
 from the read. One-hand white: 0.92 [0.76, 1.14], 69 procs on 1,868 lone units, 11 wearers. Dual-wield white: 0.76
-[0.53, 1.12], 64 procs on 2,103 lone units, 18 wearers, hand labels about 90% right. Specials: 0.87 [0.61, 1.14], 52
-procs on 1,498 lone units, 23 wearers. Two-roll abilities, priced as one roll: 1.54, 11 procs on 178 lone units. Direct:
-the proc logs within [-11, 100] ms of its hit (median 0 ms, 98th percentile 0 ms, 166 isolated hits). Dropping the
-swapped stretches (100 active minutes, 21% of hits, in 5 runs) moved the read from 0.78 to 0.99. The row had 1 from the
-count on the reports up to 2026-11-18. Reports from 2026-11-13 to 2026-11-18.
+[0.53, 1.12], 64 procs on 2,103 lone units, 18 wearers. Specials: 0.87 [0.61, 1.14], 52 procs on 1,498 lone units, 23
+wearers. Two-roll abilities, priced as one roll: 1.54, 11 procs on 178 lone units. Direct: window [-11, 100] ms, median
+0 ms, 98th percentile 0 ms, 166 isolated hits. Dropping the swapped stretches (100 active minutes, 21% of hits, in 5
+runs) moved the read from 0.78 to 0.99. Reports from 2026-11-13 to 2026-11-18.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -244,16 +245,14 @@ YhCcTtxfGJR82M7Q 1-11; ZAWJk6BdKhr9nC8T 1-6; ZyGV2gN1w6jc7zM9 1, 3-5, 7-18; f2zK
 ## Bloodrazor (item 809, spell 17504): open, the row keeps 0.9
 
 1,367 procs on 31,283 rolling hits, 16 wearers, 21 runs, in the main hand: all hits 0.97 [0.90, 1.04]. Open: the
-one-hand white swings read 1.16 [1.14, 1.17], above all hits, from 2 wearers, and the specials 0.78 [0.62, 0.91], below
-them. The specials' interval reaches 0.914 and all hits' starts at 0.897, so by the overlap rule alone the rate would be
-all hits. It stays open with the approved calls: the two lone-unit rates fall on either side of all hits, and the
-one-hand white rests on 2 wearers. One-hand white: 1.16 [1.14, 1.17], 104 procs on 1,992 lone units, 2 wearers.
-Dual-wield white: 0.65 [0.46, 0.82], 91 procs on 3,126 lone units, 14 wearers, hand labels about 90% right. Specials:
-0.78 [0.62, 0.91], 124 procs on 3,530 lone units, 16 wearers. Two-roll abilities, priced as one roll: 1.56, 14 procs on
-199 lone units. Direct: the proc logs within [-10, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 218 isolated
-hits). The row keeps 0.9 from the earlier count on the reports up to 2026-11-18, by EV-0136's method with Sunder Armor
-and Rend landings counted and paladins left out: 0.91 [0.81, 1.02], 1,310 procs on 31,842 hits, 15 wearers. Reports from
-2026-11-13 to 2026-11-19.
+one-hand white swings, from 2 wearers, read above all hits, and the specials below them. The specials' interval reaches
+0.914 and all hits' starts at 0.897, so by the overlap rule alone the rate would be all hits. It stays open with the
+approved calls: the two lone-unit rates fall on either side of all hits, and the one-hand white rests on 2 wearers.
+One-hand white: 1.16 [1.14, 1.17], 104 procs on 1,992 lone units, 2 wearers. Dual-wield white: 0.65 [0.46, 0.82], 91
+procs on 3,126 lone units, 14 wearers. Specials: 0.78 [0.62, 0.91], 124 procs on 3,530 lone units, 16 wearers. Two-roll
+abilities, priced as one roll: 1.56, 14 procs on 199 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th
+percentile 1 ms, 218 isolated hits. The row keeps 0.9 from the earlier count: 0.91 [0.81, 1.02], 1,310 procs on 31,842
+hits, 15 wearers. Reports from 2026-11-13 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -269,10 +268,9 @@ vBWX7HQn9zpTMGd8 13-22; vyQrDZN7RX82ApnP 1-3.
 ## Bow of Searing Arrows (item 2825, spell 29638): 4.75, measured
 
 2,892 procs on 13,498 rolling hits, 19 wearers, 20 runs, in the ranged slot: all hits 4.76 [4.57, 4.97]. No lone-unit
-rate applies, since its travel reaches past the isolation: the rate is all hits. Measured: 19 wearers of 2 classes, and
-the interval lies within 10% of the read. Specials: none. Travel time: the proc lands a median 553 ms after its hit,
-98th percentile 958 ms, which reaches the 1,000 ms isolation, so no window was measured (674 isolated procs). The row
-had 5.1 from the count on the reports up to 2026-11-18. Reports from 2026-11-13 to 2026-11-19.
+rate applies, since its travel reaches past the isolation: the rate is all hits. Specials: none. Travel time: the proc
+lands a median 553 ms after its hit, 98th percentile 958 ms, which reaches the 1,000 ms isolation, so no window was
+measured (674 isolated procs). Reports from 2026-11-13 to 2026-11-19.
 
 | Class  | Wearers | Procs |   Hits |   PPM |
 | ------ | ------: | ----: | -----: | ----: |
@@ -288,11 +286,10 @@ tk86znZXxMCdwBKb 2-18.
 ## Burning War Axe (item 2299, spell 18199): 0.95, measured
 
 654 procs on 12,373 rolling hits, 25 wearers, 25 runs, in the main hand: all hits 0.96 [0.90, 1.03]. The rate is all
-hits, which the one-hand white rate agrees with. Measured: 25 wearers of 3 classes, and the interval lies within 10% of
-the read. One-hand white: 0.93 [0.79, 1.08], 168 procs on 3,298 lone units, 25 wearers. Specials: 1.05 [0.33, 1.26], 25
-procs on 431 lone units, 20 wearers. Two-roll abilities, priced as one roll: 1.49, 15 procs on 183 lone units. Direct:
-the proc logs within [-10, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 159 isolated hits). The row had 0.95
-from the count on the reports up to 2026-11-18. Reports from 2026-11-13 to 2026-11-19.
+hits, which the one-hand white rate agrees with. One-hand white: 0.93 [0.79, 1.08], 168 procs on 3,298 lone units, 25
+wearers. Specials: 1.05 [0.33, 1.26], 25 procs on 431 lone units, 20 wearers. Two-roll abilities, priced as one roll:
+1.49, 15 procs on 183 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 159 isolated hits.
+Reports from 2026-11-13 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -310,12 +307,10 @@ rMyzaJhG4k8wHPj6 1-10; ryqgQphLxMBz4TmH 1-4; t6HbjRZmkyx3pQwK 1-14.
 ## Coldrage Dagger (item 10761, spell 1293790): 2.95, measured
 
 5,161 procs on 70,540 rolling hits, 58 wearers, 64 runs, in the main hand or the off hand: all hits 2.93 [2.83, 3.02].
-The rate is all hits, which the one-hand white rate and the specials rate agree with. Measured: 58 wearers of 3 classes,
-and the interval lies within 10% of the read. One-hand white: 2.59 [1.92, 3.55], 62 procs on 957 lone units, 2 wearers.
-Dual-wield white: 2.53 [2.29, 2.74], 900 procs on 14,208 lone units, 55 wearers, hand labels about 90% right. Specials:
-2.53 [2.03, 2.96], 94 procs on 1,486 lone units, 18 wearers. Travel time: the proc lands a median 100 ms after its hit,
-98th percentile 257 ms, window [41, 267] ms (70 isolated hits). The row had 2.85 from EV-0136. Reports from 2026-11-14
-to 2026-11-19.
+The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 2.59 [1.92, 3.55],
+62 procs on 957 lone units, 2 wearers. Dual-wield white: 2.53 [2.29, 2.74], 900 procs on 14,208 lone units, 55 wearers.
+Specials: 2.53 [2.03, 2.96], 94 procs on 1,486 lone units, 18 wearers. Travel time: the proc lands a median 100 ms after
+its hit, 98th percentile 257 ms, window [41, 267] ms (70 isolated hits). Reports from 2026-11-14 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -340,12 +335,11 @@ tyFZPdH39kGq21An 3-25; w6J3Ykh4cWzq7j8L 1; x3bWXZa1KDCmFvtn 1; yjqVPg81hM6TCW97 
 ## Cursed Felblade (item 14145, spell 18381): 2, measured
 
 7,929 procs on 102,634 rolling hits, 112 wearers, 127 runs, in the main hand: all hits 2.02 [1.97, 2.06]. The rate is
-all hits, which the one-hand white rate and the specials rate agree with. Measured: 112 wearers of 4 classes, and the
-interval lies within 10% of the read. One-hand white: 2.00 [1.91, 2.08], 2,519 procs on 32,823 lone units, 70 wearers.
-Dual-wield white: 1.83 [1.71, 1.95], 993 procs on 14,189 lone units, 41 wearers, hand labels about 90% right. Specials:
-1.98 [1.89, 2.07], 1,861 procs on 24,494 lone units, 110 wearers. Two-roll abilities, priced as one roll: 0.00, 0 procs
-on 5 lone units. Direct: the proc logs within [-10, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 3,915
-isolated hits). The row had 2 from the count on the reports up to 2026-11-18. Reports from 2026-11-05 to 2026-11-19.
+all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 2.00 [1.91, 2.08], 2,519 procs
+on 32,823 lone units, 70 wearers. Dual-wield white: 1.83 [1.71, 1.95], 993 procs on 14,189 lone units, 41 wearers.
+Specials: 1.98 [1.89, 2.07], 1,861 procs on 24,494 lone units, 110 wearers. Two-roll abilities, priced as one roll:
+0.00, 0 procs on 5 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 3,915 isolated hits.
+Reports from 2026-11-05 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -384,13 +378,11 @@ zk682jCMJ4AdKfV9 1-2.
 ## Darkwater Talwar (item 11121, spell 16408): 2.9, measured
 
 13,047 procs on 122,053 rolling hits, 138 wearers, 154 runs, in the main hand: all hits 2.92 [2.85, 2.98]. No lone-unit
-rate applies, since its travel window passes 400 ms: the rate is all hits. Measured: 138 wearers of 4 classes, and the
-interval lies within 10% of the read. One-hand white: 2.95 [2.71, 3.16], 685 procs on 6,343 lone units, 51 wearers.
-Dual-wield white: 2.50 [2.23, 2.74], 549 procs on 5,990 lone units, 79 wearers, hand labels about 90% right. Specials:
-2.67 [2.48, 2.87], 583 procs on 5,962 lone units, 129 wearers. Two-roll abilities, priced as one roll: 2.85, 19 procs on
-182 lone units. Travel time: the proc lands a median 146 ms after its hit, 98th percentile 601 ms, window [39, 611] ms
-(701 isolated hits). The row had 2.9 from the count on the reports up to 2026-11-18. Reports from 2026-11-07 to
-2026-11-19.
+rate applies, since its travel window passes 400 ms: the rate is all hits. One-hand white: 2.95 [2.71, 3.16], 685 procs
+on 6,343 lone units, 51 wearers. Dual-wield white: 2.50 [2.23, 2.74], 549 procs on 5,990 lone units, 79 wearers.
+Specials: 2.67 [2.48, 2.87], 583 procs on 5,962 lone units, 129 wearers. Two-roll abilities, priced as one roll: 2.85,
+19 procs on 182 lone units. Travel time: the proc lands a median 146 ms after its hit, 98th percentile 601 ms, window
+[39, 611] ms (701 isolated hits). Reports from 2026-11-07 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -434,12 +426,11 @@ zq6DmwtPJkNZy9KL 1-9.
 ## Dazzling Longsword (item 869, spell 13752): 2.65, measured
 
 4,574 procs on 39,803 rolling hits, 41 wearers, 41 runs, in the main hand: all hits 2.65 [2.52, 2.78]. The rate is all
-hits, which the one-hand white rate and the specials rate agree with. Measured: 41 wearers of 3 classes, and the
-interval lies within 10% of the read. One-hand white: 2.45 [2.02, 2.95], 154 procs on 1,453 lone units, 6 wearers.
-Dual-wield white: 2.13 [1.90, 2.35], 588 procs on 6,360 lone units, 35 wearers, hand labels about 90% right. Specials:
+hits, which the one-hand white rate and the specials rate agree with. One-hand white: 2.45 [2.02, 2.95], 154 procs on
+1,453 lone units, 6 wearers. Dual-wield white: 2.13 [1.90, 2.35], 588 procs on 6,360 lone units, 35 wearers. Specials:
 2.63 [2.43, 2.81], 728 procs on 6,379 lone units, 40 wearers. Two-roll abilities, priced as one roll: 3.10, 27 procs on
-201 lone units. Direct: the proc logs within [-10, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 1,030 isolated
-hits). The row had 2.6 from the count on the reports up to 2026-11-18. Reports from 2026-11-09 to 2026-11-19.
+201 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,030 isolated hits. Reports from
+2026-11-09 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -462,9 +453,8 @@ pKj3bDrf1h2qtNMF 9-15; qW3KvYDpw6ARxZbc 1-7; tkQKL9bGT6JVR3na 14-16; xM9bRGyajmB
 867 procs on 13,701 rolling hits, 6 wearers, 9 runs, in the main hand: all hits 1.05 [0.96, 1.12]. The rate is all hits,
 which the one-hand white rate agrees with. Observed: every wearer is a warrior. One-hand white: 0.89 [0.67, 0.98], 121
 procs on 2,277 lone units, 6 wearers. Specials: 1.06 [0.64, 2.26], 39 procs on 616 lone units, 5 wearers. Two-roll
-abilities, priced as one roll: 2.01, 91 procs on 753 lone units. Direct: the proc logs within [-20, 100] ms of its hit
-(median 0 ms, 98th percentile 0 ms, 184 isolated hits). The row had 1.2 from EV-0132 and EV-0136. Reports from
-2026-11-13 to 2026-11-18.
+abilities, priced as one roll: 2.01, 91 procs on 753 lone units. Direct: window [-20, 100] ms, median 0 ms, 98th
+percentile 0 ms, 184 isolated hits. Reports from 2026-11-13 to 2026-11-18.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -476,12 +466,10 @@ fdj2MNckqQ3YDHmR 1-2; gcBkwTfAr76pHzba 1-3, 5; nX1qbatTzGZ3CAwB 1, 3-7; nhtYVjb7
 ## Diabolic Skiver (item 9475, spell 18206): 1.75, measured
 
 486 procs on 5,678 rolling hits, 16 wearers, 17 runs, in the main hand: all hits 1.77 [1.61, 1.92]. The rate is all
-hits, which the one-hand white rate and the specials rate agree with. Measured: 16 wearers of 2 classes, and the
-interval lies within 10% of the read. One-hand white: 1.89 [1.55, 2.27], 160 procs on 1,748 lone units, 16 wearers.
-Specials: 1.79 [1.32, 2.09], 55 procs on 637 lone units, 14 wearers. Two-roll abilities, priced as one roll: 1.22, 4
-procs on 68 lone units. Direct: the proc logs within [-11, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 198
-isolated hits). Left out: 29 of 46 runs in Cat or Bear Form. The row had 1.75 from the count on the reports up to
-2026-11-18. Reports from 2026-11-10 to 2026-11-19.
+hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.89 [1.55, 2.27], 160 procs on
+1,748 lone units, 16 wearers. Specials: 1.79 [1.32, 2.09], 55 procs on 637 lone units, 14 wearers. Two-roll abilities,
+priced as one roll: 1.22, 4 procs on 68 lone units. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 198
+isolated hits. Left out: 29 of 46 runs in Cat or Bear Form. Reports from 2026-11-10 to 2026-11-19.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -496,13 +484,11 @@ tk86znZXxMCdwBKb 18; xwrkGVNA2Z7Hq4fW 1; zTbHr3BPvKxRCMZg 9.
 ## Electrocutioner Leg (item 9446, spell 1292851): 3.9, measured
 
 32,654 procs on 295,534 rolling hits, 207 wearers, 250 runs, in the main hand: all hits 3.90 [3.86, 3.94]. The rate is
-all hits, which the one-hand white rate and the specials rate agree with. Measured: 207 wearers of 3 classes, and the
-interval lies within 10% of the read. One-hand white: 3.89 [3.80, 3.98], 7,740 procs on 70,167 lone units, 119 wearers.
-Dual-wield white: 3.25 [2.96, 3.50], 2,444 procs on 26,567 lone units, 88 wearers, hand labels about 90% right.
+all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 3.89 [3.80, 3.98], 7,740 procs
+on 70,167 lone units, 119 wearers. Dual-wield white: 3.25 [2.96, 3.50], 2,444 procs on 26,567 lone units, 88 wearers.
 Specials: 3.80 [3.69, 3.91], 4,307 procs on 40,009 lone units, 204 wearers. Two-roll abilities, priced as one roll:
-5.40, 139 procs on 908 lone units. Direct: the proc logs within [-10, 100] ms of its hit (median 0 ms, 98th percentile 1
-ms, 10,318 isolated hits). The row had 3.9 from the count on the reports up to 2026-11-18. Reports from 2026-11-07 to
-2026-11-19.
+5.40, 139 procs on 908 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 10,318 isolated
+hits. Reports from 2026-11-07 to 2026-11-19.
 
 | Class   | Wearers |  Procs |    Hits |  PPM |
 | ------- | ------: | -----: | ------: | ---: |
@@ -567,11 +553,9 @@ z9mYPDLpcM81JCFA 1-3; zD9hTZPfwC38bgq1 1-2; ztamxJTvkp82GK6h 1-18.
 
 399 procs on 15,447 rolling hits, 13 wearers, 14 runs, in the main hand or the off hand: all hits 0.97 [0.89, 1.05].
 Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate, which
-stands. Measured: 13 wearers of 2 classes, and the interval lies within 10% of the read. One-hand white: none.
-Dual-wield white: 0.89 [0.71, 1.08], 101 procs on 4,258 lone units, 12 wearers, hand labels about 90% right. Specials:
+stands. One-hand white: none. Dual-wield white: 0.89 [0.71, 1.08], 101 procs on 4,258 lone units, 12 wearers. Specials:
 0.00, 0 procs on 34 lone units, 1 wearer. Travel time: the proc lands a median 97 ms after its hit, 98th percentile 237
-ms, window [22, 247] ms (95 isolated hits). The row had 0.95 from the count on the reports up to 2026-11-18. Reports
-from 2026-11-14 to 2026-11-18.
+ms, window [22, 247] ms (95 isolated hits). Reports from 2026-11-14 to 2026-11-18.
 
 | Class  | Wearers | Procs |   Hits |  PPM |
 | ------ | ------: | ----: | -----: | ---: |
@@ -588,10 +572,9 @@ y6D3jqgWt8TvpNYM 1.
 1,202 procs on 74,984 rolling hits, 21 wearers, 35 runs, in the main hand or the off hand: all hits 0.57 [0.50, 0.61].
 The rate is all hits, which the one-hand white rate agrees with. Observed: its interval reaches further than 10% from
 the read. One-hand white: 0.52 [0.38, 0.67], 56 procs on 3,765 lone units, 6 wearers. Dual-wield white: 0.45 [0.40,
-0.57], 205 procs on 16,228 lone units, 15 wearers, hand labels about 90% right. Specials: 0.67 [0.38, 1.06], 30 procs on
-1,588 lone units, 11 wearers. Two-roll abilities, priced as one roll: 2.52, 1 proc on 14 lone units. Direct: the proc
-logs within [-13, 100] ms of its hit (median 0 ms, 98th percentile 0 ms, 200 isolated hits). The row had 0.6 from the
-count on the reports up to 2026-11-18. Reports from 2026-11-15 to 2026-11-19.
+0.57], 205 procs on 16,228 lone units, 15 wearers. Specials: 0.67 [0.38, 1.06], 30 procs on 1,588 lone units, 11
+wearers. Two-roll abilities, priced as one roll: 2.52, 1 proc on 14 lone units. Direct: window [-13, 100] ms, median 0
+ms, 98th percentile 0 ms, 200 isolated hits. Reports from 2026-11-15 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -611,11 +594,10 @@ yPVkKpqtfJM27WFB 1-7; yfKb1MthLFDc4ANG 1-7.
 ## Fiery War Axe (item 870, spell 18796): 0.85, measured
 
 628 procs on 12,336 rolling hits, 14 wearers, 15 runs, in the main hand: all hits 0.85 [0.77, 0.91]. The rate is all
-hits, which the one-hand white rate agrees with. Measured: 14 wearers of 3 classes, and the interval lies within 10% of
-the read. One-hand white: 0.84 [0.72, 0.99], 130 procs on 2,582 lone units, 14 wearers. Specials: 0.59 [0.00, 0.83], 9
-procs on 255 lone units, 13 wearers. Two-roll abilities, priced as one roll: 0.66, 3 procs on 76 lone units. Direct: the
-proc logs within [-10, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 110 isolated hits). The row had 0.95, an
-observed fit from EV-0136. Reports from 2026-11-13 to 2026-11-18.
+hits, which the one-hand white rate agrees with. One-hand white: 0.84 [0.72, 0.99], 130 procs on 2,582 lone units, 14
+wearers. Specials: 0.59 [0.00, 0.83], 9 procs on 255 lone units, 13 wearers. Two-roll abilities, priced as one roll:
+0.66, 3 procs on 76 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 110 isolated hits.
+Reports from 2026-11-13 to 2026-11-18.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -631,12 +613,10 @@ zDKZYwnyML7WFHXB 1-6, 8-17.
 ## Fist of the Damned (item 10804, spell 18084): 3.1, measured
 
 3,168 procs on 32,374 rolling hits, 22 wearers, 25 runs, in the main hand or the off hand: all hits 3.09 [2.99, 3.20].
-The rate is all hits, which the one-hand white rate and the specials rate agree with. Measured: 22 wearers of 2 classes,
-and the interval lies within 10% of the read. One-hand white: 3.14 [2.90, 3.49], 764 procs on 7,675 lone units, 13
-wearers. Dual-wield white: 2.81 [2.59, 3.25], 298 procs on 3,347 lone units, 9 wearers, hand labels about 90% right.
-Specials: 3.02 [2.68, 3.39], 257 procs on 2,688 lone units, 14 wearers. Direct: the proc logs within [-10, 100] ms of
-its hit (median 0 ms, 98th percentile 1 ms, 856 isolated hits). The row had 3.35 from the count on the reports up to
-2026-11-18. Reports from 2026-11-13 to 2026-11-19.
+The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 3.14 [2.90, 3.49],
+764 procs on 7,675 lone units, 13 wearers. Dual-wield white: 2.81 [2.59, 3.25], 298 procs on 3,347 lone units, 9
+wearers. Specials: 3.02 [2.68, 3.39], 257 procs on 2,688 lone units, 14 wearers. Direct: window [-10, 100] ms, median 0
+ms, 98th percentile 1 ms, 856 isolated hits. Reports from 2026-11-13 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -653,12 +633,11 @@ y6D3jqgWt8TvpNYM 1; yYPpk4TqAhjX3xC8 12.
 ## Glutton's Cleaver (item 10772, spell 18075): 2, measured
 
 2,650 procs on 39,585 rolling hits, 47 wearers, 51 runs, in the main hand or the off hand: all hits 2.01 [1.94, 2.08].
-The rate is all hits, which the one-hand white rate and the specials rate agree with. Measured: 47 wearers of 4 classes,
-and the interval lies within 10% of the read. One-hand white: 2.04 [1.84, 2.23], 282 procs on 4,144 lone units, 12
-wearers. Dual-wield white: 1.66 [1.55, 1.78], 555 procs on 10,001 lone units, 34 wearers, hand labels about 90% right.
-Specials: 1.66 [1.27, 2.07], 78 procs on 1,406 lone units, 16 wearers. Two-roll abilities, priced as one roll: 4.83, 14
-procs on 87 lone units. Direct: the proc logs within [-11, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 704
-isolated hits). The row had 2.1 from the count on the reports up to 2026-11-18. Reports from 2026-11-10 to 2026-11-19.
+The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 2.04 [1.84, 2.23],
+282 procs on 4,144 lone units, 12 wearers. Dual-wield white: 1.66 [1.55, 1.78], 555 procs on 10,001 lone units, 34
+wearers. Specials: 1.66 [1.27, 2.07], 78 procs on 1,406 lone units, 16 wearers. Two-roll abilities, priced as one roll:
+4.83, 14 procs on 87 lone units. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 704 isolated hits.
+Reports from 2026-11-10 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -682,12 +661,11 @@ qnyc1zwaB4FrvM9x 1; rzvB21j7yD9hpaVF 7-20, 22-30; t681v9FWrLq4Tkxp 1-3, 5-7; wZG
 ## Grimclaw (item 1481, spell 1292158): 2.05, measured
 
 795 procs on 11,731 rolling hits, 15 wearers, 15 runs, in the main hand or the off hand: all hits 2.03 [1.90, 2.18]. The
-rate is all hits, which the one-hand white rate agrees with. Measured: 15 wearers of 3 classes, and the interval lies
-within 10% of the read. One-hand white: 2.24 [2.01, 2.39], 81 procs on 1,085 lone units, 3 wearers. Dual-wield white:
-1.83 [1.41, 2.14], 161 procs on 2,635 lone units, 12 wearers, hand labels about 90% right. Specials: 1.57 [1.34, 1.73],
-44 procs on 841 lone units, 5 wearers. Two-roll abilities, priced as one roll: 1.50, 2 procs on 40 lone units. Travel
-time: the proc lands a median 163 ms after its hit, 98th percentile 249 ms, window [72, 259] ms (36 isolated hits). The
-row had 2.05 from the count on the reports up to 2026-11-18. Reports from 2026-11-10 to 2026-11-18.
+rate is all hits, which the one-hand white rate agrees with. One-hand white: 2.24 [2.01, 2.39], 81 procs on 1,085 lone
+units, 3 wearers. Dual-wield white: 1.83 [1.41, 2.14], 161 procs on 2,635 lone units, 12 wearers. Specials: 1.57 [1.34,
+1.73], 44 procs on 841 lone units, 5 wearers. Two-roll abilities, priced as one roll: 1.50, 2 procs on 40 lone units.
+Travel time: the proc lands a median 163 ms after its hit, 98th percentile 249 ms, window [72, 259] ms (36 isolated
+hits). Reports from 2026-11-10 to 2026-11-18.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -705,10 +683,9 @@ KjLXqdCZANvQc9BT 1-3; Lcy3V1wHPpqZQAG7 2, 4-12; PJGwRWQYyA3nzXpv 1-12, 14-19; h9
 560 procs on 8,573 rolling hits, 7 wearers, 7 runs, in the main hand: all hits 1.87 [1.75, 1.98]. The rate is all hits,
 which the one-hand white rate and the specials rate agree with. Observed: every wearer is a warrior. One-hand white:
 2.01 [1.91, 2.11], 149 procs on 2,119 lone units, 5 wearers. Dual-wield white: 1.78 [1.46, 2.51], 37 procs on 593 lone
-units, 2 wearers, hand labels about 90% right. Specials: 1.84 [1.33, 2.23], 70 procs on 1,085 lone units, 7 wearers.
-Two-roll abilities, priced as one roll: 2.38, 11 procs on 132 lone units. Direct: the proc logs within [-10, 100] ms of
-its hit (median 0 ms, 98th percentile 1 ms, 186 isolated hits). The row had 2, an observed fit from EV-0136. Reports
-from 2026-11-14 to 2026-11-18.
+units, 2 wearers. Specials: 1.84 [1.33, 2.23], 70 procs on 1,085 lone units, 7 wearers. Two-roll abilities, priced as
+one roll: 2.38, 11 procs on 132 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 186
+isolated hits. Reports from 2026-11-14 to 2026-11-18.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -721,11 +698,9 @@ ZgTqAy2xaHXL8djt 1-3; dGXqkVhwT17nHfBc 1-2; ybFmNGwXcnBQW1rz 1-4.
 
 499 procs on 20,101 rolling hits, 17 wearers, 20 runs, in the main hand or the off hand: all hits 0.99 [0.91, 1.08].
 Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate, which
-stands. Measured: 17 wearers of 3 classes, and the interval lies within 10% of the read. One-hand white: 0.75, 10 procs
-on 536 lone units, 1 wearer. Dual-wield white: 0.98 [0.86, 1.12], 233 procs on 9,555 lone units, 16 wearers, hand labels
-about 90% right. Specials: 0.32, 1 proc on 126 lone units, 1 wearer. Direct: the proc logs within [-10, 100] ms of its
-hit (median 0 ms, 98th percentile 0 ms, 164 isolated hits). The row had 1.05 from the count on the reports up to
-2026-11-18. Reports from 2026-11-14 to 2026-11-18.
+stands. One-hand white: 0.75, 10 procs on 536 lone units, 1 wearer. Dual-wield white: 0.98 [0.86, 1.12], 233 procs on
+9,555 lone units, 16 wearers. Specials: 0.32, 1 proc on 126 lone units, 1 wearer. Direct: window [-10, 100] ms, median 0
+ms, 98th percentile 0 ms, 164 isolated hits. Reports from 2026-11-14 to 2026-11-18.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -742,12 +717,10 @@ zqpJDYHZC4Pa76bV 1-2.
 ## Iron Knuckles (item 2942, spell 13491): 2, measured
 
 374 procs on 6,648 rolling hits, 7 wearers, 8 runs, in the main hand or the off hand: all hits 1.99 [1.87, 2.07]. The
-rate is all hits, which the one-hand white rate agrees with. Measured: 7 wearers of 2 classes, and the interval lies
-within 10% of the read. One-hand white: 2.11 [1.83, 2.23], 151 procs on 2,531 lone units, 3 wearers. Dual-wield white:
-0.92 [0.57, 1.53], 23 procs on 886 lone units, 4 wearers, hand labels about 90% right. Specials: 1.70 [1.31, 2.16], 33
-procs on 685 lone units, 4 wearers. Direct: the proc logs within [-11, 100] ms of its hit (median 0 ms, 98th percentile
-0 ms, 140 isolated hits). The row had 2.05 from the count on the reports up to 2026-11-18. Reports from 2026-11-10 to
-2026-11-17.
+rate is all hits, which the one-hand white rate agrees with. One-hand white: 2.11 [1.83, 2.23], 151 procs on 2,531 lone
+units, 3 wearers. Dual-wield white: 0.92 [0.57, 1.53], 23 procs on 886 lone units, 4 wearers. Specials: 1.70 [1.31,
+2.16], 33 procs on 685 lone units, 4 wearers. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 0 ms, 140
+isolated hits. Reports from 2026-11-10 to 2026-11-17.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -760,12 +733,11 @@ DwWM9H3rpTnGPfbt 1-14; GRTmQn3VDpwZKbCA 1-6, 8; H3vdcCr6JX1gwYtq 1-3; ZPyMjD1FkV
 ## Ironforge Greathammer (item 279895, spell 1322295): 2.8, measured
 
 12,573 procs on 86,559 rolling hits, 227 wearers, 259 runs, in the main hand: all hits 2.81 [2.76, 2.86]. No lone-unit
-rate applies, since its travel window passes 400 ms: the rate is all hits. Measured: 227 wearers of 3 classes, and the
-interval lies within 10% of the read. One-hand white: 2.37 [2.24, 2.49], 2,491 procs on 20,325 lone units, 225 wearers.
-Specials: 2.76 [2.56, 2.96], 625 procs on 4,378 lone units, 60 wearers. Two-roll abilities, priced as one roll: 3.55, 9
-procs on 49 lone units. Travel time: the proc lands a median 137 ms after its hit, 98th percentile 601 ms, window [32,
-611] ms (2,203 isolated hits). Left out: 180 of 440 runs in Cat or Bear Form. The row had 2.8 from the count on the
-reports up to 2026-11-18. Reports from 2026-11-05 to 2026-11-19.
+rate applies, since its travel window passes 400 ms: the rate is all hits. One-hand white: 2.37 [2.24, 2.49], 2,491
+procs on 20,325 lone units, 225 wearers. Specials: 2.76 [2.56, 2.96], 625 procs on 4,378 lone units, 60 wearers.
+Two-roll abilities, priced as one roll: 3.55, 9 procs on 49 lone units. Travel time: the proc lands a median 137 ms
+after its hit, 98th percentile 601 ms, window [32, 611] ms (2,203 isolated hits). Left out: 180 of 440 runs in Cat or
+Bear Form. Reports from 2026-11-05 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -827,12 +799,11 @@ zr6Z1GFPkpwQVmX3 1-5; zyFZC9kAVDB3Mvj1 1-3.
 ## Killmaim (item 13016, spell 13318): open, the row keeps 0.9
 
 877 procs on 18,503 rolling hits, 39 wearers, 43 runs, in the main hand: all hits 0.89 [0.83, 0.95]. Open: the one-hand
-white swings read 0.70 [0.60, 0.79], below all hits, and the specials, at 0.92 on 35 procs, are too few to settle it.
-One-hand white: 0.70 [0.60, 0.79], 211 procs on 5,631 lone units, 39 wearers. Specials: 0.92 [0.62, 1.09], 35 procs on
-712 lone units, 24 wearers. Two-roll abilities, priced as one roll: 0.84, 7 procs on 156 lone units. Direct: the proc
-logs within [-11, 100] ms of its hit (median 0 ms, 98th percentile 766 ms, 160 isolated hits). The row keeps 0.9 from
-the earlier count on the reports up to 2026-11-18, by EV-0136's method with Sunder Armor and Rend landings counted and
-paladins left out: 0.92 [0.85, 0.99], 748 procs on 15,268 hits, 33 wearers. Reports from 2026-11-13 to 2026-11-19.
+white swings read below all hits, and the specials, on 35 procs, are too few to settle it. One-hand white: 0.70 [0.60,
+0.79], 211 procs on 5,631 lone units, 39 wearers. Specials: 0.92 [0.62, 1.09], 35 procs on 712 lone units, 24 wearers.
+Two-roll abilities, priced as one roll: 0.84, 7 procs on 156 lone units. Direct: window [-11, 100] ms, median 0 ms, 98th
+percentile 766 ms, 160 isolated hits. The row keeps 0.9 from the earlier count: 0.92 [0.85, 0.99], 748 procs on 15,268
+hits, 33 wearers. Reports from 2026-11-13 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -853,12 +824,11 @@ vJGT19YL26XFQpNB 1-2; zJ6C2148dTYfaXHb 2-4; zhj69Dt2X1b3fvMT 1.
 ## Loksey's Training Stick (item 7710, spell 1293482): 1.9, measured
 
 3,463 procs on 35,407 rolling hits, 179 wearers, 222 runs, in the main hand: all hits 1.89 [1.83, 1.96]. The rate is all
-hits, which the one-hand white rate and the specials rate agree with. Measured: 179 wearers of 6 classes, and the
-interval lies within 10% of the read. One-hand white: 1.93 [1.81, 2.06], 1,009 procs on 10,106 lone units, 173 wearers.
-Specials: 1.76 [1.38, 1.97], 177 procs on 1,945 lone units, 121 wearers. Two-roll abilities, priced as one roll: 3.16,
-68 procs on 417 lone units. Direct: the proc logs within [-11, 100] ms of its hit (median 0 ms, 98th percentile 1 ms,
-1,078 isolated hits). Left out: 171 of 394 runs in Cat or Bear Form. The row had 2 from the count on the reports up to
-2026-11-18. Reports from 2026-11-09 to 2026-11-19.
+hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.93 [1.81, 2.06], 1,009 procs on
+10,106 lone units, 173 wearers. Specials: 1.76 [1.38, 1.97], 177 procs on 1,945 lone units, 121 wearers. Two-roll
+abilities, priced as one roll: 3.16, 68 procs on 417 lone units. Direct: window [-11, 100] ms, median 0 ms, 98th
+percentile 1 ms, 1,078 isolated hits. Left out: 171 of 394 runs in Cat or Bear Form. Reports from 2026-11-09 to
+2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -919,12 +889,11 @@ yzFXjCY3WVbgRPx9 1-2; zjgkHTcZDJNv13bF 40-85, 87, 89-98, 100-104, 106-158, 160-1
 ## Lord General's Sword (item 11817, spell 15602): 1.95, measured
 
 8,026 procs on 93,972 rolling hits, 25 wearers, 39 runs, in the main hand: all hits 1.97 [1.89, 2.04]. The rate is all
-hits, which the one-hand white rate and the specials rate agree with. Measured: 25 wearers of 3 classes, and the
-interval lies within 10% of the read. One-hand white: 1.94 [1.39, 2.32], 167 procs on 1,991 lone units, 4 wearers.
-Dual-wield white: 1.51 [1.28, 1.69], 871 procs on 13,276 lone units, 21 wearers, hand labels about 90% right. Specials:
+hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.94 [1.39, 2.32], 167 procs on
+1,991 lone units, 4 wearers. Dual-wield white: 1.51 [1.28, 1.69], 871 procs on 13,276 lone units, 21 wearers. Specials:
 2.04 [1.88, 2.16], 1,076 procs on 12,157 lone units, 24 wearers. Two-roll abilities, priced as one roll: 2.87, 113 procs
-on 908 lone units. Direct: the proc logs within [-20, 100] ms of its hit (median 0 ms, 98th percentile 0 ms, 1,483
-isolated hits). The row had 1.95 from the count on the reports up to 2026-11-18. Reports from 2026-11-13 to 2026-11-19.
+on 908 lone units. Direct: window [-20, 100] ms, median 0 ms, 98th percentile 0 ms, 1,483 isolated hits. Reports from
+2026-11-13 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -949,8 +918,8 @@ bootstrap means little; the Poisson interval on the 88 procs is [1.67, 2.57]. Ne
 specials reach 50 procs, so no lone-unit rate checks the all-hits rate, which stands. Observed: fewer than 5 wearers.
 One-hand white: 2.08 [1.70, 3.81], 18 procs on 148 lone units, 2 wearers. Specials: 1.62 [0.00, 1.71], 12 procs on 127
 lone units, 2 wearers. Two-roll abilities, priced as one roll: 2.86, 1 proc on 6 lone units. Travel time: the proc lands
-a median 137 ms after its hit, 98th percentile 254 ms, window [41, 264] ms (34 isolated hits). The row had 2.1 from the
-count on the reports up to 2026-11-18, on paladin wearers alone. Reports from 2026-11-14 to 2026-11-15.
+a median 137 ms after its hit, 98th percentile 254 ms, window [41, 264] ms (34 isolated hits). Reports from 2026-11-14
+to 2026-11-15.
 
 | Class   | Wearers | Procs | Hits |  PPM |
 | ------- | ------: | ----: | ---: | ---: |
@@ -962,11 +931,10 @@ Reports and fights: nNmBkKp3J96FTGfg 1; vdwBDjmZRykqHaWL 7.
 ## Pendulum of Doom (item 9425, spell 10373): 0.9, measured
 
 682 procs on 11,197 rolling hits, 8 wearers, 10 runs, in the main hand: all hits 0.91 [0.85, 0.95]. The rate is all
-hits, which the one-hand white rate agrees with. Measured: 8 wearers of 2 classes, and the interval lies within 10% of
-the read. One-hand white: 0.95 [0.75, 1.08], 159 procs on 2,504 lone units, 8 wearers. Specials: 0.94 [0.23, 1.05], 37
-procs on 588 lone units, 7 wearers. Two-roll abilities, priced as one roll: 1.33, 12 procs on 135 lone units. Direct:
-the proc logs within [-10, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 178 isolated hits). The row had 1.05
-from EV-0136. Reports from 2026-11-13 to 2026-11-18.
+hits, which the one-hand white rate agrees with. One-hand white: 0.95 [0.75, 1.08], 159 procs on 2,504 lone units, 8
+wearers. Specials: 0.94 [0.23, 1.05], 37 procs on 588 lone units, 7 wearers. Two-roll abilities, priced as one roll:
+1.33, 12 procs on 135 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 178 isolated hits.
+Reports from 2026-11-13 to 2026-11-18.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -981,11 +949,9 @@ zc1hygaCXjDAPxL6 1-2.
 
 782 procs on 14,490 rolling hits, 16 wearers, 17 runs, in the main hand or the off hand: all hits 2.02 [1.86, 2.19].
 Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate, which
-stands. Measured: 16 wearers of 3 classes, and the interval lies within 10% of the read. One-hand white: 2.22, 25 procs
-on 423 lone units, 1 wearer. Dual-wield white: 1.91 [1.69, 2.12], 284 procs on 5,582 lone units, 15 wearers, hand labels
-about 90% right. Specials: 2.42, 8 procs on 124 lone units, 1 wearer. Direct: the proc logs within [-10, 100] ms of its
-hit (median 0 ms, 98th percentile 1 ms, 219 isolated hits). The row had 2.05 from the count on the reports up to
-2026-11-18. Reports from 2026-11-15 to 2026-11-19.
+stands. One-hand white: 2.22, 25 procs on 423 lone units, 1 wearer. Dual-wield white: 1.91 [1.69, 2.12], 284 procs on
+5,582 lone units, 15 wearers. Specials: 2.42, 8 procs on 124 lone units, 1 wearer. Direct: window [-10, 100] ms, median
+0 ms, 98th percentile 1 ms, 219 isolated hits. Reports from 2026-11-15 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -1001,12 +967,11 @@ y2dFcNR1rMmKTPAj 1-25; ynGzYZ3cLrpvwj1N 1-9; yqFPH1MKv746dQhB 4-7.
 ## Plaguefang (item 279876, spell 1309315): 1.95, measured
 
 2,952 procs on 43,420 rolling hits, 55 wearers, 63 runs, in the main hand or the off hand: all hits 1.94 [1.83, 2.07].
-The rate is all hits, which the one-hand white rate and the specials rate agree with. Measured: 55 wearers of 3 classes,
-and the interval lies within 10% of the read. One-hand white: 1.93 [1.76, 2.08], 561 procs on 8,294 lone units, 14
-wearers. Dual-wield white: 1.66 [1.52, 1.78], 943 procs on 16,233 lone units, 40 wearers, hand labels about 90% right.
-Specials: 1.91 [1.62, 2.16], 324 procs on 4,849 lone units, 23 wearers. Two-roll abilities, priced as one roll: 0.00, 0
-procs on 1 lone unit. Direct: the proc logs within [-10, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 1,317
-isolated hits). The row had 1.95 from the count on the reports up to 2026-11-18. Reports from 2026-11-05 to 2026-11-19.
+The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.93 [1.76, 2.08],
+561 procs on 8,294 lone units, 14 wearers. Dual-wield white: 1.66 [1.52, 1.78], 943 procs on 16,233 lone units, 40
+wearers. Specials: 1.91 [1.62, 2.16], 324 procs on 4,849 lone units, 23 wearers. Two-roll abilities, priced as one roll:
+0.00, 0 procs on 1 lone unit. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,317 isolated hits.
+Reports from 2026-11-05 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -1031,12 +996,10 @@ x9vCJk6RYqFLhWGa 2-5; xXtbFrdR4qKAQVB1 7-8; yLKXxQgrPWTnmdZA 1-3; yMNq3krVBAHxG6
 ## Sang'thraze the Deflector (item 9379, spell 1294243): 2.05, measured
 
 2,246 procs on 38,451 rolling hits, 29 wearers, 33 runs, in the main hand or the off hand: all hits 2.06 [1.97, 2.17].
-The rate is all hits, which the one-hand white rate and the specials rate agree with. Measured: 29 wearers of 3 classes,
-and the interval lies within 10% of the read. One-hand white: 2.03 [1.89, 2.20], 653 procs on 11,343 lone units, 17
-wearers. Dual-wield white: 1.69 [1.43, 1.90], 175 procs on 3,649 lone units, 12 wearers, hand labels about 90% right.
-Specials: 2.13 [1.91, 2.37], 212 procs on 3,521 lone units, 18 wearers. Direct: the proc logs within [-19, 100] ms of
-its hit (median 0 ms, 98th percentile 0 ms, 723 isolated hits). The row had 2.1 from the count on the reports up to
-2026-11-18. Reports from 2026-11-10 to 2026-11-19.
+The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 2.03 [1.89, 2.20],
+653 procs on 11,343 lone units, 17 wearers. Dual-wield white: 1.69 [1.43, 1.90], 175 procs on 3,649 lone units, 12
+wearers. Specials: 2.13 [1.91, 2.37], 212 procs on 3,521 lone units, 18 wearers. Direct: window [-19, 100] ms, median 0
+ms, 98th percentile 0 ms, 723 isolated hits. Reports from 2026-11-10 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -1055,11 +1018,9 @@ w63W4VhTgCbt9knB 1, 3-10; yQnph9W1VB4z6a2J 1; z2QFnM7tAjJmqgvw 1-4; zLacx86Thr3A
 ## Satyr's Lash (item 17752, spell 1292155): 1.95, measured
 
 1,115 procs on 20,154 rolling hits, 27 wearers, 28 runs, in the main hand or the off hand: all hits 1.95 [1.78, 2.10].
-No lone-unit rate applies, since its travel reaches past the isolation: the rate is all hits. Measured: 27 wearers of 3
-classes, and the interval lies within 10% of the read. One-hand white: none. Specials: none. Travel time: the proc lands
-a median 133 ms after its hit, 98th percentile 265 ms, which reaches the 300 ms isolation, so no window was measured
-(239 isolated procs). The row had 2 from the count on the reports up to 2026-11-18. Reports from 2026-11-13 to
-2026-11-19.
+No lone-unit rate applies, since its travel reaches past the isolation: the rate is all hits. One-hand white: none.
+Specials: none. Travel time: the proc lands a median 133 ms after its hit, 98th percentile 265 ms, which reaches the 300
+ms isolation, so no window was measured (239 isolated procs). Reports from 2026-11-13 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -1079,10 +1040,9 @@ rgKPxdF6G3NbMzmj 1-3; tCprA1RmvTcJkq3D 4; tdYLMmfgcAJCTWyr 8, 10-12; yJmtnzPNDVK
 468 procs on 12,066 rolling hits, 9 wearers, 9 runs, in the main hand: all hits 1.45 [1.30, 1.59]. The rate is all hits,
 which the one-hand white rate and the specials rate agree with. Observed: its interval reaches further than 10% from the
 read. One-hand white: 1.49 [1.39, 1.80], 155 procs on 3,897 lone units, 6 wearers. Dual-wield white: 0.92 [0.47, 1.18],
-16 procs on 655 lone units, 3 wearers, hand labels about 90% right. Specials: 1.46 [1.21, 2.06], 64 procs on 1,643 lone
-units, 9 wearers. Two-roll abilities, priced as one roll: 0.00, 0 procs on 3 lone units. Direct: the proc logs within
-[-11, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 188 isolated hits). The row had 1.45 from the count on the
-reports up to 2026-11-18. Reports from 2026-11-16 to 2026-11-18.
+16 procs on 655 lone units, 3 wearers. Specials: 1.46 [1.21, 2.06], 64 procs on 1,643 lone units, 9 wearers. Two-roll
+abilities, priced as one roll: 0.00, 0 procs on 3 lone units. Direct: window [-11, 100] ms, median 0 ms, 98th percentile
+1 ms, 188 isolated hits. Reports from 2026-11-16 to 2026-11-18.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -1095,10 +1055,9 @@ Ya9kKCWRwqjFpgz1 3-4; fMLcHzyZvt7QTCmg 1-9; nyAx3XNDVmYWGdrh 1-6; pNKJR39CwGnmXt
 ## Spellsever Crossbow (item 274293, spell 1293714): 0.95, measured
 
 4,617 procs on 122,185 rolling hits, 143 wearers, 199 runs, in the ranged slot: all hits 0.94 [0.92, 0.97]. No lone-unit
-rate applies, since its travel reaches past the isolation: the rate is all hits. Measured: 143 wearers of 3 classes, and
-the interval lies within 10% of the read. Specials: none. Travel time: the proc lands a median 515 ms after its hit,
-98th percentile 880 ms, which reaches the 1,000 ms isolation, so no window was measured (985 isolated procs). The row
-had 1 from EV-0136. Reports from 2026-11-09 to 2026-11-19.
+rate applies, since its travel reaches past the isolation: the rate is all hits. Specials: none. Travel time: the proc
+lands a median 515 ms after its hit, 98th percentile 880 ms, which reaches the 1,000 ms isolation, so no window was
+measured (985 isolated procs). Reports from 2026-11-09 to 2026-11-19.
 
 | Class   | Wearers | Procs |    Hits |  PPM |
 | ------- | ------: | ----: | ------: | ---: |
@@ -1151,10 +1110,9 @@ ypQ9d13tMFJPNfvw 1, 3; ythJ7TZDXk6AjHMq 9-10; z4ybMrFWNGa1L2xJ 1-3; zD9hTZPfwC38
 ## Strike of the Hydra (item 6909, spell 1292657): 2.05, measured
 
 4,126 procs on 36,525 rolling hits, 95 wearers, 110 runs, in the main hand: all hits 2.05 [1.98, 2.12]. No lone-unit
-rate applies, since its travel reaches past the isolation: the rate is all hits. Measured: 95 wearers of 2 classes, and
-the interval lies within 10% of the read. One-hand white: none. Specials: none. Travel time: the proc lands a median 133
-ms after its hit, 98th percentile 283 ms, which reaches the 300 ms isolation, so no window was measured (43 isolated
-procs). The row had 1.95 from the count on the reports up to 2026-11-18. Reports from 2026-11-07 to 2026-11-19.
+rate applies, since its travel reaches past the isolation: the rate is all hits. One-hand white: none. Specials: none.
+Travel time: the proc lands a median 133 ms after its hit, 98th percentile 283 ms, which reaches the 300 ms isolation,
+so no window was measured (43 isolated procs). Reports from 2026-11-07 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -1191,8 +1149,8 @@ z4ybMrFWNGa1L2xJ 1-3; zWrR937TBH1FgvfP 1-2; ztD4pKHA6jGvfcVr 1-2.
 which the one-hand white rate agrees with. Observed: its interval reaches further than 10% from the read. One-hand
 white: 1.17 [0.98, 1.30], 90 procs on 1,769 lone units, 6 wearers. Specials: 1.57 [1.20, 1.81], 37 procs on 545 lone
 units, 6 wearers. Two-roll abilities, priced as one roll: 1.52, 13 procs on 197 lone units. Travel time: the proc lands
-a median 99 ms after its hit, 98th percentile 189 ms, window [19, 199] ms (117 isolated hits). The row had 1.5 from
-EV-0136. Reports from 2026-11-14 to 2026-11-18.
+a median 99 ms after its hit, 98th percentile 189 ms, window [19, 199] ms (117 isolated hits). Reports from 2026-11-14
+to 2026-11-18.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -1205,12 +1163,10 @@ hCPLc2G7KAVX8Bby 1-6, 8-9; mYaWhF4n8zRLDZtw 1-7, 11-12, 16-17, 19-20, 22, 24; tn
 ## Sword of Decay (item 1727, spell 13528): 1, measured
 
 407 procs on 9,193 rolling hits, 9 wearers, 9 runs, in the main hand: all hits 0.98 [0.90, 1.08]. The rate is all hits,
-which the specials rate agrees with. Measured: 9 wearers of 2 classes, and the interval lies within 10% of the read.
-One-hand white: 0.85 [0.81, 0.89], 42 procs on 1,100 lone units, 3 wearers. Dual-wield white: 0.82 [0.48, 1.02], 66
-procs on 1,782 lone units, 6 wearers, hand labels about 90% right. Specials: 1.05 [0.92, 1.29], 104 procs on 2,203 lone
-units, 9 wearers. Two-roll abilities, priced as one roll: 0.00, 0 procs on 10 lone units. Direct: the proc logs within
-[-20, 100] ms of its hit (median 0 ms, 98th percentile 0 ms, 165 isolated hits). The row had 1.1, an observed fit from
-EV-0136. Reports from 2026-11-14 to 2026-11-18.
+which the specials rate agrees with. One-hand white: 0.85 [0.81, 0.89], 42 procs on 1,100 lone units, 3 wearers.
+Dual-wield white: 0.82 [0.48, 1.02], 66 procs on 1,782 lone units, 6 wearers. Specials: 1.05 [0.92, 1.29], 104 procs on
+2,203 lone units, 9 wearers. Two-roll abilities, priced as one roll: 0.00, 0 procs on 10 lone units. Direct: window
+[-20, 100] ms, median 0 ms, 98th percentile 0 ms, 165 isolated hits. Reports from 2026-11-14 to 2026-11-18.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -1223,12 +1179,10 @@ TaNXwvhfBLxdyQc9 1-2; ZHK32LtTCmqR4Pxf 1, 3; ZqghBpkcy7xtPfmH 1-9; nZ3NhbvpVXg64
 ## Tainted Pierce (item 8225, spell 13530): 1.95, measured
 
 874 procs on 14,146 rolling hits, 17 wearers, 19 runs, in the main hand or the off hand: all hits 1.95 [1.77, 2.08]. The
-rate is all hits, which the specials rate agrees with. Measured: 17 wearers of 3 classes, and the interval lies within
-10% of the read. One-hand white: 1.24, 8 procs on 204 lone units, 1 wearer. Dual-wield white: 1.74 [1.39, 1.94], 313
-procs on 5,667 lone units, 16 wearers, hand labels about 90% right. Specials: 1.85 [1.42, 2.24], 70 procs on 1,192 lone
-units, 8 wearers. Two-roll abilities, priced as one roll: 2.92, 22 procs on 238 lone units. Direct: the proc logs within
-[-10, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 277 isolated hits). The row had 2 from the count on the
-reports up to 2026-11-18. Reports from 2026-11-14 to 2026-11-18.
+rate is all hits, which the specials rate agrees with. One-hand white: 1.24, 8 procs on 204 lone units, 1 wearer.
+Dual-wield white: 1.74 [1.39, 1.94], 313 procs on 5,667 lone units, 16 wearers. Specials: 1.85 [1.42, 2.24], 70 procs on
+1,192 lone units, 8 wearers. Two-roll abilities, priced as one roll: 2.92, 22 procs on 238 lone units. Direct: window
+[-10, 100] ms, median 0 ms, 98th percentile 1 ms, 277 isolated hits. Reports from 2026-11-14 to 2026-11-18.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -1245,9 +1199,8 @@ gn4HAC1RqMfLt8wN 16-21; pFNnChR7GzAX6aH3 1; qcrKJGPvkfhAtdjQ 1-4; xqy2GfPj67XCwr
 
 746 procs on 12,116 rolling hits, 10 wearers, 11 runs, in the main hand: all hits 0.97 [0.92, 1.03]. The rate is all
 hits, which the one-hand white rate agrees with. Observed: every wearer is a shaman. One-hand white: 1.01 [0.89, 1.15],
-219 procs on 3,422 lone units, 10 wearers. Specials: 0.00 [0.00, 0.00], 0 procs on 60 lone units, 9 wearers. Direct: the
-proc logs within [-11, 100] ms of its hit (median 0 ms, 98th percentile 2 ms, 188 isolated hits). The row had 0.95 from
-the count on the reports up to 2026-11-18. Reports from 2026-11-13 to 2026-11-19.
+219 procs on 3,422 lone units, 10 wearers. Specials: 0.00 [0.00, 0.00], 0 procs on 60 lone units, 9 wearers. Direct:
+window [-11, 100] ms, median 0 ms, 98th percentile 2 ms, 188 isolated hits. Reports from 2026-11-13 to 2026-11-19.
 
 | Class  | Wearers | Procs |   Hits |  PPM |
 | ------ | ------: | ----: | -----: | ---: |
@@ -1260,11 +1213,10 @@ mg3MBw6rcNtZpjbA 1-14; nhtYVjb7CAw9DvQR 1.
 ## Thornspike (item 6681, spell 1293183): 3.15, measured
 
 17,612 procs on 198,203 rolling hits, 242 wearers, 279 runs, in the main hand or the off hand: all hits 3.14 [3.06,
-3.22]. No lone-unit rate applies, since its travel reaches past the isolation: the rate is all hits. Measured: 242
-wearers of 5 classes, and the interval lies within 10% of the read. One-hand white: none. Specials: none. Travel time:
-the proc lands a median 525 ms after its hit, 98th percentile 948 ms, which reaches the 1,000 ms isolation, so no window
-was measured (342 isolated procs). Left out: 2 of 282 runs in Cat or Bear Form. The row had 3.2 from the count on the
-reports up to 2026-11-18. Reports from 2026-11-07 to 2026-11-19.
+3.22]. No lone-unit rate applies, since its travel reaches past the isolation: the rate is all hits. One-hand white:
+none. Specials: none. Travel time: the proc lands a median 525 ms after its hit, 98th percentile 948 ms, which reaches
+the 1,000 ms isolation, so no window was measured (342 isolated procs). Left out: 2 of 282 runs in Cat or Bear Form.
+Reports from 2026-11-07 to 2026-11-19.
 
 | Class   | Wearers |  Procs |    Hits |  PPM |
 | ------- | ------: | -----: | ------: | ---: |
@@ -1337,13 +1289,11 @@ zwPKLTQ4W6YkyRqd 3-8.
 ## Toofbreaker (item 286430, spell 1320269): 2.05, measured
 
 5,264 procs on 81,558 rolling hits, 49 wearers, 53 runs, in the main hand or the off hand: all hits 2.04 [1.95, 2.15].
-The rate is all hits, which the one-hand white rate and the specials rate agree with. Measured: 49 wearers of 2 classes,
-and the interval lies within 10% of the read. One-hand white: 1.96 [1.86, 2.08], 1,413 procs on 22,735 lone units, 33
-wearers. Dual-wield white: 1.95 [1.86, 2.05], 410 procs on 6,639 lone units, 16 wearers, hand labels about 90% right.
-Specials: 1.95 [1.79, 2.10], 484 procs on 7,857 lone units, 34 wearers. Two-roll abilities, priced as one roll: 0.00, 0
-procs on 1 lone unit. Direct: the proc logs within [-11, 100] ms of its hit (median 0 ms, 98th percentile 1 ms, 1,621
-isolated hits). Left out: 1 of 54 runs in Cat or Bear Form. The row had 1.95 from EV-0136. Reports from 2026-11-13 to
-2026-11-19.
+The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.96 [1.86, 2.08],
+1,413 procs on 22,735 lone units, 33 wearers. Dual-wield white: 1.95 [1.86, 2.05], 410 procs on 6,639 lone units, 16
+wearers. Specials: 1.95 [1.79, 2.10], 484 procs on 7,857 lone units, 34 wearers. Two-roll abilities, priced as one roll:
+0.00, 0 procs on 1 lone unit. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 1,621 isolated hits. Left
+out: 1 of 54 runs in Cat or Bear Form. Reports from 2026-11-13 to 2026-11-19.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -1367,10 +1317,9 @@ w6A8bVm7vTatMCYr 1-12; zTbHr3BPvKxRCMZg 9; zgG84wjLNY1Pv9tp 1-2; ztpB7m1kbLQ3Kdq
 805 procs on 6,593 rolling hits, 5 wearers, 5 runs, in the main hand: all hits 3.33 [3.04, 3.71]. The rate is all hits,
 which the one-hand white rate and the specials rate agree with. Observed: every wearer is a warrior and its interval
 reaches further than 10% from the read. One-hand white: 3.05 [2.69, 3.49], 199 procs on 1,777 lone units, 4 wearers.
-Dual-wield white: 2.37, 8 procs on 92 lone units, 1 wearer, hand labels about 90% right. Specials: 3.56 [2.70, 4.29], 77
-procs on 590 lone units, 4 wearers. Two-roll abilities, priced as one roll: 3.50, 5 procs on 39 lone units. Direct: the
-proc logs within [-10, 100] ms of its hit (median 0 ms, 98th percentile 0 ms, 205 isolated hits). The sim had no rate.
-Reports from 2026-11-14 to 2026-11-19.
+Dual-wield white: 2.37, 8 procs on 92 lone units, 1 wearer. Specials: 3.56 [2.70, 4.29], 77 procs on 590 lone units, 4
+wearers. Two-roll abilities, priced as one roll: 3.50, 5 procs on 39 lone units. Direct: window [-10, 100] ms, median 0
+ms, 98th percentile 0 ms, 205 isolated hits. Reports from 2026-11-14 to 2026-11-19.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -1383,12 +1332,10 @@ p1VPMyG8jgR6Ymc7 1-4.
 
 607 procs on 10,076 rolling hits, 14 wearers, 16 runs, in the main hand or the off hand: all hits 2.01 [1.82, 2.19].
 Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate, which
-stands. Measured: 14 wearers of 3 classes, and the interval lies within 10% of the read. One-hand white: 0.00, 0 procs
-on 1 lone unit, 1 wearer. Dual-wield white: 1.83 [1.56, 2.16], 190 procs on 3,459 lone units, 11 wearers, hand labels
-about 90% right. Specials: 2.26 [1.09, 2.89], 26 procs on 384 lone units, 7 wearers. Two-roll abilities, priced as one
-roll: 0.00, 0 procs on 1 lone unit. Direct: the proc logs within [-10, 100] ms of its hit (median 0 ms, 98th percentile
-0 ms, 152 isolated hits). The row had 2 from the count on the reports up to 2026-11-18. Reports from 2026-11-10 to
-2026-11-17.
+stands. One-hand white: 0.00, 0 procs on 1 lone unit, 1 wearer. Dual-wield white: 1.83 [1.56, 2.16], 190 procs on 3,459
+lone units, 11 wearers. Specials: 2.26 [1.09, 2.89], 26 procs on 384 lone units, 7 wearers. Two-roll abilities, priced
+as one roll: 0.00, 0 procs on 1 lone unit. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 0 ms, 152 isolated
+hits. Reports from 2026-11-10 to 2026-11-17.
 
 | Class  | Wearers | Procs |  Hits |  PPM |
 | ------ | ------: | ----: | ----: | ---: |

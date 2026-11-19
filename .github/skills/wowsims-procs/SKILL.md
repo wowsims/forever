@@ -128,6 +128,9 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 - **A measured rate that disagrees with the tooltip** is decided by `wowsims-spells`
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of
   Clarity's is in `sim/druid/omen_of_clarity.go`, Revelation's in `sim/common/forever/enchants.go`.
+- **Which hits a weapon rate counts** is EV-0155's class census: each landed hit that rolls, priced on its own weapon's
+  base speed; Execute and Judgement of Command roll twice and are left out with their procs. Paladins and druids in a
+  form are left out of every rate (owner ruling, 2026-11-19; EV-0153).
 
 ## Traps
 

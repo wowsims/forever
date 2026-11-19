@@ -1,4 +1,4 @@
-# EV-0154: Which hits roll a weapon proc, by class
+# EV-0155: Which hits roll a weapon proc, by class
 
 - Claim: Execute rolls a weapon proc twice: 1.76 [1.54, 2.00] times the white swing's chance for a warrior with no
   off-hand weapon, 2.12 [1.80, 2.41] for a dual wielder. Judgement of Command rolls twice, 1.85 [1.78, 1.93]. The
@@ -46,43 +46,49 @@ W is a landed white swing, A an ability's damage event, D a debuff landing with 
 white swing rows are the reference each class's other rows are compared with. A row is thin where one roll would give
 fewer than 50 units with a proc.
 
-| Class        | Hand                 | Unit                    | Wearers |   Units | With a proc | Two or more | One roll would give | Ratio [95%]       | Reading           |
-| ------------ | -------------------- | ----------------------- | ------: | ------: | ----------: | ----------: | ------------------: | ----------------- | ----------------- |
-| Warrior      | main hand            | W                       |     394 | 157,683 |      15,856 |          55 |              15,816 | 1.00 [1.00, 1.00] | one roll          |
-| Warrior      | main hand            | D: Sunder Armor         |     316 |  25,720 |       2,565 |           0 |               2,574 | 1.00 [0.96, 1.04] | one roll          |
-| Warrior      | main hand            | D: Rend                 |     340 |  19,908 |       2,031 |           0 |               2,026 | 1.00 [0.96, 1.05] | one roll          |
-| Warrior      | main hand            | A: Heroic Strike        |     315 |  13,055 |       1,400 |           0 |               1,365 | 1.03 [0.97, 1.09] | one roll          |
-| Warrior      | main hand            | A: Execute              |      79 |   1,388 |         234 |          13 |                 133 | 1.76 [1.54, 2.00] | two rolls         |
-| Warrior      | dual-wield main hand | A: Execute              |      44 |   1,233 |         221 |           8 |                 104 | 2.12 [1.80, 2.41] | two rolls         |
-| Warrior      | off hand             | A: Execute              |      17 |     385 |           0 |           0 |                  20 | 0.00 [0.00, 0.00] | none (thin)       |
-| Warrior      | dual-wield main hand | A: Whirlwind, both hits |      19 |   3,607 |         220 |           0 |                 248 | 0.89 [0.77, 1.02] | one roll          |
-| Warrior      | off hand             | A: Whirlwind, both hits |      12 |   2,305 |         132 |           0 |                 125 | 1.05 [0.91, 1.19] | one roll          |
-| Warrior      | main hand            | A: Mocking Blow         |      57 |     130 |          18 |           0 |                  13 | 1.39 [0.81, 1.99] | unresolved (thin) |
-| Warrior      | main hand            | A: Thunder Clap         |     382 |  96,683 |           2 |           0 |               9,855 | 0.00 [0.00, 0.00] | none              |
-| Warrior      | main hand            | A: Shield Bash          |     215 |   3,093 |           0 |           0 |                 293 | 0.00 [0.00, 0.00] | none              |
-| Warrior      | main hand            | A: Shield Slam          |      16 |   2,414 |           0 |           0 |                 203 | 0.00 [0.00, 0.00] | none              |
-| Rogue        | dual-wield main hand | W                       |     176 |  37,329 |       3,237 |           3 |               3,237 | 1.00 [1.00, 1.00] | one roll          |
-| Rogue        | dual-wield main hand | A: Sinister Strike      |     167 |  29,542 |       2,563 |           0 |               2,510 | 1.02 [0.96, 1.09] | one roll          |
-| Rogue        | off hand             | A: Sinister Strike      |      59 |  14,175 |           0 |           0 |                 949 | 0.00 [0.00, 0.00] | none              |
-| Rogue        | dual-wield main hand | A: Shank                |     140 |  10,592 |           0 |           0 |                 908 | 0.00 [0.00, 0.00] | none              |
-| Rogue        | dual-wield main hand | D: Sap                  |      39 |     102 |           0 |           0 |                   9 | 0.00 [0.00, 0.00] | none (thin)       |
-| Rogue        | dual-wield main hand | D: Death Mark           |       4 |     127 |           0 |           0 |                  11 | 0.00 [0.00, 0.00] | none (thin)       |
-| Paladin      | main hand            | A: Judgement of Command |     274 |  17,148 |       3,524 |         202 |               1,906 | 1.85 [1.78, 1.93] | two rolls         |
-| Hunter       | main hand            | A: Raptor Strike        |     143 |   1,921 |         141 |           0 |                 144 | 0.98 [0.80, 1.14] | one roll          |
-| Hunter       | main hand            | A: Mongoose Bite        |      39 |     128 |          17 |           0 |                  10 | 1.75 [0.89, 2.51] | unresolved (thin) |
-| Hunter       | ranged               | A: Multi-Shot           |      79 |  11,639 |       1,723 |           0 |               1,748 | 0.99 [0.94, 1.03] | one roll          |
-| Hunter       | ranged               | A: Arcane Shot          |      80 |   5,556 |         734 |           0 |                 702 | 1.05 [0.98, 1.12] | one roll          |
-| Hunter       | ranged               | A: Aimed Shot           |      67 |   1,718 |         237 |           0 |                 236 | 1.00 [0.88, 1.11] | one roll          |
-| Hunter       | ranged               | D: Serpent Sting        |      91 |   6,166 |         868 |           0 |                 805 | 1.08 [1.01, 1.15] | one roll          |
-| Hunter       | ranged               | D: Concussive Shot      |      42 |     296 |          44 |           0 |                  38 | 1.15 [0.82, 1.47] | one roll (thin)   |
-| Hunter       | ranged               | D: Scorpid Sting        |      11 |     209 |          22 |           0 |                  30 | 0.72 [0.00, 1.02] | one roll (thin)   |
-| Hunter       | ranged               | T: Serpent Sting        |      91 |  15,289 |           0 |           0 |               2,026 | 0.00 [0.00, 0.00] | none              |
-| Hunter       | ranged               | A: Volley               |      44 |  31,681 |          66 |           0 |               5,501 | 0.01 [0.00, 0.04] | none              |
-| Shaman       | main hand            | W                       |     207 |  24,297 |       2,540 |          43 |               2,540 | 1.00 [1.00, 1.00] | one roll          |
-| Shaman       | main hand            | A: Stormstrike          |      82 |   5,250 |         382 |           0 |                 380 | 1.01 [0.88, 1.13] | one roll          |
-| Druid (form) | main hand            | W                       |     301 |  70,330 |       8,018 |           2 |               8,018 | 1.00 [1.00, 1.00] | one roll          |
-| Druid (form) | main hand            | A: Maul                 |     193 |   7,193 |           0 |           0 |                 868 | 0.00 [0.00, 0.00] | none              |
-| Druid (form) | main hand            | A: Swipe (Bear)         |     126 |  28,568 |           2 |           0 |               2,985 | 0.00 [0.00, 0.00] | none              |
+| Class        | Hand                 | Unit                      | Wearers |   Units | With a proc | Two or more | One roll would give | Ratio [95%]       | Reading            |
+| ------------ | -------------------- | ------------------------- | ------: | ------: | ----------: | ----------: | ------------------: | ----------------- | ------------------ |
+| Warrior      | main hand            | W                         |     394 | 157,683 |      15,856 |          55 |              15,816 | 1.00 [1.00, 1.00] | one roll           |
+| Warrior      | main hand            | D: Sunder Armor           |     316 |  25,720 |       2,565 |           0 |               2,574 | 1.00 [0.96, 1.04] | one roll           |
+| Warrior      | dual-wield main hand | D: Sunder Armor           |      34 |     781 |          54 |           0 |                  74 | 0.73 [0.59, 0.93] | below one roll     |
+| Warrior      | main hand            | D: Rend                   |     340 |  19,908 |       2,031 |           0 |               2,026 | 1.00 [0.96, 1.05] | one roll           |
+| Warrior      | main hand            | A: Heroic Strike          |     315 |  13,055 |       1,400 |           0 |               1,365 | 1.03 [0.97, 1.09] | one roll           |
+| Warrior      | main hand            | A: Execute                |      79 |   1,388 |         234 |          13 |                 133 | 1.76 [1.54, 2.00] | two rolls          |
+| Warrior      | dual-wield main hand | A: Execute                |      44 |   1,233 |         221 |           8 |                 104 | 2.12 [1.80, 2.41] | two rolls          |
+| Warrior      | off hand             | A: Execute                |      17 |     385 |           0 |           0 |                  20 | 0.00 [0.00, 0.00] | none (thin)        |
+| Warrior      | main hand            | A: Whirlwind (two-hander) |      11 |   1,227 |         108 |           0 |                 124 | 0.87 [0.63, 0.97] | below one roll     |
+| Warrior      | dual-wield main hand | A: Whirlwind, both hits   |      19 |   3,607 |         220 |           0 |                 248 | 0.89 [0.77, 1.02] | one roll           |
+| Warrior      | off hand             | A: Whirlwind, both hits   |      12 |   2,305 |         132 |           0 |                 125 | 1.05 [0.91, 1.19] | one roll           |
+| Warrior      | main hand            | A: Mocking Blow           |      57 |     130 |          18 |           0 |                  13 | 1.39 [0.81, 1.99] | unresolved (thin)  |
+| Warrior      | main hand            | A: Thunder Clap           |     382 |  96,683 |           2 |           0 |               9,855 | 0.00 [0.00, 0.00] | none               |
+| Warrior      | main hand            | A: Shield Bash            |     215 |   3,093 |           0 |           0 |                 293 | 0.00 [0.00, 0.00] | none               |
+| Warrior      | main hand            | A: Shield Slam            |      16 |   2,414 |           0 |           0 |                 203 | 0.00 [0.00, 0.00] | none               |
+| Rogue        | dual-wield main hand | W                         |     176 |  37,329 |       3,237 |           3 |               3,237 | 1.00 [1.00, 1.00] | one roll           |
+| Rogue        | dual-wield main hand | A: Sinister Strike        |     167 |  29,542 |       2,563 |           0 |               2,510 | 1.02 [0.96, 1.09] | one roll           |
+| Rogue        | off hand             | A: Sinister Strike        |      59 |  14,175 |           0 |           0 |                 949 | 0.00 [0.00, 0.00] | none               |
+| Rogue        | dual-wield main hand | A: Shank                  |     140 |  10,592 |           0 |           0 |                 908 | 0.00 [0.00, 0.00] | none               |
+| Rogue        | dual-wield main hand | D: Sap                    |      39 |     102 |           0 |           0 |                   9 | 0.00 [0.00, 0.00] | none (thin)        |
+| Rogue        | dual-wield main hand | D: Death Mark             |       4 |     127 |           0 |           0 |                  11 | 0.00 [0.00, 0.00] | none (thin)        |
+| Paladin      | main hand            | A: Judgement of Command   |     274 |  17,148 |       3,524 |         202 |               1,906 | 1.85 [1.78, 1.93] | two rolls          |
+| Hunter       | main hand            | A: Raptor Strike          |     143 |   1,921 |         141 |           0 |                 144 | 0.98 [0.80, 1.14] | one roll           |
+| Hunter       | main hand            | A: Mongoose Bite          |      39 |     128 |          17 |           0 |                  10 | 1.75 [0.89, 2.51] | unresolved (thin)  |
+| Hunter       | ranged               | A: Multi-Shot             |      79 |  11,639 |       1,723 |           0 |               1,748 | 0.99 [0.94, 1.03] | one roll           |
+| Hunter       | ranged               | A: Arcane Shot            |      80 |   5,556 |         734 |           0 |                 702 | 1.05 [0.98, 1.12] | one roll           |
+| Hunter       | ranged               | A: Aimed Shot             |      67 |   1,718 |         237 |           0 |                 236 | 1.00 [0.88, 1.11] | one roll           |
+| Hunter       | ranged               | D: Serpent Sting          |      91 |   6,166 |         868 |           0 |                 805 | 1.08 [1.01, 1.15] | one roll (above 1) |
+| Hunter       | ranged               | D: Concussive Shot        |      42 |     296 |          44 |           0 |                  38 | 1.15 [0.82, 1.47] | one roll (thin)    |
+| Hunter       | ranged               | D: Scorpid Sting          |      11 |     209 |          22 |           0 |                  30 | 0.72 [0.00, 1.02] | one roll (thin)    |
+| Hunter       | ranged               | T: Serpent Sting          |      91 |  15,289 |           0 |           0 |               2,026 | 0.00 [0.00, 0.00] | none               |
+| Hunter       | ranged               | A: Volley                 |      44 |  31,681 |          66 |           0 |               5,501 | 0.01 [0.00, 0.04] | none               |
+| Shaman       | main hand            | W                         |     207 |  24,297 |       2,540 |          43 |               2,540 | 1.00 [1.00, 1.00] | one roll           |
+| Shaman       | main hand            | A: Stormstrike            |      82 |   5,250 |         382 |           0 |                 380 | 1.01 [0.88, 1.13] | one roll           |
+| Druid (form) | main hand            | W                         |     301 |  70,330 |       8,018 |           2 |               8,018 | 1.00 [1.00, 1.00] | one roll           |
+| Druid (form) | main hand            | A: Maul                   |     193 |   7,193 |           0 |           0 |                 868 | 0.00 [0.00, 0.00] | none               |
+| Druid (form) | main hand            | A: Swipe (Bear)           |     126 |  28,568 |           2 |           0 |               2,985 | 0.00 [0.00, 0.00] | none               |
+
+A dual wielder's Sunder Armor and a two-hander's Whirlwind read below one roll. Both are counted as one roll in
+EV-0153's rates; neither is settled. Serpent Sting's landing reads 1.08 [1.01, 1.15]: a little above one roll and far
+below two.
 
 A Serpent Sting, Concussive Shot or Scorpid Sting landing rolls the ranged weapon with no damage event, so a count that
 takes it for no roll credits its proc to nothing: over every hunter unit on a ranged weapon, the units with such a

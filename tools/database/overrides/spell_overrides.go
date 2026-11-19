@@ -269,6 +269,13 @@ var VersusBonuses = []VersusBonus{
 		Source:      "tooltip",
 	},
 	{
+		SpellID:     16414,
+		EffectIndex: 1,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:      "Drain Life: 'Deals $s2 times as much damage to Undead'",
+		Source:      "tooltip",
+	},
+	{
 		SpellID:    1325229,
 		Multiplier: 3,
 		MobTypes:   []proto.MobType{proto.MobType_MobTypeUndead},

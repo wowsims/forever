@@ -449,8 +449,8 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blunderflame Bone Bow: no proc row; a log fit not yet validated (EV-0146)",
 		Source:  "observed",
 	},
-	// Measured on every hit the class census finds rolling the weapon, each priced on its weapon's base speed,
-	// paladins and druids in a form left out (EV-0153, EV-0154).
+	// Measured on every hit the class census finds rolling the weapon, each priced on its weapon's base speed (EV-0153,
+	// EV-0155).
 	{
 		ItemID:  869,
 		SpellID: 13752,
@@ -747,8 +747,9 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Silent Fang: no proc row; shares the trigger with Fight Club; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
-	// The one-hand white swings, the specials and all hits disagree on these weapons, so their rate is open and
-	// each row keeps the rate of a count on fewer reports (EV-0153).
+	// The one-hand white swings disagree with the rate over all hits on these weapons, so their rate is open and each
+	// row keeps its earlier rate (EV-0153). The "observed" Source keeps the gear tab's notice up until the rate is
+	// settled.
 	{
 		ItemID:  809,
 		SpellID: 17504,
@@ -767,8 +768,8 @@ var WeaponProcs = []WeaponProc{
 		ItemID:  13016,
 		SpellID: 13318,
 		PPM:     0.9,
-		Reason:  "Killmaim: column reads 101",
-		Source:  "EV-0153",
+		Reason:  "Killmaim: column reads 101; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
 	},
 	// Fitted the same way from too few wearers or too wide an interval to call final (EV-0136). The
 	// "observed" Source keeps the gear tab's notice up until more wearers validate it.
