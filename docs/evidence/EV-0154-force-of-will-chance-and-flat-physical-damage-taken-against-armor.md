@@ -1,10 +1,11 @@
 # EV-0154: Force of Will's chance and cooldown, and flat Physical damage taken against armor
 
-- Claim: Force of Will (item 11810, equip aura 15594) rolls on each melee hit taken that deals damage, a white swing or a
-  melee ability, at 6.2% once its 30 s cooldown is over; a hit that deals no damage, a miss, a dodge, a parry, a spell, a
-  ranged shot and a periodic tick roll nothing. A flat Physical damage taken amount lands before the target's armor: its
-  buff 15595 takes 51 times the share of a swing that gets through armor off the swing, and Gift of Arthas 11374,
-  Tenderized 1292008 and Lacerations 10370 add their amount times that share to a swing on the enemy that carries them.
+- Claim: Force of Will (item 11810, equip aura 15594) rolls on each melee hit taken that deals damage, a white swing or
+  a melee ability, at 6.2% once its 30 s cooldown is over; a hit that deals no damage, a miss, a dodge, a parry, a
+  spell, a ranged shot and a periodic tick roll nothing. A flat Physical damage taken amount lands before the target's
+  armor: its buff 15595 takes 51 times the share of a swing that gets through armor off the swing, and Gift of Arthas
+  11374, Tenderized 1292008 and Lacerations 10370 add their amount times that share to a swing on the enemy that
+  carries them.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports the Reports section lists; all fights.
 - Game build: 1.60.1.70862, 1.60.1.70888, 1.60.1.70938 and 1.60.1.70959 for Force of Will, by event time against the
   time the CDN first listed each build; the Game builds section has the procs on each. The Tenderized reports start on
@@ -14,9 +15,9 @@
 
 ## Method
 
-Force of Will's wearers are the characters with item 11810 in a combatant info snapshot or with an application of
-15595: 278 characters, a character being a name within a region, in 370 reports, with 19,160 procs. A wearer in one
-report is a warrior 179 times, a paladin 159 times, a druid 78 times and a mage twice. A fight logged in two reports
+Force of Will's wearers are the characters with an application of 15595: 277 characters, a character being a name
+within a region, in 370 reports, with 19,160 procs. A wearer in one report is a warrior 171 times, a paladin 152
+times, a druid 77 times, a mage twice and of a class the report does not give twice. A fight logged in two reports
 counts once (105 dropped). A proc is an application of 15595 on the wearer; the buff lasts 10 s inside a 30 s cooldown
 and never logs a refresh.
 
@@ -25,7 +26,8 @@ The buff logs after the hit that procced it: 16,080 procs have their nearest hit
 read on isolated hits: a hit with no other hit on the wearer within 60 ms, counted as a proc when the buff goes up
 within 45 ms after it. A hit is exposed when the wearer's last proc is 30 s or more before it and a later proc follows
 in the report, which keeps the trinket worn on both sides and leaves out the stretch after a wearer's last proc.
-Counting that stretch up to the last snapshot that shows the trinket moves the chance by 0.01 points.
+Counting that stretch up to the last snapshot that shows the trinket adds 476 landed swings to the 224,164 and no
+proc. Past that snapshot a report does not say whether the trinket stayed on, so the rest is not counted.
 
 A white swing is ability 1 from an NPC. Its hit types are the report's: a normal hit, a crit, a block, a crushing
 blow and a glancing blow land, and a miss, a dodge and a parry do not. An ability's kind is its
@@ -67,39 +69,50 @@ Isolated exposed hits on the wearer:
 | Ranged shot that lands                        |      0 |   3,684 |     0% |
 | Periodic tick                                 |      0 |  20,908 |     0% |
 
-The 95% interval of the first row is 6.08 to 6.30%. A swing that lands and deals no damage is one blocked or absorbed
-in full. With those counted the chance reads 5.31% (11,914 of 224,164), blocked swings read 4.99% against 5.50% for
-unblocked ones, and paladins read below warriors; on damaging swings a paladin's blocked swings read 6.09% (2,041 of
-33,496) and its unblocked ones 6.12% (2,850 of 46,531). The non-Physical melee swings are the report's ability ids -4
-and -64, a mob's swing in a school of its own; 248 of their 549 procs are on swings resisted in part.
+The one proc beside an avoided swing, in x3njCmpkVYf7WDgh, logs at the millisecond of a dodge, 177 ms after a white
+swing that dealt damage. The 95% interval of the first row is 6.08 to 6.30%. A swing that lands and deals no damage is
+one blocked or absorbed in full. With those counted the chance reads 5.31% (11,914 of 224,164), blocked swings read
+4.99% against 5.50% for unblocked ones, and paladins read below warriors; on damaging swings a paladin's blocked swings
+read 6.09% (2,041 of 33,496) and its unblocked ones 6.12% (2,850 of 46,531). The non-Physical melee swings are the
+report's ability ids -4, -16, -32 and -64, a mob's swing in a school of its own; 248 of their 549 procs are on swings
+resisted in part.
 
 The chance is flat per hit and no rate per minute. On every landed white swing, the damaging and the others together,
 it reads 5.0 to 5.8% in each 5 s bin of time since the cooldown ended, and by the attacker's own swing interval:
 
 | Attacker's swing interval | Procs |   Hits | Chance |
 | ------------------------- | ----: | -----: | -----: |
+| 0.5 s                     |   211 |  5,394 |  3.91% |
 | 1.0 s                     |   801 | 14,903 |  5.37% |
+| 1.5 s                     | 1,134 | 24,501 |  4.63% |
 | 2.0 s                     | 4,090 | 78,248 |  5.23% |
+| 2.5 s                     | 1,872 | 31,727 |  5.90% |
 | 3.0 s                     |   289 |  4,710 |  6.14% |
+| 3.5 s                     |   161 |  3,028 |  5.32% |
 | 4.0 s                     |   267 |  5,124 |  5.21% |
+| 4.5 s                     |    60 |  1,106 |  5.42% |
 
 The override on 15594 is 6%, the whole percent nearest 6.19%, since the field takes whole percents.
 
 ## What the chance moves with, cause open
 
-On damaging white swings the chance differs by attacker more than chance allows: over the 221 NPCs with 200 or more
-such swings the chi-square against one pooled chance is 497 on 220 degrees of freedom.
+On damaging white swings the chance differs by attacker more than chance allows: over the 221 attackers with 200 or
+more such swings, 220 NPCs and the swings from no NPC as one group, the chi-square against one pooled chance is 497 on
+220 degrees of freedom. The four lowest and the four highest of the 58 NPCs with 1,000 or more such swings:
 
-| NPC (id)                      | Procs |  Hits | Chance |
-| ----------------------------- | ----: | ----: | -----: |
-| Bloodaxe Worg (9696)          |    45 | 1,146 |  3.93% |
-| Spire Spiderling (10375)      |    79 | 2,003 |  3.94% |
-| Bloodaxe Veteran (9583)       |   121 | 2,790 |  4.34% |
-| Chromatic Dragonspawn (10447) |    82 | 1,890 |  4.34% |
-| Shadowforge Senator (8904)    |   164 | 2,238 |  7.33% |
-| Blackhand Elite (10317)       |   129 | 1,747 |  7.38% |
-| Anvilrage Footman (8892)      |   134 | 1,782 |  7.52% |
-| Firebrand Grunt (9259)        |   162 | 1,871 |  8.66% |
+| NPC (id)                          | Procs |  Hits | Chance |
+| --------------------------------- | ----: | ----: | -----: |
+| Scholomance Student (10475)       |    36 | 1,054 |  3.42% |
+| Splintered Skeleton (10478)       |    39 | 1,051 |  3.71% |
+| Bloodaxe Worg (9696)              |    45 | 1,146 |  3.93% |
+| Spire Spiderling (10375)          |    79 | 2,003 |  3.94% |
+| Molten War Golem (8908)           |    78 | 1,036 |  7.53% |
+| Smolderthorn Shadow Priest (9240) |    81 | 1,067 |  7.59% |
+| Firebrand Grunt (9259)            |   162 | 1,871 |  8.66% |
+| Gordok Brute (11441)              |   104 | 1,100 |  9.45% |
+
+The 162 NPCs with 200 to 999 swings run wider: Cinder (261974) reads 2.99% (6 of 201), General Drakkisath (10363)
+reads 11.22% (56 of 499) and Darkmaster Gandling (1853) 11.28% (30 of 266).
 
 By dungeon it reads 5.69% in Stratholme (1,083 of 19,032), 6.07% in Blackrock Spire (3,893 of 64,183), 6.10% in
 Scholomance (1,621 of 26,559) and 6.70% in Blackrock Depths (1,995 of 29,794). By the swing's size it reads 5.93 to
