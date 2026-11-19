@@ -432,8 +432,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DazzlingLongsword-869"
  value: {
-  dps: 790.84646
-  tps: 561.50098
+  dps: 790.84878
+  tps: 561.50264
   hps: 49.2575
  }
 }
@@ -1248,8 +1248,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-LordGeneral'sSword-11817"
  value: {
-  dps: 812.38572
-  tps: 576.79386
+  dps: 812.611
+  tps: 576.95381
   hps: 49.2575
  }
 }
@@ -1392,8 +1392,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-PhantomBlade-7961"
  value: {
-  dps: 781.66383
-  tps: 554.98132
+  dps: 781.72212
+  tps: 555.0227
   hps: 59.06833
  }
 }
@@ -1840,9 +1840,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Toofbreaker-286430"
  value: {
-  dps: 784.23879
-  tps: 556.80954
-  hps: 54.83222
+  dps: 786.24989
+  tps: 558.23742
+  hps: 54.81528
  }
 }
 dps_results: {

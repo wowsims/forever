@@ -400,9 +400,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BowofSearingArrows-2825"
  value: {
-  dps: 697.58974
-  tps: 482.69923
-  dtps: 4.41323
+  dps: 696.97223
+  tps: 481.43899
+  dtps: 4.28456
  }
 }
 dps_results: {

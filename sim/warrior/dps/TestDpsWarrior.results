@@ -479,8 +479,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-DazzlingLongsword-869"
  value: {
-  dps: 531.26659
-  tps: 457.77751
+  dps: 531.27404
+  tps: 457.78346
   dtps: 2.94293
   hps: 40.12444
  }
@@ -1388,8 +1388,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-LordGeneral'sSword-11817"
  value: {
-  dps: 546.2621
-  tps: 469.35936
+  dps: 546.39658
+  tps: 469.46515
   dtps: 2.94293
   hps: 40.12444
  }
@@ -1595,8 +1595,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-PhantomBlade-7961"
  value: {
-  dps: 514.15364
-  tps: 447.19636
+  dps: 514.24059
+  tps: 447.26486
   dtps: 2.94293
   hps: 47.25806
  }
@@ -2162,10 +2162,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Toofbreaker-286430"
  value: {
-  dps: 521.2319
-  tps: 452.10517
+  dps: 520.00285
+  tps: 451.70501
   dtps: 2.94293
-  hps: 44.85194
+  hps: 44.80111
  }
 }
 dps_results: {

@@ -1,12 +1,13 @@
 # EV-0155: Which hits roll a weapon proc, by class
 
-- Claim: Execute rolls a weapon proc twice: 1.76 [1.54, 2.00] times the white swing's chance for a warrior with no
-  off-hand weapon, 2.12 [1.80, 2.41] for a dual wielder. Judgement of Command rolls twice, 1.85 [1.78, 1.93]. The
+- Claim: Execute rolls a weapon proc twice, on both hand setups: with killing blows left out, Execute units hold 1.95
+  times the procs one roll gives. Judgement of Command rolls twice, 1.85 [1.78, 1.93]. The
   landings of Serpent Sting, Concussive Shot and Scorpid Sting roll the ranged weapon once. A dual wielder's Whirlwind
   rolls each hand's weapon once. Sap and Death Mark roll nothing. Windfury Weapon and Windfury Totem strikes roll once;
   imbue strikes and poisons add no roll. A weapon proc's melee-table strike that a main-hand white swing casts rolls the
   main-hand weapon once more, Loksey's Training Stick's Tough Love and the Rend procs among them; magic procs never do.
-  Mongoose Bite and Mocking Blow read above one roll on samples too thin to settle.
+  Mongoose Bite and Mocking Blow are not settled: thin samples here read above one roll, a larger separate count reads
+  one. Summon Hawk's hits roll the ranged weapon once.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every indexed wearer run of the 24 census weapons: 2,670
   runs in 2,361 reports, too many to list; the examples below name report, fight and time
 - Game build: 1.60.1.70790 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114196; the hotfix
@@ -96,6 +97,18 @@ landing hold 13.89 [11.74, 16.33] times the procs no roll would leave them (`poo
 shows that both of its rolls fall on the main-hand weapon. Judgement of the Crusader, Justice, Light and Wisdom landings
 roll once: 1,221, 44, 46 and 45 units with a proc against 1,160, 52, 40 and 34 for one roll and 2,189, 97, 77 and 65 for
 two (`jud_out.md`).
+
+## Killing blows
+
+The census counts a killing blow as a unit like any other hit, but a proc that lands on the target logs almost never on
+one: over the 45 weapons of EV-0153, 3.7% of the white swings that leave the target alive are followed by a proc and
+0.7% of the killing ones, while self-buff procs (Destiny, Lord General's Sword, Sang'thraze the Deflector) log on a
+kill as usual. So a unit kind that often kills reads low here. Execute does most of all: its rows above read 1.76 with
+no off-hand weapon and 2.12 dual wielding, and with killing blows left out, over EV-0153's weapons, 3,683 lone Execute
+units hold 553 with a proc where one roll at the same weapon's white chance gives 284, 1.95 times. A separate count on
+the reports up to 2026-11-19, with killing blows left out (#1108's review), reads Execute at 1.90 [1.70, 2.08] with no
+off-hand weapon and 1.94 [1.73, 2.16] dual wielding, Mocking Blow at 0.97 [0.66, 1.29] on 346 units, Mongoose Bite at
+0.95 and 1.13 on 189 and 162 units, and Summon Hawk's hits at 1.05 [0.95, 1.13] on 4,140 units.
 
 ## Strikes, imbues and poisons
 

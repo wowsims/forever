@@ -454,15 +454,8 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  869,
 		SpellID: 13752,
-		PPM:     2.65,
+		PPM:     2.7,
 		Reason:  "Dazzling Longsword: column reads 101",
-		Source:  "EV-0153",
-	},
-	{
-		ItemID:  870,
-		SpellID: 18796,
-		PPM:     0.85,
-		Reason:  "Fiery War Axe: column reads 101",
 		Source:  "EV-0153",
 	},
 	{
@@ -489,7 +482,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  2825,
 		SpellID: 29638,
-		PPM:     4.75,
+		PPM:     4.9,
 		Reason:  "Bow of Searing Arrows: no proc row",
 		Source:  "EV-0153",
 	},
@@ -501,23 +494,9 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0153",
 	},
 	{
-		ItemID:  5752,
-		SpellID: 16400,
-		PPM:     2,
-		Reason:  "Wyvern Tailspike: column reads 101; shares the trigger with Naraxis' Fang",
-		Source:  "EV-0153",
-	},
-	{
-		ItemID:  6681,
-		SpellID: 1293183,
-		PPM:     3.15,
-		Reason:  "Thornspike: no proc row",
-		Source:  "EV-0153",
-	},
-	{
 		ItemID:  6909,
 		SpellID: 1292657,
-		PPM:     2.05,
+		PPM:     2.1,
 		Reason:  "Strike of the Hydra: column reads 101",
 		Source:  "EV-0153",
 	},
@@ -529,23 +508,9 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0153",
 	},
 	{
-		ItemID:  7961,
-		SpellID: 9806,
-		PPM:     2,
-		Reason:  "Phantom Blade: no proc row",
-		Source:  "EV-0153",
-	},
-	{
-		ItemID:  8190,
-		SpellID: 16405,
-		PPM:     1,
-		Reason:  "Hanzo Sword: column reads 101; shares the trigger with The Needler",
-		Source:  "EV-0153",
-	},
-	{
 		ItemID:  8225,
 		SpellID: 13530,
-		PPM:     1.95,
+		PPM:     2,
 		Reason:  "Tainted Pierce: no proc row",
 		Source:  "EV-0153",
 	},
@@ -566,7 +531,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  9446,
 		SpellID: 1292851,
-		PPM:     3.9,
+		PPM:     3.95,
 		Reason:  "Electrocutioner Leg: no proc row",
 		Source:  "EV-0153",
 	},
@@ -601,42 +566,49 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  11121,
 		SpellID: 16408,
-		PPM:     2.9,
+		PPM:     2.95,
 		Reason:  "Darkwater Talwar: no proc row",
+		Source:  "EV-0153",
+	},
+	{
+		ItemID:  11816,
+		SpellID: 1300783,
+		PPM:     2,
+		Reason:  "Angerforge's Battle Axe: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  11817,
 		SpellID: 15602,
-		PPM:     1.95,
+		PPM:     2,
 		Reason:  "Lord General's Sword: no proc row",
 		Source:  "EV-0153",
 	},
 	{
-		ItemID:  13218,
-		SpellID: 17331,
+		ItemID:  12590,
+		SpellID: 16551,
+		PPM:     0.55,
+		Reason:  "Felstriker: no proc row",
+		Source:  "EV-0153",
+	},
+	{
+		ItemID:  13016,
+		SpellID: 13318,
 		PPM:     0.95,
-		Reason:  "Fang of the Crystal Spider: no proc row",
+		Reason:  "Killmaim: column reads 101",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  14145,
 		SpellID: 18381,
-		PPM:     2,
+		PPM:     2.05,
 		Reason:  "Cursed Felblade: no proc row",
-		Source:  "EV-0153",
-	},
-	{
-		ItemID:  17752,
-		SpellID: 1292155,
-		PPM:     1.95,
-		Reason:  "Satyr's Lash: no proc row; shares the trigger with Black Malice",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  272999,
 		SpellID: 1291551,
-		PPM:     2.9,
+		PPM:     2.95,
 		Reason:  "Barbaric Crossbow: no proc row",
 		Source:  "EV-0153",
 	},
@@ -650,31 +622,38 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  279876,
 		SpellID: 1309315,
-		PPM:     1.95,
+		PPM:     2,
 		Reason:  "Plaguefang: column reads 101",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  279895,
 		SpellID: 1322295,
-		PPM:     2.8,
+		PPM:     2.9,
 		Reason:  "Ironforge Greathammer: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  286430,
 		SpellID: 1320269,
-		PPM:     2.05,
+		PPM:     2,
 		Reason:  "Toofbreaker: no proc row",
 		Source:  "EV-0153",
 	},
-	// Fitted the same way from too few wearers, too wide an interval or wearers of one class only to call
-	// final (EV-0153). The "observed" Source keeps the gear tab's notice up until more wearers validate it.
+	// Fitted the same way from too few wearers, too wide an interval, wearers of one class only or no lone-unit rate to
+	// check it, to call final (EV-0153). The "observed" Source keeps the gear tab's notice up until more wearers validate it.
 	{
 		ItemID:  647,
 		SpellID: 17152,
 		PPM:     1.05,
 		Reason:  "Destiny: no proc row; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  870,
+		SpellID: 18796,
+		PPM:     0.85,
+		Reason:  "Fiery War Axe: column reads 101; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	{
@@ -687,7 +666,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  2000,
 		SpellID: 18091,
-		PPM:     0.9,
+		PPM:     0.95,
 		Reason:  "Archeus: column reads 101; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
@@ -699,10 +678,38 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
+		ItemID:  5752,
+		SpellID: 16400,
+		PPM:     2.05,
+		Reason:  "Wyvern Tailspike: column reads 101; shares the trigger with Naraxis' Fang; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  6681,
+		SpellID: 1293183,
+		PPM:     3.15,
+		Reason:  "Thornspike: no proc row; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
 		ItemID:  6738,
 		SpellID: 16403,
 		PPM:     1,
 		Reason:  "Bleeding Crescent: column reads 101; shares the trigger with Silithid Ripper; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  7961,
+		SpellID: 9806,
+		PPM:     2.05,
+		Reason:  "Phantom Blade: no proc row; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  8190,
+		SpellID: 16405,
+		PPM:     1,
+		Reason:  "Hanzo Sword: column reads 101; shares the trigger with The Needler; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	{
@@ -734,10 +741,10 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  12590,
-		SpellID: 16551,
-		PPM:     0.55,
-		Reason:  "Felstriker: no proc row; a log fit not yet validated (EV-0153)",
+		ItemID:  13218,
+		SpellID: 17331,
+		PPM:     1,
+		Reason:  "Fang of the Crystal Spider: no proc row; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	{
@@ -747,28 +754,21 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Silent Fang: no proc row; shares the trigger with Fight Club; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
-	// The one-hand white swings disagree with the rate over all hits on these weapons, so their rate is open and each
-	// row keeps its earlier rate (EV-0153). The "observed" Source keeps the gear tab's notice up until the rate is
-	// settled.
+	{
+		ItemID:  17752,
+		SpellID: 1292155,
+		PPM:     1.95,
+		Reason:  "Satyr's Lash: no proc row; shares the trigger with Black Malice; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	// The one-hand white swings read above the rate over all hits on this weapon and the specials below it, so its rate
+	// is open and the row keeps its earlier rate (EV-0153). The "observed" Source keeps the gear tab's notice up until the
+	// rate is settled.
 	{
 		ItemID:  809,
 		SpellID: 17504,
 		PPM:     0.9,
 		Reason:  "Bloodrazor: column reads 101; a log fit not yet validated (EV-0153)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  11816,
-		SpellID: 1300783,
-		PPM:     2,
-		Reason:  "Angerforge's Battle Axe: no proc row; a log fit not yet validated (EV-0153)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  13016,
-		SpellID: 13318,
-		PPM:     0.9,
-		Reason:  "Killmaim: column reads 101; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	// Fitted the same way from too few wearers or too wide an interval to call final (EV-0136). The

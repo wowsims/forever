@@ -3319,7 +3319,7 @@ func RegisterAllProcs() {
 
 	// Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.
 	// https://www.wowhead.com/forever/spell=13752
-	// trigger 13752 (2.65 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 13752 (2.7 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 13752, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 869, ItemName: "Dazzling Longsword"},
@@ -3435,7 +3435,7 @@ func RegisterAllProcs() {
 
 	// Fires a Searing Arrow at the target for 28 Fire damage.
 	// https://www.wowhead.com/forever/spell=29638
-	// trigger 29638 (4.75 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 29638 (4.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 29638, BuffSpellID: 29638, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 2825, ItemName: "Bow of Searing Arrows"},
@@ -3507,7 +3507,7 @@ func RegisterAllProcs() {
 
 	// Decrease the armor of the target by 100 for 20s. While affected, the target cannot stealth or turn invisible.
 	// https://www.wowhead.com/forever/spell=9806
-	// trigger 9806 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 9806 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 9806, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 7961, ItemName: "Phantom Blade"},
@@ -3739,7 +3739,7 @@ func RegisterAllProcs() {
 
 	// Increases attack power by 84 for 10s.
 	// https://www.wowhead.com/forever/spell=15602
-	// trigger 15602 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 15602 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 15602, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 11817, ItemName: "Lord General's Sword"},
@@ -3957,7 +3957,7 @@ func RegisterAllProcs() {
 
 	// Slows target enemy's casting speed and increases the time between melee and ranged attacks by 9% for 10s.
 	// https://www.wowhead.com/forever/spell=17331
-	// trigger 17331 (0.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 17331 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 17331, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13218, ItemName: "Fang of the Crystal Spider"},
@@ -4427,7 +4427,7 @@ func RegisterAllProcs() {
 
 	// Bash the target, causing 42 Physical damage. Deals 2 times as much damage if the target is facing you.
 	// https://www.wowhead.com/forever/spell=1320269
-	// trigger 1320269 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1320269 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1320269, BuffSpellID: 1320269, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 286430, ItemName: "Toofbreaker"},

@@ -488,8 +488,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-DazzlingLongsword-869"
  value: {
-  dps: 394.6767
-  tps: 943.50705
+  dps: 394.6777
+  tps: 943.50837
   dtps: 336.38131
   hps: 17.48667
  }
@@ -1541,8 +1541,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-LordGeneral'sSword-11817"
  value: {
-  dps: 402.48267
-  tps: 956.80858
+  dps: 402.52182
+  tps: 956.86495
   dtps: 336.38131
   hps: 17.48667
  }
@@ -1739,8 +1739,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-PhantomBlade-7961"
  value: {
-  dps: 406.68799
-  tps: 988.95052
+  dps: 406.71156
+  tps: 988.98187
   dtps: 341.0316
   hps: 23.92556
  }
@@ -2441,9 +2441,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Toofbreaker-286430"
  value: {
-  dps: 403.22566
-  tps: 975.50703
-  dtps: 340.3149
+  dps: 402.53532
+  tps: 973.0517
+  dtps: 340.56642
   hps: 21.09583
  }
 }

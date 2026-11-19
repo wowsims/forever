@@ -443,10 +443,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BowofSearingArrows-2825"
  value: {
-  dps: 848.23056
-  tps: 871.41931
-  dtps: 8.63167
-  hps: 15.58889
+  dps: 850.41663
+  tps: 873.55875
+  dtps: 8.66423
+  hps: 15.57194
  }
 }
 dps_results: {
@@ -623,8 +623,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-DazzlingLongsword-869"
  value: {
-  dps: 793.72597
-  tps: 816.36253
+  dps: 793.73093
+  tps: 816.3675
   dtps: 9.16892
   hps: 14.41972
  }
@@ -1640,8 +1640,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-LordGeneral'sSword-11817"
  value: {
-  dps: 799.44613
-  tps: 822.0827
+  dps: 799.53002
+  tps: 822.16658
   dtps: 9.16892
   hps: 14.41972
  }
@@ -1838,8 +1838,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-PhantomBlade-7961"
  value: {
-  dps: 740.57551
-  tps: 762.59102
+  dps: 740.63712
+  tps: 762.65264
   dtps: 9.0244
   hps: 14.21639
  }
