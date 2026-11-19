@@ -59,7 +59,7 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 	}
 	share := resistedShare(tenths)
 	if averageResist < 0 {
-		return 1 + share, OutcomeEmpty
+		return 1 + share, partialResistOutcome(-share)
 	}
 	return 1 - share, partialResistOutcome(share)
 }

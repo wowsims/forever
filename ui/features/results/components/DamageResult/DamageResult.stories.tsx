@@ -22,6 +22,7 @@ export const Crit: Story = { args: { log: damageLog(12, 2841, { outcome: 'crit' 
 export const Tick: Story = { args: { log: damageLog(12, 310.25, { actionId: DEEP_WOUNDS, tick: true }) } };
 
 export const PartialResist: Story = { args: { log: damageLog(12, 710, { spellSchool: SpellSchool.SpellSchoolFire, resist: 50 }) } };
+export const PiercingBonus: Story = { args: { log: damageLog(12, 1562, { spellSchool: SpellSchool.SpellSchoolFire, resist: -10 }) } };
 
 export const Parry: Story = { args: { log: damageLog(12, 0, { outcome: 'parry', effect: null }) } };
 

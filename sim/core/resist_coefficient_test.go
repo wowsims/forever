@@ -44,8 +44,8 @@ func TestAverageResistIgnoresTargetLevel(t *testing.T) {
 }
 
 // Spell Piercing beyond the target's resistance is a negative average resist, which the roll pays out
-// as bonus damage in 10% steps, and never as a resisted outcome. A hit at a tenth of the share takes no
-// bonus, and one at the full share takes it whole.
+// as bonus damage in 10% steps, with an outcome carrying the negative percent. A hit at a tenth of the
+// share takes no bonus, and one at the full share takes it whole.
 func TestSpellPiercingBeyondResistanceAddsDamage(t *testing.T) {
 	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
 	attacker.stats[stats.SpellPiercing] = 15
@@ -86,8 +86,8 @@ func TestSpellPiercingBeyondResistanceAddsDamage(t *testing.T) {
 	counts := map[float64]int{}
 	for range 100000 {
 		multiplier, outcome := spell.ResistanceMultiplier(sim, false, attackTable)
-		if outcome != OutcomeEmpty {
-			t.Fatalf("a piercing bonus came with outcome %v", outcome)
+		if want := int(math.Round((1 - multiplier) * 100)); outcome.ResistedPercent() != want {
+			t.Fatalf("a hit at x%v came with a %d%% resist outcome, want %d%%", multiplier, outcome.ResistedPercent(), want)
 		}
 		counts[math.Round(multiplier*10)/10]++
 	}
@@ -145,5 +145,24 @@ func TestPartialResistOutcomeCarriesThePercent(t *testing.T) {
 	}
 	if got := (OutcomeHit | partialResistOutcome(0.75)).String(); got != "Hit (75% Resist)" {
 		t.Errorf("a 75%% resisted hit reads %q", got)
+	}
+}
+
+// A Spell Piercing bonus carries its percent as a negative resist and counts as a pierced hit, not a resisted one.
+func TestPartialResistBonusOutcomeCarriesANegativePercent(t *testing.T) {
+	for _, percent := range []int{10, 20, 30} {
+		result := &SpellResult{Outcome: OutcomeHit | partialResistOutcome(-float64(percent)/100)}
+		if got := result.Outcome.ResistedPercent(); got != -percent {
+			t.Errorf("ResistedPercent of a %d%% bonus = %d, want %d", percent, got, -percent)
+		}
+		if !result.DidPierce() {
+			t.Errorf("a %d%% bonus does not count as a pierced hit", percent)
+		}
+		if result.DidResist() {
+			t.Errorf("a %d%% bonus counts as a resisted hit", percent)
+		}
+	}
+	if got := (OutcomeCrit | partialResistOutcome(-0.2)).String(); got != "Crit (20% Pierced)" {
+		t.Errorf("a crit with a 20%% bonus reads %q", got)
 	}
 }
