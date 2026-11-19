@@ -1053,6 +1053,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-ForceofWill-11810"
+ value: {
+  dps: 696.51942
+  tps: 485.97981
+  dtps: 4.49411
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-FreezingBand-942"
  value: {
   dps: 693.69488

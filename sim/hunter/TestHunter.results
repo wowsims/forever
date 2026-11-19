@@ -1179,6 +1179,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-ForceofWill-11810"
+ value: {
+  dps: 888.1015
+  tps: 910.71007
+  dtps: 9.11703
+  hps: 14.01306
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-FreezingBand-942"
  value: {
   dps: 894.26392

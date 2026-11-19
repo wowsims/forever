@@ -909,6 +909,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-ForceofWill-11810"
+ value: {
+  dps: 873.75512
+  tps: 711.3954
+  dtps: 3.64825
+  hps: 24.35645
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Freethinker'sArmor"
  value: {
   dps: 845.3301

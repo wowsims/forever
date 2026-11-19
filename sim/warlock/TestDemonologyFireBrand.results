@@ -688,6 +688,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-ForceofWill-11810"
+ value: {
+  dps: 905.29504
+  tps: 710.6925
+  dtps: 8.6467
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-FreezingBand-942"
  value: {
   dps: 906.38717

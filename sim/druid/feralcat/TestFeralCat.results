@@ -782,6 +782,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-ForceofWill-11810"
+ value: {
+  dps: 802.30919
+  tps: 595.66496
+  hps: 45.98722
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-FreezingBand-942"
  value: {
   dps: 785.95892

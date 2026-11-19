@@ -819,6 +819,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-ForceofWill-11810"
+ value: {
+  dps: 778.19536
+  tps: 814.81887
+  dtps: 7.56907
+  hps: 37.22694
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-FreezingBand-942"
  value: {
   dps: 764.48951

@@ -1008,6 +1008,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-ForceofWill-11810"
+ value: {
+  dps: 406.52559
+  tps: 969.74154
+  dtps: 342.92572
+  hps: 18.23222
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-Freethinker'sArmor"
  value: {
   dps: 404.46145

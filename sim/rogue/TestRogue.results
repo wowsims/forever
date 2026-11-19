@@ -886,6 +886,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-ForceofWill-11810"
+ value: {
+  dps: 827.00614
+  tps: 587.17436
+  hps: 57.89917
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-FreezingBand-942"
  value: {
   dps: 830.55531

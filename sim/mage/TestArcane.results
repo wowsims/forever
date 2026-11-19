@@ -608,6 +608,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-ForceofWill-11810"
+ value: {
+  dps: 851.11024
+  tps: 730.15387
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-FreezingBand-942"
  value: {
   dps: 845.65958

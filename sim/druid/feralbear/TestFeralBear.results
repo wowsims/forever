@@ -928,6 +928,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-ForceofWill-11810"
+ value: {
+  dps: 525.64022
+  tps: 2654.14694
+  dtps: 391.08244
+  hps: 85.0819
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-FreezingBand-942"
  value: {
   dps: 536.23879

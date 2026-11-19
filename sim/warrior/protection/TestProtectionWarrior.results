@@ -1143,6 +1143,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-ForceofWill-11810"
+ value: {
+  dps: 502.83466
+  tps: 1645.45356
+  dtps: 296.56648
+  hps: 38.93611
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-FreezingBand-942"
  value: {
   dps: 507.05141
