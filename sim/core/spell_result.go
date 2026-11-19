@@ -405,9 +405,12 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 	result.Damage *= attackerMultiplier
 	afterAttackMods := result.Damage
 	// The target's flat physical damage taken lands before its armor: Gift of Arthas adds 8 times the
-	// share of a swing that gets through, and Force of Will takes its 51 off the same way (EV-0154).
+	// share of a swing that gets through, and Force of Will takes its 51 off the same way. The reductions
+	// in this field together take at most half of the hit (EV-0154). The flat ranged and spell amounts land
+	// in applyTargetModifiers, after armor and outside this cap.
+	// TODO: The cap is read on normal white swings (EV-0154); measure it on specials, ranged hits and ticks.
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.Flags.Matches(SpellFlagIgnoreTargetModifiers) {
-		result.Damage += attackTable.Defender.PseudoStats.BonusPhysicalDamageTaken
+		result.Damage += max(attackTable.Defender.PseudoStats.BonusPhysicalDamageTaken, min(0, -result.Damage/2))
 	}
 	result.applyResistances(sim, spell, isPeriodic, attackTable)
 	afterResistances := result.Damage
