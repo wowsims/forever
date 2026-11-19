@@ -72,6 +72,13 @@ export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGe
 // one, so the sim gives it no value.
 export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30303213002-350530005122100231-1' }));
 
+// The Fury build against a Giant or Dragonkin boss: a Booming Voice point goes to Spearing Strike, which deals
+// extra damage to both, and the Fury rotation swaps to Battle Stance for it. On other targets it does less than Fury.
+export const FuryDragonkinGiantTalents = PresetUtils.makePresetTalents(
+	'Fury Dragonkin/Giant',
+	SavedTalents.create({ talentsString: '30303213102-250530005122100231-1' }),
+);
+
 // Measured on the Pre-BiS Fury gear with the Fury talents.
 export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Fury',
