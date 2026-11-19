@@ -12993,10 +12993,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 691616, SpellID: 15571, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DECREASE_SPEED, BasePoints: -70, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 15594, Name: "Force of Will", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x28}, ICDMs: 30000, RefIDs: []int32{15595}, ProcChanceSource: ProcChancePPM,
+	{ID: 15594, Name: "Force of Will", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, ProcChance: 6, ProcFlags: [2]uint32{0: 0x28}, ICDMs: 30000, RefIDs: []int32{15595},
 		Effects: []Effect{
 			{ID: 693648, SpellID: 15594, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, SPCoef: 1, PvpMult: 1, TriggerID: 15595, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: ProcChancePct 6 -- Force of Will: 6% on each melee hit taken that deals damage, the measured chance to the whole percent; the game files state none
 	{ID: 15595, Name: "Force of Will", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, DurationMs: 10000,
 		Effects: []Effect{
 			{ID: 692889, SpellID: 15595, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_TAKEN, BasePoints: -51, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

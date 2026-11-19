@@ -696,6 +696,13 @@ var Spells = []Override{
 		Source:  "EV-0133",
 	},
 	{
+		SpellID: 15594,
+		Field:   ProcChancePct,
+		Value:   6, // TODO: Find what moves the chance between attackers (EV-0154).
+		Reason:  "Force of Will: 6% on each melee hit taken that deals damage, the measured chance to the whole percent; the game files state none",
+		Source:  "EV-0154",
+	},
+	{
 		SpellID: 1318323,
 		Field:   PPM,
 		Value:   1.2,

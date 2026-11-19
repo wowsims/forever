@@ -670,12 +670,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		11810, // Force of Will
-		[
-			"When struck in combat has a chance to reduce all damage taken by 51 for 10s.", // 15595 - https://www.wowhead.com/forever/spell=15595
-		]
-	],
-	[
 		11832, // Burst of Knowledge
 		[
 			"Reduces the Mana cost of all spells by 150 for 10s.", // 15646 - https://www.wowhead.com/forever/spell=15646
