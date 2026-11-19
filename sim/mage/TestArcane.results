@@ -526,8 +526,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-EverlookPathcarver-274759"
  value: {
-  dps: 859.47668
-  tps: 736.67469
+  dps: 859.46982
+  tps: 736.66782
  }
 }
 dps_results: {
@@ -602,6 +602,13 @@ dps_results: {
 }
 dps_results: {
  key: "TestArcane-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 851.34711
+  tps: 730.63146
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-ForceofWill-11810"
  value: {
   dps: 851.34711
   tps: 730.63146

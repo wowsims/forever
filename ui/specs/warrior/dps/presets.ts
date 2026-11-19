@@ -63,16 +63,24 @@ const ARMS_PRESET_OPTIONS = {
 };
 
 // Dungeon and world drops, quest rewards, vendor items and crafted items whose reagents include no raid
-// materials; no raid, raid quest, reputation or PvP rewards. The cloak, the belt and the first ring are sold by the
-// Undermine Trader in Stranglethorn Vale. The Dawn Armor pattern and its Pristine Scale and Fel Leather have no
-// known source. Flurry Axe, the off hand, is a world-drop epic.
-export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, { ...FURY_PRESET_OPTIONS, devOnly: true });
+// materials; no raid, raid quest, reputation or PvP rewards, except Don Julio's Band, which the Alterac Valley
+// quartermasters sell. The cloak, the belt and the first ring are sold by the Undermine Trader in Stranglethorn
+// Vale. The Devilsaur Gauntlets and Leggings make the two-piece set. Persuader and Flurry Axe beat Ironfoe in
+// either hand up to two targets; Flurry Axe, the off hand, is a world-drop epic.
+export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, FURY_PRESET_OPTIONS);
 
-// The Fury build for fights of 60 to 240 s. Enrage takes no points: with no tank assigned the boss attacks no
-// one, so the sim gives it no value.
-export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30303213002-350530005122100231-1' }));
+// The Fury build for fights of 60 to 300 s.
+export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30303213002-050530045122100231' }));
 
-// Measured on the Pre-BiS Fury gear with the Fury talents.
+// The Fury build against a Giant or Dragonkin boss: an Enrage point goes to Spearing Strike, which deals extra
+// damage to both, and the Fury rotation swaps to Battle Stance for it. On other targets it does less than Fury.
+export const FuryDragonkinGiantTalents = PresetUtils.makePresetTalents(
+	'Fury Dragonkin/Giant',
+	SavedTalents.create({ talentsString: '30303213102-050530035122100231' }),
+);
+
+// Measured on Pre-BiS Fury gear with Gauntlets of Heroism, Titanic Leggings and Hand of Justice, and with Fury
+// talents that take Booming Voice and no Enrage.
 export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Fury',
 	Stats.fromMap(

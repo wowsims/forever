@@ -1,5 +1,8 @@
 # EV-0145: A weapon proc's strike and what it rolls, and Mutilator's Lacerations rate and hit roll
 
+EV-0156 dates the reading that a white swing's Judgement refresh rolls a weapon proc on its own: it holds to
+2026-11-13, and since that day's hotfix the refresh rolls nothing.
+
 - Claim: Mutilator 12469 rolls Lacerations 10370 on 19.9% of landed main-hand white swings, 4.8 procs per minute on
   its 2.5 s speed; Lacerations rolls the melee hit table itself, and 12.2% of them fail; a weapon proc's strike that a
   main-hand white swing of the weapon cast rolls the weapon once more at the same chance and never a third time, on 23

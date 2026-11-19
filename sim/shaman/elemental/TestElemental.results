@@ -78,6 +78,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Angerforge'sBattleAxe-11816"
+ value: {
+  dps: 802.99183
+  tps: 739.56837
+  dtps: 6.36427
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-AnkhofLife-1713"
  value: {
   dps: 864.77289
@@ -777,8 +785,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-EverlookPathcarver-274759"
  value: {
-  dps: 872.2089
-  tps: 801.99004
+  dps: 872.20153
+  tps: 801.98282
   dtps: 6.61751
  }
 }
@@ -932,6 +940,14 @@ dps_results: {
   dps: 802.99183
   tps: 739.56837
   dtps: 6.36427
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-ForceofWill-11810"
+ value: {
+  dps: 867.23351
+  tps: 795.79374
+  dtps: 6.72845
  }
 }
 dps_results: {
@@ -2049,9 +2065,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-TheSpiritcaller'sStorm"
  value: {
-  dps: 758.00585
-  tps: 700.10688
-  dtps: 8.56303
+  dps: 839.19413
+  tps: 771.87085
+  dtps: 7.35069
  }
 }
 dps_results: {
@@ -2284,6 +2300,14 @@ dps_results: {
   dps: 711.44383
   tps: 663.20282
   dtps: 4.94414
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-WraithScythe-11920"
+ value: {
+  dps: 821.59346
+  tps: 756.08753
+  dtps: 6.36427
  }
 }
 dps_results: {

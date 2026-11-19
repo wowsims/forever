@@ -178,11 +178,17 @@ message TargetedActionMetrics {
 	// # of times this action resisted hit a target.
 	int32 resisted_hits = 27;
 
+	// # of times this action hit a target for more damage through Spell Piercing.
+	int32 pierced_hits = 41;
+
 	// # of times this action was a critical strike.
 	int32 crits = 4;
 
 	// # of times this action resisted crit a target.
 	int32 resisted_crits = 28;
+
+	// # of times this action crit a target for more damage through Spell Piercing.
+	int32 pierced_crits = 42;
 
 	// # of times this action ticked on a target.
 	int32 ticks = 5;
@@ -190,11 +196,17 @@ message TargetedActionMetrics {
 	// # of times this action resisted ticked a target.
 	int32 resisted_ticks = 29;
 
+	// # of times this action ticked a target for more damage through Spell Piercing.
+	int32 pierced_ticks = 43;
+
 	// # of times this action was a critical tick on a target.
 	int32 crit_ticks = 6;
 
 	// # of times this action was a resisted critical tick on a target.
 	int32 resisted_crit_ticks = 30;
+
+	// # of times this action was a critical tick on a target for more damage through Spell Piercing.
+	int32 pierced_crit_ticks = 44;
 
 	// # of times this action was a Miss.
 	int32 misses = 7;
@@ -230,11 +242,17 @@ message TargetedActionMetrics {
 	// Total resisted damage done to this target by this action.
 	double resisted_damage = 31;
 
+	// Total damage done to this target by this action through Spell Piercing.
+	double pierced_damage = 45;
+
 	// Total critical damage done to this target by this action.
 	double crit_damage = 15;
 
 	// Total resisted critical damage done to this target by this action.
 	double resisted_crit_damage = 32;
+
+	// Total critical damage done to this target by this action through Spell Piercing.
+	double pierced_crit_damage = 46;
 
 	// Total tick damage done to this target by this action.
 	double tick_damage = 16;
@@ -242,11 +260,17 @@ message TargetedActionMetrics {
 	// Total resisted tick damage done to this target by this action.
 	double resisted_tick_damage = 33;
 
+	// Total tick damage done to this target by this action through Spell Piercing.
+	double pierced_tick_damage = 47;
+
 	// Total critical tick damage done to this target by this action.
 	double crit_tick_damage = 17;
 
 	// Total resisted critical tick damage done to this target by this action.
 	double resisted_crit_tick_damage = 34;
+
+	// Total critical tick damage done to this target by this action through Spell Piercing.
+	double pierced_crit_tick_damage = 48;
 
 	// Total glancing damage done to this target by this action.
 	double glance_damage = 18;
@@ -290,7 +314,7 @@ message TargetedActionMetrics {
 	int32 manual_casts = 40;
 }
 
-// The outcome a range in TargetedActionMetrics.ranges covers. The resisted kinds are partial resists.
+// The outcome a range in TargetedActionMetrics.ranges covers. The resisted kinds are partial resists; the pierced kinds are hits Spell Piercing raised.
 enum HitKind {
 	HitKindHit = 0;
 	HitKindResistedHit = 1;
@@ -309,6 +333,10 @@ enum HitKind {
 	HitKindHealTick = 14;
 	HitKindCritHealTick = 15;
 	HitKindShield = 16;
+	HitKindPiercedHit = 17;
+	HitKindPiercedCrit = 18;
+	HitKindPiercedTick = 19;
+	HitKindPiercedCritTick = 20;
 }
 
 message CustomActionMetric {

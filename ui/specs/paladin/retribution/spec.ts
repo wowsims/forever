@@ -151,6 +151,8 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 
 		const values: Record<string, string> = {
 			'Has assigned judgement': String(!!judgement),
+			'Max Seal of Command Stacks': String(Math.min(Inputs.MAX_ECHO_STACKS, simple.uwSocStacks || 3)),
+			'Max Seal of Righteousness Stacks': String(Math.min(Inputs.MAX_ECHO_STACKS, simple.uwSorStacks || 1)),
 			'Pull range': String(Math.max(Inputs.MIN_PULL_RANGE, simple.pullRange || 25)),
 			'Delay Major CDs': `${simple.delayMajorCds}s`,
 		};

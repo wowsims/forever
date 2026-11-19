@@ -704,6 +704,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-ForceofWill-11810"
+ value: {
+  dps: 926.76371
+  tps: 744.45994
+  dtps: 9.57023
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-FreezingBand-942"
  value: {
   dps: 929.62538
@@ -946,8 +954,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 924.68424
-  tps: 741.9795
+  dps: 924.67687
+  tps: 741.97372
   dtps: 10.21426
  }
 }

@@ -561,8 +561,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-EverlookPathcarver-274759"
  value: {
-  dps: 747.50478
-  tps: 534.86212
+  dps: 747.49808
+  tps: 534.85542
   dtps: 5.04162
  }
 }
@@ -680,6 +680,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 741.34339
+  tps: 529.98241
+  dtps: 5.76676
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-ForceofWill-11810"
  value: {
   dps: 741.34339
   tps: 529.98241
@@ -1488,9 +1496,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-VestmentsoftheVirtuous"
  value: {
-  dps: 713.32965
-  tps: 510.52897
-  dtps: 1.80594
+  dps: 726.68632
+  tps: 520.89147
+  dtps: 3.00948
  }
 }
 dps_results: {

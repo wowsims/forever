@@ -291,26 +291,26 @@ func TestDamageTakenRageGeneration(t *testing.T) {
 }
 
 // The attacker's main-hand swing registered again as a physical melee special, as a mob's Cleave is.
-func physicalMeleeSpecial(attacker *Unit) *Spell {
+func physicalSpecial(attacker *Unit, procMask ProcMask) *Spell {
 	config := *attacker.AutoAttacks.MHConfig()
 	config.ActionID = ActionID{SpellID: 1}
-	config.ProcMask = ProcMaskMeleeMHSpecial
+	config.ProcMask = procMask
 	return attacker.RegisterSpell(config)
 }
 
 func TestPreArmorDamage(t *testing.T) {
 	// A 1000 hit through 5755 armor against a level 63 attacker (half), 50 flat physical damage taken,
 	// a 10% damage taken reduction, a crit, a 100 block and a 300 absorb:
-	// (1000 * 0.5 + 50) * 0.9 * 2 - 100 - 300 = 590 taken. A swing's rage reads the damage that keeps the crit
+	// (1000 + 50) * 0.5 * 0.9 * 2 - 100 - 300 = 545 taken. A swing's rage reads the damage that keeps the crit
 	// and the 10% reduction and drops the rest, 1000 * 0.9 * 2 = 1800: 2.5 * 0.6 * 1800 / 243.64 = 11.082.
-	// A special's reads the 890 left after the block, before the 300 absorb, twice: 2 * 2.5 * 0.6 * 890 / 243.64 = 10.959.
+	// A special's reads the 845 left after the block, before the 300 absorb, twice: 2 * 2.5 * 0.6 * 845 / 243.64 = 10.405.
 	tests := []struct {
 		name     string
 		special  bool
 		wantRage float64
 	}{
 		{name: "swing", wantRage: 11.082},
-		{name: "special", special: true, wantRage: 10.959},
+		{name: "special", special: true, wantRage: 10.405},
 	}
 
 	for _, test := range tests {
@@ -320,7 +320,7 @@ func TestPreArmorDamage(t *testing.T) {
 			attacker := sim.Encounter.ActiveTargetUnits[0]
 			spell := attacker.AutoAttacks.MHAuto()
 			if test.special {
-				spell = physicalMeleeSpecial(attacker)
+				spell = physicalSpecial(attacker, ProcMaskMeleeMHSpecial)
 			}
 
 			fw.stats[stats.Armor] = 5755
@@ -344,8 +344,8 @@ func TestPreArmorDamage(t *testing.T) {
 			spell.DealDamage(sim, result)
 			gained := fw.CurrentRage() - rageBefore
 
-			if !WithinToleranceFloat64(590, result.Damage, 0.001) {
-				t.Fatalf("Damage taken: Expected: %0.3f, Actual: %0.3f", 590.0, result.Damage)
+			if !WithinToleranceFloat64(545, result.Damage, 0.001) {
+				t.Fatalf("Damage taken: Expected: %0.3f, Actual: %0.3f", 545.0, result.Damage)
 			}
 			if !WithinToleranceFloat64(1800, result.PreArmorDamage, 0.001) {
 				t.Fatalf("Damage before armor: Expected: %0.3f, Actual: %0.3f", 1800.0, result.PreArmorDamage)
@@ -357,20 +357,19 @@ func TestPreArmorDamage(t *testing.T) {
 	}
 }
 
-func TestFlatReductionBelowZeroGivesNoRage(t *testing.T) {
-	// A flat physical reduction larger than the hit leaves a special nothing to read: no rage, and no panic.
+func TestFlatRangedReductionBelowZeroGivesNoRage(t *testing.T) {
+	// A flat ranged reduction larger than the shot leaves a ranged special nothing to read: no rage, and no panic.
 	sim := SetupFakeRageSim()
 	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-	spell := physicalMeleeSpecial(sim.Encounter.ActiveTargetUnits[0])
+	shot := physicalSpecial(sim.Encounter.ActiveTargetUnits[0], ProcMaskRangedSpecial)
 	fw.stats[stats.Armor] = 0
-	fw.PseudoStats.BonusPhysicalDamageTaken = -30
-	hit := func(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Outcome = OutcomeHit }
+	fw.PseudoStats.BonusRangedDamageTaken = -30
 
 	rageBefore := fw.CurrentRage()
-	spell.DealDamage(sim, spell.calcDamageInternal(sim, &fw.Unit, 20, 1, false, hit))
+	shot.DealDamage(sim, shot.calcDamageInternal(sim, &fw.Unit, 20, 1, false, shot.OutcomeAlwaysHitNoHitCounter))
 
 	if gained := fw.CurrentRage() - rageBefore; gained != 0 {
-		t.Fatalf("Rage from a hit the reduction took below zero: Expected: 0, Actual: %0.3f", gained)
+		t.Fatalf("Rage from a shot the reduction took below zero: Expected: 0, Actual: %0.3f", gained)
 	}
 }
 
@@ -401,7 +400,7 @@ func TestFullBlockGivesNoRage(t *testing.T) {
 			attacker := sim.Encounter.ActiveTargetUnits[0]
 			spell := attacker.AutoAttacks.MHAuto()
 			if test.special {
-				spell = physicalMeleeSpecial(attacker)
+				spell = physicalSpecial(attacker, ProcMaskMeleeMHSpecial)
 			}
 
 			fw.stats[stats.Armor] = 0

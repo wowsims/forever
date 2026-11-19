@@ -12993,10 +12993,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 691616, SpellID: 15571, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DECREASE_SPEED, BasePoints: -70, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 15594, Name: "Force of Will", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x28}, ICDMs: 30000, RefIDs: []int32{15595}, ProcChanceSource: ProcChancePPM,
+	{ID: 15594, Name: "Force of Will", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, ProcChance: 6, ProcFlags: [2]uint32{0: 0x28}, ICDMs: 30000, RefIDs: []int32{15595},
 		Effects: []Effect{
 			{ID: 693648, SpellID: 15594, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, SPCoef: 1, PvpMult: 1, TriggerID: 15595, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: ProcChancePct 6 -- Force of Will: 6% on each melee hit taken that deals damage, the measured chance to the whole percent; the game files state none
 	{ID: 15595, Name: "Force of Will", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, DurationMs: 10000,
 		Effects: []Effect{
 			{ID: 692889, SpellID: 15595, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_TAKEN, BasePoints: -51, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -13629,11 +13629,11 @@ var generatedSpells = []Spell{
 			{ID: 693152, SpellID: 16413, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 77, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 693153, SpellID: 16413, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 2, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
-	{ID: 16414, Name: "Drain Life", School: 32, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 45, MaxRange: 40, DefenseType: 1,
+	{ID: 16414, Name: "Drain Life", School: 32, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 45, MaxRange: 40, DefenseType: 1, VersusEffectIndex: 1, VersusMobTypes: []int32{8},
 		Effects: []Effect{
 			{ID: 693154, SpellID: 16414, Type: dbcenums.E_HEALTH_LEECH, BasePoints: 49, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1325773, SpellID: 16414, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against MobTypeUndead -- Drain Life: 'Deals $s2 times as much damage to Undead'
 	{ID: 16415, Name: "Fireball", School: 4, Attr: [17]uint32{0: 0x10000, 8: 0x200, 15: 0x2000}, SpellLevel: 60, CastTimeMs: 2000, DurationMs: 8000, MaxRange: 35, DefenseType: 1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 3}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 693820, SpellID: 16415, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 300, Variance: 0.20000000298023224, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -28157,6 +28157,10 @@ var generatedSpells = []Spell{
 			{ID: 1144426, SpellID: 443320, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_THREAT, BasePoints: -30, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1181163, SpellID: 443320, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_DONE, PvpMult: 1, Misc: 28, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 443632, Name: "Filcher's Cowl", School: 1, Attr: [17]uint32{0: 0x400d0, 15: 0x2000}, SpellLevel: 1,
+		Effects: []Effect{
+			{ID: 1139697, SpellID: 443632, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STEALTH_LEVEL, BasePoints: 5, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 443813, Name: "High-Yield Radiation Bomb", School: 8, Attr: [17]uint32{0: 0x10000, 1: 0x88, 3: 0x40000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 10000, MaxRange: 50000, DefenseType: 1, DispelType: 4, Mechanic: 11, ProcChance: 100, InterruptFlags: 5, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1139933, SpellID: 443813, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DECREASE_SPEED, BasePoints: -25, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},
@@ -36800,11 +36804,11 @@ var generatedSpells = []Spell{
 			{ID: 1325612, SpellID: 1300782, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 70, Variance: 0.30000001192092896, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1325613, SpellID: 1300782, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 3, PvpMult: 1, ChainAmp: 1},
 		}},
-	{ID: 1300783, Name: "Slaughter", School: 1, Attr: [17]uint32{0: 0x10, 15: 0x2000}, MaxRange: 100, DefenseType: 2, RefIDs: []int32{1300784},
+	{ID: 1300783, Name: "Slaughter", School: 1, Attr: [17]uint32{0: 0x10, 15: 0x2000}, MaxRange: 100, DefenseType: 2, VersusEffectIndex: 1, VersusFamilies: []int32{9, 10}, RefIDs: []int32{1300784},
 		Effects: []Effect{
 			{ID: 1325614, SpellID: 1300783, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 109, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1325615, SpellID: 1300783, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against CreatureFamilyTroll, CreatureFamilyOrc -- Slaughter: 'Trolls and Orcs take $s2 times as much damage'
 	{ID: 1300784, Name: "Crippling Dread", School: 32, Attr: [17]uint32{0: 0x50000, 1: 0x40088, 6: 0x200000, 15: 0x2000}, DurationMs: 4000, MaxRange: 100, DefenseType: 1, Mechanic: 24, PreventionType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x800a22a8}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1325616, SpellID: 1300784, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STUN, PvpMult: 1, ChainAmp: 1, Mechanic: 24, Target: [2]dbcenums.ImplicitTarget{6, 0}},

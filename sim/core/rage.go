@@ -120,7 +120,7 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 		case periodic || !spell.SpellSchool.Matches(SpellSchoolPhysical):
 			multiplier = SpellDamageTakenRageMultiplier
 		case !spell.ProcMask.Matches(ProcMaskMeleeWhiteHit):
-			// A flat damage taken reduction, as Stoneskin Totem's, can take a weak hit below zero.
+			// A flat ranged damage taken reduction, as Windwall Totem's, can take a weak shot below zero.
 			damage = max(0, result.PostOutcomeDamage)
 			multiplier = SpellDamageTakenRageMultiplier
 		}

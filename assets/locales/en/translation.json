@@ -2649,6 +2649,14 @@
 					"delay_major_cds": {
 						"label": "Delay major cooldowns (s)",
 						"tooltip": "How many seconds into the fight to wait before trinkets and other cooldowns are used automatically."
+					},
+					"uw_soc_stacks": {
+						"label": "Echo of Command stacks",
+						"tooltip": "The amount of stacks of Echo of Command to build before swapping to Seal of Righteousness"
+					},
+					"uw_sor_stacks": {
+						"label": "Echo of Righteousness stacks",
+						"tooltip": "The amount of stacks of Echo of Righteousness to build before swapping to Seal of Command"
 					}
 				}
 			},
@@ -2947,12 +2955,16 @@
 			"attack_types": {
 				"hit": "Hit",
 				"resisted_hit": "Resisted Hit",
+				"pierced_hit": "Pierced Hit",
 				"critical_hit": "Critical Hit",
 				"resisted_critical_hit": "Resisted Critical Hit",
+				"pierced_critical_hit": "Pierced Critical Hit",
 				"tick": "Tick",
 				"resisted_tick": "Resisted Tick",
+				"pierced_tick": "Pierced Tick",
 				"critical_tick": "Critical Tick",
 				"resisted_critical_tick": "Resisted Critical Tick",
+				"pierced_critical_tick": "Pierced Critical Tick",
 				"glancing_blow": "Glancing Blow",
 				"blocked_hit": "Blocked Hit",
 				"blocked_critical_hit": "Blocked Critical Hit",
@@ -2990,7 +3002,8 @@
 				"shielded": "Shielded",
 				"health_amount": "for <amount>{{amount}} health</amount><resist/>.",
 				"damage_amount": "for <amount>{{amount}} damage<school/></amount><resist/>.",
-				"resist": "({{percent}}% Resist)"
+				"resist": "({{percent}}% Resist)",
+				"pierced": "({{percent}}% Pierced)"
 			}
 		}
 	},

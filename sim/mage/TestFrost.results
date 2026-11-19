@@ -608,6 +608,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-ForceofWill-11810"
+ value: {
+  dps: 824.26107
+  tps: 761.76687
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-FreezingBand-942"
  value: {
   dps: 817.36804
@@ -834,8 +841,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 823.41275
-  tps: 761.01948
+  dps: 823.40606
+  tps: 761.01278
  }
 }
 dps_results: {
