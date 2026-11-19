@@ -1,9 +1,8 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { AreaType, ConsumesSpec, Profession, Race } from '@generated/proto/common';
+import { ConsumesSpec, Profession, Race } from '@generated/proto/common';
 import { FeralCatDruid_Options as FeralDruidOptions } from '@generated/proto/druid';
 import { SavedTalents } from '@generated/proto/ui';
-import { Encounter } from '@sim/raid/encounter';
 
 import { CatEp, HybridEp } from '../feral_ep';
 import AdaptiveApl from './apls/adaptive.apl.json';
@@ -31,13 +30,6 @@ export const DefaultConsumables = ConsumesSpec.create({
 	resourcePotId: Consumables.MajorManaPotion.id,
 	offensivePotId: Consumables.MightyRagePotion.id,
 });
-
-const encounter = Encounter.defaultEncounterProto();
-encounter.duration = 180;
-encounter.durationVariation = 5;
-encounter.areaTypes = [AreaType.AreaTypeForestGrassland, AreaType.AreaTypeMountainous];
-encounter.zoneId = 616;
-export const DefaultEncounter = PresetUtils.makePresetEncounter('Mount Hyjal', encounter);
 
 export const OtherDefaults = {
 	distanceFromTarget: 25,
