@@ -404,6 +404,11 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 
 	result.Damage *= attackerMultiplier
 	afterAttackMods := result.Damage
+	// The target's flat physical damage taken lands before its armor: Gift of Arthas adds 8 times the
+	// share of a swing that gets through, and Force of Will takes its 51 off the same way (EV-0154).
+	if spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.Flags.Matches(SpellFlagIgnoreTargetModifiers) {
+		result.Damage += attackTable.Defender.PseudoStats.BonusPhysicalDamageTaken
+	}
 	result.applyResistances(sim, spell, isPeriodic, attackTable)
 	afterResistances := result.Damage
 	targetMultiplier := result.applyTargetModifiers(sim, spell, attackTable, isPeriodic)
@@ -964,11 +969,10 @@ func (result *SpellResult) applyTargetModifiers(sim *Simulation, spell *Spell, a
 	}
 
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) {
-		result.Damage += attackTable.Defender.PseudoStats.BonusPhysicalDamageTaken
 		if spell.ProcMask.Matches(ProcMaskRanged) {
 			result.Damage += attackTable.Defender.PseudoStats.BonusRangedDamageTaken
 		}
-	} else if !spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.SpellSchool.Matches(SpellSchoolNone) {
+	} else if !spell.SpellSchool.Matches(SpellSchoolNone) {
 		result.Damage += attackTable.Defender.PseudoStats.BonusSpellDamageTaken
 		// The target's flat school bonus, Judgement of the Crusader, lands after the caster's done
 		// multipliers and before the target's and the outcome roll: a crit doubles it and a damage done

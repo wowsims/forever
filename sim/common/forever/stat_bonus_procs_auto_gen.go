@@ -605,19 +605,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// When struck in combat has a chance to reduce all damage taken by 51 for 10s.
-	// https://www.wowhead.com/forever/spell=15595
-	// unsupported: states no rate
-	// trigger 15594 (no stated rate, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 15595
-	// shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 15594, BuffSpellID: 15595},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 11810, ItemName: "Force of Will"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Deal 109 Physical damage. Trolls and Orcs take 2 times as much damage and are horrified for 4s.
 	// https://www.wowhead.com/forever/spell=1300783
 	// unsupported: states no rate
@@ -3758,6 +3745,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16559, BuffSpellID: 16559, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 11809, ItemName: "Flame Wrath"},
+		})
+
+	// When struck in combat has a chance to reduce all damage taken by 51 for 10s.
+	// https://www.wowhead.com/forever/spell=15595
+	// trigger 15594 (6%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 15595
+	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 15594, BuffSpellID: 15595},
+		[]shared.ItemVariant{
+			{ItemID: 11810, ItemName: "Force of Will"},
 		})
 
 	// Increases attack power by 84 for 10s.
