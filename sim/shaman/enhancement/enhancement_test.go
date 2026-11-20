@@ -25,14 +25,14 @@ func TestEnhancement(t *testing.T) {
 				{Label: "Frostbrand", SpecOptions: imbueOptions(proto.ShamanImbue_FrostbrandWeapon)},
 				{Label: "Rockbiter", SpecOptions: imbueOptions(proto.ShamanImbue_RockbiterWeapon)},
 			},
-			GearSet:     testingBuild.GearSet,
+			GearSet:     defaultBuild.GearSet,
 			Talents:     DefaultTalents,
-			Consumables: DefaultConsumables,
+			Consumables: defaultBuild.Consumables,
 			Profession1: proto.Profession_Engineering,
 			Profession2: proto.Profession_Leatherworking,
-			Rotation:    testingBuild.Rotation,
+			Rotation:    defaultBuild.Rotation,
 			OtherRotations: []core.RotationCombo{
-				core.RotationWithSpellIds("testing_book_ranks", testingBuild.Rotation, map[int32]int32{10442: 25361}),
+				core.RotationWithSpellIds("testing_book_ranks", defaultBuild.Rotation, map[int32]int32{10442: 25361}),
 			},
 			ItemFilter: core.ItemFilter{
 				WeaponTypes: []proto.WeaponType{
@@ -61,23 +61,8 @@ func imbueOptions(imbue proto.ShamanImbue) *proto.Player_EnhancementShaman {
 	}
 }
 
-// The Testing build's gear, talents and rotation.
-var testingBuild = core.GetTestBuildFromJSON(proto.Class_ClassShaman, "../../../ui/specs/shaman/enhancement/builds", "testing",
+// The Default build's gear, talents, consumables and rotation, which the UI's defaults read too.
+var defaultBuild = core.GetTestBuildFromJSON(proto.Class_ClassShaman, "../../../ui/specs/shaman/enhancement/builds", "default",
 	core.ItemFilter{}, nil, nil)
 
-var DefaultTalents = testingBuild.Talents
-
-// The UI's Enhancement defaults: Major Mana Potion, Flask of Supreme Power, Smoked Desert Dumplings,
-// Demonic Rune, the Owl, Sages, Greater Mageblood, Nature Power, Greater Arcane, Cunning and Ferocity
-// elixirs, Winterfall Firewater, EZ-Thro Dark Bomb, Goblin Sapper Charge, and Elemental Sharpening Stone
-// on the main hand beside the shaman's imbue.
-var DefaultConsumables = &proto.ConsumesSpec{
-	ResourcePotId: 13444,
-	FlaskId:       13512,
-	FoodId:        20452,
-	ConjuredId:    12662,
-	ElixirIds:     []int32{250337, 250338, 250341, 250343, 13454, 12820, 250328, 250350},
-	ExplosiveId:   260817,
-	ExtraIds:      []int32{10646},
-	MhImbueId:     18262,
-}
+var DefaultTalents = defaultBuild.Talents

@@ -1674,9 +1674,11 @@ func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T
 
 // Iceblade Hacker 13952 carries both its procs: every landed main-hand swing casts 1298414 on the
 // target, and 1298416 rolls the procs per minute of the item's chance-on-hit entry on the axe's speed
-// and casts its Frostbolt. A missed swing casts neither. While the entry states no rate, the swing's
-// damage stays and the Frostbolt registers nothing.
+// and casts its Frostbolt. A missed swing casts neither. With Always Hit on 1298414's row, the swing
+// damage never misses, is never dodged, parried or blocked, and can still crit. While the entry
+// states no rate, the swing's damage stays and the Frostbolt registers nothing.
 func TestIcebladeHackerCarriesBothProcs(t *testing.T) {
+	editSpellRow(t, 1298414, func(s *spelldata.Spell) { s.Attr[dbcenums.ATTR_INDEX_EX_3] |= dbcenums.ATTR_EX_3_ALWAYS_HIT })
 	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13952, 0)})
 	character.AutoAttacks.CancelAutoSwing(sim)
 	proc := character.GetAura("Iceblade Hacker - Frostbolt")
@@ -1699,6 +1701,14 @@ func TestIcebladeHackerCarriesBothProcs(t *testing.T) {
 	dealHit(t, sim, character, meleeSwing(&character.Unit))
 	if casts(chill) != 1 || casts(frostbolt) != 1 {
 		t.Errorf("a landed swing cast the swing damage %d and the Frostbolt %d times, want each once", casts(chill), casts(frostbolt))
+	}
+	for range 500 {
+		chill.Cast(sim, enemy)
+	}
+	stepTo(t, sim, sim.CurrentTime+time.Second)
+	if m := chill.SpellMetrics[enemy.UnitIndex]; m.Misses+m.Dodges+m.Parries+m.Blocks != 0 || m.Crits == 0 {
+		t.Errorf("the swing damage missed %d, was dodged %d, parried %d, blocked %d and crit %d times; want it always landing and able to crit",
+			m.Misses, m.Dodges, m.Parries, m.Blocks, m.Crits)
 	}
 
 	withEntryPPM(t, 13952, 1298416, 0)
