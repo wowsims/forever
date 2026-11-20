@@ -486,10 +486,9 @@ func TestSpellConfigSuppressProcFlagsFromTheRow(t *testing.T) {
 		{"damage suppressing the caster's procs", caster, []Effect{damage}, true, false},
 		{"an aura suppressing the target's procs", target, []Effect{slow}, false, true},
 		{"a dummy beside a slow", caster | target, []Effect{beside(dbcenums.E_DUMMY), slow}, true, true},
-		{"a dummy and a triggered spell", caster | target, []Effect{beside(dbcenums.E_DUMMY), beside(dbcenums.E_TRIGGER_SPELL)}, false, false},
-		{"a script effect and a dummy aura", caster | target, []Effect{beside(dbcenums.E_SCRIPT_EFFECT), dummyAura}, false, false},
-		{"a triggered missile and a forced cast", caster | target, []Effect{beside(dbcenums.E_TRIGGER_MISSILE), beside(dbcenums.E_FORCE_CAST)}, false, false},
-		{"E_NONE and a triggered spell", caster | target, []Effect{beside(dbcenums.E_NONE), beside(dbcenums.E_TRIGGER_SPELL)}, false, false},
+		{"only dummies, scripts and casts of other spells", caster | target, []Effect{beside(dbcenums.E_DUMMY),
+			beside(dbcenums.E_SCRIPT_EFFECT), dummyAura, beside(dbcenums.E_NONE), beside(dbcenums.E_TRIGGER_SPELL),
+			beside(dbcenums.E_TRIGGER_MISSILE), beside(dbcenums.E_FORCE_CAST)}, false, false},
 		{"damage without either attribute", 0, []Effect{damage}, false, false},
 	} {
 		withRows(t, []Spell{{ID: 1, Name: "Row", School: 16, DefenseType: 2,

@@ -76,11 +76,10 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
   `docs/spell_data/procs.md` §The decoder and the tooltip hints has the rule and its exceptions.
 - **A spell's own proc mask decides which listeners hear it**, and the hit table decides the mask, not the school.
   The cases (a weapon proc's strike off either hand, oils) are in `references/rulings.md`.
-- **Suppress Caster Procs and Suppress Target Procs reach `ProcTrigger` listeners only.** `rowFlags` turns the bits
-  into `SpellFlagSuppressCasterProcs` and `SpellFlagSuppressTargetProcs` when the row deals its own hit, so a dummy
-  the sim folds with its damage (Execute 20662) passes neither on. `AttachProcTriggerCallback` skips the flagged
-  spells on the side each bit names; an aura with hand-written hit callbacks still hears them and checks the flag
-  itself (EV-0165).
+- **Suppress Caster Procs and Suppress Target Procs keep a spell's hits from `ProcTrigger` listeners on the side each
+  bit names** (EV-0165), and Suppress Caster Procs its cast from the caster's cast triggers too. `rowFlags` passes them on only when an effect of the row does more than a dummy or a cast of
+  another spell, so a dummy the sim folds with its damage (Execute 20662) carries neither; an aura with hand-written
+  hit callbacks checks the flag itself.
 - **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no
   death; both are in `procs.md` (the two death bits), the order of a death in `wowsims-core-mechanics` `## Targets`.
 

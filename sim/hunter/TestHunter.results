@@ -2630,9 +2630,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-WildheartRaiment"
  value: {
-  dps: 724.08581
-  tps: 745.72427
-  dtps: 8.00853
+  dps: 724.08659
+  tps: 745.62292
+  dtps: 8.0567
   hps: 13.35222
  }
 }

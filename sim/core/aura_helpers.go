@@ -283,9 +283,9 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 		config.ProcChance = 1
 	}
 
-	// The caster's procs skip the hits of a spell flagged Suppress Caster Procs, and the target's skip
-	// those flagged Suppress Target Procs. Core still deals the hit to every other listener, rage and
-	// health included, so the check sits here.
+	// The caster's procs skip a spell flagged Suppress Caster Procs, its cast included, and the target's
+	// skip one flagged Suppress Target Procs; the hit still reaches every other listener, rage and health
+	// included.
 	skipping := func(suppressed SpellFlag) func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
 		return func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
 			if spell.Flags.Matches(suppressed) {
@@ -314,7 +314,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 	}
 	if config.Callback.Matches(CallbackOnCastComplete) {
 		procAura.OnCastComplete = func(aura *Aura, sim *Simulation, spell *Spell) {
-			if !config.matchesSpell(spell) {
+			if spell.Flags.Matches(SpellFlagSuppressCasterProcs) || !config.matchesSpell(spell) {
 				return
 			}
 			if icd.Duration != 0 && !icd.IsReady(sim) {

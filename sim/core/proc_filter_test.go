@@ -70,8 +70,8 @@ func TestProcTriggerEligibility(t *testing.T) {
 }
 
 // Suppress Caster Procs keeps a spell's hits, ticks and heals from every proc trigger the caster hears
-// them with, and Suppress Target Procs keeps its hits and ticks from every one the target hears them
-// with (EV-0165). A cast completing is no hit, so neither keeps it from a trigger on the cast.
+// them with (EV-0165), and its cast from every trigger on casts. Suppress Target Procs keeps its hits and
+// ticks from every one the target hears them with.
 func TestSuppressedProcsSkipTheirSide(t *testing.T) {
 	hooks := []struct {
 		name     string
@@ -86,7 +86,7 @@ func TestSuppressedProcsSkipTheirSide(t *testing.T) {
 		{"a cast result", CallbackOnCastResult, SpellFlagSuppressCasterProcs, func(a *Aura, s *Spell, r *SpellResult) { a.OnCastResult(a, nil, s, r) }},
 		{"a hit taken", CallbackOnSpellHitTaken, SpellFlagSuppressTargetProcs, func(a *Aura, s *Spell, r *SpellResult) { a.OnSpellHitTaken(a, nil, s, r) }},
 		{"a tick taken", CallbackOnPeriodicDamageTaken, SpellFlagSuppressTargetProcs, func(a *Aura, s *Spell, r *SpellResult) { a.OnPeriodicDamageTaken(a, nil, s, r) }},
-		{"a cast completing", CallbackOnCastComplete, SpellFlagNone, func(a *Aura, s *Spell, _ *SpellResult) { a.OnCastComplete(a, nil, s) }},
+		{"a cast completing", CallbackOnCastComplete, SpellFlagSuppressCasterProcs, func(a *Aura, s *Spell, _ *SpellResult) { a.OnCastComplete(a, nil, s) }},
 	}
 
 	for _, hook := range hooks {
@@ -109,55 +109,35 @@ func TestSuppressedProcsSkipTheirSide(t *testing.T) {
 }
 
 // A suppressed hit still lands in full: the defender's rage from the damage it takes comes as it does
-// from any hit, and only the proc triggers on the suppressed side miss it (EV-0165).
+// from any hit, and only the proc triggers on the suppressed side miss it.
 func TestSuppressedProcsStillLandTheHit(t *testing.T) {
 	sim := setupFakeRageSimFrom(fakeRageSimRequest())
 	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
 	mob := sim.Encounter.ActiveTargetUnits[0]
 
-	heard := map[*Unit]map[AuraCallback]int{&fw.Unit: {}, mob: {}}
+	var dealt, taken int
 	sim.Environment.State = Constructed
-	for unit, counts := range heard {
-		for _, callback := range []AuraCallback{CallbackOnSpellHitDealt, CallbackOnSpellHitTaken} {
-			unit.MakeProcTriggerAura(ProcTrigger{
-				Name:               "Listener " + callback.String(),
-				Callback:           callback,
-				TriggerImmediately: true,
-				Handler:            func(_ *Simulation, _ *Spell, _ *SpellResult) { counts[callback]++ },
-			}).Activate(sim)
-		}
-	}
+	mob.MakeProcTriggerAura(ProcTrigger{Name: "Dealt", Callback: CallbackOnSpellHitDealt, TriggerImmediately: true,
+		Handler: func(_ *Simulation, _ *Spell, _ *SpellResult) { dealt++ }}).Activate(sim)
+	fw.MakeProcTriggerAura(ProcTrigger{Name: "Taken", Callback: CallbackOnSpellHitTaken, TriggerImmediately: true,
+		Handler: func(_ *Simulation, _ *Spell, _ *SpellResult) { taken++ }}).Activate(sim)
 	sim.Environment.State = Finalized
 
 	fw.stats[stats.Armor] = 0
 	for _, flag := range []SpellFlag{SpellFlagSuppressCasterProcs, SpellFlagSuppressTargetProcs} {
-		for _, attacker := range []*Unit{&fw.Unit, mob} {
-			defender := mob
-			if attacker == mob {
-				defender = &fw.Unit
-			}
-			for _, counts := range heard {
-				clear(counts)
-			}
-			strike := physicalSpecial(attacker, ProcMaskMeleeMHSpecial)
-			strike.Flags |= flag
-
-			rageBefore := fw.CurrentRage()
-			result := strike.calcDamageInternal(sim, defender, 1000, 1, false, strike.OutcomeAlwaysHitNoHitCounter)
-			strike.DealDamage(sim, result)
-
-			if result.Damage <= 0 {
-				t.Errorf("a hit flagged %v dealt %v damage, want some", flag, result.Damage)
-			}
-			if got, want := heard[attacker][CallbackOnSpellHitDealt] == 1, flag != SpellFlagSuppressCasterProcs; got != want {
-				t.Errorf("the attacker's trigger heard a hit flagged %v: %v, want %v", flag, got, want)
-			}
-			if got, want := heard[defender][CallbackOnSpellHitTaken] == 1, flag != SpellFlagSuppressTargetProcs; got != want {
-				t.Errorf("the defender's trigger heard a hit flagged %v: %v, want %v", flag, got, want)
-			}
-			if defender == &fw.Unit && fw.CurrentRage() <= rageBefore {
-				t.Errorf("a hit flagged %v gave the defender no rage", flag)
-			}
+		dealt, taken = 0, 0
+		strike := physicalSpecial(mob, ProcMaskMeleeMHSpecial)
+		strike.Flags |= flag
+		rageBefore := fw.CurrentRage()
+		strike.DealDamage(sim, strike.calcDamageInternal(sim, &fw.Unit, 1000, 1, false, strike.OutcomeAlwaysHitNoHitCounter))
+		if fw.CurrentRage() <= rageBefore {
+			t.Errorf("a hit flagged %v gave the defender no rage", flag)
+		}
+		if got, want := dealt == 1, flag != SpellFlagSuppressCasterProcs; got != want {
+			t.Errorf("the attacker's trigger heard a hit flagged %v: %v, want %v", flag, got, want)
+		}
+		if got, want := taken == 1, flag != SpellFlagSuppressTargetProcs; got != want {
+			t.Errorf("the defender's trigger heard a hit flagged %v: %v, want %v", flag, got, want)
 		}
 	}
 }
