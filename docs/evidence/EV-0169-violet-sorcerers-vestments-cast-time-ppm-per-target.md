@@ -3,8 +3,8 @@
 - Claim: The Violet Sorcerer's Vestments 4-piece bonus (1324318, Violet Meditation 1324315) procs at 1.0 PPM. Each
   spell landing rolls a chance of 1.0 × its cast time / 60, instants priced at 1.5 s, and an area spell rolls once per
   target hit. The 5-piece bonus (1324323, Summon Arcane Elemental 1324322) rolls the same way at 0.95 PPM, after its 15
-  s cooldown. Both are the lone-unit rates; the rows' base of 1 is that PPM. The elemental only melees, for about 30
-  damage a swing every 2.0 s.
+  s cooldown. Both are the lone-unit rates; the rows' base of 1 is that PPM. The elemental only melees, a swing every
+  2.0 s for 35 to 43 damage before armor.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the 270 reports under Reports, every fight with 4 or
   more pieces worn in, and for the 5-piece bonus the 146 of them with fights where all 5 are worn. Runs logged in two
   reports count once.
@@ -36,10 +36,10 @@ credit for a proc 20 ms before to 60 ms after it.
 
 ## 4-piece: Violet Meditation
 
-| Count                                   | Units / hits | Procs | Wearers | PPM [95%]            |
-| --------------------------------------- | -----------: | ----: | ------: | -------------------- |
-| Lone units, instants at 1.5 s           |       34,999 | 2,198 |     214 | 1.009 [0.968, 1.052] |
-| All hits                                |      115,783 | 3,917 |     223 | 1.092 [0.994, 1.201] |
+| Count                         | Units / hits | Procs | Wearers | PPM [95%]            |
+| ----------------------------- | -----------: | ----: | ------: | -------------------- |
+| Lone units, instants at 1.5 s |       34,999 | 2,198 |     214 | 1.009 [0.968, 1.052] |
+| All hits                      |      115,783 | 3,917 |     223 | 1.092 [0.994, 1.201] |
 
 The two counts overlap. The rule for weapon procs would post the all-hits rate rounded, 1.10; the lone-unit rate, 1.01,
 matches the row's base of 1 and has the narrower interval, and the sim takes 1.0.
@@ -78,20 +78,34 @@ pieces. The shortest gap between two summons is 15,005 ms, and gaps from 15 to 2
 15 s cooldown holds and a living elemental does not block a new one. No run shows a stretch with 3 or more summons due
 and none seen. 33 summons fall in fights whose CombatantInfo shows only 4 pieces.
 
-| Count                                          | Units / hits | Procs | Wearers | PPM [95%]            |
-| ---------------------------------------------- | -----------: | ----: | ------: | -------------------- |
-| Lone units, isolated 400 ms, credit to 60 ms   |       16,407 |   941 |     121 | 0.940 [0.868, 1.019] |
-| Lone units, isolated 1 s, credit to 900 ms     |       12,980 |   698 |     119 | 0.950 [0.880, 1.030] |
-| All hits                                       |       51,854 | 1,652 |     125 | 1.011 [0.884, 1.173] |
+| Count                                        | Units / hits | Procs | Wearers | PPM [95%]            |
+| -------------------------------------------- | -----------: | ----: | ------: | -------------------- |
+| Lone units, isolated 400 ms, credit to 60 ms |       16,407 |   941 |     121 | 0.940 [0.868, 1.019] |
+| Lone units, isolated 1 s, credit to 900 ms   |       12,980 |   698 |     119 | 0.950 [0.880, 1.030] |
+| All hits                                     |       51,854 | 1,652 |     125 | 1.011 [0.884, 1.173] |
 
 A flat chance fits the lone units worse (log-likelihood 30.7 lower, bootstrap 95% from 14.1 to 49.8). Single-target
 landings read 2.61% for instants, 3.74% at 2.5 s and 4.69% at 3.0 s.
 
 The Arcane Elemental, from its own events in 146 reports (2,722 summons): it casts nothing but melee. It swings every
 2.0 s (median 2,004 ms) and lasts about 20 s (median last swing 18.3 s after the summon, 90th percentile 20.0 s), for 8
-swings a summon (median; up to 11). A normal hit does 30 damage (median, 23 to 39 between the 10th and 90th
-percentiles) and a crit 61. Over 19,327 swings: 83.2% hits, 7.3% glancing, 4.1% misses, 3.2% dodged, 0.9% parried, 0.7%
-blocked, 0.5% crits. A summon deals 195 damage (median).
+swings a summon (median; up to 11). Over 19,327 swings: 83.2% hits, 7.3% glancing, 4.1% misses, 3.2% dodged, 0.9%
+parried, 0.7% blocked, 0.5% crits. A summon deals 195 damage (median).
+
+Its damage before armor is each hit's `unmitigatedAmount`, over 16,124 normal hits:
+
+| Grouping                                       | Groups | Lowest hit | Highest hit | Median hit | Highest / lowest |
+| ---------------------------------------------- | -----: | ---------: | ----------: | ---------: | ---------------: |
+| One elemental's hits in one fight, all summons |    296 |         35 |          43 |       39.5 |             1.19 |
+| One summon, 3 or more normal hits              |  2,310 |         38 |          43 |       40.5 |             1.14 |
+
+Each cell is the median over the groups. The sim's swing is 35 to 43, the per-fight row. Across groups the median hit
+runs from 34 (10th percentile) to 58 or 59 (90th), per fight or per summon. The wearers' gear is level 27 to 30
+throughout, so this spread is probably the owner's level and not the target's armor.
+
+The logged damage is 0.71 of `unmitigatedAmount` (median), which is the target's armor: a normal hit logs 30 (median,
+23 to 39 between the 10th and 90th percentiles) and a crit 61. A crit's `unmitigatedAmount` is 40 (median, 97 crits),
+the same as a normal hit's, so the value is taken before the crit multiplier, which the sim applies itself.
 
 ## Reports
 

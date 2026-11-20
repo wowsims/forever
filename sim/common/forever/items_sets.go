@@ -1111,7 +1111,7 @@ var ItemSetVioletSorcerersVestments = core.NewItemSet(core.ItemSet{
 		2: shared.ParsedSetBonus(spelldata.MustFind(1324311)), // +5 Arcane Resistance
 		3: shared.ParsedSetBonus(spelldata.MustFind(1324312)), // +10 Spirit
 		4: violetMeditationRegen,
-		// TODO: Ingame test needed -- whether several elementals can be up at once, and their damage.
+		// TODO: Ingame test needed -- whether several elementals can be up at once, and how the swing scales with the owner's level.
 		5: summonArcaneElemental,
 	},
 })
