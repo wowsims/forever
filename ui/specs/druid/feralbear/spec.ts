@@ -77,7 +77,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		itemSwap: ItemSwap.create({
 			items: Array.from({ length: 17 }, (_, slot) => ItemSpec.create(slot === ItemSlot.ItemSlotMainHand ? { id: 9449, enchant: 1900 } : {})),
 		}),
-		encounter: Presets.Level60Encounter,
+		encounter: Presets.DefaultEncounter,
 		epWeights: Presets.DefaultEp,
 		statCaps: (() => {
 			const hitCap = new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 8);
@@ -146,7 +146,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		talents: [Presets.BearTalents, Presets.HybridTalents],
 		rotations: [Presets.ROTATION_ADAPTIVE],
 		gear: [Presets.Level60Gear],
-		encounters: [Presets.Level60Encounter],
+		encounters: [Presets.DefaultEncounter],
 	},
 
 	// Auto uses the adaptive rotation.

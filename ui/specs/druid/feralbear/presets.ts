@@ -1,6 +1,6 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { AreaType, ConsumesSpec, HealingModel, Profession, Race } from '@generated/proto/common';
+import { ConsumesSpec, HealingModel, Profession, Race } from '@generated/proto/common';
 import { FeralBearDruid_Options as DruidOptions } from '@generated/proto/druid';
 import { SavedTalents } from '@generated/proto/ui';
 import { Encounter } from '@sim/raid/encounter';
@@ -20,12 +20,8 @@ export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJso
 });
 
 const encounter = Encounter.defaultEncounterProto();
-encounter.duration = 180;
-encounter.durationVariation = 5;
-encounter.areaTypes = [AreaType.AreaTypeForestGrassland, AreaType.AreaTypeMountainous];
-encounter.zoneId = 616;
 encounter.targets[0].minBaseDamage = 6000;
-export const Level60Encounter = PresetUtils.makePresetEncounter('Mount Hyjal', encounter);
+export const DefaultEncounter = PresetUtils.makePresetEncounter('Default', encounter);
 
 export const DefaultEp = BearEp;
 export const DefaultEpWeights = PresetUtils.makePresetEpWeights('Bear', DefaultEp);
