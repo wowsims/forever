@@ -79,7 +79,6 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		// Default rotation settings.
 		rotationType: APLRotationType.TypeAPL,
 		aplRotation: Presets.JVMES_APL.rotation.rotation!,
-		encounter: Presets.DefaultEncounter,
 		talents: Presets.CatTalents.data,
 		// Default spec-specific settings.
 		specOptions: Presets.DefaultOptions,
