@@ -42,12 +42,27 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgementConfig.ClassFlags = judgeDamageRank.ClassFlags
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
+	// The dummy lands on the enemy before the damage it names, and a landing on the melee table rolls
+	// a weapon proc whether or not it deals damage. So a judgement that lands rolls each weapon proc
+	// and combat enchant twice. The dummy's row lacks Not a Proc, so aura procs hear the damage alone:
+	// Windfury Totem and Vindication roll once (EV-0156).
+	dummyConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial),
+		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs))
+	if judgeRank.IsAProc() {
+		dummyConfig.Flags |= core.SpellFlagProc
+	}
+	dummyLanding := paladin.RegisterSpell(dummyConfig)
+
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := judgeDamage.Average()
 		if !target.PseudoStats.Stunned {
 			baseDamage /= 2
 		}
-		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
+		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
+		if result.Landed() {
+			dummyLanding.CalcAndDealOutcome(sim, target, dummyLanding.OutcomeAlwaysHit)
+		}
+		spell.DealDamage(sim, result)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 
@@ -90,9 +105,9 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 		Duration: sealDuration,
 	}).AttachProcTrigger(core.ProcTrigger{
 		Callback:       core.CallbackOnSpellHitDealt,
-		ProcMask:       sealSwingMask,
+		ProcMask:       swingMask,
 		Outcome:        core.OutcomeLanded,
-		ExtraCondition: sealHearsSwing,
+		ExtraCondition: hearsSwing,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			if icd.IsReady(sim) && rollProc(sim) {
 				procSpell.Cast(sim, result.Target)

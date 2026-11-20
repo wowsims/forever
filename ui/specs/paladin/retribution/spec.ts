@@ -27,7 +27,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 	cssScheme: PlayerClasses.getCssScheme(PlayerClasses.Paladin),
 	// List any known bugs / issues here and they'll be shown on the site.
 	knownIssues: [],
-	consumableStats: [Stat.StatMana, Stat.StatHolyDamage],
+	consumableStats: [Stat.StatMana],
 
 	// All stats for which EP should be calculated.
 	epStats: [
@@ -35,6 +35,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 		Stat.StatAgility,
 		Stat.StatIntellect,
 		Stat.StatSpellDamage,
+		Stat.StatHolyDamage,
 		Stat.StatSpellPiercing,
 		Stat.StatAttackPower,
 		Stat.StatArmorPenetration,
@@ -150,6 +151,8 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 
 		const values: Record<string, string> = {
 			'Has assigned judgement': String(!!judgement),
+			'Max Seal of Command Stacks': String(Math.min(Inputs.MAX_ECHO_STACKS, simple.uwSocStacks || 3)),
+			'Max Seal of Righteousness Stacks': String(Math.min(Inputs.MAX_ECHO_STACKS, simple.uwSorStacks || 1)),
 			'Pull range': String(Math.max(Inputs.MIN_PULL_RANGE, simple.pullRange || 25)),
 			'Delay Major CDs': `${simple.delayMajorCds}s`,
 		};

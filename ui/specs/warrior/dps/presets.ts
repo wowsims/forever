@@ -63,61 +63,71 @@ const ARMS_PRESET_OPTIONS = {
 };
 
 // Dungeon and world drops, quest rewards, vendor items and crafted items whose reagents include no raid
-// materials; no raid, raid quest, reputation or PvP rewards. The cloak, the belt and the first ring are sold by the
-// Undermine Trader in Stranglethorn Vale. The Dawn Armor pattern and its Pristine Scale and Fel Leather have no
-// known source, and neither do the Gauntlets and Battleboots of Heroism.
-export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, { ...FURY_PRESET_OPTIONS, devOnly: true });
+// materials; no raid, raid quest, reputation or PvP rewards, except Don Julio's Band, which the Alterac Valley
+// quartermasters sell. The cloak, the belt and the first ring are sold by the Undermine Trader in Stranglethorn
+// Vale. The Devilsaur Gauntlets and Leggings make the two-piece set. Persuader and Flurry Axe beat Ironfoe in
+// either hand up to two targets; Flurry Axe, the off hand, is a world-drop epic.
+export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, FURY_PRESET_OPTIONS);
 
-// The Fury build for fights of 60 to 240 s. Enrage takes no points: with no tank assigned the boss attacks no
-// one, so the sim gives it no value.
-export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30303213002-350530005122100231-1' }));
+// The Fury build for fights of 60 to 300 s.
+export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30303213002-050530045122100231' }));
 
-// Measured on the Pre-BiS Fury gear with the Fury talents.
+// The Fury build against a Giant or Dragonkin boss: an Enrage point goes to Spearing Strike, which deals extra
+// damage to both, and the Fury rotation swaps to Battle Stance for it. On other targets it does less than Fury.
+export const FuryDragonkinGiantTalents = PresetUtils.makePresetTalents(
+	'Fury Dragonkin/Giant',
+	SavedTalents.create({ talentsString: '30303213102-050530035122100231' }),
+);
+
+// Measured on Pre-BiS Fury gear with Gauntlets of Heroism, Titanic Leggings and Hand of Justice, and with Fury
+// talents that take Booming Voice and no Enrage.
 export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Fury',
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 1.91,
+			[Stat.StatAgility]: 1.7,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatArmorPenetration]: 0.4,
-			[Stat.StatHitRating]: 2,
-			[Stat.StatHasteRating]: 1.97,
-			[Stat.StatCritRating]: 2.49,
-			[Stat.StatExpertiseRating]: 2.14,
+			[Stat.StatArmorPenetration]: 0.39,
+			[Stat.StatHitRating]: 1.69,
+			[Stat.StatHasteRating]: 1.76,
+			[Stat.StatCritRating]: 2.26,
+			[Stat.StatExpertiseRating]: 2.35,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 11.48,
-			[PseudoStat.PseudoStatOffHandDps]: 3.26,
+			[PseudoStat.PseudoStatMainHandDps]: 12.59,
+			[PseudoStat.PseudoStatOffHandDps]: 2.66,
 		},
 	),
 );
 
-// The same sources as the Pre-BiS Fury gear, with one exception: the weapon, the Premier High Warlord's
-// Greatsword, a PvP reward. The shoulders are a world-drop green with the "of the Tiger" suffix. An epic
-// two-hander puts the set on even terms with the Fury set's epic Persuader.
+// The same sources as the Pre-BiS Fury gear, Don Julio's Band included. The shoulders are a world-drop green with the
+// "of the Tiger" suffix.
+// Destiny, the weapon, has no known source, and its Strength proc rolls a rate fitted from logs that more wearers
+// have yet to confirm (EV-0153). It beats Arcanite Champion, the Blacksmithing craft, by 4 to 5 %.
 export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, { ...ARMS_PRESET_OPTIONS, devOnly: true });
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the
 // global cooldowns Mortal Strike and Slam leave.
 export const ArmsTalents = PresetUtils.makePresetTalents('Arms', SavedTalents.create({ talentsString: '30303213132215201-55050000002-2' }));
 
-// Measured on the Pre-BiS Arms gear with the Arms talents. Hit is its value below the 8% cap, where the gear sits.
+// Measured on Pre-BiS Arms gear with Arcanite Champion, Dawn Armor, Titanic Leggings and Blackhand's Breadth, and the
+// Arms talents. Hit is its value below the 8% cap, where the gear sits.
 export const PreBiSArmsEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Arms',
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 1.72,
+			[Stat.StatAgility]: 1.71,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatArmorPenetration]: 0.44,
-			[Stat.StatHitRating]: 4.09,
-			[Stat.StatHasteRating]: 1.36,
-			[Stat.StatCritRating]: 2.24,
-			[Stat.StatExpertiseRating]: 1.67,
+			[Stat.StatArmorPenetration]: 0.45,
+			[Stat.StatHitRating]: 4.7,
+			[Stat.StatHasteRating]: 1.19,
+			[Stat.StatCritRating]: 2.23,
+			[Stat.StatExpertiseRating]: 1.46,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 17.63,
+			[PseudoStat.PseudoStatMainHandDps]: 16.63,
 			[PseudoStat.PseudoStatOffHandDps]: 0,
 		},
 	),

@@ -3,6 +3,7 @@ package buffs
 import (
 	"fmt"
 	"math"
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
@@ -81,7 +82,6 @@ func scheduledAura(aura *core.Aura, options core.PeriodicActionOptions) {
 		}
 	}
 	aura.OnReset = func(aura *core.Aura, sim *core.Simulation) {
-		aura.Duration = core.NeverExpires
 		if schedule != nil {
 			schedule.Cancel(sim)
 		}
@@ -256,12 +256,13 @@ var windfuryTotemHoldsOver = []string{
 // on the weapon special's table of miss, dodge, parry and crit, never a
 // glancing blow, and it is reduced by armor as a white hit is. Rank 3 adds
 // attack power and ranks 1 and 2 add none (EV-0002); the sim stands rank 3
-// only. A landed strike grants rage as a main-hand swing does.
+// only. It counts as a main-hand swing for the procs that hear melee swings
+// (EV-0136). A landed strike grants the rage a main-hand swing does (EV-0138).
 func newWindfuryTotemStrike(char *core.Character) *core.Spell {
 	attackPower := WindfuryTotemPriority()
 	config := spelldata.SpellConfig(&char.Unit, windfuryTotemStrike,
 		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(),
-		spelldata.Flags(core.SpellFlagSwingRage))
+		spelldata.Flags(core.SpellFlagCountsAsSwing))
 	if windfuryTotemStrike.IsAProc() {
 		config.Flags |= core.SpellFlagProc
 	}
@@ -519,9 +520,111 @@ func raidHasClass(raid *proto.Raid, class proto.Class) bool {
 	return false
 }
 
-// Annihilator procs often enough to keep all three stacks on the target.
-func driveArmorShatter(target *core.Unit, _ *proto.Debuffs, _ *proto.Raid) {
-	holdMaxStacks(core.MakePermanent(NewSpellDataArmorShatterAura(target, false, 0)))
+const annihilatorItemID = 12798
+
+// The weapon each state of the raid's Puncture Armor names, from 1, and the debuff its proc lands:
+// Bashguuder and Rivenspike land the row's 17315, Vibroblade its own 1293005.
+var punctureArmorWeapons = []struct {
+	itemID int32
+	meta   *Meta
+}{
+	{13204, punctureArmorMeta},
+	{13286, punctureArmorMeta},
+	{9485, punctureArmorMeta.atState(spelldata.MustFind(1293005), punctureArmorMeta.Label)},
+}
+
+// With the player wielding Annihilator, the raid's copy is the player's own, which the player's procs
+// stack and refresh, so the target carries one stack count as with Sunder Armor.
+func driveArmorShatter(target *core.Unit, _ *proto.Debuffs, raid *proto.Raid) {
+	rollWielderHits(NewSpellDataArmorShatterAura(target, playerWields(raid, annihilatorItemID), 0), annihilatorItemID)
+}
+
+// Bashguuder and Rivenspike both land 17315, so with the player wielding either, the raid's copy of
+// either is the player's own, which the player's procs stack and refresh. Vibroblade's copy
+// stays the raid's: its 1293005 shares the label, so a player copy of it would take the 17315 procs
+// on a row they do not land.
+func drivePunctureArmor(target *core.Unit, debuffs *proto.Debuffs, raid *proto.Raid) {
+	weapon := punctureArmorWeapons[min(int(debuffs.PunctureArmor), len(punctureArmorWeapons))-1]
+	isPlayer := weapon.meta == punctureArmorMeta && playerWields(raid, 13204, 13286)
+	rollWielderHits(newDebuff(target, weapon.meta, isPlayer, 0), weapon.itemID)
+}
+
+// Whether the simmed player carries one of the items, equipped or in an enabled item swap, where its
+// procs are registered as well. A raid with no player wields nothing.
+func playerWields(raid *proto.Raid, itemIDs ...int32) bool {
+	var player *proto.Player
+	if parties := raid.GetParties(); len(parties) > 0 && len(parties[0].GetPlayers()) > 0 {
+		player = parties[0].GetPlayers()[0]
+	}
+	items := player.GetEquipment().GetItems()
+	if player.GetEnableItemSwap() {
+		items = slices.Concat(items, player.GetItemSwap().GetItems())
+	}
+	return slices.ContainsFunc(items, func(item *proto.ItemSpec) bool { return slices.Contains(itemIDs, item.GetId()) })
+}
+
+// The landed hits a minute a main-hand wielder makes beside its own swings: specials, Windfury strikes
+// and Whirlwind, each of which rolls the weapon's proc (EV-0147).
+const wielderOtherHitsPerMinute = 48
+
+// The share of its proc's strikes a wielder's target dodges, whatever the target's level: the hit table's
+// dodge for an attacker behind a target three levels above it, with no weapon skill past its level's. The
+// wielder has the hit its strikes need to never miss, as the sim's pre-BiS Fury warrior has (EV-0152).
+const wielderStrikeDodgeChance = 0.065
+
+// A weapon's proc debuff from one main-hand wielder. Every target the raid's debuffs land on has a
+// wielder of its own, and the player wielding the weapon stacks the same aura. The wielder lands its
+// swings at the item's base speed and wielderOtherHitsPerMinute more hits, each rolling the item's
+// procs per minute, a chance of PPM × speed / 60, which refreshes the aura and adds a stack up to its
+// max. A row on the melee hit table is cast as a strike, as the player's proc casts it (R-0040): the
+// target dodges wielderStrikeDodgeChance of them, and one that lands off a swing rolls the proc once
+// more. A landing of the raid's debuffs (Target.ApplyRaidDebuffsAt) starts the rolls over, and a roll
+// on a target with the raid's debuffs disabled lands nothing.
+func rollWielderHits(aura *core.Aura, itemID int32) {
+	item := core.GetItemByID(itemID)
+	if item == nil {
+		panic(fmt.Sprintf("the raid's %s reads the swing speed and procs per minute of item %d, which the sim's item database lacks; the request's database must carry it", aura.Label, itemID))
+	}
+	chance := itemProcPPM(item, aura.ActionID.SpellID) * item.SwingSpeed / 60
+	swingsPerMinute := 60 / item.SwingSpeed
+	hitsPerMinute := swingsPerMinute + wielderOtherHitsPerMinute
+	swingShare := swingsPerMinute / hitsPerMinute
+	strikes := spelldata.MustFind(aura.ActionID.SpellID).DefenseTypeCore() == core.DefenseTypeMelee
+
+	lands := func(sim *core.Simulation) bool {
+		if sim.RandomFloat(aura.Label) >= chance {
+			return false
+		}
+		if strikes && sim.RandomFloat(aura.Label) < wielderStrikeDodgeChance {
+			return false
+		}
+		aura.Activate(sim)
+		if aura.MaxStacks > 0 {
+			aura.AddStack(sim)
+		}
+		return true
+	}
+
+	scheduledAura(aura, core.PeriodicActionOptions{
+		Period:          core.DurationFromSeconds(60 / hitsPerMinute),
+		TickImmediately: true,
+		Priority:        core.ActionPriorityDOT,
+		OnAction: func(sim *core.Simulation) {
+			if lands(sim) && strikes && sim.RandomFloat(aura.Label) < swingShare {
+				lands(sim)
+			}
+		},
+	})
+}
+
+// The procs per minute the item's chance-on-hit entry for the spell states.
+func itemProcPPM(item *core.Item, spellID int32) float64 {
+	for _, effect := range item.ItemEffects {
+		if effect.BuffId == spellID && effect.GetProc().GetPpm() > 0 {
+			return effect.GetProc().GetPpm()
+		}
+	}
+	panic(fmt.Sprintf("item %d states no procs per minute for spell %d", item.ID, spellID))
 }
 
 // The game files state one stack, so the raid's copy takes it as soon as it lands.

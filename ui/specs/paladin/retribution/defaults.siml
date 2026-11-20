@@ -8,6 +8,8 @@ simple:
   aura retribution_aura
   assigned_judgement judgement_of_the_crusader
   pull_range 25
+  uw_soc_stacks 3
+  uw_sor_stacks 1
 
 encounter:
   duration 180

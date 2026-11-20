@@ -118,6 +118,13 @@ with headless `playwright-core`. It is not a dependency of this repo, so use a l
   (`ui/STYLING.md` §5).
 - Headless Chromium may draw overlay scrollbars, so a layout that depends on scrollbar width can differ from a desktop
   browser.
+- For the phone layout (`ui/STYLING.md` §8), use a context with `isMobile: true` and `hasTouch: true` at a phone viewport
+  such as 390×844. The sim root is the scroller, so scroll `[data-testid=sim-ui]` rather than taking a full-page shot,
+  and compare `innerWidth` with the viewport width: a larger `innerWidth` means something widened the page.
+- To swipe, send `Input.dispatchTouchEvent` over a CDP session (`touchStart`, a dozen `touchMove`s 16 ms apart,
+  `touchEnd`): it scrolls natively. `Input.synthesizeScrollGesture` scrolls nothing in this headless Chromium. Drive the
+  whole run by touch, `locator.tap()` included: a mouse `click()` leaves a virtual cursor, and the browser moves hover
+  back to it after every layout change, which sends `mouseout`s a phone never would.
 - To load a realistic build, edit the page's `…__currentSettings__` localStorage key, or paste an
   `IndividualSimSettings` JSON into Import → JSON, and reload.
 - A spec's preset builds are chips under `[data-testid=saved-data-presets]`. Every tab renders its own copy and only

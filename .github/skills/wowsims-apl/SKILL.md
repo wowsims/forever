@@ -141,6 +141,11 @@ for another race's racial or an untaken talent.
   rotation until its cast goes or its queued cast fires. If the cast can neither go nor be queued once the GCD is within
   400 ms, the sequence ends and the pick goes on down the list. A spender above it that is ready first keeps it from
   starting.
+- **A Strict Sequence waits for a spell the pick queued after a hardcast from its own line or a line above it**
+  (`belowQueuedPick`), even one queued for a cooldown that ends after the cast end. One on a higher line starts in the
+  cast-end pass when its first step is a major cooldown, and its later steps, on the GCD or off it, take the queued
+  spell's place (`APLActionStrictSequence.GetNextAction`): Presence of Mind with Arcane Wrath goes at a Pyroblast's cast end ahead of an Arcane
+  Blast picked lower down (`docs/rotation.md`).
 - **A channel's `until` clip is held when the next action would start the same channel again**, unless the channel
   line says `recast` (`shouldInterruptChannel` in `sim/core/apl.go`). The guard reads the rotation with the channel
   ended and its aura down, and walks into group references, so a line gated on `not target.aura(x).is_active` or
@@ -169,7 +174,8 @@ for another race's racial or an untaken talent.
 - **`Is Execute Phase` takes a target**, the current target when none is set (`sim/core/apl_values_encounter.go`). An
   enemy has no health bar, so `Current Health` and `Current Health %` on one warn and do not resolve. Fights are
   time-based: a fight lasts its rolled duration, and every target of a plain encounter crosses 35% and 20% at the
-  encounter's execute proportions; a plan's boss and adds each cross them at their own times.
+  encounter's execute proportions; a plan's boss and adds each cross them at their own times. The 25% phase between
+  them has no APL threshold; item code reads it.
 - **Multidot and Strict Multidot count active targets**: a disabled or dead target is skipped, so `max_dots` dots the
   first targets still up (`sim/core/apl_actions_casting.go`).
 
@@ -208,7 +214,15 @@ unknown-name warning. Without a plan the times are never, and `Next Move Duratio
   condition; the ability's cooldown the same way; the rage; and for Overpower the proc outlasting the GCD
   (`Aura Remaining Time` above `GCD Time To Ready`). Swapping at the GCD drops the rage gained since a mid-GCD swap
   would have fired, about half a percent of DPS. Checking the spenders above Rend costs more DPS than the swaps it
-  saves, and Fury keeps Overpower Weaving above Execute, Bloodthirst and Whirlwind (PR #732).
+  saves, and Fury keeps Overpower Weaving above Execute, Bloodthirst and Whirlwind (PR #732). Fury's swaps for
+  Overpower and Rend stop at 40 rage: Tactical Mastery keeps 25 through the swap, and rage above 40 does more in
+  Berserker Stance. The cap sits on the two swap lines only, since in Battle Stance the casts lose nothing, and Rend
+  needs some loss allowed: a cap of 25 leaves it off the target for part of the fight. Arms' Stance Dance stays in
+  Battle Stance like the plain Arms rotation and swaps to Berserker Stance only for Whirlwind on two or more targets
+  at 25 to 40 rage and for Recklessness, then back; on one target any Whirlwind dance loses DPS, so it plays the plain
+  rotation there. A dance based in Berserker Stance loses Overpower, Spearing Strike and Mortal Strike to the rage
+  every swap drops. `Delay Check` reads Whirlwind's cooldown only on two or more targets: on one, Whirlwind never
+  goes, its cooldown never runs, and a check that waits on it never lets Battle Shout refresh.
 - **`Selected Potion` reads every potion slot unless its Slot is set** (`sim/core/apl_values_consumables.go`). A line
   that treats one slot's potion differently reads that slot: the Fury and Arms presets read each placeholder's own slot
   (`Resource Potion: Rage`, `Offensive Potion: Rage`), so a rage potion picked as the offensive potion follows the

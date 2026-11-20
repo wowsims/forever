@@ -3,7 +3,7 @@
 Each ruling is its own file in `docs/rulings/` (`docs/rulings/README.md`): the rule, the code that follows it, the pull
 request that settled it and its evidence. This index lists the ones this skill owns.
 
-- **R-0040** A weapon proc with melee or ranged DefenseType is a special hit that chains to weapon procs: `docs/rulings/R-0040-weapon-proc-special-hit-chains.md`
+- **R-0040** A weapon proc's strike a main-hand white swing cast rolls weapon procs once more: `docs/rulings/R-0040-weapon-proc-special-hit-chains.md`
 - **R-0041** No weapon proc hears a shield or magic DefenseType ability: `docs/rulings/R-0041-no-weapon-proc-shield-magic-ability.md`
 - **R-0042** No weapon proc hears a melee or ranged special with no DefenseType: `docs/rulings/R-0042-no-weapon-proc-without-defensetype.md`
 - **R-0043** A chance-on-hit weapon rolls once for each target an area strike lands on: `docs/rulings/R-0043-weapon-rolls-per-target-area-strike.md`

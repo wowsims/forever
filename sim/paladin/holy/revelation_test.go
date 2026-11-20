@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/paladin"
@@ -47,22 +48,78 @@ func TestRevelationReachesHolyLight(t *testing.T) {
 		t.Errorf("Holy Light's crit chance is %v with Revelation up and %v without", got, baseCrit)
 	}
 
-	// A proc's handler runs one spell batch window after the heal, so each cast is followed by
-	// stepping past that window.
+	// The charge goes as the cast completes, and a proc's handler runs one spell batch window after the
+	// heal, so each cast is stepped through to its end and past that window.
 	castAndStep := func(spell *core.Spell) {
-		spell.SkipCastAndApplyEffects(sim, &pally.Unit)
-		for at := sim.CurrentTime; sim.CurrentTime <= at+core.SpellBatchWindow; {
+		for !pally.GCD.IsReady(sim) {
 			sim.Step()
 		}
-	}
-
-	castAndStep(layOnHands)
-	if !buff.IsActive() {
-		t.Fatal("Lay on Hands, which the buff's mask does not name, spent its charge")
+		if !spell.Cast(sim, &pally.Unit) {
+			t.Fatalf("%s could not be cast", spell.ActionID)
+		}
+		for at := sim.CurrentTime + spell.CurCast.CastTime; sim.CurrentTime <= at+core.SpellBatchWindow; {
+			sim.Step()
+		}
 	}
 
 	castAndStep(holyLight)
 	if buff.IsActive() {
 		t.Error("Holy Light did not spend Revelation's charge")
+	}
+
+	// Lay on Hands takes all the paladin's mana, so it goes last.
+	buff.Activate(sim)
+	buff.SetStacks(sim, buff.MaxStacks)
+	castAndStep(layOnHands)
+	if !buff.IsActive() {
+		t.Error("Lay on Hands, which the buff's mask does not name, spent its charge")
+	}
+}
+
+// Judgement of Light's heal rolls nothing for Revelation on the paladin it heals, and Seal of Light's
+// heal rolls it (EV-0149).
+func TestRevelationHearsSealOfLightsHealAndNotJudgementOfLights(t *testing.T) {
+	gear := core.GetGearSet("../../../ui/specs/paladin/holy/gear_sets", "default").GearSet
+	gear.Items[proto.ItemSlot_ItemSlotMainHand].Enchant = 8217
+	player := core.WithSpec(&proto.Player{
+		Class:         proto.Class_ClassPaladin,
+		Race:          proto.Race_RaceHuman,
+		Equipment:     gear,
+		TalentsString: StandardTalents,
+		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+	}, PlayerOptions)
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{JudgementOfLight: true}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	pally := sim.Raid.Parties[0].Players[0].GetCharacter()
+
+	buff := pally.GetAuraByID(core.ActionID{SpellID: 1323419})
+	judgementHeal := pally.GetSpell(core.ActionID{SpellID: buffs.JudgementOfLightMaxRank.HealID})
+	sealHeal := pally.GetSpell(core.ActionID{SpellID: paladin.SealOfLightRankMap.Highest().Refs()[0].ID})
+	if buff == nil || judgementHeal == nil || sealHeal == nil {
+		t.Fatal("the Revelation buff, Judgement of Light's heal or Seal of Light's heal is not registered")
+	}
+
+	// A proc's handler runs one spell batch window after the heal.
+	procs := func(heal *core.Spell) bool {
+		for range 300 {
+			heal.Cast(sim, &pally.Unit)
+			for at := sim.CurrentTime; sim.CurrentTime <= at+core.SpellBatchWindow; {
+				sim.Step()
+			}
+			if buff.IsActive() {
+				return true
+			}
+		}
+		return false
+	}
+	if procs(judgementHeal) {
+		t.Error("Judgement of Light's heal procced Revelation")
+	}
+	if !procs(sealHeal) {
+		t.Error("Seal of Light's heal procced no Revelation in 300 heals")
 	}
 }

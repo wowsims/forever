@@ -5,6 +5,7 @@ package database
 // trusts. These run the merge on synthetic rows, so they need no game files database.
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
@@ -413,8 +414,158 @@ func TestShippedAreaBonusesAreWellFormed(t *testing.T) {
 	}
 }
 
-// Of two sets sharing a name, the lower set id's items go and the higher's stay; a set alone under its
-// name, an item with no set and an ItemAllowList item of the lower set stay.
+func TestVersusBonusesBakeOntoTheRow(t *testing.T) {
+	dummy := func(index uint8, points float64) storeEffect {
+		return storeEffect{Index: index, Type: dbcenums.E_DUMMY, BasePoints: points}
+	}
+	damage := storeEffect{Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100}
+	procTrigger := storeEffect{Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 112}
+	rows := []storeSpell{{ID: 10, Effects: []storeEffect{damage, dummy(1, 3)}}, {ID: 11, Effects: []storeEffect{damage, procTrigger}}, {ID: 12}}
+	list := []overrides.VersusBonus{
+		{SpellID: 10, EffectIndex: 1, Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant}, Reason: "tooltip"},
+		{SpellID: 11, Multiplier: 3, MobTypes: []proto.MobType{proto.MobType_MobTypeUndead}, Reason: "tooltip"},
+	}
+	if err := applyVersusBonuses(rows, list); err != nil {
+		t.Fatalf("%v", err)
+	}
+	if got := rows[0]; got.VersusEffectIndex != 1 || got.VersusMultiplier != 0 || len(got.VersusFamilies) != 1 ||
+		got.VersusFamilies[0] != int32(proto.CreatureFamily_CreatureFamilyPlant) || len(got.VersusMobTypes) != 0 {
+		t.Errorf("row 10 carries effect %d x%v against %v and %v", got.VersusEffectIndex, got.VersusMultiplier, got.VersusMobTypes, got.VersusFamilies)
+	}
+	if len(rows[0].overrideNotes) != 1 || !strings.Contains(rows[0].overrideNotes[0], "VersusBonus x3 ($s2) against CreatureFamilyPlant") {
+		t.Errorf("row 10's notes read %v", rows[0].overrideNotes)
+	}
+	if got := rows[1]; got.VersusMultiplier != 3 || len(got.VersusMobTypes) != 1 || got.VersusMobTypes[0] != int32(proto.MobType_MobTypeUndead) {
+		t.Errorf("row 11 carries x%v against %v", got.VersusMultiplier, got.VersusMobTypes)
+	}
+	if len(rows[2].VersusFamilies) != 0 || len(rows[2].overrideNotes) != 0 {
+		t.Errorf("row 12 was written to: %v", rows[2])
+	}
+
+	plant := []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant}
+	for _, tc := range []struct {
+		name  string
+		rows  []storeSpell
+		list  []overrides.VersusBonus
+		wants string
+	}{
+		{
+			name:  "no reason",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 3)}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, Families: plant}},
+			wants: "states no reason",
+		},
+		{
+			name:  "a spell the store does not carry",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 3)}}},
+			list:  []overrides.VersusBonus{{SpellID: 12, Families: plant, Reason: "tooltip"}},
+			wants: "which the store does not carry",
+		},
+		{
+			name: "two bonuses on one spell",
+			rows: []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 3)}}},
+			list: []overrides.VersusBonus{
+				{SpellID: 10, Families: plant, Reason: "tooltip"},
+				{SpellID: 10, MobTypes: []proto.MobType{proto.MobType_MobTypeUndead}, Reason: "tooltip"},
+			},
+			wants: "two versus bonuses",
+		},
+		{
+			name:  "no target",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 3)}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, Reason: "tooltip"}},
+			wants: "names no mob type or creature family",
+		},
+		{
+			name:  "an index the row does not have",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 3)}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, EffectIndex: 1, Families: plant, Reason: "tooltip"}},
+			wants: "no longer holds a factor",
+		},
+		{
+			name:  "an effect that acts on its points",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{damage}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, Families: plant, Reason: "tooltip"}},
+			wants: "no longer holds a factor",
+		},
+		{
+			name:  "a factor of 1",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 1)}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, Families: plant, Reason: "tooltip"}},
+			wants: "no longer holds a factor",
+		},
+		{
+			name:  "a factor of its own on a row that now states one",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{damage, dummy(1, 3)}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, Multiplier: 3, Families: plant, Reason: "tooltip"}},
+			wants: "now states a factor of 3",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			err := applyVersusBonuses(tc.rows, tc.list)
+			if err == nil {
+				t.Fatalf("the merge accepted %s", tc.name)
+			}
+			if !strings.Contains(err.Error(), tc.wants) {
+				t.Errorf("the error reads %q, which does not name %q", err, tc.wants)
+			}
+		})
+	}
+}
+
+func TestShippedVersusBonusesAreWellFormed(t *testing.T) {
+	if len(overrides.VersusBonuses) == 0 {
+		t.Fatal("the versus bonus table is empty, so nothing below checked anything")
+	}
+	for _, b := range overrides.VersusBonuses {
+		if b.Reason == "" || b.Source == "" {
+			t.Errorf("spell %d's versus bonus states reason %q and source %q", b.SpellID, b.Reason, b.Source)
+		}
+		if len(b.MobTypes) == 0 && len(b.Families) == 0 {
+			t.Errorf("spell %d's versus bonus names no target", b.SpellID)
+		}
+	}
+}
+
+// Of two sets sharing a name, the lower set id's pieces of a type the higher set has go and the higher's stay; the
+// lower set's piece of a type the higher set lacks stays and joins the higher set with its classes, and a set alone
+// A piece a set's ItemSet row lists is dropped where the set ships a piece of that slot the row does not list. A
+// listed piece with no unlisted one in its slot stays, as do a set with only listed pieces and an ItemAllowList item.
+func TestListedSetPieceIsDroppedBesideAnUnlistedOne(t *testing.T) {
+	var allowed int32
+	for id := range ItemAllowList {
+		allowed = id
+		break
+	}
+	if allowed == 0 {
+		t.Fatal("ItemAllowList is empty")
+	}
+
+	db := NewWowDatabase()
+	for _, item := range []*proto.UIItem{
+		{Id: 1, SetId: 10, Type: proto.ItemType_ItemTypeLegs},
+		{Id: 2, SetId: 10, Type: proto.ItemType_ItemTypeLegs},
+		{Id: 3, SetId: 10, Type: proto.ItemType_ItemTypeChest},
+		{Id: 4, SetId: 20, Type: proto.ItemType_ItemTypeLegs},
+		{Id: 5, Type: proto.ItemType_ItemTypeLegs},
+		{Id: allowed, SetId: 10, Type: proto.ItemType_ItemTypeLegs},
+	} {
+		db.Items[item.Id] = item
+	}
+
+	DropListedSetPiecesBesideUnlistedOnes(db, map[int32]bool{2: true, 3: true, 4: true, 5: true, allowed: true})
+
+	if _, ok := db.Items[2]; ok {
+		t.Error("the listed piece ships beside an unlisted piece of its set and slot")
+	}
+	for _, id := range []int32{1, 3, 4, 5, allowed} {
+		if _, ok := db.Items[id]; !ok {
+			t.Errorf("item %d is dropped", id)
+		}
+	}
+}
+
+// under its name, an item with no set and an ItemAllowList item of the lower set stay.
 func TestLowerSameNameSetIsDropped(t *testing.T) {
 	var allowed int32
 	for id := range ItemAllowList {
@@ -427,12 +578,13 @@ func TestLowerSameNameSetIsDropped(t *testing.T) {
 
 	db := NewWowDatabase()
 	for _, item := range []*proto.UIItem{
-		{Id: 1, SetId: 10, SetName: "Shared"},
-		{Id: 2, SetId: 10, SetName: "Shared"},
-		{Id: 3, SetId: 20, SetName: "Shared"},
+		{Id: 1, SetId: 10, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs},
+		{Id: 2, SetId: 10, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs},
+		{Id: 3, SetId: 20, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs, ClassAllowlist: []proto.Class{proto.Class_ClassHunter}},
 		{Id: 4, SetId: 5, SetName: "Alone"},
 		{Id: 5},
-		{Id: allowed, SetId: 10, SetName: "Shared"},
+		{Id: 6, SetId: 10, SetName: "Shared", Type: proto.ItemType_ItemTypeChest},
+		{Id: allowed, SetId: 10, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs},
 	} {
 		db.Items[item.Id] = item
 	}
@@ -444,9 +596,12 @@ func TestLowerSameNameSetIsDropped(t *testing.T) {
 			t.Errorf("item %d of the lower set ships", id)
 		}
 	}
-	for _, id := range []int32{3, 4, 5, allowed} {
+	for _, id := range []int32{3, 4, 5, 6, allowed} {
 		if _, ok := db.Items[id]; !ok {
 			t.Errorf("item %d is dropped", id)
 		}
+	}
+	if got := db.Items[6]; got.GetSetId() != 20 || !slices.Equal(got.GetClassAllowlist(), []proto.Class{proto.Class_ClassHunter}) {
+		t.Errorf("item 6 of the lower set has set %d and classes %v, want the higher set 20 and its pieces' classes", got.GetSetId(), got.GetClassAllowlist())
 	}
 }

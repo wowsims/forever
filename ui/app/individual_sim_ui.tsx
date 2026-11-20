@@ -1,7 +1,7 @@
 import { SidebarRegistry } from '@app/sidebar_registry';
 import { initBulk } from '@features/bulk/model/init';
 import { watchTargetDummies } from '@features/encounter/model/target_dummies';
-import { registerAreaStatsNotices, registerSetBonusNotices } from '@features/gear/item_notices';
+import { registerAreaStatsNotices, registerProcRateNotices, registerSetBonusNotices } from '@features/gear/item_notices';
 import { createLink } from '@features/import-export';
 import { ReforgeSidebarGroup } from '@features/reforge/components/ReforgePanel';
 import { createReforgeOptimizer, type ReforgeOptimizerModel, type ReforgeOptimizerOptions } from '@features/reforge/model/reforge_optimizer';
@@ -131,6 +131,7 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 		// This needs to go before all the UI components so that gear loading is the
 		// first callback invoked from waitForInit().
 		this.sim.waitForInit().then(() => {
+			registerProcRateNotices(this.sim.db);
 			registerSetBonusNotices(this.sim.db);
 			registerAreaStatsNotices(this.sim.db);
 			this.loadSettings();

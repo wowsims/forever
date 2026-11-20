@@ -4,6 +4,8 @@ import { forwardRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { type ITooltip, Tooltip as ReactTooltip, type TooltipRefProps } from 'react-tooltip';
 
+import { hasHover } from '../../shared/pointer';
+
 export type TooltipPlace = 'top' | 'right' | 'bottom' | 'left';
 
 const DEFAULT_MAX_WIDTH = 'max-w-tooltip max-xl:max-w-tooltip-lg max-md:max-w-tooltip-sm';
@@ -35,6 +37,8 @@ export interface TooltipProps {
 const GLOBAL_CLOSE = { clickOutsideAnchor: true, escape: true };
 // `openEvents` is deliberately never passed.
 const HOVER_CLOSE = { mouseleave: true, blur: true, click: true };
+// A tapped button that opens a dialog moves focus into it, which closes its label instead of leaving it over the dialog.
+const TAP_CLOSE = { blur: true };
 
 /** Content is `children`, which react-tooltip does not render until the tooltip first opens — so a picker built inside one costs nothing until it is shown. */
 export const Tooltip = forwardRef<TooltipRefProps, TooltipProps>(
@@ -59,6 +63,9 @@ export const Tooltip = forwardRef<TooltipRefProps, TooltipProps>(
 	) => {
 		const maxWidthClassName = maxWidth === 'default' ? DEFAULT_MAX_WIDTH : maxWidth === 'none' ? 'max-w-none' : maxWidth;
 		const portalContainer = usePortalContainer();
+		// Without hover, react-tooltip opens a hover tooltip on `touchstart`, so a swipe that starts on an anchor opens it and no
+		// `mouseleave` ever closes it. There a tap opens it and a tap anywhere else closes it.
+		const touch = !hasHover();
 		const tooltip = (
 			<ReactTooltip
 				ref={ref}
@@ -66,8 +73,8 @@ export const Tooltip = forwardRef<TooltipRefProps, TooltipProps>(
 				render={render}
 				place={place}
 				clickable={clickable}
-				openOnClick={openOnClick}
-				closeEvents={openOnClick ? undefined : HOVER_CLOSE}
+				openOnClick={openOnClick || touch}
+				closeEvents={openOnClick ? undefined : touch ? TAP_CLOSE : HOVER_CLOSE}
 				globalCloseEvents={GLOBAL_CLOSE}
 				hidden={hidden}
 				afterShow={onOpenChange && (() => onOpenChange(true))}

@@ -109,12 +109,10 @@ func init() {
 		damage := row.DamageEffect()
 
 		config := procSpellConfig(character, row)
+		// The tooltip's tripling, which no row states, is an override on 1325229.
+		config.VersusBonus = shared.ItemVersusBonus(character, 867, proto.VersusEffectKind_VersusEffectKindDamage, row)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			amount := damage.DirectAmount(sim)
-			if target.MobType == proto.MobType_MobTypeUndead {
-				amount *= 3
-			}
-			spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeRangedHitAndCrit)
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeRangedHitAndCrit)
 		}
 		smite := character.RegisterSpell(config)
 
@@ -261,7 +259,8 @@ func init() {
 	//
 	// 1298230 applies 1298231 on entering combat, which is the encounter start in the sim. 1298231
 	// states the 60 as flat Physical damage taken and no charges: the first Physical hit taken that
-	// deals damage, of the direct hits its ProcTypeMask hears, takes the 60 off and removes it.
+	// deals damage, of the direct hits its ProcTypeMask hears, takes the 60 off, half of the hit at most,
+	// and removes it.
 	core.NewItemEffect(13955, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1298231)
@@ -287,6 +286,43 @@ func init() {
 		}))
 		character.ItemSwap.RegisterProc(13955, equip)
 	})
+
+	// Zealot Plate
+	// https://www.wowhead.com/forever/item=274651/zealot-plate
+	//
+	// When struck in combat, has a chance to energize you for 88 mana. This effect cannot occur more
+	// than once every 15 sec.
+	//
+	// The item's effect names Zealotry 1294666, the mana gain, so the stat-bonus route cannot build it;
+	// 1294668 is the trigger that fires it off melee swings and abilities taken, with the 15 s cooldown.
+	// Each landed melee swing taken outside the cooldown rolls 5%, the row's ProcChance as an override
+	// sets it (EV-0115).
+	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 1294668},
+		[]shared.ItemVariant{
+			{ItemID: 274651, ItemName: "Zealot Plate"},
+		})
+
+	// Argent Defender
+	// https://www.wowhead.com/forever/item=13243/argent-defender
+	//
+	// Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that
+	// strike you are 2 times as likely to activate this effect.
+	//
+	// 17350 rolls on each landed melee hit taken that deals damage, outside its 20 s cooldown. The
+	// procs per minute an override puts on the row are priced on the attacker's time between its own
+	// swings at the hit, slows included: its main hand's interval, or both hands together when it
+	// dual-wields. An attacker with no melee auto attack has no interval and never procs it. The row's
+	// versus bonus is the tooltip's "2 times" when an Undead strikes (EV-0126).
+	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17350, BuffSpellID: 17351,
+		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
+			row := spelldata.MustFind(17350)
+			undead := shared.ItemVersusBonus(character, 13243, proto.VersusEffectKind_VersusEffectKindProcChance, row)
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewAttackerSwingPPMManager(float64(row.RPPM), trigger.ProcMask, undead.Against)
+		}},
+		[]shared.ItemVariant{
+			{ItemID: 13243, ItemName: "Argent Defender"},
+		})
 }
 
 // TODO: The game files state no rate for Depleted Eye of Influence's 1297085, and none is measured on

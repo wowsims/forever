@@ -43,8 +43,7 @@ func (druid *Druid) applyImprovedWrath() {
 }
 
 // Periodic damage and healing on the spells its class flags name: Moonfire, Insect Swarm, Rip, Rake,
-// Lacerate, Entangling Roots, Rejuvenation, Regrowth and Wild Growth, and Swiftmend's heal. The flags name
-// Pounce too, but Pounce Bleed's lie outside them.
+// Lacerate, Pounce Bleed, Entangling Roots, Rejuvenation, Regrowth and Wild Growth, and Swiftmend's heal.
 func (druid *Druid) applyGenesis() {
 	druid.parseTalent(druid.Talents.Genesis, spellData.Genesis)
 }
@@ -163,7 +162,7 @@ func (druid *Druid) applyEclipse() {
 	}
 
 	// Each Wrath whose hit roll lands grants the charges with its cast result, at its cast, so a
-	// Starfire queued behind it takes one. A miss or a full resist grants none.
+	// Starfire queued behind it takes one. A miss grants none.
 	trigger := spelldata.ProcTrigger(&druid.Character, rank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			aura.Activate(sim)

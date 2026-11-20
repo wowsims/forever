@@ -66,9 +66,6 @@ func RegisterAllOnUseCds() {
 	// shared.NewSpellDataHealOnUse(14153) // Robe of the Void - https://www.wowhead.com/forever/spell=18386
 	// unsupported: 21954 deals no damage and heals no one (E_DISPEL)
 	// shared.NewSimpleStatActive(17744) // Heart of Noxxion - https://www.wowhead.com/forever/spell=21954
-	// on use: 1287808 (A_SCHOOL_ABSORB); not simulated: A_DUMMY
-	// unsupported: the absorb of 10000000000 beside an A_DUMMY absorbs only the spells a script names, which the game files do not list
-	// shared.NewSpellDataAbsorbOnUse(18406) // Onyxia Blood Talisman - https://www.wowhead.com/forever/spell=1287808
 	// unsupported: 1302356 deals no damage and heals no one (A_PROC_TRIGGER_SPELL)
 	// shared.NewSimpleStatActive(18537) // Counterattack Lodestone - https://www.wowhead.com/forever/spell=1302356
 	// unsupported: 23131 deals no damage and heals no one (A_REFLECT_SPELLS_SCHOOL)
@@ -93,16 +90,12 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(21181) // Grace of Earth - https://www.wowhead.com/forever/spell=25892
 	// unsupported: 26467 deals no damage and heals no one (A_PROC_TRIGGER_SPELL)
 	// shared.NewSimpleStatActive(21625) // Scarab Brooch - https://www.wowhead.com/forever/spell=26467
-	// unsupported: 1306267 deals no damage and heals no one (E_FORCE_CAST_2)
-	// shared.NewSimpleStatActive(221315) // Traveler's Symbols - https://www.wowhead.com/forever/spell=1306267
 	// unsupported: 23453 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(260819) // EZ-Thro Field Transporter: Gadgetzan - https://www.wowhead.com/forever/spell=23453
 	// unsupported: 1269339 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(260821) // EZ and SAF Field Transporter: Mt. Hyjal - https://www.wowhead.com/forever/spell=1269339
 	// unsupported: 1270941 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(260824) // Gnomish Poultryizer - https://www.wowhead.com/forever/spell=1270941
-	// unsupported: 1296664 deals no damage and heals no one (A_MOD_CHARM)
-	// shared.NewSimpleStatActive(269741) // Scented Runewood Brooch - https://www.wowhead.com/forever/spell=1296664
 	// unsupported: 1295272 deals no damage and heals no one (E_TRIGGER_MISSILE)
 	// shared.NewSimpleStatActive(274761) // Parachute-Priest Pager - https://www.wowhead.com/forever/spell=1295272
 	// unsupported: 1315972 deals no damage and heals no one (A_MOD_STUN, A_MOD_STUN, A_DUMMY)
@@ -256,15 +249,15 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataDamageOnUse(8348) // Helm of Fire - https://www.wowhead.com/forever/spell=10578
 	// on use: 15712 (E_SCHOOL_DAMAGE); not simulated: E_TRIGGER_SPELL, E_TRIGGER_SPELL
 	shared.NewSpellDataDamageOnUse(11905) // Linken's Boomerang - https://www.wowhead.com/forever/spell=15712
-	// on use: 17283 (E_SCHOOL_DAMAGE); not simulated: E_NONE
+	// on use: 17283 (E_SCHOOL_DAMAGE, E_NONE)
 	shared.NewSpellDataDamageOnUse(13171) // Smokey's Lighter - https://www.wowhead.com/forever/spell=17283
 	// on use: 18364 (A_PERIODIC_TRIGGER_SPELL); every 5s for 15s: 18374 (E_SCHOOL_DAMAGE)
 	shared.NewSpellDataPeriodicDamageOnUse(14134) // Cloak of Fire - https://www.wowhead.com/forever/spell=18364
 	// on use: 26789 (E_SCHOOL_DAMAGE)
 	shared.NewSpellDataDamageOnUse(21891) // Shard of the Fallen Star - https://www.wowhead.com/forever/spell=26789
-	// on use: 1295039 (E_SCHOOL_DAMAGE, A_PERIODIC_DAMAGE); not simulated: E_NONE
+	// on use: 1295039 (E_SCHOOL_DAMAGE, A_PERIODIC_DAMAGE, E_NONE)
 	shared.NewSpellDataDamageOnUse(274609) // Serpentbane Crown - https://www.wowhead.com/forever/spell=1295039
-	// on use: 1295270 (E_SCHOOL_DAMAGE); not simulated: E_NONE, E_NONE
+	// on use: 1295270 (E_SCHOOL_DAMAGE, E_NONE); not simulated: E_NONE
 	shared.NewSpellDataDamageOnUse(274759) // Everlook Pathcarver - https://www.wowhead.com/forever/spell=1295270
 
 	// FrostDamage / ShadowDamage
@@ -435,6 +428,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=5579
 	// Not simulated: Insignia of the Horde: "Immune Root/Snare/Stun" (5579) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=5579
+	// Not simulated: Traveler's Symbols: "Traveler's Mark" (1306267) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=1306267
 	// Not simulated: SAF-T Emergency Ripper: Everlook: "Everlook Transporter" (23442) - ignored effect type 252
 	// https://www.wowhead.com/forever/spell=23442
 	// Not simulated: Defender of the Barkskin: "Defender of the Barkskin" (1294063) - ignored effect type 28

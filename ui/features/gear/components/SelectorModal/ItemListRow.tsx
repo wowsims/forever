@@ -83,7 +83,7 @@ export const ItemListRowView = ({
 			{notice}
 		</div>
 		{source !== undefined && (
-			<div className="w-64" data-testid="selector-modal-list-item-source-container">
+			<div className="w-64 max-md:hidden" data-testid="selector-modal-list-item-source-container">
 				{source}
 			</div>
 		)}
@@ -154,7 +154,7 @@ export const ItemListRow = ({
 			active={active}
 			onEquip={onEquip}
 			discovered={discovered}
-			notice={<ItemNoticeIcon itemId={isEnchantsTab ? undefined : itemData.id} enchantId={isEnchantsTab ? itemData.id : undefined} />}
+			notice={<ItemNoticeIcon itemId={isItemsTab ? itemData.id : undefined} enchantId={isEnchantsTab ? itemData.id : undefined} />}
 			source={sourceItem && <ItemSource item={sourceItem} sim={host.sim} faction={faction} />}
 			ep={ep}
 			favourited={favourited}

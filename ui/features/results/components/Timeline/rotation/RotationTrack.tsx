@@ -10,7 +10,7 @@ import { findScrollParent } from '@ui-kit/utils/dom';
 import type { RectObserver } from '@ui-kit/VirtualList';
 import { WINDOW_SCROLLER } from '@ui-kit/VirtualList';
 import clsx from 'clsx';
-import type { MouseEvent as ReactMouseEvent } from 'react';
+import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { memo, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -85,7 +85,7 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 	const [band, setBand] = useState(NO_BAND);
 	const [pps, setPps] = useState(DEFAULT_PPS);
 	const [measurable, setMeasurable] = useState(false);
-	const { ref: tooltipRef, content: hover, show: showTip, moveTo: moveTip, hide: hideTip } = useHoverTooltip<{ rowKey: string; index: number }>();
+	const { ref: tooltipRef, content: hover, show: showTip, moveTo: moveTip, hide: hideTip } = useHoverTooltip<{ rowKey: string; index: number }>(scrollerRef);
 	const hideTooltipId = useId();
 
 	const rowFor = useCallback((key: string): Row => rowAt(model!, key), [model]);
@@ -275,6 +275,33 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 	// vertical scrolling, so dragging and shift+wheel are the reachable ways to pan.
 	const { panning, handlers: pan } = usePointerPan({ verticalScroller: () => outer.current });
 
+	// A tap opens an item's tooltip with the same touch that clicks it, so a touch opens a cast's entry only from a second
+	// tap, made while its tooltip shows. Null for a press by anything but a finger.
+	const shownAtTouch = useRef<string | null>(null);
+
+	const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+		shownAtTouch.current = event.pointerType === 'touch' ? (hover ? `${hover.rowKey}:${hover.index}` : '') : null;
+		pan.onPointerDown(event);
+	};
+
+	// The ruler sits outside the scroller, so a finger dragged along it pans the rows from here; it is `touch-pan-y`, so a
+	// vertical swipe on it still scrolls the page.
+	const rulerPan = useRef<{ pointerId: number; x: number; scrollLeft: number } | null>(null);
+	const onRulerPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+		const scroller = scrollerRef.current;
+		if (event.pointerType !== 'touch' || !scroller) return;
+		rulerPan.current = { pointerId: event.pointerId, x: event.clientX, scrollLeft: scroller.scrollLeft };
+		event.currentTarget.setPointerCapture(event.pointerId);
+	};
+	const onRulerPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+		const start = rulerPan.current;
+		if (event.pointerId !== start?.pointerId || !scrollerRef.current) return;
+		scrollerRef.current.scrollLeft = start.scrollLeft - (event.clientX - start.x);
+	};
+	const endRulerPan = (event: ReactPointerEvent<HTMLDivElement>) => {
+		if (event.pointerId === rulerPan.current?.pointerId) rulerPan.current = null;
+	};
+
 	useEffect(() => {
 		zoomRef.current?.setDuration(model?.duration ?? 0);
 	}, [model]);
@@ -345,6 +372,7 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 		if (!aplRun) return;
 		const element = (event.target as Element).closest<HTMLElement>('[data-item-index]');
 		const rowKey = element?.closest<HTMLElement>('[data-row-key]')?.dataset.rowKey;
+		if (shownAtTouch.current !== null && shownAtTouch.current !== `${rowKey}:${element?.dataset.itemIndex}`) return;
 		const row = element && rowKey && model?.byKey.has(rowKey) ? rowFor(rowKey) : null;
 		const item = row && row.kind !== 'header' && row.kind !== 'separator' ? row.items[Number(element!.dataset.itemIndex)] : null;
 		if (item?.kind !== 'cast' || !item.log.aplEntryPath || aplRun.changedSinceRun()) return;
@@ -380,7 +408,11 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 						/>
 						<div
 							ref={rulerViewportRef}
-							className="relative box-border min-w-0 shrink grow basis-0 overflow-hidden border-b border-white text-[12px] font-bold text-white">
+							className="relative box-border min-w-0 shrink grow basis-0 touch-pan-y overflow-hidden border-b border-white text-[12px] font-bold text-white"
+							onPointerDown={onRulerPointerDown}
+							onPointerMove={onRulerPointerMove}
+							onPointerUp={endRulerPan}
+							onPointerCancel={endRulerPan}>
 							<div ref={rulerTrackRef} data-testid="rotation-ruler-track" className="ui-timeline-ruler-track" />
 						</div>
 					</div>,
@@ -396,6 +428,7 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 				tabIndex={0}
 				onKeyDown={event => zoomRef.current?.onKeyDown(event)}
 				{...pan}
+				onPointerDown={onPointerDown}
 				onClick={onItemClick}
 				onMouseOver={onItemOver}
 				onMouseMove={onItemMove}

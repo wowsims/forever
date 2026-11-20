@@ -25,6 +25,7 @@
 	}
 
 	@variant max-lg {
-		--spacing-sim-header: --spacing(18);
+		--spacing-sim-header: --spacing(14);
+		--spacing-sim-dock: calc(var(--spacing-sim-dock-bar) + var(--spacing-sim-dock-nav) + 1px);
 	}
 }

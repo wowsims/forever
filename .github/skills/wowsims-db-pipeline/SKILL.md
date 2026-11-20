@@ -24,6 +24,7 @@ pages below hold the detail, and this skill carries the traps and commands they 
 | `tools/database/overrides.go`                                               | item, enchant and consumable overrides, allow and deny lists, `ItemSetClasses`                                                                                                                                                                                                                        |
 | `assets/db_inputs/spell_store_inputs.json`                                  | the rows the store was built from, with each group's `Builds` and `Hotfixes`; gzipped despite the name (`zcat`)                                                                                                                                                                                       |
 | `assets/db_inputs/questie_db.json`                                          | quest, vendor and NPC drop sources, written by `gen_db -gen=questie` from the baked Forever data of the QuestieDB release pinned in `tools/database/questie.go`; `-gen=db` adds them after an item's drop, craft and reputation sources, before its PvP source, its drops only with no AtlasLoot drop |
+| `assets/db_inputs/questie_quests.json`                                      | the zone, the asked-for items and the class bits of every quest in `questie_db.json`, written beside it by `gen_db -gen=questie`; `-gen=db` reads them for the phases and the quest class allowlists                                                                                                  |
 | `assets/database/db.json`, `assets/database/db.bin`                         | one `proto.UIDatabase` written twice by `gen_db`; the sim embeds the binary, the UI fetches JSON                                                                                                                                                                                                      |
 | `assets/database/item_first_seen.json`                                      | when `gen_db -gen=db` first saw each item id, in unix seconds, one entry per line sorted by id; the UI marks items first seen in the last 7 days. `gen_db` keeps every line, an item no longer in `db.json` too, and stamps each new id with the run's time; never edit it by hand                    |
 | `.github/workflows/check_hotfixes.yml`, `update_items.yml`, `update_db.yml` | the hourly hotfix check, the items-only regeneration it dispatches, the full one run by hand                                                                                                                                                                                                          |
@@ -95,6 +96,11 @@ go test ./sim/core/spelldata/ ./tools/database/ -count=1     # no database neede
   bits, and a vendor's `friendlyToFaction`; both sides, none or no data is `Unknown`. `ItemSource` leaves the other side's
   out of the cell and `+N`, unless they are all an item has. The source filter, `factionFilter` and search read every
   source.
+- **A class quest's reward takes the quest's classes.** The game files open many class quest rewards to every class
+  (the Sunken Temple and Silithus class quests). `parseQuestieData` reads a quest's `requiredClasses`, and
+  `ApplyQuestClasses` gives a bind-on-pickup item with no allowlist of its own the classes of its quests, when every
+  source it has is a quest that names classes; a craft or a drop beside the quest keeps it open, and so do quests that
+  together allow every class.
 
 ## Overrides
 
@@ -105,9 +111,15 @@ spells. The generator refuses an override once the game files state the value; r
   files' values; the store also carries the hand-kept ones, each marked `// override:` in `spells_auto_gen.go`.
 - **The table follows whose number it is.** A rate that belongs to one weapon goes in `WeaponProcs`, keyed by item and
   spell, since two weapons can share a trigger spell; an enchant's in `EnchantProcs`; a rate every carrier of the
-  spell shares (Omen of Clarity, Seal of Light) in `Spells` with `Field: PPM`. Proc wiring is `wowsims-procs`.
+  spell shares (Omen of Clarity, Seal of Light) in `Spells` with `Field: PPM`. Hand-written gear whose code rolls
+  something its rows do not state goes in `GearProcRates` (`gear_proc_rates.go`), which only the gear tab's rate
+  reads. Proc wiring is `wowsims-procs`.
 - **Rows are keyed struct literals, one field per line.** `Source` and `Reason` name where the value comes from, and a
   `// TODO:` on the value line marks a row still to measure in game.
+- **A rate override's `Source` sets the gear tab's status for that rate** (`ProcRateStatus` in `proto/ui.proto`); a
+  rate with no override is the game files' chance. `gen_db` stamps each rate on the items, enchants and set bonuses in
+  `db.json` after the effects step, so a new override row moves the gear tab's line on the next run; the sim never
+  reads it. The `Source` values and which rates reach the gear tab are `wowsims-procs` `## Measuring a rate`.
 
 ## A database behind master
 
@@ -176,7 +188,15 @@ Reading another table once, what the tables hold and how a script reads them: `r
 
 - `core.MinEffectItemLevel = 40` in `sim/core/item_effects.go` drops chance-on-hit items below item level 40 (Bloodpike),
   and the class suites' AllItems tests skip every item below it, hand-written effects included.
-- `InferPhase` in `tools/database/item_source_utils.go` has no callers and stays: `gen_db` stamps every item phase 1.
+- `gen_db -gen=atlasloot` reads only the MoP fork's MoP files, so it writes 665 items over the 11,322 classic,
+  TBC and Wrath items `atlasloot_db.json` holds, which a scrape of the classic AtlasLoot repository wrote. That
+  repository is unchanged since May 2024; do not run the generator over the file until it reads those files
+  again. A wrong value in its classic entries is fixed by hand, with the same edit in `db.json` and `db.bin`
+  encoded from that `db.json`.
+- An item's phase follows its sources (`InferPhases` in `tools/database/item_phases.go`), so a scrape or a
+  regeneration that adds or removes a source can move phases in `db.json` with no phase rule changed. The phase reads
+  every source the inputs give an item, the ones the picker hides included. A raid opens when its row in `raids` there
+  is set open; the row holds its `Map` id and the factions whose reputation it gives.
 - A test that assumes one build across every spell data group breaks once a partial update mixes the builds.
 - `make buffs-proto` needs the compiled protos; on a fresh checkout run `make sim/core/proto/api.pb.go` first.
 - A hotfix that turns an effect into an `A_DUMMY` with its value kept usually moves it into a server script, and

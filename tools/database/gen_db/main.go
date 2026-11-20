@@ -75,7 +75,9 @@ func main() {
 		db.WriteJson(fmt.Sprintf("%s/atlasloot_db.json", inputsDir))
 		return
 	} else if *genAsset == "questie" {
-		database.ReadQuestieData().WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
+		questieDB, questieQuests := database.ReadQuestieData()
+		questieDB.WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
+		database.WriteQuestieQuests(fmt.Sprintf("%s/questie_quests.json", inputsDir), questieQuests)
 		return
 	} else if *genAsset != "db" {
 		panic("Invalid gen value")
@@ -116,9 +118,13 @@ func main() {
 		factionNames    map[int32]string
 		atlaslootDB     *database.WowDatabase
 		questieDB       *database.WowDatabase
-		raidZones       map[int32]bool
+		questieQuests   map[int32]*database.QuestieQuest
+		raidZoneMaps    map[int32]int32
+		spellReagents   map[int32][]int32
+		spellRecipes    map[int32][]int32
 		dungeonZones    map[int32]bool
 		areaNames       map[int32]string
+		setListedItems  map[int32]bool
 		iconsMap        map[int]string
 		icons           map[int]database.SpellIcon
 	)
@@ -154,16 +160,21 @@ func main() {
 	})
 	g.Go(func() error {
 		questieDB = database.ReadDatabaseFromJson(tools.ReadFile(fmt.Sprintf("%s/questie_db.json", inputsDir)))
+		questieQuests = database.ReadQuestieQuests(fmt.Sprintf("%s/questie_quests.json", inputsDir))
 		return nil
 	})
-	g.Go(func() (err error) { raidZones, err = database.LoadRaidZoneIDs(helper); return })
+	g.Go(func() (err error) { raidZoneMaps, err = database.LoadRaidZoneMaps(helper); return })
+	g.Go(func() (err error) { spellReagents, err = database.LoadSpellReagents(helper); return })
+	g.Go(func() (err error) { spellRecipes, err = database.LoadSpellRecipes(helper); return })
 	g.Go(func() (err error) { dungeonZones, err = database.LoadDungeonZoneIDs(helper); return })
 	g.Go(func() (err error) { areaNames, err = database.LoadAreaTableNames(helper); return })
+	g.Go(func() (err error) { setListedItems, err = database.LoadItemSetListedItems(helper); return })
 	g.Go(func() (err error) { iconsMap, err = database.LoadArtTexturePaths(database.ListfilePath); return })
 	if err := g.Wait(); err != nil {
 		panic(fmt.Sprintf("Error loading DBC data %v", err))
 	}
 
+	raidZones := core.MapMap(raidZoneMaps, func(zone, _ int32) (int32, bool) { return zone, true })
 	pruneAtlasLootDrops(atlaslootDB, raidZones, areaNames)
 	database.PruneQuestieSources(questieDB, raidZones, dungeonZones, areaNames)
 
@@ -221,18 +232,29 @@ func main() {
 
 	db.MergeItems(database.ItemOverrides)
 	database.ApplyItemSetClasses(db)
+	database.ApplyQuestClasses(db, questieQuests, instance.Items)
 	db.MergeEnchants(database.EnchantOverrides)
 	ApplyGlobalFilters(db)
+	database.DropListedSetPiecesBesideUnlistedOnes(db, setListedItems)
 	database.AddConsumableIcons(db, consumables, instance, iconsMap)
 	// The PvP source follows from the item's name, so the names must be final here.
 	for _, item := range db.Items {
 		database.InferPvpSource(item)
 	}
-	database.AddEnchantSources(db.Enchants, enchantRecipes, database.EnchantSourceInputs{
+	sourceInputs := database.ItemSourceInputs{
 		Crafted: craftingSources,
 		Rep:     repSources,
 		Atlas:   atlaslootDB,
 		Questie: questieDB,
+	}
+	database.AddEnchantSources(db.Enchants, enchantRecipes, sourceInputs)
+	database.InferPhases(db, database.PhaseInputs{
+		Sources:        database.PhaseSources(sourceInputs),
+		Reagents:       spellReagents,
+		Recipes:        spellRecipes,
+		EnchantRecipes: enchantRecipes,
+		Quests:         questieQuests,
+		RaidMaps:       raidZoneMaps,
 	})
 	leftovers := db.Clone()
 	ApplyNonSimmableFilters(leftovers)
@@ -252,9 +274,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to generate the set bonuses: %v", err)
 	}
-	if err := database.GenerateMissingEffectsFile(instance, db, generatedSets); err != nil {
+	knownRates, unvalidatedRates, err := database.GenerateMissingEffectsFile(instance, db, generatedSets)
+	if err != nil {
 		log.Fatalf("failed to generate the missing effects TS file: %v", err)
 	}
+	database.StampProcRates(db, knownRates, unvalidatedRates)
 	database.GenerateItemEffectRandomPropPoints(instance, db)
 
 	// Disbabled due to duplicate SpellIDs
@@ -307,9 +331,6 @@ func main() {
 				}
 			}
 		}
-
-		// Forever's content phases are not known yet, so every item is phase 1.
-		item.Phase = 1
 	}
 	addSpellIcons(db, craftedSpellIds, icons, iconsMap)
 

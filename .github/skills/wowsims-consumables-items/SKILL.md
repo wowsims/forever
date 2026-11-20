@@ -50,7 +50,7 @@ it is `wowsims-db-pipeline` `## Regenerating`. For items, enchants and consumabl
 2. every consumable routed and shipped (`RouteConsumable`, `ShipsConsumable`), then `ConsumableOverrides` merged;
 3. `AddUnparsedStats`, then `AddPotionClasses`, which reads the lists the first one adds;
 4. `ItemOverrides`, then `ApplyItemSetClasses`, which replaces the allowlist of every item in a listed set, then
-   `EnchantOverrides`;
+   `ApplyQuestClasses`, which gives a bind-on-pickup class quest reward its quests' classes, then `EnchantOverrides`;
 5. the global filters (`KeepEnchant`, `KeepConsumable`), the consumable icons, then the leftovers split off;
 6. the generators: item effects, enchant effects, consumable registrations, the consumables TS file, the set
    bonuses, the missing-effects file, the random property points.
@@ -104,6 +104,8 @@ is registered. Items and enchants work differently:
   its own package, so a shared set left in a class folder never reaches the other classes' AllItems suites;
   `TestGearSetsHoldOnlyTheirClassItems` in `sim/item_class_allowlist_test.go` fails a preset wearing another class's
   locked item.
+- **The gear tab reads a hand-written proc's rate from its rows.** Code that rolls something else takes a row in
+  `tools/database/overrides/gear_proc_rates.go`; `wowsims-procs` `## Measuring a rate`.
 - **Three aura lists route the generated item auras** (`tools/database/gen_effects.go`). `itemAuraKinds` is shared
   by on-use and equip spells, so an aura type added there, a class-mask modifier say, flips every equip item that
   states it into the item aura shape; equip-only types go in `equipAuraKinds` and on-use-only ones in

@@ -12,7 +12,11 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
+	goproto "google.golang.org/protobuf/proto"
 )
+
+// Enchant Weapon - Revelation.
+const revelationEnchant = 8217
 
 func init() {
 	RegisterMage()
@@ -203,6 +207,42 @@ func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 	}
 }
 
+// The missiles of the Arcane Missiles channel are hits, so each rolls its partial resist against the
+// target's whole average resist where a channel's ticks roll against a tenth of it (EV-0142).
+func TestArcaneMissilesMeetTheTargetsFullResistance(t *testing.T) {
+	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
+	target := mage.CurrentTarget
+	// An average resist of 300 / (300 + 8 * 60 + 19) leaves no unresisted step at the full share, and
+	// about seven in ten unresisted at a tenth.
+	target.AddStatDynamic(sim, stats.ArcaneResistance, 300)
+	channel := mage.GetSpell(core.ActionID{SpellID: arcaneMissilesBookRank.ID})
+	missile := core.ActionID{SpellID: arcaneMissilesBookRank.PeriodicEffect().TriggerID}.String() + " "
+	manaMetrics := mage.NewManaMetrics(core.ActionID{SpellID: arcaneMissilesBookRank.ID})
+	landed, unresisted := 0, 0
+	sim.Log = func(message string, vals ...any) {
+		line := fmt.Sprintf(message, vals...)
+		if !strings.Contains(line, missile) || !strings.Contains(line, " damage") {
+			return
+		}
+		landed++
+		if !strings.Contains(line, "% Resist)") {
+			unresisted++
+		}
+	}
+
+	for range 40 {
+		mage.AddMana(sim, mage.MaxMana(), manaMetrics)
+		if !channel.Cast(sim, target) {
+			t.Fatalf("Arcane Missiles did not cast at %v", sim.CurrentTime)
+		}
+		stepFor(sim, 6*time.Second)
+	}
+
+	if landed < 100 || unresisted != 0 {
+		t.Errorf("%d of %d landed missiles took no partial resist, want none of at least 100", unresisted, landed)
+	}
+}
+
 // One Flamestrike ground tick rolls Arcane Concentration once, however many enemies stand in it.
 func TestFlamestrikeGroundTickProcsClearcastingOnce(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(3))
@@ -220,6 +260,73 @@ func TestFlamestrikeGroundTickProcsClearcastingOnce(t *testing.T) {
 
 	if rate := float64(gains) / ticks; rate < chance/2 || rate > chance*3/2 {
 		t.Errorf("Clearcasting procced on %d of %d ticks on 3 targets (%.3f), want about the talent's %.3f once per tick", gains, ticks, rate, chance)
+	}
+}
+
+// A Blizzard tick is cast by the channel, so it rolls Arcane Concentration only when the tick's row is
+// flagged Not a Proc or the talent's row can proc from procs.
+func TestBlizzardTickRollsArcaneConcentrationAsTheRowsAllow(t *testing.T) {
+	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
+	var tick *core.Spell
+	for _, spell := range mage.Spellbook {
+		if spell.Matches(MageSpellBlizzard) && spell.Flags.Matches(core.SpellFlagPassiveSpell) {
+			tick = spell
+		}
+	}
+	if tick == nil {
+		t.Fatal("the mage has no Blizzard tick spell")
+	}
+	row := spelldata.MustFind(tick.ActionID.SpellID)
+	want := !row.IsAProc() || spellData.ArcaneConcentration.Rank(mage.Talents.ArcaneConcentration).CanProcFromProcs()
+	mage.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+	gains := 0
+	mage.ClearCasting.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { gains++ })
+
+	for range 500 {
+		tick.Cast(sim, mage.CurrentTarget)
+		stepFor(sim, 1100*time.Millisecond)
+		mage.ClearCasting.Deactivate(sim)
+	}
+
+	if landed := tick.SpellMetrics[mage.CurrentTarget.UnitIndex]; landed.Hits+landed.Crits == 0 {
+		t.Fatal("no Blizzard tick landed")
+	}
+	if got := gains > 0; got != want {
+		t.Errorf("Blizzard ticks procced Clearcasting %d times in 500, want any: %v", gains, want)
+	}
+}
+
+// A Blizzard cast rolls Arcane Concentration once as the channel starts, however many enemies stand in the
+// area, after it spends Clearcasting, so a cast that spends the buff can come out with a new one.
+func TestBlizzardCastRollsArcaneConcentrationOncePerCast(t *testing.T) {
+	const casts = 400
+	regainsAgainst := func(targets int) (regains int) {
+		sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(targets))
+		blizzard := mage.GetSpell(core.ActionID{SpellID: spellData.Blizzard.Highest().ID})
+		manaMetrics := mage.NewManaMetrics(blizzard.ActionID)
+		for range casts {
+			mage.AddMana(sim, mage.MaxMana(), manaMetrics)
+			mage.ClearCasting.Activate(sim)
+			if !blizzard.Cast(sim, mage.CurrentTarget) {
+				t.Fatalf("Blizzard did not cast at %v", sim.CurrentTime)
+			}
+			stepFor(sim, 50*time.Millisecond)
+			if mage.ClearCasting.IsActive() {
+				regains++
+			}
+			blizzard.AOEDot().Deactivate(sim)
+			mage.ClearCasting.Deactivate(sim)
+			stepFor(sim, 1500*time.Millisecond)
+		}
+		return regains
+	}
+
+	one, five := regainsAgainst(1), regainsAgainst(5)
+	if one == 0 || one > casts/2 {
+		t.Fatalf("Blizzard spent Clearcasting and came out with a new one on %d of %d casts on one target, want some but not most", one, casts)
+	}
+	if five > 2*one {
+		t.Errorf("Blizzard came out with Clearcasting on %d of %d casts on five targets, %d on one; want about as often", five, casts, one)
 	}
 }
 
@@ -274,10 +381,62 @@ func TestFlamestrikeGroundTickKeepsClearcastingAndRevelation(t *testing.T) {
 	}
 }
 
+// Fireball, Pyroblast and Frostfire Bolt have a periodic part and Revelation's mage buff does not name them.
+// Each spends the charge as its cast completes and crits on its direct hit (EV-0149).
+func TestRevelationCritsTheDirectHitOfFireballPyroblastAndFrostfireBolt(t *testing.T) {
+	for _, test := range []struct {
+		name    string
+		talents string
+		id      int32
+	}{
+		{"Fireball", FireTalents, spellData.Fireball.Highest().ID},
+		{"Pyroblast", FireTalents, spellData.Pyroblast.Highest().ID},
+		{"Frostfire Bolt", FFBTalents, spellData.FrostfireBolt.Highest().ID},
+	} {
+		sim, mage, buff := newRevelationMage(t, test.talents, 1)
+		target := mage.CurrentTarget
+		spell := mage.GetSpell(core.ActionID{SpellID: test.id})
+		if spell == nil {
+			t.Fatalf("%s is not registered", test.name)
+		}
+		metrics := &spell.SpellMetrics[target.UnitIndex]
+
+		// A cast that misses spends the charge too, so cast until one lands.
+		for tries := 0; metrics.Hits+metrics.Crits == 0; tries++ {
+			if tries == 10 {
+				t.Fatalf("%s missed 10 times", test.name)
+			}
+			buff.Activate(sim)
+			buff.SetStacks(sim, buff.MaxStacks)
+			if !spell.Cast(sim, target) {
+				t.Fatalf("%s did not cast", test.name)
+			}
+			stepFor(sim, spell.CurCast.CastTime)
+			if buff.IsActive() {
+				t.Errorf("%s was cast and Revelation's charge is still up", test.name)
+			}
+			stepFor(sim, 3*time.Second)
+			buff.Deactivate(sim)
+		}
+		if metrics.Crits != 1 {
+			t.Errorf("%s cast with Revelation up landed without a crit", test.name)
+		}
+	}
+}
+
+// The suite's gear loses Enchant Weapon - Revelation: it rolls on each Fire Blast that does not crit and its
+// charge crits the next Blizzard, so Shatter's Fire Blast crits would move Blizzard's.
 func shatterCrits(talents string) (tickCrits, directCrits int32, fingersOfFrostUptime float64) {
 	tickID := spellData.BlizzardTriggered.Highest().ID
 	directID := spellData.FireBlast.Highest().ID
-	metrics := runMageRotation(frostSuite(), talents, 40, directID, spellData.Blizzard.Highest().ID)
+	suite := frostSuite()
+	suite.GearSet.GearSet = goproto.Clone(suite.GearSet.GearSet).(*proto.EquipmentSpec)
+	for _, item := range suite.GearSet.GearSet.Items {
+		if item.Enchant == revelationEnchant {
+			item.Enchant = 0
+		}
+	}
+	metrics := runMageRotation(suite, talents, 40, directID, spellData.Blizzard.Highest().ID)
 	for _, action := range metrics.Actions {
 		for _, target := range action.Targets {
 			switch action.Id.GetSpellId() {
@@ -363,7 +522,7 @@ func newRevelationMage(t *testing.T, talents string, targets int) (*core.Simulat
 	for slot := range items {
 		items[slot] = &proto.ItemSpec{}
 	}
-	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: staff, Enchant: 8217}
+	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: staff, Enchant: revelationEnchant}
 	sim, mage := newMageSimWearing(talents, longEncounter(targets), &proto.EquipmentSpec{Items: items})
 	buff := mage.GetAura("Revelation")
 	if buff == nil {
@@ -471,7 +630,7 @@ func mageSuite(talents string, apl string) core.CharacterSuiteConfig {
 		Consumables: DefaultConsumables,
 		Profession1: proto.Profession_Engineering,
 		Profession2: proto.Profession_Tailoring,
-		GearSet:     core.GetGearSet("../../ui/specs/mage/dps/gear_sets", "p1Arcane"),
+		GearSet:     core.GetGearSet("../../ui/specs/mage/dps/gear_sets", "preraid"),
 		Talents:     talents,
 		Rotation:    core.GetAplRotation("../../ui/specs/mage/dps/apls", apl),
 		ItemFilter: core.ItemFilter{
@@ -507,4 +666,34 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	MhImbueId:       20749,  // Brilliant Wizard Oil
 	MhWeaponImbueId: 277502, // Scroll of Imbue Precision
 	ResourcePotId:   13444,  // Major Mana Potion
+}
+
+// A Counterspell that lands deals its outcome, so a listener for landed harmful spells hears it:
+// Blade of Eternal Darkness 17780 procs off it.
+func TestCounterspellLandingIsHeard(t *testing.T) {
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 17780
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = 36000
+	sim, mage := newMageSimWearing("", encounter, &proto.EquipmentSpec{Items: items})
+	counterspell := mage.GetSpell(core.ActionID{SpellID: counterspellRank.ID})
+	shadows := mage.GetSpell(core.ActionID{SpellID: 27860})
+	target := sim.Encounter.ActiveTargetUnits[0]
+	mage.AddDynamicMod(core.SpellModConfig{Kind: core.SpellMod_PowerCost_Pct, FloatValue: -1}).Activate()
+
+	for range 1000 {
+		stepFor(sim, max(counterspell.TimeToReady(sim), mage.GCD.TimeToReady(sim), core.SpellBatchWindow))
+		counterspell.Cast(sim, target)
+	}
+	stepFor(sim, core.SpellBatchWindow)
+
+	if casts := counterspell.SpellMetrics[target.UnitIndex].Casts; casts != 1000 {
+		t.Fatalf("%d Counterspells cast, want 1000", casts)
+	}
+	if shadows == nil || shadows.SpellMetrics[target.UnitIndex].Casts == 0 {
+		t.Error("no landed Counterspell procced Blade of Eternal Darkness")
+	}
 }

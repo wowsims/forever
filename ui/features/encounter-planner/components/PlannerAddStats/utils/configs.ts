@@ -36,22 +36,39 @@ const mobTypeEnumValues = [
 	MobType.MobTypeUndead,
 ].map(value => ({ name: translateMobType(value), value }));
 
-// The families each mob type holds; Aquatic spans beasts, elementals and humanoids.
+// The families each mob type holds; Aquatic spans beasts, elementals and humanoids, Serpentine beasts and humanoids, Troll humanoids and undead.
 const creatureFamiliesByMobType: Partial<Record<MobType, ReadonlyArray<CreatureFamily>>> = {
-	[MobType.MobTypeBeast]: [CreatureFamily.CreatureFamilyAquatic, CreatureFamily.CreatureFamilyDinosaur, CreatureFamily.CreatureFamilySwine],
+	[MobType.MobTypeBeast]: [
+		CreatureFamily.CreatureFamilyAquatic,
+		CreatureFamily.CreatureFamilyDinosaur,
+		CreatureFamily.CreatureFamilySerpentine,
+		CreatureFamily.CreatureFamilySwine,
+		CreatureFamily.CreatureFamilyWolf,
+	],
 	[MobType.MobTypeDemon]: [CreatureFamily.CreatureFamilySatyr],
-	[MobType.MobTypeElemental]: [CreatureFamily.CreatureFamilyEarthElemental, CreatureFamily.CreatureFamilyFireElemental, CreatureFamily.CreatureFamilyAquatic],
+	[MobType.MobTypeElemental]: [
+		CreatureFamily.CreatureFamilyEarthElemental,
+		CreatureFamily.CreatureFamilyFireElemental,
+		CreatureFamily.CreatureFamilyPlant,
+		CreatureFamily.CreatureFamilyAquatic,
+	],
 	[MobType.MobTypeGiant]: [CreatureFamily.CreatureFamilyMountainGiant],
 	[MobType.MobTypeHumanoid]: [
 		CreatureFamily.CreatureFamilyDwarf,
+		CreatureFamily.CreatureFamilyFurbolg,
+		CreatureFamily.CreatureFamilyMurloc,
 		CreatureFamily.CreatureFamilyNaga,
 		CreatureFamily.CreatureFamilyOgre,
 		CreatureFamily.CreatureFamilyOrc,
+		CreatureFamily.CreatureFamilySerpentine,
+		CreatureFamily.CreatureFamilyTroll,
+		CreatureFamily.CreatureFamilyWorgen,
 		CreatureFamily.CreatureFamilyAquatic,
 	],
+	[MobType.MobTypeUndead]: [CreatureFamily.CreatureFamilyTroll],
 };
 
-export const creatureFamiliesOf = (mobType: MobType): ReadonlyArray<CreatureFamily> => creatureFamiliesByMobType[mobType] ?? [];
+const creatureFamiliesOf = (mobType: MobType): ReadonlyArray<CreatureFamily> => creatureFamiliesByMobType[mobType] ?? [];
 
 const spellSchoolValues = [
 	SpellSchool.SpellSchoolPhysical,
@@ -156,7 +173,8 @@ export const levelConfig = ({ idPrefix, getTarget, modifyTarget }: TargetFieldCo
 
 export const mobTypeConfig = ({ idPrefix, getTarget, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
 	id: targetId(idPrefix, 'mob-type'),
-	label: i18n.t('settings_tab.encounter.mob_type'),
+	label: i18n.t('settings_tab.encounter.mob_type.label'),
+	labelTooltip: i18n.t('settings_tab.encounter.mob_type.tooltip'),
 	values: mobTypeEnumValues,
 	getValue: () => getTarget().mobType,
 	setValue: (_: null, newValue: number) => {
@@ -182,6 +200,7 @@ export const creatureFamilyConfig = ({ idPrefix, getTarget, modifyTarget }: Targ
 			target.creatureFamily = newValue;
 		});
 	},
+	enableWhen: () => creatureFamiliesOf(mobType).length > 0,
 });
 
 export const tankIndexConfig = ({ idPrefix, getTarget, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({

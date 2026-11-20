@@ -223,7 +223,7 @@ func init() {
 	// Darkmoon Card: Heroism
 	// https://www.wowhead.com/forever/item=19287/darkmoon-card-heroism
 	//
-	// Sometimes heals bearer of 120 to 180 damage when damaging an enemy in melee.
+	// Sometimes heals bearer of 158 to 238 damage when damaging an enemy in melee.
 	//
 	// The game files state no rate for 23689; the item's entry carries it.
 	newEntryRateItemEffect(19287, 23682, func(character *core.Character, ppm float64) {
@@ -261,22 +261,23 @@ func init() {
 		row := spelldata.MustFind(1265634)
 		triggerRow := spelldata.MustFind(1318159)
 		damage := row.DamageEffect()
-		familyMultiplier := triggerRow.Effects[0].BaseValue()
 
 		config := procSpellConfig(character, row)
+		config.VersusBonus = shared.ItemVersusBonus(character, 260205, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, familyMultiplier,
-				proto.CreatureFamily_CreatureFamilyNaga, proto.CreatureFamily_CreatureFamilySatyr)
-			spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
 		ancientPower := character.RegisterSpell(config)
 
-		// The row's harmful-spell bit makes spell hits roll its procs per minute too, on the main hand's
-		// speed. The chance on a spell hit is unmeasured in game.
+		// Weapon hits roll the row's procs per minute on their weapon's speed, Auto Shot and ranged
+		// specials on the ranged weapon's. The row's harmful-spell bit makes spell hits roll too, at a flat
+		// 7% per landed spell hit whatever the main hand's speed. An area spell rolls it once per target,
+		// which is unmeasured (EV-0131).
+		const spellHitChance = 0.07
 		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			ancientPower.Cast(sim, result.Target)
 		}, func(character *core.Character, trigger *core.ProcTrigger) {
-			trigger.DPM = character.NewLegacyPPMManagerWithSpells(float64(triggerRow.RPPM), trigger.ProcMask)
+			trigger.DPM = character.NewLegacyPPMManagerWithSpellChance(float64(triggerRow.RPPM), spellHitChance, trigger.ProcMask)
 		})
 		// The row's harmful-spell bit lets any landed hit roll, one that deals no damage included; in game
 		// only a hit that dealt damage rolls (EV-0021).
@@ -286,6 +287,29 @@ func init() {
 		trigger.TriggerImmediately = true
 		character.ItemSwap.RegisterProc(260205, character.MakeProcTriggerAura(trigger))
 	})
+
+	// Scented Runewood Brooch
+	// https://www.wowhead.com/forever/item=269741/scented-runewood-brooch
+	//
+	// Harmful spell casts and attacks against Furbolg have a chance to deal 105 Nature damage.
+	//
+	// 1318323 rolls the procs per minute an override puts on the row on the landed melee, ranged and
+	// harmful spell hits its row names, and casts 1318324 on the target (EV-0136). A weapon hit rolls on
+	// its weapon's speed. A spell hit rolls on the main-hand weapon's speed, a caster's who never swings
+	// included, by the owner's ruling: the logs do not settle how a spell hit is priced. Only a hit on a
+	// Furbolg rolls it: no row limits the target, the tooltip does. Its on-use, Irresistible Scent
+	// 1296664, charms the target, which the sim does not model.
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1318323, BuffSpellID: 1318324,
+		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewLegacyPPMManagerWithMainHandSpells(float64(spelldata.MustFind(1318323).RPPM), trigger.ProcMask)
+			trigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+				return result.Target.CreatureFamily == proto.CreatureFamily_CreatureFamilyFurbolg
+			}
+		}},
+		[]shared.ItemVariant{
+			{ItemID: 269741, ItemName: "Scented Runewood Brooch"},
+		})
 
 	// Blackhand's Breadth
 	// https://www.wowhead.com/forever/item=13965/blackhands-breadth
@@ -336,12 +360,11 @@ func init() {
 		row := spelldata.MustFind(1315996)
 		triggerRow := spelldata.MustFind(1311505)
 		damage := row.DamageEffect()
-		dinosaurMultiplier := triggerRow.EffectN(2).BaseValue()
 
 		config := procSpellConfig(character, row)
+		config.VersusBonus = shared.ItemVersusBonus(character, 280032, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, dinosaurMultiplier, proto.CreatureFamily_CreatureFamilyDinosaur)
-			spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
 		shock := character.RegisterSpell(config)
 
@@ -417,7 +440,7 @@ func init() {
 	// second effect, a dummy, is the "3 times as likely". The chance against a Dwarf holds whatever
 	// the wearer's race (EV-0007).
 	core.NewItemEffect(11815, func(agent core.Agent) {
-		registerLikelierExtraAttack(agent.GetCharacter(), 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
+		registerExtraAttackVersus(agent.GetCharacter(), 11815, "Hand of Justice", 15600)
 	})
 
 	// Mark of the Chosen
@@ -431,6 +454,64 @@ func init() {
 		[]shared.ItemVariant{
 			{ItemID: 17774, ItemName: "Mark of the Chosen"},
 		})
+
+	// The Lion Horn of Stormwind
+	// https://www.wowhead.com/forever/item=14557/the-lion-horn-of-stormwind
+	//
+	// When struck in combat has a 5% chance of increasing all party member's armor by 725 for 30s. This
+	// chance is doubled in Strongholds and Cities.
+	//
+	// The tooltip states the chance as ${$h/2}%: 20847's ProcChance is the chance doubled in Strongholds
+	// and Cities, so by the owner's ruling an encounter there rolls the whole column and any other
+	// encounter half of it. The sim fixes the encounter's area for the run, so the chance is fixed when
+	// the trigger is built.
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 20847, BuffSpellID: 18946,
+		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
+			if !character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
+				trigger.ProcChance /= 2
+			}
+		}},
+		[]shared.ItemVariant{
+			{ItemID: 14557, ItemName: "The Lion Horn of Stormwind"},
+		})
+
+	// Draconic Infused Emblem
+	// https://www.wowhead.com/forever/item=22268/draconic-infused-emblem
+	//
+	// Chance on harmful spellcast to increase your spell damage and healing by up to 35 for 10 sec.
+	// This spell damage increase is doubled against Dragonkin.
+	//
+	// The row's lone harmful-spell bit decodes to a cast, so the listener is moved to landed spell hits
+	// by hand: 1318931 rolls once for each enemy a harmful spell lands on, an area spell once per
+	// target and each Arcane Missiles missile on its own. A spell that applies a damage over time
+	// effect or a debuff rolls too, apart from Curse of the Elements, Recklessness and Weakness and Hex
+	// of Weakness, which the sim registers with no proc mask. Damage over time ticks never roll, and
+	// neither does a spell fired as a proc, such as Hellfire Effect. The 8% is the row's ProcChance, which an override sets; hardcasts and instants
+	// roll it alike. Misses are undetermined, so only landed spells roll (EV-0115).
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930,
+		Rate: func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.Callback = core.CallbackOnSpellHitDealt
+			trigger.Outcome = core.OutcomeLanded
+			trigger.RequireDamageDealt = false
+			trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				return !firedAsAProc(spell)
+			}
+		}},
+		[]shared.ItemVariant{
+			{ItemID: 22268, ItemName: "Draconic Infused Emblem"},
+		})
+}
+
+// Whether the spell is one the sim fires as a proc (spelldata.Proc marks it passive) and whose row
+// lacks "not a proc", the spells a trigger without "can proc from procs" never hears in game:
+// Hellfire Effect, Rain of Fire's waves and Blizzard's ticks among them. The class code
+// leaves SpellFlagProc off them, so the item listener asks the row itself.
+func firedAsAProc(spell *core.Spell) bool {
+	if !spell.Flags.Matches(core.SpellFlagPassiveSpell) {
+		return false
+	}
+	row := spelldata.Find(spell.ActionID.SpellID)
+	return row != nil && row.IsAProc()
 }
 
 // The ranks of the four heals Dormant Heart of the Mountain answers.

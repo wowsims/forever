@@ -11,6 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -20,28 +21,28 @@ func init() {
 }
 
 // Each suite runs a build preset from ui/specs/warlock/dps/builds, the file the UI's build of that name reads:
-// its talents, demons, consumables and rotation, on the gear set named.
+// its talents, demons, consumables and rotation, on the gear set of the same name, its own race and the one named.
 func TestDemonologyFireBrand(t *testing.T) {
-	runBuildSuite(t, "Fire Brand", "demo_fire_brand", "preraid", proto.Race_RaceOrc)
+	runBuildSuite(t, "Fire Brand", "demo_fire_brand", proto.Race_RaceHuman)
 }
 
 func TestDemonologyShadowBrand(t *testing.T) {
-	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", "preraid", proto.Race_RaceOrc)
+	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", proto.Race_RaceHuman)
 }
 
 func TestDestruction(t *testing.T) {
-	runBuildSuite(t, "Destruction", "destro", "raid", proto.Race_RaceGnome)
+	runBuildSuite(t, "Destruction", "destro", proto.Race_RaceGnome)
 }
 
 func TestAffliction(t *testing.T) {
-	runBuildSuite(t, "Affliction", "sm_ruin", "preraid", proto.Race_RaceOrc)
+	runBuildSuite(t, "Affliction", "sm_ruin", proto.Race_RaceHuman)
 }
 
 func TestAfflictionWrack(t *testing.T) {
-	runBuildSuite(t, "Wrack", "aff_wrack", "raid", proto.Race_RaceHuman)
+	runBuildSuite(t, "Wrack", "aff_wrack", proto.Race_RaceOrc)
 }
 
-func runBuildSuite(t *testing.T, label string, buildFile string, gearSet string, otherRace proto.Race) {
+func runBuildSuite(t *testing.T, label string, buildFile string, otherRace proto.Race) {
 	build := core.GetTestBuildFromJSON(proto.Class_ClassWarlock, "../../ui/specs/warlock/dps/builds", buildFile, core.ItemFilter{}, nil, nil)
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
@@ -49,7 +50,7 @@ func runBuildSuite(t *testing.T, label string, buildFile string, gearSet string,
 			Race:        build.Race,
 			OtherRaces:  []proto.Race{otherRace},
 			SpecOptions: core.SpecOptionsCombo{Label: label, SpecOptions: build.SpecOptions.SpecOptions},
-			GearSet:     core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", gearSet),
+			GearSet:     core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", buildFile),
 			Talents:     build.Talents,
 			Consumables: build.Consumables,
 			Profession1: build.Profession1,
@@ -179,25 +180,16 @@ func TestDemonHitIsTheWarlocksSpellHit(t *testing.T) {
 }
 
 // In execute, Decimation's buff (440873) comes with the cast of a Shadow Bolt or Searing Pain whose hit lands,
-// before a Shadow Bolt reaches the target; a miss or a full resist grants nothing, and the bolt's impact
-// grants nothing either.
+// before a Shadow Bolt reaches the target; a miss grants nothing, and the bolt's impact grants nothing either.
 func TestDecimationGrantedOnLandedCast(t *testing.T) {
-	newSim := func(resistance float64) (*core.Simulation, *Warlock, *core.Unit) {
-		encounter := core.MakeSingleTargetEncounter(0)
-		encounter.Duration = 3600
-		encounter.ExecuteProportion_35 = 1
-		// A fresh target, since the default one is shared by every test in the package.
-		encounter.Targets[0] = core.FreshDefaultTargetConfig()
-		encounter.Targets[0].Stats[stats.FireResistance] = resistance
-		encounter.Targets[0].Stats[stats.ShadowResistance] = resistance
-		sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, encounter)
-		for !sim.Encounter.AllTargetUnits[0].IsExecutePhase35() && !sim.Step() {
-		}
-		warlock.DistanceFromTarget = 30
-		return sim, warlock, sim.Encounter.AllTargetUnits[0]
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = 3600
+	encounter.ExecuteProportion_35 = 1
+	sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, encounter)
+	for !sim.Encounter.AllTargetUnits[0].IsExecutePhase35() && !sim.Step() {
 	}
-
-	sim, warlock, target := newSim(0)
+	warlock.DistanceFromTarget = 30
+	target := sim.Encounter.AllTargetUnits[0]
 	decimation := warlock.GetAuraByID(core.ActionID{SpellID: 440873})
 	if warlock.ShadowBolt.TravelTime() <= 2*core.SpellBatchWindow {
 		t.Fatalf("Shadow Bolt travels %v, too short to tell its cast from its impact", warlock.ShadowBolt.TravelTime())
@@ -231,22 +223,6 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 		t.Fatalf("%d casts granted Decimation and %d missed, want both", granted, missed)
 	}
 
-	sim, warlock, target = newSim(1e12)
-	decimation = warlock.GetAuraByID(core.ActionID{SpellID: 440873})
-	for i := range 100 {
-		spell := warlock.SearingPain
-		if i%2 == 1 {
-			spell = warlock.ShadowBolt
-		}
-		spell.SkipCastAndApplyEffects(sim, target)
-		stepFor(sim, warlock.ShadowBolt.TravelTime()+core.SpellBatchWindow)
-		if decimation.IsActive() {
-			t.Fatalf("%s at %v granted Decimation against a target that resists it in full", spell.ActionID, sim.CurrentTime)
-		}
-	}
-	if misses := warlock.SearingPain.SpellMetrics[target.UnitIndex].Misses; misses != 50 {
-		t.Fatalf("%d of 50 Searing Pains against the fully resisting target missed, want all resisted in full", misses)
-	}
 }
 
 // Bane of Agony's base ramps in thirds while each tick reads the spell power of the moment, with its share
@@ -1268,5 +1244,131 @@ func TestSoulSiphonCountsCorruptionSiphonLifeAndAgony(t *testing.T) {
 	want := 1 + 3*spellData.SoulSiphon.FractionAt(3)
 	if got := warlock.DrainLife.ExpectedTickDamage(sim, target) / plain; math.Abs(got-want) > 1e-9 {
 		t.Errorf("Drain Life is %.4f times its plain tick with Corruption, Siphon Life and Bane of Agony on the target, want %.4f", got, want)
+	}
+}
+
+// Hellfire Effect and the Rain of Fire wave are cast by their channels, so Judgement of Wisdom on the target
+// hears their hits only when the hit's row is flagged Not a Proc or the judgement's row can proc from procs.
+// Searing Pain shows the judgement hears the warlock's own casts.
+func TestChannelEffectsReturnJudgementOfWisdomManaAsTheirRowsAllow(t *testing.T) {
+	raid := core.SinglePlayerRaidProto(warlockPlayer("Warlock", "", &proto.WarlockOptions{}), &proto.PartyBuffs{}, &proto.RaidBuffs{},
+		&proto.Debuffs{JudgementOfWisdom: true})
+	sim := newWarlockRaidSim(raid, core.MakeSingleTargetEncounter(0))
+	warlock := sim.Raid.Parties[0].Players[0].(*Warlock)
+	target := sim.Encounter.ActiveTargetUnits[0]
+	warlock.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+	judgementHearsProcs := spelldata.MustFind(buffs.JudgementOfWisdomMaxRank.SpellID).CanProcFromProcs()
+
+	manaReturns := func(spell *core.Spell) int32 {
+		before := int32(0)
+		if warlock.JowManaMetrics != nil {
+			before = warlock.JowManaMetrics.Events
+		}
+		for range 100 {
+			spell.SkipCastAndApplyEffects(sim, target)
+			stepFor(sim, 100*time.Millisecond)
+		}
+		if warlock.JowManaMetrics == nil {
+			return 0
+		}
+		return warlock.JowManaMetrics.Events - before
+	}
+
+	if manaReturns(warlock.SearingPain) == 0 {
+		t.Fatal("Searing Pain returned no Judgement of Wisdom mana")
+	}
+	var effects []*core.Spell
+	for _, spell := range warlock.Spellbook {
+		if spell.Matches(WarlockSpellHellfire|WarlockSpellRainOfFire) && spell.Flags.Matches(core.SpellFlagPassiveSpell) {
+			effects = append(effects, spell)
+		}
+	}
+	if len(effects) != 2 {
+		t.Fatalf("found %d channel effects, want Hellfire Effect and the Rain of Fire wave", len(effects))
+	}
+	for _, spell := range effects {
+		row := spelldata.MustFind(spell.ActionID.SpellID)
+		want := !row.IsAProc() || judgementHearsProcs
+		if got := manaReturns(spell) > 0; got != want {
+			t.Errorf("%s returned Judgement of Wisdom mana: %v, want %v", row.Name, got, want)
+		}
+	}
+}
+
+// A Rain of Fire cast lands on every enemy in its area as the channel starts, so Judgement of Wisdom on each
+// of them rolls, and one cast can return its mana once for each. Hellfire's cast lands on no enemy and
+// returns none.
+func TestRainOfFireCastReturnsJudgementOfWisdomManaFromEachEnemy(t *testing.T) {
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	raid := core.SinglePlayerRaidProto(warlockPlayer("Warlock", "", &proto.WarlockOptions{}), &proto.PartyBuffs{}, &proto.RaidBuffs{},
+		&proto.Debuffs{JudgementOfWisdom: true})
+	sim := newWarlockRaidSim(raid, encounter)
+	warlock := sim.Raid.Parties[0].Players[0].(*Warlock)
+	target := sim.Encounter.ActiveTargetUnits[0]
+
+	// The most payments one cast returned, each channel ended before its first tick.
+	mostPerCast := func(channel *core.Spell) (most int32) {
+		for range 100 {
+			before := int32(0)
+			if warlock.JowManaMetrics != nil {
+				before = warlock.JowManaMetrics.Events
+			}
+			channel.SkipCastAndApplyEffects(sim, target)
+			stepFor(sim, 100*time.Millisecond)
+			channel.AOEDot().Deactivate(sim)
+			if warlock.JowManaMetrics != nil {
+				most = max(most, warlock.JowManaMetrics.Events-before)
+			}
+			stepFor(sim, time.Second)
+		}
+		return most
+	}
+
+	if got, want := mostPerCast(warlock.RainOfFire), int32(len(sim.Encounter.ActiveTargetUnits)); got != want {
+		t.Errorf("a Rain of Fire cast returned Judgement of Wisdom mana at most %d times, want once for each of the %d enemies", got, want)
+	}
+	if got := mostPerCast(warlock.Hellfire); got != 0 {
+		t.Errorf("a Hellfire cast returned Judgement of Wisdom mana %d times, want none", got)
+	}
+}
+
+// Touch of the Grave needs a hit that deals damage, and the Rain of Fire and Hellfire casts deal none, so
+// neither drains. Searing Pain shows that the drain hears the warlock's spells.
+func TestChannelCastsDrainNoTouchOfTheGrave(t *testing.T) {
+	player := warlockPlayer("Warlock", "", &proto.WarlockOptions{})
+	player.Race = proto.Race_RaceUndead
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = 3600
+	sim := newWarlockRaidSim(core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}), encounter)
+	warlock := sim.Raid.Parties[0].Players[0].(*Warlock)
+	target := sim.Encounter.ActiveTargetUnits[0]
+	warlock.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+	drain := warlock.GetSpell(core.ActionID{SpellID: 1260198})
+	if drain == nil {
+		t.Fatal("the Undead warlock has no Touch of the Grave drain")
+	}
+
+	// Drains over casts spaced past the drain's cooldown, each channel ended before its first tick.
+	drains := func(spell *core.Spell) int32 {
+		before := drain.SpellMetrics[target.UnitIndex].Casts
+		for range 40 {
+			spell.SkipCastAndApplyEffects(sim, target)
+			stepFor(sim, 100*time.Millisecond)
+			if spell.AOEDot() != nil {
+				spell.AOEDot().Deactivate(sim)
+			}
+			stepFor(sim, 16*time.Second)
+		}
+		return drain.SpellMetrics[target.UnitIndex].Casts - before
+	}
+
+	if drains(warlock.SearingPain) == 0 {
+		t.Fatal("Searing Pain never drained with Touch of the Grave")
+	}
+	for _, channel := range []*core.Spell{warlock.RainOfFire, warlock.Hellfire} {
+		if got := drains(channel); got != 0 {
+			t.Errorf("%s casts drained with Touch of the Grave %d times, want none", spelldata.MustFind(channel.SpellID).Name, got)
+		}
 	}
 }

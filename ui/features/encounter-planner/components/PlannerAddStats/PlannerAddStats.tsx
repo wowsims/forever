@@ -13,7 +13,6 @@ import {
 	ALL_TARGET_STATS,
 	bleedImmuneConfig,
 	booleanConfigs,
-	creatureFamiliesOf,
 	creatureFamilyConfig,
 	levelConfig,
 	mobTypeConfig,
@@ -100,7 +99,7 @@ export const PlannerAddStats = ({ target, onModify, idPrefix, identity = [], thr
 			children: (
 				<FieldGrid>
 					{choice(mobTypeConfig(context))}
-					{creatureFamiliesOf(target.mobType).length > 0 && choice(creatureFamilyConfig(context, target.mobType))}
+					{choice(creatureFamilyConfig(context, target.mobType))}
 					{choice(levelConfig(context))}
 					{statFields('basics')}
 					{toggle(bleedImmuneConfig(context))}

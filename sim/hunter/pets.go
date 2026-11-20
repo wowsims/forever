@@ -106,6 +106,18 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 		AutoSwingMelee: true,
 	})
 
+	// The white swing takes none of the owner's crit the pet inherits; the pet's abilities take all of
+	// it (EV-0134). Each swing takes the current inherited crit back off, by the change since the last.
+	whiteSwing := hp.AutoAttacks.MHConfig()
+	applyWhiteSwing := whiteSwing.ApplyEffects
+	inheritedCritTakenOff := 0.0
+	whiteSwing.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		inheritedCrit := hp.GetInheritedStats()[stats.PhysicalCritPercent]
+		spell.BonusCritPercent += inheritedCritTakenOff - inheritedCrit
+		inheritedCritTakenOff = inheritedCrit
+		applyWhiteSwing(sim, target, spell)
+	}
+
 	// Happiness
 	hp.PseudoStats.DamageDealtMultiplier *= 1.25
 
@@ -145,8 +157,8 @@ func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 // TODO: A pet sheet read the owner's ranged crit whole at a bow skill just below the maximum
 // (EV-0070), where this takes 0.04% off; a reading at a skill well below the maximum decides.
 func (hunter *Hunter) inheritedCrit(ownerStats stats.Stats) float64 {
-	mhSkillBonus := core.GetWeaponSkill(&hunter.Unit, hunter.GetMHWeapon())
-	rangedSkillBonus := core.GetWeaponSkill(&hunter.Unit, hunter.GetRangedWeapon())
+	mhSkillBonus := core.GetWeaponSkill(&hunter.Unit, hunter.GetMHWeapon(), proto.ItemSlot_ItemSlotMainHand)
+	rangedSkillBonus := core.GetWeaponSkill(&hunter.Unit, hunter.GetRangedWeapon(), proto.ItemSlot_ItemSlotRanged)
 	melee := ownerStats[stats.PhysicalCritPercent] + min(mhSkillBonus, 0)*0.04
 	ranged := ownerStats[stats.PhysicalCritPercent] + ownerStats[stats.RangedCritPercent] + min(rangedSkillBonus, 0)*0.04
 	return max(0, melee, ranged)

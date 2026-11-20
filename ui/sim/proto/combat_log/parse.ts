@@ -75,9 +75,7 @@ const RESIST_BY_TOKEN: Record<string, PartialResist> = {
 	'50': 50,
 	'60': 60,
 	'70': 70,
-	'80': 80,
-	'90': 90,
-	'100': 100,
+	'75': 75,
 };
 
 // Go's time.Duration.String() can emit nanosecond-precision strings like "29.999999999s" or
@@ -127,7 +125,8 @@ function buildDamageLog(log: PendingLog, match: RegExpExecArray): DamageLog {
 	out.outcome = OUTCOME_BY_TOKEN[match[3]] ?? 'hit';
 	out.effect = match[17] ? (match[17] === 'healing' ? 'healing' : match[17] === 'shielding' ? 'shielding' : 'damage') : null;
 	out.amount = match[16] ? parseFloat(match[16]) : 0;
-	out.resist = RESIST_BY_TOKEN[match[14]] ?? 0;
+	const resist = RESIST_BY_TOKEN[match[14]] ?? 0;
+	out.resist = resist && match[13].includes('Pierced') ? (-resist as PartialResist) : resist;
 	out.tick = Boolean(match[2]) && match[2].includes('tick');
 	return out;
 }
@@ -297,7 +296,7 @@ const LOG_MATCHERS: Array<LogMatcher> = [
 		// back as a block with no amount. Crit is safe anywhere in the alternation because a space
 		// is required before the token. The resist group is match[14], amount match[16] and effect
 		// match[17].
-		regex: /] (.*?) (tick )?((Miss)|(Hit)|(BlockedCrit)|(Crit)|(Crush)|(Glance)|(Dodge)|(Parry)|(Block))( \((\d+)% Resist\))?( for (\d+\.\d+) ((damage)|(healing)|(shielding)))?/,
+		regex: /] (.*?) (tick )?((Miss)|(Hit)|(BlockedCrit)|(Crit)|(Crush)|(Glance)|(Dodge)|(Parry)|(Block))( \((\d+)% (?:Resist|Pierced)\))?( for (\d+\.\d+) ((damage)|(healing)|(shielding)))?/,
 		idString: match => match[1],
 		build: (log, match) => buildDamageLog(log, match),
 	},

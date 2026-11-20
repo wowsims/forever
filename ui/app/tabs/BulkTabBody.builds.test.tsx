@@ -381,6 +381,22 @@ describe('BulkTabBody in Builds mode', () => {
 		expect(saveButton().disabled).toBe(true);
 	});
 
+	it('keeps Save on for a named bundle edited unchanged, and off while its name is another bundle’s', async () => {
+		mount({
+			bundles: [
+				{ ...ARMS_FURY, name: 'Arms raid' },
+				{ ...bundle({ talents: ['Arms', true] }), name: 'Arms solo' },
+			],
+		});
+
+		await editBundle('Arms raid');
+		expect(saveButton().disabled).toBe(false);
+		const name = within(dialog()).getByRole('textbox', { name: 'Name' });
+		await userEvent.clear(name);
+		await userEvent.type(name, 'Arms solo');
+		expect(saveButton().disabled).toBe(true);
+	});
+
 	it('reopens a bundle’s four picks with its pencil and replaces it on Save, keeping its place and checked state', async () => {
 		const unticked = bundle({ gearSet: ['My raid set', false], settings: ['Healer', false] }, false);
 		const player = mount({ bundles: [unticked, ARMS_FURY] });

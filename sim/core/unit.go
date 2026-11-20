@@ -93,7 +93,7 @@ type Unit struct {
 	// A pet its owner set on the target before the pull: its rotation and swings run before 0.
 	engagedBeforePull bool
 
-	executePhase int32 // 35 or 20 for the execute phase a target is in, 0 above them and for players and pets.
+	executePhase int32 // 35, 25 or 20 for the execute phase a target is in, 0 above them and for players and pets.
 
 	raidDebuffsHeld bool // A target's only: the raid's debuffs stay off it, its reset included, until Target.ApplyRaidDebuffsAt lands them.
 
@@ -181,6 +181,7 @@ type Unit struct {
 	dotRankGroups map[string]*dotRankGroup
 
 	AttackTables                 []*AttackTable
+	mobTypeBonuses               map[proto.MobType]*mobTypeBonus
 	DynamicDamageTakenModifiers  []DynamicDamageTakenModifier
 	DynamicHealingTakenModifiers []DynamicHealingTakenModifier
 	Blockhandler                 func(sim *Simulation, spell *Spell, result *SpellResult)

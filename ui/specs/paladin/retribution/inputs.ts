@@ -34,6 +34,8 @@ const spellIcon = ({ spellId, rank }: RankedSpell) => ActionId.fromSpellId(spell
 // inside that range never reaches melee.
 export const MIN_PULL_RANGE = 11;
 
+export const MAX_ECHO_STACKS = 3;
+
 // Each option shows the icon and tooltip of the spell it casts.
 export const RotationIconInputs = [
 	InputHelpers.makeRotationEnumIconInput<Spec.SpecRetributionPaladin, PaladinAura>({
@@ -89,6 +91,38 @@ export const RotationIconInputs = [
 
 export const RotationInputs = {
 	inputs: [
+		InputHelpers.makeRotationNumberInput<Spec.SpecRetributionPaladin>({
+			fieldName: 'uwSocStacks',
+			label: i18n.t('rotation_tab.options.paladin.retribution.uw_soc_stacks.label'),
+			labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_soc_stacks.tooltip', { max: MAX_ECHO_STACKS }),
+			positive: true,
+			showWhen: player => {
+				const { sealOfCommand, unsealedWrath } = player.getTalents();
+				return unsealedWrath && sealOfCommand;
+			},
+			getValue: player => player.getSimpleRotation().uwSocStacks,
+			setValue: (player: Player<Spec.SpecRetributionPaladin>, newValue: number) => {
+				const rotation = player.getSimpleRotation();
+				rotation.uwSocStacks = Math.min(MAX_ECHO_STACKS, newValue);
+				player.setSimpleRotation(rotation);
+			},
+		}),
+		InputHelpers.makeRotationNumberInput<Spec.SpecRetributionPaladin>({
+			fieldName: 'uwSorStacks',
+			label: i18n.t('rotation_tab.options.paladin.retribution.uw_sor_stacks.label'),
+			labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_sor_stacks.tooltip', { max: MAX_ECHO_STACKS }),
+			positive: true,
+			showWhen: player => {
+				const { sealOfCommand, unsealedWrath } = player.getTalents();
+				return unsealedWrath && sealOfCommand;
+			},
+			getValue: player => player.getSimpleRotation().uwSorStacks,
+			setValue: (player: Player<Spec.SpecRetributionPaladin>, newValue: number) => {
+				const rotation = player.getSimpleRotation();
+				rotation.uwSorStacks = Math.min(MAX_ECHO_STACKS, newValue);
+				player.setSimpleRotation(rotation);
+			},
+		}),
 		InputHelpers.makeRotationNumberInput<Spec.SpecRetributionPaladin>({
 			fieldName: 'pullRange',
 			label: i18n.t('rotation_tab.options.paladin.retribution.pull_range.label'),

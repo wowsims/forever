@@ -226,29 +226,36 @@ func TestOffHandAutoAttackRageGeneration(t *testing.T) {
 
 func TestDamageTakenRageGeneration(t *testing.T) {
 	// 1000 damage before armor from a level 63 attacker, which assumes 40% armor: 2.5 * 0.6 * 1000 / 243.64
-	// = 6.157 for a physical direct hit, and twice that, 12.314, for another school or any periodic tick. From a
+	// = 6.157 for a melee auto attack, and twice that, 12.314, for another school or any periodic tick. Any other
+	// physical direct hit reads the 600 that lands, twice: 2 * 2.5 * 0.6 * 600 / 243.64 = 7.388. From a
 	// level 30 attacker (21.8%): 2.5 * 0.782 * 1000 / 109.23 = 17.898; level 40 sits halfway between the 38 and 42
 	// rows (22.85%): 2.5 * 0.7715 * 1000 / 147.87 = 13.044; level 44 (31%): 2.5 * 0.69 * 1000 / 163.83 = 10.529;
 	// level 45 sits halfway between the 44 and 46 rows (33.5%): 2.5 * 0.665 * 1000 / 167.87 = 9.904.
 	const preArmorDamage = 1000.0
+	const landedDamage = 600.0
 
 	tests := []struct {
 		name          string
 		school        SpellSchool
+		procMask      ProcMask
 		outcome       HitOutcome
 		periodic      bool
 		attackerLevel int32
 		wantRage      float64
 	}{
-		{name: "physical hit", school: SpellSchoolPhysical, outcome: OutcomeHit, wantRage: 6.157},
+		{name: "main-hand swing", school: SpellSchoolPhysical, procMask: ProcMaskMeleeMHAuto, outcome: OutcomeHit, wantRage: 6.157},
+		{name: "off-hand swing", school: SpellSchoolPhysical, procMask: ProcMaskMeleeOHAuto, outcome: OutcomeHit, wantRage: 6.157},
+		{name: "physical melee special", school: SpellSchoolPhysical, procMask: ProcMaskMeleeMHSpecial, outcome: OutcomeHit, wantRage: 7.388},
+		{name: "physical ranged auto attack", school: SpellSchoolPhysical, procMask: ProcMaskRangedAuto, outcome: OutcomeHit, wantRage: 7.388},
 		{name: "fire hit", school: SpellSchoolFire, outcome: OutcomeHit, wantRage: 12.314},
-		{name: "dodge", school: SpellSchoolPhysical, outcome: OutcomeDodge, wantRage: 0},
+		{name: "fire swing", school: SpellSchoolFire, procMask: ProcMaskMeleeMHAuto, outcome: OutcomeHit, wantRage: 12.314},
+		{name: "dodge", school: SpellSchoolPhysical, procMask: ProcMaskMeleeMHAuto, outcome: OutcomeDodge, wantRage: 0},
 		{name: "nature tick", school: SpellSchoolNature, outcome: OutcomeHit, periodic: true, wantRage: 12.314},
 		{name: "physical tick", school: SpellSchoolPhysical, outcome: OutcomeHit, periodic: true, wantRage: 12.314},
-		{name: "lower level attacker", school: SpellSchoolPhysical, outcome: OutcomeHit, attackerLevel: 30, wantRage: 17.898},
-		{name: "attacker between rows 38 and 42", school: SpellSchoolPhysical, outcome: OutcomeHit, attackerLevel: 40, wantRage: 13.044},
-		{name: "attacker on a row", school: SpellSchoolPhysical, outcome: OutcomeHit, attackerLevel: 44, wantRage: 10.529},
-		{name: "attacker between rows 44 and 46", school: SpellSchoolPhysical, outcome: OutcomeHit, attackerLevel: 45, wantRage: 9.904},
+		{name: "lower level attacker", school: SpellSchoolPhysical, procMask: ProcMaskMeleeMHAuto, outcome: OutcomeHit, attackerLevel: 30, wantRage: 17.898},
+		{name: "attacker between rows 38 and 42", school: SpellSchoolPhysical, procMask: ProcMaskMeleeMHAuto, outcome: OutcomeHit, attackerLevel: 40, wantRage: 13.044},
+		{name: "attacker on a row", school: SpellSchoolPhysical, procMask: ProcMaskMeleeMHAuto, outcome: OutcomeHit, attackerLevel: 44, wantRage: 10.529},
+		{name: "attacker between rows 44 and 46", school: SpellSchoolPhysical, procMask: ProcMaskMeleeMHAuto, outcome: OutcomeHit, attackerLevel: 45, wantRage: 9.904},
 	}
 
 	for _, test := range tests {
@@ -261,12 +268,13 @@ func TestDamageTakenRageGeneration(t *testing.T) {
 			}
 
 			result := &SpellResult{
-				Target:         &fw.Unit,
-				Outcome:        test.outcome,
-				PreArmorDamage: preArmorDamage,
+				Target:            &fw.Unit,
+				Outcome:           test.outcome,
+				PreArmorDamage:    preArmorDamage,
+				PostOutcomeDamage: landedDamage,
 			}
 
-			spell := &Spell{Unit: attacker, SpellSchool: test.school}
+			spell := &Spell{Unit: attacker, SpellSchool: test.school, ProcMask: test.procMask}
 			rageBefore := fw.CurrentRage()
 			if test.periodic {
 				fw.Unit.OnPeriodicDamageTaken(sim, spell, result)
@@ -282,69 +290,120 @@ func TestDamageTakenRageGeneration(t *testing.T) {
 	}
 }
 
+// The attacker's main-hand swing registered again as a physical melee special, as a mob's Cleave is.
+func physicalSpecial(attacker *Unit, procMask ProcMask) *Spell {
+	config := *attacker.AutoAttacks.MHConfig()
+	config.ActionID = ActionID{SpellID: 1}
+	config.ProcMask = procMask
+	return attacker.RegisterSpell(config)
+}
+
 func TestPreArmorDamage(t *testing.T) {
 	// A 1000 hit through 5755 armor against a level 63 attacker (half), 50 flat physical damage taken,
 	// a 10% damage taken reduction, a crit, a 100 block and a 300 absorb:
-	// (1000 * 0.5 + 50) * 0.9 * 2 - 100 - 300 = 590 taken. The damage rage reads keeps the crit and the
-	// 10% reduction and drops the rest: 1000 * 0.9 * 2 = 1800.
-	sim := SetupFakeRageSim()
-	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-	attacker := sim.Encounter.ActiveTargetUnits[0]
-	spell := attacker.AutoAttacks.MHAuto()
-
-	fw.stats[stats.Armor] = 5755
-	fw.stats[stats.BlockValue] = 100
-	fw.PseudoStats.CanBlock = true
-	fw.PseudoStats.BonusPhysicalDamageTaken = 50
-	fw.PseudoStats.DamageTakenMultiplier = 0.9
-	fw.DynamicDamageTakenModifiers = append(fw.DynamicDamageTakenModifiers, func(_ *Simulation, _ *Spell, result *SpellResult, _ bool) {
-		result.Damage -= 300
-	})
-
-	critThenBlock := func(sim *Simulation, result *SpellResult, attackTable *AttackTable) {
-		result.Outcome = OutcomeCrit
-		result.Damage *= 2
-		chance := 0.0
-		result.applyEnemyAttackTableBlock(sim, spell, attackTable, -1, &chance)
-	}
-
-	rageBefore := fw.CurrentRage()
-	result := spell.calcDamageInternal(sim, &fw.Unit, 1000, 1, false, critThenBlock)
-	spell.DealDamage(sim, result)
-	gained := fw.CurrentRage() - rageBefore
-
-	if !WithinToleranceFloat64(590, result.Damage, 0.001) {
-		t.Fatalf("Damage taken: Expected: %0.3f, Actual: %0.3f", 590.0, result.Damage)
-	}
-	if !WithinToleranceFloat64(1800, result.PreArmorDamage, 0.001) {
-		t.Fatalf("Damage before armor: Expected: %0.3f, Actual: %0.3f", 1800.0, result.PreArmorDamage)
-	}
-	// 2.5 * 0.6 * 1800 / 243.64 = 11.082.
-	if !WithinToleranceFloat64(11.082, gained, 0.001) {
-		t.Fatalf("Rage from the hit: Expected: %0.3f, Actual: %0.3f", 11.082, gained)
-	}
-}
-
-func TestFullBlockGivesNoRage(t *testing.T) {
-	// A 1000 hit from a level 63 attacker: 2.5 * 0.6 * 1000 / 243.64 = 6.157 when anything gets past the
-	// block, even when an absorb takes the rest, and nothing when the block takes it all.
+	// (1000 + 50) * 0.5 * 0.9 * 2 - 100 - 300 = 545 taken. A swing's rage reads the damage that keeps the crit
+	// and the 10% reduction and drops the rest, 1000 * 0.9 * 2 = 1800: 2.5 * 0.6 * 1800 / 243.64 = 11.082.
+	// A special's reads the 845 left after the block, before the 300 absorb, twice: 2 * 2.5 * 0.6 * 845 / 243.64 = 10.405.
 	tests := []struct {
-		name       string
-		blockValue float64
-		absorbed   bool
-		wantRage   float64
+		name     string
+		special  bool
+		wantRage float64
 	}{
-		{name: "blocked in full", blockValue: 1000, wantRage: 0},
-		{name: "partly blocked", blockValue: 100, wantRage: 6.157},
-		{name: "partly blocked, the rest absorbed", blockValue: 100, absorbed: true, wantRage: 6.157},
+		{name: "swing", wantRage: 11.082},
+		{name: "special", special: true, wantRage: 10.405},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			sim := SetupFakeRageSim()
 			fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-			spell := sim.Encounter.ActiveTargetUnits[0].AutoAttacks.MHAuto()
+			attacker := sim.Encounter.ActiveTargetUnits[0]
+			spell := attacker.AutoAttacks.MHAuto()
+			if test.special {
+				spell = physicalSpecial(attacker, ProcMaskMeleeMHSpecial)
+			}
 
+			fw.stats[stats.Armor] = 5755
+			fw.stats[stats.BlockValue] = 100
+			fw.PseudoStats.CanBlock = true
+			fw.PseudoStats.BonusPhysicalDamageTaken = 50
+			fw.PseudoStats.DamageTakenMultiplier = 0.9
+			fw.DynamicDamageTakenModifiers = append(fw.DynamicDamageTakenModifiers, func(_ *Simulation, _ *Spell, result *SpellResult, _ bool) {
+				result.Damage -= 300
+			})
+
+			critThenBlock := func(sim *Simulation, result *SpellResult, attackTable *AttackTable) {
+				result.Outcome = OutcomeCrit
+				result.Damage *= 2
+				chance := 0.0
+				result.applyEnemyAttackTableBlock(sim, spell, attackTable, -1, &chance)
+			}
+
+			rageBefore := fw.CurrentRage()
+			result := spell.calcDamageInternal(sim, &fw.Unit, 1000, 1, false, critThenBlock)
+			spell.DealDamage(sim, result)
+			gained := fw.CurrentRage() - rageBefore
+
+			if !WithinToleranceFloat64(545, result.Damage, 0.001) {
+				t.Fatalf("Damage taken: Expected: %0.3f, Actual: %0.3f", 545.0, result.Damage)
+			}
+			if !WithinToleranceFloat64(1800, result.PreArmorDamage, 0.001) {
+				t.Fatalf("Damage before armor: Expected: %0.3f, Actual: %0.3f", 1800.0, result.PreArmorDamage)
+			}
+			if !WithinToleranceFloat64(test.wantRage, gained, 0.001) {
+				t.Fatalf("Rage from the hit: Expected: %0.3f, Actual: %0.3f", test.wantRage, gained)
+			}
+		})
+	}
+}
+
+func TestFlatRangedReductionBelowZeroGivesNoRage(t *testing.T) {
+	// A flat ranged reduction larger than the shot leaves a ranged special nothing to read: no rage, and no panic.
+	sim := SetupFakeRageSim()
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	shot := physicalSpecial(sim.Encounter.ActiveTargetUnits[0], ProcMaskRangedSpecial)
+	fw.stats[stats.Armor] = 0
+	fw.PseudoStats.BonusRangedDamageTaken = -30
+
+	rageBefore := fw.CurrentRage()
+	shot.DealDamage(sim, shot.calcDamageInternal(sim, &fw.Unit, 20, 1, false, shot.OutcomeAlwaysHitNoHitCounter))
+
+	if gained := fw.CurrentRage() - rageBefore; gained != 0 {
+		t.Fatalf("Rage from a shot the reduction took below zero: Expected: 0, Actual: %0.3f", gained)
+	}
+}
+
+func TestFullBlockGivesNoRage(t *testing.T) {
+	// A 1000 hit from a level 63 attacker on a defender without armor. A swing gives 2.5 * 0.6 * 1000 / 243.64
+	// = 6.157 when anything gets past the block, even when an absorb takes the rest. A special gives twice the
+	// rule on the 900 a 100 block leaves, before any absorb: 2 * 2.5 * 0.6 * 900 / 243.64 = 11.082. Neither gives
+	// any when the block takes it all.
+	tests := []struct {
+		name       string
+		special    bool
+		blockValue float64
+		absorbed   bool
+		wantRage   float64
+	}{
+		{name: "swing blocked in full", blockValue: 1000, wantRage: 0},
+		{name: "swing partly blocked", blockValue: 100, wantRage: 6.157},
+		{name: "swing partly blocked, the rest absorbed", blockValue: 100, absorbed: true, wantRage: 6.157},
+		{name: "special blocked in full", special: true, blockValue: 1000, wantRage: 0},
+		{name: "special partly blocked", special: true, blockValue: 100, wantRage: 11.082},
+		{name: "special partly blocked, the rest absorbed", special: true, blockValue: 100, absorbed: true, wantRage: 11.082},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			sim := SetupFakeRageSim()
+			fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+			attacker := sim.Encounter.ActiveTargetUnits[0]
+			spell := attacker.AutoAttacks.MHAuto()
+			if test.special {
+				spell = physicalSpecial(attacker, ProcMaskMeleeMHSpecial)
+			}
+
+			fw.stats[stats.Armor] = 0
 			fw.stats[stats.BlockValue] = test.blockValue
 			fw.PseudoStats.CanBlock = true
 			if test.absorbed {

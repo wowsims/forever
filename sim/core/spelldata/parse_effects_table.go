@@ -93,7 +93,7 @@ type parser struct {
 	showAsSchoolHit        core.SpellSchool
 	showAsSchoolHitStamped bool
 
-	// AllManaRegen: a mana regen percent multiplies all of the mana regen.
+	// AllManaRegen: a mana regen percent is Innervate's multiplier on the mana regen.
 	allManaRegen bool
 }
 
@@ -276,6 +276,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS:  mobTypeStatRow,
 	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS: mobTypeStatRow,
 	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS:   mobTypeStatRow,
+	dbcenums.A_MOD_DAMAGE_DONE_CREATURE:       mobTypeStatRow,
 	dbcenums.A_MOD_DAMAGE_DONE_VERSUS:         damageVersusRow,
 	dbcenums.A_MOD_CRIT_PERCENT_VERSUS:        critDamageVersusRow,
 
@@ -400,8 +401,8 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		return p.statBuff(stats.MP5, v)
 	},
 	// The share of spirit regen that continues while casting, which core caps at all of it, and a
-	// multiplier on spirit regen, or on all of the mana regen under AllManaRegen. The energy bar's
-	// regen and all of the mana regen are speeds, which need the Simulation an aura's gain hands over.
+	// multiplier on spirit regen, or under AllManaRegen Innervate's multiplier on the mana regen. The
+	// energy bar's regen and Innervate's are speeds, which need the Simulation an aura's gain hands over.
 	dbcenums.A_MOD_MANA_REGEN_INTERRUPT: func(p *parser, e *Effect, v float64) *attachment {
 		return p.refreshingManaRegen(p.pseudoAdd("spirit-regen-casting", "SpiritRegenRateCasting",
 			[]*float64{&p.unit.PseudoStats.SpiritRegenRateCasting}, v/100))
@@ -410,7 +411,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		switch e.Misc {
 		case int32(dbcenums.POWER_MANA):
 			if p.allManaRegen {
-				return p.speed("mana-regen", "ManaRegenMultiplier", (*core.Unit).MultiplyManaRegenSpeed,
+				return p.speed("mana-regen", "ManaRegenMultiplier", (*core.Unit).MultiplyInnervateManaRegenSpeed,
 					core.MultiplierFromPercent(v))
 			}
 			return p.refreshingManaRegen(p.pseudoMultiplier("spirit-regen", "SpiritRegenMultiplier",
@@ -1069,19 +1070,21 @@ func statShareRow(p *parser, e *Effect, v float64) *attachment {
 // A stat the unit has against the mob types a creature type mask names, which the sim keeps on the
 // attack tables.
 func mobTypeStatRow(p *parser, e *Effect, v float64) *attachment {
-	stat := versusStats[e.Aura]
 	mobTypes := MobTypes(e.Misc)
 	if len(mobTypes) == 0 {
 		return nil
 	}
 
-	a := additive("mob-type-stat "+stat.StatName(), v, p.onAttackTables(func(_ *core.Simulation, delta float64) {
-		var bonus stats.Stats
-		bonus[stat] = delta
-		p.unit.AddMobTypeBonusStats(bonus, mobTypes...)
+	var names []string
+	for _, stat := range versusStats[e.Aura] {
+		names = append(names, stat.StatName())
+	}
+	name := strings.Join(names, "+")
+	a := additive("mob-type-stat "+name, v, p.onAttackTables(func(_ *core.Simulation, delta float64) {
+		p.unit.AddMobTypeBonusStats(VersusBonus(e.Aura, delta), mobTypes...)
 	}))
 	// A bonus against other creature types does not compete with this one.
-	a.key = fmt.Sprintf("%sVersus%d", stat.StatName(), e.Misc)
+	a.key = fmt.Sprintf("%sVersus%d", name, e.Misc)
 	return a
 }
 

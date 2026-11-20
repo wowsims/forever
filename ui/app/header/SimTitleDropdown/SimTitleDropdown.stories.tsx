@@ -23,6 +23,20 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const Compact: Story = {
+	args: { compact: true },
+	decorators: [
+		Story => (
+			<div className="flex h-sim-header items-stretch">
+				<Story />
+			</div>
+		),
+	],
+	play: async ({ canvasElement }) => {
+		await expect(within(canvasElement).queryByTestId('sim-link-label')).toBeNull();
+	},
+};
+
 export const Default: Story = {
 	play: async ({ canvasElement }) => {
 		await userEvent.click(within(within(canvasElement).getByTestId('sim-link-dropdown')).getByTestId('sim-link'));

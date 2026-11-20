@@ -63,7 +63,8 @@
 			"2": "Phase 2",
 			"3": "Phase 3",
 			"4": "Phase 4",
-			"5": "Phase 5"
+			"5": "Phase 5",
+			"unknown": "Unknown"
 		},
 		"phase_names": {
 			"1": "Phase 1",
@@ -194,7 +195,8 @@
 			"crossbows": "Crossbows",
 			"guns": "Guns",
 			"thrown": "Thrown",
-			"wands": "Wands"
+			"wands": "Wands",
+			"feral_combat": "Feral Combat"
 		},
 		"spell_schools": {
 			"physical": "Physical",
@@ -251,6 +253,7 @@
 			"mana": "Mana",
 			"mp5": "MP5",
 			"main_hand_dps": "Main Hand DPS",
+			"feral_combat_skill": "Feral Combat Skill",
 			"off_hand_dps": "Off Hand DPS",
 			"ranged_dps": "Ranged DPS",
 			"block": "Block",
@@ -282,6 +285,8 @@
 			"ranged_hit_rating": "Ranged Hit",
 			"ranged_crit_rating": "Ranged Crit",
 			"ranged_crit_suppression": "Ranged Crit Suppression",
+			"main_hand_weapon_skill": "Main Hand Weapon Skill",
+			"off_hand_weapon_skill": "Off Hand Weapon Skill",
 			"healing_power": "Healing Power",
 			"spell_damage": "Spell Damage",
 			"arcane_damage": "Arcane Spell Damage",
@@ -549,6 +554,10 @@
 				"newly_discovered": "Newly discovered only",
 				"source": "Source",
 				"raids": "Raids",
+				"stats": {
+					"title": "Stats",
+					"label": "Has every stat"
+				},
 				"bonus": {
 					"title": "Bonus",
 					"area": "In area",
@@ -641,10 +650,16 @@
 			"unvalidated_rate": {
 				"ppm_vanilla": "In-game validation needed. Currently using Vanilla PPM values",
 				"ppm_tbc": "In-game validation needed. Currently using TBC PPM values",
-				"ppm_unknown": "In-game validation needed. Currently using an estimated proc rate",
+				"ppm_observed": "In-game validation needed. Currently using an observed non-final proc rate",
 				"chance_vanilla": "In-game validation needed. Currently using a Vanilla proc chance",
 				"chance_tbc": "In-game validation needed. Currently using a TBC proc chance",
-				"chance_unknown": "In-game validation needed. Currently using an estimated proc chance"
+				"chance_observed": "In-game validation needed. Currently using an observed non-final proc chance",
+				"ppm_vanilla_rate": "In-game validation needed. Currently using a Vanilla proc rate of {{rate}} PPM.",
+				"ppm_tbc_rate": "In-game validation needed. Currently using a TBC proc rate of {{rate}} PPM.",
+				"ppm_observed_rate": "In-game validation needed. Currently using an observed non-final rate of {{rate}} PPM.",
+				"chance_vanilla_rate": "In-game validation needed. Currently using a Vanilla proc chance of {{rate}}%.",
+				"chance_tbc_rate": "In-game validation needed. Currently using a TBC proc chance of {{rate}}%.",
+				"chance_observed_rate": "In-game validation needed. Currently using an observed non-final chance of {{rate}}%."
 			},
 			"not_yet_implemented": "Not yet implemented",
 			"not_fully_supported": "Not fully supported:",
@@ -656,8 +671,13 @@
 				"dreadnaughts_battlegear_8": "only heals a healer casts in the sim take the bonus, not the incoming healing the tank sim models.",
 				"battleplate_of_glory_3": "the sim does not cast Intervene, so the bonus changes nothing."
 			},
+			"partial_item": {
+				"zumrahs_vexing_cane": "Proc: Pet not modelled, adds below 1 DPS"
+			},
 			"set_bonus_warnings": "This item set has the following warnings:",
 			"set_bonus_piece": "{{pieces}}-piece:",
+			"proc_rate": "Proc rate: {{rate}} PPM",
+			"proc_chance": "Proc chance: {{rate}}%",
 			"area_stats": "Only while the encounter is in one of these areas:",
 			"discovered_within_hour": "Discovered less than an hour ago",
 			"discovered_ago": "Discovered {{when}}",
@@ -1082,10 +1102,13 @@
 				"tooltip": "Sets the target's NPC id from the presets that share it, which the sim reads the target's identity from. \"None\" leaves the id at 0."
 			},
 			"level": "Level",
-			"mob_type": "Mob Type",
+			"mob_type": {
+				"label": "Mob Type",
+				"tooltip": "The target's creature type. It decides which groups the Creature Family field offers, such as Troll for Humanoid or Plant for Elemental."
+			},
 			"creature_family": {
 				"label": "Creature Family",
-				"tooltip": "The group of creatures the target belongs to, for the items that deal extra damage to Naga, Satyrs, Aquatic enemies, Earth Elementals, Fire Elementals or Mountain Giants."
+				"tooltip": "The group of creatures the target belongs to, for the items that deal extra damage to one group, such as Trolls, Plants, Naga or Earth Elementals."
 			},
 			"tanked_by": {
 				"label": "Tanked By",
@@ -1468,7 +1491,9 @@
 				"edit": "Edit {{bundle}}",
 				"delete": "Delete {{bundle}}",
 				"delete_confirm": "Delete {{bundle}}?",
-				"duplicate": "Same as {{bundle}}"
+				"duplicate": "Same as {{bundle}}",
+				"name": "Name",
+				"name_taken": "Name already used"
 			},
 			"parts": {
 				"encounter": "Encounter",
@@ -2414,6 +2439,10 @@
 					"label": "Excess Energy",
 					"tooltip": "Your current Energy minus what you need to keep for your upcoming Rip and Rake refreshes, after counting the Energy you will regenerate before each one. Spend on a builder only while it covers the builder's cost."
 				},
+				"hunter_active_hawks": {
+					"label": "Active Hawks",
+					"tooltip": "How many of your hawks are up, from 0 to 2. A hawk counts from the moment your Summon Hawk dive lands, 1 second after the cast."
+				},
 				"dot_is_active_on_all_targets": {
 					"label": "Dot Is Active On All Targets",
 					"tooltip": "<b>True</b> if the specified dot is currently ticking on all targets, otherwise <b>False</b>."
@@ -2600,6 +2629,7 @@
 				"sequences": "Sequences",
 				"misc": "Misc",
 				"feral_druid": "Feral Druid",
+				"hunter": "Hunter",
 				"shaman": "Shaman",
 				"warlock": "Warlock",
 				"mage": "Mage",
@@ -2856,6 +2886,14 @@
 					"delay_major_cds": {
 						"label": "Delay major cooldowns (s)",
 						"tooltip": "How many seconds into the fight to wait before trinkets and other cooldowns are used automatically."
+					},
+					"uw_soc_stacks": {
+						"label": "Echo of Command stacks",
+						"tooltip": "The amount of stacks of Echo of Command to build before swapping to Seal of Righteousness"
+					},
+					"uw_sor_stacks": {
+						"label": "Echo of Righteousness stacks",
+						"tooltip": "The amount of stacks of Echo of Righteousness to build before swapping to Seal of Command"
 					}
 				}
 			},
@@ -2910,6 +2948,7 @@
 			"target_number": "Target {{number}}",
 			"group_ranks": "Group ranks",
 			"show_apm_breakdown": "Show APM breakdown",
+			"show_names": "Show names",
 			"pets": "Pets",
 			"damage": {
 				"dps_histogram": "DPS Histogram"
@@ -3161,12 +3200,16 @@
 			"attack_types": {
 				"hit": "Hit",
 				"resisted_hit": "Resisted Hit",
+				"pierced_hit": "Pierced Hit",
 				"critical_hit": "Critical Hit",
 				"resisted_critical_hit": "Resisted Critical Hit",
+				"pierced_critical_hit": "Pierced Critical Hit",
 				"tick": "Tick",
 				"resisted_tick": "Resisted Tick",
+				"pierced_tick": "Pierced Tick",
 				"critical_tick": "Critical Tick",
 				"resisted_critical_tick": "Resisted Critical Tick",
+				"pierced_critical_tick": "Pierced Critical Tick",
 				"glancing_blow": "Glancing Blow",
 				"blocked_hit": "Blocked Hit",
 				"blocked_critical_hit": "Blocked Critical Hit",
@@ -3204,7 +3247,8 @@
 				"shielded": "Shielded",
 				"health_amount": "for <amount>{{amount}} health</amount><resist/>.",
 				"damage_amount": "for <amount>{{amount}} damage<school/></amount><resist/>.",
-				"resist": "({{percent}}% Resist)"
+				"resist": "({{percent}}% Resist)",
+				"pierced": "({{percent}}% Pierced)"
 			}
 		}
 	},
@@ -3702,6 +3746,10 @@
 					"max_multiplier_tooltip": "The most iterations a stat may run, as a multiple of the automatic first pass. Empty sets no cap."
 				}
 			},
+			"presets": {
+				"title": "Presets",
+				"builds": "Builds"
+			},
 			"stat_sweep": {
 				"title": "Stat sweep",
 				"settings": "Settings",
@@ -3886,6 +3934,16 @@
 			},
 			"melee_crit_cap": "Melee Crit Cap",
 			"weapon_skill": "Weapon Skill",
+			"versus": {
+				"title": "Bonus",
+				"in_area": "In {{area}}",
+				"against": "Against {{target}}",
+				"damage": "Damage",
+				"crit_damage": "Critical Strike Damage",
+				"effect_damage": "×{{factor}} damage",
+				"effect_restore": "×{{factor}} restored",
+				"effect_proc_chance": "×{{factor}} proc chance"
+			},
 			"tooltip": {
 				"base": "Base:",
 				"gear": "Gear:",

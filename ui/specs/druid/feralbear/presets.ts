@@ -1,6 +1,6 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { AreaType, ConsumesSpec, HealingModel, Profession, Race } from '@generated/proto/common';
+import { ConsumesSpec, HealingModel, Profession, Race } from '@generated/proto/common';
 import { FeralBearDruid_Options as DruidOptions } from '@generated/proto/druid';
 import { SavedTalents } from '@generated/proto/ui';
 import { Encounter } from '@sim/raid/encounter';
@@ -11,8 +11,8 @@ import AdaptiveApl from './apls/adaptive.apl.json';
 import Level60GearJson from './gear_sets/default.gear.json';
 export const ROTATION_ADAPTIVE = PresetUtils.makePresetAPLRotation('Adaptive Bear', AdaptiveApl);
 
-export const BearTalents = PresetUtils.makePresetTalents('Bear', SavedTalents.create({ talentsString: '050022-2322030212310212501-055' }));
-export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050022-50230332123110121011-055' }));
+export const BearTalents = PresetUtils.makePresetTalents('Bear', SavedTalents.create({ talentsString: '050022-5023030212310112501-055' }));
+export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050012-50230302123110125011-055' }));
 
 export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJson, {
 	devOnly: true,
@@ -20,10 +20,8 @@ export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJso
 });
 
 const encounter = Encounter.defaultEncounterProto();
-encounter.areaTypes = [AreaType.AreaTypeForestGrassland, AreaType.AreaTypeMountainous];
-encounter.zoneId = 616;
 encounter.targets[0].minBaseDamage = 6000;
-export const Level60Encounter = PresetUtils.makePresetEncounter('Mount Hyjal', encounter);
+export const DefaultEncounter = PresetUtils.makePresetEncounter('Default', encounter);
 
 export const DefaultEp = BearEp;
 export const DefaultEpWeights = PresetUtils.makePresetEpWeights('Bear', DefaultEp);

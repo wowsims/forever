@@ -147,9 +147,10 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   trigger hears no death. Only a plan's add dies, at its despawn, with its wave's kill share (0.2 in the Dynamic
   Adds preset).
 - **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target` or the cast's
-  target, never the encounter's first target. Each target keeps only the times it reaches 35% and 20%: at the
-  encounter's execute proportions of the fight (`resetExecutePhases`), or where a plan's health curve for its boss or
-  add crosses them; an enemy has no health bar to read. A buff row a target's phase grants sits on the caster and
+  target, never the encounter's first target. Each target keeps only the times it reaches 35%, 25% and 20%: 35% and
+  20% at the encounter's execute proportions of the fight and 25% two thirds of the way between them
+  (`resetExecutePhases`), or where a plan's health curve for its boss or add crosses each; `IsBelowExecuteHealth` reads
+  any of the three. An enemy has no health bar to read. A buff row a target's phase grants sits on the caster and
   carries to another target (Decimation's 440873); a bonus whose rows state no buff counts per target (Quietus, Early
   Demise).
 - **Fights are time-based**: there is no health-based fight length, and no damage taken moves a target's execute
@@ -186,8 +187,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   breaks every branch built on it.
 - **No proto3 `optional` field**: the `npx protoc` behind `make ui/generated/proto/api.ts` rejects it. "Unset means X"
   is a plain field whose zero value means none or the default, or a message-typed field.
-- **No `reserved` line before launch**, and a breaking change needs no migration; the full ruling is in
-  `references/rulings.md`.
+- **A new field takes the next free number at the end of its message**, and no field is dropped, moved or reused: the
+  sim is live in alpha and saved settings carry the numbers. The full ruling is in `references/rulings.md`.
 
 ## Keeping this skill true
 

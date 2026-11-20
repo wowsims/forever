@@ -85,7 +85,7 @@ func (paladin *Paladin) applyConviction() {
 //
 // The game files state no rate: the ProcChance column reads 100. In game it is 5 procs a minute on
 // the weapon's speed (EV-0062). The row's proc mask also hears melee specials, which roll the same
-// chance and were not measured. The debuff is a magic spell of its own that can miss.
+// chance (EV-0156). The debuff is a magic spell of its own that can miss.
 const vindicationPPM = 5
 
 func (paladin *Paladin) applyVindication() {
@@ -168,7 +168,7 @@ func (paladin *Paladin) applyEyeForAnEye() {
 
 	var reflected float64
 	config := spelldata.SpellConfig(&paladin.Unit, eyeForAnEyeDamage, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc(),
-		spelldata.Flags(core.SpellFlagBinary|core.SpellFlagIgnoreModifiers))
+		spelldata.Flags(core.SpellFlagIgnoreModifiers))
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, reflected, spell.OutcomeAlwaysHit)
 	}
@@ -199,6 +199,10 @@ func (paladin *Paladin) applyPursuitOfJustice() {
 
 // Sacred Arbiter - Increases the damage of your Holy Strike ability by 20% and causes it to refresh
 // all Judgement effects on the target.
+//
+// The trigger follows the tooltip. In game a Holy Strike under the talent writes no refresh line in
+// the combat log (EV-0117).
+// TODO: Ingame test needed: whether Holy Strike under Sacred Arbiter extends the judgement debuffs without a refresh line.
 func (paladin *Paladin) applySacredArbiter() {
 	if !paladin.Talents.SacredArbiter {
 		return
@@ -384,5 +388,7 @@ func (paladin *Paladin) applyUnsealedWrath() {
 	// attack such as Hand of Justice's: that one neither stores nor spends a copy.
 	trigger.Outcome = core.OutcomeLanded
 	trigger.TriggerImmediately = true
+	// Windfury Totem's strike stores no copy, though the row hears melee swings (EV-0136).
+	trigger.HearsCountedSwings = false
 	paladin.MakeProcTriggerAura(trigger)
 }

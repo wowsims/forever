@@ -12,6 +12,7 @@ type QueuedSpell struct {
 
 	channelAction *APLActionChannelSpell // The channel action that queued the spell, which its cast carries when it fires.
 	afterHardcast bool                   // Queued under a hardcast that holds the rotation, as the cast that follows it.
+	line          int                    // The priority list line it was queued from; -1 for a controlling action's step.
 	entryPath     string                 // The path of the APL entry that queued the spell, which its cast carries when it fires.
 
 	// Stores the time at which QueueSpell() was called to ensure that only one spell can be queued up per timestep
@@ -134,7 +135,7 @@ func (spell *Spell) CanCastOrQueue(sim *Simulation, target *Unit) bool {
 // queued after it, which holds only spells on the GCD or with a cast time and lets a major cooldown go;
 // otherwise one queued at this instant.
 func (spell *Spell) heldByQueuedSpell(sim *Simulation) bool {
-	if unit := spell.Unit; unit.spellQueuedAfterHardcast() && unit.Hardcast.Expires <= sim.CurrentTime {
+	if spell.Unit.pickPending(sim) {
 		return spell.waitsForQueuedCast(sim)
 	}
 	return !spell.Unit.CanQueueSpell(sim)
@@ -142,20 +143,24 @@ func (spell *Spell) heldByQueuedSpell(sim *Simulation) bool {
 
 // Whether a queued spell may hold back the unit's casts now, so that a rotation look checks for it.
 func (unit *Unit) queuedSpellHoldsCasts(sim *Simulation) bool {
-	return !unit.CanQueueSpell(sim) || unit.spellQueuedAfterHardcast() && unit.Hardcast.Expires <= sim.CurrentTime
+	return !unit.CanQueueSpell(sim) || unit.pickPending(sim)
 }
 
 // Once a hardcast ends, the spell queued after it is the rotation's next one: until it goes off, no other
 // spell that starts the GCD or a hardcast is cast or queued. A major cooldown still goes, in its place.
 func (spell *Spell) waitsForQueuedCast(sim *Simulation) bool {
-	return spell.Unit.spellQueuedAfterHardcast() && spell.Unit.Hardcast.Expires <= sim.CurrentTime &&
-		spell.DefaultCast.EffectiveTime() > 0 && !spell.Flags.Matches(SpellFlagMCD)
+	return spell.Unit.pickPending(sim) && spell.DefaultCast.EffectiveTime() > 0 && !spell.Flags.Matches(SpellFlagMCD)
 }
 
 // Whether a spell queued under a hardcast has yet to go off.
 func (unit *Unit) spellQueuedAfterHardcast() bool {
 	qs := unit.QueuedSpell
 	return qs != nil && qs.afterHardcast && !qs.queueAction.IsConsumed()
+}
+
+// Whether the spell queued after a hardcast that has ended has yet to go off.
+func (unit *Unit) pickPending(sim *Simulation) bool {
+	return unit.spellQueuedAfterHardcast() && unit.Hardcast.Expires <= sim.CurrentTime
 }
 
 // Whether the spell queued after a hardcast went off at this instant, on its own or in the cast-end look.
@@ -169,7 +174,7 @@ func (unit *Unit) queuedSpellWentOff(sim *Simulation) bool {
 // Whether the spell queued after a hardcast that has ended is due to go off. Other queued spells go off
 // through their own pending action.
 func (unit *Unit) queuedSpellDue(sim *Simulation) bool {
-	return unit.spellQueuedAfterHardcast() && unit.Hardcast.Expires <= sim.CurrentTime && unit.QueuedSpell.queueAction.NextActionAt <= sim.CurrentTime+1
+	return unit.pickPending(sim) && unit.QueuedSpell.queueAction.NextActionAt <= sim.CurrentTime+1
 }
 
 // Casts the spell queued after a hardcast that has ended, as its pending action would.
@@ -201,6 +206,10 @@ func (spell *Spell) castOrQueue(sim *Simulation, target *Unit, channelAction *AP
 		spell.Unit.QueueSpell(sim, spell, target, queueTime)
 		spell.Unit.QueuedSpell.channelAction = channelAction
 		spell.Unit.QueuedSpell.entryPath = entryPath
+		spell.Unit.QueuedSpell.line = -1
+		if rot := spell.Unit.Rotation; rot != nil {
+			spell.Unit.QueuedSpell.line = rot.lookLine
+		}
 		spell.Unit.QueuedSpell.afterHardcast = spell.Unit.hardcastHoldsRotation(sim)
 	} else {
 		// Fallback to make sure there is always log output

@@ -3,7 +3,7 @@ import { useSimHost } from '@sim/context/SimHostContext';
 import { useSyncExternalStore } from 'react';
 
 import { GearPlannerNotice } from './GearPlannerNotice';
-import { ResultsPanelStage, type ResultsPanelStore } from './results_panel_store';
+import { isRunStage, ResultsPanelStage, type ResultsPanelStore } from './results_panel_store';
 import { SimProgress } from './SimProgress';
 import { SimResultSummary } from './SimResultSummary';
 import { UnlaunchedNotice } from './UnlaunchedNotice';
@@ -19,7 +19,7 @@ export const SimResultsPanel = ({ panel, results, onOpenBreakdown }: SimResultsP
 	const stage = useSyncExternalStore(panel.subscribe, panel.getStage);
 
 	const summary = stage === ResultsPanelStage.Result ? results : null;
-	const showProgress = stage === ResultsPanelStage.Pending || stage === ResultsPanelStage.Running;
+	const showProgress = isRunStage(stage);
 	if (!summary && !showProgress && !host.simDisabled) return null;
 
 	return (

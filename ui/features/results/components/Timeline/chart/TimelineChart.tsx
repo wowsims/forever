@@ -5,6 +5,7 @@ import type { Chart as ChartJS, ChartData, ChartOptions, Plugin } from 'chart.js
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Chart } from '../../../../../shared/lazy_charts';
+import { hasHover } from '../../../../../shared/pointer';
 import { useHoverTooltip } from '../../../hooks/useHoverTooltip';
 import type { AnnotationSpec, ScheduledKind, TimelineChartSpec, TimelineDataset, TimelinePoint, TooltipSpec } from '../../../model/timeline/chart/types';
 import { annotationsPlugin, SCHEDULED_ROWS } from './annotations';
@@ -35,7 +36,8 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 	const tipKey = useRef('');
 	const suppressed = useRef(false);
 
-	const { ref: tooltipRef, content: tip, show: showTip, moveTo: moveTip, hide: hideTip } = useHoverTooltip<{ spec: TooltipSpec; log: CombatLog }>();
+	const canvasHost = useRef<HTMLDivElement>(null);
+	const { ref: tooltipRef, content: tip, show: showTip, moveTo: moveTip, hide: hideTip } = useHoverTooltip<{ spec: TooltipSpec; log: CombatLog }>(canvasHost);
 
 	const isSeriesVisible = (seriesId: string) => seriesVisible.current.get(seriesId) ?? seriesId !== THREAT_SERIES_ID;
 
@@ -50,6 +52,9 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 			parsing: false,
 			normalized: true,
 			interaction: { mode: 'nearest', axis: 'xy', intersect: false },
+			// Without hover, only a tap's click opens the tooltip: the touch events would drag it along a swipe, and the
+			// `mouseout` the browser sends right after a tap would close it again.
+			...(hasHover() ? {} : { events: ['click'] }),
 			plugins: {
 				legend: {
 					position: 'top',
@@ -143,6 +148,13 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 		if (spec) zoom.current.setDuration(spec.duration);
 	}, [spec]);
 
+	// The tooltip also closes on a scroll or a press elsewhere, while chart.js still holds the point; it lets go of it here,
+	// or a tap on that point again would change nothing chart.js tracks.
+	const tipOpen = tip !== null;
+	useEffect(() => {
+		if (!tipOpen) chartRef.current?.tooltip?.setActiveElements([], { x: 0, y: 0 });
+	}, [tipOpen]);
+
 	return (
 		<div data-testid="timeline-chart" className="m-auto flex h-full flex-col gap-2">
 			<ChartToolbar
@@ -170,7 +182,7 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 				</ul>
 			)}
 			{hasData && (
-				<div data-testid="timeline-chart-canvas" className="relative min-h-0 flex-1">
+				<div ref={canvasHost} data-testid="timeline-chart-canvas" className="relative min-h-0 flex-1">
 					<Suspense>
 						<Chart
 							type="line"
@@ -182,6 +194,8 @@ export const TimelineChart = ({ spec }: TimelineChartProps) => {
 							// `label`, which is translated and can collide; `seriesId` is the stable key.
 							datasetIdKey="seriesId"
 							updateMode="none"
+							// A vertical swipe scrolls the page and a horizontal one reaches the pan.
+							className="touch-pan-y"
 							role="img"
 							aria-label={i18n.t('results_tab.details.timeline.chart_options.chart_label')}
 							onPointerDown={event => zoom.current.down(event)}

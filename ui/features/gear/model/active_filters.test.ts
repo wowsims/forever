@@ -1,4 +1,4 @@
-import { AreaType, CreatureFamily, MobType } from '@generated/proto/common';
+import { AreaType, CreatureFamily, MobType, Stat } from '@generated/proto/common';
 import { DatabaseFilters } from '@generated/proto/ui';
 import { Sim } from '@sim/sim';
 import { describe, expect, it } from 'vitest';
@@ -16,6 +16,7 @@ describe('activeFilterCount', () => {
 	it('counts a filter once, however many picks it holds', () => {
 		expect(activeFilterCount(defaults({ areaTypes: [AreaType.AreaTypeDesert, AreaType.AreaTypeSnowy] }))).toBe(1);
 		expect(activeFilterCount(defaults({ mobTypes: [MobType.MobTypeUndead], creatureFamilies: [CreatureFamily.CreatureFamilyPlant] }))).toBe(2);
+		expect(activeFilterCount(defaults({ itemStats: [Stat.StatStrength, Stat.StatStamina] }))).toBe(1);
 	});
 
 	it('counts the raids once with one or several unticked, and the sources once for an unticked source or the world drops', () => {

@@ -3,6 +3,7 @@ package shared
 import (
 	"fmt"
 	"slices"
+	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -17,7 +18,7 @@ func ParsedSetBonus(rows ...*spelldata.Spell) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		character := agent.GetCharacter()
 		for _, row := range rows {
-			if isSetBonusProc(row) {
+			if IsSetBonusProc(row) {
 				attachSetBonusProc(character, setBonusAura, row)
 				continue
 			}
@@ -38,7 +39,7 @@ const (
 )
 
 // A row whose one effect triggers another spell off the row's own proc flags.
-func isSetBonusProc(row *spelldata.Spell) bool {
+func IsSetBonusProc(row *spelldata.Spell) bool {
 	return len(row.Effects) == 1 && row.Effects[0].Aura == dbcenums.A_PROC_TRIGGER_SPELL && row.FiredSpell() != spelldata.Nil
 }
 
@@ -64,7 +65,7 @@ func shapeOfSetBonusProc(row *spelldata.Spell) setBonusProcShape {
 // Unending Life's 26107 refunds on finishing moves that miss, Stormcaller's Garb's 26119 on three shaman
 // spells).
 func SetBonusUnsupported(row *spelldata.Spell) []string {
-	if !isSetBonusProc(row) {
+	if !IsSetBonusProc(row) {
 		return spelldata.SetBonusUnsupported(row)
 	}
 
@@ -88,11 +89,23 @@ func SetBonusUnsupported(row *spelldata.Spell) []string {
 	return unsupported
 }
 
-// The proc of a row isSetBonusProc names, kept to the set bonus aura: the row's listener, chance and
-// cooldown, firing what its spell does.
+// The proc of a row IsSetBonusProc names, kept to the set bonus aura: the row's listener, chance and
+// cooldown, firing what its spell does. A row whose tooltip names the cast as a trigger and that hears
+// melee swings and spells at procs per minute gets a listener for each: the swings roll the rate on the
+// weapon's speed and the casts on their cast time (SpellCastPPMTrigger). The pair shares no cooldown,
+// and no such row states one.
 func attachSetBonusProc(character *core.Character, setBonusAura *core.Aura, row *spelldata.Spell) {
 	fired := row.FiredSpell()
-	trigger := spelldata.ProcTrigger(character, row, nil, spelldata.ItemProcChance(row))
+	castsRollTheRate := false
+	trigger := spelldata.ProcTrigger(character, row, nil, spelldata.ItemProcChance(row),
+		func(_ *core.Character, trigger *core.ProcTrigger) {
+			if row.RPPM > 0 && row.ProcHint.Matches(core.ProcHintCastTrigger) &&
+				trigger.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) && trigger.ProcMask.Matches(core.ProcMaskSpellDamage) {
+				castsRollTheRate = true
+				// A spell's cast rolls the rate, so the swing listener hears neither its hit nor a heal's landing.
+				trigger.ProcMask &^= core.ProcMaskSpellDamage | core.ProcMaskSpellHealing
+			}
+		})
 	switch shapeOfSetBonusProc(row) {
 	case setBonusProcDamage:
 		attachProcDamage(character, &trigger, spellDataProcDamageSpell(character, fired, true))
@@ -112,6 +125,40 @@ func attachSetBonusProc(character *core.Character, setBonusAura *core.Aura, row 
 		panic(fmt.Sprintf("set bonus %d fires %d, which no set bonus proc builds", row.ID, fired.ID))
 	}
 	setBonusAura.AttachProcTrigger(trigger)
+	if castsRollTheRate {
+		setBonusAura.AttachProcTrigger(SpellCastPPMTrigger(character, row, trigger.Handler))
+	}
+}
+
+// A listener for the row's procs per minute on spell casts. A cast of a damaging or healing spell rolls
+// once, and so does any other cast that costs its caster a resource and is no melee or ranged ability: a
+// seal, a blessing, a totem, Judgement. A cast that costs nothing rolls nothing, on the global cooldown
+// or off it (EV-0144). The chance depends on the cast, so Chance(1) leaves core no roll of its own and
+// the condition draws it.
+func SpellCastPPMTrigger(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcTrigger {
+	trigger := spelldata.ProcTrigger(character, row, handler, spelldata.Chance(1))
+	trigger.Name = row.Name + " - Cast"
+	trigger.Callback = core.CallbackOnCastComplete
+	trigger.ProcMask = core.ProcMaskUnknown
+	trigger.ProcMaskExclude = core.ProcMaskMeleeOrRanged
+	trigger.Outcome = core.OutcomeEmpty
+	trigger.RequireDamageDealt = false
+	flags := trigger.ProcSpellClassFlags
+	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		if !spell.ProcMask.Matches(core.ProcMaskSpellDamage|core.ProcMaskSpellHealing) && (spell.Cost == nil || spell.Cost.BaseCost <= 0) {
+			return false
+		}
+		return RollCastTimePPM(sim, character, row, flags, spell.CurCast.CastTime)
+	}
+	return trigger
+}
+
+// Whether a cast that took castTime procs the row's procs per minute: the rate on that time, at least
+// the global cooldown's 1.5 s, so an instant rolls 2.5% at 1 a minute and a 3 s cast 5%. The character's
+// proc chance mods for flags raise it.
+func RollCastTimePPM(sim *core.Simulation, character *core.Character, row *spelldata.Spell, flags core.ClassFlags, castTime time.Duration) bool {
+	chance := float64(row.RPPM) * max(castTime, core.GCDDefault).Seconds() / 60
+	return sim.Proc(character.ModifiedProcChance(flags, chance), row.Name)
 }
 
 // A set gen_db registers from the game files, each piece count's bonus parsed from its rows. A set

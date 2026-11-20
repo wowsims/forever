@@ -202,12 +202,18 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
 - The Batch tab waits for the sim (`useSimReady`) before it reads the database, and Simulate stays disabled until then.
 - **Builds column** (`BuildBundles`): a bundle is one gear set, one talents, one rotation and one Settings tab entry,
   and is the unit that runs. The Current bundle (the live gear, talents, rotation and settings) heads the list, ticked
-  by default; unticked, it is stored as `current_unchecked`. The user's bundles follow in stored order, each named from
-  its parts (`bulkBundleList`: "<gear set> · <talents> · <rotation> · <settings>", a Current part as "Current gear",
-  "Current talents" and so on), with a pencil that reopens the dialog on its picks (saving replaces the row and keeps
-  its checked state) and an × behind a confirm. The Current bundle has neither. New bundle opens `BulkBundleDialog`
-  with four pickers, Gear set, Talents, Rotation and Settings, each offering Current, then the spec's presets, then the
-  user's saved entries (`bundleOptions`). Save is off while all four picks are Current, and a stored ref no option holds
+  by default; unticked, it is stored as `current_unchecked`. The user's bundles follow in stored order, each labelled
+  by the name the user gave it (`BulkBuildBundle.name`) or, without one, from its parts (`bulkBundleList`: "<gear set> ·
+  <talents> · <rotation> · <settings>", a Current part as "Current gear", "Current talents" and so on). A named row's
+  label tooltip lists the four parts, after the "Same as …" reason on a disabled row. It opens on the label's hover, and
+  on the box's focus only when the row is disabled; the reason and the parts describe the box and the row's buttons for
+  keyboard and screen reader users either way. Each row has a pencil that
+  reopens the dialog on its picks and name (saving replaces the row and keeps its checked state) and an × behind a
+  confirm. The Current bundle has neither and cannot be named. New bundle opens `BulkBundleDialog` with an optional
+  Name, whose placeholder is the label the picks give, over four pickers, Gear set, Talents, Rotation and Settings,
+  each offering Current, then the spec's presets, then the user's saved entries (`bundleOptions`). The name is saved
+  trimmed. Save is off while all four picks are Current, and while the name matches another bundle's label, the
+  Current bundle's included, whatever its case (`takenBundleLabels`, `bundleNameTaken`); a stored ref no option holds
   starts its picker at Current. A part may sit in any number of bundles. A gear set preset is listed only when the
   player can load it (`enableWhen`), brings no bonus stats, and its `onLoad` never runs; a grouped one shows and runs
   as "<name> (<group>)", and its stored ref carries the group. Deleting a bundle moves focus to New bundle. A disabled
@@ -326,8 +332,11 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   it without ring enchants), so one setup keys alike under every encounter and Compare gives it one row. A row's key
   (`bulkResultKey`) is its gear identity, bonus stats, talents string, rotation as picked and settings as sent.
   `results` holds one entry per finished encounter, the current one first, kept only when all its requests finished.
-- A Builds row always shows four pills, gear, talents, rotation and settings, each its part's name behind a kind icon
-  (the kind as screen reader text), a Current part as "Current gear", "Current talents" and so on. "N enchants differ"
+- A Builds row shows four pills, gear, talents, rotation and settings, each its part's name behind a kind icon
+  (the kind as screen reader text), a Current part as "Current gear", "Current talents" and so on. A row from a named
+  bundle shows one pill with the name in their place, its tooltip listing the four parts (`BulkSetupLines`) and a
+  hidden copy of them as its description (`bulkSetupText`). `bulkBuildPlan` carries the name on copies of the bundle's
+  gear setups (`BulkGearSetup.bundle`), so a setup two bundles send carries the first sender's. "N enchants differ"
   follows the gear pill when the setup changes any of the set's own enchants (`changedEnchantLabels`, the slots and
   enchants listed on hover, `BulkEnchantsDiffer`, as in Compare). Hovering or focusing the talent pill opens a tooltip
   (`BulkTalentsGrid`) with every talent that holds a point, as its icon and rank under its tree's name and points, the
@@ -338,10 +347,11 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   setup, every Gear-mode row and the Builds reference row, applies the gear only and leaves the talents alone. The
   CSV (`results_csv.ts`) has the columns `encounter`, `duration`, `variation`, `rank`, `current_gear`, `dps`,
   `dps_margin_95`, `diff`, `diff_pct`, `talents`, `talents_string`, `gear_set`, `changed_enchants` ("Slot: Enchant"
-  per changed enchant, joined by "; "), `rotation` and `settings`, then four per slot. `diff` and `diff_pct` are
+  per changed enchant, joined by "; "), `rotation`, `settings` and `bundle` (the bundle's name, empty without one),
+  then four per slot. `diff` and `diff_pct` are
   against the reference row, and `current_gear` marks a row that wears the gear worn when the batch ran.
-- Stored per spec: `bulk-build-bundles.v1` (`BulkBuildBundles`: the bundles in list order with their checked state, and
-  `current_unchecked`), `bulk-encounters.v1` (`BulkEncounterSelection`: the checked encounter refs in list order),
+- Stored per spec: `bulk-build-bundles.v1` (`BulkBuildBundles`: the bundles in list order with their checked state and
+  name, and `current_unchecked`), `bulk-encounters.v1` (`BulkEncounterSelection`: the checked encounter refs in list order),
   `bulk-build-enchant-presets.v1` (the enchant presets checked in Builds, apart from Gear mode's pick in
   `bulk-enchant-presets.v1`) and `bulk-mode.v1`. None of the Builds picks bumps the slice's `settings` counter.
 - With two or more finished encounters and power tools on, the encounter list offers Compare encounters: a table
@@ -353,7 +363,8 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   current gear's row: each column measures against its own best set, so that cell reads 0.00%, outlined, and every
   other a loss; the caption says so (`compare.table_caption_best`) and the legend runs from "Loss" to "No change". A
   set keeps one "S<N>" number across all encounters, by `bulkResultKey`. Under its number a Builds set names every
-  part of its bundle, the gear set with the enchants it changes, the talents, the rotation and the settings; a
+  part of its bundle, the gear set with the enchants it changes, the talents, the rotation and the settings, or a named
+  bundle's name with the parts in its tooltip; a
   Gear-mode set lists the items it changes (`changedItemLabels`); rings, trinkets or a dual wielder's weapons that
   only change places count as unchanged, as in the result rows (`ui/features/bulk/model/gear/swappable_slots.ts`).
 - The Setup/Results tab strip spans the batch tab, and each pane has its own columns. Setup holds the settings

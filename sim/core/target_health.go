@@ -13,13 +13,14 @@ type HealthKnot struct {
 
 const maxHealthKnots = 16
 
-// A piecewise-linear health curve over [start, start+span], with the times it first reaches 35% and 20%.
+// A piecewise-linear health curve over [start, start+span], with the times it first reaches 35%, 25% and 20%.
 type healthCurve struct {
 	knots       [maxHealthKnots]HealthKnot
 	numKnots    int
 	start       time.Duration
 	span        time.Duration
 	executeAt35 time.Duration
+	executeAt25 time.Duration
 	executeAt20 time.Duration
 }
 
@@ -32,6 +33,9 @@ func (target *Target) SetHealthCurve(sim *Simulation, start, span time.Duration,
 		target.executePhase = 0
 	} else {
 		if sim.CurrentTime < target.health.executeAt20 && target.executePhase == 20 {
+			target.executePhase = 25
+		}
+		if sim.CurrentTime < target.health.executeAt25 && target.executePhase == 25 {
 			target.executePhase = 35
 		}
 		if sim.CurrentTime < target.health.executeAt35 && target.executePhase == 35 {
@@ -50,6 +54,7 @@ func (curve *healthCurve) set(start, span time.Duration, knots []HealthKnot) {
 	curve.start = start
 	curve.span = span
 	curve.executeAt35 = curve.crossing(35)
+	curve.executeAt25 = curve.crossing(25)
 	curve.executeAt20 = curve.crossing(20)
 }
 
@@ -75,6 +80,8 @@ func (target *Target) nextExecuteAt() time.Duration {
 	case 0:
 		return target.health.executeAt35
 	case 35:
+		return target.health.executeAt25
+	case 25:
 		return target.health.executeAt20
 	}
 	return NeverExpires
@@ -90,8 +97,20 @@ func (unit *Unit) IsExecutePhase35() bool {
 	return unit.executePhase != 0
 }
 
+// Whether the unit is at or below the health percent, one of the execute phases' 35, 25 and 20.
+// Players and pets never are.
+func (unit *Unit) IsBelowExecuteHealth(percent int32) bool {
+	switch percent {
+	case 35, 25, 20:
+		return unit.executePhase != 0 && unit.executePhase <= percent
+	}
+	panic(fmt.Sprintf("no execute phase starts at %d%% health", percent))
+}
+
 // Gives every target the plain curve: full health at the pull, 35% and 20% at the encounter's execute
-// proportions, 0 at the end of the fight. The first advance moves the targets into the phases already crossed.
+// proportions, 0 at the end of the fight. Its health falls at a steady rate between 35% and 20%, so it
+// reaches 25% two thirds of the way from one crossing to the other. The first advance moves the targets
+// into the phases already crossed.
 func (encounter *Encounter) resetExecutePhases(sim *Simulation) {
 	for _, target := range encounter.AllTargets {
 		target.health.set(0, sim.Duration, []HealthKnot{
@@ -105,12 +124,15 @@ func (encounter *Encounter) resetExecutePhases(sim *Simulation) {
 	encounter.updateNextExecuteDuration(sim)
 }
 
-// Moves the target down into each execute phase its curve has crossed, 35% before 20%.
+// Moves the target down into each execute phase its curve has crossed, 35% before 25% before 20%.
 func (target *Target) advanceExecutePhase(sim *Simulation) {
 	if target.executePhase == 0 && sim.CurrentTime >= target.health.executeAt35 {
 		target.executePhase = 35
 	}
-	if target.executePhase == 35 && sim.CurrentTime >= target.health.executeAt20 {
+	if target.executePhase == 35 && sim.CurrentTime >= target.health.executeAt25 {
+		target.executePhase = 25
+	}
+	if target.executePhase == 25 && sim.CurrentTime >= target.health.executeAt20 {
 		target.executePhase = 20
 	}
 }

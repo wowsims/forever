@@ -248,6 +248,7 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `protection_paladin_damage_taken_last_global`
 - `[unit.]druid_bleed_is_active`
 - `druid_excess_energy`
+- `hunter_active_hawks`
 - `variable_ref(string)`, short form above
 - `variable_placeholder(string)`, short form above
 - `action_group_used(string)`

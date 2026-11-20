@@ -49,7 +49,7 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 	// The judgement is Ranged in SpellCategories and carries No Active Defense: it rolls hit and
 	// crit on the ranged table with the paladin's ranged hit chance, cannot be blocked, and is a
 	// ranged attack to every proc that listens for one.
-	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
+	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfRighteousness
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
@@ -95,9 +95,9 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		MetricsActionID: core.ActionID{SpellID: rank.ID},
 		Duration:        sealDuration,
 		Callback:        core.CallbackOnSpellHitDealt,
-		ProcMask:        sealSwingMask,
+		ProcMask:        swingMask,
 		Outcome:         core.OutcomeLanded,
-		ExtraCondition:  sealHearsSwing,
+		ExtraCondition:  hearsSwing,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			procSpell.Cast(sim, result.Target)
 		},

@@ -5,6 +5,7 @@ import (
 	"math"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/common"
 	"github.com/wowsims/forever/sim/core"
@@ -320,5 +321,66 @@ func TestEarlyDemiseFollowsTheCastsTarget(t *testing.T) {
 		if got := spell.BonusCritPercent - base; math.Abs(got-c.want) > 1e-9 {
 			t.Errorf("Shadow Word: Death at %s has %v bonus crit, want %v", c.target.Label, got, c.want)
 		}
+	}
+}
+
+// Starshards' ticks roll their partial resist against the target's whole average resist, where other
+// channels' ticks roll against a tenth of it (EV-0142).
+func TestStarshardsTicksMeetTheTargetsFullResistance(t *testing.T) {
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = 3600
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid: core.SinglePlayerRaidProto(&proto.Player{
+			Name:      "Starshards",
+			Race:      proto.Race_RaceNightElf,
+			Class:     proto.Class_ClassPriest,
+			Equipment: &proto.EquipmentSpec{},
+			Spec: &proto.Player_DpsPriest{
+				DpsPriest: &proto.DpsPriest{
+					Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
+				},
+			},
+			Rotation: &proto.APLRotation{},
+		}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	priest := sim.Raid.Parties[0].Players[0].(*Priest)
+	target := sim.Encounter.AllTargetUnits[0]
+	// An average resist of 300 / (300 + 8 * 60 + 19) leaves no unresisted step at the full share, and
+	// about seven in ten unresisted at a tenth.
+	target.AddStatDynamic(sim, stats.ArcaneResistance, 300)
+	rank := StarshardsRankMap.Highest()
+	starshards := priest.GetSpell(core.ActionID{SpellID: rank.ID})
+	if starshards == nil {
+		t.Fatalf("the priest has no %s %d", rank.Name, rank.ID)
+	}
+	tick := starshards.ActionID.String() + " tick "
+	manaMetrics := priest.NewManaMetrics(starshards.ActionID)
+	landed, unresisted := 0, 0
+	sim.Log = func(message string, vals ...any) {
+		line := fmt.Sprintf(message, vals...)
+		if !strings.Contains(line, tick) {
+			return
+		}
+		landed++
+		if !strings.Contains(line, "% Resist)") {
+			unresisted++
+		}
+	}
+
+	for range 40 {
+		priest.AddMana(sim, priest.MaxMana(), manaMetrics)
+		if !starshards.Cast(sim, target) {
+			t.Fatalf("Starshards did not cast at %v", sim.CurrentTime)
+		}
+		for end := sim.CurrentTime + 31*time.Second; sim.CurrentTime < end && !sim.Step(); {
+		}
+	}
+
+	if landed < 100 || unresisted != 0 {
+		t.Errorf("%d of %d Starshards ticks took no partial resist, want none of at least 100", unresisted, landed)
 	}
 }

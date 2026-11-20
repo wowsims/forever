@@ -40,15 +40,30 @@ func itemWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, itemID int
 
 func itemSpecWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, item *proto.ItemSpec) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return itemWearerWithEquipment(t, class, equipping(slot, item))
+}
+
+// Equipment of one item in the slot and nothing else.
+func equipping(slot proto.ItemSlot, item *proto.ItemSpec) *proto.EquipmentSpec {
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
 	}
 	items[slot] = item
-	return itemWearerWithEquipment(t, class, &proto.EquipmentSpec{Items: items})
+	return &proto.EquipmentSpec{Items: items}
 }
 
 func itemWearerWithEquipment(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec) (*core.Simulation, *core.Character) {
+	t.Helper()
+	return itemWearerFacing(t, class, equipment, proto.MobType_MobTypeUnknown)
+}
+
+func itemWearerFacing(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec, mobType proto.MobType) (*core.Simulation, *core.Character) {
+	t.Helper()
+	return itemWearerAgainst(t, class, equipment, &proto.Target{Name: "target", Level: 60, MobType: mobType})
+}
+
+func itemWearerAgainst(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec, targets ...*proto.Target) (*core.Simulation, *core.Character) {
 	t.Helper()
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceHuman,
@@ -72,7 +87,7 @@ func itemWearerWithEquipment(t *testing.T, class proto.Class, equipment *proto.E
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
-		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+		Encounter:  &proto.Encounter{Targets: targets, Duration: 180},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -82,6 +97,173 @@ func itemWearerWithEquipment(t *testing.T, class proto.Class, equipment *proto.E
 func damageInRange(metrics core.SpellMetrics, effect *spelldata.Effect) bool {
 	casts := float64(metrics.Casts)
 	return metrics.Crits == 0 && metrics.TotalDamage >= casts*effect.Min() && metrics.TotalDamage <= casts*effect.Max()
+}
+
+// Zealot Plate 274651's 1294668 restores 1294666's mana when a melee swing taken lands, and nothing on
+// a spell taken. It then rests for the row's cooldown.
+func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
+	editSpellRow(t, 1294668, func(s *spelldata.Spell) {
+		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
+	})
+	gain := spelldata.MustFind(1294666).EnergizeEffect()
+	cooldown := spelldata.MustFind(1294668).ICD()
+	if gain.Min() <= 0 || cooldown <= 0 {
+		t.Fatalf("1294666 restores %v to %v mana and 1294668 rests %v, want a gain and a cooldown", gain.Min(), gain.Max(), cooldown)
+	}
+	sim, character := itemWearer(t, proto.Class_ClassPaladin, proto.ItemSlot_ItemSlotChest, 274651)
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	character.SpendMana(sim, 4*gain.Max(), character.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen}))
+	restored := func(t *testing.T, spell *core.Spell) float64 {
+		t.Helper()
+		before := character.CurrentMana()
+		takeHit(t, sim, character, spell)
+		return character.CurrentMana() - before
+	}
+
+	if got := restored(t, fireSpell(enemy)); got != 0 {
+		t.Errorf("a spell hit taken restored %v mana, want none", got)
+	}
+	start := sim.CurrentTime
+	if got := restored(t, meleeSwing(enemy)); got < gain.Min() || got > gain.Max() {
+		t.Errorf("a melee hit taken restored %v mana, want the row's %v to %v", got, gain.Min(), gain.Max())
+	}
+	if got := restored(t, meleeSwing(enemy)); got != 0 {
+		t.Errorf("a melee hit taken inside the cooldown restored %v mana, want none", got)
+	}
+	// stepTo stops after 10,000 steps, fewer than the sim takes to cross the whole cooldown, so the
+	// cooldown is crossed in 10 s legs.
+	for at := start + 10*time.Second; at < start+cooldown; at += 10 * time.Second {
+		stepTo(t, sim, at)
+	}
+	stepTo(t, sim, start+cooldown)
+	if got := restored(t, meleeSwing(enemy)); got < gain.Min() {
+		t.Errorf("a melee hit taken as the cooldown ends restored %v mana, want at least %v", got, gain.Min())
+	}
+}
+
+// Argent Defender 13243's 17350 rolls the row's procs per minute on each landed melee hit taken,
+// priced on the attacker's time between its own swings, a dual wielder's two hands together, and
+// doubled by the row's second effect when an Undead strikes, and states that chance against its
+// current target. Each case counts the procs of many hits
+// on a row copy that rests no cooldown and carries a higher rate, so the cases sit far apart, within
+// five standard deviations of the count.
+func TestArgentDefenderPricesTheAttackersSwings(t *testing.T) {
+	const ppm = 6
+	row := editSpellRow(t, 17350, func(s *spelldata.Spell) { s.ICDMs, s.RPPM = 0, ppm })
+	undead := row.EffectN(2).BasePoints
+	if undead <= 1 {
+		t.Fatalf("17350's second effect is %v, want a factor above 1 to tell Undead apart", undead)
+	}
+
+	for _, attacker := range []struct {
+		name     string
+		target   *proto.Target
+		interval float64 // Seconds between the attacker's own swings.
+		factor   float64
+	}{
+		{"1.0 s", &proto.Target{SwingSpeed: 1, MobType: proto.MobType_MobTypeHumanoid}, 1, 1},
+		{"3.0 s", &proto.Target{SwingSpeed: 3, MobType: proto.MobType_MobTypeHumanoid}, 3, 1},
+		{"3.0 s Undead", &proto.Target{SwingSpeed: 3, MobType: proto.MobType_MobTypeUndead}, 3, undead},
+		{"2.0 s dual wield", &proto.Target{SwingSpeed: 2, DualWield: true, MobType: proto.MobType_MobTypeHumanoid}, 1, 1},
+	} {
+		t.Run(attacker.name, func(t *testing.T) {
+			want := ppm * attacker.interval / 60 * attacker.factor
+			attacker.target.Name, attacker.target.Level = "target", 60
+			sim, character, buff := argentDefenderWearer(t, attacker.target)
+			enemy := sim.Encounter.ActiveTargetUnits[0]
+			if got := enemy.AutoAttacks.MainhandSwingSpeed().Seconds(); got != attacker.target.SwingSpeed {
+				t.Fatalf("the attacker swings every %v s, want the target's %v s", got, attacker.target.SwingSpeed)
+			}
+			trigger := character.GetAura("Argent Defender")
+			if trigger == nil || trigger.Dpm == nil {
+				t.Fatal("13243 registers no proc on a procs per minute rate")
+			}
+			if got := trigger.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim); math.Abs(got-want) > 1e-9 {
+				t.Errorf("the stated chance against the current target is %v, want %v", got, want)
+			}
+			const hits = 4000
+			procs := 0
+			for range hits {
+				takeHit(t, sim, character, meleeSwing(enemy))
+				if buff.IsActive() {
+					procs++
+					buff.Deactivate(sim)
+				}
+			}
+
+			if spread := 5 * math.Sqrt(hits*want*(1-want)); math.Abs(float64(procs)-hits*want) > spread {
+				t.Errorf("%d of %d landed melee hits taken procced it, want %v within %v", procs, hits, hits*want, spread)
+			}
+		})
+	}
+}
+
+// Argent Defender 13243 raises the block chance by 17351's amount when a melee hit taken lands and
+// deals damage, and nothing on a dodge, a hit the block took whole, a spell taken or a hit from an
+// attacker with no melee auto attack. It then rests for 17350's cooldown. The row copy's rate procs
+// on every hit from the 2 s attacker.
+func TestArgentDefenderRaisesBlockAndRests(t *testing.T) {
+	editSpellRow(t, 17350, func(s *spelldata.Spell) { s.RPPM = 60 })
+	block := float64(spelldata.MustFind(17351).EffectN(1).BasePoints)
+	cooldown := spelldata.MustFind(17350).ICD()
+	if block <= 0 || cooldown <= 0 {
+		t.Fatalf("17351 raises the block chance by %v and 17350 rests %v, want both", block, cooldown)
+	}
+	sim, character, buff := argentDefenderWearer(t,
+		&proto.Target{Name: "swinging", Level: 60, SwingSpeed: 2},
+		&proto.Target{Name: "still", Level: 60})
+	enemy, still := sim.Encounter.ActiveTargetUnits[0], sim.Encounter.ActiveTargetUnits[1]
+
+	dodgeSwing(t, sim, character, enemy)
+	if buff.IsActive() {
+		t.Error("a dodged melee swing raised the block chance, want nothing")
+	}
+	character.OnSpellHitTaken(sim, meleeSwing(enemy), &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeHit | core.OutcomeBlock})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if buff.IsActive() {
+		t.Error("a melee hit the block took whole raised the block chance, want nothing")
+	}
+	takeHit(t, sim, character, fireSpell(enemy))
+	if buff.IsActive() {
+		t.Error("a spell hit taken raised the block chance, want nothing")
+	}
+	takeHit(t, sim, character, meleeSwing(still))
+	if buff.IsActive() {
+		t.Error("a melee hit from an attacker with no auto attack raised the block chance, want nothing")
+	}
+	start := sim.CurrentTime
+	before := character.GetStats()
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := gained(character, before, stats.BlockPercent); !buff.IsActive() || !statNear(got, block) {
+		t.Errorf("a melee hit taken raised the block chance by %v, want the row's %v", got, block)
+	}
+	buff.Deactivate(sim)
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if buff.IsActive() {
+		t.Error("a melee hit taken inside the cooldown raised the block chance, want nothing")
+	}
+	// stepTo stops after 10,000 steps, fewer than the sim takes to cross the whole cooldown, so the
+	// cooldown is crossed in 10 s legs.
+	for at := start + 10*time.Second; at < start+cooldown; at += 10 * time.Second {
+		stepTo(t, sim, at)
+	}
+	stepTo(t, sim, start+cooldown)
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if !buff.IsActive() {
+		t.Error("a melee hit taken as the cooldown ends raised no block chance")
+	}
+}
+
+// A warrior wearing Argent Defender 13243 against the targets, none of them tanked, so no target
+// swings on its own, and the 17351 buff the shield applies.
+func argentDefenderWearer(t *testing.T, targets ...*proto.Target) (*core.Simulation, *core.Character, *core.Aura) {
+	t.Helper()
+	sim, character := itemWearerAgainst(t, proto.Class_ClassWarrior, equipping(proto.ItemSlot_ItemSlotOffHand, &proto.ItemSpec{Id: 13243}), targets...)
+	buff := character.GetAuraByID(core.ActionID{SpellID: 17351})
+	if buff == nil {
+		t.Fatal("13243 registers no 17351 buff")
+	}
+	return sim, character, buff
 }
 
 // Black Grasp of the Destroyer 22194 restores 29471's mana on each landed melee or ranged hit, and

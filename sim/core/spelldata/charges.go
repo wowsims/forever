@@ -11,13 +11,18 @@ import (
 // on its spell modifiers instead, and the charge goes to the spells the buff modifies. An option that
 // sets the trigger to CallbackOnCastComplete spends the charge as the cast completes, once its hits
 // have rolled, so no spell landing after it takes the charge.
+// A condition an option sets narrows the spells that spend it, and a hit it turns away marks no
+// channel. A charge gained while a channel the class flags name is running is still kept for that
+// channel's end.
 //
 // A channel is one cast: the charge stays up for every tick and every target, and is spent when the
 // channel ends. A channel the buff's class flags name spends it once the channel has started, even
 // when its cast lands nothing itself, and so does one already running when the charge comes. A
 // listener on the cast counts a channeled cast as the channel only while the channel runs, so one
-// that starts none spends the charge like any other cast. Wand Shoot is no such channel: each shot
-// spends a charge like any hit, and so do other hits while wanding.
+// that starts none spends the charge like any other cast. A tick that is a proc the row cannot proc
+// from is not heard, so a channel of such ticks the class flags do not name leaves the charge up.
+// Wand Shoot is no such channel: each shot spends a charge like any hit, and so do other hits while
+// wanding.
 // TODO: A tick that lands after its channel ends, a missile still in flight, misses the charge.
 func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, name string, opts ...ProcOpt) core.ProcTrigger {
 	classFlags := chargeClassFlags(character, s)
@@ -46,7 +51,11 @@ func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, n
 	if onCast {
 		spender.TriggerImmediately = true
 	}
-	spender.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+	narrows := spender.ExtraCondition
+	spender.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+		if narrows != nil && !narrows(sim, spell, result) {
+			return false
+		}
 		// The channel's own hit lands before its dot starts, its ticks while it runs, and its cast
 		// completes once it runs. A hit the wearer takes is not part of the channel.
 		channel := character.ChanneledDot

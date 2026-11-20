@@ -801,11 +801,11 @@ func TestFeralCombatSkillOnGearRaisesTheFormsSkill(t *testing.T) {
 	items[proto.ItemSlot_ItemSlotChest].Id = 280016
 	sim, bear := equippedBear(t, items)
 	mh := bear.GetMHWeapon()
-	if got := core.GetWeaponSkill(&bear.Unit, mh); got != skill {
+	if got := core.GetWeaponSkill(&bear.Unit, mh, proto.ItemSlot_ItemSlotMainHand); got != skill {
 		t.Errorf("in Dire Bear Form the skill bonus is %v, want %v", got, skill)
 	}
 	bear.ClearForm(sim)
-	if got := core.GetWeaponSkill(&bear.Unit, mh); got != 0 {
+	if got := core.GetWeaponSkill(&bear.Unit, mh, proto.ItemSlot_ItemSlotMainHand); got != 0 {
 		t.Errorf("out of form the skill bonus is %v, want the weapon's own 0", got)
 	}
 }
@@ -855,6 +855,76 @@ func TestUrsineTwinsResetsOnlyFromLandedDirectLacerates(t *testing.T) {
 			} else if resets != 0 {
 				t.Errorf("%s caused %d resets", kind, resets)
 			}
+		})
+	}
+}
+
+func TestFeralCostIdolsFollowEquipment(t *testing.T) {
+	_, unmodified := equippedBear(t, bearItemSlots())
+	ids := []core.ActionID{
+		{SpellID: 9850}, {SpellID: 9904}, {SpellID: 9881, Tag: 1}, {SpellID: 9908},
+		{SpellID: 9830}, {SpellID: 9896}, {SpellID: 22829}, {SpellID: 1235827},
+	}
+	costs := make(map[core.ActionID]float64)
+	for _, id := range ids {
+		spell := unmodified.GetSpell(id)
+		if spell == nil || spell.Cost == nil {
+			t.Fatalf("spell %s has no resource cost", id)
+		}
+		costs[id] = spell.Cost.GetCurrentCost()
+	}
+	for _, item := range []int32{22397, 23198} {
+		t.Run(core.ActionID{ItemID: item}.String(), func(t *testing.T) {
+			req := bearItemRequest()
+			player := req.Raid.Parties[0].Players[0]
+			player.EnableItemSwap = true
+			swapped := bearItemSlots()
+			swapped[proto.ItemSlot_ItemSlotRanged].Id = item
+			player.ItemSwap = &proto.ItemSwap{Items: swapped}
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			bear := sim.Raid.Parties[0].Players[0].GetCharacter()
+			rowID := int32(27851)
+			if item == 23198 {
+				rowID = 28855
+			}
+			row := spelldata.MustFind(rowID)
+			aura := bear.GetAuraByID(core.ActionID{SpellID: rowID})
+			if aura == nil {
+				t.Fatal("swap idol aura was not registered")
+			}
+			check := func(equipped bool) {
+				t.Helper()
+				if aura.IsActive() != equipped {
+					t.Fatal("idol aura does not match equipment")
+				}
+				for _, id := range ids {
+					spell := bear.GetSpell(id)
+					want := costs[id]
+					affected := item == 22397 && (id.SpellID == 9850 || id.SpellID == 9904) || item == 23198 && (id.SpellID == 9881 || id.SpellID == 9908)
+					if equipped && affected {
+						amount := row.EffectN(1).BasePoints
+						if item == 23198 {
+							amount /= 10
+						}
+						want += float64(amount)
+					}
+					if got := spell.Cost.GetCurrentCost(); math.Abs(got-want) > 1e-9 {
+						t.Errorf("spell %s cost %g, want %g", id, got, want)
+					}
+				}
+			}
+			check(false)
+			for range 3 {
+				bear.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+				check(true)
+				bear.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Main, false)
+				check(false)
+			}
+			bear.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+			sim.Cleanup()
+			sim.Reset()
+			check(false)
 		})
 	}
 }

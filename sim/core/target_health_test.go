@@ -1,6 +1,7 @@
 package core
 
 import (
+	"math"
 	"testing"
 	"time"
 
@@ -40,6 +41,10 @@ func TestPlainExecuteCrossingsFollowTheProportions(t *testing.T) {
 		target := sim.Encounter.AllTargets[0]
 		want35 := time.Duration((1 - tc.p35) * float64(sim.Duration))
 		want20 := time.Duration((1 - tc.p20) * float64(sim.Duration))
+		want25 := want35 + (want20-want35)*2/3
+		if got := target.health.executeAt25; math.Abs(float64(got-want25)) > 1 {
+			t.Errorf("%v s with %v/%v: 25%% at %v, want %v, two thirds of the way from 35%% to 20%%", tc.duration, tc.p35, tc.p20, got, want25)
+		}
 		if got := target.health.executeAt35; got != want35 {
 			t.Errorf("%v s with %v/%v: 35%% at %v, want %v", tc.duration, tc.p35, tc.p20, got, want35)
 		}
@@ -77,7 +82,8 @@ func TestExecutePhasesPerTarget(t *testing.T) {
 	first.SetHealthCurve(sim, 0, 100*time.Second,
 		HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 0.5, Percent: 35}, HealthKnot{At: 0.8, Percent: 20}, HealthKnot{At: 1, Percent: 0})
 	second.SetHealthCurve(sim, 0, 100*time.Second,
-		HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 0.2, Percent: 20}, HealthKnot{At: 1, Percent: 0})
+		HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 0.15, Percent: 35}, HealthKnot{At: 0.18, Percent: 25},
+		HealthKnot{At: 0.2, Percent: 20}, HealthKnot{At: 1, Percent: 0})
 
 	currentTarget20 := rot.newValueIsExecutePhase(&proto.APLValueIsExecutePhase{Threshold: proto.APLValueIsExecutePhase_E20}, nil)
 	secondTarget20 := rot.newValueIsExecutePhase(&proto.APLValueIsExecutePhase{
@@ -92,8 +98,10 @@ func TestExecutePhasesPerTarget(t *testing.T) {
 	}{
 		{10 * time.Second, 0, 0, false, false},
 		{17 * time.Second, 0, 35, false, false},
+		{18 * time.Second, 0, 25, false, false},
 		{20 * time.Second, 0, 20, false, true},
 		{50 * time.Second, 35, 20, false, true},
+		{70 * time.Second, 25, 20, false, true},
 		{80 * time.Second, 20, 20, true, true},
 	} {
 		sim.advance(step.at)
@@ -109,6 +117,35 @@ func TestExecutePhasesPerTarget(t *testing.T) {
 	}
 	if player.IsExecutePhase35() {
 		t.Error("the player is in the execute phase")
+	}
+}
+
+// A target is below 25% health from its 25% crossing on, between its 35% and 20% ones, and each
+// threshold reads its own phase.
+func TestExecutePhase25StartsAtItsCrossing(t *testing.T) {
+	sim := executeTestSim(180, 0.2, 0.35, 1)
+	target := sim.Encounter.AllTargets[0]
+	if !(target.health.executeAt35 < target.health.executeAt25 && target.health.executeAt25 < target.health.executeAt20) {
+		t.Fatalf("the crossings are 35%% at %v, 25%% at %v and 20%% at %v, want them in that order", target.health.executeAt35, target.health.executeAt25, target.health.executeAt20)
+	}
+	for _, step := range []struct {
+		at                        time.Duration
+		below35, below25, below20 bool
+	}{
+		{target.health.executeAt35 - time.Second, false, false, false},
+		{target.health.executeAt35, true, false, false},
+		{target.health.executeAt25 - time.Millisecond, true, false, false},
+		{target.health.executeAt25, true, true, false},
+		{target.health.executeAt20, true, true, true},
+	} {
+		sim.advance(step.at)
+		got := [3]bool{target.IsBelowExecuteHealth(35), target.IsBelowExecuteHealth(25), target.IsBelowExecuteHealth(20)}
+		if want := [3]bool{step.below35, step.below25, step.below20}; got != want {
+			t.Errorf("at %v below 35%%, 25%% and 20%% read %v, want %v", step.at, got, want)
+		}
+	}
+	if !target.IsExecutePhase20() {
+		t.Error("at the 20% crossing the target is not in phase 20")
 	}
 }
 

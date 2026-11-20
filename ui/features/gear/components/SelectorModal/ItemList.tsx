@@ -1,5 +1,5 @@
 import { Class, ItemSlot } from '@generated/proto/common';
-import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
+import { ContentPhase, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SortDirection } from '@sim/constants/other';
 import { useSimHost } from '@sim/context/SimHostContext';
@@ -40,11 +40,8 @@ const ROW_CLASS = clsx(
 type FilterFlag = 'oneHandedWeapons' | 'twoHandedWeapons' | 'showAllEnchants';
 
 const phaseOptions = () => [
-	{ value: 1, label: i18n.t('common.phases.1') },
-	{ value: 2, label: i18n.t('common.phases.2') },
-	{ value: 3, label: i18n.t('common.phases.3') },
-	{ value: 4, label: i18n.t('common.phases.4') },
-	{ value: 5, label: i18n.t('common.phases.5') },
+	{ value: ContentPhase.ContentPhase1, label: i18n.t('common.phases.1') },
+	{ value: ContentPhase.ContentPhaseUnknown, label: i18n.t('common.phases.unknown') },
 ];
 
 export interface ItemListToggle {
@@ -82,12 +79,14 @@ export const ItemListToolbarView = ({
 	remove,
 }: ItemListToolbarViewProps) => {
 	return (
-		<div className="mb-(--modal-padding) flex items-center [&>*:not(:last-child)]:mr-2">
+		// Below `lg` the search and the remove button share the first line, ordered ahead of a zero-height `::before` as wide
+		// as the toolbar, which wraps the rest onto the next; half the row gap on each side of it makes one gap.
+		<div className="mb-(--modal-padding) flex items-center max-lg:flex-wrap max-lg:gap-y-1 max-lg:before:-order-1 max-lg:before:basis-full [&>*:not(:last-child)]:mr-2">
 			<SearchField
 				value={search}
 				onChange={onSearchChange}
 				placeholder={i18n.t('common.search')}
-				inputClassName="max-w-48"
+				inputClassName="max-w-48 max-lg:order-first max-lg:max-w-none max-lg:flex-1"
 				inputTestId="selector-modal-search"
 			/>
 			{filtersMenu !== undefined && (
@@ -115,7 +114,11 @@ export const ItemListToolbarView = ({
 				/>
 			))}
 			{remove && (
-				<Button variant="danger" className="-mt-2 mr-4 -mb-2 ml-auto" data-testid="selector-modal-remove-button" onClick={remove.onClick}>
+				<Button
+					variant="danger"
+					className="-mt-2 mr-4 -mb-2 ml-auto max-lg:order-first max-lg:my-0 max-lg:mr-0"
+					data-testid="selector-modal-remove-button"
+					onClick={remove.onClick}>
 					{remove.label}
 				</Button>
 			)}

@@ -179,7 +179,9 @@ func TestPlanBossKeyframesDriveHealthAndExecutePhases(t *testing.T) {
 	}{
 		{planAt(0.65) - time.Millisecond, 0},
 		{planAt(0.65), 35},
-		{planAt(0.8) - time.Millisecond, 35},
+		{planAt(0.75) - time.Millisecond, 35},
+		{planAt(0.75), 25},
+		{planAt(0.8) - time.Millisecond, 25},
 		{planAt(0.8), 20},
 	} {
 		runLifecycleUntil(sim, step.at)
@@ -281,7 +283,7 @@ func TestPlanWaveSpawnsAddsThatDieAtTheirDespawn(t *testing.T) {
 	}{
 		{planAt(0.2) - time.Millisecond, 0},
 		{planAt(0.2), 35},
-		{planAt(0.25) - time.Millisecond, 35},
+		{planAt(0.25) - time.Millisecond, 25},
 		{planAt(0.25), 20},
 	} {
 		runLifecycleUntil(sim, step.at)

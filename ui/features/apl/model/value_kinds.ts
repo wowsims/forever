@@ -59,6 +59,7 @@ import {
 	APLValueFrontOfTarget,
 	APLValueGCDIsReady,
 	APLValueGCDTimeToReady,
+	APLValueHunterActiveHawks,
 	APLValueInputDelay,
 	APLValueIsExecutePhase,
 	APLValueItemProcsMaxRemainingICD,
@@ -1314,6 +1315,14 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		shortDescription: i18n.t('rotation_tab.apl.values.druid_excess_energy.tooltip'),
 		newValue: APLValueDruidExcessEnergy.create,
 		includeIf: (player: Player<any>, isPrepull: boolean) => !isPrepull && player.getSpec() === Spec.SpecFeralCatDruid,
+		fields: [],
+	}),
+	hunterActiveHawks: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.hunter_active_hawks.label'),
+		submenu: ['hunter'],
+		shortDescription: i18n.t('rotation_tab.apl.values.hunter_active_hawks.tooltip'),
+		newValue: APLValueHunterActiveHawks.create,
+		includeIf: (player: Player<any>, isPrepull: boolean) => !isPrepull && player.getSpec() === Spec.SpecHunter,
 		fields: [],
 	}),
 	variableRef: inputBuilder({

@@ -459,8 +459,9 @@ type AttackTable struct {
 	OH     AttackTableHand
 	Ranged AttackTableHand
 
-	// Raised only by A_MOD_CRIT_PERCENT_VERSUS effects, such as effect 1 of Humanoid Slaying 19151 and Monster
-	// Slaying 24294. A_MOD_DAMAGE_DONE_VERSUS effects, Beast Slaying 20557 among them, raise damage alone.
+	// Raised only by A_MOD_CRIT_PERCENT_VERSUS effects. The game files state one only on Humanoid Slaying
+	// 19151, which no class learns. A_MOD_DAMAGE_DONE_VERSUS effects, Beast Slaying 20557 among them, raise
+	// damage alone.
 	CritMultiplier float64
 
 	DamageDealtMultiplier       float64 // attacker buff, applied in applyAttackerModifiers()
@@ -558,9 +559,9 @@ type AttackTableHand struct {
 	BaseSpellMissChance  float64 // The spell table's miss with the level difference taken from the hand's skill.
 }
 
-func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item) AttackTableHand {
+func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item, slot proto.ItemSlot) AttackTableHand {
 	levelDiff := combatLevelDiff(attacker, defender)
-	bonus := GetWeaponSkill(attacker, weapon)
+	bonus := GetWeaponSkill(attacker, weapon, slot)
 	skillDiff := float64(levelDiff*5) - bonus
 	// Parry, glance chance and crit suppression count skill only up to the level-based maximum.
 	baseSkillDiff := float64(levelDiff*5) - min(bonus, 0)
@@ -597,9 +598,9 @@ func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item) AttackTabl
 
 // Recomputes the hand entries against an enemy defender from the weapons in each hand.
 func (at *AttackTable) setWeapons(mh *Item, oh *Item, ranged *Item) {
-	at.MH = newAttackTableHand(at.Attacker, at.Defender, mh)
-	at.OH = newAttackTableHand(at.Attacker, at.Defender, oh)
-	at.Ranged = newAttackTableHand(at.Attacker, at.Defender, ranged)
+	at.MH = newAttackTableHand(at.Attacker, at.Defender, mh, proto.ItemSlot_ItemSlotMainHand)
+	at.OH = newAttackTableHand(at.Attacker, at.Defender, oh, proto.ItemSlot_ItemSlotOffHand)
+	at.Ranged = newAttackTableHand(at.Attacker, at.Defender, ranged, proto.ItemSlot_ItemSlotRanged)
 }
 
 // Hand returns the entry of the hand the spell attacks with.

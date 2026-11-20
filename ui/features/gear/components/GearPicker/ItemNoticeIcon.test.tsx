@@ -6,7 +6,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { ITEM_INFO_NOTICES, ITEM_NOTICES } from '../../item_notices';
+import { ENCHANT_RATE_NOTICES, ITEM_INFO_NOTICES, ITEM_NOTICES, ITEM_RATE_NOTICES } from '../../item_notices';
 import { ItemNoticeIcon, ItemNoticeIconView } from './ItemNoticeIcon';
 
 const SPEC_SPECIFIC_ITEM = 90101;
@@ -85,6 +85,28 @@ describe('ItemNoticeIcon', () => {
 		open();
 		expect(await screen.findByText('gear_tab.item_notices.missing_effect.enchant_listed')).toBeTruthy();
 		expect(await screen.findByText(/often chill the target/)).toBeTruthy();
+	});
+
+	it('shows a proc rate behind the info icon', async () => {
+		ENCHANT_RATE_NOTICES.set(90103, <p>Proc chance: 5%</p>);
+		mount(1, undefined, Spec.SpecUnknown, 90103);
+
+		expect(screen.getByRole('button').dataset.level).toBe('info');
+		open();
+		expect(await screen.findByText('Proc chance: 5%')).toBeTruthy();
+		ENCHANT_RATE_NOTICES.delete(90103);
+	});
+
+	it('keeps the area notice and the rate notice together', async () => {
+		ITEM_INFO_NOTICES.set(SPEC_SPECIFIC_ITEM, <p>Only in Forest and Grassland areas</p>);
+		ITEM_RATE_NOTICES.set(SPEC_SPECIFIC_ITEM, <p>Proc rate: 1.50 PPM</p>);
+		mount(SPEC_SPECIFIC_ITEM);
+
+		open();
+		expect(await screen.findByText('Only in Forest and Grassland areas')).toBeTruthy();
+		expect(await screen.findByText('Proc rate: 1.50 PPM')).toBeTruthy();
+		ITEM_INFO_NOTICES.delete(SPEC_SPECIFIC_ITEM);
+		ITEM_RATE_NOTICES.delete(SPEC_SPECIFIC_ITEM);
 	});
 
 	it('renders nothing for an enchant whose effect is modelled', () => {

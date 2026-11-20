@@ -34,6 +34,9 @@
 	--container-tooltip-dropdown: 35vw;
 
 	--spacing-sim-header: --spacing(18);
+	--spacing-sim-dock: 0px;
+	--spacing-sim-dock-bar: --spacing(14);
+	--spacing-sim-dock-nav: --spacing(12);
 
 	--grid-template-columns-auto-fit-220: repeat(auto-fit, minmax(var(--container-tile), 1fr));
 	--grid-template-columns-single: auto;
@@ -53,16 +56,17 @@
 	--grid-template-columns-reforge: repeat(2, var(--settings-button-width));
 	--spacing-settings-button-inset: calc(--spacing(2) + var(--settings-button-width));
 	--spacing-settings-panel-max: min(--spacing(100), calc(100dvw - var(--settings-button-width, --spacing(10)) - --spacing(4) * 2));
-	--spacing-selector-modal-w: min(calc(var(--modal-width-xl) - --spacing(10)), calc(100vw - (2 * var(--modal-margin)) - --spacing(10)));
+	--spacing-selector-modal-w: min(calc(var(--modal-width-xl) - var(--modal-rail-width)), calc(100vw - (2 * var(--modal-margin)) - var(--modal-rail-width)));
 	--spacing-modal-inset-w: calc(100vw - 2 * var(--modal-margin));
-	--spacing-modal-inset-h: calc(100vh - 2 * var(--modal-margin));
+	--spacing-modal-inset-h: calc(100dvh - 2 * var(--modal-margin));
 	--spacing-sticky-toolbar-w: calc(100% + var(--spacing-page) * 2);
 	--spacing-page-inset-w: calc(100% - 2 * var(--spacing-page));
 	--spacing-sim-header-plus: calc(var(--spacing-sim-header) + 1px);
 	--spacing-sim-header-minus: calc(var(--spacing-sim-header) - 1px);
 	--spacing-cr-icon-offset: calc(var(--spacing-cr-icon) + --spacing(6));
-	--spacing-log-body-min-h: calc(100dvh - var(--spacing-sim-header) - var(--spacing-page));
-	--spacing-bulk-settings-max-h: calc(100dvh - var(--spacing-sim-header) - var(--spacing-page));
+	--spacing-log-body-min-h: calc(100dvh - var(--spacing-sim-header) - var(--spacing-page) - var(--spacing-sim-dock));
+	--spacing-bulk-settings-max-h: calc(100dvh - var(--spacing-sim-header) - var(--spacing-page) - var(--spacing-sim-dock));
+	--spacing-sim-dock-inset-h: calc(100dvh - var(--spacing-sim-dock));
 	--spacing-filter-popover-max-h: min(60vh, var(--available-height));
 
 	--spacing-timeline-pos: calc(var(--pps) * var(--t));
