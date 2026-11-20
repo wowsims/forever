@@ -7,6 +7,7 @@ import (
 
 func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 	healFraction := rank.EffectN(1).Percent()
+	selfHealMultiplier := 1 + rank.EffectN(2).Percent() // "You receive $s2% increased healing on yourself from this effect": the priest's own heal only.
 
 	veAuras := priest.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 		return target.RegisterAura(spelldata.AuraConfig(rank, spelldata.RankLabel(rank, &priest.Unit)))
@@ -39,9 +40,14 @@ func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 			amount := result.Damage * healFraction
 			for _, agent := range priest.Party.PlayersAndPets {
 				member := &agent.GetCharacter().Unit
-				if member.IsEnabled() {
-					heal.CalcAndDealHealing(sim, member, amount, heal.OutcomeHealing)
+				if !member.IsEnabled() {
+					continue
 				}
+				memberAmount := amount
+				if member == &priest.Unit {
+					memberAmount *= selfHealMultiplier
+				}
+				heal.CalcAndDealHealing(sim, member, memberAmount, heal.OutcomeHealing)
 			}
 		},
 	})

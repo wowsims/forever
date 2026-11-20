@@ -612,6 +612,49 @@ func TestShankFollowsItsTalents(t *testing.T) {
 	}
 }
 
+// Shank strikes with the off hand, so the off hand's poison hears it: over 100 Shanks, Deadly Poison casts off some.
+func TestShankRollsTheOffHandPoison(t *testing.T) {
+	player := &proto.Player{
+		Name:        "Rogue",
+		Race:        proto.Race_RaceHuman,
+		Class:       proto.Class_ClassRogue,
+		Equipment:   core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "muti").GearSet,
+		Consumables: &proto.ConsumesSpec{OhWeaponImbueId: 8985}, // Deadly Poison IV
+		Spec:        DefaultOptions,
+		Rotation:    &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
+	target := sim.Encounter.AllTargetUnits[0]
+	if rogue.DeadlyPoison == nil {
+		t.Fatal("the off hand's imbue registered no Deadly Poison")
+	}
+
+	// Auto attacks also cast the poison between Shanks, so only the casts inside each Shank are counted.
+	var poisons int32
+	for range 100 {
+		for !rogue.GCD.IsReady(sim) {
+			if sim.Step() {
+				t.Fatal("the sim ended while the GCD was running")
+			}
+		}
+		rogue.Shank.CD.Reset()
+		before := rogue.DeadlyPoison.SpellMetrics[target.UnitIndex].Casts
+		if !rogue.Shank.Cast(sim, target) {
+			t.Fatal("Shank did not cast")
+		}
+		poisons += rogue.DeadlyPoison.SpellMetrics[target.UnitIndex].Casts - before
+	}
+	if poisons == 0 {
+		t.Error("Deadly Poison cast off none of 100 Shanks")
+	}
+}
+
 // Death Mark under 31 Subtlety points, with and without Coup de Grace 3/3.
 const deathMarkTalents = "--335223031321001101"
 const deathMarkCoupDeGraceTalents = "-3-335223031321001101"

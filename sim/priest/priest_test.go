@@ -270,6 +270,65 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 	})
 }
 
+// Vampiric Embrace heals each party member the row's share of the priest's Shadow damage, and the priest that
+// share raised by the second effect's percent.
+func TestVampiricEmbraceHealsThePriestMoreThanTheParty(t *testing.T) {
+	priestPlayer := func(name, talents string) *proto.Player {
+		return &proto.Player{
+			Name:          name,
+			Race:          proto.Race_RaceTroll,
+			Class:         proto.Class_ClassPriest,
+			Equipment:     &proto.EquipmentSpec{},
+			TalentsString: talents,
+			Spec: &proto.Player_DpsPriest{
+				DpsPriest: &proto.DpsPriest{
+					Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
+				},
+			},
+			Rotation: &proto.APLRotation{},
+		}
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid: &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{
+			// Vampiric Embrace in the Shadow tree.
+			priestPlayer("Vampiric Embrace", "--00000000001"),
+			priestPlayer("Party Member", ""),
+		}, Buffs: &proto.PartyBuffs{}}}, Buffs: &proto.RaidBuffs{}, Debuffs: &proto.Debuffs{}},
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	priest, member := sim.Raid.Parties[0].Players[0].(*Priest), sim.Raid.Parties[0].Players[1].(*Priest)
+	rank := spellData.VampiricEmbrace.Highest()
+	blastRank := spellData.MindBlast.Highest()
+	heal := priest.GetSpell(core.ActionID{SpellID: 15290})
+	mindBlast := priest.GetSpell(core.ActionID{SpellID: blastRank.ID})
+	if priest.VampiricEmbrace == nil || heal == nil || mindBlast == nil {
+		t.Fatalf("the priest has Vampiric Embrace %v, its heal %v and %s %d %v, want all three",
+			priest.VampiricEmbrace, heal, blastRank.Name, blastRank.ID, mindBlast)
+	}
+	target := sim.Encounter.AllTargetUnits[0]
+	for _, auras := range priest.VampiricEmbrace.RelatedAuraArrays {
+		auras.Get(target).Activate(sim)
+	}
+
+	for range 10 {
+		mindBlast.SkipCastAndApplyEffects(sim, target)
+	}
+	for end := sim.CurrentTime + time.Second; sim.CurrentTime < end && !sim.Step(); {
+	}
+
+	damage := mindBlast.SpellMetrics[target.UnitIndex].TotalDamage
+	own, party := heal.SpellMetrics[priest.UnitIndex].TotalHealing, heal.SpellMetrics[member.UnitIndex].TotalHealing
+	if want := damage * rank.EffectN(1).Percent(); party == 0 || math.Abs(party-want) > 1e-6*want {
+		t.Errorf("the party member was healed %v from %v Shadow damage, want the row's share %v", party, damage, want)
+	}
+	if want := party * (1 + rank.EffectN(2).Percent()); math.Abs(own-want) > 1e-6*want {
+		t.Errorf("the priest was healed %v where the party member got %v, want %v", own, party, want)
+	}
+}
+
 // Early Demise reads the health of each Shadow Word: Death's own target: the crit bonus is off for a cast
 // while the target is above its threshold and on once the target is below it.
 func TestEarlyDemiseFollowsTheCastsTarget(t *testing.T) {
