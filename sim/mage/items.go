@@ -3,6 +3,7 @@ package mage
 import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
@@ -133,6 +134,42 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 			trigger.RequireDamageComponent = true
 
 			setBonusAura.AttachProcTrigger(trigger)
+		},
+	},
+})
+
+var (
+	manaflareHit           = spelldata.MustFind(1300947) // 2pc: hit
+	manaflareCounterspell  = spelldata.MustFind(1301013) // 3pc: Counterspell's cooldown
+	manaflareElementals    = spelldata.MustFind(1301079) // 4pc: spell damage against Elementals
+	manaflareFrostfireBolt = spelldata.MustFind(1301488) // 5pc: Frostfire Bolt's Missile Barrage, Combustion crit and Fingers of Frost
+)
+
+// Tier 1
+//
+// The ItemSet row lists six pieces, but the game files ship only the shoulders, hands, legs and feet, so the
+// 5-piece bonus cannot be worn yet and no test wears it.
+var ItemSetManaflareRegalia = core.NewItemSet(core.ItemSet{
+	ID:   2098,
+	Name: "Manaflare Regalia",
+	Slots: []proto.ItemSlot{
+		proto.ItemSlot_ItemSlotShoulder,
+		proto.ItemSlot_ItemSlotHands,
+		proto.ItemSlot_ItemSlotLegs,
+		proto.ItemSlot_ItemSlotFeet,
+	},
+	Bonuses: map[int32]core.ApplySetBonus{
+		2: shared.ParsedSetBonus(manaflareHit),
+		3: shared.ParsedSetBonus(manaflareCounterspell),
+		4: shared.ParsedSetBonus(manaflareElementals),
+		// "Your Frostfire Bolt spell has a 10% increased chance to trigger Missile Barrage, gains 10% increased
+		// critical strike chance while your Combustion spell is active, and has a 10% increased chance to trigger
+		// Fingers of Frost."
+		//
+		// Three dummies the talents read while this aura is up: effect 1 in registerMissileBarrage, effect 2 in
+		// registerCombustionSpell, effect 3 in registerFingersOfFrost. Each chance adds its points to the talent's.
+		5: func(agent core.Agent, setBonusAura *core.Aura) {
+			agent.(MageAgent).GetMage().manaflareAura = setBonusAura
 		},
 	},
 })

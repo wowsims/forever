@@ -276,6 +276,18 @@ func (mage *Mage) registerFingersOfFrost() {
 		return mage.isChill(spell)
 	}
 
+	// Manaflare Regalia's 5pc adds effect 3's points to Frostfire Bolt's chance: an extra, independent roll on
+	// the landed hit at the share of those points the talent's whole chance leaves, so the two grant at their sum.
+	if mage.manaflareAura != nil {
+		manaflareTrigger := trigger
+		manaflareTrigger.Name = "Fingers of Frost - Manaflare Trigger"
+		manaflareTrigger.ProcChance = manaflareFrostfireBolt.EffectN(3).Percent() / (1 - trigger.ProcChance)
+		manaflareTrigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			return spell.Matches(MageSpellFrostfireBolt)
+		}
+		mage.manaflareAura.AttachProcTrigger(manaflareTrigger)
+	}
+
 	// With Frostbite a Chill rolls twice, independently. Frostbite's roll grants the charges at its
 	// rank's chance whether or not the freeze lands; it is on the cast result, so a missile grants
 	// at its cast (a spell queued behind it is already Frozen) and a Chill without travel time
