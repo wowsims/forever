@@ -20,7 +20,7 @@ func AddDefaultPresetEncounter() {
 			Id:        31146,
 			Name:      "Raid Target",
 			Level:     63,
-			MobType:   proto.MobType_MobTypeMechanical,
+			MobType:   proto.MobType_MobTypeUnknown,
 			TankIndex: 0,
 
 			// A level-63 creature's armor and health from ExpectedStat, the health times 300 for a boss
