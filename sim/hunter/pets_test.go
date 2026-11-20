@@ -8,6 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -91,11 +92,22 @@ func newPetSim(petType proto.HunterOptions_PetType, debuffs *proto.Debuffs) (*co
 }
 
 func newPetSimWithTalents(talents string, petType proto.HunterOptions_PetType, debuffs *proto.Debuffs) (*core.Simulation, *HunterPet, *core.Unit) {
+	return newPetSimWearing(talents, petType, debuffs, nil)
+}
+
+func newPetSimWearing(talents string, petType proto.HunterOptions_PetType, debuffs *proto.Debuffs, worn map[proto.ItemSlot]int32) (*core.Simulation, *HunterPet, *core.Unit) {
+	equipment := &proto.EquipmentSpec{}
+	if len(worn) > 0 {
+		equipment.Items = make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+		for i := range equipment.Items {
+			equipment.Items[i] = &proto.ItemSpec{Id: worn[proto.ItemSlot(i)]}
+		}
+	}
 	player := &proto.Player{
 		Name:          "Pet",
 		Race:          proto.Race_RaceOrc,
 		Class:         proto.Class_ClassHunter,
-		Equipment:     &proto.EquipmentSpec{},
+		Equipment:     equipment,
 		TalentsString: talents,
 		Spec: &proto.Player_Hunter{Hunter: &proto.Hunter{Options: &proto.Hunter_Options{
 			ClassOptions: &proto.HunterOptions{PetType: petType, PetUptime: 1},
@@ -204,5 +216,36 @@ func TestLoneWolfCutsThePetsDamage(t *testing.T) {
 	hunter = sim.Raid.Parties[0].Players[0].(*Hunter)
 	if got := hunter.PseudoStats.DamageDealtMultiplier / hunterBase; math.Abs(got-1.2) > 1e-9 {
 		t.Errorf("Lone Wolf without a pet multiplies the hunter's damage by %v, want 1.2", got)
+	}
+}
+
+// Trappings of the Unseen Path's 3-piece bonus raises the pet's damage done by its aura 29233's
+// percentage while the pet is out: a dismissed pet loses it and has it again when it returns.
+func TestTrappingsOfTheUnseenPathRaiseThePetsDamage(t *testing.T) {
+	want := 1 + spelldata.MustFind(29233).EffectN(1).Percent()
+	if want <= 1 {
+		t.Fatalf("Beast of the Unseen Path multiplies the pet's damage by %v, want more than 1", want)
+	}
+	_, bare, _ := newPetSimWithTalents(DefaultBMTalents, proto.HunterOptions_Cat, nil)
+	base := bare.PseudoStats.DamageDealtMultiplier
+
+	sim, pet, _ := newPetSimWearing(DefaultBMTalents, proto.HunterOptions_Cat, nil, map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotBack:     21403,
+		proto.ItemSlot_ItemSlotFinger1:  21402,
+		proto.ItemSlot_ItemSlotMainHand: 21401,
+	})
+	if !pet.IsEnabled() {
+		t.Fatal("the pet is not out at the start")
+	}
+	if got := pet.PseudoStats.DamageDealtMultiplier / base; math.Abs(got-want) > 1e-9 {
+		t.Errorf("with three pieces the pet's damage is multiplied by %v, want %v", got, want)
+	}
+	pet.Disable(sim)
+	if got := pet.PseudoStats.DamageDealtMultiplier / base; math.Abs(got-1) > 1e-9 {
+		t.Errorf("the dismissed pet's damage is multiplied by %v, want 1", got)
+	}
+	pet.Enable(sim, pet)
+	if got := pet.PseudoStats.DamageDealtMultiplier / base; math.Abs(got-want) > 1e-9 {
+		t.Errorf("the returned pet's damage is multiplied by %v, want %v", got, want)
 	}
 }

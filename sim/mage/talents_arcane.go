@@ -296,6 +296,9 @@ func (mage *Mage) registerMissileBarrage() {
 			if !spellData.ArcaneBlast.Contains(spell) {
 				chance /= 2
 			}
+			if spell.Matches(MageSpellFrostfireBolt) && mage.manaflareAura.IsActive() {
+				chance += manaflareFrostfireBolt.EffectN(1).Percent()
+			}
 			if sim.Proc(chance, "Missile Barrage") {
 				buffAura.Activate(sim)
 			}

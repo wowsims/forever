@@ -1,6 +1,7 @@
 package druid
 
 import (
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -65,6 +66,45 @@ var ItemSetHaruspexsGarb = core.NewItemSet(core.ItemSet{
 		2: parsedSetBonus(spelldata.MustFind(21618)), // 4 mana per 5 sec
 		3: parsedSetBonus(spelldata.MustFind(24479)), // Faerie Fire lasts 5 sec longer
 		5: parsedSetBonus(spelldata.MustFind(24480)), // Starfire crit +3%
+	},
+})
+
+// Ruins of Ahn'Qiraj
+// https://www.wowhead.com/forever/item-set=494/symbols-of-unending-life
+var ItemSetSymbolsOfUnendingLife = core.NewItemSet(core.ItemSet{
+	ID:   494,
+	Name: "Symbols of Unending Life",
+	Slots: []proto.ItemSlot{
+		proto.ItemSlot_ItemSlotBack,
+		proto.ItemSlot_ItemSlotFinger1,
+		proto.ItemSlot_ItemSlotFinger2,
+		proto.ItemSlot_ItemSlotMainHand,
+	},
+	Bonuses: map[int32]core.ApplySetBonus{
+		3: func(agent core.Agent, setBonusAura *core.Aura) {
+			// Your finishing moves now refund 30 energy on a Miss, Dodge, Block, or Parry.
+			//
+			// 26107 hears every melee ability and names none of the druid's spells, so the listener
+			// keeps to the finishers, Rip and Ferocious Bite, and to the outcomes the tooltip names.
+			// 26976's energy comes on top of the finisher's own miss refund.
+			character := agent.GetCharacter()
+			row := spelldata.MustFind(26107)
+			setBonusAura.ExposeToAPL(row.ID)
+			trigger := spelldata.ProcTrigger(character, row, nil)
+			trigger.Handler = shared.FiredSpellHandler(character, trigger.ActionID, row)
+			if trigger.Handler == nil {
+				// The wearer has no energy bar.
+				return
+			}
+			trigger.Name = "Symbols of Unending Life - 3PC"
+			trigger.Outcome = core.OutcomeMiss | core.OutcomeDodge | core.OutcomeBlock | core.OutcomeParry
+			trigger.RequireDamageDealt = false
+			trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				return spellData.Rip.Contains(spell) || spellData.FerociousBite.Contains(spell)
+			}
+
+			setBonusAura.AttachProcTrigger(trigger)
+		},
 	},
 })
 

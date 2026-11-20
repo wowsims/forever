@@ -22,6 +22,7 @@ var (
 	unspokenPets      = spelldata.MustFind(26118)   // 3pc: the demons' damage
 	demonheartHit     = spelldata.MustFind(1300966) // 2pc: hit
 	demonheartDemons  = spelldata.MustFind(1301094) // 4pc: spell damage against Demons
+	demonheartLifeTap = spelldata.MustFind(1301715) // 5pc: Life Tap's mana
 )
 
 // The six slots of a cloth PvP set, and of Demonheart Raiment.
@@ -199,7 +200,11 @@ var ItemSetDemonheartRaiment = core.NewItemSet(core.ItemSet{
 					warlock.AddMobTypeBonusStats(bonus.Invert(), mobTypes...)
 				})
 		},
-		// TODO: 5pc (1301715) is a dummy holding Life Tap's 20% more mana at no more health, which Life
-		// Tap does not read yet.
+		// "Your Life Tap generates 20% more Mana at no additional Health cost." The dummy's amount is read
+		// in registerLifeTap. No test wears it, since only four of the six pieces ship.
+		5: func(agent core.Agent, setBonusAura *core.Aura) {
+			warlock := agent.(WarlockAgent).GetWarlock()
+			setBonusAura.AttachAdditivePseudoStatBuff(&warlock.lifeTapManaBonus, demonheartLifeTap.EffectN(1).Percent())
+		},
 	},
 })

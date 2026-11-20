@@ -63,6 +63,61 @@ var ItemSetStrikersGarb = core.NewItemSet(core.ItemSet{
 	},
 })
 
+var unseenPathPetBonus = spelldata.MustFind(29233) // 3pc: Beast of the Unseen Path, the pet's damage done
+
+// Ruins of Ahn'Qiraj
+// https://www.wowhead.com/forever/item-set=510/trappings-of-the-unseen-path
+var ItemSetTrappingsOfTheUnseenPath = core.NewItemSet(core.ItemSet{
+	ID:   510,
+	Name: "Trappings of the Unseen Path",
+	Slots: []proto.ItemSlot{
+		proto.ItemSlot_ItemSlotBack,
+		proto.ItemSlot_ItemSlotFinger1,
+		proto.ItemSlot_ItemSlotFinger2,
+		proto.ItemSlot_ItemSlotMainHand,
+		proto.ItemSlot_ItemSlotOffHand,
+	},
+	Bonuses: map[int32]core.ApplySetBonus{
+		3: applyBeastOfTheUnseenPath,
+	},
+})
+
+// Increases your pet's damage by 3%.
+//
+// The 3-piece's equip spell 26176 casts 29233 on the pet every 3 s, a 4 s aura raising the pet's
+// damage done in every school, so the pet has it exactly while it is out. The pet is the wearer's
+// one pet that is no guardian.
+func applyBeastOfTheUnseenPath(agent core.Agent, setBonusAura *core.Aura) {
+	character := agent.GetCharacter()
+	setBonusAura.ExposeToAPL(26176)
+
+	petIndex := slices.IndexFunc(character.Pets, func(pet *core.Pet) bool { return !pet.IsGuardian() })
+	if petIndex < 0 {
+		return
+	}
+	pet := character.Pets[petIndex]
+
+	config := spelldata.AuraConfig(unseenPathPetBonus)
+	config.Duration = core.NeverExpires
+	multiplier := core.MultiplierFromPercent(unseenPathPetBonus.EffectN(1).BaseValue())
+	petAura := pet.RegisterAura(config).AttachMultiplicativePseudoStatBuff(&pet.PseudoStats.DamageDealtMultiplier, multiplier)
+
+	setBonusAura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
+		if pet.IsEnabled() {
+			petAura.Activate(sim)
+		}
+	})
+	setBonusAura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
+		petAura.Deactivate(sim)
+	})
+	pet.RegisterEnableEffect(func(sim *core.Simulation) {
+		if setBonusAura.IsActive() {
+			petAura.Activate(sim)
+		}
+	})
+	pet.RegisterDisableEffect(petAura.Deactivate)
+}
+
 // Tier 3
 var ItemSetCryptstalkerArmor = core.NewItemSet(core.ItemSet{
 	Name:  "Cryptstalker Armor",

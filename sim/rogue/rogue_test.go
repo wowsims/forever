@@ -727,3 +727,97 @@ func TestDeathMarkStoresAndPaysOut(t *testing.T) {
 		})
 	}
 }
+
+// Bonescythe Armor's 4-piece bonus: a crit of Sinister Strike or Backstab regains the energy of the spell its row
+// casts, while a Sinister Strike that does not crit and a crit of Shank, which the row's class flags also name, regain
+// none.
+func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	for slot, id := range map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead:     22478, // Bonescythe Helmet
+		proto.ItemSlot_ItemSlotShoulder: 22479, // Bonescythe Pauldrons
+		proto.ItemSlot_ItemSlotChest:    22476, // Bonescythe Breastplate
+		proto.ItemSlot_ItemSlotLegs:     22477, // Bonescythe Legplates
+		proto.ItemSlot_ItemSlotMainHand: 2632,  // Curved Dagger
+		proto.ItemSlot_ItemSlotOffHand:  18392, // Distracting Dagger
+	} {
+		items[slot].Id = id
+	}
+	player := &proto.Player{
+		Name:      "Rogue",
+		Race:      proto.Race_RaceHuman,
+		Class:     proto.Class_ClassRogue,
+		Equipment: &proto.EquipmentSpec{Items: items},
+		Spec:      DefaultOptions,
+		Rotation:  &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
+	target := sim.Encounter.AllTargetUnits[0]
+	rogue.AutoAttacks.CancelAutoSwing(sim)
+	target.PseudoStats.BaseDodgeChance = 0
+	rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+
+	headRush := spelldata.MustFind(bonescytheHeadRush.ID)
+	energy := spelldata.MustFind(headRush.EffectN(1).TriggerID)
+	regained := func() *proto.ResourceMetrics {
+		for _, r := range rogue.Metrics.ToProto().Resources {
+			if r.Id.GetSpellId() == energy.ID && r.Type == proto.ResourceType_ResourceTypeEnergy {
+				return r
+			}
+		}
+		return &proto.ResourceMetrics{}
+	}
+
+	// Strikes once and runs the sim past the row's cooldown and the spell batch window, so the next strike can proc.
+	strike := func(spell *core.Spell) (crit bool, procs int32) {
+		t.Helper()
+		crits, before := spell.SpellMetrics[target.UnitIndex].Crits, regained().Events
+		spell.SkipCastAndApplyEffects(sim, target)
+		at := sim.CurrentTime + headRush.ICD() + core.SpellBatchWindow
+		for sim.CurrentTime <= at {
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
+			if sim.Step() {
+				t.Fatal("the sim ended while waiting out the cooldown")
+			}
+		}
+		return spell.SpellMetrics[target.UnitIndex].Crits > crits, regained().Events - before
+	}
+
+	backstab := rogue.GetSpell(core.ActionID{SpellID: backstabBookRank.ID})
+	rogue.AddStatDynamic(sim, stats.PhysicalCritPercent, 200)
+	for _, c := range []struct {
+		name  string
+		spell *core.Spell
+		want  int32
+	}{
+		{"Sinister Strike", rogue.SinisterStrike, 1},
+		{"Backstab", backstab, 1},
+		{"Shank", rogue.Shank, 0},
+	} {
+		crit, procs := strike(c.spell)
+		if !crit {
+			t.Fatalf("%s did not crit at +200%% crit", c.name)
+		}
+		if procs != c.want {
+			t.Errorf("a %s crit regained energy %d times, want %d", c.name, procs, c.want)
+		}
+	}
+
+	rogue.AddStatDynamic(sim, stats.PhysicalCritPercent, -400)
+	if crit, procs := strike(rogue.SinisterStrike); crit || procs != 0 {
+		t.Errorf("a Sinister Strike at -200%% crit crit %v and regained energy %d times, want no crit and none", crit, procs)
+	}
+
+	if got := regained(); got.Gain != float64(got.Events)*energy.EnergizeEffect().BaseValue() {
+		t.Errorf("the 4-piece regained %v energy over %d procs, want the row's %v each", got.Gain, got.Events, energy.EnergizeEffect().BaseValue())
+	}
+}
