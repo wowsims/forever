@@ -136,9 +136,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 798.84906
-  tps: 627.34649
-  dtps: 8.4807
+  dps: 810.30524
+  tps: 636.10723
+  dtps: 8.81196
  }
 }
 dps_results: {
@@ -312,8 +312,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DeathmistRaiment"
  value: {
-  dps: 779.1703
-  tps: 611.34034
+  dps: 779.33938
+  tps: 611.41846
   dtps: 8.12453
   hps: 8.50699
  }
@@ -409,10 +409,10 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DreadmistRaiment"
  value: {
-  dps: 721.93826
-  tps: 568.43679
+  dps: 723.51706
+  tps: 569.67384
   dtps: 8.53757
-  hps: 7.18491
+  hps: 7.22611
  }
 }
 dps_results: {

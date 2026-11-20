@@ -41,6 +41,11 @@ type Paladin struct {
 	// Oath of Light: nil without the talent.
 	oathOfLight *oathOfLight
 
+	// Shieldsworn's strike, one spell for every Holy Shield rank, and the damage of the rank whose
+	// shield is up; nil without the talent.
+	shieldswornStrike       *core.Spell
+	shieldswornStrikeDamage float64
+
 	// What gear adds to numbers the spells read as they register. Item effects and set bonuses
 	// apply before Initialize, so the spells pick these up.
 	sealOfTheCrusaderBonusAttackPower float64

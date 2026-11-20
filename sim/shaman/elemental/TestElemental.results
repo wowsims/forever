@@ -232,9 +232,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 870.45863
-  tps: 800.50559
-  dtps: 6.03509
+  dps: 871.23805
+  tps: 804.04994
+  dtps: 5.89907
  }
 }
 dps_results: {
@@ -299,14 +299,6 @@ dps_results: {
   dps: 872.44428
   tps: 801.15218
   dtps: 6.31839
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 821.90192
-  tps: 755.99585
-  dtps: 6.33881
  }
 }
 dps_results: {

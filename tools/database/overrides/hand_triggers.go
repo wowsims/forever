@@ -109,4 +109,12 @@ var HandTriggers = []HandTrigger{
 			"1300437 and reads Arcane or Shadow damage, and both hit for the item's procs",
 		Source: "EV-0115",
 	},
+	{
+		Spell:    1328544,
+		Triggers: 456544,
+		Reason: "Shieldsworn's talent aura (a cooldown modifier) makes Holy Strike strike with the shield, and the hit " +
+			"that deals the active Holy Shield's damage is 456544: Holy Shield's name, Holy school, class set and mask, " +
+			"a school damage with no base points and the 0.08 coefficient, spell level 30",
+		Source: "EV-0161",
+	},
 }

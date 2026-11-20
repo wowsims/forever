@@ -306,15 +306,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDpsWarrior-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 558.65597
-  tps: 480.78656
-  dtps: 2.94293
-  hps: 40.61583
- }
-}
-dps_results: {
  key: "TestDpsWarrior-AllItems-BlunderflameBoneBow-275439"
  value: {
   dps: 526.69981
