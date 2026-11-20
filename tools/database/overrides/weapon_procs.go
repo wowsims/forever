@@ -759,21 +759,23 @@ var WeaponProcs = []WeaponProc{
 	},
 	// Measured by EV-0153's method on every wearer stream of the reports up to 2026-11-19 (EV-0157).
 	{
-		ItemID:  7710,
-		SpellID: 1293482,
-		PPM:     1.9,
-		Reason:  "Loksey's Training Stick: no proc row",
-		Source:  "EV-0157",
-	},
-	{
 		ItemID:  13952,
 		SpellID: 1298416,
 		PPM:     2.05,
 		Reason:  "Iceblade Hacker: column reads 101",
 		Source:  "EV-0157",
 	},
+	// Measured the same way. The one-hand white swings read above the rate over all hits and the specials agree with it;
+	// the owner keeps the rate over all hits (EV-0157).
+	{
+		ItemID:  7710,
+		SpellID: 1293482,
+		PPM:     1.9,
+		Reason:  "Loksey's Training Stick: no proc row",
+		Source:  "EV-0157",
+	},
 	// Fitted the same way, but no lone-unit rate checks it, so it is not final (EV-0157). The "observed" Source keeps
-	// the gear tab's notice up until more wearers validate it.
+	// the gear tab's notice up until a one-hand white or specials rate checks it.
 	{
 		ItemID:  4446,
 		SpellID: 13518,

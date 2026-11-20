@@ -13,10 +13,9 @@ This replaces the Iceblade Hacker rate EV-0136 gives and the Loksey's Training S
 
 ## Method
 
-The count is EV-0153's, on the hits EV-0155 finds rolling a weapon proc, run again by the automated sweep of 2026-11-19
-over every stream on disk: paladins are left out, and so are druids in Cat, Bear or Dire Bear Form. The rate over all
-hits, its interval, the lone-unit rates, the swap drop, the credit windows and the rules for calling a rate measured or
-observed are as EV-0153's Method gives them.
+The count is EV-0153's Method, run again by the automated sweep of 2026-11-19 over every wearer stream on disk, with the
+same rolling hits, classes and forms left out, intervals, lone-unit checks, swap drop, credit windows and calls of
+measured or observed.
 
 Scripts and inputs, in `forever-sweep-auto`: `analyze.py` (version 12, as EV-0153's, with a paladin check that sets no
 rate) for the rates, and the run `runs/2026-11-19-2309`, whose `results.json` holds each weapon's counts.
@@ -34,11 +33,11 @@ Was is the row's rate before this count.
 
 ## Blackvenom Blade (item 4446, spell 13518): 4.2, observed
 
-412 procs on 3,258 rolling hits, 5 wearers, 5 runs, in the main hand or the off hand: all hits 4.22 [3.95, 4.37]. Every
-wearer dual wields, so no one-hand white rate checks the rate over all hits, and the specials reach 28 procs, under 50:
-the rate is all hits. Observed: no lone-unit rate checks it. One-hand white: none. Dual-wield white: 4.14 [3.52, 4.57],
-206 procs on 1,658 lone units, 5 wearers. Specials: 2.99 [2.90, 3.29], 28 procs on 312 lone units, 2 wearers. Direct:
-window [-10, 100] ms, median 0 ms, 98th percentile 0 ms, 165 isolated hits. Reports from 2026-11-13 to 2026-11-19.
+412 procs on 3,258 rolling hits, 5 wearers, 5 runs, in the main hand or the off hand: all hits 4.22 [3.95, 4.37].
+Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
+Observed: no lone-unit rate checks it. One-hand white: none. Dual-wield white: 4.14 [3.52, 4.57], 206 procs on 1,658
+lone units, 5 wearers. Specials: 2.99 [2.90, 3.29], 28 procs on 312 lone units, 2 wearers. Direct: window [-10, 100] ms,
+median 0 ms, 98th percentile 0 ms, 165 isolated hits. Reports from 2026-11-13 to 2026-11-19.
 
 | Class  | Wearers | Procs |  Hits |  PPM |
 | ------ | ------: | ----: | ----: | ---: |
@@ -51,9 +50,9 @@ h8aHYk3QyJz2DNmt 1-2.
 ## Iceblade Hacker (item 13952, spell 1298416): 2.05, measured
 
 813 procs on 11,764 rolling hits, 8 wearers, 11 runs, in the main hand: all hits 2.07 [1.94, 2.21]. The rate is all
-hits, which the specials rate agrees with. The one-hand white swings, 43 procs from 2 wearers, are too few to check it.
-One-hand white: 2.07 [2.01, 2.11], 43 procs on 623 lone units, 2 wearers. Dual-wield white: 1.54 [1.03, 2.27], 63 procs
-on 1,231 lone units, 6 wearers. Specials: 1.93 [1.52, 2.21], 70 procs on 1,088 lone units, 8 wearers. Two-roll
+hits, which the specials rate agrees with; the one-hand white swings stay under 50 procs. One-hand white: 2.07 [2.01,
+2.11], 43 procs on 623 lone units, 2 wearers. Dual-wield white: 1.54 [1.03, 2.27], 63 procs on 1,231 lone units, 6
+wearers. Specials: 1.93 [1.52, 2.21], 70 procs on 1,088 lone units, 8 wearers. Two-roll
 abilities, priced as one roll: 6.82, 5 procs on 22 lone units. Travel time: the proc lands a median 99 ms after its hit,
 98th percentile 206 ms, window [-10, 216] ms (176 isolated hits). Dropping the swapped stretches (75 active minutes, 19%
 of hits, in 4 runs) moved the read from 1.67 to 2.07. Reports from 2026-11-10 to 2026-11-19.
