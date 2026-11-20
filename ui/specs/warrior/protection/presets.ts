@@ -21,14 +21,14 @@ export const ROTATION_DEFAULT = PresetUtils.makePresetAPLRotation('Generic', Gen
 
 // Dungeon and world drops, quest rewards, the warrior's dungeon tier set, crafted items whose reagents include no raid
 // materials and vendor items; no reputation, PvP or Silithus rewards, except one exalted PvP faction, Alterac Valley.
-// The most threat that survives the default target on the default healing. Crest of Retribution drops in Stratholme,
-// Blackstone Ring in Maraudon, Ironfoe in Blackrock Depths, Battleborn Armbraces and Handcrafted Mastersmith Leggings
-// in Blackrock Spire, Satyr's Bow and Counterattack Lodestone in Dire Maul; Mark of Fordring is the reward for In
-// Dreams. Don Julio's Band is sold by the Alterac Valley quartermasters, Howler's Furs and Adaptive Combat Assistant by
-// the Undermine Trader in Stranglethorn Vale, and the Breastplate and Gauntlets of Heroism by the Battlegear of Heroism
-// vendors in Orgrimmar and Ironforge. Spaulders of Containment, Girdle of Extracted Answers and Furbolg Berserker's
-// Boots have no source in the item database. Counterattack Lodestone's on-use is not modelled; it counts for its attack
-// power alone, 30 and another 30 against a Mechanical target such as the default one.
+// The most threat that survives the default target on the default healing, measured against a target of no creature
+// type. Crest of Retribution drops in Stratholme, Blackstone Ring in Maraudon, Ironfoe in Blackrock Depths, Battleborn
+// Armbraces and Handcrafted Mastersmith Leggings in Blackrock Spire, and Satyr's Bow in Dire Maul; Blackhand's Breadth
+// is the reward for General Drakkisath's Demise or For The Horde!, and Mark of Fordring for In Dreams. Don Julio's Band
+// is sold by the Alterac Valley quartermasters, Howler's Furs and Adaptive Combat Assistant by the Undermine Trader in
+// Stranglethorn Vale, and the Breastplate and Gauntlets of Heroism by the Battlegear of Heroism vendors in Orgrimmar
+// and Ironforge. Spaulders of Containment, Girdle of Extracted Answers and Furbolg Berserker's Boots have no source in
+// the item database.
 export const PreBiSOffensiveGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSOffensiveGearJson, { group: 'Offensive', devOnly: true });
 
 // The same sources, built to take less damage at a small cost in threat; its defense stays far below the 140 that
@@ -43,23 +43,23 @@ export const OffensiveTalents = PresetUtils.makePresetTalents('Offensive', Saved
 
 export const BalancedTalents = PresetUtils.makePresetTalents('Balanced', SavedTalents.create({ talentsString: '05-05050005-150531120300001351' }));
 
-// Measured on each Pre-BiS gear set with its talents and the preset rotation, against the default target on the
-// default healing: 0.6 x the threat weights (Strength = 1) plus 1.15 x the TMI weights (Stamina = 1). Both sets sit at
-// or past the 8% hit cap, and hit is its value past it. Block rating measures within noise of zero on both.
-// ArmorNoMods weighs as Armor; the healing model's Inspiration scales only Armor, and the two measure less than 0.01
-// apart.
+// Measured on each Pre-BiS gear set with its talents and the preset rotation, against the default target with no
+// creature type, on the default healing: 0.6 x the threat weights (Strength = 1) plus 1.15 x the TMI weights (Stamina =
+// 1). Both sets sit at or past the 8% hit cap, and hit is its value past it. Block rating measures within noise of zero
+// on both. ArmorNoMods weighs as Armor; the healing model's Inspiration scales only Armor, and the two measure less
+// than 0.01 apart.
 export const PreBiSOffensiveEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Offensive',
 	Stats.fromMap(
 		{
 			[Stat.StatStamina]: 1.15,
 			[Stat.StatStrength]: 0.62,
-			[Stat.StatAgility]: 0.58,
+			[Stat.StatAgility]: 0.57,
 			[Stat.StatAttackPower]: 0.27,
 			[Stat.StatHitRating]: 0.05,
-			[Stat.StatCritRating]: 0.44,
-			[Stat.StatHasteRating]: 0.27,
-			[Stat.StatExpertiseRating]: 3.02,
+			[Stat.StatCritRating]: 0.43,
+			[Stat.StatHasteRating]: 0.28,
+			[Stat.StatExpertiseRating]: 2.99,
 			[Stat.StatArmorPenetration]: 0.12,
 			[Stat.StatDefenseRating]: 0.43,
 			[Stat.StatBlockRating]: 0,
