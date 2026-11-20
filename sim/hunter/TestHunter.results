@@ -1478,9 +1478,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 786.30405
-  tps: 808.55069
-  dtps: 8.11321
+  dps: 786.18
+  tps: 808.57243
+  dtps: 8.2551
   hps: 14.72472
  }
 }

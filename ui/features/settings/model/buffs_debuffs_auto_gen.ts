@@ -11,6 +11,7 @@ import {
 	makeMultistatePartyBuffInput,
 	makeRankedIndividualBuffInput,
 	makeRankedRaidBuffInput,
+	makeTristateDebuffInput,
 	makeTristatePartyBuffInput,
 } from '@features/inputs/icon_inputs';
 
@@ -293,8 +294,9 @@ export const HuntersMark = makeBooleanDebuffInput({
 	label: "Hunter's Mark",
 });
 
-export const JudgementOfTheCrusader = makeBooleanDebuffInput({
+export const JudgementOfTheCrusader = makeTristateDebuffInput({
 	actionId: ActionId.fromSpellId(20308),
+	impId: ActionId.fromItemId(23203),
 	fieldName: 'judgementOfTheCrusader',
 	label: 'Judgement of the Crusader',
 });

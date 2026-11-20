@@ -8,7 +8,7 @@
     "moonkinAura": true
   },
   "debuffs": {
-    "judgementOfTheCrusader": true,
+    "judgementOfTheCrusader": "TristateEffectRegular",
     "judgementOfWisdom": true,
     "curseOfElements": true
   },

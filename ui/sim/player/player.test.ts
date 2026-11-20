@@ -11,6 +11,7 @@ import {
 	PseudoStat,
 	ScalingItemProperties,
 	Stat,
+	TristateEffect,
 	WeaponSkill,
 	WeaponSkillValue,
 	WeaponType,
@@ -119,7 +120,7 @@ describe('Player.getDebuffStats', () => {
 	// Crusader, the crit half, has no node in any Forever trait tree, so the sheet credits no crit.
 	// Faerie Fire stands for a debuff that moves no stat on the sheet at all.
 	it.each<[string, Partial<Debuffs>]>([
-		['Judgement of the Crusader', { judgementOfTheCrusader: true }],
+		['Judgement of the Crusader', { judgementOfTheCrusader: TristateEffect.TristateEffectRegular }],
 		['Faerie Fire', { faerieFire: true }],
 	])('credits %s with no crit', (_name, debuffs) => {
 		const stats = debuffStats(debuffs);

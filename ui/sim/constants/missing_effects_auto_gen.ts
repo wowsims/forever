@@ -3606,23 +3606,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		2135, // Krol'dok Battlegear
-		new Map([
-			[
-				4,
-				[
-					"Chance on block to heal for 18. Healing is doubled in Strongholds and Cities.", // 1324298 - https://www.wowhead.com/forever/spell=1324298
-				],
-			],
-			[
-				5,
-				[
-					"Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.", // 1324309 - https://www.wowhead.com/forever/spell=1324309
-				],
-			],
-		]),
-	],
-	[
 		2136, // Defias Enforcer's Garb
 		new Map([
 			[

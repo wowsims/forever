@@ -1248,6 +1248,13 @@ var Spells = []Override{
 		Reason:  "Shield Slam Rank 4: the line through the measured Ranks 2 and 3 at spell level 60",
 		Source:  "EV-0050",
 	},
+	{
+		SpellID: 1324298,
+		Field:   ProcChancePct,
+		Value:   100,
+		Reason:  "Krol'dok Resolve, Krol'dok Battlegear 4pc: 'Chance on block' heals on every blocked melee or ranged hit off its cooldown",
+		Source:  "EV-0160",
+	},
 }
 
 // The procs-per-minute rate stated for a spell, or zero where none is. The item database reads it

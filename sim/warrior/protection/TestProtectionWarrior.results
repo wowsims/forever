@@ -1460,10 +1460,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 531.24718
-  tps: 1737.3166
-  dtps: 316.9599
-  hps: 41.61333
+  dps: 530.93075
+  tps: 1734.11053
+  dtps: 317.36609
+  hps: 41.64722
  }
 }
 dps_results: {
@@ -1541,10 +1541,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Krol'dokBattlegear"
  value: {
-  dps: 488.38525
-  tps: 1599.66167
-  dtps: 319.8541
-  hps: 39.10556
+  dps: 487.07877
+  tps: 1597.60244
+  dtps: 320.10541
+  hps: 43.56872
  }
 }
 dps_results: {
