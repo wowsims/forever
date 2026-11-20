@@ -1,6 +1,7 @@
 package shaman_test
 
 import (
+	"maps"
 	"math"
 	"testing"
 	"time"
@@ -526,5 +527,173 @@ func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
 	}
 	if !boltSpent {
 		t.Error("a Lightning Bolt in the instant a Lightning Bolt overload procced Clearcasting never spent the charge")
+	}
+}
+
+// An untalented Elemental shaman wearing the items, at the start of the encounter.
+func shamanWearing(t *testing.T, encounter *proto.Encounter, worn map[proto.ItemSlot]int32) (*core.Simulation, *shaman.Shaman) {
+	t.Helper()
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{Id: worn[proto.ItemSlot(i)]}
+	}
+	player := &proto.Player{
+		Name:      "Wearer",
+		Race:      proto.Race_RaceOrc,
+		Class:     proto.Class_ClassShaman,
+		Equipment: &proto.EquipmentSpec{Items: items},
+		Spec:      &proto.Player_ElementalShaman{ElementalShaman: &proto.ElementalShaman{Options: &proto.ElementalShaman_Options{ClassOptions: &proto.ShamanOptions{}}}},
+		Rotation:  &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	return sim, sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+}
+
+// Gift of the Gathering Storm's 3-piece bonus multiplies the share of the damage each Chain Lightning
+// jump keeps by its row's percent: the first target takes the same, the second that factor more and
+// the third its square.
+func TestGiftOfTheGatheringStormRaisesEachChainLightningJump(t *testing.T) {
+	const bonusRow, chainRank = 26123, 10605
+	multiplier := 1 + spelldata.MustFind(bonusRow).EffectN(1).Percent()
+	if multiplier <= 1 {
+		t.Fatalf("the bonus multiplies the jumps' share by %v, want above 1", multiplier)
+	}
+	worn := map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotBack:     21400,
+		proto.ItemSlot_ItemSlotFinger1:  21399,
+		proto.ItemSlot_ItemSlotMainHand: 21398,
+	}
+
+	// What each of three targets takes from the same casts, with the bonus up or taken down. Both
+	// sims draw the same rolls, so the jumps' share alone sets them apart.
+	dealt := func(bonusUp bool) [3]float64 {
+		t.Helper()
+		encounter := core.MakeSingleTargetEncounter(0)
+		encounter.Targets = append(encounter.Targets, core.FreshDefaultTargetConfig(), core.FreshDefaultTargetConfig())
+		sim, sham := shamanWearing(t, encounter, worn)
+		bonus := sham.GetAuraByID(core.ActionID{SpellID: bonusRow})
+		chainLightning := sham.GetSpell(core.ActionID{SpellID: chainRank})
+		if bonus == nil || !bonus.IsActive() || chainLightning == nil {
+			t.Fatalf("the set bonus %v, Chain Lightning %v; want both registered and the bonus up", bonus, chainLightning)
+		}
+		if !bonusUp {
+			bonus.Deactivate(sim)
+		}
+		for range 50 {
+			chainLightning.Proc(sim, sham.CurrentTarget)
+		}
+		var damage [3]float64
+		for i, target := range sim.Encounter.ActiveTargetUnits {
+			damage[i] = chainLightning.SpellMetrics[target.UnitIndex].TotalDamage
+		}
+		return damage
+	}
+
+	with, without := dealt(true), dealt(false)
+	for i, want := range []float64{1, multiplier, multiplier * multiplier} {
+		if without[i] <= 0 {
+			t.Fatalf("target %d takes no damage without the bonus", i)
+		}
+		if got := with[i] / without[i]; math.Abs(got-want) > 1e-9 {
+			t.Errorf("target %d takes %v times its damage with the bonus, want %v", i, got, want)
+		}
+	}
+}
+
+// Stormcaller's Garb's 3-piece bonus grants Stormcaller's Wrath off Lightning Bolt, Chain Lightning and
+// the shocks, the spells its tooltip names, and never off Fire Nova, another harmful shaman spell the
+// row's listener would hear on its own.
+func TestStormcallersGarbProcsOnlyOffTheSpellsItsTooltipNames(t *testing.T) {
+	const boltRank, chainRank, wrathRow = 15208, 10605, 26121
+	sim, sham := shamanWearing(t, core.MakeSingleTargetEncounter(0), map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead:  21372,
+		proto.ItemSlot_ItemSlotFeet:  21373,
+		proto.ItemSlot_ItemSlotChest: 21374,
+	})
+	wrath := sham.GetAuraByID(core.ActionID{SpellID: wrathRow})
+	if wrath == nil {
+		t.Fatal("Stormcaller's Wrath is not registered with three pieces worn")
+	}
+
+	// A trigger's handler runs a spell batch window after the cast.
+	const casts = 200
+	grants := func(spell *core.Spell) bool {
+		t.Helper()
+		for range casts {
+			wrath.Deactivate(sim)
+			spell.Proc(sim, sham.CurrentTarget)
+			for end := sim.CurrentTime + core.SpellBatchWindow; sim.CurrentTime <= end; {
+				if sim.Step() {
+					t.Fatal("the encounter ended")
+				}
+			}
+			if wrath.IsActive() {
+				return true
+			}
+		}
+		return false
+	}
+
+	named := []*core.Spell{
+		sham.GetSpell(core.ActionID{SpellID: boltRank}),
+		sham.GetSpell(core.ActionID{SpellID: chainRank}),
+		sham.EarthShock[len(sham.EarthShock)-1],
+		sham.FlameShock[len(sham.FlameShock)-1],
+		sham.FrostShock[len(sham.FrostShock)-1],
+	}
+	for _, spell := range named {
+		if spell == nil {
+			t.Fatal("a spell the tooltip names is not registered")
+		}
+		if !grants(spell) {
+			t.Errorf("%v never granted Stormcaller's Wrath in %d casts", spell.ActionID, casts)
+		}
+	}
+	if grants(sham.FireNova) {
+		t.Error("a Fire Nova granted Stormcaller's Wrath")
+	}
+}
+
+// The Earthshatterer's 8-piece bonus gives the shaman its row's mana per 5 sec while Lightning Shield is
+// up, and none once it falls or with seven pieces worn.
+func TestEarthshattererGivesManaWhileLightningShieldIsUp(t *testing.T) {
+	want := spelldata.MustFind(28820).EffectN(1).BaseValue()
+	if want <= 0 {
+		t.Fatalf("the bonus states %v mana per 5 sec, want above 0", want)
+	}
+	eight := map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead:     22466,
+		proto.ItemSlot_ItemSlotShoulder: 22467,
+		proto.ItemSlot_ItemSlotChest:    22464,
+		proto.ItemSlot_ItemSlotWrist:    22471,
+		proto.ItemSlot_ItemSlotHands:    22469,
+		proto.ItemSlot_ItemSlotWaist:    22470,
+		proto.ItemSlot_ItemSlotLegs:     22465,
+		proto.ItemSlot_ItemSlotFeet:     22468,
+	}
+
+	// The mana per 5 sec the shaman gains with the shield up, and still has once it falls.
+	shieldMP5 := func(worn map[proto.ItemSlot]int32) (up, fallen float64) {
+		t.Helper()
+		sim, sham := shamanWearing(t, core.MakeSingleTargetEncounter(0), worn)
+		before := sham.GetStat(stats.MP5)
+		sham.LightningShield.SkipCastAndApplyEffects(sim, &sham.Unit)
+		up = sham.GetStat(stats.MP5) - before
+		sham.LightningShieldAura.Deactivate(sim)
+		return up, sham.GetStat(stats.MP5) - before
+	}
+
+	if up, fallen := shieldMP5(eight); up != want || fallen != 0 {
+		t.Errorf("with eight pieces, Lightning Shield gives %v mana per 5 sec and leaves %v when it falls, want %v and 0", up, fallen, want)
+	}
+	seven := maps.Clone(eight)
+	delete(seven, proto.ItemSlot_ItemSlotFeet)
+	if up, _ := shieldMP5(seven); up != 0 {
+		t.Errorf("with seven pieces, Lightning Shield gives %v mana per 5 sec, want 0", up)
 	}
 }
