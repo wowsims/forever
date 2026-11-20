@@ -3157,19 +3157,6 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
-						"has_bs_tier_2": {
-							"type": "object",
-							"properties": {
-								"label": {
-									"type": "string"
-								},
-								"tooltip": {
-									"type": "string"
-								}
-							},
-							"additionalProperties": false,
-							"required": ["label", "tooltip"]
-						},
 						"has_battle_shout_rank_7": {
 							"type": "object",
 							"properties": {
@@ -3501,7 +3488,6 @@
 						"default_stance",
 						"starting_rage",
 						"stance_snapshot",
-						"has_bs_tier_2",
 						"has_battle_shout_rank_7",
 						"queue_delay",
 						"assume_bleed_active",

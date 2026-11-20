@@ -28,12 +28,13 @@ func protectionWarriorSuite() core.CharacterSuiteConfig {
 		Class:      proto.Class_ClassWarrior,
 		Race:       proto.Race_RaceOrc,
 		OtherRaces: []proto.Race{proto.Race_RaceHuman},
-		GearSet:    core.GetGearSet("../../../ui/specs/warrior/protection/gear_sets", "prebis"),
+		GearSet:    core.GetGearSet("../../../ui/specs/warrior/protection/gear_sets", "prebis_balanced"),
 		OtherGearSets: []core.GearSetCombo{
-			core.GetGearSet("../../../ui/specs/warrior/protection/gear_sets", "prebis_threat"),
+			core.GetGearSet("../../../ui/specs/warrior/protection/gear_sets", "prebis_offensive"),
 			core.GetGearSet("../../../ui/specs/warrior/protection/gear_sets", "p1_bis"),
 		},
 		Talents:          DefaultProtectionTalents,
+		OtherTalentSets:  []core.TalentsCombo{{Label: "Offensive", Talents: OffensiveProtectionTalents}},
 		Consumables:      DefaultConsumables,
 		SpecOptions:      core.SpecOptionsCombo{Label: "Protection", SpecOptions: DefaultOptions},
 		StartingDistance: 0,
@@ -84,12 +85,13 @@ var DefaultOptions = &proto.Player_ProtectionWarrior{
 }
 
 var DefaultProtectionTalents = "05-05050005-150531120300001351"
+var OffensiveProtectionTalents = "3-0505000501-050032120331021351"
 
 var DefaultConsumables = &proto.ConsumesSpec{
 	OffensivePotId: 250943, // Major Frenzy Potion
 	FoodId:         20452,  // Smoked Desert Dumplings
 	ExplosiveId:    260814, // SAF-T Clever Dynamite
-	MhImbueId:      12404,  // Dense Sharpening Stone
+	MhImbueId:      12643,  // Dense Weightstone
 	ConjuredId:     9421,   // Major Healthstone
 	// Elixir of Ferocity, Elixir of the Mongoose, Winterfall Firewater, Elixir of Greater Defense, Elixir of the Phalanx
 	ElixirIds: []int32{250350, 13452, 12820, 13445, 250329},
