@@ -503,12 +503,12 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 }
 
 // An equip spell that only restates weapon skills or creature type stats the item's own stats already
-// state adds nothing in game. Bloody Claws of Attack 280068 states +1 Fist Weapons as item stat 98 and
-// again as equip spell 1297442, A_MOD_SKILL on the Unarmed line, and its tooltip shows one +1 (EV-0104). Seal of
-// the Dawn 13209 states +78 Attack Power against Undead as item stat 128 and again as equip spell 23930,
-// melee and ranged attack power against Undead, and its tooltip shows one +78 (EV-0111). The stat gives the bonus
-// and the spell leaves the item: no database entry, no registration and no missing effect. A spell on an
-// item whose stats state no such bonus, or a spell that does more, stays.
+// state adds nothing in game. A tooltip shows one weapon skill bonus where the item's stats and its equip
+// spell both state it (EV-0104). Seal of the Dawn 13209 states +78 Attack Power against Undead as item stat 128
+// and again as equip spell 23930, melee and ranged attack power against Undead, and its tooltip shows one +78
+// (EV-0111). The stat gives the bonus and the spell leaves the item: no database entry, no registration and no
+// missing effect. A spell that does more stays, and so does one on an item whose stats state no such bonus,
+// unless it raises weapon skills alone (foldEquipWeaponSkills).
 func (d *DBC) dropRestatedItemStats() {
 	for itemID, effects := range d.ItemEffectsByParentID {
 		item := d.Items[itemID]
@@ -520,6 +520,56 @@ func (d *DBC) dropRestatedItemStats() {
 			return effect.TriggerType == ITEM_SPELLTRIGGER_ON_EQUIP && d.restatesOnly(itemID, effect.SpellID, stated)
 		})
 	}
+}
+
+// Weapon skill from gear adds per copy worn: two Bloody Claws of Attack give +2 Fist Weapons, to each hand
+// holding a fist weapon. The sim counts an item's weapon skills once per copy and an equip aura once per
+// item, so an equip spell that only raises weapon skills the item's stats do not state becomes the item's
+// own weapon skill at the spell's base points, and leaves the item.
+func (d *DBC) foldEquipWeaponSkills() {
+	for itemID, effects := range d.ItemEffectsByParentID {
+		item, ok := d.Items[itemID]
+		if !ok {
+			continue
+		}
+		stated := d.statedBonuses(&item)
+		folded := len(item.EquipWeaponSkills)
+		d.ItemEffectsByParentID[itemID] = slices.DeleteFunc(effects, func(effect ItemEffect) bool {
+			if effect.TriggerType != ITEM_SPELLTRIGGER_ON_EQUIP {
+				return false
+			}
+			skills := d.weaponSkillsOnly(effect.SpellID)
+			for _, skill := range skills {
+				if _, ok := stated[statedBonus{skill: skill.Skill}]; ok {
+					return false
+				}
+			}
+			item.EquipWeaponSkills = append(item.EquipWeaponSkills, skills...)
+			return len(skills) > 0
+		})
+		if len(item.EquipWeaponSkills) > folded {
+			d.Items[itemID] = item
+		}
+	}
+}
+
+// The weapon skills the spell raises, in effect order; nil unless every effect of it is A_MOD_SKILL on a
+// weapon skill line.
+func (d *DBC) weaponSkillsOnly(spellID int) []*proto.WeaponSkillValue {
+	effects := d.SpellEffects[spellID]
+	var skills []*proto.WeaponSkillValue
+	for _, index := range slices.Sorted(maps.Keys(effects)) {
+		effect := effects[index]
+		if effect.EffectAura != dbcenums.A_MOD_SKILL || len(effect.EffectMiscValues) == 0 {
+			return nil
+		}
+		skill, ok := spelldata.WeaponSkillOfLine(int32(effect.EffectMiscValues[0]))
+		if !ok {
+			return nil
+		}
+		skills = append(skills, &proto.WeaponSkillValue{Skill: skill, Value: int32(effect.EffectBasePoints)})
+	}
+	return skills
 }
 
 // A bonus item stats give outside the stat array: a weapon skill, or a stat against one mob type.

@@ -378,15 +378,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestProtectionWarrior-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 504.42883
-  tps: 1640.88425
-  dtps: 296.54994
-  hps: 38.13972
- }
-}
-dps_results: {
  key: "TestProtectionWarrior-AllItems-BlueDragonMail"
  value: {
   dps: 474.58963

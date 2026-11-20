@@ -246,14 +246,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRogue-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 826.39394
-  tps: 586.7397
-  hps: 52.05333
- }
-}
-dps_results: {
  key: "TestRogue-AllItems-BlunderflameBoneBow-275439"
  value: {
   dps: 847.17446
