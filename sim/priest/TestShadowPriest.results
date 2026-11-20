@@ -985,8 +985,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-LordSakrasis'Scepter-5028"
  value: {
-  dps: 797.76729
-  tps: 569.50774
+  dps: 766.30573
+  tps: 547.48465
   dtps: 4.69805
  }
 }

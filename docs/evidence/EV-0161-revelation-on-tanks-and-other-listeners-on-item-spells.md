@@ -5,8 +5,9 @@
   damage on a block, Retribution Aura and Consecration roll nothing, and no warrior gains a Revelation buff. An item's
   magic spell also rolls Insight (enchant 8216) and the paladin's Vengeance, as it rolls Revelation (EV-0149).
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000): the paladins and warriors wearing 8217 in either hand
-  or gaining a Revelation buff in 110 reports, the paladins with Crest of Retribution damage and Vengeance in 4, and the
-  wearers of 8216 in 6, the 119 reports the Reports section lists; all fights.
+  or gaining a Revelation buff in 110 reports, the paladins with Crest of Retribution damage and Vengeance in 4 reports,
+  and the wearers of 8216 in 6 reports; one report is in the first two sets, so the Reports section lists 119. All
+  fights.
 - Game build: 1.60.1.70888, 1.60.1.70938 and 1.60.1.70938 or 70959 by event time against the time the CDN first
   listed each build (70959 on 2026-11-17 15:19 UTC), as in EV-0149; the Revelation section has the procs on each. The
   hotfix each player ran is not recorded.

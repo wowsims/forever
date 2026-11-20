@@ -869,8 +869,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-LordSakrasis'Scepter-5028"
  value: {
-  dps: 943.26755
-  tps: 813.009
+  dps: 902.9949
+  tps: 782.75676
  }
 }
 dps_results: {

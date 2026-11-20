@@ -747,10 +747,9 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	effect := damage.ProcDamageEffect()
 	// A proc's hit on the magic defense type is a spell hit, so a listener on spell damage that hears
 	// procs hears it: Revelation, Insight and Vengeance roll on Crest of Retribution, Flame Lash and
-	// Flame Wrath. A row with no defense type of its own rolls none of them, and damage an aura deals
-	// off its own trigger is a reactive hit, which none hears either, as with Holy Shield's on a block
+	// Flame Wrath. A row with no defense type of its own, such as a shield spike's, rolls none of them
 	// (EV-0149, EV-0161).
-	if asProc && damage.DefenseTypeCore() == core.DefenseTypeMagic && effect.Aura != dbcenums.A_PROC_TRIGGER_DAMAGE {
+	if asProc && damage.DefenseTypeCore() == core.DefenseTypeMagic {
 		config.ProcMask = core.ProcMaskSpellDamage
 	}
 	config.DirectVariance = effect.DirectVariance()

@@ -64,7 +64,6 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 			if strike.IsAProc() {
 				strikeConfig.Flags |= core.SpellFlagProc
 			}
-			strikeConfig.BonusCoefficient = strike.DamageEffect().Coeff()
 			strikeConfig.ThreatMultiplier = procConfig.ThreatMultiplier
 			strikeConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 				spell.CalcAndDealDamage(sim, target, paladin.shieldswornStrikeDamage, spell.OutcomeMagicHit)

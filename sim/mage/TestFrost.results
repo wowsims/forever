@@ -869,8 +869,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-LordSakrasis'Scepter-5028"
  value: {
-  dps: 852.55331
-  tps: 790.11531
+  dps: 837.82729
+  tps: 776.86189
  }
 }
 dps_results: {
