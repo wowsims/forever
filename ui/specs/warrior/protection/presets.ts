@@ -28,7 +28,7 @@ export const ROTATION_DEFAULT = PresetUtils.makePresetAPLRotation('Generic', Gen
 // Stranglethorn Vale, and the Breastplate and Gauntlets of Heroism by the Battlegear of Heroism vendors in Orgrimmar
 // and Ironforge. Spaulders of Containment, Girdle of Extracted Answers and Furbolg Berserker's Boots have no source in
 // the item database.
-export const PreBiSOffensiveGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSOffensiveGearJson, { group: 'Offensive', devOnly: true });
+export const PreBiSOffensiveGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSOffensiveGearJson, { group: 'Offensive' });
 
 // The same sources, built to take less damage at a small cost in threat; its defense stays far below the 140 that
 // makes a level 63 boss unable to crit. Ironfoe drops in Blackrock Depths and Handcrafted Mastersmith Leggings in
@@ -36,7 +36,7 @@ export const PreBiSOffensiveGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSO
 // Don Julio's Band are sold by the Alterac Valley quartermasters, Stalwart Cloak, Valiant's Waistguard, Cutthroat's
 // Signet and Adaptive Combat Assistant by the Undermine Trader, and the Heroism pieces by the Battlegear of Heroism
 // vendors in Orgrimmar and Ironforge. Horn of Ve'han and Furbolg Berserker's Boots have no source in the item database.
-export const PreBiSBalancedGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSBalancedGearJson, { group: 'Balanced', devOnly: true });
+export const PreBiSBalancedGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSBalancedGearJson, { group: 'Balanced' });
 
 export const OffensiveTalents = PresetUtils.makePresetTalents('Offensive', SavedTalents.create({ talentsString: '3-0505000501-050032120331021351' }));
 
