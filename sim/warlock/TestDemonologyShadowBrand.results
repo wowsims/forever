@@ -1074,9 +1074,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-NecropileRaiment"
  value: {
-  dps: 892.09426
-  tps: 736.42598
-  dtps: 11.16753
+  dps: 903.38161
+  tps: 747.24538
+  dtps: 11.52733
  }
 }
 dps_results: {

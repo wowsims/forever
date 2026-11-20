@@ -981,8 +981,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-NecropileRaiment"
  value: {
-  dps: 871.35052
-  tps: 867.28798
+  dps: 896.92362
+  tps: 892.51346
  }
 }
 dps_results: {

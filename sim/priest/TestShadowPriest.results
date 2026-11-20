@@ -1105,8 +1105,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-NecropileRaiment"
  value: {
-  dps: 714.69284
-  tps: 511.19647
+  dps: 721.41987
+  tps: 515.90539
   dtps: 4.92555
  }
 }

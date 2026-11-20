@@ -981,8 +981,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-NecropileRaiment"
  value: {
-  dps: 829.33019
-  tps: 854.61106
+  dps: 830.42118
+  tps: 855.75196
  }
 }
 dps_results: {

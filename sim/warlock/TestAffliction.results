@@ -1074,9 +1074,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-NecropileRaiment"
  value: {
-  dps: 764.81553
-  tps: 601.35969
-  dtps: 7.96757
+  dps: 780.45534
+  tps: 614.0076
+  dtps: 7.91407
  }
 }
 dps_results: {

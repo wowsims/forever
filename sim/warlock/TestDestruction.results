@@ -1074,9 +1074,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-NecropileRaiment"
  value: {
-  dps: 859.62206
-  tps: 678.1506
-  dtps: 9.8276
+  dps: 869.23748
+  tps: 685.64113
+  dtps: 10.24663
  }
 }
 dps_results: {

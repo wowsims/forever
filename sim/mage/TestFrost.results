@@ -981,8 +981,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-NecropileRaiment"
  value: {
-  dps: 748.49722
-  tps: 690.53003
+  dps: 753.56868
+  tps: 695.2889
  }
 }
 dps_results: {

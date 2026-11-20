@@ -352,8 +352,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 742.47671
-  tps: 553.38035
+  dps: 747.92098
+  tps: 557.29051
   hps: 46.39389
  }
 }

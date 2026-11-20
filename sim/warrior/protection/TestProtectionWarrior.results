@@ -344,9 +344,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BloodmailRegalia"
  value: {
-  dps: 561.78211
-  tps: 1794.35842
-  dtps: 336.99492
+  dps: 571.17291
+  tps: 1816.17214
+  dtps: 337.19316
   hps: 40.89167
  }
 }
@@ -623,10 +623,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 549.16291
-  tps: 1770.6507
-  dtps: 357.24932
-  hps: 40.37639
+  dps: 553.30599
+  tps: 1777.09077
+  dtps: 357.31904
+  hps: 40.35944
  }
 }
 dps_results: {
@@ -1776,8 +1776,8 @@ dps_results: {
  key: "TestProtectionWarrior-AllItems-NecropileRaiment"
  value: {
   dps: 534.08394
-  tps: 1711.61291
-  dtps: 377.50357
+  tps: 1711.61207
+  dtps: 377.52688
   hps: 40.29167
  }
 }
@@ -2369,10 +2369,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-TheGladiator"
  value: {
-  dps: 551.80865
-  tps: 1758.97371
-  dtps: 342.494
-  hps: 40.02056
+  dps: 558.22485
+  tps: 1774.67205
+  dtps: 344.44737
+  hps: 40.22389
  }
 }
 dps_results: {

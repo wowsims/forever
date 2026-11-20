@@ -497,10 +497,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 573.46783
-  tps: 496.47947
+  dps: 580.62854
+  tps: 502.87
   dtps: 2.89629
-  hps: 45.39417
+  hps: 45.25861
  }
 }
 dps_results: {
@@ -1543,7 +1543,7 @@ dps_results: {
  value: {
   dps: 506.68901
   tps: 440.76854
-  dtps: 3.05866
+  dtps: 3.08946
   hps: 43.54722
  }
 }

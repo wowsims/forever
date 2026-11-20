@@ -444,10 +444,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 523.14885
-  tps: 2620.98214
-  dtps: 440.05438
-  hps: 84.12104
+  dps: 529.14963
+  tps: 2661.10035
+  dtps: 440.12214
+  hps: 84.03213
  }
 }
 dps_results: {
@@ -1534,8 +1534,8 @@ dps_results: {
  key: "TestFeralBear-AllItems-NecropileRaiment"
  value: {
   dps: 482.58437
-  tps: 2439.40979
-  dtps: 488.67772
+  tps: 2439.40922
+  dtps: 488.70852
   hps: 86.13491
  }
 }
