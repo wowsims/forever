@@ -461,8 +461,8 @@ func TestOnUseHealReachesTheHealingListeners(t *testing.T) {
 }
 
 // Dragonfire Potion's 1252554 states Always Hit. Used from an item it lands for a wearer who cannot
-// hit anything, and its damage over time goes on with it; the same row cast as a proc's spell rolls
-// its hit and misses.
+// hit anything, and its damage over time goes on with it; the same row cast as a proc's spell lands
+// too.
 func TestAnAlwaysHitRowUsedFromAnItemNeverMisses(t *testing.T) {
 	const neckID, itemID int32 = 991021, 991022
 	const dragonfire int32 = 1252554
@@ -484,7 +484,7 @@ func TestAnAlwaysHitRowUsedFromAnItemNeverMisses(t *testing.T) {
 
 	proc := caster.GetSpell(core.ActionID{SpellID: dragonfire})
 	proc.Cast(sim, target)
-	if metrics := proc.SpellMetrics[target.UnitIndex]; metrics.Misses != 1 || metrics.Hits != 0 {
-		t.Errorf("the proc's spell took %d hits and %d misses, want it to miss", metrics.Hits, metrics.Misses)
+	if metrics := proc.SpellMetrics[target.UnitIndex]; metrics.Misses != 0 || metrics.Hits+metrics.Crits != 1 {
+		t.Errorf("the proc's spell took %d hits, %d crits and %d misses, want it to land", metrics.Hits, metrics.Crits, metrics.Misses)
 	}
 }

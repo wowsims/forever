@@ -1104,9 +1104,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 830.03248
-  tps: 589.32306
-  hps: 57.61111
+  dps: 831.07536
+  tps: 590.0635
+  hps: 56.78083
  }
 }
 dps_results: {
