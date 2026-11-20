@@ -158,7 +158,9 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	// melee weapon's row of every school is one multiplier. Any other gives its Physical as a school
 	// multiplier and every other school the percent on its melee-defense spells only, whether the mask
 	// names that school or leaves it out, so a magic-defense or ranged-defense spell of a school past
-	// Physical takes none.
+	// Physical takes none (EV-0064, EV-0022). A row whose aura reaches beyond its weapon
+	// (AuraReachesBeyondItsWeapon) gives every school of its mask as a school multiplier, and the
+	// schools past the mask the percent on their melee-defense spells.
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE: func(p *parser, e *Effect, v float64) *attachment {
 		rule, scope, ok := p.weaponScope(e)
 		switch {
@@ -181,13 +183,16 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 			return p.whileEquipped(scope.Equip(), a)
 		}
 
-		physical := e.Misc & int32(core.SpellSchoolPhysical)
+		full := e.Misc & int32(core.SpellSchoolPhysical)
+		if p.spell.AuraReachesBeyondItsWeapon() {
+			full = e.Misc
+		}
 		melee := p.modFloat("damage-dealt-melee", core.SpellModConfig{
 			Kind:             core.SpellMod_DamageDone_Pct,
 			DefenseType:      core.DefenseTypeMelee,
-			MultiplierSchool: core.SpellSchool(miscAllSchools &^ physical),
+			MultiplierSchool: core.SpellSchool(miscAllSchools &^ full),
 		}, v/100)
-		school := multiplier(physical)
+		school := multiplier(full)
 		if school == nil {
 			return p.whileEquipped(scope.Equip(), melee)
 		}

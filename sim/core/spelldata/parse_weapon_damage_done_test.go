@@ -35,7 +35,8 @@ func physicalMultiplier(character *core.Character) float64 {
 }
 
 // The masks a melee weapon's damage done row is parsed under here: Physical alone, as the warrior's
-// Two-Handed Weapon Specialization 12163 names, and Physical and Holy, as the paladin's 20111 names.
+// Two-Handed Weapon Specialization 12163 names, and Physical and Holy, on a row whose aura stays on its
+// weapon.
 var weaponDamageDoneMasks = map[string]int32{
 	"a mask of Physical":          int32(core.SpellSchoolPhysical),
 	"a mask of Physical and Holy": int32(core.SpellSchoolPhysical | core.SpellSchoolHoly),
@@ -79,7 +80,8 @@ func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 }
 
 // 20111's threat goes with the two-hander as its damage does: both in full with one, neither with a
-// one-hander.
+// one-hander. Its aura reaches beyond its weapon, so its Holy is a school multiplier as its Physical
+// is, and a Holy spell takes it through that multiplier alone.
 func TestWeaponThreatRowHoldsWhileEquipped(t *testing.T) {
 	defer generatedStore()()
 
@@ -95,11 +97,18 @@ func TestWeaponThreatRowHoldsWhileEquipped(t *testing.T) {
 		{"one-hander", proto.HandType_HandTypeMainHand, 1, 1},
 	} {
 		character := swordWarrior(tc.hand)
+		holyMagic := defenseSpell(character, 1, core.SpellSchoolHoly, core.DefenseTypeMagic)
 
 		ParseStatic(character, row)
 
 		if got := physicalMultiplier(character); math.Abs(got-tc.wantDamage) > 1e-9 {
 			t.Errorf("%s: the physical school multiplier: %v, want %v", tc.name, got, tc.wantDamage)
+		}
+		if got := character.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexHoly]; math.Abs(got-tc.wantDamage) > 1e-9 {
+			t.Errorf("%s: the holy school multiplier: %v, want %v", tc.name, got, tc.wantDamage)
+		}
+		if got := holyMagic.DamageMultiplier; got != 1 {
+			t.Errorf("%s: a magic-defense holy spell's own multiplier: %v, want 1", tc.name, got)
 		}
 		if got := character.PseudoStats.ThreatMultiplier; math.Abs(got-tc.wantThreat) > 1e-9 {
 			t.Errorf("%s: the threat multiplier: %v, want %v", tc.name, got, tc.wantThreat)

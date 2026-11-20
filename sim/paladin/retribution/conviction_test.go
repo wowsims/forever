@@ -73,11 +73,11 @@ func TestConvictionGivesEverySpellAndAttackCrit(t *testing.T) {
 	}
 }
 
-// Two-Handed Weapon Specialization's Holy with a two-hander in the main hand follows the defense
-// type. The melee-defense Holy Strike, Seal of Righteousness hit and Judgement of Command take the
-// bonus the physical attacks take. The ranged-defense Judgement of Righteousness and Hammer of Wrath
-// take none, and neither do the magic-defense Exorcism, Holy Wrath, Retribution Aura's shield and
-// Holy Light. Consecration is magic-defense and takes it all the same.
+// Two-Handed Weapon Specialization gives every Holy damage spell the bonus the physical attacks take
+// while a two-hander is equipped, whatever its defense type: the melee-defense Holy Strike, Seal of
+// Righteousness hit and Judgement of Command, the ranged-defense Judgement of Righteousness and Hammer
+// of Wrath, and the magic-defense Consecration, Exorcism, Holy Wrath and Retribution Aura's shield.
+// Holy Light heals and takes none. With a one-hander in the main hand no spell takes it.
 func TestTwoHandedWeaponSpecializationHolyReach(t *testing.T) {
 	pal, base := convictionPaladin(t, UnsealedWrathTalents), convictionPaladin(t, noTwoHandedSpecTalents)
 	if pal.Talents.TwoHandedWeaponSpecialization == 0 || base.Talents.TwoHandedWeaponSpecialization != 0 ||
@@ -90,57 +90,61 @@ func TestTwoHandedWeaponSpecializationHolyReach(t *testing.T) {
 		t.Fatalf("the talent multiplies physical damage by %v, want its bonus", bonus)
 	}
 
-	for _, tc := range []struct {
-		name string
-		mask int64
-		id   core.ActionID
-		want float64
-	}{
-		{name: "Holy Strike", mask: paladin.SpellMaskHolyStrike, want: bonus},
-		{name: "the Seal of Righteousness hit", mask: paladin.SpellMaskSealOfRighteousnessProc, want: bonus},
-		{name: "Judgement of Command", mask: paladin.SpellMaskJudgementOfCommand, want: bonus},
-		{name: "Consecration", mask: paladin.SpellMaskConsecration, want: bonus},
-		{name: "Judgement of Righteousness", mask: paladin.SpellMaskJudgementOfRighteousness, want: 1},
-		{name: "Hammer of Wrath", mask: paladin.SpellMaskHammerOfWrath, want: 1},
-		{name: "Exorcism", mask: paladin.SpellMaskExorcism, want: 1},
-		{name: "Holy Wrath", mask: paladin.SpellMaskHolyWrath, want: 1},
-		{name: "Holy Light", mask: paladin.SpellMaskHolyLight, want: 1},
-		{name: "Retribution Aura", id: core.ActionID{SpellID: paladin.RetributionAuraRankMap.Highest().ID, Tag: 2}, want: 1},
-	} {
-		checked := 0
-		for _, spell := range pal.Spellbook {
-			if !(spell.Matches(tc.mask) || tc.mask == 0 && spell.ActionID.SameAction(tc.id)) {
-				continue
-			}
-			without := base.GetSpell(spell.ActionID)
-			if without == nil {
-				t.Fatalf("%s: %v is not registered without the talent", tc.name, spell.ActionID)
-			}
-			checked++
-			if got := spell.DamageMultiplier / without.DamageMultiplier; math.Abs(got-tc.want) > 1e-9 {
-				t.Errorf("%s %v: the talent multiplies its damage by %v, want %v", tc.name, spell.ActionID, got, tc.want)
-			}
-		}
-		if checked == 0 {
-			t.Errorf("%s: no spell is registered", tc.name)
-		}
-	}
-
-	// Consecration's bonus goes with the weapon as the others do: with the Protection set's one-hander
-	// in the main hand the talent gives it nothing.
 	equipment := goproto.Clone(core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "default").GearSet).(*proto.EquipmentSpec)
 	equipment.Items[proto.ItemSlot_ItemSlotMainHand] =
 		core.GetGearSet("../../../ui/specs/paladin/protection/gear_sets", "default").GearSet.Items[proto.ItemSlot_ItemSlotMainHand]
-	oneHanded := paladinWearing(t, UnsealedWrathTalents, equipment)
+	oneHanded, oneHandedBase := paladinWearing(t, UnsealedWrathTalents, equipment), paladinWearing(t, noTwoHandedSpecTalents, equipment)
 	if oneHanded.MainHand().HandType == proto.HandType_HandTypeTwoHand {
 		t.Fatal("the Protection set's main hand is a two-hander, want a one-hander")
 	}
-	for _, spell := range oneHanded.Spellbook {
-		if !spell.Matches(paladin.SpellMaskConsecration) {
-			continue
-		}
-		if got := spell.DamageMultiplier / base.GetSpell(spell.ActionID).DamageMultiplier; math.Abs(got-1) > 1e-9 {
-			t.Errorf("Consecration %v with a one-hander: the talent multiplies its damage by %v, want 1", spell.ActionID, got)
+
+	damage := func(p *paladin.Paladin, spell *core.Spell) float64 {
+		return spell.AttackerDamageMultiplier(p.AttackTables[p.CurrentTarget.UnitIndex], false)
+	}
+	healing := func(_ *paladin.Paladin, spell *core.Spell) float64 { return spell.CasterHealingMultiplier() }
+	for _, tc := range []struct {
+		name       string
+		mask       int64
+		id         core.ActionID
+		multiplier func(*paladin.Paladin, *core.Spell) float64
+		want       float64
+	}{
+		{name: "Holy Strike", mask: paladin.SpellMaskHolyStrike, multiplier: damage, want: bonus},
+		{name: "the Seal of Righteousness hit", mask: paladin.SpellMaskSealOfRighteousnessProc, multiplier: damage, want: bonus},
+		{name: "Judgement of Command", mask: paladin.SpellMaskJudgementOfCommand, multiplier: damage, want: bonus},
+		{name: "Judgement of Righteousness", mask: paladin.SpellMaskJudgementOfRighteousness, multiplier: damage, want: bonus},
+		{name: "Hammer of Wrath", mask: paladin.SpellMaskHammerOfWrath, multiplier: damage, want: bonus},
+		{name: "Consecration", mask: paladin.SpellMaskConsecration, multiplier: damage, want: bonus},
+		{name: "Exorcism", mask: paladin.SpellMaskExorcism, multiplier: damage, want: bonus},
+		{name: "Holy Wrath", mask: paladin.SpellMaskHolyWrath, multiplier: damage, want: bonus},
+		{name: "Retribution Aura", id: core.ActionID{SpellID: paladin.RetributionAuraRankMap.Highest().ID, Tag: 2}, multiplier: damage, want: bonus},
+		{name: "Holy Light", mask: paladin.SpellMaskHolyLight, multiplier: healing, want: 1},
+	} {
+		for _, wearing := range []struct {
+			hand       string
+			with, base *paladin.Paladin
+			want       float64
+		}{
+			{"a two-hander", pal, base, tc.want},
+			{"a one-hander", oneHanded, oneHandedBase, 1},
+		} {
+			checked := 0
+			for _, spell := range wearing.with.Spellbook {
+				if !(spell.Matches(tc.mask) || tc.mask == 0 && spell.ActionID.SameAction(tc.id)) {
+					continue
+				}
+				without := wearing.base.GetSpell(spell.ActionID)
+				if without == nil {
+					t.Fatalf("%s: %v is not registered without the talent", tc.name, spell.ActionID)
+				}
+				checked++
+				if got := tc.multiplier(wearing.with, spell) / tc.multiplier(wearing.base, without); math.Abs(got-wearing.want) > 1e-9 {
+					t.Errorf("%s %v with %s: the talent multiplies it by %v, want %v", tc.name, spell.ActionID, wearing.hand, got, wearing.want)
+				}
+			}
+			if checked == 0 {
+				t.Errorf("%s with %s: no spell is registered", tc.name, wearing.hand)
+			}
 		}
 	}
 }
