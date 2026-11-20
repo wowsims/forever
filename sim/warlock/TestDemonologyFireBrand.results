@@ -136,8 +136,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 916.76454
-  tps: 720.30266
+  dps: 915.50844
+  tps: 719.12092
   dtps: 8.61174
  }
 }

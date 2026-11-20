@@ -347,8 +347,12 @@ func (paladin *Paladin) strikesWithShield(_ *core.Simulation, _ *core.Spell, _ *
 	return paladin.PseudoStats.CanBlock
 }
 
-// The tag on the Holy Shield damage and Shield Specialization mana a Shieldsworn Holy Strike causes,
-// which the results name apart from a block's.
+// The Holy Shield hit a Shieldsworn Holy Strike casts, which ShieldswornTriggered holds beside the
+// spell block 1328551.
+const shieldswornStrikeID int32 = 456544
+
+// The tag on the Shield Specialization mana a Shieldsworn Holy Strike causes, which the results name
+// apart from a block's.
 func shieldswornTag() int32 {
 	return spellData.Shieldsworn.Rank(1).ID
 }

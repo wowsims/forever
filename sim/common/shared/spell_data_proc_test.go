@@ -320,8 +320,8 @@ func TestSpellDataDamageProcAppliesToACharacter(t *testing.T) {
 	if spell.Flags.Matches(core.SpellFlagNoOnDamageDealt) {
 		t.Error("the proc's hits skip the damage listeners, want them heard by the ones that hear procs")
 	}
-	if spell.ProcMask != core.ProcMaskEmpty {
-		t.Errorf("proc mask = %v, want none: a proc's damage is heard through its flags", spell.ProcMask)
+	if spell.ProcMask != core.ProcMaskSpellDamage {
+		t.Errorf("proc mask = %v, want spell damage: a proc's magic hit is a spell hit (EV-0149)", spell.ProcMask)
 	}
 	if spell.DefaultCast.GCD != 0 || spell.DefaultCast.CastTime != 0 || spell.DefaultCast.Cost != 0 {
 		t.Errorf("cast = %+v, want no global cooldown, no cast time and no cost", spell.DefaultCast)

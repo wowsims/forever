@@ -280,7 +280,7 @@ var spellData = generatedSpellData{
 	ShieldSpecialization:          spelldata.Talent(20150, 2),
 	ShieldSpecializationTriggered: spelldata.Ranked(1310925),
 	Shieldsworn:                   spelldata.Talent(1328544, 1),
-	ShieldswornTriggered:          spelldata.Ranked(1328551),
+	ShieldswornTriggered:          spelldata.Ranked(456544, 1328551),
 	SpiritualFocus:                spelldata.Talent(20205, 5),
 	Stoicism:                      spelldata.Talent(1328546, 2),
 	SwiftJudgement:                spelldata.Ranked(1310994),
