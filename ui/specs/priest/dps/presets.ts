@@ -65,7 +65,7 @@ export const DefaultIndividualBuffs = IndividualBuffs.create({
 });
 
 export const DefaultDebuffs = Debuffs.create({
-	judgementOfTheCrusader: true,
+	judgementOfTheCrusader: TristateEffect.TristateEffectRegular,
 	judgementOfWisdom: true,
 	curseOfElements: true,
 });

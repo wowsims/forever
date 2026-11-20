@@ -27,7 +27,7 @@
 	},
 	"debuffs": {
 		"huntersMark": true,
-		"judgementOfTheCrusader": true,
+		"judgementOfTheCrusader": "TristateEffectRegular",
 		"judgementOfLight": true,
 		"judgementOfWisdom": true,
 		"curseOfElements": true
