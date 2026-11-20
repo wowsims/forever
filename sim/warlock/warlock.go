@@ -90,7 +90,7 @@ type Warlock struct {
 	petActiveAuras   []*core.Aura                // the warlock's effects that last while a demon is out
 	sacrificedDemon  proto.WarlockOptions_Summon // the demon whose Demonic Sacrifice effect is up, NoSummon for none
 	lifeTapPetShare  float64                     // Demonic Energies: the share of Life Tap's mana the demon gains
-	lifeTapManaBonus float64                     // Demonheart Raiment's 5pc: the share of mana Life Tap gains on top, at no more health
+	lifeTapManaBonus float64                     // Demonheart Raiment's 5pc: the share of mana Life Tap gains, added to Improved Life Tap's, at no more health
 }
 
 func (warlock *Warlock) GetCharacter() *core.Character {

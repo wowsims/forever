@@ -7,12 +7,12 @@ import (
 )
 
 // Converts the row's amount + Spirit of health into as much mana, 1:1, with Improved Life Tap and Demonheart
-// Raiment's 5pc each raising the mana alone.
+// Raiment's 5pc each raising the mana alone. The two shares add: base × (1 + Improved Life Tap + 5pc).
 // Improved Life Tap's row is a dummy only this formula reads, so the talent is read here rather than parsed.
 func (warlock *Warlock) registerLifeTap() {
 	rankedSpell := spellData.LifeTap.ByID(11689)
 	baseAmount := rankedSpell.EffectN(1).Average()
-	improvedLifeTapMult := 1 + spellData.ImprovedLifeTap.FractionAt(warlock.Talents.ImprovedLifeTap)
+	improvedLifeTap := spellData.ImprovedLifeTap.FractionAt(warlock.Talents.ImprovedLifeTap)
 
 	manaMetrics := warlock.NewManaMetrics(core.ActionID{SpellID: rankedSpell.ID})
 
@@ -31,7 +31,7 @@ func (warlock *Warlock) registerLifeTap() {
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		amount := baseAmount + warlock.GetStat(stats.Spirit)
 		warlock.SpendHealth(sim, amount, spell.HealthMetrics(&warlock.Unit))
-		mana := amount * improvedLifeTapMult * (1 + warlock.lifeTapManaBonus)
+		mana := amount * (1 + improvedLifeTap + warlock.lifeTapManaBonus)
 		warlock.AddMana(sim, mana, manaMetrics)
 
 		if pet := warlock.ActivePet; pet != nil && petManaMetrics[pet] != nil && pet.IsEnabled() {

@@ -761,3 +761,305 @@ func TestPartnersInCrimeAddsStrength(t *testing.T) {
 		t.Errorf("the 2-piece bonus adds %v Strength, want the row's %v", got, want)
 	}
 }
+
+// The Gladiator's 4-piece 1301123 puts 1301124 up off a landed white swing or melee ability, never off a
+// dodged swing or a spell hit, and the buff raises melee haste by its row's percent. Three pieces carry no
+// proc.
+func TestTheGladiatorHastesOnLandedMeleeHits(t *testing.T) {
+	row := spelldata.MustFind(1301124)
+	pieces := map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead: 11729, proto.ItemSlot_ItemSlotShoulder: 277117, proto.ItemSlot_ItemSlotChest: 11726,
+		proto.ItemSlot_ItemSlotHands: 11730,
+	}
+	sim, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(pieces))
+	warrior.AutoAttacks.CancelAutoSwing(sim)
+	buff := warrior.GetAuraByID(core.ActionID{SpellID: row.ID})
+	if buff == nil {
+		t.Fatal("four pieces register no 1301124")
+	}
+
+	for range 400 {
+		warrior.OnSpellHitDealt(sim, meleeSwing(&warrior.Unit), &core.SpellResult{Target: warrior.CurrentTarget, Outcome: core.OutcomeDodge})
+		dealHit(t, sim, warrior, fireSpell(&warrior.Unit))
+	}
+	if buff.IsActive() {
+		t.Fatal("dodged swings and spell hits put the buff up, want neither")
+	}
+
+	haste := warrior.TotalMeleeHasteMultiplier()
+	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, Unit: &warrior.Unit}
+	for _, hit := range []*core.Spell{meleeSwing(&warrior.Unit), special} {
+		hitUntil(t, func() { dealHit(t, sim, warrior, hit) }, buff.IsActive)
+		if got, want := warrior.TotalMeleeHasteMultiplier()/haste, 1+row.EffectN(1).Percent(); math.Abs(got-want) > 1e-9 {
+			t.Errorf("a proc on a %v hit raises melee haste %vx, want the row's %vx", hit.ProcMask, got, want)
+		}
+		buff.Deactivate(sim)
+	}
+
+	delete(pieces, proto.ItemSlot_ItemSlotHands)
+	_, three := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(pieces))
+	if three.GetAuraByID(core.ActionID{SpellID: row.ID}) != nil {
+		t.Error("three pieces register 1301124, want four needed")
+	}
+}
+
+// Bloodmail Regalia's 3-piece 1299740 puts the bleed 1299739 on the target off a landed white swing, Windfury
+// Weapon's strike 439440 or Windfury Totem's strike, never off another melee ability such as Stormstrike or a
+// spell hit. The bleed lands without a hit roll and ticks for the row's duration.
+func TestBloodmailRegaliaBleedsOnSwings(t *testing.T) {
+	row := spelldata.MustFind(1299739)
+	sim, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotChest: 14611, proto.ItemSlot_ItemSlotHands: 14615, proto.ItemSlot_ItemSlotWaist: 14614,
+	}))
+	warrior.AutoAttacks.CancelAutoSwing(sim)
+	target := warrior.CurrentTarget
+	bleed := warrior.GetSpell(core.ActionID{SpellID: row.ID})
+	if bleed == nil || bleed.Dot(target) == nil {
+		t.Fatal("three pieces register no 1299739 bleed")
+	}
+	dot := bleed.Dot(target)
+	metrics := &bleed.SpellMetrics[target.UnitIndex]
+	strike := func(spellID int32, flags core.SpellFlag) *core.Spell {
+		return &core.Spell{ActionID: core.ActionID{SpellID: spellID}, ProcMask: core.ProcMaskMeleeMHSpecial, Flags: flags,
+			SpellSchool: core.SpellSchoolPhysical, Unit: &warrior.Unit}
+	}
+
+	for range 400 {
+		dealHit(t, sim, warrior, strike(17364, 0)) // Stormstrike
+		dealHit(t, sim, warrior, fireSpell(&warrior.Unit))
+	}
+	if metrics.Casts != 0 {
+		t.Fatalf("Stormstrike and spell hits cast the bleed %d times, want none", metrics.Casts)
+	}
+
+	hitUntil(t, func() { dealHit(t, sim, warrior, meleeSwing(&warrior.Unit)) }, dot.IsActive)
+	ticks := metrics.Ticks
+	stepTo(t, sim, dot.ExpiresAt()+core.SpellBatchWindow)
+	if got, want := metrics.Ticks-ticks, rowTickCount(row, row.PeriodicDamageEffect()); got != want || metrics.Misses != 0 {
+		t.Errorf("the bleed ticked %d times with %d misses, want the row's %d and none", got, metrics.Misses, want)
+	}
+
+	for _, hit := range []*core.Spell{strike(439440, 0), strike(10610, core.SpellFlagCountsAsSwing)} {
+		hitUntil(t, func() { dealHit(t, sim, warrior, hit) }, dot.IsActive)
+		dot.Deactivate(sim)
+	}
+}
+
+// Necropile Raiment's 3-piece 1299737 casts the leech 1299735 at the target off a landed harmful spell, never
+// off a missed one or a melee hit. The drain lands without a hit roll and heals the wearer for the damage it
+// dealt.
+func TestNecropileRaimentDrainsOnSpellLandings(t *testing.T) {
+	row := spelldata.MustFind(1299735)
+	sim, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotShoulder: 14633, proto.ItemSlot_ItemSlotChest: 14626, proto.ItemSlot_ItemSlotWrist: 14629,
+	}))
+	warrior.AutoAttacks.CancelAutoSwing(sim)
+	target := warrior.CurrentTarget
+	drain := warrior.GetSpell(core.ActionID{SpellID: row.ID})
+	if drain == nil || drain.SpellSchool != core.SpellSchoolShadow {
+		t.Fatal("three pieces register no 1299735 of Shadow damage")
+	}
+	metrics := &drain.SpellMetrics[target.UnitIndex]
+
+	for range 400 {
+		warrior.OnSpellHitDealt(sim, fireSpell(&warrior.Unit), &core.SpellResult{Target: target, Outcome: core.OutcomeMiss})
+		dealHit(t, sim, warrior, meleeSwing(&warrior.Unit))
+	}
+	if metrics.Casts != 0 {
+		t.Fatalf("missed spells and melee hits cast the drain %d times, want none", metrics.Casts)
+	}
+
+	hitUntil(t, func() { dealHit(t, sim, warrior, fireSpell(&warrior.Unit)) }, func() bool { return metrics.Casts > 0 })
+	if metrics.Misses != 0 || metrics.TotalDamage <= 0 {
+		t.Errorf("the drain missed %d times and dealt %v, want it to land and deal damage", metrics.Misses, metrics.TotalDamage)
+	}
+	if got := spellGain(warrior, row.ID).Gain; math.Abs(got-metrics.TotalDamage) > 1e-9 {
+		t.Errorf("the drain healed the wearer for %v, want the %v it dealt", got, metrics.TotalDamage)
+	}
+}
+
+// The first n Violet Sorcerer's Vestments pieces, the robe first.
+func violetPieces(n int) map[proto.ItemSlot]int32 {
+	list := []struct {
+		slot proto.ItemSlot
+		id   int32
+	}{
+		{proto.ItemSlot_ItemSlotChest, 273044}, {proto.ItemSlot_ItemSlotShoulder, 273051},
+		{proto.ItemSlot_ItemSlotHands, 286989}, {proto.ItemSlot_ItemSlotLegs, 286988},
+		{proto.ItemSlot_ItemSlotFeet, 286987},
+	}
+	pieces := map[proto.ItemSlot]int32{}
+	for _, p := range list[:n] {
+		pieces[p.slot] = p.id
+	}
+	return pieces
+}
+
+// Violet Sorcerer's Vestments' 4-piece 1324318 rolls its row's procs per minute once for each enemy a
+// damaging spell lands on, priced on the spell's cast time and at least castTimeFloor, and puts 1324315 up;
+// a melee hit and a heal roll nothing. The buff lets the share of mana regeneration its first effect states
+// go on while casting, and in Strongholds and Cities the share its second effect states.
+func TestVioletSorcerersVestmentsRegenOnEachTargetALandingHits(t *testing.T) {
+	row := spelldata.MustFind(1324315)
+	sim, paladin := itemWearerAgainst(t, proto.Class_ClassPaladin, setPieces(violetPieces(4)),
+		&proto.Target{Name: "first", Level: 60}, &proto.Target{Name: "second", Level: 60}, &proto.Target{Name: "third", Level: 60})
+	paladin.AutoAttacks.CancelAutoSwing(sim)
+	buff := paladin.GetAuraByID(core.ActionID{SpellID: row.ID})
+	if buff == nil {
+		t.Fatal("four pieces register no 1324315")
+	}
+
+	for range 1000 {
+		dealHit(t, sim, paladin, meleeSwing(&paladin.Unit))
+		dealHeal(t, sim, paladin, healSpell(&paladin.Unit))
+	}
+	if buff.IsActive() {
+		t.Fatal("melee hits and heals put the buff up, want neither")
+	}
+
+	// Each landing reaches all three enemies, so it procs unless all three rolls fail.
+	enemies := len(sim.Encounter.ActiveTargetUnits)
+	const landings = 3000
+	spell := fireSpell(&paladin.Unit)
+	for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
+		procs := 0.0
+		for range landings {
+			landCastHits(t, sim, paladin, spell, castTime, 1324318)
+			stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+			if buff.IsActive() {
+				procs++
+				buff.Deactivate(sim)
+			}
+		}
+		want := 1 - math.Pow(1-castTimeChance(t, 1324318, castTime), float64(enemies))
+		mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
+		if math.Abs(procs-mean) > 4*deviation {
+			t.Errorf("%d landings of a %v cast on %d enemies procced it %v times, want about %.0f", landings, castTime, enemies, procs, mean)
+		}
+	}
+
+	for _, tc := range []struct {
+		name   string
+		areas  []proto.AreaType
+		effect int
+	}{
+		{"outside Strongholds and Cities", nil, 1},
+		{"in Strongholds and Cities", []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}, 2},
+	} {
+		sim, paladin := itemWearerIn(t, proto.Class_ClassPaladin, setPieces(violetPieces(4)), tc.areas...)
+		before := paladin.PseudoStats.SpiritRegenRateCasting
+		paladin.GetAuraByID(core.ActionID{SpellID: row.ID}).Activate(sim)
+		if got, want := paladin.PseudoStats.SpiritRegenRateCasting-before, row.EffectN(tc.effect).Percent(); math.Abs(got-want) > 1e-9 {
+			t.Errorf("%s the buff lets %v of mana regeneration go on while casting, want effect %d's %v", tc.name, got, tc.effect, want)
+		}
+	}
+}
+
+// Violet Sorcerer's Vestments' 5-piece 1324323 casts 1324322 off a landed damaging spell, never off a melee
+// hit, and then rests the row's cooldown. The cast summons the Arcane Elemental on the spell's target, which
+// swings at it every 2.0 s until the summon's duration runs out.
+func TestVioletSorcerersVestmentsSummonTheArcaneElemental(t *testing.T) {
+	proc, call := spelldata.MustFind(1324323), spelldata.MustFind(1324322)
+	sim, paladin := itemWearerWithEquipment(t, proto.Class_ClassPaladin, setPieces(violetPieces(5)))
+	paladin.AutoAttacks.CancelAutoSwing(sim)
+	var elemental *core.Pet
+	for _, pet := range paladin.Pets {
+		if pet.Name == "Arcane Elemental" {
+			elemental = pet
+		}
+	}
+	summon := paladin.GetSpell(core.ActionID{SpellID: call.ID})
+	if elemental == nil || summon == nil || proc.ICD() <= 0 {
+		t.Fatal("five pieces register no 1324322 or no Arcane Elemental, or 1324323 rests no cooldown")
+	}
+	enemy := paladin.CurrentTarget
+	casts := &summon.SpellMetrics[enemy.UnitIndex].Casts
+
+	for range 1000 {
+		dealHit(t, sim, paladin, meleeSwing(&paladin.Unit))
+	}
+	if *casts != 0 {
+		t.Fatalf("melee hits summoned the elemental %d times, want none", *casts)
+	}
+
+	hitUntil(t, func() { dealHit(t, sim, paladin, fireSpell(&paladin.Unit)) }, func() bool { return *casts > 0 })
+	summonedAt := sim.CurrentTime
+	if !elemental.IsEnabled() || elemental.CurrentTarget != enemy {
+		t.Fatal("the summon left no Arcane Elemental up on the spell's target")
+	}
+	for range 400 {
+		dealHit(t, sim, paladin, fireSpell(&paladin.Unit))
+	}
+	if *casts != 1 {
+		t.Errorf("400 spell hits inside the %v cooldown summoned %d times in all, want once", proc.ICD(), *casts)
+	}
+
+	stepTo(t, sim, summonedAt+call.Duration()-50*time.Millisecond)
+	if !elemental.IsEnabled() {
+		t.Fatalf("the elemental is gone before the row's %v run out", call.Duration())
+	}
+	if swings := elemental.AutoAttacks.MHAuto().SpellMetrics[enemy.UnitIndex].Casts; swings < 9 || swings > 11 {
+		t.Errorf("the elemental swung %d times in %v, want one every 2.0 s", swings, call.Duration())
+	}
+	stepTo(t, sim, summonedAt+call.Duration()+50*time.Millisecond)
+	if elemental.IsEnabled() {
+		t.Errorf("the elemental is still up after the row's %v", call.Duration())
+	}
+}
+
+// Defias Enforcer's Garb's 5-piece 1324684 rolls its row's procs per minute on landed melee hits of either
+// hand, each on its own weapon's speed, though the row names the main hand alone, and puts 1324683 up; a
+// spell hit rolls nothing. The buff raises crit by its first effect's percent, and in a swamp by its second
+// effect's.
+func TestDefiasEnforcersGarbCritsOffEitherHand(t *testing.T) {
+	row, buffRow := spelldata.MustFind(1324684), spelldata.MustFind(1324683)
+	const mainHand, offHand = northernShortsword, warKnife
+	pieces := map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead: 287019, proto.ItemSlot_ItemSlotShoulder: 276741, proto.ItemSlot_ItemSlotChest: 287020,
+		proto.ItemSlot_ItemSlotLegs: 276746, proto.ItemSlot_ItemSlotFeet: 287021,
+		proto.ItemSlot_ItemSlotMainHand: mainHand, proto.ItemSlot_ItemSlotOffHand: offHand,
+	}
+	for _, tc := range []struct {
+		name   string
+		areas  []proto.AreaType
+		effect int
+	}{
+		{"outside a swamp", nil, 1},
+		{"in a swamp", []proto.AreaType{proto.AreaType_AreaTypeSwamp}, 2},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sim, rogue := itemWearerIn(t, proto.Class_ClassRogue, setPieces(pieces), tc.areas...)
+			rogue.AutoAttacks.CancelAutoSwing(sim)
+			proc := rogue.GetAura("Defias Enforcer's Garb 5P")
+			buff := rogue.GetAuraByID(core.ActionID{SpellID: buffRow.ID})
+			if proc == nil || proc.Dpm == nil || buff == nil || row.RPPM <= 0 {
+				t.Fatal("five pieces register no proc on a procs per minute rate or no 1324683, or 1324684 carries no rate")
+			}
+			for _, hand := range []struct {
+				mask  core.ProcMask
+				speed float64
+			}{
+				{core.ProcMaskMeleeMHAuto, core.GetItemByID(mainHand).SwingSpeed},
+				{core.ProcMaskMeleeOHAuto, core.GetItemByID(offHand).SwingSpeed},
+			} {
+				if got, want := proc.Dpm.Chance(hand.mask, sim), float64(row.RPPM)*hand.speed/60; math.Abs(got-want) > 1e-9 {
+					t.Errorf("it rolls %v on a %v swing, want the row's procs per minute on its weapon's speed, %v", got, hand.mask, want)
+				}
+			}
+
+			*proc.Dpm = *rogue.NewFixedProcChanceManager(1, core.ProcMaskMelee)
+			dealHit(t, sim, rogue, fireSpell(&rogue.Unit))
+			if buff.IsActive() {
+				t.Fatal("a spell hit put the buff up, want only melee hits")
+			}
+			crit := rogue.GetStat(stats.PhysicalCritPercent)
+			dealHit(t, sim, rogue, &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto, SpellSchool: core.SpellSchoolPhysical, Unit: &rogue.Unit})
+			if !buff.IsActive() {
+				t.Fatal("an off-hand swing on a certain roll put no buff up")
+			}
+			if got, want := rogue.GetStat(stats.PhysicalCritPercent)-crit, buffRow.EffectN(tc.effect).BaseValue(); math.Abs(got-want) > 1e-9 {
+				t.Errorf("the buff adds %v%% crit, want effect %d's %v%%", got, tc.effect, want)
+			}
+		})
+	}
+}

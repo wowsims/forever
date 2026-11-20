@@ -9,33 +9,6 @@ import (
 // onto the set bonus aura or is a proc the set builds; the others are comments. A set written by
 // hand leaves this file on the next db run.
 func RegisterAllSetBonuses() {
-	// The Gladiator
-	// https://www.wowhead.com/forever/item-set=1
-	shared.NewParsedItemSet(1, "The Gladiator", []proto.ItemSlot{proto.ItemSlot_ItemSlotHead, proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// TODO: Manual implementation required
-		//
-		// Reduces the hit chance of Fear effects against you by 8%.
-		// https://www.wowhead.com/forever/spell=1301126
-		// unsupported: effect 1 A_MOD_MECHANIC_RESISTANCE misc 5 is not parsed
-		// 2: {1301126},
-
-		// +20 Attack Power.
-		// https://www.wowhead.com/forever/spell=9331
-		3: {9331},
-
-		// TODO: Manual implementation required
-		//
-		// Chance on hit to gain 5% attack speed for 10s. Attacks while no allies are within 20 yds are 2 times as
-		// likely to activate this effect.
-		// https://www.wowhead.com/forever/spell=1301123
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed, effect 2 A_DUMMY misc 0 is not parsed, effect 3 A_DUMMY misc 0 is not parsed
-		// 4: {1301123},
-
-		// Improves your chance to get a critical strike by 1.0%.
-		// https://www.wowhead.com/forever/spell=1314795
-		5: {1314795},
-	})
-
 	// Dal'Rend's Arms
 	// https://www.wowhead.com/forever/item-set=41
 	shared.NewParsedItemSet(41, "Dal'Rend's Arms", []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand}, map[int32][]int32{
@@ -69,50 +42,6 @@ func RegisterAllSetBonuses() {
 		// Improves your chance to hit by 1.0%.
 		// https://www.wowhead.com/forever/spell=432639
 		5: {432639},
-	})
-
-	// Necropile Raiment
-	// https://www.wowhead.com/forever/item-set=122
-	shared.NewParsedItemSet(122, "Necropile Raiment", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotWrist, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// Improves your chance to hit by 0.5%.
-		// https://www.wowhead.com/forever/spell=1299734
-		2: {1299734},
-
-		// TODO: Manual implementation required
-		//
-		// Harmful spell casts have a chance to steal 28 life from the target enemy.
-		// https://www.wowhead.com/forever/spell=1299737
-		// unsupported: states no rate
-		// 3: {1299737},
-
-		// +5 All Resistances.
-		// https://www.wowhead.com/forever/spell=18676
-		4: {18676},
-		// Increases damage and healing done by magical spells and effects by up to 23.
-		// https://www.wowhead.com/forever/spell=14047
-		5: {14047},
-	})
-
-	// Bloodmail Regalia
-	// https://www.wowhead.com/forever/item-set=123
-	shared.NewParsedItemSet(123, "Bloodmail Regalia", []proto.ItemSlot{proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotWaist, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// +10 Attack Power.
-		// https://www.wowhead.com/forever/spell=9140
-		2: {9140},
-
-		// TODO: Manual implementation required
-		//
-		// Grants your melee attacks a chance to wound the target, causing them to Bleed for 70 damage over 10s.
-		// https://www.wowhead.com/forever/spell=1299740
-		// unsupported: states no rate, effect 1 A_PERIODIC_DAMAGE misc 0 is not parsed on an enemy, 1299739 puts auras on an enemy
-		// 3: {1299740},
-
-		// +5 All Resistances.
-		// https://www.wowhead.com/forever/spell=18676
-		4: {18676},
-		// Improves your chance to get a critical strike by 1.5%.
-		// https://www.wowhead.com/forever/spell=1299738
-		5: {1299738},
 	})
 
 	// Volcanic Armor
@@ -1516,52 +1445,4 @@ func RegisterAllSetBonuses() {
 	// 	// unsupported: the row applies only in area group 9341, effect 1 A_MOD_SPEED_ALWAYS misc 0 is not parsed
 	// 	2: {1318244},
 	// })
-
-	// Violet Sorcerer's Vestments
-	// https://www.wowhead.com/forever/item-set=2134
-	shared.NewParsedItemSet(2134, "Violet Sorcerer's Vestments", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// +5 Arcane Resistance.
-		// https://www.wowhead.com/forever/spell=1324311
-		2: {1324311},
-		// +10 Spirit.
-		// https://www.wowhead.com/forever/spell=1324312
-		3: {1324312},
-
-		// TODO: Manual implementation required
-		//
-		// Chance on damaging spell to allow 15% of your Mana regeneration to continue while casting for 15s. This
-		// Mana Regeneration is doubled in Strongholds and Cities.
-		// https://www.wowhead.com/forever/spell=1324318
-		// unsupported: states no rate, 1324318 fires 1324315, which neither deals damage at once, fills a bar nor only applies auras
-		// 4: {1324318},
-
-		// TODO: Manual implementation required
-		//
-		// Chance on damaging spell to summon an Arcane elemental to aid you in combat.
-		// https://www.wowhead.com/forever/spell=1324323
-		// unsupported: states no rate, 1324323 fires 1324322, which neither deals damage at once, fills a bar nor only applies auras
-		// 5: {1324323},
-	})
-
-	// Defias Enforcer's Garb
-	// https://www.wowhead.com/forever/item-set=2136
-	shared.NewParsedItemSet(2136, "Defias Enforcer's Garb", []proto.ItemSlot{proto.ItemSlot_ItemSlotHead, proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// +10 Fire Resistance.
-		// https://www.wowhead.com/forever/spell=1324673
-		2: {1324673},
-		// +15 Stamina.
-		// https://www.wowhead.com/forever/spell=1324674
-		3: {1324674},
-		// Increased Swords +1.
-		// https://www.wowhead.com/forever/spell=1324675
-		4: {1324675},
-
-		// TODO: Manual implementation required
-		//
-		// Melee attacks have a chance to increase your Critical Strike chance by 2% for 20s. This effect is doubled
-		// in swamps.
-		// https://www.wowhead.com/forever/spell=1324684
-		// unsupported: 1324684 fires 1324683, which neither deals damage at once, fills a bar nor only applies auras
-		// 5: {1324684},
-	})
 }

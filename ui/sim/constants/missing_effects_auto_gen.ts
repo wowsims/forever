@@ -2535,12 +2535,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 					"Reduces the hit chance of Fear effects against you by 8%.", // 1301126 - https://www.wowhead.com/forever/spell=1301126
 				],
 			],
-			[
-				4,
-				[
-					"Chance on hit to gain 5% attack speed for 10s. Attacks while no allies are within 20 yds are 2 times as likely to activate this effect.", // 1301123 - https://www.wowhead.com/forever/spell=1301123
-				],
-			],
 		]),
 	],
 	[
@@ -2556,28 +2550,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				4,
 				[
 					"Falling below 25% health grants Return to Sender, reflecting the next spell cast on you within 6s. Can only occur once every 3 min.", // 1302380 - https://www.wowhead.com/forever/spell=1302380
-				],
-			],
-		]),
-	],
-	[
-		122, // Necropile Raiment
-		new Map([
-			[
-				3,
-				[
-					"Harmful spell casts have a chance to steal 28 life from the target enemy.", // 1299737 - https://www.wowhead.com/forever/spell=1299737
-				],
-			],
-		]),
-	],
-	[
-		123, // Bloodmail Regalia
-		new Map([
-			[
-				3,
-				[
-					"Grants your melee attacks a chance to wound the target, causing them to Bleed for 70 damage over 10s.", // 1299740 - https://www.wowhead.com/forever/spell=1299740
 				],
 			],
 		]),
@@ -2928,12 +2900,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				2,
 				[
 					"Your normal melee swings have a chance to Invigorate you, healing you for 100.", // 28816 - https://www.wowhead.com/forever/spell=28816
-				],
-			],
-			[
-				8,
-				[
-					"Your Eviscerate has a chance per combo point to reveal a flaw in your opponent's armor, granting a 100% critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage.", // 28814 - https://www.wowhead.com/forever/spell=28814
 				],
 			],
 		]),
@@ -3426,34 +3392,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				5,
 				[
 					"Grants your healing spells a chance to heal for an additional 40 Health every 3.0 sec for 15s.", // 1321587 - https://www.wowhead.com/forever/spell=1321587
-				],
-			],
-		]),
-	],
-	[
-		2134, // Violet Sorcerer's Vestments
-		new Map([
-			[
-				4,
-				[
-					"Chance on damaging spell to allow 15% of your Mana regeneration to continue while casting for 15s. This Mana Regeneration is doubled in Strongholds and Cities.", // 1324318 - https://www.wowhead.com/forever/spell=1324318
-				],
-			],
-			[
-				5,
-				[
-					"Chance on damaging spell to summon an Arcane elemental to aid you in combat.", // 1324323 - https://www.wowhead.com/forever/spell=1324323
-				],
-			],
-		]),
-	],
-	[
-		2136, // Defias Enforcer's Garb
-		new Map([
-			[
-				5,
-				[
-					"Melee attacks have a chance to increase your Critical Strike chance by 2% for 20s. This effect is doubled in swamps.", // 1324684 - https://www.wowhead.com/forever/spell=1324684
 				],
 			],
 		]),

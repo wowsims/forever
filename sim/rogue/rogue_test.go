@@ -816,3 +816,113 @@ func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 		t.Errorf("the 4-piece regained %v energy over %d procs, want the row's %v each", got.Gain, got.Events, perProc)
 	}
 }
+
+// Bonescythe Armor's 8-piece bonus: a landed Eviscerate grants Revealed Flaw 28815 at 28814's chance per combo point
+// it spent, and never at none. Its charge raises the crit of Sinister Strike and Backstab by 28815's percent and
+// leaves Shank's, which the row's class flags also name, alone; a Sinister Strike crit spends it. A second grant
+// waits out 28815's cooldown.
+func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	for slot, id := range map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead:     22478, // Bonescythe Helmet
+		proto.ItemSlot_ItemSlotShoulder: 22479, // Bonescythe Pauldrons
+		proto.ItemSlot_ItemSlotChest:    22476, // Bonescythe Breastplate
+		proto.ItemSlot_ItemSlotLegs:     22477, // Bonescythe Legplates
+		proto.ItemSlot_ItemSlotFeet:     22480, // Bonescythe Sabatons
+		proto.ItemSlot_ItemSlotHands:    22481, // Bonescythe Gauntlets
+		proto.ItemSlot_ItemSlotWaist:    22482, // Bonescythe Waistguard
+		proto.ItemSlot_ItemSlotWrist:    22483, // Bonescythe Bracers
+		proto.ItemSlot_ItemSlotMainHand: 2632,  // Curved Dagger
+		proto.ItemSlot_ItemSlotOffHand:  18392, // Distracting Dagger
+	} {
+		items[slot].Id = id
+	}
+	player := &proto.Player{
+		Name:      "Rogue",
+		Race:      proto.Race_RaceHuman,
+		Class:     proto.Class_ClassRogue,
+		Equipment: &proto.EquipmentSpec{Items: items},
+		Spec:      DefaultOptions,
+		Rotation:  &proto.APLRotation{},
+	}
+	// Long enough to wait out the cooldown once.
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: 600, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
+	target := sim.Encounter.AllTargetUnits[0]
+	rogue.AutoAttacks.CancelAutoSwing(sim)
+	target.PseudoStats.BaseDodgeChance = 0
+	rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+
+	buff := rogue.GetAuraByID(core.ActionID{SpellID: revealedFlaw.ID})
+	if buff == nil || revealedFlaw.Cooldown() <= 0 || bonescytheFlaw.EffectN(1).PointsPerResource <= 0 {
+		t.Fatal("eight pieces register no 28815, or 28815 rests no cooldown, or 28814 states no chance per combo point")
+	}
+	eviscerate := rogue.GetSpell(core.ActionID{SpellID: eviscerateBookRank.ID})
+	eviscerateWith := func(points int32) {
+		t.Helper()
+		if points > 0 {
+			rogue.AddComboPoints(sim, target, points, eviscerate.ComboPointMetrics())
+		}
+		eviscerate.SkipCastAndApplyEffects(sim, target)
+		stepPastBatch(sim, 0)
+	}
+	grant := func() {
+		t.Helper()
+		for tries := 0; !buff.IsActive(); tries++ {
+			if tries > 200 {
+				t.Fatal("200 Eviscerates at 5 combo points granted no Revealed Flaw")
+			}
+			eviscerateWith(5)
+		}
+	}
+
+	for range 200 {
+		eviscerateWith(0)
+	}
+	if buff.IsActive() {
+		t.Fatal("Eviscerates at no combo points granted Revealed Flaw, want none")
+	}
+
+	backstab := rogue.GetSpell(core.ActionID{SpellID: backstabBookRank.ID})
+	strikes := []*core.Spell{rogue.SinisterStrike, backstab, rogue.Shank}
+	before := make([]float64, len(strikes))
+	for i, spell := range strikes {
+		before[i] = spell.BonusCritPercent
+	}
+	grant()
+	if buff.GetStacks() != 1 {
+		t.Errorf("Revealed Flaw holds %d charges, want the row's 1", buff.GetStacks())
+	}
+	bonus := revealedFlaw.EffectN(1).BaseValue()
+	for i, want := range []float64{bonus, bonus, 0} {
+		if got := strikes[i].BonusCritPercent - before[i]; got != want {
+			t.Errorf("Revealed Flaw raises %v's crit by %v%%, want %v%%", strikes[i].ActionID, got, want)
+		}
+	}
+
+	// The rogue's own crit covers what the target's level takes off the charge's 100%.
+	rogue.AddStatDynamic(sim, stats.PhysicalCritPercent, 10)
+	crits := rogue.SinisterStrike.SpellMetrics[target.UnitIndex].Crits
+	rogue.SinisterStrike.SkipCastAndApplyEffects(sim, target)
+	stepPastBatch(sim, 0)
+	if rogue.SinisterStrike.SpellMetrics[target.UnitIndex].Crits == crits || buff.IsActive() {
+		t.Fatal("a Sinister Strike under Revealed Flaw did not crit and spend the charge")
+	}
+
+	for range 200 {
+		eviscerateWith(5)
+	}
+	if buff.IsActive() {
+		t.Errorf("an Eviscerate inside 28815's %v cooldown granted Revealed Flaw again", revealedFlaw.Cooldown())
+	}
+	stepPastBatch(sim, revealedFlaw.Cooldown())
+	grant()
+}
