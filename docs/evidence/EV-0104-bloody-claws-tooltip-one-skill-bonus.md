@@ -1,11 +1,12 @@
-# EV-0104: Bloody Claws of Attack's tooltip shows one +1 where its stats and its equip spell both state it
+# EV-0104: one Bloody Claws of Attack gives +1 Fist Weapons from its equip spell alone
 
-- Claim: the in-game tooltip shows one weapon skill bonus where an item's stats and its equip spell both state it.
-- Sources: the in-game tooltip of Bloody Claws of Attack 280068; no log
-- Game build: not recorded
+- Claim: one Bloody Claws of Attack gives +1 Fist Weapons, the base points of its equip spell 1297442.
+- Sources: the in-game tooltip and weapon skill of Bloody Claws of Attack 280068; no log
+- Game build: 1.60.1.70938, after hotfix push 114060 (the owner's answer in #1129)
 - Date: not recorded
-- Pull request: #974
+- Pull request: #974, corrected in #1129
 
-Bloody Claws of Attack 280068 states +1 Fist Weapons as item stat 98 and again as equip spell 1297442, and the in-game
-tooltip shows one +1. It is the only item the rule reaches. The pull request also matched the computed weapon skill of
-the other items that state one against their tooltips.
+The game files at that push give Bloody Claws of Attack 280068 no weapon skill item stat; its +1 Fist Weapons is equip
+spell 1297442 alone, A_MOD_SKILL on the Unarmed line. The in-game check shows +1. #974 wrote this file up as a tooltip
+showing one +1 where item stat 98 and the equip spell both stated it, but the check ran after the hotfix that took item
+stat 98 off the item, so it never compared the two.
