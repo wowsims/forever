@@ -34,11 +34,10 @@ var revelationDirectHits = map[proto.Class]core.ClassFlags{
 	proto.Class_ClassShaman:  {Family: 11, Mask: [4]uint32{0x10000000}},      // Flame Shock
 }
 
-// Judgement of Light's heal at each rank, which whoever strikes the judged target casts. It rolls
-// nothing for Revelation, where Seal of Light's heal rolls; the rows show no cause (EV-0149).
-var judgementOfLightHeals = []int32{20267, 20341, 20342, 20343}
-
-const vampiricEmbraceHeal = 15290
+// Heals that roll nothing for Revelation: Judgement of Light's at each rank, which whoever strikes the
+// judged target casts, where Seal of Light's heal rolls and the rows show no cause (EV-0149), and
+// Vampiric Embrace's party heal 15290.
+var revelationSkippedHeals = []int32{20267, 20341, 20342, 20343, 15290}
 
 // The share of Revelation's chance a spell keeps for its level: all of it down to 12 levels under
 // the wearer, none from 32 levels under, and a straight line between (EV-0149).
@@ -348,9 +347,9 @@ func init() {
 		trigger.RequireDamageDealt = true
 		// The row's listener hears direct spells and heals. A melee or ranged attack rolls nothing, even
 		// one the buff's class flags name, and neither do Judgement of Light's and Vampiric Embrace's
-		// heals. A spell far under the wearer's level rolls a share of the chance (EV-0149). A spell with no SpellLevels row reads
-		// level 60 and keeps the whole chance. A spell the store has no row for, such as an item's spell
-		// registered under its item id, reads level 0 and keeps none.
+		// heals. A spell far under the wearer's level rolls a share of the chance (EV-0149). A spell with
+		// no SpellLevels row reads level 60 and keeps the whole chance. A spell the store has no row for,
+		// such as an item's spell registered under its item id, reads level 0 and keeps none.
 		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
 		// TODO: A spell with no SpellLevels row rolls nothing in the logs (EV-0149). The store reads it as level 60.
 		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
@@ -362,7 +361,7 @@ func init() {
 			}
 			share, ok := shares[spell]
 			if !ok {
-				if !slices.Contains(judgementOfLightHeals, spell.SpellID) && spell.SpellID != vampiricEmbraceHeal {
+				if !slices.Contains(revelationSkippedHeals, spell.SpellID) {
 					share = revelationLevelShare(character.Level, int32(spelldata.Find(spell.SpellID).SpellLevel))
 				}
 				shares[spell] = share

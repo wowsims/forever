@@ -169,11 +169,7 @@ func damageDonePhrase(s *spelldata.Spell, e *spelldata.Effect) string {
 		return join(phrase+",", perWeapon(scope))
 	case spelldata.WeaponRuleWhileEquipped:
 		if scope.ProcMask.Matches(core.ProcMaskMelee) && mask != allSchools {
-			full := mask & core.SpellSchoolPhysical
-			if s.AuraReachesBeyondItsWeapon() {
-				full = mask
-			}
-			if full == 0 {
+			if full := spelldata.WeaponDamageSchools(s, e); full == 0 {
 				phrase = join(signedPercent(e), "damage done on the melee-defense spells of every school")
 			} else {
 				phrase = join(signedPercent(e), schoolName(full), "damage done and on the melee-defense spells of the other schools")

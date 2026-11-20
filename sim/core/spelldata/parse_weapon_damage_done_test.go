@@ -79,9 +79,54 @@ func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 	}
 }
 
+// A melee weapon's damage done row whose aura reaches beyond its weapon gives every school its mask
+// names as a school multiplier while the weapon is equipped, so a Holy spell of any defense type takes
+// it through that multiplier alone. A school past the mask keeps the percent on its melee-defense
+// spells. With a weapon the row does not name it gives nothing.
+func TestWeaponDamageDoneRowReachingBeyondItsWeapon(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		hand     proto.HandType
+		equipped bool
+	}{
+		{"two-hander", proto.HandType_HandTypeTwoHand, true},
+		{"one-hander", proto.HandType_HandTypeMainHand, false},
+	} {
+		row := weaponDamageDoneRow(int32(core.SpellSchoolPhysical|core.SpellSchoolHoly), dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SWORD_2H)
+		row.Attr[dbcenums.ATTR_INDEX_EX_5] |= dbcenums.ATTR_EX_5_NOT_JUST_REQ_EQUIPPED_ITEM
+		want := 1.0
+		if tc.equipped {
+			want = 1 + row.EffectN(1).Percent()
+		}
+		character := swordWarrior(tc.hand)
+		ownMultiplierOne := map[string]*core.Spell{
+			"a melee-defense holy spell":  defenseSpell(character, 1, core.SpellSchoolHoly, core.DefenseTypeMelee),
+			"a magic-defense holy spell":  defenseSpell(character, 2, core.SpellSchoolHoly, core.DefenseTypeMagic),
+			"a ranged-defense holy spell": defenseSpell(character, 3, core.SpellSchoolHoly, core.DefenseTypeRanged),
+			"a magic-defense fire spell":  defenseSpell(character, 4, core.SpellSchoolFire, core.DefenseTypeMagic),
+		}
+		fireMelee := defenseSpell(character, 5, core.SpellSchoolFire, core.DefenseTypeMelee)
+
+		ParseStatic(character, row)
+
+		for name, school := range map[string]stats.SchoolIndex{"physical": stats.SchoolIndexPhysical, "holy": stats.SchoolIndexHoly} {
+			if got := character.PseudoStats.SchoolDamageDealtMultiplier[school]; math.Abs(got-want) > 1e-9 {
+				t.Errorf("%s: the %s school multiplier: %v, want %v", tc.name, name, got, want)
+			}
+		}
+		for name, spell := range ownMultiplierOne {
+			if got := spell.DamageMultiplier; got != 1 {
+				t.Errorf("%s: %s's own multiplier: %v, want 1", tc.name, name, got)
+			}
+		}
+		if got := fireMelee.DamageMultiplier; math.Abs(got-want) > 1e-9 {
+			t.Errorf("%s: a melee-defense fire spell's own multiplier: %v, want %v", tc.name, got, want)
+		}
+	}
+}
+
 // 20111's threat goes with the two-hander as its damage does: both in full with one, neither with a
-// one-hander. Its aura reaches beyond its weapon, so its Holy is a school multiplier as its Physical
-// is, and a Holy spell takes it through that multiplier alone.
+// one-hander.
 func TestWeaponThreatRowHoldsWhileEquipped(t *testing.T) {
 	defer generatedStore()()
 
@@ -97,18 +142,11 @@ func TestWeaponThreatRowHoldsWhileEquipped(t *testing.T) {
 		{"one-hander", proto.HandType_HandTypeMainHand, 1, 1},
 	} {
 		character := swordWarrior(tc.hand)
-		holyMagic := defenseSpell(character, 1, core.SpellSchoolHoly, core.DefenseTypeMagic)
 
 		ParseStatic(character, row)
 
 		if got := physicalMultiplier(character); math.Abs(got-tc.wantDamage) > 1e-9 {
 			t.Errorf("%s: the physical school multiplier: %v, want %v", tc.name, got, tc.wantDamage)
-		}
-		if got := character.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexHoly]; math.Abs(got-tc.wantDamage) > 1e-9 {
-			t.Errorf("%s: the holy school multiplier: %v, want %v", tc.name, got, tc.wantDamage)
-		}
-		if got := holyMagic.DamageMultiplier; got != 1 {
-			t.Errorf("%s: a magic-defense holy spell's own multiplier: %v, want 1", tc.name, got)
 		}
 		if got := character.PseudoStats.ThreatMultiplier; math.Abs(got-tc.wantThreat) > 1e-9 {
 			t.Errorf("%s: the threat multiplier: %v, want %v", tc.name, got, tc.wantThreat)

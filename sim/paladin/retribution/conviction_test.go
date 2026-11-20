@@ -103,29 +103,32 @@ func TestTwoHandedWeaponSpecializationHolyReach(t *testing.T) {
 	}
 	healing := func(_ *paladin.Paladin, spell *core.Spell) float64 { return spell.CasterHealingMultiplier() }
 	for _, tc := range []struct {
-		name       string
-		mask       int64
-		id         core.ActionID
-		multiplier func(*paladin.Paladin, *core.Spell) float64
-		want       float64
+		name  string
+		mask  int64
+		id    core.ActionID
+		heals bool
 	}{
-		{name: "Holy Strike", mask: paladin.SpellMaskHolyStrike, multiplier: damage, want: bonus},
-		{name: "the Seal of Righteousness hit", mask: paladin.SpellMaskSealOfRighteousnessProc, multiplier: damage, want: bonus},
-		{name: "Judgement of Command", mask: paladin.SpellMaskJudgementOfCommand, multiplier: damage, want: bonus},
-		{name: "Judgement of Righteousness", mask: paladin.SpellMaskJudgementOfRighteousness, multiplier: damage, want: bonus},
-		{name: "Hammer of Wrath", mask: paladin.SpellMaskHammerOfWrath, multiplier: damage, want: bonus},
-		{name: "Consecration", mask: paladin.SpellMaskConsecration, multiplier: damage, want: bonus},
-		{name: "Exorcism", mask: paladin.SpellMaskExorcism, multiplier: damage, want: bonus},
-		{name: "Holy Wrath", mask: paladin.SpellMaskHolyWrath, multiplier: damage, want: bonus},
-		{name: "Retribution Aura", id: core.ActionID{SpellID: paladin.RetributionAuraRankMap.Highest().ID, Tag: 2}, multiplier: damage, want: bonus},
-		{name: "Holy Light", mask: paladin.SpellMaskHolyLight, multiplier: healing, want: 1},
+		{name: "Holy Strike", mask: paladin.SpellMaskHolyStrike},
+		{name: "the Seal of Righteousness hit", mask: paladin.SpellMaskSealOfRighteousnessProc},
+		{name: "Judgement of Command", mask: paladin.SpellMaskJudgementOfCommand},
+		{name: "Judgement of Righteousness", mask: paladin.SpellMaskJudgementOfRighteousness},
+		{name: "Hammer of Wrath", mask: paladin.SpellMaskHammerOfWrath},
+		{name: "Consecration", mask: paladin.SpellMaskConsecration},
+		{name: "Exorcism", mask: paladin.SpellMaskExorcism},
+		{name: "Holy Wrath", mask: paladin.SpellMaskHolyWrath},
+		{name: "Retribution Aura", id: core.ActionID{SpellID: paladin.RetributionAuraRankMap.Highest().ID, Tag: 2}},
+		{name: "Holy Light", mask: paladin.SpellMaskHolyLight, heals: true},
 	} {
+		multiplier, want := damage, bonus
+		if tc.heals {
+			multiplier, want = healing, 1
+		}
 		for _, wearing := range []struct {
 			hand       string
 			with, base *paladin.Paladin
 			want       float64
 		}{
-			{"a two-hander", pal, base, tc.want},
+			{"a two-hander", pal, base, want},
 			{"a one-hander", oneHanded, oneHandedBase, 1},
 		} {
 			checked := 0
@@ -138,7 +141,7 @@ func TestTwoHandedWeaponSpecializationHolyReach(t *testing.T) {
 					t.Fatalf("%s: %v is not registered without the talent", tc.name, spell.ActionID)
 				}
 				checked++
-				if got := tc.multiplier(wearing.with, spell) / tc.multiplier(wearing.base, without); math.Abs(got-wearing.want) > 1e-9 {
+				if got := multiplier(wearing.with, spell) / multiplier(wearing.base, without); math.Abs(got-wearing.want) > 1e-9 {
 					t.Errorf("%s %v with %s: the talent multiplies it by %v, want %v", tc.name, spell.ActionID, wearing.hand, got, wearing.want)
 				}
 			}
