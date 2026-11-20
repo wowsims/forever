@@ -652,11 +652,9 @@ var (
 // (2) Set: Your attacks have a chance to increase your Attack Power by 40 and your healing spells have a
 // chance to increase your Intellect by 20 for 15s.
 //
-// A landed melee or ranged hit rolls 1294087's chance and puts Ferocity of the Barkskin 1294071 up. The
-// tooltip's healing clause makes the decoder read the row as a heal-only trigger, which drops the hit
-// listener its mask states, so the bonus puts that listener back. No effect of 1294087 casts the healing
-// half, Wisdom of the Timbermaw 1294070, so a heal procs nothing; that row also states Strength where the
-// tooltip says Intellect.
+// A landed melee or ranged hit rolls 1294087's chance and puts Ferocity of the Barkskin 1294071 up. No
+// effect of 1294087 casts the healing half, Wisdom of the Timbermaw 1294070, so a heal procs nothing;
+// that row also states Strength where the tooltip says Intellect.
 var ItemSetTeachingsOfTheFurbolgs = core.NewItemSet(core.ItemSet{
 	ID:    2071,
 	Name:  "Teachings of the Furbolgs",
@@ -675,7 +673,6 @@ func teachingsOfTheFurbolgs(agent core.Agent, setBonusAura *core.Aura) {
 		buff.Activate(sim)
 	})
 	trigger.Name = "Teachings of the Furbolgs - 2PC"
-	trigger.Callback = core.CallbackOnSpellHitDealt
 	setBonusAura.AttachProcTrigger(trigger).ExposeToAPL(furbolgTeachings.ID)
 }
 
@@ -858,16 +855,11 @@ func siphonTheGraveMana(agent core.Agent, setBonusAura *core.Aura) {
 	}
 	siphon := character.RegisterSpell(config)
 
-	// The row's mask states its cast bit alone, which the decoder leaves with no listener.
 	threshold := siphonTheGraveProc.EffectN(1).Percent()
 	trigger := spelldata.ProcTrigger(character, siphonTheGraveProc, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		siphon.Cast(sim, &character.Unit)
 	})
 	trigger.Name = "Rotmender's Raiment - 4PC"
-	trigger.Callback = core.CallbackOnCastComplete
-	trigger.ProcMask = core.ProcMaskUnknown
-	trigger.Outcome = core.OutcomeEmpty
-	trigger.RequireDamageDealt = false
 	trigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
 		return character.CurrentManaPercent() < threshold
 	}
