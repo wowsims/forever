@@ -1041,11 +1041,11 @@ func withFlags(spell *core.Spell, flags core.SpellFlag, deal func()) {
 }
 
 // The trigger casts the spell on the hit that caused the proc, after its options have set the callback
-// the target depends on. The mask is weaponProcStrikeMask's, except on a magic hit that
-// spellDataProcDamageSpell put on spell damage.
+// the target depends on. A weapon proc's strike takes weaponProcStrikeMask's mask; any other spell keeps
+// its own, and one built with none takes ProcMaskEmpty.
 func attachProcDamage(character *core.Character, trigger *core.ProcTrigger, cfg core.SpellConfig) *core.Spell {
-	if cfg.ProcMask != core.ProcMaskSpellDamage {
-		cfg.ProcMask = weaponProcStrikeMask(cfg.DefenseType, cfg.Flags, trigger.IsWeaponProc)
+	if strike := weaponProcStrikeMask(cfg.DefenseType, cfg.Flags, trigger.IsWeaponProc); strike != core.ProcMaskEmpty || cfg.ProcMask == core.ProcMaskUnknown {
+		cfg.ProcMask = strike
 	}
 	spell := character.RegisterSpell(cfg)
 	trigger.Handler = procDamageHandler(character, spell, trigger.Callback)

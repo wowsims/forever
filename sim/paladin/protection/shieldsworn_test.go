@@ -17,22 +17,8 @@ import (
 func TestShieldswornBlocksNonPhysicalSwings(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Targets[0].SpellSchool = proto.SpellSchool_SpellSchoolFire
-
-	player := core.WithSpec(&proto.Player{
-		Class:         proto.Class_ClassPaladin,
-		Race:          proto.Race_RaceHuman,
-		Equipment:     core.GetGearSet("../../../ui/specs/paladin/protection/gear_sets", "default").GearSet,
-		TalentsString: DefaultProtectionTalents,
-		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
-	}, DefaultOptions)
-	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  encounter,
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	pally := sim.Raid.Parties[0].Players[0].(paladin.PaladinAgent).GetPaladin()
-	target := sim.Encounter.ActiveTargetUnits[0]
+	gear := core.GetGearSet("../../../ui/specs/paladin/protection/gear_sets", "default").GearSet
+	sim, pally, target := shieldswornPaladin(gear, encounter)
 	if !pally.Talents.Shieldsworn || !pally.Talents.HolyShield || pally.Talents.ShieldSpecialization != 2 {
 		t.Fatal("the default protection talents lack Shieldsworn, Holy Shield or Shield Specialization 2/2")
 	}
@@ -127,21 +113,7 @@ func TestShieldswornBlocksNonPhysicalSwings(t *testing.T) {
 func TestShieldswornStrikeRollsRevelationAtItsSpellLevel(t *testing.T) {
 	gear := core.GetGearSet("../../../ui/specs/paladin/protection/gear_sets", "default").GearSet
 	gear.Items[proto.ItemSlot_ItemSlotMainHand].Enchant = 8217
-	player := core.WithSpec(&proto.Player{
-		Class:         proto.Class_ClassPaladin,
-		Race:          proto.Race_RaceHuman,
-		Equipment:     gear,
-		TalentsString: DefaultProtectionTalents,
-		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
-	}, DefaultOptions)
-	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  core.MakeSingleTargetEncounter(0),
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	pally := sim.Raid.Parties[0].Players[0].(paladin.PaladinAgent).GetPaladin()
-	target := sim.Encounter.ActiveTargetUnits[0]
+	sim, pally, target := shieldswornPaladin(gear, core.MakeSingleTargetEncounter(0))
 
 	revelation := pally.GetAuraByID(core.ActionID{SpellID: 1323419})
 	holyShield := pally.GetAuraByID(core.ActionID{SpellID: paladin.HolyShieldRankMap.Highest().ID})
@@ -161,7 +133,10 @@ func TestShieldswornStrikeRollsRevelationAtItsSpellLevel(t *testing.T) {
 			DoAt:     sim.CurrentTime + core.SpellBatchWindow + 1,
 			OnAction: func(*core.Simulation) { reached = true },
 		}))
-		for !reached {
+		for steps := 0; !reached; steps++ {
+			if steps > 10000 {
+				t.Fatal("the sim did not reach the end of the spell batch window")
+			}
 			sim.Step()
 		}
 	}
@@ -192,4 +167,22 @@ func TestShieldswornStrikeRollsRevelationAtItsSpellLevel(t *testing.T) {
 	}); blockProcs != 0 {
 		t.Errorf("Holy Shield's damage on 6000 blocks procced Revelation %d times, want none", blockProcs)
 	}
+}
+
+// A protection paladin with the default talents in the given gear, ready to act by hand, and its target.
+func shieldswornPaladin(gear *proto.EquipmentSpec, encounter *proto.Encounter) (*core.Simulation, *paladin.Paladin, *core.Unit) {
+	player := core.WithSpec(&proto.Player{
+		Class:         proto.Class_ClassPaladin,
+		Race:          proto.Race_RaceHuman,
+		Equipment:     gear,
+		TalentsString: DefaultProtectionTalents,
+		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+	}, DefaultOptions)
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	return sim, sim.Raid.Parties[0].Players[0].(paladin.PaladinAgent).GetPaladin(), sim.Encounter.ActiveTargetUnits[0]
 }

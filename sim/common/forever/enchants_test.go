@@ -490,15 +490,7 @@ func TestRevelationRollsOnAnItemsMagicProc(t *testing.T) {
 		t.Fatal("the paladin's Revelation buff or Crest of Retribution's strike is not registered")
 	}
 
-	procs := 0
-	for range 400 {
-		buff.Deactivate(sim)
-		character.OnSpellHitTaken(sim, meleeSwing(enemy), &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeBlock, Damage: 100})
-		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow+1)
-		if buff.IsActive() {
-			procs++
-		}
-	}
+	procs := revelationProcsOnBlocks(t, sim, character, buff, 400, core.SpellBatchWindow)
 	if landed := crest.SpellMetrics[enemy.UnitIndex].Hits; landed < 300 || procs == 0 {
 		t.Errorf("400 blocks landed %d Crest of Retribution strikes and procced Revelation %d times, want most of them to land and some to proc", landed, procs)
 	}
@@ -510,25 +502,32 @@ func TestRevelationRollsOnAnItemsHeal(t *testing.T) {
 	equipment := setPieces(kroldokPieces(4))
 	equipment.Items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: 2244, Enchant: revelationEnchant}
 	sim, character := itemWearerWithEquipment(t, proto.Class_ClassPaladin, equipment)
-	enemy := sim.Encounter.ActiveTargetUnits[0]
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1323419})
 	heal := character.GetSpell(core.ActionID{SpellID: 1324296})
 	if buff == nil || heal == nil {
 		t.Fatal("the paladin's Revelation buff or Krol'dok Resolve's heal is not registered")
 	}
 
+	procs := revelationProcsOnBlocks(t, sim, character, buff, 150, spelldata.MustFind(1324298).ICD())
+	if heals := heal.SpellMetrics[character.UnitIndex].Casts; heals != 150 || procs == 0 {
+		t.Errorf("150 blocks a cooldown apart healed %d times and procced Revelation %d times, want a heal each and some procs", heals, procs)
+	}
+}
+
+// The blocks out of n that leave the buff up, each a blocked melee swing with the buff down and a wait after.
+func revelationProcsOnBlocks(t *testing.T, sim *core.Simulation, character *core.Character, buff *core.Aura, n int, wait time.Duration) int {
+	t.Helper()
+	enemy := sim.Encounter.ActiveTargetUnits[0]
 	procs := 0
-	for range 150 {
+	for range n {
 		buff.Deactivate(sim)
 		takeOutcome(t, sim, character, meleeSwing(enemy), core.OutcomeHit|core.OutcomeBlock, 50)
-		stepTo(t, sim, sim.CurrentTime+spelldata.MustFind(1324298).ICD())
+		stepTo(t, sim, sim.CurrentTime+wait)
 		if buff.IsActive() {
 			procs++
 		}
 	}
-	if heals := heal.SpellMetrics[character.UnitIndex].Casts; heals != 150 || procs == 0 {
-		t.Errorf("150 blocks a cooldown apart healed %d times and procced Revelation %d times, want a heal each and some procs", heals, procs)
-	}
+	return procs
 }
 
 // A mage's buff 1248808 spends its charge as the cast it reaches completes. Every target of an area
