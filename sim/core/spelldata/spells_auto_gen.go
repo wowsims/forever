@@ -39051,10 +39051,6 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1352031, SpellID: 1318514, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1318846, Name: "Eye of the Beast", School: 1, Attr: [17]uint32{0: 0x1c0, 2: 0x4, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 50000,
-		Effects: []Effect{
-			{ID: 1352485, SpellID: 1318846, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
 	{ID: 1318930, Name: "Draconic Infused Emblem", School: 32, Attr: [17]uint32{8: 0x1000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 10000, DefenseType: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1352624, SpellID: 1318930, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_DONE, BasePoints: 35, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 126, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
