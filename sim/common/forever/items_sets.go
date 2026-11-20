@@ -228,6 +228,9 @@ func dreadmistDarkReward(name string) core.ApplySetBonus {
 		heal := dreadmistHeal.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, dreadmistHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc())
+		if dreadmistHeal.IsAProc() {
+			config.Flags |= core.SpellFlagProc
+		}
 		// The row states no defense type, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -399,6 +402,9 @@ func warriorsResolve(name string) core.ApplySetBonus {
 		heal := warriorsResolveHeal.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, warriorsResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc())
+		if warriorsResolveHeal.IsAProc() {
+			config.Flags |= core.SpellFlagProc
+		}
 		// The row states no defense type, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -566,3 +572,72 @@ var ItemSetCadaverousGarb = core.NewItemSet(core.ItemSet{
 		5: shared.ParsedSetBonus(spelldata.MustFind(460230)), // 2% hit
 	},
 })
+
+var (
+	kroldokResolveProc = spelldata.MustFind(1324298) // 4pc: the proc
+	kroldokResolveHeal = spelldata.MustFind(1324296) // 4pc: Krol'dok Resolve, the heal it casts
+	ogreDominanceProc  = spelldata.MustFind(1324309) // 5pc: the proc
+	ogreDominanceBuff  = spelldata.MustFind(1324308) // 5pc: Ogre Dominance, the Stamina it stacks
+)
+
+// Krol'dok Stronghold - Plate
+// https://www.wowhead.com/forever/item-set=2135/krol-dok-battlegear
+//
+// (4) Set: Chance on block to heal for 18. Healing is doubled in Strongholds and Cities.
+// (5) Set: Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.
+//
+// Every blocked melee or ranged hit heals, a block that leaves no damage too, at most once a second. The
+// heal rolls around 18, and in Strongholds and Cities it is the flat 44 of the heal's second effect. Every
+// landed melee or ranged hit taken adds a stack and refreshes the buff, at most once every 3 s. The 5-piece
+// buff also makes the wearer larger and turns them into an ogre at 20 stacks, which has no place in the sim
+// (EV-0160).
+var ItemSetKroldokBattlegear = core.NewItemSet(core.ItemSet{
+	ID:   2135,
+	Name: "Krol'dok Battlegear",
+	Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotHead, proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest,
+		proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs},
+	Bonuses: map[int32]core.ApplySetBonus{
+		2: shared.ParsedSetBonus(spelldata.MustFind(1324287)), // +100 armor
+		3: shared.ParsedSetBonus(spelldata.MustFind(1324288)), // +5 defense
+		4: kroldokResolve,
+		5: ogreDominance,
+	},
+})
+
+func kroldokResolve(agent core.Agent, setBonusAura *core.Aura) {
+	character := agent.GetCharacter()
+	config := spelldata.SpellConfig(&character.Unit, kroldokResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc())
+	if kroldokResolveHeal.IsAProc() {
+		config.Flags |= core.SpellFlagProc
+	}
+	amount := kroldokResolveHeal.HealEffect().DirectAmount
+	if character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
+		stronghold := kroldokResolveHeal.EffectN(2).BasePoints
+		amount = func(*core.Simulation) float64 { return stronghold }
+		config.DirectVariance = 0
+	}
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealHealing(sim, target, amount(sim), spell.OutcomeHealingCrit)
+	}
+	resolve := character.RegisterSpell(config)
+
+	trigger := spelldata.ProcTrigger(character, kroldokResolveProc, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		resolve.Cast(sim, &character.Unit)
+	})
+	trigger.Name = "Krol'dok Battlegear - 4PC"
+	setBonusAura.AttachProcTrigger(trigger)
+}
+
+func ogreDominance(agent core.Agent, setBonusAura *core.Aura) {
+	character := agent.GetCharacter()
+	buff := character.RegisterAura(spelldata.AuraConfig(ogreDominanceBuff))
+	spelldata.ParseEffects(character, buff, ogreDominanceBuff)
+
+	trigger := spelldata.ProcTrigger(character, ogreDominanceProc, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		buff.Activate(sim)
+		buff.AddStack(sim)
+	})
+	trigger.Name = "Krol'dok Battlegear - 5PC"
+	trigger.RequireDamageDealt = false
+	setBonusAura.AttachProcTrigger(trigger)
+}

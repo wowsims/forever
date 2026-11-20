@@ -777,7 +777,7 @@ dps_results: {
  key: "TestProtection-AllItems-EnchantWeapon-Insight-8216"
  value: {
   dps: 403.01787
-  tps: 959.65595
+  tps: 959.65579
   dtps: 333.32281
   hps: 18.23222
  }
@@ -821,8 +821,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 403.01787
-  tps: 959.65595
+  dps: 403.31289
+  tps: 960.40146
   dtps: 333.32281
   hps: 18.23222
  }
@@ -1406,10 +1406,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Krol'dokBattlegear"
  value: {
-  dps: 376.55781
-  tps: 895.17588
+  dps: 376.87351
+  tps: 898.17857
   dtps: 348.75375
-  hps: 18.01194
+  hps: 21.88998
  }
 }
 dps_results: {

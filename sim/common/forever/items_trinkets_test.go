@@ -265,7 +265,13 @@ func dealHeal(t *testing.T, sim *core.Simulation, character *core.Character, spe
 // A landed hit taken, and the spell batch window the listener resolves after.
 func takeHit(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell) {
 	t.Helper()
-	character.OnSpellHitTaken(sim, spell, &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeHit, Damage: 100})
+	takeOutcome(t, sim, character, spell, core.OutcomeHit, 100)
+}
+
+// A hit taken with the outcome and damage, and the spell batch window the listener resolves after.
+func takeOutcome(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell, outcome core.HitOutcome, damage float64) {
+	t.Helper()
+	character.OnSpellHitTaken(sim, spell, &core.SpellResult{Target: &character.Unit, Outcome: outcome, Damage: damage})
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 }
 

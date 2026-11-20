@@ -713,9 +713,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 866.14869
-  tps: 708.03892
-  dtps: 5.60473
+  dps: 866.17626
+  tps: 707.8961
+  dtps: 5.09896
   hps: 24.98509
  }
 }
@@ -2009,10 +2009,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 923.10553
-  tps: 753.17854
-  dtps: 5.99311
-  hps: 24.52251
+  dps: 912.64519
+  tps: 744.98686
+  dtps: 6.04055
+  hps: 24.46608
  }
 }
 dps_results: {

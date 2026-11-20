@@ -956,9 +956,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 892.54435
-  tps: 915.02245
-  dtps: 8.93593
+  dps: 892.59699
+  tps: 915.08237
+  dtps: 8.65493
   hps: 14.01306
  }
 }
@@ -1001,8 +1001,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 892.56509
-  tps: 915.34749
+  dps: 903.73404
+  tps: 926.51645
   dtps: 8.83116
   hps: 14.01306
  }
@@ -2279,10 +2279,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 925.17165
-  tps: 947.37733
-  dtps: 8.4707
-  hps: 13.82667
+  dps: 914.89075
+  tps: 937.05683
+  dtps: 8.74399
+  hps: 13.75889
  }
 }
 dps_results: {

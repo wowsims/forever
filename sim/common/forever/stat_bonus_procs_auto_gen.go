@@ -3946,7 +3946,7 @@ func RegisterAllProcs() {
 
 	// Wounds the target for 100 damage and deals an additional 13 damage every 1.0 sec for 10s.
 	// https://www.wowhead.com/forever/spell=17407
-	// trigger 17407 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 17407 (1.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17407, BuffSpellID: 17407, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13285, ItemName: "The Blackrock Slicer"},

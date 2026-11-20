@@ -855,9 +855,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 693.60542
-  tps: 485.29312
-  dtps: 5.13745
+  dps: 693.70008
+  tps: 485.3124
+  dtps: 4.85044
  }
 }
 dps_results: {
@@ -895,8 +895,8 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 693.60542
-  tps: 485.29312
+  dps: 694.71428
+  tps: 486.40199
   dtps: 5.13745
  }
 }

@@ -1532,10 +1532,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Krol'dokBattlegear"
  value: {
-  dps: 470.32048
-  tps: 1550.2987
-  dtps: 321.1411
-  hps: 38.34306
+  dps: 469.79224
+  tps: 1553.44718
+  dtps: 320.90536
+  hps: 42.62935
  }
 }
 dps_results: {
