@@ -21,11 +21,10 @@ export const ROTATION_DEFAULT = PresetUtils.makePresetAPLRotation('Generic', Gen
 
 // Dungeon and world drops, quest rewards, the warrior's dungeon tier set, crafted items whose reagents include no raid
 // materials and vendor items; no reputation, PvP or Silithus rewards, except one exalted PvP faction, Alterac Valley.
-// The most threat that survives the default target on the default healing, measured against a target of no creature
-// type. Crest of Retribution drops in Stratholme, Blackstone Ring in Maraudon, Ironfoe in Blackrock Depths, Battleborn
-// Armbraces and Handcrafted Mastersmith Leggings in Blackrock Spire, and Satyr's Bow in Dire Maul; Blackhand's Breadth
-// is the reward for General Drakkisath's Demise or For The Horde!, and Mark of Fordring for In Dreams. Don Julio's Band
-// is sold by the Alterac Valley quartermasters, Howler's Furs and Adaptive Combat Assistant by the Undermine Trader in
+// Built for threat at the cost of more damage taken. Ironfoe drops in Blackrock Depths, Battleborn Armbraces,
+// Handcrafted Mastersmith Leggings and Heart of Wyrmthalak in Blackrock Spire, and Satyr's Bow in Dire Maul; Mark of
+// Fordring is the reward for In Dreams. The Immovable Object and Don Julio's Band are sold by the Alterac Valley
+// quartermasters, Howler's Furs, Cutthroat's Signet and Adaptive Combat Assistant by the Undermine Trader in
 // Stranglethorn Vale, and the Breastplate and Gauntlets of Heroism by the Battlegear of Heroism vendors in Orgrimmar
 // and Ironforge. Spaulders of Containment, Girdle of Extracted Answers and Furbolg Berserker's Boots have no source in
 // the item database.
@@ -54,18 +53,18 @@ export const PreBiSOffensiveEpWeights = PresetUtils.makePresetEpWeights(
 		{
 			[Stat.StatStamina]: 1.15,
 			[Stat.StatStrength]: 0.62,
-			[Stat.StatAgility]: 0.57,
+			[Stat.StatAgility]: 0.56,
 			[Stat.StatAttackPower]: 0.27,
-			[Stat.StatHitRating]: 0.05,
+			[Stat.StatHitRating]: 0.06,
 			[Stat.StatCritRating]: 0.43,
-			[Stat.StatHasteRating]: 0.28,
-			[Stat.StatExpertiseRating]: 2.99,
+			[Stat.StatHasteRating]: 0.29,
+			[Stat.StatExpertiseRating]: 3.07,
 			[Stat.StatArmorPenetration]: 0.12,
-			[Stat.StatDefenseRating]: 0.43,
+			[Stat.StatDefenseRating]: 0.45,
 			[Stat.StatBlockRating]: 0,
-			[Stat.StatBlockValue]: 0.6,
-			[Stat.StatDodgeRating]: 0.21,
-			[Stat.StatParryRating]: 0.21,
+			[Stat.StatBlockValue]: 0.63,
+			[Stat.StatDodgeRating]: 0.23,
+			[Stat.StatParryRating]: 0.22,
 			[Stat.StatArmor]: 0.05,
 			[Stat.StatBonusArmor]: 0.05,
 			[Stat.StatArmorNoMods]: 0.05,
