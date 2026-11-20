@@ -1,5 +1,7 @@
 # EV-0153: Proc rates of 45 weapons from the Warcraft Logs reports up to 2026-11-19
 
+EV-0157 replaces the Loksey's Training Stick rate, counted again on every wearer stream of the reports up to 2026-11-19.
+
 - Claim: each weapon below procs at the rate its section gives, priced on the weapon base speed of each hit that rolls
   it. 27 rates are measured and 17 observed. Bloodrazor's rate is open: its one-hand white swings read above the rate
   over all hits and its specials below it.
