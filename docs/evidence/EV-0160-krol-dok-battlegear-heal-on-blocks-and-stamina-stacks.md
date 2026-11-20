@@ -17,11 +17,11 @@
 
 ## Method
 
-A wearer is a character with a 1324296 heal or a 1324308 aura event: 777 characters, a character being a name within
-a region, in 1,012 reports. A wearer in one report is a warrior 568 times, a paladin 486 times, a mage once and of a
+A wearer is a character with a 1324296 heal or a 1324308 aura event: 777 characters, a character being a name within a
+region, in 1,012 reports. A wearer in one report is a warrior 568 times, a paladin 486 times, a mage once and of a
 class the report does not give 36 times. A fight logged in two reports, the same name and region with fight starts
-within 2 minutes, counts once (130 dropped). The heal and the buff both prove the set is worn, so a wearer's hits count
-only between their first and last proc of a fight.
+within 2 minutes, counts once (130 dropped). The heal and the buff both prove the set is worn, so a hit counts only
+after a proc in the same fight and before a later one.
 
 The heal and the buff log at the millisecond of the hit that procced them or up to about 35 ms after it, so a proc is
 credited to the latest hit taken in the 60 ms before it. A tank takes several hits inside that window, so the chances
@@ -98,7 +98,8 @@ Before 2026-11-16 17:00 UTC every block heals, inside a second of the last heal 
 | Melee ability          | under 1 s           | 2,597   | 2,594   | 99.88% |
 | Ranged ability         | under 1 s           | 465     | 459     | 98.71% |
 
-The share of blocks under 1 s after a heal that heal, by 10 minutes on 2026-11-16 (UTC):
+The share of blocks under 1 s after a heal that heal, by 10 minutes on 2026-11-16 (UTC), with fights logged twice
+kept in this table and the hourly reading below:
 
 | Time  | EU blocks | EU heals | US blocks | US heals |
 | ----- | --------- | -------- | --------- | -------- |
@@ -134,12 +135,12 @@ The first landed isolated hit 3.05 s or more after a proc, with the buff below 2
 Isolated hits that do not land, and spells, in the same stretches: 10 stacks on 4,793 dodged white swings, 8 on 5,796
 misses, 5 on 6,066 parries, 4 on 4,833 magic ability hits and 2 on 6,301 ticks.
 
-At 20 stacks the log drops refreshes. The first hit after the cooldown reads 91.08% (39,667 of 43,551 white swings),
-and the next such hit after one with no refresh logged reads 6.8% (196 of 2,892), which no chance per hit gives. 118
-gaps between logged refreshes at 20 stacks run past the buff's 30 s with no removal, and 162 of the 2,097 removals at
-20 stacks fall 30 s after a landed hit with no refresh logged at it. So the 20-stack reading is the log's, and the
-chance is read below 20 stacks alone. The buff's size change (`A_MOD_SCALE`) and the ogre form at 20 stacks (1324682,
-`A_TRANSFORM`) show nothing in a report.
+At 20 stacks the log drops refreshes; the counts after the first one keep fights logged twice. The first hit after the
+cooldown reads 91.08% (39,667 of 43,551 white swings), and the next such hit after one with no refresh logged reads
+6.8% (196 of 2,892), which no chance per hit gives. 118 gaps between logged refreshes at 20 stacks run past the buff's
+30 s with no removal, and 162 of the 2,097 removals at 20 stacks fall 30 s after a landed hit with no refresh logged
+at it. So the 20-stack reading is the log's, and the chance is read below 20 stacks alone. The buff's size change
+(`A_MOD_SCALE`) and the ogre form at 20 stacks (1324682, `A_TRANSFORM`) show nothing in a report.
 
 ## Reports
 
