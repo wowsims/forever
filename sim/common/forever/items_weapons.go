@@ -207,7 +207,8 @@ func init() {
 	//
 	// 1309550 is a dummy that names both spells and neither one's odds. Each proc casts Waxing Moon
 	// 1319378 or gives Waning Moon 1319382, one in two each, never both (EV-0163). Waxing Moon is a
-	// missile on the magic table, a spell hit to the listeners that hear procs (R-0051).
+	// missile on the magic table and takes the spell damage mask a magic proc built from its row
+	// takes (R-0051), which R-0051 leaves open for a hand-written item spell.
 	core.NewItemEffect(280080, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		waxRow := spelldata.MustFind(1319378)
@@ -217,10 +218,7 @@ func init() {
 		config := procSpellConfig(character, waxRow)
 		config.ProcMask = core.ProcMaskSpellDamage
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			result := spell.CalcDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
-			spell.WaitTravelTime(sim, func(sim *core.Simulation) {
-				spell.DealDamage(sim, result)
-			})
+			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit))
 		}
 		wax := character.RegisterSpell(config)
 

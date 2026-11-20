@@ -1538,8 +1538,12 @@ func TestClaymoreOfTwoMoonsWaxesOrWanesOnEachProc(t *testing.T) {
 		t.Fatal("280080 registers no proc on a procs per minute rate, no Waxing Moon spell or no Waning Moon aura")
 	}
 	want := float64(spelldata.MustFind(1309550).RPPM) * core.GetItemByID(280080).SwingSpeed / 60
+	amount := waneRow.FirstAura(dbcenums.A_MOD_STAT).Min()
+	if want <= 0 || want >= 1 || amount <= 0 || wane.Duration != waneRow.Duration() {
+		t.Fatalf("1309550 rolls %v a hit and Waning Moon adds %v Strength for %v, want a chance, a gain and the row's %v", want, amount, wane.Duration, waneRow.Duration())
+	}
 	for _, mask := range []core.ProcMask{core.ProcMaskMeleeMHAuto, core.ProcMaskMeleeMHSpecial} {
-		if got := proc.Dpm.Chance(mask, sim); want <= 0 || want >= 1 || math.Abs(got-want) > 1e-9 {
+		if got := proc.Dpm.Chance(mask, sim); math.Abs(got-want) > 1e-9 {
 			t.Errorf("the proc rolls %v on a hit of mask %v, want the row's procs per minute on the weapon's speed, %v", got, mask, want)
 		}
 	}
@@ -1549,15 +1553,14 @@ func TestClaymoreOfTwoMoonsWaxesOrWanesOnEachProc(t *testing.T) {
 
 	// Every melee hit now procs it.
 	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee)
-	amount := waneRow.FirstAura(dbcenums.A_MOD_STAT).Min()
 	const hits = 100
 	var waxes, wanes int
 	for range hits {
 		wane.Deactivate(sim)
-		casts := wax.SpellMetrics[enemy.UnitIndex].Casts
+		casts := procCasts(sim, wax)
 		before := character.GetStats()
 		dealHit(t, sim, character, meleeSwing(&character.Unit))
-		waxed, waned := wax.SpellMetrics[enemy.UnitIndex].Casts > casts, wane.IsActive()
+		waxed, waned := procCasts(sim, wax) > casts, wane.IsActive()
 		if waxed == waned {
 			t.Fatalf("a proc cast Waxing Moon %v and put up Waning Moon %v, want exactly one", waxed, waned)
 		}
@@ -1566,20 +1569,28 @@ func TestClaymoreOfTwoMoonsWaxesOrWanesOnEachProc(t *testing.T) {
 			continue
 		}
 		wanes++
-		if got := gained(character, before, stats.Strength); amount <= 0 || !statNear(got, amount) {
+		if got := gained(character, before, stats.Strength); !statNear(got, amount) {
 			t.Fatalf("Waning Moon adds %v Strength, want the row's %v", got, amount)
-		}
-		if got := wane.Duration; got != waneRow.Duration() {
-			t.Fatalf("Waning Moon went up for %v, want the row's %v", got, waneRow.Duration())
 		}
 	}
 	if waxes < hits/4 || wanes < hits/4 {
 		t.Errorf("%d procs cast Waxing Moon %d times and Waning Moon %d times, want about one in two each", hits, waxes, wanes)
 	}
 
-	stepTo(t, sim, sim.CurrentTime+2*time.Second)
-	if got := wax.SpellMetrics[enemy.UnitIndex]; got.TotalDamage <= 0 {
-		t.Errorf("%d Waxing Moon casts dealt %v damage once landed, want the row's damage", got.Casts, got.TotalDamage)
+	// Away from the target, a cast deals nothing until its flight ends. The first step lands the
+	// casts still in flight from the hits above.
+	character.DistanceFromTarget = 20
+	stepTo(t, sim, sim.CurrentTime+wax.TravelTime())
+	landed := wax.SpellMetrics[enemy.UnitIndex].TotalDamage
+	for range 20 {
+		wax.Cast(sim, enemy)
+	}
+	if got := wax.SpellMetrics[enemy.UnitIndex].TotalDamage; wax.TravelTime() <= 0 || got != landed {
+		t.Errorf("Waxing Moon dealt %v damage at its cast, want none before its %v flight ends", got-landed, wax.TravelTime())
+	}
+	stepTo(t, sim, sim.CurrentTime+wax.TravelTime())
+	if got := wax.SpellMetrics[enemy.UnitIndex].TotalDamage; got <= landed {
+		t.Errorf("20 Waxing Moon casts dealt %v damage once landed, want the row's damage", got-landed)
 	}
 }
 
