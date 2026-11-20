@@ -7,7 +7,7 @@
 - Game build: 1.60.1.70862 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114281; the hotfix
   each player ran is not recorded
 - Date: 2026-11-09 to 2026-11-19
-- Pull request: not yet opened
+- Pull request: #1126
 
 This replaces the Iceblade Hacker rate EV-0136 gives and the Loksey's Training Stick rate EV-0153 gives.
 
