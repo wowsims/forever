@@ -133,8 +133,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 928.8629
-  tps: 928.47766
+  dps: 921.91275
+  tps: 921.11616
  }
 }
 dps_results: {
@@ -869,8 +869,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-LordSakrasis'Scepter-5028"
  value: {
-  dps: 995.98458
-  tps: 995.17197
+  dps: 1018.809
+  tps: 1015.71037
  }
 }
 dps_results: {
@@ -1282,8 +1282,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-Thunderbrew'sBootFlask-744"
  value: {
-  dps: 937.60955
-  tps: 935.12054
+  dps: 937.82496
+  tps: 935.33594
  }
 }
 dps_results: {

@@ -745,6 +745,14 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	application := damageOutcome(defenseType, true, OutcomeDefault)
 	alwaysHits := !asProc && damage.AlwaysHits()
 	effect := damage.ProcDamageEffect()
+	// A proc's hit on the magic defense type is a spell hit, so a listener on spell damage that hears
+	// procs hears it: Revelation, Insight and Vengeance roll on Crest of Retribution, Flame Lash and
+	// Flame Wrath. A row with no defense type of its own rolls none of them, and damage an aura deals
+	// off its own trigger is a reactive hit, which none hears either, as with Holy Shield's on a block
+	// (EV-0149, EV-0161).
+	if asProc && damage.DefenseTypeCore() == core.DefenseTypeMagic && effect.Aura != dbcenums.A_PROC_TRIGGER_DAMAGE {
+		config.ProcMask = core.ProcMaskSpellDamage
+	}
 	config.DirectVariance = effect.DirectVariance()
 	// A split row rolls once for every target it reaches (calcMultiTargetDamage), not once a hit.
 	if damage.SplitsDamage {
@@ -1034,9 +1042,12 @@ func withFlags(spell *core.Spell, flags core.SpellFlag, deal func()) {
 }
 
 // The trigger casts the spell on the hit that caused the proc, after its options have set the callback
-// the target depends on. The mask is weaponProcStrikeMask's.
+// the target depends on. The mask is weaponProcStrikeMask's, except on a magic hit that
+// spellDataProcDamageSpell put on spell damage.
 func attachProcDamage(character *core.Character, trigger *core.ProcTrigger, cfg core.SpellConfig) *core.Spell {
-	cfg.ProcMask = weaponProcStrikeMask(cfg.DefenseType, cfg.Flags, trigger.IsWeaponProc)
+	if cfg.ProcMask != core.ProcMaskSpellDamage {
+		cfg.ProcMask = weaponProcStrikeMask(cfg.DefenseType, cfg.Flags, trigger.IsWeaponProc)
+	}
 	spell := character.RegisterSpell(cfg)
 	trigger.Handler = procDamageHandler(character, spell, trigger.Callback)
 	trigger.TriggerImmediately = true
@@ -1050,8 +1061,8 @@ func attachProcDamage(character *core.Character, trigger *core.ProcTrigger, cfg 
 // white swing of the weapon cast is heard by no weapon proc, combat enchant or oil on either hand
 // (procDamageHandler): that cast carries Suppress Weapon Procs, through its flight where it has one,
 // and its damage and bleed are those of any other cast. Only a spell flagged as a proc is a strike:
-// any aura on melee specials would hear one without the flag, so it keeps no mask, as any other
-// proc's damage does.
+// any aura on melee specials would hear one without the flag, so it keeps no mask, as a reactive
+// hit does.
 func weaponProcStrikeMask(defenseType core.DefenseType, flags core.SpellFlag, isWeaponProc bool) core.ProcMask {
 	if !isWeaponProc || !flags.Matches(core.SpellFlagProc) {
 		return core.ProcMaskEmpty

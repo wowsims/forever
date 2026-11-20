@@ -28664,6 +28664,10 @@ var generatedSpells = []Spell{
 			{ID: 1160798, SpellID: 456541, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: -4, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 4, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{1: 64}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1160799, SpellID: 456541, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 80, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 456544, Name: "Holy Shield", School: 2, Attr: [17]uint32{0: 0x1850000, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, MaxRange: 100, DefenseType: 1, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{1: 64}}, Labels: []int16{26},
+		Effects: []Effect{
+			{ID: 1160802, SpellID: 456544, Type: dbcenums.E_SCHOOL_DAMAGE, BaseLevel: 30, SPCoef: 0.07999999821186066, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
 	{ID: 456545, Name: "S03 - Item - T1 - Priest - Healer 2P Bonus", School: 1, Attr: [17]uint32{0: 0x40, 1: 0x800, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ClassFlags: core.ClassFlags{Family: 6},
 		Effects: []Effect{
 			{ID: 1160803, SpellID: 456545, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: -100, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 10, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2048, 1: 4}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -40117,6 +40121,7 @@ var generatedHandTriggers = map[int32][]int32{
 	1310905: {1280353}, // Consecrated Ground's talent aura (a dummy) rides the mark Consecration's ground puts on the first 4 enemies inside it, 1280353: same name and class set, the bonus damage's dummy with its 0.042 coefficient and a Holy damage from caster mod whose points the server sets from the talent; the tooltip names the Consecration rank 20924 instead
 	1311074: {1311077}, // Sanctified Judgement's talent aura (two dummies) casts the mana refund 1311077: same name and icon, a mana energize whose tooltip reads Judging restores a portion of the Judged Seal's Mana cost
 	1323967: {1323969}, // Gore Drinker's talent aura (two dummies) applies the buff its tooltip describes: same name, class set and icon, 3 charges heard on melee attacks, and its aura 231 casts the heal 1323968
+	1328544: {456544},  // Shieldsworn's talent aura (a cooldown modifier) makes Holy Strike strike with the shield, and the hit that deals the active Holy Shield's damage is 456544: Holy Shield's name, Holy school, class set and mask, a school damage with no base points and the 0.08 coefficient, spell level 30
 }
 
 func init() { install(generatedSpells, generatedCurves, generatedHandTriggers) }

@@ -477,6 +477,60 @@ func TestRevelationHearsNoRangedAttack(t *testing.T) {
 	}
 }
 
+// An item's magic proc rolls Revelation: Crest of Retribution 13375's 17496 strikes back at a block, and
+// its landings proc the paladin's buff 1323419 (EV-0149).
+func TestRevelationRollsOnAnItemsMagicProc(t *testing.T) {
+	items := weaponSlots(2244, 13375)
+	items[proto.ItemSlot_ItemSlotMainHand].Enchant = revelationEnchant
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassPaladin, &proto.EquipmentSpec{Items: items})
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	buff := character.GetAuraByID(core.ActionID{SpellID: 1323419})
+	crest := character.GetSpell(core.ActionID{SpellID: 17496})
+	if buff == nil || crest == nil {
+		t.Fatal("the paladin's Revelation buff or Crest of Retribution's strike is not registered")
+	}
+
+	procs := 0
+	for range 400 {
+		buff.Deactivate(sim)
+		character.OnSpellHitTaken(sim, meleeSwing(enemy), &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeBlock, Damage: 100})
+		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow+1)
+		if buff.IsActive() {
+			procs++
+		}
+	}
+	if landed := crest.SpellMetrics[enemy.UnitIndex].Hits; landed < 300 || procs == 0 {
+		t.Errorf("400 blocks landed %d Crest of Retribution strikes and procced Revelation %d times, want most of them to land and some to proc", landed, procs)
+	}
+}
+
+// An item's heal rolls Revelation too: Krol'dok Battlegear's 4-piece casts Krol'dok Resolve 1324296 on the
+// wearer at a block, and its heals proc the paladin's buff 1323419 (EV-0149).
+func TestRevelationRollsOnAnItemsHeal(t *testing.T) {
+	equipment := setPieces(kroldokPieces(4))
+	equipment.Items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: 2244, Enchant: revelationEnchant}
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassPaladin, equipment)
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	buff := character.GetAuraByID(core.ActionID{SpellID: 1323419})
+	heal := character.GetSpell(core.ActionID{SpellID: 1324296})
+	if buff == nil || heal == nil {
+		t.Fatal("the paladin's Revelation buff or Krol'dok Resolve's heal is not registered")
+	}
+
+	procs := 0
+	for range 150 {
+		buff.Deactivate(sim)
+		takeOutcome(t, sim, character, meleeSwing(enemy), core.OutcomeHit|core.OutcomeBlock, 50)
+		stepTo(t, sim, sim.CurrentTime+spelldata.MustFind(1324298).ICD())
+		if buff.IsActive() {
+			procs++
+		}
+	}
+	if heals := heal.SpellMetrics[character.UnitIndex].Casts; heals != 150 || procs == 0 {
+		t.Errorf("150 blocks a cooldown apart healed %d times and procced Revelation %d times, want a heal each and some procs", heals, procs)
+	}
+}
+
 // A mage's buff 1248808 spends its charge as the cast it reaches completes. Every target of an area
 // cast crits and the next cast does not; a missile rolled at the cast keeps its crit in flight, a
 // spell cast while it flies gets none, and its landing spends no charge. A channel keeps the charge

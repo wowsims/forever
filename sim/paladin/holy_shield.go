@@ -51,11 +51,26 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	}).AttachStatBuff(stats.BlockPercent, blockPercent)
 
 	// Shieldsworn: a Holy Strike that lands with a shield deals the shield's damage and spends no charge.
-	// That damage reports as its own copy of the spell, tagged with the talent.
+	// The game casts that hit as 456544, a spell of its own at spell level 30 with no base points of its
+	// own and the coefficient every rank's shield states, so the amount is the active rank's. Unlike a
+	// block's damage it is a direct spell hit, and its row lacks Not a Proc, so a listener on spell
+	// damage hears it only when it can proc from procs: Revelation rolls on it at that spell level's
+	// share (EV-0161).
 	if paladin.Talents.Shieldsworn {
-		shieldswornConfig := procConfig
-		shieldswornConfig.ActionID = actionID.WithTag(shieldswornTag())
-		shieldswornSpell := paladin.RegisterSpell(shieldswornConfig)
+		if paladin.shieldswornStrike == nil {
+			strike := spellData.ShieldswornTriggered.ByID(shieldswornStrikeID)
+			strikeConfig := spelldata.SpellConfig(&paladin.Unit, strike, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
+			strikeConfig.ClassSpellMask = SpellMaskHolyShieldProc
+			if strike.IsAProc() {
+				strikeConfig.Flags |= core.SpellFlagProc
+			}
+			strikeConfig.BonusCoefficient = strike.DamageEffect().Coeff()
+			strikeConfig.ThreatMultiplier = procConfig.ThreatMultiplier
+			strikeConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+				spell.CalcAndDealDamage(sim, target, paladin.shieldswornStrikeDamage, spell.OutcomeMagicHit)
+			}
+			paladin.shieldswornStrike = paladin.RegisterSpell(strikeConfig)
+		}
 		holyShieldAura.AttachProcTrigger(core.ProcTrigger{
 			Callback:           core.CallbackOnSpellHitDealt,
 			ClassSpellMask:     SpellMaskHolyStrike,
@@ -63,7 +78,8 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 			ExtraCondition:     paladin.strikesWithShield,
 			TriggerImmediately: true,
 			Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-				shieldswornSpell.Cast(sim, result.Target)
+				paladin.shieldswornStrikeDamage = damage
+				paladin.shieldswornStrike.Cast(sim, result.Target)
 			},
 		})
 	}
