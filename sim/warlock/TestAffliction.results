@@ -136,9 +136,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 798.84906
-  tps: 627.34649
-  dtps: 8.4807
+  dps: 810.30524
+  tps: 636.10723
+  dtps: 8.81196
  }
 }
 dps_results: {

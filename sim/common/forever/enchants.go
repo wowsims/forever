@@ -347,11 +347,10 @@ func init() {
 		trigger.RequireDamageDealt = true
 		// The row's listener hears direct spells and heals. A melee or ranged attack rolls nothing, even
 		// one the buff's class flags name, and neither do Judgement of Light's and Vampiric Embrace's
-		// heals. A spell far under the wearer's level rolls a share of the chance (EV-0149). A spell with
-		// no SpellLevels row reads level 60 and keeps the whole chance. A spell the store has no row for,
-		// such as an item's spell registered under its item id, reads level 0 and keeps none.
+		// heals. A spell far under the wearer's level rolls a share of the chance, and a spell with no
+		// SpellLevels row rolls nothing (EV-0149). A spell the store has no row for, such as an item's
+		// spell registered under its item id, reads level 0 and keeps none.
 		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
-		// TODO: A spell with no SpellLevels row rolls nothing in the logs (EV-0149). The store reads it as level 60.
 		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
 		shares := map[*core.Spell]float64{}
 		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
@@ -361,8 +360,8 @@ func init() {
 			}
 			share, ok := shares[spell]
 			if !ok {
-				if !slices.Contains(revelationSkippedHeals, spell.SpellID) {
-					share = revelationLevelShare(character.Level, int32(spelldata.Find(spell.SpellID).SpellLevel))
+				if row := spelldata.Find(spell.SpellID); !row.NoSpellLevels && !slices.Contains(revelationSkippedHeals, spell.SpellID) {
+					share = revelationLevelShare(character.Level, int32(row.SpellLevel))
 				}
 				shares[spell] = share
 			}
