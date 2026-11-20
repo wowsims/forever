@@ -187,7 +187,7 @@ func (rogue *Rogue) registerBladeFlurry() {
 		if sim.ActiveTargetCount() < 2 {
 			return
 		}
-		if result.Damage == 0 || !spell.ProcMask.Matches(core.ProcMaskMelee) {
+		if result.Damage == 0 || !spell.ProcMask.Matches(core.ProcMaskMelee) || spell.Flags.Matches(core.SpellFlagSuppressCasterProcs) {
 			return
 		}
 		curDmg = result.Damage

@@ -115,6 +115,14 @@ func (s *Spell) SuppressesWeaponProcs() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_4, dbcenums.ATTR_EX_4_SUPPRESS_WEAPON_PROCS)
 }
 
+func (s *Spell) SuppressesCasterProcs() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_SUPPRESS_CASTER_PROCS)
+}
+
+func (s *Spell) SuppressesTargetProcs() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_SUPPRESS_TARGET_PROCS)
+}
+
 // Whether the spell's aura hears hits the way a weapon proc does, which means skipping the hits of
 // a spell flagged Suppress Weapon Procs. The flag sits on the listener; SuppressesWeaponProcs above
 // sits on the spell whose hits are skipped.

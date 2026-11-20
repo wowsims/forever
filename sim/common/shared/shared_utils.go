@@ -29,8 +29,8 @@ type ProcStatBonusEffect struct {
 	// A "Chance on hit" item effect or a combat enchant. See core.ProcTrigger. The generator
 	// reads it from the trigger type; a hand-written effect states it.
 	IsWeaponProc bool
-	// Carried through to the trigger. The generator sets SpellFlagSuppressWeaponProcs here for the
-	// two auras marked Aura Is Weapon Proc.
+	// Carried through to the trigger. The generator sets SpellFlagSuppressWeaponProcs here when the
+	// listener's aura is marked Aura Is Weapon Proc.
 	SpellFlagsExclude core.SpellFlag
 
 	// What adds a stack while a stacking trinket's window is open. Derived from the container
