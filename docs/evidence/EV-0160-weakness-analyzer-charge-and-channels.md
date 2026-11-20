@@ -9,7 +9,7 @@
 - Game build: 1.60.1.70938 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114281; the hotfix
   each player ran is not recorded
 - Date: 2026-11-14 to 2026-11-20
-- Pull request: not recorded
+- Pull request: #1132
 
 ## Method
 
