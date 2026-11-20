@@ -6,8 +6,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Converts the row's amount + Spirit of health into as much mana, 1:1, with Improved Life Tap raising
-// the mana alone.
+// Converts the row's amount + Spirit of health into as much mana, 1:1, with Improved Life Tap and Demonheart
+// Raiment's 5pc each raising the mana alone.
 // Improved Life Tap's row is a dummy only this formula reads, so the talent is read here rather than parsed.
 func (warlock *Warlock) registerLifeTap() {
 	rankedSpell := spellData.LifeTap.ByID(11689)
@@ -31,10 +31,11 @@ func (warlock *Warlock) registerLifeTap() {
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		amount := baseAmount + warlock.GetStat(stats.Spirit)
 		warlock.SpendHealth(sim, amount, spell.HealthMetrics(&warlock.Unit))
-		warlock.AddMana(sim, amount*improvedLifeTapMult, manaMetrics)
+		mana := amount * improvedLifeTapMult * (1 + warlock.lifeTapManaBonus)
+		warlock.AddMana(sim, mana, manaMetrics)
 
 		if pet := warlock.ActivePet; pet != nil && petManaMetrics[pet] != nil && pet.IsEnabled() {
-			pet.AddMana(sim, amount*improvedLifeTapMult*warlock.lifeTapPetShare, petManaMetrics[pet])
+			pet.AddMana(sim, mana*warlock.lifeTapPetShare, petManaMetrics[pet])
 		}
 	}
 
