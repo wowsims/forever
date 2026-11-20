@@ -165,6 +165,14 @@ var AreaBonuses = []AreaBonus{
 		Reason:             "Toy Soldier: 'This effect is doubled in Strongholds and Cities'; no companion row",
 		Source:             "tooltip",
 	},
+	{
+		SpellID:            1321558,
+		Groups:             []int32{9163, 9202},
+		Multiplier:         2,
+		DurationMultiplier: 1,
+		Reason:             "Siphon the Grave (Rotmender's Raiment 4pc): 'Restores twice as much Mana in Haunted and Wasteland areas'; no companion row",
+		Source:             "tooltip",
+	},
 }
 
 // A factor a row deals, restores or procs against some targets, which only its tooltip names ("Deals
@@ -183,6 +191,13 @@ type VersusBonus struct {
 // No CreatureFamily holds Golems or Titan-forged, which the tooltips of 12731, 1302279 and 1294794
 // name, so those rows count Earth Elementals alone.
 var VersusBonuses = []VersusBonus{
+	{
+		SpellID:     1293674,
+		EffectIndex: 0,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:      "Enraging Light (Chain of the Scarlet Crusade 4pc): 'Deals $s1 times as much damage to Undead'",
+		Source:      "tooltip",
+	},
 	{
 		SpellID:     12731,
 		EffectIndex: 1,

@@ -766,9 +766,8 @@ func enragingLight(agent core.Agent, setBonusAura *core.Aura) {
 	config := procSpellConfig(character, enragedLight)
 	// A proc's hit on the magic defense type is a spell hit, as the shared proc builders make it.
 	config.ProcMask = core.ProcMaskSpellDamage
-	config.VersusBonus = &core.VersusBonus{
-		Multiplier: enragingLightProc.EffectN(1).BaseValue(),
-		MobTypes:   []proto.MobType{proto.MobType_MobTypeUndead},
+	if versus, ok := enragingLightProc.VersusBonus(); ok {
+		config.VersusBonus = &versus
 	}
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
