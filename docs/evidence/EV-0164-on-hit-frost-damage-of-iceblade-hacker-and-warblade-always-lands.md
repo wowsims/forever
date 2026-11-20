@@ -1,13 +1,13 @@
 # EV-0164: The on-hit Frost damage of Iceblade Hacker and Warblade of Caer Darrow always lands and crits as melee
 
 - Claim: Iceblade Hacker's 1298414 and Warblade of Caer Darrow's 1298499, cast by a proc on each landed hit, never miss
-  and are never dodged, parried or blocked; they crit at the wearer's melee crit chance for twice the damage, as their
-  rows' Always Hit states.
+  and are never dodged, parried or blocked, as their rows' Always Hit states; they crit at the wearer's melee crit
+  chance for twice the damage.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every wearer stream on disk for the two weapons; the
   reports and fights each section lists
 - Game build: 1.60.1.70862 to 1.60.1.70959 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-10 to 2026-11-20
-- Pull request: #1141
+- Pull request: #1141, b50c27c9f5, 299aa8e1aa
 
 ## Method
 
