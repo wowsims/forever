@@ -518,6 +518,61 @@ func TestGeneratedJudgementsCarryTheDriversProcTriggers(t *testing.T) {
 	}
 }
 
+// The raid's Judgement of the Crusader raises the Holy damage the target takes by the amount its row
+// states, and the improved state adds what Libram of Fervor's equip spell 28852 adds to every effect
+// of the judgement.
+func TestJudgementOfTheCrusaderTakesLibramOfFervorOnItsImprovedState(t *testing.T) {
+	judgement := rowAmount(t, 20303, dbcenums.A_MOD_DAMAGE_TAKEN)
+	libram := libramOfFervorJudgementBonus(t)
+
+	for _, row := range []struct {
+		state proto.TristateEffect
+		want  float64
+	}{
+		{proto.TristateEffect_TristateEffectMissing, 0},
+		{proto.TristateEffect_TristateEffectRegular, judgement},
+		{proto.TristateEffect_TristateEffectImproved, judgement + libram},
+	} {
+		t.Run(row.state.String(), func(t *testing.T) {
+			target := core.NewGeneratedDebuffTestTarget()
+			applyGeneratedTestDebuffs(target, &proto.Debuffs{JudgementOfTheCrusader: row.state})
+
+			if got := target.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly]; got != row.want {
+				t.Errorf("the target takes %v more Holy damage, want %v", got, row.want)
+			}
+		})
+	}
+}
+
+// A paladin's own judgement without the libram bids in the same category as the improved raid copy,
+// so the target takes the stronger of the two once.
+func TestImprovedJudgementOfTheCrusaderOutbidsAPaladinsOwnWithoutTheLibram(t *testing.T) {
+	judgement := rowAmount(t, 20303, dbcenums.A_MOD_DAMAGE_TAKEN)
+	target := core.NewGeneratedDebuffTestTarget()
+	sim := applyGeneratedTestDebuffs(target, &proto.Debuffs{JudgementOfTheCrusader: proto.TristateEffect_TristateEffectImproved})
+
+	buffs.NewSpellDataJudgementOfTheCrusaderAuraRank(target, buffs.JudgementRank{SpellID: 20303, Rank: 6, Value: judgement}).Activate(sim)
+
+	if got, want := target.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly], judgement+libramOfFervorJudgementBonus(t); got != want {
+		t.Errorf("the target takes %v more Holy damage, want the improved copy's %v alone", got, want)
+	}
+}
+
+// The flat amount spell 28852 adds to every effect of Judgement of the Crusader.
+func libramOfFervorJudgementBonus(t *testing.T) float64 {
+	t.Helper()
+	row := spelldata.MustFind(28852)
+	for i := range row.Effects {
+		if e := &row.Effects[i]; e.Aura == dbcenums.A_ADD_FLAT_MODIFIER && e.Misc == int32(dbcenums.SPELLMOD_ALL_EFFECTS) {
+			if amount := e.BaseValue(); amount != 0 {
+				return amount
+			}
+		}
+	}
+	t.Fatalf("%s 28852 states no flat amount on every effect", row.Name)
+	return 0
+}
+
 // Every flat attack-power reduction bids in one category, so the target loses the strongest once.
 // Demoralizing Screech states its amount with a per-level gain past its BaseLevel, up to its
 // MaxLevel, and the stat it lands as is floored to a whole number.

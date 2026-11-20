@@ -68,7 +68,7 @@ message IndividualBuffs {
 // Next index: 24
 message Debuffs {
 	bool hunters_mark = 1;
-	bool judgement_of_the_crusader = 2;
+	TristateEffect judgement_of_the_crusader = 2;
 	bool judgement_of_light = 3;
 	bool judgement_of_wisdom = 4;
 	bool curse_of_elements = 5;
