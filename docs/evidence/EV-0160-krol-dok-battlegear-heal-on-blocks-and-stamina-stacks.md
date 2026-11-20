@@ -13,7 +13,7 @@
   bonus gained its cooldown on 2026-11-16 between 17:40 and 17:50 UTC, in the EU and US reports alike (the Cooldown
   hotfix section).
 - Date: 2026-11-09 to 2026-11-20
-- Pull request: not recorded yet
+- Pull request: #1133
 
 ## Method
 
