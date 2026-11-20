@@ -1568,10 +1568,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 876.29746
-  tps: 907.09952
-  dtps: 8.68935
-  hps: 20.5875
+  dps: 879.06775
+  tps: 909.47832
+  dtps: 8.19891
+  hps: 20.74
  }
 }
 dps_results: {
