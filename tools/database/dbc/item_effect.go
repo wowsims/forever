@@ -503,8 +503,7 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 }
 
 // An equip spell that only restates weapon skills or creature type stats the item's own stats already
-// state adds nothing in game. A tooltip shows one weapon skill bonus where the item's stats and its equip
-// spell both state it (EV-0104). Seal of the Dawn 13209 states +78 Attack Power against Undead as item stat 128
+// state adds nothing in game. Seal of the Dawn 13209 states +78 Attack Power against Undead as item stat 128
 // and again as equip spell 23930, melee and ranged attack power against Undead, and its tooltip shows one +78
 // (EV-0111). The stat gives the bonus and the spell leaves the item: no database entry, no registration and no
 // missing effect. A spell that does more stays, and so does one on an item whose stats state no such bonus,
@@ -525,7 +524,7 @@ func (d *DBC) dropRestatedItemStats() {
 // Weapon skill from gear adds per copy worn: two Bloody Claws of Attack give +2 Fist Weapons, to each hand
 // holding a fist weapon. The sim counts an item's weapon skills once per copy and an equip aura once per
 // item, so an equip spell that only raises weapon skills the item's stats do not state becomes the item's
-// own weapon skill at the spell's base points, and leaves the item.
+// own weapon skill at the spell's base points (EV-0104), and leaves the item.
 func (d *DBC) foldEquipWeaponSkills() {
 	for itemID, effects := range d.ItemEffectsByParentID {
 		item, ok := d.Items[itemID]
