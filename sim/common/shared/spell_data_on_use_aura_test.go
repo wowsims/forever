@@ -249,6 +249,35 @@ func TestWeaknessAnalyzerDropsOnTheFirstCrit(t *testing.T) {
 	}
 }
 
+// A crit that lands while a channel runs spends Weakness Analyzer's charge as it lands; the buff names
+// no spells, so the channel keeps nothing for its end (EV-0162).
+func TestWeaknessAnalyzerDropsOnACritInsideAChannel(t *testing.T) {
+	const itemID int32 = 992707
+	withAuraItem(itemID, proto.ItemType_ItemTypeTrinket, testOnUse(analyzingWeaknesses, 90000, 1141, 20000))
+	NewSpellDataAuraOnUse(itemID)
+
+	sim := newAuraSim(shaman("Shaman", map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: itemID}))
+	tester := auraTesterAt(sim, 0)
+	target := sim.Encounter.ActiveTargetUnits[0]
+	analyzer := tester.GetSpell(core.ActionID{ItemID: itemID})
+	crit := tester.GetStat(stats.PhysicalCritPercent)
+	bonus := spelldata.MustFind(analyzingWeaknesses).FirstAura(dbcenums.A_MOD_CRIT_PCT).Mean()
+
+	tester.channel.SkipCastAndApplyEffects(sim, target)
+	analyzer.Cast(sim, target)
+	if got := tester.GetStat(stats.PhysicalCritPercent); !core.WithinToleranceFloat64(crit+bonus, got, 1e-6) {
+		t.Fatalf("crit while the analyzer is up inside a channel %v, want %v", got, crit+bonus)
+	}
+	tester.OnSpellHitDealt(sim, tester.bolt, &core.SpellResult{Target: target, Outcome: core.OutcomeCrit, Damage: 150})
+	stepPast(t, sim, sim.CurrentTime+core.SpellBatchWindow+time.Millisecond)
+	if !tester.IsChanneling() {
+		t.Fatalf("the channel ended before the check")
+	}
+	if got := tester.GetStat(stats.PhysicalCritPercent); !core.WithinToleranceFloat64(crit, got, 1e-6) {
+		t.Errorf("crit after a crit inside a channel %v, want %v", got, crit)
+	}
+}
+
 // Adaptive Combat Assistant's shield deals its revenge spell's Nature to the enemy when a hit breaks it
 // before its duration ends, and nothing when it runs out unbroken.
 func TestAdaptiveCombatAssistantDealsDamageWhenItsShieldBreaks(t *testing.T) {

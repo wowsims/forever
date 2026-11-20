@@ -1345,8 +1345,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-WeaknessAnalyzer-272438"
  value: {
-  dps: 861.09047
-  tps: 738.20952
+  dps: 861.0642
+  tps: 738.34744
  }
 }
 dps_results: {

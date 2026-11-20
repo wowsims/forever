@@ -228,6 +228,9 @@ func dreadmistDarkReward(name string) core.ApplySetBonus {
 		heal := dreadmistHeal.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, dreadmistHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc())
+		if dreadmistHeal.IsAProc() {
+			config.Flags |= core.SpellFlagProc
+		}
 		// The row states no defense type, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -399,6 +402,9 @@ func warriorsResolve(name string) core.ApplySetBonus {
 		heal := warriorsResolveHeal.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, warriorsResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc())
+		if warriorsResolveHeal.IsAProc() {
+			config.Flags |= core.SpellFlagProc
+		}
 		// The row states no defense type, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
