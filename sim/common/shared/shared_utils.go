@@ -732,10 +732,9 @@ func withProcEnergize(character *core.Character, damage *spelldata.Spell, handle
 // rotation and not a cast of its own. Its hits reach the damage listeners as a proc's do, so a
 // listener with Can Proc From Procs hears them (Vengeance off a Lightning Strike crit).
 //
-// Used from an item instead, a row that states Always Hit rolls no miss, and crits the way damage to
-// its own caster does (casterDamageOutcome): Dragonfire Potion's 1252554 always lands. A proc's row
-// keeps its miss: the bit on a triggered row stops a second roll in the chain, and the sim folds the
-// chain into one spell that rolls once.
+// A row that states Always Hit rolls no miss, dodge or parry, and crits the way damage to its own
+// caster does (casterDamageOutcome), used from an item or cast by a proc: Dragonfire Potion's 1252554
+// and Warblade of Caer Darrow's 1298499 always land (EV-0164).
 func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell, asProc bool) core.SpellConfig {
 	config := spelldata.SpellConfig(&character.Unit, damage, damageShape(damage), castBy(asProc))
 
@@ -743,7 +742,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	config.DefenseType = defenseType
 	outcome := damageOutcome(defenseType, damage.CannotCrit(), OutcomeDefault)
 	application := damageOutcome(defenseType, true, OutcomeDefault)
-	alwaysHits := !asProc && damage.AlwaysHits()
+	alwaysHits := damage.AlwaysHits()
 	effect := damage.ProcDamageEffect()
 	// A proc's hit on the magic defense type is a spell hit, so a listener on spell damage that hears
 	// procs hears it: Revelation, Insight and Vengeance roll on Crest of Retribution, Flame Lash and
