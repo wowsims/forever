@@ -53,11 +53,3 @@ export const BattleShoutRank7 = <SpecType extends WarriorSpecs>() =>
 		labelTooltip: i18n.t('settings_tab.other.has_battle_shout_rank_7.tooltip'),
 		id: ActionId.fromItemId(21298),
 	});
-
-export const BattleShoutT2 = <SpecType extends WarriorSpecs>() =>
-	InputHelpers.makeClassOptionsBooleanIconInput<SpecType>({
-		fieldName: 'hasBsT2',
-		label: i18n.t('settings_tab.other.has_bs_tier_2.label'),
-		labelTooltip: i18n.t('settings_tab.other.has_bs_tier_2.tooltip'),
-		id: ActionId.fromSpellId(23563),
-	});

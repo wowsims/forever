@@ -881,10 +881,6 @@
 				"label": "Stance Snapshot",
 				"tooltip": "Ability that is cast at the same time as stance swap will benefit from the bonus of the stance before the swap."
 			},
-			"has_bs_tier_2": {
-				"label": "Battle Shout: Battlegear of Wrath",
-				"tooltip": "Three pieces of Battlegear of Wrath add 30 attack power to Battle Shout. Set this when the pieces arrive through an item swap rather than the worn set."
-			},
 			"has_battle_shout_rank_7": {
 				"label": "Battle Shout: Rank 7",
 				"tooltip": "Sets the character sheet's Battle Shout to Rank 7 (Manual of Battle Shout VII) instead of Rank 6. The rotation picks the rank that is cast: the simple rotation's Battle Shout VII toggle, or the rank chosen for the spell in the rotation editor."
