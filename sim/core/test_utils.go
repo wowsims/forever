@@ -45,7 +45,7 @@ func FreshDefaultTargetConfig() *proto.Target {
 			stats.Armor:       3731,
 			stats.AttackPower: 320,
 		}.ToProtoArray(),
-		MobType: proto.MobType_MobTypeMechanical,
+		MobType: proto.MobType_MobTypeUnknown,
 
 		SwingSpeed:    2,
 		MinBaseDamage: 2601,

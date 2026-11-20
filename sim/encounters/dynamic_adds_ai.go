@@ -31,7 +31,7 @@ func createDynamicAddsAIPreset() {
 			Id:        dynamicBossID,
 			Name:      bossName,
 			Level:     63,
-			MobType:   proto.MobType_MobTypeMechanical,
+			MobType:   proto.MobType_MobTypeUnknown,
 			TankIndex: 0,
 
 			Stats: stats.Stats{
@@ -59,7 +59,7 @@ func createDynamicAddsAIPreset() {
 			Id:        dynamicAddID,
 			Name:      addName,
 			Level:     63,
-			MobType:   proto.MobType_MobTypeMechanical,
+			MobType:   proto.MobType_MobTypeUnknown,
 			TankIndex: 1,
 
 			Stats: stats.Stats{
