@@ -35,7 +35,7 @@ with-allies chance, or a mix of both.
 | ------------------------------------ | -----------: | --------------------- | -----------: |
 | All hits, aNh3Dt8kbZHL9cBM           |     40 / 557 | 7.18% [5.13, 9.78]    |         1.16 |
 | Lone white swings, aNh3Dt8kbZHL9cBM  |     14 / 141 | 9.93% [5.43, 16.66]   |         1.61 |
-| All hits, xcGfXYvTD6bpg3qt (no gear) |      5 / 88  | 5.68% [1.84, 13.26]   |            - |
+| All hits, xcGfXYvTD6bpg3qt (no gear) |       5 / 88 | 5.68% [1.84, 13.26]   |            - |
 
 5 PPM on a 3.7 s weapon would be 30.8% per hit, far outside every interval. A flat 5% sits just below the all-hits
 interval and a flat 10% just above it; a 5% chance doubled on some of the hits would read in between. Three pairs of procs log at the same millisecond on two Windfury strikes; they count as two procs.

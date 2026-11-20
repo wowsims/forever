@@ -26,18 +26,18 @@ target up to 200 ms after it.
 
 ## Rate
 
-| Spell              | Landings | Procs | Chance |
-| ------------------ | -------: | ----: | -----: |
-| Mind Flay          |    1,999 |   272 | 13.61% |
-| Shadow Word: Pain  |    1,858 |   222 | 11.95% |
-| Mind Blast         |      831 |   155 | 18.65% |
-| Devouring Plague   | 428 casts |   60 | 14.02% |
-| Shadow Word: Death |      317 |    52 | 16.40% |
-| Incinerate         |      136 |    18 | 13.24% |
-| Immolate           |       77 |    10 | 12.99% |
-| Conflagrate        |       75 |    10 | 13.33% |
-| Shadowburn         |       72 |     8 | 11.11% |
-| All of these       |    5,793 |   807 | 13.93% [12.97, 14.89] |
+| Spell              |  Landings | Procs |                Chance |
+| ------------------ | --------: | ----: | --------------------: |
+| Mind Flay          |     1,999 |   272 |                13.61% |
+| Shadow Word: Pain  |     1,858 |   222 |                11.95% |
+| Mind Blast         |       831 |   155 |                18.65% |
+| Devouring Plague   | 428 casts |    60 |                14.02% |
+| Shadow Word: Death |       317 |    52 |                16.40% |
+| Incinerate         |       136 |    18 |                13.24% |
+| Immolate           |        77 |    10 |                12.99% |
+| Conflagrate        |        75 |    10 |                13.33% |
+| Shadowburn         |        72 |     8 |                11.11% |
+| All of these       |     5,793 |   807 | 13.93% [12.97, 14.89] |
 
 The interval is Poisson on the count, since four wearers carry it. Per wearer: 14.2%, 13.0% and 13.7% (priests) and
 12.8% (the warlock); the fifth priest has 7 landings and no proc. Mind Blast (155 of 831) and Shadow Word: Pain (222 of

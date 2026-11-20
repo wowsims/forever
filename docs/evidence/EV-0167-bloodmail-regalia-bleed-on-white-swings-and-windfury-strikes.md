@@ -27,14 +27,14 @@ instance.
 - What rolls (row mask 4, melee swings): groups of the wearer's melee hits with nothing else within 120 ms show it.
   The last column predicts each group from the lone white chance, with every white swing and Windfury strike rolling once.
 
-| Group of hits                          | Groups | With a proc | Share  | Predicted at 10.9% a roll |
-| -------------------------------------- | -----: | ----------: | ------ | ------------------------- |
-| White swing alone                      |  3,676 |         401 | 10.91% | 10.9%                     |
-| White + 2 Windfury Weapon strikes      |    713 |         209 | 29.31% | 29.3%                     |
-| White + 1 Windfury Totem strike        |    551 |         113 | 20.51% | 20.6%                     |
-| White + Windfury Totem + 2 Weapon      |    258 |          94 | 36.43% | 37.0%                     |
-| Stormstrike (with its debuff) alone    |  1,186 |           0 | 0%     | 0%                        |
-| Stormstrike + 2 Windfury strikes       |    210 |          40 | 19.05% | 20.6%                     |
+| Group of hits                       | Groups | With a proc | Share  | Predicted at 10.9% a roll |
+| ----------------------------------- | -----: | ----------: | ------ | ------------------------- |
+| White swing alone                   |  3,676 |         401 | 10.91% | 10.9%                     |
+| White + 2 Windfury Weapon strikes   |    713 |         209 | 29.31% | 29.3%                     |
+| White + 1 Windfury Totem strike     |    551 |         113 | 20.51% | 20.6%                     |
+| White + Windfury Totem + 2 Weapon   |    258 |          94 | 36.43% | 37.0%                     |
+| Stormstrike (with its debuff) alone |  1,186 |           0 | 0%     | 0%                        |
+| Stormstrike + 2 Windfury strikes    |    210 |          40 | 19.05% | 20.6%                     |
 
 - All hits: landed white swings, Windfury Weapon strikes and Windfury Totem strikes.
 - Lone white swings: landed white swings with no other melee event of the wearer within 200 ms. With every event of

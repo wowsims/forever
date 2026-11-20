@@ -16,8 +16,7 @@
 
 44 rogues (all dual wielding), 7 druids (3 with Cat Form stretches) and 4 hunters (6 runs), with all 5 pieces worn per fight's
 CombatantInfo. Only events the wearer is the source of count (pets left out). A run logged in several reports counts
-once: two runs of one player whose damage events share over 30% of their seconds are one run. A proc is an applybuff or refreshbuff of
-1324683. The buff holds one stack and logs a refresh when it procs again while up (5,460 refreshes against 5,104
+once: two runs of one player whose damage events share over 30% of their seconds are one run. A proc is an applybuff or refreshbuff of 1324683. The buff holds one stack and logs a refresh when it procs again while up (5,460 refreshes against 5,104
 applies). It logs 0 to 70 ms after the hit that rolled it, mostly at 17, 33 or 50 ms, so a hit gets credit for a proc 20
 ms before to 120 ms after it. Druid swings are priced on the paw: Cat Form 1.0 s, Bear Form 2.5 s.
 
@@ -36,17 +35,17 @@ ms before to 120 ms after it. Druid swings are priced on the paw: Cat Form 1.0 s
 
 ## Rate
 
-| Count                                   |      Procs / rolls | PPM [95%, bootstrap over wearers] | Chance per roll | Wearers |
-| --------------------------------------- | -----------------: | --------------------------------- | --------------- | ------: |
-| All hits (rogues, Cat Form druids)      |   8,979 / 212,580  | 1.128 [1.110, 1.161]              | 4.22%           |      47 |
-| Lone specials, all classes              |     730 / 16,601   | 1.027 [0.950, 1.072]              | 4.40%           |      51 |
-| Lone specials, rogues                   |     685 / 15,115   | 1.037 [0.965, 1.085]              | 4.53%           |      44 |
-| Lone white, rogue off hand              |     380 / 11,758   | 1.054 [0.968, 1.254]              | 3.23%           |      36 |
-| Lone white, rogue main hand             |     205 / 5,151    | 0.930 [0.751, 1.032]              | 3.98%           |      36 |
-| Lone white, Cat Form (1.0 s)            |      57 / 3,052    | 1.121 [0.538, 1.825]              | 1.87%           |       3 |
-| Lone white, Bear Form (2.5 s)           |      48 / 1,112    | 1.04                              | 4.32%           |       7 |
-| Every lone unit pooled                  |   1,490 / 40,827   | 1.000 [0.926, 1.064]              | 3.65%           |      51 |
-| Hunters, lone white and specials        |     154 / 5,167    | 0.63 to 1.10 by kind              | 3.0%            |       4 |
+| Count                              |   Procs / rolls | PPM [95%, bootstrap over wearers] | Chance per roll | Wearers |
+| ---------------------------------- | --------------: | --------------------------------- | --------------- | ------: |
+| All hits (rogues, Cat Form druids) | 8,979 / 212,580 | 1.128 [1.110, 1.161]              | 4.22%           |      47 |
+| Lone specials, all classes         |    730 / 16,601 | 1.027 [0.950, 1.072]              | 4.40%           |      51 |
+| Lone specials, rogues              |    685 / 15,115 | 1.037 [0.965, 1.085]              | 4.53%           |      44 |
+| Lone white, rogue off hand         |    380 / 11,758 | 1.054 [0.968, 1.254]              | 3.23%           |      36 |
+| Lone white, rogue main hand        |     205 / 5,151 | 0.930 [0.751, 1.032]              | 3.98%           |      36 |
+| Lone white, Cat Form (1.0 s)       |      57 / 3,052 | 1.121 [0.538, 1.825]              | 1.87%           |       3 |
+| Lone white, Bear Form (2.5 s)      |      48 / 1,112 | 1.04                              | 4.32%           |       7 |
+| Every lone unit pooled             |  1,490 / 40,827 | 1.000 [0.926, 1.064]              | 3.65%           |      51 |
+| Hunters, lone white and specials   |     154 / 5,167 | 0.63 to 1.10 by kind              | 3.0%            |       4 |
 
 The PPM model fits the lone units better than a flat chance: the log-likelihood is 55.3 higher (bootstrap 95% from 14.3
 to 101.2). The chance per swing follows the speed: Cat Form's 1.0 s paw reads 1.87% and Bear Form's 2.5 s paw 4.32%;
