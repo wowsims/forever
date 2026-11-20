@@ -2315,10 +2315,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-WarbladeofCaerDarrow-13982"
  value: {
-  dps: 873.60833
-  tps: 715.15181
-  dtps: 6.77554
-  hps: 25.98498
+  dps: 873.39194
+  tps: 715.16831
+  dtps: 7.07413
+  hps: 25.65219
  }
 }
 dps_results: {
