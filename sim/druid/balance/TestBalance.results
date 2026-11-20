@@ -447,9 +447,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-DreadmistRaiment"
  value: {
-  dps: 792.23274
-  tps: 805.09148
-  dtps: 5.4151
+  dps: 792.817
+  tps: 805.52449
+  dtps: 5.29903
   hps: 8.86701
  }
 }
