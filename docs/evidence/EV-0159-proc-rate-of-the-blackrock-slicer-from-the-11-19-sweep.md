@@ -13,12 +13,8 @@ This replaces The Blackrock Slicer rate EV-0136 gives.
 
 ## Method
 
-The count is EV-0153's Method, run again by the automated sweep of 2026-11-19 over every wearer stream on disk, with the
-same rolling hits, classes and forms left out, intervals, lone-unit checks, swap drop, credit windows and calls of
-measured or observed.
-
-Scripts and inputs, in `forever-sweep-auto`: `analyze.py` (version 12, as EV-0153's, with a paladin check that sets no
-rate) for the rate, and the run `runs/2026-11-19-2309`, whose `results.json` holds the weapon's counts.
+The count is EV-0157's: EV-0153's Method, run by the same sweep, `runs/2026-11-19-2309` in `forever-sweep-auto`, whose
+`results.json` holds the weapon's counts.
 
 ## Rate
 
@@ -31,16 +27,15 @@ Was is the row's rate before this count.
 
 ## The Blackrock Slicer (item 13285, spell 17407): 1.9, measured
 
-2,154 procs on 17,055 rolling hits, 14 wearers, 20 runs, in the main hand: all hits 1.89 [1.81, 1.98], a chance of 12.6%
-a hit on the 4.0 s weapon. The rate is all hits, which the one-hand white rate and the specials rate agree with.
-One-hand white: 1.92 [1.80, 2.02], 395 procs on 3,082 lone units, 14 wearers. Specials: 1.97 [1.88, 2.13], 107 procs on
-815 lone units, 7 wearers; Raptor Strike gives 77 procs on 608 of them, 1.90. Two-roll abilities, priced as one roll:
-3.37, 38 procs on 169 lone units (Execute and Mongoose Bite, left out of the rate). Direct: window [-11, 100] ms, median
-0 ms, 98th percentile 0 ms, 458 isolated hits. Dropping the swapped stretches (55 active minutes, 9% of hits, in 2 runs)
-moved the read from 1.72 to 1.89. Paladins are left out. Their lone white swings read 2.59, 38 procs on 220 lone units
-from 2 wearers, a check under 50 procs that sets no rate. Reports QqKMnRmb7DrFXC36 and bGq3mN7JgCDzcyMZ hold the same
-fights of one hunter, which the count takes twice (36 procs on 230 hits in each); taken once, all hits still read 1.89.
-Reports from 2026-11-13 to 2026-11-19.
+2,154 procs on 17,055 rolling hits, 14 wearers, 20 runs, in the main hand: all hits 1.89 [1.81, 1.98]. The rate is all
+hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.92 [1.80, 2.02], 395 procs on
+3,082 lone units, 14 wearers. Specials: 1.97 [1.88, 2.13], 107 procs on 815 lone units, 7 wearers; Raptor Strike gives
+77 procs on 608 of them, 1.90. Two-roll abilities, priced as one roll: 3.37, 38 procs on 169 lone units (Execute and
+Mongoose Bite, left out of the rate). Direct: window [-11, 100] ms, median 0 ms, 98th percentile 0 ms, 458 isolated
+hits. Dropping the swapped stretches (55 active minutes, 9% of hits, in 2 runs) moved the read from 1.72 to 1.89. The
+paladin check, which sets no rate: lone white swings 2.59, 38 procs on 220 lone units, 2 wearers. Reports
+QqKMnRmb7DrFXC36 and bGq3mN7JgCDzcyMZ log the same fights of one hunter, which the count takes twice (36 procs on 230
+hits in each); taken once, all hits still read 1.89.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
