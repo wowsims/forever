@@ -89,7 +89,7 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	OffensivePotId: 250943, // Major Frenzy Potion
 	FoodId:         20452,  // Smoked Desert Dumplings
 	ExplosiveId:    260814, // SAF-T Clever Dynamite
-	MhImbueId:      12404,  // Dense Sharpening Stone
+	MhImbueId:      12643,  // Dense Weightstone
 	ConjuredId:     9421,   // Major Healthstone
 	// Elixir of Ferocity, Elixir of the Mongoose, Winterfall Firewater, Elixir of Greater Defense, Elixir of the Phalanx
 	ElixirIds: []int32{250350, 13452, 12820, 13445, 250329},
