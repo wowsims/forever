@@ -1029,37 +1029,37 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperEclipse"
  value: {
-  dps: 498.53072
-  tps: 2505.1761
-  dtps: 430.05067
-  hps: 82.11869
+  dps: 500.71341
+  tps: 2507.17007
+  dtps: 428.99891
+  hps: 85.20963
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperFerocity"
  value: {
-  dps: 495.04314
-  tps: 2481.44174
-  dtps: 430.03647
-  hps: 82.27873
+  dps: 551.86772
+  tps: 2739.49362
+  dtps: 411.61334
+  hps: 86.36643
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperRage"
  value: {
-  dps: 497.6162
-  tps: 2501.18748
-  dtps: 420.60727
-  hps: 82.01623
+  dps: 554.80853
+  tps: 2752.60419
+  dtps: 392.46933
+  hps: 86.33726
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperRaiment"
  value: {
-  dps: 491.15534
-  tps: 2472.70443
-  dtps: 420.93392
-  hps: 81.60517
+  dps: 496.13025
+  tps: 2490.56234
+  dtps: 420.4394
+  hps: 85.59909
  }
 }
 dps_results: {

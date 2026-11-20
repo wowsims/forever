@@ -353,9 +353,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DemonheartRaiment"
  value: {
-  dps: 842.53893
-  tps: 660.10433
-  dtps: 8.67834
+  dps: 931.89794
+  tps: 727.81458
+  dtps: 8.6998
  }
 }
 dps_results: {

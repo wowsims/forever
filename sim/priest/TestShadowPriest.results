@@ -1153,9 +1153,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-RaimentsofConviction"
  value: {
-  dps: 690.86918
-  tps: 494.59958
-  dtps: 5.4035
+  dps: 747.17267
+  tps: 534.3731
+  dtps: 5.2355
  }
 }
 dps_results: {
@@ -1473,9 +1473,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-VestmentsofConviction"
  value: {
-  dps: 691.50409
-  tps: 495.11937
-  dtps: 5.91121
+  dps: 716.20474
+  tps: 512.54372
+  dtps: 5.3569
  }
 }
 dps_results: {

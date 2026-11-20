@@ -353,9 +353,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-DemonheartRaiment"
  value: {
-  dps: 812.04498
-  tps: 642.73393
-  dtps: 10.08754
+  dps: 905.91635
+  tps: 712.24788
+  dtps: 10.15268
  }
 }
 dps_results: {

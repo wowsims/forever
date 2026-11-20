@@ -904,8 +904,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-ManaflareRegalia"
  value: {
-  dps: 720.95011
-  tps: 666.56795
+  dps: 790.98199
+  tps: 729.35901
  }
 }
 dps_results: {

@@ -904,8 +904,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-ManaflareRegalia"
  value: {
-  dps: 753.08085
-  tps: 645.83024
+  dps: 834.59127
+  tps: 711.48777
  }
 }
 dps_results: {

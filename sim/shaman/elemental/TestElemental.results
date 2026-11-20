@@ -2049,17 +2049,17 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-TheSpiritcaller"
  value: {
-  dps: 761.90003
-  tps: 702.6117
-  dtps: 7.76129
+  dps: 800.50769
+  tps: 738.73342
+  dtps: 5.44771
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-TheSpiritcaller'sRage"
  value: {
-  dps: 760.60867
-  tps: 703.82903
-  dtps: 7.95219
+  dps: 777.70726
+  tps: 719.58699
+  dtps: 7.94945
  }
 }
 dps_results: {
