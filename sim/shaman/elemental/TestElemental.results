@@ -302,14 +302,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 821.90192
-  tps: 755.99585
-  dtps: 6.33881
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-BlueDragonMail"
  value: {
   dps: 820.89045

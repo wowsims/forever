@@ -1,10 +1,12 @@
 package dbc
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
+	googleProto "google.golang.org/protobuf/proto"
 )
 
 func TestAddAreaStatsKeepsOneEntryPerArea(t *testing.T) {
@@ -36,8 +38,8 @@ func TestAddAreaStatsKeepsOneEntryPerArea(t *testing.T) {
 }
 
 // An equip spell raising only a weapon skill or a stat against a creature type the item's own stats state
-// leaves the item; the same spell on an item whose stats state no such bonus, or a spell doing more, stays.
-// One that states the bonus at another value than the stats stops the build.
+// leaves the item; this step keeps the same spell on an item whose stats state no such bonus, and a spell
+// doing more. One that states the bonus at another value than the stats stops the build.
 func TestEquipSpellRestatingAnItemStatLeavesTheItem(t *testing.T) {
 	const fistLine, undeadMask, demonAndUndeadMask = 162, 32, 36
 	const fistSpell, fistAndArmorSpell, undeadAttackPowerSpell, undeadSpellDamageSpell, demonAndUndeadSpell = 1, 2, 3, 4, 5
@@ -113,4 +115,65 @@ func TestEquipSpellRestatingAnItemStatLeavesTheItem(t *testing.T) {
 			t.Errorf("%s: the equip spell stays, want it dropped", tc.name)
 		}
 	}
+}
+
+// An equip spell raising only weapon skills the item's stats do not state leaves the item and becomes its
+// weapon skill at the spell's base points. A spell doing more, one on a line that is no weapon skill, one the
+// stats already state and one that is not an equip spell stay, and the item gains no skill.
+func TestEquipSpellRaisingOnlyWeaponSkillsFoldsIntoTheItem(t *testing.T) {
+	const fistLine, daggerLine, defenseLine, feralLine = 162, 173, 95, 3014
+	const fistSpell, fistAndDaggerSpell, fistAndArmorSpell, defenseSpell, feralSpell = 1, 2, 3, 4, 5
+	const points = 3
+	skill := func(line int) SpellEffect {
+		return SpellEffect{EffectAura: dbcenums.A_MOD_SKILL, EffectMiscValues: []int{line, 0}, EffectBasePoints: points}
+	}
+	fist := &proto.WeaponSkillValue{Skill: proto.WeaponSkill_WeaponSkillFistWeapons, Value: points}
+	dagger := &proto.WeaponSkillValue{Skill: proto.WeaponSkill_WeaponSkillDaggers, Value: points}
+	d := NewDBC()
+	d.SpellEffects[fistSpell] = map[int]SpellEffect{0: skill(fistLine)}
+	d.SpellEffects[fistAndDaggerSpell] = map[int]SpellEffect{1: skill(daggerLine), 0: skill(fistLine)}
+	d.SpellEffects[fistAndArmorSpell] = map[int]SpellEffect{0: skill(fistLine), 1: {EffectAura: dbcenums.A_MOD_RESISTANCE}}
+	d.SpellEffects[defenseSpell] = map[int]SpellEffect{0: skill(defenseLine)}
+	d.SpellEffects[feralSpell] = map[int]SpellEffect{0: skill(feralLine)}
+
+	for _, tc := range []struct {
+		name    string
+		stats   []int
+		spell   int
+		trigger int
+		want    []*proto.WeaponSkillValue
+	}{
+		{"two weapon skills", nil, fistAndDaggerSpell, ITEM_SPELLTRIGGER_ON_EQUIP, []*proto.WeaponSkillValue{fist, dagger}},
+		{"a weapon skill the stats do not state, beside another they state", []int{ITEM_MOD_DAGGERS_SKILL}, fistSpell, ITEM_SPELLTRIGGER_ON_EQUIP, []*proto.WeaponSkillValue{fist}},
+		{"a weapon skill the stats state", []int{ITEM_MOD_FIST_WEAPONS_SKILL}, fistSpell, ITEM_SPELLTRIGGER_ON_EQUIP, nil},
+		{"a spell that does more than raise the skill", nil, fistAndArmorSpell, ITEM_SPELLTRIGGER_ON_EQUIP, nil},
+		{"the Defense line", nil, defenseSpell, ITEM_SPELLTRIGGER_ON_EQUIP, nil},
+		{"the Feral Combat line", nil, feralSpell, ITEM_SPELLTRIGGER_ON_EQUIP, nil},
+		{"an on-use spell", nil, fistSpell, ITEM_SPELLTRIGGER_ON_USE, nil},
+	} {
+		const itemID = 10
+		d.Items[itemID] = Item{Id: itemID, BonusStat: tc.stats}
+		d.ItemEffectsByParentID[itemID] = []ItemEffect{{SpellID: tc.spell, TriggerType: tc.trigger, ParentItemID: itemID}}
+		d.foldEquipWeaponSkills()
+		if stays := len(d.ItemEffectsByParentID[itemID]) == 1; stays != (tc.want == nil) {
+			t.Errorf("%s: the equip spell stays %v, want %v", tc.name, stays, tc.want == nil)
+		}
+		if got := d.Items[itemID].EquipWeaponSkills; !slices.EqualFunc(got, tc.want, protoEqual) {
+			t.Errorf("%s: the item's folded weapon skills are %v, want %v", tc.name, got, tc.want)
+		}
+	}
+
+	// The folded skill reaches the weapon skills the item's database entry carries.
+	const foldedID = 11
+	d.Items[foldedID] = Item{Id: foldedID}
+	d.ItemEffectsByParentID[foldedID] = []ItemEffect{{SpellID: fistSpell, TriggerType: ITEM_SPELLTRIGGER_ON_EQUIP, ParentItemID: foldedID}}
+	d.foldEquipWeaponSkills()
+	item := d.Items[foldedID]
+	if got := item.GetWeaponSkills(item.ItemLevel); !slices.EqualFunc(got, []*proto.WeaponSkillValue{fist}, protoEqual) {
+		t.Errorf("the database entry's weapon skills are %v, want %v", got, fist)
+	}
+}
+
+func protoEqual(a, b *proto.WeaponSkillValue) bool {
+	return googleProto.Equal(a, b)
 }
