@@ -20,8 +20,8 @@ A strike whose row states a cooldown of its own is not cast again while it runs.
 lands inside the cooldown casts none either, Windfury Totem's strike off the same swing included: Toofbreak 1320269
 states 100 ms.
 
-Magic weapon procs stay `ProcMaskEmpty`, equip and aura procs keep the `SpellFlagProc` gate, and Windfury never hears
-a strike.
+A magic weapon proc's spell is a spell hit (R-0051), equip and aura procs keep the `SpellFlagProc` gate, and Windfury
+never hears a strike.
 
 The measurement covers the weapon's own proc in the main hand and in the off hand, and Fiery Weapon in the main hand.
 The same flag decides for the other combat enchants and for oils, which no log has counted. A ranged strike rolls

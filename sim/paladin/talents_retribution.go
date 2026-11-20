@@ -278,8 +278,8 @@ func (paladin *Paladin) applyVengeance() {
 		vengeance.AddStack(sim)
 	})
 	trigger.Name = "Vengeance - Trigger" + paladin.Label
-	// The row's harmful-spell bit hears every spell, item spells too, which the sim registers under
-	// ProcMaskEmpty, so the listener hears any hit.
+	// The row's harmful-spell bit hears every spell, item spells too, and the sim registers an on-use
+	// item's or an explosive's spell under ProcMaskEmpty, so the listener hears any hit.
 	trigger.ProcMask = core.ProcMaskUnknown
 	paladin.MakeProcTriggerAura(trigger)
 }

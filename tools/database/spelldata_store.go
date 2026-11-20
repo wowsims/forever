@@ -35,6 +35,7 @@ type storeSpell struct {
 	Attr        [17]uint32
 
 	SpellLevel, BaseLevel, MaxLevel int16
+	NoSpellLevels                   bool
 
 	CastTimeMs, DurationMs int32
 	MinRange, MaxRange     float64
@@ -315,6 +316,7 @@ func (t *spellTables) row(id int32) storeSpell {
 		s.SpellLevel, s.BaseLevel, s.MaxLevel = l.SpellLevel, l.BaseLevel, l.MaxLevel
 	} else {
 		s.SpellLevel, s.BaseLevel = RankLevel, RankLevel
+		s.NoSpellLevels = true
 	}
 
 	c := t.Cooldowns[id]
