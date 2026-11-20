@@ -862,8 +862,8 @@ func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
 	rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
 
 	buff := rogue.GetAuraByID(core.ActionID{SpellID: revealedFlaw.ID})
-	if buff == nil || revealedFlaw.Cooldown() <= 0 || bonescytheFlaw.EffectN(1).PointsPerResource <= 0 {
-		t.Fatal("eight pieces register no 28815, or 28815 rests no cooldown, or 28814 states no chance per combo point")
+	if buff == nil || bonescytheFlaw.EffectN(1).PointsPerResource <= 0 {
+		t.Fatal("eight pieces register no 28815, or 28814 states no chance per combo point")
 	}
 	eviscerate := rogue.GetSpell(core.ActionID{SpellID: eviscerateBookRank.ID})
 	eviscerateWith := func(points int32) {
@@ -917,12 +917,6 @@ func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
 		t.Fatal("a Sinister Strike under Revealed Flaw did not crit and spend the charge")
 	}
 
-	for range 200 {
-		eviscerateWith(5)
-	}
-	if buff.IsActive() {
-		t.Errorf("an Eviscerate inside 28815's %v cooldown granted Revealed Flaw again", revealedFlaw.Cooldown())
-	}
-	stepPastBatch(sim, revealedFlaw.Cooldown())
+	// 28815's cooldown does not hold the next grant back.
 	grant()
 }

@@ -24,7 +24,7 @@ var ItemSetBonescytheArmor = core.NewItemSet(core.ItemSet{
 		// TODO: Ingame test needed -- whether only Backstab, Sinister Strike and Hemorrhage crits restore energy.
 		4: applyBonescytheHeadRush,
 		6: shared.ParsedSetBonus(bonescytheThreat),
-		// TODO: Ingame test needed -- the 5% per combo point and the 3 min cooldown.
+		// TODO: Ingame test needed -- the 5% per combo point.
 		8: applyBonescytheRevealedFlaw,
 	},
 })
@@ -47,10 +47,10 @@ func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 // "Your Eviscerate has a chance per combo point to reveal a flaw in your opponent's armor, granting a 100%
 // critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage."
 //
-// A landed Eviscerate rolls 28814's chance per combo point it spent and grants 28815's one charge, at most
-// once per 28815's cooldown (vanilla-carryover). The buff's class flags name Shank, Mutilate and the Season
-// of Discovery strikes too; the crit and the charge are the tooltip's three here. A crit of one of them
-// spends the charge, as the row's proc states.
+// A landed Eviscerate rolls 28814's chance per combo point it spent (vanilla-carryover) and grants
+// 28815's one charge; 28815's cooldown does not limit the roll. The buff's class flags name Shank,
+// Mutilate and the Season of Discovery strikes too; the crit and the charge are the tooltip's three
+// here. A crit of one of them spends the charge, as the row's proc states.
 func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
 	rogue := agent.(RogueAgent).GetRogue()
 	strikes := RogueSpellBackstab | RogueSpellSinisterStrike | RogueSpellHemorrhage
@@ -87,7 +87,6 @@ func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
 		Callback:   core.CallbackOnSpellHitDealt,
 		ClassFlags: eviscerate,
 		Outcome:    core.OutcomeLanded,
-		ICD:        revealedFlaw.Cooldown(),
 		ExtraCondition: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
 			return sim.Proc(chancePerPoint*float64(comboPoints), "Revealed Flaw")
 		},
