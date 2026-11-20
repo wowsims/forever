@@ -11,8 +11,9 @@ import (
 // Threat per point of health a heal restores, before the spell's and the unit's threat multipliers.
 const ThreatPerHealingDone = 0.5
 
-// Regen ticks every 2.02 s, the game's measured timer, counted from the pull and never in the
-// prepull. HP5 is a rate of HP5 / 5 health a second, so each tick credits the 2.02 s since the last.
+// Regen ticks every 2.02 s, the game's timer, counted from the pull and never in the prepull. HP5 is
+// a rate of HP5 / 5 health a second, so each tick credits the 2.02 s since the last; in combat no base
+// health regenerates (EV-0158).
 const healthRegenTickDuration = time.Millisecond * 2020
 
 type healthBar struct {
@@ -40,7 +41,8 @@ func (hb *healthBar) RunTask(sim *Simulation) time.Duration {
 	if hb.canRegenerate() {
 		hb.GainHealth(sim, hb.unit.GetStat(stats.HP5)*healthRegenTickDuration.Seconds()/5, hb.healthRegenMetrics)
 	}
-	// A tick is an advance point for aura expiry, so one that has nothing to heal sleeps.
+	// A tick is an advance point for aura expiry, so one that has nothing to heal sleeps. The game's
+	// timer runs on through full health, so a wake keeps the grid (EV-0158).
 	if hb.canRegenerate() {
 		hb.nextHealthTick += healthRegenTickDuration
 	} else {
