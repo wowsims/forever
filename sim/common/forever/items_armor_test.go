@@ -65,6 +65,18 @@ func itemWearerFacing(t *testing.T, class proto.Class, equipment *proto.Equipmen
 
 func itemWearerAgainst(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec, targets ...*proto.Target) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return itemWearerInEncounter(t, class, equipment, &proto.Encounter{Targets: targets, Duration: 180})
+}
+
+// The same against a level 60 target, in an encounter in the areas.
+func itemWearerIn(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec, areas ...proto.AreaType) (*core.Simulation, *core.Character) {
+	t.Helper()
+	return itemWearerInEncounter(t, class, equipment,
+		&proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180, AreaTypes: areas})
+}
+
+func itemWearerInEncounter(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec, encounter *proto.Encounter) (*core.Simulation, *core.Character) {
+	t.Helper()
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceHuman,
 		Equipment:   equipment,
@@ -87,7 +99,7 @@ func itemWearerAgainst(t *testing.T, class proto.Class, equipment *proto.Equipme
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
-		Encounter:  &proto.Encounter{Targets: targets, Duration: 180},
+		Encounter:  encounter,
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
