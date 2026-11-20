@@ -476,11 +476,13 @@ var Debuffs = []BuffSpec{
 		},
 	},
 	// The Holy damage taken is applied by NewSpellDataJudgementOfTheCrusaderAuraRank in debuffs.go,
-	// which the paladin's own ranks share.
+	// which the paladin's own ranks share. The improved state is a paladin wearing Libram of Fervor
+	// (23203), whose equip spell 28852 adds a flat 33 to every effect of the judgement.
 	{
 		Field:     "judgement_of_the_crusader",
 		SpellID:   20303,
 		TooltipID: 20308,
+		ImpAction: &ActionRef{ItemID: 23203, SpellID: 28852},
 		Category:  "Judgement of the Crusader",
 		Stats: []proto.Stat{
 			proto.Stat_StatHolyDamage,
