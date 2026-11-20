@@ -383,24 +383,23 @@ func TestDeathboneGuardianSurgesWhenStruck(t *testing.T) {
 	}
 }
 
-var kroldokFourPieces = map[proto.ItemSlot]int32{
-	proto.ItemSlot_ItemSlotHead: 275006, proto.ItemSlot_ItemSlotShoulder: 287014, proto.ItemSlot_ItemSlotChest: 275005,
-	proto.ItemSlot_ItemSlotHands: 287012,
+// The pieces in the order the tests put them on.
+var kroldokPieceList = []struct {
+	slot proto.ItemSlot
+	id   int32
+}{
+	{proto.ItemSlot_ItemSlotHead, 275006}, {proto.ItemSlot_ItemSlotShoulder, 287014},
+	{proto.ItemSlot_ItemSlotChest, 275005}, {proto.ItemSlot_ItemSlotHands, 287012},
+	{proto.ItemSlot_ItemSlotLegs, 287013},
 }
 
+// The first n Krol'dok Battlegear pieces.
 func kroldokPieces(n int) map[proto.ItemSlot]int32 {
-	pieces := maps.Clone(kroldokFourPieces)
-	if n == 5 {
-		pieces[proto.ItemSlot_ItemSlotLegs] = 287013
+	pieces := map[proto.ItemSlot]int32{}
+	for _, p := range kroldokPieceList[:n] {
+		pieces[p.slot] = p.id
 	}
 	return pieces
-}
-
-// A melee or ranged hit taken that the wearer blocks, for damage, and the spell batch window after.
-func takeBlockedHit(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell, damage float64) {
-	t.Helper()
-	character.OnSpellHitTaken(sim, spell, &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeHit | core.OutcomeBlock, Damage: damage})
-	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 }
 
 // Krol'dok Battlegear's 4-piece 1324298 casts 1324296's heal on the wearer on a blocked melee or ranged
@@ -439,25 +438,23 @@ func TestKroldokBattlegearHealsOnBlocks(t *testing.T) {
 				t.Fatalf("a hit and a dodge not blocked healed %d times, want none", metrics.Casts)
 			}
 
-			takeBlockedHit(t, sim, warrior, meleeSwing(enemy), 0)
+			takeOutcome(t, sim, warrior, meleeSwing(enemy), core.OutcomeHit|core.OutcomeBlock, 0)
 			if metrics.Casts != 1 || metrics.TotalHealing < tc.min || metrics.TotalHealing > tc.max {
 				t.Errorf("a block that left no damage healed %d times for %v, want once for %v to %v", metrics.Casts, metrics.TotalHealing, tc.min, tc.max)
 			}
-			takeBlockedHit(t, sim, warrior, meleeSwing(enemy), 50)
+			takeOutcome(t, sim, warrior, meleeSwing(enemy), core.OutcomeHit|core.OutcomeBlock, 50)
 			if metrics.Casts != 1 {
 				t.Errorf("a second block inside the cooldown healed %d times in all, want 1", metrics.Casts)
 			}
 			stepTo(t, sim, sim.CurrentTime+proc.ICD())
-			takeBlockedHit(t, sim, warrior, rangedShot(enemy), 50)
+			takeOutcome(t, sim, warrior, rangedShot(enemy), core.OutcomeHit|core.OutcomeBlock, 50)
 			if metrics.Casts != 2 {
 				t.Errorf("a blocked ranged hit after the cooldown healed %d times in all, want 2", metrics.Casts)
 			}
 		})
 	}
 
-	_, three := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
-		proto.ItemSlot_ItemSlotHead: 275006, proto.ItemSlot_ItemSlotShoulder: 287014, proto.ItemSlot_ItemSlotChest: 275005,
-	}))
+	_, three := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(kroldokPieces(3)))
 	if three.GetSpell(core.ActionID{SpellID: healRow.ID}) != nil {
 		t.Error("three pieces register the 1324296 heal, want four needed")
 	}
@@ -492,8 +489,7 @@ func TestKroldokBattlegearStacksStaminaOnHitsTaken(t *testing.T) {
 		t.Fatal("a dodge and a spell hit taken put the buff up, want neither")
 	}
 
-	warrior.OnSpellHitTaken(sim, meleeSwing(enemy), &core.SpellResult{Target: &warrior.Unit, Outcome: core.OutcomeHit, Damage: 0})
-	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	takeOutcome(t, sim, warrior, meleeSwing(enemy), core.OutcomeHit, 0)
 	if buff.GetStacks() != 1 || buff.Duration != buffRow.Duration() {
 		t.Fatalf("a hit taken that dealt no damage left %d stacks lasting %v, want 1 for the row's %v", buff.GetStacks(), buff.Duration, buffRow.Duration())
 	}

@@ -619,8 +619,6 @@ func kroldokResolve(agent core.Agent, setBonusAura *core.Aura) {
 		resolve.Cast(sim, &character.Unit)
 	})
 	trigger.Name = "Krol'dok Battlegear - 4PC"
-	trigger.Outcome = core.OutcomeBlock
-	trigger.RequireDamageDealt = false
 	setBonusAura.AttachProcTrigger(trigger)
 }
 
