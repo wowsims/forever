@@ -307,8 +307,8 @@ func (e *Effect) isInert() bool {
 	return e.Type == dbcenums.E_DUMMY || e.Type == dbcenums.E_SCRIPT_EFFECT || e.Aura == dbcenums.A_DUMMY
 }
 
-// Whether an effect of the row acts itself, besides a dummy, a script or a cast of another spell. A row
-// with none hands its hit on, as Execute's dummy does, so its sim spell takes no Suppress Procs flag.
+// Whether an effect of the row does something other than a dummy, a script or a cast of another spell.
+// A row with none hands its hit on, as Execute's dummy does, so its sim spell takes no Suppress Procs flag.
 func (s *Spell) actsItself() bool {
 	return slices.ContainsFunc(s.Effects, func(e Effect) bool {
 		switch e.Type {

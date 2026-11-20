@@ -57,12 +57,13 @@ func init() {
 			})
 		})
 
+		// The bounce is the same row's resistance chain, so it resists all or nothing as the row does.
 		bounceSpell := character.RegisterSpell(core.SpellConfig{
 			ActionID:    procActionID.WithTag(2),
 			SpellSchool: core.SpellSchoolNature,
 			DefenseType: core.DefenseTypeMagic,
 			ProcMask:    core.ProcMaskEmpty,
-			Flags:       singleTargetConfig.Flags & core.SpellFlagBinary, // The row's chained resistance effect, so it resists all or nothing as the row does.
+			Flags:       singleTargetConfig.Flags & core.SpellFlagBinary,
 
 			ThreatMultiplier: 1,
 			FlatThreatBonus:  63,
