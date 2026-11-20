@@ -10,6 +10,7 @@ import (
 
 	"github.com/wowsims/forever/sim/common/forever"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -379,5 +380,138 @@ func TestDeathboneGuardianSurgesWhenStruck(t *testing.T) {
 	}
 	if got, want := warrior.GetAuraByID(core.ActionID{SpellID: 1299746}).Duration, row.Duration(); got != want {
 		t.Errorf("the surge lasts %v, want the row's %v", got, want)
+	}
+}
+
+// The pieces in the order the tests put them on.
+var kroldokPieceList = []struct {
+	slot proto.ItemSlot
+	id   int32
+}{
+	{proto.ItemSlot_ItemSlotHead, 275006}, {proto.ItemSlot_ItemSlotShoulder, 287014},
+	{proto.ItemSlot_ItemSlotChest, 275005}, {proto.ItemSlot_ItemSlotHands, 287012},
+	{proto.ItemSlot_ItemSlotLegs, 287013},
+}
+
+// The first n Krol'dok Battlegear pieces.
+func kroldokPieces(n int) map[proto.ItemSlot]int32 {
+	pieces := map[proto.ItemSlot]int32{}
+	for _, p := range kroldokPieceList[:n] {
+		pieces[p.slot] = p.id
+	}
+	return pieces
+}
+
+// Krol'dok Battlegear's 4-piece 1324298 casts 1324296's heal on the wearer on a blocked melee or ranged
+// hit, one the block leaves no damage too, and on no other hit; it then rests the row's cooldown. The heal
+// rolls the row's spread, and in Strongholds and Cities is the flat amount of its second effect.
+func TestKroldokBattlegearHealsOnBlocks(t *testing.T) {
+	proc, healRow := spelldata.MustFind(1324298), spelldata.MustFind(1324296)
+	heal, stronghold := healRow.HealEffect(), healRow.EffectN(2).BasePoints
+	spread := heal.Average() * heal.DirectVariance() / 2
+	if proc.ICD() <= 0 || spread <= 0 || stronghold <= heal.Average()+spread {
+		t.Fatalf("1324298 rests %v and 1324296 heals %v to %v, %v in Strongholds and Cities; want a cooldown, a spread and a larger flat amount",
+			proc.ICD(), heal.Average()-spread, heal.Average()+spread, stronghold)
+	}
+
+	for _, tc := range []struct {
+		name     string
+		areas    []proto.AreaType
+		min, max float64
+	}{
+		{"outside Strongholds and Cities", nil, heal.Average() - spread, heal.Average() + spread},
+		{"in Strongholds and Cities", []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}, stronghold, stronghold},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sim, warrior := itemWearerIn(t, proto.Class_ClassWarrior, setPieces(kroldokPieces(4)), tc.areas...)
+			warrior.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -warrior.GetStat(stats.SpellCritPercent)})
+			spell := warrior.GetSpell(core.ActionID{SpellID: healRow.ID})
+			if spell == nil {
+				t.Fatal("four pieces register no 1324296 heal")
+			}
+			metrics := &spell.SpellMetrics[warrior.UnitIndex]
+			enemy := sim.Encounter.ActiveTargetUnits[0]
+
+			takeHit(t, sim, warrior, meleeSwing(enemy))
+			dodgeSwing(t, sim, warrior, enemy)
+			if metrics.Casts != 0 {
+				t.Fatalf("a hit and a dodge not blocked healed %d times, want none", metrics.Casts)
+			}
+
+			takeOutcome(t, sim, warrior, meleeSwing(enemy), core.OutcomeHit|core.OutcomeBlock, 0)
+			if metrics.Casts != 1 || metrics.TotalHealing < tc.min || metrics.TotalHealing > tc.max {
+				t.Errorf("a block that left no damage healed %d times for %v, want once for %v to %v", metrics.Casts, metrics.TotalHealing, tc.min, tc.max)
+			}
+			takeOutcome(t, sim, warrior, meleeSwing(enemy), core.OutcomeHit|core.OutcomeBlock, 50)
+			if metrics.Casts != 1 {
+				t.Errorf("a second block inside the cooldown healed %d times in all, want 1", metrics.Casts)
+			}
+			stepTo(t, sim, sim.CurrentTime+proc.ICD())
+			takeOutcome(t, sim, warrior, rangedShot(enemy), core.OutcomeHit|core.OutcomeBlock, 50)
+			if metrics.Casts != 2 {
+				t.Errorf("a blocked ranged hit after the cooldown healed %d times in all, want 2", metrics.Casts)
+			}
+		})
+	}
+
+	_, three := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(kroldokPieces(3)))
+	if three.GetSpell(core.ActionID{SpellID: healRow.ID}) != nil {
+		t.Error("three pieces register the 1324296 heal, want four needed")
+	}
+}
+
+// Krol'dok Battlegear's 5-piece 1324309 adds a stack of 1324308's Stamina on a landed melee or ranged hit
+// taken, one that deals no damage too, and refreshes it; a dodge and a spell hit add none. It then rests
+// the row's cooldown, and the stacks stop at the row's most.
+func TestKroldokBattlegearStacksStaminaOnHitsTaken(t *testing.T) {
+	proc, buffRow := spelldata.MustFind(1324309), spelldata.MustFind(1324308)
+	stamina := buffRow.FirstAura(dbcenums.A_MOD_STAT).BasePoints
+	if proc.ICD() <= 0 || buffRow.MaxStack < 2 || stamina <= 0 {
+		t.Fatalf("1324309 rests %v and 1324308 stacks %d times for %v Stamina, want a cooldown, stacks and Stamina", proc.ICD(), buffRow.MaxStack, stamina)
+	}
+
+	_, four := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(kroldokPieces(4)))
+	if four.GetAuraByID(core.ActionID{SpellID: buffRow.ID}) != nil {
+		t.Error("four pieces register the 1324308 buff, want five needed")
+	}
+
+	sim, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(kroldokPieces(5)))
+	buff := warrior.GetAuraByID(core.ActionID{SpellID: buffRow.ID})
+	if buff == nil {
+		t.Fatal("five pieces register no 1324308 buff")
+	}
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	before := warrior.GetStat(stats.Stamina)
+
+	dodgeSwing(t, sim, warrior, enemy)
+	takeHit(t, sim, warrior, fireSpell(enemy))
+	if buff.IsActive() {
+		t.Fatal("a dodge and a spell hit taken put the buff up, want neither")
+	}
+
+	takeOutcome(t, sim, warrior, meleeSwing(enemy), core.OutcomeHit, 0)
+	if buff.GetStacks() != 1 || buff.Duration != buffRow.Duration() {
+		t.Fatalf("a hit taken that dealt no damage left %d stacks lasting %v, want 1 for the row's %v", buff.GetStacks(), buff.Duration, buffRow.Duration())
+	}
+	if got := warrior.GetStat(stats.Stamina) - before; got != stamina {
+		t.Errorf("one stack adds %v Stamina, want the row's %v", got, stamina)
+	}
+	takeHit(t, sim, warrior, meleeSwing(enemy))
+	if buff.GetStacks() != 1 {
+		t.Errorf("a second hit inside the cooldown left %d stacks, want 1", buff.GetStacks())
+	}
+
+	for range buffRow.MaxStack + 2 {
+		stepTo(t, sim, sim.CurrentTime+proc.ICD())
+		takeHit(t, sim, warrior, rangedShot(enemy))
+		if got, want := buff.ExpiresAt(), sim.CurrentTime+buff.Duration; got != want {
+			t.Fatalf("the buff after a hit taken by %v expires at %v, want the row's duration later, %v", sim.CurrentTime, got, want)
+		}
+	}
+	if got := buff.GetStacks(); got != int32(buffRow.MaxStack) {
+		t.Errorf("hits past the most stacks left %d, want the row's %d", got, buffRow.MaxStack)
+	}
+	if got, want := warrior.GetStat(stats.Stamina)-before, stamina*float64(buffRow.MaxStack); got != want {
+		t.Errorf("the most stacks add %v Stamina, want %v", got, want)
 	}
 }
