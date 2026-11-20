@@ -872,33 +872,33 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-GrovekeeperEclipse"
  value: {
-  dps: 712.43471
-  tps: 532.13627
-  hps: 46.36
+  dps: 712.29043
+  tps: 531.32814
+  hps: 46.71583
  }
 }
 dps_results: {
  key: "TestFeralCat-AllItems-GrovekeeperFerocity"
  value: {
-  dps: 709.81869
-  tps: 529.97686
-  hps: 46.25833
+  dps: 790.47166
+  tps: 587.25008
+  hps: 47.46139
  }
 }
 dps_results: {
  key: "TestFeralCat-AllItems-GrovekeeperRage"
  value: {
-  dps: 712.86032
-  tps: 532.52726
-  hps: 46.41083
+  dps: 760.52764
+  tps: 566.83552
+  hps: 47.7325
  }
 }
 dps_results: {
  key: "TestFeralCat-AllItems-GrovekeeperRaiment"
  value: {
-  dps: 707.73344
-  tps: 528.58908
-  hps: 45.91944
+  dps: 715.09274
+  tps: 533.1266
+  hps: 46.29222
  }
 }
 dps_results: {

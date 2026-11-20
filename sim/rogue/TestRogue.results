@@ -992,9 +992,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-GrimstitchArmor"
  value: {
-  dps: 719.74272
-  tps: 511.01733
-  hps: 56.73
+  dps: 788.32301
+  tps: 559.70934
+  hps: 58.39056
  }
 }
 dps_results: {
