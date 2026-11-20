@@ -1819,31 +1819,6 @@ func RegisterAllSetBonuses() {
 		// 5: {1324323},
 	})
 
-	// Krol'dok Battlegear
-	// https://www.wowhead.com/forever/item-set=2135
-	shared.NewParsedItemSet(2135, "Krol'dok Battlegear", []proto.ItemSlot{proto.ItemSlot_ItemSlotHead, proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs}, map[int32][]int32{
-		// +100 Armor.
-		// https://www.wowhead.com/forever/spell=1324287
-		2: {1324287},
-		// Increased Defense +5.
-		// https://www.wowhead.com/forever/spell=1324288
-		3: {1324288},
-
-		// TODO: Manual implementation required
-		//
-		// Chance on block to heal for 18. Healing is doubled in Strongholds and Cities.
-		// https://www.wowhead.com/forever/spell=1324298
-		// unsupported: effect 2 is E_DUMMY, effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
-		// 4: {1324298},
-
-		// TODO: Manual implementation required
-		//
-		// Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.
-		// https://www.wowhead.com/forever/spell=1324309
-		// unsupported: effect 2 lands on implicit target 0, effect 3 A_TRIGGER_SPELL_ON_STACK_AMOUNT misc 20 is not parsed on the wearer
-		// 5: {1324309},
-	})
-
 	// Defias Enforcer's Garb
 	// https://www.wowhead.com/forever/item-set=2136
 	shared.NewParsedItemSet(2136, "Defias Enforcer's Garb", []proto.ItemSlot{proto.ItemSlot_ItemSlotHead, proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
