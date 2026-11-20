@@ -288,6 +288,16 @@ func newTankSim(t *testing.T, talents string) (*core.Simulation, *Rogue, []*core
 	return sim, sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue(), sim.Encounter.AllTargetUnits
 }
 
+// Steps the sim until the rogue's GCD is ready.
+func waitForGCD(t *testing.T, sim *core.Simulation, rogue *Rogue) {
+	t.Helper()
+	for !rogue.GCD.IsReady(sim) {
+		if sim.Step() {
+			t.Fatal("the sim ended while the GCD was running")
+		}
+	}
+}
+
 // A trigger without TriggerImmediately runs its handler one batch window after the hit.
 func passBatchWindow(t *testing.T, sim *core.Simulation) {
 	t.Helper()
@@ -556,22 +566,15 @@ func TestShankFollowsItsTalents(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			sim, rogue, targets := newTankSim(t, c.talents)
 			target := targets[0]
-			waitForGCD := func() {
-				for !rogue.GCD.IsReady(sim) {
-					if sim.Step() {
-						t.Fatal("the sim ended while the GCD was running")
-					}
-				}
-			}
 
 			// Room under the energy cap for what Shank restores.
 			for rogue.CurrentEnergy() >= 40 {
-				waitForGCD()
+				waitForGCD(t, sim, rogue)
 				if !rogue.SinisterStrike.Cast(sim, target) {
 					t.Fatal("Sinister Strike did not cast")
 				}
 			}
-			waitForGCD()
+			waitForGCD(t, sim, rogue)
 			before := rogue.CurrentEnergy()
 			if !rogue.Shank.Cast(sim, target) {
 				t.Fatal("Shank did not cast")
@@ -595,7 +598,7 @@ func TestShankFollowsItsTalents(t *testing.T) {
 				wantPoints = int32(bootKnifePoints.ProcEnergizeEffect().BaseValue())
 			}
 			for range 100 {
-				waitForGCD()
+				waitForGCD(t, sim, rogue)
 				rogue.Shank.CD.Reset()
 				rogue.ResetComboPoints(sim, target, 0)
 				if !rogue.Shank.Cast(sim, target) {
@@ -609,6 +612,45 @@ func TestShankFollowsItsTalents(t *testing.T) {
 				t.Errorf("Shank was avoided: %d misses, %d dodges, %d parries, %d blocks", m.Misses, m.Dodges, m.Parries, m.Blocks)
 			}
 		})
+	}
+}
+
+// Shank strikes with the off hand, so the off hand's poison hears it: over 100 Shanks, Deadly Poison casts off some.
+func TestShankRollsTheOffHandPoison(t *testing.T) {
+	player := &proto.Player{
+		Name:        "Rogue",
+		Race:        proto.Race_RaceHuman,
+		Class:       proto.Class_ClassRogue,
+		Equipment:   core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "muti").GearSet,
+		Consumables: &proto.ConsumesSpec{OhWeaponImbueId: 8985}, // Deadly Poison IV
+		Spec:        DefaultOptions,
+		Rotation:    &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
+	target := sim.Encounter.AllTargetUnits[0]
+	if rogue.DeadlyPoison == nil {
+		t.Fatal("the off hand's imbue registered no Deadly Poison")
+	}
+
+	// Auto attacks also cast the poison between Shanks, so only the casts inside each Shank are counted.
+	var poisons int32
+	for range 100 {
+		waitForGCD(t, sim, rogue)
+		rogue.Shank.CD.Reset()
+		before := rogue.DeadlyPoison.SpellMetrics[target.UnitIndex].Casts
+		if !rogue.Shank.Cast(sim, target) {
+			t.Fatal("Shank did not cast")
+		}
+		poisons += rogue.DeadlyPoison.SpellMetrics[target.UnitIndex].Casts - before
+	}
+	if poisons == 0 {
+		t.Error("Deadly Poison cast off none of 100 Shanks")
 	}
 }
 

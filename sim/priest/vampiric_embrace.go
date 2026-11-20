@@ -7,6 +7,8 @@ import (
 
 func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 	healFraction := rank.EffectN(1).Percent()
+	// "You receive $s2% increased healing on yourself from this effect": the priest's own heal only.
+	selfHealMultiplier := 1 + rank.EffectN(2).Percent()
 
 	veAuras := priest.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 		return target.RegisterAura(spelldata.AuraConfig(rank, spelldata.RankLabel(rank, &priest.Unit)))
@@ -34,13 +36,12 @@ func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 			return veAuras.Get(result.Target).IsActive()
 		},
 		// Each party member's heal is a heal of its own, which on-heal listeners hear one by one.
-		// TODO: Verify in game that each member's heal rolls Revelation separately, not once per damage event.
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			amount := result.Damage * healFraction
 			for _, agent := range priest.Party.PlayersAndPets {
 				member := &agent.GetCharacter().Unit
 				if member.IsEnabled() {
-					heal.CalcAndDealHealing(sim, member, amount, heal.OutcomeHealing)
+					heal.CalcAndDealHealing(sim, member, amount*core.TernaryFloat64(member == &priest.Unit, selfHealMultiplier, 1), heal.OutcomeHealing)
 				}
 			}
 		},
