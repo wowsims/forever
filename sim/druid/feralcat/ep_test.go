@@ -132,7 +132,7 @@ func catEPRequest(talents string, rotation *proto.APLRotation, duration, variati
 			Debuffs: &proto.Debuffs{JudgementOfWisdom: true, FaerieFire: true, SunderArmor: true, GiftOfArthas: true},
 		},
 		Encounter: &proto.Encounter{Duration: duration, DurationVariation: variation, Targets: []*proto.Target{{
-			Id: 31146, Name: "Raid Target", Level: 63, MobType: proto.MobType_MobTypeMechanical, Stats: target,
+			Id: 31146, Name: "Raid Target", Level: 63, Stats: target,
 			MinBaseDamage: 15113, DamageSpread: 0.5, SwingSpeed: 2, ParryHaste: true, CanCrush: true,
 		}}},
 	}

@@ -446,6 +446,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-ClaymoreofTwoMoons-280080"
+ value: {
+  dps: 693.05084
+  tps: 486.48711
+  dtps: 5.13745
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-CleverHat-18308"
  value: {
   dps: 682.85985

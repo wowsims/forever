@@ -15,7 +15,7 @@ func addMovementAI() {
 			Id:        31147,
 			Name:      "Movement",
 			Level:     63,
-			MobType:   proto.MobType_MobTypeMechanical,
+			MobType:   proto.MobType_MobTypeUnknown,
 			TankIndex: 0,
 
 			Stats: stats.Stats{

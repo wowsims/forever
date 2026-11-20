@@ -24,7 +24,7 @@ func createCustomBossPreset() {
 			Id:        bossTankID,
 			Name:      bossName,
 			Level:     63,
-			MobType:   proto.MobType_MobTypeMechanical,
+			MobType:   proto.MobType_MobTypeUnknown,
 			TankIndex: 0,
 
 			Stats: stats.Stats{
