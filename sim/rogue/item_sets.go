@@ -24,7 +24,7 @@ var ItemSetBonescytheArmor = core.NewItemSet(core.ItemSet{
 		// TODO: Ingame test needed -- whether only Backstab, Sinister Strike and Hemorrhage crits restore energy.
 		4: applyBonescytheHeadRush,
 		6: shared.ParsedSetBonus(bonescytheThreat),
-		// TODO: Ingame test needed -- the 5% per combo point.
+		// TODO: Ingame test needed -- the 5% per combo point, and the cooldown starting when the buff ends.
 		8: applyBonescytheRevealedFlaw,
 	},
 })
@@ -48,7 +48,8 @@ func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 // critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage."
 //
 // A landed Eviscerate rolls 28814's chance per combo point it spent (vanilla-carryover) and grants
-// 28815's one charge; 28815's cooldown does not limit the roll. The buff's class flags name Shank,
+// 28815's one charge. 28815's cooldown starts when the buff ends, not when it is granted, and no
+// Eviscerate rolls while the buff is up or the cooldown runs. The buff's class flags name Shank,
 // Mutilate and the Season of Discovery strikes too; the crit and the charge are the tooltip's three
 // here. A crit of one of them spends the charge, as the row's proc states.
 func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
@@ -60,8 +61,11 @@ func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
 		ClassMask:  strikes,
 		FloatValue: revealedFlaw.EffectN(1).BaseValue(),
 	})
+	cooldown := core.Cooldown{Timer: rogue.NewTimer(), Duration: revealedFlaw.Cooldown()}
 	buff.ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
 		aura.SetStacks(sim, aura.MaxStacks)
+	}).ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
+		cooldown.Use(sim)
 	})
 	spelldata.AttachChargeSpender(&rogue.Character, buff, revealedFlaw, "Revealed Flaw - Spend",
 		func(_ *core.Character, trigger *core.ProcTrigger) {
@@ -88,7 +92,7 @@ func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
 		ClassFlags: eviscerate,
 		Outcome:    core.OutcomeLanded,
 		ExtraCondition: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
-			return sim.Proc(chancePerPoint*float64(comboPoints), "Revealed Flaw")
+			return !buff.IsActive() && cooldown.IsReady(sim) && sim.Proc(chancePerPoint*float64(comboPoints), "Revealed Flaw")
 		},
 		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			buff.Activate(sim)

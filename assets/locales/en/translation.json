@@ -686,7 +686,7 @@
 				"battlegear_of_eternal_justice_3": "Implemented on Judgement only, not Swift Judgement.",
 				"trappings_of_the_unseen_path_3": "Implemented as 3% more damage on all pet attacks.",
 				"bonescythe_armor_4": "Implemented on Backstab, Sinister Strike and Hemorrhage crits only.",
-				"bonescythe_armor_8": "Implemented as 5% per combo point, for the next Backstab, Sinister Strike or Hemorrhage.",
+				"bonescythe_armor_8": "Implemented as 5% per combo point, with a 3 min cooldown once the buff is spent.",
 				"the_earthshatterer_8": "Implemented as mana per 5 sec only while Lightning Shield is up.",
 				"teachings_of_the_furbolgs_2": "Implemented on melee and ranged hits; the healing half is not modelled.",
 				"manaflare_regalia_5": "Implemented as 10 percentage points added to each proc chance.",
