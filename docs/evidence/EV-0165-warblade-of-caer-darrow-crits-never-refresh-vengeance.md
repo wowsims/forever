@@ -6,7 +6,7 @@
   Warblade of Caer Darrow; the reports and fights below
 - Game build: 1.60.1.70938 to 1.60.1.70959 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-16 to 2026-11-20
-- Pull request: not yet opened
+- Pull request: #1144
 
 ## Method
 
