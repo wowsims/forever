@@ -515,3 +515,247 @@ func TestKroldokBattlegearStacksStaminaOnHitsTaken(t *testing.T) {
 		t.Errorf("the most stacks add %v Stamina, want %v", got, want)
 	}
 }
+
+// Teachings of the Furbolgs' 2-piece 1294087 puts 1294071 up off a landed melee or ranged hit, for the
+// attack power and ranged attack power its effects state. A heal puts nothing up, and one trinket carries
+// no proc.
+func TestTeachingsOfTheFurbolgsRaisesAttackPowerOnHits(t *testing.T) {
+	row := spelldata.MustFind(1294071)
+	melee, ranged := row.EffectN(1).BaseValue(), row.EffectN(2).BaseValue()
+	if melee <= 0 || ranged <= 0 {
+		t.Fatal("1294071 states no attack power or no ranged attack power")
+	}
+	sim, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotTrinket1: 21326, proto.ItemSlot_ItemSlotTrinket2: 268873,
+	}))
+	warrior.AutoAttacks.CancelAutoSwing(sim)
+	buff := warrior.GetAuraByID(core.ActionID{SpellID: row.ID})
+	if buff == nil {
+		t.Fatal("two trinkets register no 1294071")
+	}
+
+	for range 200 {
+		dealHeal(t, sim, warrior, healSpell(&warrior.Unit))
+	}
+	if buff.IsActive() {
+		t.Error("a heal put the buff up, want only melee and ranged hits")
+	}
+
+	attackPower, rangedAttackPower := warrior.GetStat(stats.AttackPower), warrior.GetStat(stats.RangedAttackPower)
+	for _, hit := range []*core.Spell{meleeSwing(&warrior.Unit), rangedShot(&warrior.Unit)} {
+		hitUntil(t, func() { dealHit(t, sim, warrior, hit) }, buff.IsActive)
+		if got := warrior.GetStat(stats.AttackPower) - attackPower; got != melee {
+			t.Errorf("a proc on a %v hit adds %v attack power, want the row's %v", hit.ProcMask, got, melee)
+		}
+		if got := warrior.GetStat(stats.RangedAttackPower) - rangedAttackPower; got != ranged {
+			t.Errorf("a proc on a %v hit adds %v ranged attack power, want the row's %v", hit.ProcMask, got, ranged)
+		}
+		buff.Deactivate(sim)
+	}
+
+	_, one := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 21326}))
+	if one.GetAuraByID(core.ActionID{SpellID: row.ID}) != nil {
+		t.Error("one trinket registers 1294071, want two needed")
+	}
+}
+
+// Defias Leather's 4-piece 1292028 casts the bleed 1292029 at the target off a landed melee swing, only
+// while the wearer is not in front of the target.
+func TestDefiasLeatherBleedsOnlyFromBehind(t *testing.T) {
+	sim, rogue := itemWearerWithEquipment(t, proto.Class_ClassRogue, setPieces(map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotChest: 10399, proto.ItemSlot_ItemSlotLegs: 10400, proto.ItemSlot_ItemSlotHands: 10401,
+		proto.ItemSlot_ItemSlotFeet: 10402,
+	}))
+	target := rogue.CurrentTarget
+	bleed := rogue.GetSpell(core.ActionID{SpellID: 1292029})
+	if bleed == nil || bleed.Dot(target) == nil || bleed.SpellSchool != core.SpellSchoolPhysical {
+		t.Fatal("the 4-piece registers no 1292029 bleed of Physical damage")
+	}
+	casts := &bleed.SpellMetrics[target.UnitIndex].Casts
+	swing := func() { dealHit(t, sim, rogue, meleeSwing(&rogue.Unit)) }
+
+	rogue.PseudoStats.InFrontOfTarget = true
+	for range 400 {
+		swing()
+	}
+	if *casts != 0 {
+		t.Errorf("400 swings in front of the target cast the bleed %d times, want none", *casts)
+	}
+
+	rogue.PseudoStats.InFrontOfTarget = false
+	hitUntil(t, swing, bleed.Dot(target).IsActive)
+}
+
+// Chain of the Scarlet Crusade's 4-piece 1293674 puts 1293673 up off a hit taken. While it is up every
+// landed melee hit, and no spell hit, casts 1293675's Holy damage at the target, which deals 1293674's
+// first effect times as much to an Undead target.
+func TestChainOfTheScarletCrusadeLightsMeleeHits(t *testing.T) {
+	factor := spelldata.MustFind(1293674).EffectN(1).BaseValue()
+	if factor <= 1 {
+		t.Fatalf("1293674 states a factor of %v against Undead, want one above 1", factor)
+	}
+	pieces := map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotChest: 10328, proto.ItemSlot_ItemSlotWaist: 10329, proto.ItemSlot_ItemSlotLegs: 10330,
+		proto.ItemSlot_ItemSlotHands: 10331,
+	}
+	const hits = 20
+	dealt := map[proto.MobType]float64{}
+	for _, mobType := range []proto.MobType{proto.MobType_MobTypeUnknown, proto.MobType_MobTypeUndead} {
+		sim, warrior := itemWearerFacing(t, proto.Class_ClassWarrior, setPieces(pieces), mobType)
+		warrior.AutoAttacks.CancelAutoSwing(sim)
+		enemy := sim.Encounter.ActiveTargetUnits[0]
+		buff := warrior.GetAuraByID(core.ActionID{SpellID: 1293673})
+		light := warrior.GetSpell(core.ActionID{SpellID: 1293675})
+		if buff == nil || light == nil || light.SpellSchool != core.SpellSchoolHoly {
+			t.Fatal("the 4-piece registers no 1293673 buff or no 1293675 of Holy damage")
+		}
+		metrics := &light.SpellMetrics[enemy.UnitIndex]
+
+		dealHit(t, sim, warrior, meleeSwing(&warrior.Unit))
+		if metrics.Casts != 0 {
+			t.Fatalf("a melee hit without the buff cast 1293675 %d times, want none", metrics.Casts)
+		}
+		hitUntil(t, func() { takeHit(t, sim, warrior, meleeSwing(enemy)) }, buff.IsActive)
+		dealHit(t, sim, warrior, fireSpell(&warrior.Unit))
+		if metrics.Casts != 0 {
+			t.Errorf("a spell hit under the buff cast 1293675 %d times, want none", metrics.Casts)
+		}
+		for range hits {
+			dealHit(t, sim, warrior, meleeSwing(&warrior.Unit))
+		}
+		if metrics.Casts != hits {
+			t.Errorf("%d melee hits under the buff cast 1293675 %d times, want each once", hits, metrics.Casts)
+		}
+		dealt[mobType] = metrics.TotalDamage
+	}
+
+	// Both sims draw the same rolls, so only the factor tells the two totals apart.
+	plain, undead := dealt[proto.MobType_MobTypeUnknown], dealt[proto.MobType_MobTypeUndead]
+	if plain <= 0 || math.Abs(undead/plain-factor) > 1e-6 {
+		t.Errorf("1293675 dealt %v to an Undead target and %v to another, want the row's %v times", undead, plain, factor)
+	}
+}
+
+// The pieces in the order the tests put them on.
+var deathbonePieceList = []struct {
+	slot proto.ItemSlot
+	id   int32
+}{
+	{proto.ItemSlot_ItemSlotWaist, 14620}, {proto.ItemSlot_ItemSlotFeet, 14621},
+	{proto.ItemSlot_ItemSlotHands, 14622}, {proto.ItemSlot_ItemSlotLegs, 14623},
+	{proto.ItemSlot_ItemSlotChest, 14624},
+}
+
+// Deathbone Guardian's 5-piece 1213289 lowers the chance for the wearer's attacks to be dodged and to be
+// parried by the percent each of its effects states.
+func TestDeathboneGuardianLowersDodgeAndParry(t *testing.T) {
+	row := spelldata.MustFind(1213289)
+	expertise := func(n int) float64 {
+		pieces := map[proto.ItemSlot]int32{}
+		for _, p := range deathbonePieceList[:n] {
+			pieces[p.slot] = p.id
+		}
+		_, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(pieces))
+		return warrior.GetStat(stats.ExpertisePercent)
+	}
+	got := expertise(5) - expertise(4)
+	for _, i := range []int{1, 2} {
+		want := -row.EffectN(i).BaseValue()
+		if want <= 0 {
+			t.Fatalf("effect %d of 1213289 lowers nothing", i)
+		}
+		if math.Abs(got-want) > 1e-9 {
+			t.Errorf("the fifth piece lowers the chance to be dodged and parried by %v%%, want effect %d's %v%%", got, i, want)
+		}
+	}
+}
+
+// Rotmender's Raiment's 4-piece 1321560 casts 1321558 off a cast that leaves the wearer below the share of
+// mana its first effect states, which restores the row's mana every tick, and then rests the row's
+// cooldown. A cast above that share restores nothing.
+func TestRotmendersRaimentRestoresManaWhenLow(t *testing.T) {
+	proc, row := spelldata.MustFind(1321560), spelldata.MustFind(1321558)
+	tick := row.ProcEnergizeEffect()
+	threshold := proc.EffectN(1).Percent()
+	ticks := int32(row.Duration() / tick.Period())
+	if proc.ICD() <= row.Duration() || threshold <= 0 || ticks < 2 || tick.Average() <= 0 {
+		t.Fatalf("1321560 rests %v below %v of mana and 1321558 restores %v over %d ticks; want a cooldown, a share and a gain over time",
+			proc.ICD(), threshold, tick.Average(), ticks)
+	}
+	sim, paladin := itemWearerWithEquipment(t, proto.Class_ClassPaladin, setPieces(map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotChest: 286978, proto.ItemSlot_ItemSlotHands: 286979, proto.ItemSlot_ItemSlotWaist: 286980,
+		proto.ItemSlot_ItemSlotLegs: 271207,
+	}))
+	spell := fireSpell(&paladin.Unit)
+	runOut := func() {
+		completeCast(t, sim, paladin, spell, 0)
+		stepTo(t, sim, sim.CurrentTime+row.Duration()+core.SpellBatchWindow)
+	}
+
+	runOut()
+	if got := spellGain(paladin, row.ID); got.Events != 0 {
+		t.Fatalf("a cast at full mana restored mana %d times, want none", got.Events)
+	}
+
+	paladin.SpendMana(sim, paladin.CurrentMana()-paladin.MaxMana()*threshold/2, paladin.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen}))
+	runOut()
+	got := spellGain(paladin, row.ID)
+	if got.Events != ticks || math.Abs(got.Gain-float64(ticks)*tick.Average()) > 1e-6 {
+		t.Errorf("a cast below the share restored %v mana in %d ticks, want the row's %v in each of %d", got.Gain, got.Events, tick.Average(), ticks)
+	}
+
+	paladin.SpendMana(sim, paladin.CurrentMana()-paladin.MaxMana()*threshold/2, paladin.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen}))
+	runOut()
+	if again := spellGain(paladin, row.ID); again.Events != ticks {
+		t.Errorf("a second cast below the share inside the cooldown left %d ticks in all, want %d", again.Events, ticks)
+	}
+}
+
+// Spider's Kiss' 2-piece 17332 puts 17333 on the target off a landed melee hit, lowering its armor by the
+// row's second effect until it runs out.
+func TestSpidersKissLowersTheTargetsArmor(t *testing.T) {
+	row := spelldata.MustFind(17333)
+	cut := row.EffectN(2).BaseValue()
+	if cut >= 0 {
+		t.Fatal("17333's second effect lowers no armor")
+	}
+	sim, warrior := itemWearerAgainst(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotMainHand: 13183, proto.ItemSlot_ItemSlotOffHand: 13218,
+	}), &proto.Target{Name: "target", Level: 60, Stats: stats.Stats{stats.Armor: 2000}.ToProtoArray()})
+	warrior.AutoAttacks.CancelAutoSwing(sim)
+	target := warrior.CurrentTarget
+	debuff := target.GetAuraByID(core.ActionID{SpellID: row.ID})
+	if debuff == nil {
+		t.Fatal("the 2-piece registers no 17333 on the target")
+	}
+	before := target.GetStat(stats.Armor)
+
+	hitUntil(t, func() { dealHit(t, sim, warrior, meleeSwing(&warrior.Unit)) }, debuff.IsActive)
+	if got := target.GetStat(stats.Armor) - before; got != cut {
+		t.Errorf("the debuff changes the target's armor by %v, want the row's %v", got, cut)
+	}
+	stepTo(t, sim, debuff.ExpiresAt()+core.SpellBatchWindow)
+	if got := target.GetStat(stats.Armor); debuff.IsActive() || got != before {
+		t.Errorf("the target's armor after the debuff ran out is %v, want %v", got, before)
+	}
+}
+
+// Partners in Crime's 2-piece 1317038 adds the Strength its row states.
+func TestPartnersInCrimeAddsStrength(t *testing.T) {
+	want := spelldata.MustFind(1317038).EffectN(1).BaseValue()
+	if want <= 0 {
+		t.Fatal("1317038 adds no Strength")
+	}
+	sim, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotFinger1: 284715, proto.ItemSlot_ItemSlotFinger2: 284716,
+	}))
+	bonus := warrior.GetAura("Partners in Crime 2P")
+	if bonus == nil || !bonus.IsActive() {
+		t.Fatal("two rings put up no 2-piece bonus")
+	}
+	before := warrior.GetStat(stats.Strength)
+	bonus.Deactivate(sim)
+	if got := before - warrior.GetStat(stats.Strength); got != want {
+		t.Errorf("the 2-piece bonus adds %v Strength, want the row's %v", got, want)
+	}
+}
