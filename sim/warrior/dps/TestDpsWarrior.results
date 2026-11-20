@@ -2018,10 +2018,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 522.05881
-  tps: 441.39472
+  dps: 518.17616
+  tps: 437.84886
   dtps: 2.97628
-  hps: 22.65472
+  hps: 22.84111
  }
 }
 dps_results: {
