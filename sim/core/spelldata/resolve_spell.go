@@ -307,6 +307,18 @@ func (e *Effect) isInert() bool {
 	return e.Type == dbcenums.E_DUMMY || e.Type == dbcenums.E_SCRIPT_EFFECT || e.Aura == dbcenums.A_DUMMY
 }
 
+// Whether an effect of the row does something other than a dummy, a script or a cast of another spell.
+// A row with none hands its hit on, as Execute's dummy does, so its sim spell takes no Suppress Procs flag.
+func (s *Spell) actsItself() bool {
+	return slices.ContainsFunc(s.Effects, func(e Effect) bool {
+		switch e.Type {
+		case dbcenums.E_NONE, dbcenums.E_TRIGGER_SPELL, dbcenums.E_TRIGGER_MISSILE, dbcenums.E_FORCE_CAST:
+			return false
+		}
+		return !e.isInert()
+	})
+}
+
 func spellPowerCoeff(s *Spell) float64 {
 	return amountEffect(s).Coeff()
 }
@@ -345,6 +357,12 @@ func rowFlags(s *Spell) core.SpellFlag {
 	}
 	if s.SuppressesWeaponProcs() {
 		flags |= core.SpellFlagSuppressWeaponProcs
+	}
+	if s.SuppressesCasterProcs() && s.actsItself() {
+		flags |= core.SpellFlagSuppressCasterProcs
+	}
+	if s.SuppressesTargetProcs() && s.actsItself() {
+		flags |= core.SpellFlagSuppressTargetProcs
 	}
 	if s.PushedBack() {
 		flags |= core.SpellFlagPushback
