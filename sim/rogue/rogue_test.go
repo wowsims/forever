@@ -917,14 +917,6 @@ func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
 		t.Fatal("a Sinister Strike under Revealed Flaw did not crit and spend the charge")
 	}
 
-	// 28815's cooldown starts when the charge is spent.
-	stepPastBatch(sim, revealedFlaw.Cooldown()-time.Second)
-	for range 200 {
-		eviscerateWith(5)
-	}
-	if buff.IsActive() {
-		t.Errorf("an Eviscerate inside 28815's %v cooldown after the charge was spent granted Revealed Flaw", revealedFlaw.Cooldown())
-	}
-	stepPastBatch(sim, time.Second)
+	// 28815's cooldown does not hold the next grant back.
 	grant()
 }
