@@ -35,7 +35,6 @@ func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 			return veAuras.Get(result.Target).IsActive()
 		},
 		// Each party member's heal is a heal of its own, which on-heal listeners hear one by one.
-		// TODO: Verify in game that each member's heal rolls Revelation separately, not once per damage event.
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			amount := result.Damage * healFraction
 			for _, agent := range priest.Party.PlayersAndPets {

@@ -38,6 +38,8 @@ var revelationDirectHits = map[proto.Class]core.ClassFlags{
 // nothing for Revelation, where Seal of Light's heal rolls; the rows show no cause (EV-0149).
 var judgementOfLightHeals = []int32{20267, 20341, 20342, 20343}
 
+const vampiricEmbraceHeal = 15290
+
 // The share of Revelation's chance a spell keeps for its level: all of it down to 12 levels under
 // the wearer, none from 32 levels under, and a straight line between (EV-0149).
 func revelationLevelShare(wearerLevel int32, spellLevel int32) float64 {
@@ -345,8 +347,8 @@ func init() {
 		trigger.Outcome = core.OutcomeLanded
 		trigger.RequireDamageDealt = true
 		// The row's listener hears direct spells and heals. A melee or ranged attack rolls nothing, even
-		// one the buff's class flags name, and neither does Judgement of Light's heal. A spell far under
-		// the wearer's level rolls a share of the chance (EV-0149). A spell with no SpellLevels row reads
+		// one the buff's class flags name, and neither do Judgement of Light's and Vampiric Embrace's
+		// heals. A spell far under the wearer's level rolls a share of the chance (EV-0149). A spell with no SpellLevels row reads
 		// level 60 and keeps the whole chance. A spell the store has no row for, such as an item's spell
 		// registered under its item id, reads level 0 and keeps none.
 		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
@@ -360,7 +362,7 @@ func init() {
 			}
 			share, ok := shares[spell]
 			if !ok {
-				if !slices.Contains(judgementOfLightHeals, spell.SpellID) {
+				if !slices.Contains(judgementOfLightHeals, spell.SpellID) && spell.SpellID != vampiricEmbraceHeal {
 					share = revelationLevelShare(character.Level, int32(spelldata.Find(spell.SpellID).SpellLevel))
 				}
 				shares[spell] = share
