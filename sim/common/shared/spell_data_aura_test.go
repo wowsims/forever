@@ -17,6 +17,7 @@ const (
 	auraBoltID     int32 = 992001
 	auraStrikeID   int32 = 992002
 	auraManaBoltID int32 = 992003
+	auraChannelID  int32 = 992030
 
 	// Nature Aligned, Natural Alignment Crystal 19344's on-use: magic spell damage, healing and the mana
 	// cost of magic spells (A_MOD_POWER_COST_SCHOOL_PCT) raised on the wearer. The test's on-use puts
@@ -86,11 +87,12 @@ func init() {
 }
 
 // A wearer with an arcane bolt, a physical strike and an arcane bolt costing 100 mana, each dealing
-// 100 that no resistance or armor reduces, and a pet where the class has one.
+// 100 that no resistance or armor reduces, a channel of three one-second ticks that deal nothing, and
+// a pet where the class has one.
 type auraTester struct {
 	core.Character
-	bolt, strike, manaBolt *core.Spell
-	pet                    *testPet
+	bolt, strike, manaBolt, channel *core.Spell
+	pet                             *testPet
 }
 
 // A pet with 1000 health whose claw deals 100 physical damage that armor does not reduce.
@@ -123,6 +125,22 @@ func (c *auraTester) Initialize() {
 	manaBolt := testHit(auraManaBoltID, core.SpellSchoolArcane, core.ProcMaskSpellDamage)
 	manaBolt.ManaCost = core.ManaCostOptions{FlatCost: 100}
 	c.manaBolt = c.RegisterSpell(manaBolt)
+
+	c.channel = c.RegisterSpell(core.SpellConfig{
+		ActionID:    core.ActionID{SpellID: auraChannelID},
+		SpellSchool: core.SpellSchoolArcane,
+		DefenseType: core.DefenseTypeMagic,
+		ProcMask:    core.ProcMaskSpellDamage,
+		Flags:       core.SpellFlagChanneled,
+		Dot: core.DotConfig{
+			Aura:          core.Aura{Label: "Test Channel"},
+			NumberOfTicks: 3,
+			TickLength:    time.Second,
+		},
+		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.Dot(target).Apply(sim)
+		},
+	})
 }
 
 func testHit(id int32, school core.SpellSchool, mask core.ProcMask) core.SpellConfig {

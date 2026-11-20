@@ -46,7 +46,8 @@ What `ProcTrigger` fills and the Enrage example are in `procs.md`. What the page
 - **The ICD is the row's** (`s.ICD()`); an ICD typed by hand where the row states one is a defect.
 - **A row with charges needs a spender.** `ProcCharges` becomes the buff's `MaxStacks` through `AuraConfig`, and
   nothing takes a stack off until `spelldata.AttachChargeSpender(character, buff, row, name)` is attached. It spends
-  one charge per cast however many targets the cast hits (`core.OncePerCast`), and a channel's once at its end. An
+  one charge per cast however many targets the cast hits (`core.OncePerCast`), and a channel's once at its end when
+  the row names its spells by class flags; a row that names none is spent by the first hit it hears, mid-channel too. An
   option's `ExtraCondition` narrows the spells that spend it (Revelation turns melee and ranged attacks away); a charge
   gained during a running channel is still kept for that channel's end. Without a spender one proc pays for every cast
   in the buff's duration.
