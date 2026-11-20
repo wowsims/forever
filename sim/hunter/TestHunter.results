@@ -2288,10 +2288,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 925.17165
-  tps: 947.37733
-  dtps: 8.4707
-  hps: 13.82667
+  dps: 914.89075
+  tps: 937.05683
+  dtps: 8.74399
+  hps: 13.75889
  }
 }
 dps_results: {
