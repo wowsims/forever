@@ -3,7 +3,6 @@ package forever
 import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -627,15 +626,8 @@ func kroldokResolve(agent core.Agent, setBonusAura *core.Aura) {
 
 func ogreDominance(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
-	buff := core.MakeStackingAura(character, core.StackingStatAura{
-		Aura: core.Aura{
-			Label:     ogreDominanceBuff.Name,
-			ActionID:  core.ActionID{SpellID: ogreDominanceBuff.ID},
-			Duration:  ogreDominanceBuff.Duration(),
-			MaxStacks: int32(ogreDominanceBuff.MaxStack),
-		},
-		BonusPerStack: stats.Stats{stats.Stamina: ogreDominanceBuff.FirstAura(dbcenums.A_MOD_STAT).BasePoints},
-	})
+	buff := character.RegisterAura(spelldata.AuraConfig(ogreDominanceBuff))
+	spelldata.ParseEffects(character, buff, ogreDominanceBuff)
 
 	trigger := spelldata.ProcTrigger(character, ogreDominanceProc, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		buff.Activate(sim)

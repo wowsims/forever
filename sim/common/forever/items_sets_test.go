@@ -12,7 +12,6 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
-	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
@@ -384,26 +383,6 @@ func TestDeathboneGuardianSurgesWhenStruck(t *testing.T) {
 	}
 }
 
-// A warrior wearing the pieces, in an encounter in the areas.
-func setWearerIn(t *testing.T, pieces map[proto.ItemSlot]int32, areas ...proto.AreaType) (*core.Simulation, *core.Character) {
-	t.Helper()
-	player := &proto.Player{
-		Name: "Wearer", Class: proto.Class_ClassWarrior, Race: proto.Race_RaceHuman,
-		Equipment:   setPieces(pieces),
-		Consumables: &proto.ConsumesSpec{},
-		Buffs:       &proto.IndividualBuffs{},
-		Rotation:    &proto.APLRotation{},
-	}
-	core.WithSpec(player, &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}})
-	sim := core.NewSim(&proto.RaidSimRequest{
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
-		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180, AreaTypes: areas},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
-}
-
 var kroldokFourPieces = map[proto.ItemSlot]int32{
 	proto.ItemSlot_ItemSlotHead: 275006, proto.ItemSlot_ItemSlotShoulder: 287014, proto.ItemSlot_ItemSlotChest: 275005,
 	proto.ItemSlot_ItemSlotHands: 287012,
@@ -430,9 +409,10 @@ func takeBlockedHit(t *testing.T, sim *core.Simulation, character *core.Characte
 func TestKroldokBattlegearHealsOnBlocks(t *testing.T) {
 	proc, healRow := spelldata.MustFind(1324298), spelldata.MustFind(1324296)
 	heal, stronghold := healRow.HealEffect(), healRow.EffectN(2).BasePoints
-	if proc.ICD() <= 0 || heal.Min() >= heal.Max() || stronghold <= heal.Max() {
+	spread := heal.Average() * heal.DirectVariance() / 2
+	if proc.ICD() <= 0 || spread <= 0 || stronghold <= heal.Average()+spread {
 		t.Fatalf("1324298 rests %v and 1324296 heals %v to %v, %v in Strongholds and Cities; want a cooldown, a spread and a larger flat amount",
-			proc.ICD(), heal.Min(), heal.Max(), stronghold)
+			proc.ICD(), heal.Average()-spread, heal.Average()+spread, stronghold)
 	}
 
 	for _, tc := range []struct {
@@ -440,11 +420,11 @@ func TestKroldokBattlegearHealsOnBlocks(t *testing.T) {
 		areas    []proto.AreaType
 		min, max float64
 	}{
-		{"outside Strongholds and Cities", nil, heal.Min(), heal.Max()},
+		{"outside Strongholds and Cities", nil, heal.Average() - spread, heal.Average() + spread},
 		{"in Strongholds and Cities", []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}, stronghold, stronghold},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			sim, warrior := setWearerIn(t, kroldokPieces(4), tc.areas...)
+			sim, warrior := itemWearerIn(t, proto.Class_ClassWarrior, setPieces(kroldokPieces(4)), tc.areas...)
 			warrior.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -warrior.GetStat(stats.SpellCritPercent)})
 			spell := warrior.GetSpell(core.ActionID{SpellID: healRow.ID})
 			if spell == nil {
@@ -475,9 +455,9 @@ func TestKroldokBattlegearHealsOnBlocks(t *testing.T) {
 		})
 	}
 
-	_, three := setWearerIn(t, map[proto.ItemSlot]int32{
+	_, three := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
 		proto.ItemSlot_ItemSlotHead: 275006, proto.ItemSlot_ItemSlotShoulder: 287014, proto.ItemSlot_ItemSlotChest: 275005,
-	})
+	}))
 	if three.GetSpell(core.ActionID{SpellID: healRow.ID}) != nil {
 		t.Error("three pieces register the 1324296 heal, want four needed")
 	}
@@ -493,12 +473,12 @@ func TestKroldokBattlegearStacksStaminaOnHitsTaken(t *testing.T) {
 		t.Fatalf("1324309 rests %v and 1324308 stacks %d times for %v Stamina, want a cooldown, stacks and Stamina", proc.ICD(), buffRow.MaxStack, stamina)
 	}
 
-	_, four := setWearerIn(t, kroldokPieces(4))
+	_, four := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(kroldokPieces(4)))
 	if four.GetAuraByID(core.ActionID{SpellID: buffRow.ID}) != nil {
 		t.Error("four pieces register the 1324308 buff, want five needed")
 	}
 
-	sim, warrior := setWearerIn(t, kroldokPieces(5))
+	sim, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(kroldokPieces(5)))
 	buff := warrior.GetAuraByID(core.ActionID{SpellID: buffRow.ID})
 	if buff == nil {
 		t.Fatal("five pieces register no 1324308 buff")
