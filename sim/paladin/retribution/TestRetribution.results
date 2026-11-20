@@ -351,6 +351,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-ClaymoreofTwoMoons-280080"
+ value: {
+  dps: 837.41565
+  tps: 687.34292
+  dtps: 7.05383
+  hps: 26.44841
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-CleverHat-18308"
  value: {
   dps: 850.73994

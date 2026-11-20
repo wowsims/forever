@@ -1518,6 +1518,82 @@ func TestBladeOfHannaPerfectsItsFormAtThirtyStacks(t *testing.T) {
 	}
 }
 
+// Claymore of Two Moons 280080 rolls 1309550 at the row's procs per minute on the weapon's speed,
+// on white swings and melee specials alike. Each proc casts Waxing Moon 1319378, a spell hit whose
+// damage lands after its flight, or puts up Waning Moon 1319382's Strength for the row's duration,
+// and never both.
+func TestClaymoreOfTwoMoonsWaxesOrWanesOnEachProc(t *testing.T) {
+	if core.GetItemByID(280080) == nil {
+		t.Skip("item 280080 is not in the live game files; this runs again once they hold it")
+	}
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 280080, 1)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	enemy := character.CurrentTarget
+
+	waxRow, waneRow := spelldata.MustFind(1319378), spelldata.MustFind(1319382)
+	proc := character.GetAura("Claymore of Two Moons")
+	wax := character.GetSpell(core.ActionID{SpellID: waxRow.ID})
+	wane := character.GetAuraByID(core.ActionID{SpellID: waneRow.ID})
+	if proc == nil || proc.Dpm == nil || wax == nil || wane == nil {
+		t.Fatal("280080 registers no proc on a procs per minute rate, no Waxing Moon spell or no Waning Moon aura")
+	}
+	want := float64(spelldata.MustFind(1309550).RPPM) * core.GetItemByID(280080).SwingSpeed / 60
+	amount := waneRow.FirstAura(dbcenums.A_MOD_STAT).Min()
+	if want <= 0 || want >= 1 || amount <= 0 || wane.Duration != waneRow.Duration() {
+		t.Fatalf("1309550 rolls %v a hit and Waning Moon adds %v Strength for %v, want a chance, a gain and the row's %v", want, amount, wane.Duration, waneRow.Duration())
+	}
+	for _, mask := range []core.ProcMask{core.ProcMaskMeleeMHAuto, core.ProcMaskMeleeMHSpecial} {
+		if got := proc.Dpm.Chance(mask, sim); math.Abs(got-want) > 1e-9 {
+			t.Errorf("the proc rolls %v on a hit of mask %v, want the row's procs per minute on the weapon's speed, %v", got, mask, want)
+		}
+	}
+	if wax.ProcMask != core.ProcMaskSpellDamage || wax.Flags&core.SpellFlagProc == 0 {
+		t.Errorf("Waxing Moon has mask %v and proc flag %v, want a proc's spell hit", wax.ProcMask, wax.Flags&core.SpellFlagProc != 0)
+	}
+
+	// Every melee hit now procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee)
+	const hits = 100
+	var waxes, wanes int
+	for range hits {
+		wane.Deactivate(sim)
+		casts := procCasts(sim, wax)
+		before := character.GetStats()
+		dealHit(t, sim, character, meleeSwing(&character.Unit))
+		waxed, waned := procCasts(sim, wax) > casts, wane.IsActive()
+		if waxed == waned {
+			t.Fatalf("a proc cast Waxing Moon %v and put up Waning Moon %v, want exactly one", waxed, waned)
+		}
+		if waxed {
+			waxes++
+			continue
+		}
+		wanes++
+		if got := gained(character, before, stats.Strength); !statNear(got, amount) {
+			t.Fatalf("Waning Moon adds %v Strength, want the row's %v", got, amount)
+		}
+	}
+	if waxes < hits/4 || wanes < hits/4 {
+		t.Errorf("%d procs cast Waxing Moon %d times and Waning Moon %d times, want about one in two each", hits, waxes, wanes)
+	}
+
+	// Away from the target, a cast deals nothing until its flight ends. The first step lands the
+	// casts still in flight from the hits above.
+	character.DistanceFromTarget = 20
+	stepTo(t, sim, sim.CurrentTime+wax.TravelTime())
+	landed := wax.SpellMetrics[enemy.UnitIndex].TotalDamage
+	for range 20 {
+		wax.Cast(sim, enemy)
+	}
+	if got := wax.SpellMetrics[enemy.UnitIndex].TotalDamage; wax.TravelTime() <= 0 || got != landed {
+		t.Errorf("Waxing Moon dealt %v damage at its cast, want none before its %v flight ends", got-landed, wax.TravelTime())
+	}
+	stepTo(t, sim, sim.CurrentTime+wax.TravelTime())
+	if got := wax.SpellMetrics[enemy.UnitIndex].TotalDamage; got <= landed {
+		t.Errorf("20 Waxing Moon casts dealt %v damage once landed, want the row's damage", got-landed)
+	}
+}
+
 // White Obsidian Wand 274425 rolls 1294058 on a caster's wand shots at the procs per minute of the
 // item's chance-on-hit entry, on the wand's speed, and on nothing else. A landed shot puts it up, a
 // missed one does not, and Shoot leaves it up. The next spell of a school the row names that pays mana

@@ -37935,10 +37935,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1338551, SpellID: 1309539, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: 2, BaseLevel: 60, PvpMult: 1, Misc: 7, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{0: 192}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1309550, Name: "Claymore of Two Moons", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 100, ProcFlags: [2]uint32{0: 0x14}, RefIDs: []int32{1319378, 1319382}, ProcChanceSource: ProcChanceAlways,
+	{ID: 1309550, Name: "Claymore of Two Moons", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 100, ProcFlags: [2]uint32{0: 0x14}, RPPM: 1.35, RefIDs: []int32{1319378, 1319382}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 1338572, SpellID: 1309550, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 1, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: PPM 1.35 -- Claymore of Two Moons: 1.35 procs per minute on landed melee hits, read off paladins alone (EV-0163); the game files state none
 	{ID: 1309551, Name: "Scalding Flamehoof", School: 1, Attr: [17]uint32{8: 0x1000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 20000, CooldownMs: 120000, CategoryCooldownMs: 20000,
 		Effects: []Effect{
 			{ID: 1338574, SpellID: 1309551, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN, BasePoints: 14, BaseLevel: 60, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
