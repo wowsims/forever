@@ -23,6 +23,18 @@ import { PresetConfigurationPicker } from '../PresetConfigurationPicker';
 const SETTINGS_PRESETS = [PresetConfigurationCategory.Encounter, PresetConfigurationCategory.Settings];
 const GEAR_PLANNER_PRESETS = [PresetConfigurationCategory.Settings];
 const BUFF_OPTIONS = [...BuffDebuffInputs.BUFFS_CONFIG, ...BuffDebuffInputs.PARTY_BUFFS_CONFIG];
+
+/** The tab's presets column, which the narrow screen's presets dialog also shows. A gear planner runs no encounter. */
+export const SettingsPresets = () => {
+	const gearPlanner = useSimHost().simDisabled;
+	return (
+		<>
+			<PresetConfigurationPicker categories={gearPlanner ? GEAR_PLANNER_PRESETS : SETTINGS_PRESETS} />
+			{!gearPlanner && <SavedEncounter />}
+			<SavedSettings />
+		</>
+	);
+};
 const DEBUFF_OPTIONS = [...BuffDebuffInputs.DEBUFFS_CONFIG, ...BuffDebuffInputs.DEBUFFS_MISC_CONFIG];
 
 const anyOffered = (list: ReadonlyArray<RenderableStatOptions>, player: Player<any>) =>
@@ -145,9 +157,7 @@ export const SettingsTabBody = () => {
 				<TabPanelColumns.Col testId="buff-settings">{ready && <BuffSections gearPlanner={gearPlanner} />}</TabPanelColumns.Col>
 			</TabPanelColumns.Left>
 			<TabPanelColumns.Right testId="settings-presets">
-				<PresetConfigurationPicker categories={gearPlanner ? GEAR_PLANNER_PRESETS : SETTINGS_PRESETS} />
-				{!gearPlanner && <SavedEncounter />}
-				<SavedSettings />
+				<SettingsPresets />
 			</TabPanelColumns.Right>
 			<SelectorModal state={selector} id="item-swap-selector-modal" rail={false} />
 		</OpenSelectorModalContext>

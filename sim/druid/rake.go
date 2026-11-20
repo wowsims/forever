@@ -8,8 +8,8 @@ import (
 func (druid *Druid) registerRakeSpell() {
 	rank := spellData.Rake.Highest()
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
-	// The initial hit is not reduced by armor in game, as a tester's report on PR #149 states, although
-	// only the periodic effect states the bleed mechanic. The ticks are periodic physical damage, which
+	// The initial hit is not reduced by armor in game (EV-0038), although only the periodic effect states
+	// the bleed mechanic. The ticks are periodic physical damage, which
 	// core keeps out of armor anyway.
 	config.Flags |= core.SpellFlagIgnoreResists
 	hit := rank.DamageEffect()
@@ -25,7 +25,7 @@ func (druid *Druid) registerRakeSpell() {
 		result := spell.CalcAndDealDamage(sim, target, initial, spell.OutcomeMeleeSpecialHitAndCrit)
 		if result.Landed() {
 			spell.Dot(target).Apply(sim)
-			druid.awardComboPoints(sim, spell, rank)
+			druid.awardComboPoints(sim, target, spell, rank)
 		}
 		druid.refundOnMiss(sim, spell, result)
 	}

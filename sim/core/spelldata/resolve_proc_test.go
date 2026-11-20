@@ -148,7 +148,7 @@ func TestWeaponProcHearsALandedHitThatDealsNoDamage(t *testing.T) {
 	aura.AttachProcTriggerCallback(&core.Unit{}, trigger)
 
 	sim := &core.Simulation{}
-	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}
+	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}
 	for _, row := range []struct {
 		name    string
 		outcome core.HitOutcome
@@ -164,6 +164,57 @@ func TestWeaponProcHearsALandedHitThatDealsNoDamage(t *testing.T) {
 		if procs != row.want {
 			t.Errorf("%s rolled the proc %d times, want %d", row.name, procs, row.want)
 		}
+	}
+}
+
+// A listener built from a row's melee swing bit hears a hit flagged as a counted swing, Windfury
+// Totem's strike, and still no other main-hand special; one its caller narrows to main-hand specials
+// still hears it as one. A listener typed by hand on white hits, a weapon proc's shape, a caller that
+// opts out and a row that hears melee abilities alone leave the counted swing to the masks alone.
+func TestSwingBitHearsCountedSwings(t *testing.T) {
+	withRows(t, procRows())
+
+	procs := 0
+	count := func(*core.Simulation, *core.Spell, *core.SpellResult) { procs++ }
+	hears := func(trigger core.ProcTrigger, spell *core.Spell) bool {
+		trigger.TriggerImmediately = true
+		aura := &core.Aura{}
+		aura.AttachProcTriggerCallback(&core.Unit{}, trigger)
+		procs = 0
+		aura.OnSpellHitDealt(aura, &core.Simulation{}, spell, &core.SpellResult{Outcome: core.OutcomeHit, Damage: 100})
+		return procs > 0
+	}
+
+	counted := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagCountsAsSwing, DefenseType: core.DefenseTypeMelee}
+	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}
+	swingRow := ProcTrigger(testCharacter(), Find(2100), count)
+	optedOut := swingRow
+	optedOut.HearsCountedSwings = false
+	specialsOnly := swingRow
+	specialsOnly.ProcMask = core.ProcMaskMeleeMHSpecial
+	handTyped := core.ProcTrigger{Callback: core.CallbackOnSpellHitDealt, ProcMask: core.ProcMaskMeleeWhiteHit, Handler: count}
+
+	for _, row := range []struct {
+		name    string
+		trigger core.ProcTrigger
+		spell   *core.Spell
+		want    bool
+	}{
+		{"the swing bit on a counted swing", swingRow, counted, true},
+		{"the swing bit on another main-hand special", swingRow, special, false},
+		{"a caller that opts out", optedOut, counted, false},
+		{"the swing bit narrowed to main-hand specials", specialsOnly, counted, true},
+		{"a hand-typed white-hit listener", handTyped, counted, false},
+	} {
+		if got := hears(row.trigger, row.spell); got != row.want {
+			t.Errorf("%s: heard %v, want %v", row.name, got, row.want)
+		}
+	}
+	if ProcTrigger(testCharacter(), Find(2100), count, WeaponProc()).HearsCountedSwings {
+		t.Error("a weapon proc's shape keeps the counted swing flag, want the weapon's rules alone")
+	}
+	if core.DecodeProcTypeMask([2]uint32{0: dbcenums.PROC_FLAG_DEAL_MELEE_ABILITY}, 0).HearsCountedSwings {
+		t.Error("a row that hears melee abilities alone hears counted swings, want only the swing bit to")
 	}
 }
 

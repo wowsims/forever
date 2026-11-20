@@ -155,6 +155,7 @@ type Target struct {
 	Schedule TargetSchedule // Set by the AI that spawns and despawns the target, nil for none.
 
 	executeAt35 time.Duration // When the target reaches 35% health in this iteration.
+	executeAt25 time.Duration // When the target reaches 25% health in this iteration.
 	executeAt20 time.Duration // When the target reaches 20% health in this iteration.
 
 	raidDebuffsLanding PendingAction // Puts the raid's debuffs on at the time ApplyRaidDebuffsAt gave.
@@ -194,8 +195,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 	if target.Level == 0 {
 		target.Level = defaultRaidBossLevel
 	}
-	// A raid boss cannot be stunned: in Classic and Fresh logs every grenade and bomb with a stun
-	// comes back immune on a boss, its damage included.
+	// A raid boss cannot be stunned: a stun explosive comes back immune, its damage included (EV-0088).
 	target.StunImmune = target.Level >= defaultRaidBossLevel
 
 	// Default Crit chance for NPCs depends only on their level relative to the level of their
@@ -291,6 +291,7 @@ func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 				channel.stopTicking(sim)
 				channel.Deactivate(sim)
 			}
+			unit.energyBar.dropComboPointsOn(sim, &target.Unit)
 		}
 	}
 
@@ -459,8 +460,9 @@ type AttackTable struct {
 	OH     AttackTableHand
 	Ranged AttackTableHand
 
-	// Raised only by A_MOD_CRIT_PERCENT_VERSUS effects, such as effect 1 of Humanoid Slaying 19151 and Monster
-	// Slaying 24294. A_MOD_DAMAGE_DONE_VERSUS effects, Beast Slaying 20557 among them, raise damage alone.
+	// Raised only by A_MOD_CRIT_PERCENT_VERSUS effects. The game files state one only on Humanoid Slaying
+	// 19151, which no class learns. A_MOD_DAMAGE_DONE_VERSUS effects, Beast Slaying 20557 among them, raise
+	// damage alone.
 	CritMultiplier float64
 
 	DamageDealtMultiplier       float64 // attacker buff, applied in applyAttackerModifiers()
@@ -469,6 +471,7 @@ type AttackTable struct {
 	IgnoreArmor                 bool    // Ignore defender's armor for specifically this attacker's attacks
 	ArmorIgnoreFactor           float64 // Percentage of armor to ignore for this attacker's attacks
 	BonusSpellCritPercent       float64 // Analagous to Defender.PseudoStats.BonusSpellCritPercentTaken, but only for this attacker specifically
+	BonusCritPercent            float64 // The crit chance the defender's auras add to every attack of this attacker alone, as A_MOD_CRIT_CHANCE_FOR_CASTER does.
 	RangedDamageTakenMultiplier float64
 	// This is for "Apply Aura: Mod Damage Done By Caster" effects.
 	// If set, the damage taken multiplier is multiplied by the callbacks result.
@@ -504,7 +507,7 @@ func NewAttackTable(attacker *Unit, defender *Unit) *AttackTable {
 		levelDiff := combatLevelDiff(attacker, defender)
 
 		table.BaseSpellMissChance = spellMissChance(levelDiff)
-		// Era logs show no aura crit suppression against targets 1 or 2 levels above.
+		// No aura crit suppression applies against targets 1 or 2 levels above (EV-0090).
 		if levelDiff >= 3 {
 			table.AuraCritSuppression = 0.018
 		}
@@ -557,9 +560,9 @@ type AttackTableHand struct {
 	BaseSpellMissChance  float64 // The spell table's miss with the level difference taken from the hand's skill.
 }
 
-func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item) AttackTableHand {
+func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item, slot proto.ItemSlot) AttackTableHand {
 	levelDiff := combatLevelDiff(attacker, defender)
-	bonus := GetWeaponSkill(attacker, weapon)
+	bonus := GetWeaponSkill(attacker, weapon, slot)
 	skillDiff := float64(levelDiff*5) - bonus
 	// Parry, glance chance and crit suppression count skill only up to the level-based maximum.
 	baseSkillDiff := float64(levelDiff*5) - min(bonus, 0)
@@ -596,9 +599,9 @@ func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item) AttackTabl
 
 // Recomputes the hand entries against an enemy defender from the weapons in each hand.
 func (at *AttackTable) setWeapons(mh *Item, oh *Item, ranged *Item) {
-	at.MH = newAttackTableHand(at.Attacker, at.Defender, mh)
-	at.OH = newAttackTableHand(at.Attacker, at.Defender, oh)
-	at.Ranged = newAttackTableHand(at.Attacker, at.Defender, ranged)
+	at.MH = newAttackTableHand(at.Attacker, at.Defender, mh, proto.ItemSlot_ItemSlotMainHand)
+	at.OH = newAttackTableHand(at.Attacker, at.Defender, oh, proto.ItemSlot_ItemSlotOffHand)
+	at.Ranged = newAttackTableHand(at.Attacker, at.Defender, ranged, proto.ItemSlot_ItemSlotRanged)
 }
 
 // Hand returns the entry of the hand the spell attacks with.

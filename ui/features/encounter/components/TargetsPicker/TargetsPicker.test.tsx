@@ -222,17 +222,26 @@ describe('TargetsPicker', () => {
 		expect(penalty().hasAttribute('data-disabled')).toBe(false);
 	});
 
-	it('offers only the creature families the mob type holds, and drops one a new mob type does not', async () => {
+	it('offers only the creature families the mob type holds, disabled when it holds none, and drops one a new mob type does not', async () => {
 		const encounter = new FakeEncounter([TargetProto.create({ mobType: MobType.MobTypeMechanical })]);
 		mount(encounter);
-		const family = () => document.getElementById('target-0-picker-creature-family');
-		expect(family()).toBeNull();
+		const family = () => document.getElementById('target-0-picker-creature-family') as HTMLButtonElement;
+		expect(family().disabled).toBe(true);
 
 		act(() => encounter.modifyTarget(0, target => (target.mobType = MobType.MobTypeHumanoid)));
-		await userEvent.click(family()!);
+		expect(family().disabled).toBe(false);
+		await userEvent.click(family());
 		expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual([
 			`family-${CreatureFamily.CreatureFamilyUnknown}`,
+			`family-${CreatureFamily.CreatureFamilyDwarf}`,
+			`family-${CreatureFamily.CreatureFamilyFurbolg}`,
+			`family-${CreatureFamily.CreatureFamilyMurloc}`,
 			`family-${CreatureFamily.CreatureFamilyNaga}`,
+			`family-${CreatureFamily.CreatureFamilyOgre}`,
+			`family-${CreatureFamily.CreatureFamilyOrc}`,
+			`family-${CreatureFamily.CreatureFamilySerpentine}`,
+			`family-${CreatureFamily.CreatureFamilyTroll}`,
+			`family-${CreatureFamily.CreatureFamilyWorgen}`,
 			`family-${CreatureFamily.CreatureFamilyAquatic}`,
 		]);
 		await userEvent.click(screen.getByRole('option', { name: `family-${CreatureFamily.CreatureFamilyNaga}` }));

@@ -648,6 +648,7 @@ func TestEveryTableRow(t *testing.T) {
 		{dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS, 4, 185, "mob-type-stat AttackPower", 185, true},
 		{dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS, 32, 99, "mob-type-stat RangedAttackPower", 99, true},
 		{dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS, 32, 58, "mob-type-stat SpellDamage", 58, true},
+		{dbcenums.A_MOD_DAMAGE_DONE_CREATURE, 8, 21, "mob-type-stat PhysicalDamage+SpellDamage", 21, true},
 		{dbcenums.A_MOD_DAMAGE_DONE_VERSUS, 32, 1, "damage-dealt-versus", 1.01, false},
 		{dbcenums.A_MOD_CRIT_PERCENT_VERSUS, 64, 3, "crit-damage-versus", 1.03, false},
 		{dbcenums.A_SPELL_AURA_MOD_ARMOR_PENETRATION_PCT, 0, 9, "armor-ignore", 0.09, false},
@@ -818,6 +819,14 @@ func TestParseStaticStatConventions(t *testing.T) {
 	ParseStatic(swords, oneEffectRow(dbcenums.A_MOD_SKILL, 43, 5))
 	if got := swords.PseudoStats.WeaponSkills[proto.WeaponSkill_WeaponSkillSwords]; got != 5 {
 		t.Errorf("sword skill from a 5 point Swords skill row: %v, want 5", got)
+	}
+	feral := parseWarrior()
+	ParseStatic(feral, oneEffectRow(dbcenums.A_MOD_SKILL, miscFeralCombat, 5))
+	if got := feral.PseudoStats.FeralCombatSkill; got != 5 {
+		t.Errorf("feral combat skill from a 5 point Feral Combat skill row: %v, want 5", got)
+	}
+	if !oneEffectRow(dbcenums.A_MOD_SKILL, miscFeralCombat, 5).Effects[0].ParsedAura() {
+		t.Error("ParsedAura refuses the Feral Combat skill row the parse attaches")
 	}
 	fishing := parseWarrior()
 	if parsed := ParseStatic(fishing, oneEffectRow(dbcenums.A_MOD_SKILL, 356, 25)); len(parsed.Applied) != 0 {

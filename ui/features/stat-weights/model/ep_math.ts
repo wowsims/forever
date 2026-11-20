@@ -1,5 +1,6 @@
 import { StatWeightsResult, StatWeightsTargetMetric, StatWeightValues } from '@generated/proto/api';
 import { PseudoStat, Stat, UnitStats } from '@generated/proto/common';
+import { MELEE_HANDS } from '@sim/player/weapon_skill_groups';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import type { PrecisionSettings } from '@sim/settings/precision';
 import type { StatWeightsOptions } from '@sim/sim';
@@ -101,3 +102,13 @@ export const epWeightsWithoutExcluded = (newWeights: Stats, oldWeights: Stats, {
 	}
 	return merged;
 };
+
+/** Stat weights skip a hand that holds no weapon, so a weapon skill the result has no step for keeps its old weight. */
+export const withUnmeasuredWeaponSkillsKept = (newWeights: Stats, oldWeights: Stats, result: StatWeightsResult): Stats =>
+	MELEE_HANDS.reduce(
+		(merged, { weaponSkill }) =>
+			result.stepAbove && UnitStat.fromPseudoStat(weaponSkill).getProtoValue(result.stepAbove) !== 0
+				? merged
+				: merged.withPseudoStat(weaponSkill, oldWeights.getPseudoStat(weaponSkill)),
+		newWeights,
+	);

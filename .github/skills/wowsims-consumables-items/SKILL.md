@@ -50,17 +50,18 @@ it is `wowsims-db-pipeline` `## Regenerating`. For items, enchants and consumabl
 2. every consumable routed and shipped (`RouteConsumable`, `ShipsConsumable`), then `ConsumableOverrides` merged;
 3. `AddUnparsedStats`, then `AddPotionClasses`, which reads the lists the first one adds;
 4. `ItemOverrides`, then `ApplyItemSetClasses`, which replaces the allowlist of every item in a listed set, then
-   `EnchantOverrides`;
+   `ApplyQuestClasses`, which gives a bind-on-pickup class quest reward its quests' classes, then `EnchantOverrides`;
 5. the global filters (`KeepEnchant`, `KeepConsumable`), the consumable icons, then the leftovers split off;
-6. the generators: item effects, enchant effects, consumable registrations, the consumables TS file, the
-   missing-effects file, the random property points.
+6. the generators: item effects, enchant effects, consumable registrations, the consumables TS file, the set
+   bonuses, the missing-effects file, the random property points.
 
 `db.json` and `db.bin` are written at the very end, so a run that stops partway leaves the old database beside new
 registrations.
 
 - **A new parse row ships consumables.** `Effect.ParsedAura()` turns true for every misc value of a newly parsed
   aura, and routing reads that as supported, so the next regeneration can add imbues and stat auras nobody chose.
-  Diff the generated consumables and check each new one against its row.
+  A set bonus goes live the same way. Diff the generated consumables and `item_sets_auto_gen.go`, and check each new
+  one against its row.
 
 ## Conditions are data
 
@@ -83,10 +84,28 @@ is registered. Items and enchants work differently:
   regenerated `sim/common/forever/` files in one change; until the generator runs, the sim panics on the duplicate.
   The first `gen_db` run still panics, since its binary was compiled from the old generated file (`sim.RegisterAll`
   runs after `GenerateItemEffects` rewrites the files and before `db.json` is written), and a second run completes.
+- **A set takes one registration, written by hand or generated.** `GenerateSetBonuses` writes
+  `sim/common/forever/item_sets_auto_gen.go` for every set with items in the database that no hand-written set
+  covers. A bonus whose rows all pass `shared.SetBonusUnsupported` registers through `shared.NewParsedItemSet`, or
+  `shared.NewParsedProfessionItemSet` for a set its ItemSet row gates on a profession, and the others stay in the file
+  as TODO comments naming what keeps them out. A row the parse states whole passes, and so does a proc trigger whose
+  listener and rate an item's proc would take and whose spell deals damage at once, fills the wearer's bar or puts
+  auras on the wearer alone; `shared.ParsedSetBonus` builds that proc on the set bonus aura. A proc row of a class
+  family whose effect names none of the family's spells stays out, since the spells its tooltip names are not in the
+  row. The generated sets register from `common.RegisterAllEffects`,
+  after the hand-written ones, so the generator reads `core.ItemSets()` as the hand-written list, and both
+  constructors skip an id a hand-written set already holds. A set written by hand leaves the generated file on the
+  next run, so it carries every bonus of the set, the generated ones included.
+- **An item that summons a creature registers its pet with `core.NewItemPet`.** `AddPet` panics once the environment
+  is set, and the item effects run after that, so `NewAgent` builds the pet with its owner, once for an item worn or
+  carried in the item swap set by a class that can use it (`sim/core/item_effects.go`). The item's effect finds the
+  pet in `PetAgents`; Dragon's Call's whelp is the example (`sim/common/forever/items_dragons_call.go`).
 - **The folder follows who can use the item**, as `references/rulings.md` states. A class test binary registers only
   its own package, so a shared set left in a class folder never reaches the other classes' AllItems suites;
   `TestGearSetsHoldOnlyTheirClassItems` in `sim/item_class_allowlist_test.go` fails a preset wearing another class's
   locked item.
+- **The gear tab reads a hand-written proc's rate from its rows.** Code that rolls something else takes a row in
+  `tools/database/overrides/gear_proc_rates.go`; `wowsims-procs` `## Measuring a rate`.
 - **Three aura lists route the generated item auras** (`tools/database/gen_effects.go`). `itemAuraKinds` is shared
   by on-use and equip spells, so an aura type added there, a class-mask modifier say, flips every equip item that
   states it into the item aura shape; equip-only types go in `equipAuraKinds` and on-use-only ones in
@@ -116,6 +135,10 @@ is registered. Items and enchants work differently:
 - **Zero means none on item scalars.** `ScalingItemProperties.unrounded_dps` is 0 for an item with no weapon table
   row and is read into `core.Item.UnroundedDPS` as it stands; the rule for every proto field is
   `wowsims-core-mechanics` `## Protos`.
+- **An explosive with a cast costs a tank its avoidance, and one whose row states a stun misses a raid boss.** Dodge,
+  parry and block are zero for the whole hardcast (`HardcastAvoidanceAura`), and a bomb or grenade with a stun misses a
+  level 63 target in full, damage included (`missesImmune` in `sim/core/spell_result.go`). Dynamite and sapper charges
+  state no stun and hit it.
 
 ## Keeping this skill true
 
@@ -123,5 +146,5 @@ The code is right where this skill and the code disagree; fix the skill in the s
 re-derive each claim, the "You changed → Update" table and the path check are in `references/maintenance.md`.
 
 A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
-`AGENTS.md` says: a comment at the code when one file owns the rule, this skill or its `references/rulings.md` otherwise. A memory file is a pointer
+`AGENTS.md` says: a comment at the code when one file owns the rule, this skill, or a `docs/rulings/` file its `references/rulings.md` indexes, otherwise. A memory file is a pointer
 to this skill, not a second copy.

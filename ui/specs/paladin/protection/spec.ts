@@ -18,13 +18,14 @@ export default defineSpec<Spec.SpecProtectionPaladin>({
 	cssScheme: PlayerClasses.getCssScheme(PlayerClasses.Paladin),
 	// List any known bugs / issues here and they'll be shown on the site.
 	knownIssues: [],
-	consumableStats: [Stat.StatStamina, Stat.StatHealth, Stat.StatMana, Stat.StatMP5, Stat.StatSpellDamage, Stat.StatHolyDamage],
+	consumableStats: [Stat.StatStamina, Stat.StatHealth, Stat.StatMana, Stat.StatMP5, Stat.StatSpellDamage],
 
 	// All stats for which EP should be calculated.
 	epStats: [
 		Stat.StatStamina,
 		Stat.StatStrength,
 		Stat.StatSpellDamage,
+		Stat.StatHolyDamage,
 		Stat.StatAgility,
 		Stat.StatAttackPower,
 		Stat.StatHitRating,

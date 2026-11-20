@@ -333,8 +333,8 @@ func rankOf(s *Spell) int32 {
 	return int32(rank)
 }
 
-// The flags the row's attributes and targets state. Everything else is the caller's: a flag the
-// game files do not carry is not invented here.
+// The flags the row's attributes, targets and effects state. Everything else is the caller's: a flag
+// the game files do not carry is not invented here.
 func rowFlags(s *Spell) core.SpellFlag {
 	var flags core.SpellFlag
 	if s.IsPassive() {
@@ -355,11 +355,8 @@ func rowFlags(s *Spell) core.SpellFlag {
 	if s.NoActiveDefense() {
 		flags |= core.SpellFlagNoActiveDefense
 	}
-	if RequiredHand(s).Matches(core.ProcMaskMeleeMH) {
-		flags |= core.SpellFlagRequiresMainHand
-	}
-	if s.OnNextSwing() {
-		flags |= core.SpellFlagOnNextSwing
+	if s.IsBinary() {
+		flags |= core.SpellFlagBinary
 	}
 	// Helpful decides who the APL casts the spell on, so it follows the first effect's target. An
 	// attack whose first effect is a self side-effect reads as helpful here and the caller clears it.

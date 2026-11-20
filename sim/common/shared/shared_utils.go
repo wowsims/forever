@@ -410,7 +410,19 @@ type SpellDataProc struct {
 	// A "Chance on hit" item effect or a combat enchant. The game casts those off the hit itself
 	// without consulting a proc mask, so the row states no listener and the shape is stated here.
 	IsWeaponProc bool
+
+	// A rate option in place of the one the item's entry and the trigger's row give, for a rate priced on
+	// something neither states. It may reshape the listener: Blade of Eternal Darkness hears every landed
+	// harmful spell and prices the row's procs per minute on its cast's time, and Draconic Infused Emblem
+	// only moves the row's cast listener to landed spell hits.
+	Rate spelldata.ProcOpt
 }
+
+// What an item adds to the spell its NewSpellDataDamageProc proc casts where the rows leave it to a
+// script, by item id, given the spell's config before it registers: Pendulum of Doom's execute bonus,
+// Sul'thraze the Lasher's delayed Shadow Lash. Hand-written code fills it from init, so the item's
+// effect stays generated and the generator still lists the item's other effects no code simulates.
+var DamageProcExtras = map[int32]func(character *core.Character, config *core.SpellConfig){}
 
 // Registers the same effect once per item that carries it, the way the stat-bonus constructors do it.
 func NewSpellDataProc(cfg SpellDataProc, variants []ItemVariant) {
@@ -491,9 +503,12 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 // item's own name and action, which are what the sim keys the rolls and the metrics by, and the rate
 // the item's effect entry states.
 func spellDataProcListener(character *core.Character, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell) core.ProcTrigger {
+	rate := cfg.Rate
+	if rate == nil {
+		rate = spellDataProcRate(source, trigger, source.procEntry(cfg, trigger).GetProc())
+	}
 	config := spelldata.ProcTrigger(character, trigger, nil, spelldata.ItemProcChance(trigger),
-		weaponProcShape(cfg), spellDataProcRate(source, trigger, source.procEntry(cfg, trigger).GetProc()),
-		statedWeaponProcChance(cfg.IsWeaponProc, source))
+		weaponProcShape(cfg), rate, statedWeaponProcChance(cfg.IsWeaponProc, source))
 	config.Name = cfg.Name
 	config.ActionID = source.actionID()
 
@@ -587,6 +602,10 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// effect entry takes the higher of them, so this does too: Idol of the Huntress keeps its 200
 	// on the trigger while the buff it applies states none.
 	if stacks := max(buff.MaxStack, trigger.MaxStack); stacks > 0 {
+		// A stacking buff's bonus against creature types would need adding per stack.
+		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool { return len(spelldata.VersusStats(e.Aura)) > 0 }) {
+			panic(fmt.Sprintf("%s (%d): a stacking proc grants stats against creature types, which only a single buff carries", cfg.Name, cfg.ItemID))
+		}
 		aura.MaxStacks = int32(stacks)
 		return core.MakeStackingAura(character, core.StackingStatAura{Aura: aura, BonusPerStack: buffStats})
 	}
@@ -596,9 +615,21 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// this aura's business.
 	aura.MaxStacks = int32(buff.ProcCharges)
 
-	return character.NewTemporaryStatsAuraWrapped(aura.Label, aura.ActionID, buffStats, aura.Duration, func(config *core.Aura) {
+	procAura := character.NewTemporaryStatsAuraWrapped(aura.Label, aura.ActionID, buffStats, aura.Duration, func(config *core.Aura) {
 		config.MaxStacks = aura.MaxStacks
 	})
+	attachVersusStats(procAura.Aura, buff)
+	return procAura
+}
+
+// The stats the buff grants against some creature types, which the item effect entry leaves out:
+// Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin.
+func attachVersusStats(aura *core.Aura, buff *spelldata.Spell) {
+	for _, effect := range buff.Effects {
+		if bonus := spelldata.VersusBonus(effect.Aura, effect.Average()); bonus != (stats.Stats{}) {
+			aura.AttachMobTypeBonusStats(bonus, spelldata.MobTypes(effect.Misc)...)
+		}
+	}
 }
 
 // How long the buff lasts. The game files leave it off the buff's own row on a fair few procs and
@@ -660,8 +691,40 @@ func registerSpellDataDamageProc(cfg SpellDataProc) {
 func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, damage *spelldata.Spell) {
 	character := agent.GetCharacter()
 	config := spellDataProcListener(character, cfg, source, trigger)
-	attachProcDamage(character, &config, spellDataProcDamageSpell(character, damage, true))
+	// The spell a proc casts cannot be cast again while its own cooldown runs, so the listener waits
+	// it out where it has no internal cooldown: Toofbreak 1320269 states 100 ms, and a Toofbreak rolls
+	// no second one (EV-0145). A row that deals its damage as the listener's own aura casts nothing.
+	if config.ICD == 0 && damage.ProcDamageEffect().Aura != dbcenums.A_PROC_TRIGGER_DAMAGE {
+		config.ICD = damage.Cooldown()
+	}
+	damageConfig := spellDataProcDamageSpell(character, damage, true)
+	damageConfig.VersusBonus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindDamage, trigger)
+	if extra, ok := DamageProcExtras[source.id]; ok && !source.isEnchant {
+		extra(character, &damageConfig)
+	}
+	attachProcDamage(character, &config, damageConfig)
+	config.Handler = withProcEnergize(character, damage, config.Handler)
 	source.registerTrigger(character, config)
+}
+
+// The handler followed by the damage row's own gain into the wearer's mana, rage or energy, where the
+// row states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana. The
+// gain targets the caster, so it comes with every proc whether the damage lands or not, a full
+// resist included (EV-0108).
+func withProcEnergize(character *core.Character, damage *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
+	gain := damage.EnergizeEffect()
+	if gain == spelldata.NilEffect || gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
+		return handler
+	}
+	power := dbcenums.PowerType(gain.Misc)
+	bar, ok := energizedBarOf(character, power, core.ActionID{SpellID: damage.ID})
+	if !ok {
+		return handler
+	}
+	return func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		handler(sim, spell, result)
+		bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+	}
 }
 
 // The spell the proc casts, as its row states it: school, defense type, spell power share, travel
@@ -926,11 +989,12 @@ func damageShape(damage *spelldata.Spell) spelldata.SpellOpt {
 	return spelldata.Magic(core.ProcMaskEmpty)
 }
 
-// What a proc's damage lands on, for both damage constructors. A cast the spell's own hit asks for
-// while the spell is still casting, a weapon's strike rolling its own weapon again, goes one spell
-// batch later: inline it would recurse for as long as the rolls succeed, without end where the
-// chance cannot fail. A melee strike an off-hand hit cast carries Suppress Weapon Procs for that cast
-// (weaponProcStrikeMask).
+// What a proc's damage lands on, for both damage constructors. A melee strike rolls weapon procs only
+// where a main-hand white swing of the weapon cast it. One cast by an ability, a seal's or Windfury
+// Totem's strike, an off-hand hit, a form's paw or another strike carries Suppress Weapon Procs for
+// that cast (R-0040, EV-0145). A strike a white swing cast therefore rolls its own weapon once more.
+// The strike that roll asks for comes while the first is still casting, so it goes one spell batch
+// later, and it rolls nothing.
 func procDamageHandler(character *core.Character, damageSpell *core.Spell, callback core.AuraCallback) core.ProcHandler {
 	meleeStrike := damageSpell.ProcMask.Matches(core.ProcMaskMeleeMHSpecial)
 	casting := false
@@ -954,7 +1018,7 @@ func procDamageHandler(character *core.Character, damageSpell *core.Spell, callb
 			return
 		}
 		flags := core.SpellFlagNone
-		if meleeStrike && spell != nil && spell.ProcMask.Matches(core.ProcMaskMeleeOH) && !spell.ProcMask.Matches(core.ProcMaskMeleeMH) {
+		if meleeStrike && (spell == nil || !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) || character.PseudoStats.FeralCombatEnabled) {
 			flags = core.SpellFlagSuppressWeaponProcs
 		}
 		cast(sim, target, flags)
@@ -982,11 +1046,12 @@ func attachProcDamage(character *core.Character, trigger *core.ProcTrigger, cfg 
 // The mask a proc's damage spell casts with. A weapon proc's spell of melee defense is a weapon's
 // strike, a main-hand special as a triggered melee spell is; one of ranged defense is a ranged
 // special. The weapon procs, combat enchants and oils that hear those hits hear it, its own weapon
-// included, and a listener on auto attacks alone does not. A melee strike an off-hand hit cast is
-// heard by no weapon proc, combat enchant or oil on either hand: that cast carries Suppress Weapon
-// Procs, through its flight where it has one, and its damage and bleed are those of any other cast.
-// Only a spell flagged as a proc is a strike: any aura on melee specials would hear one without the
-// flag, so it keeps no mask, as any other proc's damage does.
+// included, and a listener on auto attacks alone does not. A melee strike anything but a main-hand
+// white swing of the weapon cast is heard by no weapon proc, combat enchant or oil on either hand
+// (procDamageHandler): that cast carries Suppress Weapon Procs, through its flight where it has one,
+// and its damage and bleed are those of any other cast. Only a spell flagged as a proc is a strike:
+// any aura on melee specials would hear one without the flag, so it keeps no mask, as any other
+// proc's damage does.
 func weaponProcStrikeMask(defenseType core.DefenseType, flags core.SpellFlag, isWeaponProc bool) core.ProcMask {
 	if !isWeaponProc || !flags.Matches(core.SpellFlagProc) {
 		return core.ProcMaskEmpty
@@ -1250,7 +1315,11 @@ func CarriedProcUnsupported(row *spelldata.Spell) []string {
 // An on-use item whose spell deals damage to its target: the direct damage its row rolls, the damage
 // over time it applies, or both.
 func NewSpellDataDamageOnUse(itemID int32) {
-	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, spellDataOnUseDamageSpell)
+	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, damage *spelldata.Spell) core.SpellConfig {
+		config := spellDataOnUseDamageSpell(character, damage)
+		config.VersusBonus = ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindDamage, damage)
+		return config
+	})
 }
 
 // The proc's damage spell, cast as a spell of its own rather than a proc's.
@@ -1265,7 +1334,9 @@ func spellDataOnUseDamageSpell(character *core.Character, damage *spelldata.Spel
 func NewSpellDataPeriodicDamageOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, row *spelldata.Spell) core.SpellConfig {
 		periodic := row.FirstAura(dbcenums.A_PERIODIC_TRIGGER_SPELL)
-		damage := character.RegisterSpell(spellDataProcDamageSpell(character, spelldata.MustFind(periodic.TriggerID), true))
+		damageConfig := spellDataProcDamageSpell(character, spelldata.MustFind(periodic.TriggerID), true)
+		damageConfig.VersusBonus = ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindDamage, row)
+		damage := character.RegisterSpell(damageConfig)
 
 		config := spelldata.SpellConfig(&character.Unit, row, castBy(false))
 		config.ProcMask = core.ProcMaskEmpty
@@ -1289,8 +1360,8 @@ func NewSpellDataHealOnUse(itemID int32) {
 }
 
 // An on-use item whose spell shields the wearer with an A_SCHOOL_ABSORB aura. The stats the item's
-// effect entry states beside the absorb are the shield's for as long as it holds: in game a used-up
-// absorb removes its whole aura, so Blazing Emblem's 33 Fire resistance goes with its 465 Fire absorb.
+// effect entry states beside the absorb are the shield's for as long as it holds: a used-up
+// absorb removes its whole aura (EV-0100), so Blazing Emblem's 33 Fire resistance goes with its 465 Fire absorb.
 func NewSpellDataAbsorbOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeSurvival, func(character *core.Character, absorb *spelldata.Spell) core.SpellConfig {
 		config := spellDataAbsorbSpell(character, absorb, itemID, false)
@@ -1909,8 +1980,8 @@ var generatedItemEffects = map[int32][]core.ApplyEffect{}
 var generating bool
 
 // Marks the registrations that run until the returned function is called as the generated files':
-// each RegisterAll function of sim/common/forever defers it on its first line. A class file's call
-// to the same constructor is a hand-written effect: it registers with core on its own, uncomposed.
+// RegisterAllProcs and RegisterAllOnUseCds in sim/common/forever defer it on their first line. A class
+// file's call to the same constructor is a hand-written effect: it registers with core on its own, uncomposed.
 func Generated() func() {
 	generating = true
 	return func() { generating = false }

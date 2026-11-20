@@ -67,7 +67,7 @@ export const MultiComboBox = ({
 											label={entry.name}
 											nameAs="span"
 											// Base UI marks a disabled chip data-disabled, which hides a kit Chip; the picks stay in view.
-											rootProps={{ ...props, 'data-disabled': undefined }}
+											rootProps={{ ...props, title: entry.name, 'data-disabled': undefined }}
 											confirmDelete={false}
 											deleteLabel={removeLabel}
 											onDelete={disabled ? undefined : () => onChange(value.filter(picked => picked !== entry.value))}

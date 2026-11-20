@@ -13,7 +13,7 @@ import (
 //   Earthbound: effect 0 of spell 1222988 has no rank curve and is held at its base points
 //   Improved Ghost Wolf: effect 1, 2 of spell 16262 has no rank curve and is held at its base points
 //   Improved Stormstrike: effect 2 of spell 1223031 has no rank curve and is held at its base points
-//   Maelstrom Weapon: effect 1, 2 of spell 408498 has no rank curve and is held at its base points
+//   Maelstrom Weapon: effect 2 of spell 408498 has no rank curve and is held at its base points
 //   Mental Dexterity: effect 1 of spell 415140 has no rank curve and is held at its base points
 //   Shamanistic Focus: effect 0 of spell 1223030 has no rank curve and is held at its base points
 //   Water Shield: effect 0, 1 of spell 408510 has no rank curve and is held at its base points
@@ -299,7 +299,7 @@ var spellData = generatedSpellData{
 	WaterWalking:                   spelldata.Ranked(546),
 	WeaponMastery:                  spelldata.Ranked(29082, 29084, 29086, 29087, 29088),
 	WindfuryTotem:                  spelldata.Ranked(8512, 10613, 10614),
-	WindfuryTotemTriggered:         spelldata.Ranked(8515, 8516, 10608, 10609, 10610, 10612),
+	WindfuryTotemTriggered:         spelldata.Ranked(8515, 10609, 10612),
 	WindfuryWeapon:                 spelldata.Ranked(8232, 8235, 10486, 16362),
 	WindfuryWeaponTriggered:        spelldata.Ranked(8233, 8236, 10484, 16361),
 	WindwallTotem:                  spelldata.Ranked(15107, 15111, 15112),

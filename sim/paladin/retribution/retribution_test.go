@@ -103,7 +103,7 @@ var DefaultSpecOptions = &proto.Player_RetributionPaladin{
 	},
 }
 
-var HolyShockTalents = "05025210221021--0523330110130033"
+var HolyShockTalents = "05025210221001--0523330110130035"
 var UnsealedWrathTalents = "050250002-501-05233011201301351"
 
 var DefaultConsumables = &proto.ConsumesSpec{

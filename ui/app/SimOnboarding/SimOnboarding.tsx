@@ -1,6 +1,6 @@
 import { useActivateTab } from '@features/hooks/useActivateTab';
 import { applicableSteps, OnboardingOutlet, OnboardingTour, type SimulationState, type TourEnd, type TourRun, type TourStep } from '@features/onboarding';
-import { ResultsPanelStage } from '@features/results/components/SimResultsPanel/results_panel_store';
+import { isRunStage, ResultsPanelStage } from '@features/results/components/SimResultsPanel/results_panel_store';
 import i18n from '@i18n/config';
 import { ADDON_URL, DISCORD_URL } from '@sim/constants/other';
 import { isDevMode } from '@sim/utils/env';
@@ -43,8 +43,7 @@ const text = (step: TourStep<SimTourContext>) => ({
 	media: step.id === 'welcome' ? <img className="size-16 self-center" src={LOGO} alt="" data-testid="tour-logo" /> : undefined,
 });
 
-const simulationState = (stage: ResultsPanelStage): SimulationState =>
-	stage === ResultsPanelStage.Pending || stage === ResultsPanelStage.Running ? 'running' : stage === ResultsPanelStage.Result ? 'done' : 'idle';
+const simulationState = (stage: ResultsPanelStage): SimulationState => (isRunStage(stage) ? 'running' : stage === ResultsPanelStage.Result ? 'done' : 'idle');
 
 // The tab strip's open tab, whose test id is the tab's id.
 const openTab = () => document.querySelector('[data-testid="sim-tabs"] [aria-selected="true"]')?.getAttribute('data-testid') ?? null;

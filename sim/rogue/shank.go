@@ -47,7 +47,7 @@ func (rogue *Rogue) registerShank() {
 			venomAura.Activate(sim)
 		}
 		if bootKnifeMetrics != nil && sim.Proc(bootKnifeChance, "Boot Knife") {
-			rogue.AddComboPoints(sim, int32(bootKnifePoints.ProcEnergizeEffect().Average()), bootKnifeMetrics)
+			rogue.AddComboPoints(sim, target, int32(bootKnifePoints.ProcEnergizeEffect().Average()), bootKnifeMetrics)
 		}
 	}
 

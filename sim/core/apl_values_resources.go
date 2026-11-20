@@ -363,24 +363,26 @@ func (value *APLValueEnergyTimeToTarget) String() string {
 
 type APLValueCurrentComboPoints struct {
 	DefaultAPLValueImpl
-	unit *Unit
+	unit   *Unit
+	target UnitReference
 }
 
-func (rot *APLRotation) newValueCurrentComboPoints(_ *proto.APLValueCurrentComboPoints, uuid *proto.UUID) APLValue {
+func (rot *APLRotation) newValueCurrentComboPoints(config *proto.APLValueCurrentComboPoints, uuid *proto.UUID) APLValue {
 	unit := rot.unit
 	if !unit.HasEnergyBar() {
 		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "%s does not use Combo Points", unit.Label)
 		return nil
 	}
 	return &APLValueCurrentComboPoints{
-		unit: unit,
+		unit:   unit,
+		target: rot.GetTargetUnit(config.TargetUnit),
 	}
 }
 func (value *APLValueCurrentComboPoints) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeInt
 }
 func (value *APLValueCurrentComboPoints) GetInt(sim *Simulation) int32 {
-	return value.unit.ComboPoints()
+	return value.unit.ComboPoints(value.target.Get())
 }
 func (value *APLValueCurrentComboPoints) String() string {
 	return "Current Combo Points"

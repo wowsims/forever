@@ -211,7 +211,10 @@ func addEquipEffectStat(out *stats.Stats, effect SpellEffect, value float64) {
 	addEquipAuraStat(out, effect, value)
 }
 
-const SkillLineDefense = 95
+const (
+	SkillLineDefense     = 95
+	SkillLineFeralCombat = 3014
+)
 
 // Where one effect of an equip spell goes in the data of the item or enchant carrying it.
 type EquipFold uint8
@@ -361,6 +364,11 @@ func AddEquipSpellStats(outStats *stats.Stats, pseudoStats []float64, spellID in
 		}
 
 		switch effect.EffectAura {
+		case dbcenums.A_MOD_SKILL:
+			// Feral Combat stands in for the weapon's skill in an animal form; the sim adds it to the form's skill.
+			if effect.EffectMiscValues[0] == SkillLineFeralCombat {
+				add(proto.PseudoStat_PseudoStatFeralCombatSkill, value)
+			}
 		case dbcenums.A_MOD_HIT_CHANCE:
 			addWeapon(proto.PseudoStat_PseudoStatMeleeHitPercent, proto.PseudoStat_PseudoStatRangedHitPercent, value)
 		case dbcenums.A_MOD_WEAPON_CRIT_PERCENT:

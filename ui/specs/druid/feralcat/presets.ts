@@ -1,9 +1,8 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { AreaType, ConsumesSpec, Profession, Race } from '@generated/proto/common';
+import { ConsumesSpec, Profession, Race } from '@generated/proto/common';
 import { FeralCatDruid_Options as FeralDruidOptions } from '@generated/proto/druid';
 import { SavedTalents } from '@generated/proto/ui';
-import { Encounter } from '@sim/raid/encounter';
 
 import { CatEp, HybridEp } from '../feral_ep';
 import AdaptiveApl from './apls/adaptive.apl.json';
@@ -32,11 +31,6 @@ export const DefaultConsumables = ConsumesSpec.create({
 	offensivePotId: Consumables.MightyRagePotion.id,
 });
 
-const encounter = Encounter.defaultEncounterProto();
-encounter.areaTypes = [AreaType.AreaTypeForestGrassland, AreaType.AreaTypeMountainous];
-encounter.zoneId = 616;
-export const DefaultEncounter = PresetUtils.makePresetEncounter('Mount Hyjal', encounter);
-
 export const OtherDefaults = {
 	distanceFromTarget: 25,
 	profession1: Profession.Engineering,
@@ -45,7 +39,7 @@ export const OtherDefaults = {
 	reactionTime: 250,
 };
 
-// Leather at 60 with no set bonus and no proc. The stand-in the rotation was tuned on.
+// Leather at 60 with no set bonus and no proc.
 export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJson, {
 	devOnly: true,
 	tooltip: 'Leather at level 60 with no set bonus and no proc. Fist of Cenarius and the Howling Idol.',
@@ -66,5 +60,5 @@ export const JVMES_APL = {
 	...PresetUtils.makePresetAPLRotation('Adaptive Cat', AdaptiveApl),
 	tooltip: 'Maintains Faerie Fire and bleeds, and uses optional consumables and racials. Supports an MCP opener from the weapon swap slot.',
 };
-export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050022-53200032123012124001-055' }));
-export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050022-50230332123110121011-055' }));
+export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050021-53200032123012125001-055' }));
+export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050012-50230302123110125011-055' }));

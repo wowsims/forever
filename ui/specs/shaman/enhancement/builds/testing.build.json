@@ -161,7 +161,7 @@
       "priorityList": [
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"80%"}}}},"castSpell":{"spellId":{"otherId":"OtherActionResourcePotion"}}}},
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"70%"}}}},"castSpell":{"spellId":{"itemId":12662}}}},
-        {"action":{"condition":{"not":{"val":{"auraIsActive":{"auraId":{},"includeReactionTime":true}}}},"castSpell":{"spellId":{"spellId":408510}}}},
+        {"action":{"condition":{"not":{"val":{"auraIsActive":{"auraId":{"spellId":408510},"includeReactionTime":true}}}},"castSpell":{"spellId":{"spellId":408510}}}},
         {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Air"}},"rhs":{"const":{"val":"2s"}}}},"castSpell":{"spellId":{"spellId":10614}}}},
         {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Earth"}},"rhs":{"const":{"val":"2s"}}}},"castSpell":{"spellId":{"spellId":10442,"rank":4}}}},
         {"action":{"condition":{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Water"}},"rhs":{"const":{"val":"2s"}}}},"castSpell":{"spellId":{"spellId":10497}}}},

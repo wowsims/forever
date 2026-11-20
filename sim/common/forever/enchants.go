@@ -2,16 +2,19 @@ package forever
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Revelation's buff per class. Warriors and rogues have none.
+// Revelation's buff per class. No warrior or rogue gains one in the logs (EV-0149).
+// TODO: Verify in game that warriors and rogues get no buff; EV-0149 has too few wearers to settle it.
 var revelationBuffs = map[proto.Class]int32{
 	proto.Class_ClassMage:    1248808,
 	proto.Class_ClassPriest:  1323377,
@@ -22,7 +25,54 @@ var revelationBuffs = map[proto.Class]int32{
 	proto.Class_ClassPaladin: 1323419,
 }
 
+// Spells the class's buff row does not name whose cast spends the charge all the same and crits on
+// its direct hit. Each has a periodic part, which the buff leaves alone (EV-0149).
+var revelationDirectHits = map[proto.Class]core.ClassFlags{
+	proto.Class_ClassMage:    {Family: 3, Mask: [4]uint32{0x400001, 0x1000}}, // Fireball, Pyroblast, Frostfire Bolt
+	proto.Class_ClassWarlock: {Family: 5, Mask: [4]uint32{0x4}},              // Immolate
+	proto.Class_ClassDruid:   {Family: 7, Mask: [4]uint32{0x42}},             // Moonfire, Regrowth
+	proto.Class_ClassShaman:  {Family: 11, Mask: [4]uint32{0x10000000}},      // Flame Shock
+}
+
+// Judgement of Light's heal at each rank, which whoever strikes the judged target casts. It rolls
+// nothing for Revelation, where Seal of Light's heal rolls; the rows show no cause (EV-0149).
+var judgementOfLightHeals = []int32{20267, 20341, 20342, 20343}
+
+// The share of Revelation's chance a spell keeps for its level: all of it down to 12 levels under
+// the wearer, none from 32 levels under, and a straight line between (EV-0149).
+func revelationLevelShare(wearerLevel int32, spellLevel int32) float64 {
+	return max(0, min(1, float64(spellLevel+32-wearerLevel)/20))
+}
+
+// The buff's row with the given class flags added to the spells its crit modifier names, which are
+// the spells its charge is spent by.
+func revelationSpentBy(row *spelldata.Spell, flags core.ClassFlags) *spelldata.Spell {
+	widened := *row
+	widened.Effects = slices.Clone(row.Effects)
+	for i := range widened.Effects {
+		if effect := &widened.Effects[i]; effect.Aura == dbcenums.A_ADD_FLAT_MODIFIER && !effect.ClassFlags.IsZero() {
+			for word := range effect.ClassFlags.Mask {
+				effect.ClassFlags.Mask[word] |= flags.Mask[word]
+			}
+		}
+	}
+	return &widened
+}
+
 func init() {
+
+	// Enchant Weapon - Fiery Weapon
+	// EffectID: 803, Proc SpellID: 13897
+	// Permanently enchant a melee weapon to often strike for 40 additional fire damage.
+	// https://www.wowhead.com/forever/spell=13898
+	// The game files state no rate; the enchant's effect entry carries its procs per minute (EV-0130).
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{
+		Name:           "Enchant Weapon - Fiery Weapon",
+		EnchantID:      803,
+		TriggerSpellID: 13897,
+		BuffSpellID:    13897,
+		IsWeaponProc:   true,
+	}, nil)
 
 	// Felsteel Shield Spike
 	// EffectID: 2714, Proc SpellID: 29455
@@ -223,10 +273,9 @@ func init() {
 	// The proc spell names no buff: each class with spells to crit has a Revelation of its own, and the
 	// wearer gets its class's, with that row's class flags and charge. The game files state no rate,
 	// only that a direct spell or heal landing without a crit rolls it, and that the chance falls as
-	// the wearer's crit chance rises; the enchant's effect entry carries the chance. Only a hit that deals damage or heals rolls it: a landing for
-	// nothing, such as a channel's start or an aura's application, does not. The spell a channel
-	// casts each tick (Blizzard's) rolls it too.
-	// TODO: Verify in game that warriors and rogues get no buff.
+	// the wearer's crit chance rises; the enchant's effect entry carries the chance. Only a hit that
+	// deals damage or heals rolls it: a landing for nothing, such as a channel's start or an aura's
+	// application, does not. The spell a channel casts each tick (Blizzard's) rolls it too.
 	core.NewEnchantEffect(8217, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		buffID, ok := revelationBuffs[character.Class]
@@ -239,32 +288,84 @@ func init() {
 		spelldata.ParseEffects(character, buff, row)
 		character.ItemSwap.RegisterWeaponEnchantBuff(buff, 8217)
 
-		// The charge goes to the next cast the crit modifier reaches, whatever its proc mask. A channel
-		// the mask names (Blizzard, a hunter's Volley) spends it.
-		spender := spelldata.AttachChargeSpender(character, buff, row, "Revelation Charge",
+		// The charge goes as a cast the buff reaches completes, on every class, and a spell still in
+		// flight keeps the crit it rolled. A channel the mask names (Blizzard, Hurricane) keeps the
+		// charge to its end. A melee or ranged attack the mask names, a paladin's judgement or Hammer
+		// of Wrath, crits and leaves the charge (EV-0028, EV-0149).
+		// TODO: Holy Shock's and Light's Vigil's heals crit here on every cast with the buff up, and
+		// in the logs mostly do not, landing after the charge is gone (EV-0149).
+		// TODO: A charge gained while a hunter channels Volley, a ranged attack, is still spent as the
+		// channel ends. EV-0149 does not record what spends a hunter's charge.
+		isAttack := func(spell *core.Spell) bool {
+			return spell.DefenseType == core.DefenseTypeMelee || spell.DefenseType == core.DefenseTypeRanged
+		}
+		spends := row
+		direct, critsDirectHits := revelationDirectHits[character.Class]
+		if critsDirectHits {
+			spends = revelationSpentBy(row, direct)
+		}
+		spelldata.AttachChargeSpender(character, buff, spends, "Revelation Charge",
 			func(_ *core.Character, trigger *core.ProcTrigger) {
 				trigger.ProcMask = core.ProcMaskUnknown
+				trigger.Callback = core.CallbackOnCastComplete
+				trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+					return !isAttack(spell)
+				}
 			})
+
+		// The direct hit of a spell in revelationDirectHits crits for the one cast that spends the
+		// charge, and its ticks never do.
+		if critsDirectHits {
+			crit := row.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CRITICAL_CHANCE)).BaseValue()
+			var critting *core.Spell
+			stopCritting := func() {
+				if critting != nil {
+					critting.BonusCritPercent -= crit
+					critting = nil
+				}
+			}
+			buff.OnApplyEffects = func(_ *core.Aura, _ *core.Simulation, _ *core.Unit, spell *core.Spell) {
+				if spell.Unit != &character.Unit || !spell.MatchesFlags(direct) || spell.Flags.Matches(core.SpellFlagProc) {
+					return
+				}
+				stopCritting()
+				if buff.GetStacks() > 0 {
+					critting = spell
+					spell.BonusCritPercent += crit
+				}
+			}
+			buff.ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) { stopCritting() })
+		}
 
 		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1248806), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			buff.Activate(sim)
 			buff.SetStacks(sim, buff.MaxStacks)
-		}, spelldata.Chance(enchantProcChance(8217, 1248806))) // TODO: Model how the chance falls with the wearer's crit chance.
+		}, spelldata.Chance(enchantProcChance(8217, 1248806))) // TODO: Model how the chance falls with the wearer's crit from gear and intellect (EV-0149).
 		trigger.Name = "Enchant Weapon - Revelation"
 		trigger.Outcome = core.OutcomeLanded
 		trigger.RequireDamageDealt = true
-		// The row's listener hears direct spells and heals. A ranged Shot the buff's class flags name
-		// rolls the same chance, which the hunter buff's Arcane Shot is.
-		// TODO: Verify in game that a hunter's Arcane Shot procs Revelation.
-		spellHits, classFlags := trigger.ProcMask, spender.ClassFlags
-		trigger.ProcMask = core.ProcMaskUnknown
-		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
-			shot := spell.DefenseType == core.DefenseTypeRanged && spell.MatchesFlags(classFlags)
-			if !spell.ProcMask.Matches(spellHits) && !shot {
+		// The row's listener hears direct spells and heals. A melee or ranged attack rolls nothing, even
+		// one the buff's class flags name, and neither does Judgement of Light's heal. A spell far under
+		// the wearer's level rolls a share of the chance (EV-0149). A spell with no SpellLevels row reads
+		// level 60 and keeps the whole chance. A spell the store has no row for, such as an item's spell
+		// registered under its item id, reads level 0 and keeps none.
+		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
+		// TODO: A spell with no SpellLevels row rolls nothing in the logs (EV-0149). The store reads it as level 60.
+		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
+		shares := map[*core.Spell]float64{}
+		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			// A landing while the buff is up rolls too and refreshes it.
+			if result.DidCrit() || isAttack(spell) {
 				return false
 			}
-			// A landing while the buff is up rolls too and refreshes it.
-			return !result.DidCrit()
+			share, ok := shares[spell]
+			if !ok {
+				if !slices.Contains(judgementOfLightHeals, spell.SpellID) {
+					share = revelationLevelShare(character.Level, int32(spelldata.Find(spell.SpellID).SpellLevel))
+				}
+				shares[spell] = share
+			}
+			return share >= 1 || (share > 0 && sim.Proc(share, "Revelation Level Share"))
 		}
 		character.ItemSwap.RegisterEnchantProc(8217, character.MakeProcTriggerAura(trigger))
 	})
@@ -299,7 +400,7 @@ func init() {
 				Label:    "Minor Run Speed",
 				ActionID: core.ActionID{SpellID: 13889},
 			}))
-			aura.NewActiveMovementSpeedEffect(0.08)
+			aura.NewActiveMovementSpeedEffect(spelldata.MustFind(13889).EffectN(1).Percent())
 
 			character.ItemSwap.RegisterEnchantProc(enchantID, aura)
 		})

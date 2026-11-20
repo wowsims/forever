@@ -120,9 +120,51 @@ func (s *Spell) FindEffect(typ dbcenums.SpellEffectType, aura dbcenums.EffectAur
 // multiplier or a flat bonus rather than an amount.
 // An E_HEALTH_LEECH deals its amount as damage too.
 func (s *Spell) DamageEffect() *Effect {
-	return s.firstOfType(dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE,
-		dbcenums.E_WEAPON_PERCENT_DAMAGE, dbcenums.E_NORMALIZED_WEAPON_DMG,
-		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, dbcenums.E_HEALTH_LEECH)
+	return s.firstOfType(directDamageEffects...)
+}
+
+var directDamageEffects = []dbcenums.SpellEffectType{dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE,
+	dbcenums.E_WEAPON_PERCENT_DAMAGE, dbcenums.E_NORMALIZED_WEAPON_DMG,
+	dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, dbcenums.E_HEALTH_LEECH}
+
+// Whether the spell resists all or nothing: a magic row on the magic hit table that deals damage and,
+// beside the damage, applies an aura other than a dummy to an enemy, interrupts, or carries a dummy,
+// script, energize or area trigger effect on any target. Its hit roll resists it in full at the
+// target's average resist, and a hit or tick that lands takes no partial resist (EV-0142).
+func (s *Spell) IsBinary() bool {
+	if s.School == 0 || s.School.Matches(core.SpellSchoolPhysical) || s.DefenseType != core.DefenseTypeMagic {
+		return false
+	}
+	damage, beside := false, false
+	for i := range s.Effects {
+		e := &s.Effects[i]
+		switch {
+		case dealsDamage(e):
+			damage = true
+		case e.Type == dbcenums.E_INTERRUPT_CAST, e.Type == dbcenums.E_DUMMY, e.Type == dbcenums.E_SCRIPT_EFFECT,
+			e.Type == dbcenums.E_ENERGIZE, e.Type == dbcenums.E_CREATE_AREATRIGGER:
+			beside = true
+		case AppliesAura(e.Type) && e.Aura != dbcenums.A_DUMMY && e.Aura != dbcenums.A_PERIODIC_DUMMY && e.HitsAnEnemy():
+			beside = true
+		}
+	}
+	return damage && beside
+}
+
+// Whether the effect deals damage, directly or as a damage aura.
+func dealsDamage(e *Effect) bool {
+	if e.Type == dbcenums.E_POWER_BURN || slices.Contains(directDamageEffects, e.Type) {
+		return true
+	}
+	if !AppliesAura(e.Type) {
+		return false
+	}
+	switch e.Aura {
+	case dbcenums.A_PERIODIC_DAMAGE, dbcenums.A_PERIODIC_LEECH, dbcenums.A_PERIODIC_DAMAGE_PERCENT,
+		dbcenums.A_DAMAGE_SHIELD, dbcenums.A_PROC_TRIGGER_DAMAGE, dbcenums.A_PERIODIC_MANA_LEECH, dbcenums.A_POWER_BURN:
+		return true
+	}
+	return false
 }
 
 // The effect a proc deals its damage through: the row's damage effect, or the A_PROC_TRIGGER_DAMAGE
@@ -153,7 +195,7 @@ func (s *Spell) FiredSpell() *Spell {
 
 // A weapon strike's damage: its flat weapon-damage roll, the weapon damage and extra, all scaled by
 // the spell's weapon percent, or taken whole where it states none. In game the percent scales the
-// flat part too: Holy Strike rank 1's 12 ± 1.5 at 25% shows as 2 to 4.
+// flat part too: Holy Strike rank 1's 12 ± 1.5 at 25% shows as 2 to 4 (EV-0101).
 func (s *Spell) WeaponStrike(sim *core.Simulation, spell *core.Spell, weaponDamage, extra float64) float64 {
 	flat := s.firstOfType(dbcenums.E_NORMALIZED_WEAPON_DMG, dbcenums.E_WEAPON_DAMAGE_NOSCHOOL,
 		dbcenums.E_WEAPON_DAMAGE)
@@ -364,7 +406,7 @@ func (s *Spell) Triggered() []*Spell {
 
 // A tick of a damage over time. The hit is rolled once, when the dot is applied, so the tick rolls
 // none: a crit only where the row states Periodic Can Crit, on the crit of the dot spell's defense
-// type, and the partial resist its school takes.
+// type, and the partial resist its school takes unless the spell is binary.
 func (s *Spell) TickOutcome(dot *core.Dot) core.OutcomeApplier {
 	switch tickOutcomeKind(s.PeriodicCanCrit(), dot.Spell.DefenseType == core.DefenseTypeMagic) {
 	case tickOutcomeMagicCrit:
@@ -374,6 +416,15 @@ func (s *Spell) TickOutcome(dot *core.Dot) core.OutcomeApplier {
 	default:
 		return dot.OutcomeTick
 	}
+}
+
+// What a tick of a magic damage over time is expected to deal: the crit share counts where the row
+// states Periodic Can Crit, as the tick rolls it.
+func (s *Spell) ExpectedMagicTickOutcome(spell *core.Spell) core.OutcomeApplier {
+	if s.PeriodicCanCrit() {
+		return spell.OutcomeExpectedMagicCrit
+	}
+	return spell.OutcomeExpectedMagicAlwaysHit
 }
 
 // Which of the three ticks the two flags pick. Split out so the choice can be asserted without a Dot.

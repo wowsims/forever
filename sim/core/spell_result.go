@@ -127,12 +127,24 @@ func (result *SpellResult) DidBlock() bool {
 	return result.Outcome.Matches(OutcomeBlock)
 }
 
+// A block that takes the whole hit. A block whose remainder an absorb takes is not one, so this reads
+// the damage the block left, before absorbs.
+func (result *SpellResult) BlockedInFull() bool {
+	return result.DidBlock() && result.PostOutcomeDamage == 0
+}
+
 func (result *SpellResult) DidBlockCrit() bool {
 	return result.Outcome.Matches(OutcomeBlock) && result.Outcome.Matches(OutcomeCrit)
 }
 
+// A partial resist that took damage.
 func (result *SpellResult) DidResist() bool {
-	return result.Outcome.Matches(OutcomePartial)
+	return result.Outcome.ResistedPercent() > 0
+}
+
+// A hit that Spell Piercing beyond the target's resistance raised.
+func (result *SpellResult) DidPierce() bool {
+	return result.Outcome.ResistedPercent() < 0
 }
 
 func (result *SpellResult) DidParry() bool {
@@ -158,6 +170,7 @@ func (result *SpellResult) HealingString() string {
 	return fmt.Sprintf("%s for %0.3f healing", result.Outcome.String(), result.Damage)
 }
 
+// A hit or tick takes the threat multiplier in force when it lands (EV-0037).
 func (spell *Spell) ThreatFromDamage(sim *Simulation, outcome HitOutcome, damage float64, attackTable *AttackTable) float64 {
 	if outcome.Matches(OutcomeLanded) {
 		bonus := spell.FlatThreatBonus
@@ -205,7 +218,7 @@ func (spell *Spell) PhysicalCritChance(attackTable *AttackTable) float64 {
 // The crit chance before the floor at 0, with extraCritPercent more crit on the spell.
 func (spell *Spell) physicalCritChanceUnclamped(attackTable *AttackTable, extraCritPercent float64) float64 {
 	critPercent := spell.Unit.stats[stats.PhysicalCritPercent] + spell.BonusCritPercent +
-		attackTable.critChanceByCaster(spell) + extraCritPercent
+		attackTable.BonusCritPercent + attackTable.critChanceByCaster(spell) + extraCritPercent
 
 	if spell.ProcMask.Matches(ProcMaskRanged) {
 		critPercent += spell.Unit.stats[stats.RangedCritPercent]
@@ -230,9 +243,12 @@ func (spell *Spell) BonusDamage(attackTable *AttackTable) float64 {
 	bonusDamage := spell.BonusBaseDamage
 
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) {
-		bonusDamage += spell.Unit.stats[stats.PhysicalDamage]
+		bonusDamage += spell.Unit.stats[stats.PhysicalDamage] + attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.PhysicalDamage]
 	} else {
-		bonusDamage += spell.SpellDamage(attackTable.Defender) + attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.SpellDamage]
+		bonusDamage += spell.SpellDamage(attackTable.Defender)
+		if !spell.Flags.Matches(SpellFlagIgnoreTargetSchoolBonus) {
+			bonusDamage += attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.SpellDamage]
+		}
 	}
 
 	return bonusDamage
@@ -304,6 +320,7 @@ func (spell *Spell) SpellCritChance(target *Unit) float64 {
 	critPercent := spell.Unit.stats[stats.SpellCritPercent] +
 		spell.BonusCritPercent +
 		attackTable.BonusSpellCritPercent +
+		attackTable.BonusCritPercent +
 		attackTable.critChanceByCaster(spell)
 	// Reduced crit taken, like Defense, lowers the chance to be crit by melee and ranged attacks only.
 	return max(critPercent/100, 0)
@@ -371,7 +388,7 @@ func (spell *Spell) missesImmune(target *Unit) bool {
 		spell.Flags.Matches(SpellFlagStun) && target.stunImmune()
 }
 
-// A miss with no hit or crit roll, as a full resist or a bleed on a bleed-immune target is.
+// A miss with no hit or crit roll, as a bleed on a bleed-immune target is.
 func (spell *Spell) missInFull(result *SpellResult) {
 	result.Outcome = OutcomeMiss
 	result.Damage = 0
@@ -387,6 +404,14 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 
 	result.Damage *= attackerMultiplier
 	afterAttackMods := result.Damage
+	// The target's flat physical damage taken lands before its armor: Gift of Arthas adds 8 times the
+	// share of a swing that gets through, and Force of Will takes its 51 off the same way. The reductions
+	// in this field together take at most half of the hit (EV-0154). The flat ranged and spell amounts land
+	// in applyTargetModifiers, after armor and outside this cap.
+	// TODO: The cap is read on normal white swings (EV-0154); measure it on specials, ranged hits and ticks.
+	if spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.Flags.Matches(SpellFlagIgnoreTargetModifiers) {
+		result.Damage += max(attackTable.Defender.PseudoStats.BonusPhysicalDamageTaken, min(0, -result.Damage/2))
+	}
 	result.applyResistances(sim, spell, isPeriodic, attackTable)
 	afterResistances := result.Damage
 	targetMultiplier := result.applyTargetModifiers(sim, spell, attackTable, isPeriodic)
@@ -398,8 +423,7 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 		partialOutcome = result.Outcome & OutcomePartial
 	}
 
-	// A full resist is a miss, as a binary spell's resist is: it rolls no hit or crit and lands nothing.
-	if partialOutcome.ResistedTenths() == 10 || (!isPeriodic && spell.missesImmune(target)) {
+	if !isPeriodic && spell.missesImmune(target) {
 		partialOutcome = OutcomeEmpty
 		spell.missInFull(result)
 	} else {
@@ -437,6 +461,7 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64, outcomeApplier OutcomeApplier) *SpellResult {
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(spell.Unit.AttackTables[target.UnitIndex], false)
+	baseDamage *= spell.VersusBonus.Against(target)
 	// A weapon strike takes the caster's flat physical damage bonus whole; a physical row that deals
 	// school damage takes it at the row's coefficient.
 	if spell.BonusCoefficient > 0 {
@@ -455,6 +480,7 @@ func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64
 func (spell *Spell) CalcPeriodicDamage(sim *Simulation, target *Unit, baseDamage float64, outcomeApplier OutcomeApplier) *SpellResult {
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(attackTable, true)
+	baseDamage *= spell.VersusBonus.Against(target)
 
 	var dot *Dot
 	if spell.aoeDot != nil {
@@ -484,6 +510,7 @@ func (spell *Spell) CalcAndDealOutcome(sim *Simulation, target *Unit, outcomeApp
 
 func hitKind(result *SpellResult, isPeriodic bool) proto.HitKind {
 	resisted := result.DidResist()
+	pierced := result.DidPierce()
 	switch {
 	case result.DidBlockCrit():
 		return proto.HitKind_HitKindBlockedCrit
@@ -491,10 +518,14 @@ func hitKind(result *SpellResult, isPeriodic bool) proto.HitKind {
 		switch {
 		case isPeriodic && resisted:
 			return proto.HitKind_HitKindResistedCritTick
+		case isPeriodic && pierced:
+			return proto.HitKind_HitKindPiercedCritTick
 		case isPeriodic:
 			return proto.HitKind_HitKindCritTick
 		case resisted:
 			return proto.HitKind_HitKindResistedCrit
+		case pierced:
+			return proto.HitKind_HitKindPiercedCrit
 		}
 		return proto.HitKind_HitKindCrit
 	case result.DidGlance():
@@ -505,10 +536,14 @@ func hitKind(result *SpellResult, isPeriodic bool) proto.HitKind {
 		return proto.HitKind_HitKindCrush
 	case isPeriodic && resisted:
 		return proto.HitKind_HitKindResistedTick
+	case isPeriodic && pierced:
+		return proto.HitKind_HitKindPiercedTick
 	case isPeriodic:
 		return proto.HitKind_HitKindTick
 	case resisted:
 		return proto.HitKind_HitKindResistedHit
+	case pierced:
+		return proto.HitKind_HitKindPiercedHit
 	}
 	return proto.HitKind_HitKindHit
 }
@@ -519,18 +554,27 @@ func (spell *Spell) dealDamageInternal(sim *Simulation, isPeriodic bool, result 
 		spell.DealCastResult(sim, result)
 	}
 
-	isPartialResist := result.DidResist()
+	// A blocked, glancing or crushing hit counts in its own row, its resisted or pierced share included.
+	ownRow := result.DidBlock() || result.DidGlance() || result.DidCrush()
+	isPartialResist := !ownRow && result.DidResist()
+	isPierced := !ownRow && result.DidPierce()
 
 	if sim.CurrentTime >= 0 {
 		spell.SpellMetrics[result.Target.UnitIndex].TotalDamage += result.Damage
 		if isPartialResist {
 			spell.SpellMetrics[result.Target.UnitIndex].TotalResistedDamage += result.Damage
 		}
+		if isPierced {
+			spell.SpellMetrics[result.Target.UnitIndex].TotalPiercedDamage += result.Damage
+		}
 
 		if isPeriodic {
 			spell.SpellMetrics[result.Target.UnitIndex].TotalTickDamage += result.Damage
 			if isPartialResist {
 				spell.SpellMetrics[result.Target.UnitIndex].TotalResistedTickDamage += result.Damage
+			}
+			if isPierced {
+				spell.SpellMetrics[result.Target.UnitIndex].TotalPiercedTickDamage += result.Damage
 			}
 		}
 
@@ -541,11 +585,17 @@ func (spell *Spell) dealDamageInternal(sim *Simulation, isPeriodic bool, result 
 			if isPartialResist {
 				spell.SpellMetrics[result.Target.UnitIndex].TotalResistedCritDamage += result.Damage
 			}
+			if isPierced {
+				spell.SpellMetrics[result.Target.UnitIndex].TotalPiercedCritDamage += result.Damage
+			}
 
 			if isPeriodic {
 				spell.SpellMetrics[result.Target.UnitIndex].TotalCritTickDamage += result.Damage
 				if isPartialResist {
 					spell.SpellMetrics[result.Target.UnitIndex].TotalResistedCritTickDamage += result.Damage
+				}
+				if isPierced {
+					spell.SpellMetrics[result.Target.UnitIndex].TotalPiercedCritTickDamage += result.Damage
 				}
 			}
 		} else if result.DidGlance() {
@@ -807,7 +857,7 @@ func (spell *Spell) dealHealingInternal(sim *Simulation, isPeriodic bool, result
 		healed = max(0, min(healed, result.Target.MaxHealth()-result.Target.CurrentHealth()))
 	}
 	result.Threat = spell.ThreatFromDamage(sim, result.Outcome, healed*ThreatPerHealingDone, spell.Unit.AttackTables[result.Target.UnitIndex])
-	spell.applySplitThreat(sim, result.Threat)
+	spell.ApplySplitThreat(sim, result.Threat)
 	kind := proto.HitKind_HitKindHeal
 	switch {
 	case isPeriodic && result.DidCrit():
@@ -908,9 +958,12 @@ func (spell *Spell) attackerDamageMultiplierInternal(attackTable *AttackTable) f
 		return 1
 	}
 
-	return spell.Unit.PseudoStats.DamageDealtMultiplier *
-		spell.Unit.PseudoStats.SchoolDamageDealtMultiplier[spell.SchoolIndex] *
-		attackTable.DamageDealtMultiplier
+	multiplier := spell.Unit.PseudoStats.DamageDealtMultiplier *
+		spell.Unit.PseudoStats.SchoolDamageDealtMultiplier[spell.SchoolIndex]
+	if !spell.Flags.Matches(SpellFlagNoDamageVersus) {
+		multiplier *= attackTable.DamageDealtMultiplier
+	}
+	return multiplier
 }
 
 func (result *SpellResult) applyTargetModifiers(sim *Simulation, spell *Spell, attackTable *AttackTable, isPeriodic bool) float64 {
@@ -919,11 +972,10 @@ func (result *SpellResult) applyTargetModifiers(sim *Simulation, spell *Spell, a
 	}
 
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) {
-		result.Damage += attackTable.Defender.PseudoStats.BonusPhysicalDamageTaken
 		if spell.ProcMask.Matches(ProcMaskRanged) {
 			result.Damage += attackTable.Defender.PseudoStats.BonusRangedDamageTaken
 		}
-	} else if !spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.SpellSchool.Matches(SpellSchoolNone) {
+	} else if !spell.SpellSchool.Matches(SpellSchoolNone) {
 		result.Damage += attackTable.Defender.PseudoStats.BonusSpellDamageTaken
 		// The target's flat school bonus, Judgement of the Crusader, lands after the caster's done
 		// multipliers and before the target's and the outcome roll: a crit doubles it and a damage done
@@ -939,8 +991,8 @@ func (result *SpellResult) applyTargetModifiers(sim *Simulation, spell *Spell, a
 }
 
 // The coefficient the target's flat school bonus is taken at: a tick's dot coefficient, the
-// spell's own, or the one a spell states for it when its spell power goes through a weapon percent
-// and so sets no BonusCoefficient.
+// spell's own, or the one a spell states for it when it adds its spell power by hand and so sets
+// no BonusCoefficient.
 func (spell *Spell) takenBonusCoefficient(target *Unit, isPeriodic bool) float64 {
 	if isPeriodic {
 		dot := spell.aoeDot

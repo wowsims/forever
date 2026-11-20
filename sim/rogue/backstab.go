@@ -34,10 +34,10 @@ func (rogue *Rogue) registerBackstabRank(rank *spelldata.Spell) {
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
 		if result.Landed() {
-			rogue.AddComboPoints(sim, int32(comboPointGen), spell.ComboPointMetrics())
+			rogue.AddComboPoints(sim, target, int32(comboPointGen), spell.ComboPointMetrics())
 			chanceForBonus := spellData.PuncturingWounds.EffectAt(2).FractionAt(rogue.Talents.PuncturingWounds)
 			if sim.Proc(chanceForBonus, "Puncturing Wounds") {
-				rogue.AddComboPoints(sim, 1, rogue.puncturingWoundsComboPointMetrics)
+				rogue.AddComboPoints(sim, target, 1, rogue.puncturingWoundsComboPointMetrics)
 			}
 		} else {
 			spell.IssueRefund(sim)

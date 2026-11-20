@@ -49,7 +49,7 @@ type CastConfig struct {
 	DefaultCast Cast
 
 	// Dynamic modifications for each cast.
-	ModifyCast func(*Simulation, *Spell, *Cast)
+	ModifyCast func(*Simulation, *Spell, *Cast, *Unit)
 
 	// Ignores haste when calculating the GCD and cast time for this cast.
 	// Automatically set if GCD and cast times are all 0, e.g. for empty casts.
@@ -117,7 +117,7 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 		spell.CurCast = spell.DefaultCast
 
 		if config.ModifyCast != nil {
-			config.ModifyCast(sim, spell, &spell.CurCast)
+			config.ModifyCast(sim, spell, &spell.CurCast, target)
 			if spell.CurCast.Cost != spell.DefaultCast.Cost {
 				// Costs need to be modified using the unit and spell multipliers, so that
 				// their affects are also visible in the spell.CanCast() function, which
@@ -285,6 +285,7 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 			return true
 		}
 
+		// An instant cast leaves the swing timer running (EV-0037).
 		if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
 			spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)%s",
 				spell.ActionID, max(0, spell.CurCast.Cost), spell.CurCast.CastTime, max(0, spell.CurCast.GCDTime()), spell.CurCast.EffectiveTime(), spell.aplEntrySuffix())

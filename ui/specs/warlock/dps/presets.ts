@@ -17,10 +17,23 @@ import DemoFireBrandBuildJson from './builds/demo_fire_brand.build.json';
 import DemoShadowBrandBuildJson from './builds/demo_shadow_brand.build.json';
 import DestroBuildJson from './builds/destro.build.json';
 import SmRuinBuildJson from './builds/sm_ruin.build.json';
+import AffWrackGearJson from './gear_sets/aff_wrack.gear.json';
+import DemoFireBrandGearJson from './gear_sets/demo_fire_brand.gear.json';
+import DemoShadowBrandGearJson from './gear_sets/demo_shadow_brand.gear.json';
+import DestroGearJson from './gear_sets/destro.gear.json';
+import SmRuinGearJson from './gear_sets/sm_ruin.gear.json';
 
 // Preset options for this spec.
 // Eventually we will import these values for the raid sim too, so its good to
 // keep them in a separate file.
+
+// One gear set per build. Each build file holds a copy of its set, which applying the build equips; spec.test.ts
+// checks the copies match.
+export const DemoFireBrandGear = PresetUtils.makePresetGear('Demo (Fire Brand)', DemoFireBrandGearJson);
+export const DemoShadowBrandGear = PresetUtils.makePresetGear('Demo (Shadow Brand)', DemoShadowBrandGearJson);
+export const DestroGear = PresetUtils.makePresetGear('Destro', DestroGearJson);
+export const SmRuinGear = PresetUtils.makePresetGear('SM/Ruin', SmRuinGearJson);
+export const AffWrackGear = PresetUtils.makePresetGear('Aff (Wrack)', AffWrackGearJson);
 
 export const DEMO_FIRE_BRAND_APL = PresetUtils.makePresetAPLRotation('Demo (Fire Brand)', DemoFireBrandBuildJson.player.rotation);
 export const DEMO_SHADOW_BRAND_APL = PresetUtils.makePresetAPLRotation('Demo (Shadow Brand)', DemoShadowBrandBuildJson.player.rotation);
@@ -71,6 +84,7 @@ export const DefaultConsumables = ConsumesSpec.create({
 });
 
 export const OtherDefaults = {
+	channelClipDelay: 100,
 	distanceFromTarget: 20,
 	profession1: Profession.Engineering,
 	profession2: Profession.Tailoring,

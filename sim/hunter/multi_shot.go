@@ -12,7 +12,7 @@ var multiShotTargets = int32(multiShotRank.DamageEffect().ChainTargets)
 
 func (hunter *Hunter) registerMultiShot() {
 	config := spelldata.SpellConfig(&hunter.Unit, multiShotRank, spelldata.Melee(core.ProcMaskRangedSpecial))
-	// In game Multi-Shot has a 0.5 s cast, which the game files leave out.
+	// In game Multi-Shot has a 0.5 s cast, which the game files leave out (EV-0069).
 	config.Cast.DefaultCast.CastTime = 500 * time.Millisecond
 	hunter.hasteRangedCast(&config)
 

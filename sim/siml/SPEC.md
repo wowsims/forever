@@ -602,12 +602,12 @@ lists every property with its arguments, written from the schema (`wowsimcli sim
 
 These rules are in §8.3; the v1 instances are listed for reference.
 
-| Form            | Rule                                                           | v1 instances                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| --------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| bare word       | a kind with no fields                                          | `current_time`, `current_time_percent`, `remaining_time`, `remaining_time_percent`, `number_targets`, `current_rage`, `current_energy`, `current_combo_points`, `current_generic_resource`, `current_mana_regen`, `max_health`, `max_mana`, `max_combo_points`, `max_energy`, `max_rage`, `time_to_next_energy_tick`, `gcd_is_ready`, `gcd_time_to_ready`, `channel_clip_delay`, `input_delay`, `front_of_target`, `protection_paladin_damage_taken_last_global` |
-| unit prefix     | a value kind whose only field is a `UnitReference`: `[u.]kind` | `current_health`, `current_health_percent`, `current_mana`, `current_mana_percent`, `unit_is_moving`, `unit_distance`, `boss_current_target`, `warlock_assigned_curse_is_active`                                                                                                                                                                                                                                                                                 |
-| plain arguments | a kind whose only field is repeated                            | `max(a, b)`, `min(a, b)`, `and(x)`, `or(x)`, `strict_sequence(a, b)`                                                                                                                                                                                                                                                                                                                                                                                             |
-| generic         | any other kind                                                 | `is_execute_phase(e20)`, `auto_time_to_next(main_hand_auto)`, `auto_time_since_last(main_hand_auto)`, `action_group_used("Stance Dance ON/OFF")`, `multiple_cd_usages(x, target_spell_id=y, offset=2s)`, `selected_potion(x)`, `energy_time_to_target(50)`, `totem_remaining_time(air)`                                                                                                                                                                          |
+| Form            | Rule                                                           | v1 instances                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| --------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| bare word       | a kind with no fields                                          | `current_time`, `current_time_percent`, `remaining_time`, `remaining_time_percent`, `number_targets`, `current_rage`, `current_energy`, `current_generic_resource`, `current_mana_regen`, `max_health`, `max_mana`, `max_combo_points`, `max_energy`, `max_rage`, `time_to_next_energy_tick`, `gcd_is_ready`, `gcd_time_to_ready`, `channel_clip_delay`, `input_delay`, `front_of_target`, `protection_paladin_damage_taken_last_global` |
+| unit prefix     | a value kind whose only field is a `UnitReference`: `[u.]kind` | `current_health`, `current_health_percent`, `current_mana`, `current_mana_percent`, `current_combo_points`, `unit_is_moving`, `unit_distance`, `boss_current_target`, `warlock_assigned_curse_is_active`                                                                                                                                                                                                                                 |
+| plain arguments | a kind whose only field is repeated                            | `max(a, b)`, `min(a, b)`, `and(x)`, `or(x)`, `strict_sequence(a, b)`                                                                                                                                                                                                                                                                                                                                                                     |
+| generic         | any other kind                                                 | `is_execute_phase(e20)`, `auto_time_to_next(main_hand_auto)`, `auto_time_since_last(main_hand_auto)`, `action_group_used("Stance Dance ON/OFF")`, `multiple_cd_usages(x, target_spell_id=y, offset=2s)`, `selected_potion(x)`, `energy_time_to_target(50)`, `totem_remaining_time(air)`                                                                                                                                                  |
 
 ### 6.9 `when` blocks
 
@@ -1322,7 +1322,7 @@ The schema lists each field of `Player`'s `spec` oneof with:
 ## 9. Composition: `use`
 
 ```
-use "../gear_sets/p1.gear.siml"
+use "../gear_sets/prebis_weave.gear.siml"
 use "default.apl.siml" with $use_summon_hawk = true
 ```
 
@@ -1856,17 +1856,14 @@ Some notes on this file:
 - `$shoot_spot` folds to `Shoot spot`, which a used file declares, while the proto keeps the exact names that
   `ui/specs/hunter/dps/spec.ts` sets.
 
-The two variable presets are one-line files:
+A variable preset is a one-line file. This is `apls/turret_multi.apl.siml`:
 
 ```
 siml 1
 spec hunter
 
-use "default.apl.siml" with $use_summon_hawk = true
+use "turret.apl.siml" with $use_aimed_shot = false, $use_multi_shot = true
 ```
-
-This is `apls/default_hawks.apl.siml`. `apls/turret_multi.apl.siml` is
-`use "turret.apl.siml" with $use_aimed_shot = false, $use_multi_shot = true`.
 
 ### 16.2 `arms.apl.siml` (warrior, arms; the warrior's presets are JSON, and this is how its rotation reads in SIML)
 
@@ -1924,7 +1921,6 @@ priority:
       if action_group_used("Hamstring Weave ON/OFF")
       and aura(windfury_totem_proc).is_known
       and not is_execute_phase(e20)
-      and aura(windfury_totem_buff).is_inactive
   cast execute if is_execute_phase(e20)
   cast battle_stance
       if action_group_used("Stance Dance ON/OFF")
@@ -1992,10 +1988,11 @@ Some notes on this file:
 - **The tagged spells.** `heroic_strike`, `cleave` and `whirlwind` are the tag-1 spells, the queued or main-hand
   versions the sim casts from the APL, since those are castable (§7.4). A bare `cast heroic_strike` therefore
   queues the trainer's rank, and the tag-0 Heroic Strikes are `heroic_strike_rank8` and `heroic_strike_rank9`.
-- **The Windfury Totem auras** the warrior reads are all external (tag −1) and share a game name, so the
-  generator would tell them apart only by id. Their pinned names say what each does instead:
-  `windfury_totem_proc` is 10612, the party aura that rolls the proc; `windfury_totem_buff` is 10610, the attack
-  power a proc grants; `windfury_totem_aura` is 10614, which the sim holds while the party's totem stands.
+- **The Windfury Totem auras** are all external (tag −1) and share a game name, so the generator would tell them
+  apart only by id. Their pinned names say what each does instead: `windfury_totem_proc` is 10612, the party aura
+  that rolls the proc, which the warrior reads; `windfury_totem_aura` is 10614, which the sim holds while the
+  party's totem stands. `windfury_totem_buff` is pinned to 10610, the strike the proc lands, and no build registers
+  an aura under it.
 - **Items and spells.** The trinkets and engineering items are cast with `item.`. Jom Gabbar's on-use is the
   spell 29602, a shared name (§7.1) that every class reads.
 - **Strength.** In `cast_all_stat_buff_cooldowns(stat_type2=…)`, `stat_type1` is strength, `Stat` 0. That is
@@ -2005,28 +2002,27 @@ Some notes on this file:
 - **The `when` block.** The two Slam rows read with `not is_execute_phase(e20)` first in their `and` (§6.9), as the
   flat rows wrote it.
 
-### 16.3 `ui/specs/hunter/dps/gear_sets/p1.gear.siml` (hunter, P1 gear)
+### 16.3 `ui/specs/hunter/dps/gear_sets/prebis_weave.gear.siml` (hunter, Pre-BiS weave gear)
 
 ```
 siml 1
 
-// The armor both playstyles share, with the two-hander to weave with.
-head       beaststalkers_cap
-neck       maelstroms_tendril + necklace_agility
-shoulder   beaststalkers_mantle
-back       shifting_cloak + cloak_lesser_agility
-chest      beaststalkers_tunic + chest_greater_stats
-wrist      beaststalkers_bindings + bracer_agility_7656
-hands      beaststalkers_gloves + gloves_superior_agility
-waist      beaststalkers_belt
-legs       beaststalkers_pants + forceful_rugged_armor_kit
-feet       beaststalkers_boots + boots_greater_agility
+head       black_dragonscale_helm + lesser_arcane_amalgamation_1508
+neck       mark_of_fordring + necklace_agility
+shoulder   darkspear_epaulets
+back       cape_of_the_black_baron + cloak_agility
+chest      dawn_armor + chest_greater_stats
+wrist      beastmasters_bindings_ilvl65 + bracer_agility_7656
+hands      raider_gloves + gloves_superior_agility
+waist      rangers_belt
+legs       plaguehound_leggings + lesser_arcane_amalgamation_1508
+feet       windreaver_greaves + boots_greater_agility
 finger1    cutthroats_signet
-finger2    selenium_loop of_agility
-trinket1   adaptive_combat_assistant
-trinket2   rune_of_the_guard_captain
-main_hand  legionite_glaive + enchant_2h_weapon_agility
-ranged     fahrads_reloading_repeater + biznicks_247x128_accurascope
+finger2    tarnished_elven_ring
+trinket1   blackhands_breadth
+trinket2   highborne_research_tablet
+main_hand  arcanite_reaper + enchant_2h_weapon_agility
+ranged     bloodseeker + saf_t_ultra_precision_scope
 ```
 
 Some notes on this file:
@@ -2041,7 +2037,7 @@ Some notes on this file:
 ### 16.4 The hunter defaults as one full `.siml`
 
 This is `ui/specs/hunter/dps/defaults.siml`, which `ui/specs/hunter/dps/spec.ts` takes its `defaults` from, as one
-self-contained file: the committed file has `use "gear_sets/p1.gear.siml"` under its talents line in place of the
+self-contained file: the committed file has `use "gear_sets/prebis_weave.gear.siml"` under its talents line in place of the
 `gear:` section. A site export of the same setup is its printed form (§12), with the sections and entries in the
 printer's order (`resource_pot` after the elixirs, `encounter:` before `sim:`, `pull_range` last), and also:
 
@@ -2068,22 +2064,22 @@ settings:
   pet_attack_speed faster_attack_ii
 
 gear:
-  head       beaststalkers_cap
-  neck       maelstroms_tendril + necklace_agility
-  shoulder   beaststalkers_mantle
-  back       shifting_cloak + cloak_lesser_agility
-  chest      beaststalkers_tunic + chest_greater_stats
-  wrist      beaststalkers_bindings + bracer_agility_7656
-  hands      beaststalkers_gloves + gloves_superior_agility
-  waist      beaststalkers_belt
-  legs       beaststalkers_pants + forceful_rugged_armor_kit
-  feet       beaststalkers_boots + boots_greater_agility
+  head       black_dragonscale_helm + lesser_arcane_amalgamation_1508
+  neck       mark_of_fordring + necklace_agility
+  shoulder   darkspear_epaulets
+  back       cape_of_the_black_baron + cloak_agility
+  chest      dawn_armor + chest_greater_stats
+  wrist      beastmasters_bindings_ilvl65 + bracer_agility_7656
+  hands      raider_gloves + gloves_superior_agility
+  waist      rangers_belt
+  legs       plaguehound_leggings + lesser_arcane_amalgamation_1508
+  feet       windreaver_greaves + boots_greater_agility
   finger1    cutthroats_signet
-  finger2    selenium_loop of_agility
-  trinket1   adaptive_combat_assistant
-  trinket2   rune_of_the_guard_captain
-  main_hand  legionite_glaive + enchant_2h_weapon_agility
-  ranged     fahrads_reloading_repeater + biznicks_247x128_accurascope
+  finger2    tarnished_elven_ring
+  trinket1   blackhands_breadth
+  trinket2   highborne_research_tablet
+  main_hand  arcanite_reaper + enchant_2h_weapon_agility
+  ranged     bloodseeker + saf_t_ultra_precision_scope
 
 consumables:
   flask flask_of_natural_aggression

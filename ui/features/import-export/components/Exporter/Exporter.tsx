@@ -78,7 +78,8 @@ export const Exporter = ({
 		trackPageView(title, `/export/${kebabCase(title)}`);
 	}, [open, title]);
 
-	const textHeight = children ? 'h-[30vh]' : 'h-[60vh]';
+	// A fullscreen dialog below `lg` gives the text the rest of the screen, unless other content shares it.
+	const textHeight = children ? 'h-[30vh]' : 'h-[60vh] max-lg:h-auto max-lg:min-h-40 max-lg:flex-1';
 
 	return (
 		<Dialog

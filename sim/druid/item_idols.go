@@ -8,10 +8,14 @@ import (
 )
 
 // The idols' equip spells reach their spells by class flags.
-//
-// TODO: Items without full game files data are not registered here:
-//   - Idol of Shifting Tides 263411 (1270470, shapeshifting spells cost 40 less mana).
 func init() {
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27851}, []shared.ItemVariant{
+		{ItemID: 22397, ItemName: "Idol of Ferocity"},
+	})
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 28855}, []shared.ItemVariant{
+		{ItemID: 23198, ItemName: "Idol of Brutality"},
+	})
+
 	core.NewItemEffect(263435, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1270490)
@@ -62,12 +66,11 @@ func init() {
 	//
 	// Your Enrage ability generates an additional 10 Rage over its duration.
 	//
-	// TODO: 1291060 states the 10 as SPELLMOD_EFFECT1 on Enrage, which the parse reads as base
-	// damage. The Enrage port has to add the rage off its effect 1.
-	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1291060},
-	// 	[]shared.ItemVariant{
-	// 		{ItemID: 272428, ItemName: "Enraged Idol"},
-	// 	})
+	// Enrage's ticks add the rage (enrage.go).
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1291060},
+		[]shared.ItemVariant{
+			{ItemID: 272428, ItemName: "Enraged Idol"},
+		})
 
 	// Swarming Idol
 	// https://www.wowhead.com/forever/item=272430/swarming-idol
@@ -76,6 +79,15 @@ func init() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1291061},
 		[]shared.ItemVariant{
 			{ItemID: 272430, ItemName: "Swarming Idol"},
+		})
+
+	// Idol of Shifting Tides
+	//
+	// Reduces the mana cost of your shapeshifts by 40. The cut comes off the row's cost before
+	// the percent cost mods.
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1270470},
+		[]shared.ItemVariant{
+			{ItemID: 263411, ItemName: "Idol of Shifting Tides"},
 		})
 
 	// Mystic Mushroom

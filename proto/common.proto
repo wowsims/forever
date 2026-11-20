@@ -41,12 +41,22 @@ message ScalingItemProperties {
     double weapon_damage_max = 3;
     float unrounded_dps = 8;
     map<int32, double> stats = 4; // for compactness
+
+	// Stats that only apply while the encounter is in that kind of area.
+	repeated AreaStats area_stats = 7;
+
+	// Stats that only apply against a target of the mob type, one entry per mob type.
+	repeated MobTypeStats mob_type_stats = 5;
+
 	int32 ilvl = 6;
 	// The damage the weapon deals with a random suffix that reduces caster DPS; unset on items with no such suffix option.
 	ReducedCasterWeaponDamage reduced_caster_weapon_damage = 9;
 
-	// Stats that only apply while the encounter is in that kind of area.
-	repeated AreaStats area_stats = 7;
+	// The weapon skill the item adds; each value is the bonus on top of the level-based skill, not the full skill.
+	repeated WeaponSkillValue weapon_skills = 10;
+
+	// Health restored every 5 seconds. Nothing reads it yet, since the sim does not regenerate health.
+	int32 hp5 = 11;
 }
 
 message ReducedCasterWeaponDamage {
@@ -295,7 +305,7 @@ enum Stat {
 // between the UI and backend. It's also OK to include things here which aren't
 // in the PseudoStats struct.
 //
-// NextIndex: 42;
+// NextIndex: 39;
 enum PseudoStat {
 	PseudoStatMainHandDps = 0;
 	PseudoStatOffHandDps = 1;
@@ -346,6 +356,12 @@ enum PseudoStat {
 	PseudoStatRangedHitRating = 34;
 	PseudoStatRangedCritRating = 35;
 	PseudoStatRangedCritSuppressionPercent = 36;
+	PseudoStatFeralCombatSkill = 37;
+
+	// Weapon skill points for whatever weapon the hand holds, on top of that weapon's skill; a feral
+	// form ignores them. Only stat weights set them, to weigh weapon skill per hand.
+	PseudoStatMainHandWeaponSkill = 38;
+	PseudoStatOffHandWeaponSkill = 39;
 }
 
 message UnitStats {
@@ -441,6 +457,7 @@ enum WeaponSkill {
 	WeaponSkillGuns = 13;
 	WeaponSkillThrown = 14;
 	WeaponSkillWands = 15;
+	WeaponSkillFeralCombat = 16;
 }
 
 message WeaponSkillValue {
@@ -539,7 +556,7 @@ enum MobType {
 	MobTypeUndead = 8;
 }
 
-// The groups of creatures item effects deal extra damage to. None of them is a creature type or a
+// The groups of creatures item effects count against. None of them is a creature type or a
 // creature family in the game files, whose CreatureFamily table holds the hunter and warlock pet families.
 enum CreatureFamily {
 	CreatureFamilyUnknown = 0;
@@ -550,6 +567,17 @@ enum CreatureFamily {
 	CreatureFamilyFireElemental = 5;
 	CreatureFamilyMountainGiant = 6;
 	CreatureFamilySwine = 7;
+	CreatureFamilyPlant = 8;
+	CreatureFamilyTroll = 9;
+	CreatureFamilyOrc = 10;
+	CreatureFamilyOgre = 11;
+	CreatureFamilyWolf = 12;
+	CreatureFamilyWorgen = 13;
+	CreatureFamilyMurloc = 14;
+	CreatureFamilyFurbolg = 15;
+	CreatureFamilyDwarf = 16;
+	CreatureFamilyDinosaur = 17;
+	CreatureFamilySerpentine = 18;
 }
 
 // The game files' terrain area groups (SpellCastingRequirements.RequiredAreasID).

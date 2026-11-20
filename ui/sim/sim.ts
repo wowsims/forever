@@ -49,6 +49,7 @@ import {
 	WeaponType,
 } from '@generated/proto/common';
 import {
+	ContentPhase,
 	DatabaseFilters,
 	RaidFilterOption,
 	SavedSettings,
@@ -69,7 +70,7 @@ import type { BulkSimOverrides } from './bulk/types';
 import { dedupeGearSets, throwIfAborted } from './bulk/utils';
 import { CURRENT_PHASE, LOCAL_STORAGE_PREFIX } from './constants/other';
 import { Player, UnitMetadata } from './player/player';
-import { addPartyBuffItems } from './proto/buff_items';
+import { addDebuffItems, addPartyBuffItems } from './proto/buff_items';
 import { Database } from './proto/database';
 import { Gear } from './proto/gear';
 import { extendPlayerProtoWithMissingEffects } from './proto/proto_migration';
@@ -376,6 +377,7 @@ export class Sim {
 				const gear = Sim.prepareGear(options.gear, [player.profession1, player.profession2].includes(Profession.Enchanting));
 				player.database = gear.toDatabase(this.db);
 				addPartyBuffItems(player.database, this.db, request.raid!.parties[0].buffs);
+				addDebuffItems(player.database, this.db, request.raid!.debuffs);
 				player.equipment = gear.asSpec();
 				if (player.consumables) player.consumables = gear.adjustImbues(player.consumables);
 			}
@@ -456,6 +458,7 @@ export class Sim {
 		const swapDatabase = itemSwapGear.toDatabase(this.db);
 		player.database = player.database ? Database.mergeSimDatabases(player.database, swapDatabase) : swapDatabase;
 		addPartyBuffItems(player.database, this.db, party.buffs);
+		addDebuffItems(player.database, this.db, raid.debuffs);
 		extendPlayerProtoWithMissingEffects(player, this.db);
 	}
 
@@ -630,6 +633,7 @@ export class Sim {
 		const player = raidProto.parties[0].players[0];
 		player.database = gear.toDatabase(this.db);
 		addPartyBuffItems(player.database, this.db, raidProto.parties[0].buffs);
+		addDebuffItems(player.database, this.db, raidProto.debuffs);
 		player.equipment = gear.asSpec();
 		extendPlayerProtoWithMissingEffects(player, this.db);
 
@@ -716,6 +720,7 @@ export class Sim {
 				config.enchantOptions.flatMap(options => options.effectIds),
 			);
 			addPartyBuffItems(player.database, this.db, raid.parties[0].buffs);
+			addDebuffItems(player.database, this.db, raid.debuffs);
 			player.equipment = config.gear.asSpec();
 			raid.parties[0].players[0] = player;
 
@@ -1047,7 +1052,8 @@ export class Sim {
 	fromProto(proto: SimSettingsProto) {
 		batch(() => {
 			this.setIterations(proto.iterations || 12500);
-			this.setPhase(proto.phase || CURRENT_PHASE);
+			// A phase saved past Unknown, the last one the database holds, reads as Unknown, which lists the same items.
+			this.setPhase(Math.min(proto.phase || CURRENT_PHASE, ContentPhase.ContentPhaseUnknown));
 			this.setFixedRngSeed(Number(proto.fixedRngSeed));
 			this.setShowDamageMetrics(proto.showDamageMetrics);
 			this.setShowThreatMetrics(proto.showThreatMetrics);

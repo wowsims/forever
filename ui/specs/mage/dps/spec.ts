@@ -79,7 +79,7 @@ export default defineSpec<Spec.SpecMage>({
 
 	defaults: {
 		// Default equipped gear.
-		gear: Presets.P1ArcaneGear.gear,
+		gear: Presets.PreRaidArcaneGear.gear,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: new Stats(),
 		statCaps: (() => {
@@ -112,7 +112,7 @@ export default defineSpec<Spec.SpecMage>({
 	excludeBuffDebuffInputs: [],
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {
-		inputs: [OtherInputs.InputDelay, OtherInputs.DistanceFromTarget, OtherInputs.TankAssignment],
+		inputs: [OtherInputs.InputDelay, OtherInputs.ChannelClipDelay, OtherInputs.DistanceFromTarget, OtherInputs.TankAssignment],
 	},
 	itemSwapSlots: [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand, ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2],
 	encounterPicker: {
@@ -136,7 +136,7 @@ export default defineSpec<Spec.SpecMage>({
 			Presets.SkyborneFireGT180Talents,
 		],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.P1ArcaneGear],
+		gear: [Presets.PreRaidArcaneGear, Presets.PreRaidFireGear, Presets.PreRaidFrostGear],
 		builds: [Presets.ArcaneBuild, Presets.ArcaneFireBuild, Presets.FFBBuild, Presets.FireBuild, Presets.FrostIncinBuild, Presets.FrostMedBuild],
 	},
 

@@ -48,6 +48,97 @@ func (dpm *DynamicProcManager) chanceFor(procMask ProcMask, sim *Simulation) (fl
 	return 0, false
 }
 
+// A chance that depends on the hit being rolled. A trigger asks it about each hit; Chance answers
+// without one.
+type hitDynamicProc interface {
+	DynamicProc
+	ChanceOn(sim *Simulation, spell *Spell, result *SpellResult) float64
+}
+
+// The chance for this hit from the entry the proc mask the listener hears it with matches, asked
+// about the hit itself when the entry prices on it, and whether any entry hears it.
+func (dpm *DynamicProcManager) chanceOn(sim *Simulation, procMask ProcMask, spell *Spell, result *SpellResult) (float64, bool) {
+	for i, m := range dpm.procMasks {
+		if m.Matches(procMask) {
+			if hit, ok := dpm.procChances[i].(hitDynamicProc); ok {
+				return hit.ChanceOn(sim, spell, result), true
+			}
+			return dpm.procChances[i].Chance(sim), true
+		}
+	}
+
+	return 0, false
+}
+
+// A procs-per-minute rate on hits taken, priced on the attacker's time between its own swings at
+// the hit, slows included: its main hand's interval, or both hands together when it dual-wields. An
+// attacker with no melee auto attack has no interval and never procs it. scale multiplies the chance
+// per attacker. Read without a hit, the chance is the one against the wearer's current target.
+func (character *Character) NewAttackerSwingPPMManager(ppm float64, procMask ProcMask, scale func(attacker *Unit) float64) *DynamicProcManager {
+	return &DynamicProcManager{
+		procMasks:   []ProcMask{procMask},
+		procChances: []DynamicProc{attackerSwingProc{character: character, ppm: ppm, scale: scale}},
+	}
+}
+
+type attackerSwingProc struct {
+	character *Character
+	ppm       float64
+	scale     func(attacker *Unit) float64
+}
+
+func (ap attackerSwingProc) Reset() {}
+func (ap attackerSwingProc) Chance(_ *Simulation) float64 {
+	if ap.character.CurrentTarget == nil {
+		return 0
+	}
+	return ap.chanceAgainst(ap.character.CurrentTarget)
+}
+func (ap attackerSwingProc) ChanceOn(_ *Simulation, spell *Spell, _ *SpellResult) float64 {
+	return ap.chanceAgainst(spell.Unit)
+}
+func (ap attackerSwingProc) Proc(sim *Simulation, label string) bool {
+	return sim.Proc(ap.Chance(sim), label)
+}
+
+func (ap attackerSwingProc) chanceAgainst(attacker *Unit) float64 {
+	attacks := &attacker.AutoAttacks
+	interval := attacks.MainhandSwingSpeed().Seconds()
+	if attacks.IsDualWielding {
+		interval = 1 / (1/interval + 1/attacks.OffhandSwingSpeed().Seconds())
+	}
+	return ap.ppm * interval / 60 * ap.scale(attacker)
+}
+
+// A fixed chance per hit, multiplied by scale for the hit's target. Read without a hit, the chance is
+// the one against the wearer's current target.
+func (character *Character) NewTargetScaledChanceManager(chance float64, procMask ProcMask, scale func(target *Unit) float64) *DynamicProcManager {
+	return &DynamicProcManager{
+		procMasks:   []ProcMask{procMask},
+		procChances: []DynamicProc{targetScaledProc{character: character, chance: chance, scale: scale}},
+	}
+}
+
+type targetScaledProc struct {
+	character *Character
+	chance    float64
+	scale     func(target *Unit) float64
+}
+
+func (tp targetScaledProc) Reset() {}
+func (tp targetScaledProc) Chance(_ *Simulation) float64 {
+	if tp.character.CurrentTarget == nil {
+		return 0
+	}
+	return tp.chance * tp.scale(tp.character.CurrentTarget)
+}
+func (tp targetScaledProc) ChanceOn(_ *Simulation, _ *Spell, result *SpellResult) float64 {
+	return tp.chance * tp.scale(result.Target)
+}
+func (tp targetScaledProc) Proc(sim *Simulation, label string) bool {
+	return sim.Proc(tp.Chance(sim), label)
+}
+
 // PPMManager for static ProcMasks
 func (character *Character) NewLegacyPPMManager(ppm float64, procMask ProcMask) *DynamicProcManager {
 	dpm := character.newDynamicWeaponProcManager(ppm, 0, procMask)
@@ -57,6 +148,59 @@ func (character *Character) NewLegacyPPMManager(ppm float64, procMask ProcMask) 
 	})
 
 	return &dpm
+}
+
+// A procs-per-minute rate for weapon hits beside a flat chance for spell hits. The weapon hits
+// NewLegacyPPMManager measures keep its speeds: a swing's, and with no auto attack the wand's for a
+// ranged hit. A spell hit rolls spellChance whatever the weapons. Every other hit of the mask except
+// a ranged auto attack rolls the rate on the main-hand weapon's own speed, read at the roll, whether
+// or not the character swings it: a spell on the ranged hit table with no ranged swing or wand
+// behind it, such as Thunder Clap or Hammer of Wrath. With no main-hand weapon it is the sim's
+// unarmed weapon's speed.
+func (character *Character) NewLegacyPPMManagerWithSpellChance(ppm float64, spellChance float64, procMask ProcMask) *DynamicProcManager {
+	return character.legacyPPMManagerWithSpells(ppm, procMask, staticProc{chance: spellChance})
+}
+
+// A procs-per-minute rate for weapon hits beside the same rate for every other hit of the mask, on
+// the main-hand weapon's own speed read at the roll. The weapon hits NewLegacyPPMManager measures keep
+// its speeds: a swing's, and with no auto attack the wand's for a ranged hit. A spell hit, and any
+// hit no swing prices except a ranged auto attack, rolls the rate on the main-hand weapon's speed
+// whether or not the character swings it. With no main-hand weapon it is the sim's unarmed weapon's
+// speed.
+func (character *Character) NewLegacyPPMManagerWithMainHandSpells(ppm float64, procMask ProcMask) *DynamicProcManager {
+	return character.legacyPPMManagerWithSpells(ppm, procMask, mainHandWeaponSpeedProc{character: character, ppm: ppm})
+}
+
+// The weapon hits of the mask on NewLegacyPPMManager's speeds, spell hits on spells, and every
+// other hit of the mask except a ranged auto attack on the main-hand weapon's speed.
+func (character *Character) legacyPPMManagerWithSpells(ppm float64, procMask ProcMask, spells DynamicProc) *DynamicProcManager {
+	weaponHits := procMask &^ ProcMaskSpellDamage
+	build := func() DynamicProcManager {
+		dpm := character.newDynamicWeaponProcManager(ppm, 0, weaponHits)
+		dpm.procMasks = append(dpm.procMasks, procMask&ProcMaskSpellDamage, weaponHits&^ProcMaskRangedAuto)
+		dpm.procChances = append(dpm.procChances, spells, mainHandWeaponSpeedProc{character: character, ppm: ppm})
+		return dpm
+	}
+	dpm := build()
+
+	character.RegisterItemSwapCallback(AllWeaponSlots(), func(sim *Simulation, slot proto.ItemSlot) {
+		dpm = build()
+	})
+
+	return &dpm
+}
+
+type mainHandWeaponSpeedProc struct {
+	character *Character
+	ppm       float64
+}
+
+func (mp mainHandWeaponSpeedProc) Reset() {}
+func (mp mainHandWeaponSpeedProc) Chance(_ *Simulation) float64 {
+	return mp.ppm / 60 * mp.character.WeaponFromMainHand().SwingSpeed
+}
+func (mp mainHandWeaponSpeedProc) Proc(sim *Simulation, label string) bool {
+	return sim.Proc(mp.Chance(sim), label)
 }
 
 // PPMManager for static ProcMasks and no item swap callback
@@ -151,8 +295,11 @@ func (character *Character) newDynamicWeaponProcManager(ppm float64, fixedProcCh
 	}
 
 	aa := character.AutoAttacks
+	rangedSpeed := aa.ranged.SwingSpeed
 	if !aa.AutoSwingMelee && !aa.AutoSwingRanged {
-		return DynamicProcManager{}
+		// With no auto attack, only ranged hits roll, on the ranged slot's weapon speed: a caster's wand shots.
+		procMask &= ProcMaskRanged
+		rangedSpeed = character.WeaponFromRanged().SwingSpeed
 	}
 
 	dpm := DynamicProcManager{procMasks: make([]ProcMask, 0, 2), procChances: []DynamicProc{}}
@@ -176,7 +323,7 @@ func (character *Character) newDynamicWeaponProcManager(ppm float64, fixedProcCh
 
 	mergeOrAppend(aa.mh.SwingSpeed, procMask&^ProcMaskRanged&^ProcMaskMeleeOH) // "everything else", even if not explicitly flagged MH
 	mergeOrAppend(aa.offHandProcSpeed(), procMask&ProcMaskMeleeOH)
-	mergeOrAppend(aa.ranged.SwingSpeed, procMask&ProcMaskRanged)
+	mergeOrAppend(rangedSpeed, procMask&ProcMaskRanged)
 
 	for i := range chances {
 		if fixedProcChance != 0 {

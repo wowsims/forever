@@ -91,8 +91,8 @@ func (mage *Mage) registerMagicAbsorption() {
 // Clearcasting state reduces the mana cost of your next damage spell by 100%." It procs on the hit
 // and is spent by the next cast. Arcane Missiles rolls it once as the channel starts and again as each
 // missile lands (the missile's row carries Not a Proc, so the listener hears it), all under the row's
-// 1 sec cooldown. In game the talent's chance is split evenly across those rolls, so each one takes
-// a sixth of it; the game files row states only the full chance.
+// 1 sec cooldown. The talent's chance is split evenly across those rolls, so each one takes
+// a sixth of it; the game files row states only the full chance (EV-0098).
 func (mage *Mage) registerArcaneConcentration() {
 	if mage.Talents.ArcaneConcentration == 0 {
 		return
@@ -125,7 +125,8 @@ func (mage *Mage) registerArcaneConcentration() {
 		})
 	trigger.Name = "Arcane Concentration - Trigger"
 	trigger.ProcMask = core.ProcMaskSpellDamage
-	// An area spell, or one Blizzard or Flamestrike tick, rolls once however many targets it lands on.
+	// An area spell, or one Flamestrike tick, rolls once however many targets it lands on. A Blizzard
+	// tick is a proc the talent's row cannot proc from, so it never rolls.
 	// The condition runs just before the roll, so the first target to reach it takes the roll.
 	var rolledSpell *core.Spell
 	var rolledAt time.Duration
@@ -145,18 +146,30 @@ func (mage *Mage) registerArcaneConcentration() {
 		return true
 	}
 
-	triggerAura := mage.MakeProcTriggerAura(trigger)
-	// The row's proc flags hear no periodic damage, so Flamestrike's ground ticks (hits in game, see
-	// registerFlamestrikeSpell) reach the hit listener here.
-	onHit, onPeriodic := triggerAura.OnSpellHitDealt, triggerAura.OnPeriodicDamageDealt
-	triggerAura.OnPeriodicDamageDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		if onPeriodic != nil {
-			onPeriodic(aura, sim, spell, result)
-		}
-		if onHit != nil && spell.Matches(MageSpellFlamestrikeDot) {
-			onHit(aura, sim, spell, result)
-		}
-	}
+	talentAura := mage.MakeProcTriggerAura(trigger)
+
+	// A Blizzard cast rolls once as the channel starts, however many enemies stand in the area (EV-0116).
+	// Its landing deals no damage, which the hit trigger does not hear, so this trigger rolls at the
+	// cast. The buff comes a spell batch later, after the cast has spent Clearcasting.
+	// TODO: In game a cast gains the buff more often than one roll at the talent's chance gives, in a
+	// window at the cast and a second one 5 to 40 ms later, and has gained it twice and inside a second
+	// of an earlier gain; this roll shares the hit trigger's cooldown (EV-0116).
+	icd := talentAura.Icd
+	talentAura.AttachProcTrigger(core.ProcTrigger{
+		Name:     "Arcane Concentration - Cast Trigger",
+		Callback: core.CallbackOnCastComplete,
+		Handler:  trigger.Handler,
+		ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			if !spellData.Blizzard.Contains(spell) || !icd.IsReady(sim) {
+				return false
+			}
+			if !sim.Proc(mage.ModifiedProcChance(trigger.ProcSpellClassFlags, trigger.ProcChance), trigger.Name) {
+				return false
+			}
+			icd.Set(sim.CurrentTime + mage.ModifiedProcCooldown(trigger.ProcSpellClassFlags, trigger.ICD))
+			return true
+		},
+	})
 }
 
 // "Increases your Armor by an amount equal to 25/50/75% of your Intellect."

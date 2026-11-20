@@ -84,9 +84,8 @@ func (paladin *Paladin) applyConviction() {
 // 68/136/204 for 30 sec.
 //
 // The game files state no rate: the ProcChance column reads 100. In game it is 5 procs a minute on
-// the weapon's speed, measured on swings at 1.6 and 3.6 speed under Seal of Righteousness and Seal of
-// the Crusader. The row's proc mask also hears melee specials, which roll the same chance and were not
-// measured. The debuff is a magic spell of its own that can miss.
+// the weapon's speed (EV-0062). The row's proc mask also hears melee specials, which roll the same
+// chance (EV-0156). The debuff is a magic spell of its own that can miss.
 const vindicationPPM = 5
 
 func (paladin *Paladin) applyVindication() {
@@ -129,8 +128,7 @@ func (paladin *Paladin) applyVindication() {
 // same judgements and refunds too.
 //
 // The refund is a share of the seal's base cost, and the seal's percent cost cut goes on top of it
-// instead of coming off: Benediction 5/5 makes a 90 mana seal cost 81 and refund 60% of 99, measured
-// in game at Benediction 0, 1, 3 and 5 with Sanctified Judgement 3/3.
+// instead of coming off: Benediction 5/5 makes a 90 mana seal cost 81 and refund 60% of 99 (EV-0063).
 func (paladin *Paladin) applySanctifiedJudgement() {
 	if paladin.Talents.SanctifiedJudgement == 0 {
 		return
@@ -170,7 +168,7 @@ func (paladin *Paladin) applyEyeForAnEye() {
 
 	var reflected float64
 	config := spelldata.SpellConfig(&paladin.Unit, eyeForAnEyeDamage, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc(),
-		spelldata.Flags(core.SpellFlagBinary|core.SpellFlagIgnoreModifiers))
+		spelldata.Flags(core.SpellFlagIgnoreModifiers))
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, reflected, spell.OutcomeAlwaysHit)
 	}
@@ -201,6 +199,10 @@ func (paladin *Paladin) applyPursuitOfJustice() {
 
 // Sacred Arbiter - Increases the damage of your Holy Strike ability by 20% and causes it to refresh
 // all Judgement effects on the target.
+//
+// The trigger follows the tooltip. In game a Holy Strike under the talent writes no refresh line in
+// the combat log (EV-0117).
+// TODO: Ingame test needed: whether Holy Strike under Sacred Arbiter extends the judgement debuffs without a refresh line.
 func (paladin *Paladin) applySacredArbiter() {
 	if !paladin.Talents.SacredArbiter {
 		return
@@ -226,13 +228,37 @@ func (paladin *Paladin) applySacredArbiter() {
 
 // Two-Handed Weapon Specialization - Increases the Physical and Holy damage you deal by 2/4/6%, and
 // reduces all threat you generate by 7/14/20% while a two-handed melee weapon is equipped.
+//
+// The Holy part follows the defense type. In game the melee-defense Holy hits take it: the seal hits,
+// Holy Strike and Judgement of Command. Exorcism, Hammer of Wrath, Retribution Aura and the ranged
+// judgements are magic-defense or ranged-defense and take none, and Holy Wrath and Holy Shock, which
+// no log has measured under the talent, follow the same rule (EV-0064, EV-0022).
+//
+// Consecration is the one exception in game: its ticks are magic-defense and take the percent, so it
+// has a mod of its own, held while the row's weapon is equipped (EV-0022). The mod reads the effect by its
+// Physical and Holy mask, so a game build that takes Holy out of the row panics here.
 func (paladin *Paladin) applyTwoHandedWeaponSpecialization() {
 	if paladin.Talents.TwoHandedWeaponSpecialization == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&paladin.Character,
-		spellData.TwoHandedWeaponSpecialization.Rank(paladin.Talents.TwoHandedWeaponSpecialization))
+	rank := spellData.TwoHandedWeaponSpecialization.Rank(paladin.Talents.TwoHandedWeaponSpecialization)
+	spelldata.ParseStatic(&paladin.Character, rank)
+
+	damage := rank.Effect(dbcenums.A_MOD_DAMAGE_PERCENT_DONE, int32(core.SpellSchoolPhysical|core.SpellSchoolHoly))
+	_, scope := spelldata.WeaponScope(rank, damage)
+	consecration := paladin.AddDynamicMod(core.SpellModConfig{
+		ClassMask:  SpellMaskConsecration,
+		Kind:       core.SpellMod_DamageDone_Pct,
+		FloatValue: damage.Percent(),
+	})
+	paladin.NewEquipGate(scope.Equip(), func(_ *core.Simulation, level float64) {
+		if level > 0 {
+			consecration.Activate()
+		} else {
+			consecration.Deactivate()
+		}
+	}).SetLevel(nil, 1)
 }
 
 // Vengeance - Increases your Physical and Holy damage dealt by 1/2/3% for 30 sec after landing a
@@ -296,7 +322,7 @@ func (paladin *Paladin) applyChampionOfTheLight() {
 // Each copy is the Echo of its seal, one aura per seal, each read from its own row. A stored seal's
 // effect lands a batch window after the hit that consumes it, as a live seal's does. In game the
 // talent needs a weapon equipped, so swapping the main-hand weapon takes it off for a moment, and
-// every Echo goes with it.
+// every Echo goes with it (EV-0065).
 func (paladin *Paladin) applyUnsealedWrath() {
 	if !paladin.Talents.UnsealedWrath {
 		return
@@ -357,8 +383,12 @@ func (paladin *Paladin) applyUnsealedWrath() {
 		}
 	})
 	trigger.Name = "Unsealed Wrath" + paladin.Label
-	// A copy is stored and spent on a hit that lands.
+	// A copy is stored and spent on a hit that lands. The row's proc cooldown is shorter than any
+	// swing timer, so it turns away only a swing dealt in the instant of another, which is an extra
+	// attack such as Hand of Justice's: that one neither stores nor spends a copy.
 	trigger.Outcome = core.OutcomeLanded
 	trigger.TriggerImmediately = true
+	// Windfury Totem's strike stores no copy, though the row hears melee swings (EV-0136).
+	trigger.HearsCountedSwings = false
 	paladin.MakeProcTriggerAura(trigger)
 }

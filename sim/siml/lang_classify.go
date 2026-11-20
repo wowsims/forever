@@ -722,7 +722,9 @@ func (d *Doc) itemText(c *DatabaseCatalog, id int32) string {
 		if len(slots) > 0 {
 			facts = append(facts, strings.Join(slots, " or "))
 		}
-		if item.Phase != 0 {
+		if item.Phase >= int32(proto.ContentPhase_ContentPhaseUnknown) {
+			facts = append(facts, "unknown phase")
+		} else if item.Phase != 0 {
 			facts = append(facts, fmt.Sprintf("phase %d", item.Phase))
 		}
 		if len(facts) > 0 {

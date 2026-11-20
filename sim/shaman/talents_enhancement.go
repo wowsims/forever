@@ -120,8 +120,8 @@ func (shaman *Shaman) applyFlurry() {
 	}
 
 	// 16257 supplies the duration, the three charges and the 0.5 s between charges spent. The
-	// haste is the talent's ranked dummy, 5% a point, which the tooltip of 16256 reads as $m1; the
-	// buff's own 10% is replaced in game, its tooltip reading the applied $w1.
+	// haste is the talent's ranked dummy, 6% a point on trait curve 85300, which the tooltip of 16256
+	// reads as $m1; the buff's own 10% is replaced in game, its tooltip reading the applied $w1.
 	flurryAura := shaman.RegisterAura(spelldata.AuraConfig(flurryBuff)).
 		AttachMultiplyMeleeSpeed(spellData.Flurry.MultiplierAt(shaman.Talents.Flurry))
 
@@ -131,12 +131,12 @@ func (shaman *Shaman) applyFlurry() {
 	}
 
 	// The row has no roll and the crit is the condition, read off the result here because the same
-	// listener has to see the white hits that spend a charge. Windfury Weapon's strikes are white in
-	// name only and spend none.
-	//
-	// TODO: Ingame test needed: only a landed white swing spends a charge here. Warrior Flurry, the
-	// same talent and buff shape, spends one on every white swing whatever its outcome, misses,
-	// dodges and parries included; a shaman log decides whether that holds here too.
+	// listener has to see the swings that spend a charge. Any melee crit sets three charges,
+	// Stormstrike's and a Windfury Weapon strike's included. A white swing spends one whatever its
+	// outcome, as Warrior Flurry's does. 16257's proc flags name swings alone, but a Windfury
+	// Weapon strike spends one too, and so does Windfury Totem's strike 10610, the same row;
+	// Stormstrike and spells spend none (EV-0010). A hit in the same instant as a gain spends none, so a
+	// crit followed by Windfury Weapon's strikes leaves three charges.
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.Flurry.Rank(shaman.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if result.Outcome.Matches(core.OutcomeCrit) {
@@ -145,14 +145,21 @@ func (shaman *Shaman) applyFlurry() {
 				return
 			}
 
-			if flurryAura.IsActive() && spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) &&
-				spell != shaman.windfuryWeaponStrike && chargeICD.IsReady(sim) {
+			if !flurryAura.IsActive() {
+				return
+			}
+			spends := spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || spell.SpellID == windfuryWeaponStrike.ID ||
+				spell.SpellID == windfuryTotemStrike.ID
+			gainedNow := flurryAura.RemainingDuration(sim) == flurryAura.Duration
+			if spends && !gainedNow && chargeICD.IsReady(sim) {
 				chargeICD.Use(sim)
 				flurryAura.RemoveStack(sim)
 			}
 		})
 	trigger.Name = "Flurry - Trigger"
 	trigger.ProcMask = core.ProcMaskMelee
+	trigger.Outcome = core.OutcomeEmpty
+	trigger.RequireDamageDealt = false
 	trigger.TriggerImmediately = true
 
 	shaman.MakeProcTriggerAura(trigger)
@@ -233,9 +240,10 @@ func (shaman *Shaman) applyImprovedStormstrike() {
 
 var maelstromWeaponBuff = spellData.MaelstromWeaponTriggered.Highest()
 
-// TODO: the patch notes double the chance to trigger, and no row states a chance as of hotfix push
-// 113596, so the rate is twice the measured 10.
-const maelstromWeaponPPM = 20.0
+// The talent's effect 2, the tooltip's $s2, is the rate per minute: 6 at one point up to 10 at five.
+func maelstromWeaponPPM(rank *spelldata.Spell) float64 {
+	return rank.EffectN(2).BaseValue()
+}
 
 func (shaman *Shaman) applyMaelstromWeapon() {
 	if shaman.Talents.MaelstromWeapon == 0 {
@@ -245,7 +253,7 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	rank := spellData.MaelstromWeapon.Rank(shaman.Talents.MaelstromWeapon)
 
 	// 408505 supplies the duration, the five stacks and the spells its two mods reach. The amount
-	// per stack is the talent's ranked effect 1, -4% a point; the buff row states rank 5's -20%.
+	// per stack is the talent's ranked effect 1, -20% at every point.
 	perStack := rank.EffectN(1).Percent()
 	castTimeMod := shaman.AddDynamicMod(core.SpellModConfig{
 		Kind:       core.SpellMod_CastTime_Pct,
@@ -278,12 +286,10 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	maelstromAura := shaman.RegisterAura(config)
 
 	// The tooltip's $s3 is the stack count, which the buff row's five also states. The row's chance
-	// column is the "no roll" 100 and it names no procs per minute, while the tooltip says "a
-	// chance". In game the chance per hit rises with the main hand's speed, so it is a rate per
-	// minute; a proc at five stacks refreshes the buff.
-	//
-	// TODO: the measured 10 fits the 3.6 s weapon and a 2.4 s weapon measured about 6.6, both
-	// before the patch notes doubled the chance.
+	// column is the "no roll" 100; the tooltip prices the chance per hit on the main hand's speed,
+	// so the rate per minute is effect 2. A proc at five stacks refreshes the buff. Windfury Totem's
+	// strike never procs it (EV-0009), though Windfury Weapon's strike, whose row differs only in the
+	// class mask, does.
 	trigger := spelldata.ProcTrigger(&shaman.Character, rank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			maelstromAura.Activate(sim)
@@ -291,8 +297,11 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 		},
 		func(_ *core.Character, trigger *core.ProcTrigger) {
 			trigger.ProcMask = core.ProcMaskMelee
+			trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				return spell.SpellID != windfuryTotemStrike.ID
+			}
 		},
-		spelldata.PPM(maelstromWeaponPPM))
+		spelldata.PPM(maelstromWeaponPPM(rank)))
 	trigger.Name = "Maelstrom Weapon - Trigger"
 
 	shaman.MakeProcTriggerAura(trigger)

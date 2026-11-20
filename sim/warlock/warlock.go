@@ -1,9 +1,6 @@
 package warlock
 
 import (
-	"strconv"
-	"strings"
-
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -89,6 +86,7 @@ type Warlock struct {
 	SoulShardsAura *core.Aura      // the Soul Shards left this iteration, as its stacks
 	reagentWaivers []reagentWaiver // the effects that lift the reagents of some spells while up
 
+	afflictionDots  []*core.Spell               // Corruption at every rank, Siphon Life and Bane of Agony: what Soul Siphon counts and Wrack speeds up
 	petActiveAuras  []*core.Aura                // the warlock's effects that last while a demon is out
 	sacrificedDemon proto.WarlockOptions_Summon // the demon whose Demonic Sacrifice effect is up, NoSummon for none
 	lifeTapPetShare float64                     // Demonic Energies: the share of Life Tap's mana the demon gains
@@ -211,25 +209,13 @@ func (warlock *Warlock) resolveSacrifice() {
 	}
 }
 
-// Returns the number of this warlock's affliction effects active on the target, for Soul Siphon.
-// Dots are tagged "Affliction"; the tag is shared by every caster, but core labels each caster's dot aura
-// "<label>-<caster unit index>", so the suffix picks out this warlock's own.
-// Curses are the exception: their debuff's Tag is its exclusive category, so they cannot carry the tag,
-// and are read through the Curses list instead.
-// TODO: Confirm in-game that curses count toward Soul Siphon.
+// The number of this warlock's Corruption, Siphon Life and Bane of Agony effects active on the target, the
+// effects Soul Siphon's tooltip counts. One rank of Corruption is up at a time, so the count is at most three.
 func (warlock *Warlock) AfflictionCount(target *core.Unit) float64 {
-	own := "-" + strconv.Itoa(int(warlock.UnitIndex))
 	count := 0.0
-	for _, aura := range target.GetAurasWithTag("Affliction") {
-		if aura.IsActive() && strings.HasSuffix(aura.Label, own) {
+	for _, spell := range warlock.afflictionDots {
+		if spell.Dot(target).IsActive() {
 			count++
-		}
-	}
-	for _, curse := range warlock.Curses {
-		for _, auras := range curse.RelatedAuraArrays {
-			if aura := auras.Get(target); aura != nil && aura.IsActive() {
-				count++
-			}
 		}
 	}
 	return count
@@ -268,7 +254,6 @@ func deactivateOthersOnTarget(sim *core.Simulation, group []*core.Spell, landing
 // caller passes DDBC_Total so the slice is sized alike.
 const (
 	DDBC_ShadowVulnerability int = iota
-	DDBC_Wrack
 	DDBC_Decimation
 	DDBC_Total
 )
@@ -277,8 +262,8 @@ const (
 // the damage, which the calculation set from the damage before the scaling.
 //
 // Landed warlock dots tick through spelldata's TickOutcome: they tested hit once, when applied,
-// so a tick rolls only the crit the row's Periodic Can Crit allows (the Forever beta log has no
-// SPELL_PERIODIC_MISSED). Area effects that tick, Hellfire and Rain of Fire, roll hit on every tick.
+// so a tick rolls only the crit the row's Periodic Can Crit allows (EV-0084). Area effects that tick, Hellfire
+// and Rain of Fire, roll hit on every tick.
 func scaleResult(sim *core.Simulation, spell *core.Spell, result *core.SpellResult, multiplier float64) {
 	result.Damage *= multiplier
 	result.Threat = spell.ThreatFromDamage(sim, result.Outcome, result.Damage, spell.Unit.AttackTables[result.Target.UnitIndex])

@@ -129,12 +129,14 @@ var Raid = []BuffSpec{
 			proto.Stat_StatAgility,
 		},
 	},
+	// The totem's raid aura procs the strike 10610 off main-hand hits; the strike is the driver's.
 	{
 		Field:    "windfury_totem",
-		SpellID:  10610,
+		SpellID:  10612,
 		CastID:   10614,
 		Kind:     KindProc,
 		Category: "WindfuryTotem",
+		Owner:    proto.Class_ClassShaman,
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
 		},
@@ -166,8 +168,6 @@ var Raid = []BuffSpec{
 			proto.Stat_StatAttackPower,
 		},
 	},
-	// TODO: rank 5 states 50 ranged attack power and rank 4 states 75; in-game testing has to say
-	// which one the top rank grants.
 	{
 		Field:   "trueshot_aura",
 		SpellID: 20906,
@@ -421,6 +421,9 @@ var Individual = []BuffSpec{
 		Kind:   KindFlag,
 		Reason: "Greater Blessing of Light 25890 is gone from the game files; the field stays for saved settings and applies nothing.",
 	},
+	// Innervate's mana regen percent multiplies all of the regen, Spirit and MP5 alike, and its other
+	// effect keeps the Spirit regen running while casting, so the regen is the same inside the
+	// five-second rule as outside it. The other rows with a mana regen percent keep the Spirit reading.
 	{
 		Field:    "innervates",
 		SpellID:  29166,
@@ -429,7 +432,8 @@ var Individual = []BuffSpec{
 		Stats: []proto.Stat{
 			proto.Stat_StatMP5,
 		},
-		Label: "Innervates",
+		Label:        "Innervates",
+		AllManaRegen: true,
 	},
 	{
 		Field:    "power_infusions",
@@ -640,11 +644,15 @@ var Debuffs = []BuffSpec{
 			proto.Stat_StatAttackPower,
 		},
 	},
-	// Annihilator's proc keeps the stacks up, so the raid's copy holds all three from the start.
+	// The raid's copy is one wielder's Annihilator proccing it, which the driver rolls on the wielder's
+	// swings and its other landed hits.
+	// In game it never lands while Curse of Recklessness or Faerie Fire is on the target, and either
+	// one landing removes it (EV-0147). It is weaker than either even at full stacks, so bidding in
+	// their slot gives the target the same armor.
 	{
 		Field:    "armor_shatter",
 		SpellID:  16928,
-		Category: "ArmorShatter",
+		Category: "MinorArmorReduction", // TODO: verify in game that Armor Shatter and Puncture Armor share one slot; EV-0147 counts neither against the other.
 		Driver:   true,
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
@@ -674,6 +682,22 @@ var Debuffs = []BuffSpec{
 			proto.Stat_StatNatureDamage,
 			proto.Stat_StatStamina,
 			proto.Stat_StatDefenseRating,
+		},
+	},
+	// The state is the weapon one wielder procs it with: 1 Bashguuder and 2 Rivenspike land 17315,
+	// 3 Vibroblade its own 1293005. The driver rolls the weapon's proc on the wielder's swings and its
+	// other landed hits, and the target dodges some of the strikes the proc casts. In game it
+	// never lands while Curse of Recklessness or Faerie Fire is on the target, and either one landing
+	// removes it (EV-0147). It is weaker than either even at full stacks, so bidding in their slot
+	// gives the target the same armor.
+	{
+		Field:    "puncture_armor",
+		SpellID:  17315,
+		Category: "MinorArmorReduction", // TODO: verify in game that Armor Shatter and Puncture Armor share one slot; EV-0147 counts neither against the other.
+		Driver:   true,
+		Proto:    ProtoInt32,
+		Stats: []proto.Stat{
+			proto.Stat_StatAttackPower,
 		},
 	},
 }

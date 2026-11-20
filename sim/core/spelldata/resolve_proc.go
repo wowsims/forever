@@ -21,7 +21,7 @@ type ProcOpt func(*core.Character, *core.ProcTrigger)
 //
 // The trigger's internal cooldown is the proc category's recovery alone. On a proc trigger row,
 // RecoveryTime is a cooldown on casting the aura, which an item or enchant never casts: the shield
-// spikes state 5 s there and proc on every block in game. A damage shield is no proc trigger and
+// spikes state 5 s there and proc on every block in game (EV-0047, EV-0148). A damage shield is no proc trigger and
 // keeps its RecoveryTime as the wait between two reflections (DamageShieldLockout).
 //
 // ProcCharges is not a property of the trigger: it is how many times the buff acts before it drops,
@@ -37,6 +37,7 @@ func ProcTrigger(character *core.Character, s *Spell, handler core.ProcHandler, 
 		ActionID:            core.ActionID{SpellID: s.ID},
 		Callback:            decoded.Callback,
 		ProcMask:            decoded.ProcMask,
+		HearsCountedSwings:  decoded.HearsCountedSwings,
 		Outcome:             decoded.Outcome,
 		RequireDamageDealt:  decoded.RequireDamageDealt,
 		ICD:                 s.ICD(),
@@ -102,6 +103,7 @@ func WeaponProc() ProcOpt {
 	return func(_ *core.Character, trigger *core.ProcTrigger) {
 		trigger.Callback = core.CallbackOnSpellHitDealt
 		trigger.ProcMask = core.ProcMaskUnknown
+		trigger.HearsCountedSwings = false
 		trigger.RequireDamageDealt = false
 		trigger.RequireDamageComponent = false
 		trigger.CanProcFromProcs = false

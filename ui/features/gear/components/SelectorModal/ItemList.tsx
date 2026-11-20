@@ -1,5 +1,5 @@
 import { Class, ItemSlot } from '@generated/proto/common';
-import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
+import { ContentPhase, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SortDirection } from '@sim/constants/other';
 import { useSimHost } from '@sim/context/SimHostContext';
@@ -19,6 +19,7 @@ import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import { useCallback, useId, useMemo, useRef, useState } from 'react';
 
+import { activeFilterCount } from '../../model/active_filters';
 import { applyFavourite, isItemFavourited } from '../../model/favourites';
 import { getItemIdByItemType } from '../../model/item_ids';
 import { matchesSearch } from '../../model/item_search';
@@ -39,11 +40,8 @@ const ROW_CLASS = clsx(
 type FilterFlag = 'oneHandedWeapons' | 'twoHandedWeapons' | 'showAllEnchants';
 
 const phaseOptions = () => [
-	{ value: 1, label: i18n.t('common.phases.1') },
-	{ value: 2, label: i18n.t('common.phases.2') },
-	{ value: 3, label: i18n.t('common.phases.3') },
-	{ value: 4, label: i18n.t('common.phases.4') },
-	{ value: 5, label: i18n.t('common.phases.5') },
+	{ value: ContentPhase.ContentPhase1, label: i18n.t('common.phases.1') },
+	{ value: ContentPhase.ContentPhaseUnknown, label: i18n.t('common.phases.unknown') },
 ];
 
 export interface ItemListToggle {
@@ -60,6 +58,8 @@ export interface ItemListToolbarViewProps {
 	/** The filters dialog. The filters button renders only beside one. */
 	filtersMenu?: ReactNode;
 	onOpenFilters?: () => void;
+	/** How many filters narrow the list; above zero, the filters button shows it. */
+	activeFilters?: number;
 	phase: number;
 	onPhaseChange: (phase: number) => void;
 	toggles: ReadonlyArray<ItemListToggle>;
@@ -72,24 +72,29 @@ export const ItemListToolbarView = ({
 	onSearchChange,
 	filtersMenu,
 	onOpenFilters,
+	activeFilters = 0,
 	phase,
 	onPhaseChange,
 	toggles,
 	remove,
 }: ItemListToolbarViewProps) => {
 	return (
-		<div className="mb-(--modal-padding) flex items-center [&>*:not(:last-child)]:mr-2">
+		// Below `lg` the search and the remove button share the first line, ordered ahead of a zero-height `::before` as wide
+		// as the toolbar, which wraps the rest onto the next; half the row gap on each side of it makes one gap.
+		<div className="mb-(--modal-padding) flex items-center max-lg:flex-wrap max-lg:gap-y-1 max-lg:before:-order-1 max-lg:before:basis-full [&>*:not(:last-child)]:mr-2">
 			<SearchField
 				value={search}
 				onChange={onSearchChange}
 				placeholder={i18n.t('common.search')}
-				inputClassName="max-w-48"
+				inputClassName="max-w-48 max-lg:order-first max-lg:max-w-none max-lg:flex-1"
 				inputTestId="selector-modal-search"
 			/>
 			{filtersMenu !== undefined && (
 				<>
 					<Button data-testid="selector-modal-filters-button" onClick={onOpenFilters}>
-						{i18n.t('gear_tab.gear_picker.filters_button')}
+						{activeFilters > 0
+							? i18n.t('gear_tab.gear_picker.filters_button_active', { active: activeFilters })
+							: i18n.t('gear_tab.gear_picker.filters_button')}
 					</Button>
 					{filtersMenu}
 				</>
@@ -109,7 +114,11 @@ export const ItemListToolbarView = ({
 				/>
 			))}
 			{remove && (
-				<Button variant="danger" className="-mt-2 mr-4 -mb-2 ml-auto" data-testid="selector-modal-remove-button" onClick={remove.onClick}>
+				<Button
+					variant="danger"
+					className="-mt-2 mr-4 -mb-2 ml-auto max-lg:order-first max-lg:my-0 max-lg:mr-0"
+					data-testid="selector-modal-remove-button"
+					onClick={remove.onClick}>
 					{remove.label}
 				</Button>
 			)}
@@ -226,6 +235,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 				onSearchChange={setSearch}
 				filtersMenu={label === SelectorModalTabs.Items ? <FiltersMenu slot={slot} open={filtersOpen} onOpenChange={setFiltersOpen} /> : undefined}
 				onOpenFilters={() => setFiltersOpen(true)}
+				activeFilters={activeFilterCount(filters)}
 				phase={phase}
 				onPhaseChange={next => sim.setPhase(next)}
 				toggles={toggles}

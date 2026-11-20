@@ -50,7 +50,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   (0.8 where the row flags Discount Power On Miss), the default unless verified spell-specific behaviour differs.
 - **Combo points are not part of the cost.** The spell spends them through `SpendComboPoints` (`energy.go`), each
   resource on its own: a failed Ferocious Bite gets 80% of its base cost back and keeps its points and its extra
-  energy.
+  energy. The points sit on one unit: a gain on another unit drops them (spent on the gain's metrics), a target swap
+  alone keeps them, and finishers and Current Combo Points read the points on their cast or given target.
 - **A one-charge buff is spent by the cast it modifies**; the spender is `wowsims-procs`. A spell's own charges
   (`MaxCharges`) are spent by `ConsumeCharge` and refuse the cast at zero.
 
@@ -102,6 +103,9 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **A dot tick rolls its amount, not its hit** (`docs/spell_data/auras-and-dots.md`); a spell whose ticks roll hit
   passes `Spell.OutcomeTickMagicHitAndCrit` or `Dot.OutcomeTickMagicHit`. Always Hit on a triggered row:
   `.github/skills/wowsims-abilities-auras/references/rulings.md`.
+- **`Dot.Apply` on an active dot deactivates and reactivates it, so its tick timer restarts** (`dot.go`). A stack that
+  keeps the tick grid calls `Dot.Refresh` and then sets the stacks: `SetStacks` in Lacerate, `AddStack` in Deadly
+  Poison.
 - **Within an exclusive category the enabled effect with the highest `Priority` applies**; `YieldsTies` takes the
   category only by outbidding (`exclusive_effect.go`). The `SingleAura` reset is `wowsims-abilities-auras` §Buffs and
   debuffs.
@@ -144,7 +148,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   Kill share % input as the share.
 - **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target` or the cast's
   target, never the encounter's first target. Each target keeps only the times it reaches 35% and 20%, at the
-  encounter's execute proportions of the fight (`resetExecutePhases`); an enemy has no health bar to read. A buff row a
+  encounter's execute proportions of the fight, and 25% two thirds of the way between them (`resetExecutePhases`);
+  `IsBelowExecuteHealth` reads any of the three. An enemy has no health bar to read. A buff row a
   target's phase grants sits on the caster and carries to another target (Decimation's 440873); a bonus whose rows
   state no buff counts per target (Quietus, Early Demise).
 - **Fights are time-based**: there is no health-based fight length, and no damage taken moves a target's execute
@@ -157,8 +162,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   breaks every branch built on it.
 - **No proto3 `optional` field**: the `npx protoc` behind `make ui/generated/proto/api.ts` rejects it. "Unset means X"
   is a plain field whose zero value means none or the default, or a message-typed field.
-- **No `reserved` line before launch**, and a breaking change needs no migration; the full ruling is in
-  `references/rulings.md`.
+- **A new field takes the next free number at the end of its message**, and no field is dropped, moved or reused: the
+  sim is live in alpha and saved settings carry the numbers. The full ruling is in `references/rulings.md`.
 
 ## Keeping this skill true
 
@@ -166,5 +171,5 @@ The code is right where this skill and the code disagree; fix the skill in the s
 re-derive each claim, the "You changed → Update" table and the path check are in `references/maintenance.md`.
 
 A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
-`AGENTS.md` says: a comment at the code when one file owns the rule, this skill or its `references/rulings.md` otherwise. A memory file is a pointer
+`AGENTS.md` says: a comment at the code when one file owns the rule, this skill, or a `docs/rulings/` file its `references/rulings.md` indexes, otherwise. A memory file is a pointer
 to this skill, not a second copy.

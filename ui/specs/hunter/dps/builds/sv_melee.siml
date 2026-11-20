@@ -1,7 +1,7 @@
 siml 1
 spec hunter
 talents "53200005001-005005-5302002300500221"
-use "../gear_sets/p1_melee.gear.siml"
+use "../gear_sets/prebis_melee.gear.siml"
 use "../apls/melee.apl.siml"
 
 settings:
@@ -20,12 +20,12 @@ consumables:
   conjured demonic_rune
   explosive ez_thro_dynamite_ii
   mh_imbue elemental_sharpening_stone
-  oh_imbue elemental_sharpening_stone
+  oh_imbue dense_sharpening_stone
   extra goblin_sapper_charge,
       scroll_of_strength_iv,
       juju_might,
       dragonbreath_chili,
       ground_scorpok_assay
-  elixir elixir_of_the_mongoose, greater_mageblood_elixir
+  elixir elixir_of_the_mongoose, greater_mageblood_elixir, elixir_of_greater_intellect
   resource_pot major_mana_potion
   offensive_pot major_frenzy_potion

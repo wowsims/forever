@@ -47,6 +47,11 @@ constants that no generator reads.
   commented out in place under `panic("To be implemented")` and a `// TODO:` naming what is missing, never a deletion
   or a silent return. Content Forever does not have is removed, not stubbed, once `tools/database/wowsims.db` shows no
   data for it. An aura registered with no effect, or a cooldown that does nothing, is a finding.
+- **A measurement written inline.** A comment, override `Reason` or `Source`, or ruling the change adds that carries
+  log counts, rates, report codes or "checked in game" is a finding: the numbers move to a `docs/evidence/` file and
+  the text cites its `EV-` id (`wowsims-conventions` `## Comments`). A cross-file rule written into a skill's
+  `references/rulings.md` instead of its own `docs/rulings/` file is one too; `make skills-check` checks the ids and
+  files, not where a rule was written.
 - **One copy of each rule.** Three channels differing only in their tick effect share one builder; a value
   built each iteration that never changes is built at registration.
 - **Text.** Every comment, doc line, test message, commit message and PR text the change adds or rewrites is
@@ -83,7 +88,7 @@ Then make three comparisons for each spell:
 
 ## 4. Rules the rows cannot show
 
-The first seven have a section in `references/defects.md`.
+The first eight have a section in `references/defects.md`.
 
 - **Core's order.** Check whether an `OnCastComplete` handler sees the cast that procced it, proven at runtime;
   the mechanic is in `wowsims-core-mechanics` `## Cast order`.
@@ -99,6 +104,9 @@ The first seven have a section in `references/defects.md`.
   `wowsims-core-mechanics` `## Hooks`.
 - **Whose state.** Check a multi-target effect reads each hit target, a tag counts only this caster's auras and a
   missing map key is not 0; `wowsims-core-mechanics` `## Whose state`.
+- **What the gear tab states.** Check that a hand-written item, enchant or set proc whose code now rolls something
+  its rows do not state has a row in `tools/database/overrides/gear_proc_rates.go`, and that no row there is stale;
+  `wowsims-procs` `## Measuring a rate`.
 - **What a preset line sees.** Check that a line reading something the running cast's landing changes
   carries `not(Spell Is Casting(X))` (`wowsims-apl` `## Timing`), and that its cast counts were judged as
   `wowsims-apl` `## Presets` says.
@@ -205,5 +213,5 @@ The code is right where this skill and the code disagree; fix the skill in the s
 Update" table and the path check are in `references/maintenance.md`.
 
 A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
-`AGENTS.md` says: a comment at the code when one file owns the rule, this skill or its `references/rulings.md` otherwise. A memory file is a pointer
+`AGENTS.md` says: a comment at the code when one file owns the rule, this skill, or a `docs/rulings/` file its `references/rulings.md` indexes, otherwise. A memory file is a pointer
 to this skill, not a second copy.

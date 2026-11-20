@@ -5,6 +5,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -140,10 +141,13 @@ func registerSpellDataEnergizeProc(cfg SpellDataProc) {
 	refuses := func(trigger *spelldata.Spell) bool { return len(FiredSpellUnsupported(trigger)) > 0 }
 	registerSpellDataRowProc(cfg, refuses, func(agent core.Agent, source effectSource, trigger *spelldata.Spell, _ *spelldata.Spell) {
 		character := agent.GetCharacter()
-		handler := FiredSpellHandler(character, source.actionID(), trigger)
+		var versus *core.VersusBonus
+		handler := firedSpellHandler(character, source.actionID(), trigger, func(target *core.Unit) float64 { return versus.Against(target) })
 		if handler == nil {
 			return
 		}
+		// Kept for the stats sheet only once the wearer has the bar the gain fills.
+		versus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindRestore, trigger)
 		config := spellDataProcListener(character, cfg, source, trigger)
 		config.Handler = handler
 		source.registerTrigger(character, config)
@@ -186,6 +190,11 @@ func FiredSpellUnsupported(row *spelldata.Spell) []string {
 // its category's keeps its cooldown; the game files state a reduction as a negative time, Spark's
 // 1306610 -100000.
 func FiredSpellHandler(character *core.Character, actionID core.ActionID, row *spelldata.Spell) core.ProcHandler {
+	return firedSpellHandler(character, actionID, row, nil)
+}
+
+// The same, with the gain multiplied by factor of the hit's target where factor is set.
+func firedSpellHandler(character *core.Character, actionID core.ActionID, row *spelldata.Spell, factor func(target *core.Unit) float64) core.ProcHandler {
 	fired := row.FiredSpell()
 	if gain := fired.EnergizeEffect(); gain != spelldata.NilEffect {
 		power := dbcenums.PowerType(gain.Misc)
@@ -193,8 +202,13 @@ func FiredSpellHandler(character *core.Character, actionID core.ActionID, row *s
 		if !ok {
 			return nil
 		}
-		return func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+		return func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			amount := gain.Roll(sim)
+			// A cast listener hears no hit, so no target.
+			if factor != nil && result != nil {
+				amount *= factor(result.Target)
+			}
+			bar.add(sim, barAmount(power, amount), bar.metrics)
 		}
 	}
 

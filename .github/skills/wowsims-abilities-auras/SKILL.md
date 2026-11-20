@@ -66,7 +66,8 @@ is in `building-an-ability.md` §When not to take a default.
   label, two players of the class panic on registration.
 - **`FromCaster` slots are numbered across the class.** Shadow Weaving holds slot 0 of 2 and the Discipline
   `AttachDDBC` slot 1 (`sim/priest/talents_shadow.go`, `sim/priest/talents_discipline.go`), so a new per-caster debuff
-  raises the total in every call.
+  raises the total in every call. An item has no slot to take, since any class can wear it: Blackhand's Breadth's crit
+  for its wearer alone adds to `AttackTable.BonusCritPercent` while its mark is up (`sim/common/forever/items_trinkets.go`).
 
 ## A talent's modifiers
 
@@ -115,5 +116,5 @@ The code is right where this skill and the code disagree; fix the skill in the s
 re-derive each claim, the "You changed → Update" table and the path check are in `references/maintenance.md`.
 
 A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
-`AGENTS.md` says: a comment at the code when one file owns the rule, this skill or its `references/rulings.md` otherwise. A memory file is a pointer
+`AGENTS.md` says: a comment at the code when one file owns the rule, this skill, or a `docs/rulings/` file its `references/rulings.md` indexes, otherwise. A memory file is a pointer
 to this skill, not a second copy.

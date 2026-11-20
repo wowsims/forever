@@ -28,7 +28,8 @@ export const DefaultDebuffs = Debuffs.create({
 
 export const DefaultConsumables = ConsumesSpec.create({
 	foodId: Consumables.SmokedDesertDumplings.id,
-	explosiveId: Consumables.EZThroDarkBomb.id,
+	// A dynamite states no stun, so a level 63 boss does not shrug it off the way it does the EZ-Thro Dark Bomb.
+	explosiveId: Consumables.SAFTCleverDynamite.id,
 	elixirIds: [Consumables.ElixirOfFerocity.id, Consumables.ElixirOfTheMongoose.id],
 	extraIds: [Consumables.GoblinSapperCharge.id],
 });

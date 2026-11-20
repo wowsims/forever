@@ -1,5 +1,5 @@
 import { BulkModeMenu } from '@features/bulk/components/BulkModeMenu';
-import { BULK_TAB_ID, RESULTS_TAB_ID, ROTATION_TAB_ID } from '@features/hooks/useActivateTab';
+import { BULK_TAB_ID, GEAR_TAB_ID, RESULTS_TAB_ID, ROTATION_TAB_ID, SETTINGS_TAB_ID, TALENTS_TAB_ID } from '@features/hooks/useActivateTab';
 import { DetailedResults } from '@features/results/components/DetailedResults';
 import i18n from '@i18n/config';
 import { SimTabPane } from '@ui-kit/SimTabPane';
@@ -29,21 +29,21 @@ export const SimTabsSection = ({ host, children }: SimTabsSectionProps) => {
 		() =>
 			host && (
 				<>
-					<SimTabDef id="gear-tab" title={i18n.t('gear_tab.title')}>
-						<SimTabPane id="gear-tab">
+					<SimTabDef id={GEAR_TAB_ID} title={i18n.t('gear_tab.title')}>
+						<SimTabPane id={GEAR_TAB_ID}>
 							<GearTabBody />
 						</SimTabPane>
 					</SimTabDef>
-					<SimTabDef id="settings-tab" title={i18n.t('settings_tab.title')}>
+					<SimTabDef id={SETTINGS_TAB_ID} title={i18n.t('settings_tab.title')}>
 						<SimTabPane
-							id="settings-tab"
+							id={SETTINGS_TAB_ID}
 							className="[&_.ui-columns-left-settings]:max-xl:flex-wrap [&_.ui-columns-left-settings>.ui-columns-col]:max-xl:basis-full"
 							contentClassName="max-xxl:flex-col">
 							<SettingsTabBody />
 						</SimTabPane>
 					</SimTabDef>
-					<SimTabDef id="talents-tab" title={i18n.t('talents_tab.title')}>
-						<SimTabPane id="talents-tab">
+					<SimTabDef id={TALENTS_TAB_ID} title={i18n.t('talents_tab.title')}>
+						<SimTabPane id={TALENTS_TAB_ID}>
 							<TalentsTabBody />
 						</SimTabPane>
 					</SimTabDef>

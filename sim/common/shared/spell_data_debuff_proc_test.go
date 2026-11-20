@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"fmt"
 	"math"
 	"slices"
 	"testing"
@@ -236,19 +237,19 @@ func TestAnnihilatorShattersTheTargetsArmor(t *testing.T) {
 	expectArmor("past the refreshed duration", targetArmor)
 }
 
-// The raid's Armor Shatter holds its full stacks from the start, and the wielder's own procs land
-// Annihilator's copy beside it in the same category: both are on the target, and its armor drops
-// by the stronger of the two once.
-func TestAnnihilatorBidsBesideTheRaidsArmorShatter(t *testing.T) {
-	const armorShatter, weaponID int32 = 16928, 991409
-	editRow(t, armorShatter, func(s *spelldata.Spell) {
+// A sim whose one player wields the real weapon, whose proc lands the row on every main-hand swing,
+// under the raid's debuffs given. The raid's driver finds the wielder by the weapon's id.
+func newRaidWielderSim(t *testing.T, weaponID, debuff int32, debuffs *proto.Debuffs) (*core.Simulation, *testCaster, *core.Unit) {
+	t.Helper()
+	editRow(t, debuff, func(s *spelldata.Spell) {
 		alwaysProcs(s)
 		s.RPPM = 0
 	})
-	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{testOneHander(weaponID)}})
-	registerSpellDataDebuffProc(SpellDataProc{Name: "Test Annihilator", ItemID: weaponID,
-		TriggerSpellID: armorShatter, BuffSpellID: armorShatter, IsWeaponProc: true})
-
+	if !core.HasItemEffect(weaponID) {
+		// The item's own procs per minute would replace the row's chance the edit gives it.
+		registerSpellDataDebuffProc(SpellDataProc{Name: "Test Wielder", ItemID: weaponID, TriggerSpellID: debuff,
+			BuffSpellID: debuff, IsWeaponProc: true, Rate: func(*core.Character, *core.ProcTrigger) {}})
+	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid: &proto.Raid{
@@ -263,7 +264,7 @@ func TestAnnihilatorBidsBesideTheRaidsArmorShatter(t *testing.T) {
 				}},
 				Buffs: &proto.PartyBuffs{},
 			}},
-			Debuffs: &proto.Debuffs{ArmorShatter: true},
+			Debuffs: debuffs,
 		},
 		Encounter: &proto.Encounter{
 			Targets:  []*proto.Target{{Name: "target", Level: 60, MobType: proto.MobType_MobTypeDemon}},
@@ -273,46 +274,186 @@ func TestAnnihilatorBidsBesideTheRaidsArmorShatter(t *testing.T) {
 	sim.Reset()
 	caster := sim.Raid.Parties[0].Players[0].(*testCaster)
 	caster.AutoAttacks.CancelAutoSwing(sim)
-	target := sim.Encounter.ActiveTargetUnits[0]
+	return sim, caster, sim.Encounter.ActiveTargetUnits[0]
+}
 
-	row := spelldata.MustFind(armorShatter)
-	stacks := int32(row.MaxStack)
-	perStack := -row.FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).MeanAt(target.Level)
-	needAmount(t, "16928's armor", perStack)
-	if stacks < 2 {
-		t.Fatalf("16928 stacks to %d, nothing to bid at full stacks", stacks)
-	}
-	raids := target.GetAura("Armor Shatter (External)")
-	if raids == nil || !raids.IsActive() || raids.GetStacks() != stacks {
-		t.Fatalf("the raid's Armor Shatter is %v, want it on the target at %d stacks", raids, stacks)
-	}
-	shattered := target.GetStat(stats.Armor)
-	raids.Deactivate(sim)
-	base := target.GetStat(stats.Armor)
-	raids.Activate(sim)
-	if want := base - perStack*float64(stacks); shattered != want {
-		t.Fatalf("the raid's %d stacks leave the target at %v armor, want %v", stacks, shattered, want)
-	}
-
-	for range stacks {
-		landMainHandSwing(sim, caster, target)
-	}
-
-	if got := target.GetStat(stats.Armor); got != shattered {
-		t.Errorf("the target's armor is %v, want the %v one Armor Shatter at full stacks leaves", got, shattered)
-	}
-	if !raids.IsActive() {
-		t.Error("the wielder's procs pushed the raid's Armor Shatter off the target, want both on it")
-	}
-	var wielders *core.Aura
+// The target's auras that read the spell.
+func aurasOfSpell(target *core.Unit, spellID int32) []*core.Aura {
+	var auras []*core.Aura
 	for _, aura := range target.GetAuras() {
-		if aura != raids && aura.ActionID.SpellID == armorShatter && aura.IsActive() {
-			wielders = aura
+		if aura.ActionID.SpellID == spellID {
+			auras = append(auras, aura)
 		}
 	}
-	if wielders == nil || wielders.GetStacks() != stacks || wielders.Tag != buffs.ArmorShatterCategory {
-		t.Errorf("the wielder's Armor Shatter is %v, want it on the target at %d stacks, tagged %q",
-			wielders, stacks, buffs.ArmorShatterCategory)
+	return auras
+}
+
+func auraLabels(auras []*core.Aura) []string {
+	labels := make([]string, len(auras))
+	for i, aura := range auras {
+		labels[i] = aura.Label
+	}
+	return labels
+}
+
+// With the player wielding the weapon, the raid's copy of the weapon's debuff is the player's own: after a
+// stack from the raid's roll and one from the wielder's proc, the target carries one aura at two
+// stacks. Bashguuder's proc stacks the raid's Rivenspike, since both land 17315.
+func TestWielderStacksTheRaidsWeaponDebuff(t *testing.T) {
+	for _, tc := range []struct {
+		name               string
+		weaponID, debuff   int32
+		debuffs            *proto.Debuffs
+		label, raidsWeapon string
+	}{
+		{"Annihilator", 12798, 16928, &proto.Debuffs{ArmorShatter: true}, "Armor Shatter (Player)", "Annihilator"},
+		{"Bashguuder", 13204, 17315, &proto.Debuffs{PunctureArmor: 1}, "Puncture Armor (Player)", "Bashguuder"},
+		{"Bashguuder under Rivenspike", 13204, 17315, &proto.Debuffs{PunctureArmor: 2}, "Puncture Armor (Player)", "Rivenspike"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if stacks := spelldata.MustFind(tc.debuff).MaxStack; stacks < 2 {
+				t.Fatalf("%d stacks to %d, nothing to share", tc.debuff, stacks)
+			}
+			sim, caster, target := newRaidWielderSim(t, tc.weaponID, tc.debuff, tc.debuffs)
+			auras := aurasOfSpell(target, tc.debuff)
+			if len(auras) != 1 || auras[0].Label != tc.label {
+				t.Fatalf("the target carries %q reading %d, want the raid's %s as %q alone", auraLabels(auras), tc.debuff, tc.raidsWeapon, tc.label)
+			}
+			shared := auras[0]
+			shared.Activate(sim)
+			shared.SetStacks(sim, 1)
+			perStack := -spelldata.MustFind(tc.debuff).FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).MeanAt(target.Level)
+			needAmount(t, fmt.Sprintf("%d's armor", tc.debuff), perStack)
+			oneStack := target.GetStat(stats.Armor)
+
+			landMainHandSwing(sim, caster, target)
+
+			if got, want := target.GetStat(stats.Armor), oneStack-perStack; got != want {
+				t.Errorf("the target's armor is %v, want %v from the second stack", got, want)
+			}
+			if got := aurasOfSpell(target, tc.debuff); len(got) != 1 {
+				t.Errorf("after the wielder's proc the target carries %q reading %d, want one aura", auraLabels(got), tc.debuff)
+			}
+			if got := shared.GetStacks(); !shared.IsActive() || got != 2 {
+				t.Errorf("%q is at %d stacks (active %v), want 2 from the raid's stack and the wielder's", shared.Label, got, shared.IsActive())
+			}
+		})
+	}
+}
+
+// Vibroblade's Puncture Armor 1293005 is another row than the 17315 Bashguuder's proc lands, so the
+// raid's copy stays the raid's and the wielder's procs land their own beside it.
+func TestBashguuderBidsBesideTheRaidsVibroblade(t *testing.T) {
+	sim, caster, target := newRaidWielderSim(t, 13204, 17315, &proto.Debuffs{PunctureArmor: 3})
+	raids := target.GetAura("Puncture Armor (External)")
+	if raids == nil || raids.ActionID.SpellID != 1293005 {
+		t.Fatalf("the raid's Puncture Armor is %v, want Vibroblade's 1293005 as the raid's copy", raids)
+	}
+	raids.Activate(sim)
+	raidsStacks := raids.GetStacks()
+
+	landMainHandSwing(sim, caster, target)
+
+	wielders := aurasOfSpell(target, 17315)
+	if len(wielders) != 1 || wielders[0] == raids || !wielders[0].IsActive() || wielders[0].Label != "Puncture Armor (Player)" {
+		t.Fatalf("the wielder's 17315 is %q, want its own active \"Puncture Armor (Player)\"", auraLabels(wielders))
+	}
+	if !raids.IsActive() || raids.GetStacks() != raidsStacks {
+		t.Errorf("the raid's Vibroblade copy is at %d stacks (active %v), want it untouched at %d", raids.GetStacks(), raids.IsActive(), raidsStacks)
+	}
+}
+
+// Puncture Armor bids in Faerie Fire's slot, Bashguuder and Rivenspike's 17315 as the raid row's
+// player copy and Vibroblade's 1293005 through the proc debuff table: under the raid's Faerie Fire
+// the wielder's procs land and the target keeps Faerie Fire's armor alone, and with Faerie Fire gone
+// Puncture Armor's stacks count. Under Sunder Armor both count.
+func TestPunctureArmorSharesFaerieFiresSlot(t *testing.T) {
+	for _, weapon := range []struct {
+		name                    string
+		punctureArmor, weaponID int32
+	}{
+		{"Bashguuder", 17315, 991410},
+		{"Vibroblade", 1293005, 991411},
+	} {
+		t.Run(weapon.name, func(t *testing.T) {
+			punctureArmor, weaponID := weapon.punctureArmor, weapon.weaponID
+			editRow(t, punctureArmor, func(s *spelldata.Spell) {
+				alwaysProcs(s)
+				s.RPPM = 0
+			})
+			core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{testOneHander(weaponID)}})
+			registerSpellDataDebuffProc(SpellDataProc{Name: "Test " + weapon.name, ItemID: weaponID,
+				TriggerSpellID: punctureArmor, BuffSpellID: punctureArmor, IsWeaponProc: true})
+
+			run := func(debuffs *proto.Debuffs, raidLabel string) (*core.Simulation, *testCaster, *core.Unit, *core.Aura) {
+				t.Helper()
+				sim := core.NewSim(&proto.RaidSimRequest{
+					SimOptions: &proto.SimOptions{RandomSeed: 1},
+					Raid: &proto.Raid{
+						Parties: []*proto.Party{{
+							Players: []*proto.Player{{
+								Name:      "Caster",
+								Class:     proto.Class_ClassShaman,
+								Race:      proto.Race_RaceTroll,
+								Buffs:     &proto.IndividualBuffs{},
+								Spec:      &proto.Player_EnhancementShaman{},
+								Equipment: &proto.EquipmentSpec{Items: testHands(&proto.ItemSpec{Id: weaponID}, &proto.ItemSpec{})},
+							}},
+							Buffs: &proto.PartyBuffs{},
+						}},
+						Debuffs: debuffs,
+					},
+					Encounter: &proto.Encounter{
+						Targets:  []*proto.Target{{Name: "target", Level: 60, MobType: proto.MobType_MobTypeDemon}},
+						Duration: 180,
+					},
+				}, simsignals.CreateSignals())
+				sim.Reset()
+				caster := sim.Raid.Parties[0].Players[0].(*testCaster)
+				caster.AutoAttacks.CancelAutoSwing(sim)
+				target := sim.Encounter.ActiveTargetUnits[0]
+				// The raid's Sunder Armor builds its stacks a global cooldown apart.
+				stepPast(t, sim, 10*time.Second)
+				raids := target.GetAura(raidLabel)
+				if raids == nil || !raids.IsActive() {
+					t.Fatalf("the raid's %s is %v, want it on the target", raidLabel, raids)
+				}
+				return sim, caster, target, raids
+			}
+
+			row := spelldata.MustFind(punctureArmor)
+			stacks := max(int32(row.MaxStack), 1)
+			perStack := -row.FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).MeanAt(60)
+			needAmount(t, fmt.Sprintf("%d's armor", punctureArmor), perStack)
+			punctured := perStack * float64(stacks)
+
+			t.Run("Faerie Fire", func(t *testing.T) {
+				sim, caster, target, faerieFire := run(&proto.Debuffs{FaerieFire: true}, "Faerie Fire (External)")
+				withFaerieFire := target.GetStat(stats.Armor)
+				for range stacks {
+					landMainHandSwing(sim, caster, target)
+				}
+				if got := target.GetStat(stats.Armor); got != withFaerieFire {
+					t.Errorf("under Faerie Fire the target's armor is %v, want Faerie Fire's %v alone", got, withFaerieFire)
+				}
+				faerieFire.Deactivate(sim)
+				base := withFaerieFire + -spelldata.MustFind(9907).FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).MeanAt(target.Level)
+				if got, want := target.GetStat(stats.Armor), base-punctured; got != want {
+					t.Errorf("with Faerie Fire gone the target's armor is %v, want %v from %d stacks of Puncture Armor", got, want, stacks)
+				}
+			})
+
+			t.Run("Sunder Armor", func(t *testing.T) {
+				sim, caster, target, _ := run(&proto.Debuffs{SunderArmor: true}, "Sunder Armor (External)")
+				sundered := target.GetStat(stats.Armor)
+				for range stacks {
+					landMainHandSwing(sim, caster, target)
+				}
+				if got, want := target.GetStat(stats.Armor), sundered-punctured; got != want {
+					t.Errorf("under Sunder Armor the target's armor is %v, want %v with Puncture Armor's stacks beside it", got, want)
+				}
+			})
+		})
 	}
 }
 
@@ -358,5 +499,69 @@ func TestAnEnemyAuraIsNeverAWearerBuff(t *testing.T) {
 		IsWeaponProc: true})
 	if core.HasItemEffect(991407) {
 		t.Error("Armor Shatter 16928 registered as a stat buff on the wearer")
+	}
+}
+
+// Two weapon procs whose rows apply a debuff alone on the melee hit table: Mutilator 12469's
+// Lacerations 10370, which raises the physical damage its target takes and registers as an aura proc,
+// and Bashguuder 13204's Puncture Armor 17315, a debuff proc. Each casts its row as a main-hand
+// strike that deals no damage: the debuff goes on with a strike that lands, and a strike that misses
+// leaves the target as it was (EV-0145).
+func TestMeleeDebuffWeaponProcRollsItsOwnHit(t *testing.T) {
+	const punctureArmor int32 = 17315
+	for _, tc := range []struct {
+		name     string
+		row      int32
+		weaponID int32
+		register func(SpellDataProc)
+		applied  func(target *core.Unit) float64
+	}{
+		{"Lacerations", lacerations, 991710, registerSpellDataAuraProc,
+			func(target *core.Unit) float64 { return target.PseudoStats.BonusPhysicalDamageTaken }},
+		{"Puncture Armor", punctureArmor, 991712, registerSpellDataDebuffProc,
+			func(target *core.Unit) float64 { return -target.GetStat(stats.Armor) }},
+	} {
+		for i, landing := range []struct {
+			name  string
+			lands bool
+		}{
+			{"a strike that lands", true},
+			{"a strike that misses", false},
+		} {
+			t.Run(tc.name+", "+landing.name, func(t *testing.T) {
+				editRow(t, tc.row, func(s *spelldata.Spell) {
+					alwaysProcs(s)
+					s.RPPM = 0
+				})
+				sim, caster, target := newSlowProcSim(t, tc.weaponID+int32(i), tc.register, tc.row, nil)
+				if landing.lands {
+					caster.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.ExpertisePercent: 100})
+				} else {
+					caster.AttackTables[target.UnitIndex].MH.BaseMissChance = 1
+				}
+				strike := mustGetSpell(t, caster, tc.row)
+				if !strike.ProcMask.Matches(core.ProcMaskMeleeMHSpecial) || !strike.Flags.Matches(core.SpellFlagProc) {
+					t.Fatalf("the strike's mask is %v and its flags %v, want a proc with a main-hand special's mask", strike.ProcMask, strike.Flags)
+				}
+				before := tc.applied(target)
+
+				landMainHandSwing(sim, caster, target)
+				metrics := strike.SpellMetrics[target.UnitIndex]
+				if metrics.Casts != 1 {
+					t.Fatalf("the swing cast %d strikes, want 1", metrics.Casts)
+				}
+				if metrics.TotalDamage != 0 {
+					t.Errorf("the strike dealt %v damage, want none", metrics.TotalDamage)
+				}
+				avoided := metrics.Misses + metrics.Dodges + metrics.Parries
+				gained := tc.applied(target) - before
+				switch {
+				case landing.lands && (avoided != 0 || gained <= 0):
+					t.Errorf("%d strikes were avoided and the debuff added %v, want the strike to land and the debuff on", avoided, gained)
+				case !landing.lands && (avoided != 1 || gained != 0):
+					t.Errorf("%d strikes were avoided and the debuff added %v, want the strike avoided and no debuff", avoided, gained)
+				}
+			})
+		}
 	}
 }

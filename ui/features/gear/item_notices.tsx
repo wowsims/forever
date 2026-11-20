@@ -1,17 +1,10 @@
-import { Spec, type Stat } from '@generated/proto/common';
+import { Spec } from '@generated/proto/common';
+import { type ProcRate, ProcRateKind, ProcRateStatus } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { translateAreaType, translateStat } from '@i18n/localization';
-import {
-	MISSING_ENCHANT_EFFECTS,
-	MISSING_ITEM_EFFECTS,
-	MISSING_SET_BONUSES,
-	UNVALIDATED_RATE_ENCHANTS,
-	UNVALIDATED_RATE_ITEMS,
-	UNVALIDATED_RATE_SET_BONUSES,
-	type UnvalidatedRate,
-} from '@sim/constants/missing_effects_auto_gen';
+import { MISSING_ENCHANT_EFFECTS, MISSING_ITEM_EFFECTS, MISSING_SET_BONUSES } from '@sim/constants/missing_effects_auto_gen';
 import type { Database } from '@sim/proto/database';
-import { UnitStat } from '@sim/proto/stats';
+import { signedStatAmount } from '@sim/proto/stats';
 import { LocaleHtml } from '@ui-kit/Tooltip';
 import { Fragment, type ReactNode } from 'react';
 
@@ -72,40 +65,82 @@ const WillNotBeImplementedWarning = () => <>{i18n.t('gear_tab.item_notices.will_
 
 const WILL_NOT_BE_IMPLEMENTED_WARNING = <WillNotBeImplementedWarning />;
 
-const unvalidatedRateText = ({ kind, origin }: UnvalidatedRate): string => {
-	if (kind === 'ppm') {
-		if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_vanilla');
-		if (origin === 'unknown') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_unknown');
+// Up to 2 decimals without trailing zeros.
+const formatRate = (rate: number): string => String(Math.round(rate * 100) / 100);
+
+// A measured rate and one the game files state show as a line; any other is a warning.
+const isKnownRate = ({ status }: ProcRate): boolean => status === ProcRateStatus.ProcRateStatusMeasured || status === ProcRateStatus.ProcRateStatusGameFiles;
+
+// The sim's rate is stated where the gear has a single one: procs per minute for a ppm, a percent for a chance.
+const unvalidatedRateText = ({ kind, rate, status }: ProcRate): string => {
+	const ppm = kind === ProcRateKind.ProcRateKindPpm;
+	const vanilla = status === ProcRateStatus.ProcRateStatusVanillaCarryover;
+	const observed = status === ProcRateStatus.ProcRateStatusObserved;
+	if (rate > 0) {
+		const options = { rate: formatRate(rate) };
+		if (ppm) {
+			if (vanilla) return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_vanilla_rate', options);
+			if (observed) return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_observed_rate', options);
+			return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_tbc_rate', options);
+		}
+		if (vanilla) return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_vanilla_rate', options);
+		if (observed) return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_observed_rate', options);
+		return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_tbc_rate', options);
+	}
+	if (ppm) {
+		if (vanilla) return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_vanilla');
+		if (observed) return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_observed');
 		return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_tbc');
 	}
-	if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_vanilla');
-	if (origin === 'unknown') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_unknown');
+	if (vanilla) return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_vanilla');
+	if (observed) return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_observed');
 	return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_tbc');
 };
 
-const UnvalidatedRateText = ({ rate }: { rate: UnvalidatedRate }) => <>{unvalidatedRateText(rate)}</>;
+const knownRateText = ({ kind, rate }: ProcRate): string =>
+	kind === ProcRateKind.ProcRateKindPpm
+		? i18n.t('gear_tab.item_notices.proc_rate', { rate: rate.toFixed(2) })
+		: i18n.t('gear_tab.item_notices.proc_chance', { rate: formatRate(rate) });
+
+const KnownRateLine = ({ rate, prefix }: { rate: ProcRate; prefix?: string }) => (
+	<p className="mb-0">
+		{prefix && `${prefix} `}
+		{knownRateText(rate)}
+	</p>
+);
+
+const UnvalidatedRateText = ({ rate }: { rate: ProcRate }) => <>{unvalidatedRateText(rate)}</>;
 
 // Gear with an unvalidated rate can also miss an effect, so the rate warning joins the notice it already has.
-const addUnvalidatedRateNotices = (notices: Map<number, ItemNoticeData>, rates: Map<number, UnvalidatedRate>) => {
-	for (const [id, rate] of rates) {
-		const notice = notices.get(id);
-		notices.set(id, {
-			...notice,
-			[Spec.SpecUnknown]: (
-				<>
-					{notice?.[Spec.SpecUnknown]}
-					<p className="mb-0">
-						<UnvalidatedRateText rate={rate} />
-					</p>
-				</>
-			),
-		});
-	}
+const addUnvalidatedRateNotice = (notices: Map<number, ItemNoticeData>, id: number, rate: ProcRate) => {
+	const notice = notices.get(id);
+	notices.set(id, {
+		...notice,
+		[Spec.SpecUnknown]: (
+			<>
+				{notice?.[Spec.SpecUnknown]}
+				<p className="mb-0">
+					<UnvalidatedRateText rate={rate} />
+				</p>
+			</>
+		),
+	});
 };
+
+// Each item's own rate line.
+const OWN_ITEM_RATE_NOTICES = new Map<number, ReactNode>();
+
+// Each item's rate lines: its own, then those of the set bonuses it belongs to.
+export const ITEM_RATE_NOTICES = new Map<number, ReactNode>();
+
+// By enchant effect id.
+export const ENCHANT_RATE_NOTICES = new Map<number, ReactNode>();
 
 const WILL_NOT_BE_IMPLEMENTED_ITEMS: number[] = [];
 
 const TENTATIVE_IMPLEMENTATION_ITEMS: number[] = [];
+
+const ZumrahsVexingCaneNotice = () => <p className="mb-0">{i18n.t('gear_tab.item_notices.partial_item.zumrahs_vexing_cane')}</p>;
 
 export const ITEM_NOTICES = new Map<number, ItemNoticeData>([
 	...WILL_NOT_BE_IMPLEMENTED_ITEMS.map((itemID): [number, ItemNoticeData] => [
@@ -120,16 +155,38 @@ export const ITEM_NOTICES = new Map<number, ItemNoticeData>([
 			[Spec.SpecUnknown]: TENTATIVE_IMPLEMENTATION_WARNING,
 		},
 	]),
+	[18082, { [Spec.SpecUnknown]: <ZumrahsVexingCaneNotice /> }], // The cane's zombie adds below 1 DPS (EV-0124).
 	...[...MISSING_ITEM_EFFECTS].map(([itemID, tooltips]): [number, ItemNoticeData] => [itemID, missingEffectNotice('item', tooltips)]),
 ]);
-
-addUnvalidatedRateNotices(ITEM_NOTICES, UNVALIDATED_RATE_ITEMS);
 
 export const ENCHANT_NOTICES = new Map<number, ItemNoticeData>(
 	[...MISSING_ENCHANT_EFFECTS].map(([effectID, tooltips]): [number, ItemNoticeData] => [effectID, missingEffectNotice('enchant', tooltips)]),
 );
 
-addUnvalidatedRateNotices(ENCHANT_NOTICES, UNVALIDATED_RATE_ENCHANTS);
+// The rates the database carries on items and enchants: a known rate as a line, an unvalidated one as a warning
+// after the notice the gear already has. Runs before registerSetBonusNotices, which adds each piece's set rates.
+export const registerProcRateNotices = (db: Database) => {
+	for (const item of db.getAllItems()) {
+		if (!item.procRate) continue;
+		if (isKnownRate(item.procRate)) {
+			const line = <KnownRateLine rate={item.procRate} />;
+			OWN_ITEM_RATE_NOTICES.set(item.id, line);
+			ITEM_RATE_NOTICES.set(item.id, line);
+		} else {
+			addUnvalidatedRateNotice(ITEM_NOTICES, item.id, item.procRate);
+		}
+	}
+
+	// Every enchant sharing an effect id carries its rate.
+	const enchantRates = new Map<number, ProcRate>();
+	for (const enchant of db.getAllEnchants()) {
+		if (enchant.procRate) enchantRates.set(enchant.effectId, enchant.procRate);
+	}
+	for (const [effectID, rate] of enchantRates) {
+		if (isKnownRate(rate)) ENCHANT_RATE_NOTICES.set(effectID, <KnownRateLine rate={rate} />);
+		else addUnvalidatedRateNotice(ENCHANT_NOTICES, effectID, rate);
+	}
+};
 
 const NotYetImplementedBonus = ({ tooltips }: { tooltips: string[] }) => (
 	<>
@@ -165,28 +222,64 @@ const PARTLY_IMPLEMENTED_SET_BONUSES = new Map<number, Map<number, () => string>
 	[2114, new Map([[4, () => i18n.t('gear_tab.item_notices.partial_set_bonus.grovekeeper_eclipse_4')]])],
 ]);
 
-// By set id, then by piece count: what each bonus leaves out, a missing effect, a partial one or an
-// unvalidated rate, in that order.
-const SET_BONUS_NOTICES = new Map<number, Map<number, ReactNode[]>>();
-
-const addSetBonusNotices = <T,>(bonusesBySet: Map<number, Map<number, T>>, notice: (value: T) => ReactNode) => {
+const addSetBonusNotices = <T,>(
+	setBonusNotices: Map<number, Map<number, ReactNode[]>>,
+	bonusesBySet: Map<number, Map<number, T>>,
+	notice: (value: T) => ReactNode,
+) => {
 	for (const [setID, bonuses] of bonusesBySet) {
-		const notices = SET_BONUS_NOTICES.get(setID) ?? new Map<number, ReactNode[]>();
+		const notices = setBonusNotices.get(setID) ?? new Map<number, ReactNode[]>();
 		for (const [pieceCount, value] of bonuses) {
 			notices.set(pieceCount, [...(notices.get(pieceCount) ?? []), notice(value)]);
 		}
-		SET_BONUS_NOTICES.set(setID, notices);
+		setBonusNotices.set(setID, notices);
 	}
 };
 
-addSetBonusNotices(MISSING_SET_BONUSES, tooltips => <NotYetImplementedBonus tooltips={tooltips} />);
-addSetBonusNotices(PARTLY_IMPLEMENTED_SET_BONUSES, text => <PartlyImplementedBonus text={text} />);
-addSetBonusNotices(UNVALIDATED_RATE_SET_BONUSES, rate => <UnvalidatedRateText rate={rate} />);
-
 // A set piece can also miss an item effect or carry a rate of its own, so the set notice joins the
-// notice it already has.
+// notice it already has. Each set bonus rate also goes after the piece's own rate line in ITEM_RATE_NOTICES.
 export const registerSetBonusNotices = (db: Database) => {
-	SET_BONUS_NOTICES.forEach((bonuses, setID) => {
+	const itemIdsBySet = new Map<number, number[]>();
+	for (const id of db.getAllItemIds()) {
+		const setID = db.getItemById(id)!.setId;
+		if (setID) itemIdsBySet.set(setID, [...(itemIdsBySet.get(setID) ?? []), id]);
+	}
+
+	// By set id, then by piece count.
+	const knownRates = new Map<number, Map<number, ProcRate>>();
+	const unvalidatedRates = new Map<number, Map<number, ProcRate>>();
+	for (const { setId, pieces, rate } of db.getSetBonusProcRates()) {
+		if (!rate) continue;
+		const rates = isKnownRate(rate) ? knownRates : unvalidatedRates;
+		rates.set(setId, (rates.get(setId) ?? new Map<number, ProcRate>()).set(pieces, rate));
+	}
+
+	// By set id, then by piece count: what each bonus leaves out, a missing effect, a partial one or an
+	// unvalidated rate, in that order.
+	const setBonusNotices = new Map<number, Map<number, ReactNode[]>>();
+	addSetBonusNotices(setBonusNotices, MISSING_SET_BONUSES, tooltips => <NotYetImplementedBonus tooltips={tooltips} />);
+	addSetBonusNotices(setBonusNotices, PARTLY_IMPLEMENTED_SET_BONUSES, text => <PartlyImplementedBonus text={text} />);
+	addSetBonusNotices(setBonusNotices, unvalidatedRates, rate => <UnvalidatedRateText rate={rate} />);
+
+	knownRates.forEach((setRates, setID) => {
+		const lines = [...setRates]
+			.sort(([a], [b]) => a - b)
+			.map(([pieceCount, rate]) => (
+				<KnownRateLine key={pieceCount} rate={rate} prefix={i18n.t('gear_tab.item_notices.set_bonus_piece', { pieces: pieceCount.toFixed(0) })} />
+			));
+
+		for (const id of itemIdsBySet.get(setID) ?? []) {
+			ITEM_RATE_NOTICES.set(
+				id,
+				<>
+					{OWN_ITEM_RATE_NOTICES.get(id)}
+					{lines}
+				</>,
+			);
+		}
+	});
+
+	setBonusNotices.forEach((bonuses, setID) => {
 		const noticeContent = (
 			<>
 				<p className="mb-1"> {i18n.t('gear_tab.item_notices.set_bonus_warnings')}</p>
@@ -208,7 +301,7 @@ export const registerSetBonusNotices = (db: Database) => {
 			</>
 		);
 
-		for (const id of db.getItemIdsForSet(setID)) {
+		for (const id of itemIdsBySet.get(setID) ?? []) {
 			const notice = ITEM_NOTICES.get(id);
 			ITEM_NOTICES.set(id, {
 				...notice,
@@ -226,12 +319,6 @@ export const registerSetBonusNotices = (db: Database) => {
 // Informational notices, shown behind an info icon rather than a warning.
 export const ITEM_INFO_NOTICES = new Map<number, ReactNode>();
 
-// A rating the game shows as a percent reads as that percent; any other stat reads as its number.
-const areaStatAmount = (stat: Stat, value: number): string => {
-	const unitStat = UnitStat.fromStat(stat);
-	return unitStat.isPercentRating() ? `+${Number(unitStat.convertRatingToPercent(value)!.toFixed(2))}%` : `+${value}`;
-};
-
 // Wowhead's tooltip shows the folded number; this names the area-only part.
 export const registerAreaStatsNotices = (db: Database) => {
 	for (const item of db.getAllItems()) {
@@ -247,7 +334,7 @@ export const registerAreaStatsNotices = (db: Database) => {
 						<li key={bonus.areaType}>
 							{translateAreaType(bonus.areaType)}:{' '}
 							{Object.entries(bonus.stats)
-								.map(([stat, value]) => `${areaStatAmount(Number(stat), value)} ${translateStat(Number(stat))}`)
+								.map(([stat, value]) => `${signedStatAmount(Number(stat), value)} ${translateStat(Number(stat))}`)
 								.join(', ')}
 						</li>
 					))}

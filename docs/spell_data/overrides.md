@@ -14,9 +14,11 @@ do not state. One row per number:
 ```
 
 The next reader weighs the number against `Reason` and `Source`, and the generator refuses a row without
-a reason. `Source` names where the number came from: `tbc-carryover`, `tooltip`, `wcl:<report>/<fight>`,
-`issue #N`, `combat log, <spell and rank>, <date>`. A `wcl:`, `issue #` or `combat log` source is a
-measurement on Forever; a carry-over or an `estimate` is listed as unvalidated on the gear it reaches.
+a reason. `Source` names where the number came from: `tooltip`, `owner decision` or another note for a value that is not a proc
+rate, and for a hand-kept proc rate one of `vanilla-carryover`, `tbc-carryover`, `observed` (measured here from too few
+logs to call final) or the id of a measurement on Forever, `EV-<n>` (`docs/evidence/README.md`); the generator refuses
+any other `Source` on a rate. Only an evidence id counts as measured; a carry-over or an `observed` rate is listed as
+unvalidated on the gear it reaches.
 
 Every field names a rule the generator checks before it writes the value, so a stale override lasts
 until the next regeneration at most:
@@ -89,11 +91,22 @@ against the encounter's area set. The override is stale once the row states a `R
 own. The on-use stat actives that `shared.NewSimpleStatActive` registers read it; a proc chance the
 tooltip says is doubled has no reader yet.
 
+`overrides.VersusBonuses` is the third, for a row whose tooltip says it deals, restores or procs N times as
+much against some creatures ("Deals $s2 times as much damage to Plants", "Attacks against Dwarves are $s2
+times as likely to activate this effect"), which no column names. A row names
+the mob types and creature families and the effect whose base points are the factor, or a `Multiplier`
+of its own where no effect states one (Gloves of Holy Might's tripling). These go onto
+`Spell.VersusEffectIndex`, `VersusMultiplier`, `VersusMobTypes` and `VersusFamilies`, and
+`row.VersusBonus()` reads them; `shared.ItemVersusBonus` hands it to a spell and the stats sheet. The
+generator refuses a row whose effect no longer holds a factor above 1 on an `E_NONE`, `E_DUMMY`,
+`A_DUMMY` or trigger effect, and a `Multiplier` once the row states a factor on one of those.
+
 A consumable's spells take these overrides like any other spell's; the lists that add, remove or
 replace a consumable itself are in [Consumables](../consumables.md).
 
 `tools/database/overrides/extra_spells.go` is another hand-kept list: spells the generator
-force-includes although no class, item, enchant or set reaches them. It is empty today. Each entry
+force-includes although no class, item, enchant or set reaches them, such as a spell a server script
+casts or a summoned creature's own spell. Each entry
 states a reason and a source like an override, and the generator refuses one without a reason. The
 extras are added while the store renders, so adding one without regenerating fails the check rather
 than shipping a store that does not match its source.

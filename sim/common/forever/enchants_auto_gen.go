@@ -12,22 +12,6 @@ func RegisterAllEnchants() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Permanently enchant a melee weapon to often strike for 40 additional fire damage.
-	// https://www.wowhead.com/forever/spell=13898
-	// unsupported: states no rate
-	// trigger 13897 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{
-	//	Name:           "Enchant Weapon - Fiery Weapon",
-	//	EnchantID:      803,
-	//	TriggerSpellID: 13897,
-	//	BuffSpellID:    13897,
-	//	IsWeaponProc:   true,
-	// }, nil)
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Permanently enchant a melee weapon to have a chance of stunning and doing heavy damage to demons.
 	// https://www.wowhead.com/forever/spell=13915
 	// unsupported: states no rate; the damage spell hits demons (TargetCreatureType 4) only
@@ -165,6 +149,21 @@ func RegisterAllEnchants() {
 	//	TriggerSpellID: 1294053,
 	// }, nil)
 
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Permanently enchants an item to allow the binding of ancient spirits to an unfinished masterwork.
+	//
+	// https://www.wowhead.com/forever/spell=1314331
+	// unsupported: no callback in the proc mask; states no rate; the enchant's effect entry resolves no stats from 1314330 (A_DUMMY)
+	// trigger 1314330 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataProc(shared.SpellDataProc{
+	//	Name:           "Arcanum of Binding",
+	//	EnchantID:      8726,
+	//	TriggerSpellID: 1314330,
+	// }, nil)
+
 	// Enchants a weapon to have a 15% chance to inflict 11 Fire damage to all enemies within 3 yards.
 	// https://www.wowhead.com/forever/spell=6296
 	// trigger 6297 (15%, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -208,6 +207,15 @@ func RegisterAllEnchants() {
 		BuffSpellID:    7447,
 	}, nil)
 
+	// Permanently enchant a Melee Weapon to do 2 additional points of damage to Beasts.
+	// https://www.wowhead.com/forever/spell=7786
+	// equip: 7784 (A_MOD_DAMAGE_DONE_CREATURE)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{
+		Name:           "Enchant Weapon - Minor Beastslayer",
+		EnchantID:      249,
+		TriggerSpellID: 7784,
+	}, nil)
+
 	// Attaches a Mithril Spike to your shield that deals damage every time you block with it.
 	// https://www.wowhead.com/forever/spell=9781
 	// trigger 9782 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
@@ -216,6 +224,24 @@ func RegisterAllEnchants() {
 		EnchantID:      463,
 		TriggerSpellID: 9782,
 		BuffSpellID:    9782,
+	}, nil)
+
+	// Permanently enchant a Melee Weapon to do 6 additional points of damage to Beasts.
+	// https://www.wowhead.com/forever/spell=13653
+	// equip: 13650 (A_MOD_DAMAGE_DONE_CREATURE)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{
+		Name:           "Enchant Weapon - Lesser Beastslayer",
+		EnchantID:      853,
+		TriggerSpellID: 13650,
+	}, nil)
+
+	// Permanently enchant a Melee Weapon to do 6 additional damage against Elementals.
+	// https://www.wowhead.com/forever/spell=13655
+	// equip: 13651 (A_MOD_DAMAGE_DONE_CREATURE)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{
+		Name:           "Enchant Weapon - Lesser Elemental Slayer",
+		EnchantID:      854,
+		TriggerSpellID: 13651,
 	}, nil)
 
 	// Attaches a Thorium Spike to your shield that deals damage every time you block with it.

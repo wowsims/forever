@@ -24,8 +24,7 @@ export default defineSpec<Spec.SpecRogue>({
 	cssScheme: PlayerClasses.getCssScheme(PlayerClasses.Rogue),
 	// List any known bugs / issues here and they'll be shown on the site.
 	knownIssues: [
-		'The APL is in constant flux due to bug fixes and new findings; if your DPS drops dramatically, reset it back to "Auto" in the Rotation tab!',
-		'Mutilate does not have a default APL currently. It will not be automatically used when talented.',
+		'The APL is in constant flux due to bug fixes and new findings; if your DPS drops dramatically, reset it back to "Configurable" in the Rotation tab!',
 	],
 
 	// All stats for which EP should be calculated.
@@ -63,7 +62,7 @@ export default defineSpec<Spec.SpecRogue>({
 
 	defaults: {
 		// Default equipped gear.
-		gear: Presets.P1_SLOW_MH_GEAR.gear,
+		gear: Presets.SINISTER_GEAR.gear,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: Presets.EP_PRESET_COMBAT_SINISTER.epWeights,
 		statCaps: (() => {
@@ -162,17 +161,25 @@ export default defineSpec<Spec.SpecRogue>({
 	presets: {
 		epWeights: [Presets.EP_PRESET_ASSASSINATION, Presets.EP_PRESET_COMBAT_DAGS, Presets.EP_PRESET_COMBAT_SINISTER, Presets.EP_PRESET_SUBTLETY],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.TALENTS_MUTILATE_ASN, Presets.TALENTS_COMBAT_SS, Presets.TALENTS_COMBAT_BS, Presets.TALENTS_SUB_HEMO, Presets.TALENTS_COMBAT_VENOM],
+		talents: [
+			Presets.TALENTS_MUTILATE_ASN,
+			Presets.TALENTS_COMBAT_SS,
+			Presets.TALENTS_COMBAT_BS,
+			Presets.TALENTS_SUB_HEMO,
+			Presets.TALENTS_COMBAT_VENOM,
+			Presets.TALENTS_HEMO_SF,
+		],
 		// Preset rotations that the user can quickly select.
 		rotations: [Presets.SIMPLE_ROTATION, Presets.DEFAULT_APL],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.P1_BS_COMBAT_GEAR, Presets.P1_MUTI_GEAR, Presets.P1_SLOW_MH_GEAR, Presets.P1_BS_SUB_GEAR],
+		gear: [Presets.BACKSTAB_GEAR, Presets.MUTI_GEAR, Presets.SINISTER_GEAR, Presets.HEMO_GEAR],
 		builds: [
 			Presets.PRESET_BUILD_MUTILATE_ASN,
 			Presets.PRESET_BUILD_COMBAT_SS,
 			Presets.PRESET_BUILD_COMBAT_BS,
 			Presets.PRESET_BUILD_SUB_HEMO,
 			Presets.PRESET_BUILD_COM_VEN,
+			Presets.PRESET_BUILD_HEMO_SF,
 		],
 	},
 

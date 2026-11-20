@@ -1,10 +1,7 @@
 package shaman
 
 import (
-	"math"
-
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -15,6 +12,8 @@ import (
 var (
 	windfuryWeaponPassive    = spelldata.MustFind(439431)
 	windfuryWeaponAttack     = spellData.WindfuryWeapon.Highest().Refs()[0]
+	windfuryWeaponStrike     = spelldata.MustFind(439440)
+	windfuryTotemStrike      = spelldata.MustFind(10610)
 	flametongueWeaponPassive = spelldata.MustFind(436519)
 	flametongueWeaponProc    = spellData.FlametongueWeapon.Highest().Refs()[0]
 	flametongueWeaponAttack  = spellData.FlametongueWeapon.Highest().Refs()[1]
@@ -130,43 +129,33 @@ func (shaman *Shaman) imbueProcManager(imbue proto.ShamanImbue, ppm float64, cha
 	return &dpm
 }
 
-// "When applied to main hand, disables any benefit you personally receive from" the totem of the
-// same name: while the main hand carries the imbue, its aura outbids the totem for its category.
-func (shaman *Shaman) holdTotemCategoryOnMainHand(category string, imbue proto.ShamanImbue) {
-	shaman.imbueAuras[imbue].NewExclusiveEffect(category, false, core.ExclusiveEffect{
-		Priority: math.MaxFloat64,
-	})
-}
-
-// The extra attacks are logged as 439440, with 16361's attack power added. They are white in name
-// only: auto attack procs such as Flametongue Totem hear them, but they roll the weapon special's
-// table of miss, dodge, parry and crit, never glance, and spend no Flurry charge. Like every extra
-// attack they report as a main-hand attack tagged with the spell that grants them.
+// Each strike is 439440, a main-hand ability (EV-0012), dealing the main
+// hand's weapon damage with 16361's attack power added. It rolls the weapon special's table of miss,
+// dodge, parry and crit and never glances, and listeners hear it as an ability: Flametongue Totem,
+// whose row hears swings alone, procs off the swing that brought the strikes and off none of them.
 func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 	// Elemental Weapons raises effect 1, which the parse would read as damage.
 	attackPower := windfuryWeaponAttack.EffectN(1).Average() * shaman.windfuryWeaponMultiplier
 
-	return shaman.RegisterSpell(core.SpellConfig{
-		ActionID:         core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: windfuryWeaponAttack.ID},
-		SpellSchool:      core.SpellSchoolPhysical,
-		DefenseType:      core.DefenseTypeMelee,
-		ProcMask:         core.ProcMaskMeleeMHAuto,
-		Flags:            core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1,
-		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			baseDamage := shaman.MHWeaponDamage(sim, spell.MeleeAttackPower(target)+attackPower)
-			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
-		},
-	})
+	config := spelldata.SpellConfig(&shaman.Unit, windfuryWeaponStrike,
+		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
+	if windfuryWeaponStrike.IsAProc() {
+		config.Flags |= core.SpellFlagProc
+	}
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		weaponDamage := shaman.MHWeaponDamage(sim, spell.MeleeAttackPower(target)+attackPower)
+		baseDamage := windfuryWeaponStrike.WeaponStrike(sim, spell, weaponDamage, 0)
+		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+	}
+	return shaman.RegisterSpell(config)
 }
 
 // 439431 rolls its 20% on the main hand's melee hits, once per 1.5 s, and fires the rank's 16361,
 // whose extra attacks count is how many strikes follow. It rolls off the hit's cast result, and the
-// strikes follow once that hit has been dealt, in the same instant.
+// strikes follow once that hit has been dealt, in the same instant. The row hears abilities, the
+// strikes among them, but they land inside the 1.5 s the proc has just started, so they never roll.
 func (shaman *Shaman) RegisterWindfuryImbue() {
 	strike := shaman.newWindfuryImbueSpell()
-	shaman.windfuryWeaponStrike = strike
 	count := int(windfuryWeaponAttack.ExtraAttacksEffect().BaseValue())
 
 	chance := windfuryWeaponPassive.StatedChance()
@@ -180,16 +169,11 @@ func (shaman *Shaman) RegisterWindfuryImbue() {
 	}, func(_ *core.Character, trigger *core.ProcTrigger) {
 		trigger.ProcChance = 0
 		trigger.DPM = shaman.imbueProcManager(proto.ShamanImbue_WindfuryWeapon, 0, chance)
-		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-			return spell != strike
-		}
 	})
 	trigger.Name = "Windfury Weapon Trigger"
 	trigger.Callback = core.CallbackOnCastResult
 	trigger.TriggerImmediately = true
 	shaman.MakeProcTriggerAura(trigger)
-
-	shaman.holdTotemCategoryOnMainHand(buffs.WindfuryTotemCategory, proto.ShamanImbue_WindfuryWeapon)
 }
 
 // The hit is 10444, and the tooltip's ${$16344m1/77-1+($10444m1)} to ${$16344m1/25+($10444m1)}
@@ -222,8 +206,6 @@ func (shaman *Shaman) RegisterFlametongueImbue() {
 	trigger.Name = "Flametongue Weapon Trigger"
 	trigger.TriggerImmediately = true
 	shaman.MakeProcTriggerAura(trigger)
-
-	shaman.holdTotemCategoryOnMainHand(buffs.FlametongueTotemCategory, proto.ShamanImbue_FlametongueWeapon)
 }
 
 // Enchant 1668 casts 16353 off the main hand's hits. The slow, effect 1, is not

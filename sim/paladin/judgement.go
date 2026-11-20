@@ -13,12 +13,15 @@ import (
 func (paladin *Paladin) registerJudgement() {
 	paladin.Judgement = paladin.RegisterSpell(paladin.judgementConfig(spellData.Judgement.Highest(), SpellMaskJudgement))
 
-	// Every melee strike that lands refreshes the judgement debuffs on its target.
+	// A white swing that lands refreshes the judgement debuffs on its target, and so does Windfury
+	// Totem's strike. Seal of Command's hit and the judgements refresh none, and Holy Strike refreshes
+	// them only through Sacred Arbiter's own trigger (EV-0117).
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Judgement Refresh" + paladin.Label,
 		Callback:           core.CallbackOnSpellHitDealt,
-		ProcMask:           core.ProcMaskMelee,
+		ProcMask:           swingMask,
 		Outcome:            core.OutcomeLanded,
+		ExtraCondition:     hearsSwing,
 		TriggerImmediately: true,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			paladin.refreshJudgements(sim, result.Target)
@@ -26,11 +29,12 @@ func (paladin *Paladin) registerJudgement() {
 	})
 }
 
-// A cast that unleashes the active seal's judgement, the one Judgement and Swift Judgement share. It
-// fires no on-cast callbacks, so listeners hear the judgement it unleashes.
+// A cast that unleashes the active seal's judgement, the one Judgement and Swift Judgement share. A
+// cast listener hears this cast and the judgement it unleashes; a listener that rolls on spell casts
+// takes this one, as the game does (EV-0144).
 func (paladin *Paladin) judgementConfig(rank *spelldata.Spell, classMask int64) core.SpellConfig {
 	config := spelldata.SpellConfig(&paladin.Unit, rank,
-		spelldata.Flags(core.SpellFlagAPL|core.SpellFlagPassiveSpell|core.SpellFlagNoOnCastComplete))
+		spelldata.Flags(core.SpellFlagAPL|core.SpellFlagPassiveSpell))
 	config.ProcMask = core.ProcMaskEmpty
 	config.ClassSpellMask = classMask
 	config.DamageMultiplier = 1

@@ -121,9 +121,10 @@ func (warrior *Warrior) registerDeepWounds() {
 
 	// A crit casts the bleed, but it does not take spelldata.Proc(): that marks the spell passive,
 	// and the metrics aggregator counts no cast for a passive spell, while the sim reports every
-	// application as a cast.
+	// application as a cast. The caster's damage bonuses, Death Wish among them, never scale the
+	// ticks (EV-0139).
 	config := spelldata.SpellConfig(&warrior.Unit, deepWoundsBleed,
-		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagIgnoreResists|core.SpellFlagProc)) // 12162 and 412609 lack Not a Proc.
+		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagIgnoreResists|core.SpellFlagProc|core.SpellFlagIgnoreAttackerModifiers)) // 12162 and 412609 lack Not a Proc.
 	config.ProcMask = core.ProcMaskEmpty
 
 	// The tick is a share of weapon damage, not the row's amount or its coefficient, which is why the
@@ -142,14 +143,14 @@ func (warrior *Warrior) registerDeepWounds() {
 		},
 	}
 
+	var application float64
+
 	// A crit while the bleed is up adds the unticked damage to the new application and spreads the sum
 	// over a full set of ticks; the ticks keep the first application's timer.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealOutcome(sim, target, spell.OutcomeAlwaysHitNoHitCounter)
 		dot := spell.Dot(target)
-		// One application is the share of the main hand's average weapon damage, without Attack Power,
-		// whichever hand crit.
-		totalDamage := dot.OutstandingDmg() + warrior.AutoAttacks.MH().AverageDamage()*share
+		totalDamage := dot.OutstandingDmg() + application
 
 		if dot.IsActive() {
 			dot.DurationExtend(sim, deepWoundsBleed.Duration())
@@ -162,16 +163,22 @@ func (warrior *Warrior) registerDeepWounds() {
 	warrior.DeepWounds = warrior.RegisterSpell(config)
 
 	// The proc shape with no roll: 12834 states its rate as "always" and its crit hint carries the
-	// tooltip's condition. The physical school the tooltip's melee weapon means is the caller's.
+	// tooltip's condition. The physical school the tooltip's melee weapon means is the caller's. A crit
+	// on the magic hit table, Thunder Clap's, starts no bleed (EV-0139).
 	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.DeepWounds.Rank(warrior.Talents.DeepWounds),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			// One application is the share of the critting hand's average weapon damage, without Attack Power:
+			// an off-hand crit takes the off hand's average without the off-hand damage penalty, and every
+			// other crit the main hand's (EV-0139).
+			weapon := core.Ternary(spell.IsOH() && !spell.IsMH(), warrior.AutoAttacks.OH(), warrior.AutoAttacks.MH())
+			application = weapon.AverageDamage() * share
 			warrior.DeepWounds.Cast(sim, result.Target)
 		})
 	trigger.Name = "Deep Wounds - Trigger"
 	trigger.TriggerImmediately = true
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		return spell.SpellSchool.Matches(core.SpellSchoolPhysical)
+		return spell.SpellSchool.Matches(core.SpellSchoolPhysical) && spell.DefenseType != core.DefenseTypeMagic
 	}
 
 	warrior.MakeProcTriggerAura(trigger)
@@ -256,7 +263,7 @@ func (warrior *Warrior) registerBloodthrill() {
 	// cast consumes it. The tooltip's $s1 names an effect, so the row's own ProcChanceEffectN
 	// reads the rate ladder. Main-hand white swings, extra attacks included, and the on-next-swing
 	// Heroic Strike and Cleave proc it on a target with the warrior's Rend; the row's melee-ability
-	// bit would also admit the instant specials, which in game do not proc it.
+	// bit would also admit the instant specials, which in game do not proc it (EV-0056).
 	trigger := spelldata.ProcTrigger(&warrior.Character, talent,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.OverpowerAura.Activate(sim)
@@ -327,14 +334,15 @@ func (warrior *Warrior) registerWeaponmaster() {
 	}
 
 	// 1290261 states no proc flags at all, so the row decodes to a listener that hears nothing:
-	// the shape, the mask and the rate's effect are all the caller's. Measured in game, Sweeping
-	// Strikes' hits never roll it, and Whirlwind and Cleave roll it once a cast however many targets
-	// they land on. Which target's hit takes that roll is not measured; here the first landed one
-	// does, since a hit that is avoided never reaches the condition. A Windfury Totem swing's proc
-	// brings no extra swing; only the totem's swing is measured, so swings other procs grant (Hand of
-	// Justice, Thrash Blade) still bring one. 10610 is the proc the totem's raid aura 10612 names,
-	// which tags its swing (core/buffs/drivers.go).
-	windfuryTotemSwing := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: 10610}
+	// the shape, the mask and the rate's effect are all the caller's. Sweeping Strikes' hits never
+	// roll it, and Whirlwind and Cleave roll it once a cast however many targets they land on
+	// (EV-0054). Which target's hit takes that roll is not measured; here the first landed one
+	// does, since a hit that is avoided never reaches the condition. Windfury Totem's strike rolls it
+	// as a white swing does (EV-0002). Swings other procs grant (Hand of Justice, Thrash Blade) bring
+	// one as well.
+	// TODO: Ingame test needed: whether Whirlwind's off-hand strike (its own spell, 462891 in game)
+	// rolls its own chance; the sim gives both hands the cast's one roll. A dual-wield Weaponmaster
+	// 5/5 log with an off-hand sword, about 150 Whirlwinds on 2 or more targets, settles it.
 	firstAoeHit, resetFirstAoeHit := core.OncePerCast()
 	swordTrigger := core.ProcTrigger{
 		Name:            "Weaponmaster (Sword)",
@@ -346,7 +354,7 @@ func (warrior *Warrior) registerWeaponmaster() {
 		ProcChance:      spellData.Weaponmaster.EffectAt(3).FractionAt(rank),
 		Duration:        core.NeverExpires,
 		ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-			if !spell.ProcMask.Matches(swordMask) || spell.ActionID.SpellID == sweepingStrikesHitID || spell.ActionID == windfuryTotemSwing {
+			if !spell.ProcMask.Matches(swordMask) || spell.ActionID.SpellID == sweepingStrikesHitID {
 				return false
 			}
 			if spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) && (spellData.Whirlwind.Contains(spell) || spellData.Cleave.Contains(spell)) {
@@ -431,11 +439,14 @@ func (warrior *Warrior) registerSweepingStrikes() {
 	actionID := core.ActionID{SpellID: sweepingStrikesHitID}
 
 	var copyDamage float64
+	// 12723 has no SpellCategories row and so no DefenseType: no chance-on-hit effect or combat
+	// enchant hears the copied hit (EV-0007). Equip procs still hear it; no log measures them on 12723.
 	hitSpell := warrior.RegisterSpell(core.SpellConfig{
 		ActionID:    actionID,
 		ClassFlags:  SpellFlagsSweepingStrikes,
 		SpellSchool: core.SpellSchoolPhysical,
 		ProcMask:    core.ProcMaskMeleeSpecial,
+		DefenseType: core.DefenseTypeNone,
 		Flags:       core.SpellFlagIgnoreModifiers | core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
 
 		DamageMultiplier: 1,
@@ -451,8 +462,9 @@ func (warrior *Warrior) registerSweepingStrikes() {
 		ClassFlags:  SpellFlagsSweepingStrikes,
 		SpellSchool: core.SpellSchoolPhysical,
 		DefenseType: core.DefenseTypeMelee,
-		ProcMask:    core.ProcMaskMeleeSpecial,
-		Flags:       core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
+		// A main-hand strike, so only the main-hand weapon's procs hear it.
+		ProcMask: core.ProcMaskMeleeMHSpecial,
+		Flags:    core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
@@ -472,6 +484,9 @@ func (warrior *Warrior) registerSweepingStrikes() {
 				return
 			}
 
+			// Whirlwind brings its one strike through CastNormalizedSweepingStrikesAttack, from the main
+			// hand's results: one hit and one charge a cast (EV-0054).
+			// TODO: Ingame test needed: whether Whirlwind's off-hand strike brings a hit of its own.
 			if spell == hitSpell || spell == warrior.SweepingStrikesNormalizedAttack || spellData.ThunderClap.Contains(spell) || spellData.Whirlwind.Contains(spell) {
 				return
 			}

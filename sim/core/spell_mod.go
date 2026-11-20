@@ -282,7 +282,7 @@ func passesSpellChecks(spell *Spell, mod *SpellMod) bool {
 // is the unit's playerEquipment, resolved once per pass.
 func passesWeaponChecks(spell *Spell, mod *SpellMod, equipment *Equipment) bool {
 	// A modifier on the off-hand's hits alone is one on the off-hand weapon's, and an off-hand hit
-	// with no weapon behind it, such as a shield's, takes none of them.
+	// with no weapon behind it takes none of them.
 	if mod.ProcMask > 0 && mod.ProcMask&^ProcMaskMeleeOH == 0 && !spell.Unit.AutoAttacks.IsDualWielding {
 		return false
 	}

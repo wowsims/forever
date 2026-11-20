@@ -99,7 +99,7 @@ func (rogue *Rogue) registerRiposte() {
 	}
 
 	// Only Riposte's cast spends the window. The row's one charge on any melee ability is not modelled: in game a
-	// Sinister Strike leaves Riposte usable.
+	// Sinister Strike leaves Riposte usable (EV-0099).
 	window := rogue.RegisterAura(spelldata.AuraConfig(riposteWindow))
 
 	trigger := spelldata.ProcTrigger(&rogue.Character, spellData.DefensiveState.Highest(),
@@ -272,6 +272,7 @@ func (rogue *Rogue) registerHackAndSlash() {
 		}
 	}
 
+	// Windfury Totem's strike rolls it at a main-hand hit's chance when the main hand holds a sword or axe (EV-0002, EV-0128).
 	var extraAttack *core.Spell
 	swordAura := rogue.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Hack and Slash (Axe/Sword)",

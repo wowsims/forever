@@ -97,6 +97,9 @@ func (item *Item) ToScaledUIItem(itemLevel int) *proto.UIItem {
 		Stats:           item.GetStats(item.ItemLevel).ToProtoMap(),
 		RandPropPoints:  item.GetRandPropPoints(item.ItemLevel),
 		Ilvl:            int32(item.ItemLevel),
+		WeaponSkills:    item.GetWeaponSkills(item.ItemLevel),
+		MobTypeStats:    item.GetMobTypeStats(item.ItemLevel),
+		Hp5:             item.GetHP5(item.ItemLevel),
 	}
 	if item.ItemClass == ITEM_CLASS_WEAPON {
 		// Equipped damage is rounded; a form that swings at its own speed needs the table cell itself.
@@ -183,11 +186,65 @@ func (item *Item) GetStats(itemLevel int) *stats.Stats {
 	return stats
 }
 
+func (item *Item) GetWeaponSkills(itemLevel int) []*proto.WeaponSkillValue {
+	var skills []*proto.WeaponSkillValue
+	for i, stat := range item.BonusStat {
+		if skill, ok := weaponSkillByBonusStat[stat]; ok {
+			if value := int32(item.GetScaledStat(i, itemLevel)); value != 0 {
+				skills = append(skills, &proto.WeaponSkillValue{Skill: skill, Value: value})
+			}
+		}
+	}
+	return skills
+}
+
+// One entry per mob type, in the order the item first states each.
+func (item *Item) GetMobTypeStats(itemLevel int) []*proto.MobTypeStats {
+	var out []*proto.MobTypeStats
+	for i, stat := range item.BonusStat {
+		versus, ok := mobTypeStatByBonusStat[stat]
+		if !ok {
+			continue
+		}
+		value := item.GetScaledStat(i, itemLevel)
+		if value == 0 {
+			continue
+		}
+		bonus := mobTypeEntryStats(&out, versus.mobType)
+		for _, granted := range versus.stats {
+			bonus[int32(granted)] += value
+		}
+	}
+	return out
+}
+
+// The stats of the entry for the mob type, appending one when the entries hold none.
+func mobTypeEntryStats(entries *[]*proto.MobTypeStats, mobType proto.MobType) map[int32]float64 {
+	for _, entry := range *entries {
+		if entry.MobTypes[0] == mobType {
+			return entry.Stats
+		}
+	}
+	entry := &proto.MobTypeStats{MobTypes: []proto.MobType{mobType}, Stats: map[int32]float64{}}
+	*entries = append(*entries, entry)
+	return entry.Stats
+}
+
+func (item *Item) GetHP5(itemLevel int) int32 {
+	var total int32
+	for i, stat := range item.BonusStat {
+		if stat == ITEM_MOD_HEALTH_REGEN {
+			total += int32(item.GetScaledStat(i, itemLevel))
+		}
+	}
+	return total
+}
+
 // Caster weapons carry spell power that no stat slot states, worked out from the first column of the
 // item level budget with the allocations of the "of Magic" and "of Healing" bonus lists: 20000 spell
 // power, or on a healing weapon 37600 healing (1.88 times the spell power) and a third of that as spell
 // damage, each rounded down. It adds to the weapon's own stats; the rule reproduces the in-game tooltip
-// of every weapon with one of the two flags.
+// of every weapon with one of the two flags (EV-0112).
 const (
 	casterSpellPowerAllocation   = 20000
 	casterHealingPowerAllocation = 37600
@@ -231,6 +288,11 @@ func (item *Item) GetRandPropPoints(itemLevel int) int32 {
 	return randomProperty[item.OverallQuality.ToProto()][suffixType]
 }
 func (item *Item) GetScaledStat(index int, itemLevel int) float64 {
+	return GetDBC().scaledStat(item, index, itemLevel)
+}
+
+// On the DBC itself, so InitDBC can read item stats: GetDBC there deadlocks inside its own once.Do.
+func (d *DBC) scaledStat(item *Item, index int, itemLevel int) float64 {
 	//Todo check if overflow array
 
 	// The game files ship no precomputed StatModifier_bonusAmount, so the allocation
@@ -240,7 +302,7 @@ func (item *Item) GetScaledStat(index int, itemLevel int) float64 {
 
 	if slotType != -1 && item.OverallQuality > 0 {
 
-		randomProperty := GetDBC().RandomPropertiesByIlvl[itemLevel]
+		randomProperty := d.RandomPropertiesByIlvl[itemLevel]
 		itemBudget = float64(randomProperty[item.OverallQuality.ToProto()][slotType])
 
 		if item.StatAlloc[index] > 0 && itemBudget > 0 {

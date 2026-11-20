@@ -79,6 +79,14 @@ parry, a miss or a block needs it false. Where the tooltip named that outcome, t
 wording yielded no hint, such as the Battlegear of Wrath consume 23547, has to be cleared by hand. Which
 outcome it is stays the caller's, except the block, since no `ProcTypeMask` has a bit for any of them.
 
+The melee swing bit (`PROC_FLAG_DEAL_MELEE_SWING`, 0x4) also sets `HearsCountedSwings`, which
+`spelldata.ProcTrigger` copies onto the trigger: a hit flagged `SpellFlagCountsAsSwing`, which is
+Windfury Totem's strike, reaches a listener whose mask would not hear it as a main-hand auto attack,
+and a procs-per-minute manager prices it on the main hand's speed (EV-0136). `WeaponProc()` clears it,
+since a weapon proc hears the strike by its own rule. A caller whose row hears swings but not the
+strike clears it by hand, as Unsealed Wrath does (`sim/paladin/talents_retribution.go`). A
+`core.ProcTrigger` typed by hand hears the strike only if it sets the field, as Reckoning's spend does.
+
 The mask states which hits reach the listener; it cannot state the condition around them, so the
 generator reads that off the tooltip into `core.ProcHint`:
 
@@ -154,12 +162,61 @@ listener hears, how often it fires and its internal cooldown. The buff's row sup
 lasts and how it stacks. Only the stats come from the item's effect entry, where the sim's item level
 scaling lives. `IsWeaponProc` states the one shape no row describes: the game
 casts a chance-on-hit effect off the weapon's hit without consulting a proc mask, and there the 100/101
-sentinel is never a rate.
+sentinel is never a rate. An ability whose row requires a shield (Shield Slam, Shield Bash), has magic
+DefenseType (Thunder Clap) or has none (Sweeping Strikes' copied hit 12723) reaches equip procs and no
+chance-on-hit effect or combat enchant; auto attacks are exempt, so a wand's shots still cast them.
 
 The damage shape also takes a row that deals its damage through `E_HEALTH_LEECH`. The hit rolls the
 table of the row's defense type and takes armor or resistance like any other, and the wearer gains the
 effect's `Amplitude` share of the damage dealt as health. Maw of Min'loth's Fatal Bite 1295065 drains
 the attacker for 40 Physical on the melee table.
+
+The damage shape (`applySpellDataDamageProc`) gives its listener the `RecoveryTime` of the row it casts as the internal
+cooldown where the trigger's row states none, since the spell cannot be cast again while it runs, and no hit that lands
+inside that time casts it. Toofbreaker 286430's Toofbreak 1320269 states 100 ms, so it brings no second strike and
+rolls on no Windfury Totem strike or ability that lands with the swing that cast it (EV-0145). A row that deals its
+damage as an `A_PROC_TRIGGER_DAMAGE` aura casts nothing and takes none: the shield spikes state 5 s and answer every
+block.
+
+A weapon's debuff or aura proc whose row is on the melee or ranged hit table casts that row as a strike
+that deals no damage (`attachDebuffStrike`). The debuff goes on only where the strike's own roll lands,
+and the strike is heard as a weapon's strike is (R-0040). Mutilator 12469's Lacerations 10370 and
+Puncture Armor 17315 are the cases. A row on the magic table or on none goes on with the proc, and the
+wearer's and the pets' auras of an aura proc go up whatever the strike rolls.
+
+A damage row that also states an `E_ENERGIZE` on its caster puts that gain into the wearer's mana, rage
+or energy with every proc, whether the damage lands or not, since the gain's target is the caster
+(`withProcEnergize`). Engulfing Shadows 27860 deals 112 Shadow and restores 104 mana.
+
+A rate priced on something neither the item's entry nor the trigger's row states comes in through
+`SpellDataProc.Rate`, which replaces the rate those give and may reshape the listener. Blade of Eternal Darkness 17780 is the
+case (`castTimePPM` in `sim/common/forever/items_weapons.go`): each landed harmful spell, one that
+deals no damage included, rolls 21978's procs per minute on the cast time of the cast that launched it,
+at least 1.5 s. The time is read where the cast deals the hit's result, so a missile keeps it after the
+next cast starts. A
+manager on the main hand's speed would price every hit on the 1.5 s dagger. Scented Runewood Brooch
+269741 goes through `Rate` for the other case: `NewLegacyPPMManagerWithMainHandSpells` prices its
+weapon hits on their weapons and its spell hits on the main-hand weapon's speed, read at the roll, for a
+caster who never swings too.
+
+A set bonus proc whose row hears melee swings and spell casts at procs per minute gets a listener for each
+(`attachSetBonusProc` in `sim/common/shared/item_sets.go`). The swings roll the rate on their weapon's
+speed. A cast rolls it once on the time it took, at least 1.5 s (`shared.SpellCastPPMTrigger`), and a
+spell's hit or a heal's landing rolls nothing. The casts that roll are those of a damaging or healing
+spell and every other cast that costs its caster a resource and is no melee or ranged ability: a seal,
+a totem, the paladin's Judgement. A cast that costs nothing rolls nothing. Lightforge Armor's Crusader's Wrath 450625 and The Elements' The Furious Storm 450626 are the
+cases, and Wildheart Raiment's 450608 takes the cast listener alone (EV-0144). `shared.RollCastTimePPM`
+is the price both this listener and `castTimePPM` roll.
+
+What a generated damage proc does beyond the spell the generator builds from its row (a delayed second
+hit, an execute bonus, a shield on the wearer, a stun cast beside the strike) goes into
+`shared.DamageProcExtras` under the item id, from `init` in `sim/common/forever`, as Sul'thraze the
+Lasher 9372, Pendulum of Doom 9425, Flame Wrath 11809, Gahz'rilla Fang 9467 and The Chief's Enforcer
+9477 do. The item stays generated, so the
+generator keeps listing its other effects no code simulates. A hand-written registration on the id
+would hide them, since it turns every generated effect of the item off. The variant's `ItemName` is the
+listener's name, and in a test run each roll label draws its own random stream, so renaming it moves
+the item's `AllItems` rows even where nothing else changed.
 
 An effect entry carries flat stats only, so a buff the game files state as a percentage of a stat
 (`A_MOD_PERCENT_STAT`, misc the stat index, -1 all five) has none, and the generator routes it as auras:

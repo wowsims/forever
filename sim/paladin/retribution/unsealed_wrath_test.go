@@ -2,23 +2,39 @@ package retribution
 
 import (
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/paladin"
 )
+
+// The swing the tests land, and the time they let pass after one: the batch window the seal effects
+// land in and the talent's proc cooldown, so the next swing is heard.
+var unsealedWrathSwing = core.ActionID{OtherID: 1}
+
+func passUnsealedWrathCooldown(sim *core.Simulation) {
+	for end := sim.CurrentTime + spelldata.MustFind(1310735).ICD() + 2*core.SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
+	}
+}
 
 // A paladin with Unsealed Wrath and no rotation or auto attacks, a main-hand weapon to swap to, a
 // swing that always lands, and a count of the Seal of Righteousness hits cast so far under one tag.
 func unsealedWrathPaladin(t *testing.T) (sim *core.Simulation, pal *paladin.Paladin, swing func(), righteousnessHits func(tag int32) int32) {
+	t.Helper()
+	return unsealedWrathPaladinWith(t, UnsealedWrathTalents, &proto.RaidBuffs{})
+}
+
+func unsealedWrathPaladinWith(t *testing.T, talents string, raidBuffs *proto.RaidBuffs) (sim *core.Simulation, pal *paladin.Paladin, swing func(), righteousnessHits func(tag int32) int32) {
 	t.Helper()
 	player := &proto.Player{
 		Name:           "Unsealed Wrath",
 		Race:           proto.Race_RaceHuman,
 		Class:          proto.Class_ClassPaladin,
 		Equipment:      core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "default").GearSet,
-		TalentsString:  UnsealedWrathTalents,
+		TalentsString:  talents,
 		EnableItemSwap: true,
 		ItemSwap:       core.GetItemSwapGearSet("../../../ui/specs/paladin/retribution/gear_sets", "holy_shock_item_swap").ItemSwap,
 		Spec: &proto.Player_RetributionPaladin{RetributionPaladin: &proto.RetributionPaladin{
@@ -27,7 +43,7 @@ func unsealedWrathPaladin(t *testing.T) (sim *core.Simulation, pal *paladin.Pala
 		Rotation: &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
 	}
 	sim = core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, raidBuffs, &proto.Debuffs{}),
 		Encounter:  core.MakeSingleTargetEncounter(0),
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 	}, simsignals.CreateSignals())
@@ -49,9 +65,10 @@ func unsealedWrathPaladin(t *testing.T) (sim *core.Simulation, pal *paladin.Pala
 	}
 
 	strike := pal.RegisterSpell(core.SpellConfig{
-		ActionID:         core.ActionID{OtherID: 1},
+		ActionID:         unsealedWrathSwing,
 		SpellSchool:      core.SpellSchoolPhysical,
 		ProcMask:         core.ProcMaskMeleeMHAuto,
+		DefenseType:      core.DefenseTypeMelee,
 		Flags:            core.SpellFlagMeleeMetrics,
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
@@ -59,11 +76,9 @@ func unsealedWrathPaladin(t *testing.T) (sim *core.Simulation, pal *paladin.Pala
 			spell.CalcAndDealDamage(sim, target, 100, spell.OutcomeAlwaysHit)
 		},
 	})
-	// Each swing steps the sim past the batch window the seal effects land in.
 	swing = func() {
 		strike.SkipCastAndApplyEffects(sim, pal.CurrentTarget)
-		for end := sim.CurrentTime + 2*core.SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
-		}
+		passUnsealedWrathCooldown(sim)
 	}
 	return sim, pal, swing, righteousnessHits
 }
@@ -75,6 +90,156 @@ func castSeal(t *testing.T, sim *core.Simulation, pal *paladin.Paladin, id int32
 		t.Fatalf("seal %d is not registered", id)
 	}
 	spell.SkipCastAndApplyEffects(sim, pal.CurrentTarget)
+}
+
+const windfuryTotemStrike = 10610 // The strike Windfury Totem's proc casts.
+
+// Every seal with a per-hit effect hears Windfury Totem's strike as one more white swing.
+func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
+	for _, c := range []struct {
+		name string
+		seal int32
+		proc int64
+	}{
+		{"Seal of Command", paladin.SealOfCommandRankMap.Highest().ID, paladin.SpellMaskSealOfCommandProc},
+		{"Seal of Fury", paladin.SealOfFuryRankMap.Highest().ID, paladin.SpellMaskSealOfFuryProc},
+		{"Seal of Righteousness", paladin.SealOfRighteousnessRankMap.Highest().ID, paladin.SpellMaskSealOfRighteousnessProc},
+		{"Seal of Wisdom", paladin.SealOfWisdomRankMap.Highest().ID, paladin.SpellMaskSealOfWisdomProc},
+		{"Seal of Light", paladin.SealOfLightRankMap.Highest().ID, paladin.SpellMaskSealOfLightProc},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, pal, _, _ := unsealedWrathPaladinWith(t, UnsealedWrathTalents, &proto.RaidBuffs{WindfuryTotem: true})
+			strike := pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
+			if strike == nil {
+				t.Fatal("the paladin has no Windfury Totem strike")
+			}
+			procs := func() int32 {
+				var casts int32
+				for _, spell := range pal.Spellbook {
+					if spell.Matches(c.proc) && spell.ActionID.Tag == 0 {
+						casts += spell.SpellMetrics[pal.CurrentTarget.UnitIndex].Casts + spell.SpellMetrics[pal.UnitIndex].Casts
+					}
+				}
+				return casts
+			}
+
+			// Each strike comes after the seal's own proc cooldown, under a fresh seal.
+			for range 100 {
+				castSeal(t, sim, pal, c.seal)
+				pal.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: pal.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+				for end := sim.CurrentTime + time.Second + 2*core.SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
+				}
+			}
+			if procs() == 0 {
+				t.Errorf("100 landed Windfury Totem strikes under %s procced it none, want some", c.name)
+			}
+		})
+	}
+}
+
+var noSacredArbiterTalents = "050250002-501-15233011200301351" // The Unsealed Wrath build with Sacred Arbiter's point in Deflection.
+
+// A landed white swing refreshes Judgement of the Crusader on its target, and so does Windfury
+// Totem's strike. Seal of Command's hit and Judgement of Command leave it running down, and so does
+// Holy Strike unless Sacred Arbiter is taken (EV-0117).
+func TestJudgementDebuffRefreshesOnWhiteSwingsAndWindfuryTotemsStrike(t *testing.T) {
+	for _, build := range []struct {
+		name          string
+		talents       string
+		sacredArbiter bool
+	}{
+		{"without Sacred Arbiter", noSacredArbiterTalents, false},
+		{"with Sacred Arbiter", UnsealedWrathTalents, true},
+	} {
+		t.Run(build.name, func(t *testing.T) {
+			sim, pal, _, _ := unsealedWrathPaladinWith(t, build.talents, &proto.RaidBuffs{WindfuryTotem: true})
+			if pal.Talents.SacredArbiter != build.sacredArbiter || !pal.Talents.SealOfCommand {
+				t.Fatalf("the talents take Sacred Arbiter: %v, want %v, or lack Seal of Command", pal.Talents.SacredArbiter, build.sacredArbiter)
+			}
+			target := pal.CurrentTarget
+			byMask := func(mask int64) *core.Spell {
+				for _, spell := range pal.Spellbook {
+					if spell.Matches(mask) && spell.ActionID.Tag == 0 {
+						return spell
+					}
+				}
+				return nil
+			}
+
+			castSeal(t, sim, pal, paladin.SealOfTheCrusaderRankMap.Highest().ID)
+			judgement := byMask(paladin.SpellMaskJudgementOfTheCrusader)
+			if judgement == nil {
+				t.Fatal("Judgement of the Crusader is not registered")
+			}
+			judgement.SkipCastAndApplyEffects(sim, target)
+			var debuff *core.Aura
+			for _, auras := range pal.JudgementAuras {
+				if aura := auras.Get(target); aura.IsActive() {
+					debuff = aura
+				}
+			}
+			if debuff == nil {
+				t.Fatal("the judgement left no debuff on the target")
+			}
+
+			for _, hit := range []struct {
+				name      string
+				spell     *core.Spell
+				refreshes bool
+			}{
+				{"a white swing", pal.AutoAttacks.MHAuto(), true},
+				{"Windfury Totem's strike", pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike}), true},
+				{"Holy Strike", pal.GetSpell(core.ActionID{SpellID: paladin.HolyStrikeRankMap.Highest().ID}), build.sacredArbiter},
+				{"Seal of Command's hit", byMask(paladin.SpellMaskSealOfCommandProc), false},
+				{"Judgement of Command", byMask(paladin.SpellMaskJudgementOfCommand), false},
+			} {
+				if hit.spell == nil {
+					t.Fatalf("%s is not registered", hit.name)
+				}
+				passUnsealedWrathCooldown(sim)
+				before := debuff.ExpiresAt()
+				pal.OnSpellHitDealt(sim, hit.spell, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
+				if got := debuff.ExpiresAt() > before; got != hit.refreshes {
+					t.Errorf("%s landing refreshed the judgement debuff: %v, want %v", hit.name, got, hit.refreshes)
+				}
+			}
+		})
+	}
+}
+
+// Windfury Totem's strike neither stores nor spends an Echo, though the seals hear it as a white
+// swing and other rows' melee swing bit hears it as a main-hand swing. Each landed swing stores one
+// copy whether or not a strike follows, and a strike landing past the proc cooldown stores none.
+func TestUnsealedWrathStoresNoCopyFromWindfuryTotemsStrike(t *testing.T) {
+	sim, pal, swing, _ := unsealedWrathPaladinWith(t, UnsealedWrathTalents, &proto.RaidBuffs{WindfuryTotem: true})
+	strike := pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
+	echo := pal.GetAuraByID(core.ActionID{SpellID: 1311704})
+	if strike == nil || echo == nil {
+		t.Fatal("the paladin has no Windfury Totem strike or no Echo of Righteousness")
+	}
+	var struck int
+	for range 300 {
+		castSeal(t, sim, pal, paladin.SealOfRighteousnessRankMap.Highest().ID)
+		echo.Deactivate(sim)
+		before := strike.SpellMetrics[pal.CurrentTarget.UnitIndex].Casts
+		swing()
+		if strike.SpellMetrics[pal.CurrentTarget.UnitIndex].Casts > before {
+			struck++
+		}
+		if got := echo.GetStacks(); got != 1 {
+			t.Fatalf("a swing stored %d copies of the seal, want 1", got)
+		}
+	}
+	if struck == 0 {
+		t.Fatal("300 swings brought no Windfury Totem strike, so the check above proves nothing")
+	}
+
+	echo.Deactivate(sim)
+	passUnsealedWrathCooldown(sim)
+	pal.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: pal.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+	if got := echo.GetStacks(); got != 0 {
+		t.Errorf("a strike past the proc cooldown stored %d copies of the seal, want none", got)
+	}
 }
 
 // Each swing under a seal stores one copy of it, up to the Echo's 3 stacks.
@@ -91,6 +256,27 @@ func TestUnsealedWrathStoresUpToThreeCopies(t *testing.T) {
 		if got := echo.GetStacks(); got != want {
 			t.Fatalf("after swing %d Echo of Righteousness has %d stacks, want %d", i+1, got, want)
 		}
+	}
+}
+
+// A second swing in the instant of the first stores no copy, which is how an extra attack adds none;
+// a swing after the talent's proc cooldown stores one again.
+func TestUnsealedWrathStoresNoCopyFromASwingInsideItsProcCooldown(t *testing.T) {
+	sim, pal, swing, _ := unsealedWrathPaladin(t)
+	castSeal(t, sim, pal, paladin.SealOfRighteousnessRankMap.Highest().ID)
+	echo := pal.GetAuraByID(core.ActionID{SpellID: 1311704})
+	strike := pal.GetSpell(unsealedWrathSwing)
+
+	strike.SkipCastAndApplyEffects(sim, pal.CurrentTarget)
+	strike.SkipCastAndApplyEffects(sim, pal.CurrentTarget)
+	if got := echo.GetStacks(); got != 1 {
+		t.Fatalf("two swings in one instant stored %d copies of the seal, want 1", got)
+	}
+
+	passUnsealedWrathCooldown(sim)
+	swing()
+	if got := echo.GetStacks(); got != 2 {
+		t.Errorf("a swing after the proc cooldown left %d copies of the seal, want 2", got)
 	}
 }
 

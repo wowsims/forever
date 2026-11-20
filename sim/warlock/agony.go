@@ -1,15 +1,17 @@
 package warlock
 
 import (
+	"time"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Bane of Agony's base ramps in thirds: the first third of the ticks at half, the second at the base, the last
-// at one and a half. The spell power share and the damage multipliers are read as each tick lands, and the
-// share does not ramp. Amplify Curse, which the cast spends, raises the whole tick, base and share, for the
-// whole of the Bane it landed with. The share read at each tick comes from the Nov 3 patch notes; the game files
-// do not state it.
+// Bane of Agony's base ramps in thirds of its duration by the time since it landed, also under Wrack's added
+// ticks: a tick in the first third, its end included, deals half, one in the second the base, and one in the last
+// one and a half. The spell power share and the damage multipliers are read as each tick lands, and the share does
+// not ramp. Amplify Curse, which the cast spends, raises the whole tick, base and share, for the whole of the Bane
+// it landed with. The share read at each tick comes from the Nov 3 patch notes; the game files do not state it.
 // TODO: Ingame test needed: confirm on live that each tick reads the spell power of the moment.
 func (warlock *Warlock) registerBaneOfAgony() {
 	rankedSpell := spellData.BaneOfAgony.ByID(11713)
@@ -22,7 +24,6 @@ func (warlock *Warlock) registerBaneOfAgony() {
 	config.ClassSpellMask = WarlockSpellBaneOfAgony
 
 	config.Dot = spelldata.DotConfig(rankedSpell, agonyTick)
-	config.Dot.Aura.Tag = "Affliction"
 
 	// The bonus of a cast now, if Amplify Curse is up.
 	ampNow := func() float64 {
@@ -46,13 +47,14 @@ func (warlock *Warlock) registerBaneOfAgony() {
 		dot.SnapshotAttackerMultiplier = dot.Spell.AttackerDamageMultiplier(attackTable, true) * dot.PeriodicDamageMultiplier
 	}
 
-	// A dot activated without Apply has no entry, and ticks as if cast now.
+	// A dot activated without Apply has no entry, and ticks as if cast now. The duration is the one the Bane landed
+	// with: the expiry reads 0 by the time a tick dealt as the Bane ends (a recast at an instant its tick is due).
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		ampMult, ok := ampByTarget[target.UnitIndex]
 		if !ok {
 			ampMult = ampNow()
 		}
-		setTick(target, dot, ampMult, baneOfAgonyRamp(dot.TickCount(), dot.BaseTickCount))
+		setTick(target, dot, ampMult, baneOfAgonyRamp(sim.CurrentTime-dot.StartedAt(), dot.Duration))
 		dot.CalcAndDealPeriodicSnapshotDamage(sim, target, rankedSpell.TickOutcome(dot))
 	}
 
@@ -77,20 +79,21 @@ func (warlock *Warlock) registerBaneOfAgony() {
 			ampMult = ampNow()
 		}
 		setTick(target, dot, ampMult, 1)
-		return dot.CalcSnapshotDamage(sim, target, spell.OutcomeExpectedMagicAlwaysHit)
+		return dot.CalcSnapshotDamage(sim, target, rankedSpell.ExpectedMagicTickOutcome(spell))
 	}
 
 	warlock.BaneOfAgony = warlock.RegisterSpell(config)
 	warlock.Banes = append(warlock.Banes, warlock.BaneOfAgony)
+	warlock.afflictionDots = append(warlock.afflictionDots, warlock.BaneOfAgony)
 }
 
-// Helper function to facilitate the percentage of base damage dealt per tick
-func baneOfAgonyRamp(tick int32, ticks int32) float64 {
-	third := max(ticks/3, 1)
+// The share of the base a tick deals, by the third of the duration its time since the Bane landed falls in. A
+// tick on a third's end deals that third's share.
+func baneOfAgonyRamp(elapsed time.Duration, duration time.Duration) float64 {
 	switch {
-	case tick <= third:
+	case 3*elapsed <= duration:
 		return 0.5
-	case tick <= 2*third:
+	case 3*elapsed <= 2*duration:
 		return 1
 	default:
 		return 1.5

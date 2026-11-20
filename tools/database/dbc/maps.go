@@ -143,10 +143,9 @@ func MapBonusStatIndexToStat(index int) (proto.Stat, bool) {
 	}
 }
 
-// allResistanceStats is what ItemModType 124 ("All Resistances") expands to. Confirmed
-// from three independent tooltips: 22197 Heavy Obsidian Belt and 22198 Jagged Obsidian
-// Shield both read "+5 All Resistances", and 12252 Staff of Protection spells out
-// "+6 Arcane/Fire/Nature/Frost/Shadow".
+// allResistanceStats is what ItemModType 124 ("All Resistances") expands to. Measured in game
+// (EV-0113): 22197 Heavy Obsidian Belt and 22198 Jagged Obsidian Shield both read "+5 All
+// Resistances", and 12252 Staff of Protection spells out "+6 Arcane/Fire/Nature/Frost/Shadow".
 var allResistanceStats = []proto.Stat{
 	proto.Stat_StatArcaneResistance,
 	proto.Stat_StatFireResistance,
@@ -170,6 +169,7 @@ var attackPowerStats = []proto.Stat{
 	proto.Stat_StatAttackPower,
 	proto.Stat_StatRangedAttackPower,
 }
+var spellDamageStats = []proto.Stat{proto.Stat_StatSpellDamage} // Spell damage against a creature type is damage alone, as A_MOD_FLAT_SPELL_DAMAGE_VERSUS is.
 
 // MapBonusStatIndexToStats is MapBonusStatIndexToStat for callers that have to cope with
 // one index granting several stats. Every index maps to exactly one stat except 38, 45 and 124.
@@ -198,6 +198,40 @@ func MapBonusStatIndexToPiercingSchool(index int) (stats.SchoolIndex, bool) {
 		return stats.SchoolIndexFrost, true
 	}
 	return stats.SchoolIndexNone, false
+}
+
+// The weapon skill each weapon skill stat raises, which the sim keeps outside the stat array.
+var weaponSkillByBonusStat = map[int]proto.WeaponSkill{
+	ITEM_MOD_TWO_HANDED_AXES_SKILL:   proto.WeaponSkill_WeaponSkillTwoHandedAxes,
+	ITEM_MOD_TWO_HANDED_MACES_SKILL:  proto.WeaponSkill_WeaponSkillTwoHandedMaces,
+	ITEM_MOD_TWO_HANDED_SWORDS_SKILL: proto.WeaponSkill_WeaponSkillTwoHandedSwords,
+	ITEM_MOD_AXES_SKILL:              proto.WeaponSkill_WeaponSkillAxes,
+	ITEM_MOD_BOWS_SKILL:              proto.WeaponSkill_WeaponSkillBows,
+	ITEM_MOD_DAGGERS_SKILL:           proto.WeaponSkill_WeaponSkillDaggers,
+	ITEM_MOD_FIST_WEAPONS_SKILL:      proto.WeaponSkill_WeaponSkillFistWeapons,
+	ITEM_MOD_MACES_SKILL:             proto.WeaponSkill_WeaponSkillMaces,
+	ITEM_MOD_POLEARMS_SKILL:          proto.WeaponSkill_WeaponSkillPolearms,
+	ITEM_MOD_SWORDS_SKILL:            proto.WeaponSkill_WeaponSkillSwords,
+}
+
+// The mob type each creature type stat counts against and the stats it grants there, which the sim
+// keeps on the attack tables.
+var mobTypeStatByBonusStat = map[int]struct {
+	mobType proto.MobType
+	stats   []proto.Stat
+}{
+	ITEM_MOD_ATTACK_POWER_VS_HUMANOID:   {proto.MobType_MobTypeHumanoid, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_ELEMENTAL:  {proto.MobType_MobTypeElemental, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_DEMON:      {proto.MobType_MobTypeDemon, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_UNDEAD:     {proto.MobType_MobTypeUndead, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_DRAGONKIN:  {proto.MobType_MobTypeDragonkin, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_BEAST:      {proto.MobType_MobTypeBeast, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_MECHANICAL: {proto.MobType_MobTypeMechanical, attackPowerStats},
+	ITEM_MOD_SPELL_DAMAGE_VS_HUMANOID:   {proto.MobType_MobTypeHumanoid, spellDamageStats},
+	ITEM_MOD_SPELL_DAMAGE_VS_ELEMENTAL:  {proto.MobType_MobTypeElemental, spellDamageStats},
+	ITEM_MOD_SPELL_DAMAGE_VS_DEMON:      {proto.MobType_MobTypeDemon, spellDamageStats},
+	ITEM_MOD_SPELL_DAMAGE_VS_UNDEAD:     {proto.MobType_MobTypeUndead, spellDamageStats},
+	ITEM_MOD_SPELL_DAMAGE_VS_DRAGONKIN:  {proto.MobType_MobTypeDragonkin, spellDamageStats},
 }
 
 var MapProfessionIdToProfession = map[int]proto.Profession{

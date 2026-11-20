@@ -3,8 +3,8 @@
 The spell hover of `tools/spelldata` in Zed: a spell id in Go, JSON, TypeScript or TSX, a ladder family,
 a name bound to a ladder chain, a `spelldata.SpellConfig` call or a `core.SpellModConfig` literal hovers
 as the game files' row, the value the chain reads, the config the resolver builds or the mod's fields and
-the weapon they require; a code action picks the rank a `Ladder.Each` callback parameter hovers as. The
-extension only starts the server,
+the weapon they require; a code action picks the rank a `Ladder.Each` callback parameter hovers as. An evidence or
+ruling id hovers as its file in those languages and in Markdown. The extension only starts the server,
 `go -C <worktree root> run ./tools/spelldata/launch -lsp`, which regenerates stale protos and builds the
 server first; everything else is in `tools/spelldata` (see its README).
 

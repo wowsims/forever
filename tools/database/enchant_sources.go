@@ -9,7 +9,7 @@ import (
 )
 
 // What says where an item comes from, keyed by item id. Atlas and Questie are the pruned inputs.
-type EnchantSourceInputs struct {
+type ItemSourceInputs struct {
 	Crafted map[int][]*proto.CraftedSource
 	Rep     map[int][]*proto.RepSource
 	Atlas   *WowDatabase
@@ -19,7 +19,7 @@ type EnchantSourceInputs struct {
 // Sets each enchant's sources to those of its own item and the items that teach it, by their ids in recipes, without
 // repeats. An enchant neither has any source for takes none: the game files hold no trainers, so one a trainer teaches
 // looks the same.
-func AddEnchantSources(enchants map[EnchantDBKey]*proto.UIEnchant, recipes map[EnchantDBKey][]int, inputs EnchantSourceInputs) {
+func AddEnchantSources(enchants map[EnchantDBKey]*proto.UIEnchant, recipes map[EnchantDBKey][]int, inputs ItemSourceInputs) {
 	for key, enchant := range enchants {
 		itemIDs := append([]int{int(enchant.ItemId)}, recipes[key]...)
 		var sources []*proto.UIItemSource
@@ -38,7 +38,14 @@ func AddEnchantSources(enchants map[EnchantDBKey]*proto.UIEnchant, recipes map[E
 }
 
 // One item's sources in the order an item in the database lists them.
-func (inputs EnchantSourceInputs) itemSources(itemID int) []*proto.UIItemSource {
+func (inputs ItemSourceInputs) itemSources(itemID int) []*proto.UIItemSource {
+	sources := inputs.gameFilesSources(itemID)
+	sources = append(sources, AtlasLootSourcesBeside(sources, inputs.Atlas.Items[int32(itemID)].GetSources())...)
+	return append(sources, questieSourcesBeside(sources, inputs.Questie.Items[int32(itemID)].GetSources())...)
+}
+
+// One item's crafting and reputation sources from the game files.
+func (inputs ItemSourceInputs) gameFilesSources(itemID int) []*proto.UIItemSource {
 	var sources []*proto.UIItemSource
 	for _, crafted := range inputs.Crafted[itemID] {
 		sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Crafted{Crafted: crafted}})
@@ -46,8 +53,7 @@ func (inputs EnchantSourceInputs) itemSources(itemID int) []*proto.UIItemSource 
 	for _, rep := range inputs.Rep[itemID] {
 		sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Rep{Rep: rep}})
 	}
-	sources = append(sources, AtlasLootSourcesBeside(sources, inputs.Atlas.Items[int32(itemID)].GetSources())...)
-	return append(sources, questieSourcesBeside(sources, inputs.Questie.Items[int32(itemID)].GetSources())...)
+	return sources
 }
 
 // AtlasLoot's sources for an item that already holds existing from the game files, less the ones they repeat: the

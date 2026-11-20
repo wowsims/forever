@@ -24,11 +24,10 @@ import (
 // number the Classic sim carries.
 //
 // The coefficient sits on the weapon-percent effect, and the percent applies to the paladin's own
-// spell power as well as the weapon: at 27 spell power the Forever beta measured 5.5 of each proc
-// coming from spell power, 20.4%, against the 29% the coefficient states. Improved Seals raises the
-// percent itself (the tooltip reads 80% with the talent, 70 * 1.15). The Holy damage the target
-// takes extra, Judgement of the Crusader and the damage-against-mob-type gear, is added after the
-// percent at the full coefficient, so it scales at 29% whatever the talent.
+// spell power as well as the weapon (EV-0061). Improved Seals raises the percent itself (the tooltip
+// reads 80% with the talent, 70 * 1.15). The Holy damage the target takes extra, Judgement of the Crusader and
+// the damage-against-mob-type gear, is added after the percent at the full coefficient, so it scales at 29%
+// whatever the talent.
 func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfCommand.Rank(rank.RankNumber())
 	judgeDamageRank := spellData.SealOfCommandTriggered.ByID(int32(judgeRank.EffectN(1).BaseValue()))
@@ -43,12 +42,27 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgementConfig.ClassFlags = judgeDamageRank.ClassFlags
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
+	// The dummy lands on the enemy before the damage it names, and a landing on the melee table rolls
+	// a weapon proc whether or not it deals damage. So a judgement that lands rolls each weapon proc
+	// and combat enchant twice. The dummy's row lacks Not a Proc, so aura procs hear the damage alone:
+	// Windfury Totem and Vindication roll once (EV-0156).
+	dummyConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial),
+		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs))
+	if judgeRank.IsAProc() {
+		dummyConfig.Flags |= core.SpellFlagProc
+	}
+	dummyLanding := paladin.RegisterSpell(dummyConfig)
+
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := judgeDamage.Average()
 		if !target.PseudoStats.Stunned {
 			baseDamage /= 2
 		}
-		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
+		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
+		if result.Landed() {
+			dummyLanding.CalcAndDealOutcome(sim, target, dummyLanding.OutcomeAlwaysHit)
+		}
+		spell.DealDamage(sim, result)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 
@@ -90,9 +104,10 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 		ActionID: core.ActionID{SpellID: rank.ID},
 		Duration: sealDuration,
 	}).AttachProcTrigger(core.ProcTrigger{
-		Callback: core.CallbackOnSpellHitDealt,
-		ProcMask: core.ProcMaskMeleeWhiteHit,
-		Outcome:  core.OutcomeLanded,
+		Callback:       core.CallbackOnSpellHitDealt,
+		ProcMask:       swingMask,
+		Outcome:        core.OutcomeLanded,
+		ExtraCondition: hearsSwing,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			if icd.IsReady(sim) && rollProc(sim) {
 				procSpell.Cast(sim, result.Target)

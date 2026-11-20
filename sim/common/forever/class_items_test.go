@@ -3,6 +3,7 @@
 package forever_test
 
 import (
+	"maps"
 	"math"
 	"testing"
 	"time"
@@ -103,11 +104,20 @@ func flatHit(id core.ActionID, school core.SpellSchool, mask core.ProcMask, fami
 // The class's stand-in wearing one item, or nothing for item 0, against a level 60 target.
 func modWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, itemID int32) (*core.Simulation, *core.Character) {
 	t.Helper()
+	var spec any = &proto.Player_Warlock{Warlock: &proto.Warlock{}}
+	if class == proto.Class_ClassWarrior {
+		spec = &proto.Player_ProtectionWarrior{ProtectionWarrior: &proto.ProtectionWarrior{}}
+	}
+	return wearing(t, class, spec, map[proto.ItemSlot]int32{slot: itemID})
+}
+
+// The class on the spec's stand-in wearing the items, against a level 60 target.
+func wearing(t *testing.T, class proto.Class, spec any, worn map[proto.ItemSlot]int32) (*core.Simulation, *core.Character) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
-		items[i] = &proto.ItemSpec{}
+		items[i] = &proto.ItemSpec{Id: worn[proto.ItemSlot(i)]}
 	}
-	items[slot].Id = itemID
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceOrc,
 		Equipment:   &proto.EquipmentSpec{Items: items},
@@ -115,11 +125,7 @@ func modWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, itemID int3
 		Buffs:       &proto.IndividualBuffs{},
 		Rotation:    &proto.APLRotation{},
 	}
-	if class == proto.Class_ClassWarrior {
-		core.WithSpec(player, &proto.Player_ProtectionWarrior{ProtectionWarrior: &proto.ProtectionWarrior{}})
-	} else {
-		core.WithSpec(player, &proto.Player_Warlock{Warlock: &proto.Warlock{}})
-	}
+	core.WithSpec(player, spec)
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
@@ -464,6 +470,71 @@ func TestFerrasCollarRaisesThePetsDamage(t *testing.T) {
 	}
 }
 
+// Cryptstalker Armor's 4-piece bonus gives the hunter and the pet Stalker's Ally 28758's attack power
+// and ranged attack power while the pet is out: both lose it when the pet is dismissed and have it
+// again when it returns. Three pieces give none, and a hunter with no pet gets none.
+func TestCryptstalkerArmorGivesAttackPowerWhileThePetIsOut(t *testing.T) {
+	const stalkersAlly = 28758
+	row := spelldata.MustFind(stalkersAlly)
+	want := stats.Stats{stats.AttackPower: row.EffectN(1).BaseValue(), stats.RangedAttackPower: row.EffectN(2).BaseValue()}
+	if want[stats.AttackPower] == 0 || want[stats.RangedAttackPower] == 0 {
+		t.Fatalf("Stalker's Ally states attack power %v and ranged attack power %v, want both above 0",
+			want[stats.AttackPower], want[stats.RangedAttackPower])
+	}
+	attackPowers := func(unit *core.Character) stats.Stats {
+		return stats.Stats{stats.AttackPower: unit.GetStat(stats.AttackPower), stats.RangedAttackPower: unit.GetStat(stats.RangedAttackPower)}
+	}
+	threePieces := map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead:     22438,
+		proto.ItemSlot_ItemSlotShoulder: 22439,
+		proto.ItemSlot_ItemSlotChest:    22436,
+	}
+	fourPieces := maps.Clone(threePieces)
+	fourPieces[proto.ItemSlot_ItemSlotLegs] = 22437
+	withPet := &proto.Player_Warlock{Warlock: &proto.Warlock{}}
+
+	// What the hunter and the pet lose when the pet is dismissed, and gain when it is summoned again.
+	dismissAndSummon := func(sim *core.Simulation, hunter *core.Character) (lost, gained [2]stats.Stats) {
+		pet := hunter.Pets[0]
+		if !pet.IsEnabled() {
+			t.Fatalf("the pet is not out at the start")
+		}
+		out := [2]stats.Stats{attackPowers(hunter), attackPowers(&pet.Character)}
+		pet.Disable(sim)
+		dismissed := [2]stats.Stats{attackPowers(hunter), attackPowers(&pet.Character)}
+		pet.Enable(sim, hunter.PetAgents[0])
+		back := [2]stats.Stats{attackPowers(hunter), attackPowers(&pet.Character)}
+		for i := range out {
+			lost[i], gained[i] = out[i].Subtract(dismissed[i]), back[i].Subtract(dismissed[i])
+		}
+		return lost, gained
+	}
+
+	sim, four := wearing(t, proto.Class_ClassHunter, withPet, fourPieces)
+	lost, gained := dismissAndSummon(sim, four)
+	for i, unit := range []string{"hunter", "pet"} {
+		if lost[i] != want {
+			t.Errorf("with four pieces, the %s loses %v when the pet is dismissed, want %v", unit, lost[i], want)
+		}
+		if gained[i] != want {
+			t.Errorf("with four pieces, the %s gains %v when the pet returns, want %v", unit, gained[i], want)
+		}
+	}
+
+	sim, three := wearing(t, proto.Class_ClassHunter, withPet, threePieces)
+	lost, _ = dismissAndSummon(sim, three)
+	for i, unit := range []string{"hunter", "pet"} {
+		if lost[i] != (stats.Stats{}) {
+			t.Errorf("with three pieces, the %s loses %v when the pet is dismissed, want nothing", unit, lost[i])
+		}
+	}
+
+	_, petless := wearing(t, proto.Class_ClassHunter, &proto.Player_Hunter{Hunter: &proto.Hunter{}}, fourPieces)
+	if aura := petless.GetAuraByID(core.ActionID{SpellID: stalkersAlly}); aura != nil && aura.IsActive() {
+		t.Errorf("with four pieces and no pet, the hunter has Stalker's Ally")
+	}
+}
+
 // Burning Totem 272433's equip spell 1291077 states a flat duration on Flame Shock, family 11 mask
 // 0x10000000: every rank's dot lasts that much longer.
 func TestBurningTotemExtendsFlameShock(t *testing.T) {
@@ -483,8 +554,8 @@ func TestBurningTotemExtendsFlameShock(t *testing.T) {
 }
 
 // Totem of the Storm 272432 lets a landed Lightning Bolt grant a Maelstrom Weapon stack at the share
-// of the talent's rate per minute its dummy 1291078 states, priced on the bolt's cast time. Chain
-// Lightning and the copy Lightning Overload casts never do.
+// of a main-hand hit's chance its dummy 1291078 states. Chain Lightning and the copy Lightning
+// Overload casts never do.
 func TestTotemOfTheStormLetsLightningBoltGrantMaelstromWeapon(t *testing.T) {
 	sim, wearer := enhancementShamanWithTotem(t, 272432)
 	if wearer.Talents.MaelstromWeapon == 0 {
@@ -532,19 +603,19 @@ func TestTotemOfTheStormLetsLightningBoltGrantMaelstromWeapon(t *testing.T) {
 		t.Errorf("Chain Lightning and the overload granted Maelstrom Weapon %d times, want never", got)
 	}
 
-	// The talent's own rate per minute, measured on main-hand hits at the main hand's speed.
+	// The talent's own chance, measured on main-hand hits.
 	const swings = 60000
 	swung := gains(swings, func() { dealHit(t, sim, &wearer.Character, meleeSwing(&wearer.Unit)) })
-	talentPPM := float64(swung) / swings / (wearer.AutoAttacks.MH().SwingSpeed / 60)
+	hitChance := float64(swung) / swings
 
 	// Against a level 63 target about one bolt in six misses, so a miss that rolled would show.
 	granted := gains(20000, cast(bolt))
 	m := bolt.SpellMetrics[target.UnitIndex]
 	landed := m.Hits + m.Crits
-	want := talentPPM * spelldata.MustFind(1291078).EffectN(1).Percent() * bolt.DefaultCast.CastTime.Minutes()
+	want := hitChance * spelldata.MustFind(1291078).EffectN(1).Percent()
 	if got := float64(granted) / float64(landed); math.Abs(got-want) > 0.015 {
-		t.Errorf("%d of %d landed Lightning Bolts (%v cast) granted a stack, %.3f a bolt, want %.3f",
-			granted, landed, bolt.DefaultCast.CastTime, got, want)
+		t.Errorf("%d of %d landed Lightning Bolts granted a stack, %.3f a bolt, want %.3f of a main-hand hit's %.3f",
+			granted, landed, got, want, hitChance)
 	}
 }
 
@@ -637,6 +708,30 @@ func TestUrsendrisReportedArmorMatchesCombat(t *testing.T) {
 	}
 }
 
+// Idol of Shifting Tides takes its flat amount off the mana cost of every shapeshift.
+func TestIdolOfShiftingTidesCheapensEveryShapeshift(t *testing.T) {
+	costs := func(idol int32) []float64 {
+		items := bearItemSlots()
+		items[proto.ItemSlot_ItemSlotRanged].Id = idol
+		_, bear := equippedBear(t, items)
+		var formCosts []float64
+		for _, form := range []*druid.DruidSpell{bear.CatForm, bear.BearForm, bear.DireBearForm} {
+			formCosts = append(formCosts, form.Cost.GetCurrentCost())
+		}
+		return formCosts
+	}
+	flat := spelldata.MustFind(1270470).EffectN(1).BaseValue()
+	if flat >= 0 {
+		t.Fatalf("the idol's row states %v, want a cost cut", flat)
+	}
+	without, with := costs(0), costs(263411)
+	for i := range without {
+		if want := without[i] + flat; with[i] != want {
+			t.Errorf("shapeshift %d costs %v with the idol, want %v", i, with[i], want)
+		}
+	}
+}
+
 func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
 	req := bearItemRequest()
 	player := req.Raid.Parties[0].Players[0]
@@ -673,6 +768,45 @@ func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
 		if math.Abs(bear.GetStat(stats.Armor)-initialArmor) > 1e-8 {
 			t.Fatal("repeated swaps accumulated armor")
 		}
+	}
+}
+
+// Enraged Idol's 1291060 states its rage as a flat modifier on Enrage's first effect, the rage each tick
+// restores, in tenths of rage.
+func TestEnragedIdolRaisesEveryEnrageTick(t *testing.T) {
+	enrage := spelldata.MustFind(5229)
+	ticks := float64(rowTickCount(enrage, enrage.PeriodicEffect()))
+	gained := func(items []*proto.ItemSpec) float64 {
+		sim, bear := equippedBear(t, items)
+		before := bear.CurrentRage()
+		if !bear.Enrage.Cast(sim, bear.CurrentTarget) {
+			t.Fatal("Enrage did not cast")
+		}
+		stepTo(t, sim, sim.CurrentTime+enrage.Duration()+time.Second)
+		return bear.CurrentRage() - before
+	}
+	bare := gained(bearItemSlots())
+	items := bearItemSlots()
+	items[proto.ItemSlot_ItemSlotRanged].Id = 272428
+	want := ticks * spelldata.MustFind(1291060).EffectN(1).Tenths()
+	if got := gained(items) - bare; math.Abs(got-want) > 1e-9 {
+		t.Errorf("the idol adds %v rage to Enrage, want %v", got, want)
+	}
+}
+
+// Feral Combat skill on gear stands in for the weapon's skill while the druid is in an animal form.
+func TestFeralCombatSkillOnGearRaisesTheFormsSkill(t *testing.T) {
+	skill := spelldata.MustFind(1320726).EffectN(1).BaseValue()
+	items := bearItemSlots()
+	items[proto.ItemSlot_ItemSlotChest].Id = 280016
+	sim, bear := equippedBear(t, items)
+	mh := bear.GetMHWeapon()
+	if got := core.GetWeaponSkill(&bear.Unit, mh, proto.ItemSlot_ItemSlotMainHand); got != skill {
+		t.Errorf("in Dire Bear Form the skill bonus is %v, want %v", got, skill)
+	}
+	bear.ClearForm(sim)
+	if got := core.GetWeaponSkill(&bear.Unit, mh, proto.ItemSlot_ItemSlotMainHand); got != 0 {
+		t.Errorf("out of form the skill bonus is %v, want the weapon's own 0", got)
 	}
 }
 
@@ -721,6 +855,76 @@ func TestUrsineTwinsResetsOnlyFromLandedDirectLacerates(t *testing.T) {
 			} else if resets != 0 {
 				t.Errorf("%s caused %d resets", kind, resets)
 			}
+		})
+	}
+}
+
+func TestFeralCostIdolsFollowEquipment(t *testing.T) {
+	_, unmodified := equippedBear(t, bearItemSlots())
+	ids := []core.ActionID{
+		{SpellID: 9850}, {SpellID: 9904}, {SpellID: 9881, Tag: 1}, {SpellID: 9908},
+		{SpellID: 9830}, {SpellID: 9896}, {SpellID: 22829}, {SpellID: 1235827},
+	}
+	costs := make(map[core.ActionID]float64)
+	for _, id := range ids {
+		spell := unmodified.GetSpell(id)
+		if spell == nil || spell.Cost == nil {
+			t.Fatalf("spell %s has no resource cost", id)
+		}
+		costs[id] = spell.Cost.GetCurrentCost()
+	}
+	for _, item := range []int32{22397, 23198} {
+		t.Run(core.ActionID{ItemID: item}.String(), func(t *testing.T) {
+			req := bearItemRequest()
+			player := req.Raid.Parties[0].Players[0]
+			player.EnableItemSwap = true
+			swapped := bearItemSlots()
+			swapped[proto.ItemSlot_ItemSlotRanged].Id = item
+			player.ItemSwap = &proto.ItemSwap{Items: swapped}
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			bear := sim.Raid.Parties[0].Players[0].GetCharacter()
+			rowID := int32(27851)
+			if item == 23198 {
+				rowID = 28855
+			}
+			row := spelldata.MustFind(rowID)
+			aura := bear.GetAuraByID(core.ActionID{SpellID: rowID})
+			if aura == nil {
+				t.Fatal("swap idol aura was not registered")
+			}
+			check := func(equipped bool) {
+				t.Helper()
+				if aura.IsActive() != equipped {
+					t.Fatal("idol aura does not match equipment")
+				}
+				for _, id := range ids {
+					spell := bear.GetSpell(id)
+					want := costs[id]
+					affected := item == 22397 && (id.SpellID == 9850 || id.SpellID == 9904) || item == 23198 && (id.SpellID == 9881 || id.SpellID == 9908)
+					if equipped && affected {
+						amount := row.EffectN(1).BasePoints
+						if item == 23198 {
+							amount /= 10
+						}
+						want += float64(amount)
+					}
+					if got := spell.Cost.GetCurrentCost(); math.Abs(got-want) > 1e-9 {
+						t.Errorf("spell %s cost %g, want %g", id, got, want)
+					}
+				}
+			}
+			check(false)
+			for range 3 {
+				bear.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+				check(true)
+				bear.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Main, false)
+				check(false)
+			}
+			bear.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+			sim.Cleanup()
+			sim.Reset()
+			check(false)
 		})
 	}
 }

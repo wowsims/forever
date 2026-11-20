@@ -43,12 +43,12 @@ func NewSpellDataBattleShoutAura(unit *core.Unit, isPlayer bool, talentPoints in
 
 `Meta.Options(talentPoints)` states the `spelldata.ParseOpt`s every row needs:
 `spelldata.RaidBuffOptions` (`Level(core.CharacterLevel)`, `BuffAuras`, `SkipAuras` where the
-generator found any, and `FullComboPoints` for a finisher, which the generator also parses with) and
-`ScaledBy` the improving talent. `ScaledBy` is left out where the talent scales the duration instead,
-since `Duration` reads that separately. A row with a `TalentDivisor` takes
-`ScaledByRanks(talentPoints, TalentDivisor)` instead: every amount the parse attaches is worth that
-fraction of the spell's, rounded to the nearest whole amount the way the tooltip shows it, and 0
-points is the full amount.
+generator found any, and `FullComboPoints` for a finisher, which the generator also parses with),
+`AllManaRegen` where the manifest row sets it, and `ScaledBy` the improving talent. `ScaledBy` is
+left out where the talent scales the duration instead, since `Duration` reads that separately. A
+row with a `TalentDivisor` takes `ScaledByRanks(talentPoints, TalentDivisor)` instead: every amount
+the parse attaches is worth that fraction of the spell's, rounded to the nearest whole amount the
+way the tooltip shows it, and 0 points is the full amount.
 
 `newBuff` adds `SchoolResistances` and, where `Category` is set, `Exclusive(Category, true)` for a
 `SingleAura` row or `ExclusivePerStat(Category)` for any other. A generated buff and a hand-written
@@ -72,9 +72,10 @@ A row whose aura is a damage shield skips the parse outright: `newDamageShield` 
 `NewDamageShield` with the spell's school and `Value`.
 
 `sim/core/spelldata/buff.go` holds a second table, read only when a parse states `BuffAuras()`:
-`A_PERIODIC_ENERGIZE` on a mana row becomes MP5 there, and `A_MOD_ATTACK_POWER_PCT` a percentage on
-attack power. Neither sits in the parse's shared table. Warrior rows carry them for a value the class
-wires itself (Bloodrage's rage tick is an `A_PERIODIC_ENERGIZE`, Berserker Stance Passive an
+`A_PERIODIC_ENERGIZE` on a mana row becomes MP5 there, which also counts in `EnergizeMP5` so
+Innervate leaves it unscaled, and `A_MOD_ATTACK_POWER_PCT` a percentage on attack power. Neither
+sits in the parse's shared table. Warrior rows carry them for a value the class wires itself
+(Bloodrage's rage tick is an `A_PERIODIC_ENERGIZE`, Berserker Stance Passive an
 `A_MOD_ATTACK_POWER_PCT` of 0), and reading either off the shared table would change what those rows
 mean there.
 
@@ -137,8 +138,9 @@ placed anywhere but the end renumbers the rows after it. `buffmanifest.All()` pa
 | `Proto`          | an override of the derived proto type: for a flag that is a number (`retribution_aura_spell_power` is `ProtoDouble`), or for a row with more states than a tristate (`battle_shout` is `ProtoInt32`)                                                                                                                                                                                                                                                                                                                                     |
 | `Owner`          | the providing class, only for a spell no class family files: the Atiesh rows, pet abilities and talent-granted debuffs. A row whose spell a family files and that names an owner fails the pass                                                                                                                                                                                                                                                                                                                                          |
 | `Reason`         | what a `KindFlag` row is, which the shell it renders as carries. Required on a flag and refused on any other row                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `AllManaRegen`   | the row's mana regen percent multiplies the Spirit regen and MP5, but no periodic energize MP5, where a row otherwise multiplies the Spirit regen only: Innervate's                                                                                                                                                                                                                                                                                                                                                                      |
 
-The last four are exceptions; most rows state none of them. The rest of a row is derived:
+The last five are exceptions; most rows state none of them. The rest of a row is derived:
 
 - **Go stem.** `GoStem()` is `GoField()`, protoc-gen-go's name for the field, without underscores:
   `battle_shout` gives `NewSpellDataBattleShoutAura`, `BattleShoutValue`, `BattleShoutDuration`,
@@ -224,6 +226,23 @@ message, Flametongue Totem can read `raid.WindfuryTotem`. The driver builds the 
 `NewSpellData...` constructor and adds what the game files do not state: a proc trigger, a cooldown, a
 delay, the metrics of a regen. The row compiles once the function is declared.
 
+A weapon's proc debuff (`armor_shatter`, `puncture_armor`) is one main-hand wielder: `rollWielderHits`
+rolls the item's procs per minute on its swings at the item's base speed and on 48 more landed hits a
+minute (EV-0147), and a landed roll refreshes the aura and adds a stack. A row on the melee hit table
+(Puncture Armor's 17315 and 1293005) is cast as a strike, as the player's proc casts it (R-0040): the
+target dodges 6.5% of them, and one that lands off a swing rolls the proc once more (EV-0152). With the
+player wielding a weapon whose proc lands
+the same row (`playerWields`), the raid's copy is the player's own, as Sunder Armor's is with a
+warrior in the raid, so the player's procs stack and refresh it and the target carries one stack
+count. Vibroblade's 1293005 stays the raid's copy, since no wielder proc lands it. The driver reads the speed and the rate off the
+item database, and without the full database the sim knows only the items the request carries, so
+the weapon goes into `DEBUFF_ITEM_IDS` in `ui/sim/proto/buff_items.ts` (`PARTY_BUFF_ITEM_IDS` for a
+party buff such as Darkspear). A driver that reads an item the request lacks panics naming it.
+`puncture_armor` states `Proto: ProtoInt32` for its weapon: 1 Bashguuder, 2 Rivenspike, 3
+Vibroblade. Its settings inputs are hand-written (`manualBuffInputs`): one boolean input per weapon
+with its item icon, each bound to the field by its state through `makeBooleanDebuffInput`'s `value`,
+so picking one clears the others.
+
 ## Totems on pets
 
 A true pet stands under every totem its owner does whose aura a pet may carry, with the same
@@ -233,7 +252,7 @@ constructor on each true pet's unit, so the pet's copy bids in the same categori
 three driven totems pass their pet copies to `inheritTotem` themselves: Mana Tide's copy of the
 external cooldown's aura, and the weapon totems' whole chain (totem aura, category bid and proc) on the
 pet's character, for a pet that melees. Flametongue Totem does nothing under Windfury Totem; Grace of
-Air stacks with it as of 1.60.1.70425.
+Air stacks with it (EV-0102).
 
 The exception is a totem whose aura spell sets the only on player bit of Attributes[3]
 (`ATTR_EX_3_ONLY_ON_PLAYER`, read by `Spell.OnlyOnPlayers`): a target that is not a player is invalid,
@@ -303,9 +322,10 @@ parsed onto the stance aura through the shared table (`sim/warrior/stances.go`),
 reports it because the shared table names no row for it. A shared-table entry for either aura would
 attach a stat change there instead and change what the class's own row means.
 
-**Dropping a row renumbers the ones after it.** Each scope's numbers are dense from 1, which
-`TestScopeNumbersAreDense` holds, so a field that goes away shifts every later number down by one.
-Nothing is live, so no saved payload rides on the old numbers.
+**Dropping a row renumbers the ones after it.** A row's field number is its place in its scope's
+slice, from 1 (`buffmanifest.All`), so a field that goes away shifts every later number down by one.
+The sim is live in alpha and saved settings carry these numbers, so a new row goes at the end of its
+slice and no row is dropped or moved (R-0050).
 
 **A proto change here breaks whatever a browser holds.** Nothing migrates a saved payload: a field the
 manifest retypes makes `fromJson` throw on the enum name an older save spells out. Every `fromJson` of

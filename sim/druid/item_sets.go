@@ -15,10 +15,6 @@ func parsedSetBonus(rows ...*spelldata.Spell) core.ApplySetBonus {
 	}
 }
 
-// TODO: Sets without full game files data are not registered: the Feral T1 set 2115 (Grovekeeper
-// Ferocity, whose pieces have no ItemSparse rows), the Sanctuary PvP set and the Symbols of Unending
-// Life 3-piece bonus.
-
 var sixPieceSlots = []proto.ItemSlot{
 	proto.ItemSlot_ItemSlotHead,
 	proto.ItemSlot_ItemSlotShoulder,
@@ -41,8 +37,8 @@ var ItemSetGrovekeeperEclipse = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: parsedSetBonus(spelldata.MustFind(1300940)), // +1% hit
 		4: func(_ core.Agent, setBonusAura *core.Aura) {
-			// A_MOD_DAMAGE_DONE_CREATURE has no parse row, so the amount and the creature type
-			// mask come off the row by hand. Only the spell damage half is modelled.
+			// The parse table reads A_MOD_DAMAGE_DONE_CREATURE as physical and spell damage; this
+			// bonus keeps the spell damage alone, its amount and creature type mask read off the row.
 			row := spelldata.MustFind(1301073)
 			setBonusAura.
 				AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: row.EffectN(1).BaseValue()}, spelldata.MobTypes(row.EffectN(1).Misc)...).

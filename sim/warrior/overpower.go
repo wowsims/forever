@@ -7,7 +7,7 @@ import (
 
 var overpowerRank = spellData.Overpower.ByID(11585)
 
-// Overpower's threat is 0.75 times its damage, times the stance, measured in game on Rank 1.
+// Overpower's threat is 0.75 times its damage, times the stance (EV-0043).
 // TODO: Ingame test needed -- confirm the multiplier on the top rank.
 const overpowerThreatMultiplier = 0.75
 

@@ -6,7 +6,8 @@ package core
 // dealt, in the same instant, and is lost if its target died before it swings. The returned OnInit
 // registers the copy, so it goes on the proc's aura: the main-hand swing is configured after procs
 // register, and a unit that never swings has none to copy, in which case the proc casts nothing. The
-// swing it grants is not a hit the proc hears, or one proc would swing forever.
+// swing it grants is not a hit the proc hears, or one proc would swing forever. A main-hand proc
+// hears Windfury Totem's strike at a main-hand white swing's chance (EV-0002, EV-0128).
 func (unit *Unit) ExtraAttackProc(trigger *ProcTrigger, tagSpellID int32, count int) OnInit {
 	var extraAttack *Spell
 	condition := trigger.ExtraCondition

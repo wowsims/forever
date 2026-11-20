@@ -77,7 +77,8 @@ export class ChartZoom {
 		event.preventDefault();
 		event.currentTarget.setPointerCapture(event.pointerId);
 		this.pointerId = event.pointerId;
-		if (event.shiftKey) {
+		// A finger pans, as shift does for the mouse: a drag-to-zoom would leave a touch screen no way to move the zoomed range.
+		if (event.shiftKey || event.pointerType === 'touch') {
 			this.panning = true;
 			this.lastPanPx = x;
 		} else {

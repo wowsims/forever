@@ -26,7 +26,7 @@ import {
 	Target,
 	UnitStats,
 } from '@generated/proto/common';
-import { UIEnchant, UIItem } from '@generated/proto/ui';
+import { ContentPhase, SimSettings, UIEnchant, UIItem } from '@generated/proto/ui';
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -843,6 +843,14 @@ describe('Sim.runBulkSim', () => {
 		await sim.runBulkSim(() => {}, BulkSettings.create());
 
 		expect(mocks.runConcurrentBulkSim.mock.calls[0][0].candidates).toEqual([{ index: 0, gear: cloak }]);
+	});
+});
+
+describe('Sim.fromProto', () => {
+	it('reads a saved phase past Unknown as Unknown', () => {
+		const sim = new Sim({ env: makeEnv() });
+		sim.fromProto(SimSettings.create({ phase: ContentPhase.ContentPhaseUnknown + 3 }));
+		expect(sim.getPhase()).toBe(ContentPhase.ContentPhaseUnknown);
 	});
 });
 

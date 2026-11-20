@@ -46,7 +46,8 @@ export const SIM_TOUR_STEPS: ReadonlyArray<TourStep<SimTourContext>> = [
 	{ id: 'rotation_type', tab: 'rotation-tab', target: testId('rotation-type-container'), applies: canSimulate },
 	{ id: 'rotation_presets', tab: 'rotation-tab', target: testId('rotation-presets'), applies: canSimulate },
 	{ id: 'simulate', target: testId('dps-action'), waitFor: 'simulation', applies: canSimulate },
-	{ id: 'result', target: testId('results-sim'), applies: context => context.canSimulate && context.hasResult },
+	// The sidebar's result from `lg` up, and below it the dock's readout: the sidebar is not mounted there, nor the dock's sheet while closed.
+	{ id: 'result', target: `${testId('results-sim')}, ${testId('sim-dock-toggle')}`, applies: context => context.canSimulate && context.hasResult },
 	{ id: 'results_tab', tab: RESULTS_TAB_ID, target: tabButton(RESULTS_TAB_ID), applies: canSimulate },
 	...RESULTS_TAB_STEPS,
 	{ id: 'bulk_tab', tab: BULK_TAB_ID, target: tabButton(BULK_TAB_ID), applies: canSimulate },

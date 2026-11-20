@@ -48,7 +48,7 @@ func (character *Character) enableItemSwap(itemSwap *proto.ItemSwap) {
 	for idx, itemSpec := range itemSwap.Items {
 		itemSlot := proto.ItemSlot(idx)
 		hasItemSwap[itemSlot] = itemSpec != nil && itemSpec.Id != 0
-		swapItems[itemSlot] = toItem(itemSpec).inArea(character.Party.areaTypes())
+		swapItems[itemSlot] = toItem(itemSpec)
 	}
 	swapConsumables := character.Consumables
 	applyTemporaryEnchants(swapConsumables.SwapMhImbueId, swapConsumables.SwapOhImbueId, swapConsumables.SwapMhWeaponImbueId, swapConsumables.SwapOhWeaponImbueId, &swapItems)
@@ -359,7 +359,7 @@ func (swap *ItemSwap) SwapItems(sim *Simulation, swapSet proto.APLActionItemSwap
 	character := swap.character
 	weaponSlotSwapped := false
 	isPrepull := sim.CurrentTime < 0
-	weapons := swap.weaponIDs()
+	weapons, weaponSkills := swap.weaponIDs(), character.PseudoStats.WeaponSkills
 
 	for _, slot := range swap.slots {
 		if slot == proto.ItemSlot_ItemSlotMainHand || slot == proto.ItemSlot_ItemSlotOffHand || slot == proto.ItemSlot_ItemSlotRanged {
@@ -375,8 +375,11 @@ func (swap *ItemSwap) SwapItems(sim *Simulation, swapSet proto.APLActionItemSwap
 		}
 	}
 
-	if swap.weaponIDs() != weapons {
+	weaponsChanged := swap.weaponIDs() != weapons
+	if weaponsChanged || character.PseudoStats.WeaponSkills != weaponSkills {
 		character.UpdateAttackTableWeapons()
+	}
+	if weaponsChanged {
 		for _, onWeaponChange := range swap.onWeaponChange {
 			onWeaponChange(sim)
 		}
@@ -429,6 +432,11 @@ func (swap *ItemSwap) swapItem(sim *Simulation, slot proto.ItemSlot, isPrepull b
 	swap.unEquippedItems[slot] = oldItem
 
 	character := swap.character
+	character.addItemWeaponSkills(&oldItem, -1)
+	character.addItemWeaponSkills(&character.Equipment[slot], 1)
+	character.addItemMobTypeStats(&oldItem, -1)
+	character.addItemMobTypeStats(&character.Equipment[slot], 1)
+	character.swapItemAreaStats(sim, &oldItem, &character.Equipment[slot])
 
 	switch slot {
 	case proto.ItemSlot_ItemSlotRanged:
@@ -453,6 +461,10 @@ func (swap *ItemSwap) swapItem(sim *Simulation, slot proto.ItemSlot, isPrepull b
 			character.AutoAttacks.IsDualWielding = weapon.SwingSpeed != 0
 			if !isReset && !isPrepull {
 				character.AutoAttacks.EnableMeleeSwing(sim)
+			}
+			// An off hand first equipped before the pull opens as one held from the start does.
+			if isPrepull && character.AutoAttacks.IsDualWielding && character.AutoAttacks.OffhandSwingAt() == NeverExpires {
+				character.AutoAttacks.resetOffHandSwing()
 			}
 			character.PseudoStats.CanBlock = character.OffHand().WeaponType == proto.WeaponType_WeaponTypeShield
 		}

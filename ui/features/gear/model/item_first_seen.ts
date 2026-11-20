@@ -2,9 +2,8 @@ import i18n from '@i18n/config';
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
-const NEWLY_DISCOVERED_WINDOW_MS = 7 * DAY_MS;
 
-export const isNewlyDiscovered = (firstSeenSeconds: number): boolean => Date.now() - firstSeenSeconds * 1000 <= NEWLY_DISCOVERED_WINDOW_MS;
+export { isNewlyDiscovered } from '@sim/proto/item_first_seen';
 
 // Local calendar days, so a stamp from late last night reads as yesterday.
 const calendarDaysAgo = (date: Date): number => {

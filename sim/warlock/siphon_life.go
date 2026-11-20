@@ -5,8 +5,8 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// A periodic leech like Drain Life's: each tick heals the caster for what it deals. The row does not mark
-// Periodic Can Crit, so the ticks do not crit.
+// A periodic leech like Drain Life's: each tick heals the caster for what it deals. The row marks
+// Periodic Can Crit, so the ticks crit.
 func (warlock *Warlock) registerSiphonLifeSpell() {
 	rankedSpell := spellData.SiphonLife.ByID(18881)
 	siphonLifeTick := rankedSpell.PeriodicEffect()
@@ -18,7 +18,6 @@ func (warlock *Warlock) registerSiphonLifeSpell() {
 
 	// Tick the row's average, rolling only the crit the row allows, and heal for the damage dealt
 	config.Dot = spelldata.DotConfig(rankedSpell, siphonLifeTick)
-	config.Dot.Aura.Tag = "Affliction"
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, siphonLifeTick.Average(), rankedSpell.TickOutcome(dot))
 
@@ -37,8 +36,9 @@ func (warlock *Warlock) registerSiphonLifeSpell() {
 
 	// Calculate expected damage from the row's average tick
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
-		return spell.CalcPeriodicDamage(sim, target, siphonLifeTick.Average(), spell.OutcomeExpectedMagicAlwaysHit)
+		return spell.CalcPeriodicDamage(sim, target, siphonLifeTick.Average(), rankedSpell.ExpectedMagicTickOutcome(spell))
 	}
 
 	warlock.SiphonLife = warlock.RegisterSpell(config)
+	warlock.afflictionDots = append(warlock.afflictionDots, warlock.SiphonLife)
 }

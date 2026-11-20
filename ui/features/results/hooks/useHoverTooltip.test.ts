@@ -1,5 +1,6 @@
-import { act, renderHook } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { act, fireEvent, renderHook } from '@testing-library/react';
+import { createRef } from 'react';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { useHoverTooltip } from './useHoverTooltip';
 
@@ -9,8 +10,8 @@ const host = (width: number, height: number) => {
 	return element;
 };
 
-const mount = (width = 100, height = 50) => {
-	const view = renderHook(() => useHoverTooltip<string>());
+const mount = (width = 100, height = 50, owner = createRef<HTMLElement>()) => {
+	const view = renderHook(() => useHoverTooltip<string>(owner));
 	// The hook only positions the element it is given; nothing renders one for it.
 	view.result.current.ref.current = host(width, height);
 	return view;
@@ -37,7 +38,7 @@ describe('tooltip placement', () => {
 	});
 
 	it('does nothing without a host', () => {
-		const { result } = renderHook(() => useHoverTooltip<string>());
+		const { result } = renderHook(() => useHoverTooltip<string>(createRef()));
 		expect(() => act(() => result.current.show('Fireball', 0, 0))).not.toThrow();
 		expect(() => act(() => result.current.moveTo(0, 0))).not.toThrow();
 	});
@@ -77,5 +78,40 @@ describe('useHoverTooltip', () => {
 		expect(result.current.show).toBe(show);
 		expect(result.current.moveTo).toBe(moveTo);
 		expect(result.current.hide).toBe(hide);
+	});
+});
+
+describe('useHoverTooltip closing', () => {
+	afterEach(() => {
+		document.body.replaceChildren();
+	});
+
+	const mountOpen = () => {
+		const owner = document.body.appendChild(document.createElement('div'));
+		const outside = document.body.appendChild(document.createElement('div'));
+		const view = mount(100, 50, { current: owner });
+		act(() => view.result.current.show('Fireball', 10, 10));
+		return { ...view, owner, outside };
+	};
+
+	it('closes on a scroll anywhere on the page', () => {
+		const { result, outside } = mountOpen();
+		act(() => {
+			fireEvent.scroll(outside);
+		});
+		expect(result.current.content).toBeNull();
+	});
+
+	it('closes on a press outside its owner, and leaves one inside to the item it lands on', () => {
+		const { result, owner, outside } = mountOpen();
+		act(() => {
+			fireEvent.pointerDown(owner);
+		});
+		expect(result.current.content).toBe('Fireball');
+
+		act(() => {
+			fireEvent.pointerDown(outside);
+		});
+		expect(result.current.content).toBeNull();
 	});
 });

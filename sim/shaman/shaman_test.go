@@ -1,6 +1,7 @@
 package shaman_test
 
 import (
+	"math"
 	"testing"
 	"time"
 
@@ -11,16 +12,21 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/shaman"
+	"github.com/wowsims/forever/sim/shaman/elemental"
 	"github.com/wowsims/forever/sim/shaman/enhancement"
 )
 
 func init() {
+	elemental.RegisterElementalShaman()
 	enhancement.RegisterEnhancementShaman()
 	common.RegisterAllEffects()
 }
 
 // The Enhancement suite's talents, which take Elemental Devastation.
 const enhancementTalents = "053503102-053030310051012251"
+
+// The Elemental suite's talents, which take Elemental Focus and Lightning Overload.
+const elementalTalents = "5500331023001351-05500001-053"
 
 // The raid of one Enhancement shaman with the given talents.
 func enhancementRaid(talents string) *proto.Raid {
@@ -227,6 +233,39 @@ func TestFireNovaHitsHoldTheCastsAndCastTime(t *testing.T) {
 	}
 }
 
+// A Dwarf's beast bonus reaches the shaman's own Fire Nova but not a fire totem's attack, which deals
+// the same damage to a beast as to any other creature.
+func TestTotemAttacksTakeNoCreatureTypeBonus(t *testing.T) {
+	raid := enhancementRaid(enhancementTalents)
+	raid.Parties[0].Players[0].Race = proto.Race_RaceDwarf
+	beast := core.FreshDefaultTargetConfig()
+	beast.MobType = proto.MobType_MobTypeBeast
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = append(encounter.Targets, beast)
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       raid,
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	other := sham.AttackTables[sim.Encounter.AllTargetUnits[0].UnitIndex]
+	beastTable := sham.AttackTables[sim.Encounter.AllTargetUnits[1].UnitIndex]
+	beastBonus := func(spell *core.Spell) float64 {
+		return spell.AttackerDamageMultiplier(beastTable, false) / spell.AttackerDamageMultiplier(other, false)
+	}
+
+	if bonus := beastBonus(sham.GetSpell(core.ActionID{SpellID: sham.FireNova.ActionID.SpellID, Tag: 1})); bonus <= 1 {
+		t.Errorf("Fire Nova's hits deal %v times the damage to a beast; want the racial's bonus above 1", bonus)
+	}
+	for _, totem := range []*core.Spell{sham.MagmaTotem, sham.SearingTotem} {
+		if bonus := beastBonus(sham.GetSpell(core.ActionID{SpellID: totem.ActionID.SpellID, Tag: 1})); bonus != 1 {
+			t.Errorf("%s's attack deals %v times the damage to a beast; want 1", totem.ActionID, bonus)
+		}
+	}
+}
+
 // Water Shield's tooltip: a hit taken or one of the shaman's spell crits spends a globe for 2% of
 // maximum mana, one globe every few seconds; a spell that does not crit spends none.
 func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
@@ -299,4 +338,193 @@ func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
 	expect("a hit taken", func() {
 		shield.OnSpellHitTaken(shield, sim, attack, &core.SpellResult{Target: &sham.Unit, Outcome: core.OutcomeHit, Damage: 100})
 	}, 1, true)
+}
+
+// Totemic Recall takes down the shaman's standing totems and returns the row's share of their base
+// mana costs.
+func TestTotemicRecallReturnsAShareOfTheStandingTotemsBaseCosts(t *testing.T) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       enhancementRaid(enhancementTalents),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	recallRow := spelldata.MustFind(36936)
+	recall := sham.GetSpell(core.ActionID{SpellID: recallRow.ID})
+	if recall == nil {
+		t.Fatal("Totemic Recall is not registered")
+	}
+
+	totems := []*core.Spell{sham.SearingTotem, sham.WindfuryTotem}
+	var baseCosts float64
+	for _, totem := range totems {
+		totem.SkipCastAndApplyEffects(sim, sham.CurrentTarget)
+		baseCosts += float64(totem.Cost.BaseCost)
+	}
+	sham.SpendMana(sim, sham.MaxMana()/2, sham.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen, Tag: 99}))
+
+	before := sham.CurrentMana()
+	recall.SkipCastAndApplyEffects(sim, &sham.Unit)
+	if got, want := sham.CurrentMana()-before, baseCosts*recallRow.EffectN(1).Percent(); got != want || want == 0 {
+		t.Errorf("Totemic Recall returned %v mana, want %v above 0", got, want)
+	}
+	for _, totem := range totems {
+		if totem.RelatedSelfBuff.IsActive() {
+			t.Errorf("%s still stands after Totemic Recall", totem.ActionID)
+		}
+	}
+}
+
+// Maelstrom Weapon procs off main-hand swings and Windfury Weapon's strike, never off Windfury
+// Totem's strike.
+func TestMaelstromWeaponSkipsTheWindfuryTotemStrike(t *testing.T) {
+	player := windfuryShaman(&proto.APLRotation{})
+	player.TalentsString = enhancementTalents
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{WindfuryTotem: true}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	maelstrom := sham.GetAuraByID(core.ActionID{SpellID: spelldata.MustFind(408505).ID})
+	trigger := sham.GetAura("Maelstrom Weapon - Trigger")
+	strike := sham.GetSpell(windfuryWeaponStrike)
+	totemStrike := sham.GetSpell(windfuryTotemStrike)
+	if maelstrom == nil || trigger == nil || strike == nil || totemStrike == nil {
+		t.Fatalf("Maelstrom Weapon %v, its trigger %v, Windfury Weapon's strike %v, Windfury Totem's strike %v; want all registered",
+			maelstrom, trigger, strike, totemStrike)
+	}
+
+	sham.AutoAttacks.CancelAutoSwing(sim)
+
+	// The stack lands a spell batch window after its hit; a no-op action just past the window stops
+	// each step there.
+	procs := func(spell *core.Spell) int {
+		gains := 0
+		for range 300 {
+			maelstrom.Deactivate(sim)
+			trigger.OnSpellHitDealt(trigger, sim, spell, &core.SpellResult{Target: sham.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+			for at := sim.CurrentTime + core.SpellBatchWindow; sim.CurrentTime <= at; {
+				sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
+				sim.Step()
+			}
+			if maelstrom.IsActive() {
+				gains++
+			}
+		}
+		return gains
+	}
+	if got := procs(totemStrike); got != 0 {
+		t.Errorf("Windfury Totem's strike procced Maelstrom Weapon %d times in 300 hits, want none", got)
+	}
+	if procs(sham.AutoAttacks.MHAuto()) == 0 || procs(strike) == 0 {
+		t.Error("a main-hand swing or Windfury Weapon's strike never procced Maelstrom Weapon in 300 hits, so the check above proves nothing")
+	}
+}
+
+// A Lightning Overload's launch rolls Elemental Focus once, a Chain Lightning overload's included
+// however many targets it hits. The Chain Lightning that launched the overload keeps the charge the
+// overload procced as it completes, and an Earth Shock in that instant spends it. A Lightning Bolt
+// overload launches after its bolt's cast has completed, so a Lightning Bolt of the same rank in that
+// instant spends the charge.
+func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = append(encounter.Targets, core.FreshDefaultTargetConfig(), core.FreshDefaultTargetConfig())
+	player := &proto.Player{
+		Name:          "Elemental",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassShaman,
+		Equipment:     &proto.EquipmentSpec{},
+		TalentsString: elementalTalents,
+		Spec:          &proto.Player_ElementalShaman{ElementalShaman: &proto.ElementalShaman{Options: &proto.ElementalShaman_Options{ClassOptions: &proto.ShamanOptions{}}}},
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	target := sham.CurrentTarget
+	const boltRank, chainRank = 15208, 10605
+	clearcasting := sham.GetAuraByID(core.ActionID{SpellID: 16246})
+	bolt := sham.GetSpell(core.ActionID{SpellID: boltRank})
+	chainLightning := sham.GetSpell(core.ActionID{SpellID: chainRank})
+	boltOverload := sham.GetSpell(core.ActionID{SpellID: boltRank, Tag: shaman.CastTagLightningOverload})
+	chainOverload := sham.GetSpell(core.ActionID{SpellID: chainRank, Tag: shaman.CastTagLightningOverload})
+	if clearcasting == nil || bolt == nil || chainLightning == nil || boltOverload == nil || chainOverload == nil {
+		t.Fatalf("Clearcasting %v, Lightning Bolt %v, Chain Lightning %v, the overloads %v and %v; want all registered",
+			clearcasting, bolt, chainLightning, boltOverload, chainOverload)
+	}
+
+	// A roll per hit would gain about three times as often off a Chain Lightning overload that hits
+	// three targets.
+	chance := spelldata.MustFind(16164).StatedChance()
+	const launches = 2000
+	tolerance := 4 * math.Sqrt(chance*(1-chance)/launches)
+	for _, overload := range []*core.Spell{boltOverload, chainOverload} {
+		gains := 0
+		for range launches {
+			clearcasting.Deactivate(sim)
+			overload.Proc(sim, target)
+			if clearcasting.IsActive() {
+				gains++
+			}
+		}
+		if rate := float64(gains) / launches; math.Abs(rate-chance) > tolerance {
+			t.Errorf("%v gained Clearcasting on %v of its launches, want the row's %v within %v", overload.ActionID, rate, chance, tolerance)
+		}
+	}
+
+	// The overload launches inside the cast's effects, before the cast completes.
+	gainedAtLaunch := false
+	launch := chainOverload.ApplyEffects
+	chainOverload.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		launch(sim, target, spell)
+		gainedAtLaunch = clearcasting.IsActive()
+	}
+	// Earth Shock's own roll can refresh the charge it spends, so one spend over the loop is enough.
+	earthShock := sham.EarthShock[len(sham.EarthShock)-1]
+	kept, spent := 0, false
+	for range launches {
+		clearcasting.Deactivate(sim)
+		gainedAtLaunch = false
+		chainLightning.Proc(sim, target)
+		if !gainedAtLaunch {
+			continue
+		}
+		kept++
+		if !clearcasting.IsActive() {
+			t.Fatal("the Chain Lightning that launched an overload spent the charge the overload procced")
+		}
+		earthShock.Proc(sim, target)
+		spent = spent || !clearcasting.IsActive()
+	}
+	if kept == 0 {
+		t.Errorf("no Chain Lightning overload procced Clearcasting in %d casts, so the check above proves nothing", launches)
+	}
+	if !spent {
+		t.Error("an Earth Shock in the instant a Chain Lightning overload procced Clearcasting never spent the charge")
+	}
+
+	// The bolt's own roll can refresh the charge too.
+	boltSpent := false
+	for range launches {
+		clearcasting.Deactivate(sim)
+		boltOverload.Proc(sim, target)
+		if !clearcasting.IsActive() {
+			continue
+		}
+		bolt.Proc(sim, target)
+		boltSpent = boltSpent || !clearcasting.IsActive()
+	}
+	if !boltSpent {
+		t.Error("a Lightning Bolt in the instant a Lightning Bolt overload procced Clearcasting never spent the charge")
+	}
 }

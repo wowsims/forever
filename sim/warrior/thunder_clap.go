@@ -8,7 +8,7 @@ import (
 
 var thunderClapRank = spellData.ThunderClap.Highest()
 
-// The Attack Power share (0.07) is measured in game on Ranks 1 and 4 (Rank 4: floor(0.99 * (55 + 0.07 * AP))).
+// The Attack Power share is 0.07: Rank 4 hits for floor(0.99 * (55 + 0.07 * AP)) (EV-0019, EV-0048).
 // TODO: Ranks 2, 3, 5 and 6 carry the same share unmeasured. Verify it on them once logs at their level exist.
 var thunderClapBaseDamage = thunderClapRank.DamageEffect().Average()
 var thunderClapAPCoeff = thunderClapRank.DamageEffect().APCoeff()
@@ -39,11 +39,12 @@ func (warrior *Warrior) registerThunderClap() {
 	})
 
 	// Thunder Clap is Physical but Magic in SpellCategories: it rolls on the spell hit table
-	// (logs show full resists next to armor mitigation) and crits on spell crit chance for
-	// 1.5x. Warriors have no base spell crit, so logs without Totem of Wrath show none
-	// (0 of 799 landed hits from 6 prot warriors on fresh.warcraftlogs.com, 2026-09-14).
+	// and crits on spell crit chance for 1.5x. Warriors have no base spell crit, so without
+	// Totem of Wrath it never crits (EV-0055). A magic hit spends no Sweeping Strikes charge,
+	// which melee swings and abilities do. Its ranged mask reaches equip procs that hear ranged
+	// abilities, and core's canProcFrom decides which weapon procs hear it.
 	config := spelldata.SpellConfig(&warrior.Unit, thunderClapRank,
-		spelldata.Flags(core.SpellFlagAPL|core.SpellFlagBinary))
+		spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskRangedSpecial
 	config.DamageMultiplier = 1
 	// Threat is 1 times the damage with no flat bonus, at 1 to 4 targets, Improved Thunder Clap included.
@@ -52,7 +53,6 @@ func (warrior *Warrior) registerThunderClap() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := thunderClapBaseDamage + thunderClapAPCoeff*spell.MeleeAttackPower(target)
 		results := spell.CalcCleaveDamage(sim, target, int32(thunderClapRank.MaxTargets), baseDamage, spell.OutcomeMagicHitAndCrit)
-		warrior.CastNormalizedSweepingStrikesAttack(results, sim)
 
 		for _, result := range results {
 			if result.Landed() {

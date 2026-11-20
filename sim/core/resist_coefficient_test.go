@@ -24,10 +24,12 @@ func TestAverageResistIgnoresTargetLevel(t *testing.T) {
 	}{
 		{"no resistance", 0, false, 0, 0},
 		{"no resistance, tick", 0, true, 0, 0},
-		{"100 resistance", 100, false, 0, 100.0 / 640},
-		{"100 resistance, tick", 100, true, 0, 100.0 / 640 / 10},
-		{"100 resistance, channel tick", 100, true, SpellFlagChanneled, 100.0 / 640},
-		{"100 resistance, tick with full resistance", 100, true, SpellFlagFullResistanceTicks, 100.0 / 640},
+		{"100 resistance", 100, false, 0, 100.0 / (100 + 499)},
+		{"100 resistance, tick", 100, true, 0, 100.0 / (100 + 499) / 10},
+		{"100 resistance, channel tick", 100, true, SpellFlagChanneled, 100.0 / (100 + 499) / 10},
+		{"100 resistance, tick with full resistance", 100, true, SpellFlagFullResistanceTicks, 100.0 / (100 + 499)},
+		{"100 resistance, channel tick with full resistance", 100, true, SpellFlagChanneled | SpellFlagFullResistanceTicks, 100.0 / (100 + 499)},
+		{"100 resistance, hit flagged for a tenth", 100, false, SpellFlagTenthResistance, 100.0 / (100 + 499) / 10},
 	} {
 		spell := &Spell{SpellSchool: SpellSchoolShadow, SchoolIndex: stats.SchoolIndexShadow, Flags: tc.flags}
 		if got := target(tc.resistance).averageResist(spell, attacker, tc.tick); math.Abs(got-tc.want) > 1e-12 {
@@ -36,20 +38,21 @@ func TestAverageResistIgnoresTargetLevel(t *testing.T) {
 	}
 
 	spell := &Spell{SpellSchool: SpellSchoolShadow, SchoolIndex: stats.SchoolIndexShadow, Flags: SpellFlagBinary}
-	if got, want := target(100).binaryHitChance(spell, attacker), 1-100.0/640; math.Abs(got-want) > 1e-12 {
+	if got, want := target(100).binaryHitChance(spell, attacker), 1-100.0/(100+499); math.Abs(got-want) > 1e-12 {
 		t.Errorf("binary hit chance against 100 resistance at +3 = %v, want %v", got, want)
 	}
 }
 
 // Spell Piercing beyond the target's resistance is a negative average resist, which the roll pays out
-// as bonus damage in 10% steps, and never as a resisted outcome.
+// as bonus damage in 10% steps, with an outcome carrying the negative percent. A hit at a tenth of the
+// share takes no bonus, and one at the full share takes it whole.
 func TestSpellPiercingBeyondResistanceAddsDamage(t *testing.T) {
 	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
 	attacker.stats[stats.SpellPiercing] = 15
 	defender := &Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
 	spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolArcane, SchoolIndex: stats.SchoolIndexArcane}
 
-	a := 15.0 / (15 + 540)
+	a := 15.0 / (15 + 499)
 	if got := defender.averageResist(spell, attacker, false); math.Abs(got+a) > 1e-12 {
 		t.Errorf("average resist with 15 piercing and no resistance = %v, want %v", got, -a)
 	}
@@ -60,13 +63,31 @@ func TestSpellPiercingBeyondResistanceAddsDamage(t *testing.T) {
 		t.Errorf("average resist with 15 piercing against -75 resistance = %v, want %v as against 0", got, -a)
 	}
 
+	for _, tc := range []struct {
+		name       string
+		flags      SpellFlag
+		isPeriodic bool
+		want       float64
+	}{
+		{"a tick at a tenth", 0, true, 0},
+		{"a hit flagged for a tenth", SpellFlagTenthResistance, false, 0},
+		{"a tick at the full share", SpellFlagFullResistanceTicks, true, -a},
+		{"a channel tick", SpellFlagChanneled, true, 0},
+		{"a channel tick at the full share", SpellFlagChanneled | SpellFlagFullResistanceTicks, true, -a},
+	} {
+		spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolArcane, SchoolIndex: stats.SchoolIndexArcane, Flags: tc.flags}
+		if got := defender.averageResist(spell, attacker, tc.isPeriodic); math.Abs(got-tc.want) > 1e-12 {
+			t.Errorf("average resist of %s with 15 piercing and no resistance = %v, want %v", tc.name, got, tc.want)
+		}
+	}
+
 	sim := &Simulation{rand: NewSplitMix(1)}
 	attackTable := NewAttackTable(attacker, defender)
 	counts := map[float64]int{}
 	for range 100000 {
 		multiplier, outcome := spell.ResistanceMultiplier(sim, false, attackTable)
-		if outcome != OutcomeEmpty {
-			t.Fatalf("a piercing bonus came with outcome %v", outcome)
+		if want := int(math.Round((1 - multiplier) * 100)); outcome.ResistedPercent() != want {
+			t.Fatalf("a hit at x%v came with a %d%% resist outcome, want %d%%", multiplier, outcome.ResistedPercent(), want)
 		}
 		counts[math.Round(multiplier*10)/10]++
 	}
@@ -94,7 +115,7 @@ func TestPartialResistRollSteps(t *testing.T) {
 		sim := &Simulation{rand: NewSplitMix(7)}
 		counts := map[int]int{}
 		for range 100000 {
-			counts[rollResistTenths(sim, tc.a)]++
+			counts[rollResistTenths(sim, resistTenthsChances(tc.a))]++
 		}
 		for tenths, want := range tc.want {
 			if got := float64(counts[tenths]) / 100000; math.Abs(got-want) > 0.005 {
@@ -109,17 +130,39 @@ func TestPartialResistRollSteps(t *testing.T) {
 	}
 }
 
-func TestPartialResistOutcomeCarriesTheTenths(t *testing.T) {
-	for tenths := 1; tenths <= 10; tenths++ {
-		outcome := OutcomeHit | partialResistOutcome(tenths)
-		if got := outcome.ResistedTenths(); got != tenths {
-			t.Errorf("ResistedTenths of a %d0%% resist = %d", tenths, got)
+func TestPartialResistOutcomeCarriesThePercent(t *testing.T) {
+	for _, percent := range []int{10, 20, 30, 40, 50, 60, 70, 75} {
+		outcome := OutcomeHit | partialResistOutcome(float64(percent)/100)
+		if got := outcome.ResistedPercent(); got != percent {
+			t.Errorf("ResistedPercent of a %d%% resist = %d", percent, got)
 		}
 		if !outcome.Matches(OutcomePartial) || !outcome.Matches(OutcomeHit) {
-			t.Errorf("a %d0%% resist outcome lost its bits: %b", tenths, outcome)
+			t.Errorf("a %d%% resist outcome lost its bits: %b", percent, outcome)
 		}
 	}
-	if got := (OutcomeCrit | partialResistOutcome(3)).String(); got != "Crit (30% Resist)" {
+	if got := (OutcomeCrit | partialResistOutcome(0.3)).String(); got != "Crit (30% Resist)" {
 		t.Errorf("a 30%% resisted crit reads %q", got)
+	}
+	if got := (OutcomeHit | partialResistOutcome(0.75)).String(); got != "Hit (75% Resist)" {
+		t.Errorf("a 75%% resisted hit reads %q", got)
+	}
+}
+
+// A Spell Piercing bonus carries its percent as a negative resist and counts as a pierced hit, not a resisted one.
+func TestPartialResistBonusOutcomeCarriesANegativePercent(t *testing.T) {
+	for _, percent := range []int{10, 20, 30} {
+		result := &SpellResult{Outcome: OutcomeHit | partialResistOutcome(-float64(percent)/100)}
+		if got := result.Outcome.ResistedPercent(); got != -percent {
+			t.Errorf("ResistedPercent of a %d%% bonus = %d, want %d", percent, got, -percent)
+		}
+		if !result.DidPierce() {
+			t.Errorf("a %d%% bonus does not count as a pierced hit", percent)
+		}
+		if result.DidResist() {
+			t.Errorf("a %d%% bonus counts as a resisted hit", percent)
+		}
+	}
+	if got := (OutcomeCrit | partialResistOutcome(-0.2)).String(); got != "Crit (20% Pierced)" {
+		t.Errorf("a crit with a 20%% bonus reads %q", got)
 	}
 }

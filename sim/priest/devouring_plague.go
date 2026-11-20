@@ -14,6 +14,8 @@ func (priest *Priest) registerDevouringPlagueSpell(_ int32, rank *spelldata.Spel
 	healthMetrics := priest.NewHealthMetrics(actionID.WithTag(1))
 
 	config := priest.periodicDamageSpellConfig(rank, PriestSpellDevouringPlague)
+	// A tick meets the target's full resistance (EV-0142).
+	config.Flags |= core.SpellFlagFullResistanceTicks
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.Roll(sim), rank.TickOutcome(dot))
 

@@ -31,9 +31,9 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 		return attackTable.GetArmorDamageModifier(spell), OutcomeEmpty
 	}
 
-	// Magical resistance. A binary spell's hit roll already took its full resist, and the damage of
-	// one that lands rolls a partial resist like any other.
-	if spell.Flags.Matches(SpellFlagNoPartialResist) {
+	// Magical resistance. A binary spell's hit roll takes its whole resist, so one that lands loses no
+	// damage to a partial resist and gains none from Spell Piercing, on its hits and its ticks (EV-0142).
+	if spell.Flags.Matches(SpellFlagBinary | SpellFlagNoPartialResist) {
 		return 1, OutcomeEmpty
 	}
 
@@ -42,26 +42,39 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 		return 1, OutcomeEmpty
 	}
 
-	// The roll's mean is the average resist, so an expected-damage call uses it without drawing.
+	chances := resistTenthsChances(math.Abs(averageResist))
+
+	// An expected-damage call takes the roll's mean and draws nothing.
 	if spell.expecting {
-		return 1 - averageResist, OutcomeEmpty
+		share := 0.0
+		for tenths, chance := range chances {
+			share += chance * resistedShare(tenths)
+		}
+		return 1 - math.Copysign(share, averageResist), OutcomeEmpty
 	}
 
-	tenths := rollResistTenths(sim, math.Abs(averageResist))
+	tenths := rollResistTenths(sim, chances)
 	if tenths == 0 {
 		return 1, OutcomeEmpty
 	}
+	share := resistedShare(tenths)
 	if averageResist < 0 {
-		return 1 + 0.1*float64(tenths), OutcomeEmpty
+		return 1 + share, partialResistOutcome(-share)
 	}
-	return 1 - 0.1*float64(tenths), partialResistOutcome(tenths)
+	return 1 - share, partialResistOutcome(share)
+}
+
+// A partial resist never takes more than 75% of a hit: the roll's 80, 90 and 100% steps land on 75%
+// (EV-0142).
+func resistedShare(tenths int) float64 {
+	return min(0.1*float64(tenths), 0.75)
 }
 
 func (at *AttackTable) GetBinaryHitChance(spell *Spell) float64 {
 	return at.Defender.binaryHitChance(spell, at.Attacker)
 }
 
-// The average share of a spell's damage the target resists, R / (R + 9L) for the caster's level L,
+// The average share of a spell's damage the target resists, R / (R + 8L + 19) for the caster's level L,
 // with the caster's Spell Piercing taken off R. Piercing beyond the resistance makes the share negative,
 // and the roll pays it out as bonus damage. The target's own resistance stops at 0, so a debuff that
 // lowers it below 0 adds nothing. A target above the caster's level resists no more for its level.
@@ -75,15 +88,20 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 		piercing := attacker.stats[stats.SpellPiercing] + attacker.PseudoStats.SchoolSpellPiercing[spell.SchoolIndex]
 		resistance = max(0, unit.GetStat(stat)) - piercing
 	}
-	// TODO: 9L is a fit to the Spell Piercing logs at levels 20 to 30 (#76). Some ExpectedStat creature
-	// curves fit them as well and part from 9L above 30 (K at 60: 478 to 823 against 540); a log at
-	// level 40 to 60 decides.
-	resistanceConstant := 9 * float64(attacker.Level)
+	// TODO: 8L + 19 is a fit to Spell Piercing logs and to mobs casting at players of known resistance
+	// (EV-0091). ExpectedStat's ArmorConstant × 0.088 fits them nearly as well; a level 60 log tells the
+	// two apart only with a large sample of direct hits.
+	resistanceConstant := 8*float64(attacker.Level) + 19
 	averageResist := resistance / (math.Abs(resistance) + resistanceConstant)
 
-	// A DoT's tick, a hybrid's included, rolls its partial resist against a tenth of the resistance.
-	if isPeriodic && !spell.Flags.Matches(SpellFlagChanneled|SpellFlagFullResistanceTicks) {
-		averageResist /= 10
+	// A periodic tick, a hybrid's or a channel's included, rolls its partial resist against a tenth of the
+	// share, as do the hits of a spell flagged for it, and takes no Spell Piercing bonus. A tick at the
+	// full share takes the bonus in full (EV-0092, EV-0142).
+	// TODO: In-game testing required: whether piercing still lowers a positive resistance on a tick at a
+	// tenth; the sim lets it.
+	if isPeriodic && !spell.Flags.Matches(SpellFlagFullResistanceTicks) ||
+		spell.Flags.Matches(SpellFlagTenthResistance) {
+		averageResist = max(0, averageResist) / 10
 	}
 
 	return averageResist
@@ -94,35 +112,28 @@ func (unit *Unit) binaryHitChance(spell *Spell, attacker *Unit) float64 {
 	return 1 - max(0, unit.averageResist(spell, attacker, false))
 }
 
-// The partial resist roll, in tenths of the damage, around the average share a. Up to a = 10% it gives
-// 0, 1 or 2 tenths at 1 - 7.5a, 5a and 2.5a; from 90% the same mirrored from 10 tenths; in between each
-// 10% step x within 20% of a at 0.5 - 2.5|x - a|.
-func rollResistTenths(sim *Simulation, a float64) int {
-	roll := sim.RandomFloat("Partial Resist")
-	if a <= 0.1 {
-		switch {
-		case roll < 1-7.5*a:
-			return 0
-		case roll < 1-2.5*a:
-			return 1
-		default:
-			return 2
+// The chance of each step of the partial resist roll, in tenths of the damage, around the average
+// share a. Up to a = 10% it gives 0, 1 or 2 tenths at 1 - 7.5a, 5a and 2.5a; from 90% the same mirrored
+// from 10 tenths; in between each 10% step x within 20% of a at 0.5 - 2.5|x - a|.
+func resistTenthsChances(a float64) (chances [11]float64) {
+	switch {
+	case a <= 0.1:
+		chances[0], chances[1], chances[2] = 1-7.5*a, 5*a, 2.5*a
+	case a >= 0.9:
+		chances[10], chances[9], chances[8] = 1-7.5*(1-a), 5*(1-a), 2.5*(1-a)
+	default:
+		for tenths := range chances {
+			chances[tenths] = max(0, 0.5-2.5*math.Abs(float64(tenths)/10-a))
 		}
 	}
-	if a >= 0.9 {
-		switch {
-		case roll < 1-7.5*(1-a):
-			return 10
-		case roll < 1-2.5*(1-a):
-			return 9
-		default:
-			return 8
-		}
-	}
+	return chances
+}
 
+// One draw of the roll, taking the steps from 0 up.
+func rollResistTenths(sim *Simulation, chances [11]float64) int {
+	roll := sim.RandomFloat("Partial Resist")
 	cumulative, last := 0.0, 0
-	for tenths := 0; tenths <= 10; tenths++ {
-		chance := 0.5 - 2.5*math.Abs(float64(tenths)/10-a)
+	for tenths, chance := range chances {
 		if chance <= 0 {
 			continue
 		}

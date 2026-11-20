@@ -1,22 +1,14 @@
 # Rulings
 
-Each line is the rule the code follows, where it lives, and the pull request that settled it.
+Each ruling is its own file in `docs/rulings/` (`docs/rulings/README.md`): the rule, the code that follows it, the pull
+request that settled it and its evidence. This index lists the ones this skill owns.
 
-- **A weapon proc whose row has melee or ranged DefenseType (direct hits and DoT-only applications) is a special hit:
-  triggered by a main-hand or ranged hit it chains to weapon procs (its own weapon included), combat enchants and
-  oils; triggered by an off-hand hit it is heard by none (main hand chains, off hand nothing). Magic weapon procs stay
-  `ProcMaskEmpty`, equip and aura procs keep the `SpellFlagProc` gate, and Windfury never hears them.**
-  `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask`, PR #352.
-- **The hit table decides a strike's mask, not its school (Bow of Searing Arrows is a ranged special); Shadow Oil
-  hears its hand's melee hits and Frost Oil white hits only; a strike's own re-cast during its cast goes one batch
-  later.** `sim/common/shared/shared_utils.go`, `procDamageHandler`, PR #352.
-- **A rate the game files do not state takes the carry-over value (`vanilla-carryover`) with a TODO, or is written and
-  commented out waiting for a procs-per-minute rate, and the gear tab shows an in-game validation notice for every
-  unvalidated rate, driven by the override tables' `Source`.** `tools/database/gen_effects.go`, `rateOrigin`, PR #322.
-- **A hand-written proc that runs at the procs per minute on its item's entry registers nothing while the entry states
-  none, and no rate is made up for it: the item keeps its stats, and the generator lists it in the gear tab's
-  missing-effect notices until a rate reaches the entry.** `sim/common/forever/items_weapons.go`,
-  `newEntryRateItemEffect`; `tools/database/gen_effects.go`, `handProcStatesNoRate`; PR #905.
-- **A charge buff hit by the wearer's channel is reserved and spent at that channel's end (`Unit.OnChannelEnd`), an
-  interrupted channel included, and a charge gained while a channel its class flags name is running is spent at that
-  channel's end.** `sim/core/spelldata/charges.go`, `AttachChargeSpender`, PR #658.
+- **R-0040** A weapon proc's strike a main-hand white swing cast rolls weapon procs once more: `docs/rulings/R-0040-weapon-proc-special-hit-chains.md`
+- **R-0041** No weapon proc hears a shield or magic DefenseType ability: `docs/rulings/R-0041-no-weapon-proc-shield-magic-ability.md`
+- **R-0042** No weapon proc hears a melee or ranged special with no DefenseType: `docs/rulings/R-0042-no-weapon-proc-without-defensetype.md`
+- **R-0043** A chance-on-hit weapon rolls once for each target an area strike lands on: `docs/rulings/R-0043-weapon-rolls-per-target-area-strike.md`
+- **R-0044** The hit table decides a strike's mask, not its school: `docs/rulings/R-0044-hit-table-decides-strike-mask.md`
+- **R-0045** An oil's combat spell rolls on its hand's landed white swings and specials: `docs/rulings/R-0045-oil-combat-spell-rolls-landed-swings.md`
+- **R-0046** A rate the game files do not state takes the carry-over value with a TODO: `docs/rulings/R-0046-unstated-rate-carryover-todo.md`
+- **R-0047** A hand-written proc registers nothing while its item entry states no rate: `docs/rulings/R-0047-hand-proc-needs-entry-rate.md`
+- **R-0048** A charge buff hit by a channel is spent at that channel's end: `docs/rulings/R-0048-charge-buff-spent-at-channel-end.md`

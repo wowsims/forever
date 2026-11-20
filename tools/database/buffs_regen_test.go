@@ -121,9 +121,7 @@ func TestScopeMatchesTheGameFilesTargeting(t *testing.T) {
 
 // The rows whose spell the game files target somewhere else than the scope reaches,
 // each with the reason the scope is still what the sim wants.
-var scopeExemptions = map[string]string{
-	"windfury_totem": "10610 is the attack power the proc grants; the totem's aura 10612, which hands the proc out, applies to the raid",
-}
+var scopeExemptions = map[string]string{}
 
 // What the game files say against the scope the manifest files the row under, and
 // "" when the two agree or the row is one the game files may state nothing for.

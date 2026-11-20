@@ -1,7 +1,7 @@
 siml 1
 spec hunter
 talents "5-0053452511522051-5"
-use "../gear_sets/p1.gear.siml"
+use "../gear_sets/prebis_turret.gear.siml"
 use "../apls/turret.apl.siml"
 
 // No pet: Lone Wolf wants none out.
@@ -12,3 +12,19 @@ settings:
   ammo thorium_headed_arrow
   pet_uptime 1
   pet_attack_speed faster_attack_ii
+
+// The turret never swings its weapon, and a sharpening stone's crit counts only for that weapon's swings, so it carries a mana oil.
+consumables:
+  flask flask_of_natural_aggression
+  food swiftstrike_steak
+  conjured demonic_rune
+  explosive ez_thro_dynamite_ii
+  mh_imbue brilliant_mana_oil
+  extra goblin_sapper_charge,
+      scroll_of_strength_iv,
+      juju_might,
+      dragonbreath_chili,
+      ground_scorpok_assay
+  elixir elixir_of_the_mongoose, greater_mageblood_elixir, elixir_of_greater_intellect
+  resource_pot major_mana_potion
+  offensive_pot major_frenzy_potion

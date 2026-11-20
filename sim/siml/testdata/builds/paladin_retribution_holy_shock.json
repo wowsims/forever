@@ -111,13 +111,13 @@
 				"classOptions": {}
 			}
 		},
-		"talentsString": "05025210221021--0523330110130033",
+		"talentsString": "05025210221001--0523330110130035",
 		"profession1": "Engineering",
 		"profession2": "Blacksmithing",
 		"rotation": {
 			"type": "TypeSimple",
 			"simple": {
-				"specRotationJson": "{\"aura\":\"RetributionAura\",\"assignedJudgement\":\"JudgementOfTheCrusader\",\"pullRange\":25}"
+				"specRotationJson": "{\"aura\":\"RetributionAura\",\"assignedJudgement\":\"JudgementOfTheCrusader\",\"pullRange\":25,\"uwSocStacks\":3,\"uwSorStacks\":1}"
 			}
 		},
 		"reactionTimeMs": 100,

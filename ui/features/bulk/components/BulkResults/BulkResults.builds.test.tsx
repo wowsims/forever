@@ -165,6 +165,25 @@ describe('BulkResults in Builds', () => {
 		}
 	});
 
+	it('shows a named bundle’s name in place of its four pills, its parts in the name’s tooltip, and leaves an unnamed bundle’s row as it is', async () => {
+		const shown = entry(CURRENT_SETTINGS_SETUP, ARMS_BUILD);
+		const [[raid], ...rest] = shown.results.chains;
+		await mount({ ...shown, results: { ...shown.results, chains: [[{ ...raid, gearSetup: { ...RAID, bundle: 'Arms raid' } }], ...rest] } });
+
+		const [arms, currentGear] = rows();
+		expect(lineParts(arms)).toEqual([['bulk-result-bundle', 'Arms raid']]);
+		expect(lineParts(currentGear)[0]).toEqual(['bulk-result-gear-set', 'bulk_tab.results.gearbulk_tab.results.current_gear']);
+
+		const name = within(arms).getByTestId('bulk-result-bundle');
+		expect(document.getElementById(name.getAttribute('aria-describedby')!)!.textContent).toBe(
+			'bulk_tab.results.gear Raid, bulk_tab.results.talents Arms, bulk_tab.results.rotation Opener, bulk_tab.results.settings Healer',
+		);
+		fireEvent.mouseEnter(name);
+
+		const tooltip = await screen.findByRole('tooltip');
+		expect(tooltip.textContent).toBe('bulk_tab.results.gearRaidbulk_tab.results.talentsArmsbulk_tab.results.rotationOpenerbulk_tab.results.settingsHealer');
+	});
+
 	it('shows no talents, rotation or settings pill on a Gear-mode row', async () => {
 		const gearMode = { talents: CURRENT_TALENT_SETUP, rotation: CURRENT_ROTATION_SETUP, gearSetup: null, settings: null };
 		const base = ranked(1000, { gear: compareGearSet(1), ...gearMode });

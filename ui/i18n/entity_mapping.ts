@@ -120,6 +120,7 @@ export const protoStatNameI18nKeys: Record<string, string> = {
 };
 
 export const pseudoStatI18nKeys: Record<PseudoStat, string> = {
+	[PseudoStat.PseudoStatFeralCombatSkill]: 'feral_combat_skill',
 	[PseudoStat.PseudoStatMainHandDps]: 'main_hand_dps',
 	[PseudoStat.PseudoStatOffHandDps]: 'off_hand_dps',
 	[PseudoStat.PseudoStatRangedDps]: 'ranged_dps',
@@ -157,6 +158,8 @@ export const pseudoStatI18nKeys: Record<PseudoStat, string> = {
 	[PseudoStat.PseudoStatRangedHitRating]: 'ranged_hit_rating',
 	[PseudoStat.PseudoStatRangedCritRating]: 'ranged_crit_rating',
 	[PseudoStat.PseudoStatRangedCritSuppressionPercent]: 'ranged_crit_suppression',
+	[PseudoStat.PseudoStatMainHandWeaponSkill]: 'main_hand_weapon_skill',
+	[PseudoStat.PseudoStatOffHandWeaponSkill]: 'off_hand_weapon_skill',
 };
 
 export const spellSchoolI18nKeys: Record<SpellSchool, string> = {
@@ -271,6 +274,17 @@ export const creatureFamilyI18nKeys: Record<CreatureFamily, string> = {
 	[CreatureFamily.CreatureFamilyFireElemental]: 'fire_elemental',
 	[CreatureFamily.CreatureFamilyMountainGiant]: 'mountain_giant',
 	[CreatureFamily.CreatureFamilySwine]: 'swine',
+	[CreatureFamily.CreatureFamilyPlant]: 'plant',
+	[CreatureFamily.CreatureFamilyTroll]: 'troll',
+	[CreatureFamily.CreatureFamilyOrc]: 'orc',
+	[CreatureFamily.CreatureFamilyOgre]: 'ogre',
+	[CreatureFamily.CreatureFamilyWolf]: 'wolf',
+	[CreatureFamily.CreatureFamilyWorgen]: 'worgen',
+	[CreatureFamily.CreatureFamilyMurloc]: 'murloc',
+	[CreatureFamily.CreatureFamilyFurbolg]: 'furbolg',
+	[CreatureFamily.CreatureFamilyDwarf]: 'dwarf',
+	[CreatureFamily.CreatureFamilyDinosaur]: 'dinosaur',
+	[CreatureFamily.CreatureFamilySerpentine]: 'serpentine',
 };
 
 export const areaTypeI18nKeys: Record<AreaType, string> = {
@@ -389,6 +403,7 @@ export const weaponSkillI18nKeys: Record<WeaponSkill, string> = {
 	[WeaponSkill.WeaponSkillGuns]: 'guns',
 	[WeaponSkill.WeaponSkillThrown]: 'thrown',
 	[WeaponSkill.WeaponSkillWands]: 'wands',
+	[WeaponSkill.WeaponSkillFeralCombat]: 'feral_combat',
 };
 
 export const slotNamesI18nKeys: Record<ItemSlot, string> = {

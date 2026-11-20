@@ -25,6 +25,23 @@ func defaultCatRotation() *proto.APLRotation {
 	return core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
 }
 
+// Isolates a shipped row while retaining its real variables.
+func catSingleTargetAction(t *testing.T, rotation *proto.APLRotation, keep func(*proto.APLListItem) bool) {
+	t.Helper()
+	var rows []*proto.APLListItem
+	for _, row := range rotation.PriorityList {
+		if row.Action.GetGroupReference() == nil && keep(row) {
+			rows = append(rows, row)
+		}
+	}
+
+	if len(rows) != 1 {
+		t.Fatalf("found %d matching single-target actions, want one", len(rows))
+	}
+	rotation.PriorityList = rows
+	rotation.Groups = nil
+}
+
 func TestMonocatStaysInCatForm(t *testing.T) {
 	player := runCat(t, catPowershiftRequest(powershiftTalents, defaultCatRotation(), false))
 	for _, c := range []struct {
@@ -541,12 +558,9 @@ func TestAdaptiveBleedsRespectExpiryReaction(t *testing.T) {
 		t.Run(strconv.Itoa(int(id)), func(t *testing.T) {
 			rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
 			rotation.PrepullActions = nil
-			for _, item := range rotation.PriorityList {
-				if item.Action.GetCastSpell().GetSpellId().GetSpellId() == id {
-					rotation.PriorityList = []*proto.APLListItem{item}
-					break
-				}
-			}
+			catSingleTargetAction(t, rotation, func(item *proto.APLListItem) bool {
+				return item.Action.GetCastSpell().GetSpellId().GetSpellId() == id
+			})
 			req := sweepRequest(powershiftTalents, rotation, false, 1)
 			sim := core.NewSim(req, simsignals.CreateSignals())
 			sim.Reset()
@@ -556,7 +570,7 @@ func TestAdaptiveBleedsRespectExpiryReaction(t *testing.T) {
 			sim.CurrentTime = time.Second
 			spell.Dot(cat.CurrentTarget).Apply(sim)
 			sim.CurrentTime = 20 * time.Second
-			cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+			cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 			fillResource(sim, cat)
 			cat.SetGCDTimer(sim, 0)
 			before := spell.SpellMetrics[cat.CurrentTarget.UnitIndex].Casts
@@ -615,9 +629,9 @@ func TestAdaptiveChoosesTheApproachBeforeMoving(t *testing.T) {
 	}
 }
 
-func TestAdaptiveSkyborneApproachUsesClearcasting(t *testing.T) {
-	for _, race := range []proto.Race{proto.Race_RaceHighOrderSkyborne, proto.Race_RaceWindshaperSkyborne} {
-		for _, distance := range []float64{10, 25, 35} {
+func TestAdaptiveApproachUsesSharedClearcastingLimits(t *testing.T) {
+	for _, race := range []proto.Race{proto.Race_RaceTauren, proto.Race_RaceNightElf, proto.Race_RaceHighOrderSkyborne, proto.Race_RaceWindshaperSkyborne} {
+		for _, distance := range []float64{5, 10, 10.1, 25, 30, 30.1, 35} {
 			for _, clearcasting := range []bool{false, true} {
 				rotation := core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation
 				req := sweepRequest(powershiftTalents, rotation, false, 1)
@@ -631,7 +645,7 @@ func TestAdaptiveSkyborneApproachUsesClearcasting(t *testing.T) {
 				pl.GetFeralCatDruid().Options.PrepullClearcasting = clearcasting
 				m := runCat(t, req)
 				got := castsOf(m.Actions, 9867)
-				want := clearcasting && distance <= 25
+				want := (clearcasting && distance <= 30) || (!clearcasting && distance <= 10)
 				if (got > 0) != want {
 					t.Errorf("%s distance=%g Clearcasting=%v: Ravage casts=%d, want opener %v", race, distance, clearcasting, got, want)
 				}
@@ -764,6 +778,8 @@ func TestAdaptiveCatAvailabilityWarnings(t *testing.T) {
 			"Cat (#1) does not know spell {ItemID: 12662}":      true,
 			"Cat (#1) picks no potion for {OtherID: 26}":        true,
 			"No swap set configured in Settings.":               true,
+			"No aura found on Cat (#1) for: {SpellID: 27851}":   true,
+			"No aura found on Cat (#1) for: {SpellID: 446212}":  true,
 		}
 		if !consumes {
 			expected["Cat (#1) does not know spell {ItemID: 7676}"] = true
@@ -805,12 +821,9 @@ func TestAdaptiveInnervateWaitsForEnergized(t *testing.T) {
 			}
 			rotation := defaultCatRotation()
 			rotation.PrepullActions = nil
-			for _, item := range rotation.PriorityList {
-				if item.Action.GetCastSpell().GetSpellId().GetSpellId() == spellInnervate {
-					rotation.PriorityList = []*proto.APLListItem{item}
-					break
-				}
-			}
+			catSingleTargetAction(t, rotation, func(item *proto.APLListItem) bool {
+				return item.Action.GetCastSpell().GetSpellId().GetSpellId() == spellInnervate
+			})
 			req := sweepRequest(powershiftTalents, rotation, false, 1)
 			req.Raid.Parties[0].Players[0].Race = race
 			sim := core.NewSim(req, simsignals.CreateSignals())
@@ -851,26 +864,23 @@ func TestAdaptiveBitePoolsByComboPointsAndClearcasting(t *testing.T) {
 		ripLeft   time.Duration
 		want      int32
 	}{
-		{"four points below pool", 4, 84, false, 3 * time.Second, 0},
-		{"four points funded", 4, 85, false, 3 * time.Second, 1},
-		{"five points below pool", 5, 69, false, 3 * time.Second, 0},
-		{"five points funded", 5, 70, false, 3 * time.Second, 1},
-		{"four points clearcast below pool", 4, 59, true, 3 * time.Second, 0},
-		{"four points clearcast funded", 4, 60, true, 3 * time.Second, 1},
-		{"five points clearcast below pool", 5, 49, true, 3 * time.Second, 0},
-		{"five points clearcast funded", 5, 50, true, 3 * time.Second, 1},
+		{"four points below pool", 4, 74, false, 3 * time.Second, 0},
+		{"four points funded", 4, 75, false, 3 * time.Second, 1},
+		{"five points below pool", 5, 59, false, 3 * time.Second, 0},
+		{"five points funded", 5, 60, false, 3 * time.Second, 1},
+		{"four points clearcast below pool", 4, 44, true, 3 * time.Second, 0},
+		{"four points clearcast funded", 4, 45, true, 3 * time.Second, 1},
+		{"five points clearcast below pool", 5, 44, true, 3 * time.Second, 0},
+		{"five points clearcast funded", 5, 45, true, 3 * time.Second, 1},
 		{"Rip window too short", 5, 100, false, 1500 * time.Millisecond, 0},
-		{"Rip window funded", 5, 100, false, 2 * time.Second, 1},
+		{"Rip window funded", 5, 100, false, 3 * time.Second, 1},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			rotation := defaultCatRotation()
 			rotation.PrepullActions = nil
-			rotation.PriorityList = slices.DeleteFunc(rotation.PriorityList, func(item *proto.APLListItem) bool {
-				return item.Action.GetCondition().GetVariableRef().GetName() != "Midfight Bite is worthwhile"
+			catSingleTargetAction(t, rotation, func(item *proto.APLListItem) bool {
+				return item.Action.GetCondition().GetVariableRef().GetName() == "Midfight Bite is worthwhile"
 			})
-			if len(rotation.PriorityList) != 1 {
-				t.Fatal("expected one midfight Bite action")
-			}
 			sim := core.NewSim(sweepRequest(catTalents, rotation, false, 1), simsignals.CreateSignals())
 			sim.Reset()
 			cat := sim.Raid.Parties[0].Players[0].(*FeralDruid)
@@ -878,7 +888,7 @@ func TestAdaptiveBitePoolsByComboPointsAndClearcasting(t *testing.T) {
 			sim.CurrentTime = 10 * time.Second
 			fillResource(sim, cat)
 			cat.SpendEnergy(sim, cat.CurrentEnergy()-tc.energy, cat.NewEnergyMetrics(core.ActionID{SpellID: 1}))
-			cat.AddComboPoints(sim, tc.cp, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+			cat.AddComboPoints(sim, cat.CurrentTarget, tc.cp, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 			dot := cat.GetSpell(core.ActionID{SpellID: spellRip}).Dot(cat.CurrentTarget)
 			dot.Apply(sim)
 			dot.UpdateExpires(sim.CurrentTime + tc.ripLeft)
@@ -908,19 +918,16 @@ func TestAdaptiveRipBuildLeavesTimeForNextGlobal(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			rotation := defaultCatRotation()
 			rotation.PrepullActions = nil
-			rotation.PriorityList = slices.DeleteFunc(rotation.PriorityList, func(item *proto.APLListItem) bool {
-				return item.Action.GetCastSpell().GetSpellId().GetSpellId() != spellRip
+			catSingleTargetAction(t, rotation, func(item *proto.APLListItem) bool {
+				return item.Action.GetCastSpell().GetSpellId().GetSpellId() == spellRip
 			})
-			if len(rotation.PriorityList) != 1 {
-				t.Fatal("expected one Rip action")
-			}
 			sim := core.NewSim(sweepRequest(catTalents, rotation, false, 1), simsignals.CreateSignals())
 			sim.Reset()
 			cat := sim.Raid.Parties[0].Players[0].(*FeralDruid)
 			cat.AutoAttacks.CancelAutoSwing(sim)
 			sim.CurrentTime = sim.Duration - tc.left
 			fillResource(sim, cat)
-			cat.AddComboPoints(sim, 4, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+			cat.AddComboPoints(sim, cat.CurrentTarget, 4, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 			cat.SetGCDTimer(sim, sim.CurrentTime)
 			cat.Rotation.DoNextAction(sim)
 			rip := cat.GetSpell(core.ActionID{SpellID: spellRip})

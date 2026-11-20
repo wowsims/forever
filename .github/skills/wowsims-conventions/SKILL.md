@@ -37,6 +37,15 @@ These apply to every file and every piece of GitHub text, in Go and TypeScript a
 - **State the rule, not the site it came from.** Do not name SimC, Wowhead or a JS mapping as the source of a
   name or value ("one SimC names", "commented out in the JS mapping"); write the rule ("one with no known name is
   `A_<id>`"). Existing Wowhead spell links above a spell's registration are fine; do not add attribution prose.
+- **Cite a measurement by its evidence id.** A comment states the rule and ends with the id of the measurement behind
+  it, `(EV-<n>)`; the counts, logs and method live in that `docs/evidence/` file (`docs/evidence/README.md`). A rule
+  measured in game with nothing recorded still gets a file saying so. An override row's `Source` is the bare id, or `observed` for a rate fitted from too few
+  logs to call final, whose `Reason` cites the id. A
+  rule no single file owns goes into the subject skill, or into its own `docs/rulings/` file under an `R-` id
+  (`docs/rulings/README.md`) that cites its evidence the same way; code that follows it may cite `(R-<n>)`.
+- **A hand-written item, set or enchant effect's comment describes the effect.** Below the name and Wowhead link it
+  gives the tooltip and a line or two on what the sim does, ending with the evidence id; which spells roll, the rates
+  per tier and the cases the logs settled stay in the evidence file. Only a ruling no evidence file holds is added.
 - **Name a shared helper by its math.** A helper in `sim/core/utils.go` is named and documented by what it computes
   (`SymmetricMultiplierFromPercent`, `MultiplierFromPercent(-p)`), and the game meaning sits at the call site.
 

@@ -4,6 +4,7 @@ package forever_test
 
 import (
 	"math"
+	"slices"
 	"testing"
 	"time"
 
@@ -21,6 +22,11 @@ func trinketWarrior(t *testing.T, trinketID int32) (*core.Simulation, *core.Char
 }
 
 func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32, neck int32) (*core.Simulation, *core.Character) {
+	t.Helper()
+	return trinketWarriorFacing(t, trinketID, mainHand, neck, proto.MobType_MobTypeUnknown)
+}
+
+func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck int32, mobType proto.MobType, areas ...proto.AreaType) (*core.Simulation, *core.Character) {
 	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
 	for i := range items {
@@ -43,10 +49,69 @@ func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32, neck 
 			}},
 			Buffs: &proto.PartyBuffs{},
 		}}},
-		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60, MobType: mobType}}, Duration: 180, AreaTypes: areas},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+}
+
+// Seal of the Dawn 13209 and Rune of the Dawn 19812 state their bonus against Undead as item stats 128 and
+// 136, at the value their equip spells 23930 and 24198 state. Counterattack Lodestone 18537 and Royal Seal
+// of Eldre'Thalas 18467 fold equip spells 1318938 and 1318479 into their stats, the bonus against Mechanical
+// and Demon targets with them. The sim adds each bonus to the attack table of a target of that mob type
+// alone.
+func TestTrinketsGrantTheirBonusAgainstTheirMobTypeAlone(t *testing.T) {
+	seal, rune := spelldata.MustFind(23930), spelldata.MustFind(24198)
+	lodestone, royalSeal := spelldata.MustFind(1318938), spelldata.MustFind(1318479)
+	for _, c := range []struct {
+		item    int32
+		against proto.MobType
+		want    stats.Stats
+	}{
+		{13209, proto.MobType_MobTypeUndead, stats.Stats{stats.AttackPower: seal.EffectN(1).Average(), stats.RangedAttackPower: seal.EffectN(2).Average()}},
+		{19812, proto.MobType_MobTypeUndead, stats.Stats{stats.SpellDamage: rune.EffectN(1).Average()}},
+		{18537, proto.MobType_MobTypeMechanical, stats.Stats{stats.AttackPower: lodestone.EffectN(3).Average(), stats.RangedAttackPower: lodestone.EffectN(4).Average()}},
+		{18467, proto.MobType_MobTypeDemon, stats.Stats{stats.SpellDamage: royalSeal.EffectN(3).Average()}},
+	} {
+		_, against := trinketWarriorFacing(t, c.item, 0, 0, c.against)
+		if got := bonusAgainstTarget(against); got != c.want || c.want == (stats.Stats{}) {
+			t.Errorf("%d: the bonus against %v is %v, want the row's %v", c.item, c.against, got, c.want)
+		}
+		_, againstBeasts := trinketWarriorFacing(t, c.item, 0, 0, proto.MobType_MobTypeBeast)
+		if got := bonusAgainstTarget(againstBeasts); got != (stats.Stats{}) {
+			t.Errorf("%d: the bonus against Beasts is %v, want none", c.item, got)
+		}
+	}
+}
+
+// Draconic Infused Emblem 22268's buff 1318930 adds its spell damage a second time against Dragonkin
+// while it is up, and nothing against other targets.
+func TestDraconicInfusedEmblemBuffGrantsSpellDamageAgainstDragonkin(t *testing.T) {
+	row := spelldata.MustFind(1318930)
+	for _, c := range []struct {
+		against proto.MobType
+		want    stats.Stats
+	}{
+		{proto.MobType_MobTypeDragonkin, stats.Stats{stats.SpellDamage: row.EffectN(3).Average()}},
+		{proto.MobType_MobTypeBeast, stats.Stats{}},
+	} {
+		sim, character := trinketWarriorFacing(t, 22268, 0, 0, c.against)
+		buff := character.GetAuraByID(core.ActionID{SpellID: 1318930})
+		if buff == nil {
+			t.Fatal("22268 registers no 1318930")
+		}
+		if got := bonusAgainstTarget(character); got != (stats.Stats{}) {
+			t.Errorf("against %v the bonus before the buff is %v, want none", c.against, got)
+		}
+		buff.Activate(sim)
+		if got := bonusAgainstTarget(character); got != c.want {
+			t.Errorf("against %v the bonus with the buff up is %v, want %v", c.against, got, c.want)
+		}
+		buff.Deactivate(sim)
+		if got := bonusAgainstTarget(character); got != (stats.Stats{}) {
+			t.Errorf("against %v the bonus after the buff is %v, want none", c.against, got)
+		}
+	}
 }
 
 func stepTo(t *testing.T, sim *core.Simulation, until time.Duration) {
@@ -56,6 +121,16 @@ func stepTo(t *testing.T, sim *core.Simulation, until time.Duration) {
 	for steps := 0; !reached; steps++ {
 		if steps > 10000 {
 			t.Fatalf("the sim did not reach %v", until)
+		}
+		sim.Step()
+	}
+}
+
+func stepWhile(t *testing.T, sim *core.Simulation, cond func() bool) {
+	t.Helper()
+	for steps := 0; cond(); steps++ {
+		if steps > 1000 {
+			t.Fatal("the sim did not get there in 1000 steps")
 		}
 		sim.Step()
 	}
@@ -174,6 +249,17 @@ func rangedShot(unit *core.Unit) *core.Spell {
 
 func fireSpell(unit *core.Unit) *core.Spell {
 	return &core.Spell{ProcMask: core.ProcMaskSpellDamage, SpellSchool: core.SpellSchoolFire, DefenseType: core.DefenseTypeMagic, Unit: unit}
+}
+
+func healSpell(unit *core.Unit) *core.Spell {
+	return &core.Spell{ProcMask: core.ProcMaskSpellHealing, SpellSchool: core.SpellSchoolHoly, DefenseType: core.DefenseTypeMagic, Unit: unit}
+}
+
+// A landed heal on the character, and the spell batch window the listener resolves after.
+func dealHeal(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell) {
+	t.Helper()
+	character.OnHealDealt(sim, spell, &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeHit, Damage: 100})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 }
 
 // A landed hit taken, and the spell batch window the listener resolves after.
@@ -480,6 +566,186 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 	}
 }
 
+// Highborne Research Tablet 260205's 1318159 rolls its row's procs per minute on the main hand's
+// speed for a landed main-hand hit that deals damage, and casts 1265634 on the target. A ranged
+// special with no ranged weapon behind it (Thunder Clap) rolls on the main hand's speed too. A hit
+// that deals none (an application) never rolls.
+func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
+	sim, character := trinketWarriorWielding(t, 260205, 810, 0)
+	proc := character.GetAura("Highborne Research Tablet")
+	damage := character.GetSpell(core.ActionID{SpellID: 1265634})
+	if proc == nil || proc.Dpm == nil || damage == nil {
+		t.Fatal("260205 registers no proc on a procs per minute rate")
+	}
+	ppm := float64(spelldata.MustFind(1318159).RPPM)
+	want := ppm * character.AutoAttacks.MH().SwingSpeed / 60
+	if ppm <= 0 || want >= 1 {
+		t.Fatalf("the row's %v procs per minute on the main hand give %v, want a chance between none and certain", ppm, want)
+	}
+	for _, hit := range []struct {
+		name string
+		mask core.ProcMask
+	}{
+		{"main hand swing", core.ProcMaskMeleeMHAuto},
+		{"ranged special", core.ProcMaskRangedSpecial},
+	} {
+		if chance := proc.Dpm.Chance(hit.mask, sim); math.Abs(chance-want) > 1e-9 {
+			t.Errorf("the chance on a %s is %v, want the row's procs per minute on the main hand's speed, %v", hit.name, chance, want)
+		}
+	}
+
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee)
+	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 0 {
+		t.Errorf("a hit that dealt no damage cast it %d times, want none", got)
+	}
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 1 {
+		t.Errorf("a landed damaging hit cast it %d times, want once", got)
+	}
+}
+
+// Highborne Research Tablet 260205 rolls one chance on each damaging spell hit whatever the weapon in
+// the main hand, for a caster who never swings and for a warrior who does.
+func TestHighborneResearchTabletProcsOnSpellsWhateverTheWeapon(t *testing.T) {
+	const slow, fast = 810, 776
+	if core.GetItemByID(slow).SwingSpeed == core.GetItemByID(fast).SwingSpeed {
+		t.Fatal("the two weapons share a speed, want two speeds")
+	}
+	casterWielding := func(weapon int32) (*core.Simulation, *core.Character) {
+		return wearing(t, proto.Class_ClassWarlock, &proto.Player_Warlock{Warlock: &proto.Warlock{}},
+			map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 260205, proto.ItemSlot_ItemSlotMainHand: weapon})
+	}
+	sim, character := casterWielding(slow)
+	if character.AutoAttacks.AutoSwingMelee || character.AutoAttacks.AutoSwingRanged {
+		t.Fatal("the caster stand-in swings, want no auto attacks")
+	}
+	proc := character.GetAura("Highborne Research Tablet")
+	damage := character.GetSpell(core.ActionID{SpellID: 1265634})
+	if proc == nil || proc.Dpm == nil || damage == nil {
+		t.Fatal("260205 registers no proc on a procs per minute rate")
+	}
+	want := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim)
+	if want <= 0 || want >= 1 {
+		t.Fatalf("the chance on a spell hit is %v, want a chance between none and certain", want)
+	}
+	fastSim, fastCaster := casterWielding(fast)
+	warriorSim, warrior := trinketWarriorWielding(t, 260205, fast, 0)
+	for _, other := range []struct {
+		name   string
+		sim    *core.Simulation
+		wearer *core.Character
+	}{
+		{"caster with a faster weapon", fastSim, fastCaster},
+		{"warrior who swings", warriorSim, warrior},
+	} {
+		if chance := other.wearer.GetAura("Highborne Research Tablet").Dpm.Chance(core.ProcMaskSpellDamage, other.sim); math.Abs(chance-want) > 1e-9 {
+			t.Errorf("the chance on a spell hit for a %s is %v, want the same %v", other.name, chance, want)
+		}
+	}
+
+	const hits = 2000
+	for range hits {
+		dealHit(t, sim, character, fireSpell(&character.Unit))
+	}
+	mean, deviation := want*hits, math.Sqrt(want*(1-want)*hits)
+	if got := float64(damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts); math.Abs(got-mean) > 4*deviation {
+		t.Errorf("%d spell hits cast it %v times, want about %.0f", hits, got, mean)
+	}
+}
+
+// Scented Runewood Brooch 269741's 1318323 rolls its row's procs per minute on the main hand's speed
+// for a landed main-hand swing and a landed spell hit alike, and casts 1318324 on the target, but only
+// when the target is a Furbolg. A hit on any other target never casts it.
+func TestScentedRunewoodBroochProcsOnlyAgainstFurbolg(t *testing.T) {
+	sim, character := trinketWarriorWielding(t, 269741, 810, 0)
+	proc := character.GetAura("Scented Runewood Brooch")
+	damage := character.GetSpell(core.ActionID{SpellID: 1318324})
+	if proc == nil || proc.Dpm == nil || damage == nil {
+		t.Fatal("269741 registers no damage spell or no proc on a procs per minute rate")
+	}
+	ppm := float64(spelldata.MustFind(1318323).RPPM)
+	want := ppm * character.AutoAttacks.MH().SwingSpeed / 60
+	if ppm <= 0 || want >= 1 {
+		t.Fatalf("the row's %v procs per minute on the main hand give %v, want a chance between none and certain", ppm, want)
+	}
+	for _, hit := range []struct {
+		name string
+		mask core.ProcMask
+	}{
+		{"main hand swing", core.ProcMaskMeleeMHAuto},
+		{"spell hit", core.ProcMaskSpellDamage},
+	} {
+		if chance := proc.Dpm.Chance(hit.mask, sim); math.Abs(chance-want) > 1e-9 {
+			t.Errorf("the chance on a %s is %v, want the row's procs per minute on the main hand's speed, %v", hit.name, chance, want)
+		}
+	}
+
+	// Every hit now rolls a proc.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee|core.ProcMaskSpellDamage)
+	enemy := character.CurrentTarget
+	casts := func() int32 { return damage.SpellMetrics[enemy.UnitIndex].Casts }
+	if enemy.CreatureFamily == proto.CreatureFamily_CreatureFamilyFurbolg {
+		t.Fatal("the target is a Furbolg before the test makes it one")
+	}
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	dealHit(t, sim, character, fireSpell(&character.Unit))
+	if got := casts(); got != 0 {
+		t.Errorf("a swing and a spell hit on another target cast it %d times, want none", got)
+	}
+
+	enemy.CreatureFamily = proto.CreatureFamily_CreatureFamilyFurbolg
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := casts(); got != 1 {
+		t.Errorf("a swing on a Furbolg cast it %d times, want once", got)
+	}
+	dealHit(t, sim, character, fireSpell(&character.Unit))
+	if got := casts(); got != 2 {
+		t.Errorf("a swing and a spell hit on a Furbolg cast it %d times, want twice", got)
+	}
+}
+
+// Scented Runewood Brooch 269741 rolls its row's procs per minute on a caster's spell hits at the
+// main-hand weapon's speed though the caster never swings it, and a spell hit casts 1318324 only on
+// a Furbolg.
+func TestScentedRunewoodBroochProcsOnACastersSpellsOnTheMainHandsSpeed(t *testing.T) {
+	const slow, fast = 810, 776
+	if core.GetItemByID(slow).SwingSpeed == core.GetItemByID(fast).SwingSpeed {
+		t.Fatal("the two weapons share a speed, want two speeds")
+	}
+	ppm := float64(spelldata.MustFind(1318323).RPPM)
+	for _, weapon := range []int32{slow, fast} {
+		sim, character := wearing(t, proto.Class_ClassWarlock, &proto.Player_Warlock{Warlock: &proto.Warlock{}},
+			map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 269741, proto.ItemSlot_ItemSlotMainHand: weapon})
+		if character.AutoAttacks.AutoSwingMelee || character.AutoAttacks.AutoSwingRanged {
+			t.Fatal("the caster stand-in swings, want no auto attacks")
+		}
+		proc := character.GetAura("Scented Runewood Brooch")
+		damage := character.GetSpell(core.ActionID{SpellID: 1318324})
+		if proc == nil || proc.Dpm == nil || damage == nil {
+			t.Fatal("269741 registers no damage spell or no proc on a procs per minute rate")
+		}
+		want := ppm * core.GetItemByID(weapon).SwingSpeed / 60
+		if chance := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim); ppm <= 0 || want >= 1 || math.Abs(chance-want) > 1e-9 {
+			t.Errorf("with %d in the main hand a spell hit rolls %v, want the row's procs per minute on its speed, %v", weapon, chance, want)
+		}
+
+		// Every spell hit now rolls a proc.
+		*proc.Dpm = *character.NewTargetScaledChanceManager(1, core.ProcMaskSpellDamage, func(*core.Unit) float64 { return 1 })
+		enemy := character.CurrentTarget
+		dealHit(t, sim, character, fireSpell(&character.Unit))
+		if got := damage.SpellMetrics[enemy.UnitIndex].Casts; got != 0 {
+			t.Errorf("a spell hit on another target cast it %d times, want none", got)
+		}
+		enemy.CreatureFamily = proto.CreatureFamily_CreatureFamilyFurbolg
+		dealHit(t, sim, character, fireSpell(&character.Unit))
+		if got := damage.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
+			t.Errorf("a spell hit on a Furbolg cast it %d times, want once", got)
+		}
+	}
+}
+
 // Dormant Heart of the Mountain 249473's 1249118 answers a heal of any rank of Greater Heal, Healing
 // Touch, Healing Wave or Holy Light with 1249119: the row's healing and spell damage for its
 // duration. Another heal, such as Flash of Light, does not.
@@ -555,5 +821,324 @@ func TestVigilanceCharmSpendsAChargePerDodge(t *testing.T) {
 	dodgeSwing(t, sim, character, enemy)
 	if buff.IsActive() {
 		t.Errorf("the buff is still up after %d dodges, want it gone", charges)
+	}
+}
+
+// Edits the store's row of a spell for the test, restoring it afterwards, and returns the row. The
+// effects are copied so an edit to one does not reach the original.
+func editSpellRow(t *testing.T, id int32, edit func(*spelldata.Spell)) *spelldata.Spell {
+	t.Helper()
+	row := spelldata.MustFind(id)
+	original := *row
+	row.Effects = slices.Clone(row.Effects)
+	edit(row)
+	t.Cleanup(func() { *row = original })
+	return row
+}
+
+// A warrior wearing the extra attack item, the trinket in the first trinket slot and any other item
+// in the main hand, who swings only when the test deals a hit. The returned func counts the procs of
+// the extra attack the row's first effect grants: the extra attacks swung over the extra attacks
+// one proc swings.
+func extraAttackWearer(t *testing.T, itemID int32, rowID int32) (*core.Simulation, *core.Character, func() int32) {
+	t.Helper()
+	var sim *core.Simulation
+	var character *core.Character
+	if core.GetItemByID(itemID).Type == proto.ItemType_ItemTypeTrinket {
+		sim, character = trinketWarrior(t, itemID)
+	} else {
+		sim, character = weaponWearer(t, proto.Class_ClassWarrior, itemID, 1)
+	}
+	character.AutoAttacks.CancelAutoSwing(sim)
+	granted := spelldata.MustFind(rowID).EffectN(1).Trigger()
+	extraAttack := character.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: granted.ID})
+	perProc := int32(granted.ExtraAttacksEffect().BasePoints)
+	if extraAttack == nil || perProc <= 0 {
+		t.Fatalf("%d registers no extra attack", itemID)
+	}
+	enemy := character.CurrentTarget
+	return sim, character, func() int32 { return extraAttack.SpellMetrics[enemy.UnitIndex].Casts / perProc }
+}
+
+// Checks registerExtraAttackVersus's rule for an item: on a target of the family it rolls the row's
+// column, on any other target the column divided by the factor, and states that chance against its
+// current target. Each case counts the procs of many
+// landed melee hits, within five standard deviations of the count. The row rests no cooldown, so every
+// hit rolls.
+func expectExtraAttackVersus(t *testing.T, itemID int32, name string, rowID int32, family proto.CreatureFamily) {
+	t.Helper()
+	row := editSpellRow(t, rowID, func(s *spelldata.Spell) { s.ICDMs = 0 })
+	column, factor := float64(row.ProcChance)/100, row.EffectN(2).BasePoints
+	if column <= 0 || factor <= 1 {
+		t.Fatalf("%d states a chance of %v and a factor of %v, want a chance and a factor above 1 to tell the two apart", rowID, column, factor)
+	}
+
+	for _, target := range []struct {
+		family proto.CreatureFamily
+		want   float64
+	}{{family, column}, {proto.CreatureFamily_CreatureFamilyUnknown, column / factor}} {
+		t.Run(target.family.String(), func(t *testing.T) {
+			sim, character, procs := extraAttackWearer(t, itemID, rowID)
+			enemy := character.CurrentTarget
+			enemy.CreatureFamily = target.family
+			trigger := character.GetAura(name)
+			if trigger == nil || trigger.Dpm == nil {
+				t.Fatalf("%d registers no proc on a chance manager", itemID)
+			}
+			if got := trigger.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim); math.Abs(got-target.want) > 1e-9 {
+				t.Errorf("the stated chance against the current target is %v, want %v", got, target.want)
+			}
+			swing := meleeSwing(&character.Unit)
+			const hits = 40000
+			for range hits {
+				character.OnSpellHitDealt(sim, swing, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
+			}
+			stepTo(t, sim, sim.CurrentTime+time.Millisecond)
+
+			if spread := 5 * math.Sqrt(hits*target.want*(1-target.want)); math.Abs(float64(procs())-hits*target.want) > spread {
+				t.Errorf("%d of %d landed melee hits procced it, want %v within %v", procs(), hits, hits*target.want, spread)
+			}
+		})
+	}
+}
+
+// Hand of Justice 11815 rolls 15600's ProcChance on each landed melee hit on a Dwarf, and on any other
+// target the column divided by its second effect's value (the rule registerExtraAttackVersus states).
+func TestHandOfJusticeIsLikelierAgainstDwarves(t *testing.T) {
+	expectExtraAttackVersus(t, 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
+}
+
+// Hand of Justice 11815 grants nothing on a landed melee hit inside 15600's cooldown after a proc, and
+// rolls again once the cooldown ends. The row copy procs on every hit.
+func TestHandOfJusticeRestsForItsRowsCooldown(t *testing.T) {
+	editSpellRow(t, 15600, func(s *spelldata.Spell) {
+		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
+		s.EffectN(2).BasePoints = 1
+	})
+	cooldown := spelldata.MustFind(15600).ICD()
+	if cooldown <= 0 {
+		t.Fatalf("15600 states a cooldown of %v, want one", cooldown)
+	}
+
+	sim, character, procs := extraAttackWearer(t, 11815, 15600)
+
+	start := sim.CurrentTime
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := procs(); got != 1 {
+		t.Fatalf("a landed melee hit procced it %d times, want once", got)
+	}
+	stepTo(t, sim, start+cooldown-time.Millisecond)
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := procs(); got != 1 {
+		t.Errorf("a hit 1 ms before the cooldown ends procced it %d times in all, want once still", got)
+	}
+	stepTo(t, sim, start+cooldown)
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := procs(); got != 2 {
+		t.Errorf("a hit as the cooldown ends procced it %d times in all, want twice", got)
+	}
+}
+
+// Mark of the Chosen 17774 puts up 21970 for its row's duration on a melee, ranged or harmful spell
+// hit taken, and a heal taken never does. After a proc of any kind every hit rests for 21969's
+// cooldown, which outlasts the buff. The row copy procs on every hit.
+func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
+	editSpellRow(t, 21969, func(s *spelldata.Spell) {
+		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
+	})
+	cooldown, duration := spelldata.MustFind(21969).ICD(), spelldata.MustFind(21970).Duration()
+	if duration <= 0 || cooldown <= duration {
+		t.Fatalf("21969's cooldown is %v and 21970 lasts %v, want a buff that ends inside the cooldown", cooldown, duration)
+	}
+	wearer := func(t *testing.T) (*core.Simulation, *core.Character, *core.Aura) {
+		t.Helper()
+		sim, character := trinketWarrior(t, 17774)
+		buff := character.GetAura("Mark of the Chosen Proc")
+		if buff == nil {
+			t.Fatal("17774 registers no proc buff")
+		}
+		return sim, character, buff
+	}
+
+	t.Run("heal taken", func(t *testing.T) {
+		sim, character, buff := wearer(t)
+		heal := &core.Spell{ProcMask: core.ProcMaskSpellHealing, SpellSchool: core.SpellSchoolHoly, Unit: &character.Unit}
+		character.OnHealTaken(sim, heal, &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeHit, Damage: 100})
+		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+		if buff.IsActive() {
+			t.Error("a heal taken put the buff up, want no buff")
+		}
+	})
+
+	for _, hit := range []struct {
+		name  string
+		spell func(*core.Unit) *core.Spell
+	}{{"melee", meleeSwing}, {"ranged", rangedShot}, {"spell", fireSpell}} {
+		t.Run(hit.name, func(t *testing.T) {
+			sim, character, buff := wearer(t)
+			takeHit(t, sim, character, hit.spell(sim.Encounter.ActiveTargetUnits[0]))
+			if !buff.IsActive() || buff.Duration != duration {
+				t.Errorf("after a %s hit taken the buff is active %v and lasts %v, want it active for the row's %v", hit.name, buff.IsActive(), buff.Duration, duration)
+			}
+		})
+	}
+
+	t.Run("cooldown", func(t *testing.T) {
+		sim, character, buff := wearer(t)
+		enemy := sim.Encounter.ActiveTargetUnits[0]
+		start := sim.CurrentTime
+		takeHit(t, sim, character, meleeSwing(enemy))
+		// stepTo stops after 10,000 steps, fewer than the sim takes to cross the whole cooldown after
+		// a hit taken, so the cooldown is crossed in 10 s legs.
+		for at := start + 10*time.Second; at < start+cooldown; at += 10 * time.Second {
+			stepTo(t, sim, at)
+		}
+		stepTo(t, sim, start+cooldown-time.Millisecond)
+		takeHit(t, sim, character, rangedShot(enemy))
+		if buff.IsActive() {
+			t.Error("a ranged hit taken 1 ms before a melee proc's cooldown ends put the buff up, want none")
+		}
+		stepTo(t, sim, start+cooldown)
+		takeHit(t, sim, character, fireSpell(enemy))
+		if !buff.IsActive() {
+			t.Error("a spell hit taken as the cooldown ends left the buff down, want it up")
+		}
+	})
+}
+
+// The Lion Horn of Stormwind 14557 rolls half of 20847's column on a melee hit taken, and the whole
+// column when the encounter is in Strongholds and Cities. Each case counts the procs of many hits
+// taken, within four standard deviations of the count. The row copy rests no cooldown, so every hit
+// rolls.
+func TestLionHornOfStormwindDoublesItsChanceInStrongholdsAndCities(t *testing.T) {
+	row := editSpellRow(t, 20847, func(s *spelldata.Spell) { s.ICDMs = 0 })
+	column := row.StatedChance()
+	if row.ICD() != 0 || column <= 0 || column >= 1 {
+		t.Fatalf("20847's copy rests %v and states a chance of %v, want no cooldown and a chance between none and certain", row.ICD(), column)
+	}
+
+	for _, tc := range []struct {
+		name  string
+		areas []proto.AreaType
+		want  float64
+	}{
+		{"outside Strongholds and Cities", nil, column / 2},
+		{"in Strongholds and Cities", []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}, column},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sim, character := trinketWarriorFacing(t, 14557, 0, 0, proto.MobType_MobTypeUnknown, tc.areas...)
+			buff := character.GetAura("The Lion Horn of Stormwind Proc")
+			if buff == nil {
+				t.Fatal("14557 registers no proc buff")
+			}
+			enemy := sim.Encounter.ActiveTargetUnits[0]
+			const hits = 4000
+			var procs int
+			for range hits {
+				buff.Deactivate(sim)
+				takeHit(t, sim, character, meleeSwing(enemy))
+				if buff.IsActive() {
+					procs++
+				}
+			}
+			mean, deviation := tc.want*hits, math.Sqrt(tc.want*(1-tc.want)*hits)
+			if math.Abs(float64(procs)-mean) > 4*deviation {
+				t.Errorf("%d melee hits taken %s procced it %d times, want about %.0f", hits, tc.name, procs, mean)
+			}
+		})
+	}
+}
+
+// Draconic Infused Emblem 22268's 1318931 rolls its row's chance on every landed harmful spell hit,
+// one that deals no damage too, and on nothing else: a cast with no hit, a miss, a damage over time
+// tick and a spell fired as a proc never roll.
+func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
+	const hurricaneTick, flamestrikeTick = 1278759, 1279990
+	if !spelldata.MustFind(hurricaneTick).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {
+		t.Fatalf("want %d's row a proc and %d's not one", hurricaneTick, flamestrikeTick)
+	}
+	wearer := func(t *testing.T) (*core.Simulation, *core.Character, *core.Aura) {
+		t.Helper()
+		sim, character := trinketWarrior(t, 22268)
+		buff := character.GetAuraByID(core.ActionID{SpellID: 1318930})
+		if buff == nil {
+			t.Fatal("22268 registers no 1318930")
+		}
+		return sim, character, buff
+	}
+	// How many of the given events put the buff up, taking it down before each.
+	procs := func(t *testing.T, sim *core.Simulation, buff *core.Aura, events int, event func()) int {
+		t.Helper()
+		var procs int
+		for range events {
+			buff.Deactivate(sim)
+			event()
+			stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+			if buff.IsActive() {
+				procs++
+			}
+		}
+		return procs
+	}
+
+	t.Run("chance", func(t *testing.T) {
+		sim, character, buff := wearer(t)
+		spell := fireSpell(&character.Unit)
+		want := spelldata.MustFind(1318931).StatedChance()
+		if want <= 0 || want >= 1 {
+			t.Fatalf("1318931 states a chance of %v, want one between none and certain", want)
+		}
+		const hits = 4000
+		got := procs(t, sim, buff, hits, func() {
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		})
+		mean, deviation := want*hits, math.Sqrt(want*(1-want)*hits)
+		if math.Abs(float64(got)-mean) > 4*deviation {
+			t.Errorf("%d landed spell hits procced it %d times, want about %.0f", hits, got, mean)
+		}
+	})
+
+	for _, event := range []struct {
+		name string
+		want int
+		deal func(*core.Simulation, *core.Character, *core.Spell)
+	}{
+		{"landed hit with no damage", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit})
+		}},
+		{"cast with no hit", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			character.OnCastComplete(sim, spell)
+		}},
+		{"miss", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeMiss})
+		}},
+		{"damage over time tick", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			character.OnPeriodicDamageDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}},
+		{"landed hit of a proc", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			spell.Flags |= core.SpellFlagProc
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}},
+		{"landed hit of a spell fired as a proc whose row is one", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			spell.Flags |= core.SpellFlagPassiveSpell
+			spell.ActionID = core.ActionID{SpellID: hurricaneTick}
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}},
+		{"landed hit of a spell fired as a proc whose row is not one", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			spell.Flags |= core.SpellFlagPassiveSpell
+			spell.ActionID = core.ActionID{SpellID: flamestrikeTick}
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}},
+	} {
+		t.Run(event.name, func(t *testing.T) {
+			editSpellRow(t, 1318931, func(s *spelldata.Spell) {
+				s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
+			})
+			sim, character, buff := wearer(t)
+			spell := fireSpell(&character.Unit)
+			if got := procs(t, sim, buff, 1, func() { event.deal(sim, character, spell) }); got != event.want {
+				t.Errorf("a %s procced it %d times, want %d", event.name, got, event.want)
+			}
+		})
 	}
 }

@@ -1,6 +1,6 @@
 siml 1
 spec retribution_paladin
-talents "05025210221021--0523330110130033"
+talents "05025210221001--0523330110130035"
 use "../gear_sets/holy_shock.gear.siml"
 use "../buffs.siml"
 

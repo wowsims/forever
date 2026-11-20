@@ -282,27 +282,22 @@ var (
 	wildheartMana = spelldata.MustFind(27782)  // 5pc: the mana a spell cast restores
 )
 
-// The energize proc of Wildheart Raiment and of the Feralheart Raiment reissue.
+// The energize proc of Wildheart Raiment and of the Feralheart Raiment reissue. A spell cast restores
+// mana at the procs per minute an override puts on the row, priced on the cast's time
+// (shared.SpellCastPPMTrigger); the dummy effect's 5 is no chance (EV-0144).
 func wildheartEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
-		// TODO: The proc also answers a melee swing with energy (27784, whose row restores mana) and
-		// a melee hit taken with rage (27783); only the spell cast's mana is modelled.
+		// TODO: A landed melee swing also restores energy over 5 s (27784, whose row restores mana) and
+		// a melee hit taken 10 rage (27783). Neither has a measured rate (EV-0144).
 		character := agent.GetCharacter()
 		mana := wildheartMana.EnergizeEffect().Average()
 		manaMetrics := character.NewManaMetrics(core.ActionID{SpellID: wildheartMana.ID})
 
-		// The column reads 100 and the trigger clause states no number; the dummy effect's 5
-		// is the chance. The row's mask carries the melee branches too, so the listener takes
-		// the spell cast's shape by hand.
-		trigger := spelldata.ProcTrigger(character, wildheartProc,
+		trigger := shared.SpellCastPPMTrigger(character, wildheartProc,
 			func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 				character.AddMana(sim, mana, manaMetrics)
-			}, spelldata.ChanceFrom(wildheartProc.EffectN(1)))
+			})
 		trigger.Name = name
-		trigger.Callback = core.CallbackOnCastComplete
-		trigger.ProcMask = core.ProcMaskSpellDamage | core.ProcMaskSpellHealing
-		trigger.Outcome = core.OutcomeEmpty
-		trigger.RequireDamageDealt = false
 
 		setBonusAura.AttachProcTrigger(trigger).ExposeToAPL(wildheartProc.ID)
 	}
@@ -343,9 +338,9 @@ var ItemSetBeaststalkerArmor = core.NewItemSet(core.ItemSet{
 // Dungeon Set 1
 // https://www.wowhead.com/forever/item-set=187/the-elements
 //
-// TODO: The 5-piece bonus (450626) buffs spell damage and healing on a melee autoattack or a spell
-// cast, but the game files state no chance or rate for it, so it is not modelled. The 4-piece bonus
-// disarms an attacker when struck, which a boss fight does not test.
+// The 5-piece bonus (450626) buffs spell damage and healing on a melee autoattack or a spell cast, at
+// the procs per minute an override puts on its row. The 4-piece bonus disarms an attacker when struck,
+// which a boss fight does not test.
 var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 	ID:    187,
 	Name:  "The Elements",
@@ -353,6 +348,7 @@ var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
 		3: shared.ParsedSetBonus(dungeonSpellDamage),
+		5: shared.ParsedSetBonus(spelldata.MustFind(450626)), // The Furious Storm
 		6: shared.ParsedSetBonus(dungeonManaRegen),
 	},
 })
@@ -360,9 +356,9 @@ var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 // Dungeon Set 1
 // https://www.wowhead.com/forever/item-set=188/lightforge-armor
 //
-// TODO: The 5-piece bonus (450625) buffs spell damage and healing on a melee autoattack or a spell
-// cast, but the game files state no chance or rate for it, so it is not modelled. The 4-piece bonus
-// silences a caster when struck by a spell, which a boss fight does not test.
+// The 5-piece bonus (450625) buffs spell damage and healing on a melee autoattack or a spell cast, at
+// the procs per minute an override puts on its row. The 4-piece bonus silences a caster when struck by
+// a spell, which a boss fight does not test.
 var ItemSetLightforgeArmor = core.NewItemSet(core.ItemSet{
 	ID:    188,
 	Name:  "Lightforge Armor",
@@ -370,6 +366,7 @@ var ItemSetLightforgeArmor = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
 		3: shared.ParsedSetBonus(dungeonSpellDamage),
+		5: shared.ParsedSetBonus(spelldata.MustFind(450625)), // Crusader's Wrath
 		6: shared.ParsedSetBonus(dungeonManaRegen),
 	},
 })
@@ -377,9 +374,8 @@ var ItemSetLightforgeArmor = core.NewItemSet(core.ItemSet{
 // Dungeon Set 1
 // https://www.wowhead.com/forever/item-set=189/battlegear-of-valor
 //
-// TODO: The 5-piece bonus (450587) heals and grants rage on a melee attack, but the game files state
-// no chance or rate for it, so it is not modelled. The 4-piece bonus removes a disarm when struck and
-// the 6-piece bonus restores health over time, neither of which has a place in the sim.
+// The 4-piece bonus removes a disarm when struck and the 6-piece bonus restores health over time,
+// neither of which has a place in the sim.
 var ItemSetBattlegearOfValor = core.NewItemSet(core.ItemSet{
 	ID:    189,
 	Name:  "Battlegear of Valor",
@@ -387,8 +383,43 @@ var ItemSetBattlegearOfValor = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
 		3: shared.ParsedSetBonus(spelldata.MustFind(13198)), // +15 Strength
+		5: warriorsResolve("Battlegear of Valor - 5PC"),
 	},
 })
+
+var (
+	warriorsResolveProc = spelldata.MustFind(450587) // Valor 5pc, Heroism reissue 4pc: the proc
+	warriorsResolveHeal = spelldata.MustFind(450589) // Warrior's Resolve, the heal and the rage it casts
+)
+
+// The proc of Battlegear of Valor and of the Battlegear of Heroism reissue. Landed white swings of
+// either hand and Windfury Totem's strike roll it at the procs per minute an override puts on the row,
+// each on its weapon's speed; Heroic Strike and Cleave never do (EV-0136). Each proc heals the wearer
+// and restores rage, the rage only to a wearer with a rage bar.
+func warriorsResolve(name string) core.ApplySetBonus {
+	return func(agent core.Agent, setBonusAura *core.Aura) {
+		character := agent.GetCharacter()
+		heal := warriorsResolveHeal.HealEffect()
+
+		config := spelldata.SpellConfig(&character.Unit, warriorsResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc())
+		// The row states no defense type, and a heal crits for the magic multiplier.
+		config.DefenseType = core.DefenseTypeMagic
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealHealing(sim, target, heal.DirectAmount(sim), spell.OutcomeHealingCrit)
+		}
+		resolve := character.RegisterSpell(config)
+		rage := shared.FiredSpellHandler(character, core.ActionID{SpellID: warriorsResolveHeal.ID}, warriorsResolveProc)
+
+		trigger := spelldata.ProcTrigger(character, warriorsResolveProc, func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			resolve.Cast(sim, &character.Unit)
+			if rage != nil {
+				rage(sim, spell, result)
+			}
+		})
+		trigger.Name = name
+		setBonusAura.AttachProcTrigger(trigger)
+	}
+}
 
 // Dungeon Set 2, Season of Discovery reissue
 //
@@ -410,8 +441,9 @@ var (
 	rogueArmorEnergy     = spelldata.MustFind(27788) // the energy it restores
 )
 
-// The energy proc of the two rogue dungeon sets. The row states 100% on every melee hit and no rate
-// per minute, so the sim keeps 1 per minute as a literal. A wearer with no energy bar gets nothing.
+// The energy proc of the two rogue dungeon sets, at the procs per minute an override puts on the row
+// (EV-0144). Windfury Totem's strike rolls it as a main-hand swing (EV-0136). A wearer with no energy
+// bar gets nothing.
 func rogueArmorEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		character := agent.GetCharacter()
@@ -420,7 +452,7 @@ func rogueArmorEnergize(name string) core.ApplySetBonus {
 			return
 		}
 
-		trigger := spelldata.ProcTrigger(character, rogueArmorEnergyProc, gain, spelldata.PPM(1.0))
+		trigger := spelldata.ProcTrigger(character, rogueArmorEnergyProc, gain)
 		trigger.Name = name
 		setBonusAura.AttachProcTrigger(trigger)
 	}
@@ -474,9 +506,9 @@ var ItemSetBeastmasterArmorReissue = core.NewItemSet(core.ItemSet{
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// TODO: The 4-piece bonus is Lightforge Armor's 5-piece proc (450625), which is not modelled for want
-// of a rate. The 5-piece bonus silences a caster when struck by a spell, which a boss fight does not
-// test.
+// The 4-piece bonus is Lightforge Armor's 5-piece proc (450625), at the procs per minute an override
+// puts on its row. The 5-piece bonus silences a caster when struck by a spell, which a boss fight does
+// not test.
 var ItemSetSoulforgeArmorReissue = core.NewItemSet(core.ItemSet{
 	ID:    1673,
 	Name:  "Soulforge Armor",
@@ -484,14 +516,15 @@ var ItemSetSoulforgeArmorReissue = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
 		3: shared.ParsedSetBonus(dungeonManaRegen),
+		4: shared.ParsedSetBonus(spelldata.MustFind(450625)), // Crusader's Wrath
 		6: shared.ParsedSetBonus(dungeonTwoDamage),
 	},
 })
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// TODO: The 4-piece bonus is The Elements' 5-piece proc (450626), which is not modelled for want of a
-// rate. The 5-piece bonus disarms an attacker when struck, which a boss fight does not test.
+// The 4-piece bonus is The Elements' 5-piece proc (450626), at the procs per minute an override puts on
+// its row. The 5-piece bonus disarms an attacker when struck, which a boss fight does not test.
 var ItemSetTheFiveThundersReissue = core.NewItemSet(core.ItemSet{
 	ID:    1679,
 	Name:  "The Five Thunders",
@@ -499,21 +532,23 @@ var ItemSetTheFiveThundersReissue = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
 		3: shared.ParsedSetBonus(dungeonManaRegen),
+		4: shared.ParsedSetBonus(spelldata.MustFind(450626)), // The Furious Storm
 		6: shared.ParsedSetBonus(dungeonTwoDamage),
 	},
 })
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// TODO: The 4-piece bonus is Battlegear of Valor's 5-piece proc (450587), which is not modelled for
-// want of a rate. The 3-piece bonus restores health over time and the 5-piece bonus removes a disarm
-// when struck, neither of which has a place in the sim.
+// The 4-piece bonus is Battlegear of Valor's 5-piece proc (450587) at Valor's rate (EV-0144). The
+// 3-piece bonus restores health over time and the 5-piece bonus removes a disarm when struck, neither
+// of which has a place in the sim.
 var ItemSetBattlegearOfHeroismReissue = core.NewItemSet(core.ItemSet{
 	ID:    1778,
 	Name:  "Battlegear of Heroism",
 	Slots: shared.EightPieceSlots,
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
+		4: warriorsResolve("Battlegear of Heroism - 4PC"),
 		6: shared.ParsedSetBonus(spelldata.MustFind(14492)), // +20 Strength
 	},
 })

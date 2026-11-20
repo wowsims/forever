@@ -866,3 +866,11 @@ export function computeStatAttribution(
 
 	return { base: baseDelta, gear: gearDelta, talents: talentsDelta, buffs: buffsDelta, consumes: consumesDelta, debuffs: debuffsDelta, final: finalStats };
 }
+
+// A stat bonus as the UI shows it, with its sign. A rating the game shows as a percent reads as that percent.
+export const signedStatAmount = (stat: Stat, value: number): string => {
+	const unitStat = UnitStat.fromStat(stat);
+	const percent = unitStat.isPercentRating();
+	const shown = percent ? unitStat.convertRatingToPercent(value)! : value;
+	return `${shown > 0 ? '+' : ''}${Number(shown.toFixed(2))}${percent ? '%' : ''}`;
+};

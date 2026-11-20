@@ -14,9 +14,8 @@ func (druid *Druid) rendAndTearMultiplier(target *core.Unit) float64 {
 	if druid.Talents.RendAndTear == 0 || !druid.targetIsBleeding(target) {
 		return 1
 	}
-	// Melee special attacks and bleed ticks against a bleeding target; white swings are not raised. A
-	// tester's table on PR #149 shows Rake and Rip ticks, the Rake hit and Claw rising by the talent's
-	// percent with a bleed on the target, and the Rake hit staying put without one.
+	// Melee special attacks and bleed ticks against a bleeding target; white swings are not raised. Rake and
+	// Rip ticks, the Rake hit and Claw rise by the talent's percent with a bleed on the target (EV-0038).
 	return 1 + spellData.RendAndTear.Rank(druid.Talents.RendAndTear).EffectN(1).Percent()
 }
 
@@ -27,19 +26,19 @@ func (druid *Druid) weaponSpecialDamage(sim *core.Simulation, spell *core.Spell,
 	return rank.WeaponStrike(sim, spell, weapon, 0) * druid.rendAndTearMultiplier(target)
 }
 
-func (druid *Druid) awardComboPoints(sim *core.Simulation, spell *core.Spell, rank *spelldata.Spell) {
+func (druid *Druid) awardComboPoints(sim *core.Simulation, target *core.Unit, spell *core.Spell, rank *spelldata.Spell) {
 	e := rank.EnergizeEffect()
 	if e == spelldata.NilEffect || dbcenums.PowerType(e.Misc) != dbcenums.POWER_COMBO_POINTS {
 		return
 	}
-	druid.AddComboPoints(sim, int32(e.BaseValue()), spell.ComboPointMetrics())
+	druid.AddComboPoints(sim, target, int32(e.BaseValue()), spell.ComboPointMetrics())
 }
 
 // Spends every combo point. The row's combo-point cost is the minimum the cast requires; the
 // per-resource damage is priced on the points actually spent.
-func (druid *Druid) spendComboPoints(sim *core.Simulation, spell *core.Spell) {
-	if druid.ComboPoints() > 0 {
-		druid.SpendComboPoints(sim, spell.ComboPointMetrics())
+func (druid *Druid) spendComboPoints(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+	if druid.ComboPoints(target) > 0 {
+		druid.SpendComboPoints(sim, target, spell.ComboPointMetrics())
 	}
 }
 
@@ -48,8 +47,8 @@ func (druid *Druid) requiresComboPoints(rank *spelldata.Spell) core.CanCastCondi
 	if need == 0 {
 		return nil
 	}
-	return func(_ *core.Simulation, _ *core.Unit) bool {
-		return druid.ComboPoints() >= need
+	return func(_ *core.Simulation, target *core.Unit) bool {
+		return druid.ComboPoints(target) >= need
 	}
 }
 
@@ -70,21 +69,14 @@ func (druid *Druid) BehindTarget() bool {
 	return !druid.PseudoStats.InFrontOfTarget && !druid.CannotShredTarget
 }
 
-// Whether the target is bleeding, for Rend and Tear and the Bleed Is Active APL value: one of the
-// druid's bleeds is up on it, or the druid assumes another raid member's. A bleed-immune target never is.
+// Whether the target is bleeding, for Rend and Tear and the Bleed Is Active APL value: any caster's bleed
+// is up on it, a weapon proc's included, or the druid assumes one from a player outside the sim (EV-0034).
+// A bleed-immune target never is.
 func (druid *Druid) targetIsBleeding(target *core.Unit) bool {
 	if target.BleedImmune {
 		return false
 	}
-	if druid.AssumeBleedActive {
-		return true
-	}
-	for _, bleed := range [...]*DruidSpell{druid.Rake, druid.Rip, druid.Lacerate, druid.PounceBleed} {
-		if bleed != nil && bleed.Dot(target).IsActive() {
-			return true
-		}
-	}
-	return false
+	return druid.AssumeBleedActive || target.HasActiveAuraWithTag(core.BleedAuraTag)
 }
 
 func (druid *Druid) breakProwl(sim *core.Simulation) {
@@ -136,7 +128,8 @@ func itemOnUseRow(itemID int32) *spelldata.Spell {
 }
 
 // Hits up to count active targets starting from target, prices each hit on its own target, and deals
-// them together once all are rolled. results is the caller's own buffer, reused across casts.
+// them together once all are rolled. A miss, dodge or parry takes one of the count, as Swipe's do in
+// game. results is the caller's own buffer, reused across casts.
 func cleave(sim *core.Simulation, target *core.Unit, spell *core.Spell, count int32, results *core.SpellResultSlice, hit func(target *core.Unit) *core.SpellResult) {
 	*results = (*results)[:0]
 	for range min(count, sim.Environment.ActiveTargetCount()) {
