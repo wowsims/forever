@@ -7,6 +7,7 @@ import {
 	overlappingDowntimesPlan,
 	PLAN_BASE_SECONDS,
 	planTargetNames,
+	tankSwapPlan,
 } from '@testing/storybook/fixtures/encounter_plan';
 import { cssVars } from '@ui-kit/utils/css';
 import { fn } from 'storybook/test';
@@ -56,6 +57,9 @@ export const OverlappingDowntimes: Story = {
 
 // The second target's row: its own downtime, and no boss health to add.
 export const SecondTarget: Story = { args: { plan: overlappingDowntimesPlan(), target: target(1) } };
+
+// A tank swap on the boss's row, its repeats drawn as numbered ghosts to the fight's end.
+export const TankSwaps: Story = { args: { plan: tankSwapPlan(), target: target(0) } };
 
 export const TargetSelected: Story = { args: { target: target(0, true) } };
 

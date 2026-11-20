@@ -20,7 +20,7 @@ describe('validatePlan', () => {
 	it('accepts an empty plan and the defaults', () => {
 		const plan = EncounterPlan.create();
 		expect(validatePlan(plan, 1)).toEqual([]);
-		for (const kind of ['bossHealth', 'ability', 'wave', 'move', 'amp'] as const) addEvent(plan, kind);
+		for (const kind of ['bossHealth', 'ability', 'wave', 'move', 'amp', 'tankSwap'] as const) addEvent(plan, kind);
 		expect(validatePlan(plan, 1)).toEqual([]);
 	});
 
@@ -54,6 +54,52 @@ describe('validatePlan', () => {
 		expect(keys(plan, 2)).toEqual([`downtime1:warning:${PLAN_ISSUE_KEYS.downtimeOverlap}`]);
 		plan.downtimes[1].targetIndex = 1;
 		expect(keys(plan, 2).filter(k => k.endsWith(PLAN_ISSUE_KEYS.downtimeOverlap))).toEqual([]);
+	});
+
+	describe('tank swaps', () => {
+		const swap = (plan: EncounterPlan, start: number, end: number, { targetIndex = 0, interval = 0, count = 0 } = {}) => {
+			addEvent(plan, 'tankSwap', targetIndex);
+			Object.assign(plan.tankSwaps[plan.tankSwaps.length - 1], {
+				start: { at: start, jitter: 0 },
+				end: { at: end, jitter: 0 },
+				repeat: { interval, jitter: 0, count },
+			});
+		};
+
+		it('flags what the sim skips: a window that ends by its start, and a target the encounter lacks', () => {
+			const plan = EncounterPlan.create();
+			swap(plan, 0.5, 0.5);
+			swap(plan, 0.2, 0.3, { targetIndex: 1 });
+			expect(keys(plan)).toEqual([`tankSwap0:error:${PLAN_ISSUE_KEYS.endBeforeStart}`, `tankSwap1:error:${PLAN_ISSUE_KEYS.targetOutOfRange}`]);
+		});
+
+		it('warns about a swap that repeats before its window ends, and not about one that repeats as it ends', () => {
+			const plan = EncounterPlan.create();
+			swap(plan, 0.1, 0.3, { interval: 0.15 });
+			swap(plan, 0.1, 0.3, { targetIndex: 1, interval: 0.2 });
+			expect(keys(plan, 2)).toEqual([`tankSwap0:warning:${PLAN_ISSUE_KEYS.tankSwapRepeatOverlap}`]);
+		});
+
+		it('warns about swaps on one target whose windows or repeats overlap, and not across targets or windows that only touch', () => {
+			const plan = EncounterPlan.create();
+			swap(plan, 0.1, 0.2, { interval: 0.4 });
+			swap(plan, 0.2, 0.3);
+			expect(keys(plan, 2)).toEqual([]);
+
+			swap(plan, 0.55, 0.6);
+			expect(keys(plan, 2)).toEqual([`tankSwap2:warning:${PLAN_ISSUE_KEYS.tankSwapOverlap}`]);
+
+			plan.tankSwaps[2].targetIndex = 1;
+			expect(keys(plan, 2)).toEqual([]);
+		});
+
+		it('counts only the repeats the count allows, and no swap the sim skips, as an overlap', () => {
+			const plan = EncounterPlan.create();
+			swap(plan, 0.1, 0.2, { interval: 0.4, count: 1 });
+			swap(plan, 0.9, 0.95);
+			swap(plan, 0.55, 0.55);
+			expect(keys(plan)).toEqual([`tankSwap2:error:${PLAN_ISSUE_KEYS.endBeforeStart}`]);
+		});
 	});
 
 	it('flags what the sim skips: an amp of 0% or less, a wave of more than 64 adds, a move of no yards and no seconds', () => {

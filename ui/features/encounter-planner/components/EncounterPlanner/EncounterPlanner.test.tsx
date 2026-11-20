@@ -10,6 +10,7 @@ import {
 	PlanBossAbility,
 	PlanBossAbility_Kind,
 	PlanDowntime,
+	PlanTankSwap,
 	PresetEncounter,
 	PresetTarget,
 	Stat,
@@ -568,7 +569,9 @@ describe('EncounterPlanner', () => {
 	});
 
 	it('follows a removed target in the draft the way the store does', async () => {
-		const { encounter } = await setup({ targets: 3, plan: downtimeOn(2) });
+		const plan = downtimeOn(2);
+		plan.tankSwaps = [PlanTankSwap.create({ targetIndex: 2, start: { at: 0.4, jitter: 0 }, end: { at: 0.5, jitter: 0 } })];
+		const { encounter } = await setup({ targets: 3, plan });
 		await openPlanner();
 
 		await removeSecondTarget();
@@ -580,6 +583,7 @@ describe('EncounterPlanner', () => {
 		expect(screen.queryByRole('region', { name: 'Target 2' })).toBeNull();
 		await clickButton('Save');
 		expect(encounter.getPlan().downtimes.map(downtime => downtime.targetIndex)).toEqual([1]);
+		expect(encounter.getPlan().tankSwaps.map(swap => swap.targetIndex)).toEqual([1]);
 	});
 
 	describe('execute proportions', () => {
@@ -692,6 +696,37 @@ describe('EncounterPlanner', () => {
 			expect(barsOn(lane('Target 1'))).toEqual([]);
 			await clickButton('Save');
 			expect(encounter.getPlan().downtimes.map(downtime => downtime.targetIndex)).toEqual([1]);
+		});
+
+		it('adds a tank swap on the row whose + Tank swap was pressed, draws its repeats as numbered ghosts, flags a repeat inside its window, and saves it', async () => {
+			const { encounter } = await setup({ targets: 2 });
+			encounter.setDuration(180);
+			const dialog = await openPlanner();
+
+			await add('Target 2', 'Tank swap');
+			expect(barsOn(lane('Target 2'))).toEqual(['Tank swap 1']);
+			expect(barsOn(lane('Target 1'))).toEqual([]);
+			const panel = screen.getByRole('region', { name: 'Tank swap 1' });
+			expect(within(panel).getByLabelText('End (s)')).toBeTruthy();
+
+			await openSection('Repeat · none');
+			await commit(within(panel).getByLabelText('Repeat every (s)'), '30');
+			// The new swap runs from 72 s to 90 s, so it repeats at 102, 132 and 162 s.
+			const text = lane('Target 2').textContent;
+			for (const number of [2, 3, 4]) expect(text).toContain(`Tank swap 1#${number}`);
+			expect(text).not.toContain('#5');
+
+			const issues = within(dialog).getByRole('region', { name: 'Issues' });
+			await commit(within(panel).getByLabelText('Repeat every (s)'), '10');
+			expect(issues.textContent).toContain(english.settings_tab.encounter.planner.validation.tank_swap_repeat_overlap);
+			expect(within(lane('Target 2')).getByRole('slider', { name: 'Tank swap 1' }).hasAttribute('data-invalid')).toBe(true);
+			await commit(within(panel).getByLabelText('Repeat every (s)'), '30');
+			expect(issues.textContent).toContain('No issues.');
+
+			await clickButton('Save');
+			const [swap] = encounter.getPlan().tankSwaps;
+			expect(swap.targetIndex).toBe(1);
+			expect(swap.repeat?.interval).toBeCloseTo(30 / 180);
 		});
 
 		it("opens a target's settings from its row label, and moves focus into them on Enter", async () => {
@@ -1304,6 +1339,19 @@ describe('My encounters', () => {
 		expect(Object.keys(stored())).toEqual(['New encounter']);
 		expect(await listedOwn()).toEqual(['New encounter']);
 		expect(choice().textContent).toBe('New encounter');
+	});
+
+	it('stores the default fight as New encounter with a tank swap as its only event, and loads the swap back from the entry', async () => {
+		const { encounter } = await setup();
+		await openPlanner();
+		await add('Target 1', 'Tank swap');
+		await clickButton('Save');
+
+		expect(EncounterProto.fromJson(stored()['New encounter'] as never).plan!.tankSwaps).toHaveLength(1);
+		act(() => encounter.setPlan(EncounterPlan.create()));
+		await pick('New encounter');
+		await openPlanner();
+		expect(within(lane('Target 1')).getAllByRole('slider', { name: 'Tank swap 1' })).toHaveLength(1);
 	});
 
 	it('keeps the default fight out of My encounters when only a target field changes, and puts the change into the sim', async () => {

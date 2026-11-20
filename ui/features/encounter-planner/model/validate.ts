@@ -1,4 +1,4 @@
-import type { AddWave, EncounterPlan, PlanBossAbility, PlanDamageAmp, PlanDowntime, PlanMove, PlanTime } from '@generated/proto/common';
+import type { AddWave, EncounterPlan, PlanBossAbility, PlanDamageAmp, PlanDowntime, PlanMove, PlanTankSwap, PlanTime } from '@generated/proto/common';
 import { DamageAmpType, PlanBossAbility_Kind } from '@generated/proto/common';
 
 import type { PlanEventRef } from './lanes';
@@ -33,6 +33,8 @@ export const PLAN_ISSUE_KEYS = {
 	noTickInterval: key('no_tick_interval'),
 	waveOverPool: key('wave_over_pool'),
 	healthStopsShort: key('health_stops_short'),
+	tankSwapOverlap: key('tank_swap_overlap'),
+	tankSwapRepeatOverlap: key('tank_swap_repeat_overlap'),
 } as const;
 
 // The sim's health curve holds 16 points in time order and keeps the first 16. Its own start point (0 s, 100%), there
@@ -64,7 +66,19 @@ const concurrentCopies = ({ spawn, repeat, lifetime }: AddWave): number => {
 
 const outside = (from: number, to: number, startJitter: number, endJitter = startJitter) => from - startJitter < 0 || to + endJitter > 1;
 
-const overlaps = (a: PlanDowntime, b: PlanDowntime) => (a.start?.at ?? 0) < (b.end?.at ?? 0) && (b.start?.at ?? 0) < (a.end?.at ?? 0);
+const overlaps = (a: TimeWindow, b: TimeWindow) => a.start < b.end && b.start < a.end;
+
+const span = ({ start, end }: PlanDowntime | PlanTankSwap): TimeWindow => ({ start: start?.at ?? 0, end: end?.at ?? 0 });
+
+// Whether any window of one list overlaps any of the other, both sorted by start.
+const anyOverlap = (a: ReadonlyArray<TimeWindow>, b: ReadonlyArray<TimeWindow>): boolean => {
+	for (let i = 0, j = 0; i < a.length && j < b.length;) {
+		if (overlaps(a[i], b[j])) return true;
+		if (a[i].end <= b[j].end) i++;
+		else j++;
+	}
+	return false;
+};
 
 export const validatePlan = (plan: EncounterPlan, targetCount: number): PlanIssue[] => {
 	const issues: PlanIssue[] = [];
@@ -84,8 +98,28 @@ export const validatePlan = (plan: EncounterPlan, targetCount: number): PlanIssu
 		const ref: PlanEventRef = { kind: 'downtime', index };
 		checkSpan(ref, downtime.start, downtime.end);
 		if (badTarget(downtime.targetIndex)) add(ref, 'error', PLAN_ISSUE_KEYS.targetOutOfRange);
-		const clash = plan.downtimes.some((other, otherIndex) => otherIndex < index && other.targetIndex === downtime.targetIndex && overlaps(other, downtime));
+		const clash = plan.downtimes.some(
+			(other, otherIndex) => otherIndex < index && other.targetIndex === downtime.targetIndex && overlaps(span(other), span(downtime)),
+		);
 		if (clash) add(ref, 'warning', PLAN_ISSUE_KEYS.downtimeOverlap);
+	});
+
+	// The sim skips a swap whose window ends by its start or whose target the encounter lacks, and runs a target's swap
+	// until the last of its overlapping windows ends, its own repeats included.
+	const swapWindows = plan.tankSwaps.map((swap, index) =>
+		(swap.end?.at ?? 0) > (swap.start?.at ?? 0) && !badTarget(swap.targetIndex) ? occurrences(plan, { kind: 'tankSwap', index }, MAX_OCCURRENCES) : [],
+	);
+	plan.tankSwaps.forEach((swap: PlanTankSwap, index) => {
+		const ref: PlanEventRef = { kind: 'tankSwap', index };
+		checkSpan(ref, swap.start, swap.end);
+		if (badTarget(swap.targetIndex)) add(ref, 'error', PLAN_ISSUE_KEYS.targetOutOfRange);
+		const { start, end } = span(swap);
+		const interval = swap.repeat?.interval ?? 0;
+		if (end > start && interval > 0 && interval < end - start) add(ref, 'warning', PLAN_ISSUE_KEYS.tankSwapRepeatOverlap);
+		const clash = plan.tankSwaps.some(
+			(other, otherIndex) => otherIndex < index && other.targetIndex === swap.targetIndex && anyOverlap(swapWindows[otherIndex], swapWindows[index]),
+		);
+		if (clash) add(ref, 'warning', PLAN_ISSUE_KEYS.tankSwapOverlap);
 	});
 
 	// A spell hit, a strike or an area hit has no end, so only its start must be in the fight.

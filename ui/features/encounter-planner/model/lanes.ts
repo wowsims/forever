@@ -10,6 +10,7 @@ import {
 	PlanDowntime,
 	PlanMove,
 	PlanRepeat,
+	PlanTankSwap,
 	PlanTargets,
 	PlanTime,
 	SpellSchool,
@@ -20,7 +21,7 @@ import { Encounter } from '@sim/raid/encounter';
 import { clamp } from './time';
 
 export type PlanLaneKind = 'boss' | 'abilities' | 'waves' | 'moves' | 'amps';
-export type PlanEventKind = 'downtime' | 'bossHealth' | 'ability' | 'wave' | 'move' | 'amp';
+export type PlanEventKind = 'downtime' | 'tankSwap' | 'bossHealth' | 'ability' | 'wave' | 'move' | 'amp';
 
 // Events have no ids; a list and an index identify one.
 export type PlanEventRef = { kind: PlanEventKind; index: number };
@@ -33,6 +34,7 @@ export const isEventRef = (selection: PlannerSelection | undefined): selection i
 
 type PlanEventMap = {
 	downtime: PlanDowntime;
+	tankSwap: PlanTankSwap;
 	bossHealth: HealthKeyframe;
 	ability: PlanBossAbility;
 	wave: AddWave;
@@ -44,11 +46,12 @@ export type PlanEvent<K extends PlanEventKind = PlanEventKind> = PlanEventMap[K]
 // A span, or a point for events that have no duration.
 type PlanEventWindow = { start: number; end: number } | { at: number };
 
-// The 'boss' lane is one row per encounter target, which holds that target's downtimes, and on the first target the boss health.
+// The 'boss' lane is one row per encounter target, which holds that target's downtimes and tank swaps, and on the first
+// target the boss health.
 export const PLAN_LANES: readonly PlanLaneKind[] = ['boss', 'abilities', 'waves', 'moves', 'amps'];
 
 export const LANE_EVENT_KINDS: Record<PlanLaneKind, ReadonlyArray<PlanEventKind>> = {
-	boss: ['downtime', 'bossHealth'],
+	boss: ['downtime', 'tankSwap', 'bossHealth'],
 	abilities: ['ability'],
 	waves: ['wave'],
 	moves: ['move'],
@@ -56,7 +59,8 @@ export const LANE_EVENT_KINDS: Record<PlanLaneKind, ReadonlyArray<PlanEventKind>
 };
 
 export const laneLabelKey = (lane: PlanLaneKind): string => `settings_tab.encounter.planner.lanes.${lane}`;
-export const eventLabelKey = (kind: PlanEventKind): string => `settings_tab.encounter.planner.events.${kind === 'bossHealth' ? 'boss_health' : kind}`;
+export const eventLabelKey = (kind: PlanEventKind): string =>
+	`settings_tab.encounter.planner.events.${kind.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`;
 
 const time = (at: number): PlanTime => ({ at, jitter: 0 });
 const noRepeat = (): PlanRepeat => ({ interval: 0, jitter: 0, count: 0 });
@@ -68,6 +72,7 @@ export const defaultEvent = <K extends PlanEventKind>(kind: K): PlanEvent<K> => 
 	const end = start + DEFAULT_WIDTH;
 	const events: PlanEventMap = {
 		downtime: { name: '', targetIndex: 0, start: time(start), end: time(end), clearDebuffs: true },
+		tankSwap: { name: '', targetIndex: 0, start: time(start), end: time(end), repeat: noRepeat() },
 		bossHealth: { name: '', at: start, healthPercent: 50 },
 		ability: {
 			name: '',
@@ -123,6 +128,7 @@ export const defaultEvent = <K extends PlanEventKind>(kind: K): PlanEvent<K> => 
 export const eventsOf = <K extends PlanEventKind>(plan: EncounterPlan, kind: K): PlanEvent<K>[] => {
 	const lists: { [P in PlanEventKind]: PlanEvent<P>[] } = {
 		downtime: plan.downtimes,
+		tankSwap: plan.tankSwaps,
 		bossHealth: plan.bossHealth,
 		ability: plan.bossAbilities,
 		wave: plan.addWaves,
@@ -134,11 +140,11 @@ export const eventsOf = <K extends PlanEventKind>(plan: EncounterPlan, kind: K):
 
 export const getEvent = (plan: EncounterPlan, ref: PlanEventRef): PlanEvent | undefined => eventsOf(plan, ref.kind)[ref.index];
 
-// A downtime takes the target at targetIndex. Mutates the plan.
+// A downtime or a tank swap takes the target at targetIndex. Mutates the plan.
 export const addEvent = (plan: EncounterPlan, kind: PlanEventKind, targetIndex = 0): PlanEventRef => {
 	const list: PlanEvent[] = eventsOf(plan, kind);
 	const event = defaultEvent(kind);
-	if (kind === 'downtime') (event as PlanDowntime).targetIndex = targetIndex;
+	if (kind === 'downtime' || kind === 'tankSwap') (event as PlanDowntime | PlanTankSwap).targetIndex = targetIndex;
 	list.push(event);
 	return { kind, index: list.length - 1 };
 };
@@ -220,7 +226,7 @@ export const eventWindow = (plan: EncounterPlan, ref: PlanEventRef): PlanEventWi
 			return { start, end: start + wave.lifetime };
 		}
 		default: {
-			const timed = event as PlanDowntime | PlanDamageAmp | PlanBossAbility;
+			const timed = event as PlanDowntime | PlanTankSwap | PlanDamageAmp | PlanBossAbility;
 			const from = timed.start?.at ?? 0;
 			return { start: from, end: timed.end?.at ?? from };
 		}
@@ -309,7 +315,7 @@ export const duplicateEvent = (plan: EncounterPlan, ref: PlanEventRef, deltaFrac
 			shiftTime((copy as AddWave).spawn, delta);
 			break;
 		default: {
-			const timed = copy as PlanDowntime | PlanDamageAmp | PlanBossAbility;
+			const timed = copy as PlanDowntime | PlanTankSwap | PlanDamageAmp | PlanBossAbility;
 			shiftTime(timed.start, delta);
 			shiftTime(timed.end, delta);
 		}

@@ -175,6 +175,11 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   resists. An avoidable one skips a player from the walk start of a plan's move to its end (`walkEnds`), not an APL
   move. A Spell Hit's or a Boss area ability's hardcast holds the caster's swing and starts a full swing at its end
   unless `keeps_swing_timer` sets `SpellFlagKeepsSwingTimer`.
+- **A plan's tank swap moves a target's single-target attacks, not its `CurrentTarget`** (`plan_tank_swaps.go`).
+  While a window runs, the melee swing, a Strike, a Thrash's extra attacks and a Spell Hit go to the target's other
+  tank: the first player in a tank slot that is not its tank, or a tank outside the sim, on which they are spent.
+  Area Hit and Pulse hit everyone as before. The swing keeps its timer through the window. Code that asks whom a
+  target attacks reads `tankSwapVictim` first; a player a swap brings a target onto counts as tanking from setup.
 - **A pool target is a target of the results, after the encounter's own.** Its label stays `Target N`, which the log
   and the UI's log parser key on; its metrics carry the wave and add it spawns as (`UnitMetrics.plan_add`, copied
   by the concurrent combiner too), and `EncounterMetrics.makeNew` in `ui/sim/proto/sim_result.ts` names it from

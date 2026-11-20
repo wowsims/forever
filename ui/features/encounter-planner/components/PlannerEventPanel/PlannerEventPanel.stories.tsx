@@ -11,6 +11,7 @@ import {
 	PLAN_BASE_SECONDS,
 	planPresetTargets,
 	planTargetNames,
+	tankSwapPlan,
 } from '@testing/storybook/fixtures/encounter_plan';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
@@ -92,6 +93,8 @@ const withAmpType = (type: DamageAmpType) => {
 export const NothingSelected: Story = {};
 
 export const Downtime: Story = { args: { plan: overlappingDowntimesPlan(), selected: { kind: 'downtime', index: 0 } } };
+
+export const TankSwap: Story = { args: { plan: tankSwapPlan(), selected: { kind: 'tankSwap', index: 0 } } };
 
 export const BossHealth: Story = { args: { plan: customBossPlan(), selected: { kind: 'bossHealth', index: 1 } } };
 

@@ -1,4 +1,4 @@
-import type { AddWave, EncounterPlan, HealthKeyframe, PlanBossAbility, PlanDamageAmp, PlanDowntime, PlanMove } from '@generated/proto/common';
+import type { AddWave, EncounterPlan, HealthKeyframe, PlanBossAbility, PlanDamageAmp, PlanDowntime, PlanMove, PlanTankSwap } from '@generated/proto/common';
 import { PlanBossAbility_Kind, PlanTime } from '@generated/proto/common';
 import type { AxisDragMode } from '@ui-kit/hooks/usePointerAxisDrag';
 
@@ -67,7 +67,7 @@ const jitterOf = (plan: EncounterPlan, ref: PlanEventRef): { start: number; end:
 			return { start: jitter, end: jitter };
 		}
 		default: {
-			const timed = event as PlanDowntime | PlanDamageAmp | PlanBossAbility;
+			const timed = event as PlanDowntime | PlanTankSwap | PlanDamageAmp | PlanBossAbility;
 			return { start: timed.start?.jitter ?? 0, end: timed.end?.jitter ?? 0 };
 		}
 	}
@@ -108,10 +108,10 @@ const windowOf = (plan: EncounterPlan, ref: PlanEventRef, baseSeconds: number): 
 	return { start: found.at, end: found.at };
 };
 
-// Whether a downtime sits on one target's row: its own, and on the first target every downtime that names no target of the
-// `count` the encounter has, which validation flags.
-const onTargetRow = (plan: EncounterPlan, index: number, target: { index: number; count: number }): boolean => {
-	const named = plan.downtimes[index].targetIndex;
+// Whether a downtime or a tank swap sits on one target's row: its own, and on the first target every one that names no
+// target of the `count` the encounter has, which validation flags.
+const onTargetRow = (plan: EncounterPlan, ref: PlanEventRef, target: { index: number; count: number }): boolean => {
+	const named = (getEvent(plan, ref) as PlanDowntime | PlanTankSwap).targetIndex;
 	return named === target.index || (target.index === 0 && (named < 0 || named >= target.count));
 };
 
@@ -126,8 +126,8 @@ export const laneEvents = (plan: EncounterPlan, lane: PlanLaneKind, baseSeconds:
 	const segments = healthSegments(plan);
 	const events = rowKinds(lane, target?.index).flatMap(kind =>
 		eventsOf(plan, kind).flatMap((_, index) => {
-			if (target && kind === 'downtime' && !onTargetRow(plan, index, target)) return [];
 			const ref: PlanEventRef = { kind, index };
+			if (target && (kind === 'downtime' || kind === 'tankSwap') && !onTargetRow(plan, ref, target)) return [];
 			const window = windowOf(plan, ref, baseSeconds);
 			const all = occurrences(plan, ref, MAX_OCCURRENCES);
 			const ability = kind === 'ability' ? (getEvent(plan, ref) as PlanBossAbility) : undefined;
@@ -249,7 +249,7 @@ export const withWindow = (plan: EncounterPlan, ref: PlanEventRef, window: TimeW
 				return;
 			}
 			default: {
-				const timed = event as PlanDowntime | PlanDamageAmp | PlanBossAbility;
+				const timed = event as PlanDowntime | PlanTankSwap | PlanDamageAmp | PlanBossAbility;
 				(timed.start ??= PlanTime.create()).at = window.start;
 				// A spell hit's, a strike's or an area hit's width is only drawn, so its end stays as stored.
 				if (ref.kind !== 'ability' || !firesAtInstants(timed as PlanBossAbility)) (timed.end ??= PlanTime.create()).at = window.end;

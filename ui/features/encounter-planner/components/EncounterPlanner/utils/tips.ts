@@ -1,4 +1,4 @@
-import type { AddWave, EncounterPlan, PlanBossAbility, PlanDamageAmp, PlanDowntime, PlanMove, Target } from '@generated/proto/common';
+import type { AddWave, EncounterPlan, PlanBossAbility, PlanDamageAmp, PlanDowntime, PlanMove, PlanTankSwap, Target } from '@generated/proto/common';
 import { PlanBossAbility_Kind } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateMobType, translateSpellSchool } from '@i18n/localization';
@@ -153,6 +153,11 @@ export const eventTooltip = (
 			const downtime = event as PlanDowntime;
 			const target = targetNames[downtime.targetIndex] ?? plannerText('target_name', { number: downtime.targetIndex + 1 });
 			return built(tip('downtime'), [target, range, downtime.clearDebuffs ? tip('clears_debuffs') : undefined]);
+		}
+		case 'tankSwap': {
+			const swap = event as PlanTankSwap;
+			const target = targetNames[swap.targetIndex] ?? plannerText('target_name', { number: swap.targetIndex + 1 });
+			return built(tip('tank_swap'), [target, range, ...every, tip('tank_swap_moves'), tip('tank_swap_stays'), tip('tank_swap_tank')]);
 		}
 		case 'ability': {
 			const ability = event as PlanBossAbility;

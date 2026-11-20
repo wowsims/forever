@@ -24,12 +24,13 @@ import {
 	withAbilityKind,
 } from './lanes';
 
-const KINDS: PlanEventKind[] = ['downtime', 'bossHealth', 'ability', 'wave', 'move', 'amp'];
+const KINDS: PlanEventKind[] = ['downtime', 'tankSwap', 'bossHealth', 'ability', 'wave', 'move', 'amp'];
 
 describe('lanes', () => {
 	it('builds label keys under the planner namespace', () => {
 		expect(laneLabelKey('waves')).toBe('settings_tab.encounter.planner.lanes.waves');
 		expect(eventLabelKey('bossHealth')).toBe('settings_tab.encounter.planner.events.boss_health');
+		expect(eventLabelKey('tankSwap')).toBe('settings_tab.encounter.planner.events.tank_swap');
 	});
 
 	it('defaults every kind inside the fight', () => {
@@ -57,11 +58,14 @@ describe('lanes', () => {
 		expect(downtime.end!.at - downtime.start!.at).toBeCloseTo(0.1);
 	});
 
-	it('adds a downtime on the target given, and the first one by default', () => {
+	it('adds a downtime or a tank swap on the target given, and the first one by default', () => {
 		const plan = EncounterPlan.create();
 		addEvent(plan, 'downtime', 1);
 		addEvent(plan, 'downtime');
+		addEvent(plan, 'tankSwap', 2);
+		addEvent(plan, 'tankSwap');
 		expect(plan.downtimes.map(downtime => downtime.targetIndex)).toEqual([1, 0]);
+		expect(plan.tankSwaps.map(swap => swap.targetIndex)).toEqual([2, 0]);
 	});
 
 	it('adds, reads and removes events by list and index', () => {
@@ -150,6 +154,17 @@ describe('lanes', () => {
 			]);
 		});
 
+		it('repeats a tank swap as windows of the length its end gives the first', () => {
+			const plan = EncounterPlan.create();
+			const ref = addEventAt(plan, 'tankSwap', 0.1);
+			plan.tankSwaps[0].end!.at = 0.2;
+			plan.tankSwaps[0].repeat = { interval: 0.3, jitter: 0, count: 1 };
+			expect(occurrences(plan, ref, 10).map(o => [o.start, o.end])).toEqual([
+				[0.1, 0.2],
+				[expect.closeTo(0.4), expect.closeTo(0.5)],
+			]);
+		});
+
 		it('fires a pulse as windows of its length', () => {
 			const plan = EncounterPlan.create();
 			const ref = addEventAt(plan, 'ability', 0.1);
@@ -208,7 +223,7 @@ describe('lanes', () => {
 	});
 
 	describe('duplicateEvent', () => {
-		const KINDS_WITH_NAME: PlanEventKind[] = ['downtime', 'bossHealth', 'ability', 'wave', 'move', 'amp'];
+		const KINDS_WITH_NAME: PlanEventKind[] = ['downtime', 'tankSwap', 'bossHealth', 'ability', 'wave', 'move', 'amp'];
 
 		it("appends a copy shifted by the delta to the kind's list and returns its ref", () => {
 			for (const kind of KINDS_WITH_NAME) {

@@ -178,6 +178,12 @@ export const customBossPlan = (): EncounterPlan =>
 		],
 	});
 
+/** A tank swap on the boss: its other tank takes it for 15 s every 45 s. */
+export const tankSwapPlan = (): EncounterPlan =>
+	EncounterPlan.create({
+		tankSwaps: [{ name: 'Taunt', targetIndex: 0, start: at(30 / 180), end: at(45 / 180), repeat: { interval: 45 / 180, jitter: 0, count: 0 } }],
+	});
+
 /** Two downtimes on the boss that overlap, which validation reports as an error. */
 export const overlappingDowntimesPlan = (): EncounterPlan =>
 	EncounterPlan.create({

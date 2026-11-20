@@ -17,10 +17,11 @@ const (
 const numDamageAmpTypes = int(proto.DamageAmpType_DamageAmpTypeTargetDebuff) + 1
 
 // Runs an encounter plan's timeline each iteration: the boss's health, the targets' downtimes, the add waves
-// and the lanes in plan_moves.go, plan_amps.go and plan_boss_abilities.go. Every time on the timeline is
-// a fraction of the rolled fight duration, and every jitter is rolled at reset from the sim's plan rand, in
-// lane order (downtimes, boss health, waves, moves, amps, boss abilities), index order inside a lane and
-// occurrence order inside an event, so the timeline does not move with gear. A sim without a plan has none.
+// and the lanes in plan_moves.go, plan_amps.go, plan_boss_abilities.go and plan_tank_swaps.go. Every time on
+// the timeline is a fraction of the rolled fight duration, and every jitter is rolled at reset from the sim's plan
+// rand, in lane order (downtimes, boss health, waves, moves, amps, boss abilities, tank swaps), index order inside
+// a lane and occurrence order inside an event, so the timeline does not move with gear. A sim without a plan has
+// none.
 type encounterPlan struct {
 	config              *proto.EncounterPlan
 	numEncounterTargets int      // The encounter's own targets, which come before every wave's pool.
@@ -29,6 +30,7 @@ type encounterPlan struct {
 	bossKnots []HealthKnot
 	downtimes []*planDowntime
 	waves     []*planWave
+	tankSwaps []*planTankSwap
 	targets   []planTargetState // Indexed by Target.Index, over every target of the encounter.
 
 	// Filled by registerLanes, once the raid is initialized.
@@ -63,6 +65,9 @@ type planTargetState struct {
 	diesAt            time.Duration // The despawn of the add's current life.
 	deathAction       PendingAction
 	deathQueued       bool
+	swapsTanks        bool     // Whether a tank swap decides whom the target attacks.
+	swapTanks         [2]*Unit // With a tank swap: the tank the target attacks, then the one a window sends its attacks to; nil for one the sim does not model.
+	swapWindows       int      // The tank swap windows running on the target.
 }
 
 type planDowntime struct {
@@ -157,7 +162,7 @@ type planWave struct {
 // has no event in any lane. Only NewEncounter may call it, after its own targets.
 func newEncounterPlan(encounter *Encounter, config *proto.EncounterPlan) *encounterPlan {
 	if config == nil || (len(config.Downtimes) == 0 && len(config.BossHealth) == 0 && len(config.AddWaves) == 0 &&
-		len(config.Moves) == 0 && len(config.DamageAmps) == 0 && len(config.BossAbilities) == 0) {
+		len(config.Moves) == 0 && len(config.DamageAmps) == 0 && len(config.BossAbilities) == 0 && len(config.TankSwaps) == 0) {
 		return nil
 	}
 
@@ -198,6 +203,8 @@ func newEncounterPlan(encounter *Encounter, config *proto.EncounterPlan) *encoun
 			}
 		}
 	}
+
+	plan.newTankSwaps(encounter)
 
 	return plan
 }
@@ -394,6 +401,7 @@ func (plan *encounterPlan) reset(sim *Simulation) {
 		state.backAfterDown = false
 		state.diesAt = NeverExpires
 		state.deathQueued = false
+		state.swapWindows = 0
 
 		config := encounter.targetConfigs[target.Index]
 		target.enabled = state.wave == nil && (config == nil || !config.DisabledAtStart)
@@ -416,6 +424,7 @@ func (plan *encounterPlan) reset(sim *Simulation) {
 	plan.scheduleMoves(sim)
 	plan.scheduleAmps(sim)
 	plan.scheduleBossAbilities(sim)
+	plan.scheduleTankSwaps(sim)
 }
 
 func (plan *encounterPlan) scheduleDowntimes(sim *Simulation) {

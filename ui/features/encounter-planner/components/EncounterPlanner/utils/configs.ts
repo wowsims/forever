@@ -1,5 +1,15 @@
 import type { StringFieldConfig } from '@features/inputs/configs';
-import type { AddWave, HealthKeyframe, PlanBossAbility, PlanDamageAmp, PlanDowntime, PlanMove, PresetEncounter, Target } from '@generated/proto/common';
+import type {
+	AddWave,
+	HealthKeyframe,
+	PlanBossAbility,
+	PlanDamageAmp,
+	PlanDowntime,
+	PlanMove,
+	PlanTankSwap,
+	PresetEncounter,
+	Target,
+} from '@generated/proto/common';
 import {
 	DamageAmpType,
 	EncounterPlan,
@@ -273,6 +283,13 @@ const downtimeFields = (): Array<PlanFieldConfig<PlanDowntime>> => [
 	},
 ];
 
+const tankSwapFields = (): Array<PlanFieldConfig<PlanTankSwap>> => [
+	nameField(),
+	targetField({ tooltip: tooltip('tank_swap_target') }),
+	...spanFields<PlanTankSwap>({ section: 'timing' }),
+	...repeatFields<PlanTankSwap>({ section: 'repeat' }),
+];
+
 const bossHealthFields = (): Array<PlanFieldConfig<HealthKeyframe>> => [
 	nameField(),
 	seconds('at', ...prop<HealthKeyframe>('at')),
@@ -490,6 +507,8 @@ const ISSUE_SECTIONS: Record<keyof typeof PLAN_ISSUE_KEYS, PlanSection | undefin
 	// It only fires on a wave that repeats: one occurrence over the slots is too many adds.
 	waveOverPool: 'repeat',
 	healthStopsShort: undefined,
+	tankSwapOverlap: 'timing',
+	tankSwapRepeatOverlap: 'repeat',
 };
 
 export const issueSection = (kind: PlanEventKind, issueKey: string): PlanSection | undefined => {
@@ -502,6 +521,7 @@ export const issueSection = (kind: PlanEventKind, issueKey: string): PlanSection
 
 const FIELDS: { [K in PlanEventKind]: () => Array<PlanFieldConfig<PlanEvent<K>>> } = {
 	downtime: downtimeFields,
+	tankSwap: tankSwapFields,
 	bossHealth: bossHealthFields,
 	wave: waveFields,
 	move: moveFields,

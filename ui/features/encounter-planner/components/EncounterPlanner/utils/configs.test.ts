@@ -114,6 +114,21 @@ describe('planFieldConfigs', () => {
 		for (const kind of ['downtime', 'move', 'bossHealth'] as const) expect(planFieldConfigs(kind).filter(entry => entry.section)).toEqual([]);
 	});
 
+	it("puts a tank swap's name and target at the top, its start and end under Timing and its repeat under Repeat", () => {
+		expect(planFieldConfigs('tankSwap').map(entry => [entry.id, entry.section])).toEqual([
+			['name', undefined],
+			['target', undefined],
+			['start', 'timing'],
+			['start_jitter', 'timing'],
+			['end', 'timing'],
+			['end_jitter', 'timing'],
+			['repeat_interval', 'repeat'],
+			['repeat_jitter', 'repeat'],
+			['repeat_count', 'repeat'],
+		]);
+		expect(field(planFieldConfigs('tankSwap'), 'target').tooltip).toBe('tank_swap_target');
+	});
+
 	it('fills a working pulse when the kind field picks one', () => {
 		const ability = defaultEvent('ability');
 		const kind = field(planFieldConfigs('ability'), 'ability_kind');
@@ -128,6 +143,11 @@ describe('issueSection', () => {
 		expect(issueSection('amp', PLAN_ISSUE_KEYS.targetOutOfRange)).toBe('effect');
 		expect(issueSection('ability', PLAN_ISSUE_KEYS.targetOutOfRange)).toBeUndefined();
 		expect(issueSection('ability', PLAN_ISSUE_KEYS.noTickInterval)).toBe('damage');
+	});
+
+	it("opens a tank swap's Timing for an overlap with another swap, and its Repeat for windows its repeat runs into", () => {
+		expect(issueSection('tankSwap', PLAN_ISSUE_KEYS.tankSwapOverlap)).toBe('timing');
+		expect(issueSection('tankSwap', PLAN_ISSUE_KEYS.tankSwapRepeatOverlap)).toBe('repeat');
 	});
 });
 

@@ -219,6 +219,9 @@ func (ability *planBossAbility) registerSpellHit() {
 		DamageMultiplier: 1,
 
 		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
+			if target == spell.Unit {
+				return // Cast at a tank the sim does not model.
+			}
 			baseDamage := sim.RollWithLabel(config.MinDamage, config.MaxDamage, label)
 			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeAlwaysHit)
 		},
@@ -555,10 +558,20 @@ func (ability *planBossAbility) start(sim *Simulation) {
 	}
 	switch ability.config.Kind {
 	case proto.PlanBossAbility_SpellHit:
-		victim := target.CurrentTarget
-		if victim == nil {
-			// An individual sim without a tank: the boss casts at the sim's player.
-			victim = sim.Raid.AllPlayerUnits[0]
+		victim, swapped := sim.Encounter.plan.tankSwapVictim(&target.Unit)
+		if !swapped {
+			victim = target.CurrentTarget
+			if victim == nil {
+				// An individual sim without a tank: the boss casts at the sim's player.
+				victim = sim.Raid.AllPlayerUnits[0]
+			}
+		} else if victim == nil {
+			// A tank the sim does not model: a hardcast that holds the swing is cast at the boss itself, which deals
+			// nothing; any other is spent.
+			if ability.spell.DefaultCast.CastTime <= 0 || ability.config.KeepsSwingTimer {
+				return
+			}
+			victim = &target.Unit
 		}
 		ability.spell.Cast(sim, victim)
 	case proto.PlanBossAbility_AreaHit:

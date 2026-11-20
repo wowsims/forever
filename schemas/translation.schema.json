@@ -4135,6 +4135,9 @@
 										"downtime": {
 											"type": "string"
 										},
+										"tank_swap": {
+											"type": "string"
+										},
 										"boss_health": {
 											"type": "string"
 										},
@@ -4152,7 +4155,7 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["downtime", "boss_health", "ability", "wave", "move", "amp"]
+									"required": ["downtime", "tank_swap", "boss_health", "ability", "wave", "move", "amp"]
 								},
 								"validation": {
 									"type": "object",
@@ -4219,6 +4222,12 @@
 										},
 										"health_stops_short": {
 											"type": "string"
+										},
+										"tank_swap_overlap": {
+											"type": "string"
+										},
+										"tank_swap_repeat_overlap": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
@@ -4243,7 +4252,9 @@
 										"min_above_max",
 										"no_tick_interval",
 										"wave_over_pool",
-										"health_stops_short"
+										"health_stops_short",
+										"tank_swap_overlap",
+										"tank_swap_repeat_overlap"
 									]
 								},
 								"event_name": {
@@ -4329,6 +4340,18 @@
 											"type": "string"
 										},
 										"clears_debuffs": {
+											"type": "string"
+										},
+										"tank_swap": {
+											"type": "string"
+										},
+										"tank_swap_moves": {
+											"type": "string"
+										},
+										"tank_swap_stays": {
+											"type": "string"
+										},
+										"tank_swap_tank": {
 											"type": "string"
 										},
 										"school_damage": {
@@ -4437,6 +4460,10 @@
 										"health",
 										"downtime",
 										"clears_debuffs",
+										"tank_swap",
+										"tank_swap_moves",
+										"tank_swap_stays",
+										"tank_swap_tank",
 										"school_damage",
 										"cast",
 										"cast_by",
@@ -4839,6 +4866,9 @@
 										},
 										"stops_swing": {
 											"type": "string"
+										},
+										"tank_swap_target": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
@@ -4864,7 +4894,8 @@
 										"resistible",
 										"avoidable",
 										"source",
-										"stops_swing"
+										"stops_swing",
+										"tank_swap_target"
 									]
 								},
 								"amp_types": {
@@ -10536,6 +10567,9 @@
 										"downtime": {
 											"type": "string"
 										},
+										"tankSwap": {
+											"type": "string"
+										},
 										"wave": {
 											"type": "string"
 										},
@@ -10550,7 +10584,7 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["title", "downtime", "wave", "amp", "move", "pulse"]
+									"required": ["title", "downtime", "tankSwap", "wave", "amp", "move", "pulse"]
 								},
 								"chart_options": {
 									"type": "object",

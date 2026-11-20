@@ -125,6 +125,7 @@ func (env *Environment) construct(raidProto *proto.Raid, encounterProto *proto.E
 			agent.GetCharacter().isTank = true
 		}
 	}
+	env.Encounter.plan.setupTankSwaps(env, len(raidProto.Tanks))
 
 	env.State = Constructed
 }

@@ -61,6 +61,32 @@ describe('laneEvents', () => {
 		expect(row(1)).toEqual([['downtime', 0, 0]]);
 	});
 
+	it("puts a target's tank swaps on its row with its downtimes, its repeats as ghosts, and the swaps of no target on the first target's", () => {
+		const swap = (targetIndex: number, start: number, interval = 0) => ({
+			...eventAt('tankSwap', start),
+			targetIndex,
+			repeat: { interval, jitter: 0, count: 0 },
+		});
+		const plan = EncounterPlan.create({
+			downtimes: [{ ...downtime(0.15, 0.25), targetIndex: 1 }],
+			tankSwaps: [swap(1, 0.1, 0.4), swap(0, 0.3), swap(5, 0.7)],
+		});
+		const row = (index: number) => laneEvents(plan, 'boss', BASE, { index, count: 2 });
+		expect(row(0).map(event => [event.ref.kind, event.ref.index])).toEqual([
+			['tankSwap', 1],
+			['tankSwap', 2],
+		]);
+		const second = row(1);
+		expect(second.map(event => [event.ref.kind, event.ref.index, event.row])).toEqual([
+			['tankSwap', 0, 0],
+			['downtime', 0, 1],
+		]);
+		expect(second[0].repeats.map(repeat => [repeat.start, repeat.end])).toEqual([
+			[expect.closeTo(0.5), expect.closeTo(0.6)],
+			[expect.closeTo(0.9), expect.closeTo(1)],
+		]);
+	});
+
 	it('draws a move from its start to the end of its walk, in seconds or in yards at the run speed', () => {
 		const seconds = { ...eventAt('move', 0.1), yards: 0, seconds: 18 };
 		const yards = { ...eventAt('move', 0.5), yards: 70 };

@@ -9,6 +9,7 @@ import {
 	PlanDamageAmp,
 	PlanDowntime,
 	PlanMove,
+	PlanTankSwap,
 	PlanTargets,
 	PresetEncounter,
 	PresetTarget,
@@ -196,6 +197,7 @@ describe('Encounter', () => {
 			encounter.setPlan(
 				EncounterPlan.create({
 					downtimes: [PlanDowntime.create({ targetIndex: 0 }), PlanDowntime.create({ targetIndex: 2 })],
+					tankSwaps: [PlanTankSwap.create({ targetIndex: 1 })],
 					bossAbilities: [PlanBossAbility.create({ targetIndex: 1 })],
 					damageAmps: [PlanDamageAmp.create({ targets: PlanTargets.create({ targetIndices: [1, 2] }) })],
 				}),
@@ -206,6 +208,7 @@ describe('Encounter', () => {
 			const plan = encounter.getPlan();
 			return {
 				downtimes: plan.downtimes.map(d => d.targetIndex),
+				swaps: plan.tankSwaps.map(s => s.targetIndex),
 				abilities: plan.bossAbilities.map(a => a.targetIndex),
 				amps: plan.damageAmps.map(a => a.targets?.targetIndices),
 			};
@@ -222,12 +225,13 @@ describe('Encounter', () => {
 				{ moves: [PlanMove.create()] },
 				{ damageAmps: [PlanDamageAmp.create()] },
 				{ bossAbilities: [PlanBossAbility.create()] },
+				{ tankSwaps: [PlanTankSwap.create()] },
 			];
 			const read = lanes.map(lane => {
 				encounter.setPlan(EncounterPlan.create(lane));
 				return encounter.hasPlan();
 			});
-			expect(read).toEqual([true, true, true, true, true, true]);
+			expect(read).toEqual([true, true, true, true, true, true, true]);
 
 			encounter.setPlan(EncounterPlan.create());
 			expect(encounter.hasPlan()).toBe(false);
@@ -259,18 +263,20 @@ describe('Encounter', () => {
 					bossAbilities: [PlanBossAbility.create({ name: 'Cleave' })],
 					damageAmps: [PlanDamageAmp.create({ name: 'Buff' })],
 					moves: [PlanMove.create({ name: 'Run' })],
+					tankSwaps: [PlanTankSwap.create({ name: 'Taunt' })],
 				}),
 			);
 			const other = makeEncounter();
 			other.fromProto(EncounterProto.fromBinary(EncounterProto.toBinary(encounter.toProto())));
 			const plan = other.getPlan();
-			expect([plan.downtimes[0].name, plan.bossHealth[0].name, plan.bossAbilities[0].name, plan.damageAmps[0].name, plan.moves[0].name]).toEqual([
-				'Phase 2',
-				'Enrage',
-				'Cleave',
-				'Buff',
-				'Run',
-			]);
+			expect([
+				plan.downtimes[0].name,
+				plan.bossHealth[0].name,
+				plan.bossAbilities[0].name,
+				plan.damageAmps[0].name,
+				plan.moves[0].name,
+				plan.tankSwaps[0].name,
+			]).toEqual(['Phase 2', 'Enrage', 'Cleave', 'Buff', 'Run', 'Taunt']);
 		});
 
 		it('leaves a plain encounter without a plan message, so it equals a preset proto that has none', () => {
@@ -337,7 +343,7 @@ describe('Encounter', () => {
 
 			encounter.setTargets([c, a, b]);
 
-			expect(indices(encounter)).toEqual({ downtimes: [1, 0], abilities: [2], amps: [[2, 0]] });
+			expect(indices(encounter)).toEqual({ downtimes: [1, 0], swaps: [2], abilities: [2], amps: [[2, 0]] });
 		});
 
 		it('sets the index to -1 for a removed target', () => {
@@ -346,7 +352,18 @@ describe('Encounter', () => {
 
 			encounter.setTargets([a, c]);
 
-			expect(indices(encounter)).toEqual({ downtimes: [0, 1], abilities: [-1], amps: [[-1, 1]] });
+			expect(indices(encounter)).toEqual({ downtimes: [0, 1], swaps: [-1], abilities: [-1], amps: [[-1, 1]] });
+		});
+
+		it('follows the target a tank swap alone names', () => {
+			const encounter = makeEncounter();
+			encounter.setTargets([1, 2, 3].map(id => TargetProto.create({ id })));
+			encounter.setPlan(EncounterPlan.create({ tankSwaps: [PlanTankSwap.create({ targetIndex: 2 }), PlanTankSwap.create({ targetIndex: 1 })] }));
+			const [a, , c] = encounter.getTargets();
+
+			encounter.setTargets([c, a]);
+
+			expect(encounter.getPlan().tankSwaps.map(s => s.targetIndex)).toEqual([0, -1]);
 		});
 
 		it('keeps the index of a target replaced by a new object in place, and the plan itself when nothing moves', () => {
@@ -358,7 +375,7 @@ describe('Encounter', () => {
 			expect(remapPlanTargets(plan, [a, b, c], [a, TargetProto.clone(b), c])).toBe(plan);
 
 			encounter.setTargets([TargetProto.clone(a), c, b]);
-			expect(indices(encounter)).toEqual({ downtimes: [0, 1], abilities: [2], amps: [[2, 1]] });
+			expect(indices(encounter)).toEqual({ downtimes: [0, 1], swaps: [2], abilities: [2], amps: [[2, 1]] });
 		});
 	});
 });

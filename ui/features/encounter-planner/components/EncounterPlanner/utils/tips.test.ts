@@ -175,6 +175,14 @@ describe('eventTooltip', () => {
 		expect(tip(health, 'bossHealth')).toEqual({ title: 'event_name(boss_health,1)', lines: ['health(100,65)', 'range(seconds(0),seconds(90))'] });
 	});
 
+	it('describes a tank swap by its target, its window and repeat, and which attacks move to the other tank', () => {
+		const swap = { ...eventAt('tankSwap', 0.5), targetIndex: 1, repeat: { interval: 30 / 180, jitter: 0, count: 0 } };
+		expect(eventTooltip(EncounterPlan.create({ tankSwaps: [swap] }), { kind: 'tankSwap', index: 0 }, 180, ['Boss', 'Add'])).toEqual({
+			title: 'tank_swap',
+			lines: ['Add', 'range(seconds(90),seconds(108))', 'every(seconds(30))', 'tank_swap_moves', 'tank_swap_stays', 'tank_swap_tank'],
+		});
+	});
+
 	it('reads a given window over the stored one', () => {
 		const downtime = EncounterPlan.create({ downtimes: [eventAt('downtime', 0.5)] });
 		expect(eventTooltip(downtime, { kind: 'downtime', index: 0 }, 180, ['Boss'], { start: 0.1, end: 0.2 }).lines).toContain(

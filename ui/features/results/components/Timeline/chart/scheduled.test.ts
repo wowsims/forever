@@ -1,4 +1,14 @@
-import { AddWave, DamageAmpType, EncounterPlan, PlanBossAbility, PlanBossAbility_Kind, PlanDamageAmp, PlanRepeat, PlanTime } from '@generated/proto/common';
+import {
+	AddWave,
+	DamageAmpType,
+	EncounterPlan,
+	PlanBossAbility,
+	PlanBossAbility_Kind,
+	PlanDamageAmp,
+	PlanRepeat,
+	PlanTankSwap,
+	PlanTime,
+} from '@generated/proto/common';
 import { describe, expect, it } from 'vitest';
 
 import { scheduledMarkers } from './scheduled';
@@ -33,6 +43,15 @@ describe('scheduledMarkers', () => {
 		expect(markers.map(m => [m.kind, m.start, m.end])).toEqual([
 			['amp', 40, 60],
 			['amp', 80, 100],
+		]);
+	});
+
+	it("draws a tank swap's repeating windows on its own row", () => {
+		const swap = PlanTankSwap.create({ targetIndex: 0, start: at(0.1), end: at(0.2), repeat: repeat(0.5, 1) });
+		const markers = scheduledMarkers(plan({ tankSwaps: [swap] }), 100);
+		expect(markers).toEqual([
+			{ kind: 'tankSwap', start: 10, end: 20 },
+			{ kind: 'tankSwap', start: 60, end: 70 },
 		]);
 	});
 

@@ -35,6 +35,7 @@ export const remapPlanTargets = (plan: EncounterPlan, oldTargets: ReadonlyArray<
 	const moved = (index: number) => remap(index) !== index;
 	const touched =
 		plan.downtimes.some(d => moved(d.targetIndex)) ||
+		plan.tankSwaps.some(s => moved(s.targetIndex)) ||
 		plan.bossAbilities.some(a => moved(a.targetIndex)) ||
 		plan.damageAmps.some(a => a.targets?.targetIndices.some(moved));
 	// An empty PlanTargets means target 0, a position rather than an identity, so it stays as is.
@@ -42,6 +43,7 @@ export const remapPlanTargets = (plan: EncounterPlan, oldTargets: ReadonlyArray<
 
 	const next = EncounterPlan.clone(plan);
 	next.downtimes.forEach(d => (d.targetIndex = remap(d.targetIndex)));
+	next.tankSwaps.forEach(s => (s.targetIndex = remap(s.targetIndex)));
 	next.bossAbilities.forEach(a => (a.targetIndex = remap(a.targetIndex)));
 	next.damageAmps.forEach(a => {
 		if (a.targets) a.targets.targetIndices = a.targets.targetIndices.map(remap);
@@ -105,7 +107,10 @@ export class Encounter {
 	// runs before it builds one. A simple fight has none, and the encounter's execute proportions shape it alone.
 	hasPlan(): boolean {
 		const d = this.enc.plan;
-		return d.downtimes.length + d.bossHealth.length + d.addWaves.length + d.moves.length + d.damageAmps.length + d.bossAbilities.length > 0;
+		return (
+			d.downtimes.length + d.bossHealth.length + d.addWaves.length + d.moves.length + d.damageAmps.length + d.bossAbilities.length + d.tankSwaps.length >
+			0
+		);
 	}
 
 	// Target mutation with a single change event, which the planner's target

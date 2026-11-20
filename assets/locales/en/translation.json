@@ -1159,6 +1159,7 @@
 				},
 				"events": {
 					"downtime": "Downtime",
+					"tank_swap": "Tank swap",
 					"boss_health": "Boss health",
 					"ability": "Ability",
 					"wave": "Wave",
@@ -1186,7 +1187,9 @@
 					"min_above_max": "Its min damage is above its max damage.",
 					"no_tick_interval": "Ticks at no interval, so the sim skips it.",
 					"wave_over_pool": "Needs more than the sim's 64 slots for one wave at once, so a spawn with too few free is skipped.",
-					"health_stops_short": "The sim's boss health curve holds 16 points and this keyframe is the last that fits, so the boss never falls to 0%."
+					"health_stops_short": "The sim's boss health curve holds 16 points and this keyframe is the last that fits, so the boss never falls to 0%.",
+					"tank_swap_overlap": "Overlaps another tank swap of its target, which stays on its other tank until the last of them ends.",
+					"tank_swap_repeat_overlap": "Repeats before its window ends, so its windows run into each other."
 				},
 				"event_name": "{{event}} {{number}}",
 				"seconds": "{{value}}s",
@@ -1216,6 +1219,10 @@
 					"health": "{{from}} % → {{to}} %",
 					"downtime": "Downtime",
 					"clears_debuffs": "Clears debuffs",
+					"tank_swap": "Tank swap",
+					"tank_swap_moves": "Its melee, Thrash, Strike and Spell hit go to its other tank",
+					"tank_swap_stays": "Area hit and Pulse still hit everyone",
+					"tank_swap_tank": "Only matters when you tank (Tank Assignment)",
 					"school_damage": "{{school}} {{min}}–{{max}}",
 					"cast": "{{time}} cast",
 					"cast_by": "Cast by {{target}}",
@@ -1364,7 +1371,8 @@
 					"resistible": "Rolls resistances like a spell of its school; off, it's environmental damage with no roll.",
 					"avoidable": "Skips you while one of the plan's moves walks you; pets still take it.",
 					"source": "Environment comes from no target and lands even while every target is down. Boss is cast by the chosen target, and does nothing while that target is down.",
-					"stops_swing": "The boss stops swinging while it casts and starts a full swing when the cast ends. Off, its swings go on through the cast."
+					"stops_swing": "The boss stops swinging while it casts and starts a full swing when the cast ends. Off, its swings go on through the cast.",
+					"tank_swap_target": "While a window runs, this target attacks its other tank: its melee, Thrash, Strikes and Spell hits go there, and its Area hits and Pulses still hit everyone. It only matters when you tank (Tank Assignment, shown with threat metrics). A target you tank turns to a tank outside the sim, and one on another tank slot turns to you."
 				},
 				"amp_types": {
 					"caster_buff": "Caster buff",
@@ -2965,6 +2973,7 @@
 				"scheduled": {
 					"title": "Scheduled by the encounter plan (jitter not shown):",
 					"downtime": "Target downtime",
+					"tankSwap": "Tank swap",
 					"wave": "Add wave",
 					"amp": "Damage amp",
 					"move": "Move",
