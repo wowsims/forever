@@ -710,6 +710,13 @@ var Spells = []Override{
 		Source:  "observed",
 	},
 	{
+		SpellID: 1309550,
+		Field:   PPM,
+		Value:   1.35,
+		Reason:  "Claymore of Two Moons: 1.35 procs per minute on landed melee hits, read off paladins alone (EV-0163); the game files state none",
+		Source:  "observed",
+	},
+	{
 		SpellID: 450587,
 		Field:   PPM,
 		Value:   1,
