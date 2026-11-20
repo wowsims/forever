@@ -220,7 +220,7 @@ var spellData = generatedSpellData{
 	Setup:                        spelldata.Talent(13983, 3),
 	SetupTriggered:               spelldata.Ranked(15250),
 	Shank:                        spelldata.Ranked(1329283, 1329549),
-	ShankTriggered:               spelldata.Ranked(1310703, 1329286),
+	ShankTriggered:               spelldata.Ranked(1310703, 1329285, 1329286),
 	SinisterStrike:               spelldata.Ranked(1752, 1757, 1758, 1759, 1760, 8621, 11293, 11294),
 	SliceAndDice:                 spelldata.Ranked(5171, 6774),
 	Sprint:                       spelldata.Ranked(2983, 8696, 11305),

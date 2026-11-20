@@ -73,6 +73,12 @@ func (s *Spell) OnlyOnPlayers() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_ONLY_ON_PLAYER)
 }
 
+// Whether the aura reaches every spell and attack of its schools while the required weapon is equipped,
+// beyond the attacks made with that weapon.
+func (s *Spell) AuraReachesBeyondItsWeapon() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_EX_5, dbcenums.ATTR_EX_5_NOT_JUST_REQ_EQUIPPED_ITEM)
+}
+
 func (s *Spell) ClassSpellsOnly() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_12, dbcenums.ATTR_EX_12_ONLY_PROC_FROM_CLASS_ABILITIES)
 }
