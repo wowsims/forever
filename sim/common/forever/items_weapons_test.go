@@ -1518,6 +1518,71 @@ func TestBladeOfHannaPerfectsItsFormAtThirtyStacks(t *testing.T) {
 	}
 }
 
+// Claymore of Two Moons 280080 rolls 1309550 at the row's procs per minute on the weapon's speed,
+// on white swings and melee specials alike. Each proc casts Waxing Moon 1319378, a spell hit whose
+// damage lands after its flight, or puts up Waning Moon 1319382's Strength for the row's duration,
+// and never both.
+func TestClaymoreOfTwoMoonsWaxesOrWanesOnEachProc(t *testing.T) {
+	if core.GetItemByID(280080) == nil {
+		t.Skip("item 280080 is not in the live game files; this runs again once they hold it")
+	}
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 280080, 1)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	enemy := character.CurrentTarget
+
+	waxRow, waneRow := spelldata.MustFind(1319378), spelldata.MustFind(1319382)
+	proc := character.GetAura("Claymore of Two Moons")
+	wax := character.GetSpell(core.ActionID{SpellID: waxRow.ID})
+	wane := character.GetAuraByID(core.ActionID{SpellID: waneRow.ID})
+	if proc == nil || proc.Dpm == nil || wax == nil || wane == nil {
+		t.Fatal("280080 registers no proc on a procs per minute rate, no Waxing Moon spell or no Waning Moon aura")
+	}
+	want := float64(spelldata.MustFind(1309550).RPPM) * core.GetItemByID(280080).SwingSpeed / 60
+	for _, mask := range []core.ProcMask{core.ProcMaskMeleeMHAuto, core.ProcMaskMeleeMHSpecial} {
+		if got := proc.Dpm.Chance(mask, sim); want <= 0 || want >= 1 || math.Abs(got-want) > 1e-9 {
+			t.Errorf("the proc rolls %v on a hit of mask %v, want the row's procs per minute on the weapon's speed, %v", got, mask, want)
+		}
+	}
+	if wax.ProcMask != core.ProcMaskSpellDamage || wax.Flags&core.SpellFlagProc == 0 {
+		t.Errorf("Waxing Moon has mask %v and proc flag %v, want a proc's spell hit", wax.ProcMask, wax.Flags&core.SpellFlagProc != 0)
+	}
+
+	// Every melee hit now procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee)
+	amount := waneRow.FirstAura(dbcenums.A_MOD_STAT).Min()
+	const hits = 100
+	var waxes, wanes int
+	for range hits {
+		wane.Deactivate(sim)
+		casts := wax.SpellMetrics[enemy.UnitIndex].Casts
+		before := character.GetStats()
+		dealHit(t, sim, character, meleeSwing(&character.Unit))
+		waxed, waned := wax.SpellMetrics[enemy.UnitIndex].Casts > casts, wane.IsActive()
+		if waxed == waned {
+			t.Fatalf("a proc cast Waxing Moon %v and put up Waning Moon %v, want exactly one", waxed, waned)
+		}
+		if waxed {
+			waxes++
+			continue
+		}
+		wanes++
+		if got := gained(character, before, stats.Strength); amount <= 0 || !statNear(got, amount) {
+			t.Fatalf("Waning Moon adds %v Strength, want the row's %v", got, amount)
+		}
+		if got := wane.Duration; got != waneRow.Duration() {
+			t.Fatalf("Waning Moon went up for %v, want the row's %v", got, waneRow.Duration())
+		}
+	}
+	if waxes < hits/4 || wanes < hits/4 {
+		t.Errorf("%d procs cast Waxing Moon %d times and Waning Moon %d times, want about one in two each", hits, waxes, wanes)
+	}
+
+	stepTo(t, sim, sim.CurrentTime+2*time.Second)
+	if got := wax.SpellMetrics[enemy.UnitIndex]; got.TotalDamage <= 0 {
+		t.Errorf("%d Waxing Moon casts dealt %v damage once landed, want the row's damage", got.Casts, got.TotalDamage)
+	}
+}
+
 // White Obsidian Wand 274425 rolls 1294058 on a caster's wand shots at the procs per minute of the
 // item's chance-on-hit entry, on the wand's speed, and on nothing else. A landed shot puts it up, a
 // missed one does not, and Shoot leaves it up. The next spell of a school the row names that pays mana

@@ -61,4 +61,12 @@ var GearProcRates = []GearProcRate{
 		ID:     280032,
 		Reason: "Bolt's Charged Eyeball: 15%, and half the procs land on the wearer",
 	},
+	{
+		Gear:   GearItem,
+		ID:     280080,
+		Kind:   RatePPM,
+		Rate:   1.35,
+		Reason: "Claymore of Two Moons: 1.35 ppm, each proc Waxing Moon or Waning Moon at even odds",
+		Source: "observed",
+	},
 }
