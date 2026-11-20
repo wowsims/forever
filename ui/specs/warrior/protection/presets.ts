@@ -23,19 +23,20 @@ export const ROTATION_DEFAULT = PresetUtils.makePresetAPLRotation('Generic', Gen
 // materials and vendor items; no reputation, PvP or Silithus rewards, except one exalted PvP faction, Alterac Valley.
 // The most threat at 140 defense, the least that makes a level 63 boss unable to crit. Cragfists of Defense drops in
 // Uldaman and the other "of Defense" pieces are world-drop greens; Ironfoe drops in Blackrock Depths and Counterattack
-// Lodestone in Dire Maul's tribute; Don Julio's Band is an Alterac Valley reward; Howler's Furs, Ring of Awareness and
-// Defender's Grip Stabilizer are sold by the Undermine Trader in Stranglethorn Vale. Horn of Ve'han, Furbolg
+// Lodestone in Dire Maul's tribute; Don Julio's Band is sold by the Alterac Valley quartermasters; Howler's Furs, Ring
+// of Awareness and Defender's Grip Stabilizer by the Undermine Trader in Stranglethorn Vale. Horn of Ve'han, Furbolg
 // Berserker's Boots and the Sentinel's Wristguards and Waistguard plans have no source in the item database.
-// Counterattack Lodestone's on-use is not modelled; it counts here for its attack power alone.
+// Counterattack Lodestone's on-use is not modelled; in both sets it counts for its attack power alone, 30 and another
+// 30 against a Mechanical target such as the default one.
 export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS (Defense Cap)', PreBiSGearJson, { devOnly: true });
 
 // The same sources with no defense floor: the most threat that survives the default target on the default healing.
 // Crest of Retribution drops in Stratholme, Blackstone Ring in Maraudon, Ironfoe in Blackrock Depths, Battleborn
 // Armbraces and Handcrafted Mastersmith Leggings in Blackrock Spire, Satyr's Bow and Counterattack Lodestone in Dire
-// Maul; Mark of Fordring is the reward for In Dreams and Don Julio's Band an Alterac Valley reward. Howler's Furs and
-// Adaptive Combat Assistant are sold by the Undermine Trader; the Breastplate and Gauntlets of Heroism by the Battlegear
-// of Heroism vendors in Orgrimmar and Ironforge. Spaulders of Containment, Girdle of Extracted Answers and Furbolg
-// Berserker's Boots have no source in the item database.
+// Maul; Mark of Fordring is the reward for In Dreams. Don Julio's Band is sold by the Alterac Valley quartermasters,
+// Howler's Furs and Adaptive Combat Assistant by the Undermine Trader, and the Breastplate and Gauntlets of Heroism by
+// the Battlegear of Heroism vendors in Orgrimmar and Ironforge. Spaulders of Containment, Girdle of Extracted Answers
+// and Furbolg Berserker's Boots have no source in the item database.
 export const PreBiSThreatGear = PresetUtils.makePresetGear('Pre-BiS (Threat)', PreBiSThreatGearJson, { devOnly: true });
 
 export const ProtectionTalents = PresetUtils.makePresetTalents('Protection', SavedTalents.create({ talentsString: '05-05050005-150531120300001351' }));
@@ -44,8 +45,8 @@ export const ProtectionTalents = PresetUtils.makePresetTalents('Protection', Sav
 // healing: 0.6 x the threat weights (Strength = 1) plus 1.15 x the TMI weights (Stamina = 1). On the defense cap gear,
 // defense is its value past the cap, and hit its value under the 8% hit cap, which that gear misses by 7 rating; the
 // threat gear sits at the hit cap, and hit is its value past it. Block rating on the threat gear measures within noise
-// of zero. ArmorNoMods weighs as Armor; the healing model's Inspiration scales only Armor, and the two measure less than
-// 0.01 apart.
+// of zero. ArmorNoMods weighs as Armor; the healing model's Inspiration scales only Armor, and the two measure less
+// than 0.01 apart.
 export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS (Defense Cap)',
 	Stats.fromMap(
@@ -85,7 +86,7 @@ export const PreBiSThreatEpWeights = PresetUtils.makePresetEpWeights(
 			[Stat.StatHitRating]: 0.02,
 			[Stat.StatCritRating]: 0.46,
 			[Stat.StatHasteRating]: 0.28,
-			[Stat.StatExpertiseRating]: 2.81,
+			[Stat.StatExpertiseRating]: 2.8,
 			[Stat.StatArmorPenetration]: 0.12,
 			[Stat.StatDefenseRating]: 0.34,
 			[Stat.StatBlockRating]: 0,

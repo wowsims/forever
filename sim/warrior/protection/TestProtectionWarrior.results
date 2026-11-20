@@ -2960,102 +2960,102 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1880.9612
-  tps: 4855.32703
-  dtps: 8171.55504
+  dps: 1875.13111
+  tps: 4840.28423
+  dtps: 8172.01893
   hps: 80.02333
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 742.36851
-  tps: 2350.49474
-  dtps: 341.23636
-  hps: 47.25278
+  dps: 739.4489
+  tps: 2338.69355
+  dtps: 341.6667
+  hps: 47.23583
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 757.50403
-  tps: 2409.60164
-  dtps: 307.50258
+  dps: 755.04657
+  tps: 2403.39354
+  dtps: 308.40109
   hps: 57.71333
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 804.83514
-  tps: 2356.23095
+  dps: 801.86173
+  tps: 2348.14122
   dtps: 12924.5385
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 419.27879
-  tps: 1451.73258
+  dps: 417.82684
+  tps: 1446.73441
   dtps: 484.06769
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 401.05406
-  tps: 1402.95517
+  dps: 399.59499
+  tps: 1397.97725
   dtps: 442.94573
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default_trainer_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1860.18203
-  tps: 4779.52717
-  dtps: 8171.55504
+  dps: 1854.35194
+  tps: 4764.48437
+  dtps: 8172.01893
   hps: 80.02333
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default_trainer_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 719.70886
-  tps: 2261.87667
-  dtps: 341.23636
-  hps: 47.25278
+  dps: 716.84233
+  tps: 2250.37643
+  dtps: 341.6667
+  hps: 47.23583
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default_trainer_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 734.80925
-  tps: 2319.83048
-  dtps: 307.50258
+  dps: 732.32094
+  tps: 2313.42922
+  dtps: 308.40109
   hps: 57.71333
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default_trainer_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 790.22548
-  tps: 2300.2791
+  dps: 787.25208
+  tps: 2292.18937
   dtps: 12924.5385
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default_trainer_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 402.29452
-  tps: 1381.4634
+  dps: 400.84257
+  tps: 1376.46523
   dtps: 484.06769
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Human-prebis_threat-Protection-default_trainer_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 385.17126
-  tps: 1336.7271
+  dps: 383.7122
+  tps: 1331.74919
   dtps: 442.94573
  }
 }
@@ -3266,102 +3266,102 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1888.79742
-  tps: 4869.14339
-  dtps: 8191.50066
+  dps: 1882.89892
+  tps: 4853.96092
+  dtps: 8191.9651
   hps: 79.35556
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 743.94586
-  tps: 2369.90693
-  dtps: 341.82482
-  hps: 46.70361
+  dps: 740.7117
+  tps: 2357.40622
+  dtps: 341.98066
+  hps: 46.68667
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 762.59536
-  tps: 2425.24859
-  dtps: 305.91822
+  dps: 759.67387
+  tps: 2416.2258
+  dtps: 306.09655
   hps: 56.41167
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 798.53951
-  tps: 2333.08729
+  dps: 795.55544
+  tps: 2325.01046
   dtps: 12976.94865
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 420.79069
-  tps: 1452.00211
+  dps: 419.33158
+  tps: 1446.99488
   dtps: 484.67762
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 401.58531
-  tps: 1395.67496
+  dps: 400.13612
+  tps: 1390.75953
   dtps: 448.2298
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default_trainer_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1868.02802
-  tps: 4793.7992
-  dtps: 8191.50066
+  dps: 1862.12953
+  tps: 4778.61672
+  dtps: 8191.9651
   hps: 79.35556
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default_trainer_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 721.20275
-  tps: 2280.36922
-  dtps: 341.82482
-  hps: 46.70361
+  dps: 718.04661
+  tps: 2268.24975
+  dtps: 341.98066
+  hps: 46.68667
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default_trainer_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 739.85825
-  tps: 2335.5724
-  dtps: 305.91822
+  dps: 736.93677
+  tps: 2326.54961
+  dtps: 306.09655
   hps: 56.41167
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default_trainer_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 784.13008
-  tps: 2278.29296
+  dps: 781.14602
+  tps: 2270.21613
   dtps: 12976.94865
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default_trainer_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 403.93634
-  tps: 1382.3845
+  dps: 402.47723
+  tps: 1377.37727
   dtps: 484.67762
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-Settings-Orc-prebis_threat-Protection-default_trainer_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 386.32013
-  tps: 1332.12286
+  dps: 384.87094
+  tps: 1327.20743
   dtps: 448.2298
  }
 }
