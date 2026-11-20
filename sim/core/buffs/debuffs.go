@@ -10,8 +10,12 @@ import (
 func applyDebuffs(target *core.Unit, debuffs *proto.Debuffs, raid *proto.Raid) {
 	applyGeneratedDebuffs(target, debuffs, raid)
 
-	if debuffs.JudgementOfTheCrusader {
-		core.MakePermanent(NewSpellDataJudgementOfTheCrusaderAuraRank(target, JudgementOfTheCrusaderMaxRank))
+	if debuffs.JudgementOfTheCrusader != proto.TristateEffect_TristateEffectMissing {
+		rank := JudgementOfTheCrusaderMaxRank
+		if debuffs.JudgementOfTheCrusader == proto.TristateEffect_TristateEffectImproved {
+			rank.Value += LibramOfFervorJudgementBonus
+		}
+		core.MakePermanent(NewSpellDataJudgementOfTheCrusaderAuraRank(target, rank))
 	}
 }
 

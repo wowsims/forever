@@ -7,7 +7,7 @@
 	},
 	"debuffs": {
 		"huntersMark": true,
-		"judgementOfTheCrusader": true,
+		"judgementOfTheCrusader": "TristateEffectRegular",
 		"curseOfRecklessness": true,
 		"faerieFire": true,
 		"exposeArmor": true,

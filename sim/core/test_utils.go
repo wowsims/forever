@@ -104,7 +104,7 @@ var FullTankIndividualBuffs = &proto.IndividualBuffs{
 var FullDebuffs = &proto.Debuffs{
 	JudgementOfWisdom:      true,
 	JudgementOfLight:       true,
-	JudgementOfTheCrusader: true,
+	JudgementOfTheCrusader: proto.TristateEffect_TristateEffectRegular,
 	CurseOfElements:        true,
 	GiftOfArthas:           true,
 	ExposeArmor:            true,
