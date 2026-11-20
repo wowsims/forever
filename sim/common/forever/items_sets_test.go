@@ -1028,10 +1028,10 @@ func TestDefiasEnforcersGarbCritsOffEitherHand(t *testing.T) {
 		{"in a swamp", []proto.AreaType{proto.AreaType_AreaTypeSwamp}, 2},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			sim, rogue := itemWearerIn(t, proto.Class_ClassRogue, setPieces(pieces), tc.areas...)
-			rogue.AutoAttacks.CancelAutoSwing(sim)
-			proc := rogue.GetAura("Defias Enforcer's Garb 5P")
-			buff := rogue.GetAuraByID(core.ActionID{SpellID: buffRow.ID})
+			sim, wearer := itemWearerIn(t, proto.Class_ClassWarrior, setPieces(pieces), tc.areas...)
+			wearer.AutoAttacks.CancelAutoSwing(sim)
+			proc := wearer.GetAura("Defias Enforcer's Garb 5P")
+			buff := wearer.GetAuraByID(core.ActionID{SpellID: buffRow.ID})
 			if proc == nil || proc.Dpm == nil || buff == nil || row.RPPM <= 0 {
 				t.Fatal("five pieces register no proc on a procs per minute rate or no 1324683, or 1324684 carries no rate")
 			}
@@ -1047,17 +1047,17 @@ func TestDefiasEnforcersGarbCritsOffEitherHand(t *testing.T) {
 				}
 			}
 
-			*proc.Dpm = *rogue.NewFixedProcChanceManager(1, core.ProcMaskMelee)
-			dealHit(t, sim, rogue, fireSpell(&rogue.Unit))
+			*proc.Dpm = *wearer.NewFixedProcChanceManager(1, core.ProcMaskMelee)
+			dealHit(t, sim, wearer, fireSpell(&wearer.Unit))
 			if buff.IsActive() {
 				t.Fatal("a spell hit put the buff up, want only melee hits")
 			}
-			crit := rogue.GetStat(stats.PhysicalCritPercent)
-			dealHit(t, sim, rogue, &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto, SpellSchool: core.SpellSchoolPhysical, Unit: &rogue.Unit})
+			crit := wearer.GetStat(stats.PhysicalCritPercent)
+			dealHit(t, sim, wearer, &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto, SpellSchool: core.SpellSchoolPhysical, Unit: &wearer.Unit})
 			if !buff.IsActive() {
 				t.Fatal("an off-hand swing on a certain roll put no buff up")
 			}
-			if got, want := rogue.GetStat(stats.PhysicalCritPercent)-crit, buffRow.EffectN(tc.effect).BaseValue(); math.Abs(got-want) > 1e-9 {
+			if got, want := wearer.GetStat(stats.PhysicalCritPercent)-crit, buffRow.EffectN(tc.effect).BaseValue(); math.Abs(got-want) > 1e-9 {
 				t.Errorf("the buff adds %v%% crit, want effect %d's %v%%", got, tc.effect, want)
 			}
 		})
