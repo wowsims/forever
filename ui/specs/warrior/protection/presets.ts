@@ -8,8 +8,8 @@ import { OtherDefaults as SimUIOtherDefaults } from '@sim/spec_config';
 
 import * as WarriorPresets from '../shared/presets';
 import GenericApl from './apls/default.apl.json';
-import PreBiSGearJson from './gear_sets/prebis.gear.json';
-import PreBiSThreatGearJson from './gear_sets/prebis_threat.gear.json';
+import PreBiSBalancedGearJson from './gear_sets/prebis_balanced.gear.json';
+import PreBiSOffensiveGearJson from './gear_sets/prebis_offensive.gear.json';
 
 // Preset options for this spec.
 // Eventually we will import these values for the raid sim too, so its good to
@@ -21,84 +21,85 @@ export const ROTATION_DEFAULT = PresetUtils.makePresetAPLRotation('Generic', Gen
 
 // Dungeon and world drops, quest rewards, the warrior's dungeon tier set, crafted items whose reagents include no raid
 // materials and vendor items; no reputation, PvP or Silithus rewards, except one exalted PvP faction, Alterac Valley.
-// The most threat at 140 defense, the least that makes a level 63 boss unable to crit. Cragfists of Defense drops in
-// Uldaman and the other "of Defense" pieces are world-drop greens; Ironfoe drops in Blackrock Depths and Counterattack
-// Lodestone in Dire Maul's tribute; Don Julio's Band is sold by the Alterac Valley quartermasters; Howler's Furs, Ring
-// of Awareness and Defender's Grip Stabilizer by the Undermine Trader in Stranglethorn Vale. Horn of Ve'han, Furbolg
-// Berserker's Boots and the Sentinel's Wristguards and Waistguard plans have no source in the item database.
-// Counterattack Lodestone's on-use is not modelled; in both sets it counts for its attack power alone, 30 and another
-// 30 against a Mechanical target such as the default one.
-export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS (Defense Cap)', PreBiSGearJson, { devOnly: true });
+// The most threat that survives the default target on the default healing. Crest of Retribution drops in Stratholme,
+// Blackstone Ring in Maraudon, Ironfoe in Blackrock Depths, Battleborn Armbraces and Handcrafted Mastersmith Leggings
+// in Blackrock Spire, Satyr's Bow and Counterattack Lodestone in Dire Maul; Mark of Fordring is the reward for In
+// Dreams. Don Julio's Band is sold by the Alterac Valley quartermasters, Howler's Furs and Adaptive Combat Assistant by
+// the Undermine Trader in Stranglethorn Vale, and the Breastplate and Gauntlets of Heroism by the Battlegear of Heroism
+// vendors in Orgrimmar and Ironforge. Spaulders of Containment, Girdle of Extracted Answers and Furbolg Berserker's
+// Boots have no source in the item database. Counterattack Lodestone's on-use is not modelled; it counts for its attack
+// power alone, 30 and another 30 against a Mechanical target such as the default one.
+export const PreBiSOffensiveGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSOffensiveGearJson, { group: 'Offensive', devOnly: true });
 
-// The same sources with no defense floor: the most threat that survives the default target on the default healing.
-// Crest of Retribution drops in Stratholme, Blackstone Ring in Maraudon, Ironfoe in Blackrock Depths, Battleborn
-// Armbraces and Handcrafted Mastersmith Leggings in Blackrock Spire, Satyr's Bow and Counterattack Lodestone in Dire
-// Maul; Mark of Fordring is the reward for In Dreams. Don Julio's Band is sold by the Alterac Valley quartermasters,
-// Howler's Furs and Adaptive Combat Assistant by the Undermine Trader, and the Breastplate and Gauntlets of Heroism by
-// the Battlegear of Heroism vendors in Orgrimmar and Ironforge. Spaulders of Containment, Girdle of Extracted Answers
-// and Furbolg Berserker's Boots have no source in the item database.
-export const PreBiSThreatGear = PresetUtils.makePresetGear('Pre-BiS (Threat)', PreBiSThreatGearJson, { devOnly: true });
+// The same sources, built to take less damage at a small cost in threat; its defense stays far below the 140 that
+// makes a level 63 boss unable to crit. Ironfoe drops in Blackrock Depths and Handcrafted Mastersmith Leggings in
+// Blackrock Spire; Royal Seal of Eldre'Thalas is the reward for Codex of Defense in Dire Maul. The Immovable Object and
+// Don Julio's Band are sold by the Alterac Valley quartermasters, Stalwart Cloak, Valiant's Waistguard, Cutthroat's
+// Signet and Adaptive Combat Assistant by the Undermine Trader, and the Heroism pieces by the Battlegear of Heroism
+// vendors in Orgrimmar and Ironforge. Horn of Ve'han and Furbolg Berserker's Boots have no source in the item database.
+export const PreBiSBalancedGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSBalancedGearJson, { group: 'Balanced', devOnly: true });
 
-export const ProtectionTalents = PresetUtils.makePresetTalents('Protection', SavedTalents.create({ talentsString: '05-05050005-150531120300001351' }));
+export const OffensiveTalents = PresetUtils.makePresetTalents('Offensive', SavedTalents.create({ talentsString: '3-0505000501-050032120331021351' }));
 
-// Measured on each Pre-BiS gear set with the preset talents and rotation, against the default target on the default
-// healing: 0.6 x the threat weights (Strength = 1) plus 1.15 x the TMI weights (Stamina = 1). On the defense cap gear,
-// defense is its value past the cap, and hit its value under the 8% hit cap, which that gear misses by 7 rating; the
-// threat gear sits at the hit cap, and hit is its value past it. Block rating on the threat gear measures within noise
-// of zero. ArmorNoMods weighs as Armor; the healing model's Inspiration scales only Armor, and the two measure less
-// than 0.01 apart.
-export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
-	'Pre-BiS (Defense Cap)',
+export const BalancedTalents = PresetUtils.makePresetTalents('Balanced', SavedTalents.create({ talentsString: '05-05050005-150531120300001351' }));
+
+// Measured on each Pre-BiS gear set with its talents and the preset rotation, against the default target on the
+// default healing: 0.6 x the threat weights (Strength = 1) plus 1.15 x the TMI weights (Stamina = 1). Both sets sit at
+// or past the 8% hit cap, and hit is its value past it. Block rating measures within noise of zero on both.
+// ArmorNoMods weighs as Armor; the healing model's Inspiration scales only Armor, and the two measure less than 0.01
+// apart.
+export const PreBiSOffensiveEpWeights = PresetUtils.makePresetEpWeights(
+	'Pre-BiS - Offensive',
 	Stats.fromMap(
 		{
 			[Stat.StatStamina]: 1.15,
 			[Stat.StatStrength]: 0.62,
-			[Stat.StatAgility]: 0.53,
+			[Stat.StatAgility]: 0.58,
 			[Stat.StatAttackPower]: 0.27,
-			[Stat.StatHitRating]: 0.81,
-			[Stat.StatCritRating]: 0.42,
-			[Stat.StatHasteRating]: 0.22,
-			[Stat.StatExpertiseRating]: 2.38,
-			[Stat.StatArmorPenetration]: 0.11,
-			[Stat.StatDefenseRating]: 0.27,
-			[Stat.StatBlockRating]: 0.02,
-			[Stat.StatBlockValue]: 0.62,
-			[Stat.StatDodgeRating]: 0.16,
-			[Stat.StatParryRating]: 0.15,
-			[Stat.StatArmor]: 0.04,
-			[Stat.StatBonusArmor]: 0.04,
-			[Stat.StatArmorNoMods]: 0.04,
-		},
-		{
-			[PseudoStat.PseudoStatMainHandDps]: 1.4,
-		},
-	),
-);
-
-export const PreBiSThreatEpWeights = PresetUtils.makePresetEpWeights(
-	'Pre-BiS (Threat)',
-	Stats.fromMap(
-		{
-			[Stat.StatStamina]: 1.15,
-			[Stat.StatStrength]: 0.62,
-			[Stat.StatAgility]: 0.53,
-			[Stat.StatAttackPower]: 0.27,
-			[Stat.StatHitRating]: 0.02,
-			[Stat.StatCritRating]: 0.46,
-			[Stat.StatHasteRating]: 0.28,
-			[Stat.StatExpertiseRating]: 2.8,
+			[Stat.StatHitRating]: 0.05,
+			[Stat.StatCritRating]: 0.44,
+			[Stat.StatHasteRating]: 0.27,
+			[Stat.StatExpertiseRating]: 3.02,
 			[Stat.StatArmorPenetration]: 0.12,
-			[Stat.StatDefenseRating]: 0.34,
+			[Stat.StatDefenseRating]: 0.43,
 			[Stat.StatBlockRating]: 0,
-			[Stat.StatBlockValue]: 0.61,
-			[Stat.StatDodgeRating]: 0.16,
-			[Stat.StatParryRating]: 0.16,
+			[Stat.StatBlockValue]: 0.6,
+			[Stat.StatDodgeRating]: 0.21,
+			[Stat.StatParryRating]: 0.21,
 			[Stat.StatArmor]: 0.05,
 			[Stat.StatBonusArmor]: 0.05,
 			[Stat.StatArmorNoMods]: 0.05,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 1.44,
+			[PseudoStat.PseudoStatMainHandDps]: 1.45,
+		},
+	),
+);
+
+export const PreBiSBalancedEpWeights = PresetUtils.makePresetEpWeights(
+	'Pre-BiS - Balanced',
+	Stats.fromMap(
+		{
+			[Stat.StatStamina]: 1.15,
+			[Stat.StatStrength]: 0.62,
+			[Stat.StatAgility]: 0.66,
+			[Stat.StatAttackPower]: 0.27,
+			[Stat.StatHitRating]: 0.04,
+			[Stat.StatCritRating]: 0.43,
+			[Stat.StatHasteRating]: 0.17,
+			[Stat.StatExpertiseRating]: 2.35,
+			[Stat.StatArmorPenetration]: 0.11,
+			[Stat.StatDefenseRating]: 0.53,
+			[Stat.StatBlockRating]: 0,
+			[Stat.StatBlockValue]: 0.76,
+			[Stat.StatDodgeRating]: 0.29,
+			[Stat.StatParryRating]: 0.26,
+			[Stat.StatArmor]: 0.06,
+			[Stat.StatBonusArmor]: 0.06,
+			[Stat.StatArmorNoMods]: 0.06,
+		},
+		{
+			[PseudoStat.PseudoStatMainHandDps]: 1.42,
 		},
 	),
 );
@@ -130,16 +131,16 @@ export const DefaultConsumables = ConsumesSpec.create({
 });
 
 // Classic Era Molten Core logs: the healing that lands on the main tank, overhealing included, comes to 2.4 x
-// its damage taken, in heals about 0.3 s apart, 1.5% of it as absorbs. The HPS is 2.4 x the 321 damage taken per
-// second of the Pre-BiS (Defense Cap) gear against the default target, rounded down to 770; the Inspiration uptime is
-// not from the logs.
+// its damage taken, in heals about 0.3 s apart, 1.5% of it as absorbs. The HPS is 2.4 x the 318 damage taken per
+// second of the Balanced Pre-BiS gear against the default target, rounded down to 760; the Inspiration uptime is not
+// from the logs.
 export const OtherDefaults: Partial<SimUIOtherDefaults> = {
 	profession1: Profession.Engineering,
 	profession2: Profession.Blacksmithing,
 	race: Race.RaceOrc,
 	distanceFromTarget: 0,
 	healingModel: HealingModel.create({
-		hps: 770,
+		hps: 760,
 		cadenceSeconds: 0.3,
 		cadenceVariation: 0.64,
 		absorbFrac: 0.015,
@@ -147,3 +148,21 @@ export const OtherDefaults: Partial<SimUIOtherDefaults> = {
 		inspirationUptime: 0.25,
 	}),
 };
+
+export const PreBiSOffensiveBuild = PresetUtils.makePresetBuild('Pre-BiS', {
+	group: 'Offensive',
+	gear: PreBiSOffensiveGear,
+	talents: OffensiveTalents,
+	rotation: ROTATION_DEFAULT,
+	epWeights: PreBiSOffensiveEpWeights,
+	settings: { name: 'Pre-BiS - Offensive', consumables: DefaultConsumables },
+});
+
+export const PreBiSBalancedBuild = PresetUtils.makePresetBuild('Pre-BiS', {
+	group: 'Balanced',
+	gear: PreBiSBalancedGear,
+	talents: BalancedTalents,
+	rotation: ROTATION_DEFAULT,
+	epWeights: PreBiSBalancedEpWeights,
+	settings: { name: 'Pre-BiS - Balanced', consumables: DefaultConsumables },
+});
