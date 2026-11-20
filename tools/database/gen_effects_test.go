@@ -698,6 +698,7 @@ func TestProcTooltipHintsNameTheBlock(t *testing.T) {
 		why  string
 	}{
 		{core.ProcHintBlocked, "Attaches a Thorium Spike to your shield that deals damage every time you block with it.", "Thorium Shield Spike's grant"},
+		{core.ProcHintBlocked, "Chance on block to heal for 18.", "Krol'dok Resolve, Krol'dok Battlegear's 4-piece"},
 		{core.ProcHintOutcomeTaken, "When you dodge an attack, gain 10 rage.", "a dodge taken"},
 		{core.ProcHintOutcomeTaken, "Heals you when a harmful spell is resisted.", "a resist"},
 		{0, "Increases your chance to block by $s1%.", "a magnitude"},
