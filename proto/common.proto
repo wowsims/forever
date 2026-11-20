@@ -55,7 +55,7 @@ message ScalingItemProperties {
 	// The weapon skill the item adds; each value is the bonus on top of the level-based skill, not the full skill.
 	repeated WeaponSkillValue weapon_skills = 10;
 
-	// Health restored every 5 seconds. Nothing reads it yet, since the sim does not regenerate health.
+	// Health restored every 5 seconds. The sim reads the same value from the item's HP5 stat.
 	int32 hp5 = 11;
 }
 
