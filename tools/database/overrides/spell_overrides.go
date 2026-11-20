@@ -767,6 +767,27 @@ var Spells = []Override{
 		Source:  "observed",
 	},
 	{
+		SpellID: 1324318,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "Violet Sorcerer's Vestments 4-piece: 1 proc per minute on each target a damaging spell lands on, priced on its cast time with instants at 1.5 s; the game files state none",
+		Source:  "EV-0169",
+	},
+	{
+		SpellID: 1324323,
+		Field:   PPM,
+		Value:   0.95,
+		Reason:  "Violet Sorcerer's Vestments 5-piece: 0.95 procs per minute on each target a damaging spell lands on, priced on its cast time with instants at 1.5 s; the game files state none",
+		Source:  "EV-0169",
+	},
+	{
+		SpellID: 1324684,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "Defias Enforcer's Garb 5-piece: 1 proc per minute on landed melee hits of either hand, priced on the weapon that hit; the game files state none",
+		Source:  "EV-0170",
+	},
+	{
 		SpellID: 21978,
 		Field:   PPM,
 		Value:   1.8,
