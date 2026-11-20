@@ -39283,11 +39283,11 @@ var generatedSpells = []Spell{
 			{ID: 1361084, SpellID: 1324296, Type: dbcenums.E_HEAL, BasePoints: 18, Variance: 0.5, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1361113, SpellID: 1324296, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 44, Variance: 0.5, PvpMult: 1, ChainAmp: 1},
 		}},
-	{ID: 1324298, Name: "Krol'dok Resolve", School: 1, Attr: [17]uint32{0: 0x40, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x2a8}, ICDMs: 1000, RefIDs: []int32{1324296}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintHeals,
+	{ID: 1324298, Name: "Krol'dok Resolve", School: 1, Attr: [17]uint32{0: 0x40, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x2a8}, ICDMs: 1000, RefIDs: []int32{1324296}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1361094, SpellID: 1324298, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, TriggerID: 1324296, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1361112, SpellID: 1324298, Index: 1, Type: dbcenums.E_DUMMY, PvpMult: 1, ChainAmp: 1},
-		}},
+		}}, // override: ProcChancePct 100 -- Krol'dok Resolve, Krol'dok Battlegear 4pc: 'Chance on block' heals on every blocked melee or ranged hit off its cooldown
 	{ID: 1324308, Name: "Ogre Dominance", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 40, DurationMs: 30000, MaxRange: 100, MaxStack: 20, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1361119, SpellID: 1324308, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 1, PvpMult: 1, Misc: 2, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
