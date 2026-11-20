@@ -78,6 +78,7 @@ var ItemSetTrappingsOfTheUnseenPath = core.NewItemSet(core.ItemSet{
 		proto.ItemSlot_ItemSlotOffHand,
 	},
 	Bonuses: map[int32]core.ApplySetBonus{
+		// TODO: Ingame test needed -- whether the 3% applies to all pet damage.
 		3: applyBeastOfTheUnseenPath,
 	},
 })

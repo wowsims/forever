@@ -37,6 +37,8 @@ var ItemSetStormcallersGarb = core.NewItemSet(core.ItemSet{
 		// spells the tooltip names; the copies Lightning Overload casts are not among them. The row
 		// hears harmful spells, which the decode reads as the cast, so a Chain Lightning rolls once
 		// however many targets it hits.
+		// TODO: Ingame test needed -- whether only Lightning Bolt, Chain Lightning and the shocks roll it,
+		// once per cast.
 		3: func(agent core.Agent, setBonusAura *core.Aura) {
 			shaman := agent.(ShamanAgent).GetShaman()
 
@@ -72,6 +74,7 @@ var ItemSetGiftOfTheGatheringStorm = core.NewItemSet(core.ItemSet{
 		// The modifier (SPELLMOD_DAMAGE_MULTIPLIER, misc 20) scales the share of the damage each jump
 		// keeps, the effect's ChainAmp. It is a percent modifier, so it multiplies that share. The
 		// copy Lightning Overload casts carries Chain Lightning's class flags and jumps alike.
+		// TODO: Ingame test needed -- whether the 5% multiplies each jump's share or adds to it.
 		3: func(agent core.Agent, setBonusAura *core.Aura) {
 			shaman := agent.(ShamanAgent).GetShaman()
 			multiplier := 1 + gatheringStormChain.EffectN(1).Percent()
@@ -97,6 +100,7 @@ var ItemSetTheEarthshatterer = core.NewItemSet(core.ItemSet{
 
 		// Your Lightning Shield spell also grants you 15 mana per 5 sec. while active.
 		// registerEarthshattererShieldMP5 links the mana to Lightning Shield, which registers after the set bonuses.
+		// TODO: Ingame test needed -- whether the mana per 5 sec applies only while Lightning Shield is up.
 		8: func(agent core.Agent, setBonusAura *core.Aura) {
 			shaman := agent.(ShamanAgent).GetShaman()
 			shaman.earthshattererAura = setBonusAura

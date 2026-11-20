@@ -168,6 +168,7 @@ var ItemSetManaflareRegalia = core.NewItemSet(core.ItemSet{
 		//
 		// Three dummies the talents read while this aura is up: effect 1 in registerMissileBarrage, effect 2 in
 		// registerCombustionSpell, effect 3 in registerFingersOfFrost. Each chance adds its points to the talent's.
+		// TODO: Ingame test needed -- whether the 10% adds percentage points to each proc chance or scales it.
 		5: func(agent core.Agent, setBonusAura *core.Aura) {
 			agent.(MageAgent).GetMage().manaflareAura = setBonusAura
 		},

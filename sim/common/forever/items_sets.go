@@ -660,6 +660,7 @@ var ItemSetTeachingsOfTheFurbolgs = core.NewItemSet(core.ItemSet{
 	Name:  "Teachings of the Furbolgs",
 	Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotTrinket1, proto.ItemSlot_ItemSlotTrinket2},
 	Bonuses: map[int32]core.ApplySetBonus{
+		// TODO: Ingame test needed -- which melee and ranged hits roll it.
 		2: teachingsOfTheFurbolgs,
 	},
 })
@@ -697,6 +698,7 @@ var ItemSetDefiasLeather = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(spelldata.MustFind(14707)),   // +5 Arcane Resistance
 		3: shared.ParsedSetBonus(spelldata.MustFind(1292025)), // +15 attack power against Humanoids
+		// TODO: Ingame test needed -- whether every swing outside the in-front setting counts as from behind.
 		4: deviousStrike,
 		5: shared.ParsedSetBonus(spelldata.MustFind(7534)), // +1 Daggers
 	},
@@ -747,6 +749,8 @@ var ItemSetChainOfTheScarletCrusade = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(spelldata.MustFind(14673)), // +10 Shadow Resistance
 		3: shared.ParsedSetBonus(spelldata.MustFind(18074)), // +30 attack power against Undead
+		// TODO: Ingame test needed -- whether every melee hit while active deals the Holy damage,
+		// 3 times against Undead.
 		4: enragingLight,
 		5: shared.ParsedSetBonus(spelldata.MustFind(432639)), // 1% hit
 		// TODO: 6pc (1293670) shields the wearer when a hit leaves them at or below 20% health, which the
@@ -799,6 +803,7 @@ var ItemSetDeathboneGuardian = core.NewItemSet(core.ItemSet{
 		2: shared.ParsedSetBonus(spelldata.MustFind(7516)),    // +3 defense
 		3: shared.ParsedSetBonus(spelldata.MustFind(1299743)), // a spell damage surge when struck
 		4: shared.ParsedSetBonus(spelldata.MustFind(18676)),   // +5 all resistances
+		// TODO: Ingame test needed -- whether the dodge and parry reduction works as expertise.
 		5: func(_ core.Agent, setBonusAura *core.Aura) {
 			setBonusAura.
 				AttachStatBuff(stats.ExpertisePercent, -deathboneExpertise.EffectN(1).BaseValue()).
@@ -829,6 +834,7 @@ var ItemSetRotmendersRaiment = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(spelldata.MustFind(14668)), // +5 Shadow Resistance
 		3: shared.ParsedSetBonus(spelldata.MustFind(9106)),  // +10 Intellect
+		// TODO: Ingame test needed -- whether any cast that leaves mana below 15% triggers it.
 		4: siphonTheGraveMana,
 		// TODO: 5pc (1321587) heals over time off a heal, at a rate its row does not state.
 	},
@@ -883,6 +889,7 @@ var ItemSetSpidersKiss = core.NewItemSet(core.ItemSet{
 	Name:  "Spider's Kiss",
 	Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand},
 	Bonuses: map[int32]core.ApplySetBonus{
+		// TODO: Ingame test needed -- whether the armor reduction stacks with other armor debuffs.
 		2: spidersKiss,
 	},
 })
@@ -936,6 +943,8 @@ var ItemSetTheGladiator = core.NewItemSet(core.ItemSet{
 		proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet},
 	Bonuses: map[int32]core.ApplySetBonus{
 		3: shared.ParsedSetBonus(spelldata.MustFind(9331)), // +20 attack power
+		// TODO: Ingame test needed -- whether the chance doubles with no ally within 20 yd,
+		// which the sim does not model.
 		4: roarOfTheCrowdHaste,
 		5: shared.ParsedSetBonus(spelldata.MustFind(1314795)), // 1% crit
 	},
@@ -981,6 +990,7 @@ var ItemSetBloodmailRegalia = core.NewItemSet(core.ItemSet{
 		proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet},
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(spelldata.MustFind(9140)), // +10 attack power
+		// TODO: Ingame test needed -- whether it is a chance per swing or procs per minute.
 		3: bloodmailWound,
 		4: shared.ParsedSetBonus(spelldata.MustFind(18676)),   // +5 all resistances
 		5: shared.ParsedSetBonus(spelldata.MustFind(1299738)), // 1.5% crit
@@ -1036,6 +1046,7 @@ var ItemSetNecropileRaiment = core.NewItemSet(core.ItemSet{
 		proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet},
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(spelldata.MustFind(1299734)), // 0.5% hit
+		// TODO: Ingame test needed -- whether every harmful spell has the same chance.
 		3: necropileDrainLeech,
 		4: shared.ParsedSetBonus(spelldata.MustFind(18676)), // +5 all resistances
 		5: shared.ParsedSetBonus(dungeonTwoDamage),
@@ -1100,6 +1111,7 @@ var ItemSetVioletSorcerersVestments = core.NewItemSet(core.ItemSet{
 		2: shared.ParsedSetBonus(spelldata.MustFind(1324311)), // +5 Arcane Resistance
 		3: shared.ParsedSetBonus(spelldata.MustFind(1324312)), // +10 Spirit
 		4: violetMeditationRegen,
+		// TODO: Ingame test needed -- whether several elementals can be up at once, and their damage.
 		5: summonArcaneElemental,
 	},
 })
@@ -1168,6 +1180,7 @@ var ItemSetDefiasEnforcersGarb = core.NewItemSet(core.ItemSet{
 		2: shared.ParsedSetBonus(spelldata.MustFind(1324673)), // +10 Fire Resistance
 		3: shared.ParsedSetBonus(spelldata.MustFind(1324674)), // +15 Stamina
 		4: shared.ParsedSetBonus(spelldata.MustFind(1324675)), // +1 Swords
+		// TODO: Ingame test needed -- whether the off hand procs it, as logs show, despite "main hand only".
 		5: defiasJuggernautCrit,
 	},
 })

@@ -21,8 +21,10 @@ var ItemSetBonescytheArmor = core.NewItemSet(core.ItemSet{
 	Slots: shared.TierThreeSlots,
 	Bonuses: map[int32]core.ApplySetBonus{
 		// TODO: 2pc (28816) Invigorate: normal melee swings have a chance to heal the wearer for 100.
+		// TODO: Ingame test needed -- whether only Backstab, Sinister Strike and Hemorrhage crits restore energy.
 		4: applyBonescytheHeadRush,
 		6: shared.ParsedSetBonus(bonescytheThreat),
+		// TODO: Ingame test needed -- the 5% per combo point and the 3 min cooldown.
 		8: applyBonescytheRevealedFlaw,
 	},
 })

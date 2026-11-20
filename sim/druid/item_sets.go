@@ -81,6 +81,7 @@ var ItemSetSymbolsOfUnendingLife = core.NewItemSet(core.ItemSet{
 		proto.ItemSlot_ItemSlotMainHand,
 	},
 	Bonuses: map[int32]core.ApplySetBonus{
+		// TODO: Ingame test needed -- whether the 30 energy adds to the usual refund on Rip and Ferocious Bite.
 		3: func(agent core.Agent, setBonusAura *core.Aura) {
 			// Your finishing moves now refund 30 energy on a Miss, Dodge, Block, or Parry.
 			//
