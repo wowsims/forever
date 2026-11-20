@@ -1210,6 +1210,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 824.26107
+  tps: 761.76687
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 824.26107

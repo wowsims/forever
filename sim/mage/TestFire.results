@@ -1210,6 +1210,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 955.57018
+  tps: 951.74958
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 955.57018

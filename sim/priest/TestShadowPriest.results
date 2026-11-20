@@ -1279,6 +1279,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Spider'sKiss"
+ value: {
+  dps: 713.01054
+  tps: 510.16226
+  dtps: 5.76676
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 735.88142
@@ -1331,6 +1339,14 @@ dps_results: {
  value: {
   dps: 753.66644
   tps: 538.60855
+  dtps: 5.76676
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 741.34339
+  tps: 529.98241
   dtps: 5.76676
  }
 }

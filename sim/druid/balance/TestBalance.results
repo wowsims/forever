@@ -1582,6 +1582,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Spider'sKiss"
+ value: {
+  dps: 844.75443
+  tps: 855.69371
+  dtps: 5.37323
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 870.61688
@@ -1638,6 +1646,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-SymbolsofUnendingLife"
+ value: {
+  dps: 886.0233
+  tps: 896.91777
+  dtps: 5.5636
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-TalismanofArathor-20071"
  value: {
   dps: 868.71565
@@ -1691,6 +1707,14 @@ dps_results: {
   dps: 826.12738
   tps: 837.01549
   dtps: 5.40486
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 868.71565
+  tps: 879.63971
+  dtps: 5.28522
  }
 }
 dps_results: {

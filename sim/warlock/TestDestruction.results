@@ -1336,6 +1336,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 893.01405
+  tps: 703.98673
+  dtps: 9.95241
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-TheBlackBook-19337"
  value: {
   dps: 902.93478

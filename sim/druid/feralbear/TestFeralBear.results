@@ -1765,6 +1765,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Spider'sKiss"
+ value: {
+  dps: 457.8836
+  tps: 2329.89259
+  dtps: 393.47945
+  hps: 83.9845
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 446.34961
@@ -1828,6 +1837,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-SymbolsofUnendingLife"
+ value: {
+  dps: 488.61069
+  tps: 2468.2477
+  dtps: 411.09632
+  hps: 83.81553
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-TalismanofArathor-20071"
  value: {
   dps: 530.60876
@@ -1888,6 +1906,15 @@ dps_results: {
   tps: 2496.30783
   dtps: 394.44658
   hps: 84.11741
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 530.11513
+  tps: 2667.43841
+  dtps: 395.61739
+  hps: 85.62528
  }
 }
 dps_results: {

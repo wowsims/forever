@@ -1210,6 +1210,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 851.34711
+  tps: 730.63146
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 851.34711

@@ -162,6 +162,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-BattlegearofEternalJustice"
+ value: {
+  dps: 420.93206
+  tps: 989.56623
+  dtps: 350.31862
+  hps: 18.70667
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-BattlegearofUndeadSlaying"
  value: {
   dps: 403.29658
@@ -497,10 +506,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-DeathboneGuardian"
  value: {
-  dps: 382.28291
-  tps: 916.70421
-  dtps: 316.1421
-  hps: 18.04583
+  dps: 396.78203
+  tps: 945.91647
+  dtps: 314.08714
+  hps: 19.09639
  }
 }
 dps_results: {
@@ -2088,6 +2097,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-Spider'sKiss"
+ value: {
+  dps: 408.76778
+  tps: 986.44156
+  dtps: 341.0316
+  hps: 23.92556
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-SteadfastLibram-279247"
  value: {
   dps: 394.81166
@@ -2192,6 +2210,15 @@ dps_results: {
   dps: 412.18067
   tps: 982.9445
   dtps: 344.03314
+  hps: 18.02889
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 404.83286
+  tps: 963.46488
+  dtps: 344.4021
   hps: 18.02889
  }
 }

@@ -1451,8 +1451,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Stormcaller'sGarb"
  value: {
-  dps: 950.7962
-  tps: 693.14937
+  dps: 952.55471
+  tps: 694.38033
   dtps: 5.53028
   hps: 20.26556
  }
@@ -1554,6 +1554,15 @@ dps_results: {
   tps: 683.98799
   dtps: 6.89055
   hps: 21.68889
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 960.79834
+  tps: 702.51821
+  dtps: 8.01538
+  hps: 20.96028
  }
 }
 dps_results: {

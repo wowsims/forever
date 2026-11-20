@@ -1872,6 +1872,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Spider'sKiss"
+ value: {
+  dps: 509.60975
+  tps: 445.79525
+  dtps: 2.94293
+  hps: 47.80028
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Stoneshatter-18388"
  value: {
   dps: 526.69981
@@ -2013,6 +2022,15 @@ dps_results: {
   tps: 433.69294
   dtps: 2.97628
   hps: 22.94278
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 530.2387
+  tps: 458.58629
+  dtps: 2.94293
+  hps: 43.27611
  }
 }
 dps_results: {

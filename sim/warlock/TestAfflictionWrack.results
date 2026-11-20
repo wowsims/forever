@@ -1352,6 +1352,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 926.76371
+  tps: 744.45994
+  dtps: 9.57023
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-TheBlackBook-19337"
  value: {
   dps: 926.76371

@@ -2286,6 +2286,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 888.1015
+  tps: 910.71007
+  dtps: 9.11703
+  hps: 14.01306
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-TheBlackrockSlicer-13285"
  value: {
   dps: 914.89075
@@ -2517,6 +2526,15 @@ dps_results: {
   tps: 910.71007
   dtps: 9.11703
   hps: 14.01306
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TrappingsoftheUnseenPath"
+ value: {
+  dps: 829.43702
+  tps: 852.03963
+  dtps: 9.06326
+  hps: 14.7925
  }
 }
 dps_results: {

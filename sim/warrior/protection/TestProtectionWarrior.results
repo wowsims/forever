@@ -605,10 +605,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-DeathboneGuardian"
  value: {
-  dps: 512.74372
-  tps: 1634.28506
-  dtps: 287.90896
-  hps: 40.13917
+  dps: 539.58841
+  tps: 1719.83721
+  dtps: 284.54412
+  hps: 41.79972
  }
 }
 dps_results: {
@@ -2151,6 +2151,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Spider'sKiss"
+ value: {
+  dps: 565.21736
+  tps: 1869.06211
+  dtps: 308.99452
+  hps: 47.6073
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-StoneformShoulders-13955"
  value: {
   dps: 595.12723
@@ -2251,6 +2260,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestProtectionWarrior-AllItems-TalismanofEphemeralPower-18820"
+ value: {
+  dps: 590.84559
+  tps: 1895.94112
+  dtps: 314.36756
+  hps: 42.57623
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-TeachingsoftheFurbolgs"
  value: {
   dps: 590.84559
   tps: 1895.94112
