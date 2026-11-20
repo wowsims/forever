@@ -11,7 +11,7 @@
   listed each build (70959 on 2026-11-17 15:19 UTC), as in EV-0149; the Revelation section has the procs on each. The
   hotfix each player ran is not recorded.
 - Date: 2026-11-11 to 2026-11-20
-- Pull request: not yet opened
+- Pull request: #1135
 
 The proc, the roll and the level ramp are EV-0149's: a proc is an application or a refresh of the class's Revelation
 buff on the wearer, and a roll a landed hit of the wearer that does not crit.

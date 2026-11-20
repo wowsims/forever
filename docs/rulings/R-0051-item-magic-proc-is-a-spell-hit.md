@@ -3,7 +3,7 @@
 - Skill: wowsims-procs
 - Code: `sim/common/shared/shared_utils.go`, `spellDataProcDamageSpell` and `attachProcDamage`;
   `sim/paladin/holy_shield.go`, Shieldsworn's strike; `sim/mage/combustion.go`, the charges' listener
-- Pull request: not yet opened
+- Pull request: #1135
 - Evidence: EV-0149, EV-0161
 
 The spell an item, enchant or set proc casts, built from its row by the shared builders (`NewSpellDataDamageProc`, a set
