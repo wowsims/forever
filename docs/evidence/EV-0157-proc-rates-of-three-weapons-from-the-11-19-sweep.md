@@ -4,7 +4,7 @@
   it. Iceblade Hacker's and Loksey's Training Stick's rates are measured and Blackvenom Blade's observed.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each weapon's section lists, from
   every wearer stream on disk for the three weapons; 248 reports in all
-- Game build: 1.60.1.70862 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114230; the hotfix
+- Game build: 1.60.1.70862 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114281; the hotfix
   each player ran is not recorded
 - Date: 2026-11-09 to 2026-11-19
 - Pull request: not yet opened
