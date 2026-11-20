@@ -2328,12 +2328,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		280080, // Claymore of Two Moons
-		[
-			"Your attacks have a chance to Wax, dealing 189 Arcane damage or Wane, granting 40 Strength for 10s.", // 1309550 - https://www.wowhead.com/forever/spell=1309550
-		]
-	],
-	[
 		281598, // Rusthowl's Worn Collar
 		[
 			"Increases movement speed by 4% in Mount Hyjal.", // 1311895 - https://www.wowhead.com/forever/spell=1311895

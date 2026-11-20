@@ -3048,21 +3048,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Your attacks have a chance to Wax, dealing 189 Arcane damage or Wane, granting 40 Strength for 10s.
-	// https://www.wowhead.com/forever/spell=1309550
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 280080, ItemName: "Claymore of Two Moons"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Increases movement speed by 4% in Mount Hyjal.
 	// https://www.wowhead.com/forever/spell=1311895
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
