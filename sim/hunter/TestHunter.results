@@ -2639,10 +2639,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-WildstalkerArmor"
  value: {
-  dps: 787.28717
-  tps: 808.59756
-  dtps: 8.80776
-  hps: 13.84361
+  dps: 860.29949
+  tps: 881.4201
+  dtps: 9.19553
+  hps: 13.97917
  }
 }
 dps_results: {

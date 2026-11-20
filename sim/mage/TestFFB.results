@@ -904,8 +904,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-ManaflareRegalia"
  value: {
-  dps: 799.4622
-  tps: 825.85772
+  dps: 883.08975
+  tps: 909.70616
  }
 }
 dps_results: {

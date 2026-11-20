@@ -1352,28 +1352,28 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-JusticeArmor"
  value: {
-  dps: 383.71623
-  tps: 921.93258
-  dtps: 346.93781
+  dps: 402.01682
+  tps: 961.89026
+  dtps: 344.71342
   hps: 18.26611
  }
 }
 dps_results: {
  key: "TestProtection-AllItems-JusticeBattlegear"
  value: {
-  dps: 386.49185
-  tps: 926.7573
-  dtps: 349.38099
-  hps: 18.4525
+  dps: 425.01081
+  tps: 1005.8901
+  dtps: 348.46446
+  hps: 18.85917
  }
 }
 dps_results: {
  key: "TestProtection-AllItems-JusticeBattleplate"
  value: {
-  dps: 391.52409
-  tps: 936.37258
-  dtps: 344.91572
-  hps: 18.7575
+  dps: 421.92842
+  tps: 1008.75691
+  dtps: 321.65882
+  hps: 19.52
  }
 }
 dps_results: {
