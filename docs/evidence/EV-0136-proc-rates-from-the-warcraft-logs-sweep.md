@@ -9,7 +9,8 @@ Felstriker, Fiery War Axe, Fist of the Damned, Glutton's Cleaver, Grimclaw, Hamm
 Knuckles, Ironforge Greathammer, Killmaim, Loksey's Training Stick, Lord General's Sword, Nightblade, Pendulum of Doom,
 Phantom Blade, Sang'thraze the Deflector, Satyr's Lash, Spellsever Crossbow, Strike of the Hydra, Sul'thraze the Lasher,
 Sword of Decay, Tainted Pierce, Taran Icebreaker, Thornspike and Toofbreaker with the reports up to 2026-11-19, counted
-on the hits EV-0155 finds rolling a weapon proc.
+on the hits EV-0155 finds rolling a weapon proc. EV-0157 replaces the Iceblade Hacker rate with every wearer stream of
+the reports up to 2026-11-19.
 
 - Claim: each item and set bonus below procs at the rate its section gives, priced on each landed hit's weapon base speed;
   a rate whose item has 5 or more wearers and a 95% interval within 10% of it either side is measured, every other one
