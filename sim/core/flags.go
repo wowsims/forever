@@ -241,6 +241,8 @@ const (
 	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) and the caster's spell damage against the target's creature type (an item's mob type stats, e.g. Courier's Clasp; EV-0141) add nothing to the spell's hits, though its other spell power applies at its coefficient: a damage shield.
 	SpellFlagNoDamageVersus                                 // The caster's damage against a creature type (aura 168, e.g. Beast Slaying) adds nothing to the spell's hits, though its other damage done multipliers apply: a totem's attack.
 	SpellFlagCountsAsSwing                                  // Its hits count as main-hand melee swings: landed ones grant rage as an auto attack's do, and a listener with HearsCountedSwings hears them, e.g. Windfury Totem's strike.
+	SpellFlagSuppressCasterProcs                            // The Suppress Caster Procs attribute (Attributes[3] 0x10000): no ProcTrigger on the caster hears the spell's hits, ticks or heals, which still land in full, e.g. Warblade of Caer Darrow's on-hit (EV-0165). No listener the sim builds can proc from suppressed spells, so that attribute is not read.
+	SpellFlagSuppressTargetProcs                            // The Suppress Target Procs attribute (Attributes[3] 0x20000): no ProcTrigger on the target hears the spell's hits or ticks, which still land in full. No listener the sim builds can proc from suppressed spells, so that attribute is not read.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1

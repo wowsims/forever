@@ -307,6 +307,18 @@ func (e *Effect) isInert() bool {
 	return e.Type == dbcenums.E_DUMMY || e.Type == dbcenums.E_SCRIPT_EFFECT || e.Aura == dbcenums.A_DUMMY
 }
 
+// Whether an effect of the row does something besides a dummy or casting another spell. A row with
+// none hands its hit to another spell in game, as Execute's dummy does, so a sim spell built from the
+// row stands for that hit and takes neither Suppress Caster Procs nor Suppress Target Procs from it.
+func (s *Spell) actsItself() bool {
+	return slices.ContainsFunc(s.Effects, func(e Effect) bool {
+		return !e.isInert() && !slices.Contains(handingOn, e.Type)
+	})
+}
+
+// The effects that do nothing themselves or hand the hit to another spell.
+var handingOn = []dbcenums.SpellEffectType{dbcenums.E_NONE, dbcenums.E_TRIGGER_SPELL, dbcenums.E_TRIGGER_MISSILE, dbcenums.E_FORCE_CAST}
+
 func spellPowerCoeff(s *Spell) float64 {
 	return amountEffect(s).Coeff()
 }
@@ -345,6 +357,12 @@ func rowFlags(s *Spell) core.SpellFlag {
 	}
 	if s.SuppressesWeaponProcs() {
 		flags |= core.SpellFlagSuppressWeaponProcs
+	}
+	if s.SuppressesCasterProcs() && s.actsItself() {
+		flags |= core.SpellFlagSuppressCasterProcs
+	}
+	if s.SuppressesTargetProcs() && s.actsItself() {
+		flags |= core.SpellFlagSuppressTargetProcs
 	}
 	if s.PushedBack() {
 		flags |= core.SpellFlagPushback
