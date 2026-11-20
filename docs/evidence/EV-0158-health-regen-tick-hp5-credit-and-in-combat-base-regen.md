@@ -5,9 +5,9 @@
 - Sources: local combat logs (advanced logging) of players of every class from level 8 to 60, solo and in dungeon
   groups, with each pass's logs below; HP5 from the COMBATANT_INFO gear and aura lists, and Spirit and level from the
   StatLedger addon where a ledger covers the log
-- Game build: 1.60.1 builds by log date, from the builds before 1.60.1.70245 (the logs of 2026-09-27 to 2026-10-13)
-  through 70532, 70630 to 70707, 70790, 70862, 70888, 70938 and 70959 (the logs of 2026-11-17 on US and 2026-11-18);
-  the hotfix each player ran is not recorded
+- Game build: 1.60.1 builds by log date: not recorded for the logs of 2026-09-27 to 2026-10-13, then 70245, 70532,
+  70630 to 70707, 70755, 70790, 70840, 70862, 70888, 70938 and 70959 (the logs of 2026-11-17 on US servers and of
+  2026-11-18); the hotfix each player ran is not recorded
 - Date: 2026-09-27 to 2026-11-18
 - Pull request: #655
 
@@ -35,9 +35,10 @@ Scripts, pickles and tables are in the research folder's `health-regen/`, one `r
 | Logs                    | Cases, gap < 40 s, both arcs tight | Back within 0.3 s | Controls (hit while hurt) | A restarted timer gives |
 | ----------------------- | ---------------------------------: | ----------------: | ------------------------: | ----------------------: |
 | 179 logs to 2026-11-15  |                   794, 288 players |             92.9% |            94.5%, n 3,937 |                   29.6% |
-| 20 logs, 11-13 to 11-18 |                    77, 116 players |             90.9% |              94.7%, n 588 |                   29.6% |
+| 20 logs, 11-13 to 11-18 |                                 77 |             90.9% |              94.7%, n 588 |                   29.6% |
 
-The phase was lost on at most 1.6% of the first set's cases (95% upper 3.6%). The delay from the hit to the first
+One log of the second set is a second recording of a session the first set holds, so the two sets are not wholly
+independent. The phase was lost on at most 1.6% of the first set's cases (95% upper 3.6%). The delay from the hit to the first
 tick spreads evenly over the tick, with no fixed delay, in and out of combat.
 
 - Both sets fit a mean period of 2.025 s slightly better than 2.02 s: at 2.02 s the mean phase residual drifts +0.04 to
@@ -59,7 +60,8 @@ values; each hypothesis predicts its share from the fraction of x × HP5. p is a
 | 12 (gear)            | shaman, 55   |    94 |    71 |          0.800 |          0.848 | 0.34 / 0.025, mixed     |
 | 5 (gear)             | hunter, 51   |   108 |     0 |              0 |          0.020 | 1 / 0.23                |
 
-- The 31 HP5 priest's ticks alternate 12 and 13 with a mean of 12.51 (0.404 gives 12.52, 0.400 gives 12.40). Of 173
+- The 31 HP5 priest's ticks of 12 or 13 average 12.51 over 288 intervals, 263 of them single (0.404 gives 12.52,
+  0.400 gives 12.40). Of 173
   consecutive pairs, 2 are 12-12 and 7 are 13-13; a 12.40 credit gives about 35 12-12 pairs and no 13-13.
 - Earlier wearers of 5, 8, 9 and 12 HP5 read 2.021, 3.247, 3.631 and 4.852–4.866 a tick, each nearer 0.404 × HP5
   than 0.400 × HP5 (the 9 HP5 one barely).
