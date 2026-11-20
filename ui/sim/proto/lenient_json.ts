@@ -5,10 +5,10 @@ import { isJsonObject } from '@protobuf-ts/runtime';
 // ignoreUnknownFields, protobuf-ts picks a oneof's case before it reads the value, so an enum name it
 // doesn't know (an APL placeholder the protos do not list, in an ActionID, say) leaves the case set
 // with an undefined value, which throws once the message is written to binary. Those oneofs are
-// cleared here. A bool saved in a field the protos now declare as an enum reads as that enum's 0 or 1, so
-// a Judgement of the Crusader saved as true loads as TristateEffectRegular.
+// cleared here. A save can hold a bool in a TristateEffect field, which protobuf-ts refuses; it reads as
+// Missing or Regular, so a Judgement of the Crusader saved as true loads as TristateEffectRegular.
 export function fromJsonLenient<T extends object>(type: IMessageType<T>, json: JsonValue, options?: Partial<JsonReadOptions>): T {
-	return clearUnreadOneofs(type, type.fromJson(enumsFromBools(type, json), { ...options, ignoreUnknownFields: true }));
+	return clearUnreadOneofs(type, type.fromJson(tristatesFromBools(type, json), { ...options, ignoreUnknownFields: true }));
 }
 
 export function fromJsonStringLenient<T extends object>(type: IMessageType<T>, json: string, options?: Partial<JsonReadOptions>): T {
@@ -43,44 +43,31 @@ function clearUnreadOneofs<T extends object>(type: IMessageType<T>, message: T):
 	return message;
 }
 
-// A copy of the JSON with every bool in an enum field turned into its number; the parts holding none
-// are the caller's own objects.
-function enumsFromBools(type: IMessageType<object>, json: JsonValue): JsonValue {
+// A copy of the JSON with every bool in a TristateEffect field turned into its number: false reads as
+// Missing (0) and true as Regular (1).
+function tristatesFromBools(type: IMessageType<object>, json: JsonValue): JsonValue {
 	if (!isJsonObject(json)) return json;
-	let copy: JsonObject | undefined;
+	const copy: JsonObject = { ...json };
 	for (const field of type.fields) {
-		for (const key of new Set([field.jsonName, field.name])) {
-			const value = json[key];
-			if (value === undefined) continue;
-			const read = enumFieldsFromBools(field, value);
-			if (read !== value) (copy ??= { ...json })[key] = read;
+		for (const key of field.jsonName === field.name ? [field.name] : [field.jsonName, field.name]) {
+			if (copy[key] !== undefined) copy[key] = tristateFieldFromBools(field, copy[key]);
 		}
 	}
-	return copy ?? json;
+	return copy;
 }
 
-function enumFieldsFromBools(field: FieldInfo, value: JsonValue): JsonValue {
+function tristateFieldFromBools(field: FieldInfo, value: JsonValue): JsonValue {
 	switch (field.kind) {
 		case 'enum':
-			return typeof value === 'boolean' ? Number(value) : value;
+			return typeof value === 'boolean' && field.T()[0] === 'proto.TristateEffect' ? Number(value) : value;
 		case 'message':
-			return Array.isArray(value) ? mapIfChanged(value, item => enumsFromBools(field.T(), item)) : enumsFromBools(field.T(), value);
+			return Array.isArray(value) ? value.map(item => tristatesFromBools(field.T(), item)) : tristatesFromBools(field.T(), value);
 		case 'map': {
-			const subType = field.V.kind === 'message' ? field.V.T() : undefined;
-			if (!subType || !isJsonObject(value)) return value;
-			let copy: JsonObject | undefined;
-			for (const [key, item] of Object.entries(value)) {
-				const read = enumsFromBools(subType, item);
-				if (read !== item) (copy ??= { ...value })[key] = read;
-			}
-			return copy ?? value;
+			const valueType = field.V.kind === 'message' ? field.V.T() : undefined;
+			if (!valueType || !isJsonObject(value)) return value;
+			return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, tristatesFromBools(valueType, item)]));
 		}
 		default:
 			return value;
 	}
-}
-
-function mapIfChanged(values: JsonValue[], read: (value: JsonValue) => JsonValue): JsonValue[] {
-	const mapped = values.map(read);
-	return mapped.every((value, i) => value === values[i]) ? values : mapped;
 }

@@ -561,16 +561,11 @@ func TestImprovedJudgementOfTheCrusaderOutbidsAPaladinsOwnWithoutTheLibram(t *te
 // The flat amount spell 28852 adds to every effect of Judgement of the Crusader.
 func libramOfFervorJudgementBonus(t *testing.T) float64 {
 	t.Helper()
-	row := spelldata.MustFind(28852)
-	for i := range row.Effects {
-		if e := &row.Effects[i]; e.Aura == dbcenums.A_ADD_FLAT_MODIFIER && e.Misc == int32(dbcenums.SPELLMOD_ALL_EFFECTS) {
-			if amount := e.BaseValue(); amount != 0 {
-				return amount
-			}
-		}
+	amount := spelldata.MustFind(28852).Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_ALL_EFFECTS)).BaseValue()
+	if amount == 0 {
+		t.Fatalf("spell 28852 states no flat amount on every effect")
 	}
-	t.Fatalf("%s 28852 states no flat amount on every effect", row.Name)
-	return 0
+	return amount
 }
 
 // Every flat attack-power reduction bids in one category, so the target loses the strongest once.

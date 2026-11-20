@@ -4,8 +4,14 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
+
+// Libram of Fervor's equip spell 28852: a flat bonus on Seal of the Crusader's first effect, its attack power.
+var libramOfFervorSealBonus = spelldata.MustFind(28852).
+	Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_EFFECT1)).BaseValue()
 
 // The librams the game files ship unencrypted. Item effects apply before the spells register, so a
 // libram that changes a number a spell reads at registration sets it on the paladin and the spell
@@ -20,8 +26,8 @@ func init() {
 	// increase of your Judgement of the Crusader by 33.
 	core.NewItemEffect(23203, func(agent core.Agent) {
 		paladin := agent.(PaladinAgent).GetPaladin()
-		paladin.sealOfTheCrusaderBonusAttackPower += 48
-		paladin.judgementOfTheCrusaderBonus += 33
+		paladin.sealOfTheCrusaderBonusAttackPower += libramOfFervorSealBonus
+		paladin.judgementOfTheCrusaderBonus += buffs.LibramOfFervorJudgementBonus
 	})
 
 	// Libram of Light

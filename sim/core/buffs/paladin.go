@@ -86,8 +86,8 @@ var (
 // for the holy school alone, which the manifest has no pseudo-stat for.
 var judgementOfTheCrusaderSpell = spelldata.MustFind(20303)
 
-// Libram of Fervor's equip spell 28852 raises the Holy damage of the paladin's Judgement of the
-// Crusader by a flat amount on every effect of the judgement. Its other effect raises Seal of the
+// Libram of Fervor's equip spell 28852 raises the Holy damage increase of the paladin's Judgement of
+// the Crusader by a flat amount on every effect of the judgement. Its other effect raises Seal of the
 // Crusader's attack power, which the raid's debuff does not carry.
 var LibramOfFervorJudgementBonus = spelldata.MustFind(28852).
 	Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_ALL_EFFECTS)).BaseValue()

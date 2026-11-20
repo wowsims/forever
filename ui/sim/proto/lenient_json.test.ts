@@ -33,7 +33,7 @@ describe('fromJsonStringLenient', () => {
 	});
 
 	// A save can hold Judgement of the Crusader as a bool, the type the field has without its improved state.
-	it('reads a bool saved in an enum field as its number', () => {
+	it('reads a bool saved in a TristateEffect field as Missing or Regular', () => {
 		const saved = { debuffs: { judgementOfTheCrusader: true, faerieFire: true }, player: { name: 'Saved' } };
 		const json = JSON.stringify(saved);
 
