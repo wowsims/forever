@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 60
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 6.3
   final_stats: 6.3
   final_stats: 12.6562
@@ -264,7 +265,7 @@ dps_results: {
  key: "TestProtection-AllItems-BlessedPlate"
  value: {
   dps: 414.18187
-  tps: 985.69996
+  tps: 985.69429
   dtps: 394.21678
   hps: 18.53722
  }
@@ -1497,7 +1498,7 @@ dps_results: {
  key: "TestProtection-AllItems-Lifestone-833"
  value: {
   dps: 404.83286
-  tps: 966.46996
+  tps: 966.46783
   dtps: 344.4021
   hps: 22.54781
  }
@@ -2460,7 +2461,7 @@ dps_results: {
  key: "TestProtection-AllItems-ToySoldier-274386"
  value: {
   dps: 403.88421
-  tps: 962.55055
+  tps: 962.54828
   dtps: 343.83033
   hps: 18.23222
  }

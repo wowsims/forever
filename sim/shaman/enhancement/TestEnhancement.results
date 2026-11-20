@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 67
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 8.9
   final_stats: 8.9
   final_stats: 28.622
@@ -1074,7 +1075,7 @@ dps_results: {
  key: "TestEnhancement-AllItems-Lifestone-833"
  value: {
   dps: 778.19536
-  tps: 814.81887
+  tps: 814.56252
   dtps: 7.56907
   hps: 37.22694
  }
@@ -1344,7 +1345,7 @@ dps_results: {
  key: "TestEnhancement-AllItems-RingofSaviors-1447"
  value: {
   dps: 764.48951
-  tps: 801.01086
+  tps: 800.80583
   dtps: 7.44043
   hps: 37.02361
  }
@@ -1659,7 +1660,7 @@ dps_results: {
  key: "TestEnhancement-AllItems-TheGladiator"
  value: {
   dps: 747.31999
-  tps: 782.5738
+  tps: 782.47673
   dtps: 7.2384
   hps: 37.32861
  }
@@ -1839,7 +1840,7 @@ dps_results: {
  key: "TestEnhancement-AllItems-ToySoldier-274386"
  value: {
   dps: 778.19536
-  tps: 814.81887
+  tps: 814.5468
   dtps: 7.56907
   hps: 37.22694
  }

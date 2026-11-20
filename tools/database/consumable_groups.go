@@ -112,6 +112,8 @@ func auraGroupName(aura dbcenums.EffectAuraType, misc int) string {
 		return "Health"
 	case dbcenums.A_MOD_POWER_REGEN, dbcenums.A_PERIODIC_ENERGIZE:
 		return "Mana Regeneration"
+	case dbcenums.A_MOD_HEALTH_REGEN_IN_COMBAT:
+		return "Health Regeneration"
 	case dbcenums.A_MOD_ATTACK_POWER:
 		return "Attack Power"
 	case dbcenums.A_MOD_HEALING_DONE:

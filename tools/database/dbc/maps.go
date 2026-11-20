@@ -132,6 +132,8 @@ func MapBonusStatIndexToStat(index int) (proto.Stat, bool) {
 		return proto.Stat_StatArcaneDamage, true
 	case ITEM_MOD_MANA_REGENERATION: // ManaRegeneration
 		return proto.Stat_StatMP5, true
+	case ITEM_MOD_HEALTH_REGEN:
+		return proto.Stat_StatHP5, true
 	case ITEM_MOD_SPELL_PENETRATION:
 		return proto.Stat_StatSpellPiercing, true
 	case ITEM_MOD_BLOCK_VALUE:

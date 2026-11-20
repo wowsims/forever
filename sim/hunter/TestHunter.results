@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 60
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 5
   final_stats: 5
   final_stats: 27.3417
@@ -264,7 +265,7 @@ dps_results: {
  key: "TestHunter-AllItems-BlackbladeofShahram-12592"
  value: {
   dps: 903.99975
-  tps: 927.40485
+  tps: 927.44721
   dtps: 10.57871
   hps: 14.38583
  }
@@ -1614,7 +1615,7 @@ dps_results: {
  key: "TestHunter-AllItems-Lifestone-833"
  value: {
   dps: 888.1015
-  tps: 910.71007
+  tps: 910.24857
   dtps: 9.11703
   hps: 14.01306
  }
@@ -1956,7 +1957,7 @@ dps_results: {
  key: "TestHunter-AllItems-RingofSaviors-1447"
  value: {
   dps: 894.26392
-  tps: 916.97707
+  tps: 916.49728
   dtps: 8.65951
   hps: 13.79278
  }
@@ -2370,7 +2371,7 @@ dps_results: {
  key: "TestHunter-AllItems-TheGladiator"
  value: {
   dps: 799.8308
-  tps: 822.34945
+  tps: 822.14725
   dtps: 9.1094
   hps: 13.53861
  }
@@ -2514,7 +2515,7 @@ dps_results: {
  key: "TestHunter-AllItems-ToySoldier-274386"
  value: {
   dps: 888.1015
-  tps: 910.71007
+  tps: 910.2175
   dtps: 9.11703
   hps: 14.01306
  }

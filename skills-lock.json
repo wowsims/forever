@@ -5,7 +5,7 @@
       "source": "blader/humanizer",
       "sourceType": "github",
       "skillPath": "SKILL.md",
-      "computedHash": "b3dac38accaf96c6cb611214cae19c2327cf847bd99a4c47d20d71235f4a23b6"
+      "computedHash": "e10e1211b9265ad641bc47ceb0c85933d93e55c751adb3037682e337df0981b7"
     },
     "wowsims-abilities-auras": {
       "source": "./.github/skills",
@@ -90,7 +90,7 @@
     "wowsims-testing": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "f159de81c32847c0e7f0204aef2fc3625f0ff8d41d1097477cae4fe8cfc5918e"
+      "computedHash": "ad3d079e538a71acbebea6333102543150e6a811134fa049c49a67837d09040c"
     },
     "wowsims-ui": {
       "source": "./.github/skills",

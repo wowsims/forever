@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 63
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 7
   final_stats: 7
   final_stats: 18.1
@@ -313,7 +314,7 @@ dps_results: {
  key: "TestAfflictionWrack-AllItems-DeathmistRaiment"
  value: {
   dps: 871.11751
-  tps: 700.44357
+  tps: 700.42519
   dtps: 9.42161
   hps: 6.75167
  }
@@ -410,7 +411,7 @@ dps_results: {
  key: "TestAfflictionWrack-AllItems-DreadmistRaiment"
  value: {
   dps: 816.53884
-  tps: 657.42085
+  tps: 657.40009
   dtps: 9.15078
   hps: 5.62338
  }
@@ -1546,8 +1547,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-Average-Default"
  value: {
-  dps: 956.37464
-  tps: 767.69921
+  dps: 956.3746
+  tps: 767.69917
   dtps: 9.62785
  }
 }

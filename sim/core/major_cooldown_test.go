@@ -270,8 +270,9 @@ func TestExplosiveLongerThanAnyGCDStillGoes(t *testing.T) {
 	}
 }
 
-// A stat buff's cooldown type: any defensive stat or resistance, or Stamina alone, makes it survival,
-// mana regen and spirit alone mana, healing power alone healing, and anything else DPS.
+// A stat buff's cooldown type: any defensive stat or resistance, or Stamina or HP5 alone, makes it
+// survival, mana regen and spirit alone mana, healing power alone healing, and anything else DPS. HP5
+// beside other stats leaves the type to them.
 func TestInferCDTypeFromTheBuffedStats(t *testing.T) {
 	for _, tc := range []struct {
 		stats []stats.Stat
@@ -292,6 +293,11 @@ func TestInferCDTypeFromTheBuffedStats(t *testing.T) {
 		{[]stats.Stat{stats.Spirit}, CooldownTypeMana},
 		{[]stats.Stat{stats.MP5, stats.Spirit}, CooldownTypeMana},
 		{[]stats.Stat{stats.Stamina}, CooldownTypeSurvival},
+		{[]stats.Stat{stats.HP5}, CooldownTypeSurvival},
+		{[]stats.Stat{stats.HP5, stats.Stamina}, CooldownTypeSurvival},
+		{[]stats.Stat{stats.HP5, stats.Armor}, CooldownTypeSurvival},
+		{[]stats.Stat{stats.HP5, stats.MP5}, CooldownTypeMana},
+		{[]stats.Stat{stats.HP5, stats.Strength}, CooldownTypeDPS},
 		{[]stats.Stat{stats.HealingPower}, CooldownTypeHealing},
 		{[]stats.Stat{stats.Stamina, stats.Strength}, CooldownTypeDPS},
 		{[]stats.Stat{stats.Spirit, stats.Strength}, CooldownTypeDPS},

@@ -400,6 +400,10 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		}
 		return p.statBuff(stats.MP5, v)
 	},
+	// Health regen, which the game files state per five seconds.
+	dbcenums.A_MOD_HEALTH_REGEN_IN_COMBAT: func(p *parser, e *Effect, v float64) *attachment {
+		return p.statBuff(stats.HP5, v)
+	},
 	// The share of spirit regen that continues while casting, which core caps at all of it, and a
 	// multiplier on spirit regen, or under AllManaRegen Innervate's multiplier on the mana regen. The
 	// energy bar's regen and Innervate's are speeds, which need the Simulation an aura's gain hands over.

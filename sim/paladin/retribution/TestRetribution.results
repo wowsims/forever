@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 60
   final_stats: 0
   final_stats: 1620
+  final_stats: 0
   final_stats: 8.6
   final_stats: 8.6
   final_stats: 34.4872
@@ -147,7 +148,7 @@ dps_results: {
  key: "TestRetribution-AllItems-BattlegearofValor"
  value: {
   dps: 764.18924
-  tps: 624.75453
+  tps: 624.72328
   dtps: 4.90678
   hps: 25.71585
  }
@@ -201,7 +202,7 @@ dps_results: {
  key: "TestRetribution-AllItems-BlackbladeofShahram-12592"
  value: {
   dps: 898.06527
-  tps: 735.49542
+  tps: 735.60388
   dtps: 8.06113
   hps: 25.54036
  }
@@ -246,7 +247,7 @@ dps_results: {
  key: "TestRetribution-AllItems-BlessedPlate"
  value: {
   dps: 812.78392
-  tps: 664.50397
+  tps: 664.46026
   dtps: 5.68255
   hps: 24.08161
  }
@@ -1335,7 +1336,7 @@ dps_results: {
  key: "TestRetribution-AllItems-Lifestone-833"
  value: {
   dps: 880.98274
-  tps: 720.90914
+  tps: 720.86402
   dtps: 6.85986
   hps: 24.67179
  }
@@ -1695,7 +1696,7 @@ dps_results: {
  key: "TestRetribution-AllItems-RingofSaviors-1447"
  value: {
   dps: 874.89663
-  tps: 716.02357
+  tps: 715.9877
   dtps: 6.96967
   hps: 24.70415
  }
@@ -2100,7 +2101,7 @@ dps_results: {
  key: "TestRetribution-AllItems-TheGladiator"
  value: {
   dps: 804.28217
-  tps: 657.30151
+  tps: 657.28446
   dtps: 5.49437
   hps: 23.4057
  }
@@ -2244,7 +2245,7 @@ dps_results: {
  key: "TestRetribution-AllItems-ToySoldier-274386"
  value: {
   dps: 880.98274
-  tps: 720.90914
+  tps: 720.86119
   dtps: 6.85986
   hps: 24.67179
  }

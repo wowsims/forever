@@ -18,7 +18,7 @@ gear:
   bonus_stats(stats(strength=10, attack_power=-20))
 
 item_swap:
-  prepull_bonus_stats(stats=`[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7]`)
+  prepull_bonus_stats(stats=`[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7]`)
 
 consumables:
   extra goblin_sapper_charge,

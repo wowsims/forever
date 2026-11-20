@@ -163,8 +163,8 @@ func TestWeaponSkillStats(t *testing.T) {
 	}
 }
 
-// Creature type stats and HP5 are budgeted like the other stats and go to their own fields, never the
-// item's stats. Attack power against a creature type raises ranged attack power too, and every stat
+// Creature type stats and HP5 are budgeted like the other stats. Creature type stats go to their own
+// field, never the item's stats; HP5 goes to the item's stats and repeats in its own field. Attack power against a creature type raises ranged attack power too, and every stat
 // against one creature type shares its entry. An id between them that no item states raises nothing.
 func TestCreatureTypeAndHP5Stats(t *testing.T) {
 	once.Do(func() {})
@@ -189,8 +189,8 @@ func TestCreatureTypeAndHP5Stats(t *testing.T) {
 	if got := item.GetHP5(item.ItemLevel); got != 30 {
 		t.Errorf("hp5 = %d, want 30", got)
 	}
-	if got := item.GetStats(item.ItemLevel).ToProtoMap(); len(got) != 0 {
-		t.Errorf("stats %v, want none from these stats", got)
+	if got, want := item.GetStats(item.ItemLevel).ToProtoMap(), map[int32]float64{int32(proto.Stat_StatHP5): 30}; !maps.Equal(got, want) {
+		t.Errorf("stats %v, want %v", got, want)
 	}
 }
 

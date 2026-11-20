@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 63
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 11.8
   final_stats: 11.8
   final_stats: 17.1
@@ -313,7 +314,7 @@ dps_results: {
  key: "TestAffliction-AllItems-DeathmistRaiment"
  value: {
   dps: 779.1703
-  tps: 611.34034
+  tps: 611.31416
   dtps: 8.12453
   hps: 8.50699
  }
@@ -361,8 +362,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-Demoniac'sThreads"
  value: {
-  dps: 789.8506
-  tps: 621.81214
+  dps: 789.8409
+  tps: 621.80453
   dtps: 8.39861
  }
 }
@@ -410,7 +411,7 @@ dps_results: {
  key: "TestAffliction-AllItems-DreadmistRaiment"
  value: {
   dps: 721.93826
-  tps: 568.43679
+  tps: 568.42201
   dtps: 8.53757
   hps: 7.18491
  }
@@ -826,8 +827,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 808.93287
-  tps: 635.42666
+  dps: 808.9282
+  tps: 635.423
   dtps: 8.07027
  }
 }
@@ -898,8 +899,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-KissoftheSpider-22954"
  value: {
-  dps: 822.37423
-  tps: 645.27765
+  dps: 822.36956
+  tps: 645.274
   dtps: 8.49517
  }
 }
@@ -1226,8 +1227,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-ShardoftheFallenStar-21891"
  value: {
-  dps: 796.13706
-  tps: 625.49945
+  dps: 796.13239
+  tps: 625.4958
   dtps: 8.18966
  }
 }
@@ -1394,8 +1395,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-ThePostmaster"
  value: {
-  dps: 772.65552
-  tps: 604.8354
+  dps: 772.6513
+  tps: 604.8321
   dtps: 7.98349
  }
 }
@@ -1530,8 +1531,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Average-Default"
  value: {
-  dps: 819.8526
-  tps: 643.0782
+  dps: 819.85233
+  tps: 643.07799
   dtps: 8.48942
  }
 }

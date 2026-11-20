@@ -29,7 +29,6 @@ func (raw RandomSuffix) ToProto() *proto.ItemRandomSuffix {
 		ReducedCasterDps: raw.ReducedCasterDps,
 	}
 
-	// ITEM_MOD_HEALTH_REGEN ("of Regeneration") has no stat in the sim and is left out.
 	for _, stat := range raw.Stats {
 		mapped, match := MapBonusStatIndexToStats(stat.ItemMod)
 		if !match {

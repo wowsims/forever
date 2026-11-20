@@ -11,6 +11,9 @@ Numbers that move or differ for a known reason, and CI behaviour a pull request 
 - **A duration aura that a plain fight puts on a target moves the class `.results`**, even when nothing reads it: its
   expiry adds a step to the fight and reorders the events at that time. Per-target state that only a target's death
   reads is kept as an end time per target instead, as Shadowburn's Soul Shard window is (`sim/warlock/shadowburn.go`).
+- **A periodic task's tick is an advance point, so adding or removing ticks moves the `.results` by timing noise.** An
+  aura's expiry runs at the first advance point at or after it, and a tick can be that point. The health regen tick
+  (`sim/core/health.go`) sleeps while its unit is at full health, dead or away for this reason.
 
 ## Comparing runs
 

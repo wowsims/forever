@@ -301,6 +301,9 @@ func (pet *Pet) Enable(sim *Simulation, petAgent PetAgent) {
 	// Call onEnable callbacks before enabling auto swing
 	// to not have to reorder PAs multiple times
 	pet.enabled = true
+	if pet.HasHealthBar() {
+		pet.wakeHealthRegen(sim)
+	}
 
 	if pet.OnPetEnable != nil {
 		pet.OnPetEnable(sim)

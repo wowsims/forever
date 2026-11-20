@@ -1619,6 +1619,9 @@ type testPet struct {
 	core.Pet
 }
 
+// What the owner registers in Initialize, set by the test before it builds the sim.
+var ownerSetup func(owner *petOwner)
+
 func init() {
 	core.RegisterAgentFactory(
 		proto.Player_Hunter{},
@@ -1669,7 +1672,11 @@ func (c *petOwner) ApplyTalents()                       {}
 func (c *petOwner) Reset(_ *core.Simulation)            {}
 func (c *petOwner) OnGCDReady(_ *core.Simulation)       {}
 func (c *petOwner) OnEncounterStart(_ *core.Simulation) {}
-func (c *petOwner) Initialize()                         {}
+func (c *petOwner) Initialize() {
+	if ownerSetup != nil {
+		ownerSetup(c)
+	}
+}
 
 func (p *testPet) GetPet() *core.Pet                   { return &p.Pet }
 func (p *testPet) Reset(_ *core.Simulation)            {}

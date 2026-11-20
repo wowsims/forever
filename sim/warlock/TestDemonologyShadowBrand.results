@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 60
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 7.8
   final_stats: 7.8
   final_stats: 17.1
@@ -313,7 +314,7 @@ dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-DeathmistRaiment"
  value: {
   dps: 874.66445
-  tps: 720.24022
+  tps: 720.19469
   dtps: 11.67153
   hps: 8.86662
  }
@@ -410,7 +411,7 @@ dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-DreadmistRaiment"
  value: {
   dps: 818.02909
-  tps: 674.37348
+  tps: 674.32734
   dtps: 11.56897
   hps: 7.82416
  }

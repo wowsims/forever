@@ -433,18 +433,19 @@ var SurvivalStats = []stats.Stat{stats.Armor, stats.ArmorNoMods, stats.BlockPerc
 // The stats a buff to only these makes a mana cooldown.
 var ManaStats = []stats.Stat{stats.MP5, stats.Spirit}
 
-// A buff to any defensive stat or resistance, or to Stamina alone, is a survival cooldown, one to
-// mana regen or spirit alone a mana cooldown, one to healing power alone a healing cooldown, and any
-// other a DPS cooldown.
+// A buff to any defensive stat or resistance, or to Stamina or HP5 alone, is a survival cooldown, one
+// to mana regen or spirit alone a mana cooldown, one to healing power alone a healing cooldown, and
+// any other a DPS cooldown. HP5 beside other stats leaves the type to them.
 func CooldownTypeOf(buffed []stats.Stat) CooldownType {
+	others := slices.DeleteFunc(slices.Clone(buffed), func(stat stats.Stat) bool { return stat == stats.HP5 })
 	only := func(set ...stats.Stat) bool {
-		return len(buffed) > 0 && !slices.ContainsFunc(buffed, func(stat stats.Stat) bool {
+		return len(others) > 0 && !slices.ContainsFunc(others, func(stat stats.Stat) bool {
 			return !slices.Contains(set, stat)
 		})
 	}
 
 	switch {
-	case CheckSliceOverlap(buffed, SurvivalStats), only(stats.Stamina):
+	case len(buffed) > 0 && len(others) == 0, CheckSliceOverlap(others, SurvivalStats), only(stats.Stamina):
 		return CooldownTypeSurvival
 	case only(ManaStats...):
 		return CooldownTypeMana
