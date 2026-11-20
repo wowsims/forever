@@ -774,6 +774,14 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Loksey's Training Stick: no proc row",
 		Source:  "EV-0157",
 	},
+	// Measured the same way (EV-0159).
+	{
+		ItemID:  13285,
+		SpellID: 17407,
+		PPM:     1.9,
+		Reason:  "The Blackrock Slicer: column reads 101",
+		Source:  "EV-0159",
+	},
 	// Fitted the same way, but no lone-unit rate checks it, so it is not final (EV-0157). The "observed" Source keeps
 	// the gear tab's notice up until a one-hand white or specials rate checks it.
 	{
@@ -1007,13 +1015,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 17315,
 		PPM:     3.2,
 		Reason:  "Bashguuder: column reads 101; shares the trigger with Rivenspike; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  13285,
-		SpellID: 17407,
-		PPM:     2.05,
-		Reason:  "The Blackrock Slicer: column reads 101; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
