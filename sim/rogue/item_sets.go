@@ -10,6 +10,8 @@ import (
 var (
 	bonescytheHeadRush = spelldata.MustFind(28812) // 4pc: Head Rush, the proc
 	bonescytheThreat   = spelldata.MustFind(28811) // 6pc: less threat
+	bonescytheFlaw     = spelldata.MustFind(28814) // 8pc: the chance per combo point on Eviscerate
+	revealedFlaw       = spelldata.MustFind(28815) // 8pc: Revealed Flaw, the crit it grants
 )
 
 // Tier 3
@@ -21,8 +23,7 @@ var ItemSetBonescytheArmor = core.NewItemSet(core.ItemSet{
 		// TODO: 2pc (28816) Invigorate: normal melee swings have a chance to heal the wearer for 100.
 		4: applyBonescytheHeadRush,
 		6: shared.ParsedSetBonus(bonescytheThreat),
-		// TODO: 8pc (28814) Revealed Flaw: Eviscerate has a chance per combo point to give the next Backstab,
-		// Sinister Strike or Hemorrhage a 100% critical strike chance.
+		8: applyBonescytheRevealedFlaw,
 	},
 })
 
@@ -39,4 +40,57 @@ func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 	trigger.Outcome = core.OutcomeCrit
 
 	setBonusAura.AttachProcTrigger(trigger)
+}
+
+// "Your Eviscerate has a chance per combo point to reveal a flaw in your opponent's armor, granting a 100%
+// critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage."
+//
+// A landed Eviscerate rolls 28814's chance per combo point it spent and grants 28815's one charge, at most
+// once per 28815's cooldown (vanilla-carryover). The buff's class flags name Shank, Mutilate and the Season
+// of Discovery strikes too; the crit and the charge are the tooltip's three here. A crit of one of them
+// spends the charge, as the row's proc states.
+func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
+	rogue := agent.(RogueAgent).GetRogue()
+	strikes := RogueSpellBackstab | RogueSpellSinisterStrike | RogueSpellHemorrhage
+
+	buff := rogue.RegisterAura(spelldata.AuraConfig(revealedFlaw)).AttachSpellMod(core.SpellModConfig{
+		Kind:       core.SpellMod_BonusCrit_Percent,
+		ClassMask:  strikes,
+		FloatValue: revealedFlaw.EffectN(1).BaseValue(),
+	})
+	buff.ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
+		aura.SetStacks(sim, aura.MaxStacks)
+	})
+	spelldata.AttachChargeSpender(&rogue.Character, buff, revealedFlaw, "Revealed Flaw - Spend",
+		func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.ClassSpellMask = strikes
+		})
+
+	// Eviscerate spends its combo points before its hit is dealt, so they are read as it applies.
+	var comboPoints int32
+	eviscerate := bonescytheFlaw.EffectN(1).ClassFlags
+	setBonusAura.AttachProcTrigger(core.ProcTrigger{
+		Name:               "Bonescythe Armor - 8PC Combo Points",
+		Callback:           core.CallbackOnApplyEffects,
+		ClassFlags:         eviscerate,
+		TriggerImmediately: true,
+		Handler: func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			comboPoints = rogue.ComboPoints(result.Target)
+		},
+	})
+	chancePerPoint := float64(bonescytheFlaw.EffectN(1).PointsPerResource) / 100
+	setBonusAura.AttachProcTrigger(core.ProcTrigger{
+		Name:       "Bonescythe Armor - 8PC",
+		ActionID:   core.ActionID{SpellID: bonescytheFlaw.ID},
+		Callback:   core.CallbackOnSpellHitDealt,
+		ClassFlags: eviscerate,
+		Outcome:    core.OutcomeLanded,
+		ICD:        revealedFlaw.Cooldown(),
+		ExtraCondition: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+			return sim.Proc(chancePerPoint*float64(comboPoints), "Revealed Flaw")
+		},
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			buff.Activate(sim)
+		},
+	}).ExposeToAPL(bonescytheFlaw.ID)
 }
