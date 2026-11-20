@@ -82,9 +82,9 @@ export default defineSpec<Spec.SpecProtectionWarrior>({
 
 	defaults: {
 		// Default equipped gear.
-		gear: Presets.PreBiSGear.gear,
+		gear: Presets.PreBiSBalancedGear.gear,
 		// Default EP weights for sorting gear in the gear picker.
-		epWeights: Presets.PreBiSEpWeights.epWeights,
+		epWeights: Presets.PreBiSBalancedEpWeights.epWeights,
 		statCaps: (() => {
 			const hitCap = new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 8);
 			const expCap = new Stats().withPseudoStat(PseudoStat.PseudoStatExpertisePercent, 6.5);
@@ -96,7 +96,7 @@ export default defineSpec<Spec.SpecProtectionWarrior>({
 		// Default consumes settings.
 		consumables: Presets.DefaultConsumables,
 		// Default talents.
-		talents: Presets.ProtectionTalents.data,
+		talents: Presets.BalancedTalents.data,
 		// Default spec-specific settings.
 		specOptions: Presets.DefaultOptions,
 		// Default raid/party buffs settings.
@@ -117,9 +117,8 @@ export default defineSpec<Spec.SpecProtectionWarrior>({
 	},
 
 	// IconInputs to include in the 'Player' section on the settings tab.
-	// Icon pickers are not part of the `InputConfig` union, so the two Battle Shout icon toggles
-	// sit in the player icon row.
-	playerIconInputs: [WarriorInputs.ShoutPicker(), WarriorInputs.StancePicker(), WarriorInputs.BattleShoutT2(), WarriorInputs.BattleShoutRank7()],
+	// Icon pickers are not part of the `InputConfig` union, so the Battle Shout icon toggle sits in the player icon row.
+	playerIconInputs: [WarriorInputs.ShoutPicker(), WarriorInputs.StancePicker(), WarriorInputs.BattleShoutRank7()],
 	// Buff and Debuff inputs to include/exclude, overriding the EP-based defaults.
 	includeBuffDebuffInputs: [],
 	excludeBuffDebuffInputs: [BuffDebuffInputs.AtieshMage],
@@ -149,13 +148,14 @@ export default defineSpec<Spec.SpecProtectionWarrior>({
 	},
 
 	presets: {
-		epWeights: [Presets.PreBiSEpWeights, Presets.PreBiSThreatEpWeights],
+		epWeights: [Presets.PreBiSOffensiveEpWeights, Presets.PreBiSBalancedEpWeights],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.ProtectionTalents],
+		talents: [Presets.OffensiveTalents, Presets.BalancedTalents],
 		// Preset rotations that the user can quickly select.
 		rotations: [Presets.ROTATION_DEFAULT],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.PreBiSGear, Presets.PreBiSThreatGear],
+		gear: [Presets.PreBiSOffensiveGear, Presets.PreBiSBalancedGear],
+		builds: [Presets.PreBiSOffensiveBuild, Presets.PreBiSBalancedBuild],
 	},
 
 	autoRotation: (_player: Player<Spec.SpecProtectionWarrior>): APLRotation => {
