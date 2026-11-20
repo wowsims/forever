@@ -353,9 +353,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DemonheartRaiment"
  value: {
-  dps: 726.4773
-  tps: 572.95204
-  dtps: 8.16729
+  dps: 814.00382
+  tps: 636.72327
+  dtps: 8.13769
  }
 }
 dps_results: {
