@@ -2530,8 +2530,9 @@ func (r *ProcRouting) ProcConstructor() string {
 // only through an equip spell that folds; an on-use or a weapon-scoped equip spell applies them as an aura.
 // An equip spell that only restates a weapon skill or creature type stat the item's own stats state leaves
 // the item (dropRestatedItemStats), and one that raises only weapon skills the item's stats do not state
-// becomes the item's weapon skill (foldEquipWeaponSkills). One that folds carries its bonus against a creature
-// type into the item's mob type stats (addEquipSpellMobTypeStats).
+// becomes the item's weapon skill (foldEquipWeaponSkills). An equip spell whose stats fold into the item
+// (EquipSpellFolds) carries its bonus against a creature type into the item's mob type stats
+// (addEquipSpellMobTypeStats).
 var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,

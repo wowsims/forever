@@ -533,7 +533,6 @@ func (d *DBC) foldEquipWeaponSkills() {
 			continue
 		}
 		stated := d.statedBonuses(&item)
-		folded := len(item.EquipWeaponSkills)
 		d.ItemEffectsByParentID[itemID] = slices.DeleteFunc(effects, func(effect ItemEffect) bool {
 			if effect.TriggerType != ITEM_SPELLTRIGGER_ON_EQUIP {
 				return false
@@ -547,9 +546,7 @@ func (d *DBC) foldEquipWeaponSkills() {
 			item.EquipWeaponSkills = append(item.EquipWeaponSkills, skills...)
 			return len(skills) > 0
 		})
-		if len(item.EquipWeaponSkills) > folded {
-			d.Items[itemID] = item
-		}
+		d.Items[itemID] = item
 	}
 }
 

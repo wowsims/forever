@@ -143,9 +143,8 @@ func TestEquipSpellRaisingOnlyWeaponSkillsFoldsIntoTheItem(t *testing.T) {
 		trigger int
 		want    []*proto.WeaponSkillValue
 	}{
-		{"a weapon skill the stats do not state", []int{ITEM_MOD_STAMINA}, fistSpell, ITEM_SPELLTRIGGER_ON_EQUIP, []*proto.WeaponSkillValue{fist}},
 		{"two weapon skills", nil, fistAndDaggerSpell, ITEM_SPELLTRIGGER_ON_EQUIP, []*proto.WeaponSkillValue{fist, dagger}},
-		{"a weapon skill beside another the stats state", []int{ITEM_MOD_DAGGERS_SKILL}, fistSpell, ITEM_SPELLTRIGGER_ON_EQUIP, []*proto.WeaponSkillValue{fist}},
+		{"a weapon skill the stats do not state, beside another they state", []int{ITEM_MOD_DAGGERS_SKILL}, fistSpell, ITEM_SPELLTRIGGER_ON_EQUIP, []*proto.WeaponSkillValue{fist}},
 		{"a weapon skill the stats state", []int{ITEM_MOD_FIST_WEAPONS_SKILL}, fistSpell, ITEM_SPELLTRIGGER_ON_EQUIP, nil},
 		{"a spell that does more than raise the skill", nil, fistAndArmorSpell, ITEM_SPELLTRIGGER_ON_EQUIP, nil},
 		{"the Defense line", nil, defenseSpell, ITEM_SPELLTRIGGER_ON_EQUIP, nil},
