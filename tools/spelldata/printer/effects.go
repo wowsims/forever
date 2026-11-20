@@ -158,7 +158,8 @@ func weaponBound(s *spelldata.Spell, e *spelldata.Effect, stat string) string {
 
 // A damage done aura under the rule spelldata.WeaponScope names for its row. While a melee weapon is
 // equipped, a mask short of every school gives its Physical as damage done and every other school
-// the percent on its melee-defense spells alone, the schools the mask names past Physical included.
+// the percent on its melee-defense spells alone, the schools the mask names past Physical included. A
+// row whose aura reaches beyond its weapon gives every school of its mask as damage done.
 func damageDonePhrase(s *spelldata.Spell, e *spelldata.Effect) string {
 	mask := core.SpellSchool(e.Misc)
 	phrase := join(signedPercent(e), schoolName(mask), "damage done")
@@ -168,11 +169,11 @@ func damageDonePhrase(s *spelldata.Spell, e *spelldata.Effect) string {
 		return join(phrase+",", perWeapon(scope))
 	case spelldata.WeaponRuleWhileEquipped:
 		if scope.ProcMask.Matches(core.ProcMaskMelee) && mask != allSchools {
-			if physical := mask & core.SpellSchoolPhysical; physical == 0 {
+			if full := spelldata.WeaponDamageSchools(s, e); full == 0 {
 				phrase = join(signedPercent(e), "damage done on the melee-defense spells of every school")
 			} else {
-				phrase = join(signedPercent(e), schoolName(physical), "damage done and on the melee-defense spells of the other schools")
-				if named := mask &^ physical; named != 0 {
+				phrase = join(signedPercent(e), schoolName(full), "damage done and on the melee-defense spells of the other schools")
+				if named := mask &^ full; named != 0 {
 					phrase += ", " + schoolName(named) + " included"
 				}
 			}

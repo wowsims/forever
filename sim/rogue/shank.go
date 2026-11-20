@@ -9,13 +9,12 @@ var shankRank = spellData.Shank.Highest()
 var venomBuff = spellData.VenomTriggered.Highest()
 var bootKnifePoints = spellData.BootKnifeTriggered.Highest()
 
-// The row is Always Hit, so only the crit is rolled. It suppresses the caster's, the target's and the
-// weapon procs, so Shank carries no proc mask: no trinket, talent or poison hears it, and the row's Suppress
-// Weapon Procs flag keeps the weapon procs off as well. With no hand in its mask, a modifier scoped to the
-// off hand does not reach it either. Shank is no builder, so Seal Fate does not hear it.
+// The row is Always Hit, so only the crit is rolled. Shank strikes with the off hand and carries an off-hand special's
+// mask, so the off hand's poison and weapon procs, the procs that hear melee specials, Blade Flurry and the modifiers
+// scoped to the off hand (Dual Wield Specialization, Hack and Slash) all reach it. Its row adds no combo point, so it
+// is no builder and Seal Fate does not hear it.
 func (rogue *Rogue) registerShank() {
-	// TODO: validate in game that Suppress Caster Procs and Suppress Target Procs leave Shank heard by no proc.
-	config := spelldata.SpellConfig(&rogue.Unit, shankRank, spelldata.Melee(core.ProcMaskEmpty))
+	config := spelldata.SpellConfig(&rogue.Unit, shankRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
 	config.DamageMultiplier = shankRank.DamageEffect().Percent()
 
 	// Flash of Steel's SPELLMOD_EFFECT2 raises the energy of the second effect; the parse would read it as
@@ -28,6 +27,8 @@ func (rogue *Rogue) registerShank() {
 		spelldata.ParseEffects(&rogue.Character, venomAura, venomBuff)
 	}
 
+	// Boot Knife's proc row names no class flags, so a trigger built from it would hear every melee special, while its
+	// tooltip gives the points to Shank alone. Shank rolls them itself, as finishers roll Ruthlessness.
 	bootKnifeChance := spellData.BootKnife.EffectAt(1).FractionAt(rogue.Talents.BootKnife)
 	var bootKnifeMetrics *core.ResourceMetrics
 	if rogue.Talents.BootKnife > 0 {

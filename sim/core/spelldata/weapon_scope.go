@@ -57,6 +57,16 @@ func WeaponScope(s *Spell, e *Effect) (WeaponRule, core.SpellModConfig) {
 	return WeaponRuleNone, core.SpellModConfig{}
 }
 
+// The schools a melee weapon's while-equipped damage done row gives as a school multiplier: its
+// Physical, or every school of its mask when its aura reaches beyond its weapon. The other schools take
+// the percent on their melee-defense spells.
+func WeaponDamageSchools(s *Spell, e *Effect) core.SpellSchool {
+	if s.AuraReachesBeyondItsWeapon() {
+		return core.SpellSchool(e.Misc)
+	}
+	return core.SpellSchool(e.Misc) & core.SpellSchoolPhysical
+}
+
 // Whether the aura is a hit, crit, rating, damage done, spell hit or threat aura, the ones WeaponScope
 // can bind to a weapon.
 func WeaponBindable(aura dbcenums.EffectAuraType) bool {
