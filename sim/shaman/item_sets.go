@@ -77,12 +77,7 @@ var ItemSetGiftOfTheGatheringStorm = core.NewItemSet(core.ItemSet{
 			multiplier := 1 + gatheringStormChain.EffectN(1).Percent()
 
 			setBonusAura.
-				ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
-					shaman.chainLightningJumpMultiplier *= multiplier
-				}).
-				ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
-					shaman.chainLightningJumpMultiplier /= multiplier
-				}).
+				AttachMultiplicativePseudoStatBuff(&shaman.chainLightningJumpMultiplier, multiplier).
 				ExposeToAPL(gatheringStormChain.ID)
 		},
 	},
@@ -101,27 +96,29 @@ var ItemSetTheEarthshatterer = core.NewItemSet(core.ItemSet{
 		// with Totemic Power, which the sim does not model.
 
 		// Your Lightning Shield spell also grants you 15 mana per 5 sec. while active.
-		// 28821 puts 28820 on the shaman when Lightning Shield lands, and the sim keeps 28820's mana
-		// per 5 sec up exactly while Lightning Shield is. Effect 2 of 28820 is a periodic dummy.
+		// registerEarthshattererShieldMP5 links the mana to Lightning Shield, which registers after the set bonuses.
 		8: func(agent core.Agent, setBonusAura *core.Aura) {
 			shaman := agent.(ShamanAgent).GetShaman()
-
-			// 28820 shares Lightning Shield's name.
-			mp5 := shaman.RegisterAura(spelldata.AuraConfig(earthshatterShieldMP5, spelldata.Label("Lightning Shield - The Earthshatterer")))
-			spelldata.ParseEffects(&shaman.Character, mp5, earthshatterShieldMP5, spelldata.Effects(1))
-
-			follow := func(_ *core.Aura, sim *core.Simulation) {
-				if setBonusAura.IsActive() && shaman.LightningShieldAura.IsActive() {
-					mp5.Activate(sim)
-				} else {
-					mp5.Deactivate(sim)
-				}
-			}
-			// Lightning Shield registers after the set bonuses, so the link waits for the sim's start.
-			setBonusAura.ApplyOnInit(func(_ *core.Aura, _ *core.Simulation) {
-				shaman.LightningShieldAura.ApplyOnGain(follow).ApplyOnExpire(follow)
-			})
-			setBonusAura.ApplyOnGain(follow).ApplyOnExpire(follow).ExposeToAPL(earthshatterShield.ID)
+			shaman.earthshattererAura = setBonusAura
+			setBonusAura.ExposeToAPL(earthshatterShield.ID)
 		},
 	},
 })
+
+// 28821 puts 28820 on the shaman when Lightning Shield lands, and the sim keeps 28820's mana per 5 sec up
+// exactly while both Lightning Shield and the 8pc are. Effect 2 of 28820 is a periodic dummy.
+func (shaman *Shaman) registerEarthshattererShieldMP5() {
+	// 28820 shares Lightning Shield's name.
+	mp5 := shaman.RegisterAura(spelldata.AuraConfig(earthshatterShieldMP5, spelldata.Label("Lightning Shield - The Earthshatterer")))
+	spelldata.ParseEffects(&shaman.Character, mp5, earthshatterShieldMP5, spelldata.Effects(1))
+
+	follow := func(_ *core.Aura, sim *core.Simulation) {
+		if shaman.earthshattererAura.IsActive() && shaman.LightningShieldAura.IsActive() {
+			mp5.Activate(sim)
+		} else {
+			mp5.Deactivate(sim)
+		}
+	}
+	shaman.LightningShieldAura.ApplyOnGain(follow).ApplyOnExpire(follow)
+	shaman.earthshattererAura.ApplyOnGain(follow).ApplyOnExpire(follow)
+}

@@ -707,10 +707,7 @@ var ItemSetDefiasLeather = core.NewItemSet(core.ItemSet{
 
 func deviousStrike(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
-	config := spelldata.SpellConfig(&character.Unit, deviousStrikeBleed, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc())
-	if deviousStrikeBleed.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+	config := procSpellConfigAs(character, deviousStrikeBleed, spelldata.Melee(core.ProcMaskEmpty))
 	config.Dot = spelldata.DotConfig(deviousStrikeBleed, deviousStrikeBleed.PeriodicDamageEffect())
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHit)
@@ -807,7 +804,7 @@ var ItemSetDeathboneGuardian = core.NewItemSet(core.ItemSet{
 		4: shared.ParsedSetBonus(spelldata.MustFind(18676)),   // +5 all resistances
 		5: func(_ core.Agent, setBonusAura *core.Aura) {
 			setBonusAura.
-				AttachStatBuff(stats.ExpertiseRating, -deathboneExpertise.EffectN(1).BaseValue()*core.ExpertiseRatingPerExpertisePercent).
+				AttachStatBuff(stats.ExpertisePercent, -deathboneExpertise.EffectN(1).BaseValue()).
 				ExposeToAPL(deathboneExpertise.ID)
 		},
 	},
@@ -825,8 +822,8 @@ var (
 //
 // A cast that leaves the wearer below the share of mana 1321560's first effect states casts 1321558,
 // which restores its mana every tick, and then rests the row's cooldown. The amount takes 1321558's area
-// bonus. The game files state none for the doubling the tooltip names, so every area restores the base
-// amount.
+// bonus, which an override supplies: the game files state no doubling for the Haunted and Wasteland areas
+// the tooltip names.
 var ItemSetRotmendersRaiment = core.NewItemSet(core.ItemSet{
 	ID:   2133,
 	Name: "Rotmender's Raiment",

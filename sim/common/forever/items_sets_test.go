@@ -636,23 +636,21 @@ func TestChainOfTheScarletCrusadeLightsMeleeHits(t *testing.T) {
 	}
 }
 
-// The pieces in the order the tests put them on.
-var deathbonePieceList = []struct {
-	slot proto.ItemSlot
-	id   int32
-}{
-	{proto.ItemSlot_ItemSlotWaist, 14620}, {proto.ItemSlot_ItemSlotFeet, 14621},
-	{proto.ItemSlot_ItemSlotHands, 14622}, {proto.ItemSlot_ItemSlotLegs, 14623},
-	{proto.ItemSlot_ItemSlotChest, 14624},
-}
-
 // Deathbone Guardian's 5-piece 1213289 lowers the chance for the wearer's attacks to be dodged and to be
 // parried by the percent each of its effects states.
 func TestDeathboneGuardianLowersDodgeAndParry(t *testing.T) {
 	row := spelldata.MustFind(1213289)
+	pieceList := []struct {
+		slot proto.ItemSlot
+		id   int32
+	}{
+		{proto.ItemSlot_ItemSlotWaist, 14620}, {proto.ItemSlot_ItemSlotFeet, 14621},
+		{proto.ItemSlot_ItemSlotHands, 14622}, {proto.ItemSlot_ItemSlotLegs, 14623},
+		{proto.ItemSlot_ItemSlotChest, 14624},
+	}
 	expertise := func(n int) float64 {
 		pieces := map[proto.ItemSlot]int32{}
-		for _, p := range deathbonePieceList[:n] {
+		for _, p := range pieceList[:n] {
 			pieces[p.slot] = p.id
 		}
 		_, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(pieces))
@@ -691,20 +689,24 @@ func TestRotmendersRaimentRestoresManaWhenLow(t *testing.T) {
 		completeCast(t, sim, paladin, spell, 0)
 		stepTo(t, sim, sim.CurrentTime+row.Duration()+core.SpellBatchWindow)
 	}
+	drainMetrics := paladin.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen})
+	drain := func() {
+		paladin.SpendMana(sim, paladin.CurrentMana()-paladin.MaxMana()*threshold/2, drainMetrics)
+	}
 
 	runOut()
 	if got := spellGain(paladin, row.ID); got.Events != 0 {
 		t.Fatalf("a cast at full mana restored mana %d times, want none", got.Events)
 	}
 
-	paladin.SpendMana(sim, paladin.CurrentMana()-paladin.MaxMana()*threshold/2, paladin.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen}))
+	drain()
 	runOut()
 	got := spellGain(paladin, row.ID)
 	if got.Events != ticks || math.Abs(got.Gain-float64(ticks)*tick.Average()) > 1e-6 {
 		t.Errorf("a cast below the share restored %v mana in %d ticks, want the row's %v in each of %d", got.Gain, got.Events, tick.Average(), ticks)
 	}
 
-	paladin.SpendMana(sim, paladin.CurrentMana()-paladin.MaxMana()*threshold/2, paladin.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen}))
+	drain()
 	runOut()
 	if again := spellGain(paladin, row.ID); again.Events != ticks {
 		t.Errorf("a second cast below the share inside the cooldown left %d ticks in all, want %d", again.Events, ticks)

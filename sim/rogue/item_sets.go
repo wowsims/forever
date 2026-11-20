@@ -32,14 +32,8 @@ var ItemSetBonescytheArmor = core.NewItemSet(core.ItemSet{
 // tooltip's three spells and its crit are set here; the cooldown is the row's.
 func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 	rogue := agent.(RogueAgent).GetRogue()
-	energy := bonescytheHeadRush.FiredSpell()
-	amount := energy.EnergizeEffect().Average()
-	metrics := rogue.NewEnergyMetrics(core.ActionID{SpellID: energy.ID})
-
-	trigger := spelldata.ProcTrigger(&rogue.Character, bonescytheHeadRush,
-		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			rogue.AddEnergy(sim, amount, metrics)
-		})
+	trigger := spelldata.ProcTrigger(&rogue.Character, bonescytheHeadRush, nil)
+	trigger.Handler = shared.FiredSpellHandler(&rogue.Character, core.ActionID{SpellID: bonescytheHeadRush.FiredSpell().ID}, bonescytheHeadRush)
 	trigger.Name = "Bonescythe Armor - 4PC"
 	trigger.ClassSpellMask = RogueSpellBackstab | RogueSpellSinisterStrike | RogueSpellHemorrhage
 	trigger.Outcome = core.OutcomeCrit

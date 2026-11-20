@@ -3,6 +3,7 @@ package rogue
 import (
 	"math"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/common"
 	_ "github.com/wowsims/forever/sim/common" // imported to get item effects included.
@@ -173,10 +174,10 @@ func newTwoTargetSim(talents string) (*core.Simulation, *Rogue) {
 	return sim, sim.Raid.Parties[0].Players[0].(*Rogue)
 }
 
-// Runs the sim strictly past one spell batch, so every deferred proc due in it has fired whatever the
-// order of actions at the same time.
-func stepPastBatch(sim *core.Simulation) {
-	at := sim.CurrentTime + core.SpellBatchWindow
+// Runs the sim for wait and strictly past one spell batch after it, so every deferred proc due in it has
+// fired whatever the order of actions at the same time.
+func stepPastBatch(sim *core.Simulation, wait time.Duration) {
+	at := sim.CurrentTime + wait + core.SpellBatchWindow
 	for sim.CurrentTime <= at {
 		sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
 		sim.Step()
@@ -194,20 +195,20 @@ func TestRemorselessAttacksCritsTheStrikeAfterAKill(t *testing.T) {
 	bonus := spellData.RemorselessAttacks.Rank(1).EffectN(1).BaseValue()
 
 	dying.Die(sim, 0)
-	stepPastBatch(sim)
+	stepPastBatch(sim, 0)
 	if buff.IsActive() {
 		t.Error("a death with no kill credit put up Remorseless")
 	}
 
 	dying.Enable(sim)
 	dying.Die(sim, 1)
-	stepPastBatch(sim)
+	stepPastBatch(sim, 0)
 	if got := strike.BonusCritPercent - base; !buff.IsActive() || math.Abs(got-bonus) > 1e-9 {
 		t.Fatalf("after a killing blow Remorseless is up %v and adds %v crit to Sinister Strike, want up and %v", buff.IsActive(), got, bonus)
 	}
 
 	strike.SkipCastAndApplyEffects(sim, other)
-	stepPastBatch(sim)
+	stepPastBatch(sim, 0)
 	if buff.IsActive() || strike.BonusCritPercent != base {
 		t.Errorf("after Sinister Strike Remorseless is up %v at %v crit, want gone and %v", buff.IsActive(), strike.BonusCritPercent, base)
 	}
@@ -766,8 +767,8 @@ func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 	target.PseudoStats.BaseDodgeChance = 0
 	rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
 
-	headRush := spelldata.MustFind(bonescytheHeadRush.ID)
-	energy := spelldata.MustFind(headRush.EffectN(1).TriggerID)
+	energy := bonescytheHeadRush.FiredSpell()
+	perProc := energy.EnergizeEffect().BaseValue()
 	regained := func() *proto.ResourceMetrics {
 		for _, r := range rogue.Metrics.ToProto().Resources {
 			if r.Id.GetSpellId() == energy.ID && r.Type == proto.ResourceType_ResourceTypeEnergy {
@@ -782,13 +783,7 @@ func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 		t.Helper()
 		crits, before := spell.SpellMetrics[target.UnitIndex].Crits, regained().Events
 		spell.SkipCastAndApplyEffects(sim, target)
-		at := sim.CurrentTime + headRush.ICD() + core.SpellBatchWindow
-		for sim.CurrentTime <= at {
-			sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
-			if sim.Step() {
-				t.Fatal("the sim ended while waiting out the cooldown")
-			}
-		}
+		stepPastBatch(sim, bonescytheHeadRush.ICD())
 		return spell.SpellMetrics[target.UnitIndex].Crits > crits, regained().Events - before
 	}
 
@@ -817,7 +812,7 @@ func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 		t.Errorf("a Sinister Strike at -200%% crit crit %v and regained energy %d times, want no crit and none", crit, procs)
 	}
 
-	if got := regained(); got.Gain != float64(got.Events)*energy.EnergizeEffect().BaseValue() {
-		t.Errorf("the 4-piece regained %v energy over %d procs, want the row's %v each", got.Gain, got.Events, energy.EnergizeEffect().BaseValue())
+	if got := regained(); got.Gain != float64(got.Events)*perProc {
+		t.Errorf("the 4-piece regained %v energy over %d procs, want the row's %v each", got.Gain, got.Events, perProc)
 	}
 }

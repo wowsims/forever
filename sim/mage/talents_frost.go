@@ -282,9 +282,8 @@ func (mage *Mage) registerFingersOfFrost() {
 		manaflareTrigger := trigger
 		manaflareTrigger.Name = "Fingers of Frost - Manaflare Trigger"
 		manaflareTrigger.ProcChance = manaflareFrostfireBolt.EffectN(3).Percent() / (1 - trigger.ProcChance)
-		manaflareTrigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-			return spell.Matches(MageSpellFrostfireBolt)
-		}
+		manaflareTrigger.ClassSpellMask = MageSpellFrostfireBolt
+		manaflareTrigger.ExtraCondition = nil
 		mage.manaflareAura.AttachProcTrigger(manaflareTrigger)
 	}
 

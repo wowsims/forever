@@ -88,34 +88,14 @@ var ItemSetTrappingsOfTheUnseenPath = core.NewItemSet(core.ItemSet{
 // damage done in every school, so the pet has it exactly while it is out. The pet is the wearer's
 // one pet that is no guardian.
 func applyBeastOfTheUnseenPath(agent core.Agent, setBonusAura *core.Aura) {
-	character := agent.GetCharacter()
 	setBonusAura.ExposeToAPL(26176)
-
-	petIndex := slices.IndexFunc(character.Pets, func(pet *core.Pet) bool { return !pet.IsGuardian() })
-	if petIndex < 0 {
-		return
-	}
-	pet := character.Pets[petIndex]
-
-	config := spelldata.AuraConfig(unseenPathPetBonus)
-	config.Duration = core.NeverExpires
-	multiplier := core.MultiplierFromPercent(unseenPathPetBonus.EffectN(1).BaseValue())
-	petAura := pet.RegisterAura(config).AttachMultiplicativePseudoStatBuff(&pet.PseudoStats.DamageDealtMultiplier, multiplier)
-
-	setBonusAura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
-		if pet.IsEnabled() {
-			petAura.Activate(sim)
-		}
+	followPet(agent.GetCharacter(), setBonusAura, func(pet *core.Pet) []*core.Aura {
+		config := spelldata.AuraConfig(unseenPathPetBonus)
+		config.Duration = core.NeverExpires
+		petAura := pet.RegisterAura(config)
+		spelldata.ParseEffects(&pet.Character, petAura, unseenPathPetBonus)
+		return []*core.Aura{petAura}
 	})
-	setBonusAura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
-		petAura.Deactivate(sim)
-	})
-	pet.RegisterEnableEffect(func(sim *core.Simulation) {
-		if setBonusAura.IsActive() {
-			petAura.Activate(sim)
-		}
-	})
-	pet.RegisterDisableEffect(petAura.Deactivate)
 }
 
 // Tier 3
@@ -161,26 +141,35 @@ func applyStalkersAlly(agent core.Agent, setBonusAura *core.Aura) {
 		stats.AttackPower:       cryptstalkerStalkersAlly.Effect(dbcenums.A_MOD_ATTACK_POWER, 0).Average(),
 		stats.RangedAttackPower: cryptstalkerStalkersAlly.Effect(dbcenums.A_MOD_RANGED_ATTACK_POWER, 0).Average(),
 	}
+	followPet(character, setBonusAura, func(pet *core.Pet) []*core.Aura {
+		register := func(unit *core.Unit) *core.Aura {
+			config := spelldata.AuraConfig(cryptstalkerStalkersAlly)
+			config.Duration = core.NeverExpires
+			return unit.RegisterAura(config).AttachStatsBuff(bonus)
+		}
+		return []*core.Aura{register(&character.Unit), register(&pet.Unit)}
+	})
+}
 
+// Keeps the auras register builds up exactly while the set bonus is active and the wearer's one pet that
+// is no guardian is out. A wearer with no such pet registers nothing.
+func followPet(character *core.Character, setBonusAura *core.Aura, register func(pet *core.Pet) []*core.Aura) {
 	petIndex := slices.IndexFunc(character.Pets, func(pet *core.Pet) bool { return !pet.IsGuardian() })
 	if petIndex < 0 {
 		return
 	}
 	pet := character.Pets[petIndex]
 
-	register := func(unit *core.Unit) *core.Aura {
-		config := spelldata.AuraConfig(cryptstalkerStalkersAlly)
-		config.Duration = core.NeverExpires
-		return unit.RegisterAura(config).AttachStatsBuff(bonus)
-	}
-	ownerAura, petAura := register(&character.Unit), register(&pet.Unit)
+	auras := register(pet)
 	activate := func(sim *core.Simulation) {
-		ownerAura.Activate(sim)
-		petAura.Activate(sim)
+		for _, aura := range auras {
+			aura.Activate(sim)
+		}
 	}
 	deactivate := func(sim *core.Simulation) {
-		ownerAura.Deactivate(sim)
-		petAura.Deactivate(sim)
+		for _, aura := range auras {
+			aura.Deactivate(sim)
+		}
 	}
 
 	setBonusAura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
