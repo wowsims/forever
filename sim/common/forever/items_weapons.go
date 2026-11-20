@@ -729,7 +729,7 @@ func init() {
 	// damage and slow movement speed by 50% for 5s.
 	//
 	// The generator keeps one proc per item, so both procs are written here. 1298413 casts 1298414 on
-	// each landed main-hand swing and special, on the melee table its row states. 1298416 strikes at the procs per
+	// each landed main-hand swing and special; its row states Always Hit, so it rolls only the melee crit. 1298416 strikes at the procs per
 	// minute of the item's chance-on-hit entry on the axe's speed (EV-0136), and registers nothing while
 	// the entry states none; its slow is movement the sim leaves out.
 	core.NewItemEffect(13952, func(agent core.Agent) {
@@ -741,10 +741,15 @@ func init() {
 		if chillRow.IsAProc() {
 			chillConfig.Flags |= core.SpellFlagProc
 		}
+		var chillOutcome core.OutcomeApplier
 		chillConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, chill.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit))
+			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, chill.DirectAmount(sim), chillOutcome))
 		}
 		chillSpell := character.RegisterSpell(chillConfig)
+		chillOutcome = chillSpell.OutcomeMeleeSpecialHitAndCrit
+		if chillRow.AlwaysHits() {
+			chillOutcome = chillSpell.OutcomeMeleeSpecialCritOnly
+		}
 
 		chillTrigger := spelldata.ProcTrigger(character, spelldata.MustFind(1298413), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			chillSpell.Cast(sim, result.Target)
