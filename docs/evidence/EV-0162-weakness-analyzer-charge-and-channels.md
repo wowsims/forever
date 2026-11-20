@@ -1,4 +1,4 @@
-# EV-0160: What spends Weakness Analyzer's charge, inside a channel and out
+# EV-0162: What spends Weakness Analyzer's charge, inside a channel and out
 
 - Claim: Weakness Analyzer's buff, Analyzing Weaknesses (1291101), drops on the first crit of a direct hit, and an
   Arcane Missiles missile is such a hit: the charge goes as that missile lands, with the channel still running.

@@ -15,16 +15,19 @@ import (
 // channel. A charge gained while a channel the class flags name is running is still kept for that
 // channel's end.
 //
-// A channel is one cast: the charge stays up for every tick and every target, and is spent when the
-// channel ends. A channel the buff's class flags name spends it once the channel has started, even
-// when its cast lands nothing itself, and so does one already running when the charge comes. A
-// listener on the cast counts a channeled cast as the channel only while the channel runs, so one
-// that starts none spends the charge like any other cast. A tick that is a proc the row cannot proc
-// from is not heard, so a channel of such ticks the class flags do not name leaves the charge up.
-// Wand Shoot is no such channel: each shot spends a charge like any hit, and so do other hits while
-// wanding. A buff whose row names no spells keeps nothing for a channel: the first hit it hears
-// spends the charge as it lands, a channel's missile included (EV-0160).
-// TODO: A tick that lands after its channel ends, a missile still in flight, misses the charge.
+// A channel is one cast for a buff whose row names its spells by class flags: the charge stays up for
+// every tick and every target, and is spent when the channel ends. A channel the buff's class flags
+// name spends it once the channel has started, even when its cast lands nothing itself, and so does
+// one already running when the charge comes. A listener on the cast counts a channeled cast as the
+// channel only while the channel runs, so one that starts none spends the charge like any other cast.
+// A tick that is a proc the row cannot proc from is not heard, so a channel of such ticks the class
+// flags do not name leaves the charge up. Wand Shoot is no such channel: each shot spends a charge
+// like any hit, and so do other hits while wanding. A buff whose row names no spells keeps nothing for
+// a channel: the first hit it hears spends the charge as it lands, a channel's missile included
+// (EV-0162).
+// TODO: For a buff that names its spells, a tick that lands after its channel ends, a missile still in
+// flight, misses the charge. For one that names none, a missile in flight when a crit spends the charge
+// keeps the crit it rolled with the buff up.
 func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, name string, opts ...ProcOpt) core.ProcTrigger {
 	classFlags := chargeClassFlags(character, s)
 	keepsForChannel := !classFlags.IsZero()
@@ -34,7 +37,7 @@ func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, n
 		resetFirstHit()
 		channel := character.ChanneledDot
 		// A channel with no ticks left only waits out the GCD.
-		channelHit = keepsForChannel && channel != nil && channel.RemainingTicks() > 0 && channel.Spell.MatchesFlags(classFlags)
+		channelHit = channel != nil && channel.RemainingTicks() > 0 && channel.Spell.MatchesFlags(classFlags)
 	})
 
 	character.OnChannelEnd(func(sim *core.Simulation, _ *core.Dot) {
@@ -75,7 +78,7 @@ func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, n
 
 	// A buff holds one cast listener. A spender that hears casts reserves the charge for a channel's
 	// cast in its own condition.
-	if !spender.ClassFlags.IsZero() && !onCast {
+	if keepsForChannel && !onCast {
 		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
 			Name:               name + " - Channel",
 			Callback:           core.CallbackOnCastComplete,

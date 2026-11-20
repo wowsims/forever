@@ -49,7 +49,7 @@ What `ProcTrigger` fills and the Enrage example are in `procs.md`. What the page
   one charge per cast however many targets the cast hits (`core.OncePerCast`), and a channel's once at its end when
   the row names its spells by class flags; a row that names none is spent by the first hit it hears, mid-channel too. An
   option's `ExtraCondition` narrows the spells that spend it (Revelation turns melee and ranged attacks away); a charge
-  gained during a running channel is still kept for that channel's end. Without a spender one proc pays for every cast
+  gained during a running channel its class flags name is still kept for that channel's end. Without a spender one proc pays for every cast
   in the buff's duration.
 - **An extra attack goes through `unit.ExtraAttackProc(&trigger, tagSpellID, count)`.** It sets `TriggerImmediately`
   itself, swings once the triggering hit is dealt, never hears its own swing, and returns an `OnInit` for the proc's
