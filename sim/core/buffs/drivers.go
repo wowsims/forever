@@ -205,10 +205,10 @@ func driveManaTideTotems(char *core.Character, party *proto.PartyBuffs) {
 	})
 }
 
-// The strike the totem's raid aura procs, the main hand's weapon damage.
+// The Windfury Totem hit the raid aura procs, the main hand's weapon damage.
 var windfuryTotemStrike = spelldata.MustFind(10610)
 
-// For the procs that hear the strike apart from other main-hand specials, as a paladin's seals do.
+// For the procs that hear Windfury Totem hits apart from other main-hand specials, as a paladin's seals do.
 func IsWindfuryTotemStrike(spell *core.Spell) bool {
 	return spell.SpellID == windfuryTotemStrike.ID
 }
@@ -217,8 +217,8 @@ func IsWindfuryTotemStrike(spell *core.Spell) bool {
 var windfuryTotemCast = spelldata.MustFind(10614)
 
 // The totem hands the proc out as its raid aura, whose row states the chance,
-// what it hears and its 100 ms cooldown. The driver keeps the strike the proc
-// lands, and the totem aura that holds the category.
+// what it hears and its 100 ms cooldown. The driver keeps the Windfury Totem hit the
+// proc lands, and the totem aura that holds the category.
 func driveWindfuryTotem(char *core.Character, _ *proto.RaidBuffs) {
 	inheritWeaponTotem(char, windfuryTotemSpell, standWindfuryTotem)
 }
@@ -235,7 +235,7 @@ func standWindfuryTotem(char *core.Character) *core.Aura {
 	return totemAura
 }
 
-// A Windfury Totem bids the attack power its strike adds, the raid aura's
+// A Windfury Totem bids the attack power its hits add, the raid aura's
 // dummy effect, for the category.
 func WindfuryTotemPriority() float64 {
 	return windfuryTotemSpell.Effect(dbcenums.A_DUMMY, 0).BaseValue()
@@ -250,14 +250,14 @@ var windfuryTotemHoldsOver = []string{
 	FlametongueTotemCategory,
 }
 
-// The strike's row is Windfury Weapon's strike 439440 in every column but the
+// The Windfury Totem hit's row is the Windfury Weapon hit's (439440) in every column but the
 // class mask: weapon damage on the target, Not a Proc, main hand required. It
 // deals the main hand's weapon damage with the raid aura's attack power added,
 // on the weapon special's table of miss, dodge, parry and crit, never a
 // glancing blow, and it is reduced by armor as a white hit is. Rank 3 adds
 // attack power and ranks 1 and 2 add none (EV-0002); the sim stands rank 3
 // only. It counts as a main-hand swing for the procs that hear melee swings
-// (EV-0136). A landed strike grants the rage a main-hand swing does (EV-0138).
+// (EV-0136). A landed one grants the rage a main-hand swing does (EV-0138).
 func newWindfuryTotemStrike(char *core.Character) *core.Spell {
 	attackPower := WindfuryTotemPriority()
 	config := spelldata.SpellConfig(&char.Unit, windfuryTotemStrike,
@@ -292,8 +292,8 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	// bear Swipe roll it, and triggered spells never: Seal of Fury, poisons,
 	// Consecration ticks (EV-0008). An auto attack, another proc's
 	// extra swing included, always rolls it. The proc rolls off the hit's cast
-	// result, and the strike follows once that hit has been dealt, in the same
-	// instant. The strike requires a main hand, but it lands inside the 100 ms
+	// result, and the Windfury Totem hit follows once that hit has been dealt, in the same
+	// instant. It requires a main hand, but it lands inside the 100 ms
 	// cooldown its proc has just started, so it never rolls.
 	trigger := spelldata.ProcTrigger(char, windfuryTotemSpell, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 		target := result.Target
@@ -308,8 +308,8 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	trigger.Duration = core.NeverExpires
 	trigger.Callback = core.CallbackOnCastResult
 	trigger.TriggerImmediately = true
-	// Triggered hits with Not a Proc roll it as abilities do: Windfury Weapon's
-	// strikes, Seal of Command, Judgement of Command and Retaliation (EV-0002).
+	// Triggered hits with Not a Proc roll it as abilities do: Windfury Weapon
+	// hits, Seal of Command, Judgement of Command and Retaliation (EV-0002).
 	// A hit with no defense type is no melee attack and never rolls it:
 	// Sweeping Strikes' copied hit 12723. Its normalized hit 26654 rolls it once.
 	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
@@ -563,7 +563,7 @@ func playerWields(raid *proto.Raid, itemIDs ...int32) bool {
 	return slices.ContainsFunc(items, func(item *proto.ItemSpec) bool { return slices.Contains(itemIDs, item.GetId()) })
 }
 
-// The landed hits a minute a main-hand wielder makes beside its own swings: specials, Windfury strikes
+// The landed hits a minute a main-hand wielder makes beside its own swings: specials, Windfury hits
 // and Whirlwind, each of which rolls the weapon's proc (EV-0147).
 const wielderOtherHitsPerMinute = 48
 

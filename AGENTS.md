@@ -58,7 +58,8 @@ A ruling, trap or workflow fact learned while working is written down in the sam
 effect, item or component owns is a comment at its implementation (the rule in present tense, no pull request number);
 a rule no single file owns goes into the subject skill's body, or into its own `docs/rulings/` file under the next free
 `R-` id with a line in that skill's `references/rulings.md` index. A measurement behind a rule (log counts, rates,
-"checked in game") goes into its own `docs/evidence/` file under the next free `EV-` id, and the comment, override
-`Source` or ruling cites that id instead of the numbers. Each folder's `README.md` has the format, and
+"checked in game") goes into its home, the lowest-numbered `docs/evidence/` file that holds its items, rewritten in
+place with the newest numbers, or into a new file under the next free `EV-` id when no file holds them; the comment,
+override `Source` or ruling cites that id instead of the numbers. Each folder's `README.md` has the format, and
 `wowsims-evidence` the questions to ask the user before writing either: the game build, the hotfix the logs ran on,
 what was counted and what the rule covers.

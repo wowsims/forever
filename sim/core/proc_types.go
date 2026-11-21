@@ -90,7 +90,7 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	info := ProcTypeInfo{RequireDamageDealt: true}
 	word := mask[0]
 
-	// Windfury Totem's strike counts as a melee swing for the swing bit, priced as a main-hand one
+	// A Windfury Totem hit counts as a melee swing for the swing bit, priced as a main-hand one
 	// (EV-0136).
 	if word&dbcenums.PROC_FLAG_DEAL_MELEE_SWING != 0 {
 		info.ProcMask |= ProcMaskMeleeWhiteHit

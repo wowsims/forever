@@ -378,8 +378,8 @@ func TestTotemicRecallReturnsAShareOfTheStandingTotemsBaseCosts(t *testing.T) {
 	}
 }
 
-// Maelstrom Weapon procs off main-hand swings and Windfury Weapon's strike, never off Windfury
-// Totem's strike.
+// Maelstrom Weapon procs off main-hand swings and Windfury Weapon hits, never off Windfury
+// Totem hits.
 func TestMaelstromWeaponSkipsTheWindfuryTotemStrike(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	player.TalentsString = enhancementTalents
@@ -396,7 +396,7 @@ func TestMaelstromWeaponSkipsTheWindfuryTotemStrike(t *testing.T) {
 	strike := sham.GetSpell(windfuryWeaponStrike)
 	totemStrike := sham.GetSpell(windfuryTotemStrike)
 	if maelstrom == nil || trigger == nil || strike == nil || totemStrike == nil {
-		t.Fatalf("Maelstrom Weapon %v, its trigger %v, Windfury Weapon's strike %v, Windfury Totem's strike %v; want all registered",
+		t.Fatalf("Maelstrom Weapon %v, its trigger %v, Windfury Weapon hit %v, Windfury Totem hit %v; want all registered",
 			maelstrom, trigger, strike, totemStrike)
 	}
 
@@ -420,10 +420,10 @@ func TestMaelstromWeaponSkipsTheWindfuryTotemStrike(t *testing.T) {
 		return gains
 	}
 	if got := procs(totemStrike); got != 0 {
-		t.Errorf("Windfury Totem's strike procced Maelstrom Weapon %d times in 300 hits, want none", got)
+		t.Errorf("a Windfury Totem hit procced Maelstrom Weapon %d times in 300 hits, want none", got)
 	}
 	if procs(sham.AutoAttacks.MHAuto()) == 0 || procs(strike) == 0 {
-		t.Error("a main-hand swing or Windfury Weapon's strike never procced Maelstrom Weapon in 300 hits, so the check above proves nothing")
+		t.Error("a main-hand swing or Windfury Weapon hit never procced Maelstrom Weapon in 300 hits, so the check above proves nothing")
 	}
 }
 

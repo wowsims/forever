@@ -362,7 +362,7 @@ func TestWeaponProcStrikeAWhiteSwingCastRollsItsWeaponOnce(t *testing.T) {
 // What cast the strike decides whether it rolls its weapon again. Forging Strike 1317432 deals a hit
 // and Mutilator's Lacerations 10370 applies a debuff alone; each is rolled at 100% in the main hand
 // by a wielder whose strikes always land. A main-hand white swing casts two strikes, the second off
-// the first. A main-hand ability, a strike that counts as a swing the way Windfury Totem's does, and
+// the first. A main-hand ability, a hit that counts as a swing the way a Windfury Totem hit does, and
 // the white swing of a paw, which a druid in Cat, Bear or Dire Bear Form swings, cast one each. A
 // listener built as a weapon enchant's hears the first strike of a weapon's white swing and no other
 // (EV-0145).
@@ -399,7 +399,7 @@ func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) 
 			}{
 				{"a main-hand white swing", whiteSwing, false, 2, 1},
 				{"a main-hand ability", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}, false, 1, 0},
-				{"a strike that counts as a swing", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee,
+				{"a hit that counts as a swing", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee,
 					Flags: core.SpellFlagCountsAsSwing}, false, 1, 0},
 				{"a paw's white swing", whiteSwing, true, 1, 0},
 			} {

@@ -29,7 +29,7 @@ full stacks does not always log, so the controls read under 100%; a spell that r
 | Holy Strike                                      |            712 |             260 | 36.5% |
 | Judgement of Command                             |            515 |             270 | 52.4% |
 | Seals of Command                                 |            412 |             220 | 53.4% |
-| Windfury Totem strike                            |            288 |             126 | 43.8% |
+| Windfury Totem hit                               |            288 |             126 | 43.8% |
 | Hammer of Wrath                                  |            203 |              91 | 44.8% |
 | Frostbolt (a proc with no Suppress Caster Procs) |             20 |              10 | 50.0% |
 

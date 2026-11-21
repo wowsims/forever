@@ -96,7 +96,7 @@ func TestVolcanicArmorProcsItsFirebolt(t *testing.T) {
 
 // Battlegear of Valor's 5-piece 450587, and the Battlegear of Heroism reissue's 4-piece that carries the same
 // row, roll the row's procs per minute on landed white swings of either hand, each on its own weapon's speed,
-// and on Windfury Totem's strike as a main-hand swing, and never on a main-hand special such as Heroic Strike
+// and on Windfury Totem hits as a main-hand swing, and never on a main-hand special such as Heroic Strike
 // or Cleave. Each proc heals the wearer for 450589's heal, and restores its rage to a wearer with a rage bar.
 // Four Valor pieces beside a Heroism piece carry no proc.
 func TestWarriorsResolveHealsAndRestoresRageOnSwings(t *testing.T) {
@@ -139,7 +139,7 @@ func TestWarriorsResolveHealsAndRestoresRageOnSwings(t *testing.T) {
 			}
 		}
 
-		// Each hit now procs it wherever the manager hears it, and Windfury Totem's strike reaches the
+		// Each hit now procs it wherever the manager hears it, and a Windfury Totem hit reaches the
 		// manager as a main-hand swing, never as an off-hand one. The warrior stand-in has no rage bar,
 		// so the proc heals alone.
 		strike := &core.Spell{ActionID: core.ActionID{SpellID: 10610}, ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagCountsAsSwing, SpellSchool: core.SpellSchoolPhysical, Unit: &warrior.Unit}
@@ -766,7 +766,7 @@ func TestTheGladiatorHastesOnLandedMeleeHits(t *testing.T) {
 }
 
 // Bloodmail Regalia's 3-piece 1299740 puts the bleed 1299739 on the target off a landed white swing, Windfury
-// Weapon's strike 439440 or Windfury Totem's strike, never off another melee ability such as Stormstrike or a
+// Weapon hit 439440 or Windfury Totem hit, never off another melee ability such as Stormstrike or a
 // spell hit. The bleed lands without a hit roll and ticks for the row's duration.
 func TestBloodmailRegaliaBleedsOnSwings(t *testing.T) {
 	row := spelldata.MustFind(1299739)

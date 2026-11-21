@@ -1,8 +1,5 @@
 # EV-0130: Fiery Weapon's proc rate on two two-handed weapons
 
-EV-0145 replaces the reading of the last table: a landed weapon proc brings one more roll only where a white swing cast
-it, at about the base chance, and the 7.9% and 18.6% below pool every landed weapon proc whatever cast it.
-
 - Claim: Enchant Weapon - Fiery Weapon 803 rolls its strike 13897 at 6 procs per minute on two two-handed weapons, on
   the hits that roll a chance-on-hit weapon proc. Their two speeds do not tell procs per minute from a flat chance.
 - Sources: combat log, Retribution paladin, levels 46 and 47, with the enchant on a two-handed mace of speed 3.4 and on
@@ -14,12 +11,12 @@ it, at about the base chance, and the 7.9% and 18.6% below pool every landed wea
 
 A unit is the paladin's melee-type hits, avoided hits and proc lines with no gap over 150 ms between neighbours. Its
 rolls are one for a white swing, a Holy Strike, a Seal of Command hit, each Seal of Righteousness hit and a Windfury
-Totem strike, and two for a Judgement of Command (EV-0119). Units with an avoided hit or a killing blow are left out.
+Totem hit, and two for a Judgement of Command (EV-0119). Units with an avoided hit or a killing blow are left out.
 The chance is the maximum-likelihood binomial chance per roll, the rate is that chance times 60 over the weapon's speed,
 and the interval is the 95% likelihood interval.
 
-The rate is read on the units with no line of the weapon's own proc, since a landed weapon proc brings one more roll at
-a lower chance (the last table). In the rows over every unit, a unit with more strikes than rolls counts as full.
+The rate is read on the units with no line of the weapon's own proc, since a landed weapon proc can bring one more roll
+(the last table). In the rows over every unit, a unit with more strikes than rolls counts as full.
 
 | Main hand                                 | Units | Rolls | Strikes counted | Chance per roll | Procs per minute    |
 | ----------------------------------------- | ----- | ----- | --------------- | --------------- | ------------------- |
@@ -65,3 +62,6 @@ the log-likelihood.
 | Speed 3.9 | 103                             | 116                 | 18.6% (5.5 to 32.8)        | 36.63%      | 17.6 worse                        |
 
 Among units of one roll, 3 of 59 with a landed weapon proc show two strikes and none of 501 without one does.
+
+These chances pool every landed weapon proc, whatever cast it. One that a white swing cast brings one more roll at about
+the base chance, and one that anything else cast brings none (EV-0145).
