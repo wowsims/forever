@@ -591,6 +591,7 @@ const makeWrappedEnumIconInput = <SpecType extends Spec, ModObject, T>(
 		}),
 		equals: config.equals,
 		showWhen: (player: Player<SpecType>): boolean => !config.showWhen || (config.showWhen(getModObject(player)) as any),
+		keepWhenHidden: config.keepWhenHidden,
 		zeroValue: config.zeroValue,
 		...mapStoreBinding(config, getModObject),
 		getValue: (player: Player<SpecType>) => config.getValue(getModObject(player)),
@@ -604,6 +605,7 @@ export interface PlayerEnumIconInputConfig<SpecType extends Spec, Message, T>
 	fieldName: keyof Message;
 	values: Array<IconEnumValueConfig<Player<SpecType>, T>>;
 	numColumns?: number;
+	keepWhenHidden?: boolean;
 }
 export const makeClassOptionsEnumIconInput = <SpecType extends Spec, T>(
 	config: PlayerEnumIconInputConfig<SpecType, ClassOptions<SpecType>, T>,
@@ -616,6 +618,7 @@ export const makeClassOptionsEnumIconInput = <SpecType extends Spec, T>(
 		values: config.values,
 		equals: (a: T, b: T) => a == b,
 		showWhen: config.showWhen,
+		keepWhenHidden: config.keepWhenHidden,
 		zeroValue: 0 as unknown as T,
 		getModObject: (player: Player<SpecType>) => player,
 		getValue: config.getValue || ((player: Player<SpecType>) => player.getClassOptions()[config.fieldName] as unknown as T),
@@ -641,6 +644,7 @@ export const makeSpecOptionsEnumIconInput = <SpecType extends Spec, T>(
 		values: config.values,
 		equals: (a: T, b: T) => a == b,
 		showWhen: config.showWhen,
+		keepWhenHidden: config.keepWhenHidden,
 		zeroValue: 0 as unknown as T,
 		getModObject: (player: Player<SpecType>) => player,
 		getValue: config.getValue || ((player: Player<SpecType>) => player.getSpecOptions()[config.fieldName] as unknown as T),
@@ -666,6 +670,7 @@ export const makeRotationEnumIconInput = <SpecType extends Spec, T>(
 		values: config.values,
 		equals: (a: T, b: T) => a == b,
 		showWhen: config.showWhen,
+		keepWhenHidden: config.keepWhenHidden,
 		zeroValue: 0 as unknown as T,
 		getModObject: (player: Player<SpecType>) => player,
 		getValue: config.getValue || ((player: Player<SpecType>) => player.getSimpleRotation()[config.fieldName] as unknown as T),

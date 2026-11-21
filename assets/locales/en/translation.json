@@ -2668,13 +2668,22 @@
 						"label": "Delay major cooldowns (s)",
 						"tooltip": "How many seconds into the fight to wait before trinkets and other cooldowns are used automatically."
 					},
+					"uw_twist": {
+						"label": "Twist with",
+						"tooltip": "The seal twisted with Seal of Righteousness under Unsealed Wrath. With Seal of Fury, Judgement is never cast while that seal is up, since Judgement of Fury taunts. Picking a seal resets the Echo stacks to its defaults.",
+						"none": "No twist: Seal of Righteousness alone"
+					},
 					"uw_soc_stacks": {
 						"label": "Echo of Command stacks",
 						"tooltip": "The amount of stacks of Echo of Command to build before swapping to Seal of Righteousness"
 					},
+					"uw_sof_stacks": {
+						"label": "Echo of Fury stacks",
+						"tooltip": "The amount of stacks of Echo of Fury to build before swapping to Seal of Righteousness"
+					},
 					"uw_sor_stacks": {
 						"label": "Echo of Righteousness stacks",
-						"tooltip": "The amount of stacks of Echo of Righteousness to build before swapping to Seal of Command"
+						"tooltip": "The amount of stacks of Echo of Righteousness to build before swapping to the seal it is twisted with"
 					}
 				}
 			},
