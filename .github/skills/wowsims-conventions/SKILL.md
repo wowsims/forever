@@ -64,6 +64,8 @@ These apply to every file and every piece of GitHub text, in Go and TypeScript a
   unrelated.
 - **"Hardcast" and "cast end".** Code, comments, test names, tooltips and PR text say "hardcast" and "cast end",
   never "cast bar" or a bare "bar" that means one.
+- **Windfury's extra attacks are hits.** A Windfury Weapon hit, a Windfury Totem hit, Windfury hits; never
+  strikes. Identifiers keep theirs (`windfuryTotemStrike`).
 
 ## Plain prose
 

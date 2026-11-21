@@ -1,7 +1,7 @@
-# EV-0167: Bloodmail Regalia's bleed procs on white swings and Windfury strikes
+# EV-0167: Bloodmail Regalia's bleed procs on white swings and Windfury hits
 
 - Claim: The Bloodmail Regalia 3-piece bonus (1299740) puts its bleed (1299739) on the target at about 10.7% per landed
-  white swing or Windfury strike, about 1.9 to 2.0 PPM on the wearers' 3.0 to 3.9 s two-handers; Stormstrike never
+  white swing or Windfury hit, about 1.9 to 2.0 PPM on the wearers' 3.0 to 3.9 s two-handers; Stormstrike never
   procs it. The weapon speeds are too close to tell a chance per hit from a PPM, and the sim takes the chance. The
   row's base of 7 matches the bleed's damage per second; nothing here shows it is the chance. All the wearers counted
   are shamans, so the rate is observed.
@@ -25,18 +25,18 @@ after it. The bleed lands on the target, so killing blows are left out everywher
 instance.
 
 - What rolls (row mask 4, melee swings): groups of the wearer's melee hits with nothing else within 120 ms show it.
-  The last column predicts each group from the lone white chance, with every white swing and Windfury strike rolling once.
+  The last column predicts each group from the lone white chance, with every white swing and Windfury hit rolling once.
 
 | Group of hits                       | Groups | With a proc | Share  | Predicted at 10.9% a roll |
 | ----------------------------------- | -----: | ----------: | ------ | ------------------------- |
 | White swing alone                   |  3,676 |         401 | 10.91% | 10.9%                     |
-| White + 2 Windfury Weapon strikes   |    713 |         209 | 29.31% | 29.3%                     |
-| White + 1 Windfury Totem strike     |    551 |         113 | 20.51% | 20.6%                     |
+| White + 2 Windfury Weapon hits      |    713 |         209 | 29.31% | 29.3%                     |
+| White + 1 Windfury Totem hit        |    551 |         113 | 20.51% | 20.6%                     |
 | White + Windfury Totem + 2 Weapon   |    258 |          94 | 36.43% | 37.0%                     |
 | Stormstrike (with its debuff) alone |  1,186 |           0 | 0%     | 0%                        |
-| Stormstrike + 2 Windfury strikes    |    210 |          40 | 19.05% | 20.6%                     |
+| Stormstrike + 2 Windfury hits       |    210 |          40 | 19.05% | 20.6%                     |
 
-- All hits: landed white swings, Windfury Weapon strikes and Windfury Totem strikes.
+- All hits: landed white swings, Windfury Weapon hits and Windfury Totem hits.
 - Lone white swings: landed white swings with no other melee event of the wearer within 200 ms. With every event of
   the wearer as a neighbour (300 ms) the chance is the same, 10.88% (131 of 1,204), and lone spells (0 of 3,406), ticks
   (0 of 2,236) and debuff landings (0 of 586) never proc it.

@@ -41,13 +41,13 @@ var hawkBaseStats = stats.Stats{
 }
 
 // The attack power a hawk takes its 80% of is the owner's ranged attack power and what the main-hand
-// weapon adds to it in game, 14 a point of its dps; the ranged weapon and the off hand add nothing
-// (EV-0134). With no main-hand weapon it adds 7 (EV-0073).
+// weapon adds to it in game, 14 a point of its dps; the ranged weapon and the off hand add nothing,
+// and with no main-hand weapon it adds 7 (EV-0073).
 const hawkOwnerAPPerMainHandDPS = 14.0
 const hawkOwnerUnarmedWeaponAP = 7.0
 
-// A swing before armor is 0.153 of the creature dps over the 2.5 s at level 60, spanning 0.22 either side
-// (EV-0134), and 60 attack power a point of dps (EV-0073). Both are fitted, as the game files state
+// A swing before armor is 0.153 of the creature dps over the 2.5 s at level 60, spanning 0.22 either side,
+// and 60 attack power a point of dps (EV-0073). Both are fitted, as the game files state
 // neither, and were read with Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks, so the
 // swing here is before them.
 var hawkLogDamageMultiplier = spellData.UnleashedFury.MultiplierAt(5) * spellData.FocusedFire.MultiplierAt(2)

@@ -58,14 +58,14 @@ give 154 (0.92 [0.79, 1.07]), and none of 1,670 Holy Strike units do, where two 
 strike are 610, which is 0.85 [0.77, 0.91] of what two full rolls give; why they fall short is open. Crusader and the
 weapon oils are not counted.
 
-Windfury Totem, on the 169 paladins with 5 or more of its strikes from 2026-11-14, when the log shows the strike. A
-strike is a swing and a seal can proc off it, so a unit here is a Holy Strike or a Judgement of Command with no white
-swing, whatever seal strikes ride along:
+Windfury Totem, on the 169 paladins with 5 or more of its hits from 2026-11-14, when the log shows the hit. A
+Windfury Totem hit is a swing and a seal can proc off it, so a unit here is a Holy Strike or a Judgement of Command with
+no white swing, whatever seal strikes ride along:
 
-| Unit                 |  Units | With a Windfury Totem strike |
-| -------------------- | -----: | ---------------------------: |
-| Holy Strike          | 13,737 |                1,462 (10.6%) |
-| Judgement of Command | 12,198 |                1,319 (10.8%) |
+| Unit                 |  Units | With a Windfury Totem hit |
+| -------------------- | -----: | ------------------------: |
+| Holy Strike          | 13,737 |             1,462 (10.6%) |
+| Judgement of Command | 12,198 |             1,319 (10.8%) |
 
 Compared within each paladin, the judgement's share is 1.01 [0.94, 1.08] of Holy Strike's, which rolls the totem once
 (EV-0008).

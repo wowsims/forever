@@ -70,7 +70,7 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
   item's chance-on-hit effects and combat enchants from hearing Shield Slam, Shield Bash, Thunder Clap and Sweeping
   Strikes' copied hit 12723. Equip procs still hear them, and auto attacks are exempt, so a wand's shots cast weapon
   procs. The rulings are in `references/rulings.md`.
-- **Windfury Totem's strike is a main-hand swing to a row's melee swing bit** (`HearsCountedSwings`, EV-0136), though
+- **A Windfury Totem hit is a main-hand swing to a row's melee swing bit** (`HearsCountedSwings`, EV-0136), though
   its mask is a main-hand special's. A `core.ProcTrigger` typed by hand on white hits does not hear it until it sets
   that field, and a handler that tells swings apart by mask checks `core.SpellFlagCountsAsSwing` too.
   `docs/spell_data/procs.md` §The decoder and the tooltip hints has the rule and its exceptions.

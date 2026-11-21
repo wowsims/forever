@@ -76,7 +76,7 @@ var GearProcRates = []GearProcRate{
 		Pieces: 3,
 		Kind:   RateChance,
 		Rate:   0.107,
-		Reason: "Bloodmail Regalia 3-piece: 10.7% per landed white swing or Windfury strike, from shaman wearers only (EV-0167); 1299740 states none",
+		Reason: "Bloodmail Regalia 3-piece: 10.7% per landed white swing or Windfury hit, from shaman wearers only (EV-0167); 1299740 states none",
 		Source: "observed",
 	},
 	{

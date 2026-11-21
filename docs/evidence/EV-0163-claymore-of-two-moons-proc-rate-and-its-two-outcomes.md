@@ -22,7 +22,7 @@ before the 2026-11-13 hotfix that stopped a paladin's Judgements rolling weapon 
 - Lone white swings: landed white swings with no other rolling hit of the wearer from 100 ms before to 600 ms after,
   killing blows left out. A Waning Moon at the swing (5 ms before to 30 ms after) or a Waxing Moon within 600 ms of it
   is a proc. This count needs no roll table and sets the rate.
-- All hits: every landed roll, with a white swing, a seal's strike, Holy Strike and a Windfury Totem strike as one roll
+- All hits: every landed roll, with a white swing, a seal's strike, Holy Strike and a Windfury Totem hit as one roll
   and Judgement of Command as two, as weapon procs roll for a paladin after the 2026-11-13 hotfix. That this proc hears
   the same rolls is not measured; the count checks the rate and sets nothing.
 
@@ -54,7 +54,7 @@ on its own, with no alternation. No hit brings both. A killing blow logs no Waxi
 Moons), which reads Waxing Moon about 1 to 3% low against Waning Moon.
 
 - Waning Moon refreshes and never stacks (17 refreshes), and fades 10.0 s after its last application or refresh (86 of
-  88). It logs 16 to 17 ms after a white swing, beside a seal's or a Windfury Totem's strike.
+  88). It logs 16 to 17 ms after a white swing, beside a seal's strike or a Windfury Totem hit.
 - Waxing Moon lands 50 to 250 ms after its hit, the flight of a missile. It deals 189 before mitigation on nearly every
   hit, with no spell power, crits for 1.5 times (29 of 122), is partly resisted on 18 and missed none. Which crit
   chance it rolls is not settled at this count.

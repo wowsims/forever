@@ -996,8 +996,8 @@ func damageShape(damage *spelldata.Spell) spelldata.SpellOpt {
 }
 
 // What a proc's damage lands on, for both damage constructors. A melee strike rolls weapon procs only
-// where a main-hand white swing of the weapon cast it. One cast by an ability, a seal's or Windfury
-// Totem's strike, an off-hand hit, a form's paw or another strike carries Suppress Weapon Procs for
+// where a main-hand white swing of the weapon cast it. One cast by an ability, a seal's strike, a
+// Windfury Totem hit, an off-hand hit, a form's paw or another strike carries Suppress Weapon Procs for
 // that cast (R-0040, EV-0145). A strike a white swing cast therefore rolls its own weapon once more.
 // The strike that roll asks for comes while the first is still casting, so it goes one spell batch
 // later, and it rolls nothing.

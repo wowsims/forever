@@ -583,7 +583,7 @@ export class ActionId {
 				}
 				break;
 			case 'Windfury Totem':
-				// The totem, its raid aura and the strike its proc lands (10610) share one name.
+				// The totem, its raid aura and the Windfury Totem hit its proc lands (10610) share one name.
 				if (this.spellId === 10610) {
 					name += ` (${i18n.t('common.action_names.attack')})`;
 				} else if (tag === -1) {
