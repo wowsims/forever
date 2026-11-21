@@ -6,7 +6,7 @@
   stream on disk for the weapon; 25 reports in all
 - Game build: 1.60.1.70938 to 1.60.1.71037 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-21
-- Pull request: #PR
+- Pull request: #1160
 
 ## Method
 
