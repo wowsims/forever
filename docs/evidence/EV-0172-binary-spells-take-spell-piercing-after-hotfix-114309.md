@@ -12,7 +12,7 @@
 - Game build: 1.60.1.71037 with hotfixes 114309, 114310, 114312, 114313 and 114314, dated 2026-11-20; in the logs the
   change starts between 2026-11-19 21:00 and 22:48 UTC. The hotfix a run was on and relogs are not recorded
 - Date: 2026-11-18 to 2026-11-21
-- Pull request: not recorded
+- Pull request: #1155
 
 ## Method
 
