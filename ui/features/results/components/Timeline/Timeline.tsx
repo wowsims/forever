@@ -1,5 +1,6 @@
 import { type AplRun, runRotation } from '@features/apl/model/apl_entry';
 import { APLRotation } from '@generated/proto/apl';
+import type { EncounterPlan } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import type { UnitMetrics } from '@sim/proto/sim_result';
@@ -31,6 +32,7 @@ export const Timeline = ({ active }: TimelineProps) => {
 
 	// A cleared result still emits, with an empty raid.
 	const player = useMemo(() => (shown ? (shown.result.getRaidIndexedPlayers(shown.filter)[0] ?? null) : null), [shown]);
+	const plan = shown?.result.request?.encounter?.plan;
 	const duration = shown ? shown.result.result.firstIterationDuration || 1 : 1;
 
 	const simPlayer = usePlayer();
@@ -58,13 +60,14 @@ export const Timeline = ({ active }: TimelineProps) => {
 	// The rotation is the default view and the two are alternatives, so the chart's series are built
 	// only once someone has asked for them — and then kept, so switching back and forth is free.
 	const chartVisible = view === 'dps';
-	const [armed, setArmed] = useState<{ player: UnitMetrics; duration: number } | null>(null);
+	const [armed, setArmed] = useState<{ player: UnitMetrics; duration: number; plan: EncounterPlan | undefined } | null>(null);
 	useEffect(() => {
 		if (!player) setArmed(null);
-		else if (chartVisible) setArmed(prev => (prev?.player === player && prev.duration === duration ? prev : { player, duration }));
-	}, [chartVisible, player, duration]);
+		else if (chartVisible)
+			setArmed(prev => (prev?.player === player && prev.duration === duration && prev.plan === plan ? prev : { player, duration, plan }));
+	}, [chartVisible, player, duration, plan]);
 
-	const spec = useMemo(() => (armed ? chartSpec(armed.player, armed.duration) : null), [armed]);
+	const spec = useMemo(() => (armed ? chartSpec(armed.player, armed.duration, armed.plan) : null), [armed]);
 
 	return (
 		<div className="flex h-full flex-col">

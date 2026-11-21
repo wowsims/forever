@@ -14,7 +14,7 @@ var victoriousRank = spellData.VictoryRushTriggered.Highest()
 var victoriousStateRank = spellData.VictoriousState.Highest()
 
 // Victorious State hears the killing blow and casts Victorious, which Victory Rush needs and spends.
-// The kill roll stands for the game's experience or honor check, so an add counts like any enemy.
+// The kill roll stands for the game's experience or honor check, so an add a plan spawns counts like any enemy.
 func (warrior *Warrior) registerVictoryRush() {
 	victoriousAura := warrior.RegisterAura(spelldata.AuraConfig(victoriousRank))
 	warrior.MakeProcTriggerAura(spelldata.ProcTrigger(&warrior.Character, victoriousStateRank,

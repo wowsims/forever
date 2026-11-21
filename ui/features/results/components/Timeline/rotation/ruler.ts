@@ -9,6 +9,8 @@ export interface RulerFrame {
 	// Measured by the view on resize. Reading it here instead would flush layout every frame,
 	// right after the row window has written to the DOM.
 	width: number;
+	// Pixels between the track's left edge and 0 s; 0 when the axis starts at the edge.
+	inset?: number;
 }
 
 function formatTick(time: number, step: number): string {
@@ -73,6 +75,7 @@ export class Ruler {
 	private lastPps = NaN;
 	private lastDuration = NaN;
 	private lastWidth = NaN;
+	private lastInset = NaN;
 
 	constructor(private readonly track: HTMLElement) {
 		const tickClass = 'absolute bottom-0 left-timeline-pos h-1 w-px bg-current';
@@ -90,18 +93,26 @@ export class Ruler {
 		});
 	}
 
-	draw({ scrollLeft, pps, duration, width }: RulerFrame) {
+	draw({ scrollLeft, pps, duration, width, inset = 0 }: RulerFrame) {
 		if (width <= 0) return;
 
 		// A vertical page scroll leaves every tick where it was, and that is now the common case:
 		// the page owns vertical scrolling, so the frame runs far more often than the ruler moves.
-		if (scrollLeft === this.lastScrollLeft && pps === this.lastPps && duration === this.lastDuration && width === this.lastWidth) return;
+		if (
+			scrollLeft === this.lastScrollLeft &&
+			pps === this.lastPps &&
+			duration === this.lastDuration &&
+			width === this.lastWidth &&
+			inset === this.lastInset
+		)
+			return;
 		this.lastScrollLeft = scrollLeft;
 		this.lastPps = pps;
 		this.lastDuration = duration;
 		this.lastWidth = width;
+		this.lastInset = inset;
 
-		this.track.style.setProperty('--pan', String(scrollLeft));
+		this.track.style.setProperty('--pan', String(scrollLeft - inset));
 
 		if (duration <= 0 || pps <= 0) {
 			this.minorTicks.clear();
@@ -119,8 +130,8 @@ export class Ruler {
 		this.labelStep = labelStep;
 		this.minorStep = minorStep;
 
-		const startTime = Math.max(0, scrollLeft / pps);
-		const endTime = Math.min(duration, (scrollLeft + width) / pps);
+		const startTime = Math.max(0, (scrollLeft - inset) / pps);
+		const endTime = Math.min(duration, (scrollLeft + width - inset) / pps);
 
 		this.majorTicks.sync(Math.ceil(startTime / labelStep), Math.floor(endTime / labelStep), stepsChanged);
 		this.labels.sync(Math.ceil(startTime / labelStep), Math.floor(endTime / labelStep), stepsChanged);

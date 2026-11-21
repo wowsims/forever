@@ -19,6 +19,11 @@ describe('refToValue', () => {
 		expect(refToValue(ref, player, true)).toEqual({ value: ref, icon: 'bullseye', text: label('current_target') });
 	});
 
+	it('shows an empty ref that reads every target as any target, with no icon', () => {
+		const player: any = makePlayer({} as any);
+		expect(refToValue(undefined, player, true, true)).toEqual({ value: undefined, text: label('any_target') });
+	});
+
 	it('resolves a Player reference through the raid, and falls back to a bare value when the index is empty', () => {
 		const player: any = makePlayer({} as any);
 		const other = { getSpecIcon: () => 'icon-url' };

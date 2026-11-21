@@ -2,6 +2,7 @@ import { IndividualSimSettings } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SIM_CATEGORY_KEYS, SimSettingCategories } from '@sim/constants/sim_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
+import { withoutMyEncounter } from '@sim/state/my_encounter_sharing';
 import { encodeLinkHash, LINK_CATEGORY_PARAM, LINK_DEFAULT_CATEGORIES } from '@sim/state/sim_links';
 import { withoutStatFilters } from '@sim/state/stat_filter_sharing';
 import { arrayEquals } from '@sim/utils/collections';
@@ -14,7 +15,7 @@ export const createLink = async (host: IndividualSimHost<any>, exportCategories?
 		exportCategories = LINK_DEFAULT_CATEGORIES;
 	}
 
-	const proto = withoutStatFilters(host.toProto(exportCategories));
+	const proto = withoutMyEncounter(withoutStatFilters(host.toProto(exportCategories)));
 	const encoded = await encodeLinkHash(IndividualSimSettings.toBinary(proto));
 
 	const linkUrl = new URL(window.location.href);

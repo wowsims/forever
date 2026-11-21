@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
 func executeTestSim(duration, p20, p35 float64, numTargets int) *Simulation {
@@ -41,15 +42,34 @@ func TestPlainExecuteCrossingsFollowTheProportions(t *testing.T) {
 		want35 := time.Duration((1 - tc.p35) * float64(sim.Duration))
 		want20 := time.Duration((1 - tc.p20) * float64(sim.Duration))
 		want25 := want35 + (want20-want35)*2/3
-		if got := target.executeAt25; math.Abs(float64(got-want25)) > 1 {
+		if got := target.health.executeAt25; math.Abs(float64(got-want25)) > 1 {
 			t.Errorf("%v s with %v/%v: 25%% at %v, want %v, two thirds of the way from 35%% to 20%%", tc.duration, tc.p35, tc.p20, got, want25)
 		}
-		if got := target.executeAt35; got != want35 {
+		if got := target.health.executeAt35; got != want35 {
 			t.Errorf("%v s with %v/%v: 35%% at %v, want %v", tc.duration, tc.p35, tc.p20, got, want35)
 		}
-		if got := target.executeAt20; got != want20 {
+		if got := target.health.executeAt20; got != want20 {
 			t.Errorf("%v s with %v/%v: 20%% at %v, want %v", tc.duration, tc.p35, tc.p20, got, want20)
 		}
+	}
+}
+
+func TestHealthCurveCrossingsInterpolate(t *testing.T) {
+	sim := executeTestSim(180, 0.2, 0.35, 1)
+	target := sim.Encounter.AllTargets[0]
+	target.SetHealthCurve(sim, 10*time.Second, 100*time.Second,
+		HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 0.5, Percent: 50}, HealthKnot{At: 1, Percent: 10})
+
+	if got, want := target.health.executeAt35, 78750*time.Millisecond; got != want {
+		t.Errorf("35%% at %v, want %v", got, want)
+	}
+	if got, want := target.health.executeAt20, 97500*time.Millisecond; got != want {
+		t.Errorf("20%% at %v, want %v", got, want)
+	}
+
+	target.SetHealthCurve(sim, 0, 100*time.Second, HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 1, Percent: 50})
+	if got := target.health.executeAt35; got != NeverExpires {
+		t.Errorf("a curve that stays above 35%% reaches it at %v", got)
 	}
 }
 
@@ -59,10 +79,11 @@ func TestExecutePhasesPerTarget(t *testing.T) {
 	player := &sim.Raid.Parties[0].Players[0].(*FakeRageWarrior).Unit
 	rot := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior).Rotation
 
-	// A plain encounter gives every target the same crossing times, so the test gives the two their own.
-	first.executeAt35, first.executeAt25, first.executeAt20 = 50*time.Second, 70*time.Second, 80*time.Second
-	second.executeAt35, second.executeAt25, second.executeAt20 = 15*time.Second, 18*time.Second, 20*time.Second
-	sim.Encounter.updateNextExecuteDuration(sim)
+	first.SetHealthCurve(sim, 0, 100*time.Second,
+		HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 0.5, Percent: 35}, HealthKnot{At: 0.8, Percent: 20}, HealthKnot{At: 1, Percent: 0})
+	second.SetHealthCurve(sim, 0, 100*time.Second,
+		HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 0.15, Percent: 35}, HealthKnot{At: 0.18, Percent: 25},
+		HealthKnot{At: 0.2, Percent: 20}, HealthKnot{At: 1, Percent: 0})
 
 	currentTarget20 := rot.newValueIsExecutePhase(&proto.APLValueIsExecutePhase{Threshold: proto.APLValueIsExecutePhase_E20}, nil)
 	secondTarget20 := rot.newValueIsExecutePhase(&proto.APLValueIsExecutePhase{
@@ -104,18 +125,18 @@ func TestExecutePhasesPerTarget(t *testing.T) {
 func TestExecutePhase25StartsAtItsCrossing(t *testing.T) {
 	sim := executeTestSim(180, 0.2, 0.35, 1)
 	target := sim.Encounter.AllTargets[0]
-	if !(target.executeAt35 < target.executeAt25 && target.executeAt25 < target.executeAt20) {
-		t.Fatalf("the crossings are 35%% at %v, 25%% at %v and 20%% at %v, want them in that order", target.executeAt35, target.executeAt25, target.executeAt20)
+	if !(target.health.executeAt35 < target.health.executeAt25 && target.health.executeAt25 < target.health.executeAt20) {
+		t.Fatalf("the crossings are 35%% at %v, 25%% at %v and 20%% at %v, want them in that order", target.health.executeAt35, target.health.executeAt25, target.health.executeAt20)
 	}
 	for _, step := range []struct {
 		at                        time.Duration
 		below35, below25, below20 bool
 	}{
-		{target.executeAt35 - time.Second, false, false, false},
-		{target.executeAt35, true, false, false},
-		{target.executeAt25 - time.Millisecond, true, false, false},
-		{target.executeAt25, true, true, false},
-		{target.executeAt20, true, true, true},
+		{target.health.executeAt35 - time.Second, false, false, false},
+		{target.health.executeAt35, true, false, false},
+		{target.health.executeAt25 - time.Millisecond, true, false, false},
+		{target.health.executeAt25, true, true, false},
+		{target.health.executeAt20, true, true, true},
 	} {
 		sim.advance(step.at)
 		got := [3]bool{target.IsBelowExecuteHealth(35), target.IsBelowExecuteHealth(25), target.IsBelowExecuteHealth(20)}
@@ -140,6 +161,52 @@ func TestExecutePhasesWaitForTheFirstAdvance(t *testing.T) {
 		if !target.IsExecutePhase20() {
 			t.Errorf("target %d is in phase %d after the first advance, want 20", i, target.executePhase)
 		}
+	}
+}
+
+func TestHealthCurveSetMidFightMovesThePhaseAtOnce(t *testing.T) {
+	sim := executeTestSim(180, 0.2, 0.35, 1)
+	target := sim.Encounter.AllTargets[0]
+	rot := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior).Rotation
+	isExecute20 := rot.newValueIsExecutePhase(&proto.APLValueIsExecutePhase{Threshold: proto.APLValueIsExecutePhase_E20}, nil)
+	sim.advance(60 * time.Second)
+
+	crossed := []HealthKnot{{At: 0, Percent: 100}, {At: 0.3, Percent: 20}, {At: 1, Percent: 0}}
+	target.SetHealthCurve(sim, 0, 100*time.Second, crossed...)
+	if !target.IsExecutePhase20() || !isExecute20.GetBool(sim) {
+		t.Error("a curve set at 60 s that crossed 20% at 30 s leaves the target out of the execute phase at 60 s")
+	}
+
+	target.SetHealthCurve(sim, 0, 100*time.Second, crossed...)
+	target.SetHealthCurve(sim, 0, 50*time.Second, HealthKnot{At: 0, Percent: 10})
+	if !target.IsExecutePhase20() {
+		t.Errorf("setting a curve again on a target at 20%% moved it to phase %d", target.executePhase)
+	}
+
+	target.SetHealthCurve(sim, 60*time.Second, 100*time.Second, HealthKnot{At: 0, Percent: 100}, HealthKnot{At: 1, Percent: 0})
+	if target.IsExecutePhase35() {
+		t.Errorf("a curve back at full health keeps the target in execute (%d)", target.executePhase)
+	}
+	sim.advance(125 * time.Second)
+	if target.executePhase != 35 {
+		t.Errorf("at 125 s the curve set back up is at phase %d, want 35", target.executePhase)
+	}
+}
+
+func TestHealthCurveSetInAResetEffectWaitsForTheFirstAdvance(t *testing.T) {
+	sim := NewSim(executeTestRequest(180, 0.2, 0.35, 1), simsignals.CreateSignals())
+	target := sim.Encounter.AllTargets[0]
+	sim.Raid.Parties[0].Players[0].(*FakeRageWarrior).RegisterResetEffect(func(sim *Simulation) {
+		target.SetHealthCurve(sim, 0, sim.Duration, HealthKnot{At: 0, Percent: 10})
+	})
+
+	sim.Reset()
+	if target.IsExecutePhase35() {
+		t.Errorf("a curve set in a reset effect moved the phase to %d before the first advance", target.executePhase)
+	}
+	sim.advance(0)
+	if !target.IsExecutePhase20() {
+		t.Errorf("the first advance left a curve at 10%% in phase %d", target.executePhase)
 	}
 }
 

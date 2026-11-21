@@ -82,7 +82,8 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
   cast of another spell, so a dummy the sim folds with its damage (Execute 20662) carries none of them; an aura with
   hand-written hit callbacks checks the flag itself.
 - **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no
-  death; both are in `procs.md` (the two death bits), the order of a death in `wowsims-core-mechanics` `## Targets`.
+  death; both are in `procs.md` (the two death bits), the order of a death in `wowsims-core-mechanics`
+  `## Targets and encounter plans`.
 
 ## Item and enchant procs
 

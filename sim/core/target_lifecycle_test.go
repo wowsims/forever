@@ -1,6 +1,7 @@
 package core
 
 import (
+	"slices"
 	"testing"
 	"time"
 
@@ -22,11 +23,6 @@ func setupLifecycleSim(targets []*proto.Target) (*Simulation, *FakeFearWarrior) 
 }
 
 func setupLifecycleSimWithTanks(targets []*proto.Target, tanks []*proto.UnitReference) (*Simulation, *FakeFearWarrior) {
-	return setupLifecycleSimWith(targets, tanks, nil)
-}
-
-// register runs while the environment is constructing, so it may register spells and auras.
-func setupLifecycleSimWith(targets []*proto.Target, tanks []*proto.UnitReference, register func(char *Character)) (*Simulation, *FakeFearWarrior) {
 	sim := NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 100},
 		Raid: &proto.Raid{
@@ -45,15 +41,9 @@ func setupLifecycleSimWith(targets []*proto.Target, tanks []*proto.UnitReference
 		},
 		Encounter: &proto.Encounter{Targets: targets, Duration: 180},
 	}, simsignals.CreateSignals())
-	fw := sim.Raid.Parties[0].Players[0].(*FakeFearWarrior)
-	if register != nil {
-		sim.Environment.State = Constructed
-		register(&fw.Character)
-		sim.Environment.State = Finalized
-	}
 	sim.Reset()
 	sim.PrePull()
-	return sim, fw
+	return sim, sim.Raid.Parties[0].Players[0].(*FakeFearWarrior)
 }
 
 func runLifecycleUntil(sim *Simulation, until time.Duration) {
@@ -283,6 +273,13 @@ func TestActiveTargetWalksWithNoTargetEnabled(t *testing.T) {
 	if preferred := sim.Encounter.preferredActiveTarget(); preferred != targets[1] {
 		t.Fatalf("preferred active target: expected the lowest enabled index, got %s", targetLabel(preferred))
 	}
+	sim.Encounter.resetActiveTargetOrder()
+	if !slices.Equal(sim.Encounter.ActiveTargets, []*Target{targets[1], targets[2]}) {
+		t.Fatal("active targets: expected them in index order after the reorder")
+	}
+	if !slices.Equal(sim.Encounter.ActiveTargetUnits, []*Unit{&targets[1].Unit, &targets[2].Unit}) {
+		t.Fatal("active target units: expected them in index order after the reorder")
+	}
 }
 
 // A sim against two targets with the spell registered, at the pull, and a count of its ticks.
@@ -290,7 +287,7 @@ func setupTickCounter(config SpellConfig) (*Simulation, *FakeFearWarrior, *Spell
 	ticks := new(int)
 	config.Dot.OnTick = func(*Simulation, *Unit, *Dot) { *ticks++ }
 	var spell *Spell
-	sim, fw := setupLifecycleSimWith(lifecycleTargets(2), nil, func(char *Character) {
+	sim, fw := setupPlanSim(planTestRequest(2, nil), func(char *Character) {
 		spell = char.RegisterSpell(config)
 	})
 	spell.finalize()
@@ -303,8 +300,8 @@ func TestChannelEndsWhenItsTargetGoesDown(t *testing.T) {
 		name   string
 		goDown func(sim *Simulation, target *Target)
 	}{
-		{"disabled keeping its debuffs", func(sim *Simulation, target *Target) { target.Disable(sim, false) }},
-		{"disabled clearing its debuffs", func(sim *Simulation, target *Target) { target.Disable(sim, true) }},
+		{"in a downtime that keeps its debuffs", func(sim *Simulation, target *Target) { target.Disable(sim, false) }},
+		{"in a downtime that clears its debuffs", func(sim *Simulation, target *Target) { target.Disable(sim, true) }},
 		{"by dying", func(sim *Simulation, target *Target) { target.Die(sim, 0) }},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -314,7 +311,7 @@ func TestChannelEndsWhenItsTargetGoesDown(t *testing.T) {
 				t.Fatal("test setup: expected the channel running")
 			}
 
-			// The target goes as a tick comes due, before the tick runs.
+			// The target goes as a tick comes due, which the downtime's priority runs first.
 			runLifecycleUntil(sim, 3*time.Second-time.Millisecond)
 			sim.advance(3 * time.Second)
 			tc.goDown(sim, target)
@@ -353,7 +350,7 @@ func TestShootEndsWhenItsTargetGoesDown(t *testing.T) {
 }
 
 // Only the target going down ends anything: a channel on another target, a ground channel and a dot of the
-// target disabled without clearing its debuffs all tick on.
+// target in a downtime that keeps its debuffs all tick on.
 func TestTargetGoingDownLeavesOtherPeriodicsTicking(t *testing.T) {
 	ground := manaChannelConfig(5, false)
 	ground.Dot.IsAOE = true
@@ -382,123 +379,46 @@ func TestTargetGoingDownLeavesOtherPeriodicsTicking(t *testing.T) {
 	}
 }
 
-// A target disabled at start takes no swings at the pull: the raid has nothing to swing at until it is
-// enabled, and then swings at it.
-func TestOnlyTargetDisabledAtStartIdlesTheRaidUntilItComes(t *testing.T) {
-	targets := lifecycleTargets(1)
-	targets[0].DisabledAtStart = true
-	sim, fw := setupLifecycleSim(targets)
-	target := sim.Encounter.AllTargets[0]
+func TestTargetConfigsLineUpWithTargets(t *testing.T) {
+	options := &proto.Encounter{Targets: lifecycleTargets(3)}
+	options.Targets[2].DisabledAtStart = true
+	encounter := NewEncounter(options)
 
-	runLifecycleUntil(sim, 5*time.Second)
-	if aa := &fw.AutoAttacks; aa.mh.enabled || aa.oh.enabled {
-		t.Error("auto attacks before the target comes: expected them stopped")
+	if len(encounter.targetConfigs) != len(encounter.AllTargets) {
+		t.Fatalf("configs: expected %d, got %d", len(encounter.AllTargets), len(encounter.targetConfigs))
 	}
-	if got := mhSwingsOn(fw, target); got != 0 {
-		t.Errorf("MH swings at the target disabled at start: expected none, got %d", got)
-	}
-
-	target.Enable(sim)
-	runLifecycleUntil(sim, 10*time.Second)
-	if got := mhSwingsOn(fw, target); got == 0 {
-		t.Error("MH swings once the target comes: expected some, got none")
-	}
-}
-
-// A target AI that disables the second target at every reset, as the Dynamic Adds boss does with its add.
-type disableAtResetAI struct{}
-
-func (disableAtResetAI) Initialize(*Target, *proto.Target) {}
-func (disableAtResetAI) Reset(sim *Simulation) {
-	sim.DisableTargetUnit(sim.Encounter.AllTargetUnits[1], true)
-}
-func (disableAtResetAI) ExecuteCustomRotation(*Simulation) {}
-
-// A target disabled while the sim resets only starts the iteration disabled: a channel the raid had on it from
-// the last iteration is left to the raid's own reset, and the pull moves the raid off it.
-func TestTargetDisabledWhileResettingStartsTheIterationDisabled(t *testing.T) {
-	targets := lifecycleTargets(2)
-	targets[0].TankIndex = -1
-	targets[0].SecondTankIndex = -1
-	tanks := []*proto.UnitReference{{Type: proto.UnitReference_Player, Index: 0}}
-	var channel *Spell
-	sim, fw := setupLifecycleSimWith(targets, tanks, func(char *Character) {
-		char.Env.Encounter.AllTargets[0].AI = disableAtResetAI{}
-		channel = char.RegisterSpell(manaChannelConfig(5, false))
-	})
-	channel.finalize()
-	first, second := sim.Encounter.AllTargets[0], sim.Encounter.AllTargets[1]
-
-	for iteration := range 3 {
-		runLifecycleUntil(sim, 3*time.Second)
-		if fw.CurrentTarget != &first.Unit || second.IsEnabled() {
-			t.Fatalf("iteration %d: expected the tank moved to the first target off the second, which starts disabled", iteration)
+	for i, config := range encounter.targetConfigs {
+		if config != options.Targets[i] {
+			t.Fatalf("config %d: expected the encounter's target config", i)
 		}
-		if got := mhSwingsOn(fw, first); got == 0 {
-			t.Fatalf("iteration %d: MH swings at the first target: expected some, got none", iteration)
+	}
+
+	empty := NewEncounter(&proto.Encounter{})
+	if len(empty.targetConfigs) != 1 || empty.targetConfigs[0] != nil {
+		t.Fatalf("configs of an encounter without targets: expected one nil config, got %v", empty.targetConfigs)
+	}
+
+	template := &proto.Target{Name: "Add", Level: 61}
+	pool := encounter.allocatePoolTargets(template, 2)
+	if len(pool) != 2 || len(encounter.AllTargets) != 5 || len(encounter.AllTargetUnits) != 5 || len(encounter.targetConfigs) != 5 {
+		t.Fatalf("pool: expected 2 targets appended to 3, got %d of %d", len(pool), len(encounter.AllTargets))
+	}
+	for i, target := range pool {
+		index := int32(3 + i)
+		if target.Index != index || encounter.AllTargets[index] != target || encounter.AllTargetUnits[index] != &target.Unit {
+			t.Fatalf("pool target %d: expected it at index %d of the target lists", i, index)
 		}
-
-		second.Enable(sim)
-		fw.CurrentTarget = &second.Unit
-		if !channel.Cast(sim, &second.Unit) || !fw.IsChanneling() {
-			t.Fatalf("iteration %d: test setup: expected the channel running on the second target", iteration)
+		if encounter.targetConfigs[index] != template {
+			t.Fatalf("pool target %d: expected the template as its config", i)
 		}
-		sim.Cleanup()
-		sim.Reset()
-		if fw.CurrentTarget != &second.Unit || fw.IsChanneling() {
-			t.Fatalf("iteration %d: after the reset, expected the tank back on the second target it tanks with no channel, got %s, channeling %t",
-				iteration, unitLabel(fw.CurrentTarget), fw.IsChanneling())
+		if target.IsEnabled() {
+			t.Fatalf("pool target %d: expected it disabled", i)
 		}
-		sim.PrePull()
+		if target.Level != template.Level {
+			t.Fatalf("pool target %d: expected the template's level %d, got %d", i, template.Level, target.Level)
+		}
 	}
-}
-
-func TestRaidStartsOnTheLowestTargetNotDisabledAtStart(t *testing.T) {
-	targets := lifecycleTargets(3)
-	targets[0].DisabledAtStart = true
-	sim, fw := setupLifecycleSim(targets)
-	first := sim.Encounter.AllTargets[1]
-
-	runLifecycleUntil(sim, 5*time.Second)
-	if fw.CurrentTarget != &first.Unit {
-		t.Fatalf("player's target at the pull: expected %s, got %s", first.Label, unitLabel(fw.CurrentTarget))
-	}
-	if got := mhSwingsOn(fw, first); got == 0 {
-		t.Error("MH swings at the first active target: expected some, got none")
-	}
-	if got := mhSwingsOn(fw, sim.Encounter.AllTargets[0]); got != 0 {
-		t.Errorf("MH swings at the target disabled at start: expected none, got %d", got)
-	}
-}
-
-// A target disabled mid-hardcast stops the cast, so the spell does not land when the hardcast would have ended,
-// nor once the target is back.
-func TestDisablingATargetInterruptsItsHardcast(t *testing.T) {
-	const castTime = 4 * time.Second
-	landed := 0
-	var spell *Spell
-	sim, fw := setupLifecycleSimWith(lifecycleTargets(1), nil, func(char *Character) {
-		spell = char.Env.Encounter.AllTargets[0].RegisterSpell(SpellConfig{
-			ActionID:     ActionID{SpellID: 910400},
-			Cast:         CastConfig{DefaultCast: Cast{CastTime: castTime}},
-			ApplyEffects: func(*Simulation, *Unit, *Spell) { landed++ },
-		})
-	})
-	spell.finalize()
-	target := sim.Encounter.AllTargets[0]
-	runLifecycleUntil(sim, time.Second)
-	if !spell.Cast(sim, &fw.Unit) || target.Hardcast.Expires <= sim.CurrentTime {
-		t.Fatal("test setup: expected the target mid-hardcast")
-	}
-
-	target.Disable(sim, false)
-	if target.Hardcast.Expires > sim.CurrentTime {
-		t.Errorf("the disable left the hardcast running until %s", target.Hardcast.Expires)
-	}
-	runLifecycleUntil(sim, 3*time.Second)
-	target.Enable(sim)
-	runLifecycleUntil(sim, 10*time.Second)
-	if landed != 0 {
-		t.Errorf("the interrupted hardcast landed %d times, want never", landed)
+	if len(encounter.ActiveTargets) != 2 {
+		t.Fatalf("active targets: expected the pool to add none, got %d", len(encounter.ActiveTargets))
 	}
 }

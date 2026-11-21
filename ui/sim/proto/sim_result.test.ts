@@ -1,14 +1,17 @@
 import {
 	ActionMetrics as ActionMetricsProto,
 	HitKind,
+	PlanAdd,
 	TargetedActionMetrics as TargetedActionMetricsProto,
 	UnitMetrics as UnitMetricsProto,
 } from '@generated/proto/api';
+import { ActionID, AddWave, EncounterPlan, OtherAction, PlanBossAbility, PlanBossAbility_Kind, PlanBossAbility_Source, Target } from '@generated/proto/common';
 import { makeSimRun, valueRange as range } from '@testing/storybook/fixtures/results';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@i18n/localization', async () => (await import('@testing/sim/localization')).localizationStub);
 
+import { ActionId } from './action_id';
 import { ActionMetrics, SimResult } from './sim_result';
 
 // makeSimRun()'s warrior and its target.
@@ -369,5 +372,109 @@ describe('miss percent of ticks that roll their own hit', () => {
 
 		expect(action.missPercent).toBe(10);
 		expect(action.landedRolls).toBe(0);
+	});
+});
+
+describe('the boss abilities of an encounter plan', () => {
+	afterEach(() => vi.restoreAllMocks());
+
+	const planRun = (abilities: Array<PlanBossAbility>, ids: Array<ActionID>) => {
+		const { request, result } = makeSimRun();
+		request.encounter!.plan = EncounterPlan.create({ bossAbilities: abilities });
+		result.encounterMetrics!.targets[0].actions = ids.map(id =>
+			ActionMetricsProto.create({ id, targets: [TargetedActionMetricsProto.create({ unitIndex: PLAYER, hits: 1, damage: 500 })] }),
+		);
+		return SimResult.makeNew(request, result);
+	};
+	const spellId = (spellId: number, tag: number) => ActionID.create({ rawId: { oneofKind: 'spellId', spellId }, tag });
+	const kinds = 'settings_tab.encounter.planner.ability_kinds';
+
+	it('names every spell, pulse, area and strike action by the ability and its kind, a Boss area ability too', async () => {
+		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async () => ({ name: 'Dummy Spell', icon: '' }) as never);
+		const abilities = [
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.Pulse, name: 'Lava Burst' }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.AreaHit }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.SpellHit, name: 'Fireball' }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.Strike, name: 'Hand of Ragnaros' }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.AreaHit, source: PlanBossAbility_Source.Boss, name: 'Flame Wave' }),
+		];
+		const ids = [18282, 18282, 18282, 15284, 18282].map((id, index) => spellId(id, 2_000_000 + index));
+		const [boss] = (await planRun(abilities, ids)).getTargets();
+
+		expect(boss.actions.map(action => action.actionId.name)).toEqual([
+			`Lava Burst (${kinds}.pulse)`,
+			`settings_tab.encounter.planner.event_name (${kinds}.area_hit)`,
+			`Fireball (${kinds}.spell_hit)`,
+			`Hand of Ragnaros (${kinds}.strike)`,
+			`Flame Wave (${kinds}.area_hit)`,
+		]);
+	});
+
+	it('names the extra attacks of a thrash by the ability and leaves a swing timing no row', async () => {
+		const abilities = [
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.Thrash, name: 'Frenzy' }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.SwingTiming, name: 'Slow' }),
+		];
+		const attack = ActionID.create({ rawId: { oneofKind: 'otherId', otherId: OtherAction.OtherActionAttack }, tag: 2_000_000 });
+		const [boss] = (await planRun(abilities, [attack])).getTargets();
+
+		expect(boss.actions.map(action => action.actionId.name)).toEqual([`Frenzy (${kinds}.thrash)`]);
+	});
+
+	it("leaves a player's Cleave and an ability of another kind at the tag unnamed", async () => {
+		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async () => ({ name: 'Cleave', icon: '' }) as never);
+		const abilities = [PlanBossAbility.create({ kind: PlanBossAbility_Kind.SpellHit, name: 'Fireball' })];
+		const [boss] = (await planRun(abilities, [spellId(15284, 1), spellId(15284, 2_000_000)])).getTargets();
+
+		expect(boss.actions.map(action => action.actionId.name)).toEqual(['Cleave (common.action_tags.queue)', 'Cleave 1']);
+	});
+});
+
+describe('the targets of a run with add waves', () => {
+	// The fixture's boss, then the pool the sim appends: three slots of the named wave's one add, one of the
+	// unnamed wave's unnamed add, and the stand-in target the sim adds to an encounter without targets.
+	const runWithWaves = async () => {
+		const { request, result } = makeSimRun();
+		const son = Target.create({ name: 'Son of Flame', level: 60 });
+		request.encounter!.plan = EncounterPlan.create({
+			addWaves: [AddWave.create({ name: 'Adds 1', adds: [son] }), AddWave.create({ adds: [Target.create()] })],
+		});
+		const pool = [
+			{ waveIndex: 0, addIndex: 0 },
+			{ waveIndex: 0, addIndex: 0 },
+			{ waveIndex: 0, addIndex: 0 },
+			{ waveIndex: 1, addIndex: 0 },
+		];
+		result.encounterMetrics!.targets.push(
+			...pool.map((add, i) => UnitMetricsProto.create({ name: `Target ${i + 2}`, unitIndex: i + 2, planAdd: PlanAdd.create(add) })),
+			UnitMetricsProto.create({ name: 'Target 6', unitIndex: 6 }),
+		);
+		return (await SimResult.makeNew(request, result)).getTargets();
+	};
+
+	it('lists the boss and every add slot as targets, each at its encounter index', async () => {
+		const targets = await runWithWaves();
+
+		expect(targets.map(target => target.index)).toEqual([0, 1, 2, 3, 4]);
+		expect(targets.every(target => target.isTarget)).toBe(true);
+	});
+
+	it('names an add by its wave and add, and the boss by neither', async () => {
+		const [boss, add] = await runWithWaves();
+
+		expect(boss.planAddName).toBeNull();
+		expect(add.planAddName).toBe('Adds 1 · Son of Flame');
+		expect(add.label).toBe('Target 2 (Adds 1 · Son of Flame)');
+	});
+
+	it('tells the slots of one add apart and names an unnamed wave and add as the planner does', async () => {
+		const names = (await runWithWaves()).slice(1).map(target => target.planAddName);
+
+		expect(names).toEqual([
+			'Adds 1 · Son of Flame',
+			'settings_tab.encounter.planner.occurrence_name',
+			'settings_tab.encounter.planner.occurrence_name',
+			'settings_tab.encounter.planner.event_name · settings_tab.encounter.planner.adds.add_title',
+		]);
 	});
 });

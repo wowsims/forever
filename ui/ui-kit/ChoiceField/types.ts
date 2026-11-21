@@ -23,7 +23,14 @@ export interface ChoiceGroup<V> {
 	submenu: ReadonlyArray<ChoiceEntry<V>>;
 }
 
-export type ChoiceEntry<V> = ChoiceOption<V> | ChoiceGroup<V>;
+/** A heading over options that stay in the same list, where a `ChoiceGroup` opens a submenu. */
+export interface ChoiceSection<V> {
+	label: ReactNode;
+	options: ReadonlyArray<ChoiceOption<V>>;
+	submenu?: never;
+}
+
+export type ChoiceEntry<V> = ChoiceOption<V> | ChoiceGroup<V> | ChoiceSection<V>;
 
 /** `select` is the bordered form control; `link` is a bare text trigger with a caret. */
 export type ChoiceVariant = 'select' | 'link';

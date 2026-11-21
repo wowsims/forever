@@ -20,19 +20,7 @@
 				"swingSpeed": 2,
 				"parryHaste": true,
 				"canCrush": true,
-				"spellSchool": "SpellSchoolFire",
-				"targetInputs": [
-					{
-						"label": "Enraged",
-						"boolValue": true
-					},
-					{
-						"inputType": "Enum",
-						"label": "Phase",
-						"enumValue": 1,
-						"enumOptions": ["One", "Two"]
-					}
-				]
+				"spellSchool": "SpellSchoolFire"
 			},
 			{
 				"id": 12435,

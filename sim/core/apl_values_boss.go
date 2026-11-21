@@ -75,8 +75,14 @@ func (rot *APLRotation) newValueBossCurrentTarget(config *proto.APLValueBossCurr
 func (value *APLValueBossCurrentTarget) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
+
+// A tank swap's window decides whom the boss attacks while it runs.
 func (value *APLValueBossCurrentTarget) GetBool(sim *Simulation) bool {
-	return value.target.Get().CurrentTarget == value.player
+	target := value.target.Get()
+	if victim, swapped := sim.Encounter.plan.tankSwapVictim(target); swapped {
+		return target.IsEnabled() && victim == value.player
+	}
+	return target.CurrentTarget == value.player
 }
 func (value *APLValueBossCurrentTarget) String() string {
 	return fmt.Sprintf("IsTanking(%s)", value.target.Get().Label)

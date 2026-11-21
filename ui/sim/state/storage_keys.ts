@@ -6,6 +6,7 @@ export const SAVED_EP_WEIGHTS_STORAGE_KEY = '__savedEPWeights__';
 export const SAVED_ROTATION_STORAGE_KEY = '__savedRotation__';
 export const SAVED_SETTINGS_STORAGE_KEY = '__savedSettings__';
 export const SAVED_TALENTS_STORAGE_KEY = '__savedTalents__';
+export const MY_ENCOUNTERS_STORAGE_KEY = '__myEncounters__';
 export const STAT_WEIGHT_SETTINGS_STORAGE_KEY = '__statweight_settings__';
 export const STAT_SWEEP_SETTINGS_STORAGE_KEY = '__stat_sweep_settings__';
 
