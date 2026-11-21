@@ -11,8 +11,10 @@ import { Stats } from '@sim/proto/stats';
 import * as WarriorPresets from '../shared/presets';
 import DefaultArmsApl from './apls/arms.apl.json';
 import DefaultFuryApl from './apls/fury.apl.json';
+import DefaultFury2HApl from './apls/fury_2h.apl.json';
 import PreBiSArmsGearJson from './gear_sets/prebis_arms.gear.json';
 import PreBiSFuryGearJson from './gear_sets/prebis_fury.gear.json';
+import PreBiSFury2HGearJson from './gear_sets/prebis_fury_2h.gear.json';
 
 // Preset options for this spec.
 // Eventually we will import these values for the raid sim too, so its good to
@@ -133,10 +135,58 @@ export const PreBiSArmsEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
+const FURY_2H_PRESET_OPTIONS = {
+	group: 'Fury 2H',
+	onLoad: (player: Player<Spec.SpecDpsWarrior>) => {
+		makeSpecChangeWarningToast(
+			[
+				{
+					condition: (player: Player<Spec.SpecDpsWarrior>) => !player.getTalents().twoHandedWeaponSpecialization,
+					message: "Check your talents: You have selected a two-hander spec but don't have [Two-Handed Weapon Specialization] talented.",
+				},
+			],
+			player,
+		);
+	},
+};
+
+// The Pre-BiS Fury sources with Destiny in place of the dual-wield pair. Don Julio's Band and Bloodseeker are Alterac
+// Valley rewards. Destiny has no known source; its Strength proc rate comes from logs (EV-0132). Hand of Justice beats
+// Blackhand's Breadth on fights of 180 s and longer; Blackhand's Breadth wins up to 120 s.
+export const PreBiSFury2HGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFury2HGearJson, FURY_2H_PRESET_OPTIONS);
+
+// The Fury build for a two-hander: Two-Handed Weapon Specialization, Blood Craze, a Gore Drinker point and a fifth
+// Enrage point in place of Dual Wield Specialization and Furious Precision.
+export const Fury2HTalents = PresetUtils.makePresetTalents('Fury 2H', SavedTalents.create({ talentsString: '30303213032-050500350122110231' }));
+
+// Measured on the Pre-BiS Fury 2H gear and talents. The gear sits at the 8% hit cap; Hit is its value below it.
+export const PreBiSFury2HEpWeights = PresetUtils.makePresetEpWeights(
+	'Pre-BiS - Fury 2H',
+	Stats.fromMap(
+		{
+			[Stat.StatStrength]: 2.2,
+			[Stat.StatAgility]: 1.94,
+			[Stat.StatAttackPower]: 1,
+			[Stat.StatArmorPenetration]: 0.46,
+			[Stat.StatHitRating]: 5.17,
+			[Stat.StatHasteRating]: 2.06,
+			[Stat.StatCritRating]: 2.55,
+			[Stat.StatExpertiseRating]: 2.26,
+		},
+		{
+			[PseudoStat.PseudoStatMainHandDps]: 13.89,
+			[PseudoStat.PseudoStatOffHandDps]: 0,
+		},
+	),
+);
+
 // The rotations have no Autocast Other Cooldowns, so an on-use trinket fires only from the "CD: Trinkets" group.
 // Blackhand's Breadth has no self buff for Multiple CD Usages, so its two lines there time the end of the fight with
 // Remaining Time and, with Recklessness on, keep the mark from running under it.
 export const FURY_DEFAULT_ROTATION = PresetUtils.makePresetAPLRotation('Fury', DefaultFuryApl);
+// The Fury rotation with a two-hander's rage thresholds: Heroic Strike from 70 rage, Hamstring without the Delay
+// Check, Overpower swaps up to 70 rage and Rend swaps up to 30.
+export const FURY_2H_ROTATION = PresetUtils.makePresetAPLRotation('Fury 2H', DefaultFury2HApl);
 export const ARMS_DEFAULT_ROTATION = PresetUtils.makePresetAPLRotation('Arms', DefaultArmsApl);
 
 export const SIMPLE_ROTATION = DpsWarrior_Rotation.create({
@@ -175,7 +225,8 @@ export const DefaultConsumables = ConsumesSpec.create({
 	elixirIds: [Consumables.ElixirOfFerocity.id, Consumables.ElixirOfTheMongoose.id, Consumables.WinterfallFirewater.id],
 });
 
-// The Pre-BiS Arms two-hander is a sword, so the main hand takes the sharpening stone and there is no off hand.
+// Destiny, the two-hander of the Arms and Fury 2H Pre-BiS sets, is a sword, so the main hand takes the sharpening
+// stone and there is no off hand.
 export const ArmsConsumables = ConsumesSpec.create({
 	...DefaultConsumables,
 	mhImbueId: Consumables.DenseSharpeningStone.id,
@@ -214,6 +265,15 @@ export const PreBiSFuryBuild = PresetUtils.makePresetBuild('Pre-BiS', {
 	rotation: SIMPLE_DEFAULT_ROTATION,
 	epWeights: PreBiSFuryEpWeights,
 	settings: { name: 'Pre-BiS - Fury', consumables: DefaultConsumables },
+});
+
+export const PreBiSFury2HBuild = PresetUtils.makePresetBuild('Pre-BiS', {
+	group: 'Fury 2H',
+	gear: PreBiSFury2HGear,
+	talents: Fury2HTalents,
+	rotation: SIMPLE_DEFAULT_ROTATION,
+	epWeights: PreBiSFury2HEpWeights,
+	settings: { name: 'Pre-BiS - Fury 2H', consumables: ArmsConsumables },
 });
 
 export const PreBiSArmsBuild = PresetUtils.makePresetBuild('Pre-BiS', {
