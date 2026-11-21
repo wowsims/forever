@@ -6,8 +6,7 @@
   landed hit or tick takes no partial resist. The Spell Piercing bonus is the negative side of the partial resist roll:
   a landed binary hit takes it at the full share, as do Insect Swarm's and Mind Flay's ticks, while Hurricane's,
   Entangling Roots' and Immolate's DoT ticks and a hit or tick at a tenth of the share take none, and a hit or tick at the
-  full share takes it whole. Devouring Plague's and Pyroblast's ticks meet the target's full resistance, and Flamestrike's ground ticks a
-  tenth of it. A channel's ticks meet a tenth like a DoT's, Starshards' excepted, which meet the full resistance; the
+  full share takes it whole. Devouring Plague's and Pyroblast's ticks meet the target's full resistance. A channel's ticks meet a tenth like a DoT's, Starshards' excepted, which meet the full resistance; the
   missiles of Arcane Missiles are hits and meet it in full. No partial resist takes more than 75% of a hit, and damage shields take none.
 - Sources: 213 combat logs from 2026-09-27 to 2026-11-16, casters of every class; 36 live-realm logs have hits on mobs
   with a resistance. The player streams of 992 Warcraft Logs reports of Forever (zone 3000) from
@@ -142,7 +141,6 @@ took none where the same caster's Hellfire Effect, Conflagrate and Bane of Havoc
 | Devouring Plague                                        | 256 of 256                                  | 0.95                                                                                       |
 | Pyroblast's DoT                                         | 127 of 161                                  | 0.98                                                                                       |
 | Seeping Willow                                          | 156 of 156                                  | 0.99                                                                                       |
-| Flamestrike's ground ticks                              | 90 of 390                                   | 0.10                                                                                       |
 | Rain of Fire                                            | 232 of 738                                  | 0.12                                                                                       |
 | Other DoT ticks                                         | 1,267 of 4,309                              | Corruption 0.10, Flame Shock 0.09, Shadow Word: Pain 0.11, Siphon Life 0.09, Moonfire 0.12 |
 | Curse of Agony, Immolate's DoT                          | 0 of 953, 0 of 558                          |                                                                                            |
