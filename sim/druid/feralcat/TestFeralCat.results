@@ -928,8 +928,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 739.33025
-  tps: 550.7474
+  dps: 739.30617
+  tps: 550.73031
   hps: 46.08889
  }
 }
@@ -1360,8 +1360,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Pyromancer'sBaton-286650"
  value: {
-  dps: 711.38683
-  tps: 530.87798
+  dps: 711.18013
+  tps: 530.73121
   hps: 46.03806
  }
 }
@@ -1672,8 +1672,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 739.82035
-  tps: 551.12357
+  dps: 740.04891
+  tps: 551.28584
   hps: 46.2075
  }
 }
@@ -1800,8 +1800,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-TwilightForgehammer-281665"
  value: {
-  dps: 719.15252
-  tps: 536.42311
+  dps: 718.78397
+  tps: 536.16145
   hps: 46.055
  }
 }
