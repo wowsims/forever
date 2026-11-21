@@ -116,15 +116,15 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 	},
 
 	presets: {
-		epWeights: [Presets.PreBiSFuryEpWeights, Presets.PreBiSArmsEpWeights],
+		epWeights: [Presets.PreBiSFuryEpWeights, Presets.PreBiSFury2HEpWeights, Presets.PreBiSArmsEpWeights],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.FuryTalents, Presets.FuryDragonkinGiantTalents, Presets.ArmsTalents],
+		talents: [Presets.FuryTalents, Presets.FuryDragonkinGiantTalents, Presets.Fury2HTalents, Presets.ArmsTalents],
 		// Preset rotations that the user can quickly select.
-		rotations: [Presets.SIMPLE_DEFAULT_ROTATION, Presets.FURY_DEFAULT_ROTATION, Presets.ARMS_DEFAULT_ROTATION],
+		rotations: [Presets.SIMPLE_DEFAULT_ROTATION, Presets.FURY_DEFAULT_ROTATION, Presets.FURY_2H_ROTATION, Presets.ARMS_DEFAULT_ROTATION],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.PreBiSFuryGear, Presets.PreBiSArmsGear],
+		gear: [Presets.PreBiSFuryGear, Presets.PreBiSFury2HGear, Presets.PreBiSArmsGear],
 		settings: [Presets.DefaultSettings],
-		builds: [Presets.PreBiSFuryBuild, Presets.PreBiSArmsBuild],
+		builds: [Presets.PreBiSFuryBuild, Presets.PreBiSFury2HBuild, Presets.PreBiSArmsBuild],
 	},
 
 	autoRotation: (player: Player<Spec.SpecDpsWarrior>): APLRotation => {
@@ -161,10 +161,12 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		const trainerRanks = new Map<number, number>();
 		if (!useHeroicStrikeRank9) trainerRanks.set(25286, 11567);
 		if (!useBattleShoutRank7) trainerRanks.set(25289, 11551);
-		const rotation = withSpellIds(
-			spec == DpsWarriorSpec.DpsWarriorSpecFury ? Presets.FURY_DEFAULT_ROTATION.rotation.rotation! : Presets.ARMS_DEFAULT_ROTATION.rotation.rotation!,
-			trainerRanks,
-		);
+		// Fury with a two-hander in the main hand runs the Fury 2H rotation.
+		let preset = Presets.ARMS_DEFAULT_ROTATION;
+		if (spec == DpsWarriorSpec.DpsWarriorSpecFury) {
+			preset = Presets.isArmsSpec(player) ? Presets.FURY_2H_ROTATION : Presets.FURY_DEFAULT_ROTATION;
+		}
+		const rotation = withSpellIds(preset.rotation.rotation!, trainerRanks);
 
 		// With this group shown (for Arms, with Stance Dance as well), the racials group casts Elune's Light only while
 		// Recklessness is down, more than 15 s remain, and either more than 195 s or at most 30 s remain.

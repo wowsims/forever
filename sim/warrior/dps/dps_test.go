@@ -41,6 +41,7 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 		},
 		Talents: DefaultFuryTalents,
 		OtherTalentSets: []core.TalentsCombo{
+			{Label: "Fury2H", Talents: DefaultFury2HTalents},
 			{Label: "Arms", Talents: DefaultArmsTalents},
 		},
 		Consumables:      DefaultConsumables,
@@ -51,6 +52,7 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 
 		Rotation: fury,
 		OtherRotations: []core.RotationCombo{
+			core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "fury_2h"),
 			core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "arms"),
 			armsStanceDanceRotation(),
 			core.RotationWithSpellIds("fury_trainer_ranks", fury, map[int32]int32{25286: 11567, 25289: 11551}),
@@ -96,6 +98,7 @@ var DefaultOptions = &proto.Player_DpsWarrior{
 }
 
 var DefaultFuryTalents = "30303213002-050530045122100231"
+var DefaultFury2HTalents = "30303213032-050500350122110231"
 var DefaultArmsTalents = "30303213132215201-55050000002-2"
 
 var DefaultConsumables = &proto.ConsumesSpec{
