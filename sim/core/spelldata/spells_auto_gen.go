@@ -2530,11 +2530,6 @@ var generatedSpells = []Spell{
 			{ID: 683229, SpellID: 5004, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_REGEN, BasePoints: 17, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 683230, SpellID: 5004, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, PeriodMs: 10000, TriggerID: 19705, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 5006, Name: "Food", School: 1, Attr: [17]uint32{0: 0x18000100, 15: 0x2000}, DurationMs: 24000, CategoryCooldownMs: 1000, Category: 11, InterruptFlags: 1, AuraInterrupt: [2]uint32{0: 0x40080}, Labels: []int16{6882}, RefIDs: []int32{19708}, ProcHint: core.ProcHintHeals,
-		Effects: []Effect{
-			{ID: 683682, SpellID: 5006, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_REGEN, BasePoints: 115, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-			{ID: 683683, SpellID: 5006, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, PeriodMs: 10000, TriggerID: 19708, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
 	{ID: 5019, Name: "Shoot", School: 1, Speed: 20, Attr: [17]uint32{0: 0x12, 2: 0x20, 3: 0x8000, 14: 0x1000000, 15: 0x2000}, SpellLevel: 1, MaxRange: 30, Category: 351, DefenseType: 1, PreventionType: 2, InterruptFlags: 15, ChannelInterrupt: [2]uint32{0: 0x2ac0c}, EquipClass: 2, EquipSubclass: 524288,
 		Effects: []Effect{
 			{ID: 683674, SpellID: 5019, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -16941,11 +16936,6 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 696520, SpellID: 19705, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 2, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 2, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 696521, SpellID: 19705, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 2, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
-	{ID: 19708, Name: "Well Fed", School: 1, Attr: [17]uint32{0: 0x8000100, 1: 0x20, 2: 0x10004100, 3: 0x500000, 6: 0x4, 8: 0x1000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 900000, Labels: []int16{4530, 4697},
-		Effects: []Effect{
-			{ID: 696522, SpellID: 19708, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 6, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 2, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-			{ID: 696523, SpellID: 19708, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 6, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 19710, Name: "Well Fed", School: 1, Attr: [17]uint32{0: 0x8000100, 1: 0x20, 2: 0x90004100, 3: 0x500000, 6: 0x4, 8: 0x1000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 900000, Labels: []int16{4530, 4697},
 		Effects: []Effect{
