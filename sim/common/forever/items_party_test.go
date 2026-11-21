@@ -18,9 +18,13 @@ import (
 // The warrior stand-in of class class wearing one item, in a party with these party buffs.
 func partyItemWearer(t *testing.T, seed int64, class proto.Class, slot proto.ItemSlot, itemID int32, party *proto.PartyBuffs) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return partyItemSim(seed, partyItemRaid(class, slot, itemID, party))
+}
+
+func partyItemSim(seed int64, raid *proto.Raid) (*core.Simulation, *core.Character) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: seed},
-		Raid:       partyItemRaid(class, slot, itemID, party),
+		Raid:       raid,
 		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
 	}, simsignals.CreateSignals())
 	sim.Reset()
@@ -170,6 +174,69 @@ func TestAdmiralsHatGrantsItsStaminaOnce(t *testing.T) {
 	_, buffed := partyItemWearer(t, 1, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotHead, 0, &proto.PartyBuffs{AdmiralsHat: true})
 	if got := buffed.GetStat(stats.Stamina) - bare.GetStat(stats.Stamina); got != stamina {
 		t.Errorf("the party's Admiral's Hat adds %v Stamina, want %v", got, stamina)
+	}
+}
+
+// Headmaster's Charge 13937 uses 18264 on the cooldown its on-use effect states: 18264's Intellect for
+// 18264's duration. Used beside the party's Headmaster's Charge it adds nothing more.
+func TestHeadmastersChargeGrantsItsIntellectOnce(t *testing.T) {
+	const staff = 13937
+	buff := spelldata.MustFind(18264)
+	intellect := buff.EffectN(1).Average()
+	cooldown, category, categoryCooldown := classItemOnUse(t, staff)
+
+	for _, tc := range []struct {
+		name  string
+		party *proto.PartyBuffs
+		want  float64
+	}{
+		{"alone", &proto.PartyBuffs{}, intellect},
+		{"beside the party's", &proto.PartyBuffs{HeadmastersCharge: true}, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sim, character := partyItemWearer(t, 1, proto.Class_ClassMage, proto.ItemSlot_ItemSlotMainHand, staff, tc.party)
+			before := character.GetStats()
+			useTrinket(t, sim, character, staff, core.CooldownTypeDPS, cooldown, category, categoryCooldown)
+			if got := gained(character, before, stats.Intellect); got != tc.want {
+				t.Errorf("the staff adds %v Intellect, want %v", got, tc.want)
+			}
+			if got := character.GetAura("Headmaster's Charge (Player)").Duration; got != buff.Duration() {
+				t.Errorf("the staff's buff lasts %v, want %v", got, buff.Duration())
+			}
+		})
+	}
+
+	_, bare := partyItemWearer(t, 1, proto.Class_ClassMage, proto.ItemSlot_ItemSlotMainHand, 0, &proto.PartyBuffs{})
+	_, buffed := partyItemWearer(t, 1, proto.Class_ClassMage, proto.ItemSlot_ItemSlotMainHand, 0, &proto.PartyBuffs{HeadmastersCharge: true})
+	if got := buffed.GetStat(stats.Intellect) - bare.GetStat(stats.Intellect); got != intellect {
+		t.Errorf("the party's Headmaster's Charge adds %v Intellect, want %v", got, intellect)
+	}
+}
+
+// The wearer's copy of 18264 falls off when an item swap takes Headmaster's Charge 13937 off.
+func TestHeadmastersChargeFallsOffWhenSwappedOut(t *testing.T) {
+	const staff = 13937
+	raid := partyItemRaid(proto.Class_ClassMage, proto.ItemSlot_ItemSlotMainHand, staff, &proto.PartyBuffs{})
+	player := raid.Parties[0].Players[0]
+	player.EnableItemSwap = true
+	// Night Watch Shortsword 935 is a one-hand weapon with no item effect.
+	player.ItemSwap = &proto.ItemSwap{Items: weaponSlots(935, 0)}
+	sim, character := partyItemSim(1, raid)
+
+	cooldown, category, categoryCooldown := classItemOnUse(t, staff)
+	before := character.GetStats()
+	useTrinket(t, sim, character, staff, core.CooldownTypeDPS, cooldown, category, categoryCooldown)
+	buff := character.GetAura("Headmaster's Charge (Player)")
+	if !buff.IsActive() {
+		t.Fatal("using the staff left its buff down")
+	}
+
+	character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+	if buff.IsActive() {
+		t.Error("the staff's buff stays up after the staff is swapped out")
+	}
+	if got := gained(character, before, stats.Intellect); got != 0 {
+		t.Errorf("the swapped-out staff still adds %v Intellect, want none", got)
 	}
 }
 

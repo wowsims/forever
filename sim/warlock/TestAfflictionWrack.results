@@ -816,6 +816,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 931.17182
+  tps: 748.31391
+  dtps: 9.8216
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 926.81193

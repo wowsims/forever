@@ -62,6 +62,14 @@ export const RetributionAura = makeBooleanPartyBuffInput({
 	showWhen: (party: Party) => !!party.getPlayer(0)?.getPlayerSpec().isTankSpec,
 });
 
+// Darkspear 12802 is not in the game, so the input shows only while a saved setting still picks it, which lets that pick be cleared.
+export const Darkspear = makeBooleanPartyBuffInput({
+	actionId: ActionId.fromSpellId(16939),
+	fieldName: 'darkspear',
+	label: 'Darkspear',
+	showWhen: (party: Party) => party.getBuffs().darkspear,
+});
+
 export const PARTY_BUFFS_CONFIG = inDisplayOrder(Generated.GENERATED_PARTY_BUFFS_CONFIG, [
 	Generated.BloodPact,
 	Generated.DevotionAura,
@@ -78,8 +86,9 @@ export const PARTY_BUFFS_CONFIG = inDisplayOrder(Generated.GENERATED_PARTY_BUFFS
 	Generated.AtieshWarlock,
 	Generated.AtieshDruid,
 	Generated.AtieshPriest,
-	Generated.Darkspear,
+	{ config: Darkspear, stats: [Stat.StatCritRating] },
 	Generated.AdmiralsHat,
+	Generated.HeadmastersCharge,
 	Generated.StoneskinTotem,
 ]);
 

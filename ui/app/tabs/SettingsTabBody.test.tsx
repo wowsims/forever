@@ -102,7 +102,7 @@ describe('SettingsTabBody buff and debuff filters', () => {
 });
 
 describe('SettingsTabBody sections', () => {
-	const noPartyBuffStats = { displayStats: [], epStats: [Stat.StatIntellect] };
+	const noPartyBuffStats = { displayStats: [], epStats: [Stat.StatStrength] };
 
 	it('leaves Party Buffs out when the filter offers no party buff and none is picked', async () => {
 		await setup(noPartyBuffStats);
