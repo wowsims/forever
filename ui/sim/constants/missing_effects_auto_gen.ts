@@ -1775,6 +1775,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		219326, // Seed of Renewal
+		[
+			"Chance to embed a seed into enemy humanoids, beasts, or dragonkin hit by your abilities or spells. If the creature is slain within 30 seconds of the seed being embedded, a Healing Blossom will grow from its corpse. ", // 443678 - https://www.wowhead.com/forever/spell=443678
+		]
+	],
+	[
 		226886, // Beastmaster's Tunic
 		[
 			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225
