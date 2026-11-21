@@ -463,9 +463,9 @@ var Spells = []Override{
 	{
 		SpellID: 1240047,
 		Field:   SPCoefDirect,
-		Value:   1.0 / 7, // TODO: Measure Ice Lance's spell power coefficient in game.
-		Reason:  "Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game; TBC's 1/7 until measured",
-		Source:  "tbc-carryover",
+		Value:   0.11,
+		Reason:  "Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game (EV-0171)",
+		Source:  "EV-0171",
 	},
 
 	// Seal of Light procs 15 a minute and Judgement of Light rolls a flat 50% (EV-0017, EV-0018). Neither

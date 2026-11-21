@@ -3427,7 +3427,7 @@ func RegisterAllProcs() {
 
 	// A burst of energy fills the caster, increasing his damage by 10 and armor by 150 for 15s.
 	// https://www.wowhead.com/forever/spell=8191
-	// trigger 8191 (1.8 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 8191 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 8191, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 6622, ItemName: "Sword of Zeal"},
