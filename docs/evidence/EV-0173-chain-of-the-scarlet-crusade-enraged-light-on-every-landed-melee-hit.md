@@ -14,7 +14,7 @@
 - Game build: 1.60.1.70938 to 1.60.1.70959 by report date (70959 from 2026-11-17 15:19 UTC); the hotfix each player ran
   is not recorded
 - Date: 2026-11-14 to 2026-11-20
-- Pull request: #TBD
+- Pull request: #1156
 
 ## Method
 

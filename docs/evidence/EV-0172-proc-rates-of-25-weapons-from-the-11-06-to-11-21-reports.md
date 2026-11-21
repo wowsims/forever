@@ -9,7 +9,7 @@
   71037 from 2026-11-20 18:23 UTC); 6 reports start after hotfix push 114313 (2026-11-20 23:47 UTC). The sim's database
   is 1.60.1.71037, push 114326; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-21
-- Pull request: #TBD
+- Pull request: #1156
 
 This replaces the rates EV-0136 gives for 20 of these weapons, EV-0153's rates of Bloodrazor, Sul'thraze the Lasher and
 Wraith Scythe, EV-0126's Argent Avenger rate and EV-0132's Brain Hacker rate.
