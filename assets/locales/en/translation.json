@@ -692,7 +692,7 @@
 				"manaflare_regalia_5": "Implemented as 10 percentage points added to each proc chance.",
 				"demonheart_raiment_5": "Implemented as additive with Improved Life Tap.",
 				"rotmenders_raiment_4": "Implemented on any cast that leaves mana below 15%.",
-				"violet_sorcerers_vestments_5": "Implemented as one elemental at a time, its damage measured in logs.",
+				"violet_sorcerers_vestments_5": "Implemented as one elemental at a time, its damage scaled from level 54 logs to 60.",
 				"defias_enforcers_garb_5": "Implemented on both hands, not the main hand only."
 			},
 			"partial_item": {

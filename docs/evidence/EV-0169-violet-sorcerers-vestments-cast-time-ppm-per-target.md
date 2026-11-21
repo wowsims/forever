@@ -3,8 +3,9 @@
 - Claim: The Violet Sorcerer's Vestments 4-piece bonus (1324318, Violet Meditation 1324315) procs at 1.0 PPM. Each
   spell landing rolls a chance of 1.0 × its cast time / 60, instants priced at 1.5 s, and an area spell rolls once per
   target hit. The 5-piece bonus (1324323, Summon Arcane Elemental 1324322) rolls the same way at 0.95 PPM, after its 15
-  s cooldown. Both are the lone-unit rates; the rows' base of 1 is that PPM. The elemental only melees, a swing every
-  2.0 s for 35 to 43 damage before armor.
+  s cooldown. Both are the lone-unit rates; the rows' base of 1 is that PPM. The elemental only melees, a physical
+  swing every 2.0 s whose normal hit before armor is 0.62 of 2 s of ExpectedStat's CreatureAutoAttackDps for its
+  owner's level, with no spell power share.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the 270 reports under Reports, every fight with 4 or
   more pieces worn in, and for the 5-piece bonus the 146 of them with fights where all 5 are worn. Runs logged in two
   reports count once.
@@ -99,9 +100,30 @@ Its damage before armor is each hit's `unmitigatedAmount`, over 16,124 normal hi
 | One elemental's hits in one fight, all summons |    296 |         35 |          43 |       39.5 |             1.19 |
 | One summon, 3 or more normal hits              |  2,310 |         38 |          43 |       40.5 |             1.14 |
 
-Each cell is the median over the groups. The sim's swing is 35 to 43, the per-fight row. Across groups the median hit
-runs from 34 (10th percentile) to 58 or 59 (90th), per fight or per summon. The wearers' gear is level 27 to 30
-throughout, so this spread is probably the owner's level and not the target's armor.
+Each cell is the median over the groups. Across groups the median hit runs from 34 (10th percentile) to 58 or 59
+(90th), per fight or per summon, and that spread is the owner's level. The logs carry no level, so it is read off each
+owner's CombatantInfo talent tree: talent points spent plus 9. Level 60 players in level 60 dungeons hold 49 to 51
+points, the talent level is never below the highest required level of the gear worn, and owners at 33 points cast
+level 42 spell ranks. Over 2,126 summons with 3 or more normal hits, owners from level 32 to 54, the median hit
+divided by 2 s of CreatureAutoAttackDps for the owner's level stays flat:
+
+| Owner level | Summons | Median hit |          Share |
+| ----------- | ------: | ---------: | -------------: |
+| 32 to 40    |   (all) |   33 to 40 | 0.617 to 0.633 |
+| 41          |     149 |         43 |          0.630 |
+| 42          |     152 |         45 |          0.620 |
+| 43          |     129 |         49 |          0.627 |
+| 44          |      95 |         52 |          0.632 |
+| 46          |      64 |         56 |          0.624 |
+| 48          |     105 |         58 |          0.618 |
+| 50          |      57 |         60 |          0.605 |
+| 52          |      22 |         64 |          0.625 |
+| 54          |      61 |         67 |          0.625 |
+
+The median share per summon is 0.620, which the sim takes, ±10% around it, the spread within one summon. The highest
+required level of the gear worn reads 0.705 on the same summons, since it sits below the true level. No owner above
+level 54 summons it in the logs: players at 55 or higher wear at most 4 pieces. The share does not follow the owner's
+spell power: the spell damage on the gear worn (27 to 160) explains none of what level leaves over (correlation 0.08).
 
 The logged damage is 0.71 of `unmitigatedAmount` (median), which is the target's armor: a normal hit logs 30 (median,
 23 to 39 between the 10th and 90th percentiles) and a crit 61. A crit's `unmitigatedAmount` is 40 (median, 97 crits),

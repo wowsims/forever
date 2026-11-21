@@ -6,16 +6,18 @@ import (
 )
 
 // The Arcane Elemental 277729 that Violet Sorcerer's Vestments' 5-piece bonus summons: a guardian that only
-// melees, a swing every 2.0 s for 35 to 43 before armor (EV-0169). The game files carry no creature row for
-// it, so the swing is the logs' normal hit before armor and crits, and the target's armor, the attack table
-// and the crit multiplier apply as for any pet's melee.
+// melees, a physical swing every 2.0 s. The game files carry no creature row for it. Its normal hit before
+// armor is 0.62 of 2 s of the creature dps for its owner's level, ±10%, with no spell power share (EV-0169);
+// the target's armor, the attack table and the crit multiplier apply as for any pet's melee.
 type arcaneElemental struct {
 	core.Pet
 }
 
+var arcaneElementalSwingAverage = 0.62 * core.CreatureAutoAttackDpsMaxLevel * 2.0
+
 var arcaneElementalSwing = core.Weapon{
-	BaseDamageMin: 35,
-	BaseDamageMax: 43,
+	BaseDamageMin: arcaneElementalSwingAverage * (1 - 0.1),
+	BaseDamageMax: arcaneElementalSwingAverage * (1 + 0.1),
 	SwingSpeed:    2.0,
 	MaxRange:      core.MaxMeleeRange,
 }
