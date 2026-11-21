@@ -434,7 +434,7 @@ func TestMissingSetBonusesRender(t *testing.T) {
 // each of its rows registers: it parses whole, or it is a proc trigger the set builds. A set covered by id, or by name for a set registered with ID 0, and a
 // set with no items in the database stay out. The skill line the ItemSet row requires is the set's profession.
 func TestGeneratedSetsTakeTheSetsNoRegisteredSetCovers(t *testing.T) {
-	const hit, proc = 460230, 1321560 // +2% hit; a proc trigger whose mask states no listener
+	const hit, proc = 460230, 1321560 // +2% hit; a proc trigger firing mana over time, which a generated set cannot build
 	const lightning = 18979           // a 10% chance on melee hits to cast 18980's Nature damage
 	const leatherworking = 165
 	registered := []*core.ItemSet{{ID: 100, Name: "Set 100"}, {Name: "Set 300"}}

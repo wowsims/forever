@@ -332,7 +332,12 @@ func init() {
 // The spell an item proc casts, as its row states it: out of the rotation, no cast or cost of its
 // own, and a proc unless the row says it is not.
 func procSpellConfig(character *core.Character, row *spelldata.Spell) core.SpellConfig {
-	config := spelldata.SpellConfig(&character.Unit, row, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc())
+	return procSpellConfigAs(character, row, spelldata.Magic(core.ProcMaskEmpty))
+}
+
+// The same for a spell of the kind given, such as spelldata.Melee.
+func procSpellConfigAs(character *core.Character, row *spelldata.Spell, kind spelldata.SpellOpt) core.SpellConfig {
+	config := spelldata.SpellConfig(&character.Unit, row, kind, spelldata.Proc())
 	if row.IsAProc() {
 		config.Flags |= core.SpellFlagProc
 	}

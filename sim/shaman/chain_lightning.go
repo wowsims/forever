@@ -24,9 +24,10 @@ func (shaman *Shaman) newChainLightningSpellConfig(row *spelldata.Spell, overloa
 	// The effect states the targets the bolt reaches and what each jump keeps.
 	effect := row.DamageEffect()
 	maxHits := int32(effect.ChainTargets)
-	bounce := float64(effect.ChainAmp)
+	chainAmp := float64(effect.ChainAmp)
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		bounce := chainAmp * shaman.chainLightningJumpMultiplier
 		numHits := min(maxHits, shaman.Env.ActiveTargetCount())
 		results := make([]*core.SpellResult, numHits)
 

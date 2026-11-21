@@ -272,9 +272,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BonescytheArmor"
  value: {
-  dps: 881.34864
-  tps: 620.69588
-  hps: 57.76361
+  dps: 892.53277
+  tps: 628.30139
+  hps: 58.06861
  }
 }
 dps_results: {
@@ -456,8 +456,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 740.0056
-  tps: 525.40398
+  dps: 748.09639
+  tps: 531.14844
   hps: 57.27222
  }
 }
@@ -1622,6 +1622,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Spider'sKiss"
+ value: {
+  dps: 782.64552
+  tps: 555.67832
+  hps: 60.25444
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Stoneshatter-18388"
  value: {
   dps: 812.49732
@@ -1695,6 +1703,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestRogue-AllItems-TalismanofEphemeralPower-18820"
+ value: {
+  dps: 795.52475
+  tps: 564.82257
+  hps: 59.11917
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-TeachingsoftheFurbolgs"
  value: {
   dps: 795.52475
   tps: 564.82257

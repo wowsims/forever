@@ -27,6 +27,8 @@ type Mage struct {
 	ArcanePowerAura    *core.Aura
 	FingersOfFrostAura *core.Aura
 
+	manaflareAura *core.Aura // Manaflare Regalia's 5pc, which Missile Barrage, Fingers of Frost and Combustion read for Frostfire Bolt.
+
 	ImprovedScorchAuras core.AuraArray
 	WintersChillAuras   core.AuraArray
 
