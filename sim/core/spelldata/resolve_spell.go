@@ -355,14 +355,16 @@ func rowFlags(s *Spell) core.SpellFlag {
 	if s.IsChanneled() {
 		flags |= core.SpellFlagChanneled
 	}
-	if s.SuppressesWeaponProcs() {
-		flags |= core.SpellFlagSuppressWeaponProcs
-	}
-	if s.SuppressesCasterProcs() && s.actsItself() {
-		flags |= core.SpellFlagSuppressCasterProcs
-	}
-	if s.SuppressesTargetProcs() && s.actsItself() {
-		flags |= core.SpellFlagSuppressTargetProcs
+	if s.actsItself() {
+		if s.SuppressesWeaponProcs() {
+			flags |= core.SpellFlagSuppressWeaponProcs
+		}
+		if s.SuppressesCasterProcs() {
+			flags |= core.SpellFlagSuppressCasterProcs
+		}
+		if s.SuppressesTargetProcs() {
+			flags |= core.SpellFlagSuppressTargetProcs
+		}
 	}
 	if s.PushedBack() {
 		flags |= core.SpellFlagPushback
