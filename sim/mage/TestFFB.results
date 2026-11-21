@@ -133,8 +133,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 875.16782
-  tps: 905.52117
+  dps: 876.08099
+  tps: 906.43434
  }
 }
 dps_results: {
