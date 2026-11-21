@@ -10,7 +10,7 @@
 	],
 	"priorityList": [
 	{"hide":true,"action":{"groupReference":{"groupName":"Recklessness ON/OFF"}}},
-	{"hide":true,"action":{"groupReference":{"groupName":"Stance Dance ON/OFF"}}},
+	{"action":{"groupReference":{"groupName":"Stance Dance ON/OFF"}}},
 	{"action":{"groupReference":{"groupName":"Hamstring Weave ON/OFF"}}},
 	{"action":{"groupReference":{"groupName":"Engineering"}}},
 	{"action":{"groupReference":{"groupName":"CD: Trinkets"}}},

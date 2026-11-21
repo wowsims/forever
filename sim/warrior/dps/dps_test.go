@@ -54,7 +54,7 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 		OtherRotations: []core.RotationCombo{
 			core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "fury_2h"),
 			core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "arms"),
-			armsStanceDanceRotation(),
+			armsWithoutStanceDanceRotation(),
 			core.RotationWithSpellIds("fury_book_ranks", fury, map[int32]int32{11567: 25286, 11551: 25289}),
 		},
 
@@ -76,14 +76,14 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 	}
 }
 
-func armsStanceDanceRotation() core.RotationCombo {
+func armsWithoutStanceDanceRotation() core.RotationCombo {
 	rotation := core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "arms").Rotation
 	for _, item := range rotation.PriorityList {
 		if item.GetAction().GetGroupReference().GetGroupName() == "Stance Dance ON/OFF" {
-			item.Hide = false
+			item.Hide = true
 		}
 	}
-	return core.RotationCombo{Label: "arms_stance_dance", Rotation: rotation}
+	return core.RotationCombo{Label: "arms_no_stance_dance", Rotation: rotation}
 }
 
 var DefaultOptions = &proto.Player_DpsWarrior{

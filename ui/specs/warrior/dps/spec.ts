@@ -142,7 +142,7 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 			useOverpower = true,
 			useRend = true,
 			useRecklessness = false,
-			useStanceDance = false,
+			useStanceDance = true,
 			useHamstring = true,
 			useHeroicStrikeRank9 = false,
 			useBattleShoutRank7 = false,

@@ -103,33 +103,31 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
-// The same sources as the Pre-BiS Fury gear, Don Julio's Band included. The shoulders are a world-drop green with the
-// "of the Tiger" suffix.
-// Destiny, the weapon, has no known source, and its Strength proc rolls a rate fitted from logs that more wearers
-// have yet to confirm (EV-0132). It beats Arcanite Champion, the Blacksmithing craft, by 4 to 5 %.
+// The Fury 2H set with Blackhand's Breadth in place of Hand of Justice. Destiny, the weapon, has no known source, and
+// its Strength proc rate comes from logs (EV-0132). It beats Arcanite Champion, the Blacksmithing craft, by 4 to 5 %.
 export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, ARMS_PRESET_OPTIONS);
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the
 // global cooldowns Mortal Strike and Slam leave.
 export const ArmsTalents = PresetUtils.makePresetTalents('Arms', SavedTalents.create({ talentsString: '30303213132215201-55050000002-2' }));
 
-// Measured on Pre-BiS Arms gear with Arcanite Champion, Dawn Armor, Titanic Leggings and Blackhand's Breadth, and the
-// Arms talents. Hit is its value below the 8% cap, where the gear sits.
+// Measured on the Pre-BiS Arms gear and talents with Stance Dance on. The gear sits at the 8% hit cap; Hit is its value
+// below it.
 export const PreBiSArmsEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Arms',
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 1.71,
+			[Stat.StatAgility]: 1.76,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatArmorPenetration]: 0.45,
-			[Stat.StatHitRating]: 4.7,
-			[Stat.StatHasteRating]: 1.19,
-			[Stat.StatCritRating]: 2.23,
-			[Stat.StatExpertiseRating]: 1.46,
+			[Stat.StatArmorPenetration]: 0.46,
+			[Stat.StatHitRating]: 5.03,
+			[Stat.StatHasteRating]: 1.29,
+			[Stat.StatCritRating]: 2.32,
+			[Stat.StatExpertiseRating]: 1.57,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 16.63,
+			[PseudoStat.PseudoStatMainHandDps]: 16.71,
 			[PseudoStat.PseudoStatOffHandDps]: 0,
 		},
 	),
@@ -184,8 +182,9 @@ export const PreBiSFury2HEpWeights = PresetUtils.makePresetEpWeights(
 // Blackhand's Breadth has no self buff for Multiple CD Usages, so its two lines there time the end of the fight with
 // Remaining Time and, with Recklessness on, keep the mark from running under it.
 export const FURY_DEFAULT_ROTATION = PresetUtils.makePresetAPLRotation('Fury', DefaultFuryApl);
-// The Fury rotation with a two-hander's rage thresholds: Heroic Strike from 70 rage, Hamstring without the Delay
-// Check, Overpower swaps up to 70 rage and Rend swaps up to 30.
+// The Fury rotation with a two-hander's thresholds: Heroic Strike from 70 rage and Cleave from 30, Hamstring without
+// the Delay Check and on up to two targets, Overpower swaps up to 70 rage and Rend swaps up to 30 on any number of
+// targets.
 export const FURY_2H_ROTATION = PresetUtils.makePresetAPLRotation('Fury 2H', DefaultFury2HApl);
 export const ARMS_DEFAULT_ROTATION = PresetUtils.makePresetAPLRotation('Arms', DefaultArmsApl);
 
@@ -195,7 +194,7 @@ export const SIMPLE_ROTATION = DpsWarrior_Rotation.create({
 	useOverpower: true,
 	useRend: true,
 	useRecklessness: false,
-	useStanceDance: false,
+	useStanceDance: true,
 	useHamstring: true,
 	useHeroicStrikeRank9: false,
 	useBattleShoutRank7: false,
