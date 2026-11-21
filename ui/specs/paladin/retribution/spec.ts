@@ -2,7 +2,7 @@ import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as OtherInputs from '@features/settings/model/other_inputs';
 import { APLGroup, APLListItem, APLRotation, APLValueVariable } from '@generated/proto/apl';
 import { Cooldowns, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
-import { PaladinSeal } from '@generated/proto/paladin';
+import { PaladinSeal, PaladinSealTwist } from '@generated/proto/paladin';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
@@ -128,7 +128,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 
 	presets: {
 		epWeights: [Presets.UnsealedWrathEpWeights, Presets.HolyShockEpWeights],
-		rotations: [Presets.SimpleRotation, Presets.DefaultAplPreset, Presets.HolyShockAplPreset],
+		rotations: [Presets.SimpleRotation, Presets.DefaultAplPreset, Presets.UwSorSofAplPreset, Presets.HolyShockAplPreset],
 		// Preset talents that the user can quickly select.
 		talents: [Presets.UnsealedWrathTalents, Presets.HolyShockTalents],
 		// Preset gear configurations that the user can quickly select.
@@ -139,20 +139,29 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 
 	autoRotation: aplFor,
 
-	// The talents pick the APL, as for the Auto rotation; the options set its variables and the spells of
-	// its aura and judgement groups. With no assigned judgement, Has assigned judgement is false and the
-	// APL never reaches Cast assigned judgement.
+	// The talents pick the APL, as for the Auto rotation, except that Unsealed Wrath twisting Seal of Fury
+	// runs its own APL. The options set the APL's variables and the spells of its aura and judgement groups.
+	// With no assigned judgement, Has assigned judgement is false and the APL never reaches Cast assigned
+	// judgement.
 	simpleRotation: (player: Player<Spec.SpecRetributionPaladin>, simple: SpecRotation<Spec.SpecRetributionPaladin>, cooldowns: Cooldowns): APLRotation => {
-		const { unsealedWrath, sealOfCommand } = player.getTalents();
+		const { unsealedWrath, sealOfCommand, holyShock } = player.getTalents();
 		const actions = AplUtils.simpleCooldownActions(cooldowns);
-		const rotation = APLRotation.clone(aplFor(player));
+		const twist = Inputs.twistFor(simple.uwTwist, sealOfCommand);
+		const twistsFury = unsealedWrath && !holyShock && twist === PaladinSealTwist.SealTwistFury;
+		const rotation = APLRotation.clone(twistsFury ? Presets.UwSorSofAplPreset.rotation.rotation! : aplFor(player));
 		const aura = Inputs.AURA_SPELLS[simple.aura];
 		const judgement = Inputs.JUDGE_SPELLS[simple.assignedJudgement];
 
 		const values: Record<string, string> = {
 			'Has assigned judgement': String(!!judgement),
-			'Max Seal of Command Stacks': String(Math.min(Inputs.MAX_ECHO_STACKS, simple.uwSocStacks || 3)),
-			'Max Seal of Righteousness Stacks': String(Math.min(Inputs.MAX_ECHO_STACKS, simple.uwSorStacks || 1)),
+			'Max Seal of Command Stacks': String(Inputs.echoStacks(simple.uwSocStacks, Inputs.TWIST_STACKS[PaladinSealTwist.SealTwistCommand].own)),
+			'Max Seal of Fury Stacks': String(Inputs.echoStacks(simple.uwSofStacks, Inputs.TWIST_STACKS[PaladinSealTwist.SealTwistFury].own)),
+			'Max Seal of Righteousness Stacks': String(
+				Inputs.echoStacks(
+					simple.uwSorStacks,
+					Inputs.TWIST_STACKS[twistsFury ? PaladinSealTwist.SealTwistFury : PaladinSealTwist.SealTwistCommand].righteousness,
+				),
+			),
 			'Pull range': String(Math.max(Inputs.MIN_PULL_RANGE, simple.pullRange || 25)),
 			'Delay Major CDs': `${simple.delayMajorCds}s`,
 		};

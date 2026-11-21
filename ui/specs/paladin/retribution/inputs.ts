@@ -1,6 +1,6 @@
 import * as InputHelpers from '@features/inputs/input_helpers';
 import { Spec } from '@generated/proto/common';
-import { PaladinAura, PaladinJudgement, PaladinSeal } from '@generated/proto/paladin';
+import { PaladinAura, PaladinJudgement, PaladinSeal, PaladinSealTwist } from '@generated/proto/paladin';
 import i18n from '@i18n/config';
 import { Player } from '@sim/player/player';
 import { ActionId } from '@sim/proto/action_id';
@@ -34,7 +34,37 @@ const spellIcon = ({ spellId, rank }: RankedSpell) => ActionId.fromSpellId(spell
 // inside that range never reaches melee.
 export const MIN_PULL_RANGE = 11;
 
-export const MAX_ECHO_STACKS = 3;
+const MAX_ECHO_STACKS = 3;
+
+type Twist = PaladinSealTwist.SealTwistCommand | PaladinSealTwist.SealTwistFury;
+
+const TWIST_SPELLS: Record<Twist, RankedSpell> = {
+	[PaladinSealTwist.SealTwistCommand]: SEAL_SPELLS[PaladinSeal.SealOfCommand]!,
+	[PaladinSealTwist.SealTwistFury]: { spellId: 20423, rank: 7 },
+};
+
+// The Echo stacks a twist pools before each swap: of its own seal, and of Seal of Righteousness.
+export const TWIST_STACKS: Record<Twist, { own: number; righteousness: number }> = {
+	[PaladinSealTwist.SealTwistCommand]: { own: 3, righteousness: 1 },
+	[PaladinSealTwist.SealTwistFury]: { own: 1, righteousness: 3 },
+};
+
+// The twist the rotation runs under Unsealed Wrath: Seal of Fury when picked, otherwise Seal of Command when
+// it is talented, and none without it.
+export const twistFor = (twist: PaladinSealTwist, sealOfCommand: boolean): PaladinSealTwist =>
+	twist === PaladinSealTwist.SealTwistFury
+		? PaladinSealTwist.SealTwistFury
+		: sealOfCommand
+			? PaladinSealTwist.SealTwistCommand
+			: PaladinSealTwist.SealTwistUnknown;
+
+const playerTwist = (player: Player<Spec.SpecRetributionPaladin>): PaladinSealTwist =>
+	twistFor(player.getSimpleRotation().uwTwist, player.getTalents().sealOfCommand);
+
+// An unset stack count is the twist's own default.
+export const echoStacks = (stacks: number, fallback: number): number => Math.min(MAX_ECHO_STACKS, stacks || fallback);
+
+const ECHO_STACK_VALUES = Array.from({ length: MAX_ECHO_STACKS }, (_, index) => ({ name: String(index + 1), value: index + 1 }));
 
 // Each option shows the icon and tooltip of the spell it casts.
 export const RotationIconInputs = [
@@ -87,40 +117,71 @@ export const RotationIconInputs = [
 			.filter(value => value !== PaladinSeal.SealUnknown)
 			.map(value => ({ value, actionId: spellIcon(SEAL_SPELLS[value]!) })),
 	}),
+	InputHelpers.makeRotationEnumIconInput<Spec.SpecRetributionPaladin, PaladinSealTwist>({
+		fieldName: 'uwTwist',
+		label: i18n.t('rotation_tab.options.paladin.retribution.uw_twist.label'),
+		labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_twist.tooltip'),
+		numColumns: 2,
+		getValue: playerTwist,
+		// Picking another twist starts it from its own Echo stacks.
+		setValue: (player: Player<Spec.SpecRetributionPaladin>, newValue: PaladinSealTwist) => {
+			if (newValue === playerTwist(player)) return;
+			const rotation = player.getSimpleRotation();
+			rotation.uwTwist = newValue;
+			if (newValue === PaladinSealTwist.SealTwistCommand) {
+				rotation.uwSocStacks = TWIST_STACKS[newValue].own;
+				rotation.uwSorStacks = TWIST_STACKS[newValue].righteousness;
+			} else if (newValue === PaladinSealTwist.SealTwistFury) {
+				rotation.uwSofStacks = TWIST_STACKS[newValue].own;
+				rotation.uwSorStacks = TWIST_STACKS[newValue].righteousness;
+			}
+			player.setSimpleRotation(rotation);
+		},
+		showWhen: player => player.getTalents().unsealedWrath,
+		values: [
+			{
+				value: PaladinSealTwist.SealTwistUnknown,
+				tooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_twist.none'),
+				showWhen: player => !player.getTalents().sealOfCommand,
+			},
+			{
+				value: PaladinSealTwist.SealTwistCommand,
+				actionId: spellIcon(TWIST_SPELLS[PaladinSealTwist.SealTwistCommand]),
+				showWhen: player => player.getTalents().sealOfCommand,
+			},
+			{ value: PaladinSealTwist.SealTwistFury, actionId: spellIcon(TWIST_SPELLS[PaladinSealTwist.SealTwistFury]) },
+		],
+	}),
 ];
 
 export const RotationInputs = {
 	inputs: [
-		InputHelpers.makeRotationNumberInput<Spec.SpecRetributionPaladin>({
+		InputHelpers.makeRotationEnumInput<Spec.SpecRetributionPaladin, number>({
 			fieldName: 'uwSocStacks',
 			label: i18n.t('rotation_tab.options.paladin.retribution.uw_soc_stacks.label'),
-			labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_soc_stacks.tooltip', { max: MAX_ECHO_STACKS }),
-			positive: true,
-			showWhen: player => {
-				const { sealOfCommand, unsealedWrath } = player.getTalents();
-				return unsealedWrath && sealOfCommand;
-			},
-			getValue: player => player.getSimpleRotation().uwSocStacks,
-			setValue: (player: Player<Spec.SpecRetributionPaladin>, newValue: number) => {
-				const rotation = player.getSimpleRotation();
-				rotation.uwSocStacks = Math.min(MAX_ECHO_STACKS, newValue);
-				player.setSimpleRotation(rotation);
-			},
+			labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_soc_stacks.tooltip'),
+			values: ECHO_STACK_VALUES,
+			showWhen: player => player.getTalents().unsealedWrath && playerTwist(player) === PaladinSealTwist.SealTwistCommand,
+			getValue: player => echoStacks(player.getSimpleRotation().uwSocStacks, TWIST_STACKS[PaladinSealTwist.SealTwistCommand].own),
 		}),
-		InputHelpers.makeRotationNumberInput<Spec.SpecRetributionPaladin>({
+		InputHelpers.makeRotationEnumInput<Spec.SpecRetributionPaladin, number>({
+			fieldName: 'uwSofStacks',
+			label: i18n.t('rotation_tab.options.paladin.retribution.uw_sof_stacks.label'),
+			labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_sof_stacks.tooltip'),
+			values: ECHO_STACK_VALUES,
+			showWhen: player => player.getTalents().unsealedWrath && playerTwist(player) === PaladinSealTwist.SealTwistFury,
+			getValue: player => echoStacks(player.getSimpleRotation().uwSofStacks, TWIST_STACKS[PaladinSealTwist.SealTwistFury].own),
+		}),
+		InputHelpers.makeRotationEnumInput<Spec.SpecRetributionPaladin, number>({
 			fieldName: 'uwSorStacks',
 			label: i18n.t('rotation_tab.options.paladin.retribution.uw_sor_stacks.label'),
-			labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_sor_stacks.tooltip', { max: MAX_ECHO_STACKS }),
-			positive: true,
-			showWhen: player => {
-				const { sealOfCommand, unsealedWrath } = player.getTalents();
-				return unsealedWrath && sealOfCommand;
-			},
-			getValue: player => player.getSimpleRotation().uwSorStacks,
-			setValue: (player: Player<Spec.SpecRetributionPaladin>, newValue: number) => {
-				const rotation = player.getSimpleRotation();
-				rotation.uwSorStacks = Math.min(MAX_ECHO_STACKS, newValue);
-				player.setSimpleRotation(rotation);
+			labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_sor_stacks.tooltip'),
+			values: ECHO_STACK_VALUES,
+			showWhen: player => player.getTalents().unsealedWrath && playerTwist(player) !== PaladinSealTwist.SealTwistUnknown,
+			getValue: player => {
+				const twist = playerTwist(player);
+				const fallback = twist === PaladinSealTwist.SealTwistUnknown ? 1 : TWIST_STACKS[twist].righteousness;
+				return echoStacks(player.getSimpleRotation().uwSorStacks, fallback);
 			},
 		}),
 		InputHelpers.makeRotationNumberInput<Spec.SpecRetributionPaladin>({

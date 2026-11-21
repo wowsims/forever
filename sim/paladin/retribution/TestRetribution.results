@@ -2514,6 +2514,54 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-Settings-Human-default-Default-uw_sor_sof-FullBuffs-25.0yards-LongMultiTarget"
+ value: {
+  dps: 1493.99397
+  tps: 1209.56399
+  dtps: 7.89552
+  hps: 14.53494
+ }
+}
+dps_results: {
+ key: "TestRetribution-Settings-Human-default-Default-uw_sor_sof-FullBuffs-25.0yards-LongSingleTarget"
+ value: {
+  dps: 767.6724
+  tps: 628.30027
+  dtps: 7.87283
+  hps: 14.49529
+ }
+}
+dps_results: {
+ key: "TestRetribution-Settings-Human-default-Default-uw_sor_sof-FullBuffs-25.0yards-ShortSingleTarget"
+ value: {
+  dps: 764.97875
+  tps: 623.56952
+  dtps: 8.981
+  hps: 14.60747
+ }
+}
+dps_results: {
+ key: "TestRetribution-Settings-Human-default-Default-uw_sor_sof-NoBuffs-25.0yards-LongMultiTarget"
+ value: {
+  dps: 360.94478
+  tps: 288.75582
+ }
+}
+dps_results: {
+ key: "TestRetribution-Settings-Human-default-Default-uw_sor_sof-NoBuffs-25.0yards-LongSingleTarget"
+ value: {
+  dps: 238.68144
+  tps: 190.94515
+ }
+}
+dps_results: {
+ key: "TestRetribution-Settings-Human-default-Default-uw_sor_sof-NoBuffs-25.0yards-ShortSingleTarget"
+ value: {
+  dps: 310.08223
+  tps: 248.06578
+ }
+}
+dps_results: {
  key: "TestRetribution-Settings-Human-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-LongMultiTarget"
  value: {
   dps: 1887.66529
@@ -2607,6 +2655,54 @@ dps_results: {
  value: {
   dps: 338.88205
   tps: 271.10564
+ }
+}
+dps_results: {
+ key: "TestRetribution-Settings-Undead-default-Default-uw_sor_sof-FullBuffs-25.0yards-LongMultiTarget"
+ value: {
+  dps: 1495.92662
+  tps: 1210.80211
+  dtps: 7.33923
+  hps: 14.53342
+ }
+}
+dps_results: {
+ key: "TestRetribution-Settings-Undead-default-Default-uw_sor_sof-FullBuffs-25.0yards-LongSingleTarget"
+ value: {
+  dps: 771.89113
+  tps: 631.40245
+  dtps: 7.72695
+  hps: 14.49326
+ }
+}
+dps_results: {
+ key: "TestRetribution-Settings-Undead-default-Default-uw_sor_sof-FullBuffs-25.0yards-ShortSingleTarget"
+ value: {
+  dps: 768.51316
+  tps: 625.37846
+  dtps: 9.03287
+  hps: 14.60137
+ }
+}
+dps_results: {
+ key: "TestRetribution-Settings-Undead-default-Default-uw_sor_sof-NoBuffs-25.0yards-LongMultiTarget"
+ value: {
+  dps: 367.89537
+  tps: 294.3163
+ }
+}
+dps_results: {
+ key: "TestRetribution-Settings-Undead-default-Default-uw_sor_sof-NoBuffs-25.0yards-LongSingleTarget"
+ value: {
+  dps: 245.77125
+  tps: 196.617
+ }
+}
+dps_results: {
+ key: "TestRetribution-Settings-Undead-default-Default-uw_sor_sof-NoBuffs-25.0yards-ShortSingleTarget"
+ value: {
+  dps: 303.61722
+  tps: 242.89377
  }
 }
 dps_results: {

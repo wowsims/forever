@@ -1,0 +1,73 @@
+siml 1
+spec retribution_paladin
+
+// Unsealed Wrath twisting Seal of Righteousness with Seal of Fury. Judgement of Fury taunts, so
+// Judgement is cast only under Seal of Righteousness.
+var ${Has assigned judgement} = true
+var ${Max Seal of Fury Stacks} = 1
+var ${Max Seal of Righteousness Stacks} = 3
+var ${Delay Major CDs} = 0s
+var ${Pull range} = 25
+var ${Melee range} = 5
+var ${Should swap to SoF} =
+    aura(seal_of_fury_20423_tag0).is_inactive(include_reaction_time=true)
+    and aura(echo_of_righteousness).num_stacks(include_reaction_time=true) >= $max_seal_of_righteousness_stacks
+    and $judge_realism_protection
+    and $judgement_outlasts_the_swap
+    and $can_pay_for_both_swaps
+var ${Should swap to SoR} =
+    aura(seal_of_righteousness_20293).is_inactive(include_reaction_time=true)
+    and (aura(seal_of_fury_20423_tag0).is_inactive or aura(echo_of_fury).num_stacks(include_reaction_time=true) >= $max_seal_of_fury_stacks)
+    and $judge_realism_protection
+var ${Judge realism protection} =
+    spell(judgement).time_to_ready <= spell(judgement).full_cooldown - input_delay
+// Judgement's cooldown outlasts the next swing and the global cooldown after it. The swap to Seal of Fury
+// waits for that, so Judgement spends less time ready under Seal of Fury.
+var ${Judgement outlasts the swap} =
+    spell(judgement).time_to_ready >= auto_time_to_next(main_hand_auto) + spell(seal_of_righteousness).gcd_hasted_duration
+// Mana for the swap to Seal of Fury and the swap back. Without the swap back, Judgement stays unused under
+// Seal of Fury.
+var ${Can pay for both swaps} =
+    current_mana >= spell(seal_of_fury).current_cost + spell(seal_of_righteousness).current_cost
+
+prepull:
+  -20s group "Activate assigned aura"
+  -20s move $pull_range
+  -1.5s group "Prep Seal of Righteousness"
+  -1.5s group "Cast assigned judgement"
+
+priority:
+  group "Move to melee" if not spell(holy_strike).in_range
+  cast judgement if aura(seal_of_righteousness_20293).is_active
+  autocast_other_cooldowns if current_time >= $delay_major_cds
+  cast hammer_of_wrath
+      if spell(hammer_of_wrath).cast_time == 0s
+      or auto_time_since_last(main_hand_auto) < 0.2s
+  cast holy_strike if $judge_realism_protection
+  cast seal_of_fury if $should_swap_to_sof
+  cast seal_of_righteousness if $should_swap_to_sor
+  group "Consecration"
+  group "Exorcism"
+
+group "Activate assigned aura":
+  cast retribution_aura
+
+group "Cast assigned judgement":
+  cast seal_of_the_crusader if $has_assigned_judgement
+
+group "Prep Seal of Righteousness":
+  cast seal_of_righteousness if not $has_assigned_judgement
+
+group "Move to melee":
+  sequence "move1" [move $melee_range, wait until spell(judgement).in_range, cast judgement, wait input_delay, cast seal_of_righteousness, wait until spell(holy_strike).in_range]
+      if $has_assigned_judgement
+      and not sequence("move1").is_complete
+  sequence "move2" [move $melee_range, wait until spell(judgement).in_range, cast judgement, wait until spell(holy_strike).in_range]
+      if not $has_assigned_judgement
+      and not sequence("move2").is_complete
+
+group "Exorcism":
+  cast exorcism if current_mana_percent >= 10%
+
+group "Consecration":
+  cast consecration if current_mana_percent >= 10%
