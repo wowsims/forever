@@ -36,6 +36,7 @@ func NewShaman(character *core.Character, talents string, selfBuffs SelfBuffs) *
 
 	shaman.windfuryWeaponMultiplier = 1
 	shaman.rockbiterWeaponMultiplier = 1
+	shaman.chainLightningJumpMultiplier = 1
 
 	return shaman
 }
@@ -64,6 +65,9 @@ type Shaman struct {
 	windfuryWeaponMultiplier     float64
 	rockbiterWeaponMultiplier    float64
 	spiritWeaponsRockbiterThreat float64
+
+	chainLightningJumpMultiplier float64    // Scales the share of the damage each Chain Lightning jump keeps.
+	earthshattererAura           *core.Aura // The Earthshatterer's 8pc, which Lightning Shield's mana per 5 sec follows.
 
 	// The equipped main hand and the swap set's, which the imbue options name.
 	mainHandID     int32

@@ -95,7 +95,7 @@ generator reads that off the tooltip into `core.ProcHint`:
 | `ProcHintCastTrigger`  | the tooltip names the cast itself, which turns a mask of the spell bits alone into `OnCastComplete` with no outcome                                     |
 | `ProcHintCrit`         | the tooltip names a critical strike, which sets `Outcome = OutcomeCrit` and keeps the listener on the hit rather than the cast                          |
 | `ProcHintHeals`        | the trigger clause names healing or an unrestricted spell, which is the evidence that a helpful-spell bit carries a real trigger rather than a leftover |
-| `ProcHintPureHeal`     | the trigger is healing only, so the damage callbacks come off                                                                                           |
+| `ProcHintPureHeal`     | the trigger is healing only, so the damage callbacks come off; a mask naming no harmful spell keeps its melee and ranged hits                           |
 | `ProcHintBlocked`      | the clause names the wearer blocking ("every time you block"), which clears `RequireDamageDealt` and sets `Outcome = OutcomeBlock`                      |
 | `ProcHintNamedAbility` | the clause names one ability ("your Shock spells"), which no proc mask can state                                                                        |
 | `ProcHintOutcomeTaken` | the clause names a resist, a dodge or a parry taken, an outcome the mask has no bit for, which clears `RequireDamageDealt`                              |
@@ -109,6 +109,10 @@ owner's side landed the killing blow, which the kill roll in `Target.Die` decide
 (word 1, 0x1) decodes to `CallbackOnTargetDies`: an enemy died, with no roll. In game the two are separate
 events, so a row carrying both fires twice on a credited kill unless its ICD stops the second. The one
 such row in the game files is Lunar Idol 419288, on an item Forever does not ship. `PROC_FLAG_DEATH`, the wearer dying, stays unsupported.
+
+`PROC_FLAG_2_CAST_SUCCESSFUL` (word 1, 0x4) decodes to `CallbackOnCastComplete` with no outcome and no
+damage requirement: the cast itself is the trigger, whatever it lands on. Rotmender's Raiment's 1321560
+is that shape.
 
 A death listener gets a nil spell and a result whose `Target` is the dying enemy, so every condition and
 handler a death can reach checks the spell before reading it. `Die` runs the listeners before it disables

@@ -1074,9 +1074,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-NecropileRaiment"
  value: {
-  dps: 764.81553
-  tps: 601.35969
-  dtps: 7.96757
+  dps: 780.45534
+  tps: 614.0076
+  dtps: 7.91407
  }
 }
 dps_results: {
@@ -1332,6 +1332,14 @@ dps_results: {
  value: {
   dps: 844.44942
   tps: 662.81401
+  dtps: 8.61033
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 818.09535
+  tps: 642.4596
   dtps: 8.61033
  }
 }

@@ -16,7 +16,7 @@ func TestSetBonusUnsupportedReadsProcRowsOffTheirListenerAndFiredSpell(t *testin
 		want string // A reason the row has to carry, or "" for none at all.
 	}{
 		{18979, ""},   // Stormshroud Armor 2: 10% on melee hits, 18980's Nature damage
-		{23863, ""},   // Stormshroud Armor 3: 4% on melee hits, 23864's energy
+		{23863, ""},   // Stormshroud Armor 3: 3% on melee hits, 23864's energy
 		{9233, ""},    // Volcanic Armor 3: 10% on melee hits, 9057's Fire damage
 		{1299743, ""}, // Deathbone Guardian 3: 15% when struck, 1299746's spell damage and healing
 		{9142, ""},    // Stormshroud Armor 4: +14 attack power, which the parse reads

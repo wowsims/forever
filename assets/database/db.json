@@ -12277,10 +12277,16 @@
 {"id":1343657,"spellId":1312702,"type":137,"resourceType":1}
 ],
 "setBonusProcRates":[
+{"setId":1,"pieces":4,"rate":{"kind":2,"rate":7.2,"status":3}},
+{"setId":65,"pieces":2,"rate":{"kind":2,"rate":5,"status":2}},
+{"setId":122,"pieces":3,"rate":{"kind":2,"rate":13.9,"status":3}},
+{"setId":123,"pieces":3,"rate":{"kind":2,"rate":10.7,"status":3}},
 {"setId":124,"pieces":3,"rate":{"kind":2,"rate":15,"status":2}},
 {"setId":141,"pieces":3,"rate":{"kind":2,"rate":10,"status":2}},
 {"setId":142,"pieces":2,"rate":{"kind":2,"rate":10,"status":2}},
 {"setId":142,"pieces":3,"rate":{"kind":2,"rate":3,"status":2}},
+{"setId":161,"pieces":4,"rate":{"kind":2,"rate":5,"status":2}},
+{"setId":163,"pieces":4,"rate":{"kind":2,"rate":15,"status":2}},
 {"setId":181,"pieces":5,"rate":{"kind":2,"rate":5,"status":2}},
 {"setId":182,"pieces":5,"rate":{"kind":2,"rate":5,"status":2}},
 {"setId":183,"pieces":5,"rate":{"kind":2,"rate":5,"status":2}},
@@ -12290,6 +12296,8 @@
 {"setId":187,"pieces":5,"rate":{"kind":1,"rate":1,"status":3}},
 {"setId":188,"pieces":5,"rate":{"kind":1,"rate":0.9,"status":3}},
 {"setId":189,"pieces":5,"rate":{"kind":1,"rate":1,"status":1}},
+{"setId":501,"pieces":3,"rate":{"kind":2,"rate":20,"status":2}},
+{"setId":506,"pieces":3,"rate":{"kind":2,"rate":20,"status":2}},
 {"setId":525,"pieces":8,"rate":{"kind":2,"rate":5,"status":2}},
 {"setId":526,"pieces":6,"rate":{"kind":2,"rate":20,"status":2}},
 {"setId":526,"pieces":8,"rate":{"kind":2,"rate":15,"status":2}},
@@ -12302,6 +12310,10 @@
 {"setId":1679,"pieces":4,"rate":{"kind":1,"rate":1,"status":3}},
 {"setId":1681,"pieces":4,"rate":{"kind":2,"rate":5,"status":2}},
 {"setId":1778,"pieces":4,"rate":{"kind":1,"rate":1,"status":1}},
-{"setId":2130,"pieces":3,"rate":{"kind":2,"rate":15,"status":2}}
+{"setId":2071,"pieces":2,"rate":{"kind":2,"rate":10,"status":2}},
+{"setId":2130,"pieces":3,"rate":{"kind":2,"rate":15,"status":2}},
+{"setId":2134,"pieces":4,"rate":{"kind":1,"rate":1,"status":1}},
+{"setId":2134,"pieces":5,"rate":{"kind":1,"rate":0.95,"status":1}},
+{"setId":2136,"pieces":5,"rate":{"kind":1,"rate":1,"status":1}}
 ]
 }

@@ -263,10 +263,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BloodmailRegalia"
  value: {
-  dps: 856.53656
-  tps: 700.15219
+  dps: 861.23485
+  tps: 703.91062
   dtps: 5.57168
-  hps: 24.68772
+  hps: 24.6806
  }
 }
 dps_results: {
@@ -443,10 +443,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DeathboneGuardian"
  value: {
-  dps: 791.39579
-  tps: 647.93457
-  dtps: 6.02315
-  hps: 24.23462
+  dps: 813.80841
+  tps: 666.60551
+  dtps: 6.19568
+  hps: 25.01915
  }
 }
 dps_results: {
@@ -461,10 +461,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 807.66816
-  tps: 660.27037
-  dtps: 5.48611
-  hps: 24.05094
+  dps: 814.70769
+  tps: 665.90199
+  dtps: 5.60432
+  hps: 24.05399
  }
 }
 dps_results: {
@@ -1523,9 +1523,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-NecropileRaiment"
  value: {
-  dps: 825.14908
-  tps: 674.16853
-  dtps: 4.66662
+  dps: 825.58541
+  tps: 674.51059
+  dtps: 4.73748
   hps: 24.18481
  }
 }
@@ -2016,6 +2016,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 884.19842
+  tps: 723.48169
+  dtps: 6.85986
+  hps: 24.67179
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-TheBlackrockSlicer-13285"
  value: {
   dps: 912.64519
@@ -2108,10 +2117,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TheGladiator"
  value: {
-  dps: 807.64705
-  tps: 659.99342
-  dtps: 5.49437
-  hps: 23.4057
+  dps: 818.52069
+  tps: 669.43903
+  dtps: 5.60974
+  hps: 23.66105
  }
 }
 dps_results: {

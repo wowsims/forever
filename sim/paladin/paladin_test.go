@@ -1,12 +1,14 @@
 package paladin_test
 
 import (
+	"math"
 	"testing"
 
 	"github.com/wowsims/forever/sim/common"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/paladin"
 	"github.com/wowsims/forever/sim/paladin/retribution"
@@ -55,11 +57,19 @@ var retributionTalents = "050250002-501-05233011201301351"
 // attacks, on one target.
 func listeningPaladin(t *testing.T) (*core.Simulation, *paladin.Paladin, *core.Unit) {
 	t.Helper()
+	sim, pal, target := paladinWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotNeck: listenerNeck})
+	heard = tally{}
+	return sim, pal, target
+}
+
+// A Retribution paladin who wears the items and nothing else, with no rotation and no auto attacks,
+// on one target.
+func paladinWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulation, *paladin.Paladin, *core.Unit) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for slot := range items {
-		items[slot] = &proto.ItemSpec{}
+		items[slot] = &proto.ItemSpec{Id: worn[proto.ItemSlot(slot)]}
 	}
-	items[proto.ItemSlot_ItemSlotNeck] = &proto.ItemSpec{Id: listenerNeck}
 	player := &proto.Player{
 		Name:          "Paladin",
 		Race:          proto.Race_RaceHuman,
@@ -79,7 +89,6 @@ func listeningPaladin(t *testing.T) (*core.Simulation, *paladin.Paladin, *core.U
 	sim.Reset()
 	pal := sim.Raid.Parties[0].Players[0].(paladin.PaladinAgent).GetPaladin()
 	pal.AutoAttacks.CancelAutoSwing(sim)
-	heard = tally{}
 	return sim, pal, pal.CurrentTarget
 }
 
@@ -122,5 +131,67 @@ func TestJudgementOfCommandRollsAWeaponProcTwice(t *testing.T) {
 				t.Errorf("%d Judgement casts were heard as %+v, want %+v", casts, heard, c.want)
 			}
 		})
+	}
+}
+
+// Battlegear of Eternal Justice's 3-piece bonus restores the mana of its spell 26975 on its row's
+// share of Judgement casts, once a cast at most: the judgement each cast unleashes rolls nothing. A
+// paladin without the set regains none.
+func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
+	gain := spelldata.MustFind(26975).EnergizeEffect().BaseValue()
+	chance := spelldata.MustFind(26135).StatedChance()
+	if gain <= 0 || chance <= 0 {
+		t.Fatalf("the set restores %v mana at a chance of %v, want both above 0", gain, chance)
+	}
+	const casts = 1000
+
+	// How many Judgement casts restored the mana once, and how many more than once. Each cast starts
+	// at half mana and reads the mana a moment after the cast, once a proc's batch window has passed.
+	restores := func(t *testing.T, worn map[proto.ItemSlot]int32) (once, more int) {
+		t.Helper()
+		sim, pal, target := paladinWearing(t, worn)
+		seal := pal.GetSpell(core.ActionID{SpellID: paladin.SealOfCommandRankMap.Highest().ID})
+		if seal == nil {
+			t.Fatal("the paladin has no Seal of Command")
+		}
+		metrics := pal.NewManaMetrics(core.ActionID{SpellID: 1})
+		for range casts {
+			seal.SkipCastAndApplyEffects(sim, target)
+			pal.SpendMana(sim, pal.CurrentMana(), metrics)
+			pal.AddMana(sim, pal.MaxMana()/2, metrics)
+			pal.Judgement.CD.Reset()
+			pal.SetGCDTimer(sim, sim.CurrentTime)
+			if !pal.Judgement.Cast(sim, target) {
+				t.Fatal("Judgement did not cast")
+			}
+			before := pal.CurrentMana()
+			// An empty action at the end of the window keeps the step from running past it.
+			until := sim.CurrentTime + 5*core.SpellBatchWindow
+			sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: until, OnAction: func(*core.Simulation) {}}))
+			for sim.CurrentTime < until && !sim.Step() {
+			}
+			switch regained := pal.CurrentMana() - before; {
+			case regained >= 2*gain-1e-6:
+				more++
+			case regained >= gain-1e-6:
+				once++
+			}
+		}
+		return once, more
+	}
+
+	once, more := restores(t, map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotBack:     21397,
+		proto.ItemSlot_ItemSlotFinger1:  21396,
+		proto.ItemSlot_ItemSlotMainHand: 21395,
+	})
+	if got := float64(once) / casts; math.Abs(got-chance) > 0.05 {
+		t.Errorf("with the set, %v of Judgement casts restored the mana, want about %v", got, chance)
+	}
+	if more != 0 {
+		t.Errorf("with the set, %d Judgement casts restored the mana more than once, want none", more)
+	}
+	if once, more := restores(t, nil); once+more != 0 {
+		t.Errorf("without the set, %d Judgement casts restored the mana, want none", once+more)
 	}
 }

@@ -165,6 +165,14 @@ var AreaBonuses = []AreaBonus{
 		Reason:             "Toy Soldier: 'This effect is doubled in Strongholds and Cities'; no companion row",
 		Source:             "tooltip",
 	},
+	{
+		SpellID:            1321558,
+		Groups:             []int32{9163, 9202},
+		Multiplier:         2,
+		DurationMultiplier: 1,
+		Reason:             "Siphon the Grave (Rotmender's Raiment 4pc): 'Restores twice as much Mana in Haunted and Wasteland areas'; no companion row",
+		Source:             "tooltip",
+	},
 }
 
 // A factor a row deals, restores or procs against some targets, which only its tooltip names ("Deals
@@ -183,6 +191,13 @@ type VersusBonus struct {
 // No CreatureFamily holds Golems or Titan-forged, which the tooltips of 12731, 1302279 and 1294794
 // name, so those rows count Earth Elementals alone.
 var VersusBonuses = []VersusBonus{
+	{
+		SpellID:     1293674,
+		EffectIndex: 0,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:      "Enraging Light (Chain of the Scarlet Crusade 4pc): 'Deals $s1 times as much damage to Undead'",
+		Source:      "tooltip",
+	},
 	{
 		SpellID:     12731,
 		EffectIndex: 1,
@@ -750,6 +765,27 @@ var Spells = []Override{
 		Value:   1,
 		Reason:  "Wildheart Raiment 5-piece, Feralheart Raiment reissue 4-piece: 1 proc per minute on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none and the dummy effect's 5 is no chance",
 		Source:  "observed",
+	},
+	{
+		SpellID: 1324318,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "Violet Sorcerer's Vestments 4-piece: 1 proc per minute on each target a damaging spell lands on, priced on its cast time with instants at 1.5 s; the game files state none",
+		Source:  "EV-0169",
+	},
+	{
+		SpellID: 1324323,
+		Field:   PPM,
+		Value:   0.95,
+		Reason:  "Violet Sorcerer's Vestments 5-piece: 0.95 procs per minute on each target a damaging spell lands on, priced on its cast time with instants at 1.5 s; the game files state none",
+		Source:  "EV-0169",
+	},
+	{
+		SpellID: 1324684,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "Defias Enforcer's Garb 5-piece: 1 proc per minute on landed melee hits of either hand, priced on the weapon that hit; the game files state none",
+		Source:  "EV-0170",
 	},
 	{
 		SpellID: 21978,

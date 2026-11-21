@@ -35973,10 +35973,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1314560, SpellID: 1293673, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 1293675, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1293674, Name: "Enraging Light", School: 1, Attr: [17]uint32{0: 0x400d0, 15: 0x2000}, SpellLevel: 1, ProcChance: 15, ProcFlags: [2]uint32{0: 0x222a8}, ICDMs: 15000, RefIDs: []int32{1293673, 1293675},
+	{ID: 1293674, Name: "Enraging Light", School: 1, Attr: [17]uint32{0: 0x400d0, 15: 0x2000}, SpellLevel: 1, ProcChance: 15, ProcFlags: [2]uint32{0: 0x222a8}, ICDMs: 15000, VersusMobTypes: []int32{8}, RefIDs: []int32{1293673, 1293675},
 		Effects: []Effect{
 			{ID: 1314561, SpellID: 1293674, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 3, PvpMult: 1, TriggerID: 1293673, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: VersusBonus x3 ($s1) against MobTypeUndead -- Enraging Light (Chain of the Scarlet Crusade 4pc): 'Deals $s1 times as much damage to Undead'
 	{ID: 1293675, Name: "Enraged Light", School: 2, Attr: [17]uint32{1: 0x88, 3: 0x50000, 5: 0x800000, 8: 0x1000, 15: 0x2000}, MaxRange: 30, DefenseType: 1,
 		Effects: []Effect{
 			{ID: 1314563, SpellID: 1293675, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 20, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -39168,10 +39168,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1356524, SpellID: 1321323, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SKILL, BasePoints: 30, BaseLevel: 60, PvpMult: 1, Misc: 356, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1321558, Name: "Siphon the Grave", School: 1, Attr: [17]uint32{8: 0x1000, 15: 0x2000}, DurationMs: 10000, DefenseType: 1, DispelType: 1,
+	{ID: 1321558, Name: "Siphon the Grave", School: 1, Attr: [17]uint32{8: 0x1000, 15: 0x2000}, DurationMs: 10000, DefenseType: 1, DispelType: 1, AreaBonusGroups: []int32{9163, 9202}, AreaMultiplier: 2, AreaDurationMultiplier: 1,
 		Effects: []Effect{
 			{ID: 1356873, SpellID: 1321558, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_ENERGIZE, BasePoints: 20, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: AreaBonus x2 (duration x1) in [9163 9202] -- Siphon the Grave (Rotmender's Raiment 4pc): 'Restores twice as much Mana in Haunted and Wasteland areas'; no companion row
 	{ID: 1321560, Name: "Siphon the Grave", School: 1, Attr: [17]uint32{0: 0x1c0, 15: 0x2000}, ProcChance: 100, ProcFlags: [2]uint32{1: 0x4}, ICDMs: 300000, RefIDs: []int32{1321558}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1356876, SpellID: 1321560, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 15, PvpMult: 1, TriggerID: 1321558, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -39313,18 +39313,18 @@ var generatedSpells = []Spell{
 			{ID: 1361128, SpellID: 1324315, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MANA_REGEN_INTERRUPT, BasePoints: 15, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1361129, SpellID: 1324315, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 30, BaseLevel: 60, PvpMult: 1, ChainAmp: 1},
 		}},
-	{ID: 1324318, Name: "Violet Meditation", School: 1, Attr: [17]uint32{0: 0x40, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x11000}, RefIDs: []int32{1324315}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintDamage,
+	{ID: 1324318, Name: "Violet Meditation", School: 1, Attr: [17]uint32{0: 0x40, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x11000}, RPPM: 1, RefIDs: []int32{1324315}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintDamage,
 		Effects: []Effect{
 			{ID: 1361132, SpellID: 1324318, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, TriggerID: 1324315, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: PPM 1 -- Violet Sorcerer's Vestments 4-piece: 1 proc per minute on each target a damaging spell lands on, priced on its cast time with instants at 1.5 s; the game files state none
 	{ID: 1324322, Name: "Summon Arcane Elemental", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 35, MaxLevel: 60, DurationMs: 20000, MaxRange: 10,
 		Effects: []Effect{
 			{ID: 1361139, SpellID: 1324322, Type: dbcenums.E_SUMMON, MaxLevel: 60, PvpMult: 1, RadiusMax: 5, Misc: 277729, Misc2: 6698, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{32, 0}},
 		}},
-	{ID: 1324323, Name: "Summon Arcane Elemental", School: 1, Attr: [17]uint32{0: 0x40, 1: 0x10000000, 15: 0x2000}, SpellLevel: 30, ProcChance: 100, ProcFlags: [2]uint32{0: 0x11000}, ICDMs: 15000, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintDamage,
+	{ID: 1324323, Name: "Summon Arcane Elemental", School: 1, Attr: [17]uint32{0: 0x40, 1: 0x10000000, 15: 0x2000}, SpellLevel: 30, ProcChance: 100, ProcFlags: [2]uint32{0: 0x11000}, ICDMs: 15000, RPPM: 0.95, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintDamage,
 		Effects: []Effect{
 			{ID: 1361140, SpellID: 1324323, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, TriggerID: 1324322, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: PPM 0.95 -- Violet Sorcerer's Vestments 5-piece: 0.95 procs per minute on each target a damaging spell lands on, priced on its cast time with instants at 1.5 s; the game files state none
 	{ID: 1324578, Name: "Resist Fear 02", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true,
 		Effects: []Effect{
 			{ID: 1361449, SpellID: 1324578, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MECHANIC_RESISTANCE, BasePoints: 2, BaseLevel: 60, PvpMult: 1, Misc: 5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -39350,10 +39350,10 @@ var generatedSpells = []Spell{
 			{ID: 1361616, SpellID: 1324683, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_CRIT_PCT, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1361617, SpellID: 1324683, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 4, PvpMult: 1, ChainAmp: 1},
 		}},
-	{ID: 1324684, Name: "Defias Juggernaut", School: 1, Attr: [17]uint32{0: 0x40, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x1014, 1: 0x20}, RefIDs: []int32{1324683}, ProcChanceSource: ProcChanceAlways,
+	{ID: 1324684, Name: "Defias Juggernaut", School: 1, Attr: [17]uint32{0: 0x40, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x1014, 1: 0x20}, RPPM: 1, RefIDs: []int32{1324683}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 1361618, SpellID: 1324684, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 25, PvpMult: 1, TriggerID: 1324683, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: PPM 1 -- Defias Enforcer's Garb 5-piece: 1 proc per minute on landed melee hits of either hand, priced on the weapon that hit; the game files state none
 	{ID: 1324685, Name: "Unearthed Barrier", School: 8, Attr: [17]uint32{15: 0x2000}, SpellLevel: 35, CastTimeMs: 1000, MaxRange: 100, DefenseType: 1,
 		Effects: []Effect{
 			{ID: 1361620, SpellID: 1324685, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 15, Variance: 1.5, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},

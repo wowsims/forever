@@ -220,6 +220,42 @@ const PARTLY_IMPLEMENTED_SET_BONUSES = new Map<number, Map<number, () => string>
 	],
 	[2103, new Map([[3, () => i18n.t('gear_tab.item_notices.partial_set_bonus.battleplate_of_glory_3')]])],
 	[2114, new Map([[4, () => i18n.t('gear_tab.item_notices.partial_set_bonus.grovekeeper_eclipse_4')]])],
+	[2131, new Map([[2, () => i18n.t('gear_tab.item_notices.partial_set_bonus.partners_in_crime_2')]])],
+]);
+
+const UntestedBonus = ({ text }: { text: () => string }) => (
+	<>
+		<p className="mb-0">{i18n.t('gear_tab.item_notices.ingame_validation_needed')}</p>
+		<p className="mb-0">{text()}</p>
+	</>
+);
+
+// Bonuses built on a reading no in-game test has confirmed yet, by set id and piece count.
+const UNTESTED_SET_BONUSES = new Map<number, Map<number, () => string>>([
+	[65, new Map([[2, () => i18n.t('gear_tab.item_notices.untested_set_bonus.spiders_kiss_2')]])],
+	[122, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.necropile_raiment_3')]])],
+	[123, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.bloodmail_regalia_3')]])],
+	[124, new Map([[5, () => i18n.t('gear_tab.item_notices.untested_set_bonus.deathbone_guardian_5')]])],
+	[163, new Map([[4, () => i18n.t('gear_tab.item_notices.untested_set_bonus.chain_of_the_scarlet_crusade_4')]])],
+	[494, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.symbols_of_unending_life_3')]])],
+	[501, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.stormcallers_garb_3')]])],
+	[502, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.gift_of_the_gathering_storm_3')]])],
+	[506, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.battlegear_of_eternal_justice_3')]])],
+	[510, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.trappings_of_the_unseen_path_3')]])],
+	[
+		524,
+		new Map([
+			[4, () => i18n.t('gear_tab.item_notices.untested_set_bonus.bonescythe_armor_4')],
+			[8, () => i18n.t('gear_tab.item_notices.untested_set_bonus.bonescythe_armor_8')],
+		]),
+	],
+	[527, new Map([[8, () => i18n.t('gear_tab.item_notices.untested_set_bonus.the_earthshatterer_8')]])],
+	[2071, new Map([[2, () => i18n.t('gear_tab.item_notices.untested_set_bonus.teachings_of_the_furbolgs_2')]])],
+	[2098, new Map([[5, () => i18n.t('gear_tab.item_notices.untested_set_bonus.manaflare_regalia_5')]])],
+	[2100, new Map([[5, () => i18n.t('gear_tab.item_notices.untested_set_bonus.demonheart_raiment_5')]])],
+	[2133, new Map([[4, () => i18n.t('gear_tab.item_notices.untested_set_bonus.rotmenders_raiment_4')]])],
+	[2134, new Map([[5, () => i18n.t('gear_tab.item_notices.untested_set_bonus.violet_sorcerers_vestments_5')]])],
+	[2136, new Map([[5, () => i18n.t('gear_tab.item_notices.untested_set_bonus.defias_enforcers_garb_5')]])],
 ]);
 
 const addSetBonusNotices = <T,>(
@@ -254,11 +290,12 @@ export const registerSetBonusNotices = (db: Database) => {
 		rates.set(setId, (rates.get(setId) ?? new Map<number, ProcRate>()).set(pieces, rate));
 	}
 
-	// By set id, then by piece count: what each bonus leaves out, a missing effect, a partial one or an
-	// unvalidated rate, in that order.
+	// By set id, then by piece count: what each bonus leaves out, a missing effect, a partial one, an
+	// untested reading or an unvalidated rate, in that order.
 	const setBonusNotices = new Map<number, Map<number, ReactNode[]>>();
 	addSetBonusNotices(setBonusNotices, MISSING_SET_BONUSES, tooltips => <NotYetImplementedBonus tooltips={tooltips} />);
 	addSetBonusNotices(setBonusNotices, PARTLY_IMPLEMENTED_SET_BONUSES, text => <PartlyImplementedBonus text={text} />);
+	addSetBonusNotices(setBonusNotices, UNTESTED_SET_BONUSES, text => <UntestedBonus text={text} />);
 	addSetBonusNotices(setBonusNotices, unvalidatedRates, rate => <UnvalidatedRateText rate={rate} />);
 
 	knownRates.forEach((setRates, setID) => {

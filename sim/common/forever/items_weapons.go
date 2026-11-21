@@ -500,8 +500,8 @@ func init() {
 	//
 	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell that
 	// pays mana spends its one charge. A free cast keeps it, and so does one the reduction itself
-	// brings to 0. The listener is hand-written: the row's proc flag, cast successful, decodes to no
-	// listener, and spelldata.AttachChargeSpender on cast complete would spend the charge on Shoot.
+	// brings to 0. The listener is hand-written: spelldata.AttachChargeSpender on cast complete would
+	// spend the charge on Shoot.
 	newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
 		if !character.HasManaBar() {
 			return

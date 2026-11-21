@@ -3,6 +3,7 @@ package rogue
 import (
 	"math"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/common"
 	_ "github.com/wowsims/forever/sim/common" // imported to get item effects included.
@@ -173,10 +174,10 @@ func newTwoTargetSim(talents string) (*core.Simulation, *Rogue) {
 	return sim, sim.Raid.Parties[0].Players[0].(*Rogue)
 }
 
-// Runs the sim strictly past one spell batch, so every deferred proc due in it has fired whatever the
-// order of actions at the same time.
-func stepPastBatch(sim *core.Simulation) {
-	at := sim.CurrentTime + core.SpellBatchWindow
+// Runs the sim for wait and strictly past one spell batch after it, so every deferred proc due in it has
+// fired whatever the order of actions at the same time.
+func stepPastBatch(sim *core.Simulation, wait time.Duration) {
+	at := sim.CurrentTime + wait + core.SpellBatchWindow
 	for sim.CurrentTime <= at {
 		sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
 		sim.Step()
@@ -194,20 +195,20 @@ func TestRemorselessAttacksCritsTheStrikeAfterAKill(t *testing.T) {
 	bonus := spellData.RemorselessAttacks.Rank(1).EffectN(1).BaseValue()
 
 	dying.Die(sim, 0)
-	stepPastBatch(sim)
+	stepPastBatch(sim, 0)
 	if buff.IsActive() {
 		t.Error("a death with no kill credit put up Remorseless")
 	}
 
 	dying.Enable(sim)
 	dying.Die(sim, 1)
-	stepPastBatch(sim)
+	stepPastBatch(sim, 0)
 	if got := strike.BonusCritPercent - base; !buff.IsActive() || math.Abs(got-bonus) > 1e-9 {
 		t.Fatalf("after a killing blow Remorseless is up %v and adds %v crit to Sinister Strike, want up and %v", buff.IsActive(), got, bonus)
 	}
 
 	strike.SkipCastAndApplyEffects(sim, other)
-	stepPastBatch(sim)
+	stepPastBatch(sim, 0)
 	if buff.IsActive() || strike.BonusCritPercent != base {
 		t.Errorf("after Sinister Strike Remorseless is up %v at %v crit, want gone and %v", buff.IsActive(), strike.BonusCritPercent, base)
 	}
@@ -751,4 +752,177 @@ func TestDeathMarkStoresAndPaysOut(t *testing.T) {
 			}
 		})
 	}
+}
+
+// A reset sim of one untalented rogue with no rotation wearing the items, against one target that neither dodges nor is missed.
+func newRogueWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulation, *Rogue, *core.Unit) {
+	t.Helper()
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	for slot, id := range worn {
+		items[slot].Id = id
+	}
+	player := &proto.Player{
+		Name:      "Rogue",
+		Race:      proto.Race_RaceHuman,
+		Class:     proto.Class_ClassRogue,
+		Equipment: &proto.EquipmentSpec{Items: items},
+		Spec:      DefaultOptions,
+		Rotation:  &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
+	target := sim.Encounter.AllTargetUnits[0]
+	rogue.AutoAttacks.CancelAutoSwing(sim)
+	target.PseudoStats.BaseDodgeChance = 0
+	rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	return sim, rogue, target
+}
+
+// Bonescythe Armor's 4-piece bonus: a crit of Sinister Strike or Backstab regains the energy of the spell its row
+// casts, while a Sinister Strike that does not crit and a crit of Shank, which the row's class flags also name, regain
+// none.
+func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
+	sim, rogue, target := newRogueWearing(t, map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead:     22478, // Bonescythe Helmet
+		proto.ItemSlot_ItemSlotShoulder: 22479, // Bonescythe Pauldrons
+		proto.ItemSlot_ItemSlotChest:    22476, // Bonescythe Breastplate
+		proto.ItemSlot_ItemSlotLegs:     22477, // Bonescythe Legplates
+		proto.ItemSlot_ItemSlotMainHand: 2632,  // Curved Dagger
+		proto.ItemSlot_ItemSlotOffHand:  18392, // Distracting Dagger
+	})
+
+	energy := bonescytheHeadRush.FiredSpell()
+	perProc := energy.EnergizeEffect().BaseValue()
+	regained := func() *proto.ResourceMetrics {
+		for _, r := range rogue.Metrics.ToProto().Resources {
+			if r.Id.GetSpellId() == energy.ID && r.Type == proto.ResourceType_ResourceTypeEnergy {
+				return r
+			}
+		}
+		return &proto.ResourceMetrics{}
+	}
+
+	// Strikes once and runs the sim past the row's cooldown and the spell batch window, so the next strike can proc.
+	strike := func(spell *core.Spell) (crit bool, procs int32) {
+		t.Helper()
+		crits, before := spell.SpellMetrics[target.UnitIndex].Crits, regained().Events
+		spell.SkipCastAndApplyEffects(sim, target)
+		stepPastBatch(sim, bonescytheHeadRush.ICD())
+		return spell.SpellMetrics[target.UnitIndex].Crits > crits, regained().Events - before
+	}
+
+	backstab := rogue.GetSpell(core.ActionID{SpellID: backstabBookRank.ID})
+	rogue.AddStatDynamic(sim, stats.PhysicalCritPercent, 200)
+	for _, c := range []struct {
+		name  string
+		spell *core.Spell
+		want  int32
+	}{
+		{"Sinister Strike", rogue.SinisterStrike, 1},
+		{"Backstab", backstab, 1},
+		{"Shank", rogue.Shank, 0},
+	} {
+		crit, procs := strike(c.spell)
+		if !crit {
+			t.Fatalf("%s did not crit at +200%% crit", c.name)
+		}
+		if procs != c.want {
+			t.Errorf("a %s crit regained energy %d times, want %d", c.name, procs, c.want)
+		}
+	}
+
+	rogue.AddStatDynamic(sim, stats.PhysicalCritPercent, -400)
+	if crit, procs := strike(rogue.SinisterStrike); crit || procs != 0 {
+		t.Errorf("a Sinister Strike at -200%% crit crit %v and regained energy %d times, want no crit and none", crit, procs)
+	}
+
+	if got := regained(); got.Gain != float64(got.Events)*perProc {
+		t.Errorf("the 4-piece regained %v energy over %d procs, want the row's %v each", got.Gain, got.Events, perProc)
+	}
+}
+
+// Bonescythe Armor's 8-piece bonus: a landed Eviscerate grants Revealed Flaw 28815 at 28814's chance per combo point
+// it spent, and never at none. Its charge raises the crit of Sinister Strike and Backstab by 28815's percent and
+// leaves Shank's, which the row's class flags also name, alone; a Sinister Strike crit spends it. 28815's cooldown
+// does not hold a second grant back.
+func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
+	sim, rogue, target := newRogueWearing(t, map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead:     22478, // Bonescythe Helmet
+		proto.ItemSlot_ItemSlotShoulder: 22479, // Bonescythe Pauldrons
+		proto.ItemSlot_ItemSlotChest:    22476, // Bonescythe Breastplate
+		proto.ItemSlot_ItemSlotLegs:     22477, // Bonescythe Legplates
+		proto.ItemSlot_ItemSlotFeet:     22480, // Bonescythe Sabatons
+		proto.ItemSlot_ItemSlotHands:    22481, // Bonescythe Gauntlets
+		proto.ItemSlot_ItemSlotWaist:    22482, // Bonescythe Waistguard
+		proto.ItemSlot_ItemSlotWrist:    22483, // Bonescythe Bracers
+		proto.ItemSlot_ItemSlotMainHand: 2632,  // Curved Dagger
+		proto.ItemSlot_ItemSlotOffHand:  18392, // Distracting Dagger
+	})
+
+	buff := rogue.GetAuraByID(core.ActionID{SpellID: revealedFlaw.ID})
+	if buff == nil || bonescytheFlaw.EffectN(1).PointsPerResource <= 0 {
+		t.Fatal("eight pieces register no 28815, or 28814 states no chance per combo point")
+	}
+	eviscerate := rogue.GetSpell(core.ActionID{SpellID: eviscerateBookRank.ID})
+	eviscerateWith := func(points int32) {
+		t.Helper()
+		if points > 0 {
+			rogue.AddComboPoints(sim, target, points, eviscerate.ComboPointMetrics())
+		}
+		eviscerate.SkipCastAndApplyEffects(sim, target)
+		stepPastBatch(sim, 0)
+	}
+	grant := func() {
+		t.Helper()
+		for tries := 0; !buff.IsActive(); tries++ {
+			if tries > 200 {
+				t.Fatal("200 Eviscerates at 5 combo points granted no Revealed Flaw")
+			}
+			eviscerateWith(5)
+		}
+	}
+
+	for range 200 {
+		eviscerateWith(0)
+	}
+	if buff.IsActive() {
+		t.Fatal("Eviscerates at no combo points granted Revealed Flaw, want none")
+	}
+
+	backstab := rogue.GetSpell(core.ActionID{SpellID: backstabBookRank.ID})
+	strikes := []*core.Spell{rogue.SinisterStrike, backstab, rogue.Shank}
+	before := make([]float64, len(strikes))
+	for i, spell := range strikes {
+		before[i] = spell.BonusCritPercent
+	}
+	grant()
+	if buff.GetStacks() != 1 {
+		t.Errorf("Revealed Flaw holds %d charges, want the row's 1", buff.GetStacks())
+	}
+	bonus := revealedFlaw.EffectN(1).BaseValue()
+	for i, want := range []float64{bonus, bonus, 0} {
+		if got := strikes[i].BonusCritPercent - before[i]; got != want {
+			t.Errorf("Revealed Flaw raises %v's crit by %v%%, want %v%%", strikes[i].ActionID, got, want)
+		}
+	}
+
+	// The rogue's own crit covers what the target's level takes off the charge's 100%.
+	rogue.AddStatDynamic(sim, stats.PhysicalCritPercent, 10)
+	crits := rogue.SinisterStrike.SpellMetrics[target.UnitIndex].Crits
+	rogue.SinisterStrike.SkipCastAndApplyEffects(sim, target)
+	stepPastBatch(sim, 0)
+	if rogue.SinisterStrike.SpellMetrics[target.UnitIndex].Crits == crits || buff.IsActive() {
+		t.Fatal("a Sinister Strike under Revealed Flaw did not crit and spend the charge")
+	}
+
+	// 28815's cooldown does not hold the next grant back.
+	grant()
 }

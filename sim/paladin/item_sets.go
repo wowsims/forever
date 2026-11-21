@@ -3,6 +3,7 @@ package paladin
 import (
 	"time"
 
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -117,6 +118,39 @@ var ItemSetJusticeBattleplate = core.NewItemSet(core.ItemSet{
 			// Reduces the duration of Forbearance any time you gain it by 10 sec.
 			agent.(PaladinAgent).GetPaladin().forbearanceReduction += time.Second * 10
 			setBonusAura.ExposeToAPL(1301697)
+		},
+	},
+})
+
+// Ruins of Ahn'Qiraj
+// https://www.wowhead.com/forever/item-set=506/battlegear-of-eternal-justice
+var ItemSetBattlegearOfEternalJustice = core.NewItemSet(core.ItemSet{
+	ID:   506,
+	Name: "Battlegear of Eternal Justice",
+	Slots: []proto.ItemSlot{
+		proto.ItemSlot_ItemSlotBack,
+		proto.ItemSlot_ItemSlotFinger1,
+		proto.ItemSlot_ItemSlotFinger2,
+		proto.ItemSlot_ItemSlotMainHand,
+	},
+	Bonuses: map[int32]core.ApplySetBonus{
+		3: func(agent core.Agent, setBonusAura *core.Aura) {
+			// 20% chance to regain 100 mana when you cast a Judgement.
+			//
+			// 26135 hears every harmful spell cast and names none of the paladin's spells, so the
+			// listener keeps to Judgement's own cast. The judgement it unleashes rolls nothing.
+			// TODO: Ingame test needed -- whether a Swift Judgement cast rolls it too.
+			character := agent.GetCharacter()
+			row := spelldata.MustFind(26135)
+			trigger := spelldata.ProcTrigger(character, row, nil)
+			trigger.Handler = shared.FiredSpellHandler(character, trigger.ActionID, row)
+			trigger.Name = "Battlegear of Eternal Justice - 3PC"
+			// Judgement's cast carries no proc mask.
+			trigger.ProcMask = core.ProcMaskUnknown
+			trigger.ClassSpellMask = SpellMaskJudgement
+
+			setBonusAura.AttachProcTrigger(trigger)
+			setBonusAura.ExposeToAPL(row.ID)
 		},
 	},
 })

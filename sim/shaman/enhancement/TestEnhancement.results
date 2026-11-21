@@ -209,10 +209,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-BloodmailRegalia"
  value: {
-  dps: 914.04571
-  tps: 668.79075
-  dtps: 6.80373
-  hps: 20.55361
+  dps: 923.03201
+  tps: 674.78189
+  dtps: 6.17508
+  hps: 20.51972
  }
 }
 dps_results: {
@@ -398,9 +398,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 882.50566
-  tps: 648.0413
-  dtps: 8.71939
+  dps: 890.06866
+  tps: 653.36128
+  dtps: 8.84194
   hps: 20.8925
  }
 }
@@ -1208,8 +1208,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-NecropileRaiment"
  value: {
-  dps: 885.029
-  tps: 648.06705
+  dps: 886.03
+  tps: 648.70977
   dtps: 6.62105
   hps: 20.48583
  }
@@ -1451,8 +1451,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Stormcaller'sGarb"
  value: {
-  dps: 950.7962
-  tps: 693.14937
+  dps: 952.55471
+  tps: 694.38033
   dtps: 5.53028
   hps: 20.26556
  }
@@ -1557,6 +1557,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 960.79834
+  tps: 702.51821
+  dtps: 8.01538
+  hps: 20.96028
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 960.79834
@@ -1640,10 +1649,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheGladiator"
  value: {
-  dps: 881.64563
-  tps: 647.03931
-  dtps: 8.20465
-  hps: 20.41806
+  dps: 896.29796
+  tps: 657.3872
+  dtps: 8.16133
+  hps: 20.79083
  }
 }
 dps_results: {

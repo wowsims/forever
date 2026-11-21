@@ -497,10 +497,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 573.46783
-  tps: 496.47947
+  dps: 580.62854
+  tps: 502.87
   dtps: 2.89629
-  hps: 45.39417
+  hps: 45.25861
  }
 }
 dps_results: {
@@ -1543,7 +1543,7 @@ dps_results: {
  value: {
   dps: 506.68901
   tps: 440.76854
-  dtps: 3.05866
+  dtps: 3.08946
   hps: 43.54722
  }
 }
@@ -1872,6 +1872,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Spider'sKiss"
+ value: {
+  dps: 509.60975
+  tps: 445.79525
+  dtps: 2.94293
+  hps: 47.80028
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Stoneshatter-18388"
  value: {
   dps: 526.69981
@@ -2013,6 +2022,15 @@ dps_results: {
   tps: 433.69294
   dtps: 2.97628
   hps: 22.94278
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 530.2387
+  tps: 458.58629
+  dtps: 2.94293
+  hps: 43.27611
  }
 }
 dps_results: {
