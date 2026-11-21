@@ -6,6 +6,7 @@ import { Stats } from '@sim/proto/stats';
 
 import DefaultApl from './apls/default.apl.siml';
 import HolyShockApl from './apls/holy_shock.apl.siml';
+import UwSorSofApl from './apls/uw_sor_sof.apl.siml';
 import HolyShockBuildJson from './builds/holy_shock.siml';
 import UnsealedWrathBuildJson from './builds/unsealed_wrath.siml';
 import DefaultsJson from './defaults.siml';
@@ -18,6 +19,7 @@ export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecRetributio
 
 export const HolyShockAplPreset = PresetUtils.makePresetAPLRotation('Holy Shock', HolyShockApl);
 export const DefaultAplPreset = PresetUtils.makePresetAPLRotation('Default', DefaultApl);
+export const UwSorSofAplPreset = PresetUtils.makePresetAPLRotation('Unsealed Wrath SoR/SoF', UwSorSofApl);
 
 export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecRetributionPaladin, Defaults.simpleRotation!);
 

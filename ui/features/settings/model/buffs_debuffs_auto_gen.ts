@@ -90,11 +90,7 @@ export const StoneskinTotem = makeTristatePartyBuffInput({
 	label: 'Stoneskin Totem',
 });
 
-export const Darkspear = makeBooleanPartyBuffInput({
-	actionId: ActionId.fromSpellId(16939),
-	fieldName: 'darkspear',
-	label: 'Darkspear',
-});
+// darkspear: Darkspear 12802 is not in the game, so the hand-written input shows only while a saved setting picks it.
 
 export const AdmiralsHat = makeBooleanPartyBuffInput({
 	actionId: ActionId.fromSpellId(12022),
@@ -107,6 +103,12 @@ export const DarkInspiration = makeMultistatePartyBuffInput({
 	numStates: 6,
 	fieldName: 'darkInspiration',
 	label: 'Dark Inspiration',
+});
+
+export const HeadmastersCharge = makeBooleanPartyBuffInput({
+	actionId: ActionId.fromItemId(13937),
+	fieldName: 'headmastersCharge',
+	label: "Headmaster's Charge",
 });
 
 export const ArcaneIntellect = makeBooleanRaidBuffInput({
@@ -578,10 +580,6 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 		ownerClass: Class.ClassShaman,
 	},
 	{
-		config: Darkspear,
-		stats: [Stat.StatCritRating],
-	},
-	{
 		config: AdmiralsHat,
 		stats: [Stat.StatStamina],
 	},
@@ -589,6 +587,10 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 		config: DarkInspiration,
 		stats: [Stat.StatSpirit],
 		ownerClass: Class.ClassPriest,
+	},
+	{
+		config: HeadmastersCharge,
+		stats: [Stat.StatIntellect],
 	},
 ];
 

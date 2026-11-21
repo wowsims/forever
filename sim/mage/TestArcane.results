@@ -720,6 +720,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 861.22532
+  tps: 739.5117
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 862.6867

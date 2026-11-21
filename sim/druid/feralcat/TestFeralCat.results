@@ -958,6 +958,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 739.77903
+  tps: 551.32412
+  hps: 46.15667
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 812.137

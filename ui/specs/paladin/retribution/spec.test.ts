@@ -1,19 +1,28 @@
 import { APLGroup, APLRotation } from '@generated/proto/apl';
 import { Cooldowns, Spec } from '@generated/proto/common';
-import { PaladinAura, PaladinJudgement, RetributionPaladin_Rotation } from '@generated/proto/paladin';
+import { PaladinAura, PaladinJudgement, PaladinSealTwist, RetributionPaladin_Rotation } from '@generated/proto/paladin';
 import type { Player } from '@sim/player/player';
 import { describe, expect, it } from 'vitest';
 
 import DefaultApl from './apls/default.apl.siml';
 import HolyShockApl from './apls/holy_shock.apl.siml';
+import UwSorSofApl from './apls/uw_sor_sof.apl.siml';
 import { Defaults } from './presets';
 import spec from './spec';
 
-// The generator reads nothing from the player but the Holy Shock talent.
-const player = (holyShock: boolean) => ({ getTalents: () => ({ holyShock }) }) as unknown as Player<Spec.SpecRetributionPaladin>;
+type Talents = { holyShock?: boolean; unsealedWrath?: boolean; sealOfCommand?: boolean };
+
+// The generator reads nothing from the player but these talents.
+const player = (talents: Talents) =>
+	({ getTalents: () => ({ holyShock: false, unsealedWrath: false, sealOfCommand: false, ...talents }) }) as unknown as Player<Spec.SpecRetributionPaladin>;
+
+const generateWith = (talents: Talents, simple: Partial<RetributionPaladin_Rotation>, cooldowns = Cooldowns.create()) =>
+	spec.simpleRotation!(player(talents), RetributionPaladin_Rotation.create({ ...Defaults.simpleRotation, ...simple }), cooldowns);
 
 const generate = (simple: Partial<RetributionPaladin_Rotation>, holyShock = false, cooldowns = Cooldowns.create()) =>
-	spec.simpleRotation!(player(holyShock), RetributionPaladin_Rotation.create({ ...Defaults.simpleRotation, ...simple }), cooldowns);
+	generateWith({ holyShock }, simple, cooldowns);
+
+const groupNames = (apl: { groups: Array<{ name: string }> }) => apl.groups.map(g => g.name);
 
 const variable = (rotation: APLRotation, name: string) => {
 	const value = rotation.valueVariables.find(v => v.name === name)?.value?.value;
@@ -71,6 +80,45 @@ describe('Retribution simple rotation', () => {
 		[30, '30'],
 	])('sets Pull range from a starting range of %i to %s', (pullRange, expected) => {
 		expect(variable(generate({ pullRange }), 'Pull range')).toBe(expected);
+	});
+
+	it.each([[{ unsealedWrath: true, sealOfCommand: true }], [{ unsealedWrath: true, sealOfCommand: false }]])(
+		'builds on the Seal of Fury twist APL when Unsealed Wrath twists Seal of Fury, with talents %o',
+		talents => {
+			const rotation = generateWith(talents, { uwTwist: PaladinSealTwist.SealTwistFury });
+			expect(groupNames(rotation)).toEqual(groupNames(UwSorSofApl));
+		},
+	);
+
+	it.each([
+		['Seal of Command is twisted', { unsealedWrath: true, sealOfCommand: true }, PaladinSealTwist.SealTwistCommand, DefaultApl],
+		['no twist is picked', { unsealedWrath: true, sealOfCommand: true }, PaladinSealTwist.SealTwistUnknown, DefaultApl],
+		['Unsealed Wrath is not talented', { sealOfCommand: true }, PaladinSealTwist.SealTwistFury, DefaultApl],
+		['Holy Shock is talented', { holyShock: true, unsealedWrath: true }, PaladinSealTwist.SealTwistFury, HolyShockApl],
+	])("keeps the talents' APL when %s", (_, talents, uwTwist, apl) => {
+		expect(groupNames(generateWith(talents, { uwTwist }))).toEqual(groupNames(apl));
+	});
+
+	it("sets the Seal of Fury twist's Echo stacks, and its own defaults where none is set", () => {
+		const talents = { unsealedWrath: true, sealOfCommand: true };
+		const set = generateWith(talents, { uwTwist: PaladinSealTwist.SealTwistFury, uwSofStacks: 2, uwSorStacks: 2 });
+		expect(variable(set, 'Max Seal of Fury Stacks')).toBe('2');
+		expect(variable(set, 'Max Seal of Righteousness Stacks')).toBe('2');
+
+		const unset = generateWith(talents, { uwTwist: PaladinSealTwist.SealTwistFury, uwSofStacks: 0, uwSorStacks: 0 });
+		expect(variable(unset, 'Max Seal of Fury Stacks')).toBe('1');
+		expect(variable(unset, 'Max Seal of Righteousness Stacks')).toBe('3');
+	});
+
+	it("sets the Seal of Command twist's Echo stacks, and its own defaults where none is set", () => {
+		const talents = { unsealedWrath: true, sealOfCommand: true };
+		const set = generateWith(talents, { uwSocStacks: 2, uwSorStacks: 3 });
+		expect(variable(set, 'Max Seal of Command Stacks')).toBe('2');
+		expect(variable(set, 'Max Seal of Righteousness Stacks')).toBe('3');
+
+		const unset = generateWith(talents, { uwSocStacks: 0, uwSorStacks: 0 });
+		expect(variable(unset, 'Max Seal of Command Stacks')).toBe('3');
+		expect(variable(unset, 'Max Seal of Righteousness Stacks')).toBe('1');
 	});
 
 	it('sets Delay Major CDs in seconds', () => {

@@ -96,6 +96,13 @@ enum PaladinSeal {
 	SealOfRighteousness = 2;
 }
 
+// The seal the simple rotation twists with Seal of Righteousness under Unsealed Wrath.
+enum PaladinSealTwist {
+	SealTwistUnknown = 0; // Seal of Command when it is talented, and no twist without it.
+	SealTwistCommand = 1;
+	SealTwistFury    = 2; // Judgement is not cast under Seal of Fury, since Judgement of Fury taunts.
+}
+
 message RetributionPaladin {
 	message Rotation {
 		PaladinAura aura                    = 1;
@@ -104,7 +111,9 @@ message RetributionPaladin {
 		int32 pull_range                    = 4; // Where the paladin stands at the pull, in yards. 0 is 25 yd, and below 11 is 11.
 		int32 delay_major_cds               = 5; // Seconds into the fight before the other cooldowns are cast.
 		int32 uw_soc_stacks					= 6; // Amount of stacks of Echo of Command to pool before swapping to Seal of Righteousness
-		int32 uw_sor_stacks					= 7; // Amount of stacks of Echo of Righteousness to pool before swapping to Seal of Command
+		int32 uw_sor_stacks					= 7; // Amount of stacks of Echo of Righteousness to pool before swapping to the twisted seal
+		PaladinSealTwist uw_twist           = 8; // The seal twisted with Seal of Righteousness under Unsealed Wrath
+		int32 uw_sof_stacks                 = 9; // Amount of stacks of Echo of Fury to pool before swapping to Seal of Righteousness
 	}
 
 	message Options {

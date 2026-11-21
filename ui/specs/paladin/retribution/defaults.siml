@@ -10,6 +10,7 @@ simple:
   pull_range 25
   uw_soc_stacks 3
   uw_sor_stacks 1
+  uw_sof_stacks 1
 
 encounter:
   duration 180
