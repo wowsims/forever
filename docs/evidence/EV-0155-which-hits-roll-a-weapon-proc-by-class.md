@@ -118,7 +118,7 @@ off-hand weapon and 1.94 [1.73, 2.16] dual wielding, Mocking Blow at 0.97 [0.66,
 ## After hotfix push 114313
 
 Hotfix push 114313 sets Suppress Weapon Procs on Execute's cast rows 5308, 20658, 20660, 20661 and 20662, takes Suppress
-Caster Procs off them, and sets Suppress Weapon Procs on Judgement 20271. It changes no Judgement of Command row.
+Caster Procs off them, and sets Suppress Weapon Procs on Judgement 20271 and on Mutilate's cast rows 399956, 1241582 and 1241584. It changes no Judgement of Command row and no Mutilate strike row.
 
 - Game build: 1.60.1.71037. The push is missing from the game files' hotfix cache of 2026-11-20 22:16 UTC and present
   in the one of 23:47 UTC. Report 8vY4qHxyMNWd36aK, one warrior's log with no gap, shows the switch between 23:35:49
@@ -165,6 +165,34 @@ about 1.81:
 Every rank's cast rolls the totem again after the push, an avoided Execute included; leaving out one warrior at a time
 keeps ranks 1–4 at 1.60 to 1.74. Shield Slam and Shield Bash drew no strike on 2026-11-20 on either side, so the
 reference leaves them out.
+
+Mutilate, rogues with a dagger in each hand, 2026-11-14 to 2026-11-20 22:15 UTC before the push and 23:47 UTC to
+2026-11-21 08:49 UTC after it. A unit is one Mutilate's main-hand and off-hand strike, both landed, with no other hit or
+debuff of the rogue on that target within 100 ms and no killing blow. Each poison is put on the hand whose white swings
+roll it for that rogue, and the reference is the same rogue's lone white swing of that hand in the same period. Two rolls
+read about 1.67 for Instant Poison, 1.6 for Deadly Poison and 1.9 for weapon procs; a refreshed Deadly Poison stack at
+its maximum often logs nothing.
+
+| Mutilate unit, hand       | Period | Rogues |  Units | With a proc | One roll would give | Ratio [95%]       | Reading   |
+| ------------------------- | ------ | -----: | -----: | ----------: | ------------------: | ----------------- | --------- |
+| Instant Poison, main hand | before |     90 | 14,713 |       7,843 |               4,680 | 1.68 [1.63, 1.72] | two rolls |
+| Instant Poison, main hand | after  |     22 |  3,290 |       1,087 |               1,052 | 1.03 [1.00, 1.07] | one roll  |
+| Deadly Poison, main hand  | before |     33 |  4,898 |       3,030 |               1,908 | 1.59 [1.53, 1.65] | two rolls |
+| Deadly Poison, main hand  | after  |      2 |    249 |         109 |                91.3 | 1.19 [0.98, 1.44] | thin      |
+| Deadly Poison, off hand   | before |     93 | 15,164 |       6,487 |               6,210 | 1.04 [1.02, 1.07] | one roll  |
+| Deadly Poison, off hand   | after  |     22 |  3,166 |       1,320 |               1,293 | 1.02 [0.98, 1.07] | one roll  |
+| Weapon procs, main hand   | before |      9 |  1,107 |         115 |                49.0 | 2.35 [1.96, 3.03] | two rolls |
+| Weapon procs, main hand   | after  |      1 |     85 |           5 |                 6.1 | 0.82 [0.27, 1.92] | thin      |
+| Weapon procs, off hand    | before |      9 |  1,119 |          57 |                54.9 | 1.04 [0.59, 1.57] | one roll  |
+| Weapon procs, off hand    | after  |      2 |    434 |          31 |                29.7 | 1.04 [0.71, 1.48] | one roll  |
+
+The 5 rogues with main-hand Instant Poison on both sides read 1.58 [1.45, 1.79] before the push and 1.05 [0.98, 1.08]
+after it. Windfury Totem off a landed Mutilate, against the same rogue's other main-hand specials and Eviscerate, reads
+one roll on both sides: 1.16 [1.04, 1.28] on 83 rogues before and 0.94 [0.79, 1.13] on 15 after, where two rolls read
+about 1.8. A dodged, parried or missed Mutilate cast is followed by no strike, 0 of 925 before and 0 of 136 after, so
+the cast never rolls the totem. Mutilate's reports are in `codes_mut_before.txt` (188), `codes_mut_after.txt` (29),
+`codes_mutwf_before.txt` (121) and `codes_mutwf_after.txt` (24); its scripts are `mut.py`, `mut_report.py`
+(`mut_out.md`) and `totem_mut.py` (`totem_out_mutwf.md`).
 
 Reports after the push, Judgement of Command: 1RYWd3fA9tJMPL6G, 1wbzNyLhKQvMGTtm, 28AFzYhbjwZGqx1T, 2d69FD7QXBaVmNtH, 38jkDhQAVGYvpwqc, 3rVjZ4gfbQm12Y6F, 4VdfDNBWZvk8pJnH, 6YqkW3zmJLKNBMnj, 8Dd1whVHJcm4XnRx, 9AVbQBj3Ckq12cTL, APjaWhT6kfvRxZb8, AbBcj4dL7yXVzCft, BtJP21rynT4kQY7C, D1RGNCTjcJxvYd6a, G3TNcd2vzx89a7fj, GHn7VRAP9mjLDTc1, Gm4f9LFAZrWzTJdC, GvBdKFbyLQnH76Jz, HhpZmgKMfXjzWwrk, JdVwfvqRHcxyaF14, Lh87FKNJvRX6Ccpf, MPWQdq86nXbwk7tR, NKHzt9GyVJMd7x3j, NWVCbLJK3taTmkfQ, NxKhn6PDpmg8WF4G, PKVJGwaRHz1qfYZx, PT7AtvXWkrQgLCpn, PqFpXZx4NQ2Mm81v, RphZTjABx9cYDwJF, T9fhDpRaFzGHP4By, VKPvXq7kJwcZGW6L, W9nck8JraRvxBDF4, WBXnyNJ46VYjA2Qm, X93jK7N6aALMpWnD, YB93KnL7VMdtJWH4, YCrzxNT1hWZJQvBL, YdzQHMp4GhrJ2A7n, Z48VBnhdrxPTMYyz, Z8Fx4J1c6htrT7fq, ZC73QxMhdPrpTavb, aV4L8grZWvDRz3MF, bHkgvJcQaRpXYB3y, cj32G8gw9pvAZdxk, hMadZHPw4cA6XLJW, jAdhbnXrCDJfvmQF, jFxXVgMTftpPGDQw, jNLqmbwFYt16JT3v, k96y3KTD4qtpLNrC, ktRfG63rXBLdPcpA, mHFdMA8zXTaxLDyP, mQv7YCGNHwkAMJ6d, mprAaDbTyH7Pvj9R, nrNzAVCtHKfPXdpk, pA1nYfC3BF7vDxJL, pMGyN9hFa8XRAHxV, prw16bXnmtg8cLya, q167YKJGNhjpZcCz, rMkqF3LHcbPvZNwt, rqc2pdNPg4Xyh3nt, wf3Vdy7DxXYgKhMv, wrKpnNaxqj2ydFAM, yRK2MZNanDbAdq1Q, z1dHvNPABL9Kba8J, zCMpYhkZQt7PKanf, zLFgy8AV3JxbHh4w. Execute's weapon procs: 1RYWd3fA9tJMPL6G, 3ygCHfWnAqdmRbrF, 9HCnBrxmMAz8tvjW, DLApcY8P6y2xWqRh, FbhmQgZj9TH7f84t, HaqMK2rTjDn6AY1C, NTbRAz19k3DMZ7Ka, TwYLbd7Fj9NxgRMv, dbXaAxv1cTVMh49j, fmR1tDMXHzTpjPJw, k4v2tVp6gcJRw8fW. The totem
 rows name 126 reports after the push, in `codes_post_totem_r2.txt`; fights are not listed.
