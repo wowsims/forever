@@ -2234,8 +2234,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-SwordofZeal-6622"
  value: {
-  dps: 806.12228
-  tps: 828.21846
+  dps: 806.38843
+  tps: 828.48461
   dtps: 9.01314
   hps: 14.65694
  }
