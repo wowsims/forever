@@ -76,7 +76,7 @@ func (s *Spell) NotAProc() bool {
 	return s.HasAttributeAt(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_NOT_A_PROC)
 }
 
-// Reports whether weapon procs ignore this spell's hits. Emitted as SpellFlagSuppressWeaponProcs.
+// Reports whether weapon procs ignore this spell's hits.
 func (s *Spell) SuppressesWeaponProcs() bool {
 	return s.HasAttributeAt(dbcenums.ATTR_INDEX_EX_4, dbcenums.ATTR_EX_4_SUPPRESS_WEAPON_PROCS)
 }

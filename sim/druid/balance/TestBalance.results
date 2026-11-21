@@ -920,33 +920,33 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-GrovekeeperEclipse"
  value: {
-  dps: 824.1751
-  tps: 835.55981
-  dtps: 5.68786
+  dps: 895.17397
+  tps: 906.40173
+  dtps: 4.92214
  }
 }
 dps_results: {
  key: "TestBalance-AllItems-GrovekeeperFerocity"
  value: {
-  dps: 831.86828
-  tps: 843.35882
-  dtps: 5.50472
+  dps: 845.49707
+  tps: 857.33332
+  dtps: 6.25039
  }
 }
 dps_results: {
  key: "TestBalance-AllItems-GrovekeeperRage"
  value: {
-  dps: 815.8344
-  tps: 827.05519
-  dtps: 6.14329
+  dps: 824.59075
+  tps: 836.22095
+  dtps: 5.56915
  }
 }
 dps_results: {
  key: "TestBalance-AllItems-GrovekeeperRaiment"
  value: {
-  dps: 820.77168
-  tps: 831.88518
-  dtps: 5.48445
+  dps: 860.50329
+  tps: 871.30875
+  dtps: 5.04393
  }
 }
 dps_results: {

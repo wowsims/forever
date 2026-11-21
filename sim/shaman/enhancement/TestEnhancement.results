@@ -1721,19 +1721,19 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheSpiritcaller"
  value: {
-  dps: 863.12251
-  tps: 633.4027
-  dtps: 7.90672
-  hps: 20.24861
+  dps: 902.91958
+  tps: 660.17838
+  dtps: 5.34446
+  hps: 20.19778
  }
 }
 dps_results: {
  key: "TestEnhancement-AllItems-TheSpiritcaller'sRage"
  value: {
-  dps: 856.49108
-  tps: 628.90289
-  dtps: 8.16133
-  hps: 20.14694
+  dps: 952.74554
+  tps: 696.37295
+  dtps: 7.17687
+  hps: 20.97722
  }
 }
 dps_results: {

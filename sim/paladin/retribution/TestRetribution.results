@@ -1190,28 +1190,28 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-JusticeArmor"
  value: {
-  dps: 808.06315
-  tps: 661.18506
-  dtps: 5.56436
-  hps: 24.11754
+  dps: 857.76658
+  tps: 700.19036
+  dtps: 4.92865
+  hps: 24.13228
  }
 }
 dps_results: {
  key: "TestRetribution-AllItems-JusticeBattlegear"
  value: {
-  dps: 807.81703
-  tps: 662.26362
-  dtps: 6.83043
-  hps: 24.02011
+  dps: 903.1999
+  tps: 738.48145
+  dtps: 6.65079
+  hps: 24.94256
  }
 }
 dps_results: {
  key: "TestRetribution-AllItems-JusticeBattleplate"
  value: {
-  dps: 811.14051
-  tps: 664.00973
-  dtps: 5.84802
-  hps: 24.48777
+  dps: 879.48337
+  tps: 719.02889
+  dtps: 6.17009
+  hps: 25.24316
  }
 }
 dps_results: {
@@ -2315,10 +2315,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-WarbladeofCaerDarrow-13982"
  value: {
-  dps: 873.39194
-  tps: 715.16831
+  dps: 871.74953
+  tps: 713.85295
   dtps: 7.07413
-  hps: 25.65219
+  hps: 25.60492
  }
 }
 dps_results: {
