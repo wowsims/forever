@@ -44,8 +44,9 @@ func TestSchoolSpellPiercingLowersOnlyItsSchool(t *testing.T) {
 }
 
 // Against 150 resistance a plain spell is often partially resisted. A binary spell's hits and ticks never
-// are once it lands, and gain no Spell Piercing bonus either; nor does a spell flagged
-// SpellFlagNoPartialResist.
+// are once it lands, nor is a spell flagged SpellFlagNoPartialResist. Spell Piercing beyond the
+// resistance gives a binary spell's hits and full-share ticks the bonus, and its tenth-share ticks and a
+// spell flagged SpellFlagNoPartialResist none.
 func TestBinaryAndNoPartialResistKeepTheWholeHit(t *testing.T) {
 	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
 	defender := &Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
@@ -86,8 +87,23 @@ func TestBinaryAndNoPartialResistKeepTheWholeHit(t *testing.T) {
 	if n := partials(0, false); n == 0 {
 		t.Errorf("a plain shadow spell never gained a Spell Piercing bonus in 1000 hits at 100 piercing")
 	}
-	if n := partials(SpellFlagBinary, false); n != 0 {
-		t.Errorf("a binary spell's hit gained a Spell Piercing bonus %d times in 1000 at 100 piercing, want 0", n)
+	if n := partials(SpellFlagBinary, false); n == 0 {
+		t.Errorf("a binary spell's hit never gained a Spell Piercing bonus in 1000 hits at 100 piercing")
+	}
+	if n := partials(SpellFlagBinary|SpellFlagFullResistanceTicks, true); n == 0 {
+		t.Errorf("a binary spell's full-share tick never gained a Spell Piercing bonus in 1000 ticks at 100 piercing")
+	}
+	for _, tc := range []struct {
+		name       string
+		flags      SpellFlag
+		isPeriodic bool
+	}{
+		{"a binary spell's tick at a tenth", SpellFlagBinary, true},
+		{"a binary spell flagged SpellFlagNoPartialResist", SpellFlagBinary | SpellFlagNoPartialResist, false},
+	} {
+		if n := partials(tc.flags, tc.isPeriodic); n != 0 {
+			t.Errorf("%s gained a Spell Piercing bonus %d times in 1000 at 100 piercing, want 0", tc.name, n)
+		}
 	}
 }
 
