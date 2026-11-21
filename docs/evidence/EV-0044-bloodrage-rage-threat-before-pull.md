@@ -6,7 +6,7 @@
   942 threat windows. The reading under Defiance gives its own
 - Game build: 1.60.1.70790; the reading under Defiance gives its own
 - Date: 2026-11-06; the reading under Defiance gives its own
-- Pull request: #882; the reading under Defiance is #PRNUM
+- Pull request: #882; the reading under Defiance is #1157
 
 The method is that of EV-0043, applied to the evening log and re-checked on the day data.
 
@@ -32,7 +32,7 @@ mana gains follow the same rule because no target is in combat yet.
   inside the session) and on 2026-11-17; 1.60.1.70959 from the 2026-11-18 09:07 login, hotfixes 114140 to 114286 each
   taken at a login once pushed; no reading moves between them
 - Date: 2026-11-13 to 2026-11-20
-- Pull request: #PRNUM
+- Pull request: #1157
 
 The method is EV-0043's, run per log as EV-0174 describes. All readings are in Defensive Stance.
 

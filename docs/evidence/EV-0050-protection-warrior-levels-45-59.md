@@ -9,7 +9,7 @@
 - Game build: 1.60.1.70862 to 1.60.1.70938; Cleave Rank 3's count gives its own
 - Date: 2026-11-09 to 2026-11-13 per the pull request; the override rows read 2026-11-14; Cleave Rank 3's count gives
   its own
-- Pull request: #1008; Cleave Rank 3's count is #PRNUM
+- Pull request: #1008; Cleave Rank 3's count is #1157
 
 ## Flat threat
 
@@ -69,7 +69,7 @@ every block in game, go through the block proc path.
 - Game build: 1.60.1.70938 on 2026-11-17, 1.60.1.70959 from the 2026-11-18 09:07 login; hotfixes 114140 to 114286
   each taken at a login once pushed; no reading moves between them
 - Date: 2026-11-17 to 2026-11-20
-- Pull request: #PRNUM
+- Pull request: #1157
 
 The method is EV-0043's, run per log as EV-0174 describes, with Cleave read as one flat per cast split over the targets
 it lands on.

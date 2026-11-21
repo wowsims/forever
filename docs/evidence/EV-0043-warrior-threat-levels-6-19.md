@@ -5,7 +5,7 @@
 - Sources: ThreatLog addon and combat log of a warrior at levels 6 to 19; Battle Shout's count gives its own
 - Game build: 1.60.1.70790; Battle Shout's count gives its own
 - Date: 2026-11-05 and 2026-11-06; Battle Shout's count gives its own
-- Pull request: #876; Battle Shout's count is #PRNUM
+- Pull request: #876; Battle Shout's count is #1157
 
 The addon records the player's threat on the target at every threat list update (about 1.2 s apart), and each change is
 matched to the combat log events since the previous one, with each event multiplied by the stance active at that moment.
@@ -38,7 +38,7 @@ Shield Block and Charge's rage all matched the sim already.
   inside the session) and on 2026-11-17; 1.60.1.70959 from the 2026-11-18 09:07 login, hotfixes 114140 to 114286 each
   taken at a login once pushed; no reading moves between them
 - Date: 2026-11-13 to 2026-11-20
-- Pull request: #PRNUM
+- Pull request: #1157
 
 The method is the one above, run per log as EV-0174 describes. No window holds Battle Shout alone, so each reading is
 the window's change less every other event in it. Ranks 1 to 3, cast at levels 6 to 19, read 0 too, with no counts

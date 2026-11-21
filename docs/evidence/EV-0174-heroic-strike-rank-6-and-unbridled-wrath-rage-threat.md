@@ -8,7 +8,7 @@
   114206, 114230, 114281 and 114286 each taken at a login once pushed (their push times are known only as upper
   bounds); no reading moves between them
 - Date: 2026-11-17 to 2026-11-20
-- Pull request: #PRNUM
+- Pull request: #1157
 
 The method is EV-0043's, run per log, with each login that can carry a new hotfix starting its own stretch. The solo
 fit takes 490 fights and 4,725 windows, the party fit 624 fights and 5,394 windows. Seven stretches read every rage
