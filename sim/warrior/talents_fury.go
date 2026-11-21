@@ -68,6 +68,8 @@ func (warrior *Warrior) registerUnbridledWrath() {
 	}
 
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: unbridledWrathRank.ID})
+	// The rage makes 5 threat a rage that neither the stance nor Defiance scales (EV-0174).
+	rageMetrics.UnscaledThreat = true
 
 	// The rate is the effect ladder the tooltip's $m1 names: 12/24/36/48/60 by rank, where the proc
 	// chance column reads 100. Landed white swings roll it, Windfury Totem's strike among them as a
