@@ -1,18 +1,18 @@
-# EV-0153: Proc rates of 45 weapons from the Warcraft Logs reports up to 2026-11-19
+# EV-0153: Proc rates of 43 weapons from the Warcraft Logs reports up to 2026-11-19
 
 EV-0157 replaces the Loksey's Training Stick rate, counted again on every wearer stream of the reports up to 2026-11-19.
 
 - Claim: each weapon below procs at the rate its section gives, priced on the weapon base speed of each hit that rolls
-  it. 27 rates are measured and 17 observed. Bloodrazor's rate is open: its one-hand white swings read above the rate
-  over all hits and its specials below it.
+  it. 28 rates are measured and 15 observed.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each weapon's section lists, from
-  every indexed wearer of the 45 weapons; 2,179 reports in all
+  every indexed wearer of the weapons; 2,155 reports in all
 - Game build: 1.60.1.70790 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114196; the hotfix
   each player ran is not recorded
 - Date: 2026-11-05 to 2026-11-19
 - Pull request: #1108
+- Later count: Wraith Scythe, §Count of the 2026-11-06 to 2026-11-21 reports
 
-This replaces the rates EV-0136 gives for 36 of these weapons, EV-0132's Destiny rate and EV-0146's Killmaim rate.
+This replaces the rates EV-0136 gives for 34 of these weapons, EV-0132's Destiny rate and EV-0146's Killmaim rate.
 
 ## Method
 
@@ -45,7 +45,7 @@ Execute and Judgement of Command roll twice (EV-0155). They are left out, and so
 whose few hits do not settle whether they roll once or twice: their hits count as no roll, and every proc from 20 ms
 before one of them to 50 ms after it is dropped.
 
-A proc that lands on the target logs almost never on a killing blow: over the 45 weapons, 3.7% of the white swings
+A proc that lands on the target logs almost never on a killing blow: over the 45 weapons #1108 counted, 3.7% of the white swings
 that leave the target alive are followed by a proc and 0.7% of the killing ones. A proc that buffs the wearer logs as
 usual. For a proc that lands on the target, a killing blow (a hit with overkill) is no roll, and a proc from 20 ms
 before one to 50 ms after it is dropped; a killing blow is no lone unit either. Some reports list one stretch of the
@@ -78,9 +78,8 @@ A direct proc logs within about [-10, 100] ms of its hit. A proc spell whose gam
 after its flight, and its window is the 2nd to 98th percentile of the delay after isolated hits, plus 10 ms.
 
 The rate is the rate over all hits, rounded to 0.05, where the one-hand white rate or the specials rate, each with 50 or
-more procs, agrees with it (their intervals overlap). Where they disagree, the rate is open, and the override row keeps
-its rate from the count on the reports up to 2026-11-18 by EV-0136's method, with Sunder Armor and Rend landings counted
-and paladins left out; the weapon's section gives that count. A stacking debuff refreshed at full stacks often logs
+more procs, agrees with it (their intervals overlap). Where they disagree, the rate is open; no weapon in this file is.
+A stacking debuff refreshed at full stacks often logs
 nothing, and a proc whose travel window passes 400 ms or reaches past the isolation has no usable lone unit: these take
 the rate over all hits as it stands, and so does a weapon whose lone-unit rates stay under 50 procs; such a rate is
 observed, unless a separate count checks it (Strike of the Hydra, Spellsever Crossbow and Bow of Searing Arrows, from
@@ -92,7 +91,7 @@ method, and `targets_final.json` for each weapon's rate and call.
 
 ## Rates
 
-Rate is the override row's rate, which an open weapon keeps. The one-hand white and specials columns give the read and, in parentheses, the procs; Was is the row's rate before this count.
+Rate is the override row's rate. The one-hand white and specials columns give the read and, in parentheses, the procs; Was is the row's rate before this count.
 
 | Weapon                     |   Item | Rate | Call     | All hits [95%]    |     Procs / hits | Wearers | One-hand white | Specials     |  Was |
 | -------------------------- | -----: | ---: | -------- | ----------------- | ---------------: | ------: | -------------- | ------------ | ---: |
@@ -101,7 +100,6 @@ Rate is the override row's rate, which an open weapon keeps. The one-hand white 
 | Barbaric Crossbow          | 272999 | 2.95 | measured | 2.96 [2.89, 3.03] |   3,794 / 38,444 |      58 | -              | 3.11 (1,002) |  3.3 |
 | Blade of the Basilisk      |   8223 |  1.1 | observed | 1.09 [0.94, 1.24] |      157 / 4,564 |       5 | 1.14 (55)      | 1.00 (22)    |  1.1 |
 | Bleeding Crescent          |   6738 |    1 | observed | 0.99 [0.90, 1.09] |     482 / 12,205 |      31 | 0.95 (69)      | 0.87 (50)    |    1 |
-| Bloodrazor                 |    809 |  0.9 | open     | 0.99 [0.91, 1.07] |   1,348 / 30,241 |      16 | 1.20 (104)     | 0.85 (122)   |  0.9 |
 | Bow of Searing Arrows      |   2825 |  4.9 | measured | 4.88 [4.68, 5.09] |   2,876 / 13,102 |      19 | -              | -            |  5.1 |
 | Burning War Axe            |   2299 | 0.95 | measured | 0.97 [0.91, 1.03] |     627 / 11,799 |      25 | 1.06 (168)     | 1.27 (25)    | 0.95 |
 | Coldrage Dagger            |  10761 | 2.95 | measured | 2.95 [2.85, 3.04] |   5,110 / 69,251 |      58 | 2.62 (62)      | 2.87 (94)    | 2.85 |
@@ -133,13 +131,11 @@ Rate is the override row's rate, which an open weapon keeps. The one-hand white 
 | Silent Fang                |  13953 | 1.45 | observed | 1.47 [1.30, 1.61] |     466 / 11,915 |       9 | 1.50 (154)     | 1.49 (64)    | 1.45 |
 | Spellsever Crossbow        | 274293 | 0.95 | measured | 0.96 [0.94, 0.99] |  4,593 / 119,039 |     143 | -              | -            |    1 |
 | Strike of the Hydra        |   6909 |  2.1 | measured | 2.11 [2.04, 2.18] |   4,070 / 35,041 |      95 | -              | -            | 1.95 |
-| Sul'thraze the Lasher      |   9372 |  1.4 | observed | 1.41 [1.25, 1.51] |      475 / 7,776 |       6 | 1.24 (90)      | 1.62 (37)    |  1.5 |
 | Sword of Decay             |   1727 |    1 | measured | 1.01 [0.92, 1.10] |      404 / 8,932 |       9 | 0.88 (42)      | 1.10 (104)   |  1.1 |
 | Tainted Pierce             |   8225 |    2 | measured | 1.99 [1.81, 2.11] |     872 / 13,855 |      17 | 1.26 (8)       | 1.88 (69)    |    2 |
 | Taran Icebreaker           |   2915 | 0.95 | observed | 0.95 [0.90, 1.01] |     694 / 11,509 |      10 | 1.10 (219)     | -            | 0.95 |
 | Thornspike                 |   6681 | 3.15 | observed | 3.15 [3.08, 3.23] | 17,132 / 191,806 |     242 | -              | -            |  3.2 |
 | Toofbreaker                | 286430 |    2 | measured | 2.00 [1.95, 2.07] |   4,905 / 77,305 |      49 | 2.01 (1,411)   | 2.02 (480)   | 1.95 |
-| Wraith Scythe              |  11920 | 3.35 | observed | 3.34 [3.06, 3.71] |      800 / 6,523 |       5 | 3.09 (199)     | 3.65 (77)    |    - |
 | Wyvern Tailspike           |   5752 | 2.05 | observed | 2.03 [1.83, 2.27] |      445 / 7,293 |      14 | 2.25 (26)      | 2.36 (26)    |    2 |
 
 ## Angerforge's Battle Axe (item 11816, spell 1300783): 2, measured
@@ -249,29 +245,6 @@ P8Znjv1fgBD2CAVY 6-12; QDVfcwHpjZRzL94q 1-6, 8-13; RPnVYQcG9xTJh1ar 1-4; WnvfNJK
 YhCcTtxfGJR82M7Q 1-11; ZAWJk6BdKhr9nC8T 1-6; ZyGV2gN1w6jc7zM9 1, 3-5, 7-18; f2zK39XdhnNqZJgR 1-2, 5; fjb2rRngTPa48WA9
 1-4; h92ZHrfm3RFQtYvT 1-8; jC4HdxZGVNLz1Yvm 1-2, 4-6; jGrv6B1hNMDJPc3W 7-10; kmBptFTG68Dcq3jx 9-10; mQ4MqkD1nbaBXLdy 2,
 4-6; npbfVjrQdDLhtRWY 20-22; pKn8wBZcQ62PyJH7 12-24; tD7Rm3GBjdqPzhwC 16-17.
-
-## Bloodrazor (item 809, spell 17504): open, the row keeps 0.9
-
-1,348 procs on 30,241 rolling hits, 16 wearers, 21 runs, in the main hand: all hits 0.99 [0.91, 1.07]. Open: the
-one-hand white swings, from 2 wearers, read above all hits, and the specials below them. The specials' interval reaches
-0.964 and all hits' starts at 0.915, so by the overlap rule alone the rate would be all hits. It stays open with the
-approved calls: the two lone-unit rates fall on either side of all hits, and the one-hand white rests on 2 wearers.
-One-hand white: 1.20 [1.14, 1.22], 104 procs on 1,929 lone units, 2 wearers. Dual-wield white: 0.67 [0.47, 0.84], 89
-procs on 2,941 lone units, 14 wearers. Specials: 0.85 [0.69, 0.96], 122 procs on 3,208 lone units, 16 wearers. Two-roll
-abilities, priced as one roll: 2.83, 14 procs on 110 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th
-percentile 1 ms, 218 isolated hits. The row keeps 0.9 from the earlier count: 0.91 [0.81, 1.02], 1,310 procs on 31,842
-hits, 15 wearers. Reports from 2026-11-13 to 2026-11-19.
-
-| Class   | Wearers | Procs |   Hits |  PPM |
-| ------- | ------: | ----: | -----: | ---: |
-| Warrior |       8 |   732 | 16,361 | 0.99 |
-| Rogue   |       8 |   616 | 13,879 | 0.99 |
-
-Reports and fights: 3XCdM1LQRNmvY8kp 1-8, 10-12; 76zv93gbJQFrWKfd 1-30; 8GFRaPBnKWf7Qrpb 1-3, 5-6; AZchwX93DmyHLbv6 1-3;
-FvqNn8XAhHD6M4pY 1-10, 13; NWvgFp3kfR2bHyYa 1-35; NjgtYv4VMR26q7h9 1-4; RW1BNk6Ybyh3XjLQ 1-21; WAyrNRJdm3pqCLMK 1-13;
-ZLpcV6krn1wYHJvt 1-8; aNh3Dt8kbZHL9cBM 1; j1xyYV7gcMH69ND8 1-20; jJWt7Dnm4qc9rzQd 1; jr7TAd93qLPxWzhp 1-2;
-kJ3WdhMLqv7K2Nyf 1-3; nzxZ4h87yGXJPgfp 1; p34dnvkg7yDKL6cr 1-3; qVnZ6bPMhWRJA397 1-3; tk3BD1bZafMgKxWX 1-4;
-vBWX7HQn9zpTMGd8 13-22; vyQrDZN7RX82ApnP 1-3.
 
 ## Bow of Searing Arrows (item 2825, spell 29638): 4.9, measured
 
@@ -1156,23 +1129,6 @@ vAGVD7aQZxNWX8h1 1-17; vnwtmMTpkR1aYP7G 1-9; vpdJ3cMhwTKNHX7B 1-2; vqBtZRrXwKQb6
 wYmr1kfWPpVz7jyZ 5-13; xnrg9m6jDMR1kaLN 25, 27-29; xwGgV9zJ3FNayZf1 1-2; yDMwzc49TJKmFfCr 1, 3; ycZLWXxQ4jk21w3q 2-28;
 z4ybMrFWNGa1L2xJ 1-3; zWrR937TBH1FgvfP 1-2; ztD4pKHA6jGvfcVr 1-2.
 
-## Sul'thraze the Lasher (item 9372, spell 1294430): 1.4, observed
-
-475 procs on 7,776 rolling hits, 6 wearers, 7 runs, in the main hand: all hits 1.41 [1.25, 1.51]. The rate is all hits,
-which the one-hand white rate agrees with. Observed: its interval reaches further than 10% from the read. One-hand
-white: 1.24 [1.04, 1.38], 90 procs on 1,672 lone units, 6 wearers. Specials: 1.62 [1.24, 1.88], 37 procs on 528 lone
-units, 6 wearers. Two-roll abilities, priced as one roll: 2.46, 13 procs on 122 lone units. Travel time: the proc lands
-a median 99 ms after its hit, 98th percentile 189 ms, window [19, 199] ms (117 isolated hits). Reports from 2026-11-14
-to 2026-11-18.
-
-| Class   | Wearers | Procs |  Hits |  PPM |
-| ------- | ------: | ----: | ----: | ---: |
-| Warrior |       5 |   463 | 7,527 | 1.42 |
-| Hunter  |       1 |    12 |   249 | 1.11 |
-
-Reports and fights: 8ZdnfAT79zPwmyVM 1, 3-6; Ag69GWdLRDhKCrcT 1-6; HT2qmWDJNfXVj1xA 1-2; cL3KMWpnXyvDrqa2 1-2;
-hCPLc2G7KAVX8Bby 1-6, 8-9; mYaWhF4n8zRLDZtw 1-7, 11-12, 16-17, 19-20, 22, 24; tnyh4dxq6pNXQzLw 1-3.
-
 ## Sword of Decay (item 1727, spell 13528): 1, measured
 
 404 procs on 8,932 rolling hits, 9 wearers, 9 runs, in the main hand: all hits 1.01 [0.92, 1.10]. The rate is all hits,
@@ -1325,21 +1281,26 @@ cRtHw9DWZMrKnyvQ 1-4; gTPNZcJ9mG4dRC2X 1-4; hRzbpMrDY3cgQX7n 7; jVhAWnaHJgf3FPmy
 qr7Vt9aW8TpFXJAD 1-2; rTYJ6yWfNcbKXztR 1; tLGanMDfw82FJymz 1-16; tac7hXVRgkbZNMDy 3; vtyhfFz9wPGJdHqM 1-3;
 w6A8bVm7vTatMCYr 1-12; zTbHr3BPvKxRCMZg 9; zgG84wjLNY1Pv9tp 1-2; ztpB7m1kbLQ3KdqR 11-14.
 
-## Wraith Scythe (item 11920, spell 16414): 3.35, observed
+## Wraith Scythe (item 11920, spell 16414): 3.45, measured
 
-800 procs on 6,523 rolling hits, 5 wearers, 5 runs, in the main hand: all hits 3.34 [3.06, 3.71]. The rate is all hits,
-which the one-hand white rate and the specials rate agree with. Observed: every wearer is a warrior and its interval
-reaches further than 10% from the read. One-hand white: 3.09 [2.74, 3.51], 199 procs on 1,754 lone units, 4 wearers.
-Dual-wield white: 2.37, 8 procs on 92 lone units, 1 wearer. Specials: 3.65 [2.85, 4.31], 77 procs on 576 lone units, 4
-wearers. Two-roll abilities, priced as one roll: 4.70, 5 procs on 29 lone units. Direct: window [-10, 100] ms, median 0
-ms, 98th percentile 0 ms, 205 isolated hits. Reports from 2026-11-14 to 2026-11-19.
+- Count: §Count of the 2026-11-06 to 2026-11-21 reports
+
+1,136 procs on 8,989 rolling hits, 8 wearers, 8 runs, in the main hand: all hits 3.45 [3.17, 3.73]. The rate is all
+hits, which the one-hand white rate and the specials rate agree with. One-hand white: 3.09 [2.75, 3.46], 218 procs on
+1,922 lone units, 5 wearers. Dual-wield white: 2.54 [1.93, 2.80], 40 procs on 430 lone units, 3 wearers. Specials: 3.81
+[2.88, 4.25], 141 procs on 1,008 lone units, 7 wearers. Two-roll abilities, priced as one roll: 4.70, 5 procs on 29 lone
+units. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 286 isolated hits. Dropping the swapped
+stretches (19 active minutes, 7% of hits, in 1 run) moved the read from 3.22 to 3.45. By report date: before 2026-11-18
+3.57 (443 procs); from 2026-11-18 to push 114313 3.37 (693 procs). Reports from 2026-11-14 to 2026-11-20.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
-| Warrior |       5 |   800 | 6,523 | 3.34 |
+| Warrior |       6 |   849 | 6,899 | 3.36 |
+| Rogue   |       1 |   247 | 1,760 | 3.83 |
+| Hunter  |       1 |    40 |   330 | 3.30 |
 
-Reports and fights: B6JLrnWKF9htyjv2 1; PtKXrwfj8zBHm2Gy 7-8; PtmYHjkDrqhdR9MA 1-6, 9-10; ZQtv6AqYmdJFWwhy 7-8;
-p1VPMyG8jgR6Ymc7 1-4.
+Reports and fights: B6JLrnWKF9htyjv2 1; DZjKqdLXkBztYJTC 1; p1VPMyG8jgR6Ymc7 1-4; PtKXrwfj8zBHm2Gy 7-8; PtmYHjkDrqhdR9MA
+1-6, 9-10; XPgHryZdABkRDhwV 3; YnVFyQq3w28mr41R 1; ZQtv6AqYmdJFWwhy 7-8.
 
 ## Wyvern Tailspike (item 5752, spell 16400): 2.05, observed
 
@@ -1361,3 +1322,30 @@ Reports and fights: 2RdqgkHFNVMnKCh8 1-2; 4NWagKbPRwT81yh7 3-8; 8129XG6zfMVJrvmg
 JD2ag1wYV8qCxhtQ 1; JPymD8BKctgqMFLH 1; MLhC3KjWrngq2vtZ 1-2; QZyPVgTvLJnamk84 1-3; Wh7fgRNMmLP4YBnX 1; b6QHjXT2GF7A1YPr
 1-8; cT71Vr9tPDKkxWv3 1-2; dGhawD4rxCAH7bR2 1-4, 6-10, 12, 14-21, 23-30, 32-37, 39, 41-51; fyb2xc14zNRdvDMY 1-2;
 hxZPKTfQYzdVjvN3 6-9, 11; rqhGLfWyaAtZvjTC 3, 6; vnDM8K4RYx6kW2GH 1-2.
+
+## Count of the 2026-11-06 to 2026-11-21 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
+  lists, from every wearer stream on disk for its weapon; 8 reports in all
+- Game build: by report date, 1.60.1.70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC and 71037 from
+  2026-11-20 18:23 UTC; no report starts after hotfix push 114313 (2026-11-20 23:47 UTC). The sim's database is
+  1.60.1.71037, push 114326; the hotfix each player ran is not recorded
+- Date: 2026-11-14 to 2026-11-20
+- Pull request: #1156
+
+The count is §Method on the hits EV-0155 finds rolling a weapon proc, run again over every wearer stream on disk for
+these weapons, with more wearers fetched on 2026-11-21. The same rolling hits, classes and forms are left out: paladins
+from every rate, druids in Cat or Bear Form, and the two-roll abilities with the procs around them. The intervals,
+lone-unit checks, swap drop and credit windows are this file's.
+
+A rate is measured where a lone-unit rate of 50 or more procs (lone one-hand white swings or specials) overlaps the
+all-hits interval, and 5 or more wearers of more than one class give an all-hits interval within 10% of the rate either
+side. The rate is the all-hits rate rounded to the nearest 0.05. A lone-unit interval from under 5 wearers is a Poisson
+interval. On Wraith Scythe every class past the first is one wearer.
+
+Each section's read by report date is the all-hits rate over the reports that start before 2026-11-18, from then to push
+114313, and after it.
+
+Scripts and inputs, in `forever-notices-1121`: `results.json`, the counts of `forever-sweep-auto/analyze.py` (version
+12, as EV-0157's, with the paladin check that sets no rate) run with `--items items.txt --census census_used.json`;
+`report.py`, the call per weapon (`rep_final.json`); and `dates.py`, the report dates (`dates_final.json`).

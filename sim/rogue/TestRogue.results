@@ -96,8 +96,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-ArgentAvenger-13246"
  value: {
-  dps: 787.2274
-  tps: 558.93145
+  dps: 787.48546
+  tps: 559.11467
   hps: 53.59528
  }
 }
@@ -176,8 +176,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BladeoftheWretched-10803"
  value: {
-  dps: 776.74846
-  tps: 551.49141
+  dps: 776.34779
+  tps: 551.20693
   hps: 54.30694
  }
 }
@@ -232,9 +232,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Bloodrazor-809"
  value: {
-  dps: 785.99097
-  tps: 558.05359
-  hps: 50.44361
+  dps: 787.70277
+  tps: 559.26897
+  hps: 50.4775
  }
 }
 dps_results: {
@@ -560,8 +560,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-EateroftheDead-10805"
  value: {
-  dps: 769.16642
-  tps: 546.10816
+  dps: 769.36339
+  tps: 546.24801
   hps: 53.59528
  }
 }
@@ -1032,8 +1032,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 786.09545
-  tps: 558.12777
+  dps: 786.05726
+  tps: 558.10066
   hps: 54.30694
  }
 }
@@ -1408,8 +1408,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Pyromancer'sBaton-286650"
  value: {
-  dps: 757.017
-  tps: 537.48207
+  dps: 757.00779
+  tps: 537.47553
   hps: 52.12111
  }
 }
@@ -1552,8 +1552,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 766.52539
-  tps: 544.23303
+  dps: 766.54646
+  tps: 544.24799
   hps: 51.68056
  }
 }
@@ -1728,8 +1728,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 773.85656
-  tps: 549.43815
+  dps: 774.39635
+  tps: 549.82141
   hps: 57.23833
  }
 }
@@ -1872,8 +1872,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-TwilightForgehammer-281665"
  value: {
-  dps: 767.30706
-  tps: 544.78801
+  dps: 766.74322
+  tps: 544.38769
   hps: 51.68056
  }
 }
@@ -1984,8 +1984,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-WraithScythe-11920"
  value: {
-  dps: 773.70992
-  tps: 549.33404
+  dps: 773.70301
+  tps: 549.32914
   hps: 53.59528
  }
 }

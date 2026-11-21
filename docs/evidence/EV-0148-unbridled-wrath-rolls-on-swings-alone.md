@@ -2,9 +2,8 @@
 
 - Claim: Unbridled Wrath 12322 rolls on landed white swings, Windfury Totem's strike, Heroic Strike and each target a
   Cleave lands on, at the 60% its rank 5 row states; Shield Slam, Revenge, Thunder Clap, Retaliation, Victory Rush and
-  Shield Bash roll none. Argent Avenger procs about once a minute on the wearer's landed weapon hits, and Warrior's
-  Resolve about once a minute on landed white swings and strikes. Master of Defense, Shield Specialization and Shield
-  Spike fire on about every dodge or parry, block, and block respectively.
+  Shield Bash roll none. Warrior's Resolve procs about once a minute on landed white swings and strikes. Master of
+  Defense, Shield Specialization and Shield Spike fire on about every dodge or parry, block, and block respectively.
 - Sources: combat log, a level 60 Protection warrior with a one-handed sword, Argent Avenger, and a shield (Unbridled
   Wrath 5/5, Master of Defense 2/2, Shield Specialization 5/5, Enrage 5/5, Reckless Swings, 6 pieces of Battlegear of
   Valor), in groups with Windfury Totem at times, in Blackrock Depths, Scholomance, Lower and Upper Blackrock Spire and
@@ -71,28 +70,6 @@ Push 114115 (2026-11-16), before this log's push 114122, widened 12322's proc ma
 swings and abilities (0x14). EV-0138 reads the same on a dual-wielding Fury warrior after push 114115: Whirlwind 2 of
 425, Heroic Strike 14 of 20, Cleave 111 of 165 hit lines. EV-0136's reports run to 2026-11-16, mostly before that
 push, so its 0.26% after melee abilities alone reads the old row.
-
-## Argent Avenger
-
-A proc is one application or refresh of 17352 on the wearer, as EV-0126 counts it, and the log holds 237 in the five
-instances. A hit has a proc when one logs from 25 ms before it to 5 ms after it, so a proc beside two hits counts for
-both rows. Sunder Armor logs no damage, so its casts count. The pooled row counts every proc once, over the landed hits
-of the first six rows, Retaliation (66) and Victory Rush (29). PPM = chance × 60 / 2.2, the sword's speed.
-
-| Hits                                               | Procs / landed hits | Chance | PPM at 2.2 s |
-| -------------------------------------------------- | ------------------- | ------ | ------------ |
-| White swings                                       | 87 / 2,572          | 3.4%   | 0.92         |
-| Revenge                                            | 28 / 737            | 3.8%   | 1.04         |
-| Cleave, per target hit, a cast's proc counted once | 67 / 1,674          | 4.0%   | 1.09         |
-| Sunder Armor, casts                                | 17 / 436            | 3.9%   | 1.06         |
-| Heroic Strike                                      | 18 / 493            | 3.7%   | 1.00         |
-| Windfury Totem strikes                             | 21 / 513            | 4.1%   | 1.12         |
-| Shield Slam                                        | 3 / 1,119           | 0.27%  | –            |
-| Thunder Clap                                       | 10 / 2,777          | 0.36%  | –            |
-| Pooled                                             | 237 / 6,520         | 3.6%   | 0.99         |
-
-Each of Shield Slam's and Thunder Clap's 13 procs also fits another weapon hit's window. The procs in Scholomance and
-Stratholme read 3.6% (129 of 3,591) and the others 3.7% (108 of 2,929).
 
 ## Warrior's Resolve
 

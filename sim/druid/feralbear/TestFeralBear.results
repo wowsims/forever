@@ -1092,8 +1092,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 466.17119
-  tps: 2343.41608
+  dps: 466.06812
+  tps: 2343.19447
   dtps: 393.47945
   hps: 83.9845
  }
@@ -1587,8 +1587,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Pyromancer'sBaton-286650"
  value: {
-  dps: 427.72946
-  tps: 2171.94687
+  dps: 427.64005
+  tps: 2171.75465
   dtps: 393.47945
   hps: 83.9845
  }
@@ -1938,8 +1938,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 465.86961
-  tps: 2343.87407
+  dps: 466.28538
+  tps: 2344.76797
   dtps: 394.27689
   hps: 84.01263
  }
@@ -2082,8 +2082,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-TwilightForgehammer-281665"
  value: {
-  dps: 440.51114
-  tps: 2226.65102
+  dps: 439.98025
+  tps: 2225.50961
   dtps: 393.47945
   hps: 83.9845
  }

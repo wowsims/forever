@@ -723,8 +723,8 @@ var (
 // deal 20 Holy damage. Deals 3 times as much damage to Undead.
 //
 // A hit taken rolls 1293674's chance and cooldown and puts 1293673 up. While it is up, every landed melee
-// swing or ability casts 1293675 at its target, and against an Undead target the damage is multiplied by
-// 1293674's first effect, the factor the tooltip reads.
+// swing or ability casts 1293675 at its target (EV-0173). Against an Undead target the damage is
+// multiplied by 1293674's first effect, the factor the tooltip reads.
 var ItemSetChainOfTheScarletCrusade = core.NewItemSet(core.ItemSet{
 	ID:   163,
 	Name: "Chain of the Scarlet Crusade",
@@ -733,8 +733,6 @@ var ItemSetChainOfTheScarletCrusade = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(spelldata.MustFind(14673)), // +10 Shadow Resistance
 		3: shared.ParsedSetBonus(spelldata.MustFind(18074)), // +30 attack power against Undead
-		// TODO: Ingame test needed -- whether every melee hit while active deals the Holy damage,
-		// 3 times against Undead.
 		4: enragingLight,
 		5: shared.ParsedSetBonus(spelldata.MustFind(432639)), // 1% hit
 		// TODO: 6pc (1293670) shields the wearer when a hit leaves them at or below 20% health, which the
