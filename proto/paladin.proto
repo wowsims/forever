@@ -112,7 +112,7 @@ message RetributionPaladin {
 		int32 delay_major_cds               = 5; // Seconds into the fight before the other cooldowns are cast.
 		int32 uw_soc_stacks					= 6; // Amount of stacks of Echo of Command to pool before swapping to Seal of Righteousness
 		int32 uw_sor_stacks					= 7; // Amount of stacks of Echo of Righteousness to pool before swapping to the twisted seal
-		PaladinSealTwist uw_twist           = 8;
+		PaladinSealTwist uw_twist           = 8; // The seal twisted with Seal of Righteousness under Unsealed Wrath
 		int32 uw_sof_stacks                 = 9; // Amount of stacks of Echo of Fury to pool before swapping to Seal of Righteousness
 	}
 

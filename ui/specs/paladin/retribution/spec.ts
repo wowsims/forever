@@ -157,10 +157,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 			'Max Seal of Command Stacks': String(Inputs.echoStacks(simple.uwSocStacks, Inputs.TWIST_STACKS[PaladinSealTwist.SealTwistCommand].own)),
 			'Max Seal of Fury Stacks': String(Inputs.echoStacks(simple.uwSofStacks, Inputs.TWIST_STACKS[PaladinSealTwist.SealTwistFury].own)),
 			'Max Seal of Righteousness Stacks': String(
-				Inputs.echoStacks(
-					simple.uwSorStacks,
-					Inputs.TWIST_STACKS[twistsFury ? PaladinSealTwist.SealTwistFury : PaladinSealTwist.SealTwistCommand].righteousness,
-				),
+				Inputs.righteousnessStacks(simple.uwSorStacks, twistsFury ? PaladinSealTwist.SealTwistFury : PaladinSealTwist.SealTwistCommand),
 			),
 			'Pull range': String(Math.max(Inputs.MIN_PULL_RANGE, simple.pullRange || 25)),
 			'Delay Major CDs': `${simple.delayMajorCds}s`,

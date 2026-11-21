@@ -1,8 +1,11 @@
 // The Unsealed Wrath twist picker and the Echo stack dropdowns it shows, on a player with the Unsealed Wrath talents.
+import { ConnectedIconEnumPicker } from '@features/inputs/components/ConnectedIconEnumPicker';
 import { Spec } from '@generated/proto/common';
-import { PaladinSealTwist } from '@generated/proto/paladin';
+import { PaladinAura, PaladinSealTwist } from '@generated/proto/paladin';
 import type { Player } from '@sim/player/player';
+import { renderWithHost } from '@testing/react';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
+import { act } from '@testing-library/react';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { RotationIconInputs, RotationInputs } from './inputs';
@@ -74,5 +77,28 @@ describe('the Unsealed Wrath twist picker', () => {
 		input('uwTwist').setValue(player, PaladinSealTwist.SealTwistFury);
 
 		expect(player.getSimpleRotation()).toMatchObject({ uwSofStacks: 3, uwSorStacks: 2 });
+	});
+
+	// Hidden, the mounted picker writes its zero value on the next rotation change.
+	it('keeps the picked twist and its Echo stacks while Unsealed Wrath is untalented', async () => {
+		const made = await makeIndividualSim({ spec: Spec.SpecRetributionPaladin });
+		const player = made.player as unknown as RetPlayer;
+		const talents = UnsealedWrathTalents.data.talentsString;
+		player.setTalentsString(talents);
+		expect(player.getTalents().unsealedWrath).toBe(true);
+		renderWithHost(<ConnectedIconEnumPicker modObject={player} config={input('uwTwist') as never} />, made);
+		act(() => input('uwTwist').setValue(player, PaladinSealTwist.SealTwistFury));
+
+		// Unsealed Wrath is the last talent of the last tree.
+		act(() => player.setTalentsString(talents.slice(0, -1)));
+		expect(player.getTalents().unsealedWrath).toBe(false);
+		act(() => {
+			const rotation = player.getSimpleRotation();
+			rotation.aura = PaladinAura.DevotionAura;
+			player.setSimpleRotation(rotation);
+		});
+		act(() => player.setTalentsString(talents));
+
+		expect(player.getSimpleRotation()).toMatchObject({ uwTwist: PaladinSealTwist.SealTwistFury, uwSofStacks: 1, uwSorStacks: 3 });
 	});
 });

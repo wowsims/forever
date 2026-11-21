@@ -64,6 +64,11 @@ const playerTwist = (player: Player<Spec.SpecRetributionPaladin>): PaladinSealTw
 // An unset stack count is the twist's own default.
 export const echoStacks = (stacks: number, fallback: number): number => Math.min(MAX_ECHO_STACKS, stacks || fallback);
 
+// The Echo of Righteousness stacks pooled before the swap to the twisted seal. With no twist the count is unused and
+// reads as Seal of Command's.
+export const righteousnessStacks = (stacks: number, twist: PaladinSealTwist): number =>
+	echoStacks(stacks, TWIST_STACKS[twist === PaladinSealTwist.SealTwistFury ? twist : PaladinSealTwist.SealTwistCommand].righteousness);
+
 const ECHO_STACK_VALUES = Array.from({ length: MAX_ECHO_STACKS }, (_, index) => ({ name: String(index + 1), value: index + 1 }));
 
 // Each option shows the icon and tooltip of the spell it casts.
@@ -123,9 +128,11 @@ export const RotationIconInputs = [
 		labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_twist.tooltip'),
 		numColumns: 2,
 		getValue: playerTwist,
-		// Picking another twist starts it from its own Echo stacks.
+		// Picking another twist starts it from its own Echo stacks. Without Unsealed Wrath the picker is hidden, and a
+		// hidden icon picker writes its zero value on the next rotation change, so the twist is kept for when the
+		// talent comes back.
 		setValue: (player: Player<Spec.SpecRetributionPaladin>, newValue: PaladinSealTwist) => {
-			if (newValue === playerTwist(player)) return;
+			if (!player.getTalents().unsealedWrath || newValue === playerTwist(player)) return;
 			const rotation = player.getSimpleRotation();
 			rotation.uwTwist = newValue;
 			if (newValue === PaladinSealTwist.SealTwistCommand) {
@@ -178,11 +185,7 @@ export const RotationInputs = {
 			labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_sor_stacks.tooltip'),
 			values: ECHO_STACK_VALUES,
 			showWhen: player => player.getTalents().unsealedWrath && playerTwist(player) !== PaladinSealTwist.SealTwistUnknown,
-			getValue: player => {
-				const twist = playerTwist(player);
-				const fallback = twist === PaladinSealTwist.SealTwistUnknown ? 1 : TWIST_STACKS[twist].righteousness;
-				return echoStacks(player.getSimpleRotation().uwSorStacks, fallback);
-			},
+			getValue: player => righteousnessStacks(player.getSimpleRotation().uwSorStacks, playerTwist(player)),
 		}),
 		InputHelpers.makeRotationNumberInput<Spec.SpecRetributionPaladin>({
 			fieldName: 'pullRange',
