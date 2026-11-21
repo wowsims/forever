@@ -115,6 +115,8 @@ export const RotationIconInputs = [
 			const { sealOfCommand, unsealedWrath } = player.getTalents();
 			return !unsealedWrath && sealOfCommand;
 		},
+		// The rotation reads the seal only while this picker shows.
+		keepWhenHidden: true,
 		values: getEnumValues<PaladinSeal>(PaladinSeal)
 			.filter(value => value !== PaladinSeal.SealUnknown)
 			.map(value => ({ value, actionId: spellIcon(SEAL_SPELLS[value]!) })),
@@ -125,11 +127,9 @@ export const RotationIconInputs = [
 		labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_twist.tooltip'),
 		numColumns: 2,
 		getValue: playerTwist,
-		// Picking another twist starts it from its own Echo stacks. Without Unsealed Wrath the picker is hidden, and a
-		// hidden icon picker writes its zero value on the next rotation change, so the twist is kept for when the
-		// talent comes back.
+		// Picking another twist starts it from its own Echo stacks.
 		setValue: (player: Player<Spec.SpecRetributionPaladin>, newValue: PaladinSealTwist) => {
-			if (!player.getTalents().unsealedWrath || newValue === playerTwist(player)) return;
+			if (newValue === playerTwist(player)) return;
 			const rotation = player.getSimpleRotation();
 			rotation.uwTwist = newValue;
 			if (newValue !== PaladinSealTwist.SealTwistUnknown) {
@@ -139,6 +139,9 @@ export const RotationIconInputs = [
 			player.setSimpleRotation(rotation);
 		},
 		showWhen: player => player.getTalents().unsealedWrath,
+		// The twist and its Echo stacks are kept for when the talent comes back. The rotation reads them only with
+		// Unsealed Wrath.
+		keepWhenHidden: true,
 		values: [
 			{
 				value: PaladinSealTwist.SealTwistUnknown,

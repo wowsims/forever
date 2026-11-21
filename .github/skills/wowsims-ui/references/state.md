@@ -143,6 +143,12 @@ source that still reads as zeroed, so a value set while hidden (a loaded build) 
 `ConnectedIconEnumPicker` call it; the enum adapter also passes `onSettled` to reset a value whose option its
 `showWhen` hides, and a user pick calls `clearStored()` first.
 
+The restore reads the source through `getValue`, so it cannot bring back a pick on a picker whose `getValue` turns a
+stored zero into a default: the zeroed source reads as that default, and the pick put aside is dropped. Give such an
+icon-enum config `keepWhenHidden: true` (`ui/features/inputs/components/ConnectedIconEnumPicker/types.ts`). The
+picker then leaves its value alone while hidden, so whatever reads the field has to ignore it then. The Retribution
+paladin's `seal` and `uwTwist` pickers do this (`ui/specs/paladin/retribution/inputs.ts`).
+
 **Values that change with the model.** An icon-enum config's `values` may be an array or `(obj) => Array`, resolved
 through `iconEnumValues` (`ui/features/inputs/components/ConnectedIconEnumPicker/utils.ts`) on every render and every
 time the menu opens. That is how the consumables follow their EP order (`orderedByEp`, `consumableOrderOf`) without

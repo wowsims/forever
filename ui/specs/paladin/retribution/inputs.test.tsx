@@ -1,7 +1,8 @@
-// The Unsealed Wrath twist picker and the Echo stack dropdowns it shows, on a player with the Unsealed Wrath talents.
+// The seal picker, the Unsealed Wrath twist picker and the Echo stack dropdowns it shows, on a player with the
+// Unsealed Wrath talents.
 import { ConnectedIconEnumPicker } from '@features/inputs/components/ConnectedIconEnumPicker';
 import { Spec } from '@generated/proto/common';
-import { PaladinAura, PaladinSealTwist } from '@generated/proto/paladin';
+import { PaladinAura, PaladinSeal, PaladinSealTwist } from '@generated/proto/paladin';
 import type { Player } from '@sim/player/player';
 import { renderWithHost } from '@testing/react';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
@@ -33,6 +34,16 @@ const unsealedWrathPlayer = async () => {
 	const player = made.player as unknown as RetPlayer;
 	player.setTalentsString(UnsealedWrathTalents.data.talentsString);
 	return { made, player };
+};
+
+// Unsealed Wrath is the last talent of the last tree.
+const withoutUnsealedWrath = UnsealedWrathTalents.data.talentsString.slice(0, -1);
+
+// A rotation change, which is when a hidden icon picker writes its zero value unless it keeps its value.
+const changeAura = (player: RetPlayer) => {
+	const rotation = player.getSimpleRotation();
+	rotation.aura = PaladinAura.DevotionAura;
+	player.setSimpleRotation(rotation);
 };
 
 const shown = (player: RetPlayer) => ['uwSocStacks', 'uwSofStacks', 'uwSorStacks'].filter(id => input(id).showWhen!(player));
@@ -75,24 +86,36 @@ describe('the Unsealed Wrath twist picker', () => {
 		expect(player.getSimpleRotation()).toMatchObject({ uwSofStacks: 3, uwSorStacks: 2 });
 	});
 
-	// Hidden, the mounted picker writes its zero value on the next rotation change.
 	it('keeps the picked twist and its Echo stacks while Unsealed Wrath is untalented', async () => {
 		const { made, player } = await unsealedWrathPlayer();
-		const talents = UnsealedWrathTalents.data.talentsString;
 		expect(player.getTalents().unsealedWrath).toBe(true);
 		renderWithHost(<ConnectedIconEnumPicker modObject={player} config={input('uwTwist') as never} />, made);
 		act(() => input('uwTwist').setValue(player, PaladinSealTwist.SealTwistFury));
+		act(() => input('uwSofStacks').setValue(player, 2));
 
-		// Unsealed Wrath is the last talent of the last tree.
-		act(() => player.setTalentsString(talents.slice(0, -1)));
+		act(() => player.setTalentsString(withoutUnsealedWrath));
 		expect(player.getTalents().unsealedWrath).toBe(false);
-		act(() => {
-			const rotation = player.getSimpleRotation();
-			rotation.aura = PaladinAura.DevotionAura;
-			player.setSimpleRotation(rotation);
-		});
-		act(() => player.setTalentsString(talents));
+		act(() => changeAura(player));
+		act(() => player.setTalentsString(UnsealedWrathTalents.data.talentsString));
 
-		expect(player.getSimpleRotation()).toMatchObject({ uwTwist: PaladinSealTwist.SealTwistFury, uwSofStacks: 1, uwSorStacks: 3 });
+		expect(player.getSimpleRotation()).toMatchObject({ uwTwist: PaladinSealTwist.SealTwistFury, uwSofStacks: 2, uwSorStacks: 3 });
+	});
+});
+
+describe('the seal picker', () => {
+	// The picker reads a stored zero as the talents' seal, here Seal of Command.
+	it('keeps the picked seal while Unsealed Wrath is talented', async () => {
+		const { made, player } = await unsealedWrathPlayer();
+		act(() => player.setTalentsString(withoutUnsealedWrath));
+		expect(input('seal').showWhen!(player)).toBe(true);
+		renderWithHost(<ConnectedIconEnumPicker modObject={player} config={input('seal') as never} />, made);
+		act(() => input('seal').setValue(player, PaladinSeal.SealOfRighteousness));
+
+		act(() => player.setTalentsString(UnsealedWrathTalents.data.talentsString));
+		expect(input('seal').showWhen!(player)).toBe(false);
+		act(() => changeAura(player));
+		act(() => player.setTalentsString(withoutUnsealedWrath));
+
+		expect(input('seal').getValue(player)).toBe(PaladinSeal.SealOfRighteousness);
 	});
 });

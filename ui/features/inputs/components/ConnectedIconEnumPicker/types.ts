@@ -19,6 +19,10 @@ interface IconEnumPickerBase<ModObject, T>
 	values: Array<IconEnumValueConfig<ModObject, T>> | ((obj: ModObject) => Array<IconEnumValueConfig<ModObject, T>>);
 	backupIconUrl?: (value: T) => ActionId;
 	showWhen?: (obj: ModObject) => boolean;
+	// A hidden picker writes its zero value and brings the pick back when it shows again. With this set it leaves
+	// its value alone while hidden. It is for a picker whose `getValue` reads a stored zero as a default, which the
+	// restore cannot tell from a pick, and whatever reads the field has to ignore it while the picker is hidden.
+	keepWhenHidden?: boolean;
 }
 
 // Required here: an icon enum picker has no parent that refreshes it.
