@@ -55,7 +55,7 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 			core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "fury_2h"),
 			core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "arms"),
 			armsStanceDanceRotation(),
-			core.RotationWithSpellIds("fury_trainer_ranks", fury, map[int32]int32{25286: 11567, 25289: 11551}),
+			core.RotationWithSpellIds("fury_book_ranks", fury, map[int32]int32{11567: 25286, 11551: 25289}),
 		},
 
 		ItemFilter: core.ItemFilter{

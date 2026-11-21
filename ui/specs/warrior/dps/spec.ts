@@ -156,17 +156,17 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 			}
 		}
 
-		// The presets cast the ranks the Ruins of Ahn'Qiraj class books teach; each rank left unchosen moves to the
-		// trainer's top rank.
-		const trainerRanks = new Map<number, number>();
-		if (!useHeroicStrikeRank9) trainerRanks.set(25286, 11567);
-		if (!useBattleShoutRank7) trainerRanks.set(25289, 11551);
+		// The presets cast the trainer's top ranks; each rank chosen moves to the one its Ruins of Ahn'Qiraj class book
+		// teaches.
+		const bookRanks = new Map<number, number>();
+		if (useHeroicStrikeRank9) bookRanks.set(11567, 25286);
+		if (useBattleShoutRank7) bookRanks.set(11551, 25289);
 		let preset = Presets.ARMS_DEFAULT_ROTATION;
 		if (spec == DpsWarriorSpec.DpsWarriorSpecFury) {
 			const twoHander = player.getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.handType === HandType.HandTypeTwoHand;
 			preset = twoHander ? Presets.FURY_2H_ROTATION : Presets.FURY_DEFAULT_ROTATION;
 		}
-		const rotation = withSpellIds(preset.rotation.rotation!, trainerRanks);
+		const rotation = withSpellIds(preset.rotation.rotation!, bookRanks);
 
 		// With this group shown (for Arms, with Stance Dance as well), the racials group casts Elune's Light only while
 		// Recklessness is down, more than 15 s remain, and either more than 195 s or at most 30 s remain.

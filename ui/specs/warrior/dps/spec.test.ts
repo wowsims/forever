@@ -40,9 +40,9 @@ describe.each([
 	['Fury with a two-hander', DpsWarriorSpec.DpsWarriorSpecFury, HandType.HandTypeTwoHand, Presets.FURY_2H_ROTATION],
 	['Arms', DpsWarriorSpec.DpsWarriorSpecArms, HandType.HandTypeTwoHand, Presets.ARMS_DEFAULT_ROTATION],
 ])('%s simple rotation', (_, warriorSpec, handType, preset) => {
-	it('runs the preset rotation when both toggles are on', () => {
-		const book = generate(handType, { spec: warriorSpec, useHeroicStrikeRank9: true, useBattleShoutRank7: true });
-		expect(withoutToggles(book)).toEqual(withoutToggles(APLRotation.toJson(preset.rotation.rotation!)));
+	it('runs the preset rotation by default', () => {
+		const rotation = generate(handType, { spec: warriorSpec });
+		expect(withoutToggles(rotation)).toEqual(withoutToggles(APLRotation.toJson(preset.rotation.rotation!)));
 	});
 
 	it('casts the trainer ranks by default', () => {
