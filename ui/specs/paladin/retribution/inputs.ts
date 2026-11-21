@@ -98,6 +98,8 @@ export const RotationIconInputs = [
 		label: i18n.t('rotation_tab.options.paladin.retribution.seal.label'),
 		labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.seal.tooltip'),
 		numColumns: 2,
+		// With no seal picked the talents decide it, so the picker reads again when they change.
+		storeField: ['rotation', 'talentsString'] as const,
 		getValue: player => {
 			const seal = player.getSimpleRotation().seal;
 			if (seal === PaladinSeal.SealUnknown) {
@@ -126,13 +128,18 @@ export const RotationIconInputs = [
 		label: i18n.t('rotation_tab.options.paladin.retribution.uw_twist.label'),
 		labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_twist.tooltip'),
 		numColumns: 2,
+		// The twist follows the Seal of Command talent, so the picker reads again when the talents change.
+		storeField: ['rotation', 'talentsString'] as const,
 		getValue: playerTwist,
-		// Picking another twist starts it from its own Echo stacks.
+		// Picking another twist starts it from its own Echo stacks. No twist clears the Echo of Righteousness stacks,
+		// so the twist that follows it starts from its own.
 		setValue: (player: Player<Spec.SpecRetributionPaladin>, newValue: PaladinSealTwist) => {
 			if (newValue === playerTwist(player)) return;
 			const rotation = player.getSimpleRotation();
 			rotation.uwTwist = newValue;
-			if (newValue !== PaladinSealTwist.SealTwistUnknown) {
+			if (newValue === PaladinSealTwist.SealTwistUnknown) {
+				rotation.uwSorStacks = 0;
+			} else {
 				rotation[newValue === PaladinSealTwist.SealTwistCommand ? 'uwSocStacks' : 'uwSofStacks'] = TWIST_STACKS[newValue].own;
 				rotation.uwSorStacks = TWIST_STACKS[newValue].righteousness;
 			}
