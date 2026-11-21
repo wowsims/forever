@@ -4,15 +4,16 @@
   measured.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights listed below, from every wearer
   stream on disk for the weapon; 25 reports in all
-- Game build: 1.60.1.70938 to 1.60.1.71037 by report date; the hotfix each player ran is not recorded
+- Game build: 1.60.1.70938 to 1.60.1.71037 by report date; 4 reports start after hotfix push 114313 (2026-11-20 23:47
+  UTC). The sim's database is 1.60.1.71037, push 114326; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-21
 - Pull request: #1160
 
 ## Method
 
-EV-0153's Method, run on 2026-11-21 by the sweep's analyzer for this one item. Six wearer streams (reports
+The count is EV-0153 §Method, run on 2026-11-21 by the sweep's analyzer on this weapon. Six wearer streams (reports
 L7tdvhcYjgwHTrMz, PThANm6GzytHYDrd, 7YZCHRjDh9wQMFy6, 7tf9xk14DBqPXjWa, ARMrB9JYb2D1TLZC and YwJVCfGj3hnFpRy1) were
-fetched for this count; the others were already on disk.
+fetched for it; the others were already on disk.
 
 ## Rate
 
@@ -26,13 +27,14 @@ Was is the row's rate before this count.
 ## Sword of Zeal (item 6622, spell 8191): 1.95, measured
 
 3,079 procs on 34,152 rolling hits, 12 wearers, 25 runs, in the main hand: all hits 1.93 [1.90, 2.02]. The rate is all
-hits, which the one-hand white rate and the specials rate agree with. One-hand white: 2.01 [1.96, 2.41], 302 procs on
-3,214 lone units, 2 wearers. Specials: 1.91 [1.80, 2.05], 355 procs on 3,989 lone units, 12 wearers; Sinister Strike
-gives 181 procs on 1,866 of them. Dual-wield white, which sets no rate: 1.56 [1.49, 1.64], 227 procs on 3,114 lone units,
-11 wearers. Two-roll abilities, priced as one roll: 3.23, 64 procs on 424 lone units, Execute 62 of them on 403 (left out of the rate).
-Direct: window [-20, 100] ms, median -1 ms, 98th percentile 0 ms, 648 isolated hits. Dropping the swapped stretches (5.8
-active minutes, 0.5% of hits, in 1 run) moved the read from 1.92 to 1.93. Report PThANm6GzytHYDrd logs the same run as
-L7tdvhcYjgwHTrMz and counts once. No paladin wears the weapon in these reports.
+hits, which the one-hand white rate and the specials rate agree with. One-hand white: 2.01 [1.79, 2.25], 302 procs on
+3,214 lone units, 2 wearers (a Poisson interval: under 5 wearers). Specials: 1.91 [1.80, 2.05], 355 procs on 3,989 lone
+units, 12 wearers; Sinister Strike gives 181 procs on 1,866 of them. Dual-wield white, which sets no rate: 1.56 [1.49,
+1.64], 227 procs on 3,114 lone units, 11 wearers. Two-roll abilities, priced as one roll: 3.23, 64 procs on 424 lone
+units, left out of the rate; Execute gives 62 procs on 403 of them and Mongoose Bite 2 on 21. Direct: window [-20, 100]
+ms, median -1 ms, 98th percentile 0 ms, 648 isolated hits. Dropping the swapped stretches (5.8 active minutes, 0.5% of
+hits, in 1 run) moved the read from 1.92 to 1.93. Report PThANm6GzytHYDrd logs the same run as L7tdvhcYjgwHTrMz and
+counts once. No paladin wears the weapon in these reports.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
