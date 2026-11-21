@@ -1271,9 +1271,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Headmaster'sCharge-13937"
  value: {
-  dps: 695.10502
-  tps: 489.94875
-  dtps: 4.66104
+  dps: 692.50159
+  tps: 487.76265
+  dtps: 4.73891
  }
 }
 dps_results: {
