@@ -167,8 +167,8 @@ func TestWeaponProcHearsALandedHitThatDealsNoDamage(t *testing.T) {
 	}
 }
 
-// A listener built from a row's melee swing bit hears a hit flagged as a counted swing, Windfury
-// Totem's strike, and still no other main-hand special; one its caller narrows to main-hand specials
+// A listener built from a row's melee swing bit hears a hit flagged as a counted swing, a Windfury
+// Totem hit, and still no other main-hand special; one its caller narrows to main-hand specials
 // still hears it as one. A listener typed by hand on white hits, a weapon proc's shape, a caller that
 // opts out and a row that hears melee abilities alone leave the counted swing to the masks alone.
 func TestSwingBitHearsCountedSwings(t *testing.T) {

@@ -81,11 +81,11 @@ outcome it is stays the caller's, except the block, since no `ProcTypeMask` has 
 
 The melee swing bit (`PROC_FLAG_DEAL_MELEE_SWING`, 0x4) also sets `HearsCountedSwings`, which
 `spelldata.ProcTrigger` copies onto the trigger: a hit flagged `SpellFlagCountsAsSwing`, which is
-Windfury Totem's strike, reaches a listener whose mask would not hear it as a main-hand auto attack,
+a Windfury Totem hit, reaches a listener whose mask would not hear it as a main-hand auto attack,
 and a procs-per-minute manager prices it on the main hand's speed (EV-0136). `WeaponProc()` clears it,
-since a weapon proc hears the strike by its own rule. A caller whose row hears swings but not the
-strike clears it by hand, as Unsealed Wrath does (`sim/paladin/talents_retribution.go`). A
-`core.ProcTrigger` typed by hand hears the strike only if it sets the field, as Reckoning's spend does.
+since a weapon proc hears the Windfury hit by its own rule. A caller whose row hears swings but not the
+Windfury hit clears it by hand, as Unsealed Wrath does (`sim/paladin/talents_retribution.go`). A
+`core.ProcTrigger` typed by hand hears the Windfury hit only if it sets the field, as Reckoning's spend does.
 
 The mask states which hits reach the listener; it cannot state the condition around them, so the
 generator reads that off the tooltip into `core.ProcHint`:
@@ -178,7 +178,7 @@ the attacker for 40 Physical on the melee table.
 The damage shape (`applySpellDataDamageProc`) gives its listener the `RecoveryTime` of the row it casts as the internal
 cooldown where the trigger's row states none, since the spell cannot be cast again while it runs, and no hit that lands
 inside that time casts it. Toofbreaker 286430's Toofbreak 1320269 states 100 ms, so it brings no second strike and
-rolls on no Windfury Totem strike or ability that lands with the swing that cast it (EV-0145). A row that deals its
+rolls on no Windfury Totem hit or ability that lands with the swing that cast it (EV-0145). A row that deals its
 damage as an `A_PROC_TRIGGER_DAMAGE` aura casts nothing and takes none: the shield spikes state 5 s and answer every
 block.
 

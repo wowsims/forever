@@ -92,9 +92,9 @@ func castSeal(t *testing.T, sim *core.Simulation, pal *paladin.Paladin, id int32
 	spell.SkipCastAndApplyEffects(sim, pal.CurrentTarget)
 }
 
-const windfuryTotemStrike = 10610 // The strike Windfury Totem's proc casts.
+const windfuryTotemStrike = 10610 // The hit Windfury Totem's proc casts.
 
-// Every seal with a per-hit effect hears Windfury Totem's strike as one more white swing.
+// Every seal with a per-hit effect hears a Windfury Totem hit as one more white swing.
 func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
 	for _, c := range []struct {
 		name string
@@ -111,7 +111,7 @@ func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
 			sim, pal, _, _ := unsealedWrathPaladinWith(t, UnsealedWrathTalents, &proto.RaidBuffs{WindfuryTotem: true})
 			strike := pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
 			if strike == nil {
-				t.Fatal("the paladin has no Windfury Totem strike")
+				t.Fatal("the paladin has no Windfury Totem hit")
 			}
 			procs := func() int32 {
 				var casts int32
@@ -123,7 +123,7 @@ func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
 				return casts
 			}
 
-			// Each strike comes after the seal's own proc cooldown, under a fresh seal.
+			// Each Windfury Totem hit comes after the seal's own proc cooldown, under a fresh seal.
 			for range 100 {
 				castSeal(t, sim, pal, c.seal)
 				pal.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: pal.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
@@ -131,7 +131,7 @@ func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
 				}
 			}
 			if procs() == 0 {
-				t.Errorf("100 landed Windfury Totem strikes under %s procced it none, want some", c.name)
+				t.Errorf("100 landed Windfury Totem hits under %s procced it none, want some", c.name)
 			}
 		})
 	}
@@ -139,8 +139,8 @@ func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
 
 var noSacredArbiterTalents = "050250002-501-15233011200301351" // The Unsealed Wrath build with Sacred Arbiter's point in Deflection.
 
-// A landed white swing refreshes Judgement of the Crusader on its target, and so does Windfury
-// Totem's strike. Seal of Command's hit and Judgement of Command leave it running down, and so does
+// A landed white swing refreshes Judgement of the Crusader on its target, and so does a Windfury
+// Totem hit. Seal of Command's hit and Judgement of Command leave it running down, and so does
 // Holy Strike unless Sacred Arbiter is taken (EV-0117).
 func TestJudgementDebuffRefreshesOnWhiteSwingsAndWindfuryTotemsStrike(t *testing.T) {
 	for _, build := range []struct {
@@ -188,7 +188,7 @@ func TestJudgementDebuffRefreshesOnWhiteSwingsAndWindfuryTotemsStrike(t *testing
 				refreshes bool
 			}{
 				{"a white swing", pal.AutoAttacks.MHAuto(), true},
-				{"Windfury Totem's strike", pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike}), true},
+				{"Windfury Windfury hit", pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike}), true},
 				{"Holy Strike", pal.GetSpell(core.ActionID{SpellID: paladin.HolyStrikeRankMap.Highest().ID}), build.sacredArbiter},
 				{"Seal of Command's hit", byMask(paladin.SpellMaskSealOfCommandProc), false},
 				{"Judgement of Command", byMask(paladin.SpellMaskJudgementOfCommand), false},
@@ -207,15 +207,15 @@ func TestJudgementDebuffRefreshesOnWhiteSwingsAndWindfuryTotemsStrike(t *testing
 	}
 }
 
-// Windfury Totem's strike neither stores nor spends an Echo, though the seals hear it as a white
+// A Windfury Totem hit neither stores nor spends an Echo, though the seals hear it as a white
 // swing and other rows' melee swing bit hears it as a main-hand swing. Each landed swing stores one
-// copy whether or not a strike follows, and a strike landing past the proc cooldown stores none.
+// copy whether or not a Windfury Totem hit follows, and one landing past the proc cooldown stores none.
 func TestUnsealedWrathStoresNoCopyFromWindfuryTotemsStrike(t *testing.T) {
 	sim, pal, swing, _ := unsealedWrathPaladinWith(t, UnsealedWrathTalents, &proto.RaidBuffs{WindfuryTotem: true})
 	strike := pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
 	echo := pal.GetAuraByID(core.ActionID{SpellID: 1311704})
 	if strike == nil || echo == nil {
-		t.Fatal("the paladin has no Windfury Totem strike or no Echo of Righteousness")
+		t.Fatal("the paladin has no Windfury Totem hit or no Echo of Righteousness")
 	}
 	var struck int
 	for range 300 {
@@ -231,14 +231,14 @@ func TestUnsealedWrathStoresNoCopyFromWindfuryTotemsStrike(t *testing.T) {
 		}
 	}
 	if struck == 0 {
-		t.Fatal("300 swings brought no Windfury Totem strike, so the check above proves nothing")
+		t.Fatal("300 swings brought no Windfury Totem hit, so the check above proves nothing")
 	}
 
 	echo.Deactivate(sim)
 	passUnsealedWrathCooldown(sim)
 	pal.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: pal.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
 	if got := echo.GetStacks(); got != 0 {
-		t.Errorf("a strike past the proc cooldown stored %d copies of the seal, want none", got)
+		t.Errorf("a Windfury Totem hit past the proc cooldown stored %d copies of the seal, want none", got)
 	}
 }
 

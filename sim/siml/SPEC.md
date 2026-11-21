@@ -1991,8 +1991,8 @@ Some notes on this file:
 - **The Windfury Totem auras** are all external (tag −1) and share a game name, so the generator would tell them
   apart only by id. Their pinned names say what each does instead: `windfury_totem_proc` is 10612, the party aura
   that rolls the proc, which the warrior reads; `windfury_totem_aura` is 10614, which the sim holds while the
-  party's totem stands. `windfury_totem_buff` is pinned to 10610, the strike the proc lands, and no build registers
-  an aura under it.
+  party's totem stands. `windfury_totem_buff` is pinned to 10610, the Windfury Totem hit the proc lands, and no build
+  registers an aura under it.
 - **Items and spells.** The trinkets and engineering items are cast with `item.`. Jom Gabbar's on-use is the
   spell 29602, a shared name (§7.1) that every class reads.
 - **Strength.** In `cast_all_stat_buff_cooldowns(stat_type2=…)`, `stat_type1` is strength, `Stat` 0. That is

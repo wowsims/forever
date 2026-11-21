@@ -20,7 +20,7 @@ over the same stretch of time, the report with more events stays. A proc is an e
 The wearer's own damage, heal and cast events and the hits the wearer takes are grouped where less than 40 ms apart,
 and a proc is credited to the nearest group, from 300 ms before it to 60 ms after it.
 
-A swing is a landed white swing or a landed Windfury Totem strike in a group with no spell cast, priced on the base
+A swing is a landed white swing or a landed Windfury Totem hit in a group with no spell cast, priced on the base
 speed of the main-hand weapon in the snapshot, or on the harmonic mean of both hands' speeds for a dual wielder, whose
 swings are not split by hand. A druid swings a form's paw whatever the weapon, so the one druid in Shadowcraft Armor is
 left out of the swing rates. A cast is a group holding exactly one cast of a spell with the magic defense type and no
