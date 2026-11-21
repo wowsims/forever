@@ -27,23 +27,19 @@ type Input = {
 
 const input = (id: string) => [...RotationIconInputs, ...RotationInputs.inputs].find(config => config.id === id) as unknown as Input;
 
+// A new player's simple rotation holds no twist and no Echo stacks, as settings saved without those fields do.
 const unsealedWrathPlayer = async () => {
-	const player = (await makeIndividualSim({ spec: Spec.SpecRetributionPaladin })).player as unknown as RetPlayer;
+	const made = await makeIndividualSim({ spec: Spec.SpecRetributionPaladin });
+	const player = made.player as unknown as RetPlayer;
 	player.setTalentsString(UnsealedWrathTalents.data.talentsString);
-	const rotation = player.getSimpleRotation();
-	rotation.uwTwist = PaladinSealTwist.SealTwistUnknown;
-	rotation.uwSocStacks = 0;
-	rotation.uwSofStacks = 0;
-	rotation.uwSorStacks = 0;
-	player.setSimpleRotation(rotation);
-	return player;
+	return { made, player };
 };
 
 const shown = (player: RetPlayer) => ['uwSocStacks', 'uwSofStacks', 'uwSorStacks'].filter(id => input(id).showWhen!(player));
 
 describe('the Unsealed Wrath twist picker', () => {
 	it("twists Seal of Command until Seal of Fury is picked, and shows that twist's Echo stacks", async () => {
-		const player = await unsealedWrathPlayer();
+		const { player } = await unsealedWrathPlayer();
 		expect(input('uwTwist').showWhen!(player)).toBe(true);
 		expect(input('uwTwist').getValue(player)).toBe(PaladinSealTwist.SealTwistCommand);
 		expect(shown(player)).toEqual(['uwSocStacks', 'uwSorStacks']);
@@ -57,7 +53,7 @@ describe('the Unsealed Wrath twist picker', () => {
 	});
 
 	it("resets the Echo stacks to the picked twist's defaults", async () => {
-		const player = await unsealedWrathPlayer();
+		const { player } = await unsealedWrathPlayer();
 		input('uwSorStacks').setValue(player, 2);
 
 		input('uwTwist').setValue(player, PaladinSealTwist.SealTwistFury);
@@ -69,7 +65,7 @@ describe('the Unsealed Wrath twist picker', () => {
 	});
 
 	it('keeps the Echo stacks when the twist already running is picked again', async () => {
-		const player = await unsealedWrathPlayer();
+		const { player } = await unsealedWrathPlayer();
 		input('uwTwist').setValue(player, PaladinSealTwist.SealTwistFury);
 		input('uwSofStacks').setValue(player, 3);
 		input('uwSorStacks').setValue(player, 2);
@@ -81,10 +77,8 @@ describe('the Unsealed Wrath twist picker', () => {
 
 	// Hidden, the mounted picker writes its zero value on the next rotation change.
 	it('keeps the picked twist and its Echo stacks while Unsealed Wrath is untalented', async () => {
-		const made = await makeIndividualSim({ spec: Spec.SpecRetributionPaladin });
-		const player = made.player as unknown as RetPlayer;
+		const { made, player } = await unsealedWrathPlayer();
 		const talents = UnsealedWrathTalents.data.talentsString;
-		player.setTalentsString(talents);
 		expect(player.getTalents().unsealedWrath).toBe(true);
 		renderWithHost(<ConnectedIconEnumPicker modObject={player} config={input('uwTwist') as never} />, made);
 		act(() => input('uwTwist').setValue(player, PaladinSealTwist.SealTwistFury));

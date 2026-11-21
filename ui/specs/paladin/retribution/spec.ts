@@ -146,19 +146,16 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 	simpleRotation: (player: Player<Spec.SpecRetributionPaladin>, simple: SpecRotation<Spec.SpecRetributionPaladin>, cooldowns: Cooldowns): APLRotation => {
 		const { unsealedWrath, sealOfCommand, holyShock } = player.getTalents();
 		const actions = AplUtils.simpleCooldownActions(cooldowns);
-		const twist = Inputs.twistFor(simple.uwTwist, sealOfCommand);
-		const twistsFury = unsealedWrath && !holyShock && twist === PaladinSealTwist.SealTwistFury;
+		const twistsFury = unsealedWrath && !holyShock && simple.uwTwist === PaladinSealTwist.SealTwistFury;
 		const rotation = APLRotation.clone(twistsFury ? Presets.UwSorSofAplPreset.rotation.rotation! : aplFor(player));
 		const aura = Inputs.AURA_SPELLS[simple.aura];
 		const judgement = Inputs.JUDGE_SPELLS[simple.assignedJudgement];
 
 		const values: Record<string, string> = {
 			'Has assigned judgement': String(!!judgement),
-			'Max Seal of Command Stacks': String(Inputs.echoStacks(simple.uwSocStacks, Inputs.TWIST_STACKS[PaladinSealTwist.SealTwistCommand].own)),
-			'Max Seal of Fury Stacks': String(Inputs.echoStacks(simple.uwSofStacks, Inputs.TWIST_STACKS[PaladinSealTwist.SealTwistFury].own)),
-			'Max Seal of Righteousness Stacks': String(
-				Inputs.righteousnessStacks(simple.uwSorStacks, twistsFury ? PaladinSealTwist.SealTwistFury : PaladinSealTwist.SealTwistCommand),
-			),
+			'Max Seal of Command Stacks': String(Inputs.commandStacks(simple)),
+			'Max Seal of Fury Stacks': String(Inputs.furyStacks(simple)),
+			'Max Seal of Righteousness Stacks': String(Inputs.righteousnessStacks(simple, twistsFury)),
 			'Pull range': String(Math.max(Inputs.MIN_PULL_RANGE, simple.pullRange || 25)),
 			'Delay Major CDs': `${simple.delayMajorCds}s`,
 		};

@@ -86,7 +86,7 @@ describe('Retribution simple rotation', () => {
 		'builds on the Seal of Fury twist APL when Unsealed Wrath twists Seal of Fury, with talents %o',
 		talents => {
 			const rotation = generateWith(talents, { uwTwist: PaladinSealTwist.SealTwistFury });
-			expect(rotation.groups.map(g => g.name)).toEqual(groupNames(UwSorSofApl));
+			expect(groupNames(rotation)).toEqual(groupNames(UwSorSofApl));
 		},
 	);
 
@@ -96,7 +96,7 @@ describe('Retribution simple rotation', () => {
 		['Unsealed Wrath is not talented', { sealOfCommand: true }, PaladinSealTwist.SealTwistFury, DefaultApl],
 		['Holy Shock is talented', { holyShock: true, unsealedWrath: true }, PaladinSealTwist.SealTwistFury, HolyShockApl],
 	])("keeps the talents' APL when %s", (_, talents, uwTwist, apl) => {
-		expect(generateWith(talents, { uwTwist }).groups.map(g => g.name)).toEqual(groupNames(apl));
+		expect(groupNames(generateWith(talents, { uwTwist }))).toEqual(groupNames(apl));
 	});
 
 	it("sets the Seal of Fury twist's Echo stacks, and its own defaults where none is set", () => {
