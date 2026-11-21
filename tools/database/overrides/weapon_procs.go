@@ -1175,9 +1175,9 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  6622,
 		SpellID: 8191,
-		PPM:     1.8, // TODO: Vanilla value - verify in-game
+		PPM:     1.95,
 		Reason:  "Sword of Zeal: no proc row",
-		Source:  "vanilla-carryover",
+		Source:  "EV-0175",
 	},
 	{
 		ItemID:  10847,
