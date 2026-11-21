@@ -141,8 +141,8 @@ const FURY_2H_PRESET_OPTIONS = {
 		makeSpecChangeWarningToast(
 			[
 				{
-					condition: (player: Player<Spec.SpecDpsWarrior>) => !isArmsSpec(player),
-					message: 'Check your gear: You have a one-handed weapon equipped, but the selected option is for two-handed weapons.',
+					condition: (player: Player<Spec.SpecDpsWarrior>) => !player.getTalents().twoHandedWeaponSpecialization,
+					message: "Check your talents: You have selected a two-hander spec but don't have [Two-Handed Weapon Specialization] talented.",
 				},
 			],
 			player,
@@ -151,29 +151,30 @@ const FURY_2H_PRESET_OPTIONS = {
 };
 
 // The Pre-BiS Fury sources with Destiny in place of the dual-wield pair. Don Julio's Band and Bloodseeker are Alterac
-// Valley rewards. Destiny has no known source; its Strength proc rate comes from logs (EV-0132).
+// Valley rewards. Destiny has no known source; its Strength proc rate comes from logs (EV-0132). Hand of Justice beats
+// Blackhand's Breadth on fights of 180 s and longer; Blackhand's Breadth wins up to 120 s.
 export const PreBiSFury2HGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFury2HGearJson, FURY_2H_PRESET_OPTIONS);
 
-// The Fury build for a two-hander: Two-Handed Weapon Specialization, Blood Craze and a Gore Drinker point in place
-// of Dual Wield Specialization and Furious Precision.
+// The Fury build for a two-hander: Two-Handed Weapon Specialization, Blood Craze, a Gore Drinker point and a fifth
+// Enrage point in place of Dual Wield Specialization and Furious Precision.
 export const Fury2HTalents = PresetUtils.makePresetTalents('Fury 2H', SavedTalents.create({ talentsString: '30303213032-050500350122110231' }));
 
-// Measured on the Pre-BiS Fury 2H gear and talents. Hit is its value below the 8% cap, where the gear sits.
+// Measured on the Pre-BiS Fury 2H gear and talents. The gear sits at the 8% hit cap; Hit is its value below it.
 export const PreBiSFury2HEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Fury 2H',
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 1.9,
+			[Stat.StatAgility]: 1.94,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatArmorPenetration]: 0.47,
+			[Stat.StatArmorPenetration]: 0.46,
 			[Stat.StatHitRating]: 5.17,
-			[Stat.StatHasteRating]: 2.09,
-			[Stat.StatCritRating]: 2.52,
-			[Stat.StatExpertiseRating]: 2.34,
+			[Stat.StatHasteRating]: 2.06,
+			[Stat.StatCritRating]: 2.55,
+			[Stat.StatExpertiseRating]: 2.26,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 14.21,
+			[PseudoStat.PseudoStatMainHandDps]: 13.89,
 			[PseudoStat.PseudoStatOffHandDps]: 0,
 		},
 	),

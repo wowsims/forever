@@ -13,7 +13,7 @@ const wielding = (handType: HandType) => ({ getEquippedItem: () => ({ item: { ha
 const generate = (handType: HandType, simple: Partial<DpsWarrior_Rotation>) =>
 	APLRotation.toJson(spec.simpleRotation!(wielding(handType), DpsWarrior_Rotation.create(simple), Cooldowns.create()));
 
-// The rotation without the option toggles' hides and the simple settings.
+// The rotation without its hide flags and its simple settings.
 const withoutToggles = (json: unknown): unknown => {
 	if (Array.isArray(json)) return json.map(withoutToggles);
 	if (json === null || typeof json !== 'object') return json;
@@ -43,11 +43,6 @@ describe.each([
 	it('runs the preset rotation when both toggles are on', () => {
 		const book = generate(handType, { spec: warriorSpec, useHeroicStrikeRank9: true, useBattleShoutRank7: true });
 		expect(withoutToggles(book)).toEqual(withoutToggles(APLRotation.toJson(preset.rotation.rotation!)));
-	});
-
-	it('names the spells the preset names when both toggles are on', () => {
-		const book = generate(handType, { spec: warriorSpec, useHeroicStrikeRank9: true, useBattleShoutRank7: true });
-		expect(spellIds(book)).toEqual(spellIds(APLRotation.toJson(preset.rotation.rotation!)));
 	});
 
 	it('casts the trainer ranks by default', () => {

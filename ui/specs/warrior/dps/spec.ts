@@ -161,10 +161,10 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		const trainerRanks = new Map<number, number>();
 		if (!useHeroicStrikeRank9) trainerRanks.set(25286, 11567);
 		if (!useBattleShoutRank7) trainerRanks.set(25289, 11551);
-		// Fury with a two-hander in the main hand runs the Fury 2H rotation.
 		let preset = Presets.ARMS_DEFAULT_ROTATION;
 		if (spec == DpsWarriorSpec.DpsWarriorSpecFury) {
-			preset = Presets.isArmsSpec(player) ? Presets.FURY_2H_ROTATION : Presets.FURY_DEFAULT_ROTATION;
+			const twoHander = player.getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.handType === HandType.HandTypeTwoHand;
+			preset = twoHander ? Presets.FURY_2H_ROTATION : Presets.FURY_DEFAULT_ROTATION;
 		}
 		const rotation = withSpellIds(preset.rotation.rotation!, trainerRanks);
 
