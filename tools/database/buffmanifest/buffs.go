@@ -379,6 +379,18 @@ var Party = []BuffSpec{
 			proto.Stat_StatSpirit,
 		},
 	},
+	// Headmaster's Charge 13937's use lasts 15 min on a 10 min cooldown, so a party member using it
+	// keeps it up. The wearer's own copy joins the category.
+	{
+		Field:         "headmasters_charge",
+		SpellID:       18264,
+		TooltipItemID: 13937,
+		Category:      "HeadmastersCharge",
+		SingleAura:    true,
+		Stats: []proto.Stat{
+			proto.Stat_StatIntellect,
+		},
+	},
 }
 
 var Individual = []BuffSpec{

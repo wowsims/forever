@@ -37,6 +37,7 @@ var buffInputNumStates = map[string]int{
 var manualBuffInputs = map[string]string{
 	"battle_shout":     "the hand-written input marks Rank 7 and the tier 2 set with an improved icon each, a second improved icon no manifest row carries.",
 	"retribution_aura": "the hand-written input shows itself for tank specs only, since a damage shield only matters on the unit being hit; a role gate no manifest row carries.",
+	"darkspear":        "Darkspear 12802 is not in the game, so the hand-written input shows only while a saved setting picks it.",
 	"puncture_armor":   "the hand-written inputs are the three weapons, one item icon per state, which no manifest row carries.",
 }
 
@@ -44,6 +45,7 @@ type tsBuffInput struct {
 	Const     string
 	Factory   string
 	SpellID   int32
+	ItemID    int32  // the item the input shows instead of SpellID, 0 when it shows the spell
 	ImpID     string // the improved icon expression, "" when the input has no improved state
 	NumStates int    // 0 when the input is not a multistate one
 	FieldName string
@@ -92,6 +94,8 @@ export const {{ .Input.Const }} = {{ .Input.Factory }}({
 		{ actionId: ActionId.fromSpellId({{ .SpellID }}), label: {{ .Label }} },
 {{- end }}
 	],
+{{- else if .Input.ItemID }}
+	actionId: ActionId.fromItemId({{ .Input.ItemID }}),
 {{- else }}
 	actionId: ActionId.fromSpellId({{ .Input.SpellID }}),
 {{- end }}
@@ -242,8 +246,8 @@ func uninputtableBuffReason(row ResolvedBuff) string {
 	return fixed
 }
 
-// The spell the settings input shows as its icon and tooltip: the row's TooltipID when it names one,
-// else the cast the manifest pins for it, else the aura itself.
+// The spell the settings input shows as its icon and tooltip when the row names no TooltipItemID: the row's
+// TooltipID when it names one, else the cast the manifest pins for it, else the aura itself.
 func buffInputActionID(row ResolvedBuff) int32 {
 	if row.TooltipID != 0 {
 		return row.TooltipID
@@ -255,6 +259,7 @@ func buffInput(row ResolvedBuff) (*tsBuffInput, error) {
 	input := &tsBuffInput{
 		Const:     row.Go,
 		SpellID:   buffInputActionID(row),
+		ItemID:    row.TooltipItemID,
 		FieldName: row.TSField(),
 		Label:     tsString(buffLabel(row)),
 	}

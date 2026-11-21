@@ -1126,6 +1126,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 469.43028
+  tps: 2383.38395
+  dtps: 394.56228
+  hps: 85.74862
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 543.45176

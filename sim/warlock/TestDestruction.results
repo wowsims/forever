@@ -800,6 +800,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 899.99037
+  tps: 709.26751
+  dtps: 9.81635
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 898.70754

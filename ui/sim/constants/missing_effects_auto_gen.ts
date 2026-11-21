@@ -844,12 +844,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13937, // Headmaster's Charge
-		[
-			"Gives 20 additional intellect to party members within 30 yards.", // 18264 - https://www.wowhead.com/forever/spell=18264
-		]
-	],
-	[
 		13953, // Silent Fang
 		[
 			"Silences an enemy, preventing it from casting spells for 6s.", // 1293654 - https://www.wowhead.com/forever/spell=1293654

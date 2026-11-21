@@ -800,6 +800,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 937.4989
+  tps: 774.2541
+  dtps: 11.44027
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 928.9387
