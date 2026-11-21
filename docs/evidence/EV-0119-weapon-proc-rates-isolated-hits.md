@@ -2,10 +2,9 @@
 
 - Claim: Stinging Viper rolls 1.75 procs per minute, Toxic Revenger 1.8, Meteor Shard 1.55, Bite of Serra'kis 1.45,
   White Obsidian Wand 3.75 (on wand shots), Ravager 1, The Black Knight 0.6 and Heartseeking Crossbow 2.7. A melee-type
-  hit cast directly or flagged
-  Not a Proc rolls an on-hit weapon proc, Windfury Totem
-  strikes included; a ranged-type hit never does, and a Judgement of Command rolls it twice.
-  Ironfoe's chance is 3% against other targets and 6% against Orcs.
+  hit cast directly or flagged Not a Proc rolls an on-hit weapon proc, Windfury Totem hits included; a ranged-type
+  hit never does, and a Judgement of Command rolls it twice. Ironfoe's chance is 3% against other targets and 6%
+  against Orcs.
 - Sources: 709 public reports on forever.warcraftlogs.com (zone 3000 listing, 2026-11-14 17:49 to 2026-11-15 07:00
   UTC) that list one of the procs; the codes behind each rate are listed under the rates table.
 - Game build: 1.60.1.70938. The hotfix pushes inside the window (2026-11-14 19:52 to 2026-11-15 06:22 UTC) add 29
@@ -35,7 +34,7 @@ ruling: it stays at 1 (pooled 0.94 [0.89, 1.00], its cast hits alone near 1.02).
 
 | Hit                                            | Not a Proc | Defense type | Rolls      | Count                                                                                                                                                                                        |
 | ---------------------------------------------- | ---------- | ------------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Windfury Totem strike (8516, 10608, 10610)     | yes        | melee        | yes        | swings followed by a strike, which logs about 33 ms after its hit: procs at a white swing's chance                                                                                           |
+| Windfury Totem hit (8516, 10608, 10610)        | yes        | melee        | yes        | swings followed by a Windfury Totem hit, which logs about 33 ms after the white hit: procs at a white swing's chance (EV-0128)                                                               |
 | Judgement of Command (20467, 20963–20966)      | yes        | melee        | yes, twice | Bigger Rock: 17.3% at least one proc, 0.95% two (22 / 2,314) against two rolls at 9.1%; Stoneslayer: 23.5%, 1.76% (8 / 455) against two rolls at 12.5%, the chance per roll that gives 23.5% |
 | Judgement of Fury, Judgement of Righteousness  | yes        | ranged       | no         | 0 / 1,242; 0 / 736                                                                                                                                                                           |
 | any ranged-type hit of a melee weapon's wearer | –          | ranged       | no         | 0 in every item                                                                                                                                                                              |
@@ -98,7 +97,7 @@ Reports, every fight the item was worn in:
 Ironfoe's extra attacks log as 15494 (Fury of Forgewright), one `extraattacks` event of 2 per proc. Two
 protection warriors wore it in the main hand with a shield and no Hand of Justice, in Blackrock Spire, Dire Maul and
 Blackmaw Hold (BDFj9VNrfXhxwQT3, bzwY28XH6Vfc4Zpg; every fight). Hits are white swings, cast melee abilities and
-Windfury Totem strikes; Shield Slam, Shield Bash, Thunder Clap and the swings within 600 ms after a proc are left out.
+Windfury Totem hits; Shield Slam, Shield Bash, Thunder Clap and the swings within 600 ms after a proc are left out.
 Hits within 50 ms of each other form a group; a group of k hits on targets of one race has a 1 - (1 - p)^k chance to
 proc, and p is fitted per race by maximum likelihood (95% interval from the likelihood ratio). Targets are Orcs by
 name: Scarshield, Blackhand, Firebrand and Bloodaxe (not their worgs), Quartermaster Zigris, Overlord Wyrmthalak and

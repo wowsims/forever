@@ -12,12 +12,12 @@ only where that roll does.
 
 A melee strike a weapon proc casts off a main-hand white swing of the weapon is heard by weapon procs, its own weapon
 included, by combat enchants and by oils. One it casts off anything else is heard by none of them: an ability, a
-seal's strike, Windfury Totem's strike, an off-hand hit, the paw's swing of a druid in Cat, Bear or Dire Bear Form, or
+seal's strike, a Windfury Totem hit, an off-hand hit, the paw's swing of a druid in Cat, Bear or Dire Bear Form, or
 another strike. A strike a white swing cast therefore rolls its weapon once more, and the strike that roll casts rolls
 nothing.
 
 A strike whose row states a cooldown of its own is not cast again while it runs. It brings no second, and a hit that
-lands inside the cooldown casts none either, Windfury Totem's strike off the same swing included: Toofbreak 1320269
+lands inside the cooldown casts none either, a Windfury Totem hit off the same swing included: Toofbreak 1320269
 states 100 ms.
 
 A magic weapon proc's spell is a spell hit (R-0051), equip and aura procs keep the `SpellFlagProc` gate, and Windfury

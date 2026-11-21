@@ -1,8 +1,8 @@
 # EV-0153: Proc rates of 9 weapons from the Warcraft Logs reports up to 2026-11-19
 
 - Claim: each weapon below procs at the rate its section gives, priced on the weapon base speed of each hit that rolls
-  it. Angerforge's Battle Axe, Diabolic Skiver and Plaguefang are measured, and Archeus, Blade of the Basilisk, Bleeding
-  Crescent, Silent Fang and Wyvern Tailspike observed.
+  it. Angerforge's Battle Axe, Diabolic Skiver, Plaguefang and Wraith Scythe are measured, and Archeus, Blade of the
+  Basilisk, Bleeding Crescent, Silent Fang and Wyvern Tailspike observed.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each weapon's section lists, from
   every indexed wearer of the weapons; 2,155 reports in all
 - Game build: 1.60.1.70790 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114196; the hotfix
@@ -27,7 +27,7 @@ The rolling hits are the ones the class census (EV-0155) finds rolling a weapon 
   Bloodthirst, Gouge, Riposte, a two-hander's Whirlwind);
 - every landing of a melee-table ability that logs a debuff and no damage, on the main hand (Sunder Armor, Rend,
   Rupture, Cheap Shot, Kidney Shot, Expose Armor, Disarm, Concussion Blow);
-- Windfury Weapon and Windfury Totem strikes, once each;
+- Windfury Weapon and Windfury Totem hits, once each;
 - a hunter's Multi-Shot, Arcane Shot, Aimed Shot and Summon Hawk hits, and the landings of Serpent Sting, Concussive
   Shot and Scorpid Sting, on the ranged weapon;
 - a dual wielder's Whirlwind, once per hand: each target takes both weapons' hits at one millisecond, the larger hit
@@ -42,12 +42,12 @@ Execute and Judgement of Command roll twice (EV-0155). They are left out, and so
 whose few hits do not settle whether they roll once or twice: their hits count as no roll, and every proc from 20 ms
 before one of them to 50 ms after it is dropped.
 
-A proc that lands on the target logs almost never on a killing blow: over the 45 weapons #1108 counted, 3.7% of the white swings
-that leave the target alive are followed by a proc and 0.7% of the killing ones. A proc that buffs the wearer logs as
-usual. For a proc that lands on the target, a killing blow (a hit with overkill) is no roll, and a proc from 20 ms
-before one to 50 ms after it is dropped; a killing blow is no lone unit either. Some reports list one stretch of the
-log under several fight ids, and their events come several times over: a run whose white swings repeat, to the
-millisecond and the point, keeps each event once.
+A proc that lands on the target logs almost never on a killing blow: over the 45 weapons #1108 counted, 3.7% of the
+white swings that leave the target alive are followed by a proc and 0.7% of the killing ones. A proc that buffs the
+wearer logs as usual. For a proc that lands on the target, a killing blow (a hit with overkill) is no roll, and a proc
+from 20 ms before one to 50 ms after it is dropped; a killing blow is no lone unit either. Some reports list one
+stretch of the log under several fight ids, and their events come several times over: a run whose white swings repeat,
+to the millisecond and the point, keeps each event once.
 
 Paladins are left out of every rate, since their rolls are not settled: they read above the other classes on some
 weapons and below them on others (owner ruling, 2026-11-19). Druids in Cat, Bear or Dire Bear Form are left out, since
@@ -66,7 +66,7 @@ debuff or heal) within the proc's window before or after it, and a proc in that 
   between the hands by timing and damage; about 10% get the wrong hand, so the dual-wield white rate reads low and is
   listed but never compared. For a ranged weapon, lone Auto Shots take the place of white swings.
 - Specials: the specials the census reads, listed above, and Rend's landing, on the main hand; Multi-Shot, Arcane Shot,
-  Aimed Shot and Serpent Sting's landing on a ranged weapon. The other melee hits, Sunder Armor and Windfury strikes are
+  Aimed Shot and Serpent Sting's landing on a ranged weapon. The other melee hits, Sunder Armor and Windfury hits are
   not in it.
 - Two-roll abilities, priced as one roll: a true double roll reads about twice the white rate. This checks the roll
   table and sets no rate.
@@ -88,18 +88,18 @@ method, and `targets_final.json` for each weapon's rate and call.
 
 ## Rates
 
-Rate is the override row's rate. The one-hand white and specials columns give the read and, in parentheses, the procs; Was is the row's rate before this count.
+Rate is the override row's rate. The one-hand white and specials columns give the read and, in parentheses, the procs.
 
-| Weapon                  |   Item | Rate | Call     | All hits [95%]    |   Procs / hits | Wearers | One-hand white | Specials   |  Was |
-| ----------------------- | -----: | ---: | -------- | ----------------- | -------------: | ------: | -------------- | ---------- | ---: |
-| Angerforge's Battle Axe |  11816 |    2 | measured | 2.01 [1.93, 2.10] | 1,068 / 12,283 |      14 | 1.70 (298)     | 2.25 (27)  |    2 |
-| Archeus                 |   2000 | 0.95 | observed | 0.94 [0.81, 1.08] |    221 / 4,268 |      27 | 0.87 (69)      | 0.87 (32)  | 0.95 |
-| Blade of the Basilisk   |   8223 |  1.1 | observed | 1.09 [0.94, 1.24] |    157 / 4,564 |       5 | 1.14 (55)      | 1.00 (22)  |  1.1 |
-| Bleeding Crescent       |   6738 |    1 | observed | 0.99 [0.90, 1.09] |   482 / 12,205 |      31 | 0.95 (69)      | 0.87 (50)  |    1 |
-| Diabolic Skiver         |   9475 | 1.75 | measured | 1.74 [1.58, 1.90] |    462 / 5,491 |      15 | 2.00 (160)     | 1.86 (54)  | 1.75 |
-| Plaguefang              | 279876 |    2 | measured | 1.98 [1.87, 2.11] | 2,944 / 42,419 |      55 | 1.99 (560)     | 1.98 (324) | 1.95 |
-| Silent Fang             |  13953 | 1.45 | observed | 1.47 [1.30, 1.61] |   466 / 11,915 |       9 | 1.50 (154)     | 1.49 (64)  | 1.45 |
-| Wyvern Tailspike        |   5752 | 2.05 | observed | 2.03 [1.83, 2.27] |    445 / 7,293 |      14 | 2.25 (26)      | 2.36 (26)  |    2 |
+| Weapon                  |   Item | Rate | Call     | All hits [95%]    |   Procs / hits | Wearers | One-hand white | Specials   |
+| ----------------------- | -----: | ---: | -------- | ----------------- | -------------: | ------: | -------------- | ---------- |
+| Angerforge's Battle Axe |  11816 |    2 | measured | 2.01 [1.93, 2.10] | 1,068 / 12,283 |      14 | 1.70 (298)     | 2.25 (27)  |
+| Archeus                 |   2000 | 0.95 | observed | 0.94 [0.81, 1.08] |    221 / 4,268 |      27 | 0.87 (69)      | 0.87 (32)  |
+| Blade of the Basilisk   |   8223 |  1.1 | observed | 1.09 [0.94, 1.24] |    157 / 4,564 |       5 | 1.14 (55)      | 1.00 (22)  |
+| Bleeding Crescent       |   6738 |    1 | observed | 0.99 [0.90, 1.09] |   482 / 12,205 |      31 | 0.95 (69)      | 0.87 (50)  |
+| Diabolic Skiver         |   9475 | 1.75 | measured | 1.74 [1.58, 1.90] |    462 / 5,491 |      15 | 2.00 (160)     | 1.86 (54)  |
+| Plaguefang              | 279876 |    2 | measured | 1.98 [1.87, 2.11] | 2,944 / 42,419 |      55 | 1.99 (560)     | 1.98 (324) |
+| Silent Fang             |  13953 | 1.45 | observed | 1.47 [1.30, 1.61] |   466 / 11,915 |       9 | 1.50 (154)     | 1.49 (64)  |
+| Wyvern Tailspike        |   5752 | 2.05 | observed | 2.03 [1.83, 2.27] |    445 / 7,293 |      14 | 2.25 (26)      | 2.36 (26)  |
 
 ## Angerforge's Battle Axe (item 11816, spell 1300783): 2, measured
 

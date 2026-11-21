@@ -11,7 +11,7 @@
 
 A unit is the paladin's melee-type hits, avoided hits and proc lines with no gap over 150 ms between neighbours. Its
 rolls are one for a white swing, a Holy Strike, a Seal of Command hit, each Seal of Righteousness hit and a Windfury
-Totem strike, and two for a Judgement of Command (EV-0119). Units with an avoided hit or a killing blow are left out.
+Totem hit, and two for a Judgement of Command (EV-0119). Units with an avoided hit or a killing blow are left out.
 The chance is the maximum-likelihood binomial chance per roll, the rate is that chance times 60 over the weapon's speed,
 and the interval is the 95% likelihood interval.
 
@@ -64,4 +64,4 @@ the log-likelihood.
 Among units of one roll, 3 of 59 with a landed weapon proc show two strikes and none of 501 without one does.
 
 These chances pool every landed weapon proc, whatever cast it. One that a white swing cast brings one more roll at about
-the base chance, and one that anything else cast brings none.
+the base chance, and one that anything else cast brings none (EV-0145).

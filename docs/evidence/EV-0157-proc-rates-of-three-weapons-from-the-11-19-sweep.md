@@ -18,22 +18,13 @@ measured or observed.
 Scripts and inputs, in `forever-sweep-auto`: `analyze.py` (version 12, as EV-0153's, with a paladin check that sets no
 rate) for the rates, and the run `runs/2026-11-19-2309`, whose `results.json` holds each weapon's counts.
 
-## Rates
-
-Rate is the override row's rate. The one-hand white and specials columns give the read and, in parentheses, the procs;
-Was is the row's rate before this count.
-
-| Weapon           | Item | Rate | Call     | All hits [95%]    | Procs / hits | Wearers | One-hand white | Specials  | Was |
-| ---------------- | ---: | ---: | -------- | ----------------- | -----------: | ------: | -------------- | --------- | --: |
-| Blackvenom Blade | 4446 |  4.2 | observed | 4.22 [3.95, 4.37] |  412 / 3,258 |       5 | -              | 2.99 (28) |   - |
-
 ## Blackvenom Blade (item 4446, spell 13518): 4.2, observed
 
 412 procs on 3,258 rolling hits, 5 wearers, 5 runs, in the main hand or the off hand: all hits 4.22 [3.95, 4.37].
 Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
-Observed: no lone-unit rate checks it. One-hand white: none. Dual-wield white: 4.14 [3.52, 4.57], 206 procs on 1,658
-lone units, 5 wearers. Specials: 2.99 [2.90, 3.29], 28 procs on 312 lone units, 2 wearers. Direct: window [-10, 100] ms,
-median 0 ms, 98th percentile 0 ms, 165 isolated hits. Reports from 2026-11-13 to 2026-11-19.
+One-hand white: none. Dual-wield white: 4.14 [3.52, 4.57], 206 procs on 1,658 lone units, 5 wearers. Specials: 2.99
+[2.90, 3.29], 28 procs on 312 lone units, 2 wearers. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 0 ms,
+165 isolated hits. Reports from 2026-11-13 to 2026-11-19.
 
 | Class  | Wearers | Procs |  Hits |  PPM |
 | ------ | ------: | ----: | ----: | ---: |

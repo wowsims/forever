@@ -47,7 +47,7 @@ The pooled rate, 1.67 (count interval 1.58 to 1.77, wearer bootstrap 1.60 to 1.7
 | Paladin white swing, no Seal of Fury up                     | matched by log order: 51 / 1,447 landed swings (3.5%, 1.41 per minute, interval 1.08 to 1.84)                                                          |
 | Paladin natural swing with Seal of Fury up, against without | any proc within 30 ms of a swing with no other swing in the 300 ms before it: 10.9% of 10,257 swings, against 6.3% of 1,165 under another seal or none |
 | Holy Strike                                                 | 96 / 2,503 (3.8%)                                                                                                                                      |
-| Windfury Totem strike after a paladin wearer's swing        | 1 / 244, all from one paladin with Seal of Fury up, which settles neither way whether the strike rolls the axe                                         |
+| Windfury Totem hit after a paladin wearer's swing           | 1 / 244, all from one paladin with Seal of Fury up, which settles neither way whether the Windfury hit rolls the axe                                   |
 
 A Seal of Fury hit is logged in the white swing's millisecond and its damage rows carry no Not a Proc flag; with the
 seal up a swing procs the axe more often, so the seal's hit rolls it too. These counts settle no rule the sim follows.

@@ -1,6 +1,7 @@
-# EV-0052: Non-physical and periodic damage taken grants twice the rage of a physical hit
+# EV-0052: Non-physical and periodic damage taken grants twice the rage of a physical melee swing
 
-- Claim: damage of a school other than physical, and every periodic tick whatever its school, grants twice the damage-taken rage of a physical direct hit.
+- Claim: damage of a school other than physical, and every periodic tick whatever its school, grants twice the
+  damage-taken rage of a physical melee swing.
 - Sources: combat logs of a warrior at levels 27 to 38, hits from rage-using mobs, Defensive Stance divided out
 - Game build: 1.60.1.70862, 1.60.1.70888 and 1.60.1.70938
 - Date: 2026-11-09 to 2026-11-13
@@ -19,4 +20,5 @@ The factor is the observed rage over damage / c(attacker level). The sim's physi
 
 Mana-using mobs give about half of each of these (physical swings 1.058, arcane swings 2.06, Fireball 2.10, Lightning Bolt 2.08). The spell and periodic readings span 3.75 to 3.86, against 1.96 for physical melee swings.
 
-A physical direct hit that is not a melee swing, a Shoot or a Mortal Strike among them, grants twice the melee rule's rage on the damage left after armor and the block. Cleave's reading above a melee swing is EV-0037's.
+A physical direct hit that is not a melee swing, a Shoot or a Mortal Strike among them, grants twice the melee rule's
+rage on the damage left after armor and the block (EV-0118). Cleave's reading above a melee swing is EV-0037's.

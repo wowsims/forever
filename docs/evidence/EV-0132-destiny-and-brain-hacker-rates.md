@@ -15,10 +15,10 @@
 
 ## Method
 
-This method is §Destiny's chance against haste's. A proc is an application or refresh of Destiny's 17152 on the
+§Destiny's chance against haste counts this way. A proc is an application or refresh of Destiny's 17152 on the
 wearer. A hit is a landed, non-periodic damage event of the wearer with melee defense: white swings, melee abilities,
 and melee hits logged under a spell id the wearer logs no cast of (Execute's 20647, Judgement of Command, Seal of
-Righteousness, Sweeping Strikes' 26654, Windfury Totem strikes). The rate per minute is the chance per hit times 60
+Righteousness, Sweeping Strikes' 26654, Windfury Totem hits). The rate per minute is the chance per hit times 60
 over the weapon's base speed of 3.6 s, so haste raises procs a minute without moving it.
 
 Each proc is credited to a hit by log order. Destiny's buff logs just before the damage of the hit that rolled it (497

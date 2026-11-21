@@ -26,8 +26,6 @@ measured rows already in the override table count.
 | Jang'thraze the Protector 11086, absorb 11657 | 181 / 1972   | 2.90 (2.50 to 3.30) | 2.9 | 1                 |
 | Thrash Blade 17705                            | 61 / 1425    | 0.95 (0.74 to 1.21) | 1   | 1, main-hand hits |
 
-An earlier recount of the Antu'sul, Thrash Blade and Jang'thraze counts moved Jang'thraze's row from 2.8 to 2.9.
-
 Bigger Rock on Bigger Stick answers whether an unstated rate is procs per minute or a flat chance: it reads 11.7% a
 swing at its own 3.4 speed, 8.6% at a bear's 2.5 and 2.5% at a cat's 1.0. Procs per minute fits (deviance 2.9 on 5
 degrees of freedom) and a flat chance does not (49 on 5).

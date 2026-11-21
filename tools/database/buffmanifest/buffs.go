@@ -129,7 +129,7 @@ var Raid = []BuffSpec{
 			proto.Stat_StatAgility,
 		},
 	},
-	// The totem's raid aura procs the strike 10610 off main-hand hits; the strike is the driver's.
+	// The totem's raid aura procs the Windfury Totem hit 10610 off main-hand hits; the hit is the driver's.
 	{
 		Field:    "windfury_totem",
 		SpellID:  10612,

@@ -13,7 +13,7 @@
 
 EV-0136's method on its reports and 1,003 more listed up to 2026-11-17: a proc is an event of the item's proc spell,
 counted once when it logs several events within 50 ms; the hits are the wearer's landed, non-periodic hits of the item's
-hand (white swings, melee-defense abilities, seals and Windfury Totem strikes on the main hand; white swings on the off
+hand (white swings, melee-defense abilities, seals and Windfury Totem hits on the main hand; white swings on the off
 hand; Auto Shot and ranged-defense hits on the ranged weapon); a dual wielder's swings are split between the hands by
 swing timing; a run logged in two reports counts once and a stretch where the item was swapped away is dropped. The
 interval is the wider of the per-hit Wilson interval and 2,000 bootstrap draws of whole wearers. A rate is measured when
@@ -22,7 +22,8 @@ otherwise. The hits a dual wielder's split gives are fractional, so each table's
 few hits of its total.
 
 Julie's Dagger leaves out its one warrior run, since a warrior's off-hand Whirlwind rolls the dagger and is not counted
-as a hit here (EV-0136). Axe of the Deep Woods reads 1.94 on its rogue and hunter runs and 1.55 on its warrior runs. Barman Shanker has only rogue wearers and Blunderflame Bone Bow only hunters.
+as a hit here (EV-0136). Axe of the Deep Woods reads 1.94 on its rogue and hunter runs and 1.55 on its warrior runs.
+Barman Shanker has only rogue wearers and Blunderflame Bone Bow only hunters.
 
 ## Axe of the Deep Woods (item 811, spell 18104): 1.7, observed
 

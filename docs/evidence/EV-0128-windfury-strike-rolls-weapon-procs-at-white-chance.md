@@ -1,22 +1,22 @@
-# EV-0128: Windfury Totem's strike rolls main-hand weapon procs at a white swing's chance
+# EV-0128: Windfury Totem hits roll main-hand weapon procs at a white swing's chance
 
-- Claim: a landed Windfury Totem strike rolls the main-hand weapon's chance-on-hit procs whose log order can be read
+- Claim: a landed Windfury Totem hit rolls the main-hand weapon's chance-on-hit procs whose log order can be read
   (extra attacks, Thrash Blade and Hack and Slash among them, auras on the wearer, debuffs on the target, instant damage
-  and mana) at about the chance a main-hand white swing or melee ability has, and an avoided strike rolls none.
+  and mana) at about the chance a main-hand white swing or melee ability has, and an avoided one rolls none.
   Projectile damage procs and Flurry Axe in the main hand are not settled.
 - Sources: public reports on forever.warcraftlogs.com (zone 3000), the fights each wearer had the item in the main hand,
-  events with the strike in its own damage line (from about 2026-11-13 18:10 UTC); codes under `## Logs`.
-- Game build: 1.60.1.70938; the strike set runs from 2026-11-13 18:10 UTC across the 2026-11-14 02:00 UTC
+  events with the Windfury hit in its own damage line (from about 2026-11-13 18:10 UTC); codes under `## Logs`.
+- Game build: 1.60.1.70938; the Windfury hit set runs from 2026-11-13 18:10 UTC across the 2026-11-14 02:00 UTC
   hotfix, and the Hack and Slash set is after it. Hotfix state per player and relogs not recorded.
 - Date: 2026-11-13 to 2026-11-16
 - Pull request: #1051, written up in #1054
 
 ## Method
 
-A strike is a damage event of Windfury Totem (10610) from the wearer. Before about 2026-11-13 18:10 UTC the strike
-logged as an `extraattacks` event and a plain white swing, which cannot be told from a natural swing, so each wearer's
-events up to their last Windfury Totem `extraattacks` are left out. Druids are left out. Seal of Fury and Seal of
-Righteousness hits are no candidates: they log in the batch of the weapon hit that carried them.
+A Windfury hit is a damage event of Windfury Totem (10610) from the wearer. Before about 2026-11-13 18:10 UTC the
+Windfury hit logged as an `extraattacks` event and a plain white swing, which cannot be told from a natural swing, so
+each wearer's events up to their last Windfury Totem `extraattacks` are left out. Druids are left out. Seal of Fury and
+Seal of Righteousness hits are no candidates: they log in the batch of the weapon hit that carried them.
 
 Each proc goes to one hit by log order:
 
@@ -26,80 +26,83 @@ Each proc goes to one hit by log order:
 | right after its hit's damage  | debuffs on the target, instant damage                                         | the last landed hit before it, within 2 ms  |
 | one server tick after its hit | Ironfoe, Fist of Stone                                                        | the last landed hit 8 to 25 ms before it    |
 
-Most procs the strike rolled log 6 to 20 ms before the strike's damage, and most a white swing rolled 0 to 2 ms before
-the swing's damage, so the window is 20 ms; a 5 ms window loses most strike procs. The strike's damage logs about 33 ms
-after the hit that triggered it, so that hit's own procs sit 30 to 40 ms before the strike and stay with it.
+Most procs the Windfury hit rolled log 6 to 20 ms before the Windfury hit's damage, and most a white swing rolled 0 to 2
+ms before the swing's damage, so the window is 20 ms; a 5 ms window loses most Windfury hit procs. The Windfury hit's
+damage logs about 33 ms after the hit that triggered it, so that hit's own procs sit 30 to 40 ms before the Windfury hit
+and stay with that hit.
 
-| Item, procs credited to | 0 ms | 1-2 ms | 6-10 ms | 11-15 ms | 16-20 ms |
-| ----------------------- | ---: | -----: | ------: | -------: | -------: |
-| Thrash Blade, white     |  62% |    17% |      6% |       7% |       6% |
-| Thrash Blade, strike    |  12% |     3% |     38% |      37% |      10% |
-| Ravager, white          |  69% |    28% |      1% |       1% |       1% |
-| Ravager, strike         |  14% |     5% |     32% |      34% |      16% |
+| Item, procs credited to    | 0 ms | 1-2 ms | 6-10 ms | 11-15 ms | 16-20 ms |
+| -------------------------- | ---: | -----: | ------: | -------: | -------: |
+| Thrash Blade, white        |  62% |    17% |      6% |       7% |       6% |
+| Thrash Blade, Windfury hit |  12% |     3% |     38% |      37% |      10% |
+| Ravager, white             |  69% |    28% |      1% |       1% |       1% |
+| Ravager, Windfury hit      |  14% |     5% |     32% |      34% |      16% |
 
-Expected = landed strikes × the item's chance per landed hit, taken per class and weapon setup: white swings for a
+Expected = landed Windfury hits × the item's chance per landed hit, taken per class and weapon setup: white swings for a
 single weapon, cast melee abilities for a dual wielder, whose white lines mix both hands.
 
 ## Every item whose log order can be read
 
-22 items in 219 reports: 2,215 procs credited to 41,765 landed strikes (Flurry Axe's 17 among them),
-2,257 expected at each class's chance (Flurry Axe's 17 of 244 among them) and about 121 if strikes never rolled, which
-is landed strikes × 0.29%, the rate the crediting gives avoided strikes. Paladins left out: 1,828 on 35,626 strikes
-against 1,861.5. Avoided strikes: 9 credits in 2,963. A test with no crediting gives the same answer: a white swing or
-melee ability with nothing else around it is followed by 1.98 times the procs when a landed strike follows it, and 1.00
-times when an avoided strike does (extra-attack items left out, since their granted swing sits beside the hit).
-EV-0119's test of swings followed by a strike, rerun with the strike placed 10 to 60 ms after its hit: 674 procs
-credited to 15,855 strikes against 673.6 expected. The table holds every item with 400 or more landed strikes.
+22 items in 219 reports: 2,215 procs credited to 41,765 landed Windfury hits (Flurry Axe's 17 among them),
+2,257 expected at each class's chance (Flurry Axe's 17 of 244 among them) and about 121 if Windfury hits never rolled,
+which is landed Windfury hits × 0.29%, the rate the crediting gives avoided Windfury hits. Paladins left out: 1,828 on
+35,626 Windfury hits against 1,861.5. Avoided Windfury hits: 9 credits in 2,963. A test with no crediting gives the same
+answer: a white swing or melee ability with nothing else around it is followed by 1.98 times the procs when a landed
+Windfury hit follows it, and 1.00 times when an avoided Windfury hit does (extra-attack items left out, since their
+granted swing sits beside the hit). EV-0119's test of swings followed by a Windfury hit, rerun with the Windfury hit
+placed 10 to 60 ms after its trigger: 674 procs credited to 15,855 Windfury hits against 673.6 expected. The table holds
+every item with 400 or more landed Windfury hits.
 
-| Item                        | Proc                 | Landed strikes | Credited | Expected per class | If strikes never rolled |
-| --------------------------- | -------------------- | -------------: | -------: | -----------------: | ----------------------: |
-| Thrash Blade                | extra attack         |         18,059 |      628 |              621.8 |                    53.1 |
-| Bigger Rock on Bigger Stick | debuff on the target |          6,270 |      499 |              551.9 |                    18.4 |
-| Ravager                     | aura on the wearer   |          3,295 |      175 |              178.1 |                     9.7 |
-| Skullforge Reaver           | aura on the wearer   |          3,145 |      244 |              236.1 |                     9.2 |
-| Rock on Stick               | debuff on the target |          3,070 |      177 |              184.0 |                     9.0 |
-| Ripsaw                      | damage               |          1,049 |       69 |               80.5 |                     3.1 |
-| Stoneslayer                 | damage               |            820 |       89 |               85.7 |                     2.4 |
-| The Hand of Antu'sul        | debuff on the target |            851 |       53 |               38.3 |                     2.5 |
-| Toxic Revenger              | debuff on the target |            754 |       40 |               38.3 |                     2.2 |
-| Fist of Stone               | mana                 |            653 |       44 |               55.7 |                     1.9 |
-| Ironfoe                     | extra attack         |            616 |       20 |               14.6 |                     1.8 |
-| Rivenspike                  | debuff on the target |            555 |       25 |               28.4 |                     1.6 |
-| Stinging Viper              | debuff on the target |            508 |       35 |               37.4 |                     1.5 |
-| Argent Avenger              | aura on the wearer   |            453 |       19 |               19.2 |                     1.3 |
-| Bite of Serra'kis           | debuff on the target |            409 |       15 |               11.8 |                     1.2 |
+| Item                        | Proc                 | Landed Windfury hits | Credited | Expected per class | If Windfury hits never rolled |
+| --------------------------- | -------------------- | -------------------: | -------: | -----------------: | ----------------------------: |
+| Thrash Blade                | extra attack         |               18,059 |      628 |              621.8 |                          53.1 |
+| Bigger Rock on Bigger Stick | debuff on the target |                6,270 |      499 |              551.9 |                          18.4 |
+| Ravager                     | aura on the wearer   |                3,295 |      175 |              178.1 |                           9.7 |
+| Skullforge Reaver           | aura on the wearer   |                3,145 |      244 |              236.1 |                           9.2 |
+| Rock on Stick               | debuff on the target |                3,070 |      177 |              184.0 |                           9.0 |
+| Ripsaw                      | damage               |                1,049 |       69 |               80.5 |                           3.1 |
+| Stoneslayer                 | damage               |                  820 |       89 |               85.7 |                           2.4 |
+| The Hand of Antu'sul        | debuff on the target |                  851 |       53 |               38.3 |                           2.5 |
+| Toxic Revenger              | debuff on the target |                  754 |       40 |               38.3 |                           2.2 |
+| Fist of Stone               | mana                 |                  653 |       44 |               55.7 |                           1.9 |
+| Ironfoe                     | extra attack         |                  616 |       20 |               14.6 |                           1.8 |
+| Rivenspike                  | debuff on the target |                  555 |       25 |               28.4 |                           1.6 |
+| Stinging Viper              | debuff on the target |                  508 |       35 |               37.4 |                           1.5 |
+| Argent Avenger              | aura on the wearer   |                  453 |       19 |               19.2 |                           1.3 |
+| Bite of Serra'kis           | debuff on the target |                  409 |       15 |               11.8 |                           1.2 |
 
-Strikes roll on both sides of the 2026-11-14 02:00 UTC hotfix: before it, Thrash Blade 30 credited to 653 strikes and
-Fist of Stone 39 to 590. Nightblade, Meteor Shard and The Black Knight, whose damage logs late, are not settled here.
+Totem hits roll on both sides of the 2026-11-14 02:00 UTC hotfix: before it, Thrash Blade 30 credited to 653 Windfury
+hits and Fist of Stone 39 to 590. Nightblade, Meteor Shard and The Black Knight, whose damage logs late, are not settled
+here.
 
 ## Thrash Blade by setup
 
-| Class, setup           | Strike              | Avoided strike | White swing            | Cast melee ability     |
-| ---------------------- | ------------------- | -------------- | ---------------------- | ---------------------- |
-| Warrior, single weapon | 196 / 5,531 (3.54%) | 1 / 518        | 1,129 / 29,782 (3.79%) | 939 / 26,035 (3.61%)   |
-| Paladin, single weapon | 79 / 1,681 (4.70%)  | 0 / 109        | 998 / 22,966 (4.35%)   | 172 / 6,051 (2.84%)    |
-| Rogue, dual wield      | 235 / 7,361 (3.19%) | 0 / 220        | both hands             | 1,874 / 51,376 (3.65%) |
-| Warrior, dual wield    | 102 / 2,942 (3.47%) | 0 / 196        | both hands             | 445 / 23,806 (1.87%)   |
-| Hunter, dual wield     | 16 / 544 (2.94%)    | 0 / 23         | both hands             | 107 / 3,739 (2.86%)    |
+| Class, setup           | Windfury hit        | Avoided Windfury hit | White swing            | Cast melee ability     |
+| ---------------------- | ------------------- | -------------------- | ---------------------- | ---------------------- |
+| Warrior, single weapon | 196 / 5,531 (3.54%) | 1 / 518              | 1,129 / 29,782 (3.79%) | 939 / 26,035 (3.61%)   |
+| Paladin, single weapon | 79 / 1,681 (4.70%)  | 0 / 109              | 998 / 22,966 (4.35%)   | 172 / 6,051 (2.84%)    |
+| Rogue, dual wield      | 235 / 7,361 (3.19%) | 0 / 220              | both hands             | 1,874 / 51,376 (3.65%) |
+| Warrior, dual wield    | 102 / 2,942 (3.47%) | 0 / 196              | both hands             | 445 / 23,806 (1.87%)   |
+| Hunter, dual wield     | 16 / 544 (2.94%)    | 0 / 23               | both hands             | 107 / 3,739 (2.86%)    |
 
-Single weapon: 275 credited to 7,212 strikes, 282.7 expected at the white chance. Dual wield: 353 to 10,847, 339.1
+Single weapon: 275 credited to 7,212 Windfury hits, 282.7 expected at the white chance. Dual wield: 353 to 10,847, 339.1
 expected at the cast chance. The warriors' dual-wield cast chance holds one of Whirlwind's two damage lines, which reads
-4 of 10,647; without it their cast melee abilities read 441 of 13,159 (3.35%) and their strikes expect 98.6, which puts
-dual wield at 353 against 382.7 and Thrash Blade at 628 against 665.4. Up to 39 more procs (24 dual wield, 15 single
-weapon) log before a landed strike within 20 ms but go to a hit logged between them.
+4 of 10,647; without it their cast melee abilities read 441 of 13,159 (3.35%) and their Windfury hits expect 98.6, which
+puts dual wield at 353 against 382.7 and Thrash Blade at 628 against 665.4. Up to 39 more procs (24 dual wield, 15
+single weapon) log before a landed Windfury hit within 20 ms but go to a hit logged between them.
 
-EV-0002 read 30 of 1,003 clean strikes (3.0%) against 106 of 7,884 clean white swings (1.3%). Its script, rerun with
-the swings split by the gear at the time, gives two reasons:
+EV-0002's Thrash Blade white rate counts 106 procs on 7,884 clean white swings. Its Thrash Blade counts, rerun with its
+script and the swings split by the gear at the time, read low for two reasons:
 
 - 6,345 of those white swings belong to wearers with an off-hand weapon, whose white lines mix the blade's swings with
   the off hand's, which never roll it. Those read 76 (1.2%); the 1,126 swings with no off-hand weapon read 30 (2.7%),
-  and the strikes 11 of 305 (3.6%) for the same wearers.
+  and the Windfury hits 11 of 305 (3.6%) for the same wearers.
 - A swing counts only when it is the first line in its millisecond, and in a millisecond an avoided line sorts before a
   landed one. A swing whose granted swing was avoided in that millisecond drops out, and each of those swings procced.
   Taking the landed line first gives 131 of 7,947 (1.6%).
 
-The same script on a later scan (36 more reports with a Thrash Blade wearer): strikes of single-weapon wearers 69 of
-1,891 (3.6%), their white swings 293 of 7,973 (3.7%), or 318 of 7,998 (4.0%) with the landed line first.
+The same script on a later scan (36 more reports with a Thrash Blade wearer): Windfury hits of single-weapon wearers 69
+of 1,891 (3.6%), their white swings 293 of 7,973 (3.7%), or 318 of 7,998 (4.0%) with the landed line first.
 
 ## Hack and Slash by setup
 
@@ -107,32 +110,33 @@ Rogues, events after the 2026-11-14 02:00 UTC hotfix, log order as above; "sword
 count takes each rogue's own chance on cast melee abilities, which are main-hand hits, so it covers talent ranks; it
 counts only rogues with 200 or more of them.
 
-| Sword in       | Strike              | Avoided strike | Cast melee ability   | White swings, both hands | Credited / expected on strikes |
-| -------------- | ------------------- | -------------- | -------------------- | ------------------------ | ------------------------------ |
-| both hands     | 171 / 5,802 (2.95%) | 0 / 300        | 667 / 21,467 (3.11%) | 1,370 / 46,368 (2.95%)   | 164 / 162.8                    |
-| main hand only | 189 / 6,774 (2.79%) | 0 / 296        | 834 / 25,577 (3.26%) | 839 / 59,833 (1.40%)     | 187 / 213.2                    |
-| off hand only  | 0 / 2,428           | 0 / 72         | 0 / 10,542           | 458 / 23,923 (1.91%)     | -                              |
+| Sword in       | Windfury hit        | Avoided Windfury hit | Cast melee ability   | White swings, both hands | Credited / expected on Windfury hits |
+| -------------- | ------------------- | -------------------- | -------------------- | ------------------------ | ------------------------------------ |
+| both hands     | 171 / 5,802 (2.95%) | 0 / 300              | 667 / 21,467 (3.11%) | 1,370 / 46,368 (2.95%)   | 164 / 162.8                          |
+| main hand only | 189 / 6,774 (2.79%) | 0 / 296              | 834 / 25,577 (3.26%) | 839 / 59,833 (1.40%)     | 187 / 213.2                          |
+| off hand only  | 0 / 2,428           | 0 / 72               | 0 / 10,542           | 458 / 23,923 (1.91%)     | -                                    |
 
-Dual-wield strikes with the proc on the main hand only read 0.86 to 0.88 of the cast chance: Hack and Slash 187 against
-213.2, Thrash Blade on these streams 160 against 185.5, and the rogues above 235 against 268.5. With the sword in both
-hands they read 164 against 162.8, and dual-wield warriors and hunters 102 against 98.6 and 16 against 15.6.
+Dual-wield Windfury hits with the proc on the main hand only read 0.86 to 0.88 of the cast chance: Hack and Slash 187
+against 213.2, Thrash Blade on these streams 160 against 185.5, and the rogues above 235 against 268.5. With the sword
+in both hands they read 164 against 162.8, and dual-wield warriors and hunters 102 against 98.6 and 16 against 15.6.
 
-EV-0002 read 60 of 2,208 clean strikes (2.7%) against 327 of 21,185 clean white swings (1.5%). By setup, 11,457 of
-those swings belong to rogues with the sword in the main hand only, whose off-hand swings cannot roll it (155, 1.4%),
-and 3,801 to rogues with it in the off hand only (62, 1.6%), whose strikes cannot roll it (0 of 424). With the sword in
-both hands its script reads strikes 19 of 681 (2.8%) against white swings 110 of 5,927 (1.9%), and 142 of 5,975 (2.4%)
-with the landed line first; on the later scan 80 of 2,049 (3.9%) against 471 of 19,767 (2.4%), and 608 of 19,979
-(3.0%). Log order reads both at 2.95% for these rogues; what keeps the later scan's clean strikes higher is not known.
+EV-0002's Hack and Slash white rate counts 327 procs on 21,185 clean white swings, and its counts read low for the same
+two reasons. By setup, 11,457 of those swings belong to rogues with the sword in the main hand only, whose off-hand
+swings cannot roll it (155, 1.4%), and 3,801 to rogues with it in the off hand only (62, 1.6%), whose Windfury hits
+cannot roll it (0 of 424). With the sword in both hands its script reads Windfury hits 19 of 681 (2.8%) against white
+swings 110 of 5,927 (1.9%), and 142 of 5,975 (2.4%) with the landed line first; on the later scan 80 of 2,049 (3.9%)
+against 471 of 19,767 (2.4%), and 608 of 19,979 (3.0%). Log order reads both at 2.95% for these rogues; what keeps the
+later scan's clean Windfury hits higher is not known.
 
 ## Flurry Axe
 
-Flurry Axe is an off-hand weapon for most wearers, and the strike rolls only main-hand procs. Main-hand wearers with
-strikes: one paladin (kpy279HLf1VWgPdx/1-6) with Seal of Fury up, whose seal hits roll the axe themselves. Strikes
-with no seal hit in their batch: 0 of 54, where 2.3 were expected at the paladin's white chance without a seal hit (65
-of 1,509, 4.3%); that reading has a 10% chance if the strike rolls. Strikes with a seal hit: 17 of 190 (8.9%); white
-swings with one: 32 of 140 (22.9%). The report index (5,800 reports to 2026-11-15 14:09 UTC) and 1,000 reports from the
-2026-11-16 listing, up to 08:16 UTC, hold no other main-hand wearer with strikes whose gear the logs show, so the
-axe's strike chance is not measured.
+Flurry Axe is an off-hand weapon for most wearers, and the Windfury hit rolls only main-hand procs. Main-hand wearers
+with Windfury hits: one paladin (kpy279HLf1VWgPdx/1-6) with Seal of Fury up, whose seal hits roll the axe themselves.
+Windfury hits with no seal hit in their batch: 0 of 54, where 2.3 were expected at the paladin's white chance without a
+seal hit (65 of 1,509, 4.3%); that reading has a 10% chance if the Windfury hit rolls. Windfury hits with a seal hit: 17
+of 190 (8.9%); white swings with one: 32 of 140 (22.9%). The report index (5,800 reports to 2026-11-15 14:09 UTC) and
+1,000 reports from the 2026-11-16 listing, up to 08:16 UTC, hold no other main-hand wearer with Windfury hits whose gear
+the logs show, so the axe's chance on a Windfury hit is not measured.
 
 ## Logs
 

@@ -104,7 +104,7 @@ within 4%.
 | Warrior, Rivenspike (1.6)  |           5.20 |                 67.3 |                          20.7 |                46.6 |
 | Rogue, Rivenspike (1.6)    |           5.20 |                 67.2 |                          20.7 |                46.5 |
 
-The other hits (specials, Windfury strikes, Whirlwind, extra attacks) come to about 48 a minute whatever the weapon's
+The other hits (specials, Windfury hits, Whirlwind, extra attacks) come to about 48 a minute whatever the weapon's
 speed, so the raid's copy rolls on its swings and 48 more hits a minute. The owner chose the sim's wielder as the model.
 
 The logs land fewer procs a hit than PPM × speed / 60. Over stretches with no Faerie Fire, Curse of Recklessness,

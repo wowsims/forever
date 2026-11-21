@@ -17,7 +17,9 @@ The hotfix raised the melee damage of the Summon Hawk guardian by about 80%. The
 | The same with Aspect of the Hawk | about 882                 | 1325                          | 1060              | 60-69              |
 
 - The swing is a roll plus 2.5/60 of the hawk's attack power, 60 attack power a point of dps, with Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks; §Hawk swing gives the roll's share of the creature dps. At level 48 the roll spanned 22% either side of its mean. Logs before the hotfix read 0.0223 a point of the hawk's attack power, so the hotfix made the attack power part 1.8 times what it was.
-- The hawk's attack power is 80% of the owner's attack power as the log shows it. That number is the ranged attack power plus a weapon part (§The weapon part of the owner's attack power): 7 with no weapons, 433 with a 27.32 dps bow and a two-hander. One level 48 hunter logged 352 at 345 ranged attack power with no weapons, and 1180 at 747 with a 27.3 dps bow.
+- The hawk's attack power is 80% of the owner's attack power as the log shows it. That number is the ranged attack
+  power plus a weapon part (§The weapon part of the owner's attack power): 7 with no weapons, 433 with a 27.32 dps bow
+  and a two-hander.
 - Hawk health stays at 5% of creature health. The logs read 6.45% at 48; it does not move DPS.
 - The 5% health, the no armor and attack power of its own, and the 30% of the owner's armor are the level 30 readings of #592 (EV-0074).
 

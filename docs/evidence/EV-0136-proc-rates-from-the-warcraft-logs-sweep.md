@@ -2,10 +2,10 @@
 
 - Claim: each item and set bonus below procs at the rate its section gives, priced on each landed hit's weapon base speed;
   a rate whose item has 5 or more wearers and a 95% interval within 10% of it either side is measured, every other one
-  observed, except in the sections that name a later count, which take that count's test; and Windfury Totem's strike
+  observed, except in the sections that name a later count, which take that count's test; and a Windfury Totem hit
   counts as a melee swing for the procs whose rows hear melee swings, Unsealed Wrath excepted. In these reports, up to
-  2026-11-16, the strike grants no rage and spends a warrior Flurry charge; from push 114115 it grants a main-hand white
-  hit's rage and spends no Flurry charge.
+  2026-11-16, the Windfury hit grants no rage and spends a warrior Flurry charge; from push 114115 it grants a main-hand
+  white hit's rage and spends no Flurry charge (EV-0138).
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section's table names; 600
   reports in all for the rates, and the 209 reports the Windfury Totem section lists
 - Game build: 1.60.1.70425 to 1.60.1.70938 by report date; each item's section gives its date span, and the hotfix each
@@ -33,7 +33,7 @@
 A proc is an event of the item's proc spell on the wearer or the target (damage, an aura applied or refreshed, a heal,
 extra attacks, energy), counted once when one proc logs several events within 50 ms; a proc that misses or is resisted
 still counts. The hits are the wearer's landed, non-periodic hits the trigger's proc flags hear: white swings of the item's
-hand and melee-defense hits on the main hand (abilities, seals, Judgement of Command, Windfury Totem strikes) for a melee
+hand and melee-defense hits on the main hand (abilities, seals, Judgement of Command, Windfury Totem hits) for a melee
 proc, Auto Shot, Shoot, Throw and ranged-defense hits on the ranged weapon for a ranged one. Left out: periodic ticks,
 damage shields, and Volley, Shank, Shield Slam, Shield Bash and Thunder Clap. A dual wielder's white swings are split
 between the hands by swing timing: each hand swings at its weapon's base speed over the haste of the moment, so the
@@ -78,63 +78,65 @@ Read from the same wearers' streams, to check what the rows state before the sim
   dodged strikes, 6 of 12 parried ones and 3 of 5 misses; 56 stuns were immune, 2 resisted, and 305 of 389 lasted the full
   1.5 s.
 
-## Windfury Totem's strike as a swing
+## Windfury Totem hit as a swing
 
 - Reports from 2026-11-11 to 2026-11-16; the reports are listed at the end of the section
 - Scripts: `chain.py` for procs and `charges.py` for spent charges, run by `run_all.sh`; `reckoning.py` for Reckoning's
   extra attacks, `swingtimer.py` for the swing timer, and `paired.py` for rage
 
-A strike counted here is a landed Windfury Totem strike (10610 and the lower ranks 10608 and 8516) that follows a landed
+A Windfury Totem hit counted here is a landed one (10610 and the lower ranks 10608 and 8516) that follows a landed
 melee ability (melee DefenseType) within 60 ms, where the wearer lands no other melee hit in the 100 ms before the
 ability or in the 100 ms after it. Its proc is an event of the proc's spell in the 100 ms after the ability. A melee
-ability alone almost never procs these rows, so the rate after an ability and a strike is the strike's own; the
-ability-alone rate is in the table beside it. The white swing rate is the same count after a landed white swing with no
-other hit within 100 ms. A charge spend is counted only while the charged aura is up, and for both Flurries only where
-neither the hit nor the strike crit, since a crit sets the charges again. Intervals are Wilson intervals per hit.
+ability alone almost never procs these rows, so the rate after an ability and a Windfury hit is the Windfury hit's own;
+the ability-alone rate is in the table beside it. The white swing rate is the same count after a landed white swing with
+no other hit within 100 ms. A charge spend is counted only while the charged aura is up, and for both Flurries only
+where neither the triggering hit nor the Windfury hit crit, since a crit sets the charges again. Intervals are Wilson
+intervals per hit.
 
-| Proc                                      | Row     | Wearers | Strikes | With proc | Per strike        | After an ability alone | Per white swing   |
-| ----------------------------------------- | ------- | ------: | ------: | --------: | ----------------- | ---------------------- | ----------------- |
-| Unbridled Wrath, rage                     | 12322   |      78 |  11,785 |     6,418 | 54.5% (53.6–55.4) | 0.26%                  | 55.1% (54.8–55.4) |
-| Flurry (warrior), a charge spent          | 12966   |      36 |   1,880 |     1,861 | 99.0% (98.4–99.4) | 0.56%                  | 98.3% (98.1–98.5) |
-| Reckless Swings, rage and a charge        | 1329555 |      46 |   1,475 |     1,469 | 99.6% (99.1–99.8) | 0.47%                  | 97.5% (97.1–97.8) |
-| Quick Strikes (Aspect of the Beast)       | 1299447 |      16 |     727 |        62 | 8.5% (6.7–10.8)   | 0.24%                  | 8.6% (8.1–9.1)    |
-| Rogue Armor Energize (rogues)             | 27787   |       5 |     737 |        15 | 2.0% (1.2–3.3)    | 0.05%                  | 2.5% (2.2–2.8)    |
-| Rogue Armor Energize (druid)              | 27787   |       1 |      79 |         1 | 1.3% (0.2–6.8)    | 0 of 334               | 1.8% (1.1–3.1)    |
-| Reckoning, the stored charges spent       | 1326084 |      18 |      25 |        25 | 100% (86.7–100)   | 0.36%                  | 80.4% (74.4–85.3) |
-| Battlegear of Valor, heal                 | 450587  |       9 |   1,299 |        37 | 2.85% (2.04–3.87) | 0.03%                  | 2.68% (2.28–3.14) |
-| Flurry (shaman), a charge spent (EV-0010) | 16257   |      55 |     357 |       286 | 80.1% (75.7–83.9) | 4.1%                   | 94.3% (93.9–94.8) |
-| Seal of Command                           | seal    |      37 |   1,043 |       313 | 30.0% (27.3–32.9) | 0.73%                  | 25.7% (24.9–26.4) |
-| Seal of Fury                              | seal    |      50 |   1,450 |     1,095 | 75.5% (73.2–77.7) | 1.5%                   | 69.1% (68.6–69.6) |
-| Seal of Righteousness                     | seal    |      36 |     821 |       255 | 31.1% (28.0–34.3) | 0.89%                  | 39.3% (38.6–40.1) |
-| Unsealed Wrath, an Echo stored            | 1310735 |      26 |     519 |        10 | 1.9% (1.1–3.5)    | 1.0%                   | 66.6% (65.5–67.7) |
-| Bloodthrill                               | 1289682 |       9 |   1,633 |        10 | 0.61% (0.33–1.12) | 0.74%                  | 3.5% (3.1–4.0)    |
-| Lightforge Armor, Crusader's Wrath        | 450625  |       2 |      33 |         0 | 0% (0–10.4)       | 0 of 375               | 3.4% (2.1–5.4)    |
+| Proc                                      | Row     | Wearers | Windfury hits | With proc | Per Windfury hit  | After an ability alone | Per white swing   |
+| ----------------------------------------- | ------- | ------: | ------------: | --------: | ----------------- | ---------------------- | ----------------- |
+| Unbridled Wrath, rage                     | 12322   |      78 |        11,785 |     6,418 | 54.5% (53.6–55.4) | 0.26%                  | 55.1% (54.8–55.4) |
+| Flurry (warrior), a charge spent          | 12966   |      36 |         1,880 |     1,861 | 99.0% (98.4–99.4) | 0.56%                  | 98.3% (98.1–98.5) |
+| Reckless Swings, rage and a charge        | 1329555 |      46 |         1,475 |     1,469 | 99.6% (99.1–99.8) | 0.47%                  | 97.5% (97.1–97.8) |
+| Quick Strikes (Aspect of the Beast)       | 1299447 |      16 |           727 |        62 | 8.5% (6.7–10.8)   | 0.24%                  | 8.6% (8.1–9.1)    |
+| Rogue Armor Energize (rogues)             | 27787   |       5 |           737 |        15 | 2.0% (1.2–3.3)    | 0.05%                  | 2.5% (2.2–2.8)    |
+| Rogue Armor Energize (druid)              | 27787   |       1 |            79 |         1 | 1.3% (0.2–6.8)    | 0 of 334               | 1.8% (1.1–3.1)    |
+| Reckoning, the stored charges spent       | 1326084 |      18 |            25 |        25 | 100% (86.7–100)   | 0.36%                  | 80.4% (74.4–85.3) |
+| Battlegear of Valor, heal                 | 450587  |       9 |         1,299 |        37 | 2.85% (2.04–3.87) | 0.03%                  | 2.68% (2.28–3.14) |
+| Flurry (shaman), a charge spent (EV-0010) | 16257   |      55 |           357 |       286 | 80.1% (75.7–83.9) | 4.1%                   | 94.3% (93.9–94.8) |
+| Seal of Command                           | seal    |      37 |         1,043 |       313 | 30.0% (27.3–32.9) | 0.73%                  | 25.7% (24.9–26.4) |
+| Seal of Fury                              | seal    |      50 |         1,450 |     1,095 | 75.5% (73.2–77.7) | 1.5%                   | 69.1% (68.6–69.6) |
+| Seal of Righteousness                     | seal    |      36 |           821 |       255 | 31.1% (28.0–34.3) | 0.89%                  | 39.3% (38.6–40.1) |
+| Unsealed Wrath, an Echo stored            | 1310735 |      26 |           519 |        10 | 1.9% (1.1–3.5)    | 1.0%                   | 66.6% (65.5–67.7) |
+| Bloodthrill                               | 1289682 |       9 |         1,633 |        10 | 0.61% (0.33–1.12) | 0.74%                  | 3.5% (3.1–4.0)    |
+| Lightforge Armor, Crusader's Wrath        | 450625  |       2 |            33 |         0 | 0% (0–10.4)       | 0 of 375               | 3.4% (2.1–5.4)    |
 
-Every row whose proc flags hear melee swings and nothing else rolls the strike as a main-hand swing. Unbridled Wrath,
-the warrior's Flurry, Reckless Swings, Quick Strikes, Rogue Armor Energize and Battlegear of Valor roll it at the rate
-a white swing does; the shaman's Flurry and Reckoning hear it too. A seal's row is each rank's own. Unsealed Wrath is the
-exception: a strike stores an Echo no more often than the ability before it does alone. Bloodthrill, whose row also hears abilities but which procs on Heroic Strike and Cleave alone (EV-0056),
-does not hear it either. Lightforge Armor's two wearers are too few to say. The seals hear the strike as the sim has
-them.
+Every row whose proc flags hear melee swings and nothing else rolls the Windfury hit as a main-hand swing. Unbridled
+Wrath, the warrior's Flurry, Reckless Swings, Quick Strikes, Rogue Armor Energize and Battlegear of Valor roll it at the
+rate a white swing does; the shaman's Flurry and Reckoning hear it too. A seal's row is each rank's own. Unsealed
+Wrath is the exception: a Windfury hit stores an Echo no more often than the ability before it does alone. Bloodthrill,
+whose row also hears abilities but which procs on Heroic Strike and Cleave alone (EV-0056),
+does not hear it either. Lightforge Armor's two wearers are too few to say. The seals hear the Windfury hit as the sim
+has them.
 
-A strike spends Reckoning's stored charges, landed (101 spends) or avoided (87), but it brings no extra attack: none of
-the 26 spends by a strike that followed an ability logs Reckoning's extra attacks 20178. A strike that follows a white
-swing, which may spend the charges itself, logs them on 74 of 160 spends, so those are left out.
+A Windfury hit spends Reckoning's stored charges, landed (101 spends) or avoided (87), but it brings no extra attack:
+none of the 26 spends by a Windfury hit that followed an ability logs Reckoning's extra attacks 20178. A Windfury hit
+that follows a white swing, which may spend the charges itself, logs them on 74 of 160 spends, so those are left out.
 
-A white swing that a strike follows spends 1.97 warrior Flurry charges and 1.96 Reckless Swings charges, against 0.99
-and 0.98 for a white swing alone.
+A white swing that a Windfury hit follows spends 1.97 warrior Flurry charges and 1.96 Reckless Swings charges, against
+0.99 and 0.98 for a white swing alone.
 
-The strike does not reset the swing timer: the gap between the swings before and after an ability and a strike is a
-median 1.002 of the wearer's median swing gap (3,314 such gaps), against 1.001 after an ability alone (26,063).
+The Windfury hit does not reset the swing timer: the gap between the swings before and after an ability and a Windfury
+hit is a median 1.002 of the wearer's median swing gap (3,314 such gaps), against 1.001 after an ability alone (26,063).
 
-In these reports the strike grants no rage. Cast events carry the warrior's rage before the cast's cost, so the gain
-between two casts is read straight off them. Over gaps under 600 ms with no damage taken and no resource change, 88 of
-90 strikes from 13 warriors added nothing over the same warrior's gaps opened by the same ability without a strike. The
-strikes dealt 1 to 509 damage, median 204, where a white swing of about 200 damage gives 10 to 19 rage. From push
-114115 the strike grants a main-hand white hit's rage. Those runs are
-DGFd8KtQk19hXabN fight 5, rfg8k3Nw1P7TAHx6 6, AfJ6DYbh9dmkgHZL 7, cgMGCdPJQ84wzaBV 5 and 183, xRK37aCvtVfj26kL 4,
-FN8krKfCb3BXWmwV 3, JRQqNL6DkvWKYdPB 2, 4Tc3yBNVYn7wW8RJ 63, 7fy93LdcwQhvF2gP 5, 1JLq46yg7wYNhan9 1,
-jXTVfy3ApWKPYwDG 3 and 4YVTAqgG3dtmD8C9 4.
+In these reports the Windfury hit grants no rage; from push 114115 it grants a main-hand white hit's rage (EV-0138).
+Cast events carry the warrior's rage before the cast's cost, so the gain between two casts is read straight off them.
+Over gaps under 600 ms with no damage taken and no resource change, 88 of 90 Windfury hits from 13 warriors added
+nothing over the same warrior's gaps opened by the same ability without a Windfury hit. The Windfury hits dealt 1 to 509
+damage, median 204, where a white swing of about 200 damage gives 10 to 19 rage. Those runs are DGFd8KtQk19hXabN fight
+5, rfg8k3Nw1P7TAHx6 6, AfJ6DYbh9dmkgHZL 7, cgMGCdPJQ84wzaBV 5 and 183, xRK37aCvtVfj26kL 4, FN8krKfCb3BXWmwV 3,
+JRQqNL6DkvWKYdPB 2, 4Tc3yBNVYn7wW8RJ 63, 7fy93LdcwQhvF2gP 5, 1JLq46yg7wYNhan9 1, jXTVfy3ApWKPYwDG 3
+and 4YVTAqgG3dtmD8C9 4.
 
 The reports of the proc and charge counts: 123jYCvkVGrHfXWt 176QTFWR8PtdfGZB 1CYTfP3pFDcaRrJm 1DbXf9pPdZWKQTam
 1FNGzPgAaX6wDpBt 1FV3WyfXGCcPrT9b 1HTPQGZya7pAz3qh 1JLq46yg7wYNhan9 1NBKq2mDWghwR69z 1PcrGTyatDAFx8Yk 1QpP6DrkacvCjdYy
@@ -237,13 +239,13 @@ wmT1zqYBat3fHDLy 1-5, 8-9; xrGFH2DzcNBZq3Cv 1-3; zcL8MvJnPXxYhNyC 1.
 - Sim rate: 1 PPM, observed; measured 0.88 PPM [0.74, 1.00], 9 wearers, 9 runs, 201 procs on 5895 hits
 - Reports from 2026-11-14 to 2026-11-16, game build 1.60.1.70938
 - Counted apart from the sweep, on the same pricing: the hits are landed white swings of either hand and Windfury Totem
-  strikes, each on its hand's weapon base speed; a dual wielder's swings are split between the hands by damage (Otsu),
+  hits, each on its hand's weapon base speed; a dual wielder's swings are split between the hands by damage (Otsu),
   and the interval is 4,000 bootstrap draws of whole wearers
 - The Battlegear of Heroism reissue's 4-piece bonus is the same row; no wearer with it active was measured, and the sim
   gives it this rate
 
-Landed white swings and Windfury Totem strikes roll it, the strike as a melee swing (§Windfury Totem's strike as a
-swing). Of the strikes that
+Landed white swings and Windfury Totem hits roll it, the Windfury hit as a melee swing (§Windfury Windfury hit as a
+swing). Of the Windfury hits that
 follow a melee ability with no other hit within 100 ms, 37 of 1,299 procced it (2.85%, 95% 2.04 to 3.87), against 2.68%
 (2.28 to 3.14) on isolated white swings. None of 230 landed Heroic Strikes or 1,864 landed Cleaves is
 followed by a proc, and Whirlwind, Shield Slam and Revenge are followed by one about 0.1% of the time, as chance would
@@ -1052,7 +1054,7 @@ y6D3jqgWt8TvpNYM 1; yYPpk4TqAhjX3xC8 12.
 
 The chance per swing grows with the swing speed from Cat Form to Bear Form to the weapon, so the rate is procs per
 minute. Without the wearer who swung most in Bear Form, Bear Form reads 8.0% (7.3 to 8.5), 1.91. Over every landed
-melee hit of the paladins (abilities, seals and Windfury Totem strikes included, priced at 3.3 s), one proc to each
+melee hit of the paladins (abilities, seals and Windfury Totem hits included, priced at 3.3 s), one proc to each
 Fire Shield apply or refresh, the rate is 2.05 (1.96 to 2.17). The rate holds across builds: Bear Form 7.5% on 345
 swings on 70888, 7.7% on 13,118 on 70938 and 8.0% on 2,889 after 70959 was listed.
 
@@ -2844,8 +2846,7 @@ The count is EV-0153 §Method, run on these weapons.
 - Date: 2026-11-09 to 2026-11-19
 - Pull request: #1126 for Iceblade Hacker and Loksey's Training Stick, #1130 for The Blackrock Slicer
 
-The count is EV-0157 §Method, run on these weapons by the same sweep, `runs/2026-11-19-2309` in
-`forever-sweep-auto`.
+The count is EV-0157 §Method, run on these weapons.
 
 ## Count of the 2026-11-06 to 2026-11-21 reports
 

@@ -186,7 +186,7 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0024",
 	},
 	// Measured on isolated hits in end-game and levelling dungeon reports: landed hits with no other hit of the
-	// wearer close enough to have rolled the proc, from wearers with no off-hand weapon (EV-0119).
+	// wearer close enough to have rolled the proc, from wearers with no off-hand weapon (EV-0003, EV-0022, EV-0119).
 	{
 		ItemID:  6220,
 		SpellID: 1292152,
@@ -385,7 +385,6 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Wolfsbane: no proc row",
 		Source:  "EV-0136",
 	},
-	// Measured the same way with the reports up to 2026-11-17 added (EV-0136).
 	{
 		ItemID:  18324,
 		SpellID: 1302166,
@@ -393,9 +392,9 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Waveslicer: no proc row",
 		Source:  "EV-0136",
 	},
-	// Fitted the same way from the reports up to 2026-11-17, from too few wearers, too wide an interval
-	// or wearers of one class only to call final (EV-0136, EV-0146). The "observed" Source keeps the gear tab's notice up until more wearers
-	// validate it.
+	// Fitted the same way from the reports up to 2026-11-17, from too few wearers, too wide an interval or wearers of
+	// one class only to call final (EV-0136, EV-0146). The "observed" Source keeps the gear tab's notice up until more
+	// wearers validate it.
 	{
 		ItemID:  811,
 		SpellID: 18104,
@@ -424,8 +423,8 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blunderflame Bone Bow: no proc row; a log fit not yet validated (EV-0146)",
 		Source:  "observed",
 	},
-	// Measured on every hit the class census finds rolling the weapon, each priced on its weapon's base speed (EV-0153,
-	// EV-0155).
+	// Measured on every hit the class census finds rolling the weapon, each priced on its weapon's base speed (EV-0136,
+	// EV-0153, EV-0155).
 	{
 		ItemID:  869,
 		SpellID: 13752,
@@ -609,7 +608,8 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	// Fitted the same way from too few wearers, too wide an interval, wearers of one class only or no lone-unit rate to
-	// check it, to call final (EV-0132, EV-0136, EV-0153). The "observed" Source keeps the gear tab's notice up until more wearers validate it.
+	// check it, to call final (EV-0132, EV-0136, EV-0153). The "observed" Source keeps the gear tab's notice up until
+	// more wearers validate it.
 	{
 		ItemID:  647,
 		SpellID: 17152,

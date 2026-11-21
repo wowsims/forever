@@ -1,4 +1,4 @@
-# EV-0134: Tamed pet and hawk crit, a tamed pet's attack power, and hunter crit and trap rolls in live logs
+# EV-0134: Tamed pet crit and attack power, and hunter crit and trap rolls in live logs
 
 - Claim: a tamed pet's white swings take none of the crit it inherits from its owner, while its abilities take all of
   it; a tamed pet takes its 10% of the ranged attack power alone, without the weapon part of the attack power a
