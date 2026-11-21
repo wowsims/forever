@@ -7,7 +7,7 @@ import { EquippedItem } from '@sim/proto/equipped_item';
 
 import { GearData, ItemData } from '../types';
 
-export const itemsTabData = (gearData: GearData, items: Item[]): ItemData<Item, string>[] =>
+export const itemsTabData = (player: Player<any>, gearData: GearData, items: Item[]): ItemData<Item, string>[] =>
 	items.map(item => {
 		const equippedItem = new EquippedItem({ item });
 		return {
@@ -22,12 +22,9 @@ export const itemsTabData = (gearData: GearData, items: Item[]): ItemData<Item, 
 			phase: item.phase,
 			ignoreEPFilter: false,
 			onEquip: item => {
-				const equippedItem = gearData.getEquippedItem();
-				if (equippedItem) {
-					gearData.equipItem(equippedItem.withItem(item));
-				} else {
-					gearData.equipItem(new EquippedItem({ item }));
-				}
+				const current = gearData.getEquippedItem();
+				const equipped = current ? current.withItem(item) : new EquippedItem({ item });
+				gearData.equipItem(equipped.withRandomSuffix(player.getBestRandomSuffix(item)));
 			},
 		};
 	});
