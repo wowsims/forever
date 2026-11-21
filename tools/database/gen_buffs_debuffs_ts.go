@@ -37,6 +37,7 @@ var buffInputNumStates = map[string]int{
 var manualBuffInputs = map[string]string{
 	"battle_shout":     "the hand-written input marks Rank 7 and the tier 2 set with an improved icon each, a second improved icon no manifest row carries.",
 	"retribution_aura": "the hand-written input shows itself for tank specs only, since a damage shield only matters on the unit being hit; a role gate no manifest row carries.",
+	"darkspear":        "Darkspear 12802 is not in the game, so the settings offer no input; the field and its driver stay for when it is.",
 	"puncture_armor":   "the hand-written inputs are the three weapons, one item icon per state, which no manifest row carries.",
 }
 

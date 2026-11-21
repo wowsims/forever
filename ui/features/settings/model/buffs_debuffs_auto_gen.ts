@@ -90,11 +90,7 @@ export const StoneskinTotem = makeTristatePartyBuffInput({
 	label: 'Stoneskin Totem',
 });
 
-export const Darkspear = makeBooleanPartyBuffInput({
-	actionId: ActionId.fromSpellId(16939),
-	fieldName: 'darkspear',
-	label: 'Darkspear',
-});
+// darkspear: Darkspear 12802 is not in the game, so the settings offer no input; the field and its driver stay for when it is.
 
 export const AdmiralsHat = makeBooleanPartyBuffInput({
 	actionId: ActionId.fromSpellId(12022),
@@ -582,10 +578,6 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 		config: StoneskinTotem,
 		stats: [Stat.StatDefenseRating],
 		ownerClass: Class.ClassShaman,
-	},
-	{
-		config: Darkspear,
-		stats: [Stat.StatCritRating],
 	},
 	{
 		config: AdmiralsHat,
