@@ -1,21 +1,29 @@
 # Evidence
 
-Each file here holds one pull request's write-up of a measurement the code relies on: what was measured, where, and the
-numbers. Several log sets one pull request wrote up are sections of its file, and a table lives in one file only; a
-file that needs another's table cites its id. A measurement no pull request wrote up keeps a file of its own. Code and
-skills cite a file by its id, and the spelldata hover shows the file over the id. These files are the record of a
-measurement; an issue or a research note that tracks the same numbers links the id.
+Each file here holds measurements the code relies on: what was measured, where, and the numbers. Every measured item
+or claim has one home, the lowest-numbered file that holds it, and its numbers live there alone; a file that needs
+them cites the home's id. An item or claim no file holds yet takes a new file. Code and skills cite a file by its id,
+and the spelldata hover shows the file over the id. These files are the record of a measurement; an issue or a research
+note that tracks the same numbers links the id.
 
 ## Ids
 
-- An id is `EV-` and four digits, and the file is `EV-0042-<slug>.md`. Take the next free number.
-- An id is never reused or renumbered. When a newer measurement replaces one, the old file stays, gains a
-  `Replaced by: EV-0057` line under its title, and every citation moves to the new id.
+- An id is `EV-` and four digits, and the file is `EV-0042-<slug>.md`. A new file takes the next free number, and
+  only for items or claims no file holds yet.
+- An id is never reused or renumbered.
+- A new count of items or claims a file already holds rewrites that file: their rows and sections take the newest
+  numbers in place, under the same id, and none of their older numbers stays in that file or in any other. A corrected
+  reading of a claim is rewritten in its file the same way. No file says that another replaces part of it.
+- A file whose every part has moved to other files keeps only its title and a `Replaced by: EV-0057` line under it,
+  or `Replaced by: EV-0057, EV-0060` when its parts went to several homes, with no data, and every citation moves to
+  the file that holds each part.
+- Every citation names the home: an override row's `Source` and `Reason`, a comment, a skill, a ruling, another
+  evidence file and issue #964.
 - A comment cites the id after the rule it backs: `// A Pyroblast consumes every stack (EV-0005).` The rule stays in
   the comment; the counts, logs and method move here.
-- An override row's `Source` is the bare id, or several separated by commas when two passes back the row:
-  `Source: "EV-0003"`, `Source: "EV-0017, EV-0018"`. The generator reads such a Source as a measured rate. A rate fitted
-  from too few logs to call final has the Source `observed`, and its `Reason` cites the id.
+- An override row's `Source` is the bare id, or several separated by commas when the row rests on claims with different
+  homes: `Source: "EV-0003"`, `Source: "EV-0017, EV-0018"`. The generator reads such a Source as a measured rate. A
+  rate fitted from too few logs to call final has the Source `observed`, and its `Reason` cites the id.
 
 ## What counts as evidence
 
@@ -39,6 +47,25 @@ tables use (`game files`, `game-files-rows`, `Spell <id> description`, `owner de
 <The method: what was counted, what was left out, and why.>
 
 <The numbers, as a table where there are several.>
+```
+
+The header describes the count the file was written with and every item whose section names no count section. A later
+count that rewrites some items adds a count section at the end of the file, puts a `- Count: §<its heading>` line under
+each item it rewrote (for an item with only a table row, the row moves into the count section's table), and adds one
+header line, `- Later count: <items>, §<its heading>`. Their rows leave the file's summary table. The Claim covers every
+item. A count that rewrites every item rewrites the header instead, with no count section. A count section's heading
+gives the first and last report dates of the whole count, so it is the same in every file the count rewrites. A count
+section may give its method as a pointer to another file's section that ran the same count.
+
+```markdown
+## Count of the <first> to <last> reports
+
+- Sources: <the count's reports, or where each of its sections lists them>
+- Game build: <as above, for this count>
+- Date: <when this count's logs were taken>
+- Pull request: <#N, where this count was written up>
+
+<The method, or the file and section whose method this count runs again.>
 ```
 
 A file names logs by report code and fight, and a local log by class, levels, game build and date. It names no

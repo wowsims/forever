@@ -678,7 +678,6 @@
 				"necropile_raiment_3": "Implemented as one chance for every harmful spell.",
 				"bloodmail_regalia_3": "Assuming that it can proc from Windfury.",
 				"deathbone_guardian_5": "Implemented as 2% expertise.",
-				"chain_of_the_scarlet_crusade_4": "Implemented as Holy damage on every melee hit while active, 3 times against Undead.",
 				"symbols_of_unending_life_3": "Implemented on Rip and Ferocious Bite, on top of the usual refund.",
 				"stormcallers_garb_3": "Implemented as one roll per Lightning Bolt, Chain Lightning or shock cast.",
 				"gift_of_the_gathering_storm_3": "Implemented as 1.05 times each Chain Lightning jump.",
