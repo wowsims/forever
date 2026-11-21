@@ -2260,6 +2260,24 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Chance to embed a seed into enemy humanoids, beasts, or dragonkin hit by your abilities or spells. If
+	// the creature is slain within 30 seconds of the seed being embedded, a Healing Blossom will grow from its
+	// corpse.
+	//
+	// https://www.wowhead.com/forever/spell=443678
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 219326, ItemName: "Seed of Renewal"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Reduces the cooldown of Grounding Totem by 1 sec.
 	// https://www.wowhead.com/forever/spell=1249011
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
