@@ -43,7 +43,7 @@ func protectionWarriorSuite() core.CharacterSuiteConfig {
 
 		Rotation: preset,
 		OtherRotations: []core.RotationCombo{
-			core.RotationWithSpellIds("default_trainer_ranks", preset, map[int32]int32{25286: 11567, 25289: 11551, 25288: 11601}),
+			core.RotationWithSpellIds("default_book_ranks", preset, map[int32]int32{11567: 25286, 11551: 25289, 11601: 25288}),
 		},
 
 		IndividualBuffs: core.FullTankIndividualBuffs,
