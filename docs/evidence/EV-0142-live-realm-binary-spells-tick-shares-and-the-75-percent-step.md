@@ -95,6 +95,36 @@ rule: Smokey's Lighter took no resist of any kind in 3,300 hits (0 of 179 with a
 at a mean share of 0.38), and Cloud of Chained Essence none in 4,246 applications and 15,460 ticks. E_TRIGGER_SPELL is
 not tested.
 
+## Build 71037 resist counts
+
+Reports from 2026-11-19 23:00 UTC to 2026-11-21 (`forever-resist-hotfix-114309-1121`, RESULTS.md and `tables/`).
+
+Every partial resist on a landed hit with 50 or more damage before the resist lands on a 10% step or on exactly 75%; none
+lies between steps or above 75%:
+
+| Step        | 10%   | 20%   | 30%   | 40%   | 50%   | 60%   | 70% | 75% |
+| ----------- | ----- | ----- | ----- | ----- | ----- | ----- | --- | --- |
+| Direct hits | 1,529 | 2,714 | 5,110 | 6,521 | 4,314 | 1,233 | 143 | 69  |
+| Ticks       | 1,683 | 849   | 96    | 202   | 172   | 74    | 16  | 2   |
+
+Landed hits and ticks with a partial resist on any target: binary direct hits 0 of 43,465, Immolate, Shadow Word: Death,
+Arcane Wrath, Incinerate, Ice Lance and Flamestrike's cast 0 of 19,967, binary DoT ticks 0 of 12,082, Mind Flay ticks 0 of
+9,242, Hurricane ticks 0 of 28,930; damage shields 0 of 20,414. On pairs with a ≥ 0.1, landed binary hits and ticks 0 of
+1,072 against 780.5 expected from the roll (binary DoT and Mind Flay ticks at a tenth of a), and non-binary direct hits
+6,962 of 7,382 with a partial.
+
+Resisted share over the caster's a, by spell (landed hits on pairs with a ≥ 0.1; under 50 hits is thin):
+
+| Spell                                                                                                                                                                                                                                                             | Share over a (hits)                                                      |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Nukes with 50+ hits (Arcane Blast, Arcane Explosion, Chain Lightning, Fire Blast, Fire Nova, Flame Shock, Flametongue Attack, Lightning Bolt, Mind Blast, Moonfire, Pyroblast, Scorch, Searing Pain, Shadow Bolt, Soul Fire, Starfire, Touch of the Grave, Wrath) | 0.94 to 1.09                                                             |
+| Corruption, Flame Shock, Shadow Word: Pain, Siphon Life, Wrack, Moonfire ticks                                                                                                                                                                                    | 0.10 (835), 0.09 (1,474), 0.11 (812), 0.09 (341), 0.09 (492), 0.12 (355) |
+| Devouring Plague, Pyroblast's DoT, Seeping Willow ticks                                                                                                                                                                                                           | 0.95 (256), 0.98 (161), 0.99 (156)                                       |
+| Arcane Missiles, Hellfire Effect                                                                                                                                                                                                                                  | 0.99 (325), 0.99 (2,810)                                                 |
+| Flamestrike's ground ticks, Rain of Fire                                                                                                                                                                                                                          | 0.10 (390), 0.12 (738)                                                   |
+| Curse of Agony, Immolate's DoT ticks                                                                                                                                                                                                                              | 0 of 953 and 0 of 558 with a partial                                     |
+| Fireball's DoT ticks                                                                                                                                                                                                                                              | 0.02 (32, thin)                                                          |
+
 ## Spell Piercing
 
 The bonus goes where the partial resist roll goes, at the same share. WCL logs no negative resisted amount: a bonus is a
