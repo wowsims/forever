@@ -1658,10 +1658,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Ravager-7717"
  value: {
-  dps: 694.25161
-  tps: 564.8487
+  dps: 718.82041
+  tps: 584.8082
   dtps: 3.00204
-  hps: 19.96106
+  hps: 20.64308
  }
 }
 dps_results: {

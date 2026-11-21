@@ -12,8 +12,10 @@ var ${Melee range} = 5
 var ${Should refresh SoC} =
     ($use_seal_of_command or not $use_seal_of_righteousness or talent_is_known(unsealed_wrath))
     and (aura(seal_of_command_20920).is_inactive or aura(seal_of_command_20920).is_active and aura(seal_of_command_20920).remaining_time <= auto_time_to_next(main_hand_auto))
-    and (not talent_is_known(unsealed_wrath) or aura(seal_of_command_20920).is_inactive(include_reaction_time=true) and aura(echo_of_righteousness).num_stacks(include_reaction_time=true) >= $max_seal_of_righteousness_stacks)
+    and (not talent_is_known(unsealed_wrath) or aura(seal_of_command_20920).is_inactive(include_reaction_time=true) and aura(echo_of_righteousness).num_stacks(include_reaction_time=true) >= $max_seal_of_righteousness_stacks or $twist_has_stopped)
     and $judge_realism_protection
+// Under Unsealed Wrath the swap waits for Judgement only while Seal of Command is up. With no seal up Judgement
+// cannot be cast and stays ready.
 var ${Should refresh SoR} =
     ($use_seal_of_righteousness or not talent_is_known(seal_of_command_rank1) or talent_is_known(unsealed_wrath))
     and (not $use_seal_of_command or not talent_is_known(seal_of_command_rank1) or talent_is_known(unsealed_wrath))
@@ -24,9 +26,15 @@ var ${Judge realism protection} =
     spell(judgement).time_to_ready <= spell(judgement).full_cooldown - input_delay
 // Judgement's cooldown outlasts the next swing and the global cooldown after it. Under Unsealed Wrath the
 // swap from Seal of Command to Seal of Righteousness waits for that, so Judgement unleashes Seal of Command.
-// With no seal up Judgement cannot be cast and stays ready, so the swap does not wait then.
 var ${Judgement outlasts the swap} =
     spell(judgement).time_to_ready >= auto_time_to_next(main_hand_auto) + spell(seal_of_righteousness).gcd_hasted_duration
+// Neither Seal of Command nor Seal of Righteousness is up and neither Echo holds the stacks its swap asks for,
+// so neither swap is due. Under Unsealed Wrath Seal of Command is cast then.
+var ${Twist has stopped} =
+    aura(seal_of_command_20920).is_inactive(include_reaction_time=true)
+    and aura(seal_of_righteousness_20293).is_inactive(include_reaction_time=true)
+    and aura(echo_of_command).num_stacks(include_reaction_time=true) < $max_seal_of_command_stacks
+    and aura(echo_of_righteousness).num_stacks(include_reaction_time=true) < $max_seal_of_righteousness_stacks
 
 prepull:
   -20s group "Activate assigned aura"
