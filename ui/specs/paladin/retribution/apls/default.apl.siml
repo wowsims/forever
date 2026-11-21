@@ -18,10 +18,14 @@ var ${Should refresh SoR} =
     ($use_seal_of_righteousness or not talent_is_known(seal_of_command_rank1) or talent_is_known(unsealed_wrath))
     and (not $use_seal_of_command or not talent_is_known(seal_of_command_rank1) or talent_is_known(unsealed_wrath))
     and (aura(seal_of_righteousness_20293).is_inactive or aura(seal_of_righteousness_20293).is_active and aura(seal_of_righteousness_20293).remaining_time <= auto_time_to_next(main_hand_auto))
-    and (not talent_is_known(unsealed_wrath) or not talent_is_known(seal_of_command_rank1) or aura(seal_of_righteousness_20293).is_inactive(include_reaction_time=true) and aura(echo_of_command).num_stacks(include_reaction_time=true) >= $max_seal_of_command_stacks)
+    and (not talent_is_known(unsealed_wrath) or not talent_is_known(seal_of_command_rank1) or aura(seal_of_righteousness_20293).is_inactive(include_reaction_time=true) and aura(echo_of_command).num_stacks(include_reaction_time=true) >= $max_seal_of_command_stacks and $judgement_outlasts_the_swap)
     and $judge_realism_protection
 var ${Judge realism protection} =
     spell(judgement).time_to_ready <= spell(judgement).full_cooldown - input_delay
+// Judgement's cooldown outlasts the next swing and the global cooldown after it. Under Unsealed Wrath the
+// swap to Seal of Righteousness waits for that, so Judgement unleashes Seal of Command.
+var ${Judgement outlasts the swap} =
+    spell(judgement).time_to_ready >= auto_time_to_next(main_hand_auto) + spell(seal_of_righteousness).gcd_hasted_duration
 
 prepull:
   -20s group "Activate assigned aura"
