@@ -823,6 +823,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 748.64333
+  tps: 535.34809
+  dtps: 5.93979
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 741.34339

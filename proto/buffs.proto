@@ -32,7 +32,7 @@ message RaidBuffs {
 }
 
 // Buffs that affect a single party.
-// Next index: 16
+// Next index: 17
 message PartyBuffs {
 	bool blood_pact = 1;
 	bool devotion_aura = 2;
@@ -49,6 +49,7 @@ message PartyBuffs {
 	bool darkspear = 13;
 	bool admirals_hat = 14;
 	int32 dark_inspiration = 15;
+	bool headmasters_charge = 16;
 }
 
 // These are usually individual actions taken by other Characters.
