@@ -18,9 +18,9 @@ func (mage *Mage) registerIceLanceSpell() {
 // targets", 300) while the target is frozen. Its 8 sec cooldown runs on category 19, which
 // Fire Blast shares, so casting either puts both on cooldown.
 //
-// The damage effect states no spell power coefficient; the store carries the measured 0.11 as an
-// override (tools/database/overrides, EV-0171). Effects 3 (20) and 4 (5) are server-side scripts the tooltip does not
-// name, and are not modelled.
+// The damage effect states no spell power coefficient; the store carries one measured in game as an
+// override (tools/database/overrides, EV-0171). Effects 3 (20) and 4 (5) are server-side scripts the
+// tooltip does not name, and are not modelled.
 func (mage *Mage) registerIceLanceRank(_ int32, rank *spelldata.Spell) {
 	damage := rank.DamageEffect()
 	frozenMultiplier := 1 + rank.EffectN(2).Percent()
