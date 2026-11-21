@@ -1,6 +1,7 @@
 // The seal picker, the Unsealed Wrath twist picker and the Echo stack dropdowns it shows, on a player with the
 // Unsealed Wrath talents.
 import { ConnectedIconEnumPicker } from '@features/inputs/components/ConnectedIconEnumPicker';
+import { ConnectedInput } from '@features/inputs/components/ConnectedInput';
 import { Spec } from '@generated/proto/common';
 import { PaladinAura, PaladinSeal, PaladinSealTwist } from '@generated/proto/paladin';
 import type { Player } from '@sim/player/player';
@@ -103,7 +104,6 @@ describe('the Unsealed Wrath twist picker', () => {
 		player.setTalentsString(UnsealedWrathTalents.data.talentsString);
 
 		expect(input('uwTwist').getValue(player)).toBe(PaladinSealTwist.SealTwistCommand);
-		expect(input('uwSocStacks').getValue(player)).toBe(3);
 		expect(input('uwSorStacks').getValue(player)).toBe(1);
 	});
 
@@ -117,6 +117,26 @@ describe('the Unsealed Wrath twist picker', () => {
 		await act(async () => player.setTalentsString(UnsealedWrathTalents.data.talentsString));
 
 		expect(shownSpell()).toContain(spellOf(PaladinSeal.SealOfCommand));
+	});
+
+	it('hides the Echo stack dropdowns when Unsealed Wrath is untalented and shows them when it is back', async () => {
+		const { made, player } = await unsealedWrathPlayer();
+		renderWithHost(
+			<>
+				{['uwSocStacks', 'uwSofStacks', 'uwSorStacks'].map(id => (
+					<ConnectedInput key={id} config={input(id) as never} inline />
+				))}
+			</>,
+			made,
+		);
+		const mounted = () => ['uwSocStacks', 'uwSofStacks', 'uwSorStacks'].filter(id => document.getElementById(id));
+		expect(mounted()).toEqual(['uwSocStacks', 'uwSorStacks']);
+
+		act(() => player.setTalentsString(withoutUnsealedWrath));
+		expect(mounted()).toEqual([]);
+
+		act(() => player.setTalentsString(UnsealedWrathTalents.data.talentsString));
+		expect(mounted()).toEqual(['uwSocStacks', 'uwSorStacks']);
 	});
 
 	it('keeps the picked twist and its Echo stacks while Unsealed Wrath is untalented', async () => {

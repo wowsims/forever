@@ -66,6 +66,10 @@ export const furyStacks = (rotation: RetributionPaladin_Rotation): number => ech
 export const righteousnessStacks = (rotation: RetributionPaladin_Rotation, twistsFury: boolean): number =>
 	echoStacks(rotation.uwSorStacks, TWIST_STACKS[twistsFury ? PaladinSealTwist.SealTwistFury : PaladinSealTwist.SealTwistCommand].righteousness);
 
+// The seal picker, the twist picker and the Echo stack dropdowns show and read by the talents as well as the
+// rotation, so each reads again when either changes.
+const ROTATION_AND_TALENTS = ['rotation', 'talentsString'] as const;
+
 const ECHO_STACK_VALUES = Array.from({ length: MAX_ECHO_STACKS }, (_, index) => ({ name: String(index + 1), value: index + 1 }));
 
 // Each option shows the icon and tooltip of the spell it casts.
@@ -98,8 +102,8 @@ export const RotationIconInputs = [
 		label: i18n.t('rotation_tab.options.paladin.retribution.seal.label'),
 		labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.seal.tooltip'),
 		numColumns: 2,
-		// With no seal picked the talents decide it, so the picker reads again when they change.
-		storeField: ['rotation', 'talentsString'] as const,
+		// With no seal picked the talents decide it.
+		storeField: ROTATION_AND_TALENTS,
 		getValue: player => {
 			const seal = player.getSimpleRotation().seal;
 			if (seal === PaladinSeal.SealUnknown) {
@@ -128,8 +132,8 @@ export const RotationIconInputs = [
 		label: i18n.t('rotation_tab.options.paladin.retribution.uw_twist.label'),
 		labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_twist.tooltip'),
 		numColumns: 2,
-		// The twist follows the Seal of Command talent, so the picker reads again when the talents change.
-		storeField: ['rotation', 'talentsString'] as const,
+		// The twist follows the Seal of Command talent.
+		storeField: ROTATION_AND_TALENTS,
 		getValue: playerTwist,
 		// Picking another twist starts it from its own Echo stacks. No twist clears the Echo of Righteousness stacks,
 		// so the twist that follows it starts from its own.
@@ -169,6 +173,7 @@ export const RotationInputs = {
 	inputs: [
 		InputHelpers.makeRotationEnumInput<Spec.SpecRetributionPaladin, number>({
 			fieldName: 'uwSocStacks',
+			storeField: ROTATION_AND_TALENTS,
 			label: i18n.t('rotation_tab.options.paladin.retribution.uw_soc_stacks.label'),
 			labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_soc_stacks.tooltip'),
 			values: ECHO_STACK_VALUES,
@@ -177,6 +182,7 @@ export const RotationInputs = {
 		}),
 		InputHelpers.makeRotationEnumInput<Spec.SpecRetributionPaladin, number>({
 			fieldName: 'uwSofStacks',
+			storeField: ROTATION_AND_TALENTS,
 			label: i18n.t('rotation_tab.options.paladin.retribution.uw_sof_stacks.label'),
 			labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_sof_stacks.tooltip'),
 			values: ECHO_STACK_VALUES,
@@ -185,6 +191,7 @@ export const RotationInputs = {
 		}),
 		InputHelpers.makeRotationEnumInput<Spec.SpecRetributionPaladin, number>({
 			fieldName: 'uwSorStacks',
+			storeField: ROTATION_AND_TALENTS,
 			label: i18n.t('rotation_tab.options.paladin.retribution.uw_sor_stacks.label'),
 			labelTooltip: i18n.t('rotation_tab.options.paladin.retribution.uw_sor_stacks.tooltip'),
 			values: ECHO_STACK_VALUES,
