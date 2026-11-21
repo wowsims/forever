@@ -1664,8 +1664,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-SwordofZeal-6622"
  value: {
-  dps: 799.19783
-  tps: 567.43046
+  dps: 799.72087
+  tps: 567.80182
   hps: 49.95222
  }
 }

@@ -2162,9 +2162,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SwordofZeal-6622"
  value: {
-  dps: 407.00392
-  tps: 963.94482
-  dtps: 334.96276
+  dps: 407.06691
+  tps: 964.02859
+  dtps: 334.85923
   hps: 16.80889
  }
 }
