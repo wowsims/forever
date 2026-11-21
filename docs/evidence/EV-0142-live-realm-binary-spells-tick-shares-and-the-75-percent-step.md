@@ -1,5 +1,8 @@
 # EV-0142: Spell resistance on the live realms: binary spells, Spell Piercing, tick shares and the 75% step
 
+EV-0172 replaces the Spell Piercing rule for binary spells below: from the 2026-11-20 hotfixes a landed binary hit, and
+Insect Swarm's and Mind Flay's ticks, take the bonus at the full share.
+
 - Claim: on the live realms a spell resists all or nothing when its damage row carries, beside the damage, a non-damage
   aura on the target, an interrupt, E_DUMMY, E_SCRIPT_EFFECT, E_ENERGIZE or E_CREATE_AREATRIGGER on any target; an
   A_DUMMY aura on the target does not count. Its hit roll resists it whole at about the target's average resist, and a

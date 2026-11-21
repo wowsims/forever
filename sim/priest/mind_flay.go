@@ -9,6 +9,8 @@ import (
 
 func (priest *Priest) registerMindFlaySpell(_ int32, rank *spelldata.Spell) {
 	config := priest.periodicDamageSpellConfig(rank, PriestSpellMindFlay)
+	// A tick takes its Spell Piercing bonus at the full share (EV-0172).
+	config.Flags |= core.SpellFlagFullResistanceTicks
 
 	if priest.Talents.ImprovedMindFlay > 0 {
 		// Improved Mind Flay: each tick deals X% more than the one before it, so the nth tick of the

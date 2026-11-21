@@ -731,8 +731,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-DreadmistRaiment"
  value: {
-  dps: 491.54589
-  tps: 1581.01048
+  dps: 491.58823
+  tps: 1581.10192
   dtps: 441.66684
   hps: 39.95278
  }
@@ -1649,8 +1649,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Magister'sRegalia"
  value: {
-  dps: 488.45325
-  tps: 1565.17178
+  dps: 488.48874
+  tps: 1565.24842
   dtps: 446.66328
   hps: 39.83417
  }
@@ -2360,8 +2360,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-TheElements"
  value: {
-  dps: 506.64626
-  tps: 1623.94986
+  dps: 506.7657
+  tps: 1624.20783
   dtps: 380.13552
   hps: 40.08833
  }

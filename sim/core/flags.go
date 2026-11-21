@@ -230,10 +230,10 @@ const (
 	SpellFlagSupressDoTApply                                // If present this spell will not apply dots (Used for DTR dot supression)
 	SpellFlagSwapped                                        // Indicates that this spell is not useable because it is from a currently swapped item
 	SpellFlagCastWhileIncapacitated                         // Allows the cast while the unit is incapacitated, e.g. Berserker Rage breaking a Fear.
-	SpellFlagFullResistanceTicks                            // Its ticks meet the target's full resistance, as direct hits do, where other ticks, a channel's included, meet a tenth (Devouring Plague, Starshards).
+	SpellFlagFullResistanceTicks                            // Its ticks meet the target's full resistance, as direct hits do, where other ticks, a channel's included, meet a tenth (Devouring Plague, Starshards; a binary spell's ticks take its Spell Piercing bonus in full).
 	SpellFlagTenthResistance                                // Its hits roll their partial resist against a tenth of the target's average resist, as most ticks do, and take no Spell Piercing bonus, e.g. Flamestrike's ground ticks.
 	SpellFlagPushback                                       // Damage taken while hardcasting pushes the cast back: SpellInterrupts.InterruptFlags 0x2.
-	SpellFlagNoPartialResist                                // The spell's hits never lose damage to a partial resist, e.g. a wand's shots.
+	SpellFlagNoPartialResist                                // The spell's hits never lose damage to a partial resist and gain no Spell Piercing bonus, e.g. a wand's shots.
 	SpellFlagKeepsSwingTimer                                // Completing a cast of the spell leaves the melee swing timer running: Do Not Reset Combat Timers (Attributes[2] 0x20000), or an explosive.
 	SpellFlagDropsQueuedSwing                               // Starting a cast of the spell drops the attack queued for the next swing, e.g. a thrown dynamite.
 	SpellFlagBleed                                          // A bleed: the whole cast misses a bleed-immune target, and its Dot does not land there.
