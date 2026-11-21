@@ -79,6 +79,9 @@ func retributionSuite() core.CharacterSuiteConfig {
 		GearSet:          core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "default"),
 		Talents:          UnsealedWrathTalents,
 		Rotation:         core.GetAplRotation("../../../ui/specs/paladin/retribution/apls", "default"),
+		OtherRotations: []core.RotationCombo{
+			core.GetAplRotation("../../../ui/specs/paladin/retribution/apls", "uw_sor_sof"),
+		},
 		ItemFilter: core.ItemFilter{
 			WeaponTypes: []proto.WeaponType{
 				proto.WeaponType_WeaponTypePolearm,

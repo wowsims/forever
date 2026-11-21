@@ -260,6 +260,20 @@ describe('ConnectedIconEnumPicker', () => {
 		expect(options.value).toBe(2);
 	});
 
+	it('leaves the value alone across its own showWhen under keepWhenHidden', () => {
+		const options = new Options();
+		options.value = 2;
+		mount(options, configFor({ showWhen: (obj: Options) => obj.visible, keepWhenHidden: true }));
+
+		act(() => options.setVisible(false));
+		expect(root()).toBeNull();
+		expect(options.value).toBe(2);
+
+		act(() => options.setVisible(true));
+		expect(root()).toBeTruthy();
+		expect(options.value).toBe(2);
+	});
+
 	it('lets a value set while the picker was hidden beat the one put aside', () => {
 		const options = new Options();
 		options.value = 2;

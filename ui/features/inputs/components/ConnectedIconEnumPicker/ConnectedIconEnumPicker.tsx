@@ -29,7 +29,7 @@ export const ConnectedIconEnumPicker = <ModObject, T>({ modObject, config, testI
 	// Keyed on which values carry an actionId, not on which icons have resolved: a notification landing before the icons arrive must not read as hidden and zero the source.
 	const hidden = !iconEnumPickerShown(config, modObject);
 	const { clearStored } = useHideZeroRestore(
-		{ value, setValue, hidden, revision },
+		{ value, setValue, hidden: hidden && !config.keepWhenHidden, revision },
 		config.zeroValue,
 		current => !valuePicked(config, current),
 		current => {
