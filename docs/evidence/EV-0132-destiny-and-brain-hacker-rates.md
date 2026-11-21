@@ -9,14 +9,15 @@ proc.
 - Sources: Warcraft Logs, the fights from the first combatant info listing the weapon on the wearer to the last.
   Destiny: 1ZyhaVDdFtTYWMcC fights 10 to 12; xbJBZj14NWCXrhAm fights 5 to 12; VLz78BfZyWa3Cxr2 fights 1 to 9;
   vZqVmLYQa6jwP3A9 fights 2 to 16 and 18 to 21; Qb1yWxa8vHCGL7Yr fights 12 to 15; nX1qbatTzGZ3CAwB fights 1 and 3 to 7;
-  zFXxNAn69HBGRaqg fights 1 to 10 (two wearers). Brain Hacker's section, which names its count, lists its own.
-- Game build: 1.60.1.70938; the hotfix each player ran is not recorded. Brain Hacker's count gives its own
-- Date: 2026-11-13 to 2026-11-16; Brain Hacker's count gives its own
-- Pull request: #1059; Brain Hacker's count is #1156
+  zFXxNAn69HBGRaqg fights 1 to 10 (two wearers).
+- Game build: 1.60.1.70938; the hotfix each player ran is not recorded
+- Date: 2026-11-13 to 2026-11-16
+- Pull request: #1059
+- Later count: Brain Hacker, §Count of the 2026-11-06 to 2026-11-21 reports
 
 ## Method
 
-This Method is Destiny's; Brain Hacker's is its count's. A proc is an application or refresh of Destiny's 17152 on the
+This method is Destiny's. A proc is an application or refresh of Destiny's 17152 on the
 wearer. A hit is a landed, non-periodic damage event of the wearer with melee defense: white swings, melee abilities,
 and melee hits logged under a spell id the wearer logs no cast of (Execute's 20647, Judgement of Command, Seal of
 Righteousness, Sweeping Strikes' 26654, Windfury Totem strikes). The rate per minute is the chance per hit times 60
@@ -64,7 +65,7 @@ interval (1.29 PPM, -710.4).
 
 990 procs on 18,309 rolling hits, 9 wearers, 12 runs, in the main hand: all hits 0.93 [0.90, 0.96]. The rate is all
 hits, which the one-hand white rate agrees with. The specials stay under 50 procs. One-hand white: 0.95 [0.88, 1.04],
-251 procs on 4,540 lone units, 9 wearers. Specials: 8.57, 1 procs on 2 lone units, 1 wearer. Two-roll abilities, priced
+251 procs on 4,540 lone units, 9 wearers. Specials: 8.57, 1 proc on 2 lone units, 1 wearer. Two-roll abilities, priced
 as one roll: 2.45, 4 procs on 28 lone units. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 200
 isolated hits. Dropping the swapped stretches (27 active minutes, 9% of hits, in 2 runs) moved the read from 0.84 to
 0.93. The paladin check, which sets no rate: lone white swings 0.65, 10 procs on 262 lone units, 3 wearers. By report
@@ -90,19 +91,5 @@ pQxYvP8khVb7ZMwB 1-3; tNjpX1d9L4A8CJBw 2, 4; vQfM3qZDHdmnJTpV 1-2; xm4JpaRkNncvP
 - Date: 2026-11-16 to 2026-11-20
 - Pull request: #1156
 
-The count is EV-0153's Method on the hits EV-0155 finds rolling a weapon proc, run again over every wearer stream on
-disk for its weapon, with more wearers fetched on 2026-11-21. The same rolling hits, classes and forms are left out:
-paladins from every rate, druids in Cat or Bear Form, and the two-roll abilities with the procs around them. The
-intervals, lone-unit checks, swap drop and credit windows are EV-0153's.
-
-A rate is measured where a lone-unit rate of 50 or more procs (lone one-hand white swings or specials) overlaps the
-all-hits interval, and 5 or more wearers of more than one class give an all-hits interval within 10% of the rate either
-side. The rate is the all-hits rate rounded to the nearest 0.05. A lone-unit interval from under 5 wearers is a Poisson
-interval. On Brain Hacker every class past the first is one wearer.
-
-Each section's read by report date is the all-hits rate over the reports that start before 2026-11-18, from then to push
-114313, and after it.
-
-Scripts and inputs, in `forever-notices-1121`: `results.json`, the counts of `forever-sweep-auto/analyze.py` (version
-12, as EV-0157's, with the paladin check that sets no rate) run with `--items items.txt --census census_used.json`;
-`report.py`, the call per weapon (`rep_final.json`); and `dates.py`, the report dates (`dates_final.json`).
+The count is EV-0153 §Count of the 2026-11-06 to 2026-11-21 reports, run on Brain Hacker. On Brain Hacker every class
+past the first is one wearer.

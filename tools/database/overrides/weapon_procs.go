@@ -740,8 +740,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "The Blackrock Slicer: column reads 101",
 		Source:  "EV-0159",
 	},
-	// Measured the same way on the reports from 2026-11-06 to 2026-11-21, each in its item's file (EV-0126, EV-0132,
-	// EV-0136, EV-0153).
+	// Measured the same way on the reports from 2026-11-06 to 2026-11-21 (EV-0126, EV-0132, EV-0136, EV-0153).
 	{
 		ItemID:  809,
 		SpellID: 17504,

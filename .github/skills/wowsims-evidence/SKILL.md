@@ -5,10 +5,10 @@ description: 'Use when WoWSims Forever work records something measured or ruled:
 
 # Evidence and rulings
 
-A measured item or claim lives in one `docs/evidence/EV-NNNN-<slug>.md` file, the first that measured it; a rule no
-single file owns lives in one `docs/rulings/R-NNNN-<slug>.md` file. Code, override rows and skills cite the id. The formats, the three
-`Evidence` states of a ruling and the id rules are in `docs/evidence/README.md` and `docs/rulings/README.md`; read them
-before writing either kind of file.
+A measured item or claim lives in one `docs/evidence/EV-NNNN-<slug>.md` file, the lowest-numbered that holds it; a rule
+no single file owns lives in one `docs/rulings/R-NNNN-<slug>.md` file. Code, override rows and skills cite the id. The
+formats, the three `Evidence` states of a ruling and the id rules are in `docs/evidence/README.md` and
+`docs/rulings/README.md`; read them before writing either kind of file.
 
 ## Ask before you write
 
@@ -74,14 +74,11 @@ pull request:
 `git ls-tree origin/master docs/evidence/ docs/rulings/` and
 `gh pr list -R wowsims/forever --state open --json files --jq '.[].files[].path' | grep -oE '(EV|R)-[0-9]{4}' | sort -u`.
 Two branches that take one number fail `make skills-check` once both merge; the second renumbers before it merges. An id
-already on master is never renumbered, and an id that leaves a branch before it merges stays unused.
+already on master is never renumbered, and an id a branch drops before it merges is not taken again.
 
-An item or claim has one home, the first file that measured it. A new count of items a file already holds rewrites
-their rows in that file with the newest numbers, under the same id, and takes their older numbers out of every other
-file; a corrected reading of a claim is rewritten in its file too. The rows from the new count name its count section,
-which carries that count's Sources, Game build, Date, Pull request and method (`docs/evidence/README.md`). No file says
-that another replaces part of it. A file whose every part has moved elsewhere keeps its title and a
-`Replaced by: EV-NNNN` line, with no data. Every citation, issue #964's rows included, moves to the home id.
+An item or claim already in a file is counted again in that file, under its id; `docs/evidence/README.md` (§Ids and
+§A file) says how the rows, the count section and the header change. Every citation, issue #964's rows included, names
+that id.
 
 ## Red flags
 

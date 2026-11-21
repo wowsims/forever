@@ -5,12 +5,12 @@ EV-0157 replaces the Loksey's Training Stick rate, counted again on every wearer
 - Claim: each weapon below procs at the rate its section gives, priced on the weapon base speed of each hit that rolls
   it. 28 rates are measured and 15 observed.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each weapon's section lists, from
-  every indexed wearer of the weapons; 2,155 reports in all. Wraith Scythe's section, which names its count, lists its
-  own.
+  every indexed wearer of the weapons; 2,155 reports in all
 - Game build: 1.60.1.70790 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114196; the hotfix
-  each player ran is not recorded. Wraith Scythe's count gives its own.
-- Date: 2026-11-05 to 2026-11-19; Wraith Scythe's count gives its own
-- Pull request: #1108; Wraith Scythe's count is #1156
+  each player ran is not recorded
+- Date: 2026-11-05 to 2026-11-19
+- Pull request: #1108
+- Later count: Wraith Scythe, §Count of the 2026-11-06 to 2026-11-21 reports
 
 This replaces the rates EV-0136 gives for 34 of these weapons, EV-0132's Destiny rate and EV-0146's Killmaim rate.
 
@@ -78,8 +78,8 @@ A direct proc logs within about [-10, 100] ms of its hit. A proc spell whose gam
 after its flight, and its window is the 2nd to 98th percentile of the delay after isolated hits, plus 10 ms.
 
 The rate is the rate over all hits, rounded to 0.05, where the one-hand white rate or the specials rate, each with 50 or
-more procs, agrees with it (their intervals overlap). Where they disagree, the rate is open and the override row keeps
-its earlier rate; no weapon in this file is open. A stacking debuff refreshed at full stacks often logs
+more procs, agrees with it (their intervals overlap). Where they disagree, the rate is open; no weapon in this file is.
+A stacking debuff refreshed at full stacks often logs
 nothing, and a proc whose travel window passes 400 ms or reaches past the isolation has no usable lone unit: these take
 the rate over all hits as it stands, and so does a weapon whose lone-unit rates stay under 50 procs; such a rate is
 observed, unless a separate count checks it (Strike of the Hydra, Spellsever Crossbow and Bow of Searing Arrows, from
@@ -1349,9 +1349,3 @@ Each section's read by report date is the all-hits rate over the reports that st
 Scripts and inputs, in `forever-notices-1121`: `results.json`, the counts of `forever-sweep-auto/analyze.py` (version
 12, as EV-0157's, with the paladin check that sets no rate) run with `--items items.txt --census census_used.json`;
 `report.py`, the call per weapon (`rep_final.json`); and `dates.py`, the report dates (`dates_final.json`).
-
-Rate is the override row's rate. The one-hand white and specials columns give the read and, in parentheses, the procs.
-
-| Weapon        |  Item | Rate | All hits [95%]    |  Procs / hits | Wearers | One-hand white | Specials   |
-| ------------- | ----: | ---: | ----------------- | ------------: | ------: | -------------- | ---------- |
-| Wraith Scythe | 11920 | 3.45 | 3.45 [3.17, 3.73] | 1,136 / 8,989 |       8 | 3.09 (218)     | 3.81 (141) |

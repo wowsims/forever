@@ -18,12 +18,16 @@ reports up to 2026-11-19. EV-0159 replaces The Blackrock Slicer rate, counted th
   test; and Windfury Totem's strike counts as a melee swing for the procs whose rows hear melee swings, Unsealed Wrath
   excepted, while in game it grants no rage.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section's table names; 600
-  reports in all for the rates, and the 209 reports the Windfury Totem section lists. The sections that name a count
-  section list their own reports.
+  reports in all for the rates, and the 209 reports the Windfury Totem section lists
 - Game build: 1.60.1.70425 to 1.60.1.70938 by report date; each item's section gives its date span, and the hotfix each
-  player ran is not recorded. The sections that name a count section take its game build.
-- Date: 2026-10-08 to 2026-11-16; 2026-11-06 to 2026-11-21 for the sections that name a count section
-- Pull request: #1065; #1156 for the sections that name a count section
+  player ran is not recorded
+- Date: 2026-10-08 to 2026-11-16
+- Pull request: #1065
+- Later count: Blade of the Wretched, Bloodrazor, Bloodspiller, Boneslicer, Cookie's Tenderizer, Eater of the Dead,
+  Firebelcher, Hammer of the Northern Wind, Kang the Decapitator, Mana Channeling Wand, Pyromancer's Baton, Scorpion
+  Sting, Searing Blade, Serpent Slicer, Sliverblade, Sul'thraze the Lasher, Supercharger Battle Axe, Sword of
+  Corruption, The Cruel Hand of Timmy, The Ziggler, Twilight Forgehammer and X'caliboar, §Count of the 2026-11-06 to
+  2026-11-21 reports
 
 ## Method
 
@@ -329,7 +333,7 @@ there is no cooldown. The chance per swing rises with the weapon's speed: 2.5% o
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 18088
-- Sim rate: 1.9 PPM, measured
+- Rate: 1.9 PPM, measured
 
 1,840 procs on 27,357 rolling hits, 19 wearers, 19 runs, in the main hand: all hits 1.92 [1.81, 2.04]. The rate is all
 hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.58 [1.31, 1.88], 122 procs on
@@ -356,7 +360,7 @@ Ncp4bVY3x1DXRqvA 1; VPG6FyAdJ7NcC29X 1-5; VwyW3ZP1H6RTpdmf 1-5; ZD3cfJpHa4vGYjKF
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 17504
-- Sim rate: 1 PPM, measured
+- Rate: 1 PPM, measured
 
 2,309 procs on 52,506 rolling hits, 30 wearers, 41 runs, in the main hand: all hits 0.98 [0.93, 1.02]. The rate is all
 hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.05 [0.81, 1.15], 167 procs on
@@ -385,7 +389,7 @@ ZA8pM9gmXcG6avCT 1-3, 5-6, 8; ZLpcV6krn1wYHJvt 1-8.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 18200
-- Sim rate: 0.95 PPM, measured
+- Rate: 0.95 PPM, measured
 
 385 procs on 9,076 rolling hits, 15 wearers, 17 runs, in the main hand: all hits 0.94 [0.86, 1.03]. The rate is all
 hits, which the one-hand white rate agrees with. The specials stay under 50 procs. One-hand white: 0.95 [0.82, 1.11],
@@ -426,7 +430,7 @@ wPD796Jv2htngRmT 1; YFnCf6cWNRpgVMHT 17-31; ZMn6BHdqtvpGLhcK 1.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 1292573
-- Sim rate: 3 PPM, measured
+- Rate: 3 PPM, measured
 
 447 procs on 4,438 rolling hits, 25 wearers, 28 runs, in the main hand: all hits 3.02 [2.81, 3.23]. The rate is all
 hits, which the one-hand white rate and the specials rate agree with. One-hand white: 3.08 [2.81, 3.49], 238 procs on
@@ -573,7 +577,7 @@ vnwtmMTpkR1aYP7G 1-9; y7qfkc91hA3DKQ4g 1-11; Z26ztpb3FkJhgTAf 1-8; z3YfqBgbt1GjF
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 1292008
-- Sim rate: 1.95 PPM, measured
+- Rate: 1.95 PPM, measured
 
 1,464 procs on 16,079 rolling hits, 36 wearers, 37 runs, in the main hand or the off hand: all hits 1.95 [1.81, 2.08].
 The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.98 [1.70, 2.20],
@@ -724,7 +728,7 @@ ZTJqNPfRLb3c8Bav 1-10; Zv6fc3GgWpkX9Bqa 3-4.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 1299869
-- Sim rate: 1.75 PPM, measured
+- Rate: 1.75 PPM, measured
 
 1,865 procs on 29,229 rolling hits, 26 wearers, 30 runs, in the main hand: all hits 1.74 [1.64, 1.83]. The rate is all
 hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.86 [1.49, 2.13], 348 procs on
@@ -821,7 +825,7 @@ YXTfd7QPJV4Nqhcn 1-18.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 1291686
-- Sim rate: 3.95 PPM, measured
+- Rate: 3.95 PPM, measured
 
 1,416 procs on 12,725 rolling hits, 64 wearers, 70 runs, as a wand: all hits 3.93 [3.74, 4.14]. The rate is all hits,
 which the lone wand shot rate agrees with. Lone wand shots: 4.01 [3.83, 4.24], 1,257 procs on 11,060 lone units, 63
@@ -1074,7 +1078,7 @@ wDqmkbxdTXj1rA9F 1; XPmJACH8RtqFd3jM 1-3; yAGCbvd2r4RZNDaK 1, 3; Z9qbhQrJg2Wfz1F
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 13439
-- Sim rate: 4.5 PPM, measured
+- Rate: 4.5 PPM, measured
 
 4,649 procs on 29,390 rolling hits, 12 wearers, 16 runs, in the main hand: all hits 4.52 [4.40, 4.68]. The rate is all
 hits, which the one-hand white rate and the specials rate agree with. One-hand white: 4.46 [4.02, 4.81], 366 procs on
@@ -1217,7 +1221,7 @@ xbg9BypFcdVDwqMk 1-5, 7-14, 16-42; z74YTAg1Jc2QFWDC 1-2.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 17153
-- Sim rate: 0.95 PPM, measured
+- Rate: 0.95 PPM, measured
 
 1,200 procs on 21,014 rolling hits, 17 wearers, 22 runs, in the main hand: all hits 0.95 [0.90, 1.01]. The rate is all
 hits, which the one-hand white rate agrees with. The specials stay under 50 procs. One-hand white: 0.88 [0.73, 1.05],
@@ -1326,7 +1330,7 @@ xcPjNLDXa9nz1Vrd 1-7; YpxNGMXcf4PyTwt6 1-6; ZNyPLR2vkjMGptCJ 1-2.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 1302348
-- Sim rate: 4 PPM, measured
+- Rate: 4 PPM, measured
 
 1,030 procs on 9,616 rolling hits, 38 wearers, 55 runs, as a wand: all hits 4.02 [3.76, 4.29]. The rate is all hits,
 which the lone wand shot rate agrees with. Lone wand shots: 3.81 [3.59, 4.09], 840 procs on 8,275 lone units, 38
@@ -1478,13 +1482,13 @@ XD23HFnxbzvPjACV 1; zA8JyGdnWRQ9vXmK 1.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 1320925
-- Sim rate: 1.95 PPM, measured
+- Rate: 1.95 PPM, measured
 
 964 procs on 12,402 rolling hits, 16 wearers, 17 runs, in the main hand or the off hand: all hits 1.94 [1.82, 2.07]. The
 rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.85 [1.50, 2.26], 98
 procs on 1,322 lone units, 4 wearers (a Poisson interval: under 5 wearers). Dual-wield white: 1.43 [1.04, 1.81], 147
 procs on 2,562 lone units, 10 wearers. Specials: 2.17 [1.80, 2.54], 114 procs on 1,316 lone units, 7 wearers. Two-roll
-abilities, priced as one roll: 1.92, 1 procs on 13 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th
+abilities, priced as one roll: 1.92, 1 proc on 13 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th
 percentile 1 ms, 275 isolated hits. Dropping the swapped stretches (24 active minutes, 4% of hits, in 3 runs) moved the
 read from 1.87 to 1.94. Left out: 1 of 18 runs in Cat or Bear Form. By report date: before 2026-11-18 1.94 (725 procs);
 from 2026-11-18 to push 114313 1.96 (239 procs). Reports from 2026-11-14 to 2026-11-20.
@@ -1591,9 +1595,9 @@ Wv3xD7KBm1C2tXNL 1-8, 10, 12-19; ZAjYLxr6TB7KGmav 1-9; zHYaAjmvQBT2fFW7 4-15.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 18208
-- Sim rate: 0.95 PPM, measured
+- Rate: 0.95 PPM, measured
 
-2,096 procs on 54,256 rolling hits, 59 wearers, 64 runs, in the both hands or the main hand or the off hand: all hits
+2,096 procs on 54,256 rolling hits, 59 wearers, 64 runs, in either hand: all hits
 0.97 [0.93, 1.01]. The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white:
 1.03 [0.86, 1.24], 144 procs on 3,492 lone units, 10 wearers. Dual-wield white: 0.81 [0.73, 0.92], 352 procs on 10,880
 lone units, 48 wearers. Specials: 0.99 [0.90, 1.10], 306 procs on 7,693 lone units, 43 wearers. Two-roll abilities,
@@ -1627,7 +1631,7 @@ XNry2TxRndjwJQBm 1; xwT6Z1CV7WQhBmgD 1-3; yjqVPg81hM6TCW97 1-2; ynGtWRk4cZX3TmYv
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 1299850
-- Sim rate: 1.9 PPM, measured
+- Rate: 1.9 PPM, measured
 
 392 procs on 4,944 rolling hits, 17 wearers, 17 runs, in the main hand: all hits 1.90 [1.78, 2.06]. The rate is all
 hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.89 [1.72, 2.21], 169 procs on
@@ -1653,9 +1657,9 @@ ycJpHf8KPAVG9x4F 1; Yd4r69MDqbQyJCFH 16-36; zjcGFyxpkKTnQXdw 1-11.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 17511
-- Sim rate: 1 PPM, measured
+- Rate: 1 PPM, measured
 
-1,105 procs on 26,110 rolling hits, 24 wearers, 25 runs, in the both hands or the main hand or the off hand: all hits
+1,105 procs on 26,110 rolling hits, 24 wearers, 25 runs, in either hand: all hits
 1.02 [0.94, 1.08]. The rate is all hits, which the specials rate agrees with. The one-hand white swings stay under 50
 procs. One-hand white: 1.23 [1.03, 1.35], 26 procs on 506 lone units, 2 wearers. Dual-wield white: 0.91 [0.76, 1.05],
 228 procs on 6,034 lone units, 22 wearers. Specials: 1.05 [0.86, 1.23], 139 procs on 3,163 lone units, 15 wearers.
@@ -1728,13 +1732,13 @@ Z7qF4j3hazBTxHcw 8-10; zMqZ3BNKbFYfAjwp 1-12.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 1293653
-- Sim rate: 2 PPM, measured
+- Rate: 2 PPM, measured
 
 1,267 procs on 26,995 rolling hits, 21 wearers, 23 runs, in the main hand or the off hand: all hits 2.01 [1.93, 2.13].
 The rate is all hits, which the specials rate agrees with. The one-hand white swings stay under 50 procs. One-hand
 white: 2.39 [1.26, 6.35], 30 procs on 538 lone units, 3 wearers. Dual-wield white: 1.79 [1.63, 1.98], 299 procs on 7,139
 lone units, 18 wearers. Specials: 1.75 [1.33, 2.94], 62 procs on 1,516 lone units, 10 wearers. Two-roll abilities,
-priced as one roll: 5.36, 1 procs on 8 lone units. Travel time: the proc lands a median 89 ms after its hit, 98th
+priced as one roll: 5.36, 1 proc on 8 lone units. Travel time: the proc lands a median 89 ms after its hit, 98th
 percentile 221 ms, window [21, 231] ms (348 isolated hits). Dropping the swapped stretches (22 active minutes, 2% of
 hits, in 3 runs) moved the read from 1.96 to 2.01. 1 run logged in two reports counts once. By report date: before
 2026-11-18 2.02 (704 procs); from 2026-11-18 to push 114313 1.92 (457 procs); after push 114313 2.43 (106 procs).
@@ -1838,7 +1842,7 @@ Tm68LdcfN1rZYFap 1-13; xDcNRgK2YCA78yvd 8-10; yBdgRzfVhDPWAnbZ 1-7; Zd7QD3Lw1TBv
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 1294430
-- Sim rate: 1.45 PPM, measured
+- Rate: 1.45 PPM, measured
 
 625 procs on 9,926 rolling hits, 8 wearers, 9 runs, in the main hand: all hits 1.45 [1.32, 1.56]. The rate is all hits,
 which the one-hand white rate agrees with. The specials stay under 50 procs. One-hand white: 1.28 [1.10, 1.48], 126
@@ -1861,7 +1865,7 @@ hCPLc2G7KAVX8Bby 1-6, 8-9; HT2qmWDJNfXVj1xA 1-2; mYaWhF4n8zRLDZtw 1-7, 11-12, 16
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 13527
-- Sim rate: 1.9 PPM, measured
+- Rate: 1.9 PPM, measured
 
 258 procs on 2,923 rolling hits, 9 wearers, 9 runs, in the main hand: all hits 1.89 [1.72, 2.00]. The rate is all hits,
 which the one-hand white rate agrees with. The specials stay under 50 procs. One-hand white: 2.08 [1.53, 2.50], 68 procs
@@ -1883,13 +1887,13 @@ fDycAFZWt4NkRX1x 1-3; FRxmtWLHr3wvB8Q1 1-8; LjFr1v7pJKVcfhWB 1-11, 13-14; rNwJc3
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 17510
-- Sim rate: 1 PPM, measured
+- Rate: 1 PPM, measured
 
-1,249 procs on 35,139 rolling hits, 59 wearers, 67 runs, in the both hands or the main hand or the off hand: all hits
+1,249 procs on 35,139 rolling hits, 59 wearers, 67 runs, in either hand: all hits
 1.02 [0.96, 1.07]. The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white:
 1.07 [0.88, 1.36], 144 procs on 3,857 lone units, 9 wearers. Dual-wield white: 0.89 [0.80, 1.00], 440 procs on 14,093
 lone units, 50 wearers. Specials: 0.99 [0.79, 1.20], 123 procs on 3,551 lone units, 24 wearers. Two-roll abilities,
-priced as one roll: 0.84, 1 procs on 34 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 522
+priced as one roll: 0.84, 1 proc on 34 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 522
 isolated hits. Dropping the swapped stretches (87 active minutes, 7% of hits, in 4 runs) moved the read from 0.95 to
 1.02. 1 run logged in two reports counts once. By report date: before 2026-11-18 0.99 (944 procs); from 2026-11-18 to
 push 114313 1.11 (305 procs). Reports from 2026-11-11 to 2026-11-20. The sim does not simulate this proc yet (the
@@ -2002,7 +2006,7 @@ Zd8PXKqcNQygRjT1 1; ZHK32LtTCmqR4Pxf 1, 3.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 17505
-- Sim rate: 2.2 PPM, measured
+- Rate: 2.2 PPM, measured
 
 1,200 procs on 18,223 rolling hits, 18 wearers, 22 runs, in the main hand or the off hand: all hits 2.20 [2.06, 2.37].
 The rate is all hits, which the one-hand white rate agrees with. The specials stay under 50 procs. One-hand white: 2.27
@@ -2028,9 +2032,9 @@ aZ8yxm3AGgrpTvYh 1; C1cyPbL3RQvGjq8p 48; H8AgW6afwBktp4nv 3; HKjBYG4kRJtnXyc3 1-
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 13482
-- Sim rate: 3.6 PPM, measured
+- Rate: 3.6 PPM, measured
 
-3,916 procs on 38,305 rolling hits, 49 wearers, 50 runs, in the both hands or the main hand or the off hand: all hits
+3,916 procs on 38,305 rolling hits, 49 wearers, 50 runs, in either hand: all hits
 3.61 [3.48, 3.78]. The rate is all hits, which the specials rate agrees with. Dual-wield white: 3.17 [2.94, 3.35], 1,178
 procs on 13,126 lone units, 48 wearers. Specials: 3.91 [3.68, 4.13], 147 procs on 1,327 lone units, 21 wearers. Two-roll
 abilities, priced as one roll: 11.76, 3 procs on 9 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th
@@ -2108,7 +2112,7 @@ ZkpTbqwFYMAaLP4r 1, 3-6.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 1312176
-- Sim rate: 2.95 PPM, measured
+- Rate: 2.95 PPM, measured
 
 2,280 procs on 18,539 rolling hits, 13 wearers, 16 runs, in the main hand or the off hand: all hits 2.95 [2.84, 3.07].
 The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 3.08 [2.75, 3.44],
@@ -2293,7 +2297,7 @@ rTYJ6yWfNcbKXztR 1; Ztv8xkT6dmQ7n91C 1.
 
 - Count: §Count of the 2026-11-06 to 2026-11-21 reports
 - Proc: weapon proc 1293787
-- Sim rate: 1.8 PPM, measured
+- Rate: 1.8 PPM, measured
 
 715 procs on 7,174 rolling hits, 8 wearers, 9 runs, in the main hand: all hits 1.81 [1.73, 1.97]. The rate is all hits,
 which the one-hand white rate agrees with. The specials stay under 50 procs. One-hand white: 1.90 [1.72, 2.29], 113
@@ -2323,48 +2327,6 @@ maYP7WvxJ2TzGtDH 1-3; mM3pZD8H7CqBNYwJ 1; P1yKzX3Q8NgFYxZH 1-3; WYZRJjhp7LvDqKNB
 - Date: 2026-11-06 to 2026-11-21
 - Pull request: #1156
 
-The count is EV-0153's Method on the hits EV-0155 finds rolling a weapon proc, run again over every wearer stream on
-disk for these weapons, with more wearers fetched on 2026-11-21. The same rolling hits, classes and forms are left out:
-paladins from every rate, druids in Cat or Bear Form, and the two-roll abilities with the procs around them. The
-intervals, lone-unit checks, swap drop and credit windows are EV-0153's.
-
-A rate is measured where a lone-unit rate of 50 or more procs (lone one-hand white swings or specials, or lone wand
-shots for Firebelcher and Mana Channeling Wand) overlaps the all-hits interval, and 5 or more wearers of more than one
-class give an all-hits interval within 10% of the rate either side. The rate is the all-hits rate rounded to the nearest
-0.05. A lone-unit interval from under 5 wearers is a Poisson interval. On Kang the Decapitator, Sul'thraze the Lasher
-and Supercharger Battle Axe every class past the first is one wearer.
-
-Each section's read by report date is the all-hits rate over the reports that start before 2026-11-18, from then to push
-114313, and after it.
-
-Scripts and inputs, in `forever-notices-1121`: `results.json`, the counts of `forever-sweep-auto/analyze.py` (version
-12, as EV-0157's, with the paladin check that sets no rate) run with `--items items.txt --census census_used.json`;
-`report.py`, the call per weapon (`rep_final.json`); and `dates.py`, the report dates (`dates_final.json`).
-
-Rate is the override row's rate. The one-hand white and specials columns give the read and, in parentheses, the procs;
-for the two wands the one-hand white column holds lone wand shots.
-
-| Weapon                      |   Item | Rate | All hits [95%]    |   Procs / hits | Wearers | One-hand white | Specials   |
-| --------------------------- | -----: | ---: | ----------------- | -------------: | ------: | -------------- | ---------- |
-| Blade of the Wretched       |  10803 |  1.9 | 1.92 [1.81, 2.04] | 1,840 / 27,357 |      19 | 1.58 (122)     | 2.10 (223) |
-| Bloodrazor                  |    809 |    1 | 0.98 [0.93, 1.02] | 2,309 / 52,506 |      30 | 1.05 (167)     | 0.88 (263) |
-| Bloodspiller                |   7753 | 0.95 | 0.94 [0.86, 1.03] |    385 / 9,076 |      15 | 0.95 (116)     | 0.99 (25)  |
-| Boneslicer                  | 273819 |    3 | 3.02 [2.81, 3.23] |    447 / 4,438 |      25 | 3.08 (238)     | 3.33 (93)  |
-| Cookie's Tenderizer         |   5197 | 1.95 | 1.95 [1.81, 2.08] | 1,464 / 16,079 |      36 | 1.98 (277)     | 1.93 (288) |
-| The Cruel Hand of Timmy     |  13401 |  2.2 | 2.20 [2.06, 2.37] | 1,200 / 18,223 |      18 | 2.27 (124)     | 1.73 (32)  |
-| Eater of the Dead           |  10805 | 1.75 | 1.74 [1.64, 1.83] | 1,865 / 29,229 |      26 | 1.86 (348)     | 1.75 (206) |
-| Firebelcher                 |   5243 | 3.95 | 3.93 [3.74, 4.14] | 1,416 / 12,725 |      64 | 4.01 (1,257)   | -          |
-| Hammer of the Northern Wind |    810 |  4.5 | 4.52 [4.40, 4.68] | 4,649 / 29,390 |      12 | 4.46 (366)     | 4.17 (338) |
-| Kang the Decapitator        |   2291 | 0.95 | 0.95 [0.90, 1.01] | 1,200 / 21,014 |      17 | 0.88 (274)     | 0.68 (6)   |
-| Mana Channeling Wand        |  18483 |    4 | 4.02 [3.76, 4.29] |  1,030 / 9,616 |      38 | 3.81 (840)     | -          |
-| Pyromancer's Baton          | 286650 | 1.95 | 1.94 [1.82, 2.07] |   964 / 12,402 |      16 | 1.85 (98)      | 2.17 (114) |
-| Scorpion Sting              |   1265 | 0.95 | 0.97 [0.93, 1.01] | 2,096 / 54,256 |      59 | 1.03 (144)     | 0.99 (306) |
-| Searing Blade               |  12992 |  1.9 | 1.90 [1.78, 2.06] |    392 / 4,944 |      17 | 1.89 (169)     | 1.88 (60)  |
-| Serpent Slicer              |  13035 |    1 | 1.02 [0.94, 1.08] | 1,105 / 26,110 |      24 | 1.23 (26)      | 1.05 (139) |
-| Sliverblade                 |   5756 |    2 | 2.01 [1.93, 2.13] | 1,267 / 26,995 |      21 | 2.39 (30)      | 1.75 (62)  |
-| Sul'thraze the Lasher       |   9372 | 1.45 | 1.45 [1.32, 1.56] |    625 / 9,926 |       8 | 1.28 (126)     | 1.72 (49)  |
-| Supercharger Battle Axe     |   9486 |  1.9 | 1.89 [1.72, 2.00] |    258 / 2,923 |       9 | 2.08 (68)      | 3.21 (3)   |
-| Sword of Corruption         |  13032 |    1 | 1.02 [0.96, 1.07] | 1,249 / 35,139 |      59 | 1.07 (144)     | 0.99 (123) |
-| Twilight Forgehammer        | 281665 | 2.95 | 2.95 [2.84, 3.07] | 2,280 / 18,539 |      13 | 3.08 (311)     | 3.20 (290) |
-| X'caliboar                  |  10758 |  1.8 | 1.81 [1.73, 1.97] |    715 / 7,174 |       8 | 1.90 (113)     | 1.61 (48)  |
-| The Ziggler                 |   8006 |  3.6 | 3.61 [3.48, 3.78] | 3,916 / 38,305 |      49 | -              | 3.91 (147) |
+The count is EV-0153 §Count of the 2026-11-06 to 2026-11-21 reports, run on these weapons. Firebelcher's and Mana
+Channeling Wand's lone units are wand shots. On Kang the Decapitator, Sul'thraze the Lasher and Supercharger Battle Axe
+every class past the first is one wearer.

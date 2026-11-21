@@ -6,12 +6,11 @@
   rules 0.5 procs per minute on the attacker's swing interval for the shield, twice that when an Undead strikes.
 - Sources: public reports on forever.warcraftlogs.com, the fights whose combatant info lists the item on the wearer.
   Argent Defender, where a fight with no gear record counts too: VjBTMHXxFvbthkw2 fight 1; NXMZV9xjvWpB7GtP fight 107;
-  7tLY1pVK9wRWPABX fights 15 to 18 and 20; MWrPDAVFCBXzh8Z6 fights 1 to 8. Argent Avenger's section, which names its
-  count, lists its own.
-- Game build: 1.60.1.70938. Which hotfix push each report ran on and whether players relogged is not recorded. Argent
-  Avenger's count gives its own.
-- Date: 2026-11-13 07:09 to 2026-11-15 09:41 UTC; Argent Avenger's count gives its own
-- Pull request: #1051, written up in #1052; Argent Avenger's count is #1156
+  7tLY1pVK9wRWPABX fights 15 to 18 and 20; MWrPDAVFCBXzh8Z6 fights 1 to 8.
+- Game build: 1.60.1.70938. Which hotfix push each report ran on and whether players relogged is not recorded.
+- Date: 2026-11-13 07:09 to 2026-11-15 09:41 UTC
+- Pull request: #1051, written up in #1052
+- Later count: Argent Avenger, §Count of the 2026-11-06 to 2026-11-21 reports
 
 ## Argent Avenger
 
@@ -65,11 +64,10 @@ a school-melee swing (logged as ability -64 or -16) or a melee special. Partial 
 its combatant info lists gear without the shield; a fight with no gear record counts. The cooldown runs from the hit
 a proc is credited to.
 
-Each 17351 application logs 0 to 33 ms after the hit that rolled it (median 9 ms, 8 at 0 ms), the opposite of the
-Avenger's order. A proc goes to the last landed melee hit in the 60 ms before it, and all 86 have one. Seven windows
-held hits from more than one attacker, two of them with a different speed or creature type; crediting the earliest
-moves nothing past the third decimal. The shortest gap between two procs is 20.76 s, and 806 hits inside a cooldown
-drew none.
+Each 17351 application logs 0 to 33 ms after the hit that rolled it (median 9 ms, 8 at 0 ms). A proc goes to the last
+landed melee hit in the 60 ms before it, and all 86 have one. Seven windows held hits from more than one attacker, two
+of them with a different speed or creature type; crediting the earliest moves nothing past the third decimal. The
+shortest gap between two procs is 20.76 s, and 806 hits inside a cooldown drew none.
 
 | Wearer  | Dungeons                     | Procs | Trials | From Undead |
 | ------- | ---------------------------- | ----- | ------ | ----------- |
@@ -177,19 +175,4 @@ The owner rules 0.5 procs per minute on the attacker's swing interval, from the 
 - Date: 2026-11-14 to 2026-11-20
 - Pull request: #1156
 
-The count is EV-0153's Method on the hits EV-0155 finds rolling a weapon proc, run again over every wearer stream on
-disk for its weapon, with more wearers fetched on 2026-11-21. The same rolling hits, classes and forms are left out:
-paladins from every rate, druids in Cat or Bear Form, and the two-roll abilities with the procs around them. The
-intervals, lone-unit checks, swap drop and credit windows are EV-0153's.
-
-A rate is measured where a lone-unit rate of 50 or more procs (lone one-hand white swings or specials) overlaps the
-all-hits interval, and 5 or more wearers of more than one class give an all-hits interval within 10% of the rate either
-side. The rate is the all-hits rate rounded to the nearest 0.05. A lone-unit interval from under 5 wearers is a Poisson
-interval.
-
-Each section's read by report date is the all-hits rate over the reports that start before 2026-11-18, from then to push
-114313, and after it.
-
-Scripts and inputs, in `forever-notices-1121`: `results.json`, the counts of `forever-sweep-auto/analyze.py` (version
-12, as EV-0157's, with the paladin check that sets no rate) run with `--items items.txt --census census_used.json`;
-`report.py`, the call per weapon (`rep_final.json`); and `dates.py`, the report dates (`dates_final.json`).
+The count is EV-0153 §Count of the 2026-11-06 to 2026-11-21 reports, run on Argent Avenger.
