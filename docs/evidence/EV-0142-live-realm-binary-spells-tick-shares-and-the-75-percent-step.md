@@ -9,13 +9,12 @@
   full share takes it whole. Devouring Plague's and Pyroblast's ticks meet the target's full resistance, and Flamestrike's ground ticks a
   tenth of it. A channel's ticks meet a tenth like a DoT's, Starshards' excepted, which meet the full resistance; the
   missiles of Arcane Missiles are hits and meet it in full. No partial resist takes more than 75% of a hit.
-- Sources: 213 combat logs from 2026-09-27 to 2026-11-16, casters of every class; 17 beta-realm logs and 36 live-realm
-  logs have hits on mobs with a resistance. The player streams of 992 Warcraft Logs reports of Forever (zone 3000) from
-  2026-10-14 to 2026-11-16, of which 147 have hits on mobs with a resistance: 1 from the beta realms, 2 on 70862, 16 on
+- Sources: 213 combat logs from 2026-09-27 to 2026-11-16, casters of every class; 36 live-realm logs have hits on mobs
+  with a resistance. The player streams of 992 Warcraft Logs reports of Forever (zone 3000) from
+  2026-10-14 to 2026-11-16, of which 146 live-realm reports have hits on mobs with a resistance: 2 on 70862, 16 on
   70888, 86 on 70938 and 42 after push 114115; one report was checked line by line against a combat log of the same run.
   For the binary rule, 2,158 further caster streams from 706 live-realm reports (2026-11-06 to 2026-11-17) that the first
-  pass never read, with the rules written down before they were fetched. For Spell Piercing, the combat logs and the
-  report streams of 20 casters with piercing, on targets with no resistance in the spell's school. For the channels'
+  pass never read, with the rules written down before they were fetched. For the channels'
   tick shares, two studies whose predictions were written down first, both of 2026-11-17: the drain study
   (`forever-resist-drain-bombs-1117`, RESULTS.md) over the 1,322 live-realm reports with a control or test hit among the
   first pass's reports, the 706 held-out reports and 3 more, and the tick share study (`forever-resist-dispel-1117`, RESULTS.md) over the 706
@@ -23,7 +22,7 @@
   reports with a mage from 2026-11-18 to 2026-11-19 21:00 UTC and the mages of 120 from 2026-11-21, the streams of 238
   warlocks, priests, shamans and druids with 6 or more Spell Piercing on their gear (178 from 2026-11-19 23:00 UTC on),
   and 33 mage streams of 2026-11-20 (`forever-resist-hotfix-114309-1121`, RESULTS.md)
-- Game build: beta realms to 2026-10-20; live realms from 2026-11-05 on 1.60.1.70862, 1.60.1.70888 from 2026-11-10 and
+- Game build: live realms from 2026-11-05 on 1.60.1.70862, 1.60.1.70888 from 2026-11-10 and
   1.60.1.70938 from 2026-11-13, the last reports after the 2026-11-16 hotfix push 114115 and possibly the 2026-11-17 push
   114122; from 2026-11-19 about 22:00 UTC 1.60.1.71037 with hotfixes 114309, 114310, 114312, 114313 and 114314 (the
   logs place the switch of binary spells' Spell Piercing between 21:00 and 22:48 UTC); the hotfix a run was on and
@@ -37,28 +36,25 @@ A target's average resist a for a spell is its caster's own share on the same mo
 the damage resisted over the damage before the resist, on at least 3 hits of nukes whose rows deal damage and nothing
 else (Wrath, Starfire, Moonfire, Lightning Bolt, Chain Lightning, Flame Shock, Shadow Bolt, Searing Pain, Soul Fire, Mind
 Blast, Smite, Holy Fire, Fire Blast, Scorch, Fireball, Pyroblast, Arcane Blast, Arcane Explosion, Arcane Shot, Fire Nova,
-Lightning Shield and Instant Poison). A pair of caster and mob counts from a = 0.1. In this first pass a binary spell's row deals damage
-beside an aura or an interrupt on the target. Expected counts are those of the partial resist roll the sim used before
-this change, at a for a hit and at a tenth of a for a DoT tick, and a full RESIST is expected at the rate a. Rows logged
+Lightning Shield and Instant Poison). A pair of caster and mob counts from a = 0.1. Expected counts are those of the
+partial resist roll (the triangle around a), at a for a hit and at a tenth of a for a DoT tick, and a full RESIST is expected at the rate a. Rows logged
 twice, in overlapping combat logs or in two reports of one run, count once. Intervals are Wilson 95%.
 
-The change sits between the beta and the live realms: the last combat logs with a partial resist on a landed binary
-spell are from 2026-10-14, and from 2026-11-07 on no log has one. Builds 70888 and 70938 and push 114115 move none of
-the counts below, and the share on the level 60 dungeon mobs holds across them (Chromatic Dragonspawn Nature 0.512,
-0.498 and 0.512).
+Builds 70888 and 70938, push 114115 and build 71037 move none of the resist counts below, and the share on the level 60
+dungeon mobs holds across 70888, 70938 and 114115 (Chromatic Dragonspawn Nature 0.512, 0.498 and 0.512).
 
 ## A landed binary spell takes no partial resist
 
-| Hits                                                                                            | Beta realms                      | Live realms, combat logs        | Live realms, reports                                             | Reports on 71037                                |
-| ----------------------------------------------------------------------------------------------- | -------------------------------- | ------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------- |
-| Binary direct hits (Earth Shock, Frostbolt, Frost Nova, Thunder Clap, Blast Wave, Frag Grenade) | 84 of 87 partial (86.7 expected) | 0 of 163 (156)                  | 0 of 235 (231): 0/70 on 70888, 0/106 on 70938, 0/59 after 114115 | 0 of 62 (60.5)                                  |
-| Binary DoT ticks (Insect Swarm, Entangling Roots, Corrosive Poison, Bane of Agony)              | 70 of 84 (82.6)                  | 0 of 185 (183; 49.5 at a tenth) | 0 of 54                                                          | 0 of 63 (22.1 at a tenth)                       |
-| Mind Flay ticks                                                                                 | 68 of 78 (73.8)                  | 0 of 56                         | 0 of 267 (267)                                                   | 0 of 372 (127.5 at a tenth)                     |
-| Hurricane ticks                                                                                 | none cast                        | 0 of 39                         | 0 of 67; over every target 0 of 30,053                           | 0 of 223 (223.0); over every target 0 of 28,930 |
-| Other direct hits, for comparison                                                               | 816 of 849 (814)                 | 2,153 of 2,264 (2,215)          | 9,221 of 9,786 (9,627)                                           | 6,962 of 7,382                                  |
+| Hits                                                                                            | Live realms, combat logs        | Live realms, reports                                             | Reports on 71037                                |
+| ----------------------------------------------------------------------------------------------- | ------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------- |
+| Binary direct hits (Earth Shock, Frostbolt, Frost Nova, Thunder Clap, Blast Wave, Frag Grenade) | 0 of 163 (156)                  | 0 of 235 (231): 0/70 on 70888, 0/106 on 70938, 0/59 after 114115 | 0 of 62 (60.5)                                  |
+| Binary DoT ticks (Insect Swarm, Entangling Roots, Corrosive Poison, Bane of Agony)              | 0 of 185 (183; 49.5 at a tenth) | 0 of 54                                                          | 0 of 63 (22.1 at a tenth)                       |
+| Mind Flay ticks                                                                                 | 0 of 56                         | 0 of 267 (267)                                                   | 0 of 372 (127.5 at a tenth)                     |
+| Hurricane ticks                                                                                 | 0 of 39                         | 0 of 67; over every target 0 of 30,053                           | 0 of 223 (223.0); over every target 0 of 28,930 |
+| Other direct hits, for comparison                                                               | 2,153 of 2,264 (2,215)          | 9,221 of 9,786 (9,627)                                           | 6,962 of 7,382                                  |
 
 Full RESISTs of binary spells run at about the share: live combat logs 188 of 587 casts (212.1 expected), reports 381 of
-986 (434.5), reports on 71037 203 of 617 (226.1) and Hurricane 178 of 401 (183.9); beta 108 of 282 (87.2). On 71037,
+986 (434.5), reports on 71037 203 of 617 (226.1) and Hurricane 178 of 401 (183.9). On 71037,
 Immolate, Shadow Word: Death, Arcane Wrath, Incinerate, Ice Lance and Flamestrike's cast landed 0 of 352 partial (347.4),
 and no landed binary hit or tick on any target took one (0 of 113,686).
 
@@ -80,7 +76,7 @@ the mob, since every other frost spell a mage casts is binary. Mobs whose resist
 | Ice Lance (three E_DUMMY with no target)                                  | 0 of 74 (72.7)                                | 1.01 [0.82, 1.21]          |
 | Flamestrike's cast (E_CREATE_AREATRIGGER, A_PERIODIC_DUMMY on the caster) | 0 of 607 (599.5)                              | 0.89 [0.80, 0.99]          |
 | Earth Shock (E_INTERRUPT_CAST)                                            | 0 of 310 (306.6)                              | 0.99 [0.90, 1.08]          |
-| Mind Flay ticks (A_MOD_DECREASE_SPEED)                                    | 0 of 1,637 (570.3)                            |                            | 0 of 372 (127.5 at a tenth) |
+| Mind Flay ticks (A_MOD_DECREASE_SPEED)                                    | 0 of 1,637 (570.3)                            |                            |
 | Bane of Agony ticks (A_MOD_SPELL_DAMAGE_FROM_CASTER, A_DUMMY)             | 0 of 439 (149.0)                              |                            |
 | Flame Shock (A_DUMMY on the target)                                       | 989 of 989; ticks 960 of 3,292 (987.1)        | 0 of 989 (392.4 if binary) |
 | Wrack ticks (A_DUMMY on the target), shares of every caster on the mob    | 59 of 163 (62.2)                              |                            |
@@ -94,7 +90,7 @@ of 355 (149.4) and Bane of Agony 10 of 37 (12.0). Gahz'rilla Fang's 3742 showed 
 10 of 32 (16.0).
 
 Two effects rest on one spell each: E_CREATE_AREATRIGGER on Flamestrike's cast, which also carries a dummy aura on the
-caster, and E_ENERGIZE on Engulfing Shadows, measured through Spell Piercing alone (below). E_NONE rows do not follow the
+caster, and E_ENERGIZE on Engulfing Shadows, not re-measured on build 71037 (below). E_NONE rows do not follow the
 rule: Smokey's Lighter took no resist of any kind in 3,300 hits (0 of 179 with a partial and 0 of 179 RESIST against 68.8
 at a mean share of 0.38), and Cloud of Chained Essence none in 4,246 applications and 15,460 ticks. E_TRIGGER_SPELL is
 not tested.
@@ -135,14 +131,11 @@ Stormstrike's +20% on Nature survives that on Earth Shock, which is read on its 
 | Full share: Pyroblast's DoT ticks                     | 342 of 1,084 (297), 240 : 100          |
 
 Mages without piercing take bonuses on binary spells at their fixed-modifier rate (Frostbolt 4.1%, Cone of Cold 4.6%,
-Frost Nova 1.2%, Arcane Wrath 0 of 189, Flamestrike's cast 0 of 1,236), so the bonuses above come from piercing. Read
-the same way in reports of 2026-11-18 to 2026-11-19 21:00 UTC, every binary spell took 0 to 0.16 of E; the
-switch falls between 21:00 and 22:48 UTC on 2026-11-19 (+20% bonuses on binary Mage spells: at most
-one an hour from 12:00 through the 20:00 hour in 2,894 hits, the first at 22:48, then 4 to 23 an hour).
+Frost Nova 1.2%, Arcane Wrath 0 of 189, Flamestrike's cast 0 of 1,236), so the bonuses above come from piercing.
 
 Open: Incinerate reads low (P 0.007); Curse of Agony's ticks take 661 of 44,469 (0.14 of E) in a 2:1 mix, which may be a
 tenth of the bonus; Frost Shock, Blast Wave, Bane of Agony and Shadowburn are not measured. E_ENERGIZE rests on Engulfing
-Shadows, which took no bonus in 252 hits (64 expected) before build 71037, when binary hits took none. Every piercing
+Shadows alone, measured before build 71037 and not re-measured. Every piercing
 source row (aura 123) states no class mask, so the source does not pick the spells. Under 10 piercing a tenth rounded
 down to whole points also gives no bonus on a tick at a tenth. Shadow Bolt may be an exception: one caster's 44 hits
 took none where the same caster's Hellfire Effect, Conflagrate and Bane of Havoc in the same reports took it, at P about
@@ -152,7 +145,7 @@ took none where the same caster's Hellfire Effect, Conflagrate and Bane of Havoc
 
 | Ticks                    | With a partial resist                                              | Resisted share over the target's a                         |
 | ------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------- |
-| Devouring Plague         | logs 45 of 45, reports 262 of 262; beta 8 of 8                     | 0.99 (0.98 on 70938, 1.02 after 114115)                    |
+| Devouring Plague         | logs 45 of 45, reports 262 of 262                                  | 0.99 (0.98 on 70938, 1.02 after 114115)                    |
 | Pyroblast's DoT          | logs 9 of 9, reports 20 of 20                                      | 1.09                                                       |
 | Flamestrike ground ticks | reports 57 of 235, logs 12 of 109 (16.9 at a tenth)                | 0.09 on 70888 and on 70938; no RESIST in 235               |
 | Other DoT ticks          | logs 435 of 1,495 (359 at a tenth), reports 1,522 of 4,464 (1,382) | Flame Shock 0.10 and 0.09, Shadow Word: Pain 0.11 and 0.08 |
