@@ -721,6 +721,31 @@ func TestDeathMarkStoresAndPaysOut(t *testing.T) {
 				t.Errorf("Death Mark at 5 points pays out %.4f, want its cap %.4f, raised by Coup de Grace", got, wantCap)
 			}
 
+			mark(4)
+			rogue.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
+			target.OnSpellHitTaken(sim, rogue.SinisterStrike, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
+			wantLowPool := hit * 4 * deathMarkStoredPerPoint * coup
+			if got := dot.SnapshotBaseDamage; math.Abs(got-wantLowPool) > 1e-6 {
+				t.Errorf("Death Mark at 4 points stored %.4f, want %.4f", got, wantLowPool)
+			}
+
+			rogue.AddStatDynamic(sim, stats.PhysicalCritPercent, 100)
+			target.OnSpellHitTaken(sim, rogue.SinisterStrike, &core.SpellResult{Target: target, Damage: 1e7, Outcome: core.OutcomeHit})
+			highCap := (deathMarkCapBase + 4*deathMarkCapPerPoint + 4*deathMarkCapAPPerPoint*deathMark.MeleeAttackPower(target)) *
+				(1 + rogue.GetStat(stats.PhysicalCritPercent)/100) * coup
+			if got := dot.SnapshotBaseDamage; math.Abs(got-highCap) > 1e-6 {
+				t.Errorf("Death Mark at 4 points stored %.4f after a high-cap hit, want its rolling cap %.4f", got, highCap)
+			}
+
+			rogue.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
+			target.OnSpellHitTaken(sim, rogue.SinisterStrike, &core.SpellResult{Target: target, Damage: 1e7, Outcome: core.OutcomeHit})
+			if got := dot.SnapshotBaseDamage; math.Abs(got-highCap) > 1e-6 {
+				t.Errorf("Death Mark pool fell from %.4f to %.4f when the current cap dropped", highCap, got)
+			}
+			if got := payout(); math.Abs(got-highCap) > 1e-6 {
+				t.Errorf("Death Mark pays out %.4f after a cap drops, want the pooled %.4f", got, highCap)
+			}
+
 			if crits := deathMark.SpellMetrics[target.UnitIndex].Crits; crits > 0 {
 				t.Errorf("Death Mark's payout crit %d times at +100%% crit, want never", crits)
 			}
