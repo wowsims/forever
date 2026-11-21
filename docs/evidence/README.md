@@ -55,7 +55,8 @@ each item it rewrote (for an item with only a table row, the row moves into the 
 header line, `- Later count: <items>, §<its heading>`. Their rows leave the file's summary table. The Claim covers every
 item. A count that rewrites every item rewrites the header instead, with no count section. A count section's heading
 gives the first and last report dates of the whole count, so it is the same in every file the count rewrites. A count
-section may give its method as a pointer to another file's section that ran the same count.
+made in a test rather than from reports names its section `Count of the <date> test`. A count section may give its
+method as a pointer to another file's section that ran the same count.
 
 ```markdown
 ## Count of the <first> to <last> reports

@@ -30,6 +30,6 @@ Triggered hits whose rows carry Not a Proc read all but never in these logs: Win
 the hotfix; Seal of Command 0 of 117, Judgement of Command 0 of 105, Retaliation 0 of 18 and Sweeping Strikes 0 of 166
 before it. The pull request let them roll the totem anyway, as their rows allow, with a TODO for an in-game test.
 
-Measured and left for logs after the deploy: the strike ignores armor in every log, the 100 ms cooldown is not seen, the
-strike gives no Maelstrom Weapon stack, Windfury Weapon and totem strikes spend a Flurry charge after a crit, and rank 3
-adds its 246 attack power while the logs of ranks 1 and 2 add none.
+Measured and left for logs after the deploy: the Windfury Totem hit ignores armor in every log, the 100 ms cooldown is
+not seen, it gives no Maelstrom Weapon stack, Windfury Weapon and Totem hits spend a Flurry charge after a crit, and
+rank 3 adds its 246 attack power while the logs of ranks 1 and 2 add none.

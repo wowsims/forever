@@ -30,7 +30,7 @@
     "wowsims-conventions": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "9d222b3aac748e370fc3d9d91ffcf78049127311535cb1ba8e5cb702f1137a81"
+      "computedHash": "9eda19fec0963127159a9d7cf75d3825f3d24ac85c634e836099f94fd1469d06"
     },
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
@@ -55,7 +55,7 @@
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "4c08727ef3a1f5bfe61bca8c1315656bb05859985f984da38dc49e767fad6d58"
+      "computedHash": "d83dac3d4f6dab03637f0248caa31ef48c3f41a92b64dfde11cb95e20adc74e8"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",

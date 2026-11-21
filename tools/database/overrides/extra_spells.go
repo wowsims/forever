@@ -35,7 +35,7 @@ var ExtraSpells = []Extra{
 	// Rockbiter Weapon Proc, the threat Rockbiter Weapon (Passive) adds to each melee hit: a script
 	// effect of the passive casts it, so no row names it.
 	{SpellID: 20871, Reason: "Rockbiter Weapon Proc, the threat of the shaman's Rockbiter Weapon", Source: "owner decision"},
-	{SpellID: 439440, Reason: "Windfury Weapon's extra attack, which the combat log reports each strike of the imbue under; the rank's 16361 casts it by script, and no row links it to the imbue", Source: "EV-0012"},
+	{SpellID: 439440, Reason: "Windfury Weapon's extra attack, which the combat log reports each Windfury Weapon hit under; the rank's 16361 casts it by script, and no row links it to the imbue", Source: "EV-0012"},
 	{SpellID: 9591, Reason: "Acid Spit, cast by the Emerald Dragon Whelp (creature 8776) that Dragon's Call 13049 summons; a creature's spells are on the server, so no row links it", Source: "EV-0021"},
 	// The spells Shahram (creature 10718) casts once per summon by Blackblade of Shahram's 16602; a
 	// creature's spells are on the server, so no row links them.

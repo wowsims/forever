@@ -70,7 +70,7 @@ By what landed, for the warriors and the hunter:
 
 ## Paladins
 
-The paladins read 62.1% because their seal and Windfury Totem strikes cast it less often: white swings 92.9% (696 of
-749), Holy Strike 97.3% (144 of 148), Judgement of Command 100.0% (35 of 35), Seals of Command 84.2% (48 of 57),
+The paladins read 62.1% because their seal strikes and Windfury Totem hits cast it less often: white swings 92.9% (696
+of 749), Holy Strike 97.3% (144 of 148), Judgement of Command 100.0% (35 of 35), Seals of Command 84.2% (48 of 57),
 Windfury Totem 42.5% (45 of 106), Seal of Fury 16.6% (73 of 440) and Seal of Righteousness 16.3% (31 of 190). This count
 does not settle why, and sets nothing here.
