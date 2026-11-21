@@ -5,7 +5,7 @@
   A_DUMMY aura on the target does not count. Its hit roll resists it whole at about the target's average resist, and a
   landed hit or tick takes no partial resist. The Spell Piercing bonus is the negative side of the partial resist roll:
   a landed binary hit takes it at the full share, as do Insect Swarm's and Mind Flay's ticks, while Hurricane's,
-  Entangling Roots' and Immolate's DoT ticks and a hit or tick at a tenth of the share take none, and a hit or tick at the
+  Entangling Roots', Bane of Agony's and Immolate's DoT ticks and a hit or tick at a tenth of the share take none, and a hit or tick at the
   full share takes it whole. Devouring Plague's and Pyroblast's ticks meet the target's full resistance. A channel's ticks meet a tenth like a DoT's, Starshards' excepted, which meet the full resistance; the
   missiles of Arcane Missiles are hits and meet it in full. No partial resist takes more than 75% of a hit, and damage shields take none.
 - Sources: 213 combat logs from 2026-09-27 to 2026-11-16, casters of every class; 36 live-realm logs have hits on mobs
@@ -93,6 +93,7 @@ not tested.
 ## Spell Piercing
 
 - Count: §Count of the 2026-11-19 to 2026-11-21 reports
+- Count: §Count of the 2026-11-22 combat log (the warlock's ticks)
 
 The bonus goes where the partial resist roll goes, at the same share. E is the hits the caster's own rate on plain nukes
 expects.
@@ -121,14 +122,18 @@ expects.
 | Drain Life, Drain Soul ticks                          | 2 of 714                               |
 | Full share: Pyroblast's DoT ticks                     | 342 of 1,084 (297), 240 : 100          |
 
+A warlock with 11 piercing at level 60, on mobs with no Shadow resistance, took no bonus on any tick: Bane of Agony 0 of
+281 (45.5 expected at the full share, 4.2 at a tenth), Corruption, Siphon Life and Wrack 0 of 512 (83 at the full share,
+7.7 with a tenth of the piercing rounded down to 1 point), Drain Life 0 of 62 and Drain Soul 0 of 3. So binary Bane of
+Agony's ticks take none, and a tick at a tenth of the share takes none at 10 piercing or more.
+
 Mages without piercing take bonuses on binary spells at their fixed-modifier rate (Frostbolt 4.1%, Cone of Cold 4.6%,
 Frost Nova 1.2%, Arcane Wrath 0 of 189, Flamestrike's cast 0 of 1,236), so the bonuses above come from piercing.
 
 Open: Incinerate reads low (P 0.007); Curse of Agony's ticks take 661 of 44,469 (0.14 of E) in a 2:1 mix, which may be a
-tenth of the bonus; Frost Shock, Blast Wave, Bane of Agony and Shadowburn are not measured. E_ENERGIZE rests on Engulfing
+tenth of the bonus; Frost Shock, Blast Wave and Shadowburn are not measured. E_ENERGIZE rests on Engulfing
 Shadows alone, measured before build 71037 and not re-measured. Every piercing
-source row (aura 123) states no class mask, so the source does not pick the spells. Under 10 piercing a tenth rounded
-down to whole points also gives no bonus on a tick at a tenth. Shadow Bolt may be an exception: one caster's 44 hits
+source row (aura 123) states no class mask, so the source does not pick the spells. Shadow Bolt may be an exception: one caster's 44 hits
 took none where the same caster's Hellfire Effect, Conflagrate and Bane of Havoc in the same reports took it, at P about
 0.015 (4.2 expected).
 
@@ -207,3 +212,17 @@ Blast, Moonfire, Pyroblast, Scorch, Searing Pain, Shadow Bolt, Soul Fire, Starfi
 0.94 to 1.09 of the share.
 
 Scripts and tables: `forever-resist-hotfix-114309-1121` (RESULTS.md, `tables/`).
+
+## Count of the 2026-11-22 combat log
+
+- Sources: combat log of one Affliction warlock with 11 Spell Piercing, level 60 by its spell ranks, in Blackrock Spire
+  (Firegut ogres, Ember Worgs); the source of the piercing is not recorded
+- Game build: 1.60.1.71037 after hotfixes 114309, 114310, 114312, 114313 and 114314, two days after they went live; a
+  relog is not recorded
+- Date: 2026-11-21 23:18 to 23:32 in the player's local time, North America (2026-11-22 04:18 to 07:32 UTC)
+- Pull request: #1155
+
+Spell Piercing shows in the combat log as a negative resisted amount. The mobs took no partial resist from any of the
+warlock's 858 ticks, so they have no Shadow resistance. Expected counts take the average share −11 / (11 + 8 × 60 + 19)
+= −0.0216 and the triangle's 7.5 × 0.0216 = 16.2% chance of a bonus at the full share; a tenth of the piercing rounded
+down to whole points is 1 point, 1.5% of ticks.
