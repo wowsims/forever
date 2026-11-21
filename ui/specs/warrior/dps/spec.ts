@@ -116,15 +116,15 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 	},
 
 	presets: {
-		epWeights: [Presets.PreBiSFuryEpWeights, Presets.PreBiSArmsEpWeights],
+		epWeights: [Presets.PreBiSFuryEpWeights, Presets.PreBiSFury2HEpWeights, Presets.PreBiSArmsEpWeights],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.FuryTalents, Presets.FuryDragonkinGiantTalents, Presets.ArmsTalents],
+		talents: [Presets.FuryTalents, Presets.FuryDragonkinGiantTalents, Presets.Fury2HTalents, Presets.ArmsTalents],
 		// Preset rotations that the user can quickly select.
-		rotations: [Presets.SIMPLE_DEFAULT_ROTATION, Presets.FURY_DEFAULT_ROTATION, Presets.ARMS_DEFAULT_ROTATION],
+		rotations: [Presets.SIMPLE_DEFAULT_ROTATION, Presets.FURY_DEFAULT_ROTATION, Presets.FURY_2H_ROTATION, Presets.ARMS_DEFAULT_ROTATION],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.PreBiSFuryGear, Presets.PreBiSArmsGear],
+		gear: [Presets.PreBiSFuryGear, Presets.PreBiSFury2HGear, Presets.PreBiSArmsGear],
 		settings: [Presets.DefaultSettings],
-		builds: [Presets.PreBiSFuryBuild, Presets.PreBiSArmsBuild],
+		builds: [Presets.PreBiSFuryBuild, Presets.PreBiSFury2HBuild, Presets.PreBiSArmsBuild],
 	},
 
 	autoRotation: (player: Player<Spec.SpecDpsWarrior>): APLRotation => {
@@ -142,7 +142,7 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 			useOverpower = true,
 			useRend = true,
 			useRecklessness = false,
-			useStanceDance = false,
+			useStanceDance = true,
 			useHamstring = true,
 			useHeroicStrikeRank9 = false,
 			useBattleShoutRank7 = false,
@@ -156,15 +156,17 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 			}
 		}
 
-		// The presets cast the ranks the Ruins of Ahn'Qiraj class books teach; each rank left unchosen moves to the
-		// trainer's top rank.
-		const trainerRanks = new Map<number, number>();
-		if (!useHeroicStrikeRank9) trainerRanks.set(25286, 11567);
-		if (!useBattleShoutRank7) trainerRanks.set(25289, 11551);
-		const rotation = withSpellIds(
-			spec == DpsWarriorSpec.DpsWarriorSpecFury ? Presets.FURY_DEFAULT_ROTATION.rotation.rotation! : Presets.ARMS_DEFAULT_ROTATION.rotation.rotation!,
-			trainerRanks,
-		);
+		// The presets cast the trainer's top ranks; each rank chosen moves to the one its Ruins of Ahn'Qiraj class book
+		// teaches.
+		const bookRanks = new Map<number, number>();
+		if (useHeroicStrikeRank9) bookRanks.set(11567, 25286);
+		if (useBattleShoutRank7) bookRanks.set(11551, 25289);
+		let preset = Presets.ARMS_DEFAULT_ROTATION;
+		if (spec == DpsWarriorSpec.DpsWarriorSpecFury) {
+			const twoHander = player.getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.handType === HandType.HandTypeTwoHand;
+			preset = twoHander ? Presets.FURY_2H_ROTATION : Presets.FURY_DEFAULT_ROTATION;
+		}
+		const rotation = withSpellIds(preset.rotation.rotation!, bookRanks);
 
 		// With this group shown (for Arms, with Stance Dance as well), the racials group casts Elune's Light only while
 		// Recklessness is down, more than 15 s remain, and either more than 195 s or at most 30 s remain.
