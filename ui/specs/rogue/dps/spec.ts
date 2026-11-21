@@ -95,7 +95,6 @@ export default defineSpec<Spec.SpecRogue>({
 			battleShout: 1, // Rank 6
 			leaderOfThePack: true,
 			graceOfAirTotem: 1,
-			moonkinAura: true,
 			powerWordFortitude: true,
 		}),
 		partyBuffs: PartyBuffs.create({}),
@@ -105,11 +104,9 @@ export default defineSpec<Spec.SpecRogue>({
 		}),
 		debuffs: Debuffs.create({
 			curseOfRecklessness: true,
-			faerieFire: true,
 			giftOfArthas: true,
 			sunderArmor: true,
 			curseOfElements: true,
-			armorShatter: true,
 		}),
 	},
 
