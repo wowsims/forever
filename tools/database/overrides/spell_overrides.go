@@ -1167,10 +1167,10 @@ var Spells = []Override{
 	},
 	{
 		SpellID: 11608,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.5, // TODO: Measure Cleave Rank 3 in game.
-		Reason:  "Cleave Rank 3: the 1.5 a spell level Ranks 1 and 2 share",
-		Source:  "EV-0042, EV-0045",
+		Field:   FlatThreat,
+		Value:   62,
+		Reason:  "Cleave Rank 3: adds 62 beyond its damage, split over the targets it lands on, times the stance",
+		Source:  "EV-0050",
 	},
 	{
 		SpellID: 11609,
