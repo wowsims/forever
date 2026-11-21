@@ -254,10 +254,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-BrainHacker-1263"
  value: {
-  dps: 958.67034
-  tps: 700.87392
-  dtps: 7.16169
-  hps: 23.09528
+  dps: 956.73116
+  tps: 699.49819
+  dtps: 7.06625
+  hps: 23.0275
  }
 }
 dps_results: {
@@ -1010,10 +1010,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-KangtheDecapitator-2291"
  value: {
-  dps: 936.08426
-  tps: 685.181
-  dtps: 6.8767
-  hps: 22.43444
+  dps: 930.00924
+  tps: 680.75743
+  dtps: 6.94694
+  hps: 22.29889
  }
 }
 dps_results: {

@@ -101,8 +101,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-ArgentAvenger-13246"
  value: {
-  dps: 581.08264
-  tps: 1873.8154
+  dps: 581.20166
+  tps: 1874.2087
   dtps: 304.94613
   hps: 42.63932
  }
@@ -254,10 +254,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BladeoftheWretched-10803"
  value: {
-  dps: 568.74833
-  tps: 1849.57948
-  dtps: 305.76001
-  hps: 43.13861
+  dps: 567.39599
+  tps: 1844.76282
+  dtps: 306.0576
+  hps: 43.12166
  }
 }
 dps_results: {
@@ -353,10 +353,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Bloodrazor-809"
  value: {
-  dps: 573.45319
-  tps: 1853.18992
-  dtps: 303.28499
-  hps: 39.69338
+  dps: 576.86137
+  tps: 1855.8726
+  dtps: 302.21538
+  hps: 39.97999
  }
 }
 dps_results: {
@@ -776,10 +776,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-EateroftheDead-10805"
  value: {
-  dps: 571.29461
-  tps: 1848.45462
-  dtps: 304.36836
-  hps: 42.7256
+  dps: 570.93777
+  tps: 1851.31171
+  dtps: 304.90849
+  hps: 42.69171
  }
 }
 dps_results: {
@@ -1343,9 +1343,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 578.42468
-  tps: 1872.99063
-  dtps: 305.19147
+  dps: 579.01465
+  tps: 1876.8833
+  dtps: 305.53273
   hps: 43.12166
  }
 }
@@ -1892,10 +1892,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Pyromancer'sBaton-286650"
  value: {
-  dps: 562.60444
-  tps: 1819.06654
-  dtps: 304.72787
-  hps: 40.92831
+  dps: 562.31895
+  tps: 1819.90208
+  dtps: 304.76481
+  hps: 40.94525
  }
 }
 dps_results: {
@@ -2063,9 +2063,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 567.00288
-  tps: 1828.19852
-  dtps: 302.49291
+  dps: 566.62031
+  tps: 1822.09178
+  dtps: 303.06933
   hps: 40.55553
  }
 }
@@ -2288,10 +2288,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 580.67969
-  tps: 1903.39553
-  dtps: 307.15773
-  hps: 45.41024
+  dps: 581.28442
+  tps: 1903.53427
+  dtps: 307.48593
+  hps: 45.44413
  }
 }
 dps_results: {
@@ -2558,9 +2558,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-TwilightForgehammer-281665"
  value: {
-  dps: 570.65481
-  tps: 1837.26612
-  dtps: 301.97272
+  dps: 570.54552
+  tps: 1836.4003
+  dtps: 302.72662
   hps: 40.52164
  }
 }
@@ -2702,10 +2702,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-WraithScythe-11920"
  value: {
-  dps: 572.37843
-  tps: 1849.5583
-  dtps: 303.0424
-  hps: 42.60699
+  dps: 572.07718
+  tps: 1849.97301
+  dtps: 304.54769
+  hps: 42.59005
  }
 }
 dps_results: {

@@ -11,6 +11,11 @@ Phantom Blade, Sang'thraze the Deflector, Satyr's Lash, Spellsever Crossbow, Str
 Sword of Decay, Tainted Pierce, Taran Icebreaker, Thornspike and Toofbreaker with the reports up to 2026-11-19, counted
 on the hits EV-0155 finds rolling a weapon proc. EV-0157 replaces the Iceblade Hacker rate, counted again on every
 wearer stream of the reports up to 2026-11-19. EV-0159 replaces The Blackrock Slicer rate, counted the same way.
+EV-0172 replaces the rates of Blade of the Wretched, Bloodspiller, Boneslicer, Cookie's Tenderizer, Eater of the Dead,
+Firebelcher, Hammer of the Northern Wind, Kang the Decapitator, Mana Channeling Wand, Pyromancer's Baton, Scorpion
+Sting, Searing Blade, Serpent Slicer, Sliverblade, Supercharger Battle Axe, Sword of Corruption, The Cruel Hand of
+Timmy, The Ziggler, Twilight Forgehammer and X'caliboar, counted the same way on the reports from 2026-11-06 to
+2026-11-21.
 
 - Claim: each item and set bonus below procs at the rate its section gives, priced on each landed hit's weapon base speed;
   a rate whose item has 5 or more wearers and a 95% interval within 10% of it either side is measured, every other one

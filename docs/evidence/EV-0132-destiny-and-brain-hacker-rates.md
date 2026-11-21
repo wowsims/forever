@@ -1,7 +1,7 @@
 # EV-0132: Destiny and Brain Hacker rates per landed melee hit
 
 EV-0153 replaces the Destiny rate with the reports up to 2026-11-19, counted on the hits EV-0155 finds rolling a weapon
-proc.
+proc. EV-0172 replaces the Brain Hacker rate with the reports from 2026-11-06 to 2026-11-21, counted the same way.
 
 - Claim: Destiny (647, +200 Strength from 17152) procs about 1.2 times a minute and Brain Hacker (1263, 17148) about
   1 time a minute, each priced on the weapon's base speed and rolled by every landed melee hit, triggered ones such as

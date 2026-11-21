@@ -1,5 +1,8 @@
 # EV-0126: Argent Avenger's and Argent Defender's proc rates
 
+EV-0172 replaces the Argent Avenger rate with the reports from 2026-11-06 to 2026-11-21, counted on the hits EV-0155
+finds rolling a weapon proc; the Argent Defender rate stands.
+
 - Claim: Argent Avenger's 17352 rolls about 1 proc per minute on the wearer's landed weapon hits, specials included.
   Argent Defender's 17350 procs about 0.5 times a minute on the attacker's swing interval, rolled by each landed melee
   hit taken that deals damage outside its 20 s cooldown, and about twice as often when an Undead strikes. The owner

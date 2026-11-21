@@ -236,7 +236,6 @@ const UNTESTED_SET_BONUSES = new Map<number, Map<number, () => string>>([
 	[122, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.necropile_raiment_3')]])],
 	[123, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.bloodmail_regalia_3')]])],
 	[124, new Map([[5, () => i18n.t('gear_tab.item_notices.untested_set_bonus.deathbone_guardian_5')]])],
-	[163, new Map([[4, () => i18n.t('gear_tab.item_notices.untested_set_bonus.chain_of_the_scarlet_crusade_4')]])],
 	[494, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.symbols_of_unending_life_3')]])],
 	[501, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.stormcallers_garb_3')]])],
 	[502, new Map([[3, () => i18n.t('gear_tab.item_notices.untested_set_bonus.gift_of_the_gathering_storm_3')]])],
