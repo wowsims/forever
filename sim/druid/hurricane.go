@@ -20,7 +20,7 @@ func (druid *Druid) registerHurricaneSpell() {
 	if hurricaneTickRank.IsAProc() {
 		tickConfig.Flags |= core.SpellFlagProc
 	}
-	// A tick takes no Spell Piercing bonus, though other binary hits do (EV-0172).
+	// A tick takes no Spell Piercing bonus, though other binary hits do (EV-0142).
 	tickConfig.Flags |= core.SpellFlagNoPartialResist
 	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		outcome := spell.OutcomeMagicHitAndCrit

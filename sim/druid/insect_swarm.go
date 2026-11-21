@@ -15,7 +15,7 @@ func (druid *Druid) registerInsectSwarmSpell() {
 
 	config := spelldata.SpellConfig(&druid.Unit, insectSwarmRank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.Dot = spelldata.DotConfig(insectSwarmRank, insectSwarmRank.PeriodicEffect())
-	// A tick takes its Spell Piercing bonus at the full share (EV-0172).
+	// A tick takes its Spell Piercing bonus at the full share (EV-0142).
 	config.Flags |= core.SpellFlagFullResistanceTicks
 	// A duration mod such as Nature's Splendor's lengthens the hit debuff through it, as it does the dot.
 	config.RelatedAuraArrays = auras.ToMap()

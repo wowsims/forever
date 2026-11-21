@@ -38,8 +38,8 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 
 	averageResist := attackTable.Defender.averageResist(spell, attackTable.Attacker, isPeriodic)
 	// A binary spell's hit roll takes its whole resist, so one that lands loses no damage to a partial
-	// resist (EV-0142). Spell Piercing beyond the target's resistance still rolls its bonus on the hit, as
-	// on any other spell (EV-0172).
+	// resist, while Spell Piercing beyond the target's resistance still rolls its bonus on the hit, as on
+	// any other spell (EV-0142).
 	if averageResist == 0 || averageResist > 0 && spell.Flags.Matches(SpellFlagBinary) {
 		return 1, OutcomeEmpty
 	}
