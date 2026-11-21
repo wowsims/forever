@@ -33335,12 +33335,12 @@ var generatedSpells = []Spell{
 		Powers: []Power{{Cost: 120}}},
 	{ID: 1240047, Name: "Ice Lance", Rank: "Rank 6", School: 16, Speed: 38, Attr: [17]uint32{0: 0x50000, 2: 0x100, 14: 0x40, 15: 0x2000}, SpellLevel: 56, BaseLevel: 56, MaxLevel: 64, MaxRange: 30, CategoryCooldownMs: 8000, GCDMs: 1500, Category: 19, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 3, Mask: [4]uint32{0: 655360}}, InterruptFlags: 15, Labels: []int16{17}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
-			{ID: 1238151, SpellID: 1240047, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 145, PPL: 0.8999999761581421, Variance: 0.1666666716337204, BaseLevel: 56, MaxLevel: 64, SPCoef: 0.14285714285714285, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1238151, SpellID: 1240047, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 145, PPL: 0.8999999761581421, Variance: 0.1666666716337204, BaseLevel: 56, MaxLevel: 64, SPCoef: 0.11, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1238152, SpellID: 1240047, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 300, BaseLevel: 56, MaxLevel: 64, PvpMult: 1, ChainAmp: 1},
 			{ID: 1238153, SpellID: 1240047, Index: 2, Type: dbcenums.E_DUMMY, BasePoints: 20, BaseLevel: 56, MaxLevel: 64, PvpMult: 1, ChainAmp: 1},
 			{ID: 1238154, SpellID: 1240047, Index: 3, Type: dbcenums.E_DUMMY, BasePoints: 5, BaseLevel: 56, MaxLevel: 64, PvpMult: 1, ChainAmp: 1},
 		},
-		Powers: []Power{{Cost: 160}}}, // override: SPCoefDirect 0.14285714285714285 -- Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game; TBC's 1/7 until measured
+		Powers: []Power{{Cost: 160}}}, // override: SPCoefDirect 0.11 -- Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game (EV-0171)
 	{ID: 1240193, Name: "Slam", Rank: "Rank 1", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 6: 0x2008000, 14: 0x40, 15: 0x2000}, SpellLevel: 20, BaseLevel: 20, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 30, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 1238371, SpellID: 1240193, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 16, BaseLevel: 20, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
