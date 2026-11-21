@@ -13,15 +13,15 @@ import (
 	"github.com/wowsims/forever/sim/shaman"
 )
 
-// The spells each Windfury Weapon strike and each Windfury Totem strike report under.
+// The spells each Windfury Weapon hit and each Windfury Totem hit report under.
 var (
 	windfuryWeaponStrike = core.ActionID{SpellID: spelldata.MustFind(439440).ID}
 	windfuryTotemStrike  = core.ActionID{SpellID: spelldata.MustFind(10610).ID}
 )
 
-// Windfury Weapon's strikes are main-hand abilities: Flametongue Totem, which hears auto attacks
-// alone, procs once for each swing that lands and never off a strike, and the strikes roll the
-// special attack table and never glance.
+// Windfury Weapon hits are main-hand abilities: Flametongue Totem, which hears auto attacks
+// alone, procs once for each swing that lands and never off a Windfury hit, and the Windfury hits
+// roll the special attack table and never glance.
 func TestWindfuryWeaponStrikesNeverProcFlametongueTotemOrGlance(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	result := core.RunRaidSim(&proto.RaidSimRequest{
@@ -59,26 +59,26 @@ func TestWindfuryWeaponStrikesNeverProcFlametongueTotemOrGlance(t *testing.T) {
 	landed := func(m *proto.TargetedActionMetrics) int32 { return m.Hits + m.Crits + m.Glances }
 
 	if landed(&strikes) == 0 {
-		t.Fatal("no Windfury Weapon strike landed over the run")
+		t.Fatal("no Windfury Weapon hit landed over the run")
 	}
 	if strikes.Glances != 0 {
-		t.Errorf("Windfury Weapon's strikes glanced %d times, want none", strikes.Glances)
+		t.Errorf("Windfury Weapon hits glanced %d times, want none", strikes.Glances)
 	}
 	if mainHand.Glances == 0 {
-		t.Error("the main hand's swings never glanced, so the run cannot tell the strikes from them")
+		t.Error("the main hand's swings never glanced, so the run cannot tell the Windfury hits from them")
 	}
 	procs := landed(&flametongue) + flametongue.Misses
 	if procs == 0 {
 		t.Fatal("Flametongue Totem never procced over the run")
 	}
 	if want := landed(&mainHand); procs != want {
-		t.Errorf("Flametongue Totem procced %d times, want one for each of the %d swings that landed and none for the %d Windfury Weapon strikes that landed",
+		t.Errorf("Flametongue Totem procced %d times, want one for each of the %d swings that landed and none for the %d Windfury Weapon hits that landed",
 			procs, want, landed(&strikes))
 	}
 }
 
 // A main-hand swing spends a Flurry charge whatever its outcome, and so do a Windfury Weapon
-// strike and a Windfury Totem strike; a Stormstrike spends none, and a hit in the same instant as a
+// hit and a Windfury Totem hit; a Stormstrike spends none, and a hit in the same instant as a
 // crit's gain spends none.
 func TestFlurrySpendsOnSwingsAndWindfuryStrikes(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
@@ -98,7 +98,7 @@ func TestFlurrySpendsOnSwingsAndWindfuryStrikes(t *testing.T) {
 	strike := sham.GetSpell(windfuryWeaponStrike)
 	totemStrike := sham.GetSpell(windfuryTotemStrike)
 	if flurry == nil || trigger == nil || strike == nil || totemStrike == nil || sham.Stormstrike == nil {
-		t.Fatalf("Flurry %v, its trigger %v, Windfury Weapon's strike %v, Windfury Totem's strike %v, Stormstrike %v; want all registered",
+		t.Fatalf("Flurry %v, its trigger %v, Windfury Weapon hit %v, Windfury Totem hit %v, Stormstrike %v; want all registered",
 			flurry, trigger, strike, totemStrike, sham.Stormstrike)
 	}
 	hit := func(spell *core.Spell, outcome core.HitOutcome) {
@@ -119,14 +119,14 @@ func TestFlurrySpendsOnSwingsAndWindfuryStrikes(t *testing.T) {
 		}
 	}
 	expect("a dodged swing", swing, core.OutcomeDodge, true)
-	expect("a Windfury Weapon strike", strike, core.OutcomeHit, true)
-	expect("a Windfury Totem strike", totemStrike, core.OutcomeHit, true)
+	expect("a Windfury Weapon hit", strike, core.OutcomeHit, true)
+	expect("a Windfury Totem hit", totemStrike, core.OutcomeHit, true)
 	expect("a Stormstrike", sham.Stormstrike, core.OutcomeHit, false)
 
 	sim.CurrentTime += time.Second
 	hit(swing, core.OutcomeCrit)
 	hit(strike, core.OutcomeHit)
 	if got := flurry.GetStacks(); got != flurry.MaxStacks {
-		t.Errorf("a strike in the instant of a crit's gain left %d charges, want %d", got, flurry.MaxStacks)
+		t.Errorf("a Windfury Weapon hit in the instant of a crit's gain left %d charges, want %d", got, flurry.MaxStacks)
 	}
 }

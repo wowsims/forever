@@ -367,7 +367,7 @@ func (paladin *Paladin) applyUnsealedWrath() {
 	// attack such as Hand of Justice's: that one neither stores nor spends a copy.
 	trigger.Outcome = core.OutcomeLanded
 	trigger.TriggerImmediately = true
-	// Windfury Totem's strike stores no copy, though the row hears melee swings (EV-0136).
+	// A Windfury Totem hit stores no copy, though the row hears melee swings (EV-0136).
 	trigger.HearsCountedSwings = false
 	paladin.MakeProcTriggerAura(trigger)
 }

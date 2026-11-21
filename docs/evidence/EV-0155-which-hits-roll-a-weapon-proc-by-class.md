@@ -8,7 +8,7 @@ between one and two rolls on few wearers. Judgement of Command still rolls twice
 - Claim: Execute rolls a weapon proc twice, on both hand setups: with killing blows left out, Execute units hold 1.95
   times the procs one roll gives. Judgement of Command rolls twice, 1.85 [1.78, 1.93]. The
   landings of Serpent Sting, Concussive Shot and Scorpid Sting roll the ranged weapon once. A dual wielder's Whirlwind
-  rolls each hand's weapon once. Sap and Death Mark roll nothing. Windfury Weapon and Windfury Totem strikes roll once;
+  rolls each hand's weapon once. Sap and Death Mark roll nothing. Windfury Weapon and Windfury Totem hits roll once;
   imbue strikes and poisons add no roll. A weapon proc's melee-table strike that a main-hand white swing casts rolls the
   main-hand weapon once more, Loksey's Training Stick's Tough Love and the Rend procs among them; magic procs never do.
   Mongoose Bite and Mocking Blow are not settled: thin samples here read above one roll, a larger separate count reads
@@ -93,8 +93,8 @@ fewer than 50 units with a proc.
 | Druid (form) | main hand            | A: Swipe (Bear)           |     126 |  28,568 |           2 |           0 |               2,985 | 0.00 [0.00, 0.00] | none               |
 
 A dual wielder's Sunder Armor and a two-hander's Whirlwind read below one roll. Both are counted as one roll in
-EV-0153's rates; neither is settled. Serpent Sting's landing reads 1.08 [1.01, 1.15]: a little above one roll and far
-below two.
+#1108's rates (EV-0153 §Method); neither is settled. Serpent Sting's landing reads 1.08 [1.01, 1.15]: a little above
+one roll and far below two.
 
 A Serpent Sting, Concussive Shot or Scorpid Sting landing rolls the ranged weapon with no damage event, so a count that
 takes it for no roll credits its proc to nothing: over every hunter unit on a ranged weapon, the units with such a
@@ -106,14 +106,15 @@ two (`jud_out.md`).
 ## Killing blows
 
 The census counts a killing blow as a unit like any other hit, but a proc that lands on the target logs almost never on
-one: over the 45 weapons of EV-0153, 3.7% of the white swings that leave the target alive are followed by a proc and
-0.7% of the killing ones, while self-buff procs (Destiny, Lord General's Sword, Sang'thraze the Deflector) log on a
-kill as usual. So a unit kind that often kills reads low here. Execute does most of all: its rows above read 1.76 with
-no off-hand weapon and 2.12 dual wielding, and with killing blows left out, over EV-0153's weapons, 3,683 lone Execute
-units hold 553 with a proc where one roll at the same weapon's white chance gives 284, 1.95 times. A separate count on
-the reports up to 2026-11-19, with killing blows left out (#1108's review), reads Execute at 1.90 [1.70, 2.08] with no
-off-hand weapon and 1.94 [1.73, 2.16] dual wielding, Mocking Blow at 0.97 [0.66, 1.29] on 346 units, Mongoose Bite at
-0.95 and 1.13 on 189 and 162 units, and Summon Hawk's hits at 1.05 [0.95, 1.13] on 4,140 units.
+one: over the 45 weapons #1108 counted (EV-0153 §Method), 3.7% of the white swings that leave the target alive are
+followed by a proc and 0.7% of the killing ones, while self-buff procs (Destiny, Lord General's Sword, Sang'thraze the
+Deflector) log on a kill as usual. So a unit kind that often kills reads low here. Execute does most of all: its rows
+above read 1.76 with no off-hand weapon and 2.12 dual wielding, and with killing blows left out, over #1108's weapons
+(EV-0153 §Method), 3,683 lone Execute units hold 553 with a proc where one roll at the same weapon's white chance gives
+284, 1.95 times. A separate count on the reports up to 2026-11-19, with killing blows left out (#1108's review), reads
+Execute at 1.90 [1.70, 2.08] with no off-hand weapon and 1.94 [1.73, 2.16] dual wielding, Mocking Blow at 0.97 [0.66,
+1.29] on 346 units, Mongoose Bite at 0.95 and 1.13 on 189 and 162 units, and Summon Hawk's hits at 1.05 [0.95, 1.13] on
+4,140 units.
 
 ## After hotfix push 114313
 
@@ -127,8 +128,8 @@ Caster Procs off them, and sets Suppress Weapon Procs on Judgement 20271 and on 
   of play in 1,390 reports. Events between 22:16 and 23:47 count on neither side.
 
 The counts use this file's method, killing blows left out, and white chances from the same class in the same period.
-Execute's rows take the census weapons and EV-0153's weapons whose procs land on the target within a known delay;
-Bigger Rock, whose strike chains, is a row of its own.
+Execute's rows take the census weapons and #1108's weapons (EV-0153 §Method) whose procs land on the target within a
+known delay; Bigger Rock, whose strike chains, is a row of its own.
 
 | Unit                                      | Period            | Wearers |  Units | With a proc | One roll would give | Ratio [95%]       | Reading   |
 | ----------------------------------------- | ----------------- | ------: | -----: | ----------: | ------------------: | ----------------- | --------- |
@@ -149,9 +150,9 @@ Rock's wearers too. Execute's two rows after the push pool to 1.19 on 11 warrior
 roll fits and two sit at the edge. The readings before the push on 2026-11-20 already sit between one and two, so the
 logs do not yet show Execute's change.
 
-Windfury Totem off Execute, with the totem in range (another strike of the warrior within 5 s) and no overkill, against
-the same warrior's Heroic Strike, Bloodthirst, Mortal Strike, Revenge, Overpower, Slam and Hamstring. Two rolls read
-about 1.81:
+Windfury Totem off Execute, with the totem in range (another Windfury Totem hit of the warrior within 5 s) and no
+overkill, against the same warrior's Heroic Strike, Bloodthirst, Mortal Strike, Revenge, Overpower, Slam and Hamstring.
+Two rolls read about 1.81:
 
 | Period            | Ranks | Warriors | Landed Executes struck | Ratio [95%]       | Avoided Executes struck |
 | ----------------- | ----- | -------: | ---------------------: | ----------------- | ----------------------: |
@@ -163,7 +164,7 @@ about 1.81:
 | after             | 5     |       50 |              507/1,350 | 2.09 [1.89, 2.31] |                   18/97 |
 
 Every rank's cast rolls the totem again after the push, an avoided Execute included; leaving out one warrior at a time
-keeps ranks 1–4 at 1.60 to 1.74. Shield Slam and Shield Bash drew no strike on 2026-11-20 on either side, so the
+keeps ranks 1–4 at 1.60 to 1.74. Shield Slam and Shield Bash drew no Windfury hit on 2026-11-20 on either side, so the
 reference leaves them out.
 
 Mutilate, rogues with a dagger in each hand, 2026-11-14 to 2026-11-20 22:15 UTC before the push and 23:47 UTC to
@@ -189,8 +190,8 @@ its maximum often logs nothing.
 The 5 rogues with main-hand Instant Poison on both sides read 1.58 [1.45, 1.79] before the push and 1.05 [0.98, 1.08]
 after it. Windfury Totem off a landed Mutilate, against the same rogue's other main-hand specials and Eviscerate, reads
 one roll on both sides: 1.16 [1.04, 1.28] on 83 rogues before and 0.94 [0.79, 1.13] on 15 after, where two rolls read
-about 1.8. A dodged, parried or missed Mutilate cast is followed by no strike, 0 of 925 before and 0 of 136 after, so
-the cast never rolls the totem. Mutilate's reports are in `codes_mut_before.txt` (188), `codes_mut_after.txt` (29),
+about 1.8. A dodged, parried or missed Mutilate cast is followed by no Windfury hit, 0 of 925 before and 0 of 136 after,
+so the cast never rolls the totem. Mutilate's reports are in `codes_mut_before.txt` (188), `codes_mut_after.txt` (29),
 `codes_mutwf_before.txt` (121) and `codes_mutwf_after.txt` (24); its scripts are `mut.py`, `mut_report.py`
 (`mut_out.md`) and `totem_mut.py` (`totem_out_mutwf.md`).
 
@@ -201,17 +202,17 @@ Scripts and output, in `forever-double-roll-post114313`: `extract_r2.py`, `units
 (`report_r2_period.md`), `joc_extra_r2.py` (`joc_extra_out_r2.md`), and `totem_ratio.py` and `totem_ranks.py`
 (`totem_ratio_out_r2.md`, `totem_ranks_out_r2.txt`).
 
-## Strikes, imbues and poisons
+## Windfury hits, imbues and poisons
 
-Units of one white swing with one Windfury strike, against one roll per hit (`wf_out.md`):
+Units of one white swing with one Windfury hit, against one roll per hit (`wf_out.md`):
 
-| Class   | Unit                      | Wearers | Units | With a proc | One roll per hit | A strike rolling twice | Ratio [95%]       |
-| ------- | ------------------------- | ------: | ----: | ----------: | ---------------: | ---------------------: | ----------------- |
-| Warrior | white + Windfury Totem    |     118 | 4,734 |         888 |            881.5 |                1,255.4 | 1.01 [0.95, 1.07] |
-| Rogue   | white + Windfury Totem    |      42 |   858 |         143 |            150.5 |                  214.5 | 0.95 [0.78, 1.11] |
-| Shaman  | white + Windfury Totem    |      59 | 1,312 |         176 |            170.9 |                  246.6 | 1.03 [0.92, 1.14] |
-| Shaman  | white + 2 Windfury Weapon |      71 | 1,835 |         321 |            335.3 |                  519.6 | 0.96 [0.84, 1.08] |
-| Shaman  | white + 1 Windfury Weapon |      63 |   355 |          47 |             45.7 |                   65.9 | 1.03 [0.77, 1.30] |
+| Class   | Unit                      | Wearers | Units | With a proc | One roll per hit | A Windfury hit rolling twice | Ratio [95%]       |
+| ------- | ------------------------- | ------: | ----: | ----------: | ---------------: | ---------------------------: | ----------------- |
+| Warrior | white + Windfury Totem    |     118 | 4,734 |         888 |            881.5 |                      1,255.4 | 1.01 [0.95, 1.07] |
+| Rogue   | white + Windfury Totem    |      42 |   858 |         143 |            150.5 |                        214.5 | 0.95 [0.78, 1.11] |
+| Shaman  | white + Windfury Totem    |      59 | 1,312 |         176 |            170.9 |                        246.6 | 1.03 [0.92, 1.14] |
+| Shaman  | white + 2 Windfury Weapon |      71 | 1,835 |         321 |            335.3 |                        519.6 | 0.96 [0.84, 1.08] |
+| Shaman  | white + 1 Windfury Weapon |      63 |   355 |          47 |             45.7 |                         65.9 | 1.03 [0.77, 1.30] |
 
 Units holding an event that rolls nothing, against the count with that event as no roll (`pooled_out.md`; 1 adds no
 roll):

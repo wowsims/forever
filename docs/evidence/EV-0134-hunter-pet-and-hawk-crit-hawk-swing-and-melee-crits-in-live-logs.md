@@ -1,16 +1,13 @@
-# EV-0134: Tamed pet and hawk crit, the hawk's swing at level 60, and hunter crit and trap rolls in live logs
+# EV-0134: Tamed pet crit and attack power, and hunter crit and trap rolls in live logs
 
 - Claim: a tamed pet's white swings take none of the crit it inherits from its owner, while its abilities take all of
-  it; after the 2026-11-10 hotfix a hawk's swing before armor at level 60 is 0.153 of the creature dps over 2.5 s plus
-  2.5/60 of its attack power; the attack power a hunter's log shows, which the hawk takes 80% of, is the ranged attack
-  power plus 14 a point of the main hand's dps, while the pet takes its 10% of the ranged attack power alone;
-  Predator's Edge reaches Raptor Strike's crit damage bonus twice, compounded; Explosive Trap's first hit rolls its
-  base once and its attack power share not at all.
+  it; a tamed pet takes its 10% of the ranged attack power alone, without the weapon part of the attack power a
+  hunter's log shows; Predator's Edge reaches Raptor Strike's crit damage bonus twice, compounded; Explosive Trap's
+  first hit rolls its base once and its attack power share not at all.
 - Sources: Warcraft Logs, the reports of the hunters on the Forever servers that the sections below name; all fights
 - Game build: 1.60.1.70888 for the reports from 2026-11-10 to 2026-11-12 and 1.60.1.70938 for those from 2026-11-13 to
-  2026-11-16, as in EV-0131; the build of the reports from 2026-11-05 to 2026-11-09 is not recorded. The hawk's swing
-  counts only reports from 2026-11-12 on, after the 2026-11-10 hotfix had reached every realm. The hotfix each player
-  ran and whether they relogged are not recorded.
+  2026-11-16, as in EV-0131; the build of the reports from 2026-11-05 to 2026-11-09 is not recorded. The hotfix each
+  player ran and whether they relogged are not recorded.
 - Date: 2026-11-05 to 2026-11-16
 - Pull request: #1060
 
@@ -130,68 +127,11 @@ yCA1rNbBHntcMqxF, yG3LRBbqHwkPfvJx, yGb8A3VQvJfrCgTp, yGhgd9Zp6WQMaKkf, yMcZ2H8L
 yRChfAvDqYwxBkFr, ytDBmMjX3q8TWbFJ, yx9ta7bcdv8Yjw1H, z1VCfZFJYPwHagpL, z2BJcmAP6frjMV8w, z9XbfMRh21Fg7QjN,
 zWZgvGc8ByFV2qwN, zmDY4LVX7N8vh9aR, zpbwQnT2387xJYdr
 
-## Hawk swing
-
-Only Unleashed Fury 5/5 and Focused Fire 2/2 hunters, and only reports from 2026-11-12 on: on 2026-11-10 and
-2026-11-11 some hunters' hawks swing on the formula before the hotfix and others on the one after it. A normal hit's
-attack power is the one on its swing's cast event. The roll is the hit before armor less 2.5/60 of that attack power,
-over the creature dps for the hunter's level (ExpectedStat) times 2.5 s.
-
-| Levels | Reports | Swings | Roll share | 95%, swings    | 95%, reports   |
-| ------ | ------- | ------ | ---------- | -------------- | -------------- |
-| 20-29  | 15      | 3,608  | 0.136      | 0.135 to 0.138 | 0.131 to 0.141 |
-| 30-39  | 45      | 21,336 | 0.146      | 0.146 to 0.146 | 0.144 to 0.147 |
-| 40-49  | 30      | 11,612 | 0.150      | 0.150 to 0.150 | 0.149 to 0.151 |
-| 50-59  | 5       | 2,201  | 0.150      | 0.149 to 0.151 | 0.149 to 0.153 |
-| 60     | 24      | 7,352  | 0.153      | 0.152 to 0.153 | 0.152 to 0.155 |
-
-At level 60 the 2nd to 98th percentile of the roll share is 0.117 to 0.191, 24% either side of the mean with the
-attack power's noise in it. A free fit over 11,484 normal hits at level 60 gives 0.0416 a point of hawk attack power.
-
-Reports (114):
-
-19KWay63j2HvGdgQ, 1xzPrQWDC4pv9HhJ, 23d6yh4tcqTGNnKR, 2ACDTKkcpWbNfRJ9, 2WLXwQG7kfaBRbxn, 2gKNqpY4G8VdtLMf,
-3tLzvVH2AK6aFDMP, 3wdx94CkMQVGmayv, 4WtzXrnhyZpcRVCY, 6KtcxCT4b7ZDvqMr, 7fz9Kk8rY6jyQAbL, 813rPaLtcdpHy67q,
-8jzXTaqr732V9DxJ, 9YJM6y2PdRxZarK3, 9YZPHyRaK3FrQkNT, 9gRDVvwAQnC41PBc, AYwLfvqh9QyNj6zJ, AvMqTmDyG3VrZNY2,
-AvNwTdyBbDncFf2h, BFPtcmbyLr71Kj63, BmDpWPqCrJfhZxtK, C3r6TRtDnxzVPF9j, CTPkZ8AWYwcXBzNn, D3Qx92znVrkXpvC7,
-D9mj8dy41FxGfcV3, FyjZtHCT6zM2WLqb, G2QDqn9gc1mRXByC, Gb4aLkx6KNf98qgD, HL38fnFjNXGTmRCa, Hw4kJRqxZhfvapcd,
-J4zpnVTLMaY18tq2, Jjmv6drycNXpDxW8, KLNhgMTDAV6xY1Wj, Kdkm8xan6CFZjvpQ, KfgYa2LbdCRGMhXv, LxfZwpgAyMFcC3NG,
-NHLVxbT9hgPZnGwp, NRvfwJbCyQ3qh4dj, NWzbYnVjDaqx3gRC, Nby7FHqDhWcBLYXd, NcRqzah1TQjMr3nF, P2QkCnLwyB1cVA9z,
-P6HcTpZXdqAkQBYh, PGVWZxJDC4AMQb8L, PLGKvft3bq8WgRYN, PdZtrjfBJqYMVzCy, QAgrxLyh1CVwcf6k, QF2qpKC9rbxV3ZvW,
-Qb1yWxa8vHCGL7Yr, RCGmnkZ9PY1vtQXh, RVgGFynN3KCYJHcA, TA3pLxKFXQ9Ckm41, TNAXzyxRPQZW3pq2, Tfp1v6KhDwJntrRd,
-TqZ39QgVkdF6WRDr, TxvwCp4YWqygQ1Pt, V4v6h23bHLaT9Kxj, VK83G7MdBhLRFAfa, VhqB8wZJzRP34cAM, WKFAG7kVZwxbR8QX,
-XCam1TRQqwW6pkzf, XDZpkGWVRTfxb6Nn, XHk7W3h1NDbpL4PV, ZYxGWdqtLT7Fjg1n, aHwCztFpYhVXKdNR, aRFzTnCLAtqHNdB8,
-bBcVpmN3ARdWD7Jx, bYaT9KXtGwqvV6d4, bavD2gBYZHkqK7Ct, bmZcqx1pW4LGFfKB, cb9gzXjCK3BfH7qM, dFcXZkRP9qnLb7mT,
-dvkzFtPH3WR9C4Km, f2zK39XdhnNqZJgR, f36RaB12wyDcTCGY, fD1aRkzx4jYV3drh, fYdRHbPy4nA2k8Mq, gKk9M6qRwByWYPLj,
-gPxrZVY4JQ2Fm1Nd, gzrAwTqCWPm7xvpD, h8aVABn6zKPyMwD4, hPNgqjA4vkTxXwG1, hmtTqH16pPGzZJax, j6XFRzHxTC1kvVpy,
-jXhdfNz2g7WpBYCa, k4DvNfBJC3wL7MRc, kjRYLXvzgbJyFGKD, m9dYchPtxMFBJ2Gz, mT2F3XZgcnyf7wzA, mak9vPD1KCtHW3n4,
-mtXxyZRfgAhLP7rc, n1WgqK3GMVLT7pA6, nFvHyDjrCxLdA6k7, nxpWmkQJXhtPHdF9, q7MvX6Vd42jLrbF8, qGywkYrdHKT8NgAQ,
-qTnGKAYkRXHBMDQJ, qVvZxP3gNp12KWyb, qvbXATzmk6Gha1Ny, raBGY1z29kVctF37, rkzFZMhRByHDtT8q, tkHwWYF1C8LTfhQg,
-vQZLCzhPNatk7r3d, vfQr1GhC8HjdNZ7L, vk9HJZwrfhmCayMY, vnLtQck7gF9PamD4, vwCXzhMQ2drgpRxD, wJCmzRy4GHgDTA8F,
-wPYdtLC7f8Xbc2qy, wp7Wx3jJVmtyn9qY, x8kcqNDnBtG3TYM1, xgCF4fVbKcTmpaN6, yCA1rNbBHntcMqxF, z9XbfMRh21Fg7QjN
-
-## The weapon part of the owner's attack power
-
-A hunter's logged attack power is the ranged attack power plus a weapon part. Battle Shout, which raises only melee
-attack power, leaves it where it is, and Aspect of the Hawk moves it by its whole bonus. The weapon part is read on the
-same hunter's gear snapshots inside one report: when the weapons differ between two snapshots, the change in the logged
-attack power on the first cast after each, less the change the snapshots' own stats explain (2 a point of Agility, gear
-ranged attack power, Careful Aim's share of Intellect, 2 a level) and with Aspect of the Hawk's state taken from the buff
-events, is the weapon part's change. Only swaps between items the sim's database knows, with no level gained between.
-
-| Weapon that changed | Swaps | Change in the weapon part, per 14 x the dps change | 95%, swaps    |
-| ------------------- | ----- | -------------------------------------------------- | ------------- |
-| Main hand alone     | 17    | 1.01                                               | 0.84 to 1.13  |
-| Ranged weapon alone | 12    | 0.21                                               | 0.00 to 0.62  |
-| Off hand alone      | 9     | -0.02                                              | -0.05 to 0.01 |
-
-Swaps from a ranged weapon the database does not know (taken as 0 dps) move the weapon part by -10 to +10 for a new
-ranged weapon of 10 to 21 dps. Across 19 main-hand swaps of hunters with a hawk out, the hawk's own attack power moves
-by 0.97 times 0.8 x 14 x the main hand's dps change.
+## The pet's share of the owner's attack power
 
 The pet takes its 10% of the ranged attack power alone. Over 102 summons of 23 level-60 hunters, the pet's attack
 power less 0.1 x the logged attack power falls by 0.100 a point of 14 x the main hand's dps; less 0.1 x the logged
-attack power without the weapon part, it is flat (slope 0.000) at a median of 258.9, the pet's own 0.3 x 14 x the
+attack power without the weapon part (EV-0073), it is flat (slope 0.000) at a median of 258.9, the pet's own 0.3 x 14 x the
 creature dps of 253.9 and its talents.
 
 Reports (72):

@@ -63,7 +63,7 @@ func protectionSuite() core.CharacterSuiteConfig {
 	}
 }
 
-// Windfury Totem's strike, landed or avoided, spends Reckoning's stored charges as a main-hand swing
+// A Windfury Totem hit, landed or avoided, spends Reckoning's stored charges as a main-hand swing
 // does but swings none of them; the next main-hand swing swings each stored charge.
 func TestWindfuryTotemsStrikeSpendsReckoningWithNoSwing(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
@@ -88,7 +88,7 @@ func TestWindfuryTotemsStrikeSpendsReckoningWithNoSwing(t *testing.T) {
 	strike := pally.GetSpell(core.ActionID{SpellID: 10610})
 	copied := pally.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: reckoning})
 	if pally.Talents.Reckoning == 0 || stored == nil || strike == nil || copied == nil {
-		t.Fatal("the paladin has no Reckoning, no stored charges, no Windfury Totem strike or no Reckoning swing")
+		t.Fatal("the paladin has no Reckoning, no stored charges, no Windfury Totem hit or no Reckoning swing")
 	}
 	settle := func() {
 		for end := sim.CurrentTime + 2*core.SpellBatchWindow; sim.CurrentTime < end && !sim.Step(); {
@@ -103,7 +103,7 @@ func TestWindfuryTotemsStrikeSpendsReckoningWithNoSwing(t *testing.T) {
 		pally.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: target, Outcome: outcome, Damage: 100})
 		settle()
 		if stored.IsActive() || swings() != before {
-			t.Errorf("a strike with outcome %v left the charges up: %v, and swung %d of them, want spent and none swung", outcome, stored.IsActive(), swings()-before)
+			t.Errorf("a Windfury Totem hit with outcome %v left the charges up: %v, and swung %d of them, want spent and none swung", outcome, stored.IsActive(), swings()-before)
 		}
 	}
 

@@ -1,6 +1,6 @@
-# EV-0012: Windfury Weapon's strikes log as 439440, and Shield Slam and Shield Bash use the main hand's weapon procs
+# EV-0012: Windfury Weapon hits log as 439440, and Shield Slam and Shield Bash use the main hand's weapon procs
 
-- Claim: each Windfury Weapon strike is logged under 439440, a main-hand ability, and never rolls Flametongue Totem; the
+- Claim: each Windfury Weapon hit is logged under 439440, a main-hand ability, and never rolls Flametongue Totem; the
   main-hand weapon's equip procs hear Shield Slam and Shield Bash.
 - Sources: two raw combat logs of Enhancement shamans (2026-10-05 and 2026-10-07) and raw combat logs of a protection
   warrior at game build 1.60.1.70862; report codes not recorded
@@ -8,11 +8,11 @@
 - Date: 2026-10-05 and 2026-10-07 for the shaman logs; not recorded for the warrior logs
 - Pull request: #937; the warrior log's build is in its commit 85f4100f62
 
-## Windfury Weapon's strikes
+## Windfury Weapon hits
 
-A swing that brought two strikes shows one Flametongue Totem proc, so the strikes never roll it, and none of 46 strikes
-glanced. Flametongue Totem's row hears swings alone. The rank's 16361 casts the strike by script, and no row links it to
-the imbue. The logs carry no other counts.
+A swing that brought two Windfury Weapon hits shows one Flametongue Totem proc, so those hits never roll it, and none of
+46 Windfury Weapon hits glanced. Flametongue Totem's row hears swings alone. The rank's 16361 casts the hit by script,
+and no row links it to the imbue. The logs carry no other counts.
 
 ## Shield Slam and Shield Bash
 

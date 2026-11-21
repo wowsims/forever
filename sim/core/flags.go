@@ -242,7 +242,7 @@ const (
 	SpellFlagPhysicalSchoolDamage                           // A physical row that deals school damage: it takes the caster's flat physical damage bonus at its BonusCoefficient, where a weapon strike takes it whole.
 	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) and the caster's spell damage against the target's creature type (an item's mob type stats, e.g. Courier's Clasp; EV-0141) add nothing to the spell's hits, though its other spell power applies at its coefficient: a damage shield.
 	SpellFlagNoDamageVersus                                 // The caster's damage against a creature type (aura 168, e.g. Beast Slaying) adds nothing to the spell's hits, though its other damage done multipliers apply: a totem's attack.
-	SpellFlagCountsAsSwing                                  // Its hits count as main-hand melee swings: landed ones grant rage as an auto attack's do, and a listener with HearsCountedSwings hears them, e.g. Windfury Totem's strike.
+	SpellFlagCountsAsSwing                                  // Its hits count as main-hand melee swings: landed ones grant rage as an auto attack's do, and a listener with HearsCountedSwings hears them, e.g. a Windfury Totem hit.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1
