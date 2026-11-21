@@ -17,22 +17,8 @@ import (
 func TestShieldswornBlocksNonPhysicalSwings(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Targets[0].SpellSchool = proto.SpellSchool_SpellSchoolFire
-
-	player := core.WithSpec(&proto.Player{
-		Class:         proto.Class_ClassPaladin,
-		Race:          proto.Race_RaceHuman,
-		Equipment:     core.GetGearSet("../../../ui/specs/paladin/protection/gear_sets", "default").GearSet,
-		TalentsString: DefaultProtectionTalents,
-		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
-	}, DefaultOptions)
-	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  encounter,
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	pally := sim.Raid.Parties[0].Players[0].(paladin.PaladinAgent).GetPaladin()
-	target := sim.Encounter.ActiveTargetUnits[0]
+	gear := core.GetGearSet("../../../ui/specs/paladin/protection/gear_sets", "default").GearSet
+	sim, pally, target := shieldswornPaladin(gear, encounter)
 	if !pally.Talents.Shieldsworn || !pally.Talents.HolyShield || pally.Talents.ShieldSpecialization != 2 {
 		t.Fatal("the default protection talents lack Shieldsworn, Holy Shield or Shield Specialization 2/2")
 	}
@@ -61,9 +47,10 @@ func TestShieldswornBlocksNonPhysicalSwings(t *testing.T) {
 		t.Fatalf("%d of 50 Fire swings were blocked without Shieldsworn's spell block up", blocks())
 	}
 
-	// A Holy Strike's shield damage reports under Holy Shield tagged with Shieldsworn, and a block's under tag 2.
+	// A Holy Strike's shield damage reports under its own spell 456544, and a block's under Holy Shield's
+	// tag 2.
 	blockDamage := pally.GetSpell(holyShield.ActionID.WithTag(2))
-	strikeDamage := pally.GetSpell(holyShield.ActionID.WithTag(1328544))
+	strikeDamage := pally.GetSpell(core.ActionID{SpellID: 456544})
 	if blockDamage == nil || strikeDamage == nil {
 		t.Fatal("Holy Shield's block damage or its Shieldsworn copy is not registered")
 	}
@@ -119,4 +106,83 @@ func TestShieldswornBlocksNonPhysicalSwings(t *testing.T) {
 	if got := pally.CurrentMana() - manaBefore; math.Abs(got-restore) > 1e-6 {
 		t.Fatalf("a blocked Fire swing restored %.2f mana, want Shield Specialization's %.2f", got, restore)
 	}
+}
+
+// Shieldsworn's strike 456544 rolls Enchant Weapon - Revelation 8217 at the share of spell level 30 under a
+// level 60 wearer, a tenth of the chance, and Holy Shield's damage on a block rolls nothing (EV-0161).
+func TestShieldswornStrikeRollsRevelationAtItsSpellLevel(t *testing.T) {
+	gear := core.GetGearSet("../../../ui/specs/paladin/protection/gear_sets", "default").GearSet
+	gear.Items[proto.ItemSlot_ItemSlotMainHand].Enchant = 8217
+	sim, pally, target := shieldswornPaladin(gear, core.MakeSingleTargetEncounter(0))
+
+	revelation := pally.GetAuraByID(core.ActionID{SpellID: 1323419})
+	holyShield := pally.GetAuraByID(core.ActionID{SpellID: paladin.HolyShieldRankMap.Highest().ID})
+	holyStrike := pally.GetSpell(core.ActionID{SpellID: paladin.HolyStrikeRankMap.Highest().ID})
+	strike := pally.GetSpell(core.ActionID{SpellID: 456544})
+	if revelation == nil || holyShield == nil || holyStrike == nil || strike == nil {
+		t.Fatal("Revelation's buff, Holy Shield, Holy Strike or Shieldsworn's strike is not registered")
+	}
+	if level := spelldata.MustFind(456544).SpellLevel; level != 30 || pally.Level != 60 {
+		t.Fatalf("the strike reads spell level %d under a level %d paladin, want 30 under 60", level, pally.Level)
+	}
+
+	// A proc's handler runs one spell batch window after the hit.
+	stepPast := func() {
+		reached := false
+		sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{
+			DoAt:     sim.CurrentTime + core.SpellBatchWindow + 1,
+			OnAction: func(*core.Simulation) { reached = true },
+		}))
+		for steps := 0; !reached; steps++ {
+			if steps > 10000 {
+				t.Fatal("the sim did not reach the end of the spell batch window")
+			}
+			sim.Step()
+		}
+	}
+	rolls := func(hit func()) int {
+		procs := 0
+		for range 6000 {
+			revelation.Deactivate(sim)
+			holyShield.Activate(sim)
+			holyShield.SetStacks(sim, holyShield.MaxStacks)
+			hit()
+			stepPast()
+			if revelation.IsActive() {
+				procs++
+			}
+		}
+		return procs
+	}
+
+	strikeProcs := rolls(func() { holyStrike.SkipCastAndApplyEffects(sim, target) })
+	landed := strike.SpellMetrics[target.UnitIndex].Hits
+	if landed < 4000 || strikeProcs == 0 || float64(strikeProcs)/float64(landed) > 0.02 {
+		t.Errorf("%d Shieldsworn strikes landed and procced Revelation %d times, want some procs at a tenth of its chance", landed, strikeProcs)
+	}
+
+	swing := target.AutoAttacks.MHAuto()
+	if blockProcs := rolls(func() {
+		pally.OnSpellHitTaken(sim, swing, &core.SpellResult{Target: &pally.Unit, Outcome: core.OutcomeBlock, Damage: 100})
+	}); blockProcs != 0 {
+		t.Errorf("Holy Shield's damage on 6000 blocks procced Revelation %d times, want none", blockProcs)
+	}
+}
+
+// A protection paladin with the default talents in the given gear, ready to act by hand, and its target.
+func shieldswornPaladin(gear *proto.EquipmentSpec, encounter *proto.Encounter) (*core.Simulation, *paladin.Paladin, *core.Unit) {
+	player := core.WithSpec(&proto.Player{
+		Class:         proto.Class_ClassPaladin,
+		Race:          proto.Race_RaceHuman,
+		Equipment:     gear,
+		TalentsString: DefaultProtectionTalents,
+		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
+	}, DefaultOptions)
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	return sim, sim.Raid.Parties[0].Players[0].(paladin.PaladinAgent).GetPaladin(), sim.Encounter.ActiveTargetUnits[0]
 }

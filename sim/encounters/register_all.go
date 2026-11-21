@@ -29,7 +29,7 @@ func bossTarget(id int32, name string, damageSpread float64) *proto.Target {
 		Id:        id,
 		Name:      name,
 		Level:     63,
-		MobType:   proto.MobType_MobTypeMechanical,
+		MobType:   proto.MobType_MobTypeUnknown,
 		TankIndex: 0,
 
 		Stats: stats.Stats{
@@ -65,7 +65,7 @@ func dynamicAddTarget() *proto.Target {
 		Id:        dynamicAddID,
 		Name:      "Dynamic Add",
 		Level:     level,
-		MobType:   proto.MobType_MobTypeMechanical,
+		MobType:   proto.MobType_MobTypeUnknown,
 		TankIndex: 1,
 
 		Stats: stats.Stats{

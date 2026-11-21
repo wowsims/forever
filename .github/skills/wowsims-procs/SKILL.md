@@ -46,9 +46,10 @@ What `ProcTrigger` fills and the Enrage example are in `procs.md`. What the page
 - **The ICD is the row's** (`s.ICD()`); an ICD typed by hand where the row states one is a defect.
 - **A row with charges needs a spender.** `ProcCharges` becomes the buff's `MaxStacks` through `AuraConfig`, and
   nothing takes a stack off until `spelldata.AttachChargeSpender(character, buff, row, name)` is attached. It spends
-  one charge per cast however many targets the cast hits (`core.OncePerCast`), and a channel's once at its end. An
+  one charge per cast however many targets the cast hits (`core.OncePerCast`), and a channel's once at its end when
+  the row names its spells by class flags; a row that names none is spent by the first hit it hears, mid-channel too. An
   option's `ExtraCondition` narrows the spells that spend it (Revelation turns melee and ranged attacks away); a charge
-  gained during a running channel is still kept for that channel's end. Without a spender one proc pays for every cast
+  gained during a running channel its class flags name is still kept for that channel's end. Without a spender one proc pays for every cast
   in the buff's duration.
 - **An extra attack goes through `unit.ExtraAttackProc(&trigger, tagSpellID, count)`.** It sets `TriggerImmediately`
   itself, swings once the triggering hit is dealt, never hears its own swing, and returns an `OnInit` for the proc's
@@ -75,6 +76,11 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
   `docs/spell_data/procs.md` §The decoder and the tooltip hints has the rule and its exceptions.
 - **A spell's own proc mask decides which listeners hear it**, and the hit table decides the mask, not the school.
   The cases (a weapon proc's strike off either hand, oils) are in `references/rulings.md`.
+- **Suppress Caster Procs and Suppress Target Procs keep a spell's hits from `ProcTrigger` listeners on the side each
+  bit names** (EV-0165), and Suppress Caster Procs keeps its completed cast from the caster's cast triggers too.
+  `rowFlags` passes all three suppress bits on only when an effect of the row does more than a dummy, a script or a
+  cast of another spell, so a dummy the sim folds with its damage (Execute 20662) carries none of them; an aura with
+  hand-written hit callbacks checks the flag itself.
 - **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no
   death; both are in `procs.md` (the two death bits), the order of a death in `wowsims-core-mechanics`
   `## Targets and encounter plans`.
@@ -130,10 +136,12 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of
   Clarity's is in `sim/druid/omen_of_clarity.go`, Revelation's in `sim/common/forever/enchants.go`.
 - **Which hits a weapon rate counts** is EV-0155's class census: each landed hit that rolls, priced on its own weapon's
-  base speed; Execute and Judgement of Command roll twice and are left out with their procs. Paladins and druids in a
-  form are left out of every rate (owner ruling, 2026-11-19; EV-0153). A proc that lands on the target logs almost
-  never on a killing blow, so for such a proc a killing blow is no roll; and a report that lists one stretch of the log
-  under several fight ids repeats its events, which count once (EV-0153).
+  base speed; Judgement of Command rolls twice, and Execute twice up to hotfix push 114313 (2026-11-20), and both are
+  left out with their procs. After that push Execute's cast suppresses weapon procs; the first logs read between one
+  and two rolls on few wearers (EV-0155). Paladins and druids in a form are left out of every rate (owner ruling,
+  2026-11-19; EV-0153). A proc that lands on the target logs almost never on a killing blow, so for such a proc a
+  killing blow is no roll; and a report that lists one stretch of the log under several fight ids repeats its events,
+  which count once (EV-0153).
 
 ## Traps
 

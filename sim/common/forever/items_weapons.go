@@ -199,6 +199,47 @@ func init() {
 		character.ItemSwap.RegisterProc(2801, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Claymore of Two Moons
+	// https://www.wowhead.com/forever/item=280080/claymore-of-two-moons
+	//
+	// Equip: Your attacks have a chance to Wax, dealing 189 Arcane damage or Wane, granting 40 Strength
+	// for 10s.
+	//
+	// 1309550 is a dummy that names both spells and neither one's odds. Each proc casts Waxing Moon
+	// 1319378 or gives Waning Moon 1319382, one in two each, never both (EV-0163). Waxing Moon is a
+	// missile on the magic table and takes the spell damage mask a magic proc built from its row
+	// takes (R-0051), which R-0051 leaves open for a hand-written item spell.
+	core.NewItemEffect(280080, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		waxRow := spelldata.MustFind(1319378)
+		waneRow := spelldata.MustFind(1319382)
+		damage := waxRow.DamageEffect()
+
+		config := procSpellConfig(character, waxRow)
+		config.ProcMask = core.ProcMaskSpellDamage
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit))
+		}
+		wax := character.RegisterSpell(config)
+
+		wane := character.RegisterAura(spelldata.AuraConfig(waneRow))
+		parsed := spelldata.ParseEffects(character, wane, waneRow)
+
+		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1309550), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			if sim.Proc(0.5, "Claymore of Two Moons") {
+				wax.Cast(sim, result.Target)
+			} else {
+				wane.Activate(sim)
+			}
+		})
+		trigger.Name = "Claymore of Two Moons"
+		trigger.ActionID = core.ActionID{ItemID: 280080}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(280080, character.MakeProcTriggerAura(trigger))
+		character.AddStatProcBuff(280080, &core.StatBuffAura{Aura: wane, BuffedStatTypes: parsed.Stats()}, false,
+			character.ItemSwap.EligibleSlotsForItem(280080))
+	})
+
 	// Heartseeking Crossbow
 	// https://www.wowhead.com/forever/item=13040/heartseeking-crossbow
 	//
@@ -459,8 +500,8 @@ func init() {
 	//
 	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell that
 	// pays mana spends its one charge. A free cast keeps it, and so does one the reduction itself
-	// brings to 0. The listener is hand-written: the row's proc flag, cast successful, decodes to no
-	// listener, and spelldata.AttachChargeSpender on cast complete would spend the charge on Shoot.
+	// brings to 0. The listener is hand-written: spelldata.AttachChargeSpender on cast complete would
+	// spend the charge on Shoot.
 	newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
 		if !character.HasManaBar() {
 			return
@@ -688,9 +729,10 @@ func init() {
 	// damage and slow movement speed by 50% for 5s.
 	//
 	// The generator keeps one proc per item, so both procs are written here. 1298413 casts 1298414 on
-	// each landed main-hand swing and special, on the melee table its row states. 1298416 strikes at the procs per
-	// minute of the item's chance-on-hit entry on the axe's speed (EV-0136), and registers nothing while
-	// the entry states none; its slow is movement the sim leaves out.
+	// each landed main-hand swing and special. 1298414's row states Always Hit, so it rolls only the
+	// melee crit (EV-0164). 1298416 strikes at the procs per minute of the item's chance-on-hit entry on
+	// the axe's speed (EV-0157), and registers nothing while the entry states none; its slow is movement
+	// the sim leaves out.
 	core.NewItemEffect(13952, func(agent core.Agent) {
 		character := agent.GetCharacter()
 
@@ -700,10 +742,15 @@ func init() {
 		if chillRow.IsAProc() {
 			chillConfig.Flags |= core.SpellFlagProc
 		}
+		var chillOutcome core.OutcomeApplier
 		chillConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, chill.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit))
+			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, chill.DirectAmount(sim), chillOutcome))
 		}
 		chillSpell := character.RegisterSpell(chillConfig)
+		chillOutcome = chillSpell.OutcomeMeleeSpecialHitAndCrit
+		if chillRow.AlwaysHits() {
+			chillOutcome = chillSpell.OutcomeMeleeSpecialCritOnly
+		}
 
 		chillTrigger := spelldata.ProcTrigger(character, spelldata.MustFind(1298413), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			chillSpell.Cast(sim, result.Target)

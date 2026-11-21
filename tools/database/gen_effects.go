@@ -2529,8 +2529,10 @@ func (r *ProcRouting) ProcConstructor() string {
 // attack power, spell damage and damage done against a creature type. The percents reach the item stats
 // only through an equip spell that folds; an on-use or a weapon-scoped equip spell applies them as an aura.
 // An equip spell that only restates a weapon skill or creature type stat the item's own stats state leaves
-// the item (dropRestatedItemStats). One that folds carries its bonus against a creature type into the
-// item's mob type stats (addEquipSpellMobTypeStats).
+// the item (dropRestatedItemStats), and one that raises only weapon skills the item's stats do not state
+// becomes the item's weapon skill (foldEquipWeaponSkills). An equip spell whose stats fold into the item
+// (EquipSpellFolds) carries its bonus against a creature type into the item's mob type stats
+// (addEquipSpellMobTypeStats).
 var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,
@@ -2867,11 +2869,11 @@ var hasGenericMatcher = regexp.MustCompile(`a spell`)
 // own attack missing rather than an attack on it.
 var outcomeConditionMatcher = regexp.MustCompile(`(?i)when .{0,60}?(is|are) resisted|((each|every) time|when|whenever) you (dodge|parry)|after a (dodge|parry)`)
 
-// The wearer blocking, named as the trigger: "every time you block", and "after a block" on the
-// Battlegear of Wrath parry (23548). The decoder gives the listener the block off the row, while a
+// The wearer blocking, named as the trigger: "every time you block", "after a block" on the
+// Battlegear of Wrath parry (23548) and "Chance on block" on Krol'dok Resolve (1324298). The decoder gives the listener the block off the row, while a
 // dodge or a parry taken stays the caller's, so the block is its own hint. A clause naming a dodge or
 // a parry beside the block would read as the block alone; no row words one that way.
-var blockConditionMatcher = regexp.MustCompile(`(?i)((each|every) time|when|whenever) you block|after a block`)
+var blockConditionMatcher = regexp.MustCompile(`(?i)((each|every) time|when|whenever) you block|after a block|\bon (a )?block\b`)
 
 // The wearer's own attack dodged or parried, named as the trigger: Recovery's "when you are Parried
 // or Dodged". The same words also state a magnitude - "reduces the chance for your attacks to be

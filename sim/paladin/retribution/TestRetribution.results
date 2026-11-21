@@ -263,10 +263,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BloodmailRegalia"
  value: {
-  dps: 856.53656
-  tps: 700.15219
+  dps: 861.23485
+  tps: 703.91062
   dtps: 5.57168
-  hps: 24.68772
+  hps: 24.6806
  }
 }
 dps_results: {
@@ -348,6 +348,15 @@ dps_results: {
   tps: 647.51834
   dtps: 5.28237
   hps: 23.02021
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-ClaymoreofTwoMoons-280080"
+ value: {
+  dps: 837.41565
+  tps: 687.34292
+  dtps: 7.05383
+  hps: 26.44841
  }
 }
 dps_results: {
@@ -434,10 +443,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DeathboneGuardian"
  value: {
-  dps: 791.39579
-  tps: 647.93457
-  dtps: 6.02315
-  hps: 24.23462
+  dps: 813.80841
+  tps: 666.60551
+  dtps: 6.19568
+  hps: 25.01915
  }
 }
 dps_results: {
@@ -452,10 +461,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 807.66816
-  tps: 660.27037
-  dtps: 5.48611
-  hps: 24.05094
+  dps: 814.70769
+  tps: 665.90199
+  dtps: 5.60432
+  hps: 24.05399
  }
 }
 dps_results: {
@@ -713,9 +722,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 866.14869
-  tps: 708.03892
-  dtps: 5.60473
+  dps: 866.17626
+  tps: 707.8961
+  dtps: 5.09896
   hps: 24.98509
  }
 }
@@ -1181,28 +1190,28 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-JusticeArmor"
  value: {
-  dps: 808.06315
-  tps: 661.18506
-  dtps: 5.56436
-  hps: 24.11754
+  dps: 857.76658
+  tps: 700.19036
+  dtps: 4.92865
+  hps: 24.13228
  }
 }
 dps_results: {
  key: "TestRetribution-AllItems-JusticeBattlegear"
  value: {
-  dps: 807.81703
-  tps: 662.26362
-  dtps: 6.83043
-  hps: 24.02011
+  dps: 903.1999
+  tps: 738.48145
+  dtps: 6.65079
+  hps: 24.94256
  }
 }
 dps_results: {
  key: "TestRetribution-AllItems-JusticeBattleplate"
  value: {
-  dps: 811.14051
-  tps: 664.00973
-  dtps: 5.84802
-  hps: 24.48777
+  dps: 879.48337
+  tps: 719.02889
+  dtps: 6.17009
+  hps: 25.24316
  }
 }
 dps_results: {
@@ -1514,9 +1523,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-NecropileRaiment"
  value: {
-  dps: 825.14908
-  tps: 674.16853
-  dtps: 4.66662
+  dps: 825.58541
+  tps: 674.51059
+  dtps: 4.73748
   hps: 24.18481
  }
 }
@@ -2007,12 +2016,21 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 884.19842
+  tps: 723.48169
+  dtps: 6.85986
+  hps: 24.67179
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 923.10553
-  tps: 753.17854
-  dtps: 5.99311
-  hps: 24.52251
+  dps: 912.64519
+  tps: 744.98686
+  dtps: 6.04055
+  hps: 24.46608
  }
 }
 dps_results: {
@@ -2099,10 +2117,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TheGladiator"
  value: {
-  dps: 807.64705
-  tps: 659.99342
-  dtps: 5.49437
-  hps: 23.4057
+  dps: 818.52069
+  tps: 669.43903
+  dtps: 5.60974
+  hps: 23.66105
  }
 }
 dps_results: {
@@ -2306,10 +2324,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-WarbladeofCaerDarrow-13982"
  value: {
-  dps: 873.60833
-  tps: 715.15181
-  dtps: 6.77554
-  hps: 25.98498
+  dps: 871.74953
+  tps: 713.85295
+  dtps: 7.07413
+  hps: 25.60492
  }
 }
 dps_results: {
@@ -2498,27 +2516,27 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-Settings-Human-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-LongMultiTarget"
  value: {
-  dps: 1887.54598
-  tps: 1529.72698
-  dtps: 6.6299
+  dps: 1887.66529
+  tps: 1529.8558
+  dtps: 6.94298
   hps: 22.49087
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Human-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-LongSingleTarget"
  value: {
-  dps: 813.57109
-  tps: 670.41612
-  dtps: 6.80902
+  dps: 813.5845
+  tps: 670.42059
+  dtps: 6.85037
   hps: 22.38819
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Human-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-ShortSingleTarget"
  value: {
-  dps: 857.13007
-  tps: 703.98916
-  dtps: 8.65808
+  dps: 857.36707
+  tps: 704.16311
+  dtps: 8.61895
   hps: 25.83452
  }
 }
@@ -2594,27 +2612,27 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-Settings-Undead-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-LongMultiTarget"
  value: {
-  dps: 1885.12113
-  tps: 1527.06207
-  dtps: 7.27348
+  dps: 1885.16015
+  tps: 1527.08812
+  dtps: 7.21081
   hps: 22.49087
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Undead-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-LongSingleTarget"
  value: {
-  dps: 821.81627
-  tps: 676.5439
-  dtps: 7.12128
+  dps: 821.78371
+  tps: 676.54875
+  dtps: 7.123
   hps: 22.38615
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Undead-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-ShortSingleTarget"
  value: {
-  dps: 866.59737
-  tps: 710.38882
-  dtps: 8.92638
+  dps: 866.58419
+  tps: 710.3817
+  dtps: 8.97099
   hps: 25.82842
  }
 }

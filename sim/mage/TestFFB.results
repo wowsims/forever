@@ -133,8 +133,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 875.14138
-  tps: 905.83185
+  dps: 876.08099
+  tps: 906.43434
  }
 }
 dps_results: {
@@ -869,8 +869,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-LordSakrasis'Scepter-5028"
  value: {
-  dps: 907.57813
-  tps: 936.49595
+  dps: 908.65613
+  tps: 937.57395
  }
 }
 dps_results: {
@@ -904,8 +904,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-ManaflareRegalia"
  value: {
-  dps: 799.4622
-  tps: 825.85772
+  dps: 883.08975
+  tps: 909.70616
  }
 }
 dps_results: {
@@ -981,8 +981,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-NecropileRaiment"
  value: {
-  dps: 829.33019
-  tps: 854.61106
+  dps: 830.42118
+  tps: 855.75196
  }
 }
 dps_results: {
@@ -1210,6 +1210,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 882.22047
+  tps: 911.02213
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 882.22047
@@ -1282,8 +1289,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Thunderbrew'sBootFlask-744"
  value: {
-  dps: 882.9919
-  tps: 911.50536
+  dps: 883.27817
+  tps: 911.79163
  }
 }
 dps_results: {

@@ -33,7 +33,7 @@
         {"id":272406},
         {"id":22339},
         {"id":272438},
-        {"id":13968},
+        {"id":18471},
         {"id":20214,"enchant":8217},
         {"id":19315},
         {"id":23199}
@@ -85,8 +85,8 @@
         {"action":{"castSpell":{"spellId":{"spellId":10442,"rank":4}}},"doAtValue":{"const":{"val":"-4s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10614}}},"doAtValue":{"const":{"val":"-3s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10497}}},"doAtValue":{"const":{"val":"-2s"}}},
-        {"action":{"condition":{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":10438}}},"doAtValue":{"const":{"val":"-1s"}}},
-        {"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":10587}}},"doAtValue":{"const":{"val":"-1s"}}}
+        {"action":{"condition":{"variableRef":{"name":"Single Target"}},"castSpell":{"spellId":{"spellId":10438}}},"doAtValue":{"const":{"val":"-1s"}}},
+        {"action":{"condition":{"variableRef":{"name":"Multi Target"}},"castSpell":{"spellId":{"spellId":10587}}},"doAtValue":{"const":{"val":"-1s"}}}
       ],
       "priorityList": [
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"80%"}}}},"castSpell":{"spellId":{"otherId":"OtherActionResourcePotion"}}}},
@@ -96,15 +96,20 @@
         {"action":{"autocastOtherCooldowns":{}}},
         {"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}}]}},"castSpell":{"spellId":{"spellId":10438}}}},
         {"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}}]}},"castSpell":{"spellId":{"spellId":10587}}}},
-        {"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":408345}}}},
-        {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":16166}}}},
-        {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":20572}}}},
-        {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":20554}}}},
-        {"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"40%"}}}},{"not":{"val":{"auraIsActive":{"auraId":{"spellId":16166},"includeReactionTime":true}}}}]}},"castSpell":{"spellId":{"spellId":10605}}}},
+        {"action":{"condition":{"variableRef":{"name":"Use Cooldowns"}},"castSpell":{"spellId":{"spellId":16166}}}},
+        {"action":{"condition":{"variableRef":{"name":"Use Cooldowns"}},"castSpell":{"spellId":{"spellId":20572}}}},
+        {"action":{"condition":{"variableRef":{"name":"Use Cooldowns"}},"castSpell":{"spellId":{"spellId":20554}}}},
+        {"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"40%"}}}},{"or":{"vals":[{"variableRef":{"name":"Multi Target"}},{"not":{"val":{"auraIsActive":{"auraId":{"spellId":16166},"includeReactionTime":true}}}}]}}]}},"castSpell":{"spellId":{"spellId":10605}}}},
+        {"action":{"condition":{"variableRef":{"name":"Multi Target"}},"castSpell":{"spellId":{"spellId":408345}}}},
         {"action":{"multidot":{"spellId":{"spellId":10448,"rank":5},"maxDots":3,"maxOverlap":{"const":{"val":"0ms"}}}}},
-        {"action":{"condition":{"and":{"vals":[{"auraIsKnown":{"auraId":{"spellId":1323418}}},{"auraIsActive":{"auraId":{"spellId":1323418},"includeReactionTime":true}}]}},"castSpell":{"spellId":{"spellId":10414,"rank":7}}}},
+        {"action":{"condition":{"and":{"vals":[{"variableRef":{"name":"Single Target"}},{"auraIsKnown":{"auraId":{"spellId":1323418}}},{"auraIsActive":{"auraId":{"spellId":1323418},"includeReactionTime":true}}]}},"castSpell":{"spellId":{"spellId":10414,"rank":7}}}},
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"20%"}}}},"castSpell":{"spellId":{"spellId":10392,"rank":8}}}},
         {"action":{"castSpell":{"spellId":{"spellId":15208}}}}
+      ],
+      "valueVariables": [
+        {"name":"Single Target","value":{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}}},
+        {"name":"Multi Target","value":{"not":{"val":{"variableRef":{"name":"Single Target"}}}}},
+        {"name":"Use Cooldowns","value":{"or":{"vals":[{"variableRef":{"name":"Multi Target"}},{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}}]}}}
       ]
     },
     "reactionTimeMs": 100,
@@ -123,9 +128,8 @@
         "id": 31146,
         "name": "Raid Target",
         "level": 63,
-        "mobType": "MobTypeMechanical",
         "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1428900,0,0,0,0,0,0,0,0],
-        "minBaseDamage": 15113,
+        "minBaseDamage": 2601,
         "damageSpread": 0.5,
         "swingSpeed": 2,
         "parryHaste": true,

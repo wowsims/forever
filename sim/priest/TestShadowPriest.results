@@ -152,8 +152,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 742.68161
-  tps: 531.81519
+  dps: 743.49303
+  tps: 532.38319
   dtps: 5.2109
  }
 }
@@ -360,9 +360,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-DreadmistRaiment"
  value: {
-  dps: 672.60187
-  tps: 484.36546
-  dtps: 5.20484
+  dps: 675.47293
+  tps: 486.35169
+  dtps: 5.18505
   hps: 7.83039
  }
 }
@@ -577,9 +577,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-EyeofMoam-21473"
  value: {
-  dps: 751.67875
-  tps: 537.21717
-  dtps: 5.79689
+  dps: 761.42662
+  tps: 544.04067
+  dtps: 5.85323
  }
 }
 dps_results: {
@@ -729,9 +729,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-GarmentsoftheOracle"
  value: {
-  dps: 753.9233
-  tps: 538.89534
-  dtps: 5.44332
+  dps: 758.22924
+  tps: 541.90203
+  dtps: 5.25383
  }
 }
 dps_results: {
@@ -873,9 +873,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-IronweaveBattlesuit"
  value: {
-  dps: 670.3488
-  tps: 480.39857
-  dtps: 5.14474
+  dps: 679.14477
+  tps: 486.53356
+  dtps: 5.09896
  }
 }
 dps_results: {
@@ -1001,9 +1001,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-Magister'sRegalia"
  value: {
-  dps: 676.12804
-  tps: 485.56281
-  dtps: 4.56199
+  dps: 678.16806
+  tps: 486.98767
+  dtps: 4.71899
  }
 }
 dps_results: {
@@ -1105,8 +1105,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-NecropileRaiment"
  value: {
-  dps: 714.69284
-  tps: 511.19647
+  dps: 721.41987
+  tps: 515.90539
   dtps: 4.92555
  }
 }
@@ -1153,9 +1153,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-RaimentsofConviction"
  value: {
-  dps: 690.86918
-  tps: 494.59958
-  dtps: 5.4035
+  dps: 751.02928
+  tps: 537.07208
+  dtps: 5.3779
  }
 }
 dps_results: {
@@ -1279,6 +1279,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Spider'sKiss"
+ value: {
+  dps: 713.01054
+  tps: 510.16226
+  dtps: 5.76676
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 735.88142
@@ -1331,6 +1339,14 @@ dps_results: {
  value: {
   dps: 753.66644
   tps: 538.60855
+  dtps: 5.76676
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 741.34339
+  tps: 529.98241
   dtps: 5.76676
  }
 }
@@ -1473,9 +1489,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-VestmentsofConviction"
  value: {
-  dps: 691.50409
-  tps: 495.11937
-  dtps: 5.91121
+  dps: 716.20474
+  tps: 512.54372
+  dtps: 5.3569
  }
 }
 dps_results: {

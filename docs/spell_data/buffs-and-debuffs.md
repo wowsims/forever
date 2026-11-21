@@ -207,7 +207,10 @@ The pass prints a `buffs:` line for what it resolves but doubts, and writes the 
 
 Judgement of the Crusader states its effect in a shape no manifest row can carry (a holy school
 alone), so its row is a shell, and `applyDebuffs` in `sim/core/buffs/debuffs.go` applies the
-hand-written aura after the generated ones. The paladin's own aura and judgement ranks
+hand-written aura after the generated ones. The row's `ImpAction` is Libram of Fervor (item 23203,
+equip spell 28852): the improved state adds `buffs.LibramOfFervorJudgementBonus`, the spell's flat
+amount on every effect of the judgement, to the rank's value, so the improved copy also bids that much
+higher in the category. The paladin's own aura and judgement ranks
 (`PaladinAuraRank`, `JudgementRank`) live in `sim/core/buffs/paladin.go` beside the generated
 categories they join. Each is built at the rank the paladin cast: `NewSpellDataDevotionAuraRank`
 beside the generated top rank `NewSpellDataDevotionAura`, and likewise for Concentration, Retribution and

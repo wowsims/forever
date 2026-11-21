@@ -290,11 +290,17 @@ func (mage *Mage) registerMissileBarrage() {
 	})
 	spelldata.ParseEffects(&mage.Character, buffAura, buffRank, spelldata.Effects(3))
 
+	frostfireBonus := manaflareFrostfireBolt.EffectN(1).Percent()
+
 	trigger := spelldata.ProcTrigger(&mage.Character, talentRank,
 		func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-			chance := arcaneBlastChance
-			if !spellData.ArcaneBlast.Contains(spell) {
-				chance /= 2
+			chance := arcaneBlastChance / 2
+			if spellData.ArcaneBlast.Contains(spell) {
+				chance = arcaneBlastChance
+			}
+			// Manaflare Regalia's 5pc adds effect 1's points to Frostfire Bolt's chance while it is up.
+			if mage.manaflareAura.IsActive() && spell.Matches(MageSpellFrostfireBolt) {
+				chance += frostfireBonus
 			}
 			if sim.Proc(chance, "Missile Barrage") {
 				buffAura.Activate(sim)

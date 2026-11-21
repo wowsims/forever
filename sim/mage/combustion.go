@@ -42,11 +42,11 @@ func (mage *Mage) registerCombustionSpell() {
 	// Each landed Fire spell hit adds a stack, a crit included; a crit then spends one of the charges.
 	// Periodic damage never reaches OnSpellHitDealt, so DoT ticks and Ignite neither stack nor spend,
 	// and a Fire wand's shots are ranged autos, not spells. Flamestrike's ground ticks are hits, but
-	// neither stack nor spend here.
+	// neither stack nor spend here. The row cannot proc from procs, so an item's Fire proc does neither.
 	// TODO: Verify in game whether a Flamestrike ground tick adds a stack and its crit spends a charge.
 	chargesConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if !spell.ProcMask.Matches(core.ProcMaskSpellDamage) || !spell.SpellSchool.Matches(core.SpellSchoolFire) || !result.Landed() ||
-			spell.Matches(MageSpellFlamestrikeDot) {
+			spell.Flags.Matches(core.SpellFlagProc) || spell.Matches(MageSpellFlamestrikeDot) {
 			return
 		}
 
@@ -58,6 +58,22 @@ func (mage *Mage) registerCombustionSpell() {
 	}
 
 	chargesAura := mage.RegisterAura(chargesConfig)
+
+	// Manaflare Regalia's 5pc: Frostfire Bolt gains effect 2's crit while Combustion is active.
+	if mage.manaflareAura != nil {
+		frostfireCrit := mage.AddDynamicMod(core.SpellModConfig{
+			Kind:       core.SpellMod_BonusCrit_Percent,
+			ClassMask:  MageSpellFrostfireBolt,
+			FloatValue: manaflareFrostfireBolt.EffectN(2).BaseValue(),
+		})
+		chargesAura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
+			if mage.manaflareAura.IsActive() {
+				frostfireCrit.Activate()
+			}
+		}).ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
+			frostfireCrit.Deactivate()
+		})
+	}
 
 	// An off-GCD cast of its own.
 	config := spelldata.SpellConfig(&mage.Unit, combustionRank, spelldata.Flags(core.SpellFlagAPL|core.SpellFlagNoOnCastComplete))

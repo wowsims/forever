@@ -162,6 +162,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-BattlegearofEternalJustice"
+ value: {
+  dps: 420.93206
+  tps: 989.56623
+  dtps: 350.31862
+  hps: 18.70667
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-BattlegearofUndeadSlaying"
  value: {
   dps: 403.29658
@@ -281,9 +290,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BloodmailRegalia"
  value: {
-  dps: 412.13333
-  tps: 970.73088
-  dtps: 377.90209
+  dps: 417.38597
+  tps: 975.33473
+  dtps: 377.98595
   hps: 18.4525
  }
 }
@@ -497,18 +506,18 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-DeathboneGuardian"
  value: {
-  dps: 382.28291
-  tps: 916.70421
-  dtps: 316.1421
-  hps: 18.04583
+  dps: 396.78203
+  tps: 945.91647
+  dtps: 314.08714
+  hps: 19.09639
  }
 }
 dps_results: {
  key: "TestProtection-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 388.5434
-  tps: 916.6543
-  dtps: 401.12752
+  dps: 390.7817
+  tps: 920.81095
+  dtps: 401.07906
   hps: 18.53722
  }
 }
@@ -605,9 +614,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-DreadmistRaiment"
  value: {
-  dps: 378.75525
-  tps: 909.54592
-  dtps: 502.55566
+  dps: 378.97544
+  tps: 909.83877
+  dtps: 502.57549
   hps: 19.85344
  }
 }
@@ -777,7 +786,7 @@ dps_results: {
  key: "TestProtection-AllItems-EnchantWeapon-Insight-8216"
  value: {
   dps: 403.01787
-  tps: 959.65595
+  tps: 959.65579
   dtps: 333.32281
   hps: 18.23222
  }
@@ -821,8 +830,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 403.01787
-  tps: 959.65595
+  dps: 403.31289
+  tps: 960.40146
   dtps: 333.32281
   hps: 18.23222
  }
@@ -866,9 +875,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-EyeofMoam-21473"
  value: {
-  dps: 407.42357
-  tps: 969.63698
-  dtps: 344.34309
+  dps: 407.54906
+  tps: 969.80389
+  dtps: 344.19999
   hps: 18.02889
  }
 }
@@ -1289,10 +1298,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 418.89412
-  tps: 983.40688
-  dtps: 351.70659
-  hps: 20.50278
+  dps: 426.13989
+  tps: 996.09977
+  dtps: 338.74355
+  hps: 20.53667
  }
 }
 dps_results: {
@@ -1352,28 +1361,28 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-JusticeArmor"
  value: {
-  dps: 383.71623
-  tps: 921.93258
-  dtps: 346.93781
+  dps: 402.01682
+  tps: 961.89026
+  dtps: 344.71342
   hps: 18.26611
  }
 }
 dps_results: {
  key: "TestProtection-AllItems-JusticeBattlegear"
  value: {
-  dps: 386.49185
-  tps: 926.7573
-  dtps: 349.38099
-  hps: 18.4525
+  dps: 425.01081
+  tps: 1005.8901
+  dtps: 348.46446
+  hps: 18.85917
  }
 }
 dps_results: {
  key: "TestProtection-AllItems-JusticeBattleplate"
  value: {
-  dps: 391.52409
-  tps: 936.37258
-  dtps: 344.91572
-  hps: 18.7575
+  dps: 421.92842
+  tps: 1008.75691
+  dtps: 321.65882
+  hps: 19.52
  }
 }
 dps_results: {
@@ -1406,10 +1415,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Krol'dokBattlegear"
  value: {
-  dps: 376.55781
-  tps: 895.17588
+  dps: 376.87351
+  tps: 898.17857
   dtps: 348.75375
-  hps: 18.01194
+  hps: 21.88998
  }
 }
 dps_results: {
@@ -1577,8 +1586,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Magister'sRegalia"
  value: {
-  dps: 376.9395
-  tps: 903.82907
+  dps: 377.10699
+  tps: 904.05184
   dtps: 502.28234
   hps: 18.28306
  }
@@ -1703,8 +1712,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-NecropileRaiment"
  value: {
-  dps: 404.9468
-  tps: 969.87308
+  dps: 405.4088
+  tps: 970.48754
   dtps: 413.65786
   hps: 18.36778
  }
@@ -2088,6 +2097,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-Spider'sKiss"
+ value: {
+  dps: 408.76778
+  tps: 986.44156
+  dtps: 341.0316
+  hps: 23.92556
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-SteadfastLibram-279247"
  value: {
   dps: 394.81166
@@ -2196,6 +2214,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 404.83286
+  tps: 963.46488
+  dtps: 344.4021
+  hps: 18.02889
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 404.83286
@@ -2279,19 +2306,19 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TheElements"
  value: {
-  dps: 390.84134
-  tps: 937.33453
-  dtps: 428.23898
+  dps: 390.97642
+  tps: 937.51417
+  dtps: 428.20612
   hps: 18.24917
  }
 }
 dps_results: {
  key: "TestProtection-AllItems-TheGladiator"
  value: {
-  dps: 395.51212
-  tps: 926.5791
-  dtps: 383.95077
-  hps: 18.01194
+  dps: 400.33985
+  tps: 933.0871
+  dtps: 386.25404
+  hps: 18.41861
  }
 }
 dps_results: {

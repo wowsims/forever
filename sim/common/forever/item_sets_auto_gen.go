@@ -9,33 +9,6 @@ import (
 // onto the set bonus aura or is a proc the set builds; the others are comments. A set written by
 // hand leaves this file on the next db run.
 func RegisterAllSetBonuses() {
-	// The Gladiator
-	// https://www.wowhead.com/forever/item-set=1
-	shared.NewParsedItemSet(1, "The Gladiator", []proto.ItemSlot{proto.ItemSlot_ItemSlotHead, proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// TODO: Manual implementation required
-		//
-		// Reduces the hit chance of Fear effects against you by 8%.
-		// https://www.wowhead.com/forever/spell=1301126
-		// unsupported: effect 1 A_MOD_MECHANIC_RESISTANCE misc 5 is not parsed
-		// 2: {1301126},
-
-		// +20 Attack Power.
-		// https://www.wowhead.com/forever/spell=9331
-		3: {9331},
-
-		// TODO: Manual implementation required
-		//
-		// Chance on hit to gain 5% attack speed for 10s. Attacks while no allies are within 20 yds are 2 times as
-		// likely to activate this effect.
-		// https://www.wowhead.com/forever/spell=1301123
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed, effect 2 A_DUMMY misc 0 is not parsed, effect 3 A_DUMMY misc 0 is not parsed
-		// 4: {1301123},
-
-		// Improves your chance to get a critical strike by 1.0%.
-		// https://www.wowhead.com/forever/spell=1314795
-		5: {1314795},
-	})
-
 	// Dal'Rend's Arms
 	// https://www.wowhead.com/forever/item-set=41
 	shared.NewParsedItemSet(41, "Dal'Rend's Arms", []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand}, map[int32][]int32{
@@ -43,17 +16,6 @@ func RegisterAllSetBonuses() {
 		// https://www.wowhead.com/forever/spell=14056
 		2: {14056},
 	})
-
-	// TODO: Manual implementation required
-	//
-	// Spider's Kiss
-	// https://www.wowhead.com/forever/item-set=65
-	// shared.NewParsedItemSet(65, "Spider's Kiss", []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand}, map[int32][]int32{
-	// 	// Chance on Hit: Immobilizes the target and lowers their armor by 100 for 10s.
-	// 	// https://www.wowhead.com/forever/spell=17332
-	// 	// unsupported: effect 1 A_MOD_ROOT misc 0 is not parsed on an enemy, 17333 puts auras on an enemy
-	// 	2: {17332},
-	// })
 
 	// The Postmaster
 	// https://www.wowhead.com/forever/item-set=81
@@ -82,72 +44,6 @@ func RegisterAllSetBonuses() {
 		5: {432639},
 	})
 
-	// Necropile Raiment
-	// https://www.wowhead.com/forever/item-set=122
-	shared.NewParsedItemSet(122, "Necropile Raiment", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotWrist, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// Improves your chance to hit by 0.5%.
-		// https://www.wowhead.com/forever/spell=1299734
-		2: {1299734},
-
-		// TODO: Manual implementation required
-		//
-		// Harmful spell casts have a chance to steal 28 life from the target enemy.
-		// https://www.wowhead.com/forever/spell=1299737
-		// unsupported: states no rate
-		// 3: {1299737},
-
-		// +5 All Resistances.
-		// https://www.wowhead.com/forever/spell=18676
-		4: {18676},
-		// Increases damage and healing done by magical spells and effects by up to 23.
-		// https://www.wowhead.com/forever/spell=14047
-		5: {14047},
-	})
-
-	// Bloodmail Regalia
-	// https://www.wowhead.com/forever/item-set=123
-	shared.NewParsedItemSet(123, "Bloodmail Regalia", []proto.ItemSlot{proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotWaist, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// +10 Attack Power.
-		// https://www.wowhead.com/forever/spell=9140
-		2: {9140},
-
-		// TODO: Manual implementation required
-		//
-		// Grants your melee attacks a chance to wound the target, causing them to Bleed for 70 damage over 10s.
-		// https://www.wowhead.com/forever/spell=1299740
-		// unsupported: states no rate, effect 1 A_PERIODIC_DAMAGE misc 0 is not parsed on an enemy, 1299739 puts auras on an enemy
-		// 3: {1299740},
-
-		// +5 All Resistances.
-		// https://www.wowhead.com/forever/spell=18676
-		4: {18676},
-		// Improves your chance to get a critical strike by 1.5%.
-		// https://www.wowhead.com/forever/spell=1299738
-		5: {1299738},
-	})
-
-	// Deathbone Guardian
-	// https://www.wowhead.com/forever/item-set=124
-	shared.NewParsedItemSet(124, "Deathbone Guardian", []proto.ItemSlot{proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotWaist, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// Increased Defense +3.
-		// https://www.wowhead.com/forever/spell=7516
-		2: {7516},
-		// Grants a chance when struck in combat to increase damage and healing done by magical spells and effects
-		// by up to 70 for 10s.
-		// https://www.wowhead.com/forever/spell=1299743
-		3: {1299743},
-		// +5 All Resistances.
-		// https://www.wowhead.com/forever/spell=18676
-		4: {18676},
-
-		// TODO: Manual implementation required
-		//
-		// Reduces the chance for your attacks to be dodged or parried by 2%.
-		// https://www.wowhead.com/forever/spell=1213289
-		// unsupported: effect 1 A_MOD_COMBAT_RESULT_CHANCE2 misc 2 is not parsed, effect 2 A_MOD_COMBAT_RESULT_CHANCE2 misc 4 is not parsed
-		// 5: {1213289},
-	})
-
 	// Volcanic Armor
 	// https://www.wowhead.com/forever/item-set=141
 	shared.NewParsedItemSet(141, "Volcanic Armor", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotLegs}, map[int32][]int32{
@@ -162,7 +58,7 @@ func RegisterAllSetBonuses() {
 		// 10% chance of dealing 20 Nature damage on a successful melee attack.
 		// https://www.wowhead.com/forever/spell=18979
 		2: {18979},
-		// 4% chance on melee attack of restoring 30 energy.
+		// 3% chance on melee attack of restoring 18 energy.
 		// https://www.wowhead.com/forever/spell=23863
 		3: {23863},
 		// +14 Attack Power.
@@ -184,29 +80,6 @@ func RegisterAllSetBonuses() {
 		// Increases damage and healing done by magical spells and effects by up to 20.
 		// https://www.wowhead.com/forever/spell=14799
 		2: {14799},
-	})
-
-	// Defias Leather
-	// https://www.wowhead.com/forever/item-set=161
-	shared.NewParsedItemSet(161, "Defias Leather", []proto.ItemSlot{proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotWaist, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// +5 Arcane Resistance.
-		// https://www.wowhead.com/forever/spell=14707
-		2: {14707},
-		// +15 Attack Power against Humanoids.
-		// https://www.wowhead.com/forever/spell=1292025
-		3: {1292025},
-
-		// TODO: Manual implementation required
-		//
-		// Grants your melee attacks a 5% chance when striking from behind to hit a vital point, causing the target
-		// to Bleed for 75 Physical damage over 5s.
-		// https://www.wowhead.com/forever/spell=1292028
-		// unsupported: effect 1 A_PERIODIC_DAMAGE misc 0 is not parsed on an enemy, 1292029 puts auras on an enemy
-		// 4: {1292028},
-
-		// Increased Daggers +1.
-		// https://www.wowhead.com/forever/spell=7534
-		5: {7534},
 	})
 
 	// Embrace of the Viper
@@ -233,37 +106,6 @@ func RegisterAllSetBonuses() {
 		// https://www.wowhead.com/forever/spell=1291807
 		// unsupported: states no rate, effect 1 A_MOD_STUN misc 0 is not parsed on an enemy, 1291806 puts auras on an enemy
 		// 5: {1291807},
-	})
-
-	// Chain of the Scarlet Crusade
-	// https://www.wowhead.com/forever/item-set=163
-	shared.NewParsedItemSet(163, "Chain of the Scarlet Crusade", []proto.ItemSlot{proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotWrist, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotWaist, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// +10 Shadow Resistance.
-		// https://www.wowhead.com/forever/spell=14673
-		2: {14673},
-		// +30 Attack Power against Undead.
-		// https://www.wowhead.com/forever/spell=18074
-		3: {18074},
-
-		// TODO: Manual implementation required
-		//
-		// Taking damage has a 15% chance to grant Enraging Light for 10s, causing your melee attacks to deal 20
-		// Holy damage. Deals 3 times as much damage to Undead.
-		// https://www.wowhead.com/forever/spell=1293674
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed on the wearer
-		// 4: {1293674},
-
-		// Improves your chance to hit by 1.0%.
-		// https://www.wowhead.com/forever/spell=432639
-		5: {432639},
-
-		// TODO: Manual implementation required
-		//
-		// Taking damage while at or below 20% health grants you a shield, absorbing 1 damage for 10s. This effect
-		// can only trigger once every 4 min.
-		// https://www.wowhead.com/forever/spell=1293670
-		// unsupported: ProcTypeMask TAKE_HELPFUL_SPELL, ProcTypeMask bit 31, effect 1 A_SCHOOL_ABSORB misc 127 is not parsed on the wearer
-		// 6: {1293670},
 	})
 
 	// Garb of Thero-shan
@@ -895,17 +737,6 @@ func RegisterAllSetBonuses() {
 		5: {26106},
 	})
 
-	// TODO: Manual implementation required
-	//
-	// Symbols of Unending Life
-	// https://www.wowhead.com/forever/item-set=494
-	// shared.NewParsedItemSet(494, "Symbols of Unending Life", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand}, map[int32][]int32{
-	// 	// Your finishing moves now refund 30 energy on a Miss, Dodge, Block, or Parry.
-	// 	// https://www.wowhead.com/forever/spell=26107
-	// 	// unsupported: names class family 7 and none of its spells
-	// 	3: {26107},
-	// })
-
 	// Battlegear of Unyielding Strength
 	// https://www.wowhead.com/forever/item-set=495
 	shared.NewParsedItemSet(495, "Battlegear of Unyielding Strength", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand}, map[int32][]int32{
@@ -933,33 +764,6 @@ func RegisterAllSetBonuses() {
 		3: {26114},
 	})
 
-	// Stormcaller's Garb
-	// https://www.wowhead.com/forever/item-set=501
-	shared.NewParsedItemSet(501, "Stormcaller's Garb", []proto.ItemSlot{proto.ItemSlot_ItemSlotHead, proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// TODO: Manual implementation required
-		//
-		// Your Lightning Bolt, Chain Lightning, and Shock spells have a 20% chance to grant up to 50 Nature damage
-		// to spells for 8s.
-		// https://www.wowhead.com/forever/spell=26119
-		// unsupported: names class family 11 and none of its spells
-		// 3: {26119},
-
-		// seconds on the casting time of your Chain Heal spell.
-		// https://www.wowhead.com/forever/spell=26122
-		5: {26122},
-	})
-
-	// TODO: Manual implementation required
-	//
-	// Gift of the Gathering Storm
-	// https://www.wowhead.com/forever/item-set=502
-	// shared.NewParsedItemSet(502, "Gift of the Gathering Storm", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand}, map[int32][]int32{
-	// 	// Increases the chain target damage multiplier of your Chain Lightning spell by 5%.
-	// 	// https://www.wowhead.com/forever/spell=26123
-	// 	// unsupported: effect 1 A_ADD_PCT_MODIFIER misc 20 is not parsed
-	// 	3: {26123},
-	// })
-
 	// Trappings of Vaulted Secrets
 	// https://www.wowhead.com/forever/item-set=504
 	shared.NewParsedItemSet(504, "Trappings of Vaulted Secrets", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand}, map[int32][]int32{
@@ -978,28 +782,6 @@ func RegisterAllSetBonuses() {
 		// https://www.wowhead.com/forever/spell=23929
 		5: {23929},
 	})
-
-	// TODO: Manual implementation required
-	//
-	// Battlegear of Eternal Justice
-	// https://www.wowhead.com/forever/item-set=506
-	// shared.NewParsedItemSet(506, "Battlegear of Eternal Justice", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand}, map[int32][]int32{
-	// 	// 20% chance to regain 100 mana when you cast a Judgement.
-	// 	// https://www.wowhead.com/forever/spell=26135
-	// 	// unsupported: names class family 10 and none of its spells
-	// 	3: {26135},
-	// })
-
-	// TODO: Manual implementation required
-	//
-	// Trappings of the Unseen Path
-	// https://www.wowhead.com/forever/item-set=510
-	// shared.NewParsedItemSet(510, "Trappings of the Unseen Path", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand}, map[int32][]int32{
-	// 	// Increases your pet's damage by 3%.
-	// 	// https://www.wowhead.com/forever/spell=26176
-	// 	// unsupported: effect 1 A_PERIODIC_TRIGGER_SPELL misc 0 is not parsed
-	// 	3: {26176},
-	// })
 
 	// Ironweave Battlesuit
 	// https://www.wowhead.com/forever/item-set=520
@@ -1072,61 +854,6 @@ func RegisterAllSetBonuses() {
 		// +20 Stamina.
 		// https://www.wowhead.com/forever/spell=14467
 		6: {14467},
-	})
-
-	// Bonescythe Armor
-	// https://www.wowhead.com/forever/item-set=524
-	shared.NewParsedItemSet(524, "Bonescythe Armor", []proto.ItemSlot{proto.ItemSlot_ItemSlotHead, proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotWrist, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotWaist, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2}, map[int32][]int32{
-		// TODO: Manual implementation required
-		//
-		// Your normal melee swings have a chance to Invigorate you, healing you for 100.
-		// https://www.wowhead.com/forever/spell=28816
-		// unsupported: the trigger carries a class mask, states no rate, 28816 fires 28817, which neither deals damage at once, fills a bar nor only applies auras
-		// 2: {28816},
-
-		// TODO: Manual implementation required
-		//
-		// Your Backstab, Sinister Strike, and Hemorrhage critical hits cause you to regain 5 energy.
-		// https://www.wowhead.com/forever/spell=28812
-		// unsupported: the trigger carries a class mask
-		// 4: {28812},
-
-		// Reduces the threat from your Backstab, Sinister Strike, Hemorrhage, and Eviscerate abilities.
-		// https://www.wowhead.com/forever/spell=28811
-		6: {28811},
-
-		// TODO: Manual implementation required
-		//
-		// Your Eviscerate has a chance per combo point to reveal a flaw in your opponent's armor, granting a 100%
-		// critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage.
-		// https://www.wowhead.com/forever/spell=28814
-		// unsupported: effect 1 A_ADD_TARGET_TRIGGER misc 0 is not parsed
-		// 8: {28814},
-	})
-
-	// The Earthshatterer
-	// https://www.wowhead.com/forever/item-set=527
-	shared.NewParsedItemSet(527, "The Earthshatterer", []proto.ItemSlot{proto.ItemSlot_ItemSlotHead, proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotWrist, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotWaist, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2}, map[int32][]int32{
-		// Reduces the mana cost of your totem spells by 12%.
-		// https://www.wowhead.com/forever/spell=28818
-		2: {28818},
-		// Increases the mana gained from your Mana Spring totems by 25%.
-		// https://www.wowhead.com/forever/spell=29171
-		4: {29171},
-
-		// TODO: Manual implementation required
-		//
-		// Your Healing Wave and Lesser Healing Wave spells have a chance to imbue your target with Totemic Power.
-		// https://www.wowhead.com/forever/spell=28823
-		// unsupported: effect 1 A_DUMMY misc 0 is not parsed
-		// 6: {28823},
-
-		// TODO: Manual implementation required
-		//
-		// Your Lightning Shield spell also grants you 15 mana per 5 sec. while active.
-		// https://www.wowhead.com/forever/spell=28821
-		// unsupported: effect 1 A_ADD_TARGET_TRIGGER misc 0 is not parsed
-		// 8: {28821},
 	})
 
 	// Redemption Armor
@@ -1327,18 +1054,6 @@ func RegisterAllSetBonuses() {
 		// https://www.wowhead.com/forever/spell=1258494
 		6: {1258494},
 	})
-
-	// TODO: Manual implementation required
-	//
-	// Teachings of the Furbolgs
-	// https://www.wowhead.com/forever/item-set=2071
-	// shared.NewParsedItemSet(2071, "Teachings of the Furbolgs", []proto.ItemSlot{proto.ItemSlot_ItemSlotTrinket1, proto.ItemSlot_ItemSlotTrinket2}, map[int32][]int32{
-	// 	// Your attacks have a chance to increase your Attack Power by 40 and your healing spells have a chance to
-	// 	// increase your Intellect by 20 for 15s.
-	// 	// https://www.wowhead.com/forever/spell=1294087
-	// 	// unsupported: no callback in the proc mask
-	// 	2: {1294087},
-	// })
 
 	// Champion's Aegis
 	// https://www.wowhead.com/forever/item-set=2082
@@ -1564,29 +1279,6 @@ func RegisterAllSetBonuses() {
 		6: {14047},
 	})
 
-	// Manaflare Regalia
-	// https://www.wowhead.com/forever/item-set=2098
-	shared.NewParsedItemSet(2098, "Manaflare Regalia", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// Improves your chance to hit by 1.0%.
-		// https://www.wowhead.com/forever/spell=1300947
-		2: {1300947},
-		// Reduces the cooldown of your Counterspell by 5 sec.
-		// https://www.wowhead.com/forever/spell=1301013
-		3: {1301013},
-		// Increases damage done by your spells and effects by up to 21 when fighting Elementals.
-		// https://www.wowhead.com/forever/spell=1301079
-		4: {1301079},
-
-		// TODO: Manual implementation required
-		//
-		// Your Frostfire Bolt spell has a 10% increased chance to trigger Missile Barrage, gains 10% increased critical
-		// strike chance while your Combustion spell is active, and has a 10% increased chance to trigger Fingers
-		// of Frost.
-		// https://www.wowhead.com/forever/spell=1301488
-		// unsupported: effect 1 A_DUMMY misc 0 is not parsed, effect 2 A_DUMMY misc 0 is not parsed, effect 3 A_DUMMY misc 0 is not parsed
-		// 5: {1301488},
-	})
-
 	// Grimstitch Armor
 	// https://www.wowhead.com/forever/item-set=2099
 	shared.NewParsedItemSet(2099, "Grimstitch Armor", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
@@ -1745,19 +1437,6 @@ func RegisterAllSetBonuses() {
 
 	// TODO: Manual implementation required
 	//
-	// Partners in Crime
-	// https://www.wowhead.com/forever/item-set=2131
-	// shared.NewParsedItemSet(2131, "Partners in Crime", []proto.ItemSlot{proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2}, map[int32][]int32{
-	// 	// Chance on melee swing to become Angry, increasing Strength by 50 for 10s.
-	// 	// https://www.wowhead.com/forever/spell=1317039
-	// 	// unsupported: states no rate
-	// 	// +22 Strength.
-	// 	// https://www.wowhead.com/forever/spell=1317038
-	// 	2: {1317039, 1317038},
-	// })
-
-	// TODO: Manual implementation required
-	//
 	// Blessing of Kalimdor
 	// https://www.wowhead.com/forever/item-set=2132
 	// shared.NewParsedItemSet(2132, "Blessing of Kalimdor", []proto.ItemSlot{proto.ItemSlot_ItemSlotNeck, proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2}, map[int32][]int32{
@@ -1766,103 +1445,4 @@ func RegisterAllSetBonuses() {
 	// 	// unsupported: the row applies only in area group 9341, effect 1 A_MOD_SPEED_ALWAYS misc 0 is not parsed
 	// 	2: {1318244},
 	// })
-
-	// Rotmender's Raiment
-	// https://www.wowhead.com/forever/item-set=2133
-	shared.NewParsedItemSet(2133, "Rotmender's Raiment", []proto.ItemSlot{proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotWaist, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// +5 Shadow Resistance.
-		// https://www.wowhead.com/forever/spell=14668
-		2: {14668},
-		// +10 Intellect.
-		// https://www.wowhead.com/forever/spell=9106
-		3: {9106},
-
-		// TODO: Manual implementation required
-		//
-		// When your Mana falls below 15%, restore 200 Mana over 10s. Restores twice as much Mana in Haunted and
-		// Wasteland areas. May only occur once every 5 min.
-		// https://www.wowhead.com/forever/spell=1321560
-		// unsupported: ProcTypeMask bit 34, no callback in the proc mask, effect 1 A_PERIODIC_ENERGIZE misc 0 is not parsed on the wearer
-		// 4: {1321560},
-
-		// TODO: Manual implementation required
-		//
-		// Grants your healing spells a chance to heal for an additional 40 Health every 3.0 sec for 15s.
-		// https://www.wowhead.com/forever/spell=1321587
-		// unsupported: states no rate, effect 1 lands on implicit target 21
-		// 5: {1321587},
-	})
-
-	// Violet Sorcerer's Vestments
-	// https://www.wowhead.com/forever/item-set=2134
-	shared.NewParsedItemSet(2134, "Violet Sorcerer's Vestments", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// +5 Arcane Resistance.
-		// https://www.wowhead.com/forever/spell=1324311
-		2: {1324311},
-		// +10 Spirit.
-		// https://www.wowhead.com/forever/spell=1324312
-		3: {1324312},
-
-		// TODO: Manual implementation required
-		//
-		// Chance on damaging spell to allow 15% of your Mana regeneration to continue while casting for 15s. This
-		// Mana Regeneration is doubled in Strongholds and Cities.
-		// https://www.wowhead.com/forever/spell=1324318
-		// unsupported: states no rate, 1324318 fires 1324315, which neither deals damage at once, fills a bar nor only applies auras
-		// 4: {1324318},
-
-		// TODO: Manual implementation required
-		//
-		// Chance on damaging spell to summon an Arcane elemental to aid you in combat.
-		// https://www.wowhead.com/forever/spell=1324323
-		// unsupported: states no rate, 1324323 fires 1324322, which neither deals damage at once, fills a bar nor only applies auras
-		// 5: {1324323},
-	})
-
-	// Krol'dok Battlegear
-	// https://www.wowhead.com/forever/item-set=2135
-	shared.NewParsedItemSet(2135, "Krol'dok Battlegear", []proto.ItemSlot{proto.ItemSlot_ItemSlotHead, proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs}, map[int32][]int32{
-		// +100 Armor.
-		// https://www.wowhead.com/forever/spell=1324287
-		2: {1324287},
-		// Increased Defense +5.
-		// https://www.wowhead.com/forever/spell=1324288
-		3: {1324288},
-
-		// TODO: Manual implementation required
-		//
-		// Chance on block to heal for 18. Healing is doubled in Strongholds and Cities.
-		// https://www.wowhead.com/forever/spell=1324298
-		// unsupported: effect 2 is E_DUMMY, effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
-		// 4: {1324298},
-
-		// TODO: Manual implementation required
-		//
-		// Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.
-		// https://www.wowhead.com/forever/spell=1324309
-		// unsupported: effect 2 lands on implicit target 0, effect 3 A_TRIGGER_SPELL_ON_STACK_AMOUNT misc 20 is not parsed on the wearer
-		// 5: {1324309},
-	})
-
-	// Defias Enforcer's Garb
-	// https://www.wowhead.com/forever/item-set=2136
-	shared.NewParsedItemSet(2136, "Defias Enforcer's Garb", []proto.ItemSlot{proto.ItemSlot_ItemSlotHead, proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// +10 Fire Resistance.
-		// https://www.wowhead.com/forever/spell=1324673
-		2: {1324673},
-		// +15 Stamina.
-		// https://www.wowhead.com/forever/spell=1324674
-		3: {1324674},
-		// Increased Swords +1.
-		// https://www.wowhead.com/forever/spell=1324675
-		4: {1324675},
-
-		// TODO: Manual implementation required
-		//
-		// Melee attacks have a chance to increase your Critical Strike chance by 2% for 20s. This effect is doubled
-		// in swamps.
-		// https://www.wowhead.com/forever/spell=1324684
-		// unsupported: 1324684 fires 1324683, which neither deals damage at once, fills a bar nor only applies auras
-		// 5: {1324684},
-	})
 }

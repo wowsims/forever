@@ -37,6 +37,14 @@ func (rogue *Rogue) registerDeathMark() {
 	config.ExtraCastCondition = rogue.FinisherExtraCastCondition
 	config.Flags |= core.SpellFlagIgnoreModifiers
 
+	currentCap := func(target *core.Unit) float64 {
+		points := float64(comboPoints)
+		// $mcrit is the melee crit chance the character sheet shows, before the target's level takes any.
+		critFactor := 1 + rogue.GetStat(stats.PhysicalCritPercent)/100
+		return (deathMarkCapBase + deathMarkCapPerPoint*points + deathMarkCapAPPerPoint*points*rogue.DeathMark.MeleeAttackPower(target)) *
+			critFactor * coupDeGrace
+	}
+
 	store := func(aura *core.Aura, _ *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if spell.Unit != &rogue.Unit || spell == rogue.DeathMark {
 			return
@@ -45,19 +53,18 @@ func (rogue *Rogue) registerDeathMark() {
 		if spell.Matches(RogueSpellGarrote | RogueSpellRupture) {
 			rate *= 2
 		}
-		rogue.DeathMark.Dot(aura.Unit).SnapshotBaseDamage += result.Damage * rate
+		dot := rogue.DeathMark.Dot(aura.Unit)
+		limit := currentCap(aura.Unit)
+		if dot.SnapshotBaseDamage < limit {
+			dot.SnapshotBaseDamage = min(dot.SnapshotBaseDamage+result.Damage*rate, limit)
+		}
 	}
 
 	config.Dot = spelldata.DotConfig(deathMarkRank, deathMarkRank.PeriodicEffect())
 	config.Dot.Aura.OnSpellHitTaken = store
 	config.Dot.Aura.OnPeriodicDamageTaken = store
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-		points := float64(comboPoints)
-		// $mcrit is the melee crit chance the character sheet shows, before the target's level takes any.
-		critFactor := 1 + rogue.GetStat(stats.PhysicalCritPercent)/100
-		limit := (deathMarkCapBase + deathMarkCapPerPoint*points + deathMarkCapAPPerPoint*points*dot.Spell.MeleeAttackPower(target)) *
-			critFactor * coupDeGrace
-		dot.Spell.CalcAndDealPeriodicDamage(sim, target, min(dot.SnapshotBaseDamage, limit), deathMarkRank.TickOutcome(dot))
+		dot.Spell.CalcAndDealPeriodicDamage(sim, target, dot.SnapshotBaseDamage, deathMarkRank.TickOutcome(dot))
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

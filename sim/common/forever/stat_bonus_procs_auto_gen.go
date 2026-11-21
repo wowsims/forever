@@ -201,14 +201,6 @@ func RegisterAllProcs() {
 			{ItemID: 275833, ItemName: "Bristlecone Cloak"},
 		})
 
-	// Increased Fist Weapons +1.
-	// https://www.wowhead.com/forever/spell=1297442
-	// equip: 1297442 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1297442},
-		[]shared.ItemVariant{
-			{ItemID: 280068, ItemName: "Bloody Claws of Attack"},
-		})
-
 	// When struck in combat, inflicts 2 Fire damage to the attacker.
 	// https://www.wowhead.com/forever/spell=1312955
 	// equip: 1312955 (A_DAMAGE_SHIELD)
@@ -2268,6 +2260,24 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Chance to embed a seed into enemy humanoids, beasts, or dragonkin hit by your abilities or spells. If
+	// the creature is slain within 30 seconds of the seed being embedded, a Healing Blossom will grow from its
+	// corpse.
+	//
+	// https://www.wowhead.com/forever/spell=443678
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 219326, ItemName: "Seed of Renewal"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Reduces the cooldown of Grounding Totem by 1 sec.
 	// https://www.wowhead.com/forever/spell=1249011
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -3050,21 +3060,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 279891, ItemName: "Guidance of Ursoc"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Your attacks have a chance to Wax, dealing 189 Arcane damage or Wane, granting 40 Strength for 10s.
-	// https://www.wowhead.com/forever/spell=1309550
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 280080, ItemName: "Claymore of Two Moons"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3954,7 +3949,7 @@ func RegisterAllProcs() {
 
 	// Wounds the target for 100 damage and deals an additional 13 damage every 1.0 sec for 10s.
 	// https://www.wowhead.com/forever/spell=17407
-	// trigger 17407 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 17407 (1.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17407, BuffSpellID: 17407, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13285, ItemName: "The Blackrock Slicer"},

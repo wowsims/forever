@@ -371,8 +371,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BloodmailRegalia"
  value: {
-  dps: 830.34364
-  tps: 852.91152
+  dps: 830.77638
+  tps: 853.34426
   dtps: 9.22627
   hps: 13.53861
  }
@@ -402,15 +402,6 @@ dps_results: {
   tps: 872.05119
   dtps: 8.94192
   hps: 14.1825
- }
-}
-dps_results: {
- key: "TestHunter-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 803.55443
-  tps: 826.1312
-  dtps: 9.24095
-  hps: 14.45361
  }
 }
 dps_results: {
@@ -501,6 +492,15 @@ dps_results: {
   tps: 822.92714
   dtps: 8.69255
   hps: 13.35222
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-ClaymoreofTwoMoons-280080"
+ value: {
+  dps: 867.02084
+  tps: 889.45608
+  dtps: 8.64426
+  hps: 14.40278
  }
 }
 dps_results: {
@@ -650,9 +650,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 803.30465
-  tps: 825.76497
-  dtps: 8.81535
+  dps: 809.59362
+  tps: 832.09624
+  dtps: 8.89994
   hps: 13.74194
  }
 }
@@ -965,9 +965,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 892.54435
-  tps: 915.02245
-  dtps: 8.93593
+  dps: 892.59699
+  tps: 915.08237
+  dtps: 8.65493
   hps: 14.01306
  }
 }
@@ -1010,8 +1010,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 892.56509
-  tps: 915.34749
+  dps: 903.73404
+  tps: 926.51645
   dtps: 8.83116
   hps: 14.01306
  }
@@ -1478,10 +1478,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 786.18
-  tps: 808.57243
-  dtps: 8.2551
-  hps: 14.72472
+  dps: 782.67744
+  tps: 805.22657
+  dtps: 8.38329
+  hps: 14.67389
  }
 }
 dps_results: {
@@ -1784,9 +1784,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-NecropileRaiment"
  value: {
-  dps: 783.80404
-  tps: 805.82165
-  dtps: 9.1454
+  dps: 783.98884
+  tps: 806.02381
+  dtps: 9.22679
   hps: 13.36917
  }
 }
@@ -2286,12 +2286,21 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 888.1015
+  tps: 910.71007
+  dtps: 9.11703
+  hps: 14.01306
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 925.17165
-  tps: 947.37733
-  dtps: 8.4707
-  hps: 13.82667
+  dps: 914.89075
+  tps: 937.05683
+  dtps: 8.74399
+  hps: 13.75889
  }
 }
 dps_results: {
@@ -2369,10 +2378,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-TheGladiator"
  value: {
-  dps: 799.8308
-  tps: 822.34945
-  dtps: 9.1094
-  hps: 13.53861
+  dps: 802.94746
+  tps: 825.07532
+  dtps: 9.05829
+  hps: 13.58944
  }
 }
 dps_results: {
@@ -2520,6 +2529,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-TrappingsoftheUnseenPath"
+ value: {
+  dps: 829.43702
+  tps: 852.03963
+  dtps: 9.06326
+  hps: 14.7925
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-UndeadSlayer'sArmor"
  value: {
   dps: 888.85899
@@ -2576,10 +2594,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-WarbladeofCaerDarrow-13982"
  value: {
-  dps: 900.33141
-  tps: 922.44573
-  dtps: 8.69448
-  hps: 14.16556
+  dps: 899.30952
+  tps: 921.77657
+  dtps: 8.73668
+  hps: 14.40278
  }
 }
 dps_results: {
@@ -2630,19 +2648,19 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-WildheartRaiment"
  value: {
-  dps: 724.08581
-  tps: 745.72427
-  dtps: 8.00853
+  dps: 724.08659
+  tps: 745.62292
+  dtps: 8.0567
   hps: 13.35222
  }
 }
 dps_results: {
  key: "TestHunter-AllItems-WildstalkerArmor"
  value: {
-  dps: 787.28717
-  tps: 808.59756
-  dtps: 8.80776
-  hps: 13.84361
+  dps: 860.29949
+  tps: 881.4201
+  dtps: 9.19553
+  hps: 13.97917
  }
 }
 dps_results: {

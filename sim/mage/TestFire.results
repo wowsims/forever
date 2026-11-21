@@ -133,8 +133,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 928.8629
-  tps: 928.47766
+  dps: 921.58279
+  tps: 920.81646
  }
 }
 dps_results: {
@@ -904,8 +904,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-ManaflareRegalia"
  value: {
-  dps: 840.47454
-  tps: 838.87782
+  dps: 941.10862
+  tps: 935.16486
  }
 }
 dps_results: {
@@ -981,8 +981,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-NecropileRaiment"
  value: {
-  dps: 871.35052
-  tps: 867.28798
+  dps: 896.92362
+  tps: 892.51346
  }
 }
 dps_results: {
@@ -1210,6 +1210,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 955.57018
+  tps: 951.74958
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 955.57018
@@ -1282,8 +1289,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-Thunderbrew'sBootFlask-744"
  value: {
-  dps: 937.60955
-  tps: 935.12054
+  dps: 937.82496
+  tps: 935.33594
  }
 }
 dps_results: {

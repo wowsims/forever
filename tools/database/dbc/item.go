@@ -47,6 +47,7 @@ type Item struct {
 	UpgradePath           []int
 	LimitCategory         int
 	Bonding               int
+	EquipWeaponSkills     []*proto.WeaponSkillValue // The weapon skills of the equip spells folded into the item (foldEquipWeaponSkills).
 }
 
 func (item *Item) ToUIItem() *proto.UIItem {
@@ -193,6 +194,11 @@ func (item *Item) GetWeaponSkills(itemLevel int) []*proto.WeaponSkillValue {
 			if value := int32(item.GetScaledStat(i, itemLevel)); value != 0 {
 				skills = append(skills, &proto.WeaponSkillValue{Skill: skill, Value: value})
 			}
+		}
+	}
+	for _, folded := range item.EquipWeaponSkills {
+		if folded.Value != 0 {
+			skills = append(skills, &proto.WeaponSkillValue{Skill: folded.Skill, Value: folded.Value})
 		}
 	}
 	return skills

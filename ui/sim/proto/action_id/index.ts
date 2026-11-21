@@ -13,8 +13,10 @@ import { buildWowheadTooltipDataset, wowheadEntityUrl, wowheadIconUrl, WowheadTo
 // Mirrors planBossAbilityTag in sim/core/plan_boss_abilities.go.
 export const ENCOUNTER_PLAN_ABILITY_TAG = 2_000_000;
 
-// Shieldsworn's talent id, the tag on the Holy Shield damage and Shield Specialization mana its Holy Strike causes.
+// Shieldsworn's talent id, the tag on the Shield Specialization mana its Holy Strike causes.
 const SHIELDSWORN_TAG = 1328544;
+// The Holy Shield hit a Shieldsworn Holy Strike casts, a spell of its own.
+const SHIELDSWORN_STRIKE_ID = 456544;
 // The Echo Unsealed Wrath stores for each seal that deals damage. A seal's hit that a spent Echo casts is
 // tagged with the Echo's spell id.
 const UNSEALED_WRATH_ECHO_TAGS: Record<string, number> = {
@@ -579,7 +581,7 @@ export class ActionId {
 					name += ` (${i18n.t('common.action_tags.hit')})`;
 				} else if (tag === -1) {
 					name += ` (${i18n.t('common.action_tags.external')})`;
-				} else if (tag === SHIELDSWORN_TAG) {
+				} else if (this.spellId === SHIELDSWORN_STRIKE_ID) {
 					name += ` (${i18n.t('common.action_tags.shieldsworn')})`;
 				}
 				break;

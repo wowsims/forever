@@ -165,6 +165,14 @@ var AreaBonuses = []AreaBonus{
 		Reason:             "Toy Soldier: 'This effect is doubled in Strongholds and Cities'; no companion row",
 		Source:             "tooltip",
 	},
+	{
+		SpellID:            1321558,
+		Groups:             []int32{9163, 9202},
+		Multiplier:         2,
+		DurationMultiplier: 1,
+		Reason:             "Siphon the Grave (Rotmender's Raiment 4pc): 'Restores twice as much Mana in Haunted and Wasteland areas'; no companion row",
+		Source:             "tooltip",
+	},
 }
 
 // A factor a row deals, restores or procs against some targets, which only its tooltip names ("Deals
@@ -183,6 +191,13 @@ type VersusBonus struct {
 // No CreatureFamily holds Golems or Titan-forged, which the tooltips of 12731, 1302279 and 1294794
 // name, so those rows count Earth Elementals alone.
 var VersusBonuses = []VersusBonus{
+	{
+		SpellID:     1293674,
+		EffectIndex: 0,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:      "Enraging Light (Chain of the Scarlet Crusade 4pc): 'Deals $s1 times as much damage to Undead'",
+		Source:      "tooltip",
+	},
 	{
 		SpellID:     12731,
 		EffectIndex: 1,
@@ -710,6 +725,13 @@ var Spells = []Override{
 		Source:  "observed",
 	},
 	{
+		SpellID: 1309550,
+		Field:   PPM,
+		Value:   1.35,
+		Reason:  "Claymore of Two Moons: 1.35 procs per minute on landed melee hits, read off paladins alone (EV-0163); the game files state none",
+		Source:  "observed",
+	},
+	{
 		SpellID: 450587,
 		Field:   PPM,
 		Value:   1,
@@ -743,6 +765,27 @@ var Spells = []Override{
 		Value:   1,
 		Reason:  "Wildheart Raiment 5-piece, Feralheart Raiment reissue 4-piece: 1 proc per minute on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none and the dummy effect's 5 is no chance",
 		Source:  "observed",
+	},
+	{
+		SpellID: 1324318,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "Violet Sorcerer's Vestments 4-piece: 1 proc per minute on each target a damaging spell lands on, priced on its cast time with instants at 1.5 s; the game files state none",
+		Source:  "EV-0169",
+	},
+	{
+		SpellID: 1324323,
+		Field:   PPM,
+		Value:   0.95,
+		Reason:  "Violet Sorcerer's Vestments 5-piece: 0.95 procs per minute on each target a damaging spell lands on, priced on its cast time with instants at 1.5 s; the game files state none",
+		Source:  "EV-0169",
+	},
+	{
+		SpellID: 1324684,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "Defias Enforcer's Garb 5-piece: 1 proc per minute on landed melee hits of either hand, priced on the weapon that hit; the game files state none",
+		Source:  "EV-0170",
 	},
 	{
 		SpellID: 21978,
@@ -1041,8 +1084,9 @@ var Spells = []Override{
 	// Heroic Strike and Cleave add flat threat beyond their damage, and none with Attack Power (EV-0042).
 	// The bonus is multiplied by the stance with the damage, and Cleave splits it between the targets it
 	// hits. Heroic Strike Ranks 1 to 4's measured bonuses fit no single share per spell level (EV-0043);
-	// Ranks 5 to 9 carry Rank 4's 2.5 a level. Cleave's measured Ranks 1 and 2 fit 1.5 a level (EV-0042,
-	// EV-0045), Rank 3 carries the 1.5 and Rank 5 Rank 4's measured 1.6 (EV-0050). Each rank's bonus is a
+	// Ranks 5 and 6 measure Rank 4's 2.5 a level (EV-0048, EV-0174), and Ranks 7 to 9 carry it. Cleave's
+	// measured Ranks 1 and 2 fit 1.5 a level (EV-0042, EV-0045), Rank 3 measures 62 and Rank 4 80, and
+	// Rank 5 carries Rank 4's 1.6 (EV-0050). Each rank's bonus is a
 	// whole number: a measured bonus rounds to the nearest one, and each share times its spell level is
 	// whole.
 	{
@@ -1082,10 +1126,10 @@ var Spells = []Override{
 	},
 	{
 		SpellID: 11565,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.5, // TODO: Measure Heroic Strike Rank 6 in game.
-		Reason:  "Heroic Strike Rank 6: Rank 4's measured share per spell level",
-		Source:  "EV-0004",
+		Field:   FlatThreat,
+		Value:   100,
+		Reason:  "Heroic Strike Rank 6: threat is the damage + 100, times the stance",
+		Source:  "EV-0174",
 	},
 	{
 		SpellID: 11566,
@@ -1124,10 +1168,10 @@ var Spells = []Override{
 	},
 	{
 		SpellID: 11608,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.5, // TODO: Measure Cleave Rank 3 in game.
-		Reason:  "Cleave Rank 3: the 1.5 a spell level Ranks 1 and 2 share",
-		Source:  "EV-0042, EV-0045",
+		Field:   FlatThreat,
+		Value:   62,
+		Reason:  "Cleave Rank 3: adds 62 beyond its damage, split over the targets it lands on, times the stance",
+		Source:  "EV-0050",
 	},
 	{
 		SpellID: 11609,
@@ -1247,6 +1291,13 @@ var Spells = []Override{
 		Value:   255, // TODO: Measure Shield Slam Rank 4 in game.
 		Reason:  "Shield Slam Rank 4: the line through the measured Ranks 2 and 3 at spell level 60",
 		Source:  "EV-0050",
+	},
+	{
+		SpellID: 1324298,
+		Field:   ProcChancePct,
+		Value:   100,
+		Reason:  "Krol'dok Resolve, Krol'dok Battlegear 4pc: 'Chance on block' heals on every blocked melee or ranged hit off its cooldown",
+		Source:  "EV-0160",
 	},
 }
 

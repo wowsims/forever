@@ -40,8 +40,9 @@ type Spell struct {
 
 	// SpellLevels: the level the rank is taught at, the level its per-level scaling counts from, and
 	// the level that scaling stops at. A spell with no SpellLevels row carries SpellLevel and BaseLevel
-	// 60 and MaxLevel 0, which is what the generator writes for "no level scaling".
+	// 60 and MaxLevel 0, which is what the generator writes for "no level scaling", and NoSpellLevels.
 	SpellLevel, BaseLevel, MaxLevel int16
+	NoSpellLevels                   bool
 
 	// SpellCastTimes.Base through SpellMisc.CastingTimeIndex.
 	CastTimeMs int32

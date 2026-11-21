@@ -283,7 +283,7 @@ export class Encounter {
 			id: 31146,
 			name: 'Raid Target',
 			level: Mechanics.BOSS_LEVEL,
-			mobType: MobType.MobTypeMechanical,
+			mobType: MobType.MobTypeUnknown,
 			stats: Stats.fromMap({
 				[Stat.StatArmor]: 3731,
 				[Stat.StatAttackPower]: 320,

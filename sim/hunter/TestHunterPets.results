@@ -366,14 +366,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 680.68159
-  tps: 478.959
-  dtps: 5.13745
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-BlueDragonMail"
  value: {
   dps: 644.65437
@@ -451,6 +443,14 @@ dps_results: {
   dps: 629.3325
   tps: 433.32568
   dtps: 4.82943
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-ClaymoreofTwoMoons-280080"
+ value: {
+  dps: 693.05084
+  tps: 486.48711
+  dtps: 5.13745
  }
 }
 dps_results: {
@@ -863,9 +863,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 693.60542
-  tps: 485.29312
-  dtps: 5.13745
+  dps: 693.70008
+  tps: 485.3124
+  dtps: 4.85044
  }
 }
 dps_results: {
@@ -903,8 +903,8 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 693.60542
-  tps: 485.29312
+  dps: 694.71428
+  tps: 486.40199
   dtps: 5.13745
  }
 }
@@ -2036,6 +2036,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 696.51942
+  tps: 485.97981
+  dtps: 4.49411
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-TheBlackrockSlicer-13285"
  value: {
   dps: 693.36402
@@ -2244,6 +2252,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-TrappingsoftheUnseenPath"
+ value: {
+  dps: 694.32431
+  tps: 483.6429
+  dtps: 5.17668
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-UndeadSlayer'sArmor"
  value: {
   dps: 690.64921
@@ -2350,9 +2366,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-WildstalkerArmor"
  value: {
-  dps: 628.11324
-  tps: 433.00718
-  dtps: 4.38846
+  dps: 683.64819
+  tps: 475.77408
+  dtps: 4.42021
  }
 }
 dps_results: {
