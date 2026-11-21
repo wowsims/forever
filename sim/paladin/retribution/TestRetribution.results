@@ -1658,10 +1658,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Ravager-7717"
  value: {
-  dps: 655.75498
-  tps: 533.77924
+  dps: 694.25161
+  tps: 564.8487
   dtps: 3.00204
-  hps: 19.05115
+  hps: 19.96106
  }
 }
 dps_results: {
@@ -2495,15 +2495,15 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-Settings-Human-default-Default-default-NoBuffs-25.0yards-LongMultiTarget"
  value: {
-  dps: 384.02397
-  tps: 307.21918
+  dps: 385.89495
+  tps: 308.71596
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Human-default-Default-default-NoBuffs-25.0yards-LongSingleTarget"
  value: {
-  dps: 296.71767
-  tps: 237.37414
+  dps: 300.07761
+  tps: 240.06209
  }
 }
 dps_results: {
