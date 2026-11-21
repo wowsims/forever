@@ -100,7 +100,7 @@ enum PaladinSeal {
 enum PaladinSealTwist {
 	SealTwistUnknown = 0; // Seal of Command when it is talented, and no twist without it.
 	SealTwistCommand = 1;
-	SealTwistFury    = 2; // Only Seal of Righteousness is judged, since Judgement of Fury taunts.
+	SealTwistFury    = 2; // Judgement is not cast under Seal of Fury, since Judgement of Fury taunts.
 }
 
 message RetributionPaladin {
