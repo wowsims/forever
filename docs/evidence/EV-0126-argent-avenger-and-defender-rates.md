@@ -1,65 +1,58 @@
 # EV-0126: Argent Avenger's and Argent Defender's proc rates
 
-EV-0172 replaces the Argent Avenger rate with the reports from 2026-11-06 to 2026-11-21, counted on the hits EV-0155
-finds rolling a weapon proc; the Argent Defender rate stands.
-
-- Claim: Argent Avenger's 17352 rolls about 1 proc per minute on the wearer's landed weapon hits, specials included.
+- Claim: Argent Avenger's 17352 procs 1.05 times a minute, priced on the weapon base speed of each hit that rolls it.
   Argent Defender's 17350 procs about 0.5 times a minute on the attacker's swing interval, rolled by each landed melee
   hit taken that deals damage outside its 20 s cooldown, and about twice as often when an Undead strikes. The owner
-  rules 1 proc per minute for the sword, and 0.5 procs per minute on the attacker's swing interval for the shield, twice
-  that when an Undead strikes.
+  rules 0.5 procs per minute on the attacker's swing interval for the shield, twice that when an Undead strikes.
 - Sources: public reports on forever.warcraftlogs.com, the fights whose combatant info lists the item on the wearer.
-  Argent Avenger: ZfbY6RgWjx9hmpGz fights 1, 4, 9, 12, 13; 1z4vRDqGdM2cVPXk fight 1; Lpr76Vd3DbKWZqnh fights 1, 3;
-  QHXdBJRj2GPpC3n1 fight 1; QxGpKz7knDvjWmYb fight 31; VjBTMHXxFvbthkw2 fight 1; NXMZV9xjvWpB7GtP fight 116;
-  9zxHaWbYT3gqDQvF fight 17; z6LMfrpbwhyVCAJK fight 16; RGnyYzMgqCNdVwkT fight 21, left out below. Argent Defender,
-  where a fight with no gear record counts too: VjBTMHXxFvbthkw2 fight 1; NXMZV9xjvWpB7GtP fight 107; 7tLY1pVK9wRWPABX
-  fights 15 to 18 and 20; MWrPDAVFCBXzh8Z6 fights 1 to 8.
-- Game build: 1.60.1.70938. Which hotfix push each report ran on and whether players relogged is not recorded.
-- Date: 2026-11-13 07:09 to 2026-11-15 09:41 UTC
-- Pull request: #1051, written up in #1052
+  Argent Defender, where a fight with no gear record counts too: VjBTMHXxFvbthkw2 fight 1; NXMZV9xjvWpB7GtP fight 107;
+  7tLY1pVK9wRWPABX fights 15 to 18 and 20; MWrPDAVFCBXzh8Z6 fights 1 to 8. Argent Avenger's section, which names its
+  count, lists its own.
+- Game build: 1.60.1.70938. Which hotfix push each report ran on and whether players relogged is not recorded. Argent
+  Avenger's count gives its own.
+- Date: 2026-11-13 07:09 to 2026-11-15 09:41 UTC; Argent Avenger's count gives its own
+- Pull request: #1051, written up in #1052; Argent Avenger's count is #1156
 
 ## Argent Avenger
 
-The game files state no rate: 17352 has no proc row, and the item's chance-on-hit effect names it. A proc is one
-application or refresh of 17352 on the wearer. Each logs just before the hit that rolled it, so a proc goes to the
-wearer's next damage event that is not a tick, within 5 ms (356 of 389 procs), and otherwise to a cast within 5 ms
-(Sunder Armor, which logs no damage). Hits are landed hits. PPM = chance × 60 / 2.2, the sword's speed, and intervals
-are 95% Wilson intervals. A dual wielder's white swings are split between the hands by damage, and the split matches
-the share the two weapons' speeds and Sword Specialization's extra swings predict. One dual-wielding warrior whose
-white swings could not be split is left out.
+- Count: §Count of the 2026-11-06 to 2026-11-21 reports
+- Rate: 1.05 PPM, measured
 
-The cleanest wearer is a warrior with the sword and a shield, in two reports, 138 procs:
+The game files state no rate: 17352 has no proc row, and the item's chance-on-hit effect names it.
 
-| Hits                                                             | Procs / landed hits | Chance | PPM at 2.2 s |
-| ---------------------------------------------------------------- | ------------------- | ------ | ------------ |
-| White swings                                                     | 54 / 1,261          | 4.3%   | 1.17         |
-| Revenge                                                          | 17 / 467            | 3.6%   | 0.99         |
-| Cleave, per target                                               | 23 / 837            | 2.7%   | 0.75         |
-| Sunder Armor, casts                                              | 14 / 478            | 2.9%   | 0.80         |
-| Heroic Strike                                                    | 2 / 36              | 5.6%   | –            |
-| Shield Slam                                                      | 0 / 498             | 0%     | –            |
-| Thunder Clap                                                     | 0 / 597             | 0%     | –            |
-| Weapon hits: white, Revenge, Cleave, Sunder Armor, Heroic Strike | 110 / 3,079         | 3.6%   | 0.97         |
+5,000 procs on 128,616 rolling hits, 62 wearers, 92 runs, in the main hand or the off hand: all hits 1.06 [1.02, 1.09].
+The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.03 [0.92, 1.13],
+615 procs on 16,253 lone units, 13 wearers. Dual-wield white: 0.92 [0.85, 0.98], 744 procs on 22,074 lone units, 51
+wearers. Specials: 1.07 [0.97, 1.14], 432 procs on 11,057 lone units, 33 wearers. Two-roll abilities, priced as one
+roll: 1.78, 19 procs on 291 lone units. Direct: window [-20, 100] ms, median -1 ms, 98th percentile 0 ms, 1,215 isolated
+hits. Dropping the swapped stretches (138 active minutes, 3% of hits, in 14 runs) moved the read from 1.03 to 1.06. By
+report date: before 2026-11-18 1.08 (1,354 procs); from 2026-11-18 to push 114313 1.05 (3,646 procs). Reports from
+2026-11-14 to 2026-11-20.
 
-Sunder Armor counts casts, so its chance is a floor. Warrior off hands also procced on Whirlwind's off-hand hit (25
-procs). Windfury Totem strikes roll it as EV-0119 records: a proc a strike rolled logs 6 to 20 ms before the strike's
-damage, outside the 5 ms window above, and crediting within 20 ms gives 19 procs on 453 landed strikes across all
-wearers, where 21.5 are expected at the white chance.
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Rogue   |      31 | 1,430 | 37,406 | 1.04 |
+| Warrior |      23 | 3,459 | 88,691 | 1.06 |
+| Hunter  |       8 |   111 |  2,519 | 1.20 |
 
-White swings alone, by class and hand:
-
-| Wearers                     | Procs / landed white swings | PPM at 2.2 s [95%] |
-| --------------------------- | --------------------------- | ------------------ |
-| Warrior main hand, 1 wearer | 54 / 1,261                  | 1.17 [0.90, 1.51]  |
-| Warrior off hand, 3 wearers | 57 / 1,342                  | 1.16 [0.90, 1.49]  |
-| Rogue off hand, 4 wearers   | 113 / 4,470                 | 0.69 [0.57, 0.83]  |
-
-The warrior off-hand wearers read 0.79 to 1.60 each and the rogue off-hand wearers 0.40 to 0.74. Haste does not
-explain the gap between the classes: both swing about 1.2 to 1.3 times as often as the base speed, and the rate is
-priced on the base speed. Why rogues proc less is open. The owner sets the rate to 1 proc per minute, from the
-sword-and-shield warrior's weapon hits.
-
-EV-0148 reads this rate again from a sword-and-shield warrior's combat log.
+Reports and fights: 1pJHLqQw297v3aF4 1-2; 1z4vRDqGdM2cVPXk 1-4; 38kdWHmLZKVgTPqb 1-2; 3HaPg2Yktxrnb7NL 1-9;
+3qR2PmyNvQk8J4Bc 16-31, 33-55; 4av7FfKdZjBh9Yp6 1-7; 4hHBvakRnT7p1GVK 6-7; 4VwxHWJ3pgNmvQY2 1-3; 649MAP3BJxaLfj7K 1;
+6CbKfDBm78nhyLjJ 1; 6hDJQWTXwBr419AM 1-4; 6kD7wbm3NaKW8RYP 1-7; 6mD4XcqZR2YnraGB 1; 6mpWRxtgXn8JhfkT 3; 7fy93LdcwQhvF2gP
+8-9; 7fz9Kk8rY6jyQAbL 3-10; 8FBqfvLyWTdKxbZh 1-38; 8GFRaPBnKWf7Qrpb 1-3, 5-6; 8QHYRK6xTXB2gAtd 1; 8yPRmZdrq4QhcGn1 1-4;
+93QNL64MnXKkxhvF 1-5; 9zxHaWbYT3gqDQvF 17-18; aANdrQRjKP7MJnCY 1-10; AvXNG1TpnyLJMxVt 1; B1qcTGpnHCrQ64Xa 1-4;
+BHJMb9CGa1TgjtAd 1; BHvgJVTdZ9pfNPa6 1-3; bNZvk628gXLz7t3c 1; bQw4YVFNJZBt2THG 1; CgXG9bvFH6jJVZKk 1-4, 6-9, 11-15;
+DCjMyH4x2m8Qaz3b 1-5; dzgfcTtLA1v7jDZ9 15; FN8krKfCb3BXWmwV 1-8; FrL4wayTHRtW1CKx 2-15; gAMnRkmdrKWzLJ4C 1-3;
+gdBnpzCGaJ2THt3y 1; GM97YvP1hdgx8akn 1-2; gVHqdJ1Xwf3kBny9 1; GWMx4hcJFCYHR6dk 1; HfaAyZNt6rKWV7pY 1-2; Ht1CryL9kJDKFabv
+1; JbQyngR8NWXKardc 3-4, 6-9, 11-16, 18-24, 27-44, 46-47, 49-60, 62-63; JctLn6NBFx2rwGjv 1-6, 8-11; JFv64qNc8yfWY9Qh
+1-3; JKYV6CpmP2GA1f7Z 1-3, 5-13; jQGkxMF61cvmaLdB 1-4; K6VvbDypXFLQJW7d 1-27, 29; KAv7LjkFHTwpZbD3 1-2; kjbQpMhK81LqRgyB
+1-3; kvCd8J41RrZ3zXNp 1, 3; LF9b7JDR36p284Hv 1; LQ9zMDqpmknBgAX8 1-2; m69XVCZpd7Dn8AyH 1-2, 4-8; m9rN6C1Z7RbWfx2K 1, 3;
+mPTyvJ6XYKCMAdck 1; mW2TtC9YqHZz3vpn 1-2; MXHn319aGYhkAw7L 1; N3nHF2GBgdT6qx1V 1, 4; N9HJ4LQVFDYkXR7j 1-3;
+NK6cCM4pJyRhaAFW 1-7; p4RKTftgHvzLrwXm 1-3; pG8TNJwybLPYWmxF 2; pnGKFx1vL82VWPy3 1; q31yFhx7TgpPfzGW 1; qJX72LBYW1fAx6DP
+1-3; qMgtfcB2vrRdyma4 1; Qr9PmCnptRWMjN7k 1-28; qRL8HagchkrTVJmD 1-39; RHgxPaQbVWjDTc4K 1-7; rTKYMd4yDvaL6Gn8 1, 3;
+T8JKMZh1WwyazjHY 2; Tdva3pHk4tmCfjZK 1-2; tG4CqkJQvyPT2A1Y 1-10; TLp1jza6PCrBAX94 1-7; vG3BpgdzWnmMrcfa 1-3;
+VMBZcafW2JLbT6dK 1-2; wh2p6j3rZfHMaYzv 1-17, 19; Wn8wHhaxy31MLzjp 6-8; wqahKP7xGMNbc8mH 1-6; x2QH6gyDAb9ZrR3q 1, 3-7;
+XD23HFnxbzvPjACV 1; xkKRJPqCLzBa9GdH 61-66, 68-89, 91, 93-96, 98-101; Yf79qHLZAjgnTdJw 1, 3-4; Z4VAmgDfJ9GPFjtc 1-6;
+Z6Xm92K3zgfrqM84 1-4, 6-12; Zk1Gh4WA7KJDaMf2 1-2; ZRhnvMANGJDy1kBj 1; Zvr84V1Y3Gpg6n9H 5-20.
 
 ## Argent Defender
 
@@ -173,3 +166,30 @@ Expected procs under each fitted model, k = 2:
 
 The owner rules 0.5 procs per minute on the attacker's swing interval, from the pooled fit, with the Undead factor of
 2 the row states and the 20 s cooldown.
+
+## Count of the 2026-11-06 to 2026-11-21 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
+  lists, from every wearer stream on disk for its weapon; 88 reports in all
+- Game build: by report date, 1.60.1.70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC and 71037 from
+  2026-11-20 18:23 UTC; no report starts after hotfix push 114313 (2026-11-20 23:47 UTC). The sim's database is
+  1.60.1.71037, push 114326; the hotfix each player ran is not recorded
+- Date: 2026-11-14 to 2026-11-20
+- Pull request: #1156
+
+The count is EV-0153's Method on the hits EV-0155 finds rolling a weapon proc, run again over every wearer stream on
+disk for its weapon, with more wearers fetched on 2026-11-21. The same rolling hits, classes and forms are left out:
+paladins from every rate, druids in Cat or Bear Form, and the two-roll abilities with the procs around them. The
+intervals, lone-unit checks, swap drop and credit windows are EV-0153's.
+
+A rate is measured where a lone-unit rate of 50 or more procs (lone one-hand white swings or specials) overlaps the
+all-hits interval, and 5 or more wearers of more than one class give an all-hits interval within 10% of the rate either
+side. The rate is the all-hits rate rounded to the nearest 0.05. A lone-unit interval from under 5 wearers is a Poisson
+interval.
+
+Each section's read by report date is the all-hits rate over the reports that start before 2026-11-18, from then to push
+114313, and after it.
+
+Scripts and inputs, in `forever-notices-1121`: `results.json`, the counts of `forever-sweep-auto/analyze.py` (version
+12, as EV-0157's, with the paladin check that sets no rate) run with `--items items.txt --census census_used.json`;
+`report.py`, the call per weapon (`rep_final.json`); and `dates.py`, the report dates (`dates_final.json`).

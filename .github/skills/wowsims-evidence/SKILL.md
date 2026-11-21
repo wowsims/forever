@@ -5,8 +5,8 @@ description: 'Use when WoWSims Forever work records something measured or ruled:
 
 # Evidence and rulings
 
-A measurement lives in one `docs/evidence/EV-NNNN-<slug>.md` file per pull request write-up; a rule no single file owns
-lives in one `docs/rulings/R-NNNN-<slug>.md` file. Code, override rows and skills cite the id. The formats, the three
+A measured item or claim lives in one `docs/evidence/EV-NNNN-<slug>.md` file, the first that measured it; a rule no
+single file owns lives in one `docs/rulings/R-NNNN-<slug>.md` file. Code, override rows and skills cite the id. The formats, the three
 `Evidence` states of a ruling and the id rules are in `docs/evidence/README.md` and `docs/rulings/README.md`; read them
 before writing either kind of file.
 
@@ -43,7 +43,7 @@ else; a count outside the buff's window or across two seals explains most surpri
 
 | The user gives you                                            | Write                                                                                                                     |
 | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| counts from logs or a report                                  | an EV- file; the site states the rule and cites the id                                                                    |
+| counts from logs or a report                                  | the home EV- file of each item counted, a new one for items no file holds; the site states the rule and cites the id      |
 | "checked in game", no counts                                  | an EV- file that says so, with build, hotfix and date asked for                                                           |
 | a rule wider than what was measured ("every class", "always") | a ruling: a skill body line or an R- file whose `Evidence` line cites the EV- ids or reads `pending`; ask the scope first |
 | a value change in the sim                                     | the EV- file first, then the change with its `.results` in its own pull request                                           |
@@ -61,7 +61,7 @@ Issue [#964](https://github.com/wowsims/forever/issues/964) is the table of ever
 uses or lacks, for abilities, items by gear type, enchants and consumables. Each section is one comment on the issue,
 and the issue body holds the status legend and a contents list linking every section comment with its row counts. A pull
 request that adds or changes a proc rate, or records a measurement of one, says `Refs #964` in its body and edits the
-section comment's row in the same pass: the sim rate, the measurement and its interval, the evidence id, the notes, and
+section comment's row in the same pass: the sim rate, the measurement and its interval, the home evidence id, the notes, and
 the status, which is ✅ for a rate measured on Forever (an EV- id) or stated by the game files, ⏳ for an `observed`
 rate, and ❌ for a carry-over or a rate nobody knows. A proc the table lacks gets a row in its section, and the
 section's counts in the body's contents list move with it. A comment holds at most 65,536 characters; a section that
@@ -69,13 +69,19 @@ outgrows it splits into two comments.
 
 ## Ids
 
-Take the next free number across `origin/master` and every open pull request:
+A new file, for items or claims no file holds yet, takes the next free number across `origin/master` and every open
+pull request:
 `git ls-tree origin/master docs/evidence/ docs/rulings/` and
 `gh pr list -R wowsims/forever --state open --json files --jq '.[].files[].path' | grep -oE '(EV|R)-[0-9]{4}' | sort -u`.
 Two branches that take one number fail `make skills-check` once both merge; the second renumbers before it merges. An id
-already on master is never renumbered. A newer measurement that replaces a whole file adds `Replaced by: EV-NNNN` under
-the old file's title; one that replaces part of it adds a sentence there naming what the new id replaces, and the rest
-stands.
+already on master is never renumbered, and an id that leaves a branch before it merges stays unused.
+
+An item or claim has one home, the first file that measured it. A new count of items a file already holds rewrites
+their rows in that file with the newest numbers, under the same id, and takes their older numbers out of every other
+file; a corrected reading of a claim is rewritten in its file too. The rows from the new count name its count section,
+which carries that count's Sources, Game build, Date, Pull request and method (`docs/evidence/README.md`). No file says
+that another replaces part of it. A file whose every part has moved elsewhere keeps its title and a
+`Replaced by: EV-NNNN` line, with no data. Every citation, issue #964's rows included, moves to the home id.
 
 ## Red flags
 
