@@ -105,7 +105,7 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 // "of the Tiger" suffix.
 // Destiny, the weapon, has no known source, and its Strength proc rolls a rate fitted from logs that more wearers
 // have yet to confirm (EV-0153). It beats Arcanite Champion, the Blacksmithing craft, by 4 to 5 %.
-export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, { ...ARMS_PRESET_OPTIONS, devOnly: true });
+export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, ARMS_PRESET_OPTIONS);
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the
 // global cooldowns Mortal Strike and Slam leave.
