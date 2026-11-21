@@ -18,9 +18,13 @@ import (
 // The warrior stand-in of class class wearing one item, in a party with these party buffs.
 func partyItemWearer(t *testing.T, seed int64, class proto.Class, slot proto.ItemSlot, itemID int32, party *proto.PartyBuffs) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return partyItemSim(seed, partyItemRaid(class, slot, itemID, party))
+}
+
+func partyItemSim(seed int64, raid *proto.Raid) (*core.Simulation, *core.Character) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: seed},
-		Raid:       partyItemRaid(class, slot, itemID, party),
+		Raid:       raid,
 		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
 	}, simsignals.CreateSignals())
 	sim.Reset()
@@ -214,20 +218,10 @@ func TestHeadmastersChargeFallsOffWhenSwappedOut(t *testing.T) {
 	const staff = 13937
 	raid := partyItemRaid(proto.Class_ClassMage, proto.ItemSlot_ItemSlotMainHand, staff, &proto.PartyBuffs{})
 	player := raid.Parties[0].Players[0]
-	swapped := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
-	for i := range swapped {
-		swapped[i] = &proto.ItemSpec{}
-	}
-	swapped[proto.ItemSlot_ItemSlotMainHand].Id = 12802
 	player.EnableItemSwap = true
-	player.ItemSwap = &proto.ItemSwap{Items: swapped}
-	sim := core.NewSim(&proto.RaidSimRequest{
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-		Raid:       raid,
-		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	character := sim.Raid.Parties[0].Players[0].GetCharacter()
+	// Night Watch Shortsword 935 is a one-hand weapon with no item effect.
+	player.ItemSwap = &proto.ItemSwap{Items: weaponSlots(935, 0)}
+	sim, character := partyItemSim(1, raid)
 
 	cooldown, category, categoryCooldown := classItemOnUse(t, staff)
 	before := character.GetStats()

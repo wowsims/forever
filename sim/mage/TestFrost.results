@@ -722,8 +722,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-Headmaster'sCharge-13937"
  value: {
-  dps: 845.8039
-  tps: 781.23081
+  dps: 840.50367
+  tps: 776.4606
  }
 }
 dps_results: {

@@ -36,6 +36,7 @@ describe('the buff registries', () => {
 			'Atiesh - Warlock',
 			'Atiesh - Druid',
 			'Atiesh - Priest',
+			'Darkspear',
 			"Admiral's Hat",
 			"Headmaster's Charge",
 			'Stoneskin Totem',

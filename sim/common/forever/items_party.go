@@ -36,32 +36,7 @@ func init() {
 	// Gives 10 additional stamina to party members within 30 yards.
 	//
 	// The use is 12022, 10 Stamina for 10 min, on the item's 1 min cooldown.
-	core.NewItemEffect(10030, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		buff := buffs.NewSpellDataAdmiralsHatAura(&character.Unit, true, 0)
-		row := spelldata.MustFind(12022)
-
-		config := core.SpellConfig{
-			ActionID:    core.ActionID{ItemID: 10030},
-			SpellSchool: row.SpellSchool(),
-			ProcMask:    core.ProcMaskEmpty,
-			Cast:        spelldata.Cast(row),
-			ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-				buff.Activate(sim)
-			},
-		}
-		for _, effect := range core.GetItemByID(10030).ItemEffects {
-			if effect.GetOnUse() != nil {
-				itemCast := shared.OnUseCast(character, effect)
-				config.Cast.CD, config.Cast.SharedCD = itemCast.CD, itemCast.SharedCD
-			}
-		}
-
-		character.AddMajorCooldown(core.MajorCooldown{
-			Spell: character.RegisterSpell(config),
-			Type:  core.CooldownTypeSurvival,
-		})
-	})
+	registerPartyItemUse(10030, 12022, buffs.NewSpellDataAdmiralsHatAura, core.CooldownTypeSurvival)
 
 	// Headmaster's Charge
 	// https://www.wowhead.com/forever/item=13937/headmasters-charge
@@ -69,23 +44,29 @@ func init() {
 	// Use: Gives 20 additional intellect to party members within 30 yards. (10 Min Cooldown)
 	//
 	// The use is 18264, 20 Intellect for 15 min, on the item's 10 min cooldown.
-	core.NewItemEffect(13937, func(agent core.Agent) {
+	registerPartyItemUse(13937, 18264, buffs.NewSpellDataHeadmastersChargeAura, core.CooldownTypeDPS)
+}
+
+// An item's use that puts the party buff's own copy on the wearer, on the cooldown the item's on-use
+// effect states. The item swap finds the buff through RelatedSelfBuff and drops it when the item
+// comes off.
+func registerPartyItemUse(itemID, spellID int32, newAura func(*core.Unit, bool, int32) *core.Aura, cdType core.CooldownType) {
+	core.NewItemEffect(itemID, func(agent core.Agent) {
 		character := agent.GetCharacter()
-		buff := buffs.NewSpellDataHeadmastersChargeAura(&character.Unit, true, 0)
-		row := spelldata.MustFind(18264)
+		buff := newAura(&character.Unit, true, 0)
+		row := spelldata.MustFind(spellID)
 
 		config := core.SpellConfig{
-			ActionID:    core.ActionID{ItemID: 13937},
-			SpellSchool: row.SpellSchool(),
-			ProcMask:    core.ProcMaskEmpty,
-			Cast:        spelldata.Cast(row),
-			// The item swap drops the wearer's copy when the staff comes off; it finds the buff here.
+			ActionID:        core.ActionID{ItemID: itemID},
+			SpellSchool:     row.SpellSchool(),
+			ProcMask:        core.ProcMaskEmpty,
+			Cast:            spelldata.Cast(row),
 			RelatedSelfBuff: buff,
 			ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
 				buff.Activate(sim)
 			},
 		}
-		for _, effect := range core.GetItemByID(13937).ItemEffects {
+		for _, effect := range core.GetItemByID(itemID).ItemEffects {
 			if effect.GetOnUse() != nil {
 				itemCast := shared.OnUseCast(character, effect)
 				config.Cast.CD, config.Cast.SharedCD = itemCast.CD, itemCast.SharedCD
@@ -94,7 +75,7 @@ func init() {
 
 		character.AddMajorCooldown(core.MajorCooldown{
 			Spell: character.RegisterSpell(config),
-			Type:  core.CooldownTypeDPS,
+			Type:  cdType,
 		})
 	})
 }

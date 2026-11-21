@@ -90,7 +90,7 @@ export const StoneskinTotem = makeTristatePartyBuffInput({
 	label: 'Stoneskin Totem',
 });
 
-// darkspear: Darkspear 12802 is not in the game, so the settings offer no input; the field and its driver stay for when it is.
+// darkspear: Darkspear 12802 is not in the game, so the hand-written input shows only while a saved setting picks it.
 
 export const AdmiralsHat = makeBooleanPartyBuffInput({
 	actionId: ActionId.fromSpellId(12022),

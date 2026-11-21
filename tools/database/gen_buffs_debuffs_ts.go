@@ -37,7 +37,7 @@ var buffInputNumStates = map[string]int{
 var manualBuffInputs = map[string]string{
 	"battle_shout":     "the hand-written input marks Rank 7 and the tier 2 set with an improved icon each, a second improved icon no manifest row carries.",
 	"retribution_aura": "the hand-written input shows itself for tank specs only, since a damage shield only matters on the unit being hit; a role gate no manifest row carries.",
-	"darkspear":        "Darkspear 12802 is not in the game, so the settings offer no input; the field and its driver stay for when it is.",
+	"darkspear":        "Darkspear 12802 is not in the game, so the hand-written input shows only while a saved setting picks it.",
 	"puncture_armor":   "the hand-written inputs are the three weapons, one item icon per state, which no manifest row carries.",
 }
 
@@ -246,8 +246,8 @@ func uninputtableBuffReason(row ResolvedBuff) string {
 	return fixed
 }
 
-// The spell the settings input shows as its icon and tooltip: the row's TooltipID when it names one,
-// else the cast the manifest pins for it, else the aura itself.
+// The spell the settings input shows as its icon and tooltip when the row names no TooltipItemID: the row's
+// TooltipID when it names one, else the cast the manifest pins for it, else the aura itself.
 func buffInputActionID(row ResolvedBuff) int32 {
 	if row.TooltipID != 0 {
 		return row.TooltipID
