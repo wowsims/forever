@@ -48,12 +48,12 @@
 					"enchant": 1891
 				},
 				{
-					"id": 226885,
+					"id": 18375,
 					"enchant": 7656
 				},
 				{
 					"id": 272099,
-					"enchant": 2564
+					"enchant": 8206
 				},
 				{
 					"id": 272397
@@ -73,13 +73,13 @@
 					"id": 18500
 				},
 				{
-					"id": 13965
-				},
-				{
 					"id": 22321
 				},
 				{
-					"id": 12784,
+					"id": 13965
+				},
+				{
+					"id": 13285,
 					"enchant": 2646
 				},
 				{},
@@ -115,7 +115,7 @@
 				}
 			}
 		},
-		"talentsString": "-00530501114-530200230050220151",
+		"talentsString": "-00530501114-500230230050220151",
 		"profession1": "Engineering",
 		"profession2": "Blacksmithing",
 		"rotation": {

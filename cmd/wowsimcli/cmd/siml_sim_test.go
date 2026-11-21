@@ -70,7 +70,7 @@ func TestCharacterFromRepoReadsTheSpecDefaults(t *testing.T) {
 	if c.info.Source != filepath.Join(root, "ui/specs/hunter/dps/defaults.siml") || !slices.Equal(c.info.Warnings, []string{"builds mm.siml, sv.siml all use this file; simmed on the defaults"}) {
 		t.Errorf("source %q, warnings %q", c.info.Source, c.info.Warnings)
 	}
-	if p.TalentsString != "-00530501114-530200230050220151" || p.Race != proto.Race_RaceOrc || c.info.Gear != "prebis_weave" {
+	if p.TalentsString != "-00530501114-500230230050220151" || p.Race != proto.Race_RaceOrc || c.info.Gear != "prebis_weave" {
 		t.Errorf("got talents %q, race %v and gear %q, want the SV Weave talents, an orc and the Pre-BiS weave set", p.TalentsString, p.Race, c.info.Gear)
 	}
 	if p.Consumables.GetResourcePotId() == 0 || p.GetHunter().GetOptions().GetClassOptions().GetAmmo() == proto.HunterOptions_AmmoNone {
