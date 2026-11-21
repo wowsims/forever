@@ -24,7 +24,7 @@ func (mage *Mage) registerFlamestrikeSpells() {
 // Each tick is a direct hit of the tick spell, so a hit listener hears every enemy it lands on. The
 // tick's row is outside the class flags of Revelation's crit and charge, and it costs nothing, so it
 // neither takes nor spends Revelation or Clearcasting. A tick rolls its partial resist against a tenth of
-// the target's share, as a DoT's tick does, and takes no Spell Piercing bonus (EV-0142).
+// the target's share, as a DoT's tick does (EV-0028), and takes no Spell Piercing bonus (EV-0142).
 func (mage *Mage) registerFlamestrikeSpell(rank int32, castRank *spelldata.Spell) {
 	tickRank := spellData.FlamestrikeTriggered.Rank(rank)
 	cannotCrit := tickRank.CannotCrit()
