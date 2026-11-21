@@ -2397,6 +2397,9 @@
 						"not_fully_supported": {
 							"type": "string"
 						},
+						"ingame_validation_needed": {
+							"type": "string"
+						},
 						"partial_set_bonus": {
 							"type": "object",
 							"properties": {
@@ -2417,6 +2420,9 @@
 								},
 								"battleplate_of_glory_3": {
 									"type": "string"
+								},
+								"partners_in_crime_2": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -2425,7 +2431,92 @@
 								"implements_of_unspoken_names_3",
 								"dreadnaughts_battlegear_4",
 								"dreadnaughts_battlegear_8",
-								"battleplate_of_glory_3"
+								"battleplate_of_glory_3",
+								"partners_in_crime_2"
+							],
+							"additionalProperties": false
+						},
+						"untested_set_bonus": {
+							"type": "object",
+							"properties": {
+								"spiders_kiss_2": {
+									"type": "string"
+								},
+								"necropile_raiment_3": {
+									"type": "string"
+								},
+								"bloodmail_regalia_3": {
+									"type": "string"
+								},
+								"deathbone_guardian_5": {
+									"type": "string"
+								},
+								"chain_of_the_scarlet_crusade_4": {
+									"type": "string"
+								},
+								"symbols_of_unending_life_3": {
+									"type": "string"
+								},
+								"stormcallers_garb_3": {
+									"type": "string"
+								},
+								"gift_of_the_gathering_storm_3": {
+									"type": "string"
+								},
+								"battlegear_of_eternal_justice_3": {
+									"type": "string"
+								},
+								"trappings_of_the_unseen_path_3": {
+									"type": "string"
+								},
+								"bonescythe_armor_4": {
+									"type": "string"
+								},
+								"bonescythe_armor_8": {
+									"type": "string"
+								},
+								"the_earthshatterer_8": {
+									"type": "string"
+								},
+								"teachings_of_the_furbolgs_2": {
+									"type": "string"
+								},
+								"manaflare_regalia_5": {
+									"type": "string"
+								},
+								"demonheart_raiment_5": {
+									"type": "string"
+								},
+								"rotmenders_raiment_4": {
+									"type": "string"
+								},
+								"violet_sorcerers_vestments_5": {
+									"type": "string"
+								},
+								"defias_enforcers_garb_5": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"spiders_kiss_2",
+								"necropile_raiment_3",
+								"bloodmail_regalia_3",
+								"deathbone_guardian_5",
+								"chain_of_the_scarlet_crusade_4",
+								"symbols_of_unending_life_3",
+								"stormcallers_garb_3",
+								"gift_of_the_gathering_storm_3",
+								"battlegear_of_eternal_justice_3",
+								"trappings_of_the_unseen_path_3",
+								"bonescythe_armor_4",
+								"bonescythe_armor_8",
+								"the_earthshatterer_8",
+								"teachings_of_the_furbolgs_2",
+								"manaflare_regalia_5",
+								"demonheart_raiment_5",
+								"rotmenders_raiment_4",
+								"violet_sorcerers_vestments_5",
+								"defias_enforcers_garb_5"
 							],
 							"additionalProperties": false
 						},
@@ -2487,7 +2578,9 @@
 						"unvalidated_rate",
 						"not_yet_implemented",
 						"not_fully_supported",
+						"ingame_validation_needed",
 						"partial_set_bonus",
+						"untested_set_bonus",
 						"partial_item",
 						"set_bonus_warnings",
 						"set_bonus_piece",

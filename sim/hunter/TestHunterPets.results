@@ -2036,6 +2036,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 696.51942
+  tps: 485.97981
+  dtps: 4.49411
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-TheBlackrockSlicer-13285"
  value: {
   dps: 693.36402
@@ -2241,6 +2249,14 @@ dps_results: {
   dps: 696.51942
   tps: 485.97981
   dtps: 4.49411
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TrappingsoftheUnseenPath"
+ value: {
+  dps: 694.32431
+  tps: 483.6429
+  dtps: 5.17668
  }
 }
 dps_results: {

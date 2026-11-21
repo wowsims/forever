@@ -1074,9 +1074,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-NecropileRaiment"
  value: {
-  dps: 892.09426
-  tps: 736.42598
-  dtps: 11.16753
+  dps: 903.38161
+  tps: 747.24538
+  dtps: 11.52733
  }
 }
 dps_results: {
@@ -1332,6 +1332,14 @@ dps_results: {
  value: {
   dps: 953.74109
   tps: 787.61632
+  dtps: 10.78091
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 928.30993
+  tps: 766.0276
   dtps: 10.78091
  }
 }

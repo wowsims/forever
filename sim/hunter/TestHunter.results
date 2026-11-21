@@ -371,8 +371,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BloodmailRegalia"
  value: {
-  dps: 830.34364
-  tps: 852.91152
+  dps: 830.77638
+  tps: 853.34426
   dtps: 9.22627
   hps: 13.53861
  }
@@ -650,9 +650,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 803.30465
-  tps: 825.76497
-  dtps: 8.81535
+  dps: 809.59362
+  tps: 832.09624
+  dtps: 8.89994
   hps: 13.74194
  }
 }
@@ -1784,9 +1784,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-NecropileRaiment"
  value: {
-  dps: 783.80404
-  tps: 805.82165
-  dtps: 9.1454
+  dps: 783.98884
+  tps: 806.02381
+  dtps: 9.22679
   hps: 13.36917
  }
 }
@@ -2286,6 +2286,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 888.1015
+  tps: 910.71007
+  dtps: 9.11703
+  hps: 14.01306
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-TheBlackrockSlicer-13285"
  value: {
   dps: 914.89075
@@ -2369,10 +2378,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-TheGladiator"
  value: {
-  dps: 799.8308
-  tps: 822.34945
-  dtps: 9.1094
-  hps: 13.53861
+  dps: 802.94746
+  tps: 825.07532
+  dtps: 9.05829
+  hps: 13.58944
  }
 }
 dps_results: {
@@ -2517,6 +2526,15 @@ dps_results: {
   tps: 910.71007
   dtps: 9.11703
   hps: 14.01306
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TrappingsoftheUnseenPath"
+ value: {
+  dps: 829.43702
+  tps: 852.03963
+  dtps: 9.06326
+  hps: 14.7925
  }
 }
 dps_results: {
