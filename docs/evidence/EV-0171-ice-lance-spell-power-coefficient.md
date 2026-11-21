@@ -7,7 +7,7 @@
   and one at 0 spell power, 2026-11-21 08:40 to 08:45
 - Game build: 1.60.1.70959 (geared) and 1.60.1.71037 (0 spell power), each on the latest hotfix at the time, relogged
 - Date: 2026-11-19 to 2026-11-21
-- Pull request: not recorded
+- Pull request: #1150
 
 ## Method
 
