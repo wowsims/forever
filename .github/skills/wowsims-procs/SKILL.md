@@ -78,9 +78,9 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
   The cases (a weapon proc's strike off either hand, oils) are in `references/rulings.md`.
 - **Suppress Caster Procs and Suppress Target Procs keep a spell's hits from `ProcTrigger` listeners on the side each
   bit names** (EV-0165), and Suppress Caster Procs keeps its completed cast from the caster's cast triggers too.
-  `rowFlags` passes them on only when an effect of the row does more than a dummy or a cast of another spell, so a
-  dummy the sim folds with its damage (Execute 20662) carries neither; an aura with hand-written hit callbacks checks
-  the flag itself.
+  `rowFlags` passes all three suppress bits on only when an effect of the row does more than a dummy, a script or a
+  cast of another spell, so a dummy the sim folds with its damage (Execute 20662) carries none of them; an aura with
+  hand-written hit callbacks checks the flag itself.
 - **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no
   death; both are in `procs.md` (the two death bits), the order of a death in `wowsims-core-mechanics` `## Targets`.
 
@@ -135,10 +135,12 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of
   Clarity's is in `sim/druid/omen_of_clarity.go`, Revelation's in `sim/common/forever/enchants.go`.
 - **Which hits a weapon rate counts** is EV-0155's class census: each landed hit that rolls, priced on its own weapon's
-  base speed; Execute and Judgement of Command roll twice and are left out with their procs. Paladins and druids in a
-  form are left out of every rate (owner ruling, 2026-11-19; EV-0153). A proc that lands on the target logs almost
-  never on a killing blow, so for such a proc a killing blow is no roll; and a report that lists one stretch of the log
-  under several fight ids repeats its events, which count once (EV-0153).
+  base speed; Judgement of Command rolls twice, and Execute twice up to hotfix push 114313 (2026-11-20), and both are
+  left out with their procs. After that push Execute's cast suppresses weapon procs; the first logs read between one
+  and two rolls on few wearers (EV-0155). Paladins and druids in a form are left out of every rate (owner ruling,
+  2026-11-19; EV-0153). A proc that lands on the target logs almost never on a killing blow, so for such a proc a
+  killing blow is no roll; and a report that lists one stretch of the log under several fight ids repeats its events,
+  which count once (EV-0153).
 
 ## Traps
 

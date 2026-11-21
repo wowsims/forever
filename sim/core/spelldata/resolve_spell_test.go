@@ -463,9 +463,9 @@ func TestSpellConfigBinaryFromTheRow(t *testing.T) {
 	}
 }
 
-// A row with Suppress Caster Procs or Suppress Target Procs resolves to the matching flag when one of its
-// effects acts itself. A row of dummies and casts of other spells keeps neither, since the sim spell
-// built from it deals the damage of the spell it triggers, as Execute's dummy does.
+// A row with Suppress Weapon Procs, Suppress Caster Procs or Suppress Target Procs resolves to the matching
+// flag when one of its effects acts itself. A row of dummies and casts of other spells keeps none of them,
+// since the sim spell built from it deals the damage of the spell it triggers, as Execute's dummy does.
 func TestSpellConfigSuppressProcFlagsFromTheRow(t *testing.T) {
 	enemy := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_TARGET_ENEMY, 0}
 	damage := Effect{Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100, Target: enemy}
@@ -474,26 +474,33 @@ func TestSpellConfigSuppressProcFlagsFromTheRow(t *testing.T) {
 	beside := func(e dbcenums.SpellEffectType) Effect { return Effect{Type: e, Target: enemy} }
 	caster := dbcenums.ATTR_EX_3_SUPPRESS_CASTER_PROCS
 	target := dbcenums.ATTR_EX_3_SUPPRESS_TARGET_PROCS
+	weapon := dbcenums.ATTR_EX_4_SUPPRESS_WEAPON_PROCS
 
 	for _, tc := range []struct {
 		name       string
-		attr       uint32
+		attr3      uint32
+		attr4      uint32
 		effects    []Effect
 		wantCaster bool
 		wantTarget bool
+		wantWeapon bool
 	}{
-		{"damage suppressing both sides", caster | target, []Effect{damage}, true, true},
-		{"damage suppressing the caster's procs", caster, []Effect{damage}, true, false},
-		{"an aura suppressing the target's procs", target, []Effect{slow}, false, true},
-		{"a dummy beside a slow", caster | target, []Effect{beside(dbcenums.E_DUMMY), slow}, true, true},
-		{"only dummies, scripts and casts of other spells", caster | target, []Effect{beside(dbcenums.E_DUMMY),
+		{"damage suppressing both sides", caster | target, 0, []Effect{damage}, true, true, false},
+		{"damage suppressing the caster's procs", caster, 0, []Effect{damage}, true, false, false},
+		{"an aura suppressing the target's procs", target, 0, []Effect{slow}, false, true, false},
+		{"damage suppressing weapon procs", 0, weapon, []Effect{damage}, false, false, true},
+		{"a dummy beside a slow", caster | target, weapon, []Effect{beside(dbcenums.E_DUMMY), slow}, true, true, true},
+		{"only dummies, scripts and casts of other spells", caster | target, weapon, []Effect{beside(dbcenums.E_DUMMY),
 			beside(dbcenums.E_SCRIPT_EFFECT), dummyAura, beside(dbcenums.E_NONE), beside(dbcenums.E_TRIGGER_SPELL),
-			beside(dbcenums.E_TRIGGER_MISSILE), beside(dbcenums.E_FORCE_CAST)}, false, false},
-		{"damage without either attribute", 0, []Effect{damage}, false, false},
+			beside(dbcenums.E_TRIGGER_MISSILE), beside(dbcenums.E_FORCE_CAST)}, false, false, false},
+		{"damage without any of the attributes", 0, 0, []Effect{damage}, false, false, false},
 	} {
 		withRows(t, []Spell{{ID: 1, Name: "Row", School: 16, DefenseType: 2,
-			Attr: [17]uint32{dbcenums.ATTR_INDEX_EX_3: tc.attr}, Effects: tc.effects}})
+			Attr: [17]uint32{dbcenums.ATTR_INDEX_EX_3: tc.attr3,dbcenums.ATTR_INDEX_EX_4: tc.attr4}, Effects: tc.effects}})
 		flags := SpellConfig(testUnit(), Find(1)).Flags
+		if got := flags.Matches(core.SpellFlagSuppressWeaponProcs); got != tc.wantWeapon {
+			t.Errorf("a row with %s resolved SpellFlagSuppressWeaponProcs %v, want %v", tc.name, got, tc.wantWeapon)
+		}
 		if got := flags.Matches(core.SpellFlagSuppressCasterProcs); got != tc.wantCaster {
 			t.Errorf("a row with %s resolved SpellFlagSuppressCasterProcs %v, want %v", tc.name, got, tc.wantCaster)
 		}

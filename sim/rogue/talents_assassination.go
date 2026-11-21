@@ -197,6 +197,8 @@ func (rogue *Rogue) registerMutilate() {
 	rogue.MutilateMH = rogue.newMutilateHitSpell(true)
 	rogue.MutilateOH = rogue.newMutilateHitSpell(false)
 
+	// The cast's landing rolls no weapon proc, poison or Windfury Totem; each hand rolls once from its own
+	// strike (EV-0155).
 	config := spelldata.SpellConfig(&rogue.Unit, mutilateCastRank, spelldata.Melee(core.ProcMaskEmpty))
 	pointGen := mutilateCastRank.EnergizeEffect().Average()
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
