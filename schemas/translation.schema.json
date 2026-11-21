@@ -2439,9 +2439,6 @@
 						"untested_set_bonus": {
 							"type": "object",
 							"properties": {
-								"the_gladiator_4": {
-									"type": "string"
-								},
 								"spiders_kiss_2": {
 									"type": "string"
 								},
@@ -2452,9 +2449,6 @@
 									"type": "string"
 								},
 								"deathbone_guardian_5": {
-									"type": "string"
-								},
-								"defias_leather_4": {
 									"type": "string"
 								},
 								"chain_of_the_scarlet_crusade_4": {
@@ -2504,12 +2498,10 @@
 								}
 							},
 							"required": [
-								"the_gladiator_4",
 								"spiders_kiss_2",
 								"necropile_raiment_3",
 								"bloodmail_regalia_3",
 								"deathbone_guardian_5",
-								"defias_leather_4",
 								"chain_of_the_scarlet_crusade_4",
 								"symbols_of_unending_life_3",
 								"stormcallers_garb_3",

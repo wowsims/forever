@@ -22,27 +22,30 @@ var arcaneElementalSwing = core.Weapon{
 	MaxRange:      core.MaxMeleeRange,
 }
 
-// One piece carries the elemental, since every piece is worn when the 5-piece bonus is. A summon while the
-// last one is up keeps that one for the new 20 s.
+// Two elementals can be up at once, since one lasts 20 s and the summon rests 15 s (EV-0169). Two pieces carry
+// one each, since every piece is worn when the 5-piece bonus is.
 func init() {
-	core.NewItemPet(273044, newArcaneElemental) // Violet Sorcerer's Robes
+	core.NewItemPet(273044, newArcaneElemental("Arcane Elemental 1")) // Violet Sorcerer's Robes
+	core.NewItemPet(273051, newArcaneElemental("Arcane Elemental 2")) // Violet Sorcerer's Mantle
 }
 
-func newArcaneElemental(owner *core.Character) core.PetAgent {
-	elemental := &arcaneElemental{Pet: core.NewPet(core.PetConfig{
-		Name:  "Arcane Elemental",
-		Owner: owner,
-		StatInheritance: func(_ stats.Stats) stats.Stats {
-			return stats.Stats{}
-		},
-		IsGuardian:         true,
-		StartsInMeleeRange: true,
-	})}
-	elemental.EnableAutoAttacks(elemental, core.AutoAttackOptions{
-		MainHand:       arcaneElementalSwing,
-		AutoSwingMelee: true,
-	})
-	return elemental
+func newArcaneElemental(name string) func(owner *core.Character) core.PetAgent {
+	return func(owner *core.Character) core.PetAgent {
+		elemental := &arcaneElemental{Pet: core.NewPet(core.PetConfig{
+			Name:  name,
+			Owner: owner,
+			StatInheritance: func(_ stats.Stats) stats.Stats {
+				return stats.Stats{}
+			},
+			IsGuardian:         true,
+			StartsInMeleeRange: true,
+		})}
+		elemental.EnableAutoAttacks(elemental, core.AutoAttackOptions{
+			MainHand:       arcaneElementalSwing,
+			AutoSwingMelee: true,
+		})
+		return elemental
+	}
 }
 
 func (elemental *arcaneElemental) GetPet() *core.Pet                   { return &elemental.Pet }

@@ -77,7 +77,9 @@ of 3,828 (10.2%) and of Rain of Fire 130 of 1,521 (8.6%), while their damage tic
 146 reports, 125 players (147 runs: 97 mage, 25 warlock, 14 priest, 9 druid, 2 shaman), 2,722 summons in fights with 5
 pieces. The shortest gap between two summons is 15,005 ms, and gaps from 15 to 20 s are as common as later ones, so the
 15 s cooldown holds and a living elemental does not block a new one. No run shows a stretch with 3 or more summons due
-and none seen. 33 summons fall in fights whose CombatantInfo shows only 4 pieces.
+and none seen. Two elementals are up at once in 63 of 161 wearer runs, and three in none: one lasts about 20 s and the
+next comes 15 s after it at the soonest. Each elemental is its own unit instance, alive from its summon to its last
+swing; one report that repeats a single summon under 21 fight ids at the same timestamp is left out. 33 summons fall in fights whose CombatantInfo shows only 4 pieces.
 
 | Count                                        | Units / hits | Procs | Wearers | PPM [95%]            |
 | -------------------------------------------- | -----------: | ----: | ------: | -------------------- |

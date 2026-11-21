@@ -29,6 +29,8 @@ var ItemSetBonescytheArmor = core.NewItemSet(core.ItemSet{
 	},
 })
 
+const bonescytheStrikes = RogueSpellBackstab | RogueSpellSinisterStrike | RogueSpellHemorrhage
+
 // "Your Backstab, Sinister Strike, and Hemorrhage critical hits cause you to regain 5 energy."
 //
 // The row hears every landed melee ability, and its class flags name Eviscerate, Shank and Mutilate too. The
@@ -38,7 +40,7 @@ func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 	trigger := spelldata.ProcTrigger(&rogue.Character, bonescytheHeadRush, nil)
 	trigger.Handler = shared.FiredSpellHandler(&rogue.Character, core.ActionID{SpellID: bonescytheHeadRush.FiredSpell().ID}, bonescytheHeadRush)
 	trigger.Name = "Bonescythe Armor - 4PC"
-	trigger.ClassSpellMask = RogueSpellBackstab | RogueSpellSinisterStrike | RogueSpellHemorrhage
+	trigger.ClassSpellMask = bonescytheStrikes
 	trigger.Outcome = core.OutcomeCrit
 
 	setBonusAura.AttachProcTrigger(trigger)
@@ -47,17 +49,15 @@ func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 // "Your Eviscerate has a chance per combo point to reveal a flaw in your opponent's armor, granting a 100%
 // critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage."
 //
-// A landed Eviscerate rolls 28814's chance per combo point it spent (vanilla-carryover) and grants
-// 28815's one charge; 28815's cooldown does not limit the roll. The buff's class flags name Shank,
-// Mutilate and the Season of Discovery strikes too; the crit and the charge are the tooltip's three
-// here. A crit of one of them spends the charge, as the row's proc states.
+// A landed Eviscerate rolls 28814's chance per combo point it spent, the effect's points per resource, and grants
+// 28815's one charge; 28815's cooldown does not limit the roll. The buff's class flags name Shank, Mutilate and the
+// Season of Discovery strikes too; the crit and the charge are the tooltip's three here. A crit of one of them spends
+// the charge, as the row's proc states.
 func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
 	rogue := agent.(RogueAgent).GetRogue()
-	strikes := RogueSpellBackstab | RogueSpellSinisterStrike | RogueSpellHemorrhage
-
 	buff := rogue.RegisterAura(spelldata.AuraConfig(revealedFlaw)).AttachSpellMod(core.SpellModConfig{
 		Kind:       core.SpellMod_BonusCrit_Percent,
-		ClassMask:  strikes,
+		ClassMask:  bonescytheStrikes,
 		FloatValue: revealedFlaw.EffectN(1).BaseValue(),
 	})
 	buff.ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
@@ -65,7 +65,7 @@ func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
 	})
 	spelldata.AttachChargeSpender(&rogue.Character, buff, revealedFlaw, "Revealed Flaw - Spend",
 		func(_ *core.Character, trigger *core.ProcTrigger) {
-			trigger.ClassSpellMask = strikes
+			trigger.ClassSpellMask = bonescytheStrikes
 		})
 
 	// Eviscerate spends its combo points before its hit is dealt, so they are read as it applies.

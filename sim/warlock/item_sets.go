@@ -200,8 +200,9 @@ var ItemSetDemonheartRaiment = core.NewItemSet(core.ItemSet{
 					warlock.AddMobTypeBonusStats(bonus.Invert(), mobTypes...)
 				})
 		},
-		// "Your Life Tap generates 20% more Mana at no additional Health cost." The dummy's amount is read
-		// in registerLifeTap. No test wears it, since only four of the six pieces ship.
+		// "Your Life Tap generates 20% more Mana at no additional Health cost." The dummy's amount goes into
+		// lifeTapManaBonus, which registerLifeTap adds to Improved Life Tap's share. No test wears it, since
+		// only four of the six pieces ship.
 		// TODO: Ingame test needed -- whether the 20% adds to Improved Life Tap or multiplies with it, and
 		// whether the demon's Demonic Energies share grows with it.
 		5: func(agent core.Agent, setBonusAura *core.Aura) {

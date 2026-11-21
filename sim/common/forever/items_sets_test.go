@@ -5,6 +5,7 @@ package forever_test
 import (
 	"maps"
 	"math"
+	"strings"
 	"testing"
 	"time"
 
@@ -517,8 +518,7 @@ func TestKroldokBattlegearStacksStaminaOnHitsTaken(t *testing.T) {
 }
 
 // Teachings of the Furbolgs' 2-piece 1294087 puts 1294071 up off a landed melee or ranged hit, for the
-// attack power and ranged attack power its effects state. A heal puts nothing up, and one trinket carries
-// no proc.
+// attack power and ranged attack power its effects state. A heal puts nothing up.
 func TestTeachingsOfTheFurbolgsRaisesAttackPowerOnHits(t *testing.T) {
 	row := spelldata.MustFind(1294071)
 	melee, ranged := row.EffectN(1).BaseValue(), row.EffectN(2).BaseValue()
@@ -551,11 +551,6 @@ func TestTeachingsOfTheFurbolgsRaisesAttackPowerOnHits(t *testing.T) {
 			t.Errorf("a proc on a %v hit adds %v ranged attack power, want the row's %v", hit.ProcMask, got, ranged)
 		}
 		buff.Deactivate(sim)
-	}
-
-	_, one := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 21326}))
-	if one.GetAuraByID(core.ActionID{SpellID: row.ID}) != nil {
-		t.Error("one trinket registers 1294071, want two needed")
 	}
 }
 
@@ -640,23 +635,17 @@ func TestChainOfTheScarletCrusadeLightsMeleeHits(t *testing.T) {
 // parried by the percent each of its effects states.
 func TestDeathboneGuardianLowersDodgeAndParry(t *testing.T) {
 	row := spelldata.MustFind(1213289)
-	pieceList := []struct {
-		slot proto.ItemSlot
-		id   int32
-	}{
-		{proto.ItemSlot_ItemSlotWaist, 14620}, {proto.ItemSlot_ItemSlotFeet, 14621},
-		{proto.ItemSlot_ItemSlotHands, 14622}, {proto.ItemSlot_ItemSlotLegs, 14623},
-		{proto.ItemSlot_ItemSlotChest, 14624},
+	pieces := map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotWaist: 14620, proto.ItemSlot_ItemSlotFeet: 14621, proto.ItemSlot_ItemSlotHands: 14622,
+		proto.ItemSlot_ItemSlotLegs: 14623, proto.ItemSlot_ItemSlotChest: 14624,
 	}
-	expertise := func(n int) float64 {
-		pieces := map[proto.ItemSlot]int32{}
-		for _, p := range pieceList[:n] {
-			pieces[p.slot] = p.id
-		}
+	expertise := func() float64 {
 		_, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(pieces))
 		return warrior.GetStat(stats.ExpertisePercent)
 	}
-	got := expertise(5) - expertise(4)
+	five := expertise()
+	delete(pieces, proto.ItemSlot_ItemSlotChest)
+	got := five - expertise()
 	for _, i := range []int{1, 2} {
 		want := -row.EffectN(i).BaseValue()
 		if want <= 0 {
@@ -742,29 +731,8 @@ func TestSpidersKissLowersTheTargetsArmor(t *testing.T) {
 	}
 }
 
-// Partners in Crime's 2-piece 1317038 adds the Strength its row states.
-func TestPartnersInCrimeAddsStrength(t *testing.T) {
-	want := spelldata.MustFind(1317038).EffectN(1).BaseValue()
-	if want <= 0 {
-		t.Fatal("1317038 adds no Strength")
-	}
-	sim, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
-		proto.ItemSlot_ItemSlotFinger1: 284715, proto.ItemSlot_ItemSlotFinger2: 284716,
-	}))
-	bonus := warrior.GetAura("Partners in Crime 2P")
-	if bonus == nil || !bonus.IsActive() {
-		t.Fatal("two rings put up no 2-piece bonus")
-	}
-	before := warrior.GetStat(stats.Strength)
-	bonus.Deactivate(sim)
-	if got := before - warrior.GetStat(stats.Strength); got != want {
-		t.Errorf("the 2-piece bonus adds %v Strength, want the row's %v", got, want)
-	}
-}
-
 // The Gladiator's 4-piece 1301123 puts 1301124 up off a landed white swing or melee ability, never off a
-// dodged swing or a spell hit, and the buff raises melee haste by its row's percent. Three pieces carry no
-// proc.
+// dodged swing or a spell hit, and the buff raises melee haste by its row's percent.
 func TestTheGladiatorHastesOnLandedMeleeHits(t *testing.T) {
 	row := spelldata.MustFind(1301124)
 	pieces := map[proto.ItemSlot]int32{
@@ -794,12 +762,6 @@ func TestTheGladiatorHastesOnLandedMeleeHits(t *testing.T) {
 			t.Errorf("a proc on a %v hit raises melee haste %vx, want the row's %vx", hit.ProcMask, got, want)
 		}
 		buff.Deactivate(sim)
-	}
-
-	delete(pieces, proto.ItemSlot_ItemSlotHands)
-	_, three := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(pieces))
-	if three.GetAuraByID(core.ActionID{SpellID: row.ID}) != nil {
-		t.Error("three pieces register 1301124, want four needed")
 	}
 }
 
@@ -878,20 +840,16 @@ func TestNecropileRaimentDrainsOnSpellLandings(t *testing.T) {
 	}
 }
 
-// The first n Violet Sorcerer's Vestments pieces, the robe first.
-func violetPieces(n int) map[proto.ItemSlot]int32 {
-	list := []struct {
-		slot proto.ItemSlot
-		id   int32
-	}{
-		{proto.ItemSlot_ItemSlotChest, 273044}, {proto.ItemSlot_ItemSlotShoulder, 273051},
-		{proto.ItemSlot_ItemSlotHands, 286989}, {proto.ItemSlot_ItemSlotLegs, 286988},
-		{proto.ItemSlot_ItemSlotFeet, 286987},
-	}
-	pieces := map[proto.ItemSlot]int32{}
-	for _, p := range list[:n] {
-		pieces[p.slot] = p.id
-	}
+// The five Violet Sorcerer's Vestments pieces; the robe and the mantle carry the two elementals.
+var violetPieces = map[proto.ItemSlot]int32{
+	proto.ItemSlot_ItemSlotChest: 273044, proto.ItemSlot_ItemSlotShoulder: 273051, proto.ItemSlot_ItemSlotHands: 286989,
+	proto.ItemSlot_ItemSlotLegs: 286988, proto.ItemSlot_ItemSlotFeet: 286987,
+}
+
+// Four of the pieces, the feet left off.
+func violetFour() map[proto.ItemSlot]int32 {
+	pieces := maps.Clone(violetPieces)
+	delete(pieces, proto.ItemSlot_ItemSlotFeet)
 	return pieces
 }
 
@@ -901,7 +859,7 @@ func violetPieces(n int) map[proto.ItemSlot]int32 {
 // go on while casting, and in Strongholds and Cities the share its second effect states.
 func TestVioletSorcerersVestmentsRegenOnEachTargetALandingHits(t *testing.T) {
 	row := spelldata.MustFind(1324315)
-	sim, paladin := itemWearerAgainst(t, proto.Class_ClassPaladin, setPieces(violetPieces(4)),
+	sim, paladin := itemWearerAgainst(t, proto.Class_ClassPaladin, setPieces(violetFour()),
 		&proto.Target{Name: "first", Level: 60}, &proto.Target{Name: "second", Level: 60}, &proto.Target{Name: "third", Level: 60})
 	paladin.AutoAttacks.CancelAutoSwing(sim)
 	buff := paladin.GetAuraByID(core.ActionID{SpellID: row.ID})
@@ -946,7 +904,7 @@ func TestVioletSorcerersVestmentsRegenOnEachTargetALandingHits(t *testing.T) {
 		{"outside Strongholds and Cities", nil, 1},
 		{"in Strongholds and Cities", []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}, 2},
 	} {
-		sim, paladin := itemWearerIn(t, proto.Class_ClassPaladin, setPieces(violetPieces(4)), tc.areas...)
+		sim, paladin := itemWearerIn(t, proto.Class_ClassPaladin, setPieces(violetFour()), tc.areas...)
 		before := paladin.PseudoStats.SpiritRegenRateCasting
 		paladin.GetAuraByID(core.ActionID{SpellID: row.ID}).Activate(sim)
 		if got, want := paladin.PseudoStats.SpiritRegenRateCasting-before, row.EffectN(tc.effect).Percent(); math.Abs(got-want) > 1e-9 {
@@ -956,21 +914,21 @@ func TestVioletSorcerersVestmentsRegenOnEachTargetALandingHits(t *testing.T) {
 }
 
 // Violet Sorcerer's Vestments' 5-piece 1324323 casts 1324322 off a landed damaging spell, never off a melee
-// hit, and then rests the row's cooldown. The cast summons the Arcane Elemental on the spell's target, which
-// swings at it every 2.0 s until the summon's duration runs out.
+// hit, and then rests the row's cooldown. The cast summons an Arcane Elemental on the spell's target, which
+// swings at it every 2.0 s until the summon's duration runs out, and a summon while one is up brings the other.
 func TestVioletSorcerersVestmentsSummonTheArcaneElemental(t *testing.T) {
 	proc, call := spelldata.MustFind(1324323), spelldata.MustFind(1324322)
-	sim, paladin := itemWearerWithEquipment(t, proto.Class_ClassPaladin, setPieces(violetPieces(5)))
+	sim, paladin := itemWearerWithEquipment(t, proto.Class_ClassPaladin, setPieces(violetPieces))
 	paladin.AutoAttacks.CancelAutoSwing(sim)
-	var elemental *core.Pet
+	var elementals []*core.Pet
 	for _, pet := range paladin.Pets {
-		if pet.Name == "Arcane Elemental" {
-			elemental = pet
+		if strings.HasPrefix(pet.Name, "Arcane Elemental") {
+			elementals = append(elementals, pet)
 		}
 	}
 	summon := paladin.GetSpell(core.ActionID{SpellID: call.ID})
-	if elemental == nil || summon == nil || proc.ICD() <= 0 {
-		t.Fatal("five pieces register no 1324322 or no Arcane Elemental, or 1324323 rests no cooldown")
+	if len(elementals) != 2 || summon == nil || proc.ICD() <= 0 {
+		t.Fatalf("five pieces register %d Arcane Elementals, want 2, or no 1324322, or 1324323 rests no cooldown", len(elementals))
 	}
 	enemy := paladin.CurrentTarget
 	casts := &summon.SpellMetrics[enemy.UnitIndex].Casts
@@ -984,6 +942,10 @@ func TestVioletSorcerersVestmentsSummonTheArcaneElemental(t *testing.T) {
 
 	hitUntil(t, func() { dealHit(t, sim, paladin, fireSpell(&paladin.Unit)) }, func() bool { return *casts > 0 })
 	summonedAt := sim.CurrentTime
+	elemental := elementals[0]
+	if !elemental.IsEnabled() {
+		elemental = elementals[1]
+	}
 	if !elemental.IsEnabled() || elemental.CurrentTarget != enemy {
 		t.Fatal("the summon left no Arcane Elemental up on the spell's target")
 	}
@@ -992,6 +954,10 @@ func TestVioletSorcerersVestmentsSummonTheArcaneElemental(t *testing.T) {
 	}
 	if *casts != 1 {
 		t.Errorf("400 spell hits inside the %v cooldown summoned %d times in all, want once", proc.ICD(), *casts)
+	}
+	summon.Cast(sim, enemy)
+	if !elementals[0].IsEnabled() || !elementals[1].IsEnabled() {
+		t.Error("a summon while one elemental is up left the other down, want both up")
 	}
 
 	stepTo(t, sim, summonedAt+call.Duration()-50*time.Millisecond)

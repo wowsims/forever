@@ -729,22 +729,14 @@ func TestDeathMarkStoresAndPaysOut(t *testing.T) {
 	}
 }
 
-// Bonescythe Armor's 4-piece bonus: a crit of Sinister Strike or Backstab regains the energy of the spell its row
-// casts, while a Sinister Strike that does not crit and a crit of Shank, which the row's class flags also name, regain
-// none.
-func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
+// A reset sim of one untalented rogue with no rotation wearing the items, against one target that neither dodges nor is missed.
+func newRogueWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulation, *Rogue, *core.Unit) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
 	}
-	for slot, id := range map[proto.ItemSlot]int32{
-		proto.ItemSlot_ItemSlotHead:     22478, // Bonescythe Helmet
-		proto.ItemSlot_ItemSlotShoulder: 22479, // Bonescythe Pauldrons
-		proto.ItemSlot_ItemSlotChest:    22476, // Bonescythe Breastplate
-		proto.ItemSlot_ItemSlotLegs:     22477, // Bonescythe Legplates
-		proto.ItemSlot_ItemSlotMainHand: 2632,  // Curved Dagger
-		proto.ItemSlot_ItemSlotOffHand:  18392, // Distracting Dagger
-	} {
+	for slot, id := range worn {
 		items[slot].Id = id
 	}
 	player := &proto.Player{
@@ -766,6 +758,21 @@ func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 	rogue.AutoAttacks.CancelAutoSwing(sim)
 	target.PseudoStats.BaseDodgeChance = 0
 	rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	return sim, rogue, target
+}
+
+// Bonescythe Armor's 4-piece bonus: a crit of Sinister Strike or Backstab regains the energy of the spell its row
+// casts, while a Sinister Strike that does not crit and a crit of Shank, which the row's class flags also name, regain
+// none.
+func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
+	sim, rogue, target := newRogueWearing(t, map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead:     22478, // Bonescythe Helmet
+		proto.ItemSlot_ItemSlotShoulder: 22479, // Bonescythe Pauldrons
+		proto.ItemSlot_ItemSlotChest:    22476, // Bonescythe Breastplate
+		proto.ItemSlot_ItemSlotLegs:     22477, // Bonescythe Legplates
+		proto.ItemSlot_ItemSlotMainHand: 2632,  // Curved Dagger
+		proto.ItemSlot_ItemSlotOffHand:  18392, // Distracting Dagger
+	})
 
 	energy := bonescytheHeadRush.FiredSpell()
 	perProc := energy.EnergizeEffect().BaseValue()
@@ -819,14 +826,10 @@ func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 
 // Bonescythe Armor's 8-piece bonus: a landed Eviscerate grants Revealed Flaw 28815 at 28814's chance per combo point
 // it spent, and never at none. Its charge raises the crit of Sinister Strike and Backstab by 28815's percent and
-// leaves Shank's, which the row's class flags also name, alone; a Sinister Strike crit spends it. A second grant
-// waits out 28815's cooldown.
+// leaves Shank's, which the row's class flags also name, alone; a Sinister Strike crit spends it. 28815's cooldown
+// does not hold a second grant back.
 func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
-	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
-	for i := range items {
-		items[i] = &proto.ItemSpec{}
-	}
-	for slot, id := range map[proto.ItemSlot]int32{
+	sim, rogue, target := newRogueWearing(t, map[proto.ItemSlot]int32{
 		proto.ItemSlot_ItemSlotHead:     22478, // Bonescythe Helmet
 		proto.ItemSlot_ItemSlotShoulder: 22479, // Bonescythe Pauldrons
 		proto.ItemSlot_ItemSlotChest:    22476, // Bonescythe Breastplate
@@ -837,29 +840,7 @@ func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
 		proto.ItemSlot_ItemSlotWrist:    22483, // Bonescythe Bracers
 		proto.ItemSlot_ItemSlotMainHand: 2632,  // Curved Dagger
 		proto.ItemSlot_ItemSlotOffHand:  18392, // Distracting Dagger
-	} {
-		items[slot].Id = id
-	}
-	player := &proto.Player{
-		Name:      "Rogue",
-		Race:      proto.Race_RaceHuman,
-		Class:     proto.Class_ClassRogue,
-		Equipment: &proto.EquipmentSpec{Items: items},
-		Spec:      DefaultOptions,
-		Rotation:  &proto.APLRotation{},
-	}
-	// Long enough to wait out the cooldown once.
-	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  &proto.Encounter{Duration: 600, Targets: []*proto.Target{core.NewDefaultTarget()}},
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
-	target := sim.Encounter.AllTargetUnits[0]
-	rogue.AutoAttacks.CancelAutoSwing(sim)
-	target.PseudoStats.BaseDodgeChance = 0
-	rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	})
 
 	buff := rogue.GetAuraByID(core.ActionID{SpellID: revealedFlaw.ID})
 	if buff == nil || bonescytheFlaw.EffectN(1).PointsPerResource <= 0 {

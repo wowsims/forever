@@ -642,10 +642,7 @@ func ogreDominance(agent core.Agent, setBonusAura *core.Aura) {
 	setBonusAura.AttachProcTrigger(trigger)
 }
 
-var (
-	furbolgTeachings = spelldata.MustFind(1294087) // 2pc: the proc
-	barkskinFerocity = spelldata.MustFind(1294071) // 2pc: Ferocity of the Barkskin, the attack power it puts up
-)
+var furbolgTeachings = spelldata.MustFind(1294087)
 
 // https://www.wowhead.com/forever/item-set=2071/teachings-of-the-furbolgs
 //
@@ -661,21 +658,9 @@ var ItemSetTeachingsOfTheFurbolgs = core.NewItemSet(core.ItemSet{
 	Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotTrinket1, proto.ItemSlot_ItemSlotTrinket2},
 	Bonuses: map[int32]core.ApplySetBonus{
 		// TODO: Ingame test needed -- which melee and ranged hits roll it.
-		2: teachingsOfTheFurbolgs,
+		2: shared.ParsedSetBonus(furbolgTeachings),
 	},
 })
-
-func teachingsOfTheFurbolgs(agent core.Agent, setBonusAura *core.Aura) {
-	character := agent.GetCharacter()
-	buff := character.RegisterAura(spelldata.AuraConfig(barkskinFerocity))
-	spelldata.ParseEffects(character, buff, barkskinFerocity)
-
-	trigger := spelldata.ProcTrigger(character, furbolgTeachings, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-		buff.Activate(sim)
-	})
-	trigger.Name = "Teachings of the Furbolgs - 2PC"
-	setBonusAura.AttachProcTrigger(trigger).ExposeToAPL(furbolgTeachings.ID)
-}
 
 var (
 	deviousStrikeProc  = spelldata.MustFind(1292028) // 4pc: the proc
@@ -698,7 +683,6 @@ var ItemSetDefiasLeather = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(spelldata.MustFind(14707)),   // +5 Arcane Resistance
 		3: shared.ParsedSetBonus(spelldata.MustFind(1292025)), // +15 attack power against Humanoids
-		// TODO: Ingame test needed -- whether every swing outside the in-front setting counts as from behind.
 		4: deviousStrike,
 		5: shared.ParsedSetBonus(spelldata.MustFind(7534)), // +1 Daggers
 	},
@@ -761,16 +745,20 @@ var ItemSetChainOfTheScarletCrusade = core.NewItemSet(core.ItemSet{
 func enragingLight(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	damage := enragedLight.DamageEffect()
-	config := procSpellConfig(character, enragedLight)
-	// A proc's hit on the magic defense type is a spell hit, as the shared proc builders make it.
-	config.ProcMask = core.ProcMaskSpellDamage
+	config := procSpellConfigAs(character, enragedLight, spelldata.Magic(core.ProcMaskSpellDamage))
 	if versus, ok := enragingLightProc.VersusBonus(); ok {
 		config.VersusBonus = &versus
 	}
+	var outcome core.OutcomeApplier
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), outcome)
 	}
 	light := character.RegisterSpell(config)
+	// The row states Always Hit: the damage never misses and can still crit.
+	outcome = light.OutcomeMagicHitAndCrit
+	if enragedLight.AlwaysHits() {
+		outcome = light.OutcomeMagicCrit
+	}
 
 	buff := character.RegisterAura(spelldata.AuraConfig(enragingLightBuff))
 	strike := spelldata.ProcTrigger(character, enragingLightBuff, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
@@ -934,7 +922,7 @@ const roarOfTheCrowdChance = 0.072
 // times as likely to activate this effect.
 //
 // Every landed melee hit rolls the chance, white swings, Windfury strikes and melee abilities alike, and puts
-// 1301124 up (EV-0166). The sim has no allies' distance, so the doubled chance never applies. The 2-piece
+// 1301124 up (EV-0166). The wearer always has an ally within 20 yd, so the chance never doubles. The 2-piece
 // bonus lowers the hit chance of Fear effects, which has no place in the sim.
 var ItemSetTheGladiator = core.NewItemSet(core.ItemSet{
 	ID:   1,
@@ -943,8 +931,6 @@ var ItemSetTheGladiator = core.NewItemSet(core.ItemSet{
 		proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet},
 	Bonuses: map[int32]core.ApplySetBonus{
 		3: shared.ParsedSetBonus(spelldata.MustFind(9331)), // +20 attack power
-		// TODO: Ingame test needed -- whether the chance doubles with no ally within 20 yd,
-		// which the sim does not model.
 		4: roarOfTheCrowdHaste,
 		5: shared.ParsedSetBonus(spelldata.MustFind(1314795)), // 1% crit
 	},
@@ -957,12 +943,8 @@ func roarOfTheCrowdHaste(agent core.Agent, setBonusAura *core.Aura) {
 
 	trigger := spelldata.ProcTrigger(character, roarOfTheCrowdProc, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		buff.Activate(sim)
-	}, spelldata.Chance(roarOfTheCrowdChance))
+	}, spelldata.Chance(roarOfTheCrowdChance), landedHits(core.ProcMaskMelee))
 	trigger.Name = "The Gladiator - 4PC"
-	trigger.Callback = core.CallbackOnSpellHitDealt
-	trigger.ProcMask = core.ProcMaskMelee
-	trigger.Outcome = core.OutcomeLanded
-	trigger.RequireDamageDealt = false
 	setBonusAura.AttachProcTrigger(trigger).ExposeToAPL(roarOfTheCrowdProc.ID)
 }
 
@@ -981,8 +963,7 @@ const bloodmailChance = 0.107
 // 10s.
 //
 // A landed white swing, Windfury Weapon's strike or Windfury Totem's strike rolls the chance and puts the bleed
-// 1299739 on the target or starts it over; melee abilities such as Stormstrike never roll it (EV-0167). The
-// rate counts the bleeds that landed, so the bleed rolls no hit of its own.
+// 1299739 on the target with no hit roll of its own; melee abilities never roll it (EV-0167).
 var ItemSetBloodmailRegalia = core.NewItemSet(core.ItemSet{
 	ID:   123,
 	Name: "Bloodmail Regalia",
@@ -990,7 +971,8 @@ var ItemSetBloodmailRegalia = core.NewItemSet(core.ItemSet{
 		proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet},
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(spelldata.MustFind(9140)), // +10 attack power
-		// TODO: Ingame test needed -- whether it is a chance per swing or procs per minute.
+		// TODO: Ingame test needed -- whether Windfury strikes proc it, and whether it is a chance per swing
+		// or procs per minute.
 		3: bloodmailWound,
 		4: shared.ParsedSetBonus(spelldata.MustFind(18676)),   // +5 all resistances
 		5: shared.ParsedSetBonus(spelldata.MustFind(1299738)), // 1.5% crit
@@ -1010,12 +992,8 @@ func bloodmailWound(agent core.Agent, setBonusAura *core.Aura) {
 
 	trigger := spelldata.ProcTrigger(character, bloodmailProc, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 		bleed.Cast(sim, result.Target)
-	}, spelldata.Chance(bloodmailChance))
+	}, spelldata.Chance(bloodmailChance), landedHits(core.ProcMaskMelee))
 	trigger.Name = "Bloodmail Regalia - 3PC"
-	trigger.Callback = core.CallbackOnSpellHitDealt
-	trigger.ProcMask = core.ProcMaskMelee
-	trigger.Outcome = core.OutcomeLanded
-	trigger.RequireDamageDealt = false
 	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		return spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || spell.Flags.Matches(core.SpellFlagCountsAsSwing) ||
 			spell.SpellID == windfuryWeaponStrike.ID
@@ -1035,10 +1013,9 @@ const necropileDrainChance = 0.139
 //
 // (3) Set: Harmful spell casts have a chance to steal 28 life from the target enemy.
 //
-// A harmful spell's landing rolls the chance, a damage over time or channel's application included, and
-// casts the leech 1299735 at its target; periodic ticks never roll it (EV-0168). The row's 10 ms cooldown
-// lets an area spell proc it once. The rate counts the drains that landed, so the drain rolls no hit of
-// its own.
+// A landed harmful spell, a damage over time or channel's application included, rolls the chance and casts the
+// leech 1299735 at its target, with no hit roll of its own; periodic ticks never roll it (EV-0168). The row's
+// 10 ms cooldown lets an area spell proc it once.
 var ItemSetNecropileRaiment = core.NewItemSet(core.ItemSet{
 	ID:   122,
 	Name: "Necropile Raiment",
@@ -1057,9 +1034,7 @@ func necropileDrainLeech(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	leech := necropileDrain.DamageEffect()
 	healthMetrics := character.NewHealthMetrics(core.ActionID{SpellID: necropileDrain.ID})
-	config := procSpellConfig(character, necropileDrain)
-	// A proc's hit on the magic defense type is a spell hit, as the shared proc builders make it.
-	config.ProcMask = core.ProcMaskSpellDamage
+	config := procSpellConfigAs(character, necropileDrain, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcAndDealDamage(sim, target, leech.DirectAmount(sim), spell.OutcomeAlwaysHit)
 		shared.GainLeechHealth(sim, character, result.Damage, leech, healthMetrics)
@@ -1068,13 +1043,19 @@ func necropileDrainLeech(agent core.Agent, setBonusAura *core.Aura) {
 
 	trigger := spelldata.ProcTrigger(character, necropileDrainProc, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 		drain.Cast(sim, result.Target)
-	}, spelldata.Chance(necropileDrainChance))
+	}, spelldata.Chance(necropileDrainChance), landedHits(core.ProcMaskSpellDamage))
 	trigger.Name = "Necropile Raiment - 3PC"
-	trigger.Callback = core.CallbackOnSpellHitDealt
-	trigger.ProcMask = core.ProcMaskSpellDamage
-	trigger.Outcome = core.OutcomeLanded
-	trigger.RequireDamageDealt = false
 	setBonusAura.AttachProcTrigger(trigger).ExposeToAPL(necropileDrainProc.ID)
+}
+
+// Every landed hit of the mask, one that deals no damage included.
+func landedHits(mask core.ProcMask) spelldata.ProcOpt {
+	return func(_ *core.Character, trigger *core.ProcTrigger) {
+		trigger.Callback = core.CallbackOnSpellHitDealt
+		trigger.ProcMask = mask
+		trigger.Outcome = core.OutcomeLanded
+		trigger.RequireDamageDealt = false
+	}
 }
 
 // The row's amount, or in the tooltip's area the amount its second effect states, as Krol'dok Battlegear's
@@ -1111,7 +1092,7 @@ var ItemSetVioletSorcerersVestments = core.NewItemSet(core.ItemSet{
 		2: shared.ParsedSetBonus(spelldata.MustFind(1324311)), // +5 Arcane Resistance
 		3: shared.ParsedSetBonus(spelldata.MustFind(1324312)), // +10 Spirit
 		4: violetMeditationRegen,
-		// TODO: Ingame test needed -- whether several elementals can be up at once, and the swing at level 60.
+		// TODO: Ingame test needed -- the elemental's swing at level 60.
 		5: summonArcaneElemental,
 	},
 })
@@ -1135,16 +1116,23 @@ func violetMeditationRegen(agent core.Agent, setBonusAura *core.Aura) {
 
 func summonArcaneElemental(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
-	var elemental *arcaneElemental
+	var elementals []*arcaneElemental
 	for _, pet := range character.PetAgents {
 		if e, ok := pet.(*arcaneElemental); ok {
-			elemental = e
-			break
+			elementals = append(elementals, e)
 		}
 	}
 
+	// A summon takes an elemental that is not up; the 15 s rest leaves one free whenever a summon comes.
 	config := procSpellConfig(character, arcaneElementalCall)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+		elemental := elementals[0]
+		for _, e := range elementals {
+			if !e.IsEnabled() {
+				elemental = e
+				break
+			}
+		}
 		elemental.CurrentTarget = target
 		elemental.EnableWithTimeout(sim, elemental, arcaneElementalCall.Duration())
 	}
@@ -1194,12 +1182,7 @@ func defiasJuggernautCrit(agent core.Agent, setBonusAura *core.Aura) {
 	// The mask goes in before the rate, so the procs per minute are priced on either hand's swings.
 	trigger := spelldata.ProcTrigger(character, defiasJuggernautProc, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		buff.Activate(sim)
-	}, func(_ *core.Character, trigger *core.ProcTrigger) {
-		trigger.Callback = core.CallbackOnSpellHitDealt
-		trigger.ProcMask = core.ProcMaskMelee
-		trigger.Outcome = core.OutcomeLanded
-		trigger.RequireDamageDealt = false
-	})
+	}, landedHits(core.ProcMaskMelee))
 	trigger.Name = "Defias Enforcer's Garb - 5PC"
 	setBonusAura.AttachProcTrigger(trigger).ExposeToAPL(defiasJuggernautProc.ID)
 }

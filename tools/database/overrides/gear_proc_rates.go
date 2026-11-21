@@ -85,7 +85,7 @@ var GearProcRates = []GearProcRate{
 		Pieces: 3,
 		Kind:   RateChance,
 		Rate:   0.139,
-		Reason: "Necropile Raiment 3-piece: 13.9% per landed harmful spell, from five wearers whose spells read 11 to 19% (EV-0168); 1299737 states none",
+		Reason: "Necropile Raiment 3-piece: 13.9% per landed harmful spell (EV-0168); 1299737 states none",
 		Source: "observed",
 	},
 }
