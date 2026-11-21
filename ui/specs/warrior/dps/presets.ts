@@ -65,9 +65,9 @@ const ARMS_PRESET_OPTIONS = {
 };
 
 // Dungeon and world drops, quest rewards, vendor items and crafted items whose reagents include no raid
-// materials; no raid, raid quest, reputation or PvP rewards, except Don Julio's Band, which the Alterac Valley
-// quartermasters sell. The cloak, the belt and the first ring are sold by the Undermine Trader in Stranglethorn
-// Vale. The Devilsaur Gauntlets and Leggings make the two-piece set. Persuader and Flurry Axe beat Ironfoe in
+// materials; no raid, raid quest, reputation or PvP rewards, except Alterac Valley's: Don Julio's Band, which its
+// quartermasters sell, and Bloodseeker, a quest reward. Furbolg Berserker's Boots have no known source. The cloak, the
+// belt and the first ring are sold by the Undermine Trader in Stranglethorn Vale. The Devilsaur Gauntlets and Leggings make the two-piece set. Persuader and Flurry Axe beat Ironfoe in
 // either hand up to two targets; Flurry Axe, the off hand, is a world-drop epic.
 export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, FURY_PRESET_OPTIONS);
 
