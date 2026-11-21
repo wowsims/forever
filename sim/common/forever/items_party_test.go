@@ -173,6 +173,79 @@ func TestAdmiralsHatGrantsItsStaminaOnce(t *testing.T) {
 	}
 }
 
+// Headmaster's Charge 13937 uses 18264 on the cooldown its on-use effect states: 18264's Intellect for
+// 18264's duration. Used beside the party's Headmaster's Charge it adds nothing more.
+func TestHeadmastersChargeGrantsItsIntellectOnce(t *testing.T) {
+	const staff = 13937
+	buff := spelldata.MustFind(18264)
+	intellect := buff.EffectN(1).Average()
+	cooldown, category, categoryCooldown := classItemOnUse(t, staff)
+
+	for _, tc := range []struct {
+		name  string
+		party *proto.PartyBuffs
+		want  float64
+	}{
+		{"alone", &proto.PartyBuffs{}, intellect},
+		{"beside the party's", &proto.PartyBuffs{HeadmastersCharge: true}, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sim, character := partyItemWearer(t, 1, proto.Class_ClassMage, proto.ItemSlot_ItemSlotMainHand, staff, tc.party)
+			before := character.GetStats()
+			useTrinket(t, sim, character, staff, core.CooldownTypeDPS, cooldown, category, categoryCooldown)
+			if got := gained(character, before, stats.Intellect); got != tc.want {
+				t.Errorf("the staff adds %v Intellect, want %v", got, tc.want)
+			}
+			if got := character.GetAura("Headmaster's Charge (Player)").Duration; got != buff.Duration() {
+				t.Errorf("the staff's buff lasts %v, want %v", got, buff.Duration())
+			}
+		})
+	}
+
+	_, bare := partyItemWearer(t, 1, proto.Class_ClassMage, proto.ItemSlot_ItemSlotMainHand, 0, &proto.PartyBuffs{})
+	_, buffed := partyItemWearer(t, 1, proto.Class_ClassMage, proto.ItemSlot_ItemSlotMainHand, 0, &proto.PartyBuffs{HeadmastersCharge: true})
+	if got := buffed.GetStat(stats.Intellect) - bare.GetStat(stats.Intellect); got != intellect {
+		t.Errorf("the party's Headmaster's Charge adds %v Intellect, want %v", got, intellect)
+	}
+}
+
+// The wearer's copy of 18264 falls off when an item swap takes Headmaster's Charge 13937 off.
+func TestHeadmastersChargeFallsOffWhenSwappedOut(t *testing.T) {
+	const staff = 13937
+	raid := partyItemRaid(proto.Class_ClassMage, proto.ItemSlot_ItemSlotMainHand, staff, &proto.PartyBuffs{})
+	player := raid.Parties[0].Players[0]
+	swapped := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range swapped {
+		swapped[i] = &proto.ItemSpec{}
+	}
+	swapped[proto.ItemSlot_ItemSlotMainHand].Id = 12802
+	player.EnableItemSwap = true
+	player.ItemSwap = &proto.ItemSwap{Items: swapped}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid:       raid,
+		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	character := sim.Raid.Parties[0].Players[0].GetCharacter()
+
+	cooldown, category, categoryCooldown := classItemOnUse(t, staff)
+	before := character.GetStats()
+	useTrinket(t, sim, character, staff, core.CooldownTypeDPS, cooldown, category, categoryCooldown)
+	buff := character.GetAura("Headmaster's Charge (Player)")
+	if !buff.IsActive() {
+		t.Fatal("using the staff left its buff down")
+	}
+
+	character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+	if buff.IsActive() {
+		t.Error("the staff's buff stays up after the staff is swapped out")
+	}
+	if got := gained(character, before, stats.Intellect); got != 0 {
+		t.Errorf("the swapped-out staff still adds %v Intellect, want none", got)
+	}
+}
+
 // Atiesh, Greatstaff of the Guardian 22589's party aura 28142 gives the mage wearing it 28142's
 // spell crit, and the party buff's count adds the other members' staves on top.
 func TestAtieshGreatstaffOfTheGuardianGivesItsWearerItsSpellCrit(t *testing.T) {

@@ -44,6 +44,7 @@ type tsBuffInput struct {
 	Const     string
 	Factory   string
 	SpellID   int32
+	ItemID    int32  // the item the input shows instead of SpellID, 0 when it shows the spell
 	ImpID     string // the improved icon expression, "" when the input has no improved state
 	NumStates int    // 0 when the input is not a multistate one
 	FieldName string
@@ -92,6 +93,8 @@ export const {{ .Input.Const }} = {{ .Input.Factory }}({
 		{ actionId: ActionId.fromSpellId({{ .SpellID }}), label: {{ .Label }} },
 {{- end }}
 	],
+{{- else if .Input.ItemID }}
+	actionId: ActionId.fromItemId({{ .Input.ItemID }}),
 {{- else }}
 	actionId: ActionId.fromSpellId({{ .Input.SpellID }}),
 {{- end }}
@@ -255,6 +258,7 @@ func buffInput(row ResolvedBuff) (*tsBuffInput, error) {
 	input := &tsBuffInput{
 		Const:     row.Go,
 		SpellID:   buffInputActionID(row),
+		ItemID:    row.TooltipItemID,
 		FieldName: row.TSField(),
 		Label:     tsString(buffLabel(row)),
 	}

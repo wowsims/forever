@@ -112,6 +112,9 @@ type BuffSpec struct {
 	// states no text and whose CastID is not that spell either. 0 defers to CastID, then SpellID; it
 	// never changes the numbers the row reads.
 	TooltipID int32
+	// TooltipItemID is the item the settings input shows instead of a spell, for a row an item's use
+	// or equip effect provides. It wins over TooltipID and never changes the numbers the row reads.
+	TooltipItemID int32
 	// Talent is the spell of the trait node that prices the improved state, 0 when none does.
 	Talent         int32
 	Category       string // exclusive-effect category value, "" = none

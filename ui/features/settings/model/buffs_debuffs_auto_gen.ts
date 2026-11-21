@@ -109,6 +109,12 @@ export const DarkInspiration = makeMultistatePartyBuffInput({
 	label: 'Dark Inspiration',
 });
 
+export const HeadmastersCharge = makeBooleanPartyBuffInput({
+	actionId: ActionId.fromItemId(13937),
+	fieldName: 'headmastersCharge',
+	label: "Headmaster's Charge",
+});
+
 export const ArcaneIntellect = makeBooleanRaidBuffInput({
 	actionId: ActionId.fromSpellId(10157),
 	fieldName: 'arcaneIntellect',
@@ -589,6 +595,10 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 		config: DarkInspiration,
 		stats: [Stat.StatSpirit],
 		ownerClass: Class.ClassPriest,
+	},
+	{
+		config: HeadmastersCharge,
+		stats: [Stat.StatIntellect],
 	},
 ];
 

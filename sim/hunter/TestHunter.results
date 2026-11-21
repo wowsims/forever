@@ -1422,6 +1422,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 851.30682
+  tps: 875.21048
+  dtps: 10.45932
+  hps: 14.38583
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-HeartoftheScale-13164"
  value: {
   dps: 888.1015

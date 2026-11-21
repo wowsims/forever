@@ -720,6 +720,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 845.8039
+  tps: 781.23081
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 864.83574

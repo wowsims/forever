@@ -62,4 +62,39 @@ func init() {
 			Type:  core.CooldownTypeSurvival,
 		})
 	})
+
+	// Headmaster's Charge
+	// https://www.wowhead.com/forever/item=13937/headmasters-charge
+	//
+	// Use: Gives 20 additional intellect to party members within 30 yards. (10 Min Cooldown)
+	//
+	// The use is 18264, 20 Intellect for 15 min, on the item's 10 min cooldown.
+	core.NewItemEffect(13937, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		buff := buffs.NewSpellDataHeadmastersChargeAura(&character.Unit, true, 0)
+		row := spelldata.MustFind(18264)
+
+		config := core.SpellConfig{
+			ActionID:    core.ActionID{ItemID: 13937},
+			SpellSchool: row.SpellSchool(),
+			ProcMask:    core.ProcMaskEmpty,
+			Cast:        spelldata.Cast(row),
+			// The item swap drops the wearer's copy when the staff comes off; it finds the buff here.
+			RelatedSelfBuff: buff,
+			ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+				buff.Activate(sim)
+			},
+		}
+		for _, effect := range core.GetItemByID(13937).ItemEffects {
+			if effect.GetOnUse() != nil {
+				itemCast := shared.OnUseCast(character, effect)
+				config.Cast.CD, config.Cast.SharedCD = itemCast.CD, itemCast.SharedCD
+			}
+		}
+
+		character.AddMajorCooldown(core.MajorCooldown{
+			Spell: character.RegisterSpell(config),
+			Type:  core.CooldownTypeDPS,
+		})
+	})
 }
