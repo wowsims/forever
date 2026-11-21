@@ -1,12 +1,8 @@
-# EV-0146: Proc rates of six weapons from the 2026-11-17 Warcraft Logs reports
+# EV-0146: Proc rates of three weapons from the 2026-11-17 Warcraft Logs reports
 
-EV-0153 replaces the Killmaim rate with the reports up to 2026-11-19, counted on the hits EV-0155 finds rolling a weapon
-proc.
-
-- Claim: Killmaim procs at 1 and Waveslicer at 1.95 procs per minute; Julie's Dagger at about 1.05, Axe of the Deep
-  Woods at about 1.7, Barman Shanker at about 2.05 and Blunderflame Bone Bow at about 2.1, too few wearers, too wide
-  an interval or wearers of one class only to call final; each priced on each landed hit's weapon base speed. Barman
-  Shanker's Rend deals twice its damage when applied from behind the target.
+- Claim: Axe of the Deep Woods procs at about 1.7, Barman Shanker at about 2.05 and Blunderflame Bone Bow at about 2.1
+  procs per minute, too few wearers, too wide an interval or wearers of one class only to call final; each priced on
+  each landed hit's weapon base speed. Barman Shanker's Rend deals twice its damage when applied from behind the target.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section's table names; 66
   reports in all
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
@@ -26,80 +22,7 @@ otherwise. The hits a dual wielder's split gives are fractional, so each table's
 few hits of its total.
 
 Julie's Dagger leaves out its one warrior run, since a warrior's off-hand Whirlwind rolls the dagger and is not counted
-as a hit here (EV-0136); with it the rate reads 1.10. Axe of the Deep Woods reads 1.94 on its rogue and hunter runs and
-1.55 on its warrior runs. Barman Shanker has only rogue wearers and Blunderflame Bone Bow only hunters.
-
-## Killmaim (item 13016, spell 13318): 1, measured
-
-700 procs on 12,890 landed hits, 29 wearers, 32 runs: 1.02 [0.94, 1.10]. Dropping the stretches where it was swapped
-away (2,194 hits in 8 runs) moves the rate from 0.87 to 1.02.
-
-| Report           | Fights    | Class   | Hand      | Procs |  Hits | Rate |
-| ---------------- | --------- | ------- | --------- | ----: | ----: | ---: |
-| 9b1wvaKGpHdNJCZT | 2-4       | Paladin | main hand |    62 | 1,146 | 1.01 |
-| pDRxq6wJynmhgdjL | 1-9       | Warrior | main hand |    57 |   944 | 1.13 |
-| MrW6JCFZTDzdtYpH | 1-4       | Warrior | main hand |    40 |   910 | 0.82 |
-| QhYmjJ4bHZXcgfk1 | 1-2, 4-27 | Shaman  | main hand |    42 |   889 | 0.89 |
-| bdL8j9KGMR6r2xmk | 1-3       | Warrior | main hand |    41 |   736 | 1.04 |
-| nyhMJLqBYxPpRaXf | 1-2       | Warrior | main hand |    44 |   572 | 1.44 |
-| P16dx3VLmRyaDJZQ | 1-18      | Shaman  | main hand |    31 |   561 | 1.04 |
-| G3VKdgR2aLAkNqWy | 1-3       | Shaman  | main hand |    34 |   556 | 1.15 |
-| d7DFtXL2jfNa8Bw4 | 1-5       | Shaman  | main hand |    28 |   529 | 0.99 |
-| ghzjGKVBvJbRZnMr | 1-2       | Shaman  | main hand |    34 |   458 | 1.39 |
-| 3xgPkwfn8yQ9BqAW | 1-4       | Warrior | main hand |    29 |   449 | 1.21 |
-| pqr4HxC3vWJhfG7B | 13-20     | Shaman  | main hand |    23 |   412 | 1.05 |
-| hbW1zgMXyRv8JAVL | 1-6       | Shaman  | main hand |    28 |   403 | 1.30 |
-| acHy1fNktP2m47pd | 1-2       | Shaman  | main hand |    15 |   398 | 0.71 |
-| 8RFv6Xyr43dLpJ7h | 1-2       | Warrior | main hand |    24 |   371 | 1.21 |
-| 2aVnTxFzfckdXpBy | 1-7       | Warrior | main hand |    17 |   351 | 0.91 |
-| tMxrNWC6qPVzgwAv | 7-8       | Shaman  | main hand |    20 |   340 | 1.10 |
-| zJ6C2148dTYfaXHb | 2-4       | Shaman  | main hand |    10 |   315 | 0.60 |
-| jKJPF16ZnWLkrR2d | 1-2       | Shaman  | main hand |    17 |   315 | 1.01 |
-| P7cV2HjLgxGpmZQk | 1-7       | Shaman  | main hand |    14 |   313 | 0.84 |
-| gdKNPjVvcQt2LJnq | 1-3       | Shaman  | main hand |    15 |   304 | 0.93 |
-| aQwNVCPHWmzDLXqk | 1-2       | Warrior | main hand |    16 |   221 | 1.36 |
-| 3vDf6TMYBX9LK7bz | 1-2       | Shaman  | main hand |     6 |   216 | 0.52 |
-| zhj69Dt2X1b3fvMT | 1         | Shaman  | main hand |     8 |   172 | 0.87 |
-| grFA3BHxtCNyzR7v | 1-2       | Shaman  | main hand |    13 |   170 | 1.43 |
-| fn2Dc941K63CNvmj | 3-4       | Warrior | main hand |     3 |   170 | 0.33 |
-| QqKcMJwHjxNPkgRT | 1-3       | Shaman  | main hand |     7 |   152 | 0.86 |
-| 7hNgRwMfkQZ2Yv4b | 1-3       | Hunter  | main hand |     5 |   138 | 0.68 |
-| vJGT19YL26XFQpNB | 1-2       | Shaman  | main hand |     6 |   129 | 0.87 |
-| 29A3dKwPgpRNnWvc | 7-11      | Shaman  | main hand |     6 |   125 | 0.90 |
-| 8GW16QY9BmFHJXLb | 1         | Hunter  | main hand |     1 |    76 | 0.25 |
-| 6v4wTWQkjb3Xd7mM | 6         | Warrior | main hand |     4 |    49 | 1.53 |
-
-## Waveslicer (item 18324, spell 1302166): 1.95, measured
-
-1,688 procs on 16,901 landed hits, 5 wearers, 7 runs: 1.93 [1.84, 2.04].
-
-| Report           | Fights | Class   | Hand      | Procs |  Hits | Rate |
-| ---------------- | ------ | ------- | --------- | ----: | ----: | ---: |
-| VYBjgJx8aZtRhmpy | 1-43   | Shaman  | main hand |   691 | 6,951 | 1.92 |
-| AyTmpNtxB9jbnJ2H | 4-44   | Shaman  | main hand |   318 | 3,245 | 1.90 |
-| q23Tz8hnZGkvbLx6 | 1-18   | Shaman  | main hand |   200 | 1,887 | 2.05 |
-| NrpM7DJQBKWqbzVF | 1-7    | Paladin | main hand |   164 | 1,784 | 1.78 |
-| DpVmH4WRxL72nGwd | 3      | Shaman  | main hand |   127 | 1,275 | 1.93 |
-| H2Zg1jRm93PpTqK4 | 1-3    | Shaman  | main hand |   135 | 1,225 | 2.13 |
-| KCYXdTfNgGHczbLw | 5-6    | Shaman  | main hand |    53 |   534 | 1.92 |
-
-## Julie's Dagger (item 6660, spell 8348): 1.05, observed
-
-218 procs on 9,524 landed hits, 9 wearers, 9 runs, the warrior run left out (its off-hand Whirlwind rolls the
-dagger): 1.06 [0.92, 1.20], the per-hit interval.
-
-| Report           | Fights  | Class              | Hand     | Procs |  Hits | Rate |
-| ---------------- | ------- | ------------------ | -------- | ----: | ----: | ---: |
-| JMnDtLGxf4FqCV6w | 1-3     | Rogue              | off hand |    42 | 2,252 | 0.86 |
-| nyAx3XNDVmYWGdrh | 1-6     | Rogue              | off hand |    40 | 1,672 | 1.10 |
-| 4nNqbfmrCT2Q9PpH | 1-2     | Rogue              | off hand |    29 | 1,345 | 0.99 |
-| N3mrMbX8TJyz1pxq | 1-4     | Warrior (left out) | off hand |    38 | 1,212 | 1.45 |
-| nCDZQNWKX3twHhyY | 1-8, 10 | Rogue              | off hand |    28 | 1,089 | 1.19 |
-| 7qPHR6cLn3zGptvN | 1-3     | Rogue              | off hand |    26 | 1,052 | 1.14 |
-| ApJhHfRkMDqFj3rb | 4-5     | Rogue              | off hand |    22 |   929 | 1.09 |
-| dJa2G7PHZg9wt6QX | 1-4     | Rogue              | off hand |    11 |   604 | 0.84 |
-| DmjBrYd7M9VZwCHF | 22      | Rogue              | off hand |    19 |   520 | 1.69 |
-| 6kN78G2xfqy3vwTP | 6       | Rogue              | off hand |     1 |    57 | 0.80 |
+as a hit here (EV-0136). Axe of the Deep Woods reads 1.94 on its rogue and hunter runs and 1.55 on its warrior runs. Barman Shanker has only rogue wearers and Blunderflame Bone Bow only hunters.
 
 ## Axe of the Deep Woods (item 811, spell 18104): 1.7, observed
 

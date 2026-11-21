@@ -1,10 +1,5 @@
 # EV-0002: Windfury Totem's strike after the 2026-11-14 hotfix
 
-EV-0128 replaces the white rates of Thrash Blade and Hack and Slash below and the reading that the strike procs them at
-about twice their white rate: those white rates mix both hands' swings and drop the swings whose granted swing was
-avoided, and per main-hand hit the strike procs them at the white chance. EV-0128 also reads strikes rolling weapon
-procs from about 2026-11-13 18:10 UTC, before the hotfix, against the 1 of 264 below. The rest stands.
-
 - Claim: after the 2026-11-14 02:00 UTC hotfix Windfury Totem's strike takes armor and the 100 ms cooldown, and
   extra attack procs and the Seals of Command, Fury, Righteousness and Wisdom proc off it; an Execute rolls the totem from
   its cast attack and again from its landed damage; Sweeping Strikes' copied hit 12723 never rolls it and its normalized hit
@@ -17,11 +12,13 @@ procs from about 2026-11-13 18:10 UTC, before the hotfix, against the 1 of 264 b
 Only clean strikes count: the parent hit has no grant of its own, and nothing else happens within 150 ms. Each child is
 counted in its own measured lag window. The same window on parents with no strike expects 0.3 grants, and parents that
 cannot proc the item themselves still show grants after their strike: Thrash Blade 5 of 91 against 1 of 2,993, Hand of
-Justice 2 of 84 against 0 of 1,867. Before the hotfix the strike procced none (one protection warrior's raw logs:
-Thrash Blade 1 of 264).
+Justice 2 of 84 against 0 of 1,867. One protection warrior's raw logs from before the hotfix read Thrash Blade 1 of 264;
+the strike rolls weapon procs before the hotfix as well, from when it logs in its own damage line (about 2026-11-13
+18:10 UTC).
 
-The extra attack procs below are counted per clean strike against per white swing. Thrash Blade and Hack and Slash proc off the strike at
-about twice their white rate, which no rule explains yet.
+The extra attack procs below are counted per clean strike against per white swing. The white rates of Thrash Blade and
+Hack and Slash mix both hands' swings and drop the swings whose granted swing was avoided, so they read low; per
+main-hand hit the strike procs them at the white chance.
 
 | Proc                 | Off the strike | Rate | White rate                            |
 | -------------------- | -------------- | ---- | ------------------------------------- |

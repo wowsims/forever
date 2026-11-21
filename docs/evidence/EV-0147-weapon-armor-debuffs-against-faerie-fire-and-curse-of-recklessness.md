@@ -1,9 +1,5 @@
 # EV-0147: Weapon armor debuffs against Faerie Fire, Curse of Recklessness and Sunder Armor
 
-EV-0152 replaces the warrior's Bashguuder and Rivenspike rows of the sim's wielder table below, read again with the
-player's Puncture Armor as a strike that has a hit roll of its own, and the procs a minute of the rogue's. The 48 hits
-a minute stand.
-
 - Claim: Armor Shatter (Annihilator) and Puncture Armor (Bashguuder, Rivenspike, Vibroblade) never land while Faerie Fire
   or Curse of Recklessness is on the target, and either one landing removes them in the same millisecond; they stay
   beside Sunder Armor. Corrosive Poison (Strike of the Hydra), Phantom Strike (Phantom Blade) and Wound (Princess
@@ -94,7 +90,8 @@ Proc landings per landed melee hit of the wearer, by which class armor debuff wa
 
 ## A main-hand wielder's landed hits in the sim
 
-The raid's copy stands for one main-hand wielder. Measured with `wowsimcli` on #1092's branch (180 s, one level 63
+The raid's copy stands for one main-hand wielder. Measured with `wowsimcli` on #1092's branch, where the player's
+Puncture Armor landed with no hit roll of its own (180 s, one level 63
 target from behind, 5,000 iterations, the raid's armor debuffs off but Sunder Armor): the pre-BiS Fury warrior with each
 weapon in the main hand and the Combat rogue with Rivenspike. The hits a minute are the debuff's procs a minute over the
 chance a hit, PPM × speed / 60, and match the summed landed hits of the warrior's Annihilator and the rogue's Rivenspike
