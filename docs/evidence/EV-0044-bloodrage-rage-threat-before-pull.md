@@ -10,7 +10,7 @@
 
 The method is that of EV-0043, applied to the evening log and re-checked on the day data.
 
-- Count: §Count of the 2026-11-13 to 2026-11-20 logs, Bloodrage's instant rage under Defiance
+- Count: §Count of the 2026-11-13 to 2026-11-20 logs
 
 | Reading                     | Measured                                                                                                                                                                               |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -36,6 +36,6 @@ mana gains follow the same rule because no target is in combat yet.
 
 The method is EV-0043's, run per log as EV-0174 describes. All readings are in Defensive Stance.
 
-| Reading                                    | Measured                                                                                                                                                                                                                                                                                                                                 |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Bloodrage instant 15 rage under Defiance 3 | 75 threat, 5 a rage: levels 42 to 47, 75 ± 1.5 on 25 of 73 one-mob windows and 40 of 86 party, 37.5 on 25 and 14 more and 25 on 2 and 1 more inside the split stretches, the rest with an event near a window edge; levels 38 to 39, 75 once solo and once in a party; none of them reads 90 (x Defiance) or 162 (x stance and Defiance) |
+| Reading                                    | Measured                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bloodrage instant 15 rage under Defiance 3 | 75 threat, 5 a rage: levels 42 to 47, 75 ± 1.5 on 25 of 73 one-mob windows and 40 of 86 party, 37.5 on 25 and 14 more and 25 on 2 and 1 more inside EV-0174's split stretches, the rest with an event near a window edge; levels 38 to 39, 75 once solo and once in a party; none of them reads 90 (x Defiance) or 162 (x stance and Defiance) |

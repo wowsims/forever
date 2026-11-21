@@ -13,7 +13,7 @@
 
 ## Flat threat
 
-- Count: §Count of the 2026-11-17 to 2026-11-20 logs, Cleave Rank 3
+- Count: §Count of the 2026-11-17 to 2026-11-20 logs
 
 The ThreatLog reads each Shield Slam rank as its damage plus its own flat, added once on a crit, and Cleave Rank 4 as a
 flat split over the targets it lands on:

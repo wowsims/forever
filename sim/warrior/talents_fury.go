@@ -68,9 +68,8 @@ func (warrior *Warrior) registerUnbridledWrath() {
 	}
 
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: unbridledWrathRank.ID})
-	// In Defensive Stance the rage makes 5 threat a rage that neither the stance nor Defiance scales,
-	// and Battle and Berserker Stance follow Bloodrage's instant rage (EV-0174).
-	// TODO: Ingame test needed -- whether a threat buff scales it.
+	// In game this rage makes 5 threat a rage that neither Defensive Stance nor Defiance scales (EV-0174).
+	// TODO: Ingame test needed -- Battle and Berserker Stance, and whether a threat buff scales it.
 	rageMetrics.UnscaledThreat = true
 
 	// The rate is the effect ladder the tooltip's $m1 names: 12/24/36/48/60 by rank, where the proc
