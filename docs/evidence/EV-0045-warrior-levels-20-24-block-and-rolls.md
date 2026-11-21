@@ -46,8 +46,7 @@ likelihood. Ferocious Bite and Shield Slam have too little data.
 
 Whether the block floor applies to the Strength part alone or to the whole is not measured: the two differ only under a
 block value multiplier. The logs also leave unmeasured whether healing modifiers apply to Victory Rush's heal, whether Heroic
-Strike and Cleave take the flat bonus (inconclusive), Bloodrage's instant rage under Defiance and Defiance ranks 2 and
-3, and Master of Defense without a shield and on spell avoids (one parried Ignite gave two procs). The non-warrior
+Strike and Cleave take the flat bonus (inconclusive), Defiance ranks 2 and 3, and Master of Defense without a shield and on spell avoids (one parried Ignite gave two procs). The non-warrior
 spells that lose the flat bonus under the rule (Rake's opening hit, Summon Hawk, Hanzo Sword's Wound, Everlook
 Pathcarver's on-use) were not measured themselves. Shield Bash Rank 3 (row 1672) states 0, so it no longer takes the
 bonus; only Rank 1 was measured. The pull request closed #907 with the physical roll width findings and the raw log
