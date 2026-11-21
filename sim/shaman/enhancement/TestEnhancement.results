@@ -470,9 +470,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-DreadmistRaiment"
  value: {
-  dps: 838.0406
-  tps: 614.68299
-  dtps: 6.23378
+  dps: 838.90599
+  tps: 615.33782
+  dtps: 6.40216
   hps: 26.26777
  }
 }
@@ -695,9 +695,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-EyeofMoam-21473"
  value: {
-  dps: 971.50256
-  tps: 709.98734
-  dtps: 7.78262
+  dps: 975.0489
+  tps: 712.5247
+  dtps: 8.06139
   hps: 20.96028
  }
 }
@@ -1091,9 +1091,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Magister'sRegalia"
  value: {
-  dps: 844.37186
-  tps: 619.17945
-  dtps: 4.93232
+  dps: 844.86779
+  tps: 619.52138
+  dtps: 4.9479
   hps: 19.77417
  }
 }
@@ -1451,9 +1451,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Stormcaller'sGarb"
  value: {
-  dps: 952.55471
-  tps: 694.38033
-  dtps: 5.53028
+  dps: 953.39531
+  tps: 694.92901
+  dtps: 5.37416
   hps: 20.26556
  }
 }
@@ -1631,9 +1631,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheElements"
  value: {
-  dps: 861.89724
-  tps: 631.09591
-  dtps: 6.41334
+  dps: 863.18657
+  tps: 632.02261
+  dtps: 6.50028
   hps: 19.9775
  }
 }
