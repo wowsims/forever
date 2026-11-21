@@ -1,7 +1,7 @@
 # EV-0043: Heroic Strike and Overpower threat, warrior levels 6 to 19
 
 - Claim: Heroic Strike Ranks 1 to 3 add flat threat over their damage (16.6, 27.6 and 40) and Overpower's threat is 0.75
-  times its damage, each times the stance, and Battle Shout makes no threat.
+  times its damage, each times the stance, and Battle Shout Ranks 1 to 5 make no threat.
 - Sources: ThreatLog addon and combat log of a warrior at levels 6 to 19; Battle Shout's count gives its own
 - Game build: 1.60.1.70790; Battle Shout's count gives its own
 - Date: 2026-11-05 and 2026-11-06; Battle Shout's count gives its own

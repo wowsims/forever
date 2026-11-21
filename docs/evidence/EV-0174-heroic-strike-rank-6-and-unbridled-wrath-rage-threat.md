@@ -21,5 +21,6 @@ units counted there.
 | Heroic Strike Rank 6 (11565), threat over damage             | +100.06, median of n = 50 clean one-mob windows, +100.00 (n = 39) party; 99.94 over every one-mob window (n = 404); 100.00 inside the split stretches, 100.03 outside them               |
 | Unbridled Wrath rage, 1 a proc, Defensive Stance, Defiance 3 | 5 ± 0.5 on 8 of 8 one-mob windows whose only rage is this one, 4 of 6 party; 10.8 (5 x 1.8 x 1.2) on none of the 14; 5.04 [4.92, 5.24] a rage (n = 19), party 4.96 [4.66, 5.16] (n = 22) |
 
-Unbridled Wrath was taken on the last day only. Bloodrage's ticks in the same unsplit stretches read the stance and
-Defiance's 10.8 a rage, so the 5 is not a split reading.
+Unbridled Wrath was taken on the last day only, and every reading is in Defensive Stance; Battle and Berserker Stance
+were not measured. Bloodrage's ticks in the same unsplit stretches read the stance and Defiance's 10.8 a rage, so the 5
+is not a split reading.
