@@ -58,7 +58,7 @@ func RegisterAllSetBonuses() {
 		// 10% chance of dealing 20 Nature damage on a successful melee attack.
 		// https://www.wowhead.com/forever/spell=18979
 		2: {18979},
-		// 4% chance on melee attack of restoring 30 energy.
+		// 3% chance on melee attack of restoring 18 energy.
 		// https://www.wowhead.com/forever/spell=23863
 		3: {23863},
 		// +14 Attack Power.

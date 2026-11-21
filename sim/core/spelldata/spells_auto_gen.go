@@ -20371,13 +20371,13 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 699976, SpellID: 23798, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 22, BaseLevel: 60, PvpMult: 1, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 23863, Name: "Revitalize", School: 8, Attr: [17]uint32{0: 0xc0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 4, ProcFlags: [2]uint32{0: 0x14}, RefIDs: []int32{23864},
+	{ID: 23863, Name: "Revitalize", School: 8, Attr: [17]uint32{0: 0xc0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 3, ProcFlags: [2]uint32{0: 0x14}, RefIDs: []int32{23864},
 		Effects: []Effect{
 			{ID: 701497, SpellID: 23863, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 23864, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 23864, Name: "Revitalize", School: 8, Attr: [17]uint32{0: 0x20000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+	{ID: 23864, Name: "Revitalize", School: 8, Attr: [17]uint32{0: 0x20000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true,
 		Effects: []Effect{
-			{ID: 700855, SpellID: 23864, Type: dbcenums.E_ENERGIZE, BasePoints: 30, BaseLevel: 60, PvpMult: 1, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 700855, SpellID: 23864, Type: dbcenums.E_ENERGIZE, BasePoints: 18, BaseLevel: 60, PvpMult: 1, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 23881, Name: "Bloodthirst", Rank: "Rank 1", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, DurationMs: 10000, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1024}}, Labels: []int16{25},
 		Effects: []Effect{
@@ -22501,7 +22501,7 @@ var generatedSpells = []Spell{
 		}},
 	{ID: 27784, Name: "Nature's Bounty", School: 64, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, DurationMs: 5000, DispelType: 1,
 		Effects: []Effect{
-			{ID: 704635, SpellID: 27784, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_ENERGIZE, BasePoints: 4, SPCoef: 1, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 704635, SpellID: 27784, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_ENERGIZE, BasePoints: 4, SPCoef: 1, PvpMult: 1, PeriodMs: 1000, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 27785, Name: "Hunter Armor Energize", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 4, ProcFlags: [2]uint32{0: 0x40}, ClassFlags: core.ClassFlags{Family: 10}, Labels: []int16{23},
 		Effects: []Effect{
@@ -28152,6 +28152,10 @@ var generatedSpells = []Spell{
 			{ID: 1139061, SpellID: 443265, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 84, PvpMult: 1, PeriodMs: 2000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1342702, SpellID: 443265, Index: 1, Type: dbcenums.E_TRIGGER_SPELL, PvpMult: 1, TriggerID: 1312052, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
+	{ID: 443278, Name: "Seed of Renewal", School: 8, Attr: [17]uint32{15: 0x2000}, SpellLevel: 50, DurationMs: -1, ProcChance: 40, ProcFlags: [2]uint32{0: 0x51000}, ICDMs: 120000, ClassFlags: core.ClassFlags{Family: 0, Mask: [4]uint32{0: 524288}},
+		Effects: []Effect{
+			{ID: 1139080, SpellID: 443278, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, TriggerID: 443678, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 443320, Name: "Loyal Beta", School: 1, Attr: [17]uint32{3: 0x30000, 8: 0x1000, 15: 0x2000}, SpellLevel: 1, DurationMs: 1800000, MaxStack: 1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{2: 131072}}, Labels: []int16{3096}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1139162, SpellID: 443320, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_DONE, BasePoints: 5, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -28161,6 +28165,10 @@ var generatedSpells = []Spell{
 	{ID: 443632, Name: "Filcher's Cowl", School: 1, Attr: [17]uint32{0: 0x400d0, 15: 0x2000}, SpellLevel: 1,
 		Effects: []Effect{
 			{ID: 1139697, SpellID: 443632, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STEALTH_LEVEL, BasePoints: 5, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 443678, Name: "Seed of Renewal", School: 8, Attr: [17]uint32{0: 0x4000000, 15: 0x2000}, SpellLevel: 50, DurationMs: 30000, MaxRange: 100, ProcChance: 101, ProcFlags: [2]uint32{0: 0x1000000}, ClassFlags: core.ClassFlags{Family: 0, Mask: [4]uint32{0: 524288}}, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1139756, SpellID: 443678, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
 	{ID: 443813, Name: "High-Yield Radiation Bomb", School: 8, Attr: [17]uint32{0: 0x10000, 1: 0x88, 3: 0x40000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 10000, MaxRange: 50000, DefenseType: 1, DispelType: 4, Mechanic: 11, ProcChance: 100, InterruptFlags: 5, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{

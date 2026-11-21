@@ -1544,9 +1544,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-StormshroudArmor"
  value: {
-  dps: 786.45747
-  tps: 584.58694
-  hps: 47.56306
+  dps: 760.49537
+  tps: 566.24927
+  hps: 46.63111
  }
 }
 dps_results: {
