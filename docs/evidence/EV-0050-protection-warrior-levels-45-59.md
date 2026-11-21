@@ -1,14 +1,19 @@
 # EV-0050: Protection warrior levels 45 to 59, threat, Enrage, Rock on Stick, rage and damage shields
 
-- Claim: Shield Slam Ranks 2 and 3 and Cleave Rank 4 carry their own flat threat, Enrage rolls 25% on non-physical
-  spell hits taken, Rock on Stick procs 1.85 times a minute, damage taken rage holds near 38% through attacker level
-  59, and Razorsteel Shoulders' shield and Thorns reflect almost nothing on a block that takes the whole hit.
-- Sources: combat logs, ThreatLog and StatLedger of one protection warrior at levels 45 to 59
-- Game build: 1.60.1.70862 to 1.60.1.70938
-- Date: 2026-11-09 to 2026-11-13 per the pull request; the override rows read 2026-11-14
-- Pull request: #1008
+- Claim: Shield Slam Ranks 2 and 3 and Cleave Ranks 3 and 4 carry their own flat threat, Enrage rolls 25% on
+  non-physical spell hits taken, Rock on Stick procs 1.85 times a minute, damage taken rage holds near 38% through
+  attacker level 59, and Razorsteel Shoulders' shield and Thorns reflect almost nothing on a block that takes the whole
+  hit.
+- Sources: combat logs, ThreatLog and StatLedger of one protection warrior at levels 45 to 59; Cleave Rank 3's count
+  gives its own
+- Game build: 1.60.1.70862 to 1.60.1.70938; Cleave Rank 3's count gives its own
+- Date: 2026-11-09 to 2026-11-13 per the pull request; the override rows read 2026-11-14; Cleave Rank 3's count gives
+  its own
+- Pull request: #1008; Cleave Rank 3's count is #PRNUM
 
 ## Flat threat
+
+- Count: §Count of the 2026-11-17 to 2026-11-20 logs, Cleave Rank 3
 
 The ThreatLog reads each Shield Slam rank as its damage plus its own flat, added once on a crit, and Cleave Rank 4 as a
 flat split over the targets it lands on:
@@ -19,7 +24,6 @@ flat split over the targets it lands on:
 | Shield Slam Rank 2 (23923) | 202.85 [202.76, 202.94], n 379                     |
 | Shield Slam Rank 3 (23924) | 229.25 [229.10, 229.39], n 36                      |
 | Cleave Rank 4 (11609)      | 80.2 [79.5, 80.8], n 53; one target 80.3, two 79.8 |
-| Cleave Rank 3              | 62, n 17, too thin to set                          |
 | Heroic Strike Rank 8       | 144 to 145, n 4, too thin to set                   |
 
 178, 203 and 229 is not 4.45 a level and 62 and 80 is not 1.5 a level, so the ranks above them extend the measured
@@ -58,3 +62,18 @@ Attackers at level 60 to 62 are covered by no log, and interpolate from 38% (60:
 Razorsteel Shoulders' shield answered 15,042 of 15,069 hits and 3,835 of 3,840 partial blocks, and 34 of
 5,281 full blocks. Thorns answered 1 of 8,334 full blocks. Mithril Shield Spike and Scarlet Retribution, which fire on
 every block in game, go through the block proc path.
+
+## Count of the 2026-11-17 to 2026-11-20 logs
+
+- Sources: combat logs, ThreatLog and StatLedger of one protection warrior at levels 42 to 47
+- Game build: 1.60.1.70938 on 2026-11-17, 1.60.1.70959 from the 2026-11-18 09:07 login; hotfixes 114140 to 114286
+  each taken at a login once pushed; no reading moves between them
+- Date: 2026-11-17 to 2026-11-20
+- Pull request: #PRNUM
+
+The method is EV-0043's, run per log as EV-0174 describes, with Cleave read as one flat per cast split over the targets
+it lands on.
+
+| Spell                 | Measured                                                                                                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Cleave Rank 3 (11608) | 62 a cast: one target landed, median 62.00 (n 9, party n 21), within 1 of 62 on 6 of 9 and 15 of 21 against 1 of 9 and 1 of 21 for 60; two landed, 61.59 a cast (n 137, party 191); flat from level 42 to 47 |

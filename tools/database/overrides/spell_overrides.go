@@ -1125,10 +1125,10 @@ var Spells = []Override{
 	},
 	{
 		SpellID: 11565,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.5, // TODO: Measure Heroic Strike Rank 6 in game.
-		Reason:  "Heroic Strike Rank 6: Rank 4's measured share per spell level",
-		Source:  "EV-0004",
+		Field:   FlatThreat,
+		Value:   100,
+		Reason:  "Heroic Strike Rank 6: threat is the damage + 100, times the stance",
+		Source:  "EV-0174",
 	},
 	{
 		SpellID: 11566,
