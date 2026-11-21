@@ -2,7 +2,7 @@ siml 1
 spec retribution_paladin
 
 // Unsealed Wrath twisting Seal of Righteousness with Seal of Fury. Judgement of Fury taunts, so
-// Judgement is cast only under Seal of Righteousness.
+// Judgement is not cast under Seal of Fury.
 var ${Has assigned judgement} = true
 var ${Max Seal of Fury Stacks} = 1
 var ${Max Seal of Righteousness Stacks} = 3
@@ -38,7 +38,7 @@ prepull:
 
 priority:
   group "Move to melee" if not spell(holy_strike).in_range
-  cast judgement if aura(seal_of_righteousness_20293).is_active
+  cast judgement if aura(seal_of_fury_20423_tag0).is_inactive
   autocast_other_cooldowns if current_time >= $delay_major_cds
   cast hammer_of_wrath
       if spell(hammer_of_wrath).cast_time == 0s

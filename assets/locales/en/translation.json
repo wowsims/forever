@@ -2670,7 +2670,7 @@
 					},
 					"uw_twist": {
 						"label": "Twist with",
-						"tooltip": "The seal twisted with Seal of Righteousness under Unsealed Wrath. With Seal of Fury, Judgement is cast only under Seal of Righteousness, since Judgement of Fury taunts. Picking a seal resets the Echo stacks to its defaults.",
+						"tooltip": "The seal twisted with Seal of Righteousness under Unsealed Wrath. With Seal of Fury, Judgement is not cast under Seal of Fury, since Judgement of Fury taunts. Picking a seal resets the Echo stacks to its defaults.",
 						"none": "No twist: Seal of Righteousness alone"
 					},
 					"uw_soc_stacks": {
