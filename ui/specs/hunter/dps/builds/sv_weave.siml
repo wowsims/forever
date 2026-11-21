@@ -1,6 +1,6 @@
 siml 1
 spec hunter
-talents "-00530501114-530200230050220151"
+talents "-00530501114-500230230050220151"
 use "../gear_sets/prebis_weave.gear.siml"
 use "../apls/default.apl.siml"
 

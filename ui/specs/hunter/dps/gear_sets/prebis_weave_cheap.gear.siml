@@ -1,12 +1,12 @@
 siml 1
 
-head       black_dragonscale_helm + lesser_arcane_amalgamation_1508
+head       backwood_helm + lesser_arcane_amalgamation_1508
 neck       mark_of_fordring + necklace_agility
 shoulder   stratholme_militia_shoulderguard
 back       cape_of_the_black_baron + cloak_agility
 chest      ogre_forged_hauberk + chest_greater_stats
 wrist      bracers_of_the_eclipse + bracer_agility_7656
-hands      devilsaur_gauntlets + gloves_superior_agility
+hands      devilsaur_gauntlets + gloves_greater_agility
 waist      rangers_belt
 legs       devilsaur_leggings + lesser_arcane_amalgamation_1508
 feet       windreaver_greaves + boots_greater_agility
@@ -14,5 +14,5 @@ finger1    cutthroats_signet
 finger2    tarnished_elven_ring
 trinket1   blackhands_breadth
 trinket2   heart_of_wyrmthalak
-main_hand  demonshear + enchant_2h_weapon_agility
-ranged     deep_jungle_rifle + saf_t_ultra_precision_scope
+main_hand  the_blackrock_slicer + enchant_2h_weapon_agility
+ranged     bloodseeker + saf_t_ultra_precision_scope

@@ -28,10 +28,11 @@ export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecHunter, De
 
 // The best Phase 1 gear outside raids for each playstyle, from batch sims of the SV Weave, MM and SV Melee builds.
 // Cheap leaves out exalted reputation, battleground quartermaster gear, epic crafts, the Beastmaster vendor pieces and
-// world drops other than random-suffix ones. Neither takes Warsong Gulch or Alterac Valley gear that needs Exalted.
-// The weave's two-hander and bow come as a pair: the melee swing resets Auto Shot, so each weave lasts as long as the
-// slower of the two swings, and a slow two-hander only pays with a slow bow. The turret sets keep a two-hander for its
-// stats and a fast bow, so under the Auto rotation, which weaves with any two-hander, they need a turret rotation.
+// world drops other than random-suffix ones, Sword of Zeal and Eaglehorn Long Bow. Neither takes Warsong Gulch or
+// Alterac Valley gear that needs Exalted. The weave's two-hander and bow come as a pair: the melee swing resets Auto
+// Shot, so each weave lasts as long as the slower of the two swings, and a slow two-hander only pays with a slow bow.
+// The turret sets keep a two-hander for its stats, so under the Auto rotation, which weaves with any two-hander, they
+// need a turret rotation.
 export const PreBisWeaveGear = PresetUtils.makePresetGear('Pre-BiS', PreBisWeaveGearJson, { group: 'Weave' });
 export const PreBisWeaveCheapGear = PresetUtils.makePresetGear('Pre-BiS (Cheap)', PreBisWeaveCheapGearJson, { group: 'Weave' });
 export const PreBisTurretGear = PresetUtils.makePresetGear('Pre-BiS', PreBisTurretGearJson, { group: 'Turret' });
@@ -47,18 +48,18 @@ export const WeaveEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatAgility]: 1,
-			[Stat.StatStrength]: 0.21,
-			[Stat.StatIntellect]: 0.43,
-			[Stat.StatAttackPower]: 0.19,
+			[Stat.StatStrength]: 0.22,
+			[Stat.StatIntellect]: 0.44,
+			[Stat.StatAttackPower]: 0.2,
 			[Stat.StatRangedAttackPower]: 0.2,
-			[Stat.StatHitRating]: 1.35,
-			[Stat.StatCritRating]: 0.8,
-			[Stat.StatHasteRating]: 0.51,
-			[Stat.StatMP5]: 0.07,
+			[Stat.StatHitRating]: 1.43,
+			[Stat.StatCritRating]: 0.83,
+			[Stat.StatHasteRating]: 0.82,
+			[Stat.StatMP5]: 0.12,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 2.75,
-			[PseudoStat.PseudoStatRangedDps]: 1.72,
+			[PseudoStat.PseudoStatMainHandDps]: 2.93,
+			[PseudoStat.PseudoStatRangedDps]: 1.69,
 		},
 	),
 );
@@ -67,15 +68,15 @@ export const TurretEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatAgility]: 1,
-			[Stat.StatIntellect]: 0.38,
+			[Stat.StatIntellect]: 0.64,
 			[Stat.StatRangedAttackPower]: 0.34,
-			[Stat.StatHitRating]: 1.14,
-			[Stat.StatCritRating]: 0.84,
-			[Stat.StatHasteRating]: 0.8,
-			[Stat.StatMP5]: 0.04,
+			[Stat.StatHitRating]: 1.26,
+			[Stat.StatCritRating]: 0.87,
+			[Stat.StatHasteRating]: 0.75,
+			[Stat.StatMP5]: 0.41,
 		},
 		{
-			[PseudoStat.PseudoStatRangedDps]: 2.87,
+			[PseudoStat.PseudoStatRangedDps]: 3.29,
 		},
 	),
 );
@@ -84,18 +85,18 @@ export const MeleeEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatAgility]: 1,
-			[Stat.StatStrength]: 0.4,
+			[Stat.StatStrength]: 0.41,
 			[Stat.StatIntellect]: 0.7,
 			[Stat.StatAttackPower]: 0.37,
 			[Stat.StatRangedAttackPower]: 0.15,
-			[Stat.StatHitRating]: 2.41,
-			[Stat.StatCritRating]: 0.98,
-			[Stat.StatHasteRating]: 0.96,
-			[Stat.StatMP5]: 0.28,
+			[Stat.StatHitRating]: 2.48,
+			[Stat.StatCritRating]: 1,
+			[Stat.StatHasteRating]: 0.91,
+			[Stat.StatMP5]: 0.23,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 4.53,
-			[PseudoStat.PseudoStatOffHandDps]: 1.19,
+			[PseudoStat.PseudoStatMainHandDps]: 4.86,
+			[PseudoStat.PseudoStatOffHandDps]: 1.18,
 			[PseudoStat.PseudoStatRangedDps]: 0.27,
 		},
 	),
