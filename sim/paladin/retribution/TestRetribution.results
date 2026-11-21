@@ -308,10 +308,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BrainHacker-1263"
  value: {
-  dps: 889.61014
-  tps: 727.04234
-  dtps: 6.28144
-  hps: 25.26535
+  dps: 891.97847
+  tps: 728.96025
+  dtps: 6.19713
+  hps: 25.28433
  }
 }
 dps_results: {
@@ -1217,10 +1217,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-KangtheDecapitator-2291"
  value: {
-  dps: 881.78281
-  tps: 721.38196
-  dtps: 6.40097
-  hps: 25.28145
+  dps: 881.67103
+  tps: 721.01816
+  dtps: 6.14971
+  hps: 25.24248
  }
 }
 dps_results: {
@@ -1919,9 +1919,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Sul'thrazetheLasher-9372"
  value: {
-  dps: 835.48125
-  tps: 687.12611
-  dtps: 7.18374
+  dps: 835.78692
+  tps: 687.43607
+  dtps: 7.35146
   hps: 29.38777
  }
 }
@@ -2414,10 +2414,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-X'caliboar-10758"
  value: {
-  dps: 809.80741
-  tps: 664.54231
-  dtps: 6.90656
-  hps: 25.61
+  dps: 808.87195
+  tps: 663.7026
+  dtps: 7.25367
+  hps: 25.60797
  }
 }
 dps_results: {
