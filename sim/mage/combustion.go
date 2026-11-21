@@ -59,6 +59,22 @@ func (mage *Mage) registerCombustionSpell() {
 
 	chargesAura := mage.RegisterAura(chargesConfig)
 
+	// Manaflare Regalia's 5pc: Frostfire Bolt gains effect 2's crit while Combustion is active.
+	if mage.manaflareAura != nil {
+		frostfireCrit := mage.AddDynamicMod(core.SpellModConfig{
+			Kind:       core.SpellMod_BonusCrit_Percent,
+			ClassMask:  MageSpellFrostfireBolt,
+			FloatValue: manaflareFrostfireBolt.EffectN(2).BaseValue(),
+		})
+		chargesAura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
+			if mage.manaflareAura.IsActive() {
+				frostfireCrit.Activate()
+			}
+		}).ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
+			frostfireCrit.Deactivate()
+		})
+	}
+
 	// An off-GCD cast of its own.
 	config := spelldata.SpellConfig(&mage.Unit, combustionRank, spelldata.Flags(core.SpellFlagAPL|core.SpellFlagNoOnCastComplete))
 	config.ClassSpellMask = MageSpellCombustion

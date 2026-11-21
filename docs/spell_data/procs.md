@@ -81,11 +81,11 @@ outcome it is stays the caller's, except the block, since no `ProcTypeMask` has 
 
 The melee swing bit (`PROC_FLAG_DEAL_MELEE_SWING`, 0x4) also sets `HearsCountedSwings`, which
 `spelldata.ProcTrigger` copies onto the trigger: a hit flagged `SpellFlagCountsAsSwing`, which is
-Windfury Totem's strike, reaches a listener whose mask would not hear it as a main-hand auto attack,
+a Windfury Totem hit, reaches a listener whose mask would not hear it as a main-hand auto attack,
 and a procs-per-minute manager prices it on the main hand's speed (EV-0136). `WeaponProc()` clears it,
-since a weapon proc hears the strike by its own rule. A caller whose row hears swings but not the
-strike clears it by hand, as Unsealed Wrath does (`sim/paladin/talents_retribution.go`). A
-`core.ProcTrigger` typed by hand hears the strike only if it sets the field, as Reckoning's spend does.
+since a weapon proc hears the Windfury hit by its own rule. A caller whose row hears swings but not the
+Windfury hit clears it by hand, as Unsealed Wrath does (`sim/paladin/talents_retribution.go`). A
+`core.ProcTrigger` typed by hand hears the Windfury hit only if it sets the field, as Reckoning's spend does.
 
 The mask states which hits reach the listener; it cannot state the condition around them, so the
 generator reads that off the tooltip into `core.ProcHint`:
@@ -95,7 +95,7 @@ generator reads that off the tooltip into `core.ProcHint`:
 | `ProcHintCastTrigger`  | the tooltip names the cast itself, which turns a mask of the spell bits alone into `OnCastComplete` with no outcome                                     |
 | `ProcHintCrit`         | the tooltip names a critical strike, which sets `Outcome = OutcomeCrit` and keeps the listener on the hit rather than the cast                          |
 | `ProcHintHeals`        | the trigger clause names healing or an unrestricted spell, which is the evidence that a helpful-spell bit carries a real trigger rather than a leftover |
-| `ProcHintPureHeal`     | the trigger is healing only, so the damage callbacks come off                                                                                           |
+| `ProcHintPureHeal`     | the trigger is healing only, so the damage callbacks come off; a mask naming no harmful spell keeps its melee and ranged hits                           |
 | `ProcHintBlocked`      | the clause names the wearer blocking ("every time you block"), which clears `RequireDamageDealt` and sets `Outcome = OutcomeBlock`                      |
 | `ProcHintNamedAbility` | the clause names one ability ("your Shock spells"), which no proc mask can state                                                                        |
 | `ProcHintOutcomeTaken` | the clause names a resist, a dodge or a parry taken, an outcome the mask has no bit for, which clears `RequireDamageDealt`                              |
@@ -109,6 +109,10 @@ owner's side landed the killing blow, which the kill roll in `Target.Die` decide
 (word 1, 0x1) decodes to `CallbackOnTargetDies`: an enemy died, with no roll. In game the two are separate
 events, so a row carrying both fires twice on a credited kill unless its ICD stops the second. The one
 such row in the game files is Lunar Idol 419288, on an item Forever does not ship. `PROC_FLAG_DEATH`, the wearer dying, stays unsupported.
+
+`PROC_FLAG_2_CAST_SUCCESSFUL` (word 1, 0x4) decodes to `CallbackOnCastComplete` with no outcome and no
+damage requirement: the cast itself is the trigger, whatever it lands on. Rotmender's Raiment's 1321560
+is that shape.
 
 A death listener gets a nil spell and a result whose `Target` is the dying enemy, so every condition and
 handler a death can reach checks the spell before reading it. `Die` runs the listeners before it disables
@@ -174,7 +178,7 @@ the attacker for 40 Physical on the melee table.
 The damage shape (`applySpellDataDamageProc`) gives its listener the `RecoveryTime` of the row it casts as the internal
 cooldown where the trigger's row states none, since the spell cannot be cast again while it runs, and no hit that lands
 inside that time casts it. Toofbreaker 286430's Toofbreak 1320269 states 100 ms, so it brings no second strike and
-rolls on no Windfury Totem strike or ability that lands with the swing that cast it (EV-0145). A row that deals its
+rolls on no Windfury Totem hit or ability that lands with the swing that cast it (EV-0145). A row that deals its
 damage as an `A_PROC_TRIGGER_DAMAGE` aura casts nothing and takes none: the shield spikes state 5 s and answer every
 block.
 

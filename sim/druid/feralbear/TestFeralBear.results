@@ -444,10 +444,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 523.14885
-  tps: 2620.98214
-  dtps: 440.05438
-  hps: 84.12104
+  dps: 529.14963
+  tps: 2661.10035
+  dtps: 440.12214
+  hps: 84.03213
  }
 }
 dps_results: {
@@ -507,8 +507,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-DreadmistRaiment"
  value: {
-  dps: 452.51765
-  tps: 2287.46427
+  dps: 452.57573
+  tps: 2287.58914
   dtps: 543.24901
   hps: 87.36477
  }
@@ -966,8 +966,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GenesisRaiment"
  value: {
-  dps: 520.93077
-  tps: 2634.98378
+  dps: 520.96828
+  tps: 2635.06443
   dtps: 386.06877
   hps: 85.60555
  }
@@ -1029,8 +1029,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperEclipse"
  value: {
-  dps: 500.71341
-  tps: 2507.17007
+  dps: 500.77875
+  tps: 2507.31055
   dtps: 428.99891
   hps: 85.20963
  }
@@ -1092,8 +1092,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 466.17119
-  tps: 2343.41608
+  dps: 466.06812
+  tps: 2343.19447
   dtps: 393.47945
   hps: 83.9845
  }
@@ -1407,8 +1407,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Magister'sRegalia"
  value: {
-  dps: 453.9909
-  tps: 2283.16452
+  dps: 454.03386
+  tps: 2283.25687
   dtps: 540.29534
   hps: 83.32388
  }
@@ -1534,8 +1534,8 @@ dps_results: {
  key: "TestFeralBear-AllItems-NecropileRaiment"
  value: {
   dps: 482.58437
-  tps: 2439.40979
-  dtps: 488.67772
+  tps: 2439.40922
+  dtps: 488.70852
   hps: 86.13491
  }
 }
@@ -1587,8 +1587,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Pyromancer'sBaton-286650"
  value: {
-  dps: 427.72946
-  tps: 2171.94687
+  dps: 427.64005
+  tps: 2171.75465
   dtps: 393.47945
   hps: 83.9845
  }
@@ -1765,6 +1765,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Spider'sKiss"
+ value: {
+  dps: 457.8836
+  tps: 2329.89259
+  dtps: 393.47945
+  hps: 83.9845
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 446.34961
@@ -1825,6 +1834,15 @@ dps_results: {
   tps: 2660.35493
   dtps: 401.7931
   hps: 84.91083
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-SymbolsofUnendingLife"
+ value: {
+  dps: 488.61069
+  tps: 2468.2477
+  dtps: 411.09632
+  hps: 83.81553
  }
 }
 dps_results: {
@@ -1891,6 +1909,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 530.11513
+  tps: 2667.43841
+  dtps: 395.61739
+  hps: 85.62528
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 530.11513
@@ -1911,8 +1938,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 465.86961
-  tps: 2343.87407
+  dps: 466.28538
+  tps: 2344.76797
   dtps: 394.27689
   hps: 84.01263
  }
@@ -2055,8 +2082,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-TwilightForgehammer-281665"
  value: {
-  dps: 440.51114
-  tps: 2226.65102
+  dps: 439.98025
+  tps: 2225.50961
   dtps: 393.47945
   hps: 83.9845
  }

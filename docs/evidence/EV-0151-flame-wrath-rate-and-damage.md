@@ -1,10 +1,8 @@
-# EV-0151: Flame Wrath procs at 1.9 per minute, and its damage takes no spell power
+# EV-0151: What rolls Flame Wrath, and its damage, which takes no spell power
 
-- Claim: Flame Wrath 11809 procs 16559 at about 1.9 procs per minute, priced on the base speed of what makes the hit:
-  the weapon's 3.3 s, Cat Form's 1.0 s, and Bear and Dire Bear Form's 2.5 s. A paladin's melee abilities roll it; in
-  Cat and Bear Form only the white swing does, and Maul, Swipe, Lacerate, Primal Bite, Claw, Rake and Shred roll
-  nothing. No lockout follows a proc. 16559 hits every enemy near the wearer once for the row's 154 Fire damage with no
-  spell power share, and crits at the wearer's spell crit chance.
+- Claim: a paladin's melee abilities roll Flame Wrath 11809's 16559; in Cat and Bear Form only the white swing does, and
+  Maul, Swipe, Lacerate, Primal Bite, Claw, Rake and Shred roll nothing. 16559 hits every enemy near the wearer once for
+  the row's 154 Fire damage with no spell power share, and crits at the wearer's spell crit chance.
 - Sources: Warcraft Logs reports (forever.warcraftlogs.com, zone 3000), every fight in which the wearer's gear
   snapshot holds 11809 in the main hand: 1X37tZRzgkmd9rNP, 1a3Qn7JpLk8AH2hV, 1nTQBK4hmcaLbFZV, 1z6PXMGdQBDvrCqx,
   2wFyAGLf1CqZKnaz, 2wZ3P6y9N4f7kXVq, 3R69PBjxZvcfbnX8, 3qfDVTZ1J29zPChn, 4BFrCYZajATmLfgn, 4f2ygdYCzFAvqc6K,
@@ -30,13 +28,11 @@
 - Date: 2026-11-12 14:54 to 2026-11-18 14:18 UTC
 - Pull request: #1104
 
-This replaces the Flame Wrath rate in EV-0136.
-
 ## Method
 
 Each apply or refresh of 16560 (Fire Shield) on the wearer is one proc. 16560 is also the spell of each hit Fire
 Shield deals to an attacker, and those hits are not procs. 16559 logs one damage line per enemy it hits, and two
-enemies of one kind share a target id. For the per-swing chance below, a 16559 damage line with no apply beside it
+enemies of one kind share a target id. For the per-swing chance, a 16559 damage line with no apply beside it
 counts too, and events of the proc's spells within 100 ms of each other join into one; 115 of the 4,348 applies came
 within 100 ms of another, two procs landing together.
 
@@ -46,24 +42,9 @@ starts from 10 ms before its damage line to 50 ms after it; 16560 logs 0 to 3 ms
 moved 700 ms later finds 2 procs on 23,825 swings. A run of swings with no proc longer than ln(1000) over the chance
 is dropped as the weapon swapped away, 347 of the 23,825 swings. The interval is 2,000 bootstrap draws of whole
 runs. Each form's base swing speed prices the chance: Cat Form 1.0 s, Bear and Dire Bear Form 2.5 s, otherwise the
-weapon's 3.3 s. The hunters' few white swings are left out of the table and counted on their own below.
+weapon's 3.3 s. The hunters' few white swings are counted on their own.
 
-## Rate
-
-| Wearer           | Swings | With a proc | Chance (95%)        | Swing speed |  PPM |
-| ---------------- | -----: | ----------: | ------------------- | ----------: | ---: |
-| Druid, Bear Form | 16,248 |       1,272 | 7.8% (7.4 to 8.2)   |       2.5 s | 1.88 |
-| Druid, Cat Form  |  5,899 |         197 | 3.3% (2.9 to 3.7)   |       1.0 s | 2.00 |
-| Druid, no form   |    147 |          17 | 11.6% (6.1 to 18.5) |       3.3 s | 2.10 |
-| Paladin          |    934 |          94 | 10.1% (8.7 to 11.9) |       3.3 s | 1.83 |
-| Warrior          |    250 |          17 | 6.8% (4.7 to 11.2)  |       3.3 s | 1.24 |
-| All              | 23,478 |       1,597 |                     |             | 1.88 |
-
-The chance per swing grows with the swing speed from Cat Form to Bear Form to the weapon, so the rate is procs per
-minute. Without the wearer who swung most in Bear Form, Bear Form reads 8.0% (7.3 to 8.5), 1.91. Over every landed
-melee hit of the paladins (abilities, seals and Windfury Totem strikes included, priced at 3.3 s), one proc to each
-Fire Shield apply or refresh, the rate is 2.05 (1.96 to 2.17). The rate holds across builds: Bear Form 7.5% on 345
-swings on 70888, 7.7% on 13,118 on 70938 and 8.0% on 2,889 after 70959 was listed.
+## What rolls it
 
 Landed hits other than white swings, each with no other damage line of the wearer within 100 ms, by the same window:
 
@@ -79,15 +60,8 @@ Landed hits other than white swings, each with no other damage line of the weare
 | Paladin          | Holy Strike          |           67 / 692 |
 | Paladin          | Judgement of Command |           37 / 521 |
 
-A paladin's Holy Strike and Judgement of Command roll near the white swing's chance; in a form, Maul, which takes the
-place of a white swing, rolls nothing.
-
-EV-0136 read 5.30 from one hunter in 6yHgkT8LqP42NmxY, counting 202 procs where the report holds 88 Fire Shield
-applies: it counted Fire Shield's hits on attackers and a second hit on an enemy sharing a target id as procs of their
-own. That hunter's isolated white swings read 20 procs on 170, 11.8%, 2.14.
-
-Fire Shield applies came 100 ms to 1 s apart 50 times and 1 to 5 s apart 508 times, so the 5 s category cooldown
-on 16559 locks nothing out.
+A paladin's Holy Strike and Judgement of Command roll near the white swing's chance (EV-0136); in a form, Maul, which
+takes the place of a white swing, rolls nothing.
 
 ## Damage
 

@@ -16,12 +16,14 @@ const procFlagAnyDirectTaken = dbcenums.PROC_FLAG_TAKE_MELEE_SWING |
 	dbcenums.PROC_FLAG_TAKE_HARMFUL_ABILITY |
 	dbcenums.PROC_FLAG_TAKE_HARMFUL_SPELL
 
-// Every direct hit dealt.
-const procFlagAnyDirectDealt = dbcenums.PROC_FLAG_DEAL_MELEE_SWING |
+// Every direct melee or ranged hit dealt.
+const procFlagAnyAttackDealt = dbcenums.PROC_FLAG_DEAL_MELEE_SWING |
 	dbcenums.PROC_FLAG_DEAL_MELEE_ABILITY |
 	dbcenums.PROC_FLAG_DEAL_RANGED_ATTACK |
-	dbcenums.PROC_FLAG_DEAL_RANGED_ABILITY |
-	dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL
+	dbcenums.PROC_FLAG_DEAL_RANGED_ABILITY
+
+// Every direct hit dealt.
+const procFlagAnyDirectDealt = procFlagAnyAttackDealt | dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL
 
 // What the mask alone cannot say, read off the spell's tooltip by the caller. The mask states
 // which hits reach the listener; the wording around it states the trigger condition and, for the
@@ -88,7 +90,7 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	info := ProcTypeInfo{RequireDamageDealt: true}
 	word := mask[0]
 
-	// Windfury Totem's strike counts as a melee swing for the swing bit, priced as a main-hand one
+	// A Windfury Totem hit counts as a melee swing for the swing bit, priced as a main-hand one
 	// (EV-0136).
 	if word&dbcenums.PROC_FLAG_DEAL_MELEE_SWING != 0 {
 		info.ProcMask |= ProcMaskMeleeWhiteHit
@@ -182,6 +184,12 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 		info.Callback |= CallbackOnPeriodicDamageDealt
 	}
 
+	// The cast-successful bit names the cast itself as the trigger, whatever the cast lands on.
+	if mask[1]&dbcenums.PROC_FLAG_2_CAST_SUCCESSFUL != 0 {
+		info.Callback |= CallbackOnCastComplete
+		info.RequireDamageDealt = false
+	}
+
 	// The helpful-spell bit beside the harmful one is the game files' "any spell", heals included,
 	// which the mask states on its own. A helpful bit without the harmful one needs the tooltip's
 	// evidence that it is a trigger at all: a heal, or the cast read above.
@@ -266,7 +274,13 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 		info.Outcome = OutcomeLanded
 	}
 
-	if hint.Matches(ProcHintPureHeal) {
+	// A trigger clause naming healing alone takes the damage listeners off, unless the mask states
+	// melee or ranged hits dealt and no harmful spell: then the clause speaks for the spells, and the
+	// attacks the mask names still trigger, as Teachings of the Furbolgs' "your attacks" next to "your
+	// healing spells" does. A mask naming harmful spells too is the game files' any-spell-or-ability
+	// mask, which the clause narrows to heals, as Ancestral Healing's does.
+	keepsAttacks := word&procFlagAnyAttackDealt != 0 && word&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL == 0
+	if hint.Matches(ProcHintPureHeal) && !keepsAttacks {
 		info.Callback &= ^CallbackOnSpellHitDealt
 		info.Callback &= ^CallbackOnPeriodicDamageDealt
 	}
@@ -301,7 +315,7 @@ var unsupportedProcFlagNames = map[uint32]string{
 // says, and on their own they leave the callback empty, which the caller refuses anyway.
 func unsupportedProcFlags(mask [2]uint32) []string {
 	// Everything from the death bit up is a state change rather than a hit, and of word 1 the sim
-	// models the target-dies bit and the main-hand restriction alone.
+	// models the target-dies bit, the cast-successful bit and the main-hand restriction alone.
 	unsupported := mask[0] & (dbcenums.PROC_FLAG_HEARTBEAT | dbcenums.PROC_FLAG_TAKE_HELPFUL_SPELL | ^(dbcenums.PROC_FLAG_DEATH - 1))
 
 	var names []string
@@ -317,7 +331,7 @@ func unsupportedProcFlags(mask [2]uint32) []string {
 		}
 	}
 
-	word1 := mask[1] &^ (dbcenums.PROC_FLAG_2_TARGET_DIES | dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY)
+	word1 := mask[1] &^ (dbcenums.PROC_FLAG_2_TARGET_DIES | dbcenums.PROC_FLAG_2_CAST_SUCCESSFUL | dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY)
 	for bit := range 32 {
 		if word1&(1<<bit) != 0 {
 			names = append(names, fmt.Sprintf("bit %d", 32+bit))

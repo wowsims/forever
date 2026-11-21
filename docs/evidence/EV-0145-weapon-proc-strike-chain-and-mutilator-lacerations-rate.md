@@ -6,7 +6,7 @@ EV-0156 dates the reading that a white swing's Judgement refresh rolls a weapon 
 - Claim: Mutilator 12469 rolls Lacerations 10370 on 19.9% of landed main-hand white swings, 4.8 procs per minute on
   its 2.5 s speed; Lacerations rolls the melee hit table itself, and 12.2% of them fail; a weapon proc's strike that a
   main-hand white swing of the weapon cast rolls the weapon once more at the same chance and never a third time, on 23
-  weapons of the table, Mutilator among them; one cast by an ability, a seal's or Windfury's strike, an off-hand swing
+  weapons of the table, Mutilator among them; one cast by an ability, a seal's strike, a Windfury hit, an off-hand swing
   or a druid's swing in Cat, Bear or Dire Bear Form rolls nothing; Toofbreak 1320269, whose row states a 100 ms
   cooldown, brings no second; Judgement of Command rolls a weapon proc twice a cast; Fiery Weapon 803 rolls on a
   weapon proc's strike under the same rule.
@@ -35,7 +35,7 @@ parried. The seven wearers log 1,308 attempts.
 
 An attempt is credited by time to what rolled it. A landed Lacerations logs within 2 ms of the hit that rolled it.
 A failed one logs when that hit is cast, so for a hit that lands late (Judgement of Command, a seal's strike, the
-Judgement debuff a white swing refreshes, a Windfury Totem strike) it sits 4 to 20 ms before the hit, and goes to the
+Judgement debuff a white swing refreshes, a Windfury Totem hit) it sits 4 to 20 ms before the hit, and goes to the
 next hit or debuff within 30 ms. All but one attempt has such an owner.
 
 A hit counts when it is the wearer's only hit event on that target within 100 ms, no periodic tick falls there, it is
@@ -54,7 +54,7 @@ counts toward the attempts only.
 | Seal of Command's strike                             |              47 |   220 |  21.4% |
 | Seal of Righteousness, one strike                    |              46 |   255 |  18.0% |
 | Seal of Righteousness, three strikes                 |              22 |    48 |  45.8% |
-| Windfury Totem's strike                              |              21 |   109 |  19.3% |
+| Windfury Totem hit                                   |              21 |   109 |  19.3% |
 | Judgement of the Crusader refreshed by a white swing |              50 |   216 |  23.1% |
 | Cleave                                               |              10 |    68 |  14.7% |
 
@@ -86,7 +86,7 @@ Attempts credited to one landed hit:
 | Holy Strike, Cleave, Overpower  |     100 |        0 |       0 |
 | Seal of Command's strike        |      47 |        0 |       0 |
 | Seal of Righteousness, 1 strike |      46 |        0 |       0 |
-| Windfury Totem's strike         |      21 |        0 |       0 |
+| Windfury Totem hit              |      21 |        0 |       0 |
 
 A second follows a white swing's first 20.1% of the time (15.7% to 25.4%), the chance of the first roll. Two
 independent rolls a swing that leave 19.9% of swings with an attempt would leave 14 of the 1,299 with two, and 52
@@ -178,21 +178,21 @@ By the build each region's version file named when the report started:
 The druid columns are every druid's lone white swing, whatever form the tracking below gives it. The version file's
 listing starts on 2026-11-07 with 1.60.1.70862.
 
-### Abilities and triggered strikes
+### Abilities and triggered hits
 
 With Toofbreaker left out as above, a lone ability's landed first brings 3 seconds in 31,195, over 28 abilities. The
 largest by units with an attempt are
 Stormstrike (8,420), Holy Strike (6,729), Sinister Strike (6,073), Cleave (5,966) and Revenge (3,873). Raptor Strike
 rolls: 409 of 5,306 lone hits have an attempt.
 
-A strike that lands after the swing that cast it is read by millisecond: the landed attempts within 2 ms of a landed
-strike with no other hit or debuff of the wearer within 3 ms of it.
+A triggered hit that lands after the swing that cast it is read by millisecond: the landed attempts within 2 ms of a
+landed triggered hit with no other hit or debuff of the wearer within 3 ms of it.
 
-| Strike                         | One landed attempt | Two |
+| Triggered hit                  | One landed attempt | Two |
 | ------------------------------ | -----------------: | --: |
 | Seal of Command's strike 20424 |              3,021 |   0 |
 | Seal of Righteousness, strike  |              3,449 |   1 |
-| Windfury Totem's strike        |              8,058 |   1 |
+| Windfury Totem hit             |              8,058 |   1 |
 
 Windfury Weapon's two swings land together, so they are read off the units of one landed Stormstrike and two landed
 swings. Of the 3,147 with an attempt, 2,797 hold one, 339 two and 11 three. Three rolls with no chain give 2,816, 318
@@ -254,14 +254,13 @@ sword (176 of 478).
 | No white swing      |    51 |                   25 |                      30.4 |                                       48.3 |                       0 |
 
 The 14 are among the 119. The units with no white swing are a Holy Strike or a Judgement of Command, four of them
-with a seal's or Windfury Totem's strike beside it.
+with a seal's strike or a Windfury Totem hit beside it.
 
 In a unit with a white swing the weapon proc is the swing's with a probability of one over the unit's rolls, since
 every roll has the same chance. Fitted by maximum likelihood on that split, a landed weapon proc a white swing cast
 brings one more Fiery Weapon roll at 30% (9% to 53%), and one anything else cast brings one at 0% (0% to 10%). One more
 roll at the base chance on every landed weapon proc fits worse by 26.5, as twice the log-likelihood, and one on a white
-swing's proc alone fits within 0.2 of the best. EV-0130's 7.9% and 18.6% are the same units pooled over what cast the
-proc.
+swing's proc alone fits within 0.2 of the best. EV-0130's last table pools the same units over what cast the proc.
 
 Only 14 units are a white swing alone, so the 30% rests on the split of the mixed units. An oil's proc and Fiery
 Weapon in the off hand were not counted.

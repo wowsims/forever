@@ -112,6 +112,9 @@ func (shaman *Shaman) registerLightningShieldSpell() func(sim *core.Simulation, 
 	orb := shaman.RegisterSpell(orbConfig)
 
 	shaman.LightningShieldAura = shaman.RegisterAura(spelldata.AuraConfig(lightningShieldRank))
+	if shaman.earthshattererAura != nil {
+		shaman.registerEarthshattererShieldMP5()
+	}
 
 	// The cooldown is the trigger's own, shared with the shield proc rate option.
 	icd := core.Cooldown{

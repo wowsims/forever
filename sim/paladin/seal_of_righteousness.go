@@ -40,7 +40,7 @@ var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4
 // rank, outside the fast-weapon penalty, and Judgement of the Crusader counts as spell power at
 // the same coefficient. A crit doubles the unrounded total.
 //
-// The tooltip's 0.0765 fits none of the one-handers, whose coefficient is 0.1 (EV-0060).
+// The tooltip's 0.0765 fits none of the one-handers, whose coefficient is 0.1 (EV-0059).
 func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfRighteousness.ByID(int32(rank.EffectN(2).BaseValue()))
 	judgeDamage := judgeRank.DamageEffect()

@@ -68,9 +68,12 @@ func (warrior *Warrior) registerUnbridledWrath() {
 	}
 
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: unbridledWrathRank.ID})
+	// In game this rage makes 5 threat a rage that neither Defensive Stance nor Defiance scales (EV-0174).
+	// TODO: Ingame test needed -- Battle and Berserker Stance, and whether a threat buff scales it.
+	rageMetrics.UnscaledThreat = true
 
 	// The rate is the effect ladder the tooltip's $m1 names: 12/24/36/48/60 by rank, where the proc
-	// chance column reads 100. Landed white swings roll it, Windfury Totem's strike among them as a
+	// chance column reads 100. Landed white swings roll it, Windfury Totem hits among them as a
 	// main-hand swing (EV-0136), and so do Heroic Strike and each target a Cleave hits (EV-0148,
 	// EV-0138). The row's mask also hears melee abilities, but no other ability rolls it; Shield
 	// Slam, Revenge, Thunder Clap, Retaliation, Victory Rush, Shield Bash and Whirlwind are measured
@@ -177,7 +180,7 @@ func (warrior *Warrior) registerFlurry() {
 	// The proc shape with no roll: 12319 states its rate as "always" and the crit is the
 	// condition, which this handler reads off the result because the same listener hears every
 	// melee result. Every white swing, an extra attack's among them, uses a charge whatever its
-	// outcome (EV-0140). Windfury Totem's strike uses none and its crit starts Flurry, and a Heroic
+	// outcome (EV-0140). A Windfury Totem hit uses none and its crit starts Flurry, and a Heroic
 	// Strike or Cleave uses one charge per cast whatever its outcome, however many targets a Cleave
 	// hits (EV-0138). The row's mask reaches ranged and spell hits too; the tooltip says a melee
 	// critical strike, so the mask stays the caller's.
@@ -383,7 +386,7 @@ func (warrior *Warrior) registerRecklessSwings() {
 
 	aura := warrior.RegisterAura(spelldata.AuraConfig(recklessSwingsRank))
 
-	// Each melee swing spends a charge for its rage, Windfury Totem's strike among them (EV-0136).
+	// Each melee swing spends a charge for its rage, Windfury Totem hits among them (EV-0136).
 	// The row also hears melee abilities, but of those only Heroic Strike and Cleave spend one, once
 	// per cast however many targets a Cleave hits; Whirlwind and Bloodthirst spend none (EV-0138).
 	firstAbilityHit, resetFirstAbilityHit := core.OncePerCast()

@@ -352,8 +352,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-DefiasEnforcer'sGarb"
  value: {
-  dps: 742.47671
-  tps: 553.38035
+  dps: 747.92098
+  tps: 557.29051
   hps: 46.39389
  }
 }
@@ -928,8 +928,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 739.33025
-  tps: 550.7474
+  dps: 739.30617
+  tps: 550.73031
   hps: 46.08889
  }
 }
@@ -1360,8 +1360,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Pyromancer'sBaton-286650"
  value: {
-  dps: 711.38683
-  tps: 530.87798
+  dps: 711.18013
+  tps: 530.73121
   hps: 46.03806
  }
 }
@@ -1518,6 +1518,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Spider'sKiss"
+ value: {
+  dps: 735.82559
+  tps: 548.24766
+  hps: 46.19056
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 725.60883
@@ -1571,6 +1579,14 @@ dps_results: {
   dps: 790.44622
   tps: 587.23197
   hps: 45.98722
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-SymbolsofUnendingLife"
+ value: {
+  dps: 776.88168
+  tps: 576.82211
+  hps: 45.80083
  }
 }
 dps_results: {
@@ -1630,6 +1646,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 802.30919
+  tps: 595.66496
+  hps: 45.98722
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 802.30919
@@ -1648,8 +1672,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 739.82035
-  tps: 551.12357
+  dps: 740.04891
+  tps: 551.28584
   hps: 46.2075
  }
 }
@@ -1776,8 +1800,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-TwilightForgehammer-281665"
  value: {
-  dps: 719.15252
-  tps: 536.42311
+  dps: 718.78397
+  tps: 536.16145
   hps: 46.055
  }
 }

@@ -540,6 +540,90 @@ func TestHowlingIdolShortensShiftingPower(t *testing.T) {
 	}
 }
 
+// Symbols of Unending Life's 3-piece bonus gives back the energy of its spell 26976 when Rip or
+// Ferocious Bite is missed, dodged or parried, on top of the finisher's own miss refund. A finisher
+// that lands and a combo builder that misses get none.
+func TestSymbolsOfUnendingLifeRefundsAvoidedFinishers(t *testing.T) {
+	gain := spelldata.MustFind(26976).EnergizeEffect().BaseValue()
+	if gain <= 0 {
+		t.Fatalf("the refund spell restores %v energy, want more than 0", gain)
+	}
+	symbols := map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotBack:     21409,
+		proto.ItemSlot_ItemSlotFinger1:  21408,
+		proto.ItemSlot_ItemSlotMainHand: 21407,
+	}
+	type setup func(sim *core.Simulation, cat *FeralDruid, target *core.Unit, spell *core.Spell)
+	missed := func(_ *core.Simulation, cat *FeralDruid, target *core.Unit, spell *core.Spell) {
+		cat.AttackTables[target.UnitIndex].Hand(spell).BaseMissChance = 2
+	}
+	dodged := func(sim *core.Simulation, cat *FeralDruid, target *core.Unit, _ *core.Spell) {
+		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+		target.PseudoStats.BaseDodgeChance = 1
+	}
+	parried := func(sim *core.Simulation, cat *FeralDruid, target *core.Unit, _ *core.Spell) {
+		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+		cat.PseudoStats.InFrontOfTarget = true
+		target.PseudoStats.BaseDodgeChance = 0
+		target.PseudoStats.BaseParryChance = 1
+	}
+	landed := func(sim *core.Simulation, cat *FeralDruid, target *core.Unit, _ *core.Spell) {
+		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+		target.PseudoStats.BaseDodgeChance = 0
+	}
+
+	// The energy the cat holds a moment after the cast, once a proc's batch window has passed. It
+	// starts below its cap with the room for the refund, and with five combo points.
+	energyAfter := func(t *testing.T, worn map[proto.ItemSlot]int32, ability, outcome string, prepare setup) float64 {
+		t.Helper()
+		sim, cat := newCatWearing(t, "", nil, worn)
+		spell := map[string]*druid.DruidSpell{"Rip": cat.Rip, "Ferocious Bite": cat.FerociousBite, "Claw": cat.Claw}[ability]
+		target := cat.CurrentTarget
+		prepare(sim, cat, target, spell.Spell)
+		emptyEnergy(sim, cat)
+		cat.AddEnergy(sim, 50, cat.NewEnergyMetrics(core.ActionID{SpellID: 1}))
+		cat.AddComboPoints(sim, target, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		if !spell.Cast(sim, target) {
+			t.Fatalf("%s did not cast", ability)
+		}
+		m := spell.SpellMetrics[target.UnitIndex]
+		if counted := map[string]int32{"missed": m.Misses, "dodged": m.Dodges, "parried": m.Parries, "landed": m.Hits + m.Crits}[outcome]; counted != 1 {
+			t.Fatalf("%s was %s %d times, want once", ability, outcome, counted)
+		}
+		// An empty action at the end of the window keeps the step from running past it.
+		until := sim.CurrentTime + 5*core.SpellBatchWindow
+		sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: until, OnAction: func(*core.Simulation) {}}))
+		for sim.CurrentTime < until && !sim.Step() {
+		}
+		return cat.CurrentEnergy()
+	}
+
+	for _, c := range []struct {
+		ability string
+		outcome string
+		prepare setup
+		want    float64
+	}{
+		{"Rip", "missed", missed, gain},
+		{"Rip", "dodged", dodged, gain},
+		{"Rip", "parried", parried, gain},
+		{"Rip", "landed", landed, 0},
+		{"Ferocious Bite", "missed", missed, gain},
+		{"Ferocious Bite", "dodged", dodged, gain},
+		{"Ferocious Bite", "parried", parried, gain},
+		{"Ferocious Bite", "landed", landed, 0},
+		{"Claw", "missed", missed, 0},
+	} {
+		t.Run(c.ability+" "+c.outcome, func(t *testing.T) {
+			without := energyAfter(t, nil, c.ability, c.outcome, c.prepare)
+			with := energyAfter(t, symbols, c.ability, c.outcome, c.prepare)
+			if got := with - without; math.Abs(got-c.want) > 1e-9 {
+				t.Errorf("the set gives back %v energy on a %s %s, want %v", got, c.outcome, c.ability, c.want)
+			}
+		})
+	}
+}
+
 // The October 8 hotfixes: "Shifting Power can no longer be used while already at Full Energy."
 func TestShiftingPowerIsRefusedAtFullEnergy(t *testing.T) {
 	sim, cat := newCat(t, shiftingPowerTalents, nil)

@@ -274,7 +274,7 @@ func init() {
 	//
 	// The game files state no rate for 17484; the item's chance-on-hit entry carries it, measured on
 	// the sword's speed. Landed white swings and melee specials of the hand that holds it roll it alike,
-	// Windfury Totem strikes too; the other hand's swings and ranged hits never do, and a proc on a
+	// Windfury Totem hits too; the other hand's swings and ranged hits never do, and a proc on a
 	// branded target refreshes the brand (EV-0121). 17484's first effect drains the target and its
 	// second heals the wearer as a heal over time of its own. Both crit, as the row's Periodic Can Crit says.
 	newEntryRateItemEffect(13361, 17484, func(character *core.Character, ppm float64) {
@@ -500,8 +500,8 @@ func init() {
 	//
 	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell that
 	// pays mana spends its one charge. A free cast keeps it, and so does one the reduction itself
-	// brings to 0. The listener is hand-written: the row's proc flag, cast successful, decodes to no
-	// listener, and spelldata.AttachChargeSpender on cast complete would spend the charge on Shoot.
+	// brings to 0. The listener is hand-written: spelldata.AttachChargeSpender on cast complete would
+	// spend the charge on Shoot.
 	newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
 		if !character.HasManaBar() {
 			return
@@ -731,7 +731,7 @@ func init() {
 	// The generator keeps one proc per item, so both procs are written here. 1298413 casts 1298414 on
 	// each landed main-hand swing and special. 1298414's row states Always Hit, so it rolls only the
 	// melee crit (EV-0164). 1298416 strikes at the procs per minute of the item's chance-on-hit entry on
-	// the axe's speed (EV-0157), and registers nothing while the entry states none; its slow is movement
+	// the axe's speed (EV-0136), and registers nothing while the entry states none; its slow is movement
 	// the sim leaves out.
 	core.NewItemEffect(13952, func(agent core.Agent) {
 		character := agent.GetCharacter()

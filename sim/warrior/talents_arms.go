@@ -337,7 +337,7 @@ func (warrior *Warrior) registerWeaponmaster() {
 	// the shape, the mask and the rate's effect are all the caller's. Sweeping Strikes' hits never
 	// roll it, and Whirlwind and Cleave roll it once a cast however many targets they land on
 	// (EV-0054). Which target's hit takes that roll is not measured; here the first landed one
-	// does, since a hit that is avoided never reaches the condition. Windfury Totem's strike rolls it
+	// does, since a hit that is avoided never reaches the condition. A Windfury Totem hit rolls it
 	// as a white swing does (EV-0002). Swings other procs grant (Hand of Justice, Thrash Blade) bring
 	// one as well.
 	// TODO: Ingame test needed: whether Whirlwind's off-hand strike (its own spell, 462891 in game)

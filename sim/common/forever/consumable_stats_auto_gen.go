@@ -69,6 +69,8 @@ func RegisterAllStatConsumables() {
 		5477,   // Strider Stew
 		5479,   // Crispy Lizard Tail
 		5480,   // Lean Venison
+		5525,   // Boiled Clams
+		5526,   // Clam Chowder
 		5527,   // Goblin Deviled Clams
 		5997,   // Elixir of Minor Defense
 		6038,   // Giant Clam Scorcho
@@ -134,6 +136,7 @@ func RegisterAllStatConsumables() {
 		13933,  // Lobster Stew
 		13934,  // Mightfish Steak
 		13935,  // Baked Salmon
+		16766,  // Undermine Clam Chowder
 		16971,  // Clamlette Surprise
 		17048,  // Rumsey Rum
 		17197,  // Gingerbread Cookie
@@ -201,6 +204,7 @@ func RegisterAllStatConsumables() {
 		250078, // Giant Scrambled Eggs
 		250079, // Tasty Raptor Bites
 		250080, // Breakfast Omelette
+		250081, // Clam Linguine
 		250328, // Elixir of Cunning
 		250329, // Elixir of the Phalanx
 		250330, // Minor Cleric's Elixir

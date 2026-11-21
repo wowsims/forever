@@ -129,10 +129,10 @@ func (shaman *Shaman) imbueProcManager(imbue proto.ShamanImbue, ppm float64, cha
 	return &dpm
 }
 
-// Each strike is 439440, a main-hand ability (EV-0012), dealing the main
+// Each Windfury Weapon hit is 439440, a main-hand ability (EV-0012), dealing the main
 // hand's weapon damage with 16361's attack power added. It rolls the weapon special's table of miss,
 // dodge, parry and crit and never glances, and listeners hear it as an ability: Flametongue Totem,
-// whose row hears swings alone, procs off the swing that brought the strikes and off none of them.
+// whose row hears swings alone, procs off the swing that brought the hits and off none of them.
 func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 	// Elemental Weapons raises effect 1, which the parse would read as damage.
 	attackPower := windfuryWeaponAttack.EffectN(1).Average() * shaman.windfuryWeaponMultiplier
@@ -151,9 +151,10 @@ func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 }
 
 // 439431 rolls its 20% on the main hand's melee hits, once per 1.5 s, and fires the rank's 16361,
-// whose extra attacks count is how many strikes follow. It rolls off the hit's cast result, and the
-// strikes follow once that hit has been dealt, in the same instant. The row hears abilities, the
-// strikes among them, but they land inside the 1.5 s the proc has just started, so they never roll.
+// whose extra attacks count is how many Windfury hits follow. It rolls off the hit's cast result, and
+// the Windfury hits follow once that hit has been dealt, in the same instant. The row hears
+// abilities, the Windfury hits among them, but they land inside the 1.5 s the proc has just started,
+// so they never roll.
 func (shaman *Shaman) RegisterWindfuryImbue() {
 	strike := shaman.newWindfuryImbueSpell()
 	count := int(windfuryWeaponAttack.ExtraAttacksEffect().BaseValue())

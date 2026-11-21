@@ -272,7 +272,7 @@ func (rogue *Rogue) registerHackAndSlash() {
 		}
 	}
 
-	// Windfury Totem's strike rolls it at a main-hand hit's chance when the main hand holds a sword or axe (EV-0002, EV-0128).
+	// A Windfury Totem hit rolls it at a main-hand hit's chance when the main hand holds a sword or axe (EV-0002, EV-0128).
 	var extraAttack *core.Spell
 	swordAura := rogue.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Hack and Slash (Axe/Sword)",

@@ -657,8 +657,8 @@ func TestPartyDarkspearReadsTheItemTheRequestCarries(t *testing.T) {
 	t.Errorf("the character carries no aura of spell %d, want the party's Darkspear", darkspear.GetSpellId())
 }
 
-// The totem aura bids the attack power the totem's strike adds for the category,
-// and its trigger waits the raid aura's cooldown between procs. The strike is a
+// The totem aura bids the attack power the Windfury hit adds for the category,
+// and its trigger waits the raid aura's cooldown between procs. The Windfury hit is a
 // main-hand special, and no aura puts the attack power on the character.
 func TestGeneratedWindfuryTotemBidsTheAttackPowerItsStrikeAdds(t *testing.T) {
 	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{WindfuryTotem: true}, &proto.PartyBuffs{}, &proto.IndividualBuffs{})
@@ -684,24 +684,24 @@ func TestGeneratedWindfuryTotemBidsTheAttackPowerItsStrikeAdds(t *testing.T) {
 	}
 	strike := char.GetSpell(core.ActionID{SpellID: 10610})
 	if strike == nil {
-		t.Fatal("the totem registered no strike")
+		t.Fatal("the totem registered no Windfury hit")
 	}
 	if strike.ProcMask != core.ProcMaskMeleeMHSpecial {
-		t.Errorf("the strike's proc mask is %v, want a main-hand special's", strike.ProcMask)
+		t.Errorf("the Windfury hit's proc mask is %v, want a main-hand special's", strike.ProcMask)
 	}
 	if char.GetAura("Windfury Totem (External)") != nil {
-		t.Error("the totem registered an attack power aura, want the attack power on the strike alone")
+		t.Error("the totem registered an attack power aura, want the attack power on the Windfury hit alone")
 	}
 }
 
-// The attack power the totem's strike adds, the raid aura's dummy effect.
+// The attack power the Windfury hit adds, the raid aura's dummy effect.
 func windfuryTotemAttackPower(t *testing.T) float64 {
 	t.Helper()
 	return rowAmount(t, 10612, dbcenums.A_DUMMY)
 }
 
 // The pet owner's sim under Windfury Totem with every auto attack stopped, the
-// owner's totem trigger up and the strike it casts.
+// owner's totem trigger up and the Windfury hit it casts.
 func windfuryTotemSim(t *testing.T) (*core.Simulation, *petOwner, *core.Unit, *core.Aura, *core.Spell) {
 	t.Helper()
 	sim, owner := setupPetOwnerSim(&proto.RaidBuffs{WindfuryTotem: true}, &proto.PartyBuffs{})
@@ -711,7 +711,7 @@ func windfuryTotemSim(t *testing.T) (*core.Simulation, *petOwner, *core.Unit, *c
 	trigger := owner.GetAura("Windfury Totem Trigger")
 	strike := owner.GetSpell(core.ActionID{SpellID: 10610})
 	if trigger == nil || strike == nil || !trigger.IsActive() {
-		t.Fatalf("the trigger is %v and the strike %v, want both registered and the trigger up", trigger, strike)
+		t.Fatalf("the trigger is %v and the Windfury hit %v, want both registered and the trigger up", trigger, strike)
 	}
 	return sim, owner, sim.Encounter.AllTargetUnits[0], trigger, strike
 }
@@ -719,7 +719,7 @@ func windfuryTotemSim(t *testing.T) (*core.Simulation, *petOwner, *core.Unit, *c
 // Windfury Totem's proc is the raid aura's: a main-hand auto or main-hand
 // special that lands can fire it, whether or not it deals damage. No other hit
 // can, a proc's hit and a hit with no defense type included. Each proc casts
-// the strike, and the cooldown lets hits in one instant fire it once.
+// the Windfury hit, and the cooldown lets hits in one instant fire it once.
 func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 	for _, row := range []struct {
 		name    string
@@ -751,17 +751,17 @@ func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 				want = 1
 			}
 			if got := strike.SpellMetrics[target.UnitIndex].Casts; got != want {
-				t.Errorf("200 hits of %s in one instant cast %d strikes, want %d", row.name, got, want)
+				t.Errorf("200 hits of %s in one instant cast %d Windfury hits, want %d", row.name, got, want)
 			}
 		})
 	}
 }
 
-// A proc casts one strike once the hit that fired it has been dealt, in the
-// same instant. The strike deals the main hand's weapon damage with the raid
+// A proc casts one Windfury hit once the hit that fired it has been dealt, in the
+// same instant. The Windfury hit deals the main hand's weapon damage with the raid
 // aura's attack power added, and never glances. It would roll the totem itself,
 // but it lands inside the cooldown its proc has just started, so a proc never
-// brings a second strike.
+// brings a second Windfury hit.
 func TestGeneratedWindfuryTotemProcCastsOneStrike(t *testing.T) {
 	sim, owner, target, trigger, strike := windfuryTotemSim(t)
 	weapon := *owner.AutoAttacks.MH()
@@ -780,22 +780,22 @@ func TestGeneratedWindfuryTotemProcCastsOneStrike(t *testing.T) {
 		}
 		procs++
 		if casts() != before {
-			t.Fatal("the strike was cast before the auto that procced it was dealt")
+			t.Fatal("the Windfury hit was cast before the auto that procced it was dealt")
 		}
 		stepTo(t, sim, sim.CurrentTime+1)
 		if got := casts() - before; got != 1 {
-			t.Fatalf("a proc cast %d strikes in its auto's instant, want 1", got)
+			t.Fatalf("a proc cast %d Windfury hits in its auto's instant, want 1", got)
 		}
 	}
 	if procs == 0 {
 		t.Fatal("2000 main-hand autos never procced the totem")
 	}
 	if got := strike.SpellMetrics[target.UnitIndex].Glances; got != 0 {
-		t.Errorf("%d of the strikes glanced, want none", got)
+		t.Errorf("%d of the Windfury hits glanced, want none", got)
 	}
 
 	// The weapon deals the same damage every swing and both hits face the same
-	// armor, so a strike's plain hit is an auto's plain hit scaled by the
+	// armor, so a Windfury hit's plain hit is an auto's plain hit scaled by the
 	// weapon damage the extra attack power adds.
 	plainHit := func(spell *core.Spell) float64 {
 		m := spell.SpellMetrics[target.UnitIndex]
@@ -808,7 +808,7 @@ func TestGeneratedWindfuryTotemProcCastsOneStrike(t *testing.T) {
 	attackPower := strike.MeleeAttackPower(target)
 	want := weapon.CalculateAverageWeaponDamage(attackPower+windfuryTotemAttackPower(t)) / weapon.CalculateAverageWeaponDamage(attackPower)
 	if got := plainHit(strike) / plainHit(mhAuto); math.Abs(got-want) > 1e-9 {
-		t.Errorf("a strike hits %v times as hard as an auto, want %v from the raid aura's attack power", got, want)
+		t.Errorf("a Windfury hit deals %v times an auto's damage, want %v from the raid aura's attack power", got, want)
 	}
 
 	trigger.Icd.Reset()
@@ -816,11 +816,11 @@ func TestGeneratedWindfuryTotemProcCastsOneStrike(t *testing.T) {
 		trigger.OnCastResult(trigger, sim, strike, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
 	}
 	if trigger.Icd.IsReady(sim) {
-		t.Error("200 strikes offered off the cooldown never procced the totem, so the single strikes above prove nothing about it")
+		t.Error("200 Windfury hits offered off the cooldown never procced the totem, so the single Windfury hits above prove nothing about it")
 	}
 }
 
-// A landed strike grants a rage user the rage a landed main-hand auto does,
+// A landed Windfury hit grants a rage user the rage a landed main-hand auto does,
 // the crit bonus included, and a missed one grants none.
 func TestGeneratedWindfuryTotemStrikeGrantsSwingRage(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
@@ -841,7 +841,7 @@ func TestGeneratedWindfuryTotemStrikeGrantsSwingRage(t *testing.T) {
 	target := sim.Encounter.AllTargetUnits[0]
 	strike := warrior.GetSpell(core.ActionID{SpellID: 10610})
 	if strike == nil {
-		t.Fatal("the totem registered no strike")
+		t.Fatal("the totem registered no Windfury hit")
 	}
 
 	rage := func(spell *core.Spell, outcome core.HitOutcome) float64 {
@@ -855,11 +855,11 @@ func TestGeneratedWindfuryTotemStrikeGrantsSwingRage(t *testing.T) {
 			t.Fatalf("a main-hand auto's %v granted no rage", outcome)
 		}
 		if got := rage(strike, outcome); !core.WithinToleranceFloat64(got, swing, 1e-9) {
-			t.Errorf("a strike's %v granted %v rage, want the main-hand auto's %v", outcome, got, swing)
+			t.Errorf("a Windfury hit's %v granted %v rage, want the main-hand auto's %v", outcome, got, swing)
 		}
 	}
 	if got := rage(strike, core.OutcomeMiss); got != 0 {
-		t.Errorf("a missed strike granted %v rage, want none", got)
+		t.Errorf("a missed Windfury hit granted %v rage, want none", got)
 	}
 }
 
