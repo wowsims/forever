@@ -999,6 +999,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-GiftoftheGatheringStorm"
+ value: {
+  dps: 875.27502
+  tps: 820.31402
+  dtps: 5.07566
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-GirdleofReprisal-11861"
  value: {
   dps: 849.08985
@@ -1465,9 +1473,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-NecropileRaiment"
  value: {
-  dps: 793.70441
-  tps: 733.22059
-  dtps: 5.49191
+  dps: 796.35821
+  tps: 734.78503
+  dtps: 5.76598
  }
 }
 dps_results: {
@@ -1743,6 +1751,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Spider'sKiss"
+ value: {
+  dps: 819.9203
+  tps: 755.90406
+  dtps: 6.7576
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 840.12363
@@ -1761,8 +1777,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Stormcaller'sGarb"
  value: {
-  dps: 837.51205
-  tps: 773.65258
+  dps: 853.43821
+  tps: 787.77403
   dtps: 5.02007
  }
 }
@@ -1852,6 +1868,14 @@ dps_results: {
   dps: 801.59411
   tps: 739.59583
   dtps: 6.7576
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 867.23351
+  tps: 795.79374
+  dtps: 6.72845
  }
 }
 dps_results: {

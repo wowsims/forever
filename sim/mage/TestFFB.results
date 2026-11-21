@@ -981,8 +981,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-NecropileRaiment"
  value: {
-  dps: 829.33019
-  tps: 854.61106
+  dps: 830.42118
+  tps: 855.75196
  }
 }
 dps_results: {
@@ -1207,6 +1207,13 @@ dps_results: {
  value: {
   dps: 903.01379
   tps: 931.81544
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 882.22047
+  tps: 911.02213
  }
 }
 dps_results: {

@@ -1090,9 +1090,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-NecropileRaiment"
  value: {
-  dps: 886.53799
-  tps: 713.49657
-  dtps: 9.37385
+  dps: 888.17868
+  tps: 714.78287
+  dtps: 9.03948
  }
 }
 dps_results: {
@@ -1348,6 +1348,14 @@ dps_results: {
  value: {
   dps: 948.84825
   tps: 761.77422
+  dtps: 9.57023
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 926.76371
+  tps: 744.45994
   dtps: 9.57023
  }
 }

@@ -981,8 +981,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-NecropileRaiment"
  value: {
-  dps: 787.78261
-  tps: 671.47487
+  dps: 797.85797
+  tps: 680.43932
  }
 }
 dps_results: {
@@ -1207,6 +1207,13 @@ dps_results: {
  value: {
   dps: 871.64058
   tps: 747.15243
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 851.34711
+  tps: 730.63146
  }
 }
 dps_results: {

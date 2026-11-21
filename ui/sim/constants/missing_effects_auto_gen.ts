@@ -2541,23 +2541,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 					"Reduces the hit chance of Fear effects against you by 8%.", // 1301126 - https://www.wowhead.com/forever/spell=1301126
 				],
 			],
-			[
-				4,
-				[
-					"Chance on hit to gain 5% attack speed for 10s. Attacks while no allies are within 20 yds are 2 times as likely to activate this effect.", // 1301123 - https://www.wowhead.com/forever/spell=1301123
-				],
-			],
-		]),
-	],
-	[
-		65, // Spider's Kiss
-		new Map([
-			[
-				2,
-				[
-					"Chance on Hit: Immobilizes the target and lowers their armor by 100 for 10s.", // 17332 - https://www.wowhead.com/forever/spell=17332
-				],
-			],
 		]),
 	],
 	[
@@ -2573,50 +2556,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				4,
 				[
 					"Falling below 25% health grants Return to Sender, reflecting the next spell cast on you within 6s. Can only occur once every 3 min.", // 1302380 - https://www.wowhead.com/forever/spell=1302380
-				],
-			],
-		]),
-	],
-	[
-		122, // Necropile Raiment
-		new Map([
-			[
-				3,
-				[
-					"Harmful spell casts have a chance to steal 28 life from the target enemy.", // 1299737 - https://www.wowhead.com/forever/spell=1299737
-				],
-			],
-		]),
-	],
-	[
-		123, // Bloodmail Regalia
-		new Map([
-			[
-				3,
-				[
-					"Grants your melee attacks a chance to wound the target, causing them to Bleed for 70 damage over 10s.", // 1299740 - https://www.wowhead.com/forever/spell=1299740
-				],
-			],
-		]),
-	],
-	[
-		124, // Deathbone Guardian
-		new Map([
-			[
-				5,
-				[
-					"Reduces the chance for your attacks to be dodged or parried by 2%.", // 1213289 - https://www.wowhead.com/forever/spell=1213289
-				],
-			],
-		]),
-	],
-	[
-		161, // Defias Leather
-		new Map([
-			[
-				4,
-				[
-					"Grants your melee attacks a 5% chance when striking from behind to hit a vital point, causing the target to Bleed for 75 Physical damage over 5s.", // 1292028 - https://www.wowhead.com/forever/spell=1292028
 				],
 			],
 		]),
@@ -2641,12 +2580,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	[
 		163, // Chain of the Scarlet Crusade
 		new Map([
-			[
-				4,
-				[
-					"Taking damage has a 15% chance to grant Enraging Light for 10s, causing your melee attacks to deal 20 Holy damage. Deals 3 times as much damage to Undead.", // 1293674 - https://www.wowhead.com/forever/spell=1293674
-				],
-			],
 			[
 				6,
 				[
@@ -2905,39 +2838,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		494, // Symbols of Unending Life
-		new Map([
-			[
-				3,
-				[
-					"Your finishing moves now refund 30 energy on a Miss, Dodge, Block, or Parry.", // 26107 - https://www.wowhead.com/forever/spell=26107
-				],
-			],
-		]),
-	],
-	[
-		501, // Stormcaller's Garb
-		new Map([
-			[
-				3,
-				[
-					"Your Lightning Bolt, Chain Lightning, and Shock spells have a 20% chance to grant up to 50 Nature damage to spells for 8s.", // 26119 - https://www.wowhead.com/forever/spell=26119
-				],
-			],
-		]),
-	],
-	[
-		502, // Gift of the Gathering Storm
-		new Map([
-			[
-				3,
-				[
-					"Increases the chain target damage multiplier of your Chain Lightning spell by 5%.", // 26123 - https://www.wowhead.com/forever/spell=26123
-				],
-			],
-		]),
-	],
-	[
 		503, // Enigma Vestments
 		new Map([
 			[
@@ -2949,34 +2849,12 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		506, // Battlegear of Eternal Justice
-		new Map([
-			[
-				3,
-				[
-					"20% chance to regain 100 mana when you cast a Judgement.", // 26135 - https://www.wowhead.com/forever/spell=26135
-				],
-			],
-		]),
-	],
-	[
 		507, // Garments of the Oracle
 		new Map([
 			[
 				3,
 				[
 					"20% chance that your heals on others will also heal you 10% of the amount healed.", // 26169 - https://www.wowhead.com/forever/spell=26169
-				],
-			],
-		]),
-	],
-	[
-		510, // Trappings of the Unseen Path
-		new Map([
-			[
-				3,
-				[
-					"Increases your pet's damage by 3%.", // 26176 - https://www.wowhead.com/forever/spell=26176
 				],
 			],
 		]),
@@ -3030,18 +2908,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 					"Your normal melee swings have a chance to Invigorate you, healing you for 100.", // 28816 - https://www.wowhead.com/forever/spell=28816
 				],
 			],
-			[
-				4,
-				[
-					"Your Backstab, Sinister Strike, and Hemorrhage critical hits cause you to regain 5 energy.", // 28812 - https://www.wowhead.com/forever/spell=28812
-				],
-			],
-			[
-				8,
-				[
-					"Your Eviscerate has a chance per combo point to reveal a flaw in your opponent's armor, granting a 100% critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage.", // 28814 - https://www.wowhead.com/forever/spell=28814
-				],
-			],
 		]),
 	],
 	[
@@ -3073,12 +2939,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				6,
 				[
 					"Your Healing Wave and Lesser Healing Wave spells have a chance to imbue your target with Totemic Power.", // 28823 - https://www.wowhead.com/forever/spell=28823
-				],
-			],
-			[
-				8,
-				[
-					"Your Lightning Shield spell also grants you 15 mana per 5 sec. while active.", // 28821 - https://www.wowhead.com/forever/spell=28821
 				],
 			],
 		]),
@@ -3279,17 +3139,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		2071, // Teachings of the Furbolgs
-		new Map([
-			[
-				2,
-				[
-					"Your attacks have a chance to increase your Attack Power by 40 and your healing spells have a chance to increase your Intellect by 20 for 15s.", // 1294087 - https://www.wowhead.com/forever/spell=1294087
-				],
-			],
-		]),
-	],
-	[
 		2072, // Champion's Investiture
 		new Map([
 			[
@@ -3400,29 +3249,12 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		2098, // Manaflare Regalia
-		new Map([
-			[
-				5,
-				[
-					"Your Frostfire Bolt spell has a 10% increased chance to trigger Missile Barrage, gains 10% increased critical strike chance while your Combustion spell is active, and has a 10% increased chance to trigger Fingers of Frost.", // 1301488 - https://www.wowhead.com/forever/spell=1301488
-				],
-			],
-		]),
-	],
-	[
 		2100, // Demonheart Raiment
 		new Map([
 			[
 				3,
 				[
 					"Reduces the cast time of your Banish spell by 1.5 sec.", // 1301068 - https://www.wowhead.com/forever/spell=1301068
-				],
-			],
-			[
-				5,
-				[
-					"Your Life Tap generates 20% more Mana at no additional Health cost.", // 1301715 - https://www.wowhead.com/forever/spell=1301715
 				],
 			],
 		]),
@@ -3549,18 +3381,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		2131, // Partners in Crime
-		new Map([
-			[
-				2,
-				[
-					"Chance on melee swing to become Angry, increasing Strength by 50 for 10s.", // 1317039 - https://www.wowhead.com/forever/spell=1317039
-					"+22 Strength.", // 1317038 - https://www.wowhead.com/forever/spell=1317038
-				],
-			],
-		]),
-	],
-	[
 		2132, // Blessing of Kalimdor
 		new Map([
 			[
@@ -3575,43 +3395,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		2133, // Rotmender's Raiment
 		new Map([
 			[
-				4,
-				[
-					"When your Mana falls below 15%, restore 200 Mana over 10s. Restores twice as much Mana in Haunted and Wasteland areas. May only occur once every 5 min.", // 1321560 - https://www.wowhead.com/forever/spell=1321560
-				],
-			],
-			[
 				5,
 				[
 					"Grants your healing spells a chance to heal for an additional 40 Health every 3.0 sec for 15s.", // 1321587 - https://www.wowhead.com/forever/spell=1321587
-				],
-			],
-		]),
-	],
-	[
-		2134, // Violet Sorcerer's Vestments
-		new Map([
-			[
-				4,
-				[
-					"Chance on damaging spell to allow 15% of your Mana regeneration to continue while casting for 15s. This Mana Regeneration is doubled in Strongholds and Cities.", // 1324318 - https://www.wowhead.com/forever/spell=1324318
-				],
-			],
-			[
-				5,
-				[
-					"Chance on damaging spell to summon an Arcane elemental to aid you in combat.", // 1324323 - https://www.wowhead.com/forever/spell=1324323
-				],
-			],
-		]),
-	],
-	[
-		2136, // Defias Enforcer's Garb
-		new Map([
-			[
-				5,
-				[
-					"Melee attacks have a chance to increase your Critical Strike chance by 2% for 20s. This effect is doubled in swamps.", // 1324684 - https://www.wowhead.com/forever/spell=1324684
 				],
 			],
 		]),
