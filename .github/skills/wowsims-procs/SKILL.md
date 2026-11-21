@@ -135,10 +135,12 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of
   Clarity's is in `sim/druid/omen_of_clarity.go`, Revelation's in `sim/common/forever/enchants.go`.
 - **Which hits a weapon rate counts** is EV-0155's class census: each landed hit that rolls, priced on its own weapon's
-  base speed; Execute and Judgement of Command roll twice and are left out with their procs. Paladins and druids in a
-  form are left out of every rate (owner ruling, 2026-11-19; EV-0153). A proc that lands on the target logs almost
-  never on a killing blow, so for such a proc a killing blow is no roll; and a report that lists one stretch of the log
-  under several fight ids repeats its events, which count once (EV-0153).
+  base speed; Judgement of Command rolls twice, and Execute twice up to hotfix push 114313 (2026-11-20), and both are
+  left out with their procs. After that push Execute's cast suppresses weapon procs; the first logs read between one
+  and two rolls on few wearers (EV-0155). Paladins and druids in a form are left out of every rate (owner ruling,
+  2026-11-19; EV-0153). A proc that lands on the target logs almost never on a killing blow, so for such a proc a
+  killing blow is no roll; and a report that lists one stretch of the log under several fight ids repeats its events,
+  which count once (EV-0153).
 
 ## Traps
 

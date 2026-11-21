@@ -1,7 +1,9 @@
 # EV-0155: Which hits roll a weapon proc, by class
 
 EV-0156 splits the reading that a Judgement of the Crusader, Justice, Light or Wisdom landing rolls a weapon proc once:
-it holds to 2026-11-13, and since that day's hotfix the landing rolls nothing.
+it holds to 2026-11-13, and since that day's hotfix the landing rolls nothing. The section After hotfix push 114313
+dates the Execute reading: Execute rolls twice up to that push (2026-11-20), and the first hours after it read
+between one and two rolls on few wearers. Judgement of Command still rolls twice after it.
 
 - Claim: Execute rolls a weapon proc twice, on both hand setups: with killing blows left out, Execute units hold 1.95
   times the procs one roll gives. Judgement of Command rolls twice, 1.85 [1.78, 1.93]. The
@@ -15,8 +17,8 @@ it holds to 2026-11-13, and since that day's hotfix the landing rolls nothing.
   runs in 2,361 reports, too many to list; the examples below name report, fight and time
 - Game build: 1.60.1.70790 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114196; the hotfix
   each player ran is not recorded
-- Date: 2026-11-05 to 2026-11-19
-- Pull request: #1108
+- Date: 2026-11-05 to 2026-11-19; the section After hotfix push 114313 has its own build and dates
+- Pull request: #1108; #1151 added the section After hotfix push 114313
 
 ## Method
 
@@ -112,6 +114,64 @@ units hold 553 with a proc where one roll at the same weapon's white chance give
 the reports up to 2026-11-19, with killing blows left out (#1108's review), reads Execute at 1.90 [1.70, 2.08] with no
 off-hand weapon and 1.94 [1.73, 2.16] dual wielding, Mocking Blow at 0.97 [0.66, 1.29] on 346 units, Mongoose Bite at
 0.95 and 1.13 on 189 and 162 units, and Summon Hawk's hits at 1.05 [0.95, 1.13] on 4,140 units.
+
+## After hotfix push 114313
+
+Hotfix push 114313 sets Suppress Weapon Procs on Execute's cast rows 5308, 20658, 20660, 20661 and 20662, takes Suppress
+Caster Procs off them, and sets Suppress Weapon Procs on Judgement 20271. It changes no Judgement of Command row.
+
+- Game build: 1.60.1.71037. The push is missing from the game files' hotfix cache of 2026-11-20 22:16 UTC and present
+  in the one of 23:47 UTC. Report 8vY4qHxyMNWd36aK, one warrior's log with no gap, shows the switch between 23:35:49
+  and 00:01:37 UTC, with no restart. The hotfix each player ran is not recorded.
+- Date: before is 2026-11-20 up to 22:16 UTC; after is 2026-11-20 23:47 UTC to 2026-11-21 08:05 UTC, about eight hours
+  of play in 1,390 reports. Events between 22:16 and 23:47 count on neither side.
+
+The counts use this file's method, killing blows left out, and white chances from the same class in the same period.
+Execute's rows take the census weapons and EV-0153's weapons whose procs land on the target within a known delay;
+Bigger Rock, whose strike chains, is a row of its own.
+
+| Unit                                      | Period            | Wearers |  Units | With a proc | One roll would give | Ratio [95%]       | Reading   |
+| ----------------------------------------- | ----------------- | ------: | -----: | ----------: | ------------------: | ----------------- | --------- |
+| Paladin, A: Judgement of Command          | to 2026-11-19     |     274 | 17,148 |       3,524 |               1,903 | 1.85 [1.77, 1.93] | two rolls |
+| Paladin, A: Judgement of Command          | 2026-11-20 before |      65 |  4,443 |         908 |                 462 | 1.96 [1.78, 2.15] | two rolls |
+| Paladin, A: Judgement of Command          | after             |      43 |  2,400 |         431 |                 247 | 1.75 [1.55, 2.00] | two rolls |
+| Paladin, D: Judgement of the Crusader + W | after             |      39 |  1,158 |         132 |                 125 | 1.06 [0.89, 1.24] | one roll  |
+| Warrior, A: Execute                       | to 2026-11-19     |     122 |  2,831 |         455 |                 240 | 1.90 [1.72, 2.07] | two rolls |
+| Warrior, A: Execute                       | 2026-11-20 before |      10 |    188 |          24 |                14.3 | 1.68 [1.10, 2.50] | thin      |
+| Warrior, A: Execute                       | after             |       9 |     73 |           7 |                 5.8 | 1.20 [0.48, 2.00] | thin      |
+| Warrior, A: Execute, Bigger Rock          | 2026-11-20 before |       5 |    148 |          23 |                17.0 | 1.35 [0.99, 1.63] | thin      |
+| Warrior, A: Execute, Bigger Rock          | after             |       2 |     78 |           9 |                 7.6 | 1.19 [0.54, 2.25] | thin      |
+
+Judgement of Command reads two rolls after the push in every hour from 00:00 to 07:00 UTC (1.6 to 1.9), and the 19
+paladins with units on both sides read 2.06 [1.82, 2.43] after it. 25 lone Judgement of Command units after it hold two
+procs, against 26.6 for two rolls; 0 of 4,131 lone white swings do. The Judgement of the Crusader row counts Bigger
+Rock's wearers too. Execute's two rows after the push pool to 1.19 on 11 warriors, Poisson interval 0.68 to 1.94: one
+roll fits and two sit at the edge. The readings before the push on 2026-11-20 already sit between one and two, so the
+logs do not yet show Execute's change.
+
+Windfury Totem off Execute, with the totem in range (another strike of the warrior within 5 s) and no overkill, against
+the same warrior's Heroic Strike, Bloodthirst, Mortal Strike, Revenge, Overpower, Slam and Hamstring. Two rolls read
+about 1.81:
+
+| Period            | Ranks | Warriors | Landed Executes struck | Ratio [95%]       | Avoided Executes struck |
+| ----------------- | ----- | -------: | ---------------------: | ----------------- | ----------------------: |
+| 2026-11-14 to 15  | 1–4   |       45 |                217/664 | 1.73 [1.53, 2.00] |                   17/77 |
+| 2026-11-14 to 15  | 5     |       12 |                 33/203 | 0.99 [0.65, 1.46] |                    0/16 |
+| 2026-11-20 before | 1–4   |       48 |                108/558 | 1.01 [0.82, 1.24] |                    0/83 |
+| 2026-11-20 before | 5     |       64 |              227/1,266 | 1.05 [0.90, 1.19] |                   0/105 |
+| after             | 1–4   |       39 |                153/480 | 1.68 [1.38, 1.98] |                   10/74 |
+| after             | 5     |       50 |              507/1,350 | 2.09 [1.89, 2.31] |                   18/97 |
+
+Every rank's cast rolls the totem again after the push, an avoided Execute included; leaving out one warrior at a time
+keeps ranks 1–4 at 1.60 to 1.74. Shield Slam and Shield Bash drew no strike on 2026-11-20 on either side, so the
+reference leaves them out.
+
+Reports after the push, Judgement of Command: 1RYWd3fA9tJMPL6G, 1wbzNyLhKQvMGTtm, 28AFzYhbjwZGqx1T, 2d69FD7QXBaVmNtH, 38jkDhQAVGYvpwqc, 3rVjZ4gfbQm12Y6F, 4VdfDNBWZvk8pJnH, 6YqkW3zmJLKNBMnj, 8Dd1whVHJcm4XnRx, 9AVbQBj3Ckq12cTL, APjaWhT6kfvRxZb8, AbBcj4dL7yXVzCft, BtJP21rynT4kQY7C, D1RGNCTjcJxvYd6a, G3TNcd2vzx89a7fj, GHn7VRAP9mjLDTc1, Gm4f9LFAZrWzTJdC, GvBdKFbyLQnH76Jz, HhpZmgKMfXjzWwrk, JdVwfvqRHcxyaF14, Lh87FKNJvRX6Ccpf, MPWQdq86nXbwk7tR, NKHzt9GyVJMd7x3j, NWVCbLJK3taTmkfQ, NxKhn6PDpmg8WF4G, PKVJGwaRHz1qfYZx, PT7AtvXWkrQgLCpn, PqFpXZx4NQ2Mm81v, RphZTjABx9cYDwJF, T9fhDpRaFzGHP4By, VKPvXq7kJwcZGW6L, W9nck8JraRvxBDF4, WBXnyNJ46VYjA2Qm, X93jK7N6aALMpWnD, YB93KnL7VMdtJWH4, YCrzxNT1hWZJQvBL, YdzQHMp4GhrJ2A7n, Z48VBnhdrxPTMYyz, Z8Fx4J1c6htrT7fq, ZC73QxMhdPrpTavb, aV4L8grZWvDRz3MF, bHkgvJcQaRpXYB3y, cj32G8gw9pvAZdxk, hMadZHPw4cA6XLJW, jAdhbnXrCDJfvmQF, jFxXVgMTftpPGDQw, jNLqmbwFYt16JT3v, k96y3KTD4qtpLNrC, ktRfG63rXBLdPcpA, mHFdMA8zXTaxLDyP, mQv7YCGNHwkAMJ6d, mprAaDbTyH7Pvj9R, nrNzAVCtHKfPXdpk, pA1nYfC3BF7vDxJL, pMGyN9hFa8XRAHxV, prw16bXnmtg8cLya, q167YKJGNhjpZcCz, rMkqF3LHcbPvZNwt, rqc2pdNPg4Xyh3nt, wf3Vdy7DxXYgKhMv, wrKpnNaxqj2ydFAM, yRK2MZNanDbAdq1Q, z1dHvNPABL9Kba8J, zCMpYhkZQt7PKanf, zLFgy8AV3JxbHh4w. Execute's weapon procs: 1RYWd3fA9tJMPL6G, 3ygCHfWnAqdmRbrF, 9HCnBrxmMAz8tvjW, DLApcY8P6y2xWqRh, FbhmQgZj9TH7f84t, HaqMK2rTjDn6AY1C, NTbRAz19k3DMZ7Ka, TwYLbd7Fj9NxgRMv, dbXaAxv1cTVMh49j, fmR1tDMXHzTpjPJw, k4v2tVp6gcJRw8fW. The totem
+rows name 126 reports after the push, in `codes_post_totem_r2.txt`; fights are not listed.
+
+Scripts and output, in `forever-double-roll-post114313`: `extract_r2.py`, `units_r2.py` and `report_r2.py`
+(`report_r2_period.md`), `joc_extra_r2.py` (`joc_extra_out_r2.md`), and `totem_ratio.py` and `totem_ranks.py`
+(`totem_ratio_out_r2.md`, `totem_ranks_out_r2.txt`).
 
 ## Strikes, imbues and poisons
 
