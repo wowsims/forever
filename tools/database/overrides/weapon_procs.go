@@ -915,8 +915,8 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Pyromancer's Baton: column reads 101",
 		Source:  "EV-0136",
 	},
-	// Measured the same way on the reports from 2026-11-14 to 2026-11-22, paladins included: their rolls are the
-	// census's, and their lone white swings read the warrior's chance (EV-0179).
+	// Measured the same way on the reports from 2026-11-14 to 2026-11-22, paladins included: their rolls are EV-0155's
+	// and EV-0156's, and their lone white swings read the warrior's chance (EV-0179).
 	{
 		ItemID:  14541,
 		SpellID: 18652,

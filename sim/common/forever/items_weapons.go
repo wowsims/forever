@@ -579,6 +579,8 @@ func init() {
 	// Siphon Health 18652 goes on with every proc, with no hit roll of its own. Each of its ticks casts
 	// Siphon Health 18653 on the wearer, a heal for the amount the drain's row states, whatever the tick
 	// dealt. The heal crits on a roll of its own (EV-0179).
+	// TODO: the heal crits several times as often as the tick in the logs (EV-0179), and the sim rolls both
+	// on the wearer's spell crit. Measure which chance each rolls.
 	shared.DamageProcExtras[14541] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(config.ActionID.SpellID)
 		drain := row.PeriodicDamageEffect()
@@ -588,7 +590,11 @@ func init() {
 			spell.DealOutcome(sim, result)
 		}
 
-		healConfig := procSpellConfigAs(character, row.Triggered()[0], spelldata.Magic(core.ProcMaskSpellHealing))
+		linked := row.Triggered()
+		if len(linked) != 1 || linked[0].HealEffect() == spelldata.NilEffect {
+			panic(fmt.Sprintf("Barovian Family Sword: %d links to %d spells, want its heal alone", row.ID, len(linked)))
+		}
+		healConfig := procSpellConfigAs(character, linked[0], spelldata.Magic(core.ProcMaskSpellHealing))
 		// The heal's row states no defense type, and a heal crits for the magic multiplier.
 		healConfig.DefenseType = core.DefenseTypeMagic
 		healConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

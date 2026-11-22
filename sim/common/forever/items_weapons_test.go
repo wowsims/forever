@@ -400,15 +400,14 @@ func TestBarovianFamilySwordHealsTheWearerWithEveryTick(t *testing.T) {
 	character.AutoAttacks.CancelAutoSwing(sim)
 	row := spelldata.MustFind(18652)
 	drain := row.PeriodicDamageEffect()
-	linked := row.Triggered()
 	proc := character.GetAura("Barovian Family Sword")
 	siphon := character.GetSpell(core.ActionID{SpellID: row.ID})
-	if proc == nil || proc.Dpm == nil || siphon == nil || len(linked) != 1 {
-		t.Fatalf("14541 registers no drain or no proc on a procs per minute rate, or 18652 links to %d spells, want its heal alone", len(linked))
+	if proc == nil || proc.Dpm == nil || siphon == nil {
+		t.Fatal("14541 registers no drain or no proc on a procs per minute rate")
 	}
-	heal := character.GetSpell(core.ActionID{SpellID: linked[0].ID})
-	if heal == nil || linked[0].HealEffect() == spelldata.NilEffect {
-		t.Fatalf("14541 registers no heal for %d, the spell 18652 links to", linked[0].ID)
+	heal := character.GetSpell(core.ActionID{SpellID: row.Triggered()[0].ID})
+	if heal == nil {
+		t.Fatal("14541 registers no heal for the spell its drain links to")
 	}
 	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 14541, 18652)
 	ticks := rowTickCount(row, drain)
@@ -425,9 +424,6 @@ func TestBarovianFamilySwordHealsTheWearerWithEveryTick(t *testing.T) {
 	enemy.PseudoStats.DamageTakenMultiplier *= 0.5
 
 	dealHit(t, sim, character, meleeSwing(&character.Unit))
-	if !siphon.Dot(enemy).IsActive() {
-		t.Fatal("a main-hand swing put no drain on the target")
-	}
 	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
 	drained := siphon.SpellMetrics[enemy.UnitIndex]
 	if drained.Ticks != ticks || drained.TotalDamage <= 0 || drained.TotalDamage > float64(ticks)*amount/2 {
@@ -439,7 +435,7 @@ func TestBarovianFamilySwordHealsTheWearerWithEveryTick(t *testing.T) {
 			healed.TotalHealing, healed.Casts, healed.Crits, ticks, amount)
 	}
 
-	// The heal crits where the wearer's spells do.
+	// The sim rolls the heal's crit on the wearer's spell crit.
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: 100})
 	dealHit(t, sim, character, meleeSwing(&character.Unit))
 	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)

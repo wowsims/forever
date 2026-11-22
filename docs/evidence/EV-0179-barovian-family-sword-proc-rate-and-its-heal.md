@@ -1,9 +1,9 @@
 # EV-0179: Barovian Family Sword's proc rate and its heal
 
 - Claim: Barovian Family Sword (item 14541) casts Siphon Health (18652) at 1.9 procs per minute, priced on the weapon
-  base speed (2.1) of each hit that rolls it, with paladins counted by EV-0156's rolls. The drain goes on with every
-  proc, with no hit roll. Each of its ticks heals the wearer through Siphon Health (18653) for the 49 the drain's row
-  states, whatever the tick dealt, and the heal crits on a roll of its own.
+  base speed (2.1) of each hit that rolls it, with paladins counted by EV-0155's and EV-0156's rolls. The drain goes on
+  with every proc, with no hit roll, and each of its ticks heals the wearer through Siphon Health (18653) for the 49 the
+  drain's row states, whatever the tick dealt; the heal crits on a roll of its own.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights listed below
 - Game build: Warcraft Logs reports 1.60.1.70938 to 1.60.1.71037 by report date (70938 from 2026-11-13 01:36 UTC, 70959
   from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23 UTC); the hotfix each player ran is not recorded. The last
@@ -21,18 +21,21 @@ Every player whose gear shows the sword or who casts Siphon Health in a report: 
 whole and one only its last 48 minutes, and count once; two reports with one proc each are left out.
 
 A proc is an application or a refresh of the drain by the wearer; both log, at the millisecond of the hit that cast it
-(1,689 of 1,816 at the same millisecond, 116 one later). A unit is the wearer's hits on the melee table at one
-millisecond on one target, and a proc goes to the unit at its millisecond on its target. Only units strictly between a
-wearer's first and last proc count, the gear shows no other main hand between them, and the longest run with no proc
-is 102 units. A unit with a killing blow is no roll, as in EV-0153: 2 procs on 351 of them. The 10 procs with no
-melee-table hit at their millisecond are left out.
+(1,689 of the 1,816 in the 15 runs at the same millisecond, 116 one later, 11 further off or with no hit near). A unit
+is the wearer's hits on the melee table at one millisecond on one target, and a proc goes to the unit at its millisecond
+on its target. Only units strictly between the first and last proc of a stretch count: a stretch is a wearer's procs
+with no gear snapshot of another main hand between them, and the longest run with no proc is 102 units. A unit with a
+killing blow is no roll, as in EV-0153. Of the 1,816 procs, the 32 that open or close one of the 16 stretches, the 2 on
+the 351 killing-blow units and the 10 with no melee-table hit at their millisecond are outside the 1,772 of the rate.
 
 The rolls are EV-0155's and EV-0156's: a white swing, a seal's hit, Holy Strike, a Windfury Totem hit and a melee
-ability roll once, Judgement of Command twice and, in these warrior runs of 2026-11-17, Execute twice. Every run starts
-after the Judgement's own roll ended on 2026-11-13. A lone white swing is a white swing with no other melee-table hit
-of the wearer within 100 ms; it needs no roll table and checks the rate.
+ability roll once, Judgement of Command twice and, in these warrior runs of 2026-11-17, Execute twice. The two-roll hits
+stay in the count: without the units that hold only a Judgement of Command or an Execute (528 rolls, 35 procs) the
+chance is 1,737 of 25,838, the same 6.72%. Every run starts after the Judgement's own roll ended on 2026-11-13. A lone
+white swing is a white swing with no other melee-table hit of the wearer within 100 ms; it needs no roll table and
+checks the rate.
 
-Each tick of the drain is paired with the heal the wearer logs within 5 ms of it.
+Each tick of the drain is paired with the heal the wearer logs as Siphon Health 18653 within 5 ms of it.
 
 ## Rates
 
@@ -77,15 +80,18 @@ refresh (333 of 358 first ticks after a refresh, to the nearest 100 ms). An appl
 refresh ticks 5 times (635 of 649).
 
 Of 5,956 ticks, 5,917 have a heal beside them. The heal reads 49 on 4,959 and 73 or 74, a crit of 1.5 times, on 921. The
-other 37 read a quarter or a half of those, under a debuff on healing taken. The heal does not follow the tick: 1,875
-heals sit beside a tick that reads something other than 49, and 1,869 of them read 49, 73 or 74. A tick that deals
-nothing still heals: all 28 such ticks, 16 absorbed and 12 on an immune target, have their heal. The paladins' heals
-crit on 881 of 5,298 and the warrior's on 47 of 619; the ticks crit on 192 of 5,336 and on 1 of 620.
+other 37 read a quarter or a half of those, under a debuff on healing taken, and 7 of them are crits. The heal does not
+follow the tick: 1,875 heals sit beside a tick that reads something other than 49, and 1,869 of them read 49, 73 or 74.
+A tick that deals nothing still heals: all 28 such ticks, 16 absorbed and 12 on an immune target, have their heal.
 
-The tick's amount before the target's resistance and absorbs is 49 on 4,376 of 5,751 ticks that did not crit. On the
-others it moves with the mob, to 48 and to 50 through 54 on all but 26: one mob reads one amount or two that differ by
-1, and the bosses read 50 to 54. The logs state no mob level, so what moves it is not measured, and the sim ticks the
-row's 49.
+The paladins' heals crit on 881 of 5,298 and the warrior's on 47 of 619; the ticks crit on 192 of 5,336 and on 1 of 620.
+The heal crits 4.6 times as often as the tick on the paladins and 47 times as often on the warrior, so the two do not
+roll one chance. Which chance each rolls is not measured, and the sim rolls both on the wearer's spell crit.
+
+The tick's amount before the target's resistance and absorbs is 49 on 4,376 of the 5,751 ticks that neither crit nor met
+an immune target. On the others it moves with the mob, to 48 and to 50 through 54 on all but 26: one mob reads one
+amount or two that differ by 1, and the bosses read 50 to 54. The logs state no mob level, so what moves it is not
+measured, and the sim ticks the row's 49.
 
 ## Reports and fights
 
