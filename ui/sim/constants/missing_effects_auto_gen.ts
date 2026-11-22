@@ -880,12 +880,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		14541, // Barovian Family Sword
-		[
-			"Deals 49 Shadow damage every 1.0 sec for 5s. All damage done is then transferred to the caster.", // 18652 - https://www.wowhead.com/forever/spell=18652
-		]
-	],
-	[
 		14555, // Alcor's Sunrazor
 		[
 			"Blasts a target for 105 Fire damage.", // 18833 - https://www.wowhead.com/forever/spell=18833
