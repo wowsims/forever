@@ -23,50 +23,40 @@ describe('PAWN_EP_EXPORTER', () => {
 		);
 	});
 
-	it('writes school spell damage and spell piercing under Pawn names', () => {
-		const tag = exportFor(
-			new Stats()
-				.withStat(Stat.StatFireDamage, 0.18)
-				.withStat(Stat.StatShadowDamage, 0.82)
-				.withStat(Stat.StatArcaneDamage, 0.1)
-				.withStat(Stat.StatFrostDamage, 0.2)
-				.withStat(Stat.StatHolyDamage, 0.3)
-				.withStat(Stat.StatNatureDamage, 0.4)
-				.withStat(Stat.StatSpellPiercing, 0.58),
-		);
-		expect(tag).toContain('FireSpellDamage=0.180');
-		expect(tag).toContain('ShadowSpellDamage=0.820');
-		expect(tag).toContain('ArcaneSpellDamage=0.100');
-		expect(tag).toContain('FrostSpellDamage=0.200');
-		expect(tag).toContain('HolySpellDamage=0.300');
-		expect(tag).toContain('NatureSpellDamage=0.400');
-		expect(tag).toContain('SpellPenetration=0.580');
+	it.each([
+		[Stat.StatArcaneDamage, 'ArcaneSpellDamage'],
+		[Stat.StatFireDamage, 'FireSpellDamage'],
+		[Stat.StatFrostDamage, 'FrostSpellDamage'],
+		[Stat.StatHolyDamage, 'HolySpellDamage'],
+		[Stat.StatNatureDamage, 'NatureSpellDamage'],
+		[Stat.StatShadowDamage, 'ShadowSpellDamage'],
+		[Stat.StatSpellPiercing, 'SpellPenetration'],
+		[Stat.StatHealingPower, 'Healing'],
+		[Stat.StatFeralAttackPower, 'FeralAp'],
+		[Stat.StatArmorPenetration, 'ArmorPenetration'],
+		[Stat.StatDefenseRating, 'DefenseRating'],
+		[Stat.StatBlockRating, 'BlockRating'],
+		[Stat.StatBlockValue, 'BlockValue'],
+		[Stat.StatShadowResistance, 'ShadowResist'],
+	])('writes stat %i as Pawn key %s', (stat, name) => {
+		expect(exportFor(new Stats().withStat(stat, 0.58))).toContain(`${name}=0.580`);
 	});
 
-	it('keeps ranged attack power apart from attack power', () => {
+	it('adds ranged attack power into Ap and writes it alone as Rap', () => {
 		const tag = exportFor(new Stats().withStat(Stat.StatAttackPower, 1).withStat(Stat.StatRangedAttackPower, 0.5));
-		expect(tag).toContain('Ap=1.000');
+		expect(tag).toContain('Ap=1.500');
 		expect(tag).toContain('Rap=0.500');
 	});
 
-	it('writes the healing, feral, tank and resistance stats under Pawn names', () => {
+	it('leaves out stats Pawn has no key for', () => {
 		const tag = exportFor(
 			new Stats()
-				.withStat(Stat.StatHealingPower, 1)
-				.withStat(Stat.StatFeralAttackPower, 1)
-				.withStat(Stat.StatArmorPenetration, 1)
-				.withStat(Stat.StatDefenseRating, 1)
-				.withStat(Stat.StatBlockRating, 1)
-				.withStat(Stat.StatBlockValue, 1)
-				.withStat(Stat.StatShadowResistance, 1),
+				.withStat(Stat.StatSpellDamage, 1)
+				.withStat(Stat.StatBonusArmor, 1)
+				.withStat(Stat.StatPhysicalDamage, 1)
+				.withStat(Stat.StatHealth, 1)
+				.withStat(Stat.StatMana, 1),
 		);
-		for (const name of ['Healing', 'FeralAp', 'ArmorPenetration', 'DefenseRating', 'BlockRating', 'BlockValue', 'ShadowResist']) {
-			expect(tag).toContain(`${name}=1.000`);
-		}
-	});
-
-	it('leaves out stats Pawn has no key for', () => {
-		const tag = exportFor(new Stats().withStat(Stat.StatSpellDamage, 1).withStat(Stat.StatBonusArmor, 1).withStat(Stat.StatPhysicalDamage, 1));
 		expect(tag).toBe('( Pawn: v1: "Warlock WoWSims Weights": Class=Warlock,SpellDamage=1.000 )');
 	});
 });

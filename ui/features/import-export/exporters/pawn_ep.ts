@@ -4,7 +4,7 @@ import { UnitStat } from '@sim/proto/stats';
 
 import type { ExporterDefinition } from './types';
 
-// Pawn's scale keys. An empty name is a stat Pawn has no key for: Pawn reads armor only as Armor and drops Health and Mana.
+// Pawn's scale keys. An empty name is a stat Pawn has no key for: Pawn reads armor only as Armor and drops Health and Mana on import.
 const STAT_NAMES: Record<Stat, string> = {
 	[Stat.StatStrength]: 'Strength',
 	[Stat.StatAgility]: 'Agility',
@@ -14,12 +14,12 @@ const STAT_NAMES: Record<Stat, string> = {
 	[Stat.StatMP5]: 'Mp5',
 	[Stat.StatAttackPower]: 'Ap',
 	[Stat.StatExpertiseRating]: 'ExpertiseRating',
-	[Stat.StatMana]: 'Mana',
+	[Stat.StatMana]: '',
 	[Stat.StatArmor]: 'Armor',
 	[Stat.StatRangedAttackPower]: 'Rap',
 	[Stat.StatDodgeRating]: 'DodgeRating',
 	[Stat.StatParryRating]: 'ParryRating',
-	[Stat.StatHealth]: 'Health',
+	[Stat.StatHealth]: '',
 	[Stat.StatBonusArmor]: '',
 	[Stat.StatArmorNoMods]: '',
 	[Stat.StatHealingPower]: 'Healing',
@@ -69,13 +69,12 @@ export const PAWN_EP_EXPORTER: ExporterDefinition = {
 			if (weight == 0 || statName == '') {
 				return;
 			}
-
-			if (namesToWeights[statName]) {
-				namesToWeights[statName] += weight;
-			} else {
-				namesToWeights[statName] = weight;
-			}
+			namesToWeights[statName] = weight;
 		});
+		// Pawn scores an item's "+X Attack Power" line as Ap alone, and that item grants as much ranged attack power, so the ranged weight goes into Ap as well as Rap.
+		if (namesToWeights.Rap) {
+			namesToWeights.Ap = (namesToWeights.Ap ?? 0) + namesToWeights.Rap;
+		}
 
 		return (
 			`( Pawn: v1: "${player.getPlayerSpec().friendlyName} WoWSims Weights": Class=${player.getPlayerClass().friendlyName},` +
