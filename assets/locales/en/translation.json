@@ -3256,7 +3256,7 @@
 		"native_sim_update_action": "Update and restart",
 		"native_sim_updating": "Updating…",
 		"native_sim_update_failed": "The update failed: {{error}}",
-		"native_sim_update_timeout": "The simulator did not come back after the update. Restart it by hand.",
+		"native_sim_update_timeout": "The simulator did not restart after the update. Restart it manually.",
 		"forever_notice": "Forever sims are still changing rapidly and may have issues. If your results look wrong or your sim won't run, try restoring the default settings."
 	},
 		"onboarding": {
