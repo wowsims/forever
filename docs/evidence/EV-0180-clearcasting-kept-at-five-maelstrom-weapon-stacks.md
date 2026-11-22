@@ -8,7 +8,7 @@
   and Upper Blackrock Spire on 2026-11-19, Alterac Valley on 2026-11-21. Maelstrom Ready!'s gain and removal also rest
   on three earlier combat logs: a level 60 Dwarf Enhancement shaman in Stratholme on 2026-11-13, and a level 44 to 49
   Enhancement shaman on the night of 2026-11-13 to 2026-11-14 and in Maraudon on 2026-11-15
-- Game build: 1.60.1.70959 on 2026-11-19 and 1.60.1.71037 on 2026-11-21, hotfixes up to push 114122; relog not known.
+- Game build: 1.60.1.70959 on 2026-11-19 and 1.60.1.71037 on 2026-11-21, hotfixes up to push 114122, relogged.
   The earlier logs: 1.60.1 on 2026-11-13 and 2026-11-14, full build not recorded; 1.60.1.70938 on 2026-11-15
 - Date: 2026-11-19 and 2026-11-21; the earlier logs 2026-11-13 to 2026-11-15
 - Pull request: #1175
@@ -29,12 +29,14 @@ Casts with Clearcasting up, 2026-11-19:
 | Chain Lightning, five stacks, Maelstrom Ready! up  |                 5 |                  0 |
 | Chain Lightning, zero to four stacks               |                 2 |                 35 |
 
+The Chain Lightning row reads a charge as spent by the cast logged up to 5 ms before its removal; the one removal in
+the same millisecond as a Fire Nova cast, at three stacks, reads as kept by the per-cast listing, 3 kept and 34 spent.
 The Chain Lightning casts at five stacks with Clearcasting up logged a cost of 0 and paid none, and each took off
 Maelstrom Ready! with the stacks left in place. Without Clearcasting, 13 Chain Lightning casts with Maelstrom Ready! up
 logged the full 495 (median paid 493 where readable, n 8) and took off Maelstrom Ready! alone. The Lightning Bolt at
 three stacks that kept the charge, against both at four stacks spending it, is not explained.
 
-Maelstrom Ready! comes off with every Lightning Bolt at five stacks, together with the stacks: 99 casts without
+Maelstrom Ready! comes off with every Lightning Bolt cast at five stacks while it is up, together with the stacks: 99 casts without
 Clearcasting and 5 with it on 2026-11-19, 12 on 2026-11-21.
 
 Earlier logs read where it goes up and what else takes it off. A level 60 Dwarf Enhancement shaman with Maelstrom

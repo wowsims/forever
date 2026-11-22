@@ -9,7 +9,7 @@
   section and list their own
 - Game build: 1.60.1; the Windfury hits have their own
 - Date: 2026-11-11; the Windfury hits have their own
-- Pull request: #948; the Windfury hits have their own
+- Pull request: #948
 - Later count: the Windfury hits, §Count of the 2026-11-13 to 2026-11-21 logs
 
 ## White swings, Stormstrike and spells
@@ -45,7 +45,7 @@ the wait between casts on a totem that keeps its target (EV-0011).
   (hit 10610): Lower and Upper Blackrock Spire on 2026-11-19, Alterac Valley on 2026-11-21. The earlier readings: a
   level 60 Dwarf Enhancement shaman with Flurry 3/5 in Stratholme on 2026-11-13, and a level 44 to 49 Enhancement
   shaman with Flurry 5/5 on the night of 2026-11-13 to 2026-11-14 and in Maraudon on 2026-11-15
-- Game build: 1.60.1.70959 on 2026-11-19 and 1.60.1.71037 on 2026-11-21, hotfixes up to push 114122; relog not known.
+- Game build: 1.60.1.70959 on 2026-11-19 and 1.60.1.71037 on 2026-11-21, hotfixes up to push 114122, relogged.
   The earlier readings: 1.60.1 on 2026-11-13 and 2026-11-14, full build not recorded; 1.60.1.70938 on 2026-11-15
 - Date: 2026-11-13 to 2026-11-21
 - Pull request: #1175
@@ -91,8 +91,9 @@ crit applied Flurry from no charges) and 6 of 6 on 2026-11-21 (4). Where charges
 own spend logs before its refresh. The shortest gap between two spends is 0.615 s on 2026-11-19 and 1.157 s on 2026-11-21.
 
 Earlier readings agree. A level 60 Dwarf Enhancement shaman with Flurry 3/5 and Windfury Totem rank 3 in a Stratholme
-combat log of 2026-11-13 spent a charge after a crit that set three charges 66 of 66 times when Windfury Weapon or
-Windfury Totem hits followed it, and 3 of 150 times when none did. A level 48 to 49 Enhancement shaman with Flurry 5/5 in
+combat log of 2026-11-13 spent a charge after a crit that set three charges 43 of 43 times when Windfury Weapon hits followed it, and 3 of
+150 times when no hit did; it ran before push 114115, so its crits followed by Windfury Totem hits alone, which spent a
+charge 23 of 23 times, are left out. A level 48 to 49 Enhancement shaman with Flurry 5/5 in
 a Maraudon combat log of 2026-11-15 (1.60.1.70938) spent one after a crit from no charges 10 of 10 times when Windfury
 Weapon hits alone followed it. The same shaman's log of the night of 2026-11-13 to 2026-11-14, at levels 44 to 45, read
-1 of 13; it ran before the 2026-11-14 02:00 UTC hotfix.
+1 of 13 after a crit from no charges; nothing in the logs explains it.

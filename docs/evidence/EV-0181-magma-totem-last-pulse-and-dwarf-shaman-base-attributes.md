@@ -8,8 +8,8 @@
   (Maraudon, 2026-11-15) and of an Elemental shaman at levels 45 and 46 (2026-11-16 and 2026-11-17); the level 60 Dwarf
   shaman's two StatLedger files, 2026-11-11 and 2026-11-15 to 2026-11-22
 - Game build: the logs by date: 1.60.1.70888 (2026-11-11), 1.60.1.70938 (2026-11-15 to 2026-11-17), 1.60.1.70959
-  (2026-11-19, hotfix pushes up to 114122) and 1.60.1.71037 (2026-11-21); the ledgers as each login states, 1.60.1.70888,
-  1.60.1.70938, 1.60.1.70959 and 1.60.1.71037. The hotfix of the other logs is not recorded, and whether the players
+  (2026-11-19, hotfix pushes up to 114122, relogged) and 1.60.1.71037 (2026-11-21); the ledgers as each login states, 1.60.1.70888,
+  1.60.1.70938, 1.60.1.70959 and 1.60.1.71037. The hotfix of the other logs is not recorded, and whether their players
   relogged after a hotfix is not known
 - Date: 2026-11-11 to 2026-11-22
 - Pull request: #1175

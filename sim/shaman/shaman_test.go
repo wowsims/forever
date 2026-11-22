@@ -766,3 +766,26 @@ func TestEarthshattererGivesManaWhileLightningShieldIsUp(t *testing.T) {
 		t.Errorf("with seven pieces, Lightning Shield gives %v mana per 5 sec, want 0", up)
 	}
 }
+
+// A Magma Totem that stands its full 40 s pulses every 2 s and once more as it ends, 20 pulses.
+func TestMagmaTotemPulsesAsItEnds(t *testing.T) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       enhancementRaid(enhancementTalents),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	target := sham.CurrentTarget
+	pulse := sham.GetSpell(core.ActionID{SpellID: sham.MagmaTotem.ActionID.SpellID, Tag: 1})
+	sham.MagmaTotem.SkipCastAndApplyEffects(sim, target)
+	for sham.MagmaTotem.RelatedSelfBuff.IsActive() {
+		if sim.Step() {
+			t.Fatal("the encounter ended before the totem")
+		}
+	}
+	if got := pulse.SpellMetrics[target.UnitIndex].Casts; got != 20 {
+		t.Errorf("a 40 s Magma Totem pulsed %d times, want 20", got)
+	}
+}

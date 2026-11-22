@@ -121,23 +121,21 @@ func (shaman *Shaman) applyElementalFocus() {
 	// Chain Lightning cast while Maelstrom Ready! is up, which still costs nothing (EV-0180). Both
 	// auras come off as the cast completes, in no fixed order with this one, so the cast is checked
 	// before its effects apply.
-	var keptBy *core.Spell
+	var kept bool
 	config := spelldata.AuraConfig(clearcastingBuff)
 	config.OnGain = func(aura *core.Aura, sim *core.Simulation) {
 		aura.SetStacks(sim, aura.MaxStacks)
-		keptBy = nil
+		kept = false
 	}
 	config.OnApplyEffects = func(_ *core.Aura, _ *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		keptBy = nil
-		maelstrom := shaman.maelstromWeaponAura
-		if (spell.Matches(SpellMaskLightningBolt) && maelstrom.IsActive() && maelstrom.GetStacks() == maelstrom.MaxStacks) ||
-			(spell.Matches(SpellMaskChainLightning) && shaman.maelstromReadyAura.IsActive()) {
-			keptBy = spell
+		if !consumes.Reaches(spell) {
+			return
 		}
+		maelstrom := shaman.maelstromWeaponAura
+		kept = (spell.Matches(SpellMaskLightningBolt) && maelstrom.IsActive() && maelstrom.GetStacks() == maelstrom.MaxStacks) ||
+			(spell.Matches(SpellMaskChainLightning) && shaman.maelstromReadyAura.IsActive())
 	}
 	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-		kept := spell == keptBy
-		keptBy = nil
 		if !consumes.Reaches(spell) || kept || (spell.SpellID == procSpellID && sim.CurrentTime == procTime) {
 			return
 		}
