@@ -592,6 +592,21 @@ export class Player<SpecType extends Spec> {
 		return item.randomSuffixOptions.map(id => this.sim.db.getRandomSuffixById(id)).filter((suffix): suffix is ItemRandomSuffix => !!suffix);
 	}
 
+	// The suffix an item ranks by in the picker and equips with: the one its options rate highest, the first on a tie.
+	getBestRandomSuffix(item: Item): ItemRandomSuffix | null {
+		const randPropPoints = item.scalingOptions[0]?.randPropPoints ?? 0;
+		let best: ItemRandomSuffix | null = null;
+		let bestEP = -Infinity;
+		for (const suffix of this.getRandomSuffixes(item)) {
+			const ep = this.computeRandomSuffixEP(suffix, randPropPoints);
+			if (ep > bestEP) {
+				best = suffix;
+				bestEP = ep;
+			}
+		}
+		return best;
+	}
+
 	// Returns all enchants that this player can wear in the given slot.
 	getEnchants(slot: ItemSlot): Array<Enchant> {
 		return this.sim.db.getEnchants(slot).filter(enchant => canEquipEnchant(enchant, this.playerSpec, this.hasProfession(Profession.Enchanting)));
@@ -1267,18 +1282,11 @@ export class Player<SpecType extends Spec> {
 		const equippedItem = new EquippedItem({ item }).withDynamicStats();
 		const itemStats = equippedItem.calcStats(slot);
 
-		// For random suffix items, use the suffix option with the highest EP for the purposes of ranking items in the picker.
-		let maxSuffixEP = 0;
-		if (item.randomSuffixOptions.length) {
-			const { randomSuffixOptions, randPropPoints } = equippedItem.item;
-			const suffixEPs = randomSuffixOptions.map(id => {
-				const suffix = this.sim.db.getRandomSuffixById(id);
-				return suffix ? this.computeRandomSuffixEP(suffix, randPropPoints) : 0;
-			});
-			maxSuffixEP = Math.max(...suffixEPs);
-		}
+		// A random suffix item ranks at its best suffix, the one it equips with.
+		const bestSuffix = item.randomSuffixOptions.length ? this.getBestRandomSuffix(item) : null;
+		const suffixEP = bestSuffix ? this.computeRandomSuffixEP(bestSuffix, equippedItem.item.randPropPoints) : 0;
 
-		let ep = itemStats.computeEP(epWeights) + maxSuffixEP;
+		let ep = itemStats.computeEP(epWeights) + suffixEP;
 
 		// Weapon skill counts for each melee hand whose weapon uses it, at that hand's weight.
 		for (const { skill, value } of weaponSkills) {
