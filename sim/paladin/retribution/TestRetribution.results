@@ -216,6 +216,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-BlackhandDoomsaw-12583"
+ value: {
+  dps: 896.01214
+  tps: 732.02011
+  dtps: 5.96692
+  hps: 26.29253
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-BladeofHanna-2801"
  value: {
   dps: 828.04632
