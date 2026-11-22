@@ -925,13 +925,20 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	// Fitted the same way on the reports from 2026-11-09 to 2026-11-22 from wearers of one class or with no lone-unit
-	// rate to check it, so not final (EV-0177). The "observed" Source keeps the gear tab's notice up until more wearers
-	// validate it.
+	// rate to check it, so not final (EV-0177, EV-0178). The "observed" Source keeps the gear tab's notice up until
+	// more wearers validate it.
 	{
 		ItemID:  11635,
 		SpellID: 13526,
 		PPM:     2.1,
 		Reason:  "Hookfang Shanker: column reads 101; a log fit not yet validated (EV-0177)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  12583,
+		SpellID: 16549,
+		PPM:     0.9,
+		Reason:  "Blackhand Doomsaw: no proc row; a log fit not yet validated (EV-0178)",
 		Source:  "observed",
 	},
 	{
@@ -960,15 +967,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 1314040,
 		PPM:     5.3,
 		Reason:  "Siegebreaker's Blaster: no proc row; a log fit not yet validated (EV-0177)",
-		Source:  "observed",
-	},
-	// Fitted on every rolling hit, with no lone-unit rate of enough procs to check it, so not final (EV-0178). The
-	// "observed" Source keeps the gear tab's notice up until more wearers validate it.
-	{
-		ItemID:  12583,
-		SpellID: 16549,
-		PPM:     0.9,
-		Reason:  "Blackhand Doomsaw: no proc row; a log fit not yet validated (EV-0178)",
 		Source:  "observed",
 	},
 	// Fitted the same way from too few wearers or too wide an interval to call final (EV-0136). The

@@ -218,8 +218,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BlackhandDoomsaw-12583"
  value: {
-  dps: 896.01214
-  tps: 732.02011
+  dps: 899.37782
+  tps: 734.71265
   dtps: 5.96692
   hps: 26.29253
  }
