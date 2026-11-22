@@ -588,7 +588,13 @@ func init() {
 	// Chance on hit: Delivers a fatal wound for 105 Physical damage. Deals 100% increased damage to
 	// targets below 25% health.
 	//
-	// Fatal Wound 10373, 18206 and Wound 18107 deal the percent their second dummy states more to a target below the
+	// Blackhand Doomsaw
+	// https://www.wowhead.com/forever/item=12583/blackhand-doomsaw
+	//
+	// Chance on hit: Delivers a fatal wound for 448 Physical damage. Deals 50% increased damage to
+	// targets below 25% health.
+	//
+	// Fatal Wound 10373, 16549, 18206 and Wound 18107 deal the percent their second dummy states more to a target below the
 	// health percent their third states, which the sim's execute phases track. 10373's hits of 1.5 times
 	// the plain range land late in a target's life, but the logs state no health, so the threshold is the
 	// row's alone (EV-0136).
@@ -614,6 +620,7 @@ func init() {
 	shared.DamageProcExtras[9425] = fatalWound
 	shared.DamageProcExtras[9475] = fatalWound
 	shared.DamageProcExtras[2164] = fatalWound
+	shared.DamageProcExtras[12583] = fatalWound
 
 	// Barman Shanker
 	// https://www.wowhead.com/forever/item=12791/barman-shanker

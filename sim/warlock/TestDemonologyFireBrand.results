@@ -842,9 +842,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-HookfangShanker-11635"
  value: {
-  dps: 862.02742
-  tps: 674.72904
-  dtps: 8.52537
+  dps: 865.83939
+  tps: 675.59192
+  dtps: 8.47017
  }
 }
 dps_results: {
