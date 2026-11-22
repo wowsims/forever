@@ -12,6 +12,12 @@ on:
                 description: 'Version Tag'
                 default: 'v0.0.0'
                 required: true
+            # A draft is visible only to people with push access, gets its tag when someone publishes it, and is
+            # never installed by the self-updater.
+            draft:
+                description: 'Draft release'
+                type: boolean
+                default: false
 
 # Every job names the permissions it needs; the self-updater installs whatever a release holds.
 permissions: {}
@@ -139,7 +145,7 @@ jobs:
               uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
               with:
                   version: v2.20.3
-                  args: release --clean
+                  args: release --clean${{ inputs.draft && ' --draft' || '' }}
               env:
                   GITHUB_TOKEN: ${{ steps.release-token.outputs.token }}
                   GORELEASER_CURRENT_TAG: ${{ inputs.tag }}
