@@ -162,6 +162,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-BarovianFamilySword-14541"
+ value: {
+  dps: 496.50924
+  tps: 431.90072
+  dtps: 2.97628
+  hps: 49.17153
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Bashguuder-13204"
  value: {
   dps: 519.74492
