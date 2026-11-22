@@ -1,0 +1,69 @@
+# The release archives. The web server embeds binary_dist/, so `make binary_dist binary_dist/dist.go` runs first:
+# release.yml runs it as a step, and `make release` lists it as a prerequisite.
+version: 2
+
+project_name: wowsimforever
+
+# The default, dist/, is where the site build goes (dist/forever), and --clean would delete it.
+dist: .goreleaser-dist
+
+before:
+    hooks:
+        # The Windows icon. Go links a .syso only into the GOOS_GOARCH its file name names, so only
+        # windows/amd64 carries it, and only while main names the package, not a .go file
+        # (https://github.com/golang/go/issues/16090). The copy is gitignored.
+        - cp ./assets/favicon_io/icon-windows_amd64.syso ./sim/web/icon-windows_amd64.syso
+
+builds:
+    - id: wowsimforever
+      main: ./sim/web
+      binary: wowsimforever
+      env:
+          - CGO_ENABLED=0
+      goos: [linux, windows, darwin]
+      goarch: [amd64, arm64]
+      goamd64: [v2]
+      ldflags:
+          - -s -w -X main.Version={{ .Tag }}
+    - id: wowsimcli
+      main: ./cmd/wowsimcli
+      binary: wowsimcli
+      tags: [with_db]
+      env:
+          - CGO_ENABLED=0
+      goos: [linux, windows, darwin]
+      goarch: [amd64, arm64]
+      goamd64: [v2]
+      ldflags:
+          - -s -w -X main.Version={{ .Tag }}
+
+# The updater finds its archive by these names, so they carry no version.
+archives:
+    - id: wowsimforever
+      ids: [wowsimforever]
+      formats: [zip]
+      name_template: wowsimforever_{{ .Os }}_{{ .Arch }}
+      files: [none*]
+    - id: wowsimcli
+      ids: [wowsimcli]
+      formats: [zip]
+      name_template: wowsimcli_{{ .Os }}_{{ .Arch }}
+      files: [none*]
+
+checksum:
+    name_template: checksums.txt
+    algorithm: sha256
+
+# The notes come from the local git log: github and github-native ask GitHub about the tag, which does not exist there
+# until the release is published (target_commitish below).
+changelog:
+    use: git
+
+release:
+    github:
+        owner: wowsims
+        name: forever
+    # GitHub creates the tag at this commit when it publishes the release, after every archive is uploaded, so a
+    # failed run leaves no tag behind.
+    target_commitish: '{{ .Commit }}'
+    make_latest: true

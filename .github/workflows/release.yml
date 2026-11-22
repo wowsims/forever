@@ -13,32 +13,70 @@ on:
                 default: 'v0.0.0'
                 required: true
 
+# Every job names the permissions it needs; the self-updater installs whatever a release holds.
+permissions: {}
+
+# One release at a time, so two runs never race for the same tag or the latest release.
+concurrency:
+    group: release
+    cancel-in-progress: false
+
 jobs:
+    check-tag:
+        if: github.ref == 'refs/heads/master'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check the tag
+              env:
+                  TAG: ${{ inputs.tag }}
+              run: |
+                  if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                    echo "::error::The tag must look like v1.2.3."
+                    exit 1
+                  fi
+
     tests:
+        needs: check-tag
+        if: github.ref == 'refs/heads/master'
         uses: ./.github/workflows/run_tests.yml
         permissions:
             contents: read
             pull-requests: write
         with:
-            ref: ${{ github.event.inputs.ref }}
+            ref: ${{ inputs.ref }}
 
     build-and-release:
         needs: tests
+        if: github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
         permissions:
             contents: write
         steps:
             - name: Checkout
-              uses: actions/checkout@v5
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
               with:
-                  ref: ${{ github.event.inputs.ref }}
+                  ref: ${{ inputs.ref }}
                   # The full history, so the build can name each spec's last change (tools/vite/build_info.mts).
                   # git log over paths reads commits and trees only, so the file contents stay out of it.
                   fetch-depth: 0
                   filter: blob:none
+                  persist-credentials: false
+
+            # goreleaser reads the version from a tag on the checked-out commit. The tag is made here only; GitHub
+            # creates it when goreleaser publishes the release (target_commitish in .goreleaser.yaml). An existing tag
+            # would keep pointing at its own commit, so the run stops on one.
+            - name: Tag the commit
+              env:
+                  TAG: ${{ inputs.tag }}
+              run: |
+                  if git rev-parse -q --verify "refs/tags/$TAG" > /dev/null; then
+                    echo "::error::$TAG already exists."
+                    exit 1
+                  fi
+                  git tag "$TAG"
 
             - name: Install Go
-              uses: actions/setup-go@v6
+              uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
               with:
                   go-version: 1.27.x
 
@@ -46,10 +84,10 @@ jobs:
               uses: ./.github/actions/setup-protoc
 
             - name: Install Protoc Go plugin
-              run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+              run: go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12
 
             - name: Install Node
-              uses: actions/setup-node@v5
+              uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
               with:
                   node-version: 26
                   cache: npm
@@ -57,23 +95,17 @@ jobs:
             - name: Install npm dependencies
               run: npm ci
 
-            - name: Build 🔧
+            # The site the web server embeds. The check stops a release that would embed the empty stub.
+            - name: Build the site 🔧
               run: |
-                  make clean && VERSION=${{ github.event.inputs.tag }} make release
+                  make binary_dist binary_dist/dist.go
+                  test -f binary_dist/forever/index.html
 
             - name: Release
-              uses: ncipollo/release-action@v1
+              uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
               with:
-                  commit: ${{ github.event.inputs.ref }}
-                  tag: ${{ github.event.inputs.tag }}
-                  generateReleaseNotes: true
-                  makeLatest: true
-                  artifactErrorsFailBuild: true
-                  artifacts: |
-                      wowsimcli-amd64-linux.zip
-                      wowsimcli-windows.exe.zip
-                      wowsimcli-arm64-darwin.zip
-                      wowsimforever-amd64-darwin.zip
-                      wowsimforever-arm64-darwin.zip
-                      wowsimforever-amd64-linux.zip
-                      wowsimforever-windows.exe.zip
+                  version: v2.20.3
+                  args: release --clean
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GORELEASER_CURRENT_TAG: ${{ inputs.tag }}

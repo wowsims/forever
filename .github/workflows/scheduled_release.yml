@@ -5,44 +5,52 @@ on:
     schedule:
         - cron: '0 10 * * *'
 
+permissions: {}
+
 jobs:
     schedule:
-        permissions: write-all
+        # Reads the tags and starts the Release workflow, which runs with its own permissions.
+        permissions:
+            actions: write
+            contents: read
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
               with:
                   fetch-depth: 0
+                  persist-credentials: false
 
             - name: 'Get Previous tag'
               id: previoustag
-              uses: 'WyriHaximus/github-action-get-previous-tag@v1'
-              env:
-                  GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+              uses: WyriHaximus/github-action-get-previous-tag@04e8485ecb6487243907e330d522ff60f02283ce # v1.4.0
 
             - name: 'Get Commit Hashes'
               id: getcommithashes
+              env:
+                  PREVIOUS_TAG: ${{ steps.previoustag.outputs.tag }}
               run: |
                   git rev-parse HEAD
-                  git rev-parse ${{ steps.previoustag.outputs.tag }}
+                  git rev-parse "$PREVIOUS_TAG"
                   echo "current=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-                  echo "last=$(git rev-parse ${{ steps.previoustag.outputs.tag }})" >> $GITHUB_OUTPUT
+                  echo "last=$(git rev-parse "$PREVIOUS_TAG")" >> $GITHUB_OUTPUT
 
             - name: 'Get next version'
               if: steps.getcommithashes.outputs.current != steps.getcommithashes.outputs.last
               id: semvers
-              uses: 'WyriHaximus/github-action-next-semvers@v1'
+              uses: WyriHaximus/github-action-next-semvers@18aa9ed4152808ab99b88d71f5481e41f8d89930 # v1.2.1
               with:
                   version: ${{ steps.previoustag.outputs.tag }}
 
             - name: 'Print version'
               if: steps.getcommithashes.outputs.current != steps.getcommithashes.outputs.last
               id: printversion
-              run: echo ${{ steps.semvers.outputs.v_patch }}
+              env:
+                  NEXT_TAG: ${{ steps.semvers.outputs.v_patch }}
+              run: echo "$NEXT_TAG"
 
             - name: Trigger Release
               if: steps.getcommithashes.outputs.current != steps.getcommithashes.outputs.last
-              uses: benc-uk/workflow-dispatch@v1
+              uses: benc-uk/workflow-dispatch@d004979be141727c7a17c28f603e2facc40d0855 # v1.3.3
               with:
                   workflow: Release
                   inputs: '{ "ref": "master", "tag": "${{ steps.semvers.outputs.v_patch }}" }'
