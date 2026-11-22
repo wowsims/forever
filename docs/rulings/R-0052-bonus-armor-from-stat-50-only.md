@@ -2,7 +2,7 @@
 
 - Skill: wowsims-consumables-items
 - Code: `tools/database/dbc/maps.go`, `MapBonusStatIndexToStat`; `tools/database/dbc/item.go`, `GetWeaponQualityModifier`
-- Pull request: #PR
+- Pull request: #1167
 - Evidence: EV-0176
 
 An item's bonus armor is the amount of its stat 50 (`ITEM_MOD_EXTRA_ARMOR`) and nothing else. The `QualityModifier` an

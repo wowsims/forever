@@ -5,7 +5,7 @@
 - Sources: 37 StatLedger files from 8 characters
 - Game build: not recorded
 - Date: not recorded
-- Pull request: #PR
+- Pull request: #1167
 
 Each of the 16 items with bonus armor that the ledgers show worn was compared with the armor on the character sheet,
 through gear swaps and through lines where nothing else changed. For the two items whose only bonus armor is a
