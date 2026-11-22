@@ -78,6 +78,6 @@ Every one of the 102 summons cast one spell and nothing else.
   UTC); 416 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 6 of them for Blackblade of
   Shahram. The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
-- Pull request: #PRNUM
+- Pull request: #1180
 
 The count is EV-0183 §Method, run on Blackblade of Shahram.

@@ -136,6 +136,6 @@ yVp9KT3QkzhmZXDR 1; z8QPNWpMBx4VgdDX 1; zBx9XMQPdpW36a2D 1-4; zWQLAnHTjq4RJCby 1
   UTC); 416 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 87 of them for the trinket. The
   sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
-- Pull request: #PRNUM
+- Pull request: #1180
 
 The count is EV-0183 §Method, run on the trinket.

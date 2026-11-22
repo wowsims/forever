@@ -10,7 +10,7 @@
   71037 from 2026-11-20 18:23 UTC); 416 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 46
   of them for these weapons. The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
-- Pull request: #PRNUM
+- Pull request: #1180
 
 ## Method
 
