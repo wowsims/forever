@@ -15,6 +15,7 @@ var rootCmd = &cobra.Command{
 
 func Execute(version string) {
 	rootCmd.AddCommand(newVersionCommand(version))
+	rootCmd.AddCommand(newUpdateCommand(version))
 	rootCmd.AddCommand(simCmd)
 	rootCmd.AddCommand(decodeLinkCmd)
 	rootCmd.AddCommand(simlCmd)
