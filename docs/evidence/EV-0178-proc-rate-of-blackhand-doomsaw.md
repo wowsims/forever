@@ -9,7 +9,7 @@
   70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23 UTC); the hotfix each player ran is not recorded. The
   combat log 1.60.1.70959, on hotfix push 114281, relogged
 - Date: 2026-11-11 to 2026-11-22
-- Pull request: not recorded
+- Pull request: #1172
 
 ## Method
 
