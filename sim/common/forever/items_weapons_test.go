@@ -1861,8 +1861,8 @@ func TestSulthrazeTheLasherLashesOnceAfterItsDuration(t *testing.T) {
 	}
 }
 
-// Pendulum of Doom 9425's Fatal Wound 10373, Diabolic Skiver 9475's Fatal Wound 18206 and Gut Ripper
-// 2164's Wound 18107 deal the percent their row states more to a target below the health percent
+// Pendulum of Doom 9425's Fatal Wound 10373, Diabolic Skiver 9475's Fatal Wound 18206, Blackhand Doomsaw
+// 12583's Fatal Wound 16549 and Gut Ripper 2164's Wound 18107 deal the percent their row states more to a target below the health percent
 // their row states, from that phase's start, and their plain damage to a target above it.
 func TestFatalWoundDealsMoreBelowTheExecuteHealth(t *testing.T) {
 	for _, item := range []struct {
@@ -1872,6 +1872,7 @@ func TestFatalWoundDealsMoreBelowTheExecuteHealth(t *testing.T) {
 		{9425, 10373, "Pendulum of Doom - Fatal Wound"},
 		{9475, 18206, "Diabolic Skiver"},
 		{2164, 18107, "Gut Ripper"},
+		{12583, 16549, "Blackhand Doomsaw"},
 	} {
 		t.Run(item.procName, func(t *testing.T) {
 			row := spelldata.MustFind(item.spellID)

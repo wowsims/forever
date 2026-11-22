@@ -694,12 +694,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		12583, // Blackhand Doomsaw
-		[
-			"Delivers a fatal wound for 448 Physical damage. Deals 50% increased damage to targets below 25% health.", // 16549 - https://www.wowhead.com/forever/spell=16549
-		]
-	],
-	[
 		12621, // Demonfork
 		[
 			"Transfers 10 health every 1.0 seconds from the target to the caster for 5s.", // 16603 - https://www.wowhead.com/forever/spell=16603

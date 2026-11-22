@@ -639,19 +639,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Delivers a fatal wound for 448 Physical damage. Deals 50% increased damage to targets below 25% health.
-	// https://www.wowhead.com/forever/spell=16549
-	// unsupported: states no rate
-	// trigger 16549 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16549, BuffSpellID: 16549, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 12583, ItemName: "Blackhand Doomsaw"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Transfers 10 health every 1.0 seconds from the target to the caster for 5s.
 	// https://www.wowhead.com/forever/spell=16603
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -3745,6 +3732,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16528, BuffSpellID: 16528, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 12582, ItemName: "Keris of Zul'Serak"},
+		})
+
+	// Delivers a fatal wound for 448 Physical damage. Deals 50% increased damage to targets below 25% health.
+	// https://www.wowhead.com/forever/spell=16549
+	// trigger 16549 (0.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16549, BuffSpellID: 16549, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 12583, ItemName: "Blackhand Doomsaw"},
 		})
 
 	// All attacks are guaranteed to land and will be critical strikes for the next 3s.
