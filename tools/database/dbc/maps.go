@@ -96,7 +96,7 @@ func MapBonusStatIndexToStat(index int) (proto.Stat, bool) {
 		return proto.Stat_StatHealingPower, true
 	case ITEM_MOD_SPELL_DAMAGE_DONE:
 		return proto.Stat_StatSpellDamage, true
-	case ITEM_MOD_EXTRA_ARMOR: // ExtraArmor maps to BonusArmor (green armor)
+	case ITEM_MOD_EXTRA_ARMOR: // The only bonus armor an item gives; its QualityModifier gives none (R-0052).
 		return proto.Stat_StatBonusArmor, true
 
 	// Forever moved the five resistances out of Item.Resistances_* and onto the item

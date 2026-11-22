@@ -1046,9 +1046,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-FieldMarshal'sBattlegear"
  value: {
-  dps: 535.32689
-  tps: 1693.42523
-  dtps: 299.81631
+  dps: 536.08357
+  tps: 1695.18125
+  dtps: 302.91381
   hps: 39.4275
  }
 }
@@ -1129,7 +1129,7 @@ dps_results: {
  value: {
   dps: 576.23264
   tps: 1816.85794
-  dtps: 304.45134
+  dtps: 305.83251
   hps: 42.05389
  }
 }
@@ -1831,7 +1831,7 @@ dps_results: {
  value: {
   dps: 582.33569
   tps: 1825.12829
-  dtps: 304.13691
+  dtps: 304.82685
   hps: 42.10472
  }
 }
@@ -1858,7 +1858,7 @@ dps_results: {
  value: {
   dps: 582.33569
   tps: 1825.12829
-  dtps: 304.13691
+  dtps: 304.82685
   hps: 42.10472
  }
 }
@@ -2639,10 +2639,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-VolcanicArmor"
  value: {
-  dps: 538.47599
-  tps: 1689.18696
-  dtps: 342.62768
-  hps: 40.9525
+  dps: 538.3246
+  tps: 1692.74207
+  dtps: 350.25339
+  hps: 40.91861
  }
 }
 dps_results: {
@@ -2666,9 +2666,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Warlord'sBattlegear"
  value: {
-  dps: 535.32689
-  tps: 1693.42523
-  dtps: 299.81631
+  dps: 536.08357
+  tps: 1695.18125
+  dtps: 302.91381
   hps: 39.4275
  }
 }
