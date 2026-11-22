@@ -3254,6 +3254,7 @@
 		"native_sim_update_title": "Update simulator",
 		"native_sim_update_confirm": "The simulator will download version {{version}} and restart. Any running sims are stopped.",
 		"native_sim_update_action": "Update and restart",
+		"native_sim_update_toast": "Version {{version}} of the simulator is out.",
 		"native_sim_updating": "Updating…",
 		"native_sim_update_failed": "The update failed: {{error}}",
 		"native_sim_update_timeout": "The simulator did not restart after the update. Restart it manually.",

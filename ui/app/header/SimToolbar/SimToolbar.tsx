@@ -6,8 +6,9 @@ import { Button } from '@ui-kit/Button';
 import { Dialog } from '@ui-kit/Dialog';
 import { SocialLink } from '@ui-kit/SocialLink';
 import { Spinner } from '@ui-kit/Spinner';
+import { toastManager } from '@ui-kit/Toast';
 import { isNative } from '@ui-kit/utils/dom';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 import { ToolbarItem } from './ToolbarItem';
 import { type NativeSimUpdateStatus, useNativeSimUpdate } from './useNativeSimUpdate';
@@ -30,6 +31,29 @@ export interface SimToolbarViewProps {
 const NativeSimUpdateItem = ({ latest, status, onUpdate }: NativeSimUpdate) => {
 	const [open, setOpen] = useState(false);
 	const updating = status.state === 'updating';
+
+	useEffect(() => {
+		const id = toastManager.add({
+			variant: 'info',
+			title: i18n.t('sim.new_build.title'),
+			autohide: false,
+			body: (
+				<>
+					<p>{i18n.t('info.native_sim_update_toast', { version: latest })}</p>
+					<Button
+						variant="outline-light"
+						onClick={() => {
+							toastManager.close(id);
+							setOpen(true);
+						}}>
+						{i18n.t('info.native_sim_update_action')}
+					</Button>
+				</>
+			),
+		});
+		return () => toastManager.close(id);
+	}, [latest]);
+
 	return (
 		<>
 			<ToolbarItem

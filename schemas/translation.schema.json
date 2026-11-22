@@ -11598,6 +11598,9 @@
 				"native_sim_update_action": {
 					"type": "string"
 				},
+				"native_sim_update_toast": {
+					"type": "string"
+				},
 				"native_sim_updating": {
 					"type": "string"
 				},
@@ -11627,6 +11630,7 @@
 				"native_sim_update_title",
 				"native_sim_update_confirm",
 				"native_sim_update_action",
+				"native_sim_update_toast",
 				"native_sim_updating",
 				"native_sim_update_failed",
 				"native_sim_update_timeout",
