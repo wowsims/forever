@@ -530,6 +530,75 @@ func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
 	}
 }
 
+// A Lightning Bolt that consumes five Maelstrom Weapon stacks keeps Clearcasting, and so does a
+// Chain Lightning cast while Maelstrom Ready! is up, which takes Maelstrom Ready! off and leaves the
+// stacks. Below five stacks a Lightning Bolt spends the charge.
+func TestMaelstromWeaponAtFiveStacksKeepsClearcasting(t *testing.T) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       enhancementRaid(enhancementTalents),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	target := sham.CurrentTarget
+	clearcasting := sham.GetAuraByID(core.ActionID{SpellID: 16246})
+	maelstrom := sham.GetAuraByID(core.ActionID{SpellID: 408505})
+	ready := sham.GetAuraByID(core.ActionID{SpellID: 408501})
+	bolt := sham.GetSpell(core.ActionID{SpellID: 15208})
+	chainLightning := sham.GetSpell(core.ActionID{SpellID: 10605})
+	if clearcasting == nil || maelstrom == nil || ready == nil || bolt == nil || chainLightning == nil {
+		t.Fatalf("Clearcasting %v, Maelstrom Weapon %v, Maelstrom Ready! %v, Lightning Bolt %v, Chain Lightning %v; want all registered",
+			clearcasting, maelstrom, ready, bolt, chainLightning)
+	}
+
+	withStacks := func(stacks int32) {
+		clearcasting.Activate(sim)
+		maelstrom.Deactivate(sim)
+		maelstrom.Activate(sim)
+		maelstrom.SetStacks(sim, stacks)
+	}
+
+	withStacks(maelstrom.MaxStacks)
+	if !ready.IsActive() {
+		t.Fatal("Maelstrom Ready! is not up at five Maelstrom Weapon stacks")
+	}
+	bolt.Proc(sim, target)
+	if !clearcasting.IsActive() || maelstrom.IsActive() || ready.IsActive() {
+		t.Errorf("after a Lightning Bolt at five stacks: Clearcasting up %v, Maelstrom Weapon up %v, Maelstrom Ready! up %v; want true, false, false",
+			clearcasting.IsActive(), maelstrom.IsActive(), ready.IsActive())
+	}
+
+	withStacks(maelstrom.MaxStacks)
+	chainLightning.Proc(sim, target)
+	if !clearcasting.IsActive() || ready.IsActive() || maelstrom.GetStacks() != maelstrom.MaxStacks {
+		t.Errorf("after a Chain Lightning with Maelstrom Ready! up: Clearcasting up %v, Maelstrom Ready! up %v, %d stacks; want true, false, %d",
+			clearcasting.IsActive(), ready.IsActive(), maelstrom.GetStacks(), maelstrom.MaxStacks)
+	}
+	// Maelstrom Ready! is gone and the stacks stay, so the next Chain Lightning spends the charge;
+	// its own roll can refresh it, so one spend over the loop is enough.
+	spent := false
+	for range 100 {
+		clearcasting.Activate(sim)
+		chainLightning.Proc(sim, target)
+		spent = spent || !clearcasting.IsActive()
+	}
+	if !spent {
+		t.Error("a Chain Lightning at five stacks with Maelstrom Ready! gone never spent Clearcasting")
+	}
+
+	spent = false
+	for range 100 {
+		withStacks(maelstrom.MaxStacks - 1)
+		bolt.Proc(sim, target)
+		spent = spent || !clearcasting.IsActive()
+	}
+	if !spent {
+		t.Error("a Lightning Bolt below five stacks never spent Clearcasting")
+	}
+}
+
 // An untalented Elemental shaman wearing the items, at the start of the encounter.
 func shamanWearing(t *testing.T, encounter *proto.Encounter, worn map[proto.ItemSlot]int32) (*core.Simulation, *shaman.Shaman) {
 	t.Helper()

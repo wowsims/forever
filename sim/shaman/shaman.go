@@ -68,6 +68,8 @@ type Shaman struct {
 
 	chainLightningJumpMultiplier float64    // Scales the share of the damage each Chain Lightning jump keeps.
 	earthshattererAura           *core.Aura // The Earthshatterer's 8pc, which Lightning Shield's mana per 5 sec follows.
+	maelstromWeaponAura          *core.Aura // Its stacks decide whether a Lightning Bolt keeps Clearcasting.
+	maelstromReadyAura           *core.Aura // Up while a Chain Lightning keeps Clearcasting.
 
 	// The equipped main hand and the swap set's, which the imbue options name.
 	mainHandID     int32

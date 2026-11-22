@@ -1911,6 +1911,7 @@
         "innervate": {"spellId": 29166, "tag": -1, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"]},
         "leader_of_the_pack": {"spellId": 24932, "tag": -1, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"]},
         "lightning_shield": {"spellId": 10432, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"]},
+        "maelstrom_ready": {"spellId": 408501, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"]},
         "maelstrom_weapon": {"spellId": 408505, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"]},
         "magma_totem": {"spellId": 10587, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"]},
         "mana_spring": {"spellId": 10494, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"]},

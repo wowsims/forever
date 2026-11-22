@@ -77,9 +77,9 @@ func TestWindfuryWeaponStrikesNeverProcFlametongueTotemOrGlance(t *testing.T) {
 	}
 }
 
-// A main-hand swing spends a Flurry charge whatever its outcome, and so do a Windfury Weapon
-// hit and a Windfury Totem hit; a Stormstrike spends none, and a hit in the same instant as a
-// crit's gain spends none.
+// A main-hand swing spends a Flurry charge whatever its outcome, and so does a Windfury Weapon
+// hit; a Windfury Totem hit and a Stormstrike spend none. A Windfury Weapon hit in the instant a
+// swing's crit gained Flurry spends one, and none in the instant a Windfury Weapon hit's crit did.
 func TestFlurrySpendsOnSwingsAndWindfuryStrikes(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	player.TalentsString = enhancementTalents
@@ -120,13 +120,20 @@ func TestFlurrySpendsOnSwingsAndWindfuryStrikes(t *testing.T) {
 	}
 	expect("a dodged swing", swing, core.OutcomeDodge, true)
 	expect("a Windfury Weapon hit", strike, core.OutcomeHit, true)
-	expect("a Windfury Totem hit", totemStrike, core.OutcomeHit, true)
+	expect("a Windfury Totem hit", totemStrike, core.OutcomeHit, false)
 	expect("a Stormstrike", sham.Stormstrike, core.OutcomeHit, false)
 
 	sim.CurrentTime += time.Second
 	hit(swing, core.OutcomeCrit)
 	hit(strike, core.OutcomeHit)
+	if got, want := flurry.GetStacks(), flurry.MaxStacks-1; got != want {
+		t.Errorf("a Windfury Weapon hit in the instant of a swing's crit left %d charges, want %d", got, want)
+	}
+
+	sim.CurrentTime += time.Second
+	hit(strike, core.OutcomeCrit)
+	hit(strike, core.OutcomeHit)
 	if got := flurry.GetStacks(); got != flurry.MaxStacks {
-		t.Errorf("a Windfury Weapon hit in the instant of a crit's gain left %d charges, want %d", got, flurry.MaxStacks)
+		t.Errorf("a Windfury Weapon hit in the instant of a Windfury Weapon hit's crit left %d charges, want %d", got, flurry.MaxStacks)
 	}
 }
