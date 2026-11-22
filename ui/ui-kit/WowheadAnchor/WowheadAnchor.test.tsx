@@ -5,8 +5,8 @@ import { WowheadAnchor } from './WowheadAnchor';
 
 const HREF = 'https://www.wowhead.com/item=19019';
 
-const click = (element: HTMLElement) => {
-	const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+const click = (element: HTMLElement, init: MouseEventInit = {}) => {
+	const event = new MouseEvent('click', { bubbles: true, cancelable: true, ...init });
 	element.dispatchEvent(event);
 	return event;
 };
@@ -65,6 +65,24 @@ describe('WowheadAnchor', () => {
 
 		expect(click(anchor).defaultPrevented).toBe(true);
 		expect(calls).toEqual(['activate', anchor, 'click']);
+	});
+
+	it.each(['ctrlKey', 'metaKey', 'shiftKey'] as const)('leaves a %s click on a link that acts to the browser, for a new tab or window', modifier => {
+		const onActivate = vi.fn();
+		const onClick = vi.fn();
+		render(<WowheadAnchor href={HREF} testId="anchor" onActivate={onActivate} onClick={onClick} />);
+
+		expect(click(screen.getByTestId('anchor'), { [modifier]: true }).defaultPrevented).toBe(false);
+		expect(onActivate).not.toHaveBeenCalled();
+		expect(onClick).not.toHaveBeenCalled();
+	});
+
+	it('still acts on a modified click without a link to open', () => {
+		const onActivate = vi.fn();
+		render(<WowheadAnchor testId="anchor" onActivate={onActivate} />);
+
+		expect(click(screen.getByTestId('anchor'), { ctrlKey: true }).defaultPrevented).toBe(true);
+		expect(onActivate).toHaveBeenCalledOnce();
 	});
 
 	it('is a focusable button only when it acts without a link', () => {
@@ -151,6 +169,14 @@ describe('WowheadAnchor', () => {
 		expect(anchor.hasAttribute('role')).toBe(false);
 		expect(anchor.hasAttribute('tabindex')).toBe(false);
 		expect(anchor.hasAttribute('data-disable-wowhead-touch-tooltip')).toBe(false);
+	});
+
+	it('cancels a modified click too with navigate={false}, so a talent never opens a tab', () => {
+		const onClick = vi.fn();
+		render(<WowheadAnchor href={HREF} testId="anchor" navigate={false} onClick={onClick} />);
+
+		expect(click(screen.getByTestId('anchor'), { ctrlKey: true }).defaultPrevented).toBe(true);
+		expect(onClick).toHaveBeenCalledOnce();
 	});
 
 	it('lets onActivate win on role and touch when navigate={false} and onActivate are both given', () => {
