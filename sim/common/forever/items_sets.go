@@ -3,6 +3,7 @@ package forever
 import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -278,17 +279,19 @@ var ItemSetDeathmistRaimentReissue = core.NewItemSet(core.ItemSet{
 })
 
 var (
-	wildheartProc = spelldata.MustFind(450608) // 5pc: the proc
-	wildheartMana = spelldata.MustFind(27782)  // 5pc: the mana a spell cast restores
+	wildheartProc    = spelldata.MustFind(450608)  // 5pc: the proc
+	wildheartMana    = spelldata.MustFind(27782)   // 5pc: the mana a spell cast restores
+	wildheartEnergy  = spelldata.MustFind(27784)   // 5pc: the energy over 5 s a landed melee swing restores
+	wildheartRage    = spelldata.MustFind(27783)   // 5pc: the rage a landed melee swing taken restores
+	wildHeartTrigger = spelldata.MustFind(1302708) // 4pc: Wild Heart, the proc
+	wildHeartBuff    = spelldata.MustFind(1302707) // 4pc: the movement speed it gives
 )
 
-// The energize proc of Wildheart Raiment and of the Feralheart Raiment reissue. A spell cast restores
-// mana at the procs per minute an override puts on the row, priced on the cast's time
-// (shared.SpellCastPPMTrigger); the dummy effect's 5 is no chance (EV-0144).
+// The energize proc of Wildheart Raiment and of the Feralheart Raiment reissue, at the procs per minute
+// an override puts on the row; the dummy effect's 5 is no chance (EV-0144). A spell cast restores mana,
+// priced on the cast's time (shared.SpellCastPPMTrigger), and two more listeners restore energy and rage.
 func wildheartEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
-		// TODO: A landed melee swing also restores energy over 5 s (27784, whose row restores mana) and
-		// a melee hit taken 10 rage (27783). Neither has a measured rate (EV-0144).
 		character := agent.GetCharacter()
 		mana := wildheartMana.EnergizeEffect().Average()
 		manaMetrics := character.NewManaMetrics(core.ActionID{SpellID: wildheartMana.ID})
@@ -300,13 +303,100 @@ func wildheartEnergize(name string) core.ApplySetBonus {
 		trigger.Name = name
 
 		setBonusAura.AttachProcTrigger(trigger).ExposeToAPL(wildheartProc.ID)
+		attachWildheartSwingEnergy(character, setBonusAura, name)
+		attachWildheartStruckRage(character, setBonusAura, name)
+	}
+}
+
+// The energy listener: a landed white swing or Windfury Totem hit rolls the row's rate on the weapon's
+// speed, and casts 27784, which restores its energy every tick and restarts on a new proc (EV-0144). A
+// tick fills the bar only while energy is the current one: a rogue's always, a druid's in Cat Form alone,
+// since the other forms keep the cat's energy aside (restoreCatEnergy).
+// TODO: The manager reads the main hand's speed when it is built, so a druid that shifts between Cat Form
+// and a bear form keeps the paw of the form it started in.
+func attachWildheartSwingEnergy(character *core.Character, setBonusAura *core.Aura, name string) {
+	if !character.HasEnergyBar() {
+		return
+	}
+	tick := wildheartEnergy.ProcEnergizeEffect()
+	amount := tick.Average()
+	metrics := character.NewEnergyMetrics(core.ActionID{SpellID: wildheartEnergy.ID})
+
+	config := procSpellConfig(character, wildheartEnergy)
+	config.Hot = spelldata.DotConfig(wildheartEnergy, tick)
+	config.Hot.SelfOnly = true
+	config.Hot.OnTick = func(sim *core.Simulation, _ *core.Unit, _ *core.Dot) {
+		if character.GetCurrentPowerBar() == core.EnergyBar {
+			character.AddEnergy(sim, amount, metrics)
+		}
+	}
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		spell.SelfHot().Apply(sim)
+	}
+	energy := character.RegisterSpell(config)
+
+	trigger := spelldata.ProcTrigger(character, wildheartProc,
+		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			energy.Cast(sim, &character.Unit)
+		},
+		landedHits(core.ProcMaskMeleeWhiteHit))
+	trigger.Name = name + " - Swing"
+	setBonusAura.AttachProcTrigger(trigger)
+}
+
+// The rage listener: a landed melee swing taken rolls the row's rate on the attacker's time between its
+// own swings and restores 27783's rage; a melee ability taken rolls nothing, though the row names it
+// (EV-0144). The rage fills the bar only while rage is the current one: a warrior's always, a druid's in a
+// bear form alone, since a shift into a bear form empties the bar.
+func attachWildheartStruckRage(character *core.Character, setBonusAura *core.Aura, name string) {
+	if !character.HasRageBar() {
+		return
+	}
+	rage := wildheartRage.EnergizeEffect().Tenths()
+	metrics := character.NewRageMetrics(core.ActionID{SpellID: wildheartRage.ID})
+
+	trigger := spelldata.ProcTrigger(character, wildheartProc,
+		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			if character.GetCurrentPowerBar() == core.RageBar {
+				character.AddRage(sim, rage, metrics)
+			}
+		},
+		func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.Callback = core.CallbackOnSpellHitTaken
+			trigger.ProcMask = core.ProcMaskMeleeWhiteHit
+			trigger.DPM = character.NewAttackerSwingPPMManager(float64(wildheartProc.RPPM), trigger.ProcMask,
+				func(*core.Unit) float64 { return 1 })
+		})
+	trigger.Name = name + " - Struck"
+	setBonusAura.AttachProcTrigger(trigger)
+}
+
+// Wild Heart, Wildheart Raiment's 4-piece and the Feralheart Raiment reissue's 5-piece: when struck in
+// combat, has a 5% chance to increase your movement speed by 10% for 8 sec. Can only occur once every
+// 60 sec. A landed hit taken rolls the row's chance outside its cooldown (EV-0144). The spell parse
+// leaves the buff's speed aura out, so the buff multiplies the movement speed itself.
+func wildHeart(name string) core.ApplySetBonus {
+	return func(agent core.Agent, setBonusAura *core.Aura) {
+		character := agent.GetCharacter()
+		speed := 1 + wildHeartBuff.FirstAura(dbcenums.A_MOD_SPEED_ALWAYS).Percent()
+		buff := character.RegisterAura(spelldata.AuraConfig(wildHeartBuff))
+		buff.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
+			character.MultiplyMovementSpeed(sim, speed)
+		})
+		buff.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
+			character.MultiplyMovementSpeed(sim, 1/speed)
+		})
+
+		trigger := spelldata.ProcTrigger(character, wildHeartTrigger, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			buff.Activate(sim)
+		})
+		trigger.Name = name
+		setBonusAura.AttachProcTrigger(trigger).ExposeToAPL(wildHeartTrigger.ID)
 	}
 }
 
 // Dungeon Set 1
 // https://www.wowhead.com/forever/item-set=185/wildheart-raiment
-//
-// The 4-piece bonus is movement speed when struck, which has no place in the sim.
 var ItemSetWildheartRaiment = core.NewItemSet(core.ItemSet{
 	ID:    185,
 	Name:  "Wildheart Raiment",
@@ -314,6 +404,9 @@ var ItemSetWildheartRaiment = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
 		3: shared.ParsedSetBonus(dungeonSpellDamage, spelldata.MustFind(9336)), // +18 spell damage, +30 attack power
+		4: wildHeart("Wildheart Raiment - 4PC"),
+		// TODO: Ingame test needed -- whether a rogue gains the energy and a warrior the rage, and whether a
+		// proc in a bear form adds its energy to what Cat Form comes back with.
 		5: wildheartEnergize("Wildheart Raiment - 5PC"),
 		6: shared.ParsedSetBonus(dungeonManaRegen),
 	},
@@ -425,8 +518,11 @@ func warriorsResolve(name string) core.ApplySetBonus {
 }
 
 // Dungeon Set 2, Season of Discovery reissue
+// https://www.wowhead.com/forever/item-set=1667/feralheart-raiment
 //
-// The 5-piece bonus (1302708) is movement speed when struck, which has no place in the sim.
+// The set ships 32 pieces in four groups of eight (caster, healer, melee and tank), all under this id,
+// and the sim counts any of them toward the bonuses.
+// TODO: Ingame test needed -- whether pieces of different groups count toward one another's bonuses.
 var ItemSetFeralheartRaimentReissue = core.NewItemSet(core.ItemSet{
 	ID:    1667,
 	Name:  "Feralheart Raiment",
@@ -434,7 +530,10 @@ var ItemSetFeralheartRaimentReissue = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
 		3: shared.ParsedSetBonus(dungeonManaRegen),
+		// TODO: Ingame test needed -- whether a proc in a bear form adds its energy to what Cat Form comes back
+		// with.
 		4: wildheartEnergize("Feralheart Raiment - 4PC"),
+		5: wildHeart("Feralheart Raiment - 5PC"),
 		6: shared.ParsedSetBonus(dungeonTwoAttack, dungeonTwoDamage),
 	},
 })
