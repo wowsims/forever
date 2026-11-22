@@ -14,18 +14,20 @@
 ## Method
 
 The Warcraft Logs count is EV-0153's Method, run again by the automated sweep of 2026-11-22 (`forever-sweep-auto`,
-`runs/2026-11-22-1122/results.json`, `analyze.py` version 14) over every wearer stream on disk: 15 runs, of which 6 are
+`runs/2026-11-22-1122/results.json`, the run EV-0177 counts) over every wearer stream on disk: 15 runs, of which 6 are
 feral druids and are left out of the rate, since they swing the paw. Fatal Wound has no flight (`SpellMisc.Speed` 0) and
 lands 0 to 1 ms after its hit (98th percentile, 63 isolated procs), so it is credited from 11 ms before to 100 ms after.
 Dropping the swapped stretches (25 active minutes, 18% of hits, in 1 run) moved the all-hits read from 0.75 to 0.91.
 The 16549 row has no `SpellAuraOptions` entry, so the game files state no rate.
 
 The druid count is separate code. It splits each druid's landed white swings by form: in the Warcraft Logs streams by
-Cat Form (768) and Dire Bear Form (9634) applies and removes, in the combat log by the power type each swing logs (energy
-for Cat Form, rage for Dire Bear Form). It keeps only the wearer's own events and drops procs from 20 ms before to 50 ms
-after a killing blow; none fell there. In the combat log, Warchief Rend Blackhand, who drops Doomsaw, dies at 21:57:14
-local time and the gear first shows it at 22:05:38, so the count starts at either time; 2 of the 31 procs missed and are
-counted. No proc in either count follows a special without a white swing in its window.
+Cat Form (768) and Dire Bear Form (9634) applies and removes, in the combat log by the power type each swing logs
+(energy for Cat Form, rage for Dire Bear Form). It keeps only the wearer's own events and drops procs from 20 ms before
+to 50 ms after a killing blow; none fell there in either count. In the combat log, Warchief Rend Blackhand, who drops
+Doomsaw, dies at 21:57:14 local time and the gear first shows it at 22:05:38, so the count starts at either time. The
+combat log's swings in the tables below start at 22:04:00, the higher read. 2 of its 31 procs missed and are counted.
+Every proc but one has a landed white swing in its window; the one, in Warcraft Logs, logs 53 ms before its swing, is
+counted in the pooled rates and has no form.
 
 ## Rates
 
@@ -35,9 +37,9 @@ counted. No proc in either count follows a special without a white swing in its 
 | One-hand white                  |       7 |    42 |   676 | weapon (3.5) | 1.07 [0.90, 1.77] |
 | Specials                        |       6 |    21 |   239 | weapon (3.5) | 1.51 [1.02, 2.16] |
 | Paladin check (one-hand white)  |      26 |   137 | 2,074 | weapon (3.5) | 1.13 [0.83, 1.37] |
-| Druid paw swings, Warcraft Logs |       6 |   150 | 7,054 | paw          | 0.94              |
+| Druid paw swings, Warcraft Logs |       6 |   151 | 7,054 | paw          | 0.95              |
 | Druid paw swings, combat log    |       1 |    31 | 1,657 | paw          | 0.83 to 0.90      |
-| Druid paw swings, both          |       7 |   181 | 8,711 | paw          | 0.94 [0.82, 1.10] |
+| Druid paw swings, both          |       7 |   182 | 8,711 | paw          | 0.94 [0.82, 1.10] |
 
 The intervals are bootstraps over wearers, and the combat log's range comes from its two start times. The one-hand
 white and specials rates hold fewer than 50 procs each, so neither checks the all-hits rate, and the 0.9 rate stays
