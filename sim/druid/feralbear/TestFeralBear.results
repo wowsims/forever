@@ -318,10 +318,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Champion'sRefuge"
  value: {
-  dps: 462.8937
-  tps: 2353.01854
-  dtps: 431.79652
-  hps: 86.80642
+  dps: 462.70387
+  tps: 2349.88259
+  dtps: 453.75375
+  hps: 87.55766
  }
 }
 dps_results: {
@@ -336,10 +336,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Champion'sWildhide"
  value: {
-  dps: 463.31168
-  tps: 2360.32365
-  dtps: 431.21105
-  hps: 86.84946
+  dps: 465.94501
+  tps: 2365.41406
+  dtps: 447.55527
+  hps: 86.45035
  }
 }
 dps_results: {
@@ -822,10 +822,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-FeralheartRaiment"
  value: {
-  dps: 502.2951
-  tps: 2532.22619
-  dtps: 371.85282
-  hps: 87.75677
+  dps: 502.0655
+  tps: 2533.53606
+  dtps: 377.11879
+  hps: 88.38282
  }
 }
 dps_results: {
@@ -849,28 +849,28 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-FieldMarshal'sRefuge"
  value: {
-  dps: 464.26023
-  tps: 2350.34746
-  dtps: 415.09601
-  hps: 93.6056
+  dps: 462.54243
+  tps: 2354.68857
+  dtps: 439.31524
+  hps: 91.1416
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-FieldMarshal'sSanctuary"
  value: {
-  dps: 522.66813
-  tps: 2636.06976
-  dtps: 396.43085
-  hps: 91.49098
+  dps: 520.35377
+  tps: 2628.00483
+  dtps: 405.95056
+  hps: 91.62985
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-FieldMarshal'sWildhide"
  value: {
-  dps: 474.0104
-  tps: 2404.39735
-  dtps: 416.43278
-  hps: 93.27265
+  dps: 471.26291
+  tps: 2395.11233
+  dtps: 431.44271
+  hps: 92.46784
  }
 }
 dps_results: {
@@ -1335,10 +1335,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-LieutenantCommander'sRefuge"
  value: {
-  dps: 464.27672
-  tps: 2355.16443
-  dtps: 434.37586
-  hps: 86.36671
+  dps: 462.70387
+  tps: 2349.88259
+  dtps: 453.75375
+  hps: 87.55766
  }
 }
 dps_results: {
@@ -1353,10 +1353,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-LieutenantCommander'sWildhide"
  value: {
-  dps: 465.09125
-  tps: 2366.10868
-  dtps: 434.34315
-  hps: 86.55087
+  dps: 465.94501
+  tps: 2365.41406
+  dtps: 447.55527
+  hps: 86.45035
  }
 }
 dps_results: {
@@ -2145,10 +2145,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-VolcanicArmor"
  value: {
-  dps: 499.94438
-  tps: 2500.39449
-  dtps: 411.39479
-  hps: 82.56919
+  dps: 497.35048
+  tps: 2495.9755
+  dtps: 442.26026
+  hps: 81.63556
  }
 }
 dps_results: {
@@ -2163,28 +2163,28 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Warlord'sRefuge"
  value: {
-  dps: 464.26023
-  tps: 2350.34746
-  dtps: 415.09601
-  hps: 93.6056
+  dps: 462.54243
+  tps: 2354.68857
+  dtps: 439.31524
+  hps: 91.1416
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Warlord'sSanctuary"
  value: {
-  dps: 522.66813
-  tps: 2636.06976
-  dtps: 396.43085
-  hps: 91.49098
+  dps: 520.35377
+  tps: 2628.00483
+  dtps: 405.95056
+  hps: 91.62985
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-Warlord'sWildhide"
  value: {
-  dps: 474.0104
-  tps: 2404.39735
-  dtps: 416.43278
-  hps: 93.27265
+  dps: 471.26291
+  tps: 2395.11233
+  dtps: 431.44271
+  hps: 92.46784
  }
 }
 dps_results: {

@@ -9,3 +9,4 @@ request that settled it and its evidence. This index lists the ones this skill o
 - **R-0028** A survival cooldown that adds no damage or mana disables autocast: `docs/rulings/R-0028-survival-cooldown-disables-autocast.md`
 - **R-0029** Reduced caster DPS gives weapon DPS from fitted shares of the damage table: `docs/rulings/R-0029-reduced-caster-dps-weapon-shares.md`
 - **R-0030** Caster spell power and healing power follow the item budget formulas: `docs/rulings/R-0030-caster-spell-power-budget-formulas.md`
+- **R-0052** An item's bonus armor is its stat 50, never its QualityModifier: `docs/rulings/R-0052-bonus-armor-from-stat-50-only.md`
