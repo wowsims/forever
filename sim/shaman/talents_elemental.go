@@ -117,12 +117,26 @@ func (shaman *Shaman) applyElementalFocus() {
 	var procSpellID int32
 	var procTime time.Duration
 
+	// A Lightning Bolt that consumes five Maelstrom Weapon stacks keeps the charge, and so does a
+	// Chain Lightning cast while Maelstrom Ready! is up, which still costs nothing (EV-0180). Both
+	// auras come off as the cast completes, in no fixed order with this one, so the cast is checked
+	// before its effects apply.
+	var kept bool
 	config := spelldata.AuraConfig(clearcastingBuff)
 	config.OnGain = func(aura *core.Aura, sim *core.Simulation) {
 		aura.SetStacks(sim, aura.MaxStacks)
+		kept = false
+	}
+	config.OnApplyEffects = func(_ *core.Aura, _ *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		if !consumes.Reaches(spell) {
+			return
+		}
+		maelstrom := shaman.maelstromWeaponAura
+		kept = (spell.Matches(SpellMaskLightningBolt) && maelstrom.IsActive() && maelstrom.GetStacks() == maelstrom.MaxStacks) ||
+			(spell.Matches(SpellMaskChainLightning) && shaman.maelstromReadyAura.IsActive())
 	}
 	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-		if !consumes.Reaches(spell) || (spell.SpellID == procSpellID && sim.CurrentTime == procTime) {
+		if !consumes.Reaches(spell) || kept || (spell.SpellID == procSpellID && sim.CurrentTime == procTime) {
 			return
 		}
 		aura.RemoveStack(sim)
