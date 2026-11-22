@@ -363,20 +363,6 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Julie's Dagger: column reads 100; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
-	{
-		ItemID:  12791,
-		SpellID: 1300787,
-		PPM:     1.9,
-		Reason:  "Barman Shanker: column reads 101; a log fit not yet validated (EV-0146)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  275439,
-		SpellID: 1296730,
-		PPM:     1.95,
-		Reason:  "Blunderflame Bone Bow: no proc row; a log fit not yet validated (EV-0146)",
-		Source:  "observed",
-	},
 	// Measured on every hit the class census finds rolling the weapon, each priced on its weapon's base speed (EV-0136,
 	// EV-0153, EV-0155).
 	{
@@ -759,13 +745,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
-		ItemID:  8006,
-		SpellID: 13482,
-		PPM:     3.5,
-		Reason:  "The Ziggler: no proc row",
-		Source:  "EV-0136",
-	},
-	{
 		ItemID:  9372,
 		SpellID: 1294430,
 		PPM:     1.45,
@@ -784,13 +763,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 1293787,
 		PPM:     1.8,
 		Reason:  "X'caliboar: no proc row",
-		Source:  "EV-0136",
-	},
-	{
-		ItemID:  10803,
-		SpellID: 18088,
-		PPM:     2,
-		Reason:  "Blade of the Wretched: column reads 100",
 		Source:  "EV-0136",
 	},
 	{
@@ -902,13 +874,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
-		ItemID:  3194,
-		SpellID: 1292155,
-		PPM:     1.85,
-		Reason:  "Black Malice: no proc row; shares the trigger with Satyr's Lash",
-		Source:  "EV-0136",
-	},
-	{
 		ItemID:  4090,
 		SpellID: 13496,
 		PPM:     2.15,
@@ -916,10 +881,24 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0183",
 	},
 	{
+		ItemID:  8006,
+		SpellID: 13482,
+		PPM:     3.5,
+		Reason:  "The Ziggler: no proc row",
+		Source:  "EV-0136",
+	},
+	{
 		ItemID:  10797,
 		SpellID: 16413,
 		PPM:     2,
 		Reason:  "Firebreather: column reads 101",
+		Source:  "EV-0136",
+	},
+	{
+		ItemID:  10803,
+		SpellID: 18088,
+		PPM:     2,
+		Reason:  "Blade of the Wretched: column reads 100",
 		Source:  "EV-0136",
 	},
 	{
@@ -1029,6 +1008,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
+		ItemID:  3194,
+		SpellID: 1292155,
+		PPM:     1.85,
+		Reason:  "Black Malice: no proc row; shares the trigger with Satyr's Lash; a log fit not yet validated (EV-0136)",
+		Source:  "observed",
+	},
+	{
 		ItemID:  3336,
 		SpellID: 18078,
 		PPM:     0.95,
@@ -1064,6 +1050,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
+		ItemID:  12791,
+		SpellID: 1300787,
+		PPM:     1.9,
+		Reason:  "Barman Shanker: column reads 101; a log fit not yet validated (EV-0146)",
+		Source:  "observed",
+	},
+	{
 		ItemID:  13057,
 		SpellID: 18202,
 		PPM:     0.9,
@@ -1096,6 +1089,13 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 23454,
 		PPM:     1.05,
 		Reason:  "The Unstoppable Force: column reads 101; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  275439,
+		SpellID: 1296730,
+		PPM:     1.95,
+		Reason:  "Blunderflame Bone Bow: no proc row; a log fit not yet validated (EV-0146)",
 		Source:  "observed",
 	},
 	{

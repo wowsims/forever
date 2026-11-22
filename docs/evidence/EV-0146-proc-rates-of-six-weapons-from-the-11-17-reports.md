@@ -4,8 +4,8 @@
   each priced on each landed hit's weapon base speed; Axe of the Deep Woods' rate is measured, and the other two are
   observed, from wearers of one class only. Barman Shanker's Rend deals twice its damage when applied from behind the
   target.
-- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section's table names; 66
-  reports in all
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), 66 reports in all; Barman Shanker's section names the
+  reports of its Rend ticks
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-17
 - Pull request: #1091

@@ -307,14 +307,15 @@ waZyxVKk43BzGLN6 1-11.
 
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 - Proc: weapon proc 1292155
-- Rate: 1.85 PPM, measured
+- Rate: 1.85 PPM, observed
 
-340 procs on 3,358 rolling hits, 7 wearers, 8 runs, in the main hand: all hits 1.84 [1.67, 1.95]. The rate is all hits,
-which the one-hand white rate agrees with. One-hand white: 2.22 [1.80, 2.62], 125 procs on 1,023 lone units, 6 wearers.
-Specials: 2.49 [1.73, 3.46], 35 procs on 256 lone units, 2 wearers (a Poisson interval: under 5 wearers). Travel time:
-the proc lands a median 167 ms after its hit, 98th percentile 633 ms, window [50, 643] ms (129 isolated hits). Dropping
-the swapped stretches (5.1 active minutes, 2% of hits, in 1 run) moved the read from 1.81 to 1.84. Left out: 3 of 11
-runs in Cat or Bear Form. Reports from 2026-11-10 to 2026-11-22.
+340 procs on 3,358 rolling hits, 7 wearers, 8 runs, in the main hand: all hits 1.84 [1.67, 1.95]. The proc's travel
+window, [50, 643] ms, passes 400 ms, so no lone-unit rate checks the all-hits rate. Observed: no lone-unit rate checks
+it. One-hand white: 2.22 [1.80, 2.62], 125 procs on 1,023 lone units, 6 wearers. Specials: 2.49 [1.73, 3.46], 35 procs
+on 256 lone units, 2 wearers (a Poisson interval: under 5 wearers). Travel time: the proc lands a median 167 ms after
+its hit, 98th percentile 633 ms, window [50, 643] ms (129 isolated hits). Dropping the swapped stretches (5.1 active
+minutes, 2% of hits, in 1 run) moved the read from 1.81 to 1.84. Left out: 3 of 11 runs in Cat or Bear Form. Reports
+from 2026-11-10 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |

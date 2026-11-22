@@ -232,8 +232,8 @@ times in 39,297, through the chain and through hits on two targets.
 Barman Shanker 12791 took its rate after the 27 were chosen (EV-0146), and its Rend 1300787 follows the same rule in
 the sim. It is counted here on its own, the same way, and is in neither the table nor the totals above. The 11
 reports downloaded by 2026-11-18 that show it run from 2026-11-13 to 2026-11-17, and every wearer is a rogue with it
-in the main hand. A lone white swing brings 6 seconds on 125 landed firsts, 4.8% (2.2% to 10.1%), against 6.9% a
-landed hit in EV-0146, and no third. A lone ability brings none on 41 landed firsts, where two or three would be
+in the main hand. A lone white swing brings 6 seconds on 125 landed firsts, 4.8% (2.2% to 10.1%), against 6.3% a
+landed hit at EV-0146's rate, and no third. A lone ability brings none on 41 landed firsts, where two or three would be
 there if an ability chained, so the abilities are too few to settle it for this weapon alone. A white swing with two
 Rend is in `p6mVRBzvWMqnQZFc`, fight 2, at 21:44.354.
 
