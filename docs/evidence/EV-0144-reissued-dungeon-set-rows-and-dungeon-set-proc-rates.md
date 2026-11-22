@@ -261,7 +261,7 @@ same pricing reads Warrior's Resolve at 0.94.
 - Game build: 1.60.1.71037, on the US and EU realms from 2026-11-20 18:23 UTC; the hotfix each log ran on and whether
   the players relogged are not recorded
 - Date: 2026-11-21
-- Pull request: not recorded
+- Pull request: #1171
 
 A proc is credited to the druid's own event or the hit the druid took that comes last before it, up to 150 ms before;
 the Felwood log's procs trail their swing by up to 121 ms. The form is the druid's power type on its own swing or on
