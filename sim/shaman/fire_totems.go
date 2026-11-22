@@ -89,11 +89,21 @@ func (shaman *Shaman) registerMagmaTotemSpell() {
 	}
 	pulse := shaman.RegisterSpell(pulseConfig)
 
+	period := magmaPassiveRank.EffectN(1).Period()
 	shaman.MagmaTotem = shaman.registerFireTotem(magmaTotemRank, SpellMaskMagmaTotem, core.PeriodicActionOptions{
-		Period: magmaPassiveRank.EffectN(1).Period(),
+		Period: period,
 		OnAction: func(sim *core.Simulation) {
 			pulse.Cast(sim, shaman.CurrentTarget)
 		},
+	})
+
+	// A totem that stands its full time also pulses at the moment it ends, so a 40 s Magma Totem pulses
+	// 20 times and a 20 s one 10 times (EV-0181). The aura's expiry cancels the pulse that falls due at
+	// the same time, so that last pulse is cast here.
+	shaman.MagmaTotem.RelatedSelfBuff.ApplyOnExpire(func(aura *core.Aura, sim *core.Simulation) {
+		if sim.CurrentTime == shaman.TotemExpirations[FireTotem] && (sim.CurrentTime-aura.StartedAt())%period == 0 {
+			pulse.Cast(sim, shaman.CurrentTarget)
+		}
 	})
 }
 
