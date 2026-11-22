@@ -1108,6 +1108,43 @@ func TestSweepingStrikesCopiedHitRollsNoWindfuryTotem(t *testing.T) {
 	}
 }
 
+// Sweeping Strikes' copied hit takes the attacker's damage bonuses again on top of the hit it copies: between two
+// targets with the same armor, a 10% physical damage bonus raises the copy against its hit by 10%.
+func TestSweepingStrikesCopiedHitTakesDamageBonusesAgain(t *testing.T) {
+	sim, war, _ := swordSpecSim(t, 2, &proto.RaidBuffs{}, 0)
+	war.GetAura("Weaponmaster (Sword)").Deactivate(sim)
+	copied := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit})
+	if war.MortalStrike == nil || copied == nil || war.SweepingStrikesAura == nil {
+		t.Fatal("the warrior lacks Mortal Strike or Sweeping Strikes")
+	}
+	first := war.CurrentTarget
+	second := war.Env.NextActiveTargetUnit(first)
+
+	// The copy's damage over the damage of the Mortal Strike it copies, on the first one that lands.
+	ratio := func() float64 {
+		t.Helper()
+		for range 100 {
+			war.SweepingStrikesAura.Activate(sim)
+			war.SweepingStrikesAura.SetStacks(sim, war.SweepingStrikesAura.MaxStacks)
+			hitBefore := war.MortalStrike.SpellMetrics[first.UnitIndex].TotalDamage
+			copyBefore := copied.SpellMetrics[second.UnitIndex].TotalDamage
+			war.MortalStrike.SkipCastAndApplyEffects(sim, first)
+			stepPastBatch(t, sim)
+			if hit := war.MortalStrike.SpellMetrics[first.UnitIndex].TotalDamage - hitBefore; hit > 0 {
+				return (copied.SpellMetrics[second.UnitIndex].TotalDamage - copyBefore) / hit
+			}
+		}
+		t.Fatal("100 Mortal Strikes never landed")
+		return 0
+	}
+
+	without := ratio()
+	war.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical] *= 1.1
+	if got := ratio() / without; math.Abs(got-1.1) > 1e-9 {
+		t.Errorf("a 10%% physical damage bonus raises the copy against its hit by a factor of %.6f, want 1.1", got)
+	}
+}
+
 // Heroic Strike goes off on the next swing, which casts it directly, so the press that queues it is the
 // manual cast. A press whose swing never fires still counts.
 func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {

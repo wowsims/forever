@@ -441,13 +441,15 @@ func (warrior *Warrior) registerSweepingStrikes() {
 	var copyDamage float64
 	// 12723 has no SpellCategories row and so no DefenseType: no chance-on-hit effect or combat
 	// enchant hears the copied hit (EV-0007). Equip procs still hear it; no log measures them on 12723.
+	// The copy takes the hit's damage with the attacker's damage bonuses already in it, and those bonuses
+	// apply to it again (EV-0182).
 	hitSpell := warrior.RegisterSpell(core.SpellConfig{
 		ActionID:    actionID,
 		ClassFlags:  SpellFlagsSweepingStrikes,
 		SpellSchool: core.SpellSchoolPhysical,
 		ProcMask:    core.ProcMaskMeleeSpecial,
 		DefenseType: core.DefenseTypeNone,
-		Flags:       core.SpellFlagIgnoreModifiers | core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
+		Flags:       core.SpellFlagIgnoreTargetModifiers | core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
