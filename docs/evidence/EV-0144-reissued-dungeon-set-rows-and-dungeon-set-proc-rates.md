@@ -6,12 +6,14 @@
   Warrior's Resolve at 1, Rogue Armor Energize at 0.8, Crusader's Wrath at about 0.9, The Furious Storm and Nature's
   Bounty's mana at about 1. Nature's Bounty restores its energy off a landed white swing at about 1 a minute on the
   form's speed, and its rage off a landed melee swing taken at about 1 a minute on the attacker's interval; Wild Heart
-  fires at its row's 5% per landed hit taken, at most once a minute.
+  fires at its row's 5% per landed hit taken, at most once a minute. The Feralheart reissue's pieces count toward its
+  bonuses whichever of its four groups they come from.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each table names
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-11 to 2026-11-17
 - Pull request: #1086
 - Later count: Nature's Bounty's energy and rage, Wild Heart, §Count of the 2026-11-21 combat logs
+- Later count: the Feralheart reissue's groups, §Count of the 2026-11-22 combat log
 
 ## Method
 
@@ -312,3 +314,18 @@ Wild Heart follows 4.52% of the landed melee swings taken off its cooldown (79 o
 the landed spells and melee abilities taken (9 of 356, 1.34 to 4.73) and none of 914 avoided swings: 4.18% of all
 landed hits taken (88 of 2,104, 3.41 to 5.12), across the four druids. One proc follows no hit within 150 ms. No two
 procs on a druid are less than 60.0 s apart; the shortest gaps are 60.0, 60.3, 60.7, 61.2 and 64.7 s.
+
+## Count of the 2026-11-22 combat log
+
+- Sources: combat log `WoWCombatLog-112226_153709`, Winterspring: the Felwood log's druid in Cat Form, whose level field
+  reads 49 here, in two Feralheart tank pieces and two Feralheart melee pieces by its player's word; the log holds no
+  gear snapshot, and which pieces is not recorded
+- Game build: 1.60.1.71037, the US and EU build from 2026-11-20 18:23 UTC to the log; the hotfix the log ran on and
+  whether the player relogged are not recorded
+- Date: 2026-11-22
+- Pull request: #1171
+
+Four Feralheart pieces, two from each of two groups, fire the 4-piece: a landed white swing in Cat Form is followed in
+the same millisecond by 27784, which ticks 4 energy five times. No group holds four pieces, so pieces of different
+groups count toward the set together. Wildheart Raiment's 5-piece, the other set that procs 27784, needs five pieces,
+more than the four armor slots left.

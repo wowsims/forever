@@ -521,8 +521,7 @@ func warriorsResolve(name string) core.ApplySetBonus {
 // https://www.wowhead.com/forever/item-set=1667/feralheart-raiment
 //
 // The set ships 32 pieces in four groups of eight (caster, healer, melee and tank), all under this id,
-// and the sim counts any of them toward the bonuses.
-// TODO: Ingame test needed -- whether pieces of different groups count toward one another's bonuses.
+// and pieces of different groups count toward the same bonuses (EV-0144).
 var ItemSetFeralheartRaimentReissue = core.NewItemSet(core.ItemSet{
 	ID:    1667,
 	Name:  "Feralheart Raiment",
