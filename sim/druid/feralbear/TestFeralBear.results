@@ -165,10 +165,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BarmanShanker-12791"
  value: {
-  dps: 464.60828
-  tps: 2323.11017
-  dtps: 393.79944
-  hps: 83.93932
+  dps: 462.83568
+  tps: 2318.92342
+  dtps: 392.84043
+  hps: 83.12173
  }
 }
 dps_results: {
@@ -291,8 +291,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BonechillHammer-14487"
  value: {
-  dps: 468.93886
-  tps: 2357.95622
+  dps: 469.70872
+  tps: 2359.61142
   dtps: 393.47945
   hps: 83.9845
  }
@@ -388,6 +388,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-DarkmistDirk-285102"
+ value: {
+  dps: 418.79935
+  tps: 2139.46579
+  dtps: 394.15254
+  hps: 83.79558
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 530.11513
@@ -426,8 +435,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-DeadheadBlade-274271"
  value: {
-  dps: 451.589
-  tps: 2276.65666
+  dps: 451.44323
+  tps: 2276.34327
   dtps: 391.89679
   hps: 83.39811
  }
@@ -937,6 +946,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-FrightskullShaft-14531"
+ value: {
+  dps: 494.55318
+  tps: 2484.01086
+  dtps: 385.69521
+  hps: 84.28684
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-FrozenHeartoftheMountain-249469"
  value: {
   dps: 542.52271
@@ -948,8 +966,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Gahz'rillaFang-9467"
  value: {
-  dps: 443.37559
-  tps: 2241.39924
+  dps: 442.83714
+  tps: 2240.24158
   dtps: 393.47945
   hps: 83.9845
  }
@@ -1074,10 +1092,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GutRipper-2164"
  value: {
-  dps: 456.41254
-  tps: 2289.50093
-  dtps: 399.05537
-  hps: 85.69353
+  dps: 453.08562
+  tps: 2280.22493
+  dtps: 398.88482
+  hps: 85.70448
  }
 }
 dps_results: {
@@ -1137,8 +1155,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-HeartofWyrmthalak-22321"
  value: {
-  dps: 543.45176
-  tps: 2693.19282
+  dps: 542.34855
+  tps: 2690.82093
   dtps: 395.22585
   hps: 85.44451
  }
@@ -1299,10 +1317,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Jom-jom'sGabbar-274952"
  value: {
-  dps: 425.27448
-  tps: 2141.42368
-  dtps: 394.17432
-  hps: 83.65897
+  dps: 425.25931
+  tps: 2144.25225
+  dtps: 392.47448
+  hps: 83.58577
  }
 }
 dps_results: {
@@ -1699,6 +1717,15 @@ dps_results: {
   tps: 2667.43841
   dtps: 395.61739
   hps: 85.62528
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-SearingNeedle-12531"
+ value: {
+  dps: 447.37247
+  tps: 2262.8908
+  dtps: 393.47945
+  hps: 83.9845
  }
 }
 dps_results: {

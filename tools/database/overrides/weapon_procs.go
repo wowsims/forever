@@ -257,14 +257,6 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Bigger Rock on Bigger Stick: no proc row",
 		Source:  "EV-0022",
 	},
-	// Measured on off-hand wearers' white swings, each proc given to the hit logged right after it (EV-0120).
-	{
-		ItemID:  871,
-		SpellID: 18797,
-		PPM:     1.65,
-		Reason:  "Flurry Axe: column reads 101",
-		Source:  "EV-0120",
-	},
 	// Measured on main-hand white swings and melee casts of wearers holding it in the main hand (EV-0121).
 	{
 		ItemID:  13361,
@@ -280,15 +272,6 @@ var WeaponProcs = []WeaponProc{
 		PPM:     1.45,
 		Reason:  "Rot-Covered Harpoon: column reads 101",
 		Source:  "EV-0122",
-	},
-	// The rate is fitted from logs (EV-0125), too few to call final. The "observed" Source keeps the
-	// gear tab's notice up until more wearers validate it.
-	{
-		ItemID:  12592,
-		SpellID: 16602,
-		PPM:     1.15,
-		Reason:  "Blackblade of Shahram: no proc row; a log fit not yet validated (EV-0125)",
-		Source:  "observed",
 	},
 	// Measured on every hit that rolls the mace, each priced on its base speed; white swings and Stormstrikes roll it
 	// alike (EV-0150).
@@ -308,31 +291,10 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
-		ItemID:  2099,
-		SpellID: 29639,
-		PPM:     4.3,
-		Reason:  "Dwarven Hand Cannon: no proc row",
-		Source:  "EV-0136",
-	},
-	{
-		ItemID:  3078,
-		SpellID: 1292647,
-		PPM:     2.2,
-		Reason:  "Naga Heartpiercer: no proc row",
-		Source:  "EV-0136",
-	},
-	{
 		ItemID:  2164,
 		SpellID: 18107,
-		PPM:     1.55,
+		PPM:     1.45,
 		Reason:  "Gut Ripper: no proc row",
-		Source:  "EV-0136",
-	},
-	{
-		ItemID:  6469,
-		SpellID: 29653,
-		PPM:     2.05,
-		Reason:  "Venomstrike: no proc row",
 		Source:  "EV-0136",
 	},
 	{
@@ -352,14 +314,14 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  9412,
 		SpellID: 29644,
-		PPM:     4.25,
+		PPM:     3.95,
 		Reason:  "Galgann's Fireblaster: no proc row",
 		Source:  "EV-0136",
 	},
 	{
 		ItemID:  9467,
 		SpellID: 3742,
-		PPM:     2.1,
+		PPM:     2,
 		Reason:  "Gahz'rilla Fang: no proc row",
 		Source:  "EV-0136",
 	},
@@ -395,13 +357,6 @@ var WeaponProcs = []WeaponProc{
 	// one class only to call final (EV-0136, EV-0146). The "observed" Source keeps the gear tab's notice up until more
 	// wearers validate it.
 	{
-		ItemID:  811,
-		SpellID: 18104,
-		PPM:     1.7,
-		Reason:  "Axe of the Deep Woods: no proc row; a log fit not yet validated (EV-0146)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  6660,
 		SpellID: 8348,
 		PPM:     1.05,
@@ -411,14 +366,14 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  12791,
 		SpellID: 1300787,
-		PPM:     2.05,
+		PPM:     1.9,
 		Reason:  "Barman Shanker: column reads 101; a log fit not yet validated (EV-0146)",
 		Source:  "observed",
 	},
 	{
 		ItemID:  275439,
 		SpellID: 1296730,
-		PPM:     2.1,
+		PPM:     1.95,
 		Reason:  "Blunderflame Bone Bow: no proc row; a log fit not yet validated (EV-0146)",
 		Source:  "observed",
 	},
@@ -560,7 +515,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  13016,
 		SpellID: 13318,
-		PPM:     0.95,
+		PPM:     1,
 		Reason:  "Killmaim: column reads 101",
 		Source:  "EV-0136",
 	},
@@ -626,7 +581,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  1982,
 		SpellID: 18211,
-		PPM:     2.1,
+		PPM:     1.85,
 		Reason:  "Nightblade: no proc row; shares the trigger with Doombringer and Ebon Hand; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
@@ -806,7 +761,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  8006,
 		SpellID: 13482,
-		PPM:     3.6,
+		PPM:     3.5,
 		Reason:  "The Ziggler: no proc row",
 		Source:  "EV-0136",
 	},
@@ -834,7 +789,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  10803,
 		SpellID: 18088,
-		PPM:     1.9,
+		PPM:     2,
 		Reason:  "Blade of the Wretched: column reads 100",
 		Source:  "EV-0136",
 	},
@@ -924,6 +879,70 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Barovian Family Sword: column reads 101",
 		Source:  "EV-0179",
 	},
+	// Measured the same way on the reports from 2026-11-06 to 2026-11-22 (EV-0125, EV-0136, EV-0146, EV-0183).
+	{
+		ItemID:  811,
+		SpellID: 18104,
+		PPM:     1.95,
+		Reason:  "Axe of the Deep Woods: no proc row",
+		Source:  "EV-0146",
+	},
+	{
+		ItemID:  937,
+		SpellID: 18138,
+		PPM:     0.95,
+		Reason:  "Black Duskwood Staff: no proc row; shares the trigger with Shadowblade",
+		Source:  "EV-0136",
+	},
+	{
+		ItemID:  2256,
+		SpellID: 13440,
+		PPM:     0.95,
+		Reason:  "Skeletal Club: no proc row",
+		Source:  "EV-0136",
+	},
+	{
+		ItemID:  3194,
+		SpellID: 1292155,
+		PPM:     1.85,
+		Reason:  "Black Malice: no proc row; shares the trigger with Satyr's Lash",
+		Source:  "EV-0136",
+	},
+	{
+		ItemID:  4090,
+		SpellID: 13496,
+		PPM:     2.15,
+		Reason:  "Mug O' Hurt: column reads 101",
+		Source:  "EV-0183",
+	},
+	{
+		ItemID:  10797,
+		SpellID: 16413,
+		PPM:     2,
+		Reason:  "Firebreather: column reads 101",
+		Source:  "EV-0136",
+	},
+	{
+		ItemID:  12592,
+		SpellID: 16602,
+		PPM:     0.95,
+		Reason:  "Blackblade of Shahram: no proc row",
+		Source:  "EV-0125",
+	},
+	{
+		ItemID:  274265,
+		SpellID: 1293518,
+		PPM:     1.95,
+		Reason:  "Brush Cutter: no proc row; shares the trigger with Deadhead Blade",
+		Source:  "EV-0136",
+	},
+	{
+		ItemID:  274484,
+		SpellID: 1294226,
+		PPM:     2,
+		Reason:  "Axe of Inevitable Ruin: no proc row",
+		Source:  "EV-0136",
+	},
 	// Fitted the same way, but no lone-unit rate checks it, so it is not final (EV-0157). The "observed" Source keeps
 	// the gear tab's notice up until a one-hand white or specials rate checks it.
 	{
@@ -978,20 +997,128 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Siegebreaker's Blaster: no proc row; a log fit not yet validated (EV-0177)",
 		Source:  "observed",
 	},
+	// Fitted the same way on the reports from 2026-11-06 to 2026-11-22 from too few wearers, wearers of one class, too
+	// wide an interval or no lone-unit rate to check it, so not final (EV-0120, EV-0136, EV-0146, EV-0183). The
+	// "observed" Source keeps the gear tab's notice up until more wearers validate it.
+	{
+		ItemID:  871,
+		SpellID: 18797,
+		PPM:     1.75,
+		Reason:  "Flurry Axe: column reads 101; a log fit not yet validated (EV-0120)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  899,
+		SpellID: 18077,
+		PPM:     1.1,
+		Reason:  "Venom Web Fang: column reads 101; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  2099,
+		SpellID: 29639,
+		PPM:     3.95,
+		Reason:  "Dwarven Hand Cannon: no proc row; a log fit not yet validated (EV-0136)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  3078,
+		SpellID: 1292647,
+		PPM:     2.05,
+		Reason:  "Naga Heartpiercer: no proc row; a log fit not yet validated (EV-0136)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  3336,
+		SpellID: 18078,
+		PPM:     0.95,
+		Reason:  "Flesh Piercer: column reads 101; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  3822,
+		SpellID: 16409,
+		PPM:     2.15,
+		Reason:  "Runic Darkblade: no proc row; shares the trigger with Claw of the Shadowmancer; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  4449,
+		SpellID: 16400,
+		PPM:     2.1,
+		Reason:  "Naraxis' Fang: column reads 101; shares the trigger with Wyvern Tailspike; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  6469,
+		SpellID: 29653,
+		PPM:     1.85,
+		Reason:  "Venomstrike: no proc row; a log fit not yet validated (EV-0136)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  12531,
+		SpellID: 16454,
+		PPM:     2.75,
+		Reason:  "Searing Needle: column reads 101; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  13057,
+		SpellID: 18202,
+		PPM:     0.9,
+		Reason:  "Bloodpike: column reads 101; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  13399,
+		SpellID: 1320824,
+		PPM:     2.05,
+		Reason:  "Gargoyle Shredder Talons: column reads 101; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  14531,
+		SpellID: 18633,
+		PPM:     3,
+		Reason:  "Frightskull Shaft: column reads 101; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  18498,
+		SpellID: 1302344,
+		PPM:     1.75,
+		Reason:  "Hedgecutter: no proc row; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  19323,
+		SpellID: 23454,
+		PPM:     1.05,
+		Reason:  "The Unstoppable Force: column reads 101; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  282703,
+		SpellID: 1314305,
+		PPM:     4.2,
+		Reason:  "Needletooth's Needletooth: no proc row; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  285102,
+		SpellID: 1317583,
+		PPM:     3.65,
+		Reason:  "Darkmist Dirk: column reads 101; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
 	// Fitted the same way from too few wearers or too wide an interval to call final (EV-0136). The
 	// "observed" Source keeps the gear tab's notice up until more wearers validate it.
 	{
 		ItemID:  934,
 		SpellID: 13524,
-		PPM:     1.4,
+		PPM:     1.25,
 		Reason:  "Stalvan's Reaper: no proc row; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  937,
-		SpellID: 18138,
-		PPM:     0.9,
-		Reason:  "Black Duskwood Staff: no proc row; shares the trigger with Shadowblade; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
@@ -1016,13 +1143,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  2256,
-		SpellID: 13440,
-		PPM:     1.05,
-		Reason:  "Skeletal Club: no proc row; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  2912,
 		SpellID: 16409,
 		PPM:     1,
@@ -1030,16 +1150,9 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  3194,
-		SpellID: 1292155,
-		PPM:     2.05,
-		Reason:  "Black Malice: no proc row; shares the trigger with Satyr's Lash; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  7730,
 		SpellID: 18204,
-		PPM:     2.25,
+		PPM:     1.9,
 		Reason:  "Cobalt Crusher: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
@@ -1055,13 +1168,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 18081,
 		PPM:     1.95,
 		Reason:  "Gryphon Rider's Stormhammer: no proc row; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  10797,
-		SpellID: 16413,
-		PPM:     2.1,
-		Reason:  "Firebreather: column reads 101; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
@@ -1088,7 +1194,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  13054,
 		SpellID: 14126,
-		PPM:     1.1,
+		PPM:     0.9,
 		Reason:  "Grim Reaper: column reads 101; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
@@ -1116,14 +1222,14 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  14024,
 		SpellID: 19755,
-		PPM:     2.35,
+		PPM:     1.95,
 		Reason:  "Frightalon: column reads 101; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
 		ItemID:  14487,
 		SpellID: 18276,
-		PPM:     1.8,
+		PPM:     1.95,
 		Reason:  "Bonechill Hammer: no proc row; shares the trigger with Darrowspike; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
@@ -1137,7 +1243,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  17738,
 		SpellID: 21952,
-		PPM:     2.45,
+		PPM:     2,
 		Reason:  "Claw of Celebras: column reads 101; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
@@ -1149,30 +1255,16 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  274265,
-		SpellID: 1293518,
-		PPM:     2.35,
-		Reason:  "Brush Cutter: no proc row; shares the trigger with Deadhead Blade; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  274271,
 		SpellID: 1293518,
-		PPM:     2,
+		PPM:     1.9,
 		Reason:  "Deadhead Blade: no proc row; shares the trigger with Brush Cutter; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  274484,
-		SpellID: 1294226,
-		PPM:     2.15,
-		Reason:  "Axe of Inevitable Ruin: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
 		ItemID:  274952,
 		SpellID: 1295736,
-		PPM:     1.75,
+		PPM:     1.9,
 		Reason:  "Jom-jom's Gabbar: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
@@ -1195,27 +1287,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 8552,
 		PPM:     1.4, // TODO: Vanilla value - verify in-game
 		Reason:  "Staff of Horrors: no proc row",
-		Source:  "vanilla-carryover",
-	},
-	{
-		ItemID:  899,
-		SpellID: 18077,
-		PPM:     2, // TODO: Vanilla value - verify in-game
-		Reason:  "Venom Web Fang: column reads 101",
-		Source:  "vanilla-carryover",
-	},
-	{
-		ItemID:  3336,
-		SpellID: 18078,
-		PPM:     1, // TODO: Vanilla value - verify in-game
-		Reason:  "Flesh Piercer: column reads 101",
-		Source:  "vanilla-carryover",
-	},
-	{
-		ItemID:  4090,
-		SpellID: 13496,
-		PPM:     2, // TODO: Vanilla value - verify in-game
-		Reason:  "Mug O' Hurt: column reads 101",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -1314,13 +1385,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 18211,
 		PPM:     0.4, // TODO: Vanilla value - verify in-game
 		Reason:  "Ebon Hand: no proc row; shares the trigger with Doombringer",
-		Source:  "vanilla-carryover",
-	},
-	{
-		ItemID:  19323,
-		SpellID: 23454,
-		PPM:     0.5, // TODO: Vanilla value - verify in-game
-		Reason:  "The Unstoppable Force: column reads 101",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -1509,13 +1573,6 @@ var WeaponProcs = []WeaponProc{
 	// 	SpellID: 1315767,
 	// 	PPM:     0, // TODO: waiting for PPM data
 	// 	Reason:  "Howling Hide: no proc row",
-	// 	Source:  "vanilla-carryover",
-	// },
-	// {
-	// 	ItemID:  285102,
-	// 	SpellID: 1317583,
-	// 	PPM:     0, // TODO: waiting for PPM data
-	// 	Reason:  "Darkmist Dirk: column reads 101",
 	// 	Source:  "vanilla-carryover",
 	// },
 }

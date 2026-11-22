@@ -341,6 +341,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-DarkmistDirk-285102"
+ value: {
+  dps: 844.83486
+  tps: 855.77414
+  dtps: 5.36727
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 872.22922
@@ -827,6 +835,14 @@ dps_results: {
   dps: 884.2874
   tps: 895.14479
   dtps: 5.14336
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-FrightskullShaft-14531"
+ value: {
+  dps: 826.25639
+  tps: 837.1445
+  dtps: 5.35933
  }
 }
 dps_results: {
@@ -1523,6 +1539,14 @@ dps_results: {
   dps: 869.02791
   tps: 879.95197
   dtps: 5.34691
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-SearingNeedle-12531"
+ value: {
+  dps: 844.83486
+  tps: 855.77414
+  dtps: 5.36727
  }
 }
 dps_results: {

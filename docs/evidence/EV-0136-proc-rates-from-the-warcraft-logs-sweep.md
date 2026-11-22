@@ -16,17 +16,21 @@
 - Later count: Flame Wrath, §Count of the 2026-11-12 to 2026-11-18 reports
 - Later count: Barbaric Crossbow, Bow of Searing Arrows, Coldrage Dagger, Cursed Felblade, Darkwater Talwar, Dazzling
   Longsword, Electrocutioner Leg, Felstriker, Fiery War Axe, Fist of the Damned, Glutton's Cleaver, Grimclaw, Hammer of
-  Expertise, Hanzo Sword, Iron Knuckles, Ironforge Greathammer, Lord General's Sword, Nightblade, Phantom Blade,
-  Sang'thraze the Deflector, Satyr's Lash, Spellsever Crossbow, Strike of the Hydra, Sword of Decay, Tainted Pierce,
-  Taran Icebreaker, Thornspike and Toofbreaker, §Count of the 2026-11-05 to 2026-11-19 reports
+  Expertise, Hanzo Sword, Iron Knuckles, Ironforge Greathammer, Lord General's Sword, Phantom Blade, Sang'thraze the
+  Deflector, Satyr's Lash, Spellsever Crossbow, Strike of the Hydra, Sword of Decay, Tainted Pierce, Taran Icebreaker,
+  Thornspike and Toofbreaker, §Count of the 2026-11-05 to 2026-11-19 reports
 - Later count: Loksey's Training Stick and The Blackrock Slicer, §Count of the 2026-11-09 to 2026-11-19 reports
-- Later count: Blade of the Wretched, Bloodrazor, Bloodspiller, Boneslicer, Cookie's Tenderizer, Eater of the Dead,
-  Firebelcher, Hammer of the Northern Wind, Kang the Decapitator, Mana Channeling Wand, Pyromancer's Baton, Scorpion
-  Sting, Searing Blade, Serpent Slicer, Sliverblade, Sul'thraze the Lasher, Supercharger Battle Axe, Sword of
-  Corruption, The Cruel Hand of Timmy, The Ziggler, Twilight Forgehammer and X'caliboar, §Count of the 2026-11-06 to
-  2026-11-21 reports
-- Later count: Burning War Axe, Fang of the Crystal Spider, Iceblade Hacker, Killmaim, Pendulum of Doom, Shadowblade and
+- Later count: Bloodrazor, Bloodspiller, Boneslicer, Cookie's Tenderizer, Eater of the Dead, Firebelcher, Hammer of the
+  Northern Wind, Kang the Decapitator, Mana Channeling Wand, Pyromancer's Baton, Scorpion Sting, Searing Blade, Serpent
+  Slicer, Sliverblade, Sul'thraze the Lasher, Supercharger Battle Axe, Sword of Corruption, The Cruel Hand of Timmy,
+  Twilight Forgehammer and X'caliboar, §Count of the 2026-11-06 to 2026-11-21 reports
+- Later count: Burning War Axe, Fang of the Crystal Spider, Iceblade Hacker, Pendulum of Doom, Shadowblade and
   Shortsword of Vengeance, §Count of the 2026-11-09 to 2026-11-22 reports
+- Later count: Axe of Inevitable Ruin, Black Duskwood Staff, Black Malice, Blade of the Wretched, Bonechill Hammer,
+  Brush Cutter, Claw of Celebras, Cobalt Crusher, Deadhead Blade, Dwarven Hand Cannon, Firebreather, Frightalon,
+  Gahz'rilla Fang, Galgann's Fireblaster, Grim Reaper, Gut Ripper, Jom-jom's Gabbar, Killmaim, Naga Heartpiercer,
+  Nightblade, Skeletal Club, Stalvan's Reaper, The Ziggler and Venomstrike, §Count of the 2026-11-06 to 2026-11-22
+  reports
 
 ## Method
 
@@ -44,11 +48,10 @@ as the item swapped away. The rate is the procs over the sum of each hit's weapo
 procs a minute without moving it. Its interval is the wider of the per-hit Wilson interval and 2,000 bootstrap draws of
 whole wearers.
 
-The method reproduces Heart of Wyrmthalak (EV-0133, 1.92 against 2.00), Skullforge Reaver
-(EV-0121, 1.98 against 1.95) and the Highborne Research Tablet's weapon hits (EV-0131, 2.70 against 2.71). It reads
-Flurry Axe 1.79 against EV-0120's 1.65: the warriors' off-hand Whirlwind hits roll the axe and are not counted as hits
-here, which raises their runs to 2.17 and 2.83 (the others read 1.57 to 1.76), so no item rolled mostly by the off hand
-counts as measured, except Satyr's Lash, whose hits fall half in each hand, by the owner's ruling. Against clean damage
+The method reproduces Skullforge Reaver (EV-0121, 1.98 against 1.95) and the Highborne Research Tablet's weapon hits
+(EV-0131, 2.70 against 2.71). On Flurry Axe the warriors' off-hand Whirlwind hits roll the axe and are not counted as
+hits here, so no item rolled mostly by the off hand counts as measured, except Satyr's Lash, whose hits fall half in
+each hand, by the owner's ruling. Against clean damage
 splits the timing split agrees on 86% of swings and puts the main hand's share a median 0.025 from the weapon speeds'
 share. Items with fewer than 50 procs, or one wearer with fewer than 100, are left out.
 
@@ -172,17 +175,22 @@ zmDY4LVX7N8vh9aR
 
 ## Axe of Inevitable Ruin (274484)
 
-- Proc: weapon proc 1294226, logged as 1294226; rolls on main hand
-- Sim rate: 2.15 PPM, observed; measured 2.16 PPM [1.98, 2.35], 4 wearers, 4 runs, 469 procs on 4351 hits
-- Reports from 2026-11-13 to 2026-11-16
-- Notes: few wearers (4): the interval is about the per-wearer range
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 1294226
+- Rate: 2 PPM, measured
 
-| Report           | Fights | Class  | Slot | Hand split | Procs | Hits |  PPM | Left out |
-| ---------------- | ------ | ------ | ---- | ---------- | ----: | ---: | ---: | -------- |
-| LMdRqJGhV17XwWyT | 16-22  | Shaman | mh   |            |   169 | 1581 | 2.14 |          |
-| MpcVyhTHnqCJvDFx | 1-6    | Hunter | mh   |            |     9 |   62 | 2.90 |          |
-| mqzgv4rPVxA3JHGf | 1-2    | Shaman | mh   |            |    79 |  713 | 2.22 |          |
-| yhW9cLwxnHNDP2jF | 4-8    | Shaman | mh   |            |   212 | 1995 | 2.13 |          |
+667 procs on 6,594 rolling hits, 6 wearers, 7 runs, in the main hand: all hits 2.02 [1.97, 2.08]. The rate is all hits,
+which the one-hand white rate agrees with. One-hand white: 2.24 [1.80, 3.22], 131 procs on 1,172 lone units, 6 wearers.
+Specials: 5.71 [0.69, 20.64], 2 procs on 7 lone units, 1 wearer (a Poisson interval: under 5 wearers). Direct: window
+[-11, 100] ms, median 0 ms, 98th percentile 1 ms, 120 isolated hits. Reports from 2026-11-13 to 2026-11-22.
+
+| Class  | Wearers | Procs |  Hits |  PPM |
+| ------ | ------: | ----: | ----: | ---: |
+| Shaman |       4 |   658 | 6,526 | 2.02 |
+| Hunter |       2 |     9 |    68 | 2.65 |
+
+Reports and fights: LMdRqJGhV17XwWyT 16-22; MpcVyhTHnqCJvDFx 1-6; WFaZNV2mhkrHBPz6 1-2; WdqtNK9nVDmXPa2f 1;
+fzR7DJAFNWbk6LTH 1; mqzgv4rPVxA3JHGf 1-2; yhW9cLwxnHNDP2jF 4-8.
 
 ## Barbaric Crossbow (272999)
 
@@ -274,33 +282,47 @@ there is no cooldown. The chance per swing rises with the weapon's speed: 2.5% o
 
 ## Black Duskwood Staff (937)
 
-- Proc: weapon proc 18138, logged as 18138; rolls on main hand
-- Sim rate: 0.9 PPM, observed; measured 0.88 PPM [0.68, 1.13], 2 wearers, 3 runs, 57 procs on 1386 hits
-- Reports from 2026-11-10 to 2026-11-15
-- Notes: 1 of 4 runs are feral druids, left out (paw speed, not the weapon); few wearers (2): the interval is about the per-wearer range
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 18138
+- Rate: 0.95 PPM, measured
 
-| Report           | Fights | Class  | Slot | Hand split | Procs | Hits |  PPM | Left out |
-| ---------------- | ------ | ------ | ---- | ---------- | ----: | ---: | ---: | -------- |
-| 4bqYVtkjL6aKdwQM | 1-2    | Shaman | mh   |            |    18 |  366 | 1.05 |          |
-| 9RgXYmBfN7hCdznQ | 1-3    | Shaman | mh   |            |    19 |  510 | 0.80 |          |
-| waZyxVKk43BzGLN6 | 1-11   | Shaman | mh   |            |    20 |  510 | 0.84 |          |
-| 6GVg7FYcHWJmrbKw | 1-16   | Druid  | mh   |            |    14 | 1270 | 0.24 | feral    |
+432 procs on 9,582 rolling hits, 13 wearers, 15 runs, in the main hand: all hits 0.97 [0.91, 1.02]. The rate is all
+hits, which the one-hand white rate agrees with. One-hand white: 1.07 [0.87, 1.24], 105 procs on 2,103 lone units, 13
+wearers. Specials: 0.00, 0 procs on 1 lone units, 1 wearer. Travel time: the proc lands a median 149 ms after its hit,
+98th percentile 341 ms, window [50, 351] ms (57 isolated hits). Dropping the swapped stretches (11 active minutes, 3% of
+hits, in 2 runs) moved the read from 0.94 to 0.97. Left out: 19 of 34 runs in Cat or Bear Form. Reports from 2026-11-10
+to 2026-11-21.
+
+| Class  | Wearers | Procs |  Hits |  PPM |
+| ------ | ------: | ----: | ----: | ---: |
+| Shaman |      12 |   417 | 9,300 | 0.96 |
+| Druid  |       1 |    15 |   282 | 1.14 |
+
+Reports and fights: 4bqYVtkjL6aKdwQM 1-2; 92YFDCN4AvBT7KqJ 1-3; 9RgXYmBfN7hCdznQ 1-3; Chcj6QkYyadWfT18 1-4, 6;
+DJ1PR6j7LNAbm3yG 1; FJTtGa1hpZNncr2j 1-2; H7cZXGkY4xzMmL3W 1-2; HpftBG4KPCZrMxbF 1-3, 5-9, 11; JZPQ1mKC8MrHfVzF 1-4;
+NwHAYtWgyXf7DRCp 1-14; TfZDt129xGWp4vFC 1; Y61cQXLJwHfRabN4 1-31; a6QpkvcR1YHLBqPh 4-6; mNPzBQtDyL1KHTpZ 1, 3;
+waZyxVKk43BzGLN6 1-11.
 
 ## Black Malice (3194)
 
-- Proc: weapon proc 1292155, logged as 1292155; rolls on main hand
-- Sim rate: 2.05 PPM, observed; measured 2.06 PPM [1.70, 2.43], 5 wearers, 5 runs, 246 procs on 2175 hits
-- Reports from 2026-11-10 to 2026-11-15
-- Notes: 1 of 6 runs are feral druids, left out (paw speed, not the weapon)
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 1292155
+- Rate: 1.85 PPM, measured
 
-| Report           | Fights | Class   | Slot | Hand split | Procs | Hits |  PPM | Left out |
-| ---------------- | ------ | ------- | ---- | ---------- | ----: | ---: | ---: | -------- |
-| 4WrfjAqJYhxGHwPd | 1-3    | Warrior | mh   |            |    58 |  415 | 2.54 |          |
-| 7APg28BmdtzHhQFV | 1-6    | Shaman  | mh   |            |    20 |  203 | 1.79 |          |
-| GV14JHxQP3wcbg9X | 1-2    | Paladin | mh   |            |    73 |  544 | 2.44 |          |
-| PAy6j9tqdkwMTQHn | 6-10   | Paladin | mh   |            |    73 |  803 | 1.65 |          |
-| VLcP3WgkCfKZhB2v | 5-8    | Paladin | mh   |            |    22 |  210 | 1.90 |          |
-| 84aWfvkV2qb3mAnL | 1      | Druid   | mh   |            |    23 | 1355 | 0.31 | feral    |
+340 procs on 3,358 rolling hits, 7 wearers, 8 runs, in the main hand: all hits 1.84 [1.67, 1.95]. The rate is all hits,
+which the one-hand white rate agrees with. One-hand white: 2.22 [1.80, 2.62], 125 procs on 1,023 lone units, 6 wearers.
+Specials: 2.49 [1.73, 3.46], 35 procs on 256 lone units, 2 wearers (a Poisson interval: under 5 wearers). Travel time:
+the proc lands a median 167 ms after its hit, 98th percentile 633 ms, window [50, 643] ms (129 isolated hits). Dropping
+the swapped stretches (5.1 active minutes, 2% of hits, in 1 run) moved the read from 1.81 to 1.84. Left out: 3 of 11
+runs in Cat or Bear Form. Reports from 2026-11-10 to 2026-11-22.
+
+| Class   | Wearers | Procs |  Hits |  PPM |
+| ------- | ------: | ----: | ----: | ---: |
+| Warrior |       2 |   197 | 1,881 | 1.90 |
+| Shaman  |       5 |   143 | 1,477 | 1.76 |
+
+Reports and fights: 14KrcZhmb2WkGQLH 1, 3-7; 4WrfjAqJYhxGHwPd 1-3; 7APg28BmdtzHhQFV 1-6; f7LKGpNkHDF4qc2T 1-2;
+rdhLY1mZjgwBW4TK 1-4; tAHYCaLM743mRJrc 1-3; tcJjKwdCFXH1nkaR 1-12; xNtYHKbFwVGD93BW 1-2.
 
 ## Black Menace (6831)
 
@@ -328,30 +350,33 @@ there is no cooldown. The chance per swing rises with the weapon's speed: 2.5% o
 
 ## Blade of the Wretched (10803)
 
-- Count: §Count of the 2026-11-06 to 2026-11-21 reports
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
 - Proc: weapon proc 18088
-- Rate: 1.9 PPM, measured
+- Rate: 2 PPM, measured
 
-1,840 procs on 27,357 rolling hits, 19 wearers, 19 runs, in the main hand: all hits 1.92 [1.81, 2.04]. The rate is all
-hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.58 [1.31, 1.88], 122 procs on
-2,210 lone units, 4 wearers (a Poisson interval: under 5 wearers). Dual-wield white: 1.82 [1.65, 2.03], 294 procs on
-4,612 lone units, 14 wearers. Specials: 2.10 [1.85, 2.29], 223 procs on 3,039 lone units, 18 wearers. Two-roll
-abilities, priced as one roll: 3.05, 21 procs on 197 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th
-percentile 1 ms, 461 isolated hits. Dropping the swapped stretches (87 active minutes, 10% of hits, in 3 runs) moved the
-read from 1.74 to 1.92. The paladin check, which sets no rate: lone white swings 2.37, 20 procs on 241 lone units, 5
-wearers. By report date: before 2026-11-18 1.90 (1,402 procs); from 2026-11-18 to push 114313 2.00 (438 procs). Reports
-from 2026-11-12 to 2026-11-19.
+3,553 procs on 50,991 rolling hits, 28 wearers, 31 runs, in the main hand: all hits 1.99 [1.91, 2.07]. The rate is all
+hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.77 [1.51, 2.05], 260 procs on
+4,187 lone units, 8 wearers. Dual-wield white, which sets no rate: 1.81 [1.67, 1.95], 485 procs on 7,662 lone units, 18
+wearers. Specials: 2.02 [1.90, 2.15], 500 procs on 7,073 lone units, 26 wearers; Sinister Strike gives 276 procs on
+3,989 of them. Two-roll abilities, priced as one roll: 3.05, 21 procs on 197 lone units (Execute 19 on 160 and Mongoose
+Bite 2 on 37), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 884 isolated hits.
+Dropping the swapped stretches (196 active minutes, 11% of hits, in 6 runs) moved the read from 1.77 to 1.99. The
+paladin check, which sets no rate: lone white swings 2.28, 31 procs on 389 lone units, 6 wearers. Reports from
+2026-11-12 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Warrior |       8 |   847 | 13,708 | 1.77 |
-| Rogue   |       8 |   745 |  9,943 | 2.14 |
+| Rogue   |      13 | 2,035 | 27,760 | 2.09 |
+| Warrior |      12 | 1,270 | 19,525 | 1.86 |
 | Hunter  |       3 |   248 |  3,706 | 1.91 |
 
-Reports and fights: 34gy17FXnaGhVC2M 2; 6kN78G2xfqy3vwTP 6; 7M3gGcH6bprxKqZY 1-3, 5-8; ATMmnV2tC3ZPb6G8 1, 3;
-bGRfPhMWCrKg9ydV 2-3; c69WN31xbHBPtmhv 5; cbkDQfXNPGj3tnWT 1; dwcgGfFmAXWK7Mjz 1-2; hDGL1wmpV4WjxbHP 1-3;
-jJYHChwVBRaDxNWk 16-32; kz4FVdBRqpJwj8nx 1-3; mApW49VaFD2TKyg1 1-2; MHL1xhpwC4dcVDZK 1; N2m8nPTGJQrj1DhH 4-5;
-Ncp4bVY3x1DXRqvA 1; VPG6FyAdJ7NcC29X 1-5; VwyW3ZP1H6RTpdmf 1-5; ZD3cfJpHa4vGYjKF 1; ZfRYBTWb168N7mzQ 2.
+Reports and fights: 2BD91CaTbhmY8HNG 1; 34gy17FXnaGhVC2M 2; 6CGNvtpXkVn3bxFT 1; 6kN78G2xfqy3vwTP 6; 7M3gGcH6bprxKqZY
+1-3, 5-8; ATMmnV2tC3ZPb6G8 1, 3; BPVxqXWLc3FJTpMh 7-10, 12-14; GmkC6RtH12vawYTL 1-5; HPJY87k2VhMrKwvT 1;
+LFzpja9rZBXCxkNw 1; MHL1xhpwC4dcVDZK 1; N2m8nPTGJQrj1DhH 4-5; Ncp4bVY3x1DXRqvA 1; TDgxaVBAWQ96HdXv 1; VPG6FyAdJ7NcC29X
+1-5; VwyW3ZP1H6RTpdmf 1-5; YjwcQ2f4xNXvGd81 1; ZD3cfJpHa4vGYjKF 1; ZfRYBTWb168N7mzQ 2; bGRfPhMWCrKg9ydV 2-3;
+c69WN31xbHBPtmhv 5; cbkDQfXNPGj3tnWT 1; dwcgGfFmAXWK7Mjz 1-2; gZ4JNBfHzL6C8cPK 1-3, 5-8; hDGL1wmpV4WjxbHP 1-3;
+hkADNqV7JWM19df4 1-8; jJYHChwVBRaDxNWk 16-32; jXTNmWCvcqzBpbYQ 3-4; kz4FVdBRqpJwj8nx 1-3; mApW49VaFD2TKyg1 1-2;
+x1QpJTH2aDZLnq9h 1-6.
 
 ## Bloodrazor (809)
 
@@ -411,17 +436,30 @@ wPD796Jv2htngRmT 1; YFnCf6cWNRpgVMHT 17-31; ZMn6BHdqtvpGLhcK 1.
 
 ## Bonechill Hammer (14487)
 
-- Proc: weapon proc 18276, logged as 18276; rolls on main hand
-- Sim rate: 1.8 PPM, observed; measured 1.79 PPM [1.64, 2.05], 4 wearers, 4 runs, 511 procs on 7155 hits
-- Reports from 2026-11-13 to 2026-11-14
-- Notes: swap noise: the swap drop moved PPM 1.31 -> 1.78 (48 active minutes, 26% of hits, in 1 runs); few wearers (4): the interval is about the per-wearer range
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 18276
+- Rate: 1.95 PPM, observed
 
-| Report           | Fights | Class   | Slot | Hand split                  | Procs | Hits |  PPM | Left out |
-| ---------------- | ------ | ------- | ---- | --------------------------- | ----: | ---: | ---: | -------- |
-| 9zxHaWbYT3gqDQvF | 17-18  | Rogue   | mh   | timing + otsu for 7 swings  |    93 | 1104 | 2.11 |          |
-| rphdM14FbnTBaj3V | 1-27   | Paladin | mh   |                             |    50 |  739 | 1.69 |          |
-| vwCXzhMQ2drgpRxD | 1-41   | Paladin | mh   |                             |   311 | 4589 | 1.69 |          |
-| zmDY4LVX7N8vh9aR | 1-3    | Rogue   | mh   | timing + otsu for 23 swings |    57 |  723 | 1.97 |          |
+2,410 procs on 31,100 rolling hits, 33 wearers, 37 runs, in the main hand or the off hand: all hits 1.94 [1.86, 2.02].
+The proc's flight reaches the 300 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate.
+Observed: no lone-unit rate checks it. Travel time: the proc lands a median 142 ms after its hit, 98th percentile 278 ms
+(486 isolated procs). Dropping the swapped stretches (54 active minutes, 5% of hits, in 5 runs) moved the read from 1.85
+to 1.94. Report Z4VAmgDfJ9GPFjtc logs the same run as KNtHCAPd97ZMTLBf and counts once. Reports from 2026-11-14 to
+2026-11-22.
+
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Rogue   |      16 | 1,351 | 18,093 | 1.87 |
+| Warrior |      17 | 1,059 | 13,007 | 2.04 |
+
+Reports and fights: 4jnhaMNdZczgvFBT 1; 6XwgYbxq2GycCFP1 3; 7Lk3abCgNpVZjM41 2; 8Qp4nrZNKaFzy79G 107-109;
+9zxHaWbYT3gqDQvF 17-18; AmWBdq2xcHLv3aYt 1-3; BXDNYVpvMtACK93c 1-9, 11-12; BkTfV9yAZJX8P7wF 1; FHwByWtYngL3dDVp 1-71;
+FdHnTy2wKqVbtvcj 1, 3-13; HkKrmn81pNzyj34D 1-12; JkcfCt4zVLn8badj 1-8; KNtHCAPd97ZMTLBf 1-2; Mkz7QrJmvA6ZN4qK 3-24,
+26-33, 35; Mtqz1p49BfvnGyAd 8-44; P1BkzXfMtxDAYcra 1-2; TGtNZnyXfLzjqw7b 1; TJxaKCntRkGX3Dj2 1-4; Tjw2g6pHbWymaz7q 1;
+XWbYtZ6mTHND2G3P 1-3; Y1qVpGRtMAxy4Pvk 3-4; Z3MBhbDTXJ6tPCdQ 1-4; Z4VAmgDfJ9GPFjtc 5-6; b2cX8fQ9GmMYkLwy 1-3, 5-9,
+11-20; fMLcHzyZvt7QTCmg 1-9; j1dmtfcYpLNTgKrD 8-9; jAqXz8PN92ZbG3nc 1-3; kDWLVzmjQa3CAnxq 1-4; m48QxrDLwtqFPjJR 2;
+rJmGPzj4QNTq1hg8 1-2; rQ2bTtw8fHyRNGj4 1; tF7GdWVJ4qh89wgT 1-2; vTW2MZKhFA9GcyaV 1-3; vYjL3q712CyTGkQh 15;
+xbg9BypFcdVDwqMk 43-76; xc9YMbqVJmGgTvfD 1-4; yZvwm7pRYDkAPGL4 1-3; zmDY4LVX7N8vh9aR 1-3.
 
 ## Boneslicer (273819)
 
@@ -474,16 +512,25 @@ tk86znZXxMCdwBKb 2-18.
 
 ## Brush Cutter (274265)
 
-- Proc: weapon proc 1293518, logged as 1293518; rolls on main hand, off hand
-- Sim rate: 2.35 PPM, observed; measured 2.35 PPM [2.11, 2.61], 3 wearers, 3 runs, 301 procs on 2746 hits
-- Reports from 2026-11-14 to 2026-11-15
-- Notes: swap noise: the swap drop moved PPM 1.81 -> 2.26 (31 active minutes, 20% of hits, in 1 runs); few wearers (3): the interval is about the per-wearer range
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 1293518
+- Rate: 1.95 PPM, measured
 
-| Report           | Fights | Class   | Slot | Hand split                           | Procs | Hits |  PPM | Left out |
-| ---------------- | ------ | ------- | ---- | ------------------------------------ | ----: | ---: | ---: | -------- |
-| cr6qMtj1vCTPHVfw | 1-7    | Warrior | oh   | timing + otsu for 84 swings          |    48 |  409 | 2.52 |          |
-| pjRYqGgB2rdvawNn | 1-10   | Warrior | mh   |                                      |   199 | 1851 | 2.30 |          |
-| qcdyZAr2ganDtxNW | 13-42  | Rogue   | oh   | timing + speed ratio for 2032 swings |    54 |  486 | 2.38 |          |
+712 procs on 7,914 rolling hits, 7 wearers, 7 runs, in the main hand or the off hand: all hits 1.93 [1.78, 2.08]. The
+rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 2.33 [1.88, 2.85], 92
+procs on 847 lone units, 1 wearer (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.57
+[1.21, 1.95], 71 procs on 966 lone units, 5 wearers. Specials: 1.90 [1.48, 2.40], 70 procs on 791 lone units, 2 wearers
+(a Poisson interval: under 5 wearers); Sinister Strike gives 24 procs on 206 of them. Direct: window [-11, 100] ms,
+median 0 ms, 98th percentile 0 ms, 170 isolated hits. Dropping the swapped stretches (31 active minutes, 8% of hits, in
+1 run) moved the read from 1.77 to 1.93. Reports from 2026-11-14 to 2026-11-22.
+
+| Class   | Wearers | Procs |  Hits |  PPM |
+| ------- | ------: | ----: | ----: | ---: |
+| Warrior |       4 |   464 | 5,342 | 1.86 |
+| Rogue   |       3 |   248 | 2,572 | 2.07 |
+
+Reports and fights: FLtpV1h8GTz6rgAc 2; LK46AC1ytPNQm9cD 1; cr6qMtj1vCTPHVfw 1-7; hF7dxZ8nJDpk4wNG 1, 3-5;
+pjRYqGgB2rdvawNn 1-10; qcdyZAr2ganDtxNW 13-42; r7K3c94VNbyDAxLg 2.
 
 ## Burning War Axe (2299)
 
@@ -516,18 +563,35 @@ ryqgQphLxMBz4TmH 1-4; t6HbjRZmkyx3pQwK 1-14; xGndPFNVX7Lg38Hj 1-4; zdyXxBwMPTQph
 
 ## Claw of Celebras (17738)
 
-- Proc: weapon proc 21952, logged as 21952; rolls on off hand
-- Sim rate: 2.45 PPM, observed; measured 2.44 PPM [1.74, 2.80], 5 wearers, 6 runs, 213 procs on 2915 hits
-- Reports from 2026-11-13 to 2026-11-16
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 21952
+- Rate: 2 PPM, observed
 
-| Report           | Fights   | Class   | Slot | Hand split                          | Procs | Hits |  PPM | Left out |
-| ---------------- | -------- | ------- | ---- | ----------------------------------- | ----: | ---: | ---: | -------- |
-| 2taZz4vTdfXYAk3b | 3-9      | Rogue   | oh   | timing + otsu for 4 swings          |     5 |  127 | 1.31 |          |
-| 4Qm6MgZWBTx78Lvp | 1-2, 5-6 | Warrior | oh   | timing + otsu for 102 swings        |    64 |  677 | 3.15 |          |
-| 4XGyazkdvmP98r2L | 1-7      | Rogue   | oh   | timing + otsu for 45 swings         |     9 |  181 | 1.66 |          |
-| 61Hx8DgwhdbWaN9C | 1-12     | Warrior | oh   | timing + otsu for 79 swings         |    50 |  611 | 2.73 |          |
-| 6yrCJtHYmaRnZBM3 | 1-5      | Rogue   | oh   | timing + otsu for 5 swings          |    30 |  492 | 2.03 |          |
-| 7AxaTpFZMqGb9wNd | 1-8      | Warrior | oh   | timing + speed ratio for 251 swings |    55 |  827 | 2.22 |          |
+2,097 procs on 34,878 rolling hits, 47 wearers, 52 runs, in the off hand: all hits 2.00 [1.90, 2.10]. Neither the
+one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate. Observed: no
+lone-unit rate checks it. One-hand white: none. Dual-wield white, which sets no rate: 1.86 [1.73, 2.00], 703 procs on
+12,594 lone units, 47 wearers. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 524 isolated hits.
+Dropping the swapped stretches (69 active minutes, 4% of hits, in 3 runs) moved the read from 1.92 to 2.00. Report
+N7FQbLWcD3AZJkC2 logs the same run as Y8bALnZFcgK6R1X3 and counts once. Reports from 2026-11-13 to 2026-11-22.
+
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Warrior |      15 | 1,038 | 16,572 | 2.09 |
+| Rogue   |      26 |   977 | 16,958 | 1.92 |
+| Hunter  |       6 |    82 |  1,348 | 2.03 |
+
+Reports and fights: 14vzPR7JyKFLh6tb 1-5; 2taZz4vTdfXYAk3b 3-9; 4Qm6MgZWBTx78Lvp 1-2, 5-6; 4XGyazkdvmP98r2L 1-7;
+4zyTBfqQpJ6MrCjv 1-2; 61Hx8DgwhdbWaN9C 1-12; 6j73x2mkhf18LJyH 1-7; 6yrCJtHYmaRnZBM3 1-5; 72gnLYcQ9ZkTwNqK 1-7;
+7AxaTpFZMqGb9wNd 1-8; 7G1xqYWJa3A9fcgt 1-2; 7jwrWbDQ6C8VyBdp 1; 8TjkZQ9gB267bhaL 1-3; 9BNc8nbtQ2ZyWjkJ 6;
+9ZTCYrFcDxQ8pk7H 1-7, 9, 11-13, 15-34; BGDd8mWpgRbwaCn2 5-8; CfwVjT24hFpMByDR 1; CnZmWjckYfLqdFDJ 1-2; GnPwRFpMLkd3tYca
+1-6; LRH1kQK2J8frW6dt 1; LRvhYmZHFn96837g 1-9; LVdPJq3hKTFkBYNv 1; LzDT4PHN9rX8g7FA 5; N7FQbLWcD3AZJkC2 1-8;
+PF763TBADCNg1YwV 1-4, 6-9; PTBj1azytM8RQrFX 1; QJpjNCgx8Kr7TfWD 1-16, 18; Rc4dCWA6N8PwpBvT 1-8, 10-11; RnYmQGbdzpfLyvVD
+4-7, 9-13; Rvgx7kmXtdh83abr 1-6; Y8bALnZFcgK6R1X3 6-24, 26-27; YTn9F1x6jLqN2fdQ 1-5; ZJcLHaz2Q8V1XjNF 1-4;
+aQAhMLzBbWJcdq6G 1-6; dXkatpwrWTRYP9hM 1-2; fPD87TvAkZ9XmpyW 1-11; gVwCaBW18Ry23dtj 1-3; gv68D7T4jwydx2Zn 1-8;
+kJYq29CBFaLthXPR 1-7; kRB98ZcNgvDJj7at 1; kY28yDTZG6K9bFaJ 1-4; kY7VqD2CmyPMNAz3 1-4; mArH91f2PRavx4dt 5-7;
+mHB2rNQ7aPh9kdWn 1-5; ntmraghfPTkdbqF6 1-14; pQPwFg8rf6VWhRNc 1-3; r16Zq7vmV3KDgdQR 1-12; rTJ2d6QwfypanWhv 1-4;
+rmk2gCVqcp96aKtD 1-9, 11, 13, 15-16; vKGdpHx9P7agyhFj 1-11; wPJ21t6c4WvCrMaG 1, 3; x1gVkThZLdzG9a86 1; ydJnbZQkD2fNMhmt
+1-14.
 
 ## Claw of the Shadowmancer (2912)
 
@@ -550,19 +614,24 @@ ryqgQphLxMBz4TmH 1-4; t6HbjRZmkyx3pQwK 1-14; xGndPFNVX7Lg38Hj 1-4; zdyXxBwMPTQph
 
 ## Cobalt Crusher (7730)
 
-- Proc: weapon proc 18204, logged as 18204; rolls on main hand
-- Sim rate: 2.25 PPM, observed; measured 2.24 PPM [1.88, 2.66], 2 wearers, 2 runs, 112 procs on 938 hits
-- Reports from 2026-11-13 to 2026-11-16
-- Notes: 4 of 6 runs are feral druids, left out (paw speed, not the weapon); few wearers (2): the interval is about the per-wearer range
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 18204
+- Rate: 1.9 PPM, observed
 
-| Report           | Fights      | Class   | Slot | Hand split | Procs | Hits |  PPM | Left out |
-| ---------------- | ----------- | ------- | ---- | ---------- | ----: | ---: | ---: | -------- |
-| 8frHF64GzAhBxDyb | 4-14, 16-22 | Paladin | mh   |            |    51 |  412 | 2.32 |          |
-| g8b1MkJnKtyfzvPa | 4-5         | Shaman  | mh   |            |    61 |  526 | 2.17 |          |
-| LN78yvQwgJpcAYCG | 1-2, 4-6    | Druid   | mh   |            |     4 |  436 | 0.17 | feral    |
-| M6kJfn7a3r2KFRgd | 1-4         | Druid   | mh   |            |    21 |  621 | 0.63 | feral    |
-| XzKCqkBbmY3W2Tc8 | 6-7         | Druid   | mh   |            |     9 |  716 | 0.24 | feral    |
-| cvfBaDxQX7K2zFtk | 1-7         | Druid   | mh   |            |    42 | 1732 | 0.45 | feral    |
+291 procs on 2,837 rolling hits, 6 wearers, 6 runs, in the main hand: all hits 1.92 [1.59, 2.20]. The rate is all hits,
+which the one-hand white rate agrees with. Observed: every wearer is a shaman; the interval is wider than 10% of the
+rate. One-hand white: 1.58 [1.19, 1.86], 56 procs on 665 lone units, 5 wearers. Travel time: the proc lands a median 78
+ms after its hit, 98th percentile 150 ms, window [36, 160] ms (55 isolated hits). Dropping the swapped stretches (6.2
+active minutes, 5% of hits, in 1 run) moved the read from 1.83 to 1.92. The paladin check, which sets no rate: lone
+white swings 2.11, 30 procs on 266 lone units, 9 wearers. Left out: 12 of 18 runs in Cat or Bear Form. Reports from
+2026-11-14 to 2026-11-22.
+
+| Class  | Wearers | Procs |  Hits |  PPM |
+| ------ | ------: | ----: | ----: | ---: |
+| Shaman |       6 |   291 | 2,837 | 1.92 |
+
+Reports and fights: MyQ3KzBh2WVRnTPg 1-2; NaKpYVnWQ1LwrjCT 1-6; g8b1MkJnKtyfzvPa 4-5; nxHFpwZ8NvLP3r2z 1;
+xy7rATKMdJkFhYaR 1, 3-14, 16; z7DdJBGj3T6YZQ8V 3-5.
 
 ## Coldrage Dagger (10761)
 
@@ -769,32 +838,53 @@ pKj3bDrf1h2qtNMF 9-15; qW3KvYDpw6ARxZbc 1-7; tkQKL9bGT6JVR3na 14-16; xM9bRGyajmB
 
 ## Deadhead Blade (274271)
 
-- Proc: weapon proc 1293518, logged as 1293518; rolls on main hand, off hand
-- Sim rate: 2 PPM, observed; measured 2.00 PPM [1.63, 2.70], 4 wearers, 5 runs, 238 procs on 3970 hits
-- Reports from 2026-11-14 to 2026-11-15
-- Notes: few wearers (4): the interval is about the per-wearer range
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 1293518
+- Rate: 1.9 PPM, observed
 
-| Report           | Fights | Class  | Slot | Hand split                          | Procs | Hits |  PPM | Left out |
-| ---------------- | ------ | ------ | ---- | ----------------------------------- | ----: | ---: | ---: | -------- |
-| QRCgnhck3KVq6vBT | 1-2    | Hunter | oh   | timing + otsu for 142 swings        |    28 |  515 | 1.81 |          |
-| VLz78BfZyWa3Cxr2 | 1-9    | Hunter | oh   | timing + speed ratio for 199 swings |    11 |  299 | 1.23 |          |
-| nX1qbatTzGZ3CAwB | 1, 3-7 | Hunter | oh   | timing + speed ratio for 138 swings |    11 |  208 | 1.76 |          |
-| pQ48t7ArW9aDdwNn | 1-4    | Rogue  | mh   | timing + otsu for 8 swings          |   147 | 2520 | 1.94 |          |
-| zp9yVrtfTNZJCv7g | 9-10   | Rogue  | oh   | timing + otsu for 41 swings         |    41 |  427 | 3.20 |          |
+1,181 procs on 20,991 rolling hits, 18 wearers, 26 runs, in the main hand or the off hand: all hits 1.88 [1.75, 1.96].
+Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
+Observed: no lone-unit rate checks it. One-hand white: none. Dual-wield white, which sets no rate: 1.65 [1.47, 1.79],
+326 procs on 6,585 lone units, 17 wearers. Specials: 2.13 [1.73, 2.99], 32 procs on 500 lone units, 5 wearers. Direct:
+window [-10, 100] ms, median 0 ms, 98th percentile 0 ms, 232 isolated hits. Reports from 2026-11-14 to 2026-11-22.
+
+| Class  | Wearers | Procs |   Hits |  PPM |
+| ------ | ------: | ----: | -----: | ---: |
+| Rogue  |      11 | 1,098 | 19,079 | 1.92 |
+| Hunter |       7 |    83 |  1,912 | 1.45 |
+
+Reports and fights: 4VtCK6Qqr1MD2hpc 1, 4; 6DvQ2NMGgdj3cHk8 2; 8Gw7m39ZXFz1y2fv 1-32; JLt4PFa2qTYKh3XZ 1-2;
+KVLgwAr9bB1dJyNR 1-2; NRAXymcxJfPCnbFK 23; Q8Vgbpw4dJrzNx29 1-4; QRCgnhck3KVq6vBT 1-2; QjwpA7DPVfCZKkMy 1-42;
+VGhX29mL6ra38qd7 1-3; VLz78BfZyWa3Cxr2 1-9; WLGy4qAtFxmcrfw1 1; aNh3Dt8kbZHL9cBM 1; bGhg8M19xzB46QLY 1; ch87CPWVqaxZYfz3
+1, 4; hMk4XPnp2wAT81bZ 7-8; mRjh2L3CyYzWvcPg 86 fights from 3 to 98; mxh9rJfdbvPkRtTX 1-2; nX1qbatTzGZ3CAwB 1, 3-7;
+pQ48t7ArW9aDdwNn 1-4; tk3BD1bZafMgKxWX 1-4; wp8WXkj6nL7KTZ9d 1; xMLV8adPBDHYGF27 1-3; yFGXLWVAKxw61gDP 1-4;
+zabF8pwjDWtvmn7J 1; zp9yVrtfTNZJCv7g 9-10.
 
 ## Dwarven Hand Cannon (2099)
 
-- Proc: weapon proc 29639, logged as 29639; rolls on ranged
-- Sim rate: 4.3 PPM, measured; measured 4.31 PPM [4.03, 4.60], 5 wearers, 5 runs, 702 procs on 3372 hits
-- Reports from 2026-11-13 to 2026-11-16
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 29639
+- Rate: 3.95 PPM, observed
 
-| Report           | Fights | Class  | Slot   | Hand split | Procs | Hits |  PPM | Left out |
-| ---------------- | ------ | ------ | ------ | ---------- | ----: | ---: | ---: | -------- |
-| BfVjHYvWdKkP8Jz7 | 1-2    | Hunter | ranged |            |   108 |  518 | 4.31 |          |
-| F3BTZGrW48Mp6n2L | 3-39   | Hunter | ranged |            |   157 |  809 | 4.02 |          |
-| KPqgbZxhn6BXwCvJ | 1      | Hunter | ranged |            |   100 |  530 | 3.90 |          |
-| T6VDdFhPxQ43pHM2 | 1-2    | Hunter | ranged |            |   164 |  722 | 4.70 |          |
-| hH4YRGVFz3KnN6bw | 1-8    | Hunter | ranged |            |   173 |  793 | 4.51 |          |
+7,167 procs on 37,579 rolling hits, 43 wearers, 48 runs, in the ranged slot: all hits 3.95 [3.86, 4.03]. The proc's
+flight reaches the 1,000 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate. Observed: no
+lone-unit rate checks it; every wearer is a hunter. Travel time: the proc lands a median 576 ms after its hit, 98th
+percentile 936 ms (1,508 isolated procs). Reports from 2026-11-13 to 2026-11-22.
+
+| Class  | Wearers | Procs |   Hits |  PPM |
+| ------ | ------: | ----: | -----: | ---: |
+| Hunter |      43 | 7,167 | 37,579 | 3.95 |
+
+Reports and fights: 2tWx1VCrv4PcgAHL 1-2; 3HaPg2Yktxrnb7NL 6-9; 4W6d8VFkgmCrqGvc 1-2; 7tbWfYqJFd4vzL3p 3-6;
+91wXZG6pN8CDanmR 61-62; BXLbtpMR6j7fYyKq 2-3, 5-6; BfVjHYvWdKkP8Jz7 1-2; Ddx2RWnArCKf6mqP 46; DzGaRHQ89xL3Yfdk 1-2;
+F3BTZGrW48Mp6n2L 3-39; FLtpV1h8GTz6rgAc 2; GJCpqnN4bVBhtrgQ 1-2; GpyT8hfkVXmWPvnA 1; HYmf1vTW6hVDPytK 6-9, 11-16;
+JZDCKavqxz47AbYN 1-2; KPqgbZxhn6BXwCvJ 1; M1n84TjqH3admxtc 1; RJXQC67jbzATWdx1 1-2, 5-9, 11-16; T6VDdFhPxQ43pHM2 1-2;
+TGtNZnyXfLzjqw7b 1; VMGwjvJD8cqNfPnx 1-2; VxPK6Nam2XwzL81y 1-5; W1P3YqBptbnGM7da 5; Y1qVpGRtMAxy4Pvk 3-4;
+ZhbCF1LvkQ9gBAMy 13-38; c4C7HaT2WdfFnJNx 29-30; ch87CPWVqaxZYfz3 1, 4; fMPL97aCA1ngvKQk 8, 10-20; gXhQJLaTxK94WfHr 1;
+gY7zpjW9cMk6nGK4 2; gvzCK9NqHhkBTwPX 1-2; hH4YRGVFz3KnN6bw 1-8; hKvX9x2Mr76gCmbp 1-3; hgv7XY4tJKbTWPzH 1-7, 9-16;
+hn82jpvC4PM7wZY3 1-5; jkcbfRxrPgvWqwyM 1-13; kCf4QFqbVBTjmvrc 1; nWwyhgfZkJdpVxF3 1; nmd7QgxNGjDpcFhT 1-3;
+pHLRfhraA4GXmvN2 2; pMvyNHtjKnkgR3X9 1-3; px3rGD8JbH7YTdLV 1-3; tGBNadZg7VYMnXKA 2; tNkVywdKhDc7jAZf 1-2;
+tncbVBRhz7X8FP9C 1-2; vJF78jKHQaxmnDr6 1-3; zxLCmJbZA2pQhyHR 1-2, 4; zxtbh1BmNVC8W2FH 20-21.
 
 ## Eater of the Dead (10805)
 
@@ -1013,17 +1103,31 @@ wDqmkbxdTXj1rA9F 1; XPmJACH8RtqFd3jM 1-3; yAGCbvd2r4RZNDaK 1, 3; Z9qbhQrJg2Wfz1F
 
 ## Firebreather (10797)
 
-- Proc: weapon proc 16413, logged as 16413; rolls on main hand, off hand
-- Sim rate: 2.1 PPM, observed; measured 2.12 PPM [1.82, 2.61], 4 wearers, 4 runs, 676 procs on 8679 hits
-- Reports from 2026-11-14 to 2026-11-16
-- Notes: few wearers (4): the interval is about the per-wearer range
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 16413
+- Rate: 2 PPM, measured
 
-| Report           | Fights | Class   | Slot | Hand split                   | Procs | Hits |  PPM | Left out |
-| ---------------- | ------ | ------- | ---- | ---------------------------- | ----: | ---: | ---: | -------- |
-| HMdLhWY3pNbnXPtF | 1-16   | Rogue   | oh   | timing + otsu for 136 swings |    45 |  750 | 1.64 |          |
-| PcVWH9XhGRCvb1Y3 | 1-2    | Rogue   | mh   | timing + otsu for 287 swings |   317 | 4297 | 2.01 |          |
-| QH63NmDVdWyrqwak | 1-17   | Rogue   | mh   | timing + otsu for 158 swings |   134 | 1925 | 1.90 |          |
-| ypwYm41tKWZxV69q | 1-5    | Warrior | oh   | timing + otsu for 156 swings |   180 | 1707 | 2.88 |          |
+2,887 procs on 39,179 rolling hits, 24 wearers, 28 runs, in the main hand or the off hand: all hits 2.01 [1.94, 2.08].
+The rate is all hits, which the one-hand white rate and the specials rate agree with. One-hand white: 1.86 [1.62, 2.14],
+206 procs on 3,015 lone units, 1 wearer (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate:
+1.60 [1.42, 1.78], 387 procs on 6,614 lone units, 23 wearers. Specials: 1.73 [1.47, 2.03], 157 procs on 2,469 lone
+units, 4 wearers (a Poisson interval: under 5 wearers); Revenge gives 88 procs on 1,276 of them. Travel time: the proc
+lands a median 85 ms after its hit, 98th percentile 174 ms, window [-9, 184] ms (52 isolated hits). Dropping the swapped
+stretches (29 active minutes, 2% of hits, in 2 runs) moved the read from 1.98 to 2.01. Reports from 2026-11-14 to
+2026-11-22.
+
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Warrior |       7 | 1,504 | 20,034 | 2.05 |
+| Rogue   |      15 | 1,349 | 18,727 | 1.96 |
+| Hunter  |       2 |    34 |    418 | 2.22 |
+
+Reports and fights: 1GhHmWBy27jg8n96 1; 2Wd93tJTkAYDyVQb 14, 16-66; 2pVHBkGvWDx7yrKq 2; 4XLqQjchbAzvVG9k 53-54;
+CqDJ39VhZFB7pgnW 1-2; F9hmfgQHZbYTKyz4 1-3; GHK2gB78FMVCmPfW 1-9; HMdLhWY3pNbnXPtF 1-16; KpcADW3GwYqXzgM2 1;
+LFzpja9rZBXCxkNw 1; Ncp4bVY3x1DXRqvA 1; PcVWH9XhGRCvb1Y3 1-2; QH63NmDVdWyrqwak 1-17; QMmL4NtaPgwZAVjp 1-2;
+VafQDAvHNYnFJGyp 1; XNQzBvfdcYb1CP3R 1-3; XNhGAyQZTHcM64L3 1; bNvV2YCTJxrdw9Gk 1-2; dqBNabD23hC7YmtR 1; g4KqJfjzTN8AFQCr
+1-17; m7qPWtJdX1VHzr8T 1-4; myLBa1DdHY8K7Ppr 12-59, 61-69; nzWQyZYJaRqvcTrm 1-3; qL9HjmZWxGKwkMr2 1-3; qLRNfvkW2DnHPbGc
+2; t9rhYHPwgcv1fpZb 1; ybf3pCJXnTQD2V9G 1-2; ypwYm41tKWZxV69q 1-5.
 
 ## Fist of the Damned (10804)
 
@@ -1077,65 +1181,135 @@ on 16559 locks nothing out.
 
 ## Frightalon (14024)
 
-- Proc: weapon proc 19755, logged as 19755; rolls on off hand
-- Sim rate: 2.35 PPM, observed; measured 2.36 PPM [2.17, 2.66], 6 wearers, 7 runs, 551 procs on 9994 hits
-- Reports from 2026-11-13 to 2026-11-16
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 19755
+- Rate: 1.95 PPM, observed
 
-| Report           | Fights   | Class  | Slot | Hand split                   | Procs | Hits |  PPM | Left out |
-| ---------------- | -------- | ------ | ---- | ---------------------------- | ----: | ---: | ---: | -------- |
-| 16hJKBmq2V8tnzXR | 1-3      | Rogue  | oh   | timing + otsu for 160 swings |   129 | 2641 | 2.09 |          |
-| 3B8AcaGNRKmdgPDj | 5        | Rogue  | oh   | timing + otsu for 157 swings |    49 |  743 | 2.83 |          |
-| CtMF9BgnAmWkTbfd | 1-33     | Rogue  | oh   | timing + otsu for 29 swings  |   147 | 2783 | 2.26 |          |
-| KG62VXF3a97CxtAg | 5, 7-9   | Rogue  | oh   | timing + otsu for 21 swings  |    70 | 1022 | 2.94 |          |
-| Lxy1kqgVvFc24aPr | 6-11, 13 | Hunter | oh   | timing + otsu for 86 swings  |    59 | 1289 | 1.96 |          |
-| MgmdJqxBWA3Tw2vz | 16-17    | Rogue  | oh   | timing                       |    16 |  195 | 3.52 |          |
-| nX1qbatTzGZ3CAwB | 1, 3-7   | Rogue  | oh   | timing + otsu for 17 swings  |    81 | 1321 | 2.63 |          |
+6,110 procs on 132,838 rolling hits, 100 wearers, 126 runs, in the main hand or the off hand: all hits 1.97 [1.92,
+2.02]. Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
+Observed: no lone-unit rate checks it. One-hand white: none. Dual-wield white, which sets no rate: 1.93 [1.85, 2.01],
+2,404 procs on 53,484 lone units, 100 wearers. Specials: 1.65 [0.83, 2.42], 34 procs on 883 lone units, 10 wearers.
+Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,379 isolated hits. Dropping the swapped stretches
+(118 active minutes, 3% of hits, in 12 runs) moved the read from 1.92 to 1.97. 2 runs logged in two reports count once.
+Reports from 2026-11-13 to 2026-11-22.
+
+| Class   | Wearers | Procs |    Hits |  PPM |
+| ------- | ------: | ----: | ------: | ---: |
+| Rogue   |      88 | 5,598 | 121,948 | 1.97 |
+| Hunter  |      11 |   452 |   9,613 | 2.02 |
+| Warrior |       1 |    60 |   1,278 | 2.01 |
+
+Reports and fights: 16hJKBmq2V8tnzXR 1-3; 1F8qRr72jxvZYdzy 1-4; 1aM8GxnBfXmWDJkV 1; 2H1VAy3MDrRndPvw 2, 4-6;
+3B8AcaGNRKmdgPDj 5; 3BWcJRwaMgH92h81 5-12; 4av7FfKdZjBh9Yp6 1-7; 63QrzvTALnZKgx7Y 1; 6NYawKLDtkJWPR2H 52 fights from 1
+to 63; 6XwgYbxq2GycCFP1 3; 6gDPKpbZAYN9XCxn 1-3; 7TXcFNRzjwHdAybn 1-19; 7ZWFDG4XBPKqf8zR 33-36; 82WLwYNzvjB3bXM6 1-2;
+8VFd9gqxLY1DkhaK 1-15; 8cqCXZHgpw9Px2hK 1-28; 8hBd9Wz3AXHwZf21 1-2; 9QKHCPLay1fMvtpc 1-6, 8; 9TtNqcjaBvHFYQ61 2-3;
+9b71qzjAg6Myt34K 1-3; 9x1Phv3ptzwqQbWa 1-2; AT2jv6mC1wL4KFkJ 2-3, 5-6; Ba4bzVmX2nDrRN7k 1-3; BkTfV9yAZJX8P7wF 1;
+Bz2NMjHnY7PD6ykX 5; CBGfNpnjv2ALw9Kz 1, 3-18; CtMF9BgnAmWkTbfd 1-33; CxpHYfFXgjPchnyb 3; DAgp7nkzcLBXV3GM 1;
+Dv3cMWKkhgYfVmJT 1; DyMmJxc4t9pw6PAz 1-3; FHwByWtYngL3dDVp 1-71; FrL4wayTHRtW1CKx 2-15; Fz9b1xLP2NRpMJdk 1;
+G7X1CkT8z6PrfjWM 146 fights from 693 to 871; GKWHyVpXcPx8BCNb 1, 3; GpyT8hfkVXmWPvnA 1; HB7yCLD3wvVx4fj9 1-5, 7-15;
+HQtGDN3P9g1Vvawr 1; HjTkmZRwD8PqWLv7 4; HkynYAjBCvN19rmh 1-4; HvtmnFTPNZQRWg86 1-2; HwyJMCLKfbY1PkmG 7-8, 10-38;
+JChQqKVgLWykANRr 9-46; JQwbjnVYyGcP4rg8 3-13, 15-17; K6VvbDypXFLQJW7d 1-27, 29; K8VjmZgFCd1D39xc 12-42, 44;
+KG62VXF3a97CxtAg 5, 7-9; Kphk63jtr1wb9NyL 1; L7bxWV42Z6cTnp3k 1-3; Lxy1kqgVvFc24aPr 6-11, 13; MRLXmFGyV268jWwt 1;
+MgmdJqxBWA3Tw2vz 16-17; Mtqz1p49BfvnGyAd 45; NLftBVcrRhPwnv62 3-31; NTJzVdMZBQDaqG83 7-8; NWDCd6xf9AXK17yv 8-11;
+NdntYGabAvy6LM1g 12; Nxtj7m6zcFX9Aq3Z 1-5; P3QtFzTLVp1aWBbA 16-19; PMjN9QGK7tw2CJWq 4-7; PMtHv3y76FCj8AWB 1-6;
+PqK7NWmpYF1zA4fT 155; PtKXrwfj8zBHm2Gy 1-8; Q1pc9MH47qTnrJ3W 1-2, 4-5; QrjXL7FYdBf2VmWJ 34; RJXQC67jbzATWdx1 8-9, 11-16;
+Rry6WVb2NGD1dXMx 56 fights from 69 to 137; T7dtHBv9YR2jnLwg 15-19; TQYALMf39F2jWh6a 2; TYnZqwA2av9z6jG7 4, 6;
+TmxZ31fRPBhjApqg 1-4; V7cnHk1QB3FA8WYG 7-8; VGwz9XY47JAvChQy 1-7; VJxG2agMXqKLdQfy 1; VjBTMHXxFvbthkw2 1-3;
+WNV2t9PaqjQGdBDc 37 fights from 4 to 51; WqfyDhVHxT93Q7Pt 19-30; XfrWGm96NY1BTMng 1-2; XrpxL4B8mPTWQkFK 1-3;
+Y1qVpGRtMAxy4Pvk 3-4; Y74AgtbrWTvyNHQk 6-7; ZT82B6pDVFn1mRNt 1, 3-5; ZYatFp24x3mydH8j 1; ZvTrcNPQFKy92djf 1-7;
+ZwvyzH9bxRN3ghCX 1-2; aFgwBnG3t6kjRPNC 1; b2cX8fQ9GmMYkLwy 1-3, 5-9, 11-20; bD4AfYM1QHdJpWac 3; bYdJCZ3RKnrj7Ly1 1-4;
+c72QGjpCxhmwTrBa 2; cKG7yDArxfqhJPp6 1-9; cZf8ygFQTdAYNa1w 1; cbTt1zxajFfNVPDA 1-4; dnDg7j9kRw6WtbML 49-52, 54-61,
+63-69; fkZgABGacHwdpLF1 1; gQT9G6Phq8bJ7vFd 1-2; h2BF8zNyvKfMgZV7 1-2; h4JXmPQDqWL61Cyc 2-3; hYjVWRNBGDKLxTpc 1-3;
+jdRNZwApWYmKgLh7 1; k3ZGwNbF9W7DgzLQ 1-3; k9fKT8ZCtMFn3vab 1-3; kph1Df7CqFVxQ2PW 1-2; mwybgGpBr9k6aNHc 5;
+myLBa1DdHY8K7Ppr 69; nX1qbatTzGZ3CAwB 1, 3-7; nzcBtpgDa3dLrTmV 1; pBRwT8xtckgrMFLC 1-3; pMKBcfmZNz1WJanV 1-15;
+qbtZdThvBCXVcfAW 4-6; qmfjQ63TN81AnGkB 1-3; rFRYL1d4yZDcHgq7 1-5; rRG9MzWL4dQJ38hc 1; rfz4pR6mx1w9JWKA 1-2, 4-7;
+tbZ6pxfrDvPzCnT7 1-2, 6, 10, 13; tkPZYqTRgCyWG3jM 22-23; tw8ZP2krfqXvAB4Y 1-11; xatzTjyc9GAh3MPC 1; yfN361HMZk4vp2hm 11;
+z6LMfrpbwhyVCAJK 5-10, 12-21; z8QPNWpMBx4VgdDX 1; zjwVLbAaYgPHC6GN 3-4; zp9yVrtfTNZJCv7g 1-7, 9-10.
 
 ## Gahz'rilla Fang (9467)
 
-- Proc: weapon proc 3742, logged as 3742; rolls on main hand, off hand
-- Sim rate: 2.1 PPM, measured; measured 2.12 PPM [1.97, 2.27], 14 wearers, 14 runs, 700 procs on 11026 hits
-- Reports from 2026-11-14 to 2026-11-16
-- Notes: swap noise: the swap drop moved PPM 1.73 -> 2.16 (144 active minutes, 20% of hits, in 5 runs)
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 3742
+- Rate: 2 PPM, measured
 
-| Report           | Fights     | Class   | Slot | Hand split                         | Procs | Hits |  PPM | Left out |
-| ---------------- | ---------- | ------- | ---- | ---------------------------------- | ----: | ---: | ---: | -------- |
-| 2BZkQ4tRcFfdL37H | 1-8, 10-11 | Rogue   | mh   | timing + otsu for 35 swings        |    69 | 1244 | 1.85 |          |
-| 3jqfdPNV4Xwy7g1Q | 1-18       | Rogue   | oh   | timing + otsu for 21 swings        |    10 |  257 | 1.30 |          |
-| 4PtKGL1zcRV8Chfn | 1-2        | Warrior | mh   |                                    |    20 |  286 | 2.33 |          |
-| 4RVqrpXkh7dKftAC | 1-2        | Hunter  | oh   | timing + otsu for 176 swings       |    22 |  230 | 3.19 |          |
-| 6DZv2FAgWq7YrV3j | 1-19       | Rogue   | oh   | timing + otsu for 10 swings        |    55 |  889 | 2.06 |          |
-| 7F3hKPycMYjXVJkb | 1-12       | Rogue   | oh   | timing + otsu for 7 swings         |    64 |  951 | 2.24 |          |
-| 8tBp2ZK7XT4QJCgD | 1-5        | Rogue   | oh   | timing + otsu for 11 swings        |    38 |  529 | 2.39 |          |
-| A3hT8CQBPJXWmtZM | 1-4        | Warrior | oh   | timing + otsu for 16 swings        |    51 |  642 | 2.65 |          |
-| Mjr1czR7AknXqLvd | 1-8        | Rogue   | oh   | timing + otsu for 10 swings        |    56 |  937 | 1.99 |          |
-| QH63NmDVdWyrqwak | 1-17       | Rogue   | oh   | timing + otsu for 158 swings       |    32 |  553 | 1.93 |          |
-| TbB8q4RMK3LmYJNv | 1-7        | Rogue   | mh   | timing + otsu for 32 swings        |    98 | 1467 | 2.23 |          |
-| XHDjdLb7R9P6NQm1 | 1-2        | Hunter  | mh   | timing + speed ratio for 47 swings |     0 |   13 | 0.00 |          |
-| dt4M3ypRnTkwaVQY | 1, 3-10    | Rogue   | mh   | timing + otsu for 28 swings        |   122 | 2083 | 1.95 |          |
-| tac7hXVRgkbZNMDy | 3          | Rogue   | mh   | timing + otsu for 4 swings         |    63 |  944 | 2.22 |          |
+5,249 procs on 88,259 rolling hits, 97 wearers, 106 runs, in the main hand or the off hand: all hits 1.98 [1.93, 2.03].
+The rate is all hits, which the specials rate agrees with. One-hand white: 2.03 [1.41, 2.84], 34 procs on 558 lone
+units, 2 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.85 [1.73, 1.97], 1,525
+procs on 27,427 lone units, 93 wearers. Specials: 1.93 [1.66, 2.19], 188 procs on 3,249 lone units, 26 wearers; Sinister
+Strike gives 87 procs on 1,653 of them. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,267 isolated
+hits. Dropping the swapped stretches (322 active minutes, 8% of hits, in 16 runs) moved the read from 1.82 to 1.98. One
+run is dropped whole as swapped. Reports from 2026-11-13 to 2026-11-22.
+
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Rogue   |      76 | 4,551 | 77,040 | 1.97 |
+| Warrior |       6 |   375 |  6,145 | 2.03 |
+| Hunter  |      15 |   323 |  5,075 | 2.12 |
+
+Reports and fights: 2BZkQ4tRcFfdL37H 1-8, 10-11; 39NVvfaxYwp1nb4q 1-11; 3jqfdPNV4Xwy7g1Q 1-18; 42LCADRGWqxkZctQ 1-9;
+4PtKGL1zcRV8Chfn 1-2; 4RVqrpXkh7dKftAC 1-2; 4XDM1GpQzgPdk79v 1-5; 6CWvYhN1HVydfML2 1-2, 6-7; 6DZv2FAgWq7YrV3j 1-19;
+6ZYhdMNTCGq9cVpB 1; 6aCfcqdLmAPWhQR4 1-11, 13-14; 6j73x2mkhf18LJyH 1-7; 6q1mWrtM7zXFckvp 1-3; 72JjqrWXMdtwKx68 1-3;
+7DYwVnCaThxgmyJL 1-3; 7F3hKPycMYjXVJkb 1-12; 7zBWfJYckMgvrxtK 1-3; 8tBp2ZK7XT4QJCgD 1-5; 9YaF84QpvXJfGTRb 1;
+9vWqJjhLGCpdQZKc 1-11; A3hT8CQBPJXWmtZM 1-4; A9J8jfRGY1yvZQnt 1-3; AKMJvHDZGq8fcmTz 1-2, 4-8; AwCa8WG1HjFKXkDp 1-9, 11;
+BbHp1TnJzxk9RFNK 1-11; C8Qd1LXMrGT62kpY 8-9; CG6c4RDkPfHAgYNx 1-3; DmjBrYd7M9VZwCHF 14-22; FG6r9y2WNZAg3XQT 1-13;
+FHnX82dpGtm6ANYh 9-19; FndJyRm1B9Dt8w6N 1; Fq4fzXtnj8PQHmLx 1-12; G6yaZfLzMtN13hcA 1; GJRTHLXkYr3dhC4j 1-3;
+GNmhV1FHCPQx4rBt 1-2; Gzb3PZXB2FD1agYC 1; HbJrLPfk7xangFKc 1-3; HvCXkJATnhtLGpP3 1-11; HvrXCc2kYmnyZhVQ 1-8;
+JvXt1qGpwxz7NDWk 1; KaHtpqfx2APZBQrw 1-12; KpWJMkH19dP8RGmb 1-2; LjqtT4FBgNkbdp1n 1-12; Lx1YbG9MgQ2ypc73 1-3;
+MaQDxHvy7bc9XL2Z 1-3; Mjr1czR7AknXqLvd 1-8; MzFAfGZpt1nmRX7J 1-10; Pjkc2mBbhdYnQ9ZK 1-9; QH63NmDVdWyrqwak 1-17;
+QPbNgVDfAMLmwC2X 1-9; QkLnHByzf1pDcJ63 1-10; RTb1ghjZCncVk64r 1-6; TbB8q4RMK3LmYJNv 1-7; VLmAcpbQxWf1CtaR 2-17;
+VgmapW6THJ2hCrzY 1; W8y23dvYQgXLzxmC 1-3; X39gqwvYCQ87K6MH 1-3; X47TDyBdAh2nQ6LK 1-10; XHDjdLb7R9P6NQm1 1-2;
+Y4znCFdR1QD6LZJj 1; ZLpcV6krn1wYHJvt 1-8; ZwxX9G3bRPFYfjng 1, 3-4; a3J47BPrHyxVQpnY 1; b3X8aj2Hxw7FAdcR 1-22;
+bfvxDCF6qAZpQKVh 1-6; cN8Qdpg1BLy4RMam 2; cPLzXv4nTtNaYWF3 1-20; cQmtM3HFqA9h6vRK 1; cQpq1A6BxVMZFmfr 1;
+cta2vw4CNDWrMRxQ 1-3; dKW8HMQmFNr1V9z6 1-11; dt4M3ypRnTkwaVQY 1, 3-10; f9gwFtJYnNyPAT8k 1; fA7MqjWypQ4hZJ1d 1-3;
+gJhDBWtN6jCYLMxF 1; gfQkaTK4pyh3mD7X 2; gtpTCvBjWXdRhxnz 1-29; hMdWYxyPG3rn9VQ7 2-12; hfBDjZxwkYCV29z8 1-3;
+j8WVkrG1mhYyfdCK 1-3; k2KxgByR4dTpLQtH 3-4; kFj1wxgGc4LMnbqD 1-3; kKQTqfnV2MCx6dNB 1-10; m9AhbXcTvr6gdp7M 1;
+mxh9rJfdbvPkRtTX 1-2; mzgDjAhkWY8bdnxr 4; nJqcvxFVj83NTrKR 1-5; p34dnvkg7yDKL6cr 1-3; pGQn8NhC6y1gdt4T 1, 3-11;
+pzZAwR9hgmGFcTKb 1-5; qYZPRjVJBQk3mnyN 1; qfA7gQpmnrLWC2zF 1-5; qwfRY7XxAy3MBcn1 1-21; rF2v3ndb4LWVzZKq 1;
+rkwFCLMdVXn2D8tf 1-3, 5-8; tac7hXVRgkbZNMDy 3; vpTQqDkgNYLnjtZr 1-47; wFBytQxvWKz1Xf2L 1-5; wHt9bcP6dW2GxXAQ 8-17,
+19-20; wXJGrhP2nVCQyctm 1-2; wnMHyXgW6KpAhYF4 1; x3bWXZa1KDCmFvtn 1; xYmak3JcyZQHMtVT 3; xcJvZFQ4X186mGdw 1;
+y2dFcNR1rMmKTPAj 1-25.
 
 ## Galgann's Fireblaster (9412)
 
-- Proc: weapon proc 29644, logged as 29644; rolls on ranged
-- Sim rate: 4.25 PPM, measured; measured 4.27 PPM [4.04, 4.51], 11 wearers, 12 runs, 1992 procs on 10778 hits
-- Reports from 2026-11-14 to 2026-11-16
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 29644
+- Rate: 3.95 PPM, measured
 
-| Report           | Fights    | Class  | Slot   | Hand split | Procs | Hits |  PPM | Left out  |
-| ---------------- | --------- | ------ | ------ | ---------- | ----: | ---: | ---: | --------- |
-| 24fAZdgMD6K9qx8k | 1-4       | Hunter | ranged |            |   217 | 1213 | 4.13 |           |
-| 2xY1D3mCwagdy7Wc | 1-2, 4-6  | Hunter | ranged |            |   134 |  736 | 4.20 |           |
-| 3LTnjm16YN2bDzCP | 1-6       | Hunter | ranged |            |     7 |   52 | 3.11 |           |
-| 3MY1W4gBv9yXakD6 | 1-8       | Hunter | ranged |            |   203 | 1204 | 3.89 |           |
-| 3WyYMqr8ZxQRN1vD | 1-7       | Hunter | ranged |            |   248 | 1415 | 4.04 |           |
-| 9XQfBmZRaNWJkH3F | 1-20      | Hunter | ranged |            |   199 |  919 | 5.00 |           |
-| AKXHxFdgavCh9fkY | 1-16      | Hunter | ranged |            |   229 | 1299 | 4.07 |           |
-| CpDKr6AWJ4fw7xhg | 5-7       | Hunter | ranged |            |    67 |  390 | 3.96 |           |
-| GYNx3nzHdpr7X1AW | 2-10      | Hunter | ranged |            |    71 |  370 | 4.43 |           |
-| aANyFDgb69hxqY2w | 3         | Hunter | ranged |            |   148 |  894 | 3.82 |           |
-| pJjZqyKxb81RYdvG | 1-3, 5-16 | Hunter | ranged |            |   181 |  844 | 4.95 |           |
-| y3wkJZnA7gv4qzfX | 1-30      | Hunter | ranged |            |   288 | 1442 | 4.61 |           |
-| DBQHpyFz7chZRM6j | 2-10      | Hunter | ranged |            |    63 |  321 | 4.53 | duplicate |
+15,340 procs on 90,040 rolling hits, 90 wearers, 101 runs, in the ranged slot: all hits 3.93 [3.86, 4.00]. The rate is
+all hits, which the lone Auto Shot rate and the specials rate agree with. Lone Auto Shots: 4.02 [3.93, 4.10], 7,626
+procs on 43,807 lone units, 89 wearers. Specials: 4.06 [3.92, 4.21], 2,541 procs on 14,447 lone units, 89 wearers;
+Serpent Sting landings give 1,027 procs on 5,613 of them. Direct: window [-10, 100] ms, median 20 ms, 98th percentile 35
+ms, 9,051 isolated hits. Dropping the swapped stretches (31 active minutes, 0.8% of hits, in 4 runs) moved the read from
+3.90 to 3.93. Report DBQHpyFz7chZRM6j logs the same run as GYNx3nzHdpr7X1AW and counts once. Reports from 2026-11-10 to
+2026-11-22.
+
+| Class   | Wearers |  Procs |   Hits |  PPM |
+| ------- | ------: | -----: | -----: | ---: |
+| Hunter  |      89 | 15,340 | 90,039 | 3.93 |
+| Rogue   |       1 |      0 |      1 | 0.00 |
+| Warrior |       0 |      0 |      0 | 0.00 |
+
+Reports and fights: 1N379VLvJZXTy8rA 1; 1PVRtQZCwfTkmzx9 1-2; 24fAZdgMD6K9qx8k 1-4; 2PLVabYtpvxfk1Q6 1; 2xY1D3mCwagdy7Wc
+1-2, 4-6; 39NVvfaxYwp1nb4q 1-11; 3LTnjm16YN2bDzCP 1-6; 3MY1W4gBv9yXakD6 1-8; 3WyYMqr8ZxQRN1vD 1-7; 4CdDbTrZqQyxcnhP
+1-13; 4dBcqKv1zXAGw2NW 1-2, 4; 6Mw2czTXbL3DqfyF 1; 6fBaJK4PC3HhVGTN 1; 76RDdfF4zVJwrLZp 1; 7PmMArDFy2nbCYpR 1-6;
+7yTVR6tJhkcAfGDr 1; 8FqZbR32daMz17cn 1, 3-5; 8zp6dHfbqhMZnRwX 1-2; 9XQfBmZRaNWJkH3F 1-20; 9n4adYrfk8RDzmAp 1-8;
+A3LGf2R4yKbgjarC 1-3; AKXHxFdgavCh9fkY 1-16; B2Cr1pw93vkndx6K 1-12, 14-15; BA6gQRpLNtcMJXTD 2-21; BPywV1KYCgALhmfq 1-10;
+Bmw1jxaLbfzRF2WP 1-3; CGT7KvcFj1XM42Bz 1-4; CpDKr6AWJ4fw7xhg 5-7; D9tmTWQndR2jvAX8 1-5; DBQHpyFz7chZRM6j 2-10;
+FVy1paktLrxzqG73 1-2; Fb8cX76vJCYhZftV 1; G1kbnQ7vdZFBMgY2 1; GYNx3nzHdpr7X1AW 2-10; Gf2q7HLBRytjmTkz 1-5;
+GvAQn76tacyqYPMw 1-3; HkNB7A6tanYcGLWj 1-7; KmawtZQ437GH1j6h 1-2, 4; M9GRNjTt2BvdbQDh 1-5; MHL1xhpwC4dcVDZK 1;
+MNHPYcWrb4mDR7j8 1-2; MjzWnNZP4KX2c6kt 1; NTrM6ZyaGc8P9kC2 1-7; NfyQFG14xJRcvbLg 1-7; Nw8YFxQnPvCVMHmq 1;
+RXDCK9PtZy3Jp2QA 1-3; TymBrt4wRG6cFQg8 1-7; V1wJ3t6YjPKMfDkX 1; V3cYyjhtTgbdx82a 1-2; VKjNQYHcrfJvq9DF 1-3;
+VnczrWJL6YKZ2DXP 1-7; WbJV9LdhQ8jvK1Mw 1-3; XZ76NC8hT1pR9xKJ 1; XfP6Zp3W2nAVb8jT 1-10; YbwrZWhBXqAz9vyM 1-3;
+ZBtF1q8GTKRHDNML 1-4; aANyFDgb69hxqY2w 3; aNhzDXYy7MwVb98g 1-4; b3aG821WYQj9RVhK 1-2; bDzAngQZfHFMxjvL 1-3, 5-7, 10-28;
+bhW9XwPZTgD3mkfQ 1-4; c32gbnm8dW4vhLZA 1-2; cAGW6Farb9N3d2t1 17; d9CVthbzgQD8Tywr 1, 3; dMX79JcWz1FKPm6f 1-4;
+dmkBCMpWa92Pj6hK 1-5, 7-13; fPD87TvAkZ9XmpyW 1-11; fYcnmzKRW73q6Ztk 1-7; fqYWmr3cC98AwXaJ 1-2; g7DjqhM61aLN8XFd 1-2;
+gcnGw3DaJdrFCAYX 1-5; gjDxfW9TJBQydAh6 1; hRPnJDL2T1bNXc9q 1-10; hY2gt1GvZjnwW6N8 1-4; hdm9KTLDjZ6NJHWG 1-6;
+hmyFp9aMP2zTJ3AC 1-9; hwxjbW2XDv9BTP1Q 1, 3-10; jFvXRqgmH4QwWBNP 1-13; kRLm8NqHrpcDtGdB 1-2; kdgMTYt3CPQzf4b9 1-14;
+kgJRQK82qL1CFPGj 1-5; kvQ9DtmnTGpZzgJ6 1-3; mMHVBTWdPvYL7awh 1-3; mNzF1MgYJypDfnPb 1-14; pCrzdDcxXPF3BYgW 1-15;
+pJjZqyKxb81RYdvG 1-3, 5-16; qhCRxrzfkDFMKAtL 1-23; rGbWtLZqknvwxRmg 1-11; t9gkf1YHbR2NLj6G 17-26; tLGanMDfw82FJymz 1-16;
+tk86znZXxMCdwBKb 18; trmvKnMhZLypqwAz 1; vpTQqDkgNYLnjtZr 1-47; vyTBDPbRVW2m3NnM 1-11; w6A8bVm7vTatMCYr 1-12;
+wDyPtkh3FzT8LpNn 1-13; wVT17rNdaBZPftyX 1-11; xwT6Z1CV7WQhBmgD 1-3; y3wkJZnA7gv4qzfX 1-30; zk9DnPBZqyXArLca 1;
+ztpB7m1kbLQ3KdqR 1-7, 9-14.
 
 ## Glutton's Cleaver (10772)
 
@@ -1171,19 +1345,28 @@ qnyc1zwaB4FrvM9x 1; rzvB21j7yD9hpaVF 7-20, 22-30; t681v9FWrLq4Tkxp 1-3, 5-7; wZG
 
 ## Grim Reaper (13054)
 
-- Proc: weapon proc 14126, logged as 14126; rolls on main hand
-- Sim rate: 1.1 PPM, observed; measured 1.10 PPM [0.97, 1.24], 5 wearers, 5 runs, 233 procs on 4113 hits
-- Reports from 2026-11-09 to 2026-11-16
-- Notes: 1 of 6 runs are feral druids, left out (paw speed, not the weapon)
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 14126
+- Rate: 0.9 PPM, observed
 
-| Report           | Fights | Class   | Slot | Hand split | Procs | Hits |  PPM | Left out |
-| ---------------- | ------ | ------- | ---- | ---------- | ----: | ---: | ---: | -------- |
-| 4HC91qxpR6hzKWdF | 1-2    | Paladin | mh   |            |    48 |  810 | 1.15 |          |
-| 8dZb4CmyvLaWMGf1 | 8-16   | Paladin | mh   |            |    59 | 1073 | 1.06 |          |
-| D9vw4QTYJZWMPnph | 1-3    | Hunter  | mh   |            |     6 |   95 | 1.22 |          |
-| NXgv93kr2G7zyTxm | 3-9    | Paladin | mh   |            |    94 | 1602 | 1.14 |          |
-| YJR78AMPDNKGQWjF | 5-12   | Warrior | mh   |            |    26 |  533 | 0.94 |          |
-| LBZqKhR7WjvA31NH | 1-4    | Druid   | mh   |            |    17 | 2190 | 0.15 | feral    |
+145 procs on 3,161 rolling hits, 10 wearers, 10 runs, in the main hand: all hits 0.89 [0.80, 1.01]. Neither the one-hand
+white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate. Observed: no lone-unit rate
+checks it; the interval is wider than 10% of the rate. One-hand white: 0.88 [0.72, 1.06], 40 procs on 882 lone units, 10
+wearers. Specials: 0.81 [0.53, 1.24], 18 procs on 432 lone units, 8 wearers. Two-roll abilities, priced as one roll:
+1.27, 5 procs on 76 lone units (Execute 3 on 26 and Mongoose Bite 2 on 50), left out of the rate. Direct: window [-10,
+100] ms, median 0 ms, 98th percentile 1 ms, 54 isolated hits. Dropping the swapped stretches (5.3 active minutes, 4% of
+hits, in 1 run) moved the read from 0.85 to 0.89. The paladin check, which sets no rate: lone white swings 1.19, 104
+procs on 1,686 lone units, 18 wearers. Left out: 24 of 34 runs in Cat or Bear Form. 1 runs logged in two reports count
+once. Reports from 2026-11-13 to 2026-11-22.
+
+| Class   | Wearers | Procs |  Hits |  PPM |
+| ------- | ------: | ----: | ----: | ---: |
+| Warrior |       2 |    77 | 1,767 | 0.84 |
+| Hunter  |       8 |    68 | 1,394 | 0.94 |
+
+Reports and fights: Cp4J8Vj1T6hZgWP9 6-13, 15-28, 30-38, 40-47; D9vw4QTYJZWMPnph 1-3; MRpj61GaHP4LYcQq 1-5;
+XMgyVQRCrfNmA43j 1-4, 6-10; YJR78AMPDNKGQWjF 5-12; j38paTrnGPbyZzV6 1-8; jMJHNGFWKRwh6Afr 1; nkBgQMXYmZ6PDF8a 2-32;
+nmFLdPWf8agkC7y2 1-3; pHFDL6NabPXM2QAx 1-2; rzAnCVwGgjTDHp63 4-7.
 
 ## Grimclaw (1481)
 
@@ -1226,21 +1409,34 @@ KjLXqdCZANvQc9BT 1-3; Lcy3V1wHPpqZQAG7 2, 4-12; PJGwRWQYyA3nzXpv 1-12, 14-19; h9
 
 ## Gut Ripper (2164)
 
-- Proc: weapon proc 18107, logged as 18107; rolls on main hand, off hand
-- Sim rate: 1.55 PPM, measured; measured 1.54 PPM [1.40, 1.70], 9 wearers, 9 runs, 383 procs on 8294 hits
-- Reports from 2026-11-14 to 2026-11-16
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 18107
+- Rate: 1.45 PPM, measured
 
-| Report           | Fights   | Class  | Slot | Hand split                   | Procs | Hits |  PPM | Left out |
-| ---------------- | -------- | ------ | ---- | ---------------------------- | ----: | ---: | ---: | -------- |
-| 8tBp2ZK7XT4QJCgD | 1-5      | Rogue  | mh   | timing + otsu for 11 swings  |    37 |  934 | 1.32 |          |
-| Ag69GWdLRDhKCrcT | 1-6      | Rogue  | mh   | timing + otsu for 9 swings   |    74 | 1635 | 1.51 |          |
-| H1AnQVTYJzcam79x | 1-8      | Rogue  | oh   | timing + otsu for 8 swings   |    22 |  641 | 1.14 |          |
-| VG18w7rW3KRQa9B4 | 4-10     | Rogue  | mh   | timing + otsu for 5 swings   |    51 | 1042 | 1.63 |          |
-| WaHMR9NKLrwbzptn | 1-2, 4-7 | Rogue  | mh   | timing + otsu for 3 swings   |    69 | 1426 | 1.61 |          |
-| fz2HQxXk96ywVYv7 | 3-8      | Hunter | oh   | timing + otsu for 109 swings |     7 |  117 | 2.00 |          |
-| g41xhtdFCXZ8Vr9z | 1-2      | Rogue  | mh   | timing + otsu for 14 swings  |    62 | 1248 | 1.66 |          |
-| qNyQvka41YhVmdHR | 1-4      | Hunter | oh   | timing + otsu for 29 swings  |    37 |  630 | 1.96 |          |
-| v2aNxQ7mGTdkJryV | 1-7      | Rogue  | oh   | timing + otsu for 49 swings  |    24 |  622 | 1.29 |          |
+2,391 procs on 54,637 rolling hits, 41 wearers, 48 runs, in the main hand or the off hand: all hits 1.46 [1.39, 1.53].
+The rate is all hits, which the specials rate agrees with. One-hand white: 1.00 [0.50, 1.80], 11 procs on 365 lone
+units, 1 wearer (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.26 [1.08, 1.46], 505
+procs on 13,314 lone units, 40 wearers. Specials: 1.51 [1.24, 1.86], 75 procs on 1,651 lone units, 25 wearers; Sinister
+Strike gives 29 procs on 677 of them. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 2 ms, 448 isolated
+hits. Dropping the swapped stretches (87 active minutes, 5% of hits, in 5 runs) moved the read from 1.38 to 1.46.
+Reports from 2026-11-14 to 2026-11-22.
+
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Rogue   |      34 | 2,157 | 49,375 | 1.46 |
+| Warrior |       2 |   139 |  3,329 | 1.39 |
+| Hunter  |       5 |    95 |  1,933 | 1.64 |
+
+Reports and fights: 1LPQHj7FTxRgqGpD 1-2; 1MA3qWLGa8v2hdXP 3-48; 2Jjb9fcXa3VH1MPd 1; 2Tr9gxXZDdhnc4BG 1-2;
+3H7tGVbMTnacBdjz 1; 4Mxqdg8YvmnbtNpk 2-10; 63zKLgVXPTnMB7Jx 1; 6Bzkp3W4KACvRVt9 1-15; 72JjqrWXMdtwKx68 1-3;
+79jK6VvL4ZYbF1Jz 2; 8tBp2ZK7XT4QJCgD 1-5; 9VzpHPJraCGZQdh4 1-12, 15-17; 9fvqtGwK7RgT31xF 1; A3FdRp4h8c2Zfkt9 1;
+AN4RP21ZMXLVpntm 1-3; Ag69GWdLRDhKCrcT 1-6; D9tmTWQndR2jvAX8 1-5; H1AnQVTYJzcam79x 1-8; JHF4zftRn3PaBbN1 1-6;
+NPkAjF7cTYW16RKw 10-33; NrXFbz62xyhDR1LB 1-2; T72a1vxJZMBNbAg4 1-4; VG18w7rW3KRQa9B4 4-10; VKHmAfvPjBGLQW4Y 1-9;
+WaHMR9NKLrwbzptn 1-2, 4-7; Y4znCFdR1QD6LZJj 1; Y8JX1mLtHag7B3Fc 1; bQCaW3RyBxn9Lq84 1-8, 10-17; cPGDLT3wyWYAxZkt 1;
+fz2HQxXk96ywVYv7 3-8; g41xhtdFCXZ8Vr9z 1-2; gNBZx1vDYcAKtr6H 1; kvQ9DtmnTGpZzgJ6 1-3; kxQJCbtq9wLHmjKR 1-6;
+n8VK43MDGChq6rgv 3; nGctFJyB8jwX9WHL 1; njJ2Ab1N47RfDH6F 1; p7QgHbGqKC2B6ryz 1-7; qNyQvka41YhVmdHR 1-4; qyDxWPJrCtGzQBcv
+1; v2aNxQ7mGTdkJryV 1-7; wCTBgJrL4dGYn2bt 1-4; wmjHY7rqfAZL9cB4 1; x7B8mTqhcDFCpHNn 1-4; xRCbgPhKfWZMVLwt 1-2;
+xjZknJqzfC82b3VA 8-9; yrN2TKtxzjRcpbfh 1-4, 6-21; zMqZ3BNKbFYfAjwp 1-12.
 
 ## Hameya's Slayer (15814)
 
@@ -1447,20 +1643,32 @@ zr6Z1GFPkpwQVmX3 1-5; zyFZC9kAVDB3Mvj1 1-3.
 
 ## Jom-jom's Gabbar (274952)
 
-- Proc: weapon proc 1295736, logged as 1295736; rolls on main hand, off hand
-- Sim rate: 1.75 PPM, observed; measured 1.74 PPM [1.45, 2.04], 7 wearers, 7 runs, 389 procs on 7049 hits
-- Reports from 2026-11-14 to 2026-11-16
-- Notes: swap noise: the swap drop moved PPM 1.47 -> 1.76 (49 active minutes, 17% of hits, in 2 runs)
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 1295736
+- Rate: 1.9 PPM, observed
 
-| Report           | Fights    | Class  | Slot | Hand split                        | Procs | Hits |  PPM | Left out |
-| ---------------- | --------- | ------ | ---- | --------------------------------- | ----: | ---: | ---: | -------- |
-| 3TDwbg41YhvNpPAq | 1-7       | Rogue  | oh   | timing + speed ratio for 5 swings |     1 |   27 | 1.16 |          |
-| 987q1pjnYdVQbCmT | 1-6       | Rogue  | mh   | timing + otsu for 11 swings       |   105 | 1582 | 2.10 |          |
-| BqdMTtCvN3fVJpRk | 29-35     | Rogue  | mh   | timing + otsu for 5 swings        |    79 | 1284 | 1.94 |          |
-| HndJP9Yf4xc7VzKw | 1         | Hunter | oh   | timing + speed ratio for 8 swings |     1 |   15 | 2.04 |          |
-| NfqRryF7gnMcX2ak | 1-2       | Rogue  | oh   | timing + otsu for 14 swings       |    47 |  738 | 2.01 |          |
-| Pjz8kK2XvxyQrTCB | 1-2, 4-16 | Rogue  | mh   | timing + otsu for 62 swings       |    89 | 2130 | 1.32 |          |
-| cAYgpkdqXRDynzPK | 1-3       | Rogue  | mh   | timing + speed ratio for 3 swings |    67 | 1272 | 1.66 |          |
+2,678 procs on 43,965 rolling hits, 39 wearers, 44 runs, in the main hand or the off hand: all hits 1.92 [1.80, 2.06].
+The proc's flight reaches the 300 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate.
+Observed: no lone-unit rate checks it. Travel time: the proc lands a median 216 ms after its hit, 98th percentile 297 ms
+(314 isolated procs). Dropping the swapped stretches (151 active minutes, 9% of hits, in 8 runs) moved the read from
+1.75 to 1.92. Reports from 2026-11-14 to 2026-11-22.
+
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Rogue   |      35 | 2,619 | 42,801 | 1.93 |
+| Warrior |       1 |    57 |  1,138 | 1.58 |
+| Hunter  |       2 |     2 |     25 | 2.50 |
+| Warlock |       1 |     0 |      1 | 0.00 |
+
+Reports and fights: 3TDwbg41YhvNpPAq 1-7; 46cPKy8fYXgTNAm2 1; 67AMbHctYhxwQnfj 1; 6ryPTtKvZ1QJYdGV 1-2; 7nbQazTHpvmhGdRA
+1; 8MLzmqPrb46VT1wv 1-2; 94TYgrcdVnJFKj62 2-5; 987q1pjnYdVQbCmT 1-6; 9vfFckp37GHYz6Lj 1-16; BqdMTtCvN3fVJpRk 29-35;
+DRxwh2TLNPgrHJd4 1-9; FqW7GA1Lrw8jCpTD 1; H49wNaZhf6qgk1MX 1; HRpLt7nqfXz4Z6Gr 1-9; HndJP9Yf4xc7VzKw 1; NYVHr2XmGfwQndPp
+1-11; NfqRryF7gnMcX2ak 1-2; Nn16MQr7kB9X2Fj3 4, 6-12; Pjz8kK2XvxyQrTCB 1-2, 4-16; QgWvNdYJnMRByc93 1-4; V4HkPzgr21bxRvFt
+3; VDAtRmdp7vHQLyX1 2-19; W7LqyBw93GKFxfta 1-15; WpDkZ6JHRdqLvb3Q 1-3; a7nBvdhcXQ3VjAYb 1-10, 12-17, 19, 22-27;
+aF69WRYXAT1qNZjM 1-11; bxW3HFgVBwmyDLJ9 1; cAYgpkdqXRDynzPK 1-3; cBjY4znbPJNH3XZv 1; fT2knhqYQ8wGNVgC 1-12, 14-16,
+18-23, 25-43; hRzbpMrDY3cgQX7n 7; j3k86BpwAbgMK4qx 1-3; jRvABFgTGYx47cfP 1; jVhAWnaHJgf3FPmy 1-10, 12-13;
+mzJyZrRNBpFqcx71 4-5, 7-10; p3NHKaZrFGhDdwTg 1-2; pdb9yZKJ4WxvrQqV 1; rqxmc6TzHXWk2dVZ 1-2; rtbzWXcByFwk7G8n 1-17;
+t6rWYq7yLgGnvNp4 1; tyFZPdH39kGq21An 3-25; wW6G8YxfRH2bhcgC 5, 8-11; xwKnW41M9cB8RF6T 1, 3; zaLxkDJGH8YpVZX9 1.
 
 ## Julie's Dagger (6660)
 
@@ -1512,37 +1720,37 @@ xcPjNLDXa9nz1Vrd 1-7; YpxNGMXcf4PyTwt6 1-6; ZNyPLR2vkjMGptCJ 1-2.
 
 ## Killmaim (13016)
 
-- Count: §Count of the 2026-11-09 to 2026-11-22 reports
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
 - Proc: weapon proc 13318
-- Rate: 0.95 PPM, measured
+- Rate: 1 PPM, measured
 
-1,163 procs on 22,596 rolling hits, 50 wearers, 56 runs, in the main hand: all hits 0.97 [0.91, 1.02]. The rate is all
-hits, which the one-hand white rate agrees with. One-hand white: 0.86 [0.77, 0.95], 261 procs on 5,705 lone units, 48
+1,257 procs on 23,984 rolling hits, 53 wearers, 59 runs, in the main hand: all hits 0.98 [0.92, 1.04]. The rate is all
+hits, which the one-hand white rate agrees with. One-hand white: 0.87 [0.78, 0.96], 284 procs on 6,114 lone units, 50
 wearers. Specials: 1.12 [0.90, 1.27], 40 procs on 670 lone units, 15 wearers. Two-roll abilities, priced as one roll:
 0.98, 7 procs on 134 lone units (Execute 7 on 128 and Mongoose Bite 0 on 6), left out of the rate. Direct: window [-11,
-100] ms, median 0 ms, 98th percentile 766 ms, 199 isolated hits. Dropping the swapped stretches (162 active minutes, 11%
-of hits, in 11 runs) moved the read from 0.86 to 0.97. The paladin check, which sets no rate: lone white swings 0.73, 13
-procs on 334 lone units, 3 wearers. Report 9mN62kzgMdKypTqf logs the same run as d7DFtXL2jfNa8Bw4 and counts once.
+100] ms, median 0 ms, 98th percentile 743 ms, 211 isolated hits. Dropping the swapped stretches (162 active minutes, 10%
+of hits, in 11 runs) moved the read from 0.88 to 0.98. The paladin check, which sets no rate: lone white swings 0.93, 21
+procs on 425 lone units, 4 wearers. Report 9mN62kzgMdKypTqf logs the same run as d7DFtXL2jfNa8Bw4 and counts once.
 Reports from 2026-11-13 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Shaman  |      36 |   866 | 16,451 | 0.99 |
+| Shaman  |      38 |   960 | 17,834 | 1.01 |
 | Warrior |      12 |   291 |  5,919 | 0.92 |
-| Hunter  |       3 |     6 |    226 | 0.50 |
+| Hunter  |       3 |     6 |    231 | 0.49 |
 
 Reports and fights: 1g7hAY6CBNtW84HX 1-2; 29A3dKwPgpRNnWvc 7-11; 2aVnTxFzfckdXpBy 1-7; 3vDf6TMYBX9LK7bz 1-2;
 3xgPkwfn8yQ9BqAW 1-4; 6hrcXFkgDamVB8jT 1-3; 6v4wTWQkjb3Xd7mM 6; 7hNgRwMfkQZ2Yv4b 1-3; 8GW16QY9BmFHJXLb 1;
 8Qb1mLGNZxdgvwcV 1-2; 8RFv6Xyr43dLpJ7h 1-2; 9mN62kzgMdKypTqf 1-6; A3QMFqkz1wVa9ZHC 1; CRBxmcyLvpMVnGPw 1;
-DLApcY8P6y2xWqRh 1-4; DaXWGJMR2bnc9YtV 1-2; Dx2tAm7YawZjV6hG 1-4; G3VKdgR2aLAkNqWy 1-3; H2nMWrcCz8FGdV6j 1-10;
-H8hqxdF3Tbgywr9M 1; KTMx63Xn8WykrCQG 1-3; M4THD3Qq9dBpbKvg 1-2; MrW6JCFZTDzdtYpH 1-4; P16dx3VLmRyaDJZQ 1-18;
-P7cV2HjLgxGpmZQk 1-7; PN79G4Lfv3KBrW8j 22-323, 325-361; QGn9gwBK4MD237xa 1-4; QhYmjJ4bHZXcgfk1 1-2, 4-27;
-QqKcMJwHjxNPkgRT 1-3; QrqZXKL9kbnY31Hj 1-4; T6MXt73janNJgmyY 1-3; Vvfz8wYbjTBFaxRq 1; XVJtpHkwZy4ancAQ 1-7;
-aQwNVCPHWmzDLXqk 1-2; acHy1fNktP2m47pd 1-2; bdL8j9KGMR6r2xmk 1-3; d7DFtXL2jfNa8Bw4 1-5; fn2Dc941K63CNvmj 3-4;
-ftNBwvGgPcMqh8dJ 1-2; gdKNPjVvcQt2LJnq 1-3; ghzjGKVBvJbRZnMr 1-2; grFA3BHxtCNyzR7v 1-2; hbW1zgMXyRv8JAVL 1-6;
-jKJPF16ZnWLkrR2d 1-2; nT2Wz7mVQZbtBRG4 1-4; nTNyhMwtgDCbvQBx 1; nyhMJLqBYxPpRaXf 1-2; pDRxq6wJynmhgdjL 1-9;
-pqr4HxC3vWJhfG7B 13-20; qLJ3wZVXQdnybvK8 1; tMxrNWC6qPVzgwAv 7-8; tjLnhaw7G3CQDRkP 1-2; vJGT19YL26XFQpNB 1-2;
-zFR17VGkQKBPjab9 1-5; zJ6C2148dTYfaXHb 2-4; zhj69Dt2X1b3fvMT 1.
+DLApcY8P6y2xWqRh 1-4; DaXWGJMR2bnc9YtV 1-2; Dx2tAm7YawZjV6hG 1-4; G3VKdgR2aLAkNqWy 1-3; GyLWvrkxKVmNZgw3 1-7;
+H2nMWrcCz8FGdV6j 1-10; H8hqxdF3Tbgywr9M 1; KTMx63Xn8WykrCQG 1-3; M4THD3Qq9dBpbKvg 1-2; MrW6JCFZTDzdtYpH 1-4;
+P16dx3VLmRyaDJZQ 1-18; P7cV2HjLgxGpmZQk 1-7; PN79G4Lfv3KBrW8j 22-323, 325-361; PWAwZgV9LTDrFy6M 1-11; QGn9gwBK4MD237xa
+1-4; QhYmjJ4bHZXcgfk1 1-2, 4-27; QqKcMJwHjxNPkgRT 1-3; QrqZXKL9kbnY31Hj 1-4; T6MXt73janNJgmyY 1-3; Vvfz8wYbjTBFaxRq 1;
+XVJtpHkwZy4ancAQ 1-7; aQwNVCPHWmzDLXqk 1-2; acHy1fNktP2m47pd 1-2; bdL8j9KGMR6r2xmk 1-3; d7DFtXL2jfNa8Bw4 1-5;
+fn2Dc941K63CNvmj 3-4; ftNBwvGgPcMqh8dJ 1-2; gdKNPjVvcQt2LJnq 1-3; ghzjGKVBvJbRZnMr 1-2; grFA3BHxtCNyzR7v 1-2;
+hbW1zgMXyRv8JAVL 1-6; jKJPF16ZnWLkrR2d 1-2; nT2Wz7mVQZbtBRG4 1-4; nTNyhMwtgDCbvQBx 1; nyhMJLqBYxPpRaXf 1-2;
+pDRxq6wJynmhgdjL 1-9; pqr4HxC3vWJhfG7B 13-20; qLJ3wZVXQdnybvK8 1; tMxrNWC6qPVzgwAv 7-8; tjLnhaw7G3CQDRkP 1-2;
+vJGT19YL26XFQpNB 1-2; x61fvm9RLMjXyDqB 1-4; zFR17VGkQKBPjab9 1-5; zJ6C2148dTYfaXHb 2-4; zhj69Dt2X1b3fvMT 1.
 
 ## Linken's Sword of Mastery (11902)
 
@@ -1694,26 +1902,51 @@ XD23HFnxbzvPjACV 1; zA8JyGdnWRQ9vXmK 1.
 
 ## Naga Heartpiercer (3078)
 
-- Proc: weapon proc 1292647, logged as 1292647; rolls on ranged
-- Sim rate: 2.2 PPM, measured; measured 2.22 PPM [2.05, 2.43], 13 wearers, 14 runs, 965 procs on 10882 hits
-- Reports from 2026-11-13 to 2026-11-16
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 1292647
+- Rate: 2.05 PPM, observed
 
-| Report           | Fights | Class  | Slot   | Hand split | Procs | Hits |  PPM | Left out |
-| ---------------- | ------ | ------ | ------ | ---------- | ----: | ---: | ---: | -------- |
-| 1WZ8Dn6mpQdCNxAT | 1-8    | Hunter | ranged |            |    71 |  594 | 2.99 |          |
-| 1a3pDtCcPgBkL6wm | 1-22   | Hunter | ranged |            |   114 | 1041 | 2.74 |          |
-| 1fhNLGvKgMzt8Ac3 | 1, 3   | Hunter | ranged |            |    31 |  326 | 2.38 |          |
-| 1h9P4rYzWDvtHRxb | 3-4    | Hunter | ranged |            |    68 |  902 | 1.88 |          |
-| 1hpgVjWH3GZBLYKw | 1-12   | Hunter | ranged |            |    85 |  912 | 2.33 |          |
-| 1x8aqzFcL7ydGNgP | 1-2    | Hunter | ranged |            |    29 |  267 | 2.72 |          |
-| BKnf4rNwJdcqpQ18 | 1-6    | Hunter | ranged |            |   108 | 1311 | 2.06 |          |
-| BzGXfjMLJ2RyCwHm | 1-7    | Hunter | ranged |            |    85 |  891 | 2.38 |          |
-| MwA4Vhx7zDfCdY6B | 1-2    | Hunter | ranged |            |    56 |  703 | 1.99 |          |
-| aMNVKZpg8tRkhBP3 | 1-17   | Hunter | ranged |            |    51 |  660 | 1.93 |          |
-| aykDWnCGx4jJFTV6 | 1-6    | Hunter | ranged |            |    54 |  806 | 1.67 |          |
-| hPWNkH67AYCBFLgM | 1, 3-8 | Hunter | ranged |            |    55 |  652 | 2.11 |          |
-| hcGCaDW9tRYFB6Ax | 1-11   | Hunter | ranged |            |   125 | 1505 | 2.08 |          |
-| r7cZyhBXWfNwj2GY | 1-10   | Hunter | ranged |            |    33 |  312 | 2.64 |          |
+6,606 procs on 79,814 rolling hits, 115 wearers, 135 runs, in the ranged slot: all hits 2.07 [2.02, 2.12]. The proc's
+flight reaches the 3,500 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate. Observed: no
+lone-unit rate checks it. Travel time: the proc lands a median 3,244 ms after its hit, 98th percentile 3,452 ms (33
+isolated procs). Dropping the swapped stretches (257 active minutes, 9% of hits, in 10 runs) moved the read from 1.89 to
+2.07. Report zaCRx8Zqvw6ytNKg logs the same run as L6ZKBgy2FQDAHmkh and counts once. Reports from 2026-11-12 to
+2026-11-22.
+
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Hunter  |     107 | 6,604 | 79,762 | 2.07 |
+| Warrior |       8 |     2 |     52 | 0.96 |
+| Rogue   |       0 |     0 |      0 | 0.00 |
+
+Reports and fights: 1FR3hDpwGHbjBnaZ 1-2; 1RPdFq7DLMNBgCZv 1-3; 1WZ8Dn6mpQdCNxAT 1-8; 1a3pDtCcPgBkL6wm 1-22;
+1fAj2G9rZaKDc6v4 1; 1fhNLGvKgMzt8Ac3 1, 3; 1g2QAZPJrLTjCz3m 1-10, 12-14; 1gKMDwaxfPv68FH9 3-4; 1h9P4rYzWDvtHRxb 3-4;
+1hpgVjWH3GZBLYKw 1-12; 1x8aqzFcL7ydGNgP 1-2; 2AkBjF16x3rwVLXC 1; 2cRHnkQgwKBxW4td 1-8; 3YMxWqZy84TcGJCK 1-2;
+4kVDpBQtGAhHf2Ya 1-22; 6KrwJ1zc7NQjMbAV 1-5; 8DrWyzRCtY7vjx6d 1; 8XrvwZJFBNqYGmRz 1-15; 8x3NPqTmnw6tZ9vY 1;
+8xGjCkqAhgXcwtfn 1; 9BbfyPxjcJkw1tYZ 1-7; 9yNQP3FWHgcVvYDq 1-14; ARXJvZh6kwt3np2D 1-9; ARwG2htz3VgjDd7v 1, 3-5;
+AZjCQxXdvK7tw8Dn 2, 4-11; AjZXVRHFpcmyJDgC 1-4; B3vtVgmqMTHDAxNY 1-10; B4vtTCL6D17pf32m 1-3; BKnf4rNwJdcqpQ18 1-6;
+BYxchfkT1Z9n7HV6 1-7; BbhmWkK7MtnQ89FA 1-3; BjPdctn9FDTG6rfk 1-4; BzGXfjMLJ2RyCwHm 1-7; CDxVJLG1WzKgNkRt 1;
+CTzARQh8F36B1VP2 1; CcAYgrB3Q1w8KJvV 1; Cj9YcDd1hqbn6rkH 1; Cp8467ZnH2hGJDtw 1; DT8MFahL6VCWQdNA 1-15; F8X4dznrj7Jx3HQB
+1-17; FJdxQgAGwDYW6MTh 1-11; GcrbT1JP3DqQBhLz 1; GfmL9CHXdWzJnMFA 1-5; H8azRKMDv9Cq1Qnh 2, 4-6; HJpXmBNg9fjv46Dr 1;
+KXmBtLjWnQ6zZa21 9-14; Kc4MgjhBWZbCAN18 1; Kzn8AkXFr3yvMZHQ 1-9; L6ZKBgy2FQDAHmkh 1, 3; MwA4Vhx7zDfCdY6B 1-2;
+Na6RyCPmj1tGLBhJ 1-3; NvnJVbtwK8z7THyx 1-2; Q4KA1zq7WkTHndwV 1-2, 4-8; QFxf2YycX4K1G67q 1; QkHGb6P92mJ1z4aC 1-16;
+RVTNDtGcvLjFzqnX 1-4; TBCkGK4pwZv2f6cF 1; Tby1rLwFvkgRtxpn 15-27, 29-35; Td48VjbADm17Gwxn 1-2; VHth6gR7xLbjQmnr 4-14;
+VpFhqbrGwB8YTXAt 1; VtpFGaT74JDMbwCk 1-4; VzLTxpcwAFNMd7jB 1-14; XBYHq64fPFNJMhQ3 1-2, 4-6; XKAja9wcpndHyZRJ 6;
+XpQW1hmwHYDAJ8at 1-12; YNHv8GBrbc91FQ3C 1-6; YX61J8CKqc42paNZ 1-4; YcBZxvJVt18WLnrA 1-7; Yd4r69MDqbQyJCFH 16-36;
+ZjTwPR1D2nVyC7xF 1-2; aL6dYTxw2J4Bqp7y 1; aMNVKZpg8tRkhBP3 1-17; aMn8XG7qHNAcLjhR 1-7; aNFQk87zxVRKA2nf 1-6;
+akfrAm74NYHVqKgP 1; avQywnDKt7RxcpfF 1-8; aykDWnCGx4jJFTV6 1-6; bPqj8zkJN3YatpwD 1-2; bZ1rRapKh7JcNy9V 1-18;
+bdYgfJk7Mh8GqZ4t 1-11; cNKrmFQY7A6f4Dhk 1; cT71Vr9tPDKkxWv3 1-2; chaXJYpVCrPyTm1N 1; dFTYwhpJGLHv7NAC 1-4;
+dn4pDGQNgTCW1j2c 1-2; dycN4Qm9ChBtjV7z 1-2, 5-6; fHQ16pCP3XWmaLVG 1; gBbwv2qZP3t4LmVr 1-5; gzwRHnTC8VBNmcZF 1-5;
+h4azBt3LkrgMQ6bJ 1-2; hKXDFmMTBRL2JwGW 1; hKvmpgJarkVqCZBw 1; hPWNkH67AYCBFLgM 1, 3-8; hWdz149pDn6Tm2jL 1;
+hXx2mb3t4VzFCNfT 1; hcGCaDW9tRYFB6Ax 1-11; hgd1qH4QYFyjz6AK 1, 3-6; hxCm1nBtF9MZXwWq 1; j8nHCBbFmfPXkL72 1;
+jRbzHJP47WCLVN9p 1; jWyF3qd7t1baYRPH 1, 4-6; jbhGzfrnJRWX978L 1-10; ka9LWwzxJbmKdnAP 1, 3-6; m1LvMTRFb9KVgh86 1-3;
+m2gBvZCnrRVq7aNA 1-2; pF7jaH96PnycBNqJ 1; pMyY4zGNtLb2gxAX 1-10; qJAMNGwP2aKB9jDC 1; qVY3amnxyzcPhG6t 1;
+qa9Vb3rkCD87z4Nw 1-10; qfG6QWjd3wg1JVXv 14-18; qgNdpJ9WbY6FHM2Q 1-10; qm3nkapzVMGgBQJb 1; qr1CbQRVcL67Nx2D 1-2;
+qt4GCyZr6f8wJ7WQ 1; r7cZyhBXWfNwj2GY 1-10; rJXdfcmW6NY4MFKp 1-2; rZ1A2XtkJjLfQb9x 1-4; rf6C1QL4XG9yKAHF 1-8;
+t4d9ApkXac6nVBCN 1; vGNdPWLc23BqCQVT 1-2; vPfBGprgtTdcjZWN 1-15; vtJLdmHfPMGV7j4Z 4-13, 15; w48cXFqxMbWTH2ky 1-3;
+wJWpK2Fqd7z8QnT3 1-11; wYmr1kfWPpVz7jyZ 5-13; wdNZmfpCMQL7D8Vk 1; wdRZpaVcAtDkGPNx 1-6; xJga9vbpNtGhKRWz 1;
+xQv1aRGzXdpcKZjC 15; xyGFtfYArzgn6CqZ 1-5; y8PLB1VYqpnrb32G 1; yC6t8PJx9VRLrj4F 1; ypR78QbwvYJhrtM2 1-2;
+zaCRx8Zqvw6ytNKg 1, 4.
 
 ## Night Reaver (1318)
 
@@ -1731,23 +1964,26 @@ XD23HFnxbzvPjACV 1; zA8JyGdnWRQ9vXmK 1.
 
 ## Nightblade (1982)
 
-- Count: §Count of the 2026-11-05 to 2026-11-19 reports
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
 - Proc: weapon proc 18211
-- Rate: 2.1 PPM, observed
+- Rate: 1.85 PPM, observed
 
-86 procs on 705 rolling hits, 2 wearers, 2 runs, in the main hand: all hits 2.09 [2.02, 2.11]. With 2 wearers the wearer
-bootstrap means little; the Poisson interval on the 86 procs is [1.67, 2.58]. Neither the one-hand white swings nor the
-specials reach 50 procs, so no lone-unit rate checks the all-hits rate. Observed: fewer than 5 wearers. One-hand white:
-2.17 [1.77, 3.96], 18 procs on 142 lone units, 2 wearers. Specials: 1.73 [0.00, 1.84], 12 procs on 119 lone units, 2
-wearers. Two-roll abilities, priced as one roll: 5.71, 1 proc on 3 lone units. Travel time: the proc lands a median 137
-ms after its hit, 98th percentile 254 ms, window [41, 264] ms (34 isolated hits). Reports from 2026-11-14 to 2026-11-15.
+396 procs on 3,640 rolling hits, 5 wearers, 7 runs, in the main hand: all hits 1.86 [1.74, 2.08]. The rate is all hits,
+which the one-hand white rate agrees with. Observed: the interval is wider than 10% of the rate. One-hand white: 1.84
+[1.67, 3.01], 111 procs on 1,035 lone units, 5 wearers. Specials: 1.99 [0.46, 2.24], 47 procs on 404 lone units, 5
+wearers. Two-roll abilities, priced as one roll: 0.98, 2 procs on 35 lone units (Execute 1 on 7 and Mongoose Bite 1 on
+28), left out of the rate. Travel time: the proc lands a median 133 ms after its hit, 98th percentile 269 ms, window
+[53, 279] ms (55 isolated hits). The paladin check, which sets no rate: lone white swings 2.27, 265 procs on 2,005 lone
+units, 37 wearers. The owner takes this paladin-free count for the row (2026-11-22). Reports from 2026-11-14 to
+2026-11-22.
 
-| Class   | Wearers | Procs | Hits |  PPM |
-| ------- | ------: | ----: | ---: | ---: |
-| Hunter  |       1 |    72 |  586 | 2.11 |
-| Warrior |       1 |    14 |  119 | 2.02 |
+| Class   | Wearers | Procs |  Hits |  PPM |
+| ------- | ------: | ----: | ----: | ---: |
+| Hunter  |       2 |   294 | 2,763 | 1.82 |
+| Warrior |       3 |   102 |   877 | 1.99 |
 
-Reports and fights: nNmBkKp3J96FTGfg 1; vdwBDjmZRykqHaWL 7.
+Reports and fights: 6fdmqNGFJjbRgCcD 9-10, 12-23; FzRDWkfmyh47tTAV 1-4; HQZwFjDcmtnWyXMh 1-5; b196ArgRdLNX42ym 1-2;
+m1JkqnD4gjfLwAvP 1; nNmBkKp3J96FTGfg 1; vdwBDjmZRykqHaWL 7.
 
 ## Pendulum of Doom (9425)
 
@@ -2115,19 +2351,35 @@ tYFp32ThgGPfnvQH 1, 3; yw6Hzd1mphGk8vTJ 1-2; zX7thnkw1pR6WFyJ 1-21.
 
 ## Skeletal Club (2256)
 
-- Proc: weapon proc 13440, logged as 13440; rolls on main hand
-- Sim rate: 1.05 PPM, observed; measured 1.04 PPM [0.84, 1.54], 7 wearers, 7 runs, 151 procs on 3338 hits
-- Reports from 2026-11-08 to 2026-11-15
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 13440
+- Rate: 0.95 PPM, measured
 
-| Report           | Fights | Class   | Slot | Hand split                  | Procs | Hits |  PPM | Left out |
-| ---------------- | ------ | ------- | ---- | --------------------------- | ----: | ---: | ---: | -------- |
-| 7rAN4vgZq3xjRhf1 | 1-2    | Paladin | mh   |                             |    36 |  807 | 1.03 |          |
-| AQd8hCMn7a4ymGBW | 1, 3-6 | Shaman  | mh   |                             |    11 |  231 | 1.10 |          |
-| F4rpyvWbxgfZCBXa | 1      | Warrior | mh   |                             |    16 |  402 | 0.92 |          |
-| G7BvNCDbc12nKVpJ | 1-57   | Warrior | mh   |                             |    25 |  169 | 3.41 |          |
-| M6XxqLHC8nmvB9wc | 1      | Paladin | mh   |                             |    13 |  286 | 1.05 |          |
-| P143Tb2X9rBWwQDq | 1-18   | Warrior | mh   | timing + otsu for 47 swings |    24 |  754 | 0.73 |          |
-| Qb7TJqYkKtgyz1ah | 1      | Rogue   | mh   | timing + otsu for 7 swings  |    26 |  689 | 0.87 |          |
+1,080 procs on 26,909 rolling hits, 38 wearers, 42 runs, in the main hand: all hits 0.93 [0.88, 0.96]. The rate is all
+hits, which the one-hand white rate and the specials rate agree with. One-hand white: 0.86 [0.72, 1.01], 147 procs on
+3,950 lone units, 21 wearers. Dual-wield white, which sets no rate: 0.90 [0.68, 1.11], 84 procs on 2,144 lone units, 17
+wearers. Specials: 0.98 [0.84, 1.09], 146 procs on 3,438 lone units, 31 wearers; Sinister Strike gives 55 procs on 1,355
+of them. Travel time: the proc lands a median 162 ms after its hit, 98th percentile 331 ms, window [37, 341] ms (88
+isolated hits). Dropping the swapped stretches (83 active minutes, 7% of hits, in 4 runs) moved the read from 0.87 to
+0.93. The paladin check, which sets no rate: lone white swings 0.65, 23 procs on 815 lone units, 18 wearers. Left out: 2
+of 44 runs in Cat or Bear Form. Reports from 2026-11-11 to 2026-11-22.
+
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Warrior |      16 |   548 | 13,643 | 0.93 |
+| Rogue   |      15 |   448 | 11,045 | 0.94 |
+| Shaman  |       6 |    84 |  2,213 | 0.88 |
+| Priest  |       1 |     0 |      8 | 0.00 |
+
+Reports and fights: 2TbWxFvzYy8gGVcj 1; 4tb63CTmMX2zxLDv 1-3; 6jYwBg18avQPmrbM 1-15; 9GAVBJNWDbmZk7tq 1-3;
+9qTHdZQfvhCVP7RB 1; AQd8hCMn7a4ymGBW 1, 3-6; Dx2tAm7YawZjV6hG 1-4; F4LZcWy7VxjRfgrA 2-6; F4rpyvWbxgfZCBXa 1;
+G7BvNCDbc12nKVpJ 1-57; GxFyfYrW31nbPpz7 1-5; H9XFTGLv8abwZdQ1 1-2; Ht2nzAM7dFbvY1wR 1-2; K4tq2TBgvb9R8wQm 1;
+Mj1gA4rpDRQh9yJm 1-3; NDHgq2hvyaTMfBm7 1-15; P143Tb2X9rBWwQDq 1-18; PrN7Lagkfj6XA8vy 24; Qb7TJqYkKtgyz1ah 1;
+QzNpGgjCMVxYR7BL 1-3; RnD2ych3aP6ZGXmV 1, 3; Rq7gBc4JQfGHAybC 1-5; RxcQmkVb8ZaACNw1 1; T93NgKpBfkx1qCLv 1-2;
+WCFJ4kYHVXxLhwAZ 1-3; WFNrxP3XqbTBp427 6-7; Xd8v4PHrfjwDMxZq 1-3, 5; XfKMJj1BcQwP27zp 1-10; bdRPn6tTkhvQjBV7 1-9;
+cj32G8gw9pvAZdxk 1-3; dLGpZ3YD1VfJTRWg 1-11; dRk86B4CyYw3p2qD 1; dT4RAM6tkfaGJmBP 1-5; dp9KVxZRnhAqP62F 1-15;
+gnmCNT21xGd4q9AR 1-2; mF6k8yjVYKRtQ4zc 1; ndV9xfYhcFDaRwqG 1-3; pJxh4FZT9qgGVbXr 1-2; pydvC4YzqVMRgPAf 1-3;
+rWPnwxALC4XQ1KVg 1; wJaf6LdbHcgR9Pxn 1-7; ycZLWXxQ4jk21w3q 13-28.
 
 ## Sliverblade (5756)
 
@@ -2219,19 +2471,51 @@ ypQ9d13tMFJPNfvw 1, 3; ythJ7TZDXk6AjHMq 9-10; z4ybMrFWNGa1L2xJ 1-3; zD9hTZPfwC38
 
 ## Stalvan's Reaper (934)
 
-- Proc: weapon proc 13524, logged as 13524; rolls on main hand, off hand
-- Sim rate: 1.4 PPM, observed; measured 1.38 PPM [1.08, 1.71], 6 wearers, 7 runs, 351 procs on 5262 hits
-- Reports from 2026-11-13 to 2026-11-16
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 13524
+- Rate: 1.25 PPM, observed
 
-| Report           | Fights    | Class   | Slot | Hand split                  | Procs | Hits |  PPM | Left out |
-| ---------------- | --------- | ------- | ---- | --------------------------- | ----: | ---: | ---: | -------- |
-| 2THWnvG8AXCYqfNg | 1-2       | Warrior | oh   | timing + otsu for 17 swings |    70 |  646 | 2.24 |          |
-| 4ZKFNBk6czpynG3W | 1-2, 5-10 | Rogue   | mh   | timing + otsu for 25 swings |    46 |  779 | 1.22 |          |
-| 4dVyt9cvbPrgpY2K | 1-2       | Hunter  | mh   | timing + otsu for 91 swings |    38 |  373 | 2.11 |          |
-| 61VcxvhfQF2DRAGd | 1-2       | Warrior | mh   | timing + otsu for 33 swings |    68 | 1513 | 0.93 |          |
-| BtcMA1CqVrnapQ2m | 1-8       | Warrior | mh   |                             |    90 | 1062 | 1.75 |          |
-| C8Hk1q3rpN27YWam | 3         | Warrior | mh   | timing + otsu for 19 swings |    14 |  184 | 1.57 |          |
-| MjxzVLAta8FgXR7y | 1-2       | Warrior | mh   | timing + otsu for 7 swings  |    25 |  704 | 0.73 |          |
+5,772 procs on 97,318 rolling hits, 93 wearers, 116 runs, in the main hand or the off hand: all hits 1.23 [1.11, 1.35].
+The rate is all hits, which the one-hand white rate and the specials rate agree with. Observed: the interval is wider
+than 10% of the rate. One-hand white: 1.27 [1.03, 1.51], 414 procs on 6,727 lone units, 16 wearers. Dual-wield white,
+which sets no rate: 1.13 [0.99, 1.26], 728 procs on 13,321 lone units, 75 wearers. Specials: 1.31 [1.13, 1.47], 718
+procs on 11,342 lone units, 69 wearers; Sinister Strike gives 365 procs on 5,526 of them. Two-roll abilities, priced as
+one roll: 1.08, 32 procs on 613 lone units (Execute 30 on 516 and Mocking Blow 0 on 1 and Mongoose Bite 2 on 96), left
+out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,456 isolated hits. Dropping the
+swapped stretches (312 active minutes, 7% of hits, in 24 runs) moved the read from 1.14 to 1.23. Reports from 2026-11-13
+to 2026-11-22.
+
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Rogue   |      48 | 3,002 | 47,983 | 1.29 |
+| Warrior |      36 | 2,666 | 47,117 | 1.17 |
+| Hunter  |       8 |    97 |  2,024 | 0.99 |
+| Shaman  |       1 |     7 |    194 | 0.75 |
+
+Reports and fights: 1cGJrPCNvy7Fk3wX 1; 2TF1KbwpqLPRmNCn 1; 2THWnvG8AXCYqfNg 1-2; 2TNQqFYdjRLB4Zga 10; 2npcVzdGrXR6PZv9
+4-5; 3XaH1Jdp4Amv2Bbx 1-3; 4ZKFNBk6czpynG3W 1-2, 5-10; 4dVyt9cvbPrgpY2K 1-2; 61VcxvhfQF2DRAGd 1-2; 6xNyB1ZawDC8gjK2 1-2,
+4-7; 7QGzZNgTftwMWnrK 1-4; 7a61xpP8kGLzJAw2 1-9; 7an1DRwVTBzmtKLM 1-8; 82dvKxybP4Zfprh9 1-2; 8KH6htf4MATvC9ad 1;
+9qtkJVNF7fwagTCG 1-4; 9v6VdC7ymQfb4cWh 1; A9bpD6tXZvmyMrn3 1-5, 7-11; AGXj4FCx83v2qLwy 1-2; AgTJ4ktjhrXQNKZW 17-18;
+B9KaC3VWfxkbz7Lj 1-16; BjPdctn9FDTG6rfk 1-4; BtcMA1CqVrnapQ2m 1-8; C6XcAgmWVdbxkfKD 1; C71ArgnKwBqWf2Tk 1-13, 15-22;
+C8Hk1q3rpN27YWam 3; CQfJXhtLZrTmFYj6 1; CaTWbfV38DjM4t2P 1-6; DTQLfhZR9WGzBKjY 1; F3qkWBzGXRcYP8rd 1-5; FTXVdBrHJZD9aw7P
+1-7, 9-23; GZzaJH1QVjMKd8qA 21-34; GrcTMNyY8p2f6xV9 1-7, 9; GrqfZ4268BDWgyx3 1-14; HMfnLPQA8ra1xZtb 1-16;
+HnC7N2YVAdg3wtrk 1-4; HrJFDLXd1NVmbGv3 1-5; J2HpXkgcB7WbfwNK 1-3; JHrkTPq23LpAcGxY 14-18; JZx3p6Nqdj9tCrMc 3, 5;
+K1zQgCcqbnt3kHXT 1-5; KMfvLjt3ZDgYnV2m 1; MFtAJbv8W1L2jDV9 1-7; Ma37bzLRWnJpHvPC 1; MjxzVLAta8FgXR7y 1-2;
+PpvQ9WzNTKgnVckA 1-6; PxfYmBXLqFg3GMvT 1-26; QYvzMfCm3pkRXPr1 1-10, 12-13; QrXYv7cC1NRDyWkg 1; RdmgVNQ4XJMfnC1F 4, 6-10;
+RnfbW8KTc4JHypP6 1-4, 6; TfvPGqpL1VFhDNbn 1-21; VhkGaxQzZfMApr78 1-2; VmzWfc9FaKwdjGLr 7-11, 13-15; W1AbqkptzDRQTwJa 1,
+3-5; WTjHX7kzFZt2cACx 1-3; WYpMaZPqdFX1K43B 1; WnHKVJgjY1pLX7mv 1; Zc94HvVzphwKJPgy 1-4; aBjNQDx4M8y3YX6L 1-2;
+bHkgvJcQaRpXYB3y 4-11; bjBRJQvM1kCTVhdn 1-2; cTgakFj2W7xwHmJ8 1-2; cfmbxDLPZArF71wt 1-3; cxypmPhDvXwtVb67 1;
+fLBZ8dpkzXPVmqh6 1; fdKHYz6Xjya9CGRQ 1, 3-5; ftTngaZr73hXKHLq 5-11; gKwj1ZPTzXFmrH3Q 1-2; gVtWYZm7Gp1wChxd 1-4, 6-11;
+gk2jJvTHhW4zNDKB 8-11, 13-18; gxwj8BfpT6A2FMZy 1; h9XqNAJk6aPntHpv 4-12; hJ4Lvn9aN1fWzcHY 10; hYPvpAktGL6TZRFc 8-9;
+jJ7xtfLqMQ9XKpY4 1; jQfz47GbWx9HZcPR 1-11; jgGH3A1KqvWZTcaF 4; k4QrLh1VCMzTN9Aj 1; kChTQHFwM2DY1fNV 1-10;
+kHw4dmRbxpA9tW8N 1-3; kQd6CrMNGcHtDFjZ 1-6; kQhZqY4DwGBKLdag 1-4; kRPfh761abZ4MxGz 1-12, 14-15; mtBc1WZf3ydHVPFv 1-6;
+nAPqCW1g46kadrTV 1-4; nPXGLarxKjRfpb2w 1-2; pLh28qFZjAYvrMT6 1-6; pNxkRa8jzG1yDbh7 1-2; pjP3BMVD9ftWzHcy 1-4, 6-10;
+qPv2mdpY9T6H4RXA 1-2; qTFZ6Cn2w19ga4VW 7-9; qW3KvYDpw6ARxZbc 7; qWR71CkpDfrdHwGg 1-2, 5-22; rmnN9TZ1L7zRKBGh 1-2;
+rwGYLaZMtQCmp9DN 1-2; rxKDLmg7wkZA6WPM 1, 3-9; tBf8NcDpAFLvZn3W 1-28; tZHf7DRXP2AW8v4G 6; tmwXD93aHW7VCZyA 1;
+txn8Q1X2CLpcbwyA 1-2; vHjpcxGzbyMhAqJ6 1-8, 10; vdNjgtCXJVM4PT9Y 1-3; vjq9hRMPZG6Nw4HY 1-6; vtHaBZF2VAqJ19xY 1-16;
+w31pKWNxGd9bPfMZ 1-4, 6; wrCK6pfGP49Bmy7j 1-9; xR7TzM9Zp1Pg6G2A 1-6; xnrg9m6jDMR1kaLN 28-29; yNvbPCQn4T1ZzrAd 1-2;
+yX2GQL1zDK3xC6jn 1-5; ynxjYKNVbRBdGWfg 1-7; zBRj1JvVfYGL4ygP 5-8, 10-15; zK19ZY7WfDt4JC6k 1-3; zbYMFrgC1VD9kXRW 1-4;
+zyTLWmK6gvX3x4NP 1.
 
 ## Strike of the Hydra (6909)
 
@@ -2498,36 +2782,41 @@ aZ8yxm3AGgrpTvYh 1; C1cyPbL3RQvGjq8p 48; H8AgW6afwBktp4nv 3; HKjBYG4kRJtnXyc3 1-
 
 ## The Ziggler (8006)
 
-- Count: §Count of the 2026-11-06 to 2026-11-21 reports
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
 - Proc: weapon proc 13482
-- Rate: 3.6 PPM, measured
+- Rate: 3.5 PPM, measured
 
-3,916 procs on 38,305 rolling hits, 49 wearers, 50 runs, in either hand: all hits
-3.61 [3.48, 3.78]. The rate is all hits, which the specials rate agrees with. Dual-wield white: 3.17 [2.94, 3.35], 1,178
-procs on 13,126 lone units, 48 wearers. Specials: 3.91 [3.68, 4.13], 147 procs on 1,327 lone units, 21 wearers. Two-roll
-abilities, priced as one roll: 11.76, 3 procs on 9 lone units. Direct: window [-10, 100] ms, median 0 ms, 98th
-percentile 1 ms, 817 isolated hits. Dropping the swapped stretches (22 active minutes, 1% of hits, in 2 runs) moved the
-read from 3.56 to 3.61. 1 run logged in two reports counts once. By report date: before 2026-11-18 3.57 (2,489 procs);
-from 2026-11-18 to push 114313 3.67 (1,427 procs). Reports from 2026-11-13 to 2026-11-20. The sim does not simulate this
-proc yet (the generator lists it as a missing effect); the rate is recorded on the item's effect.
+5,786 procs on 58,633 rolling hits, 63 wearers, 68 runs, in the main hand or the off hand: all hits 3.48 [3.38, 3.60].
+The rate is all hits, which the specials rate agrees with. One-hand white: none. Dual-wield white, which sets no rate:
+3.21 [3.02, 3.38], 1,651 procs on 18,125 lone units, 62 wearers. Specials: 3.27 [2.50, 3.83], 212 procs on 2,288 lone
+units, 30 wearers; Sinister Strike gives 142 procs on 1,555 of them. Two-roll abilities, priced as one roll: 5.29, 3
+procs on 20 lone units (Execute 2 on 17 and Mongoose Bite 1 on 3), left out of the rate. Direct: window [-10, 100] ms,
+median 0 ms, 98th percentile 1 ms, 1,214 isolated hits. Dropping the swapped stretches (42 active minutes, 2% of hits,
+in 3 runs) moved the read from 3.42 to 3.48. Report tMg1aAHQGJkxpYcb logs the same run as 7dZt6b9Kh4F2CNAn and counts
+once. The sim does not simulate this proc yet (the generator lists it as a missing effect); the rate is recorded on the
+item's effect. Reports from 2026-11-13 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Rogue   |      41 | 3,502 | 33,940 | 3.64 |
-| Hunter  |       5 |   140 |  1,363 | 3.63 |
-| Warrior |       3 |   274 |  3,002 | 3.22 |
+| Rogue   |      52 | 4,846 | 48,525 | 3.52 |
+| Warrior |       5 |   799 |  8,733 | 3.23 |
+| Hunter  |       6 |   141 |  1,375 | 3.62 |
 
-Reports and fights: 2bYvT8kWxjFfdwrm 1-2; 2K4Z1jLyGWzdnD3f 10, 12; 3DQy7BhjH1mnZPpq 9-12; 3HwJAWkhFz7gCaQy 8-14;
-3QgzWpJKCNMRvAYT 3-8, 10; 4xnDCWwrGKAFdNHv 1; 74GT2KcnWCLq6Bby 1-2; 7dZt6b9Kh4F2CNAn 1-12; 8YzmGj6fAZqMBNtx 1-7;
-9kRzG7P6AKj2pdaF 1-2; 9MmVG8crjzJZ24K7 1-4; 9WaCtMzNbFcr4qmv 1-4; A2FMrK3Y1xkvafQH 1-7; adJRDVZ1mhYP8vj2 1-4;
-bLmVHN7BaP8DvX9Z 1-16; BmfFgAczHXN7b16M 9-24; BTRMkxmvfrwcZNaG 1-3; fCJMF2rZqAHjBw67 1-5; FR9jJ7b31XCkLmtQ 5-7;
-FxndQv9RDXt47KA8 1-2; FzCJvnHfGyMLWVwb 1-11; gLcGzRyxhZ2akWjw 1; GyQ6cqtCxPXHaDFz 22; HAZ4a9BmGxyD8gV3 1-3;
-kvZgPDVybd6YN4Hw 1-2; LH4aGRZt7wVhkpcD 5-21; mjbfcTLkM2PGKadw 4-7; mwvHGaXY3KJ1xjdh 1-7; nwh3zdqc4CjXa6MG 1-7, 9-10,
-12-23, 25; NyC7zw4Pm8aBHbZ2 10-20; pmKDwngMT2NFktdA 8; Pn8QfjmVL46tWpXR 1-9; pZNqCry3wRxmhk2L 1-16; R9njq1AGDvmp36bM
-1-8; RPnVYQcG9xTJh1ar 1-4; V4HkPzgr21bxRvFt 1-3; vcxFpTb6zP2WrVAj 1-8; vkM4HWNYydVbPGxf 1-4; VYBNbJx7G8kP6vXd 10-15;
-x3PftMnXCBZgLAG2 1, 4-9; x7mkBJZvX8PnKcRf 1; xM9bRGyajmBFvCqt 1; y8wDKJvdL1Ncp9za 1-3; yb6BrpYZnzHajqmx 1;
-yhVbHg7vzDkKfnRY 1-7; YTn9F1x6jLqN2fdQ 1-9; ZbY9WHdayD6FGhJ7 3; zfaGW68H1jp9LRVm 5-14; zhkQZTaX8cVg47Jv 1-5, 7-8;
-ZkpTbqwFYMAaLP4r 1, 3-6.
+Reports and fights: 2K4Z1jLyGWzdnD3f 10, 12; 2bYvT8kWxjFfdwrm 1-2; 3DQy7BhjH1mnZPpq 9-12; 3HwJAWkhFz7gCaQy 8-14;
+3QgzWpJKCNMRvAYT 3-8, 10; 4xnDCWwrGKAFdNHv 1; 67AMbHctYhxwQnfj 1; 74GT2KcnWCLq6Bby 1-2; 7dGmwDN6qKnFxBLz 1-3;
+7dZt6b9Kh4F2CNAn 1-12; 8YzmGj6fAZqMBNtx 1-7; 9MmVG8crjzJZ24K7 1-4; 9WaCtMzNbFcr4qmv 1-4; 9kRzG7P6AKj2pdaF 1-2;
+A2FMrK3Y1xkvafQH 1-7; BTRMkxmvfrwcZNaG 1-3; BmfFgAczHXN7b16M 9-24; CcKvJ8BGNkV7wQ1n 8-9, 11-16; FR9jJ7b31XCkLmtQ 5-7;
+FxndQv9RDXt47KA8 1-2; FzCJvnHfGyMLWVwb 1-11; GyQ6cqtCxPXHaDFz 22; HAZ4a9BmGxyD8gV3 1-3; HhgZrVXGJMyQjD4B 1-6;
+KY97cpLDjBJ6GWfd 1-3; LH4aGRZt7wVhkpcD 5-21; MWqATtYvk6BprzfH 1-8; NyC7zw4Pm8aBHbZ2 10-20; Pn8QfjmVL46tWpXR 1-9;
+QpGMmwvfJL9Cknab 1-4; R6tL9kh7nwNyGCVj 1; R9njq1AGDvmp36bM 1-8; RPnVYQcG9xTJh1ar 1-4; V4HkPzgr21bxRvFt 1-3;
+VYBNbJx7G8kP6vXd 10-15; YTn9F1x6jLqN2fdQ 1-9; ZbY9WHdayD6FGhJ7 3; ZkpTbqwFYMAaLP4r 1, 3-6; aHzGnKtALM6PXVjD 1;
+aWDj14ATX8qLwMNv 1-5; adJRDVZ1mhYP8vj2 1-4; bLmVHN7BaP8DvX9Z 1-16; fCJMF2rZqAHjBw67 1-5; fGTNQBq13vV9hLwC 1-3;
+fw1JyYmMWRLQ7BDt 1, 3-5; gGWbZn94md3tDprC 1; gLcGzRyxhZ2akWjw 1; kvZgPDVybd6YN4Hw 1-2; mayrdRq4hwZBjCQN 1-6;
+mjbfcTLkM2PGKadw 4-7; mwvHGaXY3KJ1xjdh 1-7; nwh3zdqc4CjXa6MG 1-7, 9-10, 12-23, 25; pZNqCry3wRxmhk2L 1-16;
+pmKDwngMT2NFktdA 8; qd91JpfHmAwzFCQv 1-3; tMg1aAHQGJkxpYcb 1-12; vcxFpTb6zP2WrVAj 1-8; vgrGc2Zt6BzQ849V 1-7;
+vkM4HWNYydVbPGxf 1-4; x3PftMnXCBZgLAG2 1, 4-9; x7mkBJZvX8PnKcRf 1; xM9bRGyajmBFvCqt 1; y8wDKJvdL1Ncp9za 1-3;
+yCgqNx6LHWZdn3Pf 1-2, 4-11; yb6BrpYZnzHajqmx 1; yhVbHg7vzDkKfnRY 1-7; zLdkFAB1XmjRWhbw 1; zfaGW68H1jp9LRVm 5-14;
+zhkQZTaX8cVg47Jv 1-5, 7-8.
 
 ## Thornspike (6681)
 
@@ -2690,36 +2979,51 @@ rTYJ6yWfNcbKXztR 1; Ztv8xkT6dmQ7n91C 1.
 
 ## Venomstrike (6469)
 
-- Proc: weapon proc 29653, logged as 29653; rolls on ranged
-- Sim rate: 2.05 PPM, measured; measured 2.05 PPM [1.88, 2.23], 19 wearers, 23 runs, 667 procs on 8127 hits
-- Reports from 2026-11-06 to 2026-11-16
-- Notes: swap noise: the swap drop moved PPM 1.53 -> 2.05 (113 active minutes, 26% of hits, in 4 runs)
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 29653
+- Rate: 1.85 PPM, observed
 
-| Report           | Fights  | Class   | Slot   | Hand split | Procs | Hits |  PPM | Left out |
-| ---------------- | ------- | ------- | ------ | ---------- | ----: | ---: | ---: | -------- |
-| 12VhLkPa98DYFH4g | 1-6     | Warrior | ranged |            |     1 |    6 | 4.17 |          |
-| 1Rk8y7VKNWapF2dt | 3-4     | Rogue   | ranged |            |     0 |    4 | 0.00 |          |
-| 1jKJfWybdV2vBQ8A | 1-2     | Hunter  | ranged |            |    22 |  172 | 3.20 |          |
-| 1qNaRQCwLmDPcJfx | 1-2     | Hunter  | ranged |            |    25 |  358 | 1.75 |          |
-| 23dT9fk1DqcaJmwn | 1-7     | Hunter  | ranged |            |    58 |  743 | 1.95 |          |
-| 261hbMqpgzLRKxwY | 1-2     | Warrior | ranged |            |     3 |   21 | 3.57 |          |
-| 2axJHNwqQdtW1jnF | 1-3     | Hunter  | ranged |            |    68 |  737 | 2.31 |          |
-| 3CyQk69LzJjTn2X4 | 1-5     | Warrior | ranged |            |     0 |    0 |      |          |
-| 3npHxB84DT2zRtmN | 1-4, 6  | Warrior | ranged |            |     0 |    0 |      |          |
-| 4dvhFmKbqkTQ1Wpc | 1-3     | Rogue   | ranged |            |     0 |    1 | 0.00 |          |
-| 7W3YTHD9kyPzFvtc | 1-4     | Warrior | ranged |            |     0 |    0 |      |          |
-| 7ZxcPNTjqvfzQHgX | 1-2     | Hunter  | ranged |            |    13 |  124 | 2.62 |          |
-| 7ypMG8JVjRgZ1xHQ | 1-9     | Hunter  | ranged |            |    44 |  668 | 1.65 |          |
-| GPhAqKkF8tHBpfxT | 1-3     | Hunter  | ranged |            |    37 |  542 | 1.71 |          |
-| GmZaJgjW2R97cVnL | 6       | Hunter  | ranged |            |    37 |  351 | 2.64 |          |
-| RQxLGd1agBDt6hXP | 1-4     | Hunter  | ranged |            |    65 |  737 | 2.20 |          |
-| WhwcvTCZFPDxanyr | 22-65   | Hunter  | ranged |            |    78 |  795 | 2.45 |          |
-| YCqznXvDMQA4d718 | 1-7     | Hunter  | ranged |            |    96 | 1102 | 2.18 |          |
-| bzWMAC2mf7Z6Q3LV | 1-9     | Hunter  | ranged |            |    66 |  971 | 1.70 |          |
-| d6bwAkLKjGq7pVMy | 1       | Hunter  | ranged |            |    15 |  211 | 1.78 |          |
-| jM3dtQ7vcGZ9fhWn | 1-5     | Hunter  | ranged |            |    35 |  509 | 1.72 |          |
-| kBzVYb3Cy7QwnKMD | 1-6     | Hunter  | ranged |            |     4 |   71 | 1.41 |          |
-| rXvTBhVgpZmc1kbP | 1, 3-13 | Warrior | ranged |            |     0 |    4 | 0.00 |          |
+6,338 procs on 86,176 rolling hits, 123 wearers, 144 runs, in the ranged slot: all hits 1.84 [1.80, 1.88]. The proc's
+flight reaches the 1,000 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate. Observed: no
+lone-unit rate checks it. Travel time: the proc lands a median 740 ms after its hit, 98th percentile 990 ms (798
+isolated procs). Dropping the swapped stretches (549 active minutes, 15% of hits, in 22 runs) moved the read from 1.57
+to 1.84. One run is dropped whole as swapped. Reports from 2026-11-06 to 2026-11-22.
+
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Hunter  |     112 | 6,333 | 86,112 | 1.84 |
+| Warrior |       9 |     5 |     60 | 2.08 |
+| Rogue   |       2 |     0 |      4 | 0.00 |
+
+Reports and fights: 12VhLkPa98DYFH4g 1-6; 17paTd8tYnM9zjxZ 1-10; 1BWnTkwG7aFvp6Hc 1-3; 1Rk8y7VKNWapF2dt 3-4;
+1bxfCJMQhwnra8yF 1-2; 1gKMDwaxfPv68FH9 3-4; 1jKJfWybdV2vBQ8A 1-2; 1qNaRQCwLmDPcJfx 1-2; 1tLCfdvQnH4mT9BY 1-2;
+23dT9fk1DqcaJmwn 1-7; 261hbMqpgzLRKxwY 1-2; 29pRqaycxtzTW8jC 1-3; 2axJHNwqQdtW1jnF 1-3; 3CyQk69LzJjTn2X4 1-5;
+3npHxB84DT2zRtmN 1-4, 6; 42RqpLbKHhmryvTD 1-2; 4Brq3tnNJ6afk8Cm 1; 4JAHxYwDKQv3Nyjk 1; 4dvhFmKbqkTQ1Wpc 1-3;
+4gaFjvryzRP1ZfhA 1; 4ntmx3RVAraQMh2C 1-2; 628JmtypwxXTK4MY 1-6; 7W3YTHD9kyPzFvtc 1-4; 7ZxcPNTjqvfzQHgX 1-2;
+7dNXWFTq2R1zDa8m 1; 7ypMG8JVjRgZ1xHQ 1-9; 8kFvhK9NtCBP2aYg 1-5; 9GMN2DQLhrB64Atv 1-2; ALMXvaHbp2gn4zyG 1-3;
+AWZXzaxq1dJ2BgPT 1, 3-5; At4HT7ZfYzFVwybh 1; AvtKjphWbBxNH3rV 1-3; D1qH8nWkjQBLxPbX 1; D2W68v13pkbF9Nmh 1-15;
+F9DyXdCazKmPqWfN 1-7; FNkQ3BDhAfzM9aZP 1-7, 9-13; GPhAqKkF8tHBpfxT 1-3; GQFHDcXPtrgZxC2K 1-3; GTDwzbAMdXWZr7JP 1-2;
+GmZaJgjW2R97cVnL 6; GyLWvrkxKVmNZgw3 1-7; HR1dVgK78CvFGaDA 1-5; HjBPLYwhmZprMQ12 1, 3; HxPZVaBGLcKXg4bJ 1-2;
+JD2ag1wYV8qCxhtQ 2-9; JQH2y6NWBXchGRbg 1-3; JcwBmYGVgnMQH9xd 14-19; JdZYhLaPmtH4j1qK 1, 3-7; Jh4DQ8XH3LBv7CjW 1-4;
+K1XzMGFDwrt7RQbv 1-3; KYpqanLMZ4Q2JtVF 1; LPTFCVQ4m6Yxn1cz 1, 3; LkjGgT6V9JbNqRQD 1; MY6ZgqyzPDk9tXN7 1;
+Mj1gA4rpDRQh9yJm 1-3; NGhbmnMwKCHYfaX6 1-5; P6WhN28ZJbLAdtfm 1; PAH74TNnB9aYpm1C 1-4; PCYpB6DhnQMmXbzN 1-2;
+PTGqdrR3Xz8gDaZ6 1-4; PdLaqgMzj1c4Kf7b 1-3; Q6PwqmyzMgv8AnGX 1-2; QDPGNp2JVHv9rhL4 1; QjLcYKby4Tk8ZDCt 1;
+QrqZXKL9kbnY31Hj 1-3; QwzkrjDGHnW37qpv 1-8; RQxLGd1agBDt6hXP 1-4; RyaVqvxGnD8bKj3w 1-5; TxBYKw6QptvCLydr 1-2;
+VHW3CYz2kjM9QTfm 1-7; VbxMRK92fYk4XH7g 1; VgxzmhZ72P4CNypJ 1-3; W2jZkgqyPYnNDXrx 1-2; W416FHmftD9rPRgA 1-2;
+WhwcvTCZFPDxanyr 22-65; XKAja9wcpndHyZRJ 1-5; XyMzLZN3cf8JQBmT 1; YCqznXvDMQA4d718 1-7; YMJmhPLVFWHrQyxK 3;
+ZA8dXczgaKMTt1pf 1; ZwBW1aVvkDAfcN3z 1-4; aFYgR2dpmqD86wMc 1-2; arQtRhA73GXckn8W 1; b8z7yMrKvVZCdPX9 1; bwByj2vLFnhC7cz1
+1-2; bzWMAC2mf7Z6Q3LV 1-9; cPkR9NjHgVnJqMra 1; cQXqdZgpwNPytG6b 1-2; cVG3wHBmnqFN8jxJ 1-9; cWAqMk2jnJF4DvRm 1;
+cYgfxhMQKZNRGaX9 1; d6bwAkLKjGq7pVMy 1; d93x2NC1X8FhLrfV 1-2; dTh4GAWLxwRm9V6k 1-2, 4; gAjMTrvJV9ywK7ZL 1-17;
+gatpqM6JWKTdD2CH 1; hG8tvQjLBJgf4WHY 1-2; hX7P1FZKQmqTyfBn 1-4; hbt8kZM4zrFVXnjf 1; j6QM3BAp4GZxN8zY 1-8;
+jM3dtQ7vcGZ9fhWn 1-5; jqpHX1N6Q9VyaMWd 1-5; jyDXpZRxJQf86q4w 1-2; kBzVYb3Cy7QwnKMD 1-6; kKjwaXP6vgCzW1fn 1-2;
+mAv6knQrDRWc9PYt 13; mpckQL768Tgyv3jF 1-2; mqKLDBajcQxkVYpP 1-2; nA8bZqcCQYrV2BjP 1; nT2Wz7mVQZbtBRG4 1-4;
+pbyJrkwLXGWg2VxN 1; pfDbnAPTwzLHxY4W 1-2; pwd6RvtM2NYqmfGT 1; pydvC4YzqVMRgPAf 3; q4xrRhnT2KVWJDLQ 1-3; qDvk6HmdP3QBgbN8
+1-3; qJNfkaCxZF3DzBh6 1-5; qx4z6wYFNprn7M3V 1-2; qxACn7fMgDQL3Vw6 1-9; rXvTBhVgpZmc1kbP 1, 3-13; rZ1A2XtkJjLfQb9x 1-4;
+tLbwmqhCrWv7BnyT 1; tLzGhTR6kH4cYraC 1-2; tWdPKc8M7nxpJTfk 8-9; tv1PgkxVBcK74zM6 1-3; tvrgBcqMzCRk1wF8 1-2;
+txZvdrQzpwn3V4kb 1-4; vWGgArDXtc13Lx6J 1-9, 11-14; vfY9yp78NgAatjPX 1-14, 16; vgXDVpPfw1QnWjYz 1-2; vjhNJpcTVr4yYbqX
+1-2, 4-5; vwpTh7B8kX16ynPz 1-12; w48cXFqxMbWTH2ky 1-3; w9khJAXpzqxGVmN6 1, 3-7; wAQjaFpY6Kbdtg1W 1-5; wW9ZKjH1qXPzaJnx
+1-3; wYmr1kfWPpVz7jyZ 1-4; wkrz3qt6MQfZPFW7 1; xph9MnBHyqRvcYkt 1-12; yXvdkQ8ZYCTbxm2F 1; zLbDKmfkrhARcVJ1 1;
+zbV7pwYGARa4Tqgk 1-2.
 
 ## Verigan's Fist (6953)
 
@@ -2938,3 +3242,17 @@ every class past the first is one wearer.
 - Pull request: #1168
 
 The count is EV-0177 §Method, run on these weapons.
+
+## Count of the 2026-11-06 to 2026-11-22 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
+  lists, from every wearer stream on disk for its weapon; 1,703 reports in all for the count, 1,227 of them for these
+  weapons
+- Game build: 1.60.1.70790 to 1.60.1.71037 by report date (70862 from 2026-11-07 04:43 UTC, 70888 from 2026-11-10 15:11
+  UTC in the US and 2026-11-11 02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC,
+  71037 from 2026-11-20 18:23 UTC); 416 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 271
+  of them for these weapons. The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
+- Date: 2026-11-06 to 2026-11-22
+- Pull request: #PRNUM
+
+The count is EV-0183 §Method, run on these weapons.

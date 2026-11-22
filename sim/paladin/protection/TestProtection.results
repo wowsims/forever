@@ -128,10 +128,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-AxeoftheDeepWoods-811"
  value: {
-  dps: 410.94336
-  tps: 963.85273
-  dtps: 337.02389
-  hps: 17.06306
+  dps: 413.16689
+  tps: 968.22915
+  dtps: 337.11916
+  hps: 17.04611
  }
 }
 dps_results: {
@@ -236,9 +236,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BladeoftheWretched-10803"
  value: {
-  dps: 404.30801
-  tps: 965.01743
-  dtps: 339.38891
+  dps: 404.51424
+  tps: 965.79172
+  dtps: 339.5727
   hps: 19.87583
  }
 }
@@ -344,9 +344,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BonechillHammer-14487"
  value: {
-  dps: 408.3516
-  tps: 965.90983
-  dtps: 333.16733
+  dps: 409.35766
+  tps: 967.99294
+  dtps: 333.23183
   hps: 18.19833
  }
 }
@@ -371,9 +371,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BrushCutter-274265"
  value: {
-  dps: 403.02274
-  tps: 956.39603
-  dtps: 337.3591
+  dps: 401.71567
+  tps: 953.29524
+  dtps: 337.35735
   hps: 16.80889
  }
 }
@@ -947,10 +947,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Firebreather-10797"
  value: {
-  dps: 409.70682
-  tps: 976.66693
-  dtps: 335.63757
-  hps: 19.24889
+  dps: 408.46585
+  tps: 974.34911
+  dtps: 335.47398
+  hps: 19.23194
  }
 }
 dps_results: {
@@ -1001,10 +1001,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-FlurryAxe-871"
  value: {
-  dps: 423.50437
-  tps: 1027.23882
-  dtps: 345.30331
-  hps: 27.09417
+  dps: 423.27781
+  tps: 1026.16979
+  dtps: 345.48605
+  hps: 27.02639
  }
 }
 dps_results: {
@@ -1244,10 +1244,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HeartofWyrmthalak-22321"
  value: {
-  dps: 411.85543
-  tps: 971.99827
-  dtps: 344.51692
-  hps: 18.04583
+  dps: 411.06818
+  tps: 970.37137
+  dtps: 344.37483
+  hps: 18.02889
  }
 }
 dps_results: {
@@ -1257,6 +1257,15 @@ dps_results: {
   tps: 964.04006
   dtps: 345.10934
   hps: 18.07972
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-Hedgecutter-18498"
+ value: {
+  dps: 408.58964
+  tps: 978.85571
+  dtps: 337.68402
+  hps: 21.045
  }
 }
 dps_results: {

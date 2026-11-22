@@ -128,19 +128,19 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-AxeofInevitableRuin-274484"
  value: {
-  dps: 466.71623
-  tps: 400.69394
+  dps: 466.45768
+  tps: 400.50479
   dtps: 2.97628
-  hps: 26.61972
+  hps: 26.73833
  }
 }
 dps_results: {
  key: "TestDpsWarrior-AllItems-AxeoftheDeepWoods-811"
  value: {
-  dps: 560.34303
-  tps: 482.53028
+  dps: 562.48381
+  tps: 484.84715
   dtps: 2.94293
-  hps: 40.66667
+  hps: 40.85306
  }
 }
 dps_results: {
@@ -209,10 +209,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BlackbladeofShahram-12592"
  value: {
-  dps: 522.64635
-  tps: 440.99623
+  dps: 519.84323
+  tps: 439.12503
   dtps: 2.97628
-  hps: 24.31528
+  hps: 24.36611
  }
 }
 dps_results: {
@@ -236,8 +236,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BladeoftheWretched-10803"
  value: {
-  dps: 523.24912
-  tps: 454.56079
+  dps: 523.50568
+  tps: 454.76604
   dtps: 2.94293
   hps: 43.41167
  }
@@ -335,8 +335,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BonechillHammer-14487"
  value: {
-  dps: 538.30286
-  tps: 464.93908
+  dps: 538.94133
+  tps: 465.44986
   dtps: 2.94293
   hps: 41.68333
  }
@@ -371,10 +371,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BrushCutter-274265"
  value: {
-  dps: 528.59574
-  tps: 456.9225
+  dps: 529.11533
+  tps: 457.88195
   dtps: 2.94293
-  hps: 39.53139
+  hps: 39.61611
  }
 }
 dps_results: {
@@ -389,8 +389,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-ClawofCelebras-17738"
  value: {
-  dps: 515.75594
-  tps: 449.0495
+  dps: 515.4369
+  tps: 448.79427
   dtps: 2.97628
   hps: 47.34278
  }
@@ -956,8 +956,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Firebreather-10797"
  value: {
-  dps: 523.93569
-  tps: 453.929
+  dps: 523.70977
+  tps: 453.74826
   dtps: 2.94293
   hps: 42.47972
  }
@@ -1001,10 +1001,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-FlurryAxe-871"
  value: {
-  dps: 515.47642
-  tps: 449.72104
+  dps: 515.46695
+  tps: 449.83196
   dtps: 2.94293
-  hps: 49.64722
+  hps: 49.81667
  }
 }
 dps_results: {
@@ -1035,6 +1035,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-FrightskullShaft-14531"
+ value: {
+  dps: 503.9253
+  tps: 427.68859
+  dtps: 2.97628
+  hps: 24.75583
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Frostguard-12797"
  value: {
   dps: 538.00911
@@ -1059,6 +1068,15 @@ dps_results: {
   tps: 450.22562
   dtps: 2.94293
   hps: 43.02194
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-GargoyleShredderTalons-13399"
+ value: {
+  dps: 528.56559
+  tps: 458.67869
+  dtps: 2.97628
+  hps: 47.41056
  }
 }
 dps_results: {
@@ -1217,10 +1235,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-HeartofWyrmthalak-22321"
  value: {
-  dps: 544.01586
-  tps: 470.86481
+  dps: 541.72316
+  tps: 468.6309
   dtps: 2.85155
-  hps: 43.37778
+  hps: 43.24222
  }
 }
 dps_results: {
@@ -1239,6 +1257,15 @@ dps_results: {
   tps: 455.87221
   dtps: 2.94293
   hps: 43.44556
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Hedgecutter-18498"
+ value: {
+  dps: 522.87055
+  tps: 453.86438
+  dtps: 2.94293
+  hps: 44.93667
  }
 }
 dps_results: {
@@ -1559,10 +1586,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Nightblade-1982"
  value: {
-  dps: 495.3013
-  tps: 421.63348
+  dps: 496.91942
+  tps: 422.74339
   dtps: 2.97628
-  hps: 24.29833
+  hps: 24.41694
  }
 }
 dps_results: {

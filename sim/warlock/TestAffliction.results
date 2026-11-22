@@ -262,6 +262,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-DarkmistDirk-285102"
+ value: {
+  dps: 774.75915
+  tps: 605.80887
+  dtps: 8.52603
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 821.64095
@@ -1205,6 +1213,14 @@ dps_results: {
   dps: 830.77749
   tps: 649.95404
   dtps: 8.29885
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-SearingNeedle-12531"
+ value: {
+  dps: 774.75915
+  tps: 605.80887
+  dtps: 8.52603
  }
 }
 dps_results: {

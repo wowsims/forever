@@ -110,10 +110,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-AxeofInevitableRuin-274484"
  value: {
-  dps: 819.15638
-  tps: 672.26166
-  dtps: 6.56367
-  hps: 28.27553
+  dps: 819.3958
+  tps: 672.54119
+  dtps: 6.70294
+  hps: 28.29502
  }
 }
 dps_results: {
@@ -209,9 +209,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BlackbladeofShahram-12592"
  value: {
-  dps: 896.74441
-  tps: 734.99135
-  dtps: 7.94198
+  dps: 893.06532
+  tps: 731.60587
+  dtps: 7.30143
   hps: 26.63158
  }
 }
@@ -981,6 +981,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-FrightskullShaft-14531"
+ value: {
+  dps: 851.85693
+  tps: 696.88589
+  dtps: 5.47288
+  hps: 26.80035
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-FrozenHeartoftheMountain-249469"
  value: {
   dps: 886.45356
@@ -1109,10 +1118,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-GrimReaper-13054"
  value: {
-  dps: 809.35126
-  tps: 664.19719
-  dtps: 6.28499
-  hps: 28.12371
+  dps: 801.68966
+  tps: 657.60589
+  dtps: 6.19961
+  hps: 28.04526
  }
 }
 dps_results: {
@@ -1127,9 +1136,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-HeartofWyrmthalak-22321"
  value: {
-  dps: 900.44378
-  tps: 735.11171
-  dtps: 5.01317
+  dps: 899.62468
+  tps: 734.13222
+  dtps: 4.71892
   hps: 25.29992
  }
 }
@@ -1550,10 +1559,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Nightblade-1982"
  value: {
-  dps: 858.34156
-  tps: 701.67287
-  dtps: 5.41973
-  hps: 26.64531
+  dps: 855.84348
+  tps: 699.87677
+  dtps: 5.72967
+  hps: 26.6448
  }
 }
 dps_results: {

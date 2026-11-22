@@ -262,6 +262,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-DarkmistDirk-285102"
+ value: {
+  dps: 865.83939
+  tps: 675.59192
+  dtps: 8.47017
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 911.54144
@@ -1205,6 +1213,14 @@ dps_results: {
   dps: 909.64404
   tps: 712.13295
   dtps: 8.45486
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-SearingNeedle-12531"
+ value: {
+  dps: 865.83939
+  tps: 675.59192
+  dtps: 8.47017
  }
 }
 dps_results: {
