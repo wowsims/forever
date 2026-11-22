@@ -360,9 +360,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-DreadmistRaiment"
  value: {
-  dps: 672.60187
-  tps: 484.36546
-  dtps: 5.20484
+  dps: 675.47293
+  tps: 486.35169
+  dtps: 5.18505
   hps: 7.83039
  }
 }
@@ -577,9 +577,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-EyeofMoam-21473"
  value: {
-  dps: 751.67875
-  tps: 537.21717
-  dtps: 5.79689
+  dps: 761.42662
+  tps: 544.04067
+  dtps: 5.85323
  }
 }
 dps_results: {
@@ -729,9 +729,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-GarmentsoftheOracle"
  value: {
-  dps: 753.9233
-  tps: 538.89534
-  dtps: 5.44332
+  dps: 758.22924
+  tps: 541.90203
+  dtps: 5.25383
  }
 }
 dps_results: {
@@ -823,6 +823,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 748.64333
+  tps: 535.34809
+  dtps: 5.93979
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 741.34339
@@ -873,9 +881,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-IronweaveBattlesuit"
  value: {
-  dps: 670.3488
-  tps: 480.39857
-  dtps: 5.14474
+  dps: 679.14477
+  tps: 486.53356
+  dtps: 5.09896
  }
 }
 dps_results: {
@@ -1001,9 +1009,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-Magister'sRegalia"
  value: {
-  dps: 676.12804
-  tps: 485.56281
-  dtps: 4.56199
+  dps: 678.16806
+  tps: 486.98767
+  dtps: 4.71899
  }
 }
 dps_results: {
@@ -1153,9 +1161,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-RaimentsofConviction"
  value: {
-  dps: 747.17267
-  tps: 534.3731
-  dtps: 5.2355
+  dps: 751.02928
+  tps: 537.07208
+  dtps: 5.3779
  }
 }
 dps_results: {

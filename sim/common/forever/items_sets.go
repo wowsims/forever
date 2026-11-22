@@ -393,7 +393,7 @@ var (
 )
 
 // The proc of Battlegear of Valor and of the Battlegear of Heroism reissue. Landed white swings of
-// either hand and Windfury Totem's strike roll it at the procs per minute an override puts on the row,
+// either hand and Windfury Totem hits roll it at the procs per minute an override puts on the row,
 // each on its weapon's speed; Heroic Strike and Cleave never do (EV-0136). Each proc heals the wearer
 // and restores rage, the rage only to a wearer with a rage bar.
 func warriorsResolve(name string) core.ApplySetBonus {
@@ -445,7 +445,7 @@ var (
 )
 
 // The energy proc of the two rogue dungeon sets, at the procs per minute an override puts on the row
-// (EV-0144). Windfury Totem's strike rolls it as a main-hand swing (EV-0136). A wearer with no energy
+// (EV-0144). A Windfury Totem hit rolls it as a main-hand swing (EV-0136). A wearer with no energy
 // bar gets nothing.
 func rogueArmorEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
@@ -723,8 +723,8 @@ var (
 // deal 20 Holy damage. Deals 3 times as much damage to Undead.
 //
 // A hit taken rolls 1293674's chance and cooldown and puts 1293673 up. While it is up, every landed melee
-// swing or ability casts 1293675 at its target, and against an Undead target the damage is multiplied by
-// 1293674's first effect, the factor the tooltip reads.
+// swing or ability casts 1293675 at its target (EV-0173). Against an Undead target the damage is
+// multiplied by 1293674's first effect, the factor the tooltip reads.
 var ItemSetChainOfTheScarletCrusade = core.NewItemSet(core.ItemSet{
 	ID:   163,
 	Name: "Chain of the Scarlet Crusade",
@@ -733,8 +733,6 @@ var ItemSetChainOfTheScarletCrusade = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(spelldata.MustFind(14673)), // +10 Shadow Resistance
 		3: shared.ParsedSetBonus(spelldata.MustFind(18074)), // +30 attack power against Undead
-		// TODO: Ingame test needed -- whether every melee hit while active deals the Holy damage,
-		// 3 times against Undead.
 		4: enragingLight,
 		5: shared.ParsedSetBonus(spelldata.MustFind(432639)), // 1% hit
 		// TODO: 6pc (1293670) shields the wearer when a hit leaves them at or below 20% health, which the
@@ -921,7 +919,7 @@ const roarOfTheCrowdChance = 0.072
 // (4) Set: Chance on hit to gain 5% attack speed for 10s. Attacks while no allies are within 20 yds are 2
 // times as likely to activate this effect.
 //
-// Every landed melee hit rolls the chance, white swings, Windfury strikes and melee abilities alike, and puts
+// Every landed melee hit rolls the chance, white swings, Windfury hits and melee abilities alike, and puts
 // 1301124 up (EV-0166). The wearer always has an ally within 20 yd, so the chance never doubles. The 2-piece
 // bonus lowers the hit chance of Fear effects, which has no place in the sim.
 var ItemSetTheGladiator = core.NewItemSet(core.ItemSet{
@@ -951,7 +949,7 @@ func roarOfTheCrowdHaste(agent core.Agent, setBonusAura *core.Aura) {
 var (
 	bloodmailProc        = spelldata.MustFind(1299740) // 3pc: the proc
 	bloodmailBleed       = spelldata.MustFind(1299739) // 3pc: Bloodmail, the bleed it casts
-	windfuryWeaponStrike = spelldata.MustFind(439440)  // Windfury Weapon's strike
+	windfuryWeaponStrike = spelldata.MustFind(439440)  // Windfury Weapon hit
 )
 
 // The chance a landed swing rolls; the row states none (EV-0167).
@@ -962,7 +960,7 @@ const bloodmailChance = 0.107
 // (3) Set: Grants your melee attacks a chance to wound the target, causing them to Bleed for 70 damage over
 // 10s.
 //
-// A landed white swing, Windfury Weapon's strike or Windfury Totem's strike rolls the chance and puts the bleed
+// A landed white swing, Windfury Weapon hit or Windfury Totem hit rolls the chance and puts the bleed
 // 1299739 on the target with no hit roll of its own; melee abilities never roll it (EV-0167).
 var ItemSetBloodmailRegalia = core.NewItemSet(core.ItemSet{
 	ID:   123,
@@ -971,7 +969,7 @@ var ItemSetBloodmailRegalia = core.NewItemSet(core.ItemSet{
 		proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet},
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(spelldata.MustFind(9140)), // +10 attack power
-		// TODO: Ingame test needed -- whether Windfury strikes proc it, and whether it is a chance per swing
+		// TODO: Ingame test needed -- whether Windfury hits proc it, and whether it is a chance per swing
 		// or procs per minute.
 		3: bloodmailWound,
 		4: shared.ParsedSetBonus(spelldata.MustFind(18676)),   // +5 all resistances

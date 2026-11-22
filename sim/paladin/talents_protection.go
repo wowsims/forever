@@ -228,7 +228,7 @@ func (paladin *Paladin) applyReckoning() {
 	})
 
 	// The next main-hand swing spends every stored charge as a copy of itself, tagged with
-	// Reckoning, at the same target. The copies spend none. Windfury Totem's strike, landed or
+	// Reckoning, at the same target. The copies spend none. A Windfury Totem hit, landed or
 	// avoided, spends the stored charges as a swing does but swings no copy (EV-0136).
 	var extraAttack *core.Spell
 	paladin.MakeProcTriggerAura(core.ProcTrigger{

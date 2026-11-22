@@ -136,9 +136,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 925.60847
-  tps: 743.56165
-  dtps: 9.66804
+  dps: 925.55617
+  tps: 743.52064
+  dtps: 9.41623
  }
 }
 dps_results: {
@@ -312,8 +312,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-DeathmistRaiment"
  value: {
-  dps: 873.65731
-  tps: 701.65538
+  dps: 873.77339
+  tps: 701.74638
   dtps: 8.84305
   hps: 6.79248
  }
@@ -369,8 +369,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-Doomcaller'sAttire"
  value: {
-  dps: 984.42964
-  tps: 788.12022
+  dps: 984.67097
+  tps: 788.30943
   dtps: 8.94308
  }
 }
@@ -409,8 +409,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-DreadmistRaiment"
  value: {
-  dps: 814.23516
-  tps: 655.26315
+  dps: 814.258
+  tps: 655.28106
   dtps: 8.98844
   hps: 5.62927
  }
@@ -578,8 +578,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 939.92162
-  tps: 755.075
+  dps: 939.99402
+  tps: 755.13176
   dtps: 9.1414
  }
 }
@@ -816,6 +816,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 932.94717
+  tps: 749.54545
+  dtps: 10.20582
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 926.41863
@@ -866,8 +874,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-IronweaveBattlesuit"
  value: {
-  dps: 795.51768
-  tps: 640.47645
+  dps: 795.66427
+  tps: 640.59138
   dtps: 9.10955
  }
 }
@@ -994,8 +1002,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-Magister'sRegalia"
  value: {
-  dps: 819.96533
-  tps: 660.38831
+  dps: 819.99961
+  tps: 660.41518
   dtps: 9.25923
  }
 }
@@ -1058,9 +1066,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 922.28935
-  tps: 738.88495
-  dtps: 5.80339
+  dps: 922.32532
+  tps: 738.91315
+  dtps: 5.78096
  }
 }
 dps_results: {
@@ -1090,8 +1098,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-NecropileRaiment"
  value: {
-  dps: 889.80461
-  tps: 715.23116
+  dps: 889.86466
+  tps: 715.27825
   dtps: 9.26127
  }
 }
@@ -1554,8 +1562,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-Average-Default"
  value: {
-  dps: 960.29827
-  tps: 770.03025
+  dps: 960.31709
+  tps: 770.04501
   dtps: 9.71622
  }
 }
@@ -1593,8 +1601,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-Settings-Orc-aff_wrack-Wrack-aff_wrack-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 555.39942
-  tps: 461.70665
+  dps: 555.44256
+  tps: 461.74047
  }
 }
 dps_results: {

@@ -129,7 +129,7 @@ var Raid = []BuffSpec{
 			proto.Stat_StatAgility,
 		},
 	},
-	// The totem's raid aura procs the strike 10610 off main-hand hits; the strike is the driver's.
+	// The totem's raid aura procs the Windfury Totem hit 10610 off main-hand hits; the hit is the driver's.
 	{
 		Field:    "windfury_totem",
 		SpellID:  10612,
@@ -377,6 +377,18 @@ var Party = []BuffSpec{
 		Proto:    ProtoInt32,
 		Stats: []proto.Stat{
 			proto.Stat_StatSpirit,
+		},
+	},
+	// Headmaster's Charge 13937's use lasts 15 min on a 10 min cooldown, so a party member using it
+	// keeps it up. The wearer's own copy joins the category.
+	{
+		Field:         "headmasters_charge",
+		SpellID:       18264,
+		TooltipItemID: 13937,
+		Category:      "HeadmastersCharge",
+		SingleAura:    true,
+		Stats: []proto.Stat{
+			proto.Stat_StatIntellect,
 		},
 	},
 }

@@ -29,15 +29,15 @@ of each).
 | ---------------------- | -------------- | ------ | ----------------- | ---------------------- |
 | Main-hand white swing  | 955 / 11,599   | 8.23%  | 1.98 [1.86, 2.10] | [1.74, 2.06]           |
 | Main-hand melee cast   | 906 / 11,490   | 7.89%  | 1.89 [1.78, 2.01] | [1.82, 2.05]           |
-| Windfury Totem strike  | 248 / 3,731    | 6.65%  | 1.60 [1.41, 1.80] |                        |
+| Windfury Totem hit     | 248 / 3,731    | 6.65%  | 1.60 [1.41, 1.80] |                        |
 | Off-hand white swing   | 12 / 12,870    | 0.09%  |                   |                        |
 | Ranged-type hit        | 0 / 579        | 0%     |                   |                        |
 | White swings and casts | 1,861 / 23,089 | 8.06%  | 1.93 [1.85, 2.02] | [1.82, 2.01]           |
 | Every eligible hit     | 2,109 / 26,820 | 7.86%  | 1.89 [1.81, 1.97] | [1.59, 1.99]           |
 
 The melee casts are Sinister Strike, Eviscerate, Whirlwind, Bloodthirst, Cleave and Cheap Shot's debuff. White swings
-and melee casts roll at one rate. Windfury Totem strikes roll it too, at a lower rate (1.60, interval 1.41 to 1.80);
-248 procs do not settle whether the strike rolls at a rate of its own. Off-hand swings give 12 procs in 12,870 and
+and melee casts roll at one rate. Windfury Totem hits roll it too, at a lower rate (1.60, interval 1.41 to 1.80);
+248 procs do not settle whether the Windfury hit rolls at a rate of its own. Off-hand swings give 12 procs in 12,870 and
 ranged-type hits none in 579, against 8.23% for main-hand swings, so neither rolls it. The rate is the pooled white
 swings and melee casts, 1.93, rounded to 1.95 at the nearest 0.05 step. The counts come from 6 wearers (4 rogues, 1
 warrior and 1 hunter) over 9 runs.

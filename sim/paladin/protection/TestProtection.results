@@ -101,8 +101,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-ArgentAvenger-13246"
  value: {
-  dps: 410.64179
-  tps: 979.89391
+  dps: 410.73378
+  tps: 980.05211
   dtps: 335.52822
   hps: 19.24889
  }
@@ -236,9 +236,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BladeoftheWretched-10803"
  value: {
-  dps: 404.46461
-  tps: 965.5611
-  dtps: 339.5727
+  dps: 404.30801
+  tps: 965.01743
+  dtps: 339.38891
   hps: 19.87583
  }
 }
@@ -299,10 +299,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Bloodrazor-809"
  value: {
-  dps: 402.72688
-  tps: 953.63718
-  dtps: 337.92261
-  hps: 17.01222
+  dps: 403.0987
+  tps: 953.67294
+  dtps: 337.07227
+  hps: 17.02917
  }
 }
 dps_results: {
@@ -614,9 +614,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-DreadmistRaiment"
  value: {
-  dps: 378.75525
-  tps: 909.54592
-  dtps: 502.55566
+  dps: 378.97544
+  tps: 909.83877
+  dtps: 502.57549
   hps: 19.85344
  }
 }
@@ -641,8 +641,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-EateroftheDead-10805"
  value: {
-  dps: 404.80877
-  tps: 970.65885
+  dps: 404.42347
+  tps: 969.13478
   dtps: 335.29966
   hps: 19.23194
  }
@@ -875,9 +875,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-EyeofMoam-21473"
  value: {
-  dps: 407.42357
-  tps: 969.63698
-  dtps: 344.34309
+  dps: 407.54906
+  tps: 969.80389
+  dtps: 344.19999
   hps: 18.02889
  }
 }
@@ -1208,9 +1208,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 412.3037
-  tps: 979.40206
-  dtps: 339.43057
+  dps: 412.27092
+  tps: 979.22016
+  dtps: 339.40811
   hps: 19.87583
  }
 }
@@ -1586,8 +1586,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Magister'sRegalia"
  value: {
-  dps: 376.9395
-  tps: 903.82907
+  dps: 377.10699
+  tps: 904.05184
   dtps: 502.28234
   hps: 18.28306
  }
@@ -1829,9 +1829,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Pyromancer'sBaton-286650"
  value: {
-  dps: 390.24991
-  tps: 938.20594
-  dtps: 333.89352
+  dps: 389.97116
+  tps: 937.85573
+  dtps: 334.10134
   hps: 18.19833
  }
 }
@@ -2000,10 +2000,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 394.7678
-  tps: 947.13959
-  dtps: 334.94001
-  hps: 17.80861
+  dps: 394.60813
+  tps: 947.33302
+  dtps: 334.41577
+  hps: 17.82556
  }
 }
 dps_results: {
@@ -2162,9 +2162,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SwordofZeal-6622"
  value: {
-  dps: 407.00392
-  tps: 963.94482
-  dtps: 334.96276
+  dps: 407.06691
+  tps: 964.02859
+  dtps: 334.85923
   hps: 16.80889
  }
 }
@@ -2234,10 +2234,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 413.8327
-  tps: 989.85629
-  dtps: 340.73752
-  hps: 22.04472
+  dps: 413.32994
+  tps: 987.50848
+  dtps: 340.88686
+  hps: 22.02778
  }
 }
 dps_results: {
@@ -2306,9 +2306,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TheElements"
  value: {
-  dps: 390.84134
-  tps: 937.33453
-  dtps: 428.23898
+  dps: 390.97642
+  tps: 937.51417
+  dtps: 428.20612
   hps: 18.24917
  }
 }
@@ -2504,9 +2504,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TwilightForgehammer-281665"
  value: {
-  dps: 398.43973
-  tps: 952.19413
-  dtps: 334.99773
+  dps: 397.28129
+  tps: 949.74334
+  dtps: 334.99029
   hps: 17.80861
  }
 }
@@ -2639,9 +2639,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-WraithScythe-11920"
  value: {
-  dps: 411.07755
-  tps: 978.68225
-  dtps: 335.37072
+  dps: 410.49286
+  tps: 976.4108
+  dtps: 335.29966
   hps: 19.23194
  }
 }

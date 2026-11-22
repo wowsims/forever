@@ -24,8 +24,8 @@ type Paladin struct {
 	// The seal the paladin is under, and the ranks it has cast so far this iteration.
 	currentSeal *sealConfig
 
-	// The judgement effects this paladin can put on enemies; its white swings and Windfury Totem's
-	// strike refresh them.
+	// The judgement effects this paladin can put on enemies; its white swings and Windfury Totem
+	// hits refresh them.
 	JudgementAuras []core.AuraArray
 
 	// Unsealed Wrath: one Echo per seal that leaves one.

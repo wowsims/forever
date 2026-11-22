@@ -117,7 +117,7 @@
 		"rotation": {
 			"type": "TypeSimple",
 			"simple": {
-				"specRotationJson": "{\"aura\":\"RetributionAura\",\"assignedJudgement\":\"JudgementOfTheCrusader\",\"pullRange\":25,\"uwSocStacks\":3,\"uwSorStacks\":1}"
+				"specRotationJson": "{\"aura\":\"RetributionAura\",\"assignedJudgement\":\"JudgementOfTheCrusader\",\"pullRange\":25,\"uwSocStacks\":3,\"uwSorStacks\":1,\"uwSofStacks\":1}"
 			}
 		},
 		"reactionTimeMs": 100,

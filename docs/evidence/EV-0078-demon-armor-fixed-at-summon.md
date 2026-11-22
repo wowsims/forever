@@ -15,7 +15,7 @@ The warlock's armor reads 272 (62 from Agility and 210 Demon Armor) and the Imp'
 | Demon Armor inherited (35% × 272 = 95.2) | 394.8           | 0.326                               | 0.325                         |
 | Demon Armor left out                     | 468.3           | 0.386                               |                               |
 
-With Demon Armor counted, the Imp's armor share is the same at levels 20 and 30, as its health (0.359 and 0.360) and weapon (0.514 and 0.512) shares are. The same holds for the Sayaad: own armor 765 at level 30 is 0.631 of the creature armor, as at level 20 (0.630), so the level 30 share of 0.692 read earlier does not hold.
+With Demon Armor counted, the Imp's armor share is the same at levels 20 and 30, as its health (0.359 and 0.360) and weapon (0.514 and 0.512) shares are. The same holds for the Sayaad (EV-0075).
 
 ## Fixed at the summon
 

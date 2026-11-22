@@ -133,8 +133,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 921.91275
-  tps: 921.11616
+  dps: 921.58279
+  tps: 920.81646
  }
 }
 dps_results: {
@@ -717,6 +717,13 @@ dps_results: {
  value: {
   dps: 953.40418
   tps: 949.11925
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 944.94772
+  tps: 944.31232
  }
 }
 dps_results: {

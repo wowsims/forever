@@ -104,7 +104,7 @@ func newWindowSim(t *testing.T) (*core.Simulation, *dps.DpsWarrior, *core.Unit) 
 const (
 	mainHandSlot        = 14
 	crusader            = 1900
-	windfuryTotemStrike = 10610 // The strike Windfury Totem's proc casts.
+	windfuryTotemStrike = 10610 // The hit Windfury Totem's proc casts.
 	sweepingStrikesHit  = 12723 // The spell both of Sweeping Strikes' hits report under.
 )
 
@@ -616,7 +616,7 @@ func TestChargesSpentPerCast(t *testing.T) {
 	}
 }
 
-// Windfury Totem's strike uses no Flurry charge, landed or not, and a critical strike sets the
+// A Windfury Totem hit uses no Flurry charge, landed or not, and a critical strike sets the
 // charges again.
 func TestWindfuryTotemsStrikeUsesNoFlurryCharge(t *testing.T) {
 	for _, c := range []struct {
@@ -632,7 +632,7 @@ func TestWindfuryTotemsStrikeUsesNoFlurryCharge(t *testing.T) {
 		flurry := warrior.GetAura("Flurry")
 		strike := warrior.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
 		if flurry == nil || strike == nil {
-			t.Fatalf("Flurry %v, Windfury Totem's strike %v; want both registered", flurry, strike)
+			t.Fatalf("Flurry %v, Windfury Totem hit %v; want both registered", flurry, strike)
 		}
 		flurry.Activate(sim)
 		flurry.SetStacks(sim, c.start)
@@ -640,7 +640,7 @@ func TestWindfuryTotemsStrikeUsesNoFlurryCharge(t *testing.T) {
 		warrior.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: c.outcome})
 
 		if got := flurry.GetStacks(); got != c.want {
-			t.Errorf("a strike with outcome %v left Flurry at %d charges, want %d", c.outcome, got, c.want)
+			t.Errorf("a Windfury Totem hit with outcome %v left Flurry at %d charges, want %d", c.outcome, got, c.want)
 		}
 	}
 }
@@ -693,7 +693,7 @@ func unbridledWrathSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs) (*
 	return sim, war, procs
 }
 
-// Unbridled Wrath rolls on landed white swings, Windfury Totem's strike, Heroic Strike and Cleave, and
+// Unbridled Wrath rolls on landed white swings, Windfury Totem hits, Heroic Strike and Cleave, and
 // on no other melee ability.
 func TestUnbridledWrathRollsOnSwingsAlone(t *testing.T) {
 	swing := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand)
@@ -705,7 +705,7 @@ func TestUnbridledWrathRollsOnSwingsAlone(t *testing.T) {
 	}{
 		{"a landed main-hand swing", swing, core.OutcomeHit, true},
 		{"a dodged main-hand swing", swing, core.OutcomeDodge, false},
-		{"Windfury Totem's strike", core.ActionID{SpellID: windfuryTotemStrike}, core.OutcomeHit, true},
+		{"Windfury Windfury hit", core.ActionID{SpellID: windfuryTotemStrike}, core.OutcomeHit, true},
 		{"Heroic Strike", core.ActionID{SpellID: 11567}, core.OutcomeHit, true},
 		{"Cleave", core.ActionID{SpellID: 20569}, core.OutcomeHit, true},
 		{"Bloodthirst", core.ActionID{SpellID: 23894}, core.OutcomeHit, false},
@@ -716,7 +716,7 @@ func TestUnbridledWrathRollsOnSwingsAlone(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			// Windfury Totem joins only for its own strike: a strike rolled off an ability would roll
+			// Windfury Totem joins only for its own case: a Windfury hit rolled off an ability would roll
 			// Unbridled Wrath itself.
 			raidBuffs := &proto.RaidBuffs{WindfuryTotem: c.spell.SpellID == windfuryTotemStrike}
 			sim, war, procs := unbridledWrathSim(t, 1, raidBuffs)
@@ -770,7 +770,7 @@ func TestUnbridledWrathRollsOnEachCleaveTarget(t *testing.T) {
 }
 
 // A Deep Wounds application is sized from the average damage of the weapon whose crit cast it, so an off-hand
-// crit ticks for the off hand's share and Windfury Totem's strike for the main hand's.
+// crit ticks for the off hand's share and a Windfury Totem hit's for the main hand's.
 func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {
 	swing := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}
 	var want float64
@@ -782,7 +782,7 @@ func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {
 		{"main-hand swing", swing.WithHand(proto.ItemSlot_ItemSlotMainHand), false},
 		{"off-hand swing", swing.WithHand(proto.ItemSlot_ItemSlotOffHand), true},
 		{"off-hand Whirlwind strike", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotOffHand), true},
-		{"Windfury Totem strike", core.ActionID{SpellID: windfuryTotemStrike}, false},
+		{"Windfury Windfury hit", core.ActionID{SpellID: windfuryTotemStrike}, false},
 	} {
 		sim, war := orcWarriorSimWith(t, "p1_fury", armsTalents, &proto.RaidBuffs{WindfuryTotem: true})
 		bleed := war.GetSpell(core.ActionID{SpellID: 412609})
@@ -990,8 +990,8 @@ func TestShieldHitsProcWindfuryTotemButNotTheMainHandEnchant(t *testing.T) {
 				spell.SkipCastAndApplyEffects(sim, target)
 				stepPastBatch(t, sim)
 			}
-			// The totem's strike is a main-hand weapon hit that rolls Crusader itself, so only a cast
-			// whose batch brought no strike shows Crusader rolling on the cast.
+			// A Windfury Totem hit is a main-hand weapon hit that rolls Crusader itself, so only a cast
+			// whose batch brought no Windfury hit shows Crusader rolling on the cast.
 			castProcsCrusader := func() bool {
 				holyStrength.Deactivate(sim)
 				before := strikes()
@@ -1101,10 +1101,10 @@ func TestSweepingStrikesCopiedHitRollsNoWindfuryTotem(t *testing.T) {
 		return windfury.SpellMetrics[target.UnitIndex].Casts - before
 	}
 	if got := strikes(copied); got != 0 {
-		t.Errorf("1000 copied hits brought %d Windfury Totem strikes, want 0", got)
+		t.Errorf("1000 copied hits brought %d Windfury Totem hits, want 0", got)
 	}
 	if got := strikes(normalized); got == 0 {
-		t.Error("1000 normalized hits brought no Windfury Totem strike, so the check above proves nothing")
+		t.Error("1000 normalized hits brought no Windfury Totem hit, so the check above proves nothing")
 	}
 }
 
@@ -1126,7 +1126,7 @@ func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
 		SimOptions: &proto.SimOptions{Iterations: 5, RandomSeed: 1},
 	})
 
-	const heroicStrike = 25286 // The class book's rank, the one the Fury preset presses.
+	const heroicStrike = 11567 // The trainer's rank, the one the Fury preset presses.
 	for _, action := range result.RaidMetrics.Parties[0].Players[0].Actions {
 		if action.Id.GetSpellId() != heroicStrike || action.Id.Tag != 0 {
 			continue
@@ -1466,8 +1466,8 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 	}
 }
 
-// Sweeping Strikes' hits bring no Sword Specialization swing. The warrior's own main-hand swing and
-// Windfury Totem's strike do bring them.
+// Sweeping Strikes' hits bring no Sword Specialization swing. The warrior's own main-hand swings and
+// Windfury Totem hits do bring them.
 func TestSwordSpecializationSkipsSweepingStrikesHits(t *testing.T) {
 	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true}, 0)
 
@@ -1496,10 +1496,10 @@ func TestSwordSpecializationSkipsSweepingStrikesHits(t *testing.T) {
 
 	strike := war.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
 	if strike == nil {
-		t.Fatal("the warrior has no Windfury Totem strike")
+		t.Fatal("the warrior has no Windfury Totem hit")
 	}
 	if got := hits(strike); got == 0 {
-		t.Error("2000 landed Windfury Totem strikes brought no Sword Specialization swing, want some")
+		t.Error("2000 landed Windfury Totem hits brought no Sword Specialization swing, want some")
 	}
 	if got := hits(war.AutoAttacks.MHAuto()); got == 0 {
 		t.Error("2000 landed main-hand swings brought no Sword Specialization swing, so the checks above prove nothing")
@@ -1730,7 +1730,7 @@ func TestExecuteSpendsItsExtraRageOnlyWhenItLands(t *testing.T) {
 }
 
 // Execute's cast makes an attack of its own before the damage, and that attack rolls Windfury Totem
-// when it lands, so a cast whose damage is dodged can still bring a strike.
+// when it lands, so a cast whose damage is dodged can still bring a Windfury Totem hit.
 func TestExecuteCastAttackRollsWindfuryTotem(t *testing.T) {
 	const executeID = 20662 // The top rank.
 	sim, war, target := shieldTestSim(t)
@@ -1760,7 +1760,7 @@ func TestExecuteCastAttackRollsWindfuryTotem(t *testing.T) {
 		t.Fatal("no Execute damage was dodged, so the check below proves nothing")
 	}
 	if dodgedStrikes == 0 {
-		t.Errorf("%d casts whose damage was dodged brought no Windfury Totem strike, want some from the cast's own attack", dodged)
+		t.Errorf("%d casts whose damage was dodged brought no Windfury Totem hit, want some from the cast's own attack", dodged)
 	}
 }
 

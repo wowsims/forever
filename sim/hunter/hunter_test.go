@@ -706,7 +706,7 @@ func TestTrainerRanksBesideBookRanks(t *testing.T) {
 	}
 }
 
-// Under Aspect of the Beast and Deadly Aspects, Windfury Totem's strike rolls Quick Strikes as a melee
+// Under Aspect of the Beast and Deadly Aspects, a Windfury Totem hit rolls Quick Strikes as a melee
 // swing does, and a main-hand special that is no counted swing never does.
 func TestWindfuryTotemsStrikeRollsQuickStrikes(t *testing.T) {
 	sim, hunter := newTalentSim("5", proto.HunterOptions_PetNone)
@@ -732,7 +732,7 @@ func TestWindfuryTotemsStrikeRollsQuickStrikes(t *testing.T) {
 	strike := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagCountsAsSwing, DefenseType: core.DefenseTypeMelee, Unit: &hunter.Unit}
 	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Unit: &hunter.Unit}
 	if got := procs(strike); got == 0 {
-		t.Error("500 Windfury Totem strikes procced no Quick Strikes")
+		t.Error("500 Windfury Totem hits procced no Quick Strikes")
 	}
 	if got := procs(special); got != 0 {
 		t.Errorf("500 main-hand specials procced Quick Strikes %d times, want none", got)

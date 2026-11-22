@@ -2451,9 +2451,6 @@
 								"deathbone_guardian_5": {
 									"type": "string"
 								},
-								"chain_of_the_scarlet_crusade_4": {
-									"type": "string"
-								},
 								"symbols_of_unending_life_3": {
 									"type": "string"
 								},
@@ -2502,7 +2499,6 @@
 								"necropile_raiment_3",
 								"bloodmail_regalia_3",
 								"deathbone_guardian_5",
-								"chain_of_the_scarlet_crusade_4",
 								"symbols_of_unending_life_3",
 								"stormcallers_garb_3",
 								"gift_of_the_gathering_storm_3",
@@ -9439,7 +9435,36 @@
 											"additionalProperties": false,
 											"required": ["label", "tooltip"]
 										},
+										"uw_twist": {
+											"type": "object",
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"tooltip": {
+													"type": "string"
+												},
+												"none": {
+													"type": "string"
+												}
+											},
+											"additionalProperties": false,
+											"required": ["label", "tooltip", "none"]
+										},
 										"uw_soc_stacks": {
+											"type": "object",
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"tooltip": {
+													"type": "string"
+												}
+											},
+											"additionalProperties": false,
+											"required": ["label", "tooltip"]
+										},
+										"uw_sof_stacks": {
 											"type": "object",
 											"properties": {
 												"label": {
@@ -9467,7 +9492,17 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["aura", "assigned_judge", "seal", "pull_range", "delay_major_cds", "uw_soc_stacks", "uw_sor_stacks"]
+									"required": [
+										"aura",
+										"assigned_judge",
+										"seal",
+										"pull_range",
+										"delay_major_cds",
+										"uw_twist",
+										"uw_soc_stacks",
+										"uw_sof_stacks",
+										"uw_sor_stacks"
+									]
 								}
 							},
 							"additionalProperties": false,

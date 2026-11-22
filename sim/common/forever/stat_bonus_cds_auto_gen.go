@@ -59,8 +59,6 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(13515) // Ramstein's Lightning Bolts - https://www.wowhead.com/forever/spell=1299443
 	// unsupported: 1298497 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(13544) // Spectral Essence - https://www.wowhead.com/forever/spell=1298497
-	// unsupported: 18264 deals no damage and heals no one (E_APPLY_AREA_AURA_PARTY)
-	// shared.NewSimpleStatActive(13937) // Headmaster's Charge - https://www.wowhead.com/forever/spell=18264
 	// on use: 18386 (E_HEAL)
 	// unsupported: the heal lands on implicit target 5, not the wearer
 	// shared.NewSpellDataHealOnUse(14153) // Robe of the Void - https://www.wowhead.com/forever/spell=18386
