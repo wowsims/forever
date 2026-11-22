@@ -2589,18 +2589,6 @@
 					"destro": "Destro",
 					"sm_ruin": "SM/Ruin",
 					"aff_wrack": "Aff (Wrack)"
-				},
-				"use_shadow_bolt_rank_10": {
-					"label": "Use Shadow Bolt Rank 10",
-					"tooltip": "Casts Shadow Bolt Rank 10, taught by the Grimoire of Shadow Bolt X, in place of Rank 9 from the trainer."
-				},
-				"use_immolate_rank_8": {
-					"label": "Use Immolate Rank 8",
-					"tooltip": "Casts Immolate Rank 8, taught by the Grimoire of Immolate VIII, in place of Rank 7 from the trainer."
-				},
-				"use_corruption_rank_7": {
-					"label": "Use Corruption Rank 7",
-					"tooltip": "Casts Corruption Rank 7, taught by the Grimoire of Corruption VII, in place of Rank 6 from the trainer."
 				}
 			},
 			"hunter": {

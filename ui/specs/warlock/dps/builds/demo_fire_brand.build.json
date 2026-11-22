@@ -206,7 +206,7 @@
           "action": {
             "castSpell": {
               "spellId": {
-                "spellId": 25309
+                "spellId": 11668
               }
             }
           },
@@ -811,7 +811,7 @@
                           "val": {
                             "dotIsActive": {
                               "spellId": {
-                                "spellId": 25309
+                                "spellId": 11668
                               }
                             }
                           }
@@ -826,7 +826,7 @@
                           "rhs": {
                             "dotBaseDuration": {
                               "spellId": {
-                                "spellId": 25309
+                                "spellId": 11668
                               }
                             }
                           }
@@ -846,7 +846,7 @@
                 },
                 "castSpell": {
                   "spellId": {
-                    "spellId": 25309
+                    "spellId": 11668
                   }
                 }
               }
@@ -859,7 +859,7 @@
                       {
                         "dotIsActive": {
                           "spellId": {
-                            "spellId": 25309
+                            "spellId": 11668
                           }
                         }
                       },
@@ -868,7 +868,7 @@
                           "val": {
                             "dotIsActiveOnAllTargets": {
                               "spellId": {
-                                "spellId": 25309
+                                "spellId": 11668
                               }
                             }
                           }
@@ -943,7 +943,7 @@
                                 "rhs": {
                                   "dotBaseDuration": {
                                     "spellId": {
-                                      "spellId": 25309
+                                      "spellId": 11668
                                     }
                                   }
                                 }
@@ -981,7 +981,7 @@
                           "val": {
                             "dotIsActive": {
                               "spellId": {
-                                "spellId": 25311
+                                "spellId": 11672
                               }
                             }
                           }
@@ -996,7 +996,7 @@
                           "rhs": {
                             "dotBaseDuration": {
                               "spellId": {
-                                "spellId": 25311
+                                "spellId": 11672
                               }
                             }
                           }
@@ -1016,7 +1016,7 @@
                 },
                 "castSpell": {
                   "spellId": {
-                    "spellId": 25311
+                    "spellId": 11672
                   }
                 }
               }
@@ -1029,7 +1029,7 @@
                       {
                         "dotIsActive": {
                           "spellId": {
-                            "spellId": 25311
+                            "spellId": 11672
                           }
                         }
                       },
@@ -1038,7 +1038,7 @@
                           "val": {
                             "dotIsActiveOnAllTargets": {
                               "spellId": {
-                                "spellId": 25311
+                                "spellId": 11672
                               }
                             }
                           }
@@ -1104,7 +1104,7 @@
                       {
                         "dotIsActive": {
                           "spellId": {
-                            "spellId": 25309
+                            "spellId": 11668
                           }
                         }
                       },
@@ -1120,7 +1120,7 @@
                                 "rhs": {
                                   "dotBaseDuration": {
                                     "spellId": {
-                                      "spellId": 25311
+                                      "spellId": 11672
                                     }
                                   }
                                 }
@@ -1199,7 +1199,7 @@
                             {
                               "dotIsActiveOnAllTargets": {
                                 "spellId": {
-                                  "spellId": 25309
+                                  "spellId": 11668
                                 }
                               }
                             },
@@ -1217,7 +1217,7 @@
                                           "rhs": {
                                             "dotBaseDuration": {
                                               "spellId": {
-                                                "spellId": 25309
+                                                "spellId": 11668
                                               }
                                             }
                                           }
@@ -1246,7 +1246,7 @@
                             {
                               "dotIsActiveOnAllTargets": {
                                 "spellId": {
-                                  "spellId": 25311
+                                  "spellId": 11672
                                 }
                               }
                             },
@@ -1264,7 +1264,7 @@
                                           "rhs": {
                                             "dotBaseDuration": {
                                               "spellId": {
-                                                "spellId": 25311
+                                                "spellId": 11672
                                               }
                                             }
                                           }
@@ -1364,7 +1364,7 @@
                           "val": {
                             "dotIsActive": {
                               "spellId": {
-                                "spellId": 25309
+                                "spellId": 11668
                               }
                             }
                           }
@@ -1379,7 +1379,7 @@
                           "rhs": {
                             "dotBaseDuration": {
                               "spellId": {
-                                "spellId": 25309
+                                "spellId": 11668
                               }
                             }
                           }
@@ -1390,7 +1390,7 @@
                 },
                 "castSpell": {
                   "spellId": {
-                    "spellId": 25309
+                    "spellId": 11668
                   }
                 }
               }
@@ -1405,7 +1405,7 @@
                           "val": {
                             "dotIsActive": {
                               "spellId": {
-                                "spellId": 25311
+                                "spellId": 11672
                               }
                             }
                           }
@@ -1420,7 +1420,7 @@
                           "rhs": {
                             "dotBaseDuration": {
                               "spellId": {
-                                "spellId": 25311
+                                "spellId": 11672
                               }
                             }
                           }
@@ -1431,7 +1431,7 @@
                 },
                 "castSpell": {
                   "spellId": {
-                    "spellId": 25311
+                    "spellId": 11672
                   }
                 }
               }
