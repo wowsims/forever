@@ -439,6 +439,17 @@ func (warrior *Warrior) registerSweepingStrikes() {
 	actionID := core.ActionID{SpellID: sweepingStrikesHitID}
 
 	var copyDamage float64
+	// The copy takes the hit's damage with the attacker's damage bonuses already in it, and those bonuses
+	// apply to it again, except one that needs a weapon equipped: the copy has none, so Two-Handed Weapon
+	// Specialization counts once (EV-0182). The logs measure Enrage and Two-Handed Weapon Specialization; that
+	// every other bonus follows the same rule, Death Wish among them, is an owner decision.
+	twoHandSpec := 1.0
+	var twoHandSpecWeapon core.EquipRequirement
+	if warrior.Talents.TwoHandedWeaponSpecialization > 0 {
+		row := spellData.TwoHandedWeaponSpecialization.Rank(warrior.Talents.TwoHandedWeaponSpecialization)
+		twoHandSpec = 1 + row.EffectN(1).Percent()
+		twoHandSpecWeapon = core.EquipRequirement{SubclassMask: row.EquipSubclass, InvTypeMask: row.EquipInvType, Hand: spelldata.RequiredHand(row)}
+	}
 	// 12723 has no SpellCategories row and so no DefenseType: no chance-on-hit effect or combat
 	// enchant hears the copied hit (EV-0007). Equip procs still hear it; no log measures them on 12723.
 	hitSpell := warrior.RegisterSpell(core.SpellConfig{
@@ -447,13 +458,17 @@ func (warrior *Warrior) registerSweepingStrikes() {
 		SpellSchool: core.SpellSchoolPhysical,
 		ProcMask:    core.ProcMaskMeleeSpecial,
 		DefenseType: core.DefenseTypeNone,
-		Flags:       core.SpellFlagIgnoreModifiers | core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
+		Flags:       core.SpellFlagIgnoreTargetModifiers | core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.CalcAndDealDamage(sim, target, copyDamage, spell.OutcomeAlwaysHit)
+			damage := copyDamage
+			if twoHandSpec != 1 && twoHandSpecWeapon.Equipped(&warrior.Character) {
+				damage /= twoHandSpec
+			}
+			spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeAlwaysHit)
 		},
 	})
 
