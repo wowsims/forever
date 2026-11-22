@@ -132,26 +132,31 @@ func (shaman *Shaman) applyFlurry() {
 
 	// The row has no roll and the crit is the condition, read off the result here because the same
 	// listener has to see the swings that spend a charge. Any melee crit sets three charges,
-	// Stormstrike's and a Windfury Weapon hit's included. A white swing spends one whatever its
-	// outcome, as Warrior Flurry's does. 16257's proc flags name swings alone, but a Windfury
-	// Weapon hit spends one too, and so does a Windfury Totem hit (10610), the same row;
-	// Stormstrike and spells spend none (EV-0010). A hit in the same instant as a gain spends none, so a
-	// crit followed by Windfury Weapon hits leaves three charges.
+	// Stormstrike's, a Windfury Weapon hit's and a Windfury Totem hit's (10610) included. A white
+	// swing spends one whatever its outcome, as Warrior Flurry's does. 16257's proc flags name swings
+	// alone, but a Windfury Weapon hit spends one too; a Windfury Totem hit, Stormstrike and spells
+	// spend none (EV-0010). A white or Stormstrike crit spends none, and a Windfury Weapon hit in its
+	// instant spends one, so such a crit followed by Windfury Weapon hits leaves two; in the instant a
+	// Windfury Weapon hit's own crit gained the charges, the next Windfury Weapon hit spends none
+	// (EV-0010). A white swing in the instant of a gain spends none.
+	var gainedByImbue bool
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.Flurry.Rank(shaman.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			imbueHit := spell.SpellID == windfuryWeaponStrike.ID
 			if result.Outcome.Matches(core.OutcomeCrit) {
 				flurryAura.Activate(sim)
 				flurryAura.SetStacks(sim, flurryAura.MaxStacks)
+				gainedByImbue = imbueHit
 				return
 			}
 
 			if !flurryAura.IsActive() {
 				return
 			}
-			spends := spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || spell.SpellID == windfuryWeaponStrike.ID ||
-				spell.SpellID == windfuryTotemStrike.ID
+			spends := spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || imbueHit
 			gainedNow := flurryAura.RemainingDuration(sim) == flurryAura.Duration
-			if spends && !gainedNow && chargeICD.IsReady(sim) {
+			blocked := gainedNow && (!imbueHit || gainedByImbue)
+			if spends && !blocked && chargeICD.IsReady(sim) {
 				chargeICD.Use(sim)
 				flurryAura.RemoveStack(sim)
 			}
@@ -265,18 +270,38 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	})
 	consumes := maelstromWeaponBuff.EffectN(1).ClassFlags
 
+	// Maelstrom Ready! (408501) goes up as the stacks reach five and comes off with them or at the
+	// next Chain Lightning; while it is up a Chain Lightning keeps Clearcasting (EV-0180). Its row, a
+	// dummy with one charge and no duration, is in the game files but not in the spell store, so the
+	// aura is built here. The Healing Wave and Lesser Healing Wave that also take it off are not in
+	// the sim.
+	readyAura := shaman.RegisterAura(core.Aura{
+		Label:    "Maelstrom Ready!",
+		ActionID: core.ActionID{SpellID: 408501},
+		Duration: core.NeverExpires,
+		OnCastComplete: func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+			if spell.Matches(SpellMaskChainLightning) {
+				aura.Deactivate(sim)
+			}
+		},
+	})
+
 	config := spelldata.AuraConfig(maelstromWeaponBuff)
 	config.OnGain = func(_ *core.Aura, _ *core.Simulation) {
 		castTimeMod.Activate()
 		costMod.Activate()
 	}
-	config.OnExpire = func(_ *core.Aura, _ *core.Simulation) {
+	config.OnExpire = func(_ *core.Aura, sim *core.Simulation) {
 		castTimeMod.Deactivate()
 		costMod.Deactivate()
+		readyAura.Deactivate(sim)
 	}
-	config.OnStacksChange = func(_ *core.Aura, _ *core.Simulation, _ int32, newStacks int32) {
+	config.OnStacksChange = func(aura *core.Aura, sim *core.Simulation, _ int32, newStacks int32) {
 		castTimeMod.UpdateFloatValue(perStack * float64(newStacks))
 		costMod.UpdateFloatValue(perStack * float64(newStacks))
+		if newStacks == aura.MaxStacks {
+			readyAura.Activate(sim)
+		}
 	}
 	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
 		if consumes.Reaches(spell) {
@@ -284,6 +309,7 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 		}
 	}
 	maelstromAura := shaman.RegisterAura(config)
+	shaman.maelstromWeaponAura, shaman.maelstromReadyAura = maelstromAura, readyAura
 
 	// The tooltip's $s3 is the stack count, which the buff row's five also states. The row's chance
 	// column is the "no roll" 100; the tooltip prices the chance per hit on the main hand's speed,
