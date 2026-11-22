@@ -163,11 +163,14 @@ var ClassBaseStats = map[proto.Class]stats.Stats{
 		stats.Stamina:     50,
 		stats.AttackPower: -10,
 	},
+	// A level 60 Dwarf shaman's sheet less the Dwarf offset (EV-0181). No level 60 sheet of another
+	// shaman race or of another Dwarf class has been read, so how the sheet splits between this row and
+	// the Dwarf offset is an assumption.
 	proto.Class_ClassShaman: {
 		stats.Health:      1280,
-		stats.Agility:     55,
-		stats.Strength:    85,
-		stats.Intellect:   90,
+		stats.Agility:     52,
+		stats.Strength:    88,
+		stats.Intellect:   87,
 		stats.Spirit:      100,
 		stats.Stamina:     95,
 		stats.AttackPower: 100,
