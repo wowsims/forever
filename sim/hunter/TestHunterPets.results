@@ -1317,6 +1317,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-HookfangShanker-11635"
+ value: {
+  dps: 672.57953
+  tps: 473.36721
+  dtps: 4.68889
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Hurricane-2824"
  value: {
   dps: 689.94493
@@ -1881,6 +1889,14 @@ dps_results: {
   dps: 671.14066
   tps: 473.36721
   dtps: 4.68889
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Siegebreaker'sBlaster-282561"
+ value: {
+  dps: 666.7506
+  tps: 459.69653
+  dtps: 4.31165
  }
 }
 dps_results: {

@@ -1433,8 +1433,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Malown'sSlam-13393"
  value: {
-  dps: 520.59679
-  tps: 440.40749
+  dps: 521.43709
+  tps: 441.0646
   dtps: 2.97628
   hps: 23.65444
  }
@@ -1586,10 +1586,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 486.35966
-  tps: 413.55969
+  dps: 487.23795
+  tps: 414.4473
   dtps: 2.97628
-  hps: 22.68861
+  hps: 22.62083
  }
 }
 dps_results: {
@@ -1827,12 +1827,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-ShimmeringPlatinumWarhammer-15418"
+ value: {
+  dps: 504.80925
+  tps: 429.02461
+  dtps: 2.97628
+  hps: 25.75556
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-ShortswordofVengeance-754"
  value: {
   dps: 512.16411
   tps: 444.57197
   dtps: 2.94293
   hps: 41.68333
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Siegebreaker'sBlaster-282561"
+ value: {
+  dps: 519.42375
+  tps: 450.22562
+  dtps: 2.94293
+  hps: 43.02194
  }
 }
 dps_results: {

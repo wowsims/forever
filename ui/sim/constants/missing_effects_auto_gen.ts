@@ -646,12 +646,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		11635, // Hookfang Shanker
-		[
-			"Corrosive acid that deals 13 Nature damage every 2.0 sec and lowers target's armor by 50 for 14s.", // 13526 - https://www.wowhead.com/forever/spell=13526
-		]
-	],
-	[
 		11702, // Grizzle's Skinner
 		[
 			"Skin a Humanoid target.", // 1300763 - https://www.wowhead.com/forever/spell=1300763
@@ -913,12 +907,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		15138, // Onyxia Scale Cloak
 		[
 			"Protects the wearer from being fully engulfed by Shadow Flame.", // 22683 - https://www.wowhead.com/forever/spell=22683
-		]
-	],
-	[
-		15418, // Shimmering Platinum Warhammer
-		[
-			"Blasts a target for 252 Nature damage.", // 19874 - https://www.wowhead.com/forever/spell=19874
 		]
 	],
 	[
@@ -2331,12 +2319,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		281598, // Rusthowl's Worn Collar
 		[
 			"Increases movement speed by 4% in Mount Hyjal.", // 1311895 - https://www.wowhead.com/forever/spell=1311895
-		]
-	],
-	[
-		282561, // Siegebreaker's Blaster
-		[
-			"Strike the target with a Flaming Shell, inflicting 7 Fire damage every 3 sec for 9 sec.", // 1314040 - https://www.wowhead.com/forever/spell=1314040
 		]
 	],
 	[
