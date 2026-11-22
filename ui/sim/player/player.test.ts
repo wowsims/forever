@@ -158,6 +158,40 @@ describe('Player.getRandomSuffixes', () => {
 	});
 });
 
+describe('Player.getBestRandomSuffix', () => {
+	// Each suffix rated at the EP the map gives its id; the item's random property points are 16.
+	const bestOf = (epById: Record<number, number>) => {
+		const ratedAt: number[] = [];
+		const best = Player.prototype.getBestRandomSuffix.call(
+			{
+				getRandomSuffixes: (item: Item) => item.randomSuffixOptions.map(id => ItemRandomSuffix.create({ id })),
+				computeRandomSuffixEP: (suffix: ItemRandomSuffix, randPropPoints: number) => {
+					ratedAt.push(randPropPoints);
+					return epById[suffix.id];
+				},
+			} as unknown as Player<any>,
+			Item.create({ randomSuffixOptions: Object.keys(epById).map(Number), scalingOptions: { 0: ScalingItemProperties.create({ randPropPoints: 16 }) } }),
+		);
+		return { id: best?.id, ratedAt };
+	};
+
+	it('picks the suffix rated highest, at the random property points of the item', () => {
+		expect(bestOf({ 1: 3, 2: 7, 3: 5 })).toEqual({ id: 2, ratedAt: [16, 16, 16] });
+	});
+
+	it('picks the highest when every suffix rates below zero', () => {
+		expect(bestOf({ 1: -3, 2: -1 }).id).toBe(2);
+	});
+
+	it('keeps the first of suffixes rated alike', () => {
+		expect(bestOf({ 1: 4, 2: 4 }).id).toBe(1);
+	});
+
+	it('has none for an item without suffixes', () => {
+		expect(bestOf({}).id).toBeUndefined();
+	});
+});
+
 describe('Player.computeItemEP on weapon skill', () => {
 	const MH_WEIGHT = 10;
 	const OH_WEIGHT = 4;
@@ -411,5 +445,23 @@ describe('Player.computeItemEP', () => {
 		};
 
 		expect(Player.prototype.computeItemEP.call(player as unknown as Player<any>, rune, ItemSlot.ItemSlotFinger1)).toBe(15);
+	});
+
+	it('prices a random suffix item with its best suffix, the one it equips with', () => {
+		const cape = Item.create({
+			id: 10267,
+			randomSuffixOptions: [1, 2],
+			scalingOptions: { 0: { ilvl: 61, randPropPoints: 16, weaponDamageMin: 0, weaponDamageMax: 0, stats: { [Stat.StatArmor]: 39 }, areaStats: [] } },
+		});
+		const owl = ItemRandomSuffix.create({ id: 2 });
+		const player = {
+			sim: { encounter: { getAreaTypes: () => [] } },
+			itemEPCache: Array.from({ length: ItemSlot.ItemSlotRanged + 1 }, () => new Map<string, number>()),
+			getEpWeights: () => Stats.fromMap({ [Stat.StatArmor]: 1 }),
+			getBestRandomSuffix: () => owl,
+			computeRandomSuffixEP: (suffix: ItemRandomSuffix, randPropPoints: number) => (suffix === owl && randPropPoints === 16 ? 20 : 0),
+		};
+
+		expect(Player.prototype.computeItemEP.call(player as unknown as Player<any>, cape, ItemSlot.ItemSlotBack)).toBe(59);
 	});
 });
