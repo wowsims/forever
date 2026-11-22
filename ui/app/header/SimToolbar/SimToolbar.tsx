@@ -47,14 +47,14 @@ const NativeSimUpdateItem = ({ latest, status, onUpdate }: NativeSimUpdate) => {
 				title={i18n.t('info.native_sim_update_title')}
 				testId="native-sim-update-dialog"
 				footer={
-					<>
+					<div className="flex gap-2">
 						<Button variant="outline-cancel" disabled={updating} onClick={() => setOpen(false)}>
 							{i18n.t('common.cancel')}
 						</Button>
 						<Button variant="primary" disabled={updating} onClick={onUpdate}>
 							{i18n.t('info.native_sim_update_action')}
 						</Button>
-					</>
+					</div>
 				}>
 				{updating ? (
 					<div className="flex items-center gap-2" role="status" data-testid="native-sim-updating">
