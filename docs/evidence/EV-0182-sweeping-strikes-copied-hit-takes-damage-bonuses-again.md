@@ -13,7 +13,7 @@
 - Game build: 1.60.1, the builds of 2026-11-07 to 2026-11-22 (70888 to 70959); the hotfix each player ran is not
   recorded
 - Date: 2026-11-07 to 2026-11-22
-- Pull request: the one adding this file
+- Pull request: #1177
 
 ## Method
 
