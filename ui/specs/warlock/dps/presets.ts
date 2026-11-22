@@ -76,6 +76,7 @@ export const DefaultOptions = WarlockOptions.create({
 
 export const DefaultConsumables = ConsumesSpec.create({
 	flaskId: Consumables.FlaskOfSupremePower.id,
+	elixirIds: [Consumables.ElixirOfShadowPower.id, Consumables.ElixirOfFirePower.id],
 	foodId: Consumables.NightfinSoup.id,
 	conjuredId: Consumables.DemonicRune.id,
 	mhImbueId: Consumables.BrilliantWizardOil.id,
