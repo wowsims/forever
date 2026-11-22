@@ -73,6 +73,11 @@ make wowsimforever
 # make dist/forever && ./wowsimforever --usefs would rebuild the whole client and host it. (you would have had to run `make devserver` to build the wowsimforever binary first.)
 ./wowsimforever --usefs
 
+# A local dry run of a release: builds wowsimforever and wowsimcli for linux, windows and darwin on amd64 and arm64
+# into .goreleaser-dist/ as the zips a release holds, with checksums.txt. Nothing is published.
+# Needs goreleaser, once: go install github.com/goreleaser/goreleaser/v2@v2.20.3
+make release
+
 # Generate code for the sim database (db.json). Only necessary if you changed the items generator.
 # Useful only if you're actively working on the generator and have already run make db locally at least once.
 make simdb

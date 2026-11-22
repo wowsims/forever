@@ -912,19 +912,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Deals 49 Shadow damage every 1.0 sec for 5s. All damage done is then transferred to the caster.
-	// https://www.wowhead.com/forever/spell=18652
-	// unsupported: states no rate
-	// trigger 18652 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18652, BuffSpellID: 18652, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 14541, ItemName: "Barovian Family Sword"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Blasts a target for 105 Fire damage.
 	// https://www.wowhead.com/forever/spell=18833
 	// unsupported: states no rate
@@ -3989,6 +3976,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18276, BuffSpellID: 18276, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 14487, ItemName: "Bonechill Hammer"},
+		})
+
+	// Deals 49 Shadow damage every 1.0 sec for 5s. All damage done is then transferred to the caster.
+	// https://www.wowhead.com/forever/spell=18652
+	// trigger 18652 (1.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18652, BuffSpellID: 18652, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 14541, ItemName: "Barovian Family Sword"},
 		})
 
 	// Blasts a target for 252 Nature damage.

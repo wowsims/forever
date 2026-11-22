@@ -180,6 +180,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-BarovianFamilySword-14541"
+ value: {
+  dps: 790.53691
+  tps: 813.10695
+  dtps: 8.45008
+  hps: 21.28764
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Beastmaster'sCap-226887"
  value: {
   dps: 901.59402

@@ -1,3 +1,4 @@
+import i18n from '@i18n/config';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
@@ -37,3 +38,33 @@ export const KnownIssues: Story = {
 };
 
 export const OutdatedNativeSim: Story = { args: { outdatedNativeSim: true } };
+
+export const UpdatableNativeSim: Story = {
+	args: { outdatedNativeSim: true, nativeSimUpdate: { latest: 'v1.2.3', status: { state: 'idle' }, onUpdate: fn() } },
+	play: async ({ args, canvasElement }) => {
+		await expect(within(canvasElement).queryByLabelText(i18n.t('info.native_sim_outdated'))).toBeNull();
+		await userEvent.click(within(canvasElement).getByTestId('native-sim-update'));
+		const dialog = within(document.body);
+		await expect(await dialog.findByTestId('native-sim-update-dialog')).toBeInTheDocument();
+		await userEvent.click(dialog.getByRole('button', { name: i18n.t('info.native_sim_update_action') }));
+		await expect(args.nativeSimUpdate?.onUpdate).toHaveBeenCalledOnce();
+	},
+};
+
+export const UpdatingNativeSim: Story = {
+	args: { nativeSimUpdate: { latest: 'v1.2.3', status: { state: 'updating' }, onUpdate: fn() } },
+	play: async ({ canvasElement }) => {
+		await userEvent.click(within(canvasElement).getByTestId('native-sim-update'));
+		await expect(await within(document.body).findByTestId('native-sim-updating')).toBeInTheDocument();
+	},
+};
+
+export const NativeSimUpdateFailed: Story = {
+	args: {
+		nativeSimUpdate: { latest: 'v1.2.3', status: { state: 'error', error: 'The update failed: no newer release' }, onUpdate: fn() },
+	},
+	play: async ({ canvasElement }) => {
+		await userEvent.click(within(canvasElement).getByTestId('native-sim-update'));
+		await expect(await within(document.body).findByTestId('native-sim-update-error')).toBeInTheDocument();
+	},
+};
