@@ -2609,17 +2609,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		185, // Wildheart Raiment
-		new Map([
-			[
-				4,
-				[
-					"When struck in combat, has a 5% chance to increase your movement speed by 10% for 8s. Can only occur once every 60 sec.", // 1302708 - https://www.wowhead.com/forever/spell=1302708
-				],
-			],
-		]),
-	],
-	[
 		186, // Beaststalker Armor
 		new Map([
 			[
@@ -2976,17 +2965,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				4,
 				[
 					"Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors.", // 23218 - https://www.wowhead.com/forever/spell=23218
-				],
-			],
-		]),
-	],
-	[
-		1667, // Feralheart Raiment
-		new Map([
-			[
-				5,
-				[
-					"When struck in combat, has a 5% chance to increase your movement speed by 10% for 8s. Can only occur once every 60 sec.", // 1302708 - https://www.wowhead.com/forever/spell=1302708
 				],
 			],
 		]),
