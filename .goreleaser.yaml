@@ -9,10 +9,11 @@ dist: .goreleaser-dist
 
 before:
     hooks:
-        # The Windows icon. Go links a .syso only into the GOOS_GOARCH its file name names, so only
-        # windows/amd64 carries it, and only while main names the package, not a .go file
+        # The Windows icon. Go reads only the _GOOS_GOARCH, _GOOS or _GOARCH tail of a .syso's file name, so
+        # icon_windows_amd64 links into windows/amd64 alone, where icon-windows_amd64 would read as amd64 and link
+        # into every amd64 build. It does so only while main names the package, not a .go file
         # (https://github.com/golang/go/issues/16090). The copy is gitignored.
-        - cp ./assets/favicon_io/icon-windows_amd64.syso ./sim/web/icon-windows_amd64.syso
+        - cp ./assets/favicon_io/icon-windows_amd64.syso ./sim/web/icon_windows_amd64.syso
 
 builds:
     - id: wowsimforever

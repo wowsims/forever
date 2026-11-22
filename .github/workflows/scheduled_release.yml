@@ -41,13 +41,6 @@ jobs:
               with:
                   version: ${{ steps.previoustag.outputs.tag }}
 
-            - name: 'Print version'
-              if: steps.getcommithashes.outputs.current != steps.getcommithashes.outputs.last
-              id: printversion
-              env:
-                  NEXT_TAG: ${{ steps.semvers.outputs.v_patch }}
-              run: echo "$NEXT_TAG"
-
             - name: Trigger Release
               if: steps.getcommithashes.outputs.current != steps.getcommithashes.outputs.last
               uses: benc-uk/workflow-dispatch@d004979be141727c7a17c28f603e2facc40d0855 # v1.3.3

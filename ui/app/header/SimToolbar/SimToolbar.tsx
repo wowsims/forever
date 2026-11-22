@@ -57,7 +57,7 @@ const NativeSimUpdateItem = ({ latest, status, onUpdate }: NativeSimUpdate) => {
 					</>
 				}>
 				{updating ? (
-					<div className="flex items-center gap-2" data-testid="native-sim-updating">
+					<div className="flex items-center gap-2" role="status" data-testid="native-sim-updating">
 						<Spinner size="sm" />
 						{i18n.t('info.native_sim_updating')}
 					</div>
@@ -106,10 +106,12 @@ export const SimToolbarView = ({ knownIssues, outdatedNativeSim, nativeSimUpdate
 			))}
 		</div>
 
-		{outdatedNativeSim && nativeSimUpdate && <NativeSimUpdateItem {...nativeSimUpdate} />}
-
-		{outdatedNativeSim && !nativeSimUpdate && (
-			<ToolbarItem href={REPO_RELEASES_URL} icon="gauge-high" className="text-link-danger" tooltip={i18n.t('info.native_sim_outdated')} />
+		{nativeSimUpdate ? (
+			<NativeSimUpdateItem {...nativeSimUpdate} />
+		) : (
+			outdatedNativeSim && (
+				<ToolbarItem href={REPO_RELEASES_URL} icon="gauge-high" className="text-link-danger" tooltip={i18n.t('info.native_sim_outdated')} />
+			)
 		)}
 	</>
 );

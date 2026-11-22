@@ -27,7 +27,7 @@ var (
 	ErrNotWritable      = errors.New("the folder holding the executable is not writable")
 )
 
-// Set in the environment of a restarted process, holding the version it was restarted from.
+// Set to 1 in the environment of a process Restart started.
 const restartedFromEnv = "WOWSIMS_FOREVER_UPDATED_FROM"
 
 var repository = goselfupdate.NewRepositorySlug("wowsims", "forever")
@@ -35,13 +35,22 @@ var repository = goselfupdate.NewRepositorySlug("wowsims", "forever")
 type Config struct {
 	Name       string              // The binary's name in the release assets and inside their archives, e.g. "wowsimforever".
 	Version    string              // The running build's version tag; "" or "development" is a local build.
-	Executable string              // The file an update replaces, normally os.Executable().
-	Source     goselfupdate.Source // Where releases come from, normally GitHubSource().
+	Executable string              // The file an update replaces; ForExecutable passes os.Executable().
+	Source     goselfupdate.Source // Where releases come from; ForExecutable passes the releases on GitHub.
 }
 
-// The releases of wowsims/forever on GitHub, read with $GITHUB_TOKEN when it is set.
-func GitHubSource() (goselfupdate.Source, error) {
-	return goselfupdate.NewGitHubSource(goselfupdate.GitHubConfig{})
+// An updater for the running executable, reading the releases of wowsims/forever on GitHub with $GITHUB_TOKEN when
+// it is set.
+func ForExecutable(name, version string) (*Updater, error) {
+	executable, err := os.Executable()
+	if err != nil {
+		return nil, err
+	}
+	source, err := goselfupdate.NewGitHubSource(goselfupdate.GitHubConfig{})
+	if err != nil {
+		return nil, err
+	}
+	return New(Config{Name: name, Version: version, Executable: executable, Source: source})
 }
 
 type Updater struct {
@@ -156,9 +165,11 @@ func (u *Updater) CanWrite() bool {
 }
 
 // Starts the executable again with args (os.Args[1:] keeps the same ones). On Windows it starts as a child with the
-// same console and this process exits; elsewhere it replaces this process. Returns only on failure.
+// same console and this process exits at once, so a shell that started the simulator gets its prompt back; the
+// process must not wait, because a second update renames the executable onto the .old file it would still run from.
+// Elsewhere it replaces this process. Returns only on failure.
 func (u *Updater) Restart(args []string) error {
-	env := append(os.Environ(), restartedFromEnv+"="+u.versionString())
+	env := append(os.Environ(), restartedFromEnv+"=1")
 	if runtime.GOOS != "windows" {
 		return syscall.Exec(u.executable, append([]string{u.executable}, args...), env)
 	}
@@ -170,13 +181,6 @@ func (u *Updater) Restart(args []string) error {
 	}
 	os.Exit(0)
 	return nil
-}
-
-func (u *Updater) versionString() string {
-	if u.version == nil {
-		return "development"
-	}
-	return u.version.Original()
 }
 
 // Whether this process was started by Restart after an update. A caller skips updating again on startup, so a

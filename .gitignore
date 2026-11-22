@@ -28,7 +28,7 @@ sim/web/__debug_bin
 /wasm
 # What goreleaser builds, and the Windows icon its before hook copies into sim/web.
 /.goreleaser-dist/
-/sim/web/icon-windows_amd64.syso
+/sim/web/icon_windows_amd64.syso
 
 # temporary files
 *.results.tmp

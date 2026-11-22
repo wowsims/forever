@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -19,15 +18,7 @@ func newUpdateCommand(version string) *cobra.Command {
 		Args:         cobra.NoArgs,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			executable, err := os.Executable()
-			if err != nil {
-				return err
-			}
-			source, err := selfupdate.GitHubSource()
-			if err != nil {
-				return err
-			}
-			updater, err := selfupdate.New(selfupdate.Config{Name: "wowsimcli", Version: version, Executable: executable, Source: source})
+			updater, err := selfupdate.ForExecutable("wowsimcli", version)
 			if err != nil {
 				return err
 			}

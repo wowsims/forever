@@ -22,9 +22,14 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
+    # The jobs after this one need it, so its guard skips them too.
     check-tag:
         if: github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        outputs:
+            sha: ${{ steps.commit.outputs.sha }}
         steps:
             - name: Check the tag
               env:
@@ -35,19 +40,35 @@ jobs:
                     exit 1
                   fi
 
+            - name: Checkout
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+              with:
+                  ref: ${{ inputs.ref }}
+                  fetch-depth: 0
+                  filter: blob:none
+                  persist-credentials: false
+
+            # The commit the tests run on is the one released, and it is on master.
+            - name: Check the commit
+              id: commit
+              run: |
+                  if ! git merge-base --is-ancestor HEAD origin/master; then
+                    echo "::error::The commit is not on master."
+                    exit 1
+                  fi
+                  echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
     tests:
         needs: check-tag
-        if: github.ref == 'refs/heads/master'
         uses: ./.github/workflows/run_tests.yml
         permissions:
             contents: read
             pull-requests: write
         with:
-            ref: ${{ inputs.ref }}
+            ref: ${{ needs.check-tag.outputs.sha }}
 
     build-and-release:
-        needs: tests
-        if: github.ref == 'refs/heads/master'
+        needs: [check-tag, tests]
         runs-on: ubuntu-latest
         permissions:
             contents: write
@@ -55,7 +76,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
               with:
-                  ref: ${{ inputs.ref }}
+                  ref: ${{ needs.check-tag.outputs.sha }}
                   # The full history, so the build can name each spec's last change (tools/vite/build_info.mts).
                   # git log over paths reads commits and trees only, so the file contents stay out of it.
                   fetch-depth: 0

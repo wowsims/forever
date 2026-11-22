@@ -48,25 +48,18 @@ var (
 
 const versionRecheckInterval = 6 * time.Hour
 
+type versionInfo struct {
+	Version   string `json:"version"`
+	Outdated  int    `json:"outdated"`  // 0 unknown, 1 current, 2 a newer release exists.
+	Latest    string `json:"latest"`    // The newer release's tag, "" when there is none.
+	CanUpdate bool   `json:"canUpdate"` // A newer release exists and the executable's folder is writable.
+}
+
 // What the last successful check found, as /version reports it.
 var (
-	versionMu sync.Mutex
-	outdated  int                 // 0 unknown, 1 current, 2 a newer release exists.
-	latest    *selfupdate.Release // The newer release, nil when there is none.
-	canUpdate bool                // A newer release exists and the executable's folder is writable.
+	versionMu   sync.Mutex
+	versionSeen versionInfo
 )
-
-func newUpdater() (*selfupdate.Updater, error) {
-	executable, err := os.Executable()
-	if err != nil {
-		return nil, err
-	}
-	source, err := selfupdate.GitHubSource()
-	if err != nil {
-		return nil, err
-	}
-	return selfupdate.New(selfupdate.Config{Name: "wowsimforever", Version: Version, Executable: executable, Source: source})
-}
 
 // Checks for a newer release and records the result; a failed check keeps the previous one.
 func checkVersion(timeout time.Duration) *selfupdate.Release {
@@ -76,13 +69,13 @@ func checkVersion(timeout time.Duration) *selfupdate.Release {
 	if err != nil {
 		return nil
 	}
+	writable := rel != nil && updater.CanWrite()
 	versionMu.Lock()
 	defer versionMu.Unlock()
-	latest = rel
 	if rel == nil {
-		outdated, canUpdate = 1, false
+		versionSeen = versionInfo{Outdated: 1}
 	} else {
-		outdated, canUpdate = 2, updater.CanWrite()
+		versionSeen = versionInfo{Outdated: 2, Latest: rel.Tag, CanUpdate: writable}
 	}
 	return rel
 }
@@ -127,7 +120,7 @@ func main() {
 	flag.Parse()
 
 	fmt.Printf("Version: %s\n", Version)
-	if u, err := newUpdater(); err != nil {
+	if u, err := selfupdate.ForExecutable("wowsimforever", Version); err != nil {
 		log.Printf("Self-update is unavailable: %s", err)
 	} else {
 		updater = u
@@ -479,9 +472,10 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusMethodNotAllowed, "use POST")
 		return
 	}
-	// The API answers any origin, but another site must not be able to restart the simulator.
+	// The API answers any origin, but another site must not be able to restart the simulator. The Host check stops a
+	// site that points a DNS name of its own at this machine.
 	if origin := r.Header.Get("Origin"); origin != "" {
-		if u, err := url.Parse(origin); err != nil || u.Host != r.Host {
+		if u, err := url.Parse(origin); err != nil || u.Host != r.Host || !servedHost(r.Host) {
 			writeJSONError(w, http.StatusForbidden, "updates are only started from the simulator's own page")
 			return
 		}
@@ -522,9 +516,11 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 	go func() {
 		time.Sleep(500 * time.Millisecond)
+		// Frees the port and drops the page's open connections, so its /version polling reaches the new process.
+		httpServer.Close()
 		if err := updater.Restart(restartArgs(os.Args[1:])); err != nil {
 			log.Printf("Could not restart: %s. Start the simulator again to run %s.", err, rel.Tag)
-			updating.Unlock()
+			os.Exit(1)
 		}
 	}()
 }
@@ -543,8 +539,30 @@ func restartArgs(args []string) []string {
 	return kept
 }
 
-// Listens on host. A process restarted after an update retries for a few seconds, since on Windows the process it
-// replaces may still hold the port.
+// The host part of the -host flag; "", 0.0.0.0 or :: when the server listens on every address.
+var listenHost string
+
+// Whether a request's Host names this server: a loopback name, the -host flag's host, or any IP address when the
+// server listens on every address, as other machines on the network reach it by IP. Any other DNS name is refused.
+func servedHost(host string) bool {
+	if h, _, err := net.SplitHostPort(host); err == nil {
+		host = h
+	}
+	host = strings.Trim(host, "[]")
+	switch host {
+	case "localhost", "127.0.0.1", "::1":
+		return true
+	}
+	if listenHost == "" || listenHost == "0.0.0.0" || listenHost == "::" {
+		return net.ParseIP(host) != nil
+	}
+	return host == listenHost
+}
+
+// The server /update closes before the restart.
+var httpServer = &http.Server{}
+
+// Listens on host. A process restarted after an update retries for a few seconds, in case the port is not free yet.
 func listen(host string) (net.Listener, error) {
 	listener, err := net.Listen("tcp", host)
 	for i := 0; err != nil && selfupdate.Restarted() && i < 20; i++ {
@@ -556,6 +574,7 @@ func listen(host string) (net.Listener, error) {
 
 func (s *server) runServer(useFS bool, host string, launchBrowser bool, simName string, wasm bool, inputReader *bufio.Reader) {
 	s.setupAsyncServer()
+	listenHost, _, _ = net.SplitHostPort(host)
 
 	var fs http.Handler
 	if useFS {
@@ -574,16 +593,9 @@ func (s *server) runServer(useFS bool, host string, launchBrowser bool, simName 
 
 	http.HandleFunc("/version", func(resp http.ResponseWriter, req *http.Request) {
 		versionMu.Lock()
-		msg := struct {
-			Version   string `json:"version"`
-			Outdated  int    `json:"outdated"`
-			Latest    string `json:"latest"`
-			CanUpdate bool   `json:"canUpdate"`
-		}{Version: Version, Outdated: outdated, CanUpdate: canUpdate}
-		if latest != nil {
-			msg.Latest = latest.Tag
-		}
+		msg := versionSeen
 		versionMu.Unlock()
+		msg.Version = Version
 		writeJSON(resp, http.StatusOK, msg)
 	})
 	http.HandleFunc("/update", handleUpdate)
@@ -629,12 +641,11 @@ func (s *server) runServer(useFS bool, host string, launchBrowser bool, simName 
 			log.Printf("Failed to listen on %s: %s", host, err)
 			os.Exit(1)
 		}
-		if err := http.Serve(listener, nil); err != nil {
+		// Serve returns ErrServerClosed only when /update closes the server for the restart.
+		if err := httpServer.Serve(listener); !errors.Is(err, http.ErrServerClosed) {
 			log.Printf("Failed to shutdown server: %s", err)
 			os.Exit(1)
 		}
-		log.Printf("Server shutdown successfully.")
-		os.Exit(0)
 	}()
 
 	// used to read a CTRL+C

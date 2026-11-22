@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import type { Sim } from '../sim';
-import { noop } from '../utils/misc';
 import { useSimStatus } from './useSimStatus';
 
 export interface OutdatedNativeSim {
@@ -9,9 +8,19 @@ export interface OutdatedNativeSim {
 	version: string;
 	/** The newest release's tag. */
 	latest: string;
-	/** Whether the host can download that release and restart itself. Older hosts do not say, and cannot. */
+	/** Whether the host can download that release and restart itself. */
 	canUpdate: boolean;
 }
+
+/** The local Go host's /version answer, or null when it does not answer, as while it restarts. */
+export const fetchNativeVersion = async (): Promise<{ version?: string; outdated?: number; latest?: string; canUpdate?: boolean } | null> => {
+	try {
+		const response = await fetch('/version');
+		return response.ok ? await response.json() : null;
+	} catch {
+		return null;
+	}
+};
 
 /** The local Go host's version info when it runs an out-of-date build, otherwise null. Always null in the browser. */
 export const useOutdatedNativeSim = (sim: Sim): OutdatedNativeSim | null => {
@@ -22,18 +31,11 @@ export const useOutdatedNativeSim = (sim: Sim): OutdatedNativeSim | null => {
 		// `sim.isNative` is decided during init, so this cannot be asked any earlier.
 		if (!ready || !sim.isNative) return;
 		let cancelled = false;
-		fetch('/version')
-			.then(response =>
-				response
-					.json()
-					.then(versionInfo => {
-						if (!cancelled && versionInfo.outdated == 2) {
-							setOutdated({ version: versionInfo.version ?? '', latest: versionInfo.latest ?? '', canUpdate: versionInfo.canUpdate === true });
-						}
-					})
-					.catch(() => console.warn('No version info found!')),
-			)
-			.catch(noop);
+		fetchNativeVersion().then(versionInfo => {
+			if (!cancelled && versionInfo?.outdated == 2) {
+				setOutdated({ version: versionInfo.version ?? '', latest: versionInfo.latest ?? '', canUpdate: versionInfo.canUpdate === true });
+			}
+		});
 		return () => {
 			cancelled = true;
 		};

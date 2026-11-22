@@ -215,7 +215,7 @@ endif
 .PHONY: release
 release: binary_dist binary_dist/dist.go
 	goreleaser release --snapshot --clean
-	rm -f ./sim/web/icon-windows_amd64.syso
+	rm -f ./sim/web/icon_windows_amd64.syso
 
 sim/core/proto/api.pb.go: proto/*.proto
 	@if go version -m "$$(command -v protoc-gen-go)" 2>/dev/null | grep -qE '^[[:space:]]+mod[[:space:]]+github\.com/golang/protobuf[[:space:]]'; then \
