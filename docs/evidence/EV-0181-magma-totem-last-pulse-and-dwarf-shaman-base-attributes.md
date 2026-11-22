@@ -12,7 +12,7 @@
   1.60.1.70938, 1.60.1.70959 and 1.60.1.71037. The hotfix of the other logs is not recorded, and whether the players
   relogged after a hotfix is not known
 - Date: 2026-11-11 to 2026-11-22
-- Pull request: not opened yet
+- Pull request: #1175
 
 ## Magma Totem's last pulse
 

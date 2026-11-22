@@ -48,7 +48,7 @@ the wait between casts on a totem that keeps its target (EV-0011).
 - Game build: 1.60.1.70959 on 2026-11-19 and 1.60.1.71037 on 2026-11-21, hotfixes up to push 114122; relog not known.
   The earlier readings: 1.60.1 on 2026-11-13 and 2026-11-14, full build not recorded; 1.60.1.70938 on 2026-11-15
 - Date: 2026-11-13 to 2026-11-21
-- Pull request: not opened yet
+- Pull request: #1175
 
 A bundle is a white swing or a Stormstrike with the Windfury Weapon and Windfury Totem hits that follow it within 120
 ms, a second Windfury Weapon hit joining up to 300 ms after the lead. It owns the Flurry lines from 5 ms before its first

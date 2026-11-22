@@ -11,7 +11,7 @@
 - Game build: 1.60.1.70959 on 2026-11-19 and 1.60.1.71037 on 2026-11-21, hotfixes up to push 114122; relog not known.
   The earlier logs: 1.60.1 on 2026-11-13 and 2026-11-14, full build not recorded; 1.60.1.70938 on 2026-11-15
 - Date: 2026-11-19 and 2026-11-21; the earlier logs 2026-11-13 to 2026-11-15
-- Pull request: not opened yet
+- Pull request: #1175
 
 Each Lightning Bolt and Chain Lightning cast is read with the Maelstrom Weapon stacks, Maelstrom Ready! and
 Clearcasting as they stood before the cast, the cost field of its cast line, the mana it paid where the shaman's power
