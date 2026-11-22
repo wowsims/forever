@@ -24,10 +24,11 @@ The run counts no Shank as a roll, though from 2026-11-20 Shank rolls the off-ha
 2026-11-20). Hookfang Shanker's, Hurd Smasher's and The Lobotomizer's reads count those Shanks as off-hand rolls.
 
 Scripts and inputs, in `forever-sweep-auto`: the run `runs/2026-11-22-1122`, whose `results.json` (`analyze.py` version
-12, cache `cache_v13`) holds the counts of Shimmering Platinum Warhammer and Siegebreaker's Blaster, and whose cached
-records give Red Whelp Gloves' lone units. Hookfang Shanker's, Hurd Smasher's and The Lobotomizer's counts come from
-`analyze.py` version 14 (cache `cache_v14`), which counts Shank's off-hand roll, on the same wearer streams. The rate is
-each result's `all_hits`, matched on item and `effect_spell`.
+12, cache `cache_v13`) holds the counts of Shimmering Platinum Warhammer, Siegebreaker's Blaster and the count's weapons
+in EV-0136, EV-0150 and EV-0175 but Iceblade Hacker's all-hits read, and whose cached records give Red Whelp Gloves'
+lone units. Hookfang Shanker's, Hurd Smasher's and The Lobotomizer's counts and Iceblade Hacker's all-hits read come
+from `analyze.py` version 14 (cache `cache_v14`), which counts Shank's off-hand roll, on the same wearer streams. The
+rate is each result's `all_hits`, matched on item and `effect_spell`.
 
 ## Rates
 

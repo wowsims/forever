@@ -1335,12 +1335,14 @@ zqpJDYHZC4Pa76bV 1-2.
 hits, which the one-hand white rate and the specials rate agree with. The run's count also takes the 152 chills 1298414,
 which the item's second effect 1298413 casts on every landed hit (EV-0164), as strikes a white swing casts, and reads
 2.04 [1.95, 2.11] on 20,561 hits; `analyze.py` version 14 (cache `cache_v14`) takes no chill as a strike and gives the
-read here. One-hand white: 1.99 [1.59, 2.46], 84 procs on 1,266 lone units, 4 wearers (a Poisson interval: under 5
-wearers). Dual-wield white, which sets no rate: 1.61 [1.18, 1.98], 107 procs on 1,991 lone units, 9 wearers. Specials:
-1.85 [1.44, 2.21], 106 procs on 1,721 lone units, 13 wearers. Travel time: the proc lands a median 108 ms after its hit,
-98th percentile 215 ms, window [20, 225] ms (279 isolated hits); the run's `results.json` window, [62, 446] ms, also
-times the chill, which lands about 418 ms after its hit (EV-0164). Dropping the swapped stretches (75 active minutes,
-12% of hits, in 4 runs) moved the read from 1.80 to 2.05. Reports from 2026-11-10 to 2026-11-22.
+all-hits read here. The lone units and the window below come from the run's records (`cache_v13`) with the proc markers
+limited to Frostbolt, since version 14 still times the window on the chill. One-hand white: 1.99 [1.59, 2.46], 84 procs
+on 1,266 lone units, 4 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.61 [1.18,
+1.98], 107 procs on 1,991 lone units, 9 wearers. Specials: 1.85 [1.44, 2.21], 106 procs on 1,721 lone units, 13 wearers.
+Travel time: the proc lands a median 108 ms after its hit, 98th percentile 215 ms, window [20, 225] ms (279 isolated
+hits); the run's `results.json` window, [62, 446] ms, also times the chill, which lands about 418 ms after its hit
+(EV-0164). Dropping the swapped stretches (75 active minutes, 12% of hits, in 4 runs) moved the read from 1.80 to 2.05.
+Reports from 2026-11-10 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -2089,13 +2091,13 @@ wafLQr31X6VYCmNZ 1-3; xRkgQCj3TD2yb6Fn 1-25; ycMCt3n9ZqP2bhaH 1-2, 4-8.
 - Rate: 1 PPM, measured
 
 688 procs on 17,207 rolling hits, 16 wearers, 17 runs, in the main hand or the off hand: all hits 1.00 [0.93, 1.07]. The
-rate is all hits, which the specials rate agrees with. One-hand white: 0.70 [0.54, 1.25], 10 procs on 359 lone units, 2
-wearers. Dual-wield white, which sets no rate: 0.78 [0.62, 0.95], 116 procs on 3,714 lone units, 14 wearers. Specials:
-1.18 [1.02, 1.47], 102 procs on 2,152 lone units, 13 wearers; Sinister Strike gives 65 procs on 1,449 of them. Two-roll
-abilities, priced as one roll: 1.50, 3 procs on 50 lone units (Execute 3 on 47 and Mongoose Bite 0 on 3), left out of
-the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 154 isolated hits. Dropping the swapped
-stretches (5.5 active minutes, 1% of hits, in 1 run) moved the read from 0.99 to 1.00. Reports from 2026-11-13 to
-2026-11-22.
+rate is all hits, which the specials rate agrees with. One-hand white: 0.70 [0.33, 1.28], 10 procs on 359 lone units, 2
+wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 0.78 [0.62, 0.95], 116 procs on
+3,714 lone units, 14 wearers. Specials: 1.18 [1.02, 1.47], 102 procs on 2,152 lone units, 13 wearers; Sinister Strike
+gives 65 procs on 1,449 of them. Two-roll abilities, priced as one roll: 1.50, 3 procs on 50 lone units (Execute 3 on 47
+and Mongoose Bite 0 on 3), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 154
+isolated hits. Dropping the swapped stretches (5.5 active minutes, 1% of hits, in 1 run) moved the read from 0.99 to
+1.00. Reports from 2026-11-13 to 2026-11-22.
 
 With the off-hand wearers' 129 Shanks from 2026-11-20 counted as rolls (EV-0155 §Shank from 2026-11-20), all hits read
 0.99 [0.93, 1.06], the same rate rounded.
