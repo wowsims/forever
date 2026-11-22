@@ -9206,49 +9206,10 @@
 									},
 									"additionalProperties": false,
 									"required": ["label", "demo_fire_brand", "demo_shadow_brand", "destro", "sm_ruin", "aff_wrack"]
-								},
-								"use_shadow_bolt_rank_10": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
-								"use_immolate_rank_8": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
-								"use_corruption_rank_7": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["affliction", "rotation", "use_shadow_bolt_rank_10", "use_immolate_rank_8", "use_corruption_rank_7"]
+							"required": ["affliction", "rotation"]
 						},
 						"hunter": {
 							"type": "object",
