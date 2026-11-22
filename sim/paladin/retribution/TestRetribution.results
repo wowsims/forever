@@ -1415,8 +1415,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Malown'sSlam-13393"
  value: {
-  dps: 901.97697
-  tps: 736.27582
+  dps: 902.4602
+  tps: 736.6624
   dtps: 5.10059
   hps: 25.54816
  }
@@ -1577,10 +1577,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 880.56883
-  tps: 718.42986
-  dtps: 4.49884
-  hps: 25.11167
+  dps: 882.36635
+  tps: 719.83822
+  dtps: 4.3495
+  hps: 25.1137
  }
 }
 dps_results: {
@@ -1824,6 +1824,15 @@ dps_results: {
   tps: 726.3619
   dtps: 5.13262
   hps: 25.31161
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-ShimmeringPlatinumWarhammer-15418"
+ value: {
+  dps: 869.15325
+  tps: 711.42984
+  dtps: 5.73025
+  hps: 27.77618
  }
 }
 dps_results: {
