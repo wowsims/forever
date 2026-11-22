@@ -211,9 +211,20 @@ else
 endif
 
 # A local dry run of the release: every archive and checksums.txt go into .goreleaser-dist, and nothing is published.
-# Needs goreleaser v2 on the PATH. release.yml publishes with the same .goreleaser.yaml.
+# release.yml publishes with the same .goreleaser.yaml and the same goreleaser version.
+GORELEASER_VERSION := v2.20.3
+
+.PHONY: check-goreleaser
+check-goreleaser:
+	@if ! command -v goreleaser > /dev/null; then \
+		echo "Missing goreleaser. Install it with:"; \
+		echo "  go install github.com/goreleaser/goreleaser/v2@$(GORELEASER_VERSION)"; \
+		echo "and make sure $$(go env GOPATH)/bin is on your PATH."; \
+		exit 1; \
+	fi
+
 .PHONY: release
-release: binary_dist binary_dist/dist.go
+release: check-goreleaser binary_dist binary_dist/dist.go
 	goreleaser release --snapshot --clean
 	rm -f ./sim/web/icon_windows_amd64.syso
 
