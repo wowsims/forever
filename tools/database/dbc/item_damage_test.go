@@ -194,6 +194,34 @@ func TestCreatureTypeAndHP5Stats(t *testing.T) {
 	}
 }
 
+// An armor item's bonus armor is its extra armor stat alone: its QualityModifier adds none, with the stat
+// beside it or without (R-0052).
+func TestBonusArmorFromExtraArmorStatOnly(t *testing.T) {
+	once.Do(func() {})
+	previous := dbcInstance
+	dbcInstance = NewDBC()
+	t.Cleanup(func() { dbcInstance = previous })
+	dbcInstance.RandomPropertiesByIlvl[60] = RandomPropAllocationMap{proto.ItemQuality_ItemQualityRare: {10, 10, 10, 10, 10}}
+
+	for _, tc := range []struct {
+		name       string
+		extraArmor bool
+		want       float64
+	}{
+		{"a QualityModifier alone", false, 0},
+		{"the extra armor stat beside a larger QualityModifier", true, 8},
+	} {
+		item := Item{Id: 1, ItemClass: ITEM_CLASS_ARMOR, InventoryType: INVTYPE_FINGER, ItemLevel: 60, OverallQuality: RARE,
+			QualityModifier: 14}
+		if tc.extraArmor {
+			item.BonusStat, item.StatAlloc = []int{ITEM_MOD_EXTRA_ARMOR}, []float64{8000}
+		}
+		if got := item.GetStats(item.ItemLevel)[proto.Stat_StatBonusArmor]; got != tc.want {
+			t.Errorf("%s: bonus armor %v, want %v", tc.name, got, tc.want)
+		}
+	}
+}
+
 // The tables state 33 DPS one-handed and 39 two-handed; the variance is 0.4, so the range is
 // DPS x speed x 0.8 to 1.2, low floored and high rounded.
 func TestWeaponDamageRange(t *testing.T) {

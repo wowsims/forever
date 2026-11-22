@@ -272,7 +272,7 @@ func (item *Item) addCasterSpellPower(stats *stats.Stats, itemLevel int) {
 	add(ITEM_MOD_SPELL_POWER, casterSpellPowerAllocation*budget/10000)
 }
 
-// The per-item damage offset for weapons. Armor carries a QualityModifier too, which gives nothing in game (R-0052).
+// The per-item damage offset for weapons. Armor carries a QualityModifier too, which gives no armor in game (R-0052).
 func (item *Item) GetWeaponQualityModifier() float64 {
 	if item.ItemClass != ITEM_CLASS_WEAPON {
 		return 0
