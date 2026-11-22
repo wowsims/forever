@@ -3250,7 +3250,7 @@
 		},
 		"download_native_sim": "Download simulator for faster simulating",
 		"native_sim_outdated": "Newer version of simulator available for download",
-		"native_sim_update": "Newer version of simulator available. Click to update and restart",
+		"native_sim_update": "Newer version available. Click to update and restart",
 		"native_sim_update_title": "Update simulator",
 		"native_sim_update_confirm": "The simulator will download version {{version}} and restart. Any running sims are stopped.",
 		"native_sim_update_action": "Update and restart",
