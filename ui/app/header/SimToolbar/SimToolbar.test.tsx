@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { ToastArea, toastManager } from '@ui-kit/Toast';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -50,5 +50,23 @@ describe('SimToolbarView', () => {
 		});
 
 		expect(await screen.findByTestId('native-sim-update-dialog')).toBeTruthy();
+	});
+
+	it('closes the toast when the dialog opens from the toolbar', async () => {
+		const update = { latest: 'v1.2.3', status: { state: 'idle' as const }, onUpdate: () => {} };
+		render(
+			<>
+				<ToastArea manager={toastManager} />
+				<SimToolbarView knownIssues={[]} outdatedNativeSim nativeSimUpdate={update} onOpenSettings={() => {}} />
+			</>,
+		);
+		await screen.findByText('info.native_sim_update_toast');
+
+		await act(async () => {
+			fireEvent.click(screen.getByTestId('native-sim-update'));
+		});
+
+		expect(await screen.findByTestId('native-sim-update-dialog')).toBeTruthy();
+		await waitFor(() => expect(screen.queryByText('info.native_sim_update_toast')).toBeNull());
 	});
 });
