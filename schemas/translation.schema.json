@@ -2307,6 +2307,9 @@
 						"missing_random_suffix": {
 							"type": "string"
 						},
+						"best_random_suffix": {
+							"type": "string"
+						},
 						"missing_effect": {
 							"type": "object",
 							"properties": {
@@ -2568,6 +2571,7 @@
 					"required": [
 						"want_to_help",
 						"missing_random_suffix",
+						"best_random_suffix",
 						"missing_effect",
 						"tentative_implementation",
 						"will_not_be_implemented",

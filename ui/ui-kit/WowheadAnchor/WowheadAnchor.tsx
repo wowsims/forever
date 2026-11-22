@@ -43,6 +43,7 @@ export const WowheadAnchor = ({
 			onClick={
 				cancels
 					? (event: MouseEvent<HTMLAnchorElement>) => {
+							if (href && navigate && (event.ctrlKey || event.metaKey || event.shiftKey)) return;
 							event.preventDefault();
 							if (!disabled) onActivate?.(event);
 							onClick?.(event);
