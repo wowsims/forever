@@ -24,6 +24,9 @@ Auto Shots on a ranged weapon) or a specials rate of 50 or more procs checks it 
 dual-wield white rate neither sets nor checks a rate. The run's posted `ppm` is the lone white rate wherever that has 50
 procs from 3 wearers, so the rates here come from each result's `all_hits`, matched on item and `effect_spell`.
 
+The run counts no Shank as a roll. From 2026-11-20 Shank rolls the off-hand weapon (EV-0155 §Shank from 2026-11-20), so
+The Lobotomizer's section counts the off-hand wearers' Shanks from that day as rolls.
+
 Scripts and inputs, in `forever-sweep-auto`: `analyze.py` (version 12 with the paladin check and the Mutilate split at
 push 114313, cache `cache_v13`) for the rates, and the run `runs/2026-11-22-1122`, whose `results.json` holds each
 weapon's counts.

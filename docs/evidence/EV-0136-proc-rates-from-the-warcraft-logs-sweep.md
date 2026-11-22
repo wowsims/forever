@@ -911,6 +911,9 @@ window [22, 221] ms (152 isolated hits). Dropping the swapped stretches (63 acti
 the read from 1.05 to 1.11. Report DdKN3mXj6gH9yvpc logs the same run as D46Xm8ncR9WbTFrL and counts once. Reports from
 2026-11-14 to 2026-11-22.
 
+From 2026-11-20 Shank rolls the off-hand weapon (EV-0155 §Shank from 2026-11-20), which the count takes as no roll; with
+the off-hand wearers' 687 Shanks from that day counted, all hits read 1.08 [1.01, 1.20], which rounds to the same rate.
+
 | Class  | Wearers | Procs |   Hits |  PPM |
 | ------ | ------: | ----: | -----: | ---: |
 | Rogue  |      24 |   699 | 23,442 | 1.12 |
@@ -2057,6 +2060,10 @@ Observed: no lone-unit rate checks it; the interval is wider than 10% of the rat
 of hits, in 7 runs) moved the read from 1.13 to 1.16. Report VMfN97kLXxyTpCwW logs the same run as F9bgjZYDQ6fqPaLk and
 counts once. Reports from 2026-11-13 to 2026-11-22.
 
+From 2026-11-20 Shank rolls the off-hand weapon (EV-0155 §Shank from 2026-11-20), which the count takes as no roll; with
+the off-hand wearers' 1,892 Shanks from that day counted, all hits read 1.13 [1.03, 1.26], which rounds to the same
+rate.
+
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
 | Rogue   |      38 | 1,953 | 55,009 | 1.18 |
@@ -2091,6 +2098,9 @@ abilities, priced as one roll: 1.50, 3 procs on 50 lone units (Execute 3 on 47 a
 the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 154 isolated hits. Dropping the swapped
 stretches (5.5 active minutes, 1% of hits, in 1 run) moved the read from 0.99 to 1.00. Reports from 2026-11-13 to
 2026-11-22.
+
+From 2026-11-20 Shank rolls the off-hand weapon (EV-0155 §Shank from 2026-11-20), which the count takes as no roll; with
+the off-hand wearers' 129 Shanks from that day counted, all hits read 0.99 [0.93, 1.06], which rounds to the same rate.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
