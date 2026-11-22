@@ -173,10 +173,6 @@ func (item *Item) GetStats(itemLevel int) *stats.Stats {
 		stats[proto.Stat_StatArcaneResistance] = float64(item.ArcaneResistance)
 	}
 
-	if item.ItemClass == ITEM_CLASS_ARMOR && item.QualityModifier > 0 {
-		stats[proto.Stat_StatBonusArmor] = item.QualityModifier
-	}
-
 	blockValue := item.GetBlockValue(itemLevel)
 	if blockValue > 0 {
 		stats[proto.Stat_StatBlockValue] += blockValue
@@ -276,8 +272,7 @@ func (item *Item) addCasterSpellPower(stats *stats.Stats, itemLevel int) {
 	add(ITEM_MOD_SPELL_POWER, casterSpellPowerAllocation*budget/10000)
 }
 
-// GetWeaponQualityModifier returns the per-item damage offset for weapons.
-// For armor the value is repurposed as bonus armor (see GetStats), so don't expose it as a weapon quality modifier.
+// The per-item damage offset for weapons. Armor carries a QualityModifier too, which gives no armor in game (R-0052).
 func (item *Item) GetWeaponQualityModifier() float64 {
 	if item.ItemClass != ITEM_CLASS_WEAPON {
 		return 0
