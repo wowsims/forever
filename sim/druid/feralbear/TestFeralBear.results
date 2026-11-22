@@ -1180,6 +1180,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-HookfangShanker-11635"
+ value: {
+  dps: 452.90069
+  tps: 2292.28187
+  dtps: 393.47945
+  hps: 83.9845
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-HowlingIdol-272427"
  value: {
   dps: 542.49793
@@ -1434,8 +1443,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Malown'sSlam-13393"
  value: {
-  dps: 507.13617
-  tps: 2565.17555
+  dps: 507.80039
+  tps: 2568.24361
   dtps: 393.47945
   hps: 83.9845
  }
@@ -1722,8 +1731,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Shadowblade-2163"
  value: {
-  dps: 466.7989
-  tps: 2338.23675
+  dps: 467.6937
+  tps: 2340.16057
   dtps: 388.67225
   hps: 83.14387
  }
@@ -1744,6 +1753,15 @@ dps_results: {
   tps: 2667.43841
   dtps: 395.61739
   hps: 85.62528
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-ShimmeringPlatinumWarhammer-15418"
+ value: {
+  dps: 518.37595
+  tps: 2557.36028
+  dtps: 393.47945
+  hps: 83.9845
  }
 }
 dps_results: {
@@ -2028,8 +2046,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 471.963
-  tps: 2384.51903
+  dps: 473.24192
+  tps: 2387.2687
   dtps: 393.47945
   hps: 83.9845
  }

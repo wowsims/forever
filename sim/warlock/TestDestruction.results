@@ -840,6 +840,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-HookfangShanker-11635"
+ value: {
+  dps: 840.13849
+  tps: 662.37875
+  dtps: 10.10098
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-ImplementsofUnspokenNames"
  value: {
   dps: 894.26964

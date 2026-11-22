@@ -1006,6 +1006,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-HookfangShanker-11635"
+ value: {
+  dps: 733.36786
+  tps: 546.4869
+  hps: 46.17361
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-IdolofBrutality-23198"
  value: {
   dps: 793.37295
@@ -1224,8 +1232,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Malown'sSlam-13393"
  value: {
-  dps: 780.22143
-  tps: 579.94109
+  dps: 781.2503
+  tps: 580.67159
   hps: 45.98722
  }
 }
@@ -1480,8 +1488,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Shadowblade-2163"
  value: {
-  dps: 745.83541
-  tps: 555.63408
+  dps: 746.34098
+  tps: 555.99303
   hps: 46.52944
  }
 }
@@ -1498,6 +1506,14 @@ dps_results: {
  value: {
   dps: 804.94335
   tps: 597.53522
+  hps: 45.98722
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-ShimmeringPlatinumWarhammer-15418"
+ value: {
+  dps: 785.13745
+  tps: 583.33667
   hps: 45.98722
  }
 }
@@ -1752,8 +1768,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 745.22838
-  tps: 554.96239
+  dps: 746.42526
+  tps: 555.81218
   hps: 46.2075
  }
 }

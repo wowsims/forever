@@ -69,6 +69,7 @@ var UnsupportedAbsorbBySpellID = map[int32]string{}
 // Items below core.MinEffectItemLevel whose effects are generated anyway, keyed by item ID with the reason a
 // level 60 character still uses them.
 var EffectFloorExemptions = map[int32]string{
+	7284: "Red Whelp Gloves: worn by melee players in the logs, its Firebolt on 10% of their hits as the row states (EV-0177)",
 	9449: "Manual Crowd Pummeler: a level 60 melee swaps it in for its on-use attack speed",
 }
 
@@ -202,6 +203,7 @@ var ItemAllowList = map[int32]struct{}{
 	1168:  {}, // Skullflame Shield
 	2140:  {},
 	2505:  {},
+	7284:  {}, // Red Whelp Gloves
 	8345:  {}, // Wolfshead Helm
 	11815: {}, // Hand of Justice
 	18168: {}, // Force Reactive Disk

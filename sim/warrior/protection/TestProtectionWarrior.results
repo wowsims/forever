@@ -2106,6 +2106,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Siegebreaker'sBlaster-282561"
+ value: {
+  dps: 575.68837
+  tps: 1826.24902
+  dtps: 304.31968
+  hps: 42.27123
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-SkullflameShield-1168"
  value: {
   dps: 574.27196

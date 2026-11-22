@@ -558,19 +558,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Corrosive acid that deals 13 Nature damage every 2.0 sec and lowers target's armor by 50 for 14s.
-	// https://www.wowhead.com/forever/spell=13526
-	// unsupported: states no rate
-	// trigger 13526 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13526, BuffSpellID: 13526, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 11635, ItemName: "Hookfang Shanker"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Harmful spell casts have a chance to deal 70 Fire damage. Deals 3 times as much damage to Plants.
 	// https://www.wowhead.com/forever/spell=1300782
 	// unsupported: states no rate
@@ -986,19 +973,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 15138, ItemName: "Onyxia Scale Cloak"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Blasts a target for 252 Nature damage.
-	// https://www.wowhead.com/forever/spell=19874
-	// unsupported: states no rate
-	// trigger 19874 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 19874, BuffSpellID: 19874, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 15418, ItemName: "Shimmering Platinum Warhammer"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3081,19 +3055,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Strike the target with a Flaming Shell, inflicting 7 Fire damage every 3 sec for 9 sec.
-	// https://www.wowhead.com/forever/spell=1314040
-	// unsupported: states no rate
-	// trigger 1314040 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1314040, BuffSpellID: 1314040, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 282561, ItemName: "Siegebreaker's Blaster"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Blast the enemy, inflicting 70 Fire damage.
 	// https://www.wowhead.com/forever/spell=1314069
 	// unsupported: states no rate
@@ -3371,7 +3332,7 @@ func RegisterAllProcs() {
 
 	// Sends a shadowy bolt at the enemy causing 125 Shadow damage.
 	// https://www.wowhead.com/forever/spell=18138
-	// trigger 18138 (1.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 18138 (1.15 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18138, BuffSpellID: 18138, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 2163, ItemName: "Shadowblade"},
@@ -3447,6 +3408,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293407, BuffSpellID: 1293407, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 6831, ItemName: "Black Menace"},
+		})
+
+	// 5% chance of dealing 40 Fire damage on a successful melee attack.
+	// https://www.wowhead.com/forever/spell=9057
+	// trigger 9233 (10%, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 9057
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 9233, BuffSpellID: 9057},
+		[]shared.ItemVariant{
+			{ItemID: 7284, ItemName: "Red Whelp Gloves"},
 		})
 
 	// Deals 14 Holy damage every time you block.
@@ -3535,7 +3504,7 @@ func RegisterAllProcs() {
 
 	// Delivers a fatal wound for 311 Physical damage. Deals 50% increased damage to targets below 25% health.
 	// https://www.wowhead.com/forever/spell=10373
-	// trigger 10373 (0.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 10373 (0.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 10373, BuffSpellID: 10373, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 9425, ItemName: "Pendulum of Doom - Fatal Wound"},
@@ -3670,6 +3639,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 8397, BuffSpellID: 10368},
 		[]shared.ItemVariant{
 			{ItemID: 11302, ItemName: "Uther's Strength"},
+		})
+
+	// Corrosive acid that deals 13 Nature damage every 2.0 sec and lowers target's armor by 50 for 14s.
+	// https://www.wowhead.com/forever/spell=13526
+	// trigger 13526 (2.4 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13526, BuffSpellID: 13526, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 11635, ItemName: "Hookfang Shanker"},
 		})
 
 	// Wounds the target for 35 damage.
@@ -3933,7 +3910,7 @@ func RegisterAllProcs() {
 
 	// Slows target enemy's casting speed and increases the time between melee and ranged attacks by 9% for 10s.
 	// https://www.wowhead.com/forever/spell=17331
-	// trigger 17331 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 17331 (1.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 17331, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13218, ItemName: "Fang of the Crystal Spider"},
@@ -4017,6 +3994,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18276, BuffSpellID: 18276, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 14487, ItemName: "Bonechill Hammer"},
+		})
+
+	// Blasts a target for 252 Nature damage.
+	// https://www.wowhead.com/forever/spell=19874
+	// trigger 19874 (1.85 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 19874, BuffSpellID: 19874, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 15418, ItemName: "Shimmering Platinum Warhammer"},
 		})
 
 	// Wounds the target causing them to bleed for 80 damage over 30s.
@@ -4209,7 +4194,7 @@ func RegisterAllProcs() {
 
 	// Wounds the target for 250 damage and increases the casting time of all spells by 25% for 30s.
 	// https://www.wowhead.com/forever/spell=1290950
-	// trigger 1290950 (0.4 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1290950 (0.55 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1290950, BuffSpellID: 1290950, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 19324, ItemName: "The Lobotomizer"},
@@ -4383,6 +4368,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1312176, BuffSpellID: 1312176, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 281665, ItemName: "Twilight Forgehammer"},
+		})
+
+	// Strike the target with a Flaming Shell, inflicting 7 Fire damage every 3 sec for 9 sec.
+	// https://www.wowhead.com/forever/spell=1314040
+	// trigger 1314040 (5.3 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1314040, BuffSpellID: 1314040, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 282561, ItemName: "Siegebreaker's Blaster"},
 		})
 
 	// Thrown attacks explode on impact, causing 17 Fire damage to nearby enemies.

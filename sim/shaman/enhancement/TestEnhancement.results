@@ -1109,8 +1109,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Malown'sSlam-13393"
  value: {
-  dps: 932.39733
-  tps: 682.46554
+  dps: 933.14585
+  tps: 682.98951
   dtps: 7.79328
   hps: 21.5025
  }
@@ -1244,10 +1244,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 914.42934
-  tps: 669.98606
-  dtps: 8.40565
-  hps: 20.90944
+  dps: 917.6029
+  tps: 672.2349
+  dtps: 8.3938
+  hps: 21.02806
  }
 }
 dps_results: {
@@ -1410,6 +1410,15 @@ dps_results: {
   tps: 692.87906
   dtps: 7.43645
   hps: 20.77389
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-ShimmeringPlatinumWarhammer-15418"
+ value: {
+  dps: 933.746
+  tps: 684.93201
+  dtps: 7.15223
+  hps: 25.315
  }
 }
 dps_results: {

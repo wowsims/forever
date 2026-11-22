@@ -755,6 +755,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-HookfangShanker-11635"
+ value: {
+  dps: 787.32909
+  tps: 728.4547
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-Illusionist'sAttire"
  value: {
   dps: 816.37454

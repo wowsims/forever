@@ -290,15 +290,14 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blackblade of Shahram: no proc row; a log fit not yet validated (EV-0125)",
 		Source:  "observed",
 	},
-	// Fitted from logs on the landed white swings of the mace's wearers and rounded to 1.8 by the owner; their
-	// Stormstrikes roll it at the same share (EV-0150). The "observed" Source keeps the gear tab's notice up until
-	// more wearers validate it.
+	// Measured on every hit that rolls the mace, each priced on its base speed; white swings and Stormstrikes roll it
+	// alike (EV-0150).
 	{
 		ItemID:  13393,
 		SpellID: 17500,
-		PPM:     1.8,
-		Reason:  "Malown's Slam: no proc row; a log fit not yet validated (EV-0150)",
-		Source:  "observed",
+		PPM:     1.95,
+		Reason:  "Malown's Slam: no proc row",
+		Source:  "EV-0150",
 	},
 	// Measured on the landed hits each trigger hears, each priced on its weapon's base speed (EV-0136).
 	{
@@ -491,7 +490,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  9425,
 		SpellID: 10373,
-		PPM:     0.9,
+		PPM:     0.95,
 		Reason:  "Pendulum of Doom: no proc row",
 		Source:  "EV-0136",
 	},
@@ -697,7 +696,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  13218,
 		SpellID: 17331,
-		PPM:     1,
+		PPM:     1.1,
 		Reason:  "Fang of the Crystal Spider: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
@@ -925,6 +924,44 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blackvenom Blade: column reads 101; a log fit not yet validated (EV-0157)",
 		Source:  "observed",
 	},
+	// Fitted the same way on the reports from 2026-11-09 to 2026-11-22, from wearers of one class only, no lone-unit
+	// rate to check it or one-hand white swings that disagree, so not final (EV-0177). The "observed" Source keeps the
+	// gear tab's notice up until more wearers validate it.
+	{
+		ItemID:  11635,
+		SpellID: 13526,
+		PPM:     2.4,
+		Reason:  "Hookfang Shanker: column reads 101; a log fit not yet validated (EV-0177)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  13198,
+		SpellID: 17308,
+		PPM:     2.15,
+		Reason:  "Hurd Smasher: no proc row; a log fit not yet validated (EV-0177)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  15418,
+		SpellID: 19874,
+		PPM:     1.85,
+		Reason:  "Shimmering Platinum Warhammer: no proc row; a log fit not yet validated (EV-0177)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  19324,
+		SpellID: 1290950,
+		PPM:     0.55,
+		Reason:  "The Lobotomizer: column reads 101; a log fit not yet validated (EV-0177)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  282561,
+		SpellID: 1314040,
+		PPM:     5.3,
+		Reason:  "Siegebreaker's Blaster: no proc row; a log fit not yet validated (EV-0177)",
+		Source:  "observed",
+	},
 	// Fitted the same way from too few wearers or too wide an interval to call final (EV-0136). The
 	// "observed" Source keeps the gear tab's notice up until more wearers validate it.
 	{
@@ -958,7 +995,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  2163,
 		SpellID: 18138,
-		PPM:     1.05,
+		PPM:     1.15,
 		Reason:  "Shadowblade: no proc row; shares the trigger with Black Duskwood Staff; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
@@ -1271,13 +1308,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
-		ItemID:  19324,
-		SpellID: 1290950,
-		PPM:     0.4, // TODO: Vanilla value - verify in-game
-		Reason:  "The Lobotomizer: column reads 101",
-		Source:  "vanilla-carryover",
-	},
-	{
 		ItemID:  21134,
 		SpellID: 26108,
 		PPM:     0.4, // TODO: Vanilla value - verify in-game
@@ -1456,13 +1486,6 @@ var WeaponProcs = []WeaponProc{
 	// 	SpellID: 1297357,
 	// 	PPM:     0, // TODO: waiting for PPM data
 	// 	Reason:  "Reforged Spear: no proc row",
-	// 	Source:  "vanilla-carryover",
-	// },
-	// {
-	// 	ItemID:  282561,
-	// 	SpellID: 1314040,
-	// 	PPM:     0, // TODO: waiting for PPM data
-	// 	Reason:  "Siegebreaker's Blaster: no proc row",
 	// 	Source:  "vanilla-carryover",
 	// },
 	// {

@@ -1094,6 +1094,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-HookfangShanker-11635"
+ value: {
+  dps: 776.79282
+  tps: 551.52291
+  hps: 63.57556
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Hurricane-2824"
  value: {
   dps: 812.49732
@@ -1560,8 +1568,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Shadowblade-2163"
  value: {
-  dps: 794.14407
-  tps: 563.84229
+  dps: 794.6035
+  tps: 564.16849
   hps: 57.86528
  }
 }
@@ -1587,6 +1595,14 @@ dps_results: {
   dps: 762.526
   tps: 541.39346
   hps: 52.12111
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Siegebreaker'sBlaster-282561"
+ value: {
+  dps: 812.49732
+  tps: 576.8731
+  hps: 58.83111
  }
 }
 dps_results: {
@@ -1800,8 +1816,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 796.4906
-  tps: 565.50832
+  dps: 798.25342
+  tps: 566.75993
   hps: 57.27222
  }
 }
