@@ -1,3 +1,4 @@
+import { checkWhileOpen } from '@app/version_checks';
 import i18n from '@i18n/config';
 import { BUILD_INFO } from '@sim/constants/build_info';
 import { REPO_NAME } from '@sim/constants/other';
@@ -11,7 +12,6 @@ import { toastManager } from '@ui-kit/Toast';
 // come from the server, so such a page runs its old code against the new sim until it is reloaded. A `no-store`
 // fetch asks the server on those loads too.
 const VERSION_URL = `/${REPO_NAME}/version.json`;
-const CHECK_EVERY_MS = 10 * 60 * 1000;
 // The build this tab last reloaded for, kept across the reload.
 const RELOADED_FOR_KEY = 'forever_reloaded_for_build';
 
@@ -48,10 +48,8 @@ export const watchForNewBuild = () => {
 
 	// A link's settings are read from the hash and then cleared, so the reload goes back to the URL the page opened at.
 	const openedAt = location.href;
-	let lastCheck = 0;
 	let offered = false;
 	const newerBuild = async () => {
-		lastCheck = Date.now();
 		const commit = await liveCommit();
 		return commit && commit !== BUILD_INFO.commit ? commit : undefined;
 	};
@@ -71,23 +69,14 @@ export const watchForNewBuild = () => {
 	});
 
 	// A page that has been open for a while may hold results, so it asks first.
-	const check = () => {
+	const versionChecks = checkWhileOpen(() => {
 		if (offered) return;
 		void newerBuild().then(commit => {
 			if (!commit || offered) return;
 			offered = true;
 			offerReload();
 		});
-	};
-	const checkIfDue = () => {
-		if (document.visibilityState === 'visible' && Date.now() - lastCheck >= CHECK_EVERY_MS) check();
-	};
-	document.addEventListener('visibilitychange', checkIfDue);
-	setInterval(checkIfDue, CHECK_EVERY_MS);
-	// Back and Forward can bring the page back from memory as it was left.
-	window.addEventListener('pageshow', event => {
-		if (event.persisted) check();
 	});
 	// The host deletes the old build's chunks on a deploy, so a chunk the page imports late fails to load.
-	window.addEventListener('vite:preloadError', check);
+	window.addEventListener('vite:preloadError', versionChecks.checkNow);
 };
