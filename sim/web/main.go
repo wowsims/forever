@@ -46,7 +46,7 @@ var (
 	updater *selfupdate.Updater // nil when self-update cannot be set up.
 )
 
-const versionRecheckInterval = 6 * time.Hour
+const versionRecheckInterval = time.Hour
 
 type versionInfo struct {
 	Version   string `json:"version"`
