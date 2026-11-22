@@ -20,6 +20,10 @@ const MissingRandomSuffixWarning = () => <p className="mb-0">{i18n.t('gear_tab.i
 
 export const MISSING_RANDOM_SUFFIX_WARNING = <MissingRandomSuffixWarning />;
 
+const BestRandomSuffixInfo = () => <p className="mb-0">{i18n.t('gear_tab.item_notices.best_random_suffix')}</p>;
+
+export const BEST_RANDOM_SUFFIX_INFO = <BestRandomSuffixInfo />;
+
 const MissingEffectNotice = ({ effectKind, tooltips }: { effectKind: 'item' | 'enchant'; tooltips: string[] }) =>
 	!tooltips.length ? (
 		<>

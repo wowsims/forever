@@ -48,8 +48,8 @@ vi.mock('./ItemSource', () => ({
 	),
 }));
 vi.mock('../GearPicker/ItemNoticeIcon', () => ({
-	ItemNoticeIcon: ({ itemId, enchantId }: { itemId?: number; enchantId?: number }) => (
-		<div data-testid="item-notice-marker" data-item-id={itemId} data-enchant-id={enchantId} />
+	ItemNoticeIcon: ({ itemId, enchantId, additionalInfo }: { itemId?: number; enchantId?: number; additionalInfo?: ReactNode }) => (
+		<div data-testid="item-notice-marker" data-item-id={itemId} data-enchant-id={enchantId} data-info={additionalInfo ? '' : undefined} />
 	),
 }));
 
@@ -162,6 +162,16 @@ describe('ItemListRow', () => {
 		const notice = container.querySelector('[data-testid="item-notice-marker"]')!;
 		expect(notice.getAttribute('data-item-id')).toBe(itemId);
 		expect(notice.getAttribute('data-enchant-id')).toBe(enchantId);
+	});
+
+	it.each([
+		['an item with random suffixes', SelectorModalTabs.Items, [1, 2], true],
+		['an item without them', SelectorModalTabs.Items, [], false],
+		['a row outside the items tab', SelectorModalTabs.RandomSuffixes, [1, 2], false],
+	])('tells whether it equips with its best suffix on %s', (_name, label, randomSuffixOptions, info) => {
+		const item = { id: 10267, ilvl: 0, randomSuffixOptions } as unknown as Item;
+		const { container } = renderRow({ label, itemData: makeItemData({ item }) });
+		expect(container.querySelector('[data-testid="item-notice-marker"]')!.hasAttribute('data-info')).toBe(info);
 	});
 
 	describe('the discovered dot', () => {

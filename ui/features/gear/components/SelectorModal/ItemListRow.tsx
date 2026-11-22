@@ -12,6 +12,7 @@ import { type ReactNode, useMemo } from 'react';
 import { useStore } from 'zustand';
 
 import { trackEvent } from '../../../../tracking/utils';
+import { BEST_RANDOM_SUFFIX_INFO } from '../../item_notices';
 import { discoveredLabel, isNewlyDiscovered } from '../../model/item_first_seen';
 import { tabHasLevel } from '../../model/item_sort';
 import type { ItemData, ItemListType } from '../../types';
@@ -129,6 +130,7 @@ export const ItemListRow = ({
 	const level = tabHasLevel(label) ? itemData.ilvl || (isItemsTab ? (itemData.item as unknown as Item).ilvl : 0) : undefined;
 	const enchant = itemData.item as unknown as Enchant;
 	const sourceItem = isItemsTab ? (itemData.item as unknown as Item) : isEnchantsTab ? { id: enchant.itemId, sources: enchant.sources } : undefined;
+	const hasRandomSuffix = isItemsTab && !!(itemData.item as unknown as Item).randomSuffixOptions?.length;
 	const discovered = isItemsTab && firstSeen !== undefined && isNewlyDiscovered(firstSeen) ? discoveredLabel(firstSeen) : undefined;
 
 	const batchPlayer = isIndividualSimHost(host) ? host.player : null;
@@ -154,7 +156,13 @@ export const ItemListRow = ({
 			active={active}
 			onEquip={onEquip}
 			discovered={discovered}
-			notice={<ItemNoticeIcon itemId={isItemsTab ? itemData.id : undefined} enchantId={isEnchantsTab ? itemData.id : undefined} />}
+			notice={
+				<ItemNoticeIcon
+					itemId={isItemsTab ? itemData.id : undefined}
+					enchantId={isEnchantsTab ? itemData.id : undefined}
+					additionalInfo={hasRandomSuffix ? BEST_RANDOM_SUFFIX_INFO : undefined}
+				/>
+			}
 			source={sourceItem && <ItemSource item={sourceItem} sim={host.sim} faction={faction} />}
 			ep={ep}
 			favourited={favourited}

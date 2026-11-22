@@ -637,6 +637,7 @@
 		"item_notices": {
 			"want_to_help": "Want to help out by providing additional information? Contact us on our Discord!",
 			"missing_random_suffix": "Please select a random suffix",
+			"best_random_suffix": "Equipped with its highest EP random suffix. You can change it in the Random Suffix tab.",
 			"missing_effect": {
 				"item": "This item effect (on-use or proc) is not implemented!",
 				"enchant": "This enchant effect (on-use or proc) is not implemented!",

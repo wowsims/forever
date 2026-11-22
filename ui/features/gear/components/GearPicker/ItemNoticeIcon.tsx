@@ -28,9 +28,10 @@ export interface ItemNoticeIconProps {
 	itemId?: number;
 	enchantId?: number;
 	additionalNotice?: ReactNode;
+	additionalInfo?: ReactNode;
 }
 
-export const ItemNoticeIcon = ({ itemId, enchantId, additionalNotice }: ItemNoticeIconProps) => {
+export const ItemNoticeIcon = ({ itemId, enchantId, additionalNotice, additionalInfo }: ItemNoticeIconProps) => {
 	const spec = usePlayer().getSpec();
 
 	const itemNotice = itemId ? ITEM_NOTICES.get(itemId) : undefined;
@@ -42,7 +43,7 @@ export const ItemNoticeIcon = ({ itemId, enchantId, additionalNotice }: ItemNoti
 	const itemRateNotice = itemId ? ITEM_RATE_NOTICES.get(itemId) : undefined;
 	const enchantRateNotice = enchantId ? ENCHANT_RATE_NOTICES.get(enchantId) : undefined;
 
-	if (!ownNotice && !ownEnchantNotice && !additionalNotice && !infoNotice && !itemRateNotice && !enchantRateNotice) return null;
+	if (!ownNotice && !ownEnchantNotice && !additionalNotice && !infoNotice && !additionalInfo && !itemRateNotice && !enchantRateNotice) return null;
 
 	const warns = !!ownNotice || !!ownEnchantNotice || !!additionalNotice;
 
@@ -52,6 +53,7 @@ export const ItemNoticeIcon = ({ itemId, enchantId, additionalNotice }: ItemNoti
 			{ownEnchantNotice}
 			{additionalNotice}
 			{infoNotice}
+			{additionalInfo}
 			{itemRateNotice}
 			{enchantRateNotice}
 		</ItemNoticeIconView>
