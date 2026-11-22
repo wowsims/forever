@@ -6,7 +6,7 @@
   stream on disk for the weapon; 31 reports in all
 - Game build: 1.60.1.70938 to 1.60.1.71037 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
   UTC); 10 reports start after hotfix push 114313 (2026-11-20 23:47 UTC). The sim's database is 1.60.1.71037, push
-  114326; the hotfix each player ran is not recorded
+  114330; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-22
 - Pull request: #1168
 
@@ -25,13 +25,14 @@ Rate is the override row's rate. The one-hand white and specials columns give th
 ## Sword of Zeal (item 6622, spell 8191): 1.95, measured
 
 3,687 procs on 40,881 rolling hits, 16 wearers, 30 runs, in the main hand: all hits 1.93 [1.91, 2.00]. The rate is all
-hits, which the one-hand white rate and the specials rate agree with. One-hand white: 2.01 [1.96, 2.41], 302 procs on
-3,214 lone units, 2 wearers. Dual-wield white, which sets no rate: 1.60 [1.51, 1.73], 306 procs on 4,086 lone units, 15
-wearers. Specials: 1.85 [1.74, 1.98], 441 procs on 5,097 lone units, 16 wearers; Sinister Strike gives 242 procs on
-2,699 of them. Two-roll abilities, priced as one roll: 3.23, 64 procs on 425 lone units (Execute 62 on 403 and Mongoose
-Bite 2 on 22), left out of the rate. Direct: window [-20, 100] ms, median -1 ms, 98th percentile 0 ms, 735 isolated
-hits. Dropping the swapped stretches (5.8 active minutes, 0.5% of hits, in 1 run) moved the read from 1.92 to 1.93.
-Report PThANm6GzytHYDrd logs the same run as L7tdvhcYjgwHTrMz and counts once. Reports from 2026-11-13 to 2026-11-22.
+hits, which the one-hand white rate and the specials rate agree with. One-hand white: 2.01 [1.79, 2.25], 302 procs on
+3,214 lone units, 2 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.60 [1.51,
+1.73], 306 procs on 4,086 lone units, 15 wearers. Specials: 1.85 [1.74, 1.98], 441 procs on 5,097 lone units, 16
+wearers; Sinister Strike gives 242 procs on 2,699 of them. Two-roll abilities, priced as one roll: 3.23, 64 procs on 425
+lone units (Execute 62 on 403 and Mongoose Bite 2 on 22), left out of the rate. Direct: window [-20, 100] ms, median -1
+ms, 98th percentile 0 ms, 735 isolated hits. Dropping the swapped stretches (5.8 active minutes, 0.5% of hits, in 1 run)
+moved the read from 1.92 to 1.93. Report PThANm6GzytHYDrd logs the same run as L7tdvhcYjgwHTrMz and counts once. Reports
+from 2026-11-13 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |

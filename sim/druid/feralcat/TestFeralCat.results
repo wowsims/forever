@@ -1008,8 +1008,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-HookfangShanker-11635"
  value: {
-  dps: 733.36786
-  tps: 546.4869
+  dps: 732.9111
+  tps: 546.159
   hps: 46.17361
  }
 }

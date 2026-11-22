@@ -3643,7 +3643,7 @@ func RegisterAllProcs() {
 
 	// Corrosive acid that deals 13 Nature damage every 2.0 sec and lowers target's armor by 50 for 14s.
 	// https://www.wowhead.com/forever/spell=13526
-	// trigger 13526 (2.4 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 13526 (2.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13526, BuffSpellID: 13526, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 11635, ItemName: "Hookfang Shanker"},

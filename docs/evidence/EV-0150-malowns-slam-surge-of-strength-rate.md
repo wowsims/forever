@@ -26,7 +26,7 @@ it to 40 ms after it; in the combat log 17499 logs 1 ms before its hit and 17500
 from 20 ms before it to 5 ms after. The same window shifted 0.3 to 0.9 s later counts chance coincidence.
 
 Two other shamans wore the mace for a few swings only and a druid tank swapped weapons through the log, so they are
-left out. Every wearer counted swung the 3.8 s mace, so these hits fit a flat 11% chance as well as a rate in procs
+left out. Every wearer counted swung the 3.8 s mace, so these hits fit a flat 12% chance as well as a rate in procs
 per minute.
 
 ## Reports
@@ -80,10 +80,11 @@ reports' Stormstrikes.
 
 1,059 procs on 8,574 rolling hits, 11 wearers, 11 runs, in the main hand: all hits 1.95 [1.79, 2.10]. The rate is all
 hits, which the one-hand white rate agrees with. One-hand white: 2.09 [1.87, 2.35], 284 procs on 2,146 lone units, 11
-wearers. Specials: 2.00 [0.00, 2.63], 10 procs on 79 lone units, 2 wearers. Two-roll abilities, priced as one roll:
-2.26, 6 procs on 42 lone units (Execute 6 on 42), left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th
-percentile 1 ms, 246 isolated hits. The paladin check, which sets no rate: lone white swings 1.30, 36 procs on 437 lone
-units, 7 wearers. Left out: 1 of 12 runs in Cat or Bear Form. Reports from 2026-11-14 to 2026-11-21.
+wearers. Specials: 2.00 [0.96, 3.68], 10 procs on 79 lone units, 2 wearers (a Poisson interval: under 5 wearers).
+Two-roll abilities, priced as one roll: 2.26, 6 procs on 42 lone units (Execute 6 on 42), left out of the rate. Direct:
+window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 246 isolated hits. The paladin check, which sets no rate: lone
+white swings 1.30, 36 procs on 437 lone units, 7 wearers. Left out: 1 of 12 runs in Cat or Bear Form. Reports from
+2026-11-14 to 2026-11-21.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -99,8 +100,8 @@ xt4kjHLMnFvPCrhT 1-2; yjd7A18ghwWmqYzD 1, 3-4.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate lists, from every wearer
   stream on disk for the mace; 321 reports in all for the count, 11 of them for this mace
 - Game build: 1.60.1.70938 to 1.60.1.71037 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 4 reports start after hotfix push 114313 (2026-11-20 23:47 UTC). The sim's database is 1.60.1.71037, push
-  114326; the hotfix each player ran is not recorded
+  UTC); 74 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 4 of them for this mace. The
+  sim's database is 1.60.1.71037, push 114330; the hotfix each player ran is not recorded
 - Date: 2026-11-09 to 2026-11-22
 - Pull request: #1168
 

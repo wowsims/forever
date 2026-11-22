@@ -3,9 +3,7 @@
 EV-0156 splits the reading that a Judgement of the Crusader, Justice, Light or Wisdom landing rolls a weapon proc once:
 it holds to 2026-11-13, and since that day's hotfix the landing rolls nothing. The section After hotfix push 114313
 dates the Execute reading: Execute rolls twice up to that push (2026-11-20), and the first hours after it read
-between one and two rolls on few wearers. Judgement of Command still rolls twice after it. The section Shank from
-2026-11-20 dates the Shank reading: Shank rolls no weapon proc up to 2026-11-19 and the off-hand weapon once from
-2026-11-20.
+between one and two rolls on few wearers. Judgement of Command still rolls twice after it.
 
 - Claim: Execute rolls a weapon proc twice, on both hand setups: with killing blows left out, Execute units hold 1.95
   times the procs one roll gives. Judgement of Command rolls twice, 1.85 [1.78, 1.93]. The
@@ -14,8 +12,8 @@ between one and two rolls on few wearers. Judgement of Command still rolls twice
   imbue strikes and poisons add no roll. A weapon proc's melee-table strike that a main-hand white swing casts rolls the
   main-hand weapon once more, Loksey's Training Stick's Tough Love and the Rend procs among them; magic procs never do.
   Mongoose Bite and Mocking Blow are not settled: thin samples here read above one roll, a larger separate count reads
-  one. Summon Hawk's hits roll the ranged weapon once. From 2026-11-20 a rogue's Shank rolls the off-hand weapon once
-  and the main-hand weapon never.
+  one. Summon Hawk's hits roll the ranged weapon once. A rogue's Shank rolls no weapon proc up to 2026-11-19; from
+  2026-11-20 it rolls the off-hand weapon once and the main-hand weapon never.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every indexed wearer run of the 24 census weapons: 2,670
   runs in 2,361 reports, too many to list; the examples below name report, fight and time
 - Game build: 1.60.1.70790 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114196; the hotfix
@@ -215,11 +213,9 @@ proc in these logs is at 2026-11-20 01:10 UTC.
   is not recorded
 - Date: 2026-11-06 to 2026-11-19 before, 2026-11-20 to 2026-11-22 after, split at 00:00 UTC
 
-The count takes the rogue wearers, in the off hand or the main hand, of every weapon in the 2026-11-22 sweep whose proc
-the sweep finds direct, with no travel time (EV-0177 §Method). A unit is a lone Shank or a lone white swing of the weapon's hand, with no
-other event of the wearer within 300 ms before or after it; it has a proc when the weapon's proc logs from 20 ms before
-it to 40 ms after it. The counts are pooled per wearer stream, with no deduplication of a run logged twice and no
-interval. A dual wielder's white swings take the hand labels of EV-0153 §Method.
+A unit is a rogue wearer's lone Shank or lone white swing of the weapon's hand, with no other event within 300 ms, over
+every weapon in the 2026-11-22 sweep whose proc lands with no travel time; it has a proc when the weapon's proc logs
+from 20 ms before to 40 ms after it. The counts are pooled per wearer stream, not deduplicated by run, with no interval.
 
 | Weapon    | Period                   | Lone Shanks with a proc | Lone white swings with a proc | Ratio |
 | --------- | ------------------------ | ----------------------: | ----------------------------: | ----: |
@@ -229,7 +225,7 @@ interval. A dual wielder's white swings take the hand labels of EV-0153 §Method
 | Main hand | from 2026-11-20          |      17 / 4,491 (0.38%) |        1,070 / 22,003 (4.86%) |  0.08 |
 
 From 2026-11-20 a Shank rolls the off-hand weapon once, at about the off-hand white swing's chance, and the main-hand
-weapon never. The Lobotomizer's rate counts these Shanks as off-hand rolls (EV-0177).
+weapon never.
 
 Scripts and inputs, in `forever-sweep-auto`: the run `runs/2026-11-22-1122` (`runs_detail.csv`, `results.json`) and the
 analyzer's cached records (`cache_v13`).

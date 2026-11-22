@@ -1096,8 +1096,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-HookfangShanker-11635"
  value: {
-  dps: 776.79282
-  tps: 551.52291
+  dps: 776.76602
+  tps: 551.50387
   hps: 63.57556
  }
 }

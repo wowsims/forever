@@ -17,8 +17,8 @@
 - Later count: Barbaric Crossbow, Bow of Searing Arrows, Coldrage Dagger, Cursed Felblade, Darkwater Talwar, Dazzling
   Longsword, Electrocutioner Leg, Felstriker, Fiery War Axe, Fist of the Damned, Glutton's Cleaver, Grimclaw, Hammer of
   Expertise, Hanzo Sword, Iron Knuckles, Ironforge Greathammer, Lord General's Sword, Nightblade, Phantom Blade,
-  Sang'thraze the Deflector, Satyr's Lash, Spellsever Crossbow, Strike of the Hydra, Sword of Decay, Tainted Pierce, Taran
-  Icebreaker, Thornspike and Toofbreaker, §Count of the 2026-11-05 to 2026-11-19 reports
+  Sang'thraze the Deflector, Satyr's Lash, Spellsever Crossbow, Strike of the Hydra, Sword of Decay, Tainted Pierce,
+  Taran Icebreaker, Thornspike and Toofbreaker, §Count of the 2026-11-05 to 2026-11-19 reports
 - Later count: Loksey's Training Stick and The Blackrock Slicer, §Count of the 2026-11-09 to 2026-11-19 reports
 - Later count: Blade of the Wretched, Bloodrazor, Bloodspiller, Boneslicer, Cookie's Tenderizer, Eater of the Dead,
   Firebelcher, Hammer of the Northern Wind, Kang the Decapitator, Mana Channeling Wand, Pyromancer's Baton, Scorpion
@@ -911,8 +911,8 @@ window [22, 221] ms (152 isolated hits). Dropping the swapped stretches (63 acti
 the read from 1.05 to 1.11. Report DdKN3mXj6gH9yvpc logs the same run as D46Xm8ncR9WbTFrL and counts once. Reports from
 2026-11-14 to 2026-11-22.
 
-From 2026-11-20 Shank rolls the off-hand weapon (EV-0155 §Shank from 2026-11-20), which the count takes as no roll; with
-the off-hand wearers' 687 Shanks from that day counted, all hits read 1.08 [1.01, 1.20], which rounds to the same rate.
+With the off-hand wearers' 687 Shanks from 2026-11-20 counted as rolls (EV-0155 §Shank from 2026-11-20), all hits read
+1.08 [1.01, 1.20], the same rate rounded.
 
 | Class  | Wearers | Procs |   Hits |  PPM |
 | ------ | ------: | ----: | -----: | ---: |
@@ -1331,23 +1331,22 @@ zqpJDYHZC4Pa76bV 1-2.
 - Proc: weapon proc 1298416
 - Rate: 2.05 PPM, measured
 
-1,395 procs on 20,561 rolling hits, 13 wearers, 18 runs, in the main hand: all hits 2.04 [1.95, 2.11]. The rate is all
-hits, which the one-hand white rate and the specials rate agree with. The count takes 152 rolls for the chill 1298414 as
-a strike a white swing casts; without them all hits read 2.05 [1.97, 2.13]. One-hand white: 1.99 [1.73, 2.16], 84
-procs on 1,266 lone units, 4 wearers. Dual-wield white, which sets no rate: 1.61 [1.18, 1.98], 107 procs on 1,991 lone
-units, 9 wearers. Specials: 1.85 [1.44, 2.21], 106 procs on 1,721 lone units, 13 wearers. Travel time: the proc lands a
-median 108 ms after its hit, 98th percentile 215 ms, window [20, 225] ms (279 isolated hits). The run's `results.json`
-times the window on the chill as well, which lands about 418 ms after its hit (EV-0164), and reads [62, 446] ms; the lone
-units here take Frostbolt's own window. Dropping the swapped stretches (75 active minutes, 12% of hits, in 4 runs) moved
-the read from 1.79 to 2.04. Reports from 2026-11-10 to 2026-11-22.
-
-The item's second effect, 1298413, casts the chill 1298414 on every landed hit and has no rate (EV-0164).
+1,395 procs on 20,409 rolling hits, 13 wearers, 18 runs, in the main hand: all hits 2.05 [1.97, 2.13]. The rate is all
+hits, which the one-hand white rate and the specials rate agree with. The run's count also takes the 152 chills 1298414,
+which the item's second effect 1298413 casts on every landed hit (EV-0164), as strikes a white swing casts, and reads
+2.04 [1.95, 2.11] on 20,561 hits; `analyze.py` version 14 (cache `cache_v14`) takes no chill as a strike and gives the
+read here. One-hand white: 1.99 [1.59, 2.46], 84 procs on 1,266 lone units, 4 wearers (a Poisson interval: under 5
+wearers). Dual-wield white, which sets no rate: 1.61 [1.18, 1.98], 107 procs on 1,991 lone units, 9 wearers. Specials:
+1.85 [1.44, 2.21], 106 procs on 1,721 lone units, 13 wearers. Travel time: the proc lands a median 108 ms after its hit,
+98th percentile 215 ms, window [20, 225] ms (279 isolated hits); the run's `results.json` window, [62, 446] ms, also
+times the chill, which lands about 418 ms after its hit (EV-0164). Dropping the swapped stretches (75 active minutes,
+12% of hits, in 4 runs) moved the read from 1.80 to 2.05. Reports from 2026-11-10 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
-| Hunter  |       5 |   575 | 8,276 | 2.08 |
-| Rogue   |       4 |   445 | 6,767 | 1.97 |
-| Warrior |       4 |   375 | 5,518 | 2.04 |
+| Hunter  |       5 |   575 | 8,215 | 2.10 |
+| Rogue   |       4 |   445 | 6,704 | 1.99 |
+| Warrior |       4 |   375 | 5,490 | 2.05 |
 
 Reports and fights: 3r4pzgfc172HvbwC 2-19, 21; 8HvfKkArXpmbhwTF 1; 9TtNqcjaBvHFYQ61 2-3; A1yxMTmKatkf3HRJ 15-17;
 B4wWqM2TbRmdQy7Y 1-2; BDfZtjC3Q4wmV8dX 1-3; CmZh47GDdxbMPRqg 3-6; DNc6QALhxmGbCH3Y 1-6; DyMmJxc4t9pw6PAz 1-3;
@@ -2060,9 +2059,8 @@ Observed: no lone-unit rate checks it; the interval is wider than 10% of the rat
 of hits, in 7 runs) moved the read from 1.13 to 1.16. Report VMfN97kLXxyTpCwW logs the same run as F9bgjZYDQ6fqPaLk and
 counts once. Reports from 2026-11-13 to 2026-11-22.
 
-From 2026-11-20 Shank rolls the off-hand weapon (EV-0155 §Shank from 2026-11-20), which the count takes as no roll; with
-the off-hand wearers' 1,892 Shanks from that day counted, all hits read 1.13 [1.03, 1.26], which rounds to the same
-rate.
+With the off-hand wearers' 1,892 Shanks from 2026-11-20 counted as rolls (EV-0155 §Shank from 2026-11-20), all hits read
+1.13 [1.03, 1.26], the same rate rounded.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -2099,8 +2097,8 @@ the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 154 i
 stretches (5.5 active minutes, 1% of hits, in 1 run) moved the read from 0.99 to 1.00. Reports from 2026-11-13 to
 2026-11-22.
 
-From 2026-11-20 Shank rolls the off-hand weapon (EV-0155 §Shank from 2026-11-20), which the count takes as no roll; with
-the off-hand wearers' 129 Shanks from that day counted, all hits read 0.99 [0.93, 1.06], which rounds to the same rate.
+With the off-hand wearers' 129 Shanks from 2026-11-20 counted as rolls (EV-0155 §Shank from 2026-11-20), all hits read
+0.99 [0.93, 1.06], the same rate rounded.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -2928,11 +2926,12 @@ every class past the first is one wearer.
 ## Count of the 2026-11-09 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
-  lists, from every wearer stream on disk for its weapon; 321 reports in all
+  lists, from every wearer stream on disk for its weapon; 321 reports in all for the count, 231 of them for these
+  weapons
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 74 reports start after hotfix push 114313 (2026-11-20 23:47 UTC). The sim's database is 1.60.1.71037, push
-  114326; the hotfix each player ran is not recorded
+  UTC); 74 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 39 of them for these weapons. The
+  sim's database is 1.60.1.71037, push 114330; the hotfix each player ran is not recorded
 - Date: 2026-11-09 to 2026-11-22
 - Pull request: #1168
 

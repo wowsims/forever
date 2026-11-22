@@ -924,20 +924,20 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blackvenom Blade: column reads 101; a log fit not yet validated (EV-0157)",
 		Source:  "observed",
 	},
-	// Fitted the same way on the reports from 2026-11-09 to 2026-11-22, from wearers of one class only, no lone-unit
-	// rate to check it or one-hand white swings that disagree, so not final (EV-0177). The "observed" Source keeps the
-	// gear tab's notice up until more wearers validate it.
+	// Fitted the same way on the reports from 2026-11-09 to 2026-11-22 from wearers of one class or with no lone-unit
+	// rate to check it, so not final (EV-0177). The "observed" Source keeps the gear tab's notice up until more wearers
+	// validate it.
 	{
 		ItemID:  11635,
 		SpellID: 13526,
-		PPM:     2.4,
+		PPM:     2.1,
 		Reason:  "Hookfang Shanker: column reads 101; a log fit not yet validated (EV-0177)",
 		Source:  "observed",
 	},
 	{
 		ItemID:  13198,
 		SpellID: 17308,
-		PPM:     2.15,
+		PPM:     1.95,
 		Reason:  "Hurd Smasher: no proc row; a log fit not yet validated (EV-0177)",
 		Source:  "observed",
 	},
