@@ -67,11 +67,14 @@ jobs:
         with:
             ref: ${{ needs.check-tag.outputs.sha }}
 
+    # The release is published with the release App's token, which only the release environment (master) holds and
+    # which the v* tag ruleset lets through; the job's own token only reads.
     build-and-release:
         needs: [check-tag, tests]
         runs-on: ubuntu-latest
+        environment: release
         permissions:
-            contents: write
+            contents: read
         steps:
             - name: Checkout
               uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
@@ -122,11 +125,21 @@ jobs:
                   make binary_dist binary_dist/dist.go
                   test -f binary_dist/forever/index.html
 
+            # Made after the build steps, so the token exists only for the release itself.
+            - name: Get the release token
+              id: release-token
+              uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+              with:
+                  app-id: ${{ vars.RELEASE_APP_ID }}
+                  private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+                  repositories: forever
+                  permission-contents: write
+
             - name: Release
               uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
               with:
                   version: v2.20.3
                   args: release --clean
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_TOKEN: ${{ steps.release-token.outputs.token }}
                   GORELEASER_CURRENT_TAG: ${{ inputs.tag }}
