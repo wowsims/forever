@@ -6,7 +6,7 @@ character_stats_results: {
   final_stats: 300
   final_stats: 344
   final_stats: 487
-  final_stats: 632
+  final_stats: 638
   final_stats: 0
   final_stats: 10
   final_stats: 0
@@ -56,1407 +56,29 @@ character_stats_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-AdaptiveCombatAssistant-272437"
  value: {
-  dps: 907.69663
-  tps: 744.20293
+  dps: 912.34466
+  tps: 748.18003
   dtps: 11.30382
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Admiral'sHat-10030"
  value: {
-  dps: 874.56256
-  tps: 715.9617
+  dps: 879.20122
+  tps: 719.93186
   dtps: 10.8232
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-AnkhofLife-1713"
  value: {
-  dps: 911.09075
-  tps: 748.09955
+  dps: 915.75921
+  tps: 752.09727
   dtps: 11.17702
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-ArenaGrandMaster-19024"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ArgentAvenger-13246"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-BadgeoftheSwarmguard-21670"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-BarmanShanker-12791"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-BehemothBones-280065"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-BlackMenace-6831"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Blackhand'sBreadth-13965"
- value: {
-  dps: 910.03499
-  tps: 746.40287
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-BladeofEternalDarkness-17780"
- value: {
-  dps: 920.69671
-  tps: 757.14992
-  dtps: 11.75653
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-BladeoftheWretched-10803"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-BlazefuryMedallion-17111"
- value: {
-  dps: 897.15175
-  tps: 736.4879
-  dtps: 11.5387
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-BlazingEmblem-2802"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-BlazingRapier-12777"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Bloodrazor-809"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-BloodvineGarb"
- value: {
-  dps: 974.18536
-  tps: 798.68248
-  dtps: 11.27765
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Bolt'sChargedEyeball-280032"
- value: {
-  dps: 912.42867
-  tps: 749.19884
-  dtps: 11.76719
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-BristleconeCloak-275833"
- value: {
-  dps: 896.37563
-  tps: 749.99354
-  dtps: 11.5387
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Champion'sDreadgear"
- value: {
-  dps: 905.49319
-  tps: 744.84267
-  dtps: 11.15913
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Champion'sThreads"
- value: {
-  dps: 843.64893
-  tps: 692.54194
-  dtps: 11.37995
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-CloakofFire-14134"
- value: {
-  dps: 898.18926
-  tps: 751.73463
-  dtps: 11.5387
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-CloakofFlames-3475"
- value: {
-  dps: 904.20043
-  tps: 754.84269
-  dtps: 11.98672
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ColdBasiliskEye-5079"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ColdrageDagger-10761"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Dal'Rend'sArms"
- value: {
-  dps: 849.73601
-  tps: 693.83544
-  dtps: 11.85949
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-DarkmoonCard:BlueDragon-19288"
- value: {
-  dps: 915.33592
-  tps: 752.13434
-  dtps: 11.08914
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-DarkmoonCard:Heroism-19287"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-DarkmoonCard:Maelstrom-19289"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Darrowspike-13984"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-DazzlingLongsword-869"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-DeadheadBlade-274271"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-DeathmistRaiment"
- value: {
-  dps: 878.83268
-  tps: 722.87154
-  dtps: 11.58225
-  hps: 8.95745
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Defender'sGripStabilizer-272440"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Defiler'sTalisman-20072"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Defiler'sTalisman-21115"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Defiler'sTalisman-21116"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-DemonheartRaiment"
- value: {
-  dps: 930.47802
-  tps: 758.45515
-  dtps: 11.51602
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Demoniac'sThreads"
- value: {
-  dps: 890.81792
-  tps: 735.20567
-  dtps: 11.0299
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Doomcaller'sAttire"
- value: {
-  dps: 994.57427
-  tps: 814.29928
-  dtps: 11.33024
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-DormantHeartoftheMountain-249473"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.1416
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-DraconicInfusedEmblem-22268"
- value: {
-  dps: 915.18933
-  tps: 750.5996
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Dragon'sCall-10847"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-DreadfrostSaber-274603"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-DreadmistRaiment"
- value: {
-  dps: 818.27578
-  tps: 672.96706
-  dtps: 11.52311
-  hps: 7.90759
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EarthenSigil-20525"
- value: {
-  dps: 914.36675
-  tps: 751.45516
-  dtps: 11.60255
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Earthstrike-21180"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EbonHiltofMarduk-14576"
- value: {
-  dps: 856.52766
-  tps: 692.89091
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EidolonTalisman-18340"
- value: {
-  dps: 897.15175
-  tps: 736.4879
-  dtps: 11.2842
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ElectrifiedDagger-19100"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Enchant2HWeapon-GrandArcanist-7941"
- value: {
-  dps: 931.10823
-  tps: 759.82804
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Enchant:FieryBlaze-36"
- value: {
-  dps: 884.18057
-  tps: 719.85977
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantChest-Absorption-8220"
- value: {
-  dps: 909.07312
-  tps: 743.67964
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantChest-LesserAbsorption-63"
- value: {
-  dps: 909.07312
-  tps: 743.67964
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantChest-MinorAbsorption-44"
- value: {
-  dps: 909.07312
-  tps: 743.67964
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantChest-Retricutioner-7223"
- value: {
-  dps: 909.07312
-  tps: 743.67964
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantGloves-Threat-2613"
- value: {
-  dps: 909.07312
-  tps: 757.74087
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-Crusader-1900"
- value: {
-  dps: 884.18057
-  tps: 719.85977
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-FieryWeapon-803"
- value: {
-  dps: 884.18057
-  tps: 719.85977
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-GrandSorcerer-7942"
- value: {
-  dps: 903.56619
-  tps: 736.30809
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-Insight-8216"
- value: {
-  dps: 892.83787
-  tps: 728.92577
-  dtps: 12.32518
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-LesserBeastslayer-853"
- value: {
-  dps: 884.18057
-  tps: 719.85977
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-LesserElementalSlayer-854"
- value: {
-  dps: 884.18057
-  tps: 719.85977
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-MinorBeastslayer-249"
- value: {
-  dps: 884.18057
-  tps: 719.85977
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-Recovery-8721"
- value: {
-  dps: 884.18057
-  tps: 719.85977
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EssenceofthePureFlame-18815"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EverlookDeliveryBot-274760"
- value: {
-  dps: 901.50525
-  tps: 737.85158
-  dtps: 10.98251
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EverlookPathcarver-274759"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EyeofDiminution-23001"
- value: {
-  dps: 920.53117
-  tps: 754.07108
-  dtps: 11.40252
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EyeofMoam-21473"
- value: {
-  dps: 925.56878
-  tps: 760.50053
-  dtps: 12.41013
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-EyeoftheDead-23047"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-FangoftheCrystalSpider-13218"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Felstriker-12590"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-FetishofChitinousSpikes-21488"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-FetishoftheSandReaver-21647"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-FieldMarshal'sThreads"
- value: {
-  dps: 874.85974
-  tps: 717.37676
-  dtps: 11.86055
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Firebreather-10797"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-FlameSearedSignet-282080"
- value: {
-  dps: 902.2227
-  tps: 737.89217
-  dtps: 11.67124
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-FlamebreakTalisman-280071"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ForceofWill-11810"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-FreezingBand-942"
- value: {
-  dps: 897.56433
-  tps: 733.91261
-  dtps: 11.67124
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Frostguard-12797"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-FrozenHeartoftheMountain-249469"
- value: {
-  dps: 926.42982
-  tps: 760.58245
-  dtps: 11.82987
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Gahz'rillaFang-9467"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-GlacialBlade-19099"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-GlyphofDeflection-23040"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-GoblinConstructionHelmet-10543"
- value: {
-  dps: 874.56256
-  tps: 715.9617
-  dtps: 10.8232
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-GoldenBanana-270226"
- value: {
-  dps: 924.69553
-  tps: 761.2852
-  dtps: 10.98307
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-GutRipper-2164"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Hameya'sSlayer-15814"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-HandofJustice-11815"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-HanzoSword-8190"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Hazza'rah'sCharmofDestruction-19957"
- value: {
-  dps: 911.8511
-  tps: 748.11116
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-HeartofWyrmthalak-22321"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-HeartoftheScale-13164"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-HibernationCrystal-20636"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-HighborneResearchTablet-260205"
- value: {
-  dps: 908.63174
-  tps: 745.62864
-  dtps: 11.64108
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ImplementsofUnspokenNames"
- value: {
-  dps: 907.00282
-  tps: 748.22251
-  dtps: 11.51944
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-IronShieldSpike-43"
- value: {
-  dps: 884.18057
-  tps: 719.85977
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-IronweaveBattlesuit"
- value: {
-  dps: 805.18666
-  tps: 659.08846
-  dtps: 11.57679
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Jang'thrazetheProtector-11086"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Jom-jom'sGabbar-274952"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-JomGabbar-23570"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Julie'sDagger-6660"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-KerisofZul'Serak-12582"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-KissoftheSpider-22954"
- value: {
-  dps: 932.84908
-  tps: 765.39407
-  dtps: 12.08879
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-LieutenantCommander'sDreadgear"
- value: {
-  dps: 905.49319
-  tps: 744.84267
-  dtps: 11.15913
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-LieutenantCommander'sThreads"
- value: {
-  dps: 843.64893
-  tps: 692.54194
-  dtps: 11.37995
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-LifeforceDirk-10750"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Lifestone-833"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Linken'sBoomerang-11905"
- value: {
-  dps: 900.35647
-  tps: 739.32128
-  dtps: 10.4919
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Linken'sSwordofMastery-11902"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Loatheb'sReflection-23042"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.08771
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-LordGeneral'sSword-11817"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-LuckyShovelnoseTuft-280060"
- value: {
-  dps: 909.51885
-  tps: 746.43746
-  dtps: 11.17702
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Magister'sRegalia"
- value: {
-  dps: 825.75812
-  tps: 676.03716
-  dtps: 10.93635
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-MajorRecombobulator-18637"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ManaChannelingWand-18483"
- value: {
-  dps: 910.41961
-  tps: 745.85342
-  dtps: 11.68935
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-MarkofResolution-17759"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-MarkofTyranny-13966"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-MarkoftheChosen-17774"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-MarkoftheDragonLord-13143"
- value: {
-  dps: 897.56433
-  tps: 733.91261
-  dtps: 11.67124
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-MarkoftheRedFlight-282778"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-MindtapTalisman-18371"
- value: {
-  dps: 904.55595
-  tps: 743.09856
-  dtps: 10.21842
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-MithrilShieldSpike-463"
- value: {
-  dps: 884.18057
-  tps: 719.85977
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-MoltenHeartoftheMountain-249470"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.1416
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Naglering-11669"
- value: {
-  dps: 897.56433
-  tps: 733.91261
-  dtps: 11.67124
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-NecropileRaiment"
- value: {
-  dps: 890.13441
-  tps: 733.13
-  dtps: 11.26749
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-OrbofFire-12805"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-PetrifiedScarab-21685"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-PhantomBlade-7961"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-PlagueheartRaiment"
- value: {
-  dps: 1059.2254
-  tps: 812.42464
-  dtps: 11.42221
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Prismcharm-15867"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-RaggedJohn'sNeverendingCup-15873"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-RegaliaofUndeadCleansing"
- value: {
-  dps: 908.94058
-  tps: 743.71031
-  dtps: 11.71418
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-RiderofthePlaguelands"
- value: {
-  dps: 826.97755
-  tps: 688.68561
-  dtps: 11.61758
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-RingofSaviors-1447"
- value: {
-  dps: 897.56433
-  tps: 733.91261
-  dtps: 11.67124
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Sang'thrazetheDeflector-9379"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Satyr'sLash-17752"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ScentedRunewoodBrooch-269741"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-SecondWind-11819"
- value: {
-  dps: 923.52096
-  tps: 761.01126
-  dtps: 10.67202
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-SerenityField-272439"
- value: {
-  dps: 913.11933
-  tps: 748.84288
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-SerpentSlicer-13035"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Shadowblade-2163"
- value: {
-  dps: 867.29732
-  tps: 707.92507
-  dtps: 11.94809
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ShardoftheFallenStar-21891"
- value: {
-  dps: 912.82908
-  tps: 749.82091
-  dtps: 11.14706
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ShortswordofVengeance-754"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-SkullforgeReaver-13361"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Slayer'sCrest-23041"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Smokey'sLighter-13171"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-SmokingHeartoftheMountain-11811"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.1416
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-SpireoftheStoneshaper-12532"
- value: {
-  dps: 886.14122
-  tps: 723.72938
-  dtps: 11.54017
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-StormclothRegalia"
- value: {
-  dps: 786.98593
-  tps: 644.9053
-  dtps: 10.95082
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-SwordofZeal-6622"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TalismanofArathor-20071"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TalismanofArathor-21117"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TalismanofArathor-21118"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TalismanofAscendance-22678"
- value: {
-  dps: 943.26034
-  tps: 774.54537
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TalismanofEphemeralPower-18820"
- value: {
-  dps: 937.31221
-  tps: 770.40908
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TeachingsoftheFurbolgs"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TheBlackBook-19337"
- value: {
-  dps: 933.05334
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TheBurrower'sShell-23558"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TheChief'sEnforcer-9477"
- value: {
-  dps: 843.93115
-  tps: 689.53843
-  dtps: 11.76079
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TheDefiler'sIntent"
- value: {
-  dps: 901.99994
-  tps: 739.69011
-  dtps: 11.3113
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TheHighlander'sIntent"
- value: {
-  dps: 901.99994
-  tps: 739.69011
-  dtps: 11.3113
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TheLionHornofStormwind-14557"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TheLobotomizer-19324"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ThePostmaster"
- value: {
-  dps: 882.99208
-  tps: 724.8244
-  dtps: 11.5238
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-TheRestrainedEssenceofSapphiron-23046"
- value: {
-  dps: 962.70521
-  tps: 791.56574
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ThoriumShieldSpike-1704"
- value: {
-  dps: 884.18057
-  tps: 719.85977
-  dtps: 11.70136
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ThrashBlade-17705"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Thunderbrew'sBootFlask-744"
- value: {
-  dps: 909.9006
-  tps: 746.68386
-  dtps: 11.23814
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
- value: {
-  dps: 856.52766
-  tps: 699.47135
-  dtps: 11.84194
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ToySoldier-274386"
- value: {
-  dps: 907.69663
-  tps: 744.20293
-  dtps: 11.30382
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Uther'sStrength-11302"
  value: {
   dps: 912.34466
   tps: 748.18003
@@ -1464,114 +86,1492 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BadgeoftheSwarmguard-21670"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BehemothBones-280065"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BlackMenace-6831"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 914.69662
+  tps: 750.39275
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 925.43196
+  tps: 761.20688
+  dtps: 11.75653
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BladeoftheWretched-10803"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BlazefuryMedallion-17111"
+ value: {
+  dps: 901.80846
+  tps: 740.47543
+  dtps: 11.5387
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BlazingRapier-12777"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Bloodrazor-809"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BloodvineGarb"
+ value: {
+  dps: 979.18867
+  tps: 802.97086
+  dtps: 11.27765
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 917.08379
+  tps: 753.18242
+  dtps: 11.76719
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BristleconeCloak-275833"
+ value: {
+  dps: 901.03234
+  tps: 754.06245
+  dtps: 11.5387
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Champion'sDreadgear"
+ value: {
+  dps: 910.2331
+  tps: 748.91439
+  dtps: 11.15913
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Champion'sThreads"
+ value: {
+  dps: 848.27813
+  tps: 696.51548
+  dtps: 11.37995
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-CloakofFire-14134"
+ value: {
+  dps: 902.84598
+  tps: 755.80354
+  dtps: 11.5387
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 908.89348
+  tps: 758.93831
+  dtps: 11.98672
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ColdBasiliskEye-5079"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ColdrageDagger-10761"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Dal'Rend'sArms"
+ value: {
+  dps: 854.42927
+  tps: 697.84842
+  dtps: 11.85949
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DarkmoonCard:BlueDragon-19288"
+ value: {
+  dps: 920.02858
+  tps: 756.15498
+  dtps: 11.08914
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DarkmoonCard:Heroism-19287"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DarkmoonCard:Maelstrom-19289"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Darrowspike-13984"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DazzlingLongsword-869"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DeadheadBlade-274271"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DeathmistRaiment"
+ value: {
+  dps: 883.64445
+  tps: 727.00327
+  dtps: 11.58225
+  hps: 8.95745
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Defender'sGripStabilizer-272440"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Defiler'sTalisman-20072"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Defiler'sTalisman-21115"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Defiler'sTalisman-21116"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DemonheartRaiment"
+ value: {
+  dps: 935.4111
+  tps: 762.66993
+  dtps: 11.51602
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Demoniac'sThreads"
+ value: {
+  dps: 895.35079
+  tps: 739.09716
+  dtps: 11.0299
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Doomcaller'sAttire"
+ value: {
+  dps: 999.59202
+  tps: 818.62024
+  dtps: 11.33024
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DormantHeartoftheMountain-249473"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.1416
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 919.83737
+  tps: 754.5767
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DreadfrostSaber-274603"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DreadmistRaiment"
+ value: {
+  dps: 822.94655
+  tps: 676.97766
+  dtps: 11.52311
+  hps: 7.90759
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EarthenSigil-20525"
+ value: {
+  dps: 919.05761
+  tps: 755.47267
+  dtps: 11.60255
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Earthstrike-21180"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EbonHiltofMarduk-14576"
+ value: {
+  dps: 861.19657
+  tps: 696.842
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EidolonTalisman-18340"
+ value: {
+  dps: 901.80846
+  tps: 740.47543
+  dtps: 11.2842
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ElectrifiedDagger-19100"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Enchant2HWeapon-GrandArcanist-7941"
+ value: {
+  dps: 935.61015
+  tps: 763.66249
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Enchant:FieryBlaze-36"
+ value: {
+  dps: 888.68249
+  tps: 723.69422
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantChest-Absorption-8220"
+ value: {
+  dps: 913.74404
+  tps: 747.67309
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantChest-LesserAbsorption-63"
+ value: {
+  dps: 913.74404
+  tps: 747.67309
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantChest-MinorAbsorption-44"
+ value: {
+  dps: 913.74404
+  tps: 747.67309
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 913.74404
+  tps: 747.67309
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantGloves-Threat-2613"
+ value: {
+  dps: 913.74404
+  tps: 761.81419
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-Crusader-1900"
+ value: {
+  dps: 888.68249
+  tps: 723.69422
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 888.68249
+  tps: 723.69422
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-GrandSorcerer-7942"
+ value: {
+  dps: 908.06811
+  tps: 740.14254
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-Insight-8216"
+ value: {
+  dps: 897.39189
+  tps: 732.8101
+  dtps: 12.32518
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 888.68249
+  tps: 723.69422
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 888.68249
+  tps: 723.69422
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 888.68249
+  tps: 723.69422
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-Recovery-8721"
+ value: {
+  dps: 888.68249
+  tps: 723.69422
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EssenceofthePureFlame-18815"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EverlookDeliveryBot-274760"
+ value: {
+  dps: 906.10296
+  tps: 741.77747
+  dtps: 10.98251
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EverlookPathcarver-274759"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EyeofDiminution-23001"
+ value: {
+  dps: 925.24307
+  tps: 758.1042
+  dtps: 11.40252
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EyeofMoam-21473"
+ value: {
+  dps: 930.28616
+  tps: 764.54287
+  dtps: 12.41013
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EyeoftheDead-23047"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-FangoftheCrystalSpider-13218"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Felstriker-12590"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-FetishofChitinousSpikes-21488"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-FetishoftheSandReaver-21647"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-FieldMarshal'sThreads"
+ value: {
+  dps: 879.52622
+  tps: 721.38198
+  dtps: 11.86055
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Firebreather-10797"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-FlameSearedSignet-282080"
+ value: {
+  dps: 906.88107
+  tps: 741.87173
+  dtps: 11.67124
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ForceofWill-11810"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-FreezingBand-942"
+ value: {
+  dps: 902.2227
+  tps: 737.89217
+  dtps: 11.67124
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Frostguard-12797"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-FrozenHeartoftheMountain-249469"
+ value: {
+  dps: 931.17634
+  tps: 764.64724
+  dtps: 11.82987
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Gahz'rillaFang-9467"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-GlacialBlade-19099"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-GlyphofDeflection-23040"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-GoblinConstructionHelmet-10543"
+ value: {
+  dps: 879.20122
+  tps: 719.93186
+  dtps: 10.8232
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-GoldenBanana-270226"
+ value: {
+  dps: 929.44434
+  tps: 765.3599
+  dtps: 10.98307
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-GutRipper-2164"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Hameya'sSlayer-15814"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-HandofJustice-11815"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-HanzoSword-8190"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Hazza'rah'sCharmofDestruction-19957"
+ value: {
+  dps: 916.52307
+  tps: 752.11078
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-HeartoftheScale-13164"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-HibernationCrystal-20636"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 913.27749
+  tps: 749.603
+  dtps: 11.64108
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ImplementsofUnspokenNames"
+ value: {
+  dps: 911.6733
+  tps: 752.27217
+  dtps: 11.51944
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 888.68249
+  tps: 723.69422
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-IronweaveBattlesuit"
+ value: {
+  dps: 809.93739
+  tps: 663.17057
+  dtps: 11.57679
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Jom-jom'sGabbar-274952"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-JomGabbar-23570"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-KissoftheSpider-22954"
+ value: {
+  dps: 937.63378
+  tps: 769.49166
+  dtps: 12.08879
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-LieutenantCommander'sDreadgear"
+ value: {
+  dps: 910.2331
+  tps: 748.91439
+  dtps: 11.15913
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-LieutenantCommander'sThreads"
+ value: {
+  dps: 848.27813
+  tps: 696.51548
+  dtps: 11.37995
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Lifestone-833"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Linken'sBoomerang-11905"
+ value: {
+  dps: 904.96361
+  tps: 743.26656
+  dtps: 10.4919
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Linken'sSwordofMastery-11902"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Loatheb'sReflection-23042"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.08771
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-LordGeneral'sSword-11817"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 914.17784
+  tps: 750.42544
+  dtps: 11.17702
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Magister'sRegalia"
+ value: {
+  dps: 830.46574
+  tps: 680.08575
+  dtps: 10.93635
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MajorRecombobulator-18637"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ManaChannelingWand-18483"
+ value: {
+  dps: 915.12489
+  tps: 749.87975
+  dtps: 11.68935
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MarkofResolution-17759"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 902.2227
+  tps: 737.89217
+  dtps: 11.67124
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MarkoftheRedFlight-282778"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MindtapTalisman-18371"
+ value: {
+  dps: 909.15862
+  tps: 747.03901
+  dtps: 10.21842
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 888.68249
+  tps: 723.69422
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MoltenHeartoftheMountain-249470"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.1416
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Naglering-11669"
+ value: {
+  dps: 902.2227
+  tps: 737.89217
+  dtps: 11.67124
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-NecropileRaiment"
+ value: {
+  dps: 894.84493
+  tps: 737.17344
+  dtps: 11.26749
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-OrbofFire-12805"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-PetrifiedScarab-21685"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-PhantomBlade-7961"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-PlagueheartRaiment"
+ value: {
+  dps: 1064.28027
+  tps: 816.47405
+  dtps: 11.42221
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Prismcharm-15867"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 913.6332
+  tps: 747.72283
+  dtps: 11.71418
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 831.62674
+  tps: 692.74404
+  dtps: 11.61758
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-RingofSaviors-1447"
+ value: {
+  dps: 902.2227
+  tps: 737.89217
+  dtps: 11.67124
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Sang'thrazetheDeflector-9379"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Satyr'sLash-17752"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ScentedRunewoodBrooch-269741"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SecondWind-11819"
+ value: {
+  dps: 928.24106
+  tps: 765.06045
+  dtps: 10.67202
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SerenityField-272439"
+ value: {
+  dps: 917.76737
+  tps: 752.81997
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SerpentSlicer-13035"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Shadowblade-2163"
+ value: {
+  dps: 872.02817
+  tps: 711.96932
+  dtps: 11.94809
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ShardoftheFallenStar-21891"
+ value: {
+  dps: 917.49234
+  tps: 753.81374
+  dtps: 11.14706
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SkullforgeReaver-13361"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Slayer'sCrest-23041"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Smokey'sLighter-13171"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SmokingHeartoftheMountain-11811"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.1416
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SpireoftheStoneshaper-12532"
+ value: {
+  dps: 890.75645
+  tps: 727.67138
+  dtps: 11.54017
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-StormclothRegalia"
+ value: {
+  dps: 791.47599
+  tps: 648.75057
+  dtps: 10.95082
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SwordofZeal-6622"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TalismanofArathor-20071"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TalismanofArathor-21117"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TalismanofArathor-21118"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TalismanofAscendance-22678"
+ value: {
+  dps: 947.90837
+  tps: 778.52246
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TalismanofEphemeralPower-18820"
+ value: {
+  dps: 941.96915
+  tps: 774.39511
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TeachingsoftheFurbolgs"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TheBlackBook-19337"
+ value: {
+  dps: 937.76746
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TheBurrower'sShell-23558"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TheChief'sEnforcer-9477"
+ value: {
+  dps: 848.59412
+  tps: 693.52499
+  dtps: 11.76079
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 906.66051
+  tps: 743.68108
+  dtps: 11.3113
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 906.66051
+  tps: 743.68108
+  dtps: 11.3113
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TheLobotomizer-19324"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ThePostmaster"
+ value: {
+  dps: 887.73628
+  tps: 728.89974
+  dtps: 11.5238
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TheRestrainedEssenceofSapphiron-23046"
+ value: {
+  dps: 967.35324
+  tps: 795.54283
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 888.68249
+  tps: 723.69422
+  dtps: 11.70136
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ThrashBlade-17705"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Thunderbrew'sBootFlask-744"
+ value: {
+  dps: 914.56298
+  tps: 750.67497
+  dtps: 11.23814
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
+ value: {
+  dps: 861.19657
+  tps: 703.46234
+  dtps: 11.84194
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ToySoldier-274386"
+ value: {
+  dps: 912.34466
+  tps: 748.18003
+  dtps: 11.30382
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 916.9927
+  tps: 752.15712
+  dtps: 11.30382
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-VestmentsoftheDevout"
  value: {
-  dps: 798.583
-  tps: 653.1529
+  dps: 803.20586
+  tps: 657.12299
   dtps: 10.92509
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-VigilanceCharm-18370"
  value: {
-  dps: 907.69663
-  tps: 744.20293
+  dps: 912.34466
+  tps: 748.18003
   dtps: 11.30382
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Warlord'sThreads"
  value: {
-  dps: 874.85974
-  tps: 717.37676
+  dps: 879.52622
+  tps: 721.38198
   dtps: 11.86055
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-WarmthofForgiveness-23027"
  value: {
-  dps: 918.28583
-  tps: 754.92654
+  dps: 923.00166
+  tps: 758.96956
   dtps: 10.91606
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-WeaknessAnalyzer-272438"
  value: {
-  dps: 923.02642
-  tps: 757.05122
+  dps: 927.68048
+  tps: 761.03346
   dtps: 11.40252
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-WhiteObsidianWand-274425"
  value: {
-  dps: 911.271
-  tps: 745.98467
+  dps: 915.94975
+  tps: 749.98419
   dtps: 11.50076
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-WrathofCenarius-21190"
  value: {
-  dps: 920.00114
-  tps: 752.95441
+  dps: 924.65951
+  tps: 756.93397
   dtps: 11.67124
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-ZandalarianHeroBadge-19948"
  value: {
-  dps: 907.69663
-  tps: 744.20293
+  dps: 912.34466
+  tps: 748.18003
   dtps: 11.30382
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-ZandalarianHeroCharm-19950"
  value: {
-  dps: 932.02825
-  tps: 765.44749
+  dps: 936.67629
+  tps: 769.42459
   dtps: 11.30382
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-ZandalarianHeroMedallion-19949"
  value: {
-  dps: 907.69663
-  tps: 744.20293
+  dps: 912.34466
+  tps: 748.18003
   dtps: 11.30382
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-Average-Default"
  value: {
-  dps: 940.7818
-  tps: 772.64067
+  dps: 945.60953
+  tps: 776.77829
   dtps: 11.02511
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Human-demo_shadow_brand-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5341.88845
-  tps: 4984.02342
+  dps: 5346.30345
+  tps: 4988.08388
   dtps: 10.89241
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Human-demo_shadow_brand-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 908.04959
-  tps: 749.35929
+  dps: 912.68525
+  tps: 753.33936
   dtps: 12.10764
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Human-demo_shadow_brand-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 958.47688
-  tps: 772.21702
+  dps: 963.35621
+  tps: 776.43287
   dtps: 16.35911
  }
 }
@@ -1599,24 +1599,24 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Orc-demo_shadow_brand-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5349.87999
-  tps: 4988.0145
+  dps: 5354.32928
+  tps: 4992.10202
   dtps: 10.56229
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Orc-demo_shadow_brand-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 913.74404
-  tps: 747.67309
+  dps: 918.41496
+  tps: 751.66653
   dtps: 11.70136
  }
 }
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Orc-demo_shadow_brand-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 971.65595
-  tps: 777.32669
+  dps: 976.62416
+  tps: 781.59956
   dtps: 16.35911
  }
 }
@@ -1644,8 +1644,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-SwitchInFrontOfTarget-Default"
  value: {
-  dps: 922.78175
-  tps: 777.858
+  dps: 927.58289
+  tps: 782.02826
   dtps: 11.21505
  }
 }
