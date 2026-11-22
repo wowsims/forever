@@ -27,9 +27,9 @@ Cat Form (768) and Dire Bear Form (9634) applies and removes, in the combat log 
 to 50 ms after a killing blow; none fell there in either count. In the combat log, Warchief Rend Blackhand, who drops
 Doomsaw, dies at 21:57:14 local time, the first proc lands at 22:04:30 and the gear first shows Doomsaw at 22:05:38.
 Counted from 21:57:14 the combat log reads 0.83; counted from 22:04:00 it reads 0.90, and the tables below use that
-start. 2 of its 31 procs missed and are counted. One proc, in Warcraft Logs, logs 53 ms before its swing; it is counted
-in the pooled rates and has no form. Every other proc has a landed white swing in its window. Of the 8,712 swings, 5 are
-in caster form, with no proc.
+start. 2 of its 31 procs missed and are counted. One proc, in Warcraft Logs, logs 16 ms before the next landed white
+swing, outside its window; it is counted in the pooled rates and has no form. Every other proc has a landed white swing
+in its window. Of the 8,712 swings, 5 are in caster form, with no proc.
 
 ## Rates
 
