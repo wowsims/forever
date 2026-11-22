@@ -1054,6 +1054,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-HookfangShanker-11635"
+ value: {
+  dps: 844.83486
+  tps: 855.77414
+  dtps: 5.36727
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-HowlingIdol-272427"
  value: {
   dps: 913.91341
@@ -1563,6 +1571,14 @@ dps_results: {
   dps: 874.11626
   tps: 885.02426
   dtps: 5.02639
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-ShimmeringPlatinumWarhammer-15418"
+ value: {
+  dps: 826.25639
+  tps: 837.1445
+  dtps: 5.35933
  }
 }
 dps_results: {

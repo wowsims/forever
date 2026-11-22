@@ -863,6 +863,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-HookfangShanker-11635"
+ value: {
+  dps: 713.01054
+  tps: 510.16226
+  dtps: 5.76676
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-IronShieldSpike-43"
  value: {
   dps: 739.71039

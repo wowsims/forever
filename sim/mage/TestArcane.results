@@ -755,6 +755,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-HookfangShanker-11635"
+ value: {
+  dps: 805.32832
+  tps: 691.19256
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-Illusionist'sAttire"
  value: {
   dps: 842.39268

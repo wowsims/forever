@@ -1199,6 +1199,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-HookfangShanker-11635"
+ value: {
+  dps: 819.88126
+  tps: 755.71555
+  dtps: 6.53669
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-IcebladeHacker-13952"
  value: {
   dps: 819.88126
@@ -1724,6 +1732,14 @@ dps_results: {
   dps: 872.42862
   tps: 803.73119
   dtps: 6.70016
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-ShimmeringPlatinumWarhammer-15418"
+ value: {
+  dps: 801.55835
+  tps: 739.41396
+  dtps: 6.53669
  }
 }
 dps_results: {
