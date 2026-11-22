@@ -389,6 +389,74 @@ func TestSkullforgeReaverBrandsOnMainHandHitsAndHealsTheWearer(t *testing.T) {
 	}
 }
 
+// Barovian Family Sword 14541 casts Siphon Health 18652 at the procs per minute of the item's entry, on
+// the sword's speed, and the drain goes on a target above the wearer's level with no hit roll. It ticks
+// every period for the row's duration, and each tick casts the heal the drain's row links to on the
+// wearer, for the amount the drain's row states whatever the tick dealt. The heal crits on a roll of
+// its own.
+func TestBarovianFamilySwordHealsTheWearerWithEveryTick(t *testing.T) {
+	sim, character := itemWearerAgainst(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(14541, 0)},
+		&proto.Target{Name: "target", Level: 63})
+	character.AutoAttacks.CancelAutoSwing(sim)
+	row := spelldata.MustFind(18652)
+	drain := row.PeriodicDamageEffect()
+	linked := row.Triggered()
+	proc := character.GetAura("Barovian Family Sword")
+	siphon := character.GetSpell(core.ActionID{SpellID: row.ID})
+	if proc == nil || proc.Dpm == nil || siphon == nil || len(linked) != 1 {
+		t.Fatalf("14541 registers no drain or no proc on a procs per minute rate, or 18652 links to %d spells, want its heal alone", len(linked))
+	}
+	heal := character.GetSpell(core.ActionID{SpellID: linked[0].ID})
+	if heal == nil || linked[0].HealEffect() == spelldata.NilEffect {
+		t.Fatalf("14541 registers no heal for %d, the spell 18652 links to", linked[0].ID)
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 14541, 18652)
+	ticks := rowTickCount(row, drain)
+	amount := drain.Min()
+	if ticks < 2 || amount <= 0 || amount != drain.Max() {
+		t.Fatalf("18652 drains %v to %v %d times, want one amount at least twice", amount, drain.Max(), ticks)
+	}
+
+	// Every main-hand hit now procs it, nothing crits, and the target takes half of each tick.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	character.RemoveHealth(sim, character.MaxHealth()/2)
+	enemy := character.CurrentTarget
+	enemy.PseudoStats.DamageTakenMultiplier *= 0.5
+
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if !siphon.Dot(enemy).IsActive() {
+		t.Fatal("a main-hand swing put no drain on the target")
+	}
+	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
+	drained := siphon.SpellMetrics[enemy.UnitIndex]
+	if drained.Ticks != ticks || drained.TotalDamage <= 0 || drained.TotalDamage > float64(ticks)*amount/2 {
+		t.Fatalf("one proc drained %v over %d ticks, want %d ticks of at most half the row's %v", drained.TotalDamage, drained.Ticks, ticks, amount)
+	}
+	healed := heal.SpellMetrics[character.UnitIndex]
+	if healed.Casts != ticks || healed.Crits != 0 || healed.TotalHealing != float64(ticks)*amount {
+		t.Errorf("the drain healed the wearer %v over %d heals, %d of them crits, want %d heals of the row's %v with no crit",
+			healed.TotalHealing, healed.Casts, healed.Crits, ticks, amount)
+	}
+
+	// The heal crits where the wearer's spells do.
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: 100})
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
+	healed = heal.SpellMetrics[character.UnitIndex]
+	if healed.Casts != 2*ticks || healed.Crits != ticks || healed.TotalHealing <= 2*float64(ticks)*amount {
+		t.Errorf("with every spell a crit the second drain brought the heals to %d, %d of them crits, for %v, want %d more that all crit for more than the row's %v each",
+			healed.Casts, healed.Crits, healed.TotalHealing, ticks, amount)
+	}
+
+	for range 200 {
+		siphon.Cast(sim, enemy)
+	}
+	if cast := siphon.SpellMetrics[enemy.UnitIndex]; cast.Misses != 0 || cast.Hits != cast.Casts {
+		t.Errorf("%d of %d drains missed a target above the wearer's level, want every one to land", cast.Misses, cast.Casts)
+	}
+}
+
 // Malown's Slam 13393 puts Surge of Strength 17499 on the wearer at the procs per minute of the item's
 // entry for 17500, on the mace's speed, off landed main-hand swings and specials and never off a miss.
 // The buff raises Strength by the row's amount for the row's duration.

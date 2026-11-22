@@ -135,6 +135,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-BarovianFamilySword-14541"
+ value: {
+  dps: 821.01836
+  tps: 677.98457
+  dtps: 7.16465
+  hps: 54.93781
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-BattlegearofUndeadSlaying"
  value: {
   dps: 885.08208

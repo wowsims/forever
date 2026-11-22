@@ -15989,6 +15989,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 695978, SpellID: 18652, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 49, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
+	{ID: 18653, Name: "Siphon Health", School: 32, Attr: [17]uint32{15: 0x2000}, SpellLevel: 1, MaxRange: 100,
+		Effects: []Effect{
+			{ID: 695979, SpellID: 18653, Type: dbcenums.E_HEAL, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 18656, Name: "Corruption", School: 32, Attr: [17]uint32{8: 0x200, 15: 0x2000}, SpellLevel: 60, DurationMs: 9000, MaxRange: 100, DefenseType: 1, DispelType: 1, ProcChance: 100, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 696702, SpellID: 18656, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 28, PvpMult: 1, PeriodMs: 3000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -40107,6 +40111,7 @@ var generatedCurves = map[int32][][]float64{
 
 var generatedHandTriggers = map[int32][]int32{
 	16389:   {16368},   // Flametongue Totem Proc is a dummy holding the base points, and the hit logs as 16368 Flametongue Attack: fire school damage with the magic defense type and no bonus coefficient
+	18652:   {18653},   // Siphon Health's drain (one periodic damage) heals its caster through 18653 with every tick: same name and school, a heal on the caster with no base points, which the server sets from the drain's
 	20230:   {20240},   // Retaliation's dummy aura (aura 4) casts the counterattack 20240: same name, class set and icon, weapon damage with no base, a cost of 1 in SpellPower that is a tenth of a rage
 	24574:   {24575},   // Zandalarian Hero Badge's on-use Brittle Armor applies the stacking buff its tooltip describes: same name, 200 armor (A_MOD_ARMOR_NO_MODS) and 3 defense a stack, the 2000 and 30 of ten stacks, and the script effect 24590 of its proc takes a stack off per hit taken
 	408341:  {408423},  // Fire Nova Rank 1 hits for 408423, the level 12 Fire Nova Rank 1 row, not the 8349 its tooltip reads
