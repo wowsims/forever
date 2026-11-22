@@ -211,7 +211,7 @@ else
 endif
 
 # A local dry run of the release: every archive and checksums.txt go into .goreleaser-dist, and nothing is published.
-# release.yml publishes with the same .goreleaser.yaml and the same goreleaser version.
+# release.yml publishes with the same .goreleaser.yaml on this goreleaser version; check-goreleaser accepts any installed one.
 GORELEASER_VERSION := v2.20.3
 
 .PHONY: check-goreleaser

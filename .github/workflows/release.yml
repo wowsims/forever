@@ -13,7 +13,8 @@ on:
                 default: 'v0.0.0'
                 required: true
             # A draft is visible only to people with push access, gets its tag when someone publishes it, and is
-            # never installed by the self-updater.
+            # never installed by the self-updater. Scheduled Release reads only tags, so its next run still releases
+            # master: disable it while a draft is checked. Publish or delete a draft before another run uses its tag.
             draft:
                 description: 'Draft release'
                 type: boolean
@@ -138,7 +139,6 @@ jobs:
               with:
                   client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
                   private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-                  repositories: forever
                   permission-contents: write
 
             - name: Release

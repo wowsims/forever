@@ -1,6 +1,5 @@
 import i18n from '@i18n/config';
 import { ISSUES_REPO, REPO_CHOOSE_NEW_ISSUE_URL, REPO_RELEASES_URL, SOCIALS } from '@sim/constants/other';
-import { useOutdatedNativeSim } from '@sim/hooks/useOutdatedNativeSim';
 import type { Sim } from '@sim/sim';
 import { Button } from '@ui-kit/Button';
 import { Dialog } from '@ui-kit/Dialog';
@@ -12,6 +11,7 @@ import { type ReactNode, useEffect, useRef, useState } from 'react';
 
 import { ToolbarItem } from './ToolbarItem';
 import { type NativeSimUpdateStatus, useNativeSimUpdate } from './useNativeSimUpdate';
+import { useOutdatedNativeSim } from './useOutdatedNativeSim';
 
 /** What the toolbar needs to offer the update in place of the link to the releases page. */
 export interface NativeSimUpdate {
@@ -47,7 +47,7 @@ const NativeSimUpdateItem = ({ latest, status, onUpdate }: NativeSimUpdate) => {
 				<>
 					<p>{i18n.t('info.native_sim_update_toast', { version: latest })}</p>
 					<Button variant="outline-light" onClick={openDialog}>
-						{i18n.t('info.native_sim_update_action')}
+						{i18n.t('info.native_sim_update_title')}
 					</Button>
 				</>
 			),

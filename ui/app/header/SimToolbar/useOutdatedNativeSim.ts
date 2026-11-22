@@ -1,7 +1,7 @@
+import { checkWhileOpen } from '@app/version_checks';
+import { useSimStatus } from '@sim/hooks/useSimStatus';
+import type { Sim } from '@sim/sim';
 import { useEffect, useState } from 'react';
-
-import type { Sim } from '../sim';
-import { useSimStatus } from './useSimStatus';
 
 export interface OutdatedNativeSim {
 	/** The running build's version, what an update has to differ from. */
@@ -31,13 +31,17 @@ export const useOutdatedNativeSim = (sim: Sim): OutdatedNativeSim | null => {
 		// `sim.isNative` is decided during init, so this cannot be asked any earlier.
 		if (!ready || !sim.isNative) return;
 		let cancelled = false;
-		fetchNativeVersion().then(versionInfo => {
-			if (!cancelled && versionInfo?.outdated == 2) {
-				setOutdated({ version: versionInfo.version ?? '', latest: versionInfo.latest ?? '', canUpdate: versionInfo.canUpdate === true });
-			}
-		});
+		const check = () =>
+			void fetchNativeVersion().then(versionInfo => {
+				if (cancelled || versionInfo?.outdated != 2) return;
+				const next = { version: versionInfo.version ?? '', latest: versionInfo.latest ?? '', canUpdate: versionInfo.canUpdate === true };
+				setOutdated(prev => (prev?.version === next.version && prev.latest === next.latest && prev.canUpdate === next.canUpdate ? prev : next));
+			});
+		check();
+		const versionChecks = checkWhileOpen(check);
 		return () => {
 			cancelled = true;
+			versionChecks.stop();
 		};
 	}, [ready, sim]);
 

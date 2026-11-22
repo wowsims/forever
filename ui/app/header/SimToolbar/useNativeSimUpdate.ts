@@ -1,6 +1,7 @@
 import i18n from '@i18n/config';
-import { fetchNativeVersion, type OutdatedNativeSim } from '@sim/hooks/useOutdatedNativeSim';
 import { useState } from 'react';
+
+import { fetchNativeVersion, type OutdatedNativeSim } from './useOutdatedNativeSim';
 
 export type NativeSimUpdateStatus = { state: 'idle' | 'updating' } | { state: 'error'; error: string };
 
