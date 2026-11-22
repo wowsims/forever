@@ -858,9 +858,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-HookfangShanker-11635"
  value: {
-  dps: 873.44034
-  tps: 702.65442
-  dtps: 9.57023
+  dps: 872.23121
+  tps: 701.66606
+  dtps: 9.11904
  }
 }
 dps_results: {
