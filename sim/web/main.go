@@ -2,14 +2,18 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"io/fs"
 	"log"
+	"net"
 	"net/http"
 	_ "net/http/pprof"
+	"net/url"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -27,6 +31,7 @@ import (
 	proto "github.com/wowsims/forever/sim/core/proto"
 	reforgeoptimizer "github.com/wowsims/forever/sim/core/reforge_optimizer"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/selfupdate"
 	"github.com/wowsims/forever/sim/siml"
 
 	googleProto "google.golang.org/protobuf/proto"
@@ -37,9 +42,76 @@ func init() {
 }
 
 var (
-	Version  string
-	outdated int
+	Version string
+	updater *selfupdate.Updater // nil when self-update cannot be set up.
 )
+
+const versionRecheckInterval = 6 * time.Hour
+
+// What the last successful check found, as /version reports it.
+var (
+	versionMu sync.Mutex
+	outdated  int                 // 0 unknown, 1 current, 2 a newer release exists.
+	latest    *selfupdate.Release // The newer release, nil when there is none.
+	canUpdate bool                // A newer release exists and the executable's folder is writable.
+)
+
+func newUpdater() (*selfupdate.Updater, error) {
+	executable, err := os.Executable()
+	if err != nil {
+		return nil, err
+	}
+	source, err := selfupdate.GitHubSource()
+	if err != nil {
+		return nil, err
+	}
+	return selfupdate.New(selfupdate.Config{Name: "wowsimforever", Version: Version, Executable: executable, Source: source})
+}
+
+// Checks for a newer release and records the result; a failed check keeps the previous one.
+func checkVersion(timeout time.Duration) *selfupdate.Release {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	rel, err := updater.Check(ctx)
+	if err != nil {
+		return nil
+	}
+	versionMu.Lock()
+	defer versionMu.Unlock()
+	latest = rel
+	if rel == nil {
+		outdated, canUpdate = 1, false
+	} else {
+		outdated, canUpdate = 2, updater.CanWrite()
+	}
+	return rel
+}
+
+// Before the server listens and the browser opens, updates to a newer release and restarts with the same flags. A
+// failed update leaves this version running with a notice.
+func updateOnStartup() {
+	rel := checkVersion(10 * time.Second)
+	if rel == nil {
+		return
+	}
+	notice := fmt.Sprintf("New version of simulator available: %s\n\tDownload at: %s\n", rel.Tag, rel.URL)
+	if selfupdate.Restarted() {
+		fmt.Print(notice)
+		return
+	}
+	fmt.Printf("Updating to %s...\n", rel.Tag)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+	if err := updater.Apply(ctx, rel); err != nil {
+		fmt.Printf("Could not update: %s\n", err)
+		fmt.Print(notice)
+		return
+	}
+	fmt.Printf("Updated to %s, restarting.\n", rel.Tag)
+	if err := updater.Restart(os.Args[1:]); err != nil {
+		fmt.Printf("Could not restart: %s\n\tStart the simulator again to run %s.\n", err, rel.Tag)
+	}
+}
 
 func main() {
 	if Version == "" {
@@ -55,34 +127,19 @@ func main() {
 	flag.Parse()
 
 	fmt.Printf("Version: %s\n", Version)
-	if !*skipVersionCheck && Version != "development" {
-		go func() {
-			resp, err := http.Get("https://api.github.com/repos/wowsims/forever/releases/latest")
-			if err != nil {
-				return
-			}
-
-			body, err := io.ReadAll(resp.Body)
-			if err != nil {
-				return
-			}
-
-			result := struct {
-				Tag  string `json:"tag_name"`
-				URL  string `json:"html_url"`
-				Name string `json:"name"`
-			}{}
-			if err := json.Unmarshal(body, &result); err != nil {
-				return
-			}
-
-			if result.Tag != Version {
-				outdated = 2
-				fmt.Printf("New version of simulator available: %s\n\tDownload at: %s\n", result.Name, result.URL)
-			} else {
-				outdated = 1
-			}
-		}()
+	if u, err := newUpdater(); err != nil {
+		log.Printf("Self-update is unavailable: %s", err)
+	} else {
+		updater = u
+		go updater.RemoveOld()
+		if !*skipVersionCheck && Version != "development" {
+			updateOnStartup()
+			go func() {
+				for range time.Tick(versionRecheckInterval) {
+					checkVersion(time.Minute)
+				}
+			}()
+		}
 	}
 
 	// Warm up the reforge optimizer's HiGHS WASM runtime in the background so the one-time
@@ -401,6 +458,102 @@ func corsMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func writeJSON(w http.ResponseWriter, status int, body any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(body)
+}
+
+func writeJSONError(w http.ResponseWriter, status int, message string) {
+	writeJSON(w, status, map[string]string{"error": message})
+}
+
+// Held from the start of an update until the restart, so a second request cannot run one alongside it.
+var updating sync.Mutex
+
+// Installs the newest release and restarts on it, answering 202 with the new version before the restart.
+func handleUpdate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		writeJSONError(w, http.StatusMethodNotAllowed, "use POST")
+		return
+	}
+	// The API answers any origin, but another site must not be able to restart the simulator.
+	if origin := r.Header.Get("Origin"); origin != "" {
+		if u, err := url.Parse(origin); err != nil || u.Host != r.Host {
+			writeJSONError(w, http.StatusForbidden, "updates are only started from the simulator's own page")
+			return
+		}
+	}
+	if updater == nil {
+		writeJSONError(w, http.StatusConflict, "self-update is unavailable")
+		return
+	}
+	if !updating.TryLock() {
+		writeJSONError(w, http.StatusConflict, "an update is already running")
+		return
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Minute)
+	defer cancel()
+	rel, err := updater.Check(ctx)
+	if errors.Is(err, selfupdate.ErrDevelopmentBuild) || (err == nil && rel == nil) {
+		updating.Unlock()
+		message := "no newer release"
+		if err != nil {
+			message = err.Error()
+		}
+		writeJSONError(w, http.StatusConflict, message)
+		return
+	}
+	if err == nil {
+		err = updater.Apply(ctx, rel)
+	}
+	if err != nil {
+		updating.Unlock()
+		writeJSONError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	log.Printf("Updated to %s, restarting.", rel.Tag)
+	writeJSON(w, http.StatusAccepted, map[string]string{"version": rel.Tag})
+	if f, ok := w.(http.Flusher); ok {
+		f.Flush()
+	}
+	go func() {
+		time.Sleep(500 * time.Millisecond)
+		if err := updater.Restart(restartArgs(os.Args[1:])); err != nil {
+			log.Printf("Could not restart: %s. Start the simulator again to run %s.", err, rel.Tag)
+			updating.Unlock()
+		}
+	}()
+}
+
+// The process's flags with --launch=false, so the restart opens no second browser tab. It goes first because flag
+// parsing stops at the first argument that is not a flag.
+func restartArgs(args []string) []string {
+	kept := []string{"--launch=false"}
+	for _, arg := range args {
+		name, _, _ := strings.Cut(strings.TrimLeft(arg, "-"), "=")
+		if strings.HasPrefix(arg, "-") && name == "launch" {
+			continue
+		}
+		kept = append(kept, arg)
+	}
+	return kept
+}
+
+// Listens on host. A process restarted after an update retries for a few seconds, since on Windows the process it
+// replaces may still hold the port.
+func listen(host string) (net.Listener, error) {
+	listener, err := net.Listen("tcp", host)
+	for i := 0; err != nil && selfupdate.Restarted() && i < 20; i++ {
+		time.Sleep(250 * time.Millisecond)
+		listener, err = net.Listen("tcp", host)
+	}
+	return listener, err
+}
+
 func (s *server) runServer(useFS bool, host string, launchBrowser bool, simName string, wasm bool, inputReader *bufio.Reader) {
 	s.setupAsyncServer()
 
@@ -420,9 +573,20 @@ func (s *server) runServer(useFS bool, host string, launchBrowser bool, simName 
 	}
 
 	http.HandleFunc("/version", func(resp http.ResponseWriter, req *http.Request) {
-		msg := fmt.Sprintf(`{"version": "%s", "outdated": %d}`, Version, outdated)
-		resp.Write([]byte(msg))
+		versionMu.Lock()
+		msg := struct {
+			Version   string `json:"version"`
+			Outdated  int    `json:"outdated"`
+			Latest    string `json:"latest"`
+			CanUpdate bool   `json:"canUpdate"`
+		}{Version: Version, Outdated: outdated, CanUpdate: canUpdate}
+		if latest != nil {
+			msg.Latest = latest.Tag
+		}
+		versionMu.Unlock()
+		writeJSON(resp, http.StatusOK, msg)
 	})
+	http.HandleFunc("/update", handleUpdate)
 	http.HandleFunc("/", func(resp http.ResponseWriter, req *http.Request) {
 		if req.URL.Path == "/" {
 			http.Redirect(resp, req, "/forever/", http.StatusPermanentRedirect)
@@ -460,7 +624,12 @@ func (s *server) runServer(useFS bool, host string, launchBrowser bool, simName 
 
 	go func() {
 		// Launch server!
-		if err := http.ListenAndServe(host, nil); err != nil {
+		listener, err := listen(host)
+		if err != nil {
+			log.Printf("Failed to listen on %s: %s", host, err)
+			os.Exit(1)
+		}
+		if err := http.Serve(listener, nil); err != nil {
 			log.Printf("Failed to shutdown server: %s", err)
 			os.Exit(1)
 		}
