@@ -2,19 +2,81 @@ import i18n from '@i18n/config';
 import { ISSUES_REPO, REPO_CHOOSE_NEW_ISSUE_URL, REPO_RELEASES_URL, SOCIALS } from '@sim/constants/other';
 import { useOutdatedNativeSim } from '@sim/hooks/useOutdatedNativeSim';
 import type { Sim } from '@sim/sim';
+import { Button } from '@ui-kit/Button';
+import { Dialog } from '@ui-kit/Dialog';
 import { SocialLink } from '@ui-kit/SocialLink';
+import { Spinner } from '@ui-kit/Spinner';
 import { isNative } from '@ui-kit/utils/dom';
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 
 import { ToolbarItem } from './ToolbarItem';
+import { type NativeSimUpdateStatus, useNativeSimUpdate } from './useNativeSimUpdate';
+
+/** What the toolbar needs to offer the update in place of the link to the releases page. */
+export interface NativeSimUpdate {
+	latest: string;
+	status: NativeSimUpdateStatus;
+	onUpdate: () => void;
+}
 
 export interface SimToolbarViewProps {
 	knownIssues: ReadonlyArray<ReactNode>;
 	outdatedNativeSim: boolean;
+	/** Set when the host can update itself. Without it the outdated item links to the releases page. */
+	nativeSimUpdate?: NativeSimUpdate;
 	onOpenSettings: () => void;
 }
 
-export const SimToolbarView = ({ knownIssues, outdatedNativeSim, onOpenSettings }: SimToolbarViewProps) => (
+const NativeSimUpdateItem = ({ latest, status, onUpdate }: NativeSimUpdate) => {
+	const [open, setOpen] = useState(false);
+	const updating = status.state === 'updating';
+	return (
+		<>
+			<ToolbarItem
+				className="text-link-danger"
+				testId="native-sim-update"
+				icon="gauge-high"
+				tooltip={i18n.t('info.native_sim_update')}
+				onClick={() => setOpen(true)}
+			/>
+			<Dialog
+				open={open}
+				onOpenChange={setOpen}
+				size="sm"
+				preventClose={updating}
+				title={i18n.t('info.native_sim_update_title')}
+				testId="native-sim-update-dialog"
+				footer={
+					<>
+						<Button variant="outline-cancel" disabled={updating} onClick={() => setOpen(false)}>
+							{i18n.t('common.cancel')}
+						</Button>
+						<Button variant="primary" disabled={updating} onClick={onUpdate}>
+							{i18n.t('info.native_sim_update_action')}
+						</Button>
+					</>
+				}>
+				{updating ? (
+					<div className="flex items-center gap-2" data-testid="native-sim-updating">
+						<Spinner size="sm" />
+						{i18n.t('info.native_sim_updating')}
+					</div>
+				) : (
+					<>
+						<p className="mb-0">{i18n.t('info.native_sim_update_confirm', { version: latest })}</p>
+						{status.state === 'error' && (
+							<p className="mt-2 mb-0 text-link-danger" role="alert" data-testid="native-sim-update-error">
+								{status.error}
+							</p>
+						)}
+					</>
+				)}
+			</Dialog>
+		</>
+	);
+};
+
+export const SimToolbarView = ({ knownIssues, outdatedNativeSim, nativeSimUpdate, onOpenSettings }: SimToolbarViewProps) => (
 	<>
 		<ToolbarItem
 			className="text-link-danger"
@@ -44,7 +106,9 @@ export const SimToolbarView = ({ knownIssues, outdatedNativeSim, onOpenSettings 
 			))}
 		</div>
 
-		{outdatedNativeSim && (
+		{outdatedNativeSim && nativeSimUpdate && <NativeSimUpdateItem {...nativeSimUpdate} />}
+
+		{outdatedNativeSim && !nativeSimUpdate && (
 			<ToolbarItem href={REPO_RELEASES_URL} icon="gauge-high" className="text-link-danger" tooltip={i18n.t('info.native_sim_outdated')} />
 		)}
 	</>
@@ -60,9 +124,16 @@ export interface SimToolbarProps {
 
 export const SimToolbar = ({ sim, knownIssues, onOpenSettings }: SimToolbarProps) => {
 	const outdatedNativeSim = useOutdatedNativeSim(sim);
+	const { status, update } = useNativeSimUpdate(outdatedNativeSim);
+	const nativeSimUpdate = outdatedNativeSim?.canUpdate ? { latest: outdatedNativeSim.latest, status, onUpdate: update } : undefined;
 	return (
 		<div className="ml-auto flex flex-nowrap items-end text-(length:--text-ui) font-bold" data-testid="sim-toolbar">
-			<SimToolbarView knownIssues={knownIssues} outdatedNativeSim={outdatedNativeSim} onOpenSettings={onOpenSettings} />
+			<SimToolbarView
+				knownIssues={knownIssues}
+				outdatedNativeSim={outdatedNativeSim != null}
+				nativeSimUpdate={nativeSimUpdate}
+				onOpenSettings={onOpenSettings}
+			/>
 		</div>
 	);
 };

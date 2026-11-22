@@ -11586,6 +11586,27 @@
 				"native_sim_outdated": {
 					"type": "string"
 				},
+				"native_sim_update": {
+					"type": "string"
+				},
+				"native_sim_update_title": {
+					"type": "string"
+				},
+				"native_sim_update_confirm": {
+					"type": "string"
+				},
+				"native_sim_update_action": {
+					"type": "string"
+				},
+				"native_sim_updating": {
+					"type": "string"
+				},
+				"native_sim_update_failed": {
+					"type": "string"
+				},
+				"native_sim_update_timeout": {
+					"type": "string"
+				},
 				"forever_notice": {
 					"type": "string"
 				}
@@ -11602,6 +11623,13 @@
 				"options",
 				"download_native_sim",
 				"native_sim_outdated",
+				"native_sim_update",
+				"native_sim_update_title",
+				"native_sim_update_confirm",
+				"native_sim_update_action",
+				"native_sim_updating",
+				"native_sim_update_failed",
+				"native_sim_update_timeout",
 				"forever_notice"
 			]
 		},

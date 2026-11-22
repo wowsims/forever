@@ -32,4 +32,28 @@ describe('SimToolbarView', () => {
 		rerender(<SimToolbarView knownIssues={[]} outdatedNativeSim onOpenSettings={() => {}} />);
 		expect(downloadLinks()).toHaveLength(1);
 	});
+
+	it('confirms before updating and shows the progress', () => {
+		const onUpdate = vi.fn();
+		const nativeSimUpdate = { latest: 'v1.2.3', onUpdate };
+		const { rerender } = render(
+			<SimToolbarView knownIssues={[]} outdatedNativeSim nativeSimUpdate={{ ...nativeSimUpdate, status: { state: 'idle' } }} onOpenSettings={() => {}} />,
+		);
+		expect(downloadLinks()).toHaveLength(0);
+
+		fireEvent.click(screen.getByTestId('native-sim-update'));
+		expect(onUpdate).not.toHaveBeenCalled();
+		fireEvent.click(screen.getByText('info.native_sim_update_action'));
+		expect(onUpdate).toHaveBeenCalledTimes(1);
+
+		rerender(
+			<SimToolbarView
+				knownIssues={[]}
+				outdatedNativeSim
+				nativeSimUpdate={{ ...nativeSimUpdate, status: { state: 'updating' } }}
+				onOpenSettings={() => {}}
+			/>,
+		);
+		expect(screen.getByTestId('native-sim-updating')).toBeTruthy();
+	});
 });
