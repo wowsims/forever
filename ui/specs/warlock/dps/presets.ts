@@ -79,6 +79,7 @@ export const DefaultConsumables = ConsumesSpec.create({
 	foodId: Consumables.NightfinSoup.id,
 	conjuredId: Consumables.DemonicRune.id,
 	mhImbueId: Consumables.BrilliantWizardOil.id,
+	mhWeaponImbueId: Consumables.MajorFirestone.id,
 	offensivePotId: Consumables.MajorSpellblastingPotion.id,
 	explosiveId: Consumables.EzThroDynamiteII.id,
 });
