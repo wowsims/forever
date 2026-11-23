@@ -983,10 +983,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 959.30177
-  tps: 701.12114
-  dtps: 7.38999
-  hps: 20.67222
+  dps: 963.40854
+  tps: 702.99144
+  dtps: 6.86941
+  hps: 20.79083
  }
 }
 dps_results: {

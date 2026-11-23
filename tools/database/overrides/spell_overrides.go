@@ -699,9 +699,9 @@ var Spells = []Override{
 	{
 		SpellID: 1318159,
 		Field:   PPM,
-		Value:   2.6,
-		Reason:  "Highborne Research Tablet: 2.6 procs per minute on landed damaging melee hits; the game files state none",
-		Source:  "EV-0021",
+		Value:   2.95,
+		Reason:  "Highborne Research Tablet: 2.95 procs per minute on landed damaging hits, a weapon hit on its weapon's speed and a spell hit on its cast time; the game files state none",
+		Source:  "EV-0131",
 	},
 	{
 		SpellID: 27656,

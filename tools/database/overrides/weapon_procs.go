@@ -484,7 +484,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Satyr's Lash: no proc row; shares the trigger with Black Malice; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
-	// Measured by EV-0153's method on the reports from 2026-11-06 to 2026-11-21 (EV-0126, EV-0132, EV-0136, EV-0153).
+	// Measured by EV-0153's method on the reports from 2026-11-06 to 2026-11-21 (EV-0126, EV-0132, EV-0136).
 	{
 		ItemID:  809,
 		SpellID: 17504,
@@ -585,15 +585,8 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Barovian Family Sword: column reads 101",
 		Source:  "EV-0179",
 	},
-	// Measured by EV-0153's method, paladins left out, on the reports from 2026-11-06 to 2026-11-22 (EV-0121, EV-0125,
-	// EV-0136, EV-0146, EV-0150, EV-0153, EV-0177, EV-0183).
-	{
-		ItemID:  810,
-		SpellID: 13439,
-		PPM:     4.6,
-		Reason:  "Hammer of the Northern Wind: column reads 101",
-		Source:  "EV-0136",
-	},
+	// Measured by EV-0153's method on the reports from 2026-11-06 to 2026-11-22 (EV-0121, EV-0125, EV-0136, EV-0146,
+	// EV-0150, EV-0153, EV-0177, EV-0183).
 	{
 		ItemID:  811,
 		SpellID: 18104,
@@ -637,10 +630,10 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
-		ItemID:  2256,
-		SpellID: 13440,
-		PPM:     0.95,
-		Reason:  "Skeletal Club: no proc row",
+		ItemID:  2912,
+		SpellID: 16409,
+		PPM:     1.05,
+		Reason:  "Claw of the Shadowmancer: no proc row; shares the trigger with Runic Darkblade",
 		Source:  "EV-0136",
 	},
 	{
@@ -662,6 +655,13 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 1291686,
 		PPM:     4.05,
 		Reason:  "Firebelcher: equip trigger, column reads 100",
+		Source:  "EV-0136",
+	},
+	{
+		ItemID:  7710,
+		SpellID: 1293482,
+		PPM:     1.95,
+		Reason:  "Loksey's Training Stick: no proc row",
 		Source:  "EV-0136",
 	},
 	{
@@ -826,6 +826,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
+		ItemID:  14487,
+		SpellID: 18276,
+		PPM:     1.95,
+		Reason:  "Bonechill Hammer: no proc row; shares the trigger with Darrowspike",
+		Source:  "EV-0136",
+	},
+	{
 		ItemID:  18483,
 		SpellID: 1302348,
 		PPM:     4.15,
@@ -867,17 +874,8 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Axe of Inevitable Ruin: no proc row",
 		Source:  "EV-0136",
 	},
-	// Measured the same way; the one-hand white swings read above the rate over all hits, and the owner keeps the rate
-	// over all hits (EV-0136).
-	{
-		ItemID:  7710,
-		SpellID: 1293482,
-		PPM:     1.95,
-		Reason:  "Loksey's Training Stick: no proc row",
-		Source:  "EV-0136",
-	},
-	// Measured the same way; its proc flies past the isolation, and a separate count of its lone Auto Shots checks the
-	// rate over all hits (EV-0136).
+	// Measured the same way; its lone-unit rates read on a travel window past 400 ms, and a separate count of its
+	// lone Auto Shots checks the rate over all hits (EV-0136).
 	{
 		ItemID:  274293,
 		SpellID: 1293714,
@@ -885,10 +883,17 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Spellsever Crossbow: no proc row",
 		Source:  "EV-0136",
 	},
-	// Fitted the same way on the reports from 2026-11-06 to 2026-11-22 from too few wearers, wearers of one class, too
-	// wide an interval, a lone-unit rate that disagrees or no lone-unit rate to check it, so not final (EV-0120,
-	// EV-0136, EV-0146, EV-0153, EV-0157, EV-0177, EV-0178, EV-0183). The "observed" Source keeps the gear tab's notice
-	// up until more wearers validate it.
+	// Fitted the same way on the reports from 2026-11-06 to 2026-11-22 from wearers of one class, too wide an interval,
+	// a lone-unit rate that disagrees or no lone-unit rate to check it, so not final (EV-0120, EV-0136, EV-0146,
+	// EV-0153, EV-0157, EV-0177, EV-0178, EV-0183). The "observed" Source keeps the gear tab's notice up until more
+	// wearers validate it.
+	{
+		ItemID:  810,
+		SpellID: 13439,
+		PPM:     4.6,
+		Reason:  "Hammer of the Northern Wind: column reads 101; a log fit not yet validated (EV-0136)",
+		Source:  "observed",
+	},
 	{
 		ItemID:  870,
 		SpellID: 18796,
@@ -939,10 +944,10 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  2912,
-		SpellID: 16409,
-		PPM:     1.05,
-		Reason:  "Claw of the Shadowmancer: no proc row; shares the trigger with Runic Darkblade; a log fit not yet validated (EV-0136)",
+		ItemID:  2256,
+		SpellID: 13440,
+		PPM:     0.95,
+		Reason:  "Skeletal Club: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
@@ -1142,13 +1147,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  14487,
-		SpellID: 18276,
-		PPM:     1.95,
-		Reason:  "Bonechill Hammer: no proc row; shares the trigger with Darrowspike; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  14531,
 		SpellID: 18633,
 		PPM:     3,
@@ -1256,6 +1254,16 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "The Lobotomizer: column reads 101; a log fit not yet validated (EV-0177)",
 		Source:  "observed",
 	},
+	// Fitted the same way on the reports from 2026-11-19 to 2026-11-22, paladins included: their rolls are EV-0155's
+	// and EV-0156's. Too few wearers and too wide an interval to call final (EV-0184). The "observed" Source keeps
+	// the gear tab's notice up until more wearers validate it.
+	{
+		ItemID:  12794,
+		SpellID: 16921,
+		PPM:     0.9,
+		Reason:  "Masterwork Stormhammer: column reads 101; a log fit not yet validated (EV-0184)",
+		Source:  "observed",
+	},
 	// Fitted the same way from too few wearers, wearers of one class, too wide an interval or no lone-unit rate to
 	// check it, to call final (EV-0136). The "observed" Source keeps the gear tab's notice up until more wearers
 	// validate it.
@@ -1265,13 +1273,6 @@ var WeaponProcs = []WeaponProc{
 		PPM:     0.85,
 		Reason:  "Poison-tipped Bone Spear: column reads 101; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
-	},
-	{
-		ItemID:  11809,
-		SpellID: 16559,
-		PPM:     1.9,
-		Reason:  "Flame Wrath: no proc row",
-		Source:  "EV-0136",
 	},
 	{
 		ItemID:  13051,
@@ -1287,6 +1288,42 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Puncturing Spear: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
+	// Measured on the reports from 2026-11-12 to 2026-11-18 (EV-0136).
+	{
+		ItemID:  11809,
+		SpellID: 16559,
+		PPM:     1.9,
+		Reason:  "Flame Wrath: no proc row",
+		Source:  "EV-0136",
+	},
+	// Measured on the reports from 2026-11-13 to 2026-11-22 (EV-0175).
+	{
+		ItemID:  6622,
+		SpellID: 8191,
+		PPM:     1.95,
+		Reason:  "Sword of Zeal: no proc row",
+		Source:  "EV-0175",
+	},
+	// Measured in a level 57 warrior's combat log (EV-0021).
+	{
+		ItemID:  10847,
+		SpellID: 13049,
+		PPM:     4.5,
+		Reason:  "Dragon's Call: no proc row; measured on landed main-hand hits outside the 45 s cooldown",
+		Source:  "EV-0021",
+	},
+	// Measured on main-hand white swings with no other hit or debuff of the wearer beside them, each proc given
+	// to the hit it logs with (EV-0145).
+	{
+		ItemID:  12469,
+		SpellID: 10370,
+		PPM:     4.8,
+		Reason:  "Mutilator: column reads 101",
+		Source:  "EV-0145",
+	},
+	// TODO: The rates below are vanilla and TBC carry-overs, simulator assumptions or old community tests, and
+	// none has been measured on this server. Replace each with a measured rate, its Source the id of a
+	// docs/evidence file, when logs exist.
 	{
 		ItemID:  12798,
 		SpellID: 16928,
@@ -1306,27 +1343,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 18092,
 		PPM:     0.5, // TODO: Vanilla value - verify in-game
 		Reason:  "Shiver Blade: no proc row",
-		Source:  "vanilla-carryover",
-	},
-	{
-		ItemID:  6622,
-		SpellID: 8191,
-		PPM:     1.95,
-		Reason:  "Sword of Zeal: no proc row",
-		Source:  "EV-0175",
-	},
-	{
-		ItemID:  10847,
-		SpellID: 13049,
-		PPM:     4.5,
-		Reason:  "Dragon's Call: no proc row; measured on landed main-hand hits outside the 45 s cooldown",
-		Source:  "EV-0021",
-	},
-	{
-		ItemID:  12794,
-		SpellID: 16921,
-		PPM:     0.5, // TODO: Vanilla value - verify in-game
-		Reason:  "Masterwork Stormhammer: column reads 101",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -1406,18 +1422,6 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Hand of Edward the Odd: column reads 100; vanilla figures differ, 1.0 from 21 procs in 757 hits against 2.0",
 		Source:  "vanilla-carryover",
 	},
-	// Measured on main-hand white swings with no other hit or debuff of the wearer beside them, each proc given
-	// to the hit it logs with (EV-0145).
-	{
-		ItemID:  12469,
-		SpellID: 10370,
-		PPM:     4.8,
-		Reason:  "Mutilator: column reads 101",
-		Source:  "EV-0145",
-	},
-	// TODO: The rates below are vanilla carry-overs, simulator assumptions or old community tests, and none
-	// has been measured on this server. Replace each with a measured rate, its Source the id of a
-	// docs/evidence file, when logs exist.
 	{
 		ItemID:  12777,
 		SpellID: 16898,

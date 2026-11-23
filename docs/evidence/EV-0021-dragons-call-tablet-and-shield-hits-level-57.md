@@ -1,6 +1,6 @@
 # EV-0021: Dragon's Call, its whelp, the Highborne Research Tablet and weapon procs on shield hits, level 57
 
-- Claim: Dragon's Call procs 4.5 times a minute behind a 45 s cooldown and summons a whelp that takes nothing from its owner; the Highborne Research Tablet procs 2.6 times a minute off damaging hits only; and Fiery Blaze, Rock on Stick and Dragon's Call do not proc off Shield Slam, Shield Bash or Thunder Clap, while equip procs still do.
+- Claim: Dragon's Call procs 4.5 times a minute behind a 45 s cooldown and summons a whelp that takes nothing from its owner; the Highborne Research Tablet procs off damaging hits only; and Fiery Blaze, Rock on Stick and Dragon's Call do not proc off Shield Slam, Shield Bash or Thunder Clap, while equip procs still do.
 - Sources: combat log, one level 57 Protection warrior with a 2.5 s main hand (Mount Hyjal, about 27 minutes in combat, StatLedger for gear and level); Warcraft Logs FHqYCNcKntvDAjxg, WRa9p2xhPnQKVG8C and t6bL9xfVY3hXyvHT for Fiery Blaze (3 players)
 - Game build: not recorded
 - Date: 2026-11-12 for the combat log; not recorded for the Warcraft Logs reports

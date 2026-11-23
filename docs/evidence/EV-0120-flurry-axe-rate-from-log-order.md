@@ -73,9 +73,9 @@ xzHZV7MFgNhWj9n4 1.
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate lists, from every wearer
-  stream on disk for the axe; 3,637 reports in all for the count, 36 of them for the axe
+  stream on disk for the axe; 3,714 reports in all for the count, 36 of them for the axe
 - Game build: 1.60.1.70888 to 1.60.1.71037 by report date (70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19
-  UTC, 71037 from 2026-11-20 18:23 UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC),
+  UTC, 71037 from 2026-11-20 18:23 UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC),
   14 of them for the axe. The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

@@ -757,8 +757,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 869.02772
-  tps: 745.94512
+  dps: 870.2555
+  tps: 745.42081
  }
 }
 dps_results: {

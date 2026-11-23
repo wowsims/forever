@@ -842,9 +842,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 900.09532
-  tps: 707.84587
-  dtps: 10.30158
+  dps: 900.0191
+  tps: 707.63764
+  dtps: 10.23423
  }
 }
 dps_results: {

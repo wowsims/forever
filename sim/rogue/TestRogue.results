@@ -1112,8 +1112,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 806.77934
-  tps: 572.81333
+  dps: 808.69826
+  tps: 574.17577
   hps: 59.11917
  }
 }
@@ -1360,8 +1360,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 768.32624
-  tps: 545.51163
+  dps: 770.00647
+  tps: 546.7046
   hps: 60.20361
  }
 }

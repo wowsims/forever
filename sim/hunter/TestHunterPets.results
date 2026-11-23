@@ -1343,9 +1343,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 691.60754
-  tps: 485.91312
-  dtps: 4.26641
+  dps: 692.31515
+  tps: 486.50003
+  dtps: 4.33938
  }
 }
 dps_results: {

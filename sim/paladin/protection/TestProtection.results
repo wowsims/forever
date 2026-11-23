@@ -1298,9 +1298,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 409.35186
-  tps: 967.64039
-  dtps: 344.12439
+  dps: 409.88438
+  tps: 968.43991
+  dtps: 344.18189
   hps: 18.02889
  }
 }
@@ -1667,9 +1667,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 414.32724
-  tps: 998.88756
-  dtps: 341.08534
+  dps: 417.6743
+  tps: 1004.83555
+  dtps: 341.02194
   hps: 23.89167
  }
 }

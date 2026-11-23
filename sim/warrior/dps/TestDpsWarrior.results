@@ -1289,10 +1289,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 531.01981
-  tps: 459.89013
+  dps: 533.73574
+  tps: 462.21632
   dtps: 2.96243
-  hps: 43.07278
+  hps: 43.22528
  }
 }
 dps_results: {
@@ -1523,10 +1523,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 521.71467
-  tps: 453.58196
+  dps: 523.42924
+  tps: 455.30897
   dtps: 2.94293
-  hps: 47.74944
+  hps: 47.7325
  }
 }
 dps_results: {

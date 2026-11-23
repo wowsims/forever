@@ -179,9 +179,9 @@ zmDY4LVX7N8vh9aR
 - Rate: 2.05 PPM, measured
 
 667 procs on 6,517 rolling hits, 6 wearers, 7 runs, in the main hand: all hits 2.05 [2.00, 2.10]. The rate is all hits,
-which the one-hand white rate agrees with. One-hand white: 2.24 [1.80, 3.22], 131 procs on 1,172 lone units, 6 wearers.
+which the one-hand white rate agrees with. One-hand white: 2.24 [1.81, 3.22], 132 procs on 1,179 lone units, 6 wearers.
 Specials: 5.71 [0.69, 20.64], 2 procs on 7 lone units, 1 wearer (a Poisson interval: under 5 wearers). Direct: window
-[-11, 100] ms, median 0 ms, 98th percentile 1 ms, 120 isolated hits. Reports from 2026-11-13 to 2026-11-22.
+[-11, 100] ms, median 0 ms, 98th percentile 1 ms, 122 isolated hits. Reports from 2026-11-13 to 2026-11-22.
 
 | Class  | Wearers | Procs |  Hits |  PPM |
 | ------ | ------: | ----: | ----: | ---: |
@@ -198,9 +198,9 @@ fzR7DJAFNWbk6LTH 1; mqzgv4rPVxA3JHGf 1-2; yhW9cLwxnHNDP2jF 4-8.
 - Rate: 3.05 PPM, measured
 
 6,999 procs on 69,394 rolling hits, 97 wearers, 118 runs, in the ranged slot: all hits 3.03 [2.96, 3.09]. The rate is
-all hits, which the lone Auto Shot and specials rates agree with. Lone Auto Shots: 3.05 [2.95, 3.15], 3,861 procs on
-37,996 lone units, 97 wearers. Specials: 3.06 [2.90, 3.21], 1,751 procs on 17,178 lone units, 78 wearers; Arcane Shot
-gives 760 procs on 7,373 of them. Direct: window [-10, 100] ms, median 19 ms, 98th percentile 37 ms, 4,495 isolated
+all hits, which the lone Auto Shot and specials rates agree with. Lone Auto Shots: 3.04 [2.94, 3.14], 3,917 procs on
+38,701 lone units, 97 wearers. Specials: 3.03 [2.91, 3.15], 2,370 procs on 23,475 lone units, 78 wearers; Arcane Shot
+gives 768 procs on 7,496 of them. Direct: window [-10, 100] ms, median 19 ms, 98th percentile 38 ms, 5,285 isolated
 hits. Dropping the swapped stretches (140 active minutes, 5% of hits, in 10 runs) moved the read from 2.88 to 3.03.
 Reports from 2026-11-07 to 2026-11-22.
 
@@ -243,11 +243,11 @@ zcL8MvJnPXxYhNyC 1.
 
 6,293 procs on 69,413 rolling hits, 39 wearers, 53 runs, in the main hand or the off hand: all hits 3.02 [2.85, 3.20].
 Puncture Armor stacks on the target, and a refresh at full stacks can log nothing, so no lone-unit rate checks the
-all-hits rate. Observed: no lone-unit rate checks it. One-hand white: 2.62 [2.37, 2.90], 734 procs on 9,322 lone units,
-12 wearers. Dual-wield white, which sets no rate: 2.31 [2.04, 2.63], 902 procs on 12,990 lone units, 27 wearers.
-Specials: 2.83 [2.39, 3.09], 319 procs on 3,764 lone units, 15 wearers; Revenge gives 214 procs on 2,532 of them.
-Two-roll abilities, priced as one roll: 4.17, 15 procs on 120 lone units (Execute 15 on 120), left out of the rate.
-Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 1,390 isolated hits. Dropping the swapped stretches (83
+all-hits rate. Observed: no lone-unit rate checks it. One-hand white: 2.66 [2.43, 2.92], 794 procs on 9,941 lone units,
+12 wearers. Dual-wield white, which sets no rate: 2.28 [1.99, 2.60], 1,067 procs on 15,575 lone units, 27 wearers.
+Specials: 2.86 [2.62, 3.07], 879 procs on 10,227 lone units, 15 wearers; Cleave gives 550 procs on 6,323 of them.
+Two-roll abilities, priced as one roll: 4.07, 15 procs on 123 lone units (Execute 15 on 123), left out of the rate.
+Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 2,125 isolated hits. Dropping the swapped stretches (83
 active minutes, 3% of hits, in 6 runs) moved the read from 2.94 to 3.02. Report xXWkB3fqAjt9NJGH logs the same run as
 dnDg7j9kRw6WtbML and counts once. Reports from 2026-11-11 to 2026-11-22.
 
@@ -314,16 +314,16 @@ there is no cooldown. The chance per swing rises with the weapon's speed: 2.5% o
 - Proc: weapon proc 18138
 - Rate: 1 PPM, measured
 
-429 procs on 9,379 rolling hits, 13 wearers, 15 runs, in the main hand: all hits 0.98 [0.92, 1.04]. The rate is all
-hits, which the one-hand white rate agrees with. One-hand white: 1.07 [0.87, 1.23], 106 procs on 2,131 lone units, 13
-wearers. Specials: 0.00, 0 procs on 1 lone units, 1 wearer. Travel time: the proc lands a median 149 ms after its hit,
-98th percentile 341 ms, window [50, 351] ms (57 isolated hits). Dropping the swapped stretches (5.5 active minutes, 1%
+429 procs on 9,373 rolling hits, 13 wearers, 15 runs, in the main hand: all hits 0.98 [0.92, 1.04]. The rate is all
+hits, which the one-hand white rate agrees with. One-hand white: 1.04 [0.84, 1.20], 110 procs on 2,267 lone units, 13
+wearers. Specials: 0.00, 0 procs on 1 lone unit, 1 wearer. Travel time: the proc lands a median 163 ms after its hit,
+98th percentile 270 ms, window [-20, 280] ms (100 isolated hits). Dropping the swapped stretches (5.5 active minutes, 1%
 of hits, in 1 run) moved the read from 0.97 to 0.98. Left out: 19 of 34 runs in Cat or Bear Form. Reports from
 2026-11-10 to 2026-11-21.
 
 | Class  | Wearers | Procs |  Hits |  PPM |
 | ------ | ------: | ----: | ----: | ---: |
-| Shaman |      12 |   414 | 9,098 | 0.98 |
+| Shaman |      12 |   414 | 9,092 | 0.98 |
 | Druid  |       1 |    15 |   281 | 1.14 |
 
 Reports and fights: 4bqYVtkjL6aKdwQM 1-2; 92YFDCN4AvBT7KqJ 1-3; 9RgXYmBfN7hCdznQ 1-3; Chcj6QkYyadWfT18 1-4, 6;
@@ -337,13 +337,14 @@ waZyxVKk43BzGLN6 1-11.
 - Proc: weapon proc 1292155
 - Rate: 1.85 PPM, observed
 
-340 procs on 3,323 rolling hits, 7 wearers, 8 runs, in the main hand: all hits 1.86 [1.70, 1.97]. The proc's travel
-window passes 400 ms, so no lone-unit rate checks the all-hits rate. Observed: no lone-unit rate checks it. One-hand
-white: 2.24 [1.80, 2.66], 126 procs on 1,024 lone units, 6 wearers. Specials: 2.49 [1.73, 3.46], 35 procs on 256 lone
-units, 2 wearers (a Poisson interval: under 5 wearers). Travel time: the proc lands a median 167 ms after its hit, 98th
-percentile 633 ms, window [50, 643] ms (130 isolated hits). Dropping the swapped stretches (5.1 active minutes, 2% of
-hits, in 1 run) moved the read from 1.83 to 1.86. Left out: 3 of 11 runs in Cat or Bear Form. Reports from 2026-11-10 to
-2026-11-22.
+340 procs on 3,323 rolling hits, 7 wearers, 8 runs, in the main hand: all hits 1.86 [1.70, 1.97]. Its lone-unit rates of
+50 or more procs read on a travel window past 400 ms, so none checks the all-hits rate. Observed: no lone-unit rate
+checks it. One-hand white: 2.25 [1.80, 2.70], 127 procs on 1,024 lone units, 6 wearers. Specials: 2.49 [1.73, 3.46], 35
+procs on 256 lone units, 2 wearers (a Poisson interval: under 5 wearers). Travel time: the proc lands a median 167 ms
+after its hit, 98th percentile 633 ms, window [-20, 643] ms (130 isolated hits). Dropping the swapped stretches (5.1
+active minutes, 2% of hits, in 1 run) moved the read from 1.83 to 1.86. The paladin check, which sets no rate: lone
+white swings 1.65, 16 procs on 176 lone units, 5 wearers. Left out: 3 of 11 runs in Cat or Bear Form. Reports from
+2026-11-10 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -384,14 +385,14 @@ rdhLY1mZjgwBW4TK 1-4; tAHYCaLM743mRJrc 1-3; tcJjKwdCFXH1nkaR 1-12; xNtYHKbFwVGD9
 - Rate: 2 PPM, measured
 
 3,563 procs on 50,513 rolling hits, 28 wearers, 31 runs, in the main hand: all hits 2.02 [1.93, 2.09]. The rate is all
-hits, which the one-hand white and specials rates agree with. One-hand white: 1.77 [1.51, 2.05], 260 procs on 4,187 lone
-units, 8 wearers. Dual-wield white, which sets no rate: 1.81 [1.67, 1.95], 485 procs on 7,662 lone units, 18 wearers.
-Specials: 2.02 [1.90, 2.15], 500 procs on 7,073 lone units, 26 wearers; Sinister Strike gives 276 procs on 3,989 of
-them. Two-roll abilities, priced as one roll: 3.05, 21 procs on 197 lone units (Execute 19 on 160 and Mongoose Bite 2 on
-37), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 884 isolated hits. Dropping
-the swapped stretches (196 active minutes, 11% of hits, in 6 runs) moved the read from 1.79 to 2.02. The paladin check,
-which sets no rate: lone white swings 2.28, 31 procs on 389 lone units, 6 wearers. Reports from 2026-11-12 to
-2026-11-22.
+hits, which the one-hand white and specials rates agree with. One-hand white: 1.83 [1.60, 2.09], 289 procs on 4,516 lone
+units, 8 wearers. Dual-wield white, which sets no rate: 1.82 [1.67, 1.97], 584 procs on 9,152 lone units, 18 wearers.
+Specials: 1.91 [1.79, 2.03], 681 procs on 10,206 lone units, 26 wearers; Sinister Strike gives 306 procs on 4,530 of
+them. Two-roll abilities, priced as one roll: 2.78, 23 procs on 236 lone units (Execute 21 on 199 and Mongoose Bite 2 on
+37), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,186 isolated hits.
+Dropping the swapped stretches (196 active minutes, 11% of hits, in 6 runs) moved the read from 1.79 to 2.02. The
+paladin check, which sets no rate: lone white swings 2.40, 36 procs on 429 lone units, 6 wearers. Reports from
+2026-11-12 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -466,18 +467,21 @@ z3nAQTFjM4rg8XmH 1; zknXTJ6t3q4aGYyj 1-2, 4-5.
 
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 - Proc: weapon proc 18276
-- Rate: 1.95 PPM, observed
+- Rate: 1.95 PPM, measured
 
-2,353 procs on 30,222 rolling hits, 33 wearers, 37 runs, in the main hand or the off hand: all hits 1.95 [1.86, 2.03].
-The proc's flight reaches the 300 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate.
-Observed: no lone-unit rate checks it. Travel time: the proc lands a median 141 ms after its hit, 98th percentile 278 ms
-(491 isolated procs). Dropping the swapped stretches (54 active minutes, 5% of hits, in 5 runs) moved the read from 1.85
-to 1.95. Report Z4VAmgDfJ9GPFjtc logs the same run as KNtHCAPd97ZMTLBf and counts once. Reports from 2026-11-14 to
-2026-11-22.
+2,353 procs on 30,221 rolling hits, 33 wearers, 37 runs, in the main hand or the off hand: all hits 1.95 [1.86, 2.03].
+The rate is all hits, which the specials rate agrees with. One-hand white: 1.86 [1.37, 2.47], 48 procs on 645 lone
+units, 4 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.60 [1.39, 1.77], 242
+procs on 3,792 lone units, 27 wearers. Specials: 1.69 [1.43, 1.99], 159 procs on 2,349 lone units, 20 wearers; Sinister
+Strike gives 86 procs on 1,283 of them. Two-roll abilities, priced as one roll: 3.91, 5 procs on 32 lone units (Execute
+5 on 32), left out of the rate. Travel time: the proc lands a median 142 ms after its hit, 98th percentile 300 ms,
+window [-20, 310] ms (331 isolated hits). Dropping the swapped stretches (54 active minutes, 5% of hits, in 5 runs)
+moved the read from 1.85 to 1.95. Report Z4VAmgDfJ9GPFjtc logs the same run as KNtHCAPd97ZMTLBf and counts once. Reports
+from 2026-11-14 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Rogue   |      16 | 1,339 | 17,805 | 1.88 |
+| Rogue   |      16 | 1,339 | 17,804 | 1.88 |
 | Warrior |      17 | 1,014 | 12,417 | 2.04 |
 
 Reports and fights: 4jnhaMNdZczgvFBT 1; 6XwgYbxq2GycCFP1 3; 7Lk3abCgNpVZjM41 2; 8Qp4nrZNKaFzy79G 107-109;
@@ -547,11 +551,11 @@ tk86znZXxMCdwBKb 2-18.
 - Rate: 2 PPM, measured
 
 723 procs on 7,823 rolling hits, 7 wearers, 7 runs, in the main hand or the off hand: all hits 1.98 [1.86, 2.10]. The
-rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 2.33 [1.88, 2.85], 92 procs on
-847 lone units, 1 wearer (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.57 [1.21, 1.95],
-71 procs on 966 lone units, 5 wearers. Specials: 1.90 [1.48, 2.40], 70 procs on 791 lone units, 2 wearers (a Poisson
-interval: under 5 wearers); Sinister Strike gives 24 procs on 206 of them. Direct: window [-11, 100] ms, median 0 ms,
-98th percentile 0 ms, 170 isolated hits. Dropping the swapped stretches (30 active minutes, 8% of hits, in 1 run) moved
+rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 2.33 [1.88, 2.86], 93 procs on
+855 lone units, 1 wearer (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.56 [1.27, 1.91],
+79 procs on 1,085 lone units, 5 wearers. Specials: 2.04 [1.67, 2.45], 110 procs on 1,158 lone units, 3 wearers (a
+Poisson interval: under 5 wearers); Cleave gives 35 procs on 332 of them. Direct: window [-11, 100] ms, median 0 ms,
+98th percentile 0 ms, 214 isolated hits. Dropping the swapped stretches (30 active minutes, 8% of hits, in 1 run) moved
 the read from 1.82 to 1.98. Reports from 2026-11-14 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
@@ -599,8 +603,8 @@ ryqgQphLxMBz4TmH 1-4; t6HbjRZmkyx3pQwK 1-14; xGndPFNVX7Lg38Hj 1-4; zdyXxBwMPTQph
 
 2,123 procs on 34,556 rolling hits, 47 wearers, 52 runs, in the off hand: all hits 2.05 [1.93, 2.15]. Neither the
 one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate. Observed: no
-lone-unit rate checks it. One-hand white: none. Dual-wield white, which sets no rate: 1.86 [1.73, 2.00], 703 procs on
-12,594 lone units, 47 wearers. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 524 isolated hits.
+lone-unit rate checks it. One-hand white: none. Dual-wield white, which sets no rate: 1.87 [1.73, 2.01], 986 procs on
+17,532 lone units, 47 wearers. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 772 isolated hits.
 Dropping the swapped stretches (69 active minutes, 4% of hits, in 3 runs) moved the read from 1.97 to 2.05. Report
 N7FQbLWcD3AZJkC2 logs the same run as Y8bALnZFcgK6R1X3 and counts once. Reports from 2026-11-13 to 2026-11-22.
 
@@ -627,14 +631,15 @@ rmk2gCVqcp96aKtD 1-9, 11, 13, 15-16; vKGdpHx9P7agyhFj 1-11; wPJ21t6c4WvCrMaG 1, 
 
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 - Proc: weapon proc 16409
-- Rate: 1.05 PPM, observed
+- Rate: 1.05 PPM, measured
 
 1,413 procs on 43,498 rolling hits, 59 wearers, 67 runs, in the main hand or the off hand: all hits 1.03 [0.98, 1.08].
-The proc's flight reaches the 300 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate.
-Observed: no lone-unit rate checks it. Travel time: the proc lands a median 136 ms after its hit, 98th percentile 273 ms
-(410 isolated procs). Dropping the swapped stretches (66 active minutes, 4% of hits, in 8 runs) moved the read from 0.99
-to 1.03. Report tWHjPvT9ZMfcAznY logs the same run as NkyKCr2XmgLt1YWv and counts once. Reports from 2026-11-07 to
-2026-11-22.
+The rate is all hits, which the specials rate agrees with. One-hand white: none. Dual-wield white, which sets no rate:
+0.98 [0.87, 1.09], 280 procs on 9,063 lone units, 53 wearers. Specials: 1.14 [0.81, 1.52], 68 procs on 1,882 lone units,
+32 wearers; Sinister Strike gives 53 procs on 1,331 of them. Travel time: the proc lands a median 134 ms after its hit,
+98th percentile 290 ms, window [-20, 300] ms (231 isolated hits). Dropping the swapped stretches (66 active minutes, 4%
+of hits, in 8 runs) moved the read from 0.99 to 1.03. Report tWHjPvT9ZMfcAznY logs the same run as NkyKCr2XmgLt1YWv and
+counts once. Reports from 2026-11-07 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -666,10 +671,10 @@ zafjtdQyBX2D6nmG 9-12.
 
 289 procs on 2,718 rolling hits, 6 wearers, 6 runs, in the main hand: all hits 1.99 [1.65, 2.28]. The rate is all hits,
 which the one-hand white rate agrees with. Observed: every wearer is a shaman; the interval is wider than 10% of the
-rate. One-hand white: 1.68 [1.35, 2.19], 60 procs on 668 lone units, 6 wearers. Travel time: the proc lands a median 75
-ms after its hit, 98th percentile 150 ms, window [8, 160] ms (58 isolated hits). Dropping the swapped stretches (6.1
+rate. One-hand white: 1.71 [1.38, 2.23], 60 procs on 656 lone units, 6 wearers. Travel time: the proc lands a median 73
+ms after its hit, 98th percentile 191 ms, window [-20, 201] ms (50 isolated hits). Dropping the swapped stretches (6.1
 active minutes, 5% of hits, in 1 run) moved the read from 1.89 to 1.99. The paladin check, which sets no rate: lone
-white swings 2.11, 30 procs on 266 lone units, 9 wearers. Left out: 12 of 18 runs in Cat or Bear Form. Reports from
+white swings 2.11, 31 procs on 275 lone units, 9 wearers. Left out: 12 of 18 runs in Cat or Bear Form. Reports from
 2026-11-14 to 2026-11-22.
 
 | Class  | Wearers | Procs |  Hits |  PPM |
@@ -848,16 +853,18 @@ zq6DmwtPJkNZy9KL 1-9.
 - Proc: weapon proc 18276
 - Rate: 2 PPM, observed
 
-1,394 procs on 27,904 rolling hits, 11 wearers, 18 runs, in the main hand or the off hand: all hits 2.00 [1.88, 2.07].
-The proc's flight reaches the 300 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate.
-Observed: no lone-unit rate checks it. Travel time: the proc lands a median 156 ms after its hit, 98th percentile 277 ms
-(260 isolated procs). Dropping the swapped stretches (43 active minutes, 4% of hits, in 5 runs) moved the read from 1.93
-to 2.00. Report qNVWc2yZJT6k8mvh logs the same run as JnVckZDLTwAgGKaQ and counts once. Reports from 2026-11-15 to
-2026-11-22.
+1,394 procs on 27,908 rolling hits, 11 wearers, 18 runs, in the main hand or the off hand: all hits 2.00 [1.88, 2.07].
+The rate is all hits; the one-hand white rate agrees with it and the specials rate reads below its interval. Observed:
+the specials rate disagrees. One-hand white: 1.99 [1.57, 2.49], 76 procs on 1,526 lone units, 2 wearers (a Poisson
+interval: under 5 wearers). Dual-wield white, which sets no rate: 1.82 [1.50, 2.13], 163 procs on 3,577 lone units, 10
+wearers. Specials: 1.69 [0.81, 1.85], 60 procs on 1,416 lone units, 7 wearers; Cleave gives 39 procs on 984 of them.
+Travel time: the proc lands a median 163 ms after its hit, 98th percentile 286 ms, window [-20, 296] ms (152 isolated
+hits). Dropping the swapped stretches (43 active minutes, 4% of hits, in 5 runs) moved the read from 1.93 to 2.00.
+Report qNVWc2yZJT6k8mvh logs the same run as JnVckZDLTwAgGKaQ and counts once. Reports from 2026-11-15 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Rogue   |       9 | 1,004 | 19,958 | 2.01 |
+| Rogue   |       9 | 1,004 | 19,962 | 2.01 |
 | Warrior |       2 |   390 |  7,946 | 1.96 |
 
 Reports and fights: 7fy93LdcwQhvF2gP 1-7; Ajg8VwL7CQFm6DWY 1, 3-12; C18pcNtwj4aRDbQk 3-15; HwyJMCLKfbY1PkmG 7-8, 10-38;
@@ -873,13 +880,13 @@ RJXQC67jbzATWdx1 8-9, 11-16; XGBaYAqPbcgZCVk8 7-15; Yh8waABRynm9HfFk 1, 3-4; adz
 - Rate: 2.75 PPM, measured
 
 7,473 procs on 62,164 rolling hits, 58 wearers, 60 runs, in the main hand: all hits 2.77 [2.66, 2.88]. The rate is all
-hits, which the one-hand white and specials rates agree with. One-hand white: 2.71 [2.39, 2.97], 400 procs on 3,406 lone
-units, 12 wearers. Dual-wield white, which sets no rate: 2.31 [2.12, 2.49], 814 procs on 8,135 lone units, 44 wearers.
-Specials: 2.89 [2.71, 3.05], 1,125 procs on 8,996 lone units, 57 wearers; Sinister Strike gives 674 procs on 5,252 of
-them. Two-roll abilities, priced as one roll: 3.72, 48 procs on 298 lone units (Execute 39 on 223 and Mongoose Bite 9 on
-75), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,702 isolated hits.
+hits, which the one-hand white and specials rates agree with. One-hand white: 2.70 [2.41, 2.96], 419 procs on 3,582 lone
+units, 12 wearers. Dual-wield white, which sets no rate: 2.29 [2.09, 2.49], 940 procs on 9,492 lone units, 44 wearers.
+Specials: 2.91 [2.78, 3.05], 1,581 procs on 12,525 lone units, 58 wearers; Sinister Strike gives 755 procs on 5,931 of
+them. Two-roll abilities, priced as one roll: 3.66, 52 procs on 328 lone units (Execute 43 on 253 and Mongoose Bite 9 on
+75), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 2,278 isolated hits.
 Dropping the swapped stretches (23 active minutes, 2% of hits, in 1 run) moved the read from 2.73 to 2.77. The paladin
-check, which sets no rate: lone white swings 2.43, 52 procs on 493 lone units, 9 wearers. Reports from 2026-11-09 to
+check, which sets no rate: lone white swings 2.49, 58 procs on 538 lone units, 9 wearers. Reports from 2026-11-09 to
 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
@@ -932,14 +939,16 @@ zabF8pwjDWtvmn7J 1; zp9yVrtfTNZJCv7g 9-10.
 - Proc: weapon proc 29639
 - Rate: 4 PPM, observed
 
-7,176 procs on 36,953 rolling hits, 43 wearers, 48 runs, in the ranged slot: all hits 4.02 [3.93, 4.10]. The proc's
-flight reaches the 1,000 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate. Observed: no
-lone-unit rate checks it; every wearer is a hunter. Travel time: the proc lands a median 576 ms after its hit, 98th
-percentile 936 ms (1,511 isolated procs). Reports from 2026-11-13 to 2026-11-22.
+7,170 procs on 36,937 rolling hits, 43 wearers, 48 runs, in the ranged slot: all hits 4.02 [3.93, 4.10]. Its lone-unit
+rates of 50 or more procs read on a travel window past 400 ms, so none checks the all-hits rate. Observed: no lone-unit
+rate checks it; every wearer is a hunter. Lone Auto Shots: 3.92 [3.71, 4.10], 1,226 procs on 6,476 lone units, 42
+wearers. Specials: 3.89 [3.66, 4.09], 1,172 procs on 6,238 lone units, 43 wearers; Multi-Shot gives 887 procs on 4,648
+of them. Travel time: the proc lands a median 578 ms after its hit, 98th percentile 1032 ms, window [-20, 1042] ms
+(1,577 isolated hits). Reports from 2026-11-13 to 2026-11-22.
 
 | Class  | Wearers | Procs |   Hits |  PPM |
 | ------ | ------: | ----: | -----: | ---: |
-| Hunter |      43 | 7,176 | 36,953 | 4.02 |
+| Hunter |      43 | 7,170 | 36,937 | 4.02 |
 
 Reports and fights: 2tWx1VCrv4PcgAHL 1-2; 3HaPg2Yktxrnb7NL 6-9; 4W6d8VFkgmCrqGvc 1-2; 7tbWfYqJFd4vzL3p 3-6;
 91wXZG6pN8CDanmR 61-62; BXLbtpMR6j7fYyKq 2-3, 5-6; BfVjHYvWdKkP8Jz7 1-2; Ddx2RWnArCKf6mqP 46; DzGaRHQ89xL3Yfdk 1-2;
@@ -1062,18 +1071,18 @@ z9mYPDLpcM81JCFA 1-3; zD9hTZPfwC38bgq1 1-2; ztamxJTvkp82GK6h 1-18.
 - Proc: weapon proc 17331
 - Rate: 1.05 PPM, observed
 
-816 procs on 29,362 rolling hits, 33 wearers, 36 runs, in the main hand or the off hand: all hits 1.04 [0.98, 1.11].
+816 procs on 29,368 rolling hits, 33 wearers, 36 runs, in the main hand or the off hand: all hits 1.04 [0.98, 1.11].
 Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
-Observed: no lone-unit rate checks it. One-hand white: 0.99 [0.45, 1.88], 9 procs on 341 lone units, 1 wearer (a Poisson
-interval: under 5 wearers). Dual-wield white, which sets no rate: 0.86 [0.73, 0.99], 187 procs on 8,162 lone units, 32
-wearers. Specials: 1.07 [0.45, 1.74], 5 procs on 176 lone units, 6 wearers. Travel time: the proc lands a median 94 ms
-after its hit, 98th percentile 235 ms, window [17, 245] ms (204 isolated hits). Dropping the swapped stretches (62
+Observed: no lone-unit rate checks it. One-hand white: 0.91 [0.41, 1.72], 9 procs on 372 lone units, 1 wearer (a Poisson
+interval: under 5 wearers). Dual-wield white, which sets no rate: 0.93 [0.80, 1.05], 218 procs on 8,829 lone units, 32
+wearers. Specials: 1.09 [0.45, 1.79], 5 procs on 172 lone units, 6 wearers. Travel time: the proc lands a median 87 ms
+after its hit, 98th percentile 246 ms, window [-20, 256] ms (167 isolated hits). Dropping the swapped stretches (62
 active minutes, 5% of hits, in 5 runs) moved the read from 0.99 to 1.04. Report DdKN3mXj6gH9yvpc logs the same run as
 D46Xm8ncR9WbTFrL and counts once. Reports from 2026-11-14 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Rogue   |      30 |   770 | 27,658 | 1.04 |
+| Rogue   |      30 |   770 | 27,664 | 1.04 |
 | Warrior |       1 |    26 |    916 | 1.06 |
 | Hunter  |       2 |    20 |    788 | 0.95 |
 
@@ -1121,12 +1130,12 @@ yPVkKpqtfJM27WFB 1-7; yfKb1MthLFDc4ANG 1-7.
 - Rate: 0.9 PPM, observed
 
 1,343 procs on 25,187 rolling hits, 27 wearers, 35 runs, in the main hand: all hits 0.89 [0.85, 0.93]. The one-hand
-white rate reads above the all-hits interval. Observed: the one-hand white rate disagrees. One-hand white: 1.05 [0.94,
-1.17], 326 procs on 5,180 lone units, 26 wearers. Specials: 0.85 [0.44, 1.48], 12 procs on 236 lone units, 3 wearers (a
-Poisson interval: under 5 wearers). Two-roll abilities, priced as one roll: 2.52, 8 procs on 53 lone units (Execute 8 on
-43 and Mongoose Bite 0 on 10), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms,
-285 isolated hits. Dropping the swapped stretches (30 active minutes, 3% of hits, in 2 runs) moved the read from 0.86 to
-0.89. The paladin check, which sets no rate: lone white swings 1.20, 174 procs on 2,412 lone units, 24 wearers. Reports
+white rate reads above the all-hits interval. Observed: the one-hand white rate disagrees. One-hand white: 1.06 [0.97,
+1.18], 338 procs on 5,311 lone units, 26 wearers. Specials: 1.00 [0.61, 1.54], 20 procs on 334 lone units, 3 wearers (a
+Poisson interval: under 5 wearers). Two-roll abilities, priced as one roll: 2.46, 9 procs on 61 lone units (Execute 9 on
+51 and Mongoose Bite 0 on 10), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms,
+316 isolated hits. Dropping the swapped stretches (30 active minutes, 3% of hits, in 2 runs) moved the read from 0.86 to
+0.89. The paladin check, which sets no rate: lone white swings 1.18, 178 procs on 2,510 lone units, 24 wearers. Reports
 from 2026-11-13 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
@@ -1188,20 +1197,20 @@ wDqmkbxdTXj1rA9F 1; x61fvm9RLMjXyDqB 1-4; yAGCbvd2r4RZNDaK 1, 3.
 - Proc: weapon proc 16413
 - Rate: 2.05 PPM, measured
 
-2,870 procs on 38,541 rolling hits, 24 wearers, 28 runs, in the main hand or the off hand: all hits 2.03 [1.96, 2.10].
-The rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 1.93 [1.68, 2.21], 214
-procs on 3,023 lone units, 1 wearer (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.63
-[1.44, 1.84], 396 procs on 6,624 lone units, 23 wearers. Specials: 1.75 [1.49, 2.05], 159 procs on 2,473 lone units, 4
-wearers (a Poisson interval: under 5 wearers); Revenge gives 90 procs on 1,279 of them. Travel time: the proc lands a
-median 85 ms after its hit, 98th percentile 174 ms, window [-9, 184] ms (52 isolated hits). Dropping the swapped
+2,870 procs on 38,536 rolling hits, 24 wearers, 28 runs, in the main hand or the off hand: all hits 2.03 [1.96, 2.10].
+The rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 2.05 [1.78, 2.34], 216
+procs on 2,875 lone units, 1 wearer (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.76
+[1.54, 1.96], 417 procs on 6,479 lone units, 23 wearers. Specials: 2.15 [1.94, 2.37], 390 procs on 4,947 lone units, 4
+wearers (a Poisson interval: under 5 wearers); Cleave gives 207 procs on 2,561 of them. Travel time: the proc lands a
+median 102 ms after its hit, 98th percentile 257 ms, window [-20, 267] ms (898 isolated hits). Dropping the swapped
 stretches (29 active minutes, 2% of hits, in 2 runs) moved the read from 2.00 to 2.03. Reports from 2026-11-14 to
 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
 | Warrior |       7 | 1,499 | 19,676 | 2.08 |
-| Rogue   |      15 | 1,340 | 18,456 | 1.98 |
-| Hunter  |       2 |    31 |    408 | 2.07 |
+| Rogue   |      15 | 1,340 | 18,451 | 1.98 |
+| Hunter  |       2 |    31 |    409 | 2.06 |
 
 Reports and fights: 1GhHmWBy27jg8n96 1; 2Wd93tJTkAYDyVQb 14, 16-66; 2pVHBkGvWDx7yrKq 2; 4XLqQjchbAzvVG9k 53-54;
 CqDJ39VhZFB7pgnW 1-2; F9hmfgQHZbYTKyz4 1-3; GHK2gB78FMVCmPfW 1-9; HMdLhWY3pNbnXPtF 1-16; KpcADW3GwYqXzgM2 1;
@@ -1276,9 +1285,9 @@ on 16559 locks nothing out.
 
 6,111 procs on 131,358 rolling hits, 100 wearers, 126 runs, in the main hand or the off hand: all hits 1.99 [1.94,
 2.05]. Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
-Observed: no lone-unit rate checks it. One-hand white: none. Dual-wield white, which sets no rate: 1.94 [1.86, 2.03],
-2,415 procs on 53,476 lone units, 100 wearers. Specials: 1.65 [0.83, 2.42], 34 procs on 883 lone units, 10 wearers.
-Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,379 isolated hits. Dropping the swapped stretches
+Observed: no lone-unit rate checks it. One-hand white: none. Dual-wield white, which sets no rate: 1.93 [1.85, 2.02],
+2,614 procs on 58,091 lone units, 100 wearers. Specials: 1.57 [0.77, 2.37], 34 procs on 929 lone units, 10 wearers.
+Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,516 isolated hits. Dropping the swapped stretches
 (118 active minutes, 3% of hits, in 12 runs) moved the read from 1.94 to 1.99. 2 runs logged in two reports count once.
 Reports from 2026-11-13 to 2026-11-22.
 
@@ -1322,10 +1331,10 @@ z6LMfrpbwhyVCAJK 5-10, 12-21; z8QPNWpMBx4VgdDX 1; zjwVLbAaYgPHC6GN 3-4; zp9yVrtf
 - Rate: 2 PPM, measured
 
 5,255 procs on 87,272 rolling hits, 97 wearers, 106 runs, in the main hand or the off hand: all hits 2.01 [1.95, 2.06].
-The rate is all hits, which the specials rate agrees with. One-hand white: 2.03 [1.41, 2.84], 34 procs on 558 lone
-units, 2 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.87 [1.75, 1.98], 1,490
-procs on 26,511 lone units, 90 wearers. Specials: 1.93 [1.66, 2.19], 188 procs on 3,249 lone units, 26 wearers; Sinister
-Strike gives 87 procs on 1,653 of them. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,267 isolated
+The rate is all hits, which the specials rate agrees with. One-hand white: 2.16 [1.54, 2.95], 39 procs on 602 lone
+units, 2 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.90 [1.79, 2.01], 1,724
+procs on 30,180 lone units, 90 wearers. Specials: 1.91 [1.64, 2.16], 210 procs on 3,664 lone units, 26 wearers; Sinister
+Strike gives 100 procs on 1,836 of them. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,480 isolated
 hits. Dropping the swapped stretches (322 active minutes, 8% of hits, in 16 runs) moved the read from 1.84 to 2.01. One
 run is dropped whole as swapped. Reports from 2026-11-13 to 2026-11-22.
 
@@ -1366,11 +1375,11 @@ y2dFcNR1rMmKTPAj 1-25.
 
 15,598 procs on 89,641 rolling hits, 90 wearers, 101 runs, in the ranged slot: all hits 4.02 [3.94, 4.09]. The rate is
 all hits, which the lone Auto Shot and specials rates agree with. Observed: every wearer with a proc is a hunter. Lone
-Auto Shots: 4.02 [3.93, 4.10], 7,626 procs on 43,807 lone units, 89 wearers. Specials: 4.06 [3.92, 4.21], 2,541 procs on
-14,447 lone units, 89 wearers; Serpent Sting landings give 1,027 procs on 5,613 of them. Direct: window [-10, 100] ms,
-median 20 ms, 98th percentile 35 ms, 9,051 isolated hits. Dropping the swapped stretches (31 active minutes, 0.8% of
-hits, in 4 runs) moved the read from 3.98 to 4.02. Report DBQHpyFz7chZRM6j logs the same run as GYNx3nzHdpr7X1AW and
-counts once. Reports from 2026-11-10 to 2026-11-22.
+Auto Shots: 4.02 [3.94, 4.10], 7,757 procs on 44,525 lone units, 89 wearers. Specials: 3.99 [3.88, 4.10], 4,979 procs on
+28,806 lone units, 89 wearers; Multi-Shot gives 2,746 procs on 16,155 of them. Direct: window [-10, 100] ms, median 20
+ms, 98th percentile 35 ms, 11,793 isolated hits. Dropping the swapped stretches (31 active minutes, 0.8% of hits, in 4
+runs) moved the read from 3.98 to 4.02. Report DBQHpyFz7chZRM6j logs the same run as GYNx3nzHdpr7X1AW and counts once.
+Reports from 2026-11-10 to 2026-11-22.
 
 | Class  | Wearers |  Procs |   Hits |  PPM |
 | ------ | ------: | -----: | -----: | ---: |
@@ -1443,8 +1452,8 @@ checks it; the interval is wider than 10% of the rate. One-hand white: 0.88 [0.7
 wearers. Specials: 0.81 [0.53, 1.24], 18 procs on 432 lone units, 8 wearers. Two-roll abilities, priced as one roll:
 1.27, 5 procs on 76 lone units (Execute 3 on 26 and Mongoose Bite 2 on 50), left out of the rate. Direct: window [-10,
 100] ms, median 0 ms, 98th percentile 1 ms, 54 isolated hits. Dropping the swapped stretches (5.3 active minutes, 4% of
-hits, in 1 run) moved the read from 0.87 to 0.90. The paladin check, which sets no rate: lone white swings 1.19, 104
-procs on 1,686 lone units, 18 wearers. Left out: 24 of 34 runs in Cat or Bear Form. One run logged in two reports counts
+hits, in 1 run) moved the read from 0.87 to 0.90. The paladin check, which sets no rate: lone white swings 1.20, 106
+procs on 1,703 lone units, 18 wearers. Left out: 24 of 34 runs in Cat or Bear Form. One run logged in two reports counts
 once. Reports from 2026-11-13 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
@@ -1486,20 +1495,20 @@ KjLXqdCZANvQc9BT 1-3; Lcy3V1wHPpqZQAG7 2, 4-12; PJGwRWQYyA3nzXpv 1-12, 14-19; h9
 - Proc: weapon proc 18081
 - Rate: 1.9 PPM, measured
 
-1,480 procs on 17,204 rolling hits, 13 wearers, 15 runs, in the main hand: all hits 1.91 [1.81, 2.03]. The rate is all
-hits, which the one-hand white and specials rates agree with. One-hand white: 2.19 [1.83, 2.61], 126 procs on 1,277 lone
-units, 2 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.37 [1.12, 1.72], 105
-procs on 1,708 lone units, 9 wearers. Specials: 1.85 [1.68, 2.10], 185 procs on 2,223 lone units, 13 wearers; Sinister
-Strike gives 96 procs on 1,260 of them. Two-roll abilities, priced as one roll: 1.85, 3 procs on 36 lone units (Execute
-3 on 36), left out of the rate. Travel time: the proc lands a median 117 ms after its hit, 98th percentile 175 ms,
-window [15, 185] ms (52 isolated hits). Dropping the swapped stretches (32 active minutes, 6% of hits, in 2 runs) moved
-the read from 1.79 to 1.91. Report h8MG9XnN3qAd6rtj logs the same run as vkbTXzRajd3tF9Bh and counts once. Reports from
-2026-11-14 to 2026-11-21.
+1,480 procs on 17,206 rolling hits, 13 wearers, 15 runs, in the main hand: all hits 1.91 [1.81, 2.03]. The rate is all
+hits, which the one-hand white and specials rates agree with. One-hand white: 2.30 [1.91, 2.75], 120 procs on 1,158 lone
+units, 2 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.62 [1.36, 1.99], 110
+procs on 1,506 lone units, 9 wearers. Specials: 1.90 [1.69, 2.13], 252 procs on 2,945 lone units, 12 wearers; Sinister
+Strike gives 90 procs on 1,075 of them. Two-roll abilities, priced as one roll: 2.40, 4 procs on 37 lone units (Execute
+4 on 37), left out of the rate. Travel time: the proc lands a median 113 ms after its hit, 98th percentile 270 ms,
+window [-20, 280] ms (452 isolated hits). Dropping the swapped stretches (32 active minutes, 6% of hits, in 2 runs)
+moved the read from 1.79 to 1.91. Report h8MG9XnN3qAd6rtj logs the same run as vkbTXzRajd3tF9Bh and counts once. Reports
+from 2026-11-14 to 2026-11-21.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
 | Rogue   |       7 |   751 | 8,609 | 1.94 |
-| Warrior |       6 |   729 | 8,595 | 1.88 |
+| Warrior |       6 |   729 | 8,597 | 1.88 |
 
 Reports and fights: 8bWqTVN2QCvK7HPR 1-13; 9cQz2ymYMgfL7TwK 132-140, 142-143, 146-155, 157-159, 161, 163-174, 176-181,
 183-190; A3hT8CQBPJXWmtZM 1-4; A71f4dnHQwCBtykF 1-5; DQ62GWmAajLh4zbN 3-8; FLK4Vqw3cp6XkRAT 1-15; MJAm9hKWXyHLz1bC 1;
@@ -1513,10 +1522,10 @@ h8MG9XnN3qAd6rtj 6; mNBAdW4ajKHzhMYZ 1, 3-5; vkbTXzRajd3tF9Bh 1-3, 5-20; z8CDMnP
 - Rate: 1.5 PPM, measured
 
 2,392 procs on 53,519 rolling hits, 41 wearers, 48 runs, in the main hand or the off hand: all hits 1.49 [1.42, 1.57].
-The rate is all hits, which the specials rate agrees with. One-hand white: 1.00 [0.50, 1.80], 11 procs on 365 lone
-units, 1 wearer (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.36 [1.15, 1.57], 419
-procs on 10,235 lone units, 32 wearers. Specials: 1.51 [1.24, 1.86], 75 procs on 1,651 lone units, 25 wearers; Sinister
-Strike gives 29 procs on 677 of them. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 2 ms, 448 isolated
+The rate is all hits, which the specials rate agrees with. One-hand white: 1.04 [0.54, 1.81], 12 procs on 386 lone
+units, 1 wearer (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.35 [1.14, 1.55], 439
+procs on 10,870 lone units, 32 wearers. Specials: 1.50 [1.24, 1.86], 92 procs on 2,050 lone units, 25 wearers; Sinister
+Strike gives 33 procs on 797 of them. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 501 isolated
 hits. Dropping the swapped stretches (86 active minutes, 5% of hits, in 5 runs) moved the read from 1.41 to 1.49.
 Reports from 2026-11-14 to 2026-11-22.
 
@@ -1584,20 +1593,21 @@ ZgTqAy2xaHXL8djt 1-3; dGXqkVhwT17nHfBc 1-2; ybFmNGwXcnBQW1rz 1-4.
 
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 - Proc: weapon proc 13439
-- Rate: 4.6 PPM, measured
+- Rate: 4.6 PPM, observed
 
-6,030 procs on 37,399 rolling hits, 20 wearers, 25 runs, in the main hand: all hits 4.61 [4.50, 4.75]. The rate is all
-hits, which the one-hand white and specials rates agree with. One-hand white: 4.34 [3.67, 4.64], 403 procs on 2,654 lone
-units, 7 wearers. Dual-wield white, which sets no rate: 4.42 [3.95, 4.77], 301 procs on 1,947 lone units, 13 wearers.
-Specials: 4.37 [4.05, 4.89], 503 procs on 3,290 lone units, 19 wearers; Sinister Strike gives 200 procs on 1,207 of
-them. Two-roll abilities, priced as one roll: 5.71, 5 procs on 25 lone units (Execute 5 on 25), left out of the rate.
-Travel time: the proc lands a median 113 ms after its hit, 98th percentile 291 ms, window [-9, 301] ms (162 isolated
-hits). Dropping the swapped stretches (20 active minutes, 0.8% of hits, in 1 run) moved the read from 4.57 to 4.61.
-Reports from 2026-11-14 to 2026-11-22.
+6,030 procs on 37,400 rolling hits, 20 wearers, 25 runs, in the main hand: all hits 4.61 [4.50, 4.75]. The rate is all
+hits; the specials rate agrees with it and the one-hand white rate reads below its interval. Observed: the one-hand
+white rate disagrees. One-hand white: 4.18 [3.55, 4.39], 474 procs on 3,243 lone units, 7 wearers. Dual-wield white,
+which sets no rate: 4.27 [3.79, 4.65], 391 procs on 2,619 lone units, 13 wearers. Specials: 4.43 [4.28, 4.84], 1,115
+procs on 7,190 lone units, 19 wearers; Cleave gives 501 procs on 3,144 of them. Two-roll abilities, priced as one roll:
+6.95, 9 procs on 37 lone units (Execute 9 on 37), left out of the rate. Travel time: the proc lands a median 112 ms
+after its hit, 98th percentile 271 ms, window [-20, 281] ms (1,684 isolated hits). Dropping the swapped stretches (20
+active minutes, 0.8% of hits, in 1 run) moved the read from 4.57 to 4.61. The paladin check, which sets no rate: lone
+white swings 4.13, 39 procs on 270 lone units, 10 wearers. Reports from 2026-11-14 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Rogue   |       9 | 3,032 | 18,069 | 4.79 |
+| Rogue   |       9 | 3,032 | 18,070 | 4.79 |
 | Warrior |      10 | 2,991 | 19,272 | 4.43 |
 | Shaman  |       1 |     7 |     57 | 3.51 |
 
@@ -1639,21 +1649,21 @@ zqpJDYHZC4Pa76bV 1-2.
 - Proc: weapon proc 1298416
 - Rate: 2 PPM, measured
 
-1,714 procs on 25,779 rolling hits, 19 wearers, 25 runs, in the main hand: all hits 1.99 [1.93, 2.06]. The rate is all
-hits, which the one-hand white and specials rates agree with. One-hand white: 1.95 [1.68, 2.14], 146 procs on 2,247 lone
-units, 8 wearers. Dual-wield white, which sets no rate: 1.62 [1.25, 1.99], 129 procs on 2,391 lone units, 11 wearers.
-Specials: 1.92 [1.61, 2.25], 143 procs on 2,233 lone units, 19 wearers; Sinister Strike gives 47 procs on 736 of them.
-Two-roll abilities, priced as one roll: 3.46, 6 procs on 52 lone units (Mongoose Bite 6 on 52), left out of the rate.
-Travel time: the proc lands a median 131 ms after its hit, 98th percentile 210 ms, window [-1, 220] ms (39 isolated
-hits). Dropping the swapped stretches (74 active minutes, 10% of hits, in 4 runs) moved the read from 1.80 to 1.99. The
-paladin check, which sets no rate: lone white swings 1.87, 41 procs on 657 lone units, 13 wearers. Reports from
-2026-11-10 to 2026-11-22.
+1,714 procs on 25,785 rolling hits, 19 wearers, 25 runs, in the main hand: all hits 1.99 [1.93, 2.06]. The rate is all
+hits, which the one-hand white and specials rates agree with. One-hand white: 1.92 [1.72, 2.07], 149 procs on 2,331 lone
+units, 8 wearers. Dual-wield white, which sets no rate: 1.56 [1.28, 1.90], 118 procs on 2,273 lone units, 11 wearers.
+Specials: 1.84 [1.64, 2.03], 200 procs on 3,259 lone units, 19 wearers; Cleave gives 55 procs on 991 of them. Two-roll
+abilities, priced as one roll: 3.33, 6 procs on 54 lone units (Mongoose Bite 6 on 54), left out of the rate. Travel
+time: the proc lands a median 112 ms after its hit, 98th percentile 246 ms, window [-20, 256] ms (369 isolated hits).
+Dropping the swapped stretches (75 active minutes, 10% of hits, in 4 runs) moved the read from 1.80 to 1.99. The paladin
+check, which sets no rate: lone white swings 2.00, 48 procs on 721 lone units, 13 wearers. Reports from 2026-11-10 to
+2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
 | Warrior |       9 |   678 | 10,077 | 2.02 |
-| Rogue   |       5 |   541 |  8,099 | 2.00 |
-| Hunter  |       5 |   495 |  7,603 | 1.95 |
+| Rogue   |       5 |   541 |  8,101 | 2.00 |
+| Hunter  |       5 |   495 |  7,607 | 1.95 |
 
 Reports and fights: 3r4pzgfc172HvbwC 2-19, 21; 8HvfKkArXpmbhwTF 1; 9TtNqcjaBvHFYQ61 2-3; A1yxMTmKatkf3HRJ 15-17;
 AP4vBCgQj78qD6zW 3; B4wWqM2TbRmdQy7Y 1-2; BDfZtjC3Q4wmV8dX 1-3; CmZh47GDdxbMPRqg 3-6; DNc6QALhxmGbCH3Y 1-6;
@@ -1669,12 +1679,13 @@ xyGf9QY4dwT8JHMp 5.
 - Rate: 1.95 PPM, measured
 
 473 procs on 8,457 rolling hits, 11 wearers, 12 runs, in the main hand or the off hand: all hits 1.97 [1.83, 2.08]. The
-rate is all hits, which the one-hand white rate agrees with. One-hand white: 2.14 [1.81, 2.51], 150 procs on 2,475 lone
-units, 3 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.84 [1.58, 2.03], 99
-procs on 1,897 lone units, 8 wearers. Specials: 1.78 [1.22, 2.50], 33 procs on 655 lone units, 4 wearers (a Poisson
-interval: under 5 wearers). Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 184 isolated hits. Dropping
-the swapped stretches (34 active minutes, 9% of hits, in 1 run) moved the read from 1.81 to 1.97. Report
-VqHQ1CtWbcYamAXf logs the same run as H3vdcCr6JX1gwYtq and counts once. Reports from 2026-11-10 to 2026-11-22.
+rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 2.17 [1.85, 2.53], 164 procs
+on 2,668 lone units, 3 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.85 [1.56,
+2.07], 106 procs on 2,021 lone units, 8 wearers. Specials: 2.06 [1.55, 2.70], 53 procs on 906 lone units, 4 wearers (a
+Poisson interval: under 5 wearers); Revenge gives 27 procs on 492 of them. Direct: window [-11, 100] ms, median 0 ms,
+98th percentile 1 ms, 230 isolated hits. Dropping the swapped stretches (34 active minutes, 9% of hits, in 1 run) moved
+the read from 1.81 to 1.97. Report VqHQ1CtWbcYamAXf logs the same run as H3vdcCr6JX1gwYtq and counts once. Reports from
+2026-11-10 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -1762,15 +1773,17 @@ zr6Z1GFPkpwQVmX3 1-5; zyFZC9kAVDB3Mvj1 1-3.
 - Proc: weapon proc 1295736
 - Rate: 1.85 PPM, observed
 
-2,538 procs on 42,938 rolling hits, 39 wearers, 44 runs, in the main hand or the off hand: all hits 1.87 [1.77, 1.95].
-The proc's flight reaches the 300 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate.
-Observed: no lone-unit rate checks it. Travel time: the proc lands a median 216 ms after its hit, 98th percentile 297 ms
-(320 isolated procs). Dropping the swapped stretches (156 active minutes, 9% of hits, in 9 runs) moved the read from
-1.69 to 1.87. Reports from 2026-11-14 to 2026-11-22.
+2,538 procs on 42,822 rolling hits, 39 wearers, 44 runs, in the main hand or the off hand: all hits 1.87 [1.77, 1.96].
+Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
+Observed: no lone-unit rate checks it. One-hand white: 1.67 [0.67, 3.45], 7 procs on 132 lone units, 1 wearer (a Poisson
+interval: under 5 wearers). Dual-wield white, which sets no rate: 1.56 [1.11, 2.13], 54 procs on 1,093 lone units, 33
+wearers. Specials: 1.68 [0.57, 3.38], 17 procs on 319 lone units, 17 wearers. Travel time: the proc lands a median 320
+ms after its hit, 98th percentile 749 ms, window [-20, 759] ms (30 isolated hits). Dropping the swapped stretches (156
+active minutes, 9% of hits, in 9 runs) moved the read from 1.70 to 1.87. Reports from 2026-11-14 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Rogue   |      35 | 2,479 | 41,789 | 1.87 |
+| Rogue   |      35 | 2,479 | 41,674 | 1.88 |
 | Warrior |       1 |    57 |  1,123 | 1.60 |
 | Hunter  |       2 |     2 |     25 | 2.50 |
 | Warlock |       1 |     0 |      1 | 0.00 |
@@ -1840,13 +1853,13 @@ xcPjNLDXa9nz1Vrd 1-7; YpxNGMXcf4PyTwt6 1-6; ZNyPLR2vkjMGptCJ 1-2.
 - Rate: 1 PPM, measured
 
 1,257 procs on 23,890 rolling hits, 53 wearers, 59 runs, in the main hand: all hits 0.99 [0.93, 1.05]. The rate is all
-hits, which the one-hand white rate agrees with. One-hand white: 0.87 [0.78, 0.96], 284 procs on 6,114 lone units, 50
-wearers. Specials: 1.12 [0.90, 1.27], 40 procs on 670 lone units, 15 wearers. Two-roll abilities, priced as one roll:
-0.98, 7 procs on 134 lone units (Execute 7 on 128 and Mongoose Bite 0 on 6), left out of the rate. Direct: window [-11,
-100] ms, median 0 ms, 98th percentile 743 ms, 211 isolated hits. Dropping the swapped stretches (162 active minutes, 10%
-of hits, in 11 runs) moved the read from 0.89 to 0.99. The paladin check, which sets no rate: lone white swings 0.93, 21
-procs on 425 lone units, 4 wearers. Report 9mN62kzgMdKypTqf logs the same run as d7DFtXL2jfNa8Bw4 and counts once.
-Reports from 2026-11-13 to 2026-11-22.
+hits, which the one-hand white and specials rates agree with. One-hand white: 0.88 [0.79, 0.97], 289 procs on 6,157 lone
+units, 50 wearers. Specials: 0.91 [0.75, 1.08], 84 procs on 1,728 lone units, 15 wearers; Cleave gives 44 procs on 1,098
+of them. Two-roll abilities, priced as one roll: 0.97, 7 procs on 136 lone units (Execute 7 on 130 and Mongoose Bite 0
+on 6), left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 117 ms, 366 isolated hits.
+Dropping the swapped stretches (162 active minutes, 10% of hits, in 11 runs) moved the read from 0.89 to 0.99. The
+paladin check, which sets no rate: lone white swings 0.93, 21 procs on 425 lone units, 4 wearers. Report
+9mN62kzgMdKypTqf logs the same run as d7DFtXL2jfNa8Bw4 and counts once. Reports from 2026-11-13 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -1873,12 +1886,12 @@ vJGT19YL26XFQpNB 1-2; x61fvm9RLMjXyDqB 1-4; zFR17VGkQKBPjab9 1-5; zJ6C2148dTYfaX
 - Proc: weapon proc 18089
 - Rate: 2 PPM, observed
 
-1,526 procs on 25,184 rolling hits, 13 wearers, 14 runs, in the main hand: all hits 2.02 [1.97, 2.08]. The proc's travel
-window passes 400 ms, so no lone-unit rate checks the all-hits rate. Observed: no lone-unit rate checks it. One-hand
-white: 2.23 [2.06, 2.47], 71 procs on 1,062 lone units, 6 wearers. Dual-wield white, which sets no rate: 1.97 [1.13,
-2.16], 10 procs on 169 lone units, 6 wearers. Specials: 1.81 [1.23, 3.50], 26 procs on 480 lone units, 13 wearers.
-Travel time: the proc lands a median 225 ms after its hit, 98th percentile 712 ms, window [98, 722] ms (53 isolated
-hits). Reports from 2026-11-15 to 2026-11-22.
+1,526 procs on 25,184 rolling hits, 13 wearers, 14 runs, in the main hand: all hits 2.02 [1.97, 2.08]. Its lone-unit
+rates of 50 or more procs read on a travel window past 400 ms, so none checks the all-hits rate. Observed: no lone-unit
+rate checks it. One-hand white: 2.13 [1.83, 2.43], 141 procs on 2,205 lone units, 6 wearers. Dual-wield white, which
+sets no rate: 1.87 [1.42, 2.20], 20 procs on 357 lone units, 6 wearers. Specials: 2.09 [1.83, 2.75], 161 procs on 2,570
+lone units, 13 wearers; Cleave gives 95 procs on 1,494 of them. Travel time: the proc lands a median 225 ms after its
+hit, 98th percentile 572 ms, window [-20, 582] ms (135 isolated hits). Reports from 2026-11-15 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -1897,14 +1910,13 @@ myLBa1DdHY8K7Ppr 69; vwYj6cK8Xt24QLaN 1-22, 24-26, 29-32; xatzTjyc9GAh3MPC 1; yD
 - Rate: 1.95 PPM, measured
 
 3,965 procs on 39,071 rolling hits, 200 wearers, 252 runs, in the main hand: all hits 1.96 [1.92, 2.02]. The rate is all
-hits; the specials rate agrees with it and the one-hand white rate reads above its interval. The owner takes the
-all-hits rate over the one-hand white rate, as for the earlier count, now at this count's 1.95 (2026-11-23). One-hand
-white: 2.15 [2.05, 2.27], 1,202 procs on 10,798 lone units, 186 wearers. Specials: 1.92 [1.58, 2.15], 182 procs on 1,837
-lone units, 103 wearers; Raptor Strike gives 72 procs on 796 of them. Two-roll abilities, priced as one roll: 4.19, 71
-procs on 328 lone units (Execute 54 on 258 and Mongoose Bite 17 on 70), left out of the rate. Direct: window [-11, 100]
-ms, median 0 ms, 98th percentile 1 ms, 1,255 isolated hits. Dropping the swapped stretches (90 active minutes, 5% of
-hits, in 7 runs) moved the read from 1.87 to 1.96. Left out: 194 of 446 runs in Cat or Bear Form. 11 runs logged in two
-reports count once. 2 runs are dropped whole as swapped. Reports from 2026-11-09 to 2026-11-22.
+hits, which the one-hand white and specials rates agree with. One-hand white: 2.11 [2.01, 2.23], 1,263 procs on 11,569
+lone units, 186 wearers. Specials: 1.92 [1.60, 2.11], 236 procs on 2,383 lone units, 106 wearers; Raptor Strike gives 73
+procs on 809 of them. Two-roll abilities, priced as one roll: 3.86, 74 procs on 371 lone units (Execute 57 on 295 and
+Mongoose Bite 17 on 76), left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 1,472
+isolated hits. Dropping the swapped stretches (90 active minutes, 5% of hits, in 7 runs) moved the read from 1.87 to
+1.96. Left out: 194 of 446 runs in Cat or Bear Form. 11 runs logged in two reports count once. 2 runs are dropped whole
+as swapped. Reports from 2026-11-09 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -2087,12 +2099,13 @@ zaCRx8Zqvw6ytNKg 1, 4.
 - Proc: weapon proc 13480
 - Rate: 1.7 PPM, observed
 
-164 procs on 1,748 rolling hits, 6 wearers, 6 runs, in the main hand: all hits 1.71 [1.46, 2.04]. The proc's travel
-window passes 400 ms, so no lone-unit rate checks the all-hits rate. Observed: no lone-unit rate checks it; the interval
-is wider than 10% of the rate. One-hand white: 2.30 [1.57, 7.27], 27 procs on 213 lone units, 5 wearers. Specials: 2.38
-[1.36, 3.87], 16 procs on 122 lone units, 2 wearers (a Poisson interval: under 5 wearers). Travel time: the proc lands a
-median 137 ms after its hit, 98th percentile 613 ms, window [48, 623] ms (34 isolated hits). The paladin check, which
-sets no rate: lone white swings 1.70, 13 procs on 139 lone units, 6 wearers. Reports from 2026-11-13 to 2026-11-19.
+164 procs on 1,748 rolling hits, 6 wearers, 6 runs, in the main hand: all hits 1.71 [1.46, 2.04]. Neither the one-hand
+white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate. Observed: no lone-unit rate
+checks it; the interval is wider than 10% of the rate. One-hand white: 2.30 [1.57, 7.27], 27 procs on 213 lone units, 5
+wearers. Specials: 2.38 [1.36, 3.87], 16 procs on 122 lone units, 2 wearers (a Poisson interval: under 5 wearers).
+Travel time: the proc lands a median 137 ms after its hit, 98th percentile 613 ms, window [-20, 623] ms (34 isolated
+hits). The paladin check, which sets no rate: lone white swings 1.70, 13 procs on 139 lone units, 6 wearers. Reports
+from 2026-11-13 to 2026-11-19.
 
 | Class   | Wearers | Procs | Hits |  PPM |
 | ------- | ------: | ----: | ---: | ---: |
@@ -2108,18 +2121,18 @@ Reports and fights: CaX6DnMGJd2Fgyqj 1; Mh8TkfRHy4w9Q67v 1; T72D1mwvJnabPtqK 1-3
 - Proc: weapon proc 18211
 - Rate: 1.8 PPM, observed
 
-373 procs on 3,511 rolling hits, 5 wearers, 7 runs, in the main hand: all hits 1.82 [1.72, 2.01]. The rate is all hits,
-which the one-hand white rate agrees with. Observed: the interval is wider than 10% of the rate. One-hand white: 1.84
-[1.67, 2.99], 111 procs on 1,036 lone units, 5 wearers. Specials: 2.03 [0.46, 2.29], 48 procs on 405 lone units, 5
-wearers. Two-roll abilities, priced as one roll: 0.98, 2 procs on 35 lone units (Execute 1 on 7 and Mongoose Bite 1 on
-28), left out of the rate. Travel time: the proc lands a median 133 ms after its hit, 98th percentile 269 ms, window
-[53, 279] ms (55 isolated hits). The paladin check, which sets no rate: lone white swings 2.32, 272 procs on 2,012 lone
-units, 37 wearers. The owner takes this paladin-free count for the row (2026-11-22). Reports from 2026-11-14 to
+373 procs on 3,512 rolling hits, 5 wearers, 7 runs, in the main hand: all hits 1.82 [1.71, 2.01]. The rate is all hits,
+which the one-hand white rate agrees with. Observed: the interval is wider than 10% of the rate. One-hand white: 1.98
+[1.75, 3.45], 111 procs on 961 lone units, 5 wearers. Specials: 2.01 [0.52, 2.26], 45 procs on 383 lone units, 5
+wearers. Two-roll abilities, priced as one roll: 1.04, 2 procs on 33 lone units (Execute 1 on 6 and Mongoose Bite 1 on
+27), left out of the rate. Travel time: the proc lands a median 140 ms after its hit, 98th percentile 315 ms, window
+[-20, 325] ms (166 isolated hits). The paladin check, which sets no rate: lone white swings 2.33, 290 procs on 2,135
+lone units, 38 wearers. The owner takes this paladin-free count for the row (2026-11-22). Reports from 2026-11-14 to
 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
-| Hunter  |       2 |   276 | 2,664 | 1.78 |
+| Hunter  |       2 |   276 | 2,665 | 1.78 |
 | Warrior |       3 |    97 |   847 | 1.96 |
 
 Reports and fights: 6fdmqNGFJjbRgCcD 9-10, 12-23; FzRDWkfmyh47tTAV 1-4; HQZwFjDcmtnWyXMh 1-5; b196ArgRdLNX42ym 1-2;
@@ -2132,10 +2145,10 @@ m1JkqnD4gjfLwAvP 1; nNmBkKp3J96FTGfg 1; vdwBDjmZRykqHaWL 7.
 - Rate: 1 PPM, measured
 
 1,119 procs on 17,111 rolling hits, 15 wearers, 17 runs, in the main hand: all hits 0.98 [0.93, 1.03]. The rate is all
-hits, which the one-hand white and specials rates agree with. One-hand white: 1.10 [0.97, 1.21], 299 procs on 4,072 lone
-units, 15 wearers. Specials: 1.07 [0.79, 1.21], 67 procs on 939 lone units, 6 wearers; Rend landings give 54 procs on
-675 of them. Two-roll abilities, priced as one roll: 1.84, 18 procs on 147 lone units (Execute 18 on 146 and Mocking
-Blow 0 on 1), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 323 isolated hits.
+hits, which the one-hand white and specials rates agree with. One-hand white: 1.08 [0.95, 1.19], 317 procs on 4,383 lone
+units, 15 wearers. Specials: 1.12 [0.77, 1.38], 108 procs on 1,447 lone units, 6 wearers; Rend landings give 60 procs on
+785 of them. Two-roll abilities, priced as one roll: 1.78, 18 procs on 152 lone units (Execute 18 on 151 and Mocking
+Blow 0 on 1), left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 443 isolated hits.
 Dropping the swapped stretches (19 active minutes, 3% of hits, in 3 runs) moved the read from 0.95 to 0.98. The paladin
 check, which sets no rate: lone white swings 1.20, 42 procs on 527 lone units, 4 wearers. Reports from 2026-11-13 to
 2026-11-22.
@@ -2157,11 +2170,11 @@ wTakYgvxcBQV9qRr 1-19; zXAnmG7MqPwBcyjK 1; zc1hygaCXjDAPxL6 1-2.
 - Rate: 2 PPM, measured
 
 2,428 procs on 45,243 rolling hits, 44 wearers, 46 runs, in the main hand or the off hand: all hits 2.01 [1.92, 2.11].
-The rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 2.22 [1.80, 2.70], 100
-procs on 1,691 lone units, 3 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.93
-[1.82, 2.05], 774 procs on 15,073 lone units, 39 wearers. Specials: 1.56 [1.09, 2.11], 59 procs on 1,415 lone units, 5
-wearers; Sinister Strike gives 22 procs on 548 of them. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms,
-654 isolated hits. The paladin check, which sets no rate: lone white swings 1.76, 33 procs on 703 lone units, 6 wearers.
+The rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 2.23 [1.82, 2.70], 105
+procs on 1,766 lone units, 3 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.94
+[1.82, 2.06], 940 procs on 18,148 lone units, 39 wearers. Specials: 1.64 [1.12, 2.11], 75 procs on 1,716 lone units, 5
+wearers; Sinister Strike gives 26 procs on 621 of them. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms,
+794 isolated hits. The paladin check, which sets no rate: lone white swings 1.73, 36 procs on 779 lone units, 6 wearers.
 Reports from 2026-11-15 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
@@ -2246,16 +2259,17 @@ Wv3xD7KBm1C2tXNL 1-8, 10, 12-19; ZAjYLxr6TB7KGmav 1-9; zHYaAjmvQBT2fFW7 4-15.
 - Proc: weapon proc 29646
 - Rate: 2.85 PPM, observed
 
-1,605 procs on 12,031 rolling hits, 16 wearers, 16 runs, in the ranged slot: all hits 2.86 [2.74, 2.96]. The proc's
-flight reaches the 1,000 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate. Observed: no
-lone-unit rate checks it; every wearer is a hunter. Travel time: the proc lands a median 584 ms after its hit, 98th
-percentile 949 ms (387 isolated procs). Dropping the swapped stretches (9.1 active minutes, 2% of hits, in 1 run) moved
-the read from 2.80 to 2.86. Report VQCRJWfq3KX7M1Nh logs the same run as rHM6TPA7NVckxQmh and counts once. Reports from
-2026-11-13 to 2026-11-21.
+1,604 procs on 12,028 rolling hits, 16 wearers, 16 runs, in the ranged slot: all hits 2.86 [2.74, 2.96]. Its lone-unit
+rates of 50 or more procs read on a travel window past 400 ms, so none checks the all-hits rate. Observed: no lone-unit
+rate checks it; every wearer is a hunter. Lone Auto Shots: 2.98 [2.78, 3.22], 331 procs on 2,384 lone units, 15 wearers.
+Specials: 2.18 [1.43, 3.02], 29 procs on 285 lone units, 16 wearers. Travel time: the proc lands a median 603 ms after
+its hit, 98th percentile 1003 ms, window [-20, 1013] ms (223 isolated hits). Dropping the swapped stretches (9.1 active
+minutes, 2% of hits, in 1 run) moved the read from 2.79 to 2.86. Report VQCRJWfq3KX7M1Nh logs the same run as
+rHM6TPA7NVckxQmh and counts once. Reports from 2026-11-13 to 2026-11-21.
 
 | Class  | Wearers | Procs |   Hits |  PPM |
 | ------ | ------: | ----: | -----: | ---: |
-| Hunter |      16 | 1,605 | 12,031 | 2.86 |
+| Hunter |      16 | 1,604 | 12,028 | 2.86 |
 
 Reports and fights: 1QgdaxJ2GBpmvyjL 1-2, 4-8; 38TMrdKDYzwc1nvZ 1-2; 4bqYVtkjL6aKdwQM 1-2; ByRxHQmnzfhbvtcV 8-24;
 CpABMyt29JkdwjZf 1-20; FgMt3hxzyVBJp7bW 1-3, 5-7; Hrt2wgZkdjTRBC4A 12-13, 15-20; LkKn1mhzPwDJBVHC 1-6, 8, 10-15;
@@ -2270,14 +2284,14 @@ pbhgCm6PjYwZ3fRd 1-3; q167YKJGNhjpZcCz 1-2, 4-7; rHM6TPA7NVckxQmh 506 fights fro
 
 11,224 procs on 119,175 rolling hits, 73 wearers, 87 runs, in the main hand or the off hand: all hits 1.95 [1.82, 2.07].
 Puncture Armor stacks on the target, and a refresh at full stacks can log nothing, so no lone-unit rate checks the
-all-hits rate. Observed: no lone-unit rate checks it. One-hand white: 1.62 [1.30, 2.00], 86 procs on 1,098 lone units, 4
-wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.22 [1.09, 1.36], 1,045 procs on
-17,653 lone units, 68 wearers. Specials: 1.54 [1.42, 1.66], 984 procs on 13,259 lone units, 65 wearers; Sinister Strike
-gives 709 procs on 9,450 of them. Two-roll abilities, priced as one roll: 1.90, 66 procs on 718 lone units (Execute 66
-on 695 and Mongoose Bite 0 on 23), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1
-ms, 1,548 isolated hits. Dropping the swapped stretches (142 active minutes, 3% of hits, in 10 runs) moved the read from
-1.88 to 1.95. Report vwYF4Z2C38cfKTDB logs the same run as CfHvwytKJ6P4q7ag and counts once. 2 runs are dropped whole as
-swapped. Reports from 2026-11-13 to 2026-11-22.
+all-hits rate. Observed: no lone-unit rate checks it. One-hand white: 1.62 [1.31, 1.98], 94 procs on 1,204 lone units, 4
+wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.24 [1.11, 1.37], 1,215 procs on
+20,319 lone units, 68 wearers. Specials: 1.61 [1.50, 1.71], 1,497 procs on 19,290 lone units, 66 wearers; Sinister
+Strike gives 825 procs on 10,993 of them. Two-roll abilities, priced as one roll: 1.96, 73 procs on 771 lone units
+(Execute 73 on 747 and Mongoose Bite 0 on 24), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th
+percentile 1 ms, 2,130 isolated hits. Dropping the swapped stretches (142 active minutes, 3% of hits, in 10 runs) moved
+the read from 1.88 to 1.95. Report vwYF4Z2C38cfKTDB logs the same run as CfHvwytKJ6P4q7ag and counts once. 2 runs are
+dropped whole as swapped. Reports from 2026-11-13 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -2468,18 +2482,19 @@ Z7qF4j3hazBTxHcw 8-10; zMqZ3BNKbFYfAjwp 1-12.
 - Proc: weapon proc 18138
 - Rate: 1.05 PPM, observed
 
-2,304 procs on 74,222 rolling hits, 53 wearers, 70 runs, in the main hand or the off hand: all hits 1.03 [1.00, 1.07].
-The proc's flight reaches the 300 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate.
-Observed: no lone-unit rate checks it. Travel time: the proc lands a median 145 ms after its hit, 98th percentile 272 ms
-(461 isolated procs). Dropping the swapped stretches (78 active minutes, 3% of hits, in 9 runs) moved the read from 1.01
-to 1.03. Report VMfN97kLXxyTpCwW logs the same run as F9bgjZYDQ6fqPaLk and counts once. Reports from 2026-11-13 to
-2026-11-22.
+2,304 procs on 74,229 rolling hits, 53 wearers, 70 runs, in the main hand or the off hand: all hits 1.03 [1.00, 1.07].
+Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
+Observed: no lone-unit rate checks it. One-hand white: none. Dual-wield white, which sets no rate: 0.95 [0.87, 1.06],
+410 procs on 14,356 lone units, 50 wearers. Specials: 1.02 [0.68, 1.47], 20 procs on 653 lone units, 23 wearers. Travel
+time: the proc lands a median 140 ms after its hit, 98th percentile 279 ms, window [-20, 289] ms (361 isolated hits).
+Dropping the swapped stretches (78 active minutes, 3% of hits, in 9 runs) moved the read from 1.01 to 1.03. Report
+VMfN97kLXxyTpCwW logs the same run as F9bgjZYDQ6fqPaLk and counts once. Reports from 2026-11-13 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Rogue   |      45 | 2,068 | 66,403 | 1.04 |
-| Warrior |       3 |   174 |  5,671 | 1.02 |
-| Hunter  |       5 |    62 |  2,148 | 0.96 |
+| Rogue   |      45 | 2,068 | 66,407 | 1.04 |
+| Warrior |       3 |   174 |  5,672 | 1.02 |
+| Hunter  |       5 |    62 |  2,150 | 0.96 |
 
 Reports and fights: 17bVXjMKCRqz3nFH 1-6; 2FXvGj386wa1ptHA 1-6, 8-12; 3GT4tz8gxnphcbkD 1-7; 3HJrg1BGh8xR6Y2z 1-13;
 3qfDVTZ1J29zPChn 1-23; 43R1XHKpfLgybZqm 1-4; 72q1FtWgTMHAcLxG 1, 3-5; 7fz9Kk8rY6jyQAbL 6-10; 8JTGAcnFYvtmjLN7 1-4;
@@ -2530,22 +2545,23 @@ tYFp32ThgGPfnvQH 1, 3; yw6Hzd1mphGk8vTJ 1-2; zX7thnkw1pR6WFyJ 1-21.
 
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 - Proc: weapon proc 13440
-- Rate: 0.95 PPM, measured
+- Rate: 0.95 PPM, observed
 
-1,072 procs on 26,630 rolling hits, 38 wearers, 42 runs, in the main hand: all hits 0.93 [0.89, 0.97]. The rate is all
-hits, which the one-hand white and specials rates agree with. One-hand white: 0.86 [0.73, 1.01], 148 procs on 3,951 lone
-units, 21 wearers. Dual-wield white, which sets no rate: 0.90 [0.68, 1.11], 84 procs on 2,144 lone units, 17 wearers.
-Specials: 0.99 [0.85, 1.10], 147 procs on 3,439 lone units, 31 wearers; Sinister Strike gives 55 procs on 1,355 of them.
-Travel time: the proc lands a median 162 ms after its hit, 98th percentile 331 ms, window [37, 341] ms (88 isolated
-hits). Dropping the swapped stretches (83 active minutes, 7% of hits, in 4 runs) moved the read from 0.87 to 0.93. The
-paladin check, which sets no rate: lone white swings 0.73, 25 procs on 785 lone units, 18 wearers. Left out: 2 of 44
-runs in Cat or Bear Form. Reports from 2026-11-11 to 2026-11-22.
+1,072 procs on 26,629 rolling hits, 38 wearers, 42 runs, in the main hand: all hits 0.93 [0.89, 0.97]. Its lone-unit
+rates of 50 or more procs read on a travel window past 400 ms, so none checks the all-hits rate. Observed: no lone-unit
+rate checks it. One-hand white: 0.91 [0.77, 1.07], 153 procs on 3,875 lone units, 21 wearers. Dual-wield white, which
+sets no rate: 0.92 [0.75, 1.08], 66 procs on 1,653 lone units, 17 wearers. Specials: 0.98 [0.87, 1.07], 151 procs on
+3,552 lone units, 31 wearers; Sinister Strike gives 42 procs on 1,027 of them. Travel time: the proc lands a median 155
+ms after its hit, 98th percentile 429 ms, window [-20, 439] ms (205 isolated hits). Dropping the swapped stretches (83
+active minutes, 7% of hits, in 4 runs) moved the read from 0.87 to 0.93. The paladin check, which sets no rate: lone
+white swings 0.71, 18 procs on 585 lone units, 18 wearers. Left out: 2 of 44 runs in Cat or Bear Form. Reports from
+2026-11-11 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Warrior |      16 |   545 | 13,509 | 0.93 |
-| Rogue   |      15 |   443 | 10,910 | 0.94 |
-| Shaman  |       6 |    84 |  2,203 | 0.88 |
+| Warrior |      16 |   545 | 13,508 | 0.93 |
+| Rogue   |      15 |   443 | 10,909 | 0.94 |
+| Shaman  |       6 |    84 |  2,204 | 0.88 |
 | Priest  |       1 |     0 |      8 | 0.00 |
 
 Reports and fights: 2TbWxFvzYy8gGVcj 1; 4tb63CTmMX2zxLDv 1-3; 6jYwBg18avQPmrbM 1-15; 9GAVBJNWDbmZk7tq 1-3;
@@ -2592,16 +2608,17 @@ Tm68LdcfN1rZYFap 1-13; xDcNRgK2YCA78yvd 8-10; yBdgRzfVhDPWAnbZ 1-7; Zd7QD3Lw1TBv
 - Proc: weapon proc 1293714
 - Rate: 1 PPM, measured
 
-6,514 procs on 166,870 rolling hits, 201 wearers, 291 runs, in the ranged slot: all hits 0.98 [0.95, 1.00]. The proc's
-flight reaches the 1,000 ms isolation, so no lone-unit rate is measured. A separate count reads its lone Auto Shots at
-0.94 [0.90, 0.97] on the earlier count's reports, up to 2026-11-19, which agrees. Travel time: the proc lands a median
-518 ms after its hit, 98th percentile 904 ms (1,409 isolated procs). Dropping the swapped stretches (219 active minutes,
-4% of hits, in 20 runs) moved the read from 0.94 to 0.98. 2 runs logged in two reports count once. Reports from
-2026-11-09 to 2026-11-22.
+6,511 procs on 166,819 rolling hits, 201 wearers, 291 runs, in the ranged slot: all hits 0.98 [0.95, 1.00]. Its
+lone-unit rates read on a travel window past 400 ms, so they check nothing; a separate count of its lone Auto Shots,
+0.94 [0.90, 0.97], agrees with all hits and checks the rate. Lone Auto Shots: 0.96 [0.90, 1.02], 1,267 procs on 32,963
+lone units, 195 wearers. Specials: 0.96 [0.90, 1.03], 841 procs on 21,842 lone units, 169 wearers; Multi-Shot gives 619
+procs on 16,452 of them. Travel time: the proc lands a median 522 ms after its hit, 98th percentile 1011 ms, window
+[-20, 1021] ms (1,429 isolated hits). Dropping the swapped stretches (219 active minutes, 4% of hits, in 20 runs) moved
+the read from 0.94 to 0.98. 2 runs logged in two reports count once. Reports from 2026-11-09 to 2026-11-22.
 
 | Class   | Wearers | Procs |    Hits |  PPM |
 | ------- | ------: | ----: | ------: | ---: |
-| Hunter  |     171 | 6,500 | 166,651 | 0.98 |
+| Hunter  |     171 | 6,497 | 166,600 | 0.97 |
 | Warrior |      19 |     9 |     175 | 1.29 |
 | Rogue   |      11 |     3 |      44 | 1.70 |
 
@@ -2673,12 +2690,12 @@ zxAPy9BLRTc4hvFf 1-11.
 - Rate: 1.25 PPM, measured
 
 5,827 procs on 96,337 rolling hits, 93 wearers, 116 runs, in the main hand or the off hand: all hits 1.25 [1.14, 1.37].
-The rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 1.27 [1.03, 1.51], 414
-procs on 6,727 lone units, 16 wearers. Dual-wield white, which sets no rate: 1.14 [0.98, 1.32], 594 procs on 10,764 lone
-units, 75 wearers. Specials: 1.31 [1.13, 1.47], 718 procs on 11,342 lone units, 69 wearers; Sinister Strike gives 365
-procs on 5,526 of them. Two-roll abilities, priced as one roll: 1.08, 32 procs on 613 lone units (Execute 30 on 516,
-Mocking Blow 0 on 1 and Mongoose Bite 2 on 96), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th
-percentile 1 ms, 1,456 isolated hits. Dropping the swapped stretches (312 active minutes, 7% of hits, in 24 runs) moved
+The rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 1.28 [1.04, 1.55], 439
+procs on 7,080 lone units, 16 wearers. Dual-wield white, which sets no rate: 1.11 [0.96, 1.27], 689 procs on 12,899 lone
+units, 75 wearers. Specials: 1.22 [1.08, 1.36], 1,080 procs on 18,374 lone units, 70 wearers; Sinister Strike gives 401
+procs on 6,197 of them. Two-roll abilities, priced as one roll: 1.08, 34 procs on 654 lone units (Execute 32 on 556,
+Mocking Blow 0 on 1 and Mongoose Bite 2 on 97), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th
+percentile 1 ms, 1,943 isolated hits. Dropping the swapped stretches (312 active minutes, 7% of hits, in 24 runs) moved
 the read from 1.16 to 1.25. Reports from 2026-11-13 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
@@ -2719,22 +2736,20 @@ zyTLWmK6gvX3x4NP 1.
 - Proc: weapon proc 1292657
 - Rate: 2 PPM, observed
 
-4,796 procs on 43,926 rolling hits, 131 wearers, 151 runs, in the main hand: all hits 1.99 [1.93, 2.04]. The one-hand
-white rate and the specials rate read below the all-hits interval. A separate count that leaves the Hydra Strike events
-beside each proc out of the isolation read lone white swings at 1.99 [1.88, 2.09] on the earlier count's reports, up to
-2026-11-19, which agrees with all hits. Observed: the one-hand white and the specials rates disagree. One-hand white:
-1.27 [1.18, 1.36], 893 procs on 12,749 lone units, 121 wearers. Specials: 1.31 [1.19, 1.43], 513 procs on 7,100 lone
-units, 112 wearers; Rend landings give 271 procs on 3,471 of them. Two-roll abilities, priced as one roll: 2.01, 113
-procs on 1,022 lone units (Execute 110 on 982, Mocking Blow 0 on 1 and Mongoose Bite 3 on 39), left out of the rate.
-Travel time: the proc lands a median 77 ms after its hit, 98th percentile 175 ms, window [11, 185] ms (369 isolated
-hits). Dropping the swapped stretches (142 active minutes, 6% of hits, in 7 runs) moved the read from 1.87 to 1.99. The
-paladin check, which sets no rate: lone white swings 1.32, 544 procs on 7,509 lone units, 93 wearers. 3 runs logged in
-two reports count once. One run is dropped whole as swapped. Reports from 2026-11-07 to 2026-11-22.
+4,796 procs on 43,914 rolling hits, 131 wearers, 151 runs, in the main hand: all hits 1.99 [1.93, 2.04]. The one-hand
+white rate and the specials rate read below the all-hits interval. Observed: the one-hand white and the specials rates
+disagree. One-hand white: 0.99 [0.90, 1.08], 686 procs on 12,572 lone units, 122 wearers. Specials: 1.17 [1.07, 1.26],
+673 procs on 10,489 lone units, 112 wearers; Cleave gives 309 procs on 3,785 of them. Two-roll abilities, priced as one
+roll: 1.65, 86 procs on 948 lone units (Execute 84 on 911, Mocking Blow 0 on 1 and Mongoose Bite 2 on 36), left out of
+the rate. Travel time: the proc lands a median 81 ms after its hit, 98th percentile 247 ms, window [-20, 257] ms (1,176
+isolated hits). Dropping the swapped stretches (142 active minutes, 6% of hits, in 7 runs) moved the read from 1.87 to
+1.99. The paladin check, which sets no rate: lone white swings 1.12, 438 procs on 7,115 lone units, 93 wearers. 3 runs
+logged in two reports count once. One run is dropped whole as swapped. Reports from 2026-11-07 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Warrior |      72 | 4,359 | 39,812 | 1.99 |
-| Hunter  |      59 |   437 |  4,114 | 1.93 |
+| Warrior |      72 | 4,359 | 39,801 | 1.99 |
+| Hunter  |      59 |   437 |  4,113 | 1.93 |
 
 Reports and fights: 12A94BJt3KCFZrY8 1-12, 14-21; 14caBjX2QdynLkq3 1-9; 1AxvQpfrXyTg3dCW 24-42; 1FR3hDpwGHbjBnaZ 1-2;
 1a3pDtCcPgBkL6wm 1-22; 1mRKL7Tb8qwjkgv3 1-2; 1yjwF8MxXqvtD4bT 1-3; 23ZyGvk7BXAVDT4F 1-14; 2Jky4AMwBgct6aKd 1-3;
@@ -2799,9 +2814,9 @@ hCPLc2G7KAVX8Bby 1-6, 8-9; HT2qmWDJNfXVj1xA 1-2; mYaWhF4n8zRLDZtw 1-7, 11-12, 16
 - Rate: 1.8 PPM, measured
 
 384 procs on 4,532 rolling hits, 14 wearers, 14 runs, in the main hand: all hits 1.82 [1.66, 1.95]. The rate is all
-hits, which the one-hand white rate agrees with. One-hand white: 2.03 [1.70, 2.51], 110 procs on 1,164 lone units, 13
+hits, which the one-hand white rate agrees with. One-hand white: 2.04 [1.71, 2.56], 111 procs on 1,164 lone units, 13
 wearers. Specials: 3.21 [0.66, 9.39], 3 procs on 20 lone units, 1 wearer (a Poisson interval: under 5 wearers). Travel
-time: the proc lands a median 100 ms after its hit, 98th percentile 196 ms, window [17, 206] ms (108 isolated hits).
+time: the proc lands a median 100 ms after its hit, 98th percentile 196 ms, window [-20, 206] ms (108 isolated hits).
 Dropping the swapped stretches (16 active minutes, 6% of hits, in 1 run) moved the read from 1.71 to 1.82. Reports from
 2026-11-13 to 2026-11-22.
 
@@ -2858,11 +2873,11 @@ Zd8PXKqcNQygRjT1 1; ZHK32LtTCmqR4Pxf 1, 3.
 - Rate: 1.05 PPM, measured
 
 604 procs on 12,875 rolling hits, 18 wearers, 18 runs, in the main hand: all hits 1.04 [0.97, 1.12]. The rate is all
-hits, which the one-hand white and specials rates agree with. One-hand white: 1.02 [0.89, 1.26], 85 procs on 1,848 lone
-units, 8 wearers. Dual-wield white, which sets no rate: 0.90 [0.74, 1.03], 79 procs on 1,948 lone units, 9 wearers.
-Specials: 1.07 [0.93, 1.26], 141 procs on 2,917 lone units, 18 wearers; Sinister Strike gives 64 procs on 1,508 of them.
+hits, which the one-hand white and specials rates agree with. One-hand white: 1.06 [0.92, 1.33], 92 procs on 1,920 lone
+units, 8 wearers. Dual-wield white, which sets no rate: 0.91 [0.74, 1.03], 83 procs on 2,033 lone units, 9 wearers.
+Specials: 1.10 [0.98, 1.26], 197 procs on 3,964 lone units, 18 wearers; Sinister Strike gives 67 procs on 1,588 of them.
 Two-roll abilities, priced as one roll: 3.51, 3 procs on 19 lone units (Execute 3 on 18 and Mocking Blow 0 on 1), left
-out of the rate. Direct: window [-12, 100] ms, median 0 ms, 98th percentile 0 ms, 242 isolated hits. Dropping the
+out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 306 isolated hits. Dropping the
 swapped stretches (9.3 active minutes, 2% of hits, in 1 run) moved the read from 1.02 to 1.04. Report APBKD3j6wYWG7xa4
 logs the same run as qnCwWrxJdFVgHtvp and counts once. Reports from 2026-11-14 to 2026-11-21.
 
@@ -2884,12 +2899,12 @@ ZqghBpkcy7xtPfmH 1-9; kTaK6pzXtHZM4f9W 1-9; nZ3NhbvpVXg649Bm 4-10; qg8YWNaCdDvV7
 - Rate: 2.05 PPM, measured
 
 1,346 procs on 20,986 rolling hits, 26 wearers, 32 runs, in the main hand or the off hand: all hits 2.03 [1.89, 2.12].
-The rate is all hits, which the specials rate agrees with. One-hand white: 1.75 [1.17, 2.51], 29 procs on 523 lone
-units, 2 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.92 [1.75, 2.06], 396
-procs on 6,524 lone units, 22 wearers. Specials: 1.90 [1.58, 2.16], 92 procs on 1,533 lone units, 10 wearers; Sinister
-Strike gives 29 procs on 407 of them. Two-roll abilities, priced as one roll: 3.54, 22 procs on 196 lone units (Execute
-17 on 132 and Mongoose Bite 5 on 64), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1
-ms, 348 isolated hits. Report Jh7F2XTzVnL8Hyw1 logs the same run as THqFxLkCP6ayd2tZ and counts once. Reports from
+The rate is all hits, which the specials rate agrees with. One-hand white: 1.79 [1.23, 2.51], 33 procs on 582 lone
+units, 2 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.90 [1.73, 2.05], 418
+procs on 6,933 lone units, 22 wearers. Specials: 1.97 [1.71, 2.21], 128 procs on 2,047 lone units, 10 wearers; Sinister
+Strike gives 31 procs on 427 of them. Two-roll abilities, priced as one roll: 3.58, 23 procs on 203 lone units (Execute
+18 on 139 and Mongoose Bite 5 on 64), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1
+ms, 412 isolated hits. Report Jh7F2XTzVnL8Hyw1 logs the same run as THqFxLkCP6ayd2tZ and counts once. Reports from
 2026-11-14 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
@@ -2932,13 +2947,13 @@ mg3MBw6rcNtZpjbA 1-14; nhtYVjb7CAw9DvQR 1.
 - Rate: 1.95 PPM, measured
 
 4,629 procs on 35,259 rolling hits, 29 wearers, 40 runs, in the main hand: all hits 1.97 [1.91, 2.02]. The rate is all
-hits, which the one-hand white and specials rates agree with. One-hand white: 1.96 [1.85, 2.07], 962 procs on 7,377 lone
-units, 29 wearers. Specials: 2.00 [1.87, 2.26], 122 procs on 915 lone units, 11 wearers; Raptor Strike gives 89 procs on
-699 of them. Two-roll abilities, priced as one roll: 3.33, 38 procs on 171 lone units (Execute 31 on 132 and Mongoose
-Bite 7 on 39), left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 926 isolated hits.
-Dropping the swapped stretches (55 active minutes, 5% of hits, in 2 runs) moved the read from 1.88 to 1.97. The paladin
-check, which sets no rate: lone white swings 1.99, 88 procs on 662 lone units, 7 wearers. Reports from 2026-11-13 to
-2026-11-22.
+hits, which the one-hand white and specials rates agree with. One-hand white: 1.96 [1.86, 2.07], 1,017 procs on 7,773
+lone units, 29 wearers. Specials: 2.15 [1.95, 2.37], 198 procs on 1,381 lone units, 11 wearers; Raptor Strike gives 94
+procs on 726 of them. Two-roll abilities, priced as one roll: 3.71, 44 procs on 178 lone units (Execute 36 on 138 and
+Mongoose Bite 8 on 40), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 1,172
+isolated hits. Dropping the swapped stretches (55 active minutes, 5% of hits, in 2 runs) moved the read from 1.88 to
+1.97. The paladin check, which sets no rate: lone white swings 2.07, 97 procs on 703 lone units, 7 wearers. Reports from
+2026-11-13 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
@@ -3013,10 +3028,10 @@ wnBcvgTJaDPfCYxW 8-47; xGJcKTnzPmAr1aCw 1-4; yCdRrMhYwm69xj1Z 1; zBqkZQ1bxp3cAhD
 
 5,825 procs on 58,237 rolling hits, 63 wearers, 68 runs, in the main hand or the off hand: all hits 3.53 [3.42, 3.63].
 The rate is all hits, which the specials rate agrees with. One-hand white: none. Dual-wield white, which sets no rate:
-3.28 [3.10, 3.45], 1,391 procs on 14,956 lone units, 58 wearers. Specials: 3.27 [2.50, 3.83], 212 procs on 2,288 lone
-units, 30 wearers; Sinister Strike gives 142 procs on 1,555 of them. Two-roll abilities, priced as one roll: 5.29, 3
-procs on 20 lone units (Execute 2 on 17 and Mongoose Bite 1 on 3), left out of the rate. Direct: window [-10, 100] ms,
-median 0 ms, 98th percentile 1 ms, 1,214 isolated hits. Dropping the swapped stretches (42 active minutes, 2% of hits,
+3.31 [3.11, 3.50], 1,533 procs on 16,330 lone units, 58 wearers. Specials: 3.39 [2.67, 3.88], 258 procs on 2,688 lone
+units, 30 wearers; Sinister Strike gives 150 procs on 1,643 of them. Two-roll abilities, priced as one roll: 4.87, 4
+procs on 29 lone units (Execute 2 on 25 and Mongoose Bite 2 on 4), left out of the rate. Direct: window [-10, 100] ms,
+median 0 ms, 98th percentile 1 ms, 1,407 isolated hits. Dropping the swapped stretches (42 active minutes, 2% of hits,
 in 3 runs) moved the read from 3.47 to 3.53. Report tMg1aAHQGJkxpYcb logs the same run as 7dZt6b9Kh4F2CNAn and counts
 once. The sim does not simulate this proc yet (the generator lists it as a missing effect); the rate is recorded on the
 item's effect. Reports from 2026-11-13 to 2026-11-22.
@@ -3049,19 +3064,21 @@ zhkQZTaX8cVg47Jv 1-5, 7-8.
 - Proc: weapon proc 1293183
 - Rate: 3.1 PPM, observed
 
-19,561 procs on 221,412 rolling hits, 283 wearers, 330 runs, in the main hand or the off hand: all hits 3.12 [3.05,
-3.18]. The proc's flight reaches the 1,000 ms isolation, so no lone-unit rate is measured and none checks the all-hits
-rate. Observed: no lone-unit rate checks it. Travel time: the proc lands a median 512 ms after its hit, 98th percentile
-942 ms (417 isolated procs). Dropping the swapped stretches (500 active minutes, 5% of hits, in 47 runs) moved the read
-from 2.97 to 3.12. Left out: 2 of 332 runs in Cat or Bear Form. 3 runs logged in two reports count once. One run is
-dropped whole as swapped. Reports from 2026-11-07 to 2026-11-22.
+19,457 procs on 220,571 rolling hits, 283 wearers, 330 runs, in the main hand or the off hand: all hits 3.11 [3.05,
+3.18]. Its lone-unit rates of 50 or more procs read on a travel window past 400 ms, so none checks the all-hits rate.
+Observed: no lone-unit rate checks it. One-hand white: 2.03 [1.69, 2.32], 120 procs on 2,091 lone units, 30 wearers.
+Dual-wield white, which sets no rate: 1.52 [1.03, 2.04], 29 procs on 673 lone units, 145 wearers. Specials: 2.08 [0.65,
+3.55], 13 procs on 221 lone units, 45 wearers. Travel time: the proc lands a median 562 ms after its hit, 98th
+percentile 1284 ms, window [-20, 1294] ms (68 isolated hits). Dropping the swapped stretches (501 active minutes, 5% of
+hits, in 47 runs) moved the read from 2.97 to 3.11. Left out: 2 of 332 runs in Cat or Bear Form. 3 runs logged in two
+reports count once. One run is dropped whole as swapped. Reports from 2026-11-07 to 2026-11-22.
 
 | Class   | Wearers |  Procs |    Hits |  PPM |
 | ------- | ------: | -----: | ------: | ---: |
-| Rogue   |     194 | 14,311 | 160,706 | 3.14 |
-| Warrior |      49 |  4,257 |  48,983 | 3.07 |
-| Shaman  |       5 |    520 |   6,336 | 2.90 |
-| Hunter  |      34 |    473 |   5,376 | 3.11 |
+| Rogue   |     194 | 14,240 | 160,189 | 3.14 |
+| Warrior |      49 |  4,228 |  48,725 | 3.06 |
+| Shaman  |       5 |    519 |   6,309 | 2.90 |
+| Hunter  |      34 |    470 |   5,337 | 3.11 |
 | Warlock |       1 |      0 |      11 | 0.00 |
 
 Reports and fights: 12RB4fbmrp3YZjPF 1-5; 1687brC3aBYKVF9X 3-8; 192ZN3dKFymLACY8 1; 1NLHzKfayFvtQVcG 1; 1Nnrd2wCHvXxBAtT
@@ -3197,11 +3214,11 @@ rTYJ6yWfNcbKXztR 1; Ztv8xkT6dmQ7n91C 1.
 - Rate: 1.8 PPM, measured
 
 2,063 procs on 20,696 rolling hits, 42 wearers, 47 runs, in the main hand: all hits 1.81 [1.74, 1.89]. The rate is all
-hits, which the one-hand white rate agrees with. One-hand white: 1.85 [1.71, 2.02], 456 procs on 4,487 lone units, 39
-wearers. Specials: 0.00, 0 procs on 1 lone units, 1 wearer. Travel time: the proc lands a median 73 ms after its hit,
-98th percentile 182 ms, window [7, 192] ms (426 isolated hits). Dropping the swapped stretches (41 active minutes, 3% of
-hits, in 3 runs) moved the read from 1.76 to 1.81. The paladin check, which sets no rate: lone white swings 2.31, 117
-procs on 922 lone units, 10 wearers. Left out: 40 of 87 runs in Cat or Bear Form. Report L42wz7rMKXc8gHAx logs the same
+hits, which the one-hand white rate agrees with. One-hand white: 1.86 [1.72, 2.04], 458 procs on 4,487 lone units, 39
+wearers. Specials: 0.00, 0 procs on 1 lone unit, 1 wearer. Travel time: the proc lands a median 73 ms after its hit,
+98th percentile 182 ms, window [-20, 192] ms (426 isolated hits). Dropping the swapped stretches (41 active minutes, 3%
+of hits, in 3 runs) moved the read from 1.76 to 1.81. The paladin check, which sets no rate: lone white swings 2.24, 119
+procs on 967 lone units, 10 wearers. Left out: 40 of 87 runs in Cat or Bear Form. Report L42wz7rMKXc8gHAx logs the same
 run as bJm837KZrhMDzNwG and counts once. Reports from 2026-11-13 to 2026-11-22.
 
 | Class  | Wearers | Procs |   Hits |  PPM |
@@ -3227,15 +3244,17 @@ xQv1aRGzXdpcKZjC 15.
 - Proc: weapon proc 29653
 - Rate: 1.85 PPM, observed
 
-6,310 procs on 84,783 rolling hits, 123 wearers, 144 runs, in the ranged slot: all hits 1.86 [1.82, 1.90]. The proc's
-flight reaches the 1,000 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate. Observed: no
-lone-unit rate checks it. Travel time: the proc lands a median 740 ms after its hit, 98th percentile 990 ms (800
-isolated procs). Dropping the swapped stretches (546 active minutes, 15% of hits, in 22 runs) moved the read from 1.58
-to 1.86. One run is dropped whole as swapped. Reports from 2026-11-06 to 2026-11-22.
+6,276 procs on 84,307 rolling hits, 123 wearers, 144 runs, in the ranged slot: all hits 1.86 [1.82, 1.90]. Its lone-unit
+rates of 50 or more procs read on a travel window past 400 ms, so none checks the all-hits rate. Observed: no lone-unit
+rate checks it. Lone Auto Shots: 1.89 [1.69, 2.10], 346 procs on 4,585 lone units, 121 wearers. Specials: 1.88 [1.73,
+2.03], 540 procs on 7,193 lone units, 107 wearers; Multi-Shot gives 462 procs on 6,162 of them. Travel time: the proc
+lands a median 1033 ms after its hit, 98th percentile 1919 ms, window [-20, 1929] ms (461 isolated hits). Dropping the
+swapped stretches (546 active minutes, 15% of hits, in 22 runs) moved the read from 1.58 to 1.86. One run is dropped
+whole as swapped. Reports from 2026-11-06 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Hunter  |     112 | 6,305 | 84,719 | 1.86 |
+| Hunter  |     112 | 6,271 | 84,243 | 1.86 |
 | Warrior |       9 |     5 |     60 | 2.08 |
 | Rogue   |       2 |     0 |      4 | 0.00 |
 
@@ -3392,12 +3411,13 @@ fLRW43HDJY2TP7Nb 1-2, 4; ryPR7YjFN89CKXJg 1-11; tjGLcNVJXD6r4mCz 1-2; wHPxZ7ABrt
 - Rate: 1.95 PPM, measured
 
 755 procs on 7,079 rolling hits, 11 wearers, 12 runs, in the main hand: all hits 1.94 [1.86, 2.11]. The rate is all
-hits, which the one-hand white rate agrees with. One-hand white: 1.94 [1.75, 2.29], 121 procs on 1,134 lone units, 9
-wearers. Specials: 1.63 [1.05, 2.06], 49 procs on 548 lone units, 8 wearers. Two-roll abilities, priced as one roll:
-4.12, 22 procs on 97 lone units (Execute 22 on 96 and Mongoose Bite 0 on 1), left out of the rate. Direct: window [-10,
-100] ms, median 0 ms, 98th percentile 1 ms, 152 isolated hits. Dropping the swapped stretches (34 active minutes, 16% of
-hits, in 1 run) moved the read from 1.62 to 1.94. The paladin check, which sets no rate: lone white swings 1.97, 327
-procs on 3,012 lone units, 33 wearers. Reports from 2026-11-14 to 2026-11-22.
+hits, which the one-hand white and specials rates agree with. One-hand white: 1.88 [1.69, 2.18], 156 procs on 1,509 lone
+units, 9 wearers. Specials: 1.74 [1.40, 2.04], 96 procs on 1,001 lone units, 8 wearers; Cleave gives 42 procs on 382 of
+them. Two-roll abilities, priced as one roll: 4.08, 26 procs on 116 lone units (Execute 26 on 115 and Mongoose Bite 0 on
+1), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 333 isolated hits. Dropping
+the swapped stretches (34 active minutes, 16% of hits, in 1 run) moved the read from 1.62 to 1.94. The paladin check,
+which sets no rate: lone white swings 1.98, 332 procs on 3,047 lone units, 33 wearers. Reports from 2026-11-14 to
+2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -3475,12 +3495,11 @@ Sul'thraze the Lasher every class past the first is one wearer.
 ## Count of the 2026-11-09 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
-  lists, from every wearer stream on disk for its weapon; 321 reports in all for the count, 231 of them for these
-  weapons
+  lists, from every wearer stream on disk for its weapon; 321 reports in all for the count
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 74 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 39 of them for these weapons. The
-  sim's database is 1.60.1.71037, push 114330; the hotfix each player ran is not recorded
+  UTC); 74 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC). The sim's database is
+  1.60.1.71037, push 114330; the hotfix each player ran is not recorded
 - Date: 2026-11-09 to 2026-11-22
 - Pull request: #1168
 
@@ -3489,11 +3508,11 @@ The count is EV-0177 §Method, run on these weapons.
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
-  lists, from every wearer stream on disk for its weapon; 3,637 reports in all for the count, 3,153 of them for these
+  lists, from every wearer stream on disk for its weapon; 3,714 reports in all for the count, 3,153 of them for these
   weapons
 - Game build: 1.60.1.70790 to 1.60.1.71037 by report date (70862 from 2026-11-07 04:43 UTC, 70888 from 2026-11-10 15:11
   UTC in the US and 2026-11-11 02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC,
-  71037 from 2026-11-20 18:23 UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 585
+  71037 from 2026-11-20 18:23 UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 585
   of them for these weapons. The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

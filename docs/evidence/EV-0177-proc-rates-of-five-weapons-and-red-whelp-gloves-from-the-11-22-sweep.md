@@ -22,14 +22,13 @@ before it Mutilate is left out with its procs, as the two-roll abilities are. No
 in time.
 
 The run counts no Shank as a roll, though from 2026-11-20 Shank rolls the off-hand weapon (EV-0155 §Shank from
-2026-11-20). Hookfang Shanker's, Hurd Smasher's and The Lobotomizer's reads count those Shanks as off-hand rolls.
+2026-11-20). The Lobotomizer's read counts those Shanks as off-hand rolls.
 
 Scripts and inputs, in `forever-sweep-auto`: the run `runs/2026-11-22-1122`, whose `results.json` (`analyze.py` version
-12, cache `cache_v13`) holds the counts of Shimmering Platinum Warhammer, Siegebreaker's Blaster and the count's weapons
-in EV-0136, EV-0150 and EV-0175 but Iceblade Hacker's all-hits read, and whose cached records give Red Whelp Gloves'
-lone units. Hookfang Shanker's, Hurd Smasher's and The Lobotomizer's counts and Iceblade Hacker's all-hits read come
-from `analyze.py` version 14 (cache `cache_v14`), which counts Shank's off-hand roll, on the same wearer streams. The
-rate is each result's `all_hits`, matched on item and `effect_spell`.
+12, cache `cache_v13`) holds the counts of Shimmering Platinum Warhammer and of the count's weapons in EV-0136 and
+EV-0175, and whose cached records give Red Whelp Gloves' lone units. The Lobotomizer's count comes from `analyze.py`
+version 14 (cache `cache_v14`), which counts Shank's off-hand roll, on the same wearer streams. The rate is each
+result's `all_hits`, matched on item and `effect_spell`.
 
 ## Rates
 
@@ -44,15 +43,16 @@ Rate is the override row's rate. The one-hand white and specials columns give th
 
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 
-625 procs on 13,789 rolling hits, 8 wearers, 11 runs, in the off hand: all hits 1.94 [1.81, 2.20]. The proc's flight
-reaches the 300 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate. Observed: no lone-unit
-rate checks it; every wearer is a rogue; the interval is wider than 10% of the rate. Travel time: the proc lands a
-median 94 ms after its hit, 98th percentile 284 ms (139 isolated procs). Dropping the swapped stretches (36 active
-minutes, 5% of hits, in 2 runs) moved the read from 1.84 to 1.94. Reports from 2026-11-19 to 2026-11-22.
+625 procs on 13,792 rolling hits, 8 wearers, 11 runs, in the off hand: all hits 1.94 [1.81, 2.20]. Neither the one-hand
+white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate. Observed: no lone-unit rate
+checks it; every wearer is a rogue; the interval is wider than 10% of the rate. One-hand white: none. Dual-wield white,
+which sets no rate: 1.97 [1.56, 2.38], 116 procs on 2,519 lone units, 8 wearers. Travel time: the proc lands a median
+100 ms after its hit, 98th percentile 314 ms, window [-20, 324] ms (76 isolated hits). Dropping the swapped stretches
+(36 active minutes, 5% of hits, in 2 runs) moved the read from 1.84 to 1.94. Reports from 2026-11-19 to 2026-11-22.
 
 | Class | Wearers | Procs |   Hits |  PPM |
 | ----- | ------: | ----: | -----: | ---: |
-| Rogue |       8 |   625 | 13,789 | 1.94 |
+| Rogue |       8 |   625 | 13,792 | 1.94 |
 
 Reports and fights: 6TNJgAGhynFQqw2a 1-2; 74PAn1mMkWwYGcDd 1-44; Bz2NMjHnY7PD6ykX 1-5; CxbgQvRAL61MZdc4 1-4;
 JHF4zftRn3PaBbN1 1-6; JPLDVkNF7Y43nyfp 1; LQfjhwmGWga9XBHZ 1-4; QwmphLYJXT7GazMd 9-40; cPGDLT3wyWYAxZkt 1;
@@ -63,12 +63,12 @@ yFGXLWVAKxw61gDP 1-4.
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 
 577 procs on 9,669 rolling hits, 10 wearers, 10 runs, in the main hand or the off hand: all hits 1.99 [1.92, 2.06]. The
-rate is all hits, which the one-hand white rate agrees with. One-hand white: 1.90 [1.47, 2.42], 65 procs on 1,139 lone
-units, 2 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.90 [1.49, 2.18], 161
-procs on 2,820 lone units, 8 wearers. Specials: 2.90 [2.01, 4.05], 34 procs on 391 lone units, 2 wearers (a Poisson
-interval: under 5 wearers). Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 168 isolated hits. Dropping
-the swapped stretches (27 active minutes, 7% of hits, in 2 runs) moved the read from 1.85 to 1.99. Reports from
-2026-11-16 to 2026-11-22.
+rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 1.92 [1.50, 2.43], 70 procs on
+1,214 lone units, 2 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.94 [1.61,
+2.16], 188 procs on 3,228 lone units, 8 wearers. Specials: 2.46 [1.90, 3.13], 65 procs on 881 lone units, 2 wearers (a
+Poisson interval: under 5 wearers); Cleave gives 30 procs on 484 of them. Direct: window [-10, 100] ms, median 0 ms,
+98th percentile 1 ms, 221 isolated hits. Dropping the swapped stretches (27 active minutes, 7% of hits, in 2 runs) moved
+the read from 1.85 to 1.99. Reports from 2026-11-16 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
@@ -97,16 +97,16 @@ Reports and fights: DvrjQXqZ9HN8a74z 1-4; KNtHCAPd97ZMTLBf 1-2; jWfDCghpYJKy9G3N
 
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 
-1,543 procs on 6,752 rolling hits, 7 wearers, 8 runs, in the ranged slot: all hits 5.27 [4.91, 5.79]. The rate is all
-hits, which the lone Auto Shot and specials rates agree with. Observed: every wearer is a hunter. Lone Auto Shots: 4.80
-[4.54, 5.37], 571 procs on 2,745 lone units, 7 wearers. Specials: 4.65 [3.68, 5.35], 74 procs on 367 lone units, 7
-wearers; Serpent Sting landings give 48 procs on 227 of them. Travel time: the proc lands a median 69 ms after its hit,
-98th percentile 181 ms, window [23, 191] ms (626 isolated hits). Dropping the swapped stretches (21 active minutes, 8%
-of hits, in 2 runs) moved the read from 4.84 to 5.27. Reports from 2026-11-09 to 2026-11-22.
+1,532 procs on 6,727 rolling hits, 7 wearers, 8 runs, in the ranged slot: all hits 5.26 [4.90, 5.76]. Its lone-unit
+rates of 50 or more procs read on a travel window past 400 ms, so none checks the all-hits rate. Observed: no lone-unit
+rate checks it; every wearer is a hunter. Lone Auto Shots: 5.25 [4.87, 5.97], 488 procs on 2,147 lone units, 7 wearers.
+Specials: 3.96 [2.68, 5.33], 30 procs on 175 lone units, 7 wearers. Travel time: the proc lands a median 70 ms after its
+hit, 98th percentile 1656 ms, window [-20, 1666] ms (157 isolated hits). Dropping the swapped stretches (21 active
+minutes, 8% of hits, in 2 runs) moved the read from 4.82 to 5.26. Reports from 2026-11-09 to 2026-11-22.
 
 | Class  | Wearers | Procs |  Hits |  PPM |
 | ------ | ------: | ----: | ----: | ---: |
-| Hunter |       7 | 1,543 | 6,752 | 5.27 |
+| Hunter |       7 | 1,532 | 6,727 | 5.26 |
 
 Reports and fights: 1LK3bmTvrNXhWcwk 1-20; 8ZBqNXCjPa7hKWdG 2; d1pRGTnZVvcfa7qK 1-8; pGBPWgMrL9KkQZRm 1-2;
 pQ32h46zWCF9wZGj 1-2; prCfHbFPmDAgqd3V 3-4, 6, 8; qfay2cPntA6brzWg 1-18; z2FDkRa8TbNBZmLc 1, 3-9.
@@ -154,11 +154,11 @@ t2jHDfcvLkK96bdV 1-9; tcBj1NqHbxM7AaZp 1-4; wPrMvF2qYa61TCGB 1; y4fHqpA8Qt2m3Vaj
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
-  lists, from every wearer stream on disk for its weapon; 3,637 reports in all for the count, 28 of them for these
+  lists, from every wearer stream on disk for its weapon; 3,714 reports in all for the count, 28 of them for these
   weapons
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 16 of them for these weapons.
+  UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 16 of them for these weapons.
   The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

@@ -53,21 +53,20 @@ cooldown. Flame Lash's normal hits deal 111 to 218 (the row's 112 to 168 and the
 - Rate: 1.95 PPM, measured
 
 38,228 procs on 498,149 rolling hits, 183 wearers, 262 runs, on melee and ranged hits: all hits 1.96 [1.94, 1.98]. The
-rate is all hits, which the one-hand white, lone Auto Shot and specials rates agree with. One-hand white: 2.02 [1.92,
-2.12], 1,932 procs on 19,772 lone units, 81 wearers. Dual-wield white, which sets no rate: 1.95 [1.91, 2.00], 6,624
-procs on 104,023 lone units, 102 wearers. Lone Auto Shots: 1.99 [1.85, 2.10], 1,054 procs on 10,805 lone units, 88
-wearers. Specials: 2.01 [1.94, 2.07], 2,758 procs on 31,016 lone units, 158 wearers; Sinister Strike gives 1,288 procs
-on 14,004 of them. Two-roll abilities, priced as one roll: 2.16, 204 procs on 2,072 lone units (Execute 157 on 1,655 and
-Mongoose Bite 47 on 417), left out of the rate. Direct: window [-9, 100] ms, median 31 ms, 98th percentile 48 ms, 8,025
+rate is all hits, which the one-hand white, lone Auto Shot and specials rates agree with. One-hand white: 1.99 [1.89,
+2.09], 2,038 procs on 21,124 lone units, 81 wearers. Dual-wield white, which sets no rate: 1.93 [1.89, 1.97], 7,572
+procs on 119,312 lone units, 102 wearers. Lone Auto Shots: 2.00 [1.87, 2.12], 1,097 procs on 11,149 lone units, 88
+wearers. Specials: 2.00 [1.95, 2.04], 4,524 procs on 50,769 lone units, 158 wearers; Sinister Strike gives 1,498 procs
+on 16,242 of them. Two-roll abilities, priced as one roll: 2.09, 216 procs on 2,264 lone units (Execute 169 on 1,838 and
+Mongoose Bite 47 on 426), left out of the rate. Direct: window [-4, 100] ms, median 31 ms, 98th percentile 49 ms, 10,598
 isolated hits. Dropping the swapped stretches (245 active minutes, 2% of hits, in 13 runs) moved the read from 1.92 to
-1.96. The paladin check, which sets no rate: lone white swings 1.92, 117 procs on 1,160 lone units, 21 wearers. Left
+1.96. The paladin check, which sets no rate: lone white swings 1.91, 119 procs on 1,194 lone units, 21 wearers. Left
 out: 11 of 273 runs in Cat or Bear Form. 4 runs logged in two reports count once. Debuff-only landings roll nothing:
-lone ones give 0 procs on 4,340 melee landings and 1 on 2,115 ranged ones, where the wearers' white chance predicts 298
-and 199, so the count leaves 14,178 such landings out, and 312 Sap and Death Mark landings. Shield Slam and Shield Bash
-count as rolls: lone Shield Slams give 276 procs on 3,479, 1.08 times the same classes' white chance. From 2026-11-20
-Shank counts as an off-hand roll (EV-0155 §Shank from 2026-11-20). A proc that lands on two targets counts once on each
-(428 procs). The 1,855 procs and 8,168 hits within the window of a killing blow or a two-roll ability are left out.
-Reports from 2026-11-10 to 2026-11-22.
+lone ones give 0 procs on 4,619 melee landings and 1 on 2,227 ranged ones, where the wearers' white chance predicts 314
+and 212, so the count leaves 14,178 such landings out, and 312 Sap and Death Mark landings. Shield Slam and Shield Bash
+count as rolls: lone Shield Slams give 297 procs on 3,744, 1.10 times the same classes' white chance. A proc that lands
+on two targets counts once on each (428 procs). The 1,855 procs and 8,168 hits within the window of a killing blow or a
+two-roll ability are left out. Reports from 2026-11-10 to 2026-11-22.
 
 | Class   | Wearers |  Procs |    Hits |  PPM |
 | ------- | ------: | -----: | ------: | ---: |
@@ -135,10 +134,10 @@ yVp9KT3QkzhmZXDR 1; z8QPNWpMBx4VgdDX 1; zBx9XMQPdpW36a2D 1-4; zWQLAnHTjq4RJCby 1
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate lists, from every wearer
-  stream on disk for the trinket; 3,637 reports in all for the count, 256 of them for the trinket
+  stream on disk for the trinket; 3,714 reports in all for the count, 256 of them for the trinket
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 87 of them for the trinket. The
+  UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 87 of them for the trinket. The
   sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

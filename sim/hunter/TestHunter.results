@@ -1505,9 +1505,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 916.18247
-  tps: 938.64899
-  dtps: 9.03825
+  dps: 917.71949
+  tps: 940.22324
+  dtps: 9.1253
   hps: 13.80972
  }
 }

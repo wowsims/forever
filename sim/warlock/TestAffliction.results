@@ -842,9 +842,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 827.92702
-  tps: 647.44032
-  dtps: 7.86574
+  dps: 838.27593
+  tps: 655.85617
+  dtps: 8.25512
  }
 }
 dps_results: {

@@ -14,11 +14,11 @@
 
 ## Method
 
-The Warcraft Logs count is EV-0153's Method, run again by the automated sweep of 2026-11-22 (`forever-sweep-auto`,
-`runs/2026-11-22-1122/results.json`, the run behind EV-0177) over every wearer stream on disk: 15 runs, of which 6 are
-feral druids and are left out of the rate, since they swing the paw. Fatal Wound has no flight (`SpellMisc.Speed` 0) and
-lands a median 0 ms and a 98th percentile 1 ms after its hit (63 isolated procs), so it is credited from 11 ms before to
-100 ms after. The 16549 row has no `SpellAuraOptions` entry, so the game files state no rate.
+The druid paw swings come from the 6 feral druid runs of the automated sweep of 2026-11-22 (`forever-sweep-auto`,
+`runs/2026-11-22-1122/results.json`); §Rate gives the rate on the other wearers' hits. Fatal Wound has no flight
+(`SpellMisc.Speed` 0) and lands a median 0 ms and a 98th percentile 1 ms after its hit (63 isolated procs), so it is
+credited from 11 ms before to 100 ms after. The 16549 row has no `SpellAuraOptions` entry, so the game files state no
+rate.
 
 A separate script counts the druids. It splits each druid's landed white swings by form: in the Warcraft Logs streams by
 Cat Form (768) and Dire Bear Form (9634) applies and removes, in the combat log by the power type each swing logs
@@ -57,12 +57,12 @@ Reports and fights of the druids: cvRTFb1qhGBKNkCD 45-53; cZ9B6Ay3RDTWgq4K 4-42;
 - Rate: 1 PPM, observed
 
 249 procs on 4,376 rolling hits, 8 wearers, 10 runs, in the main hand: all hits 0.98 [0.87, 1.16]. The rate is all hits,
-which the one-hand white rate agrees with. Observed: the interval is wider than 10% of the rate. One-hand white: 1.12
-[0.93, 1.54], 56 procs on 860 lone units, 8 wearers. Specials: 1.42 [1.09, 2.04], 32 procs on 385 lone units, 7 wearers.
-Two-roll abilities, priced as one roll: 1.62, 12 procs on 127 lone units (Execute 10 on 83 and Mongoose Bite 2 on 44),
-left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 89 isolated hits. Dropping the
+which the one-hand white rate agrees with. Observed: the interval is wider than 10% of the rate. One-hand white: 1.13
+[0.94, 1.52], 60 procs on 912 lone units, 8 wearers. Specials: 1.23 [0.89, 1.80], 38 procs on 530 lone units, 7 wearers.
+Two-roll abilities, priced as one roll: 1.66, 13 procs on 134 lone units (Execute 10 on 87 and Mongoose Bite 3 on 47),
+left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 2 ms, 131 isolated hits. Dropping the
 swapped stretches (25 active minutes, 17% of hits, in 1 run) moved the read from 0.81 to 0.98. The paladin check, which
-sets no rate: lone white swings 1.11, 146 procs on 2,245 lone units, 27 wearers. Left out: 6 of 16 runs in Cat or Bear
+sets no rate: lone white swings 1.12, 150 procs on 2,305 lone units, 27 wearers. Left out: 6 of 16 runs in Cat or Bear
 Form. Reports from 2026-11-16 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
@@ -77,11 +77,11 @@ q4Rrpj73ZMQH96b2 1-5.
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate lists, from every wearer
-  stream on disk for the axe; 3,637 reports in all for the count, 10 of them for the axe
+  stream on disk for the polearm; 3,714 reports in all for the count, 10 of them for the polearm
 - Game build: 1.60.1.70938 to 1.60.1.71037 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 2 of them for the axe. The sim's
-  database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
+  UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 2 of them for the polearm. The
+  sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180
 
-The count is EV-0183 §Method, run on the axe.
+The count is EV-0183 §Method, run on the polearm.

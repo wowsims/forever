@@ -1451,10 +1451,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 578.6164
-  tps: 1839.8342
-  dtps: 313.86575
-  hps: 42.69485
+  dps: 579.0873
+  tps: 1835.62705
+  dtps: 313.41461
+  hps: 42.64401
  }
 }
 dps_results: {
@@ -1739,9 +1739,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 553.66569
-  tps: 1809.57767
-  dtps: 309.08468
+  dps: 552.87803
+  tps: 1802.40024
+  dtps: 308.20089
   hps: 47.59035
  }
 }

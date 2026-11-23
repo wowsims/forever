@@ -3770,7 +3770,7 @@ func RegisterAllProcs() {
 
 	// Blasts up to 3 targets for 125 Nature damage.
 	// https://www.wowhead.com/forever/spell=16921
-	// trigger 16921 (0.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 16921 (0.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16921, BuffSpellID: 16921, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 12794, ItemName: "Masterwork Stormhammer"},

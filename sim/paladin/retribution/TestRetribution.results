@@ -1172,9 +1172,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 896.82371
-  tps: 732.05993
-  dtps: 5.25749
+  dps: 897.38751
+  tps: 732.36681
+  dtps: 5.46281
   hps: 25.30399
  }
 }

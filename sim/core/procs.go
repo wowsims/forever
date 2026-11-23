@@ -1,6 +1,8 @@
 package core
 
 import (
+	"time"
+
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
@@ -150,15 +152,15 @@ func (character *Character) NewLegacyPPMManager(ppm float64, procMask ProcMask) 
 	return &dpm
 }
 
-// A procs-per-minute rate for weapon hits beside a flat chance for spell hits. The weapon hits
-// NewLegacyPPMManager measures keep its speeds: a swing's, and with no auto attack the wand's for a
-// ranged hit. A spell hit rolls spellChance whatever the weapons. Every other hit of the mask except
-// a ranged auto attack rolls the rate on the main-hand weapon's own speed, read at the roll, whether
-// or not the character swings it: a spell on the ranged hit table with no ranged swing or wand
-// behind it, such as Thunder Clap or Hammer of Wrath. With no main-hand weapon it is the sim's
-// unarmed weapon's speed.
-func (character *Character) NewLegacyPPMManagerWithSpellChance(ppm float64, spellChance float64, procMask ProcMask) *DynamicProcManager {
-	return character.legacyPPMManagerWithSpells(ppm, procMask, staticProc{chance: spellChance})
+// A procs-per-minute rate for weapon hits beside the same rate for spell hits, each spell hit priced
+// on its own cast time and never under the 1.5 s global cooldown, so an instant or a channel prices
+// at 1.5 s. The weapon hits NewLegacyPPMManager measures keep its speeds: a swing's, and with no auto
+// attack the wand's for a ranged hit. Every other hit of the mask except a ranged auto attack rolls
+// the rate on the main-hand weapon's own speed, read at the roll, whether or not the character swings
+// it: a spell on the ranged hit table with no ranged swing or wand behind it, such as Hammer of Wrath.
+// With no main-hand weapon it is the sim's unarmed weapon's speed.
+func (character *Character) NewLegacyPPMManagerWithCastTimeSpells(ppm float64, procMask ProcMask) *DynamicProcManager {
+	return character.legacyPPMManagerWithSpells(ppm, procMask, castTimeProc{ppm: ppm})
 }
 
 // A procs-per-minute rate for weapon hits beside the same rate for every other hit of the mask, on
@@ -336,6 +338,24 @@ func (character *Character) newDynamicWeaponProcManager(ppm float64, fixedProcCh
 	}
 
 	return dpm
+}
+
+// The rate on a spell hit's cast time, as the cast that landed it set it, 1.5 s at least. Read without
+// a hit, the chance is an instant's.
+type castTimeProc struct {
+	ppm float64
+}
+
+func (cp castTimeProc) Reset()                       {}
+func (cp castTimeProc) Chance(_ *Simulation) float64 { return cp.chanceFor(0) }
+func (cp castTimeProc) ChanceOn(_ *Simulation, spell *Spell, _ *SpellResult) float64 {
+	return cp.chanceFor(spell.CurCast.CastTime)
+}
+func (cp castTimeProc) Proc(sim *Simulation, label string) bool {
+	return sim.Proc(cp.Chance(sim), label)
+}
+func (cp castTimeProc) chanceFor(castTime time.Duration) float64 {
+	return cp.ppm * max(castTime, GCDDefault).Seconds() / 60
 }
 
 type staticProc struct {

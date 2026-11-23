@@ -574,8 +574,8 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 
 // Highborne Research Tablet 260205's 1318159 rolls its row's procs per minute on the main hand's
 // speed for a landed main-hand hit that deals damage, and casts 1265634 on the target. A ranged
-// special with no ranged weapon behind it (Thunder Clap) rolls on the main hand's speed too. A hit
-// that deals none (an application) never rolls.
+// special with no ranged weapon behind it rolls on the main hand's speed too, Thunder Clap excepted,
+// which never rolls it. A hit that deals none (an application) never rolls.
 func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
 	sim, character := trinketWarriorWielding(t, 260205, 810, 0)
 	proc := character.GetAura("Highborne Research Tablet")
@@ -610,11 +610,20 @@ func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
 	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 1 {
 		t.Errorf("a landed damaging hit cast it %d times, want once", got)
 	}
+
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee|core.ProcMaskRanged)
+	thunderClap := &core.Spell{ProcMask: core.ProcMaskRangedSpecial, SpellSchool: core.SpellSchoolPhysical, DefenseType: core.DefenseTypeMagic,
+		ClassFlags: spelldata.MustFind(6343).ClassFlags, Unit: &character.Unit}
+	dealHit(t, sim, character, thunderClap)
+	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 1 {
+		t.Errorf("a landed Thunder Clap cast it %d more times, want none", got-1)
+	}
 }
 
-// Highborne Research Tablet 260205 rolls one chance on each damaging spell hit whatever the weapon in
-// the main hand, for a caster who never swings and for a warrior who does.
-func TestHighborneResearchTabletProcsOnSpellsWhateverTheWeapon(t *testing.T) {
+// Highborne Research Tablet 260205 rolls its row's procs per minute on each damaging spell hit,
+// priced on the spell's cast time and never under 1.5 s, whatever the weapon in the main hand, for a
+// caster who never swings and for a warrior who does.
+func TestHighborneResearchTabletPricesSpellsOnCastTime(t *testing.T) {
 	const slow, fast = 810, 776
 	if core.GetItemByID(slow).SwingSpeed == core.GetItemByID(fast).SwingSpeed {
 		t.Fatal("the two weapons share a speed, want two speeds")
@@ -632,32 +641,41 @@ func TestHighborneResearchTabletProcsOnSpellsWhateverTheWeapon(t *testing.T) {
 	if proc == nil || proc.Dpm == nil || damage == nil {
 		t.Fatal("260205 registers no proc on a procs per minute rate")
 	}
-	want := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim)
-	if want <= 0 || want >= 1 {
-		t.Fatalf("the chance on a spell hit is %v, want a chance between none and certain", want)
+	ppm := float64(spelldata.MustFind(1318159).RPPM)
+	instant := ppm * core.GCDDefault.Seconds() / 60
+	if ppm <= 0 || instant >= 1 {
+		t.Fatalf("the row's %v procs per minute on 1.5 s give %v, want a chance between none and certain", ppm, instant)
 	}
 	fastSim, fastCaster := casterWielding(fast)
 	warriorSim, warrior := trinketWarriorWielding(t, 260205, fast, 0)
-	for _, other := range []struct {
+	for _, wearer := range []struct {
 		name   string
 		sim    *core.Simulation
 		wearer *core.Character
 	}{
+		{"caster", sim, character},
 		{"caster with a faster weapon", fastSim, fastCaster},
 		{"warrior who swings", warriorSim, warrior},
 	} {
-		if chance := other.wearer.GetAura("Highborne Research Tablet").Dpm.Chance(core.ProcMaskSpellDamage, other.sim); math.Abs(chance-want) > 1e-9 {
-			t.Errorf("the chance on a spell hit for a %s is %v, want the same %v", other.name, chance, want)
+		if chance := wearer.wearer.GetAura("Highborne Research Tablet").Dpm.Chance(core.ProcMaskSpellDamage, wearer.sim); math.Abs(chance-instant) > 1e-9 {
+			t.Errorf("the chance on an instant spell hit for a %s is %v, want the row's procs per minute on 1.5 s, %v", wearer.name, chance, instant)
 		}
 	}
 
 	const hits = 2000
-	for range hits {
-		dealHit(t, sim, character, fireSpell(&character.Unit))
-	}
-	mean, deviation := want*hits, math.Sqrt(want*(1-want)*hits)
-	if got := float64(damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts); math.Abs(got-mean) > 4*deviation {
-		t.Errorf("%d spell hits cast it %v times, want about %.0f", hits, got, mean)
+	casts := func() float64 { return float64(damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts) }
+	for _, cast := range []time.Duration{0, 3 * time.Second} {
+		want := ppm * max(cast, core.GCDDefault).Seconds() / 60
+		before := casts()
+		spell := fireSpell(&character.Unit)
+		spell.CurCast.CastTime = cast
+		for range hits {
+			dealHit(t, sim, character, spell)
+		}
+		mean, deviation := want*hits, math.Sqrt(want*(1-want)*hits)
+		if got := casts() - before; math.Abs(got-mean) > 4*deviation {
+			t.Errorf("%d hits of a spell cast in %v cast it %v times, want about %.0f", hits, cast, got, mean)
+		}
 	}
 }
 

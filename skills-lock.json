@@ -35,7 +35,7 @@
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "830f353ecd77030eae03a1a0f598fe159609309040ab88146c468b4d30addee6"
+      "computedHash": "2b7418bde1b0586a1a1526bd7c1ec66a80c9564b65ff544e224f27a6e2e2b952"
     },
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
@@ -55,7 +55,7 @@
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "7603187760fe98c063d3af2f8eb21343a0e9ba0b94a6677d89b584b71b7b734e"
+      "computedHash": "9e32126349aac134eedfa5af8a01e1cc74dbe5f7cbeeaaaf185c0a490b1e7e9c"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",

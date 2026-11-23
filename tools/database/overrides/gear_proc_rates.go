@@ -53,7 +53,7 @@ var GearProcRates = []GearProcRate{
 	{
 		Gear:   GearItem,
 		ID:     260205,
-		Reason: "Highborne Research Tablet: 2.6 ppm on weapon hits plus a flat 7% per spell hit",
+		Reason: "Highborne Research Tablet: 2.95 ppm on weapon hits on their weapon's speed and on spell hits on their cast time, 1.5 s at least",
 		Source: "EV-0131",
 	},
 	{

@@ -38976,10 +38976,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1351443, SpellID: 1318132, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_POWER_REGEN, BasePoints: 10, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1318159, Name: "Ancient Power", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10154}, RPPM: 2.6, VersusFamilies: []int32{1, 2}, RefIDs: []int32{1265634}, ProcChanceSource: ProcChancePPM,
+	{ID: 1318159, Name: "Ancient Power", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10154}, RPPM: 2.95, VersusFamilies: []int32{1, 2}, RefIDs: []int32{1265634}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 1351486, SpellID: 1318159, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 2, BaseLevel: 60, PvpMult: 1, TriggerID: 1265634, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}}, // override: PPM 2.6 -- Highborne Research Tablet: 2.6 procs per minute on landed damaging melee hits; the game files state none // override: VersusBonus x2 ($s1) against CreatureFamilyNaga, CreatureFamilySatyr -- Ancient Power: 'Deals $s1 times as much damage to Naga and Satyrs'
+		}}, // override: PPM 2.95 -- Highborne Research Tablet: 2.95 procs per minute on landed damaging hits, a weapon hit on its weapon's speed and a spell hit on its cast time; the game files state none // override: VersusBonus x2 ($s1) against CreatureFamilyNaga, CreatureFamilySatyr -- Ancient Power: 'Deals $s1 times as much damage to Naga and Satyrs'
 	{ID: 1318163, Name: "Concussed", School: 1, Attr: [17]uint32{0: 0x10, 3: 0x10000, 4: 0x800000, 6: 0x200000, 15: 0x2000}, SpellLevel: 30, DurationMs: 6000, MaxRange: 100, DefenseType: 2, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1351492, SpellID: 1318163, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DECREASE_SPEED, BasePoints: -20, PvpMult: 1, ChainAmp: 1, Mechanic: 11, Target: [2]dbcenums.ImplicitTarget{6, 0}},

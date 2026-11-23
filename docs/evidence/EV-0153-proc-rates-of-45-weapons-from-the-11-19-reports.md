@@ -188,10 +188,10 @@ YhCcTtxfGJR82M7Q 1-11; ZAWJk6BdKhr9nC8T 1-6; ZyGV2gN1w6jc7zM9 1, 3-5, 7-18; f2zK
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 
 545 procs on 6,252 rolling hits, 24 wearers, 26 runs, in the main hand: all hits 1.80 [1.65, 1.93]. The rate is all
-hits, which the one-hand white and specials rates agree with. One-hand white: 1.99 [1.66, 2.32], 182 procs on 1,895 lone
-units, 23 wearers. Specials: 1.83 [1.38, 2.14], 61 procs on 688 lone units, 19 wearers; Raptor Strike gives 25 procs on
-240 of them. Two-roll abilities, priced as one roll: 1.70, 6 procs on 73 lone units (Execute 4 on 37, Mocking Blow 0 on
-1 and Mongoose Bite 2 on 35), left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 227
+hits, which the one-hand white and specials rates agree with. One-hand white: 1.99 [1.73, 2.27], 202 procs on 2,102 lone
+units, 23 wearers. Specials: 1.82 [1.31, 2.22], 68 procs on 772 lone units, 19 wearers; Raptor Strike gives 26 procs on
+244 of them. Two-roll abilities, priced as one roll: 1.70, 6 procs on 73 lone units (Execute 4 on 37, Mocking Blow 0 on
+1 and Mongoose Bite 2 on 35), left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 294
 isolated hits. Dropping the swapped stretches (5.8 active minutes, 3% of hits, in 1 run) moved the read from 1.75 to
 1.80. The paladin check, which sets no rate: lone white swings 2.95, 83 procs on 582 lone units, 9 wearers. Left out: 50
 of 76 runs in Cat or Bear Form. One run logged in two reports counts once. Reports from 2026-11-10 to 2026-11-22.
@@ -306,11 +306,13 @@ wtJqpy9ThGxFz4nZ 1-2; yF1hGHxMnrPJK83T 1; ynGtWRk4cZX3TmYv 1.
 ## Count of the 2026-11-06 to 2026-11-21 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
-  lists, from every wearer stream on disk for its weapon; 8 reports in all
-- Game build: by report date, 1.60.1.70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC and 71037 from
-  2026-11-20 18:23 UTC; no report starts after hotfix push 114313 (2026-11-20 23:47 UTC). The sim's database is
-  1.60.1.71037, push 114326; the hotfix each player ran is not recorded
-- Date: 2026-11-14 to 2026-11-20
+  lists, from every wearer stream on disk for its weapon; those sections are in EV-0126, EV-0132 and EV-0136, and none
+  is in this file
+- Game build: 1.60.1.70790 to 1.60.1.71037 by report date (70862 from 2026-11-07 04:43 UTC, 70888 from 2026-11-10 15:11
+  UTC in the US and 2026-11-11 02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC,
+  71037 from 2026-11-20 18:23 UTC). The sim's database is 1.60.1.71037, push 114326; the hotfix each player ran is not
+  recorded
+- Date: 2026-11-06 to 2026-11-21
 - Pull request: #1156
 
 The count is §Method on the hits EV-0155 finds rolling a weapon proc, run again over every wearer stream on disk for
@@ -327,17 +329,17 @@ Each section's read by report date is the all-hits rate over the reports that st
 114313, and after it.
 
 Scripts and inputs, in `forever-notices-1121`: `results.json`, the counts of `forever-sweep-auto/analyze.py` (version
-12, as EV-0157's, with the paladin check that sets no rate) run with `--items items.txt --census census_used.json`;
+12, with the paladin check that sets no rate) run with `--items items.txt --census census_used.json`;
 `report.py`, the call per weapon (`rep_final.json`); and `dates.py`, the report dates (`dates_final.json`).
 
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
-  lists, from every wearer stream on disk for its weapon; 3,637 reports in all for the count, 78 of them for these
+  lists, from every wearer stream on disk for its weapon; 3,714 reports in all for the count, 78 of them for these
   weapons
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 22 of them for these weapons.
+  UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 22 of them for these weapons.
   The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

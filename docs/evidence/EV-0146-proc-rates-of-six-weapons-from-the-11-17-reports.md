@@ -1,4 +1,4 @@
-# EV-0146: Proc rates of three weapons from the 2026-11-17 Warcraft Logs reports
+# EV-0146: Proc rates of Axe of the Deep Woods, Barman Shanker and Blunderflame Bone Bow
 
 - Claim: Axe of the Deep Woods procs at 1.9, Barman Shanker at 1.95 and Blunderflame Bone Bow at 1.95 procs per minute,
   each priced on each landed hit's weapon base speed; Axe of the Deep Woods' rate is measured, and the other two are
@@ -31,20 +31,20 @@ as a hit here (EV-0136). Barman Shanker has only rogue wearers and Blunderflame 
 
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 
-8,754 procs on 101,704 rolling hits, 45 wearers, 64 runs, in the main hand: all hits 1.91 [1.87, 1.94]. The rate is all
-hits, which the specials rate agrees with. One-hand white: 1.79 [1.27, 2.44], 39 procs on 485 lone units, 2 wearers (a
-Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.76 [1.57, 1.95], 351 procs on 4,426 lone
-units, 41 wearers. Specials: 1.86 [1.72, 2.06], 422 procs on 5,031 lone units, 44 wearers; Sinister Strike gives 292
-procs on 3,446 of them. Two-roll abilities, priced as one roll: 3.09, 40 procs on 288 lone units (Execute 33 on 225 and
-Mongoose Bite 7 on 63), left out of the rate. Travel time: the proc lands a median 153 ms after its hit, 98th percentile
-378 ms, window [22, 388] ms (57 isolated hits). Report D46Xm8ncR9WbTFrL logs the same run as DdKN3mXj6gH9yvpc and counts
-once. Reports from 2026-11-14 to 2026-11-22.
+8,754 procs on 101,721 rolling hits, 45 wearers, 64 runs, in the main hand: all hits 1.91 [1.87, 1.94]. The rate is all
+hits, which the one-hand white and specials rates agree with. One-hand white: 1.83 [1.39, 2.36], 58 procs on 705 lone
+units, 2 wearers (a Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.79 [1.64, 1.95], 499
+procs on 6,180 lone units, 41 wearers. Specials: 1.93 [1.80, 2.05], 802 procs on 9,217 lone units, 44 wearers; Sinister
+Strike gives 394 procs on 4,606 of them. Two-roll abilities, priced as one roll: 3.60, 65 procs on 401 lone units
+(Execute 57 on 318 and Mongoose Bite 8 on 83), left out of the rate. Travel time: the proc lands a median 146 ms after
+its hit, 98th percentile 350 ms, window [-20, 360] ms (1,052 isolated hits). Report D46Xm8ncR9WbTFrL logs the same run
+as DdKN3mXj6gH9yvpc and counts once. Reports from 2026-11-14 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Rogue   |      26 | 5,903 | 67,196 | 1.95 |
-| Warrior |      14 | 2,415 | 29,266 | 1.83 |
-| Hunter  |       5 |   436 |  5,241 | 1.85 |
+| Rogue   |      26 | 5,903 | 67,208 | 1.95 |
+| Warrior |      14 | 2,415 | 29,277 | 1.83 |
+| Hunter  |       5 |   436 |  5,237 | 1.85 |
 
 Reports and fights: 38kdWHmLZKVgTPqb 2; 3BWcJRwaMgH92h81 1-12; 3HpcAMkBxbJmVWzR 1-11; 3d87Zat9RLCnwDBm 1;
 4ChPnBrVK2fJLMaX 1-2, 4; 8hBd9Wz3AXHwZf21 1-2; 8vwhgRM9FTLBD2rN 1-3; 9kb8p2jZ4YXmGQCc 1; B4QqHnGXwzpRfaYW 1-4;
@@ -67,9 +67,9 @@ zVAHZcQtTdbhMfLN 7-8; zaF4hYrwjyCqHKpv 1-2.
 
 3,368 procs on 51,494 rolling hits, 32 wearers, 40 runs, in the main hand: all hits 1.96 [1.91, 2.01]. The rate is all
 hits, which the specials rate agrees with. Observed: every wearer is a rogue. One-hand white: none. Dual-wield white,
-which sets no rate: 1.50 [1.33, 1.67], 543 procs on 10,838 lone units, 32 wearers. Specials: 1.54 [1.29, 1.92], 167
-procs on 3,248 lone units, 32 wearers; Eviscerate gives 99 procs on 1,808 of them. Direct: window [-11, 100] ms, median
-0 ms, 98th percentile 1 ms, 415 isolated hits. Dropping the swapped stretches (52 active minutes, 3% of hits, in 4 runs)
+which sets no rate: 1.52 [1.35, 1.69], 573 procs on 11,288 lone units, 32 wearers. Specials: 1.53 [1.28, 1.93], 179
+procs on 3,516 lone units, 32 wearers; Eviscerate gives 101 procs on 1,879 of them. Direct: window [-11, 100] ms, median
+0 ms, 98th percentile 1 ms, 442 isolated hits. Dropping the swapped stretches (52 active minutes, 3% of hits, in 4 runs)
 moved the read from 1.90 to 1.96. Report VW6NT73MXFw8r4CQ logs the same run as LNbjwpJhRTZzGP3C and counts once. Reports
 from 2026-11-14 to 2026-11-22.
 
@@ -95,15 +95,17 @@ second effect states.
 
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 
-915 procs on 9,969 rolling hits, 13 wearers, 15 runs, in the ranged slot: all hits 1.97 [1.85, 2.10]. The proc's flight
-reaches the 1,000 ms isolation, so no lone-unit rate is measured and none checks the all-hits rate. Observed: no
-lone-unit rate checks it; every wearer is a hunter. Travel time: the proc lands a median 608 ms after its hit, 98th
-percentile 986 ms (191 isolated procs). Dropping the swapped stretches (6.0 active minutes, 2% of hits, in 1 run) moved
-the read from 1.94 to 1.97. Reports from 2026-11-15 to 2026-11-22.
+914 procs on 9,962 rolling hits, 13 wearers, 15 runs, in the ranged slot: all hits 1.97 [1.86, 2.10]. Its lone-unit
+rates of 50 or more procs read on a travel window past 400 ms, so none checks the all-hits rate. Observed: no lone-unit
+rate checks it; every wearer is a hunter. Lone Auto Shots: 1.86 [1.76, 2.12], 136 procs on 1,568 lone units, 13 wearers.
+Specials: 2.17 [1.73, 2.91], 107 procs on 1,059 lone units, 12 wearers; Multi-Shot gives 78 procs on 827 of them. Travel
+time: the proc lands a median 639 ms after its hit, 98th percentile 1146 ms, window [-20, 1156] ms (132 isolated hits).
+Dropping the swapped stretches (6.0 active minutes, 2% of hits, in 1 run) moved the read from 1.93 to 1.97. Reports from
+2026-11-15 to 2026-11-22.
 
 | Class  | Wearers | Procs |  Hits |  PPM |
 | ------ | ------: | ----: | ----: | ---: |
-| Hunter |      13 |   915 | 9,969 | 1.97 |
+| Hunter |      13 |   914 | 9,962 | 1.97 |
 
 Reports and fights: 1B7XZcx2mgRaDJVn 1-44; GxgMyQYRHX7f1cFT 1-9, 12; HqYP86CdQZtkB2Gf 5-10; KdQtvTWfGpD97NMc 1;
 QRCgnhck3KVq6vBT 1-2; QwpTdtmLyRcZCDW2 1-10; VK83G7MdBhLRFAfa 1-42; cL3KMWpnXyvDrqa2 1-38; ch87CPWVqaxZYfz3 1, 4;
@@ -113,10 +115,10 @@ x9v27CNzhRgMkXG6 9, 11-12.
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
-  lists, from every wearer stream on disk for its weapon; 3,637 reports in all for the count, 119 of them for these
+  lists, from every wearer stream on disk for its weapon; 3,714 reports in all for the count, 119 of them for these
   weapons
 - Game build: 1.60.1.70938 to 1.60.1.71037 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 43 of them for these weapons.
+  UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 43 of them for these weapons.
   The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

@@ -80,10 +80,10 @@ reports' Stormstrikes.
 - Rate: 2 PPM, measured
 
 1,175 procs on 9,244 rolling hits, 11 wearers, 12 runs, in the main hand: all hits 2.01 [1.88, 2.14]. The rate is all
-hits, which the one-hand white rate agrees with. One-hand white: 2.13 [1.92, 2.36], 318 procs on 2,359 lone units, 11
-wearers. Specials: 2.07 [1.03, 3.70], 11 procs on 84 lone units, 2 wearers (a Poisson interval: under 5 wearers).
-Two-roll abilities, priced as one roll: 2.32, 11 procs on 75 lone units (Execute 11 on 75), left out of the rate.
-Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 275 isolated hits. The paladin check, which sets no
+hits, which the one-hand white rate agrees with. One-hand white: 2.10 [1.89, 2.34], 327 procs on 2,461 lone units, 11
+wearers. Specials: 1.82 [1.13, 2.78], 21 procs on 182 lone units, 2 wearers (a Poisson interval: under 5 wearers).
+Two-roll abilities, priced as one roll: 2.20, 11 procs on 79 lone units (Execute 11 on 79), left out of the rate.
+Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 325 isolated hits. The paladin check, which sets no
 rate: lone white swings 1.36, 43 procs on 499 lone units, 8 wearers. Left out: 1 of 13 runs in Cat or Bear Form. Reports
 from 2026-11-14 to 2026-11-22.
 
@@ -99,9 +99,9 @@ vHp9QagZGFLBM7PC 1-2; xt4kjHLMnFvPCrhT 1-2; yjd7A18ghwWmqYzD 1, 3-4.
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate lists, from every wearer
-  stream on disk for the mace; 3,637 reports in all for the count, 12 of them for the mace
+  stream on disk for the mace; 3,714 reports in all for the count, 12 of them for the mace
 - Game build: 1.60.1.70938 to 1.60.1.71037 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 5 of them for the mace. The
+  UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 5 of them for the mace. The
   sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

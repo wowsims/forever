@@ -1191,8 +1191,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 538.30891
-  tps: 2685.05361
+  dps: 539.9604
+  tps: 2688.6043
   dtps: 395.6369
   hps: 85.62528
  }
@@ -1515,8 +1515,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 463.7278
-  tps: 2349.62026
+  dps: 466.26098
+  tps: 2355.0666
   dtps: 393.47945
   hps: 83.9845
  }

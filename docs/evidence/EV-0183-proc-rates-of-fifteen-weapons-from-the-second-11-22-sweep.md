@@ -3,23 +3,23 @@
 - Claim: each weapon below procs at the rate its section gives, priced on the weapon base speed of each hit that rolls
   it; Mug O' Hurt's rate is measured, and the others observed.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each weapon's section lists, from
-  every wearer stream on disk for the 15 weapons; 193 reports in all for them, of the count's 3,637
-- Game build: 1.60.1.70790 to 1.60.1.71037 by report date (70862 from 2026-11-07 04:43 UTC, 70888 from 2026-11-10 15:11
-  UTC in the US and 2026-11-11 02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC,
-  71037 from 2026-11-20 18:23 UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 55
-  of them for these weapons. The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
+  every wearer stream on disk for the 15 weapons; 193 reports in all for them, of the count's 3,714
+- Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
+  02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
+  UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 55 of them for these weapons.
+  The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180
 
 ## Method
 
-The count is EV-0153's Method, run again over every wearer stream on disk for the 93 items it rates, the ones here and
-those of EV-0120, EV-0121, EV-0125, EV-0133, EV-0136, EV-0146, EV-0150, EV-0153, EV-0157, EV-0177 and EV-0178, with the
-same classes and forms left out, intervals, lone-unit checks, swap drop, credit windows and calls of measured or
-observed. Paladins are left out of every rate. From hotfix push 114313 (2026-11-20 23:47 UTC) each Mutilate strike rolls
-its own hand once; before it Mutilate is left out with its procs, as the two-roll abilities are. From 2026-11-20 a Shank
-rolls the off-hand weapon once (EV-0155 §Shank from 2026-11-20), and the count takes it as an off-hand roll. A lone-unit
-rate from fewer than 5 wearers takes a Poisson interval on its procs.
+The count is EV-0153's Method, run again over every wearer stream on disk for the 94 items it rates, the ones here and
+those of EV-0120, EV-0121, EV-0125, EV-0131, EV-0133, EV-0136, EV-0146, EV-0150, EV-0153, EV-0157, EV-0177 and EV-0178,
+with the same classes and forms left out, intervals, lone-unit checks, swap drop, credit windows and calls of measured
+or observed. From hotfix push 114313 (2026-11-20 23:47 UTC) each Mutilate strike rolls its own hand once; before it
+Mutilate is left out with its procs, as the two-roll abilities are. From 2026-11-20 a Shank rolls the off-hand weapon
+once (EV-0155 §Shank from 2026-11-20), and the count takes it as an off-hand roll. A lone-unit rate from fewer than 5
+wearers takes a Poisson interval on its procs.
 
 Rolls and procs follow EV-0155 with these rules. A debuff-only landing (Sunder Armor, Rend's landing, Cheap Shot, a
 sting) rolls a weapon proc once, and an equip proc only where its own lone landings proc at half the white chance or
@@ -27,12 +27,17 @@ more. Sap and Death Mark landings roll nothing. Shield Slam and Shield Bash roll
 that lands on two targets is two procs. The hits within the window of a killing blow or a two-roll ability leave with
 its procs (800 ms for a missile proc). A missile strike that lands late rolls its weapon again, and the sim adds that
 chain itself, so all hits leave its chain procs out. A missile proc's own side effects do not break a lone unit. A dual
-wielder with two weapons of one speed has its white swings labelled by damage size, not timing.
+wielder with two weapons of one speed has its white swings labelled by damage size, not timing. Melee- and
+ranged-delivered units each take their own travel window, and each lone-unit rate names the window it read on; a rate on
+a window past 400 ms checks nothing. A missile's window starts at -20 ms, and a delayed window holds only if the longer
+isolation steps leave it where it is. A single-target proc that lands on its hit's target isolates its lone units on
+that target alone. An item that rolls on weapon hits and on spells takes its rate from the weapon hits, and its spell
+side from casters, each spell hit priced on its cast time, 1.5 s at least.
 
-Scripts and inputs, in `forever-sweep-auto`: the run `runs/2026-11-22-2335-v16`, whose `results.json` (`analyze.py`
-version 16, cache `cache_v16`) holds every item's count, rerun on the wearer streams of the 2026-11-22 23:35 sweep. The
-rate is each result's `all_hits`, matched on item and `effect_spell` and rounded to the nearest 0.05 at full precision;
-the result's `ppm`, a lone-unit rate where one has enough procs, sets no rate.
+Scripts and inputs, in `forever-sweep-auto`: the run `runs/2026-11-22-2335-v18`, whose `results.json` (analyzer v18:
+`analyze.py` version 18, cache `cache_v18`) holds every item's count, rerun on the wearer streams of the 2026-11-22
+23:35 sweep. The rate is each result's `all_hits`, matched on item and `effect_spell` and rounded to the nearest 0.05 at
+full precision; the result's `ppm`, a lone-unit rate where one has enough procs, sets no rate.
 
 ## Rates
 
@@ -50,9 +55,9 @@ Rate is the override row's rate. The one-hand white and specials columns give th
 | Hedgecutter               |  18498 | 1.75 | observed | 1.77 [1.64, 1.94] |    220 / 3,917 |       6 | 2.55 (30)      | 0.79 (2)  |
 | Mug O' Hurt               |   4090 | 2.15 | measured | 2.13 [2.01, 2.23] |    590 / 9,774 |       9 | 1.90 (80)      | 1.72 (21) |
 | Naraxis' Fang             |   4449 |  2.1 | observed | 2.11 [2.02, 2.31] |    357 / 6,337 |       8 | 2.68 (2)       | 3.07 (19) |
-| Needletooth's Needletooth | 282703 |    4 | observed | 3.98 [3.86, 4.18] | 1,353 / 12,012 |      10 | -              | 2.41 (19) |
-| Runic Darkblade           |   3822 |    2 | observed | 2.00 [1.68, 2.10] |    444 / 4,045 |      18 | 1.98 (119)     | 1.76 (38) |
-| Searing Needle            |  12531 |  2.8 | observed | 2.80 [2.68, 2.94] |    594 / 7,059 |      13 | -              | 3.23 (6)  |
+| Needletooth's Needletooth | 282703 |    4 | observed | 3.98 [3.86, 4.18] | 1,353 / 12,012 |      10 | -              | 2.76 (21) |
+| Runic Darkblade           |   3822 |    2 | observed | 2.00 [1.68, 2.10] |    444 / 4,044 |      18 | 2.05 (133)     | 1.96 (68) |
+| Searing Needle            |  12531 |  2.8 | observed | 2.80 [2.68, 2.94] |    594 / 7,059 |      13 | -              | 3.17 (6)  |
 | The Unstoppable Force     |  19323 | 1.05 | observed | 1.06 [1.02, 1.12] | 1,470 / 23,174 |      18 | 1.14 (391)     | 0.00 (0)  |
 | Venom Web Fang            |    899 |  1.1 | observed | 1.09 [0.96, 1.22] |    255 / 9,385 |      18 | 1.38 (2)       | 0.70 (11) |
 
@@ -153,9 +158,9 @@ WcCH7rnkQdaLZJ6j 1-3; XfrWGm96NY1BTMng 1-2.
 
 282 procs on 4,556 rolling hits, 5 wearers, 5 runs, in the off hand: all hits 2.06 [1.82, 2.19]. Neither the one-hand
 white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate. Observed: no lone-unit rate
-checks it; the interval is wider than 10% of the rate. One-hand white: none. Dual-wield white, which sets no rate: 1.99
-[1.60, 2.45], 90 procs on 1,507 lone units, 4 wearers (a Poisson interval: under 5 wearers). Direct: window [-10, 100]
-ms, median 0 ms, 98th percentile 0 ms, 61 isolated hits. Dropping the swapped stretches (37 active minutes, 18% of hits,
+checks it; the interval is wider than 10% of the rate. One-hand white: none. Dual-wield white, which sets no rate: 1.92
+[1.60, 2.29], 124 procs on 2,153 lone units, 4 wearers (a Poisson interval: under 5 wearers). Direct: window [-10, 100]
+ms, median 0 ms, 98th percentile 0 ms, 83 isolated hits. Dropping the swapped stretches (37 active minutes, 18% of hits,
 in 2 runs) moved the read from 1.69 to 2.06. Reports from 2026-11-16 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
@@ -243,18 +248,15 @@ ydb2wTpBFPgfWrCm 1-3.
 ## Needletooth's Needletooth (item 282703, spell 1314305): 4, observed
 
 1,353 procs on 12,012 rolling hits, 10 wearers, 15 runs, in the main hand or the off hand: all hits 3.98 [3.86, 4.18].
-The count flags its travel window as maybe cut short (its 98th-percentile delay, 250 ms, is within 17% of the 300 ms
-isolation); on hits isolated 700 ms Puncture lands up to a 98th percentile of 671 ms after its hit (`MEASUREMENT.md`),
-past the 400 ms a lone-unit rate allows, so none checks the all-hits rate. Observed: no lone-unit rate checks it; every
-wearer is a rogue. One-hand white: none. Dual-wield white, which sets no rate: 3.35 [2.83, 3.74], 248 procs on 2,611
-lone units, 10 wearers. Specials: 2.41 [0.98, 3.42], 19 procs on 278 lone units, 6 wearers. Travel time: the proc lands
-a median 134 ms after its hit, 98th percentile 250 ms, window [-9, 260] ms (327 isolated hits). Dropping the swapped
-stretches (20 active minutes, 6% of hits, in 1 run) moved the read from 3.73 to 3.98. All hits leave out 47 chain procs:
-a Puncture that lands late rolls the dagger again, and that proc lands with it on the same target within 2 ms, all on
-main-hand wearers after a white swing. The sim adds the chain itself. With them all hits read 4.11 [3.93, 4.46], and the
-main-hand runs 4.47. The 59 procs and 238 hits within 800 ms after a two-roll ability, Mutilate before push 114313 among
-them, or a killing blow are left out; a 50 ms window had credited 51 procs after those Mutilates to other hits
-(`MEASUREMENT.md`). Reports from 2026-11-13 to 2026-11-22.
+Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
+Observed: no lone-unit rate checks it; every wearer is a rogue. One-hand white: none. Dual-wield white, which sets no
+rate: 3.38 [2.95, 3.71], 252 procs on 2,633 lone units, 10 wearers. Specials: 2.76 [1.46, 3.73], 21 procs on 269 lone
+units, 6 wearers. Travel time: the proc lands a median 141 ms after its hit, 98th percentile 263 ms, window [-20, 273]
+ms (244 isolated hits). Dropping the swapped stretches (20 active minutes, 6% of hits, in 1 run) moved the read from
+3.73 to 3.98. All hits leave out 47 chain procs, a late Puncture's second roll, which the sim adds itself; with them all
+hits read 4.11 [3.93, 4.47], and the main-hand runs 4.47. The 59 procs within 800 ms after a two-roll ability, Mutilate
+before push 114313 among them, or a killing blow are left out with the hits beside them. Reports from 2026-11-13 to
+2026-11-22.
 
 | Class | Wearers | Procs |   Hits |  PPM |
 | ----- | ------: | ----: | -----: | ---: |
@@ -267,18 +269,19 @@ vPwpdrLM7tn3f4Wh 1.
 
 ## Runic Darkblade (item 3822, spell 16409): 2, observed
 
-444 procs on 4,045 rolling hits, 18 wearers, 22 runs, in the main hand: all hits 2.00 [1.68, 2.10]. The rate is all
-hits, which the one-hand white rate agrees with. Observed: the interval is wider than 10% of the rate. One-hand white:
-1.98 [1.64, 2.10], 119 procs on 1,093 lone units, 18 wearers. Specials: 1.76 [0.80, 2.31], 38 procs on 392 lone units,
-12 wearers. Two-roll abilities, priced as one roll: 1.27, 10 procs on 143 lone units (Execute 9 on 128, Mocking Blow 0
-on 3 and Mongoose Bite 1 on 12), left out of the rate. Travel time: the proc lands a median 151 ms after its hit, 98th
-percentile 338 ms, window [24, 348] ms (74 isolated hits). Dropping the swapped stretches (23 active minutes, 9% of
-hits, in 2 runs) moved the read from 1.82 to 2.00. The paladin check, which sets no rate: lone white swings 1.93, 64
-procs on 604 lone units, 11 wearers. Reports from 2026-11-10 to 2026-11-22.
+444 procs on 4,044 rolling hits, 18 wearers, 22 runs, in the main hand: all hits 2.00 [1.68, 2.10]. The rate is all
+hits, which the one-hand white and specials rates agree with. Observed: the interval is wider than 10% of the rate.
+One-hand white: 2.05 [1.77, 2.21], 133 procs on 1,180 lone units, 18 wearers. Specials: 1.96 [1.35, 2.16], 68 procs on
+632 lone units, 13 wearers; Cleave gives 26 procs on 202 of them. Two-roll abilities, priced as one roll: 1.33, 11 procs
+on 150 lone units (Execute 11 on 136, Mocking Blow 0 on 3 and Mongoose Bite 0 on 11), left out of the rate. Travel time:
+the proc lands a median 160 ms after its hit, 98th percentile 349 ms, window [-20, 359] ms (181 isolated hits). Dropping
+the swapped stretches (23 active minutes, 9% of hits, in 2 runs) moved the read from 1.82 to 2.00. The paladin check,
+which sets no rate: lone white swings 1.96, 67 procs on 622 lone units, 11 wearers. Reports from 2026-11-10 to
+2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
-| Warrior |       5 |   410 | 3,605 | 2.07 |
+| Warrior |       5 |   410 | 3,604 | 2.07 |
 | Hunter  |      13 |    34 |   440 | 1.40 |
 
 Reports and fights: 1bxfCJMQhwnra8yF 1-2; 2AkBjF16x3rwVLXC 1; 2v3c1tVwAmWCpQJF 1-3; 3vVtMWRcg9H4FTPw 1; AkRKf9tvFmL4xXCj
@@ -291,9 +294,9 @@ qrKPAtNvzfGpC7JR 1, 3-6; tv1PgkxVBcK74zM6 1-3; wATW3ryJnMP2BGjR 1-16.
 
 594 procs on 7,059 rolling hits, 13 wearers, 14 runs, in the main hand or the off hand: all hits 2.80 [2.68, 2.94].
 Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
-Observed: no lone-unit rate checks it. One-hand white: none. Dual-wield white, which sets no rate: 2.74 [2.48, 3.06],
-226 procs on 2,746 lone units, 11 wearers. Specials: 3.23 [1.18, 7.02], 6 procs on 62 lone units, 4 wearers (a Poisson
-interval: under 5 wearers). Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 146 isolated hits. Dropping
+Observed: no lone-unit rate checks it. One-hand white: none. Dual-wield white, which sets no rate: 2.70 [2.48, 3.02],
+231 procs on 2,851 lone units, 11 wearers. Specials: 3.17 [1.17, 6.91], 6 procs on 63 lone units, 4 wearers (a Poisson
+interval: under 5 wearers). Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 150 isolated hits. Dropping
 the swapped stretches (35 active minutes, 15% of hits, in 2 runs) moved the read from 2.38 to 2.80. Reports from
 2026-11-15 to 2026-11-22.
 

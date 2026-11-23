@@ -47,11 +47,11 @@ come from 6 wearers (4 rogues, 1 warrior and 1 hunter) over 9 runs.
 - Rate: 1.9 PPM, measured
 
 2,050 procs on 25,868 rolling hits, 11 wearers, 13 runs, in the main hand: all hits 1.90 [1.76, 1.99]. The rate is all
-hits, which the specials rate agrees with. One-hand white: 1.98 [1.13, 3.21], 16 procs on 194 lone units, 1 wearer (a
-Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.68 [1.39, 1.80], 280 procs on 3,993 lone
-units, 10 wearers. Specials: 2.07 [1.78, 2.44], 318 procs on 3,682 lone units, 11 wearers; Sinister Strike gives 250
-procs on 2,800 of them. Two-roll abilities, priced as one roll: 2.04, 8 procs on 94 lone units (Execute 7 on 69 and
-Mongoose Bite 1 on 25), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 330
+hits, which the specials rate agrees with. One-hand white: 1.93 [1.10, 3.13], 16 procs on 199 lone units, 1 wearer (a
+Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.65 [1.42, 1.75], 330 procs on 4,814 lone
+units, 10 wearers. Specials: 2.01 [1.74, 2.28], 395 procs on 4,718 lone units, 11 wearers; Sinister Strike gives 290
+procs on 3,276 of them. Two-roll abilities, priced as one roll: 2.24, 10 procs on 107 lone units (Execute 9 on 82 and
+Mongoose Bite 1 on 25), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 407
 isolated hits. Dropping the swapped stretches (8.5 active minutes, 1% of hits, in 1 run) moved the read from 1.88 to
 1.90. Report vwYF4Z2C38cfKTDB logs the same run as CfHvwytKJ6P4q7ag and counts once. Reports from 2026-11-13 to
 2026-11-21.
@@ -70,9 +70,9 @@ vwYF4Z2C38cfKTDB 1-9; z8QPNWpMBx4VgdDX 1.
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate lists, from every wearer
-  stream on disk for the sword; 3,637 reports in all for the count, 14 of them for the sword
+  stream on disk for the sword; 3,714 reports in all for the count, 14 of them for the sword
 - Game build: 1.60.1.70938 to 1.60.1.71037 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 1 of them for the sword. The
+  UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 1 of them for the sword. The
   sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

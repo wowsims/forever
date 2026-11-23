@@ -757,8 +757,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 850.92651
-  tps: 786.17082
+  dps: 851.85933
+  tps: 786.94622
  }
 }
 dps_results: {

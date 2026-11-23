@@ -1016,8 +1016,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 808.10406
-  tps: 599.77932
+  dps: 809.15859
+  tps: 600.52804
   hps: 45.98722
  }
 }
@@ -1296,8 +1296,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 741.19395
-  tps: 552.06078
+  dps: 743.16207
+  tps: 553.45814
   hps: 46.19056
  }
 }
