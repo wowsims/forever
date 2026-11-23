@@ -771,8 +771,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Illusionist'sAttire"
  value: {
-  dps: 833.94691
-  tps: 861.68183
+  dps: 829.05677
+  tps: 856.79168
  }
 }
 dps_results: {
@@ -904,8 +904,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Magister'sRegalia"
  value: {
-  dps: 760.3226
-  tps: 787.1053
+  dps: 755.1141
+  tps: 781.8968
  }
 }
 dps_results: {
@@ -1002,8 +1002,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-NecropileRaiment"
  value: {
-  dps: 830.42118
-  tps: 855.75196
+  dps: 825.7888
+  tps: 851.11958
  }
 }
 dps_results: {
@@ -1289,8 +1289,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-ThePostmaster"
  value: {
-  dps: 824.19278
-  tps: 849.73165
+  dps: 820.03909
+  tps: 845.57796
  }
 }
 dps_results: {
@@ -1352,8 +1352,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-VestmentsoftheDevout"
  value: {
-  dps: 741.4361
-  tps: 768.15023
+  dps: 739.18624
+  tps: 765.90037
  }
 }
 dps_results: {
