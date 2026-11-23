@@ -9,7 +9,7 @@
   each player ran is not recorded
 - Date: 2026-11-05 to 2026-11-19
 - Pull request: #1108
-- Later count: Wraith Scythe, §Count of the 2026-11-06 to 2026-11-21 reports
+- Later count: Blade of the Basilisk, Diabolic Skiver and Wraith Scythe, §Count of the 2026-11-06 to 2026-11-22 reports
 
 ## Method
 
@@ -94,9 +94,7 @@ Rate is the override row's rate. The one-hand white and specials columns give th
 | ----------------------- | -----: | ---: | -------- | ----------------- | -------------: | ------: | -------------- | ---------- |
 | Angerforge's Battle Axe |  11816 |    2 | measured | 2.01 [1.93, 2.10] | 1,068 / 12,283 |      14 | 1.70 (298)     | 2.25 (27)  |
 | Archeus                 |   2000 | 0.95 | observed | 0.94 [0.81, 1.08] |    221 / 4,268 |      27 | 0.87 (69)      | 0.87 (32)  |
-| Blade of the Basilisk   |   8223 |  1.1 | observed | 1.09 [0.94, 1.24] |    157 / 4,564 |       5 | 1.14 (55)      | 1.00 (22)  |
 | Bleeding Crescent       |   6738 |    1 | observed | 0.99 [0.90, 1.09] |   482 / 12,205 |      31 | 0.95 (69)      | 0.87 (50)  |
-| Diabolic Skiver         |   9475 | 1.75 | measured | 1.74 [1.58, 1.90] |    462 / 5,491 |      15 | 2.00 (160)     | 1.86 (54)  |
 | Plaguefang              | 279876 |    2 | measured | 1.98 [1.87, 2.11] | 2,944 / 42,419 |      55 | 1.99 (560)     | 1.98 (324) |
 | Silent Fang             |  13953 | 1.45 | observed | 1.47 [1.30, 1.61] |   466 / 11,915 |       9 | 1.50 (154)     | 1.49 (64)  |
 | Wyvern Tailspike        |   5752 | 2.05 | observed | 2.03 [1.83, 2.27] |    445 / 7,293 |      14 | 2.25 (26)      | 2.36 (26)  |
@@ -140,20 +138,25 @@ mtBc1WZf3ydHVPFv 1-6; pdqmMHchNGQjTwgk 1-3; qpXkvRdWxKzfNr2G 1; rNXvGcnZabhLJd9A
 vN8WfZatBGgdCDHJ 1-4, 6-7; vRPQ237fWm1tFYDV 1-4; vTX3cKpNbY6jJVDa 1; wMRNLvP8CBrgd4x7 1-4, 6-13, 15-17, 19-26, 28-39;
 z1APqCWaMYvxbkd7 1-3; z4WhK2CnLbaHgNVQ 1-6.
 
-## Blade of the Basilisk (item 8223, spell 10351): 1.1, observed
+## Blade of the Basilisk (item 8223, spell 10351): 1.05, observed
 
-157 procs on 4,564 rolling hits, 5 wearers, 5 runs, in the main hand: all hits 1.09 [0.94, 1.24]. The rate is all hits,
-which the one-hand white rate agrees with. Observed: every wearer is a warrior and its interval reaches further than 10%
-from the read. One-hand white: 1.14 [1.00, 1.23], 55 procs on 1,529 lone units, 5 wearers. Specials: 1.00 [0.79, 1.25],
-22 procs on 698 lone units, 5 wearers. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 0 ms, 56 isolated
-hits. Reports from 2026-11-16 to 2026-11-18.
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+
+230 procs on 6,787 rolling hits, 6 wearers, 7 runs, in the main hand: all hits 1.07 [0.98, 1.20]. The rate is all hits,
+which the one-hand white rate agrees with. Observed: the interval is wider than 10% of the rate. One-hand white: 1.09
+[0.98, 1.22], 67 procs on 1,943 lone units, 5 wearers. Dual-wield white, which sets no rate: 1.18 [0.66, 1.94], 15 procs
+on 403 lone units, 1 wearer (a Poisson interval: under 5 wearers). Specials: 0.94 [0.76, 1.14], 32 procs on 1,080 lone
+units, 6 wearers. Direct: window [-16, 100] ms, median 0 ms, 98th percentile 0 ms, 88 isolated hits. Dropping the
+swapped stretches (23 active minutes, 9% of hits, in 2 runs) moved the read from 0.97 to 1.07. Reports from 2026-11-16
+to 2026-11-21.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
-| Warrior |       5 |   157 | 4,564 | 1.09 |
+| Warrior |       5 |   193 | 5,664 | 1.08 |
+| Rogue   |       1 |    37 | 1,123 | 1.04 |
 
-Reports and fights: 7fgdkyv1njDKa8Gc 6; 96pBnGdAKJMaCb3N 1-12; hYHBQ9ZJX3vFAnkj 7-14; qa1tKFnvZ98hwj6x 1-6;
-xH8TDPQKb6mYragf 1.
+Reports and fights: 7fgdkyv1njDKa8Gc 6; 8kFbLv24Dz9QYrdc 1; 96pBnGdAKJMaCb3N 1-12; hYHBQ9ZJX3vFAnkj 7-14;
+qa1tKFnvZ98hwj6x 1-6; vYmFJGLbwPWNcdxA 1-13; xH8TDPQKb6mYragf 1.
 
 ## Bleeding Crescent (item 6738, spell 16403): 1, observed
 
@@ -180,23 +183,30 @@ YhCcTtxfGJR82M7Q 1-11; ZAWJk6BdKhr9nC8T 1-6; ZyGV2gN1w6jc7zM9 1, 3-5, 7-18; f2zK
 1-4; h92ZHrfm3RFQtYvT 1-8; jC4HdxZGVNLz1Yvm 1-2, 4-6; jGrv6B1hNMDJPc3W 7-10; kmBptFTG68Dcq3jx 9-10; mQ4MqkD1nbaBXLdy 2,
 4-6; npbfVjrQdDLhtRWY 20-22; pKn8wBZcQ62PyJH7 12-24; tD7Rm3GBjdqPzhwC 16-17.
 
-## Diabolic Skiver (item 9475, spell 18206): 1.75, measured
+## Diabolic Skiver (item 9475, spell 18206): 1.8, measured
 
-462 procs on 5,491 rolling hits, 15 wearers, 17 runs, in the main hand: all hits 1.74 [1.58, 1.90]. The rate is all
-hits, which the one-hand white rate and the specials rate agree with. One-hand white: 2.00 [1.64, 2.37], 160 procs on
-1,654 lone units, 15 wearers. Specials: 1.86 [1.34, 2.19], 54 procs on 601 lone units, 14 wearers. Two-roll abilities,
-priced as one roll: 1.43, 4 procs on 58 lone units. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 198
-isolated hits. Left out: 29 of 46 runs in Cat or Bear Form. Reports from 2026-11-10 to 2026-11-19.
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+
+545 procs on 6,252 rolling hits, 24 wearers, 26 runs, in the main hand: all hits 1.80 [1.65, 1.93]. The rate is all
+hits, which the one-hand white and specials rates agree with. One-hand white: 1.99 [1.66, 2.32], 182 procs on 1,895 lone
+units, 23 wearers. Specials: 1.83 [1.38, 2.14], 61 procs on 688 lone units, 19 wearers; Raptor Strike gives 25 procs on
+240 of them. Two-roll abilities, priced as one roll: 1.70, 6 procs on 73 lone units (Execute 4 on 37 and Mocking Blow 0
+on 1 and Mongoose Bite 2 on 35), left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms,
+227 isolated hits. Dropping the swapped stretches (5.8 active minutes, 3% of hits, in 1 run) moved the read from 1.75 to
+1.80. The paladin check, which sets no rate: lone white swings 2.95, 83 procs on 582 lone units, 9 wearers. Left out: 50
+of 76 runs in Cat or Bear Form. One run logged in two reports counts once. Reports from 2026-11-10 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
-| Warrior |       3 |   291 | 3,403 | 1.77 |
-| Hunter  |      13 |   171 | 2,088 | 1.69 |
+| Warrior |       4 |   363 | 4,065 | 1.85 |
+| Hunter  |      20 |   182 | 2,187 | 1.72 |
 
-Reports and fights: 2zXhygVYpkrMZGxT 12-15; 7gWZKLnBmty1cT3J 1; 94fVcDCNBLztXh1k 1-12; FvqNn8XAhHD6M4pY 1-10, 13;
-HGn9XrYNPvwKtC1m 1-5; NR1k2zLFqKt7GXAD 6; RXDCK9PtZy3Jp2QA 1-3; VLmAcpbQxWf1CtaR 2-17; X47TDyBdAh2nQ6LK 1-10;
-YHXAcJxWG89pMFgf 1-9; bhyYq9HXd4xvAwtJ 1-13, 15; ghWq2C84BJj9bQHd 2-4; jZtdhVaHckGN72L9 1-11; rDJL7nqX1VZHm9zk 1-8;
-tk86znZXxMCdwBKb 18; xwrkGVNA2Z7Hq4fW 1; zTbHr3BPvKxRCMZg 9.
+Reports and fights: 1javmtD7nfNHYJZM 1-3; 2zXhygVYpkrMZGxT 12-15; 3HRN4JXQaDqGFAKp 1-2; 7gWZKLnBmty1cT3J 1;
+94fVcDCNBLztXh1k 1-12; 9pJCQk8gz1byGr64 1; FvqNn8XAhHD6M4pY 1-10, 13; HGn9XrYNPvwKtC1m 1-5; HJFN3LKMXkWm7rab 1-18;
+NR1k2zLFqKt7GXAD 6; RXDCK9PtZy3Jp2QA 1-3; VLmAcpbQxWf1CtaR 2-17; X47TDyBdAh2nQ6LK 1-10; YHXAcJxWG89pMFgf 1-9;
+bhyYq9HXd4xvAwtJ 1-13, 15; ghWq2C84BJj9bQHd 2-4; j3F9NHxqtagPYGkJ 1; jZtdhVaHckGN72L9 1-11; p7ATmV4HqZRdFwLX 19-22;
+pGBPWgMrL9KkQZRm 1-2; qcxrZQG46pzKRbfC 1; rDJL7nqX1VZHm9zk 1-8; tk86znZXxMCdwBKb 18; xjZknJqzfC82b3VA 1-9;
+xwrkGVNA2Z7Hq4fW 1; yVcJHz7DjAWKdv8T 1; zTbHr3BPvKxRCMZg 9.
 
 ## Plaguefang (item 279876, spell 1309315): 2, measured
 
@@ -244,26 +254,28 @@ abilities, priced as one roll: 0.00, 0 procs on 1 lone unit. Direct: window [-11
 Reports and fights: 2qMm9WvRpzYx3GaB 1-2; 4hHBvakRnT7p1GVK 6-7; DmjBrYd7M9VZwCHF 14-22; YZkH8CA3wQxNc1hB 7;
 Ya9kKCWRwqjFpgz1 3-4; fMLcHzyZvt7QTCmg 1-9; nyAx3XNDVmYWGdrh 1-6; pNKJR39CwGnmXtbL 1; y6FZRHQnckD8YjAC 5.
 
-## Wraith Scythe (item 11920, spell 16414): 3.45, measured
+## Wraith Scythe (item 11920, spell 16414): 3.65, measured
 
-- Count: §Count of the 2026-11-06 to 2026-11-21 reports
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
 
-1,136 procs on 8,989 rolling hits, 8 wearers, 8 runs, in the main hand: all hits 3.45 [3.17, 3.73]. The rate is all
-hits, which the one-hand white rate and the specials rate agree with. One-hand white: 3.09 [2.75, 3.46], 218 procs on
-1,922 lone units, 5 wearers. Dual-wield white: 2.54 [1.93, 2.80], 40 procs on 430 lone units, 3 wearers. Specials: 3.81
-[2.88, 4.25], 141 procs on 1,008 lone units, 7 wearers. Two-roll abilities, priced as one roll: 4.70, 5 procs on 29 lone
-units. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 286 isolated hits. Dropping the swapped
-stretches (19 active minutes, 7% of hits, in 1 run) moved the read from 3.22 to 3.45. By report date: before 2026-11-18
-3.57 (443 procs); from 2026-11-18 to push 114313 3.37 (693 procs). Reports from 2026-11-14 to 2026-11-20.
+2,009 procs on 14,996 rolling hits, 12 wearers, 13 runs, in the main hand: all hits 3.65 [3.42, 3.85]. The rate is all
+hits, which the one-hand white and specials rates agree with. One-hand white: 3.29 [2.90, 3.82], 294 procs on 2,436 lone
+units, 7 wearers. Dual-wield white, which sets no rate: 2.92 [2.43, 3.07], 155 procs on 1,450 lone units, 5 wearers.
+Specials: 3.96 [3.45, 4.29], 218 procs on 1,501 lone units, 11 wearers; Revenge gives 84 procs on 616 of them. Two-roll
+abilities, priced as one roll: 3.96, 18 procs on 124 lone units (Execute 18 on 123 and Mongoose Bite 0 on 1), left out
+of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 453 isolated hits. Dropping the swapped
+stretches (69 active minutes, 10% of hits, in 3 runs) moved the read from 3.28 to 3.65. The paladin check, which sets no
+rate: lone white swings 4.01, 51 procs on 347 lone units, 5 wearers. Reports from 2026-11-14 to 2026-11-22.
 
-| Class   | Wearers | Procs |  Hits |  PPM |
-| ------- | ------: | ----: | ----: | ---: |
-| Warrior |       6 |   849 | 6,899 | 3.36 |
-| Rogue   |       1 |   247 | 1,760 | 3.83 |
-| Hunter  |       1 |    40 |   330 | 3.30 |
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Warrior |       9 | 1,599 | 12,067 | 3.61 |
+| Rogue   |       1 |   247 |  1,755 | 3.84 |
+| Hunter  |       2 |   163 |  1,174 | 3.79 |
 
-Reports and fights: B6JLrnWKF9htyjv2 1; DZjKqdLXkBztYJTC 1; p1VPMyG8jgR6Ymc7 1-4; PtKXrwfj8zBHm2Gy 7-8; PtmYHjkDrqhdR9MA
-1-6, 9-10; XPgHryZdABkRDhwV 3; YnVFyQq3w28mr41R 1; ZQtv6AqYmdJFWwhy 7-8.
+Reports and fights: B6JLrnWKF9htyjv2 1; DZjKqdLXkBztYJTC 1; JChQqKVgLWykANRr 9-46; PtKXrwfj8zBHm2Gy 7-8;
+PtmYHjkDrqhdR9MA 1-6, 9-10; RBpWJ7zM9N3TDGQc 1; Ta4fLJj32kWzmXgw 1-29; XPgHryZdABkRDhwV 3; YnVFyQq3w28mr41R 1;
+ZQtv6AqYmdJFWwhy 7-8; h4gWnT3HLBbYzMcK 1; p1VPMyG8jgR6Ymc7 1-4; zxtbh1BmNVC8W2FH 10-14, 16-21.
 
 ## Wyvern Tailspike (item 5752, spell 16400): 2.05, observed
 
@@ -304,7 +316,7 @@ lone-unit checks, swap drop and credit windows are this file's.
 A rate is measured where a lone-unit rate of 50 or more procs (lone one-hand white swings or specials) overlaps the
 all-hits interval, and 5 or more wearers of more than one class give an all-hits interval within 10% of the rate either
 side. The rate is the all-hits rate rounded to the nearest 0.05. A lone-unit interval from under 5 wearers is a Poisson
-interval. On Wraith Scythe every class past the first is one wearer.
+interval.
 
 Each section's read by report date is the all-hits rate over the reports that start before 2026-11-18, from then to push
 114313, and after it.
@@ -312,3 +324,17 @@ Each section's read by report date is the all-hits rate over the reports that st
 Scripts and inputs, in `forever-notices-1121`: `results.json`, the counts of `forever-sweep-auto/analyze.py` (version
 12, as EV-0157's, with the paladin check that sets no rate) run with `--items items.txt --census census_used.json`;
 `report.py`, the call per weapon (`rep_final.json`); and `dates.py`, the report dates (`dates_final.json`).
+
+## Count of the 2026-11-06 to 2026-11-22 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
+  lists, from every wearer stream on disk for its weapon; 3,486 reports in all for the count, 47 of them for these
+  weapons
+- Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
+  02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
+  UTC); 705 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 13 of them for these weapons.
+  The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
+- Date: 2026-11-06 to 2026-11-22
+- Pull request: #1180
+
+The count is EV-0183 §Method, run on these weapons.

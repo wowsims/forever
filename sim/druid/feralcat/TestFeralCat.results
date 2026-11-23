@@ -104,17 +104,17 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BarmanShanker-12791"
  value: {
-  dps: 747.11651
-  tps: 556.25582
-  hps: 45.86861
+  dps: 748.19802
+  tps: 557.21062
+  hps: 45.9025
  }
 }
 dps_results: {
  key: "TestFeralCat-AllItems-Bashguuder-13204"
  value: {
-  dps: 738.51393
-  tps: 550.27018
-  hps: 46.34306
+  dps: 740.02723
+  tps: 551.4679
+  hps: 46.17361
  }
 }
 dps_results: {
@@ -336,8 +336,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Darrowspike-13984"
  value: {
-  dps: 748.13183
-  tps: 556.9688
+  dps: 747.40835
+  tps: 556.45513
   hps: 46.15667
  }
 }
@@ -464,8 +464,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 751.5763
-  tps: 559.51271
+  dps: 751.34186
+  tps: 559.34626
   hps: 46.2075
  }
 }
@@ -752,8 +752,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 731.2244
-  tps: 545.01927
+  dps: 731.13028
+  tps: 544.95245
   hps: 46.2075
  }
 }
@@ -840,8 +840,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-GlacialBlade-19099"
  value: {
-  dps: 751.68217
-  tps: 559.58349
+  dps: 751.47042
+  tps: 559.43315
   hps: 46.2075
  }
 }
@@ -920,17 +920,17 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-GryphonRider'sStormhammer-9651"
  value: {
-  dps: 721.40822
-  tps: 538.0335
+  dps: 721.29586
+  tps: 537.95372
   hps: 46.00417
  }
 }
 dps_results: {
  key: "TestFeralCat-AllItems-GutRipper-2164"
  value: {
-  dps: 731.01768
-  tps: 544.99007
-  hps: 46.13972
+  dps: 729.22316
+  tps: 543.66837
+  hps: 46.10583
  }
 }
 dps_results: {
@@ -944,8 +944,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 739.30617
-  tps: 550.73031
+  dps: 739.48088
+  tps: 550.85435
   hps: 46.08889
  }
 }
@@ -984,8 +984,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-HeartofWyrmthalak-22321"
  value: {
-  dps: 811.33316
-  tps: 602.08687
+  dps: 811.57311
+  tps: 602.25723
   hps: 45.98722
  }
 }
@@ -1024,8 +1024,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-HookfangShanker-11635"
  value: {
-  dps: 732.9111
-  tps: 546.159
+  dps: 732.74309
+  tps: 546.03971
   hps: 46.17361
  }
 }
@@ -1120,9 +1120,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Jom-jom'sGabbar-274952"
  value: {
-  dps: 704.41419
-  tps: 526.31663
-  hps: 46.02111
+  dps: 704.56163
+  tps: 526.33784
+  hps: 46.00417
  }
 }
 dps_results: {
@@ -1248,8 +1248,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Malown'sSlam-13393"
  value: {
-  dps: 781.2503
-  tps: 580.67159
+  dps: 781.37655
+  tps: 580.76122
   hps: 45.98722
  }
 }
@@ -1480,8 +1480,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-SearingNeedle-12531"
  value: {
-  dps: 727.14945
-  tps: 542.10838
+  dps: 727.24357
+  tps: 542.17519
   hps: 46.2075
  }
 }
@@ -1512,8 +1512,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Shadowblade-2163"
  value: {
-  dps: 746.34098
-  tps: 555.99303
+  dps: 745.83541
+  tps: 555.63408
   hps: 46.52944
  }
 }
@@ -1720,8 +1720,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 740.04891
-  tps: 551.28584
+  dps: 739.9632
+  tps: 551.22499
   hps: 46.2075
  }
 }

@@ -1,8 +1,10 @@
 # EV-0133: Heart of Wyrmthalak procs per minute on melee and ranged hits
 
-- Claim: Heart of Wyrmthalak (22321) casts Flame Lash 1.85 times a minute on landed melee and ranged hits, each hit on
-  its own weapon's speed and Auto Shot and ranged specials on the ranged weapon's, with no cooldown; Volley never
-  procs it, nor Shank up to 2026-11-19, and its damage is tripled against orcs.
+- Claim: Heart of Wyrmthalak (22321) casts Flame Lash 1.95 times a minute on landed melee and ranged hits, each hit on
+  its own weapon's speed and Auto Shot and ranged specials on the ranged weapon's, with no cooldown; the rate is
+  measured. Shield Slam and Shield Bash roll it; Volley, debuff-only landings (Sunder Armor, Rend's landing, stings) and
+  Sap and Death Mark never do, nor Shank up to 2026-11-19. A proc on each of two targets is two procs. Its damage is
+  tripled against orcs.
 - Sources: Warcraft Logs, the 7 players whose every gear snapshot shows the trinket in 813rPaLtcdpHy67q,
   Hwq97xLh6gv8ZPrY, KPwXNByAG2xQm9ra, NXMZV9xjvWpB7GtP (two players), bYaT9KXtGwqvV6d4 and dvkzFtPH3WR9C4Km, and the
   one hunter of KA9rqdFTWzt1mpxN; all fights
@@ -37,8 +39,8 @@ quiver. Each rate carries a 95% likelihood interval from the hits and one from 2
 | Volley                   | 2       | 0 / 2,941           | 0        |              |              |
 | Shank                    | 4       | 0 / 593             | 0        |              |              |
 
-A flat chance per hit fits worse: the best one, 8.3%, has a log likelihood of -3,219.3 against -3,201.7 for procs per
-minute. Auto Shot alone shows the speed: 7.05% of landed shots at a 2.2 s bow, 12.9% at 3.1 s and 11.25% at 3.3 s.
+A flat chance per hit fits worse: the best one, 8.3%, has a log likelihood of -3,219.3 against -3,201.7 for the best
+rate per minute. Auto Shot alone shows the speed: 7.05% of landed shots at a 2.2 s bow, 12.9% at 3.1 s and 11.25% at 3.3 s.
 
 Two procs land as little as 9 ms apart, and 54 of the 929 gaps between procs are under a second, so it has no
 cooldown. Flame Lash's normal hits deal 111 to 218 (the row's 112 to 168 and the wearers' damage bonuses), and about
@@ -48,29 +50,31 @@ cooldown. Flame Lash's normal hits deal 111 to 218 (the row's 112 to 168 and the
 
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 - Proc: equip proc 27656
-- Rate: 1.85 PPM, observed
+- Rate: 1.95 PPM, measured
 
-37,800 procs on 514,815 rolling hits, 183 wearers, 262 runs, on melee and ranged hits: all hits 1.87 [1.84, 1.90]. The
-rate is all hits; the lone Auto Shot rate and the specials rate agree with it and the one-hand white rate reads above
-its interval. Observed: the one-hand white rate disagrees. One-hand white: 2.02 [1.92, 2.12], 1,932 procs on 19,772 lone
-units, 81 wearers. Dual-wield white, which sets no rate: 1.95 [1.91, 2.00], 6,648 procs on 104,432 lone units, 103
-wearers. Lone Auto Shots: 1.99 [1.85, 2.10], 1,054 procs on 10,805 lone units, 88 wearers. Specials: 1.85 [1.74, 1.94],
-2,759 procs on 33,504 lone units, 158 wearers; Sinister Strike gives 1,288 procs on 14,004 of them. Two-roll abilities,
-priced as one roll: 2.16, 204 procs on 2,072 lone units (Execute 157 on 1,655 and Mongoose Bite 47 on 417), left out of
-the rate. Direct: window [-9, 100] ms, median 31 ms, 98th percentile 48 ms, 8,025 isolated hits. Dropping the swapped
-stretches (246 active minutes, 2% of hits, in 13 runs) moved the read from 1.83 to 1.87. The paladin check, which sets
-no rate: lone white swings 1.92, 117 procs on 1,160 lone units, 21 wearers. Left out: 11 of 273 runs in Cat or Bear
-Form. 4 runs logged in two reports count once. From 2026-11-20 the count takes each Shank as an off-hand roll (EV-0155
-§Shank from 2026-11-20). Shield Slam, which the count takes as no roll, logs a proc after 276 of its 3,479 lone units,
-1.09 times the same classes' white swing chance. Reports from 2026-11-10 to 2026-11-22.
+38,228 procs on 498,149 rolling hits, 183 wearers, 262 runs, on melee and ranged hits: all hits 1.96 [1.94, 1.98]. The
+rate is all hits, which the one-hand white, lone Auto Shot and specials rates agree with. One-hand white: 2.02 [1.92,
+2.12], 1,932 procs on 19,772 lone units, 81 wearers. Dual-wield white, which sets no rate: 1.95 [1.91, 2.00], 6,624
+procs on 104,023 lone units, 102 wearers. Lone Auto Shots: 1.99 [1.85, 2.10], 1,054 procs on 10,805 lone units, 88
+wearers. Specials: 2.01 [1.94, 2.07], 2,758 procs on 31,016 lone units, 158 wearers; Sinister Strike gives 1,288 procs
+on 14,004 of them. Two-roll abilities, priced as one roll: 2.16, 204 procs on 2,072 lone units (Execute 157 on 1,655 and
+Mongoose Bite 47 on 417), left out of the rate. Direct: window [-9, 100] ms, median 31 ms, 98th percentile 48 ms, 8,025
+isolated hits. Dropping the swapped stretches (245 active minutes, 2% of hits, in 13 runs) moved the read from 1.92 to
+1.96. The paladin check, which sets no rate: lone white swings 1.92, 117 procs on 1,160 lone units, 21 wearers. Left
+out: 11 of 273 runs in Cat or Bear Form. 4 runs logged in two reports count once. Debuff-only landings roll nothing:
+lone ones give 0 procs on 4,340 melee landings and 1 on 2,115 ranged ones, where the wearers' white chance predicts 298
+and 199, so the count leaves 14,178 such landings out, and 312 Sap and Death Mark landings. Shield Slam and Shield Bash
+count as rolls, and from 2026-11-20 Shank counts as an off-hand roll (EV-0155 §Shank from 2026-11-20). A proc that lands
+on two targets counts once on each (428 procs). The 1,855 procs and 8,168 hits within the window of a killing blow or a
+two-roll ability are left out. Reports from 2026-11-10 to 2026-11-22.
 
 | Class   | Wearers |  Procs |    Hits |  PPM |
 | ------- | ------: | -----: | ------: | ---: |
-| Rogue   |      67 | 15,928 | 241,756 | 1.89 |
-| Warrior |      49 | 11,472 | 158,545 | 1.81 |
-| Hunter  |      41 |  5,448 |  70,587 | 1.85 |
-| Shaman  |      24 |  4,951 |  43,913 | 1.98 |
-| Mage    |       2 |      1 |      14 | 2.03 |
+| Rogue   |      67 | 15,929 | 235,281 | 1.95 |
+| Warrior |      49 | 11,868 | 152,872 | 1.95 |
+| Hunter  |      41 |  5,477 |  66,826 | 1.98 |
+| Shaman  |      24 |  4,953 |  43,157 | 2.02 |
+| Mage    |       2 |      1 |      13 | 2.17 |
 
 Reports and fights: 123jYCvkVGrHfXWt 1-3, 20, 22-23, 27-30; 1JLq46yg7wYNhan9 17-28; 1TFWH4Yy38KhXMwx 6; 1ZyhaVDdFtTYWMcC
 1-7, 9-12; 1b7PdYR4HhDXBGT6 1-8, 10-14; 27jZGhfHgp1LR8MB 8-11; 2H1VAy3MDrRndPvw 6; 2RPhk6zxZyLjgn4B 1-3;
@@ -130,10 +134,10 @@ yVp9KT3QkzhmZXDR 1; z8QPNWpMBx4VgdDX 1; zBx9XMQPdpW36a2D 1-4; zWQLAnHTjq4RJCby 1
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate lists, from every wearer
-  stream on disk for the trinket; 1,703 reports in all for the count, 256 of them for the trinket
+  stream on disk for the trinket; 3,486 reports in all for the count, 256 of them for the trinket
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 416 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 87 of them for the trinket. The
+  UTC); 705 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 87 of them for the trinket. The
   sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

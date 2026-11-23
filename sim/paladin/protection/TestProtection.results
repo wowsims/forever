@@ -128,9 +128,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-AxeoftheDeepWoods-811"
  value: {
-  dps: 413.16689
-  tps: 968.22915
-  dtps: 337.11916
+  dps: 412.4593
+  tps: 967.08356
+  dtps: 337.1534
   hps: 17.04611
  }
 }
@@ -155,10 +155,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Bashguuder-13204"
  value: {
-  dps: 408.87974
-  tps: 988.55005
-  dtps: 341.27408
-  hps: 21.8075
+  dps: 407.63384
+  tps: 986.0605
+  dtps: 340.96
+  hps: 21.75667
  }
 }
 dps_results: {
@@ -371,9 +371,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BrushCutter-274265"
  value: {
-  dps: 401.71567
-  tps: 953.29524
-  dtps: 337.35735
+  dps: 401.53628
+  tps: 952.55272
+  dtps: 337.35093
   hps: 16.80889
  }
 }
@@ -641,8 +641,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-EateroftheDead-10805"
  value: {
-  dps: 404.42347
-  tps: 969.13478
+  dps: 405.12895
+  tps: 970.67233
   dtps: 335.29966
   hps: 19.23194
  }
@@ -947,10 +947,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Firebreather-10797"
  value: {
-  dps: 408.46585
-  tps: 974.34911
-  dtps: 335.47398
-  hps: 19.23194
+  dps: 409.09706
+  tps: 975.01461
+  dtps: 335.55542
+  hps: 19.24889
  }
 }
 dps_results: {
@@ -965,8 +965,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 409.3116
-  tps: 980.02658
+  dps: 409.25974
+  tps: 979.91077
   dtps: 336.27787
   hps: 21.045
  }
@@ -1181,19 +1181,19 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-GryphonRider'sStormhammer-9651"
  value: {
-  dps: 398.43203
-  tps: 948.35821
-  dtps: 337.05771
+  dps: 398.17769
+  tps: 947.97042
+  dtps: 337.0014
   hps: 17.04611
  }
 }
 dps_results: {
  key: "TestProtection-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 405.59986
-  tps: 976.10694
-  dtps: 342.49441
-  hps: 20.5875
+  dps: 405.7126
+  tps: 972.81976
+  dtps: 341.40084
+  hps: 20.65528
  }
 }
 dps_results: {
@@ -1208,10 +1208,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 412.27092
-  tps: 979.22016
-  dtps: 339.40811
-  hps: 19.87583
+  dps: 412.78333
+  tps: 980.39822
+  dtps: 339.48846
+  hps: 19.89278
  }
 }
 dps_results: {
@@ -1244,10 +1244,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HeartofWyrmthalak-22321"
  value: {
-  dps: 411.06818
-  tps: 970.37137
-  dtps: 344.37483
-  hps: 18.02889
+  dps: 411.77329
+  tps: 971.87878
+  dtps: 344.51692
+  hps: 18.04583
  }
 }
 dps_results: {
@@ -1307,10 +1307,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 426.13989
-  tps: 996.09977
-  dtps: 338.74355
-  hps: 20.53667
+  dps: 425.25023
+  tps: 994.15776
+  dtps: 339.06326
+  hps: 20.57056
  }
 }
 dps_results: {
@@ -1550,8 +1550,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Linken'sSwordofMastery-11902"
  value: {
-  dps: 412.69145
-  tps: 987.96231
+  dps: 413.20832
+  tps: 988.47864
   dtps: 340.93585
   hps: 22.09556
  }
@@ -1766,8 +1766,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-PhantomBlade-7961"
  value: {
-  dps: 406.00304
-  tps: 988.03954
+  dps: 405.9784
+  tps: 988.00678
   dtps: 341.0316
   hps: 23.92556
  }
@@ -1910,10 +1910,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Rivenspike-13286"
  value: {
-  dps: 400.21117
-  tps: 952.48579
-  dtps: 339.68863
-  hps: 16.48694
+  dps: 401.00448
+  tps: 949.51198
+  dtps: 341.17445
+  hps: 16.47
  }
 }
 dps_results: {
@@ -2063,10 +2063,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SkullforgeReaver-13361"
  value: {
-  dps: 413.83608
-  tps: 981.16437
-  dtps: 334.55354
-  hps: 29.03194
+  dps: 413.68092
+  tps: 979.68678
+  dtps: 334.65477
+  hps: 28.85986
  }
 }
 dps_results: {
@@ -2243,10 +2243,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 413.32994
-  tps: 987.50848
-  dtps: 340.88686
-  hps: 22.02778
+  dps: 413.35142
+  tps: 988.49779
+  dtps: 340.73752
+  hps: 22.04472
  }
 }
 dps_results: {
@@ -2648,8 +2648,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-WraithScythe-11920"
  value: {
-  dps: 410.49286
-  tps: 976.4108
+  dps: 410.77871
+  tps: 976.41734
   dtps: 335.29966
   hps: 19.23194
  }

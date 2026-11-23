@@ -706,9 +706,9 @@ var Spells = []Override{
 	{
 		SpellID: 27656,
 		Field:   PPM,
-		Value:   1.85,
-		Reason:  "Heart of Wyrmthalak: 1.85 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none; a log fit not yet validated (EV-0133)",
-		Source:  "observed",
+		Value:   1.95,
+		Reason:  "Heart of Wyrmthalak: 1.95 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none",
+		Source:  "EV-0133",
 	},
 	{
 		SpellID: 15594,

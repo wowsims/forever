@@ -69,13 +69,13 @@ var UnsupportedAbsorbBySpellID = map[int32]string{}
 // Items below core.MinEffectItemLevel whose effects are generated anyway, keyed by item ID with the reason
 // players still wear them.
 var EffectFloorExemptions = map[int32]string{
-	899:    "Venom Web Fang: rogues and hunters wear it for the Poison proc (EV-0183)",
-	3336:   "Flesh Piercer: rogues, warriors and hunters wear it for the Rend proc (EV-0183)",
-	3822:   "Runic Darkblade: warriors and hunters wear it for the Shadow Bolt proc (EV-0183)",
-	4449:   "Naraxis' Fang: rogues and hunters wear it for the Poison proc (EV-0183)",
+	899:    "Venom Web Fang: melee players wear it for the Poison proc (EV-0183)",
+	3336:   "Flesh Piercer: melee players wear it for the Rend proc (EV-0183)",
+	3822:   "Runic Darkblade: melee players wear it for the Shadow Bolt proc (EV-0183)",
+	4449:   "Naraxis' Fang: melee players wear it for the Poison proc (EV-0183)",
 	7284:   "Red Whelp Gloves: melee players wear them for the Firebolt proc (EV-0177)",
 	9449:   "Manual Crowd Pummeler: a level 60 melee swaps it in for its on-use attack speed",
-	282703: "Needletooth's Needletooth: rogues wear it for the Puncture proc (EV-0183)",
+	282703: "Needletooth's Needletooth: melee players wear it for the Puncture proc (EV-0183)",
 }
 
 var OtherItemIdsToFetch = []string{}

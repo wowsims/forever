@@ -49,17 +49,16 @@ seal up a swing procs the axe more often, so the seal's hit rolls it too. These 
 - Proc: weapon proc 18797
 - Rate: 1.75 PPM, observed
 
-2,047 procs on 47,102 rolling hits, 24 wearers, 35 runs, in the off hand: all hits 1.74 [1.67, 1.81]. The count finds no
+2,047 procs on 47,060 rolling hits, 24 wearers, 35 runs, in the off hand: all hits 1.74 [1.67, 1.81]. The count finds no
 isolated hit with a proc after it, so it measures no proc window and no lone-unit rate, and none checks the all-hits
 rate. Observed: no lone-unit rate checks it. Report PThANm6GzytHYDrd logs the same run as L7tdvhcYjgwHTrMz and counts
-once. Reports from 2026-11-12 to 2026-11-22. The owner takes this count's rate for the row (2026-11-22), in place of the
-rate this file's earlier count of off-hand white swings gave.
+once. Reports from 2026-11-12 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
 | Rogue   |      16 | 1,351 | 32,111 | 1.68 |
-| Warrior |       7 |   608 | 13,154 | 1.85 |
-| Hunter  |       1 |    88 |  1,837 | 1.92 |
+| Warrior |       7 |   608 | 13,126 | 1.85 |
+| Hunter  |       1 |    88 |  1,823 | 1.93 |
 
 Reports and fights: 4ChPnBrVK2fJLMaX 1-2, 4; 4azX71FvCjQgmJkc 1-2; 7faQXRhyZr6V32Fk 5-8, 10-13, 15-22, 24-28, 30-35;
 7mFKVrW6QLHy3fgk 1; 8qKTwcCyPgd4B3xZ 162-179; A1yxMTmKatkf3HRJ 1-44; ARMrB9JYb2D1TLZC 7-15; AXvy9JkawFZRgdNx 1, 3;
@@ -74,9 +73,9 @@ xzHZV7MFgNhWj9n4 1.
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate lists, from every wearer
-  stream on disk for the axe; 1,703 reports in all for the count, 36 of them for the axe
+  stream on disk for the axe; 3,486 reports in all for the count, 36 of them for the axe
 - Game build: 1.60.1.70888 to 1.60.1.71037 by report date (70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19
-  UTC, 71037 from 2026-11-20 18:23 UTC); 416 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC),
+  UTC, 71037 from 2026-11-20 18:23 UTC); 705 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC),
   14 of them for the axe. The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

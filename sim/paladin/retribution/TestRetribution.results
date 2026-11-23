@@ -110,10 +110,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-AxeofInevitableRuin-274484"
  value: {
-  dps: 819.3958
-  tps: 672.54119
-  dtps: 6.70294
-  hps: 28.29502
+  dps: 817.60178
+  tps: 671.24285
+  dtps: 6.91872
+  hps: 28.27553
  }
 }
 dps_results: {
@@ -209,9 +209,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BlackbladeofShahram-12592"
  value: {
-  dps: 893.06532
-  tps: 731.60587
-  dtps: 7.30143
+  dps: 893.6195
+  tps: 732.20335
+  dtps: 7.49445
   hps: 26.63158
  }
 }
@@ -227,10 +227,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BlackhandDoomsaw-12583"
  value: {
-  dps: 899.37782
-  tps: 734.71265
-  dtps: 5.96692
-  hps: 26.29253
+  dps: 906.64225
+  tps: 740.45425
+  dtps: 5.51303
+  hps: 26.46841
  }
 }
 dps_results: {
@@ -551,10 +551,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DiabolicSkiver-9475"
  value: {
-  dps: 827.5931
-  tps: 678.55887
-  dtps: 6.11743
-  hps: 28.82775
+  dps: 829.80164
+  tps: 680.39854
+  dtps: 5.7779
+  hps: 29.00364
  }
 }
 dps_results: {
@@ -893,9 +893,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-FieryWarAxe-870"
  value: {
-  dps: 857.83864
-  tps: 700.65634
-  dtps: 5.16628
+  dps: 859.59342
+  tps: 702.21218
+  dtps: 5.14636
   hps: 26.28693
  }
 }
@@ -1136,9 +1136,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-HeartofWyrmthalak-22321"
  value: {
-  dps: 899.62468
-  tps: 734.13222
-  dtps: 4.71892
+  dps: 899.64937
+  tps: 734.4294
+  dtps: 5.00601
   hps: 25.29992
  }
 }
@@ -1442,8 +1442,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Malown'sSlam-13393"
  value: {
-  dps: 902.4602
-  tps: 736.6624
+  dps: 902.53119
+  tps: 736.7192
   dtps: 5.10059
   hps: 25.54816
  }
@@ -1559,10 +1559,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Nightblade-1982"
  value: {
-  dps: 855.84348
-  tps: 699.87677
-  dtps: 5.72967
-  hps: 26.6448
+  dps: 854.94893
+  tps: 699.20444
+  dtps: 5.66986
+  hps: 26.64429
  }
 }
 dps_results: {
@@ -1604,10 +1604,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 882.36635
-  tps: 719.83822
-  dtps: 4.3495
-  hps: 25.1137
+  dps: 882.24325
+  tps: 720.07736
+  dtps: 5.12123
+  hps: 25.13319
  }
 }
 dps_results: {
@@ -2063,10 +2063,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 918.81684
-  tps: 749.8489
-  dtps: 5.67622
-  hps: 25.24451
+  dps: 925.89497
+  tps: 754.96585
+  dtps: 5.28408
+  hps: 25.17995
  }
 }
 dps_results: {
@@ -2450,10 +2450,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-X'caliboar-10758"
  value: {
-  dps: 807.2679
-  tps: 660.75783
-  dtps: 5.41129
-  hps: 26.61159
+  dps: 806.74771
+  tps: 660.50991
+  dtps: 6.12812
+  hps: 26.61311
  }
 }
 dps_results: {
