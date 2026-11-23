@@ -340,6 +340,7 @@ more than the four armor slots left.
 - Game build: 1.60.1.71037; a hotfix went out on 2026-11-23, and the one the log ran on and whether the player relogged
   are not recorded
 - Date: 2026-11-23
+- Pull request: #1190
 
 The druid's last energy reading in Cat Form is 16, 0.70 s before it leaves. At the 9 to 10 a second its readings in
 Cat Form climb by, it leaves with about 22, the energy its player read. It spends 0.31 s in caster form and 324 s in
