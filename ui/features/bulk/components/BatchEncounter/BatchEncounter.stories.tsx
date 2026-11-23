@@ -29,9 +29,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Current encounter is picked: the batch uses the Encounter tab.
-export const Off: Story = {};
+export const Current: Story = {};
 
-export const On: Story = {
+export const Picked: Story = {
 	args: { picked: BulkEncounterRef.create({ name: 'Patchwerk', preset: true }), summary: '5:00 ±30s · 1 target' },
 	play: async ({ canvasElement }) => {
 		await expect(within(canvasElement).getByRole('combobox').textContent).toBe('Patchwerk');

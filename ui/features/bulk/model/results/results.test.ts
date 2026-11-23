@@ -42,7 +42,8 @@ const rotationNamed = (name: string, rotation: APLRotation): BulkRotationSetup =
 
 const simple = (specRotationJson: string) => APLRotation.create({ type: APLRotationType.TypeSimple, simple: { specRotationJson } });
 
-const metrics = (avg: number) => DistributionMetrics.create({ avg, stdev: 10 });
+// `n` is the iterations the row ran at, which a tie with the current gear reads when the row has no paired error.
+const metrics = (avg: number, n = 100) => DistributionMetrics.create({ avg, stdev: 10, aggregatorData: { n, sumSq: 0 } });
 
 const ALL = 0;
 
@@ -66,8 +67,8 @@ const request = (
 	settings,
 	setups,
 	result: {
-		referenceDpsMetrics: metrics(reference),
-		topGearResults: rows.map(([gear, avg, extra]) => ({ gear, dpsMetrics: metrics(avg), ...extra })),
+		referenceDpsMetrics: metrics(reference, iterations),
+		topGearResults: rows.map(([gear, avg, extra]) => ({ gear, dpsMetrics: metrics(avg, iterations), ...extra })),
 		iterations,
 		metrics: {},
 	},
@@ -91,7 +92,7 @@ describe('rankEncounterResults', () => {
 		const { chains, originalGearResults, referenceIsCurrent, currentGear } = rankEncounterResults(
 			[
 				referenceRequest(CURRENT_TALENT_SETUP, 1000, [
-					[set2, 1100, { backendRank: 0, pairedErrorToBaseline: 3 }],
+					[set2, 1100, { backendRank: 0, pairedErrorToBaseline: 3, pairedDpsDiffToBaseline: 100 }],
 					[current, 1050],
 					[set3, 1020],
 				]),
@@ -100,7 +101,7 @@ describe('rankEncounterResults', () => {
 			ALL,
 		);
 		expect(chains.flat().map(r => r.dpsMetrics.avg)).toEqual([1100, 1020, 1000]);
-		expect(chains.flat()[0].pairedErrorToBaseline).toBe(3);
+		expect([chains.flat()[0].pairedErrorToBaseline, chains.flat()[0].pairedDpsDiffToBaseline]).toEqual([3, 100]);
 		expect(originalGearResults.talents).toBe(CURRENT_TALENT_SETUP);
 		expect([referenceIsCurrent, currentGear]).toEqual([true, current]);
 	});
@@ -239,15 +240,25 @@ describe('rankEncounterResults', () => {
 		const rows = rankEncounterResults(
 			[
 				referenceRequest(CURRENT_TALENT_SETUP, 1000, [], { setups: { byGearKey: new Map(), baseline: null } }),
-				request(ARMS_SETUP, 900, [[set2, 1001, { backendRank: 0, pairedErrorToBaseline: 0.01, pairedErrorToNextResult: 0.01 }]], {
-					setups: { byGearKey: byGearKey(RAID_2), baseline: RAID_CURRENT },
-				}),
+				request(
+					ARMS_SETUP,
+					900,
+					[[set2, 1001, { backendRank: 0, pairedErrorToBaseline: 0.01, pairedDpsDiffToBaseline: 101, pairedErrorToNextResult: 0.01 }]],
+					{
+						setups: { byGearKey: byGearKey(RAID_2), baseline: RAID_CURRENT },
+					},
+				),
 			],
 			current,
 			ALL,
 		).chains;
 		const armsRow = rows.flat().find(r => r.talents === ARMS_SETUP && r.gear === set2)!;
-		expect([armsRow.backendRank, armsRow.pairedErrorToBaseline, armsRow.pairedErrorToNextResult]).toEqual([undefined, undefined, undefined]);
+		expect([armsRow.backendRank, armsRow.pairedErrorToBaseline, armsRow.pairedDpsDiffToBaseline, armsRow.pairedErrorToNextResult]).toEqual([
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+		]);
 		// Kept paired errors (0.01 against 1001) would split set2 from the reference, giving 3 chains. Dropped, 1001 against
 		// 1000 at a spread of 10 over 100 iterations ties unpaired, and the Arms baseline at 900 stands apart: 2 chains.
 		expect(rows).toHaveLength(2);

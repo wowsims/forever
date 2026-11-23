@@ -18,7 +18,7 @@ import { bulkSimHighStageFloor, resolveBulkSimTopResults, shouldUseSingleStageBu
 import { appendBulkSimNonFinalists, bulkSimCandidateResultToProto } from './merge';
 import { formatBulkSimStageSummary } from './progress';
 import { bulkSimStageConfigs, runConcurrentBulkSimFinalistStage, runConcurrentBulkSimStage, shouldRunBulkSimStage } from './stage';
-import { bulkSimPairedDpsError, cullBulkSimStage, topBulkSimResults } from './statistics';
+import { bulkSimPairedDpsError, cullBulkSimStage, setBulkSimPairedToBaseline, topBulkSimResults } from './statistics';
 import { ConcurrentBulkSimCandidateResult, getBulkSimBaselineGear } from './types';
 
 const makeAndSendBulkSimError = (err: string | ErrorOutcome, onProgress: WorkerProgressCallback): BulkSimResult => {
@@ -181,7 +181,7 @@ export const runConcurrentBulkSim = async (
 		if (idx + 1 < top.length) {
 			protoResult.pairedErrorToNextResult = bulkSimPairedDpsError(top[idx + 1].dpsMetrics, candidateResult.dpsMetrics) ?? 0;
 		}
-		protoResult.pairedErrorToBaseline = bulkSimPairedDpsError(candidateResult.dpsMetrics, finalBaseline.dpsMetrics) ?? 0;
+		setBulkSimPairedToBaseline(protoResult, candidateResult.dpsMetrics, finalBaseline.dpsMetrics);
 		return [protoResult];
 	});
 	if (request.cullToBaseline) {

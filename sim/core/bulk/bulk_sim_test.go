@@ -458,6 +458,57 @@ func TestCullBulkSimStageKeepsEveryCandidateNotClearlyBelowTheBaseline(t *testin
 	}
 }
 
+func TestCullBulkSimStageGivesEachCulledRowItsMeanPairedDifferenceToTheStageBaseline(t *testing.T) {
+	results, baseline := baselineCullFixture()
+	_, culled := cullBulkSimStage(&proto.BulkSimRequest{CullToBaseline: true}, results, baseline, 4, mediumBulkSimStageConfig, len(results), BulkSimDefaultTopResults)
+
+	for _, row := range culled {
+		// 13 trails each iteration by 30, 10, 30, 10, the rest by 1 each.
+		want := -1.0
+		if row.CandidateIndex == 13 {
+			want = -20
+		}
+		if math.Abs(row.PairedDpsDiffToBaseline-want) > 1e-9 {
+			t.Fatalf("culled row %d has a paired difference to the baseline of %v, want %v", row.CandidateIndex, row.PairedDpsDiffToBaseline, want)
+		}
+	}
+}
+
+// Each non-finalist sits on fixed per-iteration offsets to the high stage's baseline, so its paired difference is their
+// mean: 2 for candidate 1 and -8 for candidate 2.
+func TestAppendBulkSimNonFinalistsPairsEachRowWithTheHighStageBaseline(t *testing.T) {
+	highBaselineValues := []float64{1000, 1010, 990, 1000}
+	result := func(index int32, offsets []float64) *BulkSimCandidateResult {
+		values := make([]float64, len(highBaselineValues))
+		var sum float64
+		for idx, value := range highBaselineValues {
+			values[idx] = value + offsets[idx]
+			sum += values[idx]
+		}
+		return &BulkSimCandidateResult{
+			Candidate:  BulkSimCandidate{Index: index},
+			DpsMetrics: &proto.DistributionMetrics{Avg: sum / float64(len(values)), Stdev: 10, AllValues: values},
+		}
+	}
+	highBaseline := result(-1, []float64{0, 0, 0, 0})
+	finalist := result(0, []float64{50, 50, 50, 50})
+	highResults := []*BulkSimCandidateResult{finalist, result(1, []float64{6, -2, 4, 0}), result(2, []float64{-12, -4, -8, -8})}
+
+	rows := appendBulkSimNonFinalists(nil, []*BulkSimCandidateResult{finalist}, highResults, highBaseline)
+
+	if got, want := bulkSimGearResultIndexes(rows), []int32{1, 2}; !slices.Equal(got, want) {
+		t.Fatalf("appended rows %v, want %v", got, want)
+	}
+	for idx, want := range []float64{2, -8} {
+		if got := rows[idx].PairedDpsDiffToBaseline; math.Abs(got-want) > 1e-9 {
+			t.Fatalf("non-finalist %d has a paired difference to the baseline of %v, want %v", rows[idx].CandidateIndex, got, want)
+		}
+		if rows[idx].PairedErrorToBaseline <= 0 {
+			t.Fatalf("non-finalist %d has no paired error to the baseline", rows[idx].CandidateIndex)
+		}
+	}
+}
+
 func TestCullBulkSimStageWithoutTheFlagCullsAgainstTheLeader(t *testing.T) {
 	results, baseline := baselineCullFixture()
 	survivors, culled := cullBulkSimStage(&proto.BulkSimRequest{}, results, baseline, 4, mediumBulkSimStageConfig, len(results), BulkSimDefaultTopResults)
@@ -605,9 +656,13 @@ func TestBulkSimCullToBaselineReturnsEveryCandidate(t *testing.T) {
 	if got := len(result.TopResults); got <= BulkSimDefaultTopResults || got > 25 || got != int(medium.Survivors) {
 		t.Fatalf("got %d top results, want the medium stage's %d survivors, more than %d and at most 25", got, medium.Survivors, BulkSimDefaultTopResults)
 	}
-	for _, row := range result.TopResults {
+	for idx, row := range result.TopResults {
 		if row.CulledStage != proto.BulkSimStage_BulkSimStageUnknown {
 			t.Fatalf("top result %d has culled stage %v, want none", row.CandidateIndex, row.CulledStage)
+		}
+		// The finalists pair with the refined baseline the result returns.
+		if want := row.DpsMetrics.Avg - result.Baseline.DpsMetrics.Avg; idx < BulkSimDefaultTopResults && math.Abs(row.PairedDpsDiffToBaseline-want) > 1e-6 {
+			t.Fatalf("finalist %d has a paired difference of %v to the baseline, want %v", row.CandidateIndex, row.PairedDpsDiffToBaseline, want)
 		}
 	}
 	for _, row := range result.CulledResults {
@@ -622,6 +677,9 @@ func TestBulkSimCullToBaselineReturnsEveryCandidate(t *testing.T) {
 		}
 		if gap := medium.BaselineAvgDps - row.DpsMetrics.Avg; gap <= BulkSimZ95*row.PairedErrorToBaseline {
 			t.Fatalf("culled row %d trails the baseline by %v, not more than %v x its paired error %v", row.CandidateIndex, gap, BulkSimZ95, row.PairedErrorToBaseline)
+		}
+		if want := row.DpsMetrics.Avg - medium.BaselineAvgDps; math.Abs(row.PairedDpsDiffToBaseline-want) > 1e-6 {
+			t.Fatalf("culled row %d has a paired difference of %v to the baseline, want %v against the medium stage's", row.CandidateIndex, row.PairedDpsDiffToBaseline, want)
 		}
 	}
 

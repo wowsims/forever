@@ -18,6 +18,8 @@ vi.mock('@features/bulk/context/BulkBuildsContext', () => ({ BulkBuildsProvider:
 vi.mock('@features/bulk/components/BulkItemSearch', () => ({ BulkItemSearch: () => null }));
 vi.mock('@features/bulk/components/BulkPickerGroups', () => ({ BulkPickerGroups: () => null }));
 vi.mock('@features/bulk/components/BulkProgress', () => ({ BulkProgressDialog: () => null }));
+vi.mock('@features/bulk/components/DropsResults', () => ({ DropsResults: () => <div data-testid="drops-results-stub" /> }));
+vi.mock('@features/bulk/components/DropsSetup', () => ({ DropsSetup: () => <div data-testid="drops-setup-stub" /> }));
 vi.mock('@features/bulk/components/BulkSettings', () => ({ BulkSettings: () => <div data-testid="bulk-settings-stub" /> }));
 vi.mock('@features/bulk/components/BulkResults/BulkResultRow', () => ({
 	BulkResultRow: ({ result }: { result: TopGearResult }) => <div data-testid="row" data-avg={result.dpsMetrics.avg} />,
@@ -277,5 +279,44 @@ describe('BulkTabBody', () => {
 		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
 
 		expect(compareButton()).not.toBeNull();
+	});
+
+	it('shows the Drops setup in place of the item picker in Drops', () => {
+		const player = mount(null);
+		expect(screen.getByTestId('bulk-gear-actions')).toBeTruthy();
+		expect(screen.queryByTestId('drops-setup-stub')).toBeNull();
+
+		act(() => patchBulkState(player, { mode: 'drops' }));
+
+		expect(isShown(screen.getByTestId('drops-setup-stub'))).toBe(true);
+		expect(paneOf(screen.getByTestId('drops-setup-stub')).id).toBe('bulkSetupTab');
+		expect(screen.queryByTestId('bulk-gear-actions')).toBeNull();
+		expect(isShown(settings())).toBe(true);
+	});
+
+	it('shows the Drops results and the CSV button in Drops, Gear’s results untouched', () => {
+		const player = mount(THREE);
+		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
+		expect(screen.queryByTestId('drops-results-stub')).toBeNull();
+		expect(screen.getAllByTestId('row')).toHaveLength(2);
+
+		act(() =>
+			patchBulkState(player, {
+				mode: 'drops',
+				dropsStarted: true,
+				dropsResults: [entry('', [180, 5], 1300, true), entry('Patchwerk', [300, 30], 1200)],
+			}),
+		);
+
+		expect(isShown(screen.getByTestId('drops-results-stub'))).toBe(true);
+		expect(paneOf(screen.getByTestId('drops-results-stub')).id).toBe('bulkResultsTab');
+		expect(screen.queryAllByTestId('row')).toHaveLength(0);
+		expect(sidebar()!.contains(exportButton())).toBe(true);
+		expect(within(sidebar()!).queryByText('bulk_tab.compare.button')).toBeNull();
+
+		act(() => patchBulkState(player, { mode: 'gear' }));
+
+		expect(screen.queryByTestId('drops-results-stub')).toBeNull();
+		expect(shownBest()).toBe('1100');
 	});
 });

@@ -4594,6 +4594,19 @@
 							"additionalProperties": false,
 							"required": ["label", "description"]
 						},
+						"drops": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "description"]
+						},
 						"builds": {
 							"type": "object",
 							"properties": {
@@ -4609,7 +4622,340 @@
 						}
 					},
 					"additionalProperties": false,
-					"required": ["gear", "builds"]
+					"required": ["gear", "drops", "builds"]
+				},
+				"drops": {
+					"type": "object",
+					"properties": {
+						"sources": {
+							"type": "object",
+							"properties": {
+								"categories": {
+									"type": "object",
+									"properties": {
+										"drop": {
+											"type": "string"
+										},
+										"quest": {
+											"type": "string"
+										},
+										"crafted": {
+											"type": "string"
+										},
+										"rep": {
+											"type": "string"
+										},
+										"soldBy": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["drop", "quest", "crafted", "rep", "soldBy"]
+								},
+								"other_quests": {
+									"type": "string"
+								},
+								"other_vendors": {
+									"type": "string"
+								},
+								"world_drop": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["categories", "other_quests", "other_vendors", "world_drop"]
+						},
+						"items": {
+							"type": "object",
+							"properties": {
+								"tags": {
+									"type": "object",
+									"properties": {
+										"mh": {
+											"type": "string"
+										},
+										"oh": {
+											"type": "string"
+										},
+										"2h": {
+											"type": "string"
+										},
+										"r1": {
+											"type": "string"
+										},
+										"r2": {
+											"type": "string"
+										},
+										"t1": {
+											"type": "string"
+										},
+										"t2": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["mh", "oh", "2h", "r1", "r2", "t1", "t2"]
+								},
+								"worn": {
+									"type": "string"
+								},
+								"left_out": {
+									"type": "object",
+									"properties": {
+										"class_one": {
+											"type": "string"
+										},
+										"class_other": {
+											"type": "string"
+										},
+										"random_suffix_one": {
+											"type": "string"
+										},
+										"random_suffix_other": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["class_one", "class_other", "random_suffix_one", "random_suffix_other"]
+								}
+							},
+							"additionalProperties": false,
+							"required": ["tags", "worn", "left_out"]
+						},
+						"setup": {
+							"type": "object",
+							"properties": {
+								"sources_title": {
+									"type": "string"
+								},
+								"items_title": {
+									"type": "string"
+								},
+								"quick_picks": {
+									"type": "object",
+									"properties": {
+										"l60_dungeons": {
+											"type": "string"
+										},
+										"clear": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["l60_dungeons", "clear"]
+								},
+								"include_all": {
+									"type": "string"
+								},
+								"exclude_all": {
+									"type": "string"
+								},
+								"by_slot": {
+									"type": "string"
+								},
+								"by_source": {
+									"type": "string"
+								},
+								"left_out_summary_one": {
+									"type": "string"
+								},
+								"left_out_summary_other": {
+									"type": "string"
+								},
+								"left_out_reason": {
+									"type": "object",
+									"properties": {
+										"class": {
+											"type": "string"
+										},
+										"random_suffix": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["class", "random_suffix"]
+								},
+								"show": {
+									"type": "string"
+								},
+								"hide": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": [
+								"sources_title",
+								"items_title",
+								"quick_picks",
+								"include_all",
+								"exclude_all",
+								"by_slot",
+								"by_source",
+								"left_out_summary_one",
+								"left_out_summary_other",
+								"left_out_reason",
+								"show",
+								"hide",
+								"empty"
+							]
+						},
+						"results": {
+							"type": "object",
+							"properties": {
+								"current_gear": {
+									"type": "string"
+								},
+								"best_drop": {
+									"type": "string"
+								},
+								"best_boss": {
+									"type": "string"
+								},
+								"no_upgrade": {
+									"type": "string"
+								},
+								"view": {
+									"type": "object",
+									"properties": {
+										"bosses": {
+											"type": "string"
+										},
+										"items": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["bosses", "items"]
+								},
+								"upgrades_one": {
+									"type": "string"
+								},
+								"upgrades_other": {
+									"type": "string"
+								},
+								"view_label": {
+									"type": "string"
+								},
+								"best": {
+									"type": "string"
+								},
+								"worn": {
+									"type": "string"
+								},
+								"show_all_variations": {
+									"type": "string"
+								},
+								"variations_hidden_one": {
+									"type": "string"
+								},
+								"variations_hidden_other": {
+									"type": "string"
+								},
+								"filtered_by": {
+									"type": "string"
+								},
+								"clear_filter": {
+									"type": "string"
+								},
+								"low_precision": {
+									"type": "string"
+								},
+								"low_precision_tooltip": {
+									"type": "string"
+								},
+								"run_simulation": {
+									"type": "string"
+								},
+								"columns": {
+									"type": "object",
+									"properties": {
+										"rank": {
+											"type": "string"
+										},
+										"item": {
+											"type": "string"
+										},
+										"slot": {
+											"type": "string"
+										},
+										"source": {
+											"type": "string"
+										},
+										"dps": {
+											"type": "string"
+										},
+										"delta": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["rank", "item", "slot", "source", "dps", "delta"]
+								}
+							},
+							"additionalProperties": false,
+							"required": [
+								"current_gear",
+								"best_drop",
+								"best_boss",
+								"no_upgrade",
+								"view",
+								"upgrades_one",
+								"upgrades_other",
+								"view_label",
+								"best",
+								"worn",
+								"show_all_variations",
+								"variations_hidden_one",
+								"variations_hidden_other",
+								"filtered_by",
+								"clear_filter",
+								"low_precision",
+								"low_precision_tooltip",
+								"run_simulation",
+								"columns"
+							]
+						},
+						"run": {
+							"type": "object",
+							"properties": {
+								"items_picked": {
+									"type": "string"
+								},
+								"candidates": {
+									"type": "string"
+								},
+								"variants": {
+									"type": "string"
+								},
+								"notes": {
+									"type": "object",
+									"properties": {
+										"one_change": {
+											"type": "string"
+										},
+										"slots": {
+											"type": "string"
+										},
+										"hands": {
+											"type": "string"
+										},
+										"no_drop_chances": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["one_change", "slots", "hands", "no_drop_chances"]
+								}
+							},
+							"additionalProperties": false,
+							"required": ["items_picked", "candidates", "variants", "notes"]
+						}
+					},
+					"additionalProperties": false,
+					"required": ["sources", "items", "setup", "results", "run"]
 				},
 				"builds": {
 					"type": "object",
@@ -4739,10 +5085,13 @@
 						},
 						"simulate_batch": {
 							"type": "string"
+						},
+						"simulate_drops": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["import_bags", "import_favorites", "clear_items", "simulate_batch"]
+					"required": ["import_bags", "import_favorites", "clear_items", "simulate_batch", "simulate_drops"]
 				},
 				"search": {
 					"type": "object",
@@ -5425,6 +5774,7 @@
 				"download_native",
 				"tabs",
 				"modes",
+				"drops",
 				"builds",
 				"actions",
 				"search",

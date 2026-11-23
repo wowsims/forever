@@ -1,6 +1,17 @@
 import type { TopGearResult } from '@sim/bulk/types';
 import { Z_95, zTest } from '@sim/utils/math';
 
+/** Whether a row cannot be told apart from the baseline: its pairedDpsDiffToBaseline within Z_95 times its
+ * pairedErrorToBaseline when that error is > 0, else the unpaired zTest at each row's own dpsMetrics.aggregatorData.n.
+ * The pairing can be against an earlier stage's baseline than `baseline`, so a paired row never reads the shown baseline's mean. */
+export const isTiedWithBaseline = (row: TopGearResult, baseline: TopGearResult): boolean => {
+	if (row.pairedErrorToBaseline && row.pairedDpsDiffToBaseline !== undefined) {
+		return Math.abs(row.pairedDpsDiffToBaseline) <= Z_95 * row.pairedErrorToBaseline;
+	}
+	const n = (result: TopGearResult) => result.dpsMetrics.aggregatorData?.n ?? 0;
+	return !zTest(n(row), row.dpsMetrics.avg, row.dpsMetrics.stdev, n(baseline), baseline.dpsMetrics.avg, baseline.dpsMetrics.stdev).isDiff;
+};
+
 /**
  * Whether two adjacent results are indistinguishable, which decides where the results table draws a
  * "tied" bracket.
@@ -14,18 +25,16 @@ import { Z_95, zTest } from '@sim/utils/math';
  *
  * `backendRank` is what makes "immediately below" mean the backend's order rather than the display
  * order: the two differ, because the baseline row is spliced in and everything is re-sorted by DPS.
+ *
+ * A culled row ran fewer iterations than `iterations`, so the unpaired test would overstate its
+ * precision: it ties with the baseline only.
  */
 const pairTied = (upper: TopGearResult, lower: TopGearResult, baseline: TopGearResult | null, iterations: number): boolean => {
-	let pairedError: number | undefined;
-	if (upper === baseline) {
-		pairedError = lower.pairedErrorToBaseline;
-	} else if (lower === baseline) {
-		pairedError = upper.pairedErrorToBaseline;
-	} else if (upper.backendRank !== undefined && lower.backendRank === upper.backendRank + 1) {
-		pairedError = upper.pairedErrorToNextResult;
-	}
-	if (pairedError) {
-		return Math.abs(upper.dpsMetrics.avg - lower.dpsMetrics.avg) <= Z_95 * pairedError;
+	if (upper === baseline) return isTiedWithBaseline(lower, baseline);
+	if (lower === baseline) return isTiedWithBaseline(upper, baseline);
+	if (upper.culledStage !== undefined || lower.culledStage !== undefined) return false;
+	if (upper.backendRank !== undefined && lower.backendRank === upper.backendRank + 1 && upper.pairedErrorToNextResult) {
+		return Math.abs(upper.dpsMetrics.avg - lower.dpsMetrics.avg) <= Z_95 * upper.pairedErrorToNextResult;
 	}
 	return !zTest(iterations, upper.dpsMetrics.avg, upper.dpsMetrics.stdev, iterations, lower.dpsMetrics.avg, lower.dpsMetrics.stdev).isDiff;
 };

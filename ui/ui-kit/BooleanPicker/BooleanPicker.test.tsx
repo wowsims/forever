@@ -170,4 +170,13 @@ describe('BooleanPicker', () => {
 		render(<Harness />);
 		expect(checkbox().hasAttribute('aria-describedby')).toBe(false);
 	});
+
+	it('shows a mixed box and checks it on a press', async () => {
+		render(<Harness indeterminate />);
+		expect(checkbox().getAttribute('aria-checked')).toBe('mixed');
+		expect(checkbox().hasAttribute('data-indeterminate')).toBe(true);
+
+		fireEvent.click(checkbox());
+		expect(changes).toHaveBeenLastCalledWith(true);
+	});
 });

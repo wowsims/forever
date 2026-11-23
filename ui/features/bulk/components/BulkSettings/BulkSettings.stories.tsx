@@ -7,6 +7,8 @@ import { useState } from 'react';
 import { fn } from 'storybook/test';
 
 import { BatchEncounterView } from '../BatchEncounter';
+import { DropsEnchantPresetsView } from '../DropsEnchantPresets';
+import { DropsRunCountView } from '../DropsRunCount';
 import { BulkSettingsView, type BulkSettingsViewProps } from './BulkSettings';
 import { BulkTopResultsFieldView } from './BulkTopResultsField';
 import { CombinationsCountView } from './CombinationsCount';
@@ -61,7 +63,8 @@ const meta = {
 		onRun: fn(),
 		openGroups: ['freezes'],
 		onOpenGroupsChange: fn(),
-		groups: true,
+		groups: 'all',
+		runLabel: 'Simulate Batch',
 		enchants: (
 			<EnchantPresetsView
 				presets={[
@@ -106,7 +109,7 @@ export const PowerTools: Story = { args: { topResults: <BulkTopResultsFieldView 
 export const Builds: Story = {
 	args: {
 		topResults: <BulkTopResultsFieldView value={0} max={5000} onChange={fn()} />,
-		groups: false,
+		groups: 'none',
 		batchEncounter: null,
 		combinationsCount: (
 			<CombinationsCountView
@@ -116,6 +119,26 @@ export const Builds: Story = {
 				iterations={0}
 				iterationsLimit={1000000}
 				builds={{ setups: 6, bundles: 3, encounters: 2, runs: 6, builds: 12, totalIterations: 240000, largestRequestIterations: 60000 }}
+			/>
+		),
+	},
+};
+
+export const Drops: Story = {
+	args: {
+		groups: 'enchants',
+		runLabel: 'Simulate Drops',
+		openGroups: ['enchants'],
+		combinationsCount: <DropsRunCountView pending={false} ready picked={12} candidates={19} iterations={380000} iterationsLimit={1000000} error={null} />,
+		enchants: (
+			<DropsEnchantPresetsView
+				rows={[
+					{ ref: { name: 'Agility', preset: false }, name: 'Agility', summary: '2 slots.', checked: true, duplicate: false },
+					{ ref: { name: 'Cloaks', preset: false }, name: 'Cloaks', summary: '1 slot.', checked: false, duplicate: false },
+				]}
+				onCheckedChange={fn()}
+				onNew={fn()}
+				dialog={null}
 			/>
 		),
 	},

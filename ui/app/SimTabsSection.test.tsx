@@ -24,6 +24,8 @@ vi.mock('@sim/bulk/utils', async () => {
 vi.mock('@features/bulk/model/run/run', () => ({ runBulkBatch: vi.fn() }));
 // The stub host has none of the raid and player getters the live settings are read from.
 vi.mock('@features/settings/hooks/useCurrentSettings', () => ({ useCurrentSettings: () => null }));
+// The Drops pick reads the database and the live gear, which the stub host has none of.
+vi.mock('@features/bulk/hooks/useDropsSetup', () => ({ useDropsSetup: () => ({ ready: true, list: { items: [], leftOut: [] } }) }));
 vi.mock('@features/results/components/DetailedResults', () => ({ DetailedResults: () => null }));
 vi.mock('./tabs/GearTabBody', () => ({ GearTabBody: () => null }));
 vi.mock('./tabs/SettingsTabBody', () => ({ SettingsTabBody: () => null }));
@@ -122,17 +124,33 @@ beforeEach(() => {
 });
 
 describe('SimTabsSection batch tab', () => {
-	it('is a plain Batch tab with no mode menu without power tools', async () => {
+	it('opens a menu of Gear and Drops without power tools', async () => {
 		mount({ powerTools: false });
 
 		expect(batchTab().textContent).toBe('bulk_tab.title');
-		expect(batchTab().hasAttribute('aria-haspopup')).toBe(false);
+		expect(batchTab().getAttribute('aria-haspopup')).toBe('menu');
+
+		await hover(batchTab());
+		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops']);
+		await leave(batchTab());
 
 		await press(batchTab(), 'mouse');
 
-		expect(modeItems()).toEqual([]);
 		expect(batchTab().getAttribute('aria-selected')).toBe('true');
 		expect(groups()).toEqual(['bulk-settings-group-enchants-trigger', 'bulk-settings-group-freezes-trigger']);
+	});
+
+	it('switches to Drops from the hover menu without power tools', async () => {
+		const player = mount({ powerTools: false });
+		await hover(batchTab());
+
+		await click(screen.getByTestId('bulk-mode-drops'));
+
+		expect(bulkState(player).mode).toBe('drops');
+		expect(loadStoredBulkMode(player)).toBe('drops');
+		expect(batchTab().getAttribute('aria-selected')).toBe('true');
+		expect(screen.getByTestId('bulk-run-card')).toBeTruthy();
+		expect(groups()).toEqual(['bulk-settings-group-enchants-trigger']);
 	});
 
 	it('opens the batch tab in its mode on a mouse click with power tools on, leaving no menu open', async () => {
@@ -141,7 +159,7 @@ describe('SimTabsSection batch tab', () => {
 
 		await hover(batchTab());
 		await press(batchTab(), 'mouse');
-		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-builds']);
+		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops', 'bulk-mode-builds']);
 		await leave(batchTab());
 
 		expect(modeItems()).toEqual([]);
@@ -155,7 +173,7 @@ describe('SimTabsSection batch tab', () => {
 
 		await press(batchTab(), 'touch');
 
-		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-builds']);
+		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops', 'bulk-mode-builds']);
 		expect(batchTab().getAttribute('aria-selected')).toBe('true');
 	});
 
@@ -169,7 +187,7 @@ describe('SimTabsSection batch tab', () => {
 
 		await userEvent.keyboard(key);
 
-		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-builds']);
+		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops', 'bulk-mode-builds']);
 		expect(batchTab().getAttribute('aria-selected')).toBe('true');
 	});
 
@@ -198,7 +216,7 @@ describe('SimTabsSection batch tab', () => {
 	it('switches to Builds from the hover menu, opening the batch tab with the run card alone', async () => {
 		const player = mount({ powerTools: true });
 		await hover(batchTab());
-		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-builds']);
+		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops', 'bulk-mode-builds']);
 		expect(batchTab().getAttribute('aria-selected')).toBe('false');
 
 		await click(screen.getByTestId('bulk-mode-builds'));
@@ -238,7 +256,7 @@ describe('SimTabsSection batch tab', () => {
 		await userEvent.click(rotation);
 
 		await hover(batchTab());
-		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-builds']);
+		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops', 'bulk-mode-builds']);
 		await userEvent.keyboard('{Escape}');
 		await act(nextFrame);
 

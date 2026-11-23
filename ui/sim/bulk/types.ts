@@ -1,4 +1,4 @@
-import { DistributionMetrics } from '@generated/proto/api';
+import { type BulkSimStage, DistributionMetrics } from '@generated/proto/api';
 import type { APLRotation } from '@generated/proto/apl';
 import type { Encounter, UnitStats } from '@generated/proto/common';
 import type { SavedSettings } from '@generated/proto/ui';
@@ -21,6 +21,10 @@ export interface TopGearResult {
 	backendRank?: number;
 	pairedErrorToNextResult?: number;
 	pairedErrorToBaseline?: number;
+	/** The mean paired DPS difference to the baseline `pairedErrorToBaseline` pairs with, which may be an earlier stage's than the shown one. */
+	pairedDpsDiffToBaseline?: number;
+	/** Set only on a row the sim culled before the finalist stage: the stage it last ran in, whose numbers it carries. */
+	culledStage?: BulkSimStage;
 }
 
 /** A gear set and the talents, rotation and settings it ran with. Only rows from the reference request carry the backend rank and paired errors. */

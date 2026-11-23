@@ -31,7 +31,8 @@
 			@apply border-input-focus-border shadow-focus-checkbox outline-none;
 		}
 
-		&[data-checked] {
+		&[data-checked],
+		&[data-indeterminate] {
 			@apply border-primary bg-primary;
 		}
 
@@ -46,7 +47,8 @@
 
 		&[aria-invalid='true'],
 		&[aria-invalid='true']:focus-visible,
-		&[aria-invalid='true'][data-checked] {
+		&[aria-invalid='true'][data-checked],
+		&[aria-invalid='true'][data-indeterminate] {
 			@apply border-danger;
 		}
 	}

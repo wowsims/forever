@@ -36,6 +36,7 @@ export const BooleanPicker = ({
 	testId,
 	'aria-describedby': describedBy,
 	focusableWhenDisabled,
+	indeterminate,
 	...frameProps
 }: BooleanPickerProps) => {
 	const hasFrame = hasFieldFrame(frameProps);
@@ -51,10 +52,11 @@ export const BooleanPicker = ({
 			className={clsx('ui-boolean-picker-input inline-flex items-center justify-center p-0', !hasFrame && className)}
 			data-testid={hasFrame ? 'boolean-picker-input' : (testId ?? 'boolean-picker-input')}
 			checked={value}
+			indeterminate={indeterminate}
 			disabled={disabled}
 			onCheckedChange={checked => onChange(checked)}>
 			<Checkbox.Indicator className="ui-boolean-picker-indicator">
-				<Icon name="check" className="text-primary-foreground" />
+				<Icon name={indeterminate ? 'minus' : 'check'} className="text-primary-foreground" />
 			</Checkbox.Indicator>
 		</Box>
 	);

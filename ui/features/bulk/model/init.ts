@@ -6,6 +6,10 @@ import {
 	loadStoredBatchEncounter,
 	loadStoredBulkBuildEnchantPresets,
 	loadStoredBulkBundles,
+	loadStoredBulkDropsEnchantPresets,
+	loadStoredBulkDropsExcluded,
+	loadStoredBulkDropsSources,
+	loadStoredBulkDropsView,
 	loadStoredBulkEncounters,
 	loadStoredBulkMode,
 	loadStoredBulkSettings,
@@ -16,7 +20,7 @@ import {
 	storeBulkSettings,
 } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
-import { subscribeAll, subscribeBulkChange, subscribePlayerField } from '@sim/state/subscriptions';
+import { subscribeAll, subscribeBulkChange, subscribePlayerField, subscribeSimField } from '@sim/state/subscriptions';
 
 import { addBulkItems, loadEquippedBulkItems, seedBulkPickerGroups } from './gear/items';
 import { type BulkFrozenSlot, createBulkSettingsProto, setBulkFrozenItem, setBulkFrozenWeaponSlot, setBulkWeaponTypeFilter } from './gear/settings';
@@ -71,6 +75,26 @@ const loadSettings = (player: Player<any>) => {
 		patchBulkState(player, { batchEncounter });
 	}
 
+	const dropsSources = loadStoredBulkDropsSources(player);
+	if (dropsSources != null) {
+		patchBulkState(player, { dropsSources });
+	}
+
+	const dropsExcluded = loadStoredBulkDropsExcluded(player);
+	if (dropsExcluded != null) {
+		patchBulkState(player, { dropsExcluded });
+	}
+
+	const dropsEnchantPresets = loadStoredBulkDropsEnchantPresets(player);
+	if (dropsEnchantPresets != null) {
+		patchBulkState(player, { dropsEnchantPresets: dropsEnchantPresets.names });
+	}
+
+	const dropsView = loadStoredBulkDropsView(player);
+	if (dropsView != null) {
+		patchBulkState(player, { dropsView });
+	}
+
 	const mode = loadStoredBulkMode(player);
 	if (mode != null) {
 		patchBulkState(player, { mode });
@@ -99,6 +123,9 @@ export const initBulk = (host: IndividualSimHost<any>) => {
 		subscribeBulkChange(player)(() => void refreshBulkCombinations(host));
 		// Enchanting unlocks enchants, so it can change the enchant pool.
 		subscribeAll([subscribePlayerField(player, 'profession1'), subscribePlayerField(player, 'profession2')])(() => void refreshBulkCombinations(host));
+		// The phase and the race, whose side `player.getFaction()` reads, change the Drops list. A gear change recounts through
+		// `loadEquippedBulkItems`, which bumps `items`.
+		subscribeAll([subscribeSimField(sim, 'phase'), subscribePlayerField(player, 'race')])(() => void refreshBulkCombinations(host));
 
 		loadEquippedBulkItems(player);
 		void refreshBulkCombinations(host);

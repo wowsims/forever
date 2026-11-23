@@ -1000,6 +1000,9 @@ message BulkGearResult {
 	double paired_error_to_baseline = 5;
 	// The stage a culled_results row last ran in; unset on top results.
 	BulkSimStage culled_stage = 6;
+	// The mean per-iteration DPS difference (this result - baseline) against the same baseline
+	// paired_error_to_baseline pairs with. 0 when the runs could not be paired.
+	double paired_dps_diff_to_baseline = 7;
 }
 
 message BulkSimStageMetrics {

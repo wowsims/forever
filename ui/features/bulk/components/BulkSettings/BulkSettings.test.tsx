@@ -63,6 +63,11 @@ vi.mock('@sim/bulk/utils', async () => {
 	return { ...actual, getBulkPlayerCanDualWield: () => true, getBulkFreezeWeaponTypes: () => [] };
 });
 vi.mock('../../model/run/run', () => ({ runBulkBatch: vi.fn() }));
+// The Drops pick comes off the database and the live gear, which the stub host has none of; the card reads only the count.
+const drops = vi.hoisted(() => ({ picked: [] as number[] }));
+vi.mock('../../hooks/useDropsSetup', () => ({
+	useDropsSetup: () => ({ ready: true, list: { items: drops.picked.map(id => ({ item: { id }, included: true, worn: false })), leftOut: [] } }),
+}));
 // The stub host has none of the raid and player getters the live settings are read from.
 vi.mock('@features/settings/hooks/useCurrentSettings', () => ({ useCurrentSettings: () => null }));
 // Passing the web limit takes some hundred candidates in one run, so the warning case sets a limit of its own.
@@ -166,6 +171,7 @@ interface MountOptions {
 	encounterPresets?: PresetEncounter[];
 	savedEncounters?: Record<string, unknown>;
 	batchEncounter?: BulkEncounterRef;
+	dropsEnchantPresets?: string[];
 }
 
 const lookupEquipmentSpec = (spec: EquipmentSpec) => KNOWN_GEAR.find(known => getGearIdentityKey(known.asSpec()) === getGearIdentityKey(spec)) ?? new Gear({});
@@ -182,6 +188,7 @@ const mount = ({
 	encounterPresets = [],
 	savedEncounters = SAVED.encounters,
 	batchEncounter = BulkEncounterRef.create(),
+	dropsEnchantPresets = [],
 }: MountOptions = {}) => {
 	for (const [kind, key] of Object.entries(KEYS)) localStorage.setItem(key, JSON.stringify(SAVED[kind as keyof typeof KEYS]));
 	localStorage.setItem(KEYS.encounters, JSON.stringify(savedEncounters));
@@ -224,6 +231,7 @@ const mount = ({
 		buildEnchantPresets,
 		encounters,
 		batchEncounter,
+		dropsEnchantPresets,
 	});
 	const host = {
 		player,
@@ -274,6 +282,7 @@ const isAll = () => allCheckbox().getAttribute('aria-checked') === 'true';
 beforeEach(() => {
 	localStorage.clear();
 	limits.iterations = null;
+	drops.picked = [];
 	init.ready = true;
 });
 
@@ -642,7 +651,8 @@ const renderSettings = (props: Partial<BulkSettingsViewProps> = {}) => {
 			combinationsCount={<span data-testid="count" />}
 			canRun
 			openGroups={['freezes']}
-			groups
+			groups="all"
+			runLabel="Simulate Batch"
 			enchants={null}
 			frozenItems={[RING_VIEW]}
 			weaponFreeze={null}
@@ -685,5 +695,69 @@ describe('BulkSettingsView', () => {
 
 		expect(onFrozenWeaponSlotChange).toHaveBeenCalledWith(ItemSlot.ItemSlotMainHand);
 		expect(screen.getByTestId('weapon-types')).toBeTruthy();
+	});
+});
+
+describe('BulkSettings in Drops mode', () => {
+	it('shows the Drops run card with Simulate Drops, the enchant group alone and no Top results', () => {
+		const { groups } = mount({ mode: 'drops' });
+
+		expect(groups()).toEqual(['bulk-settings-group-enchants-trigger']);
+		expect(screen.queryByTestId('bulk-top-results')).toBeNull();
+		expect(screen.getByTestId('bulk-batch-encounter')).toBeTruthy();
+		expect(simulate().textContent).toBe('Simulate Drops');
+	});
+
+	it('lists the picked items, the candidates, the variants added and the minimum iterations', () => {
+		drops.picked = [1, 2, 3];
+		mount({ mode: 'drops', combinations: 5 });
+
+		expect(text('drops-run-picked')).toBe('3');
+		expect(text('drops-run-candidates')).toBe('5');
+		expect(text('drops-run-variants')).toBe('2');
+		expect(text('bulk-total-iterations')).toBe('60,000');
+		expect(screen.getAllByTestId('drops-run-note')).toHaveLength(4);
+	});
+
+	it('keeps Simulate Drops off with nothing picked, whatever the count', () => {
+		const { player } = mount({ mode: 'drops', combinations: 0 });
+
+		expect(simulate().disabled).toBe(true);
+
+		act(() => patchBulkState(player, { combinations: 1 }));
+		expect(simulate().disabled).toBe(true);
+	});
+
+	it('turns Simulate Drops on once an item is picked and counted', () => {
+		drops.picked = [7];
+		const { player } = mount({ mode: 'drops', combinations: 0 });
+
+		expect(simulate().disabled).toBe(true);
+
+		act(() => patchBulkState(player, { combinations: 1 }));
+		expect(simulate().disabled).toBe(false);
+	});
+
+	it('warns past the iterations limit with power tools off and gates on it with them on', () => {
+		limits.iterations = 50000;
+		drops.picked = [7];
+		const { player } = mount({ mode: 'drops', combinations: 5, powerTools: false });
+
+		expect(screen.getByTestId('bulk-total-iterations').querySelector('[data-testid="warning"]')).not.toBeNull();
+		expect(simulate().disabled).toBe(false);
+
+		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
+
+		expect(simulate().disabled).toBe(true);
+	});
+
+	it('ticks a Drops enchant preset without touching Gear’s pick', async () => {
+		const { player, openGroup } = mount({ mode: 'drops' });
+		openGroup('enchants');
+
+		await userEvent.click(within(screen.getByTestId('drops-enchant-presets')).getAllByRole('checkbox')[0]);
+
+		expect(bulkState(player).dropsEnchantPresets).toEqual(['Agility']);
+		expect(bulkState(player).enchantPresets.find(preset => preset.name === 'Agility')!.checked).toBe(false);
 	});
 });

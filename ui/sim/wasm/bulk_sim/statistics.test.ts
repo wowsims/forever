@@ -142,6 +142,20 @@ describe('cullBulkSimStage', () => {
 		expect(results[13].dpsMetrics!.allValues).toHaveLength(4);
 	});
 
+	it('gives each culled row its mean paired difference to the stage baseline', () => {
+		const { culled } = cullBulkSimStage(
+			BulkSimRequest.create({ cullToBaseline: true }),
+			cullResults(),
+			CULL_BASELINE,
+			4,
+			MEDIUM,
+			30,
+			BULK_SIM_DEFAULT_TOP_RESULTS,
+		);
+		// 13 trails each iteration by 30, 10, 30, 10, the rest by 1 each.
+		expect(culled.map(row => [row.candidateIndex, row.pairedDpsDiffToBaseline])).toEqual(range(13, 30).map(index => [index, index === 13 ? -20 : -1]));
+	});
+
 	it('culls every candidate when all sit clearly below the baseline', () => {
 		const below = range(0, 30).map(index => {
 			const candidate = { index, gear: EquipmentSpec.create() };

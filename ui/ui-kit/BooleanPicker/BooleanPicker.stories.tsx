@@ -72,6 +72,16 @@ export const DisabledFocusable: Story = {
 		await expect(args.onChange).not.toHaveBeenCalled();
 	},
 };
+// A tri-state parent: some of its children are ticked. A press ticks it.
+export const Indeterminate: Story = {
+	args: { label: 'Blackrock Depths', layout: 'inline', indeterminate: true },
+	play: async ({ args, canvasElement }) => {
+		const box = within(canvasElement).getByRole('checkbox');
+		await expect(box.getAttribute('aria-checked')).toBe('mixed');
+		await userEvent.click(box);
+		await expect(args.onChange).toHaveBeenLastCalledWith(true);
+	},
+};
 export const Unlabelled: Story = { args: { label: undefined } };
 export const Invalid: Story = { args: { label: 'Patchwerk again', layout: 'inline', invalid: true, value: true } };
 export const Sizes: Story = {

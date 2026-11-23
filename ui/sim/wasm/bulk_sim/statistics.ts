@@ -76,7 +76,14 @@ export const topBulkSimResults = (results: ConcurrentBulkSimCandidateResult[], l
 // leader. Returns undefined when the two runs cannot be paired; zero is a valid result -
 // it means the candidate trailed the leader by the same amount every iteration, which is
 // the strongest evidence pairing can give.
-export const bulkSimPairedDpsError = (metrics: DistributionMetrics | undefined, bestMetrics: DistributionMetrics | undefined): number | undefined => {
+export const bulkSimPairedDpsError = (metrics: DistributionMetrics | undefined, bestMetrics: DistributionMetrics | undefined): number | undefined =>
+	bulkSimPairedDpsDifference(metrics, bestMetrics)?.error;
+
+// The mean per-iteration difference (metrics - bestMetrics) and its standard error; undefined when the runs cannot be paired.
+export const bulkSimPairedDpsDifference = (
+	metrics: DistributionMetrics | undefined,
+	bestMetrics: DistributionMetrics | undefined,
+): { difference: number; error: number } | undefined => {
 	const values = metrics?.allValues;
 	const bestValues = bestMetrics?.allValues;
 	if (!values || !bestValues || values.length === 0 || values.length !== bestValues.length) return undefined;
@@ -90,7 +97,15 @@ export const bulkSimPairedDpsError = (metrics: DistributionMetrics | undefined, 
 	}
 	const count = values.length;
 	const mean = sum / count;
-	return Math.sqrt(Math.max(0, sumSq / count - mean * mean) / count);
+	return { difference: mean, error: Math.sqrt(Math.max(0, sumSq / count - mean * mean) / count) };
+};
+
+// Sets the row's paired difference and error to the baseline; both stay 0 when the two cannot be paired.
+export const setBulkSimPairedToBaseline = (row: BulkGearResult, metrics: DistributionMetrics | undefined, baselineMetrics: DistributionMetrics | undefined) => {
+	const paired = bulkSimPairedDpsDifference(metrics, baselineMetrics);
+	if (!paired) return;
+	row.pairedDpsDiffToBaseline = paired.difference;
+	row.pairedErrorToBaseline = paired.error;
 };
 
 // Decides whether a candidate is far enough behind the cutoff candidate
@@ -210,7 +225,7 @@ export const cullBulkSimStage = (
 		const row = bulkSimCandidateResultToProto(result);
 		if (!row) return [];
 		row.culledStage = config.stage;
-		row.pairedErrorToBaseline = bulkSimPairedDpsError(result.dpsMetrics, baseline.dpsMetrics) ?? 0;
+		setBulkSimPairedToBaseline(row, result.dpsMetrics, baseline.dpsMetrics);
 		return [row];
 	});
 	return { survivors, culled };

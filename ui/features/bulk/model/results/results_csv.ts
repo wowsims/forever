@@ -12,6 +12,7 @@ import { gearSetupLabel } from '../builds/gear_setups';
 import { rotationLabel } from '../builds/rotations';
 import { settingsLabel } from '../builds/settings_entries';
 import { talentsLabel } from '../builds/talents';
+import { dropsGap } from '../drops/results';
 import { changedEnchantLabels } from './compare';
 import { formatBulkItemLabel } from './format';
 
@@ -49,24 +50,32 @@ const slotCells = (equipped: EquippedItem | null): CsvValue[] => {
 };
 
 // One row per ranked set of every finished encounter, in the order the Results pane lists them, with the full gear set.
-export const bulkResultsCsv = (entries: readonly BulkEncounterResults[]): string => {
+// In Drops the diff is `dropsGap`, the margin is taken at the row's own iteration count and the current gear's row has no
+// rank, as the pane shows it.
+export const bulkResultsCsv = (entries: readonly BulkEncounterResults[], { drops = false }: { drops?: boolean } = {}): string => {
 	const slots: ItemSlot[] = entries[0]?.results.originalGearResults.gear.getItemSlots() ?? [];
 	const rows = entries.flatMap(entry => {
+		let rank = 0;
 		const { chains, originalGearResults: base, currentGear, iterations } = entry.results;
 		const encounter = csvText(encounterLabel(entry));
-		return chains.flat().map((result, index): CsvValue[] => {
+		return chains.flat().map((result): CsvValue[] => {
+			const ranked = !drops || result !== base;
+			if (ranked) rank += 1;
 			const avg = result.dpsMetrics.avg;
-			const diff = avg - base.dpsMetrics.avg;
+			const diff = drops ? dropsGap(result, base) : avg - base.dpsMetrics.avg;
 			// In percent of the reference's DPS, as the result rows show it.
 			const diffPct = (diff / (base.dpsMetrics.avg || 1)) * 100;
 			return [
 				encounter,
 				entry.duration,
 				entry.durationVariation ?? '',
-				index + 1, // The current gear's row takes a rank like any other.
+				ranked ? rank : '',
 				result.gear.equals(currentGear) ? 'yes' : '',
 				avg,
-				stDevToConf95(result.dpsMetrics.stdev, iterations),
+				// A culled row ran fewer iterations than the finalists the margin is taken at.
+				result.culledStage === undefined
+					? stDevToConf95(result.dpsMetrics.stdev, drops ? (result.dpsMetrics.aggregatorData?.n ?? iterations) : iterations)
+					: '',
 				diff,
 				diffPct,
 				csvText(talentsLabel(result.talents)),

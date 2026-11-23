@@ -1,7 +1,7 @@
 import { BulkGearResult, DistributionMetrics } from '@generated/proto/api';
 
 import { mergeAggregates } from '../../utils/math';
-import { bulkSimPairedDpsError, topBulkSimResults } from './statistics';
+import { bulkSimPairedDpsError, setBulkSimPairedToBaseline, topBulkSimResults } from './statistics';
 import { ConcurrentBulkSimCandidateResult } from './types';
 
 export const hasBulkSimStageError = (baseline: ConcurrentBulkSimCandidateResult | undefined, results: ConcurrentBulkSimCandidateResult[]): boolean => {
@@ -128,7 +128,7 @@ export const appendBulkSimNonFinalists = (
 		if (idx + 1 < nonFinalists.length) {
 			row.pairedErrorToNextResult = bulkSimPairedDpsError(nonFinalists[idx + 1].dpsMetrics, result.dpsMetrics) ?? 0;
 		}
-		row.pairedErrorToBaseline = bulkSimPairedDpsError(result.dpsMetrics, highBaseline.dpsMetrics) ?? 0;
+		setBulkSimPairedToBaseline(row, result.dpsMetrics, highBaseline.dpsMetrics);
 		rows.push(row);
 	});
 	return rows;

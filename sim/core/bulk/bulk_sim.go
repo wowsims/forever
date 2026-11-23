@@ -173,9 +173,9 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 		latestResults = []*BulkSimCandidateResult{}
 	}
 
-	// Finalist refinement: add lockstep iterations to the displayed top results until their
-	// ranking is statistically separated (or the budget runs out), so near-ties do not flip
-	// order between runs with different seeds.
+	// Finalist refinement: add lockstep iterations to the first top results (the default five under
+	// cull_to_baseline) until their ranking is statistically separated (or the budget runs out), so
+	// near-ties do not flip order between runs with different seeds.
 	var finalistMetrics *proto.BulkSimStageMetrics
 	highResults, highBaseline := latestResults, latestBaseline
 	latestBaseline, latestResults, finalistMetrics = runBulkSimFinalistStage(request, latestBaseline, latestResults, topResults, progress, signals)
@@ -200,9 +200,7 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 				protoResult.PairedErrorToNextResult = pairedError
 			}
 		}
-		if pairedError, ok := bulkSimPairedDpsError(candidateResult.DpsMetrics, latestBaseline.DpsMetrics); ok {
-			protoResult.PairedErrorToBaseline = pairedError
-		}
+		setBulkSimPairedToBaseline(protoResult, candidateResult.DpsMetrics, latestBaseline.DpsMetrics)
 		result.TopResults = append(result.TopResults, protoResult)
 	}
 	if request.CullToBaseline {

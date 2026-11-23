@@ -2,7 +2,13 @@ import { BulkEnchantSlotOptions } from '@generated/proto/api';
 import { ItemSlot } from '@generated/proto/common';
 import { BulkEnchantPreset, UIEnchant } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
-import { bulkState, loadStoredBulkBuildEnchantPresets, loadStoredEnchantPresets, patchBulkState } from '@sim/settings/bulk_settings';
+import {
+	bulkState,
+	loadStoredBulkBuildEnchantPresets,
+	loadStoredBulkDropsEnchantPresets,
+	loadStoredEnchantPresets,
+	patchBulkState,
+} from '@sim/settings/bulk_settings';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { beforeEach, describe, expect, it } from 'vitest';
 
@@ -77,6 +83,14 @@ describe('enchantPresetPool', () => {
 
 		expect(enchantPresetPool(player)).toEqual([BulkEnchantSlotOptions.create({ slot: ItemSlot.ItemSlotBack, effectIds: [AGILITY] })]);
 	});
+
+	it('pools the given presets in place of the checked ones', () => {
+		saveChecked(preset('Undead', [[ItemSlot.ItemSlotBack, [AGILITY]]]));
+
+		expect(enchantPresetPool(player, [BulkEnchantPreset.create(preset('Beasts', [[ItemSlot.ItemSlotBack, [STRENGTH]]]))])).toEqual([
+			BulkEnchantSlotOptions.create({ slot: ItemSlot.ItemSlotBack, effectIds: [STRENGTH] }),
+		]);
+	});
 });
 
 describe('enchant preset writers', () => {
@@ -104,6 +118,49 @@ describe('enchant preset writers', () => {
 		deleteEnchantPreset(player, 'Beasts');
 		saveEnchantPreset(player, preset('Beasts', [[ItemSlot.ItemSlotBack, [STAMINA]]]));
 		expect(buildPicks()).toEqual([['Scourge'], ['Scourge']]);
+	});
+
+	it('carries a renamed preset over to the Drops pick and drops a deleted one', () => {
+		saveEnchantPreset(player, preset('Undead', [[ItemSlot.ItemSlotBack, [AGILITY]]]));
+		saveEnchantPreset(player, preset('Beasts', [[ItemSlot.ItemSlotBack, [STAMINA]]]));
+		patchBulkState(player, { dropsEnchantPresets: ['Undead', 'Beasts'] });
+		const dropsPicks = () => [bulkState(player).dropsEnchantPresets, loadStoredBulkDropsEnchantPresets(player)?.names];
+
+		saveEnchantPreset(player, preset('Scourge', [[ItemSlot.ItemSlotBack, [AGILITY]]]), 'Undead');
+		expect(dropsPicks()).toEqual([
+			['Scourge', 'Beasts'],
+			['Scourge', 'Beasts'],
+		]);
+
+		deleteEnchantPreset(player, 'Beasts');
+		saveEnchantPreset(player, preset('Beasts', [[ItemSlot.ItemSlotBack, [STAMINA]]]));
+		expect(dropsPicks()).toEqual([['Scourge'], ['Scourge']]);
+	});
+
+	it('recounts the combinations when a preset Drops picked is edited, renamed or deleted, once the pick names what is saved', () => {
+		saveEnchantPreset(player, preset('Undead', [[ItemSlot.ItemSlotBack, [AGILITY]]]));
+		patchBulkState(player, { dropsEnchantPresets: ['Undead'] });
+		const picksSavedAtRecount: boolean[] = [];
+		let version = settingsVersion();
+		const unsubscribe = player.sim.store.subscribe(() => {
+			if (settingsVersion() === version) return;
+			version = settingsVersion();
+			const { dropsEnchantPresets, enchantPresets } = bulkState(player);
+			picksSavedAtRecount.push(dropsEnchantPresets.every(name => enchantPresets.some(saved => saved.name === name)));
+		});
+
+		const steps = [
+			() => saveEnchantPreset(player, preset('Undead', [[ItemSlot.ItemSlotBack, [STAMINA]]]), 'Undead'),
+			() => saveEnchantPreset(player, preset('Scourge', [[ItemSlot.ItemSlotBack, [STAMINA]]]), 'Undead'),
+			() => deleteEnchantPreset(player, 'Scourge'),
+		];
+		for (const step of steps) {
+			const before = settingsVersion();
+			step();
+			expect(settingsVersion()).toBe(before + 1);
+		}
+		unsubscribe();
+		expect(picksSavedAtRecount).toEqual([true, true, true]);
 	});
 
 	it('drops a deleted preset from the pool', () => {

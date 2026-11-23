@@ -128,9 +128,7 @@ func cullBulkSimStage(request *proto.BulkSimRequest, results []*BulkSimCandidate
 		}
 		row := bulkSimCandidateResultToProto(result)
 		row.CulledStage = config.Stage
-		if pairedError, ok := bulkSimPairedDpsError(result.DpsMetrics, baseline.DpsMetrics); ok {
-			row.PairedErrorToBaseline = pairedError
-		}
+		setBulkSimPairedToBaseline(row, result.DpsMetrics, baseline.DpsMetrics)
 		culled = append(culled, row)
 	}
 	return survivors, culled
@@ -199,12 +197,18 @@ func bulkSimUnresolvedFinalistPair(sortedFinalists []*BulkSimCandidateResult) bo
 }
 
 func bulkSimPairedDpsError(metrics *proto.DistributionMetrics, bestMetrics *proto.DistributionMetrics) (float64, bool) {
+	_, pairedError, ok := bulkSimPairedDpsDifference(metrics, bestMetrics)
+	return pairedError, ok
+}
+
+// The mean per-iteration difference (metrics - bestMetrics) and its standard error; false when the runs cannot be paired.
+func bulkSimPairedDpsDifference(metrics *proto.DistributionMetrics, bestMetrics *proto.DistributionMetrics) (float64, float64, bool) {
 	if metrics == nil || bestMetrics == nil {
-		return 0, false
+		return 0, 0, false
 	}
 	values, bestValues := metrics.AllValues, bestMetrics.AllValues
 	if len(values) == 0 || len(values) != len(bestValues) {
-		return 0, false
+		return 0, 0, false
 	}
 
 	var sum, sumSq float64
@@ -216,7 +220,15 @@ func bulkSimPairedDpsError(metrics *proto.DistributionMetrics, bestMetrics *prot
 	count := float64(len(values))
 	mean := sum / count
 	variance := math.Max(0, sumSq/count-mean*mean)
-	return math.Sqrt(variance / count), true
+	return mean, math.Sqrt(variance / count), true
+}
+
+// Sets the row's paired difference and error to the baseline; both stay 0 when the two cannot be paired.
+func setBulkSimPairedToBaseline(row *proto.BulkGearResult, metrics *proto.DistributionMetrics, baselineMetrics *proto.DistributionMetrics) {
+	if difference, pairedError, ok := bulkSimPairedDpsDifference(metrics, baselineMetrics); ok {
+		row.PairedDpsDiffToBaseline = difference
+		row.PairedErrorToBaseline = pairedError
+	}
 }
 
 func bulkSimDpsError(metrics *proto.DistributionMetrics, iterations int32) float64 {

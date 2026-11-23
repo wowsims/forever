@@ -1282,9 +1282,108 @@
 				"label": "Gear",
 				"description": "Best gear for your current talents and encounter"
 			},
+			"drops": {
+				"label": "Drops",
+				"description": "One drop at a time, by boss"
+			},
 			"builds": {
 				"label": "Builds",
 				"description": "Best gear and talents across encounters"
+			}
+		},
+		"drops": {
+			"sources": {
+				"categories": {
+					"drop": "Dungeon & raid drops",
+					"quest": "Quest rewards",
+					"crafted": "Crafted",
+					"rep": "Reputation",
+					"soldBy": "Vendors"
+				},
+				"other_quests": "Other quests",
+				"other_vendors": "Other vendors",
+				"world_drop": "World Drop"
+			},
+			"setup": {
+				"sources_title": "Sources",
+				"items_title": "Items to sim",
+				"quick_picks": {
+					"l60_dungeons": "L60 dungeons",
+					"clear": "Clear"
+				},
+				"include_all": "Include all",
+				"exclude_all": "Exclude all",
+				"by_slot": "By slot",
+				"by_source": "By boss",
+				"left_out_summary_one": "{{count}} item left out: {{reasons}}.",
+				"left_out_summary_other": "{{count}} items left out: {{reasons}}.",
+				"left_out_reason": {
+					"class": "Your class cannot use it",
+					"random_suffix": "Random suffix"
+				},
+				"show": "Show",
+				"hide": "Hide",
+				"empty": "Tick a source to list its items."
+			},
+			"items": {
+				"tags": {
+					"mh": "MH",
+					"oh": "OH",
+					"2h": "2H",
+					"r1": "R1",
+					"r2": "R2",
+					"t1": "T1",
+					"t2": "T2"
+				},
+				"worn": "Already worn",
+				"left_out": {
+					"class_one": "{{count}} item your class cannot use",
+					"class_other": "{{count}} items your class cannot use",
+					"random_suffix_one": "{{count}} item with a random suffix",
+					"random_suffix_other": "{{count}} items with a random suffix"
+				}
+			},
+			"results": {
+				"current_gear": "Current gear",
+				"best_drop": "Best drop",
+				"best_boss": "Best boss",
+				"no_upgrade": "No upgrade",
+				"view_label": "View",
+				"view": {
+					"bosses": "Bosses",
+					"items": "Items"
+				},
+				"upgrades_one": "upgrade",
+				"upgrades_other": "upgrades",
+				"best": "Best",
+				"worn": "worn",
+				"show_all_variations": "Show all variations",
+				"variations_hidden_one": "{{count}} variation hidden",
+				"variations_hidden_other": "{{count}} variations hidden",
+				"filtered_by": "Source:",
+				"clear_filter": "Clear the source filter",
+				"low_precision": "Stopped early",
+				"low_precision_tooltip": "The run dropped this candidate before the final stage, so its DPS carries a wider margin and shows no ±.",
+				"run_simulation": "Run a Drops simulation to view results",
+				"columns": {
+					"rank": "#",
+					"item": "Item",
+					"slot": "Slot",
+					"source": "Source",
+					"dps": "DPS",
+					"delta": "Change"
+				}
+			},
+			"run": {
+				"items_picked": "Items picked",
+				"candidates": "Candidates",
+				"variants": "Variants added",
+				"notes": {
+					"one_change": "Each candidate adds one new item to your worn gear.",
+					"slots": "A ring or trinket is tried in both slots, as Unique-Equipped allows.",
+					"hands": "A one-hander is tried in each hand it fits, and a two-hander replaces both.",
+					"no_drop_chances": "The game files hold no drop chances, so every item counts the same."
+				}
 			}
 		},
 		"builds": {
@@ -1323,7 +1422,8 @@
 			"import_bags": "Import From Bags",
 			"import_favorites": "Import Favorites",
 			"clear_items": "Clear Items",
-			"simulate_batch": "Simulate Batch"
+			"simulate_batch": "Simulate Batch",
+			"simulate_drops": "Simulate Drops"
 		},
 		"search": {
 			"title": "Item Search",

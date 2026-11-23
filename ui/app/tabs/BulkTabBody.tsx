@@ -8,6 +8,8 @@ import { BulkProgressDialog } from '@features/bulk/components/BulkProgress';
 import { BulkResults } from '@features/bulk/components/BulkResults';
 import { BulkResultsCsvButton } from '@features/bulk/components/BulkResultsCsvButton';
 import { BulkSettings } from '@features/bulk/components/BulkSettings';
+import { DropsResults } from '@features/bulk/components/DropsResults';
+import { DropsSetup } from '@features/bulk/components/DropsSetup';
 import { BulkBuildsProvider } from '@features/bulk/context/BulkBuildsContext';
 import { useBulkMode } from '@features/bulk/hooks/useBulkMode';
 import { useBulkResults } from '@features/bulk/hooks/useBulkResults';
@@ -74,22 +76,22 @@ export const BulkTabBody = () => {
 	const activateTab = useActivateTab();
 	const results = useBulkResults();
 	const isRunning = useBulkState(slice => slice.isRunning);
-	const { builds } = useBulkMode();
+	const { builds, drops, runMode } = useBulkMode();
 
 	const [activeId, setActiveId] = useState<BulkPaneId>('bulkSetupTab');
 	const [importOpen, setImportOpen] = useState(false);
 	const [selectedEncounter, selectEncounter] = useBulkResultSelection();
 	const selector = useSelectorModalState();
-	const resultsMode = useRef(builds);
+	const resultsMode = useRef(runMode);
 	// Starting a run clears its mode's results and drops back to setup; finishing one opens the results. Switching modes
 	// swaps the results shown and keeps the pane.
 	useEffect(() => {
-		if (resultsMode.current !== builds) {
-			resultsMode.current = builds;
+		if (resultsMode.current !== runMode) {
+			resultsMode.current = runMode;
 			return;
 		}
 		setActiveId(results ? 'bulkResultsTab' : 'bulkSetupTab');
-	}, [results, builds]);
+	}, [results, runMode]);
 
 	return (
 		<OpenSelectorModalContext value={selector.openTab}>
@@ -102,6 +104,8 @@ export const BulkTabBody = () => {
 								<TabPanelColumns.Left variant="auto-columns">
 									{builds ? (
 										<BulkBuildsColumns />
+									) : drops ? (
+										<DropsSetup />
 									) : (
 										<>
 											<BulkTabActionsView
@@ -127,7 +131,11 @@ export const BulkTabBody = () => {
 					<TabPanel value="bulkResultsTab">
 						<TabPanelColumns.Root fullWidth>
 							<TabPanelColumns.Left variant="stacked">
-								<BulkResults onActivateTab={activateTab} selected={selectedEncounter} />
+								{drops ? (
+									<DropsResults onActivateTab={activateTab} />
+								) : (
+									<BulkResults onActivateTab={activateTab} selected={selectedEncounter} />
+								)}
 							</TabPanelColumns.Left>
 							{results && results.length > 0 && (
 								<BulkEncounterResults
@@ -136,7 +144,7 @@ export const BulkTabBody = () => {
 									footer={
 										<div className="flex flex-wrap gap-2">
 											<BulkResultsCsvButton />
-											{results.length > 1 && <BulkCompareButton />}
+											{!drops && results.length > 1 && <BulkCompareButton />}
 										</div>
 									}
 								/>

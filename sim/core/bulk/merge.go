@@ -131,9 +131,7 @@ func appendBulkSimNonFinalists(rows []*proto.BulkGearResult, finalists, highResu
 				row.PairedErrorToNextResult = pairedError
 			}
 		}
-		if pairedError, ok := bulkSimPairedDpsError(result.DpsMetrics, highBaseline.DpsMetrics); ok {
-			row.PairedErrorToBaseline = pairedError
-		}
+		setBulkSimPairedToBaseline(row, result.DpsMetrics, highBaseline.DpsMetrics)
 		rows = append(rows, row)
 	}
 	return rows

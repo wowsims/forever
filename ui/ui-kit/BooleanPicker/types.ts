@@ -10,4 +10,8 @@ export interface BooleanPickerOptions {
 	 * the label tooltip on its focus. The tooltip needs the field `id`, which names it.
 	 */
 	focusableWhenDisabled?: boolean;
+	/**
+	 * Draws a mixed box, a dash, and marks it `aria-checked="mixed"`. `value` is not read for the look; a press reports `!value`, so a partly ticked parent passes `value` false and a press ticks it.
+	 */
+	indeterminate?: boolean;
 }

@@ -1,6 +1,6 @@
 ---
 name: wowsims-bulk-sim
-description: 'Use for any WoWSims Forever bulk sim ("Batch" tab) work, whether it runs natively, on the server or in the browser: candidate generation from BulkSettings and the enchant presets, Builds mode (bundles of gear set, talents, rotation and settings, run over ticked encounters), the low/medium/high and finalist stages, survivor culling, content-derived seeds, paired errors and tie groups in the results, progress, abort, combination counts, and the item database a bulk request carries to the workers. Also use it when a change to the sim request or its SimDatabase could reach a batch run. The gear optimizer (EP, stat caps, HiGHS) is `wowsims-reforge-optimizer`; React and store work outside the bulk feature is `wowsims-ui`.'
+description: 'Use for any WoWSims Forever bulk sim ("Batch" tab) work, whether it runs natively, on the server or in the browser: candidate generation from BulkSettings and the enchant presets, Builds mode (bundles of gear set, talents, rotation and settings, run over ticked encounters), Drops mode (one new item per candidate, by source: `single_change`, `cull_to_baseline`), the low/medium/high and finalist stages, survivor culling, content-derived seeds, paired errors and tie groups in the results, progress, abort, combination counts, and the item database a bulk request carries to the workers. Also use it when a change to the sim request or its SimDatabase could reach a batch run. The gear optimizer (EP, stat caps, HiGHS) is `wowsims-reforge-optimizer`; React and store work outside the bulk feature is `wowsims-ui`.'
 argument-hint: 'Describe the bulk sim flow, stage or result behaviour, or validation task.'
 ---
 
@@ -42,6 +42,11 @@ mirror of the stage loop because the WASM sim cannot run `bulkSimAsync`.
   `compare.ts`). The plan, its `sameAs` and the count are built once per change in `ui/features/bulk/context/BulkBuildsContext.tsx`: `BulkBuildsProvider` wraps the Setup
   pane in `BulkTabBody.tsx`, and `useBulkBuildsPlan` (null outside Builds) hands them to the Builds column and the run
   card.
+- Drops mode, `ui/features/bulk/model/drops/`: `sources.ts` (the source leaf keys, labels and tree), `items.ts` (the
+  pickable list), `settings.ts` (the setters and `dropsRequestSettings`), `results.ts` (`dropsGap`, rows grouped by
+  item and by source). Components under `ui/features/bulk/components/`: `DropsSetup` (`DropsSources` tree,
+  `DropsItems` list), `DropsRunCount`, `DropsEnchantPresets`, `DropsResults` (`DropsSummary`, `DropsBossCard`,
+  `DropsItemRow`). `TotalIterations` is the run card's iterations row, shared by Gear, Builds and Drops.
 - Enchant presets: `ui/features/enchant-presets/` (model, `EnchantPresets` tiles and dialog).
 - Generated, never hand-edited: `ui/sim/bulk/constants_auto_gen.ts` (slot maps) and
   `ui/sim/wasm/bulk_sim/constants_auto_gen.ts` (tuning constants, stage ladder, `BULK_SIM_Z95`), written by
@@ -160,26 +165,27 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   misses its target error gets up to `BulkSimMaxAdaptivePasses` extra segments with offset seeds, merged into the
   existing metrics, and the carry-over lets the next stage sim only the iteration delta for the survivors.
 - Cull to baseline (`cull_to_baseline`, sent through `BulkSimOverrides.cullToBaseline`): each culling stage drops
-  only the candidates clearly below the baseline at `BulkSimZ95` (`cullBulkSimStage`, Go and wasm alike); an
-  unpairable candidate stays. When more stay than the stage's max survivors for that count, the top-results cull runs
-  on the above-cut set, soft cap included, so a culled row can still sit above the baseline. `top_results` and
-  `all_results` are not read: the stages and the single-stage check plan for `BulkSimDefaultTopResults`
-  (`resolveBulkSimTopResults`), so the estimate is the default one. Every high-stage survivor comes back in
-  `top_results`; the finalist stage refines only the default top 5 and the baseline, and the rest follow at their
-  high-stage numbers, paired against the high-stage baseline. Each culled one comes back in `culled_results` with
-  its `culled_stage` and the metrics and paired error of the stage that culled it, `AllValues` stripped. Under about
-  28 candidates the run is single-stage and `culled_results` is empty. A run that culls everyone still sims the
-  baseline at the high stage. `runBulkSimCandidateBatchOnWorkers` returns at once on an empty batch: a TS-only guard,
-  since the async queue drains only after a push (Go's batch returns empty on its own), and the one intended break of
-  the line-for-line mirror.
+  only the candidates whose baseline mean minus their own is more than `BulkSimZ95` paired errors
+  (`cullBulkSimStage`, Go and wasm alike); an unpairable candidate stays. When more stay than the stage's max
+  survivors for that count, the top-results cull runs on the above-cut set, soft cap included, so a culled row can
+  still sit above the baseline.
+  `top_results` and `all_results` are not read: the stages and the single-stage check plan for
+  `BulkSimDefaultTopResults` (`resolveBulkSimTopResults`), so the estimate is the default one. Every candidate that
+  reaches the high stage comes back in `top_results`; the finalist stage refines only the default top 5 and the
+  baseline, and the rest follow at their high-stage numbers, paired against the high-stage baseline. Each culled one
+  comes back in `culled_results` with its `culled_stage` and the metrics and paired error of the stage that culled
+  it, `AllValues` stripped. Under 28 candidates the run is single-stage and `culled_results` is empty. A run that
+  culls everyone still sims the baseline at the high stage. `runBulkSimCandidateBatchOnWorkers` returns at once on an
+  empty batch. That is a TS-only guard, since the async queue drains only after a push (Go's batch returns empty on
+  its own), and the one intended break of the line-for-line mirror.
 - Finalist stage (`runBulkSimFinalistStage` / `runConcurrentBulkSimFinalistStage`): the top `topResults` and the
   baseline get lockstep extra iterations until every adjacent pair separates at `BulkSimZ95`, or
   `BulkSimFinalistMaxExtraIterationMultiplier` × the iterations so far is spent. Its results are the displayed set.
   `all_results` ranks every candidate, generated ones too, and the sim resolves it to its candidate count, so native
-  Gear runs need no count from the UI. Both modes send the batch's top results (`BulkSimOverrides.topResults`) through
-  `Sim.runBulkSim`: an override of N goes out as `top_results` N, an override of 0 (All) sets `all_results`, and with
-  no override the request carries `top_results` 0 and no `all_results`, which the sim defaults to
-  `BulkSimDefaultTopResults` (5).
+  Gear runs need no count from the UI. All three modes send the batch's top results (`BulkSimOverrides.topResults`)
+  through `Sim.runBulkSim`; Drops sends the default 5 with `cullToBaseline`. An override of N goes out as
+  `top_results` N, an override of 0 (All) sets `all_results`, and with no override the request carries `top_results` 0
+  and no `all_results`, which the sim defaults to `BulkSimDefaultTopResults` (5).
 - Top results: with power tools on, the run card holds a "Top results" number field and an All
   checkbox (`BulkTopResultsField`), one value per mode (`gearTopResults`, `buildsTopResults` on the slice, stored per
   spec under `bulk-top-results.v1` as `BulkTopResults`, 0 for All). Gear defaults to 5 and Builds to All. With power
@@ -189,8 +195,10 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   holds 1 up to the combinations limit (`BulkTopResultsFieldView`), which keeps it inside the request's int32, and a
   `bulk-top-results.v1` blob that does not parse loads as nothing stored.
 - Each top result ships `paired_error_to_next_result` and `paired_error_to_baseline`, computed before `AllValues`
-  are stripped (0 = could not pair). Strip `AllValues` by detaching the slice before cloning
-  (`bulkSimCandidateResultToProto`), never by cloning megabytes and discarding them.
+  are stripped (0 = could not pair). `BulkGearResult.paired_dps_diff_to_baseline` is the mean per-iteration DPS
+  difference (the result minus the baseline) against the baseline that error pairs with, 0 when the runs could not
+  pair; it can pair with an earlier stage's baseline than the shown one. Strip `AllValues` by detaching the slice
+  before cloning (`bulkSimCandidateResultToProto`), never by cloning megabytes and discarding them.
 - `BulkSimZ95` in `sim/core/bulk/statistics.go` is the single significance threshold; `Z_95` and `zTest` in
   `ui/sim/utils/math.ts` read the generated `BULK_SIM_Z95`.
 
@@ -208,28 +216,72 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
 - A slot holding the same item with another enchant renders `GearChangeIcon`; a new item renders plainly;
   unchanged slots stay empty. Starting a run clears its mode's results and returns to the Setup pane; a finished run
   opens Results. Switching modes leaves Setup or Results open as it is (`BulkTabBody`).
-- The batch has two modes. Gear crosses the picked items and the enchant presets under the current encounter,
-  settings, talents and rotation. Builds has two columns (`BulkBuildsColumns`), Builds and Encounters, the first the
-  wider, and runs every ticked bundle on every ticked encounter. Picking one is a power tool (`showPowerTools` in the
-  UI slice): with power tools on, the top navigation's batch tab still reads "Batch" and opens a menu of the two modes
-  on mouseover, on a tap on a touch screen, or on Enter, Space or ArrowDown (`BulkModeMenu`, the kit `Menu` with
-  `openOnHover` that Import and Export use, around the tab through `TabNavTab.renderTab`). Clicking the tab opens the
+- The batch has three modes. Gear crosses the picked items and the enchant presets under the current encounter,
+  settings, talents and rotation. Drops sims each picked item from the ticked sources on its own (below). Builds has
+  two columns (`BulkBuildsColumns`), Builds and Encounters, the first the wider, and runs every ticked bundle on every
+  ticked encounter. The top navigation's batch tab reads "Batch" and opens a menu of the modes on mouseover, on a tap
+  on a touch screen, or on Enter, Space or ArrowDown (`BulkModeMenu`, the kit `Menu` with `openOnHover` that Import and
+  Export use, around the tab through `TabNavTab.renderTab`). The menu is shown to everyone: Gear and Drops always,
+  Builds only with power tools on (`bulkMenuModes`, `showPowerTools` in the UI slice). Clicking the tab opens the
   batch tab in the current mode and does not toggle the menu, which would keep it open after the pointer leaves;
-  picking a mode sets it and opens the batch tab. With power tools off the tab is a plain "Batch" and the batch runs
-  in Gear mode. The mode is `BulkSlice.mode`, stored per spec under `bulk-mode.v1` (default Gear), and outlives power
-  tools being turned off.
-- Gear mode's run card holds the Batch encounter block (`BatchEncounter`, `BulkSlice.batchEncounter`), one dropdown stored
-  per spec under `bulk-batch-encounter.v1` as a `BulkEncounterRef`. The empty ref is "Current encounter", and the run
-  uses the Encounter tab. A picked preset or saved encounter from `pickableBulkEncounters` runs as
-  `BulkSimOverrides.encounter` and is named in the results. A ref whose encounter is gone reads as Current encounter and
-  stays stored. Builds hides the block and ignores it, by `bulkRunsBuilds`. The block never writes the Encounter tab.
-- `bulkRunsBuilds` (`ui/features/bulk/model/mode.ts`, power tools on and mode Builds) is the one gate, read by
-  `runBulkBatch` and, through `useBulkMode`, by the Setup pane, which in Builds shows `BulkBuildsColumns` in place of
-  the item picker. Outside Builds the Builds picks stay stored and count again on the way back. Each mode keeps its
-  own last results and started flag (`gearResults`/`buildsResults`, `gearStarted`/`buildsStarted` on the slice): a run
-  writes only the mode it started in, and the Results pane, the encounter list, the CSV export and Compare read the
-  shown mode's through `useBulkResults` (`bulkModeResults`). A mode that never ran shows the hint to run one. Compare
-  encounters stays tied to power tools and two or more finished encounters.
+  picking a mode sets it, bumps `settings` so the count refreshes, and opens the batch tab. The mode is
+  `BulkSlice.mode`, stored per spec under `bulk-mode.v1` (default Gear). `bulkRunMode` is the mode a batch runs in:
+  a stored Builds runs as Gear with power tools off, and a stored Drops stays. The stored mode outlives power tools
+  being turned off.
+- Gear and Drops hold the Batch encounter block (`BatchEncounter`, `BulkSlice.batchEncounter`) in the run card, one
+  dropdown stored per spec under `bulk-batch-encounter.v1` as a `BulkEncounterRef`. The empty ref is "Current
+  encounter", and the run uses the Encounter tab. A picked preset or saved encounter from `pickableBulkEncounters`
+  runs as `BulkSimOverrides.encounter` and is named in the results. A ref whose encounter is gone reads as Current
+  encounter and stays stored. Builds shows no block (`BulkSettings` passes none while the Builds plan exists) and its
+  plan never reads the ref. The block never writes the Encounter tab.
+- **Drops** answers which drop from the ticked sources beats the worn gear. The Setup pane (`DropsSetup`) holds the
+  Sources tree (`dropsSourceTree`) and the item list; the run card holds `DropsRunCount` and the Batch encounter block,
+  with no Top results field. Drops' enchant presets (`DropsEnchantPresets`) are the one settings group under the run
+  card. The leaf keys are `drop:<zoneId>:<npcId>`,
+  `drop:<zoneId>:other:<name>` (the world drop is `drop:0:other:World Drop`), `quest:<zoneId>`, `crafted:<Profession>`
+  (the numeric enum), `rep:<repFactionId>` and `soldBy:<zoneId>`. A quest or vendor zone with no `zones` row folds into
+  `quest:other` or `soldBy:0`; PvP and a source with nothing to key on have no key. The Sources tree lists the items the
+  phase and the player's side let through (`dropsPhaseItems`, `dropsFactionItems`). The item list under the ticked
+  sources leaves out, and counts in a left-out list, the items the class cannot equip and the random-suffix ones;
+  a worn item is listed but never sent. Four keys store the picks per spec: `bulk-drops-sources.v1` (the ticked
+  leaf keys, sorted), `bulk-drops-excluded.v1` (item ids unticked under them), `bulk-drops-enchant-presets.v1`
+  (the presets Drops runs new items with, apart from Gear's and Builds' picks) and `bulk-drops-view.v1` (`bosses` or
+  `items`). Each pick but the view bumps `settings` so the count refreshes.
+- The Drops request (`dropsRequestSettings`) is `BulkSettings` with `single_change` on, the picked item ids as
+  `items` and the enchant pool of Drops' own presets. It sends `BulkSimOverrides.cullToBaseline` with
+  `BULK_SIM_DEFAULT_TOP_RESULTS` (`bulkTopResults` returns it in Drops), so every candidate comes back once, in
+  `top_results` or `culled_results`, and the run ranks every returned row, never All (`rankEncounterResults` with 0).
+  The run card counts candidates, not combinations: the count leaves out the current gear, an all-worn pick counts 0
+  and Simulate stays off, while one candidate is enough to run (`canRunDropsBatch`). Its iterations are the estimate
+  at the default top results (`bulkDropsIterations`). The row for the iterations, `TotalIterations`, is shared with the
+  Gear and Builds cards and carries the limit warning.
+- Drops results: `dropsStarted` and `dropsResults` are the mode's own, like Gear's and Builds'. A run also stores
+  `dropsRunSources` (the ticked leaf keys) and `dropsRunFaction` (`player.getFaction()`) as it started. The boss cards
+  group by those, never by the tree or the race as they are now, and `dropsItemLookup` resolves items through the
+  faction filter but not the phase filter, so a run keeps its cards after a phase switch. `DropsResults` shows
+  `DropsSummary`, then the Bosses view (one `DropsBossCard` per ticked leaf the rows reach, best gain first, cards
+  with no upgrade last) or the Items view (`DropsItemRow`, each item's best row and the current gear's, or every
+  variation with "show all", filtered by the one source a card click picked; that click switches the stored view to
+  Items, and the filter is not stored). Every % and every delta uses `dropsGap`, the paired difference
+  (`paired_dps_diff_to_baseline`) on a row with a paired error and the gap between the averages only on a row
+  without one, never `row.avg - current.avg`: a culled row can pair with an earlier stage's baseline, so its average
+  can sit below the current gear's while its paired difference is an upgrade. The CSV's `diff` and `diff_pct` take
+  it too, and the margin at the row's own iteration count. An upgrade is a row `dropsGap` puts above the current gear
+  and `isTiedWithBaseline` tells apart from it. An item's best row is its proven upgrade with the largest gain, else
+  its best average. `DropsSummary.bestGroup` is null when `best` has no card among the run's sources, and the summary
+  then shows the best drop without a best source. M in "N / M" counts the source's worn items too.
+- A row culled before the finalist set (`culledStage` set) is lower precision: no ±, no tight bracket, an empty
+  `dps_margin_95` in the CSV, and it brackets only with the current gear. Drops rows show their DPS whatever the
+  hide-damage display setting says, since every Drops output is a DPS ranking. In the CSV the `rank` column skips the
+  current gear's row, as the pane does; Gear and Builds rank it like any other row. Drops has no Compare button.
+- `bulkRunMode` (`ui/features/bulk/model/mode.ts`, from power tools and the stored mode) is the one gate. `runBulkBatch`
+  reads it, and `useBulkMode` derives `builds` and `drops` from it (`bulkRunsBuilds`, `bulkRunsDrops`) for the Setup
+  pane, which in Builds shows `BulkBuildsColumns` and in Drops `DropsSetup` in place of the item picker. Outside
+  Builds the Builds picks stay stored and count again on the way back. Each mode keeps its own last results and
+  started flag (`gearResults`/`dropsResults`/`buildsResults`, `gearStarted`/`dropsStarted`/`buildsStarted` on the
+  slice): a run writes only the mode it started in, and the Results pane, the encounter list, the CSV export and
+  Compare read the shown mode's through `useBulkResults` (`bulkModeResults`). A mode that never ran shows the hint to
+  run one. Compare encounters stays tied to power tools and two or more finished encounters.
 - The Batch tab waits for the sim (`useSimReady`) before it reads the database, and Simulate stays disabled until then.
 - **Builds column** (`BuildBundles`): a bundle is one gear set, one talents, one rotation and one Settings tab entry,
   and is the unit that runs. The Current bundle (the live gear, talents, rotation and settings) heads the list, ticked
@@ -381,7 +433,8 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
 - Stored per spec: `bulk-build-bundles.v1` (`BulkBuildBundles`: the bundles in list order with their checked state and
   name, and `current_unchecked`), `bulk-encounters.v1` (`BulkEncounterSelection`: the checked encounter refs in list order),
   `bulk-build-enchant-presets.v1` (the enchant presets checked in Builds, apart from Gear mode's pick in
-  `bulk-enchant-presets.v1`), `bulk-mode.v1` and `bulk-batch-encounter.v1` (the Batch encounter ref). None of the Builds picks bumps the slice's `settings` counter.
+  `bulk-enchant-presets.v1`), `bulk-mode.v1` and `bulk-batch-encounter.v1` (the Batch encounter ref). None of the
+  Builds picks bumps the slice's `settings` counter. Drops' four keys are under Drops above.
 - With two or more finished encounters and power tools on, the encounter list offers Compare encounters: a table
   (`compareMatrix` in `ui/features/bulk/model/results/compare.ts`) with the current gear's row, then every set's, and a column
   per encounter by fight length. Each cell is the set's gain over the current gear (in % of
@@ -422,7 +475,7 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
 make proto      # after a proto change
 make go-to-ts   # after changing an exported constant or slot map in sim/core/bulk
 go test -tags with_db -count=1 ./sim/core/bulk ./sim/web
-npx vitest run ui/features/bulk ui/sim/bulk ui/sim/wasm/bulk_sim/estimate.test.ts \
+npx vitest run ui/features/bulk ui/features/bulk/model/drops ui/sim/bulk ui/sim/wasm/bulk_sim/estimate.test.ts \
   ui/sim/wasm/bulk_sim/statistics.test.ts ui/sim/proto/buff_items.test.ts ui/features/enchant-presets \
   ui/sim/sim.test.ts ui/app/tabs/BulkTabBody.test.tsx ui/app/tabs/BulkTabBody.builds.test.tsx \
   ui/app/SimTabsSection.test.tsx

@@ -14,9 +14,9 @@ export interface BulkResultsProps {
 }
 
 export const BulkResults = ({ onActivateTab, selected }: BulkResultsProps) => {
-	const { builds } = useBulkMode();
+	const { runMode } = useBulkMode();
 	const results = useBulkResults();
-	const started = useBulkState(slice => bulkModeStarted(builds, slice));
+	const started = useBulkState(slice => bulkModeStarted(runMode, slice));
 
 	if (!results) {
 		// Starting a run empties the pane, so the invitation to run one does not come back.

@@ -1,7 +1,7 @@
 import { saveEnchantPreset, setEnchantPresetChecked } from '@features/enchant-presets/model/enchant_presets';
 import { BulkEnchantSlotOptions, BulkSettings, BulkSimStage, ProgressMetrics } from '@generated/proto/api';
 import { APLListItem, APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
-import { Encounter, type EquipmentSpec, ItemSlot, ItemSpec, ItemType, Profession, Race, Stat, Target } from '@generated/proto/common';
+import { Encounter, type EquipmentSpec, Faction, ItemSlot, ItemSpec, ItemType, Profession, Race, Stat, Target } from '@generated/proto/common';
 import {
 	BulkBuildBundle,
 	BulkEnchantPreset,
@@ -10,25 +10,32 @@ import {
 	BulkRotationRef,
 	BulkSettingsRef,
 	BulkTalentRef,
+	ContentPhase,
 	SavedEncounter,
 	SavedGearSet,
 	SavedRotation,
 	SavedSettings,
 	SavedTalents,
 	UIEnchant,
+	UIItem,
+	UIItem_FactionRestriction,
+	UIItemSource,
 } from '@generated/proto/ui';
 import type { BulkEncounterResults, BulkSimOverrides } from '@sim/bulk/types';
 import { Gear } from '@sim/proto/gear';
 import { getGearIdentityKey } from '@sim/proto/items';
 import { Stats } from '@sim/proto/stats';
+import { raceToFaction } from '@sim/proto/utils';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
-import { type BulkMode, patchSlice } from '@sim/state/sim_store';
+import { type BulkMode, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
-import { makeUIEnchant } from '@testing/storybook/fixtures/protos';
+import { makeUIEnchant, makeUIItem } from '@testing/storybook/fixtures/protos';
 import { beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 
+import { setDropsSources } from '../drops/settings';
+import { initBulk } from '../init';
 import { setBulkMode } from '../mode';
 import { compareMatrix } from '../results/compare';
 import { runCoreBulkSim } from './core_sim';
@@ -58,7 +65,7 @@ describe('bulk requests', () => {
 
 		await refreshBulkCombinations({
 			player,
-			sim: { getBulkCombinationCount },
+			sim: { getBulkCombinationCount, getShowPowerTools: () => false },
 			handleCrash: (e: unknown) => Promise.reject(e),
 		} as unknown as IndividualSimHost<any>);
 
@@ -72,7 +79,7 @@ describe('bulk requests', () => {
 		const reason = 'no equippable pair of items available for grouped bulk slot 11';
 		const getBulkCombinationCount = vi.fn(async () => ({ combinations: 0, error: { type: 0, message: reason } }));
 		const handleCrash = vi.fn();
-		const host = { player, sim: { getBulkCombinationCount }, handleCrash } as unknown as IndividualSimHost<any>;
+		const host = { player, sim: { getBulkCombinationCount, getShowPowerTools: () => false }, handleCrash } as unknown as IndividualSimHost<any>;
 
 		await refreshBulkCombinations(host);
 		expect(handleCrash).not.toHaveBeenCalled();
@@ -82,9 +89,45 @@ describe('bulk requests', () => {
 		await refreshBulkCombinations(host);
 		expect(bulkState(player)).toMatchObject({ combinations: 4, combinationsError: null });
 	});
+
+	it('keep the later count when two overlapping counts come back out of order', async () => {
+		const player = makeBulkPlayer({ getGear: () => ({ getEquippedItem: () => null }) });
+		const replies: Array<(reply: { combinations: number }) => void> = [];
+		const getBulkCombinationCount = vi.fn(() => new Promise(resolve => replies.push(resolve)));
+		const host = { player, sim: { getBulkCombinationCount, getShowPowerTools: () => false }, handleCrash: vi.fn() } as unknown as IndividualSimHost<any>;
+
+		const earlier = refreshBulkCombinations(host);
+		const later = refreshBulkCombinations(host);
+		replies[1]({ combinations: 7 });
+		await later;
+		replies[0]({ combinations: 3 });
+		await earlier;
+
+		expect(bulkState(player)).toMatchObject({ combinations: 7, combinationsPending: false });
+	});
 });
 
 const CORE_RESULT = { referenceDpsMetrics: { avg: 1000, stdev: 1 }, topGearResults: [], iterations: 100, metrics: {} };
+const dropsRow = (id: number, avg: number, culledStage?: BulkSimStage) => ({
+	gear: new Gear({ [ItemSlot.ItemSlotChest]: makeEquippedItem({ item: { id, type: ItemType.ItemTypeChest, unique: false } }) }),
+	dpsMetrics: { avg, stdev: 1 },
+	pairedErrorToBaseline: 1,
+	pairedDpsDiffToBaseline: avg - 1000,
+	...(culledStage ? { culledStage } : {}),
+});
+// Three rows that reached the high stage and four culled ones, two of them above the current gear.
+const DROPS_CORE_RESULT = {
+	...CORE_RESULT,
+	topGearResults: [
+		dropsRow(201, 1100),
+		dropsRow(202, 1050),
+		dropsRow(203, 1020),
+		dropsRow(204, 1010, BulkSimStage.BulkSimStageMedium),
+		dropsRow(205, 1005, BulkSimStage.BulkSimStageLow),
+		dropsRow(206, 990, BulkSimStage.BulkSimStageLow),
+		dropsRow(207, 980, BulkSimStage.BulkSimStageLow),
+	],
+};
 const SAVED_KEY = 'saved-encounters';
 const SAVED_TALENTS_KEY = 'saved-talents';
 const SAVED_GEAR_KEY = 'saved-gear';
@@ -168,6 +211,24 @@ const writeSavedTalents = (host: IndividualSimHost<any>, record: Record<string, 
 
 const BUFFED = SavedGearSet.create({ gear: RAID_GEAR.asSpec(), bonusStatsStats: STRENGTH_BONUS.toProto() });
 
+const DRAKKISATH = 'drop:1583:10363';
+const dropItem = (id: number, type: ItemType, fields: Partial<UIItem> = {}) =>
+	makeUIItem({
+		id,
+		name: `Drop ${id}`,
+		type,
+		phase: ContentPhase.ContentPhase1,
+		sources: [UIItemSource.create({ source: { oneofKind: 'drop', drop: { difficulty: 0, npcId: 10363, zoneId: 1583, otherName: '', category: '' } } })],
+		...fields,
+	});
+// The worn cloak, a chest, a ring of the Unknown phase and a Horde-only ring, all from General Drakkisath.
+const DROP_ITEMS = [
+	dropItem(101, ItemType.ItemTypeBack),
+	dropItem(102, ItemType.ItemTypeChest),
+	dropItem(103, ItemType.ItemTypeFinger, { phase: ContentPhase.ContentPhaseUnknown }),
+	dropItem(104, ItemType.ItemTypeFinger, { factionRestriction: UIItem_FactionRestriction.HORDE_ONLY }),
+];
+
 interface BatchOptions {
 	mode?: BulkMode;
 	powerTools?: boolean;
@@ -209,8 +270,19 @@ const batchHost = ({
 		setProfessions: vi.fn(),
 		setConsumes: vi.fn(),
 		setBuffs: vi.fn(),
+		getSpec: () => player.getPlayerSpec().specID,
+		getClass: () => player.getPlayerSpec().classID,
+		getEquippedItems: () => player.getGear().asArray(),
+		getFaction: () => raceToFaction[player.sim.store.getState().players[player.storeKey].race as Race],
 		sim: {
+			getPhase(this: { store: SimStore }) {
+				return this.store.getState().sim.phase;
+			},
 			db: {
+				getAllItems: () => DROP_ITEMS,
+				getZone: () => undefined,
+				getNpc: () => undefined,
+				getRepFaction: () => undefined,
 				getEnchants: SLOT_ENCHANTS,
 				lookupEquipmentSpec: (spec: EquipmentSpec) =>
 					KNOWN_GEAR.find(known => getGearIdentityKey(known.asSpec()) === getGearIdentityKey(spec)) ?? new Gear({}),
@@ -218,6 +290,8 @@ const batchHost = ({
 		},
 	});
 	patchSlice(player.sim.store, 'ui', { showPowerTools: powerTools });
+	patchSlice(player.sim.store, 'sim', { phase: ContentPhase.ContentPhase1 });
+	seedKeyed(player.sim.store, 'players', player.storeKey, { race: Race.RaceHuman, v: zeroVersions(PLAYER_FIELDS) } as never);
 	patchBulkState(player, { mode, bundles, currentBundleChecked, encounters, batchEncounter, enchantPresets: [AGILITY_PRESET], buildEnchantPresets });
 	const host = {
 		player,
@@ -876,6 +950,36 @@ describe('runBulkBatch', () => {
 		expect(bulkState(host.player).buildsResults).toBeNull();
 	});
 
+	it('runs Drops as one request culling to the baseline, ranking every row it returns', async () => {
+		const host = batchHost({ mode: 'drops' });
+		setDropsSources(host.player, [DRAKKISATH]);
+		vi.mocked(runCoreBulkSim).mockResolvedValue(DROPS_CORE_RESULT as never);
+
+		await runBulkBatch(host);
+
+		expect(calls()).toHaveLength(1);
+		expect(calls()[0][3]).toEqual({ encounter: CURRENT, topResults: 5, cullToBaseline: true });
+		expect(calls()[0][2].singleChange).toBe(true);
+		expect(calls()[0][2].items.map(spec => spec.id)).toEqual([102]);
+		expect(host.sim.getBulkCombinationCount).toHaveBeenCalledWith(calls()[0][2]);
+		const [entry] = bulkState(host.player).dropsResults!;
+		expect(entry.results.chains.flat()).toHaveLength(3 + 4 + 1); // every row and the current gear
+		expect(bulkState(host.player).gearResults).toBeNull();
+		expect([bulkState(host.player).gearStarted, bulkState(host.player).dropsStarted]).toEqual([false, true]);
+		expect(bulkState(host.player).dropsRunSources).toEqual([DRAKKISATH]);
+	});
+
+	it('runs a stored Drops with power tools off', async () => {
+		const host = batchHost({ mode: 'drops', powerTools: false, batchEncounter: COUNCIL_REF });
+		setDropsSources(host.player, [DRAKKISATH]);
+		vi.mocked(runCoreBulkSim).mockResolvedValue(DROPS_CORE_RESULT as never);
+
+		await runBulkBatch(host);
+
+		expect(calls()[0][3]).toEqual({ encounter: COUNCIL, topResults: 5, cullToBaseline: true });
+		expect(bulkState(host.player).dropsResults).toHaveLength(1);
+	});
+
 	it('drops an encounter whose requests did not all finish', async () => {
 		const host = batchHost({ bundles: [ARMS_BUNDLE], encounters: [CURRENT_ENCOUNTER_REF, COUNCIL_REF] });
 		vi.mocked(runCoreBulkSim)
@@ -891,5 +995,53 @@ describe('runBulkBatch', () => {
 
 		expect(calls()).toHaveLength(4);
 		expect(bulkState(host.player).buildsResults!.map(entry => entry.isCurrent)).toEqual([true]);
+	});
+});
+
+describe('the Drops count', () => {
+	const sentItems = (host: IndividualSimHost<any>) =>
+		vi
+			.mocked(host.sim.getBulkCombinationCount)
+			.mock.calls.at(-1)![0]
+			.items.map(spec => spec.id);
+
+	// The batch's settings as stored, so `initBulk` loads them; it reseeds the slice.
+	const initedHost = async (mode: BulkMode) => {
+		const host = batchHost({ mode });
+		setBulkMode(host.player, mode);
+		setDropsSources(host.player, [DRAKKISATH]);
+		initBulk(host);
+		await vi.waitFor(() => expect(bulkState(host.player).dropsSources).toEqual([DRAKKISATH]));
+		return host;
+	};
+
+	it('counts the Drops settings in Drops and Gear’s in Gear, recounting on a switch', async () => {
+		const host = await initedHost('drops');
+		await vi.waitFor(() => expect(sentItems(host)).toEqual([102]));
+		expect(vi.mocked(host.sim.getBulkCombinationCount).mock.calls.at(-1)![0].singleChange).toBe(true);
+
+		setBulkMode(host.player, 'gear');
+		await vi.waitFor(() => expect(vi.mocked(host.sim.getBulkCombinationCount).mock.calls.at(-1)![0].singleChange).toBe(false));
+
+		setBulkMode(host.player, 'drops');
+		await vi.waitFor(() => expect(vi.mocked(host.sim.getBulkCombinationCount).mock.calls.at(-1)![0].singleChange).toBe(true));
+	});
+
+	it('recounts Drops when the phase, the race or the gear changes', async () => {
+		const host = await initedHost('drops');
+		const { store } = host.player.sim;
+		await vi.waitFor(() => expect(sentItems(host)).toEqual([102]));
+
+		patchSlice(store, 'sim', { phase: ContentPhase.ContentPhaseUnknown });
+		await vi.waitFor(() => expect(sentItems(host)).toEqual([102, 103]));
+
+		patchKeyed(store, 'players', host.player.storeKey, { race: Race.RaceOrc }, ['race']);
+		expect(host.player.getFaction()).toBe(Faction.Horde);
+		await vi.waitFor(() => expect(sentItems(host)).toEqual([102, 103, 104]));
+
+		// The chest goes on: worn, it is no longer sent.
+		Object.assign(host.player, { getGear: () => new Gear({ [ItemSlot.ItemSlotBack]: cloak(), [ItemSlot.ItemSlotChest]: chest() }) });
+		patchKeyed(store, 'players', host.player.storeKey, {}, ['gear']);
+		await vi.waitFor(() => expect(sentItems(host)).toEqual([103, 104]));
 	});
 });

@@ -37,4 +37,17 @@ describe('appendBulkSimNonFinalists', () => {
 		expect(rows.slice(2).every(row => row.culledStage === BulkSimStage.BulkSimStageUnknown && row.dpsMetrics!.allValues.length === 0)).toBe(true);
 		expect(highResults.every(result => result.dpsMetrics!.allValues.length === 4)).toBe(true);
 	});
+
+	it('gives each non-finalist its mean paired difference to the high-stage baseline', () => {
+		const highBaseline = candidateResult(-1, HIGH_BASELINE_VALUES);
+		const highResults = [0, 1, 2].map(index => candidateResult(index, highValues(index)));
+		const finalists = [highResults[0]];
+
+		const rows = appendBulkSimNonFinalists([], finalists, highResults, highBaseline);
+
+		// The NOISE offsets sum to 0, so candidate i's mean difference is 50 - 10i.
+		expect(rows.map(row => row.candidateIndex)).toEqual([1, 2]);
+		expect(rows[0].pairedDpsDiffToBaseline).toBeCloseTo(40, 9);
+		expect(rows[1].pairedDpsDiffToBaseline).toBeCloseTo(30, 9);
+	});
 });

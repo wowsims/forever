@@ -20,8 +20,9 @@ import { bulkBuildPlan, type BulkBuildStep, bulkBuildStep, bulkBundlePlans, bulk
 import { bulkBundleRuns, pickableBulkBundleParts } from '../builds/bundles';
 import { bulkEnchantPickEntries, bulkEnchantPickRuns } from '../builds/enchant_picks';
 import { bulkEncounterRuns, pickableBulkEncounters } from '../builds/encounters';
+import { dropsRequestSettings } from '../drops/settings';
 import { createBulkSettingsProto } from '../gear/settings';
-import { bulkRunsBuilds } from '../mode';
+import { bulkRunMode, bulkRunsDrops } from '../mode';
 import { type BulkFinishedRequest, rankEncounterResults } from '../results/results';
 import { type CoreBulkSimResult, runCoreBulkSim as runCoreBulkSimImpl } from './core_sim';
 import { BulkProgress, type BulkRequestIterations, type BulkStepsTiming, candidateGearProgress, requestIterationsProgress, simProgress } from './progress';
@@ -109,11 +110,13 @@ const setSimProgress = (player: Player<any>, metrics: ProgressMetrics, config: B
 	emitProgress(player, simProgress(metrics, config, run.simStart, new Date().getTime()));
 };
 
-const calculateBulkCombinations = async (host: IndividualSimHost<any>) => {
+// A reply to an older request writes nothing: the workers can answer two overlapping counts out of order.
+const calculateBulkCombinations = async (host: IndividualSimHost<any>, requestVersion: number) => {
 	const { sim, player } = host;
 	try {
-		const bulkSettings = bulkRequestSettings(player);
+		const bulkSettings = bulkRunsDrops(sim.getShowPowerTools(), bulkState(player).mode) ? dropsRequestSettings(player) : bulkRequestSettings(player);
 		const combinationCountResult = await sim.getBulkCombinationCount(bulkSettings);
+		if (requestVersion !== runOf(player).combinationsRequestVersion) return;
 
 		// A selection that gives no combination is the user's to change, shown beside the count, not a crash: the count
 		// runs again on every edit, so a crash here would alert on each one.
@@ -138,7 +141,7 @@ export const refreshBulkCombinations = async (host: IndividualSimHost<any>) => {
 	const run = runOf(host.player);
 	const requestVersion = ++run.combinationsRequestVersion;
 	patchBulkState(host.player, { combinationsPending: true });
-	await calculateBulkCombinations(host);
+	await calculateBulkCombinations(host, requestVersion);
 	if (requestVersion !== run.combinationsRequestVersion) {
 		return;
 	}
@@ -248,7 +251,12 @@ interface CurrentBuild {
 	rotation: APLRotation;
 }
 
-const gearModePlan = (host: IndividualSimHost<any>, { talentsString, rotation }: CurrentBuild, topResults: number): BulkEncounterPlan[] => {
+// Drops adds `cullToBaseline`, under which the sim plans for the default top results whatever it is sent.
+const gearModePlan = (
+	host: IndividualSimHost<any>,
+	{ talentsString, rotation }: CurrentBuild,
+	requestOverrides: Pick<BulkSimOverrides, 'topResults' | 'cullToBaseline'>,
+): BulkEncounterPlan[] => {
 	const encounter = batchEncounterSetup(host);
 	const bundle = {
 		talents: { name: '', talentsString, isCurrent: true },
@@ -265,7 +273,7 @@ const gearModePlan = (host: IndividualSimHost<any>, { talentsString, rotation }:
 					requests: [
 						{
 							request: { reference: true, talents: bundle.talents, rotation: bundle.rotation, settings: null, setups: null },
-							overrides: { encounter: encounter.encounter, topResults },
+							overrides: { encounter: encounter.encounter, ...requestOverrides },
 						},
 					],
 				},
@@ -337,13 +345,16 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 	if (bulkState(player).isRunning) return;
 
 	const powerTools = sim.getShowPowerTools();
-	const builds = bulkRunsBuilds(powerTools, bulkState(player).mode);
+	const runMode = bulkRunMode(powerTools, bulkState(player).mode);
+	const builds = runMode === 'builds';
+	const drops = runMode === 'drops';
 	const topResults = bulkTopResults(powerTools, bulkState(player));
 	const current = { talentsString: player.getTalentsString(), rotation: APLRotation.clone(player.aplRotation) };
 	// Read before `waitForInit`: Simulate is enabled only once the sim is ready, so the database is loaded.
-	const plan = builds ? buildsModePlan(host, current, topResults) : gearModePlan(host, current, topResults);
+	const plan = builds
+		? buildsModePlan(host, current, topResults)
+		: gearModePlan(host, current, drops ? { topResults, cullToBaseline: true } : { topResults });
 	if (!plan.length) return;
-	const resultsPatch = (results: BulkEncounterResults[] | null) => (builds ? { buildsResults: results } : { gearResults: results });
 
 	trackEvent({
 		action: 'sim',
@@ -364,14 +375,22 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 	};
 	// The progress dialog mounts on `isRunning` and takes the steps from the progress there, before the first stage reports.
 	setCandidateGearProgress(player);
-	patchBulkState(player, { isRunning: true, ...(builds ? { buildsStarted: true } : { gearStarted: true }) });
+	const startedPatch = drops ? { dropsStarted: true } : builds ? { buildsStarted: true } : { gearStarted: true };
+	patchBulkState(player, { isRunning: true, ...startedPatch });
 	run.abortController = new AbortController();
 	run.abortPromise = null;
 	const abortSignal = run.abortController.signal;
 
 	await sim.waitForInit();
 	// Empty in Builds, whose gear setups already carry its enchant presets, so Gear-mode picks stay out of its seed.
-	const bulkSettings = builds ? BulkSettings.create() : bulkRequestSettings(player);
+	const bulkSettings = builds ? BulkSettings.create() : drops ? dropsRequestSettings(player) : bulkRequestSettings(player);
+	// The ticks and the side the Drops request was built from, which its results group by.
+	const dropsRunSources = bulkState(player).dropsSources;
+	const dropsRunFaction = player.getFaction();
+	const resultsPatch = (results: BulkEncounterResults[] | null) => {
+		if (drops) return { dropsResults: results, dropsRunSources, dropsRunFaction };
+		return builds ? { buildsResults: results } : { gearResults: results };
+	};
 	const entries: BulkEncounterResults[] = [];
 	let runError: unknown = null;
 
@@ -413,7 +432,8 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 				isCurrent: encounterPlan.encounter.isCurrent,
 				duration: encounterPlan.encounter.encounter.duration,
 				durationVariation: encounterPlan.encounter.encounter.durationVariation,
-				results: rankEncounterResults(finished, baseGear, topResults),
+				// Drops ranks every row the sim returns, culled ones included.
+				results: rankEncounterResults(finished, baseGear, drops ? 0 : topResults),
 			});
 		}
 	} catch (error) {
