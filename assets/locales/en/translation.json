@@ -693,7 +693,8 @@
 				"defias_enforcers_garb_5": "Implemented on both hands, not the main hand only."
 			},
 			"partial_item": {
-				"zumrahs_vexing_cane": "Proc: Pet not modelled, adds below 1 DPS"
+				"zumrahs_vexing_cane": "Proc: Pet not modelled, adds below 1 DPS",
+				"summon_not_simulated": "The creature this item summons is not simulated yet: the game files do not state its damage, so it waits on a log measurement. The item's stats are simulated."
 			},
 			"set_bonus_warnings": "This item set has the following warnings:",
 			"set_bonus_piece": "{{pieces}}-piece:",

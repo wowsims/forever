@@ -146,6 +146,27 @@ const TENTATIVE_IMPLEMENTATION_ITEMS: number[] = [];
 
 const ZumrahsVexingCaneNotice = () => <p className="mb-0">{i18n.t('gear_tab.item_notices.partial_item.zumrahs_vexing_cane')}</p>;
 
+// Items whose use or proc summons a creature the sim does not build yet. The game files state the creature, how many
+// come and for how long, but not its health, swing or spells, so each waits on a log measurement before it joins
+// shared.GuardianConfig (sim/common/shared/item_guardians.go); the item keeps its stats meanwhile.
+const UNSIMULATED_SUMMON_ITEMS = [
+	3456, // Dog Whistle: Tracking Hound 6867
+	10455, // Chained Essence of Eranikus: a poison cloud 8506
+	13353, // Book of the Dead: Skeleton 11200
+	13382, // Cannonball Runner: Scarlet Cannon 11199
+	14022, // Barov Peasant Caller: three servants 11637
+	14023, // Barov Peasant Caller: three servants 11636
+	16022, // Arcanite Dragonling 12473
+	21326, // Defender of the Timbermaw: Timbermaw Ancestor 15720
+	21579, // Vanquished Tentacle of C'Thun: Vanquished Tentacle 15901
+	22332, // Blade of Necromancy: a skeleton 268677 on a kill
+	268873, // Defender of the Barkskin: Barkskin Ancestor 265155
+	274761, // Parachute-Priest Pager: Parachute-Priest 265747
+	276744, // Zarla's Snack Pouch: Black Dragon Whelp 274297
+];
+
+const SummonNotSimulatedNotice = () => <p className="mb-0">{i18n.t('gear_tab.item_notices.partial_item.summon_not_simulated')}</p>;
+
 export const ITEM_NOTICES = new Map<number, ItemNoticeData>([
 	...WILL_NOT_BE_IMPLEMENTED_ITEMS.map((itemID): [number, ItemNoticeData] => [
 		itemID,
@@ -160,6 +181,7 @@ export const ITEM_NOTICES = new Map<number, ItemNoticeData>([
 		},
 	]),
 	[18082, { [Spec.SpecUnknown]: <ZumrahsVexingCaneNotice /> }], // The cane's zombie adds below 1 DPS (EV-0124).
+	...UNSIMULATED_SUMMON_ITEMS.map((itemID): [number, ItemNoticeData] => [itemID, { [Spec.SpecUnknown]: <SummonNotSimulatedNotice /> }]),
 	...[...MISSING_ITEM_EFFECTS].map(([itemID, tooltips]): [number, ItemNoticeData] => [itemID, missingEffectNotice('item', tooltips)]),
 ]);
 

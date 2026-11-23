@@ -120,21 +120,14 @@ func init() {
 	// the sword's speed. Any landed hit rolls it, Rend's and Concussion Blow's applications included. The
 	// row's category cooldown starts at the proc, and no hit rolls while it runs. The cast summons the
 	// Emerald Dragon Whelp 8776 its E_SUMMON names, on the hit enemy, for the row's duration.
-	core.NewItemPet(10847, newEmeraldDragonWhelp)
+	shared.RegisterItemGuardian(10847, "Emerald Dragon Whelp", emeraldDragonWhelp)
 	newEntryRateItemEffect(10847, 13049, func(character *core.Character, ppm float64) {
-		var whelp *emeraldDragonWhelp
-		for _, pet := range character.PetAgents {
-			if w, ok := pet.(*emeraldDragonWhelp); ok {
-				whelp = w
-				break
-			}
-		}
-		row := spelldata.MustFind(13049)
+		whelps := shared.Guardians(character, emeraldDragonWhelp.Summon)
+		row := emeraldDragonWhelp.Summon
 		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Flags(core.SpellFlagNoOnCastComplete))
 		config.ProcMask = core.ProcMaskEmpty
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
-			whelp.CurrentTarget = target
-			whelp.EnableWithTimeout(sim, whelp, row.Duration())
+			shared.SummonGuardians(sim, whelps, target)
 		}
 		dragonsCall := character.RegisterSpell(config)
 

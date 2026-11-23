@@ -101,10 +101,15 @@ is registered. Items and enchants work differently:
   `gear_tab.item_notices` in `assets/locales/en/translation.json`, and its key in `schemas/translation.schema.json`.
   Nothing checks a notice against the sim, so a change that completes a bonus, or settles the in-game question a notice
   names, removes it from all three files.
-- **An item that summons a creature registers its pet with `core.NewItemPet`.** `AddPet` panics once the environment
-  is set, and the item effects run after that, so `NewAgent` builds the pet with its owner, once for an item worn or
-  carried in the item swap set by a class that can use it (`sim/core/item_effects.go`). The item's effect finds the
-  pet in `PetAgents`; Dragon's Call's whelp is the example (`sim/common/forever/items_dragons_call.go`).
+- **An item that summons a creature registers its pets with `core.NewItemPet`.** `AddPet` panics once the environment
+  is set, and the item effects run after that, so `NewAgent` builds the pets with their owner, once for an item worn or
+  carried in the item swap set by a class that can use it (`sim/core/item_effects.go`). A guardian goes through
+  `shared.RegisterItemGuardian` (`sim/common/shared/item_guardians.go`): the summon's row gives the creature count and
+  duration, and the config states what the logs measure, its health, armor and swing as shares of the creature numbers
+  for the level and the one spell it casts. The item's effect finds them with `shared.Guardians` and puts them up with
+  `shared.SummonGuardians`; Dragon's Call's whelp is the example (`sim/common/forever/items_dragons_call.go`). A summon
+  item with no measurement yet sits in `UNSIMULATED_SUMMON_ITEMS` (`ui/features/gear/item_notices.tsx`), which shows
+  the gear tab's notice; the item leaves the list when its guardian lands.
 - **The folder follows who can use the item**, as `references/rulings.md` states. A class test binary registers only
   its own package, so a shared set left in a class folder never reaches the other classes' AllItems suites;
   `TestGearSetsHoldOnlyTheirClassItems` in `sim/item_class_allowlist_test.go` fails a preset wearing another class's
