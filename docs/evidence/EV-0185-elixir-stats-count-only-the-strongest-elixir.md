@@ -64,7 +64,7 @@ read in game is not recorded.
 - Game build: the live build when it was reported on 2026-11-23; the hotfix it ran on and whether the game was
   relogged are not recorded
 - Date: not recorded; reported on 2026-11-23
-- Pull request: #TBD
+- Pull request: #1192
 
 The owner reports that Scroll of Strength and Juju Power (12451) do not stack: applying Juju Power removes the scroll's
 Strength buff, and a new Scroll of Strength cannot be applied while Juju Power is up. Which rank of the scroll was used
