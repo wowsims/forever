@@ -303,7 +303,7 @@ down to whole points is 1 point, 1.5% of ticks.
 - Game build: 1.60.1.71037 with the hotfixes up to 2026-11-23 (blizztrack lists 71037 from 2026-11-20 18:23 UTC; reports
   from 2026-11-19 23:00 may be on 70959); the hotfix a run was on and relogs are not recorded
 - Date: 2026-11-19 23:00 to 2026-11-23 15:45 UTC
-- Pull request: #TBD
+- Pull request: #1189
 
 The Spell Piercing count runs as in §Count of the 2026-11-19 to 2026-11-21 reports, within 2.5% where that count took
 2%: a bonus is a normal hit with nothing resisted, 50 or more damage before resists, at 1.1, 1.2 or 1.3 times the median of the same
