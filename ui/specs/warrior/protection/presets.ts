@@ -6,7 +6,6 @@ import { ProtectionWarrior_Options as ProtectionWarriorOptions, WarriorStance } 
 import { Stats } from '@sim/proto/stats';
 import { OtherDefaults as SimUIOtherDefaults } from '@sim/spec_config';
 
-import * as WarriorPresets from '../shared/presets';
 import GenericApl from './apls/default.apl.json';
 import PreBiSBalancedGearJson from './gear_sets/prebis_balanced.gear.json';
 import PreBiSOffensiveGearJson from './gear_sets/prebis_offensive.gear.json';
@@ -115,18 +114,26 @@ export const DefaultOptions = ProtectionWarriorOptions.create({
 });
 
 export const DefaultConsumables = ConsumesSpec.create({
-	...WarriorPresets.DefaultConsumables,
-	offensivePotId: Consumables.MajorFrenzyPotion.id,
-	elixirIds: [
-		Consumables.ElixirOfFerocity.id,
-		Consumables.ElixirOfTheMongoose.id,
-		Consumables.WinterfallFirewater.id,
-		Consumables.ElixirOfGreaterDefense.id,
-		Consumables.ElixirOfThePhalanx.id,
-	],
-	mhImbueId: Consumables.DenseWeightstone.id,
+	foodId: Consumables.SmokedDesertDumplings.id,
 	conjuredId: Consumables.MajorHealthstone9421.id,
-	extraIds: [Consumables.GoblinSapperCharge.id, Consumables.RumseyRum.id],
+	// A dynamite states no stun, so a level 63 boss does not shrug it off the way it does the EZ-Thro Dark Bomb.
+	explosiveId: Consumables.SAFTCleverDynamite.id,
+	mhImbueId: Consumables.HeavyWeightstone.id,
+	extraIds: [
+		Consumables.GoblinSapperCharge.id,
+		Consumables.RumseyRum.id,
+		Consumables.JujuPower.id,
+		Consumables.JujuMight.id,
+		Consumables.BoglingRoot.id,
+		Consumables.ROIDS.id,
+	],
+	elixirIds: [
+		Consumables.ElixirOfTheMongoose.id,
+		Consumables.GiftOfArthas.id,
+		Consumables.ElixirOfGreaterFortitude.id,
+		Consumables.ElixirOfGreaterDefense.id,
+	],
+	offensivePotId: Consumables.MajorFrenzyPotion.id,
 });
 
 // Classic Era Molten Core logs: the healing that lands on the main tank, overhealing included, comes to 2.4 x

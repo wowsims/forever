@@ -1,9 +1,12 @@
 package shared
 
 import (
+	"slices"
 	"testing"
 
+	"github.com/wowsims/forever/assets/database"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
@@ -125,23 +128,18 @@ func TestElixirTakesEveryEffectAndTheDurationOfItsRow(t *testing.T) {
 	}
 }
 
-// Elixir of the Grizzly 250351 (1250986) states Strength and the same crit as Elixir of the Mongoose:
-// both stats apply, the crit once.
-func TestOnlyOneElixirsCritApplies(t *testing.T) {
+// Elixir of the Grizzly 250351 (1250986) states Strength and the same crit as Elixir of the Mongoose.
+// The two share the crit group, so only the first the spec names applies, its crit once.
+func TestOnlyTheFirstCritElixirApplies(t *testing.T) {
 	const grizzly int32 = 250351
 	registerStatConsumable(t, elixirOfTheMongooseID)
 	registerStatConsumable(t, grizzly)
 
-	mongoose := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}}, &proto.RaidBuffs{})
-	grizzlys := statGain(&proto.ConsumesSpec{ElixirIds: []int32{grizzly}}, &proto.RaidBuffs{})
-	both := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID, grizzly}}, &proto.RaidBuffs{})
-	if both[stats.Agility] != mongoose[stats.Agility] || both[stats.Strength] != grizzlys[stats.Strength] {
-		t.Errorf("Mongoose and Grizzly add %v Agility and %v Strength, want each one's own: %v and %v",
-			both[stats.Agility], both[stats.Strength], mongoose[stats.Agility], grizzlys[stats.Strength])
-	}
-	if both[stats.PhysicalCritPercent] != mongoose[stats.PhysicalCritPercent] || both[stats.SpellCritPercent] != mongoose[stats.SpellCritPercent] {
-		t.Errorf("Mongoose and Grizzly add %v%% physical and %v%% spell crit, want Mongoose's alone: %v%% and %v%%",
-			both[stats.PhysicalCritPercent], both[stats.SpellCritPercent], mongoose[stats.PhysicalCritPercent], mongoose[stats.SpellCritPercent])
+	for _, ids := range [][]int32{{elixirOfTheMongooseID, grizzly}, {grizzly, elixirOfTheMongooseID}} {
+		first := statGain(&proto.ConsumesSpec{ElixirIds: ids[:1]}, &proto.RaidBuffs{})
+		if both := statGain(&proto.ConsumesSpec{ElixirIds: ids}, &proto.RaidBuffs{}); first[stats.PhysicalCritPercent] <= 0 || both != first {
+			t.Errorf("elixirs %v add %v, want %d's alone: %v", ids, both, ids[0], first)
+		}
 	}
 }
 
@@ -233,83 +231,6 @@ func TestOnlyTheFirstOfTheRumGroupAppliesBesideTheFood(t *testing.T) {
 	}
 }
 
-// Juju Power 12451 (16323) joins the Strength elixirs, Elixir of Greater Strength 9206 (11405) among
-// them. An elixir the spec names comes before its extra ids.
-func TestAJujuAndAnElixirOfItsGroupDoNotStack(t *testing.T) {
-	const greaterStrength, jujuPower int32 = 9206, 12451
-	registerStatConsumable(t, greaterStrength)
-	registerStatConsumable(t, jujuPower)
-
-	if gain := soloGain(jujuPower); gain[stats.Strength] <= 0 {
-		t.Errorf("Juju Power adds %v Strength, want some", gain[stats.Strength])
-	}
-	elixir := statGain(&proto.ConsumesSpec{ElixirIds: []int32{greaterStrength}}, &proto.RaidBuffs{})
-	both := &proto.ConsumesSpec{ElixirIds: []int32{greaterStrength}, ExtraIds: []int32{jujuPower}}
-	if gain := statGain(both, &proto.RaidBuffs{}); gain[stats.Strength] != elixir[stats.Strength] {
-		t.Errorf("Elixir of Greater Strength and Juju Power add %v Strength, want the elixir's %v",
-			gain[stats.Strength], elixir[stats.Strength])
-	}
-}
-
-// A scroll joins the elixir group of its stat: Scroll of Agility IV 10309 (12174) and Elixir of the
-// Mongoose 13452 (17538) are one Agility group, and the elixir the spec names comes before its extra
-// ids.
-func TestAScrollAndAnElixirOfItsStatDoNotStack(t *testing.T) {
-	const scrollOfAgilityIV int32 = 10309
-	registerStatConsumable(t, scrollOfAgilityIV)
-	registerStatConsumable(t, elixirOfTheMongooseID)
-
-	if gain := soloGain(scrollOfAgilityIV); gain[stats.Agility] <= 0 {
-		t.Errorf("Scroll of Agility IV adds %v Agility, want some", gain[stats.Agility])
-	}
-	elixir := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}}, &proto.RaidBuffs{})
-	both := &proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}, ExtraIds: []int32{scrollOfAgilityIV}}
-	if gain := statGain(both, &proto.RaidBuffs{}); gain[stats.Agility] != elixir[stats.Agility] {
-		t.Errorf("Scroll of Agility IV and Elixir of the Mongoose add %v Agility, want the elixir's %v",
-			gain[stats.Agility], elixir[stats.Agility])
-	}
-}
-
-// Scroll of Strength IV 10310 (12179), Juju Power 12451 (16323) and Elixir of Greater Strength 9206
-// (11405) are one Strength group: only the first the spec names applies.
-func TestOnlyOneOfAStrengthScrollJujuAndElixirApplies(t *testing.T) {
-	const scrollOfStrengthIV, jujuPower, greaterStrength int32 = 10310, 12451, 9206
-	for _, id := range []int32{scrollOfStrengthIV, jujuPower, greaterStrength} {
-		registerStatConsumable(t, id)
-	}
-	elixir := statGain(&proto.ConsumesSpec{ElixirIds: []int32{greaterStrength}}, &proto.RaidBuffs{})
-
-	for _, tc := range []struct {
-		name     string
-		consumes *proto.ConsumesSpec
-		first    stats.Stats
-	}{
-		{"the scroll then Juju Power", &proto.ConsumesSpec{ExtraIds: []int32{scrollOfStrengthIV, jujuPower}}, soloGain(scrollOfStrengthIV)},
-		{"Juju Power then the scroll", &proto.ConsumesSpec{ExtraIds: []int32{jujuPower, scrollOfStrengthIV}}, soloGain(jujuPower)},
-		{"the elixir, the scroll and Juju Power", &proto.ConsumesSpec{ElixirIds: []int32{greaterStrength}, ExtraIds: []int32{scrollOfStrengthIV, jujuPower}}, elixir},
-	} {
-		if gain := statGain(tc.consumes, &proto.RaidBuffs{}); gain[stats.Strength] != tc.first[stats.Strength] {
-			t.Errorf("%s: %v Strength, want the first one's %v", tc.name, gain[stats.Strength], tc.first[stats.Strength])
-		}
-	}
-}
-
-// No elixir opens on A_MOD_STAT Stamina, so Scroll of Stamina IV 10307 (12178) keeps a group of its own
-// and stacks with Elixir of the Mongoose 13452.
-func TestAScrollNoElixirSharesStacksWithTheElixirs(t *testing.T) {
-	const scrollOfStaminaIV int32 = 10307
-	registerStatConsumable(t, scrollOfStaminaIV)
-	registerStatConsumable(t, elixirOfTheMongooseID)
-
-	scroll := soloGain(scrollOfStaminaIV)
-	elixir := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}}, &proto.RaidBuffs{})
-	both := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}, ExtraIds: []int32{scrollOfStaminaIV}}, &proto.RaidBuffs{})
-	if scroll[stats.Stamina] <= 0 || both != scroll.Add(elixir) {
-		t.Errorf("Scroll of Stamina IV adds %v Stamina, and with Elixir of the Mongoose %v, want some and each one's in full: %v and %v",
-			scroll[stats.Stamina], both, scroll, elixir)
-	}
-}
-
 // A flask has no group: Flask of Supreme Power 13512 (17628, spell damage) stacks with Arcane Elixir
 // 9155 (11390), whose aura is the same A_MOD_DAMAGE_DONE every school.
 func TestAFlaskStacksWithAnElixir(t *testing.T) {
@@ -360,46 +281,229 @@ func TestOnlyOneHitFoodApplies(t *testing.T) {
 	}
 }
 
-// Elixir of Agility 8949 (11328, Agility) and Elixir of the Mongoose 13452 (17538, Agility and crit)
-// both open on A_MOD_STAT Agility (29/1), one group: only the one the spec names first applies, in
-// full.
-func TestOnlyTheFirstElixirOfAGroupApplies(t *testing.T) {
-	const elixirOfAgilityID int32 = 8949
-	registerStatConsumable(t, elixirOfAgilityID)
-	registerStatConsumable(t, elixirOfTheMongooseID)
-	alone := func(id int32) stats.Stats {
-		return statGain(&proto.ConsumesSpec{ElixirIds: []int32{id}}, &proto.RaidBuffs{})
+// Each stat the elixirs the spec names grant counts only the strongest one's amount, in whatever
+// order they come, where the elixirs sit in different groups. Elixir of Ferocity 250350 (Strength
+// and Agility) keeps its Strength beside Elixir of the Mongoose 13452 (more Agility and crit), and
+// adds nothing beside Elixir of Greater Agility 9187 and Elixir of the Grizzly 250351 (as much
+// Strength and crit). Juju Power 12451 bids with the elixirs. Elixir of Cunning 250328 states Agility
+// and Intellect, Elixir of the Sages 13447 Intellect and Spirit. Elixir of Greater Defense 13445 and
+// Elixir of the Phalanx 250329 both state armor as A_MOD_ARMOR_NO_MODS.
+func TestEachStatCountsOnlyItsStrongestElixir(t *testing.T) {
+	const ferocity, mongoose, greaterAgility, grizzly, jujuPower int32 = 250350, 13452, 9187, 250351, 12451
+	const cunning, greaterIntellect, sages, whale, greaterDefense, phalanx int32 = 250328, 9179, 13447, 250348, 13445, 250329
+	for _, tc := range []struct {
+		name    string
+		elixirs []int32
+		extras  []int32
+		checked []stats.Stat
+	}{
+		{"Ferocity and Mongoose", []int32{ferocity, mongoose}, nil, []stats.Stat{stats.Strength, stats.Agility}},
+		{"Mongoose and Ferocity", []int32{mongoose, ferocity}, nil, []stats.Stat{stats.Strength, stats.Agility}},
+		{"Ferocity, Greater Agility and Grizzly", []int32{ferocity, greaterAgility, grizzly}, nil, []stats.Stat{stats.Strength, stats.Agility}},
+		{"Grizzly and Juju Power", []int32{grizzly}, []int32{jujuPower}, []stats.Stat{stats.Strength}},
+		{"Cunning and Greater Intellect", []int32{cunning, greaterIntellect}, nil, []stats.Stat{stats.Agility, stats.Intellect}},
+		{"the Sages and the Whale", []int32{sages, whale}, nil, []stats.Stat{stats.Intellect, stats.Spirit}},
+		{"Greater Defense and Phalanx", []int32{greaterDefense, phalanx}, nil, []stats.Stat{stats.Armor}},
+	} {
+		ids := append(slices.Clone(tc.elixirs), tc.extras...)
+		for _, id := range ids {
+			registerStatConsumable(t, id)
+		}
+
+		gain := statGain(&proto.ConsumesSpec{ElixirIds: tc.elixirs, ExtraIds: tc.extras}, &proto.RaidBuffs{})
+		shared := false
+		for _, stat := range tc.checked {
+			strongest, granting := 0.0, 0
+			for _, id := range ids {
+				if solo := soloGain(id)[stat]; solo > 0 {
+					strongest, granting = max(strongest, solo), granting+1
+				}
+			}
+			shared = shared || granting > 1
+			if gain[stat] != strongest {
+				t.Errorf("%s add %v %v, want the strongest one's %v", tc.name, gain[stat], stat.StatName(), strongest)
+			}
+		}
+		if !shared {
+			t.Fatalf("%s: no two of them grant one of %v", tc.name, tc.checked)
+		}
 	}
 
-	for _, tc := range []struct {
-		name string
-		ids  []int32
-	}{
-		{"Agility then Mongoose", []int32{elixirOfAgilityID, elixirOfTheMongooseID}},
-		{"Mongoose then Agility", []int32{elixirOfTheMongooseID, elixirOfAgilityID}},
-	} {
-		gain := statGain(&proto.ConsumesSpec{ElixirIds: tc.ids}, &proto.RaidBuffs{})
-		if first := alone(tc.ids[0]); !gain.EqualsWithTolerance(first, 1e-9) {
-			t.Errorf("%s add %v, want the first one's in full and nothing of the second: %v", tc.name, gain, first)
+	both := statGain(&proto.ConsumesSpec{ElixirIds: []int32{ferocity, mongoose}}, &proto.RaidBuffs{})
+	if crit := soloGain(mongoose)[stats.PhysicalCritPercent]; crit <= 0 || both[stats.PhysicalCritPercent] != crit {
+		t.Errorf("Ferocity and Mongoose add %v%% crit, want Mongoose's %v%%", both[stats.PhysicalCritPercent], crit)
+	}
+}
+
+// Elixir of the Grizzly 250351 (Strength and crit) and Elixir of Greater Strength 9206 state the same
+// Strength, which counts once beside Grizzly's crit.
+func TestTwoElixirsOfEqualStrengthCountItOnce(t *testing.T) {
+	const grizzly, greaterStrength int32 = 250351, 9206
+	registerStatConsumable(t, grizzly)
+	registerStatConsumable(t, greaterStrength)
+
+	grizzlys := statGain(&proto.ConsumesSpec{ElixirIds: []int32{grizzly}}, &proto.RaidBuffs{})
+	greaters := statGain(&proto.ConsumesSpec{ElixirIds: []int32{greaterStrength}}, &proto.RaidBuffs{})
+	if grizzlys[stats.Strength] <= 0 || grizzlys[stats.Strength] != greaters[stats.Strength] {
+		t.Fatalf("Grizzly adds %v Strength and Greater Strength %v, want the same amount", grizzlys[stats.Strength], greaters[stats.Strength])
+	}
+
+	for _, ids := range [][]int32{{grizzly, greaterStrength}, {greaterStrength, grizzly}} {
+		if both := statGain(&proto.ConsumesSpec{ElixirIds: ids}, &proto.RaidBuffs{}); !both.EqualsWithTolerance(grizzlys, 1e-9) {
+			t.Errorf("elixirs %v add %v, want Grizzly's alone: %v", ids, both, grizzlys)
 		}
 	}
 }
 
-// Elixirs of different groups stack in full. Elixir of the Sages 13447 (17535, Intellect then Spirit)
-// is an Intellect elixir (29/3) and Elixir of the Whale 250348 (1250981, Spirit) a Spirit one (29/4).
-// Arcane Elixir 9155 (11390, spell damage, 13/126) and Elixir of Fire Power 6373 (7844, fire damage,
-// 13/4) are two groups as well.
-func TestElixirsOfDifferentGroupsStack(t *testing.T) {
-	const sagesID, whaleID, arcaneID, firePowerID int32 = 13447, 250348, 9155, 6373
-	for _, id := range []int32{sagesID, whaleID, arcaneID, firePowerID} {
+// A scroll stacks with the elixirs of its stat: Scroll of Strength IV 10310 with Juju Power 12451, and
+// Scroll of Intellect IV 10308 with Elixir of Cunning's 250328 Intellect, whichever comes first.
+func TestAScrollStacksWithTheElixirsOfItsStat(t *testing.T) {
+	const scrollOfStrengthIV, jujuPower, cunning int32 = 10310, 12451, 250328
+	for _, id := range []int32{scrollOfStrengthIV, jujuPower, scrollOfIntellectIVID, cunning} {
 		registerStatConsumable(t, id)
 	}
 
-	sages := statGain(&proto.ConsumesSpec{ElixirIds: []int32{sagesID}}, &proto.RaidBuffs{})
-	whale := statGain(&proto.ConsumesSpec{ElixirIds: []int32{whaleID}}, &proto.RaidBuffs{})
-	if both := statGain(&proto.ConsumesSpec{ElixirIds: []int32{sagesID, whaleID}}, &proto.RaidBuffs{}); !both.EqualsWithTolerance(sages.Add(whale), 1e-9) {
-		t.Errorf("Sages and Whale add %v, want each one's in full: %v and %v", both, sages, whale)
+	for _, tc := range []struct {
+		name           string
+		stat           stats.Stat
+		scroll, elixir int32
+	}{
+		{"Scroll of Strength IV and Juju Power", stats.Strength, scrollOfStrengthIV, jujuPower},
+		{"Scroll of Intellect IV and Elixir of Cunning", stats.Intellect, scrollOfIntellectIVID, cunning},
+	} {
+		scroll, elixir := soloGain(tc.scroll)[tc.stat], soloGain(tc.elixir)[tc.stat]
+		if scroll <= 0 || elixir <= 0 {
+			t.Fatalf("%s: the scroll adds %v %v and the elixir %v, want both some", tc.name, scroll, tc.stat.StatName(), elixir)
+		}
+		for _, ids := range [][]int32{{tc.scroll, tc.elixir}, {tc.elixir, tc.scroll}} {
+			if gain := statGain(&proto.ConsumesSpec{ExtraIds: ids}, &proto.RaidBuffs{}); gain[tc.stat] != scroll+elixir {
+				t.Errorf("%s as %v add %v %v, want both: %v", tc.name, ids, gain[tc.stat], tc.stat.StatName(), scroll+elixir)
+			}
+		}
 	}
+}
+
+// Arcane Intellect overwrites the Intellect of the elixirs and of Scroll of Intellect IV 10308, which
+// add none to its own, Prayer of Spirit the Spirit of Elixir of Sages 250338 and Scroll of Spirit IV
+// 10306, and Power Word: Fortitude the Stamina of Elixir of Brute Force 13453 and Scroll of Stamina IV
+// 10307. Elixir of Cunning 250328 keeps its Agility, Sages its crit and Brute Force its Strength.
+func TestTheRaidBuffsOverwriteTheIntellectSpiritAndStaminaOfTheElixirsAndScrolls(t *testing.T) {
+	const cunning, greaterIntellect, sages, scrollOfSpiritIV, bruteForce, scrollOfStaminaIV int32 = 250328, 9179, 250338, 10306, 13453, 10307
+	for _, tc := range []struct {
+		name    string
+		buffs   *proto.RaidBuffs
+		stat    stats.Stat
+		elixirs []int32
+		scroll  int32
+		kept    stats.Stat
+	}{
+		{"Arcane Intellect", &proto.RaidBuffs{ArcaneIntellect: true}, stats.Intellect, []int32{cunning, greaterIntellect},
+			scrollOfIntellectIVID, stats.Agility},
+		{"Prayer of Spirit", &proto.RaidBuffs{PrayerOfSpirit: true}, stats.Spirit, []int32{sages}, scrollOfSpiritIV, stats.SpellCritPercent},
+		{"Power Word: Fortitude", &proto.RaidBuffs{PowerWordFortitude: true}, stats.Stamina, []int32{bruteForce}, scrollOfStaminaIV, stats.Strength},
+	} {
+		for _, id := range append(slices.Clone(tc.elixirs), tc.scroll) {
+			registerStatConsumable(t, id)
+		}
+		gain := statGain(&proto.ConsumesSpec{ElixirIds: tc.elixirs, ExtraIds: []int32{tc.scroll}}, tc.buffs)
+		if gain[tc.stat] != 0 {
+			t.Errorf("under %s, %v and %d add %v %v, want none", tc.name, tc.elixirs, tc.scroll, gain[tc.stat], tc.stat.StatName())
+		}
+		if kept := soloGain(tc.elixirs[0])[tc.kept]; kept <= 0 || gain[tc.kept] != kept {
+			t.Errorf("under %s, %d adds %v %v, want its own %v", tc.name, tc.elixirs[0], gain[tc.kept], tc.kept.StatName(), kept)
+		}
+	}
+}
+
+// Moonkin Aura and Leader of the Pack each overwrite an elixir's crit, while Elixir of the Mongoose
+// 13452 keeps its Agility.
+func TestTheRaidCritOverwritesTheElixirCrit(t *testing.T) {
+	registerStatConsumable(t, elixirOfTheMongooseID)
+	mongoose := soloGain(elixirOfTheMongooseID)
+	for name, buffs := range map[string]*proto.RaidBuffs{
+		"Moonkin Aura":       {MoonkinAura: true},
+		"Leader of the Pack": {LeaderOfThePack: true},
+	} {
+		gain := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}}, buffs)
+		if gain[stats.PhysicalCritPercent] != 0 || gain[stats.SpellCritPercent] != 0 || gain[stats.Agility] != mongoose[stats.Agility] {
+			t.Errorf("under %s, Elixir of the Mongoose adds %v%% physical and %v%% spell crit and %v Agility, want no crit and its %v Agility",
+				name, gain[stats.PhysicalCritPercent], gain[stats.SpellCritPercent], gain[stats.Agility], mongoose[stats.Agility])
+		}
+	}
+}
+
+// Mark of the Wild stacks with the elixirs and the scrolls: Juju Power's 12451 and Scroll of Strength
+// IV's 10310 Strength count in full beside the Mark's.
+func TestMarkOfTheWildStacksWithTheElixirs(t *testing.T) {
+	const scrollOfStrengthIV, jujuPower int32 = 10310, 12451
+	for _, id := range []int32{scrollOfStrengthIV, jujuPower} {
+		registerStatConsumable(t, id)
+	}
+
+	strength := soloGain(jujuPower)[stats.Strength] + soloGain(scrollOfStrengthIV)[stats.Strength]
+	if gain := statGain(&proto.ConsumesSpec{ExtraIds: []int32{scrollOfStrengthIV, jujuPower}}, &proto.RaidBuffs{MarkOfTheWild: true}); gain[stats.Strength] != strength {
+		t.Errorf("Juju Power and Scroll of Strength IV under Mark of the Wild add %v Strength to the Mark's, want both: %v", gain[stats.Strength], strength)
+	}
+}
+
+// A raid buff that overwrites the elixirs counts by its own category, so an elixir granting as much as
+// it or more could count beside it, and a scroll that outbids it leaves it suppressing the elixirs
+// while it adds nothing. Every elixir and scroll in the database grants less Intellect than Arcane
+// Intellect, less Spirit than Prayer of Spirit, less Stamina than Power Word: Fortitude and less crit
+// than Moonkin Aura and Leader of the Pack.
+func TestNoElixirOrScrollOutbidsTheRaidBuffOfItsStat(t *testing.T) {
+	ceilings := map[string]float64{
+		"stat Intellect":           buffs.ArcaneIntellectValue(0),
+		"stat Spirit":              buffs.PrayerOfSpiritValue(0),
+		"stat Stamina":             buffs.PowerWordFortitudeValue(0),
+		"stat PhysicalCritPercent": min(buffs.MoonkinAuraValue(0), buffs.LeaderOfThePackValue(0)),
+		"stat SpellCritPercent":    min(buffs.MoonkinAuraValue(0), buffs.LeaderOfThePackValue(0)),
+	}
+	checked := 0
+	for _, consumable := range database.Load().Consumables {
+		if consumable.Type != proto.ConsumableType_ConsumableTypeElixir && consumable.Type != proto.ConsumableType_ConsumableTypeScroll &&
+			!consumable.CountsWithElixirs || len(consumable.ItemEffects) == 0 {
+			continue
+		}
+		for _, buff := range consumableBuffs(spelldata.Find(consumable.ItemEffects[0].BuffId)) {
+			for _, applied := range spelldata.DryRun(buff).Applied {
+				if ceiling, ok := ceilings[applied.Kind]; ok {
+					checked++
+					if applied.Value >= ceiling {
+						t.Errorf("%s (%d) grants %v %s, at least the raid buff's %v", consumable.Name, consumable.Id, applied.Value, applied.Kind, ceiling)
+					}
+				}
+			}
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no elixir or scroll grants Intellect, Spirit, Stamina or crit")
+	}
+}
+
+// Scroll of Stamina IV 10307 and Elixir of the Mongoose 13452 grant different stats, so both count in
+// full.
+func TestAScrollAndAnElixirOfDifferentStatsStack(t *testing.T) {
+	const scrollOfStaminaIV int32 = 10307
+	registerStatConsumable(t, scrollOfStaminaIV)
+	registerStatConsumable(t, elixirOfTheMongooseID)
+
+	scroll := soloGain(scrollOfStaminaIV)
+	elixir := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}}, &proto.RaidBuffs{})
+	both := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}, ExtraIds: []int32{scrollOfStaminaIV}}, &proto.RaidBuffs{})
+	if scroll[stats.Stamina] <= 0 || both != scroll.Add(elixir) {
+		t.Errorf("Scroll of Stamina IV adds %v Stamina, and with Elixir of the Mongoose %v, want some and each one's in full: %v and %v",
+			scroll[stats.Stamina], both, scroll, elixir)
+	}
+}
+
+// Elixirs of different stats stack in full: Arcane Elixir 9155 states spell damage of every school
+// and Elixir of Fire Power 6373 fire damage alone, two stats.
+func TestElixirsOfDifferentStatsStack(t *testing.T) {
+	const arcaneID, firePowerID int32 = 9155, 6373
+	registerStatConsumable(t, arcaneID)
+	registerStatConsumable(t, firePowerID)
+
 	arcane := statGain(&proto.ConsumesSpec{ElixirIds: []int32{arcaneID}}, &proto.RaidBuffs{})
 	fire := statGain(&proto.ConsumesSpec{ElixirIds: []int32{firePowerID}}, &proto.RaidBuffs{})
 	if both := statGain(&proto.ConsumesSpec{ElixirIds: []int32{arcaneID, firePowerID}}, &proto.RaidBuffs{}); both != arcane.Add(fire) {

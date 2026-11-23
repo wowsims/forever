@@ -89,8 +89,7 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	FoodId:        250072,                // Swiftstrike Steak
 	MhImbueId:     12643,                 // Dense Weightstone
 	ConjuredId:    7676,                  // Thistle Tea
-	// Goblin Sapper Charge, Scroll of Strength IV. Scroll of Agility IV is left out, as in the UI:
-	// it shares the Agility group with Elixir of the Mongoose, which comes first.
+	// Goblin Sapper Charge, Scroll of Strength IV
 	ExtraIds: []int32{10646, 10310},
 }
 

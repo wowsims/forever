@@ -19,13 +19,14 @@ consumables:
   conjured demonic_rune
   mh_imbue shadow_oil
   swap_mh_imbue frost_oil
-  extra cerebral_cortex_compound, goblin_sapper_charge, dragonbreath_chili, gordok_green_grog
+  extra cerebral_cortex_compound,
+      goblin_sapper_charge,
+      dragonbreath_chili,
+      gordok_green_grog,
+      juju_might
   elixir elixir_of_holy_power,
-      elixir_of_sages,
       elixir_of_the_mongoose,
-      elixir_of_the_owl,
-      elixir_of_the_grizzly,
       elixir_of_the_phalanx,
       greater_arcane_elixir,
       greater_mageblood_elixir,
-      juju_might
+      elixir_of_greater_strength

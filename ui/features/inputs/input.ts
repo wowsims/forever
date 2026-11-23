@@ -33,6 +33,24 @@ export interface KeptInput<ModObject, T> {
 	keptBy?: (obj: ModObject, value: T) => boolean;
 }
 
+export interface OverwrittenInput<ModObject, T> {
+	// Badges the swatch or trigger with the tooltip it returns for the value: a selection another selection overwrites.
+	// Undefined while nothing overwrites it. The swatch dims too unless `partly`, while the selection still adds
+	// something. An icon-enum picker asks it of the value it shows and, while its menu is open, of each option, as if
+	// that option were selected in place of the value.
+	overwritten?: (obj: ModObject, value: T) => { tooltip: string; partly: boolean } | undefined;
+}
+
+/** The kit pickers' `overwrittenTooltip` and `overwrittenPartly` for a value, both undefined while nothing overwrites it. */
+export const overwrittenOf = <ModObject, T>(
+	config: OverwrittenInput<ModObject, T>,
+	obj: ModObject,
+	value: T,
+): { overwrittenTooltip?: string; overwrittenPartly?: boolean } => {
+	const overwritten = config.overwritten?.(obj, value);
+	return { overwrittenTooltip: overwritten?.tooltip, overwrittenPartly: overwritten?.partly };
+};
+
 /** The kit pickers' `keptTooltip` for the value the adapter read: the kept text while `keptBy` holds, otherwise none. */
 export const keptTooltipOf = <ModObject, T>(config: KeptInput<ModObject, T>, obj: ModObject, value: T): string | undefined =>
 	config.keptBy?.(obj, value) ? i18n.t('stat_filters.kept_tooltip') : undefined;

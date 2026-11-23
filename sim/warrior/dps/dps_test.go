@@ -102,11 +102,12 @@ var DefaultFury2HTalents = "30303213032-050500350122110231"
 var DefaultArmsTalents = "30303213132215201-55050000002-2"
 
 var DefaultConsumables = &proto.ConsumesSpec{
-	ResourcePotId: 13442,  // Mighty Rage Potion
-	FlaskId:       274274, // Flask of Natural Aggression
-	FoodId:        20452,  // Smoked Desert Dumplings
-	ExplosiveId:   18588,
-	OhImbueId:     12404,
-	// Goblin Sapper Charge, Scroll of Agility IV, Scroll of Strength IV
-	ExtraIds: []int32{10646, 10309, 10310},
+	ResourcePotId: 13442,          // Mighty Rage Potion
+	FoodId:        20452,          // Smoked Desert Dumplings
+	ExplosiveId:   260814,         // SAF-T Clever Dynamite
+	MhImbueId:     12643,          // Dense Weightstone
+	OhImbueId:     12404,          // Dense Sharpening Stone
+	ElixirIds:     []int32{13452}, // Elixir of the Mongoose
+	// Goblin Sapper Charge, Juju Power, Juju Might, Bogling Root, R.O.I.D.S.
+	ExtraIds: []int32{10646, 12451, 12460, 5206, 8410},
 }

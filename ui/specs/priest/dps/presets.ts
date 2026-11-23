@@ -37,14 +37,7 @@ export const DefaultConsumables = ConsumesSpec.create({
 	offensivePotId: Consumables.MajorSpellblastingPotion.id,
 	resourcePotId: Consumables.MajorManaPotion.id,
 	conjuredId: Consumables.DemonicRune.id,
-	elixirIds: [
-		Consumables.ElixirOfShadowPower.id,
-		Consumables.GreaterArcaneElixir.id,
-		Consumables.ElixirOfCunning.id,
-		Consumables.ElixirOfTheOwl.id,
-		Consumables.ElixirOfSages.id,
-		Consumables.GreaterMagebloodElixir.id,
-	],
+	elixirIds: [Consumables.ElixirOfShadowPower.id, Consumables.GreaterArcaneElixir.id, Consumables.ElixirOfCunning.id, Consumables.GreaterMagebloodElixir.id],
 });
 
 export const DefaultRaidBuffs = RaidBuffs.create({

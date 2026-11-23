@@ -415,6 +415,130 @@ func TestExclusivePerStat(t *testing.T) {
 	}
 }
 
+// The raid buff overwrites the elixir and the scroll of its stat, which stack with each other, in any
+// order they come up: it counts by its own category, and its bid in the elixirs' category only keeps
+// a weaker elixir from counting. An elixir that outbids it counts beside it.
+func TestOverwrites(t *testing.T) {
+	type auras struct{ raid, elixir, scroll *core.Aura }
+	setUp := func(raid, elixir, scroll float64) (*core.Character, auras) {
+		character := buffTestWarrior()
+		register := func(label string, points float64, opts ...ParseOpt) *core.Aura {
+			row := buffRow(7060, auraEffect(dbcenums.A_MOD_STAT, 3, points))
+			aura := character.RegisterAura(AuraConfig(row, Label(label)))
+			ParseEffects(character, aura, row, opts...)
+			return aura
+		}
+		return character, auras{
+			raid:   register("Raid", raid, ExclusivePerStat("StatBuff"), Overwrites("ElixirStat")),
+			elixir: register("Elixir", elixir, ExclusivePerStat("ElixirStat")),
+			scroll: register("Scroll", scroll, ExclusivePerStat("StatBuff")),
+		}
+	}
+
+	for _, tc := range []struct {
+		name                 string
+		raid, elixir, scroll float64
+		want                 float64
+	}{
+		{"the raid buff outbids both", 31, 25, 16, 31},
+		{"the elixir outbids the raid buff", 31, 35, 16, 66},
+		{"both outbid the raid buff", 10, 25, 16, 41},
+	} {
+		for _, order := range [][]int{{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}} {
+			sim := &core.Simulation{}
+			character, a := setUp(tc.raid, tc.elixir, tc.scroll)
+			before := character.GetStat(stats.Intellect)
+			all := []*core.Aura{a.raid, a.elixir, a.scroll}
+			for _, i := range order {
+				all[i].Activate(sim)
+			}
+			if got := character.GetStat(stats.Intellect) - before; got != tc.want {
+				t.Errorf("%s, up in order %v: +%v Intellect, want +%v", tc.name, order, got, tc.want)
+			}
+		}
+	}
+
+	sim := &core.Simulation{}
+	character, a := setUp(31, 25, 16)
+	before := character.GetStat(stats.Intellect)
+	a.raid.Activate(sim)
+	a.scroll.Activate(sim)
+	a.elixir.Activate(sim)
+	a.raid.Deactivate(sim)
+	if got := character.GetStat(stats.Intellect) - before; got != 41 {
+		t.Errorf("the raid buff gone: +%v Intellect, want the elixir's and the scroll's +41", got)
+	}
+
+	critRow := func(points float64) *Spell { return buffRow(24907, auraEffect(dbcenums.A_MOD_CRIT_PCT, 0, points)) }
+	raidCrit, elixirCrit := critRow(3), critRow(2)
+	moonkin := character.RegisterAura(AuraConfig(raidCrit, Label("Moonkin")))
+	ParseEffects(character, moonkin, raidCrit, Exclusive("RaidCrit", true), Overwrites("ElixirCrit"))
+	elixir := character.RegisterAura(AuraConfig(elixirCrit, Label("Elixir crit")))
+	ParseEffects(character, elixir, elixirCrit, Exclusive("ElixirCrit", false))
+	crit := character.GetStat(stats.PhysicalCritPercent)
+	elixir.Activate(sim)
+	moonkin.Activate(sim)
+	if got := character.GetStat(stats.PhysicalCritPercent) - crit; got != 3 {
+		t.Errorf("a single-aura raid crit over an elixir crit: +%v%% crit, want the raid crit's +3%%", got)
+	}
+	moonkin.Deactivate(sim)
+	if got := character.GetStat(stats.PhysicalCritPercent) - crit; got != 2 {
+		t.Errorf("the raid crit gone: +%v%% crit, want the elixir's +2%%", got)
+	}
+}
+
+// Two copies of the raid buff at the same amount, such as a priest's own prayer beside the raid's,
+// count it once in any order, and the one left up counts it once the other goes.
+func TestOverwritesTwoEqualCopies(t *testing.T) {
+	setUp := func() (*core.Character, []*core.Aura) {
+		character := buffTestWarrior()
+		register := func(label string, points float64, opts ...ParseOpt) *core.Aura {
+			row := buffRow(7060, auraEffect(dbcenums.A_MOD_STAT, 3, points))
+			aura := character.RegisterAura(AuraConfig(row, Label(label)))
+			ParseEffects(character, aura, row, opts...)
+			return aura
+		}
+		return character, []*core.Aura{
+			register("Raid", 31, ExclusivePerStat("StatBuff"), Overwrites("ElixirStat")),
+			register("Own", 31, ExclusivePerStat("StatBuff"), Overwrites("ElixirStat")),
+			register("Elixir", 25, ExclusivePerStat("ElixirStat")),
+			register("Scroll", 16, ExclusivePerStat("StatBuff")),
+		}
+	}
+
+	for _, order := range permutations([]int{0, 1, 2, 3}) {
+		for gone := range 2 {
+			sim := &core.Simulation{}
+			character, all := setUp()
+			before := character.GetStat(stats.Intellect)
+			for _, i := range order {
+				all[i].Activate(sim)
+			}
+			if got := character.GetStat(stats.Intellect) - before; got != 31 {
+				t.Errorf("up in order %v: +%v Intellect, want +31", order, got)
+			}
+			all[gone].Deactivate(sim)
+			if got := character.GetStat(stats.Intellect) - before; got != 31 {
+				t.Errorf("up in order %v, then %s gone: +%v Intellect, want the other copy's +31", order, all[gone].Label, got)
+			}
+		}
+	}
+}
+
+func permutations(items []int) [][]int {
+	if len(items) <= 1 {
+		return [][]int{items}
+	}
+	var out [][]int
+	for i := range items {
+		rest := append(slices.Clone(items[:i]), items[i+1:]...)
+		for _, p := range permutations(rest) {
+			out = append(out, append([]int{items[i]}, p...))
+		}
+	}
+	return out
+}
+
 // Each school's resistance bids in its school's category whatever else the buff does, so a 27 and a
 // 60 of the same school do not add up. Armor and the main stats are not schools.
 func TestSchoolResistances(t *testing.T) {

@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 import { useConnectedField } from '../../hooks/useConnectedField';
 import { useHideZeroRestore } from '../../hooks/useHideZeroRestore';
-import { keptTooltipOf } from '../../input';
+import { keptTooltipOf, overwrittenOf } from '../../input';
 import type { IconEnumPickerConfig, IconEnumValueConfig } from './types';
 import { iconEnumPickerShown, iconEnumValues, valuePicked } from './utils';
 
@@ -73,12 +73,16 @@ export const ConnectedIconEnumPicker = <ModObject, T>({ modObject, config, testI
 				tooltip: valueConfig.tooltip,
 				wowhead: buffDatasets[index],
 				hidden: !shows(valueConfig),
+				...(openings > 0 && shows(valueConfig) && !config.equals(valueConfig.value, config.zeroValue)
+					? overwrittenOf(config, modObject, valueConfig.value)
+					: undefined),
 			}))}
 			equals={config.equals}
 			zeroValue={config.zeroValue}
 			backupIcon={backupIcon}
 			tooltip={config.tooltip}
 			keptTooltip={keptTooltipOf(config, modObject, value)}
+			{...overwrittenOf(config, modObject, value)}
 			direction={config.direction}
 			numColumns={typeof config.numColumns === 'function' ? config.numColumns(modObject) : config.numColumns}
 			onOpenChange={open => {
