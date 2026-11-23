@@ -12825,7 +12825,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 692956, SpellID: 15345, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_INCREASE_ENERGY, BasePoints: 150, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 15366, Name: "Songflower Serenade", School: 8, Attr: [17]uint32{0: 0x10010, 2: 0x100, 15: 0x2000}, SpellLevel: 50, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, PreventionType: 1, ProcChance: 101, InterruptFlags: 8, AuraInterrupt: [2]uint32{0: 0x400000}, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCrit,
+	{ID: 15366, Name: "Songflower Serenade", School: 8, Attr: [17]uint32{0: 0x10010, 2: 0x100, 6: 0x800, 15: 0x2000}, SpellLevel: 50, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, PreventionType: 1, ProcChance: 101, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCrit,
 		Effects: []Effect{
 			{ID: 692476, SpellID: 15366, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 5, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 			{ID: 692477, SpellID: 15366, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 15, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
@@ -19535,18 +19535,18 @@ var generatedSpells = []Spell{
 			{ID: 700576, SpellID: 22812, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_REDUCE_PUSHBACK, BasePoints: 100, BaseLevel: 44, PvpMult: 1, Misc: 127, Misc2: 15, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1256189, SpellID: 22812, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN, BasePoints: -20, BaseLevel: 44, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 22817, Name: "Fengus' Ferocity", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, InterruptFlags: 8, AuraInterrupt: [2]uint32{0: 0x400000}, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintHeals,
+	{ID: 22817, Name: "Fengus' Ferocity", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 6: 0x800, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, InterruptFlags: 8, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 700462, SpellID: 22817, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 200, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 			{ID: 870850, SpellID: 22817, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 200, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
-			{ID: 1331558, SpellID: 22817, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 230, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
-			{ID: 1331559, SpellID: 22817, Index: 3, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 230, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
+			{ID: 1331558, SpellID: 22817, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 115, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
+			{ID: 1331559, SpellID: 22817, Index: 3, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 115, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
-	{ID: 22818, Name: "Mol'dar's Moxie", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, ProcFlags: [2]uint32{0: 0x1}, InterruptFlags: 8, AuraInterrupt: [2]uint32{0: 0x400000}, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways,
+	{ID: 22818, Name: "Mol'dar's Moxie", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 6: 0x800, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, ProcFlags: [2]uint32{0: 0x1}, InterruptFlags: 8, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 700537, SpellID: 22818, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 15, PvpMult: 1, Amplitude: 1, Misc: 2, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
-	{ID: 22820, Name: "Slip'kik's Savvy", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 5: 0x8, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, AuraInterrupt: [2]uint32{0: 0x400000}, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCrit,
+	{ID: 22820, Name: "Slip'kik's Savvy", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 5: 0x8, 6: 0x800, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCrit,
 		Effects: []Effect{
 			{ID: 700351, SpellID: 22820, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 3, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
@@ -20311,9 +20311,9 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 700524, SpellID: 23762, Type: dbcenums.E_APPLY_AREA_AURA_PET, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN, PPL: 0.20000000298023224, BaseLevel: 60, PvpMult: 1, RadiusMax: 100, Misc: 126, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 23768, Name: "Sayge's Dark Fortune of Damage", School: 32, Attr: [17]uint32{2: 0x100, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 7200000, MaxRange: 50000, ProcChance: 101, AuraInterrupt: [2]uint32{0: 0x400000}, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways,
+	{ID: 23768, Name: "Sayge's Dark Fortune of Damage", School: 32, Attr: [17]uint32{2: 0x100, 6: 0x800, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 7200000, MaxRange: 50000, ProcChance: 101, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
-			{ID: 696766, SpellID: 23768, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_DONE, BasePoints: 10, BaseLevel: 60, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},
+			{ID: 696766, SpellID: 23768, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 10, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},
 			{ID: 696767, SpellID: 23768, Index: 1, Type: dbcenums.E_TRIGGER_SPELL, BaseLevel: 60, SPCoef: 1, PvpMult: 1, TriggerID: 23770, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},
 		}},
 	{ID: 23770, Name: "Sayge's Carnie Buff", School: 1, Attr: [17]uint32{0: 0x24800100, 1: 0x10000088, 2: 0x1, 3: 0x100000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 14400000, MaxRange: 100,
