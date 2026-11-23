@@ -105,10 +105,12 @@ ms, and checks the all-hits rate; the lone Auto Shots and specials read on the r
 The owner takes the rate as measured (2026-11-23). Casters' spell hits, each priced on its cast time and 1.5 s at least,
 read 2.84 [2.47, 3.24] on 445 procs over 5,958 lone units of 24 wearers, and fit better than a flat chance per spell
 hit, 7.47% [6.52, 8.63]. Of the uncast pulses Flamestrike's rolls it (73 procs on 896 lone units, 57 predicted) and
-Ignite's and Blizzard's do not. Thunder Clap never rolls it: 0 procs on 1,370 Thunder Clap hits. Debuff-only landings
-roll nothing: 0 procs on 728 lone melee landings and 1,298 lone ranged ones, where the white chance predicts 71 and 175.
-Per-class reads are left out, since casters' runs mix spell procs into the weapon-hit count. Reports from 2026-11-10 to
-2026-11-22.
+Ignite's and Blizzard's do not. Thunder Clap never rolls it: the tablet investigation on the same sweep's v16 run
+(`runs/2026-11-22-2335-v16`) found 0 procs on 1,370 lone Thunder Clap hits, and 0 attributed in its per-kind fit across
+3,929 Thunder Clap hits. A warrior's Thunder Clap always lands batched with its debuff, so the lone count is a pass over
+those batches. Debuff-only landings roll nothing: 0 procs on 728 lone melee landings and 1,298 lone ranged ones, where
+the white chance predicts 71 and 175. Per-class reads are left out, since casters' runs mix spell procs into the
+weapon-hit count. Reports from 2026-11-10 to 2026-11-22.
 
 Reports and fights: 12MCBnGNPTK9pwZD 1-16; 1GBhzTR8CZwcJfFV 89 fights from 1 to 99; 1JLq46yg7wYNhan9 1-28;
 1Wc4yTf2MQPxwXDa 1-4; 1X37tZRzgkmd9rNP 1; 2DC7xQNm9wHJnVF4 6-7; 2HMyR6kfbWKzBhtv 1; 2mXywBCLNJHRW1xc 47-51;
