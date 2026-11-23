@@ -20,9 +20,7 @@ consumables:
   mh_imbue shadow_oil
   extra r_o_i_d_s, goblin_sapper_charge, dragonbreath_chili, gordok_green_grog
   elixir elixir_of_holy_power,
-      elixir_of_sages,
       elixir_of_the_mongoose,
-      elixir_of_the_owl,
       elixir_of_the_grizzly,
       elixir_of_the_phalanx,
       greater_arcane_elixir,

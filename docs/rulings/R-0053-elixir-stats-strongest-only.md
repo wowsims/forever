@@ -1,7 +1,7 @@
-# R-0053: Every elixir counts, but each stat only at its strongest elixir's amount
+# R-0053: Each stat counts its strongest elixir, and four raid buffs overwrite the elixirs of their stat
 
 - Skill: wowsims-consumables-items
-- Code: `sim/common/shared/consumable_stats.go`, `consumableAura` with `spelldata.ExclusivePerStat(elixirStatCategory)` (the category `"ElixirStat"`), `spelldata.Exclusive(elixirCritCategory, false)` (the category `"ElixirCrit"`), `StatsCountWithTheElixirs`, and for the scrolls `spelldata.ExclusivePerStatBehind(core.StatBuffCategory)`; `sim/core/spelldata/parse_effects_exclusive.go`, `bidPerStatBehind`; `tools/database/consumable_groups.go`, `rowGroupOf`; `ui/features/settings/model/consumables.ts`, `overwrittenTooltips`
+- Code: `sim/common/shared/consumable_stats.go`, `consumableAura` with `spelldata.ExclusivePerStat(core.ElixirStatCategory)`, `spelldata.Exclusive(core.ElixirCritCategory, false)` and `StatsCountWithTheElixirs`, and for the scrolls `spelldata.ExclusivePerStat(core.StatBuffCategory)`; `sim/core/spelldata/parse_effects.go`, `Overwrites`; `tools/database/buffmanifest/buffs.go`, `ElixirCategory`; `tools/database/consumable_groups.go`, `rowGroupOf`; `ui/features/settings/model/consumables.ts`, `overwrittenTooltips`
 - Pull request: #1185
 - Evidence: EV-0185
 
@@ -10,8 +10,21 @@ Each stat they grant counts only the strongest elixir's amount, and only one eli
 Juju Power 12451, Juju Might 12460 and Bogling Root 5206 count with the elixirs the same way. Flasks,
 food and the other consumables stack with the elixirs.
 
-The scrolls follow the owner's ruling, which no evidence file holds. A scroll's stat counts only while it
-outbids both the elixirs and the StatBuff raid buffs of the same stat (Arcane Intellect, Prayer of Spirit
-and Power Word: Fortitude). A stronger raid buff or elixir overwrites it, and the scroll then adds
-nothing while the raid buff and the elixir each keep their stat. Mark of the Wild stacks with the
-scrolls.
+Four raid buffs overwrite the elixirs of their stat, and the stronger of the raid buff and the
+strongest elixir counts. Arcane Intellect does so for Intellect, and Prayer of Spirit, the group form
+of Divine Spirit and the sim's Spirit raid buff, for Spirit. Moonkin Aura and Leader of the Pack, which
+share one crit, do so for the elixirs' crit. No other raid buff overwrites an elixir: Power Word:
+Fortitude, Battle Shout and the totems stack with the elixirs, and so does every stat of Mark of the
+Wild.
+
+A scroll counts only while it outbids the raid buff of its stat in core's `StatBuff` category: Arcane
+Intellect, Prayer of Spirit or Power Word: Fortitude. A scroll stacks with the elixirs. With no raid
+buff up, Elixir of Cunning's 25 Intellect and Scroll of Intellect IV's 16 add 41; under Arcane
+Intellect's 31, neither adds any. Mark of the Wild stacks with the scrolls.
+
+The sim overwrites an elixir by bidding the raid buff's stat in the elixirs' category without counting
+it there (`spelldata.Overwrites`), and the raid buff counts by its own category alone. Two cases this
+leaves open cannot arise. An elixir granting as much as the raid buff or more would count beside it,
+and a scroll outbidding the raid buff would count while the raid buff, adding nothing, still kept the
+elixirs out. Every elixir and scroll in the database grants less, which
+`TestNoElixirOrScrollOutbidsTheRaidBuffOfItsStat` holds.

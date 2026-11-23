@@ -115,9 +115,7 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	FoodId:     13933, // Lobster Stew
 	ElixirIds: []int32{
 		21546,  // Elixir of Holy Power
-		250338, // Elixir of Sages
 		13452,  // Elixir of The Mongoose
-		250337, // Elixir of The Owl
 		250351, // Elixir of The Grizzly
 		250329, // Elixir of The Phalanx
 		13454,  // Greater Arcane Elixir

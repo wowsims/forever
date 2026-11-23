@@ -12,10 +12,10 @@ const FLASKS = [
 	{ value: 2, icon: storyIcon('inv_potion_41', 'Flask of Supreme Power', 'item', 13512), tooltip: 'Flask of Supreme Power' },
 ];
 
-const STRENGTH_SCROLLS = [
+const INTELLECT_SCROLLS = [
 	{ value: 0, tooltip: 'None' },
-	{ value: 1, icon: storyIcon('inv_scroll_02', 'Scroll of Strength IV', 'item', 10310), tooltip: 'Scroll of Strength IV' },
-	{ value: 2, icon: storyIcon('inv_scroll_02', 'Scroll of Strength III', 'item', 4426), tooltip: 'Scroll of Strength III' },
+	{ value: 1, icon: storyIcon('inv_scroll_01', 'Scroll of Intellect IV', 'item', 10308), tooltip: 'Scroll of Intellect IV' },
+	{ value: 2, icon: storyIcon('inv_scroll_01', 'Scroll of Intellect III', 'item', 4419), tooltip: 'Scroll of Intellect III' },
 ];
 
 const meta = {
@@ -54,13 +54,17 @@ type Story = StoryObj<typeof meta>;
 /** The flask, the picked elixirs and the button that adds more. */
 export const Default: Story = {};
 
-/** One pick per scroll line; a scroll an elixir picked beside it matches is dimmed with a badge naming it. */
+/** One pick per scroll line; a scroll a raid buff of its stat that is on matches is dimmed with a badge naming it. */
 export const Scrolls: Story = {
 	args: {
 		label: 'Scrolls',
 		children: (
 			<IconRow className="justify-end">
-				<StoryIconEnum options={STRENGTH_SCROLLS} initial={1} overwrittenTooltip="Adds nothing: every stat it grants is matched by Juju Power." />
+				<StoryIconEnum
+					options={INTELLECT_SCROLLS}
+					initial={1}
+					overwrittenTooltip="Adds nothing: every stat it grants is matched by Arcane Intellect."
+				/>
 			</IconRow>
 		),
 	},

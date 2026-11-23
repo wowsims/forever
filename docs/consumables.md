@@ -175,7 +175,12 @@ strongest one's amount, the 2% crit only one elixir's (R-0053). The sim counts t
 Agility) beside Elixir of the Mongoose 13452 and Juju Power 12451 adds nothing, since Mongoose's Agility
 and Juju Power's Strength are larger. Juju Power, Juju Might 12460 and Bogling Root 5206, which the game
 files do not type as elixirs, bid with them (`StatsCountWithTheElixirs`). Spell damage of every school
-and one school's are two stats, so Arcane Elixir 9155 and Elixir of Fire Power 6373 stack.
+and one school's are two stats, so Arcane Elixir 9155 and Elixir of Fire Power 6373 stack. Arcane
+Intellect and Prayer of Spirit bid their stat in `ElixirStat` too, and Moonkin Aura and Leader of the
+Pack their crit in `ElixirCrit`, without counting there (`spelldata.Overwrites`, set by the buff
+manifest's `ElixirCategory`), so an elixir that grants no more adds nothing under them: under Arcane
+Intellect, Elixir of Cunning 250328 adds its Agility alone. Every other raid buff, Mark of the Wild
+and Power Word: Fortitude among them, stacks with the elixirs.
 
 **From the rows** (`rowGroupOf` in `tools/database/consumable_groups.go`):
 
@@ -183,11 +188,9 @@ and one school's are two stats, so Arcane Elixir 9155 and Elixir of Fire Power 6
   `<aura>/<misc>`, which it shares with its ranks alone: Scroll of Agility 3012 to IV 10309 (29/1),
   Scroll of Stamina 1180 to IV 10307 (29/2), Scroll of Protection 3013 to IV 10305 (674/1). A scroll's
   stat bids in core's `StatBuff` per-stat category with Arcane Intellect, Prayer of Spirit and Power
-  Word: Fortitude, and in `ElixirStat` with the elixirs (`spelldata.ExclusivePerStatBehind`). It counts
-  only while it outbids both; once a stronger raid buff or elixir overwrites it, it withdraws from both
-  until it expires, so each keeps its own stat. Under Arcane Intellect, Scroll of Intellect IV 10308
-  adds nothing and leaves an Intellect elixir its Intellect, and beside Juju Power 12451 Scroll of
-  Strength IV 10310 adds nothing;
+  Word: Fortitude, so it counts only while it outbids them, and it stacks with the elixirs. With no raid
+  buff up, Scroll of Intellect IV 10308 and Elixir of Cunning 250328 add 16 and 25 Intellect; under
+  Arcane Intellect, neither adds any;
 - a stat consumable whose on-use category cooldown lasts as long as each of its buffs, which are up
   from the pull, is used one at a time with the others of the category (`shared.OneAtATimeCategory`),
   keyed `category <id>`. Only the Blasted Lands buffs (R.O.I.D.S. 8410, Lung Juice Cocktail 8411,
@@ -449,25 +452,27 @@ scroll as a column of the Scrolls row, one per stat, one holding a holiday consu
 row (Hit food), one holding a food after the food and the chili (Rum), and the rest at the head of the
 Miscellaneous row (Zanza). A group, a column or a row that offers the player nothing hides.
 
-A pick that adds nothing is dimmed, with a corner badge whose tooltip names the picks that overwrite
-it, and the player can still clear it (`overwrittenTooltips`). An Elixirs row pick adds nothing where
-the other picks grant at least as much of every stat and percent it grants, read off `stats` and
-`pseudo_stats`, so its 2% crit counts as well (`elixirOverwrites`, R-0053). Of two picks that grant the
-same, the one later in the spec's lists (the elixir ids, then the extra ids) is dimmed, and a pick that
-grants neither never is.
+A pick that adds nothing is dimmed, with a corner badge whose tooltip names what overwrites it, and
+the player can still clear it (`overwrittenTooltips`). An Elixirs row pick adds nothing where the other
+picks and the raid buffs that overwrite the elixirs grant at least as much of every stat and percent it
+grants, read off `stats` and `pseudo_stats`, so its 2% crit counts as well (`elixirOverwrites`,
+R-0053). Of two picks that grant the same, the one later in the spec's lists (the elixir ids, then the
+extra ids) is dimmed, and a pick that grants neither never is.
 Elixir of Ferocity 250350 beside Elixir of the Mongoose 13452 and Juju Power 12451 is dimmed. Beside
 Elixir of the Grizzly 250351, Elixir of Greater Strength 9206 is dimmed: the Grizzly grants as much
-Strength and a crit besides. A scroll is dimmed while an Elixirs row pick or a raid buff that is on
-grants at least as much of its stat (`overwritesOf`). The raid buffs it reads are the ones that bid in
-core's `StatBuff` category, with the amounts the raid input applies, which the buff generator writes
-into `GENERATED_STAT_BUFF_AMOUNTS` (`ui/features/settings/model/buffs_debuffs_auto_gen.ts`): Arcane
-Intellect, Prayer of Spirit and Power Word: Fortitude. Arcane Intellect counts as on for a mage whatever
-the input says, since `AddRaidBuffs` in `sim/mage/mage.go` turns it on for every mage. Under Arcane
-Intellect, Scroll of Intellect IV 10308 is dimmed; under Mark of the Wild, which stacks with the scrolls,
-no scroll is. A scroll that counts dims the Elixirs row picks it grants as much of every stat as: Elixir
-of Giant Growth 6662 beside Scroll of Strength IV 10310. The elixir and scroll pickers follow the raid
-buffs (`OVERWRITTEN_PICKER_FIELDS`), so turning one on dims a scroll and gives the elixirs it dimmed
-their stat back.
+Strength and a crit besides. Under Prayer of Spirit and Moonkin Aura, Elixir of Sages 250338 is dimmed,
+and under Arcane Intellect an Intellect elixir is. A scroll is dimmed while a raid buff that is on
+grants at least as much of its stat (`overwritesOf`), and never by an elixir. The raid buffs it reads
+are the ones the buff generator writes into `GENERATED_OVERWRITING_BUFFS`
+(`ui/features/settings/model/buffs_debuffs_auto_gen.ts`), with the amounts the raid input applies:
+Arcane Intellect and Prayer of Spirit overwrite the scrolls and the elixirs, Power Word: Fortitude the
+scrolls, and Moonkin Aura and Leader of the Pack the elixirs' crit. Arcane Intellect counts as on for a
+mage whatever the input says, since `AddRaidBuffs` in `sim/mage/mage.go` turns it on for every mage, and
+`AddRaidBuffs` in `sim/druid/druid.go` turns on Moonkin Aura for a Balance druid with Moonkin Form and
+Leader of the Pack for a Feral cat or bear with the talent, so those count as on too
+(`turnedOnBySim`). Under Mark of the Wild, which stacks with the scrolls and the elixirs, nothing is
+dimmed. The elixir and scroll pickers follow the raid buffs and the talents (`OVERWRITTEN_PICKER_FIELDS`),
+so turning one on dims what it overwrites.
 
 A potion has three pickers, Offensive, Defensive and Resource, and each offers the
 potions whose `potion_classes` hold its class. `AddPotionClasses` (`tools/database/consumable_potion_classes.go`) fills

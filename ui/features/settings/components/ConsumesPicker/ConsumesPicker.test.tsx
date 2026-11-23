@@ -102,14 +102,11 @@ describe('ConsumesPicker', () => {
 		await waitFor(() => expect(rowPicks()).toEqual([ELIXIR_OF_THE_MONGOOSE]));
 	});
 
-	it('dims the picked scroll while an elixir picked beside it grants as much of its stat', async () => {
-		const { player, overwrittenTooltip, scrolls } = await renderPicker(ConsumesSpec.create({ extraIds: [SCROLL_OF_STRENGTH_IV] }));
-		expect(await overwrittenTooltip(scrolls, SCROLL_OF_STRENGTH_IV)).toBeUndefined();
-
+	it('leaves the picked scroll undimmed beside an elixir of its stat, which it stacks with', async () => {
+		const { player, overwrittenTooltip, scrolls, row } = await renderPicker(ConsumesSpec.create({ extraIds: [SCROLL_OF_STRENGTH_IV] }));
 		player.setConsumes(ConsumesSpec.create({ extraIds: [SCROLL_OF_STRENGTH_IV, JUJU_POWER] }));
-		await waitFor(async () =>
-			expect(await overwrittenTooltip(scrolls, SCROLL_OF_STRENGTH_IV)).toBe('Adds nothing: every stat it grants is matched by Juju Power.'),
-		);
+		expect(await overwrittenTooltip(row, JUJU_POWER)).toBeUndefined();
+		expect(await overwrittenTooltip(scrolls, SCROLL_OF_STRENGTH_IV)).toBeUndefined();
 	});
 
 	it('dims the picked scroll once a raid buff of its stat that grants as much is turned on', async () => {

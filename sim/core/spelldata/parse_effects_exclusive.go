@@ -30,10 +30,6 @@ func (p *Parsed) bid(aura *core.Aura, o *parseOptions) []*attachment {
 				category := core.ExclusiveStatCategory(o.category, part.key, part.multiplicative)
 				p.bidStacks(aura, category, false, magnitude(part), []*attachment{part})
 			}
-		case o.perStatCategory != "" && o.perStatGate != "":
-			for _, part := range split(rest) {
-				p.bidPerStatBehind(aura, o.perStatCategory, o.perStatGate, part)
-			}
 		case o.perStatCategory != "":
 			for _, part := range split(rest) {
 				p.bidPerStat(aura, o.perStatCategory, part)
@@ -49,6 +45,15 @@ func (p *Parsed) bid(aura *core.Aura, o *parseOptions) []*attachment {
 			perStack = magnitude(p.attachments[0])
 		}
 		p.bidStacks(aura, o.category, true, perStack, whole)
+	}
+
+	// After the aura's own bids, so an aura its single-aura category blocks never takes a category
+	// from anyone.
+	if o.overwrites != "" {
+		for _, part := range split(p.attachments) {
+			aura.NewExclusiveEffect(core.ExclusiveStatCategory(o.overwrites, part.key, part.multiplicative), false,
+				core.ExclusiveEffect{Priority: perStatPriority(part)})
+		}
 	}
 	return live
 }
@@ -87,53 +92,6 @@ func perStatPriority(part *attachment) float64 {
 		return part.value
 	}
 	return magnitude(part)
-}
-
-// One stat's two bids for ExclusivePerStatBehind, withdrawn to negative infinity once either is lost.
-func (p *Parsed) bidPerStatBehind(aura *core.Aura, category string, gate string, part *attachment) {
-	priority := perStatPriority(part)
-	var bids [2]*core.ExclusiveEffect
-	withdrawn := false
-	update := func(sim *core.Simulation) {
-		part.set(sim, core.Ternary(!withdrawn && bids[0].IsActive() && bids[1].IsActive(), p.count, 0))
-	}
-	withdraw := func(sim *core.Simulation) {
-		if withdrawn {
-			return
-		}
-		withdrawn = true
-		part.set(sim, 0)
-		for _, bid := range bids {
-			bid.SetPriority(sim, math.Inf(-1))
-		}
-	}
-
-	for i, name := range []string{category, gate} {
-		bids[i] = aura.NewExclusiveEffect(core.ExclusiveStatCategory(name, part.key, part.multiplicative), false, core.ExclusiveEffect{
-			Priority: priority,
-			OnGain: func(_ *core.ExclusiveEffect, sim *core.Simulation) {
-				update(sim)
-			},
-			OnExpire: func(_ *core.ExclusiveEffect, sim *core.Simulation) {
-				if aura.IsActive() {
-					withdraw(sim)
-				}
-				update(sim)
-			},
-		})
-	}
-
-	aura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
-		if !bids[0].IsActive() || !bids[1].IsActive() {
-			withdraw(sim)
-		}
-	})
-	aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
-		withdrawn = false
-		for _, bid := range bids {
-			bid.SetPriority(sim, priority)
-		}
-	})
 }
 
 func (p *Parsed) bidAlone(aura *core.Aura, category string, priority float64, a *attachment) {

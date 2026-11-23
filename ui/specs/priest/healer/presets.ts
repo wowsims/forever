@@ -21,13 +21,7 @@ export const DefaultConsumables = ConsumesSpec.create({
 	mhImbueId: Consumables.BrilliantManaOil.id,
 	resourcePotId: Consumables.MajorManaPotion.id,
 	conjuredId: Consumables.DemonicRune.id,
-	elixirIds: [
-		Consumables.ElixirOfTheGrizzly.id,
-		Consumables.ElixirOfCunning.id,
-		Consumables.ElixirOfSages.id,
-		Consumables.GreaterMagebloodElixir.id,
-		Consumables.GreaterClericsElixir.id,
-	],
+	elixirIds: [Consumables.ElixirOfTheGrizzly.id, Consumables.ElixirOfCunning.id, Consumables.GreaterMagebloodElixir.id, Consumables.GreaterClericsElixir.id],
 });
 
 export const OtherDefaults = {

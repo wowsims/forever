@@ -13,17 +13,19 @@ import "github.com/wowsims/forever/sim/core/proto"
 
 var Raid = []BuffSpec{
 	{
-		Field:    "arcane_intellect",
-		SpellID:  10157,
-		Category: "StatBuff",
+		Field:          "arcane_intellect",
+		SpellID:        10157,
+		Category:       "StatBuff",
+		ElixirCategory: "ElixirStat",
 		Stats: []proto.Stat{
 			proto.Stat_StatIntellect,
 		},
 	},
 	{
-		Field:    "prayer_of_spirit",
-		SpellID:  27681,
-		Category: "StatBuff",
+		Field:          "prayer_of_spirit",
+		SpellID:        27681,
+		Category:       "StatBuff",
+		ElixirCategory: "ElixirStat",
 		Stats: []proto.Stat{
 			proto.Stat_StatSpirit,
 		},
@@ -196,22 +198,24 @@ var Raid = []BuffSpec{
 	},
 	// Raises all crit, as Moonkin Aura below does; the two share one category, so only one counts.
 	{
-		Field:      "leader_of_the_pack",
-		SpellID:    24932,
-		CastID:     17007,
-		Category:   "RaidCrit",
-		SingleAura: true,
+		Field:          "leader_of_the_pack",
+		SpellID:        24932,
+		CastID:         17007,
+		Category:       "RaidCrit",
+		ElixirCategory: "ElixirCrit",
+		SingleAura:     true,
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
 			proto.Stat_StatSpellDamage,
 		},
 	},
 	{
-		Field:      "moonkin_aura",
-		SpellID:    24907,
-		TooltipID:  24858,
-		Category:   "RaidCrit",
-		SingleAura: true,
+		Field:          "moonkin_aura",
+		SpellID:        24907,
+		TooltipID:      24858,
+		Category:       "RaidCrit",
+		ElixirCategory: "ElixirCrit",
+		SingleAura:     true,
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
 			proto.Stat_StatSpellDamage,

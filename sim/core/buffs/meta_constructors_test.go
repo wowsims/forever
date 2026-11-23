@@ -320,7 +320,7 @@ func TestGeneratedRowsBuildTheirShapes(t *testing.T) {
 		{"ArcaneIntellect", false, false, NewSpellDataArcaneIntellectAura, auraShape{
 			Label: "Arcane Intellect (External)", ActionID: external(10157), Tag: "StatBuff", Duration: ArcaneIntellectDuration(0),
 			BuildPhase: core.CharacterBuildPhaseBuffs,
-			Bids:       []string{bid("StatBuffIntellectAdd", false, arcaneIntellect)},
+			Bids:       []string{bid("StatBuffIntellectAdd", false, arcaneIntellect), bid("ElixirStatIntellectAdd", false, arcaneIntellect)},
 			Stacks:     statsOnly(onCharacter(map[stats.Stat]float64{stats.Intellect: arcaneIntellect})),
 		}},
 		{"MarkOfTheWild", false, false, NewSpellDataMarkOfTheWildAura, auraShape{

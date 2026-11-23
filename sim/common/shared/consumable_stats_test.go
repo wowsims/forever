@@ -4,7 +4,9 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/wowsims/forever/assets/database"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
@@ -359,76 +361,130 @@ func TestTwoElixirsOfEqualStrengthCountItOnce(t *testing.T) {
 	}
 }
 
-// A scroll's stat bids with the elixirs' of the same stat: Juju Power 12451 holds Strength from Scroll
-// of Strength IV 10310, and Scroll of Intellect IV 10308 holds Intellect from Elixir of Intellect
-// 250354, whichever comes first.
-func TestAScrollCountsOnlyWhereItOutbidsTheElixirs(t *testing.T) {
-	const scrollOfStrengthIV, jujuPower, elixirOfIntellect int32 = 10310, 12451, 250354
-	for _, id := range []int32{scrollOfStrengthIV, jujuPower, scrollOfIntellectIVID, elixirOfIntellect} {
+// A scroll stacks with the elixirs of its stat: Scroll of Strength IV 10310 with Juju Power 12451, and
+// Scroll of Intellect IV 10308 with Elixir of Cunning's 250328 Intellect, whichever comes first.
+func TestAScrollStacksWithTheElixirsOfItsStat(t *testing.T) {
+	const scrollOfStrengthIV, jujuPower, cunning int32 = 10310, 12451, 250328
+	for _, id := range []int32{scrollOfStrengthIV, jujuPower, scrollOfIntellectIVID, cunning} {
 		registerStatConsumable(t, id)
 	}
 
 	for _, tc := range []struct {
-		name             string
-		stat             stats.Stat
-		scroll, elixir   int32
-		strongerIsElixir bool
+		name           string
+		stat           stats.Stat
+		scroll, elixir int32
 	}{
-		{"Scroll of Strength IV and Juju Power", stats.Strength, scrollOfStrengthIV, jujuPower, true},
-		{"Scroll of Intellect IV and Elixir of Intellect", stats.Intellect, scrollOfIntellectIVID, elixirOfIntellect, false},
+		{"Scroll of Strength IV and Juju Power", stats.Strength, scrollOfStrengthIV, jujuPower},
+		{"Scroll of Intellect IV and Elixir of Cunning", stats.Intellect, scrollOfIntellectIVID, cunning},
 	} {
 		scroll, elixir := soloGain(tc.scroll)[tc.stat], soloGain(tc.elixir)[tc.stat]
-		if scroll <= 0 || elixir <= 0 || (elixir > scroll) != tc.strongerIsElixir {
-			t.Fatalf("%s: the scroll adds %v %v and the elixir %v, want both some and the elixir stronger: %v",
-				tc.name, scroll, tc.stat.StatName(), elixir, tc.strongerIsElixir)
+		if scroll <= 0 || elixir <= 0 {
+			t.Fatalf("%s: the scroll adds %v %v and the elixir %v, want both some", tc.name, scroll, tc.stat.StatName(), elixir)
 		}
 		for _, ids := range [][]int32{{tc.scroll, tc.elixir}, {tc.elixir, tc.scroll}} {
-			if gain := statGain(&proto.ConsumesSpec{ExtraIds: ids}, &proto.RaidBuffs{}); gain[tc.stat] != max(scroll, elixir) {
-				t.Errorf("%s as %v add %v %v, want the stronger one's %v", tc.name, ids, gain[tc.stat], tc.stat.StatName(), max(scroll, elixir))
+			if gain := statGain(&proto.ConsumesSpec{ExtraIds: ids}, &proto.RaidBuffs{}); gain[tc.stat] != scroll+elixir {
+				t.Errorf("%s as %v add %v %v, want both: %v", tc.name, ids, gain[tc.stat], tc.stat.StatName(), scroll+elixir)
 			}
 		}
 	}
 }
 
-// Under Arcane Intellect, Scroll of Intellect IV 10308 adds nothing and takes no Intellect from the
-// elixirs: Elixir of Intellect 250354, which the scroll outbids on its own, and Elixir of Greater
-// Intellect 9179 each count beside the raid buff.
-func TestAScrollUnderTheRaidBuffOfItsStatLeavesTheElixirsTheirStat(t *testing.T) {
-	const elixirOfIntellect, greaterIntellect int32 = 250354, 9179
-	for _, id := range []int32{scrollOfIntellectIVID, elixirOfIntellect, greaterIntellect} {
-		registerStatConsumable(t, id)
-	}
-	if scroll, elixir := soloGain(scrollOfIntellectIVID)[stats.Intellect], soloGain(elixirOfIntellect)[stats.Intellect]; elixir <= 0 || scroll <= elixir {
-		t.Fatalf("Scroll of Intellect IV adds %v Intellect and Elixir of Intellect %v, want the scroll more", scroll, elixir)
-	}
-
-	intellect := &proto.RaidBuffs{ArcaneIntellect: true}
-	for _, elixir := range []int32{elixirOfIntellect, greaterIntellect} {
-		alone := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixir}}, intellect)
-		withScroll := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixir}, ExtraIds: []int32{scrollOfIntellectIVID}}, intellect)
-		if alone[stats.Intellect] <= 0 || withScroll[stats.Intellect] != alone[stats.Intellect] {
-			t.Errorf("elixir %d adds %v Intellect under Arcane Intellect, and with Scroll of Intellect IV %v, want some and the same",
-				elixir, alone[stats.Intellect], withScroll[stats.Intellect])
+// Arcane Intellect overwrites the Intellect of the elixirs and of Scroll of Intellect IV 10308, which
+// add none to its own, and Prayer of Spirit the Spirit of Elixir of Sages 250338 and Scroll of Spirit
+// IV 10306. Elixir of Cunning 250328 keeps its Agility and Sages its crit.
+func TestTheRaidBuffsOverwriteTheIntellectAndSpiritOfTheElixirsAndScrolls(t *testing.T) {
+	const cunning, elixirOfIntellect, greaterIntellect, sages, scrollOfSpiritIV int32 = 250328, 250354, 9179, 250338, 10306
+	for _, tc := range []struct {
+		name    string
+		buffs   *proto.RaidBuffs
+		stat    stats.Stat
+		elixirs []int32
+		scroll  int32
+		kept    stats.Stat
+	}{
+		{"Arcane Intellect", &proto.RaidBuffs{ArcaneIntellect: true}, stats.Intellect, []int32{cunning, elixirOfIntellect, greaterIntellect},
+			scrollOfIntellectIVID, stats.Agility},
+		{"Prayer of Spirit", &proto.RaidBuffs{PrayerOfSpirit: true}, stats.Spirit, []int32{sages}, scrollOfSpiritIV, stats.SpellCritPercent},
+	} {
+		for _, id := range append(slices.Clone(tc.elixirs), tc.scroll) {
+			registerStatConsumable(t, id)
+		}
+		gain := statGain(&proto.ConsumesSpec{ElixirIds: tc.elixirs, ExtraIds: []int32{tc.scroll}}, tc.buffs)
+		if gain[tc.stat] != 0 {
+			t.Errorf("under %s, %v and %d add %v %v, want none", tc.name, tc.elixirs, tc.scroll, gain[tc.stat], tc.stat.StatName())
+		}
+		if kept := soloGain(tc.elixirs[0])[tc.kept]; kept <= 0 || gain[tc.kept] != kept {
+			t.Errorf("under %s, %d adds %v %v, want its own %v", tc.name, tc.elixirs[0], gain[tc.kept], tc.kept.StatName(), kept)
 		}
 	}
 }
 
-// Under Mark of the Wild, Juju Power 12451 overwrites Scroll of Strength IV 10310: the scroll adds
-// nothing, and the Juju's Strength counts in full beside the Mark's.
-func TestAScrollAJujuOverwritesLeavesTheRaidBuffItsStat(t *testing.T) {
-	const scrollOfStrengthIV, jujuPower int32 = 10310, 12451
-	registerStatConsumable(t, scrollOfStrengthIV)
-	registerStatConsumable(t, jujuPower)
-
-	mark := &proto.RaidBuffs{MarkOfTheWild: true}
-	juju := soloGain(jujuPower)[stats.Strength]
-	if scroll := soloGain(scrollOfStrengthIV)[stats.Strength]; scroll <= 0 || juju <= scroll {
-		t.Fatalf("Juju Power adds %v Strength and the scroll %v, want the Juju more", juju, scroll)
-	}
-	for _, ids := range [][]int32{{scrollOfStrengthIV, jujuPower}, {jujuPower, scrollOfStrengthIV}} {
-		if gain := statGain(&proto.ConsumesSpec{ExtraIds: ids}, mark); gain[stats.Strength] != juju {
-			t.Errorf("%v under Mark of the Wild add %v Strength to the Mark's, want Juju Power's %v", ids, gain[stats.Strength], juju)
+// Moonkin Aura and Leader of the Pack each overwrite an elixir's crit, while Elixir of the Mongoose
+// 13452 keeps its Agility.
+func TestTheRaidCritOverwritesTheElixirCrit(t *testing.T) {
+	registerStatConsumable(t, elixirOfTheMongooseID)
+	mongoose := soloGain(elixirOfTheMongooseID)
+	for name, buffs := range map[string]*proto.RaidBuffs{
+		"Moonkin Aura":       {MoonkinAura: true},
+		"Leader of the Pack": {LeaderOfThePack: true},
+	} {
+		gain := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}}, buffs)
+		if gain[stats.PhysicalCritPercent] != 0 || gain[stats.SpellCritPercent] != 0 || gain[stats.Agility] != mongoose[stats.Agility] {
+			t.Errorf("under %s, Elixir of the Mongoose adds %v%% physical and %v%% spell crit and %v Agility, want no crit and its %v Agility",
+				name, gain[stats.PhysicalCritPercent], gain[stats.SpellCritPercent], gain[stats.Agility], mongoose[stats.Agility])
 		}
+	}
+}
+
+// Mark of the Wild and Power Word: Fortitude stack with the elixirs and the scrolls they do not share
+// a category with: Juju Power's 12451 and Scroll of Strength IV's 10310 Strength count in full beside
+// the Mark's, and Elixir of Brute Force's 13453 Stamina beside Fortitude's.
+func TestMarkOfTheWildAndFortitudeStackWithTheElixirs(t *testing.T) {
+	const scrollOfStrengthIV, jujuPower, bruteForce int32 = 10310, 12451, 13453
+	for _, id := range []int32{scrollOfStrengthIV, jujuPower, bruteForce} {
+		registerStatConsumable(t, id)
+	}
+
+	strength := soloGain(jujuPower)[stats.Strength] + soloGain(scrollOfStrengthIV)[stats.Strength]
+	if gain := statGain(&proto.ConsumesSpec{ExtraIds: []int32{scrollOfStrengthIV, jujuPower}}, &proto.RaidBuffs{MarkOfTheWild: true}); gain[stats.Strength] != strength {
+		t.Errorf("Juju Power and Scroll of Strength IV under Mark of the Wild add %v Strength to the Mark's, want both: %v", gain[stats.Strength], strength)
+	}
+	stamina := soloGain(bruteForce)[stats.Stamina]
+	if gain := statGain(&proto.ConsumesSpec{ElixirIds: []int32{bruteForce}}, &proto.RaidBuffs{PowerWordFortitude: true}); stamina <= 0 || gain[stats.Stamina] != stamina {
+		t.Errorf("Elixir of Brute Force under Power Word: Fortitude adds %v Stamina, want its own %v", gain[stats.Stamina], stamina)
+	}
+}
+
+// A raid buff that overwrites the elixirs counts by its own category, so an elixir granting as much as
+// it or more could count beside it, and a scroll that outbids it leaves it suppressing the elixirs
+// while it adds nothing. Every elixir and scroll in the database grants less Intellect than Arcane
+// Intellect, less Spirit than Prayer of Spirit and less crit than Moonkin Aura and Leader of the Pack.
+func TestNoElixirOrScrollOutbidsTheRaidBuffOfItsStat(t *testing.T) {
+	ceilings := map[string]float64{
+		"stat Intellect":           buffs.ArcaneIntellectValue(0),
+		"stat Spirit":              buffs.PrayerOfSpiritValue(0),
+		"stat PhysicalCritPercent": min(buffs.MoonkinAuraValue(0), buffs.LeaderOfThePackValue(0)),
+		"stat SpellCritPercent":    min(buffs.MoonkinAuraValue(0), buffs.LeaderOfThePackValue(0)),
+	}
+	checked := 0
+	for _, consumable := range database.Load().Consumables {
+		if consumable.Type != proto.ConsumableType_ConsumableTypeElixir && consumable.Type != proto.ConsumableType_ConsumableTypeScroll &&
+			!slices.Contains(StatsCountWithTheElixirs, consumable.Id) || len(consumable.ItemEffects) == 0 {
+			continue
+		}
+		for _, buff := range consumableBuffs(spelldata.Find(consumable.ItemEffects[0].BuffId)) {
+			for _, applied := range spelldata.DryRun(buff).Applied {
+				if ceiling, ok := ceilings[applied.Kind]; ok {
+					checked++
+					if applied.Value >= ceiling {
+						t.Errorf("%s (%d) grants %v %s, at least the raid buff's %v", consumable.Name, consumable.Id, applied.Value, applied.Kind, ceiling)
+					}
+				}
+			}
+		}
+	}
+	if checked == 0 {
+		t.Fatal("no elixir or scroll grants Intellect, Spirit or crit")
 	}
 }
 

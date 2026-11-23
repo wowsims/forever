@@ -34,7 +34,7 @@ type parseOptions struct {
 	category          string
 	singleAura        bool
 	perStatCategory   string
-	perStatGate       string
+	overwrites        string
 	schoolResistances bool
 
 	casterSlot *casterSlot
@@ -165,13 +165,13 @@ func ExclusivePerStat(category string) ParseOpt {
 	}
 }
 
-// With ExclusivePerStat, each stat bids under gate's per-stat category as well and counts only while
-// it holds both. Once it loses either, it withdraws both bids until the aura expires, so it takes the
-// stat from no one: a scroll a stronger raid buff or elixir of its stat overwrites adds nothing and
-// leaves the raid buff and the elixir their stat, which they stack.
-func ExclusivePerStatBehind(gate string) ParseOpt {
+// Each stat and pseudo-stat the parse attaches also bids under category's per-stat category, as
+// ExclusivePerStat names it, with no effect of its own: a weaker bid there adds nothing while the
+// aura is up, and the aura's stats count by its other bids alone. Arcane Intellect overwrites the
+// elixirs' Intellect that way.
+func Overwrites(category string) ParseOpt {
 	return func(o *parseOptions) {
-		o.perStatGate = gate
+		o.overwrites = category
 	}
 }
 

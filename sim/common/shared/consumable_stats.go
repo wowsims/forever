@@ -16,8 +16,8 @@ import (
 //
 // A buff that outlasts the item's cooldown is up from the pull: for the whole iteration where the row
 // persists through death, and for the row's duration otherwise. A scroll is up for the whole
-// iteration too, and its stat is exclusive with the raid buffs and the elixirs that grant the same
-// stat. A buff its cooldown outlasts is used in combat, on that cooldown.
+// iteration too, and its stat is exclusive with the raid buffs that grant the same stat, while it
+// stacks with the elixirs. A buff its cooldown outlasts is used in combat, on that cooldown.
 func NewSpellDataStatConsumable(itemID int32) {
 	core.NewSpellDataConsumableEffect(itemID, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -176,26 +176,18 @@ func consumableAura(character *core.Character, consumable core.Consumable, buff 
 	aura := character.GetOrRegisterAura(config)
 	switch {
 	case scroll:
-		spelldata.ParseEffects(character, aura, buff, spelldata.ExclusivePerStat(elixirStatCategory), spelldata.ExclusivePerStatBehind(core.StatBuffCategory))
+		spelldata.ParseEffects(character, aura, buff, spelldata.ExclusivePerStat(core.StatBuffCategory))
 	case consumable.Type == proto.ConsumableType_ConsumableTypeElixir || slices.Contains(StatsCountWithTheElixirs, consumable.Id):
 		crit := critEffects(buff)
 		if len(crit) > 0 {
-			spelldata.ParseEffects(character, aura, buff, spelldata.Effects(crit...), spelldata.Exclusive(elixirCritCategory, false))
+			spelldata.ParseEffects(character, aura, buff, spelldata.Effects(crit...), spelldata.Exclusive(core.ElixirCritCategory, false))
 		}
-		spelldata.ParseEffects(character, aura, buff, spelldata.SkipEffects(crit...), spelldata.ExclusivePerStat(elixirStatCategory))
+		spelldata.ParseEffects(character, aura, buff, spelldata.SkipEffects(crit...), spelldata.ExclusivePerStat(core.ElixirStatCategory))
 	default:
 		spelldata.ParseEffects(character, aura, buff)
 	}
 	return aura
 }
-
-// The categories the elixirs bid in: however many are up, each stat counts only its strongest
-// elixir, and the crit only one elixir's (R-0053). A scroll's stat counts only while it outbids both
-// the raid buffs and the elixirs of the stat; once either overwrites it, it adds nothing.
-const (
-	elixirCritCategory = "ElixirCrit"
-	elixirStatCategory = "ElixirStat"
-)
 
 // Consumables the game files do not type as elixirs whose stats count with the elixirs' all the same.
 // The consumables TS generator writes the list for the UI.

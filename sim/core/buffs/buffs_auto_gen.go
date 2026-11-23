@@ -324,9 +324,10 @@ func NewSpellDataHeadmastersChargeAura(unit *core.Unit, isPlayer bool, talentPoi
 var ArcaneIntellectCategory = "StatBuff"
 var arcaneIntellectSpell = spelldata.MustFind(10157)
 var arcaneIntellectMeta = &Meta{
-	Label:    "Arcane Intellect",
-	Spell:    arcaneIntellectSpell,
-	Category: ArcaneIntellectCategory,
+	Label:          "Arcane Intellect",
+	Spell:          arcaneIntellectSpell,
+	Category:       ArcaneIntellectCategory,
+	ElixirCategory: "ElixirStat",
 }
 
 func ArcaneIntellectValue(talentPoints int32) float64 {
@@ -343,9 +344,10 @@ func NewSpellDataArcaneIntellectAura(unit *core.Unit, isPlayer bool, talentPoint
 var PrayerOfSpiritCategory = "StatBuff"
 var prayerOfSpiritSpell = spelldata.MustFind(27681)
 var prayerOfSpiritMeta = &Meta{
-	Label:    "Prayer of Spirit",
-	Spell:    prayerOfSpiritSpell,
-	Category: PrayerOfSpiritCategory,
+	Label:          "Prayer of Spirit",
+	Spell:          prayerOfSpiritSpell,
+	Category:       PrayerOfSpiritCategory,
+	ElixirCategory: "ElixirStat",
 }
 
 func PrayerOfSpiritValue(talentPoints int32) float64 {
@@ -682,10 +684,11 @@ func NewSpellDataAspectOfTheWildAura(unit *core.Unit, isPlayer bool, talentPoint
 var LeaderOfThePackCategory = "RaidCrit"
 var leaderOfThePackSpell = spelldata.MustFind(24932)
 var leaderOfThePackMeta = &Meta{
-	Label:      "Leader of the Pack",
-	Spell:      leaderOfThePackSpell,
-	Category:   LeaderOfThePackCategory,
-	SingleAura: true,
+	Label:          "Leader of the Pack",
+	Spell:          leaderOfThePackSpell,
+	Category:       LeaderOfThePackCategory,
+	ElixirCategory: "ElixirCrit",
+	SingleAura:     true,
 }
 
 func LeaderOfThePackValue(talentPoints int32) float64 {
@@ -702,10 +705,11 @@ func NewSpellDataLeaderOfThePackAura(unit *core.Unit, isPlayer bool, talentPoint
 var MoonkinAuraCategory = "RaidCrit"
 var moonkinAuraSpell = spelldata.MustFind(24907)
 var moonkinAuraMeta = &Meta{
-	Label:      "Moonkin Aura",
-	Spell:      moonkinAuraSpell,
-	Category:   MoonkinAuraCategory,
-	SingleAura: true,
+	Label:          "Moonkin Aura",
+	Spell:          moonkinAuraSpell,
+	Category:       MoonkinAuraCategory,
+	ElixirCategory: "ElixirCrit",
+	SingleAura:     true,
 }
 
 func MoonkinAuraValue(talentPoints int32) float64 {

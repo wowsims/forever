@@ -1,8 +1,9 @@
 import type { IconEnumValueConfig } from '@features/inputs/configs';
 import * as InputHelpers from '@features/inputs/input_helpers';
 import type { StatFilterScope } from '@features/stat-filters/model/stat_filters';
-import { Class, ConsumableType, ConsumesSpec, PseudoStat, Stat } from '@generated/proto/common';
+import { Class, ConsumableType, ConsumesSpec, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { Consumable } from '@generated/proto/db';
+import type { DruidTalents } from '@generated/proto/druid';
 import i18n from '@i18n/config';
 import { translatePseudoStat, translateStat } from '@i18n/localization';
 import type { StoreField } from '@sim/hooks/useStoreField';
@@ -13,7 +14,7 @@ import { UnitStat, unitStatsOf } from '@sim/proto/stats';
 import { consumableAllowed, consumableOrderOf, consumablePseudoStatsOf, consumableStatsOf, consumableUniverse, orderedByEp } from '@sim/settings/consumables';
 import { memoLast } from '@sim/utils/misc';
 
-import { ArcaneIntellect, GENERATED_STAT_BUFF_AMOUNTS } from './buffs_debuffs_auto_gen';
+import { ArcaneIntellect, GENERATED_OVERWRITING_BUFFS, LeaderOfThePack, MoonkinAura } from './buffs_debuffs_auto_gen';
 import { STATS_COUNT_WITH_THE_ELIXIRS } from './consumables_auto_gen';
 
 export type ConsumableIdField =
@@ -91,9 +92,10 @@ const STORE_FIELDS: Array<StoreField> = ['consumables', 'gear', 'profession1', '
 // the other toggles only STORE_FIELDS.
 export const CONSUMABLE_PICKER_FIELDS: ReadonlyArray<StoreField> = [...STORE_FIELDS, 'itemSwap'];
 
-// The fields the elixir toggles and the scroll picks read: their overwritten tooltips follow the stat buffs' inputs
-// too, since a stat buff turned on overwrites a scroll, which gives the elixirs of its stat their amount back.
-export const OVERWRITTEN_PICKER_FIELDS: ReadonlyArray<StoreField> = [...CONSUMABLE_PICKER_FIELDS, 'raid:buffs'];
+// The fields the elixir toggles and the scroll picks read: their overwritten tooltips follow the raid buffs' inputs
+// too, since a raid buff turned on overwrites the scrolls and elixirs of its stat, and the talents, which turn on a
+// druid's own.
+export const OVERWRITTEN_PICKER_FIELDS: ReadonlyArray<StoreField> = [...CONSUMABLE_PICKER_FIELDS, 'raid:buffs', 'talentsString'];
 
 // The columns a consumable menu lays its offers out in, by how many there are.
 export const consumableColumns = (offered: number): number => (offered > 10 ? 3 : offered > 5 ? 2 : 1);
@@ -211,12 +213,15 @@ const grantsOf = (consumable: Consumable): PickGrants => {
 	return { consumable, name: consumable.name, amounts };
 };
 
-// The stat buffs as grants beside the picks, each with the input that turns it on.
-const STAT_BUFFS = GENERATED_STAT_BUFF_AMOUNTS.map(buff => ({
-	config: buff.config,
+// The raid buffs that overwrite picks, as grants beside them, each with its input and what it overwrites.
+const OVERWRITING_BUFFS = GENERATED_OVERWRITING_BUFFS.map(buff => ({
+	...buff,
 	grants: {
 		name: buff.config.label ?? '',
-		amounts: new Map(Object.entries(buff.amounts).map(([stat, amount]) => [`stat ${stat}`, amount!])),
+		amounts: new Map([
+			...Object.entries(buff.stats ?? {}).map(([stat, amount]): [string, number] => [`stat ${stat}`, amount!]),
+			...Object.entries(buff.pseudoStats ?? {}).map(([pseudoStat, amount]): [string, number] => [`percent ${pseudoStat}`, amount!]),
+		]),
 	},
 }));
 
@@ -237,32 +242,23 @@ const matchedBy = (amounts: Map<string, number>, picks: ReadonlyArray<Grants>): 
 	return [...matching];
 };
 
-interface ElixirOverwrites {
-	// The picks that add nothing, by id, each with what grants as much of everything it grants.
-	overwritten: Map<number, Array<Grants>>;
-	// The picks that add something.
-	counted: Array<PickGrants>;
-}
-
-// The sim counts each stat and percent the elixirs grant at the largest amount among them and the scrolls that count
-// only (R-0053), so a pick adds nothing where the other picks and those scrolls grant as much of everything it grants.
-// The picks are set aside one at a time, those granting the fewest stats and percents first and, among those, the one
-// later in the spec's lists first (the elixir ids, then the extra ids), so of two that grant the same only one is. One
-// granting nothing the picker can read is never set aside.
-function elixirOverwrites(picks: ReadonlyArray<PickGrants>, scrolls: ReadonlyArray<PickGrants>): ElixirOverwrites {
+// The sim counts each stat and percent the elixirs grant at the largest amount among them and the raid buffs that
+// overwrite them (R-0053), so a pick adds nothing where the other picks and those buffs grant as much of everything it
+// grants. The picks are set aside one at a time, those granting the fewest stats and percents first and, among those,
+// the one later in the spec's lists first (the elixir ids, then the extra ids), so of two that grant the same only one
+// is. One granting nothing the picker can read is never set aside. Answers the picks set aside, by id, each with what
+// grants as much of everything it grants.
+function elixirOverwrites(picks: ReadonlyArray<PickGrants>, buffs: ReadonlyArray<Grants>): Map<number, Array<Grants>> {
 	const order = picks.map((entry, index) => ({ entry, index })).sort((a, b) => a.entry.amounts.size - b.entry.amounts.size || b.index - a.index);
 	let counted = [...picks];
 	const setAside: Array<PickGrants> = [];
 	for (const { entry } of order) {
 		const others = counted.filter(other => other !== entry);
-		if (!matchedBy(entry.amounts, [...others, ...scrolls])) continue;
+		if (!matchedBy(entry.amounts, [...others, ...buffs])) continue;
 		counted = others;
 		setAside.push(entry);
 	}
-	return {
-		overwritten: new Map(setAside.map(entry => [entry.consumable.id, matchedBy(entry.amounts, [...counted, ...scrolls])!])),
-		counted,
-	};
+	return new Map(setAside.map(entry => [entry.consumable.id, matchedBy(entry.amounts, [...counted, ...buffs])!]));
 }
 
 interface Overwrites {
@@ -270,25 +266,41 @@ interface Overwrites {
 	scrolls: Map<number, Array<Grants>>;
 }
 
-// The sim counts a scroll's stat only while it outbids both the elixirs' and the stat buffs' (R-0053), so the elixirs
-// and the buffs that are on that grant as much of it overwrite it. A scroll that counts outbids the elixirs of its stat
-// in turn, so the elixirs are weighed again beside the scrolls that count.
-function overwritesOf(elixirs: ReadonlyArray<PickGrants>, scrolls: ReadonlyArray<PickGrants>, statBuffs: ReadonlyArray<Grants>): Overwrites {
-	const { counted } = elixirOverwrites(elixirs, []);
+// The raid buffs that are on overwrite the scrolls and the elixirs they grant as much as (R-0053), each the kind its
+// entry names: Arcane Intellect and Prayer of Spirit both, Power Word: Fortitude the scrolls, Moonkin Aura and Leader of
+// the Pack the elixirs' crit. The scrolls and the elixirs stack with each other.
+function overwritesOf(
+	elixirs: ReadonlyArray<PickGrants>,
+	scrolls: ReadonlyArray<PickGrants>,
+	buffs: ReadonlyArray<(typeof OVERWRITING_BUFFS)[number]>,
+): Overwrites {
+	const scrollBuffs = buffs.filter(buff => buff.scrolls).map(buff => buff.grants);
 	const overwrittenScrolls = new Map<number, Array<Grants>>();
-	const counting: Array<PickGrants> = [];
 	for (const scroll of scrolls) {
-		const by = matchedBy(scroll.amounts, [...counted, ...statBuffs]);
+		const by = matchedBy(scroll.amounts, scrollBuffs);
 		if (by) overwrittenScrolls.set(scroll.consumable.id, by);
-		else counting.push(scroll);
 	}
-	return { elixirs: elixirOverwrites(elixirs, counting).overwritten, scrolls: overwrittenScrolls };
+	const elixirBuffs = buffs.filter(buff => buff.elixirs).map(buff => buff.grants);
+	return { elixirs: elixirOverwrites(elixirs, elixirBuffs), scrolls: overwrittenScrolls };
 }
 
 const overwrittenTooltipOf = (by: ReadonlyArray<Grants>): string =>
 	i18n.t('settings_tab.consumables.overwritten_tooltip', {
 		names: new Intl.ListFormat(i18n.language, { type: 'conjunction' }).format(by.map(entry => entry.name)),
 	});
+
+// The raid buffs the sim turns on whatever the inputs say (`AddRaidBuffs`): Arcane Intellect for every mage
+// (sim/mage/mage.go), Moonkin Aura for a Balance druid with Moonkin Form and Leader of the Pack for a Feral cat or bear
+// with the talent (sim/druid/druid.go).
+const turnedOnBySim = (player: Player<any>, config: (typeof OVERWRITING_BUFFS)[number]['config']): boolean => {
+	if (config === ArcaneIntellect) return player.getClass() === Class.ClassMage;
+	const spec = player.getSpec();
+	if (config === MoonkinAura) return spec === Spec.SpecBalanceDruid && (player.getTalents() as DruidTalents).moonkinForm;
+	if (config === LeaderOfThePack) {
+		return (spec === Spec.SpecFeralCatDruid || spec === Spec.SpecFeralBearDruid) && (player.getTalents() as DruidTalents).leaderOfThePack;
+	}
+	return false;
+};
 
 // The overwritten tooltips of the elixir toggles and the scroll picks, read off the picks among `elixirs` and
 // `scrolls` in the spec's elixir and extra ids and the stat buffs that are on, and worked out once per set of them.
@@ -301,15 +313,9 @@ export function overwrittenTooltips(elixirs: ReadonlyArray<Consumable>, scrolls:
 		const { elixirIds, extraIds } = player.getConsumes();
 		const picked = [...new Set([...elixirIds, ...extraIds])];
 		const picksIn = (grants: Map<number, PickGrants>) => picked.flatMap(id => grants.get(id) ?? []);
-		// The sim turns Arcane Intellect on for every mage, whatever the input says (sim/mage/mage.go, AddRaidBuffs).
-		const mage = player.getClass() === Class.ClassMage;
-		const statBuffs = STAT_BUFFS.filter(buff => buff.config.getValue(player) || (mage && buff.config === ArcaneIntellect));
-		return overwritesFor([picked.join(), statBuffs.map(buff => buff.grants.name).join()], () =>
-			overwritesOf(
-				picksIn(elixirGrants),
-				picksIn(scrollGrants),
-				statBuffs.map(buff => buff.grants),
-			),
+		const buffs = OVERWRITING_BUFFS.filter(buff => buff.config.getValue(player) || turnedOnBySim(player, buff.config));
+		return overwritesFor([picked.join(), buffs.map(buff => buff.grants.name).join()], () =>
+			overwritesOf(picksIn(elixirGrants), picksIn(scrollGrants), buffs),
 		);
 	};
 	return {
