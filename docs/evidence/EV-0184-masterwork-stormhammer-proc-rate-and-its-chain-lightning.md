@@ -5,24 +5,24 @@
   counted by EV-0155's and EV-0156's rolls. The chain hits up to 3 targets, rolls each jump on its own from the row's
   105 to 145 at 70% a jump, crits for 1.5 times and has no cooldown.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights listed below
-- Game build: 1.60.1.70959 and 1.60.1.71037 by event time. Every region's version file named 70959 from 2026-11-18
-  21:17 UTC and 71037 from 2026-11-20 18:23 UTC. The shaman's two runs and the first paladin run end by 2026-11-20
-  14:00 UTC, on 70959; the two runs in China start 27 minutes after the 71037 listing, on either build; the last run,
-  on 2026-11-22, is on 71037. The hotfix each player ran is not recorded. The first and last raidbots hotfix cache files
-  of 70959 (2026-11-17 15:47 and 2026-11-20 14:54 UTC) and the newest of 71037 (2026-11-22 18:07 UTC, 6,242 pushes)
-  hold no record of a row of the item or of spell 16921, so no push moved these rows
+- Game build: 1.60.1.70959 and 1.60.1.71037 by event time. Every region's version file named 70959 from 2026-11-18 21:17
+  UTC and 71037 from 2026-11-20 18:23 UTC. The shaman's two runs and the first paladin run end by 2026-11-20 14:01 UTC,
+  on 70959; the two runs in China start 27 and 95 minutes after the 71037 listing, on either build; the last run, on
+  2026-11-22, is on 71037. The hotfix each player ran is not recorded. The first and last raidbots hotfix cache files of
+  70959 (2026-11-17 15:47 and 2026-11-20 14:54 UTC) and the newest of 71037 (2026-11-22 18:07 UTC, 6,242 pushes) hold no
+  record of a row of the item or of spell 16921, so no push moved these rows
 - Date: 2026-11-19 to 2026-11-22
 - Pull request: #1182
 
 ## Method
 
 Every player whose gear shows the mace: 6 runs of 4 characters, 1 shaman (2 runs) and 3 paladins (4 runs), 2 runs in
-Korea, 2 in the EU and 2 in China. All hold it in the main hand with a shield, and every gear snapshot inside the 6
-runs shows it. A fifth player deals the proc's damage in two more reports (8 damage lines) with no gear snapshot of the
-mace and is left out. None of the 44,741 zone 3000 reports read shows the mace or the spell before 2026-11-19.
+Korea, 2 in the EU and 2 in China. All hold it in the main hand with a shield, and every gear snapshot inside the 6 runs
+shows it. A fifth player deals the proc's damage in two more reports (8 damage lines) with no gear snapshot of the mace
+and is left out. No zone 3000 report read shows the mace or the spell before 2026-11-19.
 
 The proc logs damage lines only, up to 3 a proc, and a jump is read off the amount before the target's resistance and
-absorbs: the first jump rolls 105 to 145, the second 73.5 to 101.5 and the third 51.5 to 71, and the three ranges do
+absorbs: the first jump rolls 105 to 145, the second 73.5 to 101.5 and the third 51.45 to 71.05, and the three ranges do
 not overlap. A line of the first range is one proc. Of the 249 procs, 11 have no first jump among their damage lines: 5
 start with a line on an immune target, which logs 186 to 340 ms before the jumps that land, and 6 show later jumps
 alone. Lines inside one proc are not in jump order, and a third jump lands up to 900 ms after the first.
@@ -82,7 +82,8 @@ The rolls by ability:
 | Paladin | Holy Strike           |   622 |
 | Paladin | Seal of Righteousness |   108 |
 
-A white swing by the rolls within 500 ms of it, with no second white swing there, and the swings with a proc:
+A white swing by the rolls within 500 ms of it, with no second white swing there, and the swings with a proc, for each
+group of 50 swings or more:
 
 | Class   | Rolls beside the white swing         | Rolls | Swings | With a proc | Chance | Per roll |
 | ------- | ------------------------------------ | ----: | -----: | ----------: | -----: | -------: |
@@ -109,15 +110,16 @@ within 500 ms either side.
 
 ## The chain
 
-Of the 530 damage lines 423 hit, 92 crit, 14 meet an immune target and 1 misses; none is logged as a resist, in part
-or in full. The 515 lines that deal damage are 238 first jumps, 163 second jumps and 114 third jumps, and no line reads
-under 51, where a fourth jump would fall.
+Of the 530 damage lines 423 hit, 92 crit, 14 meet an immune target and 1 misses; none is logged as a resist, in part or
+in full. The 515 lines that deal damage are 238 first jumps, 163 second jumps and 114 third jumps, and no line reads
+under 51, where a fourth jump would fall. The sim rolls each jump on the spell hit table. Whether the proc rolls it is
+not settled here: the logs give neither the wearer's level nor the mob's.
 
 | Jump | Lines | Lowest | Highest | The row's range |
 | ---- | ----: | -----: | ------: | --------------- |
 | 1    |   238 |    105 |     153 | 105 to 145      |
 | 2    |   163 |     73 |     102 | 73.5 to 101.5   |
-| 3    |   114 |     51 |      72 | 51.5 to 71      |
+| 3    |   114 |     51 |      72 | 51.45 to 71.05  |
 
 Three first jumps read above 145: 146, and 148 and 153 on one mob. Each jump rolls on its own: of the 127 procs with no
 other proc within 2 s and one first and one second jump on record, 12 have the second within 1 of 0.7 times the first,

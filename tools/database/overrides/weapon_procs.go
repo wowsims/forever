@@ -978,10 +978,9 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Siegebreaker's Blaster: no proc row; a log fit not yet validated (EV-0177)",
 		Source:  "observed",
 	},
-	// Fitted on every roll of four wearers, one shaman and three paladins, in the reports from 2026-11-19 to
-	// 2026-11-22; the paladins' rolls are EV-0155's and EV-0156's. The proc is a missile, so a run's procs are set
-	// against its rolls and none is given to a hit (EV-0184). The "observed" Source keeps the gear tab's notice up
-	// until more wearers validate it.
+	// Fitted the same way on the reports from 2026-11-19 to 2026-11-22, paladins included: their rolls are EV-0155's
+	// and EV-0156's. Too few wearers and too wide an interval to call final (EV-0184). The "observed" Source keeps
+	// the gear tab's notice up until more wearers validate it.
 	{
 		ItemID:  12794,
 		SpellID: 16921,
