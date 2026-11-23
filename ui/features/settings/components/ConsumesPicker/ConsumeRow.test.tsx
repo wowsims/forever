@@ -121,14 +121,14 @@ describe('ConsumeRow', () => {
 describe('ConsumeRowView', () => {
 	it('lays the caption out inline before the pickers', () => {
 		render(
-			<ConsumeRowView label="Elixirs" hidden={false}>
+			<ConsumeRowView label="Flask & Elixirs" hidden={false}>
 				<div data-testid="pickers" />
 			</ConsumeRowView>,
 		);
 		const rowElem = screen.getByTestId('consumes-row');
 
 		expect(rowElem.getAttribute('data-layout')).toBe('inline');
-		expect(rowElem.children[0].textContent).toBe('Elixirs');
+		expect(rowElem.children[0].textContent).toBe('Flask & Elixirs');
 		expect(rowElem.children[1]).toBe(screen.getByTestId('pickers'));
 	});
 });

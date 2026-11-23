@@ -4,7 +4,7 @@ import type { Player } from '@sim/player/player';
 import type { StoreSubscribe } from '@sim/state/subscriptions';
 import { MultiIconPicker } from '@ui-kit/MultiIconPicker';
 
-import { keptTooltipOf } from '../../input';
+import { keptTooltipOf, overwrittenOf } from '../../input';
 import { valuePicked } from '../ConnectedIconEnumPicker/utils';
 import { ConnectedIconPicker } from '../ConnectedIconPicker';
 import type { MultiIconPickerConfig } from './types';
@@ -52,6 +52,8 @@ export const ConnectedMultiIconPicker = <ModObject,>({ modObject, config, subscr
 			tooltip={config.tooltip}
 			numColumns={config.numColumns?.(modObject)}
 			keptTooltip={keptTooltipOf(config, modObject, !!picked)}
+			// The badge of the input the trigger shows.
+			{...(picked && overwrittenOf(picked.input, modObject, picked.input.getValue(modObject)))}
 			onClear={onClear}
 			testId={testId}>
 			{/* The menu is a row of bare swatches: each input's label would sit beside its icon, and the icon's tooltip names it. */}

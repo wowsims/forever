@@ -16,11 +16,21 @@
 		@apply relative size-10 shrink-0;
 	}
 
-	.ui-icon-swatch-box[data-kept] > :not(.ui-icon-swatch-kept) {
+	.ui-icon-swatch-box:is([data-kept], [data-overwritten]) > :not(.ui-icon-swatch-badge) {
 		@apply opacity-50;
 	}
 
-	.ui-icon-swatch-kept {
-		@apply absolute top-0 right-0 size-4 cursor-pointer rounded-full bg-scrim p-px text-white;
+	/* A swatch that triggers a menu opens it on hover, and the open menu sets every element outside its trigger and popup
+	   to pointer-events: none, the badge beside the trigger included, so the badge takes them back to keep its tooltip. */
+	.ui-icon-swatch-badge {
+		@apply pointer-events-auto absolute top-swatch-badge-inset size-4 cursor-pointer drop-shadow-icon-outline;
+	}
+
+	.ui-icon-swatch-badge-kept {
+		@apply right-swatch-badge-inset text-white;
+	}
+
+	.ui-icon-swatch-badge-overwritten {
+		@apply left-swatch-badge-inset text-warning;
 	}
 }

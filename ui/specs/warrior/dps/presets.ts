@@ -218,11 +218,14 @@ export const DefaultOptions = WarriorOptions.create({
 });
 
 export const DefaultConsumables = ConsumesSpec.create({
-	...WarriorPresets.DefaultConsumables,
-	resourcePotId: Consumables.MightyRagePotion.id,
+	foodId: Consumables.SmokedDesertDumplings.id,
+	// A dynamite states no stun, so a level 63 boss does not shrug it off the way it does the EZ-Thro Dark Bomb.
+	explosiveId: Consumables.SAFTCleverDynamite.id,
 	mhImbueId: Consumables.DenseWeightstone.id,
 	ohImbueId: Consumables.DenseSharpeningStone.id,
-	elixirIds: [Consumables.ElixirOfFerocity.id, Consumables.ElixirOfTheMongoose.id, Consumables.WinterfallFirewater.id],
+	extraIds: [Consumables.GoblinSapperCharge.id, Consumables.JujuPower.id, Consumables.JujuMight.id, Consumables.BoglingRoot.id, Consumables.ROIDS.id],
+	elixirIds: [Consumables.ElixirOfTheMongoose.id],
+	resourcePotId: Consumables.MightyRagePotion.id,
 });
 
 // Destiny, the two-hander of the Arms and Fury 2H Pre-BiS sets, is a sword, so the main hand takes the sharpening

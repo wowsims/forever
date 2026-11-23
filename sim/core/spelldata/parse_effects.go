@@ -34,6 +34,7 @@ type parseOptions struct {
 	category          string
 	singleAura        bool
 	perStatCategory   string
+	overwrites        string
 	schoolResistances bool
 
 	casterSlot *casterSlot
@@ -161,6 +162,16 @@ func Exclusive(category string, singleAura bool) ParseOpt {
 func ExclusivePerStat(category string) ParseOpt {
 	return func(o *parseOptions) {
 		o.perStatCategory = category
+	}
+}
+
+// Each stat and pseudo-stat the parse attaches also bids under category's per-stat category, as
+// ExclusivePerStat names it, with no effect of its own: a weaker bid there adds nothing while the
+// aura is up, and the aura's stats count by its other bids alone. Arcane Intellect overwrites the
+// elixirs' Intellect that way.
+func Overwrites(category string) ParseOpt {
+	return func(o *parseOptions) {
+		o.overwrites = category
 	}
 }
 

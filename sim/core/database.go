@@ -126,7 +126,8 @@ type Consumable struct {
 	WeaponInventoryTypeMask int32
 	// The exclusive group, of which only the first consumable the spec names applies; empty on
 	// consumables that stack with everything.
-	GroupKey string
+	GroupKey          string
+	CountsWithElixirs bool // Stats that count with the elixirs', though the game files do not type it as one (R-0053).
 }
 
 // The item's on-use rows.
@@ -163,6 +164,7 @@ func ConsumableFromProto(consumable *proto.Consumable) Consumable {
 		WeaponSubclassMask:      consumable.WeaponSubclassMask,
 		WeaponInventoryTypeMask: consumable.WeaponInventoryTypeMask,
 		GroupKey:                consumable.GroupKey,
+		CountsWithElixirs:       consumable.CountsWithElixirs,
 	}
 }
 
