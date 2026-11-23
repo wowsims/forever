@@ -14,6 +14,7 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
+	"github.com/wowsims/forever/sim/core/testagent"
 )
 
 func trinketWarrior(t *testing.T, trinketID int32) (*core.Simulation, *core.Character) {
@@ -574,8 +575,8 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 
 // Highborne Research Tablet 260205's 1318159 rolls its row's procs per minute on the main hand's
 // speed for a landed main-hand hit that deals damage, and casts 1265634 on the target. A ranged
-// special with no ranged weapon behind it (Thunder Clap) rolls on the main hand's speed too. A hit
-// that deals none (an application) never rolls.
+// special with no ranged weapon behind it rolls on the main hand's speed too, Thunder Clap excepted,
+// which never rolls it. A hit that deals none (an application) never rolls.
 func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
 	sim, character := trinketWarriorWielding(t, 260205, 810, 0)
 	proc := character.GetAura("Highborne Research Tablet")
@@ -610,11 +611,19 @@ func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
 	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 1 {
 		t.Errorf("a landed damaging hit cast it %d times, want once", got)
 	}
+
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee|core.ProcMaskRanged)
+	thunderClap := &core.Spell{ProcMask: core.ProcMaskRangedSpecial, SpellSchool: core.SpellSchoolPhysical, DefenseType: core.DefenseTypeMagic,
+		ClassFlags: spelldata.MustFind(6343).ClassFlags, Unit: &character.Unit}
+	dealHit(t, sim, character, thunderClap)
+	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 1 {
+		t.Errorf("a landed Thunder Clap cast it %d more times, want none", got-1)
+	}
 }
 
-// Highborne Research Tablet 260205 rolls one chance on each damaging spell hit whatever the weapon in
-// the main hand, for a caster who never swings and for a warrior who does.
-func TestHighborneResearchTabletProcsOnSpellsWhateverTheWeapon(t *testing.T) {
+// Highborne Research Tablet 260205 prices an instant spell hit at its row's procs per minute on 1.5 s,
+// whatever the weapon in the main hand, for a caster who never swings and for a warrior who does.
+func TestHighborneResearchTabletPricesSpellsOnCastTime(t *testing.T) {
 	const slow, fast = 810, 776
 	if core.GetItemByID(slow).SwingSpeed == core.GetItemByID(fast).SwingSpeed {
 		t.Fatal("the two weapons share a speed, want two speeds")
@@ -627,38 +636,132 @@ func TestHighborneResearchTabletProcsOnSpellsWhateverTheWeapon(t *testing.T) {
 	if character.AutoAttacks.AutoSwingMelee || character.AutoAttacks.AutoSwingRanged {
 		t.Fatal("the caster stand-in swings, want no auto attacks")
 	}
-	proc := character.GetAura("Highborne Research Tablet")
-	damage := character.GetSpell(core.ActionID{SpellID: 1265634})
-	if proc == nil || proc.Dpm == nil || damage == nil {
+	if proc := character.GetAura("Highborne Research Tablet"); proc == nil || proc.Dpm == nil || character.GetSpell(core.ActionID{SpellID: 1265634}) == nil {
 		t.Fatal("260205 registers no proc on a procs per minute rate")
 	}
-	want := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim)
-	if want <= 0 || want >= 1 {
-		t.Fatalf("the chance on a spell hit is %v, want a chance between none and certain", want)
+	instant := castTimeChance(t, 1318159, 0)
+	if instant >= 1 {
+		t.Fatalf("the row's procs per minute on 1.5 s give %v, want a chance between none and certain", instant)
 	}
 	fastSim, fastCaster := casterWielding(fast)
 	warriorSim, warrior := trinketWarriorWielding(t, 260205, fast, 0)
-	for _, other := range []struct {
-		name   string
-		sim    *core.Simulation
-		wearer *core.Character
+	for _, w := range []struct {
+		name      string
+		sim       *core.Simulation
+		character *core.Character
 	}{
+		{"caster", sim, character},
 		{"caster with a faster weapon", fastSim, fastCaster},
 		{"warrior who swings", warriorSim, warrior},
 	} {
-		if chance := other.wearer.GetAura("Highborne Research Tablet").Dpm.Chance(core.ProcMaskSpellDamage, other.sim); math.Abs(chance-want) > 1e-9 {
-			t.Errorf("the chance on a spell hit for a %s is %v, want the same %v", other.name, chance, want)
+		if chance := w.character.GetAura("Highborne Research Tablet").Dpm.Chance(core.ProcMaskSpellDamage, w.sim); math.Abs(chance-instant) > 1e-9 {
+			t.Errorf("the chance on an instant spell hit for a %s is %v, want the row's procs per minute on 1.5 s, %v", w.name, chance, instant)
 		}
 	}
+}
 
-	const hits = 2000
-	for range hits {
-		dealHit(t, sim, character, fireSpell(&character.Unit))
+// The missile caster stand-in's spell: a missile with a 1 s flight whose cast time each cast takes
+// from missileCastTime.
+const missileSpellID = 133
+
+var missileCastTime time.Duration
+
+func init() {
+	testagent.Register(proto.Player_RetributionPaladin{}, proto.Spec_SpecRetributionPaladin, func(player *proto.Player, spec any) {
+		player.Spec = spec.(*proto.Player_RetributionPaladin)
+	}, func(agent *testagent.Agent) {
+		agent.RegisterSpell(core.SpellConfig{
+			ActionID:           core.ActionID{SpellID: missileSpellID},
+			SpellSchool:        core.SpellSchoolFire,
+			DefenseType:        core.DefenseTypeMagic,
+			ProcMask:           core.ProcMaskSpellDamage,
+			MissileMinDuration: time.Second,
+			Cast: core.CastConfig{
+				DefaultCast: core.Cast{GCD: core.GCDDefault},
+				ModifyCast: func(_ *core.Simulation, _ *core.Spell, cast *core.Cast, _ *core.Unit) {
+					cast.CastTime = missileCastTime
+				},
+			},
+			DamageMultiplier: 1,
+			ThreatMultiplier: 1,
+			ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+				spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, 100, spell.OutcomeAlwaysHit))
+			},
+		})
+	})
+}
+
+// Highborne Research Tablet 260205 prices a spell hit on the cast time of the cast that dealt it, 1.5 s
+// at least: an instant's missile at 1.5 s, a 3 s cast's at 3 s, and a 3 s cast's still in flight when an
+// instant recast of the spell starts at 3 s too.
+func TestHighborneResearchTabletPricesSpellHitsOnTheirCast(t *testing.T) {
+	for _, tc := range []struct {
+		name           string
+		cast, recast   time.Duration
+		recastInFlight bool
+	}{
+		{"an instant", 0, 0, false},
+		{"a 3 s cast", 3 * time.Second, 0, false},
+		{"a 3 s cast with an instant recast in flight", 3 * time.Second, 0, true},
+	} {
+		landings, procs := 0, 0
+		for seed := range int64(100) {
+			sim, character := tabletMissileCaster(seed + 1)
+			spell := character.GetSpell(core.ActionID{SpellID: missileSpellID})
+			damage := character.GetSpell(core.ActionID{SpellID: 1265634})
+			target := character.CurrentTarget
+			for range 30 {
+				stepTo(t, sim, max(sim.CurrentTime, character.NextGCDAt())+time.Millisecond)
+				missileCastTime = tc.cast
+				if !spell.Cast(sim, target) {
+					t.Fatalf("%s: the cast failed", tc.name)
+				}
+				stepTo(t, sim, sim.CurrentTime+tc.cast+time.Millisecond)
+				before := damage.SpellMetrics[target.UnitIndex].Casts
+				if tc.recastInFlight {
+					stepTo(t, sim, sim.CurrentTime+500*time.Millisecond)
+					missileCastTime = tc.recast
+					if !spell.Cast(sim, target) {
+						t.Fatalf("%s: the recast failed", tc.name)
+					}
+					stepTo(t, sim, sim.CurrentTime+700*time.Millisecond)
+				} else {
+					stepTo(t, sim, sim.CurrentTime+time.Second+core.SpellBatchWindow+time.Millisecond)
+				}
+				procs += int(damage.SpellMetrics[target.UnitIndex].Casts - before)
+				landings++
+			}
+		}
+		want := castTimeChance(t, 1318159, tc.cast)
+		mean, deviation := want*float64(landings), math.Sqrt(want*(1-want)*float64(landings))
+		if math.Abs(float64(procs)-mean) > 4*deviation {
+			t.Errorf("%d landings of %s cast it %d times, want about %.0f", landings, tc.name, procs, mean)
+		}
 	}
-	mean, deviation := want*hits, math.Sqrt(want*(1-want)*hits)
-	if got := float64(damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts); math.Abs(got-mean) > 4*deviation {
-		t.Errorf("%d spell hits cast it %v times, want about %.0f", hits, got, mean)
+}
+
+// The missile caster stand-in wearing the tablet, on its own seed.
+func tabletMissileCaster(seed int64) (*core.Simulation, *core.Character) {
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
 	}
+	items[proto.ItemSlot_ItemSlotTrinket1].Id = 260205
+	player := &proto.Player{
+		Name: "Wearer", Class: proto.Class_ClassPaladin, Race: proto.Race_RaceHuman,
+		Equipment:   &proto.EquipmentSpec{Items: items},
+		Consumables: &proto.ConsumesSpec{},
+		Buffs:       &proto.IndividualBuffs{},
+		Rotation:    &proto.APLRotation{},
+	}
+	core.WithSpec(player, &proto.Player_RetributionPaladin{RetributionPaladin: &proto.RetributionPaladin{}})
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: seed},
+		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
+		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
 // Scented Runewood Brooch 269741's 1318323 rolls its row's procs per minute on the main hand's speed

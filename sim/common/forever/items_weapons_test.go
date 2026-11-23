@@ -555,7 +555,8 @@ func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 const castTimeFloor = 1500 * time.Millisecond
 
 // The chance a trigger priced on cast time rolls on a hit whose cast took castTime: the row's procs per
-// minute on that time, at least castTimeFloor.
+// minute on that time, at least castTimeFloor. Highborne Research Tablet 260205 prices its spell
+// hits this way too (EV-0131).
 func castTimeChance(t *testing.T, rowID int32, castTime time.Duration) float64 {
 	t.Helper()
 	ppm := float64(spelldata.MustFind(rowID).RPPM)

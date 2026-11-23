@@ -462,6 +462,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-DarkmistDirk-285102"
+ value: {
+  dps: 818.46539
+  tps: 754.6696
+  dtps: 6.60931
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 866.41124
@@ -959,6 +967,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-FrightskullShaft-14531"
+ value: {
+  dps: 800.16772
+  tps: 738.38212
+  dtps: 6.60931
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-FrozenHeartoftheMountain-249469"
  value: {
   dps: 886.74974
@@ -980,6 +996,14 @@ dps_results: {
   dps: 833.76633
   tps: 767.90183
   dtps: 8.0176
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-GargoyleShredderTalons-13399"
+ value: {
+  dps: 859.76067
+  tps: 788.76695
+  dtps: 6.50115
  }
 }
 dps_results: {
@@ -1167,6 +1191,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Hedgecutter-18498"
+ value: {
+  dps: 818.46539
+  tps: 754.6696
+  dtps: 6.60931
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-HelmofFire-8348"
  value: {
   dps: 839.91276
@@ -1193,9 +1225,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 868.18606
-  tps: 798.74887
-  dtps: 6.22415
+  dps: 873.01319
+  tps: 801.88082
+  dtps: 6.32562
  }
 }
 dps_results: {
@@ -1676,6 +1708,14 @@ dps_results: {
   dps: 866.74605
   tps: 794.96309
   dtps: 6.50115
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-SearingNeedle-12531"
+ value: {
+  dps: 818.46539
+  tps: 754.6696
+  dtps: 6.60931
  }
 }
 dps_results: {

@@ -1,6 +1,6 @@
 # EV-0125: Blackblade of Shahram's rate and what Shahram casts
 
-- Claim: Blackblade of Shahram 12592 summons Shahram (16602) about 1.15 times a minute on landed main-hand hits. Each
+- Claim: Blackblade of Shahram 12592 summons Shahram (16602) 1.0 times a minute on landed main-hand hits. Each
   Shahram casts exactly one of his six spells, starts its hardcast 1.03 to 1.83 s after the summon, and every copy of
   his Will or Blessing runs on its own timer.
 - Sources: public reports on forever.warcraftlogs.com, two paladins wearing the sword in the main hand:
@@ -8,7 +8,7 @@
 - Game build: 1.60.1.70938; the hotfix state and relogs were not recorded.
 - Date: 2026-11-13 (NXMZV9xjvWpB7GtP) and 2026-11-14 (D463FZBX1C9maJ7b)
 - Pull request: #1051
-- Later count: Blackblade of Shahram's rate, §Count of the 2026-10-08 to 2026-11-16 reports
+- Later count: Blackblade of Shahram's rate, §Count of the 2026-11-06 to 2026-11-22 reports
 
 A proc is one summon line of 16602 by the wearer. A hit is a landed damage line of the wearer on an enemy (hit, crit,
 block, glance or crush), or a melee cast that lands with no damage line, counted at its debuff. The sword's chain and
@@ -26,19 +26,27 @@ rolling explains the clusters better than one without it (log-likelihood -277.6 
 
 ## Rate
 
-- Count: §Count of the 2026-10-08 to 2026-11-16 reports
-- Proc: weapon proc 16602, logged as 16602; rolls on main hand
-- Sim rate: 1.15 PPM, observed; measured 1.15 PPM [0.96, 1.36], 4 wearers, 4 runs, 240 procs on 3576 hits
-- Reports from 2026-11-13 to 2026-11-16
-- Notes: few wearers (4): the interval is about the per-wearer range
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: weapon proc 16602
+- Rate: 1 PPM, measured
 
-| Report           | Fights                   | Class   | Slot | Hand split | Procs | Hits |  PPM | Left out  |
-| ---------------- | ------------------------ | ------- | ---- | ---------- | ----: | ---: | ---: | --------- |
-| 1JLq46yg7wYNhan9 | 17-28                    | Warrior | mh   |            |    46 |  906 | 0.87 |           |
-| 4f2ygdYCzFAvqc6K | 10, 12-14, 16-18         | Paladin | mh   |            |    92 | 1291 | 1.22 |           |
-| D463FZBX1C9maJ7b | 7-8                      | Paladin | mh   |            |    43 |  680 | 1.08 |           |
-| NXMZV9xjvWpB7GtP | 13-107, 109-116, 118-122 | Paladin | mh   |            |    59 |  699 | 1.45 |           |
-| NdTXJzkWHLZrVQYm | 1-3                      | Warrior | mh   |            |    46 |  907 | 0.87 | duplicate |
+1,005 procs on 17,613 rolling hits, 10 wearers, 15 runs, in the main hand: all hits 0.98 [0.93, 1.05]. The rate is all
+hits, which the one-hand white and specials rates agree with. One-hand white: 1.13 [0.97, 1.39], 132 procs on 2,011 lone
+units, 10 wearers. Specials: 0.86 [0.49, 1.02], 52 procs on 1,035 lone units, 10 wearers; Rend landings give 20 procs on
+330 of them. Two-roll abilities, priced as one roll: 0.89, 10 procs on 192 lone units (Execute 10 on 186 and Mongoose
+Bite 0 on 6), left out of the rate. Direct: window [-20, 100] ms, median 0 ms, 98th percentile 0 ms, 189 isolated hits.
+The paladin check, which sets no rate: lone white swings 1.02, 59 procs on 989 lone units, 17 wearers. Report
+NdTXJzkWHLZrVQYm logs the same run as 1JLq46yg7wYNhan9 and counts once. Reports from 2026-11-16 to 2026-11-22.
+
+| Class   | Wearers | Procs |   Hits |  PPM |
+| ------- | ------: | ----: | -----: | ---: |
+| Warrior |       8 |   971 | 17,108 | 0.97 |
+| Hunter  |       2 |    34 |    505 | 1.15 |
+
+Reports and fights: 1JLq46yg7wYNhan9 17-28; 2x7ZjvdbRwFMWKTP 3-45; 4VtCK6Qqr1MD2hpc 4; ARwPXzLJk78HgVQq 1;
+JRtbDP4L3BdazHrV 1-2; NdTXJzkWHLZrVQYm 1-3; WFMjbyKYzvfNkPhH 6-14; WdbKG4RkmjxA7YV3 1-3; aDHTPGq6htJFx8Nw 1-8;
+bAJFX6m7ftYWCKHP 1-4; bR9LQtgmKwZ3r6kW 1-25; n2HkhcYFrLK1tfZj 1-2; nqDL2hKfQB4yvjgJ 1-18; pHdqPxhAYLQTwya7 1-2;
+qtNCmzfYQwAnRMkZ 1-9; tmHdvqxYj1z28PFy 1-9.
 
 ## Shahram's spells
 
@@ -62,11 +70,14 @@ Every one of the 102 summons cast one spell and nothing else.
   ticked, each on its own 5 s beat.
 - Fist lands on Shahram himself, 9 of 9 times.
 
-## Count of the 2026-10-08 to 2026-11-16 reports
+## Count of the 2026-11-06 to 2026-11-22 reports
 
-- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate's table names
-- Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
-- Date: 2026-11-13 to 2026-11-16
-- Pull request: #1065
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate lists, from every wearer
+  stream on disk for the sword; 3,714 reports in all for the count, 16 of them for Blackblade of Shahram
+- Game build: 1.60.1.70938 to 1.60.1.71037 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
+  UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 6 of them for Blackblade of
+  Shahram. The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
+- Date: 2026-11-06 to 2026-11-22
+- Pull request: #1180
 
-The count is EV-0136 §Method, run on Blackblade of Shahram.
+The count is EV-0183 §Method, run on Blackblade of Shahram.

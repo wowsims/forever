@@ -157,7 +157,7 @@ func SpellCastPPMTrigger(character *core.Character, row *spelldata.Spell, handle
 // the global cooldown's 1.5 s, so an instant rolls 2.5% at 1 a minute and a 3 s cast 5%. The character's
 // proc chance mods for flags raise it.
 func RollCastTimePPM(sim *core.Simulation, character *core.Character, row *spelldata.Spell, flags core.ClassFlags, castTime time.Duration) bool {
-	chance := float64(row.RPPM) * max(castTime, core.GCDDefault).Seconds() / 60
+	chance := core.CastTimePPMChance(float64(row.RPPM), castTime)
 	return sim.Proc(character.ModifiedProcChance(flags, chance), row.Name)
 }
 
