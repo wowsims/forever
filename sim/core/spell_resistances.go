@@ -79,8 +79,8 @@ func (at *AttackTable) GetBinaryHitChance(spell *Spell) float64 {
 // The average share of a spell's damage the target resists, R / (R + 8L + 19) for the caster's level L,
 // with the caster's Spell Piercing taken off R unless the spell is flagged SpellFlagNoSpellPiercing.
 // Piercing beyond the resistance makes the share negative, and the roll pays it out as bonus damage; a
-// negative share under 1% pays nothing. The target's own resistance stops at 0, so a debuff that lowers
-// it below 0 adds nothing. A target above the caster's level resists no more for its level.
+// negative share under 1% pays nothing (EV-0142). The target's own resistance stops at 0, so a debuff
+// that lowers it below 0 adds nothing. A target above the caster's level resists no more for its level.
 func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) float64 {
 	if spell.SchoolIndex <= stats.SchoolIndexPhysical {
 		return 0
@@ -99,8 +99,6 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 	resistanceConstant := 8*float64(attacker.Level) + 19
 	averageResist := resistance / (math.Abs(resistance) + resistanceConstant)
 
-	// Spell Piercing beyond the resistance gives no bonus until the share reaches 1%; from there the bonus
-	// follows the share (EV-0142).
 	// TODO: In-game testing required: whether a resistance share under 1% resists anything. A level 60
 	// player with 5 resistance (0.99%) against one with 6 (1.19%), each taking a level 60 mob's plain
 	// spell, settles it; the sim keeps the share.

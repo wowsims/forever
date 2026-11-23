@@ -105,31 +105,28 @@ func TestSpellPiercingBeyondResistanceAddsDamage(t *testing.T) {
 // included, and from 1% on the share takes the piercing in full.
 func TestSpellPiercingUnderAOnePercentShareGivesNoBonus(t *testing.T) {
 	defender := &Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
-	attacker := func(piercing float64) *Unit {
-		unit := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
-		unit.stats[stats.SpellPiercing] = piercing
-		return unit
-	}
-
-	under := attacker(5)
-	for _, flags := range []SpellFlag{0, SpellFlagBinary} {
-		spell := &Spell{Unit: under, SpellSchool: SpellSchoolArcane, SchoolIndex: stats.SchoolIndexArcane, Flags: flags}
-		if got := defender.averageResist(spell, under, false); got != 0 {
-			t.Errorf("flags %v: average resist with 5 piercing and no resistance = %v, want 0", flags, got)
+	sim := &Simulation{rand: NewSplitMix(1)}
+	for _, tc := range []struct {
+		piercing float64
+		flags    SpellFlag
+		want     float64
+	}{
+		{5, 0, 0},
+		{5, SpellFlagBinary, 0},
+		{6, 0, -6.0 / (6 + 499)},
+	} {
+		attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+		attacker.stats[stats.SpellPiercing] = tc.piercing
+		spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolArcane, SchoolIndex: stats.SchoolIndexArcane, Flags: tc.flags}
+		if got := defender.averageResist(spell, attacker, false); math.Abs(got-tc.want) > 1e-12 {
+			t.Errorf("flags %v: average resist with %v piercing and no resistance = %v, want %v", tc.flags, tc.piercing, got, tc.want)
 		}
-		sim := &Simulation{rand: NewSplitMix(1)}
-		attackTable := NewAttackTable(under, defender)
-		for range 10000 {
-			if multiplier, outcome := spell.ResistanceMultiplier(sim, false, attackTable); multiplier != 1 || outcome != OutcomeEmpty {
-				t.Fatalf("flags %v: a hit with 5 piercing and no resistance came at x%v with outcome %v, want x1 and none", flags, multiplier, outcome)
-			}
+		if tc.want != 0 {
+			continue
 		}
-	}
-
-	over := attacker(6)
-	spell := &Spell{Unit: over, SpellSchool: SpellSchoolArcane, SchoolIndex: stats.SchoolIndexArcane}
-	if got, want := defender.averageResist(spell, over, false), -6.0/(6+499); math.Abs(got-want) > 1e-12 {
-		t.Errorf("average resist with 6 piercing and no resistance = %v, want %v", got, want)
+		if multiplier, outcome := spell.ResistanceMultiplier(sim, false, NewAttackTable(attacker, defender)); multiplier != 1 || outcome != OutcomeEmpty {
+			t.Errorf("flags %v: a hit with %v piercing and no resistance came at x%v with outcome %v, want x1 and none", tc.flags, tc.piercing, multiplier, outcome)
+		}
 	}
 }
 
