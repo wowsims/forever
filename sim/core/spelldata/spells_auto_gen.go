@@ -28466,7 +28466,7 @@ var generatedSpells = []Spell{
 	{ID: 450608, Name: "S03 - Druid Energize Trigger - Wildheart Raiment", School: 2, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 50, ProcChance: 100, ProcFlags: [2]uint32{0: 0x1402c}, RPPM: 1, RefIDs: []int32{27782, 27784, 27783}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintCastTrigger,
 		Effects: []Effect{
 			{ID: 1150619, SpellID: 450608, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 5, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}}, // override: PPM 1 -- Wildheart Raiment 5-piece, Feralheart Raiment reissue 4-piece: 1 proc per minute on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none and the dummy effect's 5 is no chance
+		}}, // override: PPM 1 -- Wildheart Raiment 5-piece, Feralheart Raiment reissue 4-piece: 1 proc per minute on landed white swings, on spell casts priced on their cast time and on landed melee swings taken priced on the attacker's swing interval, a log fit not yet validated (EV-0144); the game files state none and the dummy effect's 5 is no chance
 	{ID: 450625, Name: "Item - Crusader's Wrath Proc - Lightforge Armor", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 100, ProcFlags: [2]uint32{0: 0x14004}, RPPM: 0.9, ClassFlags: core.ClassFlags{Family: 10}, RefIDs: []int32{27499}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintCastTrigger | core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1150643, SpellID: 450625, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 27499, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

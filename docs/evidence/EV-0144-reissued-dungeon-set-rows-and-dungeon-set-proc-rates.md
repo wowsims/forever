@@ -1,14 +1,19 @@
-# EV-0144: Reissued dungeon set 2 pieces take their own set's bonuses, and the rates of five dungeon set procs
+# EV-0144: Reissued dungeon set 2 pieces take their own set's bonuses, and the rates of six dungeon set procs
 
 - Claim: a reissued dungeon set 2 piece (226772 to 227023) counts toward its reissued set (1667 to 1681, 1778) and
   fires that row's bonuses, never the Classic set's (511 to 519); and the dungeon set procs whose rows state 100% and
   no rate fire at procs per minute, a white swing priced on its weapon's base speed and a spell cast on its cast time:
   Warrior's Resolve at 1, Rogue Armor Energize at 0.8, Crusader's Wrath at about 0.9, The Furious Storm and Nature's
-  Bounty's mana at about 1.
+  Bounty's mana at about 1. Nature's Bounty restores its energy off a landed white swing at about 1 a minute on the
+  form's speed, and its rage off a landed melee swing taken at about 1 a minute on the attacker's interval; Wild Heart
+  fires at its row's 5% per landed hit taken, at most once a minute. The Feralheart reissue's pieces count toward its
+  bonuses whichever of its four groups they come from.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each table names
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-11 to 2026-11-17
 - Pull request: #1086
+- Later count: Nature's Bounty's energy and rage, Wild Heart, §Count of the 2026-11-21 combat logs
+- Later count: the Feralheart reissue's groups, §Count of the 2026-11-22 combat log
 
 ## Method
 
@@ -150,11 +155,9 @@ of Flash Heals (47 of 994).
 
 - Proc: 450608; Wildheart Raiment's 5-piece and the Feralheart Raiment reissue's 4-piece. A spell cast restores
   27782's mana, a landed melee swing 27784's energy over 5 s, and a melee hit taken 27783's rage
-- Sim rate: 1 PPM on spell casts, observed; the swing and the hit taken are not modelled
-
-The one Feralheart wearer, in Dire Bear Form through report tQfhj2JbzZkYXFvx, gained 27783's rage on 28 of 882 melee
-hits taken with no event of the wearer's own within 40 ms (3.17%, 95% 2.21 to 4.55) and 27784's energy on 24 of 512
-landed white swings. Four more swings of the Wildheart wearers procced the energy.
+- Sim rate: 1 PPM, observed, on spell casts priced on their cast time, on landed white swings priced on the form's
+  speed and on landed melee swings taken priced on the attacker's interval
+- Count: §Count of the 2026-11-21 combat logs, for the energy and the rage
 
 | Report           | Fights                                  | Date  | Class | Set                | Swing procs | Swings | Swing PPM | Speeds | Cast procs | Casts | Cast PPM |
 | ---------------- | --------------------------------------- | ----- | ----- | ------------------ | ----------: | -----: | --------: | ------ | ---------: | ----: | -------: |
@@ -165,6 +168,13 @@ landed white swings. Four more swings of the Wildheart wearers procced the energ
 | zpvfR1gAaKmbWTMy | 1                                       | 11-15 | Druid | Wildheart Raiment  |           0 |      2 |      0.00 | 2.8    |         10 |   341 |     1.10 |
 | T6VDdFhPxQ43pHM2 | 1                                       | 11-16 | Druid | Wildheart Raiment  |           0 |      0 |      0.00 |        |          5 |   220 |     0.78 |
 | CxTmQRX2ytGcwA9r | 2                                       | 11-16 | Druid | Wildheart Raiment  |           0 |      5 |      0.00 | 2.1    |         14 |   424 |     1.18 |
+
+## Wild Heart (sets 185 and 1667)
+
+- Proc: 1302708, logged as the buff 1302707; Wildheart Raiment's 4-piece and the Feralheart Raiment reissue's
+  5-piece
+- Sim rate: the row's 5% per landed hit taken, with the row's 60 s cooldown
+- Count: §Count of the 2026-11-21 combat logs
 
 ## Warrior's Resolve on Battlegear of Heroism (set 1778)
 
@@ -244,3 +254,78 @@ same pricing reads Warrior's Resolve at 0.94.
 | NTJzVdMZBQDaqG83 | 2                                                              | 11-17 | Rogue | Shadowcraft Armor |          16 |    782 |      0.60 | 2.06 (both hands)             |          0 |     0 |     0.00 |
 | 1bgXr3HRqG2cTnjQ | 29                                                             | 11-17 | Rogue | Shadowcraft Armor |          20 |    713 |      0.77 | 2.19 (both hands)             |          0 |     1 |     0.00 |
 | GByQ7g9ZPkqxFJXh | 1, 7, 9, 11, 15-16, 18                                         | 11-17 | Rogue | Shadowcraft Armor |         183 |   7824 |      0.91 | 1.54 (both hands)             |          0 |   281 |     0.00 |
+
+## Count of the 2026-11-21 combat logs
+
+- Sources: combat logs. `WoWCombatLog-112126_112421`, Blackrock Spire: a level 62 druid in Cat Form in six Feralheart
+  melee pieces and a level 60 to 61 druid in Dire Bear Form in six Feralheart tank pieces. `WoWCombatLog-112126_022007`,
+  Felwood: a level 61 druid mostly in Cat Form and a level 58 druid in caster form, whose pieces the log does not snapshot
+- Game build: 1.60.1.71037, on the US and EU realms from 2026-11-20 18:23 UTC; the hotfix each log ran on and whether
+  the players relogged are not recorded
+- Date: 2026-11-21
+- Pull request: #1171
+
+A proc is credited to the druid's own event or the hit the druid took that comes last before it, up to 150 ms before;
+the Felwood log's procs trail their swing by up to 121 ms. The form is the druid's power type on its own swing or on
+the swing it takes: energy is Cat Form, rage a bear form. A swing is a landed white swing, priced on the form's paw,
+1 s in Cat Form and 2.5 s in a bear form. An attacker's interval is the median gap under 5 s between its consecutive
+swings, landed or not, for an attacker with at least three. A hit taken is landed when it deals damage; a dodge, a
+parry, a miss and a swing absorbed whole are avoided. A percentage's interval is a Wilson interval per roll, carried
+over to its rate. Both Blackrock Spire druids wear six pieces of one group, and no log holds a druid mixing groups.
+
+Nature's Bounty restores its energy off landed white swings alone. None of the 1,015 landed abilities in Cat Form and
+4,461 in a bear form is the last event before a proc, and a swing in caster form procs it as well (1 of 24), with no
+tick logged.
+
+| Druid                    | Form      | Swing procs | Swings | Per swing         | Swing PPM         |
+| ------------------------ | --------- | ----------: | -----: | ----------------- | ----------------- |
+| Level 62, melee pieces   | Cat       |          21 |  1,127 | 1.86% (1.22–2.83) | 1.12 [0.73, 1.70] |
+| Level 61, Felwood        | Cat       |          14 |    875 | 1.60% (0.96–2.67) | 0.96 [0.57, 1.60] |
+| Level 60-61, tank pieces | Dire Bear |          25 |    857 | 2.92% (1.98–4.27) | 0.70 [0.48, 1.03] |
+| Level 61, Felwood        | Dire Bear |           1 |     18 | 5.56%             |                   |
+| All                      | Cat       |          35 |  2,002 | 1.75%             | 1.05 [0.76, 1.45] |
+| All                      | Dire Bear |          26 |    883 | 2.94%             | 0.71 [0.48, 1.03] |
+
+One rate over both forms reads 0.87 a minute [0.68, 1.11]. A Cat Form proc ticks 4 energy a second, five times (33 of
+35 procs; two stop after one and two ticks), and a proc during the ticks starts five more. The bear in tank pieces logs
+no tick after any of its 25 procs, while the Felwood druid's one proc in Dire Bear Form logs five ticks of 4 energy.
+
+In a bear form, 129 of 3,789 landed melee swings taken restore 10 rage (3.40%, 95% 2.87 to 4.03), below the 4.17% that
+1 a minute on the bear's 2.5 s gives: the tank pieces 124 of 3,720, the two Cat Form druids' bear forms 2 of 11 and 3
+of 58. Over the 3,586 hits whose attacker's interval is known, 1 a minute on that interval fits better than any flat
+chance: a log-likelihood of -527.9, against -529.0 for the best flat chance (3.37%) and -532.0 for 4.17%. The best
+rate on the attacker's interval is 1.16 a minute, at -526.6. An interval is a median of logged gaps, so a slowed or
+dual-wielding attacker's is off its weapon's speed. A melee ability taken rolls nothing: in a bear form 1 of 197 landed
+physical abilities taken (Strike, Cleave, Mortal Strike and the like) and none of 270 other spells taken is the last
+hit before a proc, where the swings' 3.40% would give about 7. Another 35 procs follow a landed swing taken in Cat Form
+(16) or caster form (19), with 10 rage each.
+
+| Attacker interval | Procs | Swings taken | Per swing | 1 a minute on it |
+| ----------------- | ----: | -----------: | --------: | ---------------: |
+| 0.5 s             |     6 |          143 |     4.20% |            0.83% |
+| 1 s               |     6 |          312 |     1.92% |            1.67% |
+| 1.5 s             |    29 |        1,065 |     2.72% |            2.50% |
+| 2 s               |    60 |        1,839 |     3.26% |            3.33% |
+| 2.5 s             |    19 |          185 |    10.27% |            4.17% |
+| 3 s               |     1 |           33 |     3.03% |            5.00% |
+| 3.5 s             |     0 |            9 |        0% |            5.83% |
+
+Wild Heart follows 4.52% of the landed melee swings taken off its cooldown (79 of 1,748, 95% 3.64 to 5.60), 2.53% of
+the landed spells and melee abilities taken (9 of 356, 1.34 to 4.73) and none of 914 avoided swings: 4.18% of all
+landed hits taken (88 of 2,104, 3.41 to 5.12), across the four druids. One proc follows no hit within 150 ms. No two
+procs on a druid are less than 60.0 s apart; the shortest gaps are 60.0, 60.3, 60.7, 61.2 and 64.7 s.
+
+## Count of the 2026-11-22 combat log
+
+- Sources: combat log `WoWCombatLog-112226_153709`, Winterspring: the Felwood log's druid in Cat Form, whose level field
+  reads 49 here, in two Feralheart tank pieces and two Feralheart melee pieces by its player's word; the log holds no
+  gear snapshot, and which pieces is not recorded
+- Game build: 1.60.1.71037, the US and EU build from 2026-11-20 18:23 UTC to the log; the hotfix the log ran on and
+  whether the player relogged are not recorded
+- Date: 2026-11-22
+- Pull request: #1171
+
+Four Feralheart pieces, two from each of two groups, fire the 4-piece: a landed white swing in Cat Form is followed in
+the same millisecond by 27784, which ticks 4 energy five times. No group holds four pieces, so pieces of different
+groups count toward the set together. Wildheart Raiment's 5-piece, the other set that procs 27784, needs five pieces,
+more than the four armor slots left.
