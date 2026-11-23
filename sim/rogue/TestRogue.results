@@ -2024,9 +2024,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-WildheartRaiment"
  value: {
-  dps: 641.96696
-  tps: 455.79654
-  hps: 53.375
+  dps: 658.7342
+  tps: 467.70128
+  hps: 54.56111
  }
 }
 dps_results: {

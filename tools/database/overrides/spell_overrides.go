@@ -763,7 +763,7 @@ var Spells = []Override{
 		SpellID: 450608,
 		Field:   PPM,
 		Value:   1,
-		Reason:  "Wildheart Raiment 5-piece, Feralheart Raiment reissue 4-piece: 1 proc per minute on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none and the dummy effect's 5 is no chance",
+		Reason:  "Wildheart Raiment 5-piece, Feralheart Raiment reissue 4-piece: 1 proc per minute on landed white swings, on spell casts priced on their cast time and on landed melee swings taken priced on the attacker's swing interval, a log fit not yet validated (EV-0144); the game files state none and the dummy effect's 5 is no chance",
 		Source:  "observed",
 	},
 	{

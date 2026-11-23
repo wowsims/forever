@@ -636,8 +636,13 @@ func bearItemRequest() *proto.RaidSimRequest {
 func equippedBear(t *testing.T, items []*proto.ItemSpec) (*core.Simulation, *druid.Druid) {
 	t.Helper()
 	req := bearItemRequest()
-	player := req.Raid.Parties[0].Players[0]
-	player.Equipment.Items = items
+	req.Raid.Parties[0].Players[0].Equipment.Items = items
+	return bearFromRequest(t, req)
+}
+
+// The request's bear, which swings only when a test deals its hit.
+func bearFromRequest(t *testing.T, req *proto.RaidSimRequest) (*core.Simulation, *druid.Druid) {
+	t.Helper()
 	sim := core.NewSim(req, simsignals.CreateSignals())
 	sim.Reset()
 	bear := sim.Raid.Parties[0].Players[0].(druid.DruidAgent).GetDruid()
