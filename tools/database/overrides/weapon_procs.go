@@ -679,13 +679,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0183",
 	},
 	{
-		ItemID:  7710,
-		SpellID: 1293482,
-		PPM:     1.95,
-		Reason:  "Loksey's Training Stick: no proc row",
-		Source:  "EV-0136",
-	},
-	{
 		ItemID:  7753,
 		SpellID: 18200,
 		PPM:     0.9,
@@ -875,17 +868,28 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
-		ItemID:  274293,
-		SpellID: 1293714,
-		PPM:     1,
-		Reason:  "Spellsever Crossbow: no proc row",
-		Source:  "EV-0136",
-	},
-	{
 		ItemID:  274484,
 		SpellID: 1294226,
 		PPM:     2.05,
 		Reason:  "Axe of Inevitable Ruin: no proc row",
+		Source:  "EV-0136",
+	},
+	// Measured the same way; the one-hand white swings read above the rate over all hits, and the owner keeps the rate
+	// over all hits (EV-0136).
+	{
+		ItemID:  7710,
+		SpellID: 1293482,
+		PPM:     1.95,
+		Reason:  "Loksey's Training Stick: no proc row",
+		Source:  "EV-0136",
+	},
+	// Measured the same way; its proc flies past the isolation, and a separate count of its lone Auto Shots checks the
+	// rate over all hits (EV-0136).
+	{
+		ItemID:  274293,
+		SpellID: 1293714,
+		PPM:     1,
+		Reason:  "Spellsever Crossbow: no proc row",
 		Source:  "EV-0136",
 	},
 	// Fitted the same way on the reports from 2026-11-06 to 2026-11-22 from too few wearers, wearers of one class, too

@@ -2669,7 +2669,7 @@ zxAPy9BLRTc4hvFf 1-11.
 The rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 1.27 [1.03, 1.51], 414
 procs on 6,727 lone units, 16 wearers. Dual-wield white, which sets no rate: 1.14 [0.98, 1.32], 594 procs on 10,764 lone
 units, 75 wearers. Specials: 1.31 [1.13, 1.47], 718 procs on 11,342 lone units, 69 wearers; Sinister Strike gives 365
-procs on 5,526 of them. Two-roll abilities, priced as one roll: 1.08, 32 procs on 613 lone units (Execute 30 on 516 and
+procs on 5,526 of them. Two-roll abilities, priced as one roll: 1.08, 32 procs on 613 lone units (Execute 30 on 516,
 Mocking Blow 0 on 1 and Mongoose Bite 2 on 96), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th
 percentile 1 ms, 1,456 isolated hits. Dropping the swapped stretches (312 active minutes, 7% of hits, in 24 runs) moved
 the read from 1.16 to 1.25. Reports from 2026-11-13 to 2026-11-22.
@@ -2713,14 +2713,16 @@ zyTLWmK6gvX3x4NP 1.
 - Rate: 2 PPM, observed
 
 4,796 procs on 43,926 rolling hits, 131 wearers, 151 runs, in the main hand: all hits 1.99 [1.93, 2.04]. The one-hand
-white rate and the specials rate read below the all-hits interval. Observed: the one-hand white and the specials rates
-disagree. One-hand white: 1.27 [1.18, 1.36], 893 procs on 12,749 lone units, 121 wearers. Specials: 1.31 [1.19, 1.43],
-513 procs on 7,100 lone units, 112 wearers; Rend landings give 271 procs on 3,471 of them. Two-roll abilities, priced as
-one roll: 2.01, 113 procs on 1,022 lone units (Execute 110 on 982 and Mocking Blow 0 on 1 and Mongoose Bite 3 on 39),
-left out of the rate. Travel time: the proc lands a median 77 ms after its hit, 98th percentile 175 ms, window [11, 185]
-ms (369 isolated hits). Dropping the swapped stretches (142 active minutes, 6% of hits, in 7 runs) moved the read from
-1.87 to 1.99. The paladin check, which sets no rate: lone white swings 1.32, 544 procs on 7,509 lone units, 93 wearers.
-3 runs logged in two reports count once. One run is dropped whole as swapped. Reports from 2026-11-07 to 2026-11-22.
+white rate and the specials rate read below the all-hits interval. A separate count that leaves the Hydra Strike events
+beside each proc out of the isolation read lone white swings at 1.99 [1.88, 2.09] on the earlier count's reports, up to
+2026-11-19, which agrees with all hits. Observed: the one-hand white and the specials rates disagree. One-hand white:
+1.27 [1.18, 1.36], 893 procs on 12,749 lone units, 121 wearers. Specials: 1.31 [1.19, 1.43], 513 procs on 7,100 lone
+units, 112 wearers; Rend landings give 271 procs on 3,471 of them. Two-roll abilities, priced as one roll: 2.01, 113
+procs on 1,022 lone units (Execute 110 on 982, Mocking Blow 0 on 1 and Mongoose Bite 3 on 39), left out of the rate.
+Travel time: the proc lands a median 77 ms after its hit, 98th percentile 175 ms, window [11, 185] ms (369 isolated
+hits). Dropping the swapped stretches (142 active minutes, 6% of hits, in 7 runs) moved the read from 1.87 to 1.99. The
+paladin check, which sets no rate: lone white swings 1.32, 544 procs on 7,509 lone units, 93 wearers. 3 runs logged in
+two reports count once. One run is dropped whole as swapped. Reports from 2026-11-07 to 2026-11-22.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |

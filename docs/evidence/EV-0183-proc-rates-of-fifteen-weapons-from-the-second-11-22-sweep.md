@@ -243,16 +243,18 @@ ydb2wTpBFPgfWrCm 1-3.
 ## Needletooth's Needletooth (item 282703, spell 1314305): 4, observed
 
 1,353 procs on 12,012 rolling hits, 10 wearers, 15 runs, in the main hand or the off hand: all hits 3.98 [3.86, 4.18].
-Puncture lands up to about 700 ms after its hit, past the 400 ms a lone-unit rate allows, so none checks the all-hits
-rate. Observed: no lone-unit rate checks it; every wearer is a rogue. One-hand white: none. Dual-wield white, which sets
-no rate: 3.35 [2.83, 3.74], 248 procs on 2,611 lone units, 10 wearers. Specials: 2.41 [0.98, 3.42], 19 procs on 278 lone
-units, 6 wearers. Travel time: the proc lands a median 134 ms after its hit, 98th percentile 250 ms, window [-9, 260] ms
-(327 isolated hits). Dropping the swapped stretches (20 active minutes, 6% of hits, in 1 run) moved the read from 3.73
-to 3.98. All hits leave out 47 chain procs: a Puncture that lands late rolls the dagger again, and that proc lands with
-it on the same target within 2 ms, all on main-hand wearers after a white swing. The sim adds the chain itself. With
-them all hits read 4.11 [3.93, 4.46], and the main-hand runs 4.47. The 59 procs and 238 hits within 800 ms after a
-Mutilate before push 114313, another two-roll ability or a killing blow are left out. Reports from 2026-11-13 to
-2026-11-22.
+The count flags its travel window as maybe cut short (its 98th-percentile delay, 250 ms, is within 17% of the 300 ms
+isolation); on hits isolated 700 ms Puncture lands up to a 98th percentile of 671 ms after its hit (`MEASUREMENT.md`),
+past the 400 ms a lone-unit rate allows, so none checks the all-hits rate. Observed: no lone-unit rate checks it; every
+wearer is a rogue. One-hand white: none. Dual-wield white, which sets no rate: 3.35 [2.83, 3.74], 248 procs on 2,611
+lone units, 10 wearers. Specials: 2.41 [0.98, 3.42], 19 procs on 278 lone units, 6 wearers. Travel time: the proc lands
+a median 134 ms after its hit, 98th percentile 250 ms, window [-9, 260] ms (327 isolated hits). Dropping the swapped
+stretches (20 active minutes, 6% of hits, in 1 run) moved the read from 3.73 to 3.98. All hits leave out 47 chain procs:
+a Puncture that lands late rolls the dagger again, and that proc lands with it on the same target within 2 ms, all on
+main-hand wearers after a white swing. The sim adds the chain itself. With them all hits read 4.11 [3.93, 4.46], and the
+main-hand runs 4.47. The 59 procs and 238 hits within 800 ms after a two-roll ability, Mutilate before push 114313 among
+them, or a killing blow are left out; a 50 ms window had credited 51 procs after those Mutilates to other hits
+(`MEASUREMENT.md`). Reports from 2026-11-13 to 2026-11-22.
 
 | Class | Wearers | Procs |   Hits |  PPM |
 | ----- | ------: | ----: | -----: | ---: |
@@ -268,8 +270,8 @@ vPwpdrLM7tn3f4Wh 1.
 444 procs on 4,045 rolling hits, 18 wearers, 22 runs, in the main hand: all hits 2.00 [1.68, 2.10]. The rate is all
 hits, which the one-hand white rate agrees with. Observed: the interval is wider than 10% of the rate. One-hand white:
 1.98 [1.64, 2.10], 119 procs on 1,093 lone units, 18 wearers. Specials: 1.76 [0.80, 2.31], 38 procs on 392 lone units,
-12 wearers. Two-roll abilities, priced as one roll: 1.27, 10 procs on 143 lone units (Execute 9 on 128 and Mocking Blow
-0 on 3 and Mongoose Bite 1 on 12), left out of the rate. Travel time: the proc lands a median 151 ms after its hit, 98th
+12 wearers. Two-roll abilities, priced as one roll: 1.27, 10 procs on 143 lone units (Execute 9 on 128, Mocking Blow 0
+on 3 and Mongoose Bite 1 on 12), left out of the rate. Travel time: the proc lands a median 151 ms after its hit, 98th
 percentile 338 ms, window [24, 348] ms (74 isolated hits). Dropping the swapped stretches (23 active minutes, 9% of
 hits, in 2 runs) moved the read from 1.82 to 2.00. The paladin check, which sets no rate: lone white swings 1.93, 64
 procs on 604 lone units, 11 wearers. Reports from 2026-11-10 to 2026-11-22.

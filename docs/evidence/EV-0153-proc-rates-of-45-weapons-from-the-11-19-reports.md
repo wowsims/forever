@@ -190,9 +190,9 @@ YhCcTtxfGJR82M7Q 1-11; ZAWJk6BdKhr9nC8T 1-6; ZyGV2gN1w6jc7zM9 1, 3-5, 7-18; f2zK
 545 procs on 6,252 rolling hits, 24 wearers, 26 runs, in the main hand: all hits 1.80 [1.65, 1.93]. The rate is all
 hits, which the one-hand white and specials rates agree with. One-hand white: 1.99 [1.66, 2.32], 182 procs on 1,895 lone
 units, 23 wearers. Specials: 1.83 [1.38, 2.14], 61 procs on 688 lone units, 19 wearers; Raptor Strike gives 25 procs on
-240 of them. Two-roll abilities, priced as one roll: 1.70, 6 procs on 73 lone units (Execute 4 on 37 and Mocking Blow 0
-on 1 and Mongoose Bite 2 on 35), left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms,
-227 isolated hits. Dropping the swapped stretches (5.8 active minutes, 3% of hits, in 1 run) moved the read from 1.75 to
+240 of them. Two-roll abilities, priced as one roll: 1.70, 6 procs on 73 lone units (Execute 4 on 37, Mocking Blow 0 on
+1 and Mongoose Bite 2 on 35), left out of the rate. Direct: window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 227
+isolated hits. Dropping the swapped stretches (5.8 active minutes, 3% of hits, in 1 run) moved the read from 1.75 to
 1.80. The paladin check, which sets no rate: lone white swings 2.95, 83 procs on 582 lone units, 9 wearers. Left out: 50
 of 76 runs in Cat or Bear Form. One run logged in two reports counts once. Reports from 2026-11-10 to 2026-11-22.
 

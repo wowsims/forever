@@ -2,9 +2,9 @@
 
 - Claim: Heart of Wyrmthalak (22321) casts Flame Lash 1.95 times a minute on landed melee and ranged hits, each hit on
   its own weapon's speed and Auto Shot and ranged specials on the ranged weapon's, with no cooldown; the rate is
-  measured. Shield Slam and Shield Bash roll it; Volley, debuff-only landings (Sunder Armor, Rend's landing, stings) and
-  Sap and Death Mark never do, nor Shank up to 2026-11-19. A proc on each of two targets is two procs. Its damage is
-  tripled against orcs.
+  measured. Shield Slam rolls it, and the count takes Shield Bash as a roll too; Volley, debuff-only landings (Sunder
+  Armor, Rend's landing, stings) and Sap and Death Mark never do, nor Shank up to 2026-11-19. A proc on each of two
+  targets is two procs. Its damage is tripled against orcs.
 - Sources: Warcraft Logs, the 7 players whose every gear snapshot shows the trinket in 813rPaLtcdpHy67q,
   Hwq97xLh6gv8ZPrY, KPwXNByAG2xQm9ra, NXMZV9xjvWpB7GtP (two players), bYaT9KXtGwqvV6d4 and dvkzFtPH3WR9C4Km, and the
   one hunter of KA9rqdFTWzt1mpxN; all fights
@@ -64,9 +64,10 @@ isolated hits. Dropping the swapped stretches (245 active minutes, 2% of hits, i
 out: 11 of 273 runs in Cat or Bear Form. 4 runs logged in two reports count once. Debuff-only landings roll nothing:
 lone ones give 0 procs on 4,340 melee landings and 1 on 2,115 ranged ones, where the wearers' white chance predicts 298
 and 199, so the count leaves 14,178 such landings out, and 312 Sap and Death Mark landings. Shield Slam and Shield Bash
-count as rolls, and from 2026-11-20 Shank counts as an off-hand roll (EV-0155 §Shank from 2026-11-20). A proc that lands
-on two targets counts once on each (428 procs). The 1,855 procs and 8,168 hits within the window of a killing blow or a
-two-roll ability are left out. Reports from 2026-11-10 to 2026-11-22.
+count as rolls: lone Shield Slams give 276 procs on 3,479, 1.08 times the same classes' white chance. From 2026-11-20
+Shank counts as an off-hand roll (EV-0155 §Shank from 2026-11-20). A proc that lands on two targets counts once on each
+(428 procs). The 1,855 procs and 8,168 hits within the window of a killing blow or a two-roll ability are left out.
+Reports from 2026-11-10 to 2026-11-22.
 
 | Class   | Wearers |  Procs |    Hits |  PPM |
 | ------- | ------: | -----: | ------: | ---: |
