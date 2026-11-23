@@ -516,10 +516,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-DreadmistRaiment"
  value: {
-  dps: 452.57573
-  tps: 2287.58914
-  dtps: 543.24901
-  hps: 87.36477
+  dps: 452.78542
+  tps: 2284.73628
+  dtps: 542.07344
+  hps: 85.59158
  }
 }
 dps_results: {
@@ -984,10 +984,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GenesisRaiment"
  value: {
-  dps: 520.96828
-  tps: 2635.06443
-  dtps: 386.06877
-  hps: 85.60555
+  dps: 521.5972
+  tps: 2637.74725
+  dtps: 386.41177
+  hps: 85.93727
  }
 }
 dps_results: {
@@ -1047,10 +1047,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperEclipse"
  value: {
-  dps: 500.77875
-  tps: 2507.31055
-  dtps: 428.99891
-  hps: 85.20963
+  dps: 502.15677
+  tps: 2512.68913
+  dtps: 429.53063
+  hps: 85.80531
  }
 }
 dps_results: {
@@ -1443,10 +1443,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Magister'sRegalia"
  value: {
-  dps: 454.03386
-  tps: 2283.25687
-  dtps: 540.29534
-  hps: 83.32388
+  dps: 454.10375
+  tps: 2281.66155
+  dtps: 539.84634
+  hps: 83.30694
  }
 }
 dps_results: {
