@@ -355,8 +355,8 @@ flask's `zone_stats` (`zoneStats` in db.json) at the rating one percent takes (A
 Aggression 56 crit rating, Precision 50 expertise rating at
 `core.ExpertiseRatingPerExpertisePercent` (10), Swiftness 50 haste rating), under the zones of
 `naturalFlaskZones`: Mount Hyjal 616 and Hyjal Summit 3606, which only the tooltip names; the Barrow
-Deeps has no AreaTable row. The pickers count those stats toward a flask's EP only while the
-encounter's zone is one of them. One rating feeds the physical and the spell percent alike, so a flask
+Deeps has no AreaTable row. The pickers count those stats toward a flask's EP in every fight, as the
+sim applies them. One rating feeds the physical and the spell percent alike, so a flask
 that grants both lists the rating once. The sim reads the rows, not those stats, and applies the bonus
 in every fight.
 
@@ -558,8 +558,8 @@ with its stats hidden, so it can be seen and cleared, and it is marked as kept.
 
 Each picker and each row of toggles lists its consumables by the EP their stats and percents add at
 the player's EP weights, highest first (`orderedByEp`). A mob type stat counts only while the
-encounter's first target is of one of its mob types, and a zone stat only while the encounter's zone
-is one of its zones. A consumable that grants nothing countable there (a proc, a restore, damage, a
+encounter's first target is of one of its mob types, and a zone stat in every fight, as the sim takes
+every fight to be in the Natural flasks' zones. A consumable that grants nothing countable there (a proc, a restore, damage, a
 stat against other mob types) comes after every one that does. Ties go by required level, highest
 first, then by name.
 

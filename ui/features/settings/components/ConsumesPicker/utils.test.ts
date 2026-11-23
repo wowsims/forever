@@ -132,7 +132,6 @@ interface PlayerState {
 	filters: DatabaseFilters;
 	epWeights: Stats;
 	mobType: MobType;
-	zoneId: number;
 	meleeDps: boolean;
 	tank: boolean;
 	raidBuffs: RaidBuffs;
@@ -152,7 +151,6 @@ const playerOf = (state: Partial<PlayerState> = {}) => {
 		filters: DatabaseFilters.create(),
 		epWeights: new Stats(),
 		mobType: MobType.MobTypeHumanoid,
-		zoneId: 0,
 		meleeDps: true,
 		tank: false,
 		raidBuffs: RaidBuffs.create(),
@@ -168,7 +166,6 @@ const playerOf = (state: Partial<PlayerState> = {}) => {
 			store: { getState: () => ({ sim: { filters: full.filters } }) },
 			encounter: {
 				getTarget: (index: number) => (index === 0 ? { mobType: full.mobType } : undefined),
-				getZoneId: () => full.zoneId,
 			},
 		},
 		getClass: () => full.cls,
@@ -279,7 +276,7 @@ describe('consumeConfigs', () => {
 			expect(iconEnumValues(config, player)[0].value).toBe(0);
 		});
 
-		it("orders again when the target's mob type or the zone changes, on the configs already built", () => {
+		it("orders again when the target's mob type changes, on the configs already built, and counts a zone stat in every fight", () => {
 			const slaying = Consumable.create({
 				...potion(1, 'Slaying', 0),
 				mobTypeStats: [MobTypeStats.create({ mobTypes: [MobType.MobTypeDemon], stats: { [Stat.StatStrength]: 20 } })],
@@ -291,15 +288,11 @@ describe('consumeConfigs', () => {
 			const potions = dbOf([slaying, natural, potion(3, 'Strong', 0, strength(10))]);
 			const { player, state } = playerOf({ epWeights: Stats.fromMap({ [Stat.StatStrength]: 1 }) });
 			const config = consumeConfigs(player, potions).offensivePotion;
-			expect(offered(config, player)).toEqual([3, 2, 1]);
+			expect(offered(config, player)).toEqual([2, 3, 1]);
 			state.mobType = MobType.MobTypeDemon;
-			expect(offered(config, player)).toEqual([1, 3, 2]);
-			state.zoneId = 102;
 			expect(offered(config, player)).toEqual([2, 1, 3]);
 			state.mobType = MobType.MobTypeMechanical;
 			expect(offered(config, player)).toEqual([2, 3, 1]);
-			state.zoneId = 0;
-			expect(offered(config, player)).toEqual([3, 2, 1]);
 		});
 	});
 

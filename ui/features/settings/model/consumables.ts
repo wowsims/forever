@@ -154,7 +154,7 @@ function consumablePicker(
 		numColumns: (p: Player<any>) => consumableColumns(values.filter(value => value.showWhen!(p)).length),
 		values: (player: Player<any>) => {
 			const order = consumableOrderOf(player);
-			return ordered([order.weights, order.mobType, order.zoneId], () => [none, ...orderedByEp(values, value => byId.get(value.value)!, order)]);
+			return ordered([order.weights, order.mobType], () => [none, ...orderedByEp(values, value => byId.get(value.value)!, order)]);
 		},
 		equals: (a: number, b: number) => a === b,
 		zeroValue: 0,
