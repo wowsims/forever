@@ -1106,6 +1106,9 @@ export class Player<SpecType extends Spec> {
 	}
 
 	setSpecOptions(newSpecOptions: SpecOptions<SpecType>) {
+		// Spec options with no class options (`"options": {}` in saved, shared or imported settings) keep the player's: the class
+		// inputs read their fields, and the sim's spec constructors dereference them. The caller's object is left as it is.
+		if (!newSpecOptions.classOptions) newSpecOptions = { ...newSpecOptions, classOptions: this.getClassOptions() };
 		if (this.specTypeFunctions.optionsEquals(newSpecOptions, this.slice().specOptions as SpecOptions<SpecType>)) return;
 
 		this.patch('specOptions', this.specTypeFunctions.optionsCopy(newSpecOptions));
@@ -1598,11 +1601,7 @@ export class Player<SpecType extends Spec> {
 				this.setConsumes(proto.consumables || ConsumesSpec.create());
 			}
 			if (loadCategory(SimSettingCategories.Miscellaneous)) {
-				// Settings whose spec options carry no class options (`"options": {}`) keep the player's: the class inputs read
-				// their fields, and the sim's spec constructors dereference them.
-				const specOptions = this.specTypeFunctions.optionsFromPlayer(proto);
-				if (!specOptions.classOptions) specOptions.classOptions = this.getSpecOptions().classOptions;
-				this.setSpecOptions(specOptions);
+				this.setSpecOptions(this.specTypeFunctions.optionsFromPlayer(proto));
 				this.setName(proto.name);
 				this.setRace(proto.race);
 				this.setProfession1(proto.profession1);
