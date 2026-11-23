@@ -390,10 +390,11 @@ func TestAScrollStacksWithTheElixirsOfItsStat(t *testing.T) {
 }
 
 // Arcane Intellect overwrites the Intellect of the elixirs and of Scroll of Intellect IV 10308, which
-// add none to its own, and Prayer of Spirit the Spirit of Elixir of Sages 250338 and Scroll of Spirit
-// IV 10306. Elixir of Cunning 250328 keeps its Agility and Sages its crit.
-func TestTheRaidBuffsOverwriteTheIntellectAndSpiritOfTheElixirsAndScrolls(t *testing.T) {
-	const cunning, elixirOfIntellect, greaterIntellect, sages, scrollOfSpiritIV int32 = 250328, 250354, 9179, 250338, 10306
+// add none to its own, Prayer of Spirit the Spirit of Elixir of Sages 250338 and Scroll of Spirit IV
+// 10306, and Power Word: Fortitude the Stamina of Elixir of Brute Force 13453 and Scroll of Stamina IV
+// 10307. Elixir of Cunning 250328 keeps its Agility, Sages its crit and Brute Force its Strength.
+func TestTheRaidBuffsOverwriteTheIntellectSpiritAndStaminaOfTheElixirsAndScrolls(t *testing.T) {
+	const cunning, elixirOfIntellect, greaterIntellect, sages, scrollOfSpiritIV, bruteForce, scrollOfStaminaIV int32 = 250328, 250354, 9179, 250338, 10306, 13453, 10307
 	for _, tc := range []struct {
 		name    string
 		buffs   *proto.RaidBuffs
@@ -405,6 +406,7 @@ func TestTheRaidBuffsOverwriteTheIntellectAndSpiritOfTheElixirsAndScrolls(t *tes
 		{"Arcane Intellect", &proto.RaidBuffs{ArcaneIntellect: true}, stats.Intellect, []int32{cunning, elixirOfIntellect, greaterIntellect},
 			scrollOfIntellectIVID, stats.Agility},
 		{"Prayer of Spirit", &proto.RaidBuffs{PrayerOfSpirit: true}, stats.Spirit, []int32{sages}, scrollOfSpiritIV, stats.SpellCritPercent},
+		{"Power Word: Fortitude", &proto.RaidBuffs{PowerWordFortitude: true}, stats.Stamina, []int32{bruteForce}, scrollOfStaminaIV, stats.Strength},
 	} {
 		for _, id := range append(slices.Clone(tc.elixirs), tc.scroll) {
 			registerStatConsumable(t, id)
@@ -436,12 +438,11 @@ func TestTheRaidCritOverwritesTheElixirCrit(t *testing.T) {
 	}
 }
 
-// Mark of the Wild and Power Word: Fortitude stack with the elixirs and the scrolls they do not share
-// a category with: Juju Power's 12451 and Scroll of Strength IV's 10310 Strength count in full beside
-// the Mark's, and Elixir of Brute Force's 13453 Stamina beside Fortitude's.
-func TestMarkOfTheWildAndFortitudeStackWithTheElixirs(t *testing.T) {
-	const scrollOfStrengthIV, jujuPower, bruteForce int32 = 10310, 12451, 13453
-	for _, id := range []int32{scrollOfStrengthIV, jujuPower, bruteForce} {
+// Mark of the Wild stacks with the elixirs and the scrolls: Juju Power's 12451 and Scroll of Strength
+// IV's 10310 Strength count in full beside the Mark's.
+func TestMarkOfTheWildStacksWithTheElixirs(t *testing.T) {
+	const scrollOfStrengthIV, jujuPower int32 = 10310, 12451
+	for _, id := range []int32{scrollOfStrengthIV, jujuPower} {
 		registerStatConsumable(t, id)
 	}
 
@@ -449,20 +450,18 @@ func TestMarkOfTheWildAndFortitudeStackWithTheElixirs(t *testing.T) {
 	if gain := statGain(&proto.ConsumesSpec{ExtraIds: []int32{scrollOfStrengthIV, jujuPower}}, &proto.RaidBuffs{MarkOfTheWild: true}); gain[stats.Strength] != strength {
 		t.Errorf("Juju Power and Scroll of Strength IV under Mark of the Wild add %v Strength to the Mark's, want both: %v", gain[stats.Strength], strength)
 	}
-	stamina := soloGain(bruteForce)[stats.Stamina]
-	if gain := statGain(&proto.ConsumesSpec{ElixirIds: []int32{bruteForce}}, &proto.RaidBuffs{PowerWordFortitude: true}); stamina <= 0 || gain[stats.Stamina] != stamina {
-		t.Errorf("Elixir of Brute Force under Power Word: Fortitude adds %v Stamina, want its own %v", gain[stats.Stamina], stamina)
-	}
 }
 
 // A raid buff that overwrites the elixirs counts by its own category, so an elixir granting as much as
 // it or more could count beside it, and a scroll that outbids it leaves it suppressing the elixirs
 // while it adds nothing. Every elixir and scroll in the database grants less Intellect than Arcane
-// Intellect, less Spirit than Prayer of Spirit and less crit than Moonkin Aura and Leader of the Pack.
+// Intellect, less Spirit than Prayer of Spirit, less Stamina than Power Word: Fortitude and less crit
+// than Moonkin Aura and Leader of the Pack.
 func TestNoElixirOrScrollOutbidsTheRaidBuffOfItsStat(t *testing.T) {
 	ceilings := map[string]float64{
 		"stat Intellect":           buffs.ArcaneIntellectValue(0),
 		"stat Spirit":              buffs.PrayerOfSpiritValue(0),
+		"stat Stamina":             buffs.PowerWordFortitudeValue(0),
 		"stat PhysicalCritPercent": min(buffs.MoonkinAuraValue(0), buffs.LeaderOfThePackValue(0)),
 		"stat SpellCritPercent":    min(buffs.MoonkinAuraValue(0), buffs.LeaderOfThePackValue(0)),
 	}
@@ -484,7 +483,7 @@ func TestNoElixirOrScrollOutbidsTheRaidBuffOfItsStat(t *testing.T) {
 		}
 	}
 	if checked == 0 {
-		t.Fatal("no elixir or scroll grants Intellect, Spirit or crit")
+		t.Fatal("no elixir or scroll grants Intellect, Spirit, Stamina or crit")
 	}
 }
 

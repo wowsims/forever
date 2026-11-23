@@ -55,8 +55,8 @@ way the tooltip shows it, and 0 points is the full amount.
 
 `newBuff` adds `SchoolResistances` and, where `Category` is set, `Exclusive(Category, true)` for a
 `SingleAura` row or `ExclusivePerStat(Category)` for any other. Where the manifest row names an
-`ElixirCategory`, it adds `Overwrites(ElixirCategory)`: Arcane Intellect and Prayer of Spirit bid their
-stat in the elixirs' `ElixirStat` category, and Moonkin Aura and Leader of the Pack their crit in
+`ElixirCategory`, it adds `Overwrites(ElixirCategory)`: Arcane Intellect, Prayer of Spirit and Power Word:
+Fortitude bid their stat in the elixirs' `ElixirStat` category, and Moonkin Aura and Leader of the Pack their crit in
 `ElixirCrit`, without counting there, so the elixirs that grant no more add nothing (R-0053). A
 generated buff and a hand-written scroll of the same stat or resistance therefore bid against each
 other under the categories core's own exclusive stat buffs use. `newDebuff` adds only `Exclusive(Category, SingleAura)`, since a debuff never
@@ -397,4 +397,5 @@ that ticks both gets only the stronger, and both overwrite the elixirs' crit (R-
 its own in `StatBuff`, with Arcane Intellect and the scrolls, and Prayer of Shadow Protection in the shadow
 resistance category every buff joins. A priest's own prayer and the raid's `power_word_fortitude`,
 `prayer_of_spirit` or `shadow_protection` count once, while Mark of the Wild and Blood Pact still add
-their Stamina on top.
+their Stamina on top. Prayer of Fortitude and Prayer of Spirit are built from the raid buffs' `Meta`,
+so they overwrite the elixirs of their stat as well (R-0053).

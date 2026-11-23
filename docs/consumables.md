@@ -176,11 +176,12 @@ Agility) beside Elixir of the Mongoose 13452 and Juju Power 12451 adds nothing, 
 and Juju Power's Strength are larger. Juju Power, Juju Might 12460 and Bogling Root 5206, which the game
 files do not type as elixirs, bid with them (`StatsCountWithTheElixirs`). Spell damage of every school
 and one school's are two stats, so Arcane Elixir 9155 and Elixir of Fire Power 6373 stack. Arcane
-Intellect and Prayer of Spirit bid their stat in `ElixirStat` too, and Moonkin Aura and Leader of the
-Pack their crit in `ElixirCrit`, without counting there (`spelldata.Overwrites`, set by the buff
-manifest's `ElixirCategory`), so an elixir that grants no more adds nothing under them: under Arcane
-Intellect, Elixir of Cunning 250328 adds its Agility alone. Every other raid buff, Mark of the Wild
-and Power Word: Fortitude among them, stacks with the elixirs.
+Intellect, Prayer of Spirit and Power Word: Fortitude bid their stat in `ElixirStat` too, and Moonkin
+Aura and Leader of the Pack their crit in `ElixirCrit`, without counting there (`spelldata.Overwrites`,
+set by the buff manifest's `ElixirCategory`), so an elixir that grants no more adds nothing under them:
+under Arcane Intellect, Elixir of Cunning 250328 adds its Agility alone, and under Power Word:
+Fortitude, Elixir of Brute Force 13453 its Strength alone. Every other raid buff, Mark of the Wild
+among them, stacks with the elixirs.
 
 **From the rows** (`rowGroupOf` in `tools/database/consumable_groups.go`):
 
@@ -461,12 +462,13 @@ extra ids) is dimmed, and a pick that grants neither never is.
 Elixir of Ferocity 250350 beside Elixir of the Mongoose 13452 and Juju Power 12451 is dimmed. Beside
 Elixir of the Grizzly 250351, Elixir of Greater Strength 9206 is dimmed: the Grizzly grants as much
 Strength and a crit besides. Under Prayer of Spirit and Moonkin Aura, Elixir of Sages 250338 is dimmed,
-and under Arcane Intellect an Intellect elixir is. A scroll is dimmed while a raid buff that is on
-grants at least as much of its stat (`overwritesOf`), and never by an elixir. The raid buffs it reads
+under Arcane Intellect an Intellect elixir is, and under Power Word: Fortitude beside Juju Power, Elixir
+of Brute Force 13453 is. A scroll is dimmed while a raid buff that is on grants at least as much of its
+stat (`overwritesOf`), and never by an elixir. The raid buffs it reads
 are the ones the buff generator writes into `GENERATED_OVERWRITING_BUFFS`
 (`ui/features/settings/model/buffs_debuffs_auto_gen.ts`), with the amounts the raid input applies:
-Arcane Intellect and Prayer of Spirit overwrite the scrolls and the elixirs, Power Word: Fortitude the
-scrolls, and Moonkin Aura and Leader of the Pack the elixirs' crit. Arcane Intellect counts as on for a
+Arcane Intellect, Prayer of Spirit and Power Word: Fortitude overwrite the scrolls and the elixirs,
+and Moonkin Aura and Leader of the Pack the elixirs' crit. Arcane Intellect counts as on for a
 mage whatever the input says, since `AddRaidBuffs` in `sim/mage/mage.go` turns it on for every mage, and
 `AddRaidBuffs` in `sim/druid/druid.go` turns on Moonkin Aura for a Balance druid with Moonkin Form and
 Leader of the Pack for a Feral cat or bear with the talent, so those count as on too

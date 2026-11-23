@@ -267,8 +267,8 @@ interface Overwrites {
 }
 
 // The raid buffs that are on overwrite the scrolls and the elixirs they grant as much as (R-0053), each the kind its
-// entry names: Arcane Intellect and Prayer of Spirit both, Power Word: Fortitude the scrolls, Moonkin Aura and Leader of
-// the Pack the elixirs' crit. The scrolls and the elixirs stack with each other.
+// entry names: Arcane Intellect, Prayer of Spirit and Power Word: Fortitude both, Moonkin Aura and Leader of the Pack the
+// elixirs' crit. The scrolls and the elixirs stack with each other.
 function overwritesOf(
 	elixirs: ReadonlyArray<PickGrants>,
 	scrolls: ReadonlyArray<PickGrants>,

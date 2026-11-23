@@ -756,7 +756,7 @@ export const GENERATED_OVERWRITING_BUFFS: OverwritingBuff[] = [
 		config: PowerWordFortitude,
 		stats: { [Stat.StatStamina]: 70 },
 		scrolls: true,
-		elixirs: false,
+		elixirs: true,
 	},
 	{
 		config: LeaderOfThePack,

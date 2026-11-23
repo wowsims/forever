@@ -43,9 +43,10 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
-		Field:    "power_word_fortitude",
-		SpellID:  10938,
-		Category: "StatBuff",
+		Field:          "power_word_fortitude",
+		SpellID:        10938,
+		Category:       "StatBuff",
+		ElixirCategory: "ElixirStat",
 		Stats: []proto.Stat{
 			proto.Stat_StatStamina,
 		},

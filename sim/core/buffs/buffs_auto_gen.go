@@ -382,9 +382,10 @@ func NewSpellDataMarkOfTheWildAura(unit *core.Unit, isPlayer bool, talentPoints 
 var PowerWordFortitudeCategory = "StatBuff"
 var powerWordFortitudeSpell = spelldata.MustFind(10938)
 var powerWordFortitudeMeta = &Meta{
-	Label:    "Power Word: Fortitude",
-	Spell:    powerWordFortitudeSpell,
-	Category: PowerWordFortitudeCategory,
+	Label:          "Power Word: Fortitude",
+	Spell:          powerWordFortitudeSpell,
+	Category:       PowerWordFortitudeCategory,
+	ElixirCategory: "ElixirStat",
 }
 
 func PowerWordFortitudeValue(talentPoints int32) float64 {

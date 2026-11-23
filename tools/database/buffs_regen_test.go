@@ -182,7 +182,7 @@ func TestOverwritingBuffAmountsAreWhatTheRaidInputApplies(t *testing.T) {
 	wants := map[string]want{
 		"arcane_intellect":     {buffs.ArcaneIntellectValue, true, true},
 		"prayer_of_spirit":     {buffs.PrayerOfSpiritValue, true, true},
-		"power_word_fortitude": {buffs.PowerWordFortitudeValue, true, false},
+		"power_word_fortitude": {buffs.PowerWordFortitudeValue, true, true},
 		"leader_of_the_pack":   {buffs.LeaderOfThePackValue, false, true},
 		"moonkin_aura":         {buffs.MoonkinAuraValue, false, true},
 	}

@@ -722,6 +722,7 @@ describe('consumeConfigs on picks that add nothing', () => {
 			Consumable.create({ id: 5206, name: 'Bogling Root', type: ConsumableType.ConsumableTypeOther, stats: stats({ [Stat.StatPhysicalDamage]: 1 }) }),
 			elixir(22192, 'Bloodkelp Elixir of Dodging', []),
 			elixir(3383, 'Elixir of Wisdom', stats({ [Stat.StatIntellect]: 6 })),
+			elixir(13453, 'Elixir of Brute Force', stats({ [Stat.StatStrength]: 18, [Stat.StatStamina]: 18 })),
 			scroll(10310, 'Scroll of Strength IV', strength(17), '29/0', 'Strength'),
 			scroll(10308, 'Scroll of Intellect IV', stats({ [Stat.StatIntellect]: 16 }), '29/3', 'Intellect'),
 		],
@@ -868,9 +869,18 @@ describe('consumeConfigs on picks that add nothing', () => {
 		expect(druid(Spec.SpecRestorationDruid, { moonkinForm: true, leaderOfThePack: true })).toBeUndefined();
 	});
 
-	it('marks no elixir under Power Word: Fortitude or Mark of the Wild, which stack with the elixirs', () => {
-		const buffs = RaidBuffs.create({ powerWordFortitude: true, markOfTheWild: true });
-		expect(picking([6662, 3383], [], buffs).overwrittenBy(6662)).toBeUndefined();
-		expect(picking([6662, 3383], [], buffs).overwrittenBy(3383)).toBeUndefined();
+	it('marks no elixir under Mark of the Wild, which stacks with the elixirs', () => {
+		const motw = RaidBuffs.create({ markOfTheWild: true });
+		expect(picking([6662, 3383], [], motw).overwrittenBy(6662)).toBeUndefined();
+		expect(picking([6662, 3383], [], motw).overwrittenBy(3383)).toBeUndefined();
+	});
+
+	it('marks Elixir of Brute Force under Power Word: Fortitude only where another pick matches its Strength, naming both', () => {
+		const fortitude = RaidBuffs.create({ powerWordFortitude: true });
+		expect(picking([13453], [], fortitude).overwrittenBy(13453)).toBeUndefined();
+		expect(picking([13453], [12451], fortitude).overwrittenBy(13453)).toBe(
+			'Adds nothing: every stat it grants is matched by Juju Power and Power Word: Fortitude.',
+		);
+		expect(picking([13453], [12451]).overwrittenBy(13453)).toBeUndefined();
 	});
 });
