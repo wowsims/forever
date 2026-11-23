@@ -119,6 +119,7 @@ var DefaultConsumables = &proto.ConsumesSpec{
 		250329, // Elixir of The Phalanx
 		13454,  // Greater Arcane Elixir
 		250341, // Greater Mageblood Elixir
+		9206,   // Elixir of Greater Strength
 	},
 	ExtraIds:       []int32{8410, 10646, 12217, 18269, 12460}, // R.O.I.D.S, Goblin Sapper Charge, Dragonbreath Chili, Gordok Green Grog, Juju Might
 	MhImbueId:      3824,                                      // Shadow Oil
