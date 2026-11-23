@@ -8,6 +8,7 @@ import {
 	makeConsumableInput,
 	makeIdListInput,
 	overwrittenTooltips,
+	STAT_BUFF_FIELD,
 } from '@features/settings/model/consumables';
 import { DragonbreathChili } from '@features/settings/model/consumables_auto_gen';
 import { shownStatsReader, type StatFilterScope } from '@features/stat-filters/model/stat_filters';
@@ -126,7 +127,17 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 	const groupsIn = (row: GroupRow) => groups.filter(group => rowOf(group) === row);
 	const groupInput = (group: Array<Consumable>) => makeConsumableGroupInput(group, relevance, group[0].groupName);
 	const groupInputs = (row: GroupRow) => groupsIn(row).map(groupInput);
-	const overwritten = overwrittenTooltips(elixirs);
+	const scrollGroups = groupsIn('scrolls');
+	const overwritten = overwrittenTooltips(
+		elixirs,
+		scrollGroups.flat().filter(consumable => consumable.type === ConsumableType.ConsumableTypeScroll),
+	);
+	// The elixir and scroll picks follow the stat buffs' inputs too: a stat buff turned on overwrites a scroll, which
+	// gives the elixirs of its stat their amount back.
+	const followingStatBuffs = <C extends { storeField?: ConsumeConfig['storeField'] }>(config: C): C => ({
+		...config,
+		storeField: [...[config.storeField ?? []].flat(), STAT_BUFF_FIELD],
+	});
 	const explosives = inSlot(ConsumableSlot.Explosive);
 	const fitsHandOf = (itemIn: (p: Player<any>, slot: ItemSlot) => EquippedItem | null) => (slot: ItemSlot) => (consumable: Consumable, p: Player<any>) =>
 		handTakesImbue(consumable, itemIn(p, slot)?.item);
@@ -159,8 +170,10 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 		}),
 		conjured: input(ConsumableSlot.Conjured, { consumesFieldName: 'conjuredId' }),
 		flask: input(ConsumableSlot.Flask, { consumesFieldName: 'flaskId' }),
-		elixirs: elixirs.map(consumable => ({ ...makeIdListInput(consumable, relevance), overwrittenTooltip: overwritten.elixir(consumable) })),
-		scrolls: groupsIn('scrolls').map(group => ({ ...groupInput(group), overwrittenTooltip: overwritten.scroll(group) })),
+		elixirs: elixirs.map(consumable =>
+			followingStatBuffs({ ...makeIdListInput(consumable, relevance), overwrittenTooltip: overwritten.elixir(consumable) }),
+		),
+		scrolls: scrollGroups.map(group => followingStatBuffs({ ...groupInput(group), overwrittenTooltip: overwritten.scroll })),
 		foodGroups: groupInputs('food'),
 		miscGroups: groupInputs('miscellaneous'),
 		food: input(ConsumableSlot.Food, { consumesFieldName: 'foodId' }),

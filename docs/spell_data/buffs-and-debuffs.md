@@ -8,7 +8,10 @@ store also renders:
 - `sim/core/buffs/buffs_auto_gen.go` and `sim/core/buffs/debuffs_auto_gen.go`, a constructor per row;
 - `ui/features/settings/model/buffs_debuffs_auto_gen.ts`, the settings inputs. An input's icon and
   tooltip use `TooltipID` where the row names one, else `CastID`, else `SpellID` (the choice never
-  changes the numbers a row reads);
+  changes the numbers a row reads). `GENERATED_STAT_BUFF_AMOUNTS` lists the rows that bid in core's
+  `StatBuff` category with the flat stats their parse attaches, which the consumables picker dims a
+  scroll by; the generator refuses such a row unless it is a bool, since a talent or a rank would move
+  the amount;
 - `proto/buffs.proto`, the four messages.
 
 They go through the same staging type-check and the same `-check` as the store, and regenerate without

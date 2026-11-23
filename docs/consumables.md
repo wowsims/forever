@@ -456,12 +456,15 @@ same, the one later in the spec's lists (the elixir ids, then the extra ids) is 
 grants neither (Bloodkelp Elixir of Dodging 22192) never is.
 Elixir of Ferocity 250350 beside Elixir of the Mongoose 13452 and Juju Power 12451 is dimmed. Beside
 Elixir of the Grizzly 250351, Elixir of Greater Strength 9206 is dimmed: the Grizzly grants as much
-Strength and a crit besides. A scroll is dimmed while an Elixirs row pick grants at least as much of
-its stat (`scrollOverwrittenBy`). The raid buffs are not read: the UI holds neither which raid buffs
-bid in core's `StatBuff` category nor their amounts, so a scroll under Arcane Intellect, Prayer of
-Spirit or Power Word: Fortitude is not dimmed. Nor is an elixir that a stronger scroll of its stat
-overwrites: that scroll counts only where no raid buff of its stat overwrites it, which the UI cannot
-tell for any stat.
+Strength and a crit besides. A scroll is dimmed while an Elixirs row pick or a raid buff that is on
+grants at least as much of its stat (`overwritesOf`). The raid buffs it reads are the ones that bid in
+core's `StatBuff` category, with the amounts the raid input applies, which the buff generator writes
+into `GENERATED_STAT_BUFF_AMOUNTS` (`ui/features/settings/model/buffs_debuffs_auto_gen.ts`): Arcane
+Intellect, Prayer of Spirit and Power Word: Fortitude. Under Arcane Intellect, Scroll of Intellect IV
+10308 is dimmed; under Mark of the Wild, which stacks with the scrolls, no scroll is. A scroll that
+counts dims the Elixirs row picks it grants as much of every stat as: Elixir of Giant Growth 6662 beside
+Scroll of Strength IV 10310. The pickers follow the raid buffs (`STAT_BUFF_FIELD`), so turning one on
+dims a scroll and gives the elixirs it dimmed their stat back.
 
 A potion has three pickers, Offensive, Defensive and Resource, and each offers the
 potions whose `potion_classes` hold its class. `AddPotionClasses` (`tools/database/consumable_potion_classes.go`) fills

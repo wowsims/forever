@@ -27,6 +27,12 @@ export interface MultiIconPickerStatOption extends PickerStatOption<MultiIconPic
 
 export interface IconEnumPickerStatOption extends PickerStatOption<IconEnumPickerConfig<Player<any>, any>> {}
 
+// A buff bidding in the sim's StatBuff category while its input is on, with the flat amount of each stat it bids there.
+export interface StatBuffAmounts {
+	config: IconPickerStatOption['config'];
+	amounts: Partial<Record<Stat, number>>;
+}
+
 export type PickerStatOptions = IconPickerStatOption | MultiIconPickerStatOption | IconEnumPickerStatOption;
 export type RenderableStatOptions = IconPickerStatOption | MultiIconPickerStatOption | IconEnumPickerStatOption;
 export type StatOptions<Options extends PickerStatOptions> = Array<Options>;

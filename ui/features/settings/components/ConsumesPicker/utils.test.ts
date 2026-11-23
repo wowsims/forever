@@ -1,5 +1,6 @@
 import { iconEnumPickerShown, iconEnumValues } from '@features/inputs/components/ConnectedIconEnumPicker/utils';
 import { shownStats, withSelection } from '@features/stat-filters/model/stat_filters';
+import { RaidBuffs } from '@generated/proto/buffs';
 import {
 	Class,
 	ConsumableType,
@@ -133,6 +134,7 @@ interface PlayerState {
 	zoneId: number;
 	meleeDps: boolean;
 	tank: boolean;
+	raidBuffs: RaidBuffs;
 }
 
 const playerOf = (state: Partial<PlayerState> = {}) => {
@@ -151,6 +153,7 @@ const playerOf = (state: Partial<PlayerState> = {}) => {
 		zoneId: 0,
 		meleeDps: true,
 		tank: false,
+		raidBuffs: RaidBuffs.create(),
 		...state,
 	};
 	const inHand = (slot: ItemSlot, mainHand?: UIItem, offHand?: UIItem) => {
@@ -180,6 +183,7 @@ const playerOf = (state: Partial<PlayerState> = {}) => {
 		getEpWeights: () => full.epWeights,
 		getConsumes: () => ConsumesSpec.clone(full.consumes),
 		setConsumes: (consumes: ConsumesSpec) => (full.consumes = ConsumesSpec.clone(consumes)),
+		getRaid: () => ({ getBuffs: () => RaidBuffs.clone(full.raidBuffs) }),
 	} as unknown as Player<any>;
 	return { player, state: full };
 };
@@ -714,20 +718,23 @@ describe('consumeConfigs on picks that add nothing', () => {
 			elixir(247755, 'Elixir of Minor Force', stats({ [Stat.StatPhysicalDamage]: 1 })),
 			Consumable.create({ id: 5206, name: 'Bogling Root', type: ConsumableType.ConsumableTypeOther, stats: stats({ [Stat.StatPhysicalDamage]: 1 }) }),
 			elixir(22192, 'Bloodkelp Elixir of Dodging', []),
+			elixir(3383, 'Elixir of Wisdom', stats({ [Stat.StatIntellect]: 6 })),
 			scroll(10310, 'Scroll of Strength IV', strength(17), '29/0', 'Strength'),
+			scroll(10308, 'Scroll of Intellect IV', stats({ [Stat.StatIntellect]: 16 }), '29/3', 'Intellect'),
 		],
 		getSpellEffect: () => undefined,
 	} as unknown as Database;
-	const picking = (elixirIds: Array<number>, extraIds: Array<number> = []) => {
-		const { player, state } = playerOf({ consumes: ConsumesSpec.create({ elixirIds, extraIds }) });
+	const picking = (elixirIds: Array<number>, extraIds: Array<number> = [], raidBuffs = RaidBuffs.create()) => {
+		const { player, state } = playerOf({ consumes: ConsumesSpec.create({ elixirIds, extraIds }), raidBuffs });
 		const configs = consumeConfigs(player, stackingDb);
 		const overwrittenBy = (id: number) => {
 			const toggle = toggleOf(configs.elixirs, id);
 			return toggle.overwrittenTooltip!(player, toggle.getValue(player));
 		};
-		const [strengthScrolls] = configs.scrolls;
-		const scrollOverwrittenBy = () => strengthScrolls.overwrittenTooltip!(player, strengthScrolls.getValue(player));
-		return { player, state, configs, overwrittenBy, scrollOverwrittenBy };
+		const [strengthScrolls, intellectScrolls] = configs.scrolls;
+		const scrollOverwrittenBy = (scrolls = strengthScrolls) => scrolls.overwrittenTooltip!(player, scrolls.getValue(player));
+		const intellectScrollOverwrittenBy = () => scrollOverwrittenBy(intellectScrolls);
+		return { player, state, configs, overwrittenBy, scrollOverwrittenBy, intellectScrollOverwrittenBy };
 	};
 
 	// The test setup loads no locale, so the tooltip would read as its key without the names.
@@ -788,5 +795,39 @@ describe('consumeConfigs on picks that add nothing', () => {
 		expect(picking([6662], [10310]).scrollOverwrittenBy()).toBeUndefined();
 		expect(picking([6662], [10310, 12451]).scrollOverwrittenBy()).toBe('Adds nothing: every stat it grants is matched by Juju Power.');
 		expect(picking([], []).scrollOverwrittenBy()).toBeUndefined();
+	});
+
+	it('marks Scroll of Intellect IV under Arcane Intellect, naming the buff', () => {
+		expect(picking([], [10308]).intellectScrollOverwrittenBy()).toBeUndefined();
+		expect(picking([], [10308], RaidBuffs.create({ arcaneIntellect: true })).intellectScrollOverwrittenBy()).toBe(
+			'Adds nothing: every stat it grants is matched by Arcane Intellect.',
+		);
+	});
+
+	it('leaves a scroll unmarked under Mark of the Wild, which stacks with the scrolls', () => {
+		const motw = RaidBuffs.create({ markOfTheWild: true });
+		expect(picking([], [10308], motw).intellectScrollOverwrittenBy()).toBeUndefined();
+		expect(picking([], [10310], motw).scrollOverwrittenBy()).toBeUndefined();
+	});
+
+	it('follows the raid buffs as they change, on the configs already built', () => {
+		const { state, intellectScrollOverwrittenBy } = picking([], [10308]);
+		expect(intellectScrollOverwrittenBy()).toBeUndefined();
+		state.raidBuffs = RaidBuffs.create({ arcaneIntellect: true });
+		expect(intellectScrollOverwrittenBy()).toBeDefined();
+		state.raidBuffs = RaidBuffs.create();
+		expect(intellectScrollOverwrittenBy()).toBeUndefined();
+	});
+
+	it('marks no elixir under a raid buff of its stat, since the elixirs stack with the raid buffs', () => {
+		expect(picking([3383], [], RaidBuffs.create({ arcaneIntellect: true })).overwrittenBy(3383)).toBeUndefined();
+	});
+
+	it('marks an elixir a stronger scroll of its stat overwrites, while the scroll counts', () => {
+		expect(picking([6662], [10310]).overwrittenBy(6662)).toBe('Adds nothing: every stat it grants is matched by Scroll of Strength IV.');
+		expect(picking([3383], [10308]).overwrittenBy(3383)).toBe('Adds nothing: every stat it grants is matched by Scroll of Intellect IV.');
+		const underArcaneIntellect = picking([3383], [10308], RaidBuffs.create({ arcaneIntellect: true }));
+		expect(underArcaneIntellect.intellectScrollOverwrittenBy()).toBeDefined();
+		expect(underArcaneIntellect.overwrittenBy(3383)).toBeUndefined();
 	});
 });

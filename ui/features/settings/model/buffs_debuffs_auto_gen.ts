@@ -15,7 +15,7 @@ import {
 	makeTristatePartyBuffInput,
 } from '@features/inputs/icon_inputs';
 
-import type { RenderableStatOptions } from './stat_options';
+import type { RenderableStatOptions, StatBuffAmounts } from './stat_options';
 
 export const BloodPact = makeBooleanPartyBuffInput({
 	actionId: ActionId.fromSpellId(11767),
@@ -734,5 +734,22 @@ export const GENERATED_DEBUFFS_CONFIG: RenderableStatOptions[] = [
 	{
 		config: Thunderfury,
 		stats: [Stat.StatNatureDamage, Stat.StatStamina, Stat.StatDefenseRating],
+	},
+];
+
+// The buffs that bid in the sim's StatBuff category, each with what it grants of each stat it bids there: a scroll
+// of the stat counts only while it outbids them (R-0053).
+export const GENERATED_STAT_BUFF_AMOUNTS: StatBuffAmounts[] = [
+	{
+		config: ArcaneIntellect,
+		amounts: { [Stat.StatIntellect]: 31 },
+	},
+	{
+		config: PrayerOfSpirit,
+		amounts: { [Stat.StatSpirit]: 40 },
+	},
+	{
+		config: PowerWordFortitude,
+		amounts: { [Stat.StatStamina]: 70 },
 	},
 ];

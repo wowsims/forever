@@ -9,8 +9,11 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strconv"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/buffmanifest"
@@ -161,6 +164,39 @@ func TestGroupInputsAttachWhatTheirGroupSpellAttaches(t *testing.T) {
 	}
 	if found != len(groupInputSpells) {
 		t.Errorf("found %d of the %d group inputs among the manifest's rows", found, len(groupInputSpells))
+	}
+}
+
+// The amount the settings dim a scroll by is the one the sim's raid input applies, at the talent points 0
+// the apply block passes. A new row in the category needs its Value function listed.
+func TestStatBuffAmountsAreWhatTheRaidInputApplies(t *testing.T) {
+	values := map[string]func(int32) float64{
+		"arcane_intellect":     buffs.ArcaneIntellectValue,
+		"prayer_of_spirit":     buffs.PrayerOfSpiritValue,
+		"power_word_fortitude": buffs.PowerWordFortitudeValue,
+	}
+	found := 0
+	for _, row := range resolveCommittedBuffs(t) {
+		if row.Category != core.StatBuffCategory {
+			continue
+		}
+		value, listed := values[row.Field]
+		if !listed {
+			t.Errorf("%s bids in %s, but the test lists no Value function for it", row.Field, core.StatBuffCategory)
+			continue
+		}
+		found++
+		entry, err := statBuffEntry(row, &tsBuffInput{Const: row.Go})
+		if err != nil {
+			t.Errorf("%s: %v", row.Field, err)
+			continue
+		}
+		if want := strconv.FormatFloat(value(0), 'f', -1, 64); len(entry.Amounts) != 1 || entry.Amounts[0].Amount != want {
+			t.Errorf("%s: the settings read %v, the raid input applies %s", row.Field, entry.Amounts, want)
+		}
+	}
+	if found != len(values) {
+		t.Errorf("found %d of the %d listed rows in %s", found, len(values), core.StatBuffCategory)
 	}
 }
 

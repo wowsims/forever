@@ -13,6 +13,7 @@ import { UnitStat, unitStatsOf } from '@sim/proto/stats';
 import { consumableAllowed, consumableOrderOf, consumablePseudoStatsOf, consumableStatsOf, consumableUniverse, orderedByEp } from '@sim/settings/consumables';
 import { memoLast } from '@sim/utils/misc';
 
+import { GENERATED_STAT_BUFF_AMOUNTS } from './buffs_debuffs_auto_gen';
 import { BoglingRoot, JujuMight, JujuPower } from './consumables_auto_gen';
 
 export type ConsumableIdField =
@@ -202,23 +203,39 @@ export const countsWithTheElixirs = (consumable: Consumable): boolean =>
 	consumable.type === ConsumableType.ConsumableTypeElixir || COUNT_WITH_THE_ELIXIRS.has(consumable.id);
 
 interface Grants {
-	consumable: Consumable;
-	// Each stat and percent the consumable grants, by stat or percent.
+	name: string;
+	// Each stat and percent the pick or buff grants, by stat or percent.
 	amounts: Map<string, number>;
 }
 
-const grantsOf = (consumable: Consumable): Grants => {
+interface PickGrants extends Grants {
+	consumable: Consumable;
+}
+
+const grantsOf = (consumable: Consumable): PickGrants => {
 	const amounts = new Map<string, number>();
 	consumable.stats.forEach((value, stat) => value > 0 && amounts.set(`stat ${stat}`, value));
 	consumable.pseudoStats.forEach((value, pseudoStat) => value > 0 && amounts.set(`percent ${pseudoStat}`, value));
-	return { consumable, amounts };
+	return { consumable, name: consumable.name, amounts };
 };
+
+// The stat buffs as grants beside the picks, each with the input that turns it on.
+const STAT_BUFFS = GENERATED_STAT_BUFF_AMOUNTS.map(buff => ({
+	config: buff.config,
+	grants: {
+		name: buff.config.label ?? '',
+		amounts: new Map(Object.entries(buff.amounts).map(([stat, amount]) => [`stat ${stat}`, amount!])),
+	},
+}));
+
+// The store field the stat buffs' inputs write, which the scroll and elixir picks follow.
+export const STAT_BUFF_FIELD: StoreField = 'raid:buffs';
 
 // The picks granting the most of each amount, where every amount has a pick granting at least as much. Undefined
 // where one has none, and for no amounts at all.
-const matchedBy = (amounts: Map<string, number>, picks: ReadonlyArray<Grants>): Array<Consumable> | undefined => {
+const matchedBy = (amounts: Map<string, number>, picks: ReadonlyArray<Grants>): Array<Grants> | undefined => {
 	if (!amounts.size) return undefined;
-	const matching = new Set<Consumable>();
+	const matching = new Set<Grants>();
 	for (const [key, value] of amounts) {
 		let best: Grants | undefined;
 		for (const pick of picks) {
@@ -226,74 +243,94 @@ const matchedBy = (amounts: Map<string, number>, picks: ReadonlyArray<Grants>): 
 			if (amount >= value && (!best || amount > best.amounts.get(key)!)) best = pick;
 		}
 		if (!best) return undefined;
-		matching.add(best.consumable);
+		matching.add(best);
 	}
 	return [...matching];
 };
 
 interface ElixirOverwrites {
-	// The picks that add nothing, each with the picks that grant as much of everything it grants.
-	overwritten: Map<Consumable, Array<Consumable>>;
+	// The picks that add nothing, each with what grants as much of everything it grants.
+	overwritten: Map<Consumable, Array<Grants>>;
 	// The picks that add something.
-	counted: Array<Consumable>;
+	counted: Array<PickGrants>;
 }
 
-// The sim counts each stat and percent the elixirs grant at the largest amount among them only (R-0053), so a pick
-// adds nothing where the others grant as much of everything it grants. The picks are set aside one at a time, those
-// granting the fewest stats and percents first and, among those, the one later in the spec's lists first (the elixir
-// ids, then the extra ids), so of two that grant the same only one is. One granting nothing the picker can read is
-// never set aside.
-function elixirOverwrites(picks: ReadonlyArray<Consumable>): ElixirOverwrites {
-	const grants = picks.map(grantsOf);
-	const order = grants.map((entry, index) => ({ entry, index })).sort((a, b) => a.entry.amounts.size - b.entry.amounts.size || b.index - a.index);
-	let counted = grants;
-	const setAside: Array<Grants> = [];
+// The sim counts each stat and percent the elixirs grant at the largest amount among them and the scrolls that count
+// only (R-0053), so a pick adds nothing where the other picks and those scrolls grant as much of everything it grants.
+// The picks are set aside one at a time, those granting the fewest stats and percents first and, among those, the one
+// later in the spec's lists first (the elixir ids, then the extra ids), so of two that grant the same only one is. One
+// granting nothing the picker can read is never set aside.
+function elixirOverwrites(picks: ReadonlyArray<PickGrants>, scrolls: ReadonlyArray<PickGrants>): ElixirOverwrites {
+	const order = picks.map((entry, index) => ({ entry, index })).sort((a, b) => a.entry.amounts.size - b.entry.amounts.size || b.index - a.index);
+	let counted = [...picks];
+	const setAside: Array<PickGrants> = [];
 	for (const { entry } of order) {
 		const others = counted.filter(other => other !== entry);
-		if (!matchedBy(entry.amounts, others)) continue;
+		if (!matchedBy(entry.amounts, [...others, ...scrolls])) continue;
 		counted = others;
 		setAside.push(entry);
 	}
 	return {
-		overwritten: new Map(setAside.map(entry => [entry.consumable, matchedBy(entry.amounts, counted)!])),
-		counted: counted.map(entry => entry.consumable),
+		overwritten: new Map(setAside.map(entry => [entry.consumable, matchedBy(entry.amounts, [...counted, ...scrolls])!])),
+		counted,
 	};
 }
 
-// The sim counts a scroll's stat only while it outbids the elixirs' (R-0053), so the elixirs that grant as much of it
-// overwrite it. Undefined while it outbids them. The raid buffs that overwrite a scroll are not read here.
-const scrollOverwrittenBy = (scroll: Consumable, overwrites: ElixirOverwrites): Array<Consumable> | undefined =>
-	matchedBy(grantsOf(scroll).amounts, overwrites.counted.map(grantsOf));
+interface Overwrites {
+	elixirs: Map<Consumable, Array<Grants>>;
+	scrolls: Map<Consumable, Array<Grants>>;
+}
 
-const overwrittenTooltipOf = (by: ReadonlyArray<Consumable>): string =>
+// The sim counts a scroll's stat only while it outbids both the elixirs' and the stat buffs' (R-0053), so the elixirs
+// and the buffs that are on that grant as much of it overwrite it. A scroll that counts outbids the elixirs of its stat
+// in turn, so the elixirs are weighed again beside the scrolls that count.
+function overwritesOf(elixirs: ReadonlyArray<PickGrants>, scrolls: ReadonlyArray<PickGrants>, statBuffs: ReadonlyArray<Grants>): Overwrites {
+	const { counted } = elixirOverwrites(elixirs, []);
+	const overwrittenScrolls = new Map<Consumable, Array<Grants>>();
+	const counting: Array<PickGrants> = [];
+	for (const scroll of scrolls) {
+		const by = matchedBy(scroll.amounts, [...counted, ...statBuffs]);
+		if (by) overwrittenScrolls.set(scroll.consumable, by);
+		else counting.push(scroll);
+	}
+	return { elixirs: elixirOverwrites(elixirs, counting).overwritten, scrolls: overwrittenScrolls };
+}
+
+const overwrittenTooltipOf = (by: ReadonlyArray<Grants>): string =>
 	i18n.t('settings_tab.consumables.overwritten_tooltip', {
-		names: new Intl.ListFormat(i18n.language, { type: 'conjunction' }).format(by.map(consumable => consumable.name)),
+		names: new Intl.ListFormat(i18n.language, { type: 'conjunction' }).format(by.map(entry => entry.name)),
 	});
 
-// The overwritten tooltips of the elixir toggles and the scroll picks, read off the picks among `elixirs` in the
-// spec's elixir and extra ids and worked out once per set of picks.
-export function overwrittenTooltips(elixirs: ReadonlyArray<Consumable>) {
-	const byId = new Map(elixirs.map(consumable => [consumable.id, consumable]));
-	const overwritesFor = memoLast<ElixirOverwrites>();
+// The overwritten tooltips of the elixir toggles and the scroll picks, read off the picks among `elixirs` and
+// `scrolls` in the spec's elixir and extra ids and the stat buffs that are on, and worked out once per set of them.
+export function overwrittenTooltips(elixirs: ReadonlyArray<Consumable>, scrolls: ReadonlyArray<Consumable>) {
+	const byId = new Map([...elixirs, ...scrolls].map(consumable => [consumable.id, grantsOf(consumable)]));
+	const isScroll = new Set(scrolls.map(scroll => scroll.id));
+	const overwritesFor = memoLast<Overwrites>();
 	const overwrites = (player: Player<any>) => {
 		const { elixirIds, extraIds } = player.getConsumes();
-		const ids = [...new Set([...elixirIds, ...extraIds])].filter(id => byId.has(id));
-		return overwritesFor([ids.join()], () => elixirOverwrites(ids.map(id => byId.get(id)!)));
+		const picks = [...new Set([...elixirIds, ...extraIds])].filter(id => byId.has(id)).map(id => byId.get(id)!);
+		const statBuffs = STAT_BUFFS.filter(buff => buff.config.getValue(player));
+		return overwritesFor([picks.map(pick => pick.consumable.id).join(), statBuffs.map(buff => buff.grants.name).join()], () =>
+			overwritesOf(
+				picks.filter(pick => !isScroll.has(pick.consumable.id)),
+				picks.filter(pick => isScroll.has(pick.consumable.id)),
+				statBuffs.map(buff => buff.grants),
+			),
+		);
 	};
 	return {
 		elixir:
 			(consumable: Consumable) =>
 			(player: Player<any>, picked: boolean): string | undefined => {
-				const by = picked ? overwrites(player).overwritten.get(consumable) : undefined;
+				const by = picked ? overwrites(player).elixirs.get(consumable) : undefined;
 				return by && overwrittenTooltipOf(by);
 			},
-		scroll:
-			(scrolls: ReadonlyArray<Consumable>) =>
-			(player: Player<any>, id: number): string | undefined => {
-				const scroll = scrolls.find(consumable => consumable.id === id);
-				const by = scroll && scrollOverwrittenBy(scroll, overwrites(player));
-				return by && overwrittenTooltipOf(by);
-			},
+		scroll: (player: Player<any>, id: number): string | undefined => {
+			const scroll = byId.get(id);
+			const by = scroll && overwrites(player).scrolls.get(scroll.consumable);
+			return by && overwrittenTooltipOf(by);
+		},
 	};
 }
 

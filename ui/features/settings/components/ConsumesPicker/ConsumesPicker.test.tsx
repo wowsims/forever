@@ -1,11 +1,12 @@
 import { APLRotation } from '@generated/proto/apl';
+import { RaidBuffs } from '@generated/proto/buffs';
 import { ConsumesSpec, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
 import { renderWithHost } from '@testing/react';
 import { filled } from '@testing/sim/hooks';
 import { makeIndividualSim, serveRealDatabase } from '@testing/sim/individual_sim';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import english from '../../../../../assets/locales/en/translation.json';
@@ -17,6 +18,7 @@ const ELIXIR_OF_FEROCITY = 250350;
 const ELIXIR_OF_THE_MONGOOSE = 13452;
 const JUJU_POWER = 12451;
 const SCROLL_OF_STRENGTH_IV = 10310;
+const SCROLL_OF_INTELLECT_IV = 10308;
 const STRENGTH_AND_AGILITY = { autoRotation: () => APLRotation.create(), epStats: [Stat.StatStrength, Stat.StatAgility], presets: { epWeights: [] } };
 
 // The test setup loads no locale, so the tooltips would read as their keys without the names.
@@ -107,6 +109,17 @@ describe('ConsumesPicker', () => {
 		player.setConsumes(ConsumesSpec.create({ extraIds: [SCROLL_OF_STRENGTH_IV, JUJU_POWER] }));
 		await waitFor(async () =>
 			expect(await overwrittenTooltip(scrolls, SCROLL_OF_STRENGTH_IV)).toBe('Adds nothing: every stat it grants is matched by Juju Power.'),
+		);
+	});
+
+	it('dims the picked scroll once a raid buff of its stat that grants as much is turned on', async () => {
+		const { player, overwrittenTooltip, scrolls } = await renderPicker(ConsumesSpec.create({ extraIds: [SCROLL_OF_INTELLECT_IV] }));
+		act(() => player.getRaid()!.setBuffs(RaidBuffs.create()));
+		expect(await overwrittenTooltip(scrolls, SCROLL_OF_INTELLECT_IV)).toBeUndefined();
+
+		act(() => player.getRaid()!.setBuffs(RaidBuffs.create({ arcaneIntellect: true })));
+		await waitFor(async () =>
+			expect(await overwrittenTooltip(scrolls, SCROLL_OF_INTELLECT_IV)).toBe('Adds nothing: every stat it grants is matched by Arcane Intellect.'),
 		);
 	});
 });
