@@ -176,7 +176,7 @@ func TestRenderBuffsDebuffsTSRejectsAnUncountedInt32(t *testing.T) {
 // moves with the talent, renders no stat buff entry.
 func TestRenderBuffsDebuffsTSRejectsAStatBuffWithAnImprovedState(t *testing.T) {
 	rows := []ResolvedBuff{{
-		BuffSpec: buffmanifest.BuffSpec{Field: "power_word_fortitude", Category: core.StatBuffCategory},
+		BuffSpec: buffmanifest.BuffSpec{Field: "power_word_fortitude", Category: "StatBuff", ElixirCategory: core.ElixirStatCategory},
 		Scope:    buffmanifest.ScopeRaid, Proto: buffmanifest.ProtoTristate, Go: "PowerWordFortitude",
 		Owner: proto.Class_ClassPriest, SpellID: 10938, CastSpellID: 10938, DBName: "Power Word: Fortitude",
 		TalentRanks: 2, TalentSpellID: 14767,

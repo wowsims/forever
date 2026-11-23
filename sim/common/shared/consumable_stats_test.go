@@ -355,14 +355,13 @@ func TestTwoElixirsOfEqualStrengthCountItOnce(t *testing.T) {
 	}
 }
 
-// A scroll stacks with the elixirs of its stat: Scroll of Strength IV 10310 with Juju Power 12451, and
-// Scroll of Intellect IV 10308 with Elixir of Cunning's 250328 Intellect, whichever comes first.
-func TestAScrollStacksWithTheElixirsOfItsStat(t *testing.T) {
-	const scrollOfStrengthIV, jujuPower, cunning int32 = 10310, 12451, 250328
-	for _, id := range []int32{scrollOfStrengthIV, jujuPower, scrollOfIntellectIVID, cunning} {
-		registerStatConsumable(t, id)
-	}
-
+// A scroll counts with the elixirs of its stat, the stronger alone, whichever comes first: Scroll of
+// Strength IV 10310 (17) under Juju Power 12451 (30), Scroll of Intellect IV 10308 (16) under Elixir of
+// Cunning's 250328 Intellect (25), Scroll of Agility IV 10309 (17) over Elixir of Lesser Agility 3390
+// (8), and Scroll of Protection IV 10305 (240 armor) under Elixir of Defense 8951 (250).
+func TestAScrollCountsWithTheElixirsOfItsStat(t *testing.T) {
+	const scrollOfStrengthIV, jujuPower, cunning, scrollOfAgilityIV, lesserAgility, scrollOfProtectionIV, defense int32 = 10310, 12451,
+		250328, 10309, 3390, 10305, 8951
 	for _, tc := range []struct {
 		name           string
 		stat           stats.Stat
@@ -370,14 +369,18 @@ func TestAScrollStacksWithTheElixirsOfItsStat(t *testing.T) {
 	}{
 		{"Scroll of Strength IV and Juju Power", stats.Strength, scrollOfStrengthIV, jujuPower},
 		{"Scroll of Intellect IV and Elixir of Cunning", stats.Intellect, scrollOfIntellectIVID, cunning},
+		{"Scroll of Agility IV and Elixir of Lesser Agility", stats.Agility, scrollOfAgilityIV, lesserAgility},
+		{"Scroll of Protection IV and Elixir of Defense", stats.Armor, scrollOfProtectionIV, defense},
 	} {
+		registerStatConsumable(t, tc.scroll)
+		registerStatConsumable(t, tc.elixir)
 		scroll, elixir := soloGain(tc.scroll)[tc.stat], soloGain(tc.elixir)[tc.stat]
-		if scroll <= 0 || elixir <= 0 {
-			t.Fatalf("%s: the scroll adds %v %v and the elixir %v, want both some", tc.name, scroll, tc.stat.StatName(), elixir)
+		if scroll <= 0 || elixir <= 0 || scroll == elixir {
+			t.Fatalf("%s: the scroll adds %v %v and the elixir %v, want both some and one more", tc.name, scroll, tc.stat.StatName(), elixir)
 		}
 		for _, ids := range [][]int32{{tc.scroll, tc.elixir}, {tc.elixir, tc.scroll}} {
-			if gain := statGain(&proto.ConsumesSpec{ExtraIds: ids}, &proto.RaidBuffs{}); gain[tc.stat] != scroll+elixir {
-				t.Errorf("%s as %v add %v %v, want both: %v", tc.name, ids, gain[tc.stat], tc.stat.StatName(), scroll+elixir)
+			if gain := statGain(&proto.ConsumesSpec{ExtraIds: ids}, &proto.RaidBuffs{}); gain[tc.stat] != max(scroll, elixir) {
+				t.Errorf("%s as %v add %v %v, want the stronger one's %v", tc.name, ids, gain[tc.stat], tc.stat.StatName(), max(scroll, elixir))
 			}
 		}
 	}
@@ -433,24 +436,21 @@ func TestTheRaidCritOverwritesTheElixirCrit(t *testing.T) {
 }
 
 // Mark of the Wild stacks with the elixirs and the scrolls: Juju Power's 12451 and Scroll of Strength
-// IV's 10310 Strength count in full beside the Mark's.
+// IV's 10310 Strength each count in full beside the Mark's.
 func TestMarkOfTheWildStacksWithTheElixirs(t *testing.T) {
-	const scrollOfStrengthIV, jujuPower int32 = 10310, 12451
-	for _, id := range []int32{scrollOfStrengthIV, jujuPower} {
+	for _, id := range []int32{10310, 12451} {
 		registerStatConsumable(t, id)
-	}
-
-	strength := soloGain(jujuPower)[stats.Strength] + soloGain(scrollOfStrengthIV)[stats.Strength]
-	if gain := statGain(&proto.ConsumesSpec{ExtraIds: []int32{scrollOfStrengthIV, jujuPower}}, &proto.RaidBuffs{MarkOfTheWild: true}); gain[stats.Strength] != strength {
-		t.Errorf("Juju Power and Scroll of Strength IV under Mark of the Wild add %v Strength to the Mark's, want both: %v", gain[stats.Strength], strength)
+		strength := soloGain(id)[stats.Strength]
+		if gain := statGain(&proto.ConsumesSpec{ExtraIds: []int32{id}}, &proto.RaidBuffs{MarkOfTheWild: true}); strength <= 0 || gain[stats.Strength] != strength {
+			t.Errorf("%d under Mark of the Wild adds %v Strength to the Mark's, want its own %v", id, gain[stats.Strength], strength)
+		}
 	}
 }
 
-// A raid buff that overwrites the elixirs counts by its own category, so an elixir granting as much as
-// it or more could count beside it, and a scroll that outbids it leaves it suppressing the elixirs
-// while it adds nothing. Every elixir and scroll in the database grants less Intellect than Arcane
-// Intellect, less Spirit than Prayer of Spirit, less Stamina than Power Word: Fortitude and less crit
-// than Moonkin Aura and Leader of the Pack.
+// A raid buff that overwrites the elixirs and the scrolls counts by its own category, so an elixir or a
+// scroll granting as much as it or more could count beside it. Every elixir and scroll in the database
+// grants less Intellect than Arcane Intellect, less Spirit than Prayer of Spirit, less Stamina than
+// Power Word: Fortitude and less crit than Moonkin Aura and Leader of the Pack.
 func TestNoElixirOrScrollOutbidsTheRaidBuffOfItsStat(t *testing.T) {
 	ceilings := map[string]float64{
 		"stat Intellect":           buffs.ArcaneIntellectValue(0),

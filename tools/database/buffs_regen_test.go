@@ -171,27 +171,22 @@ func TestGroupInputsAttachWhatTheirGroupSpellAttaches(t *testing.T) {
 }
 
 // The amount the settings dim a scroll or an elixir by is the one the sim's raid input applies, at the
-// talent points 0 the apply block passes, and it dims the consumables the sim overwrites with it: the
-// scrolls for a StatBuff row, the elixirs for a row that overwrites theirs. A new such row needs its
-// Value function listed.
+// talent points 0 the apply block passes. A new row that overwrites the elixirs needs its Value
+// function listed.
 func TestOverwritingBuffAmountsAreWhatTheRaidInputApplies(t *testing.T) {
-	type want struct {
-		value            func(int32) float64
-		scrolls, elixirs bool
-	}
-	wants := map[string]want{
-		"arcane_intellect":     {buffs.ArcaneIntellectValue, true, true},
-		"prayer_of_spirit":     {buffs.PrayerOfSpiritValue, true, true},
-		"power_word_fortitude": {buffs.PowerWordFortitudeValue, true, true},
-		"leader_of_the_pack":   {buffs.LeaderOfThePackValue, false, true},
-		"moonkin_aura":         {buffs.MoonkinAuraValue, false, true},
+	wants := map[string]func(int32) float64{
+		"arcane_intellect":     buffs.ArcaneIntellectValue,
+		"prayer_of_spirit":     buffs.PrayerOfSpiritValue,
+		"power_word_fortitude": buffs.PowerWordFortitudeValue,
+		"leader_of_the_pack":   buffs.LeaderOfThePackValue,
+		"moonkin_aura":         buffs.MoonkinAuraValue,
 	}
 	found := 0
 	for _, row := range resolveCommittedBuffs(t) {
 		if !overwritesConsumables(row) {
 			continue
 		}
-		w, listed := wants[row.Field]
+		value, listed := wants[row.Field]
 		if !listed {
 			t.Errorf("%s overwrites consumables, but the test lists no Value function for it", row.Field)
 			continue
@@ -202,13 +197,10 @@ func TestOverwritingBuffAmountsAreWhatTheRaidInputApplies(t *testing.T) {
 			t.Errorf("%s: %v", row.Field, err)
 			continue
 		}
-		if entry.Scrolls != w.scrolls || entry.Elixirs != w.elixirs {
-			t.Errorf("%s: the settings overwrite scrolls %v and elixirs %v with it, want %v and %v", row.Field, entry.Scrolls, entry.Elixirs, w.scrolls, w.elixirs)
-		}
 		amounts := append(slices.Clone(entry.Stats), entry.PseudoStats...)
-		value := strconv.FormatFloat(w.value(0), 'f', -1, 64)
-		if len(amounts) == 0 || slices.ContainsFunc(amounts, func(a tsStatAmount) bool { return a.Amount != value }) {
-			t.Errorf("%s: the settings read %v, the raid input applies %s", row.Field, amounts, value)
+		applied := strconv.FormatFloat(value(0), 'f', -1, 64)
+		if len(amounts) == 0 || slices.ContainsFunc(amounts, func(a tsStatAmount) bool { return a.Amount != applied }) {
+			t.Errorf("%s: the settings read %v, the raid input applies %s", row.Field, amounts, applied)
 		}
 	}
 	if found != len(wants) {

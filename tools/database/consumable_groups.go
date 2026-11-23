@@ -31,7 +31,7 @@ func ElixirGroup(aura dbcenums.EffectAuraType, misc int) ConsumableGroupKey {
 }
 
 // The group of the elixirs that grant a crit chance, whatever aura they open on (Elixir of the
-// Mongoose's is Agility). Only one elixir's crit counts (R-0053), and the group lets each go beside
+// Mongoose's is Agility). Only one elixir's crit counts (R-0054), and the group lets each go beside
 // an elixir of its first stat.
 var ElixirCritGroup = ElixirGroup(dbcenums.A_MOD_CRIT_PCT, 0)
 

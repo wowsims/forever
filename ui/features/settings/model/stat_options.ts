@@ -27,14 +27,12 @@ export interface MultiIconPickerStatOption extends PickerStatOption<MultiIconPic
 
 export interface IconEnumPickerStatOption extends PickerStatOption<IconEnumPickerConfig<Player<any>, any>> {}
 
-// A raid buff that, while its input is on, overwrites the scrolls, the elixirs or both that grant as much of the stats
-// and percents it grants.
+// A raid buff that, while its input is on, overwrites the elixirs and scrolls that grant as much of the stats and
+// percents it grants.
 export interface OverwritingBuff {
 	config: IconPickerStatOption['config'];
 	stats?: Partial<Record<Stat, number>>;
 	pseudoStats?: Partial<Record<PseudoStat, number>>;
-	scrolls: boolean;
-	elixirs: boolean;
 }
 
 export type PickerStatOptions = IconPickerStatOption | MultiIconPickerStatOption | IconEnumPickerStatOption;

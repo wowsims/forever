@@ -91,10 +91,10 @@ describe('ConsumesPicker', () => {
 		});
 	});
 
-	it('leaves the picked scroll undimmed beside an elixir of its stat, which it stacks with', async () => {
+	it('dims the picked scroll beside a stronger consumable of its stat that counts with the elixirs', async () => {
 		const { badge, scrolls, offensiveBadge } = await renderPicker(ConsumesSpec.create({ extraIds: [SCROLL_OF_STRENGTH_IV, JUJU_POWER] }));
 		expect(await offensiveBadge()).toBeUndefined();
-		expect(await badge(scrolls, SCROLL_OF_STRENGTH_IV)).toBeUndefined();
+		expect(await badge(scrolls, SCROLL_OF_STRENGTH_IV)).toEqual({ tooltip: 'Strength overwritten by Juju Power', dimmed: true });
 	});
 
 	it('dims the picked scroll once a raid buff of its stat that grants as much is turned on', async () => {

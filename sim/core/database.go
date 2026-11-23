@@ -127,7 +127,7 @@ type Consumable struct {
 	// The exclusive group, of which only the first consumable the spec names applies; empty on
 	// consumables that stack with everything.
 	GroupKey          string
-	CountsWithElixirs bool // Stats that count with the elixirs', though the game files do not type it as one (R-0053).
+	CountsWithElixirs bool // Stats that count with the elixirs', though the game files do not type it as one (R-0054).
 }
 
 // The item's on-use rows.

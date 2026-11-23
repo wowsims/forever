@@ -168,11 +168,11 @@ The game files carry no stacking table, so the generator resolves each consumabl
 `ShippedConsumable` writes it into db.json as `group_key` and `group_name`. The sim reads only the key
 (`selectedConsumableIDs` in `sim/core/consumes.go`), the settings the key and the name.
 
-**Across the groups, each stat of the elixirs counts once.** Of each elixir group only the first
-applies, and each stat the elixirs picked across the groups grant counts only the strongest one's
-amount, the 2% crit only one elixir's (R-0053). The sim counts them so: `consumableAura` in
-`sim/common/shared/consumable_stats.go` bids each stat of an elixir under the `ElixirStat` per-stat
-category and its crit under `ElixirCrit`. Elixir of Ferocity 250350 (Strength and Agility) beside
+**Across the groups, each stat of the elixirs and scrolls counts once.** Of each elixir or scroll group
+only the first applies, and each stat the elixirs and scrolls picked across the groups grant counts only
+the strongest one's amount, the 2% crit only one elixir's (R-0054). The sim counts them so:
+`consumableAura` in `sim/common/shared/consumable_stats.go` bids each stat of an elixir or a scroll under
+the `ElixirStat` per-stat category and an elixir's crit under `ElixirCrit`. Elixir of Ferocity 250350 (Strength and Agility) beside
 Elixir of the Mongoose 13452 adds its Strength alone, since Mongoose's Agility is larger, and beside
 Elixir of the Grizzly 250351 and Elixir of Greater Agility 9187 it adds nothing. Juju Power 12451, Juju
 Might 12460 and Bogling Root 5206, which the game files do not type as elixirs, bid with them: their
@@ -181,9 +181,11 @@ Might 12460 and Bogling Root 5206, which the game files do not type as elixirs, 
 Elixir 9155 and Elixir of Fire Power 6373 stack. Arcane Intellect, Prayer of Spirit and Power Word:
 Fortitude bid their stat in `ElixirStat` too, and Moonkin Aura and Leader of the Pack their crit in
 `ElixirCrit`, without counting there (`spelldata.Overwrites`, set by the buff manifest's
-`ElixirCategory`), so an elixir that grants no more adds nothing under them: under Arcane Intellect,
-Elixir of Cunning 250328 adds its Agility alone, and under Power Word: Fortitude, Elixir of Brute Force
-13453 its Strength alone. Every other raid buff, Mark of the Wild among them, stacks with the elixirs.
+`ElixirCategory`), so an elixir or a scroll that grants no more adds nothing under them: under Arcane
+Intellect, Elixir of Cunning 250328 adds its Agility alone and Scroll of Intellect IV 10308 nothing, and
+under Power Word: Fortitude, Elixir of Brute Force 13453 its Strength alone. Each of the three counts by
+the `StatBuff` per-stat category its manifest row names, which holds only them, so a raid copy and a
+player's own copy count once. Every other raid buff, Mark of the Wild among them, stacks with the elixirs and the scrolls.
 
 **From the rows** (`rowGroupOf` in `tools/database/consumable_groups.go`):
 
@@ -200,10 +202,9 @@ Elixir of Cunning 250328 adds its Agility alone, and under Power Word: Fortitude
 - a scroll's group is keyed the same way with a `scroll` prefix (`ScrollGroup`), so it shares its group with
   its ranks alone and never with an elixir: Scroll of Agility 3012 to IV 10309 (`scroll 29/1`), Scroll
   of Stamina 1180 to IV 10307 (`scroll 29/2`), Scroll of Protection 3013 to IV 10305 (`scroll 674/1`). A scroll's
-  stat bids in core's `StatBuff` per-stat category with Arcane Intellect, Prayer of Spirit and Power
-  Word: Fortitude, so it counts only while it outbids them, and it stacks with the elixirs. With no raid
-  buff up, Scroll of Intellect IV 10308 and Elixir of Cunning 250328 add 16 and 25 Intellect; under
-  Arcane Intellect, neither adds any;
+  stats count with the elixirs' in `ElixirStat`, the strongest amount alone: Scroll of Intellect IV
+  10308 beside Elixir of Cunning 250328 adds none of its 16 Intellect to Cunning's 25, and Scroll of
+  Strength IV 10310 adds none of its 17 Strength to Juju Power's 30;
 - a stat consumable whose on-use category cooldown lasts as long as each of its buffs, which are up
   from the pull, is used one at a time with the others of the category (`shared.OneAtATimeCategory`),
   keyed `category <id>`. Only the Blasted Lands buffs (R.O.I.D.S. 8410, Lung Juice Cocktail 8411,
@@ -468,19 +469,19 @@ percents as one Crit (`lostTo`). A pick that adds nothing is dimmed as well, and
 what it grants shows the badge on a lit swatch; the player can clear either. An open menu badges its
 options the same way, each as if picked in place of the group's pick.
 
-An elixir pick reads as the sim counts it (R-0053): the first pick of each group, and each stat and
-percent at the largest amount among the picks and the raid buffs that overwrite the elixirs
+An elixir or scroll pick reads as the sim counts it (R-0054): the first pick of each group, and each stat
+and percent at the largest amount among the picks and the raid buffs that overwrite the elixirs
 (`elixirOverwrites`). A consumable whose `counts_with_elixirs` is set counts among the picks
 (`countsWithTheElixirs`), and its toggle carries the same badge. Of two picks that grant the same, the
 one later in the spec's lists (the elixir ids, then the extra ids) is dimmed. A raid buff outbids an
 equal amount, and so does a pick earlier in the lists. A pick granting nothing the picker reads is never
 marked. Elixir of Ferocity 250350 beside Elixir of the Mongoose 13452 shows "Agility overwritten by
-Elixir of the Mongoose" on a lit swatch.
+Elixir of the Mongoose" on a lit swatch, and Scroll of Strength IV 10310 beside Juju Power 12451 is dimmed
+with "Strength overwritten by Juju Power".
 
-A scroll stacks with the elixirs, so its badge reads only the raid buffs that are on and grant at least
-as much of its stat. Both read the raid buffs the buff generator writes into `GENERATED_OVERWRITING_BUFFS`
-(`ui/features/settings/model/buffs_debuffs_auto_gen.ts`), each with the amounts the raid input applies
-and whether it overwrites the scrolls, the elixirs or both. A raid buff the sim turns on whatever the
+The badges read the raid buffs the buff generator writes into `GENERATED_OVERWRITING_BUFFS`
+(`ui/features/settings/model/buffs_debuffs_auto_gen.ts`), each with the amounts the raid input applies.
+A raid buff the sim turns on whatever the
 input says counts as on (`turnedOnBySim`): Arcane Intellect for every mage (`AddRaidBuffs` in
 `sim/mage/mage.go`), and Moonkin Aura and Leader of the Pack for the druids that have them
 (`sim/druid/druid.go`). The inputs with a badge follow the raid buffs and the talents

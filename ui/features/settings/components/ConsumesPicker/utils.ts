@@ -130,7 +130,7 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 	const groupInputs = (row: GroupRow) => groupsIn(row).map(groupInput);
 	const elixirGroups = inDisplayOrder(groupsIn('elixirs'), player.getSpecConfig().displayStats ?? []);
 	const scrollGroups = groupsIn('scrolls');
-	const overwritten = overwrittenTooltips(all.filter(countsWithTheElixirs), scrollGroups.flat());
+	const overwritten = overwrittenTooltips(all.filter(countsWithTheElixirs));
 	// A miscellaneous consumable whose stats count with the elixirs' carries their badge, and follows the raid buffs too.
 	const miscToggle = (consumable: Consumable): ConsumeToggle => {
 		const toggle = makeIdListInput(consumable, relevance);
@@ -173,7 +173,7 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 			storeField: OVERWRITTEN_PICKER_FIELDS,
 			overwritten: overwritten.elixir,
 		})),
-		scrolls: scrollGroups.map(group => ({ ...groupInput(group), storeField: OVERWRITTEN_PICKER_FIELDS, overwritten: overwritten.scroll })),
+		scrolls: scrollGroups.map(group => ({ ...groupInput(group), storeField: OVERWRITTEN_PICKER_FIELDS, overwritten: overwritten.elixir })),
 		foodGroups: groupInputs('food'),
 		miscGroups: groupInputs('miscellaneous'),
 		food: input(ConsumableSlot.Food, { consumesFieldName: 'foodId' }),

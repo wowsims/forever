@@ -718,6 +718,7 @@ describe('consumeConfigs on picks that add nothing', () => {
 			elixir(9206, 'Elixir of Greater Strength', strength(25), '29/0', 'Strength'),
 			elixir(6662, 'Elixir of Giant Growth', strength(8), '29/0', 'Strength'),
 			elixir(9187, 'Elixir of Greater Agility', stats({ [Stat.StatAgility]: 25 }), '29/1', 'Agility'),
+			elixir(250328, 'Elixir of Cunning', stats({ [Stat.StatAgility]: 25, [Stat.StatIntellect]: 25 }), '29/1', 'Agility'),
 			elixir(247755, 'Elixir of Minor Force', stats({ [Stat.StatPhysicalDamage]: 1 }), '13/1', 'Physical Damage'),
 			Consumable.create({
 				id: 5206,
@@ -901,13 +902,16 @@ describe('consumeConfigs on picks that add nothing', () => {
 		expect(overwrittenBy(250350)).toBe('Agility overwritten by Elixir of Greater Agility');
 	});
 
-	it('leaves a scroll and the elixirs of its stat unmarked, since they stack', () => {
+	it('marks a scroll beside a stronger elixir of its stat, and an elixir beside a stronger scroll, naming the stronger', () => {
 		const strength = picking([], [10310, 12451]);
-		expect(strength.scrollOverwrittenBy()).toBeUndefined();
+		expect(strength.scrollOverwrittenBy()).toBe('Strength overwritten by Juju Power');
 		expect(strength.overwrittenBy(12451)).toBeUndefined();
-		const intellect = picking([3383], [10308]);
-		expect(intellect.intellectScrollOverwrittenBy()).toBeUndefined();
-		expect(intellect.overwrittenBy(3383)).toBeUndefined();
+		const cunning = picking([250328], [10308]);
+		expect(cunning.intellectScrollOverwrittenBy()).toBe('Intellect overwritten by Elixir of Cunning');
+		expect(cunning.overwrittenBy(250328)).toBeUndefined();
+		const wisdom = picking([3383], [10308]);
+		expect(wisdom.intellectScrollOverwrittenBy()).toBeUndefined();
+		expect(wisdom.overwrittenBy(3383)).toBe('Intellect overwritten by Scroll of Intellect IV');
 		expect(picking([], []).scrollOverwrittenBy()).toBeUndefined();
 	});
 

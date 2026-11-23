@@ -2,8 +2,8 @@
 
 - Claim: with several elixirs up, each stat counts only the strongest elixir's amount, and only one elixir's 2% crit
   counts. Arcane Intellect overwrites the elixirs' Intellect, Divine Spirit their Spirit, Power Word: Fortitude their
-  Stamina, and Moonkin Aura and Leader of the Pack their crit. Scroll of Intellect does not stack with Arcane Brilliance and stacks with the elixirs. Mark of
-  the Wild stacks with the elixirs. Greater Mageblood Elixir stacks with Mana Spring Totem, which raises no MP5 on the
+  Stamina, and Moonkin Aura and Leader of the Pack their crit. Scroll of Intellect does not stack with Arcane Brilliance and stacks with the elixirs. Juju
+  Power removes Scroll of Strength's buff and blocks a new one. Mark of the Wild stacks with the elixirs. Greater Mageblood Elixir stacks with Mana Spring Totem, which raises no MP5 on the
   character sheet.
 - Sources: checked in game by the owner, no log
 - Game build: the live build when it was reported on 2026-11-23 (the repo then recorded 1.60.1.71037, push 114332);
@@ -12,6 +12,7 @@
 - Pull request: #1185
 - Later count: the raid buffs, the scroll, Mark of the Wild and Mana Spring Totem, §Count of the 2026-11-23 in-game check
 - Later count: Power Word: Fortitude, §Count of the 2026-11-23 Fortitude check
+- Later count: Juju Power and Scroll of Strength, §Count of the 2026-11-23 Juju Power check
 
 With Elixir of the Grizzly (250351) up beside another elixir that grants 2% crit, Grizzly's buff tooltip reads "your
 chance to critically hit is increased by 0%" while its Strength still reads 25.
@@ -44,6 +45,8 @@ Intellect elixirs do not stack with Arcane Intellect, the Spirit elixirs do not 
 Intellect does not stack with Arcane Brilliance but does stack with the elixirs. Greater Mageblood Elixir appears to
 stack with Mana Spring Totem. The owner reports that Mark of the Wild stacks fully with the elixirs.
 
+The owner's ruling R-0054 counts Scroll of Intellect with the elixirs all the same, the strongest amount alone.
+
 ## Count of the 2026-11-23 Fortitude check
 
 - Sources: checked in game by the owner, no log
@@ -54,3 +57,15 @@ stack with Mana Spring Totem. The owner reports that Mark of the Wild stacks ful
 
 The owner reports that Power Word: Fortitude and the Stamina of Elixir of Brute Force (13453) do not stack. What was
 read in game is not recorded.
+
+## Count of the 2026-11-23 Juju Power check
+
+- Sources: checked in game by the owner, no log
+- Game build: the live build when it was reported on 2026-11-23; the hotfix it ran on and whether the game was
+  relogged are not recorded
+- Date: not recorded; reported on 2026-11-23
+- Pull request: #TBD
+
+The owner reports that Scroll of Strength and Juju Power (12451) do not stack: applying Juju Power removes the scroll's
+Strength buff, and a new Scroll of Strength cannot be applied while Juju Power is up. Which rank of the scroll was used
+is not recorded.

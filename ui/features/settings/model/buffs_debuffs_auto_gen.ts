@@ -737,26 +737,20 @@ export const GENERATED_DEBUFFS_CONFIG: RenderableStatOptions[] = [
 	},
 ];
 
-// The raid buffs that overwrite the scrolls, the elixirs or both that grant as much of a stat or percent as they do
-// (R-0053), each with what it grants.
+// The raid buffs that overwrite the elixirs and scrolls that grant as much of a stat or percent as they do (R-0054),
+// each with what it grants.
 export const GENERATED_OVERWRITING_BUFFS: OverwritingBuff[] = [
 	{
 		config: ArcaneIntellect,
 		stats: { [Stat.StatIntellect]: 31 },
-		scrolls: true,
-		elixirs: true,
 	},
 	{
 		config: PrayerOfSpirit,
 		stats: { [Stat.StatSpirit]: 40 },
-		scrolls: true,
-		elixirs: true,
 	},
 	{
 		config: PowerWordFortitude,
 		stats: { [Stat.StatStamina]: 70 },
-		scrolls: true,
-		elixirs: true,
 	},
 	{
 		config: LeaderOfThePack,
@@ -765,8 +759,6 @@ export const GENERATED_OVERWRITING_BUFFS: OverwritingBuff[] = [
 			[PseudoStat.PseudoStatRangedCritPercent]: 3,
 			[PseudoStat.PseudoStatSpellCritPercent]: 3,
 		},
-		scrolls: false,
-		elixirs: true,
 	},
 	{
 		config: MoonkinAura,
@@ -775,7 +767,5 @@ export const GENERATED_OVERWRITING_BUFFS: OverwritingBuff[] = [
 			[PseudoStat.PseudoStatRangedCritPercent]: 3,
 			[PseudoStat.PseudoStatSpellCritPercent]: 3,
 		},
-		scrolls: false,
-		elixirs: true,
 	},
 ];
