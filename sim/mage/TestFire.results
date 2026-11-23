@@ -250,6 +250,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-DarkmistDirk-285102"
+ value: {
+  dps: 882.61732
+  tps: 883.54011
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 955.9737
@@ -750,8 +757,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 947.48275
-  tps: 944.43889
+  dps: 948.26229
+  tps: 944.12478
  }
 }
 dps_results: {
@@ -1088,6 +1095,13 @@ dps_results: {
  value: {
   dps: 955.57018
   tps: 951.74958
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-SearingNeedle-12531"
+ value: {
+  dps: 882.61732
+  tps: 883.54011
  }
 }
 dps_results: {
