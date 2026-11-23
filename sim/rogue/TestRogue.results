@@ -536,8 +536,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DreadmistRaiment"
  value: {
-  dps: 637.43429
-  tps: 452.57834
+  dps: 637.09678
+  tps: 452.33871
   hps: 54.39167
  }
 }
@@ -1304,8 +1304,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Magister'sRegalia"
  value: {
-  dps: 637.06051
-  tps: 452.31296
+  dps: 636.82557
+  tps: 452.14615
   hps: 54.30694
  }
 }

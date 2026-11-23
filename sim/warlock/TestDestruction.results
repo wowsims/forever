@@ -88,9 +88,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-ArgentAvenger-13246"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -104,9 +104,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-BarmanShanker-12791"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -120,9 +120,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-BlackMenace-6831"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -136,17 +136,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 908.2979
-  tps: 714.3153
-  dtps: 11.03494
+  dps: 904.85577
+  tps: 711.61667
+  dtps: 10.60105
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-BladeoftheWretched-10803"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -168,17 +168,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-BlazingRapier-12777"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-Bloodrazor-809"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -248,25 +248,25 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-Dal'Rend'sArms"
  value: {
-  dps: 834.5729
-  tps: 656.09816
-  dtps: 10.20176
+  dps: 832.04372
+  tps: 654.11527
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-DarkmistDirk-285102"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -296,25 +296,25 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Darrowspike-13984"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-DazzlingLongsword-869"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-DeadheadBlade-274271"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -401,17 +401,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Dragon'sCall-10847"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-DreadfrostSaber-274603"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -442,9 +442,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-EbonHiltofMarduk-14576"
  value: {
-  dps: 845.54937
-  tps: 658.97852
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 656.93696
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -458,9 +458,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -634,17 +634,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-FangoftheCrystalSpider-13218"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-Felstriker-12590"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -674,17 +674,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Firebreather-10797"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-FlameSearedSignet-282080"
  value: {
-  dps: 896.52823
-  tps: 704.47857
-  dtps: 10.20176
+  dps: 891.30374
+  tps: 700.36914
+  dtps: 9.94204
  }
 }
 dps_results: {
@@ -706,17 +706,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-FreezingBand-942"
  value: {
-  dps: 891.68179
-  tps: 700.73391
-  dtps: 10.20176
+  dps: 886.48704
+  tps: 696.64789
+  dtps: 9.94204
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-Frostguard-12797"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -730,17 +730,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Gahz'rillaFang-9467"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-GlacialBlade-19099"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -770,17 +770,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-GutRipper-2164"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -794,9 +794,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-HanzoSword-8190"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -810,9 +810,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Headmaster'sCharge-13937"
  value: {
-  dps: 895.07749
-  tps: 704.62125
-  dtps: 10.31894
+  dps: 892.21171
+  tps: 702.32376
+  dtps: 10.11748
  }
 }
 dps_results: {
@@ -850,9 +850,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-HookfangShanker-11635"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -882,17 +882,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Jang'thrazetheProtector-11086"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-Jom-jom'sGabbar-274952"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -906,17 +906,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-KerisofZul'Serak-12582"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -946,9 +946,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-LifeforceDirk-10750"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -970,9 +970,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Linken'sSwordofMastery-11902"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -986,9 +986,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-LordGeneral'sSword-11817"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -1050,9 +1050,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-MarkoftheDragonLord-13143"
  value: {
-  dps: 891.68179
-  tps: 700.73391
-  dtps: 10.20176
+  dps: 886.48704
+  tps: 696.64789
+  dtps: 9.94204
  }
 }
 dps_results: {
@@ -1090,9 +1090,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Naglering-11669"
  value: {
-  dps: 891.68179
-  tps: 700.73391
-  dtps: 10.20176
+  dps: 886.48704
+  tps: 696.64789
+  dtps: 9.94204
  }
 }
 dps_results: {
@@ -1122,9 +1122,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-PhantomBlade-7961"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -1170,9 +1170,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-RingofSaviors-1447"
  value: {
-  dps: 891.68179
-  tps: 700.73391
-  dtps: 10.20176
+  dps: 886.48704
+  tps: 696.64789
+  dtps: 9.94204
  }
 }
 dps_results: {
@@ -1186,17 +1186,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Sang'thrazetheDeflector-9379"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-Satyr'sLash-17752"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -1218,9 +1218,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-SearingNeedle-12531"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -1242,17 +1242,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-Shadowblade-2163"
  value: {
-  dps: 860.85822
-  tps: 677.87814
-  dtps: 10.00715
+  dps: 858.22638
+  tps: 675.74428
+  dtps: 9.97208
  }
 }
 dps_results: {
@@ -1266,17 +1266,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-ShortswordofVengeance-754"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-SkullforgeReaver-13361"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -1306,9 +1306,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-SpireoftheStoneshaper-12532"
  value: {
-  dps: 882.68592
-  tps: 694.59662
-  dtps: 10.12978
+  dps: 879.96585
+  tps: 692.43797
+  dtps: 9.93734
  }
 }
 dps_results: {
@@ -1322,9 +1322,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-SwordofZeal-6622"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -1394,9 +1394,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-TheChief'sEnforcer-9477"
  value: {
-  dps: 828.64034
-  tps: 652.08154
-  dtps: 10.20176
+  dps: 826.0651
+  tps: 650.06255
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -1426,17 +1426,17 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
  key: "TestDestruction-AllItems-ThePostmaster"
  value: {
-  dps: 859.63218
-  tps: 674.90852
-  dtps: 9.88254
+  dps: 854.37691
+  tps: 670.74743
+  dtps: 9.78304
  }
 }
 dps_results: {
@@ -1458,9 +1458,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-ThrashBlade-17705"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -1474,9 +1474,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 845.54937
-  tps: 665.14499
-  dtps: 10.20176
+  dps: 842.91904
+  tps: 663.08281
+  dtps: 9.91039
  }
 }
 dps_results: {
@@ -1546,9 +1546,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-WrathofCenarius-21190"
  value: {
-  dps: 917.84984
-  tps: 720.91273
-  dtps: 10.20176
+  dps: 912.48537
+  tps: 716.69365
+  dtps: 9.94204
  }
 }
 dps_results: {

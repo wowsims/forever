@@ -632,9 +632,9 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-DreadmistRaiment"
  value: {
-  dps: 488.40519
-  tps: 426.05535
-  dtps: 3.04994
+  dps: 488.35164
+  tps: 426.00006
+  dtps: 3.05866
   hps: 43.68278
  }
 }
@@ -1452,8 +1452,8 @@ dps_results: {
  key: "TestDpsWarrior-AllItems-Magister'sRegalia"
  value: {
   dps: 487.03126
-  tps: 425.1747
-  dtps: 3.07602
+  tps: 425.16086
+  dtps: 3.05866
   hps: 44.03861
  }
 }
