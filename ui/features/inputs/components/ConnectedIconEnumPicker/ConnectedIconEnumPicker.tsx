@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 import { useConnectedField } from '../../hooks/useConnectedField';
 import { useHideZeroRestore } from '../../hooks/useHideZeroRestore';
-import { keptTooltipOf } from '../../input';
+import { keptTooltipOf, overwrittenOf } from '../../input';
 import type { IconEnumPickerConfig, IconEnumValueConfig } from './types';
 import { iconEnumPickerShown, iconEnumValues, valuePicked } from './utils';
 
@@ -74,10 +74,7 @@ export const ConnectedIconEnumPicker = <ModObject, T>({ modObject, config, testI
 				wowhead: buffDatasets[index],
 				hidden: !shows(valueConfig),
 				...(openings > 0 && shows(valueConfig) && !config.equals(valueConfig.value, config.zeroValue)
-					? {
-							overwrittenTooltip: config.overwrittenTooltip?.(modObject, valueConfig.value),
-							overwrittenPartly: config.overwrittenPartly?.(modObject, valueConfig.value),
-						}
+					? overwrittenOf(config, modObject, valueConfig.value)
 					: undefined),
 			}))}
 			equals={config.equals}
@@ -85,8 +82,7 @@ export const ConnectedIconEnumPicker = <ModObject, T>({ modObject, config, testI
 			backupIcon={backupIcon}
 			tooltip={config.tooltip}
 			keptTooltip={keptTooltipOf(config, modObject, value)}
-			overwrittenTooltip={config.overwrittenTooltip?.(modObject, value)}
-			overwrittenPartly={config.overwrittenPartly?.(modObject, value)}
+			{...overwrittenOf(config, modObject, value)}
 			direction={config.direction}
 			numColumns={typeof config.numColumns === 'function' ? config.numColumns(modObject) : config.numColumns}
 			onOpenChange={open => {

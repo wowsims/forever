@@ -91,7 +91,7 @@ export const IconSwatch = ({
 	return (
 		<>
 			{box}
-			{/* A badge's tooltip keeps its line breaks: an overwritten one names each source on a line of its own. */}
+			{/* A badge's tooltip keeps its line breaks. */}
 			<Tooltip id={tooltipId} className="whitespace-pre-line" />
 		</>
 	);

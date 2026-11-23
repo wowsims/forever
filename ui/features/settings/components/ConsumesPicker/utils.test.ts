@@ -753,19 +753,15 @@ describe('consumeConfigs on picks that add nothing', () => {
 		// miscellaneous row, undefined unless it is picked.
 		const shownAs = (id: number) => {
 			const toggle = misc(configs).find(config => config.consumable.id === id);
-			if (toggle) {
-				return toggle.getValue(player)
-					? { tooltip: toggle.overwrittenTooltip!(player, true), partly: toggle.overwrittenPartly!(player, true) }
-					: undefined;
-			}
+			if (toggle) return toggle.getValue(player) ? toggle.overwritten!(player, true) : undefined;
 			const config = configs.elixirs.find(group => iconEnumValues(group, player).some(value => value.value === id))!;
 			const value = config.getValue(player);
-			return value === id ? { tooltip: config.overwrittenTooltip!(player, value), partly: config.overwrittenPartly!(player, value) } : undefined;
+			return value === id ? config.overwritten!(player, value) : undefined;
 		};
 		const overwrittenBy = (id: number) => shownAs(id)?.tooltip;
-		const partly = (id: number) => shownAs(id)?.partly;
+		const partly = (id: number) => shownAs(id)?.partly ?? false;
 		const [strengthScrolls, intellectScrolls] = configs.scrolls;
-		const scrollOverwrittenBy = (scrolls = strengthScrolls) => scrolls.overwrittenTooltip!(player, scrolls.getValue(player));
+		const scrollOverwrittenBy = (scrolls = strengthScrolls) => scrolls.overwritten!(player, scrolls.getValue(player))?.tooltip;
 		const intellectScrollOverwrittenBy = () => scrollOverwrittenBy(intellectScrolls);
 		return { player, state, configs, groupNamed, overwrittenBy, partly, scrollOverwrittenBy, intellectScrollOverwrittenBy };
 	};
@@ -852,31 +848,28 @@ describe('consumeConfigs on picks that add nothing', () => {
 	it("answers for each option of a group as if it were picked in place of the group's pick", () => {
 		const { player, state, groupNamed } = picking([250350, 13452]);
 		const [strength, agility, crit] = ['Strength', 'Agility', 'Critical Strike'].map(groupNamed);
-		expect(agility.overwrittenTooltip!(player, 9187)).toBe('Agility overwritten by Elixir of the Mongoose');
-		expect(agility.overwrittenPartly!(player, 9187)).toBe(false);
-		expect(strength.overwrittenTooltip!(player, 9206)).toBeUndefined();
-		expect(strength.overwrittenTooltip!(player, 250350)).toBe('Agility overwritten by Elixir of the Mongoose');
-		expect(strength.overwrittenPartly!(player, 250350)).toBe(true);
-		expect(crit.overwrittenTooltip!(player, 250351)).toBeUndefined();
-		expect(strength.overwrittenTooltip!(player, 0)).toBeUndefined();
+		expect(agility.overwritten!(player, 9187)).toEqual({ tooltip: 'Agility overwritten by Elixir of the Mongoose', partly: false });
+		expect(strength.overwritten!(player, 9206)).toBeUndefined();
+		expect(strength.overwritten!(player, 250350)).toEqual({ tooltip: 'Agility overwritten by Elixir of the Mongoose', partly: true });
+		expect(crit.overwritten!(player, 250351)).toBeUndefined();
+		expect(strength.overwritten!(player, 0)).toBeUndefined();
 		expect(state.consumes.elixirIds).toEqual([250350, 13452]);
 
 		const grizzly = picking([250351]);
-		expect(grizzly.groupNamed('Strength').overwrittenTooltip!(grizzly.player, 9206)).toBe('Strength overwritten by Elixir of the Grizzly');
-		expect(grizzly.groupNamed('Strength').overwrittenTooltip!(grizzly.player, 12451)).toBeUndefined();
-		expect(grizzly.groupNamed('Strength').overwrittenTooltip!(grizzly.player, 250350)).toBe('Strength overwritten by Elixir of the Grizzly');
+		expect(grizzly.groupNamed('Strength').overwritten!(grizzly.player, 9206)?.tooltip).toBe('Strength overwritten by Elixir of the Grizzly');
+		expect(grizzly.groupNamed('Strength').overwritten!(grizzly.player, 12451)).toBeUndefined();
+		expect(grizzly.groupNamed('Strength').overwritten!(grizzly.player, 250350)?.tooltip).toBe('Strength overwritten by Elixir of the Grizzly');
 	});
 
 	it('badges a miscellaneous toggle that counts with the elixirs as if it were picked, before it is', () => {
 		const { player, configs } = picking([247755, 250351]);
 		const toggleOf = (id: number) => misc(configs).find(toggle => toggle.consumable.id === id)!;
 		expect(toggleOf(5206).getValue(player)).toBe(false);
-		expect(toggleOf(5206).overwrittenTooltip!(player, false)).toBe('Bonus Weapon Damage overwritten by Elixir of Minor Force');
-		expect(toggleOf(5206).overwrittenPartly!(player, false)).toBe(false);
-		expect(toggleOf(12451).overwrittenTooltip!(player, false)).toBeUndefined();
+		expect(toggleOf(5206).overwritten!(player, false)).toEqual({ tooltip: 'Bonus Weapon Damage overwritten by Elixir of Minor Force', partly: false });
+		expect(toggleOf(12451).overwritten!(player, false)).toBeUndefined();
 		expect(
 			misc(configs)
-				.filter(toggle => toggle.overwrittenTooltip)
+				.filter(toggle => toggle.overwritten)
 				.map(toggle => toggle.consumable.id),
 		).toEqual([12451, 5206]);
 	});

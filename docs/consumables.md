@@ -446,59 +446,45 @@ the conjured item, `ConsumableTypePotion` the potion pickers, then the flask, `C
 food, the explosive, the imbues and, beside each hand's imbue, `ConsumableTypeWeaponImbue` the weapon
 imbue. An ungrouped consumable with a `holiday` goes into the Holiday row. A consumable with an [exclusive group](#exclusive-groups) goes into
 its group's picker instead (`makeConsumableGroupInput`), which writes at most one of the group's ids:
-into `elixir_ids` for an elixir, into `extra_ids` for anything else. It reads its pick from either
-list, and so does a toggle (`makeIdListInput`), so a saved setting with Juju Might among the elixir
-ids loads as picked. Juju Power, Juju Might and Bogling Root, ungrouped, are toggles in the
-Miscellaneous row's Offensive menu. The pickers are labelled with `group_name`. A group holding an elixir goes into the
-Flask & Elixirs row after the flask, the groups in the order the spec's character stats panel shows
-the stat every consumable of the group grants (`inDisplayOrder`, which reads `STAT_GROUPS` and the
-spec's `displayStats`): the panel's headed groups first, then its Health, and last the groups whose
-stat the spec does not show, in key order. Either kind of armor counts as the panel's Armor. A warrior
-sees Strength, Agility, Attack Power and the Critical Strike group where melee crit sits; a mage sees
-Intellect, Spirit, Spell Power, the Critical Strike group where spell crit sits, and Strength and
-Agility last. The other rows order their groups by `group_key`: a group holding a scroll as a
-column of the Scrolls row, one holding a holiday consumable in the Holiday row
+into `elixir_ids` for an elixir, into `extra_ids` for anything else, and reads its pick from either
+list. A toggle (`makeIdListInput`) picks into `extra_ids` and reads the elixir ids as well, so a saved
+setting with Juju Might among the elixir ids loads as picked. Juju Power, Juju Might and Bogling Root,
+ungrouped, are toggles in the Miscellaneous row's Offensive menu. The pickers are labelled with
+`group_name`. A group holding an elixir goes into the Flask & Elixirs row after the flask, the groups in
+the order the spec's character stats panel shows the stat every consumable of the group grants
+(`inDisplayOrder`, which reads `STAT_GROUPS` and the spec's `displayStats`): the panel's headed groups
+first, then its Health, and last the groups whose stat the spec does not show, in key order. Either
+kind of armor counts as the panel's Armor. A warrior sees Strength, Agility, Attack Power and the
+Critical Strike group where melee crit sits. The other rows order their groups by `group_key`: a group
+holding a scroll as a column of the Scrolls row, one holding a holiday consumable in the Holiday row
 (Hit food), one holding a food after the food and the chili (Rum), and the rest at the head of the
 Miscellaneous row (Zanza). A group, a column or a row that offers the player nothing hides. The Flask &
 Elixirs row keeps its label on one line.
 
-A pick another overwrites carries a corner badge whose tooltip names what overwrites it
-(`overwrittenTooltips` in `ui/features/settings/model/consumables.ts`). It reads the picks as the sim
-selects them, the first of each group. An open menu badges its options the same way, each as if it
-were picked in place of the group's pick, so the player sees what a pick would add before making it. A pick that adds nothing is dimmed as well, and the player can
-still clear it. An elixir pick adds nothing where the other picks and the raid buffs that overwrite
-the elixirs grant at least as much of every stat and percent it grants, read off `stats` and
-`pseudo_stats`, so its 2% crit counts as well (`elixirOverwrites`, R-0053). Juju Power, Juju Might and
-Bogling Root count among the picks (`countsWithTheElixirs` reads `counts_with_elixirs`), and their
-toggles carry the same badge, the menu's before a pick as if picked, the Offensive icon's for the
-consumable it shows. Of two picks that grant the same, the one later in the spec's lists
-(the elixir ids, then the extra ids) is dimmed, and a pick that grants neither never is. Elixir of
-Ferocity 250350 beside Elixir of Greater Agility 9187 and Elixir of the Grizzly 250351 is dimmed, and
-so is Elixir of Greater Strength 9206 beside the Grizzly, which grants as much Strength and a crit
-besides. Under Arcane Intellect an Intellect elixir is dimmed, and under Power Word: Fortitude beside
-the Grizzly, Elixir of Brute Force 13453 is.
+A pick another overwrites carries a corner badge (`overwrittenTooltips` in
+`ui/features/settings/model/consumables.ts`). Its tooltip has one line per pick or raid buff that
+outbids it, naming the stats the pick loses there by the character stats panel's labels, the three crit
+percents as one Crit (`lostTo`). A pick that adds nothing is dimmed as well, and one that keeps some of
+what it grants shows the badge on a lit swatch; the player can clear either. An open menu badges its
+options the same way, each as if picked in place of the group's pick.
 
-A pick that loses some of what it grants and keeps the rest shows the badge on a lit swatch. Either
-way the tooltip has one line per pick or raid buff that outbids it, naming the stats it loses there
-by the character stats panel's labels (`lostTo`): Elixir of Ferocity beside Elixir of the Mongoose
-13452 reads "Agility overwritten by Elixir of the Mongoose", and beside Elixir of Greater Agility and
-the Grizzly "Strength overwritten by Elixir of the Grizzly" over "Agility overwritten by Elixir of
-Greater Agility". A raid buff outbids an equal amount, and so does a pick earlier in the lists; the
-three crit percents read as one Crit. The Grizzly beside Juju Power loses its Strength, Elixir of the
-Sages 13447 under Prayer of Spirit its Spirit, a crit elixir under Moonkin Aura or Leader of the Pack
-its Crit, and Bogling Root beside Elixir of Minor Force everything it grants.
+An elixir pick reads as the sim counts it (R-0053): the first pick of each group, and each stat and
+percent at the largest amount among the picks and the raid buffs that overwrite the elixirs
+(`elixirOverwrites`). A consumable whose `counts_with_elixirs` is set counts among the picks
+(`countsWithTheElixirs`), and its toggle carries the same badge. Of two picks that grant the same, the
+one later in the spec's lists (the elixir ids, then the extra ids) is dimmed. A raid buff outbids an
+equal amount, and so does a pick earlier in the lists. A pick granting nothing the picker reads is never
+marked. Elixir of Ferocity 250350 beside Elixir of the Mongoose 13452 shows "Agility overwritten by
+Elixir of the Mongoose" on a lit swatch.
 
-A scroll is dimmed while a raid buff that is on grants at least as much of its stat (`overwritesOf`),
-and never by an elixir. The raid buffs it reads are the ones the buff generator writes into
-`GENERATED_OVERWRITING_BUFFS` (`ui/features/settings/model/buffs_debuffs_auto_gen.ts`), with the
-amounts the raid input applies: Arcane Intellect, Prayer of Spirit and Power Word: Fortitude overwrite
-the scrolls and the elixirs, and Moonkin Aura and Leader of the Pack the elixirs' crit. Arcane
-Intellect counts as on for a mage whatever the input says, since `AddRaidBuffs` in `sim/mage/mage.go`
-turns it on for every mage, and `AddRaidBuffs` in `sim/druid/druid.go` turns on Moonkin Aura for a
-Balance druid with Moonkin Form and Leader of the Pack for a Feral cat or bear with the talent, so
-those count as on too (`turnedOnBySim`). Under Mark of the Wild, which stacks with the scrolls and the
-elixirs, nothing is marked. The elixir and scroll pickers follow the raid buffs and the talents
-(`OVERWRITTEN_PICKER_FIELDS`), so turning one on marks what it overwrites.
+A scroll stacks with the elixirs, so its badge reads only the raid buffs that are on and grant at least
+as much of its stat. Both read the raid buffs the buff generator writes into `GENERATED_OVERWRITING_BUFFS`
+(`ui/features/settings/model/buffs_debuffs_auto_gen.ts`), each with the amounts the raid input applies
+and whether it overwrites the scrolls, the elixirs or both. A raid buff the sim turns on whatever the
+input says counts as on (`turnedOnBySim`): Arcane Intellect for every mage (`AddRaidBuffs` in
+`sim/mage/mage.go`), and Moonkin Aura and Leader of the Pack for the druids that have them
+(`sim/druid/druid.go`). The inputs with a badge follow the raid buffs and the talents
+(`OVERWRITTEN_PICKER_FIELDS`).
 
 A potion has three pickers, Offensive, Defensive and Resource, and each offers the
 potions whose `potion_classes` hold its class. `AddPotionClasses` (`tools/database/consumable_potion_classes.go`) fills

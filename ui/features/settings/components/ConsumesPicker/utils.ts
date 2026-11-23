@@ -35,8 +35,7 @@ export interface ConsumeConfigs {
 	flask: ConsumeConfig;
 	// One pick per exclusive group holding an elixir, in the order the spec's character stats panel shows the group's stat.
 	elixirs: Array<ConsumeConfig>;
-	// One pick per exclusive group, in the order of the groups' keys: those holding a scroll and no elixir, and the
-	// rest.
+	// One pick per exclusive group holding a scroll and no elixir, in the order of the groups' keys.
 	scrolls: Array<ConsumeConfig>;
 	// Those holding a food, picked beside the food (Rum), and those holding none (Zanza).
 	foodGroups: Array<ConsumeConfig>;
@@ -131,10 +130,7 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 	const groupInputs = (row: GroupRow) => groupsIn(row).map(groupInput);
 	const elixirGroups = inDisplayOrder(groupsIn('elixirs'), player.getSpecConfig().displayStats ?? []);
 	const scrollGroups = groupsIn('scrolls');
-	const overwritten = overwrittenTooltips(
-		all.filter(countsWithTheElixirs),
-		scrollGroups.flat().filter(consumable => consumable.type === ConsumableType.ConsumableTypeScroll),
-	);
+	const overwritten = overwrittenTooltips(all.filter(countsWithTheElixirs), scrollGroups.flat());
 	// A miscellaneous consumable whose stats count with the elixirs' carries their badge, and follows the raid buffs too.
 	const miscToggle = (consumable: Consumable): ConsumeToggle => {
 		const toggle = makeIdListInput(consumable, relevance);
@@ -175,10 +171,9 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 		elixirs: elixirGroups.map(group => ({
 			...groupInput(group),
 			storeField: OVERWRITTEN_PICKER_FIELDS,
-			overwrittenTooltip: overwritten.elixir,
-			overwrittenPartly: overwritten.elixirPartly,
+			overwritten: overwritten.elixir,
 		})),
-		scrolls: scrollGroups.map(group => ({ ...groupInput(group), storeField: OVERWRITTEN_PICKER_FIELDS, overwrittenTooltip: overwritten.scroll })),
+		scrolls: scrollGroups.map(group => ({ ...groupInput(group), storeField: OVERWRITTEN_PICKER_FIELDS, overwritten: overwritten.scroll })),
 		foodGroups: groupInputs('food'),
 		miscGroups: groupInputs('miscellaneous'),
 		food: input(ConsumableSlot.Food, { consumesFieldName: 'foodId' }),

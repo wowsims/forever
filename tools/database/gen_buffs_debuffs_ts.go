@@ -246,10 +246,11 @@ func overwritesConsumables(row ResolvedBuff) bool {
 	return row.Category == core.StatBuffCategory || row.ElixirCategory != ""
 }
 
-// The pseudo-stats the consumables list a crit percent by: physical as melee and ranged, spell as spell.
-var critPseudoStats = map[stats.Stat][]proto.PseudoStat{
-	stats.PhysicalCritPercent: {proto.PseudoStat_PseudoStatMeleeCritPercent, proto.PseudoStat_PseudoStatRangedCritPercent},
-	stats.SpellCritPercent:    {proto.PseudoStat_PseudoStatSpellCritPercent},
+// The pseudo-stats the consumables list a crit percent by, keyed by the applied kind: physical as melee and ranged,
+// spell as spell.
+var critPseudoStats = map[string][]proto.PseudoStat{
+	"stat " + stats.PhysicalCritPercent.StatName(): {proto.PseudoStat_PseudoStatMeleeCritPercent, proto.PseudoStat_PseudoStatRangedCritPercent},
+	"stat " + stats.SpellCritPercent.StatName():    {proto.PseudoStat_PseudoStatSpellCritPercent},
 }
 
 // The flat stats and crit percents the row's parse attaches, at the talent points 0 the raid input
@@ -268,13 +269,9 @@ func overwritingBuffEntry(row ResolvedBuff, input *tsBuffInput) (tsOverwritingBu
 			}
 		}
 	}
-	for _, crit := range []stats.Stat{stats.PhysicalCritPercent, stats.SpellCritPercent} {
-		for _, applied := range row.Applied {
-			if applied.Kind == "stat "+crit.StatName() {
-				for _, pseudoStat := range critPseudoStats[crit] {
-					entry.PseudoStats = append(entry.PseudoStats, tsStatAmount{Stat: pseudoStat.String(), Amount: amount(applied)})
-				}
-			}
+	for _, applied := range row.Applied {
+		for _, pseudoStat := range critPseudoStats[applied.Kind] {
+			entry.PseudoStats = append(entry.PseudoStats, tsStatAmount{Stat: pseudoStat.String(), Amount: amount(applied)})
 		}
 	}
 	if len(entry.Stats) == 0 && len(entry.PseudoStats) == 0 {

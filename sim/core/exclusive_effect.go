@@ -18,9 +18,8 @@ const (
 const StatBuffCategory = "StatBuff"
 
 // The categories the elixirs bid in: each stat counts only its strongest elixir, and the crit only one
-// elixir's. Arcane Intellect, Prayer of Spirit and Power Word: Fortitude bid their stat in ElixirStat
-// as well, and Moonkin Aura and Leader of the Pack their crit in ElixirCrit, without counting there,
-// so an elixir that grants no more adds nothing under them (R-0053).
+// elixir's. A raid buff whose manifest row names an ElixirCategory bids its stats there as well without
+// counting (spelldata.Overwrites), so an elixir that grants no more adds nothing under it (R-0053).
 const (
 	ElixirStatCategory = "ElixirStat"
 	ElixirCritCategory = "ElixirCrit"

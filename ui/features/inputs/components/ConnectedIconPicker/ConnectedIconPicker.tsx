@@ -3,7 +3,7 @@ import { IconPicker } from '@ui-kit/IconPicker';
 
 import { useConnectedField } from '../../hooks/useConnectedField';
 import { useHideZeroRestore } from '../../hooks/useHideZeroRestore';
-import { keptTooltipOf } from '../../input';
+import { keptTooltipOf, overwrittenOf } from '../../input';
 import { valuePicked } from '../ConnectedIconEnumPicker/utils';
 import type { IconPickerConfig } from './types';
 
@@ -38,8 +38,7 @@ export const ConnectedIconPicker = <ModObject, ValueType>({ modObject, config, t
 			improvedIcon={improvedIcon}
 			improvedIcon2={improvedIcon2}
 			keptTooltip={keptTooltipOf(config, modObject, value)}
-			overwrittenTooltip={config.overwrittenTooltip?.(modObject, value)}
-			overwrittenPartly={config.overwrittenPartly?.(modObject, value)}
+			{...overwrittenOf(config, modObject, value)}
 			value={Number(value)}
 			onChange={n => setValue(toSource(n))}
 			disabled={disabled}

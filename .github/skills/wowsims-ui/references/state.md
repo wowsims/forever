@@ -164,16 +164,16 @@ an input holds a pick. The adapters derive the kept tooltip, the active input an
 inside a `useStoreSubscribe` read: the stat filter hands in a new config when its stats change, and a read cached in
 the snapshot would answer from the old config.
 
-**Overwritten selections.** The icon and icon-enum configs may implement `OverwrittenInput.overwrittenTooltip(obj,
-value)` (`ui/features/inputs/input.ts`), which returns a tooltip while another selection overwrites this one and
-undefined otherwise, and `overwrittenPartly(obj, value)`, true while the selection still adds something. The adapters
-pass both to the kit's `overwrittenTooltip` and `overwrittenPartly` props: the icon-enum adapter for the value it
+**Overwritten selections.** The icon and icon-enum configs may implement `OverwrittenInput.overwritten(obj, value)`
+(`ui/features/inputs/input.ts`), which returns `{ tooltip, partly }` while another selection overwrites this one,
+`partly` true while the selection still adds something, and undefined otherwise. The adapters spread `overwrittenOf`
+into the kit's `overwrittenTooltip` and `overwrittenPartly` props: the icon-enum adapter for the value it
 shows and, once its menu has opened, for each option on `IconEnumOption`, as if that option were selected, and the
 multi-icon adapter for the input its trigger shows. `IconSwatch` shows a corner badge of its own with the tooltip,
 and unless the selection is overwritten only partly it dims the swatch the way it dims a kept one, with a
 `data-overwritten` attribute on the swatch box. The selection stays a pick the player can clear. The consumables
-picker sets them on the elixir and scroll picks and on the miscellaneous toggles that count with the elixirs
-(`overwrittenTooltips` in `ui/features/settings/model/consumables.ts`). The adapters read them in the render body,
+picker sets it on the elixir and scroll picks and on the miscellaneous toggles that count with the elixirs
+(`overwrittenTooltips` in `ui/features/settings/model/consumables.ts`). The adapters read it in the render body,
 like the kept tooltip, so they follow every notification of the fields the input subscribes to.
 
 **Text fields.** `TextField` (`ui/ui-kit/TextField/TextField.tsx`) and its presets hold an uncommitted edit in
