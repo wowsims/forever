@@ -96,6 +96,11 @@ is registered. Items and enchants work differently:
   after the hand-written ones, so the generator reads `core.ItemSets()` as the hand-written list, and both
   constructors skip an id a hand-written set already holds. A set written by hand leaves the generated file on the
   next run, so it carries every bonus of the set, the generated ones included.
+- **The gear tab's set bonus notices are kept by hand.** `PARTLY_IMPLEMENTED_SET_BONUSES` and `UNTESTED_SET_BONUSES`
+  in `ui/features/gear/item_notices.tsx` key a notice by set id and piece count. Its English text sits under
+  `gear_tab.item_notices` in `assets/locales/en/translation.json`, and its key in `schemas/translation.schema.json`.
+  Nothing checks a notice against the sim, so a change that completes a bonus, or settles the in-game question a notice
+  names, removes it from all three files.
 - **An item that summons a creature registers its pet with `core.NewItemPet`.** `AddPet` panics once the environment
   is set, and the item effects run after that, so `NewAgent` builds the pet with its owner, once for an item worn or
   carried in the item swap set by a class that can use it (`sim/core/item_effects.go`). The item's effect finds the

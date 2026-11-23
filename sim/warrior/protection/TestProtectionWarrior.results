@@ -2702,10 +2702,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-WildheartRaiment"
  value: {
-  dps: 484.30292
-  tps: 1525.30435
-  dtps: 421.52848
-  hps: 39.66472
+  dps: 480.10302
+  tps: 1521.96148
+  dtps: 421.47605
+  hps: 39.68167
  }
 }
 dps_results: {

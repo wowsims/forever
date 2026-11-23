@@ -666,7 +666,6 @@
 			"ingame_validation_needed": "In-game validation needed.",
 			"partial_set_bonus": {
 				"grovekeeper_eclipse_4": "only spell damage against Demons is raised, not the damage of melee attacks.",
-				"wildheart_raiment_5": "only the mana on a spell cast is modelled, not the energy on a melee attack or the rage when struck by one.",
 				"implements_of_unspoken_names_3": "the extra 5% damage on Firebolt and Lash of Pain is not modelled.",
 				"dreadnaughts_battlegear_4": "Taunt and Challenging Shout always hit in the sim, so the bonus changes nothing.",
 				"dreadnaughts_battlegear_8": "only heals a healer casts in the sim take the bonus, not the incoming healing the tank sim models.",

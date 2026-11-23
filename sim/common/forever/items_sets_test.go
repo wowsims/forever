@@ -3,6 +3,7 @@
 package forever_test
 
 import (
+	"fmt"
 	"maps"
 	"math"
 	"strings"
@@ -209,11 +210,7 @@ func completeCast(t *testing.T, sim *core.Simulation, character *core.Character,
 // procs per minute, a cast priced on its time and at least castTimeFloor.
 func wantCastTimeRate(t *testing.T, name string, rowID int32, castTime time.Duration, casts int, procs float64) {
 	t.Helper()
-	want := castTimeChance(t, rowID, castTime)
-	mean, deviation := want*float64(casts), math.Sqrt(want*(1-want)*float64(casts))
-	if math.Abs(procs-mean) > 4*deviation {
-		t.Errorf("%s: %d casts of %v procced it %v times, want about %.0f", name, casts, castTime, procs, mean)
-	}
+	wantRate(t, fmt.Sprintf("%s: casts of %v", name, castTime), casts, castTimeChance(t, rowID, castTime), procs)
 }
 
 // Lightforge Armor's 5-piece and the Soulforge Armor reissue's 4-piece share 450625, The Elements' 5-piece
@@ -311,6 +308,12 @@ func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.
 	}
 }
 
+// Five Wildheart Raiment pieces.
+var wildheartPieces = map[proto.ItemSlot]int32{
+	proto.ItemSlot_ItemSlotHead: 16720, proto.ItemSlot_ItemSlotShoulder: 16718, proto.ItemSlot_ItemSlotChest: 16706,
+	proto.ItemSlot_ItemSlotWrist: 16714, proto.ItemSlot_ItemSlotHands: 16717,
+}
+
 // Wildheart Raiment's 5-piece 450608 restores 27782's mana on spell casts at the row's procs per minute, a
 // cast priced on the time it took and at least castTimeFloor.
 func TestWildheartRaimentRestoresManaOnCastsPricedOnTheirTime(t *testing.T) {
@@ -318,10 +321,7 @@ func TestWildheartRaimentRestoresManaOnCastsPricedOnTheirTime(t *testing.T) {
 	if mana <= 0 {
 		t.Fatal("27782 restores no mana, nothing to check")
 	}
-	sim, druid := itemWearerWithEquipment(t, proto.Class_ClassDruid, setPieces(map[proto.ItemSlot]int32{
-		proto.ItemSlot_ItemSlotHead: 16720, proto.ItemSlot_ItemSlotShoulder: 16718, proto.ItemSlot_ItemSlotChest: 16706,
-		proto.ItemSlot_ItemSlotWrist: 16714, proto.ItemSlot_ItemSlotHands: 16717,
-	}))
+	sim, druid := itemWearerWithEquipment(t, proto.Class_ClassDruid, setPieces(wildheartPieces))
 
 	const casts = 6000
 	for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
@@ -335,6 +335,194 @@ func TestWildheartRaimentRestoresManaOnCastsPricedOnTheirTime(t *testing.T) {
 		wantCastTimeRate(t, "Wildheart Raiment 5P", 450608, castTime, casts, procs)
 		if got := after.Gain - before.Gain; got != procs*mana {
 			t.Errorf("%v procs restored %v mana, want the row's %v each", procs, got, mana)
+		}
+	}
+}
+
+// The Feralheart Raiment reissue's melee pieces, in the order the tests put them on.
+var feralheartPieceList = []struct {
+	slot proto.ItemSlot
+	id   int32
+}{
+	{proto.ItemSlot_ItemSlotHead, 226792}, {proto.ItemSlot_ItemSlotShoulder, 226790},
+	{proto.ItemSlot_ItemSlotChest, 226795}, {proto.ItemSlot_ItemSlotWrist, 226788},
+	{proto.ItemSlot_ItemSlotHands, 226793},
+}
+
+// The first n Feralheart Raiment melee pieces.
+func feralheartPieces(n int) map[proto.ItemSlot]int32 {
+	pieces := map[proto.ItemSlot]int32{}
+	for _, p := range feralheartPieceList[:n] {
+		pieces[p.slot] = p.id
+	}
+	return pieces
+}
+
+// The bear request in four Feralheart melee pieces.
+func feralheartBearRequest() *proto.RaidSimRequest {
+	req := bearItemRequest()
+	for slot, id := range feralheartPieces(4) {
+		req.Raid.Parties[0].Players[0].Equipment.Items[slot].Id = id
+	}
+	return req
+}
+
+// Fails unless procs is within four standard deviations of what rolls rolls at chance give.
+func wantRate(t *testing.T, what string, rolls int, chance, procs float64) {
+	t.Helper()
+	mean, deviation := chance*float64(rolls), math.Sqrt(chance*(1-chance)*float64(rolls))
+	if math.Abs(procs-mean) > 4*deviation {
+		t.Errorf("%s procced it %v times in %d, want about %.0f", what, procs, rolls, mean)
+	}
+}
+
+// The Feralheart Raiment reissue's 4-piece is Wildheart Raiment's 5-piece proc 450608: a landed white swing
+// rolls the row's procs per minute on the weapon's speed and restores 27784's ticks as energy over its
+// duration, in Cat Form alone. A melee ability rolls nothing. The row copy's rate is raised so a thousand
+// swings tell the rate apart.
+func TestFeralheartRaimentRestoresEnergyOverTimeOnSwings(t *testing.T) {
+	row := editSpellRow(t, 450608, func(s *spelldata.Spell) { s.RPPM *= 12 })
+	energy := spelldata.MustFind(27784)
+	tick := energy.ProcEnergizeEffect()
+	ticks := float64(energy.Duration() / tick.Period())
+	if row.RPPM <= 0 || tick.Average() <= 0 || ticks < 2 {
+		t.Fatal("450608 carries no rate, or 27784 restores nothing or ticks once, nothing to check")
+	}
+	sim, bear := bearFromRequest(t, feralheartBearRequest())
+	wearer := &bear.Character
+	spell := wearer.GetSpell(core.ActionID{SpellID: energy.ID})
+	if spell == nil {
+		t.Fatal("the 4-piece registers no 27784")
+	}
+	casts := func() int { return int(spell.SpellMetrics[wearer.UnitIndex].Casts) }
+
+	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, Unit: &wearer.Unit}
+	for range 100 {
+		dealHit(t, sim, wearer, special)
+	}
+	if got := casts(); got != 0 {
+		t.Errorf("melee abilities put 27784 up %d times, want only white swings to roll", got)
+	}
+	const swings = 1000
+	for range swings {
+		dealHit(t, sim, wearer, meleeSwing(&wearer.Unit))
+	}
+	wantRate(t, "landed white swings, priced on the weapon's speed,", swings,
+		float64(row.RPPM)*wearer.AutoAttacks.MH().SwingSpeed/60, float64(casts()))
+
+	// The bear's procs fill no bar.
+	stepTo(t, sim, sim.CurrentTime+energy.Duration()+time.Millisecond)
+	if got := spellGain(wearer, energy.ID); got.Events != 0 {
+		t.Errorf("out of Cat Form 27784 restored %v energy over %d ticks, want none", got.Gain, got.Events)
+	}
+
+	bear.ClearForm(sim)
+	bear.CatFormAura.Activate(sim)
+	before := casts()
+	hitUntil(t, func() { dealHit(t, sim, wearer, meleeSwing(&wearer.Unit)) }, func() bool { return casts() > before })
+	stepTo(t, sim, sim.CurrentTime+energy.Duration()+time.Millisecond)
+	if got := spellGain(wearer, energy.ID); got.Events != int32(ticks) || got.Gain != ticks*tick.Average() {
+		t.Errorf("in Cat Form a proc restored %v energy over %d ticks, want the row's %v over %v", got.Gain, got.Events, ticks*tick.Average(), ticks)
+	}
+}
+
+// The 4-piece's proc 450608 also restores 27783's rage on a landed melee swing taken, at the row's procs per
+// minute on the attacker's time between its own swings, and only to a bear. A dodged swing, a melee ability
+// taken and a swing dealt restore none. The row copy's rate is raised so a thousand hits tell the rate
+// apart.
+func TestFeralheartRaimentRestoresRageWhenStruck(t *testing.T) {
+	row := editSpellRow(t, 450608, func(s *spelldata.Spell) { s.RPPM *= 18 })
+	rage := spelldata.MustFind(27783).EffectN(1).Tenths()
+	if row.RPPM <= 0 || rage <= 0 {
+		t.Fatal("450608 carries no rate or 27783 restores no rage, nothing to check")
+	}
+	for _, interval := range []float64{1.5, 3} {
+		req := feralheartBearRequest()
+		req.Encounter.Targets = []*proto.Target{{Name: "target", Level: 60, SwingSpeed: interval}}
+		sim, bear := bearFromRequest(t, req)
+		wearer := &bear.Character
+		enemy := sim.Encounter.ActiveTargetUnits[0]
+		enemy.AutoAttacks.CancelAutoSwing(sim)
+		restored := func() *proto.ResourceMetrics { return spellGain(wearer, 27783) }
+
+		special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, Unit: enemy}
+		for range 100 {
+			dodgeSwing(t, sim, wearer, enemy)
+			takeHit(t, sim, wearer, special)
+			dealHit(t, sim, wearer, meleeSwing(&wearer.Unit))
+		}
+		if got := restored().Events; got != 0 {
+			t.Errorf("%v s attacker: dodged swings, melee abilities taken and swings dealt restored rage %d times, want none", interval, got)
+		}
+		const hits = 1000
+		for range hits {
+			takeHit(t, sim, wearer, meleeSwing(enemy))
+		}
+		got := restored()
+		wantRate(t, fmt.Sprintf("%v s attacker: landed swings taken, priced on the attacker's interval,", interval), hits,
+			float64(row.RPPM)*interval/60, float64(got.Events))
+		if got.Gain != float64(got.Events)*rage {
+			t.Errorf("%v s attacker: %d procs restored %v rage, want the row's %v each", interval, got.Events, got.Gain, rage)
+		}
+
+		bear.ClearForm(sim)
+		bear.CatFormAura.Activate(sim)
+		before := got.Events
+		for range 100 {
+			takeHit(t, sim, wearer, meleeSwing(enemy))
+		}
+		if after := restored().Events; after != before {
+			t.Errorf("%v s attacker: a cat restored rage %d times, want none", interval, after-before)
+		}
+	}
+}
+
+// Wild Heart 1302708, Wildheart Raiment's 4-piece and the Feralheart Raiment reissue's 5-piece, raises
+// movement speed by 1302707's percent for its duration off a landed hit taken, a dodged swing excluded,
+// and then rests for the row's cooldown. The row copy procs on every hit.
+func TestWildHeartSpeedsTheWearerWhenStruck(t *testing.T) {
+	row := editSpellRow(t, 1302708, func(s *spelldata.Spell) { s.ProcChance = 100 })
+	buffRow := spelldata.MustFind(1302707)
+	speed := 1 + buffRow.EffectN(1).Percent()
+	if row.ICD() <= 0 || speed <= 1 {
+		t.Fatal("1302708 rests no cooldown or 1302707 raises no speed, nothing to check")
+	}
+	for _, tc := range []struct {
+		name   string
+		pieces map[proto.ItemSlot]int32
+	}{
+		{"Wildheart Raiment 4P", wildheartPieces},
+		{"Feralheart Raiment 5P", feralheartPieces(5)},
+	} {
+		sim, wearer := itemWearerWithEquipment(t, proto.Class_ClassDruid, setPieces(tc.pieces))
+		enemy := sim.Encounter.ActiveTargetUnits[0]
+		proc, buff := wearer.GetAura(tc.name), wearer.GetAuraByID(core.ActionID{SpellID: buffRow.ID})
+		if proc == nil || buff == nil {
+			t.Fatalf("%s registers no Wild Heart", tc.name)
+		}
+		base := wearer.PseudoStats.MovementSpeedMultiplier
+
+		dodgeSwing(t, sim, wearer, enemy)
+		if buff.IsActive() {
+			t.Errorf("%s: a dodged swing put Wild Heart up", tc.name)
+		}
+		takeHit(t, sim, wearer, meleeSwing(enemy))
+		if !buff.IsActive() {
+			t.Fatalf("%s: a landed swing taken on a certain roll put no Wild Heart up", tc.name)
+		}
+		if got := wearer.PseudoStats.MovementSpeedMultiplier; math.Abs(got-base*speed) > 1e-9 {
+			t.Errorf("%s: Wild Heart moves at %v of the speed, want %v", tc.name, got/base, speed)
+		}
+		if buff.Duration != buffRow.Duration() || proc.Icd == nil || proc.Icd.Duration != row.ICD() {
+			t.Errorf("%s: Wild Heart lasts %v and rests %v, want the rows' %v and %v", tc.name, buff.Duration, proc.Icd, buffRow.Duration(), row.ICD())
+		}
+		buff.Deactivate(sim)
+		if got := wearer.PseudoStats.MovementSpeedMultiplier; math.Abs(got-base) > 1e-9 {
+			t.Errorf("%s: after Wild Heart the speed is %v of the base, want all of it", tc.name, got/base)
+		}
+		takeHit(t, sim, wearer, meleeSwing(enemy))
+		if buff.IsActive() {
+			t.Errorf("%s: a hit taken during the cooldown put Wild Heart up again", tc.name)
 		}
 	}
 }
