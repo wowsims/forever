@@ -15,10 +15,10 @@ import { WorkerPool, WorkerProgressCallback } from '../../workers/worker_pool';
 import { BulkSimCandidateTransport, runSingleBulkSimCandidate } from './batch';
 import { ConcurrentBulkSimStageCarryOver, newBulkSimStageCarryOver } from './carry_over';
 import { bulkSimHighStageFloor, resolveBulkSimTopResults, shouldUseSingleStageBulkSim } from './estimate';
-import { appendBulkSimNonFinalists, bulkSimCandidateResultToProto } from './merge';
+import { bulkSimCandidateResultToProto } from './merge';
 import { formatBulkSimStageSummary } from './progress';
 import { bulkSimStageConfigs, runConcurrentBulkSimFinalistStage, runConcurrentBulkSimStage, shouldRunBulkSimStage } from './stage';
-import { bulkSimPairedDpsError, cullBulkSimStage, setBulkSimPairedToBaseline, topBulkSimResults } from './statistics';
+import { appendBulkSimNonFinalists, bulkSimPairedDpsError, cullBulkSimStage, setBulkSimPairedToBaseline, topBulkSimResults } from './statistics';
 import { ConcurrentBulkSimCandidateResult, getBulkSimBaselineGear } from './types';
 
 const makeAndSendBulkSimError = (err: string | ErrorOutcome, onProgress: WorkerProgressCallback): BulkSimResult => {

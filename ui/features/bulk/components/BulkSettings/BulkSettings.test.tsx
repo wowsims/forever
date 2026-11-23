@@ -66,7 +66,7 @@ vi.mock('../../model/run/run', () => ({ runBulkBatch: vi.fn() }));
 // The Drops pick comes off the database and the live gear, which the stub host has none of; the card reads only the count.
 const drops = vi.hoisted(() => ({ picked: [] as number[] }));
 vi.mock('../../hooks/useDropsSetup', () => ({
-	useDropsSetup: () => ({ ready: true, list: { items: drops.picked.map(id => ({ item: { id }, included: true, worn: false })), leftOut: [] } }),
+	useDropsSetup: () => ({ list: { items: drops.picked.map(id => ({ item: { id }, included: true, worn: false })), leftOut: [] } }),
 }));
 // The stub host has none of the raid and player getters the live settings are read from.
 vi.mock('@features/settings/hooks/useCurrentSettings', () => ({ useCurrentSettings: () => null }));

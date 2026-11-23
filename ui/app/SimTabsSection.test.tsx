@@ -25,7 +25,7 @@ vi.mock('@features/bulk/model/run/run', () => ({ runBulkBatch: vi.fn() }));
 // The stub host has none of the raid and player getters the live settings are read from.
 vi.mock('@features/settings/hooks/useCurrentSettings', () => ({ useCurrentSettings: () => null }));
 // The Drops pick reads the database and the live gear, which the stub host has none of.
-vi.mock('@features/bulk/hooks/useDropsSetup', () => ({ useDropsSetup: () => ({ ready: true, list: { items: [], leftOut: [] } }) }));
+vi.mock('@features/bulk/hooks/useDropsSetup', () => ({ useDropsSetup: () => ({ list: { items: [], leftOut: [] } }) }));
 vi.mock('@features/results/components/DetailedResults', () => ({ DetailedResults: () => null }));
 vi.mock('./tabs/GearTabBody', () => ({ GearTabBody: () => null }));
 vi.mock('./tabs/SettingsTabBody', () => ({ SettingsTabBody: () => null }));

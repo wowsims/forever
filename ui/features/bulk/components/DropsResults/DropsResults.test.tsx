@@ -23,7 +23,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DropsResults } from './DropsResults';
 
-vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
+vi.mock('@i18n/config', () => ({ default: { t: (key: string, options?: { z?: string }) => (options?.z ? `${key} ${options.z}` : key) } }));
 vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: 'icon.jpg', name: '', href: '', ready: true }) }));
 const toastAdd = vi.hoisted(() => vi.fn());
 vi.mock('@ui-kit/Toast', () => ({ toastManager: { add: toastAdd } }));
@@ -78,7 +78,7 @@ const mount = ({
 				return this.store.getState().sim.phase;
 			},
 			db: {
-				getAllItems: () => items,
+				getItemById: (id: number) => items.find(item => item.id === id),
 				getZone: (id: number) => ({ name: names.zone(id) }),
 				getNpc: (id: number) => ({ name: names.npc(id) }),
 				getRepFaction: () => undefined,
@@ -164,6 +164,17 @@ describe('DropsResults', () => {
 		expect(resultRows().length).toBeGreaterThan(2);
 	});
 
+	it('shows a new run’s results unfiltered, their variations folded', () => {
+		mount();
+		fireEvent.click(cards()[0]);
+		fireEvent.click(screen.getByRole('checkbox', { name: `${RESULTS}.show_all_variations` }));
+
+		act(() => patchBulkState(player, { dropsResults: dropsResultsFixture().dropsResults }));
+
+		expect(screen.queryByTestId('drops-source-filter')).toBeNull();
+		expect(rowIds()).toEqual([FELSTRIKER, MARK, 'current', REIVER, BLACKBLADE, DRACORIAN]);
+	});
+
 	it('lists one row per item with its variations folded, and every row with Show all variations', () => {
 		mount();
 		fireEvent.click(view('items'));
@@ -194,6 +205,21 @@ describe('DropsResults', () => {
 
 		// Reiver Claws averages 749 against 750 but pairs +3 against the baseline.
 		expect(within(rowOf(REIVER)).getByTestId('results-reference-diff').textContent).toBe('+3.00 (0.40%)');
+	});
+
+	it('reads a row with a paired error but no paired difference by the averages', () => {
+		mount({
+			view: 'items',
+			chains: chains => {
+				chains.flat()[0].pairedDpsDiffToBaseline = 0;
+				return chains;
+			},
+		});
+
+		// Felstriker's 780 against 750 at stdev 100 and 10,000 iterations each: z = 30 / sqrt(2) ≈ 21.213.
+		const diff = within(rowOf(FELSTRIKER)).getByTestId('results-reference-diff');
+		expect(diff.textContent).toBe('+30.00 (4.00%)');
+		expect(diff.getAttribute('data-tooltip-content')).toBe('common.significance.significant 21.213');
 	});
 
 	it('shows a culled row without a ± and marked lower precision', () => {

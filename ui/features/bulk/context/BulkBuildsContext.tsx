@@ -38,7 +38,7 @@ const usePlan = (): BulkBuildsPlan => {
 	const player = usePlayer();
 	const { ready, current, parts, bundles, currentChecked } = useBulkBundles();
 	const sources = useMemo(() => ({ ready, current, parts, bundles, currentChecked }), [ready, current, parts, bundles, currentChecked]);
-	const { entries: enchantPickEntries, checked: checkedEnchantPicks } = useBulkEnchantPicks();
+	const { entries: enchantPickEntries, checked: checkedEnchantPicks } = useBulkEnchantPicks('buildEnchantPresets');
 	const { current: currentEncounter, entries: encounterEntries, checked: checkedEncounters } = useBulkEncounters();
 	const profession1 = usePlayerStore('profession1');
 	const profession2 = usePlayerStore('profession2');

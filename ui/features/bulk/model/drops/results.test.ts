@@ -10,17 +10,8 @@ import { makeUIItem } from '@testing/storybook/fixtures/protos';
 import { describe, expect, it } from 'vitest';
 
 import { rankEncounterResults } from '../results/results';
-import {
-	dropsGap,
-	dropsItemChains,
-	dropsItemLookup,
-	dropsNewItem,
-	dropsResultItems,
-	dropsSourceGroups,
-	dropsSummary,
-	isDropsLowPrecision,
-	isDropsUpgrade,
-} from './results';
+import { wornIdSet } from './items';
+import { dropsGap, dropsItemChains, dropsItemLookup, dropsNewItem, dropsResultItems, dropsSourceGroups, dropsSummary } from './results';
 
 const REND_KEY = `drop:${BLACKROCK_SPIRE}:${REND}`;
 const RIVENDARE_KEY = `drop:${STRATHOLME}:${RIVENDARE}`;
@@ -128,16 +119,16 @@ const GROUPS = dropsSourceGroups(ITEM_RESULTS, RUN_SOURCES, CURRENT_GEAR, itemBy
 
 const avgs = (chains: TopGearResult[][]) => chains.flat().map(row => row.dpsMetrics.avg);
 
-const chainOptions = { runSources: RUN_SOURCES, names, itemById };
+const chainOptions = { groups: GROUPS };
 
 describe('dropsNewItem', () => {
 	it('finds the new item of a row that moved the worn main hand to the off hand', () => {
-		expect(dropsNewItem(FELSTRIKER_GEAR, CURRENT_GEAR)?.id).toBe(FELSTRIKER.id);
+		expect(dropsNewItem(FELSTRIKER_GEAR, wornIdSet(CURRENT_GEAR))?.id).toBe(FELSTRIKER.id);
 	});
 
 	it('finds a two-hander that replaced a dual wielder’s pair', () => {
-		expect(dropsNewItem(TWO_HANDER_GEAR, CURRENT_GEAR)?.id).toBe(TWO_HANDER.id);
-		expect(dropsNewItem(CURRENT_GEAR, CURRENT_GEAR)).toBeNull();
+		expect(dropsNewItem(TWO_HANDER_GEAR, wornIdSet(CURRENT_GEAR))?.id).toBe(TWO_HANDER.id);
+		expect(dropsNewItem(CURRENT_GEAR, wornIdSet(CURRENT_GEAR))).toBeNull();
 	});
 });
 
@@ -157,6 +148,32 @@ describe('dropsResultItems', () => {
 		expect([belt.upgrade, belt.gain]).toEqual([true, 5]);
 	});
 
+	it('counts an item inside the paired error of the current gear as no upgrade', () => {
+		const beltAt = (avg: number) => dropsResultItems(rank([paired(wearing({ [ItemSlot.ItemSlotWaist]: BELT }), avg, {}, 1.5)]))[0].upgrade;
+		expect([beltAt(752), beltAt(756)]).toEqual([false, true]);
+	});
+
+	it('takes an item’s upgrade from the sign of its paired difference, not from the gap between the averages', () => {
+		const [belt] = dropsResultItems(rank([paired(wearing({ [ItemSlot.ItemSlotWaist]: BELT }), 752, { pairedDpsDiffToBaseline: -5 })]));
+		expect([belt.upgrade, belt.gain]).toEqual([false, -5]);
+	});
+
+	it('judges a culled item with no paired error at its own iteration count', () => {
+		// stdev 100: a 3 DPS gap separates at 50,000 iterations against the current gear's 10,000, not at 1,000.
+		const beltAt = (n: number) =>
+			dropsResultItems(
+				rank([
+					{
+						gear: wearing({ [ItemSlot.ItemSlotWaist]: BELT }),
+						dpsMetrics: metrics(753, n),
+						pairedErrorToBaseline: 0,
+						culledStage: BulkSimStage.BulkSimStageLow,
+					},
+				]),
+			)[0].upgrade;
+		expect([beltAt(1_000), beltAt(50_000)]).toEqual([false, true]);
+	});
+
 	it('leads an item with its proven upgrade, a tied row above it kept as a variant', () => {
 		const [ring] = dropsResultItems(
 			rank([
@@ -169,37 +186,14 @@ describe('dropsResultItems', () => {
 	});
 });
 
-describe('isDropsUpgrade', () => {
-	it('counts a row inside the paired error of the current gear as no upgrade', () => {
-		expect(isDropsUpgrade(paired(CURRENT_GEAR, 752, {}, 1.5), CURRENT)).toBe(false);
-		expect(isDropsUpgrade(paired(CURRENT_GEAR, 756, {}, 1.5), CURRENT)).toBe(true);
+describe('dropsGap', () => {
+	it('takes the paired difference, not the gap between the averages', () => {
+		expect(dropsGap(paired(CURRENT_GEAR, 748, { pairedDpsDiffToBaseline: 5 }), CURRENT)).toBe(5);
 	});
 
-	it('takes the sign from the paired difference, not from the gap between the averages', () => {
-		const pairedAbove = paired(CURRENT_GEAR, 748, { pairedDpsDiffToBaseline: 5 });
-		expect(isDropsUpgrade(pairedAbove, CURRENT)).toBe(true);
-		expect(dropsGap(pairedAbove, CURRENT)).toBe(5);
-		expect(isDropsUpgrade(paired(CURRENT_GEAR, 752, { pairedDpsDiffToBaseline: -5 }), CURRENT)).toBe(false);
-	});
-
-	it('judges a culled row with no paired error at its own iteration count', () => {
-		// stdev 100: a 3 DPS gap separates at 50,000 iterations each, not at 1,000 against 50,000.
-		const current = { ...CURRENT, dpsMetrics: metrics(CURRENT_DPS, 50_000) };
-		const culledRow: TopGearResult = {
-			gear: CURRENT_GEAR,
-			dpsMetrics: metrics(753, 1_000),
-			pairedErrorToBaseline: 0,
-			culledStage: BulkSimStage.BulkSimStageLow,
-		};
-		expect(isDropsUpgrade(culledRow, current)).toBe(false);
-		expect(isDropsUpgrade({ ...culledRow, dpsMetrics: metrics(753, 50_000) }, current)).toBe(true);
-	});
-
-	it('marks a culled row as lower precision and a finalist row as not', () => {
-		const row = paired(CURRENT_GEAR, 760);
-		expect(isDropsLowPrecision({ ...row, culledStage: BulkSimStage.BulkSimStageMedium })).toBe(true);
-		expect(isDropsLowPrecision(row)).toBe(false);
-		expect(isDropsLowPrecision({ ...row, culledStage: BulkSimStage.BulkSimStageUnknown })).toBe(false);
+	it('measures a row with a paired error but no paired difference by the averages', () => {
+		// A decoded response holds 0 for a difference the backend never set.
+		expect(dropsGap(paired(CURRENT_GEAR, 760, { pairedDpsDiffToBaseline: 0 }), CURRENT)).toBe(10);
 	});
 });
 
@@ -221,7 +215,7 @@ describe('dropsSourceGroups', () => {
 	it('sorts the cards by best gain, the ones with no upgrade last', () => {
 		// Drakkisath's chest gains more than Wyrmthalak's belt but sits inside its paired error.
 		expect(GROUPS.map(entry => entry.key)).toEqual([REND_KEY, RIVENDARE_KEY, WYRMTHALAK_KEY, DRAKKISATH_KEY]);
-		expect([group(DRAKKISATH_KEY).upgrades, group(DRAKKISATH_KEY).total]).toEqual([0, 1]);
+		expect([group(DRAKKISATH_KEY).upgrades, group(DRAKKISATH_KEY).items.length, group(DRAKKISATH_KEY).wornIds]).toEqual([0, 1, []]);
 	});
 
 	it('ranks a card by its best upgrade, not by a tied row above it', () => {
@@ -241,7 +235,7 @@ describe('dropsSourceGroups', () => {
 		const rend = group(REND_KEY);
 		expect(rend.items.map(entry => entry.itemId)).toEqual([RING.id, FELSTRIKER.id, GLOVES.id]);
 		expect(rend.wornIds).toEqual([WORN_GLOVES.id]);
-		expect([rend.upgrades, rend.total]).toEqual([3, 4]);
+		expect(rend.upgrades).toBe(3);
 	});
 });
 
@@ -307,7 +301,7 @@ describe('dropsItemLookup', () => {
 		const hordeOnly = makeUIItem({ id: 201, factionRestriction: UIItem_FactionRestriction.HORDE_ONLY, sources: [drop(BLACKROCK_SPIRE, REND)] });
 		const mixed = makeUIItem({ id: 202, sources: [quest(Faction.Horde), drop(BLACKROCK_SPIRE, REND)] });
 		const later = makeUIItem({ id: 203, phase: 6, sources: [drop(BLACKROCK_SPIRE, REND)] });
-		const lookup = dropsItemLookup([hordeOnly, mixed, later], Faction.Alliance);
+		const lookup = dropsItemLookup(id => [hordeOnly, mixed, later].find(entry => entry.id === id), Faction.Alliance);
 		expect(lookup(hordeOnly.id)).toBeUndefined();
 		expect(lookup(mixed.id)?.sources).toEqual([drop(BLACKROCK_SPIRE, REND)]);
 		expect(lookup(later.id)).toBe(later);

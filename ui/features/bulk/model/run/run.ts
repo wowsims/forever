@@ -10,6 +10,7 @@ import { getGearIdentityKey } from '@sim/proto/items';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { RequestTypes } from '@sim/sim_signal_manager';
+import type { BulkMode } from '@sim/state/sim_store';
 import { BULK_SIM_DEFAULT_TOP_RESULTS } from '@sim/wasm/bulk_sim/constants_auto_gen';
 import { estimateBulkSimIterations } from '@sim/wasm/bulk_sim/estimate';
 import { toastManager } from '@ui-kit/Toast';
@@ -22,14 +23,19 @@ import { bulkEnchantPickEntries, bulkEnchantPickRuns } from '../builds/enchant_p
 import { bulkEncounterRuns, pickableBulkEncounters } from '../builds/encounters';
 import { dropsRequestSettings } from '../drops/settings';
 import { createBulkSettingsProto } from '../gear/settings';
-import { bulkRunMode, bulkRunsDrops } from '../mode';
+import { bulkRunMode } from '../mode';
 import { type BulkFinishedRequest, rankEncounterResults } from '../results/results';
 import { type CoreBulkSimResult, runCoreBulkSim as runCoreBulkSimImpl } from './core_sim';
 import { BulkProgress, type BulkRequestIterations, type BulkStepsTiming, candidateGearProgress, requestIterationsProgress, simProgress } from './progress';
 import { bulkTopResults } from './top_results';
 
-// The stored settings plus the enchant pool, which is derived from the presets and never stored.
-const bulkRequestSettings = (player: Player<any>): BulkSettings => ({ ...createBulkSettingsProto(player), enchants: enchantPresetPool(player) });
+// Gear sends the stored settings plus the enchant pool, which is derived from the presets and never stored. Builds sends
+// none: its gear setups already carry its enchant presets, so Gear-mode picks stay out of its seed.
+const bulkRequestSettingsFor = (runMode: BulkMode, player: Player<any>): BulkSettings => {
+	if (runMode === 'builds') return BulkSettings.create();
+	if (runMode === 'drops') return dropsRequestSettings(player);
+	return { ...createBulkSettingsProto(player), enchants: enchantPresetPool(player) };
+};
 
 /**
  * A batch in flight, per player. None of it belongs in the store: an abort controller and a
@@ -114,7 +120,9 @@ const setSimProgress = (player: Player<any>, metrics: ProgressMetrics, config: B
 const calculateBulkCombinations = async (host: IndividualSimHost<any>, requestVersion: number) => {
 	const { sim, player } = host;
 	try {
-		const bulkSettings = bulkRunsDrops(sim.getShowPowerTools(), bulkState(player).mode) ? dropsRequestSettings(player) : bulkRequestSettings(player);
+		const runMode = bulkRunMode(sim.getShowPowerTools(), bulkState(player).mode);
+		// Builds counts off its plan; the stored count stays Gear's.
+		const bulkSettings = bulkRequestSettingsFor(runMode === 'builds' ? 'gear' : runMode, player);
 		const combinationCountResult = await sim.getBulkCombinationCount(bulkSettings);
 		if (requestVersion !== runOf(player).combinationsRequestVersion) return;
 
@@ -382,8 +390,7 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 	const abortSignal = run.abortController.signal;
 
 	await sim.waitForInit();
-	// Empty in Builds, whose gear setups already carry its enchant presets, so Gear-mode picks stay out of its seed.
-	const bulkSettings = builds ? BulkSettings.create() : drops ? dropsRequestSettings(player) : bulkRequestSettings(player);
+	const bulkSettings = bulkRequestSettingsFor(runMode, player);
 	// The ticks and the side the Drops request was built from, which its results group by.
 	const dropsRunSources = bulkState(player).dropsSources;
 	const dropsRunFaction = player.getFaction();

@@ -1,7 +1,6 @@
 import { BulkGearResult, DistributionMetrics } from '@generated/proto/api';
 
 import { mergeAggregates } from '../../utils/math';
-import { bulkSimPairedDpsError, setBulkSimPairedToBaseline, topBulkSimResults } from './statistics';
 import { ConcurrentBulkSimCandidateResult } from './types';
 
 export const hasBulkSimStageError = (baseline: ConcurrentBulkSimCandidateResult | undefined, results: ConcurrentBulkSimCandidateResult[]): boolean => {
@@ -105,31 +104,4 @@ export const bulkSimCandidateResultToProto = (result: ConcurrentBulkSimCandidate
 		gear: result.candidate.gear,
 		dpsMetrics,
 	});
-};
-
-// Appends every high-stage result outside the finalists at its high-stage numbers, by mean, high to low, mirroring
-// appendBulkSimNonFinalists in sim/core/bulk/merge.go. Each row pairs with the high stage's baseline: the finalist stage's
-// baseline carries more values and no longer pairs with it.
-export const appendBulkSimNonFinalists = (
-	rows: BulkGearResult[],
-	finalists: ConcurrentBulkSimCandidateResult[],
-	highResults: ConcurrentBulkSimCandidateResult[],
-	highBaseline: ConcurrentBulkSimCandidateResult,
-): BulkGearResult[] => {
-	const isFinalist = new Set(finalists.map(finalist => finalist.candidate.index));
-	const nonFinalists = topBulkSimResults(
-		highResults.filter(result => !isFinalist.has(result.candidate.index)),
-		highResults.length,
-	);
-
-	nonFinalists.forEach((result, idx) => {
-		const row = bulkSimCandidateResultToProto(result);
-		if (!row) return;
-		if (idx + 1 < nonFinalists.length) {
-			row.pairedErrorToNextResult = bulkSimPairedDpsError(nonFinalists[idx + 1].dpsMetrics, result.dpsMetrics) ?? 0;
-		}
-		setBulkSimPairedToBaseline(row, result.dpsMetrics, highBaseline.dpsMetrics);
-		rows.push(row);
-	});
-	return rows;
 };

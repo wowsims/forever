@@ -48,6 +48,7 @@ export const DropsSetup = () => {
 					list={list}
 					grouping={grouping}
 					onGroupingChange={setGrouping}
+					tree={tree}
 					names={names}
 					onIncludedChange={(ids, included) => setDropsItemsIncluded(player, ids, included)}
 				/>

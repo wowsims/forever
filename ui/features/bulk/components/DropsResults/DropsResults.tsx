@@ -1,21 +1,21 @@
 import type { Faction } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateSlotName } from '@i18n/localization';
-import type { BulkRankedResult, BulkResults, TopGearResult } from '@sim/bulk/types';
+import type { BulkRankedResult, BulkResults } from '@sim/bulk/types';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { wowheadIconUrl } from '@sim/proto/wowhead';
 import type { BulkDropsView } from '@sim/state/sim_store';
 import { formatDeltaText, formatSignificance } from '@sim/utils/format';
-import { stDevToConf95, zTest } from '@sim/utils/math';
+import { stDevToConf95 } from '@sim/utils/math';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { Pill } from '@ui-kit/Pill';
-import { toastManager } from '@ui-kit/Toast';
 import { ToggleGroup } from '@ui-kit/ToggleGroup';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
+import { wornIdSet } from '../../model/drops/items';
 import {
 	dropsGap,
 	dropsItemChains,
@@ -25,13 +25,13 @@ import {
 	dropsResultItems,
 	dropsSourceGroups,
 	dropsSummary,
-	isDropsLowPrecision,
+	runSourceKeys,
 	topUpgrade,
 } from '../../model/drops/results';
 import { setDropsView } from '../../model/drops/settings';
-import { dropsItemSourceKeys, type DropsNames, dropsNamesOf, dropsSourceLabel } from '../../model/drops/sources';
-import { type BulkEquipped, equipBulkResult } from '../../model/results/results';
-import { isTiedWithBaseline } from '../../model/results/tie_chains';
+import { type DropsNames, dropsNamesOf, dropsSourceLabel } from '../../model/drops/sources';
+import { equipAndAnnounce } from '../../model/results/results';
+import { baselineSignificance, isCulled, rowIterations } from '../../model/results/tie_chains';
 import { BulkResultTieGroup } from '../BulkResults/BulkResultTieGroup';
 import { DropsBossCardView } from '../DropsBossCard';
 import { DropsItemRowHeader, DropsItemRowView } from '../DropsItemRow';
@@ -96,19 +96,6 @@ const sourceText = (key: string, names: DropsNames): string => {
 	return key.startsWith('drop:') ? label : `${label} (${detail})`;
 };
 
-const equippedToast = (equipped: BulkEquipped): string =>
-	equipped === 'build' ? i18n.t('bulk_tab.results.build_equipped') : i18n.t('bulk_tab.results.gear_equipped');
-
-// The z of a row's gap to the current gear: the paired one when the row has a paired error, else the two-sample one.
-const gapSignificance = (row: TopGearResult, current: TopGearResult, gap: number, iterations: number): string => {
-	const isDiff = !isTiedWithBaseline(row, current);
-	if (row.pairedErrorToBaseline && row.pairedDpsDiffToBaseline !== undefined)
-		return formatSignificance({ z: Math.abs(gap) / row.pairedErrorToBaseline, isDiff });
-	const n = (result: TopGearResult) => result.dpsMetrics.aggregatorData?.n ?? iterations;
-	const { z } = zTest(n(row), row.dpsMetrics.avg, row.dpsMetrics.stdev, n(current), current.dpsMetrics.avg, current.dpsMetrics.stdev);
-	return formatSignificance({ z, isDiff });
-};
-
 interface DropsResultsPaneProps {
 	results: BulkResults;
 	runSources: readonly string[];
@@ -122,20 +109,36 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 	const view = useBulkState(slice => slice.dropsView);
 	const [showAll, setShowAll] = useState(false);
 	const [source, setSource] = useState<string | null>(null);
+	// A new run's results open unfiltered, their variations folded.
+	const [shownResults, setShownResults] = useState(results);
+	if (shownResults !== results) {
+		setShownResults(results);
+		setShowAll(false);
+		setSource(null);
+	}
 	const { originalGearResults: current, currentGear, iterations } = results;
 
 	const db = player.sim.db;
 	// The faction the run started on, and no phase filter: a run's items keep their cards after a phase switch.
-	const itemById = useMemo(() => dropsItemLookup(db.getAllItems(), runFaction), [db, runFaction]);
+	const itemById = useMemo(() => dropsItemLookup(id => db.getItemById(id), runFaction), [db, runFaction]);
 	const names = useMemo(() => dropsNamesOf(db), [db]);
 	const runKeys = useMemo(() => new Set(runSources), [runSources]);
 	const items = useMemo(() => dropsResultItems(results), [results]);
 	const groups = useMemo(() => dropsSourceGroups(items, runKeys, currentGear, itemById, names), [items, runKeys, currentGear, itemById, names]);
 	const summary = useMemo(() => dropsSummary(results, items, groups), [results, items, groups]);
-	const chains = useMemo(
-		() => dropsItemChains(results, items, { showAll, source, runSources: runKeys, names, itemById }),
-		[results, items, showAll, source, runKeys, names, itemById],
-	);
+	const chains = useMemo(() => dropsItemChains(results, items, { showAll, source, groups }), [results, items, showAll, source, groups]);
+	// Per row: the item it adds, the slot that item sits in and the run's sources that drop it.
+	const rowDetails = useMemo(() => {
+		const worn = wornIdSet(currentGear);
+		return new Map(
+			results.chains.flat().map(row => {
+				const newItem = dropsNewItem(row.gear, worn);
+				const slot = newItem ? row.gear.getItemSlots().find(candidate => row.gear.getEquippedItem(candidate)?.id === newItem.id) : undefined;
+				const sources = newItem ? runSourceKeys(newItem.id, runKeys, names, itemById).map(sourceKey => sourceText(sourceKey, names)) : [];
+				return [row, { newItem, slot, sources }];
+			}),
+		);
+	}, [results, currentGear, runKeys, names, itemById]);
 
 	const pct = (gain: number) => (gain / current.dpsMetrics.avg) * 100;
 	const iconOf = (id: number) => wowheadIconUrl(itemById(id)?.icon ?? '', 'medium');
@@ -163,8 +166,6 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 					...group.wornIds.map(id => ({ itemId: id, icon: iconOf(id), name: nameOf(id), gainPct: null, upgrade: false })),
 				]}
 				best={top ? { dps: current.dpsMetrics.avg + top.gain, pct: pct(top.gain) } : null}
-				upgrades={group.upgrades}
-				total={group.total}
 				selected={source === group.key}
 				onSelect={() => selectCard(group.key)}
 			/>
@@ -174,17 +175,12 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 	const itemOfBest = new Map<BulkRankedResult, DropsResultItem>(items.map(entry => [entry.best, entry]));
 	let rank = 0;
 	const renderRow = (row: BulkRankedResult, key: number) => {
-		const newItem = dropsNewItem(row.gear, currentGear);
+		const { newItem, slot, sources } = rowDetails.get(row)!;
+		const [first, ...more] = sources;
 		const isCurrent = row === current;
 		if (!isCurrent) rank += 1;
-		const slot = newItem ? row.gear.getItemSlots().find(candidate => row.gear.getEquippedItem(candidate)?.id === newItem.id) : undefined;
-		const [first, ...more] = newItem
-			? (itemById(newItem.id) ? dropsItemSourceKeys(itemById(newItem.id)!, names) : [])
-					.filter(sourceKey => runKeys.has(sourceKey))
-					.map(sourceKey => sourceText(sourceKey, names))
-			: [];
 		const gap = dropsGap(row, current);
-		const lowPrecision = isDropsLowPrecision(row);
+		const significance = baselineSignificance(row, current, iterations);
 		return (
 			<DropsItemRowView
 				key={key}
@@ -194,20 +190,12 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 				source={first ?? ''}
 				moreSources={more}
 				avg={row.dpsMetrics.avg}
-				plusMinus={lowPrecision ? null : stDevToConf95(row.dpsMetrics.stdev, row.dpsMetrics.aggregatorData?.n ?? iterations)}
-				delta={formatDeltaText(current.dpsMetrics.avg, current.dpsMetrics.avg + gap, 2, undefined, isTiedWithBaseline(row, current), true)}
-				significance={isCurrent ? '' : gapSignificance(row, current, gap, iterations)}
+				plusMinus={isCulled(row) ? null : stDevToConf95(row.dpsMetrics.stdev, rowIterations(row, iterations))}
+				delta={formatDeltaText(current.dpsMetrics.avg, current.dpsMetrics.avg + gap, 2, undefined, !significance.isDiff, true)}
+				significance={isCurrent ? '' : formatSignificance(significance)}
 				hiddenVariations={showAll ? 0 : (itemOfBest.get(row)?.variants.length ?? 0)}
 				onShowVariations={() => setShowAll(true)}
-				onEquip={
-					isCurrent
-						? null
-						: () => {
-								const equipped = equipBulkResult(host, row);
-								onActivateTab('gear-tab');
-								toastManager.add({ variant: 'success', body: equippedToast(equipped) });
-							}
-				}
+				onEquip={isCurrent ? null : () => equipAndAnnounce(host, row, onActivateTab)}
 			/>
 		);
 	};
@@ -235,15 +223,7 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 								}
 							: null
 					}
-					bestBoss={
-						summary.bestGroup
-							? {
-									label: summary.bestGroup.label.label,
-									detail: summary.bestGroup.label.detail,
-									pct: pct(topUpgrade(summary.bestGroup.items)!.gain),
-								}
-							: null
-					}
+					bestBoss={summary.bestGroup?.label ?? null}
 				/>
 			}
 			view={view}

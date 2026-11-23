@@ -8,11 +8,10 @@ import { useMemo } from 'react';
 
 import type { DropsItemList } from '../model/drops/items';
 import { dropsSetupFor } from '../model/drops/settings';
-import { type DropsNames, type DropsSourceNode, dropsSourceTree } from '../model/drops/sources';
+import type { DropsNames, DropsSourceNode } from '../model/drops/sources';
 
+/** Empty until the database is loaded. */
 export interface DropsSetupState {
-	/** False until the database is loaded; the rest is empty then. */
-	ready: boolean;
 	tree: DropsSourceNode[];
 	ticked: ReadonlySet<string>;
 	list: DropsItemList;
@@ -20,17 +19,13 @@ export interface DropsSetupState {
 }
 
 const NOT_READY: DropsSetupState = {
-	ready: false,
 	tree: [],
 	ticked: new Set(),
 	list: { items: [], leftOut: [] },
 	names: { zone: () => null, npc: () => null, faction: () => null },
 };
 
-const readSetup = (player: Player<any>): DropsSetupState => {
-	const { items, list, names } = dropsSetupFor(player);
-	return { ready: true, tree: dropsSourceTree(items, names), ticked: new Set(bulkState(player).dropsSources), list, names };
-};
+const readSetup = (player: Player<any>): DropsSetupState => ({ ...dropsSetupFor(player), ticked: new Set(bulkState(player).dropsSources) });
 
 // Rebuilt when the database lands, the phase, the race (which sets the side `getFaction` reads), the gear or a Drops pick changes.
 // The picks bump `settings` and a gear change bumps `items`, both of which `subscribeBulkChange` watches.

@@ -1,7 +1,5 @@
 import { GearChangeIcon } from '@features/gear/components/GearChangeIcon';
 import { ItemDetailCell } from '@features/gear/components/ItemCell';
-import { ResultReferenceDiff } from '@features/results/components/ResultMetricList';
-import { ResultMetricValue } from '@features/results/components/ResultMetricValue';
 import { ItemSpec } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { BulkRankedResult, BulkResults } from '@sim/bulk/types';
@@ -10,11 +8,10 @@ import { useSimHost } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import type { TalentsConfig } from '@sim/talents/config';
 import { classTalentsConfig } from '@sim/talents/factory';
-import { type DeltaText, formatDeltaText, formatSignificance, formatToNumber } from '@sim/utils/format';
+import { type DeltaText, formatDeltaText, formatSignificance } from '@sim/utils/format';
 import { stDevToConf95, zTest } from '@sim/utils/math';
 import { Button } from '@ui-kit/Button';
 import { Pill } from '@ui-kit/Pill';
-import { toastManager } from '@ui-kit/Toast';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import clsx from 'clsx';
 import { type ReactNode, useId } from 'react';
@@ -25,8 +22,8 @@ import { settingsLabel } from '../../model/builds/settings_entries';
 import { talentsLabel } from '../../model/builds/talents';
 import { getSwappableItemSlotPair, itemSpecPairsEqualUnordered } from '../../model/gear/swappable_slots';
 import { changedEnchantLabels } from '../../model/results/compare';
-import { formatBulkDps } from '../../model/results/format';
-import { type BulkEquipped, bulkResultKey, equipBulkResult } from '../../model/results/results';
+import { bulkResultKey, equipAndAnnounce } from '../../model/results/results';
+import { BulkDpsCell } from '../BulkDpsCell';
 import { BulkEnchantsDiffer } from '../BulkEnchantsDiffer';
 import { BulkSetupLabel, type BulkSetupLabels, BulkSetupLines, bulkSetupText } from '../BulkSetupLabel';
 import { BulkTalentsGrid, bulkTalentsText } from '../BulkTalentsGrid';
@@ -85,8 +82,6 @@ export const BulkResultRowView = ({
 	onEquip,
 	children,
 }: BulkResultRowViewProps) => {
-	const marginTooltipId = useId();
-	const deltaTooltipId = useId();
 	const talentsTooltipId = useId();
 	const bundleTooltipId = useId();
 	const parts: BulkSetupLabels = { gear: gearSetup, talents: talents?.label ?? null, rotation: rotation?.label ?? null, settings: settings?.label ?? null };
@@ -101,20 +96,13 @@ export const BulkResultRowView = ({
 			{/* Wide enough for "9,999.99 DPS(±1)" and its pill on one line each, so every row's gear starts at the same x. */}
 			<div className="w-52 shrink-0" data-testid="results-sim">
 				{showDamage && (
-					<div className="flex flex-col items-start gap-2 text-left font-bold" data-testid="results-sim-dps">
-						{isBase && <span className="text-sm font-normal">{i18n.t('bulk_tab.results.current_gear')}</span>}
-						<div>
-							<ResultMetricValue
-								average={formatBulkDps(avg)}
-								unit={i18n.t('sidebar.results.metrics.dps.label')}
-								margin={plusMinus > 0 ? formatToNumber(plusMinus, { maximumFractionDigits: 0 }) : undefined}
-								marginTooltipId={marginTooltipId}
-							/>
-						</div>
-						{!isBase && !isReference && <ResultReferenceDiff diff={{ ...delta, significance }} tooltipId={deltaTooltipId} hideLabel />}
-						<Tooltip id={marginTooltipId} content={i18n.t('bulk_tab.results.margin_of_error')} />
-						<Tooltip id={deltaTooltipId} />
-					</div>
+					<BulkDpsCell
+						testId="results-sim-dps"
+						label={isBase ? i18n.t('bulk_tab.results.current_gear') : undefined}
+						avg={avg}
+						plusMinus={plusMinus}
+						diff={isBase || isReference ? null : { ...delta, significance }}
+					/>
 				)}
 			</div>
 			<div className="flex min-w-0 flex-1 flex-wrap gap-1 max-md:order-last max-md:basis-full" data-testid="bulk-gear-combo">
@@ -193,15 +181,6 @@ export const BulkResultRowView = ({
 	);
 };
 
-const equippedToast = (equipped: BulkEquipped): string => {
-	switch (equipped) {
-		case 'build':
-			return i18n.t('bulk_tab.results.build_equipped');
-		case 'gear':
-			return i18n.t('bulk_tab.results.gear_equipped');
-	}
-};
-
 export interface BulkResultRowProps {
 	result: BulkRankedResult;
 	results: BulkResults;
@@ -256,11 +235,7 @@ export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: B
 			bundle={result.gearSetup?.bundle ?? null}
 			gearUnchanged={gearUnchanged}
 			beforeGroup={beforeGroup}
-			onEquip={() => {
-				const equipped = equipBulkResult(host, result);
-				onActivateTab('gear-tab');
-				toastManager.add({ variant: 'success', body: equippedToast(equipped) });
-			}}>
+			onEquip={() => equipAndAnnounce(host, result, onActivateTab)}>
 			{!isBaseResult &&
 				resultAsSpec.items.map((spec, idx) => {
 					const swappableItemSlotPair = getSwappableItemSlotPair(idx, canDualWield);

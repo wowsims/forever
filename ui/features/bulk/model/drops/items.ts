@@ -1,11 +1,13 @@
 import { Faction, HandType, ItemType } from '@generated/proto/common';
-import { UIItem, UIItem_FactionRestriction, type UIItemSource } from '@generated/proto/ui';
+import { type UIItem, UIItem_FactionRestriction, type UIItemSource } from '@generated/proto/ui';
 import { type BulkSimItemSlot, getBulkItemSlotFromSlot, getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import type { Player } from '@sim/player/player';
 import type { PlayerSpec } from '@sim/player/player_spec';
+import type { Gear } from '@sim/proto/gear';
 import { canEquipItem, getEligibleItemSlots } from '@sim/proto/items';
+import { pushTo } from '@sim/utils/collections';
 
-import { dropsItemSourceKeys, type DropsNames, type DropsSourceLabel, dropsSourceLabel, dropsSourceTree } from './sources';
+import { type DropsNames, type DropsSourceLabel, dropsSourceLabel, type DropsSourceNode } from './sources';
 
 export interface DropsItemContext {
 	playerSpec: PlayerSpec<any>;
@@ -15,17 +17,14 @@ export interface DropsItemContext {
 	wornIds: ReadonlySet<number>;
 }
 
+export const wornIdSet = (gear: Gear): Set<number> => new Set(gear.asArray().flatMap(equipped => (equipped ? [equipped.id] : [])));
+
 export const dropsItemContext = (player: Player<any>): DropsItemContext => ({
 	playerSpec: player.getPlayerSpec(),
 	canDualWield: getBulkPlayerCanDualWield(player),
 	phase: player.sim.getPhase(),
 	faction: player.getFaction(),
-	wornIds: new Set(
-		player
-			.getGear()
-			.asArray()
-			.flatMap(equipped => (equipped ? [equipped.id] : [])),
-	),
+	wornIds: wornIdSet(player.getGear()),
 });
 
 export const dropsPhaseItems = (items: readonly UIItem[], phase: number): UIItem[] => items.filter(item => item.phase <= phase);
@@ -53,7 +52,7 @@ export const dropsFactionItems = (items: readonly UIItem[], faction: Faction): U
 		if (faction !== Faction.Unknown && item.factionRestriction === closed) continue;
 		const sources = item.sources.filter(source => sourceOpensTo(source, faction));
 		if (sources.length === 0) continue;
-		kept.push(sources.length === item.sources.length ? item : UIItem.create({ ...item, sources }));
+		kept.push(sources.length === item.sources.length ? item : { ...item, sources });
 	}
 	return kept;
 };
@@ -101,17 +100,18 @@ const tagsOf = (item: UIItem, canDualWield: boolean): DropsSlotTag[] => {
 
 const byName = (a: UIItem, b: UIItem) => a.name.localeCompare(b.name);
 
+/** `sourceKeysOf` gives an item's `dropsItemSourceKeys`. */
 export const dropsItemList = (
 	items: readonly UIItem[],
 	ticked: ReadonlySet<string>,
 	excluded: ReadonlySet<number>,
 	context: DropsItemContext,
-	names: DropsNames,
+	sourceKeysOf: (item: UIItem) => readonly string[],
 ): DropsItemList => {
 	const listed: DropsItem[] = [];
 	const leftOut: Array<{ item: UIItem; reason: DropsLeftOutReason }> = [];
 	for (const item of items) {
-		const sourceKeys = dropsItemSourceKeys(item, names).filter(key => ticked.has(key));
+		const sourceKeys = sourceKeysOf(item).filter(key => ticked.has(key));
 		if (sourceKeys.length === 0) continue;
 		if (!canEquipItem(item, context.playerSpec, undefined)) {
 			leftOut.push({ item, reason: 'class' });
@@ -141,22 +141,22 @@ export const dropsPickedItemIds = (list: DropsItemList): number[] =>
 
 export const dropsItemsBySlot = (list: DropsItemList): Array<{ slot: BulkSimItemSlot; items: DropsItem[] }> => {
 	const bySlot = new Map<BulkSimItemSlot, DropsItem[]>();
-	for (const entry of list.items) bySlot.set(entry.bulkSlot, [...(bySlot.get(entry.bulkSlot) ?? []), entry]);
+	for (const entry of list.items) pushTo(bySlot, entry.bulkSlot, entry);
 	return [...bySlot].map(([slot, items]) => ({ slot, items })).sort((a, b) => a.slot - b.slot);
 };
 
-const leafKeysInOrder = (list: DropsItemList, names: DropsNames): string[] =>
-	dropsSourceTree(
-		list.items.map(entry => entry.item),
-		names,
-	).flatMap(node => node.leafKeys);
-
-export const dropsItemsBySource = (list: DropsItemList, names: DropsNames): Array<{ key: string; label: DropsSourceLabel; items: DropsItem[] }> => {
+/** One group per source key the list reaches, in the order `tree`, the Sources tree the list was picked from, lists its leaves. */
+export const dropsItemsBySource = (
+	list: DropsItemList,
+	tree: readonly DropsSourceNode[],
+	names: DropsNames,
+): Array<{ key: string; label: DropsSourceLabel; items: DropsItem[] }> => {
 	const bySource = new Map<string, DropsItem[]>();
 	for (const entry of list.items) {
-		for (const key of entry.sourceKeys) bySource.set(key, [...(bySource.get(key) ?? []), entry]);
+		for (const key of entry.sourceKeys) pushTo(bySource, key, entry);
 	}
-	return leafKeysInOrder(list, names)
+	return tree
+		.flatMap(node => node.leafKeys)
 		.filter(key => bySource.has(key))
 		.map(key => ({ key, label: dropsSourceLabel(key, names), items: bySource.get(key)! }));
 };

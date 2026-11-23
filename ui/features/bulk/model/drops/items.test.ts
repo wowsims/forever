@@ -14,7 +14,7 @@ import {
 	dropsPhaseItems,
 	dropsPickedItemIds,
 } from './items';
-import type { DropsNames } from './sources';
+import { dropsItemSourceKeys, type DropsNames, dropsSourceTree } from './sources';
 
 vi.mock('@i18n/config', () => ({
 	default: { t: (key: string) => key },
@@ -54,7 +54,7 @@ const DUAL: DropsItemContext = {
 const ctx = (fields: Partial<DropsItemContext> = {}): DropsItemContext => ({ ...DUAL, ...fields });
 const BOTH = new Set(['drop:1583:10363', 'drop:1584:9568']);
 const list = (items: UIItem[], context = DUAL, ticked: ReadonlySet<string> = BOTH, excluded: ReadonlySet<number> = new Set()) =>
-	dropsItemList(items, ticked, excluded, context, NAMES);
+	dropsItemList(items, ticked, excluded, context, item => dropsItemSourceKeys(item, NAMES));
 
 const TWO_SOURCE = item({ id: 50, name: 'Two Sources', sources: [drop(1583, 10363), drop(1584, 9568)] });
 
@@ -66,7 +66,7 @@ describe('dropsItemList', () => {
 	});
 
 	it('lists an item with one ticked source of two under that source only', () => {
-		const bySource = dropsItemsBySource(list([TWO_SOURCE], DUAL, new Set(['drop:1583:10363'])), NAMES);
+		const bySource = dropsItemsBySource(list([TWO_SOURCE], DUAL, new Set(['drop:1583:10363'])), dropsSourceTree([TWO_SOURCE], NAMES), NAMES);
 		expect(bySource.map(group => group.key)).toEqual(['drop:1583:10363']);
 	});
 
@@ -152,7 +152,8 @@ describe('dropsItemList', () => {
 	});
 
 	it('groups by source in tree order and lists an item under each ticked source', () => {
-		const groups = dropsItemsBySource(list([TWO_SOURCE, item({ id: 51, name: 'Another' })]), NAMES);
+		const items = [TWO_SOURCE, item({ id: 51, name: 'Another' })];
+		const groups = dropsItemsBySource(list(items), dropsSourceTree(items, NAMES), NAMES);
 		expect(groups.map(g => [g.key, g.label.label, g.items.map(i => i.item.id)])).toEqual([
 			['drop:1584:9568', 'Overlord Wyrmthalak', [50]],
 			['drop:1583:10363', 'General Drakkisath', [51, 50]],

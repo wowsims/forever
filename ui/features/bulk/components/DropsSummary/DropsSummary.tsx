@@ -9,8 +9,8 @@ export interface DropsSummaryViewProps {
 	current: { avg: number; plusMinus: number };
 	/** Null when nothing upgrades. */
 	bestDrop: { name: string; dps: number; pct: number } | null;
-	/** Null when nothing upgrades, or when no card holds the best drop (the tile then shows a dash). */
-	bestBoss: { label: string; detail: string; pct: number } | null;
+	/** Null when nothing upgrades, or when no card holds the best drop (the tile then shows a dash). Its gain is the best drop's. */
+	bestBoss: { label: string; detail: string } | null;
 }
 
 const t = (key: string) => i18n.t(`bulk_tab.drops.results.${key}`);
@@ -53,13 +53,13 @@ export const DropsSummaryView = ({ current, bestDrop, bestBoss }: DropsSummaryVi
 			)}
 		</Tile>
 		<Tile title={t('best_boss')} testId="drops-summary-best-boss">
-			{bestBoss ? (
+			{bestBoss && bestDrop ? (
 				<>
 					<span className="truncate text-xl font-bold" title={bestBoss.label}>
 						{bestBoss.label}
 					</span>
 					<span className="text-sm">
-						<span className="text-success">{formatBulkPct(bestBoss.pct)}</span> <span className="text-gray-400">{bestBoss.detail}</span>
+						<span className="text-success">{formatBulkPct(bestDrop.pct)}</span> <span className="text-gray-400">{bestBoss.detail}</span>
 					</span>
 				</>
 			) : bestDrop ? (

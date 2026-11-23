@@ -46,7 +46,8 @@ mirror of the stage loop because the WASM sim cannot run `bulkSimAsync`.
   pickable list), `settings.ts` (the setters and `dropsRequestSettings`), `results.ts` (`dropsGap`, rows grouped by
   item and by source). Components under `ui/features/bulk/components/`: `DropsSetup` (`DropsSources` tree,
   `DropsItems` list), `DropsRunCount`, `DropsEnchantPresets`, `DropsResults` (`DropsSummary`, `DropsBossCard`,
-  `DropsItemRow`). `TotalIterations` is the run card's iterations row, shared by Gear, Builds and Drops.
+  `DropsItemRow`). `TotalIterations` is the run card's iterations row, shared by Gear, Builds and Drops, and
+  `BulkDpsCell` the DPS, margin and difference of a Gear, Builds or Drops result row.
 - Enchant presets: `ui/features/enchant-presets/` (model, `EnchantPresets` tiles and dialog).
 - Generated, never hand-edited: `ui/sim/bulk/constants_auto_gen.ts` (slot maps) and
   `ui/sim/wasm/bulk_sim/constants_auto_gen.ts` (tuning constants, stage ladder, `BULK_SIM_Z95`), written by
@@ -194,11 +195,13 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   cap culls to what can reach the top N. Gear with All therefore sims every combination at the high stage. The control
   holds 1 up to the combinations limit (`BulkTopResultsFieldView`), which keeps it inside the request's int32, and a
   `bulk-top-results.v1` blob that does not parse loads as nothing stored.
-- Each top result ships `paired_error_to_next_result` and `paired_error_to_baseline`, computed before `AllValues`
-  are stripped (0 = could not pair). `BulkGearResult.paired_dps_diff_to_baseline` is the mean per-iteration DPS
-  difference (the result minus the baseline) against the baseline that error pairs with, 0 when the runs could not
-  pair; it can pair with an earlier stage's baseline than the shown one. Strip `AllValues` by detaching the slice
-  before cloning (`bulkSimCandidateResultToProto`), never by cloning megabytes and discarding them.
+- Each top result ships `paired_error_to_next_result` and `paired_error_to_baseline`, computed before `AllValues` are
+  stripped (0 = could not pair). `BulkGearResult.paired_dps_diff_to_baseline` is the mean per-iteration DPS difference
+  (the result minus the baseline) against the baseline that error pairs with, 0 when the runs could not pair; it can
+  pair with an earlier stage's baseline than the shown one. A row whose paired difference decodes as 0 while its paired
+  error is not 0 is read by the averages (`hasPairedDiffToBaseline`), since a decoded response holds 0 for a difference
+  the backend never set. Strip `AllValues` by detaching the slice before cloning (`bulkSimCandidateResultToProto`),
+  never by cloning megabytes and discarding them.
 - `BulkSimZ95` in `sim/core/bulk/statistics.go` is the single significance threshold; `Z_95` and `zTest` in
   `ui/sim/utils/math.ts` read the generated `BULK_SIM_Z95`.
 
@@ -210,9 +213,11 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   encounter, settings and build overrides stay out of the hash, but a settings entry without Enchanting strips the
   ring enchants from the baseline and the candidates, which are hashed, so the seed moves with it. A fixed RNG seed
   takes precedence, and `lastUsedRngSeed` records the seed actually used.
-- `buildTieChains` groups adjacent rows the paired test cannot separate, using the backend rank for "next result"
-  and falling back to an unpaired `zTest` where no paired error exists. Each row's ± is `stDevToConf95`, the
-  unpaired error of its own mean, a different quantity from the grouping test.
+- `buildTieChains` groups adjacent rows the paired test cannot separate, using the backend rank for "next result" and
+  falling back to an unpaired `zTest` where no paired error exists. The unpaired test reads each row's own iteration
+  count (`rowIterations`), the run's count for a row that carries none; against the baseline the same rule holds for the
+  tie (`isTiedWithBaseline`) and the z (`baselineSignificance`). Each row's ± is `stDevToConf95`, the unpaired error of
+  its own mean, a different quantity from the grouping test.
 - A slot holding the same item with another enchant renders `GearChangeIcon`; a new item renders plainly;
   unchanged slots stay empty. Starting a run clears its mode's results and returns to the Setup pane; a finished run
   opens Results. Switching modes leaves Setup or Results open as it is (`BulkTabBody`).
@@ -237,43 +242,47 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
 - **Drops** answers which drop from the ticked sources beats the worn gear. The Setup pane (`DropsSetup`) holds the
   Sources tree (`dropsSourceTree`) and the item list; the run card holds `DropsRunCount` and the Batch encounter block,
   with no Top results field. Drops' enchant presets (`DropsEnchantPresets`) are the one settings group under the run
-  card. The leaf keys are `drop:<zoneId>:<npcId>`,
-  `drop:<zoneId>:other:<name>` (the world drop is `drop:0:other:World Drop`), `quest:<zoneId>`, `crafted:<Profession>`
-  (the numeric enum), `rep:<repFactionId>` and `soldBy:<zoneId>`. A quest or vendor zone with no `zones` row folds into
-  `quest:other` or `soldBy:0`; PvP and a source with nothing to key on have no key. The Sources tree lists the items the
-  phase and the player's side let through (`dropsPhaseItems`, `dropsFactionItems`). The item list under the ticked
-  sources leaves out, and counts in a left-out list, the items the class cannot equip and the random-suffix ones;
-  a worn item is listed but never sent. Four keys store the picks per spec: `bulk-drops-sources.v1` (the ticked
-  leaf keys, sorted), `bulk-drops-excluded.v1` (item ids unticked under them), `bulk-drops-enchant-presets.v1`
-  (the presets Drops runs new items with, apart from Gear's and Builds' picks) and `bulk-drops-view.v1` (`bosses` or
-  `items`). Each pick but the view bumps `settings` so the count refreshes.
-- The Drops request (`dropsRequestSettings`) is `BulkSettings` with `single_change` on, the picked item ids as
-  `items` and the enchant pool of Drops' own presets. It sends `BulkSimOverrides.cullToBaseline` with
+  card. The leaf keys are `drop:<zoneId>:<npcId>`, `drop:<zoneId>:other:<name>` (the world drop is
+  `drop:0:other:World Drop`), `quest:<zoneId>`, `crafted:<Profession>` (the numeric enum), `rep:<repFactionId>` and
+  `soldBy:<zoneId>`. A quest or vendor zone with no `zones` row folds into `quest:other` or `soldBy:0`; PvP and a source
+  with nothing to key on have no key. The Sources tree lists the items the phase and the player's side let through
+  (`dropsPhaseItems`, `dropsFactionItems`); `dropsSetupFor` keeps those items, their source keys and the tree until the
+  database, its item count, the phase or the side changes. The item list under the ticked sources leaves out, and counts
+  in a left-out list, the items the class cannot equip and the random-suffix ones; a worn item is listed but never sent.
+  Four keys store the picks per spec: `bulk-drops-sources.v1` (the ticked leaf keys, sorted), `bulk-drops-excluded.v1`
+  (item ids unticked under them), `bulk-drops-enchant-presets.v1` (the presets Drops runs new items with, apart from
+  Gear's and Builds' picks) and `bulk-drops-view.v1` (`bosses` or `items`). Each pick but the view bumps `settings` so
+  the count refreshes.
+- The Drops request (`dropsRequestSettings`) is `BulkSettings` with `single_change` on, the picked item ids as `items`
+  and the enchant pool of Drops' own presets. It sends `BulkSimOverrides.cullToBaseline` with
   `BULK_SIM_DEFAULT_TOP_RESULTS` (`bulkTopResults` returns it in Drops), so every candidate comes back once, in
   `top_results` or `culled_results`, and the run ranks every returned row, never All (`rankEncounterResults` with 0).
-  The run card counts candidates, not combinations: the count leaves out the current gear, an all-worn pick counts 0
-  and Simulate stays off, while one candidate is enough to run (`canRunDropsBatch`). Its iterations are the estimate
-  at the default top results (`bulkDropsIterations`). The row for the iterations, `TotalIterations`, is shared with the
-  Gear and Builds cards and carries the limit warning.
+  The run card counts candidates, not combinations: the count leaves out the current gear, an all-worn pick counts 0 and
+  Simulate stays off, while one candidate is enough to run (`canRunDropsBatch`, `canRunBatch` with a minimum of 1). Its
+  iterations are the estimate at the default top results (`bulkDropsIterations`, `bulkGearIterations` at
+  `BULK_SIM_DEFAULT_TOP_RESULTS`). The row for the iterations, `TotalIterations`, is shared with the Gear and Builds
+  cards and carries the limit warning.
 - Drops results: `dropsStarted` and `dropsResults` are the mode's own, like Gear's and Builds'. A run also stores
   `dropsRunSources` (the ticked leaf keys) and `dropsRunFaction` (`player.getFaction()`) as it started. The boss cards
-  group by those, never by the tree or the race as they are now, and `dropsItemLookup` resolves items through the
-  faction filter but not the phase filter, so a run keeps its cards after a phase switch. `DropsResults` shows
-  `DropsSummary`, then the Bosses view (one `DropsBossCard` per ticked leaf the rows reach, best gain first, cards
-  with no upgrade last) or the Items view (`DropsItemRow`, each item's best row and the current gear's, or every
-  variation with "show all", filtered by the one source a card click picked; that click switches the stored view to
-  Items, and the filter is not stored). Every % and every delta uses `dropsGap`, the paired difference
-  (`paired_dps_diff_to_baseline`) on a row with a paired error and the gap between the averages only on a row
-  without one, never `row.avg - current.avg`: a culled row can pair with an earlier stage's baseline, so its average
-  can sit below the current gear's while its paired difference is an upgrade. The CSV's `diff` and `diff_pct` take
-  it too, and the margin at the row's own iteration count. An upgrade is a row `dropsGap` puts above the current gear
-  and `isTiedWithBaseline` tells apart from it. An item's best row is its proven upgrade with the largest gain, else
-  its best average. `DropsSummary.bestGroup` is null when `best` has no card among the run's sources, and the summary
-  then shows the best drop without a best source. M in "N / M" counts the source's worn items too.
-- A row culled before the finalist set (`culledStage` set) is lower precision: no ±, no tight bracket, an empty
-  `dps_margin_95` in the CSV, and it brackets only with the current gear. Drops rows show their DPS whatever the
-  hide-damage display setting says, since every Drops output is a DPS ranking. In the CSV the `rank` column skips the
-  current gear's row, as the pane does; Gear and Builds rank it like any other row. Drops has no Compare button.
+  group by those, never by the tree or the race as they are now, and `dropsItemLookup` resolves items one id at a time
+  (`getItemById`) through the faction filter but not the phase filter, so a run keeps its cards after a phase switch.
+  `DropsResults` shows `DropsSummary`, then the Bosses view (one `DropsBossCard` per ticked leaf the rows reach, best
+  gain first, cards with no upgrade last) or the Items view (`DropsItemRow`, each item's best row and the current
+  gear's, or every variation with "show all", filtered by the one source a card click picked; that click switches the
+  stored view to Items, and the filter is not stored). Every % and every delta uses `dropsGap`, the paired difference
+  (`paired_dps_diff_to_baseline`) on a row with a paired error and a paired difference, and the gap between the averages
+  only on a row without them, never `row.avg - current.avg`: a culled row can pair with an earlier stage's baseline, so
+  its average can sit below the current gear's while its paired difference is an upgrade. The CSV's `diff` and
+  `diff_pct` take it too, and the margin at the row's own iteration count. An upgrade is a row `dropsGap` puts above the
+  current gear and `isTiedWithBaseline` tells apart from it. An item's best row is its proven upgrade with the largest
+  gain, else its best average. `DropsSummary.bestGroup` is null when `best` has no card among the run's sources, and the
+  summary then shows the best drop without a best source; the best-source tile shows the best drop's gain. M in "N / M"
+  counts the card's strip, the source's worn items too.
+- A row culled before the finalist set (`isCulled`: `culledStage` set to a stage) is lower precision: no ±, no tight
+  bracket, an empty `dps_margin_95` in the CSV, and it brackets only with the current gear. Drops rows show their DPS
+  whatever the hide-damage display setting says, since every Drops output is a DPS ranking. In the CSV the `rank` column
+  skips the current gear's row, as the pane does; Gear and Builds rank it like any other row. Drops has no Compare
+  button.
 - `bulkRunMode` (`ui/features/bulk/model/mode.ts`, from power tools and the stored mode) is the one gate. `runBulkBatch`
   reads it, and `useBulkMode` derives `builds` and `drops` from it (`bulkRunsBuilds`, `bulkRunsDrops`) for the Setup
   pane, which in Builds shows `BulkBuildsColumns` and in Drops `DropsSetup` in place of the item picker. Outside
@@ -422,8 +431,9 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   (`BulkTalentsGrid`) with every talent that holds a point, as its icon and rank under its tree's name and points, the
   talent's name as screen reader text. The talent pill and the enchant count each carry a hidden copy of their
   tooltip as their description (`bulkTalentsText` for the talents), since a screen reader does not reach the tooltip.
-  Equip (`equipBulkResult`) applies, in one `batch`, the gear, talents, rotation and bonus stats of the row's gear
-  setup, and the row's settings; a row under the current settings leaves the live settings alone. A row with no gear
+  Equip (`equipAndAnnounce` in Gear, Builds and Drops: `equipBulkResult`, then the gear tab and a toast) applies, in
+  one `batch`, the gear, talents, rotation and bonus stats of the row's gear setup, and the row's settings; a row
+  under the current settings leaves the live settings alone. A row with no gear
   setup, every Gear-mode row and the Builds reference row, applies the gear only and leaves the talents alone. The
   CSV (`results_csv.ts`) has the columns `encounter`, `duration`, `variation`, `rank`, `current_gear`, `dps`,
   `dps_margin_95`, `diff`, `diff_pct`, `talents`, `talents_string`, `gear_set`, `changed_enchants` ("Slot: Enchant"

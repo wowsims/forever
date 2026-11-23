@@ -3,6 +3,7 @@ import type { UIItem, UIItemSource } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import type { Database } from '@sim/proto/database';
 import { professionNames } from '@sim/proto/names';
+import { pushTo } from '@sim/utils/collections';
 
 export type DropsCategory = 'drop' | 'quest' | 'crafted' | 'rep' | 'soldBy';
 
@@ -100,7 +101,8 @@ export interface DropsSourceNode {
 	children: readonly DropsSourceNode[];
 }
 
-const byLabel = (a: DropsSourceNode, b: DropsSourceNode) => a.label.localeCompare(b.label);
+// Ties go by key, so siblings that share a label keep one order whatever items the tree is built from.
+const byLabel = (a: DropsSourceNode, b: DropsSourceNode) => a.label.localeCompare(b.label) || a.key.localeCompare(b.key);
 
 const parent = (key: string, label: string, children: DropsSourceNode[]): DropsSourceNode => ({
 	key,
@@ -114,11 +116,7 @@ const parent = (key: string, label: string, children: DropsSourceNode[]): DropsS
 export const dropsSourceTree = (items: readonly UIItem[], names: DropsNames): DropsSourceNode[] => {
 	const itemsByKey = new Map<string, number[]>();
 	for (const item of items) {
-		for (const key of dropsItemSourceKeys(item, names)) {
-			const ids = itemsByKey.get(key);
-			if (ids) ids.push(item.id);
-			else itemsByKey.set(key, [item.id]);
-		}
+		for (const key of dropsItemSourceKeys(item, names)) pushTo(itemsByKey, key, item.id);
 	}
 
 	const leaf = (key: string): DropsSourceNode => ({
@@ -145,7 +143,7 @@ export const dropsSourceTree = (items: readonly UIItem[], names: DropsNames): Dr
 			const unzoned: DropsSourceNode[] = [];
 			for (const node of leaves) {
 				const zoneId = Number(node.key.split(':')[1]);
-				if (zoneId > 0) zoned.set(zoneId, [...(zoned.get(zoneId) ?? []), node]);
+				if (zoneId > 0) pushTo(zoned, zoneId, node);
 				else unzoned.push(node);
 			}
 			const zones = [...zoned].map(([zoneId, nodes]) => {

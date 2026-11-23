@@ -12,7 +12,16 @@ const meta = {
 	tags: ['autodocs'],
 	args: {
 		sources: <DropsSourcesView tree={dropsTreeFixture()} ticked={dropsTickedFixture()} onTick={fn()} onQuickPick={fn()} />,
-		items: <DropsItemsView list={dropsItemListFixture()} grouping="slot" names={dropsNamesFixture()} onGroupingChange={fn()} onIncludedChange={fn()} />,
+		items: (
+			<DropsItemsView
+				list={dropsItemListFixture()}
+				grouping="slot"
+				tree={dropsTreeFixture()}
+				names={dropsNamesFixture()}
+				onGroupingChange={fn()}
+				onIncludedChange={fn()}
+			/>
+		),
 	},
 	argTypes: { sources: { control: false }, items: { control: false } },
 } satisfies Meta<typeof DropsSetupView>;

@@ -1,17 +1,14 @@
-import { ResultReferenceDiff } from '@features/results/components/ResultMetricList';
-import { ResultMetricValue } from '@features/results/components/ResultMetricValue';
 import i18n from '@i18n/config';
 import { useActionId } from '@sim/hooks/useActionId';
 import { ActionId } from '@sim/proto/action_id';
 import type { EquippedItem } from '@sim/proto/equipped_item';
-import { type DeltaText, formatToNumber } from '@sim/utils/format';
+import type { DeltaText } from '@sim/utils/format';
 import { Button } from '@ui-kit/Button';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { itemQualityClassName } from '@ui-kit/utils/css';
 import { WowheadIcon } from '@ui-kit/WowheadIcon';
-import { useId } from 'react';
 
-import { formatBulkDps, formatBulkItemLabel } from '../../model/results/format';
+import { formatBulkItemLabel } from '../../model/results/format';
+import { BulkDpsCell } from '../BulkDpsCell';
 
 export interface DropsItemRowViewProps {
 	/** Null on the current gear's row. */
@@ -83,8 +80,6 @@ export const DropsItemRowView = ({
 	onShowVariations,
 	onEquip,
 }: DropsItemRowViewProps) => {
-	const marginTooltipId = useId();
-	const deltaTooltipId = useId();
 	const lowPrecision = plusMinus === null;
 
 	return (
@@ -111,24 +106,13 @@ export const DropsItemRowView = ({
 				{source}
 				{moreSources.length > 0 && ` +${moreSources.length}`}
 			</span>
-			<div className={`${DPS_CLASS} flex flex-col items-start gap-2 font-bold`}>
-				<div>
-					<ResultMetricValue
-						average={formatBulkDps(avg)}
-						unit={i18n.t('sidebar.results.metrics.dps.label')}
-						margin={plusMinus !== null && plusMinus > 0 ? formatToNumber(plusMinus, { maximumFractionDigits: 0 }) : undefined}
-						marginTooltipId={marginTooltipId}
-					/>
-				</div>
-				{item && <ResultReferenceDiff diff={{ ...delta, significance }} tooltipId={deltaTooltipId} hideLabel />}
-				{lowPrecision && (
-					<span className="text-xs font-normal text-warning" {...tooltipAnchorProps(marginTooltipId)}>
-						{t('low_precision')}
-					</span>
-				)}
-				<Tooltip id={marginTooltipId} content={lowPrecision ? t('low_precision_tooltip') : i18n.t('bulk_tab.results.margin_of_error')} />
-				<Tooltip id={deltaTooltipId} />
-			</div>
+			<BulkDpsCell
+				className={DPS_CLASS}
+				avg={avg}
+				plusMinus={plusMinus}
+				diff={item ? { ...delta, significance } : null}
+				lowPrecision={lowPrecision ? { note: t('low_precision'), tooltip: t('low_precision_tooltip') } : undefined}
+			/>
 			<div className={`${EQUIP_CLASS} flex justify-end`}>
 				{onEquip && (
 					<Button data-testid="bulk-equip-btn" onClick={onEquip}>

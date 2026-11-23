@@ -22,7 +22,7 @@ export const bulkModeStarted = (runMode: BulkMode, slice: Pick<BulkSlice, 'gearS
 	return runMode === 'builds' ? slice.buildsStarted : slice.gearStarted;
 };
 
-// Bumps `settings`: Drops counts the other settings (the encounter, the enchant pool), so a mode switch recounts.
+// Bumps `settings`: Drops counts from its own sources, exclusions and enchant preset pool, so a mode switch recounts.
 export const setBulkMode = (player: Player<any>, mode: BulkMode) => {
 	patchBulkState(player, { mode }, ['settings']);
 	storeBulkMode(player, mode);

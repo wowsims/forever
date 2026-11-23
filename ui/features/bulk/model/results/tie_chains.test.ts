@@ -2,7 +2,7 @@ import { BulkSimStage, DistributionMetrics } from '@generated/proto/api';
 import { TopGearResult } from '@sim/bulk/types';
 import { describe, expect, it } from 'vitest';
 
-import { buildTieChains, isTiedWithBaseline } from './tie_chains';
+import { buildTieChains, isCulled, isTiedWithBaseline } from './tie_chains';
 
 const result = (avg: number, stdev: number, overrides: Partial<TopGearResult> = {}): TopGearResult =>
 	({ gear: null, dpsMetrics: { avg, stdev } as DistributionMetrics, ...overrides }) as TopGearResult;
@@ -61,8 +61,8 @@ describe('buildTieChains', () => {
 		const baseline = result(1000, 500);
 		const closeMeanClearlyBelow = result(1001, 500, { pairedErrorToBaseline: 1, pairedDpsDiffToBaseline: -10 });
 		const farMeanLevel = result(980, 500, { pairedErrorToBaseline: 1, pairedDpsDiffToBaseline: -0.5 });
-		expect(isTiedWithBaseline(closeMeanClearlyBelow, baseline)).toBe(false);
-		expect(isTiedWithBaseline(farMeanLevel, baseline)).toBe(true);
+		expect(isTiedWithBaseline(closeMeanClearlyBelow, baseline, 100)).toBe(false);
+		expect(isTiedWithBaseline(farMeanLevel, baseline, 100)).toBe(true);
 	});
 
 	it('judges a row with no paired error against the baseline at each row’s own iteration count', () => {
@@ -73,8 +73,28 @@ describe('buildTieChains', () => {
 		});
 		const baseline = result(1000, 500, { dpsMetrics: { avg: 1000, stdev: 500, aggregatorData: { n: 50000, sumSq: 0 } } as DistributionMetrics });
 		const separated = result(1030, 500, { dpsMetrics: { avg: 1030, stdev: 500, aggregatorData: { n: 50000, sumSq: 0 } } as DistributionMetrics });
-		expect(isTiedWithBaseline(row, baseline)).toBe(true);
-		expect(isTiedWithBaseline(separated, baseline)).toBe(false);
+		expect(isTiedWithBaseline(row, baseline, 100)).toBe(true);
+		expect(isTiedWithBaseline(separated, baseline, 100)).toBe(false);
+	});
+
+	it('judges a row with a paired error but no paired difference by the averages', () => {
+		// A decoded response holds 0 for a difference the backend never set; 30 DPS at stdev 500 and 50,000 iterations each is z ≈ 9.5.
+		const at50k = (avg: number, overrides: Partial<TopGearResult> = {}) =>
+			result(avg, 500, { dpsMetrics: { avg, stdev: 500, aggregatorData: { n: 50000, sumSq: 0 } } as DistributionMetrics, ...overrides });
+		expect(isTiedWithBaseline(at50k(1030, { pairedErrorToBaseline: 1, pairedDpsDiffToBaseline: 0 }), at50k(1000), 100)).toBe(false);
+	});
+
+	it('reads two rows with no paired error at each row’s own iteration count', () => {
+		// 5 DPS at stdev 300: z ≈ 2.4 at 40,000 iterations each, ≈ 1.5 at 40,000 against a non-finalist's 10,000.
+		const at = (avg: number, n: number) => result(avg, 300, { dpsMetrics: { avg, stdev: 300, aggregatorData: { n, sumSq: 0 } } as DistributionMetrics });
+		expect(shape(buildTieChains([at(815, 40000), at(810, 10000)], null, 40000))).toEqual([[815, 810]]);
+	});
+
+	it('marks a culled row and not a finalist row', () => {
+		const row = result(760, 100);
+		expect(isCulled({ ...row, culledStage: BulkSimStage.BulkSimStageMedium })).toBe(true);
+		expect(isCulled(row)).toBe(false);
+		expect(isCulled({ ...row, culledStage: BulkSimStage.BulkSimStageUnknown })).toBe(false);
 	});
 
 	it('is empty for no results', () => {

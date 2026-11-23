@@ -1,7 +1,7 @@
 import type { DropsBossCardViewProps } from '@features/bulk/components/DropsBossCard';
 import type { DropsItemRowViewProps } from '@features/bulk/components/DropsItemRow';
 import { type DropsItemList, dropsItemList } from '@features/bulk/model/drops/items';
-import { type DropsNames, type DropsSourceNode, dropsSourceTree } from '@features/bulk/model/drops/sources';
+import { dropsItemSourceKeys, type DropsNames, type DropsSourceNode, dropsSourceTree } from '@features/bulk/model/drops/sources';
 import { rankEncounterResults } from '@features/bulk/model/results/results';
 import { BulkSimStage, DistributionMetrics } from '@generated/proto/api';
 import { ArmorType, Class, Faction, HandType, ItemQuality, ItemSlot, ItemType, WeaponType } from '@generated/proto/common';
@@ -114,7 +114,7 @@ export const dropsItemListFixture = (): DropsItemList => {
 			faction: Faction.Alliance,
 			wornIds: new Set([WORN_ITEM_ID]),
 		},
-		dropsNamesFixture(),
+		item => dropsItemSourceKeys(item, dropsNamesFixture()),
 	);
 };
 
@@ -197,8 +197,6 @@ export const dropsCardsFixture = (): DropsBossCardViewProps[] => {
 				{ itemId: 2003, icon: icon('inv_weapon_halberd_04'), name: 'Blackhand Doomsaw', gainPct: null, upgrade: false },
 			],
 			best: { dps: 780, pct: 4 },
-			upgrades: 1,
-			total: 2,
 		},
 		{
 			...base,
@@ -209,8 +207,6 @@ export const dropsCardsFixture = (): DropsBossCardViewProps[] => {
 				{ itemId: 2005, icon: icon('inv_gauntlets_29'), name: 'Reiver Claws', gainPct: 0.4, upgrade: true },
 			],
 			best: { dps: 765, pct: 2 },
-			upgrades: 2,
-			total: 2,
 		},
 		{
 			...base,
@@ -218,8 +214,6 @@ export const dropsCardsFixture = (): DropsBossCardViewProps[] => {
 			label: { label: 'General Drakkisath', detail: 'Blackrock Spire' },
 			strip: [{ itemId: 2002, icon: icon('inv_sword_43'), name: 'Blackblade of Shahram', gainPct: -0.27, upgrade: false }],
 			best: null,
-			upgrades: 0,
-			total: 1,
 		},
 	];
 };

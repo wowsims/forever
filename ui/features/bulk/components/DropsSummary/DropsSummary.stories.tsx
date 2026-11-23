@@ -9,7 +9,7 @@ const meta = {
 	args: {
 		current: { avg: 750, plusMinus: 2 },
 		bestDrop: { name: 'Felstriker', dps: 780, pct: 4 },
-		bestBoss: { label: 'Warchief Rend Blackhand', detail: 'Blackrock Spire', pct: 4 },
+		bestBoss: { label: 'Warchief Rend Blackhand', detail: 'Blackrock Spire' },
 	},
 	argTypes: { current: { control: 'object' }, bestDrop: { control: 'object' }, bestBoss: { control: 'object' } },
 } satisfies Meta<typeof DropsSummaryView>;

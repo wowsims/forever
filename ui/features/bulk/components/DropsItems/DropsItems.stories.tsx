@@ -1,6 +1,6 @@
 import i18n from '@i18n/config';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { dropsItemListFixture, dropsNamesFixture } from '@testing/storybook/fixtures/bulk-drops';
+import { dropsItemListFixture, dropsNamesFixture, dropsTreeFixture } from '@testing/storybook/fixtures/bulk-drops';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { DropsItemsView } from './DropsItems';
@@ -12,11 +12,12 @@ const meta = {
 	args: {
 		list: dropsItemListFixture(),
 		grouping: 'slot',
+		tree: dropsTreeFixture(),
 		names: dropsNamesFixture(),
 		onGroupingChange: fn(),
 		onIncludedChange: fn(),
 	},
-	argTypes: { list: { control: false }, names: { control: false } },
+	argTypes: { list: { control: false }, tree: { control: false }, names: { control: false } },
 	decorators: [
 		Story => (
 			<div className="w-170">

@@ -15,6 +15,7 @@ import { talentsLabel } from '../builds/talents';
 import { dropsGap } from '../drops/results';
 import { changedEnchantLabels } from './compare';
 import { formatBulkItemLabel } from './format';
+import { isCulled, rowIterations } from './tie_chains';
 
 export const BULK_RESULTS_CSV_FILE_NAME = 'wowsims-batch-results.csv';
 
@@ -73,9 +74,7 @@ export const bulkResultsCsv = (entries: readonly BulkEncounterResults[], { drops
 				result.gear.equals(currentGear) ? 'yes' : '',
 				avg,
 				// A culled row ran fewer iterations than the finalists the margin is taken at.
-				result.culledStage === undefined
-					? stDevToConf95(result.dpsMetrics.stdev, drops ? (result.dpsMetrics.aggregatorData?.n ?? iterations) : iterations)
-					: '',
+				isCulled(result) ? '' : stDevToConf95(result.dpsMetrics.stdev, drops ? rowIterations(result, iterations) : iterations),
 				diff,
 				diffPct,
 				csvText(talentsLabel(result.talents)),

@@ -12,12 +12,14 @@ import clsx from 'clsx';
 import { useMemo, useRef, useState } from 'react';
 
 import { type DropsItem, type DropsItemList, dropsItemsBySlot, dropsItemsBySource, dropsLeftOutCounts, type DropsLeftOutReason } from '../../model/drops/items';
-import { type DropsNames, dropsSourceLabel } from '../../model/drops/sources';
+import { type DropsNames, dropsSourceLabel, type DropsSourceNode } from '../../model/drops/sources';
 
 export interface DropsItemsViewProps {
 	list: DropsItemList;
 	grouping: 'slot' | 'source';
 	onGroupingChange: (grouping: 'slot' | 'source') => void;
+	/** The Sources tree the list was picked from, whose leaf order the source grouping follows. */
+	tree: readonly DropsSourceNode[];
 	names: DropsNames;
 	/** Called with the listed, non-worn ids of Include all / Exclude all, or one row's id. */
 	onIncludedChange: (ids: readonly number[], included: boolean) => void;
@@ -30,11 +32,11 @@ const t = (key: string, options: { count?: number; reasons?: string } = {}) => i
 
 type ListRow = { kind: 'header'; key: string; title: string; detail?: string } | { kind: 'item'; key: string; entry: DropsItem };
 
-const listRows = (list: DropsItemList, grouping: DropsItemsViewProps['grouping'], names: DropsNames): ListRow[] => {
+const listRows = (list: DropsItemList, grouping: DropsItemsViewProps['grouping'], tree: readonly DropsSourceNode[], names: DropsNames): ListRow[] => {
 	const groups =
 		grouping === 'slot'
 			? dropsItemsBySlot(list).map(({ slot, items }) => ({ key: `slot:${slot}`, title: translateBulkSlotName(slot), detail: undefined, items }))
-			: dropsItemsBySource(list, names).map(({ key, label, items }) => ({ key, title: label.label, detail: label.detail, items }));
+			: dropsItemsBySource(list, tree, names).map(({ key, label, items }) => ({ key, title: label.label, detail: label.detail, items }));
 	return groups.flatMap(group => [
 		{ kind: 'header' as const, key: group.key, title: group.title, detail: group.detail },
 		...group.items.map(entry => ({ kind: 'item' as const, key: `${group.key}/${entry.item.id}`, entry })),
@@ -117,9 +119,9 @@ const LeftOut = ({ list }: LeftOutProps) => {
 	);
 };
 
-export const DropsItemsView = ({ list, grouping, onGroupingChange, names, onIncludedChange }: DropsItemsViewProps) => {
+export const DropsItemsView = ({ list, grouping, onGroupingChange, tree, names, onIncludedChange }: DropsItemsViewProps) => {
 	const scroller = useRef<HTMLDivElement>(null);
-	const rows = useMemo(() => listRows(list, grouping, names), [list, grouping, names]);
+	const rows = useMemo(() => listRows(list, grouping, tree, names), [list, grouping, tree, names]);
 	const pickable = list.items.filter(entry => !entry.worn).map(entry => entry.item.id);
 
 	return (

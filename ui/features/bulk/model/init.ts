@@ -3,6 +3,7 @@ import { BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS, BulkSimItemSlot } from '@sim/bul
 import type { Player } from '@sim/player/player';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import {
+	bulkState,
 	loadStoredBatchEncounter,
 	loadStoredBulkBuildEnchantPresets,
 	loadStoredBulkBundles,
@@ -24,6 +25,7 @@ import { subscribeAll, subscribeBulkChange, subscribePlayerField, subscribeSimFi
 
 import { addBulkItems, loadEquippedBulkItems, seedBulkPickerGroups } from './gear/items';
 import { type BulkFrozenSlot, createBulkSettingsProto, setBulkFrozenItem, setBulkFrozenWeaponSlot, setBulkWeaponTypeFilter } from './gear/settings';
+import { bulkRunsDrops } from './mode';
 import { refreshBulkCombinations } from './run/run';
 
 const equippedItemForFrozenSlot = (player: Player<any>, bulkSlot: BulkFrozenSlot, itemSlot: number): EquippedItem | null => {
@@ -123,9 +125,11 @@ export const initBulk = (host: IndividualSimHost<any>) => {
 		subscribeBulkChange(player)(() => void refreshBulkCombinations(host));
 		// Enchanting unlocks enchants, so it can change the enchant pool.
 		subscribeAll([subscribePlayerField(player, 'profession1'), subscribePlayerField(player, 'profession2')])(() => void refreshBulkCombinations(host));
-		// The phase and the race, whose side `player.getFaction()` reads, change the Drops list. A gear change recounts through
-		// `loadEquippedBulkItems`, which bumps `items`.
-		subscribeAll([subscribeSimField(sim, 'phase'), subscribePlayerField(player, 'race')])(() => void refreshBulkCombinations(host));
+		// The phase and the race, whose side `player.getFaction()` reads, change the Drops list and no other mode's count. A
+		// gear change recounts through `loadEquippedBulkItems`, which bumps `items`.
+		subscribeAll([subscribeSimField(sim, 'phase'), subscribePlayerField(player, 'race')])(() => {
+			if (bulkRunsDrops(sim.getShowPowerTools(), bulkState(player).mode)) void refreshBulkCombinations(host);
+		});
 
 		loadEquippedBulkItems(player);
 		void refreshBulkCombinations(host);

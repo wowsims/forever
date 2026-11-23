@@ -17,8 +17,8 @@ import { makeUIItem } from '@testing/storybook/fixtures/protos';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
-	dropsItemListFor,
 	dropsRequestSettings,
+	dropsSetupFor,
 	setDropsEnchantPresetChecked,
 	setDropsExcluded,
 	setDropsItemsIncluded,
@@ -92,7 +92,7 @@ describe('dropsRequestSettings', () => {
 		setDropsSources(player, [DRAKKISATH, WYRMTHALAK]);
 		setDropsItemsIncluded(player, [205], false);
 
-		expect(dropsItemListFor(player).items.map(entry => [entry.item.id, entry.worn, entry.included])).toEqual([
+		expect(dropsSetupFor(player).list.items.map(entry => [entry.item.id, entry.worn, entry.included])).toEqual([
 			[101, false, true],
 			[150, true, true],
 			[205, false, false],

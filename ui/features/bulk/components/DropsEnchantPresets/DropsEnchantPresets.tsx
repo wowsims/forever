@@ -5,8 +5,8 @@ import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { type ReactNode, type Ref, useMemo, useRef, useState } from 'react';
 
-import { useDropsEnchantPicks } from '../../hooks/useDropsEnchantPicks';
-import { bulkEnchantPickList, formatEnchantPickSummary } from '../../model/builds/enchant_picks';
+import { useBulkEnchantPicks } from '../../hooks/useBulkEnchantPicks';
+import { enchantPickRows } from '../../model/builds/enchant_picks';
 import { setDropsEnchantPresetChecked } from '../../model/drops/settings';
 import { BulkCheckList, type BulkCheckRow } from '../BulkCheckList';
 
@@ -45,21 +45,11 @@ export const DropsEnchantPresetsView = ({ rows, onCheckedChange, onNew, dialog, 
 
 export const DropsEnchantPresets = () => {
 	const player = usePlayer();
-	const { entries, checked } = useDropsEnchantPicks();
+	const { entries, checked } = useBulkEnchantPicks('dropsEnchantPresets');
 	const [creating, setCreating] = useState(false);
 	const listRef = useRef<HTMLDivElement>(null);
 
-	const rows = useMemo(
-		() =>
-			bulkEnchantPickList(entries, checked).map((item): BulkCheckRow => ({
-				ref: item.ref,
-				name: item.name,
-				summary: formatEnchantPickSummary(item.preset),
-				checked: item.checked,
-				duplicate: item.duplicate,
-			})),
-		[entries, checked],
-	);
+	const rows = useMemo(() => enchantPickRows(entries, checked), [entries, checked]);
 
 	return (
 		<DropsEnchantPresetsView
