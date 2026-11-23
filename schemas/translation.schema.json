@@ -2409,9 +2409,6 @@
 								"grovekeeper_eclipse_4": {
 									"type": "string"
 								},
-								"wildheart_raiment_5": {
-									"type": "string"
-								},
 								"implements_of_unspoken_names_3": {
 									"type": "string"
 								},
@@ -2430,7 +2427,6 @@
 							},
 							"required": [
 								"grovekeeper_eclipse_4",
-								"wildheart_raiment_5",
 								"implements_of_unspoken_names_3",
 								"dreadnaughts_battlegear_4",
 								"dreadnaughts_battlegear_8",
