@@ -154,11 +154,11 @@ t2jHDfcvLkK96bdV 1-9; tcBj1NqHbxM7AaZp 1-4; wPrMvF2qYa61TCGB 1; y4fHqpA8Qt2m3Vaj
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
-  lists, from every wearer stream on disk for its weapon; 3,486 reports in all for the count, 28 of them for these
+  lists, from every wearer stream on disk for its weapon; 3,637 reports in all for the count, 28 of them for these
   weapons
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 705 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 16 of them for these weapons.
+  UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 16 of them for these weapons.
   The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

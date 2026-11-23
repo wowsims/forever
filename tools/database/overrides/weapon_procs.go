@@ -450,13 +450,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  5752,
-		SpellID: 16400,
-		PPM:     2.05,
-		Reason:  "Wyvern Tailspike: column reads 101; shares the trigger with Naraxis' Fang; a log fit not yet validated (EV-0153)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  6738,
 		SpellID: 16403,
 		PPM:     1,
@@ -528,13 +521,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
-		ItemID:  5243,
-		SpellID: 1291686,
-		PPM:     3.95,
-		Reason:  "Firebelcher: equip trigger, column reads 100",
-		Source:  "EV-0136",
-	},
-	{
 		ItemID:  5756,
 		SpellID: 1293653,
 		PPM:     2,
@@ -575,13 +561,6 @@ var WeaponProcs = []WeaponProc{
 		PPM:     1.05,
 		Reason:  "Argent Avenger: no proc row",
 		Source:  "EV-0126",
-	},
-	{
-		ItemID:  18483,
-		SpellID: 1302348,
-		PPM:     4,
-		Reason:  "Mana Channeling Wand: equip trigger, column reads 100; wand shots roll it",
-		Source:  "EV-0136",
 	},
 	{
 		ItemID:  281665,
@@ -677,6 +656,13 @@ var WeaponProcs = []WeaponProc{
 		PPM:     2.15,
 		Reason:  "Mug O' Hurt: column reads 101",
 		Source:  "EV-0183",
+	},
+	{
+		ItemID:  5243,
+		SpellID: 1291686,
+		PPM:     4.05,
+		Reason:  "Firebelcher: equip trigger, column reads 100",
+		Source:  "EV-0136",
 	},
 	{
 		ItemID:  7753,
@@ -840,6 +826,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
+		ItemID:  18483,
+		SpellID: 1302348,
+		PPM:     4.15,
+		Reason:  "Mana Channeling Wand: equip trigger, column reads 100; wand shots roll it",
+		Source:  "EV-0136",
+	},
+	{
 		ItemID:  272999,
 		SpellID: 1291551,
 		PPM:     3.05,
@@ -992,6 +985,13 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 16400,
 		PPM:     2.1,
 		Reason:  "Naraxis' Fang: column reads 101; shares the trigger with Wyvern Tailspike; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  5752,
+		SpellID: 16400,
+		PPM:     2.1,
+		Reason:  "Wyvern Tailspike: column reads 101; shares the trigger with Naraxis' Fang; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	{

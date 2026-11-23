@@ -3,17 +3,17 @@
 - Claim: each weapon below procs at the rate its section gives, priced on the weapon base speed of each hit that rolls
   it; Mug O' Hurt's rate is measured, and the others observed.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each weapon's section lists, from
-  every wearer stream on disk for the 15 weapons; 193 reports in all for them, of the count's 3,486
+  every wearer stream on disk for the 15 weapons; 193 reports in all for them, of the count's 3,637
 - Game build: 1.60.1.70790 to 1.60.1.71037 by report date (70862 from 2026-11-07 04:43 UTC, 70888 from 2026-11-10 15:11
   UTC in the US and 2026-11-11 02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC,
-  71037 from 2026-11-20 18:23 UTC); 705 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 55
+  71037 from 2026-11-20 18:23 UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 55
   of them for these weapons. The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180
 
 ## Method
 
-The count is EV-0153's Method, run again over every wearer stream on disk for the 90 items it rates, the ones here and
+The count is EV-0153's Method, run again over every wearer stream on disk for the 93 items it rates, the ones here and
 those of EV-0120, EV-0121, EV-0125, EV-0133, EV-0136, EV-0146, EV-0150, EV-0153, EV-0157, EV-0177 and EV-0178, with the
 same classes and forms left out, intervals, lone-unit checks, swap drop, credit windows and calls of measured or
 observed. Paladins are left out of every rate. From hotfix push 114313 (2026-11-20 23:47 UTC) each Mutilate strike rolls

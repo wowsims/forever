@@ -3326,6 +3326,14 @@ func RegisterAllProcs() {
 			{ItemID: 5028, ItemName: "Lord Sakrasis' Scepter"},
 		})
 
+	// Poisons target for 6 Nature damage every 3.0 sec for 15s.
+	// https://www.wowhead.com/forever/spell=16400
+	// trigger 16400 (2.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16400, BuffSpellID: 16400, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 5752, ItemName: "Wyvern Tailspike"},
+		})
+
 	// A burst of energy fills the caster, increasing his damage by 10 and armor by 150 for 15s.
 	// https://www.wowhead.com/forever/spell=8191
 	// trigger 8191 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)

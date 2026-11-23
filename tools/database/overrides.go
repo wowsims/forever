@@ -73,6 +73,7 @@ var EffectFloorExemptions = map[int32]string{
 	3336:   "Flesh Piercer: melee players wear it for the Rend proc (EV-0183)",
 	3822:   "Runic Darkblade: melee players wear it for the Shadow Bolt proc (EV-0183)",
 	4449:   "Naraxis' Fang: melee players wear it for the Poison proc (EV-0183)",
+	5752:   "Wyvern Tailspike: melee players wear it for the Poison proc (EV-0153)",
 	7284:   "Red Whelp Gloves: melee players wear them for the Firebolt proc (EV-0177)",
 	9449:   "Manual Crowd Pummeler: a level 60 melee swaps it in for its on-use attack speed",
 	282703: "Needletooth's Needletooth: melee players wear it for the Puncture proc (EV-0183)",
@@ -212,6 +213,7 @@ var ItemAllowList = map[int32]struct{}{
 	3336:   {}, // Flesh Piercer
 	3822:   {}, // Runic Darkblade
 	4449:   {}, // Naraxis' Fang
+	5752:   {}, // Wyvern Tailspike
 	7284:   {}, // Red Whelp Gloves
 	8345:   {}, // Wolfshead Helm
 	11815:  {}, // Hand of Justice

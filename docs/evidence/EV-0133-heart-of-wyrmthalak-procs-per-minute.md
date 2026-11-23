@@ -135,10 +135,10 @@ yVp9KT3QkzhmZXDR 1; z8QPNWpMBx4VgdDX 1; zBx9XMQPdpW36a2D 1-4; zWQLAnHTjq4RJCby 1
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate lists, from every wearer
-  stream on disk for the trinket; 3,486 reports in all for the count, 256 of them for the trinket
+  stream on disk for the trinket; 3,637 reports in all for the count, 256 of them for the trinket
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 705 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 87 of them for the trinket. The
+  UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 87 of them for the trinket. The
   sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

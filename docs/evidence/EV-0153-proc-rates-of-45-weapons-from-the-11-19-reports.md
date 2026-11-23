@@ -9,7 +9,8 @@
   each player ran is not recorded
 - Date: 2026-11-05 to 2026-11-19
 - Pull request: #1108
-- Later count: Blade of the Basilisk, Diabolic Skiver and Wraith Scythe, §Count of the 2026-11-06 to 2026-11-22 reports
+- Later count: Blade of the Basilisk, Diabolic Skiver, Wraith Scythe and Wyvern Tailspike, §Count of the 2026-11-06 to
+  2026-11-22 reports
 
 ## Method
 
@@ -97,7 +98,6 @@ Rate is the override row's rate. The one-hand white and specials columns give th
 | Bleeding Crescent       |   6738 |    1 | observed | 0.99 [0.90, 1.09] |   482 / 12,205 |      31 | 0.95 (69)      | 0.87 (50)  |
 | Plaguefang              | 279876 |    2 | measured | 1.98 [1.87, 2.11] | 2,944 / 42,419 |      55 | 1.99 (560)     | 1.98 (324) |
 | Silent Fang             |  13953 | 1.45 | observed | 1.47 [1.30, 1.61] |   466 / 11,915 |       9 | 1.50 (154)     | 1.49 (64)  |
-| Wyvern Tailspike        |   5752 | 2.05 | observed | 2.03 [1.83, 2.27] |    445 / 7,293 |      14 | 2.25 (26)      | 2.36 (26)  |
 
 ## Angerforge's Battle Axe (item 11816, spell 1300783): 2, measured
 
@@ -277,26 +277,31 @@ Reports and fights: B6JLrnWKF9htyjv2 1; DZjKqdLXkBztYJTC 1; JChQqKVgLWykANRr 9-4
 PtmYHjkDrqhdR9MA 1-6, 9-10; RBpWJ7zM9N3TDGQc 1; Ta4fLJj32kWzmXgw 1-29; XPgHryZdABkRDhwV 3; YnVFyQq3w28mr41R 1;
 ZQtv6AqYmdJFWwhy 7-8; h4gWnT3HLBbYzMcK 1; p1VPMyG8jgR6Ymc7 1-4; zxtbh1BmNVC8W2FH 10-14, 16-21.
 
-## Wyvern Tailspike (item 5752, spell 16400): 2.05, observed
+## Wyvern Tailspike (item 5752, spell 16400): 2.1, observed
 
-445 procs on 7,293 rolling hits, 14 wearers, 16 runs, in the main hand or the off hand: all hits 2.03 [1.83, 2.27].
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+
+738 procs on 11,824 rolling hits, 29 wearers, 31 runs, in the main hand or the off hand: all hits 2.08 [1.90, 2.24].
 Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
-Observed: its interval reaches further than 10% from the read. One-hand white: 2.25 [0.00, 2.26], 26 procs on 385 lone
-units, 2 wearers. Dual-wield white: 1.88 [1.60, 2.22], 190 procs on 3,376 lone units, 11 wearers. Specials: 2.36 [1.11,
-3.13], 26 procs on 367 lone units, 7 wearers. Two-roll abilities, priced as one roll: 0.00, 0 procs on 1 lone unit.
-Direct: window [-10, 100] ms, median 0 ms, 98th percentile 0 ms, 174 isolated hits. Reports from 2026-11-10 to
-2026-11-17.
+Observed: no lone-unit rate checks it. One-hand white: 2.41 [1.68, 3.35], 35 procs on 484 lone units, 4 wearers (a
+Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.92 [1.72, 2.19], 277 procs on 4,809 lone
+units, 21 wearers. Specials: 2.04 [1.33, 2.57], 41 procs on 671 lone units, 14 wearers. Direct: window [-10, 100] ms,
+median 0 ms, 98th percentile 1 ms, 281 isolated hits. Dropping the swapped stretches (9.1 active minutes, 1% of hits, in
+1 run) moved the read from 2.05 to 2.08. Reports from 2026-11-10 to 2026-11-22.
 
 | Class  | Wearers | Procs |  Hits |  PPM |
 | ------ | ------: | ----: | ----: | ---: |
-| Rogue  |       9 |   386 | 6,288 | 2.05 |
+| Rogue  |      13 |   622 | 9,874 | 2.10 |
+| Hunter |      14 |    69 | 1,232 | 1.87 |
 | Shaman |       2 |    47 |   718 | 2.18 |
-| Hunter |       4 |    12 |   287 | 1.39 |
 
-Reports and fights: 2RdqgkHFNVMnKCh8 1-2; 4NWagKbPRwT81yh7 3-8; 8129XG6zfMVJrvmg 1-3; Amh4kVqaFGB3xPZ9 1-3;
-JD2ag1wYV8qCxhtQ 1; JPymD8BKctgqMFLH 1; MLhC3KjWrngq2vtZ 1-2; QZyPVgTvLJnamk84 1-3; Wh7fgRNMmLP4YBnX 1; b6QHjXT2GF7A1YPr
-1-8; cT71Vr9tPDKkxWv3 1-2; dGhawD4rxCAH7bR2 1-4, 6-10, 12, 14-21, 23-30, 32-37, 39, 41-51; fyb2xc14zNRdvDMY 1-2;
-hxZPKTfQYzdVjvN3 6-9, 11; rqhGLfWyaAtZvjTC 3, 6; vnDM8K4RYx6kW2GH 1-2.
+Reports and fights: 2C6paPN987vMZWwd 1, 3; 2RdqgkHFNVMnKCh8 1-2; 4NWagKbPRwT81yh7 3-8; 7YcB9haxNGD463Cj 4;
+8129XG6zfMVJrvmg 1-3; 8X94GnMwCpFcZ2Q6 1; 9h4H3bVCgyfPQWt7 1; 9nKGxYHVDhvApL83 1-2; Amh4kVqaFGB3xPZ9 1-3;
+D4jMGTC7Q1cVtF6p 1; DMYyPqt27cGjL1K8 1; JD2ag1wYV8qCxhtQ 1; JPymD8BKctgqMFLH 1; L7rDtmvMqbH9xnVF 1-24; MLhC3KjWrngq2vtZ
+1-2; PzbCdMALrYJh7vNV 1-2; QZyPVgTvLJnamk84 1-3; Wh7fgRNMmLP4YBnX 1; XYDcxmK8A3at2wgN 1; b6QHjXT2GF7A1YPr 1-8;
+cT71Vr9tPDKkxWv3 1-2; dGhawD4rxCAH7bR2 1-4, 6-10, 12, 14-21, 23-30, 32-37, 39, 41-51; fyb2xc14zNRdvDMY 1-2;
+hxZPKTfQYzdVjvN3 6-9, 11; qVY1prKMP6GjFdXm 1; qxACn7fMgDQL3Vw6 1-9; rqhGLfWyaAtZvjTC 3, 6; vnDM8K4RYx6kW2GH 1-2;
+wtJqpy9ThGxFz4nZ 1-2; yF1hGHxMnrPJK83T 1; ynGtWRk4cZX3TmYv 1.
 
 ## Count of the 2026-11-06 to 2026-11-21 reports
 
@@ -328,11 +333,11 @@ Scripts and inputs, in `forever-notices-1121`: `results.json`, the counts of `fo
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
-  lists, from every wearer stream on disk for its weapon; 3,486 reports in all for the count, 47 of them for these
+  lists, from every wearer stream on disk for its weapon; 3,637 reports in all for the count, 78 of them for these
   weapons
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 705 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 13 of them for these weapons.
+  UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 22 of them for these weapons.
   The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180

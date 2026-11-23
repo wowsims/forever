@@ -18,20 +18,20 @@
   Felstriker, Glutton's Cleaver, Grimclaw, Hammer of Expertise, Hanzo Sword, Ironforge Greathammer, Lord General's
   Sword, Sang'thraze the Deflector, Satyr's Lash, Taran Icebreaker and Toofbreaker, §Count of the 2026-11-05 to
   2026-11-19 reports
-- Later count: Bloodrazor, Cookie's Tenderizer, Firebelcher, Kang the Decapitator, Mana Channeling Wand, Pyromancer's
-  Baton, Scorpion Sting, Searing Blade, Serpent Slicer, Sliverblade, Sul'thraze the Lasher, Sword of Corruption and
-  Twilight Forgehammer, §Count of the 2026-11-06 to 2026-11-21 reports
+- Later count: Bloodrazor, Cookie's Tenderizer, Kang the Decapitator, Pyromancer's Baton, Scorpion Sting, Searing Blade,
+  Serpent Slicer, Sliverblade, Sul'thraze the Lasher, Sword of Corruption and Twilight Forgehammer, §Count of the
+  2026-11-06 to 2026-11-21 reports
 - Later count: Burning War Axe and Shortsword of Vengeance, §Count of the 2026-11-09 to 2026-11-22 reports
 - Later count: Axe of Inevitable Ruin, Barbaric Crossbow, Bashguuder, Black Duskwood Staff, Black Malice, Blade of the
   Wretched, Bloodspiller, Bonechill Hammer, Boneslicer, Brush Cutter, Claw of Celebras, Claw of the Shadowmancer, Cobalt
   Crusher, Darrowspike, Dazzling Longsword, Deadhead Blade, Dwarven Hand Cannon, Eater of the Dead, Fang of the Crystal
-  Spider, Fiery War Axe, Firebreather, Fist of the Damned, Frightalon, Gahz'rilla Fang, Galgann's Fireblaster, Grim
-  Reaper, Gryphon Rider's Stormhammer, Gut Ripper, Hameya's Slayer, Hammer of the Northern Wind, Iceblade Hacker, Iron
-  Knuckles, Jom-jom's Gabbar, Killmaim, Linken's Sword of Mastery, Loksey's Training Stick, Naga Heartpiercer, Night
-  Reaver, Nightblade, Pendulum of Doom, Phantom Blade, Quillshooter, Rivenspike, Shadowblade, Skeletal Club, Spellsever
-  Crossbow, Stalvan's Reaper, Strike of the Hydra, Supercharger Battle Axe, Sword of Decay, Tainted Pierce, The
-  Blackrock Slicer, The Cruel Hand of Timmy, The Ziggler, Thornspike, Twilight Maul, Venomstrike, Vibroblade and
-  X'caliboar, §Count of the 2026-11-06 to 2026-11-22 reports
+  Spider, Fiery War Axe, Firebelcher, Firebreather, Fist of the Damned, Frightalon, Gahz'rilla Fang, Galgann's
+  Fireblaster, Grim Reaper, Gryphon Rider's Stormhammer, Gut Ripper, Hameya's Slayer, Hammer of the Northern Wind,
+  Iceblade Hacker, Iron Knuckles, Jom-jom's Gabbar, Killmaim, Linken's Sword of Mastery, Loksey's Training Stick, Mana
+  Channeling Wand, Naga Heartpiercer, Night Reaver, Nightblade, Pendulum of Doom, Phantom Blade, Quillshooter,
+  Rivenspike, Shadowblade, Skeletal Club, Spellsever Crossbow, Stalvan's Reaper, Strike of the Hydra, Supercharger
+  Battle Axe, Sword of Decay, Tainted Pierce, The Blackrock Slicer, The Cruel Hand of Timmy, The Ziggler, Thornspike,
+  Twilight Maul, Venomstrike, Vibroblade and X'caliboar, §Count of the 2026-11-06 to 2026-11-22 reports
 
 ## Method
 
@@ -1146,37 +1146,41 @@ zDKZYwnyML7WFHXB 1-6, 8-17.
 
 ## Firebelcher (5243)
 
-- Count: §Count of the 2026-11-06 to 2026-11-21 reports
-- Proc: weapon proc 1291686
-- Rate: 3.95 PPM, measured
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: equip proc 1291686
+- Rate: 4.05 PPM, measured
 
-1,416 procs on 12,725 rolling hits, 64 wearers, 70 runs, as a wand: all hits 3.93 [3.74, 4.14]. The rate is all hits,
-which the lone wand shot rate agrees with. Lone wand shots: 4.01 [3.83, 4.24], 1,257 procs on 11,060 lone units, 63
-wearers. Direct: window [-9, 100] ms, median 20 ms, 98th percentile 36 ms, 1,054 isolated hits. By report date: before
-2026-11-18 3.78 (548 procs); from 2026-11-18 to push 114313 4.02 (868 procs). Reports from 2026-11-06 to 2026-11-20. The
-sim does not simulate this proc yet (the generator lists it as a missing effect); the rate is recorded on the item's
-effect.
+1,932 procs on 16,748 rolling hits, 78 wearers, 92 runs, on wand shots: all hits 4.07 [3.89, 4.26]. The rate is all
+hits, which the lone Auto Shot rate agrees with. One-hand white: 0.00, 0 procs on 273 lone units, 38 wearers. Lone Auto
+Shots: 4.16 [3.98, 4.38], 1,699 procs on 14,409 lone units, 77 wearers. Direct: window [-9, 100] ms, median 20 ms, 98th
+percentile 36 ms, 1,431 isolated hits. Dropping the swapped stretches (5.5 active minutes, 0.5% of hits, in 1 run) moved
+the read from 4.05 to 4.07. Reports from 2026-11-06 to 2026-11-22.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
-| Priest  |      23 |   697 | 6,389 | 3.85 |
-| Warlock |      22 |   502 | 4,491 | 3.95 |
-| Mage    |      19 |   217 | 1,845 | 4.15 |
+| Priest  |      29 |   916 | 8,049 | 4.02 |
+| Warlock |      26 |   741 | 6,376 | 4.10 |
+| Mage    |      23 |   275 | 2,323 | 4.18 |
 
-Reports and fights: 1RrDAhp7ZvVYc9P3 1-6; 1RrFMXYLPJhT7xBn 1, 3-10; 1xDPwjtGBTzZWm7Y 1-4; 1ZJVMgcYWTyRQh2w 1-3;
-287trgyqQLvjACK9 1-4; 2mW9A7wQ4bhv1YMF 1-3; 3PnWT1jGz4tagB6r 1; 4NWMr2dJPyH9v8az 1-2; 4P93K2QXbxJ68qrH 1-2;
-4vca1FKMyTnP97Az 1; 6WK7XDRHBNCx9kwn 1-4; 6wxJrRWgPyQb21hm 1-7; 6WzAhcVgfLCt78nX 1-8; 7xdwabvCPyBXYRFq 1-4;
-8rdDTxLMQPKqYyAz 1-3; 9pTK7ZwNabjMydzV 1, 3, 5, 7, 9; 9wKZ21fVDH3xpvcT 1-4; aNFQk87zxVRKA2nf 1-6; APhXWvd6CkrHL4N3 1-7;
-aryNkPZX814F37pJ 1-2; Bm6KyjgHafc19xP3 1-3; c3NLR49a1VwfCQtG 1-7; CGkfgyRY8mQ1Aah2 1-2; d6bwAkLKjGq7pVMy 1;
-Dh2tFcWaMVng6Cdj 1-7; DHv3m4KLCdntG7pV 1-3; DmkRhHYPg4wVJf3t 1; DNJ682zfmT7Zykv4 1-2; FADNxntvpJkfM9RC 1;
-FWf1LcA7PCb6NQB4 1-4; Fwr6n9BDgLaGPmKY 1-10; gmTPbGL4cNDJ92fH 1-3; Jn4FXD6QKW71pRzh 1-2; kBzVYb3Cy7QwnKMD 1-6;
-KDFtbX6ZVxMgATLh 1-2; KkCznWJf8yYHvGgX 1; kpNtDy4ZYjLTGAbd 1-6; KYD67nVqZT4jxWyN 5-6; LAP9T3KqpjhC4MD2 1-7;
-LbmB2QdWnPT7JGAF 1-6; mbBT1kLrM8qXzdJF 1; MN6V1awdYqymj4vr 2; mPz2LqFWbhKcV7QN 1; MX1B9kCJ7GDTQ6za 1-3; NGhbmnMwKCHYfaX6
-1-5; nT2Wz7mVQZbtBRG4 1-4; PCYpB6DhnQMmXbzN 1-2; PLKnY9R2BDgwbdWv 1-2; qFZN9PQwagyL3Xnz 1-3; QHqMJPfgbBCvZan7 23-28;
-qL6waTVj3WhQYk8x 1-3, 5-21; Qvg9N1YBc36d8Rnw 1-10; r6dAtgyVpcMXkL3T 1; r9X8bgWqQfnPVDyB 1-2; rCnfgxYFVXLHvjZp 1;
-RKdyjLbQCZgtzrXp 1-3; tAZ12pKHxQYLydgv 1-2, 4-5; TGVQg7A3KfJdpbkw 1; TkMHbgQNKBt7Vzy9 1-13; TQCphZqxGzRmkgjf 1-2;
-tvDFpcQ4w3L7PBy1 1-3, 5; txZvdrQzpwn3V4kb 1-4; vVa1NxRf6rZnYhWH 1-2; vWGgArDXtc13Lx6J 1-9, 11-14; w1pq2CGTWMbX7dQZ 1-2;
-wDqmkbxdTXj1rA9F 1; XPmJACH8RtqFd3jM 1-3; yAGCbvd2r4RZNDaK 1, 3; Z9qbhQrJg2Wfz1FM 1-2.
+Reports and fights: 1FApk79HbtyDYWL8 1; 1RrDAhp7ZvVYc9P3 1-6; 1RrFMXYLPJhT7xBn 1, 3-10; 1ZJVMgcYWTyRQh2w 1-3;
+1xDPwjtGBTzZWm7Y 1-4; 287trgyqQLvjACK9 1-4; 2DJrjC6WNLBxzgyh 1; 2fn6Cy1mJWzcgjAL 1; 2mNyRawv7fGMDYVx 1; 2mW9A7wQ4bhv1YMF
+1-3; 3PnWT1jGz4tagB6r 1; 4NWMr2dJPyH9v8az 1-2; 4P93K2QXbxJ68qrH 1-2; 4vca1FKMyTnP97Az 1; 6WK7XDRHBNCx9kwn 1-4;
+6WzAhcVgfLCt78nX 1-8; 6wxJrRWgPyQb21hm 1-7; 7xdwabvCPyBXYRFq 1-4; 8rdDTxLMQPKqYyAz 1-3; 9pTK7ZwNabjMydzV 1, 3, 5, 7, 9;
+9wKZ21fVDH3xpvcT 1-4; APhXWvd6CkrHL4N3 1-7; B8Z4m1xL2dQNHgC9 1; Bm6KyjgHafc19xP3 1-3; CF1YrGNTBhQVp4tz 1;
+CGkfgyRY8mQ1Aah2 1-2; D78yctPhbZzTFkCr 2; DHv3m4KLCdntG7pV 1-3; DNJ682zfmT7Zykv4 1-2; Dh2tFcWaMVng6Cdj 1-7;
+DmkRhHYPg4wVJf3t 1; FADNxntvpJkfM9RC 1; FWf1LcA7PCb6NQB4 1-4; Fwr6n9BDgLaGPmKY 1-10; HKWTCMt2FqgnackY 1-5;
+Jn4FXD6QKW71pRzh 1-2; KBy12aMkJxXgA3fm 1-2; KDFtbX6ZVxMgATLh 1-2; KYD67nVqZT4jxWyN 5-6; KkCznWJf8yYHvGgX 1;
+LAP9T3KqpjhC4MD2 1-7; LbmB2QdWnPT7JGAF 1-6; MN6V1awdYqymj4vr 2; MX1B9kCJ7GDTQ6za 1-3; NGhbmnMwKCHYfaX6 1-5;
+P4wbLW9ngQ2Kx1Ck 1-3, 5; PCYpB6DhnQMmXbzN 1-2; PLKnY9R2BDgwbdWv 1-2; QHqMJPfgbBCvZan7 23-28; QL67hAdbrGV23Jp9 306 fights
+from 1 to 327; Qvg9N1YBc36d8Rnw 1-10; RKdyjLbQCZgtzrXp 1-3; TGVQg7A3KfJdpbkw 1; TQCphZqxGzRmkgjf 1-2; TkMHbgQNKBt7Vzy9
+1-13; XPmJACH8RtqFd3jM 1-3; YB93KnL7VMdtJWH4 1-5; Z9qbhQrJg2Wfz1FM 1-2; ZhHrNFMTzqVR4xvw 1-3; aNFQk87zxVRKA2nf 1-6;
+aryNkPZX814F37pJ 1-2; c3NLR49a1VwfCQtG 1-7; crGPAQ6ft4NwXHbx 1, 3-8, 10-11, 15-16, 18-19, 22-24, 26-27, 30;
+d6bwAkLKjGq7pVMy 1; gmTPbGL4cNDJ92fH 1-3; kBzVYb3Cy7QwnKMD 1-6; kHyCnvQ2Pdc6VKfr 1-2; kpNtDy4ZYjLTGAbd 1-6;
+mPz2LqFWbhKcV7QN 1; mbBT1kLrM8qXzdJF 1; mjZrgTPwCD4d21h3 1; nT2Wz7mVQZbtBRG4 1-4; nwFh1bBxDW6JGKpv 1-7, 9-16, 19-32;
+qFZN9PQwagyL3Xnz 1-3; qJNfkaCxZF3DzBh6 1-5; qL6waTVj3WhQYk8x 1-3, 5-21; r6dAtgyVpcMXkL3T 1; r9X8bgWqQfnPVDyB 1-2;
+rCnfgxYFVXLHvjZp 1; tAZ12pKHxQYLydgv 1-2, 4-5; tQc389CTMRrAvqFg 1; trkbKMT6maWx1HyQ 1-4; tvDFpcQ4w3L7PBy1 1-3, 5;
+txZvdrQzpwn3V4kb 1-4; vVa1NxRf6rZnYhWH 1-2; vWGgArDXtc13Lx6J 1-9, 11-14; w1pq2CGTWMbX7dQZ 1-2; w7pg31PYHx2mra6Z 1-7;
+wDqmkbxdTXj1rA9F 1; x61fvm9RLMjXyDqB 1-4; yAGCbvd2r4RZNDaK 1, 3.
 
 ## Firebreather (10797)
 
@@ -1996,36 +2000,39 @@ zKgGQA6BqvcJtYZ9 1-3.
 
 ## Mana Channeling Wand (18483)
 
-- Count: §Count of the 2026-11-06 to 2026-11-21 reports
-- Proc: weapon proc 1302348
-- Rate: 4 PPM, measured
+- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Proc: equip proc 1302348
+- Rate: 4.15 PPM, measured
 
-1,030 procs on 9,616 rolling hits, 38 wearers, 55 runs, as a wand: all hits 4.02 [3.76, 4.29]. The rate is all hits,
-which the lone wand shot rate agrees with. Lone wand shots: 3.81 [3.59, 4.09], 840 procs on 8,275 lone units, 38
-wearers. Direct: window [-10, 100] ms, median 10 ms, 98th percentile 22 ms, 810 isolated hits. Dropping the swapped
-stretches (5 active minutes, 1% of hits, in 1 run) moved the read from 3.99 to 4.02. 1 run logged in two reports counts
-once. By report date: before 2026-11-18 3.98 (423 procs); from 2026-11-18 to push 114313 3.97 (486 procs); after push
-114313 4.30 (120 procs). Reports from 2026-11-11 to 2026-11-21.
+1,376 procs on 12,482 rolling hits, 47 wearers, 75 runs, on wand shots: all hits 4.13 [3.86, 4.44]. The rate is all
+hits, which the lone Auto Shot rate agrees with. One-hand white: 0.00, 0 procs on 123 lone units, 20 wearers. Dual-wield
+white, which sets no rate: 0.00, 0 procs on 2 lone units, 1 wearer. Lone Auto Shots: 3.88 [3.67, 4.14], 1,103 procs on
+10,657 lone units, 47 wearers. Direct: window [-10, 100] ms, median 10 ms, 98th percentile 25 ms, 1,054 isolated hits.
+Dropping the swapped stretches (5.4 active minutes, 0.4% of hits, in 1 run) moved the read from 4.12 to 4.13. Report
+ZTGq13h7DH2bYrNw logs the same run as wR8KA9WTgHkD6n7q and counts once. Reports from 2026-11-11 to 2026-11-22.
 
-| Class  | Wearers | Procs |  Hits |  PPM |
-| ------ | ------: | ----: | ----: | ---: |
-| Priest |      29 |   999 | 9,420 | 3.98 |
-| Mage   |       9 |    30 |   196 | 5.74 |
+| Class  | Wearers | Procs |   Hits |  PPM |
+| ------ | ------: | ----: | -----: | ---: |
+| Priest |      34 | 1,325 | 12,130 | 4.10 |
+| Mage   |      13 |    50 |    352 | 5.33 |
 
 Reports and fights: 1BLCZMxRfyYmHXNn 5-6, 8; 1VpHn3kYq6B8JMWw 1, 3-4, 6-7; 26AYbFNQzMZCmfkh 12-16; 2GczY83pjnCHdTNA 1-2;
-3zwbTGcyQBLm7DMg 1-7; 4thjWV7Xbz2yrxBF 6; 6hDJQWTXwBr419AM 4; 81rnYqNT3djhJFRy 3-4; 8HvfKkArXpmbhwTF 1; 8YVKbmp1y4rMPFdW
-2-11; aCR8n63FzdTYGqj7 1-7, 9-10, 13-24, 27-29, 31-36, 38-40, 42-57, 59-63, 65-67; aYBjphvLn8xMK2TN 1-5;
-c7M6PR9WHkyDJL2q 1-6; cav7VZrmPbNW3y29 13; DvrjQXqZ9HN8a74z 1-4; f2CmVRcTnthPW6aH 1-14; fjtT3JVxbGPz6RwX 6;
-GAaNPKjbZkwLBCT2 2; gBDMLv8J1K7nqkpd 112-157; GFBCh3VZH7TmAkL4 1-3; gw8fpa1YVkv4WP32 1, 3; hfNjty7QRBrFCKm6 1-3;
-Ht8VFJxmnCG9bQhM 1-3; hYjVWRNBGDKLxTpc 1-3; JvFPcBTz9rZMmW7h 1; KNtHCAPd97ZMTLBf 1-2; Lb7Zcx2JtgjCTwP8 1;
-LN2Vk4nMtBc8vWbT 1-6; m3ctFRXJaZnrKzkC 1-3; mCn63gBZfLFHaWr9 6, 8-34, 36-39, 41-43, 46-53, 55-89; mLH64Yyjpbd3AKBW 1-4;
-mnPXjHcWNFKBhDCq 1-2; MPfbhA7yLxpkdtZQ 5-14; n8VK43MDGChq6rgv 3; p8WXHnkF6m4rvGJL 1; PDwtabFTz3VnQqrH 1;
-pG8TNJwybLPYWmxF 2; PKBd6Vz2Gkjwp9Zt 1-2; pqxm14QnyLk9tCGK 1-2; QFqKVZgc6vAJfbrW 1-19, 21-28, 30-31; Qqf8ZC1vRYhwG2cr
-4-7; QXFd74zDW8JZMmKx 1-2, 4-13; RJXQC67jbzATWdx1 1-2, 5-9, 11-16; T7dtHBv9YR2jnLwg 1-7, 9-10, 12-19; tG4CqkJQvyPT2A1Y
-1-10; tHzN3kKbaPpVW8TY 1-8, 10-11; TXGK16YwMmcyj9Cd 2-3, 5-10, 12-13, 15-17, 22-29, 31, 34-74, 76-86; V9ZpFqnkLrbaT6zy
-1; VvFWzAgjYPxwN8fT 32-35, 37, 39-42, 44-49, 51-52, 54-55, 58-61, 63, 65-67, 69-72, 75-79, 82-85; wkJXWxD23VMqThLg
-14-17; wR8KA9WTgHkD6n7q 1-10, 12-34, 36-47, 49-62, 64-78, 80-94, 96-111, 113-128, 130-146, 148-202; Wv4QYA6C7antxKXr 1;
-XD23HFnxbzvPjACV 1; zA8JyGdnWRQ9vXmK 1.
+3zwbTGcyQBLm7DMg 1-7; 4CrWmPVNyv7JcaFh 1-2; 4thjWV7Xbz2yrxBF 6; 4z2Yy39WAVFDtjN1 1-7; 6hDJQWTXwBr419AM 4;
+81rnYqNT3djhJFRy 3-4; 8HvfKkArXpmbhwTF 1; 8YVKbmp1y4rMPFdW 2-11; 9Y3Xbk6D28ThMHKd 1; B4QqHnGXwzpRfaYW 3-4;
+DcykPCwKQNzq7btT 1-4; DvrjQXqZ9HN8a74z 1-4; FmKYfTwCLcVzHMDt 3-34, 36-38; GAaNPKjbZkwLBCT2 2; GFBCh3VZH7TmAkL4 1-3;
+Ht8VFJxmnCG9bQhM 1-3; JZLXKHRYna3QMND7 1-50; JvFPcBTz9rZMmW7h 1; KNtHCAPd97ZMTLBf 1-2; LN2Vk4nMtBc8vWbT 1-6;
+Lb7Zcx2JtgjCTwP8 1; MPfbhA7yLxpkdtZQ 5-14; P6GLNM3n27dtcYJD 38; PDwtabFTz3VnQqrH 1; PKBd6Vz2Gkjwp9Zt 1-2;
+QFqKVZgc6vAJfbrW 1-19, 21-28, 30-31; QXFd74zDW8JZMmKx 1-2, 4-13; Qqf8ZC1vRYhwG2cr 4-7; RJXQC67jbzATWdx1 1-2, 5-9, 11-16;
+T7dtHBv9YR2jnLwg 1-7, 9-10, 12-19; TXGK16YwMmcyj9Cd 2-3, 5-10, 12-13, 15-17, 22-29, 31, 34-74, 76-86; V9ZpFqnkLrbaT6zy
+1; VvFWzAgjYPxwN8fT 40 fights from 32 to 85; W2d6nPMQ9tV1BjZx 2-3; Wv4QYA6C7antxKXr 1; XD23HFnxbzvPjACV 1;
+XrpxL4B8mPTWQkFK 1-3; YKqp6cRhg9zAfPJ8 1-2; ZTGq13h7DH2bYrNw 1-7, 9-13, 15; aCR8n63FzdTYGqj7 57 fights from 1 to 67;
+aYBjphvLn8xMK2TN 1-5; bX3A9KBha2QrVWLq 1; c7M6PR9WHkyDJL2q 1-6; cav7VZrmPbNW3y29 13; f2CmVRcTnthPW6aH 1-14;
+fM4nQ2tKmpyWBLXj 6-10, 12-24; fjtT3JVxbGPz6RwX 6; gBDMLv8J1K7nqkpd 112-157; gw8fpa1YVkv4WP32 1, 3; h4JXmPQDqWL61Cyc 2-3;
+hYjVWRNBGDKLxTpc 1-3; hdVbcpYXGPDaFwyR 12-17; hfNjty7QRBrFCKm6 1-3; m3ctFRXJaZnrKzkC 1-3; mCn63gBZfLFHaWr9 6, 8-34,
+36-39, 41-43, 46-53, 55-89; mLH64Yyjpbd3AKBW 1-4; mnPXjHcWNFKBhDCq 1-2; n8VK43MDGChq6rgv 3; p8WXHnkF6m4rvGJL 1;
+pG8TNJwybLPYWmxF 2; pMkPWzaC7wf9XZNt 6-7; pqxm14QnyLk9tCGK 1-2; tG4CqkJQvyPT2A1Y 1-10; tHzN3kKbaPpVW8TY 1-8, 10-11;
+tfVvJR3aZFgz2CXn 2-3; v637zq9CWKLxcpA1 3-6; wR8KA9WTgHkD6n7q 193 fights from 1 to 202; wkJXWxD23VMqThLg 14-17;
+xb49gaHAVryMZh2t 2, 4; yW82C7hYvDmZkbc4 2-8; zA8JyGdnWRQ9vXmK 1.
 
 ## Naga Heartpiercer (3078)
 
@@ -3462,9 +3469,8 @@ The count is EV-0153 §Method, run on these weapons.
 - Date: 2026-11-06 to 2026-11-21
 - Pull request: #1156
 
-The count is EV-0153 §Count of the 2026-11-06 to 2026-11-21 reports, run on these weapons. Firebelcher's and Mana
-Channeling Wand's lone units are wand shots. On Kang the Decapitator, Sul'thraze the Lasher and Supercharger Battle Axe
-every class past the first is one wearer.
+The count is EV-0153 §Count of the 2026-11-06 to 2026-11-21 reports, run on these weapons. On Kang the Decapitator and
+Sul'thraze the Lasher every class past the first is one wearer.
 
 ## Count of the 2026-11-09 to 2026-11-22 reports
 
@@ -3483,16 +3489,17 @@ The count is EV-0177 §Method, run on these weapons.
 ## Count of the 2026-11-06 to 2026-11-22 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
-  lists, from every wearer stream on disk for its weapon; 3,486 reports in all for the count, 3,021 of them for these
+  lists, from every wearer stream on disk for its weapon; 3,637 reports in all for the count, 3,153 of them for these
   weapons
 - Game build: 1.60.1.70790 to 1.60.1.71037 by report date (70862 from 2026-11-07 04:43 UTC, 70888 from 2026-11-10 15:11
   UTC in the US and 2026-11-11 02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC,
-  71037 from 2026-11-20 18:23 UTC); 705 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 562
+  71037 from 2026-11-20 18:23 UTC); 735 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 585
   of them for these weapons. The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180
 
 The count is EV-0183 §Method, run on these weapons.
 
-On Axe of Inevitable Ruin, Barbaric Crossbow, Black Duskwood Staff, Spellsever Crossbow, Supercharger Battle Axe,
-Twilight Maul and X'caliboar, measured, the classes past the first give under 3% of the rolling hits.
+On Axe of Inevitable Ruin, Barbaric Crossbow, Black Duskwood Staff, Mana Channeling Wand, Spellsever Crossbow,
+Supercharger Battle Axe, Twilight Maul and X'caliboar, measured, the classes past the first give under 3% of the rolling
+hits.
