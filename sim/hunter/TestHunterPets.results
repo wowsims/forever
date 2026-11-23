@@ -727,9 +727,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-DreadmistRaiment"
  value: {
-  dps: 556.11618
-  tps: 373.20377
-  dtps: 1.30377
+  dps: 555.66992
+  tps: 372.75751
+  dtps: 1.29733
  }
 }
 dps_results: {
@@ -1535,9 +1535,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Magister'sRegalia"
  value: {
-  dps: 564.5653
-  tps: 381.42873
-  dtps: 3.03359
+  dps: 564.21703
+  tps: 381.08046
+  dtps: 2.99253
  }
 }
 dps_results: {
