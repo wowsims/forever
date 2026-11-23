@@ -9,6 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/tools/database/dbc"
 )
@@ -24,15 +25,25 @@ type ConsumableGroupKey struct {
 	Name string
 }
 
-// The group of the elixirs and scrolls whose on-use spell's first aura is the aura type with the misc
-// value.
+// The group of the elixirs whose on-use spell's first aura is the aura type with the misc value.
 func ElixirGroup(aura dbcenums.EffectAuraType, misc int) ConsumableGroupKey {
 	return ConsumableGroupKey{Key: fmt.Sprintf("%d/%d", aura, misc), Name: auraGroupName(aura, misc)}
 }
 
+// The group of the elixirs that grant a crit chance, whatever aura they open on (Elixir of the
+// Mongoose's is Agility). Only one elixir's crit counts (R-0053), and the group lets each go beside
+// an elixir of its first stat.
+var ElixirCritGroup = ElixirGroup(dbcenums.A_MOD_CRIT_PCT, 0)
+
+// The group of the scrolls whose on-use spell's first aura is the aura type with the misc value: the
+// ranks of one scroll. The key is apart from the elixirs', since a scroll stacks with them.
+func ScrollGroup(aura dbcenums.EffectAuraType, misc int) ConsumableGroupKey {
+	return ConsumableGroupKey{Key: fmt.Sprintf("scroll %d/%d", aura, misc), Name: auraGroupName(aura, misc)}
+}
+
 // Writes the consumable's exclusive group. ConsumableExclusiveGroups names it first. Otherwise an
 // elixir's or a scroll's is the aura type and misc value of the first aura its on-use spell applies,
-// so a scroll joins the elixirs of the same key, and a scroll whose key no elixir has shares a group
+// an elixir granting a crit chance going into ElixirCritGroup instead, and a scroll sharing its group
 // with its ranks alone. A stat consumable used one at a time with the others of its category
 // (shared.OneAtATimeCategory) is grouped by that category. Any other consumable has no group.
 func setConsumableGroup(c *dbc.Consumable, consumable *proto.Consumable, routing *ConsumableRouting, instance *dbc.DBC) {
@@ -51,8 +62,13 @@ func rowGroupOf(c *dbc.Consumable, consumable *proto.Consumable, routing *Consum
 	switch consumable.Type {
 	case proto.ConsumableType_ConsumableTypeElixir, proto.ConsumableType_ConsumableTypeScroll:
 		aura, misc, ok := firstAura(instance, int(onUse.BuffId))
-		if !ok {
+		switch {
+		case !ok:
 			return ConsumableGroupKey{}
+		case consumable.Type == proto.ConsumableType_ConsumableTypeScroll:
+			return ScrollGroup(aura, misc)
+		case shared.GrantsCrit(spelldata.Find(onUse.BuffId)):
+			return ElixirCritGroup
 		}
 		return ElixirGroup(aura, misc)
 	}

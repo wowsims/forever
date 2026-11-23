@@ -3,9 +3,13 @@ import {
 	consumableFilterScope,
 	type ConsumableRelevance,
 	type ConsumeToggle,
+	countsWithTheElixirs,
+	inDisplayOrder,
 	makeConsumableGroupInput,
 	makeConsumableInput,
 	makeIdListInput,
+	OVERWRITTEN_PICKER_FIELDS,
+	overwrittenTooltips,
 } from '@features/settings/model/consumables';
 import { DragonbreathChili } from '@features/settings/model/consumables_auto_gen';
 import { shownStatsReader, type StatFilterScope } from '@features/stat-filters/model/stat_filters';
@@ -29,9 +33,9 @@ export interface ConsumeConfigs {
 	resourcePotion: ConsumeConfig;
 	conjured: ConsumeConfig;
 	flask: ConsumeConfig;
-	// One pick per exclusive group, in the order of the groups' keys: those holding an elixir, those
-	// holding a scroll and no elixir, and the rest.
+	// One pick per exclusive group holding an elixir, in the order the spec's character stats panel shows the group's stat.
 	elixirs: Array<ConsumeConfig>;
+	// One pick per exclusive group holding a scroll and no elixir, in the order of the groups' keys.
 	scrolls: Array<ConsumeConfig>;
 	// Those holding a food, picked beside the food (Rum), and those holding none (Zanza).
 	foodGroups: Array<ConsumeConfig>;
@@ -121,8 +125,17 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 					: holds(group, ConsumableType.ConsumableTypeFood)
 						? 'food'
 						: 'miscellaneous';
-	const groupInputs = (row: GroupRow) =>
-		groups.filter(group => rowOf(group) === row).map(group => makeConsumableGroupInput(group, relevance, group[0].groupName));
+	const groupsIn = (row: GroupRow) => groups.filter(group => rowOf(group) === row);
+	const groupInput = (group: Array<Consumable>) => makeConsumableGroupInput(group, relevance, group[0].groupName);
+	const groupInputs = (row: GroupRow) => groupsIn(row).map(groupInput);
+	const elixirGroups = inDisplayOrder(groupsIn('elixirs'), player.getSpecConfig().displayStats ?? []);
+	const scrollGroups = groupsIn('scrolls');
+	const overwritten = overwrittenTooltips(all.filter(countsWithTheElixirs), scrollGroups.flat());
+	// A miscellaneous consumable whose stats count with the elixirs' carries their badge, and follows the raid buffs too.
+	const miscToggle = (consumable: Consumable): ConsumeToggle => {
+		const toggle = makeIdListInput(consumable, relevance);
+		return countsWithTheElixirs(consumable) ? { ...toggle, storeField: OVERWRITTEN_PICKER_FIELDS, ...overwritten.toggle(consumable) } : toggle;
+	};
 	const explosives = inSlot(ConsumableSlot.Explosive);
 	const fitsHandOf = (itemIn: (p: Player<any>, slot: ItemSlot) => EquippedItem | null) => (slot: ItemSlot) => (consumable: Consumable, p: Player<any>) =>
 		handTakesImbue(consumable, itemIn(p, slot)?.item);
@@ -155,8 +168,12 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 		}),
 		conjured: input(ConsumableSlot.Conjured, { consumesFieldName: 'conjuredId' }),
 		flask: input(ConsumableSlot.Flask, { consumesFieldName: 'flaskId' }),
-		elixirs: groupInputs('elixirs'),
-		scrolls: groupInputs('scrolls'),
+		elixirs: elixirGroups.map(group => ({
+			...groupInput(group),
+			storeField: OVERWRITTEN_PICKER_FIELDS,
+			overwritten: overwritten.elixir,
+		})),
+		scrolls: scrollGroups.map(group => ({ ...groupInput(group), storeField: OVERWRITTEN_PICKER_FIELDS, overwritten: overwritten.scroll })),
 		foodGroups: groupInputs('food'),
 		miscGroups: groupInputs('miscellaneous'),
 		food: input(ConsumableSlot.Food, { consumesFieldName: 'foodId' }),
@@ -216,9 +233,7 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 		}),
 		miscOffensive: inSlot(ConsumableSlot.Extra)
 			.filter(consumable => !defensiveOnly(consumable))
-			.map(consumable => makeIdListInput(consumable, relevance)),
-		miscDefensive: inSlot(ConsumableSlot.Extra)
-			.filter(defensiveOnly)
-			.map(consumable => makeIdListInput(consumable, relevance)),
+			.map(miscToggle),
+		miscDefensive: inSlot(ConsumableSlot.Extra).filter(defensiveOnly).map(miscToggle),
 	};
 };

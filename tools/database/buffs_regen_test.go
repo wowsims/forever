@@ -9,8 +9,11 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strconv"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/buffmanifest"
@@ -62,6 +65,9 @@ func TestResolvedBuffInvariants(t *testing.T) {
 		}
 		if want, pinned := pinnedCategories[row.Field]; pinned && row.Category != want {
 			t.Errorf("%s: the aura competes under %q, want %q", row.Field, row.Category, want)
+		}
+		if row.ElixirCategory != "" && row.ElixirCategory != core.ElixirStatCategory && row.ElixirCategory != core.ElixirCritCategory {
+			t.Errorf("%s: overwrites %q, which is not a category the elixirs bid in", row.Field, row.ElixirCategory)
 		}
 		if amounts, pinned := pinnedAmounts[row.Field]; pinned {
 			want := amounts(row.Spell)
@@ -161,6 +167,52 @@ func TestGroupInputsAttachWhatTheirGroupSpellAttaches(t *testing.T) {
 	}
 	if found != len(groupInputSpells) {
 		t.Errorf("found %d of the %d group inputs among the manifest's rows", found, len(groupInputSpells))
+	}
+}
+
+// The amount the settings dim a scroll or an elixir by is the one the sim's raid input applies, at the
+// talent points 0 the apply block passes, and it dims the consumables the sim overwrites with it: the
+// scrolls for a StatBuff row, the elixirs for a row that overwrites theirs. A new such row needs its
+// Value function listed.
+func TestOverwritingBuffAmountsAreWhatTheRaidInputApplies(t *testing.T) {
+	type want struct {
+		value            func(int32) float64
+		scrolls, elixirs bool
+	}
+	wants := map[string]want{
+		"arcane_intellect":     {buffs.ArcaneIntellectValue, true, true},
+		"prayer_of_spirit":     {buffs.PrayerOfSpiritValue, true, true},
+		"power_word_fortitude": {buffs.PowerWordFortitudeValue, true, true},
+		"leader_of_the_pack":   {buffs.LeaderOfThePackValue, false, true},
+		"moonkin_aura":         {buffs.MoonkinAuraValue, false, true},
+	}
+	found := 0
+	for _, row := range resolveCommittedBuffs(t) {
+		if !overwritesConsumables(row) {
+			continue
+		}
+		w, listed := wants[row.Field]
+		if !listed {
+			t.Errorf("%s overwrites consumables, but the test lists no Value function for it", row.Field)
+			continue
+		}
+		found++
+		entry, err := overwritingBuffEntry(row, &tsBuffInput{Const: row.Go})
+		if err != nil {
+			t.Errorf("%s: %v", row.Field, err)
+			continue
+		}
+		if entry.Scrolls != w.scrolls || entry.Elixirs != w.elixirs {
+			t.Errorf("%s: the settings overwrite scrolls %v and elixirs %v with it, want %v and %v", row.Field, entry.Scrolls, entry.Elixirs, w.scrolls, w.elixirs)
+		}
+		amounts := append(slices.Clone(entry.Stats), entry.PseudoStats...)
+		value := strconv.FormatFloat(w.value(0), 'f', -1, 64)
+		if len(amounts) == 0 || slices.ContainsFunc(amounts, func(a tsStatAmount) bool { return a.Amount != value }) {
+			t.Errorf("%s: the settings read %v, the raid input applies %s", row.Field, amounts, value)
+		}
+	}
+	if found != len(wants) {
+		t.Errorf("found %d of the %d listed rows that overwrite consumables", found, len(wants))
 	}
 }
 

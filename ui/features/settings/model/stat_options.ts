@@ -1,7 +1,7 @@
 import { inputPicked, valuePicked } from '@features/inputs/components/ConnectedIconEnumPicker/utils';
 import type { IconEnumPickerConfig, IconPickerConfig, MultiIconPickerConfig } from '@features/inputs/configs';
 import type { StatFilterScope } from '@features/stat-filters/model/stat_filters';
-import { Class, Stat } from '@generated/proto/common';
+import { Class, PseudoStat, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { Player } from '@sim/player/player';
 import { UnitStat } from '@sim/proto/stats';
@@ -26,6 +26,16 @@ export interface MultiIconPickerStatOption extends PickerStatOption<MultiIconPic
 }
 
 export interface IconEnumPickerStatOption extends PickerStatOption<IconEnumPickerConfig<Player<any>, any>> {}
+
+// A raid buff that, while its input is on, overwrites the scrolls, the elixirs or both that grant as much of the stats
+// and percents it grants.
+export interface OverwritingBuff {
+	config: IconPickerStatOption['config'];
+	stats?: Partial<Record<Stat, number>>;
+	pseudoStats?: Partial<Record<PseudoStat, number>>;
+	scrolls: boolean;
+	elixirs: boolean;
+}
 
 export type PickerStatOptions = IconPickerStatOption | MultiIconPickerStatOption | IconEnumPickerStatOption;
 export type RenderableStatOptions = IconPickerStatOption | MultiIconPickerStatOption | IconEnumPickerStatOption;

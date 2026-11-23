@@ -2,7 +2,7 @@ import { ConnectedIconEnumPicker } from '@features/inputs/components/ConnectedIc
 import { ConnectedIconPicker } from '@features/inputs/components/ConnectedIconPicker';
 import { ConnectedMultiIconPicker } from '@features/inputs/components/ConnectedMultiIconPicker';
 import type { MultiIconPickerConfig } from '@features/inputs/configs';
-import { CONSUMABLE_PICKER_FIELDS, consumableColumns } from '@features/settings/model/consumables';
+import { consumableColumns, OVERWRITTEN_PICKER_FIELDS } from '@features/settings/model/consumables';
 import { clearMultiIconInputs } from '@features/settings/model/multi_icon';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
@@ -41,7 +41,8 @@ interface MultiToggleProps {
 }
 
 const MultiToggle = ({ player, toggles, tooltip, testId }: MultiToggleProps) => {
-	const subscribe = useStoreField(CONSUMABLE_PICKER_FIELDS)!;
+	// The overwritten fields too, so the trigger's badge follows the raid buffs.
+	const subscribe = useStoreField(OVERWRITTEN_PICKER_FIELDS)!;
 	const ordered = useOrderedToggles(player, toggles);
 	const config = useMemo<MultiIconPickerConfig<Player<any>>>(() => {
 		const offered = (p: Player<any>) => ordered.filter(toggle => !toggle.showWhen || toggle.showWhen(p)).length;

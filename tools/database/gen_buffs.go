@@ -845,6 +845,9 @@ func buffMetaFields(row ResolvedBuff, rendered buffRow) string {
 	if row.SharedCategory != "" {
 		fmt.Fprintf(&b, "SharedCategory: %s,\n", sharedCategoryVar(row.SharedCategory))
 	}
+	if row.ElixirCategory != "" {
+		fmt.Fprintf(&b, "ElixirCategory: %q,\n", row.ElixirCategory)
+	}
 	if row.SingleAura {
 		b.WriteString("SingleAura: true,\n")
 	}

@@ -54,18 +54,23 @@ func TestSelectedConsumableIDs(t *testing.T) {
 }
 
 func TestSelectedConsumableIDsKeepTheFirstOfEachGroup(t *testing.T) {
-	const agility, mongoose, sages, ungrouped, juju, scroll = 990401, 990402, 990403, 990404, 990405, 990406
+	const agility, greaterAgility, mongoose, grizzly, strength, ungrouped, groupedExtra, scroll = 990401, 990402, 990403, 990404, 990405, 990406, 990407, 990408
 	addToDatabase(&proto.SimDatabase{Consumables: []*proto.Consumable{
 		{Id: agility, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "29/1"},
-		{Id: mongoose, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "29/1"},
-		{Id: sages, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "29/3"},
+		{Id: greaterAgility, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "29/1"},
+		{Id: mongoose, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "290/0"},
+		{Id: grizzly, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "290/0"},
+		{Id: strength, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "29/0"},
 		{Id: ungrouped, Type: proto.ConsumableType_ConsumableTypeElixir},
-		{Id: juju, GroupKey: "29/3"},
-		{Id: scroll, Type: proto.ConsumableType_ConsumableTypeScroll, GroupKey: "29/2"},
+		{Id: groupedExtra, GroupKey: "29/0"},
+		{Id: scroll, Type: proto.ConsumableType_ConsumableTypeScroll, GroupKey: "scroll 29/1"},
 	}})
 
-	got := selectedConsumableIDs(&proto.ConsumesSpec{ElixirIds: []int32{agility, mongoose, sages, ungrouped}, ExtraIds: []int32{juju, scroll}})
-	if want := []int32{agility, sages, ungrouped, scroll}; !slices.Equal(got, want) {
+	got := selectedConsumableIDs(&proto.ConsumesSpec{
+		ElixirIds: []int32{agility, greaterAgility, mongoose, grizzly, strength, ungrouped},
+		ExtraIds:  []int32{groupedExtra, scroll},
+	})
+	if want := []int32{agility, mongoose, strength, ungrouped, scroll}; !slices.Equal(got, want) {
 		t.Errorf("selected %v, want %v", got, want)
 	}
 }

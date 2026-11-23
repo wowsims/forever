@@ -369,9 +369,9 @@ describe('orderedByEp', () => {
 	const critical = consumable({ id: 2, name: 'Critical', lvl: 20, pseudoStats: pseudoStats({ [PseudoStat.PseudoStatMeleeCritPercent]: 1 }) });
 	const proc = consumable({ id: 3, name: 'Proc', lvl: 60 });
 	const ids = (consumables: Array<Consumable>) => consumables.map(({ id }) => id);
-	const orderedIds = (consumables: Array<Consumable>, weights: Stats, mobType: MobType | undefined, zoneId: number) =>
-		ids(orderedByEp(consumables, consumable => consumable, { weights, mobType, zoneId }));
-	const anywhere = (consumables: Array<Consumable>, weights: Stats) => orderedIds(consumables, weights, undefined, 0);
+	const orderedIds = (consumables: Array<Consumable>, weights: Stats, mobType: MobType | undefined) =>
+		ids(orderedByEp(consumables, consumable => consumable, { weights, mobType }));
+	const anywhere = (consumables: Array<Consumable>, weights: Stats) => orderedIds(consumables, weights, undefined);
 
 	it('orders by the EP the stats and percents add, highest first', () => {
 		const weights = Stats.fromMap({ [Stat.StatStrength]: 1 }, { [PseudoStat.PseudoStatMeleeCritPercent]: 20 });
@@ -403,13 +403,13 @@ describe('orderedByEp', () => {
 			mobTypeStats: [MobTypeStats.create({ mobTypes: [MobType.MobTypeDemon, MobType.MobTypeUndead], stats: { [Stat.StatAttackPower]: 20 } })],
 		});
 		const weights = Stats.fromMap({ [Stat.StatStrength]: 1, [Stat.StatAttackPower]: 1 });
-		expect(orderedIds([strong, proc, slaying], weights, MobType.MobTypeDemon, 0)).toEqual([6, 1, 3]);
-		expect(orderedIds([strong, proc, slaying], weights, MobType.MobTypeUndead, 0)).toEqual([6, 1, 3]);
-		expect(orderedIds([slaying, proc, strong], weights, MobType.MobTypeMechanical, 0)).toEqual([1, 3, 6]);
-		expect(orderedIds([slaying, proc, strong], weights, undefined, 0)).toEqual([1, 3, 6]);
+		expect(orderedIds([strong, proc, slaying], weights, MobType.MobTypeDemon)).toEqual([6, 1, 3]);
+		expect(orderedIds([strong, proc, slaying], weights, MobType.MobTypeUndead)).toEqual([6, 1, 3]);
+		expect(orderedIds([slaying, proc, strong], weights, MobType.MobTypeMechanical)).toEqual([1, 3, 6]);
+		expect(orderedIds([slaying, proc, strong], weights, undefined)).toEqual([1, 3, 6]);
 	});
 
-	it('counts a zone stat in one of its zones only, and the plain stats everywhere', () => {
+	it('counts a zone stat in every fight, as the sim does', () => {
 		const natural = consumable({
 			id: 7,
 			name: 'Natural',
@@ -419,10 +419,7 @@ describe('orderedByEp', () => {
 		});
 		const sturdy = consumable({ id: 8, name: 'Sturdy', lvl: 10, stats: stats({ [Stat.StatStamina]: 15 }) });
 		const weights = Stats.fromMap({ [Stat.StatStamina]: 1, [Stat.StatHitRating]: 1 });
-		expect(orderedIds([sturdy, natural], weights, undefined, 101)).toEqual([7, 8]);
-		expect(orderedIds([sturdy, natural], weights, undefined, 102)).toEqual([7, 8]);
-		expect(orderedIds([natural, sturdy], weights, undefined, 103)).toEqual([8, 7]);
-		expect(orderedIds([natural, sturdy], weights, undefined, 0)).toEqual([8, 7]);
+		expect(orderedIds([sturdy, natural], weights, undefined)).toEqual([7, 8]);
 	});
 });
 

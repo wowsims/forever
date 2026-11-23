@@ -9,7 +9,7 @@ import { isRightClick } from '@ui-kit/utils/dom';
 import clsx from 'clsx';
 import { Children, type MouseEvent, type ReactNode, useId, useRef } from 'react';
 
-export interface MultiIconPickerProps extends Pick<IconSwatchProps, 'keptTooltip'> {
+export interface MultiIconPickerProps extends Pick<IconSwatchProps, 'keptTooltip' | 'overwrittenTooltip' | 'overwrittenPartly'> {
 	label?: string;
 	icon?: ResolvedIcon;
 	active: boolean;
@@ -40,6 +40,8 @@ export const MultiIconPicker = ({
 	tooltip,
 	children,
 	keptTooltip,
+	overwrittenTooltip,
+	overwrittenPartly,
 	testId,
 }: MultiIconPickerProps) => {
 	const labelId = useId();
@@ -53,6 +55,8 @@ export const MultiIconPicker = ({
 				icon,
 				active,
 				keptTooltip,
+				overwrittenTooltip,
+				overwrittenPartly,
 				text: overlay?.text,
 				badges: overlay?.badges,
 				className: clsx(!active && 'grayscale'),
