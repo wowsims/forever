@@ -1,7 +1,7 @@
 import type { IconEnumValueConfig } from '@features/inputs/configs';
 import * as InputHelpers from '@features/inputs/input_helpers';
 import type { StatFilterScope } from '@features/stat-filters/model/stat_filters';
-import { ConsumableType, ConsumesSpec, PseudoStat, Stat } from '@generated/proto/common';
+import { Class, ConsumableType, ConsumesSpec, PseudoStat, Stat } from '@generated/proto/common';
 import { Consumable } from '@generated/proto/db';
 import i18n from '@i18n/config';
 import { translatePseudoStat, translateStat } from '@i18n/localization';
@@ -13,8 +13,8 @@ import { UnitStat, unitStatsOf } from '@sim/proto/stats';
 import { consumableAllowed, consumableOrderOf, consumablePseudoStatsOf, consumableStatsOf, consumableUniverse, orderedByEp } from '@sim/settings/consumables';
 import { memoLast } from '@sim/utils/misc';
 
-import { GENERATED_STAT_BUFF_AMOUNTS } from './buffs_debuffs_auto_gen';
-import { BoglingRoot, JujuMight, JujuPower } from './consumables_auto_gen';
+import { ArcaneIntellect, GENERATED_STAT_BUFF_AMOUNTS } from './buffs_debuffs_auto_gen';
+import { STATS_COUNT_WITH_THE_ELIXIRS } from './consumables_auto_gen';
 
 export type ConsumableIdField =
 	| 'resourcePotId'
@@ -87,8 +87,13 @@ export const consumableFilterScope = (player: Player<any>, db: Database): StatFi
 const STORE_FIELDS: Array<StoreField> = ['consumables', 'gear', 'profession1', 'profession2', 'prof1Rank', 'prof2Rank', 'race', 'sim:filters'];
 
 // Every field a consumable picker reads: `itemSwap` because the swap imbues' includeIf reads the swap
-// weapons and their showWhen whether item swap is on. The toggles read only STORE_FIELDS.
+// weapons and their showWhen whether item swap is on. The elixir toggles read OVERWRITTEN_PICKER_FIELDS,
+// the other toggles only STORE_FIELDS.
 export const CONSUMABLE_PICKER_FIELDS: ReadonlyArray<StoreField> = [...STORE_FIELDS, 'itemSwap'];
+
+// The fields the elixir toggles and the scroll picks read: their overwritten tooltips follow the stat buffs' inputs
+// too, since a stat buff turned on overwrites a scroll, which gives the elixirs of its stat their amount back.
+export const OVERWRITTEN_PICKER_FIELDS: ReadonlyArray<StoreField> = [...CONSUMABLE_PICKER_FIELDS, 'raid:buffs'];
 
 // The columns a consumable menu lays its offers out in, by how many there are.
 export const consumableColumns = (offered: number): number => (offered > 10 ? 3 : offered > 5 ? 2 : 1);
@@ -105,24 +110,15 @@ export const makeConsumableInput = (consumables: ReadonlyArray<Consumable>, rele
 // The spec's list a consumable is picked into: an elixir's elixir ids, anything else's extra ids.
 const idListOf = (consumable: Consumable): 'elixirIds' | 'extraIds' => (consumable.type === ConsumableType.ConsumableTypeElixir ? 'elixirIds' : 'extraIds');
 
-// One exclusive group's pick: at most one of the group's consumables in the spec's elixir and extra ids.
+// One exclusive group's pick: at most one of the group's consumables in the spec's extra ids. No elixir has a group.
 export const makeConsumableGroupInput = (consumables: ReadonlyArray<Consumable>, relevance: ConsumableRelevance, tooltip: string) => {
 	const ids = new Set(consumables.map(consumable => consumable.id));
-	const lists = new Map(consumables.map(consumable => [consumable.id, idListOf(consumable)]));
 	return consumablePicker(
 		consumables,
 		relevance,
 		{ tooltip },
-		consumes => consumes.elixirIds.find(id => ids.has(id)) ?? consumes.extraIds.find(id => ids.has(id)) ?? 0,
-		(consumes, newValue) => {
-			const picked = {
-				...consumes,
-				elixirIds: consumes.elixirIds.filter(id => !ids.has(id)),
-				extraIds: consumes.extraIds.filter(id => !ids.has(id)),
-			};
-			if (newValue) picked[lists.get(newValue)!].push(newValue);
-			return picked;
-		},
+		consumes => consumes.extraIds.find(id => ids.has(id)) ?? 0,
+		(consumes, newValue) => ({ ...consumes, extraIds: [...consumes.extraIds.filter(id => !ids.has(id)), ...(newValue ? [newValue] : [])] }),
 	);
 };
 
@@ -195,12 +191,8 @@ export function makeIdListInput(consumable: Consumable, relevance: ConsumableRel
 	};
 }
 
-// Consumables the game files do not type as elixirs whose stats the sim counts with the elixirs' (statsCountWithTheElixirs
-// in sim/common/shared/consumable_stats.go).
-const COUNT_WITH_THE_ELIXIRS = new Set([BoglingRoot.id, JujuPower.id, JujuMight.id]);
-
 export const countsWithTheElixirs = (consumable: Consumable): boolean =>
-	consumable.type === ConsumableType.ConsumableTypeElixir || COUNT_WITH_THE_ELIXIRS.has(consumable.id);
+	consumable.type === ConsumableType.ConsumableTypeElixir || STATS_COUNT_WITH_THE_ELIXIRS.includes(consumable.id);
 
 interface Grants {
 	name: string;
@@ -228,9 +220,6 @@ const STAT_BUFFS = GENERATED_STAT_BUFF_AMOUNTS.map(buff => ({
 	},
 }));
 
-// The store field the stat buffs' inputs write, which the scroll and elixir picks follow.
-export const STAT_BUFF_FIELD: StoreField = 'raid:buffs';
-
 // The picks granting the most of each amount, where every amount has a pick granting at least as much. Undefined
 // where one has none, and for no amounts at all.
 const matchedBy = (amounts: Map<string, number>, picks: ReadonlyArray<Grants>): Array<Grants> | undefined => {
@@ -249,8 +238,8 @@ const matchedBy = (amounts: Map<string, number>, picks: ReadonlyArray<Grants>): 
 };
 
 interface ElixirOverwrites {
-	// The picks that add nothing, each with what grants as much of everything it grants.
-	overwritten: Map<Consumable, Array<Grants>>;
+	// The picks that add nothing, by id, each with what grants as much of everything it grants.
+	overwritten: Map<number, Array<Grants>>;
 	// The picks that add something.
 	counted: Array<PickGrants>;
 }
@@ -271,14 +260,14 @@ function elixirOverwrites(picks: ReadonlyArray<PickGrants>, scrolls: ReadonlyArr
 		setAside.push(entry);
 	}
 	return {
-		overwritten: new Map(setAside.map(entry => [entry.consumable, matchedBy(entry.amounts, [...counted, ...scrolls])!])),
+		overwritten: new Map(setAside.map(entry => [entry.consumable.id, matchedBy(entry.amounts, [...counted, ...scrolls])!])),
 		counted,
 	};
 }
 
 interface Overwrites {
-	elixirs: Map<Consumable, Array<Grants>>;
-	scrolls: Map<Consumable, Array<Grants>>;
+	elixirs: Map<number, Array<Grants>>;
+	scrolls: Map<number, Array<Grants>>;
 }
 
 // The sim counts a scroll's stat only while it outbids both the elixirs' and the stat buffs' (R-0053), so the elixirs
@@ -286,11 +275,11 @@ interface Overwrites {
 // in turn, so the elixirs are weighed again beside the scrolls that count.
 function overwritesOf(elixirs: ReadonlyArray<PickGrants>, scrolls: ReadonlyArray<PickGrants>, statBuffs: ReadonlyArray<Grants>): Overwrites {
 	const { counted } = elixirOverwrites(elixirs, []);
-	const overwrittenScrolls = new Map<Consumable, Array<Grants>>();
+	const overwrittenScrolls = new Map<number, Array<Grants>>();
 	const counting: Array<PickGrants> = [];
 	for (const scroll of scrolls) {
 		const by = matchedBy(scroll.amounts, [...counted, ...statBuffs]);
-		if (by) overwrittenScrolls.set(scroll.consumable, by);
+		if (by) overwrittenScrolls.set(scroll.consumable.id, by);
 		else counting.push(scroll);
 	}
 	return { elixirs: elixirOverwrites(elixirs, counting).overwritten, scrolls: overwrittenScrolls };
@@ -304,17 +293,21 @@ const overwrittenTooltipOf = (by: ReadonlyArray<Grants>): string =>
 // The overwritten tooltips of the elixir toggles and the scroll picks, read off the picks among `elixirs` and
 // `scrolls` in the spec's elixir and extra ids and the stat buffs that are on, and worked out once per set of them.
 export function overwrittenTooltips(elixirs: ReadonlyArray<Consumable>, scrolls: ReadonlyArray<Consumable>) {
-	const byId = new Map([...elixirs, ...scrolls].map(consumable => [consumable.id, grantsOf(consumable)]));
-	const isScroll = new Set(scrolls.map(scroll => scroll.id));
+	const grantsById = (consumables: ReadonlyArray<Consumable>) => new Map(consumables.map(consumable => [consumable.id, grantsOf(consumable)]));
+	const elixirGrants = grantsById(elixirs);
+	const scrollGrants = grantsById(scrolls);
 	const overwritesFor = memoLast<Overwrites>();
 	const overwrites = (player: Player<any>) => {
 		const { elixirIds, extraIds } = player.getConsumes();
-		const picks = [...new Set([...elixirIds, ...extraIds])].filter(id => byId.has(id)).map(id => byId.get(id)!);
-		const statBuffs = STAT_BUFFS.filter(buff => buff.config.getValue(player));
-		return overwritesFor([picks.map(pick => pick.consumable.id).join(), statBuffs.map(buff => buff.grants.name).join()], () =>
+		const picked = [...new Set([...elixirIds, ...extraIds])];
+		const picksIn = (grants: Map<number, PickGrants>) => picked.flatMap(id => grants.get(id) ?? []);
+		// The sim turns Arcane Intellect on for every mage, whatever the input says (sim/mage/mage.go, AddRaidBuffs).
+		const mage = player.getClass() === Class.ClassMage;
+		const statBuffs = STAT_BUFFS.filter(buff => buff.config.getValue(player) || (mage && buff.config === ArcaneIntellect));
+		return overwritesFor([picked.join(), statBuffs.map(buff => buff.grants.name).join()], () =>
 			overwritesOf(
-				picks.filter(pick => !isScroll.has(pick.consumable.id)),
-				picks.filter(pick => isScroll.has(pick.consumable.id)),
+				picksIn(elixirGrants),
+				picksIn(scrollGrants),
 				statBuffs.map(buff => buff.grants),
 			),
 		);
@@ -323,12 +316,11 @@ export function overwrittenTooltips(elixirs: ReadonlyArray<Consumable>, scrolls:
 		elixir:
 			(consumable: Consumable) =>
 			(player: Player<any>, picked: boolean): string | undefined => {
-				const by = picked ? overwrites(player).elixirs.get(consumable) : undefined;
+				const by = picked ? overwrites(player).elixirs.get(consumable.id) : undefined;
 				return by && overwrittenTooltipOf(by);
 			},
 		scroll: (player: Player<any>, id: number): string | undefined => {
-			const scroll = byId.get(id);
-			const by = scroll && overwrites(player).scrolls.get(scroll.consumable);
+			const by = overwrites(player).scrolls.get(id);
 			return by && overwrittenTooltipOf(by);
 		},
 	};
@@ -383,18 +375,15 @@ const groupName = (name: string) => i18n.t(`settings_tab.consumables.elixirs.gro
 // The group an elixir is listed under, and where the group goes: Critical Strike first for one granting a crit,
 // then a percent it grants, then its first stat in ELIXIR_STAT_ORDER, and Other last for one granting nothing the
 // picker reads.
-const elixirGroupOf = (consumable: Consumable): { key: string; rank: number; label: () => string } => {
-	if (CRIT_PERCENTS.some(percent => consumable.pseudoStats[percent] > 0))
-		return { key: 'critical_strike', rank: -2, label: () => groupName('critical_strike') };
+const elixirGroupOf = (consumable: Consumable): { key: string; rank: number; label: string } => {
+	if (CRIT_PERCENTS.some(percent => consumable.pseudoStats[percent] > 0)) return { key: 'critical_strike', rank: -2, label: groupName('critical_strike') };
 	const percent = consumable.pseudoStats.findIndex(value => value > 0);
-	if (percent >= 0) return { key: `percent ${percent}`, rank: -1, label: () => translatePseudoStat(percent) };
+	if (percent >= 0) return { key: `percent ${percent}`, rank: -1, label: translatePseudoStat(percent) };
 	const stats = consumable.stats.flatMap((value, stat) => (value > 0 ? [stat as Stat] : []));
-	if (!stats.length) return { key: 'other', rank: Number.MAX_SAFE_INTEGER, label: () => groupName('other') };
+	if (!stats.length) return { key: 'other', rank: Number.MAX_SAFE_INTEGER, label: groupName('other') };
 	const stat = stats.reduce((first, next) => (statRank(next) < statRank(first) ? next : first));
 	const name = ELIXIR_GROUP_NAMES[stat];
-	return name
-		? { key: name, rank: statRank(stat), label: () => groupName(name) }
-		: { key: `stat ${stat}`, rank: statRank(stat), label: () => translateStat(stat) };
+	return name ? { key: name, rank: statRank(stat), label: groupName(name) } : { key: `stat ${stat}`, rank: statRank(stat), label: translateStat(stat) };
 };
 
 // The items by the group of their consumable, each group keeping the items' order. A group sits where its first
@@ -407,7 +396,7 @@ export function elixirGroups<T>(items: ReadonlyArray<T>, consumableOf: (item: T)
 		if (entry) {
 			entry.rank = Math.min(entry.rank, rank);
 			entry.group.items.push(item);
-		} else groups.set(key, { rank, group: { key, label: label(), items: [item] } });
+		} else groups.set(key, { rank, group: { key, label, items: [item] } });
 	}
 	return [...groups.values()].sort((a, b) => a.rank - b.rank).map(({ group }) => group);
 }

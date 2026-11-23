@@ -1136,7 +1136,7 @@ var ConsumableDenyList = []int32{
 // instead of the one its rows give it.
 //
 // TODO: check in game whether these count with the elixirs that grant the same stat, the strongest
-// alone, and add each one that does to statsCountWithTheElixirs in sim/common/shared: Oil of Olaf 1177
+// alone, and add each one that does to StatsCountWithTheElixirs in sim/common/shared: Oil of Olaf 1177
 // (A_MOD_ARMOR_NO_MODS), Call of the Raptor 4546 (A_MOD_STAT Agility), Very Berry Cream 22238 and
 // Midsummer Sausage 23326 (A_MOD_DAMAGE_DONE every school).
 var ConsumableExclusiveGroups = []ConsumableGroup{

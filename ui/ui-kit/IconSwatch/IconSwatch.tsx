@@ -51,7 +51,7 @@ export const IconSwatch = ({ icon, active, disabled, text, badges, keptTooltip, 
 			{overwrittenTooltip && (
 				<Icon
 					name="circle-exclamation"
-					className="ui-icon-swatch-overwritten"
+					className="ui-icon-swatch-badge ui-icon-swatch-badge-overwritten"
 					title={overwrittenTooltip}
 					testId="icon-swatch-overwritten"
 					{...tooltipAnchorProps(tooltipId, overwrittenTooltip)}
@@ -60,7 +60,7 @@ export const IconSwatch = ({ icon, active, disabled, text, badges, keptTooltip, 
 			{keptTooltip && (
 				<Icon
 					name="eye-slash"
-					className="ui-icon-swatch-kept"
+					className="ui-icon-swatch-badge ui-icon-swatch-badge-kept"
 					title={keptTooltip}
 					testId="icon-swatch-kept"
 					{...tooltipAnchorProps(tooltipId, keptTooltip)}

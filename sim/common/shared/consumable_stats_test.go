@@ -289,9 +289,8 @@ func TestOnlyOneHitFoodApplies(t *testing.T) {
 // Mongoose 13452 (more Agility and crit) and Juju Power 12451 (more Strength). Elixir of Cunning
 // 250328 states Agility and Intellect; Greater Arcane Elixir 13454 and Arcane Elixir 9155 spell
 // damage; Juju Might 12460 both attack powers, Winterfall Firewater 12820 the melee one alone.
-// Elixir of Greater Defense 13445 states armor as A_MOD_RESISTANCE and Elixir of the Phalanx 250329
-// as A_MOD_ARMOR_NO_MODS, one stat; Bogling Root 5206 and Elixir of Minor Force 247755 physical
-// damage.
+// Elixir of Greater Defense 13445 and Elixir of the Phalanx 250329 both state armor as
+// A_MOD_ARMOR_NO_MODS; Bogling Root 5206 and Elixir of Minor Force 247755 physical damage.
 func TestEachStatCountsOnlyItsStrongestElixir(t *testing.T) {
 	const ferocity, mongoose, jujuPower, cunning, greaterIntellect int32 = 250350, 13452, 12451, 250328, 9179
 	const greaterArcane, arcane, jujuMight, winterfall int32 = 13454, 9155, 12460, 12820

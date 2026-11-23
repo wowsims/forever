@@ -724,8 +724,8 @@ describe('consumeConfigs on picks that add nothing', () => {
 		],
 		getSpellEffect: () => undefined,
 	} as unknown as Database;
-	const picking = (elixirIds: Array<number>, extraIds: Array<number> = [], raidBuffs = RaidBuffs.create()) => {
-		const { player, state } = playerOf({ consumes: ConsumesSpec.create({ elixirIds, extraIds }), raidBuffs });
+	const picking = (elixirIds: Array<number>, extraIds: Array<number> = [], raidBuffs = RaidBuffs.create(), cls = Class.ClassWarrior) => {
+		const { player, state } = playerOf({ consumes: ConsumesSpec.create({ elixirIds, extraIds }), raidBuffs, cls });
 		const configs = consumeConfigs(player, stackingDb);
 		const overwrittenBy = (id: number) => {
 			const toggle = toggleOf(configs.elixirs, id);
@@ -802,6 +802,12 @@ describe('consumeConfigs on picks that add nothing', () => {
 		expect(picking([], [10308], RaidBuffs.create({ arcaneIntellect: true })).intellectScrollOverwrittenBy()).toBe(
 			'Adds nothing: every stat it grants is matched by Arcane Intellect.',
 		);
+	});
+
+	it('marks Scroll of Intellect IV for a mage with the Arcane Intellect input off, since the sim turns it on for every mage', () => {
+		const mage = picking([3383], [10308], RaidBuffs.create(), Class.ClassMage);
+		expect(mage.intellectScrollOverwrittenBy()).toBe('Adds nothing: every stat it grants is matched by Arcane Intellect.');
+		expect(mage.overwrittenBy(3383)).toBeUndefined();
 	});
 
 	it('leaves a scroll unmarked under Mark of the Wild, which stacks with the scrolls', () => {

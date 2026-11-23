@@ -48,8 +48,7 @@ func rowGroupOf(c *dbc.Consumable, consumable *proto.Consumable, routing *Consum
 		return ConsumableGroupKey{}
 	}
 	onUse := consumable.ItemEffects[0]
-	switch consumable.Type {
-	case proto.ConsumableType_ConsumableTypeScroll:
+	if consumable.Type == proto.ConsumableType_ConsumableTypeScroll {
 		aura, misc, ok := firstAura(instance, int(onUse.BuffId))
 		if !ok {
 			return ConsumableGroupKey{}
@@ -86,8 +85,7 @@ func firstAura(instance *dbc.DBC, spellID int) (dbcenums.EffectAuraType, int, bo
 	return 0, 0, false
 }
 
-const allSpellSchools = 126
-
+// The name of a scroll's group: the scrolls open on a stat or armor, and a resistance reads as its school.
 func auraGroupName(aura dbcenums.EffectAuraType, misc int) string {
 	switch aura {
 	case dbcenums.A_MOD_STAT:
@@ -95,29 +93,11 @@ func auraGroupName(aura dbcenums.EffectAuraType, misc int) string {
 			return stats.Stat(stat).StatName()
 		}
 		return "All Stats"
-	case dbcenums.A_MOD_DAMAGE_DONE:
-		switch misc {
-		case allSpellSchools:
-			return "Spell Power"
-		case int(core.SpellSchoolPhysical):
-			return "Physical Damage"
-		}
-		return schoolLabel(misc) + " Spell Power"
 	case dbcenums.A_MOD_RESISTANCE, dbcenums.A_MOD_ARMOR_NO_MODS:
 		if misc == int(core.SpellSchoolPhysical) {
 			return "Armor"
 		}
 		return schoolLabel(misc) + " Resistance"
-	case dbcenums.A_MOD_INCREASE_HEALTH:
-		return "Health"
-	case dbcenums.A_MOD_POWER_REGEN, dbcenums.A_PERIODIC_ENERGIZE:
-		return "Mana Regeneration"
-	case dbcenums.A_MOD_ATTACK_POWER:
-		return "Attack Power"
-	case dbcenums.A_MOD_HEALING_DONE:
-		return "Healing"
-	case dbcenums.A_MOD_CRIT_PCT:
-		return "Critical Strike"
 	}
 	return "Other"
 }

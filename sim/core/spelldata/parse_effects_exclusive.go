@@ -89,9 +89,7 @@ func perStatPriority(part *attachment) float64 {
 	return magnitude(part)
 }
 
-// The stat is set while it holds both bids. Once it loses either while the aura is up, on the aura
-// gaining or later, both bids drop to negative infinity, so the strongest of the others in each
-// category holds the stat, and they stay there until the aura expires.
+// One stat's two bids for ExclusivePerStatBehind, withdrawn to negative infinity once either is lost.
 func (p *Parsed) bidPerStatBehind(aura *core.Aura, category string, gate string, part *attachment) {
 	priority := perStatPriority(part)
 	var bids [2]*core.ExclusiveEffect

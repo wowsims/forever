@@ -13,8 +13,8 @@ const (
 	ResistanceCategoryShadow = "ResistanceShadow"
 )
 
-// Exclusive category for flat stat buffs which don't stack with each other
-// e.g. Arcane Intellect vs Greater Arcane Elixir.
+// The category the StatBuff raid buffs bid each flat stat in, so only the strongest counts. A scroll
+// of the stat bids in it too (R-0053).
 const StatBuffCategory = "StatBuff"
 
 // The category one stat or pseudo-stat of a buff bids in alone: the buff's category, then the stat's

@@ -100,12 +100,9 @@ func TestScrollGroupNamesWhatTheAuraGrants(t *testing.T) {
 	}{
 		{dbcenums.A_MOD_STAT, 1, "29/1", "Agility"},
 		{dbcenums.A_MOD_STAT, 3, "29/3", "Intellect"},
-		{dbcenums.A_MOD_DAMAGE_DONE, 126, "13/126", "Spell Power"},
-		{dbcenums.A_MOD_DAMAGE_DONE, 4, "13/4", "Fire Spell Power"},
+		{dbcenums.A_MOD_ARMOR_NO_MODS, 1, "674/1", "Armor"},
 		{dbcenums.A_MOD_RESISTANCE, 32, "22/32", "Shadow Resistance"},
 		{dbcenums.A_MOD_RESISTANCE, 1, "22/1", "Armor"},
-		{dbcenums.A_MOD_ATTACK_POWER, 0, "99/0", "Attack Power"},
-		{dbcenums.A_PERIODIC_ENERGIZE, 0, "24/0", "Mana Regeneration"},
 	} {
 		if got, want := ScrollGroup(tc.aura, tc.misc), (ConsumableGroupKey{Key: tc.key, Name: tc.name}); got != want {
 			t.Errorf("aura %v misc %d: group %+v, want %+v", tc.aura, tc.misc, got, want)

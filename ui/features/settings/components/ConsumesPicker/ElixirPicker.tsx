@@ -91,23 +91,14 @@ export const ElixirPicker = ({ player, toggles }: ElixirPickerProps) => {
 		ordered.map(toggle => `${Number(toggle.getValue(player))}${Number(offered(toggle))}`).join(''),
 	);
 
+	const pickerOf = (toggle: ConsumeToggle) => <ConnectedIconPicker key={toggle.consumable.id} modObject={player} config={toggle} />;
+
 	return (
 		<ElixirPickerView
-			picks={ordered
-				.filter(toggle => toggle.getValue(player))
-				.map(toggle => (
-					<ConnectedIconPicker key={toggle.consumable.id} modObject={player} config={toggle} />
-				))}
-			groups={groups.flatMap(group => {
-				const shown = group.items.filter(offered);
-				if (!shown.length) return [];
-				return [
-					{
-						key: group.key,
-						label: group.label,
-						children: shown.map(toggle => <ConnectedIconPicker key={toggle.consumable.id} modObject={player} config={toggle} />),
-					},
-				];
+			picks={ordered.filter(toggle => toggle.getValue(player)).map(pickerOf)}
+			groups={groups.flatMap(({ key, label, items }) => {
+				const shown = items.filter(offered);
+				return shown.length ? [{ key, label, children: shown.map(pickerOf) }] : [];
 			})}
 		/>
 	);

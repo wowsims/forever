@@ -174,7 +174,7 @@ strongest one's amount, the 2% crit only one elixir's (R-0053). The sim counts t
 `ElixirStat` per-stat category and its crit under `ElixirCrit`. Elixir of Ferocity 250350 (Strength and
 Agility) beside Elixir of the Mongoose 13452 and Juju Power 12451 adds nothing, since Mongoose's Agility
 and Juju Power's Strength are larger. Juju Power, Juju Might 12460 and Bogling Root 5206, which the game
-files do not type as elixirs, bid with them (`statsCountWithTheElixirs`). Spell damage of every school
+files do not type as elixirs, bid with them (`StatsCountWithTheElixirs`). Spell damage of every school
 and one school's are two stats, so Arcane Elixir 9155 and Elixir of Fire Power 6373 stack.
 
 **From the rows** (`rowGroupOf` in `tools/database/consumable_groups.go`):
@@ -433,7 +433,8 @@ imbue. The Elixirs row holds the flask picker, the picked elixirs and an add but
 (`ElixirPicker` in `ui/features/settings/components/ConsumesPicker/`). The button opens a menu of every
 elixir the player is offered, with Juju Power 12451, Juju Might 12460 and Bogling Root 5206, whose
 stats the sim counts with the elixirs' (`countsWithTheElixirs` in
-`ui/features/settings/model/consumables.ts` names the same three as `statsCountWithTheElixirs`). The
+`ui/features/settings/model/consumables.ts` reads them from `STATS_COUNT_WITH_THE_ELIXIRS`, which
+`GenerateConsumablesTSFile` writes into `consumables_auto_gen.ts` from `StatsCountWithTheElixirs`). The
 menu lists them by stat, one line each (`elixirGroups`): Critical Strike first for those granting a
 crit, then one line per stat, each elixir under the first of its stats in `ELIXIR_STAT_ORDER`
 (Elixir of Ferocity 250350 under Strength, Elixir of the Phalanx 250329 under Armor), and Other last
@@ -453,18 +454,20 @@ it, and the player can still clear it (`overwrittenTooltips`). An Elixirs row pi
 the other picks grant at least as much of every stat and percent it grants, read off `stats` and
 `pseudo_stats`, so its 2% crit counts as well (`elixirOverwrites`, R-0053). Of two picks that grant the
 same, the one later in the spec's lists (the elixir ids, then the extra ids) is dimmed, and a pick that
-grants neither (Bloodkelp Elixir of Dodging 22192) never is.
+grants neither never is.
 Elixir of Ferocity 250350 beside Elixir of the Mongoose 13452 and Juju Power 12451 is dimmed. Beside
 Elixir of the Grizzly 250351, Elixir of Greater Strength 9206 is dimmed: the Grizzly grants as much
 Strength and a crit besides. A scroll is dimmed while an Elixirs row pick or a raid buff that is on
 grants at least as much of its stat (`overwritesOf`). The raid buffs it reads are the ones that bid in
 core's `StatBuff` category, with the amounts the raid input applies, which the buff generator writes
 into `GENERATED_STAT_BUFF_AMOUNTS` (`ui/features/settings/model/buffs_debuffs_auto_gen.ts`): Arcane
-Intellect, Prayer of Spirit and Power Word: Fortitude. Under Arcane Intellect, Scroll of Intellect IV
-10308 is dimmed; under Mark of the Wild, which stacks with the scrolls, no scroll is. A scroll that
-counts dims the Elixirs row picks it grants as much of every stat as: Elixir of Giant Growth 6662 beside
-Scroll of Strength IV 10310. The pickers follow the raid buffs (`STAT_BUFF_FIELD`), so turning one on
-dims a scroll and gives the elixirs it dimmed their stat back.
+Intellect, Prayer of Spirit and Power Word: Fortitude. Arcane Intellect counts as on for a mage whatever
+the input says, since `AddRaidBuffs` in `sim/mage/mage.go` turns it on for every mage. Under Arcane
+Intellect, Scroll of Intellect IV 10308 is dimmed; under Mark of the Wild, which stacks with the scrolls,
+no scroll is. A scroll that counts dims the Elixirs row picks it grants as much of every stat as: Elixir
+of Giant Growth 6662 beside Scroll of Strength IV 10310. The elixir and scroll pickers follow the raid
+buffs (`OVERWRITTEN_PICKER_FIELDS`), so turning one on dims a scroll and gives the elixirs it dimmed
+their stat back.
 
 A potion has three pickers, Offensive, Defensive and Resource, and each offers the
 potions whose `potion_classes` hold its class. `AddPotionClasses` (`tools/database/consumable_potion_classes.go`) fills
@@ -537,7 +540,8 @@ profession rules out leaves the rank below it. The UI keeps the rows and their t
 `gen_db -gen=db` writes `ui/features/settings/model/consumables_auto_gen.ts` in the same pass as db.json:
 one named export per shipped consumable, carrying its item id (`MightyRagePotion = { id: 13442 }`).
 Presets name consumables through it, so a preset cannot name one db.json does not ship. A name several
-items share takes each item's id (`MajorHealthstone9421`).
+items share takes each item's id (`MajorHealthstone9421`). It also exports `STATS_COUNT_WITH_THE_ELIXIRS`,
+the ids of `StatsCountWithTheElixirs`.
 
 ## The browser path
 

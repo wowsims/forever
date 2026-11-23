@@ -444,7 +444,7 @@ func TestExclusivePerStatBehind(t *testing.T) {
 		{"the raid buff overwrites the scroll", 31, 10, 20, 41},
 		{"the scroll outbids both", 10, 15, 20, 20},
 	} {
-		for _, order := range [][]int{{0, 1, 2}, {2, 0, 1}, {1, 2, 0}, {2, 1, 0}, {0, 2, 1}} {
+		for _, order := range [][]int{{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}} {
 			sim := &core.Simulation{}
 			character, a := setUp(tc.raid, tc.elixir, tc.scroll)
 			before := character.GetStat(stats.Intellect)

@@ -93,7 +93,7 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	ExplosiveId:    260814, // SAF-T Clever Dynamite
 	MhImbueId:      12643,  // Dense Weightstone
 	ConjuredId:     9421,   // Major Healthstone
-	// Elixir of Ferocity, Elixir of the Mongoose, Winterfall Firewater, Elixir of Greater Defense, Elixir of the Phalanx
+	// Elixir of Ferocity, Elixir of the Mongoose, Winterfall Firewater, Elixir of the Phalanx
 	ElixirIds: []int32{250350, 13452, 12820, 250329},
 	ExtraIds:  []int32{10646, 17048}, // Goblin Sapper Charge, Rumsey Rum
 }

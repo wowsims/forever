@@ -27,7 +27,7 @@ Text here follows `wowsims-conventions`; `docs/consumables.md` holds the consuma
 | `sim/common/forever/`                                 | generated registrations (`*_auto_gen.go`) and hand-written shared effects (`items_*.go`, `enchants.go`, `consumables_*.go`)  |
 | `sim/<class>/item_<kind>.go`                          | hand-written effects only one class can use                                                                                  |
 | `ui/sim/constants/missing_effects_auto_gen.ts`        | items, enchants and set bonuses no code registers an effect for                                                              |
-| `ui/features/settings/model/consumables_auto_gen.ts`  | one named export per shipped consumable, which presets name consumables through                                              |
+| `ui/features/settings/model/consumables_auto_gen.ts`  | one named export per shipped consumable, which presets name consumables through, and `STATS_COUNT_WITH_THE_ELIXIRS`          |
 
 | You are…                                                                       | Open                                                                                                                                                  |
 | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |

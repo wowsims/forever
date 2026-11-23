@@ -435,3 +435,4 @@ export const ScrollOfImbueSpellbreak = { id: 277503 };
 export const RestoredHealingPotion = { id: 282011 };
 export const RestoredManaPotion = { id: 282013 };
 export const HolyHandGrenadeOfAlterac = { id: 284868 };
+export const STATS_COUNT_WITH_THE_ELIXIRS: ReadonlyArray<number> = [5206, 12451, 12460];

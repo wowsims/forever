@@ -177,7 +177,7 @@ func consumableAura(character *core.Character, consumable core.Consumable, buff 
 	switch {
 	case scroll:
 		spelldata.ParseEffects(character, aura, buff, spelldata.ExclusivePerStat(elixirStatCategory), spelldata.ExclusivePerStatBehind(core.StatBuffCategory))
-	case consumable.Type == proto.ConsumableType_ConsumableTypeElixir || slices.Contains(statsCountWithTheElixirs, consumable.Id):
+	case consumable.Type == proto.ConsumableType_ConsumableTypeElixir || slices.Contains(StatsCountWithTheElixirs, consumable.Id):
 		crit := critEffects(buff)
 		if len(crit) > 0 {
 			spelldata.ParseEffects(character, aura, buff, spelldata.Effects(crit...), spelldata.Exclusive(elixirCritCategory, false))
@@ -198,7 +198,8 @@ const (
 )
 
 // Consumables the game files do not type as elixirs whose stats count with the elixirs' all the same.
-var statsCountWithTheElixirs = []int32{
+// The consumables TS generator writes the list for the UI.
+var StatsCountWithTheElixirs = []int32{
 	5206,  // Bogling Root
 	12451, // Juju Power
 	12460, // Juju Might

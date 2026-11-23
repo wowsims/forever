@@ -39,7 +39,7 @@ export const DefaultConsumables = ConsumesSpec.create({
 	conjuredId: Consumables.MajorHealthstone9421.id,
 	mhImbueId: Consumables.ElementalSharpeningStone.id,
 	swapMhImbueId: Consumables.DenseWeightstone.id,
-	extraIds: [Consumables.GoblinSapperCharge.id, Consumables.JujuMight.id, Consumables.ScrollOfStaminaIV.id, Consumables.LungJuiceCocktail.id],
+	extraIds: [Consumables.GoblinSapperCharge.id, Consumables.JujuMight.id, Consumables.LungJuiceCocktail.id],
 	elixirIds: [Consumables.GiftOfArthas.id, Consumables.ElixirOfTheGrizzly.id, Consumables.ElixirOfCunning.id, Consumables.ElixirOfThePhalanx.id],
 	defensivePotId: Consumables.GreaterStoneshieldPotion.id,
 	offensivePotId: Consumables.MightyRagePotion.id,
