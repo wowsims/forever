@@ -16,11 +16,15 @@
 		@apply relative size-10 shrink-0;
 	}
 
-	.ui-icon-swatch-box[data-kept] > :not(.ui-icon-swatch-kept) {
+	.ui-icon-swatch-box:is([data-kept], [data-overwritten]) > :not(.ui-icon-swatch-kept, .ui-icon-swatch-overwritten) {
 		@apply opacity-50;
 	}
 
 	.ui-icon-swatch-kept {
 		@apply absolute top-0 right-0 size-4 cursor-pointer rounded-full bg-scrim p-px text-white;
+	}
+
+	.ui-icon-swatch-overwritten {
+		@apply absolute top-0 left-0 size-4 cursor-pointer rounded-full bg-scrim p-px text-warning;
 	}
 }

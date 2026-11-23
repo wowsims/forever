@@ -49,7 +49,7 @@ func (r *ConsumableRouting) Reason() string {
 }
 
 // The consumables the catalogue takes by id, whatever ConsumableItemFilter says: those
-// ConsumableAllowList names and those an exclusive group names, such as the Quest-class Jujus.
+// ConsumableAllowList names, such as the Quest-class Jujus, and those an exclusive group names.
 func catalogueConsumableIDs() []int32 {
 	ids := slices.Clone(ConsumableAllowList)
 	for _, group := range ConsumableExclusiveGroups {

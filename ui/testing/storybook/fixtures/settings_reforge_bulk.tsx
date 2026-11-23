@@ -19,21 +19,32 @@ export interface StoryIconToggleProps {
 	icon: ResolvedIcon;
 	initial?: number;
 	states?: number;
+	overwrittenTooltip?: string;
 }
 
-export const StoryIconToggle = ({ icon, initial = 0, states = 2 }: StoryIconToggleProps) => {
+export const StoryIconToggle = ({ icon, initial = 0, states = 2, overwrittenTooltip }: StoryIconToggleProps) => {
 	const [value, setValue] = useState(initial);
-	return <IconPicker states={states} icon={icon} value={value} onChange={setValue} />;
+	return <IconPicker states={states} icon={icon} value={value} onChange={setValue} overwrittenTooltip={value > 0 ? overwrittenTooltip : undefined} />;
 };
 
 export interface StoryIconEnumProps {
 	options: Array<IconEnumOption<number>>;
 	initial?: number;
+	overwrittenTooltip?: string;
 }
 
-export const StoryIconEnum = ({ options, initial = 0 }: StoryIconEnumProps) => {
+export const StoryIconEnum = ({ options, initial = 0, overwrittenTooltip }: StoryIconEnumProps) => {
 	const [value, setValue] = useState(initial);
-	return <IconEnumPicker options={options} equals={(a, b) => a === b} zeroValue={0} value={value} onChange={setValue} />;
+	return (
+		<IconEnumPicker
+			options={options}
+			equals={(a, b) => a === b}
+			zeroValue={0}
+			value={value}
+			onChange={setValue}
+			overwrittenTooltip={value ? overwrittenTooltip : undefined}
+		/>
+	);
 };
 
 export type StoryEnumProps = Omit<ChoiceFieldProps<number>, 'value' | 'onChange' | 'options'> & { values: Array<EnumValueConfig>; initial?: number };

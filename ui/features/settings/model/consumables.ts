@@ -1,9 +1,10 @@
 import type { IconEnumValueConfig } from '@features/inputs/configs';
 import * as InputHelpers from '@features/inputs/input_helpers';
 import type { StatFilterScope } from '@features/stat-filters/model/stat_filters';
-import { ConsumableType, ConsumesSpec } from '@generated/proto/common';
+import { ConsumableType, ConsumesSpec, PseudoStat, Stat } from '@generated/proto/common';
 import { Consumable } from '@generated/proto/db';
 import i18n from '@i18n/config';
+import { translatePseudoStat, translateStat } from '@i18n/localization';
 import type { StoreField } from '@sim/hooks/useStoreField';
 import { Player } from '@sim/player/player';
 import { ActionId } from '@sim/proto/action_id';
@@ -11,6 +12,8 @@ import type { Database } from '@sim/proto/database';
 import { UnitStat, unitStatsOf } from '@sim/proto/stats';
 import { consumableAllowed, consumableOrderOf, consumablePseudoStatsOf, consumableStatsOf, consumableUniverse, orderedByEp } from '@sim/settings/consumables';
 import { memoLast } from '@sim/utils/misc';
+
+import { BoglingRoot, JujuMight, JujuPower } from './consumables_auto_gen';
 
 export type ConsumableIdField =
 	| 'resourcePotId'
@@ -98,7 +101,7 @@ export const makeConsumableInput = (consumables: ReadonlyArray<Consumable>, rele
 		(consumes, newValue) => ({ ...consumes, [options.consumesFieldName]: newValue }),
 	);
 
-// The spec's list a grouped consumable is picked into: an elixir's elixir ids, anything else's extra ids.
+// The spec's list a consumable is picked into: an elixir's elixir ids, anything else's extra ids.
 const idListOf = (consumable: Consumable): 'elixirIds' | 'extraIds' => (consumable.type === ConsumableType.ConsumableTypeElixir ? 'elixirIds' : 'extraIds');
 
 // One exclusive group's pick: at most one of the group's consumables in the spec's elixir and extra ids.
@@ -166,9 +169,13 @@ function consumablePicker(
 // The consumable rides along so a row of these can be ordered by the EP it adds.
 export type ConsumeToggle = InputHelpers.TypedIconPickerConfig<Player<any>, boolean> & { consumable: Consumable };
 
-// A consumable picked any number at a time into the spec's extra ids.
+// A consumable picked any number at a time into the spec's elixir ids for an elixir, its extra ids otherwise. It reads
+// as picked from either list, since a saved setting may hold it in the other.
 export function makeIdListInput(consumable: Consumable, relevance: ConsumableRelevance, includeIf?: ConsumableInputOptions['includeIf']): ConsumeToggle {
-	const picked = (player: Player<any>) => player.getConsumes().extraIds.includes(consumable.id);
+	const picked = (player: Player<any>) => {
+		const { elixirIds, extraIds } = player.getConsumes();
+		return elixirIds.includes(consumable.id) || extraIds.includes(consumable.id);
+	};
 	return {
 		consumable,
 		type: 'icon',
@@ -180,9 +187,190 @@ export function makeIdListInput(consumable: Consumable, relevance: ConsumableRel
 		getValue: picked,
 		setValue: (player: Player<any>, newValue: boolean) => {
 			const consumes = player.getConsumes();
-			const extraIds = consumes.extraIds.filter(id => id !== consumable.id);
-			if (newValue) extraIds.push(consumable.id);
-			player.setConsumes({ ...consumes, extraIds });
+			const lists = { elixirIds: consumes.elixirIds.filter(id => id !== consumable.id), extraIds: consumes.extraIds.filter(id => id !== consumable.id) };
+			if (newValue) lists[idListOf(consumable)].push(consumable.id);
+			player.setConsumes({ ...consumes, ...lists });
 		},
 	};
+}
+
+// Consumables the game files do not type as elixirs whose stats the sim counts with the elixirs' (statsCountWithTheElixirs
+// in sim/common/shared/consumable_stats.go).
+const COUNT_WITH_THE_ELIXIRS = new Set([BoglingRoot.id, JujuPower.id, JujuMight.id]);
+
+export const countsWithTheElixirs = (consumable: Consumable): boolean =>
+	consumable.type === ConsumableType.ConsumableTypeElixir || COUNT_WITH_THE_ELIXIRS.has(consumable.id);
+
+interface Grants {
+	consumable: Consumable;
+	// Each stat and percent the consumable grants, by stat or percent.
+	amounts: Map<string, number>;
+}
+
+const grantsOf = (consumable: Consumable): Grants => {
+	const amounts = new Map<string, number>();
+	consumable.stats.forEach((value, stat) => value > 0 && amounts.set(`stat ${stat}`, value));
+	consumable.pseudoStats.forEach((value, pseudoStat) => value > 0 && amounts.set(`percent ${pseudoStat}`, value));
+	return { consumable, amounts };
+};
+
+// The picks granting the most of each amount, where every amount has a pick granting at least as much. Undefined
+// where one has none, and for no amounts at all.
+const matchedBy = (amounts: Map<string, number>, picks: ReadonlyArray<Grants>): Array<Consumable> | undefined => {
+	if (!amounts.size) return undefined;
+	const matching = new Set<Consumable>();
+	for (const [key, value] of amounts) {
+		let best: Grants | undefined;
+		for (const pick of picks) {
+			const amount = pick.amounts.get(key) ?? 0;
+			if (amount >= value && (!best || amount > best.amounts.get(key)!)) best = pick;
+		}
+		if (!best) return undefined;
+		matching.add(best.consumable);
+	}
+	return [...matching];
+};
+
+interface ElixirOverwrites {
+	// The picks that add nothing, each with the picks that grant as much of everything it grants.
+	overwritten: Map<Consumable, Array<Consumable>>;
+	// The picks that add something.
+	counted: Array<Consumable>;
+}
+
+// The sim counts each stat and percent the elixirs grant at the largest amount among them only (R-0053), so a pick
+// adds nothing where the others grant as much of everything it grants. The picks are set aside one at a time, those
+// granting the fewest stats and percents first and, among those, the one later in the spec's lists first (the elixir
+// ids, then the extra ids), so of two that grant the same only one is. One granting nothing the picker can read is
+// never set aside.
+function elixirOverwrites(picks: ReadonlyArray<Consumable>): ElixirOverwrites {
+	const grants = picks.map(grantsOf);
+	const order = grants.map((entry, index) => ({ entry, index })).sort((a, b) => a.entry.amounts.size - b.entry.amounts.size || b.index - a.index);
+	let counted = grants;
+	const setAside: Array<Grants> = [];
+	for (const { entry } of order) {
+		const others = counted.filter(other => other !== entry);
+		if (!matchedBy(entry.amounts, others)) continue;
+		counted = others;
+		setAside.push(entry);
+	}
+	return {
+		overwritten: new Map(setAside.map(entry => [entry.consumable, matchedBy(entry.amounts, counted)!])),
+		counted: counted.map(entry => entry.consumable),
+	};
+}
+
+// The sim counts a scroll's stat only while it outbids the elixirs' (R-0053), so the elixirs that grant as much of it
+// overwrite it. Undefined while it outbids them. The raid buffs that overwrite a scroll are not read here.
+const scrollOverwrittenBy = (scroll: Consumable, overwrites: ElixirOverwrites): Array<Consumable> | undefined =>
+	matchedBy(grantsOf(scroll).amounts, overwrites.counted.map(grantsOf));
+
+const overwrittenTooltipOf = (by: ReadonlyArray<Consumable>): string =>
+	i18n.t('settings_tab.consumables.overwritten_tooltip', {
+		names: new Intl.ListFormat(i18n.language, { type: 'conjunction' }).format(by.map(consumable => consumable.name)),
+	});
+
+// The overwritten tooltips of the elixir toggles and the scroll picks, read off the picks among `elixirs` in the
+// spec's elixir and extra ids and worked out once per set of picks.
+export function overwrittenTooltips(elixirs: ReadonlyArray<Consumable>) {
+	const byId = new Map(elixirs.map(consumable => [consumable.id, consumable]));
+	const overwritesFor = memoLast<ElixirOverwrites>();
+	const overwrites = (player: Player<any>) => {
+		const { elixirIds, extraIds } = player.getConsumes();
+		const ids = [...new Set([...elixirIds, ...extraIds])].filter(id => byId.has(id));
+		return overwritesFor([ids.join()], () => elixirOverwrites(ids.map(id => byId.get(id)!)));
+	};
+	return {
+		elixir:
+			(consumable: Consumable) =>
+			(player: Player<any>, picked: boolean): string | undefined => {
+				const by = picked ? overwrites(player).overwritten.get(consumable) : undefined;
+				return by && overwrittenTooltipOf(by);
+			},
+		scroll:
+			(scrolls: ReadonlyArray<Consumable>) =>
+			(player: Player<any>, id: number): string | undefined => {
+				const scroll = scrolls.find(consumable => consumable.id === id);
+				const by = scroll && scrollOverwrittenBy(scroll, overwrites(player));
+				return by && overwrittenTooltipOf(by);
+			},
+	};
+}
+
+// The stats the elixir groups go in, in the order they are listed. A stat outside it follows them, in its enum order.
+const ELIXIR_STAT_ORDER = [
+	Stat.StatStrength,
+	Stat.StatAgility,
+	Stat.StatStamina,
+	Stat.StatIntellect,
+	Stat.StatSpirit,
+	Stat.StatAttackPower,
+	Stat.StatRangedAttackPower,
+	Stat.StatSpellDamage,
+	Stat.StatArcaneDamage,
+	Stat.StatFireDamage,
+	Stat.StatFrostDamage,
+	Stat.StatHolyDamage,
+	Stat.StatNatureDamage,
+	Stat.StatShadowDamage,
+	Stat.StatArmor,
+	Stat.StatArmorNoMods,
+	Stat.StatHealth,
+	Stat.StatMP5,
+	Stat.StatHealingPower,
+	Stat.StatPhysicalDamage,
+];
+const statRank = (stat: Stat) => {
+	const index = ELIXIR_STAT_ORDER.indexOf(stat);
+	return index >= 0 ? index : ELIXIR_STAT_ORDER.length + stat;
+};
+// The stats whose group takes a name of its own, which the stat's own name reads poorly as.
+const ELIXIR_GROUP_NAMES: Partial<Record<Stat, string>> = {
+	[Stat.StatArmor]: 'armor',
+	[Stat.StatArmorNoMods]: 'armor',
+	[Stat.StatSpellDamage]: 'spell_power',
+	[Stat.StatMP5]: 'mana_regeneration',
+	[Stat.StatHealingPower]: 'healing',
+	[Stat.StatPhysicalDamage]: 'physical_damage',
+};
+const CRIT_PERCENTS = [PseudoStat.PseudoStatMeleeCritPercent, PseudoStat.PseudoStatSpellCritPercent, PseudoStat.PseudoStatRangedCritPercent];
+
+export interface ElixirGroup<T> {
+	key: string;
+	label: string;
+	items: Array<T>;
+}
+
+const groupName = (name: string) => i18n.t(`settings_tab.consumables.elixirs.groups.${name}`);
+
+// The group an elixir is listed under, and where the group goes: Critical Strike first for one granting a crit,
+// then a percent it grants, then its first stat in ELIXIR_STAT_ORDER, and Other last for one granting nothing the
+// picker reads.
+const elixirGroupOf = (consumable: Consumable): { key: string; rank: number; label: () => string } => {
+	if (CRIT_PERCENTS.some(percent => consumable.pseudoStats[percent] > 0))
+		return { key: 'critical_strike', rank: -2, label: () => groupName('critical_strike') };
+	const percent = consumable.pseudoStats.findIndex(value => value > 0);
+	if (percent >= 0) return { key: `percent ${percent}`, rank: -1, label: () => translatePseudoStat(percent) };
+	const stats = consumable.stats.flatMap((value, stat) => (value > 0 ? [stat as Stat] : []));
+	if (!stats.length) return { key: 'other', rank: Number.MAX_SAFE_INTEGER, label: () => groupName('other') };
+	const stat = stats.reduce((first, next) => (statRank(next) < statRank(first) ? next : first));
+	const name = ELIXIR_GROUP_NAMES[stat];
+	return name
+		? { key: name, rank: statRank(stat), label: () => groupName(name) }
+		: { key: `stat ${stat}`, rank: statRank(stat), label: () => translateStat(stat) };
+};
+
+// The items by the group of their consumable, each group keeping the items' order. A group sits where its first
+// stat does; two stats that share a name (the two armors) share a group.
+export function elixirGroups<T>(items: ReadonlyArray<T>, consumableOf: (item: T) => Consumable): Array<ElixirGroup<T>> {
+	const groups = new Map<string, { rank: number; group: ElixirGroup<T> }>();
+	for (const item of items) {
+		const { key, rank, label } = elixirGroupOf(consumableOf(item));
+		const entry = groups.get(key);
+		if (entry) {
+			entry.rank = Math.min(entry.rank, rank);
+			entry.group.items.push(item);
+		} else groups.set(key, { rank, group: { key, label: label(), items: [item] } });
+	}
+	return [...groups.values()].sort((a, b) => a.rank - b.rank).map(({ group }) => group);
 }

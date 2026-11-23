@@ -415,6 +415,66 @@ func TestExclusivePerStat(t *testing.T) {
 	}
 }
 
+// A scroll's stat counts only while it outbids both the raid buff and the elixir of the stat, in any
+// order they come up. One either overwrites adds nothing and leaves both theirs, and stays out when the
+// stronger one goes until it is put up again; one that outbids both holds the stat alone.
+func TestExclusivePerStatBehind(t *testing.T) {
+	type auras struct{ raid, elixir, scroll *core.Aura }
+	setUp := func(raid, elixir, scroll float64) (*core.Character, auras) {
+		character := buffTestWarrior()
+		register := func(label string, points float64, opts ...ParseOpt) *core.Aura {
+			row := buffRow(7060, auraEffect(dbcenums.A_MOD_STAT, 3, points))
+			aura := character.RegisterAura(AuraConfig(row, Label(label)))
+			ParseEffects(character, aura, row, opts...)
+			return aura
+		}
+		return character, auras{
+			raid:   register("Raid", raid, ExclusivePerStat("StatBuff")),
+			elixir: register("Elixir", elixir, ExclusivePerStat("ElixirStat")),
+			scroll: register("Scroll", scroll, ExclusivePerStat("ElixirStat"), ExclusivePerStatBehind("StatBuff")),
+		}
+	}
+
+	for _, tc := range []struct {
+		name                 string
+		raid, elixir, scroll float64
+		want                 float64
+	}{
+		{"the elixir overwrites the scroll", 10, 30, 20, 40},
+		{"the raid buff overwrites the scroll", 31, 10, 20, 41},
+		{"the scroll outbids both", 10, 15, 20, 20},
+	} {
+		for _, order := range [][]int{{0, 1, 2}, {2, 0, 1}, {1, 2, 0}, {2, 1, 0}, {0, 2, 1}} {
+			sim := &core.Simulation{}
+			character, a := setUp(tc.raid, tc.elixir, tc.scroll)
+			before := character.GetStat(stats.Intellect)
+			all := []*core.Aura{a.raid, a.elixir, a.scroll}
+			for _, i := range order {
+				all[i].Activate(sim)
+			}
+			if got := character.GetStat(stats.Intellect) - before; got != tc.want {
+				t.Errorf("%s, up in order %v: +%v Intellect, want +%v", tc.name, order, got, tc.want)
+			}
+		}
+	}
+
+	sim := &core.Simulation{}
+	character, a := setUp(10, 30, 20)
+	before := character.GetStat(stats.Intellect)
+	a.raid.Activate(sim)
+	a.scroll.Activate(sim)
+	a.elixir.Activate(sim)
+	a.elixir.Deactivate(sim)
+	if got := character.GetStat(stats.Intellect) - before; got != 10 {
+		t.Errorf("the elixir that overwrote the scroll gone: +%v Intellect, want the raid buff's +10", got)
+	}
+	a.scroll.Deactivate(sim)
+	a.scroll.Activate(sim)
+	if got := character.GetStat(stats.Intellect) - before; got != 20 {
+		t.Errorf("the scroll put up again with no elixir: +%v Intellect, want its own +20", got)
+	}
+}
+
 // Each school's resistance bids in its school's category whatever else the buff does, so a 27 and a
 // 60 of the same school do not add up. Armor and the main stats are not schools.
 func TestSchoolResistances(t *testing.T) {

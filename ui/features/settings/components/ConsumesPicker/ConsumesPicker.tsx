@@ -7,15 +7,15 @@ import { clearMultiIconInputs } from '@features/settings/model/multi_icon';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import { useStoreField } from '@sim/hooks/useStoreField';
-import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import type { Player } from '@sim/player/player';
 import { Database } from '@sim/proto/database';
-import { CONSUMABLE_ORDER_FIELDS, consumableOrderOf, orderedByEp } from '@sim/settings/consumables';
 import { IconEnumPickerDirection } from '@ui-kit/IconEnumPicker';
 import { IconRow } from '@ui-kit/IconRow';
 import { useMemo } from 'react';
 
 import { ConsumeRow } from './ConsumeRow';
+import { ElixirPicker } from './ElixirPicker';
+import { useOrderedToggles } from './useOrderedToggles';
 import { type ConsumeConfig, consumeConfigs, type ConsumeToggle } from './utils';
 
 export interface ConsumesPickerProps {
@@ -23,11 +23,6 @@ export interface ConsumesPickerProps {
 	// never runs one and passes false.
 	encounterConsumes?: boolean;
 }
-
-const useOrderedToggles = (player: Player<any>, toggles: ReadonlyArray<ConsumeToggle>) => {
-	const order = useStoreSubscribe(useStoreField(CONSUMABLE_ORDER_FIELDS)!, () => consumableOrderOf(player));
-	return useMemo(() => orderedByEp(toggles, toggle => toggle.consumable, order), [toggles, order]);
-};
 
 const Toggles = ({ player, toggles }: { player: Player<any>; toggles: ReadonlyArray<ConsumeToggle> }) =>
 	useOrderedToggles(player, toggles).map(config => <ConnectedIconPicker key={config.actionId.itemId} modObject={player} config={config} />);
@@ -108,9 +103,9 @@ export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps
 				</ConsumeRow>
 			)}
 			<ConsumeRow name="elixirs" configs={[configs.flask, ...configs.elixirs]}>
-				<IconRow className="justify-end">
+				<IconRow className="justify-end" data-testid="consumes-elixirs">
 					<ConnectedIconEnumPicker modObject={player} config={configs.flask} testId="consumes-flasks" />
-					<Pickers player={player} configs={configs.elixirs} />
+					<ElixirPicker player={player} toggles={configs.elixirs} />
 				</IconRow>
 			</ConsumeRow>
 			<ConsumeRow name="scrolls" configs={configs.scrolls}>

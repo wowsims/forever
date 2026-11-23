@@ -34,6 +34,7 @@ type parseOptions struct {
 	category          string
 	singleAura        bool
 	perStatCategory   string
+	perStatGate       string
 	schoolResistances bool
 
 	casterSlot *casterSlot
@@ -161,6 +162,16 @@ func Exclusive(category string, singleAura bool) ParseOpt {
 func ExclusivePerStat(category string) ParseOpt {
 	return func(o *parseOptions) {
 		o.perStatCategory = category
+	}
+}
+
+// With ExclusivePerStat, each stat bids under gate's per-stat category as well and counts only while
+// it holds both. Once it loses either, it withdraws both bids until the aura expires, so it takes the
+// stat from no one: a scroll a stronger raid buff or elixir of its stat overwrites adds nothing and
+// leaves the raid buff and the elixir their stat, which they stack.
+func ExclusivePerStatBehind(gate string) ParseOpt {
+	return func(o *parseOptions) {
+		o.perStatGate = gate
 	}
 }
 

@@ -33,6 +33,12 @@ export interface KeptInput<ModObject, T> {
 	keptBy?: (obj: ModObject, value: T) => boolean;
 }
 
+export interface OverwrittenInput<ModObject, T> {
+	// Dims the swatch or trigger with the tooltip it returns for the value the input shows: a selection another
+	// selection makes add nothing. Undefined while the selection adds something.
+	overwrittenTooltip?: (obj: ModObject, value: T) => string | undefined;
+}
+
 /** The kit pickers' `keptTooltip` for the value the adapter read: the kept text while `keptBy` holds, otherwise none. */
 export const keptTooltipOf = <ModObject, T>(config: KeptInput<ModObject, T>, obj: ModObject, value: T): string | undefined =>
 	config.keptBy?.(obj, value) ? i18n.t('stat_filters.kept_tooltip') : undefined;

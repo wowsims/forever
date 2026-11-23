@@ -24,17 +24,17 @@ type ConsumableGroupKey struct {
 	Name string
 }
 
-// The group of the elixirs and scrolls whose on-use spell's first aura is the aura type with the misc
-// value.
-func ElixirGroup(aura dbcenums.EffectAuraType, misc int) ConsumableGroupKey {
+// The group of the scrolls whose on-use spell's first aura is the aura type with the misc value: the
+// ranks of one scroll.
+func ScrollGroup(aura dbcenums.EffectAuraType, misc int) ConsumableGroupKey {
 	return ConsumableGroupKey{Key: fmt.Sprintf("%d/%d", aura, misc), Name: auraGroupName(aura, misc)}
 }
 
-// Writes the consumable's exclusive group. ConsumableExclusiveGroups names it first. Otherwise an
-// elixir's or a scroll's is the aura type and misc value of the first aura its on-use spell applies,
-// so a scroll joins the elixirs of the same key, and a scroll whose key no elixir has shares a group
-// with its ranks alone. A stat consumable used one at a time with the others of its category
-// (shared.OneAtATimeCategory) is grouped by that category. Any other consumable has no group.
+// Writes the consumable's exclusive group. ConsumableExclusiveGroups names it first. Otherwise a
+// scroll's is the aura type and misc value of the first aura its on-use spell applies, which it shares
+// with its ranks. A stat consumable used one at a time with the others of its category
+// (shared.OneAtATimeCategory) is grouped by that category. Any other consumable has no group, an
+// elixir included: the sim counts each stat of the elixirs once, at the strongest one's amount.
 func setConsumableGroup(c *dbc.Consumable, consumable *proto.Consumable, routing *ConsumableRouting, instance *dbc.DBC) {
 	group, ok := exclusiveGroupOverride(consumable.Id)
 	if !ok {
@@ -49,12 +49,12 @@ func rowGroupOf(c *dbc.Consumable, consumable *proto.Consumable, routing *Consum
 	}
 	onUse := consumable.ItemEffects[0]
 	switch consumable.Type {
-	case proto.ConsumableType_ConsumableTypeElixir, proto.ConsumableType_ConsumableTypeScroll:
+	case proto.ConsumableType_ConsumableTypeScroll:
 		aura, misc, ok := firstAura(instance, int(onUse.BuffId))
 		if !ok {
 			return ConsumableGroupKey{}
 		}
-		return ElixirGroup(aura, misc)
+		return ScrollGroup(aura, misc)
 	}
 	if registrationFamilyOf(consumable, c, routing) == statFamily {
 		if category := shared.OneAtATimeCategory(onUse); category > 0 {

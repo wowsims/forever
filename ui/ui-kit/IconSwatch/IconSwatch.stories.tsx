@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { KEPT_TOOLTIP } from '@testing/storybook/fixtures/kept';
+import { OVERWRITTEN_TOOLTIP } from '@testing/storybook/fixtures/overwritten';
 import type { ResolvedIcon } from '@ui-kit/Field/types';
 import { expect, within } from 'storybook/test';
 
@@ -32,6 +33,7 @@ const meta = {
 		disabled: { control: 'boolean' },
 		text: { control: 'text' },
 		keptTooltip: { control: 'text' },
+		overwrittenTooltip: { control: 'text' },
 	},
 } satisfies Meta<typeof IconSwatch>;
 
@@ -80,4 +82,17 @@ export const Kept: Story = {
 };
 export const KeptWithBadges: Story = {
 	args: { ...WithBadges.args, keptTooltip: KEPT_TOOLTIP },
+};
+export const Overwritten: Story = {
+	args: { active: true, overwrittenTooltip: OVERWRITTEN_TOOLTIP },
+	play: async ({ canvasElement }) => {
+		const swatch = within(canvasElement).getByTestId('story-swatch');
+		const badge = within(canvasElement).getByTestId('icon-swatch-overwritten');
+		await expect(badge.parentElement).toBe(swatch.parentElement);
+		await expect(swatch.parentElement?.hasAttribute('data-overwritten')).toBe(true);
+		await expect(badge.getAttribute('data-tooltip-content')).toBe(OVERWRITTEN_TOOLTIP);
+	},
+};
+export const KeptAndOverwritten: Story = {
+	args: { active: true, keptTooltip: KEPT_TOOLTIP, overwrittenTooltip: OVERWRITTEN_TOOLTIP },
 };

@@ -164,6 +164,14 @@ an input holds a pick. The adapters derive the kept tooltip, the active input an
 inside a `useStoreSubscribe` read: the stat filter hands in a new config when its stats change, and a read cached in
 the snapshot would answer from the old config.
 
+**Overwritten selections.** The icon and icon-enum configs may implement `OverwrittenInput.overwrittenTooltip(obj,
+value)` (`ui/features/inputs/input.ts`), which returns a tooltip while another selection makes this one add nothing
+and undefined otherwise. The adapters pass it to the kit's `overwrittenTooltip` prop, and `IconSwatch` dims the swatch
+the way it dims a kept one, with its own corner badge and a `data-overwritten` attribute on the swatch box. The
+selection stays a pick the player can clear. The consumables picker sets it on the elixir picks and the scroll
+picks (`overwrittenTooltips` in `ui/features/settings/model/consumables.ts`). The adapters read it in the render body,
+like the kept tooltip, so it follows every notification of the fields the input subscribes to.
+
 **Text fields.** `TextField` (`ui/ui-kit/TextField/TextField.tsx`) and its presets hold an uncommitted edit in
 `useDraft` (`ui/ui-kit/hooks/useDraft.ts`), keyed on the formatted display string, so a same-value write or a
 `revision` bump keeps a mid-edit draft. With the default `commit="blur"`, used by every connected text field, they

@@ -79,6 +79,7 @@ export const ConnectedIconEnumPicker = <ModObject, T>({ modObject, config, testI
 			backupIcon={backupIcon}
 			tooltip={config.tooltip}
 			keptTooltip={keptTooltipOf(config, modObject, value)}
+			overwrittenTooltip={config.overwrittenTooltip?.(modObject, value)}
 			direction={config.direction}
 			numColumns={typeof config.numColumns === 'function' ? config.numColumns(modObject) : config.numColumns}
 			onOpenChange={open => {

@@ -30,6 +30,10 @@ func (p *Parsed) bid(aura *core.Aura, o *parseOptions) []*attachment {
 				category := core.ExclusiveStatCategory(o.category, part.key, part.multiplicative)
 				p.bidStacks(aura, category, false, magnitude(part), []*attachment{part})
 			}
+		case o.perStatCategory != "" && o.perStatGate != "":
+			for _, part := range split(rest) {
+				p.bidPerStatBehind(aura, o.perStatCategory, o.perStatGate, part)
+			}
 		case o.perStatCategory != "":
 			for _, part := range split(rest) {
 				p.bidPerStat(aura, o.perStatCategory, part)
@@ -72,14 +76,66 @@ func (p *Parsed) bidSchoolResistances(aura *core.Aura, a *attachment, o *parseOp
 	return rest
 }
 
+func (p *Parsed) bidPerStat(aura *core.Aura, category string, part *attachment) {
+	p.bidAlone(aura, core.ExclusiveStatCategory(category, part.key, part.multiplicative), perStatPriority(part), part)
+}
+
 // A stat bids its own value, the scale core's exclusive stat buffs bid on, and a pseudo-stat how far
 // it moves the field.
-func (p *Parsed) bidPerStat(aura *core.Aura, category string, part *attachment) {
-	priority := magnitude(part)
+func perStatPriority(part *attachment) float64 {
 	if part.statBid {
-		priority = part.value
+		return part.value
 	}
-	p.bidAlone(aura, core.ExclusiveStatCategory(category, part.key, part.multiplicative), priority, part)
+	return magnitude(part)
+}
+
+// The stat is set while it holds both bids. Once it loses either while the aura is up, on the aura
+// gaining or later, both bids drop to negative infinity, so the strongest of the others in each
+// category holds the stat, and they stay there until the aura expires.
+func (p *Parsed) bidPerStatBehind(aura *core.Aura, category string, gate string, part *attachment) {
+	priority := perStatPriority(part)
+	var bids [2]*core.ExclusiveEffect
+	withdrawn := false
+	update := func(sim *core.Simulation) {
+		part.set(sim, core.Ternary(!withdrawn && bids[0].IsActive() && bids[1].IsActive(), p.count, 0))
+	}
+	withdraw := func(sim *core.Simulation) {
+		if withdrawn {
+			return
+		}
+		withdrawn = true
+		part.set(sim, 0)
+		for _, bid := range bids {
+			bid.SetPriority(sim, math.Inf(-1))
+		}
+	}
+
+	for i, name := range []string{category, gate} {
+		bids[i] = aura.NewExclusiveEffect(core.ExclusiveStatCategory(name, part.key, part.multiplicative), false, core.ExclusiveEffect{
+			Priority: priority,
+			OnGain: func(_ *core.ExclusiveEffect, sim *core.Simulation) {
+				update(sim)
+			},
+			OnExpire: func(_ *core.ExclusiveEffect, sim *core.Simulation) {
+				if aura.IsActive() {
+					withdraw(sim)
+				}
+				update(sim)
+			},
+		})
+	}
+
+	aura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
+		if !bids[0].IsActive() || !bids[1].IsActive() {
+			withdraw(sim)
+		}
+	})
+	aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
+		withdrawn = false
+		for _, bid := range bids {
+			bid.SetPriority(sim, priority)
+		}
+	})
 }
 
 func (p *Parsed) bidAlone(aura *core.Aura, category string, priority float64, a *attachment) {

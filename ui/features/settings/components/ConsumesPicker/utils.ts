@@ -3,9 +3,11 @@ import {
 	consumableFilterScope,
 	type ConsumableRelevance,
 	type ConsumeToggle,
+	countsWithTheElixirs,
 	makeConsumableGroupInput,
 	makeConsumableInput,
 	makeIdListInput,
+	overwrittenTooltips,
 } from '@features/settings/model/consumables';
 import { DragonbreathChili } from '@features/settings/model/consumables_auto_gen';
 import { shownStatsReader, type StatFilterScope } from '@features/stat-filters/model/stat_filters';
@@ -29,9 +31,9 @@ export interface ConsumeConfigs {
 	resourcePotion: ConsumeConfig;
 	conjured: ConsumeConfig;
 	flask: ConsumeConfig;
-	// One pick per exclusive group, in the order of the groups' keys: those holding an elixir, those
-	// holding a scroll and no elixir, and the rest.
-	elixirs: Array<ConsumeConfig>;
+	// The elixirs and the consumables whose stats count with theirs, each on its own: any number of them are picked.
+	elixirs: Array<ConsumeToggle>;
+	// One pick per exclusive group, in the order of the groups' keys: those holding a scroll, and the rest.
 	scrolls: Array<ConsumeConfig>;
 	// Those holding a food, picked beside the food (Rum), and those holding none (Zanza).
 	foodGroups: Array<ConsumeConfig>;
@@ -61,7 +63,7 @@ export interface ConsumeConfigs {
 const defensiveOnly = (consumable: Consumable): boolean =>
 	consumable.potionClasses.includes(PotionClass.PotionClassDefensive) && !consumable.potionClasses.includes(PotionClass.PotionClassOffensive);
 
-type GroupRow = 'elixirs' | 'scrolls' | 'holiday' | 'food' | 'miscellaneous';
+type GroupRow = 'scrolls' | 'holiday' | 'food' | 'miscellaneous';
 
 // The shown stats of the consumables slot, read from the store's filters on each call; the same object
 // comes back while the slot holds the same stats, so relevance stays cached.
@@ -97,10 +99,12 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 		if (list) list.push(consumable);
 		else map.set(key, [consumable]);
 	};
+	const elixirs: Array<Consumable> = [];
 	const holiday: Array<Consumable> = [];
 	let chili: Consumable | undefined;
 	for (const consumable of all) {
 		if (consumable.groupKey) add(byGroup, consumable.groupKey, consumable);
+		else if (countsWithTheElixirs(consumable)) elixirs.push(consumable);
 		else if (consumable.holiday) holiday.push(consumable);
 		else if (consumable.id === DragonbreathChili.id) chili = consumable;
 		else add(bySlot, consumableSlot(consumable), consumable);
@@ -112,17 +116,17 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 	const groups = [...byGroup.keys()].sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).map(key => byGroup.get(key)!);
 	const holds = (group: Array<Consumable>, type: ConsumableType) => group.some(consumable => consumable.type === type);
 	const rowOf = (group: Array<Consumable>): GroupRow =>
-		holds(group, ConsumableType.ConsumableTypeElixir)
-			? 'elixirs'
-			: holds(group, ConsumableType.ConsumableTypeScroll)
-				? 'scrolls'
-				: group.some(consumable => consumable.holiday)
-					? 'holiday'
-					: holds(group, ConsumableType.ConsumableTypeFood)
-						? 'food'
-						: 'miscellaneous';
-	const groupInputs = (row: GroupRow) =>
-		groups.filter(group => rowOf(group) === row).map(group => makeConsumableGroupInput(group, relevance, group[0].groupName));
+		holds(group, ConsumableType.ConsumableTypeScroll)
+			? 'scrolls'
+			: group.some(consumable => consumable.holiday)
+				? 'holiday'
+				: holds(group, ConsumableType.ConsumableTypeFood)
+					? 'food'
+					: 'miscellaneous';
+	const groupsIn = (row: GroupRow) => groups.filter(group => rowOf(group) === row);
+	const groupInput = (group: Array<Consumable>) => makeConsumableGroupInput(group, relevance, group[0].groupName);
+	const groupInputs = (row: GroupRow) => groupsIn(row).map(groupInput);
+	const overwritten = overwrittenTooltips(elixirs);
 	const explosives = inSlot(ConsumableSlot.Explosive);
 	const fitsHandOf = (itemIn: (p: Player<any>, slot: ItemSlot) => EquippedItem | null) => (slot: ItemSlot) => (consumable: Consumable, p: Player<any>) =>
 		handTakesImbue(consumable, itemIn(p, slot)?.item);
@@ -155,8 +159,8 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 		}),
 		conjured: input(ConsumableSlot.Conjured, { consumesFieldName: 'conjuredId' }),
 		flask: input(ConsumableSlot.Flask, { consumesFieldName: 'flaskId' }),
-		elixirs: groupInputs('elixirs'),
-		scrolls: groupInputs('scrolls'),
+		elixirs: elixirs.map(consumable => ({ ...makeIdListInput(consumable, relevance), overwrittenTooltip: overwritten.elixir(consumable) })),
+		scrolls: groupsIn('scrolls').map(group => ({ ...groupInput(group), overwrittenTooltip: overwritten.scroll(group) })),
 		foodGroups: groupInputs('food'),
 		miscGroups: groupInputs('miscellaneous'),
 		food: input(ConsumableSlot.Food, { consumesFieldName: 'foodId' }),
