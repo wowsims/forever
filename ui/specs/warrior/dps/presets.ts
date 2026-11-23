@@ -103,8 +103,9 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
-// The Fury 2H set with Blackhand's Breadth in place of Hand of Justice. Destiny, the weapon, has no known source, and
-// its Strength proc rate comes from logs (EV-0132). It beats Arcanite Champion, the Blacksmithing craft, by 4 to 5 %.
+// The Fury 2H set with Blackhand's Breadth in place of Hand of Justice and the Strength necklace enchant in place of
+// Agility. Destiny, the weapon, has no known source, and its Strength proc rate comes from logs (EV-0132). It beats
+// Arcanite Champion, the Blacksmithing craft, by 4 to 5 %.
 export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, ARMS_PRESET_OPTIONS);
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the

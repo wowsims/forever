@@ -3,8 +3,9 @@ name: Scheduled Release
 on:
     workflow_dispatch:
     schedule:
-        # Every 2 hours on the hour; a run with no new commit on master releases nothing.
-        - cron: '0 */2 * * *'
+        # Every 2 hours at 17 past: GitHub delays or drops schedules on the hour under load. A run with no new
+        # commit on master releases nothing.
+        - cron: '17 */2 * * *'
 
 permissions: {}
 
