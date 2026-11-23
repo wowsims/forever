@@ -25,10 +25,10 @@ extend google.protobuf.FieldOptions {
 }
 
 message ProtoVersion {
-	// The version the UI stamps every api_version field with. The sim is not
-	// deployed anywhere, so no saved browser data or sim link predates this
-	// number and nothing converts one: a breaking proto change simply breaks
-	// whatever a browser still holds.
+	// The version the UI stamps every api_version field with. TestProtoVersioning
+	// fails a breaking proto change that does not raise it. Nothing converts a
+	// payload saved under an older number, so raising it breaks the saved
+	// browser data and sim links of every earlier version.
 	option (current_version_number) = 2;
 
 	// The actual field value is only used within unit tests.

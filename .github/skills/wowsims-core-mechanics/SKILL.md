@@ -164,6 +164,11 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   is a plain field whose zero value means none or the default, or a message-typed field.
 - **A new field takes the next free number at the end of its message**, and no field is dropped, moved or reused: the
   sim is live in alpha and saved settings carry the numbers. The full ruling is in `references/rulings.md`.
+- **`TestProtoVersioning` (`sim/core/proto_test.go`) runs `buf breaking` against master** (a deploy run: the master
+  tip before its push, a release: the released commit). A breaking change fails unless `current_version_number` in
+  `proto/common.proto` goes up with it, and a raised number with no breaking change fails too. After a raise,
+  `make update-tests` writes the number to `sim/core/TestProtoVersioning.results`, and the deploy run commits it to
+  `.deployedprotoversion`. Nothing converts older payloads, so a raise breaks every saved setting and sim link.
 
 ## Keeping this skill true
 

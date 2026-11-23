@@ -55,8 +55,9 @@ checksum:
     name_template: checksums.txt
     algorithm: sha256
 
-# The notes come from the local git log: github and github-native ask GitHub about the tag, which does not exist there
-# until the release is published (target_commitish below).
+# release.yml passes GitHub's generated notes with --release-notes, which replaces this changelog. Without them the notes
+# come from the local git log: github and github-native ask GitHub about the tag, which does not exist there until the
+# release is published (target_commitish below).
 changelog:
     use: git
 
