@@ -271,12 +271,12 @@ func init() {
 
 		// Weapon hits roll the row's procs per minute on their weapon's speed, Auto Shot and ranged
 		// specials on the ranged weapon's. The row's harmful-spell bit makes spell hits roll the same rate,
-		// each priced on its cast time and 1.5 s at least, whatever the main hand's speed. An area spell
-		// rolls it once per target, which is unmeasured. Thunder Clap never rolls it (EV-0131).
+		// each priced on its cast time and 1.5 s at least. An area spell rolls it once per target, which is
+		// unmeasured. Thunder Clap never rolls it (EV-0131).
 		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			ancientPower.Cast(sim, result.Target)
 		}, func(character *core.Character, trigger *core.ProcTrigger) {
-			trigger.DPM = character.NewLegacyPPMManagerWithCastTimeSpells(float64(triggerRow.RPPM), trigger.ProcMask)
+			trigger.DPM = character.NewLegacyPPMManagerWithCastTimeSpells("Highborne Research Tablet", float64(triggerRow.RPPM), trigger.ProcMask)
 		})
 		thunderClap := spelldata.MustFind(6343).ClassFlags
 		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {

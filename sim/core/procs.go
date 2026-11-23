@@ -153,14 +153,34 @@ func (character *Character) NewLegacyPPMManager(ppm float64, procMask ProcMask) 
 }
 
 // A procs-per-minute rate for weapon hits beside the same rate for spell hits, each spell hit priced
-// on its own cast time and never under the 1.5 s global cooldown, so an instant or a channel prices
-// at 1.5 s. The weapon hits NewLegacyPPMManager measures keep its speeds: a swing's, and with no auto
-// attack the wand's for a ranged hit. Every other hit of the mask except a ranged auto attack rolls
-// the rate on the main-hand weapon's own speed, read at the roll, whether or not the character swings
-// it: a spell on the ranged hit table with no ranged swing or wand behind it, such as Hammer of Wrath.
-// With no main-hand weapon it is the sim's unarmed weapon's speed.
-func (character *Character) NewLegacyPPMManagerWithCastTimeSpells(ppm float64, procMask ProcMask) *DynamicProcManager {
-	return character.legacyPPMManagerWithSpells(ppm, procMask, castTimeProc{ppm: ppm})
+// on the cast time of the cast that dealt it and never under the 1.5 s global cooldown, so an instant
+// or a channel prices at 1.5 s. The cast time is read at the cast's result, so a missile still in
+// flight keeps it when the next cast of the spell starts. The weapon hits NewLegacyPPMManager measures
+// keep its speeds: a swing's, and with no auto attack the wand's for a ranged hit. Every other hit of
+// the mask except a ranged auto attack rolls the rate on the main-hand weapon's own speed, read at the
+// roll, whether or not the character swings it: a spell on the ranged hit table with no ranged swing
+// or wand behind it, such as Hammer of Wrath. With no main-hand weapon it is the sim's unarmed weapon's
+// speed. label names the aura that records the cast times.
+func (character *Character) NewLegacyPPMManagerWithCastTimeSpells(label string, ppm float64, procMask ProcMask) *DynamicProcManager {
+	spells := castTimeProc{ppm: ppm, castTimes: map[*SpellResult]time.Duration{}}
+	MakePermanent(character.RegisterAura(Aura{
+		Label: label + " Cast Times",
+		OnReset: func(_ *Aura, _ *Simulation) {
+			clear(spells.castTimes)
+		},
+		OnCastResult: func(_ *Aura, _ *Simulation, spell *Spell, result *SpellResult) {
+			if spell.ProcMask.Matches(ProcMaskSpellDamage) {
+				spells.castTimes[result] = spell.CurCast.CastTime
+			}
+		},
+	}))
+	return character.legacyPPMManagerWithSpells(ppm, procMask, spells)
+}
+
+// The chance a procs-per-minute rate gives a hit whose cast took castTime: the rate on that time, the
+// 1.5 s global cooldown at least.
+func CastTimePPMChance(ppm float64, castTime time.Duration) float64 {
+	return ppm * max(castTime, GCDDefault).Seconds() / 60
 }
 
 // A procs-per-minute rate for weapon hits beside the same rate for every other hit of the mask, on
@@ -340,22 +360,22 @@ func (character *Character) newDynamicWeaponProcManager(ppm float64, fixedProcCh
 	return dpm
 }
 
-// The rate on a spell hit's cast time, as the cast that landed it set it, 1.5 s at least. Read without
+// The rate on a spell hit's cast time, as its cast result recorded it, 1.5 s at least. Read without
 // a hit, the chance is an instant's.
 type castTimeProc struct {
-	ppm float64
+	ppm       float64
+	castTimes map[*SpellResult]time.Duration
 }
 
 func (cp castTimeProc) Reset()                       {}
-func (cp castTimeProc) Chance(_ *Simulation) float64 { return cp.chanceFor(0) }
-func (cp castTimeProc) ChanceOn(_ *Simulation, spell *Spell, _ *SpellResult) float64 {
-	return cp.chanceFor(spell.CurCast.CastTime)
+func (cp castTimeProc) Chance(_ *Simulation) float64 { return CastTimePPMChance(cp.ppm, 0) }
+func (cp castTimeProc) ChanceOn(_ *Simulation, _ *Spell, result *SpellResult) float64 {
+	castTime := cp.castTimes[result]
+	delete(cp.castTimes, result)
+	return CastTimePPMChance(cp.ppm, castTime)
 }
 func (cp castTimeProc) Proc(sim *Simulation, label string) bool {
 	return sim.Proc(cp.Chance(sim), label)
-}
-func (cp castTimeProc) chanceFor(castTime time.Duration) float64 {
-	return cp.ppm * max(castTime, GCDDefault).Seconds() / 60
 }
 
 type staticProc struct {
