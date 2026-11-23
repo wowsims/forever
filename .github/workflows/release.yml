@@ -73,6 +73,10 @@ jobs:
             pull-requests: write
         with:
             ref: ${{ needs.check-tag.outputs.sha }}
+            # The released commit can be behind master's tip, and against the tip TestProtoVersioning would read
+            # master's newer fields as deletions. Against the commit itself it finds no change, which leaves the check
+            # to the pull request and the deploy run that already passed it.
+            proto_baseline: ${{ needs.check-tag.outputs.sha }}
 
     # The release is published with the release App's token, which only the release environment (master) holds and
     # which the v* tag ruleset lets through; the job's own token only reads.
@@ -141,11 +145,27 @@ jobs:
                   private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
                   permission-contents: write
 
+            # GitHub's generated notes list each pull request merged since the previous tag with its author. GoReleaser's
+            # github-native changelog asks for them without the commit, and GitHub reads a tag it does not have yet at
+            # the default branch's tip, so this step asks with the commit. The call needs contents write.
+            - name: Write the release notes
+              env:
+                  GH_TOKEN: ${{ steps.release-token.outputs.token }}
+                  TAG: ${{ inputs.tag }}
+                  SHA: ${{ needs.check-tag.outputs.sha }}
+              run: |
+                  previous=$(git tag --list 'v*' --sort=-v:refname --merged HEAD | awk -v tag="$TAG" '$0 != tag { print; exit }')
+                  args=(-f tag_name="$TAG" -f target_commitish="$SHA")
+                  if [ -n "$previous" ]; then
+                    args+=(-f previous_tag_name="$previous")
+                  fi
+                  gh api -X POST "repos/$GITHUB_REPOSITORY/releases/generate-notes" "${args[@]}" --jq .body > "$RUNNER_TEMP/release-notes.md"
+
             - name: Release
               uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
               with:
                   version: v2.20.3
-                  args: release --clean${{ inputs.draft && ' --draft' || '' }}
+                  args: release --clean --release-notes ${{ runner.temp }}/release-notes.md${{ inputs.draft && ' --draft' || '' }}
               env:
                   GITHUB_TOKEN: ${{ steps.release-token.outputs.token }}
                   GORELEASER_CURRENT_TAG: ${{ inputs.tag }}
