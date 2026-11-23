@@ -128,23 +128,18 @@ func TestElixirTakesEveryEffectAndTheDurationOfItsRow(t *testing.T) {
 	}
 }
 
-// Elixir of the Grizzly 250351 (1250986) states Strength and the same crit as Elixir of the Mongoose:
-// both stats apply, the crit once.
-func TestOnlyOneElixirsCritApplies(t *testing.T) {
+// Elixir of the Grizzly 250351 (1250986) states Strength and the same crit as Elixir of the Mongoose.
+// The two share the crit group, so only the first the spec names applies, its crit once.
+func TestOnlyTheFirstCritElixirApplies(t *testing.T) {
 	const grizzly int32 = 250351
 	registerStatConsumable(t, elixirOfTheMongooseID)
 	registerStatConsumable(t, grizzly)
 
-	mongoose := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}}, &proto.RaidBuffs{})
-	grizzlys := statGain(&proto.ConsumesSpec{ElixirIds: []int32{grizzly}}, &proto.RaidBuffs{})
-	both := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID, grizzly}}, &proto.RaidBuffs{})
-	if both[stats.Agility] != mongoose[stats.Agility] || both[stats.Strength] != grizzlys[stats.Strength] {
-		t.Errorf("Mongoose and Grizzly add %v Agility and %v Strength, want each one's own: %v and %v",
-			both[stats.Agility], both[stats.Strength], mongoose[stats.Agility], grizzlys[stats.Strength])
-	}
-	if both[stats.PhysicalCritPercent] != mongoose[stats.PhysicalCritPercent] || both[stats.SpellCritPercent] != mongoose[stats.SpellCritPercent] {
-		t.Errorf("Mongoose and Grizzly add %v%% physical and %v%% spell crit, want Mongoose's alone: %v%% and %v%%",
-			both[stats.PhysicalCritPercent], both[stats.SpellCritPercent], mongoose[stats.PhysicalCritPercent], mongoose[stats.SpellCritPercent])
+	for _, ids := range [][]int32{{elixirOfTheMongooseID, grizzly}, {grizzly, elixirOfTheMongooseID}} {
+		first := statGain(&proto.ConsumesSpec{ElixirIds: ids[:1]}, &proto.RaidBuffs{})
+		if both := statGain(&proto.ConsumesSpec{ElixirIds: ids}, &proto.RaidBuffs{}); first[stats.PhysicalCritPercent] <= 0 || both != first {
+			t.Errorf("elixirs %v add %v, want %d's alone: %v", ids, both, ids[0], first)
+		}
 	}
 }
 
@@ -287,29 +282,28 @@ func TestOnlyOneHitFoodApplies(t *testing.T) {
 }
 
 // Each stat the elixirs the spec names grant counts only the strongest one's amount, in whatever
-// order they come. Elixir of Ferocity 250350 (Strength and Agility) adds nothing beside Elixir of the
-// Mongoose 13452 (more Agility and crit) and Juju Power 12451 (more Strength). Elixir of Cunning
-// 250328 states Agility and Intellect; Greater Arcane Elixir 13454 and Arcane Elixir 9155 spell
-// damage; Juju Might 12460 both attack powers, Winterfall Firewater 12820 the melee one alone.
-// Elixir of Greater Defense 13445 and Elixir of the Phalanx 250329 both state armor as
-// A_MOD_ARMOR_NO_MODS; Bogling Root 5206 and Elixir of Minor Force 247755 physical damage.
+// order they come, where the elixirs sit in different groups. Elixir of Ferocity 250350 (Strength
+// and Agility) keeps its Strength beside Elixir of the Mongoose 13452 (more Agility and crit), and
+// adds nothing beside Elixir of Greater Agility 9187 and Elixir of the Grizzly 250351 (as much
+// Strength and crit). Juju Power 12451 bids with the elixirs. Elixir of Cunning 250328 states Agility
+// and Intellect, Elixir of the Sages 13447 Intellect and Spirit. Elixir of Greater Defense 13445 and
+// Elixir of the Phalanx 250329 both state armor as A_MOD_ARMOR_NO_MODS.
 func TestEachStatCountsOnlyItsStrongestElixir(t *testing.T) {
-	const ferocity, mongoose, jujuPower, cunning, greaterIntellect int32 = 250350, 13452, 12451, 250328, 9179
-	const greaterArcane, arcane, jujuMight, winterfall int32 = 13454, 9155, 12460, 12820
-	const greaterDefense, phalanx, boglingRoot, minorForce int32 = 13445, 250329, 5206, 247755
+	const ferocity, mongoose, greaterAgility, grizzly, jujuPower int32 = 250350, 13452, 9187, 250351, 12451
+	const cunning, greaterIntellect, sages, whale, greaterDefense, phalanx int32 = 250328, 9179, 13447, 250348, 13445, 250329
 	for _, tc := range []struct {
 		name    string
 		elixirs []int32
 		extras  []int32
 		checked []stats.Stat
 	}{
-		{"Ferocity, Mongoose and Juju Power", []int32{ferocity, mongoose}, []int32{jujuPower}, []stats.Stat{stats.Strength, stats.Agility}},
-		{"Mongoose, Ferocity and Juju Power", []int32{mongoose, ferocity}, []int32{jujuPower}, []stats.Stat{stats.Strength, stats.Agility}},
+		{"Ferocity and Mongoose", []int32{ferocity, mongoose}, nil, []stats.Stat{stats.Strength, stats.Agility}},
+		{"Mongoose and Ferocity", []int32{mongoose, ferocity}, nil, []stats.Stat{stats.Strength, stats.Agility}},
+		{"Ferocity, Greater Agility and Grizzly", []int32{ferocity, greaterAgility, grizzly}, nil, []stats.Stat{stats.Strength, stats.Agility}},
+		{"Grizzly and Juju Power", []int32{grizzly}, []int32{jujuPower}, []stats.Stat{stats.Strength}},
 		{"Cunning and Greater Intellect", []int32{cunning, greaterIntellect}, nil, []stats.Stat{stats.Agility, stats.Intellect}},
-		{"Arcane and Greater Arcane", []int32{arcane, greaterArcane}, nil, []stats.Stat{stats.SpellDamage}},
-		{"Winterfall Firewater and Juju Might", []int32{winterfall}, []int32{jujuMight}, []stats.Stat{stats.AttackPower, stats.RangedAttackPower}},
+		{"the Sages and the Whale", []int32{sages, whale}, nil, []stats.Stat{stats.Intellect, stats.Spirit}},
 		{"Greater Defense and Phalanx", []int32{greaterDefense, phalanx}, nil, []stats.Stat{stats.Armor}},
-		{"Minor Force and Bogling Root", []int32{minorForce}, []int32{boglingRoot}, []stats.Stat{stats.PhysicalDamage}},
 	} {
 		ids := append(slices.Clone(tc.elixirs), tc.extras...)
 		for _, id := range ids {
@@ -335,9 +329,9 @@ func TestEachStatCountsOnlyItsStrongestElixir(t *testing.T) {
 		}
 	}
 
-	both := statGain(&proto.ConsumesSpec{ElixirIds: []int32{ferocity, mongoose}, ExtraIds: []int32{jujuPower}}, &proto.RaidBuffs{})
+	both := statGain(&proto.ConsumesSpec{ElixirIds: []int32{ferocity, mongoose}}, &proto.RaidBuffs{})
 	if crit := soloGain(mongoose)[stats.PhysicalCritPercent]; crit <= 0 || both[stats.PhysicalCritPercent] != crit {
-		t.Errorf("Ferocity, Mongoose and Juju Power add %v%% crit, want Mongoose's %v%%", both[stats.PhysicalCritPercent], crit)
+		t.Errorf("Ferocity and Mongoose add %v%% crit, want Mongoose's %v%%", both[stats.PhysicalCritPercent], crit)
 	}
 }
 
@@ -394,7 +388,7 @@ func TestAScrollStacksWithTheElixirsOfItsStat(t *testing.T) {
 // 10306, and Power Word: Fortitude the Stamina of Elixir of Brute Force 13453 and Scroll of Stamina IV
 // 10307. Elixir of Cunning 250328 keeps its Agility, Sages its crit and Brute Force its Strength.
 func TestTheRaidBuffsOverwriteTheIntellectSpiritAndStaminaOfTheElixirsAndScrolls(t *testing.T) {
-	const cunning, elixirOfIntellect, greaterIntellect, sages, scrollOfSpiritIV, bruteForce, scrollOfStaminaIV int32 = 250328, 250354, 9179, 250338, 10306, 13453, 10307
+	const cunning, greaterIntellect, sages, scrollOfSpiritIV, bruteForce, scrollOfStaminaIV int32 = 250328, 9179, 250338, 10306, 13453, 10307
 	for _, tc := range []struct {
 		name    string
 		buffs   *proto.RaidBuffs
@@ -403,7 +397,7 @@ func TestTheRaidBuffsOverwriteTheIntellectSpiritAndStaminaOfTheElixirsAndScrolls
 		scroll  int32
 		kept    stats.Stat
 	}{
-		{"Arcane Intellect", &proto.RaidBuffs{ArcaneIntellect: true}, stats.Intellect, []int32{cunning, elixirOfIntellect, greaterIntellect},
+		{"Arcane Intellect", &proto.RaidBuffs{ArcaneIntellect: true}, stats.Intellect, []int32{cunning, greaterIntellect},
 			scrollOfIntellectIVID, stats.Agility},
 		{"Prayer of Spirit", &proto.RaidBuffs{PrayerOfSpirit: true}, stats.Spirit, []int32{sages}, scrollOfSpiritIV, stats.SpellCritPercent},
 		{"Power Word: Fortitude", &proto.RaidBuffs{PowerWordFortitude: true}, stats.Stamina, []int32{bruteForce}, scrollOfStaminaIV, stats.Strength},
@@ -468,7 +462,7 @@ func TestNoElixirOrScrollOutbidsTheRaidBuffOfItsStat(t *testing.T) {
 	checked := 0
 	for _, consumable := range database.Load().Consumables {
 		if consumable.Type != proto.ConsumableType_ConsumableTypeElixir && consumable.Type != proto.ConsumableType_ConsumableTypeScroll &&
-			!slices.Contains(StatsCountWithTheElixirs, consumable.Id) || len(consumable.ItemEffects) == 0 {
+			!consumable.CountsWithElixirs || len(consumable.ItemEffects) == 0 {
 			continue
 		}
 		for _, buff := range consumableBuffs(spelldata.Find(consumable.ItemEffects[0].BuffId)) {

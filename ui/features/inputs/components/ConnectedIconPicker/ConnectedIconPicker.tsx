@@ -39,6 +39,7 @@ export const ConnectedIconPicker = <ModObject, ValueType>({ modObject, config, t
 			improvedIcon2={improvedIcon2}
 			keptTooltip={keptTooltipOf(config, modObject, value)}
 			overwrittenTooltip={config.overwrittenTooltip?.(modObject, value)}
+			overwrittenPartly={config.overwrittenPartly?.(modObject, value)}
 			value={Number(value)}
 			onChange={n => setValue(toSource(n))}
 			disabled={disabled}

@@ -9,6 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/tools/database/dbc"
 )
@@ -24,17 +25,27 @@ type ConsumableGroupKey struct {
 	Name string
 }
 
-// The group of the scrolls whose on-use spell's first aura is the aura type with the misc value: the
-// ranks of one scroll.
-func ScrollGroup(aura dbcenums.EffectAuraType, misc int) ConsumableGroupKey {
+// The group of the elixirs whose on-use spell's first aura is the aura type with the misc value.
+func ElixirGroup(aura dbcenums.EffectAuraType, misc int) ConsumableGroupKey {
 	return ConsumableGroupKey{Key: fmt.Sprintf("%d/%d", aura, misc), Name: auraGroupName(aura, misc)}
 }
 
-// Writes the consumable's exclusive group. ConsumableExclusiveGroups names it first. Otherwise a
-// scroll's is the aura type and misc value of the first aura its on-use spell applies, which it shares
-// with its ranks. A stat consumable used one at a time with the others of its category
-// (shared.OneAtATimeCategory) is grouped by that category. Any other consumable has no group, an
-// elixir included: the sim counts each stat of the elixirs once, at the strongest one's amount.
+// The group of the elixirs that grant a crit chance, whatever aura they open on (Elixir of the
+// Mongoose's is Agility). Only one elixir's crit counts (R-0053), and the group lets each go beside
+// an elixir of its first stat.
+var ElixirCritGroup = ElixirGroup(dbcenums.A_MOD_CRIT_PCT, 0)
+
+// The group of the scrolls whose on-use spell's first aura is the aura type with the misc value: the
+// ranks of one scroll. The key is apart from the elixirs', since a scroll stacks with them.
+func ScrollGroup(aura dbcenums.EffectAuraType, misc int) ConsumableGroupKey {
+	return ConsumableGroupKey{Key: fmt.Sprintf("scroll %d/%d", aura, misc), Name: auraGroupName(aura, misc)}
+}
+
+// Writes the consumable's exclusive group. ConsumableExclusiveGroups names it first. Otherwise an
+// elixir's or a scroll's is the aura type and misc value of the first aura its on-use spell applies,
+// an elixir granting a crit chance going into ElixirCritGroup instead, and a scroll sharing its group
+// with its ranks alone. A stat consumable used one at a time with the others of its category
+// (shared.OneAtATimeCategory) is grouped by that category. Any other consumable has no group.
 func setConsumableGroup(c *dbc.Consumable, consumable *proto.Consumable, routing *ConsumableRouting, instance *dbc.DBC) {
 	group, ok := exclusiveGroupOverride(consumable.Id)
 	if !ok {
@@ -48,12 +59,18 @@ func rowGroupOf(c *dbc.Consumable, consumable *proto.Consumable, routing *Consum
 		return ConsumableGroupKey{}
 	}
 	onUse := consumable.ItemEffects[0]
-	if consumable.Type == proto.ConsumableType_ConsumableTypeScroll {
+	switch consumable.Type {
+	case proto.ConsumableType_ConsumableTypeElixir, proto.ConsumableType_ConsumableTypeScroll:
 		aura, misc, ok := firstAura(instance, int(onUse.BuffId))
-		if !ok {
+		switch {
+		case !ok:
 			return ConsumableGroupKey{}
+		case consumable.Type == proto.ConsumableType_ConsumableTypeScroll:
+			return ScrollGroup(aura, misc)
+		case shared.GrantsCrit(spelldata.Find(onUse.BuffId)):
+			return ElixirCritGroup
 		}
-		return ScrollGroup(aura, misc)
+		return ElixirGroup(aura, misc)
 	}
 	if registrationFamilyOf(consumable, c, routing) == statFamily {
 		if category := shared.OneAtATimeCategory(onUse); category > 0 {
@@ -85,7 +102,8 @@ func firstAura(instance *dbc.DBC, spellID int) (dbcenums.EffectAuraType, int, bo
 	return 0, 0, false
 }
 
-// The name of a scroll's group: the scrolls open on a stat or armor, and a resistance reads as its school.
+const allSpellSchools = 126
+
 func auraGroupName(aura dbcenums.EffectAuraType, misc int) string {
 	switch aura {
 	case dbcenums.A_MOD_STAT:
@@ -93,11 +111,29 @@ func auraGroupName(aura dbcenums.EffectAuraType, misc int) string {
 			return stats.Stat(stat).StatName()
 		}
 		return "All Stats"
+	case dbcenums.A_MOD_DAMAGE_DONE:
+		switch misc {
+		case allSpellSchools:
+			return "Spell Power"
+		case int(core.SpellSchoolPhysical):
+			return "Physical Damage"
+		}
+		return schoolLabel(misc) + " Spell Power"
 	case dbcenums.A_MOD_RESISTANCE, dbcenums.A_MOD_ARMOR_NO_MODS:
 		if misc == int(core.SpellSchoolPhysical) {
 			return "Armor"
 		}
 		return schoolLabel(misc) + " Resistance"
+	case dbcenums.A_MOD_INCREASE_HEALTH:
+		return "Health"
+	case dbcenums.A_MOD_POWER_REGEN, dbcenums.A_PERIODIC_ENERGIZE:
+		return "Mana Regeneration"
+	case dbcenums.A_MOD_ATTACK_POWER:
+		return "Attack Power"
+	case dbcenums.A_MOD_HEALING_DONE:
+		return "Healing"
+	case dbcenums.A_MOD_CRIT_PCT:
+		return "Critical Strike"
 	}
 	return "Other"
 }

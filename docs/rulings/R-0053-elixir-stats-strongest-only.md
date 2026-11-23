@@ -1,14 +1,22 @@
 # R-0053: Each stat counts its strongest elixir, and five raid buffs overwrite the elixirs of their stat
 
 - Skill: wowsims-consumables-items
-- Code: `sim/common/shared/consumable_stats.go`, `consumableAura` with `spelldata.ExclusivePerStat(core.ElixirStatCategory)`, `spelldata.Exclusive(core.ElixirCritCategory, false)` and `StatsCountWithTheElixirs`, and for the scrolls `spelldata.ExclusivePerStat(core.StatBuffCategory)`; `sim/core/spelldata/parse_effects.go`, `Overwrites`; `tools/database/buffmanifest/buffs.go`, `ElixirCategory`; `tools/database/consumable_groups.go`, `rowGroupOf`; `ui/features/settings/model/consumables.ts`, `overwrittenTooltips`
+- Code: `sim/common/shared/consumable_stats.go`, `consumableAura` with `spelldata.ExclusivePerStat(core.ElixirStatCategory)`, `spelldata.Exclusive(core.ElixirCritCategory, false)` and `CountsWithElixirs`, and for the scrolls `spelldata.ExclusivePerStat(core.StatBuffCategory)`; `sim/core/spelldata/parse_effects.go`, `Overwrites`; `tools/database/buffmanifest/buffs.go`, `ElixirCategory`; `sim/core/consumes.go`, `selectedConsumableIDs`; `tools/database/consumable_groups.go`, `rowGroupOf` and `ElixirCritGroup`; `tools/database/overrides.go`, `ConsumablesCountWithElixirs`; `ui/features/settings/model/consumables.ts`, `overwrittenTooltips`
 - Pull request: #1185
 - Evidence: EV-0185
 
-Elixirs belong to no exclusive group: any set of them can be used, and the auras of all of them stay up.
-Each stat they grant counts only the strongest elixir's amount, and only one elixir's 2% crit counts.
-Juju Power 12451, Juju Might 12460 and Bogling Root 5206 count with the elixirs the same way. Flasks,
-food and the other consumables stack with the elixirs.
+The settings offer one elixir per exclusive group, and the sim takes the first of each group the spec
+names. An elixir's group is the first aura its on-use spell applies, but the five elixirs that grant
+the 2% crit (the Mongoose, the Grizzly, the Owl, Sages and the Whale) share one Critical Strike group,
+so each goes beside an elixir of its first stat: Elixir of the Grizzly beside Elixir of Greater
+Strength, Elixir of the Mongoose beside Elixir of Greater Agility. Juju Power 12451, Juju Might 12460
+and Bogling Root 5206 belong to no group and are picked beside the elixirs.
+
+Across the groups, each stat the elixirs grant counts only the strongest elixir's amount, and only one
+elixir's 2% crit counts: beside Elixir of the Mongoose, Elixir of Ferocity adds its Strength and no
+Agility. The Jujus and Bogling Root count with the elixirs the same way, which their db.json
+`counts_with_elixirs` marks: beside Elixir of Minor Force, Bogling Root adds nothing. Flasks, food and the other
+consumables stack with the elixirs.
 
 Five raid buffs overwrite the elixirs of their stat, and the stronger of the raid buff and the
 strongest elixir counts. Arcane Intellect does so for Intellect, Prayer of Spirit, the group form of

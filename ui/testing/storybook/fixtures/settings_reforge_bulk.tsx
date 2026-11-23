@@ -19,21 +19,21 @@ export interface StoryIconToggleProps {
 	icon: ResolvedIcon;
 	initial?: number;
 	states?: number;
-	overwrittenTooltip?: string;
 }
 
-export const StoryIconToggle = ({ icon, initial = 0, states = 2, overwrittenTooltip }: StoryIconToggleProps) => {
+export const StoryIconToggle = ({ icon, initial = 0, states = 2 }: StoryIconToggleProps) => {
 	const [value, setValue] = useState(initial);
-	return <IconPicker states={states} icon={icon} value={value} onChange={setValue} overwrittenTooltip={value > 0 ? overwrittenTooltip : undefined} />;
+	return <IconPicker states={states} icon={icon} value={value} onChange={setValue} />;
 };
 
 export interface StoryIconEnumProps {
 	options: Array<IconEnumOption<number>>;
 	initial?: number;
 	overwrittenTooltip?: string;
+	overwrittenPartly?: boolean;
 }
 
-export const StoryIconEnum = ({ options, initial = 0, overwrittenTooltip }: StoryIconEnumProps) => {
+export const StoryIconEnum = ({ options, initial = 0, overwrittenTooltip, overwrittenPartly }: StoryIconEnumProps) => {
 	const [value, setValue] = useState(initial);
 	return (
 		<IconEnumPicker
@@ -43,6 +43,7 @@ export const StoryIconEnum = ({ options, initial = 0, overwrittenTooltip }: Stor
 			value={value}
 			onChange={setValue}
 			overwrittenTooltip={value ? overwrittenTooltip : undefined}
+			overwrittenPartly={overwrittenPartly}
 		/>
 	);
 };

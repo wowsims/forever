@@ -20,8 +20,10 @@
 		@apply opacity-50;
 	}
 
+	/* A swatch that triggers a menu opens it on hover, and the open menu sets every element outside its trigger and popup
+	   to pointer-events: none, the badge beside the trigger included, so the badge takes them back to keep its tooltip. */
 	.ui-icon-swatch-badge {
-		@apply absolute top-swatch-badge-inset size-4 cursor-pointer drop-shadow-icon-outline;
+		@apply pointer-events-auto absolute top-swatch-badge-inset size-4 cursor-pointer drop-shadow-icon-outline;
 	}
 
 	.ui-icon-swatch-badge-kept {

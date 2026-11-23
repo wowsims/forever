@@ -2,20 +2,20 @@ import { ConnectedIconEnumPicker } from '@features/inputs/components/ConnectedIc
 import { ConnectedIconPicker } from '@features/inputs/components/ConnectedIconPicker';
 import { ConnectedMultiIconPicker } from '@features/inputs/components/ConnectedMultiIconPicker';
 import type { MultiIconPickerConfig } from '@features/inputs/configs';
-import { CONSUMABLE_PICKER_FIELDS, consumableColumns } from '@features/settings/model/consumables';
+import { consumableColumns, OVERWRITTEN_PICKER_FIELDS } from '@features/settings/model/consumables';
 import { clearMultiIconInputs } from '@features/settings/model/multi_icon';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import { useStoreField } from '@sim/hooks/useStoreField';
+import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import type { Player } from '@sim/player/player';
 import { Database } from '@sim/proto/database';
+import { CONSUMABLE_ORDER_FIELDS, consumableOrderOf, orderedByEp } from '@sim/settings/consumables';
 import { IconEnumPickerDirection } from '@ui-kit/IconEnumPicker';
 import { IconRow } from '@ui-kit/IconRow';
 import { useMemo } from 'react';
 
 import { ConsumeRow } from './ConsumeRow';
-import { ElixirPicker } from './ElixirPicker';
-import { useOrderedToggles } from './useOrderedToggles';
 import { type ConsumeConfig, consumeConfigs, type ConsumeToggle } from './utils';
 
 export interface ConsumesPickerProps {
@@ -23,6 +23,11 @@ export interface ConsumesPickerProps {
 	// never runs one and passes false.
 	encounterConsumes?: boolean;
 }
+
+const useOrderedToggles = (player: Player<any>, toggles: ReadonlyArray<ConsumeToggle>) => {
+	const order = useStoreSubscribe(useStoreField(CONSUMABLE_ORDER_FIELDS)!, () => consumableOrderOf(player));
+	return useMemo(() => orderedByEp(toggles, toggle => toggle.consumable, order), [toggles, order]);
+};
 
 const Toggles = ({ player, toggles }: { player: Player<any>; toggles: ReadonlyArray<ConsumeToggle> }) =>
 	useOrderedToggles(player, toggles).map(config => <ConnectedIconPicker key={config.actionId.itemId} modObject={player} config={config} />);
@@ -36,7 +41,8 @@ interface MultiToggleProps {
 }
 
 const MultiToggle = ({ player, toggles, tooltip, testId }: MultiToggleProps) => {
-	const subscribe = useStoreField(CONSUMABLE_PICKER_FIELDS)!;
+	// The overwritten fields too, so the trigger's badge follows the raid buffs.
+	const subscribe = useStoreField(OVERWRITTEN_PICKER_FIELDS)!;
 	const ordered = useOrderedToggles(player, toggles);
 	const config = useMemo<MultiIconPickerConfig<Player<any>>>(() => {
 		const offered = (p: Player<any>) => ordered.filter(toggle => !toggle.showWhen || toggle.showWhen(p)).length;
@@ -74,12 +80,12 @@ export interface ImbueRowsProps {
 export const ImbueRows = ({ player, imbues, weaponImbues, imbueTestId, weaponImbueTestId }: ImbueRowsProps) => (
 	<>
 		<ConsumeRow name="imbue" configs={imbues}>
-			<IconRow className="justify-end" data-testid={imbueTestId}>
+			<IconRow data-testid={imbueTestId}>
 				<Pickers player={player} configs={imbues} />
 			</IconRow>
 		</ConsumeRow>
 		<ConsumeRow name="weaponImbue" configs={weaponImbues}>
-			<IconRow className="justify-end" data-testid={weaponImbueTestId}>
+			<IconRow data-testid={weaponImbueTestId}>
 				<Pickers player={player} configs={weaponImbues} />
 			</IconRow>
 		</ConsumeRow>
@@ -94,7 +100,7 @@ export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps
 		<div className="grid gap-2 max-lg:grid-cols-3 max-md:grid-cols-1">
 			{encounterConsumes && (
 				<ConsumeRow name="potions" configs={[configs.offensivePotion, configs.defensivePotion, configs.resourcePotion, configs.conjured]}>
-					<IconRow className="justify-end" data-testid="consumes-potions">
+					<IconRow data-testid="consumes-potions">
 						<ConnectedIconEnumPicker modObject={player} config={configs.offensivePotion} />
 						<ConnectedIconEnumPicker modObject={player} config={configs.defensivePotion} />
 						<ConnectedIconEnumPicker modObject={player} config={configs.resourcePotion} />
@@ -103,18 +109,18 @@ export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps
 				</ConsumeRow>
 			)}
 			<ConsumeRow name="elixirs" configs={[configs.flask, ...configs.elixirs]}>
-				<IconRow className="justify-end" data-testid="consumes-elixirs">
+				<IconRow>
 					<ConnectedIconEnumPicker modObject={player} config={configs.flask} testId="consumes-flasks" />
-					<ElixirPicker player={player} toggles={configs.elixirs} />
+					<Pickers player={player} configs={configs.elixirs} />
 				</IconRow>
 			</ConsumeRow>
 			<ConsumeRow name="scrolls" configs={configs.scrolls}>
-				<IconRow className="justify-end" data-testid="consumes-scrolls">
+				<IconRow data-testid="consumes-scrolls">
 					<Pickers player={player} configs={configs.scrolls} />
 				</IconRow>
 			</ConsumeRow>
 			<ConsumeRow name="food" configs={[configs.food, ...(configs.dragonbreathChili ? [configs.dragonbreathChili] : []), ...configs.foodGroups]}>
-				<IconRow className="justify-end" data-testid="consumes-food">
+				<IconRow data-testid="consumes-food">
 					<ConnectedIconEnumPicker modObject={player} config={configs.food} />
 					{configs.dragonbreathChili && <ConnectedIconPicker modObject={player} config={configs.dragonbreathChili} />}
 					<Pickers player={player} configs={configs.foodGroups} />
@@ -122,7 +128,7 @@ export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps
 			</ConsumeRow>
 			{encounterConsumes && (
 				<ConsumeRow name="engineering" configs={[configs.explosive, ...configs.explosiveExtras]}>
-					<IconRow className="justify-end" data-testid="consumes-engi">
+					<IconRow data-testid="consumes-engi">
 						<ConnectedIconEnumPicker modObject={player} config={configs.explosive} />
 						<Toggles player={player} toggles={configs.explosiveExtras} />
 					</IconRow>
@@ -136,7 +142,7 @@ export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps
 				weaponImbueTestId="consumes-weapon-imbue"
 			/>
 			<ConsumeRow name="holiday" configs={[...configs.holidayGroups, ...configs.holiday]}>
-				<IconRow className="justify-end" data-testid="consumes-holiday">
+				<IconRow data-testid="consumes-holiday">
 					<Pickers player={player} configs={configs.holidayGroups} />
 					<Toggles player={player} toggles={configs.holiday} />
 				</IconRow>
@@ -144,7 +150,7 @@ export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps
 			<ConsumeRow
 				name="miscellaneous"
 				configs={[...configs.miscGroups, ...(encounterConsumes ? [...configs.miscOffensive, ...configs.miscDefensive] : [])]}>
-				<IconRow className="justify-end" data-testid="consumes-misc">
+				<IconRow data-testid="consumes-misc">
 					<Pickers player={player} configs={configs.miscGroups} />
 					{encounterConsumes && (
 						<>

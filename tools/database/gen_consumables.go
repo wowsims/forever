@@ -68,13 +68,14 @@ func ShipsConsumable(routing *ConsumableRouting) bool {
 }
 
 // The catalogue's consumable as db.json carries it, typed an explosive where IsExplosive says so, with
-// its exclusive group.
+// its exclusive group and whether its stats count with the elixirs'.
 func ShippedConsumable(c *dbc.Consumable, routing *ConsumableRouting, instance *dbc.DBC) *proto.Consumable {
 	consumable := c.ToProto()
 	if IsExplosive(c, routing) {
 		consumable.Type = proto.ConsumableType_ConsumableTypeExplosive
 	}
 	setConsumableGroup(c, consumable, routing, instance)
+	consumable.CountsWithElixirs = slices.Contains(ConsumablesCountWithElixirs, consumable.Id)
 	consumable.Holiday = consumableHoliday(c)
 	return consumable
 }

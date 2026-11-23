@@ -54,19 +54,23 @@ func TestSelectedConsumableIDs(t *testing.T) {
 }
 
 func TestSelectedConsumableIDsKeepTheFirstOfEachGroup(t *testing.T) {
-	const mongoose, agility, scroll, scrollIV, roids, zanza, otherScroll = 990401, 990402, 990403, 990404, 990405, 990406, 990407
+	const agility, greaterAgility, mongoose, grizzly, strength, ungrouped, juju, scroll = 990401, 990402, 990403, 990404, 990405, 990406, 990407, 990408
 	addToDatabase(&proto.SimDatabase{Consumables: []*proto.Consumable{
-		{Id: mongoose, Type: proto.ConsumableType_ConsumableTypeElixir},
-		{Id: agility, Type: proto.ConsumableType_ConsumableTypeElixir},
-		{Id: scroll, Type: proto.ConsumableType_ConsumableTypeScroll, GroupKey: "29/1"},
-		{Id: scrollIV, Type: proto.ConsumableType_ConsumableTypeScroll, GroupKey: "29/1"},
-		{Id: roids, Type: proto.ConsumableType_ConsumableTypeOther, GroupKey: "Zanza"},
-		{Id: zanza, Type: proto.ConsumableType_ConsumableTypeOther, GroupKey: "Zanza"},
-		{Id: otherScroll, Type: proto.ConsumableType_ConsumableTypeScroll, GroupKey: "29/2"},
+		{Id: agility, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "29/1"},
+		{Id: greaterAgility, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "29/1"},
+		{Id: mongoose, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "290/0"},
+		{Id: grizzly, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "290/0"},
+		{Id: strength, Type: proto.ConsumableType_ConsumableTypeElixir, GroupKey: "29/0"},
+		{Id: ungrouped, Type: proto.ConsumableType_ConsumableTypeElixir},
+		{Id: juju, GroupKey: "29/0"},
+		{Id: scroll, Type: proto.ConsumableType_ConsumableTypeScroll, GroupKey: "scroll 29/1"},
 	}})
 
-	got := selectedConsumableIDs(&proto.ConsumesSpec{ElixirIds: []int32{mongoose, agility}, ExtraIds: []int32{scroll, scrollIV, roids, zanza, otherScroll}})
-	if want := []int32{mongoose, agility, scroll, roids, otherScroll}; !slices.Equal(got, want) {
+	got := selectedConsumableIDs(&proto.ConsumesSpec{
+		ElixirIds: []int32{agility, greaterAgility, mongoose, grizzly, strength, ungrouped},
+		ExtraIds:  []int32{juju, scroll},
+	})
+	if want := []int32{agility, mongoose, strength, ungrouped, scroll}; !slices.Equal(got, want) {
 		t.Errorf("selected %v, want %v", got, want)
 	}
 }

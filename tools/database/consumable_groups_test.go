@@ -27,9 +27,9 @@ func shippedConsumable(t *testing.T, instance *dbc.DBC, id int) *proto.Consumabl
 	return ShippedConsumable(&catalogued, routing, instance)
 }
 
-// The ranks of a scroll share one group, keyed by their first aura, and a scroll of another stat is
-// another group. An elixir has none, and neither have the Jujus nor Bogling Root: the sim counts each
-// stat they grant at its strongest one's amount.
+// Elixirs whose first aura is the same share one group, and a different first aura, another stat or
+// another school, is another group. The elixirs granting a crit chance share one group whatever
+// their first aura. A scroll shares its group with its ranks alone.
 func TestAConsumableTakesItsExclusiveGroup(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -39,12 +39,23 @@ func TestAConsumableTakesItsExclusiveGroup(t *testing.T) {
 		name string
 		ids  []int
 	}{
-		{"Strength: Scroll of Strength IV and Scroll of Strength", []int{10310, 954}},
-		{"Agility: Scroll of Agility IV, Scroll of Agility II and Scroll of Agility", []int{10309, 1477, 3012}},
-		{"Intellect: Scroll of Intellect IV and Scroll of Intellect", []int{10308, 955}},
-		{"Armor: Scroll of Protection IV and Scroll of Protection", []int{10305, 3013}},
-		{"Spirit: Scroll of Spirit IV and Scroll of Spirit", []int{10306, 1181}},
-		{"Stamina: Scroll of Stamina IV and Scroll of Stamina", []int{10307, 1180}},
+		{"Strength: Elixir of Greater Strength, Elixir of Ogre Strength", []int{9206, 3391}},
+		{"Agility: Elixir of Greater Agility, Elixir of Agility", []int{9187, 8949}},
+		{"Critical Strike: the Mongoose (Agility then crit), the Grizzly, the Owl, Sages, the Whale", []int{13452, 250351, 250337, 250338, 250348}},
+		{"Intellect: Elixir of the Sages (Intellect then Spirit), Elixir of Greater Intellect", []int{13447, 9179}},
+		{"Armor: Elixir of Greater Defense", []int{13445}},
+		{"Attack Power: Winterfall Firewater, Distilled Firewater", []int{12820, 246948}},
+		{"Physical Damage: Elixir of Minor Force", []int{247755}},
+		{"Arcane Elixir, every school", []int{9155}},
+		{"Elixir of Fire Power, fire alone", []int{6373}},
+		{"Gift of Arthas, shadow resistance", []int{9088}},
+		{"Scroll of Strength IV and Scroll of Strength", []int{10310, 954}},
+		{"Scroll of Agility IV and Scroll of Agility", []int{10309, 3012}},
+		{"Scroll of Intellect IV", []int{10308}},
+		{"Scroll of Protection IV", []int{10305}},
+		{"Scroll of Spirit IV", []int{10306}},
+		{"Scroll of Stamina IV", []int{10307}},
+		{"Scroll of Minor Evocation, A_PERIODIC_ENERGIZE", []int{213564}},
 	} {
 		first := shippedConsumable(t, instance, tc.ids[0])
 		if first.GroupKey == "" || first.GroupName == "" {
@@ -74,11 +85,7 @@ func TestAConsumableTakesItsExclusiveGroup(t *testing.T) {
 		{"Kreeg's Stout Beatdown", 18284, "Rum", "Rum"},
 		{"Fire-toasted Bun", 23327, "Hit food", "Hit food"},
 		{"Dark Desire", 22237, "Hit food", "Hit food"},
-		{"Elixir of Greater Strength", 9206, "", ""},
-		{"Elixir of the Mongoose (Agility then crit)", 13452, "", ""},
-		{"Arcane Elixir", 9155, "", ""},
-		{"Gift of Arthas", 9088, "", ""},
-		{"Juju Power", 12451, "", ""},
+		{"Juju Power, which counts with the elixirs instead", 12451, "", ""},
 		{"Juju Might", 12460, "", ""},
 		{"Bogling Root", 5206, "", ""},
 		{"Flask of the Titans stacks with everything", 13510, "", ""},
@@ -90,9 +97,9 @@ func TestAConsumableTakesItsExclusiveGroup(t *testing.T) {
 	}
 }
 
-// A scroll's group is keyed by its first aura's type and misc value and named after what that aura
-// grants.
-func TestScrollGroupNamesWhatTheAuraGrants(t *testing.T) {
+// An elixir's group is keyed by its first aura's type and misc value and named after what that aura
+// grants, and a scroll's the same way, apart from the elixirs'.
+func TestElixirGroupNamesWhatTheAuraGrants(t *testing.T) {
 	for _, tc := range []struct {
 		aura      dbcenums.EffectAuraType
 		misc      int
@@ -100,13 +107,20 @@ func TestScrollGroupNamesWhatTheAuraGrants(t *testing.T) {
 	}{
 		{dbcenums.A_MOD_STAT, 1, "29/1", "Agility"},
 		{dbcenums.A_MOD_STAT, 3, "29/3", "Intellect"},
-		{dbcenums.A_MOD_ARMOR_NO_MODS, 1, "674/1", "Armor"},
+		{dbcenums.A_MOD_DAMAGE_DONE, 126, "13/126", "Spell Power"},
+		{dbcenums.A_MOD_DAMAGE_DONE, 4, "13/4", "Fire Spell Power"},
 		{dbcenums.A_MOD_RESISTANCE, 32, "22/32", "Shadow Resistance"},
 		{dbcenums.A_MOD_RESISTANCE, 1, "22/1", "Armor"},
+		{dbcenums.A_MOD_ATTACK_POWER, 0, "99/0", "Attack Power"},
+		{dbcenums.A_PERIODIC_ENERGIZE, 0, "24/0", "Mana Regeneration"},
+		{dbcenums.A_MOD_CRIT_PCT, 0, "290/0", "Critical Strike"},
 	} {
-		if got, want := ScrollGroup(tc.aura, tc.misc), (ConsumableGroupKey{Key: tc.key, Name: tc.name}); got != want {
+		if got, want := ElixirGroup(tc.aura, tc.misc), (ConsumableGroupKey{Key: tc.key, Name: tc.name}); got != want {
 			t.Errorf("aura %v misc %d: group %+v, want %+v", tc.aura, tc.misc, got, want)
 		}
+	}
+	if got, want := ScrollGroup(dbcenums.A_MOD_STAT, 1), (ConsumableGroupKey{Key: "scroll 29/1", Name: "Agility"}); got != want {
+		t.Errorf("scroll of Agility: group %+v, want %+v", got, want)
 	}
 }
 
@@ -150,14 +164,17 @@ func categoryOneAtATime(onUse *proto.ItemEffect) int32 {
 	return category
 }
 
-// No elixir db.json ships has a group from its rows, and every scroll has one. A stat consumable
-// other than an elixir or a scroll is grouped by its category exactly where its rows make it one used
-// one at a time with the others of that category.
-func TestTheRowsGroupEveryScrollNoElixirAndByCategoryOnlyWhereTheCategoryOutlastsTheBuff(t *testing.T) {
+// Every elixir and scroll db.json ships has a group, no scroll one an elixir has, and the crit group
+// holds the five elixirs that grant a crit chance. A stat consumable other than an elixir or a scroll
+// is grouped by its category exactly where its rows make it one used one at a time with the others of
+// that category.
+func TestTheRowsGroupEveryElixirAndByCategoryOnlyWhereTheCategoryOutlastsTheBuff(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
 
 	grouped, ungrouped := 0, 0
+	elixirKeys, scrollKeys := map[string]bool{}, map[string]bool{}
+	var crit []int
 	for _, id := range slices.Sorted(maps.Keys(instance.Consumables)) {
 		catalogued := instance.Consumables[id]
 		routing := RouteConsumable(&catalogued, instance)
@@ -165,12 +182,21 @@ func TestTheRowsGroupEveryScrollNoElixirAndByCategoryOnlyWhereTheCategoryOutlast
 			continue
 		}
 		consumable := ShippedConsumable(&catalogued, routing, instance)
-		group := rowGroupOf(&catalogued, consumable, routing, instance)
-		if consumable.Type == proto.ConsumableType_ConsumableTypeElixir && group.Key != "" {
-			t.Errorf("elixir %d %s is grouped as %q, want no group", id, catalogued.Name, group.Key)
+		if !KeepConsumable(consumable) {
+			continue
 		}
-		if consumable.Type == proto.ConsumableType_ConsumableTypeScroll && group.Key == "" {
-			t.Errorf("scroll %d %s applies no aura to group it by", id, catalogued.Name)
+		group := rowGroupOf(&catalogued, consumable, routing, instance)
+		if (consumable.Type == proto.ConsumableType_ConsumableTypeElixir || consumable.Type == proto.ConsumableType_ConsumableTypeScroll) && group.Key == "" {
+			t.Errorf("%v %d %s applies no aura to group it by", consumable.Type, id, catalogued.Name)
+		}
+		switch consumable.Type {
+		case proto.ConsumableType_ConsumableTypeElixir:
+			elixirKeys[group.Key] = true
+			if group == ElixirCritGroup {
+				crit = append(crit, id)
+			}
+		case proto.ConsumableType_ConsumableTypeScroll:
+			scrollKeys[group.Key] = true
 		}
 		if consumable.Type == proto.ConsumableType_ConsumableTypeElixir || consumable.Type == proto.ConsumableType_ConsumableTypeScroll ||
 			registrationFamilyOf(consumable, &catalogued, routing) != statFamily {
@@ -193,6 +219,34 @@ func TestTheRowsGroupEveryScrollNoElixirAndByCategoryOnlyWhereTheCategoryOutlast
 	}
 	if grouped == 0 || ungrouped == 0 {
 		t.Errorf("%d stat consumables grouped by category and %d not, want some of each", grouped, ungrouped)
+	}
+	for key := range scrollKeys {
+		if elixirKeys[key] {
+			t.Errorf("scroll group %q is an elixir group too", key)
+		}
+	}
+	if want := []int{13452, 250337, 250338, 250348, 250351}; !slices.Equal(crit, want) {
+		t.Errorf("crit group holds %v, want %v", crit, want)
+	}
+}
+
+// The consumables ConsumablesCountWithElixirs names ship marked, and no other consumable is.
+func TestTheConsumablesThatCountWithTheElixirsShipMarked(t *testing.T) {
+	withDBCInputs(t)
+	instance := dbc.GetDBC()
+
+	for _, id := range slices.Sorted(maps.Keys(instance.Consumables)) {
+		catalogued := instance.Consumables[id]
+		routing := RouteConsumable(&catalogued, instance)
+		if !ShipsConsumable(routing) {
+			if slices.Contains(ConsumablesCountWithElixirs, int32(id)) {
+				t.Errorf("%d %s counts with the elixirs but does not ship", id, catalogued.Name)
+			}
+			continue
+		}
+		if got, want := ShippedConsumable(&catalogued, routing, instance).CountsWithElixirs, slices.Contains(ConsumablesCountWithElixirs, int32(id)); got != want {
+			t.Errorf("%d %s counts with the elixirs: %v, want %v", id, catalogued.Name, got, want)
+		}
 	}
 }
 

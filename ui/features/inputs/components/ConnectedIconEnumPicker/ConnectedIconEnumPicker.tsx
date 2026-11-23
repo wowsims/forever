@@ -73,6 +73,12 @@ export const ConnectedIconEnumPicker = <ModObject, T>({ modObject, config, testI
 				tooltip: valueConfig.tooltip,
 				wowhead: buffDatasets[index],
 				hidden: !shows(valueConfig),
+				...(openings > 0 && shows(valueConfig) && !config.equals(valueConfig.value, config.zeroValue)
+					? {
+							overwrittenTooltip: config.overwrittenTooltip?.(modObject, valueConfig.value),
+							overwrittenPartly: config.overwrittenPartly?.(modObject, valueConfig.value),
+						}
+					: undefined),
 			}))}
 			equals={config.equals}
 			zeroValue={config.zeroValue}
@@ -80,6 +86,7 @@ export const ConnectedIconEnumPicker = <ModObject, T>({ modObject, config, testI
 			tooltip={config.tooltip}
 			keptTooltip={keptTooltipOf(config, modObject, value)}
 			overwrittenTooltip={config.overwrittenTooltip?.(modObject, value)}
+			overwrittenPartly={config.overwrittenPartly?.(modObject, value)}
 			direction={config.direction}
 			numColumns={typeof config.numColumns === 'function' ? config.numColumns(modObject) : config.numColumns}
 			onOpenChange={open => {

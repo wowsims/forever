@@ -1026,17 +1026,7 @@
 				"resource": "Resource Potion"
 			},
 			"elixirs": {
-				"title": "Elixirs",
-				"add": "Add elixirs",
-				"groups": {
-					"critical_strike": "Critical Strike",
-					"armor": "Armor",
-					"spell_power": "Spell Power",
-					"mana_regeneration": "Mana Regeneration",
-					"healing": "Healing",
-					"physical_damage": "Physical Damage",
-					"other": "Other"
-				}
+				"title": "Flask & Elixirs"
 			},
 			"food": {
 				"title": "Food"
@@ -1070,7 +1060,7 @@
 				"offensive": "Offensive",
 				"defensive": "Defensive"
 			},
-			"overwritten_tooltip": "Adds nothing: every stat it grants is matched by {{names}}."
+			"overwritten_tooltip": "{{stats}} overwritten by {{name}}"
 		},
 		"encounter": {
 			"title": "Encounter",

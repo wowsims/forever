@@ -52,6 +52,9 @@ export const ConnectedMultiIconPicker = <ModObject,>({ modObject, config, subscr
 			tooltip={config.tooltip}
 			numColumns={config.numColumns?.(modObject)}
 			keptTooltip={keptTooltipOf(config, modObject, !!picked)}
+			// The badge of the input the trigger shows.
+			overwrittenTooltip={picked?.input.overwrittenTooltip?.(modObject, picked.input.getValue(modObject))}
+			overwrittenPartly={picked?.input.overwrittenPartly?.(modObject, picked.input.getValue(modObject))}
 			onClear={onClear}
 			testId={testId}>
 			{/* The menu is a row of bare swatches: each input's label would sit beside its icon, and the icon's tooltip names it. */}

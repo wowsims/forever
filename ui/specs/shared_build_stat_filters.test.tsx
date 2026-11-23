@@ -30,6 +30,8 @@ const ELIXIR_OF_GREATER_AGILITY = Consumable.create({
 	type: ConsumableType.ConsumableTypeElixir,
 	lvl: 38,
 	stats: Object.assign(new Array<number>(42).fill(0), { [Stat.StatAgility]: 25 }),
+	groupKey: '29/1',
+	groupName: 'Agility',
 });
 
 // Strength only, so the Intellect raid buff and the Agility elixir are both hidden.

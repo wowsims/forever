@@ -11,7 +11,8 @@ import { type IconEnumOption, IconEnumPickerDirection } from './types';
 import { iconStyleOf } from './utils';
 
 /** No `size`: the trigger is an icon swatch, not a form-height control. */
-export interface IconEnumPickerProps<T> extends Omit<FieldFrameProps, 'size'>, ControlledProps<T>, Pick<IconSwatchProps, 'keptTooltip' | 'overwrittenTooltip'> {
+export interface IconEnumPickerProps<T>
+	extends Omit<FieldFrameProps, 'size'>, ControlledProps<T>, Pick<IconSwatchProps, 'keptTooltip' | 'overwrittenTooltip' | 'overwrittenPartly'> {
 	options: Array<IconEnumOption<T>>;
 	equals: (a: T, b: T) => boolean;
 	/** The value that reads as inactive. */
@@ -38,6 +39,7 @@ export const IconEnumPicker = <T,>({
 	onOpenChange,
 	keptTooltip,
 	overwrittenTooltip,
+	overwrittenPartly,
 	value,
 	onChange,
 	disabled,
@@ -69,6 +71,7 @@ export const IconEnumPicker = <T,>({
 				disabled,
 				keptTooltip,
 				overwrittenTooltip,
+				overwrittenPartly,
 				// The value's text sits on the swatch, the way IconPicker's counter does: with one icon
 				// shared by every rank, the text is what tells the ranks apart.
 				text: selectedHidden ? undefined : selected?.text,

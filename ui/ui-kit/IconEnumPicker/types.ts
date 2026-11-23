@@ -23,4 +23,7 @@ export interface IconEnumOption<T> {
 	wowhead?: WowheadIconProps['wowhead'];
 	// A hidden option is left out of the menu, and selecting its value shows as no selection.
 	hidden?: boolean;
+	// The badge of an option another selection would overwrite once it is selected, as `IconSwatch` shows it.
+	overwrittenTooltip?: string;
+	overwrittenPartly?: boolean;
 }

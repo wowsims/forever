@@ -168,26 +168,38 @@ The game files carry no stacking table, so the generator resolves each consumabl
 `ShippedConsumable` writes it into db.json as `group_key` and `group_name`. The sim reads only the key
 (`selectedConsumableIDs` in `sim/core/consumes.go`), the settings the key and the name.
 
-**Elixirs have no group.** Every elixir the spec names is up, and each stat they grant counts only the
-strongest one's amount, the 2% crit only one elixir's (R-0053). The sim counts them so:
-`consumableAura` in `sim/common/shared/consumable_stats.go` bids each stat of an elixir under the
-`ElixirStat` per-stat category and its crit under `ElixirCrit`. Elixir of Ferocity 250350 (Strength and
-Agility) beside Elixir of the Mongoose 13452 and Juju Power 12451 adds nothing, since Mongoose's Agility
-and Juju Power's Strength are larger. Juju Power, Juju Might 12460 and Bogling Root 5206, which the game
-files do not type as elixirs, bid with them (`StatsCountWithTheElixirs`). Spell damage of every school
-and one school's are two stats, so Arcane Elixir 9155 and Elixir of Fire Power 6373 stack. Arcane
-Intellect, Prayer of Spirit and Power Word: Fortitude bid their stat in `ElixirStat` too, and Moonkin
-Aura and Leader of the Pack their crit in `ElixirCrit`, without counting there (`spelldata.Overwrites`,
-set by the buff manifest's `ElixirCategory`), so an elixir that grants no more adds nothing under them:
-under Arcane Intellect, Elixir of Cunning 250328 adds its Agility alone, and under Power Word:
-Fortitude, Elixir of Brute Force 13453 its Strength alone. Every other raid buff, Mark of the Wild
-among them, stacks with the elixirs.
+**Across the groups, each stat of the elixirs counts once.** Of each elixir group only the first
+applies, and each stat the elixirs picked across the groups grant counts only the strongest one's
+amount, the 2% crit only one elixir's (R-0053). The sim counts them so: `consumableAura` in
+`sim/common/shared/consumable_stats.go` bids each stat of an elixir under the `ElixirStat` per-stat
+category and its crit under `ElixirCrit`. Elixir of Ferocity 250350 (Strength and Agility) beside
+Elixir of the Mongoose 13452 adds its Strength alone, since Mongoose's Agility is larger, and beside
+Elixir of the Grizzly 250351 and Elixir of Greater Agility 9187 it adds nothing. Juju Power 12451, Juju
+Might 12460 and Bogling Root 5206, which the game files do not type as elixirs, bid with them: their
+`counts_with_elixirs` is set, which the generator writes from `ConsumablesCountWithElixirs` in
+`tools/database/overrides.go`, and they belong to no group. Spell damage of every school and one school's are two stats, so Arcane
+Elixir 9155 and Elixir of Fire Power 6373 stack. Arcane Intellect, Prayer of Spirit and Power Word:
+Fortitude bid their stat in `ElixirStat` too, and Moonkin Aura and Leader of the Pack their crit in
+`ElixirCrit`, without counting there (`spelldata.Overwrites`, set by the buff manifest's
+`ElixirCategory`), so an elixir that grants no more adds nothing under them: under Arcane Intellect,
+Elixir of Cunning 250328 adds its Agility alone, and under Power Word: Fortitude, Elixir of Brute Force
+13453 its Strength alone. Every other raid buff, Mark of the Wild among them, stacks with the elixirs.
 
 **From the rows** (`rowGroupOf` in `tools/database/consumable_groups.go`):
 
-- a scroll's group is the aura type and misc value of the first aura its on-use spell applies, keyed
-  `<aura>/<misc>`, which it shares with its ranks alone: Scroll of Agility 3012 to IV 10309 (29/1),
-  Scroll of Stamina 1180 to IV 10307 (29/2), Scroll of Protection 3013 to IV 10305 (674/1). A scroll's
+- an elixir's group is the aura type and misc value of the first aura its on-use spell applies, keyed
+  `<aura>/<misc>` (`ElixirGroup`). Elixir of Agility 8949 and Elixir of Greater Agility 9187 both open on
+  `A_MOD_STAT` Agility (29/1), so only one of them applies; Elixir of the Sages 13447 (29/3, Intellect
+  then Spirit) and Elixir of Greater Spirit 250347 (29/4, Spirit) are two groups, and so are Arcane
+  Elixir 9155 (`A_MOD_DAMAGE_DONE` every school, 13/126) and Elixir of Fire Power 6373 (13/4);
+- an elixir whose spells grant a crit chance (`shared.GrantsCrit`, the effects `consumableAura` bids
+  under `ElixirCrit`) goes into the Critical Strike group instead, keyed 290/0 (`ElixirCritGroup`):
+  Elixir of the Mongoose 13452, of the Grizzly 250351, of the Owl 250337, of Sages 250338 and of the
+  Whale 250348. Each then goes beside an elixir of its first stat, the Grizzly beside Elixir of Greater Strength and the
+  Mongoose beside Elixir of Greater Agility, and only one of the five applies;
+- a scroll's group is keyed the same way with a `scroll` prefix (`ScrollGroup`), so it shares its group with
+  its ranks alone and never with an elixir: Scroll of Agility 3012 to IV 10309 (`scroll 29/1`), Scroll
+  of Stamina 1180 to IV 10307 (`scroll 29/2`), Scroll of Protection 3013 to IV 10305 (`scroll 674/1`). A scroll's
   stat bids in core's `StatBuff` per-stat category with Arcane Intellect, Prayer of Spirit and Power
   Word: Fortitude, so it counts only while it outbids them, and it stacks with the elixirs. With no raid
   buff up, Scroll of Intellect IV 10308 and Elixir of Cunning 250328 add 16 and 25 Intellect; under
@@ -201,13 +213,13 @@ among them, stacks with the elixirs.
 Anything else has no group from its rows: a flask stacks with every elixir, since the 3 s of the
 category 79 they share is shorter than any of their buffs.
 
-The label of a row group comes from its aura (`auraGroupName`): "Strength", "Agility", "Armor", and so
-on.
+The label of a row group comes from its aura (`auraGroupName`): "Strength", "Spell Power", "Fire Spell
+Power", "Armor", "Mana Regeneration", "Critical Strike", and so on.
 
 **From the override table.** `ConsumableExclusiveGroups` in `tools/database/overrides.go` holds the
 server rules the rows do not state, and a consumable it names takes that group instead of its rows'.
-An entry's `Group` either is a row group (`ScrollGroup(aura, misc)`, which carries that group's key
-and label) or a group of its own, with a key and a label of its own:
+An entry's `Group` either is a row group (`ElixirGroup(aura, misc)` or `ScrollGroup(aura, misc)`, which
+carries that group's key and label) or a group of its own, with a key and a label of its own:
 
 ```go
 var ConsumableExclusiveGroups = []ConsumableGroup{
@@ -241,8 +253,8 @@ stack with the food and not with each other; the three the game files type as fo
 for the Rum group. The two
 hit foods' 2% hit is listed outside the stat parse, as [below](#stats-dbjson-lists-outside-the-parse).
 
-**Adding a group.** Add an entry to `ConsumableExclusiveGroups`: `ScrollGroup` to put items into a
-scroll's row group, or a new key and label for a group of their own, and every item id with its name.
+**Adding a group.** Add an entry to `ConsumableExclusiveGroups`: `ElixirGroup` or `ScrollGroup` to put
+items into a row group, or a new key and label for a group of their own, and every item id with its name.
 An item the catalogue filter leaves out joins the catalogue through the entry; one whose spell routes
 to no shape needs `ConsumableAllowList` as well to ship. Then regenerate (store first, then
 db.json). `TestEveryExclusiveGroupOverrideShips` fails for an id that does not ship or sits in two
@@ -417,7 +429,7 @@ should not take is a hand-written effect for the consumable.
   flasks have theirs in `sim/common/forever`.
 - The warrior suites select consumables from db.json; a regeneration that moves them shows up in their
   .results files.
-- `TestAConsumableTakesItsExclusiveGroup`, `TestTheRowsGroupEveryScrollNoElixirAndByCategoryOnlyWhereTheCategoryOutlastsTheBuff`
+- `TestAConsumableTakesItsExclusiveGroup`, `TestTheRowsGroupEveryElixirAndByCategoryOnlyWhereTheCategoryOutlastsTheBuff`
   and `TestEveryExclusiveGroupOverrideShips` (`tools/database`) pin the groups; the stat builder's
   tests which consumables of one group apply, which stats of the elixirs and scrolls count, and which
   stack.
@@ -426,55 +438,67 @@ should not take is a hand-written effect for the consumable.
 
 ## What the settings offer
 
-The settings render every consumable db.json ships from its own fields. The UI names four: the three
-whose stats count with the elixirs', below, and Dragonbreath Chili 12217, a food that stacks with the
-food pick. It is a toggle beside the food picker,
+The settings render every consumable db.json ships from its own fields; the UI names one consumable,
+Dragonbreath Chili 12217, a food that stacks with the food pick. It is a toggle beside the food picker,
 picked into `extra_ids`, offered to melee DPS and tank specs whatever the stat filter shows. `buildConsumeConfigs` (`ui/features/settings/components/ConsumesPicker/utils.ts`) puts
 each in a picker by its type (`consumableSlot` in `ui/sim/settings/consumables.ts`): `ConsumableTypeConjured`
 the conjured item, `ConsumableTypePotion` the potion pickers, then the flask, `ConsumableTypeFood` the
 food, the explosive, the imbues and, beside each hand's imbue, `ConsumableTypeWeaponImbue` the weapon
-imbue. The Elixirs row holds the flask picker, the picked elixirs and an add button
-(`ElixirPicker` in `ui/features/settings/components/ConsumesPicker/`). The button opens a menu of every
-elixir the player is offered, with Juju Power 12451, Juju Might 12460 and Bogling Root 5206, whose
-stats the sim counts with the elixirs' (`countsWithTheElixirs` in
-`ui/features/settings/model/consumables.ts` reads them from `STATS_COUNT_WITH_THE_ELIXIRS`, which
-`GenerateConsumablesTSFile` writes into `consumables_auto_gen.ts` from `StatsCountWithTheElixirs`). The
-menu lists them by stat, one line each (`elixirGroups`): Critical Strike first for those granting a
-crit, then one line per stat, each elixir under the first of its stats in `ELIXIR_STAT_ORDER`
-(Elixir of Ferocity 250350 under Strength, Elixir of the Phalanx 250329 under Armor), and Other last
-for one granting nothing the picker reads. A click in the menu picks or unpicks an elixir and leaves
-the menu open; a click on a picked elixir in the row unpicks it. Any number of them can be picked
-(`makeIdListInput`): an elixir into `elixir_ids`, the other three into `extra_ids`. A pick reads as
-picked from either list, so a saved setting with Juju Might among the elixir ids loads as picked. An ungrouped consumable
-with a `holiday` goes into the Holiday row. A consumable with an [exclusive group](#exclusive-groups)
-goes into its group's picker instead (`makeConsumableGroupInput`), which writes at most one of the
-group's ids. The pickers are labelled with `group_name` and ordered by `group_key`: a group holding a
-scroll as a column of the Scrolls row, one per stat, one holding a holiday consumable in the Holiday
-row (Hit food), one holding a food after the food and the chili (Rum), and the rest at the head of the
-Miscellaneous row (Zanza). A group, a column or a row that offers the player nothing hides.
+imbue. An ungrouped consumable with a `holiday` goes into the Holiday row. A consumable with an [exclusive group](#exclusive-groups) goes into
+its group's picker instead (`makeConsumableGroupInput`), which writes at most one of the group's ids:
+into `elixir_ids` for an elixir, into `extra_ids` for anything else. It reads its pick from either
+list, and so does a toggle (`makeIdListInput`), so a saved setting with Juju Might among the elixir
+ids loads as picked. Juju Power, Juju Might and Bogling Root, ungrouped, are toggles in the
+Miscellaneous row's Offensive menu. The pickers are labelled with `group_name`. A group holding an elixir goes into the
+Flask & Elixirs row after the flask, the groups in the order the spec's character stats panel shows
+the stat every consumable of the group grants (`inDisplayOrder`, which reads `STAT_GROUPS` and the
+spec's `displayStats`): the panel's headed groups first, then its Health, and last the groups whose
+stat the spec does not show, in key order. Either kind of armor counts as the panel's Armor. A warrior
+sees Strength, Agility, Attack Power and the Critical Strike group where melee crit sits; a mage sees
+Intellect, Spirit, Spell Power, the Critical Strike group where spell crit sits, and Strength and
+Agility last. The other rows order their groups by `group_key`: a group holding a scroll as a
+column of the Scrolls row, one holding a holiday consumable in the Holiday row
+(Hit food), one holding a food after the food and the chili (Rum), and the rest at the head of the
+Miscellaneous row (Zanza). A group, a column or a row that offers the player nothing hides. The Flask &
+Elixirs row keeps its label on one line.
 
-A pick that adds nothing is dimmed, with a corner badge whose tooltip names what overwrites it, and
-the player can still clear it (`overwrittenTooltips`). An Elixirs row pick adds nothing where the other
-picks and the raid buffs that overwrite the elixirs grant at least as much of every stat and percent it
-grants, read off `stats` and `pseudo_stats`, so its 2% crit counts as well (`elixirOverwrites`,
-R-0053). Of two picks that grant the same, the one later in the spec's lists (the elixir ids, then the
-extra ids) is dimmed, and a pick that grants neither never is.
-Elixir of Ferocity 250350 beside Elixir of the Mongoose 13452 and Juju Power 12451 is dimmed. Beside
-Elixir of the Grizzly 250351, Elixir of Greater Strength 9206 is dimmed: the Grizzly grants as much
-Strength and a crit besides. Under Prayer of Spirit and Moonkin Aura, Elixir of Sages 250338 is dimmed,
-under Arcane Intellect an Intellect elixir is, and under Power Word: Fortitude beside Juju Power, Elixir
-of Brute Force 13453 is. A scroll is dimmed while a raid buff that is on grants at least as much of its
-stat (`overwritesOf`), and never by an elixir. The raid buffs it reads
-are the ones the buff generator writes into `GENERATED_OVERWRITING_BUFFS`
-(`ui/features/settings/model/buffs_debuffs_auto_gen.ts`), with the amounts the raid input applies:
-Arcane Intellect, Prayer of Spirit and Power Word: Fortitude overwrite the scrolls and the elixirs,
-and Moonkin Aura and Leader of the Pack the elixirs' crit. Arcane Intellect counts as on for a
-mage whatever the input says, since `AddRaidBuffs` in `sim/mage/mage.go` turns it on for every mage, and
-`AddRaidBuffs` in `sim/druid/druid.go` turns on Moonkin Aura for a Balance druid with Moonkin Form and
-Leader of the Pack for a Feral cat or bear with the talent, so those count as on too
-(`turnedOnBySim`). Under Mark of the Wild, which stacks with the scrolls and the elixirs, nothing is
-dimmed. The elixir and scroll pickers follow the raid buffs and the talents (`OVERWRITTEN_PICKER_FIELDS`),
-so turning one on dims what it overwrites.
+A pick another overwrites carries a corner badge whose tooltip names what overwrites it
+(`overwrittenTooltips` in `ui/features/settings/model/consumables.ts`). It reads the picks as the sim
+selects them, the first of each group. An open menu badges its options the same way, each as if it
+were picked in place of the group's pick, so the player sees what a pick would add before making it. A pick that adds nothing is dimmed as well, and the player can
+still clear it. An elixir pick adds nothing where the other picks and the raid buffs that overwrite
+the elixirs grant at least as much of every stat and percent it grants, read off `stats` and
+`pseudo_stats`, so its 2% crit counts as well (`elixirOverwrites`, R-0053). Juju Power, Juju Might and
+Bogling Root count among the picks (`countsWithTheElixirs` reads `counts_with_elixirs`), and their
+toggles carry the same badge, the menu's before a pick as if picked, the Offensive icon's for the
+consumable it shows. Of two picks that grant the same, the one later in the spec's lists
+(the elixir ids, then the extra ids) is dimmed, and a pick that grants neither never is. Elixir of
+Ferocity 250350 beside Elixir of Greater Agility 9187 and Elixir of the Grizzly 250351 is dimmed, and
+so is Elixir of Greater Strength 9206 beside the Grizzly, which grants as much Strength and a crit
+besides. Under Arcane Intellect an Intellect elixir is dimmed, and under Power Word: Fortitude beside
+the Grizzly, Elixir of Brute Force 13453 is.
+
+A pick that loses some of what it grants and keeps the rest shows the badge on a lit swatch. Either
+way the tooltip has one line per pick or raid buff that outbids it, naming the stats it loses there
+by the character stats panel's labels (`lostTo`): Elixir of Ferocity beside Elixir of the Mongoose
+13452 reads "Agility overwritten by Elixir of the Mongoose", and beside Elixir of Greater Agility and
+the Grizzly "Strength overwritten by Elixir of the Grizzly" over "Agility overwritten by Elixir of
+Greater Agility". A raid buff outbids an equal amount, and so does a pick earlier in the lists; the
+three crit percents read as one Crit. The Grizzly beside Juju Power loses its Strength, Elixir of the
+Sages 13447 under Prayer of Spirit its Spirit, a crit elixir under Moonkin Aura or Leader of the Pack
+its Crit, and Bogling Root beside Elixir of Minor Force everything it grants.
+
+A scroll is dimmed while a raid buff that is on grants at least as much of its stat (`overwritesOf`),
+and never by an elixir. The raid buffs it reads are the ones the buff generator writes into
+`GENERATED_OVERWRITING_BUFFS` (`ui/features/settings/model/buffs_debuffs_auto_gen.ts`), with the
+amounts the raid input applies: Arcane Intellect, Prayer of Spirit and Power Word: Fortitude overwrite
+the scrolls and the elixirs, and Moonkin Aura and Leader of the Pack the elixirs' crit. Arcane
+Intellect counts as on for a mage whatever the input says, since `AddRaidBuffs` in `sim/mage/mage.go`
+turns it on for every mage, and `AddRaidBuffs` in `sim/druid/druid.go` turns on Moonkin Aura for a
+Balance druid with Moonkin Form and Leader of the Pack for a Feral cat or bear with the talent, so
+those count as on too (`turnedOnBySim`). Under Mark of the Wild, which stacks with the scrolls and the
+elixirs, nothing is marked. The elixir and scroll pickers follow the raid buffs and the talents
+(`OVERWRITTEN_PICKER_FIELDS`), so turning one on marks what it overwrites.
 
 A potion has three pickers, Offensive, Defensive and Resource, and each offers the
 potions whose `potion_classes` hold its class. `AddPotionClasses` (`tools/database/consumable_potion_classes.go`) fills
@@ -547,8 +571,7 @@ profession rules out leaves the rank below it. The UI keeps the rows and their t
 `gen_db -gen=db` writes `ui/features/settings/model/consumables_auto_gen.ts` in the same pass as db.json:
 one named export per shipped consumable, carrying its item id (`MightyRagePotion = { id: 13442 }`).
 Presets name consumables through it, so a preset cannot name one db.json does not ship. A name several
-items share takes each item's id (`MajorHealthstone9421`). It also exports `STATS_COUNT_WITH_THE_ELIXIRS`,
-the ids of `StatsCountWithTheElixirs`.
+items share takes each item's id (`MajorHealthstone9421`).
 
 ## The browser path
 

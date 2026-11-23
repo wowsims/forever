@@ -44,7 +44,7 @@
 
 	--spacing-cr-icon: --spacing(12);
 
-	--spacing-swatch-badge-inset: 2px;
+	--spacing-swatch-badge-inset: --spacing(1);
 
 	--spacing-tree-indent: --spacing(2);
 	--spacing-tree-gap: --spacing(2);

@@ -39,7 +39,7 @@ const statArray = (stat: Stat, value: number) => Object.assign(new Array<number>
 const strength = (value: number) => statArray(Stat.StatStrength, value);
 const grouped = (type: ConsumableType) => (id: number, name: string, stats: Array<number>, groupKey: string, groupName: string) =>
 	Consumable.create({ id, name, type, stats, groupKey, groupName });
-const elixir = (id: number, name: string, stats: Array<number>) => Consumable.create({ id, name, type: ConsumableType.ConsumableTypeElixir, stats });
+const elixir = grouped(ConsumableType.ConsumableTypeElixir);
 const scroll = grouped(ConsumableType.ConsumableTypeScroll);
 const other = grouped(ConsumableType.ConsumableTypeOther);
 const food = grouped(ConsumableType.ConsumableTypeFood);
@@ -63,11 +63,11 @@ const CONSUMABLES = [
 	}),
 	Consumable.create({ id: 9421, name: 'Major Healthstone', type: ConsumableType.ConsumableTypeConjured, categoryId: 1153, itemEffects: [onUse(1153)] }),
 	Consumable.create({ id: 13510, name: 'Flask of the Titans', type: ConsumableType.ConsumableTypeFlask, stats: strength(10) }),
-	elixir(9206, 'Elixir of Greater Strength', strength(25)),
-	elixir(6662, 'Elixir of Giant Growth', strength(8)),
-	elixir(3383, 'Elixir of Wisdom', statArray(Stat.StatIntellect, 6)),
-	elixir(12820, 'Winterfall Firewater', statArray(Stat.StatAttackPower, 35)),
-	Consumable.create({ id: 12451, name: 'Juju Power', type: ConsumableType.ConsumableTypeUnknown, stats: strength(30) }),
+	elixir(9206, 'Elixir of Greater Strength', strength(25), '29/0', 'Strength'),
+	elixir(6662, 'Elixir of Giant Growth', strength(8), '29/0', 'Strength'),
+	elixir(3383, 'Elixir of Wisdom', statArray(Stat.StatIntellect, 6), '29/3', 'Intellect'),
+	elixir(12820, 'Winterfall Firewater', statArray(Stat.StatAttackPower, 35), '99/0', 'Attack Power'),
+	Consumable.create({ id: 12451, name: 'Juju Power', type: ConsumableType.ConsumableTypeUnknown, stats: strength(30), countsWithElixirs: true }),
 	Consumable.create({
 		id: 238637,
 		name: 'Prowler Steak',
@@ -95,9 +95,9 @@ const CONSUMABLES = [
 	}),
 	Consumable.create({ id: 12404, name: 'Dense Sharpening Stone', type: ConsumableType.ConsumableTypeImbue, weaponSubclassMask: 33219 }),
 	Consumable.create({ id: 228980, name: 'Conductive Shield Coating', type: ConsumableType.ConsumableTypeImbue, weaponInventoryTypeMask: 16384 }),
-	scroll(2289, 'Scroll of Strength II', strength(9), '29/0', 'Strength'),
-	scroll(10310, 'Scroll of Strength IV', strength(17), '29/0', 'Strength'),
-	scroll(1180, 'Scroll of Stamina', statArray(Stat.StatStamina, 4), '29/2', 'Stamina'),
+	scroll(2289, 'Scroll of Strength II', strength(9), 'scroll 29/0', 'Strength'),
+	scroll(10310, 'Scroll of Strength IV', strength(17), 'scroll 29/0', 'Strength'),
+	scroll(1180, 'Scroll of Stamina', statArray(Stat.StatStamina, 4), 'scroll 29/2', 'Stamina'),
 	Consumable.create({ id: 12217, name: 'Dragonbreath Chili', type: ConsumableType.ConsumableTypeFood }),
 	food(21151, 'Rumsey Rum Black Label', statArray(Stat.StatStamina, 15), 'Rum', 'Rum'),
 	other(18269, 'Gordok Green Grog', statArray(Stat.StatStamina, 10), 'Rum', 'Rum'),
@@ -201,7 +201,6 @@ const toggled = (toggles: ReadonlyArray<ConsumeToggle>, player: Player<any>) =>
 const misc = (configs: ReturnType<typeof consumeConfigs>) => [...configs.miscOffensive, ...configs.miscDefensive];
 const marked = (config: ConsumeConfig | ConsumeToggle, player: Player<any>) =>
 	config.type === 'icon' ? config.keptBy!(player, config.getValue(player)) : config.keptBy!(player, config.getValue(player));
-const toggleOf = (toggles: ReadonlyArray<ConsumeToggle>, id: number) => toggles.find(toggle => toggle.consumable.id === id)!;
 
 describe('consumeConfigs', () => {
 	it('offers the Mighty Rage Potion to a class the game files allow it to', () => {
@@ -224,7 +223,7 @@ describe('consumeConfigs', () => {
 		const configs = consumeConfigs(player, db);
 		expect(offered(configs.conjured, player)).toEqual([]);
 		expect(offered(configs.flask, player)).toEqual([13510]);
-		expect(toggled(configs.elixirs, player)).toEqual([9206, 6662, 12820, 12451]);
+		expect(configs.elixirs.map(config => offered(config, player))).toEqual([[6662, 9206], [], [12820]]);
 		expect(configs.scrolls.map(config => offered(config, player))).toEqual([[2289, 10310], []]);
 		expect(offered(configs.food, player)).toEqual([238637]);
 		expect(configs.foodGroups.map(config => offered(config, player))).toEqual([[]]);
@@ -233,7 +232,7 @@ describe('consumeConfigs', () => {
 		expect(toggled(configs.holiday, player)).toEqual([]);
 		expect(offered(configs.explosive, player)).toEqual([18588]);
 		expect(toggled(configs.explosiveExtras, player)).toEqual([10646]);
-		expect(toggled(misc(configs), player)).toEqual([4376]);
+		expect(toggled(misc(configs), player)).toEqual([12451, 4376]);
 	});
 
 	it('hides a consumable below the minimum level set for its type only', () => {
@@ -396,7 +395,9 @@ describe('consumeConfigs', () => {
 
 	it('labels each group as db.json does and hides one that offers the player nothing', () => {
 		const { player } = playerOf();
-		const { scrolls, foodGroups, miscGroups } = consumeConfigs(player, db);
+		const { elixirs, scrolls, foodGroups, miscGroups } = consumeConfigs(player, db);
+		expect(elixirs.map(config => config.tooltip)).toEqual(['Strength', 'Intellect', 'Attack Power']);
+		expect(elixirs.map(config => iconEnumPickerShown(config, player))).toEqual([true, false, true]);
 		expect(scrolls.map(config => config.tooltip)).toEqual(['Strength', 'Stamina']);
 		expect(scrolls.map(config => iconEnumPickerShown(config, player))).toEqual([true, false]);
 		expect(foodGroups.map(config => config.tooltip)).toEqual(['Rum']);
@@ -431,7 +432,7 @@ describe('consumeConfigs', () => {
 		const { player } = playerOf();
 		const { miscOffensive, miscDefensive } = consumeConfigs(player, db);
 		expect(miscDefensive.map(toggle => toggle.consumable.id)).toEqual([4376]);
-		expect(miscOffensive.map(toggle => toggle.consumable.id)).toEqual([1400]);
+		expect(miscOffensive.map(toggle => toggle.consumable.id)).toEqual([12451, 1400]);
 	});
 
 	it('offers Dragonbreath Chili beside the food to the specs that hit in melee', () => {
@@ -483,33 +484,37 @@ describe('consumeConfigs', () => {
 		expect(hitFoodOf(specPlayer(Class.ClassWarrior, Spec.SpecDpsWarrior, melee))).toContain(22237);
 	});
 
-	it('picks any number of elixirs, of one stat or several, into the elixir ids', () => {
+	it('picks one elixir of each group, and any number of groups', () => {
 		const { player, state } = playerOf();
-		const { elixirs } = consumeConfigs(player, db);
-		toggleOf(elixirs, 9206).setValue(player, true);
-		toggleOf(elixirs, 6662).setValue(player, true);
-		toggleOf(elixirs, 12820).setValue(player, true);
-		expect(state.consumes.elixirIds).toEqual([9206, 6662, 12820]);
-		toggleOf(elixirs, 6662).setValue(player, false);
+		const [strengthGroup, , attackPowerGroup] = consumeConfigs(player, db).elixirs;
+		strengthGroup.setValue(player, 9206);
+		attackPowerGroup.setValue(player, 12820);
 		expect(state.consumes.elixirIds).toEqual([9206, 12820]);
-		expect(elixirs.map(toggle => toggle.getValue(player))).toEqual([true, false, false, true, false]);
+		strengthGroup.setValue(player, 6662);
+		expect(state.consumes.elixirIds).toEqual([12820, 6662]);
+		expect(strengthGroup.getValue(player)).toBe(6662);
+		strengthGroup.setValue(player, 0);
+		expect(state.consumes.elixirIds).toEqual([12820]);
 	});
 
 	it('keeps the elixirs beside a flask', () => {
 		const { player, state } = playerOf({ consumes: ConsumesSpec.create({ elixirIds: [9206] }) });
 		const configs = consumeConfigs(player, db);
 		configs.flask.setValue(player, 13510);
-		toggleOf(configs.elixirs, 12820).setValue(player, true);
+		configs.elixirs[2].setValue(player, 12820);
 		expect([state.consumes.flaskId, state.consumes.elixirIds]).toEqual([13510, [9206, 12820]]);
 	});
 
-	it('picks Juju Power beside the elixirs into the extra ids, and reads it as picked from the elixir ids too', () => {
+	it('picks an elixir group member into the elixir ids, and Juju Power beside it from the miscellaneous row into the extra ids', () => {
 		const { player, state } = playerOf({ consumes: ConsumesSpec.create({ extraIds: [4376] }) });
-		const juju = toggleOf(consumeConfigs(player, db).elixirs, 12451);
+		const configs = consumeConfigs(player, db);
+		const [strengthGroup] = configs.elixirs;
+		const juju = misc(configs).find(toggle => toggle.consumable.id === 12451)!;
+		strengthGroup.setValue(player, 9206);
 		juju.setValue(player, true);
-		expect([state.consumes.elixirIds, state.consumes.extraIds]).toEqual([[], [4376, 12451]]);
+		expect([state.consumes.elixirIds, state.consumes.extraIds]).toEqual([[9206], [4376, 12451]]);
 		juju.setValue(player, false);
-		expect([state.consumes.elixirIds, state.consumes.extraIds]).toEqual([[], [4376]]);
+		expect([state.consumes.elixirIds, state.consumes.extraIds]).toEqual([[9206], [4376]]);
 
 		state.consumes = ConsumesSpec.create({ elixirIds: [9206, 12451] });
 		expect(juju.getValue(player)).toBe(true);
@@ -539,8 +544,8 @@ describe('consumeConfigs', () => {
 
 	it('offers every rank the player can use, lower ranks included', () => {
 		const ranks = [
-			scroll(2289, 'Scroll of Strength II', strength(9), '29/0', 'Strength'),
-			Consumable.create({ ...scroll(10310, 'Scroll of Strength IV', strength(17), '29/0', 'Strength'), classAllowlist: [Class.ClassRogue] }),
+			scroll(2289, 'Scroll of Strength II', strength(9), 'scroll 29/0', 'Strength'),
+			Consumable.create({ ...scroll(10310, 'Scroll of Strength IV', strength(17), 'scroll 29/0', 'Strength'), classAllowlist: [Class.ClassRogue] }),
 			Consumable.create({ id: 12404, name: 'Dense Sharpening Stone II', type: ConsumableType.ConsumableTypeImbue, weaponSubclassMask: 1 << 7 }),
 			Consumable.create({ id: 12643, name: 'Dense Sharpening Stone III', type: ConsumableType.ConsumableTypeImbue, weaponSubclassMask: 1 << 15 }),
 			Consumable.create({ id: 8928, name: 'Instant Poison V', type: ConsumableType.ConsumableTypeWeaponImbue, lvl: 52, weaponSubclassMask: 1 << 15 }),
@@ -578,7 +583,7 @@ describe('consumeConfigs under the consumables stat filter', () => {
 	const agilityDb = {
 		getConsumables: () => [
 			...CONSUMABLES,
-			elixir(9187, 'Elixir of Greater Agility', agility),
+			elixir(9187, 'Elixir of Greater Agility', agility, '29/1', 'Agility'),
 			Consumable.create({ id: 21023, name: 'Agility Snack', type: ConsumableType.ConsumableTypeOther, stats: agility }),
 		],
 		getSpellEffect: () => undefined,
@@ -593,7 +598,7 @@ describe('consumeConfigs under the consumables stat filter', () => {
 			shown.filter(unitStat => !unitStat.equals(UnitStat.fromStat(stat))),
 		);
 	};
-	const agilityElixirs = (player: Player<any>) => toggled(consumeConfigs(player, agilityDb).elixirs, player).filter(id => id === 9187);
+	const agilityElixirs = (player: Player<any>) => offered(consumeConfigs(player, agilityDb).elixirs[1], player);
 
 	it('offers with the slot set to the spec defaults what it offers with the slot unset', () => {
 		const { player, state } = playerOf({ professions: [Profession.Engineering] });
@@ -613,12 +618,13 @@ describe('consumeConfigs under the consumables stat filter', () => {
 	it('drops a consumable whose stats the filter hides, read live without rebuilding the configs', () => {
 		const { player, state } = agilityWarrior();
 		const configs = consumeConfigs(player, agilityDb);
-		expect(toggled(configs.elixirs, player)).toContain(9187);
+		expect(offered(configs.elixirs[1], player)).toEqual([9187]);
 		expect(toggled(misc(configs), player)).toContain(21023);
 
 		state.filters = hiding(player, agilityDb, Stat.StatAgility);
-		expect(toggled(configs.elixirs, player)).toEqual([9206, 6662, 12820, 12451]);
+		expect(offered(configs.elixirs[1], player)).toEqual([]);
 		expect(toggled(misc(configs), player)).not.toContain(21023);
+		expect(offered(configs.elixirs[0], player)).toEqual([6662, 9206]);
 	});
 
 	it('reads the filters without copying them on each offer check', () => {
@@ -626,7 +632,7 @@ describe('consumeConfigs under the consumables stat filter', () => {
 		const configs = consumeConfigs(player, agilityDb);
 		const clone = vi.spyOn(DatabaseFilters, 'clone');
 
-		toggled(configs.elixirs, player);
+		offered(configs.elixirs[1], player);
 		toggled(misc(configs), player);
 
 		expect(clone).not.toHaveBeenCalled();
@@ -636,20 +642,19 @@ describe('consumeConfigs under the consumables stat filter', () => {
 	it('keeps a picked consumable whose stats the filter hides offered and marked, and in the consumables the sim gets', () => {
 		const { player, state } = agilityWarrior({ consumes: ConsumesSpec.create({ elixirIds: [9187], extraIds: [21023] }) });
 		const configs = consumeConfigs(player, agilityDb);
-		const greaterAgility = toggleOf(configs.elixirs, 9187);
-		expect(marked(greaterAgility, player)).toBe(false);
+		expect(marked(configs.elixirs[1], player)).toBe(false);
 
 		state.filters = hiding(player, agilityDb, Stat.StatAgility);
-		expect(agilityElixirs(player)).toEqual([9187]);
-		expect(marked(greaterAgility, player)).toBe(true);
+		expect(offered(configs.elixirs[1], player)).toEqual([9187]);
+		expect(marked(configs.elixirs[1], player)).toBe(true);
 		const snack = misc(configs).find(toggle => toggle.actionId.itemId === 21023)!;
 		expect(snack.showWhen!(player)).toBe(true);
 		expect(marked(snack, player)).toBe(true);
 		expect([state.consumes.elixirIds, state.consumes.extraIds]).toEqual([[9187], [21023]]);
 
-		greaterAgility.setValue(player, false);
+		configs.elixirs[1].setValue(player, 0);
 		expect(agilityElixirs(player)).toEqual([]);
-		expect(marked(greaterAgility, player)).toBe(false);
+		expect(marked(configs.elixirs[1], player)).toBe(false);
 	});
 
 	it('keeps a picked consumable the class may not use hidden, whatever the filter shows', () => {
@@ -709,22 +714,35 @@ describe('consumeConfigs on picks that add nothing', () => {
 		[PseudoStat.PseudoStatSpellCritPercent]: 2,
 		[PseudoStat.PseudoStatRangedCritPercent]: 2,
 	});
-	const withCrit = (consumable: Consumable) => Consumable.create({ ...consumable, pseudoStats: crit });
+	const critElixir = (id: number, name: string, granted: Array<number>) =>
+		Consumable.create({ ...elixir(id, name, granted, '290/0', 'Critical Strike'), pseudoStats: crit });
 	const stackingDb = {
 		getConsumables: () => [
-			elixir(250350, 'Elixir of Ferocity', stats({ [Stat.StatStrength]: 18, [Stat.StatAgility]: 18 })),
-			withCrit(elixir(13452, 'Elixir of the Mongoose', stats({ [Stat.StatAgility]: 25 }))),
-			Consumable.create({ id: 12451, name: 'Juju Power', type: ConsumableType.ConsumableTypeUnknown, stats: strength(30) }),
-			withCrit(elixir(250351, 'Elixir of the Grizzly', strength(25))),
-			elixir(9206, 'Elixir of Greater Strength', strength(25)),
-			elixir(6662, 'Elixir of Giant Growth', strength(8)),
-			elixir(247755, 'Elixir of Minor Force', stats({ [Stat.StatPhysicalDamage]: 1 })),
-			Consumable.create({ id: 5206, name: 'Bogling Root', type: ConsumableType.ConsumableTypeOther, stats: stats({ [Stat.StatPhysicalDamage]: 1 }) }),
-			elixir(22192, 'Bloodkelp Elixir of Dodging', []),
-			elixir(3383, 'Elixir of Wisdom', stats({ [Stat.StatIntellect]: 6 })),
-			elixir(13453, 'Elixir of Brute Force', stats({ [Stat.StatStrength]: 18, [Stat.StatStamina]: 18 })),
-			scroll(10310, 'Scroll of Strength IV', strength(17), '29/0', 'Strength'),
-			scroll(10308, 'Scroll of Intellect IV', stats({ [Stat.StatIntellect]: 16 }), '29/3', 'Intellect'),
+			elixir(250350, 'Elixir of Ferocity', stats({ [Stat.StatStrength]: 18, [Stat.StatAgility]: 18 }), '29/0', 'Strength'),
+			critElixir(13452, 'Elixir of the Mongoose', stats({ [Stat.StatAgility]: 25 })),
+			Consumable.create({ id: 12451, name: 'Juju Power', type: ConsumableType.ConsumableTypeUnknown, stats: strength(30), countsWithElixirs: true }),
+			critElixir(250351, 'Elixir of the Grizzly', strength(25)),
+			elixir(9206, 'Elixir of Greater Strength', strength(25), '29/0', 'Strength'),
+			elixir(6662, 'Elixir of Giant Growth', strength(8), '29/0', 'Strength'),
+			elixir(9187, 'Elixir of Greater Agility', stats({ [Stat.StatAgility]: 25 }), '29/1', 'Agility'),
+			elixir(247755, 'Elixir of Minor Force', stats({ [Stat.StatPhysicalDamage]: 1 }), '13/1', 'Physical Damage'),
+			Consumable.create({
+				id: 5206,
+				name: 'Bogling Root',
+				type: ConsumableType.ConsumableTypeOther,
+				stats: stats({ [Stat.StatPhysicalDamage]: 1 }),
+				countsWithElixirs: true,
+			}),
+			elixir(22192, 'Bloodkelp Elixir of Dodging', [], '0/0', 'Other'),
+			elixir(3383, 'Elixir of Wisdom', stats({ [Stat.StatIntellect]: 6 }), '29/3', 'Intellect'),
+			elixir(13447, 'Elixir of the Sages', stats({ [Stat.StatIntellect]: 18, [Stat.StatSpirit]: 18 }), '29/3', 'Intellect'),
+			elixir(13453, 'Elixir of Brute Force', stats({ [Stat.StatStrength]: 18, [Stat.StatStamina]: 18 }), '29/0', 'Strength'),
+			elixir(250329, 'Elixir of the Phalanx', stats({ [Stat.StatHealth]: 400, [Stat.StatArmorNoMods]: 500 }), '34/0', 'Health'),
+			elixir(250335, 'Elixir of Greater Fortitude', stats({ [Stat.StatHealth]: 400 }), '34/0', 'Health'),
+			elixir(13454, 'Greater Arcane Elixir', stats({ [Stat.StatSpellDamage]: 35 }), '13/126', 'Spell Power'),
+			elixir(13445, 'Elixir of Greater Defense', stats({ [Stat.StatArmorNoMods]: 450 }), '674/1', 'Armor'),
+			scroll(10310, 'Scroll of Strength IV', strength(17), 'scroll 29/0', 'Strength'),
+			scroll(10308, 'Scroll of Intellect IV', stats({ [Stat.StatIntellect]: 16 }), 'scroll 29/3', 'Intellect'),
 		],
 		getSpellEffect: () => undefined,
 	} as unknown as Database;
@@ -737,14 +755,26 @@ describe('consumeConfigs on picks that add nothing', () => {
 	) => {
 		const { player, state } = playerOf({ consumes: ConsumesSpec.create({ elixirIds, extraIds }), raidBuffs, cls, ...more });
 		const configs = consumeConfigs(player, stackingDb);
-		const overwrittenBy = (id: number) => {
-			const toggle = toggleOf(configs.elixirs, id);
-			return toggle.overwrittenTooltip!(player, toggle.getValue(player));
+		const groupNamed = (name: string) => configs.elixirs.find(config => config.tooltip === name)!;
+		// The badge of the consumable's dropdown, undefined unless it is the pick its group shows, or of its toggle in the
+		// miscellaneous row, undefined unless it is picked.
+		const shownAs = (id: number) => {
+			const toggle = misc(configs).find(config => config.consumable.id === id);
+			if (toggle) {
+				return toggle.getValue(player)
+					? { tooltip: toggle.overwrittenTooltip!(player, true), partly: toggle.overwrittenPartly!(player, true) }
+					: undefined;
+			}
+			const config = configs.elixirs.find(group => iconEnumValues(group, player).some(value => value.value === id))!;
+			const value = config.getValue(player);
+			return value === id ? { tooltip: config.overwrittenTooltip!(player, value), partly: config.overwrittenPartly!(player, value) } : undefined;
 		};
+		const overwrittenBy = (id: number) => shownAs(id)?.tooltip;
+		const partly = (id: number) => shownAs(id)?.partly;
 		const [strengthScrolls, intellectScrolls] = configs.scrolls;
 		const scrollOverwrittenBy = (scrolls = strengthScrolls) => scrolls.overwrittenTooltip!(player, scrolls.getValue(player));
 		const intellectScrollOverwrittenBy = () => scrollOverwrittenBy(intellectScrolls);
-		return { player, state, configs, overwrittenBy, scrollOverwrittenBy, intellectScrollOverwrittenBy };
+		return { player, state, configs, groupNamed, overwrittenBy, partly, scrollOverwrittenBy, intellectScrollOverwrittenBy };
 	};
 
 	// The test setup loads no locale, so the tooltip would read as its key without the names.
@@ -755,54 +785,138 @@ describe('consumeConfigs on picks that add nothing', () => {
 		i18n.removeResourceBundle('en', 'translation');
 	});
 
-	it('marks Elixir of Ferocity beside Elixir of the Mongoose and Juju Power, naming both', () => {
-		const { overwrittenBy } = picking([250350, 13452], [12451]);
-		expect(overwrittenBy(250350)).toBe('Adds nothing: every stat it grants is matched by Juju Power and Elixir of the Mongoose.');
-		expect(overwrittenBy(13452)).toBeUndefined();
-		expect(overwrittenBy(12451)).toBeUndefined();
+	it("orders a warrior's elixir pickers as its character stats panel shows the stat each group shares, the rest last in key order", () => {
+		const displayStats = [
+			...[Stat.StatHealth, Stat.StatStrength, Stat.StatAgility, Stat.StatStamina, Stat.StatAttackPower, Stat.StatArmor].map(stat =>
+				UnitStat.fromStat(stat),
+			),
+			...[PseudoStat.PseudoStatMeleeHitPercent, PseudoStat.PseudoStatMeleeCritPercent].map(stat => UnitStat.fromPseudoStat(stat)),
+		];
+		const { configs } = picking([], [], RaidBuffs.create(), Class.ClassWarrior, { displayStats });
+		expect(configs.elixirs.map(config => config.tooltip)).toEqual([
+			'Strength',
+			'Agility',
+			'Critical Strike',
+			'Armor',
+			'Health',
+			'Other',
+			'Physical Damage',
+			'Spell Power',
+			'Intellect',
+		]);
 	});
 
-	it('leaves Elixir of Ferocity unmarked while one of its stats is its own', () => {
-		const { overwrittenBy } = picking([250350, 13452]);
-		expect(overwrittenBy(250350)).toBeUndefined();
+	it("orders a mage's elixir pickers with Intellect, spell power and crit first and Strength late", () => {
+		const displayStats = [
+			...[Stat.StatHealth, Stat.StatMana, Stat.StatStamina, Stat.StatIntellect, Stat.StatSpirit, Stat.StatSpellDamage].map(stat =>
+				UnitStat.fromStat(stat),
+			),
+			...[PseudoStat.PseudoStatSpellHitPercent, PseudoStat.PseudoStatSpellCritPercent].map(stat => UnitStat.fromPseudoStat(stat)),
+		];
+		const { configs } = picking([], [], RaidBuffs.create(), Class.ClassMage, { spec: Spec.SpecMage, displayStats });
+		expect(configs.elixirs.map(config => config.tooltip)).toEqual([
+			'Intellect',
+			'Spell Power',
+			'Critical Strike',
+			'Health',
+			'Other',
+			'Physical Damage',
+			'Strength',
+			'Agility',
+			'Armor',
+		]);
+	});
+
+	it('marks Elixir of Ferocity beside Elixir of Greater Agility and Elixir of the Grizzly, naming both', () => {
+		const { overwrittenBy, partly } = picking([250350, 9187, 250351]);
+		expect(overwrittenBy(250350)).toBe('Strength overwritten by Elixir of the Grizzly\nAgility overwritten by Elixir of Greater Agility');
+		expect(partly(250350)).toBe(false);
+		expect(overwrittenBy(9187)).toBeUndefined();
+		expect(overwrittenBy(250351)).toBeUndefined();
+	});
+
+	it('marks Elixir of Ferocity beside Elixir of the Mongoose as partly overwritten, naming the Agility it loses', () => {
+		const { overwrittenBy, partly } = picking([250350, 13452]);
+		expect(overwrittenBy(250350)).toBe('Agility overwritten by Elixir of the Mongoose');
+		expect(partly(250350)).toBe(true);
+		expect(overwrittenBy(13452)).toBeUndefined();
+		expect(partly(13452)).toBe(false);
 	});
 
 	it('marks Elixir of Greater Strength beside Elixir of the Grizzly, which grants as much Strength and a crit besides', () => {
 		const { overwrittenBy } = picking([250351, 9206]);
-		expect(overwrittenBy(9206)).toBe('Adds nothing: every stat it grants is matched by Elixir of the Grizzly.');
+		expect(overwrittenBy(9206)).toBe('Strength overwritten by Elixir of the Grizzly');
 		expect(overwrittenBy(250351)).toBeUndefined();
 	});
 
-	it('keeps an elixir whose crit is the only one picked, though another grants more of its stat', () => {
-		const { overwrittenBy } = picking([250351], [12451]);
-		expect(overwrittenBy(250351)).toBeUndefined();
+	it('marks Elixir of the Grizzly beside Juju Power as partly overwritten, its crit still counting', () => {
+		const { overwrittenBy, partly } = picking([250351], [12451]);
+		expect(overwrittenBy(250351)).toBe('Strength overwritten by Juju Power');
+		expect(partly(250351)).toBe(true);
+		expect(overwrittenBy(12451)).toBeUndefined();
 	});
 
-	it('marks the one later in the lists of two picks that grant the same, and only that one', () => {
-		const { overwrittenBy } = picking([247755], [5206]);
-		expect(overwrittenBy(5206)).toBe('Adds nothing: every stat it grants is matched by Elixir of Minor Force.');
-		expect(overwrittenBy(247755)).toBeUndefined();
+	it("answers for each option of a group as if it were picked in place of the group's pick", () => {
+		const { player, state, groupNamed } = picking([250350, 13452]);
+		const [strength, agility, crit] = ['Strength', 'Agility', 'Critical Strike'].map(groupNamed);
+		expect(agility.overwrittenTooltip!(player, 9187)).toBe('Agility overwritten by Elixir of the Mongoose');
+		expect(agility.overwrittenPartly!(player, 9187)).toBe(false);
+		expect(strength.overwrittenTooltip!(player, 9206)).toBeUndefined();
+		expect(strength.overwrittenTooltip!(player, 250350)).toBe('Agility overwritten by Elixir of the Mongoose');
+		expect(strength.overwrittenPartly!(player, 250350)).toBe(true);
+		expect(crit.overwrittenTooltip!(player, 250351)).toBeUndefined();
+		expect(strength.overwrittenTooltip!(player, 0)).toBeUndefined();
+		expect(state.consumes.elixirIds).toEqual([250350, 13452]);
+
+		const grizzly = picking([250351]);
+		expect(grizzly.groupNamed('Strength').overwrittenTooltip!(grizzly.player, 9206)).toBe('Strength overwritten by Elixir of the Grizzly');
+		expect(grizzly.groupNamed('Strength').overwrittenTooltip!(grizzly.player, 12451)).toBeUndefined();
+		expect(grizzly.groupNamed('Strength').overwrittenTooltip!(grizzly.player, 250350)).toBe('Strength overwritten by Elixir of the Grizzly');
+	});
+
+	it('badges a miscellaneous toggle that counts with the elixirs as if it were picked, before it is', () => {
+		const { player, configs } = picking([247755, 250351]);
+		const toggleOf = (id: number) => misc(configs).find(toggle => toggle.consumable.id === id)!;
+		expect(toggleOf(5206).getValue(player)).toBe(false);
+		expect(toggleOf(5206).overwrittenTooltip!(player, false)).toBe('Bonus Weapon Damage overwritten by Elixir of Minor Force');
+		expect(toggleOf(5206).overwrittenPartly!(player, false)).toBe(false);
+		expect(toggleOf(12451).overwrittenTooltip!(player, false)).toBeUndefined();
+		expect(
+			misc(configs)
+				.filter(toggle => toggle.overwrittenTooltip)
+				.map(toggle => toggle.consumable.id),
+		).toEqual([12451, 5206]);
+	});
+
+	it('reads only the first pick of each group, as the sim selects them', () => {
+		const twoCrits = picking([250351, 13452, 9187]);
+		expect(twoCrits.groupNamed('Critical Strike').getValue(twoCrits.player)).toBe(250351);
+		expect(twoCrits.overwrittenBy(9187)).toBeUndefined();
+		expect(twoCrits.overwrittenBy(250351)).toBeUndefined();
+		expect(picking([247755], [5206]).overwrittenBy(247755)).toBeUndefined();
 	});
 
 	it('marks no elixir that is not picked, nor one granting nothing the picker reads', () => {
-		const { overwrittenBy } = picking([22192, 9206], [12451]);
+		const { overwrittenBy } = picking([22192, 9206, 250351]);
 		expect(overwrittenBy(6662)).toBeUndefined();
 		expect(overwrittenBy(22192)).toBeUndefined();
 		expect(overwrittenBy(9206)).toBeDefined();
 	});
 
 	it('follows the picks as they change, on the configs already built', () => {
-		const { player, state, configs, overwrittenBy } = picking([250350, 13452]);
-		expect(overwrittenBy(250350)).toBeUndefined();
-		toggleOf(configs.elixirs, 12451).setValue(player, true);
-		expect(overwrittenBy(250350)).toBeDefined();
-		toggleOf(configs.elixirs, 13452).setValue(player, false);
-		expect(state.consumes.extraIds).toEqual([12451]);
-		expect(overwrittenBy(250350)).toBeUndefined();
+		const { player, groupNamed, overwrittenBy, partly } = picking([250350, 13452]);
+		expect(partly(250350)).toBe(true);
+		groupNamed('Agility').setValue(player, 9187);
+		expect(overwrittenBy(9187)).toBe('Agility overwritten by Elixir of the Mongoose');
+		groupNamed('Critical Strike').setValue(player, 250351);
+		expect(overwrittenBy(250350)).toBe('Strength overwritten by Elixir of the Grizzly\nAgility overwritten by Elixir of Greater Agility');
+		expect(partly(250350)).toBe(false);
+		groupNamed('Critical Strike').setValue(player, 0);
+		expect(overwrittenBy(250350)).toBe('Agility overwritten by Elixir of Greater Agility');
 	});
 
 	it('leaves a scroll and the elixirs of its stat unmarked, since they stack', () => {
-		const strength = picking([6662], [10310, 12451]);
+		const strength = picking([], [10310, 12451]);
 		expect(strength.scrollOverwrittenBy()).toBeUndefined();
 		expect(strength.overwrittenBy(12451)).toBeUndefined();
 		const intellect = picking([3383], [10308]);
@@ -814,14 +928,14 @@ describe('consumeConfigs on picks that add nothing', () => {
 	it('marks Scroll of Intellect IV under Arcane Intellect, naming the buff', () => {
 		expect(picking([], [10308]).intellectScrollOverwrittenBy()).toBeUndefined();
 		expect(picking([], [10308], RaidBuffs.create({ arcaneIntellect: true })).intellectScrollOverwrittenBy()).toBe(
-			'Adds nothing: every stat it grants is matched by Arcane Intellect.',
+			'Intellect overwritten by Arcane Intellect',
 		);
 	});
 
 	it('marks Scroll of Intellect IV and an Intellect elixir for a mage with the Arcane Intellect input off, since the sim turns it on for every mage', () => {
 		const mage = picking([3383], [10308], RaidBuffs.create(), Class.ClassMage);
-		expect(mage.intellectScrollOverwrittenBy()).toBe('Adds nothing: every stat it grants is matched by Arcane Intellect.');
-		expect(mage.overwrittenBy(3383)).toBe('Adds nothing: every stat it grants is matched by Arcane Intellect.');
+		expect(mage.intellectScrollOverwrittenBy()).toBe('Intellect overwritten by Arcane Intellect');
+		expect(mage.overwrittenBy(3383)).toBe('Intellect overwritten by Arcane Intellect');
 	});
 
 	it('leaves a scroll unmarked under Mark of the Wild, which stacks with the scrolls', () => {
@@ -841,32 +955,34 @@ describe('consumeConfigs on picks that add nothing', () => {
 
 	it('marks an Intellect elixir and Scroll of Intellect IV alike under Arcane Intellect, naming the buff', () => {
 		const underArcaneIntellect = picking([3383], [10308], RaidBuffs.create({ arcaneIntellect: true }));
-		expect(underArcaneIntellect.overwrittenBy(3383)).toBe('Adds nothing: every stat it grants is matched by Arcane Intellect.');
-		expect(underArcaneIntellect.intellectScrollOverwrittenBy()).toBe('Adds nothing: every stat it grants is matched by Arcane Intellect.');
+		expect(underArcaneIntellect.overwrittenBy(3383)).toBe('Intellect overwritten by Arcane Intellect');
+		expect(underArcaneIntellect.intellectScrollOverwrittenBy()).toBe('Intellect overwritten by Arcane Intellect');
 	});
 
-	it('marks an elixir whose crit a raid crit matches and whose stat another pick does, naming both', () => {
+	it('marks Elixir of the Sages under Prayer of Spirit as partly overwritten, its Intellect still counting', () => {
+		const { overwrittenBy, partly } = picking([13447], [], RaidBuffs.create({ prayerOfSpirit: true }));
+		expect(overwrittenBy(13447)).toBe('Spirit overwritten by Prayer of Spirit');
+		expect(partly(13447)).toBe(true);
+		expect(picking([13447]).overwrittenBy(13447)).toBeUndefined();
+	});
+
+	it('marks an elixir whose crit a raid crit matches, naming the stats it loses and to whom', () => {
 		const lotp = RaidBuffs.create({ leaderOfThePack: true });
-		expect(picking([250351], [12451], lotp).overwrittenBy(250351)).toBe(
-			'Adds nothing: every stat it grants is matched by Juju Power and Leader of the Pack.',
-		);
-		expect(picking([250351], [], lotp).overwrittenBy(250351)).toBeUndefined();
-		expect(picking([13452], [], RaidBuffs.create({ moonkinAura: true })).overwrittenBy(13452)).toBeUndefined();
+		expect(picking([250351], [12451], lotp).overwrittenBy(250351)).toBe('Strength overwritten by Juju Power\nCrit overwritten by Leader of the Pack');
+		expect(picking([250351], [], lotp).overwrittenBy(250351)).toBe('Crit overwritten by Leader of the Pack');
+		expect(picking([13452], [], RaidBuffs.create({ moonkinAura: true })).overwrittenBy(13452)).toBe('Crit overwritten by Moonkin Aura');
 	});
 
 	it("counts a druid's own Moonkin Aura or Leader of the Pack as on, whatever the input says, where the sim turns it on", () => {
 		const druid = (spec: Spec, talents: Partial<DruidTalents>) =>
 			picking([250351], [12451], RaidBuffs.create(), Class.ClassDruid, { spec, talents: DruidTalents.create(talents) }).overwrittenBy(250351);
-		expect(druid(Spec.SpecBalanceDruid, { moonkinForm: true })).toBe('Adds nothing: every stat it grants is matched by Juju Power and Moonkin Aura.');
-		expect(druid(Spec.SpecBalanceDruid, {})).toBeUndefined();
-		expect(druid(Spec.SpecFeralCatDruid, { leaderOfThePack: true })).toBe(
-			'Adds nothing: every stat it grants is matched by Juju Power and Leader of the Pack.',
-		);
-		expect(druid(Spec.SpecFeralBearDruid, { leaderOfThePack: true })).toBe(
-			'Adds nothing: every stat it grants is matched by Juju Power and Leader of the Pack.',
-		);
-		expect(druid(Spec.SpecFeralCatDruid, {})).toBeUndefined();
-		expect(druid(Spec.SpecRestorationDruid, { moonkinForm: true, leaderOfThePack: true })).toBeUndefined();
+		const strengthLost = 'Strength overwritten by Juju Power';
+		expect(druid(Spec.SpecBalanceDruid, { moonkinForm: true })).toBe('Strength overwritten by Juju Power\nCrit overwritten by Moonkin Aura');
+		expect(druid(Spec.SpecBalanceDruid, {})).toBe(strengthLost);
+		expect(druid(Spec.SpecFeralCatDruid, { leaderOfThePack: true })).toBe('Strength overwritten by Juju Power\nCrit overwritten by Leader of the Pack');
+		expect(druid(Spec.SpecFeralBearDruid, { leaderOfThePack: true })).toBe('Strength overwritten by Juju Power\nCrit overwritten by Leader of the Pack');
+		expect(druid(Spec.SpecFeralCatDruid, {})).toBe(strengthLost);
+		expect(druid(Spec.SpecRestorationDruid, { moonkinForm: true, leaderOfThePack: true })).toBe(strengthLost);
 	});
 
 	it('marks no elixir under Mark of the Wild, which stacks with the elixirs', () => {
@@ -875,12 +991,12 @@ describe('consumeConfigs on picks that add nothing', () => {
 		expect(picking([6662, 3383], [], motw).overwrittenBy(3383)).toBeUndefined();
 	});
 
-	it('marks Elixir of Brute Force under Power Word: Fortitude only where another pick matches its Strength, naming both', () => {
+	it('marks Elixir of Brute Force under Power Word: Fortitude as partly overwritten, and fully where another pick matches its Strength', () => {
 		const fortitude = RaidBuffs.create({ powerWordFortitude: true });
-		expect(picking([13453], [], fortitude).overwrittenBy(13453)).toBeUndefined();
-		expect(picking([13453], [12451], fortitude).overwrittenBy(13453)).toBe(
-			'Adds nothing: every stat it grants is matched by Juju Power and Power Word: Fortitude.',
+		expect(picking([13453], [], fortitude).overwrittenBy(13453)).toBe('Stamina overwritten by Power Word: Fortitude');
+		expect(picking([13453, 250351], [], fortitude).overwrittenBy(13453)).toBe(
+			'Strength overwritten by Elixir of the Grizzly\nStamina overwritten by Power Word: Fortitude',
 		);
-		expect(picking([13453], [12451]).overwrittenBy(13453)).toBeUndefined();
+		expect(picking([13453, 250351]).overwrittenBy(13453)).toBe('Strength overwritten by Elixir of the Grizzly');
 	});
 });

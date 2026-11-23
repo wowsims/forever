@@ -8,7 +8,8 @@ import { type MouseEvent, useId, useRef } from 'react';
 import { improvedOverlay } from './improvedOverlay';
 
 /** No `size`: the control is an icon swatch, not a form-height control. */
-export interface IconPickerProps extends Omit<FieldFrameProps, 'size'>, ControlledProps<number>, Pick<IconSwatchProps, 'keptTooltip' | 'overwrittenTooltip'> {
+export interface IconPickerProps
+	extends Omit<FieldFrameProps, 'size'>, ControlledProps<number>, Pick<IconSwatchProps, 'keptTooltip' | 'overwrittenTooltip' | 'overwrittenPartly'> {
 	/** The number of states the icon cycles through: 2 is on/off, 0 is unlimited. */
 	states: number;
 	icon?: ResolvedIcon;
@@ -26,6 +27,7 @@ export const IconPicker = ({
 	improvedIcon2,
 	keptTooltip,
 	overwrittenTooltip,
+	overwrittenPartly,
 	value,
 	onChange,
 	disabled,
@@ -82,6 +84,7 @@ export const IconPicker = ({
 			badges={badges}
 			keptTooltip={keptTooltip}
 			overwrittenTooltip={overwrittenTooltip}
+			overwrittenPartly={overwrittenPartly}
 			className={clsx(value === 0 && 'grayscale', !rooted && className)}
 			testId={testId ?? 'icon-picker-root'}
 			// The glyph is a background image, so without this the anchor announces nothing.

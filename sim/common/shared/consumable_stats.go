@@ -177,7 +177,7 @@ func consumableAura(character *core.Character, consumable core.Consumable, buff 
 	switch {
 	case scroll:
 		spelldata.ParseEffects(character, aura, buff, spelldata.ExclusivePerStat(core.StatBuffCategory))
-	case consumable.Type == proto.ConsumableType_ConsumableTypeElixir || slices.Contains(StatsCountWithTheElixirs, consumable.Id):
+	case consumable.Type == proto.ConsumableType_ConsumableTypeElixir || consumable.CountsWithElixirs:
 		crit := critEffects(buff)
 		if len(crit) > 0 {
 			spelldata.ParseEffects(character, aura, buff, spelldata.Effects(crit...), spelldata.Exclusive(core.ElixirCritCategory, false))
@@ -189,12 +189,10 @@ func consumableAura(character *core.Character, consumable core.Consumable, buff 
 	return aura
 }
 
-// Consumables the game files do not type as elixirs whose stats count with the elixirs' all the same.
-// The consumables TS generator writes the list for the UI.
-var StatsCountWithTheElixirs = []int32{
-	5206,  // Bogling Root
-	12451, // Juju Power
-	12460, // Juju Might
+// Whether the consumable's spells put a crit chance on the user, which counts under ElixirCrit for an
+// elixir. The generator puts such elixirs into one group.
+func GrantsCrit(row *spelldata.Spell) bool {
+	return slices.ContainsFunc(consumableBuffs(row), func(s *spelldata.Spell) bool { return len(critEffects(s)) > 0 })
 }
 
 // The positions, counted from 1, of the row's crit chance effects on the user.

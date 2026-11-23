@@ -1,1 +1,2 @@
-export const OVERWRITTEN_TOOLTIP = 'Adds nothing: every stat it grants is matched by Juju Power and Elixir of the Mongoose.';
+export const OVERWRITTEN_TOOLTIP = 'Strength overwritten by Elixir of the Grizzly\nAgility overwritten by Elixir of Greater Agility';
+export const PARTLY_OVERWRITTEN_TOOLTIP = 'Agility overwritten by Elixir of the Mongoose';

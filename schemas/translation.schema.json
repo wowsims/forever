@@ -3706,41 +3706,10 @@
 							"properties": {
 								"title": {
 									"type": "string"
-								},
-								"add": {
-									"type": "string"
-								},
-								"groups": {
-									"type": "object",
-									"properties": {
-										"critical_strike": {
-											"type": "string"
-										},
-										"armor": {
-											"type": "string"
-										},
-										"spell_power": {
-											"type": "string"
-										},
-										"mana_regeneration": {
-											"type": "string"
-										},
-										"healing": {
-											"type": "string"
-										},
-										"physical_damage": {
-											"type": "string"
-										},
-										"other": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["critical_strike", "armor", "spell_power", "mana_regeneration", "healing", "physical_damage", "other"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["title", "add", "groups"]
+							"required": ["title"]
 						},
 						"food": {
 							"type": "object",

@@ -34,9 +34,12 @@ export interface KeptInput<ModObject, T> {
 }
 
 export interface OverwrittenInput<ModObject, T> {
-	// Dims the swatch or trigger with the tooltip it returns for the value the input shows: a selection another
-	// selection makes add nothing. Undefined while the selection adds something.
+	// Dims the swatch or trigger with the tooltip it returns for the value: a selection another selection overwrites.
+	// Undefined while nothing overwrites it. An icon-enum picker asks it of the value it shows and, while its menu is
+	// open, of each option, as if that option were selected in place of the value.
 	overwrittenTooltip?: (obj: ModObject, value: T) => string | undefined;
+	// Keeps the swatch lit, with only the badge, while the selection still adds something.
+	overwrittenPartly?: (obj: ModObject, value: T) => boolean;
 }
 
 /** The kit pickers' `keptTooltip` for the value the adapter read: the kept text while `keptBy` holds, otherwise none. */

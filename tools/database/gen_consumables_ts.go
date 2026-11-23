@@ -8,8 +8,6 @@ import (
 	"slices"
 	"strings"
 	"unicode"
-
-	"github.com/wowsims/forever/sim/common/shared"
 )
 
 const consumablesTSFile = "ui/features/settings/model/consumables_auto_gen.ts"
@@ -35,8 +33,7 @@ func consumableTSName(name string) string {
 }
 
 // Writes one named export per consumable db.json ships, carrying its item id, which the presets name
-// consumables by, and the ids whose stats the sim counts with the elixirs'. Names shared by several
-// items all take their item id.
+// consumables by. Names shared by several items all take their item id.
 func GenerateConsumablesTSFile(db *WowDatabase) error {
 	ids := slices.Sorted(maps.Keys(db.Consumables))
 
@@ -54,10 +51,5 @@ func GenerateConsumablesTSFile(db *WowDatabase) error {
 		}
 		fmt.Fprintf(&out, "export const %s = { id: %d };\n", name, id)
 	}
-	elixirIDs := make([]string, len(shared.StatsCountWithTheElixirs))
-	for i, id := range shared.StatsCountWithTheElixirs {
-		elixirIDs[i] = fmt.Sprint(id)
-	}
-	fmt.Fprintf(&out, "export const STATS_COUNT_WITH_THE_ELIXIRS: ReadonlyArray<number> = [%s];\n", strings.Join(elixirIDs, ", "))
 	return os.WriteFile(consumablesTSFile, []byte(out.String()), 0644)
 }

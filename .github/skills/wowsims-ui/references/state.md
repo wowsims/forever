@@ -165,12 +165,16 @@ inside a `useStoreSubscribe` read: the stat filter hands in a new config when it
 the snapshot would answer from the old config.
 
 **Overwritten selections.** The icon and icon-enum configs may implement `OverwrittenInput.overwrittenTooltip(obj,
-value)` (`ui/features/inputs/input.ts`), which returns a tooltip while another selection makes this one add nothing
-and undefined otherwise. The adapters pass it to the kit's `overwrittenTooltip` prop, and `IconSwatch` dims the swatch
-the way it dims a kept one, with its own corner badge and a `data-overwritten` attribute on the swatch box. The
-selection stays a pick the player can clear. The consumables picker sets it on the elixir picks and the scroll
-picks (`overwrittenTooltips` in `ui/features/settings/model/consumables.ts`). The adapters read it in the render body,
-like the kept tooltip, so it follows every notification of the fields the input subscribes to.
+value)` (`ui/features/inputs/input.ts`), which returns a tooltip while another selection overwrites this one and
+undefined otherwise, and `overwrittenPartly(obj, value)`, true while the selection still adds something. The adapters
+pass both to the kit's `overwrittenTooltip` and `overwrittenPartly` props: the icon-enum adapter for the value it
+shows and, once its menu has opened, for each option on `IconEnumOption`, as if that option were selected, and the
+multi-icon adapter for the input its trigger shows. `IconSwatch` shows a corner badge of its own with the tooltip,
+and unless the selection is overwritten only partly it dims the swatch the way it dims a kept one, with a
+`data-overwritten` attribute on the swatch box. The selection stays a pick the player can clear. The consumables
+picker sets them on the elixir and scroll picks and on the miscellaneous toggles that count with the elixirs
+(`overwrittenTooltips` in `ui/features/settings/model/consumables.ts`). The adapters read them in the render body,
+like the kept tooltip, so they follow every notification of the fields the input subscribes to.
 
 **Text fields.** `TextField` (`ui/ui-kit/TextField/TextField.tsx`) and its presets hold an uncommitted edit in
 `useDraft` (`ui/ui-kit/hooks/useDraft.ts`), keyed on the formatted display string, so a same-value write or a
