@@ -1497,8 +1497,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 463.7278
-  tps: 2349.62026
+  dps: 465.39812
+  tps: 2353.21144
   dtps: 393.47945
   hps: 83.9845
  }

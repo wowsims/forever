@@ -1280,8 +1280,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 741.19395
-  tps: 552.06078
+  dps: 742.41064
+  tps: 552.92463
   hps: 46.19056
  }
 }
