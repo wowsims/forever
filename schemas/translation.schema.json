@@ -2520,12 +2520,9 @@
 							"properties": {
 								"zumrahs_vexing_cane": {
 									"type": "string"
-								},
-								"summon_not_simulated": {
-									"type": "string"
 								}
 							},
-							"required": ["zumrahs_vexing_cane", "summon_not_simulated"],
+							"required": ["zumrahs_vexing_cane"],
 							"additionalProperties": false
 						},
 						"set_bonus_warnings": {

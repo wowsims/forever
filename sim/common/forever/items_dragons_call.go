@@ -22,8 +22,8 @@ import (
 //
 // The first Acid Spit 9591 starts 0 to 1.8 s after the summon, each next wait is 0.2 to 3.5 s, and a spit's
 // hardcast holds the swing, as in the log (EV-0021).
-var emeraldDragonWhelp = shared.GuardianConfig{
-	Summon: spelldata.MustFind(13049),
+var emeraldDragonWhelp = shared.GuardianCreature{
+	Name:   "Emerald Dragon Whelp",
 	Health: 1.3,
 	Armor:  0.51,
 	Swing:  shared.GuardianSwing{Share: 0.73, Speed: 2.0, Variance: 0.15},

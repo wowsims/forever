@@ -135,11 +135,6 @@ describe('the item notice table', () => {
 		expect(ITEM_NOTICES.has(7)).toBe(false);
 		expect(ENCHANT_NOTICES.has(8)).toBe(false);
 	});
-
-	it('tells an item whose summon the sim does not build that the creature is not simulated', () => {
-		// Arcanite Dragonling 16022 summons its dragonling 12473.
-		expect(paragraphs(ITEM_NOTICES.get(16022)?.[Spec.SpecUnknown])).toEqual(['gear_tab.item_notices.partial_item.summon_not_simulated']);
-	});
 });
 
 describe('the proc rate notices', () => {
