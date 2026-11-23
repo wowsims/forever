@@ -17,8 +17,9 @@ mirror of the stage loop because the WASM sim cannot run `bulkSimAsync`.
   runs Low, Medium, High, Finalist, Complete; Error ends a failed run.
 - Candidate generator, `sim/core/bulk`: `generator.go` (selected items, grouped slot pairs, combination table),
   `weapons.go` (main-hand/off-hand combos, imbue adjustment), `enchants.go` (enchant variants), `slots.go` (bulk
-  slots), `item_keys.go` and `item_rules.go` (dedupe, equip rules), `candidates.go` (the `BulkCombinationCount`,
-  `BulkCandidates` and `EnsureBulkSimCandidatesGenerated` entry points).
+  slots), `item_keys.go` and `item_rules.go` (dedupe, equip rules), `single_change.go` (`single_change` sets),
+  `candidates.go` (the `BulkCombinationCount`, `BulkCandidates` and `EnsureBulkSimCandidatesGenerated` entry
+  points).
 - Stage runner, `sim/core/bulk`: `bulk_sim.go` (`BulkSimAsync`, constants), `stage.go` (stage configs, adaptive
   passes, finalist stage), `statistics.go` (target iterations, culling, paired errors, `BulkSimZ95`), `batch.go`,
   `carry_over.go`, `merge.go`, `progress.go`, `estimate.go`.
@@ -104,6 +105,18 @@ not ship, and core code reading an item the player does not wear gets nil.
 - Hand swap (`initSelectedItems`): with no weapon selected, the worn weapons stay in the hands they are worn in.
   Once any weapon is selected, a dual-wielder's worn weapons join the hand-weapon pool and every allowed
   main-hand/off-hand order is a candidate.
+- `BulkSettings.single_change` (`single_change.go`) swaps in one new item per candidate and leaves the rest of the
+  worn gear alone. A new item is a selected (id, random suffix) worn in no slot; a copy of a worn item yields
+  nothing. Each candidate is built straight from the selection, not through the combination table. A ring or
+  trinket goes into either slot. A placement is dropped when the item staying in the paired slot (other ring,
+  other trinket, other hand) is the same Unique-Equipped item or shares its limit category (`excludesEachOther`).
+  Enchant presets apply to new items only; with no pool entry that fits, the new item takes the slot's worn
+  enchant when it fits, else none; into an empty slot it keeps its own. Worn items join no pool and are never
+  re-enchanted. A two-hander goes in the main hand and empties the off hand. A one-hander under a worn two-hander
+  goes in the main hand with the off hand empty. For a dual wielder, the one-hander worn in the new item's hand
+  may also move to the other hand, keeping its own enchant. An off-hand-only item under a worn two-hander makes
+  no candidate. The freeze fields, the weapon-type filters among them, have no effect. A set equal to the
+  baseline or an earlier set is dropped, and the count equals the candidate list.
 - Game rules the generator encodes: no reforging, gems or sockets (an `ItemSpec` is id, random suffix and
   enchant); no Titan's Grip, so a two-hander never shares the hands with an off-hand; the Ranged slot iterates like
   any non-weapon slot.

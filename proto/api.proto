@@ -955,6 +955,11 @@ message BulkSettings {
 
 	// Enchants to cross with the candidate items, per slot. Finger1 serves both fingers.
 	repeated BulkEnchantSlotOptions enchants = 8;
+
+	// Each candidate is the worn gear with one item from items put on: a ring or trinket in either slot, a weapon in
+	// either hand, where the other worn weapon may change hands. Enchants pool onto that item only, and the freeze
+	// fields are not read.
+	bool single_change = 9;
 }
 
 message BulkEnchantSlotOptions {
