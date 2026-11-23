@@ -40,13 +40,7 @@ export const DefaultConsumables = ConsumesSpec.create({
 	mhImbueId: Consumables.ElementalSharpeningStone.id,
 	swapMhImbueId: Consumables.DenseWeightstone.id,
 	extraIds: [Consumables.GoblinSapperCharge.id, Consumables.JujuMight.id, Consumables.ScrollOfStaminaIV.id, Consumables.LungJuiceCocktail.id],
-	elixirIds: [
-		Consumables.GiftOfArthas.id,
-		Consumables.ElixirOfTheGrizzly.id,
-		Consumables.ElixirOfCunning.id,
-		Consumables.ElixirOfThePhalanx.id,
-		Consumables.ElixirOfGreaterDefense.id,
-	],
+	elixirIds: [Consumables.GiftOfArthas.id, Consumables.ElixirOfTheGrizzly.id, Consumables.ElixirOfCunning.id, Consumables.ElixirOfThePhalanx.id],
 	defensivePotId: Consumables.GreaterStoneshieldPotion.id,
 	offensivePotId: Consumables.MightyRagePotion.id,
 });

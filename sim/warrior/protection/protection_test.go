@@ -94,6 +94,6 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	MhImbueId:      12643,  // Dense Weightstone
 	ConjuredId:     9421,   // Major Healthstone
 	// Elixir of Ferocity, Elixir of the Mongoose, Winterfall Firewater, Elixir of Greater Defense, Elixir of the Phalanx
-	ElixirIds: []int32{250350, 13452, 12820, 13445, 250329},
+	ElixirIds: []int32{250350, 13452, 12820, 250329},
 	ExtraIds:  []int32{10646, 17048}, // Goblin Sapper Charge, Rumsey Rum
 }

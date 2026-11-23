@@ -24,7 +24,6 @@ export const DefaultConsumables = ConsumesSpec.create({
 	elixirIds: [
 		Consumables.ElixirOfTheGrizzly.id,
 		Consumables.ElixirOfCunning.id,
-		Consumables.ElixirOfTheOwl.id,
 		Consumables.ElixirOfSages.id,
 		Consumables.GreaterMagebloodElixir.id,
 		Consumables.GreaterClericsElixir.id,

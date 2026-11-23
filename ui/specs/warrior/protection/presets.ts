@@ -117,13 +117,7 @@ export const DefaultOptions = ProtectionWarriorOptions.create({
 export const DefaultConsumables = ConsumesSpec.create({
 	...WarriorPresets.DefaultConsumables,
 	offensivePotId: Consumables.MajorFrenzyPotion.id,
-	elixirIds: [
-		Consumables.ElixirOfFerocity.id,
-		Consumables.ElixirOfTheMongoose.id,
-		Consumables.WinterfallFirewater.id,
-		Consumables.ElixirOfGreaterDefense.id,
-		Consumables.ElixirOfThePhalanx.id,
-	],
+	elixirIds: [Consumables.ElixirOfFerocity.id, Consumables.ElixirOfTheMongoose.id, Consumables.WinterfallFirewater.id, Consumables.ElixirOfThePhalanx.id],
 	mhImbueId: Consumables.DenseWeightstone.id,
 	conjuredId: Consumables.MajorHealthstone9421.id,
 	extraIds: [Consumables.GoblinSapperCharge.id, Consumables.RumseyRum.id],
