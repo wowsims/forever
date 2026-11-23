@@ -244,6 +244,8 @@ export interface BulkSlice {
 	currentBundleChecked: boolean;
 	// The checked encounters Builds mode runs, in list order; the current one, read live, is checked by its empty-name ref.
 	encounters: readonly BulkEncounterRef[];
+	// Gear mode runs on this encounter in place of the Encounter tab's; the empty ref and a ref whose encounter is gone read as Current encounter.
+	batchEncounter: BulkEncounterRef;
 	// Picked in the top navigation; Builds counts only with power tools on.
 	mode: BulkMode;
 	// How many results each mode ranks per encounter while power tools are on; 0 is All. Without power tools Gear ranks 5.

@@ -1347,6 +1347,11 @@
 				"tooltip": "How many results each encounter ranks. The batch drops a result early once it cannot reach them. With All, every result gets its full iterations.",
 				"all": "All"
 			},
+			"batch_encounter": {
+				"label": "Batch encounter",
+				"tooltip": "Runs the batch on a preset or saved encounter and leaves the Encounter tab as it is. Current encounter uses the Encounter tab. Builds runs the encounters ticked in its Encounters column.",
+				"current": "Current encounter"
+			},
 			"groups": {
 				"enchants": "Enchants",
 				"frozen_slots": "Frozen slots"

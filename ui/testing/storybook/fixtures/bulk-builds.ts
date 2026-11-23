@@ -1,9 +1,12 @@
+import type { BatchEncounterViewProps } from '@features/bulk/components/BatchEncounter';
 import type { BuildBundlesViewProps } from '@features/bulk/components/BuildBundles';
 import type { BulkBundleDialogViewProps } from '@features/bulk/components/BulkBundleDialog';
 import type { BulkBundleListProps } from '@features/bulk/components/BulkBundleList';
 import type { BulkCheckRow } from '@features/bulk/components/BulkCheckList';
 import type { EncounterListViewProps } from '@features/bulk/components/EncounterList';
+import { CURRENT_ENCOUNTER_REF } from '@features/bulk/model/builds/encounters';
 import type { SavedRef } from '@features/bulk/model/builds/saved_refs';
+import { BulkEncounterRef } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { fn } from 'storybook/test';
 
@@ -17,6 +20,19 @@ const checkRow = (name: string, summary: string, preset: boolean, checked: boole
 	summary,
 	checked,
 	duplicate,
+});
+
+/** Current encounter picked, with a preset and a saved encounter to pick instead. */
+export const batchEncounterProps = (overrides: Partial<BatchEncounterViewProps> = {}): BatchEncounterViewProps => ({
+	options: [
+		{ ref: CURRENT_ENCOUNTER_REF, name: i18n.t('bulk_tab.settings.batch_encounter.current') },
+		{ ref: BulkEncounterRef.create({ name: 'Patchwerk', preset: true }), name: 'Patchwerk' },
+		{ ref: BulkEncounterRef.create({ name: 'Council' }), name: 'Council' },
+	],
+	picked: CURRENT_ENCOUNTER_REF,
+	summary: '3:00 ±5s · 1 target',
+	onChange: fn(),
+	...overrides,
 });
 
 export const encounterListProps = (overrides: Partial<EncounterListViewProps> = {}): EncounterListViewProps => ({

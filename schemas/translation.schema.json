@@ -4823,6 +4823,22 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip", "all"]
 						},
+						"batch_encounter": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								},
+								"current": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip", "current"]
+						},
 						"groups": {
 							"type": "object",
 							"properties": {
@@ -5099,6 +5115,7 @@
 						"total_iterations",
 						"total_iterations_tooltip",
 						"top_results",
+						"batch_encounter",
 						"groups",
 						"encounters",
 						"talents",

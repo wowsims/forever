@@ -25,6 +25,7 @@ const BULK_ENCHANT_PRESETS_STORAGE_KEY = 'bulk-enchant-presets.v1';
 const BULK_BUILD_ENCHANT_PRESETS_STORAGE_KEY = 'bulk-build-enchant-presets.v1';
 const BULK_BUILD_BUNDLES_STORAGE_KEY = 'bulk-build-bundles.v1';
 const BULK_ENCOUNTERS_STORAGE_KEY = 'bulk-encounters.v1';
+const BULK_BATCH_ENCOUNTER_STORAGE_KEY = 'bulk-batch-encounter.v1';
 const BULK_MODE_STORAGE_KEY = 'bulk-mode.v1';
 const BULK_TOP_RESULTS_STORAGE_KEY = 'bulk-top-results.v1';
 
@@ -46,6 +47,7 @@ const initialBulkSlice = (): BulkSlice => ({
 	currentBundleChecked: true,
 	// The current encounter's ref, so it is checked until unticked.
 	encounters: [BulkEncounterRef.create()],
+	batchEncounter: BulkEncounterRef.create(),
 	mode: 'gear',
 	gearTopResults: BULK_SIM_DEFAULT_TOP_RESULTS,
 	buildsTopResults: 0,
@@ -130,6 +132,13 @@ export const loadStoredBulkEncounters = (player: Player<any>): BulkEncounterSele
 
 export const storeBulkEncounters = (player: Player<any>, value: BulkEncounterSelection) =>
 	storeProto(player, BULK_ENCOUNTERS_STORAGE_KEY, BulkEncounterSelection, value);
+
+// Null when nothing is stored; a blob that does not parse loads as the empty ref, which is Current encounter.
+export const loadStoredBatchEncounter = (player: Player<any>): BulkEncounterRef | null =>
+	loadStoredProto(player, BULK_BATCH_ENCOUNTER_STORAGE_KEY, BulkEncounterRef);
+
+export const storeBatchEncounter = (player: Player<any>, value: BulkEncounterRef) =>
+	storeProto(player, BULK_BATCH_ENCOUNTER_STORAGE_KEY, BulkEncounterRef, value);
 
 // Null when nothing is stored and when the blob does not parse: an empty message would read as All for both modes. A
 // negative value loads as its mode's default, 5 for Gear and All for Builds.

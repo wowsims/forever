@@ -174,6 +174,7 @@ interface BatchOptions {
 	bundles?: BulkBuildBundle[];
 	currentBundleChecked?: boolean;
 	encounters?: BulkEncounterRef[];
+	batchEncounter?: BulkEncounterRef;
 	buildEnchantPresets?: string[];
 	enchanter?: boolean;
 }
@@ -185,6 +186,7 @@ const batchHost = ({
 	bundles = [RAID_BUNDLE],
 	currentBundleChecked = true,
 	encounters = [CURRENT_ENCOUNTER_REF],
+	batchEncounter = CURRENT_ENCOUNTER_REF,
 	buildEnchantPresets = ['Agility'],
 	enchanter = false,
 }: BatchOptions = {}) => {
@@ -216,7 +218,7 @@ const batchHost = ({
 		},
 	});
 	patchSlice(player.sim.store, 'ui', { showPowerTools: powerTools });
-	patchBulkState(player, { mode, bundles, currentBundleChecked, encounters, enchantPresets: [AGILITY_PRESET], buildEnchantPresets });
+	patchBulkState(player, { mode, bundles, currentBundleChecked, encounters, batchEncounter, enchantPresets: [AGILITY_PRESET], buildEnchantPresets });
 	const host = {
 		player,
 		sim: {
@@ -315,6 +317,45 @@ describe('runBulkBatch', () => {
 		expect(entry.results.originalGearResults.rotation.rotation).not.toBe(LIVE_ROTATION);
 		expect(bulkState(host.player).bundles).toEqual([ARMS_BUNDLE]);
 		expect(bulkState(host.player).encounters).toEqual([CURRENT_ENCOUNTER_REF, COUNCIL_REF]);
+	});
+
+	it.each([
+		['a preset', eref('Patchwerk', true), PATCHWERK, 'Patchwerk'],
+		['a saved', COUNCIL_REF, Encounter.create({ ...COUNCIL, duration: 120 }), 'Council'],
+	])('runs Gear mode on %s batch encounter as it is stored when the batch starts, named after it', async (_kind, ref, sent, name) => {
+		const host = batchHost({ mode: 'gear', batchEncounter: ref });
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+		// Edited after the pick: the run reads the saved entry when it starts.
+		writeSaved(host, SAVED_KEY, SavedEncounter, { Council: SavedEncounter.create({ encounter: Encounter.create({ ...COUNCIL, duration: 120 }) }) });
+
+		await runBulkBatch(host);
+
+		expect(calls()[0][3]).toEqual({ encounter: sent, topResults: 5 });
+		const [entry] = bulkState(host.player).gearResults!;
+		expect([entry.name, entry.isCurrent, entry.duration]).toEqual([name, false, sent.duration]);
+		expect(steps(host).rows[0].encounter).toBe(name);
+	});
+
+	it('runs Gear mode on the Encounter tab when the picked saved encounter is gone', async () => {
+		const host = batchHost({ mode: 'gear', batchEncounter: eref('Gone') });
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+		await runBulkBatch(host);
+		expect(calls()[0][3]).toEqual({ encounter: CURRENT, topResults: 5 });
+		expect(bulkState(host.player).gearResults![0].isCurrent).toBe(true);
+	});
+
+	it('runs the batch encounter with a stored Builds mode and power tools off', async () => {
+		vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+		await runBulkBatch(batchHost({ mode: 'builds', powerTools: false, batchEncounter: COUNCIL_REF }));
+		expect(sentEncounters()).toEqual([COUNCIL]);
+	});
+
+	it('runs Builds mode on its ticked encounters whatever the batch encounter', async () => {
+		const host = batchHost({ bundles: [ARMS_BUNDLE], encounters: [CURRENT_ENCOUNTER_REF, COUNCIL_REF], batchEncounter: eref('Patchwerk', true) });
+		vi.mocked(runCoreBulkSim).mockImplementation(echoCandidates as never);
+		await runBulkBatch(host);
+		const durations = sentEncounters().map(encounter => encounter?.duration);
+		expect(new Set(durations)).toEqual(new Set([CURRENT.duration, COUNCIL.duration]));
 	});
 
 	it('sends every gear setup as a candidate with empty settings in Builds mode', async () => {

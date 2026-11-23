@@ -1,10 +1,12 @@
 import { EnchantPresetsView } from '@features/enchant-presets/components/EnchantPresets/EnchantPresets';
 import { ItemSlot } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { batchEncounterProps } from '@testing/storybook/fixtures/bulk-builds';
 import { StoryBoolean } from '@testing/storybook/fixtures/settings_reforge_bulk';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
+import { BatchEncounterView } from '../BatchEncounter';
 import { BulkSettingsView, type BulkSettingsViewProps } from './BulkSettings';
 import { BulkTopResultsFieldView } from './BulkTopResultsField';
 import { CombinationsCountView } from './CombinationsCount';
@@ -53,6 +55,7 @@ const meta = {
 	render: args => <StatefulBulkSettings {...args} />,
 	args: {
 		topResults: null,
+		batchEncounter: <BatchEncounterView {...batchEncounterProps()} />,
 		combinationsCount: <CombinationsCountView pending={false} ready combinations={48} iterations={96000} iterationsLimit={1000000} builds={null} />,
 		canRun: true,
 		onRun: fn(),
@@ -81,6 +84,7 @@ const meta = {
 	},
 	argTypes: {
 		topResults: { control: false },
+		batchEncounter: { control: false },
 		combinationsCount: { control: false },
 		enchants: { control: false },
 		frozenItems: { control: false },
@@ -103,6 +107,7 @@ export const Builds: Story = {
 	args: {
 		topResults: <BulkTopResultsFieldView value={0} max={5000} onChange={fn()} />,
 		groups: false,
+		batchEncounter: null,
 		combinationsCount: (
 			<CombinationsCountView
 				pending={false}

@@ -15,6 +15,7 @@ import { estimateBulkSimIterations } from '@sim/wasm/bulk_sim/estimate';
 import { toastManager } from '@ui-kit/Toast';
 
 import { trackEvent } from '../../../../tracking/utils';
+import { batchEncounterSetup } from '../batch_encounter';
 import { bulkBuildPlan, type BulkBuildStep, bulkBuildStep, bulkBundlePlans, bulkGearSetSetups, bulkPlanRuns } from '../builds/builds';
 import { bulkBundleRuns, pickableBulkBundleParts } from '../builds/bundles';
 import { bulkEnchantPickEntries, bulkEnchantPickRuns } from '../builds/enchant_picks';
@@ -248,7 +249,7 @@ interface CurrentBuild {
 }
 
 const gearModePlan = (host: IndividualSimHost<any>, { talentsString, rotation }: CurrentBuild, topResults: number): BulkEncounterPlan[] => {
-	const encounter: BulkEncounterSetup = { name: '', isCurrent: true, encounter: host.sim.encounter.toProto() };
+	const encounter = batchEncounterSetup(host);
 	const bundle = {
 		talents: { name: '', talentsString, isCurrent: true },
 		rotation: { name: '', isCurrent: true, rotation },

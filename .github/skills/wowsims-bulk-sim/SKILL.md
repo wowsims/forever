@@ -31,7 +31,7 @@ mirror of the stage loop because the WASM sim cannot run `bulkSimAsync`.
 - Browser stage loop: `ui/sim/wasm/bulk_sim/` (`index`, `stage`, `batch`, `merge`, `statistics`, `progress`,
   `carry_over`, `estimate`, `types`), a line-for-line mirror of `sim/core/bulk`.
 - Feature: `ui/features/bulk/model/run/run.ts` (`runBulkBatch`, cancel, combination refresh), `run/core_sim.ts`,
-  `results/tie_chains.ts`, `gear/settings.ts`; components under `ui/features/bulk/components/`; the tab is
+  `batch_encounter.ts`, `results/tie_chains.ts`, `gear/settings.ts`; components under `ui/features/bulk/components/`; the tab is
   `ui/app/tabs/BulkTabBody.tsx`. `ui/sim/settings/bulk_settings.ts` stores the settings, the enchant presets, the
   mode and the Builds picks.
 - Builds mode, `ui/features/bulk/model/builds/`: `builds.ts` (the planner: `bulkGearSetSetups`, `bulkBundlePlans`,
@@ -192,6 +192,11 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   picking a mode sets it and opens the batch tab. With power tools off the tab is a plain "Batch" and the batch runs
   in Gear mode. The mode is `BulkSlice.mode`, stored per spec under `bulk-mode.v1` (default Gear), and outlives power
   tools being turned off.
+- Gear mode's run card holds the Batch encounter block (`BatchEncounter`, `BulkSlice.batchEncounter`), one dropdown stored
+  per spec under `bulk-batch-encounter.v1` as a `BulkEncounterRef`. The empty ref is "Current encounter", and the run
+  uses the Encounter tab. A picked preset or saved encounter from `pickableBulkEncounters` runs as
+  `BulkSimOverrides.encounter` and is named in the results. A ref whose encounter is gone reads as Current encounter and
+  stays stored. Builds hides the block and ignores it, by `bulkRunsBuilds`. The block never writes the Encounter tab.
 - `bulkRunsBuilds` (`ui/features/bulk/model/mode.ts`, power tools on and mode Builds) is the one gate, read by
   `runBulkBatch` and, through `useBulkMode`, by the Setup pane, which in Builds shows `BulkBuildsColumns` in place of
   the item picker. Outside Builds the Builds picks stay stored and count again on the way back. Each mode keeps its
@@ -350,7 +355,7 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
 - Stored per spec: `bulk-build-bundles.v1` (`BulkBuildBundles`: the bundles in list order with their checked state and
   name, and `current_unchecked`), `bulk-encounters.v1` (`BulkEncounterSelection`: the checked encounter refs in list order),
   `bulk-build-enchant-presets.v1` (the enchant presets checked in Builds, apart from Gear mode's pick in
-  `bulk-enchant-presets.v1`) and `bulk-mode.v1`. None of the Builds picks bumps the slice's `settings` counter.
+  `bulk-enchant-presets.v1`), `bulk-mode.v1` and `bulk-batch-encounter.v1` (the Batch encounter ref). None of the Builds picks bumps the slice's `settings` counter.
 - With two or more finished encounters and power tools on, the encounter list offers Compare encounters: a table
   (`compareMatrix` in `ui/features/bulk/model/results/compare.ts`) with the current gear's row, then every set's, and a column
   per encounter by fight length. Each cell is the set's gain over the current gear (in % of

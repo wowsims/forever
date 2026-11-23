@@ -3,6 +3,7 @@ import { BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS, BulkSimItemSlot } from '@sim/bul
 import type { Player } from '@sim/player/player';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import {
+	loadStoredBatchEncounter,
 	loadStoredBulkBuildEnchantPresets,
 	loadStoredBulkBundles,
 	loadStoredBulkEncounters,
@@ -63,6 +64,11 @@ const loadSettings = (player: Player<any>) => {
 	const encounters = loadStoredBulkEncounters(player);
 	if (encounters != null) {
 		patchBulkState(player, { encounters: encounters.encounters });
+	}
+
+	const batchEncounter = loadStoredBatchEncounter(player);
+	if (batchEncounter != null) {
+		patchBulkState(player, { batchEncounter });
 	}
 
 	const mode = loadStoredBulkMode(player);

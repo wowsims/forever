@@ -24,6 +24,7 @@ import { bulkCombinationsLimit, bulkIterationsLimit } from '../../model/run/limi
 import { runBulkBatch } from '../../model/run/run';
 import { bulkTopResults } from '../../model/run/top_results';
 import { canRunBatch, canRunBuildsBatch } from '../../model/selectors';
+import { BatchEncounter } from '../BatchEncounter';
 import { BulkTopResultsField } from './BulkTopResultsField';
 import { CombinationsCount } from './CombinationsCount';
 import { FreezeWeaponTypes } from './FreezeWeaponTypes';
@@ -37,6 +38,8 @@ export interface BulkWeaponFreeze {
 export interface BulkSettingsViewProps {
 	/** The top results control above Simulate Batch; null with power tools off. */
 	topResults: ReactNode;
+	/** The Batch encounter block above Simulate Batch; null in Builds mode. */
+	batchEncounter: ReactNode;
 	combinationsCount: ReactNode;
 	canRun: boolean;
 	onRun: () => void;
@@ -53,6 +56,7 @@ export interface BulkSettingsViewProps {
 
 export const BulkSettingsView = ({
 	topResults,
+	batchEncounter,
 	combinationsCount,
 	canRun,
 	onRun,
@@ -69,7 +73,12 @@ export const BulkSettingsView = ({
 			<Box padding="md" className="grid gap-6 bg-background" testId="bulk-settings-container">
 				<RunCard
 					testId="bulk-run-card"
-					controls={topResults}
+					controls={
+						<>
+							{topResults}
+							{batchEncounter}
+						</>
+					}
 					action={
 						<Button className="w-full" data-testid="bulk-settings-btn" disabled={!canRun} onClick={onRun}>
 							{i18n.t('bulk_tab.actions.simulate_batch')}
@@ -184,6 +193,7 @@ const BulkSettingsContainer = ({ builds }: { builds: BulkBuildsCount | null }) =
 	return (
 		<BulkSettingsView
 			topResults={powerTools ? <BulkTopResultsField /> : null}
+			batchEncounter={builds ? null : <BatchEncounter />}
 			combinationsCount={<CombinationsCount builds={builds} ready={ready} />}
 			canRun={ready && (builds ? canRunBuildsBatch(isRunning, builds, combinationsLimit, iterationsLimit) : canRunGear)}
 			onRun={() => void runBulkBatch(host)}
