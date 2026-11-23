@@ -80,12 +80,12 @@ export interface ImbueRowsProps {
 export const ImbueRows = ({ player, imbues, weaponImbues, imbueTestId, weaponImbueTestId }: ImbueRowsProps) => (
 	<>
 		<ConsumeRow name="imbue" configs={imbues}>
-			<IconRow data-testid={imbueTestId}>
+			<IconRow className="justify-end" data-testid={imbueTestId}>
 				<Pickers player={player} configs={imbues} />
 			</IconRow>
 		</ConsumeRow>
 		<ConsumeRow name="weaponImbue" configs={weaponImbues}>
-			<IconRow data-testid={weaponImbueTestId}>
+			<IconRow className="justify-end" data-testid={weaponImbueTestId}>
 				<Pickers player={player} configs={weaponImbues} />
 			</IconRow>
 		</ConsumeRow>
@@ -100,7 +100,7 @@ export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps
 		<div className="grid gap-2 max-lg:grid-cols-3 max-md:grid-cols-1">
 			{encounterConsumes && (
 				<ConsumeRow name="potions" configs={[configs.offensivePotion, configs.defensivePotion, configs.resourcePotion, configs.conjured]}>
-					<IconRow data-testid="consumes-potions">
+					<IconRow className="justify-end" data-testid="consumes-potions">
 						<ConnectedIconEnumPicker modObject={player} config={configs.offensivePotion} />
 						<ConnectedIconEnumPicker modObject={player} config={configs.defensivePotion} />
 						<ConnectedIconEnumPicker modObject={player} config={configs.resourcePotion} />
@@ -109,18 +109,18 @@ export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps
 				</ConsumeRow>
 			)}
 			<ConsumeRow name="elixirs" configs={[configs.flask, ...configs.elixirs]}>
-				<IconRow>
+				<IconRow className="justify-end">
 					<ConnectedIconEnumPicker modObject={player} config={configs.flask} testId="consumes-flasks" />
 					<Pickers player={player} configs={configs.elixirs} />
 				</IconRow>
 			</ConsumeRow>
 			<ConsumeRow name="scrolls" configs={configs.scrolls}>
-				<IconRow data-testid="consumes-scrolls">
+				<IconRow className="justify-end" data-testid="consumes-scrolls">
 					<Pickers player={player} configs={configs.scrolls} />
 				</IconRow>
 			</ConsumeRow>
 			<ConsumeRow name="food" configs={[configs.food, ...(configs.dragonbreathChili ? [configs.dragonbreathChili] : []), ...configs.foodGroups]}>
-				<IconRow data-testid="consumes-food">
+				<IconRow className="justify-end" data-testid="consumes-food">
 					<ConnectedIconEnumPicker modObject={player} config={configs.food} />
 					{configs.dragonbreathChili && <ConnectedIconPicker modObject={player} config={configs.dragonbreathChili} />}
 					<Pickers player={player} configs={configs.foodGroups} />
@@ -128,7 +128,7 @@ export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps
 			</ConsumeRow>
 			{encounterConsumes && (
 				<ConsumeRow name="engineering" configs={[configs.explosive, ...configs.explosiveExtras]}>
-					<IconRow data-testid="consumes-engi">
+					<IconRow className="justify-end" data-testid="consumes-engi">
 						<ConnectedIconEnumPicker modObject={player} config={configs.explosive} />
 						<Toggles player={player} toggles={configs.explosiveExtras} />
 					</IconRow>
@@ -142,7 +142,7 @@ export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps
 				weaponImbueTestId="consumes-weapon-imbue"
 			/>
 			<ConsumeRow name="holiday" configs={[...configs.holidayGroups, ...configs.holiday]}>
-				<IconRow data-testid="consumes-holiday">
+				<IconRow className="justify-end" data-testid="consumes-holiday">
 					<Pickers player={player} configs={configs.holidayGroups} />
 					<Toggles player={player} toggles={configs.holiday} />
 				</IconRow>
@@ -150,7 +150,7 @@ export const ConsumesPicker = ({ encounterConsumes = true }: ConsumesPickerProps
 			<ConsumeRow
 				name="miscellaneous"
 				configs={[...configs.miscGroups, ...(encounterConsumes ? [...configs.miscOffensive, ...configs.miscDefensive] : [])]}>
-				<IconRow data-testid="consumes-misc">
+				<IconRow className="justify-end" data-testid="consumes-misc">
 					<Pickers player={player} configs={configs.miscGroups} />
 					{encounterConsumes && (
 						<>

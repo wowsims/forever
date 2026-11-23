@@ -43,7 +43,7 @@ const meta = {
 		nowrap: true,
 		hidden: false,
 		children: (
-			<IconRow>
+			<IconRow className="justify-end">
 				<StoryIconEnum options={FLASKS} initial={1} />
 				<StoryIconEnum options={STRENGTH_ELIXIRS} initial={1} overwrittenTooltip={PARTLY_OVERWRITTEN_TOOLTIP} overwrittenPartly />
 				<StoryIconEnum options={AGILITY_ELIXIRS} />
@@ -71,7 +71,7 @@ export const Wrapped: Story = {
 	],
 	args: {
 		children: (
-			<IconRow>
+			<IconRow className="justify-end">
 				<StoryIconEnum options={FLASKS} initial={1} />
 				<StoryIconEnum options={STRENGTH_ELIXIRS} initial={1} />
 				<StoryIconEnum options={AGILITY_ELIXIRS} initial={1} />
@@ -87,7 +87,7 @@ export const Wrapped: Story = {
 export const Overwritten: Story = {
 	args: {
 		children: (
-			<IconRow>
+			<IconRow className="justify-end">
 				<StoryIconEnum options={STRENGTH_ELIXIRS} initial={1} overwrittenTooltip={OVERWRITTEN_TOOLTIP} />
 				<StoryIconEnum options={AGILITY_ELIXIRS} initial={1} />
 				<StoryIconEnum options={CRIT_ELIXIRS} initial={2} />
@@ -101,7 +101,7 @@ export const Scrolls: Story = {
 	args: {
 		label: 'Scrolls',
 		children: (
-			<IconRow>
+			<IconRow className="justify-end">
 				<StoryIconEnum options={INTELLECT_SCROLLS} initial={1} overwrittenTooltip="Intellect overwritten by Arcane Intellect" />
 			</IconRow>
 		),
