@@ -250,6 +250,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-DarkmistDirk-285102"
+ value: {
+  dps: 796.04293
+  tps: 825.02692
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 851.54307
@@ -750,8 +757,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 845.50478
-  tps: 873.81626
+  dps: 853.05202
+  tps: 881.33106
  }
 }
 dps_results: {
@@ -764,8 +771,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Illusionist'sAttire"
  value: {
-  dps: 817.38942
-  tps: 844.82643
+  dps: 813.48403
+  tps: 840.92104
  }
 }
 dps_results: {
@@ -897,8 +904,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Magister'sRegalia"
  value: {
-  dps: 738.26738
-  tps: 764.68812
+  dps: 733.44074
+  tps: 759.86149
  }
 }
 dps_results: {
@@ -995,8 +1002,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-NecropileRaiment"
  value: {
-  dps: 810.69673
-  tps: 836.06522
+  dps: 806.267
+  tps: 831.63549
  }
 }
 dps_results: {
@@ -1088,6 +1095,13 @@ dps_results: {
  value: {
   dps: 851.27945
   tps: 880.28009
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-SearingNeedle-12531"
+ value: {
+  dps: 796.04293
+  tps: 825.02692
  }
 }
 dps_results: {
@@ -1275,8 +1289,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-ThePostmaster"
  value: {
-  dps: 807.53273
-  tps: 832.58568
+  dps: 803.08303
+  tps: 828.13598
  }
 }
 dps_results: {
@@ -1338,8 +1352,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-VestmentsoftheDevout"
  value: {
-  dps: 726.99696
-  tps: 753.80347
+  dps: 724.77294
+  tps: 751.57945
  }
 }
 dps_results: {

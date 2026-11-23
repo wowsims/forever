@@ -66,11 +66,17 @@ var IgnoreMissingEffectBySpellID = map[int]string{
 // reason the generated file gives.
 var UnsupportedAbsorbBySpellID = map[int32]string{}
 
-// Items below core.MinEffectItemLevel whose effects are generated anyway, keyed by item ID with the reason a
-// level 60 character still uses them.
+// Items below core.MinEffectItemLevel whose effects are generated anyway, keyed by item ID with the reason
+// players still wear them.
 var EffectFloorExemptions = map[int32]string{
-	7284: "Red Whelp Gloves: melee players wear them for the Firebolt proc (EV-0177)",
-	9449: "Manual Crowd Pummeler: a level 60 melee swaps it in for its on-use attack speed",
+	899:    "Venom Web Fang: melee players wear it for the Poison proc (EV-0183)",
+	3336:   "Flesh Piercer: melee players wear it for the Rend proc (EV-0183)",
+	3822:   "Runic Darkblade: melee players wear it for the Shadow Bolt proc (EV-0183)",
+	4449:   "Naraxis' Fang: melee players wear it for the Poison proc (EV-0183)",
+	5752:   "Wyvern Tailspike: melee players wear it for the Poison proc (EV-0153)",
+	7284:   "Red Whelp Gloves: melee players wear them for the Firebolt proc (EV-0177)",
+	9449:   "Manual Crowd Pummeler: a level 60 melee swaps it in for its on-use attack speed",
+	282703: "Needletooth's Needletooth: melee players wear it for the Puncture proc (EV-0183)",
 }
 
 var OtherItemIdsToFetch = []string{}
@@ -200,14 +206,20 @@ func DropListedSetPiecesBesideUnlistedOnes(db *WowDatabase, listed map[int32]boo
 
 // Keep these sorted by item ID.
 var ItemAllowList = map[int32]struct{}{
-	1168:  {}, // Skullflame Shield
-	2140:  {},
-	2505:  {},
-	7284:  {}, // Red Whelp Gloves
-	8345:  {}, // Wolfshead Helm
-	11815: {}, // Hand of Justice
-	18168: {}, // Force Reactive Disk
-	19337: {}, // The Black Book
+	899:    {}, // Venom Web Fang
+	1168:   {}, // Skullflame Shield
+	2140:   {},
+	2505:   {},
+	3336:   {}, // Flesh Piercer
+	3822:   {}, // Runic Darkblade
+	4449:   {}, // Naraxis' Fang
+	5752:   {}, // Wyvern Tailspike
+	7284:   {}, // Red Whelp Gloves
+	8345:   {}, // Wolfshead Helm
+	11815:  {}, // Hand of Justice
+	18168:  {}, // Force Reactive Disk
+	19337:  {}, // The Black Book
+	282703: {}, // Needletooth's Needletooth
 }
 
 // Keep these sorted by item ID.
