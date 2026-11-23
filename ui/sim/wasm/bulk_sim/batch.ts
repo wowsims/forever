@@ -104,6 +104,8 @@ export const runBulkSimCandidateBatchOnWorkers = async (
 	batchConfig: ConcurrentBulkSimCandidateBatchConfig,
 	carriedByCandidate?: Map<number, ConcurrentBulkSimCandidateResult>,
 ): Promise<ConcurrentBulkSimCandidateResult[]> => {
+	// The queue drains only after a push, so an empty batch would never resolve.
+	if (candidates.length === 0) return [];
 	const candidateIterationsDone = Array(candidates.length).fill(0);
 	const results: Array<ConcurrentBulkSimCandidateResult | undefined> = [];
 	const concurrency = Math.max(1, Math.min(workerPool.getNumWorkers(), candidates.length));

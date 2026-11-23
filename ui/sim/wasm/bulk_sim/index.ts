@@ -14,12 +14,11 @@ import { isDevMode } from '../../utils/env';
 import { WorkerPool, WorkerProgressCallback } from '../../workers/worker_pool';
 import { BulkSimCandidateTransport, runSingleBulkSimCandidate } from './batch';
 import { ConcurrentBulkSimStageCarryOver, newBulkSimStageCarryOver } from './carry_over';
-import { BULK_SIM_DEFAULT_TOP_RESULTS } from './constants_auto_gen';
-import { bulkSimHighStageFloor, shouldUseSingleStageBulkSim } from './estimate';
-import { bulkSimCandidateResultToProto } from './merge';
+import { bulkSimHighStageFloor, resolveBulkSimTopResults, shouldUseSingleStageBulkSim } from './estimate';
+import { appendBulkSimNonFinalists, bulkSimCandidateResultToProto } from './merge';
 import { formatBulkSimStageSummary } from './progress';
 import { bulkSimStageConfigs, runConcurrentBulkSimFinalistStage, runConcurrentBulkSimStage, shouldRunBulkSimStage } from './stage';
-import { bulkSimPairedDpsError, selectBulkSimSurvivors, topBulkSimResults } from './statistics';
+import { bulkSimPairedDpsError, cullBulkSimStage, topBulkSimResults } from './statistics';
 import { ConcurrentBulkSimCandidateResult, getBulkSimBaselineGear } from './types';
 
 const makeAndSendBulkSimError = (err: string | ErrorOutcome, onProgress: WorkerProgressCallback): BulkSimResult => {
@@ -64,7 +63,7 @@ export const runConcurrentBulkSim = async (
 	let candidates = request.candidates
 		.filter(candidate => candidate.gear)
 		.map((candidate: BulkGearCandidate) => ({ index: candidate.index, gear: candidate.gear! }));
-	const topResults = request.allResults ? candidates.length : request.topResults > 0 ? request.topResults : BULK_SIM_DEFAULT_TOP_RESULTS;
+	const topResults = resolveBulkSimTopResults(request, candidates.length);
 	const result = BulkSimResult.create({ timings: BulkSimTimings.create() });
 
 	if (candidates.length == 0) {
@@ -123,7 +122,18 @@ export const runConcurrentBulkSim = async (
 		}
 
 		if (stageConfig.maxSurvivors !== undefined && latestBaseline) {
-			candidates = selectBulkSimSurvivors(stageResult.results, latestBaseline, stageResult.iterations, stageConfig, originalCandidateCount, topResults);
+			const culling = cullBulkSimStage(
+				request,
+				stageResult.results,
+				latestBaseline,
+				stageResult.iterations,
+				stageConfig,
+				originalCandidateCount,
+				topResults,
+			);
+			candidates = culling.survivors;
+			// concat, not a spread push: the low stage can cull thousands, past the engine's argument limit.
+			result.culledResults = result.culledResults.concat(culling.culled);
 			stageResult.metrics.survivors = candidates.length;
 		}
 		if (isDevMode()) {
@@ -150,6 +160,8 @@ export const runConcurrentBulkSim = async (
 	// Finalist refinement: add lockstep iterations to the displayed top results until their
 	// ranking is statistically separated (or the budget runs out), so near-ties do not flip
 	// order between runs with different seeds.
+	const highResults = latestResults;
+	const highBaseline = latestBaseline;
 	const finalistResult = await runConcurrentBulkSimFinalistStage(request, latestBaseline, latestResults, topResults, workerPool, onProgress, signals);
 	latestBaseline = finalistResult.baseline;
 	latestResults = finalistResult.results;
@@ -172,6 +184,9 @@ export const runConcurrentBulkSim = async (
 		protoResult.pairedErrorToBaseline = bulkSimPairedDpsError(candidateResult.dpsMetrics, finalBaseline.dpsMetrics) ?? 0;
 		return [protoResult];
 	});
+	if (request.cullToBaseline) {
+		result.topResults = appendBulkSimNonFinalists(result.topResults, top, highResults, highBaseline);
+	}
 	result.timings!.simmingSeconds = (new Date().getTime() - simmingStartedAt) / 1000;
 	result.timings!.totalSeconds = (new Date().getTime() - startedAt) / 1000;
 

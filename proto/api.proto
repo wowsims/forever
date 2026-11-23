@@ -519,6 +519,10 @@ message BulkSimRequest {
 	reserved 7;
 	reserved "reforge_request";
 	BulkSettings bulk_settings = 8;
+	// Each culling stage drops the candidates clearly below the baseline (paired test at BulkSimZ95), runs the top-results
+	// cull on the rest when more stay than the stage's max survivors, and returns the dropped ones in culled_results.
+	// top_results and all_results are not read then.
+	bool cull_to_baseline = 9;
 }
 
 // RPC ReforgeOptimize
@@ -980,6 +984,8 @@ message BulkSimResult {
 	repeated BulkSimStageMetrics stage_metrics = 4;
 	BulkSimTimings timings = 5;
 	ErrorOutcome error = 6;
+	// Under cull_to_baseline, every culled candidate with the dps_metrics and paired_error_to_baseline of the stage that culled it.
+	repeated BulkGearResult culled_results = 7;
 }
 
 message BulkGearResult {
@@ -992,6 +998,8 @@ message BulkGearResult {
 	double paired_error_to_next_result = 4;
 	// Same, vs the baseline (currently equipped) gear.
 	double paired_error_to_baseline = 5;
+	// The stage a culled_results row last ran in; unset on top results.
+	BulkSimStage culled_stage = 6;
 }
 
 message BulkSimStageMetrics {

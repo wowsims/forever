@@ -1,7 +1,8 @@
+import { BulkSimRequest } from '@generated/proto/api';
 import { describe, expect, it } from 'vitest';
 
 import { BULK_SIM_DEFAULT_TOP_RESULTS } from './constants_auto_gen';
-import { bulkSimHighStageFloor, estimateBulkSimIterations, shouldUseSingleStageBulkSim } from './estimate';
+import { bulkSimHighStageFloor, estimateBulkSimIterations, resolveBulkSimTopResults, shouldUseSingleStageBulkSim } from './estimate';
 
 describe('estimateBulkSimIterations', () => {
 	it('sims a run under 20 candidates in one stage at the high-stage floor per gear set and the baseline', () => {
@@ -38,5 +39,24 @@ describe('shouldUseSingleStageBulkSim', () => {
 	it('culls a larger run that shows the default top results', () => {
 		expect(shouldUseSingleStageBulkSim(28, BULK_SIM_DEFAULT_TOP_RESULTS)).toBe(false);
 		expect(shouldUseSingleStageBulkSim(1000, BULK_SIM_DEFAULT_TOP_RESULTS)).toBe(false);
+	});
+});
+
+describe('resolveBulkSimTopResults', () => {
+	it('reads neither topResults nor allResults under cullToBaseline', () => {
+		expect(resolveBulkSimTopResults(BulkSimRequest.create({ cullToBaseline: true, allResults: true }), 40)).toBe(BULK_SIM_DEFAULT_TOP_RESULTS);
+		expect(resolveBulkSimTopResults(BulkSimRequest.create({ cullToBaseline: true, topResults: 40 }), 40)).toBe(BULK_SIM_DEFAULT_TOP_RESULTS);
+	});
+
+	it('follows allResults and topResults otherwise', () => {
+		expect(resolveBulkSimTopResults(BulkSimRequest.create(), 40)).toBe(5);
+		expect(resolveBulkSimTopResults(BulkSimRequest.create({ topResults: 7 }), 40)).toBe(7);
+		expect(resolveBulkSimTopResults(BulkSimRequest.create({ allResults: true }), 40)).toBe(40);
+	});
+
+	it('estimates a cull-to-baseline run with the culling plan', () => {
+		expect(estimateBulkSimIterations(100, resolveBulkSimTopResults(BulkSimRequest.create({ cullToBaseline: true, allResults: true }), 100))).toBe(
+			101 * 1000 + 26 * bulkSimHighStageFloor(),
+		);
 	});
 });

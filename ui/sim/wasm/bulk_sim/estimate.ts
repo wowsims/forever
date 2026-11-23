@@ -1,6 +1,6 @@
-import { BulkSimStage } from '@generated/proto/api';
+import { BulkSimRequest, BulkSimStage } from '@generated/proto/api';
 
-import { BULK_SIM_MIN_COMBINATIONS } from './constants_auto_gen';
+import { BULK_SIM_DEFAULT_TOP_RESULTS, BULK_SIM_MIN_COMBINATIONS } from './constants_auto_gen';
 import { bulkSimStageConfigs, getBulkSimStageMaxSurvivors, shouldRunBulkSimStage } from './stage';
 
 export const bulkSimHighStageFloor = (): number => bulkSimStageConfigs[bulkSimStageConfigs.length - 1]!.minIterations ?? 0;
@@ -15,6 +15,13 @@ export const shouldUseSingleStageBulkSim = (candidateCount: number, topResults: 
 	}
 
 	return getBulkSimOptimisationIterationsUpperBound(candidateCount, topResults) >= bulkSimSingleStageIterations(candidateCount);
+};
+
+// Under cullToBaseline the stages plan for the default top results, so neither topResults nor allResults is read.
+export const resolveBulkSimTopResults = (request: BulkSimRequest, candidateCount: number): number => {
+	if (request.cullToBaseline) return BULK_SIM_DEFAULT_TOP_RESULTS;
+	if (request.allResults) return candidateCount;
+	return request.topResults > 0 ? request.topResults : BULK_SIM_DEFAULT_TOP_RESULTS;
 };
 
 const getBulkSimOptimisationIterationsUpperBound = (candidateCount: number, topResults: number): number => {

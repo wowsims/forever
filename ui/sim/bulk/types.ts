@@ -111,6 +111,8 @@ export interface BulkSimOverrides {
 	candidates?: readonly Gear[];
 	/** How many results the sim ranks and returns; 5 when absent, every candidate at 0. A cap that covers every candidate skips culling. */
 	topResults?: number;
+	/** Culls each stage against the baseline and returns the culled candidates in culledResults; the sim reads no topResults then. */
+	cullToBaseline?: boolean;
 }
 
 export interface BulkEncounterResults {

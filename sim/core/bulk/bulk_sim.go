@@ -80,12 +80,7 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 		})
 	}
 
-	topResults := int(request.TopResults)
-	if request.AllResults {
-		topResults = len(candidates)
-	} else if topResults <= 0 {
-		topResults = BulkSimDefaultTopResults
-	}
+	topResults := resolveBulkSimTopResults(request, len(candidates))
 
 	result := &proto.BulkSimResult{
 		Timings: &proto.BulkSimTimings{},
@@ -151,7 +146,9 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 		setBulkSimStageTiming(result.Timings, stageConfig.Stage, stageResult.Metrics.DurationSeconds)
 
 		if stageConfig.MaxSurvivors > 0 {
-			candidates = selectBulkSimSurvivors(stageResult.Results, stageResult.Baseline, stageResult.Iterations, stageConfig, originalCandidateCount, topResults)
+			var culled []*proto.BulkGearResult
+			candidates, culled = cullBulkSimStage(request, stageResult.Results, stageResult.Baseline, stageResult.Iterations, stageConfig, originalCandidateCount, topResults)
+			result.CulledResults = append(result.CulledResults, culled...)
 			stageResult.Metrics.Survivors = int32(len(candidates))
 		}
 		log.Printf("[Bulk Sim] %s", formatBulkSimStageSummary("Finished", stageResult.Metrics, len(stageResult.Results)))
@@ -180,6 +177,7 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 	// ranking is statistically separated (or the budget runs out), so near-ties do not flip
 	// order between runs with different seeds.
 	var finalistMetrics *proto.BulkSimStageMetrics
+	highResults, highBaseline := latestResults, latestBaseline
 	latestBaseline, latestResults, finalistMetrics = runBulkSimFinalistStage(request, latestBaseline, latestResults, topResults, progress, signals)
 	if finalistMetrics != nil {
 		result.StageMetrics = append(result.StageMetrics, finalistMetrics)
@@ -206,6 +204,9 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 			protoResult.PairedErrorToBaseline = pairedError
 		}
 		result.TopResults = append(result.TopResults, protoResult)
+	}
+	if request.CullToBaseline {
+		result.TopResults = appendBulkSimNonFinalists(result.TopResults, top, highResults, highBaseline)
 	}
 
 	result.Timings.SimmingSeconds = time.Since(simmingStartedAt).Seconds()

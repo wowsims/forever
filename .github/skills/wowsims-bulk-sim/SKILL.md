@@ -159,6 +159,19 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   Culling intervals use the run's original candidate count, iteration targets the current stage's count. A stage that
   misses its target error gets up to `BulkSimMaxAdaptivePasses` extra segments with offset seeds, merged into the
   existing metrics, and the carry-over lets the next stage sim only the iteration delta for the survivors.
+- Cull to baseline (`cull_to_baseline`, sent through `BulkSimOverrides.cullToBaseline`): each culling stage drops
+  only the candidates clearly below the baseline at `BulkSimZ95` (`cullBulkSimStage`, Go and wasm alike); an
+  unpairable candidate stays. When more stay than the stage's max survivors for that count, the top-results cull runs
+  on the above-cut set, soft cap included, so a culled row can still sit above the baseline. `top_results` and
+  `all_results` are not read: the stages and the single-stage check plan for `BulkSimDefaultTopResults`
+  (`resolveBulkSimTopResults`), so the estimate is the default one. Every high-stage survivor comes back in
+  `top_results`; the finalist stage refines only the default top 5 and the baseline, and the rest follow at their
+  high-stage numbers, paired against the high-stage baseline. Each culled one comes back in `culled_results` with
+  its `culled_stage` and the metrics and paired error of the stage that culled it, `AllValues` stripped. Under about
+  28 candidates the run is single-stage and `culled_results` is empty. A run that culls everyone still sims the
+  baseline at the high stage. `runBulkSimCandidateBatchOnWorkers` returns at once on an empty batch: a TS-only guard,
+  since the async queue drains only after a push (Go's batch returns empty on its own), and the one intended break of
+  the line-for-line mirror.
 - Finalist stage (`runBulkSimFinalistStage` / `runConcurrentBulkSimFinalistStage`): the top `topResults` and the
   baseline get lockstep extra iterations until every adjacent pair separates at `BulkSimZ95`, or
   `BulkSimFinalistMaxExtraIterationMultiplier` × the iterations so far is spent. Its results are the displayed set.
