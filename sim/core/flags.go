@@ -232,8 +232,9 @@ const (
 	SpellFlagCastWhileIncapacitated                         // Allows the cast while the unit is incapacitated, e.g. Berserker Rage breaking a Fear.
 	SpellFlagFullResistanceTicks                            // Its ticks meet the target's full resistance, as direct hits do, where other ticks, a channel's included, meet a tenth; a binary spell's ticks then take the Spell Piercing bonus in full (EV-0142).
 	SpellFlagTenthResistance                                // Its hits roll their partial resist against a tenth of the target's average resist, as most ticks do, and take no Spell Piercing bonus, e.g. Flamestrike's ground ticks.
-	SpellFlagPushback                                       // Damage taken while hardcasting pushes the cast back: SpellInterrupts.InterruptFlags 0x2.
 	SpellFlagNoPartialResist                                // The spell's hits never lose damage to a partial resist and gain no Spell Piercing bonus, binary or not (EV-0142).
+	SpellFlagNoSpellPiercing                                // The caster's Spell Piercing does not reach its hits, e.g. Magma Totem's and Searing Totem's attacks (EV-0142).
+	SpellFlagPushback                                       // Damage taken while hardcasting pushes the cast back: SpellInterrupts.InterruptFlags 0x2.
 	SpellFlagKeepsSwingTimer                                // Completing a cast of the spell leaves the melee swing timer running: Do Not Reset Combat Timers (Attributes[2] 0x20000), or an explosive.
 	SpellFlagDropsQueuedSwing                               // Starting a cast of the spell drops the attack queued for the next swing, e.g. a thrown dynamite.
 	SpellFlagBleed                                          // A bleed: the whole cast misses a bleed-immune target, and its Dot does not land there.
@@ -243,7 +244,6 @@ const (
 	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) and the caster's spell damage against the target's creature type (an item's mob type stats, e.g. Courier's Clasp; EV-0141) add nothing to the spell's hits, though its other spell power applies at its coefficient: a damage shield.
 	SpellFlagNoDamageVersus                                 // The caster's damage against a creature type (aura 168, e.g. Beast Slaying) adds nothing to the spell's hits, though its other damage done multipliers apply: a totem's attack.
 	SpellFlagCountsAsSwing                                  // Its hits count as main-hand melee swings: landed ones grant rage as an auto attack's do, and a listener with HearsCountedSwings hears them, e.g. a Windfury Totem hit.
-	SpellFlagNoSpellPiercing                                // The caster's Spell Piercing does not reach its hits, e.g. Magma Totem's and Searing Totem's attacks (EV-0142).
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1
