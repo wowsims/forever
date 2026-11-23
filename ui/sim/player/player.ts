@@ -1598,7 +1598,11 @@ export class Player<SpecType extends Spec> {
 				this.setConsumes(proto.consumables || ConsumesSpec.create());
 			}
 			if (loadCategory(SimSettingCategories.Miscellaneous)) {
-				this.setSpecOptions(this.specTypeFunctions.optionsFromPlayer(proto));
+				// Settings whose spec options carry no class options (`"options": {}`) keep the player's: the class inputs read
+				// their fields, and the sim's spec constructors dereference them.
+				const specOptions = this.specTypeFunctions.optionsFromPlayer(proto);
+				if (!specOptions.classOptions) specOptions.classOptions = this.getSpecOptions().classOptions;
+				this.setSpecOptions(specOptions);
 				this.setName(proto.name);
 				this.setRace(proto.race);
 				this.setProfession1(proto.profession1);
