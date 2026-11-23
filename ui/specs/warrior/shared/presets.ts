@@ -1,6 +1,4 @@
-import * as Consumables from '@features/settings/model/consumables_auto_gen';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ConsumesSpec } from '@generated/proto/common';
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,
@@ -24,12 +22,4 @@ export const DefaultDebuffs = Debuffs.create({
 	faerieFire: true,
 	sunderArmor: true,
 	curseOfRecklessness: true,
-});
-
-export const DefaultConsumables = ConsumesSpec.create({
-	foodId: Consumables.SmokedDesertDumplings.id,
-	// A dynamite states no stun, so a level 63 boss does not shrug it off the way it does the EZ-Thro Dark Bomb.
-	explosiveId: Consumables.SAFTCleverDynamite.id,
-	elixirIds: [Consumables.ElixirOfFerocity.id, Consumables.ElixirOfTheMongoose.id],
-	extraIds: [Consumables.GoblinSapperCharge.id],
 });
