@@ -34,10 +34,10 @@ isolation steps leave it where it is. A single-target proc that lands on its hit
 that target alone. An item that rolls on weapon hits and on spells takes its rate from the weapon hits, and its spell
 side from casters, each spell hit priced on its cast time, 1.5 s at least.
 
-Scripts and inputs, in `forever-sweep-auto`: the run `runs/2026-11-22-2335-v18`, whose `results.json` (analyzer v18:
-`analyze.py` version 18, cache `cache_v18`) holds every item's count, rerun on the wearer streams of the 2026-11-22
-23:35 sweep. The rate is each result's `all_hits`, matched on item and `effect_spell` and rounded to the nearest 0.05 at
-full precision; the result's `ppm`, a lone-unit rate where one has enough procs, sets no rate.
+Scripts and inputs, in `forever-sweep-auto`: the run `runs/2026-11-22-2335-v18`, whose `results.json` (`analyze.py`
+version 18, cache `cache_v18`) holds every item's count, rerun on the wearer streams of the 2026-11-22 23:35 sweep. The
+rate is each result's `all_hits`, matched on item and `effect_spell` and rounded to the nearest 0.05 at full precision;
+the result's `ppm`, a lone-unit rate where one has enough procs, sets no rate.
 
 ## Rates
 

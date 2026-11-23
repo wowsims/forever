@@ -77,12 +77,11 @@ after its flight, and its window is the 2nd to 98th percentile of the delay afte
 
 The rate is the rate over all hits, rounded to 0.05, where the one-hand white rate or the specials rate, each with 50 or
 more procs, agrees with it (their intervals overlap). Where they disagree, the rate is open; no weapon in this file is.
-A stacking debuff refreshed at full stacks often logs
-nothing, and a proc whose travel window passes 400 ms or reaches past the isolation has no usable lone unit: these take
-the rate over all hits as it stands, and so does a weapon whose lone-unit rates stay under 50 procs; such a rate is
-observed, unless a separate count checks it (Strike of the Hydra, Spellsever Crossbow and Bow of Searing Arrows, from
-#1108's review). A rate is measured when a lone-unit rate checks it and 5 or more wearers of more than one class give
-it with an interval within 10% of the read either side, and observed otherwise.
+A stacking debuff refreshed at full stacks often logs nothing, and a proc whose travel window passes 400 ms or reaches
+past the isolation has no usable lone unit: these take the rate over all hits as it stands, and so does a weapon whose
+lone-unit rates stay under 50 procs; such a rate is observed, unless a separate count checks it (Spellsever Crossbow and
+Bow of Searing Arrows, from #1108's review). A rate is measured when a lone-unit rate checks it and 5 or more wearers of
+more than one class give it with an interval within 10% of the read either side, and observed otherwise.
 
 Scripts and inputs, in `forever-ppm-review-1108/final-1119-v12`: `analyze.py` for the rates, `MEASUREMENT.md` for the
 method, and `targets_final.json` for each weapon's rate and call.
@@ -306,8 +305,7 @@ wtJqpy9ThGxFz4nZ 1-2; yF1hGHxMnrPJK83T 1; ynGtWRk4cZX3TmYv 1.
 ## Count of the 2026-11-06 to 2026-11-21 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
-  lists, from every wearer stream on disk for its weapon; those sections are in EV-0126, EV-0132 and EV-0136, and none
-  is in this file
+  lists, from every wearer stream on disk for its weapon; those sections are in EV-0126, EV-0132 and EV-0136
 - Game build: 1.60.1.70790 to 1.60.1.71037 by report date (70862 from 2026-11-07 04:43 UTC, 70888 from 2026-11-10 15:11
   UTC in the US and 2026-11-11 02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC,
   71037 from 2026-11-20 18:23 UTC). The sim's database is 1.60.1.71037, push 114326; the hotfix each player ran is not

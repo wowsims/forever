@@ -45,48 +45,6 @@ With no procs the wearer draws are all zero, so the bound from the hits is the o
 
 ## Rates
 
-| Hits                                          | Procs / isolated hits | Wearers | Rate     | 95%, hits    | 95%, wearers | Margin    |
-| --------------------------------------------- | --------------------- | ------- | -------- | ------------ | ------------ | --------- |
-| Main hand, white swings and specials          | 1782 / 14061          | 45      | 2.71 PPM | 2.59 to 2.82 | 2.58 to 2.82 | ±0.13     |
-| Main-hand white swings                        | 1135 / 8766           | 45      | 2.77 PPM | 2.62 to 2.92 | 2.63 to 2.91 | ±0.15     |
-| Melee specials                                | 647 / 5295            | 40      | 2.60 PPM | 2.42 to 2.80 | 2.32 to 2.86 | ±0.28     |
-| Off-hand white swings                         | 238 / 2538            | 12      | 2.94 PPM | 2.60 to 3.31 | 2.45 to 3.44 | ±0.50     |
-| Druid forms, on the form's speed              | 206 / 3471            | 6       | 2.83 PPM | 2.47 to 3.22 | 2.45 to 3.53 | ±0.70     |
-| Auto Shot, on the ranged weapon's speed       | 392 / 3265            | 14      | 2.51 PPM | 2.28 to 2.75 | 2.34 to 2.73 | ±0.24     |
-| Ranged specials, on the ranged weapon's speed | 39 / 412              | 20      | 2.00 PPM | 1.46 to 2.65 | 1.35 to 3.45 | ±1.46     |
-| Spells, direct and landed, as a flat chance   | 138 / 2023            | 16      | 6.82%    | 5.80 to 8.00 | 5.92 to 8.03 | ±1.21 pts |
-| Wand Shoot, as a flat chance                  | 38 / 426              | 7       | 8.92%    | 6.57 to 12.0 | 7.09 to 11.1 | ±3.09 pts |
-| Periodic ticks                                | 0 / 1307              | 36      | 0%       | 0 to 0.29    |              | +0.29 pts |
-| Damage shields (Thorns, auras, shield spikes) | 0 / 379               | 29      | 0%       | 0 to 1.00    |              | +1.00 pts |
-
-On the main hand the chance per hit rises with the weapon's speed, from 5.3% at 1.0 s to 15.3% at 3.5 s, and a rate
-per minute fits the hits far better than one flat chance (log-likelihood 91 higher for white swings, 35 for
-specials). Spell hits show no such rise: 5.5% at a 1.5 s main hand, 8.4% at 3.0 s, 6.1% at 3.5 s, and a rate per
-minute on the main hand's speed fits them worse than a flat chance (1.51 PPM, log-likelihood 3.4 lower). Wand Shoot
-spans too few speeds to tell the two apart.
-
-## Auto Shot and haste
-
-Hunters shot faster than their bow's speed, three in four Auto Shots 10 to 50% faster. Over 2,415 Auto Shots fired in an unbroken string (each 0.5 to
-1.15 times the bow's speed after the one before), a rate on the bow's speed (2.54 PPM, 95% 2.27 to 2.82), a rate on the
-hasted interval (3.06 PPM, 95% 2.74 to 3.40) and a flat 12.1% fit equally well, within 0.2 of each other in
-log-likelihood. Most wearers shoot a 2.8 s bow, so the speeds span too little to tell them apart.
-
-| Bow speed over interval | Shots | Procs | Chance | 95%          |
-| ----------------------- | ----- | ----- | ------ | ------------ |
-| below 1.10              | 405   | 61    | 15.06% | 11.9 to 18.9 |
-| 1.10 to 1.25            | 1023  | 125   | 12.22% | 10.4 to 14.4 |
-| 1.25 to 1.50            | 792   | 81    | 10.23% | 8.3 to 12.5  |
-| 1.50 and above          | 195   | 26    | 13.33% | 9.3 to 18.8  |
-
-## Damage
-
-Ancient Power crits at the wearer's own rate, 12.4% over all procs and from 5.5% for warriors to 16.2% for druids, and
-2.7% of procs miss or are resisted. The median hit per class runs from 70 to 81 against the row's 69 to 81, and a
-mage's (77) sits inside the row's range as a warrior's (70) does, so spell power adds nothing.
-
-## Rate
-
 - Count: §Count of the 2026-11-06 to 2026-11-22 reports
 - Proc: equip proc 1318159
 - Rate: 2.95 PPM, measured
@@ -96,21 +54,23 @@ which the one-hand white rate agrees with. One-hand white: 2.88 [2.77, 2.97], 1,
 wearers. Dual-wield white, which sets no rate: 2.86 [2.75, 3.00], 2,521 procs on 26,614 lone units, 57 wearers. Lone
 Auto Shots: 2.75 [2.55, 2.98], 664 procs on 5,206 lone units, 68 wearers. Specials: 2.89 [2.77, 3.03], 1,859 procs on
 14,560 lone units, 88 wearers; Sinister Strike gives 702 procs on 5,521 of them. Two-roll abilities, priced as one roll:
-2.68, 37 procs on 296 lone units (Execute 13 on 100 and Mongoose Bite 24 on 196), left out of the rate. Travel time: the
-proc lands a median 379 ms after its hit, 98th percentile 1132 ms, window [-20, 1142] ms (1,455 isolated hits). Dropping
-the swapped stretches (167 active minutes, 3% of hits, in 9 runs) moved the read from 2.85 to 2.94. The paladin check,
-which sets no rate: lone white swings 3.00, 142 procs on 941 lone units, 13 wearers. Left out: 11 of 187 runs in Cat or
-Bear Form. 6 runs logged in two reports count once. The one-hand white rate reads on the melee travel window, [-20, 276]
-ms, and checks the all-hits rate; the lone Auto Shots and specials read on the ranged one, [-20, 1208] ms, past 400 ms.
-The owner takes the rate as measured (2026-11-23). Casters' spell hits, each priced on its cast time and 1.5 s at least,
-read 2.84 [2.47, 3.24] on 445 procs over 5,958 lone units of 24 wearers, and fit better than a flat chance per spell
-hit, 7.47% [6.52, 8.63]. Of the uncast pulses Flamestrike's rolls it (73 procs on 896 lone units, 57 predicted) and
-Ignite's and Blizzard's do not. Thunder Clap never rolls it: the tablet investigation on the same sweep's v16 run
-(`runs/2026-11-22-2335-v16`) found 0 procs on 1,370 lone Thunder Clap hits, and 0 attributed in its per-kind fit across
-3,929 Thunder Clap hits. A warrior's Thunder Clap always lands batched with its debuff, so the lone count is a pass over
-those batches. Debuff-only landings roll nothing: 0 procs on 728 lone melee landings and 1,298 lone ranged ones, where
-the white chance predicts 71 and 175. Per-class reads are left out, since casters' runs mix spell procs into the
-weapon-hit count. Reports from 2026-11-10 to 2026-11-22.
+2.68, 37 procs on 296 lone units (Execute 13 on 100 and Mongoose Bite 24 on 196), left out of the rate. Travel time,
+pooled over melee and ranged hits: the proc lands a median 379 ms after its hit, 98th percentile 1132 ms, window [-20,
+1142] ms (1,455 isolated hits). Dropping the swapped stretches (167 active minutes, 3% of hits, in 9 runs) moved the
+read from 2.85 to 2.94. The paladin check, which sets no rate: lone white swings 3.00, 142 procs on 941 lone units, 13
+wearers. Left out: 11 of 187 runs in Cat or Bear Form. 6 runs logged in two reports count once. The one-hand white rate
+reads on the melee delivery's window, [-20, 276] ms (a median 130 ms, 98th percentile 266 ms, 4,527 isolated hits), and
+the lone Auto Shots and specials on the ranged delivery's, [-20, 1208] ms (a median 593 ms, 98th percentile 1198 ms, 888
+isolated hits), past 400 ms. The owner takes the rate as measured (2026-11-23). Casters' spell hits, each priced on its
+cast time and 1.5 s at least, read 2.84 [2.47, 3.24] on 445 procs over 5,958 lone units of 24 wearers, and fit better
+than a flat chance per spell hit, 7.47% [6.52, 8.63]. Of the hits no cast logs, direct hits in the log and not periodic
+ticks, Flamestrike's rolls it (73 procs on 896 lone units, 57 predicted) and Ignite's and Blizzard's do not. Thunder
+Clap never rolls it: the tablet investigation on the same sweep's v16 run (`runs/2026-11-22-2335-v16`) found 0 procs on
+1,370 lone Thunder Clap hits, and 0 attributed in its per-kind fit across 3,929 Thunder Clap hits. A warrior's Thunder
+Clap always lands batched with its debuff, so the lone count is a pass over those batches. Debuff-only landings roll
+nothing: 0 procs on 728 lone melee landings and 1,298 lone ranged ones, where the white chance predicts 71 and 175.
+Per-class reads are left out, since casters' runs mix spell procs into the weapon-hit count. Reports from 2026-11-10 to
+2026-11-22.
 
 Reports and fights: 12MCBnGNPTK9pwZD 1-16; 1GBhzTR8CZwcJfFV 89 fights from 1 to 99; 1JLq46yg7wYNhan9 1-28;
 1Wc4yTf2MQPxwXDa 1-4; 1X37tZRzgkmd9rNP 1; 2DC7xQNm9wHJnVF4 6-7; 2HMyR6kfbWKzBhtv 1; 2mXywBCLNJHRW1xc 47-51;
@@ -147,6 +107,41 @@ tmHdvqxYj1z28PFy 1-9; v1bPdgDtXypHncfN 1-4; vGp9HFWy2ka1nzP6 1-3, 5-6, 8-12; vfB
 wDkZ829XMYLnmKFc 1-10; xWDkmwXKrRcdM7Jv 1; xbJBZj14NWCXrhAm 1-4; xy2Va7jMb9P1vDcX 16-22, 24-30, 32-37, 39-42;
 y2XQ6am8TtH1JdWN 1-3; yFGXLWVAKxw61gDP 1-4; yPVkKpqtfJM27WFB 6-7; zKgGQA6BqvcJtYZ9 1-3; zM4Dd8QKwBATnJR9 1-33;
 zVAHZcQtTdbhMfLN 7-8; zmTNyXkfqtpgcM1H 1-15.
+
+§Method's count of the 55 reports also reads these hits:
+
+| Hits                                          | Procs / isolated hits | Wearers | Rate     | 95%, hits    | 95%, wearers | Margin    |
+| --------------------------------------------- | --------------------- | ------- | -------- | ------------ | ------------ | --------- |
+| Druid forms, on the form's speed              | 206 / 3471            | 6       | 2.83 PPM | 2.47 to 3.22 | 2.45 to 3.53 | ±0.70     |
+| Wand Shoot, as a flat chance                  | 38 / 426              | 7       | 8.92%    | 6.57 to 12.0 | 7.09 to 11.1 | ±3.09 pts |
+| Periodic ticks                                | 0 / 1307              | 36      | 0%       | 0 to 0.29    |              | +0.29 pts |
+| Damage shields (Thorns, auras, shield spikes) | 0 / 379               | 29      | 0%       | 0 to 1.00    |              | +1.00 pts |
+
+On the main hand the chance per hit rises with the weapon's speed, from 5.3% at 1.0 s to 15.3% at 3.5 s, and a rate
+per minute fits the hits far better than one flat chance (log-likelihood 91 higher for white swings, 35 for
+specials). Spell hits show no such rise: 5.5% at a 1.5 s main hand, 8.4% at 3.0 s, 6.1% at 3.5 s, and a rate per
+minute on the main hand's speed fits them worse than a flat chance (1.51 PPM, log-likelihood 3.4 lower). Wand Shoot
+spans too few speeds to tell the two apart.
+
+## Auto Shot and haste
+
+Hunters shot faster than their bow's speed, three in four Auto Shots 10 to 50% faster. Over 2,415 Auto Shots fired in an unbroken string (each 0.5 to
+1.15 times the bow's speed after the one before), a rate on the bow's speed (2.54 PPM, 95% 2.27 to 2.82), a rate on the
+hasted interval (3.06 PPM, 95% 2.74 to 3.40) and a flat 12.1% fit equally well, within 0.2 of each other in
+log-likelihood. Most wearers shoot a 2.8 s bow, so the speeds span too little to tell them apart.
+
+| Bow speed over interval | Shots | Procs | Chance | 95%          |
+| ----------------------- | ----- | ----- | ------ | ------------ |
+| below 1.10              | 405   | 61    | 15.06% | 11.9 to 18.9 |
+| 1.10 to 1.25            | 1023  | 125   | 12.22% | 10.4 to 14.4 |
+| 1.25 to 1.50            | 792   | 81    | 10.23% | 8.3 to 12.5  |
+| 1.50 and above          | 195   | 26    | 13.33% | 9.3 to 18.8  |
+
+## Damage
+
+Ancient Power crits at the wearer's own rate, 12.4% over all procs and from 5.5% for warriors to 16.2% for druids, and
+2.7% of procs miss or are resisted. The median hit per class runs from 70 to 81 against the row's 69 to 81, and a
+mage's (77) sits inside the row's range as a warrior's (70) does, so spell power adds nothing.
 
 ## Count of the 2026-11-06 to 2026-11-22 reports
 

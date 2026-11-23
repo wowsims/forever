@@ -2609,12 +2609,13 @@ Tm68LdcfN1rZYFap 1-13; xDcNRgK2YCA78yvd 8-10; yBdgRzfVhDPWAnbZ 1-7; Zd7QD3Lw1TBv
 - Rate: 1 PPM, measured
 
 6,511 procs on 166,819 rolling hits, 201 wearers, 291 runs, in the ranged slot: all hits 0.98 [0.95, 1.00]. Its
-lone-unit rates read on a travel window past 400 ms, so they check nothing; a separate count of its lone Auto Shots,
-0.94 [0.90, 0.97], agrees with all hits and checks the rate. Lone Auto Shots: 0.96 [0.90, 1.02], 1,267 procs on 32,963
-lone units, 195 wearers. Specials: 0.96 [0.90, 1.03], 841 procs on 21,842 lone units, 169 wearers; Multi-Shot gives 619
-procs on 16,452 of them. Travel time: the proc lands a median 522 ms after its hit, 98th percentile 1011 ms, window
-[-20, 1021] ms (1,429 isolated hits). Dropping the swapped stretches (219 active minutes, 4% of hits, in 20 runs) moved
-the read from 0.94 to 0.98. 2 runs logged in two reports count once. Reports from 2026-11-09 to 2026-11-22.
+lone-unit rates read on a travel window past 400 ms, so they check nothing; a separate count of its lone Auto Shots on
+the reports up to 2026-11-19, 0.94 [0.90, 0.97], agrees with all hits and checks the rate. Lone Auto Shots: 0.96 [0.90,
+1.02], 1,267 procs on 32,963 lone units, 195 wearers. Specials: 0.96 [0.90, 1.03], 841 procs on 21,842 lone units, 169
+wearers; Multi-Shot gives 619 procs on 16,452 of them. Travel time: the proc lands a median 522 ms after its hit, 98th
+percentile 1011 ms, window [-20, 1021] ms (1,429 isolated hits). Dropping the swapped stretches (219 active minutes, 4%
+of hits, in 20 runs) moved the read from 0.94 to 0.98. 2 runs logged in two reports count once. Reports from 2026-11-09
+to 2026-11-22.
 
 | Class   | Wearers | Procs |    Hits |  PPM |
 | ------- | ------: | ----: | ------: | ---: |
