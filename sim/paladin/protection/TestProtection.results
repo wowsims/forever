@@ -1658,10 +1658,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 417.14976
-  tps: 1004.75014
-  dtps: 341.09218
-  hps: 23.90861
+  dps: 417.6743
+  tps: 1004.83555
+  dtps: 341.02194
+  hps: 23.89167
  }
 }
 dps_results: {

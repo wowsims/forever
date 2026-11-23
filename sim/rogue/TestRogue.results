@@ -1336,8 +1336,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 770.136
-  tps: 546.79656
+  dps: 770.29667
+  tps: 546.91063
   hps: 60.20361
  }
 }

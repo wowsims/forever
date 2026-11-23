@@ -978,14 +978,14 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Siegebreaker's Blaster: no proc row; a log fit not yet validated (EV-0177)",
 		Source:  "observed",
 	},
-	// Fitted on every roll of the one shaman among four wearers in the reports from 2026-11-19 to 2026-11-22; the
-	// three paladins read 0.97 and set no rate. The proc is a missile, so a run's procs are set against its rolls
-	// and none is given to a hit (EV-0184). The "observed" Source keeps the gear tab's notice up until more wearers
-	// validate it.
+	// Fitted on every roll of four wearers, one shaman and three paladins, in the reports from 2026-11-19 to
+	// 2026-11-22; the paladins' rolls are EV-0155's and EV-0156's. The proc is a missile, so a run's procs are set
+	// against its rolls and none is given to a hit (EV-0184). The "observed" Source keeps the gear tab's notice up
+	// until more wearers validate it.
 	{
 		ItemID:  12794,
 		SpellID: 16921,
-		PPM:     0.8,
+		PPM:     0.9,
 		Reason:  "Masterwork Stormhammer: column reads 101; a log fit not yet validated (EV-0184)",
 		Source:  "observed",
 	},

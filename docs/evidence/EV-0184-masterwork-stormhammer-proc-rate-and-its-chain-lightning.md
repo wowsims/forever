@@ -1,9 +1,9 @@
 # EV-0184: Masterwork Stormhammer's proc rate and its Chain Lightning
 
-- Claim: Masterwork Stormhammer (item 12794) casts Chain Lightning (16921) at 0.8 procs per minute, priced on the weapon
-  base speed (1.6) of each hit that rolls it, observed on one shaman; three paladins read 0.97 and set no rate. The
-  rolls are EV-0155's and EV-0156's. The chain hits up to 3 targets, rolls each jump on its own from the row's 105 to
-  145 at 70% a jump, crits for 1.5 times and has no cooldown.
+- Claim: Masterwork Stormhammer (item 12794) casts Chain Lightning (16921) at 0.9 procs per minute, priced on the weapon
+  base speed (1.6) of each hit that rolls it, observed on four wearers, one shaman and three paladins, with paladins
+  counted by EV-0155's and EV-0156's rolls. The chain hits up to 3 targets, rolls each jump on its own from the row's
+  105 to 145 at 70% a jump, crits for 1.5 times and has no cooldown.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights listed below
 - Game build: 1.60.1.70959 and 1.60.1.71037 by event time. Every region's version file named 70959 from 2026-11-18
   21:17 UTC and 71037 from 2026-11-20 18:23 UTC. The shaman's two runs and the first paladin run end by 2026-11-20
@@ -39,23 +39,24 @@ minute from a flat chance per hit.
 
 ## Rates
 
-| Count                         | Runs | Procs |  Rolls | Chance per roll | PPM [95%]         |
-| ----------------------------- | ---: | ----: | -----: | --------------: | ----------------- |
-| All rolls, the shaman (Rate)  |    2 |    63 |  2,934 |           2.15% | 0.81 [0.63, 1.03] |
-| Lone white swings, the shaman |    2 |    23 |  1,040 |           2.21% | 0.83 [0.55, 1.24] |
-| All rolls, paladins           |    4 |   180 |  6,977 |           2.58% | 0.97 [0.84, 1.12] |
-| Lone white swings, paladins   |    4 |    16 |    439 |           3.64% | 1.37 [0.85, 2.19] |
-| All rolls, both classes       |    6 |   243 |  9,911 |           2.45% | 0.92 [0.81, 1.04] |
-| Whole runs, both classes      |    6 |   249 | 10,374 |           2.40% | 0.90 [0.80, 1.02] |
-| Lone white swings, both       |    6 |    39 |  1,479 |           2.64% | 0.99 [0.73, 1.34] |
+| Count                          | Runs | Procs |  Rolls | Chance per roll | PPM [95%]         |
+| ------------------------------ | ---: | ----: | -----: | --------------: | ----------------- |
+| All rolls, both classes (Rate) |    6 |   243 |  9,911 |           2.45% | 0.92 [0.81, 1.04] |
+| All rolls, the shaman          |    2 |    63 |  2,934 |           2.15% | 0.81 [0.63, 1.03] |
+| All rolls, paladins            |    4 |   180 |  6,977 |           2.58% | 0.97 [0.84, 1.12] |
+| Whole runs, both classes       |    6 |   249 | 10,374 |           2.40% | 0.90 [0.80, 1.02] |
+| Lone white swings, both        |    6 |    39 |  1,479 |           2.64% | 0.99 [0.73, 1.34] |
+| Lone white swings, the shaman  |    2 |    23 |  1,040 |           2.21% | 0.83 [0.55, 1.24] |
+| Lone white swings, paladins    |    4 |    16 |    439 |           3.64% | 1.37 [0.85, 2.19] |
 
 The intervals are Wilson intervals on the chance. The whole-run row counts every proc and every roll of a run. The rate
-is the shaman's rate over all rolls, rounded to 0.05. Paladins set no rate, by the standing rule of EV-0153 and EV-0179:
-their lone white swings read 3.64% on 16 procs where the shaman's read 2.21%, which does not show the two classes
-rolling one chance. Their rate over all rolls is a check: its interval overlaps the shaman's, and across the 6 runs the
-chance per roll gives a chi-square of 4.7 on 5 degrees of freedom. The rate is observed: one character sets it, on 63
-procs, and its interval reaches further than 10% from the read. At 0.5 procs per minute the shaman's 2,934 rolls give 39
-procs and the 9,911 rolls of both classes give 132.
+is the rate over all rolls of both classes, rounded to 0.05. Paladins are in the rate (owner ruling, 2026-11-23): every
+run is after the hotfix of the Judgement rows on 2026-11-13, and their rolls have been EV-0155's and EV-0156's since.
+The two classes' rates over all rolls have overlapping intervals, and across the 6 runs the chance per roll gives a
+chi-square of 4.7 on 5 degrees of freedom. The lone white swings do not check the rate: the paladins' read 3.64% on 16
+procs where the shaman's read 2.21%, and both classes together have 39 procs, under the 50 EV-0153 asks of a lone-unit
+rate. The rate is observed: 4 wearers give it, where a measured rate takes 5, and its interval reaches further than 10%
+from the read. At 0.5 procs per minute the 9,911 rolls give 132 procs.
 
 | Report           | Fight | Class   | Region | Build          | Procs | Rolls |  PPM | Longest stretch with no proc |
 | ---------------- | ----: | ------- | ------ | -------------- | ----: | ----: | ---: | ---------------------------: |
@@ -97,9 +98,11 @@ A white swing by the rolls within 500 ms of it, with no second white swing there
 | Paladin | Holy Strike                          |     2 |     60 |           4 |  6.67% |    3.33% |
 
 The shaman's white swings alone would read 63 procs on 1,649 swings, 3.82% a swing, where the lone white swings read
-2.21%. Two procs start within 35 ms of each other four times: off a white swing and its two Windfury Weapon hits; off a
-white swing and its Seal of Righteousness hit; off a white swing, its Seal of Fury hit and a Holy Strike; and off two
-white swings 38 ms apart with their Seal of Fury hits.
+2.21%. Stormstrike is one roll in EV-0155, and a white swing beside one has a proc on 7 of 122 here; with its 316 rolls
+left out the shaman reads 0.90 [0.71, 1.15] and both classes 0.95 [0.84, 1.07]. Two procs start within 35 ms of each
+other four times: off a white swing and its two Windfury Weapon hits; off a white swing and its Seal of Righteousness
+hit; off a white swing, its Seal of Fury hit and a Holy Strike; and off two white swings 38 ms apart with their Seal of
+Fury hits.
 
 A Judgement of Fury (20414), which EV-0156 has rolling nothing, has no proc after it on the 163 landings with no roll
 within 500 ms either side.
