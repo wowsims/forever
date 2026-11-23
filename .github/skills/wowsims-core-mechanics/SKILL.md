@@ -157,9 +157,9 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 
 ## Protos
 
-- **On a merge, master keeps its field numbers and the branch renumbers its own new fields.** Nothing converts saved
-  data (`ProtoVersion` in `proto/common.proto`), so renumbering a branch field costs nothing, while renumbering master's
-  breaks every branch built on it.
+- **On a merge, master keeps its field numbers and the branch renumbers its own new fields.** No saved setting holds
+  a field master does not have yet, so renumbering a branch field costs nothing, while renumbering master's breaks
+  every branch built on it.
 - **No proto3 `optional` field**: the `npx protoc` behind `make ui/generated/proto/api.ts` rejects it. "Unset means X"
   is a plain field whose zero value means none or the default, or a message-typed field.
 - **A new field takes the next free number at the end of its message**, and no field is dropped, moved or reused: the
@@ -168,7 +168,9 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   tip before its push, a release: the released commit). A breaking change fails unless `current_version_number` in
   `proto/common.proto` goes up with it, and a raised number with no breaking change fails too. After a raise,
   `make update-tests` writes the number to `sim/core/TestProtoVersioning.results`, and the deploy run commits it to
-  `.deployedprotoversion`. Nothing converts older payloads, so a raise breaks every saved setting and sim link.
+  `.deployedprotoversion`. A raise comes with a UI migration in `applyIndividualSimSettings`
+  (`ui/sim/state/serialization.ts`) for settings and sim links saved under the older number; `AGENTS.md` has the
+  steps.
 
 ## Keeping this skill true
 
