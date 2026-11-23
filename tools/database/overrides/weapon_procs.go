@@ -978,6 +978,16 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Siegebreaker's Blaster: no proc row; a log fit not yet validated (EV-0177)",
 		Source:  "observed",
 	},
+	// Fitted the same way on the reports from 2026-11-19 to 2026-11-22, paladins included: their rolls are EV-0155's
+	// and EV-0156's. Too few wearers and too wide an interval to call final (EV-0184). The "observed" Source keeps
+	// the gear tab's notice up until more wearers validate it.
+	{
+		ItemID:  12794,
+		SpellID: 16921,
+		PPM:     0.9,
+		Reason:  "Masterwork Stormhammer: column reads 101; a log fit not yet validated (EV-0184)",
+		Source:  "observed",
+	},
 	// Fitted the same way from too few wearers or too wide an interval to call final (EV-0136). The
 	// "observed" Source keeps the gear tab's notice up until more wearers validate it.
 	{
@@ -1238,13 +1248,6 @@ var WeaponProcs = []WeaponProc{
 		PPM:     4.5,
 		Reason:  "Dragon's Call: no proc row; measured on landed main-hand hits outside the 45 s cooldown",
 		Source:  "EV-0021",
-	},
-	{
-		ItemID:  12794,
-		SpellID: 16921,
-		PPM:     0.5, // TODO: Vanilla value - verify in-game
-		Reason:  "Masterwork Stormhammer: column reads 101",
-		Source:  "vanilla-carryover",
 	},
 	{
 		ItemID:  13053,
