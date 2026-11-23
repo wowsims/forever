@@ -117,11 +117,7 @@ zVAHZcQtTdbhMfLN 7-8; zmTNyXkfqtpgcM1H 1-15.
 | Periodic ticks                                | 0 / 1307              | 36      | 0%       | 0 to 0.29    |              | +0.29 pts |
 | Damage shields (Thorns, auras, shield spikes) | 0 / 379               | 29      | 0%       | 0 to 1.00    |              | +1.00 pts |
 
-On the main hand the chance per hit rises with the weapon's speed, from 5.3% at 1.0 s to 15.3% at 3.5 s, and a rate
-per minute fits the hits far better than one flat chance (log-likelihood 91 higher for white swings, 35 for
-specials). Spell hits show no such rise: 5.5% at a 1.5 s main hand, 8.4% at 3.0 s, 6.1% at 3.5 s, and a rate per
-minute on the main hand's speed fits them worse than a flat chance (1.51 PPM, log-likelihood 3.4 lower). Wand Shoot
-spans too few speeds to tell the two apart.
+Wand Shoot spans too few speeds to tell a rate per minute from a flat chance.
 
 ## Auto Shot and haste
 
