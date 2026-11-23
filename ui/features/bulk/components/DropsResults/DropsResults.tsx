@@ -67,7 +67,14 @@ export const DropsResultsView = ({ summary, view, onViewChange, showAll, onShowA
 			/>
 			{view === 'items' && (
 				<>
-					<BooleanPicker label={t('show_all_variations')} layout="inline" size="xs" value={showAll} onChange={onShowAllChange} />
+					<BooleanPicker
+						id="drops-show-all-variations"
+						label={t('show_all_variations')}
+						layout="inline"
+						size="xs"
+						value={showAll}
+						onChange={onShowAllChange}
+					/>
 					{filter && (
 						<Pill testId="drops-source-filter" className="items-center gap-1">
 							{t('filtered_by')} <span className="font-bold">{filter.label}</span>

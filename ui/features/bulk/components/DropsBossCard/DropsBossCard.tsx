@@ -18,7 +18,7 @@ export interface DropsBossCardViewProps {
 
 const t = (key: string, options: { count?: number } = {}) => i18n.t(`bulk_tab.drops.results.${key}`, options);
 
-// "N / M upgrades": N counts the strip's upgrades, M its items, worn ones included.
+// "N / M upgrades", plural on M: N counts the strip's upgrades, M its items, worn ones included.
 export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect }: DropsBossCardViewProps) => {
 	const upgrades = strip.filter(entry => entry.upgrade).length;
 	return (
@@ -76,7 +76,7 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 					<span className="text-gray-400">{t('no_upgrade')}</span>
 				)}
 				<span className="text-xs text-gray-400" data-testid="drops-boss-upgrades">
-					{upgrades} / {strip.length} {t('upgrades', { count: upgrades })}
+					{upgrades} / {strip.length} {t('upgrades', { count: strip.length })}
 				</span>
 			</span>
 		</Button>

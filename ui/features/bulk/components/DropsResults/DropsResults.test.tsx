@@ -23,7 +23,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DropsResults } from './DropsResults';
 
-vi.mock('@i18n/config', () => ({ default: { t: (key: string, options?: { z?: string }) => (options?.z ? `${key} ${options.z}` : key) } }));
+vi.mock('@i18n/config', () => ({
+	default: {
+		t: (key: string, options?: { z?: string; count?: number }) =>
+			options?.z ? `${key} ${options.z}` : options?.count === undefined ? key : `${key}#${options.count}`,
+	},
+}));
 vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: 'icon.jpg', name: '', href: '', ready: true }) }));
 const toastAdd = vi.hoisted(() => vi.fn());
 vi.mock('@ui-kit/Toast', () => ({ toastManager: { add: toastAdd } }));
@@ -139,15 +144,15 @@ describe('DropsResults', () => {
 		expect(cards().map(card => card.getAttribute('data-upgrade'))).toEqual([null, null, null, 'none']);
 	});
 
-	it('shows N / M upgrade with the worn item in the strip', () => {
+	it('shows N / M upgrade, pluralised on M, with the worn item in the strip', () => {
 		mount();
 		const rend = cards()[0];
-		expect(within(rend).getByTestId('drops-boss-upgrades').textContent).toContain('1 / 2');
+		expect(within(rend).getByTestId('drops-boss-upgrades').textContent).toContain(`1 / 2 ${RESULTS}.upgrades#2`);
 		const strip = within(rend).getAllByTestId('drops-boss-strip-item');
 		expect(strip.map(item => item.getAttribute('data-item-id'))).toEqual([String(FELSTRIKER), String(WORN_ITEM_ID)]);
 		expect(strip[0].getAttribute('data-worn')).toBeNull();
 		expect(strip[1].hasAttribute('data-worn')).toBe(true);
-		expect(within(cards()[3]).getByTestId('drops-boss-upgrades').textContent).toContain('0 / 1');
+		expect(within(cards()[3]).getByTestId('drops-boss-upgrades').textContent).toContain(`0 / 1 ${RESULTS}.upgrades#1`);
 	});
 
 	it('filters the item list to a card’s source on a click, and clears it', () => {
@@ -173,6 +178,18 @@ describe('DropsResults', () => {
 
 		expect(screen.queryByTestId('drops-source-filter')).toBeNull();
 		expect(rowIds()).toEqual([FELSTRIKER, MARK, 'current', REIVER, BLACKBLADE, DRACORIAN]);
+	});
+
+	it('toggles Show all variations when its label text is clicked', () => {
+		mount();
+		fireEvent.click(view('items'));
+		const box = screen.getByRole('checkbox', { name: `${RESULTS}.show_all_variations` });
+		expect(box.getAttribute('aria-checked')).toBe('false');
+
+		fireEvent.click(screen.getByText(`${RESULTS}.show_all_variations`));
+
+		expect(box.getAttribute('aria-checked')).toBe('true');
+		expect(screen.queryByTestId('drops-result-hidden')).toBeNull();
 	});
 
 	it('lists one row per item with its variations folded, and every row with Show all variations', () => {
