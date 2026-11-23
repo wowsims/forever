@@ -123,7 +123,8 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   of the column (`${$h/2}%`, The Lion Horn of Stormwind).
 - **Hand-written code that rolls something its rows do not state takes a row** in
   `tools/database/overrides/gear_proc_rates.go`: code that scales the chance by target (Ironfoe), halves it by area,
-  adds a flat chance (Highborne Research Tablet) or splits the procs (Bolt's Charged Eyeball). A row with no `Kind`
+  adds a flat chance, prices spell hits on their cast time (Highborne Research Tablet) or splits the procs (Bolt's
+  Charged Eyeball). A row with no `Kind`
   leaves the gear with no rate and may leave `Source` empty; one with a `Kind` states its `Rate`, with the status its
   `Source` gives (`tooltip` is the game files'), though gear listed unvalidated or missing its effect still shows none
   and the test refuses a `Kind` on gear whose tooltip prints a fraction of the column. Its `Reason` names what the code

@@ -262,6 +262,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-DarkmistDirk-285102"
+ value: {
+  dps: 861.15919
+  tps: 703.42717
+  dtps: 12.14357
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 920.52725
@@ -834,9 +842,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 913.19725
-  tps: 749.52751
-  dtps: 11.87648
+  dps: 917.12413
+  tps: 753.54279
+  dtps: 11.30048
  }
 }
 dps_results: {
@@ -1205,6 +1213,14 @@ dps_results: {
   dps: 912.74197
   tps: 748.55382
   dtps: 11.44756
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SearingNeedle-12531"
+ value: {
+  dps: 861.15919
+  tps: 703.42717
+  dtps: 12.14357
  }
 }
 dps_results: {

@@ -270,6 +270,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-DarkmistDirk-285102"
+ value: {
+  dps: 713.01054
+  tps: 510.16226
+  dtps: 5.76676
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 742.3941
@@ -1235,6 +1243,14 @@ dps_results: {
  value: {
   dps: 741.34339
   tps: 529.98241
+  dtps: 5.76676
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-SearingNeedle-12531"
+ value: {
+  dps: 713.01054
+  tps: 510.16226
   dtps: 5.76676
  }
 }

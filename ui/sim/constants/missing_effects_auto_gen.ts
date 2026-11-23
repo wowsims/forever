@@ -688,12 +688,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		12531, // Searing Needle
-		[
-			"Blasts a target for 56 Fire damage and increases Fire damage done to target by 10 for 30s.", // 16454 - https://www.wowhead.com/forever/spell=16454
-		]
-	],
-	[
 		12621, // Demonfork
 		[
 			"Transfers 10 health every 1.0 seconds from the target to the caster for 5s.", // 16603 - https://www.wowhead.com/forever/spell=16603
@@ -802,12 +796,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13399, // Gargoyle Shredder Talons
-		[
-			"Wounds the target, causing them to bleed for 140 damage over 14s.", // 1320824 - https://www.wowhead.com/forever/spell=1320824
-		]
-	],
-	[
 		13408, // Soul Breaker
 		[
 			"Target enemy loses 10 health and mana every 1.0 sec for 10s.", // 17506 - https://www.wowhead.com/forever/spell=17506
@@ -871,12 +859,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		14154, // Truefaith Vestments
 		[
 			"Reduces the cooldown of your Fade ability by 2.0 sec.", // 18388 - https://www.wowhead.com/forever/spell=18388
-		]
-	],
-	[
-		14531, // Frightskull Shaft
-		[
-			"Deals 15 Shadow damage every 2.0 sec for 14s and lowers their attack power by 92 for 14s.", // 18633 - https://www.wowhead.com/forever/spell=18633
 		]
 	],
 	[
@@ -1076,12 +1058,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		18470, // Royal Seal of Eldre'Thalas
 		[
 			"Increases Spirit by 16 in Forest and Grassland areas.", // 1318478 - https://www.wowhead.com/forever/spell=1318478
-		]
-	],
-	[
-		18498, // Hedgecutter
-		[
-			"Slice the target with magically enhanced precision, dealing 42 Arcane damage. Deals 3 times as much damage to Plants.", // 1302344 - https://www.wowhead.com/forever/spell=1302344
 		]
 	],
 	[
@@ -2361,12 +2337,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		285066, // Ooze Rummagers
 		[
 			"You have a small chance to find additional ore when mining Ooze Covered Thorium Veins.", // 1317446 - https://www.wowhead.com/forever/spell=1317446
-		]
-	],
-	[
-		285102, // Darkmist Dirk
-		[
-			"Your attacks have a high chance to poison the target for 8 Nature damage every 3.0 sec for 9s.", // 1317583 - https://www.wowhead.com/forever/spell=1317583
 		]
 	],
 	[
