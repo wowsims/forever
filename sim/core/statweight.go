@@ -118,9 +118,12 @@ func (swr *StatWeightsResult) ToProto() *proto.StatWeightsResult {
 
 // Hit and expertise stop counting at a cap, so a run below the baseline near one measures points the
 // player already has and overstates the next ones. A weapon skill point's value moves with the skill, and
-// its weight is the average of the next points'. Feral Combat skill counts the same way.
+// its weight is the average of the next points'. Feral Combat skill counts the same way. Spell Piercing
+// below the player's would turn into target resistance the gear never meets, and its bonus starts only
+// at a 1% share, so its weight is the next points' too.
 func weighedAboveBaselineOnly(stat stats.UnitStat) bool {
-	if isHandWeaponSkill(stat) || stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
+	if isHandWeaponSkill(stat) || stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) ||
+		stat.EqualsStat(stats.SpellPiercing) {
 		return true
 	}
 	rating, _, hasRating := ratingBehindStat(stat)

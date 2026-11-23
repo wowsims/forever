@@ -101,6 +101,54 @@ func TestSpellPiercingBeyondResistanceAddsDamage(t *testing.T) {
 	}
 }
 
+// Spell Piercing beyond the resistance gives no bonus while its share is under 1%, binary spells
+// included, and from 1% on the share takes the piercing in full.
+func TestSpellPiercingUnderAOnePercentShareGivesNoBonus(t *testing.T) {
+	defender := &Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+	attacker := func(piercing float64) *Unit {
+		unit := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+		unit.stats[stats.SpellPiercing] = piercing
+		return unit
+	}
+
+	under := attacker(5)
+	for _, flags := range []SpellFlag{0, SpellFlagBinary} {
+		spell := &Spell{Unit: under, SpellSchool: SpellSchoolArcane, SchoolIndex: stats.SchoolIndexArcane, Flags: flags}
+		if got := defender.averageResist(spell, under, false); got != 0 {
+			t.Errorf("flags %v: average resist with 5 piercing and no resistance = %v, want 0", flags, got)
+		}
+		sim := &Simulation{rand: NewSplitMix(1)}
+		attackTable := NewAttackTable(under, defender)
+		for range 10000 {
+			if multiplier, outcome := spell.ResistanceMultiplier(sim, false, attackTable); multiplier != 1 || outcome != OutcomeEmpty {
+				t.Fatalf("flags %v: a hit with 5 piercing and no resistance came at x%v with outcome %v, want x1 and none", flags, multiplier, outcome)
+			}
+		}
+	}
+
+	over := attacker(6)
+	spell := &Spell{Unit: over, SpellSchool: SpellSchoolArcane, SchoolIndex: stats.SchoolIndexArcane}
+	if got, want := defender.averageResist(spell, over, false), -6.0/(6+499); math.Abs(got-want) > 1e-12 {
+		t.Errorf("average resist with 6 piercing and no resistance = %v, want %v", got, want)
+	}
+}
+
+// A spell flagged SpellFlagNoSpellPiercing takes none of the caster's Spell Piercing: it gets no bonus
+// where the target has no resistance and meets the whole resistance where it has some.
+func TestSpellFlaggedNoSpellPiercingMeetsTheWholeResistance(t *testing.T) {
+	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+	attacker.stats[stats.SpellPiercing] = 15
+	spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolFire, SchoolIndex: stats.SchoolIndexFire, Flags: SpellFlagNoSpellPiercing}
+
+	for _, resistance := range []float64{0, 100} {
+		defender := &Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+		defender.stats[stats.FireResistance] = resistance
+		if got, want := defender.averageResist(spell, attacker, false), resistance/(resistance+499); math.Abs(got-want) > 1e-12 {
+			t.Errorf("average resist with 15 piercing against %v resistance = %v, want %v", resistance, got, want)
+		}
+	}
+}
+
 // The roll spreads around the average resist in 10% steps: 1 - 7.5a, 5a and 2.5a on 0, 10 and 20% up
 // to a = 10%, and 0.5 - 2.5|x - a| on each step x within 20% of a above it.
 func TestPartialResistRollSteps(t *testing.T) {
