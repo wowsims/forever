@@ -101,7 +101,9 @@ export const OtherSources: Story = {
 						UIItemSource.create({
 							source: { oneofKind: 'soldBy', soldBy: { npcId: 12944, npcName: 'Lokhtos Darkbargainer', zoneId: 1584, faction: Faction.Unknown } },
 						}),
-						UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 7, name: 'Attunement to the Core', faction: Faction.Unknown } } }),
+						UIItemSource.create({
+							source: { oneofKind: 'quest', quest: { id: 7, name: 'Attunement to the Core', faction: Faction.Unknown, zoneId: 0 } },
+						}),
 						UIItemSource.create({
 							source: { oneofKind: 'drop', drop: { difficulty: 0, npcId: 0, zoneId: 0, otherName: 'World Drop', category: '' } },
 						}),

@@ -177,6 +177,7 @@ func main() {
 	raidZones := core.MapMap(raidZoneMaps, func(zone, _ int32) (int32, bool) { return zone, true })
 	pruneAtlasLootDrops(atlaslootDB, raidZones, areaNames)
 	database.PruneQuestieSources(questieDB, raidZones, dungeonZones, areaNames)
+	database.ApplyQuestZones(questieDB, questieQuests, areaNames)
 
 	db := database.NewWowDatabase()
 	db.Encounters = core.PresetEncounters
@@ -345,6 +346,8 @@ func main() {
 	if err := database.LoadZoneAreas(db, helper); err != nil {
 		log.Fatal(err)
 	}
+	database.AddQuestZones(db, db, areaNames)
+	database.AddQuestZones(db, leftovers, areaNames)
 	applyRepSources(db, factionNames)
 	db.WriteBinaryAndJson(fmt.Sprintf("%s/db.bin", dbDir), fmt.Sprintf("%s/db.json", dbDir))
 	database.UpdateItemFirstSeen(fmt.Sprintf("%s/item_first_seen.json", dbDir), db.Items, time.Now().Unix())

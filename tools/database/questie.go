@@ -337,6 +337,42 @@ func AppendQuestieSources(db, questie *WowDatabase) {
 	}
 }
 
+// Sets each quest source's zone from the quest's QuestieDB zone: a negative QuestSort id stays as it is, and a positive
+// zone the game files have no AreaTable row for reads as unknown (0).
+func ApplyQuestZones(questie *WowDatabase, quests map[int32]*QuestieQuest, areaNames map[int32]string) {
+	for _, item := range questie.Items {
+		for _, source := range item.GetSources() {
+			quest := source.GetQuest()
+			if quest == nil {
+				continue
+			}
+			quest.ZoneId = 0
+			if row, ok := quests[quest.Id]; ok && row != nil && (row.Zone < 0 || areaNames[row.Zone] != "") {
+				quest.ZoneId = row.Zone
+			}
+		}
+	}
+}
+
+// Adds a zone row for each quest zone the UI database lacks, from the quest sources of from's items and enchants. It
+// runs after LoadZoneAreas, so a quest zone takes no area types and no area group member folds into it.
+func AddQuestZones(db, from *WowDatabase, areaNames map[int32]string) {
+	add := func(sources []*proto.UIItemSource) {
+		for _, source := range sources {
+			zone := source.GetQuest().GetZoneId()
+			if _, ok := db.Zones[zone]; zone > 0 && !ok {
+				db.Zones[zone] = &proto.UIZone{Id: zone, Name: areaNames[zone]}
+			}
+		}
+	}
+	for _, item := range from.Items {
+		add(item.GetSources())
+	}
+	for _, enchant := range from.Enchants {
+		add(enchant.GetSources())
+	}
+}
+
 // A bind-on-pickup item whose every source is a quest some classes alone may take is open to those classes alone: the
 // game files open the Sunken Temple and Silithus class quests' rewards to every class. An item another source reaches, a
 // craft or a drop, stays open, and one that already has an allowlist keeps it. Quests that together allow every class
