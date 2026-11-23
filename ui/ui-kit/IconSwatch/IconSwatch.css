@@ -21,14 +21,14 @@
 	}
 
 	.ui-icon-swatch-badge {
-		@apply absolute top-0 size-4 cursor-pointer rounded-full bg-scrim p-px;
+		@apply absolute top-0.5 size-4 cursor-pointer rounded-full bg-scrim p-px;
 	}
 
 	.ui-icon-swatch-badge-kept {
-		@apply right-0 text-white;
+		@apply right-0.5 text-white;
 	}
 
 	.ui-icon-swatch-badge-overwritten {
-		@apply left-0 text-warning;
+		@apply left-0.5 text-warning;
 	}
 }
