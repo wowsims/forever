@@ -10,7 +10,7 @@ vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/work
 
 beforeAll(() => serveDatabase());
 
-const quest = UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 1, name: 'A Quest', faction: 0 } } });
+const quest = UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 1, name: 'A Quest', faction: 0, zoneId: 0 } } });
 const soldBy = UIItemSource.create({ source: { oneofKind: 'soldBy', soldBy: { npcId: 2, npcName: 'A Vendor', zoneId: 0, faction: 0 } } });
 const raidDrop = UIItemSource.create({ source: { oneofKind: 'drop', drop: DropSource.create({ difficulty: DungeonDifficulty.DifficultyRaid }) } });
 const dungeonDrop = UIItemSource.create({ source: { oneofKind: 'drop', drop: DropSource.create({ difficulty: DungeonDifficulty.DifficultyDungeon }) } });
