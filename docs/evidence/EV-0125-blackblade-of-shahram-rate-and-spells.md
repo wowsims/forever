@@ -115,7 +115,7 @@ counts after the fact (chi-square 5.78, p = 0.33). The picks do not differ betwe
   pick reports and 11 rate reports start after hotfix push 114313 (2026-11-20 23:47 UTC). The sim's database is
   1.60.1.71037, push 114366; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-24
-- Pull request: not recorded
+- Pull request: #1195
 
 The rate is EV-0183 §Method run on Blackblade of Shahram over every wearer stream on disk, once with summons at one
 millisecond as one proc and once with each as a proc of its own; the picks and their targets are read from the same
