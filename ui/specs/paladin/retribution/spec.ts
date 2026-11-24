@@ -45,7 +45,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 		Stat.StatExpertiseRating,
 		Stat.StatMP5,
 	],
-	epPseudoStats: [PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatSchoolHitPercentHoly],
+	epPseudoStats: [PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatSchoolHitPercentHoly, PseudoStat.PseudoStatRangedHitPercent],
 	// Reference stat against which to calculate EP. I think all classes use either spell power or attack power.
 	epReferenceStat: Stat.StatAttackPower,
 	// Which stats to display in the Character Stats section, at the bottom of the left-hand sidebar.

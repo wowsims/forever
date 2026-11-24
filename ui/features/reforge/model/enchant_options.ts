@@ -1,6 +1,6 @@
 import { ENCHANT_PRESET_SLOTS, enchantPresetPoolSlot } from '@features/enchant-presets/model/enchant_presets';
 import { BulkEnchantSlotOptions } from '@generated/proto/api';
-import { EnchantProcKind, ItemSlot } from '@generated/proto/common';
+import { Class, EnchantProcKind, ItemSlot } from '@generated/proto/common';
 import type { UIEnchant as Enchant } from '@generated/proto/ui';
 import { MISSING_ENCHANT_EFFECTS } from '@sim/constants/missing_effects_auto_gen';
 import type { Player } from '@sim/player/player';
@@ -53,15 +53,15 @@ export const skippedEnchantSlots = (slots: readonly EnchantSlot[]): SkippedEncha
 
 // The static enchants the gear optimizer may pick per slot: those worth more than 0 EP, or from a preset pool, every
 // listed one whatever its EP.
-export const buildEnchantOptions = (slots: readonly EnchantSlot[], weights: Stats, fromPresetPool: boolean): BulkEnchantSlotOptions[] =>
+export const buildEnchantOptions = (slots: readonly EnchantSlot[], weights: Stats, playerClass: Class, fromPresetPool: boolean): BulkEnchantSlotOptions[] =>
 	slots.flatMap(entry => {
 		if ('reason' in entry) return [];
 		const { slot, equipped, fitting } = entry;
 		const weaponSpeed = equipped.item.weaponSpeed;
-		const epPerWeaponDps = weaponSpeed ? getWeaponDpsStatsBySlot(1, slot).computeEP(weights) : 0;
+		const epPerWeaponDps = weaponSpeed ? getWeaponDpsStatsBySlot(1, slot).computeEP(weights, playerClass) : 0;
 		const effectIds = fitting
 			.filter(isStaticEnchant)
-			.filter(enchant => fromPresetPool || enchantEP(enchant, weights, weaponSpeed, epPerWeaponDps) > 0)
+			.filter(enchant => fromPresetPool || enchantEP(enchant, weights, playerClass, weaponSpeed, epPerWeaponDps) > 0)
 			.map(enchant => enchant.effectId);
 		return effectIds.length ? [BulkEnchantSlotOptions.create({ slot, effectIds: [...new Set(effectIds)].sort((a, b) => a - b) })] : [];
 	});

@@ -58,6 +58,7 @@ export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
 		{
 			[PseudoStat.PseudoStatMainHandDps]: 14.02,
 			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 1.35 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
+			[PseudoStat.PseudoStatRangedHitPercent]: 0.34 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
 		},
 	),
 );
@@ -83,6 +84,7 @@ export const UnsealedWrathEpWeights = PresetUtils.makePresetEpWeights(
 		{
 			[PseudoStat.PseudoStatMainHandDps]: 14.14,
 			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 0.51 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
+			[PseudoStat.PseudoStatRangedHitPercent]: 0.25 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
 		},
 	),
 );
