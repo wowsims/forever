@@ -1,4 +1,4 @@
-import { ItemSlot, PseudoStat, Stat } from '@generated/proto/common';
+import { Class, ItemSlot, PseudoStat, Stat } from '@generated/proto/common';
 import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -10,14 +10,23 @@ import { Player } from './player';
 
 const weights = Stats.fromMap({ [Stat.StatStrength]: 2 }, { [PseudoStat.PseudoStatMainHandDps]: 10, [PseudoStat.PseudoStatOffHandDps]: 4 });
 
-const computeEnchantEP = (enchant: Enchant, slot?: ItemSlot, weapon?: Item | null, epWeights: Stats = weights) => {
-	const player = { enchantEPCache: new Map<number, number>(), computeStatsEP: (stats: Stats) => stats.computeEP(epWeights) } as unknown as Player<any>;
+const computeEnchantEP = (enchant: Enchant, slot?: ItemSlot, weapon?: Item | null, epWeights: Stats = weights, playerClass = Class.ClassHunter) => {
+	const player = {
+		enchantEPCache: new Map<number, number>(),
+		computeStatsEP: (stats: Stats) => stats.computeEP(epWeights, playerClass),
+	} as unknown as Player<any>;
 	const epPerWeaponDps = slot === undefined ? 0 : Player.prototype.computeWeaponDpsEP.call(player, slot);
 	return Player.prototype.computeEnchantEP.call(player, enchant, weapon?.weaponSpeed ?? 0, epPerWeaponDps);
 };
 
-const enchantEP = (effectId: number, pseudoStats: Partial<Record<PseudoStat, number>>, epWeights: Stats) =>
-	computeEnchantEP(Enchant.create({ effectId, pseudoStats: Stats.fromMap({}, pseudoStats).toProto().pseudoStats }), undefined, undefined, epWeights);
+const enchantEP = (effectId: number, pseudoStats: Partial<Record<PseudoStat, number>>, epWeights: Stats, playerClass?: Class) =>
+	computeEnchantEP(
+		Enchant.create({ effectId, pseudoStats: Stats.fromMap({}, pseudoStats).toProto().pseudoStats }),
+		undefined,
+		undefined,
+		epWeights,
+		playerClass,
+	);
 
 const striking = Enchant.create({ effectId: 1897, weaponDamage: 5 });
 const sword = Item.create({ id: 1, weaponSpeed: 2.5 });
@@ -66,6 +75,24 @@ describe('Player.computeEnchantEP on percent pseudo stats', () => {
 
 	it('values the ranged-only 2523 Biznicks 247x128 Accurascope at the hit rating weight', () => {
 		expect(enchantEP(2523, { [PseudoStat.PseudoStatRangedHitPercent]: 3 }, ratingWeights)).toBeCloseTo(3 * Mechanics.HIT_RATING_PER_HIT_PERCENT * 5);
+	});
+
+	it.each([Class.ClassWarrior, Class.ClassPaladin, Class.ClassShaman])(
+		'gives the ranged-only 2523 Biznicks 247x128 Accurascope nothing for class %i at weights leaving ranged hit out',
+		playerClass => {
+			expect(enchantEP(2523, { [PseudoStat.PseudoStatRangedHitPercent]: 3 }, ratingWeights, playerClass)).toBe(0);
+		},
+	);
+
+	it('values melee and ranged hit at the hit rating weight for a warrior', () => {
+		expect(
+			enchantEP(1, { [PseudoStat.PseudoStatMeleeHitPercent]: 1, [PseudoStat.PseudoStatRangedHitPercent]: 1 }, ratingWeights, Class.ClassWarrior),
+		).toBeCloseTo(Mechanics.HIT_RATING_PER_HIT_PERCENT * 5);
+	});
+
+	it.each([Class.ClassWarrior, Class.ClassPaladin])('values ranged hit at its own weight for class %i where the weights give it one', playerClass => {
+		const rangedHitWeights = Stats.fromMap({ [Stat.StatHitRating]: 5 }, { [PseudoStat.PseudoStatRangedHitPercent]: 2 });
+		expect(enchantEP(2523, { [PseudoStat.PseudoStatRangedHitPercent]: 3 }, rangedHitWeights, playerClass)).toBeCloseTo(3 * 2);
 	});
 
 	it('values a melee-only hit percent at the hit rating weight', () => {

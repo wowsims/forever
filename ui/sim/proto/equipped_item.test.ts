@@ -1,4 +1,4 @@
-import { ItemRandomSuffix, ItemSlot, ItemType, PseudoStat, Stat } from '@generated/proto/common';
+import { Class, ItemRandomSuffix, ItemSlot, ItemType, PseudoStat, Stat } from '@generated/proto/common';
 import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -107,12 +107,12 @@ describe('enchantEP with ArmorNoMods', () => {
 
 	it('values ArmorNoMods at its own weight and Armor at the Armor weight', () => {
 		const weights = Stats.fromMap({ [Stat.StatArmor]: 0.5, [Stat.StatArmorNoMods]: 0.125, [Stat.StatStamina]: 2 });
-		expect(enchantEP(armorEnchant(Stat.StatArmorNoMods), weights, 0, 0)).toBeCloseTo(armor * 0.125 + 3 * 2);
-		expect(enchantEP(armorEnchant(Stat.StatArmor), weights, 0, 0)).toBeCloseTo(armor * 0.5 + 3 * 2);
+		expect(enchantEP(armorEnchant(Stat.StatArmorNoMods), weights, Class.ClassWarrior, 0, 0)).toBeCloseTo(armor * 0.125 + 3 * 2);
+		expect(enchantEP(armorEnchant(Stat.StatArmor), weights, Class.ClassWarrior, 0, 0)).toBeCloseTo(armor * 0.5 + 3 * 2);
 	});
 
 	it('gives ArmorNoMods nothing where only Armor has a weight', () => {
 		const weights = Stats.fromMap({ [Stat.StatArmor]: 0.5 });
-		expect(enchantEP(armorEnchant(Stat.StatArmorNoMods), weights, 0, 0)).toBe(0);
+		expect(enchantEP(armorEnchant(Stat.StatArmorNoMods), weights, Class.ClassWarrior, 0, 0)).toBe(0);
 	});
 });

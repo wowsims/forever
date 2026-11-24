@@ -78,9 +78,11 @@ change.
 - Objective and caps live in separate coefficient spaces (`model.go`). The objective is EP: stats through
   `applyReforgeStat`; percent pseudo-stats as `Stats.computeEP` (`ui/sim/proto/stats.ts`) values them, by the
   percent's own weight or else as rating under the root rating's weight, with the part a rating's three hit, crit
-  or haste channels share counted once and a rating's fallbacks counted once, as the largest; flat weapon damage as
-  main-hand, off-hand or ranged DPS at the weapon's speed. The cap coefficients push the raw stat delta through
-  the baseline's stat dependency manager (`resolveStatDelta`), so Agility counts toward Crit% and Dodge%.
+  or haste channels share counted once and a rating's fallbacks counted once, as the largest. Ranged Hit % has no
+  fallback for the classes in `core.ClassesWithoutRangedHitFallback` (warrior, paladin, shaman), so ranged-only hit is
+  worth only its own weight to them. Flat weapon damage counts as main-hand, off-hand or ranged DPS at the weapon's
+  speed. The cap coefficients push the raw stat delta through the baseline's stat dependency manager
+  (`resolveStatDelta`), so Agility counts toward Crit% and Dodge%.
 - A rating stat's EP is stored per rating point, and the model, presets and `Stats.computeEP` read it in that unit. The
   UI shows and takes it per 1%, through `UnitStat.storedEpToShown` and `shownEpToStored` (`ui/sim/proto/stats.ts`).
   Defense rating buys skill and has no percent, so its EP stays per point. A percent pseudo-stat's EP is stored and
