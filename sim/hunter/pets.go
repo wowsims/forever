@@ -264,7 +264,7 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 	}
 
 	// Autocast decides in 0.8 s steps, two of them after a cast, and picks evenly among what it can
-	// cast; Savage Rend goes out only about one time in nine that it could (EV-0186).
+	// cast; Savage Rend goes out only about one time in nine that it could (EV-0187).
 	if sim.CurrentTime >= hp.nextAutocast {
 		hp.nextAutocast = sim.CurrentTime + petAutocastStep
 		if hp.castRandomReady(sim, target) {

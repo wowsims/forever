@@ -1,4 +1,4 @@
-# EV-0186: Tamed pet autocast steps and picks in live logs
+# EV-0187: Tamed pet autocast steps and picks in live logs
 
 - Claim: a tamed pet's autocast decides in 0.8 s steps, its next cast two steps after the last at the earliest; it
   picks evenly among the abilities it can cast, not by their order on the bar; and it casts Savage Rend only about one
