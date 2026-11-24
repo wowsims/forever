@@ -224,13 +224,13 @@ export const DropsItemsDialogView = ({
 								variant={null}
 								aria-current={active ? 'true' : undefined}
 								data-active={active ? '' : undefined}
-								className="flex w-full items-center gap-2 border-s-2 border-transparent px-2 py-1 text-left text-sm text-gray-400 hover:bg-gray-800 data-active:border-primary data-active:bg-gray-800 data-active:text-white max-md:w-auto max-md:shrink-0 max-md:border-s-0 max-md:border-b-2"
+								className="flex w-full items-center gap-2 border-s-2 border-transparent px-2 py-1 text-left text-sm text-gray-400 hover:bg-gray-800 data-active:border-primary data-active:bg-gray-800 data-active:text-white max-md:w-auto max-md:shrink-0 max-md:border-0 max-md:gap-0 max-md:border-b-2 max-md:py-2 max-md:font-bold max-md:text-link max-md:hover:bg-transparent max-md:hover:text-link-hover max-md:data-active:bg-transparent max-md:data-active:text-white"
 								onClick={() => setPick(group.key)}>
 								<span className="grid min-w-0 grow">
 									<span className="truncate">{group.title}</span>
 									{group.detail && <span className="truncate text-xs">{group.detail}</span>}
 								</span>
-								<span className="shrink-0 tabular-nums">
+								<span className="shrink-0 tabular-nums max-md:self-start max-md:ps-px max-md:text-xs max-md:font-normal">
 									{ticked}/{total}
 								</span>
 							</Button>
