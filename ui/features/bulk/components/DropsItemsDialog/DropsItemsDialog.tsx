@@ -213,7 +213,7 @@ export const DropsItemsDialogView = ({
 			<div className="flex min-h-0 gap-(--modal-padding) max-md:flex-1 max-md:flex-col max-md:gap-2">
 				<nav
 					aria-label={t(grouping === 'slot' ? 'by_slot' : 'by_source')}
-					className="shrink-0 border-border max-md:flex max-md:overflow-x-auto max-md:border-b md:h-[65dvh] md:w-52 md:overflow-y-auto md:border-e"
+					className="shrink-0 border-border max-md:-mx-(--modal-padding) max-md:flex max-md:scrollbar-none max-md:overflow-x-auto max-md:border-b max-md:px-(--modal-padding) md:h-[65dvh] md:w-52 md:overflow-y-auto md:border-e"
 					data-testid="drops-items-rail">
 					{groups.map(group => {
 						const { ticked, total } = dropsTickCount(group.items);
