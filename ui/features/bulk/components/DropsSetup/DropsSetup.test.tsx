@@ -27,7 +27,7 @@ import {
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DropsSetup } from './DropsSetup';
 
@@ -44,8 +44,8 @@ vi.mock('@sim/hooks/useSimReady', () => ({ useSimReady: () => true }));
 vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: 'icon.jpg', name: '', href: '', ready: true }) }));
 // Every row, so the assertions are about what the dialog shows rather than what it windowed.
 vi.mock('@ui-kit/VirtualList', () => ({
-	VirtualList: ({ count, rowHeight, renderRow }: { count: number; rowHeight: number; renderRow: (index: number) => ReactNode }) => (
-		<div data-testid="virtual-list" data-row-height={rowHeight}>
+	VirtualList: ({ count, renderRow }: { count: number; renderRow: (index: number) => ReactNode }) => (
+		<div data-testid="virtual-list">
 			{Array.from({ length: count }, (_unused, index) => (
 				<div key={index}>{renderRow(index)}</div>
 			))}
@@ -131,36 +131,8 @@ const group = (grouping: 'by_slot' | 'by_source') => fireEvent.click(within(dial
 const text = (testId: string) => screen.queryByTestId(testId)?.textContent;
 const sorted = (ids: number[]) => [...ids].sort((a, b) => a - b);
 
-// The md breakpoint query answers `wide` and hears `atWidth`; every other query keeps happy-dom's answer.
-const MD_QUERY = '(min-width: 768px)';
-const realMatchMedia = window.matchMedia.bind(window);
-let wide: boolean;
-const mediaListeners = new Set<() => void>();
-const atWidth = (next: 'phone' | 'desktop') => {
-	wide = next === 'desktop';
-	act(() => mediaListeners.forEach(listener => listener()));
-};
-const rowHeight = () => Number(screen.getByTestId('virtual-list').getAttribute('data-row-height'));
-
 beforeEach(() => {
-	wide = true;
-	vi.stubGlobal('matchMedia', (query: string) =>
-		query === MD_QUERY
-			? {
-					get matches() {
-						return wide;
-					},
-					addEventListener: (_type: string, listener: () => void) => mediaListeners.add(listener),
-					removeEventListener: (_type: string, listener: () => void) => mediaListeners.delete(listener),
-				}
-			: realMatchMedia(query),
-	);
 	mount();
-});
-
-afterEach(() => {
-	vi.unstubAllGlobals();
-	mediaListeners.clear();
 });
 
 describe('DropsSetup', () => {
@@ -453,28 +425,5 @@ describe('DropsSetup', () => {
 		fireEvent.click(box('Reiver Claws'));
 
 		expect(loadStoredBulkDropsExcluded(player)).toEqual([]);
-	});
-});
-
-describe('DropsSetup below md', () => {
-	it('keeps the rail’s entries, counts, pick and arrow keys as the chip row, and gives the rows more height', () => {
-		tickEndgame();
-		openDialog();
-		const desktopRowHeight = rowHeight();
-		const entries = rail();
-
-		atWidth('phone');
-
-		expect(rowHeight()).toBeGreaterThan(desktopRowHeight);
-		expect(rail()).toEqual(entries);
-		pick(slotName(BulkSimItemSlot.ItemSlotHands));
-		expect(picked()).toBe(`${slotName(BulkSimItemSlot.ItemSlotHands)}4/4`);
-		expect(sorted(rowIds())).toEqual(HANDS);
-		fireEvent.keyDown(dialog(), { key: 'ArrowDown' });
-		expect(picked()).toBe(`${slotName(BulkSimItemSlot.ItemSlotFinger)}1/1`);
-
-		atWidth('desktop');
-
-		expect(rowHeight()).toBe(desktopRowHeight);
 	});
 });

@@ -316,8 +316,7 @@ The tree-wide tests at the `ui/` root run in `npm run test:unit`, all under
 ## 8. Narrow screens
 
 Below `lg` (1024px) is the phone and tablet layout. CSS writes it as `max-lg:`, and code asks `useWideLayout()`
-(`ui/ui-kit/hooks/useWideLayout.ts`), which mirrors `breakpoints.css`; `useMediumLayout()` beside it asks the same of
-`md`. One code path for both widths beats a
+(`ui/ui-kit/hooks/useWideLayout.ts`), which mirrors `breakpoints.css`. One code path for both widths beats a
 pixel-identical desktop: a small desktop change is fine when it removes a branch, a prop or a copy.
 
 - **Size with the tokens.** `--spacing-sim-dock` is the dock's height below `lg` and 0 from `lg` up. Below `lg`

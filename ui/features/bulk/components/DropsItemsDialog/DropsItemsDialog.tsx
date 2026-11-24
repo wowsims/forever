@@ -9,7 +9,6 @@ import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
 import { Dialog } from '@ui-kit/Dialog';
 import { Field } from '@ui-kit/Field';
-import { useMediumLayout } from '@ui-kit/hooks/useMediumLayout';
 import { ItemCellIcon } from '@ui-kit/ItemCell';
 import { Pill } from '@ui-kit/Pill';
 import { SearchField } from '@ui-kit/TextField';
@@ -51,9 +50,8 @@ export interface DropsItemsDialogViewProps {
 const FILTER_ROWS: ReadonlyArray<FiltersMenuRow> = ['ilvl', 'stats', 'bonus', 'armor', 'weapons', 'ranged'];
 
 const ALL = 'all';
-// Below md a row puts its sources under the name, two lines tall.
+// Below md a row puts its sources under the name; both lines fit the same height.
 const ROW_HEIGHT = 40;
-const PHONE_ROW_HEIGHT = 52;
 const ROW_CLASS = clsx('hover:bg-gray-800 data-[stripe=even]:not-hover:bg-table-odd data-[stripe=odd]:not-hover:bg-table-even');
 
 const t = (key: string) => i18n.t(`bulk_tab.drops.setup.${key}`);
@@ -159,7 +157,6 @@ export const DropsItemsDialogView = ({
 	const [filtersOpen, setFiltersOpen] = useState(false);
 	const listRef = useRef<HTMLDivElement>(null);
 	const sourcesTooltipId = useId();
-	const rowHeight = useMediumLayout() ? ROW_HEIGHT : PHONE_ROW_HEIGHT;
 
 	const groups = useMemo(() => railGroups(list, grouping, tree, names), [list, grouping, tree, names]);
 	const picked = groups.find(group => group.key === pick) ?? groups[0];
@@ -224,7 +221,7 @@ export const DropsItemsDialogView = ({
 								variant={null}
 								aria-current={active ? 'true' : undefined}
 								data-active={active ? '' : undefined}
-								className="flex w-full items-center gap-2 border-s-2 border-transparent px-2 py-1 text-left text-sm text-gray-400 hover:bg-gray-800 data-active:border-primary data-active:bg-gray-800 data-active:text-white max-md:w-auto max-md:shrink-0 max-md:gap-0 max-md:border-0 max-md:border-b-2 max-md:py-2 max-md:font-bold max-md:text-link max-md:hover:bg-transparent max-md:hover:text-link-hover max-md:data-active:bg-transparent max-md:data-active:text-white"
+								className="flex w-full items-center gap-2 border-0 border-e-2 border-transparent px-2 py-1 text-left text-sm text-gray-400 hover:bg-gray-800 data-active:border-primary data-active:bg-gray-800 data-active:text-white max-md:w-auto max-md:shrink-0 max-md:gap-0 max-md:border-0 max-md:border-b-2 max-md:py-2 max-md:font-bold max-md:text-link max-md:hover:bg-transparent max-md:hover:text-link-hover max-md:data-active:bg-transparent max-md:data-active:text-white"
 								onClick={() => setPick(group.key)}>
 								<span className="grid min-w-0 grow">
 									<span className="truncate">{group.title}</span>
@@ -254,11 +251,9 @@ export const DropsItemsDialogView = ({
 							className="overflow-x-hidden overflow-y-auto max-md:min-h-0 max-md:flex-1 md:h-[calc(65dvh-2.5rem)]"
 							data-testid="drops-item-list"
 							tabIndex={0}>
-							{/* Keyed by the height, since the virtualiser keeps the offsets it laid out with the old one. */}
 							<VirtualList
-								key={rowHeight}
 								count={shown.length}
-								rowHeight={rowHeight}
+								rowHeight={ROW_HEIGHT}
 								getScrollElement={() => listRef.current}
 								rowClassName={() => ROW_CLASS}
 								renderRow={index => (
