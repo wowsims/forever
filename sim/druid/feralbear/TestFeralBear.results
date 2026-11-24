@@ -1056,19 +1056,19 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperFerocity"
  value: {
-  dps: 551.86772
-  tps: 2739.49362
-  dtps: 411.61334
-  hps: 86.36643
+  dps: 529.26549
+  tps: 2654.84634
+  dtps: 415.31
+  hps: 86.02598
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperRage"
  value: {
-  dps: 554.80853
-  tps: 2752.60419
-  dtps: 392.46933
-  hps: 86.33726
+  dps: 549.20624
+  tps: 2740.38775
+  dtps: 397.39062
+  hps: 88.80357
  }
 }
 dps_results: {
