@@ -1318,7 +1318,6 @@
 				"exclude_all": "Exclude all",
 				"by_slot": "By slot",
 				"by_source": "By boss",
-				"show": "Show",
 				"empty": "Tick a source to list its items."
 			},
 			"items": {
@@ -1347,9 +1346,6 @@
 				"upgrades_other": "upgrades",
 				"best": "Best",
 				"worn": "worn",
-				"show_all_variations": "Show all variations",
-				"variations_hidden_one": "{{count}} variation hidden",
-				"variations_hidden_other": "{{count}} variations hidden",
 				"filtered_by": "Source:",
 				"clear_filter": "Clear the source filter",
 				"low_precision": "Stopped early",

@@ -26,8 +26,6 @@ const meta = {
 		summary,
 		view: 'bosses',
 		onViewChange: fn(),
-		showAll: false,
-		onShowAllChange: fn(),
 		filter: null,
 		cards: cards.map(card => <DropsBossCardView key={card.label.label} {...card} />),
 		rows: rows.map((row, index) => <DropsItemRowView key={index} {...row} />),
@@ -47,13 +45,13 @@ export const Bosses: Story = {
 
 export const Items: Story = { args: { view: 'items' } };
 
-export const ItemsAllVariations: Story = {
+/** An item that upgrades in both ring slots lists a row for each. */
+export const ItemsTwoUpgradeRows: Story = {
 	args: {
 		view: 'items',
-		showAll: true,
-		rows: [rows[0], { ...rows[1], hiddenVariations: 0 }, { ...rows[1], rank: 3, slot: 'Finger 2', avg: 762.1, plusMinus: 2 }, ...rows.slice(2)].map(
-			(row, index) => <DropsItemRowView key={index} {...row} />,
-		),
+		rows: [rows[0], rows[1], { ...rows[1], rank: 3, slot: 'Finger 2', avg: 762.1, plusMinus: 2 }, ...rows.slice(2)].map((row, index) => (
+			<DropsItemRowView key={index} {...row} />
+		)),
 	},
 };
 

@@ -25,8 +25,6 @@ export interface DropsItemRowViewProps {
 	plusMinus: number | null;
 	delta: DeltaText;
 	significance: string;
-	hiddenVariations: number;
-	onShowVariations: () => void;
 	/** Null on the current gear's row. */
 	onEquip: (() => void) | null;
 }
@@ -38,7 +36,7 @@ const SOURCE_CLASS = 'w-48 shrink-0';
 const DPS_CLASS = 'w-52 shrink-0';
 const EQUIP_CLASS = 'ml-auto w-16 shrink-0';
 
-const t = (key: string, options: { count?: number } = {}) => i18n.t(`bulk_tab.drops.results.${key}`, options);
+const t = (key: string) => i18n.t(`bulk_tab.drops.results.${key}`);
 
 interface ItemNameProps {
 	item: EquippedItem;
@@ -70,20 +68,7 @@ export const DropsItemRowHeader = () => (
 	</div>
 );
 
-export const DropsItemRowView = ({
-	rank,
-	item,
-	slot,
-	source,
-	moreSources,
-	avg,
-	plusMinus,
-	delta,
-	significance,
-	hiddenVariations,
-	onShowVariations,
-	onEquip,
-}: DropsItemRowViewProps) => {
+export const DropsItemRowView = ({ rank, item, slot, source, moreSources, avg, plusMinus, delta, significance, onEquip }: DropsItemRowViewProps) => {
 	const lowPrecision = plusMinus === null;
 
 	return (
@@ -96,14 +81,6 @@ export const DropsItemRowView = ({
 			<span className={`${RANK_CLASS} text-sm text-gray-400`}>{rank}</span>
 			<div className="flex min-w-0 flex-1 flex-col gap-1 max-md:basis-[calc(100%-2.5rem)]">
 				{item ? <ItemName item={item} /> : <span className="font-bold">{t('current_gear')}</span>}
-				{hiddenVariations > 0 && (
-					<span className="text-xs text-gray-400" data-testid="drops-result-hidden">
-						{t('variations_hidden', { count: hiddenVariations })}{' '}
-						<Button variant="link" size="xs" onClick={onShowVariations}>
-							{i18n.t('bulk_tab.drops.setup.show')}
-						</Button>
-					</span>
-				)}
 			</div>
 			<span className={`${SLOT_CLASS} text-sm`}>{slot}</span>
 			<span className={`${SOURCE_CLASS} truncate text-sm text-gray-400`} title={[source, ...moreSources].join('\n')}>

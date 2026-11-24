@@ -250,14 +250,12 @@ export const dropsCardsFixture = (): DropsBossCardViewProps[] => {
 	];
 };
 
-/** The Items view's rows: an item with variations folded, the current gear's row, a row stopped early and a loss. */
+/** The Items view's rows: an item upgrading in a slot, the current gear's row, a row stopped early and a loss. */
 export const dropsRowsFixture = (): DropsItemRowViewProps[] => {
 	const items = new Map(dropsItemsFixture().map(item => [item.id, item]));
 	const equipped = (id: number) => new EquippedItem({ item: items.get(id)! });
 	const base = {
 		moreSources: [],
-		hiddenVariations: 0,
-		onShowVariations: () => {},
 		onEquip: () => {},
 		significance: 'Difference is significantly different (Z = 30.000).',
 	};
@@ -281,7 +279,6 @@ export const dropsRowsFixture = (): DropsItemRowViewProps[] => {
 			source: 'Overlord Wyrmthalak',
 			avg: 765,
 			plusMinus: 2,
-			hiddenVariations: 1,
 			delta: PCT_DELTA('+15.00 (2.00%)', 'positive'),
 		},
 		{ ...base, rank: null, item: null, slot: '', source: '', avg: 750, plusMinus: 2, onEquip: null, delta: PCT_DELTA('+0.00 (0.00%)', null) },

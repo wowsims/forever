@@ -7,7 +7,6 @@ import { wowheadIconUrl } from '@sim/proto/wowhead';
 import type { BulkDropsView } from '@sim/state/sim_store';
 import { formatDeltaText, formatSignificance } from '@sim/utils/format';
 import { stDevToConf95 } from '@sim/utils/math';
-import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { Pill } from '@ui-kit/Pill';
@@ -21,7 +20,6 @@ import {
 	dropsItemChains,
 	dropsItemLookup,
 	dropsNewItem,
-	type DropsResultItem,
 	dropsResultItems,
 	dropsSourceGroups,
 	dropsSummary,
@@ -44,15 +42,13 @@ export interface DropsResultsViewProps {
 	summary: ReactNode;
 	view: BulkDropsView;
 	onViewChange: (view: BulkDropsView) => void;
-	showAll: boolean;
-	onShowAllChange: (showAll: boolean) => void;
 	/** The source the Items view is narrowed to; null shows every item. */
 	filter: { label: string; onClear: () => void } | null;
 	cards: ReactNode;
 	rows: ReactNode;
 }
 
-export const DropsResultsView = ({ summary, view, onViewChange, showAll, onShowAllChange, filter, cards, rows }: DropsResultsViewProps) => (
+export const DropsResultsView = ({ summary, view, onViewChange, filter, cards, rows }: DropsResultsViewProps) => (
 	<div className="grid content-start gap-4" data-testid="drops-results">
 		{summary}
 		<div className="flex flex-wrap items-center gap-2">
@@ -67,25 +63,13 @@ export const DropsResultsView = ({ summary, view, onViewChange, showAll, onShowA
 				]}
 				onChange={onViewChange}
 			/>
-			{view === 'items' && (
-				<>
-					<BooleanPicker
-						id="drops-show-all-variations"
-						label={t('show_all_variations')}
-						layout="inline"
-						size="xs"
-						value={showAll}
-						onChange={onShowAllChange}
-					/>
-					{filter && (
-						<Pill testId="drops-source-filter" className="items-center gap-1">
-							{t('filtered_by')} <span className="font-bold">{filter.label}</span>
-							<Button variant="unstyled" aria-label={t('clear_filter')} onClick={filter.onClear}>
-								<Icon name="xmark" />
-							</Button>
-						</Pill>
-					)}
-				</>
+			{view === 'items' && filter && (
+				<Pill testId="drops-source-filter" className="items-center gap-1">
+					{t('filtered_by')} <span className="font-bold">{filter.label}</span>
+					<Button variant="unstyled" aria-label={t('clear_filter')} onClick={filter.onClear}>
+						<Icon name="xmark" />
+					</Button>
+				</Pill>
 			)}
 		</div>
 		{view === 'bosses' ? (
@@ -116,13 +100,11 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 	const host = useSimHost();
 	const { player } = host;
 	const view = useBulkState(slice => slice.dropsView);
-	const [showAll, setShowAll] = useState(false);
 	const [source, setSource] = useState<string | null>(null);
-	// A new run's results open unfiltered, their variations folded.
+	// A new run's results open unfiltered,
 	const [shownResults, setShownResults] = useState(results);
 	if (shownResults !== results) {
 		setShownResults(results);
-		setShowAll(false);
 		setSource(null);
 	}
 	const { originalGearResults: current, currentGear, iterations } = results;
@@ -136,7 +118,7 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 	const items = useMemo(() => dropsResultItems(results), [results]);
 	const groups = useMemo(() => dropsSourceGroups(items, runKeys, currentGear, itemById, names), [items, runKeys, currentGear, itemById, names]);
 	const summary = useMemo(() => dropsSummary(results, items, groups), [results, items, groups]);
-	const chains = useMemo(() => dropsItemChains(results, items, { showAll, source, groups }), [results, items, showAll, source, groups]);
+	const chains = useMemo(() => dropsItemChains(results, items, { source, groups }), [results, items, source, groups]);
 	// Per row: the item it adds, the slot that item sits in and the run's sources that drop it.
 	const rowDetails = useMemo(() => {
 		const worn = wornIdSet(currentGear);
@@ -187,7 +169,6 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 		);
 	});
 
-	const itemOfBest = new Map<BulkRankedResult, DropsResultItem>(items.map(entry => [entry.best, entry]));
 	let rank = 0;
 	const renderRow = (row: BulkRankedResult, key: number) => {
 		const { newItem, slot, sources } = rowDetails.get(row)!;
@@ -208,8 +189,6 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 				plusMinus={isCulled(row) ? null : stDevToConf95(row.dpsMetrics.stdev, rowIterations(row, iterations))}
 				delta={formatDeltaText(current.dpsMetrics.avg, current.dpsMetrics.avg + gap, 2, undefined, !significance.isDiff, true)}
 				significance={isCurrent ? '' : formatSignificance(significance)}
-				hiddenVariations={showAll ? 0 : (itemOfBest.get(row)?.variants.length ?? 0)}
-				onShowVariations={() => setShowAll(true)}
 				onEquip={isCurrent ? null : () => equipAndAnnounce(host, row, onActivateTab)}
 			/>
 		);
@@ -243,8 +222,6 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 			}
 			view={view}
 			onViewChange={next => setDropsView(player, next)}
-			showAll={showAll}
-			onShowAllChange={setShowAll}
 			filter={source === null ? null : { label: sourceText(source, names), onClear: () => setSource(null) }}
 			cards={cards}
 			rows={rows}

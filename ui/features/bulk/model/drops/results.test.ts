@@ -133,10 +133,11 @@ describe('dropsNewItem', () => {
 });
 
 describe('dropsResultItems', () => {
-	it('folds an item’s rows into its best, the rest as variants best first', () => {
+	it('gathers an item’s rows into its best and its proven upgrade rows, best first', () => {
 		const items = ITEM_RESULTS;
 		expect(items[0].best.dpsMetrics.avg).toBe(767.5);
-		expect(items[0].variants.map(v => v.dpsMetrics.avg)).toEqual([762.1]);
+		expect(items[0].upgradeRows.map(row => row.dpsMetrics.avg)).toEqual([767.5, 762.1]);
+		expect(items.find(entry => entry.itemId === GLOVES.id)!.upgradeRows.map(row => row.dpsMetrics.avg)).toEqual([760]);
 		expect(items[0].gain).toBeCloseTo(17.5);
 		expect(items.map(entry => entry.itemId)).toEqual([RING.id, FELSTRIKER.id, GLOVES.id, CHEST.id, BELT.id, HELM.id, TWO_HANDER.id]);
 		expect(items.at(-1)!.gain).toBeCloseTo(-10);
@@ -174,7 +175,7 @@ describe('dropsResultItems', () => {
 		expect([beltAt(1_000), beltAt(50_000)]).toEqual([false, true]);
 	});
 
-	it('leads an item with its proven upgrade, a tied row above it kept as a variant', () => {
+	it('leads an item with its proven upgrade, a tied row above it no upgrade row', () => {
 		const [ring] = dropsResultItems(
 			rank([
 				paired(wearing({ [ItemSlot.ItemSlotFinger1]: RING }), 770, { culledStage: BulkSimStage.BulkSimStageLow }, 15),
@@ -182,7 +183,7 @@ describe('dropsResultItems', () => {
 			]),
 		);
 		expect([ring.upgrade, ring.best.dpsMetrics.avg, ring.gain]).toEqual([true, 760, 10]);
-		expect(ring.variants.map(v => v.dpsMetrics.avg)).toEqual([770]);
+		expect(ring.upgradeRows.map(row => row.dpsMetrics.avg)).toEqual([760]);
 	});
 });
 
@@ -240,24 +241,27 @@ describe('dropsSourceGroups', () => {
 });
 
 describe('dropsItemChains', () => {
-	it('lists one row per item and the current gear at its rank, every row with showAll', () => {
-		const chains = dropsItemChains(RESULTS, ITEM_RESULTS, { showAll: false, source: null, ...chainOptions });
-		expect(avgs(chains)).toEqual([767.5, 765, 760, 758, 756, 755, CURRENT_DPS, 740]);
+	it('lists every proven upgrade row of an item, the best row of one with none, and the current gear at its rank', () => {
+		const chains = dropsItemChains(RESULTS, ITEM_RESULTS, { source: null, ...chainOptions });
+		// The ring upgrades in both slots and lists both; the two-hander has one row and loses, so it lists that one.
+		expect(avgs(chains)).toEqual([767.5, 765, 762.1, 760, 758, 756, 755, CURRENT_DPS, 740]);
 		expect(chains.flat()).toContain(CURRENT);
-		expect(dropsItemChains(RESULTS, ITEM_RESULTS, { showAll: true, source: null, ...chainOptions })).toBe(RESULTS.chains);
+	});
+
+	it('lists only the best row of an item none of whose rows upgrade', () => {
+		const results = rank([
+			paired(wearing({ [ItemSlot.ItemSlotFinger1]: RING }), 749, { pairedDpsDiffToBaseline: -1 }),
+			paired(wearing({ [ItemSlot.ItemSlotFinger2]: RING }), 745, { pairedDpsDiffToBaseline: -5 }),
+		]);
+		const items = dropsResultItems(results);
+		expect(avgs(dropsItemChains(results, items, { source: null, groups: [] }))).toEqual([CURRENT_DPS, 749]);
 	});
 
 	it('narrows the chains to one source’s items, the current gear kept', () => {
-		expect(avgs(dropsItemChains(RESULTS, ITEM_RESULTS, { showAll: false, source: RIVENDARE_KEY, ...chainOptions }))).toEqual([765, CURRENT_DPS, 740]);
-		expect(avgs(dropsItemChains(RESULTS, ITEM_RESULTS, { showAll: true, source: REND_KEY, ...chainOptions }))).toEqual([
-			767.5,
-			765,
-			762.1,
-			760,
-			CURRENT_DPS,
-		]);
+		expect(avgs(dropsItemChains(RESULTS, ITEM_RESULTS, { source: RIVENDARE_KEY, ...chainOptions }))).toEqual([765, CURRENT_DPS, 740]);
+		expect(avgs(dropsItemChains(RESULTS, ITEM_RESULTS, { source: REND_KEY, ...chainOptions }))).toEqual([767.5, 765, 762.1, 760, CURRENT_DPS]);
 		// The chest's paired error ties it with the current gear once nothing ranks between them.
-		const drakkisath = dropsItemChains(RESULTS, ITEM_RESULTS, { showAll: false, source: DRAKKISATH_KEY, ...chainOptions });
+		const drakkisath = dropsItemChains(RESULTS, ITEM_RESULTS, { source: DRAKKISATH_KEY, ...chainOptions });
 		expect(drakkisath.map(chain => chain.map(row => row.dpsMetrics.avg))).toEqual([[758, CURRENT_DPS]]);
 	});
 });

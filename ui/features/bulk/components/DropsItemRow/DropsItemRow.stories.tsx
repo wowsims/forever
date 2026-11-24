@@ -4,7 +4,7 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { DropsItemRowView } from './DropsItemRow';
 
-const [upgrade, folded, current, stoppedEarly, loss] = dropsRowsFixture();
+const [upgrade, , current, stoppedEarly, loss] = dropsRowsFixture();
 
 const meta = {
 	title: 'Features/Bulk/DropsItemRow',
@@ -32,9 +32,6 @@ export const Default: Story = {
 		await expect(args.onEquip).toHaveBeenCalledOnce();
 	},
 };
-
-/** The item's other variations are folded away; Show turns them on. */
-export const VariationsHidden: Story = { args: folded };
 
 /** The current gear: labelled, with no difference and no Equip. */
 export const CurrentGear: Story = { args: current };

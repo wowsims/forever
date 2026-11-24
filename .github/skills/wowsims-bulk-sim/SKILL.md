@@ -277,8 +277,9 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   group by those, never by the tree or the race as they are now, and `dropsItemLookup` resolves items one id at a time
   (`getItemById`) through the faction filter but not the phase filter, so a run keeps its cards after a phase switch.
   `DropsResults` shows `DropsSummary`, then the Bosses view (one `DropsBossCard` per ticked leaf the rows reach, best
-  gain first, cards with no upgrade last) or the Items view (`DropsItemRow`, each item's best row and the current
-  gear's, or every variation with "show all", filtered by the one source a card click picked; that click switches the
+  gain first, cards with no upgrade last) or the Items view (`DropsItemRow`, the current gear's row and, per item, every
+  row that is a proven upgrade (a ring upgrading in both slots lists both) or its best row when none is, filtered by the
+  one source a card click picked; that click switches the
   stored view to Items, and the filter is not stored). Every % and every delta uses `dropsGap`, the paired difference
   (`paired_dps_diff_to_baseline`) on a row with a paired error and a paired difference, and the gap between the averages
   only on a row without them, never `row.avg - current.avg`: a culled row can pair with an earlier stage's baseline, so

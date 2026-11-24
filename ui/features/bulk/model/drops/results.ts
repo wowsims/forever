@@ -50,8 +50,8 @@ export interface DropsResultItem {
 	itemId: number;
 	/** The item's best row: slot, hand and enchant. Its proven upgrade with the largest gain, else its best avg. */
 	best: BulkRankedResult;
-	/** The item's other rows, best avg first. */
-	variants: readonly BulkRankedResult[];
+	/** Every row of the item that is a proven upgrade, best avg first; empty when none is. */
+	upgradeRows: readonly BulkRankedResult[];
 	upgrade: boolean;
 	/** `dropsGap` of the best row, negative for a loss. */
 	gain: number;
@@ -71,7 +71,7 @@ export const dropsResultItems = (results: BulkResults): DropsResultItem[] => {
 		.map(([itemId, rows]) => {
 			const proven = rows.filter(row => isDropsUpgrade(row, current, iterations));
 			const best = largest(proven, row => dropsGap(row, current)) ?? rows[0];
-			return { itemId, best, variants: rows.filter(row => row !== best), upgrade: proven.length > 0, gain: dropsGap(best, current) };
+			return { itemId, best, upgradeRows: proven, upgrade: proven.length > 0, gain: dropsGap(best, current) };
 		})
 		.sort((a, b) => b.best.dpsMetrics.avg - a.best.dpsMetrics.avg);
 };
@@ -130,18 +130,18 @@ export const dropsSourceGroups = (
 };
 
 /**
- * The Items view's chains: each item's best row and the current gear's, or every row with showAll; one source's items only
- * when given, as its card in `groups` holds them.
+ * The Items view's chains: the current gear's row and, for each item, every row that is a proven upgrade (a ring that
+ * upgrades in both slots lists both) or its best row when none is; one source's items only when given, as its card in
+ * `groups` holds them.
  */
 export const dropsItemChains = (
 	results: BulkResults,
 	items: readonly DropsResultItem[],
-	options: { showAll: boolean; source: string | null; groups: readonly DropsSourceGroup[] },
+	options: { source: string | null; groups: readonly DropsSourceGroup[] },
 ): BulkRankedResult[][] => {
-	const { showAll, source, groups } = options;
-	if (showAll && source === null) return results.chains;
+	const { source, groups } = options;
 	const shown = source === null ? items : (groups.find(group => group.key === source)?.items ?? []);
-	const kept = new Set([results.originalGearResults, ...shown.flatMap(entry => (showAll ? [entry.best, ...entry.variants] : [entry.best]))]);
+	const kept = new Set([results.originalGearResults, ...shown.flatMap(entry => (entry.upgrade ? entry.upgradeRows : [entry.best]))]);
 	return buildTieChains(
 		results.chains.flat().filter(row => kept.has(row)),
 		results.originalGearResults,

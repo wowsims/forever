@@ -172,48 +172,30 @@ describe('DropsResults', () => {
 		expect(resultRows().length).toBeGreaterThan(2);
 	});
 
-	it('shows a new run’s results unfiltered, their variations folded', () => {
+	it('shows a new run’s results unfiltered', () => {
 		mount();
 		fireEvent.click(cards()[0]);
-		fireEvent.click(screen.getByRole('checkbox', { name: `${RESULTS}.show_all_variations` }));
 
 		act(() => patchBulkState(player, { dropsResults: dropsResultsFixture().dropsResults }));
 
 		expect(screen.queryByTestId('drops-source-filter')).toBeNull();
-		expect(rowIds()).toEqual([FELSTRIKER, MARK, 'current', REIVER, BLACKBLADE, DRACORIAN]);
+		expect(rowIds()).toEqual([FELSTRIKER, MARK, MARK, 'current', REIVER, BLACKBLADE, DRACORIAN]);
 	});
 
-	it('toggles Show all variations when its label text is clicked', () => {
-		mount();
-		fireEvent.click(view('items'));
-		const box = screen.getByRole('checkbox', { name: `${RESULTS}.show_all_variations` });
-		expect(box.getAttribute('aria-checked')).toBe('false');
-
-		fireEvent.click(screen.getByText(`${RESULTS}.show_all_variations`));
-
-		expect(box.getAttribute('aria-checked')).toBe('true');
-		expect(screen.queryByTestId('drops-result-hidden')).toBeNull();
-	});
-
-	it('lists one row per item with its variations folded, and every row with Show all variations', () => {
+	it('lists every row of an item that upgrades in more than one slot, and one row for an item that upgrades in none', () => {
 		mount();
 		fireEvent.click(view('items'));
 
 		expect(screen.getByTestId('drops-result-header').textContent).toContain(`${RESULTS}.columns.item`);
-		expect(rowIds()).toEqual([FELSTRIKER, MARK, 'current', REIVER, BLACKBLADE, DRACORIAN]);
-		expect(within(rowOf(MARK)).getByTestId('drops-result-hidden').textContent).toContain(`${RESULTS}.variations_hidden`);
-
-		fireEvent.click(within(rowOf(MARK)).getByRole('button', { name: 'bulk_tab.drops.setup.show' }));
-
+		// Mark of the Dragon Lord upgrades in both ring slots; Blackblade of Shahram has one losing row.
 		expect(rowIds()).toEqual([FELSTRIKER, MARK, MARK, 'current', REIVER, BLACKBLADE, DRACORIAN]);
-		expect(screen.queryByTestId('drops-result-hidden')).toBeNull();
 	});
 
 	it('shows the current gear row at its rank with no Equip', () => {
 		mount();
 		fireEvent.click(view('items'));
 
-		const current = resultRows()[2];
+		const current = resultRows()[3];
 		expect(current.hasAttribute('data-current')).toBe(true);
 		expect(within(current).queryByRole('button', { name: 'bulk_tab.results.equip_button' })).toBeNull();
 		expect(within(current).getByText(`${RESULTS}.current_gear`)).toBeTruthy();
@@ -309,8 +291,16 @@ describe('DropsResults', () => {
 
 	it('draws a bracket around tied rows and keeps every row keyed once', () => {
 		const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-		mount({ view: 'items', chains: chains => [[...chains[0], ...chains[1]], chains[2], [...chains[3], ...chains[4]], ...chains.slice(5)] });
-		fireEvent.click(screen.getByRole('checkbox', { name: `${RESULTS}.show_all_variations` }));
+		// Mark of the Dragon Lord's two ring rows tie by the paired error to the next result; the culled Reiver Claws ties with the current gear.
+		mount({
+			view: 'items',
+			chains: chains => {
+				const rowAt = (avg: number) => chains.flat().find(row => row.dpsMetrics.avg === avg)!;
+				rowAt(765).pairedErrorToNextResult = 10;
+				rowAt(749).pairedErrorToBaseline = 10;
+				return chains;
+			},
+		});
 
 		expect(screen.getAllByTestId('bulk-results-tie-group')).toHaveLength(2);
 		expect(resultRows()).toHaveLength(7);
@@ -364,7 +354,7 @@ describe('DropsResults', () => {
 	it('numbers the rows without counting the current gear’s', () => {
 		mount({ view: 'items' });
 
-		expect(resultRows().map(row => row.firstElementChild!.textContent)).toEqual(['1', '2', '', '3', '4', '5']);
+		expect(resultRows().map(row => row.firstElementChild!.textContent)).toEqual(['1', '2', '3', '', '4', '5', '6']);
 	});
 
 	it('shows the best DPS as the current gear plus the gain, not the raw mean', () => {

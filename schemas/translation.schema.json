@@ -4759,15 +4759,12 @@
 								"by_source": {
 									"type": "string"
 								},
-								"show": {
-									"type": "string"
-								},
 								"empty": {
 									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["sources_title", "items_title", "quick_picks", "include_all", "exclude_all", "by_slot", "by_source", "show", "empty"]
+							"required": ["sources_title", "items_title", "quick_picks", "include_all", "exclude_all", "by_slot", "by_source", "empty"]
 						},
 						"results": {
 							"type": "object",
@@ -4810,15 +4807,6 @@
 									"type": "string"
 								},
 								"worn": {
-									"type": "string"
-								},
-								"show_all_variations": {
-									"type": "string"
-								},
-								"variations_hidden_one": {
-									"type": "string"
-								},
-								"variations_hidden_other": {
 									"type": "string"
 								},
 								"filtered_by": {
@@ -4874,9 +4862,6 @@
 								"view_label",
 								"best",
 								"worn",
-								"show_all_variations",
-								"variations_hidden_one",
-								"variations_hidden_other",
 								"filtered_by",
 								"clear_filter",
 								"low_precision",
