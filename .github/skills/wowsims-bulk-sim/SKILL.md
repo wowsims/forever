@@ -266,8 +266,9 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   many ticked ones the dialog's filters hide, and a chip per slot with a ticked item. Its Choose items button opens
   `DropsItemsDialog`, laid out like the gear picker: a search field, a Filters button and the By slot / By source switch
   on top, a rail of All and then one entry per slot or source with its ticked and listed non-worn counts, and the picked
-  entry's rows in a `VirtualList`. Below `md` the rail is one row of chips that scrolls sideways above the list, the list
-  fills the dialog, and each row's sources sit under its name, at the same row height. All
+  entry's rows in a `VirtualList`. The dialog is full size, as the stat sweep's is, and the rail and the list fill its
+  height. Below `md` the rail is one row of chips that scrolls sideways above the list, and each row's sources sit under
+  its name, at the same row height. All
   lists each item once, and a source's rows leave out that source. Arrow up and down move the rail pick (`railStep`,
   shared with the gear picker's slot rail), and Include shown and Exclude shown tick or untick the non-worn rows the
   search, the filters and the pick leave. The Filters button opens the gear picker's

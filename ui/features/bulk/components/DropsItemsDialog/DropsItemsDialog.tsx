@@ -181,7 +181,14 @@ export const DropsItemsDialogView = ({
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange} size="xl" title={t('items_title')} onKeyDown={onRailKeyDown} testId="drops-items-dialog">
+		<Dialog
+			open={open}
+			onOpenChange={onOpenChange}
+			size="full"
+			bodyClassName="min-h-0"
+			title={t('items_title')}
+			onKeyDown={onRailKeyDown}
+			testId="drops-items-dialog">
 			<div className="flex flex-wrap items-center gap-2">
 				<SearchField
 					value={search}
@@ -207,10 +214,10 @@ export const DropsItemsDialogView = ({
 					}}
 				/>
 			</div>
-			<div className="flex min-h-0 gap-(--modal-padding) max-md:flex-1 max-md:flex-col max-md:gap-2">
+			<div className="flex min-h-0 flex-1 gap-(--modal-padding) max-md:flex-col max-md:gap-2">
 				<nav
 					aria-label={t(grouping === 'slot' ? 'by_slot' : 'by_source')}
-					className="shrink-0 border-border max-md:-mx-(--modal-padding) max-md:flex max-md:scrollbar-none max-md:overflow-x-auto max-md:border-b max-md:px-(--modal-padding) md:h-[65dvh] md:w-52 md:overflow-y-auto md:border-e"
+					className="shrink-0 border-border max-md:-mx-(--modal-padding) max-md:flex max-md:scrollbar-none max-md:overflow-x-auto max-md:border-b max-md:px-(--modal-padding) md:w-52 md:overflow-y-auto md:border-e"
 					data-testid="drops-items-rail">
 					{groups.map(group => {
 						const { ticked, total } = dropsTickCount(group.items);
@@ -234,7 +241,7 @@ export const DropsItemsDialogView = ({
 						);
 					})}
 				</nav>
-				<div className="flex min-h-0 min-w-0 grow flex-col gap-2 max-md:flex-1">
+				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
 					<div className="flex flex-wrap items-center gap-2">
 						<Button variant="secondary" size="sm" disabled={shownIds.length === 0} onClick={() => onIncludedChange(shownIds, true)}>
 							{t('include_shown')}
@@ -246,11 +253,7 @@ export const DropsItemsDialogView = ({
 					{shown.length === 0 ? (
 						<p className="mb-0 text-sm text-gray-400">{t('no_match')}</p>
 					) : (
-						<div
-							ref={listRef}
-							className="overflow-x-hidden overflow-y-auto max-md:min-h-0 max-md:flex-1 md:h-[calc(65dvh-2.5rem)]"
-							data-testid="drops-item-list"
-							tabIndex={0}>
+						<div ref={listRef} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto" data-testid="drops-item-list" tabIndex={0}>
 							<VirtualList
 								count={shown.length}
 								rowHeight={ROW_HEIGHT}
