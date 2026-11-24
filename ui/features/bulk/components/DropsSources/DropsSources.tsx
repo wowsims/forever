@@ -34,7 +34,7 @@ const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 
 	return (
 		<div>
-			<div className="flex items-center gap-2 text-sm font-semibold">
+			<div className="flex items-center gap-2 py-1 text-sm font-semibold">
 				{hasChildren ? (
 					<>
 						<Field.Root id={id} layout="inline" size="xs" className="ui-boolean-picker grow-0">
@@ -45,7 +45,7 @@ const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 							variant={null}
 							aria-label={node.label}
 							aria-expanded={open}
-							className="flex min-w-0 grow items-center gap-2 py-2 ps-0 text-left font-semibold"
+							className="flex min-w-0 grow items-center gap-2 py-0 ps-0 text-left font-semibold"
 							onClick={() => setOpen(wasOpen => !wasOpen)}>
 							<span className="min-w-0 wrap-anywhere">{node.label}</span>
 							<Pill size="xs" className="min-w-[1lh] shrink-0 justify-center" testId="drops-source-count">
@@ -58,7 +58,7 @@ const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 				) : (
 					<>
 						<BooleanPicker
-							className="min-w-0 py-2 wrap-anywhere"
+							className="min-w-0 wrap-anywhere"
 							label={node.label}
 							layout="inline"
 							size="xs"
@@ -73,7 +73,7 @@ const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 				)}
 			</div>
 			{open && (
-				<div className="ms-2 grid border-s border-border ps-2">
+				<div className="ms-2 grid border-s border-border py-1 ps-2">
 					{node.children.map(child => (
 						<SourceRow key={child.key} node={child} ticked={ticked} onTick={onTick} />
 					))}
@@ -96,7 +96,7 @@ export const DropsSourcesView = ({ tree, ticked, onTick, onQuickPick }: DropsSou
 				</Button>
 			</div>
 		</div>
-		<div className="-m-1 grid max-h-[60dvh] gap-1 overflow-y-auto p-1">
+		<div className="-m-1 grid max-h-[60dvh] overflow-y-auto p-1">
 			{tree.map(node => (
 				<SourceRow key={node.key} node={node} ticked={ticked} onTick={onTick} />
 			))}
