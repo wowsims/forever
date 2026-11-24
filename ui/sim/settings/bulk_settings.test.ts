@@ -1,4 +1,4 @@
-import { BulkEnchantPresetSelection, BulkEncounterRef, BulkTopResults } from '@generated/proto/ui';
+import { BulkEncounterRef, BulkTopResults } from '@generated/proto/ui';
 import { memoryEnv } from '@testing/sim/memory_env';
 import { describe, expect, it } from 'vitest';
 
@@ -8,14 +8,12 @@ import { specStorageKey } from '../state/storage_keys';
 import { BULK_SIM_DEFAULT_TOP_RESULTS } from '../wasm/bulk_sim/constants_auto_gen';
 import {
 	loadStoredBatchEncounter,
-	loadStoredBulkDropsEnchantPresets,
 	loadStoredBulkDropsExcluded,
 	loadStoredBulkDropsSources,
 	loadStoredBulkDropsView,
 	loadStoredBulkMode,
 	loadStoredBulkTopResults,
 	storeBatchEncounter,
-	storeBulkDropsEnchantPresets,
 	storeBulkDropsExcluded,
 	storeBulkDropsSources,
 	storeBulkDropsView,
@@ -65,18 +63,16 @@ describe('Drops storage', () => {
 		expect(loadStoredBulkMode(player)).toBeNull();
 	});
 
-	it('round-trips the Drops sources, excluded ids, preset pick and view', () => {
+	it('round-trips the Drops sources, excluded ids and view', () => {
 		const player = playerOn();
 		expect(loadStoredBulkDropsSources(player)).toBeNull();
 
 		storeBulkDropsSources(player, ['drop:1584:9019', 'quest:other']);
 		storeBulkDropsExcluded(player, [3, 17]);
-		storeBulkDropsEnchantPresets(player, BulkEnchantPresetSelection.create({ names: ['Fiery'] }));
 		storeBulkDropsView(player, 'items');
 
 		expect(loadStoredBulkDropsSources(player)).toEqual(['drop:1584:9019', 'quest:other']);
 		expect(loadStoredBulkDropsExcluded(player)).toEqual([3, 17]);
-		expect(loadStoredBulkDropsEnchantPresets(player)).toEqual(BulkEnchantPresetSelection.create({ names: ['Fiery'] }));
 		expect(loadStoredBulkDropsView(player)).toBe('items');
 	});
 

@@ -47,35 +47,20 @@ export const bulkEnchantPickList = (entries: readonly BulkEnchantPickEntry[], ch
 		});
 };
 
-// The list as the Builds and Drops pick lists show it.
-export const enchantPickRows = (entries: readonly BulkEnchantPickEntry[], checked: readonly string[]) =>
-	bulkEnchantPickList(entries, checked).map(item => ({
-		ref: item.ref,
-		name: item.name,
-		summary: formatEnchantPickSummary(item.preset),
-		checked: item.checked,
-		duplicate: item.duplicate,
-	}));
-
 // Every checked row the list neither leaves out nor flags.
 export const bulkEnchantPickRuns = (entries: readonly BulkEnchantPickEntry[], checked: readonly string[]): BulkEnchantPick[] =>
 	bulkEnchantPickList(entries, checked)
 		.filter(item => item.checked && !item.duplicate)
 		.map(({ name, preset }) => ({ name, preset }));
 
-export type BulkEnchantPickField = 'buildEnchantPresets' | 'dropsEnchantPresets';
-
-// A pick's setter: names go in list order, and one no longer pickable goes.
-export const enchantPickSetter =
-	(field: BulkEnchantPickField, store: (player: Player<any>, selection: BulkEnchantPresetSelection) => void, bumps: ReadonlyArray<'settings'>) =>
-	(player: Player<any>, name: string, checked: boolean, pickable: readonly string[]) => {
-		const names = checkedRefsAfter(bulkState(player)[field].map(refOf), refOf(name), checked, pickable.map(refOf)).map(ref => ref.name);
-		patchBulkState(player, { [field]: names }, bumps);
-		store(player, BulkEnchantPresetSelection.create({ names }));
-	};
-
-// Stored apart from `BulkEnchantPreset.checked`, the Gear mode's pick, so no `settings` bump.
-export const setBulkEnchantPickChecked = enchantPickSetter('buildEnchantPresets', storeBulkBuildEnchantPresets, []);
+// Stored apart from `BulkEnchantPreset.checked`, the Gear mode's pick, so no `settings` bump. Names go in list order, and
+// one no longer pickable goes.
+export const setBulkEnchantPickChecked = (player: Player<any>, name: string, checked: boolean, pickable: readonly string[]) => {
+	const stored = bulkState(player).buildEnchantPresets;
+	const buildEnchantPresets = checkedRefsAfter(stored.map(refOf), refOf(name), checked, pickable.map(refOf)).map(ref => ref.name);
+	patchBulkState(player, { buildEnchantPresets });
+	storeBulkBuildEnchantPresets(player, BulkEnchantPresetSelection.create({ names: buildEnchantPresets }));
+};
 
 export const formatEnchantPickSummary = (preset: BulkEnchantPreset): string =>
 	i18n.t('bulk_tab.settings.enchant_picks.slots', { count: filledSlots(preset).length });

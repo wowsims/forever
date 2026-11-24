@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 
-import { bulkEnchantPickEntries, type BulkEnchantPickField } from '../model/builds/enchant_picks';
+import { bulkEnchantPickEntries } from '../model/builds/enchant_picks';
 import { useBulkState } from './useBulkState';
 
-export const useBulkEnchantPicks = (field: BulkEnchantPickField) => {
+export const useBulkEnchantPicks = () => {
 	const presets = useBulkState(slice => slice.enchantPresets);
-	const checked = useBulkState(slice => slice[field]);
+	const checked = useBulkState(slice => slice.buildEnchantPresets);
 
 	const entries = useMemo(() => bulkEnchantPickEntries(presets), [presets]);
 

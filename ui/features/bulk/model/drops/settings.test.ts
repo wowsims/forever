@@ -1,30 +1,16 @@
-import { enchantPresetPool, saveEnchantPreset, setEnchantPresetChecked } from '@features/enchant-presets/model/enchant_presets';
+import { saveEnchantPreset, setEnchantPresetChecked } from '@features/enchant-presets/model/enchant_presets';
 import { BulkEnchantSlotOptions } from '@generated/proto/api';
 import { ArmorType, Class, Faction, ItemSlot, ItemType } from '@generated/proto/common';
-import { BulkEnchantPresetSelection, ContentPhase, DatabaseFilters, DungeonDifficulty, UIEnchant, type UIItem, UIItemSource } from '@generated/proto/ui';
+import { ContentPhase, DatabaseFilters, DungeonDifficulty, UIEnchant, type UIItem, UIItemSource } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
 import { Gear } from '@sim/proto/gear';
-import {
-	bulkState,
-	loadStoredBulkDropsEnchantPresets,
-	loadStoredBulkDropsExcluded,
-	loadStoredBulkDropsSources,
-	loadStoredBulkDropsView,
-} from '@sim/settings/bulk_settings';
+import { bulkState, loadStoredBulkDropsExcluded, loadStoredBulkDropsSources, loadStoredBulkDropsView } from '@sim/settings/bulk_settings';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { makeUIItem } from '@testing/storybook/fixtures/protos';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import {
-	dropsRequestSettings,
-	dropsSetupFor,
-	setDropsEnchantPresetChecked,
-	setDropsExcluded,
-	setDropsItemsIncluded,
-	setDropsSources,
-	setDropsView,
-} from './settings';
+import { dropsRequestSettings, dropsSetupFor, setDropsExcluded, setDropsItemsIncluded, setDropsSources, setDropsView } from './settings';
 
 const DRAKKISATH = 'drop:1583:10363';
 const WYRMTHALAK = 'drop:1583:9568';
@@ -78,14 +64,13 @@ beforeEach(() => {
 	saveEnchantPreset(player, { name: 'Armor', slots: [{ slot: ItemSlot.ItemSlotBack, effectIds: [CLOAK_ARMOR] }] });
 });
 
-const PICKABLE = ['Agility', 'Armor'];
 const sentIds = () => dropsRequestSettings(player).items.map(spec => spec.id);
 const settingsVersion = () => bulkState(player).v.settings;
 
 describe('dropsRequestSettings', () => {
-	it('sends the picked items sorted, one change at a time, with Drops’ own enchant pool', () => {
+	it('sends the picked items sorted, one change at a time, with the enchant pool of the presets Gear has ticked', () => {
 		setDropsSources(player, [DRAKKISATH]);
-		setDropsEnchantPresetChecked(player, 'Agility', true, PICKABLE);
+		setEnchantPresetChecked(player, 'Agility', true);
 
 		const settings = dropsRequestSettings(player);
 
@@ -93,15 +78,6 @@ describe('dropsRequestSettings', () => {
 		expect(settings.singleChange).toBe(true);
 		expect(settings.enchants).toEqual([BulkEnchantSlotOptions.create({ slot: ItemSlot.ItemSlotBack, effectIds: [CLOAK_AGILITY] })]);
 		expect(settings.freezeRingSlot).toBe(0);
-	});
-
-	it('leaves Gear’s checked presets out of a Drops request and Drops’ out of Gear’s', () => {
-		setDropsSources(player, [DRAKKISATH]);
-		setEnchantPresetChecked(player, 'Armor', true);
-		setDropsEnchantPresetChecked(player, 'Agility', true, PICKABLE);
-
-		expect(dropsRequestSettings(player).enchants).toEqual([BulkEnchantSlotOptions.create({ slot: ItemSlot.ItemSlotBack, effectIds: [CLOAK_AGILITY] })]);
-		expect(enchantPresetPool(player)).toEqual([BulkEnchantSlotOptions.create({ slot: ItemSlot.ItemSlotBack, effectIds: [CLOAK_ARMOR] })]);
 	});
 
 	it('sends nothing worn and nothing the user unticked', () => {
@@ -189,22 +165,12 @@ describe('dropsSetupFor level 45 cutoff', () => {
 });
 
 describe('Drops setters', () => {
-	it('stores the sources, excluded ids and preset pick, each bumping the count', () => {
+	it('stores the sources and excluded ids, each bumping the count', () => {
 		const steps: Array<[() => void, () => unknown, unknown]> = [
 			[() => setDropsSources(player, [WYRMTHALAK, DRAKKISATH]), () => loadStoredBulkDropsSources(player), [WYRMTHALAK, DRAKKISATH].sort()],
 			[() => setDropsExcluded(player, [310, 101, 310]), () => loadStoredBulkDropsExcluded(player), [101, 310]],
 			[() => setDropsItemsIncluded(player, [205, 101], false), () => loadStoredBulkDropsExcluded(player), [101, 205, 310]],
 			[() => setDropsItemsIncluded(player, [101], true), () => loadStoredBulkDropsExcluded(player), [205, 310]],
-			[
-				() => setDropsEnchantPresetChecked(player, 'Armor', true, PICKABLE),
-				() => loadStoredBulkDropsEnchantPresets(player),
-				BulkEnchantPresetSelection.create({ names: ['Armor'] }),
-			],
-			[
-				() => setDropsEnchantPresetChecked(player, 'Agility', true, PICKABLE),
-				() => loadStoredBulkDropsEnchantPresets(player),
-				BulkEnchantPresetSelection.create({ names: ['Agility', 'Armor'] }),
-			],
 		];
 		for (const [step, stored, expected] of steps) {
 			const before = settingsVersion();
@@ -212,8 +178,8 @@ describe('Drops setters', () => {
 			expect(stored()).toEqual(expected);
 			expect(settingsVersion()).toBe(before + 1);
 		}
-		const { dropsSources, dropsExcluded, dropsEnchantPresets } = bulkState(player);
-		expect([dropsSources, dropsExcluded, dropsEnchantPresets]).toEqual([[DRAKKISATH, WYRMTHALAK].sort(), [205, 310], ['Agility', 'Armor']]);
+		const { dropsSources, dropsExcluded } = bulkState(player);
+		expect([dropsSources, dropsExcluded]).toEqual([[DRAKKISATH, WYRMTHALAK].sort(), [205, 310]]);
 	});
 
 	it('stores the view without recounting', () => {

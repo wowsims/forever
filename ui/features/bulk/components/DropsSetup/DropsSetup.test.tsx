@@ -79,7 +79,7 @@ const disclose = (name: string) => fireEvent.click(screen.getByRole('button', { 
 const category = 'bulk_tab.drops.sources.categories.drop_dungeon';
 const rows = () => screen.queryAllByTestId('drops-item-row');
 const rowIds = () => rows().map(row => Number(row.getAttribute('data-item-id')));
-const headers = () => screen.queryAllByTestId('drops-group-trigger').map(trigger => trigger.textContent!.replace(/\d+\/\d+$/, ''));
+const headers = () => screen.queryAllByTestId('drops-group-trigger').map(trigger => trigger.textContent!.replace(/\d+$/, ''));
 // Every section starts collapsed, so a test that reads rows opens the closed ones first.
 const openAll = () => {
 	for (const trigger of screen.queryAllByTestId('drops-group-trigger')) {

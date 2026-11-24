@@ -1,21 +1,24 @@
+import { saveEnchantPreset } from '@features/enchant-presets/model/enchant_presets';
+import { BulkEnchantSlotOptions } from '@generated/proto/api';
 import { ItemSlot, Race } from '@generated/proto/common';
-import { ContentPhase, DatabaseFilters } from '@generated/proto/ui';
+import { ContentPhase, DatabaseFilters, UIEnchant } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { PlayerSpecs } from '@sim/player/specs';
 import { Gear } from '@sim/proto/gear';
 import { raceToFaction } from '@sim/proto/utils';
-import { patchBulkState } from '@sim/settings/bulk_settings';
+import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import { patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { BLACKROCK_SPIRE, dropsItemsFixture, dropsNamesFixture, REND, WORN_ITEM_ID } from '@testing/storybook/fixtures/bulk-drops';
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import english from '../../../../../assets/locales/en/translation.json';
-import { setDropsSources } from '../../model/drops/settings';
+import { dropsRequestSettings, setDropsSources } from '../../model/drops/settings';
 import { BulkSettings } from './BulkSettings';
 
 // The Drops pick comes off the fixture database and the live gear: nothing here mocks `useDropsSetup`.
@@ -32,6 +35,7 @@ afterAll(() => {
 
 const names = dropsNamesFixture();
 const WORN_SLOTS = [ItemSlot.ItemSlotMainHand];
+const CLOAK_AGILITY = 849;
 const text = (testId: string) => screen.getByTestId(testId).textContent;
 
 const mount = () => {
@@ -42,6 +46,7 @@ const mount = () => {
 		getFaction: () => raceToFaction[player.sim.store.getState().players[player.storeKey].race as Race],
 		getSpec: () => PlayerSpecs.DpsWarrior.specID,
 		getClass: () => PlayerSpecs.DpsWarrior.classID,
+		getEnchants: (slot: ItemSlot) => (slot === ItemSlot.ItemSlotBack ? [UIEnchant.create({ effectId: CLOAK_AGILITY })] : []),
 		sim: {
 			isNative: false,
 			getFilters(this: { store: SimStore }) {
@@ -86,5 +91,19 @@ describe('BulkSettings Drops run card on the fixture database', () => {
 		act(() => patchBulkState(player, { combinations: 2 }));
 
 		expect(simulate().disabled).toBe(false);
+	});
+
+	it('sends the enchants of a preset ticked in its Enchant presets group, which ticks it for Gear too', async () => {
+		const player = mount();
+		act(() => {
+			saveEnchantPreset(player, { name: 'Agility', slots: [{ slot: ItemSlot.ItemSlotBack, effectIds: [CLOAK_AGILITY] }] });
+			setDropsSources(player, [`drop:${BLACKROCK_SPIRE}:${REND}`]);
+		});
+		fireEvent.click(screen.getByTestId('bulk-settings-group-enchants-trigger'));
+
+		await userEvent.click(within(screen.getByTestId('bulk-enchant-presets')).getByRole('checkbox'));
+
+		expect(bulkState(player).enchantPresets.map(preset => [preset.name, preset.checked])).toEqual([['Agility', true]]);
+		expect(dropsRequestSettings(player).enchants).toEqual([BulkEnchantSlotOptions.create({ slot: ItemSlot.ItemSlotBack, effectIds: [CLOAK_AGILITY] })]);
 	});
 });

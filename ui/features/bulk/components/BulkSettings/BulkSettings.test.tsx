@@ -171,7 +171,6 @@ interface MountOptions {
 	encounterPresets?: PresetEncounter[];
 	savedEncounters?: Record<string, unknown>;
 	batchEncounter?: BulkEncounterRef;
-	dropsEnchantPresets?: string[];
 }
 
 const lookupEquipmentSpec = (spec: EquipmentSpec) => KNOWN_GEAR.find(known => getGearIdentityKey(known.asSpec()) === getGearIdentityKey(spec)) ?? new Gear({});
@@ -188,7 +187,6 @@ const mount = ({
 	encounterPresets = [],
 	savedEncounters = SAVED.encounters,
 	batchEncounter = BulkEncounterRef.create(),
-	dropsEnchantPresets = [],
 }: MountOptions = {}) => {
 	for (const [kind, key] of Object.entries(KEYS)) localStorage.setItem(key, JSON.stringify(SAVED[kind as keyof typeof KEYS]));
 	localStorage.setItem(KEYS.encounters, JSON.stringify(savedEncounters));
@@ -231,7 +229,6 @@ const mount = ({
 		buildEnchantPresets,
 		encounters,
 		batchEncounter,
-		dropsEnchantPresets,
 	});
 	const host = {
 		player,
@@ -755,13 +752,15 @@ describe('BulkSettings in Drops mode', () => {
 		expect(simulate().disabled).toBe(true);
 	});
 
-	it('ticks a Drops enchant preset without touching Gear’s pick', async () => {
+	it('ticks an enchant preset in Drops that Gear shows ticked too', async () => {
 		const { player, openGroup } = mount({ mode: 'drops' });
 		openGroup('enchants');
+		const agility = () => within(screen.getByTestId('bulk-enchant-presets')).getAllByRole('checkbox')[0];
 
-		await userEvent.click(within(screen.getByTestId('drops-enchant-presets')).getAllByRole('checkbox')[0]);
+		await userEvent.click(agility());
 
-		expect(bulkState(player).dropsEnchantPresets).toEqual(['Agility']);
-		expect(bulkState(player).enchantPresets.find(preset => preset.name === 'Agility')!.checked).toBe(false);
+		expect(bulkState(player).enchantPresets.find(preset => preset.name === 'Agility')!.checked).toBe(true);
+		act(() => patchBulkState(player, { mode: 'gear' }));
+		expect(agility().getAttribute('aria-checked')).toBe('true');
 	});
 });

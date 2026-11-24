@@ -1,11 +1,14 @@
+import { getEmptySlotIconUrl } from '@features/gear/model/empty_slot_icons';
 import i18n from '@i18n/config';
 import { translateBulkSlotName } from '@i18n/localization';
+import { BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS, BULK_SIM_ITEM_SLOT_TO_SINGLE_ITEM_SLOT, type BulkSimItemSlot } from '@sim/bulk/utils';
 import { useActionId } from '@sim/hooks/useActionId';
 import { ActionId } from '@sim/proto/action_id';
 import { Accordion, AccordionItem } from '@ui-kit/Accordion';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
 import { Field } from '@ui-kit/Field';
+import { IconSwatch } from '@ui-kit/IconSwatch';
 import { ItemCellIcon } from '@ui-kit/ItemCell';
 import { Pill } from '@ui-kit/Pill';
 import { ToggleGroup } from '@ui-kit/ToggleGroup';
@@ -40,13 +43,20 @@ interface ItemGroup {
 	key: string;
 	source?: string;
 	title: string;
+	/** The empty-slot art of a slot group, from the first gear slot of its bulk slot. */
+	iconUrl?: string;
 	detail?: string;
 	items: DropsItem[];
 }
 
+const slotIconUrl = (slot: BulkSimItemSlot): string | undefined => {
+	const gearSlot = BULK_SIM_ITEM_SLOT_TO_SINGLE_ITEM_SLOT.get(slot) ?? BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS.get(slot)?.[0];
+	return gearSlot === undefined ? undefined : getEmptySlotIconUrl(gearSlot);
+};
+
 const itemGroups = (list: DropsItemList, grouping: DropsItemsViewProps['grouping'], tree: readonly DropsSourceNode[], names: DropsNames): ItemGroup[] =>
 	grouping === 'slot'
-		? dropsItemsBySlot(list).map(({ slot, items }) => ({ key: `slot:${slot}`, title: translateBulkSlotName(slot), items }))
+		? dropsItemsBySlot(list).map(({ slot, items }) => ({ key: `slot:${slot}`, title: translateBulkSlotName(slot), iconUrl: slotIconUrl(slot), items }))
 		: dropsItemsBySource(list, tree, names).map(({ key, label, items }) => ({ key, source: key, title: label.label, detail: label.detail, items }));
 
 interface ItemRowProps {
@@ -120,7 +130,7 @@ interface ItemGroupSectionProps {
 	onIncludedChange: DropsItemsViewProps['onIncludedChange'];
 }
 
-// Worn rows are left out of the count and of the ids the box sends, as Include all and Exclude all leave them out.
+// The badge counts the included non-worn rows and hides at none, as the enchant preset dialog's does. Worn rows are left out of it and of the ids the box sends, as Include all and Exclude all leave them out.
 // A partly ticked box passes `value={false}` with `indeterminate`, so pressing it reports `true` and ticks the rest.
 // A section's rows mount only while it is open, so the list holds as many as the open sections list.
 const ItemGroupSection = ({ group, names, onIncludedChange }: ItemGroupSectionProps) => {
@@ -133,7 +143,7 @@ const ItemGroupSection = ({ group, names, onIncludedChange }: ItemGroupSectionPr
 		<AccordionItem
 			value={group.key}
 			testId="drops-group"
-			panelClassName="px-0"
+			panelClassName="px-1"
 			start={
 				<Field.Root id={id} layout="inline" size="xs" disabled={ids.length === 0} className="ui-boolean-picker ms-2 grow-0">
 					<BooleanPicker
@@ -146,13 +156,17 @@ const ItemGroupSection = ({ group, names, onIncludedChange }: ItemGroupSectionPr
 					<Field.Label className="sr-only">{group.title}</Field.Label>
 				</Field.Root>
 			}
+			// A source section has no slot icon, so the row keeps the icon's height to pad like a slot section.
 			title={
-				<span className="flex min-w-0 grow items-center gap-2">
+				<span className="flex min-h-8 min-w-0 grow items-center gap-2">
+					{group.iconUrl && <IconSwatch icon={{ iconUrl: group.iconUrl, name: group.title }} className="size-8 min-w-8" aria-hidden />}
 					<span className="truncate">{group.title}</span>
 					{group.detail && <span className="min-w-0 truncate text-xs font-normal text-gray-400">{group.detail}</span>}
-					<span className="ms-auto shrink-0 text-xs font-normal text-gray-400" data-testid="drops-group-count">
-						{included}/{pickable.length}
-					</span>
+					{included > 0 && (
+						<Pill size="xs" className="min-w-[1lh] shrink-0 justify-center" testId="drops-group-count">
+							{included}
+						</Pill>
+					)}
 				</span>
 			}>
 			{group.items.map((entry, index) => (

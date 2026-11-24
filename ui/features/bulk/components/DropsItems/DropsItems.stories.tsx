@@ -29,7 +29,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Every section starts collapsed, each with its included count and a box for the whole group.
+// Every section starts collapsed, each with its slot icon, a badge of its included count and a box for the whole group.
 export const Default: Story = {};
 
 // Worn rows grey out, and a row's unticked box stays unticked.

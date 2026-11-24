@@ -254,8 +254,6 @@ export interface BulkSlice {
 	dropsSources: readonly string[];
 	// The ids of the items under the ticked sources that Drops has unticked, sorted.
 	dropsExcluded: readonly number[];
-	// The names of the enchant presets Drops runs every new item with, in list order; not the Gear mode's checked ones.
-	dropsEnchantPresets: readonly string[];
 	dropsView: BulkDropsView;
 	// Picked in the top navigation; Drops is no power tool, Builds counts only with power tools on.
 	mode: BulkMode;

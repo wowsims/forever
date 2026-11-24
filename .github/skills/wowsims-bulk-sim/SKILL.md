@@ -45,7 +45,7 @@ mirror of the stage loop because the WASM sim cannot run `bulkSimAsync`.
 - Drops mode, `ui/features/bulk/model/drops/`: `sources.ts` (the source leaf keys, labels and tree), `items.ts` (the
   pickable list), `settings.ts` (the setters and `dropsRequestSettings`), `results.ts` (`dropsGap`, rows grouped by
   item and by source). Components under `ui/features/bulk/components/`: `DropsSetup` (`DropsSources` tree,
-  `DropsItems` list), `DropsRunCount`, `DropsEnchantPresets`, `DropsResults` (`DropsSummary`, `DropsBossCard`,
+  `DropsItems` list), `DropsRunCount`, `DropsResults` (`DropsSummary`, `DropsBossCard`,
   `DropsItemLabel`). `TotalIterations` is the run card's iterations row, shared by Gear, Builds and Drops, and
   `BulkDpsCell` the DPS, margin and difference of a Gear, Builds or Drops result row. A Drops result row is Gear's
   (`BulkResultRowView`), and `BulkResultSlots` draws the slot cells of both.
@@ -135,7 +135,7 @@ not ship, and core code reading an item the player does not wear gets nil.
 ## Enchant presets
 
 The bulk sim crosses enchants through its checked enchant presets. `enchantPresetPool` turns them into
-`BulkSettings.enchants` on every Gear-mode request (Finger 1 stands for both rings; Main Hand enchants go to both
+`BulkSettings.enchants` on every Gear and Drops request (Finger 1 stands for both rings; Main Hand enchants go to both
 hands); the pool is derived, never stored, and sorted so preset order does not change the seed. The presets live in
 the bulk slice (`enchantPresets`, storage key `bulk-enchant-presets.v1`); checking a preset, or saving or deleting a
 checked one, bumps the slice's `settings` counter so the combination count refreshes. Builds checks the same presets
@@ -242,8 +242,8 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   plan never reads the ref. The block never writes the Encounter tab.
 - **Drops** answers which drop from the ticked sources beats the worn gear. The Setup pane (`DropsSetup`) holds the
   Sources tree (`dropsSourceTree`) and the item list; the run card holds `DropsRunCount` and the Batch encounter block,
-  with no Top results field. Drops' enchant presets (`DropsEnchantPresets`) are the one settings group under the run
-  card. The leaf keys are `drop:<zoneId>:<npcId>`, `drop:<zoneId>:other:<name>` (the world drop is
+  with no Top results field. Gear's Enchant presets group (`EnchantPresets`) is the one settings group under the run
+  card, and its ticks are Gear's. The leaf keys are `drop:<zoneId>:<npcId>`, `drop:<zoneId>:other:<name>` (the world drop is
   `drop:0:other:World Drop`), `quest:<zoneId>`, `crafted:<Profession>` (the numeric enum), `rep:<repFactionId>` and
   `soldBy:<zoneId>`. A quest or vendor zone with no `zones` row folds into `quest:other` or `soldBy:0`; PvP and a source
   with nothing to key on have no key. The tree's categories are Dungeons, Raids and World drops (`drop_dungeon`,
@@ -261,12 +261,11 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   them. `dropsSetupFor` keeps the cutoff until the database or its item count changes, and the items, their source keys
   and the tree until the phase, the side, the class or one of those filters changes too. A worn item is listed but never
   sent.
-  Four keys store the picks per spec: `bulk-drops-sources.v1` (the ticked leaf keys, sorted), `bulk-drops-excluded.v1`
-  (item ids unticked under them), `bulk-drops-enchant-presets.v1` (the presets Drops runs new items with, apart from
-  Gear's and Builds' picks) and `bulk-drops-view.v1` (`bosses` or `items`). Each pick but the view bumps `settings` so
-  the count refreshes.
+  Three keys store the picks per spec: `bulk-drops-sources.v1` (the ticked leaf keys, sorted), `bulk-drops-excluded.v1`
+  (item ids unticked under them) and `bulk-drops-view.v1` (`bosses` or `items`). Each pick but the view bumps `settings`
+  so the count refreshes.
 - The Drops request (`dropsRequestSettings`) is `BulkSettings` with `single_change` on, the picked item ids as `items`
-  and the enchant pool of Drops' own presets. It sends `BulkSimOverrides.cullToBaseline` with
+  and Gear's enchant pool (`enchantPresetPool`). It sends `BulkSimOverrides.cullToBaseline` with
   `BULK_SIM_DEFAULT_TOP_RESULTS` (`bulkTopResults` returns it in Drops), so every candidate comes back once, in
   `top_results` or `culled_results`, and the run ranks every returned row, never All (`rankEncounterResults` with 0).
   The run card counts candidates, not combinations: the count leaves out the current gear, an all-worn pick counts 0 and

@@ -27,7 +27,6 @@ import { runBulkBatch } from '../../model/run/run';
 import { bulkTopResults } from '../../model/run/top_results';
 import { canRunBatch, canRunBuildsBatch, canRunDropsBatch } from '../../model/selectors';
 import { BatchEncounter } from '../BatchEncounter';
-import { DropsEnchantPresets } from '../DropsEnchantPresets';
 import { DropsRunCount } from '../DropsRunCount';
 import { BulkTopResultsField } from './BulkTopResultsField';
 import { CombinationsCount } from './CombinationsCount';
@@ -220,7 +219,7 @@ const BulkSettingsContainer = ({ builds, dropsPicked }: BulkSettingsContainerPro
 			onOpenGroupsChange={setOpenGroups}
 			groups={builds ? 'none' : dropsPicked === null ? 'all' : 'enchants'}
 			runLabel={i18n.t(dropsPicked === null ? 'bulk_tab.actions.simulate_batch' : 'bulk_tab.actions.simulate_drops')}
-			enchants={dropsPicked === null ? <EnchantPresets /> : <DropsEnchantPresets />}
+			enchants={<EnchantPresets />}
 			frozenItems={FROZEN_PAIRS.map(freezeItemProps)}
 			weaponFreeze={
 				getBulkPlayerCanDualWield(player)

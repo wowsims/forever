@@ -2,7 +2,7 @@ import { BulkEnchantSlotOptions } from '@generated/proto/api';
 import { ItemSlot } from '@generated/proto/common';
 import { BulkEnchantPreset, BulkEnchantPresets, BulkEnchantPresetSelection } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
-import { bulkState, patchBulkState, storeBulkBuildEnchantPresets, storeBulkDropsEnchantPresets, storeEnchantPresets } from '@sim/settings/bulk_settings';
+import { bulkState, patchBulkState, storeBulkBuildEnchantPresets, storeEnchantPresets } from '@sim/settings/bulk_settings';
 
 export type EnchantPresetNameProblem = 'empty' | 'duplicate';
 
@@ -42,14 +42,12 @@ const enchantPresetSlotIds = (player: Player<any>, presets: readonly BulkEnchant
 	return wanted.filter(id => usable.has(id));
 };
 
-// The given presets' pool, Gear mode's checked ones by default. Sorted, so the request that seeds the batch's RNG does not
-// depend on preset order or the order enchants were picked in.
-export const enchantPresetPool = (
-	player: Player<any>,
-	presets: readonly BulkEnchantPreset[] = bulkState(player).enchantPresets.filter(preset => preset.checked),
-): BulkEnchantSlotOptions[] => {
+// Sorted, so the request that seeds the batch's RNG does not depend on preset order or the order enchants were picked in.
+export const enchantPresetPool = (player: Player<any>): BulkEnchantSlotOptions[] => {
+	const checked = bulkState(player).enchantPresets.filter(preset => preset.checked);
+
 	return ENCHANT_PRESET_SLOTS.flatMap(slot => {
-		const effectIds = enchantPresetSlotIds(player, presets, slot);
+		const effectIds = enchantPresetSlotIds(player, checked, slot);
 		return effectIds.length ? [BulkEnchantSlotOptions.create({ slot, effectIds })] : [];
 	});
 };
@@ -66,22 +64,10 @@ const writeEnchantPresets = (player: Player<any>, enchantPresets: BulkEnchantPre
 	storeEnchantPresets(player, BulkEnchantPresets.create({ presets: enchantPresets }));
 };
 
-const ENCHANT_PICKS = [
-	{ field: 'buildEnchantPresets', store: storeBulkBuildEnchantPresets },
-	{ field: 'dropsEnchantPresets', store: storeBulkDropsEnchantPresets },
-] as const;
-
-// The Builds and Drops picks hold preset names, so a rename carries a picked preset over and a delete drops it: `rename`
-// maps each picked name to its new one, null to drop it. No bump: the preset write that follows recounts, so this runs
-// first and the count reads the new names.
-const updateEnchantPicks = (player: Player<any>, rename: (name: string) => string | null) => {
-	for (const { field, store } of ENCHANT_PICKS) {
-		const picked = bulkState(player)[field];
-		const names = picked.flatMap(name => rename(name) ?? []);
-		if (names.length === picked.length && names.every((name, index) => name === picked[index])) continue;
-		patchBulkState(player, { [field]: names });
-		store(player, BulkEnchantPresetSelection.create({ names }));
-	}
+// The Builds pick holds preset names, so a rename carries a picked preset over and a delete drops it.
+const writeBuildEnchantPicks = (player: Player<any>, buildEnchantPresets: string[]) => {
+	patchBulkState(player, { buildEnchantPresets });
+	storeBulkBuildEnchantPresets(player, BulkEnchantPresetSelection.create({ names: buildEnchantPresets }));
 };
 
 export interface EnchantPresetDraft {
@@ -90,7 +76,7 @@ export interface EnchantPresetDraft {
 }
 
 export const saveEnchantPreset = (player: Player<any>, preset: EnchantPresetDraft, previousName?: string) => {
-	const { enchantPresets, dropsEnchantPresets } = bulkState(player);
+	const { enchantPresets, buildEnchantPresets } = bulkState(player);
 	const replaced = previousName === undefined ? undefined : enchantPresets.find(existing => existing.name === previousName);
 	const saved = BulkEnchantPreset.create({
 		name: preset.name.trim(),
@@ -100,27 +86,35 @@ export const saveEnchantPreset = (player: Player<any>, preset: EnchantPresetDraf
 		checked: replaced?.checked ?? false,
 	});
 
-	const dropsPicked = replaced !== undefined && dropsEnchantPresets.includes(replaced.name);
-	if (replaced) updateEnchantPicks(player, name => (name === replaced.name ? saved.name : name));
 	writeEnchantPresets(
 		player,
 		replaced ? enchantPresets.map(existing => (existing === replaced ? saved : existing)) : [...enchantPresets, saved],
-		saved.checked || dropsPicked,
+		saved.checked,
 	);
+	if (replaced && replaced.name !== saved.name && buildEnchantPresets.includes(replaced.name)) {
+		writeBuildEnchantPicks(
+			player,
+			buildEnchantPresets.map(picked => (picked === replaced.name ? saved.name : picked)),
+		);
+	}
 };
 
 export const deleteEnchantPreset = (player: Player<any>, name: string) => {
-	const { enchantPresets, dropsEnchantPresets } = bulkState(player);
+	const { enchantPresets, buildEnchantPresets } = bulkState(player);
 	const deleted = enchantPresets.find(preset => preset.name === name);
 	if (!deleted) return;
 
-	const dropsPicked = dropsEnchantPresets.includes(name);
-	updateEnchantPicks(player, picked => (picked === name ? null : picked));
 	writeEnchantPresets(
 		player,
 		enchantPresets.filter(preset => preset !== deleted),
-		deleted.checked || dropsPicked,
+		deleted.checked,
 	);
+	if (buildEnchantPresets.includes(name)) {
+		writeBuildEnchantPicks(
+			player,
+			buildEnchantPresets.filter(picked => picked !== name),
+		);
+	}
 };
 
 export const setEnchantPresetChecked = (player: Player<any>, name: string, checked: boolean) => {

@@ -19,7 +19,7 @@ import {
 	setBulkCurrentBundleChecked,
 	takenBundleLabels,
 } from '../../model/builds/bundles';
-import { enchantPickRows, setBulkEnchantPickChecked } from '../../model/builds/enchant_picks';
+import { bulkEnchantPickList, formatEnchantPickSummary, setBulkEnchantPickChecked } from '../../model/builds/enchant_picks';
 import { BulkBundleDialog } from '../BulkBundleDialog';
 import { BulkBundleList, type BulkBundleListProps } from '../BulkBundleList';
 import { BulkCheckList, type BulkCheckRow } from '../BulkCheckList';
@@ -103,7 +103,7 @@ export const BuildBundles = () => {
 	const player = usePlayer();
 	const { sources, sameAs } = useBulkBuildsPlan()!;
 	const { ready, current, parts, bundles, currentChecked } = sources;
-	const { entries: enchantPickEntries, checked: checkedEnchantPicks } = useBulkEnchantPicks('buildEnchantPresets');
+	const { entries: enchantPickEntries, checked: checkedEnchantPicks } = useBulkEnchantPicks();
 	const [dialog, setDialog] = useState<DialogState>({ open: false, bundle: null, key: 0 });
 	const [creatingEnchantPreset, setCreatingEnchantPreset] = useState(false);
 	const enchantPicksRef = useRef<HTMLDivElement>(null);
@@ -132,7 +132,17 @@ export const BuildBundles = () => {
 	}, [list, sameAs]);
 	const options = useMemo(() => bundleOptions(parts), [parts]);
 
-	const enchantPicks = useMemo(() => enchantPickRows(enchantPickEntries, checkedEnchantPicks), [enchantPickEntries, checkedEnchantPicks]);
+	const enchantPickRows = useMemo(
+		() =>
+			bulkEnchantPickList(enchantPickEntries, checkedEnchantPicks).map((item): BulkCheckRow => ({
+				ref: item.ref,
+				name: item.name,
+				summary: formatEnchantPickSummary(item.preset),
+				checked: item.checked,
+				duplicate: item.duplicate,
+			})),
+		[enchantPickEntries, checkedEnchantPicks],
+	);
 
 	const openDialog = (bundle: BulkBuildBundle | null) => setDialog(state => ({ open: true, bundle, key: state.key + 1 }));
 	// Found by identity, so a prune of an earlier bundle moves the edit along; a prune of this one closes the dialog unsaved.
@@ -168,7 +178,7 @@ export const BuildBundles = () => {
 					/>
 				)
 			}
-			enchantPicks={enchantPicks}
+			enchantPicks={enchantPickRows}
 			onEnchantPickCheckedChange={(name, checked) =>
 				setBulkEnchantPickChecked(
 					player,

@@ -1031,6 +1031,20 @@ describe('the Drops count', () => {
 		await vi.waitFor(() => expect(vi.mocked(host.sim.getBulkCombinationCount).mock.calls.at(-1)![0].singleChange).toBe(true));
 	});
 
+	it('recounts Drops with the enchants of a preset ticked in Gear', async () => {
+		const host = await initedHost('drops');
+		saveEnchantPreset(host.player, { name: 'Agility', slots: [{ slot: ItemSlot.ItemSlotBack, effectIds: [CLOAK_AGILITY.effectId] }] });
+		await vi.waitFor(() => expect(sentItems(host)).toEqual([102]));
+
+		setEnchantPresetChecked(host.player, 'Agility', true);
+
+		await vi.waitFor(() =>
+			expect(vi.mocked(host.sim.getBulkCombinationCount).mock.calls.at(-1)![0].enchants).toEqual([
+				BulkEnchantSlotOptions.create({ slot: ItemSlot.ItemSlotBack, effectIds: [CLOAK_AGILITY.effectId] }),
+			]),
+		);
+	});
+
 	it('recounts Drops when the phase, the filters, the race or the gear changes', async () => {
 		const host = await initedHost('drops');
 		const { store } = host.player.sim;

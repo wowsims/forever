@@ -20,7 +20,7 @@
     "wowsims-bulk-sim": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "3b977f846a283f2879077ebec695dbd419ce4629580fd4693dc7dac887ef7318"
+      "computedHash": "859abadb7d50a446ebe03021c78f2139db3ee3a6e65b2956cd63d1ac07352046"
     },
     "wowsims-consumables-items": {
       "source": "./.github/skills",

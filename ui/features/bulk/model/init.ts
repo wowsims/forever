@@ -7,7 +7,6 @@ import {
 	loadStoredBatchEncounter,
 	loadStoredBulkBuildEnchantPresets,
 	loadStoredBulkBundles,
-	loadStoredBulkDropsEnchantPresets,
 	loadStoredBulkDropsExcluded,
 	loadStoredBulkDropsSources,
 	loadStoredBulkDropsView,
@@ -85,11 +84,6 @@ const loadSettings = (player: Player<any>) => {
 	const dropsExcluded = loadStoredBulkDropsExcluded(player);
 	if (dropsExcluded != null) {
 		patchBulkState(player, { dropsExcluded });
-	}
-
-	const dropsEnchantPresets = loadStoredBulkDropsEnchantPresets(player);
-	if (dropsEnchantPresets != null) {
-		patchBulkState(player, { dropsEnchantPresets: dropsEnchantPresets.names });
 	}
 
 	const dropsView = loadStoredBulkDropsView(player);

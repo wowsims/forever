@@ -67,12 +67,22 @@ describe('DropsItemsView', () => {
 		expect(screen.queryAllByTestId('drops-item-row')).toHaveLength(0);
 	});
 
-	it('counts the included non-worn items of a section out of the non-worn ones it lists', () => {
+	it('badges the included non-worn items of a section, and none when nothing is included', () => {
 		mount(withExcluded(dropsItemListFixture(), [FELSTRIKER]));
 
-		expect(within(group(REND)).getByTestId('drops-group-count').textContent).toBe('1/2');
-		expect(within(group(WYRMTHALAK)).getByTestId('drops-group-count').textContent).toBe('2/2');
-		expect(within(group(BARTHILAS)).getByTestId('drops-group-count').textContent).toBe('0/1');
+		expect(within(group(REND)).getByTestId('drops-group-count').textContent).toBe('1');
+		expect(within(group(WYRMTHALAK)).getByTestId('drops-group-count').textContent).toBe('2');
+		expect(within(group(BARTHILAS)).queryByTestId('drops-group-count')).toBeNull();
+	});
+
+	it('shows the empty-slot icon of a slot section and none for a source section', () => {
+		const view = mount(dropsItemListFixture(), { grouping: 'slot' });
+		const art = (item: HTMLElement) => item.querySelector<HTMLElement>('[style*="/item_slots/"]');
+		expect(screen.getAllByTestId('drops-group').every(art)).toBe(true);
+
+		view.unmount();
+		mount();
+		expect(screen.getAllByTestId('drops-group').some(art)).toBe(false);
 	});
 
 	it('reads the section box as checked, mixed or unchecked', () => {

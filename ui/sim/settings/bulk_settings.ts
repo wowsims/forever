@@ -28,7 +28,6 @@ const BULK_ENCOUNTERS_STORAGE_KEY = 'bulk-encounters.v1';
 const BULK_BATCH_ENCOUNTER_STORAGE_KEY = 'bulk-batch-encounter.v1';
 const BULK_DROPS_SOURCES_STORAGE_KEY = 'bulk-drops-sources.v1';
 const BULK_DROPS_EXCLUDED_STORAGE_KEY = 'bulk-drops-excluded.v1';
-const BULK_DROPS_ENCHANT_PRESETS_STORAGE_KEY = 'bulk-drops-enchant-presets.v1';
 const BULK_DROPS_VIEW_STORAGE_KEY = 'bulk-drops-view.v1';
 const BULK_MODE_STORAGE_KEY = 'bulk-mode.v1';
 const BULK_TOP_RESULTS_STORAGE_KEY = 'bulk-top-results.v1';
@@ -54,7 +53,6 @@ const initialBulkSlice = (): BulkSlice => ({
 	batchEncounter: BulkEncounterRef.create(),
 	dropsSources: [],
 	dropsExcluded: [],
-	dropsEnchantPresets: [],
 	dropsView: 'bosses',
 	mode: 'gear',
 	gearTopResults: BULK_SIM_DEFAULT_TOP_RESULTS,
@@ -206,12 +204,6 @@ export const loadStoredBulkDropsExcluded = (player: Player<any>): number[] | nul
 	loadStoredJsonArray(player, BULK_DROPS_EXCLUDED_STORAGE_KEY, (value): value is number => Number.isInteger(value));
 
 export const storeBulkDropsExcluded = (player: Player<any>, ids: readonly number[]) => storeJsonArray(player, BULK_DROPS_EXCLUDED_STORAGE_KEY, ids);
-
-export const loadStoredBulkDropsEnchantPresets = (player: Player<any>): BulkEnchantPresetSelection | null =>
-	loadStoredProto(player, BULK_DROPS_ENCHANT_PRESETS_STORAGE_KEY, BulkEnchantPresetSelection);
-
-export const storeBulkDropsEnchantPresets = (player: Player<any>, selection: BulkEnchantPresetSelection) =>
-	storeProto(player, BULK_DROPS_ENCHANT_PRESETS_STORAGE_KEY, BulkEnchantPresetSelection, selection);
 
 // Null when nothing or an unknown view is stored.
 export const loadStoredBulkDropsView = (player: Player<any>): BulkDropsView | null => {

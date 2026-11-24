@@ -2,6 +2,7 @@ import i18n from '@i18n/config';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
+import { Pill } from '@ui-kit/Pill';
 import clsx from 'clsx';
 import { useState } from 'react';
 
@@ -22,7 +23,7 @@ interface SourceRowProps extends Pick<DropsSourcesViewProps, 'ticked' | 'onTick'
 }
 
 // A partly ticked node passes `value={false}` with `indeterminate`, so pressing it reports `true` and ticks the rest.
-// Children mount only while the node is open, indented under a guide line centred on the chevron, as the kit Tree indents.
+// Children mount only while the node is open, indented under a guide line. The row reads like an accordion header: box, name, count badge, chevron on the right.
 const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 	const [open, setOpen] = useState(false);
 	const state = dropsNodeState(node, ticked);
@@ -30,7 +31,20 @@ const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 
 	return (
 		<div>
-			<div className="flex items-center gap-1">
+			<div className="flex items-center gap-2 py-2 text-sm font-semibold">
+				<BooleanPicker
+					className="min-w-0 wrap-anywhere"
+					label={node.label}
+					layout="inline"
+					size="xs"
+					value={state === 'checked'}
+					indeterminate={state === 'mixed'}
+					onChange={checked => onTick(node, checked)}
+				/>
+				<Pill size="xs" className="min-w-[1lh] shrink-0 justify-center" testId="drops-source-count">
+					{node.itemIds.length}
+				</Pill>
+				<span className="grow" />
 				{hasChildren ? (
 					<Button
 						variant={null}
@@ -44,21 +58,9 @@ const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 				) : (
 					<span className="size-4 shrink-0" aria-hidden />
 				)}
-				<BooleanPicker
-					className="min-w-0 grow wrap-anywhere"
-					label={node.label}
-					layout="inline"
-					size="xs"
-					value={state === 'checked'}
-					indeterminate={state === 'mixed'}
-					onChange={checked => onTick(node, checked)}
-				/>
-				<span className="shrink-0 text-xs text-gray-400" data-testid="drops-source-count">
-					{node.itemIds.length}
-				</span>
 			</div>
 			{open && (
-				<div className="ms-2 grid gap-1 border-s border-border ps-4 pt-1">
+				<div className="ms-2 grid border-s border-border ps-4">
 					{node.children.map(child => (
 						<SourceRow key={child.key} node={child} ticked={ticked} onTick={onTick} />
 					))}

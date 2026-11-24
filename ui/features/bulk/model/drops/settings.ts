@@ -4,18 +4,10 @@ import { ItemSpec } from '@generated/proto/common';
 import type { DatabaseFilters, UIItem } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
 import type { Database } from '@sim/proto/database';
-import {
-	bulkState,
-	patchBulkState,
-	storeBulkDropsEnchantPresets,
-	storeBulkDropsExcluded,
-	storeBulkDropsSources,
-	storeBulkDropsView,
-} from '@sim/settings/bulk_settings';
+import { bulkState, patchBulkState, storeBulkDropsExcluded, storeBulkDropsSources, storeBulkDropsView } from '@sim/settings/bulk_settings';
 import type { BulkDropsView } from '@sim/state/sim_store';
 import { memoLast } from '@sim/utils/misc';
 
-import { bulkEnchantPickEntries, bulkEnchantPickRuns, enchantPickSetter } from '../builds/enchant_picks';
 import {
 	dropsDungeonLevels,
 	dropsFactionItems,
@@ -47,9 +39,6 @@ export const setDropsItemsIncluded = (player: Player<any>, ids: readonly number[
 	const changed = new Set(ids);
 	setDropsExcluded(player, included ? dropsExcluded.filter(id => !changed.has(id)) : [...dropsExcluded, ...ids]);
 };
-
-// Bumps `settings`: the Drops count reads its enchant pool.
-export const setDropsEnchantPresetChecked = enchantPickSetter('dropsEnchantPresets', storeBulkDropsEnchantPresets, ['settings']);
 
 export const setDropsView = (player: Player<any>, view: BulkDropsView) => {
 	patchBulkState(player, { dropsView: view });
@@ -114,14 +103,11 @@ export const dropsSetupFor = (player: Player<any>): DropsSetupData => {
 	return { tree, list, names, dungeonLevels };
 };
 
-// One new item per candidate, sent with Drops' own preset pick and none of the Gear mode's frozen slots. The server
+// One new item per candidate, sent with the enchant presets Gear mode has ticked and none of its frozen slots. The server
 // knows only the items a request ships, so every picked id goes in `items`.
-export const dropsRequestSettings = (player: Player<any>): BulkSettings => {
-	const { enchantPresets, dropsEnchantPresets } = bulkState(player);
-	const presets = bulkEnchantPickRuns(bulkEnchantPickEntries(enchantPresets), dropsEnchantPresets).map(pick => pick.preset);
-	return BulkSettings.create({
+export const dropsRequestSettings = (player: Player<any>): BulkSettings =>
+	BulkSettings.create({
 		items: dropsPickedItemIds(dropsSetupFor(player).list).map(id => ItemSpec.create({ id })),
 		singleChange: true,
-		enchants: enchantPresetPool(player, presets),
+		enchants: enchantPresetPool(player),
 	});
-};
