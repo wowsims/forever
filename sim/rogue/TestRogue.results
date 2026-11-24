@@ -1088,8 +1088,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Hedgecutter-18498"
  value: {
-  dps: 765.67663
-  tps: 543.63041
+  dps: 765.86352
+  tps: 543.7631
   hps: 56.28944
  }
 }
@@ -2027,6 +2027,14 @@ dps_results: {
   dps: 658.7342
   tps: 467.70128
   hps: 54.56111
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Winter'sBite-10623"
+ value: {
+  dps: 766.56331
+  tps: 544.25995
+  hps: 54.30694
  }
 }
 dps_results: {

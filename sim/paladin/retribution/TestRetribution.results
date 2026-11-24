@@ -1674,6 +1674,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Ragehammer-10626"
+ value: {
+  dps: 875.55548
+  tps: 715.42005
+  dtps: 5.45525
+  hps: 26.74748
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 877.91345
