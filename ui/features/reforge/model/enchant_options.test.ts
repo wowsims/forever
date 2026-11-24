@@ -1,6 +1,6 @@
 import { enchantPresetPool, saveEnchantPreset, setEnchantPresetChecked } from '@features/enchant-presets/model/enchant_presets';
 import { BulkEnchantSlotOptions } from '@generated/proto/api';
-import { EnchantProcKind, HandType, ItemSlot, ItemType, PseudoStat, RangedWeaponType, Stat, WeaponType } from '@generated/proto/common';
+import { Class, EnchantProcKind, HandType, ItemSlot, ItemType, PseudoStat, RangedWeaponType, Stat, WeaponType } from '@generated/proto/common';
 import type { UIEnchant, UIItem } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
 import { Gear } from '@sim/proto/gear';
@@ -68,7 +68,7 @@ const makePresetPlayer = (checked: Record<string, PresetSlots>, { enchants = ALL
 
 const optimize = (player: Player<any>, gear: Gear, frozenSlots: ItemSlot[], weights: Stats, presetPool?: BulkEnchantSlotOptions[]) => {
 	const slots = classifyEnchantSlots(player, gear, frozenSlots, presetPool);
-	return { options: buildEnchantOptions(slots, weights, !!presetPool), skipped: skippedEnchantSlots(slots) };
+	return { options: buildEnchantOptions(slots, weights, Class.ClassWarrior, !!presetPool), skipped: skippedEnchantSlots(slots) };
 };
 
 const fromPresets = (player: Player<any>, gear: Gear) => optimize(player, gear, [], WEIGHTS, enchantPresetPool(player));
