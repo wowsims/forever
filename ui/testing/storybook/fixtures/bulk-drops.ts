@@ -5,7 +5,7 @@ import { dropsItemSourceKeys, type DropsNames, type DropsSourceNode, dropsSource
 import { rankEncounterResults } from '@features/bulk/model/results/results';
 import { BulkSimStage, DistributionMetrics } from '@generated/proto/api';
 import { ArmorType, Class, Faction, HandType, ItemQuality, ItemSlot, ItemType, WeaponType } from '@generated/proto/common';
-import { ContentPhase, type UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
+import { ContentPhase, DungeonDifficulty, type UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
 import type { BulkEncounterResults, TopGearResult } from '@sim/bulk/types';
 import { PlayerSpecs } from '@sim/player/specs';
 import { EquippedItem } from '@sim/proto/equipped_item';
@@ -51,7 +51,21 @@ export const dropsNamesFixture = (): DropsNames => ({
 });
 
 const drop = (zoneId: number, npcId: number) =>
-	UIItemSource.create({ source: { oneofKind: 'drop', drop: { difficulty: 0, npcId, zoneId, otherName: '', category: '' } } });
+	UIItemSource.create({
+		source: {
+			oneofKind: 'drop',
+			drop: {
+				difficulty: zoneId === MOLTEN_CORE ? DungeonDifficulty.DifficultyRaid : DungeonDifficulty.DifficultyDungeon,
+				npcId,
+				zoneId,
+				otherName: '',
+				category: '',
+			},
+		},
+	});
+const worldDrop = UIItemSource.create({
+	source: { oneofKind: 'drop', drop: { difficulty: DungeonDifficulty.DifficultyUnknown, npcId: 0, zoneId: 0, otherName: 'World Drop', category: '' } },
+});
 
 const gear = (id: number, name: string, type: ItemType, sources: UIItemSource[], fields: Partial<UIItem> = {}) =>
 	makeUIItem({
@@ -76,7 +90,7 @@ export const UNTICKED_ITEM_ID = 2007;
 export const ALLIANCE_ITEM_ID = 2011;
 export const WEARABLE_ITEM_ID = 2005;
 
-/** What the database holds for the fixture: a two-source weapon, a worn weapon, a class and a random-suffix item to leave out, and an Alliance-only item and a raid boss. */
+/** What the database holds for the fixture: a two-source weapon, a worn weapon, a class and a random-suffix item the list leaves out, an Alliance-only item, a raid boss and a world drop. */
 export const dropsItemsFixture = (): UIItem[] => [
 	weapon(2001, 'Felstriker', HandType.HandTypeOneHand, [drop(BLACKROCK_SPIRE, REND), drop(STRATHOLME, RIVENDARE)], {
 		quality: ItemQuality.ItemQualityEpic,
@@ -96,11 +110,12 @@ export const dropsItemsFixture = (): UIItem[] => [
 		factionRestriction: UIItem_FactionRestriction.ALLIANCE_ONLY,
 	}),
 	gear(2010, 'Sulfuras Hand', ItemType.ItemTypeWaist, [drop(MOLTEN_CORE, RAGNAROS)]),
+	weapon(2012, 'Hand of Edward the Odd', HandType.HandTypeOneHand, [worldDrop], { weaponType: WeaponType.WeaponTypeMace }),
 ];
 
 export const dropsTreeFixture = (): DropsSourceNode[] => dropsSourceTree(dropsItemsFixture(), dropsNamesFixture());
 
-/** Every dungeon boss ticked and the raid not: the worn weapon, a boss's unticked item, two items left out and an item from two ticked sources. */
+/** Every dungeon boss ticked and the raid not: the worn weapon, a boss's unticked item, two items the list leaves out and an item from two ticked sources. */
 export const dropsItemListFixture = (): DropsItemList => {
 	const ticked = new Set(['drop:1583:10429', 'drop:1583:10363', 'drop:1583:9568', 'drop:2017:10440', 'drop:2017:10435']);
 	return dropsItemList(

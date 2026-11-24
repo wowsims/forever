@@ -15,7 +15,7 @@ export interface DropsSetupViewProps {
 }
 
 export const DropsSetupView = ({ sources, items }: DropsSetupViewProps) => (
-	<div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]" data-testid="drops-setup">
+	<div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:items-start" data-testid="drops-setup">
 		<Box className="grid content-start gap-4" testId="drops-setup-sources">
 			{sources}
 		</Box>

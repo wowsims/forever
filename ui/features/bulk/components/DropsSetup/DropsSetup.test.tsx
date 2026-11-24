@@ -85,7 +85,7 @@ const mount = () => {
 
 const box = (name: string) => screen.getByRole('checkbox', { name });
 const disclose = (name: string) => fireEvent.click(screen.getByRole('button', { name }));
-const category = 'bulk_tab.drops.sources.categories.drop';
+const category = 'bulk_tab.drops.sources.categories.drop_dungeon';
 const rows = () => screen.queryAllByTestId('drops-item-row');
 const rowIds = () => rows().map(row => Number(row.getAttribute('data-item-id')));
 const headers = () => screen.queryAllByTestId('drops-group-header').map(header => header.textContent);
@@ -164,23 +164,12 @@ describe('DropsSetup', () => {
 		expect(loadStoredBulkDropsExcluded(player)).toEqual([]);
 	});
 
-	it('counts the left-out items by reason and lists them on Show', () => {
+	it('lists only what the class can use, with no word of the class-only and random-suffix items', () => {
 		act(() => patchBulkState(player, { dropsSources: [key(BLACKROCK_SPIRE, DRAKKISATH), key(STRATHOLME, RIVENDARE)] }, ['settings']));
 
-		const footer = screen.getByTestId('drops-left-out');
-		expect(footer.textContent).toContain(`${SETUP}.left_out_summary`);
+		expect(rowIds().sort()).toEqual([2001, 2002, 2004]);
 		expect(screen.queryByText('Robe of the Archmage')).toBeNull();
-
-		fireEvent.click(within(footer).getByRole('button', { name: `${SETUP}.show` }));
-
-		expect(within(footer).getByText('Robe of the Archmage')).toBeTruthy();
-		expect(within(footer).getByText('Cloak of the Eagle')).toBeTruthy();
-		expect(within(footer).getByText('bulk_tab.drops.setup.left_out_reason.class')).toBeTruthy();
-		expect(within(footer).getByText('bulk_tab.drops.setup.left_out_reason.random_suffix')).toBeTruthy();
-
-		fireEvent.click(within(footer).getByRole('button', { name: `${SETUP}.hide` }));
-
-		expect(screen.queryByText('Robe of the Archmage')).toBeNull();
+		expect(screen.queryByText('Cloak of the Eagle')).toBeNull();
 	});
 
 	it('groups the same items by boss on the switch, an item with two ticked sources under both', () => {
@@ -201,6 +190,23 @@ describe('DropsSetup', () => {
 		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.by_slot` }));
 
 		expect(rowIds().filter(id => id === FELSTRIKER)).toHaveLength(1);
+	});
+
+	it('names an item’s first source with a count of the rest, and under a boss only the other sources', () => {
+		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.l60_dungeons` }));
+		const felstriker = () => rows().filter(row => Number(row.getAttribute('data-item-id')) === FELSTRIKER);
+
+		const [bySlot] = felstriker();
+		expect(within(bySlot).getByText('Warchief Rend Blackhand')).toBeTruthy();
+		expect(within(bySlot).getByTestId('drops-item-more-sources').textContent).toBe('+1');
+
+		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.by_source` }));
+
+		const [underRend, underRivendare] = felstriker();
+		expect(within(underRend).queryByText('Warchief Rend Blackhand')).toBeNull();
+		expect(within(underRend).getByText('Baron Rivendare')).toBeTruthy();
+		expect(within(underRivendare).getByText('Warchief Rend Blackhand')).toBeTruthy();
+		expect(within(underRivendare).queryByTestId('drops-item-more-sources')).toBeNull();
 	});
 
 	it('rebuilds the list when the phase, the race or the gear changes', () => {

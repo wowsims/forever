@@ -57,6 +57,7 @@ export const DropsResultsView = ({ summary, view, onViewChange, showAll, onShowA
 		<div className="flex flex-wrap items-center gap-2">
 			<ToggleGroup
 				size="sm"
+				tone="neutral"
 				aria-label={t('view_label')}
 				value={view}
 				options={[

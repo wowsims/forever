@@ -34,7 +34,7 @@ export const Default: Story = {};
 export const Phone: Story = {
 	decorators: [
 		Story => (
-			<div className="w-96">
+			<div className="w-full max-w-96">
 				<Story />
 			</div>
 		),

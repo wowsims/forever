@@ -25,7 +25,7 @@ vi.mock('@features/bulk/model/run/run', () => ({ runBulkBatch: vi.fn() }));
 // The stub host has none of the raid and player getters the live settings are read from.
 vi.mock('@features/settings/hooks/useCurrentSettings', () => ({ useCurrentSettings: () => null }));
 // The Drops pick reads the database and the live gear, which the stub host has none of.
-vi.mock('@features/bulk/hooks/useDropsSetup', () => ({ useDropsSetup: () => ({ list: { items: [], leftOut: [] } }) }));
+vi.mock('@features/bulk/hooks/useDropsSetup', () => ({ useDropsSetup: () => ({ list: { items: [] } }) }));
 vi.mock('@features/results/components/DetailedResults', () => ({ DetailedResults: () => null }));
 vi.mock('./tabs/GearTabBody', () => ({ GearTabBody: () => null }));
 vi.mock('./tabs/SettingsTabBody', () => ({ SettingsTabBody: () => null }));
@@ -138,6 +138,19 @@ describe('SimTabsSection batch tab', () => {
 
 		expect(batchTab().getAttribute('aria-selected')).toBe('true');
 		expect(groups()).toEqual(['bulk-settings-group-enchants-trigger', 'bulk-settings-group-freezes-trigger']);
+	});
+
+	it('marks the mode the batch tab opens in, Gear for a stored Builds with power tools off', async () => {
+		const player = mount({ powerTools: false });
+		act(() => patchBulkState(player, { mode: 'builds' }));
+		const current = () => screen.queryAllByRole('menuitem').filter(item => item.getAttribute('aria-current') === 'true');
+
+		await hover(batchTab());
+		expect(current().map(item => item.getAttribute('data-testid'))).toEqual(['bulk-mode-gear']);
+
+		await click(screen.getByTestId('bulk-mode-drops'));
+		await hover(batchTab());
+		expect(current().map(item => item.getAttribute('data-testid'))).toEqual(['bulk-mode-drops']);
 	});
 
 	it('switches to Drops from the hover menu without power tools', async () => {

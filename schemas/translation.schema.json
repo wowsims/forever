@@ -4633,7 +4633,13 @@
 								"categories": {
 									"type": "object",
 									"properties": {
-										"drop": {
+										"drop_dungeon": {
+											"type": "string"
+										},
+										"drop_raid": {
+											"type": "string"
+										},
+										"drop_world": {
 											"type": "string"
 										},
 										"quest": {
@@ -4650,7 +4656,7 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["drop", "quest", "crafted", "rep", "soldBy"]
+									"required": ["drop_dungeon", "drop_raid", "drop_world", "quest", "crafted", "rep", "soldBy"]
 								},
 								"other_quests": {
 									"type": "string"
@@ -4698,29 +4704,10 @@
 								},
 								"worn": {
 									"type": "string"
-								},
-								"left_out": {
-									"type": "object",
-									"properties": {
-										"class_one": {
-											"type": "string"
-										},
-										"class_other": {
-											"type": "string"
-										},
-										"random_suffix_one": {
-											"type": "string"
-										},
-										"random_suffix_other": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["class_one", "class_other", "random_suffix_one", "random_suffix_other"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["tags", "worn", "left_out"]
+							"required": ["tags", "worn"]
 						},
 						"setup": {
 							"type": "object",
@@ -4756,29 +4743,7 @@
 								"by_source": {
 									"type": "string"
 								},
-								"left_out_summary_one": {
-									"type": "string"
-								},
-								"left_out_summary_other": {
-									"type": "string"
-								},
-								"left_out_reason": {
-									"type": "object",
-									"properties": {
-										"class": {
-											"type": "string"
-										},
-										"random_suffix": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["class", "random_suffix"]
-								},
 								"show": {
-									"type": "string"
-								},
-								"hide": {
 									"type": "string"
 								},
 								"empty": {
@@ -4786,21 +4751,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": [
-								"sources_title",
-								"items_title",
-								"quick_picks",
-								"include_all",
-								"exclude_all",
-								"by_slot",
-								"by_source",
-								"left_out_summary_one",
-								"left_out_summary_other",
-								"left_out_reason",
-								"show",
-								"hide",
-								"empty"
-							]
+							"required": ["sources_title", "items_title", "quick_picks", "include_all", "exclude_all", "by_slot", "by_source", "show", "empty"]
 						},
 						"results": {
 							"type": "object",

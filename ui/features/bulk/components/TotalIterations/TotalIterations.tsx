@@ -17,21 +17,24 @@ export interface TotalIterationsProps {
 	warningText: string;
 }
 
-// The Minimum iterations row of a run card's count list: a label with its help, and the number with the limit warning.
+// The Minimum iterations row of a run card's count list: a label with its help, and the number with the limit warning. In a
+// narrow card the label wraps, and the help, the number and the warning stay on its first line.
 export const TotalIterations = ({ pending, iterations, overLimit, warningText }: TotalIterationsProps) => {
 	const tooltipId = useId();
 	return (
 		<>
-			<dt className="flex items-center gap-1 font-normal">
-				{i18n.t('bulk_tab.settings.total_iterations')}
-				<TooltipButton
-					tooltip={i18n.t('bulk_tab.settings.total_iterations_tooltip')}
-					label={i18n.t('common.help')}
-					testId="bulk-total-iterations-help"
-				/>
+			<dt className="flex items-start gap-1 self-start font-normal">
+				<span>{i18n.t('bulk_tab.settings.total_iterations')}</span>
+				<span className="flex h-lh shrink-0 items-center">
+					<TooltipButton
+						tooltip={i18n.t('bulk_tab.settings.total_iterations_tooltip')}
+						label={i18n.t('common.help')}
+						testId="bulk-total-iterations-help"
+					/>
+				</span>
 			</dt>
 			<dd
-				className={clsx('mb-0 flex items-center justify-end gap-2 font-bold tabular-nums', overLimit && 'text-danger')}
+				className={clsx('mb-0 flex items-center justify-end gap-2 self-start font-bold tabular-nums', overLimit && 'text-danger')}
 				data-testid="bulk-total-iterations"
 				data-over-limit={overLimit ? '' : undefined}>
 				{overLimit && (

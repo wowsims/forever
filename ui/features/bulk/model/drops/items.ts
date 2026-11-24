@@ -57,7 +57,6 @@ export const dropsFactionItems = (items: readonly UIItem[], faction: Faction): U
 	return kept;
 };
 
-export type DropsLeftOutReason = 'class' | 'random_suffix';
 export type DropsSlotTag = 'mh' | 'oh' | '2h' | 'r1' | 'r2' | 't1' | 't2';
 
 export interface DropsItem {
@@ -73,7 +72,6 @@ export interface DropsItem {
 
 export interface DropsItemList {
 	items: readonly DropsItem[];
-	leftOut: ReadonlyArray<{ item: UIItem; reason: DropsLeftOutReason }>;
 }
 
 const tagsOf = (item: UIItem, canDualWield: boolean): DropsSlotTag[] => {
@@ -100,7 +98,7 @@ const tagsOf = (item: UIItem, canDualWield: boolean): DropsSlotTag[] => {
 
 const byName = (a: UIItem, b: UIItem) => a.name.localeCompare(b.name);
 
-/** `sourceKeysOf` gives an item's `dropsItemSourceKeys`. */
+/** The class's usable items, random-suffix ones left out; `sourceKeysOf` gives an item's `dropsItemSourceKeys`. */
 export const dropsItemList = (
 	items: readonly UIItem[],
 	ticked: ReadonlySet<string>,
@@ -109,28 +107,20 @@ export const dropsItemList = (
 	sourceKeysOf: (item: UIItem) => readonly string[],
 ): DropsItemList => {
 	const listed: DropsItem[] = [];
-	const leftOut: Array<{ item: UIItem; reason: DropsLeftOutReason }> = [];
 	for (const item of items) {
 		const sourceKeys = sourceKeysOf(item).filter(key => ticked.has(key));
-		if (sourceKeys.length === 0) continue;
-		if (!canEquipItem(item, context.playerSpec, undefined)) {
-			leftOut.push({ item, reason: 'class' });
-		} else if (item.randomSuffixOptions.length > 0) {
-			leftOut.push({ item, reason: 'random_suffix' });
-		} else {
-			listed.push({
-				item,
-				sourceKeys,
-				worn: context.wornIds.has(item.id),
-				included: !excluded.has(item.id),
-				tags: tagsOf(item, context.canDualWield),
-				bulkSlot: getBulkItemSlotFromSlot(getEligibleItemSlots(item)[0], context.canDualWield),
-			});
-		}
+		if (sourceKeys.length === 0 || !canEquipItem(item, context.playerSpec, undefined) || item.randomSuffixOptions.length > 0) continue;
+		listed.push({
+			item,
+			sourceKeys,
+			worn: context.wornIds.has(item.id),
+			included: !excluded.has(item.id),
+			tags: tagsOf(item, context.canDualWield),
+			bulkSlot: getBulkItemSlotFromSlot(getEligibleItemSlots(item)[0], context.canDualWield),
+		});
 	}
 	listed.sort((a, b) => byName(a.item, b.item));
-	leftOut.sort((a, b) => byName(a.item, b.item));
-	return { items: listed, leftOut };
+	return { items: listed };
 };
 
 export const dropsPickedItemIds = (list: DropsItemList): number[] =>
@@ -159,10 +149,4 @@ export const dropsItemsBySource = (
 		.flatMap(node => node.leafKeys)
 		.filter(key => bySource.has(key))
 		.map(key => ({ key, label: dropsSourceLabel(key, names), items: bySource.get(key)! }));
-};
-
-export const dropsLeftOutCounts = (list: DropsItemList): Record<DropsLeftOutReason, number> => {
-	const counts: Record<DropsLeftOutReason, number> = { class: 0, random_suffix: 0 };
-	for (const { reason } of list.leftOut) counts[reason]++;
-	return counts;
 };

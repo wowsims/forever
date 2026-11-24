@@ -1,7 +1,6 @@
-import i18n from '@i18n/config';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { dropsItemListFixture, dropsNamesFixture, dropsTreeFixture } from '@testing/storybook/fixtures/bulk-drops';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { fn } from 'storybook/test';
 
 import { DropsItemsView } from './DropsItems';
 
@@ -20,7 +19,7 @@ const meta = {
 	argTypes: { list: { control: false }, tree: { control: false }, names: { control: false } },
 	decorators: [
 		Story => (
-			<div className="w-170">
+			<div className="w-full max-w-170">
 				<Story />
 			</div>
 		),
@@ -33,14 +32,8 @@ type Story = StoryObj<typeof meta>;
 // Worn rows grey out, and a row's unticked box stays unticked.
 export const Default: Story = {};
 
+// A row names only its other sources, never the boss it sits under.
 export const BySource: Story = { args: { grouping: 'source' } };
 
-export const Empty: Story = { args: { list: { items: [], leftOut: [] } } };
-
-export const LeftOutShown: Story = {
-	play: async ({ canvasElement }) => {
-		const footer = within(canvasElement).getByTestId('drops-left-out');
-		await userEvent.click(within(footer).getByRole('button', { name: i18n.t('bulk_tab.drops.setup.show') }));
-		await expect(within(footer).getByText('Robe of the Archmage')).toBeTruthy();
-	},
-};
+// No source ticked: the grouping switch and the bulk actions wait for a first item.
+export const Empty: Story = { args: { list: { items: [] } } };

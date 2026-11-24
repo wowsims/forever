@@ -23,8 +23,9 @@ export interface BatchEncounterViewProps {
 
 const t = (key: string) => i18n.t(`bulk_tab.settings.batch_encounter.${key}`);
 
+// The summary is hint text under the select, which a field description would draw as a filled box like an input.
 export const BatchEncounterView = ({ options, picked, summary, onChange }: BatchEncounterViewProps) => (
-	<div className="grid gap-2" data-testid="bulk-batch-encounter">
+	<div className="grid gap-1" data-testid="bulk-batch-encounter">
 		<ChoiceField
 			id="bulk-batch-encounter-pick"
 			label={t('label')}
@@ -32,9 +33,12 @@ export const BatchEncounterView = ({ options, picked, summary, onChange }: Batch
 			options={options.map(({ ref, name }) => ({ value: ref, label: name }))}
 			value={picked}
 			equals={sameRef}
-			description={summary}
+			aria-describedby="bulk-batch-encounter-summary"
 			onChange={onChange}
 		/>
+		<p id="bulk-batch-encounter-summary" className="mb-0 text-xs text-gray-400">
+			{summary}
+		</p>
 	</div>
 );
 

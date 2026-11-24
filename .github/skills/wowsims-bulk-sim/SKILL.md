@@ -245,10 +245,16 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   card. The leaf keys are `drop:<zoneId>:<npcId>`, `drop:<zoneId>:other:<name>` (the world drop is
   `drop:0:other:World Drop`), `quest:<zoneId>`, `crafted:<Profession>` (the numeric enum), `rep:<repFactionId>` and
   `soldBy:<zoneId>`. A quest or vendor zone with no `zones` row folds into `quest:other` or `soldBy:0`; PvP and a source
-  with nothing to key on have no key. The Sources tree lists the items the phase and the player's side let through
-  (`dropsPhaseItems`, `dropsFactionItems`); `dropsSetupFor` keeps those items, their source keys and the tree until the
-  database, its item count, the phase or the side changes. The item list under the ticked sources leaves out, and counts
-  in a left-out list, the items the class cannot equip and the random-suffix ones; a worn item is listed but never sent.
+  with nothing to key on have no key. The tree's categories are Dungeons, Raids and World drops (`drop_dungeon`,
+  `drop_raid`, `drop_world`, by the drop's `DropSource.difficulty`: 1, 2, and 0 or unset), then Quest rewards, Crafted,
+  Reputation and Vendors. The three drop categories share the `drop:` leaf keys, so the difficulty is not in a key: the
+  tree reads it from the source, and a stored tick keeps its key whichever category shows it. Each drop category lists
+  zones, each with its bosses and then its other drops, and after the zones the drops with no zone (World Drop). The L60
+  dungeons quick pick ticks five zones of Dungeons (`DROPS_L60_DUNGEON_ZONE_IDS`). The Sources tree lists the items the
+  phase and the player's side let through (`dropsPhaseItems`, `dropsFactionItems`); `dropsSetupFor` keeps those items,
+  their source keys and the tree until the database, its item count, the phase or the side changes. The item list under
+  the ticked sources lists only what the class can equip and leaves the random-suffix items out, with no note of either;
+  a worn item is listed but never sent.
   Four keys store the picks per spec: `bulk-drops-sources.v1` (the ticked leaf keys, sorted), `bulk-drops-excluded.v1`
   (item ids unticked under them), `bulk-drops-enchant-presets.v1` (the presets Drops runs new items with, apart from
   Gear's and Builds' picks) and `bulk-drops-view.v1` (`bosses` or `items`). Each pick but the view bumps `settings` so

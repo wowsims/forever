@@ -3,6 +3,7 @@ import { BULK_TAB_ID, useActivateTab } from '@features/hooks/useActivateTab';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import type { BulkMode } from '@sim/state/sim_store';
+import { Icon } from '@ui-kit/Icon';
 import { Menu, MenuItem } from '@ui-kit/Menu';
 import { type MouseEvent, type PointerEvent, type ReactElement, useRef, useState } from 'react';
 
@@ -14,10 +15,12 @@ export interface BulkModeMenuViewProps {
 	tab: ReactElement;
 	/** The modes the menu lists, in order. */
 	modes: readonly BulkMode[];
+	/** The mode the tab opens in, which the menu marks. */
+	current: BulkMode;
 	onPick: (mode: BulkMode) => void;
 }
 
-export const BulkModeMenuView = ({ tab, modes, onPick }: BulkModeMenuViewProps) => {
+export const BulkModeMenuView = ({ tab, modes, current, onPick }: BulkModeMenuViewProps) => {
 	// Read at `pointerdown` because a `mousedown` does not name its pointer type.
 	const pointerType = useRef('');
 	const tabRef = useRef<HTMLElement>(null);
@@ -48,19 +51,26 @@ export const BulkModeMenuView = ({ tab, modes, onPick }: BulkModeMenuViewProps) 
 				},
 			}}
 			popupProps={{ finalFocus: picked ? tabRef : undefined }}
+			className="grid gap-1 py-1"
 			align="start"
 			sideOffset={-1}>
 			{modes.map(mode => (
 				<MenuItem
 					key={mode}
 					layout="block"
+					className="grid gap-1 py-2"
 					testId={`bulk-mode-${mode}`}
+					aria-current={mode === current ? 'true' : undefined}
+					data-checked={mode === current ? '' : undefined}
 					onClick={() => {
 						setPicked(true);
 						onPick(mode);
 					}}>
-					<span className="block text-sm font-medium">{i18n.t(`bulk_tab.modes.${mode}.label`)}</span>
-					<span className="block text-xs text-muted">{i18n.t(`bulk_tab.modes.${mode}.description`)}</span>
+					<span className="flex items-center justify-between gap-4 text-sm font-medium">
+						{i18n.t(`bulk_tab.modes.${mode}.label`)}
+						{mode === current && <Icon name="check" className="text-primary" />}
+					</span>
+					<span className="text-xs text-muted">{i18n.t(`bulk_tab.modes.${mode}.description`)}</span>
 				</MenuItem>
 			))}
 		</Menu>
@@ -70,12 +80,13 @@ export const BulkModeMenuView = ({ tab, modes, onPick }: BulkModeMenuViewProps) 
 export const BulkModeMenu = ({ tab }: Pick<BulkModeMenuViewProps, 'tab'>) => {
 	const player = usePlayer();
 	const activate = useActivateTab();
-	const { powerTools } = useBulkMode();
+	const { powerTools, runMode } = useBulkMode();
 
 	return (
 		<BulkModeMenuView
 			tab={tab}
 			modes={bulkMenuModes(powerTools)}
+			current={runMode}
 			onPick={mode => {
 				setBulkMode(player, mode);
 				activate(BULK_TAB_ID);

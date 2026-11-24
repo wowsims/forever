@@ -25,7 +25,7 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 		<Button
 			variant="unstyled"
 			className={clsx(
-				'flex flex-col gap-2 rounded-sm border border-border bg-background p-2 text-left',
+				'flex flex-col gap-2 border border-border p-2 text-left text-foreground hover:text-foreground',
 				'hover:border-primary focus-visible:focus-ring data-[selected=true]:border-primary data-[upgrade=none]:opacity-60',
 			)}
 			data-testid="drops-boss-card"
@@ -44,7 +44,7 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 				{strip.map(entry => (
 					<span
 						key={entry.itemId}
-						className="flex flex-col items-center gap-1 text-xs"
+						className="flex w-14 flex-col items-start gap-1 text-xs"
 						data-testid="drops-boss-strip-item"
 						data-item-id={entry.itemId}
 						data-worn={entry.gainPct === null ? '' : undefined}
@@ -66,7 +66,7 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 					</span>
 				))}
 			</span>
-			<span className="flex items-baseline justify-between gap-2 text-sm">
+			<span className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm">
 				{best ? (
 					<span>
 						{t('best')} <span className="font-bold text-success">{formatBulkPct(best.pct)}</span>{' '}

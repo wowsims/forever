@@ -71,13 +71,13 @@ export const CombinationsCountView = ({
 			)}
 			{builds && builds.setups > 0 && (
 				<>
-					<dt className="font-normal" data-testid="bulk-runs-label">
+					<dt className="self-start font-normal" data-testid="bulk-runs-label">
 						{i18n.t('bulk_tab.settings.runs.builds', {
 							bundles: i18n.t('bulk_tab.settings.runs.bundles', { count: builds.bundles }),
 							encounters: i18n.t('bulk_tab.settings.runs.encounters', { count: builds.encounters }),
 						})}
 					</dt>
-					<dd className="mb-0 text-right font-bold tabular-nums" data-testid="bulk-runs-count">
+					<dd className="mb-0 self-start text-right font-bold tabular-nums" data-testid="bulk-runs-count">
 						{i18n.t('bulk_tab.settings.runs.total', { count: builds.runs, runs: formatToNumber(builds.runs) })}
 					</dd>
 				</>

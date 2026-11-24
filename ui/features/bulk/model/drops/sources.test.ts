@@ -1,5 +1,5 @@
 import { Faction, Profession } from '@generated/proto/common';
-import { UIItem, UIItemSource } from '@generated/proto/ui';
+import { DungeonDifficulty, UIItem, UIItemSource } from '@generated/proto/ui';
 import { professionNames } from '@sim/proto/names';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -25,11 +25,14 @@ const ZONES = new Map([
 	[2557, 'Dire Maul'],
 	[491, 'Razorfen Kraul'],
 	[139, 'Eastern Plaguelands'],
+	[2717, 'Molten Core'],
 ]);
 const NPCS = new Map([
 	[10363, 'General Drakkisath'],
 	[9568, 'Overlord Wyrmthalak'],
 	[9016, 'Bael’Gar'],
+	[11502, 'Ragnaros'],
+	[1847, 'Foulmane'],
 ]);
 const FACTIONS = new Map([[529, 'Argent Dawn']]);
 const NAMES: DropsNames = {
@@ -38,8 +41,12 @@ const NAMES: DropsNames = {
 	faction: id => FACTIONS.get(id) ?? null,
 };
 
-const drop = (fields: { zoneId?: number; npcId?: number; otherName?: string }) =>
-	UIItemSource.create({ source: { oneofKind: 'drop', drop: { difficulty: 0, npcId: 0, zoneId: 0, otherName: '', category: '', ...fields } } });
+// A dungeon drop unless `difficulty` says otherwise; a world drop is difficulty 0.
+const drop = (fields: { zoneId?: number; npcId?: number; otherName?: string; difficulty?: DungeonDifficulty }) =>
+	UIItemSource.create({
+		source: { oneofKind: 'drop', drop: { difficulty: DungeonDifficulty.DifficultyDungeon, npcId: 0, zoneId: 0, otherName: '', category: '', ...fields } },
+	});
+const worldDrop = (fields: { zoneId?: number; npcId?: number; otherName?: string }) => drop({ ...fields, difficulty: DungeonDifficulty.DifficultyUnknown });
 const quest = (fields: { zoneId: number; faction?: Faction }) =>
 	UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 1, name: 'q', faction: Faction.Unknown, ...fields } } });
 const crafted = (profession: Profession) => UIItemSource.create({ source: { oneofKind: 'crafted', crafted: { profession, spellId: 0 } } });
@@ -57,7 +64,7 @@ describe('drops source tree', () => {
 		const keys = (source: UIItemSource) => dropsItemSourceKeys(UIItem.create({ id: 1, sources: [source] }), NAMES);
 		expect(keys(drop({ zoneId: 1583, npcId: 10363 }))).toEqual(['drop:1583:10363']);
 		expect(keys(drop({ zoneId: 491, otherName: 'Trash' }))).toEqual(['drop:491:other:Trash']);
-		expect(keys(drop({ otherName: 'World Drop' }))).toEqual(['drop:0:other:World Drop']);
+		expect(keys(worldDrop({ otherName: 'World Drop' }))).toEqual(['drop:0:other:World Drop']);
 		expect(keys(quest({ zoneId: 139 }))).toEqual(['quest:139']);
 		expect(keys(quest({ zoneId: -264 }))).toEqual(['quest:other']);
 		expect(keys(quest({ zoneId: 99999 }))).toEqual(['quest:other']);
@@ -74,25 +81,51 @@ describe('drops source tree', () => {
 		expect(dropsItemSourceKeys(UIItem.create({ id: 1, sources }), NAMES)).toEqual(['quest:139', 'drop:1583:10363']);
 	});
 
-	it('groups drops by zone and boss, with world drops after the zones, and counts each item once', () => {
+	it('groups dungeon drops by zone and boss, and counts each item once', () => {
 		const tree = dropsSourceTree(
 			[
 				item(1, drop({ zoneId: 1583, npcId: 10363 }), drop({ zoneId: 1583, npcId: 9568 })),
 				item(2, drop({ zoneId: 1583, otherName: 'Trash' })),
 				item(3, drop({ zoneId: 1584, npcId: 9016 })),
-				item(4, drop({ otherName: 'World Drop' })),
 			],
 			NAMES,
 		);
-		expect(tree.map(node => node.key)).toEqual(['drop']);
-		const drops = tree[0];
-		expect(drops.children.map(node => node.key)).toEqual(['drop:1584', 'drop:1583', 'drop:0:other:World Drop']);
-		const spire = drops.children[1];
+		expect(tree.map(node => node.key)).toEqual(['drop_dungeon']);
+		const dungeons = tree[0];
+		expect(dungeons.label).toBe('bulk_tab.drops.sources.categories.drop_dungeon');
+		expect(dungeons.children.map(node => node.key)).toEqual(['drop:1584', 'drop:1583']);
+		const spire = dungeons.children[1];
 		expect(spire.itemIds).toEqual([1, 2]);
 		expect(spire.leafKeys).toEqual(['drop:1583:10363', 'drop:1583:9568', 'drop:1583:other:Trash']);
 		expect(spire.children.map(node => node.label)).toEqual(['General Drakkisath', 'Overlord Wyrmthalak', 'Trash']);
-		expect(drops.itemIds).toEqual([3, 1, 2, 4]);
-		expect(drops.children[2].leafKeys).toEqual(['drop:0:other:World Drop']);
+		expect(dungeons.itemIds).toEqual([3, 1, 2]);
+	});
+
+	it('splits drops into Dungeons, Raids and World drops by their difficulty, with the zoneless world drop after the zones', () => {
+		const tree = dropsSourceTree(
+			[
+				item(1, drop({ zoneId: 1583, npcId: 10363 })),
+				item(2, drop({ zoneId: 2717, npcId: 11502, difficulty: DungeonDifficulty.DifficultyRaid })),
+				item(3, worldDrop({ otherName: 'World Drop' })),
+				item(4, worldDrop({ zoneId: 139, npcId: 1847 })),
+			],
+			NAMES,
+		);
+		expect(tree.map(node => [node.key, node.label])).toEqual([
+			['drop_dungeon', 'bulk_tab.drops.sources.categories.drop_dungeon'],
+			['drop_raid', 'bulk_tab.drops.sources.categories.drop_raid'],
+			['drop_world', 'bulk_tab.drops.sources.categories.drop_world'],
+		]);
+		expect(tree[1].children.map(node => node.key)).toEqual(['drop:2717']);
+		expect(tree[1].leafKeys).toEqual(['drop:2717:11502']);
+		expect(tree[2].children.map(node => node.key)).toEqual(['drop:139', 'drop:0:other:World Drop']);
+		expect(tree[2].leafKeys).toEqual(['drop:139:1847', 'drop:0:other:World Drop']);
+	});
+
+	it('reads a stored drop leaf under its new category', () => {
+		const tree = dropsSourceTree([item(1, drop({ zoneId: 1583, npcId: 10363 }), drop({ zoneId: 1583, npcId: 9568 }))], NAMES);
+		expect(dropsNodeState(tree[0], new Set(['drop:1583:10363']))).toBe('mixed');
+		expect(dropsNodeState(tree[0].children[0], new Set(['drop:1583:10363', 'drop:1583:9568']))).toBe('checked');
 	});
 
 	it('orders the categories and puts the catch-all quest and vendor leaves last', () => {
@@ -104,7 +137,7 @@ describe('drops source tree', () => {
 			],
 			NAMES,
 		);
-		expect(tree.map(node => node.key)).toEqual(['drop', 'quest', 'crafted', 'rep', 'soldBy']);
+		expect(tree.map(node => node.key)).toEqual(['drop_dungeon', 'quest', 'crafted', 'rep', 'soldBy']);
 		expect(tree[1].children.map(node => node.key)).toEqual(['quest:139', 'quest:other']);
 		expect(tree[4].children.map(node => node.key)).toEqual(['soldBy:491', 'soldBy:0']);
 		expect(tree[4].leafKeys).toEqual(['soldBy:491', 'soldBy:0']);
@@ -141,6 +174,7 @@ describe('drops source tree', () => {
 				item(1, drop({ zoneId: 1584, npcId: 9016 })),
 				item(2, drop({ zoneId: 2557, otherName: 'Trash' })),
 				item(3, drop({ zoneId: 491, otherName: 'Trash' })),
+				item(4, drop({ zoneId: 2717, npcId: 11502, difficulty: DungeonDifficulty.DifficultyRaid })),
 			],
 			NAMES,
 		);
@@ -156,7 +190,7 @@ describe('drops source tree', () => {
 		expect(dropsSourceLabel('drop:491:other:Trash', NAMES)).toEqual({ label: 'Trash', detail: 'Razorfen Kraul' });
 		expect(dropsSourceLabel('drop:0:other:World Drop', NAMES)).toEqual({
 			label: 'bulk_tab.drops.sources.world_drop',
-			detail: 'bulk_tab.drops.sources.categories.drop',
+			detail: 'bulk_tab.drops.sources.categories.drop_world',
 		});
 		expect(dropsSourceLabel('quest:139', NAMES)).toEqual({ label: 'Eastern Plaguelands', detail: 'bulk_tab.drops.sources.categories.quest' });
 		expect(dropsSourceLabel('quest:other', NAMES)).toEqual({

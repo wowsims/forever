@@ -21,7 +21,7 @@ export interface DropsSetupState {
 const NOT_READY: DropsSetupState = {
 	tree: [],
 	ticked: new Set(),
-	list: { items: [], leftOut: [] },
+	list: { items: [] },
 	names: { zone: () => null, npc: () => null, faction: () => null },
 };
 

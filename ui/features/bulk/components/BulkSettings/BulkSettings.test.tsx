@@ -66,7 +66,7 @@ vi.mock('../../model/run/run', () => ({ runBulkBatch: vi.fn() }));
 // The Drops pick comes off the database and the live gear, which the stub host has none of; the card reads only the count.
 const drops = vi.hoisted(() => ({ picked: [] as number[] }));
 vi.mock('../../hooks/useDropsSetup', () => ({
-	useDropsSetup: () => ({ list: { items: drops.picked.map(id => ({ item: { id }, included: true, worn: false })), leftOut: [] } }),
+	useDropsSetup: () => ({ list: { items: drops.picked.map(id => ({ item: { id }, included: true, worn: false })) } }),
 }));
 // The stub host has none of the raid and player getters the live settings are read from.
 vi.mock('@features/settings/hooks/useCurrentSettings', () => ({ useCurrentSettings: () => null }));
@@ -520,11 +520,15 @@ describe('BulkSettings', () => {
 	});
 
 	it('lists the preset encounters, then the saved ones, and stores the one picked with its summary under it', async () => {
-		const { player, pick } = mount({ encounterPresets: [PATCHWERK_PRESET], batchEncounter: BulkEncounterRef.create({ name: 'Patchwerk', preset: true }) });
+		const { player, container, pick } = mount({
+			encounterPresets: [PATCHWERK_PRESET],
+			batchEncounter: BulkEncounterRef.create({ name: 'Patchwerk', preset: true }),
+		});
 		const [, label] = await pick('bulk-batch-encounter-pick', 2);
 		expect(label).toBe('Council');
 		expect(bulkState(player).batchEncounter).toEqual(COUNCIL);
-		expect(batchBlock().textContent).toContain('1:30');
+		const summaryId = batchPick(container).getAttribute('aria-describedby')!;
+		expect(document.getElementById(summaryId)!.textContent).toContain('1:30');
 	});
 
 	it('reads a pick whose saved encounter is gone as Current encounter, and leaves it stored', () => {

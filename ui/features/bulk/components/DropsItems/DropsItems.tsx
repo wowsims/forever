@@ -4,14 +4,18 @@ import { useActionId } from '@sim/hooks/useActionId';
 import { ActionId } from '@sim/proto/action_id';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
+import { Field } from '@ui-kit/Field';
+import { Pill } from '@ui-kit/Pill';
 import { ToggleGroup } from '@ui-kit/ToggleGroup';
+import { Tooltip } from '@ui-kit/Tooltip';
+import { TooltipAnchor } from '@ui-kit/TooltipAnchor';
 import { itemQualityClassName } from '@ui-kit/utils/css';
 import { VirtualList } from '@ui-kit/VirtualList';
 import { WowheadIcon } from '@ui-kit/WowheadIcon';
 import clsx from 'clsx';
-import { useMemo, useRef, useState } from 'react';
+import { useId, useMemo, useRef } from 'react';
 
-import { type DropsItem, type DropsItemList, dropsItemsBySlot, dropsItemsBySource, dropsLeftOutCounts, type DropsLeftOutReason } from '../../model/drops/items';
+import { type DropsItem, type DropsItemList, dropsItemsBySlot, dropsItemsBySource } from '../../model/drops/items';
 import { type DropsNames, dropsSourceLabel, type DropsSourceNode } from '../../model/drops/sources';
 
 export interface DropsItemsViewProps {
@@ -26,95 +30,83 @@ export interface DropsItemsViewProps {
 }
 
 const ROW_HEIGHT = 40;
-const LEFT_OUT_REASONS: readonly DropsLeftOutReason[] = ['class', 'random_suffix'];
+const ITEM_ROW_CLASS = clsx('hover:bg-gray-800 data-[stripe=even]:not-hover:bg-table-odd data-[stripe=odd]:not-hover:bg-table-even');
 
-const t = (key: string, options: { count?: number; reasons?: string } = {}) => i18n.t(`bulk_tab.drops.setup.${key}`, options);
+const t = (key: string) => i18n.t(`bulk_tab.drops.setup.${key}`);
 
-type ListRow = { kind: 'header'; key: string; title: string; detail?: string } | { kind: 'item'; key: string; entry: DropsItem };
+// `group` is the source key of the group a row sits under, which the row then leaves out of its own sources.
+type ListRow = { kind: 'header'; key: string; title: string; detail?: string } | { kind: 'item'; key: string; group?: string; entry: DropsItem };
 
 const listRows = (list: DropsItemList, grouping: DropsItemsViewProps['grouping'], tree: readonly DropsSourceNode[], names: DropsNames): ListRow[] => {
 	const groups =
 		grouping === 'slot'
-			? dropsItemsBySlot(list).map(({ slot, items }) => ({ key: `slot:${slot}`, title: translateBulkSlotName(slot), detail: undefined, items }))
-			: dropsItemsBySource(list, tree, names).map(({ key, label, items }) => ({ key, title: label.label, detail: label.detail, items }));
+			? dropsItemsBySlot(list).map(({ slot, items }) => ({
+					key: `slot:${slot}`,
+					source: undefined,
+					title: translateBulkSlotName(slot),
+					detail: undefined,
+					items,
+				}))
+			: dropsItemsBySource(list, tree, names).map(({ key, label, items }) => ({ key, source: key, title: label.label, detail: label.detail, items }));
 	return groups.flatMap(group => [
 		{ kind: 'header' as const, key: group.key, title: group.title, detail: group.detail },
-		...group.items.map(entry => ({ kind: 'item' as const, key: `${group.key}/${entry.item.id}`, entry })),
+		...group.items.map(entry => ({ kind: 'item' as const, key: `${group.key}/${entry.item.id}`, group: group.source, entry })),
 	]);
 };
 
 interface ItemRowProps {
 	entry: DropsItem;
+	group?: string;
 	names: DropsNames;
 	onIncludedChange: DropsItemsViewProps['onIncludedChange'];
 }
 
-const ItemRow = ({ entry, names, onIncludedChange }: ItemRowProps) => {
+// Box, icon and name share one field, so the name ticks the box and a worn row dims once, through the field's disabled look.
+// The other sources open in a kit tooltip, which a tap opens on a touch screen.
+const ItemRow = ({ entry, group, names, onIncludedChange }: ItemRowProps) => {
 	const { item, worn, included, tags, sourceKeys } = entry;
 	const { iconUrl, href } = useActionId(ActionId.fromItem(item));
-	const [first, ...more] = sourceKeys.map(key => dropsSourceLabel(key, names).label);
+	const id = useId();
+	const [first, ...more] = sourceKeys.filter(key => key !== group).map(key => dropsSourceLabel(key, names).label);
 
 	return (
-		<div
-			className="flex h-full items-center gap-2 px-1 data-worn:opacity-50"
-			data-testid="drops-item-row"
-			data-item-id={item.id}
-			data-worn={worn ? '' : undefined}>
-			<WowheadIcon className="size-8 shrink-0" iconUrl={iconUrl} href={href || undefined} navigate={false} tabIndex={-1} />
-			<BooleanPicker
-				className={clsx('min-w-0 grow wrap-anywhere', itemQualityClassName(item.quality))}
-				label={item.name}
-				layout="inline"
-				size="xs"
-				value={included && !worn}
-				disabled={worn}
-				onChange={checked => onIncludedChange([item.id], checked)}
-			/>
-			<span
-				className="shrink-0 truncate text-xs text-gray-400"
-				title={more.length ? sourceKeys.map(key => dropsSourceLabel(key, names).label).join('\n') : undefined}>
-				{worn ? i18n.t('bulk_tab.drops.items.worn') : first}
-				{!worn && more.length > 0 && ` +${more.length}`}
-			</span>
-			{tags.map(tag => (
-				<span key={tag} className="shrink-0 rounded-sm bg-gray-700 px-1 text-xs" data-testid="drops-item-tag">
-					{i18n.t(`bulk_tab.drops.items.tags.${tag}`)}
-				</span>
-			))}
-		</div>
-	);
-};
-
-interface LeftOutProps {
-	list: DropsItemList;
-}
-
-const LeftOut = ({ list }: LeftOutProps) => {
-	const [shown, setShown] = useState(false);
-	if (list.leftOut.length === 0) return null;
-	const counts = dropsLeftOutCounts(list);
-	const reasons = LEFT_OUT_REASONS.filter(reason => counts[reason] > 0)
-		.map(reason => i18n.t(`bulk_tab.drops.items.left_out.${reason}`, { count: counts[reason] }))
-		.join(', ');
-
-	return (
-		<div className="grid gap-1 text-sm text-gray-400" data-testid="drops-left-out">
-			<p className="mb-0">
-				{t('left_out_summary', { count: list.leftOut.length, reasons })}{' '}
-				<Button variant="link" size="xs" onClick={() => setShown(wasShown => !wasShown)}>
-					{t(shown ? 'hide' : 'show')}
-				</Button>
-			</p>
-			{shown && (
-				<ul className="mb-0 grid max-h-48 list-none gap-1 overflow-y-auto p-0 text-xs">
-					{list.leftOut.map(({ item, reason }) => (
-						<li key={item.id} className="flex justify-between gap-2">
-							<span className={itemQualityClassName(item.quality)}>{item.name}</span>
-							<span>{t(`left_out_reason.${reason}`)}</span>
-						</li>
-					))}
-				</ul>
+		<div className="flex h-full items-center gap-2 px-1" data-testid="drops-item-row" data-item-id={item.id} data-worn={worn ? '' : undefined}>
+			<Field.Root id={id} layout="inline" size="xs" disabled={worn} className="ui-boolean-picker min-w-0 grow">
+				<BooleanPicker id={id} value={included && !worn} disabled={worn} onChange={checked => onIncludedChange([item.id], checked)} />
+				<WowheadIcon className="size-8 shrink-0" iconUrl={iconUrl} href={href || undefined} navigate={false} tabIndex={-1} />
+				<Field.Label className={clsx('min-w-0 truncate text-base', itemQualityClassName(item.quality))}>{item.name}</Field.Label>
+			</Field.Root>
+			{worn ? (
+				<span className="max-w-2/5 min-w-0 truncate text-xs text-gray-400">{i18n.t('bulk_tab.drops.items.worn')}</span>
+			) : (
+				first && (
+					<span className="flex max-w-2/5 min-w-0 items-center gap-1 text-xs text-gray-400">
+						<span className="min-w-0 truncate">{first}</span>
+						{more.length > 0 && (
+							<>
+								<TooltipAnchor tooltipId={`${id}-sources`} className="shrink-0" testId="drops-item-more-sources">
+									+{more.length}
+								</TooltipAnchor>
+								<Tooltip
+									id={`${id}-sources`}
+									content={
+										<ul className="mb-0 list-none p-0">
+											{more.map(label => (
+												<li key={label}>{label}</li>
+											))}
+										</ul>
+									}
+								/>
+							</>
+						)}
+					</span>
+				)
 			)}
+			{tags.map(tag => (
+				<Pill key={tag} size="xs" rounded="xs" testId="drops-item-tag" className="shrink-0">
+					{i18n.t(`bulk_tab.drops.items.tags.${tag}`)}
+				</Pill>
+			))}
 		</div>
 	);
 };
@@ -125,52 +117,58 @@ export const DropsItemsView = ({ list, grouping, onGroupingChange, tree, names, 
 	const pickable = list.items.filter(entry => !entry.worn).map(entry => entry.item.id);
 
 	return (
-		<div className="grid content-start gap-2" data-testid="drops-items">
+		<div className="grid content-start gap-4" data-testid="drops-items">
 			<div className="flex flex-wrap items-center gap-2">
 				<h5 className="mr-auto mb-0">{t('items_title')}</h5>
-				<ToggleGroup
-					size="xs"
-					tone="neutral"
-					aria-label={t('items_title')}
-					value={grouping}
-					options={[
-						{ value: 'slot', label: t('by_slot') },
-						{ value: 'source', label: t('by_source') },
-					]}
-					onChange={onGroupingChange}
-				/>
-				<div className="flex items-center gap-2">
-					<Button variant="link" size="xs" disabled={pickable.length === 0} onClick={() => onIncludedChange(pickable, true)}>
-						{t('include_all')}
-					</Button>
-					<Button variant="link" size="xs" disabled={pickable.length === 0} onClick={() => onIncludedChange(pickable, false)}>
-						{t('exclude_all')}
-					</Button>
-				</div>
+				{rows.length > 0 && (
+					<>
+						<ToggleGroup
+							size="sm"
+							tone="neutral"
+							aria-label={t('items_title')}
+							value={grouping}
+							options={[
+								{ value: 'slot', label: t('by_slot') },
+								{ value: 'source', label: t('by_source') },
+							]}
+							onChange={onGroupingChange}
+						/>
+						<div className="flex items-center gap-2">
+							<Button variant="secondary" size="sm" disabled={pickable.length === 0} onClick={() => onIncludedChange(pickable, true)}>
+								{t('include_all')}
+							</Button>
+							<Button variant="secondary" size="sm" disabled={pickable.length === 0} onClick={() => onIncludedChange(pickable, false)}>
+								{t('exclude_all')}
+							</Button>
+						</div>
+					</>
+				)}
 			</div>
 			{rows.length === 0 ? (
 				<p className="mb-0 text-sm text-gray-400">{t('empty')}</p>
 			) : (
-				<div ref={scroller} className="h-[60dvh] overflow-x-hidden overflow-y-scroll" data-testid="drops-item-list" tabIndex={0}>
+				<div ref={scroller} className="max-h-[60dvh] overflow-x-hidden overflow-y-auto" data-testid="drops-item-list" tabIndex={0}>
 					<VirtualList
 						count={rows.length}
 						rowHeight={ROW_HEIGHT}
 						getScrollElement={() => scroller.current}
+						rowClassName={index => (rows[index].kind === 'item' ? ITEM_ROW_CLASS : undefined)}
 						renderRow={index => {
 							const row = rows[index];
 							return row.kind === 'header' ? (
-								<div className="flex h-full items-end gap-2 border-b border-border pb-1 text-sm font-bold" data-testid="drops-group-header">
+								<div
+									className="flex h-full items-end gap-2 border-b border-border pb-1 text-xs font-bold text-gray-400"
+									data-testid="drops-group-header">
 									<span>{row.title}</span>
-									{row.detail && <span className="text-xs font-normal text-gray-400">{row.detail}</span>}
+									{row.detail && <span className="font-normal">{row.detail}</span>}
 								</div>
 							) : (
-								<ItemRow entry={row.entry} names={names} onIncludedChange={onIncludedChange} />
+								<ItemRow entry={row.entry} group={row.group} names={names} onIncludedChange={onIncludedChange} />
 							);
 						}}
 					/>
 				</div>
 			)}
-			<LeftOut list={list} />
 		</div>
 	);
 };

@@ -32,7 +32,7 @@ export interface DropsItemRowViewProps {
 // Shared with the header so the columns line up.
 const RANK_CLASS = 'w-6 shrink-0';
 const SLOT_CLASS = 'w-24 shrink-0';
-const SOURCE_CLASS = 'w-40 shrink-0';
+const SOURCE_CLASS = 'w-48 shrink-0';
 const DPS_CLASS = 'w-52 shrink-0';
 const EQUIP_CLASS = 'ml-auto w-16 shrink-0';
 
@@ -47,7 +47,7 @@ const ItemName = ({ item }: ItemNameProps) => {
 	return (
 		<span className="flex min-w-0 items-center gap-2">
 			<WowheadIcon className="size-8 shrink-0" iconUrl={iconUrl} href={href || undefined} navigate={false} tabIndex={-1} />
-			<span className={`min-w-0 wrap-anywhere ${itemQualityClassName(item.item.quality)}`}>{formatBulkItemLabel(item)}</span>
+			<span className={`min-w-0 wrap-break-word ${itemQualityClassName(item.item.quality)}`}>{formatBulkItemLabel(item)}</span>
 		</span>
 	);
 };
@@ -90,7 +90,7 @@ export const DropsItemRowView = ({
 			data-current={item === null ? '' : undefined}
 			data-precision={lowPrecision ? 'low' : undefined}>
 			<span className={`${RANK_CLASS} text-sm text-gray-400`}>{rank}</span>
-			<div className="flex min-w-0 flex-1 flex-col gap-1">
+			<div className="flex min-w-0 flex-1 flex-col gap-1 max-md:basis-[calc(100%-2.5rem)]">
 				{item ? <ItemName item={item} /> : <span className="font-bold">{t('current_gear')}</span>}
 				{hiddenVariations > 0 && (
 					<span className="text-xs text-gray-400" data-testid="drops-result-hidden">

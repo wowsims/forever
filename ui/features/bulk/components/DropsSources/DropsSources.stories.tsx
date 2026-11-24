@@ -13,7 +13,7 @@ const meta = {
 	argTypes: { tree: { control: false }, ticked: { control: false } },
 	decorators: [
 		Story => (
-			<div className="w-96">
+			<div className="w-full max-w-96">
 				<Story />
 			</div>
 		),
@@ -32,15 +32,22 @@ export const Default: Story = {
 	},
 };
 
-// Two of the three Blackrock Spire bosses ticked: the zone and its category read mixed.
+// Two of the three Blackrock Spire bosses ticked: the zone and Dungeons read mixed, and Raids and World drops stay closed.
 export const Mixed: Story = {
 	args: { ticked: new Set(['drop:1583:10429', 'drop:1583:10363']) },
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
-		await userEvent.click(canvas.getByRole('button', { name: i18n.t('bulk_tab.drops.sources.categories.drop') }));
+		await userEvent.click(canvas.getByRole('button', { name: i18n.t('bulk_tab.drops.sources.categories.drop_dungeon') }));
 		await userEvent.click(canvas.getByRole('button', { name: 'Blackrock Spire' }));
 		await expect(canvas.getByRole('checkbox', { name: 'Blackrock Spire' }).getAttribute('aria-checked')).toBe('mixed');
-		await expect(canvas.getByRole('checkbox', { name: i18n.t('bulk_tab.drops.sources.categories.drop') }).getAttribute('aria-checked')).toBe('mixed');
+		await expect(canvas.getByRole('checkbox', { name: i18n.t('bulk_tab.drops.sources.categories.drop_dungeon') }).getAttribute('aria-checked')).toBe(
+			'mixed',
+		);
+		for (const category of ['drop_raid', 'drop_world']) {
+			await expect(canvas.getByRole('checkbox', { name: i18n.t(`bulk_tab.drops.sources.categories.${category}`) }).getAttribute('aria-checked')).toBe(
+				'false',
+			);
+		}
 	},
 };
 

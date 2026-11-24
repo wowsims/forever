@@ -1,6 +1,7 @@
 import i18n from '@i18n/config';
 import { useSim } from '@sim/context/SimHostContext';
 import { formatToNumber } from '@sim/utils/format';
+import { Notice } from '@ui-kit/Notice';
 import { Spinner } from '@ui-kit/Spinner';
 
 import { useBulkState } from '../../hooks/useBulkState';
@@ -17,7 +18,7 @@ export interface DropsRunCountViewProps {
 	candidates: number;
 	iterations: number;
 	iterationsLimit: number;
-	// Why the selection gives no candidate, shown under the numbers.
+	// Why the selection gives no candidate, shown under the numbers and apart from the notes.
 	error: string | null;
 }
 
@@ -36,7 +37,7 @@ export const DropsRunCountView = ({ pending, ready, picked, candidates, iteratio
 	);
 
 	return (
-		<div className="grid gap-2" data-testid="drops-run-count">
+		<div className="grid gap-4" data-testid="drops-run-count">
 			<dl className="mb-0 grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2">
 				<dt className="font-normal">{runText('items_picked')}</dt>
 				{count('drops-run-picked', picked)}
@@ -45,13 +46,15 @@ export const DropsRunCountView = ({ pending, ready, picked, candidates, iteratio
 				<dt className="font-normal">{runText('variants')}</dt>
 				{count('drops-run-variants', Math.max(0, candidates - picked))}
 				<TotalIterations pending={countPending} iterations={iterations} overLimit={overLimit} warningText={warningText} />
-				{!countPending && error && (
-					<dd className="col-span-2 mb-0 text-danger" role="alert" data-testid="bulk-combinations-error">
-						{error}
-					</dd>
-				)}
 			</dl>
-			<ul className="mb-0 grid list-none gap-1 p-0 text-sm text-gray-400">
+			{!countPending && error && (
+				<div role="alert">
+					<Notice level="error" className="text-sm text-danger" testId="bulk-combinations-error">
+						{error}
+					</Notice>
+				</div>
+			)}
+			<ul className="mb-0 grid list-disc gap-1 border-t border-border ps-4 pt-4 text-sm text-gray-400">
 				{NOTES.map(note => (
 					<li key={note} data-testid="drops-run-note">
 						{runText(`notes.${note}`)}

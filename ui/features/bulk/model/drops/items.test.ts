@@ -4,16 +4,7 @@ import { BulkSimItemSlot } from '@sim/bulk/utils';
 import { PlayerSpecs } from '@sim/player/specs';
 import { describe, expect, it, vi } from 'vitest';
 
-import {
-	dropsFactionItems,
-	type DropsItemContext,
-	dropsItemList,
-	dropsItemsBySlot,
-	dropsItemsBySource,
-	dropsLeftOutCounts,
-	dropsPhaseItems,
-	dropsPickedItemIds,
-} from './items';
+import { dropsFactionItems, type DropsItemContext, dropsItemList, dropsItemsBySlot, dropsItemsBySource, dropsPhaseItems, dropsPickedItemIds } from './items';
 import { dropsItemSourceKeys, type DropsNames, dropsSourceTree } from './sources';
 
 vi.mock('@i18n/config', () => ({
@@ -70,32 +61,20 @@ describe('dropsItemList', () => {
 		expect(bySource.map(group => group.key)).toEqual(['drop:1583:10363']);
 	});
 
-	it('leaves out what the class cannot equip and random-suffix items, counted by reason', () => {
+	it('leaves out what the class cannot equip and random-suffix items', () => {
 		const wrongClass = item({ id: 60, name: 'Wrong Class', classAllowlist: [Class.ClassMage] });
 		const suffixed = item({ id: 61, name: 'Suffixed', randomSuffixOptions: [1, 2] });
 		const result = list([wrongClass, suffixed, TWO_SOURCE]);
-		expect(dropsLeftOutCounts(result)).toEqual({ class: 1, random_suffix: 1 });
 		expect(result.items.map(i => i.item.id)).toEqual([50]);
-	});
-
-	it('counts a random-suffix item the class cannot equip as class only', () => {
-		const both = item({ id: 62, name: 'Both', classAllowlist: [Class.ClassMage], randomSuffixOptions: [1] });
-		expect(dropsLeftOutCounts(list([both]))).toEqual({ class: 1, random_suffix: 0 });
 	});
 
 	it('skips an item none of whose sources is ticked', () => {
 		expect(list([TWO_SOURCE], DUAL, new Set(['crafted:1'])).items).toEqual([]);
 	});
 
-	it('sorts both lists by item name', () => {
-		const result = list([
-			item({ id: 1, name: 'Zed' }),
-			item({ id: 2, name: 'Abe' }),
-			item({ id: 3, name: 'Zz', classAllowlist: [Class.ClassMage] }),
-			item({ id: 4, name: 'Aa', classAllowlist: [Class.ClassMage] }),
-		]);
+	it('sorts the list by item name', () => {
+		const result = list([item({ id: 1, name: 'Zed' }), item({ id: 2, name: 'Abe' })]);
 		expect(result.items.map(i => i.item.name)).toEqual(['Abe', 'Zed']);
-		expect(result.leftOut.map(l => l.item.name)).toEqual(['Aa', 'Zz']);
 	});
 
 	it('greys out an item worn in either ring slot and does not pick it', () => {

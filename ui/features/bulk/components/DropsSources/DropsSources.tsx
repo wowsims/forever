@@ -19,19 +19,18 @@ const t = (key: string) => i18n.t(`bulk_tab.drops.setup.${key}`);
 
 interface SourceRowProps extends Pick<DropsSourcesViewProps, 'ticked' | 'onTick'> {
 	node: DropsSourceNode;
-	depth: number;
 }
 
 // A partly ticked node passes `value={false}` with `indeterminate`, so pressing it reports `true` and ticks the rest.
-// Children mount only while the node is open.
-const SourceRow = ({ node, depth, ticked, onTick }: SourceRowProps) => {
+// Children mount only while the node is open, indented under a guide line centred on the chevron, as the kit Tree indents.
+const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 	const [open, setOpen] = useState(false);
 	const state = dropsNodeState(node, ticked);
 	const hasChildren = node.children.length > 0;
 
 	return (
 		<div>
-			<div className="flex items-center gap-1" style={{ paddingInlineStart: `${depth * 1}rem` }}>
+			<div className="flex items-center gap-1">
 				{hasChildren ? (
 					<Button
 						variant={null}
@@ -58,25 +57,33 @@ const SourceRow = ({ node, depth, ticked, onTick }: SourceRowProps) => {
 					{node.itemIds.length}
 				</span>
 			</div>
-			{open && node.children.map(child => <SourceRow key={child.key} node={child} depth={depth + 1} ticked={ticked} onTick={onTick} />)}
+			{open && (
+				<div className="ms-2 grid gap-1 border-s border-border ps-4 pt-1">
+					{node.children.map(child => (
+						<SourceRow key={child.key} node={child} ticked={ticked} onTick={onTick} />
+					))}
+				</div>
+			)}
 		</div>
 	);
 };
 
 export const DropsSourcesView = ({ tree, ticked, onTick, onQuickPick }: DropsSourcesViewProps) => (
-	<div className="grid content-start gap-2" data-testid="drops-sources">
-		<h5 className="mb-0">{t('sources_title')}</h5>
-		<div className="flex flex-wrap gap-2">
-			<Button variant="secondary" size="xs" onClick={() => onQuickPick('l60_dungeons')}>
-				{t('quick_picks.l60_dungeons')}
-			</Button>
-			<Button variant="secondary" size="xs" onClick={() => onQuickPick('clear')}>
-				{t('quick_picks.clear')}
-			</Button>
+	<div className="grid content-start gap-4" data-testid="drops-sources">
+		<div className="grid gap-2">
+			<h5 className="mb-0">{t('sources_title')}</h5>
+			<div className="flex flex-wrap gap-2">
+				<Button variant="secondary" size="sm" onClick={() => onQuickPick('l60_dungeons')}>
+					{t('quick_picks.l60_dungeons')}
+				</Button>
+				<Button variant="secondary" size="sm" onClick={() => onQuickPick('clear')}>
+					{t('quick_picks.clear')}
+				</Button>
+			</div>
 		</div>
-		<div className="grid gap-1">
+		<div className="-m-1 grid max-h-[60dvh] gap-1 overflow-y-auto p-1">
 			{tree.map(node => (
-				<SourceRow key={node.key} node={node} depth={0} ticked={ticked} onTick={onTick} />
+				<SourceRow key={node.key} node={node} ticked={ticked} onTick={onTick} />
 			))}
 		</div>
 	</div>

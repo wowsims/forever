@@ -14,7 +14,7 @@ const meta = {
 	argTypes: { item: { control: false }, delta: { control: 'object' }, moreSources: { control: 'object' } },
 	decorators: [
 		Story => (
-			<div className="w-250">
+			<div className="w-full max-w-250">
 				<Story />
 			</div>
 		),
