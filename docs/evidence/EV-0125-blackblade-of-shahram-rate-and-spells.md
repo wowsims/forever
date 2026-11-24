@@ -76,11 +76,12 @@ counts after the fact (chi-square 5.78, p = 0.33). The picks do not differ betwe
 
 - The hardcast begins 917 to 2,570 ms after the summon, median 1,419 ms, 2nd to 98th percentile 1,017 to 1,804 ms, and
   runs a median 1,003 ms, 2nd to 98th percentile 974 to 1,058 ms.
-- Flames lands on the enemies around Shahram, 0 to 26 a cast: 3,200 of its 3,246 damage lines are on creatures, the
-  rest on players and their pets. 19 of its 3,145 landed lines crit (0.60%), 3 of them partly resisted. Normal hits
-  deal up to 182 (median 125) and crits up to 231, about 1.5 times.
-- Curse and Might land on the enemies around Shahram: 852 of Curse's 863 applications and 943 of Might's 961 are on
-  creatures, the rest on players and their pets.
+- Flames lands on the enemies around Shahram, 0 to 26 a cast: 3,238 of its 3,246 damage lines are on creatures and
+  their pets, and the other 8 on players and a player's pet whom the wearer's side damages and never heals or buffs.
+  19 of its 3,145 landed lines crit (0.60%), 3 of them partly resisted. Normal hits deal up to 182 (median 125), and 14
+  of the 16 crits with no partial resist deal 151 to 231, within 1.5 times the row's 90 to 160.
+- Curse and Might land on the enemies around Shahram: all 863 of Curse's applications and 957 of Might's 961 are on
+  creatures and their pets, and the other 4 of Might's on players in one report, players the wearer's side damages too.
 - Will lands on the wearer alone, 937 applications. Each copy is removed a median 20,005 ms after its own application,
   2nd to 98th percentile 19,946 to 20,043 ms, with no refresh and no stack count. A copy was applied 144 times with one
   other copy up and 19 times with two.
