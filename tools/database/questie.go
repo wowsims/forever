@@ -88,7 +88,7 @@ func ReadQuestieQuests(path string) map[int32]*QuestieQuest {
 }
 
 // The baked data is the TOC's "## X-<entity>-<id>-<field>: <value>" lines; each meta file maps an entity's field
-// names to indexes. Each NPC takes the zone placement gives it.
+// names to indexes. Each NPC takes the zone placement gives it, else the zone its Questie zone stands for.
 func parseQuestieData(toc, itemMeta, questMeta, npcMeta string, placement *NpcPlacement) (*WowDatabase, map[int32]*QuestieQuest, error) {
 	store := readQuestieStore(toc)
 	items, err := newQuestieEntity(store, "Item", itemMeta)
@@ -193,8 +193,8 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string, placement *NpcPl
 	}
 
 	// A zone AreaTable lacks stands for the one zone its placed NPCs move to (BRD's 1585 for 1584), so the NPCs there
-	// that no encounter or quest places follow them. A zone whose NPCs move to two zones stands for none.
-	movedTo := map[int32]map[int32]bool{}
+	// that no encounter or quest places follow them. A zone whose NPCs move to two zones stands for itself.
+	standIns := map[int32]int32{}
 	for _, id := range npcs.ids {
 		npc, err := npcs.row(id)
 		if err != nil {
@@ -207,19 +207,13 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string, placement *NpcPl
 		if err != nil {
 			return nil, nil, err
 		}
-		if zone != 0 && placed != zone && !placement.inAreaTable(zone) {
-			if movedTo[zone] == nil {
-				movedTo[zone] = map[int32]bool{}
-			}
-			movedTo[zone][placed] = true
+		if zone == 0 || placed == zone || placement.inAreaTable(zone) {
+			continue
 		}
-	}
-	standIns := map[int32]int32{}
-	for zone, targets := range movedTo {
-		if len(targets) == 1 {
-			for target := range targets {
-				standIns[zone] = target
-			}
+		if standIn, seen := standIns[zone]; !seen {
+			standIns[zone] = placed
+		} else if standIn != placed {
+			standIns[zone] = zone
 		}
 	}
 
