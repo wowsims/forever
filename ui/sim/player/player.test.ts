@@ -4,6 +4,7 @@ import { Debuffs } from '@generated/proto/buffs';
 import {
 	ActionID as ActionIdProto,
 	AreaType,
+	Class,
 	ConsumesSpec,
 	HandType,
 	ItemRandomSuffix,
@@ -19,6 +20,7 @@ import {
 import { UIItem as Item } from '@generated/proto/ui';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import * as Mechanics from '../constants/mechanics';
 import { ActionId } from '../proto/action_id';
 import { EquippedItem } from '../proto/equipped_item';
 import { Gear } from '../proto/gear';
@@ -211,6 +213,7 @@ describe('Player.computeItemEP on weapon skill', () => {
 			sim: { encounter: { getAreaTypes: () => [] } },
 			itemEPCache: Array.from({ length: ItemSlot.ItemSlotRanged + 1 }, () => new Map<string, number>()),
 			getEpWeights: () => weights,
+			getClass: () => Class.ClassWarrior,
 			getEquippedItem: (slot: ItemSlot) => (equipped[slot] ? new EquippedItem({ item: equipped[slot] }) : null),
 		}) as Player<any>;
 	const itemEP = (gear: Item, slot: ItemSlot, equipped: Partial<Record<ItemSlot, Item>>) => playerWearing(equipped).computeItemEP(gear, slot);
@@ -442,6 +445,7 @@ describe('Player.computeItemEP', () => {
 			sim: { encounter: { getAreaTypes: () => [AreaType.AreaTypeForestGrassland] } },
 			itemEPCache: Array.from({ length: ItemSlot.ItemSlotRanged + 1 }, () => new Map<string, number>()),
 			getEpWeights: () => Stats.fromMap({ [Stat.StatAttackPower]: 1 }),
+			getClass: () => Class.ClassWarrior,
 		};
 
 		expect(Player.prototype.computeItemEP.call(player as unknown as Player<any>, rune, ItemSlot.ItemSlotFinger1)).toBe(15);
@@ -458,10 +462,33 @@ describe('Player.computeItemEP', () => {
 			sim: { encounter: { getAreaTypes: () => [] } },
 			itemEPCache: Array.from({ length: ItemSlot.ItemSlotRanged + 1 }, () => new Map<string, number>()),
 			getEpWeights: () => Stats.fromMap({ [Stat.StatArmor]: 1 }),
+			getClass: () => Class.ClassWarrior,
 			getBestRandomSuffix: () => owl,
 			computeRandomSuffixEP: (suffix: ItemRandomSuffix, randPropPoints: number) => (suffix === owl && randPropPoints === 16 ? 20 : 0),
 		};
 
 		expect(Player.prototype.computeItemEP.call(player as unknown as Player<any>, cape, ItemSlot.ItemSlotBack)).toBe(59);
+	});
+
+	// 13255 Trueaim Gauntlets: 3% hit with ranged weapons, priced at weights that leave Ranged Hit % out.
+	it.each([
+		[Class.ClassWarrior, 0],
+		[Class.ClassPaladin, 0],
+		[Class.ClassShaman, 0],
+		[Class.ClassHunter, 3 * Mechanics.HIT_RATING_PER_HIT_PERCENT * 2],
+	])('prices ranged-only hit for class %i at %f', (playerClass, ep) => {
+		const gauntlets = Item.create({
+			id: 13255,
+			scalingOptions: { 0: { ilvl: 59, randPropPoints: 0, weaponDamageMin: 0, weaponDamageMax: 0, stats: {}, areaStats: [] } },
+			pseudoStats: Stats.fromMap({}, { [PseudoStat.PseudoStatRangedHitPercent]: 3 }).toProto().pseudoStats,
+		});
+		const player = {
+			sim: { encounter: { getAreaTypes: () => [] } },
+			itemEPCache: Array.from({ length: ItemSlot.ItemSlotRanged + 1 }, () => new Map<string, number>()),
+			getEpWeights: () => Stats.fromMap({ [Stat.StatHitRating]: 2 }),
+			getClass: () => playerClass,
+		};
+
+		expect(Player.prototype.computeItemEP.call(player as unknown as Player<any>, gauntlets, ItemSlot.ItemSlotHands)).toBeCloseTo(ep);
 	});
 });
