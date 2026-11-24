@@ -285,6 +285,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to generate the set bonuses: %v", err)
 	}
+	if err := database.GenerateItemGuardians(instance, db); err != nil {
+		log.Fatalf("failed to generate the item guardians: %v", err)
+	}
 	knownRates, unvalidatedRates, err := database.GenerateMissingEffectsFile(instance, db, generatedSets)
 	if err != nil {
 		log.Fatalf("failed to generate the missing effects TS file: %v", err)
