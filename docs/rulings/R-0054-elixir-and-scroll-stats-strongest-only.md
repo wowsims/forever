@@ -2,7 +2,7 @@
 
 - Skill: wowsims-consumables-items
 - Code: `sim/common/shared/consumable_stats.go`, `consumableAura` with `spelldata.ExclusivePerStat(core.ElixirStatCategory)`, `spelldata.Exclusive(core.ElixirCritCategory, false)` and `CountsWithElixirs`; `sim/core/spelldata/parse_effects.go`, `Overwrites`; `tools/database/buffmanifest/buffs.go`, `ElixirCategory`; `sim/core/consumes.go`, `selectedConsumableIDs`; `tools/database/consumable_groups.go`, `rowGroupOf` and `ElixirCritGroup`; `tools/database/overrides.go`, `ConsumablesCountWithElixirs`; `ui/features/settings/model/consumables.ts`, `overwrittenTooltips` and `countsWithTheElixirs`
-- Pull request: #1185, and this rule's scroll part in #1192
+- Pull request: #1185, #1192
 - Evidence: EV-0185
 
 The settings offer one elixir per exclusive group and one scroll per scroll group, and the sim takes the

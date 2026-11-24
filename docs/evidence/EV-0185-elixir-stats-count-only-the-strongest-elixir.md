@@ -2,9 +2,9 @@
 
 - Claim: with several elixirs up, each stat counts only the strongest elixir's amount, and only one elixir's 2% crit
   counts. Arcane Intellect overwrites the elixirs' Intellect, Divine Spirit their Spirit, Power Word: Fortitude their
-  Stamina, and Moonkin Aura and Leader of the Pack their crit. Scroll of Intellect does not stack with Arcane Brilliance and stacks with the elixirs. Juju
-  Power removes Scroll of Strength's buff and blocks a new one. Mark of the Wild stacks with the elixirs. Greater Mageblood Elixir stacks with Mana Spring Totem, which raises no MP5 on the
-  character sheet.
+  Stamina, and Moonkin Aura and Leader of the Pack their crit. Scroll of Intellect does not stack with Arcane
+  Brilliance. Juju Power removes Scroll of Strength's buff and blocks a new one. Mark of the Wild stacks with the
+  elixirs. Greater Mageblood Elixir stacks with Mana Spring Totem, which raises no MP5 on the character sheet.
 - Sources: checked in game by the owner, no log
 - Game build: the live build when it was reported on 2026-11-23 (the repo then recorded 1.60.1.71037, push 114332);
   whether the game was relogged after that hotfix is not recorded

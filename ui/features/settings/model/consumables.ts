@@ -255,9 +255,9 @@ const grantsOf = (consumable: Consumable): PickGrants => {
 	return { consumable, name: consumable.name, amounts };
 };
 
-// The raid buffs that overwrite picks, as grants beside them, each with its input and what it overwrites.
+// The raid buffs that overwrite picks, each with its input and what it grants.
 const OVERWRITING_BUFFS = GENERATED_OVERWRITING_BUFFS.map(buff => ({
-	...buff,
+	config: buff.config,
 	grants: {
 		name: buff.config.label ?? '',
 		amounts: new Map([
@@ -356,8 +356,9 @@ const turnedOnBySim = (player: Player<any>, config: (typeof OVERWRITING_BUFFS)[n
 	return false;
 };
 
-// The raid buffs that overwrite consumables and are on, the input's or the sim's.
-const buffsOn = (player: Player<any>) => OVERWRITING_BUFFS.filter(buff => buff.config.getValue(player) || turnedOnBySim(player, buff.config));
+// What the raid buffs that overwrite consumables and are on grant, the input's or the sim's.
+const buffsOn = (player: Player<any>) =>
+	OVERWRITING_BUFFS.filter(buff => buff.config.getValue(player) || turnedOnBySim(player, buff.config)).map(buff => buff.grants);
 
 interface Overwritten {
 	tooltip: string;
@@ -365,20 +366,20 @@ interface Overwritten {
 	partly: boolean;
 }
 
-// The overwritten badges of the elixir and scroll picks, read off the picks among `elixirs`, which holds the scrolls
+// The overwritten badges of the elixir and scroll picks, read off the picks among `counted`, the elixirs, the scrolls
 // and the other consumables that count with the elixirs, in the spec's elixir and extra ids and the raid buffs that
 // are on. A badge answers for a consumable as if it were picked in place of its group's pick, so an option in a
 // group's menu reads what it would add. Of each exclusive group only the first pick counts, as the sim selects them
 // (`selectedConsumableIDs` in sim/core/consumes.go).
-export function overwrittenTooltips(elixirs: ReadonlyArray<Consumable>) {
-	const elixirGrants = new Map(elixirs.map(consumable => [consumable.id, grantsOf(consumable)]));
-	const groupOf = new Map(elixirs.map(consumable => [consumable.id, consumable.groupKey]));
+export function overwrittenTooltips(counted: ReadonlyArray<Consumable>) {
+	const grants = new Map(counted.map(consumable => [consumable.id, grantsOf(consumable)]));
+	const groupOf = new Map(counted.map(consumable => [consumable.id, consumable.groupKey]));
 	// The elixir pass of each set of picks asked for since the picks or the raid buffs last changed.
 	const memo = memoLast<Map<string, ReturnType<typeof elixirOverwrites>>>();
 	const elixirPass = (player: Player<any>, id: number) => {
 		const { elixirIds, extraIds } = player.getConsumes();
-		const listed = [...new Set([...elixirIds, ...extraIds])].filter(pick => elixirGrants.has(pick));
-		const buffs = buffsOn(player).map(buff => buff.grants);
+		const listed = [...new Set([...elixirIds, ...extraIds])].filter(pick => grants.has(pick));
+		const buffs = buffsOn(player);
 		const cache = memo([listed.join(), buffs.map(buff => buff.name).join()], () => new Map());
 		const group = groupOf.get(id);
 		const withId = listed.map(pick => (group && groupOf.get(pick) === group ? id : pick));
@@ -388,19 +389,19 @@ export function overwrittenTooltips(elixirs: ReadonlyArray<Consumable>) {
 			return !pickGroup || withId.findIndex(other => groupOf.get(other) === pickGroup) === index;
 		});
 		const key = picked.join();
-		const picks = picked.flatMap(pick => elixirGrants.get(pick) ?? []);
+		const picks = picked.flatMap(pick => grants.get(pick) ?? []);
 		if (!cache.has(key)) cache.set(key, elixirOverwrites(picks, buffs));
 		return cache.get(key)!;
 	};
-	const elixir = (player: Player<any>, id: number): Overwritten | undefined => {
+	const pick = (player: Player<any>, id: number): Overwritten | undefined => {
 		if (!id) return undefined;
 		const { full, partly } = elixirPass(player, id);
 		const lost = full.get(id) ?? partly.get(id);
 		return lost && { tooltip: overwrittenTooltipOf(lost), partly: partly.has(id) };
 	};
 	return {
-		elixir,
+		pick,
 		// The same for a toggle of a consumable that counts with the elixirs, picked or not.
-		toggle: (consumable: Consumable) => ({ overwritten: (player: Player<any>) => elixir(player, consumable.id) }),
+		toggle: (consumable: Consumable) => ({ overwritten: (player: Player<any>) => pick(player, consumable.id) }),
 	};
 }

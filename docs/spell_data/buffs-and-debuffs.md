@@ -58,8 +58,7 @@ way the tooltip shows it, and 0 points is the full amount.
 `ElixirCategory`, it adds `Overwrites(ElixirCategory)`: Arcane Intellect, Prayer of Spirit and Power Word:
 Fortitude bid their stat in the elixirs' `ElixirStat` category, and Moonkin Aura and Leader of the Pack their crit in
 `ElixirCrit`, without counting there, so the elixirs and scrolls that grant no more add nothing (R-0054).
-A generated buff and a hand-written buff of the same stat or resistance bid against each other under the
-categories core's own exclusive stat buffs use. `newDebuff` adds only `Exclusive(Category, SingleAura)`, since a debuff never
+`newDebuff` adds only `Exclusive(Category, SingleAura)`, since a debuff never
 carries a resistance of its own. Without `SingleAura`, each of its stats and pseudo-stats bids alone
 under `Category` + its key, priced per stack. A stronger debuff thus holds only the effects of its own
 kind, and Hex of Weakness keeps its healing taken under Demoralizing Shout's attack power. When an item

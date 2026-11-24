@@ -172,11 +172,11 @@ func TestRenderBuffsDebuffsTSRejectsAnUncountedInt32(t *testing.T) {
 	}
 }
 
-// The settings read a stat buff's input as on or off, so a row with an improved state, whose amount
-// moves with the talent, renders no stat buff entry.
-func TestRenderBuffsDebuffsTSRejectsAStatBuffWithAnImprovedState(t *testing.T) {
+// The settings read an overwriting buff's input as on or off, so a row with an improved state, whose
+// amount moves with the talent, fails to render.
+func TestRenderBuffsDebuffsTSRejectsAnOverwritingBuffWithAnImprovedState(t *testing.T) {
 	rows := []ResolvedBuff{{
-		BuffSpec: buffmanifest.BuffSpec{Field: "power_word_fortitude", Category: "StatBuff", ElixirCategory: core.ElixirStatCategory},
+		BuffSpec: buffmanifest.BuffSpec{Field: "power_word_fortitude", ElixirCategory: core.ElixirStatCategory},
 		Scope:    buffmanifest.ScopeRaid, Proto: buffmanifest.ProtoTristate, Go: "PowerWordFortitude",
 		Owner: proto.Class_ClassPriest, SpellID: 10938, CastSpellID: 10938, DBName: "Power Word: Fortitude",
 		TalentRanks: 2, TalentSpellID: 14767,
@@ -184,6 +184,6 @@ func TestRenderBuffsDebuffsTSRejectsAStatBuffWithAnImprovedState(t *testing.T) {
 	}}
 
 	if _, err := RenderBuffsDebuffsTS(rows); err == nil {
-		t.Error("a tristate stat buff rendered without an error")
+		t.Error("a tristate overwriting buff rendered without an error")
 	}
 }

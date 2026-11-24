@@ -755,16 +755,13 @@ describe('consumeConfigs on picks that add nothing', () => {
 		const shownAs = (id: number) => {
 			const toggle = misc(configs).find(config => config.consumable.id === id);
 			if (toggle) return toggle.getValue(player) ? toggle.overwritten!(player, true) : undefined;
-			const config = configs.elixirs.find(group => iconEnumValues(group, player).some(value => value.value === id))!;
+			const config = [...configs.elixirs, ...configs.scrolls].find(group => iconEnumValues(group, player).some(value => value.value === id))!;
 			const value = config.getValue(player);
 			return value === id ? config.overwritten!(player, value) : undefined;
 		};
 		const overwrittenBy = (id: number) => shownAs(id)?.tooltip;
 		const partly = (id: number) => shownAs(id)?.partly ?? false;
-		const [strengthScrolls, intellectScrolls] = configs.scrolls;
-		const scrollOverwrittenBy = (scrolls = strengthScrolls) => scrolls.overwritten!(player, scrolls.getValue(player))?.tooltip;
-		const intellectScrollOverwrittenBy = () => scrollOverwrittenBy(intellectScrolls);
-		return { player, state, configs, groupNamed, overwrittenBy, partly, scrollOverwrittenBy, intellectScrollOverwrittenBy };
+		return { player, state, configs, groupNamed, overwrittenBy, partly };
 	};
 
 	// The test setup loads no locale, so the tooltip would read as its key without the names.
@@ -904,49 +901,42 @@ describe('consumeConfigs on picks that add nothing', () => {
 
 	it('marks a scroll beside a stronger elixir of its stat, and an elixir beside a stronger scroll, naming the stronger', () => {
 		const strength = picking([], [10310, 12451]);
-		expect(strength.scrollOverwrittenBy()).toBe('Strength overwritten by Juju Power');
+		expect(strength.overwrittenBy(10310)).toBe('Strength overwritten by Juju Power');
 		expect(strength.overwrittenBy(12451)).toBeUndefined();
 		const cunning = picking([250328], [10308]);
-		expect(cunning.intellectScrollOverwrittenBy()).toBe('Intellect overwritten by Elixir of Cunning');
+		expect(cunning.overwrittenBy(10308)).toBe('Intellect overwritten by Elixir of Cunning');
 		expect(cunning.overwrittenBy(250328)).toBeUndefined();
 		const wisdom = picking([3383], [10308]);
-		expect(wisdom.intellectScrollOverwrittenBy()).toBeUndefined();
+		expect(wisdom.overwrittenBy(10308)).toBeUndefined();
 		expect(wisdom.overwrittenBy(3383)).toBe('Intellect overwritten by Scroll of Intellect IV');
-		expect(picking([], []).scrollOverwrittenBy()).toBeUndefined();
-	});
-
-	it('marks Scroll of Intellect IV under Arcane Intellect, naming the buff', () => {
-		expect(picking([], [10308]).intellectScrollOverwrittenBy()).toBeUndefined();
-		expect(picking([], [10308], RaidBuffs.create({ arcaneIntellect: true })).intellectScrollOverwrittenBy()).toBe(
-			'Intellect overwritten by Arcane Intellect',
-		);
+		expect(picking([], []).overwrittenBy(10310)).toBeUndefined();
 	});
 
 	it('marks Scroll of Intellect IV and an Intellect elixir for a mage with the Arcane Intellect input off, since the sim turns it on for every mage', () => {
 		const mage = picking([3383], [10308], RaidBuffs.create(), Class.ClassMage);
-		expect(mage.intellectScrollOverwrittenBy()).toBe('Intellect overwritten by Arcane Intellect');
+		expect(mage.overwrittenBy(10308)).toBe('Intellect overwritten by Arcane Intellect');
 		expect(mage.overwrittenBy(3383)).toBe('Intellect overwritten by Arcane Intellect');
 	});
 
 	it('leaves a scroll unmarked under Mark of the Wild, which stacks with the scrolls', () => {
 		const motw = RaidBuffs.create({ markOfTheWild: true });
-		expect(picking([], [10308], motw).intellectScrollOverwrittenBy()).toBeUndefined();
-		expect(picking([], [10310], motw).scrollOverwrittenBy()).toBeUndefined();
+		expect(picking([], [10308], motw).overwrittenBy(10308)).toBeUndefined();
+		expect(picking([], [10310], motw).overwrittenBy(10310)).toBeUndefined();
 	});
 
 	it('follows the raid buffs as they change, on the configs already built', () => {
-		const { state, intellectScrollOverwrittenBy } = picking([], [10308]);
-		expect(intellectScrollOverwrittenBy()).toBeUndefined();
+		const { state, overwrittenBy } = picking([], [10308]);
+		expect(overwrittenBy(10308)).toBeUndefined();
 		state.raidBuffs = RaidBuffs.create({ arcaneIntellect: true });
-		expect(intellectScrollOverwrittenBy()).toBeDefined();
+		expect(overwrittenBy(10308)).toBeDefined();
 		state.raidBuffs = RaidBuffs.create();
-		expect(intellectScrollOverwrittenBy()).toBeUndefined();
+		expect(overwrittenBy(10308)).toBeUndefined();
 	});
 
 	it('marks an Intellect elixir and Scroll of Intellect IV alike under Arcane Intellect, naming the buff', () => {
 		const underArcaneIntellect = picking([3383], [10308], RaidBuffs.create({ arcaneIntellect: true }));
 		expect(underArcaneIntellect.overwrittenBy(3383)).toBe('Intellect overwritten by Arcane Intellect');
-		expect(underArcaneIntellect.intellectScrollOverwrittenBy()).toBe('Intellect overwritten by Arcane Intellect');
+		expect(underArcaneIntellect.overwrittenBy(10308)).toBe('Intellect overwritten by Arcane Intellect');
 	});
 
 	it('marks Elixir of the Sages under Prayer of Spirit as partly overwritten, its Intellect still counting', () => {

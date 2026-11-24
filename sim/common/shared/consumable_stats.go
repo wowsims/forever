@@ -174,16 +174,15 @@ func consumableAura(character *core.Character, consumable core.Consumable, buff 
 	}
 
 	aura := character.GetOrRegisterAura(config)
-	switch {
-	case consumable.Type == proto.ConsumableType_ConsumableTypeElixir || scroll || consumable.CountsWithElixirs:
-		crit := critEffects(buff)
-		if len(crit) > 0 {
-			spelldata.ParseEffects(character, aura, buff, spelldata.Effects(crit...), spelldata.Exclusive(core.ElixirCritCategory, false))
-		}
-		spelldata.ParseEffects(character, aura, buff, spelldata.SkipEffects(crit...), spelldata.ExclusivePerStat(core.ElixirStatCategory))
-	default:
+	if consumable.Type != proto.ConsumableType_ConsumableTypeElixir && !scroll && !consumable.CountsWithElixirs {
 		spelldata.ParseEffects(character, aura, buff)
+		return aura
 	}
+	crit := critEffects(buff)
+	if len(crit) > 0 {
+		spelldata.ParseEffects(character, aura, buff, spelldata.Effects(crit...), spelldata.Exclusive(core.ElixirCritCategory, false))
+	}
+	spelldata.ParseEffects(character, aura, buff, spelldata.SkipEffects(crit...), spelldata.ExclusivePerStat(core.ElixirStatCategory))
 	return aura
 }
 

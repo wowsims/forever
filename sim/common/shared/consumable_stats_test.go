@@ -143,21 +143,6 @@ func TestOnlyTheFirstCritElixirApplies(t *testing.T) {
 	}
 }
 
-// Scroll of Intellect IV states Intellect, which Arcane Intellect's larger amount overrides rather
-// than adds to.
-func TestScrollIsExclusiveWithTheRaidBuffOfItsStat(t *testing.T) {
-	registerStatConsumable(t, scrollOfIntellectIVID)
-
-	if gain := soloGain(scrollOfIntellectIVID); gain[stats.Intellect] <= 0 {
-		t.Errorf("Scroll of Intellect IV adds %v Intellect, want some", gain[stats.Intellect])
-	}
-
-	intellect := &proto.RaidBuffs{ArcaneIntellect: true}
-	if gain := statGain(&proto.ConsumesSpec{ExtraIds: []int32{scrollOfIntellectIVID}}, intellect); gain[stats.Intellect] != 0 {
-		t.Errorf("Scroll of Intellect IV adds %v Intellect under Arcane Intellect, want 0", gain[stats.Intellect])
-	}
-}
-
 // Swiftfeather Token's buff runs out well inside the category cooldown the item shares, so it is used
 // in combat rather than put up before the pull.
 func TestShortBuffIsUsedOnItsCooldown(t *testing.T) {

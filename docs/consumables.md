@@ -183,9 +183,8 @@ Fortitude bid their stat in `ElixirStat` too, and Moonkin Aura and Leader of the
 `ElixirCrit`, without counting there (`spelldata.Overwrites`, set by the buff manifest's
 `ElixirCategory`), so an elixir or a scroll that grants no more adds nothing under them: under Arcane
 Intellect, Elixir of Cunning 250328 adds its Agility alone and Scroll of Intellect IV 10308 nothing, and
-under Power Word: Fortitude, Elixir of Brute Force 13453 its Strength alone. Each of the three counts by
-the `StatBuff` per-stat category its manifest row names, which holds only them, so a raid copy and a
-player's own copy count once. Every other raid buff, Mark of the Wild among them, stacks with the elixirs and the scrolls.
+under Power Word: Fortitude, Elixir of Brute Force 13453 its Strength alone. Every other raid buff, Mark
+of the Wild among them, stacks with the elixirs and the scrolls.
 
 **From the rows** (`rowGroupOf` in `tools/database/consumable_groups.go`):
 
@@ -201,10 +200,7 @@ player's own copy count once. Every other raid buff, Mark of the Wild among them
   Mongoose beside Elixir of Greater Agility, and only one of the five applies;
 - a scroll's group is keyed the same way with a `scroll` prefix (`ScrollGroup`), so it shares its group with
   its ranks alone and never with an elixir: Scroll of Agility 3012 to IV 10309 (`scroll 29/1`), Scroll
-  of Stamina 1180 to IV 10307 (`scroll 29/2`), Scroll of Protection 3013 to IV 10305 (`scroll 674/1`). A scroll's
-  stats count with the elixirs' in `ElixirStat`, the strongest amount alone: Scroll of Intellect IV
-  10308 beside Elixir of Cunning 250328 adds none of its 16 Intellect to Cunning's 25, and Scroll of
-  Strength IV 10310 adds none of its 17 Strength to Juju Power's 30;
+  of Stamina 1180 to IV 10307 (`scroll 29/2`), Scroll of Protection 3013 to IV 10305 (`scroll 674/1`);
 - a stat consumable whose on-use category cooldown lasts as long as each of its buffs, which are up
   from the pull, is used one at a time with the others of the category (`shared.OneAtATimeCategory`),
   keyed `category <id>`. Only the Blasted Lands buffs (R.O.I.D.S. 8410, Lung Juice Cocktail 8411,
@@ -481,10 +477,9 @@ with "Strength overwritten by Juju Power".
 
 The badges read the raid buffs the buff generator writes into `GENERATED_OVERWRITING_BUFFS`
 (`ui/features/settings/model/buffs_debuffs_auto_gen.ts`), each with the amounts the raid input applies.
-A raid buff the sim turns on whatever the
-input says counts as on (`turnedOnBySim`): Arcane Intellect for every mage (`AddRaidBuffs` in
-`sim/mage/mage.go`), and Moonkin Aura and Leader of the Pack for the druids that have them
-(`sim/druid/druid.go`). The inputs with a badge follow the raid buffs and the talents
+A raid buff the sim turns on whatever the input says counts as on (`turnedOnBySim`): Arcane Intellect for
+every mage (`AddRaidBuffs` in `sim/mage/mage.go`), and Moonkin Aura and Leader of the Pack for the druids
+that have them (`sim/druid/druid.go`). The inputs with a badge follow the raid buffs and the talents
 (`OVERWRITTEN_PICKER_FIELDS`).
 
 A potion has three pickers, Offensive, Defensive and Resource, and each offers the
