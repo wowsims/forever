@@ -35,7 +35,7 @@ var ${Should refresh seal} =
 var ${Is using Seal of Righteousness} =
     not talent_is_known(seal_of_command_rank1)
     or $use_seal_of_righteousness
-    or not $use_seal_of_righteousness and not $use_seal_of_command
+    or not $use_seal_of_command
     or aura(haste).is_active
     or active_item_swap_set(swap1) and spell(item.manual_crowd_pummeler).time_to_ready <= 10s
 var ${Is using Seal of Command} =

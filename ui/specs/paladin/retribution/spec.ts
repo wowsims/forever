@@ -162,7 +162,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 
 		const seal = Inputs.chosenSeal(simple, sealOfCommand);
 		values['Use Seal of Command'] = String(sealOfCommand && (unsealedWrath || seal === PaladinSeal.SealOfCommand));
-		values['Use Seal of Righteousness'] = String(unsealedWrath || !sealOfCommand || seal === PaladinSeal.SealOfRighteousness);
+		values['Use Seal of Righteousness'] = String(unsealedWrath || seal === PaladinSeal.SealOfRighteousness);
 
 		rotation.valueVariables = rotation.valueVariables.map(variable =>
 			variable.name in values ? APLValueVariable.fromJson({ name: variable.name, value: { const: { val: values[variable.name] } } }) : variable,
