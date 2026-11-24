@@ -4,6 +4,7 @@ import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 
 import DefaultBuildJson from './builds/default.build.json';
+import BudgetGearJson from './gear_sets/budget.gear.json';
 
 // The spec's defaults, from the Default build.
 export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecElementalShaman, DefaultBuildJson);
@@ -11,6 +12,8 @@ export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecElementalS
 export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', DefaultBuildJson.player.rotation);
 
 export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultBuildJson.player.equipment);
+
+export const BudgetGear = PresetUtils.makePresetGear('Budget', BudgetGearJson);
 
 export const DefaultBuild = PresetUtils.makePresetBuildFromJSON('Default', Spec.SpecElementalShaman, DefaultBuildJson, { gear: DefaultGear });
 
