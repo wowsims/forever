@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
+	"os"
 	"reflect"
 	"slices"
 	"strings"
@@ -191,7 +192,7 @@ func questieTestTOC() string {
 }
 
 func TestParseQuestieData(t *testing.T) {
-	db, quests, err := parseQuestieData(questieTestTOC(), questieTestItemMeta, questieTestQuestMeta, questieTestNpcMeta)
+	db, quests, err := parseQuestieData(questieTestTOC(), questieTestItemMeta, questieTestQuestMeta, questieTestNpcMeta, newNpcPlacement(nil, nil, nil))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -285,7 +286,7 @@ func TestParseQuestieDataRejectsMalformedData(t *testing.T) {
 		"objectives are a number":  {toc + "\n## X-Quest-9004-4: " + questieValue(7), questieTestItemMeta},
 		"item objective has no id": {toc + "\n## X-Quest-9004-4: " + questieValue([]any{nil, nil, []any{[]any{"Bars"}}}), questieTestItemMeta},
 	} {
-		if _, _, err := parseQuestieData(test.toc, test.itemMeta, questieTestQuestMeta, questieTestNpcMeta); err == nil {
+		if _, _, err := parseQuestieData(test.toc, test.itemMeta, questieTestQuestMeta, questieTestNpcMeta, newNpcPlacement(nil, nil, nil)); err == nil {
 			t.Errorf("%s: parsed without an error", name)
 		}
 	}
@@ -511,5 +512,64 @@ func TestCommittedQuestSourcesCarryTheirZone(t *testing.T) {
 	}
 	if zoned == 0 {
 		t.Errorf("no quest source carries a zone; run gen_db -gen=db")
+	}
+}
+
+// A drop in a dungeon or raid zone carries its difficulty, an NPC's drop its NPC's zone, and the drops of one zone
+// share a difficulty. The instance zones come from tools/database/wowsims.db, so that part skips without it.
+func TestCommittedDropsCarryTheirZoneDifficulty(t *testing.T) {
+	db := ReadDatabaseFromJson(tools.ReadFile("../../assets/database/db.json"))
+	leftovers := ReadDatabaseFromJson(tools.ReadFile("../../assets/database/leftover_db.json"))
+
+	var raidZones, dungeonZones map[int32]bool
+	DatabasePath = "wowsims.db"
+	if _, err := os.Stat(DatabasePath); err == nil {
+		helper, err := NewDBHelper()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer helper.Close()
+		raidMaps, err := LoadRaidZoneMaps(helper)
+		if err != nil {
+			t.Fatal(err)
+		}
+		raidZones = map[int32]bool{}
+		for zone := range raidMaps {
+			raidZones[zone] = true
+		}
+		if dungeonZones, err = LoadDungeonZoneIDs(helper); err != nil {
+			t.Fatal(err)
+		}
+	} else {
+		t.Logf("no game files database at %s: the instance zones go unchecked", DatabasePath)
+	}
+
+	byZone := map[int32]proto.DungeonDifficulty{}
+	for _, source := range []*WowDatabase{db, leftovers} {
+		for _, item := range source.Items {
+			for _, itemSource := range item.Sources {
+				drop := itemSource.GetDrop()
+				if drop == nil || drop.ZoneId == 0 {
+					continue
+				}
+				if npc := db.Npcs[drop.NpcId]; drop.NpcId != 0 && npc != nil && npc.ZoneId != drop.ZoneId {
+					t.Errorf("item %d drops from NPC %d in zone %d, whose zone is %d", item.Id, drop.NpcId, drop.ZoneId, npc.ZoneId)
+				}
+				if seen, ok := byZone[drop.ZoneId]; ok && seen != drop.Difficulty {
+					t.Errorf("item %d drops in zone %d at %v, another drop there at %v", item.Id, drop.ZoneId, drop.Difficulty, seen)
+				}
+				byZone[drop.ZoneId] = drop.Difficulty
+				if raidZones == nil {
+					continue
+				}
+				want := proto.DungeonDifficulty_DifficultyUnknown
+				if raidZones[drop.ZoneId] || dungeonZones[drop.ZoneId] {
+					want = ParseDungeonDifficulty(raidZones[drop.ZoneId])
+				}
+				if drop.Difficulty != want {
+					t.Errorf("item %d drops in zone %d at %v, want %v", item.Id, drop.ZoneId, drop.Difficulty, want)
+				}
+			}
+		}
 	}
 }

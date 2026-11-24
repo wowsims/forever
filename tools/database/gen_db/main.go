@@ -75,7 +75,17 @@ func main() {
 		db.WriteJson(fmt.Sprintf("%s/atlasloot_db.json", inputsDir))
 		return
 	} else if *genAsset == "questie" {
-		questieDB, questieQuests := database.ReadQuestieData()
+		helper, err := database.NewDBHelper()
+		if err != nil {
+			log.Fatalf("failed to initialize database: %v", err)
+		}
+		defer helper.Close()
+
+		placement, err := database.LoadNpcPlacement(helper)
+		if err != nil {
+			log.Fatalf("failed to load the NPC placement: %v", err)
+		}
+		questieDB, questieQuests := database.ReadQuestieData(placement)
 		questieDB.WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
 		database.WriteQuestieQuests(fmt.Sprintf("%s/questie_quests.json", inputsDir), questieQuests)
 		return
