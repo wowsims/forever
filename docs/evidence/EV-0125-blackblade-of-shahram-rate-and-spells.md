@@ -1,14 +1,16 @@
 # EV-0125: Blackblade of Shahram's rate and what Shahram casts
 
 - Claim: Blackblade of Shahram 12592 summons Shahram (16602) 1.0 times a minute on landed main-hand hits. Each
-  Shahram casts exactly one of his six spells, starts its hardcast 1.03 to 1.83 s after the summon, and every copy of
-  his Will or Blessing runs on its own timer.
+  Shahram casts exactly one of his six spells, picked about 7:5:2:2:2:2 (Flames, Will, Might, Blessing, Fist, Curse),
+  and starts its hardcast about 1.0 to 1.8 s after the summon. Will lands on the wearer alone, Blessing on the players
+  of the wearer's party and never on a pet, Flames, Curse and Might on enemies, and Fist on Shahram himself; every copy
+  of his Will or Blessing runs on its own timer. Flames crits on about 0.6% of its landed hits, for about 1.5 times.
 - Sources: public reports on forever.warcraftlogs.com, two paladins wearing the sword in the main hand:
   NXMZV9xjvWpB7GtP fight 13 and D463FZBX1C9maJ7b fight 7.
 - Game build: 1.60.1.70938; the hotfix state and relogs were not recorded.
 - Date: 2026-11-13 (NXMZV9xjvWpB7GtP) and 2026-11-14 (D463FZBX1C9maJ7b)
 - Pull request: #1051
-- Later count: Blackblade of Shahram's rate, §Count of the 2026-11-06 to 2026-11-22 reports
+- Later count: Blackblade of Shahram's rate and Shahram's spells, §Count of the 2026-11-13 to 2026-11-24 reports
 
 A proc is one summon line of 16602 by the wearer. A hit is a landed damage line of the wearer on an enemy (hit, crit,
 block, glance or crush), or a melee cast that lands with no damage line, counted at its debuff. The sword's chain and
@@ -26,58 +28,99 @@ rolling explains the clusters better than one without it (log-likelihood -277.6 
 
 ## Rate
 
-- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Count: §Count of the 2026-11-13 to 2026-11-24 reports
 - Proc: weapon proc 16602
 - Rate: 1 PPM, measured
 
-1,005 procs on 17,613 rolling hits, 10 wearers, 15 runs, in the main hand: all hits 0.98 [0.93, 1.05]. The rate is all
-hits, which the one-hand white and specials rates agree with. One-hand white: 1.13 [0.97, 1.39], 132 procs on 2,011 lone
-units, 10 wearers. Specials: 0.86 [0.49, 1.02], 52 procs on 1,035 lone units, 10 wearers; Rend landings give 20 procs on
-330 of them. Two-roll abilities, priced as one roll: 0.89, 10 procs on 192 lone units (Execute 10 on 186 and Mongoose
-Bite 0 on 6), left out of the rate. Direct: window [-20, 100] ms, median 0 ms, 98th percentile 0 ms, 189 isolated hits.
-The paladin check, which sets no rate: lone white swings 1.02, 59 procs on 989 lone units, 17 wearers. Report
-NdTXJzkWHLZrVQYm logs the same run as 1JLq46yg7wYNhan9 and counts once. Reports from 2026-11-16 to 2026-11-22.
+1,332 procs on 23,438 rolling hits, 13 wearers (10 warriors and 3 hunters), 20 runs, in the main hand: all hits 0.974
+[0.919, 1.028]. The rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 1.06
+[0.91, 1.23], 170 procs on 2,755 lone units, 13 wearers. Specials: 0.98 [0.80, 1.22], 80 procs on 1,404 lone units, 13
+wearers; Rend landings give 33 procs on 499 of them. Two-roll abilities, priced as one roll: 0.81, 12 procs on 255 lone
+units (Execute 12 on 249 and Mongoose Bite 0 on 6), left out of the rate. Direct: window [-20, 100] ms, median 0 ms,
+98th percentile 0 ms, 244 isolated hits.
 
-| Class   | Wearers | Procs |   Hits |  PPM |
-| ------- | ------: | ----: | -----: | ---: |
-| Warrior |       8 |   971 | 17,108 | 0.97 |
-| Hunter  |       2 |    34 |    505 | 1.15 |
+Two or three summons sometimes log at one millisecond, each group beside as many rolling hits or more. Counting each
+summon of such a group as a proc of its own gives all hits 1.008 [0.953, 1.060] on 1,378 procs, and the analyzer counts
+them that way from this count on. Paladins are left out of the rate; their lone white swings, a check that sets no
+rate, read 1.07 [0.94, 1.21], 113 procs on 1,817 lone units, 29 wearers.
 
-Reports and fights: 1JLq46yg7wYNhan9 17-28; 2x7ZjvdbRwFMWKTP 3-45; 4VtCK6Qqr1MD2hpc 4; ARwPXzLJk78HgVQq 1;
-JRtbDP4L3BdazHrV 1-2; NdTXJzkWHLZrVQYm 1-3; WFMjbyKYzvfNkPhH 6-14; WdbKG4RkmjxA7YV3 1-3; aDHTPGq6htJFx8Nw 1-8;
-bAJFX6m7ftYWCKHP 1-4; bR9LQtgmKwZ3r6kW 1-25; n2HkhcYFrLK1tfZj 1-2; nqDL2hKfQB4yvjgJ 1-18; pHdqPxhAYLQTwya7 1-2;
-qtNCmzfYQwAnRMkZ 1-9; tmHdvqxYj1z28PFy 1-9.
+| Class   | Wearers | Runs | Procs |   Hits |  PPM | PPM, each summon a proc |
+| ------- | ------: | ---: | ----: | -----: | ---: | ----------------------: |
+| Warrior |      10 |   16 | 1,288 | 22,808 | 0.97 |                    1.00 |
+| Hunter  |       3 |    4 |    44 |    630 | 1.20 |                    1.20 |
 
 ## Shahram's spells
 
-Every one of the 102 summons cast one spell and nothing else.
+- Count: §Count of the 2026-11-13 to 2026-11-24 reports
+- Weights: 7:5:2:2:2:2, observed
+- Flames crit: 0.6% of landed hits, for 1.5 times, observed
 
-| Spell                     | Picks |
-| ------------------------- | ----- |
-| Flames of Shahram 16596   | 33    |
-| Will of Shahram 16598     | 30    |
-| Might of Shahram 16600    | 13    |
-| Blessing of Shahram 16599 | 9     |
-| Fist of Shahram 16601     | 9     |
-| Curse of Shahram 16597    | 8     |
+A pick is the spell of the begincast Shahram logs 0.5 to 3 s after his summon. 3,689 of the 3,754 summons have one, and
+each Shahram casts that spell and nothing else. Of the 65 summons without one, 56 log nothing more from that Shahram
+within 4 s, 8 an application of Will and 1 of Blessing, and 28 fall within 1.5 s of a fight's end.
 
-- The hardcast begins 1,029 to 1,825 ms after the summon, median 1,421 ms, and runs 984 to 1,028 ms, median 1,002 ms.
-- Flames hit 0 to 7 enemies a cast. Of 87 hit lines none crit, 41 were partly resisted, and the largest amount before
-  resistance was 158.
-- Will lands on the wearer alone. Each copy is removed 19,979 to 20,028 ms after its own application, with no refresh
-  and no stack count, and two copies were up at once.
-- Blessing ticks 50 mana and 50 health every 5 s on the party around Shahram. Two Blessings cast 13.0 s apart both
-  ticked, each on its own 5 s beat.
-- Fist lands on Shahram himself, 9 of 9 times.
+| Spell                     | Picks | Share | 95% interval   |
+| ------------------------- | ----: | ----: | -------------- |
+| Flames of Shahram 16596   | 1,272 | 34.5% | [33.0%, 36.0%] |
+| Will of Shahram 16598     |   943 | 25.6% | [24.2%, 27.0%] |
+| Might of Shahram 16600    |   403 | 10.9% | [10.0%, 12.0%] |
+| Blessing of Shahram 16599 |   370 | 10.0% | [9.1%, 11.0%]  |
+| Fist of Shahram 16601     |   353 |  9.6% | [8.7%, 10.6%]  |
+| Curse of Shahram 16597    |   348 |  9.4% | [8.5%, 10.4%]  |
 
-## Count of the 2026-11-06 to 2026-11-22 reports
+The picks come from 56 wearers (34 paladins, 18 warriors and 4 hunters) in 63 reports. Weights of 3:3:1:1:1:1 do not
+fit them (chi-square 53.9, p = 2e-10): Flames comes up more often than Will (p = 3e-12), and the four other spells
+equally often (p = 0.17). The weights 7:5:2:2:2:2 are the owner's choice of a round ratio that fits, fitted to these
+counts after the fact (chi-square 5.78, p = 0.33). The picks do not differ between the 45 wearers with 8 picks or more
+(p = 0.43), between the reports on 70938, 70959 and 71037 (p = 0.84), or before and from 2026-11-23 (p = 0.19).
 
-- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights §Rate lists, from every wearer
-  stream on disk for the sword; 3,714 reports in all for the count, 16 of them for Blackblade of Shahram
+- The hardcast begins 917 to 2,570 ms after the summon, median 1,419 ms, 2nd to 98th percentile 1,017 to 1,804 ms, and
+  runs a median 1,003 ms, 2nd to 98th percentile 974 to 1,058 ms.
+- Flames lands on the enemies around Shahram, 0 to 26 a cast: 3,200 of its 3,246 damage lines are on creatures, the
+  rest on players and their pets. 19 of its 3,145 landed lines crit (0.60%), 3 of them partly resisted. Normal hits
+  deal up to 182 (median 125) and crits up to 231, about 1.5 times.
+- Curse and Might land on the enemies around Shahram: 852 of Curse's 863 applications and 943 of Might's 961 are on
+  creatures, the rest on players and their pets.
+- Will lands on the wearer alone, 937 applications. Each copy is removed a median 20,005 ms after its own application,
+  2nd to 98th percentile 19,946 to 20,043 ms, with no refresh and no stack count. A copy was applied 144 times with one
+  other copy up and 19 times with two.
+- Blessing lands on the wearer and up to 4 other players of the wearer's party: 366 applications on the wearer, 1,359
+  on other players and 132 on pets. Each pet's copy is removed within about 10 ms (median 10 ms, 98th percentile 35 ms)
+  and never ticks. In 35 of the 38 fights whose roster holds more than 5 players, a wearer's Blessings reach no more
+  than 4 other players between them. Each player's copy ticks 50 mana and 50 health every 5 s for 20 s, and two copies on one
+  player tick side by side, each on its own beat: 102 times a second copy landed while the first was up.
+- Fist lands on Shahram himself, 352 times.
+
+## Count of the 2026-11-13 to 2026-11-24 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every report on disk that holds a summon of 16602. The
+  rate runs and their fights: 1JLq46yg7wYNhan9 17-28; 2x7ZjvdbRwFMWKTP 3-45; 3X9ychCWZz1vTVxA 9-41; 4VtCK6Qqr1MD2hpc 4;
+  ARwPXzLJk78HgVQq 1; CV1DwP4Bct23AzGY 42; JRtbDP4L3BdazHrV 1-2; PC9bgYJBDN8cMnAT 4; WFMjbyKYzvfNkPhH 6-14;
+  WdbKG4RkmjxA7YV3 1-3; WwAp7qrmHYNDPzfg 4-9; YAQ1TL6rbFck3JNC 4; aDHTPGq6htJFx8Nw 1-8; bAJFX6m7ftYWCKHP 1-4;
+  bR9LQtgmKwZ3r6kW 1-25; n2HkhcYFrLK1tfZj 1-2; nqDL2hKfQB4yvjgJ 1-18; pHdqPxhAYLQTwya7 1-2; qtNCmzfYQwAnRMkZ 1-9;
+  tmHdvqxYj1z28PFy 1-9. The picks, every fight with a summon of: 1JLq46yg7wYNhan9, 2q1MandA4HXxL7Ym,
+  2x7ZjvdbRwFMWKTP, 37YWanvb6KqcxPh1, 3X9ychCWZz1vTVxA, 4f2ygdYCzFAvqc6K, 4MDFjtr2ngHbWK7d, 4VtCK6Qqr1MD2hpc,
+  67fqCHN9ZManpxrk, 6xygv7QnbRjLXGVf, 74h9PQwZNdxGpbCk, 9HTwnpy1qjJ4rDVx, 9jxRWGhpcFbZ14A6, A6qcQ9jtTNXKbvYh,
+  aDHTPGq6htJFx8Nw, ARwPXzLJk78HgVQq, bAJFX6m7ftYWCKHP, bR9LQtgmKwZ3r6kW, cMPjHwfyp3zLtJ6C, CqPk8KgFWYTMnw3D,
+  CV1DwP4Bct23AzGY, D463FZBX1C9maJ7b, daV6M4rtT7bcD1vm, Gjd4M6kTqVPXY7cL, gpXqDYBNbxKc1y7W, HqwZG7rfy6dg9RL2,
+  jAqXz8PN92ZbG3nc, JRtbDP4L3BdazHrV, KYRHMqa28bVmk3QC, LYw76XG1CFHQNdJz, m4dCL16tqnN2D3hW, MazXZJYPrAkG7vWm,
+  MDk4wyGC1dbrY8cH, n2HkhcYFrLK1tfZj, Nm6gT8bzpRGHJqfA, nqDL2hKfQB4yvjgJ, nW8CDGVNP3xhtAa6, NXMZV9xjvWpB7GtP,
+  PafbczYWBMjgHCG7, PC9bgYJBDN8cMnAT, pHdqPxhAYLQTwya7, pHxtWjvhNAGq4Dc6, qtNCmzfYQwAnRMkZ, qzRy8Y1pWbwdBAkg,
+  RWBahpJkAgVPGNFx, t3g6TX91AGmz8yhr, tmHdvqxYj1z28PFy, TQHpwRCAYtLXZKcG, VCJMzXad3Q6vbjRk, vH9PnJDV81wrthRj,
+  vwxP1TaLzG8A4m7h, w1T3Z2hQHpkPcAxY, WdbKG4RkmjxA7YV3, WFMjbyKYzvfNkPhH, WwAp7qrmHYNDPzfg, xhzFqGmY3P4Nr2QR,
+  YAQ1TL6rbFck3JNC, yBHqgjMPA2hGzCpx, YLdrGB6ygJ3aqxkD, Z6Xm92K3zgfrqM84, z9dafy3kFWZK4Gb8, ZaJPCDqQYvt37TAr and
+  zhBG1Z4HA7Lm63FR
 - Game build: 1.60.1.70938 to 1.60.1.71037 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC); 748 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 6 of them for Blackblade of
-  Shahram. The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
-- Date: 2026-11-06 to 2026-11-22
-- Pull request: #1180
+  UTC). Of the 63 pick reports 9 are on 70938, 13 on 70959 and 41 on 71037, and of the 20 rate reports 4, 4 and 12; 39
+  pick reports and 11 rate reports start after hotfix push 114313 (2026-11-20 23:47 UTC). The sim's database is
+  1.60.1.71037, push 114366; the hotfix each player ran is not recorded
+- Date: 2026-11-13 to 2026-11-24
+- Pull request: not recorded
 
-The count is EV-0183 §Method, run on Blackblade of Shahram.
+The rate is EV-0183 §Method run on Blackblade of Shahram over every wearer stream on disk, once with summons at one
+millisecond as one proc and once with each as a proc of its own; the picks and their targets are read from the same
+reports, matched to each Shahram by his instance. Reports VtjvpP8bwcgCYTXF and NdTXJzkWHLZrVQYm log the same run as
+1JLq46yg7wYNhan9, every summon of theirs matching one of its own about 3 s apart, and count once: both leave the picks,
+and NdTXJzkWHLZrVQYm, the one among the rate runs, leaves the rate. Report YLdrGB6ygJ3aqxkD logs each event of its
+wearers about seven times, and each counts once. Scripts and outputs: `requests/forever-shahram-1124` in the log
+parser's folder.

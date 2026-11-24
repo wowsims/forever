@@ -13,25 +13,30 @@ import (
 )
 
 // Shahram 10718, whom 16602 summons, casts one of his six spells and nothing else, picked by these
-// weights, which round his picks in the logs (EV-0125). Fist of Shahram 16601 hastes Shahram himself,
-// so its pick does nothing for the wearer and registers no spell.
+// weights, a round ratio fitted to his picks in the logs (EV-0125). Fist of Shahram 16601 hastes
+// Shahram himself, so its pick does nothing for the wearer and registers no spell.
 var shahramPicks = []struct {
 	spellID  int32
 	weight   float64
 	register func(*core.Character) *core.Spell
 }{
-	{16596, 3, registerFlamesOfShahram},
-	{16598, 3, registerWillOfShahram},
-	{16597, 1, registerCurseOfShahram},
-	{16599, 1, registerBlessingOfShahram},
-	{16600, 1, registerMightOfShahram},
-	{16601, 1, nil},
+	{16596, 7, registerFlamesOfShahram},
+	{16598, 5, registerWillOfShahram},
+	{16597, 2, registerCurseOfShahram},
+	{16599, 2, registerBlessingOfShahram},
+	{16600, 2, registerMightOfShahram},
+	{16601, 2, nil},
 }
 
-// Shahram begins his hardcast 1.03 to 1.83 s after the summon (EV-0125); the sim draws the delay
-// uniformly over that range.
+// Shahram begins his hardcast 1.03 to 1.83 s after the summon, which holds all but the earliest and
+// latest few in the logs (EV-0125); the sim draws the delay uniformly over that range.
 const shahramCastStartMin = 1030 * time.Millisecond
 const shahramCastStartMax = 1830 * time.Millisecond
+
+// Flames of Shahram crits on this share of its landed hits whatever the wearer's crit, for a spell
+// crit's 150%; the share is an observed figure from logs (EV-0125).
+const flamesOfShahramCritChance = 0.006 // TODO: Fit again once the logs hold more of its crits (EV-0125).
+const flamesOfShahramCritMultiplier = 1.5
 
 // The most Will of Shahram stacks the wearer can carry. The game files state no cap, so this one is
 // the sim's own. With every stack up, a new Will replaces the stack closest to fading.
@@ -46,8 +51,8 @@ func init() {
 	// The game files state no rate for 16602; the item's chance-on-hit entry carries the one measured
 	// on the sword's speed. The sim summons no Shahram: each proc picks one of his spells, which lands
 	// after his cast start and the picked row's hardcast. His spells take nothing from the wearer's
-	// damage modifiers, never crit and put no threat on the wearer, and they roll the wearer's spell
-	// hit table.
+	// damage modifiers or crit and put no threat on the wearer, and they roll the wearer's spell hit
+	// table.
 	newEntryRateItemEffect(12592, 16602, func(character *core.Character, ppm float64) {
 		type pickedSpell struct {
 			spell    *core.Spell
@@ -111,16 +116,19 @@ func shahramSpellConfig(character *core.Character, row *spelldata.Spell) core.Sp
 	return config
 }
 
-// Flames of Shahram 16596 burns every enemy around Shahram.
+// Flames of Shahram 16596 burns every enemy around Shahram, and crits at Shahram's own chance.
 func registerFlamesOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16596)
 	damage := row.DamageEffect()
 	config := shahramSpellConfig(character, row)
 	config.Flags |= core.SpellFlagIgnoreAttackerModifiers
+	var outcome core.OutcomeApplier
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealAoeDamage(sim, damage.DirectAmount(sim)*sim.Encounter.AOECapMultiplier(), spell.OutcomeMagicHit)
+		spell.CalcAndDealAoeDamage(sim, damage.DirectAmount(sim)*sim.Encounter.AOECapMultiplier(), outcome)
 	}
-	return character.RegisterSpell(config)
+	spell := character.RegisterSpell(config)
+	outcome = spell.OutcomeMagicHitAndFixedCrit(flamesOfShahramCritChance, flamesOfShahramCritMultiplier)
+	return spell
 }
 
 // Will of Shahram 16598 lands on Shahram's master, the wearer, as one more stack of the row's stats.
@@ -212,7 +220,7 @@ func registerMightOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(config)
 }
 
-// Blessing of Shahram 16599 restores mana to each member of the wearer's party, pets included, every
+// Blessing of Shahram 16599 restores mana to each player of the wearer's party, never to a pet, every
 // period for the row's duration; two Blessings tick side by side (EV-0125). Its heal is left out.
 func registerBlessingOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16599)
@@ -223,7 +231,7 @@ func registerBlessingOfShahram(character *core.Character) *core.Spell {
 	}
 	var members []member
 	character.Env.RegisterPreFinalizeEffect(func() {
-		for _, agent := range character.Party.PlayersAndPets {
+		for _, agent := range character.Party.Players {
 			if unit := &agent.GetCharacter().Unit; unit.HasManaBar() {
 				members = append(members, member{unit, unit.NewManaMetrics(core.ActionID{SpellID: row.ID})})
 			}
