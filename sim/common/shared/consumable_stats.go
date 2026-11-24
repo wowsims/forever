@@ -16,8 +16,8 @@ import (
 //
 // A buff that outlasts the item's cooldown is up from the pull: for the whole iteration where the row
 // persists through death, and for the row's duration otherwise. A scroll is up for the whole
-// iteration too, and its stat is exclusive with the raid buffs that grant the same stat. A buff its
-// cooldown outlasts is used in combat, on that cooldown.
+// iteration too, and its stats count with the elixirs' (R-0054). A buff its cooldown outlasts is used
+// in combat, on that cooldown.
 func NewSpellDataStatConsumable(itemID int32) {
 	core.NewSpellDataConsumableEffect(itemID, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -174,18 +174,23 @@ func consumableAura(character *core.Character, consumable core.Consumable, buff 
 	}
 
 	aura := character.GetOrRegisterAura(config)
-	if crit := critEffects(buff); consumable.Type == proto.ConsumableType_ConsumableTypeElixir && len(crit) > 0 {
-		spelldata.ParseEffects(character, aura, buff, spelldata.Effects(crit...), spelldata.Exclusive(elixirCritCategory, false))
-		spelldata.ParseEffects(character, aura, buff, spelldata.SkipEffects(crit...))
+	if consumable.Type != proto.ConsumableType_ConsumableTypeElixir && !scroll && !consumable.CountsWithElixirs {
+		spelldata.ParseEffects(character, aura, buff)
 		return aura
 	}
-	spelldata.ParseEffects(character, aura, buff, spelldata.ExclusivePerStat(core.Ternary(scroll, core.StatBuffCategory, "")))
+	crit := critEffects(buff)
+	if len(crit) > 0 {
+		spelldata.ParseEffects(character, aura, buff, spelldata.Effects(crit...), spelldata.Exclusive(core.ElixirCritCategory, false))
+	}
+	spelldata.ParseEffects(character, aura, buff, spelldata.SkipEffects(crit...), spelldata.ExclusivePerStat(core.ElixirStatCategory))
 	return aura
 }
 
-// The category every elixir's crit bids in: only the strongest applies however many elixirs are up,
-// while the stat each states beside it stacks with the others'.
-const elixirCritCategory = "ElixirCrit"
+// Whether the consumable's spells put a crit chance on the user, which counts under ElixirCrit for an
+// elixir. The generator puts such elixirs into one group.
+func GrantsCrit(row *spelldata.Spell) bool {
+	return slices.ContainsFunc(consumableBuffs(row), func(s *spelldata.Spell) bool { return len(critEffects(s)) > 0 })
+}
 
 // The positions, counted from 1, of the row's crit chance effects on the user.
 func critEffects(s *spelldata.Spell) []int32 {

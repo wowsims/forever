@@ -1,6 +1,6 @@
 # EV-0021: Dragon's Call, its whelp, the Highborne Research Tablet and weapon procs on shield hits, level 57
 
-- Claim: Dragon's Call procs 4.5 times a minute behind a 45 s cooldown and summons a whelp that takes nothing from its owner; the Highborne Research Tablet procs 2.6 times a minute off damaging hits only; and Fiery Blaze, Rock on Stick and Dragon's Call do not proc off Shield Slam, Shield Bash or Thunder Clap, while equip procs still do.
+- Claim: Dragon's Call procs 4.5 times a minute behind a 45 s cooldown and summons a whelp that takes nothing from its owner; the Highborne Research Tablet procs off damaging hits only; and Fiery Blaze, Rock on Stick and Dragon's Call do not proc off Shield Slam, Shield Bash or Thunder Clap, while equip procs still do. Highborne Research Tablet is the exception: Thunder Clap never procs it (EV-0131).
 - Sources: combat log, one level 57 Protection warrior with a 2.5 s main hand (Mount Hyjal, about 27 minutes in combat, StatLedger for gear and level); Warcraft Logs FHqYCNcKntvDAjxg, WRa9p2xhPnQKVG8C and t6bL9xfVY3hXyvHT for Fiery Blaze (3 players)
 - Game build: not recorded
 - Date: 2026-11-12 for the combat log; not recorded for the Warcraft Logs reports
@@ -8,16 +8,14 @@
 
 ## Highborne Research Tablet (260205)
 
-| Reading             | Measured                                |
-| ------------------- | --------------------------------------- |
-| Procs               | 70, from 647 landed damaging melee hits |
-| Per hit             | 10.8% (8.5 to 13.5)                     |
-| Per minute at 2.5 s | 2.6 (2.05 to 3.23)                      |
-| Shortest gap        | 0.12 s, so no internal cooldown         |
+| Reading      | Measured                                |
+| ------------ | --------------------------------------- |
+| Procs        | 70, from 647 landed damaging melee hits |
+| Shortest gap | 0.12 s, so no internal cooldown         |
 
 The rate is the same on white hits, Shield Slam and Revenge. Rend and Concussion Blow applications, Rend ticks and damage
 shields never proc it, so only a hit that deals damage rolls. An Auto Shot from a hunter procced it too. The chance on a
-spell hit is unmeasured here; EV-0131 measures it, with the ranged and off-hand rates, in 55 Warcraft Logs reports.
+spell hit is unmeasured here; EV-0131 measures it, with the ranged and off-hand rates.
 
 ## Dragon's Call (10847)
 
@@ -74,5 +72,5 @@ landed swings and none in 82 spits.
 No swing lands inside a cast that reaches its end, so a spit's hardcast holds the swing and the whelp swings only as it
 arrives and in the waits between casts.
 
-The Dragon's Call and Highborne Research Tablet rates are override rows on the trigger rows (10847 and 1318159) and the
-Acid Spit row 9591 is added by hand, since a creature's spells are on the server and no row links it.
+The Dragon's Call rate is an override row on the trigger row 10847, and the Acid Spit row 9591 is added by hand, since a
+creature's spells are on the server and no row links it.

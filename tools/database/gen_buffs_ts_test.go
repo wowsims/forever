@@ -7,7 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/buffmanifest"
 )
 
@@ -167,5 +169,21 @@ func TestRenderBuffsDebuffsTSRejectsAnUncountedInt32(t *testing.T) {
 
 	if _, err := RenderBuffsDebuffsTS(rows); err == nil {
 		t.Error("an int32 row with no numStates rendered without an error")
+	}
+}
+
+// The settings read an overwriting buff's input as on or off, so a row with an improved state, whose
+// amount moves with the talent, fails to render.
+func TestRenderBuffsDebuffsTSRejectsAnOverwritingBuffWithAnImprovedState(t *testing.T) {
+	rows := []ResolvedBuff{{
+		BuffSpec: buffmanifest.BuffSpec{Field: "power_word_fortitude", ElixirCategory: core.ElixirStatCategory},
+		Scope:    buffmanifest.ScopeRaid, Proto: buffmanifest.ProtoTristate, Go: "PowerWordFortitude",
+		Owner: proto.Class_ClassPriest, SpellID: 10938, CastSpellID: 10938, DBName: "Power Word: Fortitude",
+		TalentRanks: 2, TalentSpellID: 14767,
+		Applied: []spelldata.Applied{{Kind: "stat Stamina", Value: 70}},
+	}}
+
+	if _, err := RenderBuffsDebuffsTS(rows); err == nil {
+		t.Error("a tristate overwriting buff rendered without an error")
 	}
 }

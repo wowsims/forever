@@ -119,6 +119,7 @@ type BuffSpec struct {
 	Talent         int32
 	Category       string // exclusive-effect category value, "" = none
 	SharedCategory string // second exclusive category the aura also joins, "" = none
+	ElixirCategory string // the elixirs' category the aura's stats overwrite (core.ElixirStatCategory), "" = none
 	SingleAura     bool
 	Driver         bool         // apply block hands the field to drive<Go>; the aura is not simply always up
 	Stats          []proto.Stat // UI relevance tags

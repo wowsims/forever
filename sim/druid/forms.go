@@ -173,7 +173,7 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 		druid.cancelMaulQueue(sim)
 		if druid.HasEnergyBar() && !druid.Env.MeasuringStats {
 			druid.EnergyPerTick = druid.furorEnergyPerTick
-			druid.rememberCatEnergy(sim, druid.furorStoredEnergy)
+			druid.rememberCatEnergy(sim, druid.CurrentEnergy())
 		}
 		druid.SetFeralCombat(false)
 		druid.restoreHumanoidBody()
@@ -278,7 +278,9 @@ func (druid *Druid) rememberCatEnergy(sim *core.Simulation, energy float64) {
 	druid.furorLeftCatAt = sim.CurrentTime
 }
 
-// Bear forms preserve the stored energy and pause regeneration until the form ends.
+// A bear form stops energy regeneration (effect 5, -100% energy regeneration) and keeps the pool: the bar
+// holds the stored energy through the form, and its exit stores what the bar holds, so energy gained in the
+// form, Nature's Bounty's ticks, comes back with Cat Form (EV-0144).
 func (druid *Druid) pauseCatEnergy(sim *core.Simulation) {
 	if !druid.HasEnergyBar() || druid.Env.MeasuringStats {
 		return
@@ -289,14 +291,25 @@ func (druid *Druid) pauseCatEnergy(sim *core.Simulation) {
 		energy = min(druid.furorStoredEnergy+10*seconds, 100)
 	}
 	druid.rememberCatEnergy(sim, energy)
+	druid.setEnergy(sim, energy)
 	druid.furorEnergyPerTick = druid.EnergyPerTick
 	druid.EnergyPerTick = 0
 }
 
-// The tooltip's rule, priced with $m2: the energy left in Cat Form plus ${10*($m2/100)} for each
-// second spent outside Bear Form or Dire Bear Form, up to ${100*($m2/100)}. At 5/5 that is 10 a
-// second, the Cat Form rate. With the talent untaken the cat comes back with none. In game 0/5 and 5/5
-// follow it, whether the cat left by a shift or by cancelling Cat Form (EV-0037).
+// Moves the bar to energy, through Furor's metrics.
+func (druid *Druid) setEnergy(sim *core.Simulation, energy float64) {
+	if delta := energy - druid.CurrentEnergy(); delta > 0 {
+		druid.AddEnergy(sim, delta, druid.furorEnergyMetrics())
+	} else if delta < 0 {
+		druid.SpendEnergy(sim, -delta, druid.furorEnergyMetrics())
+	}
+}
+
+// The tooltip's rule, priced with $m2: the energy left in Cat Form, with what the bar gained in a bear
+// form, plus ${10*($m2/100)} for each second spent outside Bear Form or Dire Bear Form, up to
+// ${100*($m2/100)}. At 5/5 that is 10 a second, the Cat Form rate. With the talent untaken the cat comes
+// back with none. In game 0/5 and 5/5 follow it, whether the cat left by a shift or by cancelling Cat Form
+// (EV-0037).
 func (druid *Druid) restoreCatEnergy(sim *core.Simulation) {
 	if !druid.HasEnergyBar() || druid.Env.MeasuringStats {
 		return
@@ -309,13 +322,7 @@ func (druid *Druid) restoreCatEnergy(sim *core.Simulation) {
 	}
 	seconds := max(0, (sim.CurrentTime - druid.furorLeftCatAt).Seconds())
 	fraction := spellData.Furor.EffectAt(2).FractionAt(druid.Talents.Furor)
-	gained := fraction * min(druid.furorStoredEnergy+10*seconds, 100)
-	delta := gained - druid.CurrentEnergy()
-	if delta > 0 {
-		druid.AddEnergy(sim, delta, druid.furorEnergyMetrics())
-	} else if delta < 0 {
-		druid.SpendEnergy(sim, -delta, druid.furorEnergyMetrics())
-	}
+	druid.setEnergy(sim, fraction*min(druid.furorStoredEnergy+10*seconds, 100))
 }
 
 func (druid *Druid) furorRageOnEnterBear(sim *core.Simulation) {

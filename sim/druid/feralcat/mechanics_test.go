@@ -82,8 +82,14 @@ func newCatAgainst(t *testing.T, player *proto.Player, numTargets int) (*core.Si
 
 func fillResource(sim *core.Simulation, cat *FeralDruid) {
 	cat.AddEnergy(sim, cat.MaximumEnergy(), cat.NewEnergyMetrics(core.ActionID{SpellID: 1}))
-	cat.AddMana(sim, cat.MaxMana(), cat.NewManaMetrics(core.ActionID{SpellID: 1}))
+	fillMana(sim, cat)
 	cat.AddRage(sim, cat.MaximumRage(), cat.NewRageMetrics(core.ActionID{SpellID: 1}))
+}
+
+// Mana alone, for a form's cost. A cast back from a bear form takes this rather than fillResource, since
+// energy added in the form comes back with Cat Form.
+func fillMana(sim *core.Simulation, cat *FeralDruid) {
+	cat.AddMana(sim, cat.MaxMana(), cat.NewManaMetrics(core.ActionID{SpellID: 1}))
 }
 
 // Ferocity 5/5 and Shredding Attacks 3/3: tooltips 16934 ("5 Rage or Energy") and 16966 ("Shred by 18",
@@ -139,7 +145,7 @@ func TestFurorPreservesEnergyInABearForm(t *testing.T) {
 		t.Fatal("dire bear form left the cat in cat form")
 	}
 	sim.CurrentTime += 3 * time.Second
-	fillResource(sim, cat)
+	fillMana(sim, cat)
 	if !cat.CatForm.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("cat form did not cast on the way back")
 	}
@@ -639,7 +645,7 @@ func TestShiftingPowerIsRefusedAtFullEnergy(t *testing.T) {
 
 func TestFurorGrantsRageOnEnteringBear(t *testing.T) {
 	sim, cat := newCat(t, furorTalents, nil)
-	cat.AddMana(sim, cat.MaxMana(), cat.NewManaMetrics(core.ActionID{SpellID: 1}))
+	fillMana(sim, cat)
 	if !cat.BearForm.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("bear form did not cast")
 	}
@@ -1052,7 +1058,7 @@ func TestFurorBearTicksAndDirectTransitions(t *testing.T) {
 	if cat.CurrentEnergy() != 30 {
 		t.Fatalf("Bear regenerated energy: %v", cat.CurrentEnergy())
 	}
-	cat.AddMana(sim, cat.MaxMana(), cat.NewManaMetrics(core.ActionID{SpellID: 1}))
+	fillMana(sim, cat)
 	if !cat.DireBearForm.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("Dire Bear entry failed")
 	}
@@ -1064,7 +1070,7 @@ func TestFurorBearTicksAndDirectTransitions(t *testing.T) {
 	if cat.CurrentEnergy() != 30 {
 		t.Fatalf("Dire Bear regenerated energy: %v", cat.CurrentEnergy())
 	}
-	cat.AddMana(sim, cat.MaxMana(), cat.NewManaMetrics(core.ActionID{SpellID: 1}))
+	fillMana(sim, cat)
 	if !cat.CatForm.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("Cat return failed")
 	}

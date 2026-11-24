@@ -103,8 +103,9 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
-// The Fury 2H set with Blackhand's Breadth in place of Hand of Justice. Destiny, the weapon, has no known source, and
-// its Strength proc rate comes from logs (EV-0132). It beats Arcanite Champion, the Blacksmithing craft, by 4 to 5 %.
+// The Fury 2H set with Blackhand's Breadth in place of Hand of Justice and the Strength necklace enchant in place of
+// Agility. Destiny, the weapon, has no known source, and its Strength proc rate comes from logs (EV-0132). It beats
+// Arcanite Champion, the Blacksmithing craft, by 4 to 5 %.
 export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, ARMS_PRESET_OPTIONS);
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the
@@ -217,11 +218,14 @@ export const DefaultOptions = WarriorOptions.create({
 });
 
 export const DefaultConsumables = ConsumesSpec.create({
-	...WarriorPresets.DefaultConsumables,
-	resourcePotId: Consumables.MightyRagePotion.id,
+	foodId: Consumables.SmokedDesertDumplings.id,
+	// A dynamite states no stun, so a level 63 boss does not shrug it off the way it does the EZ-Thro Dark Bomb.
+	explosiveId: Consumables.SAFTCleverDynamite.id,
 	mhImbueId: Consumables.DenseWeightstone.id,
 	ohImbueId: Consumables.DenseSharpeningStone.id,
-	elixirIds: [Consumables.ElixirOfFerocity.id, Consumables.ElixirOfTheMongoose.id, Consumables.WinterfallFirewater.id],
+	extraIds: [Consumables.GoblinSapperCharge.id, Consumables.JujuPower.id, Consumables.JujuMight.id, Consumables.BoglingRoot.id, Consumables.ROIDS.id],
+	elixirIds: [Consumables.ElixirOfTheMongoose.id],
+	resourcePotId: Consumables.MightyRagePotion.id,
 });
 
 // Destiny, the two-hander of the Arms and Fury 2H Pre-BiS sets, is a sword, so the main hand takes the sharpening

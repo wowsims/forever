@@ -13,9 +13,14 @@ const (
 	ResistanceCategoryShadow = "ResistanceShadow"
 )
 
-// Exclusive category for flat stat buffs which don't stack with each other
-// e.g. Arcane Intellect vs Greater Arcane Elixir.
-const StatBuffCategory = "StatBuff"
+// The categories the elixirs, the scrolls and the consumables that count with them bid in: each stat
+// counts only the strongest one's amount, and the crit only one elixir's. A raid buff whose manifest row
+// names an ElixirCategory bids its stats there as well without counting (spelldata.Overwrites), so a
+// consumable that grants no more adds nothing under it (R-0054).
+const (
+	ElixirStatCategory = "ElixirStat"
+	ElixirCritCategory = "ElixirCrit"
+)
 
 // The category one stat or pseudo-stat of a buff bids in alone: the buff's category, then the stat's
 // name or its PseudoStats field, then whether the buff adds to it or multiplies it.

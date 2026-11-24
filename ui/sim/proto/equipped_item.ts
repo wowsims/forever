@@ -1,4 +1,4 @@
-import { ItemRandomSuffix, ItemSlot, ItemSpec, Profession, PseudoStat, ScalingItemProperties } from '@generated/proto/common';
+import { Class, ItemRandomSuffix, ItemSlot, ItemSpec, Profession, PseudoStat, ScalingItemProperties } from '@generated/proto/common';
 import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 
 import { distinct } from '../utils/collections';
@@ -35,8 +35,8 @@ export const getWeaponDpsStatsBySlot = (weaponDps: number, slot: ItemSlot): Stat
 export const enchantWeaponDamageEP = (enchant: Enchant, weaponSpeed: number, epPerWeaponDps: number): number =>
 	enchant.weaponDamage && weaponSpeed ? (enchant.weaponDamage / weaponSpeed) * epPerWeaponDps : 0;
 
-export const enchantEP = (enchant: Enchant, weights: Stats, weaponSpeed: number, epPerWeaponDps: number): number =>
-	new Stats(enchant.stats, enchant.pseudoStats).computeEP(weights) + enchantWeaponDamageEP(enchant, weaponSpeed, epPerWeaponDps);
+export const enchantEP = (enchant: Enchant, weights: Stats, playerClass: Class, weaponSpeed: number, epPerWeaponDps: number): number =>
+	new Stats(enchant.stats, enchant.pseudoStats).computeEP(weights, playerClass) + enchantWeaponDamageEP(enchant, weaponSpeed, epPerWeaponDps);
 
 export const getWeaponStatsBySlot = (item: Item, slot: ItemSlot, upgradeStep: 0, randomSuffix?: ItemRandomSuffix | null) => {
 	if (item.weaponSpeed > 0) {

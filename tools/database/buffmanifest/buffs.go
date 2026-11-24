@@ -13,17 +13,19 @@ import "github.com/wowsims/forever/sim/core/proto"
 
 var Raid = []BuffSpec{
 	{
-		Field:    "arcane_intellect",
-		SpellID:  10157,
-		Category: "StatBuff",
+		Field:          "arcane_intellect",
+		SpellID:        10157,
+		Category:       "StatBuff",
+		ElixirCategory: "ElixirStat",
 		Stats: []proto.Stat{
 			proto.Stat_StatIntellect,
 		},
 	},
 	{
-		Field:    "prayer_of_spirit",
-		SpellID:  27681,
-		Category: "StatBuff",
+		Field:          "prayer_of_spirit",
+		SpellID:        27681,
+		Category:       "StatBuff",
+		ElixirCategory: "ElixirStat",
 		Stats: []proto.Stat{
 			proto.Stat_StatSpirit,
 		},
@@ -41,9 +43,10 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
-		Field:    "power_word_fortitude",
-		SpellID:  10938,
-		Category: "StatBuff",
+		Field:          "power_word_fortitude",
+		SpellID:        10938,
+		Category:       "StatBuff",
+		ElixirCategory: "ElixirStat",
 		Stats: []proto.Stat{
 			proto.Stat_StatStamina,
 		},

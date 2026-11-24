@@ -46,7 +46,7 @@ type QuestieQuest struct {
 
 // Every item QuestieDB lists a reward quest, a vendor or a dropping NPC for, as Quest, SoldBy and Drop sources, with
 // the NPCs of the listed drops in Npcs, and each of those reward quests by id.
-func ReadQuestieData() (*WowDatabase, map[int32]*QuestieQuest) {
+func ReadQuestieData(placement *NpcPlacement) (*WowDatabase, map[int32]*QuestieQuest) {
 	archive := tools.ReadWebRequired("https://github.com/Questie/QuestieDB/releases/download/v" + questieRelease + "/QuestieDB-" + questieRelease + "-Forever.zip")
 	reader, err := zip.NewReader(strings.NewReader(archive), int64(len(archive)))
 	if err != nil {
@@ -59,7 +59,7 @@ func ReadQuestieData() (*WowDatabase, map[int32]*QuestieQuest) {
 		}
 		return string(data)
 	}
-	db, quests, err := parseQuestieData(read("QuestieDB_Forever.toc"), read("src/meta/itemMeta.lua"), read("src/meta/questMeta.lua"), read("src/meta/npcMeta.lua"))
+	db, quests, err := parseQuestieData(read("QuestieDB_Forever.toc"), read("src/meta/itemMeta.lua"), read("src/meta/questMeta.lua"), read("src/meta/npcMeta.lua"), placement)
 	if err != nil {
 		log.Fatalf("parsing the QuestieDB data: %v", err)
 	}
@@ -88,8 +88,8 @@ func ReadQuestieQuests(path string) map[int32]*QuestieQuest {
 }
 
 // The baked data is the TOC's "## X-<entity>-<id>-<field>: <value>" lines; each meta file maps an entity's field
-// names to indexes.
-func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, map[int32]*QuestieQuest, error) {
+// names to indexes. Each NPC takes the zone placement gives it, else the zone its Questie zone stands for.
+func parseQuestieData(toc, itemMeta, questMeta, npcMeta string, placement *NpcPlacement) (*WowDatabase, map[int32]*QuestieQuest, error) {
 	store := readQuestieStore(toc)
 	items, err := newQuestieEntity(store, "Item", itemMeta)
 	if err != nil {
@@ -152,25 +152,89 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, m
 		return read, nil
 	}
 
+	// The instances whose quests ask for each NPC's kill, from every quest, a reward quest or not.
+	killQuestMaps := map[int][]int32{}
+	for _, id := range quests.ids {
+		quest, err := quests.row(id)
+		if err != nil {
+			return nil, nil, err
+		}
+		if quest == nil {
+			continue
+		}
+		zone, err := quest.integer(questZone)
+		if err != nil {
+			return nil, nil, err
+		}
+		instance, ok := placement.instanceOf(int32(zone))
+		if !ok {
+			continue
+		}
+		kills, err := quest.objectiveCreatures(questObjectives)
+		if err != nil {
+			return nil, nil, err
+		}
+		for _, npc := range kills {
+			killQuestMaps[npc] = append(killQuestMaps[npc], instance)
+		}
+	}
+
+	// An NPC's name, its Questie zone and the zone placement gives it.
+	placeNpc := func(npc *questieRow, id int) (string, int32, int32, error) {
+		name, err := npc.text(npcName)
+		if err != nil {
+			return "", 0, 0, err
+		}
+		zone, err := npc.integer(npcZone)
+		if err != nil {
+			return "", 0, 0, err
+		}
+		return name, int32(zone), placement.zone(name, int32(zone), killQuestMaps[id]), nil
+	}
+
+	// A zone AreaTable lacks stands for the one zone its placed NPCs move to (BRD's 1585 for 1584), so the NPCs there
+	// that no encounter or quest places follow them. A zone whose NPCs move to two zones stands for itself.
+	standIns := map[int32]int32{}
+	for _, id := range npcs.ids {
+		npc, err := npcs.row(id)
+		if err != nil {
+			return nil, nil, err
+		}
+		if npc == nil {
+			continue
+		}
+		_, zone, placed, err := placeNpc(npc, id)
+		if err != nil {
+			return nil, nil, err
+		}
+		if zone == 0 || placed == zone || placement.inAreaTable(zone) {
+			continue
+		}
+		if standIn, seen := standIns[zone]; !seen {
+			standIns[zone] = placed
+		} else if standIn != placed {
+			standIns[zone] = zone
+		}
+	}
+
 	// Nil for an NPC with no row, with the side it is friendly to.
 	readNpc := func(id int) (*proto.UINPC, proto.Faction, error) {
 		npc, err := npcs.row(id)
 		if err != nil || npc == nil {
 			return nil, proto.Faction_Unknown, err
 		}
-		name, err := npc.text(npcName)
+		name, zone, placed, err := placeNpc(npc, id)
 		if err != nil {
 			return nil, proto.Faction_Unknown, err
 		}
-		zone, err := npc.integer(npcZone)
-		if err != nil {
-			return nil, proto.Faction_Unknown, err
+		if standIn, ok := standIns[zone]; ok && placed == zone {
+			placed = standIn
 		}
 		friendlyTo, err := npc.text(npcFriendlyTo)
 		if err != nil {
 			return nil, proto.Faction_Unknown, err
 		}
-		return &proto.UINPC{Id: int32(id), Name: name, ZoneId: int32(zone)}, questieNpcFaction(friendlyTo), nil
+		return &proto.UINPC{Id: int32(id), Name: name, ZoneId: placed}, questieNpcFaction(friendlyTo), nil
 	}
 
 	db := NewWowDatabase()
@@ -299,37 +363,18 @@ func questieNpcFaction(friendlyTo string) proto.Faction {
 	return proto.Faction_Unknown
 }
 
-// QuestieDB zones the game files' AreaTable holds under another id: QuestieDB places Blackrock Depths' NPCs in 1585,
-// and AreaTable names the instance 1584.
-var questieZoneAreas = map[int32]int32{
-	1585: 1584, // Blackrock Depths
-}
-
-func questieZoneArea(zone int32) int32 {
-	if area, ok := questieZoneAreas[zone]; ok {
-		return area
-	}
-	return zone
-}
-
-// Moves the NPCs, vendors and drops QuestieDB zones under another id to their AreaTable zone, removes the vendors and
-// drops with no zone or a zone that is not in the game files, and sets each drop's difficulty from its zone, which
-// stays unknown in the open world. A world drop names neither an NPC nor a zone.
+// Removes the vendors and drops with no zone or a zone that is not in the game files, and sets each drop's difficulty
+// from its zone, which stays unknown in the open world. A world drop names neither an NPC nor a zone.
 func PruneQuestieSources(questie *WowDatabase, raidZones, dungeonZones map[int32]bool, areaNames map[int32]string) {
-	for _, npc := range questie.Npcs {
-		npc.ZoneId = questieZoneArea(npc.ZoneId)
-	}
 	for _, item := range questie.Items {
 		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
 			if soldBy := source.GetSoldBy(); soldBy != nil {
-				soldBy.ZoneId = questieZoneArea(soldBy.ZoneId)
 				return areaNames[soldBy.ZoneId] != ""
 			}
 			drop := source.GetDrop()
 			if drop == nil || drop.ZoneId == 0 && drop.NpcId == 0 {
 				return true
 			}
-			drop.ZoneId = questieZoneArea(drop.ZoneId)
 			if raidZones[drop.ZoneId] || dungeonZones[drop.ZoneId] {
 				drop.Difficulty = ParseDungeonDifficulty(raidZones[drop.ZoneId])
 			}
@@ -353,6 +398,42 @@ func AppendQuestieSources(db, questie *WowDatabase) {
 		if item, ok := db.Items[id]; ok {
 			item.Sources = append(slices.Clip(item.Sources), questieSourcesBeside(item.Sources, questieItem.GetSources())...)
 		}
+	}
+}
+
+// Sets each quest source's zone from the quest's QuestieDB zone: a negative QuestSort id stays as it is, and a positive
+// zone the game files have no AreaTable row for reads as unknown (0).
+func ApplyQuestZones(questie *WowDatabase, quests map[int32]*QuestieQuest, areaNames map[int32]string) {
+	for _, item := range questie.Items {
+		for _, source := range item.GetSources() {
+			quest := source.GetQuest()
+			if quest == nil {
+				continue
+			}
+			quest.ZoneId = 0
+			if row, ok := quests[quest.Id]; ok && row != nil && (row.Zone < 0 || areaNames[row.Zone] != "") {
+				quest.ZoneId = row.Zone
+			}
+		}
+	}
+}
+
+// Adds a zone row for each quest zone the UI database lacks, from the quest sources of from's items and enchants. It
+// runs after LoadZoneAreas, so a quest zone takes no area types and no area group member folds into it.
+func AddQuestZones(db, from *WowDatabase, areaNames map[int32]string) {
+	add := func(sources []*proto.UIItemSource) {
+		for _, source := range sources {
+			zone := source.GetQuest().GetZoneId()
+			if _, ok := db.Zones[zone]; zone > 0 && !ok {
+				db.Zones[zone] = &proto.UIZone{Id: zone, Name: areaNames[zone]}
+			}
+		}
+	}
+	for _, item := range from.Items {
+		add(item.GetSources())
+	}
+	for _, enchant := range from.Enchants {
+		add(enchant.GetSources())
 	}
 }
 
@@ -569,22 +650,26 @@ func (r *questieRow) ids(index int) ([]int, error) {
 	return r.table(index, cborIDs)
 }
 
-func (r *questieRow) objectiveItems(index int) ([]int, error) {
-	return r.table(index, cborObjectiveItems)
+func (r *questieRow) objectiveCreatures(index int) ([]int, error) {
+	return r.table(index, func(value any) ([]int, error) { return cborObjectiveIDs(value, 1, "creature") })
 }
 
-// The item ids of a quest's objectives. The field holds six positional groups (creature, object, item, reputation,
-// kill credit, spell) as a list, or as a map from group number when groups are missing; each item entry is a list
-// that opens with the item id.
-func cborObjectiveItems(value any) ([]int, error) {
+func (r *questieRow) objectiveItems(index int) ([]int, error) {
+	return r.table(index, func(value any) ([]int, error) { return cborObjectiveIDs(value, 3, "item") })
+}
+
+// The ids of one group of a quest's objectives. The field holds six positional groups (creature, object, item,
+// reputation, kill credit, spell) as a list, or as a map from group number when groups are missing; each creature or
+// item entry is a list that opens with the id.
+func cborObjectiveIDs(value any, number int, kind string) ([]int, error) {
 	var group any
 	switch value := value.(type) {
 	case []any:
-		if len(value) >= 3 {
-			group = value[2]
+		if len(value) >= number {
+			group = value[number-1]
 		}
 	case map[any]any:
-		group = value[int64(3)]
+		group = value[int64(number)]
 	default:
 		return nil, fmt.Errorf("%v is not the objectives", value)
 	}
@@ -593,17 +678,17 @@ func cborObjectiveItems(value any) ([]int, error) {
 	}
 	entries, ok := group.([]any)
 	if !ok {
-		return nil, fmt.Errorf("%v is not a list of item objectives", group)
+		return nil, fmt.Errorf("%v is not a list of %s objectives", group, kind)
 	}
 	ids := make([]int, 0, len(entries))
 	for _, entry := range entries {
 		fields, ok := entry.([]any)
 		if !ok || len(fields) == 0 {
-			return nil, fmt.Errorf("%v is not an item objective", entry)
+			return nil, fmt.Errorf("%v is not a %s objective", entry, kind)
 		}
 		id, ok := fields[0].(int64)
 		if !ok {
-			return nil, fmt.Errorf("%v is not an item id", fields[0])
+			return nil, fmt.Errorf("%v is not a %s id", fields[0], kind)
 		}
 		ids = append(ids, int(id))
 	}

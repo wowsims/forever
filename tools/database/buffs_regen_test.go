@@ -9,8 +9,11 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strconv"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/buffmanifest"
@@ -62,6 +65,9 @@ func TestResolvedBuffInvariants(t *testing.T) {
 		}
 		if want, pinned := pinnedCategories[row.Field]; pinned && row.Category != want {
 			t.Errorf("%s: the aura competes under %q, want %q", row.Field, row.Category, want)
+		}
+		if row.ElixirCategory != "" && row.ElixirCategory != core.ElixirStatCategory {
+			t.Errorf("%s: overwrites %q, want the elixirs' stat category %q", row.Field, row.ElixirCategory, core.ElixirStatCategory)
 		}
 		if amounts, pinned := pinnedAmounts[row.Field]; pinned {
 			want := amounts(row.Spell)
@@ -161,6 +167,41 @@ func TestGroupInputsAttachWhatTheirGroupSpellAttaches(t *testing.T) {
 	}
 	if found != len(groupInputSpells) {
 		t.Errorf("found %d of the %d group inputs among the manifest's rows", found, len(groupInputSpells))
+	}
+}
+
+// The amount the settings dim a scroll or an elixir by is the one the sim's raid input applies, at the
+// talent points 0 the apply block passes. A new row that overwrites the elixirs needs its Value
+// function listed.
+func TestOverwritingBuffAmountsAreWhatTheRaidInputApplies(t *testing.T) {
+	wants := map[string]func(int32) float64{
+		"arcane_intellect":     buffs.ArcaneIntellectValue,
+		"prayer_of_spirit":     buffs.PrayerOfSpiritValue,
+		"power_word_fortitude": buffs.PowerWordFortitudeValue,
+	}
+	found := 0
+	for _, row := range resolveCommittedBuffs(t) {
+		if !overwritesConsumables(row) {
+			continue
+		}
+		value, listed := wants[row.Field]
+		if !listed {
+			t.Errorf("%s overwrites consumables, but the test lists no Value function for it", row.Field)
+			continue
+		}
+		found++
+		entry, err := overwritingBuffEntry(row, &tsBuffInput{Const: row.Go})
+		if err != nil {
+			t.Errorf("%s: %v", row.Field, err)
+			continue
+		}
+		applied := strconv.FormatFloat(value(0), 'f', -1, 64)
+		if len(entry.Stats) == 0 || slices.ContainsFunc(entry.Stats, func(a tsStatAmount) bool { return a.Amount != applied }) {
+			t.Errorf("%s: the settings read %v, the raid input applies %s", row.Field, entry.Stats, applied)
+		}
+	}
+	if found != len(wants) {
+		t.Errorf("found %d of the %d listed rows that overwrite consumables", found, len(wants))
 	}
 }
 

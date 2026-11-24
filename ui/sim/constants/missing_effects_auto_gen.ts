@@ -157,6 +157,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		3456, // Dog Whistle
 		[
 			"", // 1293501 - https://www.wowhead.com/forever/spell=1293501
+			"Summons a tracking hound that will protect you for 3min.", // 9515 - https://www.wowhead.com/forever/spell=9515
 		]
 	],
 	[
@@ -574,18 +575,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		10623, // Winter's Bite
-		[
-			"Launches a bolt of frost at the enemy causing 50 Frost damage and slowing movement speed by 50% for 5s.", // 13439 - https://www.wowhead.com/forever/spell=13439
-		]
-	],
-	[
-		10626, // Ragehammer
-		[
-			"Increases Attack Power by 102 and melee attack speed by 6% for 15s.", // 12686 - https://www.wowhead.com/forever/spell=12686
-		]
-	],
-	[
 		10627, // Bludgeon of the Grinning Dog
 		[
 			"Bludgeon the target, dealing 126 Physical damage. Canines and Hyaenidae are stunned and sit for 3s.", // 1300209 - https://www.wowhead.com/forever/spell=1300209
@@ -625,6 +614,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		11121, // Darkwater Talwar
 		[
 			"Sends a shadowy bolt at the enemy causing 28 Shadow damage.", // 16408 - https://www.wowhead.com/forever/spell=16408
+		]
+	],
+	[
+		11603, // Vilerend Slicer
+		[
+			"Wounds the target for 225 damage.", // 1320808 - https://www.wowhead.com/forever/spell=1320808
 		]
 	],
 	[
@@ -685,12 +680,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		12528, // The Judge's Gavel
 		[
 			"Stuns target for 3s.", // 56 - https://www.wowhead.com/forever/spell=56
-		]
-	],
-	[
-		12531, // Searing Needle
-		[
-			"Blasts a target for 56 Fire damage and increases Fire damage done to target by 10 for 30s.", // 16454 - https://www.wowhead.com/forever/spell=16454
 		]
 	],
 	[
@@ -787,6 +776,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13353, // Book of the Dead
 		[
 			"", // 1298517 - https://www.wowhead.com/forever/spell=1298517
+			"Summons a Skeleton that will protect you for 1min.", // 17490 - https://www.wowhead.com/forever/spell=17490
 		]
 	],
 	[
@@ -799,12 +789,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13382, // Cannonball Runner
 		[
 			"", // 1300668 - https://www.wowhead.com/forever/spell=1300668
-		]
-	],
-	[
-		13399, // Gargoyle Shredder Talons
-		[
-			"Wounds the target, causing them to bleed for 140 damage over 14s.", // 1320824 - https://www.wowhead.com/forever/spell=1320824
+			"Summons a Scarlet Cannon that fires at targets, dealing 112 Holy damage. This effect deals 2 times as much damage to Undead enemies.", // 6251 - https://www.wowhead.com/forever/spell=6251
 		]
 	],
 	[
@@ -841,12 +826,14 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		14022, // Barov Peasant Caller
 		[
 			"", // 1298508 - https://www.wowhead.com/forever/spell=1298508
+			"Calls forth 3 servants of the House Barov that will fight, cook, and clean for you.", // 18307 - https://www.wowhead.com/forever/spell=18307
 		]
 	],
 	[
 		14023, // Barov Peasant Caller
 		[
 			"", // 1298508 - https://www.wowhead.com/forever/spell=1298508
+			"Calls forth 3 servants of the House Barov that will fight, cook, and clean for you.", // 18308 - https://www.wowhead.com/forever/spell=18308
 		]
 	],
 	[
@@ -871,12 +858,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		14154, // Truefaith Vestments
 		[
 			"Reduces the cooldown of your Fade ability by 2.0 sec.", // 18388 - https://www.wowhead.com/forever/spell=18388
-		]
-	],
-	[
-		14531, // Frightskull Shaft
-		[
-			"Deals 15 Shadow damage every 2.0 sec for 14s and lowers their attack power by 92 for 14s.", // 18633 - https://www.wowhead.com/forever/spell=18633
 		]
 	],
 	[
@@ -913,6 +894,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		16022, // Arcanite Dragonling
 		[
 			"", // 1318325 - https://www.wowhead.com/forever/spell=1318325
+			"Activates your Arcanite Dragonling to fight for you for 1min.", // 19804 - https://www.wowhead.com/forever/spell=19804
 		]
 	],
 	[
@@ -1076,12 +1058,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		18470, // Royal Seal of Eldre'Thalas
 		[
 			"Increases Spirit by 16 in Forest and Grassland areas.", // 1318478 - https://www.wowhead.com/forever/spell=1318478
-		]
-	],
-	[
-		18498, // Hedgecutter
-		[
-			"Slice the target with magically enhanced precision, dealing 42 Arcane damage. Deals 3 times as much damage to Plants.", // 1302344 - https://www.wowhead.com/forever/spell=1302344
 		]
 	],
 	[
@@ -1616,12 +1592,19 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		21326, // Defender of the Timbermaw
 		[
 			"", // 1318470 - https://www.wowhead.com/forever/spell=1318470
+			"Calls forth a Timbermaw Ancestor to fight at your side and heal you for 20s.", // 26066 - https://www.wowhead.com/forever/spell=26066
 		]
 	],
 	[
 		21526, // Band of Icy Depths
 		[
 			"Underwater Breath lasts 50% longer than normal.", // 11789 - https://www.wowhead.com/forever/spell=11789
+		]
+	],
+	[
+		21579, // Vanquished Tentacle of C'Thun
+		[
+			"Summons a Vanquished Tentacle to your aid for 30s.", // 26391 - https://www.wowhead.com/forever/spell=26391
 		]
 	],
 	[
@@ -1634,6 +1617,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		22198, // Jagged Obsidian Shield
 		[
 			"When struck by a harmful spell, the caster of that spell has a 5% chance to be silenced for 3s.", // 27559 - https://www.wowhead.com/forever/spell=27559
+		]
+	],
+	[
+		22332, // Blade of Necromancy
+		[
+			"Killing a non-trivial enemy has a chance to raise a Skeleton from their corpse for 2min.", // 1302108 - https://www.wowhead.com/forever/spell=1302108
 		]
 	],
 	[
@@ -1814,6 +1803,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		268873, // Defender of the Barkskin
 		[
 			"", // 1318514 - https://www.wowhead.com/forever/spell=1318514
+			"Calls forth a Barkskin Ancestor to fight at your side and heal you for 20s.", // 1294063 - https://www.wowhead.com/forever/spell=1294063
 		]
 	],
 	[
@@ -2259,6 +2249,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		276744, // Zarla's Snack Pouch
 		[
 			"", // 1318104 - https://www.wowhead.com/forever/spell=1318104
+			"Calls forth a Black Dragon Whelp to protect you in battle for a short period of time.", // 1315190 - https://www.wowhead.com/forever/spell=1315190
 		]
 	],
 	[
@@ -2361,12 +2352,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		285066, // Ooze Rummagers
 		[
 			"You have a small chance to find additional ore when mining Ooze Covered Thorium Veins.", // 1317446 - https://www.wowhead.com/forever/spell=1317446
-		]
-	],
-	[
-		285102, // Darkmist Dirk
-		[
-			"Your attacks have a high chance to poison the target for 8 Nature damage every 3.0 sec for 9s.", // 1317583 - https://www.wowhead.com/forever/spell=1317583
 		]
 	],
 	[

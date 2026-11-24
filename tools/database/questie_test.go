@@ -6,12 +6,14 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
+	"os"
 	"reflect"
 	"slices"
 	"strings"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/tools"
 	"github.com/wowsims/forever/tools/database/dbc"
 	googleProto "google.golang.org/protobuf/proto"
 )
@@ -190,7 +192,7 @@ func questieTestTOC() string {
 }
 
 func TestParseQuestieData(t *testing.T) {
-	db, quests, err := parseQuestieData(questieTestTOC(), questieTestItemMeta, questieTestQuestMeta, questieTestNpcMeta)
+	db, quests, err := parseQuestieData(questieTestTOC(), questieTestItemMeta, questieTestQuestMeta, questieTestNpcMeta, newNpcPlacement(nil, nil, nil))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -284,7 +286,7 @@ func TestParseQuestieDataRejectsMalformedData(t *testing.T) {
 		"objectives are a number":  {toc + "\n## X-Quest-9004-4: " + questieValue(7), questieTestItemMeta},
 		"item objective has no id": {toc + "\n## X-Quest-9004-4: " + questieValue([]any{nil, nil, []any{[]any{"Bars"}}}), questieTestItemMeta},
 	} {
-		if _, _, err := parseQuestieData(test.toc, test.itemMeta, questieTestQuestMeta, questieTestNpcMeta); err == nil {
+		if _, _, err := parseQuestieData(test.toc, test.itemMeta, questieTestQuestMeta, questieTestNpcMeta, newNpcPlacement(nil, nil, nil)); err == nil {
 			t.Errorf("%s: parsed without an error", name)
 		}
 	}
@@ -298,14 +300,13 @@ func TestPruneQuestieSources(t *testing.T) {
 	worldDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: worldDropName}}}
 	vendor, openWorld, inDungeon, inRaid := soldBy(28), dropSource(1, 28), dropSource(2, 2057), dropSource(3, 2717)
 	zoneDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: multipleNpcsName, ZoneId: 2057}}}
-	lostZoneDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: multipleNpcsName, ZoneId: 9999}}}
-	movedZoneDrop := dropSource(6, 1585)
+	lostZoneDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: multipleNpcsName, ZoneId: 1585}}}
 
 	questie := NewWowDatabase()
-	questie.Items[1] = &proto.UIItem{Id: 1, Sources: []*proto.UIItemSource{quest, vendor, soldBy(9999), openWorld, inDungeon, inRaid, dropSource(4, 9999), dropSource(5, 0), worldDrop, zoneDrop, lostZoneDrop, movedZoneDrop}}
-	PruneQuestieSources(questie, map[int32]bool{2717: true}, map[int32]bool{2057: true, 1584: true}, map[int32]string{28: "Western Plaguelands", 1584: "Blackrock Depths", 2057: "Scholomance", 2717: "Molten Core"})
+	questie.Items[1] = &proto.UIItem{Id: 1, Sources: []*proto.UIItemSource{quest, vendor, soldBy(1585), openWorld, inDungeon, inRaid, dropSource(4, 1585), dropSource(5, 0), worldDrop, zoneDrop, lostZoneDrop}}
+	PruneQuestieSources(questie, map[int32]bool{2717: true}, map[int32]bool{2057: true}, map[int32]string{28: "Western Plaguelands", 2057: "Scholomance", 2717: "Molten Core"})
 
-	want := []*proto.UIItemSource{quest, vendor, openWorld, inDungeon, inRaid, worldDrop, zoneDrop, movedZoneDrop}
+	want := []*proto.UIItemSource{quest, vendor, openWorld, inDungeon, inRaid, worldDrop, zoneDrop}
 	got := questie.Items[1].Sources
 	if len(got) != len(want) {
 		t.Fatalf("sources = %v, want the quest, the vendor and NPCs in known zones, and the world drop", got)
@@ -315,16 +316,12 @@ func TestPruneQuestieSources(t *testing.T) {
 			t.Errorf("source %d = %v, want %v", i, got[i], want[i])
 		}
 	}
-	if zone := movedZoneDrop.GetDrop().ZoneId; zone != 1584 {
-		t.Errorf("a drop QuestieDB places in 1585 has zone %d, want Blackrock Depths' 1584", zone)
-	}
 	for source, difficulty := range map[*proto.UIItemSource]proto.DungeonDifficulty{
-		openWorld:     proto.DungeonDifficulty_DifficultyUnknown,
-		inDungeon:     proto.DungeonDifficulty_DifficultyDungeon,
-		inRaid:        proto.DungeonDifficulty_DifficultyRaid,
-		worldDrop:     proto.DungeonDifficulty_DifficultyUnknown,
-		zoneDrop:      proto.DungeonDifficulty_DifficultyDungeon,
-		movedZoneDrop: proto.DungeonDifficulty_DifficultyDungeon,
+		openWorld: proto.DungeonDifficulty_DifficultyUnknown,
+		inDungeon: proto.DungeonDifficulty_DifficultyDungeon,
+		inRaid:    proto.DungeonDifficulty_DifficultyRaid,
+		worldDrop: proto.DungeonDifficulty_DifficultyUnknown,
+		zoneDrop:  proto.DungeonDifficulty_DifficultyDungeon,
 	} {
 		if source.GetDrop().Difficulty != difficulty {
 			t.Errorf("%v has difficulty %v, want %v", source, source.GetDrop().Difficulty, difficulty)
@@ -421,6 +418,158 @@ func TestApplyQuestClasses(t *testing.T) {
 	} {
 		if got := db.Items[id].ClassAllowlist; !slices.Equal(got, want) {
 			t.Errorf("item %d allowlist = %v, want %v", id, got, want)
+		}
+	}
+}
+
+func TestApplyQuestZones(t *testing.T) {
+	quest := func(id int32) *proto.UIItemSource {
+		return &proto.UIItemSource{Source: &proto.UIItemSource_Quest{Quest: &proto.QuestSource{Id: id}}}
+	}
+	inZone, byTheme, noRow, noArea, vendor := quest(1), quest(2), quest(3), quest(4), soldBySource(5)
+	questie := NewWowDatabase()
+	questie.Items[10] = &proto.UIItem{Id: 10, Sources: []*proto.UIItemSource{inZone, byTheme, noRow, noArea, vendor}}
+	ApplyQuestZones(questie,
+		map[int32]*QuestieQuest{1: {Zone: 1517}, 2: {Zone: -364}, 4: {Zone: 99999}},
+		map[int32]string{1517: "Uldaman", 1519: "Stormwind City"})
+
+	for _, want := range []struct {
+		id     int32
+		source *proto.UIItemSource
+		zone   int32
+	}{{1, inZone, 1517}, {2, byTheme, -364}, {3, noRow, 0}, {4, noArea, 0}} {
+		if got := want.source.GetQuest().ZoneId; got != want.zone {
+			t.Errorf("quest %d zone = %d, want %d", want.id, got, want.zone)
+		}
+	}
+	if got := vendor.GetSoldBy().ZoneId; got != 1519 {
+		t.Errorf("vendor zone = %d, want 1519", got)
+	}
+}
+
+func TestAddQuestZones(t *testing.T) {
+	questIn := func(id, zone int32) *proto.UIItemSource {
+		return &proto.UIItemSource{Source: &proto.UIItemSource_Quest{Quest: &proto.QuestSource{Id: id, ZoneId: zone}}}
+	}
+	held := &proto.UIZone{Id: 1337, Name: "Held Uldaman", AreaTypes: []proto.AreaType{proto.AreaType(1)}}
+	db := NewWowDatabase()
+	db.Zones[1337] = held
+	from := NewWowDatabase()
+	from.Items[10] = &proto.UIItem{Id: 10, Sources: []*proto.UIItemSource{questIn(1, 1337), questIn(2, 1517), questIn(3, -364), questIn(4, 0), dropSource(5, 28)}}
+	enchant := &proto.UIEnchant{EffectId: 1, Sources: []*proto.UIItemSource{questIn(6, 1769)}}
+	from.Enchants[EnchantToDBKey(enchant)] = enchant
+	AddQuestZones(db, from, map[int32]string{28: "Western Plaguelands", 1337: "Uldaman", 1517: "Uldaman", 1769: "Timbermaw Hold"})
+
+	if db.Zones[1337] != held || held.Name != "Held Uldaman" || len(held.AreaTypes) != 1 {
+		t.Errorf("zone 1337 = %v, want the held row unchanged", db.Zones[1337])
+	}
+	for _, want := range []*proto.UIZone{{Id: 1517, Name: "Uldaman"}, {Id: 1769, Name: "Timbermaw Hold"}} {
+		if got := db.Zones[want.Id]; !googleProto.Equal(got, want) {
+			t.Errorf("zone %d = %v, want %v", want.Id, got, want)
+		}
+	}
+	if len(db.Zones) != 3 {
+		t.Errorf("%d zones, want 3 (none for -364, 0 or a drop's zone)", len(db.Zones))
+	}
+}
+
+// Every quest source the UI reads carries its quest's zone, and the UI database names a positive one.
+func TestCommittedQuestSourcesCarryTheirZone(t *testing.T) {
+	db := ReadDatabaseFromJson(tools.ReadFile("../../assets/database/db.json"))
+	leftovers := ReadDatabaseFromJson(tools.ReadFile("../../assets/database/leftover_db.json"))
+	quests := ReadQuestieQuests("../../assets/db_inputs/questie_quests.json")
+
+	zoned := 0
+	check := func(sources []*proto.UIItemSource) {
+		for _, source := range sources {
+			quest := source.GetQuest()
+			if quest == nil {
+				continue
+			}
+			var want int32
+			if q := quests[quest.Id]; q != nil {
+				want = q.Zone
+			}
+			got := quest.ZoneId
+			if got != want && !(want > 0 && got == 0) {
+				t.Errorf("quest %d zone = %d, want %d; run gen_db -gen=db", quest.Id, got, want)
+			}
+			if got != 0 {
+				zoned++
+			}
+			if got > 0 && db.Zones[got] == nil {
+				t.Errorf("quest %d names zone %d, which db.json has no row for", quest.Id, got)
+			}
+		}
+	}
+	for _, source := range []*WowDatabase{db, leftovers} {
+		for _, item := range source.Items {
+			check(item.Sources)
+		}
+		for _, enchant := range source.Enchants {
+			check(enchant.Sources)
+		}
+	}
+	if zoned == 0 {
+		t.Errorf("no quest source carries a zone; run gen_db -gen=db")
+	}
+}
+
+// A drop in a dungeon or raid zone carries its difficulty, an NPC's drop its NPC's zone, and the drops of one zone
+// share a difficulty. The instance zones come from tools/database/wowsims.db, so that part skips without it.
+func TestCommittedDropsCarryTheirZoneDifficulty(t *testing.T) {
+	db := ReadDatabaseFromJson(tools.ReadFile("../../assets/database/db.json"))
+	leftovers := ReadDatabaseFromJson(tools.ReadFile("../../assets/database/leftover_db.json"))
+
+	var raidZones, dungeonZones map[int32]bool
+	DatabasePath = "wowsims.db"
+	if _, err := os.Stat(DatabasePath); err == nil {
+		helper, err := NewDBHelper()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer helper.Close()
+		raidMaps, err := LoadRaidZoneMaps(helper)
+		if err != nil {
+			t.Fatal(err)
+		}
+		raidZones = map[int32]bool{}
+		for zone := range raidMaps {
+			raidZones[zone] = true
+		}
+		if dungeonZones, err = LoadDungeonZoneIDs(helper); err != nil {
+			t.Fatal(err)
+		}
+	} else {
+		t.Logf("no game files database at %s: the instance zones go unchecked", DatabasePath)
+	}
+
+	byZone := map[int32]proto.DungeonDifficulty{}
+	for _, source := range []*WowDatabase{db, leftovers} {
+		for _, item := range source.Items {
+			for _, itemSource := range item.Sources {
+				drop := itemSource.GetDrop()
+				if drop == nil || drop.ZoneId == 0 {
+					continue
+				}
+				if npc := db.Npcs[drop.NpcId]; drop.NpcId != 0 && npc != nil && npc.ZoneId != drop.ZoneId {
+					t.Errorf("item %d drops from NPC %d in zone %d, whose zone is %d", item.Id, drop.NpcId, drop.ZoneId, npc.ZoneId)
+				}
+				if seen, ok := byZone[drop.ZoneId]; ok && seen != drop.Difficulty {
+					t.Errorf("item %d drops in zone %d at %v, another drop there at %v", item.Id, drop.ZoneId, drop.Difficulty, seen)
+				}
+				byZone[drop.ZoneId] = drop.Difficulty
+				if raidZones == nil {
+					continue
+				}
+				want := proto.DungeonDifficulty_DifficultyUnknown
+				if raidZones[drop.ZoneId] || dungeonZones[drop.ZoneId] {
+					want = ParseDungeonDifficulty(raidZones[drop.ZoneId])
+				}
+				if drop.Difficulty != want {
+					t.Errorf("item %d drops in zone %d at %v, want %v", item.Id, drop.ZoneId, drop.Difficulty, want)
+				}
+			}
 		}
 	}
 }

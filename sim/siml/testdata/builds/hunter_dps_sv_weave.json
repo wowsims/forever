@@ -96,7 +96,7 @@
 			"explosiveId": 18588,
 			"mhImbueId": 18262,
 			"extraIds": [10646, 10310, 12460, 12217, 8412],
-			"elixirIds": [13452, 250341, 9179],
+			"elixirIds": [13452, 250341],
 			"resourcePotId": 13444,
 			"offensivePotId": 250943
 		},
@@ -121,6 +121,18 @@
 		"rotation": {
 			"type": "TypeAPL",
 			"prepullActions": [
+				{
+					"action": {
+						"groupReference": {
+							"groupName": "Track the target"
+						}
+					},
+					"doAtValue": {
+						"const": {
+							"val": "-24s"
+						}
+					}
+				},
 				{
 					"action": {
 						"castSpell": {
@@ -1017,6 +1029,74 @@
 								"wait": {
 									"duration": {
 										"inputDelay": {}
+									}
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "Track the target",
+					"actions": [
+						{
+							"action": {
+								"castSpell": {
+									"spellId": {
+										"spellId": 1494
+									}
+								}
+							}
+						},
+						{
+							"action": {
+								"castSpell": {
+									"spellId": {
+										"spellId": 19878
+									}
+								}
+							}
+						},
+						{
+							"action": {
+								"castSpell": {
+									"spellId": {
+										"spellId": 19879
+									}
+								}
+							}
+						},
+						{
+							"action": {
+								"castSpell": {
+									"spellId": {
+										"spellId": 19880
+									}
+								}
+							}
+						},
+						{
+							"action": {
+								"castSpell": {
+									"spellId": {
+										"spellId": 19882
+									}
+								}
+							}
+						},
+						{
+							"action": {
+								"castSpell": {
+									"spellId": {
+										"spellId": 19883
+									}
+								}
+							}
+						},
+						{
+							"action": {
+								"castSpell": {
+									"spellId": {
+										"spellId": 19884
 									}
 								}
 							}

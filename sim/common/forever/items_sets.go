@@ -310,8 +310,8 @@ func wildheartEnergize(name string) core.ApplySetBonus {
 
 // The energy listener: a landed white swing or Windfury Totem hit rolls the row's rate on the weapon's
 // speed, and casts 27784, which restores its energy every tick and restarts on a new proc (EV-0144). A
-// tick fills the bar only while energy is the current one: a rogue's always, a druid's in Cat Form alone,
-// since the other forms keep the cat's energy aside (restoreCatEnergy).
+// tick fills a rogue's bar, and a druid's in Cat Form and in a bear form, whose gain comes back with Cat
+// Form. In caster form a tick is left out: the one proc logged there ticked nothing (EV-0144).
 // TODO: The manager reads the main hand's speed when it is built, so a druid that shifts between Cat Form
 // and a bear form keeps the paw of the form it started in.
 func attachWildheartSwingEnergy(character *core.Character, setBonusAura *core.Aura, name string) {
@@ -326,7 +326,7 @@ func attachWildheartSwingEnergy(character *core.Character, setBonusAura *core.Au
 	config.Hot = spelldata.DotConfig(wildheartEnergy, tick)
 	config.Hot.SelfOnly = true
 	config.Hot.OnTick = func(sim *core.Simulation, _ *core.Unit, _ *core.Dot) {
-		if character.GetCurrentPowerBar() == core.EnergyBar {
+		if character.GetCurrentPowerBar() != core.ManaBar {
 			character.AddEnergy(sim, amount, metrics)
 		}
 	}
@@ -405,8 +405,7 @@ var ItemSetWildheartRaiment = core.NewItemSet(core.ItemSet{
 		2: shared.ParsedSetBonus(dungeonResistances),
 		3: shared.ParsedSetBonus(dungeonSpellDamage, spelldata.MustFind(9336)), // +18 spell damage, +30 attack power
 		4: wildHeart("Wildheart Raiment - 4PC"),
-		// TODO: Ingame test needed -- whether a rogue gains the energy and a warrior the rage, and whether a
-		// proc in a bear form adds its energy to what Cat Form comes back with.
+		// TODO: Ingame test needed -- whether a rogue gains the energy and a warrior the rage.
 		5: wildheartEnergize("Wildheart Raiment - 5PC"),
 		6: shared.ParsedSetBonus(dungeonManaRegen),
 	},
@@ -529,8 +528,6 @@ var ItemSetFeralheartRaimentReissue = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
 		3: shared.ParsedSetBonus(dungeonManaRegen),
-		// TODO: Ingame test needed -- whether a proc in a bear form adds its energy to what Cat Form comes back
-		// with.
 		4: wildheartEnergize("Feralheart Raiment - 4PC"),
 		5: wildHeart("Feralheart Raiment - 5PC"),
 		6: shared.ParsedSetBonus(dungeonTwoAttack, dungeonTwoDamage),
@@ -1212,25 +1209,12 @@ func violetMeditationRegen(agent core.Agent, setBonusAura *core.Aura) {
 
 func summonArcaneElemental(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
-	var elementals []*arcaneElemental
-	for _, pet := range character.PetAgents {
-		if e, ok := pet.(*arcaneElemental); ok {
-			elementals = append(elementals, e)
-		}
-	}
+	elementals := shared.Guardians(character, arcaneElementalCall)
 
 	// A summon takes an elemental that is not up; the 15 s rest leaves one free whenever a summon comes.
 	config := procSpellConfig(character, arcaneElementalCall)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
-		elemental := elementals[0]
-		for _, e := range elementals {
-			if !e.IsEnabled() {
-				elemental = e
-				break
-			}
-		}
-		elemental.CurrentTarget = target
-		elemental.EnableWithTimeout(sim, elemental, arcaneElementalCall.Duration())
+		shared.SummonGuardians(sim, elementals, target)
 	}
 	call := character.RegisterSpell(config)
 

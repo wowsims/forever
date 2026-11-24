@@ -463,7 +463,7 @@ var Spells = []Override{
 	{
 		SpellID: 1240047,
 		Field:   SPCoefDirect,
-		Value:   0.11,
+		Value:   0.115,
 		Reason:  "Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game (EV-0171)",
 		Source:  "EV-0171",
 	},
@@ -699,15 +699,15 @@ var Spells = []Override{
 	{
 		SpellID: 1318159,
 		Field:   PPM,
-		Value:   2.6,
-		Reason:  "Highborne Research Tablet: 2.6 procs per minute on landed damaging melee hits; the game files state none",
-		Source:  "EV-0021",
+		Value:   2.95,
+		Reason:  "Highborne Research Tablet: 2.95 procs per minute on landed damaging hits, a weapon hit on its weapon's speed and a spell hit on its cast time; the game files state none",
+		Source:  "EV-0131",
 	},
 	{
 		SpellID: 27656,
 		Field:   PPM,
-		Value:   2,
-		Reason:  "Heart of Wyrmthalak: 2.0 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none",
+		Value:   1.95,
+		Reason:  "Heart of Wyrmthalak: 1.95 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none",
 		Source:  "EV-0133",
 	},
 	{

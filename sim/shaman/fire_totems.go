@@ -20,12 +20,15 @@ var fireNovaDamageRank = spellData.FireNovaTriggered.Highest()
 
 // A fire totem's own attack: the totem's, not the caster's, so it lands no proc of the caster's.
 // It reports as the totem's spell tagged 1, so the results show the totem and its hits as one row.
-// A Dwarf's or Troll's beast bonus does not reach it.
+// A Dwarf's or Troll's beast bonus does not reach it, nor does the shaman's Spell Piercing (EV-0142).
 func (shaman *Shaman) newTotemAttackConfig(totem *spelldata.Spell, rank *spelldata.Spell) core.SpellConfig {
+	// TODO: In-game testing required: the logs measured totems only on mobs with no resistance in the
+	// school, so whether the shaman's Spell Piercing still lowers a positive resistance for a totem's
+	// attack is not measured; the sim lets the totem meet the full resistance.
 	config := spelldata.SpellConfig(&shaman.Unit, rank,
 		spelldata.Magic(core.ProcMaskEmpty),
 		spelldata.Proc(),
-		spelldata.Flags(SpellFlagShamanSpell|core.SpellFlagNoDamageVersus))
+		spelldata.Flags(SpellFlagShamanSpell|core.SpellFlagNoDamageVersus|core.SpellFlagNoSpellPiercing))
 	config.ActionID = core.ActionID{SpellID: totem.ID, Tag: 1}
 	return config
 }

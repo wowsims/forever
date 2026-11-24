@@ -115,17 +115,14 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	FoodId:     13933, // Lobster Stew
 	ElixirIds: []int32{
 		21546,  // Elixir of Holy Power
-		250338, // Elixir of Sages
 		13452,  // Elixir of The Mongoose
-		250337, // Elixir of The Owl
-		250351, // Elixir of The Grizzly
 		250329, // Elixir of The Phalanx
 		13454,  // Greater Arcane Elixir
 		250341, // Greater Mageblood Elixir
-		12460,  // Juju Might
+		9206,   // Elixir of Greater Strength
 	},
-	ExtraIds:       []int32{8410, 10646, 12217, 18269}, // R.O.I.D.S, Goblin Sapper Charge, Dragonbreath Chili, Gordok Green Grog
-	MhImbueId:      3824,                               // Shadow Oil
-	OffensivePotId: 250937,                             // Major Spellblasting Potion
-	ResourcePotId:  13444,                              // Major Mana Potion
+	ExtraIds:       []int32{8410, 10646, 12217, 18269, 12460}, // R.O.I.D.S, Goblin Sapper Charge, Dragonbreath Chili, Gordok Green Grog, Juju Might
+	MhImbueId:      3824,                                      // Shadow Oil
+	OffensivePotId: 250937,                                    // Major Spellblasting Potion
+	ResourcePotId:  13444,                                     // Major Mana Potion
 }
