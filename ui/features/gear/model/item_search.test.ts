@@ -108,7 +108,7 @@ describe('matchesSearch on item sources', () => {
 
 	it('matches a quest source by its quest name', () => {
 		const entry = row({
-			item: item({ sources: [{ source: { oneofKind: 'quest', quest: { id: 8561, name: "Conqueror's Crown", faction: 0 } } }] }),
+			item: item({ sources: [{ source: { oneofKind: 'quest', quest: { id: 8561, name: "Conqueror's Crown", faction: 0, zoneId: 0 } } }] }),
 			searchText: 'Some Item',
 		});
 		expect(matchesSearch('conquerors crown', entry, noNpc, noFaction)).toBe(true);
