@@ -133,6 +133,16 @@ message UIItem {
 	repeated MobType mob_types = 38;
 	repeated CreatureFamily creature_families = 39;
 	ProcRate proc_rate = 40;
+	BindType bind_type = 41; // ItemSparse.Bonding; unset means the item does not bind.
+}
+
+// ItemSparse.Bonding, in the game files' numbering.
+enum BindType {
+	BindTypeNone = 0;
+	BindTypeOnPickup = 1;
+	BindTypeOnEquip = 2;
+	BindTypeOnUse = 3;
+	BindTypeQuest = 4;
 }
 
 enum Expansion {
