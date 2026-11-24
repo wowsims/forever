@@ -530,8 +530,8 @@ func TestRagehammerEnrageRaisesAttackPowerAndMeleeSpeed(t *testing.T) {
 	if got := gained(character, before, stats.AttackPower); attackPower <= 0 || !statNear(got, attackPower) {
 		t.Errorf("Enrage adds %v attack power, want the row's %v", got, attackPower)
 	}
-	if got, want := character.TotalMeleeHasteMultiplier(), haste*core.SymmetricMultiplierFromPercent(speed); speed <= 0 || !statNear(got, want) {
-		t.Errorf("Enrage sets melee haste to %v, want the row's %v%% on %v, %v", got, speed, haste, want)
+	if got, want := character.TotalMeleeHasteMultiplier()/haste, core.SymmetricMultiplierFromPercent(speed); speed <= 0 || !statNear(got, want) {
+		t.Errorf("Enrage raises melee haste %vx, want the row's %vx", got, want)
 	}
 
 	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)

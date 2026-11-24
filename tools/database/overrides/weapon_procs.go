@@ -593,7 +593,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blackblade of Shahram: no proc row",
 		Source:  "EV-0125",
 	},
-	// Measured by EV-0153's method on the reports from 2026-11-19 to 2026-11-23, paladins left out (EV-0186).
+	// Measured by EV-0153's method on the reports from 2026-11-19 to 2026-11-23 (EV-0186).
 	{
 		ItemID:  10623,
 		SpellID: 13439,
@@ -1266,10 +1266,9 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Masterwork Stormhammer: column reads 101; a log fit not yet validated (EV-0184)",
 		Source:  "observed",
 	},
-	// Fitted the same way on the reports from 2026-11-06 to 2026-11-23, paladins left out, from wearers of one class, too
-	// few lone-unit procs, too wide an interval, or an interval at the edge of 10% whose older and newer reports read
-	// apart, to call final (EV-0183, EV-0186). The "observed" Source keeps the gear tab's notice up until more wearers
-	// validate it.
+	// Fitted the same way on the reports from 2026-11-06 to 2026-11-23, from wearers of one class, no lone-unit rate to
+	// check it, too wide an interval, or older and newer reports that read apart, to call final (EV-0183, EV-0186). The
+	// "observed" Source keeps the gear tab's notice up until more wearers validate it.
 	{
 		ItemID:  10626,
 		SpellID: 12686,

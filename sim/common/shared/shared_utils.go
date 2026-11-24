@@ -602,7 +602,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// effect entry takes the higher of them, so this does too: Idol of the Huntress keeps its 200
 	// on the trigger while the buff it applies states none.
 	if stacks := max(buff.MaxStack, trigger.MaxStack); stacks > 0 {
-		// A stacking buff's bonus against creature types or speed would need adding per stack.
+		// A stacking buff's bonus against creature types, and its speed, would need adding per stack.
 		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool { return len(spelldata.VersusStats(e.Aura)) > 0 }) {
 			panic(fmt.Sprintf("%s (%d): a stacking proc grants stats against creature types, which only a single buff carries", cfg.Name, cfg.ItemID))
 		}
@@ -623,8 +623,8 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	})
 	attachVersusStats(procAura.Aura, buff)
 	// The item effect entry carries the buff's stats alone; its speed auras come from the row
-	// (Ragehammer's Enrage 12686: 102 attack power and 6% melee attack speed).
-	procAura.Aura.AttachHastePseudoStats(buff.SpeedPseudoStats())
+	// (Ragehammer's Enrage 12686 states attack power and melee attack speed).
+	procAura.AttachHastePseudoStats(buff.SpeedPseudoStats())
 	return procAura
 }
 

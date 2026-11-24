@@ -16,12 +16,14 @@
 
 The count is EV-0183 §Method, run again by the automated sweep of 2026-11-24 14:50 over every wearer stream on disk for
 four weapons: the three here and Hedgecutter, whose home is EV-0183. Analyzer version 19 differs from version 18 only on
-melee-table strike procs and on Torturing Poker, and touches none of these weapons. Paladins are left out of every rate
-(owner ruling, 2026-11-19), and their lone white swings of one-hand wearers are a check that sets no rate; three
-paladins wear Ragehammer, two Hedgecutter and two Winter's Bite in the report index, and the run gives a paladin check
-on Ragehammer alone. Every report starts before 2026-11-24 01:00 UTC, the sweep's cut for the 2026-11-23 hotfix ("Fixed
-an issue where a few spells and abilities were causing more weapon procs than intended"); one Hedgecutter report,
-dCzLqgx2cBH31Jwb, runs on to 07:44 UTC.
+melee-table strike procs and on Torturing Poker, and touches none of these weapons. Paladins count in a rate by
+EV-0155's and EV-0156's rolls wherever their rate does not read apart from the other classes' (owner ruling, 2026-11-23;
+EV-0184). The sweep's counts leave paladins out and keep their lone white swings of one-hand wearers as a check.
+Ragehammer's paladin check reads 1.93 [1.42, 2.57] against 2.02 on all hits, not apart; paladins in at that rate, on as
+many hits per lone unit as the shamans', read 2.00, so the rate is 2.0 either way. Hedgecutter's and Winter's Bite's
+paladin wearers all carry an off-hand item, so the count holds no paladin check for them. The sweep cuts at 2026-11-24
+01:00 UTC for the 2026-11-23 hotfix ("Fixed an issue where a few spells and abilities were causing more weapon procs
+than intended"); one Hedgecutter report, dCzLqgx2cBH31Jwb, runs on to 07:44 UTC.
 
 Scripts and inputs, in `forever-sweep-auto`: the run `runs/2026-11-24-1450`, whose `results.json` (`analyze.py`
 version 19, cache `cache_v18`) holds each weapon's count. The rate is each result's `all_hits`, matched on item and

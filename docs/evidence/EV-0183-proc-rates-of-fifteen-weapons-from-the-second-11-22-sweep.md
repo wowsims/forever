@@ -193,15 +193,14 @@ n4q6fxmaLKB8wcXJ 1-2; wkrzY3mDh7RGfMc2 54; z1dafpqhmA8LgTB7 1.
 - Count: §Count of the 2026-11-06 to 2026-11-23 reports
 
 449 procs on 7,225 rolling hits, 11 wearers, 11 runs, in the main hand or the off hand: all hits 1.96 [1.77, 2.14]. The
-rate is all hits, which the one-hand white rate agrees with. Observed on the owner's call: the interval's lower end,
-1.772, is just inside 10% of the rate (1.755), and the reports of the earlier count read 1.77 on 220 procs against 2.19
-on the 229 from reports new to this count. One-hand white: 2.11 [1.62, 2.70], 62 procs on 929 lone units, 3 wearers (a
-Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.74 [1.35, 2.07], 134 procs on 2,427 lone
-units, 8 wearers. Specials: 2.15 [1.43, 3.10], 28 procs on 412 lone units, 4 wearers (a Poisson interval: under 5
-wearers). Two-roll abilities, priced as one roll: 1.71, 2 procs on 37 lone units (Execute 2 on 26 and Mongoose Bite 0 on
-11), left out of the rate. Direct: window [-10, 100] ms, median 0 ms, 98th percentile 0 ms, 164 isolated hits. Dropping
-the swapped stretches (17 active minutes, 7% of hits, in 1 run) moved the read from 1.82 to 1.96. Reports from
-2026-11-16 to 2026-11-23.
+rate is all hits, which the one-hand white rate agrees with. Observed on the owner's call (2026-11-24): the interval's
+lower end, 1.772, is just above 90% of the rate, 1.755, and the earlier count's reports read 1.77 on 220 procs, the new
+reports 2.19 on 229. One-hand white: 2.11 [1.62, 2.70], 62 procs on 929 lone units, 3 wearers (a Poisson interval: under
+5 wearers). Dual-wield white, which sets no rate: 1.74 [1.35, 2.07], 134 procs on 2,427 lone units, 8 wearers. Specials:
+2.15 [1.43, 3.10], 28 procs on 412 lone units, 4 wearers (a Poisson interval: under 5 wearers). Two-roll abilities,
+priced as one roll: 1.71, 2 procs on 37 lone units (Execute 2 on 26 and Mongoose Bite 0 on 11), left out of the rate.
+Direct: window [-10, 100] ms, median 0 ms, 98th percentile 0 ms, 164 isolated hits. Dropping the swapped stretches (17
+active minutes, 7% of hits, in 1 run) moved the read from 1.82 to 1.96. Reports from 2026-11-16 to 2026-11-23.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
