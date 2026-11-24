@@ -366,6 +366,6 @@ zD4VF1278AymkKXY 4-5.
   none after 2026-11-24 01:00 UTC. The sim's database is 1.60.1.71037, push 114366; the hotfix each player ran is not
   recorded
 - Date: 2026-11-06 to 2026-11-23
-- Pull request: not recorded
+- Pull request: #1198
 
 The count is EV-0186 §Method, run on this weapon.
