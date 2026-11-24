@@ -23,39 +23,41 @@ export const UwSorSofAplPreset = PresetUtils.makePresetAPLRotation('Unsealed Wra
 
 export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecRetributionPaladin, Defaults.simpleRotation!);
 
+// Pre-raid sets: dungeon drops, quest and vendor rewards, the Soulforge set, BoE world drops, at most two crafted
+// pieces and at most one battleground reputation reward.
 export const HolyShockGearPreset = PresetUtils.makePresetGear('Holy Shock', HolyShockGear, {
-	devOnly: true,
-	tooltip: 'Level 60 blues from dungeons, quests, reputations and crafting. A placeholder until the Phase 1 gear is known.',
+	tooltip: 'Pre-raid gear for Holy Shock.',
 });
 export const DefaultGearPreset = PresetUtils.makePresetGear('Default', DefaultGear, {
-	devOnly: true,
-	tooltip: 'Level 60 blues from dungeons, quests, reputations and crafting. A placeholder until the Phase 1 gear is known.',
+	tooltip: 'Pre-raid gear for Unsealed Wrath.',
 });
 
 // The Manual Crowd Pummeler, which the Holy Shock APL equips before the pull and swaps back in when its cooldown is nearly up.
 export const HolyShockItemSwap = PresetUtils.makePresetItemSwapGear('Holy Shock', HolyShockItemSwapGear);
 
+// Simmed on each build's gear set, talents and consumables, which reach the 8% melee hit cap or pass it. More hit adds
+// only spell hit there, so the hit weights come from a run 2% under the cap and the other weights from the set itself.
 export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
 	'Holy Shock',
 	Stats.fromMap(
 		{
-			[Stat.StatStrength]: 2.5,
-			[Stat.StatAgility]: 3.11,
-			[Stat.StatIntellect]: 4.53,
-			[Stat.StatSpellDamage]: 5.78,
-			[Stat.StatHolyDamage]: 4.98,
-			[Stat.StatSpellPiercing]: 0.01,
+			[Stat.StatStrength]: 2.4,
+			[Stat.StatAgility]: 1.91,
+			[Stat.StatIntellect]: 1.77,
+			[Stat.StatSpellDamage]: 2.47,
+			[Stat.StatHolyDamage]: 2.06,
+			[Stat.StatSpellPiercing]: 0.84,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatHitRating]: 10.25,
-			[Stat.StatCritRating]: 4.66,
-			[Stat.StatHasteRating]: 4.06,
-			[Stat.StatArmorPenetration]: 0.26,
-			[Stat.StatExpertiseRating]: 6.2,
+			[Stat.StatHitRating]: 7.23,
+			[Stat.StatCritRating]: 3,
+			[Stat.StatHasteRating]: 2.73,
+			[Stat.StatArmorPenetration]: 0.22,
+			[Stat.StatExpertiseRating]: 4.81,
 			[Stat.StatMP5]: 0.01,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 13.04,
-			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 2.32 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
+			[PseudoStat.PseudoStatMainHandDps]: 14.02,
+			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 1.35 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
 		},
 	),
 );
@@ -65,22 +67,22 @@ export const UnsealedWrathEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.4,
-			[Stat.StatAgility]: 2.23,
-			[Stat.StatIntellect]: 2.06,
-			[Stat.StatSpellDamage]: 2.36,
-			[Stat.StatHolyDamage]: 1.95,
-			[Stat.StatSpellPiercing]: 0.01,
+			[Stat.StatAgility]: 1.91,
+			[Stat.StatIntellect]: 1.48,
+			[Stat.StatSpellDamage]: 1.95,
+			[Stat.StatHolyDamage]: 1.59,
+			[Stat.StatSpellPiercing]: 0.66,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatHitRating]: 6.83,
-			[Stat.StatCritRating]: 3.08,
-			[Stat.StatHasteRating]: 22.87,
-			[Stat.StatArmorPenetration]: 0.24,
-			[Stat.StatExpertiseRating]: 5.1,
-			[Stat.StatMP5]: 0.23,
+			[Stat.StatHitRating]: 7.76,
+			[Stat.StatCritRating]: 2.74,
+			[Stat.StatHasteRating]: 3.53,
+			[Stat.StatArmorPenetration]: 0.23,
+			[Stat.StatExpertiseRating]: 5.45,
+			[Stat.StatMP5]: 0.01,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 13.85,
-			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 0.6 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
+			[PseudoStat.PseudoStatMainHandDps]: 14.14,
+			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 0.51 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
 		},
 	),
 );

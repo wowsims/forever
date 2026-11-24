@@ -944,17 +944,17 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-GrovekeeperFerocity"
  value: {
-  dps: 843.91674
-  tps: 855.79291
-  dtps: 6.32809
+  dps: 834.09988
+  tps: 845.57721
+  dtps: 5.63279
  }
 }
 dps_results: {
  key: "TestBalance-AllItems-GrovekeeperRage"
  value: {
-  dps: 820.01682
-  tps: 831.47998
-  dtps: 5.27109
+  dps: 814.74498
+  tps: 825.83269
+  dtps: 5.56298
  }
 }
 dps_results: {
