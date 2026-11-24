@@ -1,6 +1,7 @@
 siml 1
 spec hunter
 use "walk_in.apl.siml"
+use "track.apl.siml"
 
 var ${Use Aimed Shot} = true
 var ${Use Multi-Shot} = false
@@ -9,6 +10,7 @@ var ${Use Sniper Shot} = true
 var ${Use Summon Hawk} = false
 
 prepull:
+  -24s group "Track the target"
   -22s cast hunters_mark
   -20s cast aspect_of_the_hawk
   -19s move $pull_range
