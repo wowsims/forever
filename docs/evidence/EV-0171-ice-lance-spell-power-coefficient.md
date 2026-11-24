@@ -1,17 +1,17 @@
 # EV-0171: Ice Lance's spell power coefficient
 
 - Claim: Ice Lance Rank 6 (1240047) deals its game files damage (145 + 0.9 per level past 56, 136 to 161 at level 60)
-  plus 0.115 of spell power, Draconic Infused Emblem's spell damage included. Frozen targets take 4 times the damage,
-  and Ice Barrier (+5%), Frigid Power (+15%) and Ice Shards' crit damage (×2) apply to it as their rows state.
+  plus 0.115 of the spell power on gear. Frozen targets take 4 times the damage, and Ice Barrier (+5%), Frigid Power
+  (+15%) and Ice Shards' crit damage (×2) apply to it as their rows state.
 - Sources: combat logs of one level 60 Frost mage with StatLedger, the player's local time; geared casts from three log
   files, 2026-11-20 01:54 to 2026-11-21 07:36, casts at 0 spell power, 2026-11-21 08:40 to 08:45, and geared casts from
   three more log files (`WoWCombatLog-112226_225034`, `112326_045021`, `112326_195011`), 2026-11-22 23:26 to
   2026-11-24 08:07, with the same talents as the first set
-- Game build: 1.60.1.70959 (first geared set; StatLedger's logins read it up to 2026-11-21 06:18, on the latest hotfix at
-  the time, relogged) and 1.60.1.71037 (0 spell power, from the 08:35 login on, on the latest hotfix at the time,
-  relogged; second geared set, on a hotfix older than the latest, which one not known)
+- Game build: 1.60.1.70959 for the first geared set (StatLedger's logins read it up to 2026-11-21 06:18) and
+  1.60.1.71037 from the 08:35 login on. The first geared set and the 0 spell power casts ran on the latest hotfix at
+  the time, relogged; the second geared set on an older hotfix, which one not recorded
 - Date: 2026-11-20 to 2026-11-24
-- Pull requests: #1150, #1199
+- Pull request: #1150; the second geared set, the 0.115 reading and the Emblem's gain, #1199
 
 ## Method
 
@@ -33,8 +33,9 @@ those take a level factor.
 
 The 0 spell power set fits the game files band (148.6 mean). Against it, the first geared set reads
 (173.3 − 147.1) / 228.5 = 0.115 and the second (176.4 − 147.1) / 242.4 = 0.121; against the game files mean they read
-0.108 and 0.115. Each reading is good to about ±0.006, most of it from the 28 hits at 0 spell power, which all four
-share. The sim takes 0.115, the middle of the four. 1/7 sits at least four standard errors above every reading.
+0.108 and 0.115. The two readings against the 0 spell power set are good to about ±0.006, most of it from its 28
+hits; the two against the game files mean are tighter, since that mean has no error of its own. The sim takes 0.115,
+the middle of the four. 1/7 sits more than three standard errors above every reading.
 
 The modifiers hold within 1.5% across the first geared set: 36 unfrozen hits with neither buff read 171.9, 696.6 frozen
 (×4.05), 798.6 frozen with Frigid Power and 836.6 frozen with both. A crit deals 2.00 times `baseAmount` (134 crits,
@@ -42,8 +43,12 @@ The modifiers hold within 1.5% across the first geared set: 36 unfrozen hits wit
 
 ## Draconic Infused Emblem
 
-The Emblem's buff (1318930) adds 35 spell damage while it lasts. Its gain is read from casts in the same gear, buff up
-against buff down, weighted by each pair's error. In the second geared set Ice Lance gains +3.0 ± 0.95 from it over five
-gear levels, where 0.115 gives +4.0. Frostbolt Rank 10 in the same logs gains +29.8 ± 1.5 on 356 hits without Ice Barrier
-or Frigid Power (122 with the buff), where its 0.814 gives +28.5. The first geared set reads +1.9 ± 1.1 for Ice Lance
-over three gear levels, within two standard errors of both. The buff counts toward Ice Lance like any other spell damage.
+The Emblem's buff (1318930) adds 35 spell damage while it lasts, 35 more against Dragonkin. Its gain is the damage with
+the buff up less the damage with it down in the same gear, each gear setup weighted by the inverse of its variance;
+hits on Plagued Hatchlings, the only Dragonkin among the targets, are left out. Ice Lance gains +1.4 ± 1.0 over three
+gear setups in the first geared set and +2.8 ± 0.9 over five in the second, +2.2 ± 0.7 together, where 0.115 gives
++4.0. Frostbolt Rank 10 in the second set gains +29.8 ± 1.6, where its 0.814 gives +28.5, on 354 hits with neither Ice
+Barrier nor Frigid Power, 122 of them under the Emblem.
+
+The two sets together sit three standard errors above no gain and nearly three below the full +4.0, so how much of the
+buff reaches Ice Lance is not settled. The sim adds all of it.
