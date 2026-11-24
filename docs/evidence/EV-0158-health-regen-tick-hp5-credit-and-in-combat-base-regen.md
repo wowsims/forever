@@ -6,9 +6,9 @@
   groups, with each pass's logs below; HP5 from the COMBATANT_INFO gear and aura lists, and Spirit and level from the
   StatLedger addon where a ledger covers the log
 - Game build: 1.60.1 builds by log date: not recorded for the logs of 2026-09-27 to 2026-10-13, then 70245, 70532,
-  70630 to 70707, 70755, 70790, 70840, 70862, 70888, 70938 and 70959 (the logs of 2026-11-17 on US servers and of
-  2026-11-18); the hotfix each player ran is not recorded
-- Date: 2026-09-27 to 2026-11-18
+  70630 to 70707, 70755, 70790, 70840, 70862, 70888, 70938, 70959 (the logs of 2026-11-17 on US servers and of
+  2026-11-18 to 11-20) and 71037 (the logs from the evening of 2026-11-20); the hotfix each player ran is not recorded
+- Date: 2026-09-27 to 2026-11-23
 - Pull request: #655
 
 ## Method
@@ -49,24 +49,35 @@ tick spreads evenly over the tick, with no fixed delay, in and out of combat.
 Single in-combat ticks of players whose HP5 the logs state. Upper is the count of ticks at the higher of the two modal
 values; each hypothesis predicts its share from the fraction of x × HP5. p is a two-sided binomial test.
 
-| HP5 (source)         | Class, level | Ticks | Upper | 0.400 predicts | 0.404 predicts | p against 0.400 / 0.404 |
-| -------------------- | ------------ | ----: | ----: | -------------: | -------------: | ----------------------- |
-| 31 (gear)            | priest, 48   |   263 |   131 |          0.400 |          0.524 | pairs below             |
-| 27 (two gear pieces) | paladin, 56  |   269 |   252 |          0.800 |          0.908 | 4.6e-10 / 0.115         |
-| 12 (gear)            | warrior, 57  |   241 |   212 |          0.800 |          0.848 | 0.0015 / 0.195          |
-| 8 (gear)             | paladin, 49  |   700 |   168 |          0.200 |          0.232 | 0.011 / 0.64            |
-| 8 (gear)             | shaman, 39   |   264 |    73 |          0.200 |          0.232 | 0.0035 / 0.105          |
-| 9, 14 (gear)         | priests      |   138 |    89 |          0.600 |    0.636–0.656 | 0.42–0.58 / 0.70–0.74   |
-| 12 (gear)            | shaman, 55   |    94 |    71 |          0.800 |          0.848 | 0.34 / 0.025, mixed     |
-| 5 (gear)             | hunter, 51   |   108 |     0 |              0 |          0.020 | 1 / 0.23                |
+| HP5 (source)         | Class, level          | Ticks | Upper | 0.400 predicts | 0.404 predicts | p against 0.400 / 0.404 |
+| -------------------- | --------------------- | ----: | ----: | -------------: | -------------: | ----------------------- |
+| 31 (gear)            | priest, 48            |   263 |   131 |          0.400 |          0.524 | pairs below             |
+| 16 (two gear pieces) | warrior, 59           | 1,367 |   690 |          0.400 |          0.464 | 6.3e-15 / 0.0028        |
+| 27 (two gear pieces) | paladin, 56           |   269 |   252 |          0.800 |          0.908 | 4.6e-10 / 0.115         |
+| 12 (gear)            | warrior, 57           |   241 |   212 |          0.800 |          0.848 | 0.0015 / 0.195          |
+| 9 (gear)             | druid, 55             |   705 |   459 |          0.600 |          0.636 | 0.006 / 0.43            |
+| 8 (gear)             | paladin, 49           |   700 |   168 |          0.200 |          0.232 | 0.011 / 0.64            |
+| 8 (gear)             | shaman, 39            |   264 |    73 |          0.200 |          0.232 | 0.0035 / 0.105          |
+| 8 (gear)             | warrior, 48           |   367 |    92 |          0.200 |          0.232 | 0.021 / 0.43            |
+| 11 (gear)            | druid, 51             |   218 |   101 |          0.400 |          0.444 | 0.067 / 0.61            |
+| 9, 14 (gear)         | priests               |   138 |    89 |          0.600 |    0.636–0.656 | 0.42–0.58 / 0.70–0.74   |
+| 12 (gear)            | shaman, 55            |    94 |    71 |          0.800 |          0.848 | 0.34 / 0.025, mixed     |
+| 9 (gear)             | shaman, 55            |   480 |   278 |          0.600 |          0.636 | 0.38 / 0.012, mixed     |
+| 5 (gear), 3 players  | rogues, warrior 52–56 | 1,060 |    14 |              0 |          0.020 | none allowed / 0.12     |
+| 5 (gear)             | hunter, 51            |   108 |     0 |              0 |          0.020 | 1 / 0.23                |
 
 - The 31 HP5 priest's ticks of 12 or 13 average 12.51 over 288 intervals, 263 of them single (0.404 gives 12.52,
   0.400 gives 12.40). Of 173
   consecutive pairs, 2 are 12-12 and 7 are 13-13; a 12.40 credit gives about 35 12-12 pairs and no 13-13.
 - Earlier wearers of 5, 8, 9 and 12 HP5 read 2.021, 3.247, 3.631 and 4.852–4.866 a tick, each nearer 0.404 × HP5
   than 0.400 × HP5 (the 9 HP5 one barely).
-- The 12 HP5 shaman's histogram holds ticks of 1 to 3 beside the modal pair, so its count is mixed. A second 5 HP5
-  hunter reads 3 on 6 of 127 ticks against none for the one above; 5 HP5 stays unresolved.
+- The 16 HP5 warrior reads 6.505 a tick, 0.4066 × HP5, above both hypotheses; HP5 the logs do not list would explain
+  it.
+- Both shamans' histograms hold ticks well off the modal pair (1 to 3 for the 12 HP5 one, 1 to 6 for the 9 HP5 one), so
+  their counts are mixed.
+- At 5 HP5, 0.400 × HP5 is a whole 2 and allows no tick of 3. Two rogues and a warrior read 3 on 4 of 219, 5 of 274 and
+  5 of 567 ticks, 14 of 1,060 in all against 21 for 0.404. The hunter above reads none of an expected 2, and a second 5
+  HP5 hunter reads 3 on 6 of 127 ticks.
 - Minor and Lesser Troll's Blood (2 and 6 HP5) read 0.822 and 2.419 a tick, and Demon Armor, Demon Skin and two gear
   pieces read about 0.4 × HP5 on fewer ticks.
 
