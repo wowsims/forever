@@ -128,7 +128,7 @@ export const dropsItemsFixture = (): UIItem[] => [
 	weapon(2012, 'Hand of Edward the Odd', HandType.HandTypeOneHand, [worldDrop], { weaponType: WeaponType.WeaponTypeMace, ilvl: 62, reqLvl: 57 }),
 ];
 
-const usableItems = () => dropsUsableItems(dropsItemsFixture(), PlayerSpecs.DpsWarrior, { minIlvl: 0, maxIlvl: 0, maxRequiredLevel: 0 });
+const usableItems = () => dropsUsableItems(dropsItemsFixture(), PlayerSpecs.DpsWarrior);
 
 /** The Sources tree of the items the class can use, as the setup builds it. */
 export const dropsTreeFixture = (): DropsSourceNode[] => dropsSourceTree(usableItems(), dropsNamesFixture());

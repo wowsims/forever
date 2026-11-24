@@ -4,13 +4,29 @@ import { ArmorType, Class, Faction, ItemSlot, ItemType } from '@generated/proto/
 import { ContentPhase, DatabaseFilters, DungeonDifficulty, UIEnchant, type UIItem, UIItemSource } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
 import { Gear } from '@sim/proto/gear';
-import { bulkState, loadStoredBulkDropsExcluded, loadStoredBulkDropsSources, loadStoredBulkDropsView } from '@sim/settings/bulk_settings';
+import {
+	bulkState,
+	loadStoredBulkDropsExcluded,
+	loadStoredBulkDropsFilters,
+	loadStoredBulkDropsSources,
+	loadStoredBulkDropsView,
+} from '@sim/settings/bulk_settings';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { makeUIItem } from '@testing/storybook/fixtures/protos';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { dropsRequestSettings, dropsSetupFor, setDropsExcluded, setDropsItemsIncluded, setDropsSources, setDropsView } from './settings';
+import { dropsDefaultFilters, dropsPassesFilters } from './filters';
+import {
+	dropsFiltersOf,
+	dropsRequestSettings,
+	dropsSetupFor,
+	setDropsExcluded,
+	setDropsFilters,
+	setDropsItemsIncluded,
+	setDropsSources,
+	setDropsView,
+} from './settings';
 
 const DRAKKISATH = 'drop:1583:10363';
 const WYRMTHALAK = 'drop:1583:9568';
@@ -94,29 +110,20 @@ describe('dropsRequestSettings', () => {
 	});
 });
 
-describe('dropsSetupFor level filters', () => {
-	const leafKeys = () => dropsSetupFor(player).tree.flatMap(node => node.leafKeys);
-
-	it('lists every source while the gear picker sets no level bound', () => {
-		expect(leafKeys()).toEqual([DRAKKISATH, WYRMTHALAK]);
-	});
-
-	it('drops an item below Min ilvl from the list and its source from the tree when it was the source’s only item', () => {
-		setDropsSources(player, [DRAKKISATH, WYRMTHALAK]);
+describe('dropsSetupFor and the gear picker’s level filters', () => {
+	it('lists and sends every item whatever Min ilvl, Max ilvl and Required level the gear picker sets', () => {
 		filters.minIlvl = 30;
+		filters.maxIlvl = 30;
+		filters.maxRequiredLevel = 10;
+		setDropsSources(player, [DRAKKISATH, WYRMTHALAK]);
 
 		const { tree, list } = dropsSetupFor(player);
 
-		expect(tree.flatMap(node => node.leafKeys)).toEqual([DRAKKISATH]);
-		expect(list.items.map(entry => entry.item.id)).not.toContain(310);
-	});
-
-	it('follows Max ilvl and Required level as they change', () => {
-		filters.maxIlvl = 30;
-		expect(leafKeys()).toEqual([WYRMTHALAK]);
-		filters.maxIlvl = 0;
-		filters.maxRequiredLevel = 10;
-		expect(leafKeys()).toEqual([]);
+		expect([tree.flatMap(node => node.leafKeys), list.items.map(entry => entry.item.id), sentIds()]).toEqual([
+			[DRAKKISATH, WYRMTHALAK],
+			[101, 150, 205, 310],
+			[101, 205, 310],
+		]);
 	});
 });
 
@@ -148,7 +155,7 @@ describe('dropsSetupFor level 45 cutoff', () => {
 		expect(sentIds()).toEqual([310, 401]);
 	});
 
-	it('reads a dungeon’s level from every item it drops, those the class or the level filters leave out included', () => {
+	it('reads a dungeon’s level from every item it drops, the ones the class leaves out included', () => {
 		items = [
 			...ITEMS,
 			item(400, ItemType.ItemTypeLegs, 2748, { sources: [drop(2748, ULDAMAN)], reqLvl: 40 }),
@@ -157,10 +164,9 @@ describe('dropsSetupFor level 45 cutoff', () => {
 			item(403, ItemType.ItemTypeChest, 12201, { sources: [drop(12201, MARAUDON)], reqLvl: 50 }),
 		];
 		setDropsSources(player, [ARCHAEDAS, PRINCESS]);
-		filters.maxRequiredLevel = 45;
 
-		expect(leafKeys()).toEqual([ARCHAEDAS, WYRMTHALAK, PRINCESS]);
-		expect(sentIds()).toEqual([400, 402]);
+		expect(leafKeys()).toEqual([ARCHAEDAS, DRAKKISATH, WYRMTHALAK, PRINCESS]);
+		expect(sentIds()).toEqual([400, 402, 403]);
 	});
 });
 
@@ -186,5 +192,28 @@ describe('Drops setters', () => {
 		const before = settingsVersion();
 		setDropsView(player, 'items');
 		expect([bulkState(player).dropsView, loadStoredBulkDropsView(player), settingsVersion()]).toEqual(['items', 'items', before]);
+	});
+
+	it('reads the class defaults until the filters are set, then stores them without recounting', () => {
+		expect(dropsFiltersOf(player)).toEqual(dropsDefaultFilters(player.getPlayerClass()));
+
+		const before = settingsVersion();
+		const narrowed = DatabaseFilters.create({ ...dropsDefaultFilters(player.getPlayerClass()), armorTypes: [ArmorType.ArmorTypeMail], minIlvl: 55 });
+		setDropsFilters(player, narrowed);
+
+		expect([dropsFiltersOf(player), loadStoredBulkDropsFilters(player), settingsVersion()]).toEqual([narrowed, narrowed, before]);
+	});
+});
+
+describe('Drops filters', () => {
+	it('leave a ticked item the filters hide in the request', () => {
+		setDropsSources(player, [DRAKKISATH]);
+		const sent = sentIds();
+		expect(sent).toContain(CHEST.id);
+
+		setDropsFilters(player, DatabaseFilters.create({ ...dropsDefaultFilters(player.getPlayerClass()), armorTypes: [ArmorType.ArmorTypeMail] }));
+
+		expect(dropsPassesFilters(CHEST, dropsFiltersOf(player))).toBe(false);
+		expect(sentIds()).toEqual(sent);
 	});
 });

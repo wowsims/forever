@@ -4735,12 +4735,6 @@
 									"additionalProperties": false,
 									"required": ["endgame_dungeons", "clear"]
 								},
-								"include_all": {
-									"type": "string"
-								},
-								"exclude_all": {
-									"type": "string"
-								},
 								"by_slot": {
 									"type": "string"
 								},
@@ -4749,10 +4743,49 @@
 								},
 								"empty": {
 									"type": "string"
+								},
+								"choose_items": {
+									"type": "string"
+								},
+								"items_ticked": {
+									"type": "string"
+								},
+								"hidden_ticked_one": {
+									"type": "string"
+								},
+								"hidden_ticked_other": {
+									"type": "string"
+								},
+								"all": {
+									"type": "string"
+								},
+								"include_shown": {
+									"type": "string"
+								},
+								"exclude_shown": {
+									"type": "string"
+								},
+								"no_match": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["sources_title", "items_title", "quick_picks", "include_all", "exclude_all", "by_slot", "by_source", "empty"]
+							"required": [
+								"sources_title",
+								"items_title",
+								"quick_picks",
+								"by_slot",
+								"by_source",
+								"empty",
+								"choose_items",
+								"items_ticked",
+								"hidden_ticked_one",
+								"hidden_ticked_other",
+								"all",
+								"include_shown",
+								"exclude_shown",
+								"no_match"
+							]
 						},
 						"results": {
 							"type": "object",

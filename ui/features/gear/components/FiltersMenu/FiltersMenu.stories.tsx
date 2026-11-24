@@ -38,3 +38,7 @@ export const WeaponSlot: Story = { args: { slot: ItemSlot.ItemSlotMainHand } };
 export const RangedSlot: Story = { args: { slot: ItemSlot.ItemSlotRanged } };
 
 export const Trinket: Story = { args: { slot: ItemSlot.ItemSlotTrinket1 } };
+
+// A list of every slot, as the Drops items dialog shows it: the armor, weapon and ranged rows together, and no source,
+// raid, faction or required level row.
+export const EverySlot: Story = { args: { slot: undefined, rows: ['ilvl', 'stats', 'bonus', 'armor', 'weapons', 'ranged'] } };

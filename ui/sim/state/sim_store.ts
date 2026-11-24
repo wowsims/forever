@@ -255,6 +255,8 @@ export interface BulkSlice {
 	// The ids of the items under the ticked sources that Drops has unticked, sorted.
 	dropsExcluded: readonly number[];
 	dropsView: BulkDropsView;
+	// What the Drops items dialog shows, never what runs; null until set, which reads as the class's defaults.
+	dropsFilters: DatabaseFilters | null;
 	// Picked in the top navigation; Drops is no power tool, Builds counts only with power tools on.
 	mode: BulkMode;
 	// How many results each mode ranks per encounter while power tools are on; 0 is All. Without power tools Gear ranks 5.

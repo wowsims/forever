@@ -26,6 +26,7 @@ import { matchesSearch } from '../../model/item_search';
 import { defaultSortBy, ItemListSortBy, slotSortsByEP, sortItemIdxs } from '../../model/item_sort';
 import { type ItemDataFields, type ItemListType, SelectorModalTabs } from '../../types';
 import { FiltersMenu } from '../FiltersMenu';
+import { FiltersButton } from '../FiltersMenu/FiltersButton';
 import { ItemListHeaderRow } from './ItemListHeaderRow';
 import { ItemListRow } from './ItemListRow';
 import { removeButtonLabel, type SelectorTab } from './utils';
@@ -91,11 +92,7 @@ export const ItemListToolbarView = ({
 			/>
 			{filtersMenu !== undefined && (
 				<>
-					<Button data-testid="selector-modal-filters-button" onClick={onOpenFilters}>
-						{activeFilters > 0
-							? i18n.t('gear_tab.gear_picker.filters_button_active', { active: activeFilters })
-							: i18n.t('gear_tab.gear_picker.filters_button')}
-					</Button>
+					<FiltersButton active={activeFilters} onClick={onOpenFilters} testId="selector-modal-filters-button" />
 					{filtersMenu}
 				</>
 			)}

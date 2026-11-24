@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { dropsItemListFixture, dropsNamesFixture, dropsTickedFixture, dropsTreeFixture } from '@testing/storybook/fixtures/bulk-drops';
+import { dropsItemListFixture, dropsTickedFixture, dropsTreeFixture } from '@testing/storybook/fixtures/bulk-drops';
 import { fn } from 'storybook/test';
 
-import { DropsItemsView } from '../DropsItems';
+import { DropsItemsCardView } from '../DropsItemsCard';
 import { DropsSourcesView } from '../DropsSources';
 import { DropsSetupView } from './DropsSetup';
 
@@ -12,16 +12,7 @@ const meta = {
 	tags: ['autodocs'],
 	args: {
 		sources: <DropsSourcesView tree={dropsTreeFixture()} ticked={dropsTickedFixture()} onTick={fn()} onQuickPick={fn()} />,
-		items: (
-			<DropsItemsView
-				list={dropsItemListFixture()}
-				grouping="slot"
-				tree={dropsTreeFixture()}
-				names={dropsNamesFixture()}
-				onGroupingChange={fn()}
-				onIncludedChange={fn()}
-			/>
-		),
+		items: <DropsItemsCardView list={dropsItemListFixture()} hidden={0} onChoose={fn()} />,
 	},
 	argTypes: { sources: { control: false }, items: { control: false } },
 } satisfies Meta<typeof DropsSetupView>;

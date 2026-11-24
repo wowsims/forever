@@ -1366,6 +1366,49 @@ export class Player<SpecType extends Spec> {
 		);
 	}
 
+	/**
+	 * The Filters menu's level, bonus, stat, armor, weapon and ranged checks for an item listed under `slot`. `suffixesOf`
+	 * gives the random suffixes the item can roll, read only while a stat is picked.
+	 */
+	static passesItemFilters(item: Item, filters: DatabaseFilters, slot: ItemSlot, suffixesOf: (item: Item) => ReadonlyArray<ItemRandomSuffix>): boolean {
+		if (!Player.passesLevelFilters(item, filters)) return false;
+
+		// A picked area, mob type or creature group narrows the list to the items with a bonus in or against a picked one.
+		if (
+			(filters.areaTypes.length || filters.mobTypes.length || filters.creatureFamilies.length) &&
+			!item.areaTypes.some(areaType => filters.areaTypes.includes(areaType)) &&
+			!item.mobTypes.some(mobType => filters.mobTypes.includes(mobType)) &&
+			!item.creatureFamilies.some(family => filters.creatureFamilies.includes(family))
+		) {
+			return false;
+		}
+
+		if (filters.itemStats.length && !itemCarriesStats(item, suffixesOf(item), filters.itemStats)) return false;
+
+		if (Player.ARMOR_SLOTS.includes(slot)) return filters.armorTypes.includes(item.armorType);
+
+		if (Player.WEAPON_SLOTS.includes(slot)) {
+			const minSpeed = slot == ItemSlot.ItemSlotMainHand ? filters.minMhWeaponSpeed : filters.minOhWeaponSpeed;
+			const maxSpeed = slot == ItemSlot.ItemSlotMainHand ? filters.maxMhWeaponSpeed : filters.maxOhWeaponSpeed;
+			return (
+				filters.weaponTypes.includes(item.weaponType) &&
+				!(minSpeed > 0 && item.weaponSpeed < minSpeed) &&
+				!(maxSpeed > 0 && item.weaponSpeed > maxSpeed)
+			);
+		}
+
+		if (slot == ItemSlot.ItemSlotRanged) {
+			const { minRangedWeaponSpeed: minSpeed, maxRangedWeaponSpeed: maxSpeed } = filters;
+			return (
+				filters.rangedWeaponTypes.includes(item.rangedWeaponType) &&
+				!(minSpeed > 0 && item.weaponSpeed < minSpeed) &&
+				!(maxSpeed > 0 && item.weaponSpeed > maxSpeed)
+			);
+		}
+
+		return true;
+	}
+
 	filterItemData<T>(itemData: Array<T>, getItemFunc: (val: T) => Item, slot: ItemSlot): Array<T> {
 		const filters = this.sim.getFilters();
 
@@ -1373,21 +1416,10 @@ export class Player<SpecType extends Spec> {
 			return itemData.filter(itemElem => filterFunc(getItemFunc(itemElem)));
 		};
 
-		itemData = filterItems(itemData, item => Player.passesLevelFilters(item, filters));
+		itemData = filterItems(itemData, item => Player.passesItemFilters(item, filters, slot, suffixed => this.getRandomSuffixes(suffixed)));
 
-		// A picked area, mob type or creature group narrows the list to the items with a bonus in or against a picked one.
-		if (filters.areaTypes.length || filters.mobTypes.length || filters.creatureFamilies.length) {
-			itemData = filterItems(
-				itemData,
-				item =>
-					item.areaTypes.some(areaType => filters.areaTypes.includes(areaType)) ||
-					item.mobTypes.some(mobType => filters.mobTypes.includes(mobType)) ||
-					item.creatureFamilies.some(family => filters.creatureFamilies.includes(family)),
-			);
-		}
-
-		if (filters.itemStats.length) {
-			itemData = filterItems(itemData, item => itemCarriesStats(item, this.getRandomSuffixes(item), filters.itemStats));
+		if (Player.WEAPON_SLOTS.includes(slot)) {
+			itemData = filterItems(itemData, item => (item.handType == HandType.HandTypeTwoHand ? filters.twoHandedWeapons : filters.oneHandedWeapons));
 		}
 
 		if (filters.newlyDiscoveredOnly) {
@@ -1418,56 +1450,6 @@ export class Player<SpecType extends Spec> {
 			if (!pvpTicked && item.sources.some(itemSrc => itemSrc.source.oneofKind == 'pvp')) return false;
 			return item.sources.some(itemSrc => sourceTicked(itemSrc, filters, untickedRaidZones));
 		});
-
-		if (Player.ARMOR_SLOTS.includes(slot)) {
-			itemData = filterItems(itemData, item => {
-				if (!filters.armorTypes.includes(item.armorType)) {
-					return false;
-				}
-
-				return true;
-			});
-		} else if (Player.WEAPON_SLOTS.includes(slot)) {
-			itemData = filterItems(itemData, item => {
-				if (!filters.weaponTypes.includes(item.weaponType)) {
-					return false;
-				}
-				if (!filters.oneHandedWeapons && item.handType != HandType.HandTypeTwoHand) {
-					return false;
-				}
-				if (!filters.twoHandedWeapons && item.handType == HandType.HandTypeTwoHand) {
-					return false;
-				}
-
-				const minSpeed = slot == ItemSlot.ItemSlotMainHand ? filters.minMhWeaponSpeed : filters.minOhWeaponSpeed;
-				const maxSpeed = slot == ItemSlot.ItemSlotMainHand ? filters.maxMhWeaponSpeed : filters.maxOhWeaponSpeed;
-				if (minSpeed > 0 && item.weaponSpeed < minSpeed) {
-					return false;
-				}
-				if (maxSpeed > 0 && item.weaponSpeed > maxSpeed) {
-					return false;
-				}
-
-				return true;
-			});
-		} else if (slot == ItemSlot.ItemSlotRanged) {
-			itemData = filterItems(itemData, item => {
-				if (!filters.rangedWeaponTypes.includes(item.rangedWeaponType)) {
-					return false;
-				}
-
-				const minSpeed = filters.minRangedWeaponSpeed;
-				const maxSpeed = filters.maxRangedWeaponSpeed;
-				if (minSpeed > 0 && item.weaponSpeed < minSpeed) {
-					return false;
-				}
-				if (maxSpeed > 0 && item.weaponSpeed > maxSpeed) {
-					return false;
-				}
-
-				return true;
-			});
-		}
 
 		return itemData;
 	}

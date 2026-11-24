@@ -43,9 +43,10 @@ mirror of the stage loop because the WASM sim cannot run `bulkSimAsync`.
   pane in `BulkTabBody.tsx`, and `useBulkBuildsPlan` (null outside Builds) hands them to the Builds column and the run
   card.
 - Drops mode, `ui/features/bulk/model/drops/`: `sources.ts` (the source leaf keys, labels and tree), `items.ts` (the
-  pickable list), `settings.ts` (the setters and `dropsRequestSettings`), `results.ts` (`dropsGap`, rows grouped by
+  pickable list), `filters.ts` (the items dialog's search and filters), `settings.ts` (the setters and
+  `dropsRequestSettings`), `results.ts` (`dropsGap`, rows grouped by
   item and by source). Components under `ui/features/bulk/components/`: `DropsSetup` (`DropsSources` tree,
-  `DropsItems` list), `DropsRunCount`, `DropsResults` (`DropsSummary`, `DropsBossCard`,
+  `DropsItemsCard` summary, `DropsItemsDialog`), `DropsRunCount`, `DropsResults` (`DropsSummary`, `DropsBossCard`,
   `DropsItemLabel`). `TotalIterations` is the run card's iterations row, shared by Gear, Builds and Drops, and
   `BulkDpsCell` the DPS, margin and difference of a Gear, Builds or Drops result row. A Drops result row is Gear's
   (`BulkResultRowView`), and `BulkResultSlots` draws the slot cells of both.
@@ -241,7 +242,7 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   encounter and stays stored. Builds shows no block (`BulkSettings` passes none while the Builds plan exists) and its
   plan never reads the ref. The block never writes the Encounter tab.
 - **Drops** answers which drop from the ticked sources beats the worn gear. The Setup pane (`DropsSetup`) holds the
-  Sources tree (`dropsSourceTree`) and the item list; the run card holds `DropsRunCount` and the Batch encounter block,
+  Sources tree (`dropsSourceTree`) and the Items card; the run card holds `DropsRunCount` and the Batch encounter block,
   with no Top results field. Gear's Enchant presets group (`EnchantPresets`) is the one settings group under the run
   card, and its ticks are Gear's. The leaf keys are `drop:<zoneId>:<npcId>`, `drop:<zoneId>:other:<name>` (the world drop is
   `drop:0:other:World Drop`), `quest:<zoneId>`, `crafted:<Profession>` (the numeric enum), `rep:<repFactionId>` and
@@ -256,14 +257,28 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   still wears (`dropsLevelItems`, `DROPS_MIN_LEVEL` 45): a dungeon's level (`dropsDungeonLevels`) is the highest `Player.requiredLevelOf` of
   every database item it drops, whatever the class or phase, and a dungeon below 45 leaves the tree. Raid drops stay,
   and any other source stays only on an item that needs level 45. The Sources tree and the item list hold the items that
-  cutoff, the phase, the player's side, the class and the gear picker's Min ilvl, Max ilvl and Required level let through
-  (`dropsPhaseItems`, `dropsFactionItems`, `dropsUsableItems`), random-suffix items left out, with no note of any of
-  them. `dropsSetupFor` keeps the cutoff until the database or its item count changes, and the items, their source keys
-  and the tree until the phase, the side, the class or one of those filters changes too. A worn item is listed but never
-  sent.
-  Three keys store the picks per spec: `bulk-drops-sources.v1` (the ticked leaf keys, sorted), `bulk-drops-excluded.v1`
-  (item ids unticked under them) and `bulk-drops-view.v1` (`bosses` or `items`). Each pick but the view bumps `settings`
-  so the count refreshes.
+  cutoff, the phase, the player's side and the class let through (`dropsPhaseItems`, `dropsFactionItems`,
+  `dropsUsableItems`), random-suffix items left out, with no note of any of them. The gear picker's filters
+  (`sim.getFilters()`) never reach Drops. `dropsSetupFor` keeps the cutoff until the database or its item count changes,
+  and the items, their source keys and the tree until the phase, the side or the class changes too. A worn item is
+  listed but never sent.
+  The Items column is a summary card (`DropsItemsCard`): how many non-worn items are ticked of how many are listed, how
+  many ticked ones the dialog's filters hide, and a chip per slot with a ticked item. Its Choose items button opens
+  `DropsItemsDialog`, laid out like the gear picker: a search field, a Filters button and the By slot / By source switch
+  on top, a rail of All and then one entry per slot or source with its ticked and listed non-worn counts, and the picked
+  entry's rows in a `VirtualList`. Below `md` the rail is one row of chips that scrolls sideways above the list, the list
+  fills the dialog, and each row's sources sit under its name, so the rows are taller there (`useMediumLayout`). All
+  lists each item once, and a source's rows leave out that source. Arrow up and down move the rail pick (`railStep`,
+  shared with the gear picker's slot rail), and Include shown and Exclude shown tick or untick the non-worn rows the
+  search, the filters and the pick leave. The Filters button opens the gear picker's
+  `FiltersMenuView` with only the rows a list of every slot can use (item level, stats, bonuses, armor, weapon and
+  ranged), over Drops' own `DatabaseFilters` (`dropsFiltersOf`, the class's defaults until set); `Player.passesItemFilters`
+  holds the checks both lists run, here for each item's first slot. Search and filters only change what the dialog
+  shows: a ticked item they hide stays ticked and is sent, and neither reaches `BulkSettings`, the seed or the count.
+  Four keys store the Drops picks per spec: `bulk-drops-sources.v1` (the ticked leaf keys, sorted),
+  `bulk-drops-excluded.v1` (item ids unticked under them), `bulk-drops-view.v1` (`bosses` or `items`) and
+  `bulk-drops-filters.v1` (the dialog's filters). The sources and excluded ids bump `settings` so the count refreshes;
+  the view and the filters do not.
 - The Drops request (`dropsRequestSettings`) is `BulkSettings` with `single_change` on, the picked item ids as `items`
   and Gear's enchant pool (`enchantPresetPool`). It sends `BulkSimOverrides.cullToBaseline` with
   `BULK_SIM_DEFAULT_TOP_RESULTS` (`bulkTopResults` returns it in Drops), so every candidate comes back once, in

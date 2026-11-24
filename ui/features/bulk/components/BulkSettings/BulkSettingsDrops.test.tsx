@@ -1,7 +1,7 @@
 import { saveEnchantPreset } from '@features/enchant-presets/model/enchant_presets';
 import { BulkEnchantSlotOptions } from '@generated/proto/api';
 import { ItemSlot, Race } from '@generated/proto/common';
-import { ContentPhase, DatabaseFilters, UIEnchant } from '@generated/proto/ui';
+import { ContentPhase, UIEnchant } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
@@ -49,9 +49,6 @@ const mount = () => {
 		getEnchants: (slot: ItemSlot) => (slot === ItemSlot.ItemSlotBack ? [UIEnchant.create({ effectId: CLOAK_AGILITY })] : []),
 		sim: {
 			isNative: false,
-			getFilters(this: { store: SimStore }) {
-				return DatabaseFilters.clone(this.store.getState().sim.filters);
-			},
 			getPhase(this: { store: SimStore }) {
 				return this.store.getState().sim.phase;
 			},

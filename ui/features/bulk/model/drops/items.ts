@@ -1,5 +1,5 @@
 import { Faction, HandType, ItemType } from '@generated/proto/common';
-import { type DatabaseFilters, type UIItem, UIItem_FactionRestriction, type UIItemSource } from '@generated/proto/ui';
+import { type UIItem, UIItem_FactionRestriction, type UIItemSource } from '@generated/proto/ui';
 import { type BulkSimItemSlot, getBulkItemSlotFromSlot, getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import { Player } from '@sim/player/player';
 import type { PlayerSpec } from '@sim/player/player_spec';
@@ -97,19 +97,9 @@ export const dropsLevelItems = (items: readonly UIItem[], levels: ReadonlyMap<nu
 	return kept;
 };
 
-/** The items that fit a gear slot, that the class can equip and that pass the gear picker's level filters; a random-suffix item is left out. */
-export const dropsUsableItems = (
-	items: readonly UIItem[],
-	playerSpec: PlayerSpec<any>,
-	filters: Pick<DatabaseFilters, 'minIlvl' | 'maxIlvl' | 'maxRequiredLevel'>,
-): UIItem[] =>
-	items.filter(
-		item =>
-			getEligibleItemSlots(item).length > 0 &&
-			canEquipItem(item, playerSpec, undefined) &&
-			item.randomSuffixOptions.length === 0 &&
-			Player.passesLevelFilters(item, filters),
-	);
+/** The items that fit a gear slot and that the class can equip; a random-suffix item is left out. */
+export const dropsUsableItems = (items: readonly UIItem[], playerSpec: PlayerSpec<any>): UIItem[] =>
+	items.filter(item => getEligibleItemSlots(item).length > 0 && canEquipItem(item, playerSpec, undefined) && item.randomSuffixOptions.length === 0);
 
 export type DropsSlotTag = 'mh' | 'oh' | '2h';
 
@@ -199,4 +189,10 @@ export const dropsItemsBySource = (
 		.flatMap(node => node.leafKeys)
 		.filter(key => bySource.has(key))
 		.map(key => ({ key, label: dropsSourceLabel(key, names), items: bySource.get(key)! }));
+};
+
+/** The ticked and the listed items, the worn ones left out of both. */
+export const dropsTickCount = (items: readonly DropsItem[]): { ticked: number; total: number } => {
+	const pickable = items.filter(entry => !entry.worn);
+	return { ticked: pickable.filter(entry => entry.included).length, total: pickable.length };
 };

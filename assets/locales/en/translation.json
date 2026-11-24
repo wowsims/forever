@@ -1314,11 +1314,17 @@
 					"endgame_dungeons": "Endgame dungeons",
 					"clear": "Clear"
 				},
-				"include_all": "Include all",
-				"exclude_all": "Exclude all",
 				"by_slot": "By slot",
 				"by_source": "By source",
-				"empty": "Tick a source to list its items."
+				"empty": "Tick a source to list its items.",
+				"choose_items": "Choose items…",
+				"items_ticked": "{{ticked}} of {{total}} items ticked",
+				"hidden_ticked_one": "{{count}} ticked item hidden by filters",
+				"hidden_ticked_other": "{{count}} ticked items hidden by filters",
+				"all": "All",
+				"include_shown": "Include shown",
+				"exclude_shown": "Exclude shown",
+				"no_match": "No item matches the search and filters."
 			},
 			"items": {
 				"tags": {

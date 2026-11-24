@@ -25,7 +25,6 @@ import {
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { Player } from '@sim/player/player';
-import { itemOwnStats } from '@sim/proto/items';
 import { Sim } from '@sim/sim';
 import { subscribePlayerField, subscribeSimField } from '@sim/state/subscriptions';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
@@ -35,6 +34,7 @@ import { MultiComboBox } from '@ui-kit/MultiComboBox';
 import { NumberField } from '@ui-kit/TextField';
 import { useMemo } from 'react';
 
+import { filterOptionsOf } from '../../model/filter_options';
 import { MenuSection } from './MenuSection';
 
 const factionLabels: Record<Faction, string> = {
@@ -50,8 +50,33 @@ type FilterNumberField = { [K in keyof DatabaseFilters]-?: DatabaseFilters[K] ex
 
 const SPEED_OPTIONS = { float: true, positive: true };
 
+export type FiltersMenuRow =
+	| 'ilvl'
+	| 'requiredLevel'
+	| 'faction'
+	| 'newlyDiscovered'
+	| 'stats'
+	| 'sources'
+	| 'raids'
+	| 'bonus'
+	| 'armor'
+	| 'weapons'
+	| 'ranged';
+
+const EVERY_SLOT_ROWS: ReadonlyArray<FiltersMenuRow> = ['ilvl', 'requiredLevel', 'faction', 'newlyDiscovered', 'stats', 'sources', 'raids', 'bonus'];
+
+const slotRows = (slot: ItemSlot | undefined): ReadonlyArray<FiltersMenuRow> => {
+	if (slot === undefined) return EVERY_SLOT_ROWS;
+	if (Player.ARMOR_SLOTS.includes(slot)) return [...EVERY_SLOT_ROWS, 'armor'];
+	if (Player.WEAPON_SLOTS.includes(slot)) return [...EVERY_SLOT_ROWS, 'weapons'];
+	return slot === ItemSlot.ItemSlotRanged ? [...EVERY_SLOT_ROWS, 'ranged'] : EVERY_SLOT_ROWS;
+};
+
 export interface FiltersMenuViewProps {
-	slot: ItemSlot;
+	/** The slot whose list the menu narrows, which picks the armor, weapon or ranged rows. */
+	slot?: ItemSlot;
+	/** The rows to show, for a list that spans several slots. Without it every row shows but the armor, weapon and ranged ones, of which `slot` picks one. */
+	rows?: ReadonlyArray<FiltersMenuRow>;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	filters: DatabaseFilters;
@@ -73,6 +98,7 @@ export interface FiltersMenuViewProps {
 
 export const FiltersMenuView = ({
 	slot,
+	rows,
 	open,
 	onOpenChange,
 	filters,
@@ -87,6 +113,7 @@ export const FiltersMenuView = ({
 	canDualWield,
 	raceFaction,
 }: FiltersMenuViewProps) => {
+	const shown = new Set(rows ?? slotRows(slot));
 	const listToggle = (field: FilterListField, value: number, id: string, label: string) => (
 		<BooleanPicker
 			key={id}
@@ -153,146 +180,141 @@ export const FiltersMenuView = ({
 			elevated
 			bodyClassName="gap-2"
 			title={i18n.t('gear_tab.gear_picker.filters.title')}>
-			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.general')}>
-				<div className="relative grid grid-cols-2 gap-x-(--modal-padding)">
-					{numberInput('minIlvl', 'filters-min-ilvl', i18n.t('gear_tab.gear_picker.filters.min_ilvl'), { showZeroes: false })}
-					<span className="absolute bottom-0 left-1/2 -translate-x-1/2 py-2">-</span>
-					{numberInput('maxIlvl', 'filters-max-ilvl', i18n.t('gear_tab.gear_picker.filters.max_ilvl'), { showZeroes: false })}
-				</div>
-				<div className="grid grid-cols-2 gap-x-(--modal-padding) gap-y-2">
-					{numberInput('maxRequiredLevel', 'filters-required-level', i18n.t('gear_tab.gear_picker.filters.required_level'), { showZeroes: false })}
-					<ChoiceField
-						id="filters-faction-restriction"
-						label={i18n.t('gear_tab.gear_picker.filters.faction_restrictions')}
-						options={[
-							{ value: FactionFilter.FactionFilterRace, label: factionLabels[raceFaction] },
-							{ value: FactionFilter.FactionFilterAny, label: factionLabels[Faction.Unknown] },
-						]}
-						value={filters.factionFilter}
-						onChange={value =>
-							onFiltersChange(next => {
-								next.factionFilter = value;
-							})
-						}
-					/>
-					<BooleanPicker
-						id="filters-newly-discovered"
-						label={i18n.t('gear_tab.gear_picker.filters.newly_discovered')}
-						layout="inline"
-						size="xs"
-						value={filters.newlyDiscoveredOnly}
-						onChange={checked =>
-							onFiltersChange(next => {
-								next.newlyDiscoveredOnly = checked;
-							})
-						}
-					/>
-				</div>
-			</MenuSection>
-			{multiCount('itemStats', itemStats) > 0 && (
+			{(shown.has('ilvl') || shown.has('requiredLevel') || shown.has('faction') || shown.has('newlyDiscovered')) && (
+				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.general')}>
+					{shown.has('ilvl') && (
+						<div className="relative grid grid-cols-2 gap-x-(--modal-padding)">
+							{numberInput('minIlvl', 'filters-min-ilvl', i18n.t('gear_tab.gear_picker.filters.min_ilvl'), { showZeroes: false })}
+							<span className="absolute bottom-0 left-1/2 -translate-x-1/2 py-2">-</span>
+							{numberInput('maxIlvl', 'filters-max-ilvl', i18n.t('gear_tab.gear_picker.filters.max_ilvl'), { showZeroes: false })}
+						</div>
+					)}
+					{(shown.has('requiredLevel') || shown.has('faction') || shown.has('newlyDiscovered')) && (
+						<div className="grid grid-cols-2 gap-x-(--modal-padding) gap-y-2">
+							{shown.has('requiredLevel') &&
+								numberInput('maxRequiredLevel', 'filters-required-level', i18n.t('gear_tab.gear_picker.filters.required_level'), {
+									showZeroes: false,
+								})}
+							{shown.has('faction') && (
+								<ChoiceField
+									id="filters-faction-restriction"
+									label={i18n.t('gear_tab.gear_picker.filters.faction_restrictions')}
+									options={[
+										{ value: FactionFilter.FactionFilterRace, label: factionLabels[raceFaction] },
+										{ value: FactionFilter.FactionFilterAny, label: factionLabels[Faction.Unknown] },
+									]}
+									value={filters.factionFilter}
+									onChange={value =>
+										onFiltersChange(next => {
+											next.factionFilter = value;
+										})
+									}
+								/>
+							)}
+							{shown.has('newlyDiscovered') && (
+								<BooleanPicker
+									id="filters-newly-discovered"
+									label={i18n.t('gear_tab.gear_picker.filters.newly_discovered')}
+									layout="inline"
+									size="xs"
+									value={filters.newlyDiscoveredOnly}
+									onChange={checked =>
+										onFiltersChange(next => {
+											next.newlyDiscoveredOnly = checked;
+										})
+									}
+								/>
+							)}
+						</div>
+					)}
+				</MenuSection>
+			)}
+			{shown.has('stats') && multiCount('itemStats', itemStats) > 0 && (
 				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.stats.title')}>
 					{multiPicker('itemStats', 'filters-item-stats', i18n.t('gear_tab.gear_picker.filters.stats.label'), itemStats, translateStat)}
 				</MenuSection>
 			)}
-			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.source')} className="ui-filters-menu-section-bool-list">
-				{Sim.ALL_SOURCES.map(source => {
-					const label = translateSourceFilter(source);
-					return label ? listToggle('sources', source, `filters-source-${source}`, label) : null;
-				})}
-				<BooleanPicker
-					id="filters-source-world-drop"
-					label={i18n.t('common.sources.world_drop')}
-					layout="inline"
-					size="xs"
-					value={!filters.hideWorldDrops}
-					onChange={checked =>
-						onFiltersChange(next => {
-							next.hideWorldDrops = !checked;
-						})
-					}
-				/>
-			</MenuSection>
-			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.raids')} className="ui-filters-menu-section-bool-list">
-				{Sim.ALL_RAIDS.map(raid => listToggle('raids', raid, `filters-raid-${raid}`, translateRaidFilter(raid)))}
-			</MenuSection>
-			{multiCount('areaTypes', areaTypes) + multiCount('mobTypes', mobTypes) + multiCount('creatureFamilies', creatureFamilies) > 0 && (
-				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.bonus.title')} className="grid grid-cols-3 items-start gap-x-2 max-sm:grid-cols-1">
-					{multiPicker('areaTypes', 'filters-bonus-area', i18n.t('gear_tab.gear_picker.filters.bonus.area'), areaTypes, translateAreaType)}
-					{multiPicker('mobTypes', 'filters-bonus-mob-type', i18n.t('gear_tab.gear_picker.filters.bonus.mob_type'), mobTypes, translateMobType)}
-					{multiPicker(
-						'creatureFamilies',
-						'filters-bonus-creature',
-						i18n.t('gear_tab.gear_picker.filters.bonus.creature'),
-						creatureFamilies,
-						translateCreatureFamily,
-					)}
+			{shown.has('sources') && (
+				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.source')} className="ui-filters-menu-section-bool-list">
+					{Sim.ALL_SOURCES.map(source => {
+						const label = translateSourceFilter(source);
+						return label ? listToggle('sources', source, `filters-source-${source}`, label) : null;
+					})}
+					<BooleanPicker
+						id="filters-source-world-drop"
+						label={i18n.t('common.sources.world_drop')}
+						layout="inline"
+						size="xs"
+						value={!filters.hideWorldDrops}
+						onChange={checked =>
+							onFiltersChange(next => {
+								next.hideWorldDrops = !checked;
+							})
+						}
+					/>
 				</MenuSection>
 			)}
-			{Player.ARMOR_SLOTS.includes(slot)
-				? armorTypes.length > 1 && (
-						<MenuSection name={i18n.t('gear_tab.gear_picker.armor_type')} className="ui-filters-menu-section-bool-list">
-							{armorTypes.map(armorType => listToggle('armorTypes', armorType, `filters-armor-type-${armorType}`, translateArmorType(armorType)))}
-						</MenuSection>
-					)
-				: Player.WEAPON_SLOTS.includes(slot)
-					? weaponTypes.length > 0 && (
+			{shown.has('raids') && (
+				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.raids')} className="ui-filters-menu-section-bool-list">
+					{Sim.ALL_RAIDS.map(raid => listToggle('raids', raid, `filters-raid-${raid}`, translateRaidFilter(raid)))}
+				</MenuSection>
+			)}
+			{shown.has('bonus') &&
+				multiCount('areaTypes', areaTypes) + multiCount('mobTypes', mobTypes) + multiCount('creatureFamilies', creatureFamilies) > 0 && (
+					<MenuSection name={i18n.t('gear_tab.gear_picker.filters.bonus.title')} className="grid grid-cols-3 items-start gap-x-2 max-sm:grid-cols-1">
+						{multiPicker('areaTypes', 'filters-bonus-area', i18n.t('gear_tab.gear_picker.filters.bonus.area'), areaTypes, translateAreaType)}
+						{multiPicker('mobTypes', 'filters-bonus-mob-type', i18n.t('gear_tab.gear_picker.filters.bonus.mob_type'), mobTypes, translateMobType)}
+						{multiPicker(
+							'creatureFamilies',
+							'filters-bonus-creature',
+							i18n.t('gear_tab.gear_picker.filters.bonus.creature'),
+							creatureFamilies,
+							translateCreatureFamily,
+						)}
+					</MenuSection>
+				)}
+			{shown.has('armor') && armorTypes.length > 1 && (
+				<MenuSection name={i18n.t('gear_tab.gear_picker.armor_type')} className="ui-filters-menu-section-bool-list">
+					{armorTypes.map(armorType => listToggle('armorTypes', armorType, `filters-armor-type-${armorType}`, translateArmorType(armorType)))}
+				</MenuSection>
+			)}
+			{shown.has('weapons') && weaponTypes.length > 0 && (
+				<>
+					<MenuSection name={i18n.t('gear_tab.gear_picker.weapon_type')} className="ui-filters-menu-section-bool-list">
+						{weaponTypes.map(weaponType =>
+							listToggle('weaponTypes', weaponType, `filters-weapon-type-${weaponType}`, translateWeaponType(weaponType)),
+						)}
+					</MenuSection>
+					<MenuSection name={i18n.t('gear_tab.gear_picker.weapon_speed')} className="ui-filters-menu-section-number-list">
+						{numberInput('minMhWeaponSpeed', 'filters-min-weapon-speed', i18n.t('gear_tab.gear_picker.min_mh_speed'), SPEED_OPTIONS)}
+						{numberInput('maxMhWeaponSpeed', 'filters-max-weapon-speed', i18n.t('gear_tab.gear_picker.max_mh_speed'), SPEED_OPTIONS)}
+						{canDualWield && (
 							<>
-								<MenuSection name={i18n.t('gear_tab.gear_picker.weapon_type')} className="ui-filters-menu-section-bool-list">
-									{weaponTypes.map(weaponType =>
-										listToggle('weaponTypes', weaponType, `filters-weapon-type-${weaponType}`, translateWeaponType(weaponType)),
-									)}
-								</MenuSection>
-								<MenuSection name={i18n.t('gear_tab.gear_picker.weapon_speed')} className="ui-filters-menu-section-number-list">
-									{numberInput('minMhWeaponSpeed', 'filters-min-weapon-speed', i18n.t('gear_tab.gear_picker.min_mh_speed'), SPEED_OPTIONS)}
-									{numberInput('maxMhWeaponSpeed', 'filters-max-weapon-speed', i18n.t('gear_tab.gear_picker.max_mh_speed'), SPEED_OPTIONS)}
-									{canDualWield && (
-										<>
-											{numberInput(
-												'minOhWeaponSpeed',
-												'filters-min-oh-weapon-speed',
-												i18n.t('gear_tab.gear_picker.min_oh_speed'),
-												SPEED_OPTIONS,
-											)}
-											{numberInput(
-												'maxOhWeaponSpeed',
-												'filters-max-oh-weapon-speed',
-												i18n.t('gear_tab.gear_picker.max_oh_speed'),
-												SPEED_OPTIONS,
-											)}
-										</>
-									)}
-								</MenuSection>
-							</>
-						)
-					: slot === ItemSlot.ItemSlotRanged &&
-						rangedWeaponTypes.length > 1 && (
-							<>
-								<MenuSection name={i18n.t('gear_tab.gear_picker.ranged_weapon_type')} className="ui-filters-menu-section-bool-list">
-									{rangedWeaponTypes.map(rangedWeaponType =>
-										listToggle(
-											'rangedWeaponTypes',
-											rangedWeaponType,
-											`filter-ranged-weapon-type-${rangedWeaponType}`,
-											translateRangedWeaponType(rangedWeaponType),
-										),
-									)}
-								</MenuSection>
-								<MenuSection name={i18n.t('gear_tab.gear_picker.ranged_weapon_speed')} className="ui-filters-menu-section-number-list">
-									{numberInput(
-										'minRangedWeaponSpeed',
-										'filters-min-ranged-weapon-speed',
-										i18n.t('gear_tab.gear_picker.min_ranged_speed'),
-										SPEED_OPTIONS,
-									)}
-									{numberInput(
-										'maxRangedWeaponSpeed',
-										'filters-max-ranged-weapon-speed',
-										i18n.t('gear_tab.gear_picker.max_ranged_speed'),
-										SPEED_OPTIONS,
-									)}
-								</MenuSection>
+								{numberInput('minOhWeaponSpeed', 'filters-min-oh-weapon-speed', i18n.t('gear_tab.gear_picker.min_oh_speed'), SPEED_OPTIONS)}
+								{numberInput('maxOhWeaponSpeed', 'filters-max-oh-weapon-speed', i18n.t('gear_tab.gear_picker.max_oh_speed'), SPEED_OPTIONS)}
 							</>
 						)}
+					</MenuSection>
+				</>
+			)}
+			{shown.has('ranged') && rangedWeaponTypes.length > 1 && (
+				<>
+					<MenuSection name={i18n.t('gear_tab.gear_picker.ranged_weapon_type')} className="ui-filters-menu-section-bool-list">
+						{rangedWeaponTypes.map(rangedWeaponType =>
+							listToggle(
+								'rangedWeaponTypes',
+								rangedWeaponType,
+								`filter-ranged-weapon-type-${rangedWeaponType}`,
+								translateRangedWeaponType(rangedWeaponType),
+							),
+						)}
+					</MenuSection>
+					<MenuSection name={i18n.t('gear_tab.gear_picker.ranged_weapon_speed')} className="ui-filters-menu-section-number-list">
+						{numberInput('minRangedWeaponSpeed', 'filters-min-ranged-weapon-speed', i18n.t('gear_tab.gear_picker.min_ranged_speed'), SPEED_OPTIONS)}
+						{numberInput('maxRangedWeaponSpeed', 'filters-max-ranged-weapon-speed', i18n.t('gear_tab.gear_picker.max_ranged_speed'), SPEED_OPTIONS)}
+					</MenuSection>
+				</>
+			)}
 		</Dialog>
 	);
 };
@@ -309,23 +331,10 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 	const filters = useStoreSubscribe(subscribeSimField(sim, 'filters'), () => sim.getFilters());
 	const playerClass = player.getPlayerClass();
 	const raceFaction = useStoreSubscribe(subscribePlayerField(player, 'race'), () => player.getFaction());
-	const { areaTypes, mobTypes, creatureFamilies, itemStats } = useMemo(() => {
-		const items = sim.db.getAllItems();
-		const listed = <T extends number>(typesOf: (item: (typeof items)[number]) => Array<T>) => [...new Set(items.flatMap(typesOf))].sort((a, b) => a - b);
-		// Each random suffix is read once, however many items can roll it.
-		const carried = new Set<Stat>(items.flatMap(item => [...itemOwnStats(item)]));
-		for (const id of new Set(items.flatMap(item => item.randomSuffixOptions))) {
-			sim.db.getRandomSuffixById(id)?.stats.forEach((value, stat) => {
-				if (value > 0) carried.add(stat);
-			});
-		}
-		return {
-			areaTypes: listed(item => item.areaTypes),
-			mobTypes: listed(item => item.mobTypes),
-			creatureFamilies: listed(item => item.creatureFamilies),
-			itemStats: [...carried].sort((a, b) => a - b),
-		};
-	}, [sim.db]);
+	const { areaTypes, mobTypes, creatureFamilies, itemStats } = useMemo(
+		() => filterOptionsOf(sim.db.getAllItems(), id => sim.db.getRandomSuffixById(id)),
+		[sim.db],
+	);
 
 	return (
 		<FiltersMenuView

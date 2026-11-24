@@ -1,4 +1,5 @@
-import { BulkEncounterRef, BulkTopResults } from '@generated/proto/ui';
+import { ArmorType } from '@generated/proto/common';
+import { BulkEncounterRef, BulkTopResults, DatabaseFilters } from '@generated/proto/ui';
 import { memoryEnv } from '@testing/sim/memory_env';
 import { describe, expect, it } from 'vitest';
 
@@ -9,12 +10,14 @@ import { BULK_SIM_DEFAULT_TOP_RESULTS } from '../wasm/bulk_sim/constants_auto_ge
 import {
 	loadStoredBatchEncounter,
 	loadStoredBulkDropsExcluded,
+	loadStoredBulkDropsFilters,
 	loadStoredBulkDropsSources,
 	loadStoredBulkDropsView,
 	loadStoredBulkMode,
 	loadStoredBulkTopResults,
 	storeBatchEncounter,
 	storeBulkDropsExcluded,
+	storeBulkDropsFilters,
 	storeBulkDropsSources,
 	storeBulkDropsView,
 	storeBulkMode,
@@ -94,6 +97,21 @@ describe('Drops storage', () => {
 		setRaw(player, 'bulk-drops-excluded.v1', '[1.5]');
 
 		expect(loadStoredBulkDropsExcluded(player)).toBeNull();
+	});
+
+	it('round-trips the Drops filters per spec, and loads a blob that does not parse as nothing stored', () => {
+		const player = playerOn();
+		expect(loadStoredBulkDropsFilters(player)).toBeNull();
+		const filters = DatabaseFilters.create({ armorTypes: [ArmorType.ArmorTypePlate], minIlvl: 58, oneHandedWeapons: true });
+
+		storeBulkDropsFilters(player, filters);
+
+		expect(loadStoredBulkDropsFilters(player)).toEqual(filters);
+		expect(player.sim.env.storage.getItem(specStorageKey(PlayerSpecs.DpsWarrior, 'bulk-drops-filters.v1'))).not.toBeNull();
+
+		setRaw(player, 'bulk-drops-filters.v1', '{');
+
+		expect(loadStoredBulkDropsFilters(player)).toBeNull();
 	});
 
 	it('loads an unknown Drops view as nothing stored', () => {

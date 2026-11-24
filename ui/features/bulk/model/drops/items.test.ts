@@ -62,8 +62,7 @@ const list = (items: UIItem[], context = DUAL, ticked: ReadonlySet<string> = BOT
 
 const TWO_SOURCE = item({ id: 50, name: 'Two Sources', sources: [drop(1583, 10363), drop(1584, 9568)] });
 
-const NO_LEVEL_FILTERS = { minIlvl: 0, maxIlvl: 0, maxRequiredLevel: 0 };
-const usable = (items: UIItem[], filters = NO_LEVEL_FILTERS) => dropsUsableItems(items, PlayerSpecs.DpsWarrior, filters).map(i => i.id);
+const usable = (items: UIItem[]) => dropsUsableItems(items, PlayerSpecs.DpsWarrior).map(i => i.id);
 
 describe('dropsUsableItems', () => {
 	it('leaves out what the class cannot equip and random-suffix items', () => {
@@ -75,17 +74,6 @@ describe('dropsUsableItems', () => {
 	it('leaves out an item that fits no gear slot, such as a toy', () => {
 		const toy = item({ id: 62, name: 'Piccolo of the Flaming Fire', type: ItemType.ItemTypeUnknown });
 		expect(usable([toy, TWO_SOURCE])).toEqual([50]);
-	});
-
-	it('applies the gear picker’s item level and required level bounds, 0 leaving one unset', () => {
-		const low = item({ id: 70, name: 'Low', ilvl: 25, reqLvl: 20 });
-		const high = item({ id: 71, name: 'High', ilvl: 66, reqLvl: 60 });
-		const scaled = item({ id: 72, name: 'Scaled', ilvl: 10, reqLvl: 60, scalingOptions: { 0: ScalingItemProperties.create({ ilvl: 70 }) } });
-		const all = [low, high, scaled];
-		expect(usable(all)).toEqual([70, 71, 72]);
-		expect(usable(all, { ...NO_LEVEL_FILTERS, minIlvl: 30 })).toEqual([71, 72]);
-		expect(usable(all, { ...NO_LEVEL_FILTERS, maxIlvl: 66 })).toEqual([70, 71]);
-		expect(usable(all, { ...NO_LEVEL_FILTERS, maxRequiredLevel: 30 })).toEqual([70]);
 	});
 });
 

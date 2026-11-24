@@ -1,12 +1,17 @@
+import { filterOptionsOf } from '@features/gear/model/filter_options';
+import { DatabaseFilters } from '@generated/proto/ui';
 import { usePlayer } from '@sim/context/SimHostContext';
 import { bulkState } from '@sim/settings/bulk_settings';
 import { Box } from '@ui-kit/Box';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 
+import { useBulkState } from '../../hooks/useBulkState';
 import { useDropsSetup } from '../../hooks/useDropsSetup';
-import { setDropsItemsIncluded, setDropsSources } from '../../model/drops/settings';
+import { dropsActiveFilterCount, dropsDefaultFilters, dropsHiddenTicked } from '../../model/drops/filters';
+import { dropsFiltersOf, setDropsFilters, setDropsItemsIncluded, setDropsSources } from '../../model/drops/settings';
 import { dropsQuickPickTicks, dropsTicksAfter } from '../../model/drops/sources';
-import { DropsItemsView } from '../DropsItems';
+import { DropsItemsCardView } from '../DropsItemsCard';
+import { type DropsGrouping, DropsItemsDialogView } from '../DropsItemsDialog';
 import { DropsSourcesView } from '../DropsSources';
 
 export interface DropsSetupViewProps {
@@ -25,11 +30,24 @@ export const DropsSetupView = ({ sources, items }: DropsSetupViewProps) => (
 	</div>
 );
 
-// Grouping is the pane's own state: the settings keep the sources, the excluded ids and the preset pick, not how the list reads.
+// Grouping and the dialog's search and pick are the pane's own state: the settings keep the sources, the excluded ids, the
+// filters and the preset pick, not how the list reads.
 export const DropsSetup = () => {
 	const player = usePlayer();
+	const playerClass = player.getPlayerClass();
 	const { tree, ticked, list, names, dungeonLevels } = useDropsSetup();
-	const [grouping, setGrouping] = useState<'slot' | 'source'>('slot');
+	const stored = useBulkState(slice => slice.dropsFilters);
+	const filters = useMemo(() => stored ?? dropsDefaultFilters(playerClass), [stored, playerClass]);
+	const options = useMemo(
+		() =>
+			filterOptionsOf(
+				list.items.map(entry => entry.item),
+				() => undefined,
+			),
+		[list],
+	);
+	const [grouping, setGrouping] = useState<DropsGrouping>('slot');
+	const [open, setOpen] = useState(false);
 
 	return (
 		<DropsSetupView
@@ -44,14 +62,34 @@ export const DropsSetup = () => {
 				/>
 			}
 			items={
-				<DropsItemsView
-					list={list}
-					grouping={grouping}
-					onGroupingChange={setGrouping}
-					tree={tree}
-					names={names}
-					onIncludedChange={(ids, included) => setDropsItemsIncluded(player, ids, included)}
-				/>
+				<>
+					<DropsItemsCardView list={list} hidden={dropsHiddenTicked(list, filters)} onChoose={() => setOpen(true)} />
+					<DropsItemsDialogView
+						open={open}
+						onOpenChange={setOpen}
+						list={list}
+						grouping={grouping}
+						onGroupingChange={setGrouping}
+						tree={tree}
+						names={names}
+						filters={filters}
+						activeFilters={dropsActiveFilterCount(filters, playerClass)}
+						filtersMenu={{
+							onFiltersChange: edit => {
+								const next = DatabaseFilters.clone(dropsFiltersOf(player));
+								edit(next);
+								setDropsFilters(player, next);
+							},
+							armorTypes: playerClass.armorTypes,
+							weaponTypes: playerClass.weaponTypes.map(entry => entry.weaponType),
+							rangedWeaponTypes: playerClass.rangedWeaponTypes,
+							...options,
+							canDualWield: player.getPlayerSpec().canDualWield,
+							raceFaction: player.getFaction(),
+						}}
+						onIncludedChange={(ids, included) => setDropsItemsIncluded(player, ids, included)}
+					/>
+				</>
 			}
 		/>
 	);

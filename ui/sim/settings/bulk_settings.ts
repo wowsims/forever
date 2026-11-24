@@ -10,6 +10,7 @@ import {
 	BulkEncounterRef,
 	BulkEncounterSelection,
 	BulkTopResults,
+	DatabaseFilters,
 } from '@generated/proto/ui';
 import type { IMessageType } from '@protobuf-ts/runtime';
 
@@ -29,6 +30,7 @@ const BULK_BATCH_ENCOUNTER_STORAGE_KEY = 'bulk-batch-encounter.v1';
 const BULK_DROPS_SOURCES_STORAGE_KEY = 'bulk-drops-sources.v1';
 const BULK_DROPS_EXCLUDED_STORAGE_KEY = 'bulk-drops-excluded.v1';
 const BULK_DROPS_VIEW_STORAGE_KEY = 'bulk-drops-view.v1';
+const BULK_DROPS_FILTERS_STORAGE_KEY = 'bulk-drops-filters.v1';
 const BULK_MODE_STORAGE_KEY = 'bulk-mode.v1';
 const BULK_TOP_RESULTS_STORAGE_KEY = 'bulk-top-results.v1';
 
@@ -54,6 +56,7 @@ const initialBulkSlice = (): BulkSlice => ({
 	dropsSources: [],
 	dropsExcluded: [],
 	dropsView: 'bosses',
+	dropsFilters: null,
 	mode: 'gear',
 	gearTopResults: BULK_SIM_DEFAULT_TOP_RESULTS,
 	buildsTopResults: 0,
@@ -216,3 +219,17 @@ export const storeBulkDropsView = (player: Player<any>, view: BulkDropsView) => 
 		player.sim.env.storage.setItem(specStorageKey(player.getPlayerSpec(), BULK_DROPS_VIEW_STORAGE_KEY), view);
 	} catch {}
 };
+
+// Null when nothing is stored and when the blob does not parse: empty filters would hide every item.
+export const loadStoredBulkDropsFilters = (player: Player<any>): DatabaseFilters | null => {
+	const stored = player.sim.env.storage.getItem(specStorageKey(player.getPlayerSpec(), BULK_DROPS_FILTERS_STORAGE_KEY));
+	if (stored == null) return null;
+	try {
+		return DatabaseFilters.fromJsonString(stored, { ignoreUnknownFields: true });
+	} catch {
+		return null;
+	}
+};
+
+export const storeBulkDropsFilters = (player: Player<any>, filters: DatabaseFilters) =>
+	storeProto(player, BULK_DROPS_FILTERS_STORAGE_KEY, DatabaseFilters, filters);

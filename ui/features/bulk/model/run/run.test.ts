@@ -35,7 +35,7 @@ import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { makeUIEnchant, makeUIItem } from '@testing/storybook/fixtures/protos';
 import { beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 
-import { setDropsSources } from '../drops/settings';
+import { setDropsFilters, setDropsSources } from '../drops/settings';
 import { initBulk } from '../init';
 import { setBulkMode } from '../mode';
 import { compareMatrix } from '../results/compare';
@@ -1031,6 +1031,19 @@ describe('the Drops count', () => {
 		await vi.waitFor(() => expect(vi.mocked(host.sim.getBulkCombinationCount).mock.calls.at(-1)![0].singleChange).toBe(true));
 	});
 
+	it('loads the stored Drops filters, and counts the items they hide', async () => {
+		const host = batchHost({ mode: 'drops' });
+		setBulkMode(host.player, 'drops');
+		setDropsSources(host.player, [DRAKKISATH]);
+		const hidesEverything = DatabaseFilters.create({ maxIlvl: 1 });
+		setDropsFilters(host.player, hidesEverything);
+
+		initBulk(host);
+
+		await vi.waitFor(() => expect(bulkState(host.player).dropsFilters).toEqual(hidesEverything));
+		await vi.waitFor(() => expect(sentItems(host)).toEqual([102]));
+	});
+
 	it('recounts Drops with the enchants of a preset ticked in Gear', async () => {
 		const host = await initedHost('drops');
 		saveEnchantPreset(host.player, { name: 'Agility', slots: [{ slot: ItemSlot.ItemSlotBack, effectIds: [CLOAK_AGILITY.effectId] }] });
@@ -1045,11 +1058,13 @@ describe('the Drops count', () => {
 		);
 	});
 
-	it('recounts Drops when the phase, the filters, the race or the gear changes', async () => {
+	it('recounts Drops when the phase, the race or the gear changes, whatever the gear picker’s level filters', async () => {
 		const host = await initedHost('drops');
 		const { store } = host.player.sim;
 		await vi.waitFor(() => expect(sentItems(host)).toEqual([102]));
 
+		// The drop items have item level 80, above this Max ilvl, and are sent all the same.
+		patchSlice(store, 'sim', { filters: DatabaseFilters.create({ maxIlvl: 1 }) });
 		patchSlice(store, 'sim', { phase: ContentPhase.ContentPhaseUnknown });
 		await vi.waitFor(() => expect(sentItems(host)).toEqual([102, 103]));
 
@@ -1061,9 +1076,5 @@ describe('the Drops count', () => {
 		Object.assign(host.player, { getGear: () => new Gear({ [ItemSlot.ItemSlotBack]: cloak(), [ItemSlot.ItemSlotChest]: chest() }) });
 		patchKeyed(store, 'players', host.player.storeKey, {}, ['gear']);
 		await vi.waitFor(() => expect(sentItems(host)).toEqual([103, 104]));
-
-		// The drop items have item level 80, which a Max ilvl of 1 leaves out.
-		patchSlice(store, 'sim', { filters: DatabaseFilters.create({ maxIlvl: 1 }) });
-		await vi.waitFor(() => expect(sentItems(host)).toEqual([]));
 	});
 });
