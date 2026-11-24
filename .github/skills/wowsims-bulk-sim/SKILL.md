@@ -268,14 +268,15 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   on top, a rail of All and then one entry per slot or source with its ticked and listed non-worn counts, and the picked
   entry's rows in a `VirtualList`. The dialog is full size, as the stat sweep's is, and the rail and the list fill its
   height. By source, the rail lists each Sources tree node that holds sources (`dropsItemsBySourceParent`: a dungeon over
-  its bosses, a category over its zones), and a press opens it to its sources, which are what a press picks. Each row
-  has a box, as in the Sources tree, that ticks or unticks every shown, non-worn item under it. The rail is built from
-  the items search and the filters leave, so its counts and boxes follow them and a group they empty leaves it. Below `md` the rail is one row of chips that scrolls sideways above the list (`useMediumLayout`), by source
-  one chip per parent, which picks all of its items and opens a second row of its sources under the first; each item
-  row's sources sit under its name, at the same row height. All lists each item once, and a source's rows leave out
-  that source. Arrow up and down move the rail pick (`railStep`, shared with the gear picker's slot rail) over the
-  entries a press could pick, and Include shown and Exclude shown tick or untick the non-worn rows the search, the
-  filters and the pick leave. The Filters button opens the gear picker's
+  its bosses, a category over its zones), and a press opens it to its sources, which are what a press picks. From `md`
+  up every rail row, by slot or by source, has a box, as in the Sources tree, that ticks or unticks every shown,
+  non-worn item under it. The rail is built from the items search and the filters leave, so its counts and boxes follow
+  them and a group they empty leaves it. Below `md` (`useMediumLayout`) the rail is one row of chips that scrolls
+  sideways above the list, by source one chip per parent, which picks all of its items and opens a second row of its
+  sources under the first; the chips have no boxes, so Select all and Clear selection above the list tick or untick the
+  shown, non-worn rows, and each item row's sources sit under its name, at the same row height. All lists each item
+  once, and a source's rows leave out that source. Arrow up and down move the rail pick (`railStep`, shared with the
+  gear picker's slot rail) over the entries a press could pick. The Filters button opens the gear picker's
   `FiltersMenuView` with only the rows a list of every slot can use (item level, stats, bonuses, armor, weapon and
   ranged), over Drops' own `DatabaseFilters` (`dropsFiltersOf`, the class's defaults until set); `Player.passesItemFilters`
   holds the checks both lists run, here for each item's first slot. Search and filters only change what the dialog

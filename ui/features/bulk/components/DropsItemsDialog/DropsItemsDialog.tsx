@@ -43,7 +43,7 @@ export interface DropsItemsDialogViewProps {
 	filters: DatabaseFilters;
 	activeFilters: number;
 	filtersMenu: Omit<FiltersMenuViewProps, 'open' | 'onOpenChange' | 'slot' | 'rows' | 'filters'>;
-	/** Called with the shown, non-worn ids of Include shown or Exclude shown, or one row's id. */
+	/** Called with the shown, non-worn ids under a rail box, Select all or Clear selection, or one row's id. */
 	onIncludedChange: (ids: readonly number[], included: boolean) => void;
 }
 
@@ -122,7 +122,7 @@ const RailEntry = ({ group, title = group.title, active, onClick, className }: R
 	);
 };
 
-interface SourceRailRowProps {
+interface RailRowProps {
 	group: RailGroup;
 	active: boolean;
 	onClick: () => void;
@@ -132,9 +132,9 @@ interface SourceRailRowProps {
 	nested?: boolean;
 }
 
-// The source rail from md up, laid out as the Sources tree: a box that ticks every shown, non-worn item of the row, then
+// The rail from md up, laid out as the Sources tree: a box that ticks every shown, non-worn item of the row, then
 // the name and counts, which pick the row or open a parent, and a parent's chevron at the end.
-const SourceRailRow = ({ group, active, onClick, onIncludedChange, expanded, nested }: SourceRailRowProps) => {
+const RailRow = ({ group, active, onClick, onIncludedChange, expanded, nested }: RailRowProps) => {
 	const id = useId();
 	const { ticked, total } = dropsTickCount(group.items);
 	const ids = group.items.filter(entry => !entry.worn).map(entry => entry.item.id);
@@ -242,9 +242,10 @@ const ItemRow = ({ entry, sources, sourcesTooltipId, onIncludedChange }: ItemRow
 
 // Search, the filters and the rail pick live here and reach nothing that runs. The rail is built from the items search and
 // the filters leave, so its counts and boxes follow them and a group they empty leaves it; a pick whose group leaves
-// the rail reads as All. By source, a parent only opens from md up,
-// where its sources are what a press picks. Below md the rail is one row of chips that scrolls sideways above the list,
-// by source one per parent with a second row of the picked parent's sources, and the list fills the rest of the dialog.
+// the rail reads as All. From md up each rail row has a box, and by source a parent only opens, its sources being what a
+// press picks. Below md the rail is one row of chips that scrolls sideways above the list, by source one per parent with
+// a second row of the picked parent's sources; the chips have no boxes, so Select all and Clear selection sit above the
+// list, which fills the rest of the dialog.
 export const DropsItemsDialogView = ({
 	open,
 	onOpenChange,
@@ -340,23 +341,30 @@ export const DropsItemsDialogView = ({
 				/>
 			</div>
 			<div className="flex min-h-0 flex-1 gap-(--modal-padding) max-md:flex-col max-md:gap-2">
-				{grouping === 'slot' || !medium ? (
+				{!medium ? (
 					<nav aria-label={t(grouping === 'slot' ? 'by_slot' : 'by_source')} className={RAIL_NAV} data-testid="drops-items-rail">
 						{(grouping === 'slot' ? groups : [groups[0], ...parents.map(parent => parent.group)]).map(group => railEntry(group))}
 					</nav>
+				) : grouping === 'slot' ? (
+					<nav aria-label={t('by_slot')} className={RAIL_NAV} data-testid="drops-items-rail">
+						{groups.map(group => (
+							<RailRow
+								key={group.key}
+								group={group}
+								active={group.key === picked.key}
+								onClick={() => setPick(group.key)}
+								onIncludedChange={onIncludedChange}
+							/>
+						))}
+					</nav>
 				) : (
 					<nav aria-label={t('by_source')} className={RAIL_NAV} data-testid="drops-items-rail">
-						<SourceRailRow
-							group={groups[0]}
-							active={groups[0].key === picked.key}
-							onClick={() => setPick(ALL)}
-							onIncludedChange={onIncludedChange}
-						/>
+						<RailRow group={groups[0]} active={groups[0].key === picked.key} onClick={() => setPick(ALL)} onIncludedChange={onIncludedChange} />
 						{parents.map(parent => {
 							const expanded = opened.has(parent.group.key);
 							return (
 								<Fragment key={parent.group.key}>
-									<SourceRailRow
+									<RailRow
 										group={parent.group}
 										active={parent.group.key === picked.key}
 										expanded={expanded}
@@ -365,7 +373,7 @@ export const DropsItemsDialogView = ({
 									/>
 									{expanded &&
 										parent.leaves.map(leaf => (
-											<SourceRailRow
+											<RailRow
 												key={leaf.key}
 												group={leaf}
 												active={leaf.key === picked.key}
@@ -389,14 +397,16 @@ export const DropsItemsDialogView = ({
 					</nav>
 				)}
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
-					<div className="flex flex-wrap items-center gap-2">
-						<Button variant="secondary" size="sm" disabled={shownIds.length === 0} onClick={() => onIncludedChange(shownIds, true)}>
-							{t('include_shown')}
-						</Button>
-						<Button variant="secondary" size="sm" disabled={shownIds.length === 0} onClick={() => onIncludedChange(shownIds, false)}>
-							{t('exclude_shown')}
-						</Button>
-					</div>
+					{!medium && (
+						<div className="flex flex-wrap items-center gap-2">
+							<Button variant="secondary" size="sm" disabled={shownIds.length === 0} onClick={() => onIncludedChange(shownIds, true)}>
+								{t('select_all')}
+							</Button>
+							<Button variant="secondary" size="sm" disabled={shownIds.length === 0} onClick={() => onIncludedChange(shownIds, false)}>
+								{t('clear_selection')}
+							</Button>
+						</div>
+					)}
 					{shown.length === 0 ? (
 						<p className="mb-0 text-sm text-gray-400">{t('no_match')}</p>
 					) : (

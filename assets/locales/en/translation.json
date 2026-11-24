@@ -1323,8 +1323,8 @@
 				"hidden_ticked_other": "{{count}} ticked items hidden by filters",
 				"all": "All",
 				"all_of": "All {{name}}",
-				"include_shown": "Include shown",
-				"exclude_shown": "Exclude shown",
+				"select_all": "Select all",
+				"clear_selection": "Clear selection",
 				"no_match": "No item matches the search and filters."
 			},
 			"items": {

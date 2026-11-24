@@ -141,6 +141,7 @@ const atWidth = (next: 'phone' | 'desktop') => {
 	wide = next === 'desktop';
 	act(() => mediaListeners.forEach(listener => listener()));
 };
+const railBox = (name: string) => within(screen.getByTestId('drops-items-rail')).getByRole('checkbox', { name, hidden: true });
 const subrail = () =>
 	within(screen.getByTestId('drops-items-subrail'))
 		.getAllByRole('button')
@@ -286,7 +287,7 @@ describe('DropsSetup', () => {
 		tickEndgame();
 		openDialog();
 		group('by_source');
-		const stratholme = () => within(screen.getByTestId('drops-items-rail')).getByRole('checkbox', { name: 'Stratholme' });
+		const stratholme = () => railBox('Stratholme');
 
 		fireEvent.click(stratholme());
 
@@ -384,26 +385,41 @@ describe('DropsSetup', () => {
 		expect(bulkState(player).v.settings).toBe(settingsBefore);
 
 		fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
-		press('exclude_shown');
+		fireEvent.click(railBox(`${SETUP}.all`));
 
 		expect(loadStoredBulkDropsExcluded(player)).toEqual([FELSTRIKER, BLACKBLADE, MARK]);
 	});
 
-	it('includes and excludes only the shown rows that are not worn', () => {
+	it('ticks or unticks a slot’s shown rows that are not worn from its box in the rail, with no buttons over the list', () => {
 		tickEndgame();
 		openDialog();
 
-		pick(slotName(BulkSimItemSlot.ItemSlotHands));
-		press('exclude_shown');
+		expect(within(dialog()).queryByRole('button', { name: `${SETUP}.clear_selection` })).toBeNull();
+
+		fireEvent.click(railBox(slotName(BulkSimItemSlot.ItemSlotHands)));
 		expect(loadStoredBulkDropsExcluded(player)).toEqual(HANDS);
 
 		search('claws');
-		press('include_shown');
+		fireEvent.click(railBox(slotName(BulkSimItemSlot.ItemSlotHands)));
+		expect(loadStoredBulkDropsExcluded(player)).toEqual(HANDS.filter(id => id !== WEARABLE_ITEM_ID));
+	});
+
+	it('selects all or clears the shown rows that are not worn below md', () => {
+		tickEndgame();
+		openDialog();
+		atWidth('phone');
+
+		pick(slotName(BulkSimItemSlot.ItemSlotHands));
+		press('clear_selection');
+		expect(loadStoredBulkDropsExcluded(player)).toEqual(HANDS);
+
+		search('claws');
+		press('select_all');
 		expect(loadStoredBulkDropsExcluded(player)).toEqual(HANDS.filter(id => id !== WEARABLE_ITEM_ID));
 
 		search('');
 		pick(slotName(BulkSimItemSlot.ItemSlotHandWeapon));
-		press('exclude_shown');
+		press('clear_selection');
 		expect(loadStoredBulkDropsExcluded(player)).toEqual(sorted([FELSTRIKER, BLACKBLADE, DRACORIAN, DEATH_GRIPS, LIONHEART]));
 	});
 

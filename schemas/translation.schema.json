@@ -4762,10 +4762,10 @@
 								"all": {
 									"type": "string"
 								},
-								"include_shown": {
+								"select_all": {
 									"type": "string"
 								},
-								"exclude_shown": {
+								"clear_selection": {
 									"type": "string"
 								},
 								"no_match": {
@@ -4786,8 +4786,8 @@
 								"hidden_ticked_one",
 								"hidden_ticked_other",
 								"all",
-								"include_shown",
-								"exclude_shown",
+								"select_all",
+								"clear_selection",
 								"no_match"
 							]
 						},
