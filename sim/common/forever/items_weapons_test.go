@@ -503,6 +503,43 @@ func TestMalownsSlamRaisesStrengthOnMainHandHits(t *testing.T) {
 	}
 }
 
+// Ragehammer 10626 procs Enrage 12686, whose row states attack power and melee attack speed; the item
+// effect entry carries only the attack power, and the speed comes from the row.
+func TestRagehammerEnrageRaisesAttackPowerAndMeleeSpeed(t *testing.T) {
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(10626, 0)})
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Ragehammer")
+	enrage := character.GetAuraByID(core.ActionID{SpellID: 12686})
+	if proc == nil || proc.Dpm == nil || enrage == nil {
+		t.Fatal("10626 registers no Enrage or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 10626, 12686)
+
+	// Every main-hand hit now procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+	row := spelldata.MustFind(12686)
+	attackPower := row.FirstAura(dbcenums.A_MOD_ATTACK_POWER).Min()
+	speed := row.FirstAura(dbcenums.A_MOD_MELEE_HASTE_3).Min()
+	before := character.GetStats()
+	haste := character.TotalMeleeHasteMultiplier()
+
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if !enrage.IsActive() {
+		t.Fatal("a main-hand swing put up no Enrage")
+	}
+	if got := gained(character, before, stats.AttackPower); attackPower <= 0 || !statNear(got, attackPower) {
+		t.Errorf("Enrage adds %v attack power, want the row's %v", got, attackPower)
+	}
+	if got, want := character.TotalMeleeHasteMultiplier(), haste*core.SymmetricMultiplierFromPercent(speed); speed <= 0 || !statNear(got, want) {
+		t.Errorf("Enrage sets melee haste to %v, want the row's %v%% on %v, %v", got, speed, haste, want)
+	}
+
+	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
+	if enrage.IsActive() || !statNear(character.TotalMeleeHasteMultiplier(), haste) {
+		t.Errorf("Enrage left melee haste at %v after its %v, want %v", character.TotalMeleeHasteMultiplier(), row.Duration(), haste)
+	}
+}
+
 // Hand of Edward the Odd 2243 procs Focus 18803 at the procs per minute of the item's chance-on-hit
 // entry, which the test states. Focus makes the next spell with a cast time instant, on its whole
 // global cooldown, and that cast spends it; an instant leaves it up, and unspent it fades after the

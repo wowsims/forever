@@ -1674,6 +1674,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Ragehammer-10626"
+ value: {
+  dps: 540.13519
+  tps: 457.02008
+  dtps: 2.97628
+  hps: 24.11194
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-RageofMugamba-19577"
  value: {
   dps: 552.76047

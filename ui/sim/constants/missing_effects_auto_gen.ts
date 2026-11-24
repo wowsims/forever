@@ -574,12 +574,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		10626, // Ragehammer
-		[
-			"Increases Attack Power by 102 and melee attack speed by 6% for 15s.", // 12686 - https://www.wowhead.com/forever/spell=12686
-		]
-	],
-	[
 		10627, // Bludgeon of the Grinning Dog
 		[
 			"Bludgeon the target, dealing 126 Physical damage. Canines and Hyaenidae are stunned and sit for 3s.", // 1300209 - https://www.wowhead.com/forever/spell=1300209

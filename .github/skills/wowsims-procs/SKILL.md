@@ -138,11 +138,10 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 - **Which hits a weapon rate counts** is EV-0155's class census: each landed hit that rolls, priced on its own weapon's
   base speed; Judgement of Command rolls twice, and Execute twice up to hotfix push 114313 (2026-11-20), and both are
   left out with their procs. After that push Execute's cast suppresses weapon procs; the first logs read between one and
-  two rolls on few wearers (EV-0155). Druids in a form are left out of every rate. Paladins count, by EV-0155's and
-  EV-0156's rolls, with each run dated against the Judgement hotfix of 2026-11-13: Judgement of Command's two rolls are
-  what read as a higher rate on them. A weapon where their rate reads apart from the other classes' even so leaves them
-  out and says why (owner ruling, 2026-11-23; EV-0184; it takes the place of the rulings of 2026-11-19 in EV-0153 and
-  2026-11-22 in EV-0179). A proc that lands on the target logs almost never on a killing blow, so for such a proc a
+  two rolls on few wearers (EV-0155). Druids in a form are left out of every rate. Paladins are left out of every rate
+  (owner ruling, 2026-11-19): their rolls are not settled, and their lone white swings of one-hand wearers are a check
+  that sets no rate (EV-0153). Barovian Family Sword (EV-0179) and Masterwork Stormhammer (EV-0184) still carry rates
+  counted with paladins. A proc that lands on the target logs almost never on a killing blow, so for such a proc a
   killing blow is no roll; and a report that lists one stretch of the log under several fight ids repeats its events,
   which count once (EV-0153).
 
