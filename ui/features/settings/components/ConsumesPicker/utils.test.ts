@@ -19,7 +19,6 @@ import {
 	ZoneStats,
 } from '@generated/proto/common';
 import { Consumable } from '@generated/proto/db';
-import { DruidTalents } from '@generated/proto/druid';
 import { ItemEffect } from '@generated/proto/spell';
 import { DatabaseFilters, UIItem } from '@generated/proto/ui';
 import i18n from '@i18n/config';
@@ -135,7 +134,6 @@ interface PlayerState {
 	meleeDps: boolean;
 	tank: boolean;
 	raidBuffs: RaidBuffs;
-	talents?: DruidTalents;
 }
 
 const playerOf = (state: Partial<PlayerState> = {}) => {
@@ -183,7 +181,6 @@ const playerOf = (state: Partial<PlayerState> = {}) => {
 		getConsumes: () => ConsumesSpec.clone(full.consumes),
 		setConsumes: (consumes: ConsumesSpec) => (full.consumes = ConsumesSpec.clone(consumes)),
 		getRaid: () => ({ getBuffs: () => RaidBuffs.clone(full.raidBuffs) }),
-		getTalents: () => full.talents ?? {},
 	} as unknown as Player<any>;
 	return { player, state: full };
 };
@@ -946,23 +943,11 @@ describe('consumeConfigs on picks that add nothing', () => {
 		expect(picking([13447]).overwrittenBy(13447)).toBeUndefined();
 	});
 
-	it('marks an elixir whose crit a raid crit matches, naming the stats it loses and to whom', () => {
+	it("leaves an elixir's crit unmarked under Leader of the Pack and Moonkin Aura, which stack with the elixirs", () => {
 		const lotp = RaidBuffs.create({ leaderOfThePack: true });
-		expect(picking([250351], [12451], lotp).overwrittenBy(250351)).toBe('Strength overwritten by Juju Power\nCrit overwritten by Leader of the Pack');
-		expect(picking([250351], [], lotp).overwrittenBy(250351)).toBe('Crit overwritten by Leader of the Pack');
-		expect(picking([13452], [], RaidBuffs.create({ moonkinAura: true })).overwrittenBy(13452)).toBe('Crit overwritten by Moonkin Aura');
-	});
-
-	it("counts a druid's own Moonkin Aura or Leader of the Pack as on, whatever the input says, where the sim turns it on", () => {
-		const druid = (spec: Spec, talents: Partial<DruidTalents>) =>
-			picking([250351], [12451], RaidBuffs.create(), Class.ClassDruid, { spec, talents: DruidTalents.create(talents) }).overwrittenBy(250351);
-		const strengthLost = 'Strength overwritten by Juju Power';
-		expect(druid(Spec.SpecBalanceDruid, { moonkinForm: true })).toBe('Strength overwritten by Juju Power\nCrit overwritten by Moonkin Aura');
-		expect(druid(Spec.SpecBalanceDruid, {})).toBe(strengthLost);
-		expect(druid(Spec.SpecFeralCatDruid, { leaderOfThePack: true })).toBe('Strength overwritten by Juju Power\nCrit overwritten by Leader of the Pack');
-		expect(druid(Spec.SpecFeralBearDruid, { leaderOfThePack: true })).toBe('Strength overwritten by Juju Power\nCrit overwritten by Leader of the Pack');
-		expect(druid(Spec.SpecFeralCatDruid, {})).toBe(strengthLost);
-		expect(druid(Spec.SpecRestorationDruid, { moonkinForm: true, leaderOfThePack: true })).toBe(strengthLost);
+		expect(picking([250351], [12451], lotp).overwrittenBy(250351)).toBe('Strength overwritten by Juju Power');
+		expect(picking([250351], [], lotp).overwrittenBy(250351)).toBeUndefined();
+		expect(picking([13452], [], RaidBuffs.create({ moonkinAura: true })).overwrittenBy(13452)).toBeUndefined();
 	});
 
 	it('marks no elixir under Mark of the Wild, which stacks with the elixirs', () => {

@@ -66,8 +66,8 @@ func TestResolvedBuffInvariants(t *testing.T) {
 		if want, pinned := pinnedCategories[row.Field]; pinned && row.Category != want {
 			t.Errorf("%s: the aura competes under %q, want %q", row.Field, row.Category, want)
 		}
-		if row.ElixirCategory != "" && row.ElixirCategory != core.ElixirStatCategory && row.ElixirCategory != core.ElixirCritCategory {
-			t.Errorf("%s: overwrites %q, which is not a category the elixirs bid in", row.Field, row.ElixirCategory)
+		if row.ElixirCategory != "" && row.ElixirCategory != core.ElixirStatCategory {
+			t.Errorf("%s: overwrites %q, want the elixirs' stat category %q", row.Field, row.ElixirCategory, core.ElixirStatCategory)
 		}
 		if amounts, pinned := pinnedAmounts[row.Field]; pinned {
 			want := amounts(row.Spell)
@@ -178,8 +178,6 @@ func TestOverwritingBuffAmountsAreWhatTheRaidInputApplies(t *testing.T) {
 		"arcane_intellect":     buffs.ArcaneIntellectValue,
 		"prayer_of_spirit":     buffs.PrayerOfSpiritValue,
 		"power_word_fortitude": buffs.PowerWordFortitudeValue,
-		"leader_of_the_pack":   buffs.LeaderOfThePackValue,
-		"moonkin_aura":         buffs.MoonkinAuraValue,
 	}
 	found := 0
 	for _, row := range resolveCommittedBuffs(t) {
@@ -197,10 +195,9 @@ func TestOverwritingBuffAmountsAreWhatTheRaidInputApplies(t *testing.T) {
 			t.Errorf("%s: %v", row.Field, err)
 			continue
 		}
-		amounts := append(slices.Clone(entry.Stats), entry.PseudoStats...)
 		applied := strconv.FormatFloat(value(0), 'f', -1, 64)
-		if len(amounts) == 0 || slices.ContainsFunc(amounts, func(a tsStatAmount) bool { return a.Amount != applied }) {
-			t.Errorf("%s: the settings read %v, the raid input applies %s", row.Field, amounts, applied)
+		if len(entry.Stats) == 0 || slices.ContainsFunc(entry.Stats, func(a tsStatAmount) bool { return a.Amount != applied }) {
+			t.Errorf("%s: the settings read %v, the raid input applies %s", row.Field, entry.Stats, applied)
 		}
 	}
 	if found != len(wants) {

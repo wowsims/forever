@@ -179,12 +179,12 @@ Might 12460 and Bogling Root 5206, which the game files do not type as elixirs, 
 `counts_with_elixirs` is set, which the generator writes from `ConsumablesCountWithElixirs` in
 `tools/database/overrides.go`, and they belong to no group. Spell damage of every school and one school's are two stats, so Arcane
 Elixir 9155 and Elixir of Fire Power 6373 stack. Arcane Intellect, Prayer of Spirit and Power Word:
-Fortitude bid their stat in `ElixirStat` too, and Moonkin Aura and Leader of the Pack their crit in
-`ElixirCrit`, without counting there (`spelldata.Overwrites`, set by the buff manifest's
-`ElixirCategory`), so an elixir or a scroll that grants no more adds nothing under them: under Arcane
-Intellect, Elixir of Cunning 250328 adds its Agility alone and Scroll of Intellect IV 10308 nothing, and
-under Power Word: Fortitude, Elixir of Brute Force 13453 its Strength alone. Every other raid buff, Mark
-of the Wild among them, stacks with the elixirs and the scrolls.
+Fortitude bid their stat in `ElixirStat` too, without counting there (`spelldata.Overwrites`, set by the
+buff manifest's `ElixirCategory`), so an elixir or a scroll that grants no more adds nothing under them:
+under Arcane Intellect, Elixir of Cunning 250328 adds its Agility alone and Scroll of Intellect IV 10308
+nothing, and under Power Word: Fortitude, Elixir of Brute Force 13453 its Strength alone. Every other
+raid buff stacks with the elixirs and the scrolls: Mark of the Wild, and Moonkin Aura and Leader of the
+Pack beside an elixir's crit.
 
 **From the rows** (`rowGroupOf` in `tools/database/consumable_groups.go`):
 
@@ -477,9 +477,8 @@ with "Strength overwritten by Juju Power".
 
 The badges read the raid buffs the buff generator writes into `GENERATED_OVERWRITING_BUFFS`
 (`ui/features/settings/model/buffs_debuffs_auto_gen.ts`), each with the amounts the raid input applies.
-A raid buff the sim turns on whatever the input says counts as on (`turnedOnBySim`): Arcane Intellect for
-every mage (`AddRaidBuffs` in `sim/mage/mage.go`), and Moonkin Aura and Leader of the Pack for the druids
-that have them (`sim/druid/druid.go`). The inputs with a badge follow the raid buffs and the talents
+Arcane Intellect counts as on for every mage whatever the input says, since the sim turns it on
+(`turnedOnBySim`, `AddRaidBuffs` in `sim/mage/mage.go`). The inputs with a badge follow the raid buffs
 (`OVERWRITTEN_PICKER_FIELDS`).
 
 A potion has three pickers, Offensive, Defensive and Resource, and each offers the

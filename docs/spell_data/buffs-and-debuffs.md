@@ -9,7 +9,7 @@ store also renders:
 - `ui/features/settings/model/buffs_debuffs_auto_gen.ts`, the settings inputs. An input's icon and
   tooltip use `TooltipID` where the row names one, else `CastID`, else `SpellID` (the choice never
   changes the numbers a row reads). `GENERATED_OVERWRITING_BUFFS` lists the rows that name an
-  `ElixirCategory`, with the flat stats and crit percents their parse attaches, which the consumables
+  `ElixirCategory`, with the flat stats their parse attaches, which the consumables
   picker dims a scroll or an elixir by (R-0054); the generator refuses
   such a row unless it is a bool, since a talent or a rank would move the amount;
 - `proto/buffs.proto`, the four messages.
@@ -56,8 +56,8 @@ way the tooltip shows it, and 0 points is the full amount.
 `newBuff` adds `SchoolResistances` and, where `Category` is set, `Exclusive(Category, true)` for a
 `SingleAura` row or `ExclusivePerStat(Category)` for any other. Where the manifest row names an
 `ElixirCategory`, it adds `Overwrites(ElixirCategory)`: Arcane Intellect, Prayer of Spirit and Power Word:
-Fortitude bid their stat in the elixirs' `ElixirStat` category, and Moonkin Aura and Leader of the Pack their crit in
-`ElixirCrit`, without counting there, so the elixirs and scrolls that grant no more add nothing (R-0054).
+Fortitude bid their stat in the elixirs' `ElixirStat` category without counting there, so the elixirs and scrolls
+that grant no more add nothing (R-0054).
 `newDebuff` adds only `Exclusive(Category, SingleAura)`, since a debuff never
 carries a resistance of its own. Without `SingleAura`, each of its stats and pseudo-stats bids alone
 under `Category` + its key, priced per stack. A stronger debuff thus holds only the effects of its own
@@ -390,7 +390,7 @@ from a talent, `sim/hunter/hunter.go` raises Trueshot Aura, and `sim/druid/thorn
 druid's own Thorns. `thorns`, `battle_shout`, `leader_of_the_pack` and `moonkin_aura` carry a category, so a
 druid registering its own copy of any of them has nothing to decide: the copy joins the same category
 and the two bid. Leader of the Pack and Moonkin Aura share the single-aura `RaidCrit` category, so a raid
-that ticks both gets only the stronger, and both overwrite the elixirs' crit (R-0054). Only
+that ticks both gets only the stronger, and an elixir's crit counts beside it (R-0054). Only
 `trueshot_aura` is left without a category, so the hunter port has to choose. The priest's three prayers (`registerPrayer` in
 `sim/priest/priest.go`) bid without `SingleAura`: Prayer of Fortitude and Prayer of Spirit each stat on
 its own in `StatBuff`, with Arcane Intellect, and Prayer of Shadow Protection in the shadow

@@ -469,23 +469,6 @@ func TestOverwrites(t *testing.T) {
 	if got := character.GetStat(stats.Intellect) - before; got != 25 {
 		t.Errorf("the raid buff gone: +%v Intellect, want the elixir's +25", got)
 	}
-
-	critRow := func(points float64) *Spell { return buffRow(24907, auraEffect(dbcenums.A_MOD_CRIT_PCT, 0, points)) }
-	raidCrit, elixirCrit := critRow(3), critRow(2)
-	moonkin := character.RegisterAura(AuraConfig(raidCrit, Label("Moonkin")))
-	ParseEffects(character, moonkin, raidCrit, Exclusive("RaidCrit", true), Overwrites("ElixirCrit"))
-	elixir := character.RegisterAura(AuraConfig(elixirCrit, Label("Elixir crit")))
-	ParseEffects(character, elixir, elixirCrit, Exclusive("ElixirCrit", false))
-	crit := character.GetStat(stats.PhysicalCritPercent)
-	elixir.Activate(sim)
-	moonkin.Activate(sim)
-	if got := character.GetStat(stats.PhysicalCritPercent) - crit; got != 3 {
-		t.Errorf("a single-aura raid crit over an elixir crit: +%v%% crit, want the raid crit's +3%%", got)
-	}
-	moonkin.Deactivate(sim)
-	if got := character.GetStat(stats.PhysicalCritPercent) - crit; got != 2 {
-		t.Errorf("the raid crit gone: +%v%% crit, want the elixir's +2%%", got)
-	}
 }
 
 // Two copies of the raid buff at the same amount, such as a priest's own prayer beside the raid's,

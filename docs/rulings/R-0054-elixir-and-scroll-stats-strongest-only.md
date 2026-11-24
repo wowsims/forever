@@ -1,4 +1,4 @@
-# R-0054: Each stat counts its strongest elixir or scroll, and five raid buffs overwrite them
+# R-0054: Each stat counts its strongest elixir or scroll, and three raid buffs overwrite them
 
 - Skill: wowsims-consumables-items
 - Code: `sim/common/shared/consumable_stats.go`, `consumableAura` with `spelldata.ExclusivePerStat(core.ElixirStatCategory)`, `spelldata.Exclusive(core.ElixirCritCategory, false)` and `CountsWithElixirs`; `sim/core/spelldata/parse_effects.go`, `Overwrites`; `tools/database/buffmanifest/buffs.go`, `ElixirCategory`; `sim/core/consumes.go`, `selectedConsumableIDs`; `tools/database/consumable_groups.go`, `rowGroupOf` and `ElixirCritGroup`; `tools/database/overrides.go`, `ConsumablesCountWithElixirs`; `ui/features/settings/model/consumables.ts`, `overwrittenTooltips` and `countsWithTheElixirs`
@@ -24,12 +24,13 @@ The owner ruled the scroll part on 2026-11-23 after Juju Power removed Scroll of
 (EV-0185). It counts every scroll with the elixirs, Scroll of Intellect beside Elixir of Cunning
 included, which an earlier in-game check read as stacking.
 
-Five raid buffs overwrite the elixirs and scrolls of their stat, and the stronger of the raid buff and
+Three raid buffs overwrite the elixirs and scrolls of their stat, and the stronger of the raid buff and
 the strongest elixir or scroll counts. Arcane Intellect does so for Intellect, Prayer of Spirit, the
 group form of Divine Spirit and the sim's Spirit raid buff, for Spirit, and Power Word: Fortitude for
-Stamina: under it, Elixir of Brute Force adds its 18 Strength and no Stamina. Moonkin Aura and Leader of
-the Pack, which share one crit, do so for the elixirs' crit. No other raid buff overwrites an elixir or a
-scroll: Battle Shout and the totems stack with them, and so does every stat of Mark of the Wild.
+Stamina: under it, Elixir of Brute Force adds its 18 Strength and no Stamina. No other raid buff
+overwrites an elixir or a scroll. An elixir's 2% crit counts beside Moonkin Aura's or Leader of the
+Pack's, which the owner checked in game on 2026-11-24 (EV-0185). Battle Shout, the totems and every stat
+of Mark of the Wild stack with the elixirs and scrolls as well.
 
 The sim overwrites an elixir or a scroll by bidding the raid buff's stat in the elixirs' category without
 counting it there (`spelldata.Overwrites`), and the raid buff counts by its own category alone. One case

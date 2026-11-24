@@ -2,9 +2,8 @@ import type { IconEnumValueConfig } from '@features/inputs/configs';
 import * as InputHelpers from '@features/inputs/input_helpers';
 import type { StatFilterScope } from '@features/stat-filters/model/stat_filters';
 import { STAT_GROUPS } from '@features/stat-filters/model/stat_groups';
-import { Class, ConsumableType, ConsumesSpec, PseudoStat, Spec, Stat } from '@generated/proto/common';
+import { Class, ConsumableType, ConsumesSpec, PseudoStat, Stat } from '@generated/proto/common';
 import { Consumable } from '@generated/proto/db';
-import type { DruidTalents } from '@generated/proto/druid';
 import i18n from '@i18n/config';
 import { translatePseudoStat, translateStat } from '@i18n/localization';
 import type { StoreField } from '@sim/hooks/useStoreField';
@@ -15,7 +14,7 @@ import { UnitStat, unitStatsOf } from '@sim/proto/stats';
 import { consumableAllowed, consumableOrderOf, consumablePseudoStatsOf, consumableStatsOf, consumableUniverse, orderedByEp } from '@sim/settings/consumables';
 import { memoLast } from '@sim/utils/misc';
 
-import { ArcaneIntellect, GENERATED_OVERWRITING_BUFFS, LeaderOfThePack, MoonkinAura } from './buffs_debuffs_auto_gen';
+import { ArcaneIntellect, GENERATED_OVERWRITING_BUFFS } from './buffs_debuffs_auto_gen';
 
 export type ConsumableIdField =
 	| 'resourcePotId'
@@ -94,9 +93,8 @@ export const CONSUMABLE_PICKER_FIELDS: ReadonlyArray<StoreField> = [...STORE_FIE
 
 // The fields the inputs with an overwritten badge read: the elixir and scroll picks, the miscellaneous toggles of the
 // consumables that count with the elixirs, and MultiToggle, whose trigger shows its toggle's badge. The badges follow
-// the raid buffs' inputs, since a raid buff turned on overwrites the scrolls and elixirs of its stat, and the talents,
-// which turn on a druid's own.
-export const OVERWRITTEN_PICKER_FIELDS: ReadonlyArray<StoreField> = [...CONSUMABLE_PICKER_FIELDS, 'raid:buffs', 'talentsString'];
+// the raid buffs' inputs, since a raid buff turned on overwrites the scrolls and elixirs of its stat.
+export const OVERWRITTEN_PICKER_FIELDS: ReadonlyArray<StoreField> = [...CONSUMABLE_PICKER_FIELDS, 'raid:buffs'];
 
 // The columns a consumable menu lays its offers out in, by how many there are.
 export const consumableColumns = (offered: number): number => (offered > 10 ? 3 : offered > 5 ? 2 : 1);
@@ -260,10 +258,7 @@ const OVERWRITING_BUFFS = GENERATED_OVERWRITING_BUFFS.map(buff => ({
 	config: buff.config,
 	grants: {
 		name: buff.config.label ?? '',
-		amounts: new Map([
-			...Object.entries(buff.stats ?? {}).map(([stat, amount]): [string, number] => [`stat ${stat}`, amount!]),
-			...Object.entries(buff.pseudoStats ?? {}).map(([pseudoStat, amount]): [string, number] => [`percent ${pseudoStat}`, amount!]),
-		]),
+		amounts: new Map(Object.entries(buff.stats ?? {}).map(([stat, amount]): [string, number] => [`stat ${stat}`, amount!])),
 	},
 }));
 
@@ -343,18 +338,10 @@ const listOf = (names: ReadonlyArray<string>) => new Intl.ListFormat(i18n.langua
 const overwrittenTooltipOf = (lost: ReadonlyArray<Lost>): string =>
 	lost.map(({ by, stats }) => i18n.t('settings_tab.consumables.overwritten_tooltip', { stats: listOf(stats), name: by.name })).join('\n');
 
-// The raid buffs the sim turns on whatever the inputs say (`AddRaidBuffs`): Arcane Intellect for every mage
-// (sim/mage/mage.go), Moonkin Aura for a Balance druid with Moonkin Form and Leader of the Pack for a Feral cat or bear
-// with the talent (sim/druid/druid.go).
-const turnedOnBySim = (player: Player<any>, config: (typeof OVERWRITING_BUFFS)[number]['config']): boolean => {
-	if (config === ArcaneIntellect) return player.getClass() === Class.ClassMage;
-	const spec = player.getSpec();
-	if (config === MoonkinAura) return spec === Spec.SpecBalanceDruid && (player.getTalents() as DruidTalents).moonkinForm;
-	if (config === LeaderOfThePack) {
-		return (spec === Spec.SpecFeralCatDruid || spec === Spec.SpecFeralBearDruid) && (player.getTalents() as DruidTalents).leaderOfThePack;
-	}
-	return false;
-};
+// The overwriting raid buff the sim turns on whatever the inputs say (`AddRaidBuffs`): Arcane Intellect for every
+// mage (sim/mage/mage.go).
+const turnedOnBySim = (player: Player<any>, config: (typeof OVERWRITING_BUFFS)[number]['config']): boolean =>
+	config === ArcaneIntellect && player.getClass() === Class.ClassMage;
 
 // The grants of the overwriting raid buffs that are on, by their input or because the sim turns them on.
 const buffsOn = (player: Player<any>) =>

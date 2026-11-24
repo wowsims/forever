@@ -403,19 +403,26 @@ func TestTheRaidBuffsOverwriteTheIntellectSpiritAndStaminaOfTheElixirsAndScrolls
 	}
 }
 
-// Moonkin Aura and Leader of the Pack each overwrite an elixir's crit, while Elixir of the Mongoose
-// 13452 keeps its Agility.
-func TestTheRaidCritOverwritesTheElixirCrit(t *testing.T) {
+// Elixir of the Mongoose's 13452 crit stacks with Moonkin Aura's and Leader of the Pack's: under
+// either, the character has the raid buff's crit and the elixir's.
+func TestTheElixirCritStacksWithTheRaidCrit(t *testing.T) {
 	registerStatConsumable(t, elixirOfTheMongooseID)
 	mongoose := soloGain(elixirOfTheMongooseID)
-	for name, buffs := range map[string]*proto.RaidBuffs{
-		"Moonkin Aura":       {MoonkinAura: true},
-		"Leader of the Pack": {LeaderOfThePack: true},
+	_, none := newConsumablesSim(&proto.ConsumesSpec{}, &proto.RaidBuffs{})
+	for _, tc := range []struct {
+		name string
+		raid *proto.RaidBuffs
+		crit float64
+	}{
+		{"Moonkin Aura", &proto.RaidBuffs{MoonkinAura: true}, buffs.MoonkinAuraValue(0)},
+		{"Leader of the Pack", &proto.RaidBuffs{LeaderOfThePack: true}, buffs.LeaderOfThePackValue(0)},
 	} {
-		gain := statGain(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}}, buffs)
-		if gain[stats.PhysicalCritPercent] != 0 || gain[stats.SpellCritPercent] != 0 || gain[stats.Agility] != mongoose[stats.Agility] {
-			t.Errorf("under %s, Elixir of the Mongoose adds %v%% physical and %v%% spell crit and %v Agility, want no crit and its %v Agility",
-				name, gain[stats.PhysicalCritPercent], gain[stats.SpellCritPercent], gain[stats.Agility], mongoose[stats.Agility])
+		_, with := newConsumablesSim(&proto.ConsumesSpec{ElixirIds: []int32{elixirOfTheMongooseID}}, tc.raid)
+		gain := with.GetStats().Subtract(none.GetStats())
+		for _, stat := range []stats.Stat{stats.PhysicalCritPercent, stats.SpellCritPercent} {
+			if want := tc.crit + mongoose[stat]; mongoose[stat] <= 0 || gain[stat] != want {
+				t.Errorf("%s and Elixir of the Mongoose add %v%% %v, want both: %v%%", tc.name, gain[stat], stat.StatName(), want)
+			}
 		}
 	}
 }
@@ -434,15 +441,13 @@ func TestMarkOfTheWildStacksWithTheElixirs(t *testing.T) {
 
 // A raid buff that overwrites the elixirs and the scrolls counts by its own category, so an elixir or a
 // scroll granting as much as it or more could count beside it. Every elixir and scroll in the database
-// grants less Intellect than Arcane Intellect, less Spirit than Prayer of Spirit, less Stamina than
-// Power Word: Fortitude and less crit than Moonkin Aura and Leader of the Pack.
+// grants less Intellect than Arcane Intellect, less Spirit than Prayer of Spirit and less Stamina than
+// Power Word: Fortitude.
 func TestNoElixirOrScrollOutbidsTheRaidBuffOfItsStat(t *testing.T) {
 	ceilings := map[string]float64{
-		"stat Intellect":           buffs.ArcaneIntellectValue(0),
-		"stat Spirit":              buffs.PrayerOfSpiritValue(0),
-		"stat Stamina":             buffs.PowerWordFortitudeValue(0),
-		"stat PhysicalCritPercent": min(buffs.MoonkinAuraValue(0), buffs.LeaderOfThePackValue(0)),
-		"stat SpellCritPercent":    min(buffs.MoonkinAuraValue(0), buffs.LeaderOfThePackValue(0)),
+		"stat Intellect": buffs.ArcaneIntellectValue(0),
+		"stat Spirit":    buffs.PrayerOfSpiritValue(0),
+		"stat Stamina":   buffs.PowerWordFortitudeValue(0),
 	}
 	checked := 0
 	for _, consumable := range database.Load().Consumables {
@@ -462,7 +467,7 @@ func TestNoElixirOrScrollOutbidsTheRaidBuffOfItsStat(t *testing.T) {
 		}
 	}
 	if checked == 0 {
-		t.Fatal("no elixir or scroll grants Intellect, Spirit, Stamina or crit")
+		t.Fatal("no elixir or scroll grants Intellect, Spirit or Stamina")
 	}
 }
 
