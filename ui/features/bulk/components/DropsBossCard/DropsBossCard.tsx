@@ -19,6 +19,7 @@ export interface DropsBossCardViewProps {
 const t = (key: string, options: { count?: number } = {}) => i18n.t(`bulk_tab.drops.results.${key}`, options);
 
 // "N / M upgrades", plural on M: N counts the strip's upgrades, M its items, worn ones included.
+// Each strip entry is a fixed column, its icon a fixed tile with a surface fill, so an icon that fails to load keeps its place over its %.
 export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect }: DropsBossCardViewProps) => {
 	const upgrades = strip.filter(entry => entry.upgrade).length;
 	return (
@@ -44,23 +45,23 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 				{strip.map(entry => (
 					<span
 						key={entry.itemId}
-						className="flex w-14 flex-col items-start gap-1 text-xs"
+						className="flex w-16 flex-col items-center gap-1 text-xs"
 						data-testid="drops-boss-strip-item"
 						data-item-id={entry.itemId}
 						data-worn={entry.gainPct === null ? '' : undefined}
 						data-upgrade={entry.upgrade ? '' : undefined}>
 						<span
 							className={clsx(
-								'inline-block size-8 rounded-xs bg-cover bg-center',
+								'block size-8 shrink-0 rounded-xs bg-surface bg-cover bg-center',
 								entry.gainPct === null && 'opacity-50',
 								entry.upgrade && 'ring-1 ring-success',
 							)}
 							role="img"
 							aria-label={entry.name}
 							title={entry.name}
-							style={{ backgroundImage: `url('${entry.icon}')` }}
+							style={entry.icon ? { backgroundImage: `url('${entry.icon}')` } : undefined}
 						/>
-						<span className={clsx(entry.upgrade ? 'text-success' : 'text-gray-400')}>
+						<span className={clsx('whitespace-nowrap tabular-nums', entry.upgrade ? 'text-success' : 'text-gray-400')}>
 							{entry.gainPct === null ? t('worn') : formatBulkPct(entry.gainPct)}
 						</span>
 					</span>
