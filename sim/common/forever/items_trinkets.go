@@ -14,6 +14,34 @@ import (
 )
 
 func init() {
+	core.NewItemEffect(280071, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1315878)
+		var granted stats.Stats
+		config := spelldata.AuraConfig(row)
+		config.ActionID = core.ActionID{ItemID: 280071}
+		config.OnGain = func(_ *core.Aura, sim *core.Simulation) {
+			granted = stats.Stats{stats.Agility: row.EffectN(1).Average()}
+			// Active elemental units in the encounter represent nearby elementals.
+			if slices.ContainsFunc(character.Env.AllUnits, func(unit *core.Unit) bool {
+				return unit.MobType == proto.MobType_MobTypeElemental && unit.IsEnabled()
+			}) {
+				granted[stats.Agility] += row.EffectN(2).Average()
+			}
+			character.AddStatsDynamic(sim, granted)
+		}
+		config.OnExpire = func(_ *core.Aura, sim *core.Simulation) {
+			character.AddStatsDynamic(sim, granted.Multiply(-1))
+		}
+		buff := &core.StatBuffAura{
+			Aura:            character.RegisterAura(config),
+			BuffedStatTypes: []stats.Stat{stats.Agility},
+		}
+		registerItemOnUse(character, 280071, core.CooldownTypeDPS, buff, func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+			buff.Activate(sim)
+		})
+	})
+
 	// Jom Gabbar
 	// Use: Increases attack power by 65 and an additional 65 every 2 sec. Lasts 20 sec. (2 Min Cooldown)
 	core.NewItemEffect(23570, func(agent core.Agent) {

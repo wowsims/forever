@@ -1079,9 +1079,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 691.09397
-  tps: 484.28952
-  dtps: 4.67758
+  dps: 687.68101
+  tps: 481.43399
+  dtps: 4.65552
  }
 }
 dps_results: {

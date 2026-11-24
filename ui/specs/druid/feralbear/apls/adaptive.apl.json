@@ -495,30 +495,11 @@
       }
     },
     {
-      "notes": "Queue Maul with enough rage left for a nearby Primal Bite",
+      "notes": "Queue Maul when affordable, leaving rage for a nearby Primal Bite",
       "action": {
         "condition": {
-          "and": {
-            "vals": [
-              {
-                "cmp": {
-                  "op": "OpGe",
-                  "lhs": {
-                    "currentRage": {}
-                  },
-                  "rhs": {
-                    "variableRef": {
-                      "name": "Maul minimum rage"
-                    }
-                  }
-                }
-              },
-              {
-                "variableRef": {
-                  "name": "Maul leaves rage for a nearby Primal Bite"
-                }
-              }
-            ]
+          "variableRef": {
+            "name": "Maul leaves rage for a nearby Primal Bite"
           }
         },
         "castSpell": {
@@ -792,14 +773,6 @@
       "value": {
         "const": {
           "val": "60%"
-        }
-      }
-    },
-    {
-      "name": "Maul minimum rage",
-      "value": {
-        "const": {
-          "val": "20"
         }
       }
     },

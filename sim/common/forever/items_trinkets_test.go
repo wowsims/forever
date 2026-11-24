@@ -22,6 +22,63 @@ func trinketWarrior(t *testing.T, trinketID int32) (*core.Simulation, *core.Char
 	return trinketWarriorWielding(t, trinketID, 0, 0)
 }
 
+func TestFlamebreakRequiresAnActiveElementalForItsExtraAgility(t *testing.T) {
+	row := spelldata.MustFind(1315878)
+	if row.EffectN(1).Average() <= 0 || row.EffectN(2).Average() <= 0 {
+		t.Fatal("Flamebreak's effects must grant Agility")
+	}
+	for _, tc := range []struct {
+		name      string
+		elemental bool
+		disabled  bool
+	}{
+		{name: "no elemental"},
+		{name: "active elemental", elemental: true},
+		{name: "inactive elemental", elemental: true, disabled: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)
+			for i := range items {
+				items[i] = &proto.ItemSpec{}
+			}
+			items[proto.ItemSlot_ItemSlotTrinket1].Id = 280071
+			secondary := proto.MobType_MobTypeBeast
+			if tc.elemental {
+				secondary = proto.MobType_MobTypeElemental
+			}
+			sim, character := itemWearerAgainst(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: items},
+				&proto.Target{Name: "primary", Level: 60}, &proto.Target{Name: "secondary", Level: 60, MobType: secondary})
+			character.AutoAttacks.CancelAutoSwing(sim)
+			if tc.disabled {
+				sim.Encounter.AllTargets[1].Disable(sim, false)
+			}
+			before := character.GetStat(stats.Agility)
+			useTrinketAsEntryStates(t, sim, character, 280071, core.CooldownTypeDPS)
+			want := row.EffectN(1).Average()
+			if tc.elemental && !tc.disabled {
+				want += row.EffectN(2).Average()
+			}
+			if got := character.GetStat(stats.Agility) - before; got != want {
+				t.Fatalf("Agility gained = %v, want %v", got, want)
+			}
+			t.Logf("Agility gained = %v", want)
+			buff := character.GetAuraByID(core.ActionID{ItemID: 280071})
+			if buff == nil || buff.Duration != row.Duration() {
+				t.Fatal("the on-use aura does not retain its duration")
+			}
+			buff.Deactivate(sim)
+			if got := character.GetStat(stats.Agility); got != before {
+				t.Fatalf("Agility after expiration = %v, want %v", got, before)
+			}
+			sim.Cleanup()
+			sim.Reset()
+			if got := character.GetStat(stats.Agility); got != before {
+				t.Fatalf("Agility after reset = %v, want %v", got, before)
+			}
+		})
+	}
+}
+
 func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32, neck int32) (*core.Simulation, *core.Character) {
 	t.Helper()
 	return trinketWarriorFacing(t, trinketID, mainHand, neck, proto.MobType_MobTypeUnknown)

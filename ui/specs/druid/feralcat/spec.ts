@@ -64,10 +64,11 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 
 	defaults: {
 		// Default equipped gear.
-		gear: Presets.PreRaidGear.gear,
+		gear: Presets.CatGear.gear,
 		itemSwap: ItemSwap.create({
-			items: Array.from({ length: 17 }, (_, slot) => ItemSpec.create(slot === ItemSlot.ItemSlotMainHand ? { id: 9449, enchant: 1896 } : {})),
+			items: Array.from({ length: 17 }, (_, slot) => ItemSpec.create(slot === ItemSlot.ItemSlotMainHand ? { id: 9449, enchant: 1900 } : {})),
 		}),
+		encounter: Presets.DefaultEncounter,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: Presets.DefaultEp,
 		statCaps: (() => {
@@ -88,14 +89,26 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 			prayerOfSpirit: true,
 			markOfTheWild: true,
 			powerWordFortitude: true,
-			strengthOfEarthTotem: 1,
-			graceOfAirTotem: 1,
+			strengthOfEarthTotem: 2,
+			graceOfAirTotem: 2,
 			windfuryTotem: true,
-			battleShout: 1, // Rank 6
+			battleShout: 1,
+			leaderOfThePack: true,
 		}),
-		partyBuffs: PartyBuffs.create({ manaSpringTotem: TristateEffect.TristateEffectRegular }),
-		individualBuffs: IndividualBuffs.create({ greaterBlessingOfKings: true, greaterBlessingOfMight: 1 }),
-		debuffs: Debuffs.create({ judgementOfWisdom: true, sunderArmor: true, giftOfArthas: true, vindication: true }),
+		partyBuffs: PartyBuffs.create({
+			manaSpringTotem: TristateEffect.TristateEffectRegular,
+		}),
+		individualBuffs: IndividualBuffs.create({
+			greaterBlessingOfKings: true,
+			greaterBlessingOfMight: 2,
+			greaterBlessingOfSalvation: true,
+		}),
+		debuffs: Debuffs.create({
+			judgementOfWisdom: true,
+			sunderArmor: true,
+			giftOfArthas: true,
+			vindication: true,
+		}),
 	},
 
 	// IconInputs to include in the 'Player' section on the settings tab.
@@ -127,8 +140,9 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		talents: [Presets.CatTalents, Presets.HybridTalents],
 		rotations: [Presets.JVMES_APL],
 		builds: [],
+		encounters: [Presets.DefaultEncounter],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.PreRaidGear, Presets.Level60Gear],
+		gear: [Presets.CatGear, Presets.HybridGear, Presets.PreRaidGear, Presets.Level60Gear],
 	},
 
 	// Auto uses the adaptive rotation.

@@ -773,7 +773,7 @@
       "name": "Paid-builder pooling CP with two Blood Frenzy points",
       "value": {
         "const": {
-          "val": "3"
+          "val": "4"
         }
       }
     },
@@ -814,23 +814,68 @@
               }
             },
             {
-              "cmp": {
-                "op": "OpLe",
-                "lhs": {
-                  "currentEnergy": {}
-                },
-                "rhs": {
-                  "variableRef": {
-                    "name": "Shifting Power energy ceiling"
-                  }
-                }
-              }
-            },
-            {
               "spellCanCast": {
                 "spellId": {
                   "spellId": 1322605
                 }
+              }
+            },
+            {
+              "or": {
+                "vals": [
+                  {
+                    "and": {
+                      "vals": [
+                        {
+                          "cmp": {
+                            "op": "OpLe",
+                            "lhs": {
+                              "currentEnergy": {}
+                            },
+                            "rhs": {
+                              "const": {
+                                "val": "48"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "variableRef": {
+                            "name": "Howling Hybrid in a longer fight"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "and": {
+                      "vals": [
+                        {
+                          "cmp": {
+                            "op": "OpLe",
+                            "lhs": {
+                              "currentEnergy": {}
+                            },
+                            "rhs": {
+                              "variableRef": {
+                                "name": "Shifting Power energy ceiling"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "not": {
+                            "val": {
+                              "variableRef": {
+                                "name": "Howling Hybrid in a longer fight"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
               }
             }
           ]
@@ -865,7 +910,7 @@
                 },
                 "rhs": {
                   "const": {
-                    "val": "6s"
+                    "val": "3s"
                   }
                 }
               }
@@ -2181,19 +2226,6 @@
                     }
                   },
                   {
-                    "cmp": {
-                      "op": "OpGe",
-                      "lhs": {
-                        "currentEnergy": {}
-                      },
-                      "rhs": {
-                        "variableRef": {
-                          "name": "Paid-builder energy threshold"
-                        }
-                      }
-                    }
-                  },
-                  {
                     "and": {
                       "vals": [
                         {
@@ -2301,6 +2333,97 @@
                         }
                       ]
                     }
+                  },
+                  {
+                    "or": {
+                      "vals": [
+                        {
+                          "and": {
+                            "vals": [
+                              {
+                                "cmp": {
+                                  "op": "OpGe",
+                                  "lhs": {
+                                    "currentEnergy": {}
+                                  },
+                                  "rhs": {
+                                    "variableRef": {
+                                      "name": "Paid-builder energy threshold"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "not": {
+                                  "val": {
+                                    "variableRef": {
+                                      "name": "Use Ferocity Hybrid tuning"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "not": {
+                                  "val": {
+                                    "variableRef": {
+                                      "name": "Howling Hybrid in a longer fight"
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "and": {
+                            "vals": [
+                              {
+                                "cmp": {
+                                  "op": "OpGe",
+                                  "lhs": {
+                                    "currentEnergy": {}
+                                  },
+                                  "rhs": {
+                                    "const": {
+                                      "val": "65"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "variableRef": {
+                                  "name": "Use Ferocity Hybrid tuning"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "and": {
+                            "vals": [
+                              {
+                                "cmp": {
+                                  "op": "OpGe",
+                                  "lhs": {
+                                    "currentEnergy": {}
+                                  },
+                                  "rhs": {
+                                    "const": {
+                                      "val": "70"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "variableRef": {
+                                  "name": "Howling Hybrid in a longer fight"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
                   }
                 ]
               }
@@ -2361,6 +2484,70 @@
               "auraIsActive": {
                 "auraId": {
                   "spellId": 27851
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Howling Hybrid in a longer fight",
+      "value": {
+        "and": {
+          "vals": [
+            {
+              "not": {
+                "val": {
+                  "talentIsKnown": {
+                    "talentId": {
+                      "spellId": 16966
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "talentIsKnown": {
+                    "talentId": {
+                      "spellId": 16958
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "talentIsKnown": {
+                "talentId": {
+                  "spellId": 1322605
+                }
+              }
+            },
+            {
+              "cmp": {
+                "op": "OpLt",
+                "lhs": {
+                  "spellFullCooldown": {
+                    "spellId": {
+                      "spellId": 1322605
+                    }
+                  }
+                },
+                "rhs": {
+                  "const": {
+                    "val": "8s"
+                  }
+                }
+              }
+            },
+            {
+              "not": {
+                "val": {
+                  "variableRef": {
+                    "name": "Use the short Claw Bite window"
+                  }
                 }
               }
             }

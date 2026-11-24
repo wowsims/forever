@@ -872,8 +872,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 801.95227
-  tps: 569.38611
+  dps: 798.74603
+  tps: 567.10968
   hps: 59.11917
  }
 }
