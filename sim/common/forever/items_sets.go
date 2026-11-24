@@ -1212,25 +1212,12 @@ func violetMeditationRegen(agent core.Agent, setBonusAura *core.Aura) {
 
 func summonArcaneElemental(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
-	var elementals []*arcaneElemental
-	for _, pet := range character.PetAgents {
-		if e, ok := pet.(*arcaneElemental); ok {
-			elementals = append(elementals, e)
-		}
-	}
+	elementals := shared.Guardians(character, arcaneElementalCall)
 
 	// A summon takes an elemental that is not up; the 15 s rest leaves one free whenever a summon comes.
 	config := procSpellConfig(character, arcaneElementalCall)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
-		elemental := elementals[0]
-		for _, e := range elementals {
-			if !e.IsEnabled() {
-				elemental = e
-				break
-			}
-		}
-		elemental.CurrentTarget = target
-		elemental.EnableWithTimeout(sim, elemental, arcaneElementalCall.Duration())
+		shared.SummonGuardians(sim, elementals, target)
 	}
 	call := character.RegisterSpell(config)
 
