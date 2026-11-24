@@ -13,8 +13,8 @@ import (
 )
 
 // Shahram 10718, whom 16602 summons, casts one of his six spells and nothing else, picked by these
-// weights, a round ratio fitted to his picks in the logs (EV-0125). Fist of Shahram 16601 hastes
-// Shahram himself, so its pick does nothing for the wearer and registers no spell.
+// weights (EV-0125). Fist of Shahram 16601 hastes Shahram himself, so its pick does nothing for the
+// wearer and registers no spell.
 var shahramPicks = []struct {
 	spellID  int32
 	weight   float64
@@ -28,15 +28,10 @@ var shahramPicks = []struct {
 	{16601, 2, nil},
 }
 
-// Shahram begins his hardcast 1.03 to 1.83 s after the summon, which holds all but the earliest and
-// latest few in the logs (EV-0125); the sim draws the delay uniformly over that range.
+// Shahram begins his hardcast 1.03 to 1.83 s after the summon (EV-0125); the sim draws the delay
+// uniformly over that range.
 const shahramCastStartMin = 1030 * time.Millisecond
 const shahramCastStartMax = 1830 * time.Millisecond
-
-// Flames of Shahram crits on this share of its landed hits whatever the wearer's crit, for a spell
-// crit's 150%; the share is an observed figure from logs (EV-0125).
-const flamesOfShahramCritChance = 0.006 // TODO: Fit again once the logs hold more of its crits (EV-0125).
-const flamesOfShahramCritMultiplier = 1.5
 
 // The most Will of Shahram stacks the wearer can carry. The game files state no cap, so this one is
 // the sim's own. With every stack up, a new Will replaces the stack closest to fading.
@@ -51,8 +46,8 @@ func init() {
 	// The game files state no rate for 16602; the item's chance-on-hit entry carries the one measured
 	// on the sword's speed. The sim summons no Shahram: each proc picks one of his spells, which lands
 	// after his cast start and the picked row's hardcast. His spells take nothing from the wearer's
-	// damage modifiers or crit and put no threat on the wearer, and they roll the wearer's spell hit
-	// table.
+	// damage modifiers and put no threat on the wearer, and they roll the wearer's spell hit table;
+	// Flames rolls the wearer's spell crit as well.
 	newEntryRateItemEffect(12592, 16602, func(character *core.Character, ppm float64) {
 		type pickedSpell struct {
 			spell    *core.Spell
@@ -116,19 +111,16 @@ func shahramSpellConfig(character *core.Character, row *spelldata.Spell) core.Sp
 	return config
 }
 
-// Flames of Shahram 16596 burns every enemy around Shahram, and crits at Shahram's own chance.
+// Flames of Shahram 16596 burns every enemy around Shahram, and can crit (EV-0125).
 func registerFlamesOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16596)
 	damage := row.DamageEffect()
 	config := shahramSpellConfig(character, row)
 	config.Flags |= core.SpellFlagIgnoreAttackerModifiers
-	var outcome core.OutcomeApplier
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealAoeDamage(sim, damage.DirectAmount(sim)*sim.Encounter.AOECapMultiplier(), outcome)
+		spell.CalcAndDealAoeDamage(sim, damage.DirectAmount(sim)*sim.Encounter.AOECapMultiplier(), spell.OutcomeMagicHitAndCrit)
 	}
-	spell := character.RegisterSpell(config)
-	outcome = spell.OutcomeMagicHitAndFixedCrit(flamesOfShahramCritChance, flamesOfShahramCritMultiplier)
-	return spell
+	return character.RegisterSpell(config)
 }
 
 // Will of Shahram 16598 lands on Shahram's master, the wearer, as one more stack of the row's stats.

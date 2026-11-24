@@ -68,28 +68,6 @@ func (spell *Spell) outcomeMagicHitAndCrit(sim *Simulation, result *SpellResult,
 	}
 }
 
-// Rolls the caster's magic hit, then a crit at critChance for critMultiplier in place of the caster's own: a
-// spell the sim casts for a creature it does not summon, which crits at the creature's rate.
-func (spell *Spell) OutcomeMagicHitAndFixedCrit(critChance float64, critMultiplier float64) OutcomeApplier {
-	return func(sim *Simulation, result *SpellResult, attackTable *AttackTable) {
-		if !spell.MagicHitCheck(sim, attackTable) {
-			result.Outcome = OutcomeMiss
-			result.Damage = 0
-			spell.SpellMetrics[result.Target.UnitIndex].Misses++
-			return
-		}
-		partial := result.Outcome
-		if sim.RandomFloat("Magical Crit Roll") < critChance {
-			result.Outcome = OutcomeCrit
-			result.Damage *= critMultiplier
-			spell.SpellMetrics[result.Target.UnitIndex].countCrit(partial)
-		} else {
-			result.Outcome = OutcomeHit
-			spell.SpellMetrics[result.Target.UnitIndex].countHit(partial)
-		}
-	}
-}
-
 // Rolls the hand's weapon miss, which physical and ranged hit lower, then the caster's spell crit, for the
 // spell's own crit multiplier: a wand shot.
 func (spell *Spell) OutcomeRangedHitAndMagicCrit(sim *Simulation, result *SpellResult, attackTable *AttackTable) {

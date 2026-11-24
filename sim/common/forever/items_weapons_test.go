@@ -1188,51 +1188,61 @@ func TestBlackbladeOfShahramLandsOneSpellPerSummonAfterItsHardcast(t *testing.T)
 	}
 }
 
-// Flames of Shahram 16596 burns every enemy. Shahram's spells take nothing from the wearer's damage
-// modifiers or crit chance and put no threat on the wearer: Flames crits as often whatever the
-// wearer's crit, and its crits deal a spell crit's 150%.
+// Flames of Shahram 16596 burns every enemy, rolling the wearer's spell hit and spell crit. It takes
+// nothing from the wearer's damage modifiers and puts no threat on the wearer.
 func TestFlamesOfShahramBurnsEveryEnemy(t *testing.T) {
 	damage := spelldata.MustFind(16596).DamageEffect()
 	if damage.Min() <= 0 || damage.Max() <= damage.Min() {
 		t.Fatalf("16596 deals %v to %v, want a range", damage.Min(), damage.Max())
 	}
 
-	// Each enemy's metrics after the casts, by a wearer with doubled damage and the spell crit given.
+	// Each enemy's metrics after the casts, and the crit multiplier on it, by a wearer with doubled
+	// damage and the spell hit and crit given.
 	const casts = 2000
-	burn := func(crit float64) []core.SpellMetrics {
+	burn := func(bonus stats.Stats) ([]core.SpellMetrics, []float64) {
 		sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 3)
 		character.AutoAttacks.CancelAutoSwing(sim)
 		character.PseudoStats.DamageDealtMultiplier *= 2
-		character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: crit})
+		character.AddStatsDynamic(sim, bonus)
 		flames := character.GetSpell(core.ActionID{SpellID: 16596})
 		for range casts {
 			flames.Cast(sim, character.CurrentTarget)
 		}
 		metrics := make([]core.SpellMetrics, len(sim.Encounter.ActiveTargetUnits))
+		multipliers := make([]float64, len(metrics))
 		for i, enemy := range sim.Encounter.ActiveTargetUnits {
 			metrics[i] = flames.SpellMetrics[enemy.UnitIndex]
+			multipliers[i] = flames.CritDamageMultiplier(character.AttackTables[enemy.UnitIndex])
 		}
-		return metrics
+		return metrics, multipliers
 	}
 
-	critting, plain := burn(100), burn(0)
+	// With every spell hit and spell crit, each cast lands as a crit for the spell's crit multiplier.
+	critting, multipliers := burn(stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: 100})
 	for i, metrics := range critting {
-		if metrics.Hits+metrics.Crits != casts {
-			t.Errorf("%d casts hit enemy %d %d times and crit it %d times, want every cast to land", casts, i, metrics.Hits, metrics.Crits)
+		if metrics.Crits != casts || metrics.Hits != 0 || metrics.Misses != 0 {
+			t.Errorf("%d casts crit enemy %d %d times, hit it %d times and missed it %d times, want every cast to crit",
+				casts, i, metrics.Crits, metrics.Hits, metrics.Misses)
 		}
-		if metrics.Crits == 0 || metrics.Crits != plain[i].Crits {
-			t.Errorf("%d casts crit enemy %d %d times with the wearer's crit at 100%% and %d times without, want the same count above none",
-				casts, i, metrics.Crits, plain[i].Crits)
+		low, high := multipliers[i]*damage.Min(), multipliers[i]*damage.Max()
+		if crit := metrics.TotalCritDamage / float64(metrics.Crits); crit < low || crit > high {
+			t.Errorf("the crits on enemy %d deal %.1f on average, want %v to %v", i, crit, low, high)
+		}
+		if metrics.TotalThreat != 0 {
+			t.Errorf("the crits on enemy %d put %v threat on the wearer, want none", i, metrics.TotalThreat)
+		}
+	}
+
+	// With no spell hit or spell crit, some casts miss and the rest hit within the row's range.
+	plain, _ := burn(stats.Stats{})
+	for i, metrics := range plain {
+		if metrics.Misses == 0 || metrics.Hits+metrics.Crits+metrics.Misses != casts {
+			t.Errorf("%d casts missed enemy %d %d times, hit it %d times and crit it %d times, want some misses among them",
+				casts, i, metrics.Misses, metrics.Hits, metrics.Crits)
 		}
 		hit := (metrics.TotalDamage - metrics.TotalCritDamage) / float64(metrics.Hits)
 		if hit < damage.Min() || hit > damage.Max() {
 			t.Errorf("the hits on enemy %d deal %.1f on average, want %v to %v", i, hit, damage.Min(), damage.Max())
-		}
-		if crit := metrics.TotalCritDamage / float64(metrics.Crits); crit < 1.5*damage.Min() || crit > 1.5*damage.Max() {
-			t.Errorf("the crits on enemy %d deal %.1f on average, want %v to %v", i, crit, 1.5*damage.Min(), 1.5*damage.Max())
-		}
-		if metrics.TotalThreat != 0 {
-			t.Errorf("the hits on enemy %d put %v threat on the wearer, want none", i, metrics.TotalThreat)
 		}
 	}
 }
