@@ -13,19 +13,19 @@ import (
 )
 
 // Shahram 10718, whom 16602 summons, casts one of his six spells and nothing else, picked by these
-// weights, which round his picks in the logs (EV-0125). Fist of Shahram 16601 hastes Shahram himself,
-// so its pick does nothing for the wearer and registers no spell.
+// weights (EV-0125). Fist of Shahram 16601 hastes Shahram himself, so its pick does nothing for the
+// wearer and registers no spell.
 var shahramPicks = []struct {
 	spellID  int32
 	weight   float64
 	register func(*core.Character) *core.Spell
 }{
-	{16596, 3, registerFlamesOfShahram},
-	{16598, 3, registerWillOfShahram},
-	{16597, 1, registerCurseOfShahram},
-	{16599, 1, registerBlessingOfShahram},
-	{16600, 1, registerMightOfShahram},
-	{16601, 1, nil},
+	{16596, 7, registerFlamesOfShahram},
+	{16598, 5, registerWillOfShahram},
+	{16597, 2, registerCurseOfShahram},
+	{16599, 2, registerBlessingOfShahram},
+	{16600, 2, registerMightOfShahram},
+	{16601, 2, nil},
 }
 
 // Shahram begins his hardcast 1.03 to 1.83 s after the summon (EV-0125); the sim draws the delay
@@ -46,8 +46,8 @@ func init() {
 	// The game files state no rate for 16602; the item's chance-on-hit entry carries the one measured
 	// on the sword's speed. The sim summons no Shahram: each proc picks one of his spells, which lands
 	// after his cast start and the picked row's hardcast. His spells take nothing from the wearer's
-	// damage modifiers, never crit and put no threat on the wearer, and they roll the wearer's spell
-	// hit table.
+	// damage modifiers and put no threat on the wearer, and they roll the wearer's spell hit table;
+	// Flames rolls the wearer's spell crit as well.
 	newEntryRateItemEffect(12592, 16602, func(character *core.Character, ppm float64) {
 		type pickedSpell struct {
 			spell    *core.Spell
@@ -111,14 +111,14 @@ func shahramSpellConfig(character *core.Character, row *spelldata.Spell) core.Sp
 	return config
 }
 
-// Flames of Shahram 16596 burns every enemy around Shahram.
+// Flames of Shahram 16596 burns every enemy around Shahram, and can crit (EV-0125).
 func registerFlamesOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16596)
 	damage := row.DamageEffect()
 	config := shahramSpellConfig(character, row)
 	config.Flags |= core.SpellFlagIgnoreAttackerModifiers
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealAoeDamage(sim, damage.DirectAmount(sim)*sim.Encounter.AOECapMultiplier(), spell.OutcomeMagicHit)
+		spell.CalcAndDealAoeDamage(sim, damage.DirectAmount(sim)*sim.Encounter.AOECapMultiplier(), spell.OutcomeMagicHitAndCrit)
 	}
 	return character.RegisterSpell(config)
 }
@@ -212,7 +212,7 @@ func registerMightOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(config)
 }
 
-// Blessing of Shahram 16599 restores mana to each member of the wearer's party, pets included, every
+// Blessing of Shahram 16599 restores mana to each player of the wearer's party, never to a pet, every
 // period for the row's duration; two Blessings tick side by side (EV-0125). Its heal is left out.
 func registerBlessingOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16599)
@@ -223,7 +223,7 @@ func registerBlessingOfShahram(character *core.Character) *core.Spell {
 	}
 	var members []member
 	character.Env.RegisterPreFinalizeEffect(func() {
-		for _, agent := range character.Party.PlayersAndPets {
+		for _, agent := range character.Party.Players {
 			if unit := &agent.GetCharacter().Unit; unit.HasManaBar() {
 				members = append(members, member{unit, unit.NewManaMetrics(core.ActionID{SpellID: row.ID})})
 			}
