@@ -172,16 +172,14 @@ describe('the seal picker', () => {
 		expect(input('seal').getValue(player)).toBe(PaladinSeal.SealOfRighteousness);
 	});
 
-	it('shows Seal of Command when none is picked, with Holy Shock talented too', async () => {
-		const { made, player } = await unsealedWrathPlayer();
-		act(() => player.setTalentsString(withoutUnsealedWrath));
-		renderWithHost(<ConnectedIconEnumPicker modObject={player} config={input('seal') as never} />, made);
-		await act(async () => {});
-		expect(shownSpell()).toContain(spellOf(PaladinSeal.SealOfCommand));
+	// The picker shows only with Seal of Command talented, so the talents' seal without it is read from the input.
+	it('reads the seal the new talents decide when none is picked', async () => {
+		const { player } = await unsealedWrathPlayer();
+		act(() => player.setTalentsString(withoutSealOfCommand));
+		expect(input('seal').getValue(player)).toBe(PaladinSeal.SealOfRighteousness);
 
-		await act(async () => player.setTalentsString(HolyShockTalents.data.talentsString));
+		act(() => player.setTalentsString(HolyShockTalents.data.talentsString));
 
-		expect(player.getTalents()).toMatchObject({ holyShock: true, sealOfCommand: true });
-		expect(shownSpell()).toContain(spellOf(PaladinSeal.SealOfCommand));
+		expect(input('seal').getValue(player)).toBe(PaladinSeal.SealOfCommand);
 	});
 });

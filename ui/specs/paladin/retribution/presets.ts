@@ -23,8 +23,8 @@ export const UwSorSofAplPreset = PresetUtils.makePresetAPLRotation('Unsealed Wra
 
 export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecRetributionPaladin, Defaults.simpleRotation!);
 
-// Pre-raid sets: dungeon drops, the Soulforge set, BoE world drops, at most two crafted pieces and at most one
-// battleground reputation reward.
+// Pre-raid sets: dungeon drops, quest and vendor rewards, the Soulforge set, BoE world drops, at most two crafted
+// pieces and at most one battleground reputation reward.
 export const HolyShockGearPreset = PresetUtils.makePresetGear('Holy Shock', HolyShockGear, {
 	tooltip: 'Pre-raid gear for Holy Shock.',
 });
@@ -35,8 +35,8 @@ export const DefaultGearPreset = PresetUtils.makePresetGear('Default', DefaultGe
 // The Manual Crowd Pummeler, which the Holy Shock APL equips before the pull and swaps back in when its cooldown is nearly up.
 export const HolyShockItemSwap = PresetUtils.makePresetItemSwapGear('Holy Shock', HolyShockItemSwapGear);
 
-// Simmed on each build's gear set, which reaches the 8% melee hit cap. Hit is weighed above the baseline only, so the hit
-// weights come from a run 2% under the cap, and the other weights from the set itself.
+// Simmed on each build's gear set and consumables. The set reaches the 8% melee hit cap, where more hit adds only spell
+// hit, so the hit weights come from a run 2% under the cap and the other weights from the set itself.
 export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
 	'Holy Shock',
 	Stats.fromMap(
