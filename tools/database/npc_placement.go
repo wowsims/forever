@@ -82,6 +82,11 @@ func (p *NpcPlacement) instanceOf(zone int32) (int32, bool) {
 	return m, ok
 }
 
+func (p *NpcPlacement) inAreaTable(zone int32) bool {
+	_, ok := p.areas[zone]
+	return ok
+}
+
 // The zone of a QuestieDB NPC, given the instances whose quests ask for its kill. The NPC belongs to an instance when a
 // DungeonEncounter there has its name or one of those quests is filed there. It keeps its zone when that names more
 // than one instance (Balnazzar is a Stratholme and a Scarlet Enclave encounter), names one with no zone to move to, or
