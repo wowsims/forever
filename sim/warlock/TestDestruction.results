@@ -1586,8 +1586,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Gnome-destro-Destruction-destro-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5364.90108
-  tps: 4182.3524
+  dps: 5334.31211
+  tps: 4158.37064
   dtps: 8.91597
  }
 }
@@ -1610,8 +1610,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Gnome-destro-Destruction-destro-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 2674.95271
-  tps: 2110.5539
+  dps: 2661.88465
+  tps: 2100.30855
  }
 }
 dps_results: {
@@ -1631,8 +1631,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Orc-destro-Destruction-destro-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5213.83787
-  tps: 4064.09206
+  dps: 5183.36935
+  tps: 4040.20473
   dtps: 8.86642
  }
 }
@@ -1655,8 +1655,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Orc-destro-Destruction-destro-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 2678.63608
-  tps: 2112.94248
+  dps: 2662.5432
+  tps: 2100.32566
  }
 }
 dps_results: {

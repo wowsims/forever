@@ -54,13 +54,13 @@ func init() {
 // names (family 7 bit 0), Moonfire, which it does not name and reaches all the same (bit 1), and one it
 // does not reach (bit 4). Hurricane is a three-tick channel whose ticks cast a spell of their own on
 // every enemy, a proc that fires no cast listener, both under Wrath's flags. Drain is a channel under
-// Wrath's flags whose own hit lands before its dot starts and whose ticks hit nothing. Bolt, under
-// Wrath's flags, rolls at the cast and lands a second later.
+// Wrath's flags whose own hit lands before its dot starts and whose ticks are its own periodic damage,
+// which rolls to crit. Bolt, under Wrath's flags, rolls at the cast and lands a second later.
 type testDruid struct {
 	core.Character
 	wrath, moonfire, outside, hurricane, drain, bolt *core.Spell
 	last                                             *core.SpellResult
-	tickCrits                                        []bool
+	tickCrits, drainCrits                            []bool
 }
 
 func (d *testDruid) GetCharacter() *core.Character       { return &d.Character }
@@ -144,7 +144,10 @@ func (d *testDruid) Initialize() {
 	d.hurricane = channel(17402, "Hurricane", false, func(sim *core.Simulation, target *core.Unit, _ *core.Dot) {
 		tick.Cast(sim, target)
 	})
-	d.drain = channel(17401, "Drain", true, nil)
+	d.drain = channel(17401, "Drain", true, func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+		result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, 100, dot.Spell.OutcomeTickMagicCrit)
+		d.drainCrits = append(d.drainCrits, result.DidCrit())
+	})
 }
 
 // A hunter with two ranged shots: Arcane Shot, which Revelation's hunter buff 1323410 names (family 9
@@ -422,30 +425,56 @@ func TestRevelationChannelSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	}
 }
 
-// A channel whose ticks cast no spell keeps the charge to its end, cut short or run out.
-func TestRevelationLastsAChannelWithNoTickSpell(t *testing.T) {
+// A channel whose ticks are its own periodic damage spends nothing: every tick crits with the charge up,
+// the charge outlasts the channel, run out or cut short, and the next cast the mask names crits and
+// spends it. With the charge down the ticks crit at their own chance (EV-0149).
+func TestRevelationLastsPastAChannelOfPeriodicTicks(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
 	target := character.CurrentTarget
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1323400})
+	drain := druid.drain.Dot(target)
 
+	druid.drainCrits = nil
+	druid.drain.Cast(sim, target)
+	stepWhile(t, sim, drain.IsActive)
+	if got := druid.drainCrits; len(got) != 3 || slices.Contains(got, true) || buff.IsActive() {
+		t.Fatalf("with no crit chance and Revelation down the ticks crit %v, want 3 and none crit, and nothing procced", got)
+	}
+
+	druid.drainCrits = nil
 	chargeRevelation(sim, buff)
 	druid.drain.Cast(sim, target)
-	druid.drain.Dot(target).Deactivate(sim)
-	if buff.IsActive() {
-		t.Error("a channel whose own hit landed was cut short before its first tick and Revelation's charge is still up")
-	}
-
-	drain := druid.drain.Dot(target)
-	druid.drain.SkipCastAndApplyEffects(sim, target)
-	chargeRevelation(sim, buff)
-	sim.Step()
 	if !drain.IsActive() || !buff.IsActive() {
-		t.Fatal("the charge came while a channel it covers was running, and it is gone before that channel ended")
+		t.Fatal("Drain started and Revelation's charge is gone")
 	}
 	stepWhile(t, sim, drain.IsActive)
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if got := druid.drainCrits; len(got) != 3 || slices.Contains(got, false) {
+		t.Errorf("the ticks with Revelation up crit %v, want all three", got)
+	}
+	if !buff.IsActive() {
+		t.Fatal("Drain ran out and Revelation's charge is gone")
+	}
+
+	druid.drain.Cast(sim, target)
+	drain.Deactivate(sim)
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if !buff.IsActive() {
+		t.Fatal("Drain was cut short and Revelation's charge is gone")
+	}
+
+	druid.wrath.Cast(sim, target)
+	for tries := 0; !druid.last.Landed() && tries < 20; tries++ {
+		chargeRevelation(sim, buff)
+		druid.wrath.Cast(sim, target)
+	}
+	if !druid.last.DidCrit() {
+		t.Error("Wrath cast after the channel with Revelation up did not crit")
+	}
 	if buff.IsActive() {
-		t.Error("the charge came while a channel it covers was running, the channel ended and the charge is still up")
+		t.Error("Wrath did not spend the charge Drain left")
 	}
 }
 
@@ -664,6 +693,44 @@ func TestRevelationRollsOncePerHitEvent(t *testing.T) {
 	}
 	if want := casts * chance; float64(procs) < want/2 || float64(procs) > 2*want {
 		t.Errorf("%d casts on %d enemies procced Revelation %d times, want about %.0f, one roll a cast", casts, enemies, procs, want)
+	}
+}
+
+// The first result of a hit event is its one chance: an Arcane Explosion whose first target crits never
+// procs Revelation, whatever its other targets do, and one whose first target does not crit can (EV-0149).
+func TestRevelationRollsNothingWhenAnEventsFirstResultCrits(t *testing.T) {
+	const casts, enemies = 600, 5
+	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, enemies)
+	mage := sim.Raid.Parties[0].Players[0].(*testMage)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: 50 - character.GetStat(stats.SpellCritPercent)})
+	buff := character.GetAuraByID(core.ActionID{SpellID: 1248808})
+
+	critFirst, mixed := 0, 0
+	procsAfter := map[bool]int{}
+	for range casts {
+		buff.Deactivate(sim)
+		mage.crits[mage.explosion] = nil
+		mage.explosion.Cast(sim, character.CurrentTarget)
+		stepTo(t, sim, sim.CurrentTime+2*core.SpellBatchWindow)
+		got := mage.crits[mage.explosion]
+		if got[0] {
+			critFirst++
+			if slices.Contains(got, false) {
+				mixed++
+			}
+		}
+		if buff.IsActive() {
+			procsAfter[got[0]]++
+		}
+	}
+	if critFirst < casts/4 || mixed < casts/4 {
+		t.Fatalf("%d of %d casts crit their first target and %d of those left another uncrit, want a fair share of each", critFirst, casts, mixed)
+	}
+	if procsAfter[true] != 0 {
+		t.Errorf("%d casts whose first target crit procced Revelation, want none", procsAfter[true])
+	}
+	if procsAfter[false] == 0 {
+		t.Errorf("none of the %d casts whose first target did not crit procced Revelation", casts-critFirst)
 	}
 }
 

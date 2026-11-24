@@ -350,8 +350,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-DreadmistRaiment"
  value: {
-  dps: 717.56337
-  tps: 617.20821
+  dps: 717.88014
+  tps: 617.42995
   hps: 14.97567
  }
 }

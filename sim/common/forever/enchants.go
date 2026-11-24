@@ -291,11 +291,14 @@ func init() {
 
 		// The charge goes as a cast the buff reaches completes, on every class, and a spell still in
 		// flight keeps the crit it rolled. A melee or ranged attack the mask names, a paladin's
-		// judgement or Hammer of Wrath, crits and leaves the charge (EV-0028, EV-0149).
+		// judgement or Hammer of Wrath, crits and leaves the charge (EV-0028, EV-0149). A channel's cast
+		// spends nothing and keeps nothing for the channel's end: a channel whose ticks are its own
+		// periodic damage (Mind Flay, Wrack, Starshards) crits on every tick with the buff up and leaves
+		// the charge to the next cast the mask names (EV-0149).
 		// TODO: Holy Shock's and Light's Vigil's heals crit here on every cast with the buff up, and
 		// in the logs mostly do not, landing after the charge is gone (EV-0149).
-		// TODO: A charge gained while a hunter channels Volley, a ranged attack, is still spent as the
-		// channel ends. EV-0149 does not record what spends a hunter's charge.
+		// TODO: A charge gained while a channel the mask names is running, Volley or Mind Flay, is still
+		// spent as the channel ends (R-0048). EV-0149 does not record what spends such a charge.
 		isAttack := func(spell *core.Spell) bool {
 			return spell.DefenseType == core.DefenseTypeMelee || spell.DefenseType == core.DefenseTypeRanged
 		}
@@ -309,7 +312,7 @@ func init() {
 				trigger.ProcMask = core.ProcMaskUnknown
 				trigger.Callback = core.CallbackOnCastComplete
 				trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-					return !isAttack(spell)
+					return !isAttack(spell) && !(spell.Flags.Matches(core.SpellFlagChanneled) && character.IsChanneling())
 				}
 			})
 
@@ -317,9 +320,6 @@ func init() {
 		// Rain of Fire, Arcane Missiles) spends the charge on the first tick that crits from it. Every
 		// target that tick strikes crits, and the charge goes a spell batch window later, so the ticks
 		// after it crit at their own chance (EV-0149).
-		// TODO: Mind Flay's and Wrack's ticks are the channel's own periodic damage, and the charge
-		// stays to the channel's end. In the logs their ticks crit and spend nothing, and the buff
-		// runs out its duration; EV-0149 has too few wearers to settle it.
 		firstTickHit, _ := core.OncePerCast()
 		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
 			Name:               "Revelation Charge - Channel Tick",
@@ -379,14 +379,16 @@ func init() {
 		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
 		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
 		// One hit event rolls once, however many targets it strikes: the first result of a spell at a
-		// moment that lands without a crit rolls, and the rest of that spell's results then roll nothing
-		// (EV-0149).
-		// TODO: Which result decides when only some targets of the event crit is not measured.
+		// moment that lands for damage or heals is the event's one chance. When that result crits, the
+		// event rolls nothing, whatever its other targets do (EV-0149).
+		// TODO: Lightning Overload's bolt carries its Lightning Bolt's spell id and, at 0 yards, lands
+		// at the bolt's moment, so it shares the bolt's one roll here. Whether it rolls on its own is
+		// not yet counted.
 		shares := map[*core.Spell]float64{}
 		firstRoll, _ := core.OncePerCast()
 		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
 			// A landing while the buff is up rolls too and refreshes it.
-			if result.DidCrit() || isAttack(spell) || !firstRoll(sim, spell) {
+			if isAttack(spell) || !firstRoll(sim, spell) || result.DidCrit() {
 				return false
 			}
 			share, ok := shares[spell]
