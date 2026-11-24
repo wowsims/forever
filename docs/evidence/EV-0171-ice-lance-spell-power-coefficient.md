@@ -11,7 +11,7 @@
   the time, relogged) and 1.60.1.71037 (0 spell power, from the 08:35 login on, on the latest hotfix at the time,
   relogged; second geared set, on a hotfix older than the latest, which one not known)
 - Date: 2026-11-20 to 2026-11-24
-- Pull requests: #1150, and the one that moves the coefficient to 0.115
+- Pull requests: #1150, #1199
 
 ## Method
 
