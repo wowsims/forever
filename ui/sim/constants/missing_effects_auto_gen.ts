@@ -3272,6 +3272,12 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 					"Your Rebirth spell is now castable in Bear Form and Dire Bear Form and its cast time is reduced by 2.0 sec while you are in Bear Form or Dire Bear Form.", // 1301005 - https://www.wowhead.com/forever/spell=1301005
 				],
 			],
+			[
+				5,
+				[
+					"Reduces the cooldown of your Berserk ability by 15.0 sec.", // 1301249 - https://www.wowhead.com/forever/spell=1301249
+				],
+			],
 		]),
 	],
 	[
