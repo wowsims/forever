@@ -463,7 +463,7 @@ var Spells = []Override{
 	{
 		SpellID: 1240047,
 		Field:   SPCoefDirect,
-		Value:   0.11,
+		Value:   0.115,
 		Reason:  "Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game (EV-0171)",
 		Source:  "EV-0171",
 	},
