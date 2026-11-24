@@ -27,7 +27,7 @@ const NOT_READY: DropsSetupState = {
 
 const readSetup = (player: Player<any>): DropsSetupState => ({ ...dropsSetupFor(player), ticked: new Set(bulkState(player).dropsSources) });
 
-// Rebuilt when the database lands, the phase, the race (which sets the side `getFaction` reads), the gear or a Drops pick changes.
+// Rebuilt when the database lands, the phase, the gear picker's filters, the race (which sets the side `getFaction` reads), the gear or a Drops pick changes.
 // The picks bump `settings` and a gear change bumps `items`, both of which `subscribeBulkChange` watches.
 export const useDropsSetup = (): DropsSetupState => {
 	const player = usePlayer();
@@ -36,6 +36,7 @@ export const useDropsSetup = (): DropsSetupState => {
 		() =>
 			subscribeAll([
 				subscribeSimField(player.sim, 'phase'),
+				subscribeSimField(player.sim, 'filters'),
 				subscribePlayerField(player, 'race'),
 				subscribePlayerField(player, 'gear'),
 				subscribeBulkChange(player),

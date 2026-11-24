@@ -1,5 +1,5 @@
 import { Faction, ItemSlot } from '@generated/proto/common';
-import { ContentPhase, type UIItem, UIItem_FactionRestriction } from '@generated/proto/ui';
+import { ContentPhase, DungeonDifficulty, type UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
 import type { BulkRankedResult } from '@sim/bulk/types';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
@@ -18,6 +18,7 @@ import {
 	RIVENDARE,
 	WORN_ITEM_ID,
 } from '@testing/storybook/fixtures/bulk-drops';
+import { makeUIItem } from '@testing/storybook/fixtures/protos';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -84,6 +85,7 @@ const mount = ({
 			},
 			db: {
 				getItemById: (id: number) => items.find(item => item.id === id),
+				getAllItems: () => items,
 				getZone: (id: number) => ({ name: names.zone(id) }),
 				getNpc: (id: number) => ({ name: names.npc(id) }),
 				getRepFaction: () => undefined,
@@ -144,12 +146,13 @@ describe('DropsResults', () => {
 		expect(cards().map(card => card.getAttribute('data-upgrade'))).toEqual([null, null, null, 'none']);
 	});
 
-	it('shows N / M upgrade, pluralised on M, with the worn item in the strip', () => {
+	it('shows N / M upgrade, pluralised on M, with the worn item in the strip and each item’s level', () => {
 		mount();
 		const rend = cards()[0];
 		expect(within(rend).getByTestId('drops-boss-upgrades').textContent).toContain(`1 / 2 ${RESULTS}.upgrades#2`);
 		const strip = within(rend).getAllByTestId('drops-boss-strip-item');
 		expect(strip.map(item => item.getAttribute('data-item-id'))).toEqual([String(FELSTRIKER), String(WORN_ITEM_ID)]);
+		expect(strip.map(item => within(item).getByTestId('item-picker-ilvl').textContent)).toEqual(['63', '63']);
 		expect(strip[0].getAttribute('data-worn')).toBeNull();
 		expect(strip[1].hasAttribute('data-worn')).toBe(true);
 		expect(within(cards()[3]).getByTestId('drops-boss-upgrades').textContent).toContain(`0 / 1 ${RESULTS}.upgrades#1`);
@@ -280,6 +283,28 @@ describe('DropsResults', () => {
 
 		expect(screen.getByTestId('drops-summary-best-drop').textContent).toContain('Felstriker');
 		expect(screen.getByTestId('drops-summary-best-boss').textContent).toBe(`${RESULTS}.best_boss—`);
+	});
+
+	// Felstriker needs level 40 here, so it leaves Deadmines below the cutoff while Blackrock Spire's other loot keeps it.
+	it('makes no card for a ticked dungeon the level cutoff hides, though a run’s item drops there', () => {
+		const DEADMINES = 1581;
+		const VANCLEEF = 639;
+		const deadminesDrop = UIItemSource.create({
+			source: {
+				oneofKind: 'drop',
+				drop: { difficulty: DungeonDifficulty.DifficultyDungeon, npcId: VANCLEEF, zoneId: DEADMINES, otherName: '', category: '' },
+			},
+		});
+		mount({
+			itemsOf: items => [
+				...items.map(item => (item.id === FELSTRIKER ? { ...item, reqLvl: 40, sources: [...item.sources, deadminesDrop] } : item)),
+				makeUIItem({ id: 5191, name: 'Cruel Barb', reqLvl: 18, sources: [deadminesDrop] }),
+			],
+			runSources: all => [...all, `drop:${DEADMINES}:${VANCLEEF}`],
+		});
+
+		expect(cardLabels()).not.toContain(`#${VANCLEEF}`);
+		expect(cardLabels()).toContain('Warchief Rend Blackhand');
 	});
 
 	it('draws a bracket around tied rows and keeps every row keyed once', () => {

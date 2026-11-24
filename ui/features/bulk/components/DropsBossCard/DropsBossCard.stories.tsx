@@ -40,16 +40,16 @@ export const Selected: Story = { args: { selected: true } };
 /** No upgrade: the card dims and names no best gain. */
 export const NoUpgrade: Story = { args: none };
 
-/** Items with no icon keep their tile, so each % stays under its own item. */
+/** Items with no icon keep their tile and item level, so each % stays under its own item. */
 export const MissingIcons: Story = {
 	args: {
 		...none,
-		label: { label: 'Lyn the Ignored', detail: 'City of Dalaran' },
+		label: { label: 'Darkmaster Gandling', detail: 'Scholomance' },
 		strip: [
-			{ itemId: 1, icon: '', name: 'Missing icon', gainPct: -3.43, upgrade: false },
-			{ itemId: 2, icon: second.strip[0].icon, name: second.strip[0].name, gainPct: -18.2, upgrade: false },
-			{ itemId: 3, icon: '', name: 'Missing icon too', gainPct: -25.35, upgrade: false },
-			{ itemId: 4, icon: '', name: 'Worn, missing icon', gainPct: null, upgrade: false },
+			{ itemId: 1, icon: '', name: 'Missing icon', ilvl: 61, gainPct: -3.43, upgrade: false },
+			{ itemId: 2, icon: second.strip[0].icon, name: second.strip[0].name, ilvl: second.strip[0].ilvl, gainPct: -18.2, upgrade: false },
+			{ itemId: 3, icon: '', name: 'Missing icon too', ilvl: 63, gainPct: -25.35, upgrade: false },
+			{ itemId: 4, icon: '', name: 'Worn, missing icon', ilvl: 58, gainPct: null, upgrade: false },
 		],
 	},
 };

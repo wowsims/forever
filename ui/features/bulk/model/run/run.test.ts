@@ -11,6 +11,7 @@ import {
 	BulkSettingsRef,
 	BulkTalentRef,
 	ContentPhase,
+	DatabaseFilters,
 	SavedEncounter,
 	SavedGearSet,
 	SavedRotation,
@@ -275,6 +276,9 @@ const batchHost = ({
 		getEquippedItems: () => player.getGear().asArray(),
 		getFaction: () => raceToFaction[player.sim.store.getState().players[player.storeKey].race as Race],
 		sim: {
+			getFilters(this: { store: SimStore }) {
+				return DatabaseFilters.clone(this.store.getState().sim.filters);
+			},
 			getPhase(this: { store: SimStore }) {
 				return this.store.getState().sim.phase;
 			},
@@ -1027,7 +1031,7 @@ describe('the Drops count', () => {
 		await vi.waitFor(() => expect(vi.mocked(host.sim.getBulkCombinationCount).mock.calls.at(-1)![0].singleChange).toBe(true));
 	});
 
-	it('recounts Drops when the phase, the race or the gear changes', async () => {
+	it('recounts Drops when the phase, the filters, the race or the gear changes', async () => {
 		const host = await initedHost('drops');
 		const { store } = host.player.sim;
 		await vi.waitFor(() => expect(sentItems(host)).toEqual([102]));
@@ -1043,5 +1047,9 @@ describe('the Drops count', () => {
 		Object.assign(host.player, { getGear: () => new Gear({ [ItemSlot.ItemSlotBack]: cloak(), [ItemSlot.ItemSlotChest]: chest() }) });
 		patchKeyed(store, 'players', host.player.storeKey, {}, ['gear']);
 		await vi.waitFor(() => expect(sentItems(host)).toEqual([103, 104]));
+
+		// The drop items have item level 80, which a Max ilvl of 1 leaves out.
+		patchSlice(store, 'sim', { filters: DatabaseFilters.create({ maxIlvl: 1 }) });
+		await vi.waitFor(() => expect(sentItems(host)).toEqual([]));
 	});
 });

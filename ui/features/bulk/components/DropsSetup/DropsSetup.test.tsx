@@ -1,5 +1,5 @@
 import { ItemSlot, Race } from '@generated/proto/common';
-import { ContentPhase } from '@generated/proto/ui';
+import { ContentPhase, DatabaseFilters } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { PlayerSpecs } from '@sim/player/specs';
@@ -63,6 +63,9 @@ const mount = () => {
 		getSpec: () => PlayerSpecs.DpsWarrior.specID,
 		getClass: () => PlayerSpecs.DpsWarrior.classID,
 		sim: {
+			getFilters(this: { store: SimStore }) {
+				return DatabaseFilters.clone(this.store.getState().sim.filters);
+			},
 			getPhase(this: { store: SimStore }) {
 				return this.store.getState().sim.phase;
 			},
@@ -224,6 +227,12 @@ describe('DropsSetup', () => {
 		worn.push(WEARABLE_ITEM_ID);
 		act(() => patchKeyed(player.sim.store, 'players', player.storeKey, {}, ['gear']));
 		expect(row(WEARABLE_ITEM_ID)!.hasAttribute('data-worn')).toBe(true);
+
+		// A Max ilvl of 1 leaves out every fixture item.
+		act(() => patchSlice(player.sim.store, 'sim', { filters: DatabaseFilters.create({ maxIlvl: 1 }) }));
+		expect(rows()).toHaveLength(0);
+		act(() => patchSlice(player.sim.store, 'sim', { filters: DatabaseFilters.create() }));
+		expect(rows().length).toBeGreaterThan(0);
 
 		// Every fixture item is of phase 1.
 		act(() => patchSlice(player.sim.store, 'sim', { phase: ContentPhase.ContentPhaseNone }));

@@ -28,8 +28,9 @@ import {
 	runSourceKeys,
 	topUpgrade,
 } from '../../model/drops/results';
-import { setDropsView } from '../../model/drops/settings';
+import { dropsLevelItemById, setDropsView } from '../../model/drops/settings';
 import { type DropsNames, dropsNamesOf, dropsSourceLabel } from '../../model/drops/sources';
+import { baseIlvl } from '../../model/gear/search';
 import { equipAndAnnounce } from '../../model/results/results';
 import { baselineSignificance, isCulled, rowIterations } from '../../model/results/tie_chains';
 import { BulkResultTieGroup } from '../BulkResults/BulkResultTieGroup';
@@ -127,8 +128,9 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 	const { originalGearResults: current, currentGear, iterations } = results;
 
 	const db = player.sim.db;
-	// The faction the run started on, and no phase filter: a run's items keep their cards after a phase switch.
-	const itemById = useMemo(() => dropsItemLookup(id => db.getItemById(id), runFaction), [db, runFaction]);
+	// The faction the run started on, and no phase filter: a run's items keep their cards after a phase switch. The level
+	// cutoff applies, so a stale tick on a source the tree hides makes no card.
+	const itemById = useMemo(() => dropsItemLookup(dropsLevelItemById(db), runFaction), [db, runFaction]);
 	const names = useMemo(() => dropsNamesOf(db), [db]);
 	const runKeys = useMemo(() => new Set(runSources), [runSources]);
 	const items = useMemo(() => dropsResultItems(results), [results]);
@@ -151,6 +153,10 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 	const pct = (gain: number) => (gain / current.dpsMetrics.avg) * 100;
 	const iconOf = (id: number) => wowheadIconUrl(itemById(id)?.icon ?? '', 'medium');
 	const nameOf = (id: number) => itemById(id)?.name ?? String(id);
+	const ilvlOf = (id: number) => {
+		const item = itemById(id);
+		return item && baseIlvl(item);
+	};
 	const selectCard = (key: string) => {
 		setSource(key);
 		setDropsView(player, 'items');
@@ -168,10 +174,11 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 						itemId: entry.itemId,
 						icon: iconOf(entry.itemId),
 						name: nameOf(entry.itemId),
+						ilvl: ilvlOf(entry.itemId),
 						gainPct: pct(entry.gain),
 						upgrade: entry.upgrade,
 					})),
-					...group.wornIds.map(id => ({ itemId: id, icon: iconOf(id), name: nameOf(id), gainPct: null, upgrade: false })),
+					...group.wornIds.map(id => ({ itemId: id, icon: iconOf(id), name: nameOf(id), ilvl: ilvlOf(id), gainPct: null, upgrade: false })),
 				]}
 				best={top ? { dps: current.dpsMetrics.avg + top.gain, pct: pct(top.gain) } : null}
 				selected={source === group.key}

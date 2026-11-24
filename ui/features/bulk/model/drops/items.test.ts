@@ -1,10 +1,20 @@
-import { ArmorType, Class, Faction, HandType, ItemType, Profession, WeaponType } from '@generated/proto/common';
-import { ContentPhase, UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
+import { ArmorType, Class, Faction, HandType, ItemType, Profession, ScalingItemProperties, WeaponType } from '@generated/proto/common';
+import { ContentPhase, DungeonDifficulty, UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
 import { BulkSimItemSlot } from '@sim/bulk/utils';
 import { PlayerSpecs } from '@sim/player/specs';
 import { describe, expect, it, vi } from 'vitest';
 
-import { dropsFactionItems, type DropsItemContext, dropsItemList, dropsItemsBySlot, dropsItemsBySource, dropsPhaseItems, dropsPickedItemIds } from './items';
+import {
+	dropsFactionItems,
+	type DropsItemContext,
+	dropsItemList,
+	dropsItemsBySlot,
+	dropsItemsBySource,
+	dropsLevelItems,
+	dropsPhaseItems,
+	dropsPickedItemIds,
+	dropsUsableItems,
+} from './items';
 import { dropsItemSourceKeys, type DropsNames, dropsSourceTree } from './sources';
 
 vi.mock('@i18n/config', () => ({
@@ -24,12 +34,14 @@ const soldBy = (faction: Faction) => UIItemSource.create({ source: { oneofKind: 
 const rep = (factionId: Faction) => UIItemSource.create({ source: { oneofKind: 'rep', rep: { repFactionId: 529, repLevel: 0, factionId } } });
 const crafted = () => UIItemSource.create({ source: { oneofKind: 'crafted', crafted: { profession: Profession.Blacksmithing, spellId: 0 } } });
 
+// Every database item carries a base scaling entry, here at the item's own item level.
 const item = (fields: Partial<UIItem> & { id: number; name: string }) =>
 	UIItem.create({
 		type: ItemType.ItemTypeChest,
 		armorType: ArmorType.ArmorTypePlate,
 		phase: ContentPhase.ContentPhaseNone,
 		sources: [drop(1583, 10363)],
+		scalingOptions: { 0: ScalingItemProperties.create({ ilvl: fields.ilvl ?? 0 }) },
 		...fields,
 	});
 const weapon = (id: number, name: string, handType: HandType, weaponType = WeaponType.WeaponTypeSword) =>
@@ -49,6 +61,28 @@ const list = (items: UIItem[], context = DUAL, ticked: ReadonlySet<string> = BOT
 
 const TWO_SOURCE = item({ id: 50, name: 'Two Sources', sources: [drop(1583, 10363), drop(1584, 9568)] });
 
+const NO_LEVEL_FILTERS = { minIlvl: 0, maxIlvl: 0, maxRequiredLevel: 0 };
+const usable = (items: UIItem[], filters = NO_LEVEL_FILTERS) => dropsUsableItems(items, PlayerSpecs.DpsWarrior, filters).map(i => i.id);
+
+describe('dropsUsableItems', () => {
+	it('leaves out what the class cannot equip and random-suffix items', () => {
+		const wrongClass = item({ id: 60, name: 'Wrong Class', classAllowlist: [Class.ClassMage] });
+		const suffixed = item({ id: 61, name: 'Suffixed', randomSuffixOptions: [1, 2] });
+		expect(usable([wrongClass, suffixed, TWO_SOURCE])).toEqual([50]);
+	});
+
+	it('applies the gear picker’s item level and required level bounds, 0 leaving one unset', () => {
+		const low = item({ id: 70, name: 'Low', ilvl: 25, reqLvl: 20 });
+		const high = item({ id: 71, name: 'High', ilvl: 66, reqLvl: 60 });
+		const scaled = item({ id: 72, name: 'Scaled', ilvl: 10, reqLvl: 60, scalingOptions: { 0: ScalingItemProperties.create({ ilvl: 70 }) } });
+		const all = [low, high, scaled];
+		expect(usable(all)).toEqual([70, 71, 72]);
+		expect(usable(all, { ...NO_LEVEL_FILTERS, minIlvl: 30 })).toEqual([71, 72]);
+		expect(usable(all, { ...NO_LEVEL_FILTERS, maxIlvl: 66 })).toEqual([70, 71]);
+		expect(usable(all, { ...NO_LEVEL_FILTERS, maxRequiredLevel: 30 })).toEqual([70]);
+	});
+});
+
 describe('dropsItemList', () => {
 	it('lists an item once when two of its sources are ticked, with both keys', () => {
 		const result = list([TWO_SOURCE]);
@@ -59,13 +93,6 @@ describe('dropsItemList', () => {
 	it('lists an item with one ticked source of two under that source only', () => {
 		const bySource = dropsItemsBySource(list([TWO_SOURCE], DUAL, new Set(['drop:1583:10363'])), dropsSourceTree([TWO_SOURCE], NAMES), NAMES);
 		expect(bySource.map(group => group.key)).toEqual(['drop:1583:10363']);
-	});
-
-	it('leaves out what the class cannot equip and random-suffix items', () => {
-		const wrongClass = item({ id: 60, name: 'Wrong Class', classAllowlist: [Class.ClassMage] });
-		const suffixed = item({ id: 61, name: 'Suffixed', randomSuffixOptions: [1, 2] });
-		const result = list([wrongClass, suffixed, TWO_SOURCE]);
-		expect(result.items.map(i => i.item.id)).toEqual([50]);
 	});
 
 	it('skips an item none of whose sources is ticked', () => {
@@ -167,5 +194,51 @@ describe('dropsFactionItems', () => {
 			[NEUTRAL.id, NEUTRAL.sources.length],
 			[ALLIANCE_ONLY.id, ALLIANCE_ONLY.sources.length],
 		]);
+	});
+});
+
+describe('dropsLevelItems', () => {
+	const ULDAMAN = 1337;
+	const ZUL_FARRAK = 1176;
+	const BLACKROCK_SPIRE = 1583;
+	const MOLTEN_CORE = 2717;
+	const instanceDrop = (difficulty: DungeonDifficulty, zoneId: number, npcId: number) =>
+		UIItemSource.create({ source: { oneofKind: 'drop', drop: { difficulty, npcId, zoneId, otherName: '', category: '' } } });
+	const dungeon = (zoneId: number, npcId: number) => instanceDrop(DungeonDifficulty.DifficultyDungeon, zoneId, npcId);
+	const kept = (items: UIItem[]) => dropsLevelItems(items).map(i => [i.id, i.sources]);
+
+	it('leaves out a dungeon whose loot needs at most level 44, an item it shares with a kept source keeping that one', () => {
+		const archaedas = item({ id: 1, name: 'Archaedas Loot', reqLvl: 44, sources: [dungeon(ULDAMAN, 2748)] });
+		const shared = item({ id: 2, name: 'Shared', reqLvl: 40, sources: [dungeon(ULDAMAN, 6910), dungeon(BLACKROCK_SPIRE, 9568)] });
+		const spire = item({ id: 3, name: 'Spire Loot', reqLvl: 58, sources: [dungeon(BLACKROCK_SPIRE, 10363)] });
+		expect(kept([archaedas, shared, spire])).toEqual([
+			[2, [dungeon(BLACKROCK_SPIRE, 9568)]],
+			[3, spire.sources],
+		]);
+	});
+
+	it('keeps every item of a dungeon whose loot reaches level 45, the low ones too', () => {
+		const high = item({ id: 1, name: 'High', reqLvl: 45, sources: [dungeon(ZUL_FARRAK, 7267)] });
+		const low = item({ id: 2, name: 'Low', reqLvl: 40, sources: [dungeon(ZUL_FARRAK, 7795)] });
+		expect(kept([high, low]).map(([id]) => id)).toEqual([1, 2]);
+	});
+
+	it('keeps a world drop, quest reward, crafted, reputation or vendor source only on an item that needs level 45', () => {
+		const sources = [drop(0, 0), drop(ULDAMAN, 0), quest(Faction.Unknown), crafted(), rep(Faction.Unknown), soldBy(Faction.Unknown)];
+		const items = sources.flatMap((source, index) => [
+			item({ id: 10 + index, name: `Low ${index}`, reqLvl: 44, sources: [source] }),
+			item({ id: 20 + index, name: `High ${index}`, reqLvl: 45, sources: [source] }),
+		]);
+		expect(kept(items).map(([id]) => id)).toEqual([20, 21, 22, 23, 24, 25]);
+	});
+
+	it('keeps a raid drop whatever level it needs', () => {
+		const raid = item({
+			id: 1,
+			name: 'Raid',
+			reqLvl: 30,
+			sources: [instanceDrop(DungeonDifficulty.DifficultyRaid, MOLTEN_CORE, 11502), quest(Faction.Unknown)],
+		});
+		expect(kept([raid])).toEqual([[1, [raid.sources[0]]]]);
 	});
 });

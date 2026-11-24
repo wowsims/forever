@@ -1,13 +1,13 @@
 import { Faction, HandType, ItemType } from '@generated/proto/common';
-import { type UIItem, UIItem_FactionRestriction, type UIItemSource } from '@generated/proto/ui';
+import { type DatabaseFilters, type UIItem, UIItem_FactionRestriction, type UIItemSource } from '@generated/proto/ui';
 import { type BulkSimItemSlot, getBulkItemSlotFromSlot, getBulkPlayerCanDualWield } from '@sim/bulk/utils';
-import type { Player } from '@sim/player/player';
+import { Player } from '@sim/player/player';
 import type { PlayerSpec } from '@sim/player/player_spec';
 import type { Gear } from '@sim/proto/gear';
 import { canEquipItem, getEligibleItemSlots } from '@sim/proto/items';
 import { pushTo } from '@sim/utils/collections';
 
-import { type DropsNames, type DropsSourceLabel, dropsSourceLabel, type DropsSourceNode } from './sources';
+import { dropCategory, type DropsNames, type DropsSourceLabel, dropsSourceLabel, type DropsSourceNode } from './sources';
 
 export interface DropsItemContext {
 	playerSpec: PlayerSpec<any>;
@@ -57,6 +57,54 @@ export const dropsFactionItems = (items: readonly UIItem[], faction: Faction): U
 	return kept;
 };
 
+// Drops lists what a level-60 character still wears; a dungeon's level is its loot's highest required level.
+export const DROPS_MIN_LEVEL = 45;
+
+const dungeonLevels = (items: readonly UIItem[]): Map<number, number> => {
+	const levels = new Map<number, number>();
+	for (const item of items) {
+		for (const { source } of item.sources) {
+			if (source.oneofKind !== 'drop' || dropCategory(source.drop.difficulty) !== 'drop_dungeon') continue;
+			levels.set(source.drop.zoneId, Math.max(levels.get(source.drop.zoneId) ?? 0, Player.requiredLevelOf(item)));
+		}
+	}
+	return levels;
+};
+
+/**
+ * Every raid drop, the drops of a dungeon at `DROPS_MIN_LEVEL` or above, and any other source only on an item that needs
+ * that level; an item left with no source is dropped. A dungeon's level comes from all of `items`, so pass the whole database.
+ */
+export const dropsLevelItems = (items: readonly UIItem[]): UIItem[] => {
+	const levels = dungeonLevels(items);
+	const kept: UIItem[] = [];
+	for (const item of items) {
+		const needsLevel = Player.requiredLevelOf(item) >= DROPS_MIN_LEVEL;
+		const sources = item.sources.filter(({ source }) => {
+			if (source.oneofKind !== 'drop') return needsLevel;
+			switch (dropCategory(source.drop.difficulty)) {
+				case 'drop_raid':
+					return true;
+				case 'drop_dungeon':
+					return levels.get(source.drop.zoneId)! >= DROPS_MIN_LEVEL;
+				default:
+					return needsLevel;
+			}
+		});
+		if (sources.length === 0) continue;
+		kept.push(sources.length === item.sources.length ? item : { ...item, sources });
+	}
+	return kept;
+};
+
+/** The items the class can equip that pass the gear picker's level filters; a random-suffix item is left out. */
+export const dropsUsableItems = (
+	items: readonly UIItem[],
+	playerSpec: PlayerSpec<any>,
+	filters: Pick<DatabaseFilters, 'minIlvl' | 'maxIlvl' | 'maxRequiredLevel'>,
+): UIItem[] =>
+	items.filter(item => canEquipItem(item, playerSpec, undefined) && item.randomSuffixOptions.length === 0 && Player.passesLevelFilters(item, filters));
+
 export type DropsSlotTag = 'mh' | 'oh' | '2h' | 'r1' | 'r2' | 't1' | 't2';
 
 export interface DropsItem {
@@ -98,7 +146,7 @@ const tagsOf = (item: UIItem, canDualWield: boolean): DropsSlotTag[] => {
 
 const byName = (a: UIItem, b: UIItem) => a.name.localeCompare(b.name);
 
-/** The class's usable items, random-suffix ones left out; `sourceKeysOf` gives an item's `dropsItemSourceKeys`. */
+/** The listed `items` with a ticked source; `sourceKeysOf` gives an item's `dropsItemSourceKeys`. */
 export const dropsItemList = (
 	items: readonly UIItem[],
 	ticked: ReadonlySet<string>,
@@ -109,7 +157,7 @@ export const dropsItemList = (
 	const listed: DropsItem[] = [];
 	for (const item of items) {
 		const sourceKeys = sourceKeysOf(item).filter(key => ticked.has(key));
-		if (sourceKeys.length === 0 || !canEquipItem(item, context.playerSpec, undefined) || item.randomSuffixOptions.length > 0) continue;
+		if (sourceKeys.length === 0) continue;
 		listed.push({
 			item,
 			sourceKeys,

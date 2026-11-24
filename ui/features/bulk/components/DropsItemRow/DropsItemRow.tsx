@@ -4,9 +4,11 @@ import { ActionId } from '@sim/proto/action_id';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import type { DeltaText } from '@sim/utils/format';
 import { Button } from '@ui-kit/Button';
+import { ItemCellIcon } from '@ui-kit/ItemCell';
 import { itemQualityClassName } from '@ui-kit/utils/css';
 import { WowheadIcon } from '@ui-kit/WowheadIcon';
 
+import { baseIlvl } from '../../model/gear/search';
 import { formatBulkItemLabel } from '../../model/results/format';
 import { BulkDpsCell } from '../BulkDpsCell';
 
@@ -46,7 +48,9 @@ const ItemName = ({ item }: ItemNameProps) => {
 	const { iconUrl, href } = useActionId(ActionId.fromItem(item.item));
 	return (
 		<span className="flex min-w-0 items-center gap-2">
-			<WowheadIcon className="size-8 shrink-0" iconUrl={iconUrl} href={href || undefined} navigate={false} tabIndex={-1} />
+			<ItemCellIcon ilvl={baseIlvl(item.item)} size="sm">
+				<WowheadIcon className="size-full" iconUrl={iconUrl} href={href || undefined} navigate={false} tabIndex={-1} />
+			</ItemCellIcon>
 			<span className={`min-w-0 wrap-break-word ${itemQualityClassName(item.item.quality)}`}>{formatBulkItemLabel(item)}</span>
 		</span>
 	);

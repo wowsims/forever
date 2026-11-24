@@ -250,11 +250,15 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   Reputation and Vendors. The three drop categories share the `drop:` leaf keys, so the difficulty is not in a key: the
   tree reads it from the source, and a stored tick keeps its key whichever category shows it. Each drop category lists
   zones, each with its bosses and then its other drops, and after the zones the drops with no zone (World Drop). The L60
-  dungeons quick pick ticks five zones of Dungeons (`DROPS_L60_DUNGEON_ZONE_IDS`). The Sources tree lists the items the
-  phase and the player's side let through (`dropsPhaseItems`, `dropsFactionItems`); `dropsSetupFor` keeps those items,
-  their source keys and the tree until the database, its item count, the phase or the side changes. The item list under
-  the ticked sources lists only what the class can equip and leaves the random-suffix items out, with no note of either;
-  a worn item is listed but never sent.
+  dungeons quick pick ticks five zones of Dungeons (`DROPS_L60_DUNGEON_ZONE_IDS`). Drops lists what a level-60 character
+  still wears (`dropsLevelItems`, `DROPS_MIN_LEVEL` 45): a dungeon's level is the highest `Player.requiredLevelOf` of
+  every database item it drops, whatever the class or phase, and a dungeon below 45 leaves the tree. Raid drops stay,
+  and any other source stays only on an item that needs level 45. The Sources tree and the item list hold the items that
+  cutoff, the phase, the player's side, the class and the gear picker's Min ilvl, Max ilvl and Required level let through
+  (`dropsPhaseItems`, `dropsFactionItems`, `dropsUsableItems`), random-suffix items left out, with no note of any of
+  them. `dropsSetupFor` keeps the cutoff until the database or its item count changes, and the items, their source keys
+  and the tree until the phase, the side, the class or one of those filters changes too. A worn item is listed but never
+  sent.
   Four keys store the picks per spec: `bulk-drops-sources.v1` (the ticked leaf keys, sorted), `bulk-drops-excluded.v1`
   (item ids unticked under them), `bulk-drops-enchant-presets.v1` (the presets Drops runs new items with, apart from
   Gear's and Builds' picks) and `bulk-drops-view.v1` (`bosses` or `items`). Each pick but the view bumps `settings` so

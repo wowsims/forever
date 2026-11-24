@@ -5,6 +5,7 @@ import { ActionId } from '@sim/proto/action_id';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
 import { Field } from '@ui-kit/Field';
+import { ItemCellIcon } from '@ui-kit/ItemCell';
 import { Pill } from '@ui-kit/Pill';
 import { ToggleGroup } from '@ui-kit/ToggleGroup';
 import { Tooltip } from '@ui-kit/Tooltip';
@@ -17,6 +18,7 @@ import { useId, useMemo, useRef } from 'react';
 
 import { type DropsItem, type DropsItemList, dropsItemsBySlot, dropsItemsBySource } from '../../model/drops/items';
 import { type DropsNames, dropsSourceLabel, type DropsSourceNode } from '../../model/drops/sources';
+import { baseIlvl } from '../../model/gear/search';
 
 export interface DropsItemsViewProps {
 	list: DropsItemList;
@@ -73,7 +75,9 @@ const ItemRow = ({ entry, group, names, onIncludedChange }: ItemRowProps) => {
 		<div className="flex h-full items-center gap-2 px-1" data-testid="drops-item-row" data-item-id={item.id} data-worn={worn ? '' : undefined}>
 			<Field.Root id={id} layout="inline" size="xs" disabled={worn} className="ui-boolean-picker min-w-0 grow">
 				<BooleanPicker id={id} value={included && !worn} disabled={worn} onChange={checked => onIncludedChange([item.id], checked)} />
-				<WowheadIcon className="size-8 shrink-0" iconUrl={iconUrl} href={href || undefined} navigate={false} tabIndex={-1} />
+				<ItemCellIcon ilvl={baseIlvl(item)} size="sm">
+					<WowheadIcon className="size-full" iconUrl={iconUrl} href={href || undefined} navigate={false} tabIndex={-1} />
+				</ItemCellIcon>
 				<Field.Label className={clsx('min-w-0 truncate text-base', itemQualityClassName(item.quality))}>{item.name}</Field.Label>
 			</Field.Root>
 			{worn ? (

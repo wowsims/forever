@@ -7,6 +7,14 @@
 		--icon-size: --spacing(16);
 
 		@apply relative h-(--icon-size) w-(--icon-size) border border-border max-lg:[--icon-size:--spacing(12)];
+
+		&[data-size='sm'] {
+			@apply shrink-0 [--icon-size:--spacing(8)];
+
+			> .ui-item-picker-ilvl {
+				@apply text-[10px] leading-none;
+			}
+		}
 	}
 
 	.ui-item-picker-ilvl {

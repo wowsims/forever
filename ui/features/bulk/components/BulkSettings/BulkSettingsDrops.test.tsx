@@ -1,5 +1,5 @@
 import { ItemSlot, Race } from '@generated/proto/common';
-import { ContentPhase } from '@generated/proto/ui';
+import { ContentPhase, DatabaseFilters } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
@@ -44,6 +44,9 @@ const mount = () => {
 		getClass: () => PlayerSpecs.DpsWarrior.classID,
 		sim: {
 			isNative: false,
+			getFilters(this: { store: SimStore }) {
+				return DatabaseFilters.clone(this.store.getState().sim.filters);
+			},
 			getPhase(this: { store: SimStore }) {
 				return this.store.getState().sim.phase;
 			},

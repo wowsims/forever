@@ -1356,6 +1356,16 @@ export class Player<SpecType extends Spec> {
 		return ilvl >= Mechanics.CHARACTER_LEVEL ? Mechanics.CHARACTER_LEVEL : Math.max(1, ilvl - 5);
 	}
 
+	/** The Filters menu's Min ilvl, Max ilvl and Required level; 0 leaves a bound unset. */
+	static passesLevelFilters(item: Item, { minIlvl, maxIlvl, maxRequiredLevel }: Pick<DatabaseFilters, 'minIlvl' | 'maxIlvl' | 'maxRequiredLevel'>): boolean {
+		const ilvl = () => item.scalingOptions?.[0].ilvl || item.ilvl;
+		return (
+			(maxRequiredLevel == 0 || Player.requiredLevelOf(item) <= maxRequiredLevel) &&
+			(minIlvl == 0 || ilvl() >= minIlvl) &&
+			(maxIlvl == 0 || ilvl() <= maxIlvl)
+		);
+	}
+
 	filterItemData<T>(itemData: Array<T>, getItemFunc: (val: T) => Item, slot: ItemSlot): Array<T> {
 		const filters = this.sim.getFilters();
 
@@ -1363,15 +1373,7 @@ export class Player<SpecType extends Spec> {
 			return itemData.filter(itemElem => filterFunc(getItemFunc(itemElem)));
 		};
 
-		if (filters.maxRequiredLevel != 0) {
-			itemData = filterItems(itemData, item => Player.requiredLevelOf(item) <= filters.maxRequiredLevel);
-		}
-		if (filters.minIlvl != 0) {
-			itemData = filterItems(itemData, item => (item.scalingOptions?.[0].ilvl || item.ilvl) >= filters.minIlvl);
-		}
-		if (filters.maxIlvl != 0) {
-			itemData = filterItems(itemData, item => (item.scalingOptions?.[0].ilvl || item.ilvl) <= filters.maxIlvl);
-		}
+		itemData = filterItems(itemData, item => Player.passesLevelFilters(item, filters));
 
 		// A picked area, mob type or creature group narrows the list to the items with a bonus in or against a picked one.
 		if (filters.areaTypes.length || filters.mobTypes.length || filters.creatureFamilies.length) {

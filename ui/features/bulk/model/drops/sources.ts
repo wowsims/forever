@@ -66,11 +66,11 @@ export const dropsItemSourceKeys = (item: UIItem, names: DropsNames): string[] =
 	return [...keys];
 };
 
+export const dropCategory = (difficulty: DungeonDifficulty): DropsCategory => DROP_CATEGORIES.get(difficulty) ?? 'drop_world';
+
 // A zone's drops share one difficulty, so a drop leaf takes the category of the first source that keys to it.
 const sourceCategory = (source: UIItemSource, key: string): DropsCategory =>
-	source.source.oneofKind === 'drop'
-		? (DROP_CATEGORIES.get(source.source.drop.difficulty) ?? 'drop_world')
-		: (key.slice(0, key.indexOf(':')) as DropsCategory);
+	source.source.oneofKind === 'drop' ? dropCategory(source.source.drop.difficulty) : (key.slice(0, key.indexOf(':')) as DropsCategory);
 
 export interface DropsSourceLabel {
 	label: string;

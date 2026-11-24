@@ -125,9 +125,9 @@ export const initBulk = (host: IndividualSimHost<any>) => {
 		subscribeBulkChange(player)(() => void refreshBulkCombinations(host));
 		// Enchanting unlocks enchants, so it can change the enchant pool.
 		subscribeAll([subscribePlayerField(player, 'profession1'), subscribePlayerField(player, 'profession2')])(() => void refreshBulkCombinations(host));
-		// The phase and the race, whose side `player.getFaction()` reads, change the Drops list and no other mode's count. A
-		// gear change recounts through `loadEquippedBulkItems`, which bumps `items`.
-		subscribeAll([subscribeSimField(sim, 'phase'), subscribePlayerField(player, 'race')])(() => {
+		// The phase, the gear picker's filters and the race, whose side `player.getFaction()` reads, change the Drops list and no
+		// other mode's count. A gear change recounts through `loadEquippedBulkItems`, which bumps `items`.
+		subscribeAll([subscribeSimField(sim, 'phase'), subscribeSimField(sim, 'filters'), subscribePlayerField(player, 'race')])(() => {
 			if (bulkRunsDrops(sim.getShowPowerTools(), bulkState(player).mode)) void refreshBulkCombinations(host);
 		});
 

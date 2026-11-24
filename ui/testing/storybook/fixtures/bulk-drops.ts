@@ -1,6 +1,6 @@
 import type { DropsBossCardViewProps } from '@features/bulk/components/DropsBossCard';
 import type { DropsItemRowViewProps } from '@features/bulk/components/DropsItemRow';
-import { type DropsItemList, dropsItemList } from '@features/bulk/model/drops/items';
+import { type DropsItemList, dropsItemList, dropsUsableItems } from '@features/bulk/model/drops/items';
 import { dropsItemSourceKeys, type DropsNames, type DropsSourceNode, dropsSourceTree } from '@features/bulk/model/drops/sources';
 import { rankEncounterResults } from '@features/bulk/model/results/results';
 import { BulkSimStage, DistributionMetrics } from '@generated/proto/api';
@@ -94,32 +94,49 @@ export const WEARABLE_ITEM_ID = 2005;
 export const dropsItemsFixture = (): UIItem[] => [
 	weapon(2001, 'Felstriker', HandType.HandTypeOneHand, [drop(BLACKROCK_SPIRE, REND), drop(STRATHOLME, RIVENDARE)], {
 		quality: ItemQuality.ItemQualityEpic,
+		ilvl: 63,
+		reqLvl: 58,
 	}),
-	weapon(2002, 'Blackblade of Shahram', HandType.HandTypeTwoHand, [drop(BLACKROCK_SPIRE, DRAKKISATH)], { quality: ItemQuality.ItemQualityEpic }),
-	weapon(WORN_ITEM_ID, 'Blackhand Doomsaw', HandType.HandTypeTwoHand, [drop(BLACKROCK_SPIRE, REND)]),
-	gear(2004, 'Dracorian Gauntlets', ItemType.ItemTypeHands, [drop(STRATHOLME, RIVENDARE)]),
-	gear(2005, 'Reiver Claws', ItemType.ItemTypeHands, [drop(BLACKROCK_SPIRE, WYRMTHALAK)]),
+	weapon(2002, 'Blackblade of Shahram', HandType.HandTypeTwoHand, [drop(BLACKROCK_SPIRE, DRAKKISATH)], {
+		quality: ItemQuality.ItemQualityEpic,
+		ilvl: 63,
+		reqLvl: 58,
+	}),
+	weapon(WORN_ITEM_ID, 'Blackhand Doomsaw', HandType.HandTypeTwoHand, [drop(BLACKROCK_SPIRE, REND)], { ilvl: 63, reqLvl: 58 }),
+	gear(2004, 'Dracorian Gauntlets', ItemType.ItemTypeHands, [drop(STRATHOLME, RIVENDARE)], { ilvl: 63, reqLvl: 58 }),
+	gear(2005, 'Reiver Claws', ItemType.ItemTypeHands, [drop(BLACKROCK_SPIRE, WYRMTHALAK)], { ilvl: 60, reqLvl: 55 }),
 	gear(2006, 'Mark of the Dragon Lord', ItemType.ItemTypeFinger, [drop(BLACKROCK_SPIRE, WYRMTHALAK)], {
 		armorType: ArmorType.ArmorTypeUnknown,
 		quality: ItemQuality.ItemQualityEpic,
+		ilvl: 63,
+		reqLvl: 58,
 	}),
-	gear(UNTICKED_ITEM_ID, 'Death Grips', ItemType.ItemTypeHands, [drop(STRATHOLME, BARTHILAS)]),
-	gear(2008, 'Robe of the Archmage', ItemType.ItemTypeChest, [drop(BLACKROCK_SPIRE, DRAKKISATH)], { classAllowlist: [Class.ClassMage] }),
-	gear(2009, 'Cloak of the Eagle', ItemType.ItemTypeBack, [drop(STRATHOLME, RIVENDARE)], { randomSuffixOptions: [1, 2] }),
+	gear(UNTICKED_ITEM_ID, 'Death Grips', ItemType.ItemTypeHands, [drop(STRATHOLME, BARTHILAS)], { ilvl: 61, reqLvl: 56 }),
+	gear(2008, 'Robe of the Archmage', ItemType.ItemTypeChest, [drop(BLACKROCK_SPIRE, DRAKKISATH)], {
+		classAllowlist: [Class.ClassMage],
+		ilvl: 62,
+		reqLvl: 57,
+	}),
+	gear(2009, 'Cloak of the Eagle', ItemType.ItemTypeBack, [drop(STRATHOLME, RIVENDARE)], { randomSuffixOptions: [1, 2], ilvl: 60, reqLvl: 55 }),
 	gear(ALLIANCE_ITEM_ID, 'Lionheart Gauntlets', ItemType.ItemTypeHands, [drop(BLACKROCK_SPIRE, REND)], {
 		factionRestriction: UIItem_FactionRestriction.ALLIANCE_ONLY,
+		ilvl: 63,
+		reqLvl: 58,
 	}),
-	gear(2010, 'Sulfuras Hand', ItemType.ItemTypeWaist, [drop(MOLTEN_CORE, RAGNAROS)]),
-	weapon(2012, 'Hand of Edward the Odd', HandType.HandTypeOneHand, [worldDrop], { weaponType: WeaponType.WeaponTypeMace }),
+	gear(2010, 'Sulfuras Hand', ItemType.ItemTypeWaist, [drop(MOLTEN_CORE, RAGNAROS)], { ilvl: 66, reqLvl: 60 }),
+	weapon(2012, 'Hand of Edward the Odd', HandType.HandTypeOneHand, [worldDrop], { weaponType: WeaponType.WeaponTypeMace, ilvl: 62, reqLvl: 57 }),
 ];
 
-export const dropsTreeFixture = (): DropsSourceNode[] => dropsSourceTree(dropsItemsFixture(), dropsNamesFixture());
+const usableItems = () => dropsUsableItems(dropsItemsFixture(), PlayerSpecs.DpsWarrior, { minIlvl: 0, maxIlvl: 0, maxRequiredLevel: 0 });
+
+/** The Sources tree of the items the class can use, as the setup builds it. */
+export const dropsTreeFixture = (): DropsSourceNode[] => dropsSourceTree(usableItems(), dropsNamesFixture());
 
 /** Every dungeon boss ticked and the raid not: the worn weapon, a boss's unticked item, two items the list leaves out and an item from two ticked sources. */
 export const dropsItemListFixture = (): DropsItemList => {
 	const ticked = new Set(['drop:1583:10429', 'drop:1583:10363', 'drop:1583:9568', 'drop:2017:10440', 'drop:2017:10435']);
 	return dropsItemList(
-		dropsItemsFixture().filter(item => item.id !== 2010),
+		usableItems().filter(item => item.id !== 2010),
 		ticked,
 		new Set([UNTICKED_ITEM_ID]),
 		{
@@ -208,8 +225,8 @@ export const dropsCardsFixture = (): DropsBossCardViewProps[] => {
 			rank: 1,
 			label: { label: 'Warchief Rend Blackhand', detail: 'Blackrock Spire' },
 			strip: [
-				{ itemId: 2001, icon: icon('inv_sword_39'), name: 'Felstriker', gainPct: 4, upgrade: true },
-				{ itemId: 2003, icon: icon('inv_weapon_halberd_04'), name: 'Blackhand Doomsaw', gainPct: null, upgrade: false },
+				{ itemId: 2001, icon: icon('inv_sword_39'), name: 'Felstriker', ilvl: 63, gainPct: 4, upgrade: true },
+				{ itemId: 2003, icon: icon('inv_weapon_halberd_04'), name: 'Blackhand Doomsaw', ilvl: 63, gainPct: null, upgrade: false },
 			],
 			best: { dps: 780, pct: 4 },
 		},
@@ -218,8 +235,8 @@ export const dropsCardsFixture = (): DropsBossCardViewProps[] => {
 			rank: 2,
 			label: { label: 'Overlord Wyrmthalak', detail: 'Blackrock Spire' },
 			strip: [
-				{ itemId: 2006, icon: icon('inv_jewelry_ring_36'), name: 'Mark of the Dragon Lord', gainPct: 2, upgrade: true },
-				{ itemId: 2005, icon: icon('inv_gauntlets_29'), name: 'Reiver Claws', gainPct: 0.4, upgrade: true },
+				{ itemId: 2006, icon: icon('inv_jewelry_ring_36'), name: 'Mark of the Dragon Lord', ilvl: 63, gainPct: 2, upgrade: true },
+				{ itemId: 2005, icon: icon('inv_gauntlets_29'), name: 'Reiver Claws', ilvl: 60, gainPct: 0.4, upgrade: true },
 			],
 			best: { dps: 765, pct: 2 },
 		},
@@ -227,7 +244,7 @@ export const dropsCardsFixture = (): DropsBossCardViewProps[] => {
 			...base,
 			rank: null,
 			label: { label: 'General Drakkisath', detail: 'Blackrock Spire' },
-			strip: [{ itemId: 2002, icon: icon('inv_sword_43'), name: 'Blackblade of Shahram', gainPct: -0.27, upgrade: false }],
+			strip: [{ itemId: 2002, icon: icon('inv_sword_43'), name: 'Blackblade of Shahram', ilvl: 63, gainPct: -0.27, upgrade: false }],
 			best: null,
 		},
 	];
