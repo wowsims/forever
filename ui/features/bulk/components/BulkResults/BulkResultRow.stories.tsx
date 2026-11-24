@@ -54,6 +54,18 @@ export const NotSignificant: Story = {
 	args: { avg: 1372.9, delta: { text: '+2.63 (0.19%)', tone: null }, significance: 'Difference is not significantly different (Z = 0.311).' },
 };
 
+/** Stopped before the final stage: no margin, and a note before the Equip button. */
+export const RuledOutEarly: Story = {
+	args: {
+		plusMinus: 0,
+		lowPrecision: {
+			note: 'Ruled out early',
+			tooltip:
+				'Clearly below your current gear, so the run stopped simming it before the final stage. Its DPS comes from fewer iterations and shows no ±.',
+		},
+	},
+};
+
 /** The current gear: labelled instead of compared, with no item cells and no equip button. */
 export const CurrentGear: Story = { args: { avg: 1370.27, isBase: true, children: null } };
 

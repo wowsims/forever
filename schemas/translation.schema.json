@@ -4843,6 +4843,15 @@
 								"low_precision": {
 									"type": "string"
 								},
+								"boe": {
+									"type": "string"
+								},
+								"boe_tooltip": {
+									"type": "string"
+								},
+								"equip_item": {
+									"type": "string"
+								},
 								"low_precision_tooltip": {
 									"type": "string"
 								},
@@ -4865,6 +4874,9 @@
 								"filtered_by",
 								"clear_filter",
 								"low_precision",
+								"boe",
+								"boe_tooltip",
+								"equip_item",
 								"low_precision_tooltip",
 								"run_simulation"
 							]

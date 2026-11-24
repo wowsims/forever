@@ -137,14 +137,15 @@ export const BulkTabBody = () => {
 									<BulkResults onActivateTab={activateTab} selected={selectedEncounter} />
 								)}
 							</TabPanelColumns.Left>
-							{results && results.length > 0 && (
+							{/* A Drops run has one encounter, so its pane carries the export itself. */}
+							{!drops && results && results.length > 0 && (
 								<BulkEncounterResults
 									selected={selectedEncounter}
 									onSelect={selectEncounter}
 									footer={
 										<div className="flex flex-wrap gap-2">
 											<BulkResultsCsvButton />
-											{!drops && results.length > 1 && <BulkCompareButton />}
+											{results.length > 1 && <BulkCompareButton />}
 										</div>
 									}
 								/>

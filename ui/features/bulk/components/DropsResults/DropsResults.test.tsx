@@ -1,5 +1,5 @@
 import { Faction, ItemSlot, ItemSpec } from '@generated/proto/common';
-import { ContentPhase, DungeonDifficulty, type UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
+import { ContentPhase, DungeonDifficulty, type UIEnchant, type UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
 import { translateSlotName } from '@i18n/localization';
 import type { BulkRankedResult } from '@sim/bulk/types';
 import { SimHostProvider } from '@sim/context/SimHostContext';
@@ -33,6 +33,7 @@ vi.mock('@i18n/config', () => ({
 	},
 }));
 vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: 'icon.jpg', name: '', href: '', ready: true }) }));
+vi.mock('@sim/proto/enchants', () => ({ getEnchantDescription: async (enchant: UIEnchant) => enchant.name }));
 const toastAdd = vi.hoisted(() => vi.fn());
 vi.mock('@ui-kit/Toast', () => ({ toastManager: { add: toastAdd } }));
 
@@ -169,7 +170,7 @@ describe('DropsResults', () => {
 
 	it('filters the item list to a card’s source on a click, and clears it', () => {
 		mount();
-		fireEvent.click(cards()[0]);
+		fireEvent.click(within(cards()[0]).getByTestId('drops-boss-select'));
 
 		expect(loadStoredBulkDropsView(player)).toBe('items');
 		expect(rowIds()).toEqual([FELSTRIKER, 'current']);
@@ -183,7 +184,7 @@ describe('DropsResults', () => {
 
 	it('shows a new run’s results unfiltered', () => {
 		mount();
-		fireEvent.click(cards()[0]);
+		fireEvent.click(within(cards()[0]).getByTestId('drops-boss-select'));
 
 		act(() => patchBulkState(player, { dropsResults: dropsResultsFixture().dropsResults }));
 
@@ -244,6 +245,19 @@ describe('DropsResults', () => {
 		expect(within(rowOf(FELSTRIKER)).getByTestId('topline-result-stdev')).toBeTruthy();
 	});
 
+	it('marks an item that binds on equip and shows a row’s enchant on its own line, with the CSV export beside the view switch', async () => {
+		mount();
+		fireEvent.click(view('items'));
+
+		expect(within(rowOf(REIVER)).getByTestId('drops-item-boe').textContent).toBe(`${RESULTS}.boe`);
+		expect(within(rowOf(FELSTRIKER)).queryByTestId('drops-item-boe')).toBeNull();
+		expect(await within(rowOf(DRACORIAN)).findByText('Enchant Gloves - Greater Agility')).toBeTruthy();
+		expect(within(rowOf(DRACORIAN)).getByTestId('drops-item-label').textContent).not.toContain('(');
+		expect(within(rowOf(FELSTRIKER)).queryByTestId('drops-item-enchant')).toBeNull();
+		act(() => patchBulkState(player, { mode: 'drops' }));
+		expect(within(screen.getByTestId('drops-results')).getByTestId('bulk-results-export-csv')).toBeTruthy();
+	});
+
 	it('equips a row’s gear and opens the gear tab', () => {
 		mount();
 		fireEvent.click(view('items'));
@@ -253,6 +267,21 @@ describe('DropsResults', () => {
 		expect(player.getGear().getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.id).toBe(FELSTRIKER);
 		expect(onActivateTab).toHaveBeenCalledWith('gear-tab');
 		expect(toastAdd).toHaveBeenCalledTimes(1);
+	});
+
+	it('equips an item’s best row from the [+] on its card icon, and leaves a worn item without one', () => {
+		mount();
+		const felstriker = cards()
+			.flatMap(card => within(card).getAllByTestId('drops-boss-strip-item'))
+			.find(entry => entry.getAttribute('data-item-id') === String(FELSTRIKER))!;
+
+		fireEvent.click(within(felstriker).getByTestId('drops-boss-equip'));
+
+		expect(player.getGear().getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.id).toBe(FELSTRIKER);
+		expect(onActivateTab).toHaveBeenCalledWith('gear-tab');
+		for (const worn of screen.queryAllByTestId('drops-boss-strip-item').filter(entry => entry.hasAttribute('data-worn'))) {
+			expect(within(worn).queryByTestId('drops-boss-equip')).toBeNull();
+		}
 	});
 
 	it('keeps the run’s cards under a phase that lists none of its items', () => {

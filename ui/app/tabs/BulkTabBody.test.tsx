@@ -294,7 +294,7 @@ describe('BulkTabBody', () => {
 		expect(isShown(settings())).toBe(true);
 	});
 
-	it('shows the Drops results and the CSV button in Drops, Gear’s results untouched', () => {
+	it('shows the Drops results without the encounters sidebar in Drops, Gear’s results untouched', () => {
 		const player = mount(THREE);
 		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
 		expect(screen.queryByTestId('drops-results-stub')).toBeNull();
@@ -311,8 +311,7 @@ describe('BulkTabBody', () => {
 		expect(isShown(screen.getByTestId('drops-results-stub'))).toBe(true);
 		expect(paneOf(screen.getByTestId('drops-results-stub')).id).toBe('bulkResultsTab');
 		expect(screen.queryAllByTestId('row')).toHaveLength(0);
-		expect(sidebar()!.contains(exportButton())).toBe(true);
-		expect(within(sidebar()!).queryByText('bulk_tab.compare.button')).toBeNull();
+		expect(sidebar()).toBeNull();
 
 		act(() => patchBulkState(player, { mode: 'gear' }));
 

@@ -6,7 +6,7 @@ import { dropsItemSourceKeys, type DropsNames, type DropsSourceNode, dropsSource
 import { rankEncounterResults } from '@features/bulk/model/results/results';
 import { BulkSimStage, DistributionMetrics } from '@generated/proto/api';
 import { ArmorType, Class, Faction, HandType, ItemQuality, ItemSlot, ItemType, WeaponType } from '@generated/proto/common';
-import { ContentPhase, DungeonDifficulty, type UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
+import { BindType, ContentPhase, DungeonDifficulty, UIEnchant, type UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
 import type { BulkEncounterResults, TopGearResult } from '@sim/bulk/types';
 import { PlayerSpecs } from '@sim/player/specs';
 import { EquippedItem } from '@sim/proto/equipped_item';
@@ -105,7 +105,7 @@ export const dropsItemsFixture = (): UIItem[] => [
 	}),
 	weapon(WORN_ITEM_ID, 'Blackhand Doomsaw', HandType.HandTypeTwoHand, [drop(BLACKROCK_SPIRE, REND)], { ilvl: 63, reqLvl: 58 }),
 	gear(2004, 'Dracorian Gauntlets', ItemType.ItemTypeHands, [drop(STRATHOLME, RIVENDARE)], { ilvl: 63, reqLvl: 58 }),
-	gear(2005, 'Reiver Claws', ItemType.ItemTypeHands, [drop(BLACKROCK_SPIRE, WYRMTHALAK)], { ilvl: 60, reqLvl: 55 }),
+	gear(2005, 'Reiver Claws', ItemType.ItemTypeHands, [drop(BLACKROCK_SPIRE, WYRMTHALAK)], { ilvl: 60, reqLvl: 55, bindType: BindType.BindTypeOnEquip }),
 	gear(2006, 'Mark of the Dragon Lord', ItemType.ItemTypeFinger, [drop(BLACKROCK_SPIRE, WYRMTHALAK)], {
 		armorType: ArmorType.ArmorTypeUnknown,
 		quality: ItemQuality.ItemQualityEpic,
@@ -198,7 +198,17 @@ export const dropsResultsFixture = (): { dropsResults: BulkEncounterResults[]; d
 						row(ItemSlot.ItemSlotFinger2, 2006, 762.1, { backendRank: 2 }),
 						row(ItemSlot.ItemSlotMainHand, 2002, 748, { backendRank: 3 }),
 						row(ItemSlot.ItemSlotHands, 2005, 749, { culledStage: BulkSimStage.BulkSimStageMedium, pairedDpsDiffToBaseline: 3 }),
-						row(ItemSlot.ItemSlotHands, 2004, 745, { culledStage: BulkSimStage.BulkSimStageLow, pairedErrorToBaseline: 2 }),
+						row(ItemSlot.ItemSlotHands, 2004, 745, {
+							culledStage: BulkSimStage.BulkSimStageLow,
+							pairedErrorToBaseline: 2,
+							gear: currentGear.withEquippedItem(
+								ItemSlot.ItemSlotHands,
+								new EquippedItem({
+									item: items.get(2004)!,
+									enchant: UIEnchant.create({ effectId: 2564, name: 'Enchant Gloves - Greater Agility' }),
+								}),
+							),
+						}),
 					],
 					iterations: DROPS_ITERATIONS,
 					metrics: {},

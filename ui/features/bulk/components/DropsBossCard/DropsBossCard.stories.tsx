@@ -24,11 +24,17 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// A worn item shows "Equipped" in its strip slot.
+const onEquip = fn();
+
+// A worn item shows "Equipped" in its strip slot; every other icon carries a [+] that equips it.
 export const Default: Story = {
-	args: { onSelect: fn() },
+	args: { onSelect: fn(), strip: top.strip.map(entry => (entry.gainPct === null ? entry : { ...entry, onEquip })) },
 	play: async ({ args, canvasElement }) => {
-		await userEvent.click(within(canvasElement).getByTestId('drops-boss-card'));
+		const canvas = within(canvasElement);
+		await userEvent.click(canvas.getByTestId('drops-boss-select'));
+		await expect(args.onSelect).toHaveBeenCalledOnce();
+		await userEvent.click(canvas.getAllByTestId('drops-boss-equip')[0]);
+		await expect(onEquip).toHaveBeenCalledOnce();
 		await expect(args.onSelect).toHaveBeenCalledOnce();
 	},
 };

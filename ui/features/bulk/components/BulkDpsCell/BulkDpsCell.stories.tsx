@@ -12,7 +12,7 @@ const meta = {
 		plusMinus: 2.4,
 		diff: { text: '+17.50 (2.33%)', tone: 'positive', significance: 'Difference is significantly different (Z = 17.500).' },
 	},
-	argTypes: { diff: { control: 'object' }, lowPrecision: { control: 'object' } },
+	argTypes: { diff: { control: 'object' } },
 } satisfies Meta<typeof BulkDpsCell>;
 
 export default meta;
@@ -22,14 +22,3 @@ export const Default: Story = {};
 
 /** The current gear's row: labelled, with no difference. */
 export const CurrentGear: Story = { args: { label: 'Current gear', avg: 750, diff: null } };
-
-/** Stopped before the final stage: no margin, with a note. */
-export const LowPrecision: Story = {
-	args: {
-		plusMinus: null,
-		lowPrecision: {
-			note: 'Ruled out early',
-			tooltip: 'The run dropped this candidate before the final stage, so its DPS carries a wider margin and shows no ±.',
-		},
-	},
-};

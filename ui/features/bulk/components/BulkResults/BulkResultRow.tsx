@@ -51,7 +51,7 @@ export interface BulkResultRowViewProps {
 	gearUnchanged?: boolean;
 	/** A tie group follows this row: its own border separates them, so the row draws no separator or padding. */
 	beforeGroup?: boolean;
-	/** A row stopped before the final stage: a note under its DPS. */
+	/** A row stopped before the final stage: a note before its Equip button, with the reason in its tooltip. */
 	lowPrecision?: { note: string; tooltip: string };
 	/** Data attributes for the row's root; a `data-testid` among them replaces the row's own. */
 	rootDataAttributes?: Record<string, string>;
@@ -86,6 +86,7 @@ export const BulkResultRowView = ({
 }: BulkResultRowViewProps) => {
 	const talentsTooltipId = useId();
 	const bundleTooltipId = useId();
+	const lowPrecisionTooltipId = useId();
 	const parts: BulkSetupLabels = { gear: gearSetup, talents: talents?.label ?? null, rotation: rotation?.label ?? null, settings: settings?.label ?? null };
 
 	return (
@@ -105,7 +106,6 @@ export const BulkResultRowView = ({
 						avg={avg}
 						plusMinus={plusMinus}
 						diff={isBase || isReference ? null : { ...delta, significance }}
-						lowPrecision={lowPrecision}
 					/>
 				)}
 			</div>
@@ -176,7 +176,15 @@ export const BulkResultRowView = ({
 					children
 				)}
 			</div>
-			<div className="ml-auto flex shrink-0 justify-end">
+			<div className="ml-auto flex shrink-0 items-center justify-end gap-4">
+				{lowPrecision && (
+					<>
+						<span className="text-xs text-warning" data-testid="bulk-result-low-precision" {...tooltipAnchorProps(lowPrecisionTooltipId)}>
+							{lowPrecision.note}
+						</span>
+						<Tooltip id={lowPrecisionTooltipId} content={lowPrecision.tooltip} />
+					</>
+				)}
 				<Button className={clsx(isBase && 'hidden')} data-testid="bulk-equip-btn" data-hidden={isBase ? '' : undefined} onClick={onEquip}>
 					{i18n.t('bulk_tab.results.equip_button')}
 				</Button>

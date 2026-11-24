@@ -299,8 +299,11 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   group by those, never by the tree or the race as they are now, and `dropsItemLookup` resolves items one id at a time
   (`getItemById`) through the faction filter but not the phase filter, so a run keeps its cards after a phase switch.
   `DropsResults` shows `DropsSummary`, then the Bosses view (one `DropsBossCard` per ticked leaf the rows reach, best
-  gain first, cards with no upgrade last) or the Items view (Gear's result rows with no header and no rank, the new
-  item's name, slot and sources in a `DropsItemLabel` beside its slot; the current gear's row and, per item, every
+  gain first, cards with no upgrade last; each icon but a worn one carries a [+] that equips the item's best row) or the
+  Items view (Gear's result rows with no header and no rank, the new item's name with a BoE pill when its
+  `UIItem.bind_type` is on equip, its enchant under it as the gear tab draws one, and its slot and sources in a
+  `DropsItemLabel` beside its slot; one `VirtualList` entry per ranking, measured, since a tie group, a note or a
+  wrapped name changes its height; the current gear's row and, per item, every
   row that is a proven upgrade (a ring upgrading in both slots lists both) or its best row when none is, filtered by the
   one source a card click picked; that click switches the
   stored view to Items, and the filter is not stored). Every % and every delta uses `dropsGap`, the paired difference
@@ -313,10 +316,11 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   summary then shows the best drop without a best source; the best-source tile shows the best drop's gain. M in "N / M"
   counts the card's strip, the source's worn items too.
 - A row culled before the finalist set (`isCulled`: `culledStage` set to a stage) is lower precision: no ±, no tight
-  bracket, an empty `dps_margin_95` in the CSV, and it brackets only with the current gear. Drops rows show their DPS
+  bracket, an empty `dps_margin_95` in the CSV, a "Ruled out early" note before its Equip button, and it brackets only
+  with the current gear. Drops rows show their DPS
   whatever the hide-damage display setting says, since every Drops output is a DPS ranking. In the CSV the `rank` column
   skips the current gear's row; Gear and Builds rank it like any other row. Drops has no Compare
-  button.
+  button and no encounter list, a Drops run having one encounter; its CSV export sits at the end of the view switch.
 - `bulkRunMode` (`ui/features/bulk/model/mode.ts`, from power tools and the stored mode) is the one gate. `runBulkBatch`
   reads it, and `useBulkMode` derives `builds` and `drops` from it (`bulkRunsBuilds`, `bulkRunsDrops`) for the Setup
   pane, which in Builds shows `BulkBuildsColumns` and in Drops `DropsSetup` in place of the item picker. Outside

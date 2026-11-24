@@ -129,22 +129,18 @@ interface RailRowProps {
 	onIncludedChange: DropsItemsDialogViewProps['onIncludedChange'];
 	/** Set on a parent: the chevron at the end shows whether its sources are open. */
 	expanded?: boolean;
-	nested?: boolean;
 }
 
 // The rail from md up, laid out as the Sources tree: a box that ticks every shown, non-worn item of the row, then
 // the name and counts, which pick the row or open a parent, and a parent's chevron at the end.
-const RailRow = ({ group, active, onClick, onIncludedChange, expanded, nested }: RailRowProps) => {
+const RailRow = ({ group, active, onClick, onIncludedChange, expanded }: RailRowProps) => {
 	const id = useId();
 	const { ticked, total } = dropsTickCount(group.items);
 	const ids = group.items.filter(entry => !entry.worn).map(entry => entry.item.id);
 	return (
 		<div
 			data-active={active ? '' : undefined}
-			className={clsx(
-				'group flex items-center gap-2 border-e-2 border-transparent ps-2 hover:bg-gray-800 data-active:border-primary data-active:bg-gray-800',
-				nested && 'ps-6',
-			)}>
+			className="group flex items-center gap-2 border-e-2 border-transparent ps-2 hover:bg-gray-800 data-active:border-primary data-active:bg-gray-800">
 			<Field.Root
 				id={id}
 				layout="inline"
@@ -371,17 +367,19 @@ export const DropsItemsDialogView = ({
 										onClick={() => toggle(parent.group.key)}
 										onIncludedChange={onIncludedChange}
 									/>
-									{expanded &&
-										parent.leaves.map(leaf => (
-											<RailRow
-												key={leaf.key}
-												group={leaf}
-												active={leaf.key === picked.key}
-												nested
-												onClick={() => setPick(leaf.key)}
-												onIncludedChange={onIncludedChange}
-											/>
-										))}
+									{expanded && (
+										<div className="ms-2 grid border-s border-border pb-1">
+											{parent.leaves.map(leaf => (
+												<RailRow
+													key={leaf.key}
+													group={leaf}
+													active={leaf.key === picked.key}
+													onClick={() => setPick(leaf.key)}
+													onIncludedChange={onIncludedChange}
+												/>
+											))}
+										</div>
+									)}
 								</Fragment>
 							);
 						})}

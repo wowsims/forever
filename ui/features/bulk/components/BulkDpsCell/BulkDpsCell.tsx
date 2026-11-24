@@ -3,7 +3,7 @@ import { ResultMetricValue } from '@features/results/components/ResultMetricValu
 import type { ReferenceDiff } from '@features/results/model/reference_diffs';
 import i18n from '@i18n/config';
 import { formatToNumber } from '@sim/utils/format';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
+import { Tooltip } from '@ui-kit/Tooltip';
 import clsx from 'clsx';
 import { useId } from 'react';
 
@@ -20,12 +20,10 @@ export interface BulkDpsCellProps {
 	plusMinus: number | null;
 	/** The difference to the row it is measured against; null shows none. */
 	diff: ReferenceDiff | null;
-	/** A row stopped before the final stage: a note under the DPS, whose tooltip takes the margin's place. */
-	lowPrecision?: { note: string; tooltip: string };
 }
 
 // A result row's DPS with its margin and its difference, each with a tooltip.
-export const BulkDpsCell = ({ className, testId, label, avg, plusMinus, diff, lowPrecision }: BulkDpsCellProps) => {
+export const BulkDpsCell = ({ className, testId, label, avg, plusMinus, diff }: BulkDpsCellProps) => {
 	const marginTooltipId = useId();
 	const deltaTooltipId = useId();
 
@@ -41,12 +39,7 @@ export const BulkDpsCell = ({ className, testId, label, avg, plusMinus, diff, lo
 				/>
 			</div>
 			{diff && <ResultReferenceDiff diff={diff} tooltipId={deltaTooltipId} hideLabel />}
-			{lowPrecision && (
-				<span className="text-xs font-normal text-warning" {...tooltipAnchorProps(marginTooltipId)}>
-					{lowPrecision.note}
-				</span>
-			)}
-			<Tooltip id={marginTooltipId} content={lowPrecision ? lowPrecision.tooltip : i18n.t('bulk_tab.results.margin_of_error')} />
+			<Tooltip id={marginTooltipId} content={i18n.t('bulk_tab.results.margin_of_error')} />
 			<Tooltip id={deltaTooltipId} />
 		</div>
 	);

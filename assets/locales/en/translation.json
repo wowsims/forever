@@ -1352,6 +1352,9 @@
 				"filtered_by": "Source:",
 				"clear_filter": "Clear the source filter",
 				"low_precision": "Ruled out early",
+				"boe": "BoE",
+				"boe_tooltip": "Binds when equipped: it can be traded until worn, so you can buy it instead of farming it.",
+				"equip_item": "Equip {{name}}",
 				"low_precision_tooltip": "Clearly below your current gear, so the run stopped simming it before the final stage. Its DPS comes from fewer iterations and shows no ±.",
 				"run_simulation": "Run a Drops simulation to view results"
 			},

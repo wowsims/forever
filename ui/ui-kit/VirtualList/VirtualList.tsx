@@ -5,9 +5,13 @@ import { WINDOW_SCROLLER } from './window_scroller';
 
 export interface VirtualListProps {
 	count: number;
-	// Every row is exactly this tall. Rows are never measured — dynamic measurement would re-render
-	// on every row that reports a different height, which is an easy infinite loop.
+	// Every row is exactly this tall, unless `measured`, where it is the estimate a row keeps until it
+	// has rendered once.
 	rowHeight?: number;
+	// For rows whose heights differ: each mounted row is measured, through the virtualiser's own
+	// `measureElement`, and re-measured when it resizes. A row's height must not depend on where the
+	// list places it, or a measurement moves the row and the next one measures it again.
+	measured?: boolean;
 	// The element that scrolls. May be an ancestor the list shares with other content, or `window`
 	// when the list scrolls with the page. Returning `window` switches the list into window mode, so
 	// a caller resolving its scroller with `findScrollParent` may report either without knowing which
@@ -44,6 +48,7 @@ export const VirtualList = ({
 	rowHeight = DEFAULT_ROW_HEIGHT,
 	getScrollElement,
 	scrollMargin = 0,
+	measured = false,
 	className,
 	rowClassName,
 	renderRow,
@@ -80,13 +85,14 @@ export const VirtualList = ({
 					data-index={item.index}
 					data-stripe={item.index % 2 === 0 ? 'even' : 'odd'}
 					data-testid="virtual-list-row"
+					ref={measured ? virtualizer.measureElement : undefined}
 					className={rowClassName?.(item.index)}
 					style={{
 						position: 'absolute',
 						top: 0,
 						left: 0,
 						width: '100%',
-						height: rowHeight,
+						height: measured ? undefined : rowHeight,
 						transform: `translateY(${item.start - scrollMargin}px)`,
 					}}>
 					{renderRow(item.index)}
