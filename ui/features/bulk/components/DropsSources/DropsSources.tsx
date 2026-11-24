@@ -73,7 +73,7 @@ const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 				)}
 			</div>
 			{open && (
-				<div className="ms-2 grid border-s border-border ps-4">
+				<div className="ms-2 grid border-s border-border ps-2">
 					{node.children.map(child => (
 						<SourceRow key={child.key} node={child} ticked={ticked} onTick={onTick} />
 					))}
