@@ -1123,6 +1123,105 @@ func TestNoWrackContributionWithoutTheChannel(t *testing.T) {
 	}
 }
 
+// Time To Half Tick reads the time until the effect's next point halfway between two of its normal ticks, counted
+// back from its expiry, whether Wrack is channelled or not. A point due at the instant reads as passed, and an
+// effect that is down or has no point left reads 0. Either rank of Corruption is read. Siphon Life is the 14th
+// affliction talent, Wrack the 17th.
+func TestTimeToHalfTick(t *testing.T) {
+	type read struct{ at, want float64 } // Seconds from the effect's application.
+	corruption := func(w *Warlock) *core.Spell { return w.Corruption }
+	cases := []struct {
+		name  string
+		dot   proto.APLValueWarlockTimeToHalfTick_WrackDot
+		spell func(*Warlock) *core.Spell
+		wrack float64 // When Wrack's channel starts, or 0 for none.
+		reads []read
+	}{
+		{name: "Corruption", dot: proto.APLValueWarlockTimeToHalfTick_Corruption, spell: corruption,
+			reads: []read{{0, 1.5}, {1.5, 3}, {2, 2.5}, {16.4, 0.1}, {16.5, 0}, {17.9, 0}}},
+		{name: "Corruption under Wrack from 3.2 s", dot: proto.APLValueWarlockTimeToHalfTick_Corruption, spell: corruption, wrack: 3.2,
+			reads: []read{{3.3, 1.2}, {5, 2.5}}},
+		{name: "Corruption at its other rank", dot: proto.APLValueWarlockTimeToHalfTick_Corruption,
+			spell: func(w *Warlock) *core.Spell {
+				for _, spell := range w.afflictionDots {
+					if spell.Matches(WarlockSpellCorruption) && spell != w.Corruption {
+						return spell
+					}
+				}
+				return nil
+			},
+			reads: []read{{0, 1.5}, {10, 0.5}}},
+		{name: "Siphon Life", dot: proto.APLValueWarlockTimeToHalfTick_SiphonLife, spell: func(w *Warlock) *core.Spell { return w.SiphonLife },
+			reads: []read{{0, 1.5}, {28, 0.5}, {28.5, 0}}},
+		{name: "Bane of Agony", dot: proto.APLValueWarlockTimeToHalfTick_BaneOfAgony, spell: func(w *Warlock) *core.Spell { return w.BaneOfAgony },
+			reads: []read{{0, 1}, {0.25, 0.75}, {22.9, 0.1}, {23, 0}}},
+	}
+	seconds := func(s float64) time.Duration { return time.Duration(math.Round(s*1000)) * time.Millisecond }
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			sim, warlock := newWarlockSim("00000000000001001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+			target := sim.Encounter.AllTargetUnits[0]
+			value := warlock.NewAPLValue(warlock.Rotation, &proto.APLValue{Value: &proto.APLValue_WarlockTimeToHalfTick{
+				WarlockTimeToHalfTick: &proto.APLValueWarlockTimeToHalfTick{Dot: c.dot},
+			}})
+			if value == nil {
+				t.Fatalf("Time To Half Tick(%s) did not resolve", c.dot)
+			}
+			if got := value.GetDuration(sim); got != 0 {
+				t.Errorf("read %v with the effect down, want 0", got)
+			}
+			dot := c.spell(warlock).Dot(target)
+			// Applied off the warlock's mana ticks, every 0.1 s, so nothing else is due at a read.
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: 137 * time.Millisecond, OnAction: dot.Apply})
+			stepFor(sim, 137*time.Millisecond)
+			start := sim.CurrentTime
+			if c.wrack > 0 {
+				sim.AddPendingAction(&core.PendingAction{NextActionAt: start + seconds(c.wrack), OnAction: warlock.Wrack.Dot(target).Apply})
+			}
+			got := make([]time.Duration, len(c.reads))
+			for i, r := range c.reads {
+				sim.AddPendingAction(&core.PendingAction{NextActionAt: start + seconds(r.at), Priority: core.ActionPriorityLow,
+					OnAction: func(sim *core.Simulation) { got[i] = value.GetDuration(sim) }})
+			}
+			stepFor(sim, seconds(c.reads[len(c.reads)-1].at)+time.Millisecond)
+			for i, r := range c.reads {
+				if got[i] != seconds(r.want) {
+					t.Errorf("read %v at %vs, want %vs", got[i], r.at, r.want)
+				}
+			}
+		})
+	}
+
+	t.Run("Corruption while it is cast", func(t *testing.T) {
+		sim, warlock := newWarlockSim("00000000000001001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+		target := sim.Encounter.AllTargetUnits[0]
+		value := warlock.NewAPLValue(warlock.Rotation, &proto.APLValue{Value: &proto.APLValue_WarlockTimeToHalfTick{
+			WarlockTimeToHalfTick: &proto.APLValueWarlockTimeToHalfTick{Dot: proto.APLValueWarlockTimeToHalfTick_Corruption},
+		}})
+		// A cast longer than half the period puts a point of the landed effect's grid inside the cast, which
+		// the read has to skip.
+		castTime := warlock.Corruption.CastTime()
+		if castTime <= 1500*time.Millisecond {
+			t.Fatalf("Corruption casts in %v, the case is written for a cast longer than 1.5 s", castTime)
+		}
+		if !warlock.Corruption.Cast(sim, target) {
+			t.Fatalf("Corruption was not cast")
+		}
+		if got, want := value.GetDuration(sim), castTime+1500*time.Millisecond; got != want {
+			t.Errorf("read %v as the cast starts, want %v: 1.5 s after the cast lands", got, want)
+		}
+	})
+
+	t.Run("Siphon Life not learnt", func(t *testing.T) {
+		_, warlock := newWarlockSim("00000000000000001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+		if value := warlock.NewAPLValue(warlock.Rotation, &proto.APLValue{Value: &proto.APLValue_WarlockTimeToHalfTick{
+			WarlockTimeToHalfTick: &proto.APLValueWarlockTimeToHalfTick{Dot: proto.APLValueWarlockTimeToHalfTick_SiphonLife},
+		}}); value != nil {
+			t.Errorf("Time To Half Tick(SiphonLife) resolved to %s without Siphon Life, want it dropped", value)
+		}
+	})
+}
+
 // A Corruption ticking under Wrack before the pull records no Wrack contribution, as its damage is not counted.
 func TestNoWrackContributionBeforeThePull(t *testing.T) {
 	sim, warlock := newWarlockSim("00000000000000001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))

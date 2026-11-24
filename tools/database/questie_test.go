@@ -298,13 +298,14 @@ func TestPruneQuestieSources(t *testing.T) {
 	worldDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: worldDropName}}}
 	vendor, openWorld, inDungeon, inRaid := soldBy(28), dropSource(1, 28), dropSource(2, 2057), dropSource(3, 2717)
 	zoneDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: multipleNpcsName, ZoneId: 2057}}}
-	lostZoneDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: multipleNpcsName, ZoneId: 1585}}}
+	lostZoneDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{OtherName: multipleNpcsName, ZoneId: 9999}}}
+	movedZoneDrop := dropSource(6, 1585)
 
 	questie := NewWowDatabase()
-	questie.Items[1] = &proto.UIItem{Id: 1, Sources: []*proto.UIItemSource{quest, vendor, soldBy(1585), openWorld, inDungeon, inRaid, dropSource(4, 1585), dropSource(5, 0), worldDrop, zoneDrop, lostZoneDrop}}
-	PruneQuestieSources(questie, map[int32]bool{2717: true}, map[int32]bool{2057: true}, map[int32]string{28: "Western Plaguelands", 2057: "Scholomance", 2717: "Molten Core"})
+	questie.Items[1] = &proto.UIItem{Id: 1, Sources: []*proto.UIItemSource{quest, vendor, soldBy(9999), openWorld, inDungeon, inRaid, dropSource(4, 9999), dropSource(5, 0), worldDrop, zoneDrop, lostZoneDrop, movedZoneDrop}}
+	PruneQuestieSources(questie, map[int32]bool{2717: true}, map[int32]bool{2057: true, 1584: true}, map[int32]string{28: "Western Plaguelands", 1584: "Blackrock Depths", 2057: "Scholomance", 2717: "Molten Core"})
 
-	want := []*proto.UIItemSource{quest, vendor, openWorld, inDungeon, inRaid, worldDrop, zoneDrop}
+	want := []*proto.UIItemSource{quest, vendor, openWorld, inDungeon, inRaid, worldDrop, zoneDrop, movedZoneDrop}
 	got := questie.Items[1].Sources
 	if len(got) != len(want) {
 		t.Fatalf("sources = %v, want the quest, the vendor and NPCs in known zones, and the world drop", got)
@@ -314,12 +315,16 @@ func TestPruneQuestieSources(t *testing.T) {
 			t.Errorf("source %d = %v, want %v", i, got[i], want[i])
 		}
 	}
+	if zone := movedZoneDrop.GetDrop().ZoneId; zone != 1584 {
+		t.Errorf("a drop QuestieDB places in 1585 has zone %d, want Blackrock Depths' 1584", zone)
+	}
 	for source, difficulty := range map[*proto.UIItemSource]proto.DungeonDifficulty{
-		openWorld: proto.DungeonDifficulty_DifficultyUnknown,
-		inDungeon: proto.DungeonDifficulty_DifficultyDungeon,
-		inRaid:    proto.DungeonDifficulty_DifficultyRaid,
-		worldDrop: proto.DungeonDifficulty_DifficultyUnknown,
-		zoneDrop:  proto.DungeonDifficulty_DifficultyDungeon,
+		openWorld:     proto.DungeonDifficulty_DifficultyUnknown,
+		inDungeon:     proto.DungeonDifficulty_DifficultyDungeon,
+		inRaid:        proto.DungeonDifficulty_DifficultyRaid,
+		worldDrop:     proto.DungeonDifficulty_DifficultyUnknown,
+		zoneDrop:      proto.DungeonDifficulty_DifficultyDungeon,
+		movedZoneDrop: proto.DungeonDifficulty_DifficultyDungeon,
 	} {
 		if source.GetDrop().Difficulty != difficulty {
 			t.Errorf("%v has difficulty %v, want %v", source, source.GetDrop().Difficulty, difficulty)

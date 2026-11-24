@@ -237,6 +237,7 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `warlock_active_pet(no_summon|imp|voidwalker|succubus|felhunter)`
 - `warlock_bane_is_active_on_all_targets`
 - `warlock_assigned_curse_is_active_on_all_targets`
+- `warlock_time_to_half_tick(corruption|siphon_life|bane_of_agony, target_unit: unit)`
 - `protection_paladin_damage_taken_last_global`
 - `[unit.]druid_bleed_is_active`
 - `druid_excess_energy`

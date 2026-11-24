@@ -6,6 +6,7 @@ import {
 	APLValueCompare_ComparisonOperator as ComparisonOperator,
 	APLValueIsExecutePhase_ExecutePhaseThreshold as ExecutePhaseThreshold,
 	APLValueMath_MathOperator as MathOperator,
+	APLValueWarlockTimeToHalfTick_WrackDot as WrackDot,
 } from '@generated/proto/apl';
 import { ActionID, AreaType, MobType, OtherAction, RangedWeaponType, Stat } from '@generated/proto/common';
 import { ShamanTotems_TotemType as TotemType } from '@generated/proto/shaman';
@@ -90,6 +91,15 @@ const SUMMON_TYPES: EnumTable = {
 		{ value: Summon.Succubus, label: i18n.t('rotation_tab.apl.summon_types.succubus') },
 		{ value: Summon.Felhunter, label: i18n.t('rotation_tab.apl.summon_types.felhunter') },
 		{ value: Summon.NoSummon, label: i18n.t('rotation_tab.apl.summon_types.no_summon') },
+	],
+};
+
+const WRACK_DOTS: EnumTable = {
+	defaultLabel: none(),
+	options: [
+		{ value: WrackDot.Corruption, label: i18n.t('rotation_tab.apl.wrack_dots.corruption') },
+		{ value: WrackDot.SiphonLife, label: i18n.t('rotation_tab.apl.wrack_dots.siphon_life') },
+		{ value: WrackDot.BaneOfAgony, label: i18n.t('rotation_tab.apl.wrack_dots.bane_of_agony') },
 	],
 };
 
@@ -255,6 +265,10 @@ export const resolveField = (descriptor: APLFieldDescriptor, player: Player<any>
 			// NoSummon is 0, which fieldInputConfig reads as unset and replaces with this default, so the
 			// default has to be NoSummon for it to stay selectable.
 			return asEnum(descriptor.field, SUMMON_TYPES, () => Summon.NoSummon);
+		case 'wrackDot':
+			// Corruption is 0, which fieldInputConfig reads as unset and replaces with this default, so the
+			// default has to be Corruption for it to stay selectable.
+			return asEnum(descriptor.field, WRACK_DOTS, () => WrackDot.Corruption);
 		case 'autoType':
 			return isWandClass(player)
 				? asEnum(descriptor.field, AUTO_TYPES_WAND, () => APLValueAutoAttackType.WandAuto)

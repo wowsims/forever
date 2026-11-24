@@ -117,6 +117,7 @@ import {
 	APLValueUnitIsMoving,
 	APLValueUnitMovementSpeed,
 	APLValueWarlockActivePet,
+	APLValueWarlockTimeToHalfTick,
 	APLValueWarlockAssignedCurseIsActive,
 	APLValueWarlockAssignedCurseIsActiveOnAllTargets,
 	APLValueWarlockBaneIsActiveOnAllTargets,
@@ -154,6 +155,7 @@ import {
 	ValueFieldDescriptor,
 	valueListFieldConfig,
 	variableNameFieldConfig,
+	wrackDotFieldConfig,
 } from './field_descriptors';
 
 type APLValue_Value = APLValue['value'];
@@ -1219,6 +1221,14 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		newValue: APLValueWarlockActivePet.create,
 		includeIf: (player: Player<any>, isPrepull: boolean) => !isPrepull && player.getSpec() == Spec.SpecWarlock,
 		fields: [summonTypeFieldConfig('summon')],
+	}),
+	warlockTimeToHalfTick: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.warlock_time_to_half_tick.label'),
+		submenu: ['warlock'],
+		shortDescription: i18n.t('rotation_tab.apl.values.warlock_time_to_half_tick.tooltip'),
+		newValue: APLValueWarlockTimeToHalfTick.create,
+		includeIf: (player: Player<any>, isPrepull: boolean) => !isPrepull && player.getSpec() == Spec.SpecWarlock,
+		fields: [wrackDotFieldConfig('dot'), unitFieldConfig('targetUnit', 'targets')],
 	}),
 	protectionPaladinDamageTakenLastGlobal: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.protection_paladin_damage_taken_last_global.label'),

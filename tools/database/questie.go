@@ -299,18 +299,37 @@ func questieNpcFaction(friendlyTo string) proto.Faction {
 	return proto.Faction_Unknown
 }
 
-// Removes the vendors and drops with no zone or a zone that is not in the game files, and sets each drop's difficulty
-// from its zone, which stays unknown in the open world. A world drop names neither an NPC nor a zone.
+// QuestieDB zones the game files' AreaTable holds under another id: QuestieDB places Blackrock Depths' NPCs in 1585,
+// and AreaTable names the instance 1584.
+var questieZoneAreas = map[int32]int32{
+	1585: 1584, // Blackrock Depths
+}
+
+func questieZoneArea(zone int32) int32 {
+	if area, ok := questieZoneAreas[zone]; ok {
+		return area
+	}
+	return zone
+}
+
+// Moves the NPCs, vendors and drops QuestieDB zones under another id to their AreaTable zone, removes the vendors and
+// drops with no zone or a zone that is not in the game files, and sets each drop's difficulty from its zone, which
+// stays unknown in the open world. A world drop names neither an NPC nor a zone.
 func PruneQuestieSources(questie *WowDatabase, raidZones, dungeonZones map[int32]bool, areaNames map[int32]string) {
+	for _, npc := range questie.Npcs {
+		npc.ZoneId = questieZoneArea(npc.ZoneId)
+	}
 	for _, item := range questie.Items {
 		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
 			if soldBy := source.GetSoldBy(); soldBy != nil {
+				soldBy.ZoneId = questieZoneArea(soldBy.ZoneId)
 				return areaNames[soldBy.ZoneId] != ""
 			}
 			drop := source.GetDrop()
 			if drop == nil || drop.ZoneId == 0 && drop.NpcId == 0 {
 				return true
 			}
+			drop.ZoneId = questieZoneArea(drop.ZoneId)
 			if raidZones[drop.ZoneId] || dungeonZones[drop.ZoneId] {
 				drop.Difficulty = ParseDungeonDifficulty(raidZones[drop.ZoneId])
 			}
