@@ -117,11 +117,11 @@ import {
 	APLValueUnitIsMoving,
 	APLValueUnitMovementSpeed,
 	APLValueWarlockActivePet,
-	APLValueWarlockTimeToHalfTick,
 	APLValueWarlockAssignedCurseIsActive,
 	APLValueWarlockAssignedCurseIsActiveOnAllTargets,
 	APLValueWarlockBaneIsActiveOnAllTargets,
 	APLValueWarlockIsAssignedCurse,
+	APLValueWarlockTimeToHalfTick,
 } from '@generated/proto/apl';
 import { Class, Spec } from '@generated/proto/common';
 import i18n from '@i18n/config';
