@@ -14,9 +14,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
-	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/tools/database/buffmanifest"
 )
@@ -75,14 +73,11 @@ type tsBuffRegistryEntry struct {
 	OwnerClass string // "" when the manifest names no owning class
 }
 
-// A raid buff that overwrites the consumables granting as much of its stats (R-0053): the scrolls where
-// it bids in core's StatBuff category, the elixirs where it names an ElixirCategory.
+// A raid buff that names an ElixirCategory, which overwrites the elixirs and scrolls granting as much of
+// its stats (R-0054).
 type tsOverwritingBuffEntry struct {
-	Const       string
-	Stats       []tsStatAmount
-	PseudoStats []tsStatAmount
-	Scrolls     bool
-	Elixirs     bool
+	Const string
+	Stats []tsStatAmount
 }
 
 type tsStatAmount struct {
@@ -134,8 +129,8 @@ export const {{ .Input.Const }} = {{ .Input.Factory }}({
 {{ template "registry" dict "Name" "GENERATED_PARTY_BUFFS_CONFIG" "Entries" .Party }}
 {{ template "registry" dict "Name" "GENERATED_INDIVIDUAL_BUFFS_CONFIG" "Entries" .Individual }}
 {{ template "registry" dict "Name" "GENERATED_DEBUFFS_CONFIG" "Entries" .Debuff }}
-// The raid buffs that overwrite the scrolls, the elixirs or both that grant as much of a stat or percent as they do
-// (R-0053), each with what it grants.
+// The raid buffs that overwrite the elixirs and scrolls that grant as much of a stat as they do (R-0054), each with
+// what it grants.
 export const GENERATED_OVERWRITING_BUFFS: OverwritingBuff[] = [
 {{- range .Overwrites }}
 	{
@@ -143,15 +138,6 @@ export const GENERATED_OVERWRITING_BUFFS: OverwritingBuff[] = [
 {{- if .Stats }}
 		stats: { {{- range $index, $amount := .Stats }}{{ if $index }},{{ end }} [Stat.{{ $amount.Stat }}]: {{ $amount.Amount }}{{ end }} },
 {{- end }}
-{{- if .PseudoStats }}
-		pseudoStats: {
-{{- range .PseudoStats }}
-			[PseudoStat.{{ .Stat }}]: {{ .Amount }},
-{{- end }}
-		},
-{{- end }}
-		scrolls: {{ .Scrolls }},
-		elixirs: {{ .Elixirs }},
 	},
 {{- end }}
 {{- if .Overwrites }}
@@ -243,39 +229,26 @@ func RenderBuffsDebuffsTS(rows []ResolvedBuff) ([]byte, error) {
 
 // Whether the row's buff overwrites consumables, which the settings then read its input for.
 func overwritesConsumables(row ResolvedBuff) bool {
-	return row.Category == core.StatBuffCategory || row.ElixirCategory != ""
+	return row.ElixirCategory != ""
 }
 
-// The pseudo-stats the consumables list a crit percent by, keyed by the applied kind: physical as melee and ranged,
-// spell as spell.
-var critPseudoStats = map[string][]proto.PseudoStat{
-	"stat " + stats.PhysicalCritPercent.StatName(): {proto.PseudoStat_PseudoStatMeleeCritPercent, proto.PseudoStat_PseudoStatRangedCritPercent},
-	"stat " + stats.SpellCritPercent.StatName():    {proto.PseudoStat_PseudoStatSpellCritPercent},
-}
-
-// The flat stats and crit percents the row's parse attaches, at the talent points 0 the raid input
+// The flat stats the row's parse attaches, at the talent points 0 the raid input
 // applies it with. The settings read the input as on or off, so a row a talent or a rank prices would
 // bid amounts the entry cannot state.
 func overwritingBuffEntry(row ResolvedBuff, input *tsBuffInput) (tsOverwritingBuffEntry, error) {
 	if row.Proto != buffmanifest.ProtoBool {
 		return tsOverwritingBuffEntry{}, fmt.Errorf("a %s buff bids an amount per state, which an overwriting buff entry cannot state", row.Proto)
 	}
-	entry := tsOverwritingBuffEntry{Const: input.Const, Scrolls: row.Category == core.StatBuffCategory, Elixirs: row.ElixirCategory != ""}
-	amount := func(applied spelldata.Applied) string { return strconv.FormatFloat(applied.Value, 'f', -1, 64) }
+	entry := tsOverwritingBuffEntry{Const: input.Const}
 	for stat := range stats.Stat(stats.ProtoStatsLen) {
 		for _, applied := range row.Applied {
 			if applied.Kind == "stat "+stat.StatName() {
-				entry.Stats = append(entry.Stats, tsStatAmount{Stat: proto.Stat(stat).String(), Amount: amount(applied)})
+				entry.Stats = append(entry.Stats, tsStatAmount{Stat: proto.Stat(stat).String(), Amount: strconv.FormatFloat(applied.Value, 'f', -1, 64)})
 			}
 		}
 	}
-	for _, applied := range row.Applied {
-		for _, pseudoStat := range critPseudoStats[applied.Kind] {
-			entry.PseudoStats = append(entry.PseudoStats, tsStatAmount{Stat: pseudoStat.String(), Amount: amount(applied)})
-		}
-	}
-	if len(entry.Stats) == 0 && len(entry.PseudoStats) == 0 {
-		return tsOverwritingBuffEntry{}, fmt.Errorf("the row attaches no flat stat or crit to overwrite a consumable's with")
+	if len(entry.Stats) == 0 {
+		return tsOverwritingBuffEntry{}, fmt.Errorf("the row attaches no flat stat to overwrite a consumable's with")
 	}
 	return entry, nil
 }
@@ -435,7 +408,7 @@ func buffsDebuffsTSImports(factories map[string]bool) string {
 	slices.Sort(names)
 
 	var b strings.Builder
-	b.WriteString(tsImport([]string{"Class", "PseudoStat", "Stat"}, "@generated/proto/common"))
+	b.WriteString(tsImport([]string{"Class", "Stat"}, "@generated/proto/common"))
 	b.WriteString(tsImport([]string{"ActionId"}, "@sim/proto/action_id"))
 	b.WriteString(tsImport(names, "@features/inputs/icon_inputs"))
 	b.WriteString("\n")

@@ -31,12 +31,13 @@ func ElixirGroup(aura dbcenums.EffectAuraType, misc int) ConsumableGroupKey {
 }
 
 // The group of the elixirs that grant a crit chance, whatever aura they open on (Elixir of the
-// Mongoose's is Agility). Only one elixir's crit counts (R-0053), and the group lets each go beside
+// Mongoose's is Agility). Only one elixir's crit counts (R-0054), and the group lets each go beside
 // an elixir of its first stat.
 var ElixirCritGroup = ElixirGroup(dbcenums.A_MOD_CRIT_PCT, 0)
 
 // The group of the scrolls whose on-use spell's first aura is the aura type with the misc value: the
-// ranks of one scroll. The key is apart from the elixirs', since a scroll stacks with them.
+// ranks of one scroll. The key is apart from the elixirs', so a scroll can be picked beside an elixir
+// of its stat, which then counts at the stronger amount alone (R-0054).
 func ScrollGroup(aura dbcenums.EffectAuraType, misc int) ConsumableGroupKey {
 	return ConsumableGroupKey{Key: fmt.Sprintf("scroll %d/%d", aura, misc), Name: auraGroupName(aura, misc)}
 }

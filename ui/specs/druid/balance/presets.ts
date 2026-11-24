@@ -83,7 +83,7 @@ export const DefaultDebuffs = Debuffs.create({
 
 export const DefaultConsumables = ConsumesSpec.create({
 	conjuredId: Consumables.DemonicRune.id,
-	elixirIds: [Consumables.GreaterArcaneElixir.id, Consumables.ElixirOfNaturePower.id, Consumables.GreaterMagebloodElixir.id],
+	elixirIds: [Consumables.GreaterArcaneElixir.id, Consumables.ElixirOfNaturePower.id, Consumables.ElixirOfTheOwl.id, Consumables.GreaterMagebloodElixir.id],
 	explosiveId: Consumables.SAFTCleverDynamite.id,
 	flaskId: Consumables.FlaskOfSupremePower.id,
 	foodId: Consumables.LobsterStew.id,
