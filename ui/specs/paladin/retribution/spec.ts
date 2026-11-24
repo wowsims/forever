@@ -160,8 +160,9 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 			'Delay Major CDs': `${simple.delayMajorCds}s`,
 		};
 
-		values['Use Seal of Command'] = String(sealOfCommand && (unsealedWrath || simple.seal === PaladinSeal.SealOfCommand));
-		values['Use Seal of Righteousness'] = String(unsealedWrath || !sealOfCommand || simple.seal === PaladinSeal.SealOfRighteousness);
+		const seal = Inputs.chosenSeal(simple, sealOfCommand);
+		values['Use Seal of Command'] = String(sealOfCommand && (unsealedWrath || seal === PaladinSeal.SealOfCommand));
+		values['Use Seal of Righteousness'] = String(unsealedWrath || !sealOfCommand || seal === PaladinSeal.SealOfRighteousness);
 
 		rotation.valueVariables = rotation.valueVariables.map(variable =>
 			variable.name in values ? APLValueVariable.fromJson({ name: variable.name, value: { const: { val: values[variable.name] } } }) : variable,
