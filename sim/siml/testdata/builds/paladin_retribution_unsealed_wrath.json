@@ -94,9 +94,10 @@
 			"flaskId": 13512,
 			"foodId": 13933,
 			"conjuredId": 12662,
+			"explosiveId": 284868,
 			"mhImbueId": 3824,
-			"extraIds": [8410, 10646, 12217, 18269, 12460],
-			"elixirIds": [21546, 13452, 250329, 13454, 250341, 9206],
+			"extraIds": [8410, 10646, 12217, 18269, 12460, 12451],
+			"elixirIds": [21546, 13452, 250329, 13454, 250341],
 			"resourcePotId": 13444,
 			"offensivePotId": 250937
 		},
