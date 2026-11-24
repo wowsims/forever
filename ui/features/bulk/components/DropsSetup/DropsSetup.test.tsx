@@ -347,18 +347,20 @@ describe('DropsSetup', () => {
 		expect(sorted(rowIds())).toEqual([FELSTRIKER, BLACKBLADE, WORN_ITEM_ID]);
 	});
 
-	it('narrows the rows to the search', () => {
+	it('narrows the rows and the rail to the search', () => {
 		tickEndgame();
 		openDialog();
 
 		search('claws');
 		expect(rowIds()).toEqual([WEARABLE_ITEM_ID]);
+		expect(rail()).toEqual([`${SETUP}.all1/1`, `${slotName(BulkSimItemSlot.ItemSlotHands)}1/1`]);
 
 		search('rivendare gauntlets');
 		expect(rowIds()).toEqual([DRACORIAN]);
 
 		search('');
 		expect(rows()).toHaveLength(8);
+		expect(rail()[0]).toBe(`${SETUP}.all7/7`);
 	});
 
 	it('narrows the rows to the filters, stores them per spec, and keeps the hidden ticks in what runs', () => {
@@ -377,7 +379,7 @@ describe('DropsSetup', () => {
 		expect(filtersButton().textContent).toBe('gear_tab.gear_picker.filters_button_active active=1');
 		expect(text('drops-items-hidden')).toBe(`${SETUP}.hidden_ticked count=4`);
 		expect(text('drops-items-ticked')).toBe(`${SETUP}.items_ticked ticked=7 total=7`);
-		expect(rail()[0]).toBe(`${SETUP}.all7/7`);
+		expect(rail()[0]).toBe(`${SETUP}.all3/3`);
 		expect(bulkState(player).dropsExcluded).toEqual([]);
 		expect(bulkState(player).v.settings).toBe(settingsBefore);
 

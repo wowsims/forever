@@ -132,8 +132,8 @@ interface SourceRailRowProps {
 	nested?: boolean;
 }
 
-// The source rail from md up, laid out as the Sources tree: a box that ticks every non-worn item of the row, hidden by the
-// filters or not, then the name and counts, which pick the row or open a parent, and a parent's chevron at the end.
+// The source rail from md up, laid out as the Sources tree: a box that ticks every shown, non-worn item of the row, then
+// the name and counts, which pick the row or open a parent, and a parent's chevron at the end.
 const SourceRailRow = ({ group, active, onClick, onIncludedChange, expanded, nested }: SourceRailRowProps) => {
 	const id = useId();
 	const { ticked, total } = dropsTickCount(group.items);
@@ -240,8 +240,9 @@ const ItemRow = ({ entry, sources, sourcesTooltipId, onIncludedChange }: ItemRow
 	);
 };
 
-// Search, the filters and the rail pick live here and reach nothing that runs. The rail counts the list before them, so
-// its numbers match the card's. A pick whose group leaves the rail reads as All. By source, a parent only opens from md up,
+// Search, the filters and the rail pick live here and reach nothing that runs. The rail is built from the items search and
+// the filters leave, so its counts and boxes follow them and a group they empty leaves it; a pick whose group leaves
+// the rail reads as All. By source, a parent only opens from md up,
 // where its sources are what a press picks. Below md the rail is one row of chips that scrolls sideways above the list,
 // by source one per parent with a second row of the picked parent's sources, and the list fills the rest of the dialog.
 export const DropsItemsDialogView = ({
@@ -266,8 +267,12 @@ export const DropsItemsDialogView = ({
 	const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
 	const medium = useMediumLayout();
 
-	const parents = useMemo(() => (grouping === 'source' ? sourceParents(list, tree, names) : []), [list, grouping, tree, names]);
-	const groups = useMemo(() => railGroups(list, grouping, parents), [list, grouping, parents]);
+	const visible = useMemo(
+		() => ({ items: list.items.filter(entry => dropsPassesFilters(entry.item, filters) && dropsMatchesSearch(entry, search, names)) }),
+		[list, filters, search, names],
+	);
+	const parents = useMemo(() => (grouping === 'source' ? sourceParents(visible, tree, names) : []), [visible, grouping, tree, names]);
+	const groups = useMemo(() => railGroups(visible, grouping, parents), [visible, grouping, parents]);
 	const picked = groups.find(group => group.key === pick) ?? groups[0];
 	const pickedParent = parents.find(parent => parent.group.key === (picked.parent ?? picked.key));
 	const toggle = (key: string) =>
@@ -276,10 +281,7 @@ export const DropsItemsDialogView = ({
 			if (!next.delete(key)) next.add(key);
 			return next;
 		});
-	const shown = useMemo(
-		() => picked.items.filter(entry => dropsPassesFilters(entry.item, filters) && dropsMatchesSearch(entry, search, names)),
-		[picked, filters, search, names],
-	);
+	const shown = picked.items;
 	const shownIds = shown.filter(entry => !entry.worn).map(entry => entry.item.id);
 	const sourcesOf = (entry: DropsItem) => otherSources(entry, picked.source, names);
 
