@@ -1398,6 +1398,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Ragehammer-10626"
+ value: {
+  dps: 766.2006
+  tps: 570.71711
+  hps: 47.00389
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 802.30919

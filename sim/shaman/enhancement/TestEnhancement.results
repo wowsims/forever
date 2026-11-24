@@ -1287,6 +1287,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-Ragehammer-10626"
+ value: {
+  dps: 916.01287
+  tps: 671.55175
+  dtps: 8.06634
+  hps: 22.75639
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-RageoftheStorm-280604"
  value: {
   dps: 868.15688

@@ -1630,6 +1630,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Ragehammer-10626"
+ value: {
+  dps: 493.33642
+  tps: 2473.85313
+  dtps: 393.8259
+  hps: 85.47938
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 530.11513
