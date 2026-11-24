@@ -22,7 +22,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// The ticked count leaves out the worn item and the unticked one, and a chip names each slot with a ticked item.
+// The ticked count leaves out the worn item and the unticked one; each slot the list reaches gets a tile with its ticked count.
 export const Default: Story = {};
 
 // Two ticked items fail the dialog's filters; they still run.

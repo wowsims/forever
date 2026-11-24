@@ -130,6 +130,7 @@ const search = (value: string) => fireEvent.input(within(dialog()).getByTestId('
 const group = (grouping: 'by_slot' | 'by_source') => fireEvent.click(within(dialog()).getByRole('button', { name: `${SETUP}.${grouping}` }));
 const text = (testId: string) => screen.queryByTestId(testId)?.textContent;
 const sorted = (ids: number[]) => [...ids].sort((a, b) => a - b);
+const tiles = () => screen.getAllByTestId('drops-items-slot').map(tile => `${tile.getAttribute('aria-label')} ${tile.getAttribute('data-state')}`);
 
 beforeEach(() => {
 	mount();
@@ -186,23 +187,24 @@ describe('DropsSetup', () => {
 		expect(screen.getByText(`${SETUP}.empty`)).toBeTruthy();
 	});
 
-	it('counts the ticked items on the card, the worn one left out, with a chip for each slot that holds a ticked item', () => {
+	it('counts the ticked items on the card, the worn one left out, with a tile for each slot the list reaches', () => {
 		tickEndgame();
 
 		expect(text('drops-items-ticked')).toBe(`${SETUP}.items_ticked ticked=7 total=7`);
 		expect(screen.queryByTestId('drops-items-hidden')).toBeNull();
-		expect(screen.getAllByTestId('drops-items-slot').map(chip => chip.textContent)).toEqual([
-			`${slotName(BulkSimItemSlot.ItemSlotHands)}4`,
-			`${slotName(BulkSimItemSlot.ItemSlotFinger)}1`,
-			`${slotName(BulkSimItemSlot.ItemSlotHandWeapon)}2`,
+		expect(tiles()).toEqual([
+			`${slotName(BulkSimItemSlot.ItemSlotHands)} 4/4 all`,
+			`${slotName(BulkSimItemSlot.ItemSlotFinger)} 1/1 all`,
+			`${slotName(BulkSimItemSlot.ItemSlotHandWeapon)} 2/2 all`,
 		]);
 
 		act(() => patchBulkState(player, { dropsExcluded: [MARK, DEATH_GRIPS] }, ['settings']));
 
 		expect(text('drops-items-ticked')).toBe(`${SETUP}.items_ticked ticked=5 total=7`);
-		expect(screen.getAllByTestId('drops-items-slot').map(chip => chip.textContent)).toEqual([
-			`${slotName(BulkSimItemSlot.ItemSlotHands)}3`,
-			`${slotName(BulkSimItemSlot.ItemSlotHandWeapon)}2`,
+		expect(tiles()).toEqual([
+			`${slotName(BulkSimItemSlot.ItemSlotHands)} 3/4 some`,
+			`${slotName(BulkSimItemSlot.ItemSlotFinger)} 0/1 none`,
+			`${slotName(BulkSimItemSlot.ItemSlotHandWeapon)} 2/2 all`,
 		]);
 	});
 

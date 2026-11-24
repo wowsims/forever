@@ -263,7 +263,7 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   and the items, their source keys and the tree until the phase, the side or the class changes too. A worn item is
   listed but never sent.
   The Items column is a summary card (`DropsItemsCard`): how many non-worn items are ticked of how many are listed, how
-  many ticked ones the dialog's filters hide, and a chip per slot with a ticked item. Its Choose items button opens
+  many ticked ones the dialog's filters hide, and a tile per slot with its ticked count. Its Choose items button opens
   `DropsItemsDialog`, laid out like the gear picker: a search field, a Filters button and the By slot / By source switch
   on top, a rail of All and then one entry per slot or source with its ticked and listed non-worn counts, and the picked
   entry's rows in a `VirtualList`. The dialog is full size, as the stat sweep's is, and the rail and the list fill its
