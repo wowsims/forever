@@ -29,17 +29,17 @@ Text here follows `wowsims-conventions`; `docs/consumables.md` holds the consuma
 | `ui/sim/constants/missing_effects_auto_gen.ts`        | items, enchants and set bonuses no code registers an effect for                                                              |
 | `ui/features/settings/model/consumables_auto_gen.ts`  | one named export per shipped consumable, which presets name consumables through                                              |
 
-| You are…                                                                       | Open                                                                                                                                                  |
-| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| adding, removing or correcting a consumable, or one that ships unasked         | `docs/consumables.md` §How a consumable gets into db.json, §Adding a consumable the rows do not support, §Removing a consumable, §Correcting a number |
-| deciding which consumables stack                                               | `docs/consumables.md` §Exclusive groups                                                                                                               |
-| a consumable in the wrong picker or the wrong order                            | `docs/consumables.md` §What the settings offer, then "Conditions are data" below                                                                      |
-| writing a consumable's effect by hand                                          | `docs/consumables.md` §Writing an effect by hand: the Natural flasks                                                                                  |
-| registering an item, enchant or set proc                                       | `docs/spell_data/procs.md` §Item and enchant procs, then `wowsims-procs`                                                                              |
-| running `gen_db`, adding an override, or working from a database behind master | `wowsims-db-pipeline` `## Regenerating`, `## Overrides`, `## A database behind master`                                                                |
-| deciding elixir or holiday stacking, an item's folder, a caster weapon's stats | `references/rulings.md`                                                                                                                               |
-| reading an item, enchant, suffix or set row from the game files                | `references/item-data.md`                                                                                                                             |
-| testing an item or consumable effect                                           | `wowsims-testing` `## What a test asserts`                                                                                                            |
+| You are…                                                                               | Open                                                                                                                                                  |
+| -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| adding, removing or correcting a consumable, or one that ships unasked                 | `docs/consumables.md` §How a consumable gets into db.json, §Adding a consumable the rows do not support, §Removing a consumable, §Correcting a number |
+| deciding which consumables stack                                                       | `docs/consumables.md` §Exclusive groups                                                                                                               |
+| a consumable in the wrong picker or the wrong order                                    | `docs/consumables.md` §What the settings offer, then "Conditions are data" below                                                                      |
+| writing a consumable's effect by hand                                                  | `docs/consumables.md` §Writing an effect by hand: the Natural flasks                                                                                  |
+| registering an item, enchant or set proc                                               | `docs/spell_data/procs.md` §Item and enchant procs, then `wowsims-procs`                                                                              |
+| running `gen_db`, adding an override, or working from a database behind master         | `wowsims-db-pipeline` `## Regenerating`, `## Overrides`, `## A database behind master`                                                                |
+| deciding elixir, scroll or holiday stacking, an item's folder, a caster weapon's stats | `references/rulings.md`                                                                                                                               |
+| reading an item, enchant, suffix or set row from the game files                        | `references/item-data.md`                                                                                                                             |
+| testing an item or consumable effect                                                   | `wowsims-testing` `## What a test asserts`                                                                                                            |
 
 ## The pipeline
 

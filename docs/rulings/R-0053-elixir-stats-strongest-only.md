@@ -1,5 +1,7 @@
 # R-0053: Each stat counts its strongest elixir, and five raid buffs overwrite the elixirs of their stat
 
+Replaced by: R-0054
+
 - Skill: wowsims-consumables-items
 - Code: `sim/common/shared/consumable_stats.go`, `consumableAura` with `spelldata.ExclusivePerStat(core.ElixirStatCategory)`, `spelldata.Exclusive(core.ElixirCritCategory, false)` and `CountsWithElixirs`, and for the scrolls `spelldata.ExclusivePerStat(core.StatBuffCategory)`; `sim/core/spelldata/parse_effects.go`, `Overwrites`; `tools/database/buffmanifest/buffs.go`, `ElixirCategory`; `sim/core/consumes.go`, `selectedConsumableIDs`; `tools/database/consumable_groups.go`, `rowGroupOf` and `ElixirCritGroup`; `tools/database/overrides.go`, `ConsumablesCountWithElixirs`; `ui/features/settings/model/consumables.ts`, `overwrittenTooltips`
 - Pull request: #1185

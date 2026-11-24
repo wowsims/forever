@@ -1142,8 +1142,8 @@ var ConsumableDenyList = []int32{
 	289087, // Elixir of Endless Opportunity
 }
 
-// Consumables the game files do not type as elixirs whose stats count with the elixirs' all the
-// same, each stat at the strongest amount among them (R-0053). The generator sets their
+// Consumables the game files do not type as elixirs or scrolls whose stats count with the elixirs' all
+// the same, each stat at the strongest amount among them (R-0054). The generator sets their
 // counts_with_elixirs, which the sim and the settings read.
 var ConsumablesCountWithElixirs = []int32{
 	5206,  // Bogling Root

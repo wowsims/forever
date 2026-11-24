@@ -415,9 +415,9 @@ func TestExclusivePerStat(t *testing.T) {
 	}
 }
 
-// The raid buff overwrites the elixir and the scroll of its stat, which stack with each other, in any
-// order they come up: it counts by its own category, and its bid in the elixirs' category only keeps
-// a weaker elixir from counting. An elixir that outbids it counts beside it.
+// The raid buff overwrites the elixir and the scroll of its stat, of which only the stronger counts, in
+// any order they come up: it counts by its own category, and its bid in the elixirs' category only
+// keeps a weaker elixir or scroll from counting. One that outbids it counts beside it.
 func TestOverwrites(t *testing.T) {
 	type auras struct{ raid, elixir, scroll *core.Aura }
 	setUp := func(raid, elixir, scroll float64) (*core.Character, auras) {
@@ -431,7 +431,7 @@ func TestOverwrites(t *testing.T) {
 		return character, auras{
 			raid:   register("Raid", raid, ExclusivePerStat("StatBuff"), Overwrites("ElixirStat")),
 			elixir: register("Elixir", elixir, ExclusivePerStat("ElixirStat")),
-			scroll: register("Scroll", scroll, ExclusivePerStat("StatBuff")),
+			scroll: register("Scroll", scroll, ExclusivePerStat("ElixirStat")),
 		}
 	}
 
@@ -442,7 +442,8 @@ func TestOverwrites(t *testing.T) {
 	}{
 		{"the raid buff outbids both", 31, 25, 16, 31},
 		{"the elixir outbids the raid buff", 31, 35, 16, 66},
-		{"both outbid the raid buff", 10, 25, 16, 41},
+		{"both outbid the raid buff", 10, 25, 16, 35},
+		{"the scroll outbids the raid buff and the elixir", 10, 8, 16, 26},
 	} {
 		for _, order := range [][]int{{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}} {
 			sim := &core.Simulation{}
@@ -465,25 +466,8 @@ func TestOverwrites(t *testing.T) {
 	a.scroll.Activate(sim)
 	a.elixir.Activate(sim)
 	a.raid.Deactivate(sim)
-	if got := character.GetStat(stats.Intellect) - before; got != 41 {
-		t.Errorf("the raid buff gone: +%v Intellect, want the elixir's and the scroll's +41", got)
-	}
-
-	critRow := func(points float64) *Spell { return buffRow(24907, auraEffect(dbcenums.A_MOD_CRIT_PCT, 0, points)) }
-	raidCrit, elixirCrit := critRow(3), critRow(2)
-	moonkin := character.RegisterAura(AuraConfig(raidCrit, Label("Moonkin")))
-	ParseEffects(character, moonkin, raidCrit, Exclusive("RaidCrit", true), Overwrites("ElixirCrit"))
-	elixir := character.RegisterAura(AuraConfig(elixirCrit, Label("Elixir crit")))
-	ParseEffects(character, elixir, elixirCrit, Exclusive("ElixirCrit", false))
-	crit := character.GetStat(stats.PhysicalCritPercent)
-	elixir.Activate(sim)
-	moonkin.Activate(sim)
-	if got := character.GetStat(stats.PhysicalCritPercent) - crit; got != 3 {
-		t.Errorf("a single-aura raid crit over an elixir crit: +%v%% crit, want the raid crit's +3%%", got)
-	}
-	moonkin.Deactivate(sim)
-	if got := character.GetStat(stats.PhysicalCritPercent) - crit; got != 2 {
-		t.Errorf("the raid crit gone: +%v%% crit, want the elixir's +2%%", got)
+	if got := character.GetStat(stats.Intellect) - before; got != 25 {
+		t.Errorf("the raid buff gone: +%v Intellect, want the elixir's +25", got)
 	}
 }
 
@@ -502,7 +486,7 @@ func TestOverwritesTwoEqualCopies(t *testing.T) {
 			register("Raid", 31, ExclusivePerStat("StatBuff"), Overwrites("ElixirStat")),
 			register("Own", 31, ExclusivePerStat("StatBuff"), Overwrites("ElixirStat")),
 			register("Elixir", 25, ExclusivePerStat("ElixirStat")),
-			register("Scroll", 16, ExclusivePerStat("StatBuff")),
+			register("Scroll", 16, ExclusivePerStat("ElixirStat")),
 		}
 	}
 

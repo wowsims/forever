@@ -685,11 +685,10 @@ func NewSpellDataAspectOfTheWildAura(unit *core.Unit, isPlayer bool, talentPoint
 var LeaderOfThePackCategory = "RaidCrit"
 var leaderOfThePackSpell = spelldata.MustFind(24932)
 var leaderOfThePackMeta = &Meta{
-	Label:          "Leader of the Pack",
-	Spell:          leaderOfThePackSpell,
-	Category:       LeaderOfThePackCategory,
-	ElixirCategory: "ElixirCrit",
-	SingleAura:     true,
+	Label:      "Leader of the Pack",
+	Spell:      leaderOfThePackSpell,
+	Category:   LeaderOfThePackCategory,
+	SingleAura: true,
 }
 
 func LeaderOfThePackValue(talentPoints int32) float64 {
@@ -706,11 +705,10 @@ func NewSpellDataLeaderOfThePackAura(unit *core.Unit, isPlayer bool, talentPoint
 var MoonkinAuraCategory = "RaidCrit"
 var moonkinAuraSpell = spelldata.MustFind(24907)
 var moonkinAuraMeta = &Meta{
-	Label:          "Moonkin Aura",
-	Spell:          moonkinAuraSpell,
-	Category:       MoonkinAuraCategory,
-	ElixirCategory: "ElixirCrit",
-	SingleAura:     true,
+	Label:      "Moonkin Aura",
+	Spell:      moonkinAuraSpell,
+	Category:   MoonkinAuraCategory,
+	SingleAura: true,
 }
 
 func MoonkinAuraValue(talentPoints int32) float64 {
