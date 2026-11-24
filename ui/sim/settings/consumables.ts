@@ -317,35 +317,33 @@ export function consumableUniverse(consumables: ReadonlyArray<Consumable>, db: S
 	return unitStatsOf({ stats, pseudoStats });
 }
 
-// What the pickers order consumables by: the EP weights, and the target's mob type and the
-// encounter's zone, which decide the stats a consumable grants only against some targets or in some zones.
+// What the pickers order consumables by: the EP weights, and the target's mob type, which decides the
+// stats a consumable grants only against some targets.
 export interface ConsumableOrder {
 	weights: Stats;
 	mobType: MobType | undefined;
-	zoneId: number;
 }
 
 export const consumableOrderOf = (player: Player<any>): ConsumableOrder => ({
 	weights: player.getEpWeights(),
 	mobType: player.sim.encounter.getTarget(0)?.mobType,
-	zoneId: player.sim.encounter.getZoneId(),
 });
 
 // The store fields consumableOrderOf reads.
-export const CONSUMABLE_ORDER_FIELDS: ReadonlyArray<StoreField> = ['epWeights', 'encounter:targets', 'encounter:zoneId'];
+export const CONSUMABLE_ORDER_FIELDS: ReadonlyArray<StoreField> = ['epWeights', 'encounter:targets'];
 
 // The items by the EP their consumables' stats and percents add at the order's weights, highest
-// first. A mob type stat counts against a target of one of its mob types, a zone stat in one of its
-// zones; zone 0, an area set edited by hand, is none of them. One that grants neither here (a proc, a
-// restore, damage, a stat against other mob types) comes after every one that does. Ties go by
+// first. A mob type stat counts against a target of one of its mob types. A zone stat always counts:
+// the sim takes every fight to be in the Natural flasks' zones. One that grants neither here (a proc,
+// a restore, damage, a stat against other mob types) comes after every one that does. Ties go by
 // required level, highest first, then by name.
-export function orderedByEp<T>(items: ReadonlyArray<T>, consumableOf: (item: T) => Consumable, { weights, mobType, zoneId }: ConsumableOrder): Array<T> {
+export function orderedByEp<T>(items: ReadonlyArray<T>, consumableOf: (item: T) => Consumable, { weights, mobType }: ConsumableOrder): Array<T> {
 	return items
 		.map(item => {
 			const consumable = consumableOf(item);
 			const conditional = [
 				...consumable.mobTypeStats.filter(({ mobTypes }) => mobType !== undefined && mobTypes.includes(mobType)),
-				...consumable.zoneStats.filter(({ zoneIds }) => zoneIds.includes(zoneId)),
+				...consumable.zoneStats,
 			];
 			const stats = statsWith(consumable, conditional);
 			const grants = stats.asProtoArray().some(value => value > 0) || consumable.pseudoStats.some(value => value > 0);

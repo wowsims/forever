@@ -38,7 +38,7 @@ const setup = (enabled: boolean) => {
 			store,
 			getMinConsumableLvl: () => 0,
 			getFilters: () => DatabaseFilters.create(),
-			encounter: { getTarget: () => undefined, getZoneId: () => 0 },
+			encounter: { getTarget: () => undefined },
 		},
 		getClass: () => Class.ClassWarrior,
 		getSpec: () => Spec.SpecDpsWarrior,

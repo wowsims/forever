@@ -69,7 +69,7 @@ export const OtherDefaults = {
 
 export const DefaultConsumables = ConsumesSpec.create({
 	flaskId: Consumables.FlaskOfSupremePower.id,
-	elixirIds: [Consumables.GreaterArcaneElixir.id, Consumables.ElixirOfTheSages.id, Consumables.ElixirOfTheWhale.id, Consumables.MagebloodElixir.id],
+	elixirIds: [Consumables.GreaterArcaneElixir.id, Consumables.ElixirOfTheWhale.id, Consumables.MagebloodElixir.id],
 	foodId: Consumables.NightfinSoup.id,
 	mhImbueId: Consumables.BrilliantWizardOil.id,
 	mhWeaponImbueId: Consumables.ScrollOfImbuePrecision.id,

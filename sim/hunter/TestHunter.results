@@ -272,9 +272,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BlackbladeofShahram-12592"
  value: {
-  dps: 899.48846
-  tps: 922.80452
-  dtps: 10.04632
+  dps: 899.23771
+  tps: 922.29024
+  dtps: 9.80846
   hps: 14.38583
  }
 }
@@ -812,9 +812,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-DreadmistRaiment"
  value: {
-  dps: 725.85005
-  tps: 747.62851
-  dtps: 8.88036
+  dps: 724.50399
+  tps: 746.27768
+  dtps: 8.8937
   hps: 13.42
  }
 }
@@ -1721,9 +1721,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Magister'sRegalia"
  value: {
-  dps: 736.50116
-  tps: 758.18682
-  dtps: 8.62569
+  dps: 735.40991
+  tps: 757.1289
+  dtps: 8.65664
   hps: 13.40306
  }
 }

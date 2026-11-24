@@ -26,6 +26,8 @@ type Meta struct {
 	SharedCategory string
 	// The category holds one aura at a time, and the aura bids in it as a whole.
 	SingleAura bool
+	// The elixirs' category the buff's stats overwrite (spelldata.Overwrites); "" for none.
+	ElixirCategory string
 
 	// The improving talent, and the effect of it that prices the buff, counted the way EffectN
 	// counts. TalentScalesDuration says the talent prices the duration rather than the amount.
@@ -134,7 +136,8 @@ func (m *Meta) actionID(isPlayer bool) core.ActionID {
 // Tag set to the category, MaxStacks the row's own stacks (not its charges), the external copy in
 // CharacterBuildPhaseBuffs, and the effects read by spelldata.ParseEffects with Options plus
 // SchoolResistances, and where Category is set, Exclusive(Category, true) for a single-aura one or
-// ExclusivePerStat(Category) for any other. Only the player's own copy joins SharedCategory.
+// ExclusivePerStat(Category) for any other, plus Overwrites(ElixirCategory) where that is set. Only
+// the player's own copy joins SharedCategory.
 func newBuff(unit *core.Unit, m *Meta, isPlayer bool, talentPoints int32) *core.Aura {
 	return m.buff(unit, isPlayer, m.label(isPlayer), talentPoints, m.Options(talentPoints))
 }
@@ -158,6 +161,9 @@ func (m *Meta) buff(unit *core.Unit, isPlayer bool, label string, talentPoints i
 		} else {
 			opts = append(opts, spelldata.ExclusivePerStat(m.Category))
 		}
+	}
+	if m.ElixirCategory != "" {
+		opts = append(opts, spelldata.Overwrites(m.ElixirCategory))
 	}
 
 	buildPhase := core.Ternary(isPlayer, core.CharacterBuildPhaseNone, core.CharacterBuildPhaseBuffs)

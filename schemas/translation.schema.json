@@ -3813,10 +3813,26 @@
 							},
 							"additionalProperties": false,
 							"required": ["title", "offensive", "defensive"]
+						},
+						"overwritten_tooltip": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["title", "filters", "potions", "elixirs", "food", "holiday", "engineering", "imbue", "weaponImbue", "scrolls", "miscellaneous"]
+					"required": [
+						"title",
+						"filters",
+						"potions",
+						"elixirs",
+						"food",
+						"holiday",
+						"engineering",
+						"imbue",
+						"weaponImbue",
+						"scrolls",
+						"miscellaneous",
+						"overwritten_tooltip"
+					]
 				},
 				"encounter": {
 					"type": "object",

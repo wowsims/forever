@@ -384,6 +384,39 @@ describe('IconEnumPicker', () => {
 		expect(screen.getByTestId('icon-swatch-kept').getAttribute('data-tooltip-content')).toBe('Kept');
 	});
 
+	it('shows the badge tooltip of a partly overwritten trigger on hover with the menu open, and leaves the trigger lit', async () => {
+		mount({ initial: 2, tooltip: 'Armor', overwrittenTooltip: 'Agility overwritten by Elixir of the Mongoose', overwrittenPartly: true });
+		open();
+		expect(button().getAttribute('aria-expanded')).toBe('true');
+		expect(button().parentElement!.hasAttribute('data-overwritten')).toBe(false);
+
+		fireEvent.mouseEnter(within(button().parentElement!).getByTestId('icon-swatch-overwritten'));
+		expect(await screen.findByText('Agility overwritten by Elixir of the Mongoose')).toBeTruthy();
+	});
+
+	it('badges the options another selection would overwrite, shows the tooltip on hover and still picks one on a click', async () => {
+		const { onChange } = mount({
+			options: [
+				OPTIONS[0],
+				{ ...OPTIONS[1], overwrittenTooltip: 'Armor overwritten by Molten Armor' },
+				{ ...OPTIONS[2], overwrittenTooltip: 'Agility overwritten by Elixir of the Mongoose', overwrittenPartly: true },
+			],
+		});
+		open();
+		const badgeOf = (index: number) => items()[index].querySelector('[data-testid="icon-swatch-overwritten"]') as HTMLElement | null;
+		expect(badgeOf(0)).toBeNull();
+		expect(optionAnchor(1).parentElement!.hasAttribute('data-overwritten')).toBe(true);
+		expect(optionAnchor(2).parentElement!.hasAttribute('data-overwritten')).toBe(false);
+
+		fireEvent.mouseEnter(badgeOf(1)!);
+		expect(await screen.findByText('Armor overwritten by Molten Armor')).toBeTruthy();
+
+		act(() => {
+			fireEvent.click(optionAnchor(1));
+		});
+		expect(onChange).toHaveBeenCalledWith(1);
+	});
+
 	it('renders no tooltip anchor at all when nothing configures one', () => {
 		const { container } = mount({ options: [{ value: 0 }, { value: 1, icon: frostIcon }] });
 		expect(container.querySelectorAll('[data-tooltip-id]')).toHaveLength(0);

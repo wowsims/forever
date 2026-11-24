@@ -585,8 +585,16 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Barovian Family Sword: column reads 101",
 		Source:  "EV-0179",
 	},
-	// Measured by EV-0153's method on the reports from 2026-11-06 to 2026-11-22 (EV-0121, EV-0125, EV-0136, EV-0146,
-	// EV-0150, EV-0153, EV-0177, EV-0183).
+	// Measured by EV-0153's method on the reports from 2026-11-13 to 2026-11-24, paladins left out (EV-0125).
+	{
+		ItemID:  12592,
+		SpellID: 16602,
+		PPM:     1,
+		Reason:  "Blackblade of Shahram: no proc row",
+		Source:  "EV-0125",
+	},
+	// Measured by EV-0153's method on the reports from 2026-11-06 to 2026-11-22 (EV-0121, EV-0136, EV-0146, EV-0150,
+	// EV-0153, EV-0177, EV-0183).
 	{
 		ItemID:  811,
 		SpellID: 18104,
@@ -768,13 +776,6 @@ var WeaponProcs = []WeaponProc{
 		PPM:     3.65,
 		Reason:  "Wraith Scythe: no proc row",
 		Source:  "EV-0153",
-	},
-	{
-		ItemID:  12592,
-		SpellID: 16602,
-		PPM:     1,
-		Reason:  "Blackblade of Shahram: no proc row",
-		Source:  "EV-0125",
 	},
 	{
 		ItemID:  13016,

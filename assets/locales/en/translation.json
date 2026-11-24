@@ -1026,7 +1026,7 @@
 				"resource": "Resource Potion"
 			},
 			"elixirs": {
-				"title": "Elixirs"
+				"title": "Flask & Elixirs"
 			},
 			"food": {
 				"title": "Food"
@@ -1059,7 +1059,8 @@
 				"title": "Miscellaneous",
 				"offensive": "Offensive",
 				"defensive": "Defensive"
-			}
+			},
+			"overwritten_tooltip": "{{stats}} overwritten by {{name}}"
 		},
 		"encounter": {
 			"title": "Encounter",

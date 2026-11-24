@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { KEPT_TOOLTIP } from '@testing/storybook/fixtures/kept';
+import { OVERWRITTEN_TOOLTIP, PARTLY_OVERWRITTEN_TOOLTIP } from '@testing/storybook/fixtures/overwritten';
 import type { ResolvedIcon } from '@ui-kit/Field/types';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
@@ -78,3 +79,17 @@ export const WithColorOptions: Story = { args: { options: CURSES, value: 1, tool
 export const WithHiddenOption: Story = { args: { options: FLASKS.map(option => (option.value === 2 ? { ...option, hidden: true } : option)) } };
 export const Labelled: Story = { args: { label: 'Flask' } };
 export const Kept: Story = { args: { keptTooltip: KEPT_TOOLTIP } };
+export const Overwritten: Story = { args: { overwrittenTooltip: OVERWRITTEN_TOOLTIP } };
+export const PartlyOverwritten: Story = { args: { overwrittenTooltip: PARTLY_OVERWRITTEN_TOOLTIP, overwrittenPartly: true } };
+/** Open the menu: an option another selection would overwrite carries the badge, dimmed where it would add nothing. */
+export const OverwrittenOptions: Story = {
+	args: {
+		options: FLASKS.map(option =>
+			option.value === 1
+				? { ...option, overwrittenTooltip: OVERWRITTEN_TOOLTIP }
+				: option.value === 2
+					? { ...option, overwrittenTooltip: PARTLY_OVERWRITTEN_TOOLTIP, overwrittenPartly: true }
+					: option,
+		),
+	},
+};

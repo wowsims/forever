@@ -46,6 +46,15 @@ func (p *Parsed) bid(aura *core.Aura, o *parseOptions) []*attachment {
 		}
 		p.bidStacks(aura, o.category, true, perStack, whole)
 	}
+
+	// After the aura's own bids, so an aura its single-aura category blocks never takes a category
+	// from anyone.
+	if o.overwrites != "" {
+		for _, part := range split(p.attachments) {
+			aura.NewExclusiveEffect(core.ExclusiveStatCategory(o.overwrites, part.key, part.multiplicative), false,
+				core.ExclusiveEffect{Priority: perStatPriority(part)})
+		}
+	}
 	return live
 }
 
@@ -72,14 +81,17 @@ func (p *Parsed) bidSchoolResistances(aura *core.Aura, a *attachment, o *parseOp
 	return rest
 }
 
+func (p *Parsed) bidPerStat(aura *core.Aura, category string, part *attachment) {
+	p.bidAlone(aura, core.ExclusiveStatCategory(category, part.key, part.multiplicative), perStatPriority(part), part)
+}
+
 // A stat bids its own value, the scale core's exclusive stat buffs bid on, and a pseudo-stat how far
 // it moves the field.
-func (p *Parsed) bidPerStat(aura *core.Aura, category string, part *attachment) {
-	priority := magnitude(part)
+func perStatPriority(part *attachment) float64 {
 	if part.statBid {
-		priority = part.value
+		return part.value
 	}
-	p.bidAlone(aura, core.ExclusiveStatCategory(category, part.key, part.multiplicative), priority, part)
+	return magnitude(part)
 }
 
 func (p *Parsed) bidAlone(aura *core.Aura, category string, priority float64, a *attachment) {

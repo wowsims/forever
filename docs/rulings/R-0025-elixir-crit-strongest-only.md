@@ -1,5 +1,7 @@
 # R-0025: Elixirs stack across groups but only the strongest elixir crit applies
 
+Replaced by: R-0053
+
 - Skill: wowsims-consumables-items
 - Code: `sim/common/shared/consumable_stats.go`, `consumableAura` with `spelldata.Exclusive(elixirCritCategory, false)` (the category `"ElixirCrit"`)
 - Pull request: #209

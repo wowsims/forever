@@ -1060,6 +1060,8 @@ var ConsumableAllowList = []int32{
 	13454, // Greater Arcane Elixir
 	12662, // Demonic Rune
 	12217, // Dragonbreath Chili, whose proc sim/common/forever registers by hand
+	12451, // Juju Power, a Quest-class item
+	12460, // Juju Might, a Quest-class item
 	// The Natural flasks, whose zone bonus sim/common/forever registers by hand
 	274273, // Flask of Natural Accuracy
 	274274, // Flask of Natural Aggression
@@ -1140,25 +1142,25 @@ var ConsumableDenyList = []int32{
 	289087, // Elixir of Endless Opportunity
 }
 
+// Consumables the game files do not type as elixirs or scrolls whose stats count with the elixirs' all
+// the same, each stat at the strongest amount among them (R-0054). The generator sets their
+// counts_with_elixirs, which the sim and the settings read.
+var ConsumablesCountWithElixirs = []int32{
+	5206,  // Bogling Root
+	12451, // Juju Power
+	12460, // Juju Might
+}
+
 // Exclusive groups the server keeps that the rows do not state: the game files carry no stacking
 // table, the rows group by aura only elixirs and scrolls, and by category only the stat consumables
 // whose category cooldown lasts as long as their buffs. A consumable named here takes this group
 // instead of the one its rows give it.
 //
-// TODO: check in game whether these stack with the elixir group of the aura they open on, and add
-// each one that does not: Oil of Olaf 1177 (A_MOD_ARMOR_NO_MODS), Call of the Raptor 4546
-// (A_MOD_STAT Agility), Very Berry Cream 22238 and Midsummer Sausage 23326 (A_MOD_DAMAGE_DONE every
-// school).
+// TODO: check in game whether these count with the elixirs that grant the same stat, the strongest
+// alone, and add each one that does to ConsumablesCountWithElixirs: Oil of Olaf 1177
+// (A_MOD_ARMOR_NO_MODS), Call of the Raptor 4546 (A_MOD_STAT Agility), Very Berry Cream 22238 and
+// Midsummer Sausage 23326 (A_MOD_DAMAGE_DONE every school).
 var ConsumableExclusiveGroups = []ConsumableGroup{
-	{Group: ElixirGroup(dbcenums.A_MOD_STAT, 0), Items: []int32{
-		12451, // Juju Power
-	}},
-	{Group: ElixirGroup(dbcenums.A_MOD_ATTACK_POWER, 0), Items: []int32{
-		12460, // Juju Might
-	}},
-	{Group: ElixirGroup(dbcenums.A_MOD_DAMAGE_DONE, 1), Items: []int32{
-		5206, // Bogling Root
-	}},
 	{Group: ConsumableGroupKey{Key: "Zanza", Name: "Zanza"}, Items: []int32{
 		8410,  // R.O.I.D.S.
 		8411,  // Lung Juice Cocktail
