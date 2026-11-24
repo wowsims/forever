@@ -45,7 +45,7 @@ const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 							variant={null}
 							aria-label={node.label}
 							aria-expanded={open}
-							className="flex min-w-0 grow items-center gap-2 py-2 text-left font-semibold"
+							className="flex min-w-0 grow items-center gap-2 py-2 ps-0 text-left font-semibold"
 							onClick={() => setOpen(wasOpen => !wasOpen)}>
 							<span className="min-w-0 wrap-anywhere">{node.label}</span>
 							<Pill size="xs" className="min-w-[1lh] shrink-0 justify-center" testId="drops-source-count">
