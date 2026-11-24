@@ -45,10 +45,12 @@ The modifiers hold within 1.5% across the first geared set: 36 unfrozen hits wit
 
 The Emblem's buff (1318930) adds 35 spell damage while it lasts, 35 more against Dragonkin. Its gain is the damage with
 the buff up less the damage with it down in the same gear, each gear setup weighted by the inverse of its variance;
-hits on Plagued Hatchlings, the only Dragonkin among the targets, are left out. Ice Lance gains +1.4 ± 1.0 over three
-gear setups in the first geared set and +2.8 ± 0.9 over five in the second, +2.2 ± 0.7 together, where 0.115 gives
-+4.0. Frostbolt Rank 10 in the second set gains +29.8 ± 1.6, where its 0.814 gives +28.5, on 354 hits with neither Ice
-Barrier nor Frigid Power, 122 of them under the Emblem.
+hits on Plagued Hatchlings, whelps and the only target whose name reads as Dragonkin, are left out. Ice Lance gains
++1.4 ± 1.0 over three gear setups in the first geared set and +2.8 ± 0.9 over five in the second, +2.2 ± 0.7 together,
+where 0.115 gives +4.0. With the hatchlings kept the sets read +1.9 ± 1.1 and +3.0 ± 0.95, +2.5 ± 0.7 together. No
+Frostbolt under the Emblem hit a hatchling, so their type is not confirmed from the logs. Frostbolt Rank 10 in the
+second set gains +29.8 ± 1.6, where its 0.814 gives +28.5, on 354 hits with neither Ice Barrier nor Frigid Power, 122
+of them under the Emblem.
 
-The two sets together sit three standard errors above no gain and nearly three below the full +4.0, so how much of the
-buff reaches Ice Lance is not settled. The sim adds all of it.
+Either way the two sets together sit three or more standard errors above no gain and two to three below the full
++4.0, so how much of the buff reaches Ice Lance is not settled. The sim adds all of it.
