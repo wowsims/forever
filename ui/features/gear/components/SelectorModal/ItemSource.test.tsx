@@ -78,7 +78,8 @@ describe('ItemSource', () => {
 	});
 
 	describe('the character faction', () => {
-		const questFor = (id: number, faction: Faction) => ({ source: { oneofKind: 'quest', quest: { id, name: `Quest ${id}`, faction } } }) as const;
+		const questFor = (id: number, faction: Faction) =>
+			({ source: { oneofKind: 'quest', quest: { id, name: `Quest ${id}`, faction, zoneId: 0 } } }) as const;
 		const vendorFor = (npcId: number, faction: Faction) =>
 			({ source: { oneofKind: 'soldBy', soldBy: { npcId, npcName: `Vendor ${npcId}`, zoneId: 0, faction } } }) as const;
 		const craftedSource = { source: { oneofKind: 'crafted', crafted: { profession: Profession.Tailoring, spellId: 1 } } } as const;
@@ -157,7 +158,7 @@ describe('ItemSource', () => {
 			id: 212,
 			sources: [
 				{ source: { oneofKind: 'soldBy', soldBy: { npcId: 1, npcName: 'Vendor', zoneId: 0, faction: 0 } } },
-				{ source: { oneofKind: 'quest', quest: { id: 7, name: 'Bounty', faction: 0 } } },
+				{ source: { oneofKind: 'quest', quest: { id: 7, name: 'Bounty', faction: 0, zoneId: 0 } } },
 			],
 		});
 		const { getByRole } = mount(item);
@@ -309,7 +310,7 @@ describe('ItemSource', () => {
 		const item = Item.create({
 			id: 700,
 			factionRestriction,
-			sources: [{ source: { oneofKind: 'quest', quest: { id: 1, name: 'A Call to Arms', faction: 0 } } }],
+			sources: [{ source: { oneofKind: 'quest', quest: { id: 1, name: 'A Call to Arms', faction: 0, zoneId: 0 } } }],
 		});
 		const { getByRole, getByAltText } = mount(item);
 
@@ -321,7 +322,7 @@ describe('ItemSource', () => {
 		const item = Item.create({
 			id: 702,
 			factionRestriction: UIItem_FactionRestriction.UNSPECIFIED,
-			sources: [{ source: { oneofKind: 'quest', quest: { id: 3, name: 'Neutral Ground', faction: 0 } } }],
+			sources: [{ source: { oneofKind: 'quest', quest: { id: 3, name: 'Neutral Ground', faction: 0, zoneId: 0 } } }],
 		});
 		const { container, queryByRole } = mount(item);
 
@@ -345,7 +346,7 @@ describe('ItemSource', () => {
 
 	describe('the other sources', () => {
 		const drop = (npcId: number) => ({ source: { oneofKind: 'drop', drop: { zoneId: 28, npcId, difficulty: 0, otherName: '', category: '' } } }) as const;
-		const quest = { source: { oneofKind: 'quest', quest: { id: 7, name: 'Bounty', faction: 0 } } } as const;
+		const quest = { source: { oneofKind: 'quest', quest: { id: 7, name: 'Bounty', faction: 0, zoneId: 0 } } } as const;
 		const db: DbStub = { zones: { 28: { id: 28, name: 'Western Plaguelands' } }, npcs: { 4494: { id: 4494, name: 'Scarlet Spellbinder' } } };
 		const threeSources = () => Item.create({ id: 900, sources: [vendor(5, 'Quartermaster'), quest, drop(4494)] });
 		const moreButton = () => screen.getByRole('button', { name: 'gear_tab.gear_picker.more_sources' });

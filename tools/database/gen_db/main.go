@@ -75,7 +75,17 @@ func main() {
 		db.WriteJson(fmt.Sprintf("%s/atlasloot_db.json", inputsDir))
 		return
 	} else if *genAsset == "questie" {
-		questieDB, questieQuests := database.ReadQuestieData()
+		helper, err := database.NewDBHelper()
+		if err != nil {
+			log.Fatalf("failed to initialize database: %v", err)
+		}
+		defer helper.Close()
+
+		placement, err := database.LoadNpcPlacement(helper)
+		if err != nil {
+			log.Fatalf("failed to load the NPC placement: %v", err)
+		}
+		questieDB, questieQuests := database.ReadQuestieData(placement)
 		questieDB.WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
 		database.WriteQuestieQuests(fmt.Sprintf("%s/questie_quests.json", inputsDir), questieQuests)
 		return
@@ -177,6 +187,7 @@ func main() {
 	raidZones := core.MapMap(raidZoneMaps, func(zone, _ int32) (int32, bool) { return zone, true })
 	pruneAtlasLootDrops(atlaslootDB, raidZones, areaNames)
 	database.PruneQuestieSources(questieDB, raidZones, dungeonZones, areaNames)
+	database.ApplyQuestZones(questieDB, questieQuests, areaNames)
 
 	db := database.NewWowDatabase()
 	db.Encounters = core.PresetEncounters
@@ -345,6 +356,8 @@ func main() {
 	if err := database.LoadZoneAreas(db, helper); err != nil {
 		log.Fatal(err)
 	}
+	database.AddQuestZones(db, db, areaNames)
+	database.AddQuestZones(db, leftovers, areaNames)
 	applyRepSources(db, factionNames)
 	db.WriteBinaryAndJson(fmt.Sprintf("%s/db.bin", dbDir), fmt.Sprintf("%s/db.json", dbDir))
 	database.UpdateItemFirstSeen(fmt.Sprintf("%s/item_first_seen.json", dbDir), db.Items, time.Now().Unix())
