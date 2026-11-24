@@ -230,7 +230,7 @@ export const DropsItemsDialogView = ({
 									<span className="truncate">{group.title}</span>
 									{group.detail && <span className="truncate text-xs">{group.detail}</span>}
 								</span>
-								<span className="shrink-0 tabular-nums max-md:self-start max-md:ps-px max-md:text-xs max-md:font-normal">
+								<span className="shrink-0 tabular-nums max-md:-mt-px max-md:self-start max-md:ps-px max-md:text-xs max-md:leading-none max-md:font-normal">
 									{ticked}/{total}
 								</span>
 							</Button>
