@@ -1,14 +1,15 @@
 package hunter
 
 import (
+	"slices"
+
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 func (hunter *Hunter) registerSurvivalTalents() {
 	// Tier 1
-	hunter.registerImprovedTracking()
+	hunter.registerTracking()
 	hunter.registerDeflection()
 
 	// Tier 2
@@ -46,24 +47,38 @@ var trackCreatureSpells = []spelldata.Ladder{
 	spellData.TrackGiants, spellData.TrackHumanoids, spellData.TrackUndead,
 }
 
-// The talent raises effect 2 of the Track spells, A_MOD_DAMAGE_DONE_VERSUS the tracked creature
-// type, by 1% a rank. The sim does not track; a hunter is taken to track the target's type when a
-// Track spell names it, so the bonus is on the damage done to those types only, and to a target of
-// no type (None), taken as one the hunter tracks. A mechanical target, which no Track spell names,
-// gets none.
-func (hunter *Hunter) registerImprovedTracking() {
-	if hunter.Talents.ImprovedTracking == 0 {
-		return
-	}
-
-	mobTypes := []proto.MobType{proto.MobType_MobTypeUnknown}
-	for _, track := range trackCreatureSpells {
-		mobTypes = append(mobTypes, spelldata.MobTypes(track.Highest().EffectN(2).Misc)...)
-	}
+// One tracking at a time: a permanent self-buff, and the spell that swaps to it, castable only at a
+// target of a type it names that it does not track yet, so the rotation tracks the target and tracks
+// again when a target of another type comes up. Improved Tracking raises effect 2,
+// A_MOD_DAMAGE_DONE_VERSUS the tracked creature type, by 1% a rank, so its bonus holds while the
+// target's type is tracked; a target of no type or a mechanical one, which no Track names, gets none.
+func (hunter *Hunter) registerTracking() {
 	mult := spellData.ImprovedTracking.MultiplierAt(hunter.Talents.ImprovedTracking)
-	hunter.Env.RegisterPostFinalizeEffect(func() {
-		hunter.MultiplyDamageVersus(mult, mobTypes...)
-	})
+	for _, track := range trackCreatureSpells {
+		row := track.Highest()
+		mobTypes := spelldata.MobTypes(row.EffectN(2).Misc)
+
+		aura := hunter.RegisterAura(spelldata.AuraConfig(row))
+		aura.NewExclusiveEffect("Tracking", true, core.ExclusiveEffect{})
+		if mult != 1 {
+			aura.OnGain = func(_ *core.Aura, _ *core.Simulation) {
+				hunter.MultiplyDamageVersus(mult, mobTypes...)
+			}
+			aura.OnExpire = func(_ *core.Aura, _ *core.Simulation) {
+				hunter.MultiplyDamageVersus(1/mult, mobTypes...)
+			}
+		}
+
+		config := spelldata.SpellConfig(&hunter.Unit, row, spelldata.Flags(core.SpellFlagAPL))
+		config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
+			return !aura.IsActive() && slices.Contains(mobTypes, hunter.CurrentTarget.MobType)
+		}
+		config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+			aura.Activate(sim)
+		}
+		config.RelatedSelfBuff = aura
+		hunter.RegisterSpell(config)
+	}
 }
 
 func (hunter *Hunter) registerDeflection() {

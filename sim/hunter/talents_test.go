@@ -3,12 +3,14 @@ package hunter
 import (
 	"fmt"
 	"math"
+	"slices"
 	"strings"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -168,12 +170,12 @@ func TestRapidKillingComesWithAKillingBlowOrAStungDeath(t *testing.T) {
 	}
 }
 
-// Improved Tracking raises the damage done to a creature type a Track spell names, and not the damage
-// done to a mechanical target, which none names.
-func TestImprovedTrackingRaisesDamageVersusTrackableTypesOnly(t *testing.T) {
+// Improved Tracking raises the damage done to a creature type while a Track that names it is up, and
+// nothing tracks a mechanical target.
+func TestImprovedTrackingRaisesDamageVersusTrackedTypesOnly(t *testing.T) {
 	const tracking = "-00530501114-550200030050220151"
 	const untrained = "-00530501114-050200030050220151"
-	multiplier := func(talents string, mobType proto.MobType) float64 {
+	multiplier := func(talents string, mobType proto.MobType, track bool) float64 {
 		target := core.FreshDefaultTargetConfig()
 		target.MobType = mobType
 		player := &proto.Player{
@@ -191,14 +193,23 @@ func TestImprovedTrackingRaisesDamageVersusTrackableTypesOnly(t *testing.T) {
 		}, simsignals.CreateSignals())
 		sim.Reset()
 		hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+		for _, spell := range hunter.Spellbook {
+			if track && slices.ContainsFunc(trackCreatureSpells, func(l spelldata.Ladder) bool { return l.Highest().ID == spell.SpellID }) &&
+				spell.CanCast(sim, hunter.CurrentTarget) {
+				spell.Cast(sim, hunter.CurrentTarget)
+			}
+		}
 		return hunter.AttackTables[sim.Encounter.AllTargetUnits[0].UnitIndex].DamageDealtMultiplier
 	}
 
 	want := spellData.ImprovedTracking.MultiplierAt(5)
-	if got := multiplier(tracking, proto.MobType_MobTypeBeast) / multiplier(untrained, proto.MobType_MobTypeBeast); math.Abs(got-want) > 1e-9 {
-		t.Errorf("Improved Tracking 5/5 multiplies the damage done to a beast by %v, want %v", got, want)
+	if got := multiplier(tracking, proto.MobType_MobTypeBeast, true) / multiplier(untrained, proto.MobType_MobTypeBeast, true); math.Abs(got-want) > 1e-9 {
+		t.Errorf("Improved Tracking 5/5 multiplies the damage done to a tracked beast by %v, want %v", got, want)
 	}
-	if got := multiplier(tracking, proto.MobType_MobTypeMechanical) / multiplier(untrained, proto.MobType_MobTypeMechanical); got != 1 {
+	if got := multiplier(tracking, proto.MobType_MobTypeBeast, false) / multiplier(untrained, proto.MobType_MobTypeBeast, false); got != 1 {
+		t.Errorf("Improved Tracking 5/5 multiplies the damage done to an untracked beast by %v, want 1", got)
+	}
+	if got := multiplier(tracking, proto.MobType_MobTypeMechanical, true) / multiplier(untrained, proto.MobType_MobTypeMechanical, true); got != 1 {
 		t.Errorf("Improved Tracking 5/5 multiplies the damage done to a mechanical target by %v, want 1", got)
 	}
 }
