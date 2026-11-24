@@ -72,6 +72,8 @@
 		"Talent",
 		"TalentTab",
 		"Map",
+		"MapDifficulty",
+		"DungeonEncounter",
 		"JournalEncounter",
 		"JournalEncounterItem",
 		"AreaTable",

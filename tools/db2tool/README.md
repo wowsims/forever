@@ -170,8 +170,9 @@ gets extracted:
   upgrades, reforging, sets), everything spell-related (the ~25 `Spell*`
   tables that the modern game files split spell data into, enchants,
   procs-per-minute),
-  talents/glyphs, and dungeon-journal/zone tables (Map, JournalEncounter…)
-  used for item source info.
+  talents/glyphs, and dungeon-journal/zone tables (Map, MapDifficulty,
+  DungeonEncounter, JournalEncounter…) used for item source info and for
+  placing QuestieDB's NPCs in their dungeon or raid.
 
 **To add a new table to `wowsims.db`**: add its name to `Tables` — that's all
 it takes. The schema comes from WoWDBDefs automatically. GameTable additions
