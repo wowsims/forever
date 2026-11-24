@@ -598,7 +598,7 @@ var WeaponProcs = []WeaponProc{
 		ItemID:  10623,
 		SpellID: 13439,
 		PPM:     2.95,
-		Reason:  "Winter's Bite: column reads 101",
+		Reason:  "Winter's Bite: column reads 101; Hammer of the Northern Wind casts the same spell",
 		Source:  "EV-0186",
 	},
 	{

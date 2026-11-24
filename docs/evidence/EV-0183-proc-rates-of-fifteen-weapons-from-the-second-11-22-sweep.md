@@ -363,8 +363,8 @@ zD4VF1278AymkKXY 4-5.
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
   UTC); 17 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 7 of them for Hedgecutter, and
-  none after 2026-11-24 01:00 UTC. The sim's database is 1.60.1.71037, push 114366; the hotfix each player ran is not
-  recorded
+  none start after 2026-11-24 01:00 UTC. The sim's database is 1.60.1.71037, push 114366; the hotfix each player ran is
+  not recorded
 - Date: 2026-11-06 to 2026-11-23
 - Pull request: #1198
 
