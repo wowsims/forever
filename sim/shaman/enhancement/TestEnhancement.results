@@ -1766,10 +1766,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheSpiritcaller'sRage"
  value: {
-  dps: 946.66732
-  tps: 692.77848
-  dtps: 8.11652
-  hps: 21.16361
+  dps: 907.34241
+  tps: 664.15512
+  dtps: 7.58559
+  hps: 20.18083
  }
 }
 dps_results: {

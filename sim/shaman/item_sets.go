@@ -86,6 +86,30 @@ var ItemSetGiftOfTheGatheringStorm = core.NewItemSet(core.ItemSet{
 	},
 })
 
+// Tier 1 - Enhancement
+// https://www.wowhead.com/forever/item-set=2110/the-spiritcallers-rage
+//
+// The game files ship four of the six pieces (shoulders, hands, legs, feet), so the 5-piece bonus
+// waits on the head and chest the ItemSet row lists. The 3-piece bonus widens the earth and air
+// totems' radius, which the sim does not model.
+var ItemSetTheSpiritcallersRage = core.NewItemSet(core.ItemSet{
+	ID:   2110,
+	Name: "The Spiritcaller's Rage",
+	Slots: []proto.ItemSlot{
+		proto.ItemSlot_ItemSlotHead,
+		proto.ItemSlot_ItemSlotShoulder,
+		proto.ItemSlot_ItemSlotChest,
+		proto.ItemSlot_ItemSlotHands,
+		proto.ItemSlot_ItemSlotLegs,
+		proto.ItemSlot_ItemSlotFeet,
+	},
+	Bonuses: map[int32]core.ApplySetBonus{
+		2: shared.ParsedSetBonus(spelldata.MustFind(1300957)), // +1% attack and casting speed
+		4: shared.ParsedSetBonus(spelldata.MustFind(1301090)), // +36 melee attack power against Elementals
+		5: shared.ParsedSetBonus(spelldata.MustFind(1301709)), // Stormstrike cooldown -0.5 sec
+	},
+})
+
 // Tier 3
 // https://www.wowhead.com/forever/item-set=527/the-earthshatterer
 var ItemSetTheEarthshatterer = core.NewItemSet(core.ItemSet{
