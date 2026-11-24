@@ -80,11 +80,11 @@ var DefaultRangedWeaponTypes = []proto.RangedWeaponType{
 }
 
 // The Balance page's consumes: Flask of Supreme Power, Greater Arcane Elixir, Elixir of Nature Power,
-// Greater Mageblood Elixir, Lobster Stew, Brilliant Wizard Oil, Major Spellblasting Potion, Major Mana
-// Potion, Demonic Rune and SAF-T Clever Dynamite.
+// Elixir of the Owl, Greater Mageblood Elixir, Lobster Stew, Brilliant Wizard Oil, Major Spellblasting
+// Potion, Major Mana Potion, Demonic Rune and SAF-T Clever Dynamite.
 var DefaultConsumables = &proto.ConsumesSpec{
 	FlaskId:        13512,
-	ElixirIds:      []int32{13454, 250343, 250341},
+	ElixirIds:      []int32{13454, 250343, 250337, 250341},
 	FoodId:         13933,
 	MhImbueId:      20749,
 	OffensivePotId: 250937,
