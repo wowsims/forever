@@ -48,14 +48,15 @@ var trackCreatureSpells = []spelldata.Ladder{
 
 // The talent raises effect 2 of the Track spells, A_MOD_DAMAGE_DONE_VERSUS the tracked creature
 // type, by 1% a rank. The sim does not track; a hunter is taken to track the target's type when a
-// Track spell names it, so the bonus is on the damage done to those types only. A mechanical
-// target, which no Track spell names, gets none.
+// Track spell names it, so the bonus is on the damage done to those types only, and to a target of
+// no type (None), taken as one the hunter tracks. A mechanical target, which no Track spell names,
+// gets none.
 func (hunter *Hunter) registerImprovedTracking() {
 	if hunter.Talents.ImprovedTracking == 0 {
 		return
 	}
 
-	var mobTypes []proto.MobType
+	mobTypes := []proto.MobType{proto.MobType_MobTypeUnknown}
 	for _, track := range trackCreatureSpells {
 		mobTypes = append(mobTypes, spelldata.MobTypes(track.Highest().EffectN(2).Misc)...)
 	}
