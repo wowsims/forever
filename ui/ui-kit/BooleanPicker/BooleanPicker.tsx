@@ -34,9 +34,11 @@ export const BooleanPicker = ({
 	invalid,
 	className,
 	testId,
+	'aria-label': ariaLabel,
 	'aria-describedby': describedBy,
 	focusableWhenDisabled,
 	indeterminate,
+	compact,
 	...frameProps
 }: BooleanPickerProps) => {
 	const hasFrame = hasFieldFrame(frameProps);
@@ -47,6 +49,8 @@ export const BooleanPicker = ({
 			focusable={!!(disabled && focusableWhenDisabled)}
 			id={frameProps.id}
 			data-size={size}
+			data-compact={compact ? '' : undefined}
+			aria-label={ariaLabel}
 			aria-invalid={invalid || undefined}
 			aria-describedby={describedBy}
 			className={clsx('ui-boolean-picker-input inline-flex items-center justify-center p-0', !hasFrame && className)}

@@ -40,22 +40,23 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 		<div
 			className={clsx(
 				'relative flex flex-col gap-2 border border-border p-2 text-left text-foreground',
-				'hover:border-primary has-focus-visible:border-primary data-[selected=true]:border-primary data-[upgrade=none]:opacity-60',
+				'hover:border-primary has-focus-visible:border-primary data-selected:border-primary data-[upgrade=none]:opacity-60',
 			)}
 			data-testid="drops-boss-card"
 			data-upgrade={rank === null ? 'none' : undefined}
-			data-selected={selected}>
+			data-selected={selected ? '' : undefined}>
 			<Button
 				variant="unstyled"
 				className="absolute inset-0 focus-visible:focus-ring"
 				aria-pressed={selected}
 				aria-label={label.label}
+				title={label.label}
 				data-testid="drops-boss-select"
 				onClick={onSelect}
 			/>
 			<span className="flex items-baseline gap-2">
 				{rank !== null && <span className="text-sm text-gray-400">{rank}</span>}
-				<span className="min-w-0 truncate font-bold" data-testid="drops-boss-label" title={label.label}>
+				<span className="min-w-0 truncate font-bold" data-testid="drops-boss-label">
 					{label.label}
 				</span>
 			</span>
@@ -69,10 +70,10 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 						data-item-id={entry.itemId}
 						data-worn={entry.gainPct === null ? '' : undefined}
 						data-upgrade={entry.upgrade ? '' : undefined}>
-						<ItemCellIcon ilvl={entry.ilvl} size="sm" className="[--icon-size:--spacing(14)]">
+						<ItemCellIcon ilvl={entry.ilvl} size="md">
 							<span
 								className={clsx(
-									'block size-full bg-surface bg-cover bg-center',
+									'pointer-events-auto block size-full bg-surface bg-cover bg-center',
 									entry.gainPct === null && 'opacity-50',
 									entry.upgrade && 'ring-1 ring-success',
 								)}

@@ -348,6 +348,19 @@ describe('DropsSetup', () => {
 		expect(sorted(rowIds())).toEqual([FELSTRIKER, BLACKBLADE, WORN_ITEM_ID]);
 	});
 
+	it('steps on from a picked boss once its dungeon is closed', () => {
+		tickEndgame();
+		openDialog();
+		group('by_source');
+		pick('Stratholme');
+		pick('Baron Rivendare');
+		pick('Stratholme');
+
+		fireEvent.keyDown(dialog(), { key: 'ArrowDown' });
+
+		expect(picked()).toBe(`${SETUP}.all7/7`);
+	});
+
 	it('narrows the rows and the rail to the search', () => {
 		tickEndgame();
 		openDialog();
@@ -519,5 +532,18 @@ describe('DropsSetup by source below md', () => {
 
 		expect(sorted(rowIds())).toEqual([FELSTRIKER, DRACORIAN]);
 		expect(subrail()).toHaveLength(3);
+	});
+
+	it('steps the chip row on from a boss picked in the row of its bosses', () => {
+		tickEndgame();
+		openDialog();
+		group('by_source');
+		atWidth('phone');
+		pick('Stratholme');
+		fireEvent.click(within(screen.getByTestId('drops-items-subrail')).getByRole('button', { name: /^Baron Rivendare/ }));
+
+		fireEvent.keyDown(dialog(), { key: 'ArrowUp' });
+
+		expect(picked()).toBe('Stratholme3/3');
 	});
 });

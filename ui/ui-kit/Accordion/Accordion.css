@@ -40,13 +40,9 @@
 			@apply text-link-hover;
 		}
 
-		&[data-panel-open] .ui-accordion-chevron {
+		&[data-panel-open] .ui-disclosure-chevron {
 			@apply rotate-0;
 		}
-	}
-
-	.ui-accordion-chevron {
-		@apply -rotate-90 transition-transform duration-150;
 	}
 
 	.ui-accordion-panel {

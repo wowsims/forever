@@ -35,4 +35,12 @@
 			vertical-align: calc(var(--ui-icon-vertical-align) - 0.125em + (1em - var(--ui-icon-line-height)) / 2);
 		}
 	}
+
+	.ui-disclosure-chevron {
+		@apply transition-transform duration-150;
+
+		&:not([data-open]) {
+			@apply -rotate-90;
+		}
+	}
 }

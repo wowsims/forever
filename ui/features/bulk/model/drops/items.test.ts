@@ -10,7 +10,6 @@ import {
 	type DropsItemContext,
 	dropsItemList,
 	dropsItemsBySlot,
-	dropsItemsBySource,
 	dropsItemsBySourceParent,
 	dropsLevelItems,
 	dropsPhaseItems,
@@ -86,8 +85,8 @@ describe('dropsItemList', () => {
 	});
 
 	it('lists an item with one ticked source of two under that source only', () => {
-		const bySource = dropsItemsBySource(list([TWO_SOURCE], DUAL, new Set(['drop:1583:10363'])), dropsSourceTree([TWO_SOURCE], NAMES), NAMES);
-		expect(bySource.map(group => group.key)).toEqual(['drop:1583:10363']);
+		const parents = dropsItemsBySourceParent(list([TWO_SOURCE], DUAL, new Set(['drop:1583:10363'])), dropsSourceTree([TWO_SOURCE], NAMES), NAMES);
+		expect(parents.flatMap(parent => parent.leaves).map(leaf => leaf.key)).toEqual(['drop:1583:10363']);
 	});
 
 	it('skips an item none of whose sources is ticked', () => {
@@ -154,8 +153,8 @@ describe('dropsItemList', () => {
 
 	it('groups by source in tree order and lists an item under each ticked source', () => {
 		const items = [TWO_SOURCE, item({ id: 51, name: 'Another' })];
-		const groups = dropsItemsBySource(list(items), dropsSourceTree(items, NAMES), NAMES);
-		expect(groups.map(g => [g.key, g.label.label, g.items.map(i => i.item.id)])).toEqual([
+		const leaves = dropsItemsBySourceParent(list(items), dropsSourceTree(items, NAMES), NAMES).flatMap(parent => parent.leaves);
+		expect(leaves.map(g => [g.key, g.label.label, g.items.map(i => i.item.id)])).toEqual([
 			['drop:1584:9568', 'Overlord Wyrmthalak', [50]],
 			['drop:1583:10363', 'General Drakkisath', [51, 50]],
 		]);

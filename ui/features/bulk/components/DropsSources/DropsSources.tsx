@@ -1,11 +1,9 @@
 import i18n from '@i18n/config';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
-import { Field } from '@ui-kit/Field';
-import { Icon } from '@ui-kit/Icon';
+import { DisclosureChevron } from '@ui-kit/Icon';
 import { Pill } from '@ui-kit/Pill';
-import clsx from 'clsx';
-import { useId, useState } from 'react';
+import { useState } from 'react';
 
 import { dropsNodeState, type DropsSourceNode } from '../../model/drops/sources';
 
@@ -30,29 +28,31 @@ const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 	const [open, setOpen] = useState(false);
 	const state = dropsNodeState(node, ticked);
 	const hasChildren = node.children.length > 0;
-	const id = useId();
 
 	return (
 		<div>
 			<div className="flex items-center gap-2 py-1 text-sm font-semibold">
 				{hasChildren ? (
 					<>
-						<Field.Root id={id} layout="inline" size="xs" className="ui-boolean-picker grow-0">
-							<BooleanPicker id={id} value={state === 'checked'} indeterminate={state === 'mixed'} onChange={checked => onTick(node, checked)} />
-							<Field.Label className="sr-only">{node.label}</Field.Label>
-						</Field.Root>
+						<BooleanPicker
+							aria-label={node.label}
+							size="xs"
+							value={state === 'checked'}
+							indeterminate={state === 'mixed'}
+							onChange={checked => onTick(node, checked)}
+						/>
 						<Button
-							variant={null}
+							variant="unstyled"
 							aria-label={node.label}
 							aria-expanded={open}
-							className="flex min-w-0 grow items-center gap-2 py-0 ps-0 text-left font-semibold"
+							className="flex min-w-0 grow cursor-pointer items-center gap-2 border border-transparent pe-2 text-left leading-normal select-none focus-visible:focus-ring"
 							onClick={() => setOpen(wasOpen => !wasOpen)}>
 							<span className="min-w-0 wrap-anywhere">{node.label}</span>
-							<Pill size="xs" className="min-w-[1lh] shrink-0 justify-center" testId="drops-source-count">
+							<Pill size="xs" count className="shrink-0" testId="drops-source-count">
 								{node.itemIds.length}
 							</Pill>
 							<span className="grow" />
-							<Icon name="chevron-down" fixedWidth className={clsx('size-4 shrink-0 transition-transform duration-150', !open && '-rotate-90')} />
+							<DisclosureChevron open={open} className="size-4 shrink-0" />
 						</Button>
 					</>
 				) : (
@@ -66,7 +66,7 @@ const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 							indeterminate={state === 'mixed'}
 							onChange={checked => onTick(node, checked)}
 						/>
-						<Pill size="xs" className="min-w-[1lh] shrink-0 justify-center" testId="drops-source-count">
+						<Pill size="xs" count className="shrink-0" testId="drops-source-count">
 							{node.itemIds.length}
 						</Pill>
 					</>

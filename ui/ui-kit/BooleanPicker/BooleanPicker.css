@@ -27,6 +27,14 @@
 			@apply text-sm;
 		}
 
+		&[data-compact] {
+			@apply size-4;
+
+			> .ui-boolean-picker-indicator {
+				@apply text-2xs;
+			}
+		}
+
 		&:focus-visible {
 			@apply border-input-focus-border shadow-focus-checkbox outline-none;
 		}

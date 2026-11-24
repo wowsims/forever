@@ -2,6 +2,7 @@ import { getEmptySlotIconUrl } from '@features/gear/model/empty_slot_icons';
 import i18n from '@i18n/config';
 import { translateBulkSlotName } from '@i18n/localization';
 import { Button } from '@ui-kit/Button';
+import { Meter } from '@ui-kit/Meter';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { useId } from 'react';
 
@@ -41,9 +42,7 @@ export const DropsItemsCardView = ({ list, hidden, onChoose }: DropsItemsCardVie
 					<p className="mb-0 text-sm" data-testid="drops-items-ticked">
 						{i18n.t('bulk_tab.drops.setup.items_ticked', { ticked, total })}
 					</p>
-					<div className="h-2 bg-gray-800" aria-hidden>
-						<div className="h-full bg-primary" style={{ width: `${total ? (100 * ticked) / total : 0}%` }} />
-					</div>
+					<Meter value={ticked} max={total} track="gray" />
 					{hidden > 0 && (
 						<p className="mb-0 text-sm text-gray-400" data-testid="drops-items-hidden">
 							{i18n.t('bulk_tab.drops.setup.hidden_ticked', { count: hidden })}
@@ -54,18 +53,19 @@ export const DropsItemsCardView = ({ list, hidden, onChoose }: DropsItemsCardVie
 							const state = slot.ticked === 0 ? 'none' : slot.ticked === slot.total ? 'all' : 'some';
 							const label = `${translateBulkSlotName(slot.slot)} ${slot.ticked}/${slot.total}`;
 							return (
-								<li
-									key={slot.slot}
-									role="img"
-									aria-label={label}
-									data-state={state}
-									data-testid="drops-items-slot"
-									className="relative size-12 border border-border bg-cover data-[state=all]:border-primary data-[state=none]:opacity-40"
-									style={{ backgroundImage: `url(${getEmptySlotIconUrl(bulkGroupItemSlot(slot.slot))})` }}
-									{...tooltipAnchorProps(tooltipId, label)}>
-									<span className="absolute inset-x-0 bottom-0 bg-black py-px text-center text-2xs leading-none tabular-nums" aria-hidden>
-										{slot.ticked}
-									</span>
+								<li key={slot.slot}>
+									<div
+										role="img"
+										aria-label={label}
+										data-state={state}
+										data-testid="drops-items-slot"
+										className="relative size-12 border border-border bg-cover data-[state=all]:border-primary data-[state=none]:opacity-40"
+										style={{ backgroundImage: `url(${getEmptySlotIconUrl(bulkGroupItemSlot(slot.slot))})` }}
+										{...tooltipAnchorProps(tooltipId, label)}>
+										<span className="absolute inset-x-0 bottom-0 bg-black py-px text-center text-2xs leading-none tabular-nums" aria-hidden>
+											{slot.ticked}
+										</span>
+									</div>
 								</li>
 							);
 						})}

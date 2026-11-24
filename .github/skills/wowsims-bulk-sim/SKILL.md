@@ -276,11 +276,13 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   sources under the first; the chips have no boxes, so Select all and Clear selection above the list tick or untick the
   shown, non-worn rows, and each item row's sources sit under its name, at the same row height. All lists each item
   once, and a source's rows leave out that source. Arrow up and down move the rail pick (`railStep`, shared with the
-  gear picker's slot rail) over the entries a press could pick. The Filters button opens the gear picker's
-  `FiltersMenuView` with only the rows a list of every slot can use (item level, stats, bonuses, armor, weapon and
-  ranged), over Drops' own `DatabaseFilters` (`dropsFiltersOf`, the class's defaults until set); `Player.passesItemFilters`
-  holds the checks both lists run, here for each item's first slot. Search and filters only change what the dialog
-  shows: a ticked item they hide stays ticked and is sent, and neither reaches `BulkSettings`, the seed or the count.
+  gear picker's slot rail) over the entries a press could pick, and from a pick whose row is hidden (a source under a
+  closed parent, or one picked in the row of sources below `md`) they step on from its place in the rail. The Filters
+  button opens the gear picker's `FiltersMenuView` with only the rows a list of every slot can use (item level, stats,
+  bonuses, armor, weapon and ranged), over Drops' own `DatabaseFilters` (`dropsFiltersOf`, the class's defaults until
+  set); `Player.passesItemFilters` holds the checks both lists run, here for each item's first slot. Search and filters
+  only change what the dialog shows: a ticked item they hide stays ticked and is sent, and neither reaches
+  `BulkSettings`, the seed or the count.
   Four keys store the Drops picks per spec: `bulk-drops-sources.v1` (the ticked leaf keys, sorted),
   `bulk-drops-excluded.v1` (item ids unticked under them), `bulk-drops-view.v1` (`bosses` or `items`) and
   `bulk-drops-filters.v1` (the dialog's filters). The sources and excluded ids bump `settings` so the count refreshes;

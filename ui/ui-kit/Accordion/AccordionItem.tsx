@@ -23,7 +23,7 @@ export const AccordionItem = ({ value, title, panelClassName, testId, children }
 		render={use(AccordionVariantContext) === 'boxed' ? <Box border="border-muted" padding="none" /> : undefined}>
 		<BaseAccordion.Trigger className="ui-accordion-trigger" data-testid={testId ? `${testId}-trigger` : undefined}>
 			{title}
-			<Icon name="chevron-down" className="ui-accordion-chevron" />
+			<Icon name="chevron-down" className="ui-disclosure-chevron" />
 		</BaseAccordion.Trigger>
 		<BaseAccordion.Panel className={clsx('ui-accordion-panel', panelClassName)}>{children}</BaseAccordion.Panel>
 	</BaseAccordion.Item>

@@ -162,6 +162,11 @@ describe('BooleanPicker', () => {
 		expect(screen.getByTestId('sw-stat-toggle')).toBe(checkbox());
 	});
 
+	it('names a bare checkbox by its aria-label', () => {
+		render(<Harness label={undefined} aria-label="Stratholme" />);
+		expect(screen.getByRole('checkbox', { name: 'Stratholme' })).toBe(checkbox());
+	});
+
 	it('points the checkbox at the text it is described by, and at nothing without it', () => {
 		const { unmount } = render(<Harness aria-describedby="swap-note" />);
 		expect(checkbox().getAttribute('aria-describedby')).toBe('swap-note');

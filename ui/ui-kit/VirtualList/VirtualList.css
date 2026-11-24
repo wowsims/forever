@@ -1,0 +1,5 @@
+@layer components {
+	.ui-virtual-list[data-striped] > .ui-virtual-list-row {
+		@apply hover:bg-gray-800 data-[stripe=even]:not-hover:bg-table-odd data-[stripe=odd]:not-hover:bg-table-even;
+	}
+}

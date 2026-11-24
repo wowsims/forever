@@ -5,16 +5,17 @@ import type { ReactNode } from 'react';
 
 export interface ItemCellIconProps {
 	ilvl?: ReactNode;
-	/** `sm` is a 32px tile at every breakpoint, with a smaller item-level badge. */
-	size?: 'md' | 'sm';
-	/** On the frame; an `[--icon-size:…]` here sets a tile between the two sizes. */
-	className?: string;
+	/**
+	 * The tile's side in spacing steps: `lg` is 16, and 12 below the `lg` breakpoint; `md` is 14 and `sm` 8 at every
+	 * breakpoint, each with a smaller item-level badge.
+	 */
+	size?: 'lg' | 'md' | 'sm';
 	children: ReactNode;
 }
 
 /** The framed item icon with its item-level badge, as an `ItemCell` opens with or on its own. */
-export const ItemCellIcon = ({ ilvl, size = 'md', className, children }: ItemCellIconProps) => (
-	<div className={clsx('ui-item-picker-icon-wrapper', className)} data-size={size} data-testid="item-picker-icon-wrapper">
+export const ItemCellIcon = ({ ilvl, size = 'lg', children }: ItemCellIconProps) => (
+	<div className="ui-item-picker-icon-wrapper" data-size={size} data-testid="item-picker-icon-wrapper">
 		{ilvl !== undefined && (
 			<span className="ui-item-picker-ilvl" data-testid="item-picker-ilvl">
 				{ilvl}

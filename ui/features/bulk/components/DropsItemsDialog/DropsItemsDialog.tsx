@@ -10,7 +10,7 @@ import { Button } from '@ui-kit/Button';
 import { Dialog } from '@ui-kit/Dialog';
 import { Field } from '@ui-kit/Field';
 import { useMediumLayout } from '@ui-kit/hooks/useMediumLayout';
-import { Icon } from '@ui-kit/Icon';
+import { DisclosureChevron, Icon } from '@ui-kit/Icon';
 import { ItemCellIcon } from '@ui-kit/ItemCell';
 import { Pill } from '@ui-kit/Pill';
 import { SearchField } from '@ui-kit/TextField';
@@ -54,7 +54,6 @@ const FILTER_ROWS: ReadonlyArray<FiltersMenuRow> = ['ilvl', 'stats', 'bonus', 'a
 const ALL = 'all';
 // Below md a row puts its sources under the name; both lines fit the same height.
 const ROW_HEIGHT = 40;
-const ROW_CLASS = clsx('hover:bg-gray-800 data-[stripe=even]:not-hover:bg-table-odd data-[stripe=odd]:not-hover:bg-table-even');
 
 const t = (key: string) => i18n.t(`bulk_tab.drops.setup.${key}`);
 
@@ -93,7 +92,7 @@ const RAIL_NAV = clsx(
 	'shrink-0 border-border max-md:-mx-(--modal-padding) max-md:flex max-md:scrollbar-none max-md:overflow-x-auto max-md:border-b max-md:px-(--modal-padding) md:w-72 md:overflow-y-auto md:border-e',
 );
 const RAIL_ENTRY = clsx(
-	'flex w-full items-center gap-2 border-0 border-e-2 border-transparent px-2 py-1 text-left text-sm text-gray-400 hover:bg-gray-800 data-active:border-primary data-active:bg-gray-800 data-active:text-white max-md:w-auto max-md:shrink-0 max-md:gap-0 max-md:border-0 max-md:border-b-2 max-md:py-2 max-md:font-bold max-md:text-link max-md:hover:bg-transparent max-md:hover:text-link-hover max-md:data-active:bg-transparent max-md:data-active:text-white',
+	'flex shrink-0 cursor-pointer items-center border-b-2 border-transparent p-2 leading-normal text-link transition-colors duration-150 ease-in-out select-none hover:text-link-hover focus-visible:focus-ring-inset data-active:border-primary data-active:text-white',
 );
 
 interface RailEntryProps {
@@ -101,21 +100,22 @@ interface RailEntryProps {
 	title?: string;
 	active: boolean;
 	onClick: () => void;
-	className?: string;
+	/** The smaller entry of the row of the picked parent's sources. */
+	compact?: boolean;
 }
 
-// From md up a rail row with its counts at the end; below md a tab with its counts raised beside the name.
-const RailEntry = ({ group, title = group.title, active, onClick, className }: RailEntryProps) => {
+// A tab of the rail below md, its counts raised beside the name.
+const RailEntry = ({ group, title = group.title, active, onClick, compact }: RailEntryProps) => {
 	const { ticked, total } = dropsTickCount(group.items);
 	return (
 		<Button
-			variant={null}
+			variant="unstyled"
 			aria-current={active ? 'true' : undefined}
 			data-active={active ? '' : undefined}
-			className={clsx(RAIL_ENTRY, className)}
+			className={clsx(RAIL_ENTRY, compact ? 'text-xs font-normal' : 'text-sm font-bold')}
 			onClick={onClick}>
 			<span className="min-w-0 grow truncate">{title}</span>
-			<span className="shrink-0 tabular-nums max-md:-mt-px max-md:self-start max-md:ps-px max-md:text-xs max-md:leading-none max-md:font-normal">
+			<span className="-mt-px shrink-0 self-start ps-px text-xs leading-none font-normal tabular-nums">
 				{ticked}/{total}
 			</span>
 		</Button>
@@ -134,40 +134,31 @@ interface RailRowProps {
 // The rail from md up, laid out as the Sources tree: a box that ticks every shown, non-worn item of the row, then
 // the name and counts, which pick the row or open a parent, and a parent's chevron at the end.
 const RailRow = ({ group, active, onClick, onIncludedChange, expanded }: RailRowProps) => {
-	const id = useId();
 	const { ticked, total } = dropsTickCount(group.items);
 	const ids = group.items.filter(entry => !entry.worn).map(entry => entry.item.id);
 	return (
 		<div
 			data-active={active ? '' : undefined}
 			className="group flex items-center gap-2 border-e-2 border-transparent ps-2 hover:bg-gray-800 data-active:border-primary data-active:bg-gray-800">
-			<Field.Root
-				id={id}
-				layout="inline"
-				size="xs"
-				className="ui-boolean-picker grow-0 [--control-xs-height:--spacing(4)] [&_.ui-boolean-picker-indicator]:text-2xs">
-				<BooleanPicker
-					id={id}
-					value={total > 0 && ticked === total}
-					indeterminate={ticked > 0 && ticked < total}
-					disabled={total === 0}
-					onChange={checked => onIncludedChange(ids, checked)}
-				/>
-				<Field.Label className="sr-only">{group.title}</Field.Label>
-			</Field.Root>
+			<BooleanPicker
+				aria-label={group.title}
+				compact
+				value={total > 0 && ticked === total}
+				indeterminate={ticked > 0 && ticked < total}
+				disabled={total === 0}
+				onChange={checked => onIncludedChange(ids, checked)}
+			/>
 			<Button
-				variant={null}
+				variant="unstyled"
 				aria-current={active ? 'true' : undefined}
 				aria-expanded={expanded}
-				className="flex min-w-0 grow items-center gap-2 py-1 ps-0 pe-2 text-left text-sm text-gray-400 group-data-active:text-white"
+				className="flex min-w-0 grow cursor-pointer items-center gap-2 border border-transparent py-1 pe-2 text-left text-sm leading-normal text-gray-400 select-none group-data-active:text-white focus-visible:focus-ring-inset"
 				onClick={onClick}>
 				<span className="min-w-0 grow truncate">{group.title}</span>
 				<span className="shrink-0 tabular-nums">
 					{ticked}/{total}
 				</span>
-				{expanded !== undefined && (
-					<Icon name="chevron-down" fixedWidth className={clsx('size-4 shrink-0 transition-transform duration-150', !expanded && '-rotate-90')} />
-				)}
+				{expanded !== undefined && <DisclosureChevron open={expanded} className="size-4 shrink-0" />}
 			</Button>
 		</div>
 	);
@@ -287,11 +278,14 @@ export const DropsItemsDialogView = ({
 	);
 
 	// The entries a press can pick, in rail order: by source, from md up the sources of the open parents, below md the
-	// parents of the chip row.
-	const railKeys =
-		grouping === 'slot'
-			? groups.map(group => group.key)
-			: [ALL, ...parents.flatMap(parent => (medium ? (opened.has(parent.group.key) ? parent.leaves : []) : [parent.group])).map(group => group.key)];
+	// parents of the chip row. The pick keeps its place among them when its row is hidden, a source under a closed
+	// parent or in the row of sources below md, so the keys step on from it.
+	const listed = (group: RailGroup) =>
+		grouping === 'slot' ||
+		group.key === ALL ||
+		group.key === picked.key ||
+		(medium ? group.parent !== undefined && opened.has(group.parent) : group.parent === undefined);
+	const railKeys = groups.filter(listed).map(group => group.key);
 
 	// On the popup, through `Dialog`'s own prop, as the gear picker's rail does. The filters menu is a dialog of its own.
 	const onRailKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -389,9 +383,9 @@ export const DropsItemsDialogView = ({
 					<nav aria-label={pickedParent.group.title} className={clsx(RAIL_NAV, 'max-md:-mt-2')} data-testid="drops-items-subrail">
 						{railEntry(pickedParent.group, {
 							title: i18n.t('bulk_tab.drops.setup.all_of', { name: pickedParent.group.title }),
-							className: 'max-md:text-xs max-md:font-normal',
+							compact: true,
 						})}
-						{pickedParent.leaves.map(leaf => railEntry(leaf, { className: 'max-md:text-xs max-md:font-normal' }))}
+						{pickedParent.leaves.map(leaf => railEntry(leaf, { compact: true }))}
 					</nav>
 				)}
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
@@ -415,7 +409,7 @@ export const DropsItemsDialogView = ({
 								count={shown.length}
 								rowHeight={ROW_HEIGHT}
 								getScrollElement={() => listRef.current}
-								rowClassName={() => ROW_CLASS}
+								striped
 								renderRow={index => (
 									<ItemRow
 										entry={shown[index]}

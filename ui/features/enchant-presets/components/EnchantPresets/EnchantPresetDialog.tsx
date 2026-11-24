@@ -141,7 +141,7 @@ export const EnchantPresetDialogView = ({
 									<IconSwatch icon={{ iconUrl: group.iconUrl, name: group.label }} className="size-8 min-w-8" aria-hidden />
 									<span>{group.label}</span>
 									{group.checkedCount > 0 && (
-										<Pill size="xs" className="min-w-[1lh] justify-center" testId="bulk-enchant-slot-count">
+										<Pill size="xs" count testId="bulk-enchant-slot-count">
 											{group.checkedCount}
 										</Pill>
 									)}

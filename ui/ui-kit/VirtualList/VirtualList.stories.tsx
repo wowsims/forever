@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Box } from '@ui-kit/Box';
+import clsx from 'clsx';
 import { useRef } from 'react';
 
 import { VirtualList } from './VirtualList';
@@ -7,17 +8,19 @@ import { VirtualList } from './VirtualList';
 interface VirtualListStoryProps {
 	count: number;
 	rowHeight?: number;
+	striped?: boolean;
 }
 
-const VirtualListStory = ({ count, rowHeight }: VirtualListStoryProps) => {
+const VirtualListStory = ({ count, rowHeight, striped }: VirtualListStoryProps) => {
 	const scroller = useRef<HTMLDivElement>(null);
 	return (
 		<Box ref={scroller} padding="none" className="h-80 w-96 overflow-y-auto" testId="story-scroller">
 			<VirtualList
 				count={count}
 				rowHeight={rowHeight}
+				striped={striped}
 				getScrollElement={() => scroller.current}
-				rowClassName={() => 'flex items-center px-2 data-[stripe=odd]:bg-white/5'}
+				rowClassName={() => clsx('flex items-center px-2', !striped && 'data-[stripe=odd]:bg-white/5')}
 				renderRow={index => (
 					<>
 						<span>Event {index + 1}</span>
@@ -42,3 +45,6 @@ type Story = StoryObj<typeof meta>;
 export const ThousandRows: Story = {};
 
 export const TallRows: Story = { args: { rowHeight: 48 } };
+
+// Stripes from the absolute index, so they hold while the list scrolls, and a lighter hovered row.
+export const Striped: Story = { args: { striped: true } };

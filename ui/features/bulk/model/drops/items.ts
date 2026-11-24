@@ -175,12 +175,14 @@ export const dropsItemsBySlot = (list: DropsItemList): Array<{ slot: BulkSimItem
 	return [...bySlot].map(([slot, items]) => ({ slot, items })).sort((a, b) => a.slot - b.slot);
 };
 
+interface DropsSourceLeaf {
+	key: string;
+	label: DropsSourceLabel;
+	items: DropsItem[];
+}
+
 /** One group per source key the list reaches, in the order `tree`, the Sources tree the list was picked from, lists its leaves. */
-export const dropsItemsBySource = (
-	list: DropsItemList,
-	tree: readonly DropsSourceNode[],
-	names: DropsNames,
-): Array<{ key: string; label: DropsSourceLabel; items: DropsItem[] }> => {
+const dropsItemsBySource = (list: DropsItemList, tree: readonly DropsSourceNode[], names: DropsNames): DropsSourceLeaf[] => {
 	const bySource = new Map<string, DropsItem[]>();
 	for (const entry of list.items) {
 		for (const key of entry.sourceKeys) pushTo(bySource, key, entry);
@@ -196,7 +198,7 @@ export interface DropsSourceParent {
 	label: string;
 	/** The items of every leaf below, each once, in the list's order. */
 	items: DropsItem[];
-	leaves: ReturnType<typeof dropsItemsBySource>;
+	leaves: DropsSourceLeaf[];
 }
 
 /**

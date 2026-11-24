@@ -1,6 +1,6 @@
 import { act, render, within } from '@testing-library/react';
 import { useRef } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { VirtualList } from './VirtualList';
 
@@ -44,6 +44,10 @@ const scrollTo = async (element: HTMLElement, top: number) => {
 const rows = (container: HTMLElement) => within(container).queryAllByTestId('virtual-list-row');
 
 describe('VirtualList', () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
 	it('reserves the full scroll height while rendering only a window of rows', () => {
 		const { container } = renderList(1000);
 
@@ -179,7 +183,7 @@ describe('VirtualList', () => {
 			},
 		);
 		const tall = (row: Element) => (Number((row as HTMLElement).dataset.index) % 2 === 0 ? 2 * ROW_HEIGHT : ROW_HEIGHT);
-		const height = vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (this: HTMLElement) {
+		vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (this: HTMLElement) {
 			return this.dataset.testid === 'virtual-list-row' ? tall(this) : 0;
 		});
 		const element = scroller();
@@ -192,7 +196,5 @@ describe('VirtualList', () => {
 		expect(rendered.every(row => row.style.height === '')).toBe(true);
 		expect(rendered.map(row => row.style.transform)).toEqual(['translateY(0px)', 'translateY(40px)', 'translateY(60px)', 'translateY(100px)']);
 		expect(within(container).getByTestId('virtual-list').style.height).toBe('120px');
-		height.mockRestore();
-		vi.unstubAllGlobals();
 	});
 });

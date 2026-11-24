@@ -83,6 +83,16 @@ export const Indeterminate: Story = {
 	},
 };
 export const Unlabelled: Story = { args: { label: undefined } };
+// A dense list row's box, beside the xs one.
+export const Compact: Story = {
+	render: args => (
+		<div className="flex items-center gap-2">
+			<BooleanPickerStory {...args} label={undefined} size="xs" value />
+			<BooleanPickerStory {...args} id="boolean-picker-compact" label={undefined} aria-label="Compact" compact value />
+			<BooleanPickerStory {...args} id="boolean-picker-compact-mixed" label={undefined} aria-label="Compact, partly ticked" compact indeterminate />
+		</div>
+	),
+};
 export const Invalid: Story = { args: { label: 'Patchwerk again', layout: 'inline', invalid: true, value: true } };
 export const Sizes: Story = {
 	render: args => (

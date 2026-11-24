@@ -11,10 +11,9 @@ import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { Pill } from '@ui-kit/Pill';
 import { ToggleGroup } from '@ui-kit/ToggleGroup';
-import { findScrollParent } from '@ui-kit/utils/dom';
-import { useScrollMargin, VirtualList } from '@ui-kit/VirtualList';
+import { useScrollMargin, useScrollParent, VirtualList } from '@ui-kit/VirtualList';
 import clsx from 'clsx';
-import { type ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useMemo, useRef, useState } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
 import { wornIdSet } from '../../model/drops/items';
@@ -97,11 +96,8 @@ interface DropsResultListProps {
 // changes its height. The list scrolls with whatever scrolls the pane.
 const DropsResultList = ({ count, renderRanking }: DropsResultListProps) => {
 	const listRef = useRef<HTMLDivElement>(null);
-	const [scroller, setScroller] = useState<HTMLElement | Window | null>(null);
+	const scroller = useScrollParent(listRef);
 	const scrollMargin = useScrollMargin(listRef, scroller);
-	useLayoutEffect(() => {
-		if (listRef.current) setScroller(findScrollParent(listRef.current) ?? window);
-	}, []);
 	return (
 		<div ref={listRef}>
 			<VirtualList
@@ -205,7 +201,7 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 	});
 
 	// Every Drops output is a DPS ranking, so a row shows its DPS whatever the display settings hide.
-	const renderRow = (row: BulkRankedResult, key: number, beforeGroup = false) => {
+	const renderRow = (row: BulkRankedResult, key: number) => {
 		const { newItem, slot, sources } = rowDetails.get(row)!;
 		const [first, ...more] = sources;
 		const isCurrent = row === current;
@@ -221,7 +217,6 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 				isBase={isCurrent}
 				delta={formatDeltaText(current.dpsMetrics.avg, current.dpsMetrics.avg + gap, 2, undefined, !significance.isDiff, true)}
 				significance={isCurrent ? '' : formatSignificance(significance)}
-				beforeGroup={beforeGroup}
 				lowPrecision={lowPrecision ? { note: t('low_precision'), tooltip: t('low_precision_tooltip') } : undefined}
 				rootDataAttributes={{
 					'data-testid': 'drops-result-row',
@@ -252,7 +247,7 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 		const last = index === chains.length - 1;
 		if (chain.length > 1) return <BulkResultTieGroup>{chain.map((row, rowIdx) => renderRow(row, rowIdx))}</BulkResultTieGroup>;
 		const beforeGroup = (chains[index + 1]?.length ?? 0) > 1;
-		return <div className={clsx(!last && 'mb-6', !last && !beforeGroup && 'border-b border-b-border pb-6')}>{renderRow(chain[0], 0, beforeGroup)}</div>;
+		return <div className={clsx(!last && 'mb-6', !last && !beforeGroup && 'border-b border-b-border pb-6')}>{renderRow(chain[0], 0)}</div>;
 	};
 
 	return (

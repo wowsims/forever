@@ -1,4 +1,5 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
+import clsx from 'clsx';
 import { type ReactNode, useEffect, useReducer } from 'react';
 
 import { WINDOW_SCROLLER } from './window_scroller';
@@ -21,6 +22,8 @@ export interface VirtualListProps {
 	// mode this is the list's own offset down the document.
 	scrollMargin?: number;
 	className?: string;
+	// Alternating row backgrounds by absolute index, and a lighter hovered row.
+	striped?: boolean;
 	rowClassName?: (index: number) => string | undefined;
 	renderRow: (index: number) => ReactNode;
 	testId?: string;
@@ -35,8 +38,8 @@ const OVERSCAN = 10;
  *
  * The consequence to know: **`:nth-child` striping does not work here.** A row's position among its
  * siblings is the position within the rendered window, not within the list, so it changes as you
- * scroll. Every row carries `data-index` and `data-stripe`, and stripes are styled off
- * `[data-stripe='odd']` instead.
+ * scroll. Every row carries `data-index` and `data-stripe`, and `striped` paints the stripes off
+ * `data-stripe` instead.
  *
  * The transform is also a containing block for `position: fixed` descendants, so a tooltip, popover
  * or menu that a row renders **into itself** lands against the row rather than the viewport. Rows
@@ -50,6 +53,7 @@ export const VirtualList = ({
 	scrollMargin = 0,
 	measured = false,
 	className,
+	striped = false,
 	rowClassName,
 	renderRow,
 	testId = 'virtual-list',
@@ -78,7 +82,11 @@ export const VirtualList = ({
 	}, [subscribedTo, getScrollElement]);
 
 	return (
-		<div className={className} data-testid={testId} style={{ position: 'relative', height: virtualizer.getTotalSize() }}>
+		<div
+			className={clsx('ui-virtual-list', className)}
+			data-striped={striped ? '' : undefined}
+			data-testid={testId}
+			style={{ position: 'relative', height: virtualizer.getTotalSize() }}>
 			{virtualizer.getVirtualItems().map(item => (
 				<div
 					key={item.key}
@@ -86,7 +94,7 @@ export const VirtualList = ({
 					data-stripe={item.index % 2 === 0 ? 'even' : 'odd'}
 					data-testid="virtual-list-row"
 					ref={measured ? virtualizer.measureElement : undefined}
-					className={rowClassName?.(item.index)}
+					className={clsx('ui-virtual-list-row', rowClassName?.(item.index))}
 					style={{
 						position: 'absolute',
 						top: 0,
