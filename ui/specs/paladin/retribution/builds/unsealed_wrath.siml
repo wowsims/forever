@@ -1,6 +1,6 @@
 siml 1
 spec retribution_paladin
-talents "050250002-501-05233011201301351"
+talents "050050002-503-05233011201301351"
 use "../gear_sets/default.gear.siml"
 use "../buffs.siml"
 

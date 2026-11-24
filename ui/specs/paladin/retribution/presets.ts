@@ -35,8 +35,8 @@ export const DefaultGearPreset = PresetUtils.makePresetGear('Default', DefaultGe
 // The Manual Crowd Pummeler, which the Holy Shock APL equips before the pull and swaps back in when its cooldown is nearly up.
 export const HolyShockItemSwap = PresetUtils.makePresetItemSwapGear('Holy Shock', HolyShockItemSwapGear);
 
-// Simmed on each build's gear set and consumables. The set reaches the 8% melee hit cap, where more hit adds only spell
-// hit, so the hit weights come from a run 2% under the cap and the other weights from the set itself.
+// Simmed on each build's gear set, talents and consumables, which reach the 8% melee hit cap or pass it. More hit adds
+// only spell hit there, so the hit weights come from a run 2% under the cap and the other weights from the set itself.
 export const HolyShockEpWeights = PresetUtils.makePresetEpWeights(
 	'Holy Shock',
 	Stats.fromMap(
@@ -67,22 +67,22 @@ export const UnsealedWrathEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.4,
-			[Stat.StatAgility]: 1.93,
-			[Stat.StatIntellect]: 1.49,
-			[Stat.StatSpellDamage]: 1.96,
-			[Stat.StatHolyDamage]: 1.6,
+			[Stat.StatAgility]: 1.91,
+			[Stat.StatIntellect]: 1.48,
+			[Stat.StatSpellDamage]: 1.95,
+			[Stat.StatHolyDamage]: 1.59,
 			[Stat.StatSpellPiercing]: 0.66,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatHitRating]: 7.75,
-			[Stat.StatCritRating]: 2.75,
-			[Stat.StatHasteRating]: 3.49,
+			[Stat.StatHitRating]: 7.76,
+			[Stat.StatCritRating]: 2.74,
+			[Stat.StatHasteRating]: 3.53,
 			[Stat.StatArmorPenetration]: 0.23,
-			[Stat.StatExpertiseRating]: 5.53,
+			[Stat.StatExpertiseRating]: 5.45,
 			[Stat.StatMP5]: 0.01,
 		},
 		{
 			[PseudoStat.PseudoStatMainHandDps]: 14.14,
-			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 0.53 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
+			[PseudoStat.PseudoStatSchoolHitPercentHoly]: 0.51 * Mechanics.HIT_RATING_PER_HIT_PERCENT,
 		},
 	),
 );
