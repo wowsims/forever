@@ -76,4 +76,13 @@ describe('saved settings spec options', () => {
 
 		expect(player.getSpecOptions()).toEqual(rage(50));
 	});
+
+	it('keeps the live class options for an entry whose spec options carry none', async () => {
+		const { player, host } = await makeIndividualSim();
+		player.setSpecOptions(rage(50));
+
+		applySavedSettings(host, fromJsonLenient(SavedSettings, { dpsWarrior: { options: {} } }));
+
+		expect(player.getSpecOptions()).toEqual(rage(50));
+	});
 });
