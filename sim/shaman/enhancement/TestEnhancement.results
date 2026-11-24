@@ -1827,21 +1827,21 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-TotemoftheMaelstrom-272432"
+ value: {
+  dps: 934.63259
+  tps: 683.92713
+  dtps: 8.47762
+  hps: 20.84167
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-TotemoftheStorm-23199"
  value: {
   dps: 933.86288
   tps: 683.38914
   dtps: 8.73118
   hps: 20.75694
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-TotemoftheStorm-272432"
- value: {
-  dps: 934.63259
-  tps: 683.92713
-  dtps: 8.47762
-  hps: 20.84167
  }
 }
 dps_results: {

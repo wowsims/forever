@@ -2231,7 +2231,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-TotemoftheStorm-272432"
+ key: "TestElemental-AllItems-TotemoftheMaelstrom-272432"
  value: {
   dps: 843.70909
   tps: 776.86296
