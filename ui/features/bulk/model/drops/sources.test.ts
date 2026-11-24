@@ -4,7 +4,7 @@ import { professionNames } from '@sim/proto/names';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
-	DROPS_L60_DUNGEON_ZONE_IDS,
+	DROPS_ENDGAME_LEVEL,
 	dropsItemSourceKeys,
 	type DropsNames,
 	dropsNodeState,
@@ -167,22 +167,24 @@ describe('drops source tree', () => {
 		expect(dropsTicksAfter(['drop:2717:11502'], treeNode('quest'), true)).toContain('drop:2717:11502');
 	});
 
-	it('adds the five L60 dungeons to the ticks and ignores a zone the tree lacks', () => {
-		expect(DROPS_L60_DUNGEON_ZONE_IDS).toEqual([1584, 1583, 2557, 2057, 2017]);
+	it('adds the dungeons at the endgame level to the ticks and ignores a zone the tree lacks or the levels do not rate', () => {
 		const tree = dropsSourceTree(
 			[
 				item(1, drop({ zoneId: 1584, npcId: 9016 })),
 				item(2, drop({ zoneId: 2557, otherName: 'Trash' })),
 				item(3, drop({ zoneId: 491, otherName: 'Trash' })),
 				item(4, drop({ zoneId: 2717, npcId: 11502, difficulty: DungeonDifficulty.DifficultyRaid })),
+				item(5, drop({ zoneId: 1583, npcId: 10363 })),
 			],
 			NAMES,
 		);
-		expect(dropsQuickPickTicks(['quest:139', 'drop:1584:9016'], tree, DROPS_L60_DUNGEON_ZONE_IDS)).toEqual([
-			'drop:1584:9016',
-			'drop:2557:other:Trash',
-			'quest:139',
+		const levels = new Map([
+			[1584, DROPS_ENDGAME_LEVEL],
+			[2557, 58],
+			[491, DROPS_ENDGAME_LEVEL - 1],
+			[2717, 60],
 		]);
+		expect(dropsQuickPickTicks(['quest:139', 'drop:1584:9016'], tree, levels)).toEqual(['drop:1584:9016', 'drop:2557:other:Trash', 'quest:139']);
 	});
 
 	it('labels a boss by its NPC under its zone, and a quest zone with no row as Other quests', () => {

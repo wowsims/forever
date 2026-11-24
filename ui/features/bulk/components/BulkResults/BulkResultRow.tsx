@@ -1,9 +1,5 @@
-import { GearChangeIcon } from '@features/gear/components/GearChangeIcon';
-import { ItemDetailCell } from '@features/gear/components/ItemCell';
-import { ItemSpec } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { BulkRankedResult, BulkResults } from '@sim/bulk/types';
-import { getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import type { TalentsConfig } from '@sim/talents/config';
@@ -20,13 +16,13 @@ import { gearSetupLabel } from '../../model/builds/gear_setups';
 import { rotationLabel } from '../../model/builds/rotations';
 import { settingsLabel } from '../../model/builds/settings_entries';
 import { talentsLabel } from '../../model/builds/talents';
-import { getSwappableItemSlotPair, itemSpecPairsEqualUnordered } from '../../model/gear/swappable_slots';
 import { changedEnchantLabels } from '../../model/results/compare';
 import { bulkResultKey, equipAndAnnounce } from '../../model/results/results';
 import { BulkDpsCell } from '../BulkDpsCell';
 import { BulkEnchantsDiffer } from '../BulkEnchantsDiffer';
 import { BulkSetupLabel, type BulkSetupLabels, BulkSetupLines, bulkSetupText } from '../BulkSetupLabel';
 import { BulkTalentsGrid, bulkTalentsText } from '../BulkTalentsGrid';
+import { BulkResultSlots } from './BulkResultSlots';
 
 export interface BulkResultRowViewProps {
 	showDamage: boolean;
@@ -55,6 +51,10 @@ export interface BulkResultRowViewProps {
 	gearUnchanged?: boolean;
 	/** A tie group follows this row: its own border separates them, so the row draws no separator or padding. */
 	beforeGroup?: boolean;
+	/** A row stopped before the final stage: a note under its DPS. */
+	lowPrecision?: { note: string; tooltip: string };
+	/** Data attributes for the row's root; a `data-testid` among them replaces the row's own. */
+	rootDataAttributes?: Record<string, string>;
 	onEquip: () => void;
 	children: ReactNode;
 }
@@ -79,6 +79,8 @@ export const BulkResultRowView = ({
 	bundle = null,
 	gearUnchanged = false,
 	beforeGroup = false,
+	lowPrecision,
+	rootDataAttributes,
 	onEquip,
 	children,
 }: BulkResultRowViewProps) => {
@@ -92,7 +94,8 @@ export const BulkResultRowView = ({
 				'flex items-center gap-4 not-last:not-only:mb-6 max-md:flex-wrap',
 				!beforeGroup && 'not-last:not-only:border-b not-last:not-only:border-b-border not-last:not-only:pb-6',
 			)}
-			data-testid="bulk-sim-result-root">
+			data-testid="bulk-sim-result-root"
+			{...rootDataAttributes}>
 			{/* Wide enough for "9,999.99 DPS(±1)" and its pill on one line each, so every row's gear starts at the same x. */}
 			<div className="w-52 shrink-0" data-testid="results-sim">
 				{showDamage && (
@@ -102,6 +105,7 @@ export const BulkResultRowView = ({
 						avg={avg}
 						plusMinus={plusMinus}
 						diff={isBase || isReference ? null : { ...delta, significance }}
+						lowPrecision={lowPrecision}
 					/>
 				)}
 			</div>
@@ -204,9 +208,6 @@ export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: B
 	const test = zTest(iterations, result.dpsMetrics.avg, result.dpsMetrics.stdev, iterations, baseResult.dpsMetrics.avg, baseResult.dpsMetrics.stdev);
 	const delta = formatDeltaText(baseResult.dpsMetrics.avg, result.dpsMetrics.avg, 2, undefined, !test.isDiff, true);
 
-	const canDualWield = getBulkPlayerCanDualWield(host.player);
-	const resultAsSpec = result.gear.asSpec();
-	const originalEquipmentSpec = currentGear.asSpec();
 	// Gear-mode rows carry no settings; a Builds row names all four parts of its build, shared with every other row or not.
 	const builds = result.settings !== null;
 
@@ -236,40 +237,7 @@ export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: B
 			gearUnchanged={gearUnchanged}
 			beforeGroup={beforeGroup}
 			onEquip={() => equipAndAnnounce(host, result, onActivateTab)}>
-			{!isBaseResult &&
-				resultAsSpec.items.map((spec, idx) => {
-					const swappableItemSlotPair = getSwappableItemSlotPair(idx, canDualWield);
-					const itemChanged = swappableItemSlotPair
-						? !itemSpecPairsEqualUnordered(resultAsSpec.items, originalEquipmentSpec.items, swappableItemSlotPair)
-						: !ItemSpec.equals(spec, originalEquipmentSpec.items[idx]);
-
-					// Three display states per slot:
-					// 1. Unchanged -  slots stay empty
-					// 2. Same - Item with a different enchant shows the compact change icon (enchant marker);
-					// 3. New - The item appearing at all already says the slot changed.
-					if (itemChanged && spec.id !== 0 && spec.id === originalEquipmentSpec.items[idx]?.id) {
-						return (
-							<div key={idx} className="ui-bulk-result-item ui-bulk-item-cell" data-testid="bulk-result-item">
-								<GearChangeIcon
-									slot={idx}
-									item={host.sim.db.lookupItemSpec(spec) ?? undefined}
-									previousItem={currentGear.getEquippedItem(idx) ?? undefined}
-									showEnchant
-								/>
-							</div>
-						);
-					}
-
-					return (
-						<ItemDetailCell
-							key={idx}
-							testId="bulk-result-item"
-							className="ui-bulk-result-item ui-bulk-item-cell mb-0 p-0 [&_.ui-item-picker-labels-container]:hidden"
-							slot={idx}
-							item={itemChanged && spec.id !== 0 ? host.sim.db.lookupItemSpec(spec) : null}
-						/>
-					);
-				})}
+			{!isBaseResult && <BulkResultSlots gear={result.gear} currentGear={currentGear} />}
 		</BulkResultRowView>
 	);
 };

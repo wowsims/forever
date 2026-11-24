@@ -31,18 +31,6 @@ import { DropsSetup } from './DropsSetup';
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 vi.mock('@sim/hooks/useSimReady', () => ({ useSimReady: () => true }));
 vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: 'icon.jpg', name: '', href: '', ready: true }) }));
-// Every row, since jsdom gives the virtualiser no height.
-vi.mock('@ui-kit/VirtualList', () => ({
-	VirtualList: ({ count, renderRow }: any) => (
-		<div>
-			{Array.from({ length: count }, (_unused, index) => (
-				<div key={index} data-testid="virtual-list-row">
-					{renderRow(index)}
-				</div>
-			))}
-		</div>
-	),
-}));
 
 const SETUP = 'bulk_tab.drops.setup';
 const key = (zoneId: number, npcId: number) => `drop:${zoneId}:${npcId}`;
@@ -91,7 +79,13 @@ const disclose = (name: string) => fireEvent.click(screen.getByRole('button', { 
 const category = 'bulk_tab.drops.sources.categories.drop_dungeon';
 const rows = () => screen.queryAllByTestId('drops-item-row');
 const rowIds = () => rows().map(row => Number(row.getAttribute('data-item-id')));
-const headers = () => screen.queryAllByTestId('drops-group-header').map(header => header.textContent);
+const headers = () => screen.queryAllByTestId('drops-group-trigger').map(trigger => trigger.textContent!.replace(/\d+\/\d+$/, ''));
+// Every section starts collapsed, so a test that reads rows opens the closed ones first.
+const openAll = () => {
+	for (const trigger of screen.queryAllByTestId('drops-group-trigger')) {
+		if (trigger.getAttribute('aria-expanded') === 'false') fireEvent.click(trigger);
+	}
+};
 const FELSTRIKER = 2001;
 const openBlackrockSpire = () => {
 	disclose(category);
@@ -134,8 +128,8 @@ describe('DropsSetup', () => {
 		expect(screen.queryByRole('checkbox', { name: 'Overlord Wyrmthalak' })).toBeNull();
 	});
 
-	it('ticks the five L60 dungeons from the quick pick and clears them', () => {
-		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.l60_dungeons` }));
+	it('ticks the endgame dungeons from the quick pick and clears them', () => {
+		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.endgame_dungeons` }));
 
 		expect(loadStoredBulkDropsSources(player)).toEqual([...BRS_LEAVES, key(STRATHOLME, RIVENDARE), key(STRATHOLME, BARTHILAS)].sort());
 		expect(screen.queryByRole('button', { name: /molten|onyxia/i })).toBeNull();
@@ -147,7 +141,8 @@ describe('DropsSetup', () => {
 	});
 
 	it('lists a worn item greyed out and unticked items unchecked, and Exclude all stores every listed id', () => {
-		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.l60_dungeons` }));
+		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.endgame_dungeons` }));
+		openAll();
 
 		const worn = rows().find(row => Number(row.getAttribute('data-item-id')) === WORN_ITEM_ID)!;
 		expect(worn.hasAttribute('data-worn')).toBe(true);
@@ -170,16 +165,20 @@ describe('DropsSetup', () => {
 	it('lists only what the class can use, with no word of the class-only and random-suffix items', () => {
 		act(() => patchBulkState(player, { dropsSources: [key(BLACKROCK_SPIRE, DRAKKISATH), key(STRATHOLME, RIVENDARE)] }, ['settings']));
 
+		openAll();
+
 		expect(rowIds().sort()).toEqual([2001, 2002, 2004]);
 		expect(screen.queryByText('Robe of the Archmage')).toBeNull();
 		expect(screen.queryByText('Cloak of the Eagle')).toBeNull();
 	});
 
 	it('groups the same items by boss on the switch, an item with two ticked sources under both', () => {
-		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.l60_dungeons` }));
+		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.endgame_dungeons` }));
+		openAll();
 		expect(rowIds().filter(id => id === FELSTRIKER)).toHaveLength(1);
 
 		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.by_source` }));
+		openAll();
 
 		expect(rowIds().filter(id => id === FELSTRIKER)).toHaveLength(2);
 		expect(headers()).toEqual([
@@ -191,12 +190,14 @@ describe('DropsSetup', () => {
 		]);
 
 		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.by_slot` }));
+		openAll();
 
 		expect(rowIds().filter(id => id === FELSTRIKER)).toHaveLength(1);
 	});
 
 	it('names an item’s first source with a count of the rest, and under a boss only the other sources', () => {
-		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.l60_dungeons` }));
+		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.endgame_dungeons` }));
+		openAll();
 		const felstriker = () => rows().filter(row => Number(row.getAttribute('data-item-id')) === FELSTRIKER);
 
 		const [bySlot] = felstriker();
@@ -204,6 +205,7 @@ describe('DropsSetup', () => {
 		expect(within(bySlot).getByTestId('drops-item-more-sources').textContent).toBe('+1');
 
 		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.by_source` }));
+		openAll();
 
 		const [underRend, underRivendare] = felstriker();
 		expect(within(underRend).queryByText('Warchief Rend Blackhand')).toBeNull();
@@ -213,7 +215,8 @@ describe('DropsSetup', () => {
 	});
 
 	it('rebuilds the list when the phase, the race or the gear changes', () => {
-		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.l60_dungeons` }));
+		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.endgame_dungeons` }));
+		openAll();
 		const row = (id: number) => rows().find(shown => Number(shown.getAttribute('data-item-id')) === id);
 		expect(row(ALLIANCE_ITEM_ID)).toBeTruthy();
 		expect(row(WEARABLE_ITEM_ID)!.hasAttribute('data-worn')).toBe(false);
@@ -240,7 +243,8 @@ describe('DropsSetup', () => {
 	});
 
 	it('stores one unticked row and ticks it again', () => {
-		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.l60_dungeons` }));
+		fireEvent.click(screen.getByRole('button', { name: `${SETUP}.quick_picks.endgame_dungeons` }));
+		openAll();
 
 		fireEvent.click(box('Reiver Claws'));
 

@@ -5,6 +5,7 @@ import { PlayerSpecs } from '@sim/player/specs';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+	dropsDungeonLevels,
 	dropsFactionItems,
 	type DropsItemContext,
 	dropsItemList,
@@ -69,6 +70,11 @@ describe('dropsUsableItems', () => {
 		const wrongClass = item({ id: 60, name: 'Wrong Class', classAllowlist: [Class.ClassMage] });
 		const suffixed = item({ id: 61, name: 'Suffixed', randomSuffixOptions: [1, 2] });
 		expect(usable([wrongClass, suffixed, TWO_SOURCE])).toEqual([50]);
+	});
+
+	it('leaves out an item that fits no gear slot, such as a toy', () => {
+		const toy = item({ id: 62, name: 'Piccolo of the Flaming Fire', type: ItemType.ItemTypeUnknown });
+		expect(usable([toy, TWO_SOURCE])).toEqual([50]);
 	});
 
 	it('applies the gear picker’s item level and required level bounds, 0 leaving one unset', () => {
@@ -137,8 +143,8 @@ describe('dropsItemList', () => {
 		expect(tags(weapon(4, 'Two', HandType.HandTypeTwoHand))).toEqual(['2h']);
 		const ring = item({ id: 5, name: 'Ring', type: ItemType.ItemTypeFinger, armorType: ArmorType.ArmorTypeUnknown });
 		const trinket = item({ id: 6, name: 'Trinket', type: ItemType.ItemTypeTrinket, armorType: ArmorType.ArmorTypeUnknown });
-		expect(tags(ring)).toEqual(['r1', 'r2']);
-		expect(tags(trinket)).toEqual(['t1', 't2']);
+		expect(tags(ring)).toEqual([]);
+		expect(tags(trinket)).toEqual([]);
 		expect(tags(item({ id: 7, name: 'Chest' }))).toEqual([]);
 	});
 
@@ -197,6 +203,29 @@ describe('dropsFactionItems', () => {
 	});
 });
 
+describe('dropsDungeonLevels', () => {
+	it('rates a dungeon by its highest required level over all its drops and leaves raids and other sources out', () => {
+		const dungeon = (zoneId: number) =>
+			UIItemSource.create({
+				source: { oneofKind: 'drop', drop: { difficulty: DungeonDifficulty.DifficultyDungeon, npcId: 1, zoneId, otherName: '', category: '' } },
+			});
+		const raid = UIItemSource.create({
+			source: { oneofKind: 'drop', drop: { difficulty: DungeonDifficulty.DifficultyRaid, npcId: 2, zoneId: 2717, otherName: '', category: '' } },
+		});
+		const items = [
+			item({ id: 1, name: 'Low', reqLvl: 40, sources: [dungeon(1583)] }),
+			item({ id: 2, name: 'High', reqLvl: 58, sources: [dungeon(1583), raid] }),
+			item({ id: 3, name: 'Other', reqLvl: 50, sources: [dungeon(1337), quest(Faction.Unknown)] }),
+		];
+		expect(dropsDungeonLevels(items)).toEqual(
+			new Map([
+				[1583, 58],
+				[1337, 50],
+			]),
+		);
+	});
+});
+
 describe('dropsLevelItems', () => {
 	const ULDAMAN = 1337;
 	const ZUL_FARRAK = 1176;
@@ -205,7 +234,7 @@ describe('dropsLevelItems', () => {
 	const instanceDrop = (difficulty: DungeonDifficulty, zoneId: number, npcId: number) =>
 		UIItemSource.create({ source: { oneofKind: 'drop', drop: { difficulty, npcId, zoneId, otherName: '', category: '' } } });
 	const dungeon = (zoneId: number, npcId: number) => instanceDrop(DungeonDifficulty.DifficultyDungeon, zoneId, npcId);
-	const kept = (items: UIItem[]) => dropsLevelItems(items).map(i => [i.id, i.sources]);
+	const kept = (items: UIItem[]) => dropsLevelItems(items, dropsDungeonLevels(items)).map(i => [i.id, i.sources]);
 
 	it('leaves out a dungeon whose loot needs at most level 44, an item it shares with a kept source keeping that one', () => {
 		const archaedas = item({ id: 1, name: 'Archaedas Loot', reqLvl: 44, sources: [dungeon(ULDAMAN, 2748)] });

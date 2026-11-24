@@ -34,4 +34,19 @@ describe('Accordion', () => {
 
 		expect(container.querySelector('[data-testid="accordion"]')).not.toBeNull();
 	});
+
+	it('keeps a start control apart from the trigger, so pressing it leaves the item closed', () => {
+		const { container } = render(
+			<Accordion value={[]} onValueChange={() => {}}>
+				<AccordionItem value="first" title="First" testId="group-first" start={<button type="button" data-testid="start" />}>
+					<span data-testid="first-body" />
+				</AccordionItem>
+			</Accordion>,
+		);
+
+		const start = container.querySelector('[data-testid="start"]')!;
+		expect(start.closest('[data-testid="group-first-trigger"]')).toBeNull();
+		fireEvent.click(start);
+		expect(container.querySelector('[data-testid="first-body"]')).toBeNull();
+	});
 });

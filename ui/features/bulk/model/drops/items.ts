@@ -60,7 +60,8 @@ export const dropsFactionItems = (items: readonly UIItem[], faction: Faction): U
 // Drops lists what a level-60 character still wears; a dungeon's level is its loot's highest required level.
 export const DROPS_MIN_LEVEL = 45;
 
-const dungeonLevels = (items: readonly UIItem[]): Map<number, number> => {
+/** The level of each dungeon zone: the highest `Player.requiredLevelOf` among all its drops. */
+export const dropsDungeonLevels = (items: readonly UIItem[]): Map<number, number> => {
 	const levels = new Map<number, number>();
 	for (const item of items) {
 		for (const { source } of item.sources) {
@@ -73,10 +74,9 @@ const dungeonLevels = (items: readonly UIItem[]): Map<number, number> => {
 
 /**
  * Every raid drop, the drops of a dungeon at `DROPS_MIN_LEVEL` or above, and any other source only on an item that needs
- * that level; an item left with no source is dropped. A dungeon's level comes from all of `items`, so pass the whole database.
+ * that level; an item left with no source is dropped. `levels` is `dropsDungeonLevels` of the whole database.
  */
-export const dropsLevelItems = (items: readonly UIItem[]): UIItem[] => {
-	const levels = dungeonLevels(items);
+export const dropsLevelItems = (items: readonly UIItem[], levels: ReadonlyMap<number, number>): UIItem[] => {
 	const kept: UIItem[] = [];
 	for (const item of items) {
 		const needsLevel = Player.requiredLevelOf(item) >= DROPS_MIN_LEVEL;
@@ -97,15 +97,21 @@ export const dropsLevelItems = (items: readonly UIItem[]): UIItem[] => {
 	return kept;
 };
 
-/** The items the class can equip that pass the gear picker's level filters; a random-suffix item is left out. */
+/** The items that fit a gear slot, that the class can equip and that pass the gear picker's level filters; a random-suffix item is left out. */
 export const dropsUsableItems = (
 	items: readonly UIItem[],
 	playerSpec: PlayerSpec<any>,
 	filters: Pick<DatabaseFilters, 'minIlvl' | 'maxIlvl' | 'maxRequiredLevel'>,
 ): UIItem[] =>
-	items.filter(item => canEquipItem(item, playerSpec, undefined) && item.randomSuffixOptions.length === 0 && Player.passesLevelFilters(item, filters));
+	items.filter(
+		item =>
+			getEligibleItemSlots(item).length > 0 &&
+			canEquipItem(item, playerSpec, undefined) &&
+			item.randomSuffixOptions.length === 0 &&
+			Player.passesLevelFilters(item, filters),
+	);
 
-export type DropsSlotTag = 'mh' | 'oh' | '2h' | 'r1' | 'r2' | 't1' | 't2';
+export type DropsSlotTag = 'mh' | 'oh' | '2h';
 
 export interface DropsItem {
 	item: UIItem;
@@ -124,10 +130,6 @@ export interface DropsItemList {
 
 const tagsOf = (item: UIItem, canDualWield: boolean): DropsSlotTag[] => {
 	switch (item.type) {
-		case ItemType.ItemTypeFinger:
-			return ['r1', 'r2'];
-		case ItemType.ItemTypeTrinket:
-			return ['t1', 't2'];
 		case ItemType.ItemTypeWeapon:
 			switch (item.handType) {
 				case HandType.HandTypeTwoHand:

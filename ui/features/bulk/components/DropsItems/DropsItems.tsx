@@ -2,6 +2,7 @@ import i18n from '@i18n/config';
 import { translateBulkSlotName } from '@i18n/localization';
 import { useActionId } from '@sim/hooks/useActionId';
 import { ActionId } from '@sim/proto/action_id';
+import { Accordion, AccordionItem } from '@ui-kit/Accordion';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
 import { Field } from '@ui-kit/Field';
@@ -11,10 +12,9 @@ import { ToggleGroup } from '@ui-kit/ToggleGroup';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { TooltipAnchor } from '@ui-kit/TooltipAnchor';
 import { itemQualityClassName } from '@ui-kit/utils/css';
-import { VirtualList } from '@ui-kit/VirtualList';
 import { WowheadIcon } from '@ui-kit/WowheadIcon';
 import clsx from 'clsx';
-import { useId, useMemo, useRef } from 'react';
+import { useId, useMemo, useState } from 'react';
 
 import { type DropsItem, type DropsItemList, dropsItemsBySlot, dropsItemsBySource } from '../../model/drops/items';
 import { type DropsNames, dropsSourceLabel, type DropsSourceNode } from '../../model/drops/sources';
@@ -31,33 +31,27 @@ export interface DropsItemsViewProps {
 	onIncludedChange: (ids: readonly number[], included: boolean) => void;
 }
 
-const ROW_HEIGHT = 40;
 const ITEM_ROW_CLASS = clsx('hover:bg-gray-800 data-[stripe=even]:not-hover:bg-table-odd data-[stripe=odd]:not-hover:bg-table-even');
 
 const t = (key: string) => i18n.t(`bulk_tab.drops.setup.${key}`);
 
-// `group` is the source key of the group a row sits under, which the row then leaves out of its own sources.
-type ListRow = { kind: 'header'; key: string; title: string; detail?: string } | { kind: 'item'; key: string; group?: string; entry: DropsItem };
+// `source` is the source key of a source group, which its rows leave out of their own sources.
+interface ItemGroup {
+	key: string;
+	source?: string;
+	title: string;
+	detail?: string;
+	items: DropsItem[];
+}
 
-const listRows = (list: DropsItemList, grouping: DropsItemsViewProps['grouping'], tree: readonly DropsSourceNode[], names: DropsNames): ListRow[] => {
-	const groups =
-		grouping === 'slot'
-			? dropsItemsBySlot(list).map(({ slot, items }) => ({
-					key: `slot:${slot}`,
-					source: undefined,
-					title: translateBulkSlotName(slot),
-					detail: undefined,
-					items,
-				}))
-			: dropsItemsBySource(list, tree, names).map(({ key, label, items }) => ({ key, source: key, title: label.label, detail: label.detail, items }));
-	return groups.flatMap(group => [
-		{ kind: 'header' as const, key: group.key, title: group.title, detail: group.detail },
-		...group.items.map(entry => ({ kind: 'item' as const, key: `${group.key}/${entry.item.id}`, group: group.source, entry })),
-	]);
-};
+const itemGroups = (list: DropsItemList, grouping: DropsItemsViewProps['grouping'], tree: readonly DropsSourceNode[], names: DropsNames): ItemGroup[] =>
+	grouping === 'slot'
+		? dropsItemsBySlot(list).map(({ slot, items }) => ({ key: `slot:${slot}`, title: translateBulkSlotName(slot), items }))
+		: dropsItemsBySource(list, tree, names).map(({ key, label, items }) => ({ key, source: key, title: label.label, detail: label.detail, items }));
 
 interface ItemRowProps {
 	entry: DropsItem;
+	index: number;
 	group?: string;
 	names: DropsNames;
 	onIncludedChange: DropsItemsViewProps['onIncludedChange'];
@@ -65,14 +59,19 @@ interface ItemRowProps {
 
 // Box, icon and name share one field, so the name ticks the box and a worn row dims once, through the field's disabled look.
 // The other sources open in a kit tooltip, which a tap opens on a touch screen.
-const ItemRow = ({ entry, group, names, onIncludedChange }: ItemRowProps) => {
+const ItemRow = ({ entry, index, group, names, onIncludedChange }: ItemRowProps) => {
 	const { item, worn, included, tags, sourceKeys } = entry;
 	const { iconUrl, href } = useActionId(ActionId.fromItem(item));
 	const id = useId();
 	const [first, ...more] = sourceKeys.filter(key => key !== group).map(key => dropsSourceLabel(key, names).label);
 
 	return (
-		<div className="flex h-full items-center gap-2 px-1" data-testid="drops-item-row" data-item-id={item.id} data-worn={worn ? '' : undefined}>
+		<div
+			className={clsx('flex h-10 items-center gap-2 px-1', ITEM_ROW_CLASS)}
+			data-stripe={index % 2 === 0 ? 'even' : 'odd'}
+			data-testid="drops-item-row"
+			data-item-id={item.id}
+			data-worn={worn ? '' : undefined}>
 			<Field.Root id={id} layout="inline" size="xs" disabled={worn} className="ui-boolean-picker min-w-0 grow">
 				<BooleanPicker id={id} value={included && !worn} disabled={worn} onChange={checked => onIncludedChange([item.id], checked)} />
 				<ItemCellIcon ilvl={baseIlvl(item)} size="sm">
@@ -115,16 +114,64 @@ const ItemRow = ({ entry, group, names, onIncludedChange }: ItemRowProps) => {
 	);
 };
 
+interface ItemGroupSectionProps {
+	group: ItemGroup;
+	names: DropsNames;
+	onIncludedChange: DropsItemsViewProps['onIncludedChange'];
+}
+
+// Worn rows are left out of the count and of the ids the box sends, as Include all and Exclude all leave them out.
+// A partly ticked box passes `value={false}` with `indeterminate`, so pressing it reports `true` and ticks the rest.
+// A section's rows mount only while it is open, so the list holds as many as the open sections list.
+const ItemGroupSection = ({ group, names, onIncludedChange }: ItemGroupSectionProps) => {
+	const id = useId();
+	const pickable = group.items.filter(entry => !entry.worn);
+	const included = pickable.filter(entry => entry.included).length;
+	const ids = pickable.map(entry => entry.item.id);
+
+	return (
+		<AccordionItem
+			value={group.key}
+			testId="drops-group"
+			panelClassName="px-0"
+			start={
+				<Field.Root id={id} layout="inline" size="xs" disabled={ids.length === 0} className="ui-boolean-picker ms-2 grow-0">
+					<BooleanPicker
+						id={id}
+						value={ids.length > 0 && included === ids.length}
+						indeterminate={included > 0 && included < ids.length}
+						disabled={ids.length === 0}
+						onChange={checked => onIncludedChange(ids, checked)}
+					/>
+					<Field.Label className="sr-only">{group.title}</Field.Label>
+				</Field.Root>
+			}
+			title={
+				<span className="flex min-w-0 grow items-center gap-2">
+					<span className="truncate">{group.title}</span>
+					{group.detail && <span className="min-w-0 truncate text-xs font-normal text-gray-400">{group.detail}</span>}
+					<span className="ms-auto shrink-0 text-xs font-normal text-gray-400" data-testid="drops-group-count">
+						{included}/{pickable.length}
+					</span>
+				</span>
+			}>
+			{group.items.map((entry, index) => (
+				<ItemRow key={entry.item.id} entry={entry} index={index} group={group.source} names={names} onIncludedChange={onIncludedChange} />
+			))}
+		</AccordionItem>
+	);
+};
+
 export const DropsItemsView = ({ list, grouping, onGroupingChange, tree, names, onIncludedChange }: DropsItemsViewProps) => {
-	const scroller = useRef<HTMLDivElement>(null);
-	const rows = useMemo(() => listRows(list, grouping, tree, names), [list, grouping, tree, names]);
+	const groups = useMemo(() => itemGroups(list, grouping, tree, names), [list, grouping, tree, names]);
+	const [open, setOpen] = useState<string[]>([]);
 	const pickable = list.items.filter(entry => !entry.worn).map(entry => entry.item.id);
 
 	return (
 		<div className="grid content-start gap-4" data-testid="drops-items">
 			<div className="flex flex-wrap items-center gap-2">
 				<h5 className="mr-auto mb-0">{t('items_title')}</h5>
-				{rows.length > 0 && (
+				{groups.length > 0 && (
 					<>
 						<ToggleGroup
 							size="sm"
@@ -135,7 +182,10 @@ export const DropsItemsView = ({ list, grouping, onGroupingChange, tree, names, 
 								{ value: 'slot', label: t('by_slot') },
 								{ value: 'source', label: t('by_source') },
 							]}
-							onChange={onGroupingChange}
+							onChange={next => {
+								setOpen([]);
+								onGroupingChange(next);
+							}}
 						/>
 						<div className="flex items-center gap-2">
 							<Button variant="secondary" size="sm" disabled={pickable.length === 0} onClick={() => onIncludedChange(pickable, true)}>
@@ -148,29 +198,15 @@ export const DropsItemsView = ({ list, grouping, onGroupingChange, tree, names, 
 					</>
 				)}
 			</div>
-			{rows.length === 0 ? (
+			{groups.length === 0 ? (
 				<p className="mb-0 text-sm text-gray-400">{t('empty')}</p>
 			) : (
-				<div ref={scroller} className="max-h-[60dvh] overflow-x-hidden overflow-y-auto" data-testid="drops-item-list" tabIndex={0}>
-					<VirtualList
-						count={rows.length}
-						rowHeight={ROW_HEIGHT}
-						getScrollElement={() => scroller.current}
-						rowClassName={index => (rows[index].kind === 'item' ? ITEM_ROW_CLASS : undefined)}
-						renderRow={index => {
-							const row = rows[index];
-							return row.kind === 'header' ? (
-								<div
-									className="flex h-full items-end gap-2 border-b border-border pb-1 text-xs font-bold text-gray-400"
-									data-testid="drops-group-header">
-									<span>{row.title}</span>
-									{row.detail && <span className="font-normal">{row.detail}</span>}
-								</div>
-							) : (
-								<ItemRow entry={row.entry} group={row.group} names={names} onIncludedChange={onIncludedChange} />
-							);
-						}}
-					/>
+				<div className="max-h-[60dvh] overflow-x-hidden overflow-y-auto" data-testid="drops-item-list" tabIndex={0}>
+					<Accordion value={open} onValueChange={setOpen} variant="boxed">
+						{groups.map(group => (
+							<ItemGroupSection key={group.key} group={group} names={names} onIncludedChange={onIncludedChange} />
+						))}
+					</Accordion>
 				</div>
 			)}
 		</div>

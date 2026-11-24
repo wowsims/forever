@@ -1,12 +1,14 @@
-import { Faction, ItemSlot } from '@generated/proto/common';
+import { Faction, ItemSlot, ItemSpec } from '@generated/proto/common';
 import { ContentPhase, DungeonDifficulty, type UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
+import { translateSlotName } from '@i18n/localization';
 import type { BulkRankedResult } from '@sim/bulk/types';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { PlayerSpecs } from '@sim/player/specs';
+import { EquippedItem } from '@sim/proto/equipped_item';
 import type { Gear } from '@sim/proto/gear';
 import { loadStoredBulkDropsView, patchBulkState } from '@sim/settings/bulk_settings';
-import { patchSlice } from '@sim/state/sim_store';
+import { patchSlice, PLAYER_FIELDS, type PlayerSlice, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import {
 	BLACKROCK_SPIRE,
@@ -79,12 +81,17 @@ const mount = ({
 		},
 		getFaction: () => liveFaction,
 		getSpec: () => PlayerSpecs.DpsWarrior.specID,
+		getClass: () => PlayerSpecs.DpsWarrior.classID,
 		sim: {
 			getPhase(this: { store: { getState: () => any } }) {
 				return this.store.getState().sim.phase;
 			},
 			db: {
 				getItemById: (id: number) => items.find(item => item.id === id),
+				lookupItemSpec: (spec: ItemSpec) => {
+					const item = items.find(candidate => candidate.id === spec.id);
+					return item ? new EquippedItem({ item }) : null;
+				},
 				getAllItems: () => items,
 				getZone: (id: number) => ({ name: names.zone(id) }),
 				getNpc: (id: number) => ({ name: names.npc(id) }),
@@ -92,6 +99,8 @@ const mount = ({
 			},
 		},
 	});
+	// The item cells' tooltips read the worn gear from the player's slice.
+	seedKeyed(player.sim.store, 'players', 0, { gear, v: zeroVersions(PLAYER_FIELDS) } as unknown as PlayerSlice);
 	if (phase !== undefined) patchSlice(player.sim.store, 'sim', { phase });
 	patchBulkState(player, {
 		dropsStarted: started,
@@ -137,7 +146,7 @@ describe('DropsResults', () => {
 		expect(screen.getByTestId('drops-summary-current').textContent).toContain('750');
 		expect(screen.getByTestId('drops-summary-best-drop').textContent).toContain('Felstriker');
 		expect(screen.getByTestId('drops-summary-best-drop').textContent).toContain('4.00%');
-		expect(screen.getByTestId('drops-summary-best-boss').textContent).toContain('Warchief Rend Blackhand');
+		expect(screen.getByTestId('drops-summary-best-source').textContent).toContain('Warchief Rend Blackhand');
 	});
 
 	it('ranks the cards by best gain and dims the ones with no upgrade, last', () => {
@@ -186,19 +195,19 @@ describe('DropsResults', () => {
 		mount();
 		fireEvent.click(view('items'));
 
-		expect(screen.getByTestId('drops-result-header').textContent).toContain(`${RESULTS}.columns.item`);
 		// Mark of the Dragon Lord upgrades in both ring slots; Blackblade of Shahram has one losing row.
 		expect(rowIds()).toEqual([FELSTRIKER, MARK, MARK, 'current', REIVER, BLACKBLADE, DRACORIAN]);
 	});
 
-	it('shows the current gear row at its rank with no Equip', () => {
+	it('shows the current gear row at its rank, labelled, with no gear cells and its Equip hidden', () => {
 		mount();
 		fireEvent.click(view('items'));
 
 		const current = resultRows()[3];
 		expect(current.hasAttribute('data-current')).toBe(true);
-		expect(within(current).queryByRole('button', { name: 'bulk_tab.results.equip_button' })).toBeNull();
-		expect(within(current).getByText(`${RESULTS}.current_gear`)).toBeTruthy();
+		expect(within(current).getByTestId('bulk-equip-btn').hasAttribute('data-hidden')).toBe(true);
+		expect(within(current).getByText('bulk_tab.results.current_gear')).toBeTruthy();
+		expect(within(current).queryAllByTestId('bulk-result-item')).toHaveLength(0);
 	});
 
 	it('sizes a row’s delta from the paired difference, not from the averages', () => {
@@ -264,7 +273,7 @@ describe('DropsResults', () => {
 		mount({ runSources: all => all.filter(key => !key.endsWith(`:${REND}`) && !key.endsWith(`:${RIVENDARE}`)) });
 
 		expect(screen.getByTestId('drops-summary-best-drop').textContent).toContain('Felstriker');
-		expect(screen.getByTestId('drops-summary-best-boss').textContent).toBe(`${RESULTS}.best_boss—`);
+		expect(screen.getByTestId('drops-summary-best-source').textContent).toBe(`${RESULTS}.best_source—`);
 	});
 
 	// Felstriker needs level 40 here, so it leaves Deadmines below the cutoff while Blackrock Spire's other loot keeps it.
@@ -351,10 +360,21 @@ describe('DropsResults', () => {
 		expect(cardLabels()).toEqual(['Warchief Rend Blackhand', 'Baron Rivendare', 'Overlord Wyrmthalak', 'General Drakkisath']);
 	});
 
-	it('numbers the rows without counting the current gear’s', () => {
+	it('names a row’s new item beside its slot, with its slot and first source under it and every source in the title', () => {
 		mount({ view: 'items' });
 
-		expect(resultRows().map(row => row.firstElementChild!.textContent)).toEqual(['1', '2', '3', '', '4', '5', '6']);
+		const row = rowOf(FELSTRIKER);
+		const label = within(row).getByTestId('drops-item-label');
+		expect(label.firstElementChild!.textContent).toBe('Felstriker');
+		const detail = label.lastElementChild!;
+		expect(detail.textContent).toBe(`${translateSlotName(ItemSlot.ItemSlotMainHand)} · ${names.npc(REND)} +1`);
+		expect(detail.getAttribute('title')).toBe(`${names.npc(REND)}\n${names.npc(RIVENDARE)}`);
+	});
+
+	it('draws only the slots a row changes', () => {
+		mount({ view: 'items' });
+
+		expect(within(rowOf(FELSTRIKER)).getAllByTestId('bulk-result-item')).toHaveLength(1);
 	});
 
 	it('shows the best DPS as the current gear plus the gain, not the raw mean', () => {

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { dropsItemListFixture, dropsNamesFixture, dropsTreeFixture } from '@testing/storybook/fixtures/bulk-drops';
-import { fn } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { DropsItemsView } from './DropsItems';
 
@@ -29,8 +29,17 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Worn rows grey out, and a row's unticked box stays unticked.
+// Every section starts collapsed, each with its included count and a box for the whole group.
 export const Default: Story = {};
+
+// Worn rows grey out, and a row's unticked box stays unticked.
+export const Open: Story = {
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await userEvent.click(canvas.getAllByTestId('drops-group-trigger')[0]);
+		await expect(canvas.getAllByTestId('drops-item-row').length).toBeGreaterThan(0);
+	},
+};
 
 // A row names only its other sources, never the boss it sits under.
 export const BySource: Story = { args: { grouping: 'source' } };

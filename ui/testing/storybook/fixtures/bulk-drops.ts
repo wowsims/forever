@@ -1,5 +1,6 @@
+import type { BulkResultRowViewProps } from '@features/bulk/components/BulkResults/BulkResultRow';
 import type { DropsBossCardViewProps } from '@features/bulk/components/DropsBossCard';
-import type { DropsItemRowViewProps } from '@features/bulk/components/DropsItemRow';
+import type { DropsItemLabelProps } from '@features/bulk/components/DropsItemLabel';
 import { type DropsItemList, dropsItemList, dropsUsableItems } from '@features/bulk/model/drops/items';
 import { dropsItemSourceKeys, type DropsNames, type DropsSourceNode, dropsSourceTree } from '@features/bulk/model/drops/sources';
 import { rankEncounterResults } from '@features/bulk/model/results/results';
@@ -250,56 +251,48 @@ export const dropsCardsFixture = (): DropsBossCardViewProps[] => {
 	];
 };
 
-/** The Items view's rows: an item upgrading in a slot, the current gear's row, a row stopped early and a loss. */
-export const dropsRowsFixture = (): DropsItemRowViewProps[] => {
+/** A Drops result row's view props, and the label of the item it adds; null on the current gear's row. */
+export type DropsRowFixture = Pick<BulkResultRowViewProps, 'avg' | 'plusMinus' | 'isBase' | 'delta' | 'significance' | 'lowPrecision'> & {
+	label: DropsItemLabelProps | null;
+};
+
+const RULED_OUT_EARLY = { note: 'Ruled out early', tooltip: 'Clearly below your current gear, so the run stopped simming it before the final stage.' };
+
+/** The Items view's rows: an item upgrading in a slot, the current gear's row, a row ruled out early and a loss. */
+export const dropsRowsFixture = (): DropsRowFixture[] => {
 	const items = new Map(dropsItemsFixture().map(item => [item.id, item]));
 	const equipped = (id: number) => new EquippedItem({ item: items.get(id)! });
-	const base = {
-		moreSources: [],
-		onEquip: () => {},
-		significance: 'Difference is significantly different (Z = 30.000).',
-	};
+	const base = { isBase: false, significance: 'Difference is significantly different (Z = 30.000).' };
 	return [
 		{
 			...base,
-			rank: 1,
-			item: equipped(2001),
-			slot: 'Main Hand',
-			source: 'Warchief Rend Blackhand',
-			moreSources: ['Baron Rivendare'],
+			label: { item: equipped(2001), slot: 'Main Hand', source: 'Warchief Rend Blackhand', moreSources: ['Baron Rivendare'] },
 			avg: 780,
 			plusMinus: 2,
 			delta: PCT_DELTA('+30.00 (4.00%)', 'positive'),
 		},
 		{
 			...base,
-			rank: 2,
-			item: equipped(2006),
-			slot: 'Finger 1',
-			source: 'Overlord Wyrmthalak',
+			label: { item: equipped(2006), slot: 'Finger 1', source: 'Overlord Wyrmthalak', moreSources: [] },
 			avg: 765,
 			plusMinus: 2,
 			delta: PCT_DELTA('+15.00 (2.00%)', 'positive'),
 		},
-		{ ...base, rank: null, item: null, slot: '', source: '', avg: 750, plusMinus: 2, onEquip: null, delta: PCT_DELTA('+0.00 (0.00%)', null) },
+		{ ...base, isBase: true, label: null, avg: 750, plusMinus: 2, delta: PCT_DELTA('+0.00 (0.00%)', null), significance: '' },
 		{
 			...base,
-			rank: 3,
-			item: equipped(2005),
-			slot: 'Hands',
-			source: 'Overlord Wyrmthalak',
+			label: { item: equipped(2005), slot: 'Hands', source: 'Overlord Wyrmthalak', moreSources: [] },
 			avg: 749,
-			plusMinus: null,
+			plusMinus: 0,
+			lowPrecision: RULED_OUT_EARLY,
 			delta: PCT_DELTA('+3.00 (0.40%)', 'positive'),
 		},
 		{
 			...base,
-			rank: 4,
-			item: equipped(2004),
-			slot: 'Hands',
-			source: 'Baron Rivendare',
+			label: { item: equipped(2004), slot: 'Hands', source: 'Baron Rivendare', moreSources: [] },
 			avg: 745,
-			plusMinus: null,
+			plusMinus: 0,
+			lowPrecision: RULED_OUT_EARLY,
 			delta: PCT_DELTA('-5.00 (0.67%)', 'negative'),
 			significance: 'Difference is significantly different (Z = 2.500).',
 		},

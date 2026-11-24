@@ -46,8 +46,9 @@ mirror of the stage loop because the WASM sim cannot run `bulkSimAsync`.
   pickable list), `settings.ts` (the setters and `dropsRequestSettings`), `results.ts` (`dropsGap`, rows grouped by
   item and by source). Components under `ui/features/bulk/components/`: `DropsSetup` (`DropsSources` tree,
   `DropsItems` list), `DropsRunCount`, `DropsEnchantPresets`, `DropsResults` (`DropsSummary`, `DropsBossCard`,
-  `DropsItemRow`). `TotalIterations` is the run card's iterations row, shared by Gear, Builds and Drops, and
-  `BulkDpsCell` the DPS, margin and difference of a Gear, Builds or Drops result row.
+  `DropsItemLabel`). `TotalIterations` is the run card's iterations row, shared by Gear, Builds and Drops, and
+  `BulkDpsCell` the DPS, margin and difference of a Gear, Builds or Drops result row. A Drops result row is Gear's
+  (`BulkResultRowView`), and `BulkResultSlots` draws the slot cells of both.
 - Enchant presets: `ui/features/enchant-presets/` (model, `EnchantPresets` tiles and dialog).
 - Generated, never hand-edited: `ui/sim/bulk/constants_auto_gen.ts` (slot maps) and
   `ui/sim/wasm/bulk_sim/constants_auto_gen.ts` (tuning constants, stage ladder, `BULK_SIM_Z95`), written by
@@ -249,9 +250,10 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   `drop_raid`, `drop_world`, by the drop's `DropSource.difficulty`: 1, 2, and 0 or unset), then Quest rewards, Crafted,
   Reputation and Vendors. The three drop categories share the `drop:` leaf keys, so the difficulty is not in a key: the
   tree reads it from the source, and a stored tick keeps its key whichever category shows it. Each drop category lists
-  zones, each with its bosses and then its other drops, and after the zones the drops with no zone (World Drop). The L60
-  dungeons quick pick ticks five zones of Dungeons (`DROPS_L60_DUNGEON_ZONE_IDS`). Drops lists what a level-60 character
-  still wears (`dropsLevelItems`, `DROPS_MIN_LEVEL` 45): a dungeon's level is the highest `Player.requiredLevelOf` of
+  zones, each with its bosses and then its other drops, and after the zones the drops with no zone (World Drop). The Endgame
+  dungeons quick pick ticks every zone of Dungeons whose level, as below, is `DROPS_ENDGAME_LEVEL` (55) or more
+  (`DropsSetupData.dungeonLevels`). Drops lists what a level-60 character
+  still wears (`dropsLevelItems`, `DROPS_MIN_LEVEL` 45): a dungeon's level (`dropsDungeonLevels`) is the highest `Player.requiredLevelOf` of
   every database item it drops, whatever the class or phase, and a dungeon below 45 leaves the tree. Raid drops stay,
   and any other source stays only on an item that needs level 45. The Sources tree and the item list hold the items that
   cutoff, the phase, the player's side, the class and the gear picker's Min ilvl, Max ilvl and Required level let through
@@ -277,7 +279,8 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   group by those, never by the tree or the race as they are now, and `dropsItemLookup` resolves items one id at a time
   (`getItemById`) through the faction filter but not the phase filter, so a run keeps its cards after a phase switch.
   `DropsResults` shows `DropsSummary`, then the Bosses view (one `DropsBossCard` per ticked leaf the rows reach, best
-  gain first, cards with no upgrade last) or the Items view (`DropsItemRow`, the current gear's row and, per item, every
+  gain first, cards with no upgrade last) or the Items view (Gear's result rows with no header and no rank, the new
+  item's name, slot and sources in a `DropsItemLabel` beside its slot; the current gear's row and, per item, every
   row that is a proven upgrade (a ring upgrading in both slots lists both) or its best row when none is, filtered by the
   one source a card click picked; that click switches the
   stored view to Items, and the filter is not stored). Every % and every delta uses `dropsGap`, the paired difference
@@ -292,7 +295,7 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
 - A row culled before the finalist set (`isCulled`: `culledStage` set to a stage) is lower precision: no ±, no tight
   bracket, an empty `dps_margin_95` in the CSV, and it brackets only with the current gear. Drops rows show their DPS
   whatever the hide-damage display setting says, since every Drops output is a DPS ranking. In the CSV the `rank` column
-  skips the current gear's row, as the pane does; Gear and Builds rank it like any other row. Drops has no Compare
+  skips the current gear's row; Gear and Builds rank it like any other row. Drops has no Compare
   button.
 - `bulkRunMode` (`ui/features/bulk/model/mode.ts`, from power tools and the stored mode) is the one gate. `runBulkBatch`
   reads it, and `useBulkMode` derives `builds` and `drops` from it (`bulkRunsBuilds`, `bulkRunsDrops`) for the Setup

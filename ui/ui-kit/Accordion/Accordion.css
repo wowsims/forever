@@ -13,14 +13,14 @@
 		&:first-child {
 			@apply border-t-0;
 
-			& > .ui-accordion-trigger {
+			& > .ui-accordion-header > .ui-accordion-trigger {
 				@apply pt-0;
 			}
 		}
 	}
 
 	.ui-accordion[data-variant='boxed'] > .ui-accordion-item {
-		& > .ui-accordion-trigger {
+		& > .ui-accordion-header > .ui-accordion-trigger {
 			@apply px-2 text-sm font-semibold;
 		}
 
@@ -29,8 +29,12 @@
 		}
 	}
 
-	.ui-accordion[data-density='compact'] > .ui-accordion-item > .ui-accordion-trigger {
+	.ui-accordion[data-density='compact'] > .ui-accordion-item > .ui-accordion-header > .ui-accordion-trigger {
 		@apply text-sm font-semibold;
+	}
+
+	.ui-accordion-header {
+		@apply flex items-center gap-2;
 	}
 
 	.ui-accordion-trigger {

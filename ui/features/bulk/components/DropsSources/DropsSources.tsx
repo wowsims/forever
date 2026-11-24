@@ -12,7 +12,7 @@ export interface DropsSourcesViewProps {
 	/** The ticked leaf keys, which may name nodes the tree does not list. */
 	ticked: ReadonlySet<string>;
 	onTick: (node: DropsSourceNode, checked: boolean) => void;
-	onQuickPick: (pick: 'l60_dungeons' | 'clear') => void;
+	onQuickPick: (pick: 'endgame_dungeons' | 'clear') => void;
 }
 
 const t = (key: string) => i18n.t(`bulk_tab.drops.setup.${key}`);
@@ -73,8 +73,8 @@ export const DropsSourcesView = ({ tree, ticked, onTick, onQuickPick }: DropsSou
 		<div className="grid gap-2">
 			<h5 className="mb-0">{t('sources_title')}</h5>
 			<div className="flex flex-wrap gap-2">
-				<Button variant="secondary" size="sm" onClick={() => onQuickPick('l60_dungeons')}>
-					{t('quick_picks.l60_dungeons')}
+				<Button variant="secondary" size="sm" onClick={() => onQuickPick('endgame_dungeons')}>
+					{t('quick_picks.endgame_dungeons')}
 				</Button>
 				<Button variant="secondary" size="sm" onClick={() => onQuickPick('clear')}>
 					{t('quick_picks.clear')}

@@ -31,9 +31,11 @@ import { type DropsNames, dropsNamesOf, dropsSourceLabel } from '../../model/dro
 import { baseIlvl } from '../../model/gear/search';
 import { equipAndAnnounce } from '../../model/results/results';
 import { baselineSignificance, isCulled, rowIterations } from '../../model/results/tie_chains';
+import { BulkResultRowView } from '../BulkResults/BulkResultRow';
+import { BulkResultSlots } from '../BulkResults/BulkResultSlots';
 import { BulkResultTieGroup } from '../BulkResults/BulkResultTieGroup';
 import { DropsBossCardView } from '../DropsBossCard';
-import { DropsItemRowHeader, DropsItemRowView } from '../DropsItemRow';
+import { DropsItemLabel } from '../DropsItemLabel';
 import { DropsSummaryView } from '../DropsSummary';
 
 const t = (key: string) => i18n.t(`bulk_tab.drops.results.${key}`);
@@ -72,14 +74,7 @@ export const DropsResultsView = ({ summary, view, onViewChange, filter, cards, r
 				</Pill>
 			)}
 		</div>
-		{view === 'bosses' ? (
-			<div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">{cards}</div>
-		) : (
-			<div>
-				<DropsItemRowHeader />
-				{rows}
-			</div>
-		)}
+		{view === 'bosses' ? <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">{cards}</div> : <div>{rows}</div>}
 	</div>
 );
 
@@ -169,28 +164,44 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 		);
 	});
 
-	let rank = 0;
-	const renderRow = (row: BulkRankedResult, key: number) => {
+	// Every Drops output is a DPS ranking, so a row shows its DPS whatever the display settings hide.
+	const renderRow = (row: BulkRankedResult, key: number, beforeGroup = false) => {
 		const { newItem, slot, sources } = rowDetails.get(row)!;
 		const [first, ...more] = sources;
 		const isCurrent = row === current;
-		if (!isCurrent) rank += 1;
+		const lowPrecision = isCulled(row);
 		const gap = dropsGap(row, current);
 		const significance = baselineSignificance(row, current, iterations);
 		return (
-			<DropsItemRowView
+			<BulkResultRowView
 				key={key}
-				rank={isCurrent ? null : rank}
-				item={isCurrent ? null : newItem}
-				slot={slot === undefined ? '' : translateSlotName(slot)}
-				source={first ?? ''}
-				moreSources={more}
+				showDamage
 				avg={row.dpsMetrics.avg}
-				plusMinus={isCulled(row) ? null : stDevToConf95(row.dpsMetrics.stdev, rowIterations(row, iterations))}
+				plusMinus={lowPrecision ? 0 : stDevToConf95(row.dpsMetrics.stdev, rowIterations(row, iterations))}
+				isBase={isCurrent}
 				delta={formatDeltaText(current.dpsMetrics.avg, current.dpsMetrics.avg + gap, 2, undefined, !significance.isDiff, true)}
 				significance={isCurrent ? '' : formatSignificance(significance)}
-				onEquip={isCurrent ? null : () => equipAndAnnounce(host, row, onActivateTab)}
-			/>
+				beforeGroup={beforeGroup}
+				lowPrecision={lowPrecision ? { note: t('low_precision'), tooltip: t('low_precision_tooltip') } : undefined}
+				rootDataAttributes={{
+					'data-testid': 'drops-result-row',
+					...(isCurrent ? { 'data-current': '' } : newItem ? { 'data-item-id': String(newItem.id) } : {}),
+					...(lowPrecision ? { 'data-precision': 'low' } : {}),
+				}}
+				onEquip={() => equipAndAnnounce(host, row, onActivateTab)}>
+				{!isCurrent && (
+					<BulkResultSlots
+						gear={row.gear}
+						currentGear={currentGear}
+						changedOnly
+						label={
+							newItem && slot !== undefined ? (
+								<DropsItemLabel item={newItem} slot={translateSlotName(slot)} source={first ?? ''} moreSources={more} />
+							) : undefined
+						}
+					/>
+				)}
+			</BulkResultRowView>
 		);
 	};
 
@@ -199,7 +210,7 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 		chain.length > 1 ? (
 			<BulkResultTieGroup key={`group-${chainIdx}`}>{chain.map(row => renderRow(row, rowKey++))}</BulkResultTieGroup>
 		) : (
-			renderRow(chain[0], rowKey++)
+			renderRow(chain[0], rowKey++, (chains[chainIdx + 1]?.length ?? 0) > 1)
 		),
 	);
 
@@ -217,7 +228,7 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 								}
 							: null
 					}
-					bestBoss={summary.bestGroup?.label ?? null}
+					bestSource={summary.bestGroup?.label ?? null}
 				/>
 			}
 			view={view}

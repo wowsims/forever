@@ -9,9 +9,9 @@ const meta = {
 	args: {
 		current: { avg: 750, plusMinus: 2 },
 		bestDrop: { name: 'Felstriker', dps: 780, pct: 4 },
-		bestBoss: { label: 'Warchief Rend Blackhand', detail: 'Blackrock Spire' },
+		bestSource: { label: 'Warchief Rend Blackhand', detail: 'Blackrock Spire' },
 	},
-	argTypes: { current: { control: 'object' }, bestDrop: { control: 'object' }, bestBoss: { control: 'object' } },
+	argTypes: { current: { control: 'object' }, bestDrop: { control: 'object' }, bestSource: { control: 'object' } },
 } satisfies Meta<typeof DropsSummaryView>;
 
 export default meta;
@@ -19,7 +19,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const NoUpgrade: Story = { args: { bestDrop: null, bestBoss: null } };
+export const NoUpgrade: Story = { args: { bestDrop: null, bestSource: null } };
 
 /** The best drop has no card, as when no ticked source reaches it. */
-export const BestDropWithoutCard: Story = { args: { bestBoss: null } };
+export const BestDropWithoutCard: Story = { args: { bestSource: null } };

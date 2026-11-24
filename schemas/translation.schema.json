@@ -4701,22 +4701,10 @@
 										},
 										"2h": {
 											"type": "string"
-										},
-										"r1": {
-											"type": "string"
-										},
-										"r2": {
-											"type": "string"
-										},
-										"t1": {
-											"type": "string"
-										},
-										"t2": {
-											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["mh", "oh", "2h", "r1", "r2", "t1", "t2"]
+									"required": ["mh", "oh", "2h"]
 								},
 								"worn": {
 									"type": "string"
@@ -4737,7 +4725,7 @@
 								"quick_picks": {
 									"type": "object",
 									"properties": {
-										"l60_dungeons": {
+										"endgame_dungeons": {
 											"type": "string"
 										},
 										"clear": {
@@ -4745,7 +4733,7 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["l60_dungeons", "clear"]
+									"required": ["endgame_dungeons", "clear"]
 								},
 								"include_all": {
 									"type": "string"
@@ -4775,7 +4763,7 @@
 								"best_drop": {
 									"type": "string"
 								},
-								"best_boss": {
+								"best_source": {
 									"type": "string"
 								},
 								"no_upgrade": {
@@ -4823,38 +4811,13 @@
 								},
 								"run_simulation": {
 									"type": "string"
-								},
-								"columns": {
-									"type": "object",
-									"properties": {
-										"rank": {
-											"type": "string"
-										},
-										"item": {
-											"type": "string"
-										},
-										"slot": {
-											"type": "string"
-										},
-										"source": {
-											"type": "string"
-										},
-										"dps": {
-											"type": "string"
-										},
-										"delta": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["rank", "item", "slot", "source", "dps", "delta"]
 								}
 							},
 							"additionalProperties": false,
 							"required": [
 								"current_gear",
 								"best_drop",
-								"best_boss",
+								"best_source",
 								"no_upgrade",
 								"view",
 								"upgrades_one",
@@ -4866,8 +4829,7 @@
 								"clear_filter",
 								"low_precision",
 								"low_precision_tooltip",
-								"run_simulation",
-								"columns"
+								"run_simulation"
 							]
 						},
 						"run": {
@@ -4877,9 +4839,6 @@
 									"type": "string"
 								},
 								"candidates": {
-									"type": "string"
-								},
-								"variants": {
 									"type": "string"
 								},
 								"notes": {
@@ -4893,17 +4852,14 @@
 										},
 										"hands": {
 											"type": "string"
-										},
-										"no_drop_chances": {
-											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["one_change", "slots", "hands", "no_drop_chances"]
+									"required": ["one_change", "slots", "hands"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["items_picked", "candidates", "variants", "notes"]
+							"required": ["items_picked", "candidates", "notes"]
 						}
 					},
 					"additionalProperties": false,

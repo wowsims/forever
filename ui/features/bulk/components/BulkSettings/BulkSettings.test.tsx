@@ -712,15 +712,15 @@ describe('BulkSettings in Drops mode', () => {
 		expect(simulate().textContent).toBe('Simulate Drops');
 	});
 
-	it('lists the picked items, the candidates, the variants added and the minimum iterations', () => {
+	it('lists the picked items, the candidates and the minimum iterations', () => {
 		drops.picked = [1, 2, 3];
 		mount({ mode: 'drops', combinations: 5 });
 
 		expect(text('drops-run-picked')).toBe('3');
 		expect(text('drops-run-candidates')).toBe('5');
-		expect(text('drops-run-variants')).toBe('2');
+		expect(screen.queryByTestId('drops-run-variants')).toBeNull();
 		expect(text('bulk-total-iterations')).toBe('60,000');
-		expect(screen.getAllByTestId('drops-run-note')).toHaveLength(4);
+		expect(screen.getAllByTestId('drops-run-note')).toHaveLength(3);
 	});
 
 	it('keeps Simulate Drops off with nothing picked, whatever the count', () => {

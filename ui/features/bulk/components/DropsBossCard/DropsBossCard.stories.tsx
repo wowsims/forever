@@ -24,7 +24,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// A worn item shows "worn" in its strip slot.
+// A worn item shows "Equipped" in its strip slot.
 export const Default: Story = {
 	args: { onSelect: fn() },
 	play: async ({ args, canvasElement }) => {

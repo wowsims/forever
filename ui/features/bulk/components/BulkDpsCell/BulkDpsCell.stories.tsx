@@ -28,7 +28,7 @@ export const LowPrecision: Story = {
 	args: {
 		plusMinus: null,
 		lowPrecision: {
-			note: 'Stopped early',
+			note: 'Ruled out early',
 			tooltip: 'The run dropped this candidate before the final stage, so its DPS carries a wider margin and shows no ±.',
 		},
 	},

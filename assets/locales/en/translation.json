@@ -1285,7 +1285,7 @@
 			},
 			"drops": {
 				"label": "Drops",
-				"description": "One drop at a time, by boss"
+				"description": "Which drop to farm next"
 			},
 			"builds": {
 				"label": "Builds",
@@ -1305,37 +1305,33 @@
 				},
 				"other_quests": "Other quests",
 				"other_vendors": "Other vendors",
-				"world_drop": "World Drop"
+				"world_drop": "Anywhere"
 			},
 			"setup": {
 				"sources_title": "Sources",
 				"items_title": "Items to sim",
 				"quick_picks": {
-					"l60_dungeons": "L60 dungeons",
+					"endgame_dungeons": "Endgame dungeons",
 					"clear": "Clear"
 				},
 				"include_all": "Include all",
 				"exclude_all": "Exclude all",
 				"by_slot": "By slot",
-				"by_source": "By boss",
+				"by_source": "By source",
 				"empty": "Tick a source to list its items."
 			},
 			"items": {
 				"tags": {
 					"mh": "MH",
 					"oh": "OH",
-					"2h": "2H",
-					"r1": "R1",
-					"r2": "R2",
-					"t1": "T1",
-					"t2": "T2"
+					"2h": "2H"
 				},
-				"worn": "Already worn"
+				"worn": "Equipped"
 			},
 			"results": {
 				"current_gear": "Current gear",
 				"best_drop": "Best drop",
-				"best_boss": "Best boss",
+				"best_source": "Best source",
 				"no_upgrade": "No upgrade",
 				"view_label": "View",
 				"view": {
@@ -1345,30 +1341,20 @@
 				"upgrades_one": "upgrade",
 				"upgrades_other": "upgrades",
 				"best": "Best",
-				"worn": "worn",
+				"worn": "Equipped",
 				"filtered_by": "Source:",
 				"clear_filter": "Clear the source filter",
-				"low_precision": "Stopped early",
-				"low_precision_tooltip": "The run dropped this candidate before the final stage, so its DPS carries a wider margin and shows no ±.",
-				"run_simulation": "Run a Drops simulation to view results",
-				"columns": {
-					"rank": "#",
-					"item": "Item",
-					"slot": "Slot",
-					"source": "Source",
-					"dps": "DPS",
-					"delta": "Change"
-				}
+				"low_precision": "Ruled out early",
+				"low_precision_tooltip": "Clearly below your current gear, so the run stopped simming it before the final stage. Its DPS comes from fewer iterations and shows no ±.",
+				"run_simulation": "Run a Drops simulation to view results"
 			},
 			"run": {
 				"items_picked": "Items picked",
 				"candidates": "Candidates",
-				"variants": "Variants added",
 				"notes": {
 					"one_change": "Each candidate adds one new item to your worn gear.",
 					"slots": "A ring or trinket is tried in both slots, as Unique-Equipped allows.",
-					"hands": "A one-hander is tried in each hand it fits, and a two-hander replaces both.",
-					"no_drop_chances": "The game files hold no drop chances, so every item counts the same."
+					"hands": "A one-hander is tried in each hand it fits, and a two-hander replaces both."
 				}
 			}
 		},

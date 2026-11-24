@@ -145,6 +145,12 @@ describe('dropsSetupFor level filters', () => {
 });
 
 describe('dropsSetupFor level 45 cutoff', () => {
+	it('exposes the level of every dungeon the database holds, the cut ones too', () => {
+		items = [...ITEMS, item(400, ItemType.ItemTypeLegs, 2748, { sources: [drop(2748, 1337)], reqLvl: 44 })];
+
+		expect(dropsSetupFor(player).dungeonLevels.get(1337)).toBe(44);
+	});
+
 	const ULDAMAN = 1337;
 	const ARCHAEDAS = 'drop:1337:2748';
 	const MARAUDON = 2100;

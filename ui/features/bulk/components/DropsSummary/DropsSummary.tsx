@@ -10,7 +10,7 @@ export interface DropsSummaryViewProps {
 	/** Null when nothing upgrades. */
 	bestDrop: { name: string; dps: number; pct: number } | null;
 	/** Null when nothing upgrades, or when no card holds the best drop (the tile then shows a dash). Its gain is the best drop's. */
-	bestBoss: { label: string; detail: string } | null;
+	bestSource: { label: string; detail: string } | null;
 }
 
 const t = (key: string) => i18n.t(`bulk_tab.drops.results.${key}`);
@@ -30,7 +30,7 @@ const Tile = ({ title, testId, children }: TileProps) => (
 
 const None = () => <span className="text-gray-400">{t('no_upgrade')}</span>;
 
-export const DropsSummaryView = ({ current, bestDrop, bestBoss }: DropsSummaryViewProps) => (
+export const DropsSummaryView = ({ current, bestDrop, bestSource }: DropsSummaryViewProps) => (
 	<div className="grid grid-cols-1 gap-2 sm:grid-cols-3" data-testid="drops-summary">
 		<Tile title={t('current_gear')} testId="drops-summary-current">
 			<span className="text-xl font-bold">
@@ -52,14 +52,14 @@ export const DropsSummaryView = ({ current, bestDrop, bestBoss }: DropsSummaryVi
 				<None />
 			)}
 		</Tile>
-		<Tile title={t('best_boss')} testId="drops-summary-best-boss">
-			{bestBoss && bestDrop ? (
+		<Tile title={t('best_source')} testId="drops-summary-best-source">
+			{bestSource && bestDrop ? (
 				<>
-					<span className="truncate text-xl font-bold" title={bestBoss.label}>
-						{bestBoss.label}
+					<span className="truncate text-xl font-bold" title={bestSource.label}>
+						{bestSource.label}
 					</span>
 					<span className="text-sm">
-						<span className="text-success">{formatBulkPct(bestDrop.pct)}</span> <span className="text-gray-400">{bestBoss.detail}</span>
+						<span className="text-success">{formatBulkPct(bestDrop.pct)}</span> <span className="text-gray-400">{bestSource.detail}</span>
 					</span>
 				</>
 			) : bestDrop ? (

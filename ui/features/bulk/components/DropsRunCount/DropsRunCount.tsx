@@ -22,7 +22,7 @@ export interface DropsRunCountViewProps {
 	error: string | null;
 }
 
-const NOTES = ['one_change', 'slots', 'hands', 'no_drop_chances'] as const;
+const NOTES = ['one_change', 'slots', 'hands'] as const;
 
 const runText = (key: string) => i18n.t(`bulk_tab.drops.run.${key}`);
 
@@ -43,8 +43,6 @@ export const DropsRunCountView = ({ pending, ready, picked, candidates, iteratio
 				{count('drops-run-picked', picked)}
 				<dt className="font-normal">{runText('candidates')}</dt>
 				{count('drops-run-candidates', candidates)}
-				<dt className="font-normal">{runText('variants')}</dt>
-				{count('drops-run-variants', Math.max(0, candidates - picked))}
 				<TotalIterations pending={countPending} iterations={iterations} overLimit={overLimit} warningText={warningText} />
 			</dl>
 			{!countPending && error && (

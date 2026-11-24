@@ -5,7 +5,7 @@ import { type ReactNode, useState } from 'react';
 
 import { useDropsSetup } from '../../hooks/useDropsSetup';
 import { setDropsItemsIncluded, setDropsSources } from '../../model/drops/settings';
-import { DROPS_L60_DUNGEON_ZONE_IDS, dropsQuickPickTicks, dropsTicksAfter } from '../../model/drops/sources';
+import { dropsQuickPickTicks, dropsTicksAfter } from '../../model/drops/sources';
 import { DropsItemsView } from '../DropsItems';
 import { DropsSourcesView } from '../DropsSources';
 
@@ -28,7 +28,7 @@ export const DropsSetupView = ({ sources, items }: DropsSetupViewProps) => (
 // Grouping is the pane's own state: the settings keep the sources, the excluded ids and the preset pick, not how the list reads.
 export const DropsSetup = () => {
 	const player = usePlayer();
-	const { tree, ticked, list, names } = useDropsSetup();
+	const { tree, ticked, list, names, dungeonLevels } = useDropsSetup();
 	const [grouping, setGrouping] = useState<'slot' | 'source'>('slot');
 
 	return (
@@ -39,7 +39,7 @@ export const DropsSetup = () => {
 					ticked={ticked}
 					onTick={(node, checked) => setDropsSources(player, dropsTicksAfter(bulkState(player).dropsSources, node, checked))}
 					onQuickPick={pick =>
-						setDropsSources(player, pick === 'clear' ? [] : dropsQuickPickTicks(bulkState(player).dropsSources, tree, DROPS_L60_DUNGEON_ZONE_IDS))
+						setDropsSources(player, pick === 'clear' ? [] : dropsQuickPickTicks(bulkState(player).dropsSources, tree, dungeonLevels))
 					}
 				/>
 			}

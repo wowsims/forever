@@ -79,6 +79,13 @@ describe('BulkResultRowView', () => {
 		expect(description(screen.getByTestId('bulk-enchants-differ'))).toBe('Back: Enchant Cloak - Greater Agility, Chest: Enchant Chest - Greater Stats');
 	});
 
+	it('notes a row ruled out early under its DPS and puts its root data attributes on the row', () => {
+		renderRow({ plusMinus: 0, lowPrecision: { note: 'Ruled out early', tooltip: 'Wider margin' }, rootDataAttributes: { 'data-precision': 'low' } });
+
+		expect(screen.getByTestId('results-sim-dps').textContent).toContain('Ruled out early');
+		expect(screen.getByTestId('bulk-sim-result-root').getAttribute('data-precision')).toBe('low');
+	});
+
 	it('renders the gear combo it is given and equips it from its button', () => {
 		const onEquip = renderRow();
 

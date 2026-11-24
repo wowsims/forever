@@ -16,6 +16,7 @@ export interface DropsSetupState {
 	ticked: ReadonlySet<string>;
 	list: DropsItemList;
 	names: DropsNames;
+	dungeonLevels: ReadonlyMap<number, number>;
 }
 
 const NOT_READY: DropsSetupState = {
@@ -23,6 +24,7 @@ const NOT_READY: DropsSetupState = {
 	ticked: new Set(),
 	list: { items: [] },
 	names: { zone: () => null, npc: () => null, faction: () => null },
+	dungeonLevels: new Map(),
 };
 
 const readSetup = (player: Player<any>): DropsSetupState => ({ ...dropsSetupFor(player), ticked: new Set(bulkState(player).dropsSources) });

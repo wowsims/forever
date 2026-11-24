@@ -203,13 +203,14 @@ export const dropsTicksAfter = (ticked: readonly string[], node: DropsSourceNode
 	return [...next].sort();
 };
 
-export const DROPS_L60_DUNGEON_ZONE_IDS: readonly number[] = [1584, 1583, 2557, 2057, 2017];
+// The quick pick ticks every dungeon whose loot reaches this level, rated as `dropsDungeonLevels` rates it.
+export const DROPS_ENDGAME_LEVEL = 55;
 
-export const dropsQuickPickTicks = (ticked: readonly string[], tree: readonly DropsSourceNode[], zoneIds: readonly number[]): string[] => {
+export const dropsQuickPickTicks = (ticked: readonly string[], tree: readonly DropsSourceNode[], dungeonLevels: ReadonlyMap<number, number>): string[] => {
 	const zones = tree.find(node => node.key === 'drop_dungeon')?.children ?? [];
 	const next = new Set(ticked);
 	for (const zone of zones) {
-		if (zoneIds.some(id => zone.key === `drop:${id}`)) for (const key of zone.leafKeys) next.add(key);
+		if ((dungeonLevels.get(Number(zone.key.split(':')[1])) ?? 0) >= DROPS_ENDGAME_LEVEL) for (const key of zone.leafKeys) next.add(key);
 	}
 	return [...next].sort();
 };

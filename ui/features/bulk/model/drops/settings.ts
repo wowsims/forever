@@ -17,6 +17,7 @@ import { memoLast } from '@sim/utils/misc';
 
 import { bulkEnchantPickEntries, bulkEnchantPickRuns, enchantPickSetter } from '../builds/enchant_picks';
 import {
+	dropsDungeonLevels,
 	dropsFactionItems,
 	type DropsItemContext,
 	dropsItemContext,
@@ -60,6 +61,8 @@ export interface DropsSetupData {
 	tree: DropsSourceNode[];
 	list: DropsItemList;
 	names: DropsNames;
+	/** The level of each dungeon zone the database holds, whatever the class, phase or filters. */
+	dungeonLevels: ReadonlyMap<number, number>;
 }
 
 interface DropsSourceLayer {
@@ -69,15 +72,16 @@ interface DropsSourceLayer {
 	names: DropsNames;
 }
 
-const levelLayer = memoLast<{ items: UIItem[]; byId: ReadonlyMap<number, UIItem> }>();
+const levelLayer = memoLast<{ items: UIItem[]; byId: ReadonlyMap<number, UIItem>; dungeonLevels: ReadonlyMap<number, number> }>();
 const sourceLayer = memoLast<DropsSourceLayer>();
 
 // The level cutoff reads only the database, so a dungeon keeps its level whatever the class, phase or filters. The item
 // count is part of the key because loading the leftover database adds items to the same `Database`.
 const dropsLevelLayer = (db: Database, all: UIItem[]) =>
 	levelLayer([db, all.length], () => {
-		const items = dropsLevelItems(all);
-		return { items, byId: new Map(items.map(item => [item.id, item])) };
+		const dungeonLevels = dropsDungeonLevels(all);
+		const items = dropsLevelItems(all, dungeonLevels);
+		return { items, byId: new Map(items.map(item => [item.id, item])), dungeonLevels };
 	});
 
 /** An item with only the sources the level cutoff keeps, so a run's results name no source the Sources tree hides; an item the cutoff leaves out entirely, such as a worn one, as the database holds it. */
@@ -105,8 +109,9 @@ export const dropsSetupFor = (player: Player<any>): DropsSetupData => {
 	const context = dropsItemContext(player);
 	const { dropsSources, dropsExcluded } = bulkState(player);
 	const { items, sourceKeys, tree, names } = dropsSourceLayer(player.sim.db, context, player.sim.getFilters());
+	const { dungeonLevels } = dropsLevelLayer(player.sim.db, player.sim.db.getAllItems());
 	const list = dropsItemList(items, new Set(dropsSources), new Set(dropsExcluded), context, item => sourceKeys.get(item)!);
-	return { tree, list, names };
+	return { tree, list, names, dungeonLevels };
 };
 
 // One new item per candidate, sent with Drops' own preset pick and none of the Gear mode's frozen slots. The server
