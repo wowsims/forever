@@ -191,6 +191,33 @@ export const dropsItemsBySource = (
 		.map(key => ({ key, label: dropsSourceLabel(key, names), items: bySource.get(key)! }));
 };
 
+export interface DropsSourceParent {
+	key: string;
+	label: string;
+	/** The items of every leaf below, each once, in the list's order. */
+	items: DropsItem[];
+	leaves: ReturnType<typeof dropsItemsBySource>;
+}
+
+/**
+ * The source groups under the tree nodes that hold them, a dungeon over its bosses or a category over its zones, in the
+ * tree's order. A node with leaves and deeper nodes both is a parent of its leaves alone.
+ */
+export const dropsItemsBySourceParent = (list: DropsItemList, tree: readonly DropsSourceNode[], names: DropsNames): DropsSourceParent[] => {
+	const leaves = new Map(dropsItemsBySource(list, tree, names).map(leaf => [leaf.key, leaf]));
+	const parents: DropsSourceParent[] = [];
+	const walk = (node: DropsSourceNode) => {
+		const held = node.children.flatMap(child => (child.children.length === 0 && leaves.has(child.key) ? [leaves.get(child.key)!] : []));
+		if (held.length > 0) {
+			const ids = new Set(held.flatMap(leaf => leaf.items.map(entry => entry.item.id)));
+			parents.push({ key: node.key, label: node.label, items: list.items.filter(entry => ids.has(entry.item.id)), leaves: held });
+		}
+		for (const child of node.children) if (child.children.length > 0) walk(child);
+	};
+	tree.forEach(walk);
+	return parents;
+};
+
 /** The ticked and the listed items, the worn ones left out of both. */
 export const dropsTickCount = (items: readonly DropsItem[]): { ticked: number; total: number } => {
 	const pickable = items.filter(entry => !entry.worn);

@@ -11,6 +11,7 @@ import {
 	dropsItemList,
 	dropsItemsBySlot,
 	dropsItemsBySource,
+	dropsItemsBySourceParent,
 	dropsLevelItems,
 	dropsPhaseItems,
 	dropsPickedItemIds,
@@ -157,6 +158,15 @@ describe('dropsItemList', () => {
 		expect(groups.map(g => [g.key, g.label.label, g.items.map(i => i.item.id)])).toEqual([
 			['drop:1584:9568', 'Overlord Wyrmthalak', [50]],
 			['drop:1583:10363', 'General Drakkisath', [51, 50]],
+		]);
+	});
+
+	it('gathers the source groups under the node that holds them, each item once per node', () => {
+		const items = [TWO_SOURCE, item({ id: 51, name: 'Another', sources: [drop(1583, 10363), drop(1583, 9568)] })];
+		const parents = dropsItemsBySourceParent(list(items, DUAL, new Set([...BOTH, 'drop:1583:9568'])), dropsSourceTree(items, NAMES), NAMES);
+		expect(parents.map(p => [p.label, p.leaves.map(leaf => leaf.key), p.items.map(i => i.item.id)])).toEqual([
+			['Blackrock Depths', ['drop:1584:9568'], [50]],
+			['Blackrock Spire', ['drop:1583:10363', 'drop:1583:9568'], [51, 50]],
 		]);
 	});
 });

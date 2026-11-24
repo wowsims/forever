@@ -27,7 +27,7 @@ import {
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DropsSetup } from './DropsSetup';
 
@@ -132,8 +132,39 @@ const text = (testId: string) => screen.queryByTestId(testId)?.textContent;
 const sorted = (ids: number[]) => [...ids].sort((a, b) => a - b);
 const tiles = () => screen.getAllByTestId('drops-items-slot').map(tile => `${tile.getAttribute('aria-label')} ${tile.getAttribute('data-state')}`);
 
+// The md breakpoint query answers `wide` and hears `atWidth`; every other query keeps happy-dom's answer.
+const MD_QUERY = '(min-width: 768px)';
+const realMatchMedia = window.matchMedia.bind(window);
+let wide: boolean;
+const mediaListeners = new Set<() => void>();
+const atWidth = (next: 'phone' | 'desktop') => {
+	wide = next === 'desktop';
+	act(() => mediaListeners.forEach(listener => listener()));
+};
+const subrail = () =>
+	within(screen.getByTestId('drops-items-subrail'))
+		.getAllByRole('button')
+		.map(entry => entry.textContent);
+
 beforeEach(() => {
+	wide = true;
+	vi.stubGlobal('matchMedia', (query: string) =>
+		query === MD_QUERY
+			? {
+					get matches() {
+						return wide;
+					},
+					addEventListener: (_type: string, listener: () => void) => mediaListeners.add(listener),
+					removeEventListener: (_type: string, listener: () => void) => mediaListeners.delete(listener),
+				}
+			: realMatchMedia(query),
+	);
 	mount();
+});
+
+afterEach(() => {
+	vi.unstubAllGlobals();
+	mediaListeners.clear();
 });
 
 describe('DropsSetup', () => {
@@ -228,25 +259,43 @@ describe('DropsSetup', () => {
 		expect(rail().slice(0, 2)).toEqual([`${SETUP}.all6/7`, `${slotName(BulkSimItemSlot.ItemSlotHands)}3/4`]);
 	});
 
-	it('lists each item once under All by source, and under a boss only that boss’s rows', () => {
+	it('lists each item once under All by source, a dungeon opening to its bosses, and under a boss only that boss’s rows', () => {
 		tickEndgame();
 		openDialog();
 		group('by_source');
 
-		expect(rail()).toEqual([
-			`${SETUP}.all7/7`,
-			'General DrakkisathBlackrock Spire1/1',
-			'Overlord WyrmthalakBlackrock Spire2/2',
-			'Warchief Rend BlackhandBlackrock Spire2/2',
-			'Baron RivendareStratholme2/2',
-			'Magistrate BarthilasStratholme1/1',
-		]);
+		expect(rail()).toEqual([`${SETUP}.all7/7`, 'Blackrock Spire5/5', 'Stratholme3/3']);
 		expect(rowIds().filter(id => id === FELSTRIKER)).toHaveLength(1);
 		expect(sorted(rowIds())).toEqual(sorted([...NON_WORN, WORN_ITEM_ID]));
+
+		pick('Stratholme');
+
+		expect(rail()).toEqual([`${SETUP}.all7/7`, 'Blackrock Spire5/5', 'Stratholme3/3', 'Baron Rivendare2/2', 'Magistrate Barthilas1/1']);
+		expect(picked()).toBe(`${SETUP}.all7/7`);
 
 		pick('Baron Rivendare');
 
 		expect(sorted(rowIds())).toEqual([FELSTRIKER, DRACORIAN]);
+
+		pick('Stratholme');
+
+		expect(rail()).toEqual([`${SETUP}.all7/7`, 'Blackrock Spire5/5', 'Stratholme3/3']);
+	});
+
+	it('ticks or unticks every item of a dungeon from its box in the source rail', () => {
+		tickEndgame();
+		openDialog();
+		group('by_source');
+		const stratholme = () => within(screen.getByTestId('drops-items-rail')).getByRole('checkbox', { name: 'Stratholme' });
+
+		fireEvent.click(stratholme());
+
+		expect(rail()).toEqual([`${SETUP}.all4/7`, 'Blackrock Spire4/5', 'Stratholme0/3']);
+		expect(loadStoredBulkDropsExcluded(player)).toEqual(expect.arrayContaining([FELSTRIKER, DRACORIAN, DEATH_GRIPS]));
+
+		fireEvent.click(stratholme());
+
+		expect(rail()).toEqual([`${SETUP}.all7/7`, 'Blackrock Spire5/5', 'Stratholme3/3']);
 	});
 
 	it('names an item’s first source with a count of the rest, and under a boss only the other sources', () => {
@@ -262,6 +311,8 @@ describe('DropsSetup', () => {
 		).toEqual(['bulk_tab.drops.items.tags.mh', 'bulk_tab.drops.items.tags.oh']);
 
 		group('by_source');
+		pick('Blackrock Spire');
+		pick('Stratholme');
 		pick('Warchief Rend Blackhand');
 		expect(within(row(FELSTRIKER)!).queryByText('Warchief Rend Blackhand')).toBeNull();
 		expect(within(row(FELSTRIKER)!).getByText('Baron Rivendare')).toBeTruthy();
@@ -427,5 +478,28 @@ describe('DropsSetup', () => {
 		fireEvent.click(box('Reiver Claws'));
 
 		expect(loadStoredBulkDropsExcluded(player)).toEqual([]);
+	});
+});
+
+describe('DropsSetup by source below md', () => {
+	it('picks a dungeon from the chip row, and a boss from the row of its bosses under it', () => {
+		tickEndgame();
+		openDialog();
+		group('by_source');
+		atWidth('phone');
+
+		expect(rail()).toEqual([`${SETUP}.all7/7`, 'Blackrock Spire5/5', 'Stratholme3/3']);
+		expect(screen.queryByTestId('drops-items-subrail')).toBeNull();
+
+		pick('Stratholme');
+
+		expect(picked()).toBe('Stratholme3/3');
+		expect(subrail()).toEqual([`${SETUP}.all_of name=Stratholme3/3`, 'Baron Rivendare2/2', 'Magistrate Barthilas1/1']);
+		expect(sorted(rowIds())).toEqual([FELSTRIKER, DRACORIAN, DEATH_GRIPS]);
+
+		fireEvent.click(within(screen.getByTestId('drops-items-subrail')).getByRole('button', { name: /^Baron Rivendare/ }));
+
+		expect(sorted(rowIds())).toEqual([FELSTRIKER, DRACORIAN]);
+		expect(subrail()).toHaveLength(3);
 	});
 });

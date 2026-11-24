@@ -9,6 +9,8 @@ import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
 import { Dialog } from '@ui-kit/Dialog';
 import { Field } from '@ui-kit/Field';
+import { useMediumLayout } from '@ui-kit/hooks/useMediumLayout';
+import { Icon } from '@ui-kit/Icon';
 import { ItemCellIcon } from '@ui-kit/ItemCell';
 import { Pill } from '@ui-kit/Pill';
 import { SearchField } from '@ui-kit/TextField';
@@ -19,10 +21,10 @@ import { itemQualityClassName } from '@ui-kit/utils/css';
 import { VirtualList } from '@ui-kit/VirtualList';
 import { WowheadIcon } from '@ui-kit/WowheadIcon';
 import clsx from 'clsx';
-import { type KeyboardEvent, useId, useMemo, useRef, useState } from 'react';
+import { Fragment, type KeyboardEvent, useId, useMemo, useRef, useState } from 'react';
 
 import { dropsMatchesSearch, dropsPassesFilters } from '../../model/drops/filters';
-import { type DropsItem, type DropsItemList, dropsItemsBySlot, dropsItemsBySource, dropsTickCount } from '../../model/drops/items';
+import { type DropsItem, type DropsItemList, dropsItemsBySlot, dropsItemsBySourceParent, dropsTickCount } from '../../model/drops/items';
 import { type DropsNames, dropsSourceLabel, type DropsSourceNode } from '../../model/drops/sources';
 import { baseIlvl } from '../../model/gear/search';
 
@@ -56,22 +58,124 @@ const ROW_CLASS = clsx('hover:bg-gray-800 data-[stripe=even]:not-hover:bg-table-
 
 const t = (key: string) => i18n.t(`bulk_tab.drops.setup.${key}`);
 
-// `source` is the source key of a source group, which its rows leave out of their own sources.
+// `source` is the source key of a source group, which its rows leave out of their own sources. A source group sits under
+// its `parent`, a group of its own that holds every item of its source groups.
 interface RailGroup {
 	key: string;
 	source?: string;
+	parent?: string;
 	title: string;
-	detail?: string;
 	items: readonly DropsItem[];
 }
 
+interface RailParent {
+	group: RailGroup;
+	leaves: RailGroup[];
+}
+
+const parentKey = (key: string) => `parent:${key}`;
+
+const sourceParents = (list: DropsItemList, tree: readonly DropsSourceNode[], names: DropsNames): RailParent[] =>
+	dropsItemsBySourceParent(list, tree, names).map(parent => ({
+		group: { key: parentKey(parent.key), title: parent.label, items: parent.items },
+		leaves: parent.leaves.map(({ key, label, items }) => ({ key, source: key, parent: parentKey(parent.key), title: label.label, items })),
+	}));
+
 // "All" lists the list itself, which holds each item once whatever the grouping.
-const railGroups = (list: DropsItemList, grouping: DropsGrouping, tree: readonly DropsSourceNode[], names: DropsNames): RailGroup[] => [
+const railGroups = (list: DropsItemList, grouping: DropsGrouping, parents: readonly RailParent[]): RailGroup[] => [
 	{ key: ALL, title: t('all'), items: list.items },
 	...(grouping === 'slot'
 		? dropsItemsBySlot(list).map(({ slot, items }) => ({ key: `slot:${slot}`, title: translateBulkSlotName(slot), items }))
-		: dropsItemsBySource(list, tree, names).map(({ key, label, items }) => ({ key, source: key, title: label.label, detail: label.detail, items }))),
+		: parents.flatMap(parent => [parent.group, ...parent.leaves])),
 ];
+
+const RAIL_NAV = clsx(
+	'shrink-0 border-border max-md:-mx-(--modal-padding) max-md:flex max-md:scrollbar-none max-md:overflow-x-auto max-md:border-b max-md:px-(--modal-padding) md:w-72 md:overflow-y-auto md:border-e',
+);
+const RAIL_ENTRY = clsx(
+	'flex w-full items-center gap-2 border-0 border-e-2 border-transparent px-2 py-1 text-left text-sm text-gray-400 hover:bg-gray-800 data-active:border-primary data-active:bg-gray-800 data-active:text-white max-md:w-auto max-md:shrink-0 max-md:gap-0 max-md:border-0 max-md:border-b-2 max-md:py-2 max-md:font-bold max-md:text-link max-md:hover:bg-transparent max-md:hover:text-link-hover max-md:data-active:bg-transparent max-md:data-active:text-white',
+);
+
+interface RailEntryProps {
+	group: RailGroup;
+	title?: string;
+	active: boolean;
+	onClick: () => void;
+	className?: string;
+}
+
+// From md up a rail row with its counts at the end; below md a tab with its counts raised beside the name.
+const RailEntry = ({ group, title = group.title, active, onClick, className }: RailEntryProps) => {
+	const { ticked, total } = dropsTickCount(group.items);
+	return (
+		<Button
+			variant={null}
+			aria-current={active ? 'true' : undefined}
+			data-active={active ? '' : undefined}
+			className={clsx(RAIL_ENTRY, className)}
+			onClick={onClick}>
+			<span className="min-w-0 grow truncate">{title}</span>
+			<span className="shrink-0 tabular-nums max-md:-mt-px max-md:self-start max-md:ps-px max-md:text-xs max-md:leading-none max-md:font-normal">
+				{ticked}/{total}
+			</span>
+		</Button>
+	);
+};
+
+interface SourceRailRowProps {
+	group: RailGroup;
+	active: boolean;
+	onClick: () => void;
+	onIncludedChange: DropsItemsDialogViewProps['onIncludedChange'];
+	/** Set on a parent: the chevron at the end shows whether its sources are open. */
+	expanded?: boolean;
+	nested?: boolean;
+}
+
+// The source rail from md up, laid out as the Sources tree: a box that ticks every non-worn item of the row, hidden by the
+// filters or not, then the name and counts, which pick the row or open a parent, and a parent's chevron at the end.
+const SourceRailRow = ({ group, active, onClick, onIncludedChange, expanded, nested }: SourceRailRowProps) => {
+	const id = useId();
+	const { ticked, total } = dropsTickCount(group.items);
+	const ids = group.items.filter(entry => !entry.worn).map(entry => entry.item.id);
+	return (
+		<div
+			data-active={active ? '' : undefined}
+			className={clsx(
+				'group flex items-center gap-2 border-e-2 border-transparent ps-2 hover:bg-gray-800 data-active:border-primary data-active:bg-gray-800',
+				nested && 'ps-6',
+			)}>
+			<Field.Root
+				id={id}
+				layout="inline"
+				size="xs"
+				className="ui-boolean-picker grow-0 [--control-xs-height:--spacing(4)] [&_.ui-boolean-picker-indicator]:text-2xs">
+				<BooleanPicker
+					id={id}
+					value={total > 0 && ticked === total}
+					indeterminate={ticked > 0 && ticked < total}
+					disabled={total === 0}
+					onChange={checked => onIncludedChange(ids, checked)}
+				/>
+				<Field.Label className="sr-only">{group.title}</Field.Label>
+			</Field.Root>
+			<Button
+				variant={null}
+				aria-current={active ? 'true' : undefined}
+				aria-expanded={expanded}
+				className="flex min-w-0 grow items-center gap-2 py-1 ps-0 pe-2 text-left text-sm text-gray-400 group-data-active:text-white"
+				onClick={onClick}>
+				<span className="min-w-0 grow truncate">{group.title}</span>
+				<span className="shrink-0 tabular-nums">
+					{ticked}/{total}
+				</span>
+				{expanded !== undefined && (
+					<Icon name="chevron-down" fixedWidth className={clsx('size-4 shrink-0 transition-transform duration-150', !expanded && '-rotate-90')} />
+				)}
+			</Button>
+		</div>
+	);
+};
 
 const otherSources = (entry: DropsItem, source: string | undefined, names: DropsNames) =>
 	entry.sourceKeys.filter(key => key !== source).map(key => dropsSourceLabel(key, names).label);
@@ -137,8 +241,9 @@ const ItemRow = ({ entry, sources, sourcesTooltipId, onIncludedChange }: ItemRow
 };
 
 // Search, the filters and the rail pick live here and reach nothing that runs. The rail counts the list before them, so
-// its numbers match the card's. A pick whose group leaves the rail reads as All. Below md the rail is one row of chips
-// that scrolls sideways above the list, and the list fills the rest of the fullscreen dialog.
+// its numbers match the card's. A pick whose group leaves the rail reads as All. By source, a parent only opens from md up,
+// where its sources are what a press picks. Below md the rail is one row of chips that scrolls sideways above the list,
+// by source one per parent with a second row of the picked parent's sources, and the list fills the rest of the dialog.
 export const DropsItemsDialogView = ({
 	open,
 	onOpenChange,
@@ -158,8 +263,19 @@ export const DropsItemsDialogView = ({
 	const listRef = useRef<HTMLDivElement>(null);
 	const sourcesTooltipId = useId();
 
-	const groups = useMemo(() => railGroups(list, grouping, tree, names), [list, grouping, tree, names]);
+	const [opened, setOpened] = useState<ReadonlySet<string>>(new Set());
+	const medium = useMediumLayout();
+
+	const parents = useMemo(() => (grouping === 'source' ? sourceParents(list, tree, names) : []), [list, grouping, tree, names]);
+	const groups = useMemo(() => railGroups(list, grouping, parents), [list, grouping, parents]);
 	const picked = groups.find(group => group.key === pick) ?? groups[0];
+	const pickedParent = parents.find(parent => parent.group.key === (picked.parent ?? picked.key));
+	const toggle = (key: string) =>
+		setOpened(was => {
+			const next = new Set(was);
+			if (!next.delete(key)) next.add(key);
+			return next;
+		});
 	const shown = useMemo(
 		() => picked.items.filter(entry => dropsPassesFilters(entry.item, filters) && dropsMatchesSearch(entry, search, names)),
 		[picked, filters, search, names],
@@ -167,14 +283,21 @@ export const DropsItemsDialogView = ({
 	const shownIds = shown.filter(entry => !entry.worn).map(entry => entry.item.id);
 	const sourcesOf = (entry: DropsItem) => otherSources(entry, picked.source, names);
 
+	const railEntry = (group: RailGroup, extra?: Partial<RailEntryProps>) => (
+		<RailEntry key={group.key} group={group} active={group.key === picked.key} onClick={() => setPick(group.key)} {...extra} />
+	);
+
+	// The entries a press can pick, in rail order: by source, from md up the sources of the open parents, below md the
+	// parents of the chip row.
+	const railKeys =
+		grouping === 'slot'
+			? groups.map(group => group.key)
+			: [ALL, ...parents.flatMap(parent => (medium ? (opened.has(parent.group.key) ? parent.leaves : []) : [parent.group])).map(group => group.key)];
+
 	// On the popup, through `Dialog`'s own prop, as the gear picker's rail does. The filters menu is a dialog of its own.
 	const onRailKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
 		if (!open || filtersOpen) return;
-		const next = railStep(
-			groups.map(group => group.key),
-			picked.key,
-			event.key,
-		);
+		const next = railStep(railKeys, picked.key, event.key);
 		if (next === null) return;
 		event.preventDefault();
 		setPick(next);
@@ -215,32 +338,54 @@ export const DropsItemsDialogView = ({
 				/>
 			</div>
 			<div className="flex min-h-0 flex-1 gap-(--modal-padding) max-md:flex-col max-md:gap-2">
-				<nav
-					aria-label={t(grouping === 'slot' ? 'by_slot' : 'by_source')}
-					className="shrink-0 border-border max-md:-mx-(--modal-padding) max-md:flex max-md:scrollbar-none max-md:overflow-x-auto max-md:border-b max-md:px-(--modal-padding) md:w-52 md:overflow-y-auto md:border-e"
-					data-testid="drops-items-rail">
-					{groups.map(group => {
-						const { ticked, total } = dropsTickCount(group.items);
-						const active = group.key === picked.key;
-						return (
-							<Button
-								key={group.key}
-								variant={null}
-								aria-current={active ? 'true' : undefined}
-								data-active={active ? '' : undefined}
-								className="flex w-full items-center gap-2 border-0 border-e-2 border-transparent px-2 py-1 text-left text-sm text-gray-400 hover:bg-gray-800 data-active:border-primary data-active:bg-gray-800 data-active:text-white max-md:w-auto max-md:shrink-0 max-md:gap-0 max-md:border-0 max-md:border-b-2 max-md:py-2 max-md:font-bold max-md:text-link max-md:hover:bg-transparent max-md:hover:text-link-hover max-md:data-active:bg-transparent max-md:data-active:text-white"
-								onClick={() => setPick(group.key)}>
-								<span className="grid min-w-0 grow">
-									<span className="truncate">{group.title}</span>
-									{group.detail && <span className="truncate text-xs">{group.detail}</span>}
-								</span>
-								<span className="shrink-0 tabular-nums max-md:-mt-px max-md:self-start max-md:ps-px max-md:text-xs max-md:leading-none max-md:font-normal">
-									{ticked}/{total}
-								</span>
-							</Button>
-						);
-					})}
-				</nav>
+				{grouping === 'slot' || !medium ? (
+					<nav aria-label={t(grouping === 'slot' ? 'by_slot' : 'by_source')} className={RAIL_NAV} data-testid="drops-items-rail">
+						{(grouping === 'slot' ? groups : [groups[0], ...parents.map(parent => parent.group)]).map(group => railEntry(group))}
+					</nav>
+				) : (
+					<nav aria-label={t('by_source')} className={RAIL_NAV} data-testid="drops-items-rail">
+						<SourceRailRow
+							group={groups[0]}
+							active={groups[0].key === picked.key}
+							onClick={() => setPick(ALL)}
+							onIncludedChange={onIncludedChange}
+						/>
+						{parents.map(parent => {
+							const expanded = opened.has(parent.group.key);
+							return (
+								<Fragment key={parent.group.key}>
+									<SourceRailRow
+										group={parent.group}
+										active={parent.group.key === picked.key}
+										expanded={expanded}
+										onClick={() => toggle(parent.group.key)}
+										onIncludedChange={onIncludedChange}
+									/>
+									{expanded &&
+										parent.leaves.map(leaf => (
+											<SourceRailRow
+												key={leaf.key}
+												group={leaf}
+												active={leaf.key === picked.key}
+												nested
+												onClick={() => setPick(leaf.key)}
+												onIncludedChange={onIncludedChange}
+											/>
+										))}
+								</Fragment>
+							);
+						})}
+					</nav>
+				)}
+				{grouping === 'source' && !medium && pickedParent && (
+					<nav aria-label={pickedParent.group.title} className={clsx(RAIL_NAV, 'max-md:-mt-2')} data-testid="drops-items-subrail">
+						{railEntry(pickedParent.group, {
+							title: i18n.t('bulk_tab.drops.setup.all_of', { name: pickedParent.group.title }),
+							className: 'max-md:text-xs max-md:font-normal',
+						})}
+						{pickedParent.leaves.map(leaf => railEntry(leaf, { className: 'max-md:text-xs max-md:font-normal' }))}
+					</nav>
+				)}
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
 					<div className="flex flex-wrap items-center gap-2">
 						<Button variant="secondary" size="sm" disabled={shownIds.length === 0} onClick={() => onIncludedChange(shownIds, true)}>

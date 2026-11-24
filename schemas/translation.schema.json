@@ -4738,6 +4738,9 @@
 								"by_slot": {
 									"type": "string"
 								},
+								"all_of": {
+									"type": "string"
+								},
 								"by_source": {
 									"type": "string"
 								},
@@ -4775,6 +4778,7 @@
 								"items_title",
 								"quick_picks",
 								"by_slot",
+								"all_of",
 								"by_source",
 								"empty",
 								"choose_items",
