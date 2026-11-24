@@ -41,6 +41,7 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 		},
 		Talents: DefaultFuryTalents,
 		OtherTalentSets: []core.TalentsCombo{
+			{Label: "Fury2H", Talents: DefaultFury2HTalents},
 			{Label: "Arms", Talents: DefaultArmsTalents},
 		},
 		Consumables:      DefaultConsumables,
@@ -51,9 +52,10 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 
 		Rotation: fury,
 		OtherRotations: []core.RotationCombo{
+			core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "fury_2h"),
 			core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "arms"),
-			armsStanceDanceRotation(),
-			core.RotationWithSpellIds("fury_trainer_ranks", fury, map[int32]int32{25286: 11567, 25289: 11551}),
+			armsWithoutStanceDanceRotation(),
+			core.RotationWithSpellIds("fury_book_ranks", fury, map[int32]int32{11567: 25286, 11551: 25289}),
 		},
 
 		ItemFilter: core.ItemFilter{
@@ -74,14 +76,14 @@ func dpsWarriorSuite() core.CharacterSuiteConfig {
 	}
 }
 
-func armsStanceDanceRotation() core.RotationCombo {
+func armsWithoutStanceDanceRotation() core.RotationCombo {
 	rotation := core.GetAplRotation("../../../ui/specs/warrior/dps/apls", "arms").Rotation
 	for _, item := range rotation.PriorityList {
 		if item.GetAction().GetGroupReference().GetGroupName() == "Stance Dance ON/OFF" {
-			item.Hide = false
+			item.Hide = true
 		}
 	}
-	return core.RotationCombo{Label: "arms_stance_dance", Rotation: rotation}
+	return core.RotationCombo{Label: "arms_no_stance_dance", Rotation: rotation}
 }
 
 var DefaultOptions = &proto.Player_DpsWarrior{
@@ -96,14 +98,16 @@ var DefaultOptions = &proto.Player_DpsWarrior{
 }
 
 var DefaultFuryTalents = "30303213002-050530045122100231"
+var DefaultFury2HTalents = "30303213032-050500350122110231"
 var DefaultArmsTalents = "30303213132215201-55050000002-2"
 
 var DefaultConsumables = &proto.ConsumesSpec{
-	ResourcePotId: 13442,  // Mighty Rage Potion
-	FlaskId:       274274, // Flask of Natural Aggression
-	FoodId:        20452,  // Smoked Desert Dumplings
-	ExplosiveId:   18588,
-	OhImbueId:     12404,
-	// Goblin Sapper Charge, Scroll of Agility IV, Scroll of Strength IV
-	ExtraIds: []int32{10646, 10309, 10310},
+	ResourcePotId: 13442,          // Mighty Rage Potion
+	FoodId:        20452,          // Smoked Desert Dumplings
+	ExplosiveId:   260814,         // SAF-T Clever Dynamite
+	MhImbueId:     12643,          // Dense Weightstone
+	OhImbueId:     12404,          // Dense Sharpening Stone
+	ElixirIds:     []int32{13452}, // Elixir of the Mongoose
+	// Goblin Sapper Charge, Juju Power, Juju Might, Bogling Root, R.O.I.D.S.
+	ExtraIds: []int32{10646, 12451, 12460, 5206, 8410},
 }

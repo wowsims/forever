@@ -15,7 +15,7 @@ import {
 	makeTristatePartyBuffInput,
 } from '@features/inputs/icon_inputs';
 
-import type { RenderableStatOptions } from './stat_options';
+import type { OverwritingBuff, RenderableStatOptions } from './stat_options';
 
 export const BloodPact = makeBooleanPartyBuffInput({
 	actionId: ActionId.fromSpellId(11767),
@@ -90,11 +90,7 @@ export const StoneskinTotem = makeTristatePartyBuffInput({
 	label: 'Stoneskin Totem',
 });
 
-export const Darkspear = makeBooleanPartyBuffInput({
-	actionId: ActionId.fromSpellId(16939),
-	fieldName: 'darkspear',
-	label: 'Darkspear',
-});
+// darkspear: Darkspear 12802 is not in the game, so the hand-written input shows only while a saved setting picks it.
 
 export const AdmiralsHat = makeBooleanPartyBuffInput({
 	actionId: ActionId.fromSpellId(12022),
@@ -107,6 +103,12 @@ export const DarkInspiration = makeMultistatePartyBuffInput({
 	numStates: 6,
 	fieldName: 'darkInspiration',
 	label: 'Dark Inspiration',
+});
+
+export const HeadmastersCharge = makeBooleanPartyBuffInput({
+	actionId: ActionId.fromItemId(13937),
+	fieldName: 'headmastersCharge',
+	label: "Headmaster's Charge",
 });
 
 export const ArcaneIntellect = makeBooleanRaidBuffInput({
@@ -578,10 +580,6 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 		ownerClass: Class.ClassShaman,
 	},
 	{
-		config: Darkspear,
-		stats: [Stat.StatCritRating],
-	},
-	{
 		config: AdmiralsHat,
 		stats: [Stat.StatStamina],
 	},
@@ -589,6 +587,10 @@ export const GENERATED_PARTY_BUFFS_CONFIG: RenderableStatOptions[] = [
 		config: DarkInspiration,
 		stats: [Stat.StatSpirit],
 		ownerClass: Class.ClassPriest,
+	},
+	{
+		config: HeadmastersCharge,
+		stats: [Stat.StatIntellect],
 	},
 ];
 
@@ -732,5 +734,22 @@ export const GENERATED_DEBUFFS_CONFIG: RenderableStatOptions[] = [
 	{
 		config: Thunderfury,
 		stats: [Stat.StatNatureDamage, Stat.StatStamina, Stat.StatDefenseRating],
+	},
+];
+
+// The raid buffs that overwrite the elixirs and scrolls that grant as much of a stat as they do (R-0054), each with
+// what it grants.
+export const GENERATED_OVERWRITING_BUFFS: OverwritingBuff[] = [
+	{
+		config: ArcaneIntellect,
+		stats: { [Stat.StatIntellect]: 31 },
+	},
+	{
+		config: PrayerOfSpirit,
+		stats: { [Stat.StatSpirit]: 40 },
+	},
+	{
+		config: PowerWordFortitude,
+		stats: { [Stat.StatStamina]: 70 },
 	},
 ];

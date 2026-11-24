@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 import { useConnectedField } from '../../hooks/useConnectedField';
 import { useHideZeroRestore } from '../../hooks/useHideZeroRestore';
-import { keptTooltipOf } from '../../input';
+import { keptTooltipOf, overwrittenOf } from '../../input';
 import type { IconEnumPickerConfig, IconEnumValueConfig } from './types';
 import { iconEnumPickerShown, iconEnumValues, valuePicked } from './utils';
 
@@ -29,7 +29,7 @@ export const ConnectedIconEnumPicker = <ModObject, T>({ modObject, config, testI
 	// Keyed on which values carry an actionId, not on which icons have resolved: a notification landing before the icons arrive must not read as hidden and zero the source.
 	const hidden = !iconEnumPickerShown(config, modObject);
 	const { clearStored } = useHideZeroRestore(
-		{ value, setValue, hidden, revision },
+		{ value, setValue, hidden: hidden && !config.keepWhenHidden, revision },
 		config.zeroValue,
 		current => !valuePicked(config, current),
 		current => {
@@ -73,12 +73,16 @@ export const ConnectedIconEnumPicker = <ModObject, T>({ modObject, config, testI
 				tooltip: valueConfig.tooltip,
 				wowhead: buffDatasets[index],
 				hidden: !shows(valueConfig),
+				...(openings > 0 && shows(valueConfig) && !config.equals(valueConfig.value, config.zeroValue)
+					? overwrittenOf(config, modObject, valueConfig.value)
+					: undefined),
 			}))}
 			equals={config.equals}
 			zeroValue={config.zeroValue}
 			backupIcon={backupIcon}
 			tooltip={config.tooltip}
 			keptTooltip={keptTooltipOf(config, modObject, value)}
+			{...overwrittenOf(config, modObject, value)}
 			direction={config.direction}
 			numColumns={typeof config.numColumns === 'function' ? config.numColumns(modObject) : config.numColumns}
 			onOpenChange={open => {

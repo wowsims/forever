@@ -118,6 +118,6 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	ElixirIds:      []int32{13452, 9088}, // Elixir of the Mongoose, Gift of Arthas
 	FoodId:         21023,                // Dirge's Kickin' Chimaerok Chops
 	ConjuredId:     9421,                 // Major Healthstone
-	// Goblin Sapper Charge, Scroll of Agility IV, Scroll of Strength IV, Scroll of Protection IV
-	ExtraIds: []int32{10646, 10309, 10310, 10305},
+	// Goblin Sapper Charge, Scroll of Strength IV, Scroll of Protection IV
+	ExtraIds: []int32{10646, 10310, 10305},
 }

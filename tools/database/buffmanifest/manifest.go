@@ -112,10 +112,14 @@ type BuffSpec struct {
 	// states no text and whose CastID is not that spell either. 0 defers to CastID, then SpellID; it
 	// never changes the numbers the row reads.
 	TooltipID int32
+	// TooltipItemID is the item the settings input shows instead of a spell, for a row an item's use
+	// effect provides. It wins over TooltipID and never changes the numbers the row reads.
+	TooltipItemID int32
 	// Talent is the spell of the trait node that prices the improved state, 0 when none does.
 	Talent         int32
 	Category       string // exclusive-effect category value, "" = none
 	SharedCategory string // second exclusive category the aura also joins, "" = none
+	ElixirCategory string // the elixirs' category the aura's stats overwrite (core.ElixirStatCategory), "" = none
 	SingleAura     bool
 	Driver         bool         // apply block hands the field to drive<Go>; the aura is not simply always up
 	Stats          []proto.Stat // UI relevance tags

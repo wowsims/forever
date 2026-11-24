@@ -463,9 +463,9 @@ var Spells = []Override{
 	{
 		SpellID: 1240047,
 		Field:   SPCoefDirect,
-		Value:   1.0 / 7, // TODO: Measure Ice Lance's spell power coefficient in game.
-		Reason:  "Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game; TBC's 1/7 until measured",
-		Source:  "tbc-carryover",
+		Value:   0.11,
+		Reason:  "Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game (EV-0171)",
+		Source:  "EV-0171",
 	},
 
 	// Seal of Light procs 15 a minute and Judgement of Light rolls a flat 50% (EV-0017, EV-0018). Neither
@@ -699,15 +699,15 @@ var Spells = []Override{
 	{
 		SpellID: 1318159,
 		Field:   PPM,
-		Value:   2.6,
-		Reason:  "Highborne Research Tablet: 2.6 procs per minute on landed damaging melee hits; the game files state none",
-		Source:  "EV-0021",
+		Value:   2.95,
+		Reason:  "Highborne Research Tablet: 2.95 procs per minute on landed damaging hits, a weapon hit on its weapon's speed and a spell hit on its cast time; the game files state none",
+		Source:  "EV-0131",
 	},
 	{
 		SpellID: 27656,
 		Field:   PPM,
-		Value:   2,
-		Reason:  "Heart of Wyrmthalak: 2.0 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none",
+		Value:   1.95,
+		Reason:  "Heart of Wyrmthalak: 1.95 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none",
 		Source:  "EV-0133",
 	},
 	{
@@ -763,7 +763,7 @@ var Spells = []Override{
 		SpellID: 450608,
 		Field:   PPM,
 		Value:   1,
-		Reason:  "Wildheart Raiment 5-piece, Feralheart Raiment reissue 4-piece: 1 proc per minute on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none and the dummy effect's 5 is no chance",
+		Reason:  "Wildheart Raiment 5-piece, Feralheart Raiment reissue 4-piece: 1 proc per minute on landed white swings, on spell casts priced on their cast time and on landed melee swings taken priced on the attacker's swing interval, a log fit not yet validated (EV-0144); the game files state none and the dummy effect's 5 is no chance",
 		Source:  "observed",
 	},
 	{

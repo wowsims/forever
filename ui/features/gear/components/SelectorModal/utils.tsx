@@ -52,7 +52,7 @@ export const buildSelectorTabs = ({ player, slot, gearData, equippedItem }: Sele
 
 	const items = describe({
 		label: SelectorModalTabs.Items,
-		itemData: itemsTabData(gearData, player.getItems(slot)),
+		itemData: itemsTabData(player, gearData, player.getItems(slot)),
 		computeEP: item => player.computeItemEP(item, slot),
 		equippedToItem: item => item?.item,
 		onRemove: gearData.addOnly ? undefined : () => gearData.equipItem(null),

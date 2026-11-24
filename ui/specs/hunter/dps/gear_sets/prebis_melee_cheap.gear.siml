@@ -1,12 +1,12 @@
 siml 1
 
-head       black_dragonscale_helm + arcanum_of_rapidity
+head       backwood_helm + arcanum_of_rapidity
 neck       mark_of_fordring + necklace_agility
-shoulder   wyrmhide_spaulders
+shoulder   truestrike_shoulders
 back       cape_of_the_black_baron + cloak_agility
-chest      savage_gladiator_chain + chest_greater_stats
+chest      ogre_forged_hauberk + chest_greater_stats
 wrist      bracers_of_the_eclipse + bracer_agility_7656
-hands      devilsaur_gauntlets + gloves_superior_agility
+hands      devilsaur_gauntlets + gloves_minor_haste
 waist      rangers_belt
 legs       devilsaur_leggings + arcanum_of_rapidity
 feet       windreaver_greaves + boots_greater_agility
@@ -14,6 +14,6 @@ finger1    cutthroats_signet
 finger2    painweaver_band
 trinket1   heart_of_wyrmthalak
 trinket2   darkmoon_card_maelstrom
-main_hand  rivenspike + weapon_crusader
+main_hand  sword_of_zeal + weapon_crusader
 off_hand   distracting_dagger + weapon_agility
-ranged     ancient_bone_bow + saf_t_ultra_precision_scope
+ranged     riphook + saf_t_ultra_precision_scope

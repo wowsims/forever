@@ -15,7 +15,7 @@
     "wowsims-apl": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "405d3b7c4273e9809a562c5619390734db8e66ce7043c705b1c2af3a08fc3ce4"
+      "computedHash": "2d27e84c282ece3b0764603298e4dcf48dc65728730f8d09d8deab179a19d654"
     },
     "wowsims-bulk-sim": {
       "source": "./.github/skills",
@@ -25,7 +25,7 @@
     "wowsims-consumables-items": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "8d2234ab1c093c4734d06ae4db9c0cadc380f8805b55d84cf19a8aac91606773"
+      "computedHash": "e18b83d91e015478ecd04ea74e1abcf6c781ae1401f67c4f27dddd8bedadd3b7"
     },
     "wowsims-conventions": {
       "source": "./.github/skills",
@@ -35,7 +35,7 @@
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "35387bedf8ecbab1a36cb6b910ae7515fa8766c3f64cd47cd5bc8a6278fe522a"
+      "computedHash": "15b07079f5ccfee62e0dfa18c30d8d2666388d71c84b891707eb88afe60ac612"
     },
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
@@ -55,7 +55,7 @@
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "d83dac3d4f6dab03637f0248caa31ef48c3f41a92b64dfde11cb95e20adc74e8"
+      "computedHash": "bd7ef4f99748714c476a145945ccc818e338ac94a67333b254baedaea80bde5a"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",
@@ -65,7 +65,7 @@
     "wowsims-review": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "18050a6fd7da5822f0e3d45fedf201953ff2963b0db684ac50c4c048b2b4e8dc"
+      "computedHash": "dbff5970ede3c7d69c7b99321b1a3c690265992623b873754788644cd0fa46d9"
     },
     "wowsims-siml": {
       "source": "./.github/skills",
@@ -95,7 +95,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "74f26c3d74121576392034717d79caaf810a007f9f7635ffb6f94aaf77fce39c"
+      "computedHash": "d09374b486cabc6fd224c2220bb4c371a2a78da51203b8822af94a48edb0a063"
     }
   }
 }

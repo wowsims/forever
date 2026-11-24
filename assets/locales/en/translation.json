@@ -638,6 +638,7 @@
 		"item_notices": {
 			"want_to_help": "Want to help out by providing additional information? Contact us on our Discord!",
 			"missing_random_suffix": "Please select a random suffix",
+			"best_random_suffix": "Equipped with its highest EP random suffix. You can change it in the Random Suffix tab.",
 			"missing_effect": {
 				"item": "This item effect (on-use or proc) is not implemented!",
 				"enchant": "This enchant effect (on-use or proc) is not implemented!",
@@ -666,7 +667,6 @@
 			"ingame_validation_needed": "In-game validation needed.",
 			"partial_set_bonus": {
 				"grovekeeper_eclipse_4": "only spell damage against Demons is raised, not the damage of melee attacks.",
-				"wildheart_raiment_5": "only the mana on a spell cast is modelled, not the energy on a melee attack or the rage when struck by one.",
 				"implements_of_unspoken_names_3": "the extra 5% damage on Firebolt and Lash of Pain is not modelled.",
 				"dreadnaughts_battlegear_4": "Taunt and Challenging Shout always hit in the sim, so the bonus changes nothing.",
 				"dreadnaughts_battlegear_8": "only heals a healer casts in the sim take the bonus, not the incoming healing the tank sim models.",
@@ -1027,7 +1027,7 @@
 				"resource": "Resource Potion"
 			},
 			"elixirs": {
-				"title": "Elixirs"
+				"title": "Flask & Elixirs"
 			},
 			"food": {
 				"title": "Food"
@@ -1060,7 +1060,8 @@
 				"title": "Miscellaneous",
 				"offensive": "Offensive",
 				"defensive": "Defensive"
-			}
+			},
+			"overwritten_tooltip": "{{stats}} overwritten by {{name}}"
 		},
 		"encounter": {
 			"title": "Encounter",
@@ -2833,18 +2834,6 @@
 					"destro": "Destro",
 					"sm_ruin": "SM/Ruin",
 					"aff_wrack": "Aff (Wrack)"
-				},
-				"use_shadow_bolt_rank_10": {
-					"label": "Use Shadow Bolt Rank 10",
-					"tooltip": "Casts Shadow Bolt Rank 10, taught by the Grimoire of Shadow Bolt X, in place of Rank 9 from the trainer."
-				},
-				"use_immolate_rank_8": {
-					"label": "Use Immolate Rank 8",
-					"tooltip": "Casts Immolate Rank 8, taught by the Grimoire of Immolate VIII, in place of Rank 7 from the trainer."
-				},
-				"use_corruption_rank_7": {
-					"label": "Use Corruption Rank 7",
-					"tooltip": "Casts Corruption Rank 7, taught by the Grimoire of Corruption VII, in place of Rank 6 from the trainer."
 				}
 			},
 			"hunter": {
@@ -2913,13 +2902,22 @@
 						"label": "Delay major cooldowns (s)",
 						"tooltip": "How many seconds into the fight to wait before trinkets and other cooldowns are used automatically."
 					},
+					"uw_twist": {
+						"label": "Twist with",
+						"tooltip": "The seal twisted with Seal of Righteousness under Unsealed Wrath. With Seal of Fury, Judgement is never cast while that seal is up, since Judgement of Fury taunts. Picking a seal resets the Echo stacks to its defaults.",
+						"none": "No twist: Seal of Righteousness alone"
+					},
 					"uw_soc_stacks": {
 						"label": "Echo of Command stacks",
 						"tooltip": "The amount of stacks of Echo of Command to build before swapping to Seal of Righteousness"
 					},
+					"uw_sof_stacks": {
+						"label": "Echo of Fury stacks",
+						"tooltip": "The amount of stacks of Echo of Fury to build before swapping to Seal of Righteousness"
+					},
 					"uw_sor_stacks": {
 						"label": "Echo of Righteousness stacks",
-						"tooltip": "The amount of stacks of Echo of Righteousness to build before swapping to Seal of Command"
+						"tooltip": "The amount of stacks of Echo of Righteousness to build before swapping to the seal it is twisted with"
 					}
 				}
 			},
@@ -3495,6 +3493,14 @@
 		},
 		"download_native_sim": "Download simulator for faster simulating",
 		"native_sim_outdated": "Newer version of simulator available for download",
+		"native_sim_update": "Newer version available. Click to update and restart",
+		"native_sim_update_title": "Update simulator",
+		"native_sim_update_confirm": "The simulator will download {{version}} and restart. Any running sims are stopped.",
+		"native_sim_update_action": "Update and restart",
+		"native_sim_update_toast": "Simulator {{version}} is out.",
+		"native_sim_updating": "Updating…",
+		"native_sim_update_failed": "The update failed: {{error}}",
+		"native_sim_update_timeout": "The simulator did not restart after the update. Restart it manually.",
 		"forever_notice": "Forever sims are still changing rapidly and may have issues. If your results look wrong or your sim won't run, try restoring the default settings."
 	},
 	"onboarding": {

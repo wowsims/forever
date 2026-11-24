@@ -57,6 +57,19 @@ func init() {
 	}, func(agent *testagent.Agent) {
 		agent.EnableAutoAttacks(agent, core.AutoAttackOptions{Ranged: agent.WeaponFromRanged(), AutoSwingRanged: true})
 	})
+	// The pet owner stand-in: a mana bar, and a pet out from the start with a mana bar of its own.
+	testagent.Register(proto.Player_ProtectionPaladin{}, proto.Spec_SpecProtectionPaladin, func(player *proto.Player, spec any) {
+		player.Spec = spec.(*proto.Player_ProtectionPaladin)
+	}, func(agent *testagent.Agent) {
+		agent.EnableManaBar()
+		pet := &clawPet{Pet: core.NewPet(core.PetConfig{
+			Name: "Mana Pet", Owner: &agent.Character, EnabledOnStart: true,
+			BaseStats:       stats.Stats{stats.Health: 1000, stats.Mana: 1000},
+			StatInheritance: func(stats.Stats) stats.Stats { return stats.Stats{} },
+		})}
+		pet.EnableManaBar()
+		agent.AddPet(pet)
+	})
 }
 
 // A character swinging one weapon in the main hand against level 60 targets with no armor: the
@@ -389,6 +402,70 @@ func TestSkullforgeReaverBrandsOnMainHandHitsAndHealsTheWearer(t *testing.T) {
 	}
 }
 
+// Barovian Family Sword 14541 casts Siphon Health 18652 at the procs per minute of the item's entry, on
+// the sword's speed, and the drain goes on a target above the wearer's level with no hit roll. It ticks
+// every period for the row's duration, and each tick casts the heal the drain's row links to on the
+// wearer, for the amount the drain's row states whatever the tick dealt. The heal crits on a roll of
+// its own.
+func TestBarovianFamilySwordHealsTheWearerWithEveryTick(t *testing.T) {
+	sim, character := itemWearerAgainst(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(14541, 0)},
+		&proto.Target{Name: "target", Level: 63})
+	character.AutoAttacks.CancelAutoSwing(sim)
+	row := spelldata.MustFind(18652)
+	drain := row.PeriodicDamageEffect()
+	proc := character.GetAura("Barovian Family Sword")
+	siphon := character.GetSpell(core.ActionID{SpellID: row.ID})
+	if proc == nil || proc.Dpm == nil || siphon == nil {
+		t.Fatal("14541 registers no drain or no proc on a procs per minute rate")
+	}
+	heal := character.GetSpell(core.ActionID{SpellID: row.Triggered()[0].ID})
+	if heal == nil {
+		t.Fatal("14541 registers no heal for the spell its drain links to")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 14541, 18652)
+	ticks := rowTickCount(row, drain)
+	amount := drain.Min()
+	if ticks < 2 || amount <= 0 || amount != drain.Max() {
+		t.Fatalf("18652 drains %v to %v %d times, want one amount at least twice", amount, drain.Max(), ticks)
+	}
+
+	// Every main-hand hit now procs it, nothing crits, and the target takes half of each tick.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	character.RemoveHealth(sim, character.MaxHealth()/2)
+	enemy := character.CurrentTarget
+	enemy.PseudoStats.DamageTakenMultiplier *= 0.5
+
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
+	drained := siphon.SpellMetrics[enemy.UnitIndex]
+	if drained.Ticks != ticks || drained.TotalDamage <= 0 || drained.TotalDamage > float64(ticks)*amount/2 {
+		t.Fatalf("one proc drained %v over %d ticks, want %d ticks of at most half the row's %v", drained.TotalDamage, drained.Ticks, ticks, amount)
+	}
+	healed := heal.SpellMetrics[character.UnitIndex]
+	if healed.Casts != ticks || healed.Crits != 0 || healed.TotalHealing != float64(ticks)*amount {
+		t.Errorf("the drain healed the wearer %v over %d heals, %d of them crits, want %d heals of the row's %v with no crit",
+			healed.TotalHealing, healed.Casts, healed.Crits, ticks, amount)
+	}
+
+	// The sim rolls the heal's crit on the wearer's spell crit.
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: 100})
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
+	healed = heal.SpellMetrics[character.UnitIndex]
+	if healed.Casts != 2*ticks || healed.Crits != ticks || healed.TotalHealing <= 2*float64(ticks)*amount {
+		t.Errorf("with every spell a crit the second drain brought the heals to %d, %d of them crits, for %v, want %d more that all crit for more than the row's %v each",
+			healed.Casts, healed.Crits, healed.TotalHealing, ticks, amount)
+	}
+
+	for range 200 {
+		siphon.Cast(sim, enemy)
+	}
+	if cast := siphon.SpellMetrics[enemy.UnitIndex]; cast.Misses != 0 || cast.Hits != cast.Casts {
+		t.Errorf("%d of %d drains missed a target above the wearer's level, want every one to land", cast.Misses, cast.Casts)
+	}
+}
+
 // Malown's Slam 13393 puts Surge of Strength 17499 on the wearer at the procs per minute of the item's
 // entry for 17500, on the mace's speed, off landed main-hand swings and specials and never off a miss.
 // The buff raises Strength by the row's amount for the row's duration.
@@ -491,7 +568,8 @@ func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 const castTimeFloor = 1500 * time.Millisecond
 
 // The chance a trigger priced on cast time rolls on a hit whose cast took castTime: the row's procs per
-// minute on that time, at least castTimeFloor.
+// minute on that time, at least castTimeFloor. Highborne Research Tablet 260205 prices its spell
+// hits this way too (EV-0131).
 func castTimeChance(t *testing.T, rowID int32, castTime time.Duration) float64 {
 	t.Helper()
 	ppm := float64(spelldata.MustFind(rowID).RPPM)
@@ -1110,32 +1188,61 @@ func TestBlackbladeOfShahramLandsOneSpellPerSummonAfterItsHardcast(t *testing.T)
 	}
 }
 
-// Flames of Shahram 16596 burns every enemy. Shahram's spells take nothing from the wearer's damage
-// modifiers or crit chance and put no threat on the wearer.
+// Flames of Shahram 16596 burns every enemy, rolling the wearer's spell hit and spell crit. It takes
+// nothing from the wearer's damage modifiers and puts no threat on the wearer.
 func TestFlamesOfShahramBurnsEveryEnemy(t *testing.T) {
-	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 3)
-	character.AutoAttacks.CancelAutoSwing(sim)
-	character.PseudoStats.DamageDealtMultiplier *= 2
-	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: 100})
-	flames := character.GetSpell(core.ActionID{SpellID: 16596})
 	damage := spelldata.MustFind(16596).DamageEffect()
 	if damage.Min() <= 0 || damage.Max() <= damage.Min() {
 		t.Fatalf("16596 deals %v to %v, want a range", damage.Min(), damage.Max())
 	}
 
-	const casts = 100
-	for range casts {
-		flames.Cast(sim, character.CurrentTarget)
+	// Each enemy's metrics after the casts, and the crit multiplier on it, by a wearer with doubled
+	// damage and the spell hit and crit given.
+	const casts = 2000
+	burn := func(bonus stats.Stats) ([]core.SpellMetrics, []float64) {
+		sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 3)
+		character.AutoAttacks.CancelAutoSwing(sim)
+		character.PseudoStats.DamageDealtMultiplier *= 2
+		character.AddStatsDynamic(sim, bonus)
+		flames := character.GetSpell(core.ActionID{SpellID: 16596})
+		for range casts {
+			flames.Cast(sim, character.CurrentTarget)
+		}
+		metrics := make([]core.SpellMetrics, len(sim.Encounter.ActiveTargetUnits))
+		multipliers := make([]float64, len(metrics))
+		for i, enemy := range sim.Encounter.ActiveTargetUnits {
+			metrics[i] = flames.SpellMetrics[enemy.UnitIndex]
+			multipliers[i] = flames.CritDamageMultiplier(character.AttackTables[enemy.UnitIndex])
+		}
+		return metrics, multipliers
 	}
-	for _, enemy := range sim.Encounter.ActiveTargetUnits {
-		metrics := flames.SpellMetrics[enemy.UnitIndex]
-		average := metrics.TotalDamage / float64(metrics.Hits)
-		if metrics.Hits != casts || metrics.Crits != 0 || average < damage.Min() || average > damage.Max() {
-			t.Errorf("%d casts hit %s %d times with %d crits for %.1f on average, want every cast to hit with no crit within %v to %v",
-				casts, enemy.Label, metrics.Hits, metrics.Crits, average, damage.Min(), damage.Max())
+
+	// With every spell hit and spell crit, each cast lands as a crit for the spell's crit multiplier.
+	critting, multipliers := burn(stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: 100})
+	for i, metrics := range critting {
+		if metrics.Crits != casts || metrics.Hits != 0 || metrics.Misses != 0 {
+			t.Errorf("%d casts crit enemy %d %d times, hit it %d times and missed it %d times, want every cast to crit",
+				casts, i, metrics.Crits, metrics.Hits, metrics.Misses)
+		}
+		low, high := multipliers[i]*damage.Min(), multipliers[i]*damage.Max()
+		if crit := metrics.TotalCritDamage / float64(metrics.Crits); crit < low || crit > high {
+			t.Errorf("the crits on enemy %d deal %.1f on average, want %v to %v", i, crit, low, high)
 		}
 		if metrics.TotalThreat != 0 {
-			t.Errorf("the hits on %s put %v threat on the wearer, want none", enemy.Label, metrics.TotalThreat)
+			t.Errorf("the crits on enemy %d put %v threat on the wearer, want none", i, metrics.TotalThreat)
+		}
+	}
+
+	// With no spell hit or spell crit, some casts miss and the rest hit within the row's range.
+	plain, _ := burn(stats.Stats{})
+	for i, metrics := range plain {
+		if metrics.Misses == 0 || metrics.Hits+metrics.Crits+metrics.Misses != casts {
+			t.Errorf("%d casts missed enemy %d %d times, hit it %d times and crit it %d times, want some misses among them",
+				casts, i, metrics.Misses, metrics.Hits, metrics.Crits)
+		}
+		hit := (metrics.TotalDamage - metrics.TotalCritDamage) / float64(metrics.Hits)
+		if hit < damage.Min() || hit > damage.Max() {
+			t.Errorf("the hits on enemy %d deal %.1f on average, want %v to %v", i, hit, damage.Min(), damage.Max())
 		}
 	}
 }
@@ -1327,14 +1434,16 @@ func TestBlessingOfShahramRestoresManaForEachBlessing(t *testing.T) {
 	}
 }
 
-// Blessing of Shahram 16599 restores mana to every member of the wearer's party with a mana bar.
-func TestBlessingOfShahramRestoresManaForPartyMembers(t *testing.T) {
+// Blessing of Shahram 16599 restores mana to every player of the wearer's party with a mana bar, and
+// never to a pet.
+func TestBlessingOfShahramRestoresManaForPartyPlayers(t *testing.T) {
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
 	}
 	items[proto.ItemSlot_ItemSlotMainHand].Id = 12592
-	newPaladin := func(name string, equipment []*proto.ItemSpec) *proto.Player {
+	// The wearer on the holy paladin's stand-in, and a friend on the pet owner's stand-in.
+	newPaladin := func(name string, equipment []*proto.ItemSpec, spec any) *proto.Player {
 		player := &proto.Player{
 			Name: name, Class: proto.Class_ClassPaladin, Race: proto.Race_RaceHuman,
 			Equipment:   &proto.EquipmentSpec{Items: equipment},
@@ -1342,7 +1451,7 @@ func TestBlessingOfShahramRestoresManaForPartyMembers(t *testing.T) {
 			Buffs:       &proto.IndividualBuffs{},
 			Rotation:    &proto.APLRotation{},
 		}
-		core.WithSpec(player, &proto.Player_HolyPaladin{HolyPaladin: &proto.HolyPaladin{}})
+		core.WithSpec(player, spec)
 		return player
 	}
 	bare := make([]*proto.ItemSpec, len(items))
@@ -1352,19 +1461,26 @@ func TestBlessingOfShahramRestoresManaForPartyMembers(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid: &proto.Raid{Parties: []*proto.Party{{
-			Players: []*proto.Player{newPaladin("Wearer", items), newPaladin("Friend", bare)},
-			Buffs:   &proto.PartyBuffs{},
+			Players: []*proto.Player{
+				newPaladin("Wearer", items, &proto.Player_HolyPaladin{HolyPaladin: &proto.HolyPaladin{}}),
+				newPaladin("Friend", bare, &proto.Player_ProtectionPaladin{ProtectionPaladin: &proto.ProtectionPaladin{}}),
+			},
+			Buffs: &proto.PartyBuffs{},
 		}}},
 		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	wearer := sim.Raid.Parties[0].Players[0].GetCharacter()
 	friend := sim.Raid.Parties[0].Players[1].GetCharacter()
+	pet := friend.Pets[0]
+	if !pet.HasManaBar() || !pet.IsEnabled() {
+		t.Fatalf("the friend's pet has a mana bar: %v, is out: %v; want both", pet.HasManaBar(), pet.IsEnabled())
+	}
 
 	row := spelldata.MustFind(16599)
 	mana := row.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)
 	ticks := int32(row.Duration() / mana.Period())
-	for _, member := range []*core.Character{wearer, friend} {
+	for _, member := range []*core.Character{wearer, friend, &pet.Character} {
 		member.SpendMana(sim, member.CurrentMana(), member.NewManaMetrics(core.ActionID{SpellID: instantSpellID}))
 	}
 
@@ -1372,17 +1488,21 @@ func TestBlessingOfShahramRestoresManaForPartyMembers(t *testing.T) {
 	wearer.GetSpell(core.ActionID{SpellID: 16599}).Cast(sim, wearer.CurrentTarget)
 	stepTo(t, sim, start+row.Duration()+time.Millisecond)
 
-	for _, member := range []*core.Character{wearer, friend} {
-		var gain float64
-		var events int32
+	restored := func(member *core.Character) (gain float64, events int32) {
 		for _, r := range member.Metrics.ToProto().Resources {
 			if r.Id.GetSpellId() == 16599 {
 				gain, events = r.Gain, r.Events
 			}
 		}
-		if events != ticks || math.Abs(gain-float64(ticks)*mana.Average()) > 1e-6 {
+		return gain, events
+	}
+	for _, member := range []*core.Character{wearer, friend} {
+		if gain, events := restored(member); events != ticks || math.Abs(gain-float64(ticks)*mana.Average()) > 1e-6 {
 			t.Errorf("%s gained %v mana over %d ticks, want %d ticks of %v", member.Name, gain, events, ticks, mana.Average())
 		}
+	}
+	if gain, events := restored(&pet.Character); events != 0 {
+		t.Errorf("the friend's pet gained %v mana over %d ticks, want none", gain, events)
 	}
 }
 
@@ -1861,8 +1981,8 @@ func TestSulthrazeTheLasherLashesOnceAfterItsDuration(t *testing.T) {
 	}
 }
 
-// Pendulum of Doom 9425's Fatal Wound 10373, Diabolic Skiver 9475's Fatal Wound 18206 and Gut Ripper
-// 2164's Wound 18107 deal the percent their row states more to a target below the health percent
+// Pendulum of Doom 9425's Fatal Wound 10373, Diabolic Skiver 9475's Fatal Wound 18206, Blackhand Doomsaw
+// 12583's Fatal Wound 16549 and Gut Ripper 2164's Wound 18107 deal the percent their row states more to a target below the health percent
 // their row states, from that phase's start, and their plain damage to a target above it.
 func TestFatalWoundDealsMoreBelowTheExecuteHealth(t *testing.T) {
 	for _, item := range []struct {
@@ -1872,6 +1992,7 @@ func TestFatalWoundDealsMoreBelowTheExecuteHealth(t *testing.T) {
 		{9425, 10373, "Pendulum of Doom - Fatal Wound"},
 		{9475, 18206, "Diabolic Skiver"},
 		{2164, 18107, "Gut Ripper"},
+		{12583, 16549, "Blackhand Doomsaw"},
 	} {
 		t.Run(item.procName, func(t *testing.T) {
 			row := spelldata.MustFind(item.spellID)

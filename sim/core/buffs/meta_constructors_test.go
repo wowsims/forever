@@ -238,6 +238,7 @@ func TestGeneratedRowsBuildTheirShapes(t *testing.T) {
 	bloodPact := row(bloodPactSpell, dbcenums.A_MOD_STAT)
 	darkspear := row(darkspearSpell, dbcenums.A_MOD_CRIT_PCT)
 	admiralsHat := row(admiralsHatSpell, dbcenums.A_MOD_STAT)
+	headmastersCharge := row(headmastersChargeSpell, dbcenums.A_MOD_STAT)
 	arcaneIntellect := row(arcaneIntellectSpell, dbcenums.A_MOD_STAT)
 	fireResistanceAura := row(fireResistanceAuraSpell, dbcenums.A_MOD_RESISTANCE)
 	concentration := -row(concentrationAuraSpell, dbcenums.A_REDUCE_PUSHBACK) / 100
@@ -310,10 +311,16 @@ func TestGeneratedRowsBuildTheirShapes(t *testing.T) {
 			Bids:   []string{bid("AdmiralsHat", true, math.Abs(admiralsHat))},
 			Stacks: statsOnly(onCharacter(map[stats.Stat]float64{stats.Stamina: admiralsHat})),
 		}},
+		{"HeadmastersCharge", false, false, NewSpellDataHeadmastersChargeAura, auraShape{
+			Label: "Headmaster's Charge (External)", ActionID: external(18264), Tag: "HeadmastersCharge",
+			Duration: HeadmastersChargeDuration(0), BuildPhase: core.CharacterBuildPhaseBuffs,
+			Bids:   []string{bid("HeadmastersCharge", true, math.Abs(headmastersCharge))},
+			Stacks: statsOnly(onCharacter(map[stats.Stat]float64{stats.Intellect: headmastersCharge})),
+		}},
 		{"ArcaneIntellect", false, false, NewSpellDataArcaneIntellectAura, auraShape{
 			Label: "Arcane Intellect (External)", ActionID: external(10157), Tag: "StatBuff", Duration: ArcaneIntellectDuration(0),
 			BuildPhase: core.CharacterBuildPhaseBuffs,
-			Bids:       []string{bid("StatBuffIntellectAdd", false, arcaneIntellect)},
+			Bids:       []string{bid("StatBuffIntellectAdd", false, arcaneIntellect), bid("ElixirStatIntellectAdd", false, arcaneIntellect)},
 			Stacks:     statsOnly(onCharacter(map[stats.Stat]float64{stats.Intellect: arcaneIntellect})),
 		}},
 		{"MarkOfTheWild", false, false, NewSpellDataMarkOfTheWildAura, auraShape{

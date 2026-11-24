@@ -20,6 +20,10 @@ const MissingRandomSuffixWarning = () => <p className="mb-0">{i18n.t('gear_tab.i
 
 export const MISSING_RANDOM_SUFFIX_WARNING = <MissingRandomSuffixWarning />;
 
+const BestRandomSuffixInfo = () => <p className="mb-0">{i18n.t('gear_tab.item_notices.best_random_suffix')}</p>;
+
+export const BEST_RANDOM_SUFFIX_INFO = <BestRandomSuffixInfo />;
+
 const MissingEffectNotice = ({ effectKind, tooltips }: { effectKind: 'item' | 'enchant'; tooltips: string[] }) =>
 	!tooltips.length ? (
 		<>
@@ -209,7 +213,6 @@ const PartlyImplementedBonus = ({ text }: { text: () => string }) => (
 
 // Bonuses the sim registers but models only in part, by set id and piece count.
 const PARTLY_IMPLEMENTED_SET_BONUSES = new Map<number, Map<number, () => string>>([
-	[185, new Map([[5, () => i18n.t('gear_tab.item_notices.partial_set_bonus.wildheart_raiment_5')]])],
 	[500, new Map([[3, () => i18n.t('gear_tab.item_notices.partial_set_bonus.implements_of_unspoken_names_3')]])],
 	[
 		523,

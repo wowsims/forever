@@ -26,11 +26,9 @@ consumables:
   conjured demonic_rune
   explosive ez_thro_dynamite_ii
   mh_imbue brilliant_wizard_oil
-  extra goblin_sapper_charge, juju_might, scroll_of_stamina_iv
+  extra goblin_sapper_charge, juju_might
   elixir elixir_of_holy_power,
       greater_arcane_elixir,
-      elixir_of_the_owl,
-      elixir_of_sages,
       elixir_of_greater_fortitude,
       greater_mageblood_elixir,
       elixir_of_greater_defense,

@@ -117,4 +117,11 @@ var HandTriggers = []HandTrigger{
 			"a school damage with no base points and the 0.08 coefficient, spell level 30",
 		Source: "EV-0161",
 	},
+	{
+		Spell:    18652,
+		Triggers: 18653,
+		Reason: "Siphon Health's drain (one periodic damage) heals its caster through 18653 with every tick: same name " +
+			"and school, a heal on the caster with no base points, which the server sets from the drain's",
+		Source: "EV-0179",
+	},
 }

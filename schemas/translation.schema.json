@@ -2323,6 +2323,9 @@
 						"missing_random_suffix": {
 							"type": "string"
 						},
+						"best_random_suffix": {
+							"type": "string"
+						},
 						"missing_effect": {
 							"type": "object",
 							"properties": {
@@ -2422,9 +2425,6 @@
 								"grovekeeper_eclipse_4": {
 									"type": "string"
 								},
-								"wildheart_raiment_5": {
-									"type": "string"
-								},
 								"implements_of_unspoken_names_3": {
 									"type": "string"
 								},
@@ -2443,7 +2443,6 @@
 							},
 							"required": [
 								"grovekeeper_eclipse_4",
-								"wildheart_raiment_5",
 								"implements_of_unspoken_names_3",
 								"dreadnaughts_battlegear_4",
 								"dreadnaughts_battlegear_8",
@@ -2584,6 +2583,7 @@
 					"required": [
 						"want_to_help",
 						"missing_random_suffix",
+						"best_random_suffix",
 						"missing_effect",
 						"tentative_implementation",
 						"will_not_be_implemented",
@@ -3837,10 +3837,26 @@
 							},
 							"additionalProperties": false,
 							"required": ["title", "offensive", "defensive"]
+						},
+						"overwritten_tooltip": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["title", "filters", "potions", "elixirs", "food", "holiday", "engineering", "imbue", "weaponImbue", "scrolls", "miscellaneous"]
+					"required": [
+						"title",
+						"filters",
+						"potions",
+						"elixirs",
+						"food",
+						"holiday",
+						"engineering",
+						"imbue",
+						"weaponImbue",
+						"scrolls",
+						"miscellaneous",
+						"overwritten_tooltip"
+					]
 				},
 				"encounter": {
 					"type": "object",
@@ -10112,49 +10128,10 @@
 									},
 									"additionalProperties": false,
 									"required": ["label", "demo_fire_brand", "demo_shadow_brand", "destro", "sm_ruin", "aff_wrack"]
-								},
-								"use_shadow_bolt_rank_10": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
-								"use_immolate_rank_8": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
-								"use_corruption_rank_7": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
 								}
 							},
 							"additionalProperties": false,
-							"required": ["affliction", "rotation", "use_shadow_bolt_rank_10", "use_immolate_rank_8", "use_corruption_rank_7"]
+							"required": ["affliction", "rotation"]
 						},
 						"hunter": {
 							"type": "object",
@@ -10380,7 +10357,36 @@
 											"additionalProperties": false,
 											"required": ["label", "tooltip"]
 										},
+										"uw_twist": {
+											"type": "object",
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"tooltip": {
+													"type": "string"
+												},
+												"none": {
+													"type": "string"
+												}
+											},
+											"additionalProperties": false,
+											"required": ["label", "tooltip", "none"]
+										},
 										"uw_soc_stacks": {
+											"type": "object",
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"tooltip": {
+													"type": "string"
+												}
+											},
+											"additionalProperties": false,
+											"required": ["label", "tooltip"]
+										},
+										"uw_sof_stacks": {
 											"type": "object",
 											"properties": {
 												"label": {
@@ -10408,7 +10414,17 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["aura", "assigned_judge", "seal", "pull_range", "delay_major_cds", "uw_soc_stacks", "uw_sor_stacks"]
+									"required": [
+										"aura",
+										"assigned_judge",
+										"seal",
+										"pull_range",
+										"delay_major_cds",
+										"uw_twist",
+										"uw_soc_stacks",
+										"uw_sof_stacks",
+										"uw_sor_stacks"
+									]
 								}
 							},
 							"additionalProperties": false,
@@ -12482,6 +12498,30 @@
 				"native_sim_outdated": {
 					"type": "string"
 				},
+				"native_sim_update": {
+					"type": "string"
+				},
+				"native_sim_update_title": {
+					"type": "string"
+				},
+				"native_sim_update_confirm": {
+					"type": "string"
+				},
+				"native_sim_update_action": {
+					"type": "string"
+				},
+				"native_sim_update_toast": {
+					"type": "string"
+				},
+				"native_sim_updating": {
+					"type": "string"
+				},
+				"native_sim_update_failed": {
+					"type": "string"
+				},
+				"native_sim_update_timeout": {
+					"type": "string"
+				},
 				"forever_notice": {
 					"type": "string"
 				}
@@ -12498,6 +12538,14 @@
 				"options",
 				"download_native_sim",
 				"native_sim_outdated",
+				"native_sim_update",
+				"native_sim_update_title",
+				"native_sim_update_confirm",
+				"native_sim_update_action",
+				"native_sim_update_toast",
+				"native_sim_updating",
+				"native_sim_update_failed",
+				"native_sim_update_timeout",
 				"forever_notice"
 			]
 		},

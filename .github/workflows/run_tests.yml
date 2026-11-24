@@ -31,7 +31,7 @@ jobs:
             pull-requests: write
         steps:
             - name: Checkout 🛎️
-              uses: actions/checkout@v5
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
               with:
                   ref: ${{ inputs.ref }}
                   # The full history, so the build can name each spec's last change (tools/vite/build_info.mts).
@@ -50,7 +50,7 @@ jobs:
               run: make skills-check
 
             - name: Install Go
-              uses: actions/setup-go@v6
+              uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
               with:
                   go-version: 1.27.x
 
@@ -58,10 +58,10 @@ jobs:
               uses: ./.github/actions/setup-protoc
 
             - name: Install Protoc Go plugin
-              run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+              run: go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12
 
             - name: Install Node
-              uses: actions/setup-node@v5
+              uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
               with:
                   node-version: 26
                   cache: npm
@@ -158,7 +158,7 @@ jobs:
             # per-deployment URL stays live.
             - name: Comment preview link 🔗
               if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-              uses: actions/github-script@v8
+              uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
               env:
                   CLOUDFLARE_API_TOKEN: ${{ secrets.DEPLOY_PREVIEW_TOKEN }}
                   CLOUDFLARE_ACCOUNT_ID: ${{ secrets.DEPLOY_PREVIEW_ACCOUNT_ID }}
@@ -227,18 +227,20 @@ jobs:
     test-ui:
         runs-on: ubuntu-latest
         timeout-minutes: 20
+        permissions:
+            contents: read
         strategy:
             fail-fast: false
             matrix:
                 shard: [1, 2, 3, 4]
         steps:
             - name: Checkout 🛎️
-              uses: actions/checkout@v5
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
               with:
                   ref: ${{ inputs.ref }}
 
             - name: Install Go
-              uses: actions/setup-go@v6
+              uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
               with:
                   go-version: 1.27.x
 
@@ -246,10 +248,10 @@ jobs:
               uses: ./.github/actions/setup-protoc
 
             - name: Install Protoc Go plugin
-              run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+              run: go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12
 
             - name: Install Node
-              uses: actions/setup-node@v5
+              uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
               with:
                   node-version: 26
                   cache: npm
@@ -272,6 +274,8 @@ jobs:
     test:
         runs-on: ubuntu-latest
         timeout-minutes: 30
+        permissions:
+            contents: read
         strategy:
             fail-fast: false
             matrix:
@@ -280,13 +284,13 @@ jobs:
             # Two commits deep, so a pull request's merge commit comes with its first parent, the base branch's
             # commit the name table check reads.
             - name: Checkout 🛎️
-              uses: actions/checkout@v5
+              uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
               with:
                   ref: ${{ inputs.ref }}
                   fetch-depth: 2
 
             - name: Install Go
-              uses: actions/setup-go@v6
+              uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
               with:
                   go-version: 1.27.x
 
@@ -294,10 +298,10 @@ jobs:
               uses: ./.github/actions/setup-protoc
 
             - name: Install Protoc Go plugin
-              run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+              run: go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12
 
             - name: Install Node
-              uses: actions/setup-node@v5
+              uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
               with:
                   node-version: 26
                   cache: npm

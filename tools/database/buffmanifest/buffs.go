@@ -13,17 +13,19 @@ import "github.com/wowsims/forever/sim/core/proto"
 
 var Raid = []BuffSpec{
 	{
-		Field:    "arcane_intellect",
-		SpellID:  10157,
-		Category: "StatBuff",
+		Field:          "arcane_intellect",
+		SpellID:        10157,
+		Category:       "StatBuff",
+		ElixirCategory: "ElixirStat",
 		Stats: []proto.Stat{
 			proto.Stat_StatIntellect,
 		},
 	},
 	{
-		Field:    "prayer_of_spirit",
-		SpellID:  27681,
-		Category: "StatBuff",
+		Field:          "prayer_of_spirit",
+		SpellID:        27681,
+		Category:       "StatBuff",
+		ElixirCategory: "ElixirStat",
 		Stats: []proto.Stat{
 			proto.Stat_StatSpirit,
 		},
@@ -41,9 +43,10 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
-		Field:    "power_word_fortitude",
-		SpellID:  10938,
-		Category: "StatBuff",
+		Field:          "power_word_fortitude",
+		SpellID:        10938,
+		Category:       "StatBuff",
+		ElixirCategory: "ElixirStat",
 		Stats: []proto.Stat{
 			proto.Stat_StatStamina,
 		},
@@ -377,6 +380,18 @@ var Party = []BuffSpec{
 		Proto:    ProtoInt32,
 		Stats: []proto.Stat{
 			proto.Stat_StatSpirit,
+		},
+	},
+	// Headmaster's Charge 13937's use lasts 15 min on a 10 min cooldown, so a party member using it
+	// keeps it up. The wearer's own copy joins the category.
+	{
+		Field:         "headmasters_charge",
+		SpellID:       18264,
+		TooltipItemID: 13937,
+		Category:      "HeadmastersCharge",
+		SingleAura:    true,
+		Stats: []proto.Stat{
+			proto.Stat_StatIntellect,
 		},
 	},
 }

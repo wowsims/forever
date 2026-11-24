@@ -29,11 +29,23 @@ export const StoryIconToggle = ({ icon, initial = 0, states = 2 }: StoryIconTogg
 export interface StoryIconEnumProps {
 	options: Array<IconEnumOption<number>>;
 	initial?: number;
+	overwrittenTooltip?: string;
+	overwrittenPartly?: boolean;
 }
 
-export const StoryIconEnum = ({ options, initial = 0 }: StoryIconEnumProps) => {
+export const StoryIconEnum = ({ options, initial = 0, overwrittenTooltip, overwrittenPartly }: StoryIconEnumProps) => {
 	const [value, setValue] = useState(initial);
-	return <IconEnumPicker options={options} equals={(a, b) => a === b} zeroValue={0} value={value} onChange={setValue} />;
+	return (
+		<IconEnumPicker
+			options={options}
+			equals={(a, b) => a === b}
+			zeroValue={0}
+			value={value}
+			onChange={setValue}
+			overwrittenTooltip={value ? overwrittenTooltip : undefined}
+			overwrittenPartly={overwrittenPartly}
+		/>
+	);
 };
 
 export type StoryEnumProps = Omit<ChoiceFieldProps<number>, 'value' | 'onChange' | 'options'> & { values: Array<EnumValueConfig>; initial?: number };

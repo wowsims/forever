@@ -43,7 +43,7 @@ func protectionWarriorSuite() core.CharacterSuiteConfig {
 
 		Rotation: preset,
 		OtherRotations: []core.RotationCombo{
-			core.RotationWithSpellIds("default_trainer_ranks", preset, map[int32]int32{25286: 11567, 25289: 11551, 25288: 11601}),
+			core.RotationWithSpellIds("default_book_ranks", preset, map[int32]int32{11567: 25286, 11551: 25289, 11601: 25288}),
 		},
 
 		IndividualBuffs: core.FullTankIndividualBuffs,
@@ -91,9 +91,10 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	OffensivePotId: 250943, // Major Frenzy Potion
 	FoodId:         20452,  // Smoked Desert Dumplings
 	ExplosiveId:    260814, // SAF-T Clever Dynamite
-	MhImbueId:      12643,  // Dense Weightstone
+	MhImbueId:      3241,   // Heavy Weightstone
 	ConjuredId:     9421,   // Major Healthstone
-	// Elixir of Ferocity, Elixir of the Mongoose, Winterfall Firewater, Elixir of Greater Defense, Elixir of the Phalanx
-	ElixirIds: []int32{250350, 13452, 12820, 13445, 250329},
-	ExtraIds:  []int32{10646, 17048}, // Goblin Sapper Charge, Rumsey Rum
+	// Elixir of the Mongoose, Gift of Arthas, Elixir of Greater Fortitude, Elixir of Greater Defense
+	ElixirIds: []int32{13452, 9088, 250335, 13445},
+	// Goblin Sapper Charge, Rumsey Rum, Juju Power, Juju Might, Bogling Root, R.O.I.D.S.
+	ExtraIds: []int32{10646, 17048, 12451, 12460, 5206, 8410},
 }

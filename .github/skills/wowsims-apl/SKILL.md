@@ -93,8 +93,9 @@ A value or action reaches the rotation and the kind picker in five places, all i
 - **An option is a hidden group.** The priority list holds a Group Reference with `hide: true`, and the spec's
   `simpleRotation` finds it by group name and sets `hide` (`ui/specs/warrior/dps/spec.ts`). A group renamed in the JSON
   alone breaks its toggle without an error.
-- **A suite runs a hidden group only when it un-hides it**, as `armsStanceDanceRotation` does in
-  `sim/warrior/dps/dps_test.go`; a group no suite un-hides never reaches the `.results`.
+- **A suite runs a group's other state only through a copy that flips its `hide`**, as
+  `armsWithoutStanceDanceRotation` does in `sim/warrior/dps/dps_test.go`; a state no suite runs never reaches the
+  `.results`.
 - **A line is written against the pick at the cast end** (`docs/rotation.md`). After an edit, dump the validations
   (below) and judge the preset's cast counts from a debug log, not from the line as written.
 - **A rotation the owner hands over goes in as exported.** A review that finds a branch dead reports it and leaves it

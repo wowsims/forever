@@ -11,6 +11,12 @@ its tools are and how to start its language server. A change to a proto, `proto/
 its own; run `make siml` after one, and fix the `.siml` files the check names when a kind or field is taken out or
 renamed.
 
+A proto change that `TestProtoVersioning` calls breaking raises `current_version_number` in `proto/common.proto` and
+adds a UI migration, so settings and sim links saved under the older number still load. The old field stays so an old
+payload still decodes, and `applyIndividualSimSettings` (`ui/sim/state/serialization.ts`) copies it into its
+replacement when the payload's `apiVersion` is below the new number. `wowsims-core-mechanics` §Protos has the field
+rules that keep most changes from needing one.
+
 **Rule: tests and stories never add code to the sim or the UI.** No export, prop, parameter, branch, flag or
 hook goes into `sim/` or `ui/` only so a unit test or a Storybook story can reach or cover something. A test
 or story works through the code's real surface, and a fixture or stub it needs lives with the tests. The

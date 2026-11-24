@@ -14,9 +14,11 @@ This project is licensed with MIT license. We request that anyone using this sof
 
 Links for latest Sim build:
 
-- [Windows Sim](https://github.com/wowsims/forever/releases/latest/download/wowsimforever-windows.exe.zip)
-- [MacOS Sim](https://github.com/wowsims/forever/releases/latest/download/wowsimforever-amd64-darwin.zip)
-- [Linux Sim](https://github.com/wowsims/forever/releases/latest/download/wowsimforever-amd64-linux.zip)
+- [Windows Sim](https://github.com/wowsims/forever/releases/latest/download/wowsimforever_windows_amd64.zip) ([ARM](https://github.com/wowsims/forever/releases/latest/download/wowsimforever_windows_arm64.zip))
+- [MacOS Sim, Apple Silicon](https://github.com/wowsims/forever/releases/latest/download/wowsimforever_darwin_arm64.zip) ([Intel](https://github.com/wowsims/forever/releases/latest/download/wowsimforever_darwin_amd64.zip))
+- [Linux Sim](https://github.com/wowsims/forever/releases/latest/download/wowsimforever_linux_amd64.zip) ([ARM](https://github.com/wowsims/forever/releases/latest/download/wowsimforever_linux_arm64.zip))
+
+The sim updates itself to the newest release when it starts. Start it with `-nvc` to turn that off.
 
 Then unzip the downloaded file, then open the unzipped file to open the sim in your browser!
 

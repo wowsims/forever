@@ -8,7 +8,10 @@ store also renders:
 - `sim/core/buffs/buffs_auto_gen.go` and `sim/core/buffs/debuffs_auto_gen.go`, a constructor per row;
 - `ui/features/settings/model/buffs_debuffs_auto_gen.ts`, the settings inputs. An input's icon and
   tooltip use `TooltipID` where the row names one, else `CastID`, else `SpellID` (the choice never
-  changes the numbers a row reads);
+  changes the numbers a row reads). `GENERATED_OVERWRITING_BUFFS` lists the rows that name an
+  `ElixirCategory`, with the flat stats their parse attaches, which the consumables
+  picker dims a scroll or an elixir by (R-0054); the generator refuses
+  such a row unless it is a bool, since a talent or a rank would move the amount;
 - `proto/buffs.proto`, the four messages.
 
 They go through the same staging type-check and the same `-check` as the store, and regenerate without
@@ -51,9 +54,11 @@ the parse attaches is worth that fraction of the spell's, rounded to the nearest
 way the tooltip shows it, and 0 points is the full amount.
 
 `newBuff` adds `SchoolResistances` and, where `Category` is set, `Exclusive(Category, true)` for a
-`SingleAura` row or `ExclusivePerStat(Category)` for any other. A generated buff and a hand-written
-scroll of the same stat or resistance therefore bid against each other under the categories core's own
-exclusive stat buffs use. `newDebuff` adds only `Exclusive(Category, SingleAura)`, since a debuff never
+`SingleAura` row or `ExclusivePerStat(Category)` for any other. Where the manifest row names an
+`ElixirCategory`, it adds `Overwrites(ElixirCategory)`: Arcane Intellect, Prayer of Spirit and Power Word:
+Fortitude bid their stat in the elixirs' `ElixirStat` category without counting there, so the elixirs and scrolls
+that grant no more add nothing (R-0054).
+`newDebuff` adds only `Exclusive(Category, SingleAura)`, since a debuff never
 carries a resistance of its own. Without `SingleAura`, each of its stats and pseudo-stats bids alone
 under `Category` + its key, priced per stack. A stronger debuff thus holds only the effects of its own
 kind, and Hex of Weakness keeps its healing taken under Demoralizing Shout's attack power. When an item
@@ -126,6 +131,7 @@ placed anywhere but the end renumbers the rows after it. `buffmanifest.All()` pa
 | `SpellID`        | the spell the numbers are read from, and a root of the store: the top rank of the castable family, or the aura that family's cast applies when the cast is a summon or a dummy                                                                                                                                                                                                                                                                                                                                                           |
 | `CastID`         | the cast the player learns, where it is not `SpellID`. It names the buff and times an external cooldown: Mana Tide's aura 1325257 carries the mana, the cast 1325256 the 13 seconds and the 5 minutes                                                                                                                                                                                                                                                                                                                                    |
 | `TooltipID`      | the settings input's icon and tooltip spell, for a row whose input shows a spell that is neither its aura nor its `CastID` (Moonkin Aura's row points at Moonkin Form, the Judgements' rows at their Seals, Vindication's at the talent). `0` defers to `CastID`, then `SpellID`; it never changes the numbers the row reads                                                                                                                                                                                                             |
+| `TooltipItemID`  | the item the settings input shows as its icon and tooltip instead of a spell, for a row an item's use effect provides (Headmaster's Charge's row shows the staff 13937). It wins over `TooltipID` and never changes the numbers the row reads                                                                                                                                                                                                                                                                                            |
 | `Talent`         | the spell of the trait node that prices the improved state. Its one spell modifier whose class mask reaches `SpellID` is the improvement (two fail the pass), and a `SPELLMOD_DURATION` modifier scales the duration, any other the value. The generated `Meta.TalentEffect` names that effect by its `EffectN` position. Where no modifier reaches it, a tooltip term `${$m1/-N*$<SpellID>m1}` prices the buff at rank/N of its amount (Vindication), which the generated `Meta.TalentDivisor` states as N; with neither the pass fails |
 | `Category`       | the exclusive-effect category the aura bids in, `""` for none                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `SharedCategory` | a second category the aura joins without an effect of its own, which is how the paladin auras exclude each other across schools. Applied to the player's copy only, and declared once in the generated file as `<Name>Category`                                                                                                                                                                                                                                                                                                          |
@@ -383,11 +389,12 @@ are `thorns`, `leader_of_the_pack`, `moonkin_aura` and `trueshot_aura`: `sim/dru
 from a talent, `sim/hunter/hunter.go` raises Trueshot Aura, and `sim/druid/thorns.go` registers the
 druid's own Thorns. `thorns`, `battle_shout`, `leader_of_the_pack` and `moonkin_aura` carry a category, so a
 druid registering its own copy of any of them has nothing to decide: the copy joins the same category
-and the two bid. Leader of the Pack and Moonkin Aura each have their own category: one raises melee and
-ranged crit, the other spell crit, so a raid that ticks both gets both. Only `trueshot_aura` is left
-without a category, so the hunter port has to choose. The priest's three prayers (`registerPrayer` in
+and the two bid. Leader of the Pack and Moonkin Aura share the single-aura `RaidCrit` category, so a raid
+that ticks both gets only the stronger, and an elixir's crit counts beside it (R-0054). Only
+`trueshot_aura` is left without a category, so the hunter port has to choose. The priest's three prayers (`registerPrayer` in
 `sim/priest/priest.go`) bid without `SingleAura`: Prayer of Fortitude and Prayer of Spirit each stat on
-its own in `StatBuff`, with Arcane Intellect and the scrolls, and Prayer of Shadow Protection in the shadow
+its own in `StatBuff`, with Arcane Intellect, and Prayer of Shadow Protection in the shadow
 resistance category every buff joins. A priest's own prayer and the raid's `power_word_fortitude`,
 `prayer_of_spirit` or `shadow_protection` count once, while Mark of the Wild and Blood Pact still add
-their Stamina on top.
+their Stamina on top. Prayer of Fortitude and Prayer of Spirit are built from the raid buffs' `Meta`,
+so they overwrite the elixirs and scrolls of their stat as well (R-0054).

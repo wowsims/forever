@@ -300,13 +300,34 @@ func NewSpellDataDarkInspirationAura(unit *core.Unit, isPlayer bool, talentPoint
 	return newBuff(unit, darkInspirationMeta, isPlayer, talentPoints)
 }
 
+// Headmaster's Charge
+var HeadmastersChargeCategory = "HeadmastersCharge"
+var headmastersChargeSpell = spelldata.MustFind(18264)
+var headmastersChargeMeta = &Meta{
+	Label:      "Headmaster's Charge",
+	Spell:      headmastersChargeSpell,
+	Category:   HeadmastersChargeCategory,
+	SingleAura: true,
+}
+
+func HeadmastersChargeValue(talentPoints int32) float64 {
+	return headmastersChargeMeta.Value(talentPoints)
+}
+func HeadmastersChargeDuration(talentPoints int32) time.Duration {
+	return headmastersChargeMeta.Duration(talentPoints)
+}
+func NewSpellDataHeadmastersChargeAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
+	return newBuff(unit, headmastersChargeMeta, isPlayer, talentPoints)
+}
+
 // Arcane Intellect
 var ArcaneIntellectCategory = "StatBuff"
 var arcaneIntellectSpell = spelldata.MustFind(10157)
 var arcaneIntellectMeta = &Meta{
-	Label:    "Arcane Intellect",
-	Spell:    arcaneIntellectSpell,
-	Category: ArcaneIntellectCategory,
+	Label:          "Arcane Intellect",
+	Spell:          arcaneIntellectSpell,
+	Category:       ArcaneIntellectCategory,
+	ElixirCategory: "ElixirStat",
 }
 
 func ArcaneIntellectValue(talentPoints int32) float64 {
@@ -323,9 +344,10 @@ func NewSpellDataArcaneIntellectAura(unit *core.Unit, isPlayer bool, talentPoint
 var PrayerOfSpiritCategory = "StatBuff"
 var prayerOfSpiritSpell = spelldata.MustFind(27681)
 var prayerOfSpiritMeta = &Meta{
-	Label:    "Prayer of Spirit",
-	Spell:    prayerOfSpiritSpell,
-	Category: PrayerOfSpiritCategory,
+	Label:          "Prayer of Spirit",
+	Spell:          prayerOfSpiritSpell,
+	Category:       PrayerOfSpiritCategory,
+	ElixirCategory: "ElixirStat",
 }
 
 func PrayerOfSpiritValue(talentPoints int32) float64 {
@@ -360,9 +382,10 @@ func NewSpellDataMarkOfTheWildAura(unit *core.Unit, isPlayer bool, talentPoints 
 var PowerWordFortitudeCategory = "StatBuff"
 var powerWordFortitudeSpell = spelldata.MustFind(10938)
 var powerWordFortitudeMeta = &Meta{
-	Label:    "Power Word: Fortitude",
-	Spell:    powerWordFortitudeSpell,
-	Category: PowerWordFortitudeCategory,
+	Label:          "Power Word: Fortitude",
+	Spell:          powerWordFortitudeSpell,
+	Category:       PowerWordFortitudeCategory,
+	ElixirCategory: "ElixirStat",
 }
 
 func PowerWordFortitudeValue(talentPoints int32) float64 {
@@ -864,6 +887,9 @@ func applyGeneratedBuffs(char *core.Character, raid *proto.RaidBuffs, party *pro
 	}
 	if party.DarkInspiration > 0 {
 		core.MakePermanent(NewSpellDataDarkInspirationAura(&char.Unit, false, min(party.DarkInspiration, 5)))
+	}
+	if party.HeadmastersCharge {
+		core.MakePermanent(NewSpellDataHeadmastersChargeAura(&char.Unit, false, 0))
 	}
 	if raid.ArcaneIntellect {
 		core.MakePermanent(NewSpellDataArcaneIntellectAura(&char.Unit, false, 0))

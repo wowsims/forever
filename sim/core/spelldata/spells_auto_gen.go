@@ -12825,7 +12825,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 692956, SpellID: 15345, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_INCREASE_ENERGY, BasePoints: 150, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 15366, Name: "Songflower Serenade", School: 8, Attr: [17]uint32{0: 0x10010, 2: 0x100, 15: 0x2000}, SpellLevel: 50, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, PreventionType: 1, ProcChance: 101, InterruptFlags: 8, AuraInterrupt: [2]uint32{0: 0x400000}, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCrit,
+	{ID: 15366, Name: "Songflower Serenade", School: 8, Attr: [17]uint32{0: 0x10010, 2: 0x100, 6: 0x800, 15: 0x2000}, SpellLevel: 50, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, PreventionType: 1, ProcChance: 101, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCrit,
 		Effects: []Effect{
 			{ID: 692476, SpellID: 15366, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 5, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 			{ID: 692477, SpellID: 15366, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 15, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
@@ -15988,6 +15988,10 @@ var generatedSpells = []Spell{
 	{ID: 18652, Name: "Siphon Health", School: 32, Attr: [17]uint32{1: 0x10000000, 8: 0x200, 15: 0x2000}, SpellLevel: 60, DurationMs: 5000, MaxRange: 100, DispelType: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 695978, SpellID: 18652, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 49, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
+	{ID: 18653, Name: "Siphon Health", School: 32, Attr: [17]uint32{15: 0x2000}, SpellLevel: 1, MaxRange: 100,
+		Effects: []Effect{
+			{ID: 695979, SpellID: 18653, Type: dbcenums.E_HEAL, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 18656, Name: "Corruption", School: 32, Attr: [17]uint32{8: 0x200, 15: 0x2000}, SpellLevel: 60, DurationMs: 9000, MaxRange: 100, DefenseType: 1, DispelType: 1, ProcChance: 100, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
@@ -19531,18 +19535,18 @@ var generatedSpells = []Spell{
 			{ID: 700576, SpellID: 22812, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_REDUCE_PUSHBACK, BasePoints: 100, BaseLevel: 44, PvpMult: 1, Misc: 127, Misc2: 15, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1256189, SpellID: 22812, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN, BasePoints: -20, BaseLevel: 44, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 22817, Name: "Fengus' Ferocity", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, InterruptFlags: 8, AuraInterrupt: [2]uint32{0: 0x400000}, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintHeals,
+	{ID: 22817, Name: "Fengus' Ferocity", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 6: 0x800, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, InterruptFlags: 8, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 700462, SpellID: 22817, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 200, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 			{ID: 870850, SpellID: 22817, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 200, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
-			{ID: 1331558, SpellID: 22817, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 230, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
-			{ID: 1331559, SpellID: 22817, Index: 3, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 230, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
+			{ID: 1331558, SpellID: 22817, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 115, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
+			{ID: 1331559, SpellID: 22817, Index: 3, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 115, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
-	{ID: 22818, Name: "Mol'dar's Moxie", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, ProcFlags: [2]uint32{0: 0x1}, InterruptFlags: 8, AuraInterrupt: [2]uint32{0: 0x400000}, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways,
+	{ID: 22818, Name: "Mol'dar's Moxie", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 6: 0x800, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, ProcFlags: [2]uint32{0: 0x1}, InterruptFlags: 8, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 700537, SpellID: 22818, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 15, PvpMult: 1, Amplitude: 1, Misc: 2, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
-	{ID: 22820, Name: "Slip'kik's Savvy", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 5: 0x8, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, AuraInterrupt: [2]uint32{0: 0x400000}, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCrit,
+	{ID: 22820, Name: "Slip'kik's Savvy", School: 8, Attr: [17]uint32{1: 0x800, 2: 0x100, 3: 0x100000, 5: 0x8, 6: 0x800, 15: 0x2000}, SpellLevel: 50, DurationMs: 7200000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCrit,
 		Effects: []Effect{
 			{ID: 700351, SpellID: 22820, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 3, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
@@ -20307,9 +20311,9 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 700524, SpellID: 23762, Type: dbcenums.E_APPLY_AREA_AURA_PET, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN, PPL: 0.20000000298023224, BaseLevel: 60, PvpMult: 1, RadiusMax: 100, Misc: 126, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 23768, Name: "Sayge's Dark Fortune of Damage", School: 32, Attr: [17]uint32{2: 0x100, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 7200000, MaxRange: 50000, ProcChance: 101, AuraInterrupt: [2]uint32{0: 0x400000}, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways,
+	{ID: 23768, Name: "Sayge's Dark Fortune of Damage", School: 32, Attr: [17]uint32{2: 0x100, 6: 0x800, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 7200000, MaxRange: 50000, ProcChance: 101, Labels: []int16{1299}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
-			{ID: 696766, SpellID: 23768, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_DONE, BasePoints: 10, BaseLevel: 60, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},
+			{ID: 696766, SpellID: 23768, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 10, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},
 			{ID: 696767, SpellID: 23768, Index: 1, Type: dbcenums.E_TRIGGER_SPELL, BaseLevel: 60, SPCoef: 1, PvpMult: 1, TriggerID: 23770, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},
 		}},
 	{ID: 23770, Name: "Sayge's Carnie Buff", School: 1, Attr: [17]uint32{0: 0x24800100, 1: 0x10000088, 2: 0x1, 3: 0x100000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 14400000, MaxRange: 100,
@@ -22411,11 +22415,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 704558, SpellID: 27655, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 140, Variance: 0.4000000059604645, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
-	{ID: 27656, Name: "Flame Lash", School: 4, Attr: [17]uint32{0: 0xc0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, DefenseType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x154}, RPPM: 2, VersusEffectIndex: 1, VersusFamilies: []int32{10}, RefIDs: []int32{27655}, ProcChanceSource: ProcChancePPM,
+	{ID: 27656, Name: "Flame Lash", School: 4, Attr: [17]uint32{0: 0xc0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, DefenseType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x154}, RPPM: 1.95, VersusEffectIndex: 1, VersusFamilies: []int32{10}, RefIDs: []int32{27655}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 704437, SpellID: 27656, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, PvpMult: 1, TriggerID: 27655, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1351927, SpellID: 27656, Index: 1, BasePoints: 3, PvpMult: 1, ChainAmp: 1},
-		}}, // override: PPM 2 -- Heart of Wyrmthalak: 2.0 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none // override: VersusBonus x3 ($s2) against CreatureFamilyOrc -- Flame Lash: 'Deals 3 times as much damage to Orcs'
+		}}, // override: PPM 1.95 -- Heart of Wyrmthalak: 1.95 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none // override: VersusBonus x3 ($s2) against CreatureFamilyOrc -- Flame Lash: 'Deals 3 times as much damage to Orcs'
 	{ID: 27681, Name: "Prayer of Spirit", Rank: "Rank 1", School: 2, Attr: [17]uint32{0: 0x10000, 1: 0x20000, 2: 0x80000, 3: 0x100, 14: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 70, DurationMs: 3600000, MaxRange: 40, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648, 1: 4194304}}, InterruptFlags: 8, StanceMask: 0x8000000, Labels: []int16{18},
 		Effects: []Effect{
 			{ID: 701842, SpellID: 27681, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 40, BaseLevel: 60, MaxLevel: 70, PvpMult: 1, RadiusMax: 100, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{56, 0}},
@@ -28462,7 +28466,7 @@ var generatedSpells = []Spell{
 	{ID: 450608, Name: "S03 - Druid Energize Trigger - Wildheart Raiment", School: 2, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 50, ProcChance: 100, ProcFlags: [2]uint32{0: 0x1402c}, RPPM: 1, RefIDs: []int32{27782, 27784, 27783}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintCastTrigger,
 		Effects: []Effect{
 			{ID: 1150619, SpellID: 450608, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 5, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}}, // override: PPM 1 -- Wildheart Raiment 5-piece, Feralheart Raiment reissue 4-piece: 1 proc per minute on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none and the dummy effect's 5 is no chance
+		}}, // override: PPM 1 -- Wildheart Raiment 5-piece, Feralheart Raiment reissue 4-piece: 1 proc per minute on landed white swings, on spell casts priced on their cast time and on landed melee swings taken priced on the attacker's swing interval, a log fit not yet validated (EV-0144); the game files state none and the dummy effect's 5 is no chance
 	{ID: 450625, Name: "Item - Crusader's Wrath Proc - Lightforge Armor", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 100, ProcFlags: [2]uint32{0: 0x14004}, RPPM: 0.9, ClassFlags: core.ClassFlags{Family: 10}, RefIDs: []int32{27499}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintCastTrigger | core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1150643, SpellID: 450625, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 27499, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -33325,12 +33329,12 @@ var generatedSpells = []Spell{
 		Powers: []Power{{Cost: 120}}},
 	{ID: 1240047, Name: "Ice Lance", Rank: "Rank 6", School: 16, Speed: 38, Attr: [17]uint32{0: 0x50000, 2: 0x100, 14: 0x40, 15: 0x2000}, SpellLevel: 56, BaseLevel: 56, MaxLevel: 64, MaxRange: 30, CategoryCooldownMs: 8000, GCDMs: 1500, Category: 19, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 3, Mask: [4]uint32{0: 655360}}, InterruptFlags: 15, Labels: []int16{17}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
-			{ID: 1238151, SpellID: 1240047, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 145, PPL: 0.8999999761581421, Variance: 0.1666666716337204, BaseLevel: 56, MaxLevel: 64, SPCoef: 0.14285714285714285, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1238151, SpellID: 1240047, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 145, PPL: 0.8999999761581421, Variance: 0.1666666716337204, BaseLevel: 56, MaxLevel: 64, SPCoef: 0.11, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1238152, SpellID: 1240047, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 300, BaseLevel: 56, MaxLevel: 64, PvpMult: 1, ChainAmp: 1},
 			{ID: 1238153, SpellID: 1240047, Index: 2, Type: dbcenums.E_DUMMY, BasePoints: 20, BaseLevel: 56, MaxLevel: 64, PvpMult: 1, ChainAmp: 1},
 			{ID: 1238154, SpellID: 1240047, Index: 3, Type: dbcenums.E_DUMMY, BasePoints: 5, BaseLevel: 56, MaxLevel: 64, PvpMult: 1, ChainAmp: 1},
 		},
-		Powers: []Power{{Cost: 160}}}, // override: SPCoefDirect 0.14285714285714285 -- Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game; TBC's 1/7 until measured
+		Powers: []Power{{Cost: 160}}}, // override: SPCoefDirect 0.11 -- Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game (EV-0171)
 	{ID: 1240193, Name: "Slam", Rank: "Rank 1", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 6: 0x2008000, 14: 0x40, 15: 0x2000}, SpellLevel: 20, BaseLevel: 20, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 30, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 1238371, SpellID: 1240193, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 16, BaseLevel: 20, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -38972,10 +38976,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1351443, SpellID: 1318132, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_POWER_REGEN, BasePoints: 10, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1318159, Name: "Ancient Power", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10154}, RPPM: 2.6, VersusFamilies: []int32{1, 2}, RefIDs: []int32{1265634}, ProcChanceSource: ProcChancePPM,
+	{ID: 1318159, Name: "Ancient Power", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10154}, RPPM: 2.95, VersusFamilies: []int32{1, 2}, RefIDs: []int32{1265634}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 1351486, SpellID: 1318159, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 2, BaseLevel: 60, PvpMult: 1, TriggerID: 1265634, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}}, // override: PPM 2.6 -- Highborne Research Tablet: 2.6 procs per minute on landed damaging melee hits; the game files state none // override: VersusBonus x2 ($s1) against CreatureFamilyNaga, CreatureFamilySatyr -- Ancient Power: 'Deals $s1 times as much damage to Naga and Satyrs'
+		}}, // override: PPM 2.95 -- Highborne Research Tablet: 2.95 procs per minute on landed damaging hits, a weapon hit on its weapon's speed and a spell hit on its cast time; the game files state none // override: VersusBonus x2 ($s1) against CreatureFamilyNaga, CreatureFamilySatyr -- Ancient Power: 'Deals $s1 times as much damage to Naga and Satyrs'
 	{ID: 1318163, Name: "Concussed", School: 1, Attr: [17]uint32{0: 0x10, 3: 0x10000, 4: 0x800000, 6: 0x200000, 15: 0x2000}, SpellLevel: 30, DurationMs: 6000, MaxRange: 100, DefenseType: 2, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1351492, SpellID: 1318163, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DECREASE_SPEED, BasePoints: -20, PvpMult: 1, ChainAmp: 1, Mechanic: 11, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -40107,6 +40111,7 @@ var generatedCurves = map[int32][][]float64{
 
 var generatedHandTriggers = map[int32][]int32{
 	16389:   {16368},   // Flametongue Totem Proc is a dummy holding the base points, and the hit logs as 16368 Flametongue Attack: fire school damage with the magic defense type and no bonus coefficient
+	18652:   {18653},   // Siphon Health's drain (one periodic damage) heals its caster through 18653 with every tick: same name and school, a heal on the caster with no base points, which the server sets from the drain's
 	20230:   {20240},   // Retaliation's dummy aura (aura 4) casts the counterattack 20240: same name, class set and icon, weapon damage with no base, a cost of 1 in SpellPower that is a tenth of a rage
 	24574:   {24575},   // Zandalarian Hero Badge's on-use Brittle Armor applies the stacking buff its tooltip describes: same name, 200 armor (A_MOD_ARMOR_NO_MODS) and 3 defense a stack, the 2000 and 30 of ten stacks, and the script effect 24590 of its proc takes a stack off per hit taken
 	408341:  {408423},  // Fire Nova Rank 1 hits for 408423, the level 12 Fire Nova Rank 1 row, not the 8349 its tooltip reads

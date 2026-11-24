@@ -270,6 +270,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-DarkmistDirk-285102"
+ value: {
+  dps: 713.01054
+  tps: 510.16226
+  dtps: 5.76676
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 742.3941
@@ -360,9 +368,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-DreadmistRaiment"
  value: {
-  dps: 675.47293
-  tps: 486.35169
-  dtps: 5.18505
+  dps: 670.54747
+  tps: 482.9225
+  dtps: 5.17372
   hps: 7.83039
  }
 }
@@ -823,6 +831,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Headmaster'sCharge-13937"
+ value: {
+  dps: 748.64333
+  tps: 535.34809
+  dtps: 5.93979
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 741.34339
@@ -852,6 +868,14 @@ dps_results: {
   dps: 746.30701
   tps: 533.80335
   dtps: 5.06322
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-HookfangShanker-11635"
+ value: {
+  dps: 713.01054
+  tps: 510.16226
+  dtps: 5.76676
  }
 }
 dps_results: {
@@ -1001,9 +1025,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-Magister'sRegalia"
  value: {
-  dps: 678.16806
-  tps: 486.98767
-  dtps: 4.71899
+  dps: 674.47114
+  tps: 484.39046
+  dtps: 4.54922
  }
 }
 dps_results: {
@@ -1153,9 +1177,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-RaimentsofConviction"
  value: {
-  dps: 751.02928
-  tps: 537.07208
-  dtps: 5.3779
+  dps: 744.62797
+  tps: 532.57667
+  dtps: 5.38012
  }
 }
 dps_results: {
@@ -1219,6 +1243,14 @@ dps_results: {
  value: {
   dps: 741.34339
   tps: 529.98241
+  dtps: 5.76676
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-SearingNeedle-12531"
+ value: {
+  dps: 713.01054
+  tps: 510.16226
   dtps: 5.76676
  }
 }

@@ -95,8 +95,8 @@
 			"foodId": 13933,
 			"conjuredId": 12662,
 			"mhImbueId": 3824,
-			"extraIds": [8423, 10646, 12217, 18269],
-			"elixirIds": [21546, 250338, 13452, 250337, 250351, 250329, 13454, 250341, 12460],
+			"extraIds": [8423, 10646, 12217, 18269, 12460],
+			"elixirIds": [21546, 13452, 250329, 13454, 250341, 9206],
 			"swapMhImbueId": 3829,
 			"resourcePotId": 13444,
 			"offensivePotId": 250937
@@ -117,7 +117,7 @@
 		"rotation": {
 			"type": "TypeSimple",
 			"simple": {
-				"specRotationJson": "{\"aura\":\"RetributionAura\",\"assignedJudgement\":\"JudgementOfTheCrusader\",\"pullRange\":25,\"uwSocStacks\":3,\"uwSorStacks\":1}"
+				"specRotationJson": "{\"aura\":\"RetributionAura\",\"assignedJudgement\":\"JudgementOfTheCrusader\",\"pullRange\":25,\"uwSocStacks\":3,\"uwSorStacks\":1,\"uwSofStacks\":1}"
 			}
 		},
 		"reactionTimeMs": 100,

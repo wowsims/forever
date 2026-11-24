@@ -78,6 +78,26 @@ describe('ItemNoticeIcon', () => {
 		ITEM_INFO_NOTICES.delete(SPEC_SPECIFIC_ITEM);
 	});
 
+	it('shows additional info behind the info icon, and the warning icon once the item has a notice', async () => {
+		const host = fakeHost({ player: { getSpec: () => Spec.SpecUnknown } });
+		const { rerender } = render(
+			<SimHostProvider host={host}>
+				<ItemNoticeIcon itemId={1} additionalInfo={<p>Equipped with its best suffix</p>} />
+			</SimHostProvider>,
+		);
+
+		expect(screen.getByRole('button').dataset.level).toBe('info');
+		open();
+		expect(await screen.findByText('Equipped with its best suffix')).toBeTruthy();
+
+		rerender(
+			<SimHostProvider host={host}>
+				<ItemNoticeIcon itemId={NOTICED_ITEM} additionalInfo={<p>Equipped with its best suffix</p>} />
+			</SimHostProvider>,
+		);
+		expect(screen.getByRole('button').dataset.level).toBe('warning');
+	});
+
 	it('shows the notice of an enchant whose effect is missing, on an item that has none of its own', async () => {
 		mount(1, undefined, Spec.SpecUnknown, 1894);
 

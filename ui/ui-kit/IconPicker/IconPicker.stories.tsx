@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { KEPT_TOOLTIP } from '@testing/storybook/fixtures/kept';
+import { OVERWRITTEN_TOOLTIP, PARTLY_OVERWRITTEN_TOOLTIP } from '@testing/storybook/fixtures/overwritten';
 import type { ResolvedIcon } from '@ui-kit/Field/types';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
@@ -70,3 +71,6 @@ export const Disabled: Story = { args: { disabled: true, value: 1 } };
 export const Labelled: Story = { args: { label: 'Blessing of Kings', value: 1 } };
 export const Kept: Story = { args: { value: 1, keptTooltip: KEPT_TOOLTIP } };
 export const KeptQuadstate: Story = { args: { ...Quadstate.args, keptTooltip: KEPT_TOOLTIP } };
+export const Overwritten: Story = { args: { value: 1, overwrittenTooltip: OVERWRITTEN_TOOLTIP } };
+/** Unpicked, the badge reads what the toggle would add once picked. */
+export const PartlyOverwrittenUnpicked: Story = { args: { value: 0, overwrittenTooltip: PARTLY_OVERWRITTEN_TOOLTIP, overwrittenPartly: true } };

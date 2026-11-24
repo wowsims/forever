@@ -646,12 +646,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		11635, // Hookfang Shanker
-		[
-			"Corrosive acid that deals 13 Nature damage every 2.0 sec and lowers target's armor by 50 for 14s.", // 13526 - https://www.wowhead.com/forever/spell=13526
-		]
-	],
-	[
 		11702, // Grizzle's Skinner
 		[
 			"Skin a Humanoid target.", // 1300763 - https://www.wowhead.com/forever/spell=1300763
@@ -691,18 +685,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		12528, // The Judge's Gavel
 		[
 			"Stuns target for 3s.", // 56 - https://www.wowhead.com/forever/spell=56
-		]
-	],
-	[
-		12531, // Searing Needle
-		[
-			"Blasts a target for 56 Fire damage and increases Fire damage done to target by 10 for 30s.", // 16454 - https://www.wowhead.com/forever/spell=16454
-		]
-	],
-	[
-		12583, // Blackhand Doomsaw
-		[
-			"Delivers a fatal wound for 448 Physical damage. Deals 50% increased damage to targets below 25% health.", // 16549 - https://www.wowhead.com/forever/spell=16549
 		]
 	],
 	[
@@ -814,12 +796,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13399, // Gargoyle Shredder Talons
-		[
-			"Wounds the target, causing them to bleed for 140 damage over 14s.", // 1320824 - https://www.wowhead.com/forever/spell=1320824
-		]
-	],
-	[
 		13408, // Soul Breaker
 		[
 			"Target enemy loses 10 health and mana every 1.0 sec for 10s.", // 17506 - https://www.wowhead.com/forever/spell=17506
@@ -841,12 +817,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13544, // Spectral Essence
 		[
 			"Releases the spirit from an Undead corpse within 10 yds, laying it to rest and restoring 933 Health.", // 1298497 - https://www.wowhead.com/forever/spell=1298497
-		]
-	],
-	[
-		13937, // Headmaster's Charge
-		[
-			"Gives 20 additional intellect to party members within 30 yards.", // 18264 - https://www.wowhead.com/forever/spell=18264
 		]
 	],
 	[
@@ -892,18 +862,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		14531, // Frightskull Shaft
-		[
-			"Deals 15 Shadow damage every 2.0 sec for 14s and lowers their attack power by 92 for 14s.", // 18633 - https://www.wowhead.com/forever/spell=18633
-		]
-	],
-	[
-		14541, // Barovian Family Sword
-		[
-			"Deals 49 Shadow damage every 1.0 sec for 5s. All damage done is then transferred to the caster.", // 18652 - https://www.wowhead.com/forever/spell=18652
-		]
-	],
-	[
 		14555, // Alcor's Sunrazor
 		[
 			"Blasts a target for 105 Fire damage.", // 18833 - https://www.wowhead.com/forever/spell=18833
@@ -919,12 +877,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		15138, // Onyxia Scale Cloak
 		[
 			"Protects the wearer from being fully engulfed by Shadow Flame.", // 22683 - https://www.wowhead.com/forever/spell=22683
-		]
-	],
-	[
-		15418, // Shimmering Platinum Warhammer
-		[
-			"Blasts a target for 252 Nature damage.", // 19874 - https://www.wowhead.com/forever/spell=19874
 		]
 	],
 	[
@@ -1106,12 +1058,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		18470, // Royal Seal of Eldre'Thalas
 		[
 			"Increases Spirit by 16 in Forest and Grassland areas.", // 1318478 - https://www.wowhead.com/forever/spell=1318478
-		]
-	],
-	[
-		18498, // Hedgecutter
-		[
-			"Slice the target with magically enhanced precision, dealing 42 Arcane damage. Deals 3 times as much damage to Plants.", // 1302344 - https://www.wowhead.com/forever/spell=1302344
 		]
 	],
 	[
@@ -2340,12 +2286,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		282561, // Siegebreaker's Blaster
-		[
-			"Strike the target with a Flaming Shell, inflicting 7 Fire damage every 3 sec for 9 sec.", // 1314040 - https://www.wowhead.com/forever/spell=1314040
-		]
-	],
-	[
 		282632, // Scalding Staff
 		[
 			"Blast the enemy, inflicting 70 Fire damage.", // 1314069 - https://www.wowhead.com/forever/spell=1314069
@@ -2397,12 +2337,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		285066, // Ooze Rummagers
 		[
 			"You have a small chance to find additional ore when mining Ooze Covered Thorium Veins.", // 1317446 - https://www.wowhead.com/forever/spell=1317446
-		]
-	],
-	[
-		285102, // Darkmist Dirk
-		[
-			"Your attacks have a high chance to poison the target for 8 Nature damage every 3.0 sec for 9s.", // 1317583 - https://www.wowhead.com/forever/spell=1317583
 		]
 	],
 	[
@@ -2640,17 +2574,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				6,
 				[
 					"Restores 15 health per 5 sec.", // 21347 - https://www.wowhead.com/forever/spell=21347
-				],
-			],
-		]),
-	],
-	[
-		185, // Wildheart Raiment
-		new Map([
-			[
-				4,
-				[
-					"When struck in combat, has a 5% chance to increase your movement speed by 10% for 8s. Can only occur once every 60 sec.", // 1302708 - https://www.wowhead.com/forever/spell=1302708
 				],
 			],
 		]),
@@ -3012,17 +2935,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				4,
 				[
 					"Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors.", // 23218 - https://www.wowhead.com/forever/spell=23218
-				],
-			],
-		]),
-	],
-	[
-		1667, // Feralheart Raiment
-		new Map([
-			[
-				5,
-				[
-					"When struck in combat, has a 5% chance to increase your movement speed by 10% for 8s. Can only occur once every 60 sec.", // 1302708 - https://www.wowhead.com/forever/spell=1302708
 				],
 			],
 		]),

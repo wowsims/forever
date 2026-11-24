@@ -570,6 +570,45 @@ func init() {
 		}))
 	}
 
+	// Barovian Family Sword
+	// https://www.wowhead.com/forever/item=14541/barovian-family-sword
+	//
+	// Chance on hit: Deals 49 Shadow damage every 1.0 sec for 5s. All damage done is then transferred to
+	// the caster.
+	//
+	// Siphon Health 18652 goes on with every proc, with no hit roll of its own. Each of its ticks casts
+	// Siphon Health 18653 on the wearer, a heal for the amount the drain's row states, whatever the tick
+	// dealt. The heal crits on a roll of its own (EV-0179).
+	// TODO: the heal crits several times as often as the tick in the logs (EV-0179), and the sim rolls both
+	// on the wearer's spell crit. Measure which chance each rolls.
+	shared.DamageProcExtras[14541] = func(character *core.Character, config *core.SpellConfig) {
+		row := spelldata.MustFind(config.ActionID.SpellID)
+		drain := row.PeriodicDamageEffect()
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			result := spell.CalcOutcome(sim, target, spell.OutcomeAlwaysHit)
+			spell.Dot(target).Apply(sim)
+			spell.DealOutcome(sim, result)
+		}
+
+		linked := row.Triggered()
+		if len(linked) != 1 || linked[0].HealEffect() == spelldata.NilEffect {
+			panic(fmt.Sprintf("Barovian Family Sword: %d links to %d spells, want its heal alone", row.ID, len(linked)))
+		}
+		healConfig := procSpellConfigAs(character, linked[0], spelldata.Magic(core.ProcMaskSpellHealing))
+		// The heal's row states no defense type, and a heal crits for the magic multiplier.
+		healConfig.DefenseType = core.DefenseTypeMagic
+		healConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealHealing(sim, target, drain.Roll(sim), spell.OutcomeHealingCrit)
+		}
+		heal := character.RegisterSpell(healConfig)
+
+		tick := config.Dot.OnTick
+		config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+			tick(sim, target, dot)
+			heal.Cast(sim, &character.Unit)
+		}
+	}
+
 	// Pendulum of Doom
 	// https://www.wowhead.com/forever/item=9425/pendulum-of-doom
 	//
@@ -588,7 +627,13 @@ func init() {
 	// Chance on hit: Delivers a fatal wound for 105 Physical damage. Deals 100% increased damage to
 	// targets below 25% health.
 	//
-	// Fatal Wound 10373, 18206 and Wound 18107 deal the percent their second dummy states more to a target below the
+	// Blackhand Doomsaw
+	// https://www.wowhead.com/forever/item=12583/blackhand-doomsaw
+	//
+	// Chance on hit: Delivers a fatal wound for 448 Physical damage. Deals 50% increased damage to
+	// targets below 25% health.
+	//
+	// Fatal Wound 10373, 16549, 18206 and Wound 18107 deal the percent their second dummy states more to a target below the
 	// health percent their third states, which the sim's execute phases track. 10373's hits of 1.5 times
 	// the plain range land late in a target's life, but the logs state no health, so the threshold is the
 	// row's alone (EV-0136).
@@ -614,6 +659,7 @@ func init() {
 	shared.DamageProcExtras[9425] = fatalWound
 	shared.DamageProcExtras[9475] = fatalWound
 	shared.DamageProcExtras[2164] = fatalWound
+	shared.DamageProcExtras[12583] = fatalWound
 
 	// Barman Shanker
 	// https://www.wowhead.com/forever/item=12791/barman-shanker

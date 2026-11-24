@@ -21,12 +21,29 @@ export interface IconSwatchProps extends Omit<WowheadAnchorProps, 'children' | '
 	 * a corner badge beside it shows this on hover, so the swatch keeps its own link tooltip.
 	 */
 	keptTooltip?: string;
+	/** Set for a selection another selection makes add nothing: dims the swatch the same way, with a badge of its own in the other corner. */
+	overwrittenTooltip?: string;
+	/** With `overwrittenTooltip`: the selection still adds something, so the badge shows and the swatch stays lit. */
+	overwrittenPartly?: boolean;
 }
 
-/** An icon as a link: wowhead's tooltip script finds it through the `href`. `className` lands on the box when there are badges or a kept badge. */
-export const IconSwatch = ({ icon, active, disabled, text, badges, keptTooltip, className, style, ...rest }: IconSwatchProps) => {
+/** An icon as a link: wowhead's tooltip script finds it through the `href`. `className` lands on the box when there are badges or a corner badge. */
+export const IconSwatch = ({
+	icon,
+	active,
+	disabled,
+	text,
+	badges,
+	keptTooltip,
+	overwrittenTooltip,
+	overwrittenPartly,
+	className,
+	style,
+	...rest
+}: IconSwatchProps) => {
 	const tooltipId = useId();
-	const boxed = !!badges || !!keptTooltip;
+	const noticed = !!keptTooltip || !!overwrittenTooltip;
+	const boxed = !!badges || noticed;
 	const anchor = (
 		<WowheadAnchor
 			className={clsx('ui-icon-picker-swatch', !boxed && className)}
@@ -42,13 +59,25 @@ export const IconSwatch = ({ icon, active, disabled, text, badges, keptTooltip, 
 	if (!boxed) return anchor;
 
 	const box = (
-		<div className={clsx('ui-icon-swatch-box', className)} data-kept={keptTooltip ? '' : undefined}>
+		<div
+			className={clsx('ui-icon-swatch-box', className)}
+			data-kept={keptTooltip ? '' : undefined}
+			data-overwritten={overwrittenTooltip && !overwrittenPartly ? '' : undefined}>
 			{anchor}
 			{badges}
+			{overwrittenTooltip && (
+				<Icon
+					name="circle-exclamation"
+					className="ui-icon-swatch-badge ui-icon-swatch-badge-overwritten"
+					title={overwrittenTooltip}
+					testId="icon-swatch-overwritten"
+					{...tooltipAnchorProps(tooltipId, overwrittenTooltip)}
+				/>
+			)}
 			{keptTooltip && (
 				<Icon
 					name="eye-slash"
-					className="ui-icon-swatch-kept"
+					className="ui-icon-swatch-badge ui-icon-swatch-badge-kept"
 					title={keptTooltip}
 					testId="icon-swatch-kept"
 					{...tooltipAnchorProps(tooltipId, keptTooltip)}
@@ -57,12 +86,13 @@ export const IconSwatch = ({ icon, active, disabled, text, badges, keptTooltip, 
 		</div>
 	);
 
-	if (!keptTooltip) return box;
+	if (!noticed) return box;
 
 	return (
 		<>
 			{box}
-			<Tooltip id={tooltipId} />
+			{/* A badge's tooltip keeps its line breaks. */}
+			<Tooltip id={tooltipId} className="whitespace-pre-line" />
 		</>
 	);
 };

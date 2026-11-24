@@ -53,10 +53,7 @@ clean:
 	rm -rf ui/generated/proto/*.ts \
 	  sim/core/proto/*.pb.go \
 	  wowsimforever$(BIN_EXT) \
-	  wowsimforever-windows.exe \
-	  wowsimforever-amd64-darwin \
-	  wowsimforever-arm64-darwin \
-	  wowsimforever-amd64-linux \
+	  .goreleaser-dist \
 	  dist \
 	  bin/wowsimcli$(BIN_EXT) \
 	  binary_dist \
@@ -213,29 +210,23 @@ else
 	./wowsimforever$(BIN_EXT) --usefs=true --launch=false --host=":3333"
 endif
 
-wowsimforever-windows.exe: wowsimforever
-# go build only considers syso files when invoked without specifying .go files: https://github.com/golang/go/issues/16090
-	cp ./assets/favicon_io/icon-windows_amd64.syso ./sim/web/icon-windows_amd64.syso
-	cd ./sim/web/ && GOOS=windows GOARCH=amd64 GOAMD64=v2 go build -o wowsimforever-windows.exe -ldflags="-X 'main.Version=$(VERSION)' -s -w"
-	cd ./cmd/wowsimcli && GOOS=windows GOARCH=amd64 GOAMD64=v2 go build -o wowsimcli-windows.exe --tags=with_db -ldflags="-X 'main.Version=$(VERSION)' -s -w"
-	rm ./sim/web/icon-windows_amd64.syso
-	mv ./sim/web/wowsimforever-windows.exe ./wowsimforever-windows.exe
-	mv ./cmd/wowsimcli/wowsimcli-windows.exe ./wowsimcli-windows.exe
+# A local dry run of the release: every archive and checksums.txt go into .goreleaser-dist, and nothing is published.
+# release.yml publishes with the same .goreleaser.yaml on this goreleaser version; check-goreleaser accepts any installed one.
+GORELEASER_VERSION := v2.20.3
 
-release: wowsimforever wowsimforever-windows.exe
-	GOOS=darwin GOARCH=amd64 GOAMD64=v2 go build -o wowsimforever-amd64-darwin -ldflags="-X 'main.Version=$(VERSION)' -s -w" ./sim/web
-	GOOS=darwin GOARCH=arm64 go build -o wowsimforever-arm64-darwin -ldflags="-X 'main.Version=$(VERSION)' -s -w" ./sim/web
-	GOOS=darwin GOARCH=arm64 go build -o wowsimcli-arm64-darwin --tags=with_db -ldflags="-X 'main.Version=$(VERSION)' -s -w" ./cmd/wowsimcli/cli_main.go
-	GOOS=linux GOARCH=amd64 GOAMD64=v2 go build -o wowsimforever-amd64-linux   -ldflags="-X 'main.Version=$(VERSION)' -s -w" ./sim/web
-	GOOS=linux GOARCH=amd64 GOAMD64=v2 go build -o wowsimcli-amd64-linux --tags=with_db -ldflags="-X 'main.Version=$(VERSION)' -s -w" ./cmd/wowsimcli/cli_main.go
-# Now compress into a zip because the files are getting large.
-	zip wowsimforever-windows.exe.zip wowsimforever-windows.exe
-	zip wowsimforever-amd64-darwin.zip wowsimforever-amd64-darwin
-	zip wowsimforever-arm64-darwin.zip wowsimforever-arm64-darwin
-	zip wowsimforever-amd64-linux.zip wowsimforever-amd64-linux
-	zip wowsimcli-amd64-linux.zip wowsimcli-amd64-linux
-	zip wowsimcli-arm64-darwin.zip wowsimcli-arm64-darwin
-	zip wowsimcli-windows.exe.zip wowsimcli-windows.exe
+.PHONY: check-goreleaser
+check-goreleaser:
+	@if ! command -v goreleaser > /dev/null; then \
+		echo "Missing goreleaser. Install it with:"; \
+		echo "  go install github.com/goreleaser/goreleaser/v2@$(GORELEASER_VERSION)"; \
+		echo "and make sure $$(go env GOPATH)/bin is on your PATH."; \
+		exit 1; \
+	fi
+
+.PHONY: release
+release: check-goreleaser binary_dist binary_dist/dist.go
+	goreleaser release --snapshot --clean
+	rm -f ./sim/web/icon_windows_amd64.syso
 
 sim/core/proto/api.pb.go: proto/*.proto
 	@if go version -m "$$(command -v protoc-gen-go)" 2>/dev/null | grep -qE '^[[:space:]]+mod[[:space:]]+github\.com/golang/protobuf[[:space:]]'; then \

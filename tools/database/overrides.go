@@ -66,10 +66,17 @@ var IgnoreMissingEffectBySpellID = map[int]string{
 // reason the generated file gives.
 var UnsupportedAbsorbBySpellID = map[int32]string{}
 
-// Items below core.MinEffectItemLevel whose effects are generated anyway, keyed by item ID with the reason a
-// level 60 character still uses them.
+// Items below core.MinEffectItemLevel whose effects are generated anyway, keyed by item ID with the reason
+// players still wear them.
 var EffectFloorExemptions = map[int32]string{
-	9449: "Manual Crowd Pummeler: a level 60 melee swaps it in for its on-use attack speed",
+	899:    "Venom Web Fang: melee players wear it for the Poison proc (EV-0183)",
+	3336:   "Flesh Piercer: melee players wear it for the Rend proc (EV-0183)",
+	3822:   "Runic Darkblade: melee players wear it for the Shadow Bolt proc (EV-0183)",
+	4449:   "Naraxis' Fang: melee players wear it for the Poison proc (EV-0183)",
+	5752:   "Wyvern Tailspike: melee players wear it for the Poison proc (EV-0153)",
+	7284:   "Red Whelp Gloves: melee players wear them for the Firebolt proc (EV-0177)",
+	9449:   "Manual Crowd Pummeler: a level 60 melee swaps it in for its on-use attack speed",
+	282703: "Needletooth's Needletooth: melee players wear it for the Puncture proc (EV-0183)",
 }
 
 var OtherItemIdsToFetch = []string{}
@@ -199,13 +206,20 @@ func DropListedSetPiecesBesideUnlistedOnes(db *WowDatabase, listed map[int32]boo
 
 // Keep these sorted by item ID.
 var ItemAllowList = map[int32]struct{}{
-	1168:  {}, // Skullflame Shield
-	2140:  {},
-	2505:  {},
-	8345:  {}, // Wolfshead Helm
-	11815: {}, // Hand of Justice
-	18168: {}, // Force Reactive Disk
-	19337: {}, // The Black Book
+	899:    {}, // Venom Web Fang
+	1168:   {}, // Skullflame Shield
+	2140:   {},
+	2505:   {},
+	3336:   {}, // Flesh Piercer
+	3822:   {}, // Runic Darkblade
+	4449:   {}, // Naraxis' Fang
+	5752:   {}, // Wyvern Tailspike
+	7284:   {}, // Red Whelp Gloves
+	8345:   {}, // Wolfshead Helm
+	11815:  {}, // Hand of Justice
+	18168:  {}, // Force Reactive Disk
+	19337:  {}, // The Black Book
+	282703: {}, // Needletooth's Needletooth
 }
 
 // Keep these sorted by item ID.
@@ -1046,6 +1060,8 @@ var ConsumableAllowList = []int32{
 	13454, // Greater Arcane Elixir
 	12662, // Demonic Rune
 	12217, // Dragonbreath Chili, whose proc sim/common/forever registers by hand
+	12451, // Juju Power, a Quest-class item
+	12460, // Juju Might, a Quest-class item
 	// The Natural flasks, whose zone bonus sim/common/forever registers by hand
 	274273, // Flask of Natural Accuracy
 	274274, // Flask of Natural Aggression
@@ -1126,25 +1142,25 @@ var ConsumableDenyList = []int32{
 	289087, // Elixir of Endless Opportunity
 }
 
+// Consumables the game files do not type as elixirs or scrolls whose stats count with the elixirs' all
+// the same, each stat at the strongest amount among them (R-0054). The generator sets their
+// counts_with_elixirs, which the sim and the settings read.
+var ConsumablesCountWithElixirs = []int32{
+	5206,  // Bogling Root
+	12451, // Juju Power
+	12460, // Juju Might
+}
+
 // Exclusive groups the server keeps that the rows do not state: the game files carry no stacking
 // table, the rows group by aura only elixirs and scrolls, and by category only the stat consumables
 // whose category cooldown lasts as long as their buffs. A consumable named here takes this group
 // instead of the one its rows give it.
 //
-// TODO: check in game whether these stack with the elixir group of the aura they open on, and add
-// each one that does not: Oil of Olaf 1177 (A_MOD_ARMOR_NO_MODS), Call of the Raptor 4546
-// (A_MOD_STAT Agility), Very Berry Cream 22238 and Midsummer Sausage 23326 (A_MOD_DAMAGE_DONE every
-// school).
+// TODO: check in game whether these count with the elixirs that grant the same stat, the strongest
+// alone, and add each one that does to ConsumablesCountWithElixirs: Oil of Olaf 1177
+// (A_MOD_ARMOR_NO_MODS), Call of the Raptor 4546 (A_MOD_STAT Agility), Very Berry Cream 22238 and
+// Midsummer Sausage 23326 (A_MOD_DAMAGE_DONE every school).
 var ConsumableExclusiveGroups = []ConsumableGroup{
-	{Group: ElixirGroup(dbcenums.A_MOD_STAT, 0), Items: []int32{
-		12451, // Juju Power
-	}},
-	{Group: ElixirGroup(dbcenums.A_MOD_ATTACK_POWER, 0), Items: []int32{
-		12460, // Juju Might
-	}},
-	{Group: ElixirGroup(dbcenums.A_MOD_DAMAGE_DONE, 1), Items: []int32{
-		5206, // Bogling Root
-	}},
 	{Group: ConsumableGroupKey{Key: "Zanza", Name: "Zanza"}, Items: []int32{
 		8410,  // R.O.I.D.S.
 		8411,  // Lung Juice Cocktail

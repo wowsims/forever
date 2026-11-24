@@ -164,6 +164,13 @@ source that still reads as zeroed, so a value set while hidden (a loaded build) 
 `ConnectedIconEnumPicker` call it; the enum adapter also passes `onSettled` to reset a value whose option its
 `showWhen` hides, and a user pick calls `clearStored()` first.
 
+The restore reads the source through `getValue`, so it cannot bring back a pick on a picker whose `getValue` turns a
+stored zero into a default: the zeroed source reads as that default, and the pick put aside is dropped. Give such an
+icon-enum config `keepWhenHidden: true` (`ui/features/inputs/components/ConnectedIconEnumPicker/types.ts`). The
+picker then leaves its value alone while hidden, apart from the `onSettled` reset of a value whose option is hidden,
+so whatever reads the field has to ignore it then. The Retribution
+paladin's `seal` and `uwTwist` pickers do this (`ui/specs/paladin/retribution/inputs.ts`).
+
 **Values that change with the model.** An icon-enum config's `values` may be an array or `(obj) => Array`, resolved
 through `iconEnumValues` (`ui/features/inputs/components/ConnectedIconEnumPicker/utils.ts`) on every render and every
 time the menu opens. That is how the consumables follow their EP order (`orderedByEp`, `consumableOrderOf`) without
@@ -177,6 +184,18 @@ the `data-kept` attribute on the swatch box. `valuePicked` and `inputPicked` (sa
 an input holds a pick. The adapters derive the kept tooltip, the active input and `showWhen` in the render body, not
 inside a `useStoreSubscribe` read: the stat filter hands in a new config when its stats change, and a read cached in
 the snapshot would answer from the old config.
+
+**Overwritten selections.** The icon and icon-enum configs may implement `OverwrittenInput.overwritten(obj, value)`
+(`ui/features/inputs/input.ts`), which returns `{ tooltip, partly }` while another selection overwrites this one,
+`partly` true while the selection still adds something, and undefined otherwise. The adapters spread `overwrittenOf`
+into the kit's `overwrittenTooltip` and `overwrittenPartly` props: the icon-enum adapter for the value it
+shows and, once its menu has opened, for each option on `IconEnumOption`, as if that option were selected, and the
+multi-icon adapter for the input its trigger shows. `IconSwatch` shows a corner badge of its own with the tooltip,
+and unless the selection is overwritten only partly it dims the swatch the way it dims a kept one, with a
+`data-overwritten` attribute on the swatch box. The selection stays a pick the player can clear. The consumables
+picker sets it on the elixir and scroll picks and on the miscellaneous toggles that count with the elixirs
+(`overwrittenTooltips` in `ui/features/settings/model/consumables.ts`). The adapters read it in the render body,
+like the kept tooltip, so they follow every notification of the fields the input subscribes to.
 
 **Text fields.** `TextField` (`ui/ui-kit/TextField/TextField.tsx`) and its presets hold an uncommitted edit in
 `useDraft` (`ui/ui-kit/hooks/useDraft.ts`), keyed on the formatted display string, so a same-value write or a
