@@ -5,15 +5,16 @@
   no rate fire at procs per minute, a white swing priced on its weapon's base speed and a spell cast on its cast time:
   Warrior's Resolve at 1, Rogue Armor Energize at 0.8, Crusader's Wrath at about 0.9, The Furious Storm and Nature's
   Bounty's mana at about 1. Nature's Bounty restores its energy off a landed white swing at about 1 a minute on the
-  form's speed, and its rage off a landed melee swing taken at about 1 a minute on the attacker's interval; Wild Heart
-  fires at its row's 5% per landed hit taken, at most once a minute. The Feralheart reissue's pieces count toward its
-  bonuses whichever of its four groups they come from.
+  form's speed, and its rage off a landed melee swing taken at about 1 a minute on the attacker's interval; the energy
+  it restores in a bear form comes back with Cat Form. Wild Heart fires at its row's 5% per landed hit taken, at most
+  once a minute. The Feralheart reissue's pieces count toward its bonuses whichever of its four groups they come from.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each table names
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-11 to 2026-11-17
 - Pull request: #1086
 - Later count: Nature's Bounty's energy and rage, Wild Heart, §Count of the 2026-11-21 combat logs
 - Later count: the Feralheart reissue's groups, §Count of the 2026-11-22 combat log
+- Later count: Nature's Bounty's energy in a bear form, §Count of the 2026-11-23 combat log
 
 ## Method
 
@@ -157,7 +158,8 @@ of Flash Heals (47 of 994).
   27782's mana, a landed melee swing 27784's energy over 5 s, and a melee hit taken 27783's rage
 - Sim rate: 1 PPM, observed, on spell casts priced on their cast time, on landed white swings priced on the form's
   speed and on landed melee swings taken priced on the attacker's interval
-- Count: §Count of the 2026-11-21 combat logs, for the energy and the rage
+- Count: §Count of the 2026-11-21 combat logs, for the energy and the rage; §Count of the 2026-11-23 combat log, for
+  the energy restored in a bear form
 
 | Report           | Fights                                  | Date  | Class | Set                | Swing procs | Swings | Swing PPM | Speeds | Cast procs | Casts | Cast PPM |
 | ---------------- | --------------------------------------- | ----- | ----- | ------------------ | ----------: | -----: | --------: | ------ | ---------: | ----: | -------: |
@@ -329,3 +331,25 @@ Four Feralheart pieces, two from each of two groups, fire the 4-piece: a landed 
 the same millisecond by 27784, which ticks 4 energy five times. No group holds four pieces, so pieces of different
 groups count toward the set together. Wildheart Raiment's 5-piece, the other set that procs 27784, needs five pieces,
 more than the four armor slots left.
+
+## Count of the 2026-11-23 combat log
+
+- Sources: combat log `WoWCombatLog-112326_164634`, Winterspring: the Felwood log's druid, level field 61, with Furor at
+  5/5 by its player's word, testing whether energy restored in a bear form reaches Cat Form; which set pieces is not
+  recorded
+- Game build: 1.60.1.71037; a hotfix went out on 2026-11-23, and the one the log ran on and whether the player relogged
+  are not recorded
+- Date: 2026-11-23
+- Pull request: #1190
+
+The druid's last energy reading in Cat Form is 16, 0.70 s before it leaves. At the 9 to 10 a second its readings in
+Cat Form climb by, it leaves with about 22, the energy its player read. It spends 0.31 s in caster form and 324 s in
+Dire Bear Form, where two procs of 27784 tick 4 energy ten times, none of it over the bar. It shifts straight back into
+Cat Form and reads 69 energy 2.0 s later, 85 another 1.98 s on, then 100; its player read about 62 on the way back.
+
+Without the ticks, Furor's rule gives about 25 on the way back, 22 and 3 for the time in caster form, which would need
+44 in the 2 s before the 69. With all of them it gives about 65, which would leave 4 for those 2 s. The readings climb
+16 in the 1.98 s after the 69, and 9 to 10 a second before the druid left Cat Form; read back at those rates, it came
+back with 49 to 53. Either way it came back with 24 to 40 more than the rule gives without the ticks. Both bear forms'
+rows stop energy regeneration (effect 5, -100% energy regeneration) and leave the bar as it is, so nothing but the
+ticks added energy in the form. The sim adds every tick.
