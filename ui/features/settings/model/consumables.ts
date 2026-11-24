@@ -356,7 +356,7 @@ const turnedOnBySim = (player: Player<any>, config: (typeof OVERWRITING_BUFFS)[n
 	return false;
 };
 
-// What the raid buffs that overwrite consumables and are on grant, the input's or the sim's.
+// The grants of the overwriting raid buffs that are on, by their input or because the sim turns them on.
 const buffsOn = (player: Player<any>) =>
 	OVERWRITING_BUFFS.filter(buff => buff.config.getValue(player) || turnedOnBySim(player, buff.config)).map(buff => buff.grants);
 
