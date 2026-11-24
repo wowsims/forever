@@ -117,7 +117,14 @@ describe('DropsSetup', () => {
 		expect(loadStoredBulkDropsSources(player)).toEqual(BRS_LEAVES.filter(leaf => leaf !== key(BLACKROCK_SPIRE, WYRMTHALAK)));
 	});
 
-	it('opens a node only on its disclosure button, with its children mounted while open', () => {
+	it('opens a node from a press anywhere on its row but the box, and leaves it unticked', () => {
+		fireEvent.click(screen.getAllByTestId('drops-source-count')[0]);
+
+		expect(screen.getByRole('button', { name: category }).getAttribute('aria-expanded')).toBe('true');
+		expect(box(category).getAttribute('aria-checked')).toBe('false');
+	});
+
+	it('opens a node on its row button, with its children mounted while open', () => {
 		expect(screen.queryByRole('checkbox', { name: 'Blackrock Spire' })).toBeNull();
 		disclose(category);
 		expect(screen.getByRole('button', { name: category }).getAttribute('aria-expanded')).toBe('true');

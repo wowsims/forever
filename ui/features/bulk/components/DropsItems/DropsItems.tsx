@@ -67,7 +67,8 @@ interface ItemRowProps {
 	onIncludedChange: DropsItemsViewProps['onIncludedChange'];
 }
 
-// Box, icon and name share one field, so the name ticks the box and a worn row dims once, through the field's disabled look.
+// Box, icon and name share one field, so the name ticks the box and a worn row dims once, through the field's disabled look. The name
+// stretches over the free space, and a press on the sources or the tags ticks the box too; the box stays the keyboard's way in.
 // The other sources open in a kit tooltip, which a tap opens on a touch screen.
 const ItemRow = ({ entry, index, group, names, onIncludedChange }: ItemRowProps) => {
 	const { item, worn, included, tags, sourceKeys } = entry;
@@ -77,17 +78,20 @@ const ItemRow = ({ entry, index, group, names, onIncludedChange }: ItemRowProps)
 
 	return (
 		<div
-			className={clsx('flex h-10 items-center gap-2 px-1', ITEM_ROW_CLASS)}
+			className={clsx('flex h-10 cursor-pointer items-center gap-2 px-1', ITEM_ROW_CLASS)}
 			data-stripe={index % 2 === 0 ? 'even' : 'odd'}
 			data-testid="drops-item-row"
 			data-item-id={item.id}
-			data-worn={worn ? '' : undefined}>
+			data-worn={worn ? '' : undefined}
+			onClick={event => {
+				if (!worn && !(event.target as Element).closest('label, input, button, a, [role="checkbox"]')) onIncludedChange([item.id], !included);
+			}}>
 			<Field.Root id={id} layout="inline" size="xs" disabled={worn} className="ui-boolean-picker min-w-0 grow">
 				<BooleanPicker id={id} value={included && !worn} disabled={worn} onChange={checked => onIncludedChange([item.id], checked)} />
 				<ItemCellIcon ilvl={baseIlvl(item)} size="sm">
 					<WowheadIcon className="size-full" iconUrl={iconUrl} href={href || undefined} navigate={false} tabIndex={-1} />
 				</ItemCellIcon>
-				<Field.Label className={clsx('min-w-0 truncate text-base', itemQualityClassName(item.quality))}>{item.name}</Field.Label>
+				<Field.Label className={clsx('min-w-0 grow cursor-pointer truncate text-base', itemQualityClassName(item.quality))}>{item.name}</Field.Label>
 			</Field.Root>
 			{worn ? (
 				<span className="max-w-2/5 min-w-0 truncate text-xs text-gray-400">{i18n.t('bulk_tab.drops.items.worn')}</span>

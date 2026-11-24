@@ -54,6 +54,17 @@ describe('DropsItemsView', () => {
 		for (const trigger of screen.getAllByTestId('drops-group-trigger')) expect(trigger.getAttribute('aria-expanded')).toBe('false');
 	});
 
+	it('ticks a row from a press on its sources', () => {
+		mount();
+		open(REND);
+
+		const row = within(group(REND))
+			.getAllByTestId('drops-item-row')
+			.find(r => Number(r.getAttribute('data-item-id')) === FELSTRIKER)!;
+		fireEvent.click(within(row).getByText('Baron Rivendare'));
+		expect(onIncludedChange).toHaveBeenCalledWith([FELSTRIKER], false);
+	});
+
 	it('shows a section’s rows when it opens, and drops them when it closes', () => {
 		mount();
 

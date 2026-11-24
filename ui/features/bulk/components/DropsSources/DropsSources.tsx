@@ -1,10 +1,11 @@
 import i18n from '@i18n/config';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
+import { Field } from '@ui-kit/Field';
 import { Icon } from '@ui-kit/Icon';
 import { Pill } from '@ui-kit/Pill';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 import { dropsNodeState, type DropsSourceNode } from '../../model/drops/sources';
 
@@ -24,39 +25,51 @@ interface SourceRowProps extends Pick<DropsSourcesViewProps, 'ticked' | 'onTick'
 
 // A partly ticked node passes `value={false}` with `indeterminate`, so pressing it reports `true` and ticks the rest.
 // Children mount only while the node is open, indented under a guide line. The row reads like an accordion header: box, name, count badge, chevron on the right.
+// On a node with children the name, badge and chevron are one button that opens it, apart from the box; a leaf's name ticks its box.
 const SourceRow = ({ node, ticked, onTick }: SourceRowProps) => {
 	const [open, setOpen] = useState(false);
 	const state = dropsNodeState(node, ticked);
 	const hasChildren = node.children.length > 0;
+	const id = useId();
 
 	return (
 		<div>
-			<div className="flex items-center gap-2 py-2 text-sm font-semibold">
-				<BooleanPicker
-					className="min-w-0 wrap-anywhere"
-					label={node.label}
-					layout="inline"
-					size="xs"
-					value={state === 'checked'}
-					indeterminate={state === 'mixed'}
-					onChange={checked => onTick(node, checked)}
-				/>
-				<Pill size="xs" className="min-w-[1lh] shrink-0 justify-center" testId="drops-source-count">
-					{node.itemIds.length}
-				</Pill>
-				<span className="grow" />
+			<div className="flex items-center gap-2 text-sm font-semibold">
 				{hasChildren ? (
-					<Button
-						variant={null}
-						iconOnly
-						aria-label={node.label}
-						aria-expanded={open}
-						className="size-4 shrink-0"
-						onClick={() => setOpen(wasOpen => !wasOpen)}>
-						<Icon name="chevron-down" fixedWidth className={clsx('transition-transform duration-150', !open && '-rotate-90')} />
-					</Button>
+					<>
+						<Field.Root id={id} layout="inline" size="xs" className="ui-boolean-picker grow-0">
+							<BooleanPicker id={id} value={state === 'checked'} indeterminate={state === 'mixed'} onChange={checked => onTick(node, checked)} />
+							<Field.Label className="sr-only">{node.label}</Field.Label>
+						</Field.Root>
+						<Button
+							variant={null}
+							aria-label={node.label}
+							aria-expanded={open}
+							className="flex min-w-0 grow items-center gap-2 py-2 text-left font-semibold"
+							onClick={() => setOpen(wasOpen => !wasOpen)}>
+							<span className="min-w-0 wrap-anywhere">{node.label}</span>
+							<Pill size="xs" className="min-w-[1lh] shrink-0 justify-center" testId="drops-source-count">
+								{node.itemIds.length}
+							</Pill>
+							<span className="grow" />
+							<Icon name="chevron-down" fixedWidth className={clsx('size-4 shrink-0 transition-transform duration-150', !open && '-rotate-90')} />
+						</Button>
+					</>
 				) : (
-					<span className="size-4 shrink-0" aria-hidden />
+					<>
+						<BooleanPicker
+							className="min-w-0 py-2 wrap-anywhere"
+							label={node.label}
+							layout="inline"
+							size="xs"
+							value={state === 'checked'}
+							indeterminate={state === 'mixed'}
+							onChange={checked => onTick(node, checked)}
+						/>
+						<Pill size="xs" className="min-w-[1lh] shrink-0 justify-center" testId="drops-source-count">
+							{node.itemIds.length}
+						</Pill>
+					</>
 				)}
 			</div>
 			{open && (
