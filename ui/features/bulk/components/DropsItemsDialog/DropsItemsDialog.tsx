@@ -398,11 +398,13 @@ export const DropsItemsDialogView = ({
 				)}
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
 					{!medium && (
-						<div className="flex flex-wrap items-center gap-2">
+						<div className="flex flex-wrap items-center justify-end gap-2">
 							<Button variant="secondary" size="sm" disabled={shownIds.length === 0} onClick={() => onIncludedChange(shownIds, true)}>
+								<Icon name="check" />
 								{t('select_all')}
 							</Button>
-							<Button variant="secondary" size="sm" disabled={shownIds.length === 0} onClick={() => onIncludedChange(shownIds, false)}>
+							<Button variant="outline-secondary" size="sm" disabled={shownIds.length === 0} onClick={() => onIncludedChange(shownIds, false)}>
+								<Icon name="xmark" />
 								{t('clear_selection')}
 							</Button>
 						</div>
