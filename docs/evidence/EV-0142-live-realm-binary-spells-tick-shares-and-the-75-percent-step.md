@@ -374,7 +374,7 @@ Scripts and tables: `forever-piercing-rule-rows-1123` (`tables/edge.txt`, `table
   1.60.1.70888 from 2026-11-10, 1.60.1.70938 from 2026-11-13 and 1.60.1.70959 from 2026-11-17. The hotfix a run was on
   and relogs are not recorded
 - Date: 2026-11-23 15:45 to 2026-11-24 15:12 UTC; §Rows with few hits from 2026-11-07 22:31 UTC
-- Pull request: #TBD
+- Pull request: #1204
 
 The count runs as in §Count of the 2026-11-19 to 2026-11-23 reports, with these changes:
 
