@@ -13,13 +13,10 @@ const (
 	ResistanceCategoryShadow = "ResistanceShadow"
 )
 
-// The category the StatBuff raid buffs bid each flat stat in, so only the strongest counts. A scroll
-// of the stat bids in it too (R-0053).
-const StatBuffCategory = "StatBuff"
-
-// The categories the elixirs bid in: each stat counts only its strongest elixir, and the crit only one
-// elixir's. A raid buff whose manifest row names an ElixirCategory bids its stats there as well without
-// counting (spelldata.Overwrites), so an elixir that grants no more adds nothing under it (R-0053).
+// The categories the elixirs, the scrolls and the consumables that count with them bid in: each stat
+// counts only the strongest one's amount, and the crit only one elixir's. A raid buff whose manifest row
+// names an ElixirCategory bids its stats there as well without counting (spelldata.Overwrites), so a
+// consumable that grants no more adds nothing under it (R-0054).
 const (
 	ElixirStatCategory = "ElixirStat"
 	ElixirCritCategory = "ElixirCrit"

@@ -659,6 +659,7 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	FoodId:  13931, // Nightfin Soup
 	ElixirIds: []int32{
 		13454,  // Greater Arcane Elixir
+		250348, // Elixir of the Whale
 		250341, // Greater Mageblood Elixir
 	},
 	MhImbueId:       20749,  // Brilliant Wizard Oil
