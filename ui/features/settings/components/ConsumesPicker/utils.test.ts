@@ -19,7 +19,6 @@ import {
 	ZoneStats,
 } from '@generated/proto/common';
 import { Consumable } from '@generated/proto/db';
-import { DruidTalents } from '@generated/proto/druid';
 import { ItemEffect } from '@generated/proto/spell';
 import { DatabaseFilters, UIItem } from '@generated/proto/ui';
 import i18n from '@i18n/config';
@@ -135,7 +134,6 @@ interface PlayerState {
 	meleeDps: boolean;
 	tank: boolean;
 	raidBuffs: RaidBuffs;
-	talents?: DruidTalents;
 }
 
 const playerOf = (state: Partial<PlayerState> = {}) => {
@@ -183,7 +181,6 @@ const playerOf = (state: Partial<PlayerState> = {}) => {
 		getConsumes: () => ConsumesSpec.clone(full.consumes),
 		setConsumes: (consumes: ConsumesSpec) => (full.consumes = ConsumesSpec.clone(consumes)),
 		getRaid: () => ({ getBuffs: () => RaidBuffs.clone(full.raidBuffs) }),
-		getTalents: () => full.talents ?? {},
 	} as unknown as Player<any>;
 	return { player, state: full };
 };
@@ -718,6 +715,7 @@ describe('consumeConfigs on picks that add nothing', () => {
 			elixir(9206, 'Elixir of Greater Strength', strength(25), '29/0', 'Strength'),
 			elixir(6662, 'Elixir of Giant Growth', strength(8), '29/0', 'Strength'),
 			elixir(9187, 'Elixir of Greater Agility', stats({ [Stat.StatAgility]: 25 }), '29/1', 'Agility'),
+			elixir(250328, 'Elixir of Cunning', stats({ [Stat.StatAgility]: 25, [Stat.StatIntellect]: 25 }), '29/1', 'Agility'),
 			elixir(247755, 'Elixir of Minor Force', stats({ [Stat.StatPhysicalDamage]: 1 }), '13/1', 'Physical Damage'),
 			Consumable.create({
 				id: 5206,
@@ -754,16 +752,13 @@ describe('consumeConfigs on picks that add nothing', () => {
 		const shownAs = (id: number) => {
 			const toggle = misc(configs).find(config => config.consumable.id === id);
 			if (toggle) return toggle.getValue(player) ? toggle.overwritten!(player, true) : undefined;
-			const config = configs.elixirs.find(group => iconEnumValues(group, player).some(value => value.value === id))!;
+			const config = [...configs.elixirs, ...configs.scrolls].find(group => iconEnumValues(group, player).some(value => value.value === id))!;
 			const value = config.getValue(player);
 			return value === id ? config.overwritten!(player, value) : undefined;
 		};
 		const overwrittenBy = (id: number) => shownAs(id)?.tooltip;
 		const partly = (id: number) => shownAs(id)?.partly ?? false;
-		const [strengthScrolls, intellectScrolls] = configs.scrolls;
-		const scrollOverwrittenBy = (scrolls = strengthScrolls) => scrolls.overwritten!(player, scrolls.getValue(player))?.tooltip;
-		const intellectScrollOverwrittenBy = () => scrollOverwrittenBy(intellectScrolls);
-		return { player, state, configs, groupNamed, overwrittenBy, partly, scrollOverwrittenBy, intellectScrollOverwrittenBy };
+		return { player, state, configs, groupNamed, overwrittenBy, partly };
 	};
 
 	// The test setup loads no locale, so the tooltip would read as its key without the names.
@@ -901,48 +896,44 @@ describe('consumeConfigs on picks that add nothing', () => {
 		expect(overwrittenBy(250350)).toBe('Agility overwritten by Elixir of Greater Agility');
 	});
 
-	it('leaves a scroll and the elixirs of its stat unmarked, since they stack', () => {
+	it('marks a scroll beside a stronger elixir of its stat, and an elixir beside a stronger scroll, naming the stronger', () => {
 		const strength = picking([], [10310, 12451]);
-		expect(strength.scrollOverwrittenBy()).toBeUndefined();
+		expect(strength.overwrittenBy(10310)).toBe('Strength overwritten by Juju Power');
 		expect(strength.overwrittenBy(12451)).toBeUndefined();
-		const intellect = picking([3383], [10308]);
-		expect(intellect.intellectScrollOverwrittenBy()).toBeUndefined();
-		expect(intellect.overwrittenBy(3383)).toBeUndefined();
-		expect(picking([], []).scrollOverwrittenBy()).toBeUndefined();
-	});
-
-	it('marks Scroll of Intellect IV under Arcane Intellect, naming the buff', () => {
-		expect(picking([], [10308]).intellectScrollOverwrittenBy()).toBeUndefined();
-		expect(picking([], [10308], RaidBuffs.create({ arcaneIntellect: true })).intellectScrollOverwrittenBy()).toBe(
-			'Intellect overwritten by Arcane Intellect',
-		);
+		const cunning = picking([250328], [10308]);
+		expect(cunning.overwrittenBy(10308)).toBe('Intellect overwritten by Elixir of Cunning');
+		expect(cunning.overwrittenBy(250328)).toBeUndefined();
+		const wisdom = picking([3383], [10308]);
+		expect(wisdom.overwrittenBy(10308)).toBeUndefined();
+		expect(wisdom.overwrittenBy(3383)).toBe('Intellect overwritten by Scroll of Intellect IV');
+		expect(picking([], []).overwrittenBy(10310)).toBeUndefined();
 	});
 
 	it('marks Scroll of Intellect IV and an Intellect elixir for a mage with the Arcane Intellect input off, since the sim turns it on for every mage', () => {
 		const mage = picking([3383], [10308], RaidBuffs.create(), Class.ClassMage);
-		expect(mage.intellectScrollOverwrittenBy()).toBe('Intellect overwritten by Arcane Intellect');
+		expect(mage.overwrittenBy(10308)).toBe('Intellect overwritten by Arcane Intellect');
 		expect(mage.overwrittenBy(3383)).toBe('Intellect overwritten by Arcane Intellect');
 	});
 
 	it('leaves a scroll unmarked under Mark of the Wild, which stacks with the scrolls', () => {
 		const motw = RaidBuffs.create({ markOfTheWild: true });
-		expect(picking([], [10308], motw).intellectScrollOverwrittenBy()).toBeUndefined();
-		expect(picking([], [10310], motw).scrollOverwrittenBy()).toBeUndefined();
+		expect(picking([], [10308], motw).overwrittenBy(10308)).toBeUndefined();
+		expect(picking([], [10310], motw).overwrittenBy(10310)).toBeUndefined();
 	});
 
 	it('follows the raid buffs as they change, on the configs already built', () => {
-		const { state, intellectScrollOverwrittenBy } = picking([], [10308]);
-		expect(intellectScrollOverwrittenBy()).toBeUndefined();
+		const { state, overwrittenBy } = picking([], [10308]);
+		expect(overwrittenBy(10308)).toBeUndefined();
 		state.raidBuffs = RaidBuffs.create({ arcaneIntellect: true });
-		expect(intellectScrollOverwrittenBy()).toBeDefined();
+		expect(overwrittenBy(10308)).toBeDefined();
 		state.raidBuffs = RaidBuffs.create();
-		expect(intellectScrollOverwrittenBy()).toBeUndefined();
+		expect(overwrittenBy(10308)).toBeUndefined();
 	});
 
 	it('marks an Intellect elixir and Scroll of Intellect IV alike under Arcane Intellect, naming the buff', () => {
 		const underArcaneIntellect = picking([3383], [10308], RaidBuffs.create({ arcaneIntellect: true }));
 		expect(underArcaneIntellect.overwrittenBy(3383)).toBe('Intellect overwritten by Arcane Intellect');
-		expect(underArcaneIntellect.intellectScrollOverwrittenBy()).toBe('Intellect overwritten by Arcane Intellect');
+		expect(underArcaneIntellect.overwrittenBy(10308)).toBe('Intellect overwritten by Arcane Intellect');
 	});
 
 	it('marks Elixir of the Sages under Prayer of Spirit as partly overwritten, its Intellect still counting', () => {
@@ -952,23 +943,11 @@ describe('consumeConfigs on picks that add nothing', () => {
 		expect(picking([13447]).overwrittenBy(13447)).toBeUndefined();
 	});
 
-	it('marks an elixir whose crit a raid crit matches, naming the stats it loses and to whom', () => {
+	it("leaves an elixir's crit unmarked under Leader of the Pack and Moonkin Aura, which stack with the elixirs", () => {
 		const lotp = RaidBuffs.create({ leaderOfThePack: true });
-		expect(picking([250351], [12451], lotp).overwrittenBy(250351)).toBe('Strength overwritten by Juju Power\nCrit overwritten by Leader of the Pack');
-		expect(picking([250351], [], lotp).overwrittenBy(250351)).toBe('Crit overwritten by Leader of the Pack');
-		expect(picking([13452], [], RaidBuffs.create({ moonkinAura: true })).overwrittenBy(13452)).toBe('Crit overwritten by Moonkin Aura');
-	});
-
-	it("counts a druid's own Moonkin Aura or Leader of the Pack as on, whatever the input says, where the sim turns it on", () => {
-		const druid = (spec: Spec, talents: Partial<DruidTalents>) =>
-			picking([250351], [12451], RaidBuffs.create(), Class.ClassDruid, { spec, talents: DruidTalents.create(talents) }).overwrittenBy(250351);
-		const strengthLost = 'Strength overwritten by Juju Power';
-		expect(druid(Spec.SpecBalanceDruid, { moonkinForm: true })).toBe('Strength overwritten by Juju Power\nCrit overwritten by Moonkin Aura');
-		expect(druid(Spec.SpecBalanceDruid, {})).toBe(strengthLost);
-		expect(druid(Spec.SpecFeralCatDruid, { leaderOfThePack: true })).toBe('Strength overwritten by Juju Power\nCrit overwritten by Leader of the Pack');
-		expect(druid(Spec.SpecFeralBearDruid, { leaderOfThePack: true })).toBe('Strength overwritten by Juju Power\nCrit overwritten by Leader of the Pack');
-		expect(druid(Spec.SpecFeralCatDruid, {})).toBe(strengthLost);
-		expect(druid(Spec.SpecRestorationDruid, { moonkinForm: true, leaderOfThePack: true })).toBe(strengthLost);
+		expect(picking([250351], [12451], lotp).overwrittenBy(250351)).toBe('Strength overwritten by Juju Power');
+		expect(picking([250351], [], lotp).overwrittenBy(250351)).toBeUndefined();
+		expect(picking([13452], [], RaidBuffs.create({ moonkinAura: true })).overwrittenBy(13452)).toBeUndefined();
 	});
 
 	it('marks no elixir under Mark of the Wild, which stacks with the elixirs', () => {

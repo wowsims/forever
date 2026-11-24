@@ -108,7 +108,7 @@ message Consumable {
 	// What the on-use grants only while the encounter is in one of these zones, which stats leaves out.
 	repeated ZoneStats zone_stats = 24;
 	// A consumable the game files do not type as an elixir whose stats count with the elixirs': each stat
-	// at the strongest amount among them (R-0053).
+	// at the strongest amount among them (R-0054).
 	bool counts_with_elixirs = 25;
 }
 

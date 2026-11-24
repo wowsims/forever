@@ -157,8 +157,8 @@ func Exclusive(category string, singleAura bool) ParseOpt {
 }
 
 // Every stat and pseudo-stat the parse attaches bids alone, under the category name core's own
-// exclusive stat buffs build: category + the stat or PseudoStats field + "Add" or "Mul". A generated
-// buff and a hand-written scroll of the same stat compete that way. The stacks are not followed.
+// exclusive stat buffs build: category + the stat or PseudoStats field + "Add" or "Mul". An elixir and
+// a scroll of the same stat compete that way. The stacks are not followed.
 func ExclusivePerStat(category string) ParseOpt {
 	return func(o *parseOptions) {
 		o.perStatCategory = category
