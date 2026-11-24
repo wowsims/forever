@@ -52,9 +52,10 @@ func init() {
 
 // A caster with three druid spells at the wearer's level: Wrath, which Revelation's druid buff 1323400
 // names (family 7 bit 0), Moonfire, which it does not name and reaches all the same (bit 1), and one it
-// does not reach (bit 4). Hurricane is a three-tick channel whose ticks cast a spell of their own, both
-// under Wrath's flags. Drain is a channel under Wrath's flags whose own hit lands before its dot starts
-// and whose ticks hit nothing. Bolt, under Wrath's flags, rolls at the cast and lands a second later.
+// does not reach (bit 4). Hurricane is a three-tick channel whose ticks cast a spell of their own on
+// every enemy, a proc that fires no cast listener, both under Wrath's flags. Drain is a channel under
+// Wrath's flags whose own hit lands before its dot starts and whose ticks hit nothing. Bolt, under
+// Wrath's flags, rolls at the cast and lands a second later.
 type testDruid struct {
 	core.Character
 	wrath, moonfire, outside, hurricane, drain, bolt *core.Spell
@@ -107,12 +108,15 @@ func (d *testDruid) Initialize() {
 		SpellSchool:      core.SpellSchoolNature,
 		DefenseType:      core.DefenseTypeMagic,
 		ProcMask:         core.ProcMaskSpellDamage,
+		Flags:            core.SpellFlagNoOnCastComplete | core.SpellFlagPassiveSpell,
 		ClassFlags:       wrathFlags,
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			result := spell.CalcAndDealDamage(sim, target, 100, spell.OutcomeMagicHitAndCrit)
-			d.tickCrits = append(d.tickCrits, result.DidCrit())
+		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+			for _, target := range sim.Encounter.ActiveTargetUnits {
+				result := spell.CalcAndDealDamage(sim, target, 100, spell.OutcomeMagicCrit)
+				d.tickCrits = append(d.tickCrits, result.DidCrit())
+			}
 		},
 	})
 	channel := func(id int32, label string, ownHit bool, onTick core.OnTick) *core.Spell {
@@ -316,10 +320,11 @@ func TestRevelationGrantsTheWearersClassBuff(t *testing.T) {
 		t.Errorf("buff lasts %v with %d charges, want 1323400's %v and %d", buff.Duration, buff.MaxStacks, row.Duration(), row.ProcCharges)
 	}
 
-	// A proc's handler runs one spell batch window after the hit, so each cast is followed by a step.
+	// A proc's handler runs one spell batch window after the hit, so each cast is followed by a wait past
+	// it, which also puts each cast at a moment of its own.
 	castAndStep := func(spell *core.Spell) *core.SpellResult {
 		spell.Cast(sim, target)
-		sim.Step()
+		stepTo(t, sim, sim.CurrentTime+2*core.SpellBatchWindow)
 		return druid.last
 	}
 
@@ -368,12 +373,14 @@ func TestRevelationGrantsTheWearersClassBuff(t *testing.T) {
 	}
 }
 
-// A channel's ticks roll Revelation, but do not spend it tick by tick: every tick crits with the buff
-// up, and the charge goes when the channel ends, run out or cut short.
-func TestRevelationLastsTheWholeChannel(t *testing.T) {
-	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
+// A channel whose ticks cast a spell of their own spends the charge on its first tick: the channel's
+// cast leaves it, every enemy that tick strikes crits, and the ticks after it crit at their own chance.
+// The ticks roll Revelation too (EV-0149).
+func TestRevelationChannelSpendsTheChargeOnItsFirstTick(t *testing.T) {
+	sim, character := revelationWearerFacing(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}}, 3)
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
 	target := character.CurrentTarget
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1323400})
 	channel := druid.hurricane.Dot(target)
 
@@ -382,41 +389,45 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 		if casts > 40 {
 			t.Fatal("40 channels and no tick procced Revelation")
 		}
-		druid.hurricane.SkipCastAndApplyEffects(sim, target)
+		druid.hurricane.Cast(sim, target)
 		stepWhile(t, sim, func() bool {
 			procced = procced || buff.IsActive()
 			return channel.IsActive()
 		})
 	}
-	sim.Step()
+	stepTo(t, sim, sim.CurrentTime+time.Second)
 	buff.Deactivate(sim)
 
-	channelFor := func(ticks int) {
-		druid.tickCrits = nil
-		druid.hurricane.SkipCastAndApplyEffects(sim, target)
-		stepWhile(t, sim, func() bool { return len(druid.tickCrits) < ticks })
-	}
-
+	druid.tickCrits = nil
 	chargeRevelation(sim, buff)
-	channelFor(2)
-	if !buff.IsActive() {
-		t.Fatal("two ticks into the channel, Revelation's charge is spent")
+	druid.hurricane.Cast(sim, target)
+	if !channel.IsActive() || !buff.IsActive() {
+		t.Fatal("Hurricane started and Revelation's charge is gone before its first tick")
 	}
-	stepWhile(t, sim, channel.IsActive)
-	sim.Step()
-	if len(druid.tickCrits) != 3 || slices.Contains(druid.tickCrits, false) {
-		t.Errorf("ticks crit %v, want all three", druid.tickCrits)
+	stepWhile(t, sim, func() bool { return len(druid.tickCrits) < 3 })
+	if first := druid.tickCrits; len(first) != 3 || slices.Contains(first, false) {
+		t.Errorf("the first tick crit %v, want every one of the 3 targets", first)
 	}
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 	if buff.IsActive() {
-		t.Error("the channel ended and Revelation's charge is still up")
+		t.Fatal("the first tick landed and Revelation's charge is still up")
 	}
+	// A later tick that lands without a crit may proc a new charge, which is taken away before the next.
+	stepWhile(t, sim, func() bool {
+		buff.Deactivate(sim)
+		return channel.IsActive()
+	})
+	if later := druid.tickCrits[3:]; len(later) != 6 || slices.Contains(later, true) {
+		t.Errorf("the ticks after the first crit %v, want 6 hits and none crit", later)
+	}
+}
 
-	chargeRevelation(sim, buff)
-	channelFor(1)
-	channel.Deactivate(sim)
-	if buff.IsActive() {
-		t.Error("the channel was cut short and Revelation's charge is still up")
-	}
+// A channel whose ticks cast no spell keeps the charge to its end, cut short or run out.
+func TestRevelationLastsAChannelWithNoTickSpell(t *testing.T) {
+	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
+	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
+	target := character.CurrentTarget
+	buff := character.GetAuraByID(core.ActionID{SpellID: 1323400})
 
 	chargeRevelation(sim, buff)
 	druid.drain.Cast(sim, target)
@@ -453,7 +464,7 @@ func TestRevelationHearsNoRangedAttack(t *testing.T) {
 
 	castAndStep := func(spell *core.Spell) *core.SpellResult {
 		spell.Cast(sim, target)
-		sim.Step()
+		stepTo(t, sim, sim.CurrentTime+2*core.SpellBatchWindow)
 		return hunter.last
 	}
 
@@ -532,9 +543,9 @@ func revelationProcsOnBlocks(t *testing.T, sim *core.Simulation, character *core
 
 // A mage's buff 1248808 spends its charge as the cast it reaches completes. Every target of an area
 // cast crits and the next cast does not; a missile rolled at the cast keeps its crit in flight, a
-// spell cast while it flies gets none, and its landing spends no charge. A channel keeps the charge
-// for every tick and spends it at the channel's end, and a channeled cast that starts no channel
-// spends it as it completes.
+// spell cast while it flies gets none, and its landing spends no charge. A channel's first missile
+// crits and spends the charge, and a channeled cast that starts no channel spends it as it completes
+// (EV-0149).
 func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, 3)
 	mage := sim.Raid.Parties[0].Players[0].(*testMage)
@@ -593,14 +604,20 @@ func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	mage.missiles.Cast(sim, target)
 	channel := mage.missiles.Dot(target)
 	if !channel.IsActive() || !buff.IsActive() {
-		t.Fatal("Arcane Missiles started and Revelation's charge is gone before the channel ends")
+		t.Fatal("Arcane Missiles started and Revelation's charge is gone before its first missile")
 	}
-	stepWhile(t, sim, channel.IsActive)
-	if got := crits(mage.missile); len(got) != 3 || slices.Contains(got, false) {
-		t.Errorf("Arcane Missiles' ticks crit %v, want all three", got)
-	}
+	stepWhile(t, sim, func() bool { return len(mage.crits[mage.missile]) == 0 })
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 	if buff.IsActive() {
-		t.Error("Arcane Missiles ended and Revelation's charge is still up")
+		t.Error("Arcane Missiles' first missile landed and Revelation's charge is still up")
+	}
+	// A later missile that lands without a crit may proc a new charge, which is taken away before the next.
+	stepWhile(t, sim, func() bool {
+		buff.Deactivate(sim)
+		return channel.IsActive()
+	})
+	if got := crits(mage.missile); len(got) != 3 || !got[0] || got[1] || got[2] {
+		t.Errorf("Arcane Missiles' ticks crit %v, want the first only", got)
 	}
 	settle()
 
@@ -611,6 +628,42 @@ func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	}
 	if buff.IsActive() {
 		t.Error("a channeled cast completed without starting its channel and Revelation's charge is still up")
+	}
+}
+
+// A hit event rolls Revelation once however many enemies it strikes: an Arcane Explosion that lands on 5
+// enemies without a crit procs it about as often as the enchant's chance for one roll (EV-0149).
+func TestRevelationRollsOncePerHitEvent(t *testing.T) {
+	const casts, enemies = 600, 5
+	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, enemies)
+	mage := sim.Raid.Parties[0].Players[0].(*testMage)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	buff := character.GetAuraByID(core.ActionID{SpellID: 1248808})
+
+	chance := 0.0
+	for _, effect := range core.GetEnchantByEffectID(revelationEnchant).EnchantEffects {
+		if effect.BuffId == 1248806 {
+			chance = effect.GetProc().GetProcChance()
+		}
+	}
+	if chance <= 0 || chance >= 0.5 {
+		t.Fatalf("the enchant's entry states a chance of %v for 1248806, want one between none and a half", chance)
+	}
+
+	procs := 0
+	for range casts {
+		buff.Deactivate(sim)
+		mage.explosion.Cast(sim, character.CurrentTarget)
+		stepTo(t, sim, sim.CurrentTime+2*core.SpellBatchWindow)
+		if buff.IsActive() {
+			procs++
+		}
+	}
+	if hits := len(mage.crits[mage.explosion]); hits != casts*enemies || slices.Contains(mage.crits[mage.explosion], true) {
+		t.Fatalf("%d casts landed %d hits with crits among them, want %d and none crit", casts, hits, casts*enemies)
+	}
+	if want := casts * chance; float64(procs) < want/2 || float64(procs) > 2*want {
+		t.Errorf("%d casts on %d enemies procced Revelation %d times, want about %.0f, one roll a cast", casts, enemies, procs, want)
 	}
 }
 
@@ -644,7 +697,7 @@ func TestRevelationRollsNothingOffASpellFarUnderTheWearer(t *testing.T) {
 
 	for range 400 {
 		mage.firstRank.Cast(sim, target)
-		sim.Step()
+		stepTo(t, sim, sim.CurrentTime+2*core.SpellBatchWindow)
 	}
 	if buff.IsActive() {
 		t.Fatal("Frostbolt's first rank procced Revelation at level 60")
@@ -654,7 +707,7 @@ func TestRevelationRollsNothingOffASpellFarUnderTheWearer(t *testing.T) {
 			t.Fatal("300 Fire Blasts and Revelation never procced")
 		}
 		mage.fireBlast.Cast(sim, target)
-		sim.Step()
+		stepTo(t, sim, sim.CurrentTime+2*core.SpellBatchWindow)
 	}
 }
 

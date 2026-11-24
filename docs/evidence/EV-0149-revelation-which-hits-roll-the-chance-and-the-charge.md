@@ -1,15 +1,19 @@
 # EV-0149: Revelation on every class: which hits roll it, the chance, and what spends the charge
 
-- Claim: Revelation (enchant 8217) rolls on each landed non-crit direct hit of a spell with the magic defense type, the
+- Claim: Revelation (enchant 8217) rolls on landed non-crit direct hits of a spell with the magic defense type, the
   wearer's own or an item's, at a chance scaled by a level ramp, clamp((SpellLevel + 32 − level) / 20, 0, 1); periodic
   ticks, damage shields, leech heals and melee or ranged attacks (the paladin's judgements and Hammer of Wrath, the
-  hunter's Arcane Shot and Volley) roll nothing. At level 60 on spells at the full ramp the chance reads 8.94% for
-  mages, 8.84% for warlocks, 8.65% for priests, 7.90% for druids, 7.30% for shamans and 7.02% for paladins, and it falls
-  as the wearer's crit from gear and intellect rises. The charge goes as a spell the buff affects is cast, on every
-  class, and the cast's hit crits even when it lands after the buff is gone; a channelled spell keeps the buff until
-  the channel ends and every hit of it crits meanwhile; the paladin's judgements and Hammer of Wrath crit and leave the
-  charge. The buff reaches spells its row does not name: Fireball, Pyroblast, Frostfire Bolt, Immolate, Flame Shock,
-  Moonfire and Regrowth spend it and crit on their direct hit, and their ticks do not crit.
+  hunter's Arcane Shot and Volley) roll nothing. A hit event rolls once however many targets it strikes, where until
+  2026-11-24 20:54 UTC each target rolled. At level 60 on spells at the full ramp the chance reads 8.94% for mages,
+  8.84% for warlocks, 8.65% for priests, 7.90% for druids, 7.30% for shamans and 7.02% for paladins, and it falls as
+  the wearer's crit from gear and intellect rises. The charge goes as a spell the buff affects is cast, on every class,
+  and the cast's hit crits even when it lands after the buff is gone. A channel whose ticks cast a spell of their own
+  (Blizzard, Hellfire, Rain of Fire, Hurricane, Arcane Missiles) loses it to its first tick, which crits on every target
+  it strikes, and its later ticks crit at their own chance; until the same switch a channel kept the buff to its end
+  and every hit of it crit. Mind Flay's and Wrack's ticks crit and leave the charge, read on 3 wearers. The paladin's
+  judgements and Hammer of Wrath crit and leave the charge. The buff reaches spells its row does not name: Fireball,
+  Pyroblast, Frostfire Bolt, Immolate, Flame Shock, Moonfire and Regrowth spend it and crit on their direct hit, and
+  their ticks do not crit.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every character with enchant 8217 on the main hand in
   the 1,356 reports the Reports section lists; all fights.
 - Game build: 1.60.1.70862, 1.60.1.70888 and 1.60.1.70938 by event time against the time the CDN first listed each
@@ -17,6 +21,8 @@
   procs on each. The hotfix each player ran is not recorded.
 - Date: 2026-11-07 to 2026-11-18
 - Pull request: #1100
+- Later count: the roll on a hit of several targets, what spends the charge in a channel, Arcane Missiles' charge,
+  Mind Flay's and Wrack's ticks, §Count of the 2026-11-24 reports
 
 ## Method
 
@@ -220,9 +226,12 @@ At a level estimate of 60, counted alone on ranked class spells of spell level 5
 | Shaman  | 2,972 of 40,695   |  7.30% |
 | Paladin | 426 of 6,066      |  7.02% |
 
-The number of targets a cast hits does not move it: 8.42% on clusters of one roll, 8.79% on 2 to 3, 8.78% on 4 to 6,
-8.83% on 7 to 10 and 8.39% on 11 and over. Nor does the build window: the mages at 60 read 8.59% on 70888 (6
-characters), 8.99% on 70938 and 8.98% after 70959 was listed.
+- Count: §Count of the 2026-11-24 reports
+
+On these reports each target rolled, and the number of targets a cast hits does not move the chance a roll: 8.42% on
+clusters of one roll, 8.79% on 2 to 3, 8.78% on 4 to 6, 8.83% on 7 to 10 and 8.39% on 11 and over. Nor does the build
+window: the mages at 60 read 8.59% on 70888 (6 characters), 8.99% on 70938 and 8.98% after 70959 was listed. Since
+2026-11-24 20:54 UTC a hit event rolls once.
 
 The tooltip says the chance falls as the wearer's crit chance rises. Against crit from gear and intellect, on the
 stretches at a level estimate of 60 and the fitted shares of ranked class spells within 8 levels of the wearer:
@@ -295,10 +304,13 @@ Some instant casts lose the buff at the cast and do not crit: Fire Blast 391 of 
 the Ice Lances and 53 of the Cones of Cold, against 150 of the 1,982 Fire Blasts that crit, so the one charge went to
 the other cast. The rest are not explained.
 
-### A channel keeps it to its end
+### A channel kept it to its end until 2026-11-24
 
-A channelled spell the buff names does not spend the charge at its cast. Every hit of the channel crits while the buff
-is up, and the buff goes when the channel ends. Casts with the buff up and gained from another spell:
+- Count: §Count of the 2026-11-24 reports
+
+On these reports a channelled spell the buff names does not spend the charge at its cast. Every hit of the channel
+crits while the buff is up, and the buff goes when the channel ends. Since 2026-11-24 20:54 UTC the first tick spends
+it. Casts with the buff up and gained from another spell:
 
 | Spell            | Casts | Hits with the buff up | Hits after it is gone |
 | ---------------- | ----: | --------------------- | --------------------- |
@@ -619,3 +631,107 @@ bahZczXqfLk3pQR2, 4vcn3WF1RxXf8VZt, a42r3p6ZxtBTRqfQ, hZLykw9dRnYbtvKP, 9R8rhcAw
 4bVQqW6vk7fHzyrw, nYHgB2LKbtFDWVGw, L2c7jBZNwFPpb1tV, jgxBZTv69zf4aMhR, 9xpQ267J41GrDaMf, 1GN2LMtwvY4JQHba,
 p64RG9PVZcDg1XCk, aF69WRYXAT1qNZjM, 4JYa2mQgpVNMF89R, wkNFMH1nAhZ82Rym, tG4CqkJQvyPT2A1Y, t2yjAqMgTvGZHJLC,
 NqKayk8Q9rwWvjpz, 7Kz3LtgfDmbBRGXP, Wza8bdXVRhcgqGnZ, k3QGKZ2jr1ptgRPx, Y8L1VRGqHjKJpbCM, 2PfTacjwkD9xJtzd
+
+## Count of the 2026-11-24 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every wearer of enchant 8217 with a Revelation buff in
+  the 39 reports listed below; and a local combat log of a warlock and a mage, levels not recorded, taken 2026-11-24
+  21:09 local time (WoWCombatLog-112426_210934).
+- Game build: 1.60.1.71037 live, hotfix push 114378 cache. The change is server side and shows in the reports between
+  20:53:45 and 20:54:06 UTC on 2026-11-24. No game files row changed: the rows of the proc aura 1248806 and of the seven
+  buffs were pushed again at 114284, byte-identical.
+- Date: 2026-11-24
+- Pull request: #1208
+
+Before is the events from 20:00 to 20:53 UTC, 52 wearers in 35 reports; after is the events from 20:55 UTC, 47 wearers
+in 31 reports. The procs, the buffs and the rolls are counted as in §Method. A buff episode runs from an application
+to its removal, capped at 15.2 s after the last proc. A group is a spell's landings within 20 ms of the first, so a
+channel tick or an area cast on several targets is one group.
+
+Per 5 minutes, buffs that a channel's first tick takes within 300 ms: 0 or 1 in every window from 20:00 to 20:45, of
+15 to 52 each; 5 of 49 at 20:50; and all of them in every window from 20:55 to 21:30, 15 to 34 each.
+
+### One roll a hit event
+
+Groups with the buff down and no crit, and the share with a proc within 100 ms, by the number of targets:
+
+| Spell                    | 1 target        | 2                | 3                | 4                | 5 and more       |
+| ------------------------ | --------------- | ---------------- | ---------------- | ---------------- | ---------------- |
+| Blizzard, after          | 10 of 94, 0.106 | 24 of 255, 0.094 | 44 of 471, 0.093 | 37 of 428, 0.086 | 27 of 306, 0.088 |
+| Blizzard, before         | 9 of 83, 0.108  | 31 of 257, 0.121 | 66 of 244, 0.270 | 65 of 198, 0.328 | 77 of 163, 0.472 |
+| Hellfire, after          | 3 of 43, 0.070  | 10 of 153, 0.065 | 21 of 216, 0.097 | 22 of 222, 0.099 | 17 of 165, 0.103 |
+| Hellfire, before         | 4 of 17, 0.235  | 9 of 57, 0.158   | 21 of 92, 0.228  | 28 of 111, 0.252 | 30 of 69, 0.435  |
+| Arcane Explosion, after  | 10 of 54, 0.185 | 3 of 84, 0.036   | 17 of 131, 0.130 | 6 of 88, 0.068   | 6 of 86, 0.070   |
+| Arcane Explosion, before | 5 of 37, 0.135  | 16 of 85, 0.188  | 42 of 145, 0.290 | 34 of 124, 0.274 | 33 of 72, 0.458  |
+
+Before, the share grows with the targets as one roll a target gives; after, it stays at one roll's chance. Rain of
+Fire has too few groups to read (after: 0 of 3, 5 of 17, 6 of 40, 4 of 51, 4 of 55). Which result rolls when only some
+targets of a hit crit is not counted.
+
+### A channel's first tick spends it
+
+Buff episodes whose next landing of a channel or ground spell is a tick of a running channel:
+
+| Spell                 | Episodes after | Taken within 60 ms of the first tick | Episodes before | Taken within 60 ms |
+| --------------------- | -------------: | ------------------------------------ | --------------: | ------------------ |
+| Blizzard, mage        |            170 | 160, the other 10 before that tick   |             338 | 1, 325 later       |
+| Hellfire, warlock     |             23 | 23                                   |              36 | 0, 33 later        |
+| Rain of Fire, warlock |              6 | 6                                    |              32 | 0, 30 later        |
+| Hurricane, druid      |              4 | 4                                    |               9 | 0, 9 later         |
+
+The median from the tick to the removal is 12 ms for Blizzard, Hellfire and Rain of Fire and 17 ms for Hurricane. The
+tick that spends it crits on every target it strikes, counted on its groups of 2 targets or more after: Blizzard 721
+of 721 in 182 groups, Hellfire 215 of 215 in 48, Rain of Fire 85 of 85 in 19, Hurricane 42 of 42 in 12. The ticks
+after it with the buff down crit at the spell's own chance:
+
+| Spell        | Later ticks, buff down, crits | The spell's crit with the buff down |
+| ------------ | ----------------------------- | ----------------------------------- |
+| Blizzard     | 172 of 1,942, 8.9%            | 965 of 9,596, 10.1%                 |
+| Hellfire     | 68 of 549, 12.4%              | 512 of 4,803, 10.7%                 |
+| Hurricane    | 25 of 167, 15.0%              | 210 of 1,433, 14.7%                 |
+| Rain of Fire | 5 of 68, 7.4%                 | 128 of 1,359, 9.4%                  |
+
+A later tick that comes with a new proc's buff up crits on every target: Blizzard 114 of 114, Hellfire 20 of 20,
+Hurricane 4 of 4. Before, the ticks after the first with the buff up crit on every target: Blizzard 6,024 of 6,024,
+Hellfire 2,101 of 2,101, Rain of Fire 341 of 341, Hurricane 231 of 231.
+
+In the local log, the warlock's Hellfire first tick crits and the buff goes 103 ms later, with the next tick not
+critting; the mage's Blizzard first tick crits and the buff goes 103 ms later, with the three ticks after it not
+critting.
+
+### Arcane Missiles
+
+Of 117 episodes after with a missile landing inside, the buff goes 0 to 5 ms after a missile lands in 93, and that
+missile crits in all 93; the other 24 lose it to something else. Before, 4 of 90 went at a missile's landing, and 56
+at a missile's cast event with no landing.
+
+### Direct spells
+
+The charge still goes at the cast and the hit keeps its crit in flight. After, by cast with the buff up:
+
+| Spell          | Casts | Removed at the cast | First hit crits |
+| -------------- | ----: | ------------------: | --------------: |
+| Frostbolt      |    55 |                  54 |              54 |
+| Lightning Bolt |    25 |                  25 |              25 |
+| Shadow Bolt    |     8 |                   7 |               7 |
+| Pyroblast      |     4 |                   4 |               4 |
+
+An instant area cast crits on every target, as a cast that spends the charge at its completion does: Arcane Explosion
+240 of 247 targets in 67 groups of 2 or more, Chain Lightning 20 of 20 in 8.
+
+### Mind Flay and Wrack
+
+After, on 1 priest and 2 warlocks, their ticks crit with the buff up and spend nothing: Mind Flay 106 of 106 ticks
+crit in 14 episodes, of which 12 run out at 15 s and 2 go at a Mind Blast or Shadow Word: Death cast; Wrack 17 of 17 in
+4 episodes, of which 3 run out at 15 s and 1 goes at a Shadow Bolt cast. Before, Mind Flay's buff went with no cast of
+the wearer in 7 of 8 episodes. Three wearers are too few to settle it.
+
+### Reports
+
+1ZfhArNnJX3gtPcB, 2ztdfwHnv4PgYAxh, 6dwcWm1rYyhgnTxf, bqafJg6RZAL4P2hH, D3yAqmjMcztNdaRW, Dtc8bkGdZ14v7fFa,
+DwKyLCcW9xnX1APV, GtXgCKbJQLxda613, hzQRLkBxWCcdPvD1, jG4ctAQMv9TbrpkY, jPTNyJWtxLzQ8MFZ, JXtPHx4p12WyQqjm,
+KJnv23ZtWfXraV81, LwTNrdJ6zjnmCKZg, man3DYTNht7JxFGk, pqrmA6VNzPaRHdCT, rMydHq3vx9wPjmR1, rvWB6DTH4dPRJVCF,
+tjYN3m2rzFBp1dTb, w63ZvnMVbhQJ1xKC, WXDVmBJ4afK2Lnrh, xZtGRMyAX2FDP1qY, ZKFfkr1J4XaGP38Q, zRFDJLjX42NPpvVn,
+ZzL2CYkARtBjg16v, cHLmxkQT1ZCXbKwy, rNMBcQ4awpV7gz6R, XkTcqKrpMC4L3N1x, abBzgq4AFTM9V3kr, BrMn7X4LPwc2DgN6,
+dBDT9XHZPvwJ3zMR, gnThGBckVLrFDp8A, Hy9FbkDXzLRmZBAc, ktXHy6ZJL4pMwBqA, R4y92czhFrkmtfYA, t9PLr4H8gdkXncRZ,
+6tGyrxPaNM4VQBvq, aFkCTQyW6HxYtN7Z, R3JMNnkVWCDwxyda

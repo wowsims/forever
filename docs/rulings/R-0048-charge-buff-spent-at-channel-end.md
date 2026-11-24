@@ -9,6 +9,8 @@ A charge buff hit by the wearer's channel is reserved and spent at that channel'
 interrupted channel included, and a charge gained while a channel its class flags name is running is spent at that
 channel's end.
 
-This holds for a buff whose row names the spells that spend it by class flags, such as Revelation. A buff whose row
+This holds for a buff whose row names the spells that spend it by class flags. Revelation adds a listener of its own
+on top: a channel whose ticks cast a spell of their own spends its charge on the first tick, and a channel whose ticks
+are its own periodic damage keeps it to the end (EV-0149). A buff whose row
 names no spells keeps nothing for a channel: the first hit it hears spends the charge as it lands, so Weakness
 Analyzer's charge goes with the first Arcane Missiles missile that crits, mid-channel.

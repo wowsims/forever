@@ -330,14 +330,14 @@ func TestBlizzardCastRollsArcaneConcentrationOncePerCast(t *testing.T) {
 	}
 }
 
-// Each enemy a Flamestrike ground tick lands on rolls Revelation: against many enemies a tick procs it far
-// more often than against one.
-func TestFlamestrikeGroundTickRollsRevelationPerTarget(t *testing.T) {
+// A Flamestrike ground tick rolls Revelation once however many enemies it lands on: against many enemies a
+// tick procs it about as often as against one (EV-0149).
+func TestFlamestrikeGroundTickRollsRevelationOnce(t *testing.T) {
 	const ticks, manyTargets = 1500, 8
 	one, many := flamestrikeTickRevelations(t, 1, ticks), flamestrikeTickRevelations(t, manyTargets, ticks)
 
-	if one == 0 || many < 3*one {
-		t.Errorf("Revelation procced on %d of %d ticks on one target and %d on %d targets, want at least three times as many on %d",
+	if one == 0 || many > 2*one {
+		t.Errorf("Revelation procced on %d of %d ticks on one target and %d on %d targets, want about as many on %d",
 			one, ticks, many, manyTargets, manyTargets)
 	}
 }

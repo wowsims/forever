@@ -290,9 +290,8 @@ func init() {
 		character.ItemSwap.RegisterWeaponEnchantBuff(buff, 8217)
 
 		// The charge goes as a cast the buff reaches completes, on every class, and a spell still in
-		// flight keeps the crit it rolled. A channel the mask names (Blizzard, Hurricane) keeps the
-		// charge to its end. A melee or ranged attack the mask names, a paladin's judgement or Hammer
-		// of Wrath, crits and leaves the charge (EV-0028, EV-0149).
+		// flight keeps the crit it rolled. A melee or ranged attack the mask names, a paladin's
+		// judgement or Hammer of Wrath, crits and leaves the charge (EV-0028, EV-0149).
 		// TODO: Holy Shock's and Light's Vigil's heals crit here on every cast with the buff up, and
 		// in the logs mostly do not, landing after the charge is gone (EV-0149).
 		// TODO: A charge gained while a hunter channels Volley, a ranged attack, is still spent as the
@@ -305,7 +304,7 @@ func init() {
 		if critsDirectHits {
 			spends = revelationSpentBy(row, direct)
 		}
-		spelldata.AttachChargeSpender(character, buff, spends, "Revelation Charge",
+		spender := spelldata.AttachChargeSpender(character, buff, spends, "Revelation Charge",
 			func(_ *core.Character, trigger *core.ProcTrigger) {
 				trigger.ProcMask = core.ProcMaskUnknown
 				trigger.Callback = core.CallbackOnCastComplete
@@ -313,6 +312,33 @@ func init() {
 					return !isAttack(spell)
 				}
 			})
+
+		// A channel the mask names whose ticks cast a spell of their own (Blizzard, Hurricane, Hellfire,
+		// Rain of Fire, Arcane Missiles) spends the charge on the first tick that crits from it. Every
+		// target that tick strikes crits, and the charge goes a spell batch window later, so the ticks
+		// after it crit at their own chance (EV-0149).
+		// TODO: Mind Flay's and Wrack's ticks are the channel's own periodic damage, and the charge
+		// stays to the channel's end. In the logs their ticks crit and spend nothing, and the buff
+		// runs out its duration; EV-0149 has too few wearers to settle it.
+		firstTickHit, _ := core.OncePerCast()
+		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
+			Name:               "Revelation Charge - Channel Tick",
+			Callback:           core.CallbackOnSpellHitDealt | core.CallbackOnHealDealt,
+			ClassFlags:         spender.ClassFlags,
+			CanProcFromProcs:   true,
+			Outcome:            core.OutcomeCrit,
+			RequireDamageDealt: true,
+			ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				channel := character.ChanneledDot
+				return channel != nil && channel.Spell != spell && channel.Spell.MatchesFlags(spender.ClassFlags) &&
+					!spell.Flags.Matches(core.SpellFlagChanneled) && !isAttack(spell) && firstTickHit(sim, spell)
+			},
+			Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+				if buff.IsActive() {
+					buff.RemoveStack(sim)
+				}
+			},
+		})
 
 		// The direct hit of a spell in revelationDirectHits crits for the one cast that spends the
 		// charge, and its ticks never do.
@@ -352,10 +378,15 @@ func init() {
 		// spell registered under its item id, reads level 0 and keeps none.
 		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
 		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
+		// One hit event rolls once, however many targets it strikes: the first result of a spell at a
+		// moment that lands without a crit rolls, and the rest of that spell's results then roll nothing
+		// (EV-0149).
+		// TODO: Which result decides when only some targets of the event crit is not measured.
 		shares := map[*core.Spell]float64{}
+		firstRoll, _ := core.OncePerCast()
 		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
 			// A landing while the buff is up rolls too and refreshes it.
-			if result.DidCrit() || isAttack(spell) {
+			if result.DidCrit() || isAttack(spell) || !firstRoll(sim, spell) {
 				return false
 			}
 			share, ok := shares[spell]
