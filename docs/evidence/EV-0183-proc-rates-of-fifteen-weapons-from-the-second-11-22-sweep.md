@@ -1,7 +1,7 @@
 # EV-0183: Proc rates of fifteen weapons from the second 2026-11-22 sweep
 
 - Claim: each weapon below procs at the rate its section gives, priced on the weapon base speed of each hit that rolls
-  it; Mug O' Hurt's rate is measured, and the others observed.
+  it; Mug O' Hurt's rate is measured, Hedgecutter's is measured by a later count, and the others observed.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each weapon's section lists, from
   every wearer stream on disk for the 15 weapons; 193 reports in all for them, of the count's 3,714
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
@@ -10,6 +10,7 @@
   The sim's database is 1.60.1.71037, push 114332; the hotfix each player ran is not recorded
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180
+- Later count: Hedgecutter, §Count of the 2026-11-06 to 2026-11-23 reports
 
 ## Method
 
@@ -52,7 +53,6 @@ Rate is the override row's rate. The one-hand white and specials columns give th
 | Frightskull Shaft         |  14531 |    3 | observed | 3.02 [2.93, 3.16] |  1,036 / 6,046 |       6 | 2.78 (254)     | -         |
 | Gargoyle Shredder Talons  |  13399 | 2.05 | observed | 2.06 [1.82, 2.19] |    282 / 4,556 |       5 | -              | -         |
 | Glacial Blade             |  19099 |  1.3 | observed | 1.29 [1.20, 1.44] |    299 / 7,720 |       6 | -              | 1.66 (11) |
-| Hedgecutter               |  18498 | 1.75 | observed | 1.77 [1.64, 1.94] |    220 / 3,917 |       6 | 2.55 (30)      | 0.79 (2)  |
 | Mug O' Hurt               |   4090 | 2.15 | measured | 2.13 [2.01, 2.23] |    590 / 9,774 |       9 | 1.90 (80)      | 1.72 (21) |
 | Naraxis' Fang             |   4449 |  2.1 | observed | 2.11 [2.02, 2.31] |    357 / 6,337 |       8 | 2.68 (2)       | 3.07 (19) |
 | Needletooth's Needletooth | 282703 |    4 | observed | 3.98 [3.86, 4.18] | 1,353 / 12,012 |      10 | -              | 2.76 (21) |
@@ -188,24 +188,29 @@ Specials: 1.66 [0.83, 2.97], 11 procs on 221 lone units, 3 wearers (a Poisson in
 Reports and fights: BktCDhG4XAmf3Pc7 1-5, 8-12; GD26JWT9QRqhCyFg 3-36; Xjrt9FRMWqJyKdpa 2-3; bmNLMA1QdaPDkCp4 1-9;
 n4q6fxmaLKB8wcXJ 1-2; wkrzY3mDh7RGfMc2 54; z1dafpqhmA8LgTB7 1.
 
-## Hedgecutter (item 18498, spell 1302344): 1.75, observed
+## Hedgecutter (item 18498, spell 1302344): 1.95, measured
 
-220 procs on 3,917 rolling hits, 6 wearers, 6 runs, in the main hand or the off hand: all hits 1.77 [1.64, 1.94].
-Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
-Observed: no lone-unit rate checks it. One-hand white: 2.55 [1.72, 3.65], 30 procs on 371 lone units, 2 wearers (a
-Poisson interval: under 5 wearers). Dual-wield white, which sets no rate: 1.57 [1.20, 2.00], 63 procs on 1,270 lone
-units, 4 wearers (a Poisson interval: under 5 wearers). Specials: 0.79 [0.10, 2.85], 2 procs on 80 lone units, 2 wearers
-(a Poisson interval: under 5 wearers). Direct: window [-10, 100] ms, median 0 ms, 98th percentile 0 ms, 59 isolated
-hits. Dropping the swapped stretches (17 active minutes, 13% of hits, in 1 run) moved the read from 1.55 to 1.77.
-Reports from 2026-11-16 to 2026-11-22.
+- Count: §Count of the 2026-11-06 to 2026-11-23 reports
+
+449 procs on 7,225 rolling hits, 11 wearers, 11 runs, in the main hand or the off hand: all hits 1.96 [1.77, 2.14]. The
+rate is all hits, which the one-hand white rate agrees with. The interval's lower end, 1.772, is just inside 10% of the
+rate (1.755). The reports of the earlier count read 1.77 on 220 procs, and the reports new to this count 2.19 on 229.
+One-hand white: 2.11 [1.62, 2.70], 62 procs on 929 lone units, 3 wearers (a Poisson interval: under 5 wearers).
+Dual-wield white, which sets no rate: 1.74 [1.35, 2.07], 134 procs on 2,427 lone units, 8 wearers. Specials: 2.15 [1.43,
+3.10], 28 procs on 412 lone units, 4 wearers (a Poisson interval: under 5 wearers). Two-roll abilities, priced as one
+roll: 1.71, 2 procs on 37 lone units (Execute 2 on 26 and Mongoose Bite 0 on 11), left out of the rate. Direct: window
+[-10, 100] ms, median 0 ms, 98th percentile 0 ms, 164 isolated hits. Dropping the swapped stretches (17 active minutes,
+7% of hits, in 1 run) moved the read from 1.82 to 1.96. Reports from 2026-11-16 to 2026-11-23.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |
+| Warrior |       6 |   263 | 3,891 | 2.13 |
 | Rogue   |       3 |   144 | 2,605 | 1.75 |
-| Warrior |       3 |    76 | 1,312 | 1.83 |
+| Hunter  |       2 |    42 |   729 | 1.82 |
 
 Reports and fights: DcykPCwKQNzq7btT 4; TG7ZMLJB1cYAhq4k 1-3, 5-6; WRta3xn1PLJqj2rp 3; XWbYtZ6mTHND2G3P 1-3;
-gdBnpzCGaJ2THt3y 1; qFnZWz3fpbdBVQrg 1-2.
+ZhyVJcb2v1zaLx3j 10-50; dCzLqgx2cBH31Jwb 50-103; dx7pZB298K6DYgnh 2, 4; gdBnpzCGaJ2THt3y 1; jfNB6a8wchntJC7v 59, 61-63,
+65-67; qFnZWz3fpbdBVQrg 1-2; xD7kTXQ3LYFCVjP8 4-5, 7-23.
 
 ## Mug O' Hurt (item 4090, spell 13496): 2.15, measured
 
@@ -350,3 +355,17 @@ BYWx47AydwZcrDhz 1-3; CxbNBR6zJFpH3nYv 1-3; WjnNbmcqYtkpK3TL 1-49; XTH4hjrCaFymL
 ah4jpXRfKY7FrPdG 1-5; b1ZxqrmHWn48MYQ9 1-3; cfBNnYH4Xp18F3bk 1-15; dfpkK4jbyY97LwxP 1; mrC9TwxYgb8H4F1d 1-4;
 qGzkgDbAXjpc8Qad 1-5; rFcbq4XAamKhZ8gk 1-3; tbJx8pVKDrMBCYaP 1-4; wrx8NJY1tZKFgkyq 2-6; xMB7vGKDqz6knCW3 1-5;
 zD4VF1278AymkKXY 4-5.
+
+## Count of the 2026-11-06 to 2026-11-23 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights the Hedgecutter section lists,
+  from every wearer stream on disk for it; 31 reports in all for the count, 11 of them for Hedgecutter
+- Game build: 1.60.1.70862 to 1.60.1.71037 by report date (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
+  02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
+  UTC); 17 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 7 of them for Hedgecutter, and
+  none after 2026-11-24 01:00 UTC. The sim's database is 1.60.1.71037, push 114366; the hotfix each player ran is not
+  recorded
+- Date: 2026-11-06 to 2026-11-23
+- Pull request: not recorded
+
+The count is EV-0186 §Method, run on this weapon.

@@ -2391,6 +2391,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Winter'sBite-10623"
+ value: {
+  dps: 818.26856
+  tps: 754.83452
+  dtps: 8.67842
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-WraithScythe-11920"
  value: {
   dps: 818.26856

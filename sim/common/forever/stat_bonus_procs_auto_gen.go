@@ -448,19 +448,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Launches a bolt of frost at the enemy causing 50 Frost damage and slowing movement speed by 50% for 5s.
-	// https://www.wowhead.com/forever/spell=13439
-	// unsupported: states no rate
-	// trigger 13439 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13439, BuffSpellID: 13439, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 10623, ItemName: "Winter's Bite"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Increases Attack Power by 102 and melee attack speed by 6% for 15s.
 	// https://www.wowhead.com/forever/spell=12686
 	// unsupported: states no rate
@@ -3508,6 +3495,14 @@ func RegisterAllProcs() {
 			{ItemID: 9651, ItemName: "Gryphon Rider's Stormhammer"},
 		})
 
+	// Launches a bolt of frost at the enemy causing 50 Frost damage and slowing movement speed by 50% for 5s.
+	// https://www.wowhead.com/forever/spell=13439
+	// trigger 13439 (2.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13439, BuffSpellID: 13439, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 10623, ItemName: "Winter's Bite"},
+		})
+
 	// Heals wielder of 42 damage.
 	// https://www.wowhead.com/forever/spell=1300356
 	// trigger 1300356 (1.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -4118,7 +4113,7 @@ func RegisterAllProcs() {
 	// Slice the target with magically enhanced precision, dealing 42 Arcane damage. Deals 3 times as much damage
 	// to Plants.
 	// https://www.wowhead.com/forever/spell=1302344
-	// trigger 1302344 (1.75 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1302344 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1302344, BuffSpellID: 1302344, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 18498, ItemName: "Hedgecutter"},

@@ -1262,10 +1262,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Hedgecutter-18498"
  value: {
-  dps: 555.43885
-  tps: 479.15151
+  dps: 554.20977
+  tps: 478.22917
   dtps: 2.94293
-  hps: 45.17389
+  hps: 45.20778
  }
 }
 dps_results: {
@@ -2400,6 +2400,15 @@ dps_results: {
   tps: 459.15046
   dtps: 3.03963
   hps: 43.03889
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Winter'sBite-10623"
+ value: {
+  dps: 546.5732
+  tps: 472.07304
+  dtps: 2.94293
+  hps: 42.97111
  }
 }
 dps_results: {

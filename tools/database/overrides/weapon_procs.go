@@ -593,6 +593,21 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blackblade of Shahram: no proc row",
 		Source:  "EV-0125",
 	},
+	// Measured by EV-0153's method on the reports from 2026-11-16 to 2026-11-23, paladins left out (EV-0183, EV-0186).
+	{
+		ItemID:  10623,
+		SpellID: 13439,
+		PPM:     2.95,
+		Reason:  "Winter's Bite: column reads 101",
+		Source:  "EV-0186",
+	},
+	{
+		ItemID:  18498,
+		SpellID: 1302344,
+		PPM:     1.95,
+		Reason:  "Hedgecutter: no proc row",
+		Source:  "EV-0183",
+	},
 	// Measured by EV-0153's method on the reports from 2026-11-06 to 2026-11-22 (EV-0121, EV-0136, EV-0146, EV-0150,
 	// EV-0153, EV-0177, EV-0183).
 	{
@@ -1169,13 +1184,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  18498,
-		SpellID: 1302344,
-		PPM:     1.75,
-		Reason:  "Hedgecutter: no proc row; a log fit not yet validated (EV-0183)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  19099,
 		SpellID: 18398,
 		PPM:     1.3,
@@ -1263,6 +1271,16 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 16921,
 		PPM:     0.9,
 		Reason:  "Masterwork Stormhammer: column reads 101; a log fit not yet validated (EV-0184)",
+		Source:  "observed",
+	},
+	// Fitted the same way on the reports from 2026-11-06 to 2026-11-23, paladins left out, with too few lone-unit procs
+	// and too wide an interval to call final (EV-0186). The "observed" Source keeps the gear tab's notice up until more
+	// wearers validate it.
+	{
+		ItemID:  284386,
+		SpellID: 1316039,
+		PPM:     0.75,
+		Reason:  "Whipfang's Skinsearer: no proc row; a log fit not yet validated (EV-0186)",
 		Source:  "observed",
 	},
 	// Fitted the same way from too few wearers, wearers of one class, too wide an interval or no lone-unit rate to
