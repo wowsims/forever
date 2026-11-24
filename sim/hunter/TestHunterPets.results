@@ -2429,6 +2429,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Winter'sBite-10623"
+ value: {
+  dps: 731.51122
+  tps: 473.40124
+  dtps: 4.50124
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Witchfury-13051"
  value: {
   dps: 749.50163

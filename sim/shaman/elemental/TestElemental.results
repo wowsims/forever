@@ -1607,6 +1607,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Ragehammer-10626"
+ value: {
+  dps: 799.89185
+  tps: 738.49509
+  dtps: 8.67842
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-RageoftheStorm-280604"
  value: {
   dps: 799.89185
@@ -2388,6 +2396,14 @@ dps_results: {
   dps: 712.97264
   tps: 663.45497
   dtps: 5.96962
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Winter'sBite-10623"
+ value: {
+  dps: 818.26856
+  tps: 754.83452
+  dtps: 8.67842
  }
 }
 dps_results: {

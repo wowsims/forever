@@ -14720,6 +14720,7 @@
       "emblems_of_veiled_shadows_slice_and_dice_bonus": {"spellId": 26114, "registeredBy": ["rogue"]},
       "energized_shield": {"spellId": 24499, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"]},
       "enigmas_answer": {"spellId": 26129, "registeredBy": ["mage"]},
+      "enrage_12686": {"spellId": 12686, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]},
       "enraging_light": {"spellId": 1293673, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]},
       "enraging_light_1293674": {"spellId": 1293674, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]},
       "epiphany": {"spellId": 28802, "registeredBy": ["dps_priest", "healer_priest"]},
