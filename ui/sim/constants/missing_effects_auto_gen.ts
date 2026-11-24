@@ -157,6 +157,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		3456, // Dog Whistle
 		[
 			"", // 1293501 - https://www.wowhead.com/forever/spell=1293501
+			"Summons a tracking hound that will protect you for 3min.", // 9515 - https://www.wowhead.com/forever/spell=9515
 		]
 	],
 	[
@@ -775,6 +776,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13353, // Book of the Dead
 		[
 			"", // 1298517 - https://www.wowhead.com/forever/spell=1298517
+			"Summons a Skeleton that will protect you for 1min.", // 17490 - https://www.wowhead.com/forever/spell=17490
 		]
 	],
 	[
@@ -787,6 +789,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13382, // Cannonball Runner
 		[
 			"", // 1300668 - https://www.wowhead.com/forever/spell=1300668
+			"Summons a Scarlet Cannon that fires at targets, dealing 112 Holy damage. This effect deals 2 times as much damage to Undead enemies.", // 6251 - https://www.wowhead.com/forever/spell=6251
 		]
 	],
 	[
@@ -823,12 +826,14 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		14022, // Barov Peasant Caller
 		[
 			"", // 1298508 - https://www.wowhead.com/forever/spell=1298508
+			"Calls forth 3 servants of the House Barov that will fight, cook, and clean for you.", // 18307 - https://www.wowhead.com/forever/spell=18307
 		]
 	],
 	[
 		14023, // Barov Peasant Caller
 		[
 			"", // 1298508 - https://www.wowhead.com/forever/spell=1298508
+			"Calls forth 3 servants of the House Barov that will fight, cook, and clean for you.", // 18308 - https://www.wowhead.com/forever/spell=18308
 		]
 	],
 	[
@@ -889,6 +894,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		16022, // Arcanite Dragonling
 		[
 			"", // 1318325 - https://www.wowhead.com/forever/spell=1318325
+			"Activates your Arcanite Dragonling to fight for you for 1min.", // 19804 - https://www.wowhead.com/forever/spell=19804
 		]
 	],
 	[
@@ -1586,12 +1592,19 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		21326, // Defender of the Timbermaw
 		[
 			"", // 1318470 - https://www.wowhead.com/forever/spell=1318470
+			"Calls forth a Timbermaw Ancestor to fight at your side and heal you for 20s.", // 26066 - https://www.wowhead.com/forever/spell=26066
 		]
 	],
 	[
 		21526, // Band of Icy Depths
 		[
 			"Underwater Breath lasts 50% longer than normal.", // 11789 - https://www.wowhead.com/forever/spell=11789
+		]
+	],
+	[
+		21579, // Vanquished Tentacle of C'Thun
+		[
+			"Summons a Vanquished Tentacle to your aid for 30s.", // 26391 - https://www.wowhead.com/forever/spell=26391
 		]
 	],
 	[
@@ -1604,6 +1617,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		22198, // Jagged Obsidian Shield
 		[
 			"When struck by a harmful spell, the caster of that spell has a 5% chance to be silenced for 3s.", // 27559 - https://www.wowhead.com/forever/spell=27559
+		]
+	],
+	[
+		22332, // Blade of Necromancy
+		[
+			"Killing a non-trivial enemy has a chance to raise a Skeleton from their corpse for 2min.", // 1302108 - https://www.wowhead.com/forever/spell=1302108
 		]
 	],
 	[
@@ -1784,6 +1803,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		268873, // Defender of the Barkskin
 		[
 			"", // 1318514 - https://www.wowhead.com/forever/spell=1318514
+			"Calls forth a Barkskin Ancestor to fight at your side and heal you for 20s.", // 1294063 - https://www.wowhead.com/forever/spell=1294063
 		]
 	],
 	[
@@ -2229,6 +2249,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		276744, // Zarla's Snack Pouch
 		[
 			"", // 1318104 - https://www.wowhead.com/forever/spell=1318104
+			"Calls forth a Black Dragon Whelp to protect you in battle for a short period of time.", // 1315190 - https://www.wowhead.com/forever/spell=1315190
 		]
 	],
 	[

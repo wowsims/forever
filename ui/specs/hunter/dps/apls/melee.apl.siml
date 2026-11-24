@@ -1,6 +1,7 @@
 siml 1
 spec hunter
 use "common.apl.siml"
+use "track.apl.siml"
 
 var ${Melee range} = 5.00
 var ${Use Summon Hawk} = true
@@ -8,6 +9,7 @@ var ${Use Summon Hawk} = true
 var ${Shoot spot} = 13.19
 
 prepull:
+  -24s group "Track the target"
   -22s cast hunters_mark
   -20s cast aspect_of_the_beast
   -19s group "Move to starting range"
