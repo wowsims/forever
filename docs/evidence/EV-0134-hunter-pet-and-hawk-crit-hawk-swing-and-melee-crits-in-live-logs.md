@@ -1,7 +1,7 @@
 # EV-0134: Tamed pet crit and attack power, and hunter crit and trap rolls in live logs
 
-- Claim: a tamed pet's white swings take none of the crit it inherits from its owner, while its abilities take all of
-  it; a tamed pet takes its 10% of the ranged attack power alone, without the weapon part of the attack power a
+- Claim: a tamed pet's white swings took none of the crit it inherits from its owner until the hotfix of about 02:10
+  UTC on 2026-11-24 and take all of it since, while its abilities take all of it; a tamed pet takes its 10% of the ranged attack power alone, without the weapon part of the attack power a
   hunter's log shows; Predator's Edge reaches Raptor Strike's crit damage bonus twice, compounded; Explosive Trap's
   first hit rolls its base once and its attack power share not at all.
 - Sources: Warcraft Logs, the reports of the hunters on the Forever servers that the sections below name; all fights
@@ -10,6 +10,7 @@
   player ran and whether they relogged are not recorded.
 - Date: 2026-11-05 to 2026-11-16
 - Pull request: #1060
+- Later count: the white swings after the 2026-11-24 hotfix, §Count of 2026-11-23 to 2026-11-24
 
 ## Method
 
@@ -27,6 +28,8 @@ multiplier is the crit's amount over its `unmitigatedAmount` times the target's 
 `unmitigatedAmount` of the same hunter's nearest normal physical hit on the same target within 10 s.
 
 ## Tamed pet crit
+
+- Count: §Count of 2026-11-23 to 2026-11-24, for the white swings after the 2026-11-24 hotfix
 
 Pet damage credited from a paladin's Retribution Aura is left out. Abilities are every pet hit other than the white
 swing: Claw, Bite, Bloody Screech, Swipe, Lightning Breath and the periodic Savage Rend and Scorpid Poison.
@@ -238,3 +241,33 @@ Reports (21):
 QRCgnhck3KVq6vBT, TA3pLxKFXQ9Ckm41, VK83G7MdBhLRFAfa, X6Hp4gDwv7zftxMC, a4ZdvYKyhcLGnFRP, gBDMLv8J1K7nqkpd,
 h8aVABn6zKPyMwD4, j6XFRzHxTC1kvVpy, mak9vPD1KCtHW3n4, mbZcgPavhdG7fKDW, nFvHyDjrCxLdA6k7, qVvZxP3gNp12KWyb,
 vwCXzhMQ2drgpRxD, yGhgd9Zp6WQMaKkf, z9XbfMRh21Fg7QjN
+
+## Count of 2026-11-23 to 2026-11-24
+
+- Game build: not recorded; the hotfix of about 02:10 UTC on 2026-11-24. Whether players relogged is not recorded.
+- Pull request: #1201
+
+The reports of 2026-11-23 and 2026-11-24 of the level 60 hunters found as in §Method. Over every hunter's tamed pet in
+them, every level and Ferocity rank, white swings crit 9.8% of 219,798 landed from 00:00 UTC on 2026-11-23 to 02:00 UTC
+on 2026-11-24, and 24.5% of 118,216 from 04:00 UTC on 2026-11-24. The share climbs from 02:10 UTC; some pets change
+mid-session and some only in a later report, as if a relog or a new summon brings the change.
+
+The table counts from 04:00 UTC on 2026-11-24 on, as §Tamed pet crit does, with at least 100 landed white swings and
+100 Auto Shots a hunter; a report uploaded more than once counts once. Abilities here leave the periodic ticks out.
+
+| Ferocity | Reports | White swings: crits / landed | Crit  | Abilities: crits / landed | Crit  | Owner Auto Shot crit |
+| -------- | ------- | ---------------------------- | ----- | ------------------------- | ----- | -------------------- |
+| 0        | 3       | 278 / 1,081                  | 25.7% | 263 / 1,606               | 16.4% | 20.1%                |
+| 4        | 1       | 332 / 1,055                  | 31.5% | 274 / 1,227               | 22.3% | 12.8%                |
+| 5        | 34      | 15,281 / 53,245              | 28.7% | 6,235 / 25,967            | 24.0% | 16.1%                |
+
+At 5/5 the white swings' 28.7% is their 12.8% before the hotfix plus the owners' 16.1%.
+
+Reports (33):
+
+1MzDXaAyVxtdPL76, 29PYjXLhFrMkwBvD, 2HzD4B3JAXyGbqRg, 3nwbdLQXmP4yAhvW, 6rmd1Bnjg4KkF8XR, 6xygv7QnbRjLXGVf,
+7xD3CJ4kyjBwdngz, 9THrFj3VwbzgafAv, Cq3dxYwDQjKcnVrh, GCAqRN7XHZm29wxP, GTWvLjXyf9qD2rwB, JhC7mH1zGM32rB6R,
+KPYX2t4Mz3HAx6pk, LAH7KPWxNp34nd6a, LTGbja6krzZYxcg1, NRkpzQVnYtrjmZaT, PvTg8dk24FwzX1hZ, R3V6pyDLtAvd2qHm,
+RMNaKxZDTdy6WqnH, RgX8kbhG1CdWmYKv, TkxDmPpnjzh3MJ1H, V8WGckYjRq6z74MD, W6AkTfMNjYXxqra9, a9Z32rABdTN6Vmqf,
+ab9tnkPM3D2HvpVh, ghZWPwF4Vbx1HrGd, hFd38mrtGvzTXMWV, kjGgzv6mnQxRw9WF, kpGFAabzQhXyd7vn, rTcFgPqB2RktaQbL,
+t1yGxzP7L3Aa6CQr, vHJNh3nMzypAxG97, xhzFqGmY3P4Nr2QR
