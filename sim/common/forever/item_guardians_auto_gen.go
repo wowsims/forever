@@ -26,5 +26,5 @@ func RegisterAllItemGuardians() {
 	// Not registered here:
 	// 10847 Dragon's Call: 13049 summons 1 × creature 8776, written by hand
 	// 12592 Blackblade of Shahram: 16602 summons 1 × creature 10718, written by hand
-	// 22332 Blade of Necromancy: 1302109 summons 1 × creature 268677 on a proc, which needs its rate wired by hand
+	// 22332 Blade of Necromancy: 1302109 summons 1 × creature 268677 on a proc, which needs its trigger wired by hand
 }

@@ -108,7 +108,7 @@ func GenerateItemGuardians(instance *dbc.DBC, db *WowDatabase) error {
 		}
 		StoreMissingEffect("ItemEffects", s.name, Variant{ID: int(s.itemID), Name: tooltip, SpellID: int(s.spellID)})
 	}
-	source, err := format.Source([]byte(renderItemGuardians(summons, func(id int32) bool { return spelldata.Find(id) != nil })))
+	source, err := format.Source([]byte(renderItemGuardians(summons, func(id int32) bool { return spelldata.Find(id) != spelldata.Nil })))
 	if err != nil {
 		return fmt.Errorf("failed to format %s: %w", itemGuardiansFileName, err)
 	}
@@ -125,7 +125,7 @@ func renderItemGuardians(summons []itemSummon, inStore func(int32) bool) string 
 		case s.byHand:
 			fmt.Fprintf(&others, "\t// %d %s, written by hand\n", s.itemID, what)
 		case !s.onUse:
-			fmt.Fprintf(&others, "\t// %d %s on a proc, which needs its rate wired by hand\n", s.itemID, what)
+			fmt.Fprintf(&others, "\t// %d %s on a proc, which needs its trigger wired by hand\n", s.itemID, what)
 		case !inStore(s.summonID):
 			fmt.Fprintf(&uses, "\t\t// not in the spell store: {%d, %d}, // %s\n", s.itemID, s.summonID, what)
 		default:

@@ -28,7 +28,6 @@ var emeraldDragonWhelp = shared.GuardianCreature{
 	Armor:  0.51,
 	Swing:  shared.GuardianSwing{Share: 0.73, Speed: 2.0, Variance: 0.15},
 	Cast: &shared.GuardianCast{
-		Row:        spelldata.MustFind(9591),
 		FirstMax:   1800 * time.Millisecond,
 		WaitMin:    200 * time.Millisecond,
 		WaitMax:    3500 * time.Millisecond,
@@ -42,7 +41,8 @@ var emeraldDragonWhelp = shared.GuardianCreature{
 // is what the row's creature level scaling attribute (0x80000 on Attributes 0) means: 249.7 at level 57
 // (EV-0021). Its 5340 mana at level 57 pays for more spits than a summon lasts, so the cast takes no
 // cost.
-func acidSpit(whelp *shared.Guardian, row *spelldata.Spell) core.SpellConfig {
+func acidSpit(whelp *shared.Guardian) core.SpellConfig {
+	row := spelldata.MustFind(9591)
 	baseDamage := row.DamageEffect().Percent() * core.CreatureAutoAttackDpsMaxLevel
 	config := spelldata.SpellConfig(&whelp.Unit, row, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ManaCost = core.ManaCostOptions{}

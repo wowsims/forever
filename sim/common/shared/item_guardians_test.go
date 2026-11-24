@@ -11,8 +11,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Barov Peasant Caller's 18307 summons servants 11637. The tests pin it at three for 20 s, so a game build that
-// changes the row leaves them as they are.
+// Barov Peasant Caller's 18307 summons servants 11637. The tests pin it at three servants 11637 for 20 s, so a game
+// build that changes the row leaves them as they are.
 const (
 	servantSummon   int32 = 18307
 	servantCreature int32 = 11637
@@ -30,7 +30,7 @@ var servant = GuardianCreature{
 func newServantSim(t *testing.T, itemID int32, creatures map[int32]GuardianCreature) (*core.Simulation, *testCaster) {
 	t.Helper()
 	editRow(t, servantSummon, func(row *spelldata.Spell) {
-		row.Effects[0].BasePoints, row.DurationMs = 3, 20000
+		row.Effects[0].Misc, row.Effects[0].BasePoints, row.DurationMs = servantCreature, 3, 20000
 	})
 	return newOnUseSim(t, func(id int32) { NewGuardianOnUse(id, servantSummon, creatures) },
 		map[int32]*proto.ItemEffect{itemID: testOnUse(servantSummon, 300000, 0, 0)})

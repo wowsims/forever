@@ -34,11 +34,10 @@ type GuardianSwing struct {
 // before the cast's own rolls, and a cast that fails to start waits a fresh draw from then. Each draw goes under its
 // label.
 type GuardianCast struct {
-	Row                   *spelldata.Spell
 	FirstMax              time.Duration
 	WaitMin, WaitMax      time.Duration
 	FirstLabel, WaitLabel string
-	Config                func(guardian *Guardian, row *spelldata.Spell) core.SpellConfig
+	Config                func(guardian *Guardian) core.SpellConfig
 }
 
 type Guardian struct {
@@ -121,11 +120,6 @@ func newGuardian(owner *core.Character, name string, summon *spelldata.Spell, cr
 			AutoSwingMelee: true,
 		})
 	}
-	if cast := creature.Cast; cast != nil {
-		guardian.OnPetEnable = func(sim *core.Simulation) {
-			guardian.nextCastAt = sim.CurrentTime + time.Duration(sim.RollWithLabel(0, float64(cast.FirstMax), cast.FirstLabel))
-		}
-	}
 	return guardian
 }
 
@@ -139,7 +133,10 @@ func (guardian *Guardian) Initialize() {
 	if cast == nil {
 		return
 	}
-	config := cast.Config(guardian, cast.Row)
+	guardian.OnPetEnable = func(sim *core.Simulation) {
+		guardian.nextCastAt = sim.CurrentTime + time.Duration(sim.RollWithLabel(0, float64(cast.FirstMax), cast.FirstLabel))
+	}
+	config := cast.Config(guardian)
 	applyEffects := config.ApplyEffects
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		guardian.nextCastAt = sim.CurrentTime + guardian.castWait(sim)

@@ -113,9 +113,10 @@ is registered. Items and enchants work differently:
   the `E_SUMMON` names: its health, armor and swing as shares of the creature numbers for the level and the one spell it
   casts, measured in logs. A use whose creature has no entry registers nothing, and the generator lists the item as
   missing its effect until the next db run after the entry lands. A summon on a proc or a set bonus is wired by hand
-  with `shared.RegisterItemGuardian`, `shared.Guardians` and `shared.SummonGuardians`, as Dragon's Call's whelp is
-  (`sim/common/forever/items_dragons_call.go`). A summon that is no guardian (a companion, a sign, an area effect) goes in
-  `overrides.NotGuardianSummons` with its reason; a totem stays out by its summon slot.
+  with `shared.RegisterItemGuardian`, `shared.Guardians` and `shared.SummonGuardians`: Dragon's Call's whelp in
+  `sim/common/forever/items_weapons.go`, its creature in `sim/common/forever/items_dragons_call.go`, and the Violet
+  Sorcerer's Vestments elemental in `sim/common/forever/items_sets.go`. A summon that is no guardian (a companion, a
+  sign, an area effect) goes in `overrides.NotGuardianSummons` with its reason; a totem stays out by its summon slot.
 - **The folder follows who can use the item**, as `references/rulings.md` states. A class test binary registers only
   its own package, so a shared set left in a class folder never reaches the other classes' AllItems suites;
   `TestGearSetsHoldOnlyTheirClassItems` in `sim/item_class_allowlist_test.go` fails a preset wearing another class's

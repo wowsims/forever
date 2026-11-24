@@ -7,42 +7,45 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/tools/database/dbc"
+	"github.com/wowsims/forever/tools/database/overrides"
 )
 
 // Test items and spells: a use that summons, an equip aura whose trigger summons, a use written by hand, a use that
-// summons a totem, and a use whose summon overrides.NotGuardianSummons names (Blood Parrot's 17567).
+// summons a totem, and a use whose summon the test adds to overrides.NotGuardianSummons.
 const (
 	summonUseItem, summonUseSpell                     = 990001, 990101
 	summonProcItem, summonProcAura, summonProcTrigger = 990002, 990102, 990112
 	summonHandItem, summonHandSpell                   = 990003, 990103
 	summonTotemItem, summonTotemSpell                 = 990004, 990104
-	summonParrotItem, summonParrotSpell               = 990005, 17567
+	summonExcludedItem, summonExcludedSpell           = 990005, 990105
 )
 
 func summonEffect(creature, properties int, count float64) map[int]dbc.SpellEffect {
 	return map[int]dbc.SpellEffect{0: {EffectType: dbcenums.E_SUMMON, EffectMiscValues: []int{creature, properties}, EffectBasePoints: count}}
 }
 
-func summonInputs() (*dbc.DBC, *WowDatabase) {
+func summonInputs(t *testing.T) (*dbc.DBC, *WowDatabase) {
+	overrides.NotGuardianSummons[summonExcludedSpell] = "a test summon that is no guardian"
+	t.Cleanup(func() { delete(overrides.NotGuardianSummons, summonExcludedSpell) })
 	instance := &dbc.DBC{
 		ItemEffectsByParentID: map[int][]dbc.ItemEffect{
-			summonUseItem:    {{TriggerType: dbc.ITEM_SPELLTRIGGER_ON_USE, SpellID: summonUseSpell}},
-			summonProcItem:   {{TriggerType: dbc.ITEM_SPELLTRIGGER_ON_EQUIP, SpellID: summonProcAura}},
-			summonHandItem:   {{TriggerType: dbc.ITEM_SPELLTRIGGER_ON_USE, SpellID: summonHandSpell}},
-			summonTotemItem:  {{TriggerType: dbc.ITEM_SPELLTRIGGER_ON_USE, SpellID: summonTotemSpell}},
-			summonParrotItem: {{TriggerType: dbc.ITEM_SPELLTRIGGER_ON_USE, SpellID: summonParrotSpell}},
+			summonUseItem:      {{TriggerType: dbc.ITEM_SPELLTRIGGER_ON_USE, SpellID: summonUseSpell}},
+			summonProcItem:     {{TriggerType: dbc.ITEM_SPELLTRIGGER_ON_EQUIP, SpellID: summonProcAura}},
+			summonHandItem:     {{TriggerType: dbc.ITEM_SPELLTRIGGER_ON_USE, SpellID: summonHandSpell}},
+			summonTotemItem:    {{TriggerType: dbc.ITEM_SPELLTRIGGER_ON_USE, SpellID: summonTotemSpell}},
+			summonExcludedItem: {{TriggerType: dbc.ITEM_SPELLTRIGGER_ON_USE, SpellID: summonExcludedSpell}},
 		},
 		SpellEffects: map[int]map[int]dbc.SpellEffect{
-			summonUseSpell:    summonEffect(800001, 6853, 3),
-			summonProcAura:    {0: {EffectType: dbcenums.E_APPLY_AURA, EffectTriggerSpell: summonProcTrigger}},
-			summonProcTrigger: summonEffect(800002, 6792, 1),
-			summonHandSpell:   summonEffect(800003, 6698, 1),
-			summonTotemSpell:  summonEffect(800004, int(totemSlotSummonProperties[2]), 5),
-			summonParrotSpell: summonEffect(800005, 6812, 1),
+			summonUseSpell:      summonEffect(800001, 6853, 3),
+			summonProcAura:      {0: {EffectType: dbcenums.E_APPLY_AURA, EffectTriggerSpell: summonProcTrigger}},
+			summonProcTrigger:   summonEffect(800002, 6792, 1),
+			summonHandSpell:     summonEffect(800003, 6698, 1),
+			summonTotemSpell:    summonEffect(800004, int(totemSlotSummonProperties[2]), 5),
+			summonExcludedSpell: summonEffect(800005, 6812, 1),
 		},
 	}
 	db := NewWowDatabase()
-	for _, id := range []int32{summonUseItem, summonProcItem, summonHandItem, summonTotemItem, summonParrotItem} {
+	for _, id := range []int32{summonUseItem, summonProcItem, summonHandItem, summonTotemItem, summonExcludedItem} {
 		db.Items[id] = &proto.UIItem{Id: id, Name: "Test Summoner"}
 	}
 	return instance, db
@@ -51,7 +54,7 @@ func summonInputs() (*dbc.DBC, *WowDatabase) {
 // A use, and an equip spell's trigger, each reach their summon's creature and count; a hand-written item is marked,
 // and a totem and a summon NotGuardianSummons names stay out.
 func TestItemSummonsFindsEveryGuardianSummon(t *testing.T) {
-	instance, db := summonInputs()
+	instance, db := summonInputs(t)
 	summons := itemSummons(instance, db, func(id int32) bool { return id == summonHandItem })
 
 	want := []itemSummon{
@@ -72,7 +75,7 @@ func TestItemSummonsFindsEveryGuardianSummon(t *testing.T) {
 // The file registers a use the spell store carries, and writes a use it does not carry, a proc and a hand-written
 // summon as comments.
 func TestRenderItemGuardiansRegistersOnlyTheUsesTheStoreCarries(t *testing.T) {
-	instance, db := summonInputs()
+	instance, db := summonInputs(t)
 	summons := itemSummons(instance, db, func(id int32) bool { return id == summonHandItem })
 	stored := renderItemGuardians(summons, func(int32) bool { return true })
 	missing := renderItemGuardians(summons, func(int32) bool { return false })
@@ -82,7 +85,7 @@ func TestRenderItemGuardiansRegistersOnlyTheUsesTheStoreCarries(t *testing.T) {
 	}{
 		{stored, "\t\t{990001, 990101}, // Test Summoner: 990101 summons 3 × creature 800001\n"},
 		{missing, "\t\t// not in the spell store: {990001, 990101}, // Test Summoner: 990101 summons 3 × creature 800001\n"},
-		{stored, "\t// 990002 Test Summoner: 990112 summons 1 × creature 800002 on a proc, which needs its rate wired by hand\n"},
+		{stored, "\t// 990002 Test Summoner: 990112 summons 1 × creature 800002 on a proc, which needs its trigger wired by hand\n"},
 		{stored, "\t// 990003 Test Summoner: 990103 summons 1 × creature 800003, written by hand\n"},
 	} {
 		if !strings.Contains(tc.text, tc.line) {
