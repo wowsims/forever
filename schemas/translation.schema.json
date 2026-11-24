@@ -7952,6 +7952,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"warlock_time_to_half_tick": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"warlock_assigned_curse_is_active_on_all_targets": {
 									"type": "object",
 									"properties": {
@@ -8345,6 +8358,7 @@
 								"warlock_active_pet",
 								"warlock_assigned_curse_is_active_on_all_targets",
 								"warlock_bane_is_active_on_all_targets",
+								"warlock_time_to_half_tick",
 								"protection_paladin_damage_taken_last_global",
 								"aura_remaining_icd",
 								"aura_icd_is_ready",
@@ -8482,6 +8496,22 @@
 							},
 							"additionalProperties": false,
 							"required": ["imp", "voidwalker", "succubus", "felhunter", "no_summon"]
+						},
+						"wrack_dots": {
+							"type": "object",
+							"properties": {
+								"corruption": {
+									"type": "string"
+								},
+								"siphon_life": {
+									"type": "string"
+								},
+								"bane_of_agony": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["corruption", "siphon_life", "bane_of_agony"]
 						},
 						"submenus": {
 							"type": "object",
@@ -8955,6 +8985,7 @@
 						"totem_types",
 						"curse_types",
 						"summon_types",
+						"wrack_dots",
 						"submenus",
 						"item_swap_sets",
 						"helpers"
