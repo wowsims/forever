@@ -19,7 +19,7 @@
   player ran is not recorded.
 - Date: 2026-11-05 to 2026-11-19; the ticks 2026-11-10 to 2026-11-25
 - Pull request: #1114; the single applications, Stoneskin Totem, the cap at half a hit and the crits in #1116; the ticks
-  in #TBD
+  in #1229
 
 ## Method
 
