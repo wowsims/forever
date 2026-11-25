@@ -1959,7 +1959,7 @@ func procWeaponWearer(t *testing.T, itemID int32, procName string, target *proto
 
 // Barman Shanker 12791's Rend 1300787, applied from behind the target, ticks for the multiple of its
 // periodic damage its second effect states, less the armor reduction of a tenth of the target's armor.
-func TestBarmanShankerRendDealsItsMultipleFromBehindThroughATenthOfArmor(t *testing.T) {
+func TestBarmanShankerRendFromBehindTakesATenthOfArmor(t *testing.T) {
 	sim, character := procWeaponWearer(t, 12791, "Barman Shanker", &proto.Target{Name: "target", Level: 60, Stats: stats.Stats{stats.Armor: 3000}.ToProtoArray()}, 0, 0)
 	if character.PseudoStats.InFrontOfTarget {
 		t.Fatal("the wearer stands in front of the target")
@@ -1969,18 +1969,18 @@ func TestBarmanShankerRendDealsItsMultipleFromBehindThroughATenthOfArmor(t *test
 	if rend == nil {
 		t.Fatal("12791 registers no Rend")
 	}
-	armor := enemy.Armor() / 10
-	if armor <= 0 {
+	tenth := enemy.Armor() / 10
+	if tenth <= 0 {
 		t.Fatal("the target has no armor")
 	}
-	tenthOfArmor := 1 - armor/(armor+400+85*float64(character.Level))
+	armorMultiplier := 1 - tenth/(tenth+400+85*float64(character.Level))
 	row := spelldata.MustFind(1300787)
 	multiple := row.EffectN(2).Average()
-	want := row.EffectN(1).Average() * float64(rowTickCount(row, row.EffectN(1))) * multiple * tenthOfArmor
+	want := row.EffectN(1).Average() * float64(rowTickCount(row, row.EffectN(1))) * multiple * armorMultiplier
 	rend.Cast(sim, enemy)
 	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Second)
 	if got := rend.SpellMetrics[enemy.UnitIndex].TotalDamage; multiple <= 1 || math.Abs(got-want) > 0.5 {
-		t.Errorf("a Rend from behind dealt %v, want the row's ticks times %v and the armor multiplier of a tenth of the target's armor %v, %v", got, multiple, tenthOfArmor, want)
+		t.Errorf("a Rend from behind dealt %v, want the row's ticks × %v × %v for a tenth of the armor, %v", got, multiple, armorMultiplier, want)
 	}
 }
 

@@ -671,8 +671,8 @@ func init() {
 		tick := row.PeriodicDamageEffect()
 		config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 			// A multiplier m = K/(A+K) for armor A is 10m/(9m+1) for A/10.
-			armor := dot.Spell.Unit.AttackTables[target.UnitIndex].GetArmorDamageModifier(dot.Spell)
-			dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.Roll(sim)*10*armor/(9*armor+1), row.TickOutcome(dot))
+			m := dot.Spell.Unit.AttackTables[target.UnitIndex].GetArmorDamageModifier(dot.Spell)
+			dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.Roll(sim)*10*m/(9*m+1), row.TickOutcome(dot))
 		}
 	}
 
