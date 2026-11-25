@@ -511,8 +511,19 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		const groups = await openVersusGroups(view);
 		const byLabel = (label: string) => groups.find(group => group.label?.startsWith(label));
 
-		expect(byLabel('Against Beast')).toMatchObject({ label: 'Against Beast · 1/2 targets', state: 'partial' });
-		expect(byLabel('Against Serpentine')).toMatchObject({ label: 'Against Serpentine · 1/2 targets', state: 'partial' });
+		expect(byLabel('Against Beast')).toMatchObject({
+			label: 'Against Beast',
+			state: 'partial',
+			lines: [
+				['Damage', '+5% on 1/2 targets'],
+				['Serpentbane Crown', '×2 damage on 1/2 targets'],
+			],
+		});
+		expect(byLabel('Against Serpentine')).toMatchObject({
+			label: 'Against Serpentine',
+			state: 'partial',
+			lines: [['Serpentbane Crown', '×2 damage on 1/2 targets']],
+		});
 		expect(byLabel('Against Undead')).toMatchObject({ label: 'Against Undead · no target', state: 'off' });
 		expect(byLabel('In Forest')).toMatchObject({ label: 'In Forest and Grassland · not in this area', state: 'off' });
 	});

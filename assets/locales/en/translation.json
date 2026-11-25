@@ -3747,7 +3747,7 @@
 				"effect_damage": "×{{factor}} damage",
 				"effect_restore": "×{{factor}} restored",
 				"effect_proc_chance": "×{{factor}} proc chance",
-				"partial": "· {{matched}}/{{total}} targets",
+				"partial": "on {{matched}}/{{total}} targets",
 				"no_target": "· no target",
 				"not_in_area": "· not in this area"
 			},

@@ -34,13 +34,10 @@ interface VersusGroup {
 	lines: Array<VersusLine>;
 }
 
-const suffix = ({ match, offKey }: VersusGroup): string =>
-	match.state === 'on'
-		? ''
-		: i18n.t(match.state === 'partial' ? 'sidebar.character_stats.versus.partial' : `sidebar.character_stats.versus.${offKey}`, {
-				matched: match.matched,
-				total: match.total,
-			});
+const offSuffix = ({ match, offKey }: VersusGroup): string => (match.state === 'off' ? i18n.t(`sidebar.character_stats.versus.${offKey}`) : '');
+
+const partialNote = ({ match }: VersusGroup): string =>
+	match.state === 'partial' ? i18n.t('sidebar.character_stats.versus.partial', { matched: match.matched, total: match.total }) : '';
 
 const signed = (value: number, suffix = '') => `${value > 0 ? '+' : ''}${Number(value.toFixed(2))}${suffix}`;
 
@@ -118,13 +115,16 @@ export const VersusBonusesView = (props: VersusBonusesViewProps) => (
 					<TableHeaderCell scope="rowgroup" colSpan={2} wrap className="ui-character-stats-label text-left font-semibold">
 						<span className="ui-character-stats-versus-dot" aria-hidden="true" />
 						{group.label}
-						{group.match.state !== 'on' && <span className="ui-character-stats-versus-suffix"> {suffix(group)}</span>}
+						{group.match.state === 'off' && <span className="ui-character-stats-versus-suffix"> {offSuffix(group)}</span>}
 					</TableHeaderCell>
 				</TableRow>
 				{group.lines.map(line => (
 					<TableRow key={line.key} className="ui-character-stats-row ui-character-stats-versus-line">
 						<TableCell className="ui-character-stats-label">{line.label}</TableCell>
-						<TableCell className="ui-character-stats-value">{line.value}</TableCell>
+						<TableCell className="ui-character-stats-value">
+							{line.value}
+							{group.match.state === 'partial' && <span className="ui-character-stats-versus-suffix block text-xs"> {partialNote(group)}</span>}
+						</TableCell>
 					</TableRow>
 				))}
 			</tbody>
