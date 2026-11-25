@@ -661,10 +661,18 @@ func init() {
 	// much damage if applied while behind the target.
 	//
 	// Rend 1300787's second effect, a dummy, states the multiplier a Rend applied from behind the target
-	// deals its ticks with (EV-0146).
+	// deals its ticks with. Its ticks lose what a tenth of the target's armor takes off a hit, while other
+	// bleeds ignore armor (EV-0146).
 	shared.DamageProcExtras[12791] = func(character *core.Character, config *core.SpellConfig) {
+		row := spelldata.MustFind(config.ActionID.SpellID)
 		if !character.PseudoStats.InFrontOfTarget {
-			config.DamageMultiplier *= spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Average()
+			config.DamageMultiplier *= row.EffectN(2).Average()
+		}
+		tick := row.PeriodicDamageEffect()
+		config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+			// A multiplier m = K/(A+K) for armor A is 10m/(9m+1) for A/10.
+			armor := dot.Spell.Unit.AttackTables[target.UnitIndex].GetArmorDamageModifier(dot.Spell)
+			dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.Roll(sim)*10*armor/(9*armor+1), row.TickOutcome(dot))
 		}
 	}
 

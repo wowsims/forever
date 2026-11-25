@@ -173,8 +173,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BarmanShanker-12791"
  value: {
-  dps: 765.71846
-  tps: 788.33333
+  dps: 765.57655
+  tps: 788.19143
   dtps: 8.65132
   hps: 14.67389
  }

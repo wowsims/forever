@@ -128,8 +128,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BarmanShanker-12791"
  value: {
-  dps: 797.62778
-  tps: 566.31573
+  dps: 797.40598
+  tps: 566.15825
   hps: 55.57778
  }
 }

@@ -165,8 +165,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BarmanShanker-12791"
  value: {
-  dps: 463.09048
-  tps: 2321.00677
+  dps: 462.97428
+  tps: 2320.75692
   dtps: 393.19761
   hps: 83.53408
  }
