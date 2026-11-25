@@ -8,7 +8,7 @@
   combat logs with other players' swings in them, 4,616 lone swings (the attackers per rank are in the second table)
 - Game build: 1.60.1.70862 to 1.60.1.71091 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-10 to 2026-11-24
-- Pull request: not yet opened
+- Pull request: #1236
 
 EV-0017's method on the raw events. A swing counts when it is a landed white swing (hit, crit, glance, crush) with no
 other hit by the attacker and no other swing within 400 ms, inside the seal's 30 s aura or against a target carrying

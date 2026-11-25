@@ -6,7 +6,7 @@
 - Sources: combat logs and threat log of a protection warrior at levels 45 to 59, Defensive Stance with Defiance
 - Game build: 1.60.1.70862, 1.60.1.70888 and 1.60.1.70938
 - Date: 2026-11-09 to 2026-11-13
-- Pull request: not yet opened
+- Pull request: #1236
 
 A window is the threat the warrior's threat log gained over one Sunder Armor cast on a mob it was the only one
 engaged with, with exactly one Sunder Armor aura event on that mob. Every other term in the window is a rule already

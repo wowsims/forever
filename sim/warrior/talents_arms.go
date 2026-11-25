@@ -336,7 +336,7 @@ func (warrior *Warrior) registerWeaponmaster() {
 	// 1290261 states no proc flags at all, so the row decodes to a listener that hears nothing:
 	// the shape, the mask and the rate's effect are all the caller's. Sweeping Strikes' hits never
 	// roll it. Every landed Whirlwind strike with a sword rolls it, either hand and every target, and
-	// one cast grants one extra attack at most (EV-0214). Cleave rolls it once a cast however many
+	// one cast grants one extra attack at most (EV-0054). Cleave rolls it once a cast however many
 	// targets it lands on, on its first landed hit; no log measures Cleave. A Windfury Totem hit
 	// rolls it as a white swing does (EV-0002). Swings other procs grant (Hand of Justice, Thrash
 	// Blade) bring one as well.
