@@ -10,7 +10,7 @@
   Ironfoe 27, Hand of Justice 542
 - Game build: 1.60.1.70938 to 1.60.1.71091 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-12 to 2026-11-24
-- Pull request: #TBD
+- Pull request: #1226
 
 ## Method
 
