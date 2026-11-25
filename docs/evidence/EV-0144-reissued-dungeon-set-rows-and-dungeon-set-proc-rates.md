@@ -171,6 +171,14 @@ of 173), and none follows Barkskin (0 of 1,451). Faerie Fire costs mana in caste
 Bear Form (3025 and 9635 take all of its cost), and it rolls like any spell in a form: 27782 follows 184 of 7,545 casts
 in a bear form (2.44%) and 45 of 1,766 in Cat Form (2.55%), where an instant at 1 a minute on 1.5 s is 2.5%.
 
+Shapeshifts, Frenzied Regeneration and Shifting Power roll nothing, an owner ruling of 2026-11-25 that the same count
+backs, though a shift and Shifting Power cost mana and Frenzied Regeneration heals. No 27782 follows any of 955 Cat Form
+casts, 2,174 Dire Bear Form, 164 Moonkin Form, 48 Travel Form, 600 Frenzied Regenerations or 2,163 Shifting Powers. A
+new 27784 (an application or refresh, not a tick) follows 8 Shifting Powers (0.37%) and 3 Dire Bear Form casts, and
+27783 follows 4 Frenzied Regenerations (0.67%), each the background of the swings beside them: every proc after a
+Shifting Power lands 13 to 98 ms after a white swing, and 27783 follows 0.84% of Growls. A cast's proc is one from 60 ms
+before it to 300 ms after it.
+
 ## Wild Heart (sets 185 and 1667)
 
 - Proc: 1302708, logged as the buff 1302707; Wildheart Raiment's 4-piece and the Feralheart Raiment reissue's

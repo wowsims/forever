@@ -16,6 +16,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
+	"github.com/wowsims/forever/sim/druid"
 )
 
 func init() {
@@ -515,6 +516,45 @@ func TestFeralheartRaimentRestoresRageWhenStruck(t *testing.T) {
 			t.Errorf("%v s attacker: a cat restored rage %d times, want none", interval, after-before)
 		}
 	}
+}
+
+// The bear request in five Wildheart Raiment pieces, in a fight long enough for thousands of casts.
+func wildheartBear(t *testing.T) (*core.Simulation, *druid.Druid) {
+	t.Helper()
+	req := bearItemRequest()
+	for slot, id := range wildheartPieces {
+		req.Raid.Parties[0].Players[0].Equipment.Items[slot].Id = id
+	}
+	req.Encounter.Duration = 600
+	return bearFromRequest(t, req)
+}
+
+// Wildheart Raiment's 5-piece 450608 rolls nothing on a shapeshift or Shifting Power, though they cost
+// mana, or on Frenzied Regeneration, whose row spends rage: no 27782 mana and no 27784 energy. Faerie Fire,
+// which costs mana, restores the mana at the cast-time rate in a bear form (EV-0144).
+func TestWildheartRaimentShapeshiftsFrenziedRegenerationAndShiftingPowerRollNothing(t *testing.T) {
+	sim, bear := wildheartBear(t)
+	wearer := &bear.Character
+	energy := wearer.GetSpell(core.ActionID{SpellID: 27784})
+	if energy == nil {
+		t.Fatal("the 5-piece registers no 27784")
+	}
+	const casts = 2000
+	procs := func(spell *core.Spell) (mana, energyCasts float64) {
+		manaBefore, energyBefore := spellGain(wearer, 27782).Events, energy.SpellMetrics[wearer.UnitIndex].Casts
+		for range casts {
+			completeCast(t, sim, wearer, spell, 0)
+		}
+		return float64(spellGain(wearer, 27782).Events - manaBefore), float64(energy.SpellMetrics[wearer.UnitIndex].Casts - energyBefore)
+	}
+
+	for _, spell := range []*core.Spell{bear.CatForm.Spell, bear.BearForm.Spell, bear.DireBearForm.Spell, bear.FrenziedRegeneration.Spell, bear.ShiftingPower.Spell} {
+		if mana, energy := procs(spell); mana != 0 || energy != 0 {
+			t.Errorf("%v restored mana %v times and cast 27784 %v times in %d casts, want neither", spell.ActionID, mana, energy, casts)
+		}
+	}
+	mana, _ := procs(bear.FaerieFire.Spell)
+	wantCastTimeRate(t, "Wildheart Raiment 5P: Faerie Fire", 450608, 0, casts, mana)
 }
 
 // Wild Heart 1302708, Wildheart Raiment's 4-piece and the Feralheart Raiment reissue's 5-piece, raises
