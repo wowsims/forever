@@ -209,10 +209,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BlackbladeofShahram-12592"
  value: {
-  dps: 932.83657
-  tps: 762.19899
-  dtps: 7.2063
-  hps: 26.48823
+  dps: 942.53591
+  tps: 769.83625
+  dtps: 6.91237
+  hps: 26.74155
  }
 }
 dps_results: {

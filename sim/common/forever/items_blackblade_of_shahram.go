@@ -13,8 +13,7 @@ import (
 )
 
 // Shahram 10718, whom 16602 summons, casts one of his six spells and nothing else, picked by these
-// weights (EV-0125). Fist of Shahram 16601 hastes Shahram himself, so its pick does nothing for the
-// wearer and registers no spell.
+// weights (EV-0125).
 var shahramPicks = []struct {
 	spellID  int32
 	weight   float64
@@ -25,7 +24,7 @@ var shahramPicks = []struct {
 	{16597, 2, registerCurseOfShahram},
 	{16599, 2, registerBlessingOfShahram},
 	{16600, 2, registerMightOfShahram},
-	{16601, 2, nil},
+	{16601, 2, registerFistOfShahram},
 }
 
 // Shahram begins his hardcast 1.03 to 1.83 s after the summon (EV-0125); the sim draws the delay
@@ -55,9 +54,7 @@ func init() {
 		}
 		spells := make([]pickedSpell, len(shahramPicks))
 		for i, pick := range shahramPicks {
-			if pick.register != nil {
-				spells[i] = pickedSpell{pick.register(character), spelldata.MustFind(pick.spellID).CastTime()}
-			}
+			spells[i] = pickedSpell{pick.register(character), spelldata.MustFind(pick.spellID).CastTime()}
 		}
 		var total float64
 		for _, pick := range shahramPicks {
@@ -78,9 +75,6 @@ func init() {
 				}
 			}
 			pick := spells[picked]
-			if pick.spell == nil {
-				return
-			}
 			pa := sim.GetConsumedPendingActionFromPool()
 			pa.NextActionAt = sim.CurrentTime + castStart + pick.hardcast
 			pa.OnAction = func(sim *core.Simulation) {
@@ -242,6 +236,25 @@ func registerBlessingOfShahram(character *core.Character) *core.Spell {
 				}
 			},
 		})
+	}
+	return character.RegisterSpell(config)
+}
+
+// Fist of Shahram 16601 lands on Shahram's master, the wearer, and raises the wearer's melee attack
+// speed for the row's duration (EV-0125). A new Fist while one is up refreshes it.
+func registerFistOfShahram(character *core.Character) *core.Spell {
+	row := spelldata.MustFind(16601)
+	// SpeedPseudoStats reads only the caster's own speed auras, and this one targets his master.
+	effect := row.FirstAura(dbcenums.A_MOD_MELEE_HASTE_3)
+	speed := make([]float64, stats.PseudoStatsLen)
+	for _, pseudoStat := range spelldata.SpeedAuraPseudoStats[effect.Aura] {
+		speed[pseudoStat] = effect.BasePoints
+	}
+	aura := character.RegisterAura(spelldata.AuraConfig(row)).AttachHastePseudoStats(speed)
+	config := shahramSpellConfig(character, row)
+	config.RelatedSelfBuff = aura
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		aura.Activate(sim)
 	}
 	return character.RegisterSpell(config)
 }
