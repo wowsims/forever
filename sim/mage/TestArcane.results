@@ -182,8 +182,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 842.10217
-  tps: 726.76152
+  dps: 841.4597
+  tps: 726.10794
  }
 }
 dps_results: {

@@ -192,9 +192,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 934.21337
-  tps: 750.75051
-  dtps: 9.35926
+  dps: 932.93352
+  tps: 749.62472
+  dtps: 9.35328
  }
 }
 dps_results: {

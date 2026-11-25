@@ -256,8 +256,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 803.09557
-  tps: 570.19785
+  dps: 803.49822
+  tps: 570.48374
   hps: 59.11917
  }
 }

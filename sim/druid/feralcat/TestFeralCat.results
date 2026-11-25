@@ -208,8 +208,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 804.73341
-  tps: 597.3774
+  dps: 804.82416
+  tps: 597.44183
   hps: 45.98722
  }
 }

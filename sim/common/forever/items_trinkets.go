@@ -394,8 +394,8 @@ func init() {
 	// times as much damage to Dinosaurs.
 	//
 	// 1311505's first effect casts 1315996, and its second holds the 3. The game files state no split between
-	// the wearer and the target: about a quarter of the shocks hit the wearer, and a shock on the wearer deals
-	// nothing the sim counts (EV-0202).
+	// the wearer and the target: one shock in four hits the wearer, and a shock on the wearer deals nothing the
+	// sim counts (EV-0202).
 	core.NewItemEffect(280032, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1315996)
@@ -410,7 +410,7 @@ func init() {
 		shock := character.RegisterSpell(config)
 
 		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-			if sim.Proc(0.74, "Bolt's Charged Eyeball") {
+			if sim.Proc(0.75, "Bolt's Charged Eyeball") {
 				shock.Cast(sim, result.Target)
 			}
 		})

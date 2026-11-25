@@ -192,9 +192,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 935.99623
-  tps: 765.7864
-  dtps: 11.48923
+  dps: 934.05429
+  tps: 763.80183
+  dtps: 11.40201
  }
 }
 dps_results: {

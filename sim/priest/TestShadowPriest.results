@@ -192,9 +192,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 851.01735
-  tps: 607.8819
-  dtps: 4.62493
+  dps: 851.33257
+  tps: 608.12016
+  dtps: 4.3625
  }
 }
 dps_results: {

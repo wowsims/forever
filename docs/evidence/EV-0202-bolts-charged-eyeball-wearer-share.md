@@ -1,7 +1,8 @@
 # EV-0202: About a quarter of Bolt's Charged Eyeball's shocks hit the wearer
 
-- Claim: Of the shocks Bolt's Charged Eyeball (item 280032) casts (1315996), about one in four hits the wearer and the
-  rest hit the target; each proc casts one shock, never one on each.
+- Claim: Of the shocks Bolt's Charged Eyeball (item 280032) casts (1315996), one in four hits the wearer and the rest
+  hit the target; each proc casts one shock, never one on each. The sim takes the even quarter: the logs read 26.3%,
+  and the spread between wearers is far wider than the gap.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the 35 wearer streams on disk, counted in the fights
   whose gear lists the item; 34 of them, from 33 reports, hold a shock, in the reports and fights §Reports lists
 - Game build: 1.60.1.70862 to 1.60.1.71037 by event time (70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11
