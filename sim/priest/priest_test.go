@@ -19,20 +19,22 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// The Shadow Testing build's gear, talents and rotation, which the UI's Shadow Testing gear set,
-// Standard talents and Default rotation read too.
-var shadowTestingBuild = core.GetTestBuildFromJSON(proto.Class_ClassPriest, "../../ui/specs/priest/dps/builds", "testing",
-	core.ItemFilter{}, nil, nil)
+// The Shadow page's default gear, rotation and Standard talents, from ui/specs/priest/dps.
+var defaultGear = core.GetGearSet("../../ui/specs/priest/dps/gear_sets", "default")
+var defaultRotation = core.GetAplRotation("../../ui/specs/priest/dps/apls", "default")
 
-// The UI's defaults: Flask of Supreme Power, Major Spellblasting Potion, Nightfin Soup, Demonic Rune,
-// Brilliant Wizard Oil and Ez-Thro Dynamite II.
+const defaultTalents = "00530200103-3-50042201251312051"
+
+// The consumables in defaults.siml: Flask of Supreme Power, Baked Salmon, Demonic Rune, Wizard Oil, the five
+// elixirs, Major Mana Potion and Major Spellblasting Potion.
 var defaultConsumables = &proto.ConsumesSpec{
 	FlaskId:        13512,
-	OffensivePotId: 250937,
-	FoodId:         13931,
+	FoodId:         13935,
 	ConjuredId:     12662,
-	MhImbueId:      20749,
-	ExplosiveId:    18588,
+	MhImbueId:      20750,
+	ElixirIds:      []int32{9264, 13454, 250341, 250337, 250335},
+	ResourcePotId:  13444,
+	OffensivePotId: 250937,
 }
 
 func TestShadowPriest(t *testing.T) {
@@ -40,7 +42,7 @@ func TestShadowPriest(t *testing.T) {
 		{
 			Class:      proto.Class_ClassPriest,
 			Race:       proto.Race_RaceTroll,
-			OtherRaces: []proto.Race{proto.Race_RaceUndead, proto.Race_RaceDwarf, proto.Race_RaceNightElf},
+			OtherRaces: []proto.Race{proto.Race_RaceHuman, proto.Race_RaceUndead, proto.Race_RaceDwarf, proto.Race_RaceNightElf},
 
 			SpecOptions: core.SpecOptionsCombo{
 				Label: "Shadow",
@@ -58,13 +60,13 @@ func TestShadowPriest(t *testing.T) {
 				},
 			},
 
-			GearSet:     shadowTestingBuild.GearSet,
-			Talents:     shadowTestingBuild.Talents,
+			GearSet:     defaultGear,
+			Talents:     defaultTalents,
 			Consumables: defaultConsumables,
 			Profession1: proto.Profession_Enchanting,
 			Profession2: proto.Profession_Tailoring,
 
-			Rotation: core.RotationCombo{Label: "default", Rotation: shadowTestingBuild.Rotation.Rotation},
+			Rotation: defaultRotation,
 
 			ItemFilter: core.ItemFilter{
 				WeaponTypes: []proto.WeaponType{
@@ -98,7 +100,7 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 			Name:      "Prayer",
 			Race:      proto.Race_RaceTroll,
 			Class:     proto.Class_ClassPriest,
-			Equipment: shadowTestingBuild.GearSet.GearSet,
+			Equipment: defaultGear.GearSet,
 			Spec: &proto.Player_DpsPriest{
 				DpsPriest: &proto.DpsPriest{
 					Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
@@ -167,7 +169,7 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 				Name:          "Spirit Tap",
 				Race:          proto.Race_RaceTroll,
 				Class:         proto.Class_ClassPriest,
-				Equipment:     shadowTestingBuild.GearSet.GearSet,
+				Equipment:     defaultGear.GearSet,
 				TalentsString: talents,
 				Spec: &proto.Player_DpsPriest{
 					DpsPriest: &proto.DpsPriest{
