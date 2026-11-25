@@ -42,7 +42,7 @@ var ItemSetGrovekeeperEclipse = core.NewItemSet(core.ItemSet{
 			// bonus keeps the spell damage alone, its amount and creature type mask read off the row.
 			row := spelldata.MustFind(1301073)
 			setBonusAura.
-				AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: row.EffectN(1).BaseValue()}, spelldata.MobTypes(row.EffectN(1).Misc)...).
+				AttachMobTypeBonusStats(core.ActionID{SpellID: row.ID}, stats.Stats{stats.SpellDamage: row.EffectN(1).BaseValue()}, spelldata.MobTypes(row.EffectN(1).Misc)...).
 				ExposeToAPL(row.ID)
 		},
 		5: parsedSetBonus(spelldata.MustFind(1301242)), // Insect Swarm lasts 3 sec longer

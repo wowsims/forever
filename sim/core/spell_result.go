@@ -614,9 +614,9 @@ func (spell *Spell) dealDamageInternal(sim *Simulation, isPeriodic bool, result 
 
 	if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
 		if isPeriodic {
-			spell.Unit.Log(sim, "%s %s tick %s (SpellSchool: %d). (Threat: %0.3f)", result.Target.LogLabel(), spell.ActionID, result.DamageString(), spell.SpellSchool, result.Threat)
+			spell.Unit.Log(sim, "%s %s tick %s (SpellSchool: %d). (Threat: %0.3f)%s", result.Target.LogLabel(), spell.ActionID, result.DamageString(), spell.SpellSchool, result.Threat, spell.versusLogTag(result, true))
 		} else {
-			spell.Unit.Log(sim, "%s %s %s (SpellSchool: %d). (Threat: %0.3f)", result.Target.LogLabel(), spell.ActionID, result.DamageString(), spell.SpellSchool, result.Threat)
+			spell.Unit.Log(sim, "%s %s %s (SpellSchool: %d). (Threat: %0.3f)%s", result.Target.LogLabel(), spell.ActionID, result.DamageString(), spell.SpellSchool, result.Threat, spell.versusLogTag(result, false))
 		}
 	}
 

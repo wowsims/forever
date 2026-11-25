@@ -160,7 +160,7 @@ var ItemSetRaimentsOfConviction = core.NewItemSet(core.ItemSet{
 			// bonus keeps the spell damage alone, its amount and creature types read off the effect.
 			effect := convictionUndeadDamage.EffectN(1)
 			setBonusAura.
-				AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: effect.BaseValue()}, spelldata.MobTypes(effect.Misc)...).
+				AttachMobTypeBonusStats(core.ActionID{SpellID: convictionUndeadDamage.ID}, stats.Stats{stats.SpellDamage: effect.BaseValue()}, spelldata.MobTypes(effect.Misc)...).
 				ExposeToAPL(convictionUndeadDamage.ID)
 		},
 		5: parsedSetBonus(1301706), // Reduces the cooldown of your Devouring Plague spell by 60 sec.

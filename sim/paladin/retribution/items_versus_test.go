@@ -157,7 +157,7 @@ func TestSealOfFuryTakesNoSpellDamageAgainstTheTargetsType(t *testing.T) {
 			damage := func(general, versus float64) float64 {
 				damage, _ := twentyCasts(t, spellWithMask(mask), func(sim *core.Simulation, character *core.Character, _ *core.Spell) {
 					character.AddStatDynamic(sim, stats.SpellDamage, general)
-					character.AddMobTypeBonusStats(stats.Stats{stats.SpellDamage: versus}, proto.MobType_MobTypeUndead)
+					character.AddMobTypeBonusStats(core.ActionID{SpellID: 1}, stats.Stats{stats.SpellDamage: versus}, proto.MobType_MobTypeUndead)
 				})
 				return damage
 			}

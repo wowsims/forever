@@ -183,6 +183,7 @@ type Unit struct {
 
 	AttackTables                 []*AttackTable
 	mobTypeBonuses               map[proto.MobType]*mobTypeBonus
+	versusSources                []*versusSource
 	DynamicDamageTakenModifiers  []DynamicDamageTakenModifier
 	DynamicHealingTakenModifiers []DynamicHealingTakenModifier
 	Blockhandler                 func(sim *Simulation, spell *Spell, result *SpellResult)

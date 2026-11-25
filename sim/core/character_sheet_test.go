@@ -407,7 +407,7 @@ func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
 	}})
 	weaponTestTalents = func(character *Character) {
 		MakePermanent(character.RegisterAura(Aura{Label: "Test Undead Bane", BuildPhase: CharacterBuildPhaseTalents})).
-			AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: auraSpellDamage}, proto.MobType_MobTypeUndead)
+			AttachMobTypeBonusStats(ActionID{SpellID: 1}, stats.Stats{stats.SpellDamage: auraSpellDamage}, proto.MobType_MobTypeUndead)
 	}
 	defer func() { weaponTestTalents = nil }()
 	equipped := WeaponTestSlots(WeaponTestSwordID, 0, 0)

@@ -633,7 +633,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 func attachVersusStats(aura *core.Aura, buff *spelldata.Spell) {
 	for _, effect := range buff.Effects {
 		if bonus := spelldata.VersusBonus(effect.Aura, effect.Average()); bonus != (stats.Stats{}) {
-			aura.AttachMobTypeBonusStats(bonus, spelldata.MobTypes(effect.Misc)...)
+			aura.AttachMobTypeBonusStats(core.ActionID{SpellID: buff.ID}, bonus, spelldata.MobTypes(effect.Misc)...)
 		}
 	}
 }
