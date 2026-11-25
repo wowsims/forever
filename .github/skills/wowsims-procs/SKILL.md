@@ -161,6 +161,10 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 - **A harmful-spell-only mask (0x10000) decodes to a cast trigger that ignores misses.** The decoder keeps that rule
   for items, so a spell that must land to proc moves to the hit listener at its call site, as Nature's Grace does
   (`sim/druid/talents_balance.go`, PR #382).
+- **Two triggers on one aura with the same callback keep only the last.** `AttachProcTriggerCallback`
+  (`sim/core/aura_helpers.go`) assigns the aura's `OnCastComplete`, `OnSpellHitDealt` and the rest outright, so a
+  second cast listener on a set bonus aura silently drops the first. Give each trigger its own callback or its own
+  aura (`MakeProcTriggerAura`).
 - **A `core.ProcTrigger` typed by hand with no chance fires on every qualifying hit.** Core turns a `ProcChance` of 0
   into 1; only `spelldata.ProcTrigger` panics on a row that states no rate.
 - **`spelldata.Proc()` does not make a spell a proc.** It marks the spell passive with no cast or cost, and leaves
