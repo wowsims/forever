@@ -48,7 +48,6 @@ export const CRIT_CAP_INFO: MeleeCritCapInfo = {
 	delta: -8.4,
 };
 
-/** A Troll with a Humanoid trinket and crit damage, a weapon stone against Undead, an area ring and three items whose spells deal or restore more against some targets. */
 export const VERSUS_TARGETS = [
 	Target.create({ mobType: MobType.MobTypeHumanoid, creatureFamily: CreatureFamily.CreatureFamilyDwarf }),
 	Target.create({ mobType: MobType.MobTypeBeast, creatureFamily: CreatureFamily.CreatureFamilySerpentine }),
@@ -56,6 +55,7 @@ export const VERSUS_TARGETS = [
 
 export const VERSUS_AREA_TYPES = [AreaType.AreaTypeForestGrassland];
 
+/** A Troll with a Humanoid trinket and crit damage, a weapon stone against Undead, an area ring and three items whose spells deal or restore more against some targets. */
 export const VERSUS_BONUSES: VersusBonusSet = {
 	mobTypeBonuses: [
 		{ mobType: MobType.MobTypeBeast, stats: {}, damageMultiplier: 1.05, critDamageMultiplier: 1 },

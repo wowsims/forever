@@ -2594,12 +2594,6 @@
 				"versus": {
 					"type": "object",
 					"properties": {
-						"against": {
-							"type": "string"
-						},
-						"in_area": {
-							"type": "string"
-						},
 						"partial": {
 							"type": "string"
 						},
@@ -2629,20 +2623,9 @@
 						},
 						"inactive_area": {
 							"type": "string"
-						},
-						"effect_damage": {
-							"type": "string"
-						},
-						"effect_restore": {
-							"type": "string"
-						},
-						"effect_proc_chance": {
-							"type": "string"
 						}
 					},
 					"required": [
-						"against",
-						"in_area",
 						"partial",
 						"target",
 						"active_targets_one",
@@ -2652,10 +2635,7 @@
 						"inactive_targets_other",
 						"no_targets",
 						"active_area",
-						"inactive_area",
-						"effect_damage",
-						"effect_restore",
-						"effect_proc_chance"
+						"inactive_area"
 					],
 					"additionalProperties": false
 				}

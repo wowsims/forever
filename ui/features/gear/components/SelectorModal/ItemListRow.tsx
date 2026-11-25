@@ -38,7 +38,7 @@ export interface ItemListRowViewProps extends RowActionsProps {
 	/** The day an item discovered within the last week was discovered; set, it puts a dot on the icon. */
 	discovered?: string;
 	notice?: ReactNode;
-	/** The chips for the kinds of target and area the item's effects name; the row itself is never dimmed. */
+	/** The chips for the kinds of target and area the item's effects name. */
 	versus?: ReactNode;
 	/** The source column; the items and enchants tabs have one. */
 	source?: ReactNode;

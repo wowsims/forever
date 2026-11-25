@@ -1,1 +1,1 @@
-export { VersusChips, type VersusChipsProps } from './VersusChips';
+export { VersusChips } from './VersusChips';

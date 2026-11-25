@@ -1,4 +1,5 @@
-import { type PlayerStats, type VersusEffect, VersusEffectKind } from '@generated/proto/api';
+import { areaState, familyState, mobTypeState, versusEffectFactor, type VersusMatch } from '@features/gear/model/versus_state';
+import type { PlayerStats, VersusEffect } from '@generated/proto/api';
 import type { AreaType, Stat, Target } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateAreaType, translateCreatureFamily, translateMobType, translateStat } from '@i18n/localization';
@@ -8,8 +9,6 @@ import { signedStatAmount } from '@sim/proto/stats';
 import { AccordionItem } from '@ui-kit/Accordion';
 import { Table, TableCell, TableHeaderCell, TableRow } from '@ui-kit/Table';
 import { useStore } from 'zustand';
-
-import { areaState, familyState, mobTypeState, type VersusMatch } from '../../../gear/model/versus_state';
 
 export type VersusBonusSet = Pick<PlayerStats, 'mobTypeBonuses' | 'areaStats' | 'versusEffects'>;
 
@@ -34,11 +33,6 @@ interface VersusGroup {
 	lines: Array<VersusLine>;
 }
 
-const offSuffix = ({ match, offKey }: VersusGroup): string => (match.state === 'off' ? i18n.t(`sidebar.character_stats.versus.${offKey}`) : '');
-
-const partialNote = ({ match }: VersusGroup): string =>
-	match.state === 'partial' ? i18n.t('sidebar.character_stats.versus.partial', { matched: match.matched, total: match.total }) : '';
-
 const signed = (value: number, suffix = '') => `${value > 0 ? '+' : ''}${Number(value.toFixed(2))}${suffix}`;
 
 const statLines = (stats: { [key: number]: number }): Array<VersusLine> =>
@@ -50,19 +44,11 @@ const statLines = (stats: { [key: number]: number }): Array<VersusLine> =>
 const multiplierLines = (key: string, multiplier: number): Array<VersusLine> =>
 	Math.abs(multiplier - 1) < 1e-9 ? [] : [{ key, label: i18n.t(`sidebar.character_stats.versus.${key}`), value: signed((multiplier - 1) * 100, '%') }];
 
-const effectKeys: Record<VersusEffectKind, string> = {
-	[VersusEffectKind.VersusEffectKindDamage]: 'effect_damage',
-	[VersusEffectKind.VersusEffectKindRestore]: 'effect_restore',
-	[VersusEffectKind.VersusEffectKindProcChance]: 'effect_proc_chance',
-};
-
 const effectLines = (effects: Array<VersusEffect>): Array<VersusLine> =>
 	effects.map(effect => ({
 		key: `item-${effect.itemId}`,
 		label: effect.itemName,
-		value: i18n.t(`sidebar.character_stats.versus.${effectKeys[effect.kind]}`, {
-			factor: Number(effect.multiplier.toFixed(2)),
-		}),
+		value: versusEffectFactor(effect),
 	}));
 
 const versusGroups = ({ bonuses, targets, areaTypes }: VersusBonusesViewProps): Array<VersusGroup> => {
@@ -115,7 +101,9 @@ export const VersusBonusesView = (props: VersusBonusesViewProps) => (
 					<TableHeaderCell scope="rowgroup" colSpan={2} wrap className="ui-character-stats-label text-left font-semibold">
 						<span className="ui-character-stats-versus-dot" aria-hidden="true" />
 						{group.label}
-						{group.match.state === 'off' && <span className="ui-character-stats-versus-suffix"> {offSuffix(group)}</span>}
+						{group.match.state === 'off' && (
+							<span className="ui-character-stats-versus-suffix"> {i18n.t(`sidebar.character_stats.versus.${group.offKey}`)}</span>
+						)}
 					</TableHeaderCell>
 				</TableRow>
 				{group.lines.map(line => (
@@ -123,7 +111,12 @@ export const VersusBonusesView = (props: VersusBonusesViewProps) => (
 						<TableCell className="ui-character-stats-label">{line.label}</TableCell>
 						<TableCell className="ui-character-stats-value">
 							{line.value}
-							{group.match.state === 'partial' && <span className="ui-character-stats-versus-suffix block text-xs"> {partialNote(group)}</span>}
+							{group.match.state === 'partial' && (
+								<span className="ui-character-stats-versus-suffix block text-xs">
+									{' '}
+									{i18n.t('sidebar.character_stats.versus.partial', { matched: group.match.matched, total: group.match.total })}
+								</span>
+							)}
 						</TableCell>
 					</TableRow>
 				))}

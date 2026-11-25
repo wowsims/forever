@@ -712,8 +712,6 @@
 			}
 		},
 		"versus": {
-			"against": "Against {{target}}",
-			"in_area": "In {{area}}",
 			"partial": "{{name}} {{matched}}/{{total}}",
 			"target": "{{name}} (Target {{number}})",
 			"active_targets_one": "Active: the target is {{targets}}",
@@ -723,10 +721,7 @@
 			"inactive_targets_other": "Inactive: targets are {{targets}}",
 			"no_targets": "Inactive: the encounter has no targets",
 			"active_area": "Active: the encounter is in a {{area}} area",
-			"inactive_area": "Inactive: the encounter is not in a {{area}} area",
-			"effect_damage": "×{{factor}} damage",
-			"effect_restore": "×{{factor}} restored",
-			"effect_proc_chance": "×{{factor}} proc chance"
+			"inactive_area": "Inactive: the encounter is not in a {{area}} area"
 		}
 	},
 	"settings_tab": {

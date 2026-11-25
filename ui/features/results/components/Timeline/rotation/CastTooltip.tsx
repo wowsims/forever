@@ -6,7 +6,8 @@ import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import type { CastLog } from '@sim/proto/combat_log';
 import { useMemo } from 'react';
 
-import { DamageResult, VersusSources } from '../../DamageResult';
+import { DamageResult } from '../../DamageResult';
+import { VersusSources } from '../../VersusSources';
 
 export interface CastTooltipProps {
 	log: CastLog;

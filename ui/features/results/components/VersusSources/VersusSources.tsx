@@ -8,16 +8,14 @@ export interface VersusSourcesProps {
 	logs: ReadonlyArray<DamageLog>;
 }
 
-const numberText = (value: number) => String(Number(value.toFixed(4)));
-
-export const versusEffectText = (effect: VersusLogEffect): string => {
+const versusEffectText = (effect: VersusLogEffect): string => {
 	if (effect.kind === 'stat') {
 		return i18n.t('results_tab.details.timeline.versus.stat', {
-			amount: `${effect.amount > 0 ? '+' : ''}${numberText(effect.amount)}`,
+			amount: `${effect.amount > 0 ? '+' : ''}${Number(effect.amount.toFixed(4))}`,
 			stat: translateStat(effect.stat),
 		});
 	}
-	return i18n.t(`results_tab.details.timeline.versus.${effect.kind}`, { multiplier: numberText(effect.multiplier) });
+	return i18n.t(`results_tab.details.timeline.versus.${effect.kind}`, { multiplier: Number(effect.multiplier.toFixed(4)) });
 };
 
 const effectKey = (effect: VersusLogEffect) => (effect.kind === 'stat' ? `stat:${effect.stat}:${effect.amount}` : `${effect.kind}:${effect.multiplier}`);

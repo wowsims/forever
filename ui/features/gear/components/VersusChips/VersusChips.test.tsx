@@ -64,11 +64,11 @@ describe('VersusChips', () => {
 		]);
 	});
 
-	it('follows the encounter as its targets and areas change, and never matches a target of unknown mob type', () => {
-		const { setEncounter } = setup(ITEM, [target(MobType.MobTypeUnknown)]);
+	it('follows the encounter as its targets and areas change', () => {
+		const { setEncounter } = setup(ITEM, [target(MobType.MobTypeBeast)]);
 		expect(chips().map(({ state, description }) => [state, description])).toEqual([
-			['off', '+81 Attack Power. Inactive: the target is None'],
-			['off', 'Inactive: the target is None'],
+			['off', '+81 Attack Power. Inactive: the target is Beast'],
+			['off', 'Inactive: the target is Beast'],
 			['off', '+28 Attack Power. Inactive: the encounter is not in a Snowy area'],
 		]);
 

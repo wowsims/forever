@@ -64,12 +64,9 @@ describe('itemVersusChips', () => {
 			creatureFamilies: [CreatureFamily.CreatureFamilyWolf],
 			areaTypes: [AreaType.AreaTypeSnowy],
 		});
-		const encounter = {
-			targets: [target(MobType.MobTypeUndead), target(MobType.MobTypeBeast, CreatureFamily.CreatureFamilyWolf)],
-			areaTypes: [AreaType.AreaTypeSnowy],
-		};
+		const targets = [target(MobType.MobTypeUndead), target(MobType.MobTypeBeast, CreatureFamily.CreatureFamilyWolf)];
 
-		expect(itemVersusChips(item, encounter)).toEqual([
+		expect(itemVersusChips(item, targets, [AreaType.AreaTypeSnowy])).toEqual([
 			{ kind: 'mobType', value: MobType.MobTypeUndead, state: 'partial', matched: 1, total: 2 },
 			{ kind: 'mobType', value: MobType.MobTypeDemon, state: 'off', matched: 0, total: 2 },
 			{ kind: 'family', value: CreatureFamily.CreatureFamilyWolf, state: 'partial', matched: 1, total: 2 },
@@ -81,7 +78,7 @@ describe('itemVersusChips', () => {
 		const item = UIItem.create();
 
 		expect(namesVersus(item)).toBe(false);
-		expect(itemVersusChips(item, { targets: [target(MobType.MobTypeUndead)], areaTypes: [AreaType.AreaTypeSnowy] })).toEqual([]);
+		expect(itemVersusChips(item, [target(MobType.MobTypeUndead)], [AreaType.AreaTypeSnowy])).toEqual([]);
 		expect(namesVersus(UIItem.create({ areaTypes: [AreaType.AreaTypeSnowy] }))).toBe(true);
 	});
 });

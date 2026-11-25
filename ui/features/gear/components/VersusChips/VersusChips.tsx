@@ -1,4 +1,4 @@
-import { type VersusEffect, VersusEffectKind } from '@generated/proto/api';
+import type { VersusEffect } from '@generated/proto/api';
 import { type AreaType, CreatureFamily, type Stat, type Target } from '@generated/proto/common';
 import type { UIItem } from '@generated/proto/ui';
 import i18n from '@i18n/config';
@@ -11,15 +11,9 @@ import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { Fragment, useId } from 'react';
 import { useStore } from 'zustand';
 
-import { itemVersusChips, namesVersus, type VersusChip, type VersusState } from '../../model/versus_state';
+import { itemVersusChips, namesVersus, type VersusChip, versusEffectFactor, type VersusState } from '../../model/versus_state';
 
 const TONES: Record<VersusState, PillTone> = { on: 'positive', partial: 'warning', off: 'neutral' };
-
-const EFFECT_KEYS: Record<VersusEffectKind, string> = {
-	[VersusEffectKind.VersusEffectKindDamage]: 'effect_damage',
-	[VersusEffectKind.VersusEffectKindRestore]: 'effect_restore',
-	[VersusEffectKind.VersusEffectKindProcChance]: 'effect_proc_chance',
-};
 
 const chipName = (chip: VersusChip) =>
 	chip.kind === 'mobType' ? translateMobType(chip.value) : chip.kind === 'family' ? translateCreatureFamily(chip.value) : translateAreaType(chip.value);
@@ -49,10 +43,7 @@ const valueLines = (chip: VersusChip, item: UIItem, versusEffects: ReadonlyArray
 			effect.itemId === item.id &&
 			(chip.kind === 'mobType' ? effect.mobTypes.includes(chip.value) : chip.kind === 'family' && effect.creatureFamilies.includes(chip.value)),
 	);
-	return [
-		...stats.flatMap(statLines),
-		...effects.map(effect => i18n.t(`gear_tab.versus.${EFFECT_KEYS[effect.kind]}`, { factor: Number(effect.multiplier.toFixed(2)) })),
-	];
+	return [...stats.flatMap(statLines), ...effects.map(versusEffectFactor)];
 };
 
 const reasonLine = (chip: VersusChip, targets: ReadonlyArray<Target>): string => {
@@ -76,7 +67,7 @@ export interface VersusChipsViewProps {
 
 export const VersusChipsView = ({ item, targets, areaTypes, versusEffects }: VersusChipsViewProps) => {
 	const tooltipId = useId();
-	const chips = itemVersusChips(item, { targets, areaTypes });
+	const chips = itemVersusChips(item, targets, areaTypes);
 	if (!chips.length) return null;
 
 	return (
@@ -86,7 +77,10 @@ export const VersusChipsView = ({ item, targets, areaTypes, versusEffects }: Ver
 				const name = chipName(chip);
 				const values = valueLines(chip, item, versusEffects);
 				const reason = reasonLine(chip, targets);
-				const title = chip.kind === 'area' ? i18n.t('gear_tab.versus.in_area', { area: name }) : i18n.t('gear_tab.versus.against', { target: name });
+				const title =
+					chip.kind === 'area'
+						? i18n.t('sidebar.character_stats.versus.in_area', { area: name })
+						: i18n.t('sidebar.character_stats.versus.against', { target: name });
 				return (
 					<Fragment key={`${chip.kind}-${chip.value}`}>
 						<Pill
