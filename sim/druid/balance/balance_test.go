@@ -65,7 +65,7 @@ func TestBalance(t *testing.T) {
 }
 
 // The Moonkin preset on the Balance page.
-const DefaultTalents = "5232220115201351--5053"
+const DefaultTalents = "5532220115001351--505302"
 
 // The preset without Dreamstate, and with one point in it.
 const (
