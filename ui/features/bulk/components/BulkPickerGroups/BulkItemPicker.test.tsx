@@ -112,7 +112,11 @@ const mount = () => {
 				within(container.querySelector<HTMLElement>(`[data-gear-group="${group}"]`)!).getByRole('button', { name: 'bulk_tab.picker.add_items_to' }),
 			),
 		clickAddHand: (button: number) =>
-			fireEvent.click(within(container.querySelector<HTMLElement>('[data-gear-group="weapons"]')!).getAllByRole('button')[button]),
+			fireEvent.click(
+				within(container.querySelector<HTMLElement>('[data-gear-group="weapons"]')!).getAllByRole('button', { name: 'bulk_tab.picker.add_items_to' })[
+					button
+				],
+			),
 		view: () => ({
 			equipped: cell().hasAttribute('data-equipped'),
 			removable: !!cell().querySelector('[data-testid="item-picker-actions-btn"]'),
@@ -214,9 +218,9 @@ describe('BulkItemPickerGroup add button', () => {
 	});
 
 	it.each([
-		[0, ItemSlot.ItemSlotMainHand],
-		[1, ItemSlot.ItemSlotOffHand],
-	])("opens a dual-wielder's weapons on the hand its button %i names", (button, itemSlot) => {
+		['main hand', 0, ItemSlot.ItemSlotMainHand],
+		['off hand', 1, ItemSlot.ItemSlotOffHand],
+	])("opens the %s list from its button on a dual-wielder's weapons group", (_hand, button, itemSlot) => {
 		const h = mount();
 
 		h.clickAddHand(button);

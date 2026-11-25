@@ -6,23 +6,25 @@ import type { BulkPickerEntry } from '@sim/bulk/types';
 import type { BulkSimItemSlot } from '@sim/bulk/utils';
 import { Box } from '@ui-kit/Box';
 import { Button } from '@ui-kit/Button';
+import { ButtonGroup } from '@ui-kit/ButtonGroup';
 import { ContentBlock } from '@ui-kit/ContentBlock';
 import { Icon } from '@ui-kit/Icon';
 import { tooltipAnchorProps } from '@ui-kit/Tooltip';
 
+import { bulkGroupItemSlots } from '../../model/gear/gear_data';
 import { BulkItemPicker } from './BulkItemPicker';
 
 export interface BulkItemPickerGroupProps {
 	bulkSlot: BulkSimItemSlot;
 	entries: readonly BulkPickerEntry[];
-	addSlots: readonly ItemSlot[];
 	onAddItem: (slot: ItemSlot) => void;
 	addTooltipId: string;
 }
 
-export const BulkItemPickerGroup = ({ bulkSlot, entries, addSlots, onAddItem, addTooltipId }: BulkItemPickerGroupProps) => {
+export const BulkItemPickerGroup = ({ bulkSlot, entries, onAddItem, addTooltipId }: BulkItemPickerGroupProps) => {
 	const slotKey = getBulkSlotI18nKey(bulkSlot);
 	const slotName = translateBulkSlotName(bulkSlot);
+	const addSlots = bulkGroupItemSlots(bulkSlot);
 
 	return (
 		<Box>
@@ -40,14 +42,20 @@ export const BulkItemPickerGroup = ({ bulkSlot, entries, addSlots, onAddItem, ad
 							<Icon name="plus" />
 						</Button>
 					) : (
-						<div className="ml-auto flex gap-2 self-center">
+						<ButtonGroup gap className="ml-auto self-center">
 							{addSlots.map(slot => (
-								<Button key={slot} variant="link" size="sm" onClick={() => onAddItem(slot)} {...tooltipAnchorProps(addTooltipId)}>
-									<Icon name="plus" className="mr-1" />
+								<Button
+									key={slot}
+									variant="link"
+									size="sm"
+									aria-label={i18n.t('bulk_tab.picker.add_items_to', { slot: translateSlotName(slot) })}
+									onClick={() => onAddItem(slot)}
+									{...tooltipAnchorProps(addTooltipId)}>
+									<Icon name="plus" />
 									{translateSlotName(slot)}
 								</Button>
 							))}
-						</div>
+						</ButtonGroup>
 					)
 				}
 				flush>
