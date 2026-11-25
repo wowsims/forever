@@ -247,9 +247,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 921.76277
-  tps: 750.26329
-  dtps: 5.6397
+  dps: 926.59275
+  tps: 753.81227
+  dtps: 4.86243
  }
 }
 dps_results: {

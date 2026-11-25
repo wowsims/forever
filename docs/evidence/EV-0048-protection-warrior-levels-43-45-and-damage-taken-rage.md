@@ -24,9 +24,9 @@
 | Heroic Strike Rank 5 flat threat (2.5 a spell level)      | +80.5 [79.6, 81.5], n 6                                       |
 | Concussion Blow makes no threat                           | -0.05 over 6 windows                                          |
 
-Which ranks the pull request states as measured: Rend Ranks 4 and 5, with Ranks 1, 3, 6 and 7 keeping their TODO;
-Thunder Clap Rank 4, with Ranks 2, 3, 5 and 6 keeping their TODO; Revenge Ranks 3 and 4 for the threat, with Ranks 5 and
-6 keeping their TODO. Rend Rank 2 and Thunder Clap Rank 1 come from the levels 13 and 14 logs (EV-0019).
+Which ranks this file measures: Rend Ranks 4 and 5, Thunder Clap Rank 4 and Revenge Ranks 3 and 4 for the threat. Rend
+Rank 2 and Thunder Clap Rank 1 come from the levels 13 and 14 logs (EV-0019). Rend Ranks 1, 3 and 6 and Thunder Clap
+Ranks 2, 3, 5 and 6 are in EV-0203, Revenge Rank 5's threat in EV-0204; Rend Rank 7 and Revenge Rank 6 are not measured.
 
 ## Rage from damage taken
 

@@ -1259,7 +1259,6 @@ var ItemSetDefiasEnforcersGarb = core.NewItemSet(core.ItemSet{
 		2: shared.ParsedSetBonus(spelldata.MustFind(1324673)), // +10 Fire Resistance
 		3: shared.ParsedSetBonus(spelldata.MustFind(1324674)), // +15 Stamina
 		4: shared.ParsedSetBonus(spelldata.MustFind(1324675)), // +1 Swords
-		// TODO: Ingame test needed -- whether the off hand procs it, as logs show, despite "main hand only".
 		5: defiasJuggernautCrit,
 	},
 })
