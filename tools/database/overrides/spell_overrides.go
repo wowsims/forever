@@ -505,7 +505,8 @@ var Spells = []Override{
 		Reason:  "Seal of Light Rank 4: the measured rate, not a per-swing share of 15 per minute",
 		Source:  "EV-0212",
 	},
-	// Seal of Wisdom measured the same rate as Seal of Light on every rank (EV-0018, EV-0212).
+	// Seal of Wisdom procs at Seal of Light's rate on every rank; for Rank 2 the pooled reports fit 15
+	// (EV-0018, EV-0212).
 	{
 		SpellID: 20166,
 		Field:   PPM,

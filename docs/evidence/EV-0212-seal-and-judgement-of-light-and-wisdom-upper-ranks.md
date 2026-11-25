@@ -2,7 +2,8 @@
 
 - Claim: Seal of Light Ranks 3 and 4 and Seal of Wisdom Ranks 2 and 3 proc 15 times a minute on the weapon's speed, and
   Judgement of Light Ranks 3 and 4 and Judgement of Wisdom Ranks 2 and 3 fire on a flat 50% of landed melee swings, as
-  Rank 1 and 2 do (EV-0017, EV-0018).
+  Rank 1 and 2 do (EV-0017, EV-0018). Seal of Wisdom Rank 2's 15 is the pooled reports' fit; two of its readings
+  exclude 15.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every paladin stream on disk whose report lists the
   rank's seal or judgement, 502 reports and 33,134 lone swings (the reports per rank are in the table); and 34 raw
   combat logs with other players' swings in them, 4,616 lone swings (the attackers per rank are in the second table)
@@ -47,7 +48,8 @@ By time of the logs (before the 2026-11-20 23:47 UTC push, to 2026-11-24 01:07 U
 | Seal of Wisdom 3 | 15.05 [14.85, 15.25] (6,411) | 14.85 [14.55, 15.35] (2,576) | 15.00 [14.20, 15.70] (750) |
 
 Seal of Wisdom 2's middle reading is below 15 and its first above, with no common rate between them; the three
-periods pooled read 14.75.
+periods pooled read 14.75 [14.50, 15.00], which holds 15. Two of its readings exclude 15: the reports' middle period,
+13.90 [13.50, 14.30], and the raw logs below, 16.10 [15.45, 16.45].
 
 ## Raw combat logs of other players
 
