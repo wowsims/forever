@@ -2169,6 +2169,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-ShellLauncherShotgun-13146"
+ value: {
+  dps: 810.618
+  tps: 832.16239
+  dtps: 8.72217
+  hps: 15.18222
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-ShortswordofVengeance-754"
  value: {
   dps: 798.2327
