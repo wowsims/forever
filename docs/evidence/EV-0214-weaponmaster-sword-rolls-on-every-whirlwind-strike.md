@@ -53,8 +53,7 @@ No cast logs two extra attack events: 0 of the 797 casts that grant one in the t
 among every cast with no white swing in the 40 ms before it, whoever the warrior. Of those 896, 739 log one white swing
 in the 40 ms after the cast, 11 two and 146 none, so a cast that grants swings once.
 
-Sweeping Strikes' hits: over all two-handed casts, a roll on each Sweeping Strikes hit as well predicts 839.9 against
-741. Split, the casts with Sweeping Strikes hits read 373 against 333.8 for the strikes alone and 428.4 with the hits,
+Sweeping Strikes' hits: over all two-handed casts, a roll on each Sweeping Strikes hit as well predicts 839.9 against 741. Split, the casts with Sweeping Strikes hits read 373 against 333.8 for the strikes alone and 428.4 with the hits,
 and the casts without read 368 against 411.5.
 
 ## Reports
