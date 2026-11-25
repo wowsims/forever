@@ -21,8 +21,11 @@ import { editEvent, plannerText } from '../EncounterPlanner/utils/configs';
 import { formatPercent } from '../EncounterPlanner/utils/tips';
 
 export const LANE_CLASSES = 'flex min-w-full border-b border-gray-700';
-export const LANE_LABEL_CLASSES =
-	'sticky left-0 z-3 box-border flex w-(--label-w) shrink-0 grow-0 basis-(--label-w) flex-col justify-center gap-1 border-r border-gray-700 bg-background px-2 py-1';
+const LANE_LABEL_BASE =
+	'sticky left-0 z-3 box-border flex w-(--label-w) shrink-0 grow-0 basis-(--label-w) flex-col gap-1 border-r border-gray-700 bg-background';
+export const LANE_LABEL_CLASSES = `${LANE_LABEL_BASE} justify-center px-2 py-1`;
+// A target's row opens with its name across the whole label column, flush with the row's top, as a row heading.
+export const TARGET_LABEL_CLASSES = `${LANE_LABEL_BASE} pb-1`;
 export const LANE_GRID_CLASSES = 'relative grid shrink-0 grow basis-planner-total auto-rows-(--planner-lane-height) grid-cols-1';
 
 export const refKey = (ref: PlanEventRef): string => `${ref.kind}:${ref.index}`;

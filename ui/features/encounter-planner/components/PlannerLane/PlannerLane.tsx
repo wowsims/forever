@@ -45,6 +45,7 @@ import {
 	LANE_CLASSES,
 	LANE_GRID_CLASSES,
 	LANE_LABEL_CLASSES,
+	TARGET_LABEL_CLASSES,
 	laneEvents,
 	refKey,
 	rowKinds,
@@ -239,14 +240,14 @@ export const PlannerLane = ({
 
 	return (
 		<div role="group" aria-label={label} className={LANE_CLASSES} style={cssVars({ '--bar': `var(--planner-lane-${lane}-bar)` })}>
-			<div className={LANE_LABEL_CLASSES}>
+			<div className={target ? TARGET_LABEL_CLASSES : LANE_LABEL_CLASSES}>
 				{target ? (
 					<Button
 						variant="outline-secondary"
 						size="xs"
 						aria-pressed={target.selected}
 						data-selected={target.selected ? '' : undefined}
-						className="max-w-full self-start data-selected:border-white data-selected:bg-(--bar) data-selected:text-white"
+						className="w-full justify-between rounded-none border-0 border-b border-gray-700 data-selected:border-white data-selected:bg-(--bar) data-selected:text-white"
 						onClick={target.onSelect}
 						onKeyDown={event => {
 							if (event.key !== 'Enter') return;
@@ -260,7 +261,7 @@ export const PlannerLane = ({
 				) : (
 					<span className="text-sm font-bold text-white">{label}</span>
 				)}
-				<div data-lane-add="" className="flex flex-wrap gap-1">
+				<div data-lane-add="" className={target ? 'flex flex-wrap gap-1 px-2' : 'flex flex-wrap gap-1'}>
 					{kinds.map((kind, index) => {
 						const eventLabel = i18n.t(eventLabelKey(kind));
 						return (
