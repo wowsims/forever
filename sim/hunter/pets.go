@@ -491,21 +491,25 @@ func (hp *HunterPet) registerDustCloud(rank *spelldata.Spell) *core.Spell {
 	return hp.RegisterSpell(config)
 }
 
-// The pet's and the hunter's attack power. TODO: the row's target is the raid within 15 yd.
+// Attack power for the raid, every player and pet of any party (EV-0199), priced at the pet's level.
+// A second hunter's wolf shares the aura the first registered on each unit.
+// TODO: the row reaches only the raid within 15 yd of the pet, which the sim leaves out, and in the logs
+// the hunter gets about half the howls (EV-0199).
 func (hp *HunterPet) registerFuriousHowl(rank *spelldata.Spell) *core.Spell {
-	var auras []*core.Aura
-	for _, character := range []*core.Character{&hp.Character, &hp.hunterOwner.Character} {
-		aura := character.RegisterAura(spelldata.AuraConfig(rank))
-		spelldata.ParseEffects(character, aura, rank, spelldata.Exclusive(buffs.FuriousHowlCategory, true))
-		auras = append(auras, aura)
-	}
+	auras := hp.NewAllyAuraArray(func(unit *core.Unit) *core.Aura {
+		if aura := unit.GetAura(rank.Name); aura != nil {
+			return aura
+		}
+		aura := unit.RegisterAura(spelldata.AuraConfig(rank))
+		spelldata.ParseEffects(nil, aura, rank, spelldata.Level(hp.Level), spelldata.Exclusive(buffs.FuriousHowlCategory, true))
+		return aura
+	})
 
 	config := hp.spellConfig(rank)
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-		for _, aura := range auras {
-			aura.Activate(sim)
-		}
+		auras.ActivateAll(sim)
 	}
+	config.RelatedAuraArrays = auras.ToMap()
 	return hp.RegisterSpell(config)
 }
 
