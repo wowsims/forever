@@ -504,19 +504,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Wounds the target for 225 damage.
-	// https://www.wowhead.com/forever/spell=1320808
-	// unsupported: states no rate
-	// trigger 1320808 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1320808, BuffSpellID: 1320808, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 11603, ItemName: "Vilerend Slicer"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Reduces targets armor by 300 for 20s.
 	// https://www.wowhead.com/forever/spell=15280
 	// unsupported: states no rate
