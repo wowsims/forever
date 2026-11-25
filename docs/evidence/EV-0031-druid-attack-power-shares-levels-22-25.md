@@ -15,4 +15,4 @@
 | Swipe Rank 1                                    | 0.03                                                                                                             |
 | Ferocious Bite, energy spent on an avoided bite | 6.1 to 6.7 energy on 5 avoided bites; the extra energy and combo points kept, 80% of the 35 base energy refunded |
 
-One share fits Rake's hit and its tick. Rip Rank 6 carries Rank 1's share.
+One share fits Rake's hit and its tick.
