@@ -34,8 +34,8 @@ A second count of the same strikes, level by level, reads the same on both types
 Exorcism, which lands only on Undead, reads 0.995 [0.975, 1.015] of the sim's amount with the 46 at its 0.429 (57
 hits) and 1.041 without it. Shieldsworn's strike, 221 plus 0.08 times the 69 spell power, reads 224.2 to 225.0 less
 that spell power's share on each Undead target of levels 57 to 60 with 8 or more hits, and 220.3 to 221.1 on each such
-Humanoid, about the 0.08 × 46 = 3.7 the bonus adds. Consecration and Holy Shield's block damage take it in this log as well, as EV-0141 and
-EV-0143 record.
+Humanoid, about the 0.08 × 46 = 3.7 the bonus adds. Consecration and Holy Shield's block damage take it in this log
+as well, as EV-0141 and EV-0143 record.
 
 ## Crits of Shieldsworn's strike
 

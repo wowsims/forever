@@ -200,6 +200,9 @@ func TestShieldswornStrikeCritsAndBlockDamageDoesNot(t *testing.T) {
 	if strikes.Hits == 0 || strikes.Crits == 0 {
 		t.Fatalf("Shieldsworn's strike landed %d hits and %d crits, want both", strikes.Hits, strikes.Crits)
 	}
+	if got, want := float64(strikes.Crits)/float64(strikes.Hits+strikes.Crits), strike.SpellCritChance(target); math.Abs(got-want) > 0.1 {
+		t.Errorf("Shieldsworn's strike crits on %v of its landed hits, want the spell crit chance %v", got, want)
+	}
 	hit := (strikes.TotalDamage - strikes.TotalCritDamage) / float64(strikes.Hits)
 	if got := strikes.TotalCritDamage / float64(strikes.Crits) / hit; math.Abs(got-1.5) > 1e-6 {
 		t.Errorf("a crit of Shieldsworn's strike deals %v times a hit, want 1.5", got)

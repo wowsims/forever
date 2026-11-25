@@ -29,6 +29,7 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	procConfig.Flags &^= core.SpellFlagHelpful // The row's first effect is the block chance on the paladin.
 	procConfig.BonusCoefficient = damageEffect.Coeff()
 	procConfig.ThreatMultiplier = 1.2 // The tooltip's 20% additional threat.
+	// A block's damage never crits, though its row states no Can't Crit (EV-0189).
 	procConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHit)
 	}
