@@ -45,7 +45,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 		Stat.StatExpertiseRating,
 		Stat.StatMP5,
 	],
-	epPseudoStats: [PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatSchoolHitPercentHoly],
+	epPseudoStats: [PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatSchoolHitPercentHoly, PseudoStat.PseudoStatRangedHitPercent],
 	// Reference stat against which to calculate EP. I think all classes use either spell power or attack power.
 	epReferenceStat: Stat.StatAttackPower,
 	// Which stats to display in the Character Stats section, at the bottom of the left-hand sidebar.
@@ -160,8 +160,9 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 			'Delay Major CDs': `${simple.delayMajorCds}s`,
 		};
 
-		values['Use Seal of Command'] = String(sealOfCommand && (unsealedWrath || simple.seal === PaladinSeal.SealOfCommand));
-		values['Use Seal of Righteousness'] = String(unsealedWrath || !sealOfCommand || simple.seal === PaladinSeal.SealOfRighteousness);
+		const seal = Inputs.chosenSeal(simple, sealOfCommand);
+		values['Use Seal of Command'] = String(sealOfCommand && (unsealedWrath || seal === PaladinSeal.SealOfCommand));
+		values['Use Seal of Righteousness'] = String(unsealedWrath || seal === PaladinSeal.SealOfRighteousness);
 
 		rotation.valueVariables = rotation.valueVariables.map(variable =>
 			variable.name in values ? APLValueVariable.fromJson({ name: variable.name, value: { const: { val: values[variable.name] } } }) : variable,

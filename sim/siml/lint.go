@@ -35,7 +35,7 @@ import (
 // | `prepull-no-time`       | warning  | A prepull row with no Do At time; the sim skips it.                                               |
 // | `prepull-positive-time` | warning  | A prepull Do At time after the pull; the sim ignores the row.                                     |
 // | `prepull-not-time`      | warning  | A Do At value read from the fight; the sim reads it once, before the fight, and can fail on it.   |
-// |                         |          | Constant times and spell and aura durations, which need no fight, are fine.                       |
+// |                         |          | Constant times, spell cast and travel times and aura durations, which need no fight, are fine.    |
 // | `prepull-order`         | info     | A prepull row listed after one with a later time; prepull rows run in time order, not list order. |
 // | `never-runs`            | warning  | A condition that is always false (the sim drops the row). A literal `false` is `info`: it keeps   |
 // |                         |          | the spell out of automatic cooldown use, a deliberate way to turn a cooldown off.                 |
@@ -263,8 +263,9 @@ var (
 	}
 	// The kinds whose state lasts between evaluations: two of them are two separate states, never a copy.
 	statefulKinds = map[string]bool{"sequence": true, "strictSequence": true, "groupReference": true, "schedule": true}
-	// The value kinds whose duration needs no fight: the sim reads them before the pull with no harm.
-	staticDurations = map[string]bool{"spellCastTime": true, "spellGcdHastedDuration": true, "inputDelay": true, "channelClipDelay": true, "dotBaseDuration": true, "auraDuration": true}
+	// The value kinds whose duration needs no fight: the sim reads them before the pull with no harm. A travel time
+	// reads the start distance.
+	staticDurations = map[string]bool{"spellCastTime": true, "spellTravelTime": true, "spellGcdHastedDuration": true, "inputDelay": true, "channelClipDelay": true, "dotBaseDuration": true, "auraDuration": true}
 )
 
 // A name as the sim reads it: a missing one is "".

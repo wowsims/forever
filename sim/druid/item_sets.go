@@ -49,6 +49,39 @@ var ItemSetGrovekeeperEclipse = core.NewItemSet(core.ItemSet{
 	},
 })
 
+// Tier 1 - Feral
+// https://www.wowhead.com/forever/item-set=2115/grovekeeper-ferocity
+//
+// The game files ship four of the six pieces (shoulders, hands, legs, feet), so the 5-piece bonus
+// waits on the head and chest the ItemSet row lists. The 3-piece bonus lets Hibernate be cast in Cat
+// Form, which the sim does not cast.
+var ItemSetGrovekeeperFerocity = core.NewItemSet(core.ItemSet{
+	ID:    2115,
+	Name:  "Grovekeeper Ferocity",
+	Slots: sixPieceSlots,
+	Bonuses: map[int32]core.ApplySetBonus{
+		2: shared.ParsedSetBonus(spelldata.MustFind(1300934)), // +1% attack and casting speed
+		4: shared.ParsedSetBonus(spelldata.MustFind(1301075)), // +36 melee attack power against Demons
+		5: shared.ParsedSetBonus(spelldata.MustFind(1301247)), // Shifting Power cooldown -1 sec
+	},
+})
+
+// Tier 1 - Guardian
+// https://www.wowhead.com/forever/item-set=2113/grovekeeper-rage
+//
+// The game files ship four of the six pieces (shoulders, hands, legs, feet), so the 5-piece bonus
+// waits on the head and chest the ItemSet row lists. The 3-piece bonus lets Rebirth be cast in Bear
+// Form, and the 5-piece takes 15 sec off Berserk; the sim casts neither.
+var ItemSetGrovekeeperRage = core.NewItemSet(core.ItemSet{
+	ID:    2113,
+	Name:  "Grovekeeper Rage",
+	Slots: sixPieceSlots,
+	Bonuses: map[int32]core.ApplySetBonus{
+		2: shared.ParsedSetBonus(spelldata.MustFind(1300942)), // +7 Defense skill
+		4: shared.ParsedSetBonus(spelldata.MustFind(1301076)), // +12 expertise rating
+	},
+})
+
 // Zul'Gurub
 // https://www.wowhead.com/forever/item-set=479/haruspexs-garb
 var ItemSetHaruspexsGarb = core.NewItemSet(core.ItemSet{

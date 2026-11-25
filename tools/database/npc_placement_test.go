@@ -138,7 +138,68 @@ func TestParseQuestieDataPlacesNpcsInTheirInstance(t *testing.T) {
 	}
 }
 
-// Placing the committed NPCs again moves none of them. Skips without tools/database/wowsims.db.
+// Lord Roccor is a Blackrock Depths encounter in 1585, a zone AreaTable lacks, so Verek, in 1585 with no encounter or
+// quest, follows him to 1584. Nothing places the NPC in 10074, so it keeps that zone.
+func TestParseQuestieDataMovesAZoneWithItsPlacedNpcs(t *testing.T) {
+	toc := strings.Join([]string{
+		"## X-Item-IDS: " + questieIDs(201),
+		"## X-Item-201-S: " + questieValue(map[any]any{1: "Verek's Loyal Wraps", "p": 1 << 3}),
+		"## X-Item-201-4: " + questieValue([]any{64, 65, 66}),
+		"## X-Quest-IDS: " + questieIDs(),
+		"## X-Npc-IDS: " + questieIDs(64, 65, 66),
+		"## X-Npc-64-S: " + questieValue([]any{"Lord Roccor", nil, 1585}),
+		"## X-Npc-65-S: " + questieValue([]any{"Verek", nil, 1585}),
+		"## X-Npc-66-S: " + questieValue([]any{"Unplaced", nil, 10074}),
+	}, "\n")
+	db, _, err := parseQuestieData(toc, questieTestItemMeta, questieTestQuestMeta, questieTestNpcMeta, testNpcPlacement())
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []*proto.UIItemSource{dropSource(64, 1584), dropSource(65, 1584), dropSource(66, 10074)}
+	got := db.Items[201].GetSources()
+	if len(got) != len(want) {
+		t.Fatalf("sources = %v, want %v", got, want)
+	}
+	for i := range want {
+		if !googleProto.Equal(got[i], want[i]) {
+			t.Errorf("source %d = %v, want %v", i, got[i], want[i])
+		}
+	}
+}
+
+// Lord Roccor moves from 1585 to 1584 and Ragnaros to 2717, so 1585 stands for no other zone and Verek keeps it.
+// Titanosaur, with no zone, joins The Shaper's Terrace, and the other NPC with no zone stays out of it.
+func TestParseQuestieDataKeepsAZoneWhoseNpcsMoveApart(t *testing.T) {
+	toc := strings.Join([]string{
+		"## X-Item-IDS: " + questieIDs(202),
+		"## X-Item-202-S: " + questieValue(map[any]any{1: "Verek's Loyal Wraps", "p": 1 << 3}),
+		"## X-Item-202-4: " + questieValue([]any{67, 68, 69, 70, 71}),
+		"## X-Quest-IDS: " + questieIDs(),
+		"## X-Npc-IDS: " + questieIDs(67, 68, 69, 70, 71),
+		"## X-Npc-67-S: " + questieValue([]any{"Lord Roccor", nil, 1585}),
+		"## X-Npc-68-S: " + questieValue([]any{"Ragnaros", nil, 1585}),
+		"## X-Npc-69-S: " + questieValue([]any{"Verek", nil, 1585}),
+		"## X-Npc-70-S: " + questieValue([]any{"Titanosaur"}),
+		"## X-Npc-71-S: " + questieValue([]any{"Unplaced"}),
+	}, "\n")
+	db, _, err := parseQuestieData(toc, questieTestItemMeta, questieTestQuestMeta, questieTestNpcMeta, testNpcPlacement())
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []*proto.UIItemSource{dropSource(67, 1584), dropSource(68, 2717), dropSource(69, 1585), dropSource(70, 16667)}
+	got := db.Items[202].GetSources()
+	if len(got) != len(want) {
+		t.Fatalf("sources = %v, want %v", got, want)
+	}
+	for i := range want {
+		if !googleProto.Equal(got[i], want[i]) {
+			t.Errorf("source %d = %v, want %v", i, got[i], want[i])
+		}
+	}
+}
+
+// Placing the committed NPCs again moves none of them. The zone stand-in needs QuestieDB's other NPCs, so this cannot
+// see it; TestParseQuestieDataMovesAZoneWithItsPlacedNpcs covers it. Skips without tools/database/wowsims.db.
 func TestCommittedQuestieNpcsKeepTheirPlacement(t *testing.T) {
 	DatabasePath = "wowsims.db"
 	if _, err := os.Stat(DatabasePath); err != nil {

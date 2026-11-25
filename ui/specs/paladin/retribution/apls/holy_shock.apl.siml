@@ -2,7 +2,7 @@ siml 1
 spec retribution_paladin
 
 var ${Has assigned judgement} = true
-var ${Use Seal of Righteousness} = true
+var ${Use Seal of Righteousness} = false
 var ${Use Seal of Command} = true
 var ${Delay Major CDs} = 0s
 var ${Pull range} = 25
@@ -29,14 +29,19 @@ var ${Should refresh SoC} =
 var ${Should refresh seal} =
     $is_using_seal_of_righteousness and $should_refresh_sor
     or $is_using_seal_of_command and $should_refresh_soc
+// With Seal of Command chosen, the rotation still seals Righteousness while the Manual Crowd Pummeler's Haste is up
+// and from 10s before the equipped Pummeler is ready, which sims higher than keeping Seal of Command through the Haste.
+// The two seals exclude each other, or the seal group would recast Seal of Righteousness every GCD of that window.
 var ${Is using Seal of Righteousness} =
     not talent_is_known(seal_of_command_rank1)
     or $use_seal_of_righteousness
-    or not $use_seal_of_righteousness and not $use_seal_of_command
+    or not $use_seal_of_command
+    or aura(haste).is_active
+    or active_item_swap_set(swap1) and spell(item.manual_crowd_pummeler).time_to_ready <= 10s
 var ${Is using Seal of Command} =
     talent_is_known(seal_of_command_rank1)
     and $use_seal_of_command
-    and not $use_seal_of_righteousness
+    and not $is_using_seal_of_righteousness
 
 prepull:
   -30s item_swap(swap1) if spell(item.manual_crowd_pummeler).is_known

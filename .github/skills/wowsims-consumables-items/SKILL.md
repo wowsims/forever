@@ -101,10 +101,22 @@ is registered. Items and enchants work differently:
   `gear_tab.item_notices` in `assets/locales/en/translation.json`, and its key in `schemas/translation.schema.json`.
   Nothing checks a notice against the sim, so a change that completes a bonus, or settles the in-game question a notice
   names, removes it from all three files.
-- **An item that summons a creature registers its pet with `core.NewItemPet`.** `AddPet` panics once the environment
-  is set, and the item effects run after that, so `NewAgent` builds the pet with its owner, once for an item worn or
+- **An item that summons a creature registers its pets with `core.NewItemPet`.** `AddPet` panics once the environment
+  is set, and the item effects run after that, so `NewAgent` builds the pets with their owner, once for an item worn or
   carried in the item swap set by a class that can use it (`sim/core/item_effects.go`). The item's effect finds the
-  pet in `PetAgents`; Dragon's Call's whelp is the example (`sim/common/forever/items_dragons_call.go`).
+  pets in `PetAgents`.
+- **A summoned guardian is generated from its row and measured by hand.** The generator writes
+  `sim/common/forever/item_guardians_auto_gen.go` from the game files on every db run: a `shared.NewGuardianOnUse` call
+  for each use item whose spell, or a spell it triggers, summons a creature, with the summon's row; the row gives the
+  creature, the count and the duration, and the item's effect entry the cooldown. What the game files do not state is
+  the creature's entry in `forever.GuardianCreatures` (`sim/common/forever/item_guardians.go`), keyed by the creature id
+  the `E_SUMMON` names: its health, armor and swing as shares of the creature numbers for the level and the one spell it
+  casts, measured in logs. A use whose creature has no entry registers nothing, and the generator lists the item as
+  missing its effect until the next db run after the entry lands. A summon on a proc or a set bonus is wired by hand
+  with `shared.RegisterItemGuardian`, `shared.Guardians` and `shared.SummonGuardians`: Dragon's Call's whelp in
+  `sim/common/forever/items_weapons.go`, its creature in `sim/common/forever/items_dragons_call.go`, and the Violet
+  Sorcerer's Vestments elemental in `sim/common/forever/items_sets.go`. A summon that is no guardian (a companion, a
+  sign, an area effect) goes in `overrides.NotGuardianSummons` with its reason; a totem stays out by its summon slot.
 - **The folder follows who can use the item**, as `references/rulings.md` states. A class test binary registers only
   its own package, so a shared set left in a class folder never reaches the other classes' AllItems suites;
   `TestGearSetsHoldOnlyTheirClassItems` in `sim/item_class_allowlist_test.go` fails a preset wearing another class's

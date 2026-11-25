@@ -29,6 +29,7 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	procConfig.Flags &^= core.SpellFlagHelpful // The row's first effect is the block chance on the paladin.
 	procConfig.BonusCoefficient = damageEffect.Coeff()
 	procConfig.ThreatMultiplier = 1.2 // The tooltip's 20% additional threat.
+	// A block's damage never crits, though its row states no Can't Crit (EV-0189).
 	procConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHit)
 	}
@@ -53,9 +54,9 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	// Shieldsworn: a Holy Strike that lands with a shield deals the shield's damage and spends no charge.
 	// The game casts that hit as 456544, a spell of its own at spell level 30 with no base points of its
 	// own and the coefficient every rank's shield states, so the amount is the active rank's. Unlike a
-	// block's damage it is a direct spell hit, and its row lacks Not a Proc, so a listener on spell
-	// damage hears it only when it can proc from procs: Revelation rolls on it at that spell level's
-	// share (EV-0161).
+	// block's damage, which never crits, it is a direct spell hit that crits at the spell crit chance
+	// for 1.5 times (EV-0189). Its row lacks Not a Proc, so a listener on spell damage hears it only
+	// when it can proc from procs: Revelation rolls on it at that spell level's share (EV-0161).
 	if paladin.Talents.Shieldsworn {
 		if paladin.shieldswornStrike == nil {
 			strike := spellData.ShieldswornTriggered.ByID(shieldswornStrikeID)
@@ -66,7 +67,7 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 			}
 			strikeConfig.ThreatMultiplier = procConfig.ThreatMultiplier
 			strikeConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-				spell.CalcAndDealDamage(sim, target, paladin.shieldswornStrikeDamage, spell.OutcomeMagicHit)
+				spell.CalcAndDealDamage(sim, target, paladin.shieldswornStrikeDamage, spell.OutcomeMagicHitAndCrit)
 			}
 			paladin.shieldswornStrike = paladin.RegisterSpell(strikeConfig)
 		}

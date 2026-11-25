@@ -165,8 +165,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BarmanShanker-12791"
  value: {
-  dps: 463.09048
-  tps: 2321.00677
+  dps: 462.91391
+  tps: 2320.62713
   dtps: 393.19761
   hps: 83.53408
  }
@@ -192,8 +192,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 478.48311
-  tps: 2403.21613
+  dps: 477.49174
+  tps: 2401.08468
   dtps: 396.87058
   hps: 84.88223
  }
@@ -246,8 +246,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BloodTalon-12795"
  value: {
-  dps: 464.73779
-  tps: 2336.44967
+  dps: 464.66068
+  tps: 2336.28387
   dtps: 396.44745
   hps: 84.72673
  }
@@ -313,6 +313,15 @@ dps_results: {
   tps: 2660.37302
   dtps: 428.59935
   hps: 85.02776
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 530.11513
+  tps: 2667.43841
+  dtps: 395.61739
+  hps: 85.62528
  }
 }
 dps_results: {
@@ -1056,19 +1065,19 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperFerocity"
  value: {
-  dps: 551.86772
-  tps: 2739.49362
-  dtps: 411.61334
-  hps: 86.36643
+  dps: 529.26549
+  tps: 2654.84634
+  dtps: 415.31
+  hps: 86.02598
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperRage"
  value: {
-  dps: 554.80853
-  tps: 2752.60419
-  dtps: 392.46933
-  hps: 86.33726
+  dps: 549.20624
+  tps: 2740.38775
+  dtps: 397.39062
+  hps: 88.80357
  }
 }
 dps_results: {
@@ -1677,8 +1686,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-RockonStick-279852"
  value: {
-  dps: 446.17066
-  tps: 2256.9857
+  dps: 445.36485
+  tps: 2255.25322
   dtps: 395.62651
   hps: 84.7221
  }

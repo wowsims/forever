@@ -1,23 +1,24 @@
 import * as PresetUtils from '@app/preset_utils';
-import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ConsumesSpec, Profession, Race, Stat, TristateEffect, UnitReference } from '@generated/proto/common';
-import { BalanceDruid_Options as BalanceDruidOptions } from '@generated/proto/druid';
-import { SavedTalents } from '@generated/proto/ui';
+import { Spec, Stat } from '@generated/proto/common';
 import { Stats } from '@sim/proto/stats';
 
-import DefaultAPL from './apls/default.apl.json';
-import P1GearJson from './gear_sets/p1.gear.json';
-import PreBiSGearJson from './gear_sets/prebis.gear.json';
+import DefaultAPL from './apls/default.apl.siml';
+import DefaultsJson from './defaults.siml';
+import P1GearJson from './gear_sets/p1.gear.siml';
+import PreBiSGearJson from './gear_sets/prebis.gear.siml';
+
+// The spec's defaults, from defaults.siml.
+export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecBalanceDruid, DefaultsJson);
 
 export const StandardRotation = PresetUtils.makePresetAPLRotation('Default', DefaultAPL);
 
-export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', SavedTalents.create({ talentsString: '5232220115501351--5053' }));
+export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', Defaults.talents);
 
-// Dungeon drops, world-drop greens with the "of Magic" suffix and crafted items whose reagents include no
-// raid materials; no reputation or PvP rewards, and no Scourge Invasion drops. The neck is a Dire Maul
-// quest reward. The cloak, the rings, the trinkets and the idol are sold by the Undermine Trader in
-// Stranglethorn Vale. The staff, and the Pristine Scale and Fel Leather the leggings take, have no known source.
+// Six Feralheart pieces sold in Orgrimmar and Ironforge, Orb of the Darkmoon for Darkmoon Faire tickets, Tearfall
+// Bracers of Magic from Stratholme, Rune Band of Wizardry and Eye of the Beast from Blackrock Spire, Therazane's Touch
+// from the Alterac Valley vendors and the crafted Ironfeather Leggings. The cloak, a ring, a trinket and the idol are
+// sold by the Undermine Trader in Stranglethorn Vale. Hand of Edward the Odd, and the Pristine Scale and Fel Leather the
+// leggings take, have no known source.
 export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSGearJson, { devOnly: true });
 
 export const P1Gear = PresetUtils.makePresetGear('P1', P1GearJson, { devOnly: true });
@@ -53,49 +54,3 @@ export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
 		[Stat.StatMP5]: 0,
 	}),
 );
-
-export const DefaultOptions = BalanceDruidOptions.create({
-	classOptions: {
-		innervateTarget: UnitReference.create(),
-	},
-});
-
-export const DefaultRaidBuffs = RaidBuffs.create({
-	arcaneIntellect: true,
-	markOfTheWild: true,
-	powerWordFortitude: true,
-	prayerOfSpirit: true,
-});
-
-export const DefaultPartyBuffs = PartyBuffs.create({
-	manaSpringTotem: TristateEffect.TristateEffectRegular,
-});
-
-export const DefaultIndividualBuffs = IndividualBuffs.create({
-	greaterBlessingOfKings: true,
-	greaterBlessingOfWisdom: 1,
-});
-
-export const DefaultDebuffs = Debuffs.create({
-	curseOfElements: true,
-	judgementOfWisdom: true,
-});
-
-export const DefaultConsumables = ConsumesSpec.create({
-	conjuredId: Consumables.DemonicRune.id,
-	elixirIds: [Consumables.GreaterArcaneElixir.id, Consumables.ElixirOfNaturePower.id, Consumables.ElixirOfTheOwl.id, Consumables.GreaterMagebloodElixir.id],
-	explosiveId: Consumables.SAFTCleverDynamite.id,
-	flaskId: Consumables.FlaskOfSupremePower.id,
-	foodId: Consumables.LobsterStew.id,
-	mhImbueId: Consumables.BrilliantWizardOil.id,
-	offensivePotId: Consumables.MajorSpellblastingPotion.id,
-	resourcePotId: Consumables.MajorManaPotion.id,
-});
-
-export const OtherDefaults = {
-	channelClipDelay: 100,
-	distanceFromTarget: 20,
-	profession1: Profession.Enchanting,
-	profession2: Profession.Tailoring,
-	race: Race.RaceNightElf,
-};

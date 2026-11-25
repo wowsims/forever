@@ -104,8 +104,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BarmanShanker-12791"
  value: {
-  dps: 748.19802
-  tps: 557.21062
+  dps: 747.92723
+  tps: 557.01786
   hps: 45.9025
  }
 }
@@ -128,8 +128,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 751.6376
-  tps: 559.73875
+  dps: 750.66387
+  tps: 559.0454
   hps: 45.75
  }
 }
@@ -176,8 +176,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BloodTalon-12795"
  value: {
-  dps: 737.20648
-  tps: 549.47809
+  dps: 737.13351
+  tps: 549.42615
   hps: 46.19056
  }
 }
@@ -235,6 +235,14 @@ dps_results: {
   dps: 740.55653
   tps: 552.0656
   hps: 46.41083
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 811.36738
+  tps: 602.09628
+  hps: 45.98722
  }
 }
 dps_results: {
@@ -896,17 +904,17 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-GrovekeeperFerocity"
  value: {
-  dps: 790.47166
-  tps: 587.25008
-  hps: 47.46139
+  dps: 782.99311
+  tps: 581.41627
+  hps: 46.54639
  }
 }
 dps_results: {
  key: "TestFeralCat-AllItems-GrovekeeperRage"
  value: {
-  dps: 760.52764
-  tps: 566.83552
-  hps: 47.7325
+  dps: 770.97869
+  tps: 574.0304
+  hps: 47.17333
  }
 }
 dps_results: {
@@ -1440,8 +1448,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-RockonStick-279852"
  value: {
-  dps: 729.14571
-  tps: 543.87147
+  dps: 728.54103
+  tps: 543.441
   hps: 46.10583
  }
 }

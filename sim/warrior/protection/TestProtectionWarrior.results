@@ -317,8 +317,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BloodTalon-12795"
  value: {
-  dps: 573.90012
-  tps: 1905.04324
+  dps: 573.84491
+  tps: 1904.92399
   dtps: 327.65635
   hps: 52.38934
  }
@@ -344,8 +344,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BloodmailRegalia"
  value: {
-  dps: 558.7234
-  tps: 1786.11906
+  dps: 558.67498
+  tps: 1786.01447
   dtps: 357.85207
   hps: 40.87472
  }
@@ -353,8 +353,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Bloodrazor-809"
  value: {
-  dps: 569.20846
-  tps: 1813.79759
+  dps: 569.12314
+  tps: 1813.6133
   dtps: 320.67087
   hps: 39.77778
  }
@@ -456,6 +456,15 @@ dps_results: {
   tps: 1777.80261
   dtps: 385.01934
   hps: 40.37639
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 585.57375
+  tps: 1869.07322
+  dtps: 329.30441
+  hps: 42.57623
  }
 }
 dps_results: {
@@ -1199,8 +1208,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-GargoyleShredderTalons-13399"
  value: {
-  dps: 411.18326
-  tps: 1063.54259
+  dps: 411.12331
+  tps: 1063.43468
   dtps: 531.41643
   hps: 47.88547
  }
@@ -1253,8 +1262,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 560.95987
-  tps: 1847.25011
+  dps: 560.84398
+  tps: 1846.9998
   dtps: 323.35767
   hps: 43.73232
  }
@@ -1334,8 +1343,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 565.08712
-  tps: 1843.32537
+  dps: 565.04393
+  tps: 1843.23208
   dtps: 322.29026
   hps: 43.92095
  }
@@ -2000,8 +2009,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-RockonStick-279852"
  value: {
-  dps: 565.65794
-  tps: 1831.34848
+  dps: 564.96355
+  tps: 1829.8486
   dtps: 319.08312
   hps: 40.28256
  }

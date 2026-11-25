@@ -1161,12 +1161,12 @@ func TestDragonsCallInTheSwapSetOwnsTheWhelp(t *testing.T) {
 	}
 }
 
-// The spells Shahram can land for the wearer; Fist of Shahram 16601 lands nothing.
-var shahramSpellIDs = []int32{16596, 16597, 16598, 16599, 16600}
+// The spells Shahram can land for the wearer.
+var shahramSpellIDs = []int32{16596, 16597, 16598, 16599, 16600, 16601}
 
 // Blackblade of Shahram 12592 casts 16602 at the procs per minute of the item's chance-on-hit entry,
 // on the sword's speed, off main-hand hits. Each summon lands one of Shahram's spells, none of them
-// before its row's hardcast has run, or nothing when he picks Fist of Shahram.
+// before its row's hardcast has run.
 func TestBlackbladeOfShahramLandsOneSpellPerSummonAfterItsHardcast(t *testing.T) {
 	sim, character := weaponWearerFor(t, proto.Class_ClassShaman, 12592, 1, 6000)
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -1198,7 +1198,6 @@ func TestBlackbladeOfShahramLandsOneSpellPerSummonAfterItsHardcast(t *testing.T)
 
 	// Each summon gets longer than the longest of his spells to land and run out.
 	const summons, apart = 200, 25 * time.Second
-	nothing := 0
 	for range summons {
 		start, before := sim.CurrentTime, landed()
 		summon.Cast(sim, enemy)
@@ -1207,21 +1206,14 @@ func TestBlackbladeOfShahramLandsOneSpellPerSummonAfterItsHardcast(t *testing.T)
 			t.Fatalf("a summon landed %d spells within the shortest hardcast, %v, want none yet", got-before, hardcast)
 		}
 		stepTo(t, sim, start+apart)
-		switch landed() - before {
-		case 0:
-			nothing++
-		case 1:
-		default:
-			t.Fatalf("a summon landed %d spells, want one at most", landed()-before)
+		if got := landed() - before; got != 1 {
+			t.Fatalf("a summon landed %d spells, want one", got)
 		}
 	}
 	for _, id := range shahramSpellIDs {
 		if casts(id) == 0 {
 			t.Errorf("%d summons never landed %d", summons, id)
 		}
-	}
-	if nothing == 0 {
-		t.Errorf("each of %d summons landed a spell, want some to pick Fist of Shahram and land nothing", summons)
 	}
 }
 
@@ -1281,6 +1273,44 @@ func TestFlamesOfShahramBurnsEveryEnemy(t *testing.T) {
 		if hit < damage.Min() || hit > damage.Max() {
 			t.Errorf("the hits on enemy %d deal %.1f on average, want %v to %v", i, hit, damage.Min(), damage.Max())
 		}
+	}
+}
+
+// Fist of Shahram 16601 raises the wearer's melee attack speed by the row's percent for the row's
+// duration. A second Fist while one is up adds no more speed and holds it until the second fades.
+func TestFistOfShahramRaisesTheWearersMeleeSpeed(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 1)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	fist := character.GetSpell(core.ActionID{SpellID: 16601})
+	aura := character.GetAuraByID(core.ActionID{SpellID: 16601})
+	if fist == nil || aura == nil {
+		t.Fatal("12592 registers no 16601 or no aura of it on the wearer")
+	}
+	row := spelldata.MustFind(16601)
+	speed := row.FirstAura(dbcenums.A_MOD_MELEE_HASTE_3).Min()
+	duration := row.Duration()
+	if speed <= 0 || duration <= 0 {
+		t.Fatalf("16601 states %v%% melee speed for %v, want both", speed, duration)
+	}
+	haste := character.TotalMeleeHasteMultiplier()
+
+	start := sim.CurrentTime
+	fist.Cast(sim, character.CurrentTarget)
+	if got, want := character.TotalMeleeHasteMultiplier()/haste, core.SymmetricMultiplierFromPercent(speed); !aura.IsActive() || !statNear(got, want) {
+		t.Errorf("Fist raises melee haste %vx, active %v, want the row's %vx", got, aura.IsActive(), want)
+	}
+	stepTo(t, sim, start+duration/2)
+	fist.Cast(sim, character.CurrentTarget)
+	if got, want := character.TotalMeleeHasteMultiplier()/haste, core.SymmetricMultiplierFromPercent(speed); !statNear(got, want) {
+		t.Errorf("a second Fist raises melee haste %vx, want the row's %vx once", got, want)
+	}
+	stepTo(t, sim, start+duration+time.Millisecond)
+	if !aura.IsActive() {
+		t.Error("past the first Fist's duration the aura is gone, want the second Fist to have refreshed it")
+	}
+	stepTo(t, sim, start+duration/2+duration+time.Millisecond)
+	if aura.IsActive() || !statNear(character.TotalMeleeHasteMultiplier(), haste) {
+		t.Errorf("past the second Fist's duration the aura is active %v with melee haste %v, want gone at %v", aura.IsActive(), character.TotalMeleeHasteMultiplier(), haste)
 	}
 }
 
@@ -1958,9 +1988,9 @@ func procWeaponWearer(t *testing.T, itemID int32, procName string, target *proto
 }
 
 // Barman Shanker 12791's Rend 1300787, applied from behind the target, ticks for the multiple of its
-// periodic damage its second effect states.
-func TestBarmanShankerRendDealsItsMultipleFromBehind(t *testing.T) {
-	sim, character := procWeaponWearer(t, 12791, "Barman Shanker", &proto.Target{Name: "target", Level: 60}, 0, 0)
+// periodic damage its second effect states, less the armor reduction of a tenth of the target's armor.
+func TestBarmanShankerRendFromBehindTakesATenthOfArmor(t *testing.T) {
+	sim, character := procWeaponWearer(t, 12791, "Barman Shanker", &proto.Target{Name: "target", Level: 60, Stats: stats.Stats{stats.Armor: 3000}.ToProtoArray()}, 0, 0)
 	if character.PseudoStats.InFrontOfTarget {
 		t.Fatal("the wearer stands in front of the target")
 	}
@@ -1969,13 +1999,18 @@ func TestBarmanShankerRendDealsItsMultipleFromBehind(t *testing.T) {
 	if rend == nil {
 		t.Fatal("12791 registers no Rend")
 	}
+	tenth := enemy.Armor() / 10
+	if tenth <= 0 {
+		t.Fatal("the target has no armor")
+	}
+	armorMultiplier := 1 - tenth/(tenth+400+85*float64(character.Level))
 	row := spelldata.MustFind(1300787)
 	multiple := row.EffectN(2).Average()
-	want := row.EffectN(1).Average() * float64(rowTickCount(row, row.EffectN(1))) * multiple
+	want := row.EffectN(1).Average() * float64(rowTickCount(row, row.EffectN(1))) * multiple * armorMultiplier
 	rend.Cast(sim, enemy)
 	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Second)
 	if got := rend.SpellMetrics[enemy.UnitIndex].TotalDamage; multiple <= 1 || math.Abs(got-want) > 0.5 {
-		t.Errorf("a Rend from behind dealt %v, want the row's ticks times %v, %v", got, multiple, want)
+		t.Errorf("a Rend from behind dealt %v, want the row's ticks × %v × %v for a tenth of the armor, %v", got, multiple, armorMultiplier, want)
 	}
 }
 

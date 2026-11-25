@@ -370,7 +370,7 @@ describe('orderedByEp', () => {
 	const proc = consumable({ id: 3, name: 'Proc', lvl: 60 });
 	const ids = (consumables: Array<Consumable>) => consumables.map(({ id }) => id);
 	const orderedIds = (consumables: Array<Consumable>, weights: Stats, mobType: MobType | undefined) =>
-		ids(orderedByEp(consumables, consumable => consumable, { weights, mobType }));
+		ids(orderedByEp(consumables, consumable => consumable, { weights, playerClass: Class.ClassWarrior, mobType }));
 	const anywhere = (consumables: Array<Consumable>, weights: Stats) => orderedIds(consumables, weights, undefined);
 
 	it('orders by the EP the stats and percents add, highest first', () => {

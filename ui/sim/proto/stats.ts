@@ -370,6 +370,17 @@ const RATING_CHANNELS = new Map<Stat, { channels: [PseudoStat, PseudoStat, Pseud
 ]);
 const CHANNEL_PSEUDO_STATS = new Set([...RATING_CHANNELS.values()].flatMap(({ channels }) => channels));
 
+// The classes whose Ranged Hit % never falls back to hit rating, so hit that reaches ranged attacks alone is worth the
+// weight the weights give Ranged Hit % and nothing when they leave it out. A warrior's Thunder Clap rolls spell hit and
+// a shaman has no ranged attack. A paladin's Judgement of Righteousness, Judgement of Fury and Hammer of Wrath roll
+// ranged hit on top of melee hit, a small share of what hit rating is worth, which the paladin specs weigh as Ranged
+// Hit % of its own.
+// ClassesWithoutRangedHitFallback in sim/core/unit.go is the back end's copy; the two are kept in sync by hand.
+const CLASSES_WITHOUT_RANGED_HIT_FALLBACK: ReadonlySet<Class> = new Set([Class.ClassWarrior, Class.ClassPaladin, Class.ClassShaman]);
+
+const channelHasEPFallback = (pseudoStat: PseudoStat, playerClass: Class): boolean =>
+	pseudoStat !== PseudoStat.PseudoStatRangedHitPercent || !CLASSES_WITHOUT_RANGED_HIT_FALLBACK.has(playerClass);
+
 const displayStatOrder: Array<UnitStat> = [
 	UnitStat.fromStat(Stat.StatHealth),
 	UnitStat.fromStat(Stat.StatMana),
@@ -538,8 +549,8 @@ export class Stats {
 	// What a channel holds beyond it is worth that percent's own weight. A channel the weights leave at
 	// 0 falls back to what the rating is worth past the channels they weigh, and any other percent to
 	// its rating's weight. The fallbacks of one rating count once, as the largest, since the one rating
-	// raises them all.
-	computeEP(epWeights: Stats): number {
+	// raises them all. A class in CLASSES_WITHOUT_RANGED_HIT_FALLBACK gets no fallback for Ranged Hit %.
+	computeEP(epWeights: Stats, playerClass: Class): number {
 		let total = 0;
 		this.stats.forEach((stat, idx) => {
 			total += stat * epWeights.stats[idx];
@@ -568,7 +579,9 @@ export class Stats {
 			const common = Math.max(0, Math.min(...values));
 			total += common * (perPercent || weighted);
 			const residual = Math.max(0, perPercent - weighted);
-			channels.forEach((pseudoStat, i) => addPercent(rating, pseudoStat, values[i] - common, residual));
+			channels.forEach((pseudoStat, i) =>
+				addPercent(rating, pseudoStat, values[i] - common, channelHasEPFallback(pseudoStat, playerClass) ? residual : 0),
+			);
 		});
 
 		this.pseudoStats.forEach((value, idx) => {

@@ -26,7 +26,9 @@ what the attributes and targets say: `SpellFlagPassiveSpell`, `SpellFlagChannele
 and `SpellFlagHelpful`; `SpellFlagSuppressWeaponProcs`, `SpellFlagSuppressCasterProcs` and
 `SpellFlagSuppressTargetProcs` where an effect of the row does more than a dummy, a script or a cast of another spell; and
 `SpellFlagBinary` where the row's effects make
-the spell resist all or nothing (`Spell.IsBinary`), so a class file sets no binary flag the row decides.
+the spell resist all or nothing (`Spell.IsBinary`), so a class file sets no binary flag the row decides. A physical row
+with periodic damage gets `SpellFlagTenthResistance` or `SpellFlagApplyArmorReduction` where its attributes say its
+ticks meet a tenth or all of the target's armor (`TicksIgnoreArmor`, `TicksMeetATenthOfArmor`; EV-0194).
 
 A bleed row also sets the damage and threat multipliers to 1.
 

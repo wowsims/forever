@@ -89,7 +89,9 @@ go test ./sim/core/spelldata/ ./tools/database/ -count=1     # no database neede
   drop lists collapse, so it counts in that instance's list and `PruneQuestieSources` gives its drops the instance's
   difficulty. The rule and the guard that keeps open-world NPCs out are the comments in
   `tools/database/npc_placement.go`; no NPC or instance is placed by hand. A map with no zone to move to never takes
-  an NPC: Deadmines has `AreaTableID` 0 and no top-level area named as the map. A build that adds an instance needs a
+  an NPC: Deadmines has `AreaTableID` 0 and no top-level area named as the map. A Questie zone with no `AreaTable` row
+  moves whole when every NPC placed out of it lands in one zone (`parseQuestieData`), so Verek in 1585 follows the
+  Blackrock Depths bosses to 1584 with no encounter or quest of his own. A build that adds an instance needs a
   `-gen=questie` run before `-gen=db`.
 - **AtlasLoot repeats the game files' crafting spells.** `AtlasLootSourcesBeside` removes them on both the item and the
   enchant path, since `MergeItem` concatenates lists.

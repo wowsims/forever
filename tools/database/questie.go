@@ -88,7 +88,7 @@ func ReadQuestieQuests(path string) map[int32]*QuestieQuest {
 }
 
 // The baked data is the TOC's "## X-<entity>-<id>-<field>: <value>" lines; each meta file maps an entity's field
-// names to indexes. Each NPC takes the zone placement gives it.
+// names to indexes. Each NPC takes the zone placement gives it, else the zone its Questie zone stands for.
 func parseQuestieData(toc, itemMeta, questMeta, npcMeta string, placement *NpcPlacement) (*WowDatabase, map[int32]*QuestieQuest, error) {
 	store := readQuestieStore(toc)
 	items, err := newQuestieEntity(store, "Item", itemMeta)
@@ -179,25 +179,61 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string, placement *NpcPl
 		}
 	}
 
+	// An NPC's name, its Questie zone and the zone placement gives it.
+	placeNpc := func(npc *questieRow, id int) (string, int32, int32, error) {
+		name, err := npc.text(npcName)
+		if err != nil {
+			return "", 0, 0, err
+		}
+		zone, err := npc.integer(npcZone)
+		if err != nil {
+			return "", 0, 0, err
+		}
+		return name, int32(zone), placement.zone(name, int32(zone), killQuestMaps[id]), nil
+	}
+
+	// A zone AreaTable lacks stands for the one zone its placed NPCs move to (BRD's 1585 for 1584), so the NPCs there
+	// that no encounter or quest places follow them. A zone whose NPCs move to two zones stands for itself.
+	standIns := map[int32]int32{}
+	for _, id := range npcs.ids {
+		npc, err := npcs.row(id)
+		if err != nil {
+			return nil, nil, err
+		}
+		if npc == nil {
+			continue
+		}
+		_, zone, placed, err := placeNpc(npc, id)
+		if err != nil {
+			return nil, nil, err
+		}
+		if zone == 0 || placed == zone || placement.inAreaTable(zone) {
+			continue
+		}
+		if standIn, seen := standIns[zone]; !seen {
+			standIns[zone] = placed
+		} else if standIn != placed {
+			standIns[zone] = zone
+		}
+	}
+
 	// Nil for an NPC with no row, with the side it is friendly to.
 	readNpc := func(id int) (*proto.UINPC, proto.Faction, error) {
 		npc, err := npcs.row(id)
 		if err != nil || npc == nil {
 			return nil, proto.Faction_Unknown, err
 		}
-		name, err := npc.text(npcName)
+		name, zone, placed, err := placeNpc(npc, id)
 		if err != nil {
 			return nil, proto.Faction_Unknown, err
 		}
-		zone, err := npc.integer(npcZone)
-		if err != nil {
-			return nil, proto.Faction_Unknown, err
+		if standIn, ok := standIns[zone]; ok && placed == zone {
+			placed = standIn
 		}
 		friendlyTo, err := npc.text(npcFriendlyTo)
 		if err != nil {
 			return nil, proto.Faction_Unknown, err
 		}
-		placed := placement.zone(name, int32(zone), killQuestMaps[id])
 		return &proto.UINPC{Id: int32(id), Name: name, ZoneId: placed}, questieNpcFaction(friendlyTo), nil
 	}
 

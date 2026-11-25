@@ -99,8 +99,7 @@ func (rogue *Rogue) registerDeadlyPoisonSpell(deadlyPoisonRank *spelldata.Spell)
 	config := spelldata.SpellConfig(&rogue.Unit, deadlyPoisonRank, spelldata.Magic(core.ProcMaskSpellDamageProc))
 	config.ClassSpellMask = RogueSpellDeadlyPoison
 	tick := deadlyPoisonRank.PeriodicEffect()
-	numTicks := deadlyPoisonRank.Duration().Seconds() / tick.Period().Seconds()
-	apScaling := 0.009 / numTicks // Measured in game (EV-0086).
+	apScaling := 0.009 // Per tick and stack, measured in game (EV-0086).
 
 	config.Dot = spelldata.DotConfig(deadlyPoisonRank, tick)
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {

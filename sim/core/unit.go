@@ -2,6 +2,7 @@ package core
 
 import (
 	"math"
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -814,6 +815,18 @@ var RatingChannelTable = []RatingChannels{
 		Spell:            proto.PseudoStat_PseudoStatSpellHastePercent,
 		RatingPerPercent: HasteRatingPerHastePercent,
 	},
+}
+
+// The classes whose Ranged Hit % never falls back to hit rating: a warrior's Thunder Clap rolls spell hit, a shaman has
+// no ranged attack, and the paladin specs weigh the ranged hit Judgement of Righteousness, Judgement of Fury and Hammer
+// of Wrath roll as Ranged Hit % of its own. CLASSES_WITHOUT_RANGED_HIT_FALLBACK in ui/sim/proto/stats.ts is the UI's copy; the two are kept in sync
+// by hand.
+var ClassesWithoutRangedHitFallback = []proto.Class{proto.Class_ClassWarrior, proto.Class_ClassPaladin, proto.Class_ClassShaman}
+
+// Whether EP falls back to a rating's weight for a channel percent the weights leave at 0. For a class in
+// ClassesWithoutRangedHitFallback, hit that reaches ranged attacks alone is worth only the Ranged Hit % weight.
+func ChannelHasEPFallback(pseudoStat proto.PseudoStat, class proto.Class) bool {
+	return pseudoStat != proto.PseudoStat_PseudoStatRangedHitPercent || !slices.Contains(ClassesWithoutRangedHitFallback, class)
 }
 
 // The channels of a rating, and whether RatingChannelTable lists it.

@@ -18,18 +18,28 @@ import { SidebarActions } from './SidebarActions';
 export interface SimRunActionsProps {
 	host: SimHostObject<any>;
 	sim: Sim;
+	/** Wraps the row when it runs out of room, with Simulate on the top line. */
+	wrap?: boolean;
 	className?: string;
 }
 
 /**
- * Stat weights, the actions features register and Simulate, on one row: in the run card, or in the dock below `lg`. Mounted
- * once, because `SimulateAction` holds whether its run is going; off while the sim loads.
+ * Stat weights, the actions features register and Simulate, on one row: in the run card, where it wraps, or in the dock
+ * below `lg`. Mounted once, because `SimulateAction` holds whether its run is going; off while the sim loads.
  */
-export const SimRunActions = ({ host, sim, className }: SimRunActionsProps) => {
+export const SimRunActions = ({ host, sim, wrap = false, className }: SimRunActionsProps) => {
 	const { status } = useSimStatus(sim);
 	return (
 		<SidebarDisabledContext value={host.disabled || status === 'loading'}>
-			<ButtonGroup gap className={clsx('items-center justify-end', className)} testId="sim-run-card-run-row">
+			<ButtonGroup
+				gap
+				className={clsx(
+					'items-center justify-end',
+					// Reversed so that Simulate, last in the row, stays on the top line; without it the lines keep reading order.
+					wrap && (host.simDisabled ? 'flex-wrap' : 'flex-wrap-reverse'),
+					className,
+				)}
+				testId="sim-run-card-run-row">
 				<StatWeightsAction />
 				<SidebarActions registry={host.sidebar} />
 				{/* Last although a registered action orders itself (`order-20`), and as wide as the row leaves it. */}

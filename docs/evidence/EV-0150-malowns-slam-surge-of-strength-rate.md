@@ -66,8 +66,9 @@ Isolated landed hits:
 | Holy Strike          | 7 / 125            |  5.6% |
 | Judgement of Command | 17 / 117           | 14.5% |
 
-Judgement of Command is two rolls a cast. Two procs logged at one millisecond, and the next shortest gap between
-procs on separate hits was 0.94 s. Every pair of procs within 200 ms is a white swing and a Seal of Command strike.
+Judgement of Command is two rolls a cast up to hotfix push 114399 (2026-11-25) and one from it (EV-0155). Two procs
+logged at one millisecond, and the next shortest gap between procs on separate hits was 0.94 s. Every pair of procs
+within 200 ms is a white swing and a Seal of Command strike.
 
 The paladin's specials fall short of the rate: 2.0 procs per minute expects 16 of the 125 Holy Strikes (7 seen, a 0.8%
 tail) and 28 of the 117 Judgements at two rolls (17 seen, 1%). The claim that specials roll it alike rests on the

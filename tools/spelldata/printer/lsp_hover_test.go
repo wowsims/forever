@@ -179,7 +179,7 @@ func executeCard(t *testing.T) string {
 		"| **range** | " + column(float64(execute.MaxRange)) + " yd |\n" +
 		"| **stance** | Battle, Berserker |\n" +
 		"| **equip** | needs a melee weapon in the main hand |\n" +
-		"| **attrs** | refund on miss |\n" +
+		"| **attrs** | refund on miss, suppresses weapon procs |\n" +
 		"| **labels** | 25 |\n" +
 		"\n" +
 		"---\n" +

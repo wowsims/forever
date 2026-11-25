@@ -211,6 +211,12 @@ func (s *Spell) ExtraAttacksEffect() *Effect {
 	return s.firstOfType(dbcenums.E_ADD_EXTRA_ATTACKS)
 }
 
+// The E_SUMMON effect, whose Misc is the creature it puts up and BasePoints how many, or NilEffect where the spell
+// summons none.
+func (s *Spell) SummonEffect() *Effect {
+	return s.firstOfType(dbcenums.E_SUMMON)
+}
+
 func (s *Spell) HealEffect() *Effect {
 	return s.firstOfType(dbcenums.E_HEAL)
 }

@@ -63,15 +63,16 @@ type HunterPet struct {
 	hunterOwner *Hunter
 	family      generatedPetFamily
 
-	// What the pet casts in melee range, longest cooldown first as a player orders the bar, and what
-	// it casts to close the distance when it is not.
-	abilities []*core.Spell
-	closers   []*core.Spell
+	// What the pet casts in melee range, and what it casts to close the distance when it is not.
+	abilities  []*core.Spell
+	closers    []*core.Spell
+	savageRend *core.Spell
 
 	summonAttackPower float64 // The attack power and health inherited at the summon, kept while the pet is out.
 	summonHealth      float64
 
 	uptimePercent float64
+	nextAutocast  time.Duration
 }
 
 func (hunter *Hunter) NewHunterPet() *HunterPet {
@@ -105,18 +106,6 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 		MainHand:       petSwing,
 		AutoSwingMelee: true,
 	})
-
-	// The white swing takes none of the owner's crit the pet inherits; the pet's abilities take all of
-	// it (EV-0134). Each swing takes the current inherited crit back off, by the change since the last.
-	whiteSwing := hp.AutoAttacks.MHConfig()
-	applyWhiteSwing := whiteSwing.ApplyEffects
-	inheritedCritTakenOff := 0.0
-	whiteSwing.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		inheritedCrit := hp.GetInheritedStats()[stats.PhysicalCritPercent]
-		spell.BonusCritPercent += inheritedCritTakenOff - inheritedCrit
-		inheritedCritTakenOff = inheritedCrit
-		applyWhiteSwing(sim, target, spell)
-	}
 
 	// Happiness
 	hp.PseudoStats.DamageDealtMultiplier *= 1.25
@@ -249,6 +238,7 @@ func (hp *HunterPet) Initialize() {
 
 func (hp *HunterPet) Reset(sim *core.Simulation) {
 	hp.uptimePercent = min(1, max(0, hp.hunterOwner.Options.PetUptime))
+	hp.nextAutocast = 0
 }
 
 func (hp *HunterPet) OnEncounterStart(_ *core.Simulation) {
@@ -273,8 +263,39 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 		return
 	}
 
-	// Autocast never waits: an ability short of focus passes to the next one on the bar.
-	hp.castFirstReady(sim, target, hp.abilities)
+	// Autocast decides in 0.8 s steps, two of them after a cast, and picks evenly among what it can
+	// cast; Savage Rend goes out only about one time in nine that it could (EV-0187).
+	if sim.CurrentTime >= hp.nextAutocast {
+		hp.nextAutocast = sim.CurrentTime + petAutocastStep
+		if hp.castRandomReady(sim, target) {
+			hp.nextAutocast += petAutocastStep
+		}
+	}
+	hp.WaitUntil(sim, hp.nextAutocast)
+}
+
+const petAutocastStep = 800 * time.Millisecond
+
+func (hp *HunterPet) castRandomReady(sim *core.Simulation, target *core.Unit) bool {
+	var ready []*core.Spell
+	for _, spell := range hp.abilities {
+		if !spell.CanCast(sim, target) {
+			continue
+		}
+		if spell == hp.savageRend {
+			if sim.RandomFloat("Pet Savage Rend") < 0.113 {
+				spell.Cast(sim, target)
+				return true
+			}
+			continue
+		}
+		ready = append(ready, spell)
+	}
+	if len(ready) == 0 {
+		return false
+	}
+	ready[int(sim.RandomFloat("Pet Autocast")*float64(len(ready)))].Cast(sim, target)
+	return true
 }
 
 func (hp *HunterPet) castFirstReady(sim *core.Simulation, target *core.Unit, spells []*core.Spell) bool {
@@ -315,6 +336,9 @@ func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 		return
 	default:
 		return
+	}
+	if rank.Name == "Savage Rend" {
+		hp.savageRend = spell
 	}
 	hp.abilities = append(hp.abilities, spell)
 }
