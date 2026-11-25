@@ -1277,7 +1277,7 @@ func TestFlamesOfShahramBurnsEveryEnemy(t *testing.T) {
 }
 
 // Fist of Shahram 16601 raises the wearer's melee attack speed by the row's percent for the row's
-// duration, and a second Fist while one is up refreshes it.
+// duration. A second Fist while one is up adds no more speed and holds it until the second fades.
 func TestFistOfShahramRaisesTheWearersMeleeSpeed(t *testing.T) {
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 1)
 	character.AutoAttacks.CancelAutoSwing(sim)

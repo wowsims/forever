@@ -241,8 +241,9 @@ func registerBlessingOfShahram(character *core.Character) *core.Spell {
 }
 
 // Fist of Shahram 16601 lands on Shahram's master, the wearer, and raises the wearer's melee attack
-// speed for the row's duration (EV-0125). The logs show no two Fists up at once, so the sim's own
-// rule is that a new Fist refreshes the one that is up.
+// speed for the row's duration. Two Fists run side by side, each on its own timer (EV-0125), and
+// their speed counts once, an owner ruling. Every copy lasts the row's duration, so the newest
+// fades last and one aura refreshed by each Fist holds the same speed for the same time.
 func registerFistOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16601)
 	aura := character.RegisterAura(spelldata.AuraConfig(row))
