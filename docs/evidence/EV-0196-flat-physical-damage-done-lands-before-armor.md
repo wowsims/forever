@@ -8,7 +8,7 @@
   holders with hits while it is on, in the reports §Reports lists
 - Game build: 1.60.1.70862 to 1.60.1.71091 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-11 to 2026-11-25
-- Pull request: #TBD
+- Pull request: #1230
 
 ## Method
 

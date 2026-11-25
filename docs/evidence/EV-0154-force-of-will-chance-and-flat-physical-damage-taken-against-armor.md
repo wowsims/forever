@@ -25,7 +25,7 @@
 - Date: 2026-11-05 to 2026-11-19; the ticks 2026-11-10 to 2026-11-25; the specials and ranged hits 2026-11-10 09:46 to
   2026-11-25 08:41 UTC; Era 2023-10-04 to 2026-10-01
 - Pull request: #1114; the single applications, Stoneskin Totem, the cap at half a hit and the crits in #1116; the ticks
-  in #1229; Deep Wound, the specials, the ranged hits and Era in #TBD
+  in #1229; Deep Wound, the specials, the ranged hits and Era in #1230
 
 ## Method
 
