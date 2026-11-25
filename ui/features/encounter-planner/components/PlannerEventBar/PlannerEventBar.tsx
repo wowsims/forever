@@ -302,7 +302,7 @@ export const PlannerEventBar = ({
 					<span
 						aria-hidden="true"
 						data-copy=""
-						className="pointer-events-none absolute top-0 left-timeline-pos h-full w-timeline-segment min-w-2 rounded-xs border border-white bg-(--bar) opacity-70"
+						className="pointer-events-none absolute top-0 left-timeline-pos h-full w-timeline-segment min-w-2 border border-white bg-(--bar) opacity-70"
 						style={cssVars({
 							'--t': String(fractionToSeconds(copy.start - window.start, baseSeconds)),
 							'--dur': String(fractionToSeconds(copy.end - copy.start, baseSeconds)),
