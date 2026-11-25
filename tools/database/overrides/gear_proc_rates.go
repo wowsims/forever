@@ -59,7 +59,8 @@ var GearProcRates = []GearProcRate{
 	{
 		Gear:   GearItem,
 		ID:     280032,
-		Reason: "Bolt's Charged Eyeball: 15%, and half the procs land on the wearer",
+		Reason: "Bolt's Charged Eyeball: the row's 15%, and about a quarter of the shocks land on the wearer (EV-0202)",
+		Source: "EV-0202",
 	},
 	{
 		Gear:   GearSetBonus,
