@@ -4,8 +4,8 @@
     "backgroundUrl": "https://wow.zamimg.com/images/wow/talents/backgrounds/tbc/283.jpg",
     "talents": [
       {
-        "fieldName": "improvedWrath",
-        "fancyName": "Improved Wrath",
+        "fieldName": "starlightWrath",
+        "fancyName": "Starlight Wrath",
         "location": {
           "rowIdx": 0,
           "colIdx": 1
@@ -37,8 +37,8 @@
         "maxPoints": 3
       },
       {
-        "fieldName": "improvedMoonfire",
-        "fancyName": "Improved Moonfire",
+        "fieldName": "moonAndStars",
+        "fancyName": "Moon and Stars",
         "location": {
           "rowIdx": 1,
           "colIdx": 1
@@ -130,7 +130,7 @@
         },
         "spellId": 16850,
         "definitionId": 134394,
-        "maxPoints": 5
+        "maxPoints": 2
       },
       {
         "fieldName": "overgrowth",
@@ -166,13 +166,13 @@
         "maxPoints": 3
       },
       {
-        "fieldName": "moonfury",
-        "fancyName": "Moonfury",
+        "fieldName": "dreamstate",
+        "fancyName": "Dreamstate",
         "location": {
           "rowIdx": 5,
           "colIdx": 1
         },
-        "spellId": 16896,
+        "spellId": 408258,
         "definitionId": 134397,
         "maxPoints": 5
       },

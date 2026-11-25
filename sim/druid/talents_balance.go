@@ -7,12 +7,12 @@ import (
 
 func (druid *Druid) registerBalanceTalents() {
 	// Tier 1
-	druid.applyImprovedWrath()
+	druid.applyStarlightWrath()
 	druid.applyGenesis()
 
 	// Tier 2
 	druid.applyMoonglow()
-	druid.applyImprovedMoonfire()
+	druid.applyMoonAndStars()
 	druid.applyNaturesMajesty()
 	druid.applyNaturesReach()
 
@@ -31,15 +31,15 @@ func (druid *Druid) registerBalanceTalents() {
 	druid.applyEclipse()
 
 	// Tier 6
-	druid.applyMoonfury()
+	// Dreamstate implemented in innervate.go
 
 	// Tier 7
 	// Moonkin Form implemented in forms.go
 }
 
-// Wrath's cast time and mana cost.
-func (druid *Druid) applyImprovedWrath() {
-	druid.parseTalent(druid.Talents.ImprovedWrath, spellData.ImprovedWrath)
+// The cast time of Wrath and Starfire, whose class flags the cast time row names, and Wrath's mana cost.
+func (druid *Druid) applyStarlightWrath() {
+	druid.parseTalent(druid.Talents.StarlightWrath, spellData.StarlightWrath)
 }
 
 // Periodic damage and healing on the spells its class flags name: Moonfire, Insect Swarm, Rip, Rake,
@@ -53,9 +53,11 @@ func (druid *Druid) applyMoonglow() {
 	druid.parseTalent(druid.Talents.Moonglow, spellData.Moonglow)
 }
 
-// Moonfire's crit chance, and the damage of its hit and of its dot.
-func (druid *Druid) applyImprovedMoonfire() {
-	druid.parseTalent(druid.Talents.ImprovedMoonfire, spellData.ImprovedMoonfire)
+// Moonfire's crit chance, and the damage of its hit and of its dot. The fourth effect, Starfire's chance
+// not to lose cast time to damage taken (SPELLMOD_NOT_LOSE_CASTING_TIME), is reported as skipped: the sim
+// pushes back only a tanking character's casts, and rolls one pushback chance for every spell the unit casts.
+func (druid *Druid) applyMoonAndStars() {
+	druid.parseTalent(druid.Talents.MoonAndStars, spellData.MoonAndStars)
 }
 
 // Nature's Majesty is spell and melee critical strike chance, in every form.
@@ -93,8 +95,8 @@ func (druid *Druid) applyVengeance() {
 	druid.parseTalent(druid.Talents.Vengeance, spellData.Vengeance)
 }
 
-// Starfire's cast time. Its second effect, the chance to stun, is reported as skipped: a stun does
-// nothing to the targets the sim fights.
+// Starfire's chance to stun its target. Both effects, a dummy and the stun's proc, are reported as
+// skipped: a stun does nothing to the targets the sim fights.
 func (druid *Druid) applyImprovedStarfire() {
 	druid.parseTalent(druid.Talents.ImprovedStarfire, spellData.ImprovedStarfire)
 }
@@ -136,16 +138,18 @@ func (druid *Druid) applyNaturesGrace() {
 
 var eclipseBuff = spellData.EclipseTriggered.Highest()
 
-// "Your Wrath spell reduces the cast time of your next $s3 Starfire spells by ${$m2/-1000}.2 sec.
-// Stores up to $408255u charges." The talent's effects are dummies, so the charges each Wrath grants
-// (effect 3) and the cast time taken off each Starfire (effect 2, the one with a rank curve) are read
-// by hand, and the buff row supplies the duration and the charge cap.
+// "Increases the critical strike chance of your Wrath spell by $s5%, and your Wrath spell reduces the
+// cast time of your next $s3 Starfire spells by ${$m2/-1000}.2 sec. Stores up to $408255u charges."
+// The parse attaches the Wrath crit (effect 5). The charges each Wrath grants (effect 3) and the cast
+// time taken off each Starfire (effect 2) are dummies read by hand, and the buff row supplies the
+// duration and the charge cap.
 func (druid *Druid) applyEclipse() {
 	if druid.Talents.Eclipse == 0 {
 		return
 	}
 
 	rank := spellData.Eclipse.Rank(druid.Talents.Eclipse)
+	spelldata.ParseStatic(&druid.Character, rank, spelldata.Effects(5))
 	chargesPerWrath := int32(rank.EffectN(3).BaseValue())
 
 	aura := druid.RegisterAura(spelldata.AuraConfig(eclipseBuff))
@@ -177,9 +181,4 @@ func (druid *Druid) applyEclipse() {
 		return spellData.Wrath.Contains(spell)
 	}
 	druid.MakeProcTriggerAura(trigger)
-}
-
-// Arcane and Nature damage done.
-func (druid *Druid) applyMoonfury() {
-	druid.parseTalent(druid.Talents.Moonfury, spellData.Moonfury)
 }
