@@ -395,7 +395,7 @@ the same: 66 casts with the buff up, 66 crit and 2 lose the buff at the cast.
 ### Spells the buff does not affect
 
 The paladin's Exorcism (171 hits with the buff up), Lay on Hands (7), Seal of Light's heal (117) and Judgement of
-Light's heal (435) are not named, do not crit and do not spend the charge. Exorcism never crits in the logs at all. The
+Light's heal (435) are not named, do not crit and do not spend the charge. Exorcism never crits at all (EV-0188). The
 rows of the two seal heals carry `SpellMisc.Attributes[2]` 0x20000000, cannot crit.
 
 ### The paladin's Holy Shock and Light's Vigil
