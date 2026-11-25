@@ -8,7 +8,7 @@
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
   UTC); the hotfix each player ran is not recorded
 - Date: 2026-11-10 13:47 to 2026-11-24 11:08 UTC
-- Pull request: #TBD
+- Pull request: #1233
 
 ## Method
 

@@ -9,7 +9,7 @@
 - Game build: 1.60.1.70938 to 1.60.1.71037 by event time (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
   UTC); the hotfix each player ran is not recorded
 - Date: 2026-11-13 10:03 to 2026-11-22 23:07 UTC
-- Pull request: #TBD
+- Pull request: #1233
 
 ## Method
 

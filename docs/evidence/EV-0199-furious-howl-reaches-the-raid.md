@@ -10,7 +10,7 @@
   02:19 UTC in the EU, 70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
   UTC); the range spans hotfix push 114313 (2026-11-20 23:47 UTC); the hotfix each player ran is not recorded
 - Date: 2026-11-11 to 2026-11-24, the last report starting at 11:21 UTC
-- Pull request: not yet opened
+- Pull request: #1233
 
 ## Method
 
