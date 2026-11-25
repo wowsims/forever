@@ -1114,6 +1114,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
+		ItemID:  13146,
+		SpellID: 29647,
+		PPM:     3.75,
+		Reason:  "Shell Launcher Shotgun: no proc row; a log fit not yet validated (EV-0209)",
+		Source:  "observed",
+	},
+	{
 		ItemID:  13204,
 		SpellID: 17315,
 		PPM:     3,
@@ -1552,13 +1559,6 @@ var WeaponProcs = []WeaponProc{
 	// 	SpellID: 16871,
 	// 	PPM:     0, // TODO: waiting for PPM data
 	// 	Reason:  "Bleakwood Hew: column reads 101",
-	// 	Source:  "vanilla-carryover",
-	// },
-	// {
-	// 	ItemID:  13146,
-	// 	SpellID: 29647,
-	// 	PPM:     0, // TODO: waiting for PPM data
-	// 	Reason:  "Shell Launcher Shotgun: no proc row",
 	// 	Source:  "vanilla-carryover",
 	// },
 	// {

@@ -1630,6 +1630,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-ShellLauncherShotgun-13146"
+ value: {
+  dps: 806.89975
+  tps: 572.89882
+  hps: 58.83111
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-ShortswordofVengeance-754"
  value: {
   dps: 757.49456
