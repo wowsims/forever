@@ -55,12 +55,13 @@ func init() {
 // does not reach (bit 4). Hurricane is a three-tick channel whose ticks cast a spell of their own on
 // every enemy, a proc that fires no cast listener, both under Wrath's flags. Drain is a channel under
 // Wrath's flags whose own hit lands before its dot starts and whose ticks are its own periodic damage,
-// which rolls to crit. Bolt, under Wrath's flags, rolls at the cast and lands a second later.
+// which rolls to crit. Swarm is the same dot cast with no channel. Bolt, under Wrath's flags, rolls at
+// the cast and lands a second later.
 type testDruid struct {
 	core.Character
-	wrath, moonfire, outside, hurricane, drain, bolt *core.Spell
-	last                                             *core.SpellResult
-	tickCrits, drainCrits                            []bool
+	wrath, moonfire, outside, hurricane, drain, swarm, bolt *core.Spell
+	last                                                    *core.SpellResult
+	tickCrits, drainCrits                                   []bool
 }
 
 func (d *testDruid) GetCharacter() *core.Character       { return &d.Character }
@@ -144,9 +145,26 @@ func (d *testDruid) Initialize() {
 	d.hurricane = channel(17402, "Hurricane", false, func(sim *core.Simulation, target *core.Unit, _ *core.Dot) {
 		tick.Cast(sim, target)
 	})
-	d.drain = channel(17401, "Drain", true, func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+	drainTick := func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, 100, dot.Spell.OutcomeTickMagicCrit)
 		d.drainCrits = append(d.drainCrits, result.DidCrit())
+	}
+	d.drain = channel(17401, "Drain", true, drainTick)
+	d.swarm = d.RegisterSpell(core.SpellConfig{
+		ActionID:    core.ActionID{SpellID: 24976},
+		SpellSchool: core.SpellSchoolNature,
+		DefenseType: core.DefenseTypeMagic,
+		ProcMask:    core.ProcMaskSpellDamage,
+		ClassFlags:  wrathFlags,
+		Dot: core.DotConfig{
+			Aura:          core.Aura{Label: "Swarm"},
+			NumberOfTicks: 3,
+			TickLength:    time.Second,
+			OnTick:        drainTick,
+		},
+		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.Dot(target).Apply(sim)
+		},
 	})
 }
 
@@ -199,12 +217,13 @@ func (h *testHunter) Initialize() {
 // A mage with spells Revelation's mage buff 1248808 names: Fire Blast (family 3 bit 1), Frostbolt
 // (bit 5), which rolls at the cast and lands a second later, with its first rank beside it, Arcane
 // Explosion (bit 12), which hits every target, and Arcane Missiles (bit 11), a three-tick channel, with
-// a second channeled cast under its flags that starts no channel. Fireball (bit 0) is not named. None
-// rolls to miss, and each keeps the crits of its landings.
+// a second channeled cast under its flags that starts no channel. Fireball (bit 0) is not named. Echo
+// is a proc that copies Fire Blast under its spell id with a tag of its own, as Lightning Overload copies
+// its bolt. None rolls to miss, and each keeps the crits of its landings.
 type testMage struct {
 	core.Character
-	fireBlast, frostbolt, firstRank, fireball, explosion, missiles, missile, stalled *core.Spell
-	crits                                                                            map[*core.Spell][]bool
+	fireBlast, frostbolt, firstRank, fireball, explosion, missiles, missile, stalled, echo *core.Spell
+	crits                                                                                  map[*core.Spell][]bool
 }
 
 func (m *testMage) GetCharacter() *core.Character       { return &m.Character }
@@ -233,6 +252,10 @@ func (m *testMage) Initialize() {
 		return m.RegisterSpell(config)
 	}
 	m.fireBlast = spell(core.ActionID{SpellID: 10199}, 1, core.SpellConfig{ApplyEffects: hit})
+	m.echo = spell(core.ActionID{SpellID: 10199, Tag: 6}, 1, core.SpellConfig{
+		Flags:        core.SpellFlagProc | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
+		ApplyEffects: hit,
+	})
 	m.firstRank = spell(core.ActionID{SpellID: 116}, 5, core.SpellConfig{ApplyEffects: hit})
 	m.fireball = spell(core.ActionID{SpellID: 25306}, 0, core.SpellConfig{ApplyEffects: hit})
 	m.frostbolt = spell(core.ActionID{SpellID: 25304}, 5, core.SpellConfig{
@@ -425,10 +448,10 @@ func TestRevelationChannelSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	}
 }
 
-// A channel whose ticks are its own periodic damage spends nothing: every tick crits with the charge up,
-// the charge outlasts the channel, run out or cut short, and the next cast the mask names crits and
-// spends it. With the charge down the ticks crit at their own chance (EV-0149).
-func TestRevelationLastsPastAChannelOfPeriodicTicks(t *testing.T) {
+// A channel whose ticks are its own periodic damage spends the charge on its first tick: the channel's
+// cast leaves it, the first tick crits, and the ticks after it crit at their own chance. The same dot
+// cast with no channel, its cast past, crits on every tick with the charge up and leaves it (EV-0149).
+func TestRevelationChannelOfPeriodicTicksSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
 	target := character.CurrentTarget
@@ -437,44 +460,32 @@ func TestRevelationLastsPastAChannelOfPeriodicTicks(t *testing.T) {
 	drain := druid.drain.Dot(target)
 
 	druid.drainCrits = nil
-	druid.drain.Cast(sim, target)
-	stepWhile(t, sim, drain.IsActive)
-	if got := druid.drainCrits; len(got) != 3 || slices.Contains(got, true) || buff.IsActive() {
-		t.Fatalf("with no crit chance and Revelation down the ticks crit %v, want 3 and none crit, and nothing procced", got)
-	}
-
-	druid.drainCrits = nil
 	chargeRevelation(sim, buff)
 	druid.drain.Cast(sim, target)
 	if !drain.IsActive() || !buff.IsActive() {
-		t.Fatal("Drain started and Revelation's charge is gone")
+		t.Fatal("Drain started and Revelation's charge is gone before its first tick")
+	}
+	stepWhile(t, sim, func() bool { return len(druid.drainCrits) == 0 })
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if buff.IsActive() {
+		t.Fatal("Drain's first tick landed and Revelation's charge is still up")
 	}
 	stepWhile(t, sim, drain.IsActive)
+	if got := druid.drainCrits; len(got) != 3 || !got[0] || got[1] || got[2] {
+		t.Errorf("Drain's ticks crit %v, want the first only", got)
+	}
+
+	druid.drainCrits = nil
+	swarm := druid.swarm.Dot(target)
+	druid.swarm.Cast(sim, target)
+	chargeRevelation(sim, buff)
+	stepWhile(t, sim, swarm.IsActive)
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 	if got := druid.drainCrits; len(got) != 3 || slices.Contains(got, false) {
-		t.Errorf("the ticks with Revelation up crit %v, want all three", got)
+		t.Errorf("Swarm's ticks with Revelation up crit %v, want all three", got)
 	}
 	if !buff.IsActive() {
-		t.Fatal("Drain ran out and Revelation's charge is gone")
-	}
-
-	druid.drain.Cast(sim, target)
-	drain.Deactivate(sim)
-	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
-	if !buff.IsActive() {
-		t.Fatal("Drain was cut short and Revelation's charge is gone")
-	}
-
-	druid.wrath.Cast(sim, target)
-	for tries := 0; !druid.last.Landed() && tries < 20; tries++ {
-		chargeRevelation(sim, buff)
-		druid.wrath.Cast(sim, target)
-	}
-	if !druid.last.DidCrit() {
-		t.Error("Wrath cast after the channel with Revelation up did not crit")
-	}
-	if buff.IsActive() {
-		t.Error("Wrath did not spend the charge Drain left")
+		t.Error("Swarm's ticks spent Revelation's charge")
 	}
 }
 
@@ -731,6 +742,43 @@ func TestRevelationRollsNothingWhenAnEventsFirstResultCrits(t *testing.T) {
 	}
 	if procsAfter[false] == 0 {
 		t.Errorf("none of the %d casts whose first target did not crit procced Revelation", casts-critFirst)
+	}
+}
+
+// A copy of a spell that shares its spell id rolls apart from it, as Lightning Overload's bolt does: Echo
+// landing without a crit at the moment Fire Blast lands with one procs Revelation about as often as the
+// enchant's chance for one roll (EV-0149).
+func TestRevelationRollsACopyApartFromTheSpellItCopies(t *testing.T) {
+	const casts = 600
+	sim, character := revelationWearer(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}})
+	mage := sim.Raid.Parties[0].Players[0].(*testMage)
+	target := character.CurrentTarget
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	mage.fireBlast.BonusCritPercent += 100
+	buff := character.GetAuraByID(core.ActionID{SpellID: 1248808})
+
+	procs := 0
+	for range casts {
+		buff.Deactivate(sim)
+		mage.fireBlast.Cast(sim, target)
+		mage.echo.Cast(sim, target)
+		stepTo(t, sim, sim.CurrentTime+2*core.SpellBatchWindow)
+		if buff.IsActive() {
+			procs++
+		}
+	}
+	if blasts, echoes := mage.crits[mage.fireBlast], mage.crits[mage.echo]; len(blasts) != casts || slices.Contains(blasts, false) ||
+		len(echoes) != casts || slices.Contains(echoes, true) {
+		t.Fatalf("%d casts landed %d Fire Blasts and %d Echoes, want every Fire Blast to crit and no Echo", casts, len(blasts), len(echoes))
+	}
+	chance := 0.0
+	for _, effect := range core.GetEnchantByEffectID(revelationEnchant).EnchantEffects {
+		if effect.BuffId == 1248806 {
+			chance = effect.GetProc().GetProcChance()
+		}
+	}
+	if want := casts * chance; want <= 0 || float64(procs) < want/2 || float64(procs) > 2*want {
+		t.Errorf("%d Echoes landing beside a critting Fire Blast procced Revelation %d times, want about %.0f", casts, procs, want)
 	}
 }
 

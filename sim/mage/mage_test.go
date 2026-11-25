@@ -424,6 +424,74 @@ func TestRevelationCritsTheDirectHitOfFireballPyroblastAndFrostfireBolt(t *testi
 	}
 }
 
+// Each Arcane Missiles missile rolls its crit as it launches, and Revelation's charge goes to the first
+// missile launched after it comes: a missile in flight at the gain keeps its own roll and lands without
+// spending the charge, the next one launched crits, and its landing spends the charge. A missile in
+// flight that crits by its own roll spends the charge as it lands (EV-0149).
+func TestArcaneMissilesGiveRevelationsChargeToTheNextMissileLaunched(t *testing.T) {
+	for _, critsInFlight := range []bool{false, true} {
+		sim, mage, buff := newRevelationMage(t, ArcaneTalents, 1)
+		target := mage.CurrentTarget
+		cast := mage.GetSpell(core.ActionID{SpellID: arcaneMissilesBookRank.ID})
+		var missile *core.Spell
+		for _, spell := range mage.Spellbook {
+			if spell.ActionID.SpellID == arcaneMissilesBookRank.PeriodicEffect().TriggerID {
+				missile = spell
+			}
+		}
+		if cast == nil || missile == nil {
+			t.Fatalf("Arcane Missiles %v or its missile %v is not registered", cast, missile)
+		}
+		// A missile flies 1.25 s, past the next one's launch a second later.
+		mage.DistanceFromTarget = 25
+		tick := cast.Dot(target).TickPeriod()
+		if missile.TravelTime() <= tick {
+			t.Fatalf("a missile flies %v and the channel ticks every %v, want the flight longer", missile.TravelTime(), tick)
+		}
+		mage.AddStatsDynamic(sim, stats.Stats{
+			stats.SpellCritPercent: -mage.GetStat(stats.SpellCritPercent),
+			stats.SpellHitPercent:  100,
+		})
+		missile.BonusCritPercent -= 100 * missile.SpellCritChance(target)
+		metrics := &missile.SpellMetrics[target.UnitIndex]
+
+		if critsInFlight {
+			missile.BonusCritPercent += 100
+		}
+		if !cast.Cast(sim, target) {
+			t.Fatal("Arcane Missiles did not cast")
+		}
+		stepFor(sim, tick+tick/2)
+		if critsInFlight {
+			missile.BonusCritPercent -= 100
+		}
+		if metrics.Hits+metrics.Crits != 1 || (metrics.Crits == 1) != critsInFlight {
+			t.Fatalf("the first missile launched %d hits and %d crits, want one crit %v", metrics.Hits, metrics.Crits, critsInFlight)
+		}
+		buff.Activate(sim)
+		buff.SetStacks(sim, buff.MaxStacks)
+
+		// The first missile has landed and the second launched.
+		stepFor(sim, missile.TravelTime()-tick/2+2*core.SpellBatchWindow)
+		if critsInFlight {
+			if buff.IsActive() {
+				t.Error("the missile in flight at the gain landed with its own crit and Revelation's charge is still up")
+			}
+			continue
+		}
+		if !buff.IsActive() {
+			t.Fatal("the missile in flight at the gain landed without a crit and spent Revelation's charge")
+		}
+		if metrics.Crits != 1 {
+			t.Fatalf("the missile launched after the gain launched %d crits, want it to crit", metrics.Crits)
+		}
+		stepFor(sim, tick)
+		if buff.IsActive() {
+			t.Error("the missile launched after the gain landed with a crit and Revelation's charge is still up")
+		}
+	}
+}
+
 // The suite's gear loses Enchant Weapon - Revelation: it rolls on each Fire Blast that does not crit and its
 // charge crits the next Blizzard, so Shatter's Fire Blast crits would move Blizzard's.
 func shatterCrits(talents string) (tickCrits, directCrits int32, fingersOfFrostUptime float64) {

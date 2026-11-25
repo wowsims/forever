@@ -39,6 +39,10 @@ var revelationDirectHits = map[proto.Class]core.ClassFlags{
 // Vampiric Embrace's party heal 15290.
 var revelationSkippedHeals = []int32{20267, 20341, 20342, 20343, 15290}
 
+// Penance's heal bolt, which its channel casts each tick: it crits with the charge up and leaves it
+// (EV-0149).
+var revelationPenanceHeal = core.ClassFlags{Family: 6, Mask: [4]uint32{0, 0x10000}}
+
 // The share of Revelation's chance a spell keeps for its level: all of it down to 12 levels under
 // the wearer, none from 32 levels under, and a straight line between (EV-0149).
 func revelationLevelShare(wearerLevel int32, spellLevel int32) float64 {
@@ -292,13 +296,11 @@ func init() {
 		// The charge goes as a cast the buff reaches completes, on every class, and a spell still in
 		// flight keeps the crit it rolled. A melee or ranged attack the mask names, a paladin's
 		// judgement or Hammer of Wrath, crits and leaves the charge (EV-0028, EV-0149). A channel's cast
-		// spends nothing and keeps nothing for the channel's end: a channel whose ticks are its own
-		// periodic damage (Mind Flay, Wrack, Starshards) crits on every tick with the buff up and leaves
-		// the charge to the next cast the mask names (EV-0149).
+		// spends nothing; a tick of the channel takes the charge, as the listeners below set out.
 		// TODO: Holy Shock's and Light's Vigil's heals crit here on every cast with the buff up, and
 		// in the logs mostly do not, landing after the charge is gone (EV-0149).
-		// TODO: A charge gained while a channel the mask names is running, Volley or Mind Flay, is still
-		// spent as the channel ends (R-0048). EV-0149 does not record what spends such a charge.
+		// TODO: A charge gained while Volley or Penance's heal runs, whose ticks take no charge, is still
+		// spent as the channel ends (R-0048). EV-0149 records no such charge.
 		isAttack := func(spell *core.Spell) bool {
 			return spell.DefenseType == core.DefenseTypeMelee || spell.DefenseType == core.DefenseTypeRanged
 		}
@@ -316,10 +318,18 @@ func init() {
 				}
 			})
 
+		spendCharge := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			if buff.IsActive() {
+				buff.RemoveStack(sim)
+			}
+		}
+
 		// A channel the mask names whose ticks cast a spell of their own (Blizzard, Hurricane, Hellfire,
-		// Rain of Fire, Arcane Missiles) spends the charge on the first tick that crits from it. Every
-		// target that tick strikes crits, and the charge goes a spell batch window later, so the ticks
-		// after it crit at their own chance (EV-0149).
+		// Rain of Fire) spends the charge on the first tick that crits from it. Every target that tick
+		// strikes crits, and the charge goes a spell batch window later, so the ticks after it crit at
+		// their own chance. Arcane Missiles' missiles roll their crit as they launch: the first launched
+		// after the charge comes crits, one already in flight keeps its own roll, and the first to land
+		// with a crit spends the charge. Penance's heal bolts leave it (EV-0149).
 		firstTickHit, _ := core.OncePerCast()
 		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
 			Name:               "Revelation Charge - Channel Tick",
@@ -331,13 +341,26 @@ func init() {
 			ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 				channel := character.ChanneledDot
 				return channel != nil && channel.Spell != spell && channel.Spell.MatchesFlags(spender.ClassFlags) &&
-					!spell.Flags.Matches(core.SpellFlagChanneled) && !isAttack(spell) && firstTickHit(sim, spell)
+					!spell.Flags.Matches(core.SpellFlagChanneled) && !isAttack(spell) &&
+					!spell.MatchesFlags(revelationPenanceHeal) && firstTickHit(sim, spell)
 			},
-			Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-				if buff.IsActive() {
-					buff.RemoveStack(sim)
-				}
+			Handler: spendCharge,
+		})
+
+		// A channel the mask names whose ticks are its own periodic damage (Mind Flay, Wrack, Drain Soul,
+		// Drain Life) spends the charge on its first tick, which crits from it, and the ticks after it
+		// crit at their own chance. Starshards is such a channel and is not counted. Another spell's
+		// periodic ticks leave the charge (EV-0149).
+		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
+			Name:       "Revelation Charge - Periodic Channel Tick",
+			Callback:   core.CallbackOnPeriodicDamageDealt | core.CallbackOnPeriodicHealDealt,
+			ClassFlags: spender.ClassFlags,
+			Outcome:    core.OutcomeCrit,
+			ExtraCondition: func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				channel := character.ChanneledDot
+				return channel != nil && channel.Spell == spell
 			},
+			Handler: spendCharge,
 		})
 
 		// The direct hit of a spell in revelationDirectHits crits for the one cast that spends the
@@ -380,15 +403,19 @@ func init() {
 		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
 		// One hit event rolls once, however many targets it strikes: the first result of a spell at a
 		// moment that lands for damage or heals is the event's one chance. When that result crits, the
-		// event rolls nothing, whatever its other targets do (EV-0149).
-		// TODO: Lightning Overload's bolt carries its Lightning Bolt's spell id and, at 0 yards, lands
-		// at the bolt's moment, so it shares the bolt's one roll here. Whether it rolls on its own is
-		// not yet counted.
+		// event rolls nothing, whatever its other targets do. Lightning Overload's bolt rolls apart from
+		// the bolt it copies, which shares its spell id, even when both land at one moment (EV-0149).
 		shares := map[*core.Spell]float64{}
-		firstRoll, _ := core.OncePerCast()
+		var lastSpell *core.Spell
+		var lastAt time.Duration
 		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			if isAttack(spell) {
+				return false
+			}
+			first := spell != lastSpell || sim.CurrentTime != lastAt
+			lastSpell, lastAt = spell, sim.CurrentTime
 			// A landing while the buff is up rolls too and refreshes it.
-			if isAttack(spell) || !firstRoll(sim, spell) || result.DidCrit() {
+			if !first || result.DidCrit() {
 				return false
 			}
 			share, ok := shares[spell]
