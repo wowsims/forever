@@ -2124,6 +2124,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-ShellLauncherShotgun-13146"
+ value: {
+  dps: 584.06587
+  tps: 1874.96107
+  dtps: 319.85796
+  hps: 42.28818
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-ShortswordofVengeance-754"
  value: {
   dps: 553.69985

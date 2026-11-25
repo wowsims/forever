@@ -1881,6 +1881,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-ShellLauncherShotgun-13146"
+ value: {
+  dps: 552.92581
+  tps: 476.39223
+  dtps: 2.94293
+  hps: 43.37778
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-ShimmeringPlatinumWarhammer-15418"
  value: {
   dps: 538.38016
