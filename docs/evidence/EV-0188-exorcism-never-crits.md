@@ -8,7 +8,7 @@
 - Game build: 1.60.1.70790 to 1.60.1.71091 by event time against the time each region's CDN first listed each build,
   with hits on every build in between and no crit on any; the hotfix each player ran is not recorded
 - Date: 2026-11-05 12:32 to 2026-11-25 05:59 UTC
-- Pull request: not recorded
+- Pull request: #1211
 
 ## Method
 
