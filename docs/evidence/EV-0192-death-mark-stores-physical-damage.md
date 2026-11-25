@@ -8,9 +8,9 @@
 - Pull request: #1219
 
 The rogue is a Forsaken wielding a sword in the main hand and an axe in the off hand, both with Fiery Weapon, Instant
-Poison on the main hand and Deadly Poison on the off hand. The talent set is read from the casts each set alone has:
-the first run is combat with Hack and Slash 5/5, the second subtlety with Death Mark and Coup de Grace 3/3, and the
-third combat with Hack and Slash 1/5 until it turns subtlety again.
+Poison on the main hand and Deadly Poison on the off hand. The talent set is read from the casts each set alone has,
+and the ranks from the log's combatant info: the first run is combat, the second subtlety with Death Mark and Coup de
+Grace 3/3, and the third combat until it turns subtlety again.
 
 ## Death Mark
 

@@ -708,7 +708,7 @@ func TestDeathMarkStoresAndPaysOut(t *testing.T) {
 			mark(3)
 			target.OnSpellHitTaken(sim, rogue.SinisterStrike, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
 			target.OnPeriodicDamageTaken(sim, rogue.Rupture, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
-			target.OnSpellHitTaken(sim, &core.Spell{Unit: targets[1]}, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
+			target.OnSpellHitTaken(sim, &core.Spell{Unit: targets[1], SpellSchool: core.SpellSchoolPhysical}, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
 			poison := &core.Spell{Unit: &rogue.Unit, SpellSchool: core.SpellSchoolNature}
 			target.OnSpellHitTaken(sim, poison, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
 			target.OnPeriodicDamageTaken(sim, poison, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
