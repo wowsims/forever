@@ -25,9 +25,20 @@ func TestUnparsedStatsListChannelPercentsAndZoneBonus(t *testing.T) {
 	db.Consumables[211957] = &proto.Consumable{Id: 211957, ItemEffects: []*proto.ItemEffect{{BuffId: 430952}}}
 	db.Consumables[13452] = &proto.Consumable{Id: 13452, ItemEffects: []*proto.ItemEffect{{BuffId: 17538}}}
 	db.Consumables[250337] = &proto.Consumable{Id: 250337, ItemEffects: []*proto.ItemEffect{{BuffId: 1250940}}}
+	db.Consumables[13928] = &proto.Consumable{Id: 13928, ItemEffects: []*proto.ItemEffect{{BuffId: 1249522}}}
 	for id, spellID := range map[int32]int32{274273: 1293740, 274274: 1293741, 274275: 1293742, 274276: 1293743} {
 		db.Consumables[id] = flask(id, spellID)
 	}
+	// Grilled Squid's Well Fed states a crit of its own other than the amount its periodic trigger hands
+	// over, so its case tells the two apart.
+	editRow(t, spelldata.MustFind(1249522).FirstAura(dbcenums.A_PERIODIC_TRIGGER_SPELL_WITH_VALUE).TriggerID, func(s *spelldata.Spell) {
+		s.Effects = slices.Clone(s.Effects)
+		for i := range s.Effects {
+			if s.Effects[i].Aura == dbcenums.A_MOD_CRIT_PCT {
+				s.Effects[i].BasePoints++
+			}
+		}
+	})
 	if err := AddUnparsedStats(db); err != nil {
 		t.Fatal(err)
 	}
@@ -47,8 +58,7 @@ func TestUnparsedStatsListChannelPercentsAndZoneBonus(t *testing.T) {
 		hit := amount(spellID, dbcenums.A_MOD_HIT_CHANCE)
 		return map[proto.PseudoStat]float64{proto.PseudoStat_PseudoStatMeleeHitPercent: hit, proto.PseudoStat_PseudoStatRangedHitPercent: hit}
 	}
-	allCrit := func(spellID int32) map[proto.PseudoStat]float64 {
-		crit := amount(spellID, dbcenums.A_MOD_CRIT_PCT)
+	allCrit := func(crit float64) map[proto.PseudoStat]float64 {
 		return map[proto.PseudoStat]float64{
 			proto.PseudoStat_PseudoStatMeleeCritPercent: crit, proto.PseudoStat_PseudoStatRangedCritPercent: crit, proto.PseudoStat_PseudoStatSpellCritPercent: crit,
 		}
@@ -62,8 +72,10 @@ func TestUnparsedStatsListChannelPercentsAndZoneBonus(t *testing.T) {
 		22237:  {pseudoStats: meleeAndRangedHit(27723)},
 		211954: {pseudoStats: map[proto.PseudoStat]float64{proto.PseudoStat_PseudoStatSpellHitPercent: amount(430949, dbcenums.A_MOD_SPELL_HIT_CHANCE)}},
 		211957: {pseudoStats: map[proto.PseudoStat]float64{proto.PseudoStat_PseudoStatSpellCritPercent: amount(430952, dbcenums.A_MOD_SPELL_CRIT_CHANCE)}},
-		13452:  {pseudoStats: allCrit(17538)},
-		250337: {pseudoStats: allCrit(1250940)},
+		13452:  {pseudoStats: allCrit(amount(17538, dbcenums.A_MOD_CRIT_PCT))},
+		250337: {pseudoStats: allCrit(amount(1250940, dbcenums.A_MOD_CRIT_PCT))},
+		// Grilled Squid's crit is on the Well Fed 1249522 triggers, at the value its periodic trigger hands over.
+		13928:  {pseudoStats: allCrit(amount(1249522, dbcenums.A_PERIODIC_TRIGGER_SPELL_WITH_VALUE))},
 		274273: {stats: stamina, zoneStats: map[int32]float64{int32(proto.Stat_StatHitRating): zoneBonus(1293740) * core.HitRatingPerHitPercent}},
 		274274: {stats: stamina, zoneStats: map[int32]float64{int32(proto.Stat_StatCritRating): zoneBonus(1293741) * core.CritRatingPerCritPercent}},
 		274275: {stats: stamina, zoneStats: map[int32]float64{int32(proto.Stat_StatExpertiseRating): zoneBonus(1293742) * core.ExpertiseRatingPerExpertisePercent}},
