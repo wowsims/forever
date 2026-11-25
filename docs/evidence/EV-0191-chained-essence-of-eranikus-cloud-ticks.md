@@ -10,7 +10,7 @@
 - Game build: 1.60.1.71091; the hotfix push the session ran on is not recorded, and whether the players relogged is
   unknown
 - Date: 2026-11-24
-- Pull request: not recorded
+- Pull request: #1222
 
 The shaman used the item 3 times. Each use logs 12766's cast and buff and a summon of creature 8506, and then
 1300240's cast, debuff and ticks on the enemies, all under the shaman. The creature logs nothing of its own. The
