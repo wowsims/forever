@@ -3,8 +3,9 @@
 - Claim: Rip Rank 6 takes 0.0114 of attack power a tick per combo point up to 4, not 0.01.
 - Sources: raw combat logs of four cat druids at level 60, from the recordings of 2026-11-20 and 2026-11-21: 76 Rip
   ticks
-- Game build: 1.60.1.70938 for the log of 2026-11-20 and 1.60.1.71037 for those of 2026-11-21, by log date; the hotfix
-  each player ran is not recorded
+- Game build: by event time, both EU logs: 1.60.1.70959 for the log of 2026-11-20 (07:14 to 07:25 UTC) and
+  1.60.1.71037 for the log of 2026-11-21 (09:58 to 15:25 UTC) (70959 from 2026-11-18 02:04 UTC in the EU, 71037 from
+  2026-11-20 18:23 UTC); the hotfix each player ran is not recorded
 - Date: 2026-11-20 to 2026-11-21
 - Pull request: #1236
 

@@ -32,8 +32,11 @@ The row's ProcTypeMask also names helpful spells taken, but every proc in the lo
 
 - Sources: raw combat logs of six cat druids at level 60, from the recordings of 2026-11-13, 2026-11-19, 2026-11-20 and
   2026-11-21: 228 Ferocious Bites
-- Game build: 1.60.1.70938 for the logs of 2026-11-13 to 2026-11-20 and 1.60.1.71037 for those of 2026-11-21, by log
-  date; the hotfix each player ran is not recorded
+- Game build: by event time, 1.60.1.70938 for the US log of 2026-11-13 (22:26 UTC to 00:12 UTC on 2026-11-14),
+  1.60.1.70959 for the EU logs of 2026-11-19 (15:26 to 16:49 UTC) and 2026-11-20 (08:46 to 10:15 UTC), and
+  1.60.1.71037 for the EU log of 2026-11-21 (10:26 to 14:34 UTC) (70938 from 2026-11-13 01:36 UTC, 70959 from
+  2026-11-17 15:19 UTC in the US and 2026-11-18 02:04 UTC in the EU, 71037 from 2026-11-20 18:23 UTC); the hotfix each
+  player ran is not recorded
 - Date: 2026-11-13 to 2026-11-21
 - Pull request: #1236
 
