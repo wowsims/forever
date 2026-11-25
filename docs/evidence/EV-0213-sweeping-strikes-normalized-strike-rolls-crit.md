@@ -2,7 +2,7 @@
 
 - Claim: The normalized strike Sweeping Strikes brings from a Whirlwind (26654) is never missed, dodged or parried and
   rolls a crit of its own, at about the warrior's melee crit chance, whether or not the main-hand Whirlwind strike that
-  brought it crit.
+  brought it crit. No log shows Flurry from its crit.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the warrior streams on disk that log both a dual-wield
   Whirlwind (the off-hand strike 462891) and a Sweeping Strikes hit (26654 or 462890), 20 streams of 20 warriors in the
   20 reports under Reports, all their fights
@@ -36,6 +36,10 @@ The 452 strikes log 361 hits and 91 crits: no miss, dodge, parry, block or glanc
 The strike's crit does not follow the strike that brought it, unlike Sweeping Strikes' copied hit 12723, which carries
 its hit's crit and never crits itself (EV-0182). Over every Whirlwind cast of these warriors, 1,286 of 6,697 landed
 main-hand strikes crit (19.2%).
+
+Flurry: of the crits these warriors deal with no other crit of theirs within 200 ms, 9 are 26654 strikes. None is
+followed by Flurry (12966) within 50 ms, but none comes from a fight with a Flurry event within 60 s, so the logs do not
+show whether its crit starts Flurry.
 
 The strike Sweeping Strikes brings from an Execute below 20% health is not in these logs.
 

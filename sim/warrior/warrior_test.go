@@ -567,6 +567,35 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 	}
 }
 
+// A critical main-hand Whirlwind strike starts Flurry, and a critical Sweeping Strikes normalized
+// strike (26654) does not.
+func TestSweepingStrikesNormalizedStrikeStartsNoFlurry(t *testing.T) {
+	const armsWithFlurry = "30303213032215201-00000000000000003"
+	for _, c := range []struct {
+		name  string
+		spell core.ActionID
+		want  bool
+	}{
+		{"main-hand Whirlwind strike", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), true},
+		{"Sweeping Strikes normalized strike", core.ActionID{SpellID: sweepingStrikesHit, Tag: 1}, false},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, warrior := orcWarriorSim(t, "p1_arms", armsWithFlurry)
+			flurry := warrior.GetAura("Flurry")
+			spell := warrior.GetSpell(c.spell)
+			if flurry == nil || spell == nil {
+				t.Fatalf("Flurry %v, spell %v; want both registered", flurry, spell)
+			}
+
+			warrior.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: core.OutcomeCrit})
+
+			if got := flurry.IsActive(); got != c.want {
+				t.Errorf("a critical %s left Flurry active %v, want %v", c.name, got, c.want)
+			}
+		})
+	}
+}
+
 // A Cleave uses one Flurry charge and one Reckless Swings charge however many targets it hits, and
 // Whirlwind and Bloodthirst use no Reckless Swings charge.
 func TestChargesSpentPerCast(t *testing.T) {
