@@ -283,6 +283,7 @@ var (
 	wildheartMana    = spelldata.MustFind(27782)   // 5pc: the mana a spell cast restores
 	wildheartEnergy  = spelldata.MustFind(27784)   // 5pc: the energy over 5 s a landed melee swing restores
 	wildheartRage    = spelldata.MustFind(27783)   // 5pc: the rage a landed melee swing taken restores
+	shiftingPower    = spelldata.MustFind(1322605) // 5pc: a mana-costing cast that rolls nothing
 	wildHeartTrigger = spelldata.MustFind(1302708) // 4pc: Wild Heart, the proc
 	wildHeartBuff    = spelldata.MustFind(1302707) // 4pc: the movement speed it gives
 )
@@ -290,6 +291,8 @@ var (
 // The energize proc of Wildheart Raiment and of the Feralheart Raiment reissue, at the procs per minute
 // an override puts on the row; the dummy effect's 5 is no chance (EV-0144). A spell cast restores mana,
 // priced on the cast's time (shared.SpellCastPPMTrigger), and two more listeners restore energy and rage.
+// A shapeshift, a spell whose row spends rage or energy, Frenzied Regeneration's heal among them, and
+// Shifting Power roll nothing (EV-0144).
 func wildheartEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		character := agent.GetCharacter()
@@ -301,6 +304,12 @@ func wildheartEnergize(name string) core.ApplySetBonus {
 				character.AddMana(sim, mana, manaMetrics)
 			})
 		trigger.Name = name
+		roll := trigger.ExtraCondition
+		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			row := spelldata.Find(spell.SpellID)
+			spendsRageOrEnergy := len(row.Powers) > 0 && (row.Powers[0].Type == dbcenums.POWER_RAGE || row.Powers[0].Type == dbcenums.POWER_ENERGY)
+			return row.ShapeshiftForm() == 0 && !spendsRageOrEnergy && row.ID != shiftingPower.ID && roll(sim, spell, result)
+		}
 
 		setBonusAura.AttachProcTrigger(trigger).ExposeToAPL(wildheartProc.ID)
 		attachWildheartSwingEnergy(character, setBonusAura, name)

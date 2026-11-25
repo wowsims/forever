@@ -145,7 +145,7 @@ export const FireBuild = PresetUtils.makePresetBuild('Fire', {
 	talents: FireTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: FireAplPreset,
-	settings: DefaultSettings,
+	settings: { ...DefaultSettings, consumables: { ...DefaultConsumables, mhWeaponImbueId: Consumables.ScrollOfImbueGreaterFlame.id } },
 });
 
 export const FrostSettings: PresetSettings = {
