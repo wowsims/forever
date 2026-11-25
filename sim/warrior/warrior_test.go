@@ -1476,18 +1476,20 @@ func swordSpecSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs, mainHan
 	return sim, war, swings
 }
 
-// Whirlwind and Cleave roll Sword Specialization once a cast, however many targets they land on, so
-// no cast brings more than one extra swing.
-func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
+// Whirlwind rolls Sword Specialization on every landed strike and Cleave once a cast, and neither
+// cast brings more than one extra swing.
+func TestSwordSpecializationBringsOneSwingAWhirlwindOrCleave(t *testing.T) {
 	for _, c := range []struct {
-		name  string
-		spell core.ActionID
+		name      string
+		spell     core.ActionID
+		targets   int
+		perStrike bool
 	}{
-		{"Whirlwind", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)},
-		{"Cleave", core.ActionID{SpellID: 20569}},
+		{"Whirlwind", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), 4, true},
+		{"Cleave", core.ActionID{SpellID: 20569}, 3, false},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			sim, war, swings := swordSpecSim(t, 3, &proto.RaidBuffs{}, 0)
+			sim, war, swings := swordSpecSim(t, c.targets, &proto.RaidBuffs{}, 0)
 			spell := war.GetSpell(c.spell)
 			if spell == nil {
 				t.Fatalf("the warrior has no %s", c.name)
@@ -1506,6 +1508,11 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 			}
 			if total == 0 {
 				t.Fatalf("1000 casts of %s brought no extra swing, so the check above proves nothing", c.name)
+			}
+			const weaponmaster = 1290261
+			onceACast := 1000 * spelldata.Talent(weaponmaster, 5).EffectAt(3).FractionAt(war.Talents.Weaponmaster)
+			if c.perStrike && float64(total) < 1.5*onceACast {
+				t.Errorf("1000 casts of %s on %d targets brought %d extra swings, want well above the %.0f one roll a cast brings", c.name, c.targets, total, onceACast)
 			}
 		})
 	}
