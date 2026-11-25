@@ -138,9 +138,9 @@ func (mage *Mage) registerBurningSoul() {
 		return
 	}
 
-	// Effect 1 is pushback, which the sim does not model. Effect 2 is the threat, on misc 4, the Fire
-	// school.
-	spelldata.ParseStatic(&mage.Character, spellData.BurningSoul.Rank(mage.Talents.BurningSoul), spelldata.Effects(2))
+	// Effect 1 is the chance a hit does not push back the Fire spells. Effect 2 is the threat, on misc 4,
+	// the Fire school.
+	spelldata.ParseStatic(&mage.Character, spellData.BurningSoul.Rank(mage.Talents.BurningSoul))
 }
 
 func (mage *Mage) registerImprovedFlamestrike() {
