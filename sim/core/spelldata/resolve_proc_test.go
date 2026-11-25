@@ -75,6 +75,18 @@ func procRows() []Spell {
 			},
 		},
 		{
+			ID: 2810, Name: "Main-Hand Every Hit", ProcChance: 100, ProcChanceSource: ProcChanceAlways,
+			ProcFlags: [2]uint32{dbcenums.PROC_FLAG_DEAL_MELEE_SWING | dbcenums.PROC_FLAG_DEAL_MELEE_ABILITY, dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY},
+		},
+		{
+			ID: 2820, Name: "Main-Hand Rolled", ProcChance: 6, ProcChanceSource: ProcChanceColumn,
+			ProcFlags: [2]uint32{dbcenums.PROC_FLAG_DEAL_MELEE_SWING | dbcenums.PROC_FLAG_DEAL_MELEE_ABILITY, dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY},
+		},
+		{
+			ID: 2830, Name: "Either Hand Every Hit", ProcChance: 100, ProcChanceSource: ProcChanceAlways,
+			ProcFlags: [2]uint32{0: dbcenums.PROC_FLAG_DEAL_MELEE_SWING | dbcenums.PROC_FLAG_DEAL_MELEE_ABILITY},
+		},
+		{
 			ID: 2950, Name: "Block Damage", ProcChance: 100, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintBlocked,
 			ProcFlags:  [2]uint32{0: dbcenums.PROC_FLAG_TAKE_MELEE_SWING | dbcenums.PROC_FLAG_TAKE_MELEE_ABILITY},
 			CooldownMs: 5000,
@@ -163,6 +175,42 @@ func TestWeaponProcHearsALandedHitThatDealsNoDamage(t *testing.T) {
 		aura.OnSpellHitDealt(aura, sim, special, &core.SpellResult{Outcome: row.outcome})
 		if procs != row.want {
 			t.Errorf("%s rolled the proc %d times, want %d", row.name, procs, row.want)
+		}
+	}
+}
+
+// A row that fires on every main-hand hit hears a landed special that deals no damage. A rolled
+// main-hand row and an every-hit row without the main-hand bit do not, and none hears a miss.
+func TestEveryHitMainHandRowHearsALandedHitThatDealsNoDamage(t *testing.T) {
+	withRows(t, procRows())
+
+	sim := &core.Simulation{}
+	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}
+	for _, row := range []struct {
+		id       int32
+		noDamage int
+	}{
+		{2810, 1},
+		{2820, 0},
+		{2830, 0},
+	} {
+		procs := 0
+		trigger := ProcTrigger(testCharacter(), Find(row.id), func(*core.Simulation, *core.Spell, *core.SpellResult) {
+			procs++
+		})
+		trigger.TriggerImmediately = true
+		trigger.ProcChance = 1
+		aura := &core.Aura{}
+		aura.AttachProcTriggerCallback(&core.Unit{}, trigger)
+
+		aura.OnSpellHitDealt(aura, sim, special, &core.SpellResult{Outcome: core.OutcomeHit})
+		if procs != row.noDamage {
+			t.Errorf("%s: a landed special that deals no damage fired it %d times, want %d", Find(row.id).Name, procs, row.noDamage)
+		}
+		procs = 0
+		aura.OnSpellHitDealt(aura, sim, special, &core.SpellResult{Outcome: core.OutcomeMiss})
+		if procs != 0 {
+			t.Errorf("%s: a missed special fired it %d times, want none", Find(row.id).Name, procs)
 		}
 	}
 }

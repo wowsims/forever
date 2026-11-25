@@ -1889,6 +1889,12 @@ func TestIcebladeHackerCarriesBothProcs(t *testing.T) {
 	if casts(chill) != 1 || casts(frostbolt) != 1 {
 		t.Errorf("a landed swing cast the swing damage %d and the Frostbolt %d times, want each once", casts(chill), casts(frostbolt))
 	}
+	sunder := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, Unit: &character.Unit}
+	character.OnSpellHitDealt(sim, sunder, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if casts(chill) != 2 {
+		t.Errorf("a landed special that deals no damage left the swing damage at %d casts in all, want 2", casts(chill))
+	}
 	for range 500 {
 		chill.Cast(sim, enemy)
 	}

@@ -632,8 +632,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-DreadfrostSaber-274603"
  value: {
-  dps: 547.09643
-  tps: 472.07803
+  dps: 546.74308
+  tps: 471.79534
   dtps: 2.94293
   hps: 41.88667
  }
@@ -1316,10 +1316,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 589.73362
-  tps: 508.78276
+  dps: 590.75044
+  tps: 508.19346
   dtps: 2.94293
-  hps: 44.66556
+  hps: 44.29278
  }
 }
 dps_results: {
@@ -2369,10 +2369,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-WarbladeofCaerDarrow-13982"
  value: {
-  dps: 558.50468
-  tps: 471.82106
+  dps: 563.18581
+  tps: 475.86139
   dtps: 2.97628
-  hps: 24.87444
+  hps: 25.26417
  }
 }
 dps_results: {
