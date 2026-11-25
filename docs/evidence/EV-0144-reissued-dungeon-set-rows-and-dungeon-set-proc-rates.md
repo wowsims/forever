@@ -399,7 +399,7 @@ ticks added energy in the form. The sim adds every tick.
   other 27, 15 were not fetched and 12 hold no fight the count kept
 - Game build: 1.60.1.70938 to 1.60.1.71091 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-25
-- Pull request: #<PR>
+- Pull request: #1227
 
 A wearer is a player whose gear snapshot in the report index holds 4 or more pieces of the Feralheart reissue (226772
 to 226803) or 5 or more of Wildheart Raiment, and a fight counts when that snapshot holds the set. A run two reports
