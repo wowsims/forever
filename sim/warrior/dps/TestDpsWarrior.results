@@ -209,10 +209,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BlackbladeofShahram-12592"
  value: {
-  dps: 556.92346
-  tps: 468.69416
+  dps: 562.51708
+  tps: 473.03142
   dtps: 2.97628
-  hps: 24.48472
+  hps: 24.36611
  }
 }
 dps_results: {
@@ -384,6 +384,15 @@ dps_results: {
   tps: 512.82832
   dtps: 3.05866
   hps: 44.80111
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 559.85263
+  tps: 482.40793
+  dtps: 2.94293
+  hps: 43.4625
  }
 }
 dps_results: {

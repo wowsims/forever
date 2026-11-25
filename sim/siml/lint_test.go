@@ -242,9 +242,13 @@ func TestLintPrepullTimes(t *testing.T) {
 			{"action": {`+castOf(7)+`}, "doAtValue": {"variableRef": {"name": "Start"}}},
 			{"action": {`+castOf(8)+`}, "doAtValue": `+constOfText("0s")+`},
 			{"hide": true, "action": {`+castOf(9)+`}, "doAtValue": `+constOfText("5s")+`},
-			{"action": {`+castOf(10)+`}, "doAtValue": {"math": {"op": "OpSub", "lhs": `+constOfText("0s")+`, "rhs": {"spellCastTime": {"spellId": {"spellId": 10}}}}}}
+			{"action": {`+castOf(10)+`}, "doAtValue": {"math": {"op": "OpSub", "lhs": `+constOfText("0s")+`, "rhs": {"spellCastTime": {"spellId": {"spellId": 10}}}}}},
+			{"action": {`+castOf(11)+`}, "doAtValue": {"math": {"op": "OpSub", "lhs": `+constOfText("50ms")+`, "rhs": {"variableRef": {"name": "Flight"}}}}}
 		],
-		"valueVariables": [{"name": "Start", "value": {"math": {"op": "OpSub", "lhs": `+constOfText("-1s")+`, "rhs": `+constOfText("500ms")+`}}}]
+		"valueVariables": [
+			{"name": "Start", "value": {"math": {"op": "OpSub", "lhs": `+constOfText("-1s")+`, "rhs": `+constOfText("500ms")+`}}},
+			{"name": "Flight", "value": {"spellTravelTime": {"spellId": {"spellId": 11}}}}
+		]
 	}`)
 	// Missing, after the pull, read from the fight, not a time and out of order.
 	got := findingLines(findings, "code", "path")

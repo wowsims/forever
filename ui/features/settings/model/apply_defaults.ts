@@ -103,9 +103,8 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 
 		host.reforger?.applyDefaults();
 
-		// defaults.siml writes the count in raid_buffs:, and leaves 0 out. Healers get a full party of allies; Balance
-		// keeps one so Innervate can leave the druid.
-		sim.raid.setTargetDummies(fromFile ? config.defaults.settings!.targetDummies : healingSpec ? 9 : player.getSpec() === Spec.SpecBalanceDruid ? 1 : 0);
+		// defaults.siml writes the count in raid_buffs:, and leaves 0 out. Healers get a full party of allies.
+		sim.raid.setTargetDummies(fromFile ? config.defaults.settings!.targetDummies : healingSpec ? 9 : 0);
 		if (config.defaults.encounter?.encounter) {
 			sim.encounter.fromProto(config.defaults.encounter.encounter);
 		} else {

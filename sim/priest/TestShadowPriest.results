@@ -214,6 +214,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 855.83711
+  tps: 610.91713
+  dtps: 4.83846
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-Champion'sInvestiture"
  value: {
   dps: 762.82785

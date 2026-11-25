@@ -3,15 +3,17 @@
 - Claim: Blackblade of Shahram 12592 summons Shahram (16602) 1.0 times a minute on landed main-hand hits. Each
   Shahram casts exactly one of his six spells, picked about 7:5:2:2:2:2 (Flames, Will, Might, Blessing, Fist, Curse),
   and starts its hardcast about 1.0 to 1.8 s after the summon. Will lands on the wearer alone, Blessing on the players
-  of the wearer's party and never on a pet, Flames, Curse and Might on enemies, and Fist on Shahram himself; every copy
-  of his Will or Blessing runs on its own timer. Flames can miss and crit; the sim rolls it on the wearer's spell hit
-  and spell crit, an owner ruling.
+  of the wearer's party and never on a pet, Flames, Curse and Might on enemies, and Fist, 30% melee attack speed for
+  8 s, on the wearer from hotfix push 114378 and on Shahram himself before it; every copy of his Will or Blessing runs
+  on its own timer. Flames can miss and crit; the sim rolls it on the wearer's spell hit and spell crit, an owner
+  ruling.
 - Sources: public reports on forever.warcraftlogs.com, two paladins wearing the sword in the main hand:
   NXMZV9xjvWpB7GtP fight 13 and D463FZBX1C9maJ7b fight 7.
 - Game build: 1.60.1.70938; the hotfix state and relogs were not recorded.
 - Date: 2026-11-13 (NXMZV9xjvWpB7GtP) and 2026-11-14 (D463FZBX1C9maJ7b)
 - Pull request: #1051
 - Later count: Blackblade of Shahram's rate and Shahram's spells, §Count of the 2026-11-13 to 2026-11-24 reports
+- Later count: Fist of Shahram on the wearer, §Count of the 2026-11-24 to 2026-11-25 reports and combat log
 
 A proc is one summon line of 16602 by the wearer. A hit is a landed damage line of the wearer on an enemy (hit, crit,
 block, glance or crush), or a melee cast that lands with no damage line, counted at its debuff. The sword's chain and
@@ -55,6 +57,7 @@ rate, read 1.07 [0.94, 1.21], 113 procs on 1,817 lone units, 29 wearers.
 ## Shahram's spells
 
 - Count: §Count of the 2026-11-13 to 2026-11-24 reports
+- Count: §Count of the 2026-11-24 to 2026-11-25 reports and combat log
 - Weights: 7:5:2:2:2:2, observed
 - Flames: rolls the wearer's spell hit and spell crit, an owner ruling
 
@@ -96,7 +99,14 @@ equally often (p = 0.17). The weights 7:5:2:2:2:2 are a round ratio the owner ch
   and never ticks. In 35 of the 38 fights whose roster holds more than 5 players, a wearer's Blessings reach no more
   than 4 other players between them. Each player's copy ticks 50 mana and 50 health every 5 s for 20 s, and two copies
   on one player tick side by side, each on its own beat: 102 times a second copy landed while the first was up.
-- Fist lands on Shahram himself, 352 times.
+- Fist lands on the wearer: 66 applications of 16601 by Shahram on the wearer and none on Shahram, each removed 7.94 to
+  8.09 s after it lands, the row's 8 s. In the combat log the wearer's main-hand swings come 2.14 to 2.37 s apart under
+  Fist, median 2.28 s over 13 intervals, against a median 2.92 to 3.02 s in the 15 s before and after each Fist: 30%
+  faster, the row's 30% melee attack speed.
+- Two Fists on one wearer run side by side: 3 times a Fist landed while another was up (0, 5.7 and 6.4 s after it), and
+  each copy was removed 8.0 s after its own landing, with no refresh. Whether their speed adds up is not seen: the one
+  wearer with a gap between the two is a warrior whose Flurry was up in the same window. The sim counts the speed once,
+  an owner ruling. In the reports from before hotfix push 114378, Fist lands on Shahram himself, 352 times.
 
 ## Count of the 2026-11-13 to 2026-11-24 reports
 
@@ -131,3 +141,21 @@ run as 1JLq46yg7wYNhan9, every summon of theirs matching one of its own about 3 
 picks, and NdTXJzkWHLZrVQYm, the one among the rate runs, leaves the rate. Report YLdrGB6ygJ3aqxkD logs each event of
 its wearers about seven times, and each counts once. Scripts and outputs: `requests/forever-shahram-1124` in the log
 parser's folder.
+
+## Count of the 2026-11-24 to 2026-11-25 reports and combat log
+
+- Sources: a combat log of a level 60 Retribution paladin wearing the sword in the main hand, solo, 2026-11-25; and
+  Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports whose Fist lands on the wearer, every fight:
+  BcXxkd4J8ACDvgQa, CWXBLFfMDAcxN8Jh, JYxQXLkWCqGdjg2c, d69tmxLbpG7Wq3kh, QwkWxF8acytAqpbv, 6RqzaWpYKx7XgjNr,
+  rK4xzdAWtHvc6La9, QqjRyKvTMAGCFd98 and HyPYXLWAr49CnZmN
+- Game build: 1.60.1.71091, after hotfix push 114378 (2026-11-24), which moves Fist of Shahram 16601 onto Shahram's
+  master; the hotfix each player ran is not recorded
+- Date: 2026-11-24 to 2026-11-25
+- Pull request: #1217
+
+The reports are the 16 on disk from 2026-11-24 12:00 UTC on with a wearer of the sword; in the 9 above every Fist lands
+on the wearer, in 5 others, all started before 2026-11-24 20:00 UTC, every Fist lands on Shahram, and 2 hold no Fist. A Fist's copy is
+matched to its removal by Shahram's instance. The two Fists 0 s apart come from two summons at one millisecond, both
+picking Fist. The 48 summons in the combat log pick Flames 17, Will 12, Might 7, Fist 5, Blessing 5 and Curse 2, each
+Shahram one spell, his hardcast beginning 1.01 to 1.81 s after the summon (median 1.42 s); none of this moves the picks
+or timing above. Scripts and outputs: `requests/forever-shahram-fist-1125` in the log parser's folder.
