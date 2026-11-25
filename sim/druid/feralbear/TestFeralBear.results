@@ -316,6 +316,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 530.11513
+  tps: 2667.43841
+  dtps: 395.61739
+  hps: 85.62528
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Champion'sRefuge"
  value: {
   dps: 462.70387

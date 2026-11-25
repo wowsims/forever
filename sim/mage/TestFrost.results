@@ -201,6 +201,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 835.15444
+  tps: 772.08293
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-Champion'sArcanum"
  value: {
   dps: 803.48074
@@ -1429,8 +1436,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-preraid-Default-frost-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 8848.18428
-  tps: 8025.30365
+  dps: 6829.85963
+  tps: 6208.81147
  }
 }
 dps_results: {
@@ -1450,8 +1457,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-preraid-Default-frost-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 3051.44437
-  tps: 2753.50682
+  dps: 2318.85082
+  tps: 2094.17262
  }
 }
 dps_results: {
@@ -1471,8 +1478,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-preraid-Default-frost_book_ranks-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 8848.86674
-  tps: 8025.94856
+  dps: 6830.54209
+  tps: 6209.45637
  }
 }
 dps_results: {
@@ -1492,8 +1499,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-preraid-Default-frost_book_ranks-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 3097.55092
-  tps: 2795.23639
+  dps: 2361.57744
+  tps: 2132.86026
  }
 }
 dps_results: {
@@ -1513,8 +1520,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 8791.15601
-  tps: 7975.10243
+  dps: 6773.55861
+  tps: 6159.26478
  }
 }
 dps_results: {
@@ -1534,8 +1541,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 3120.67782
-  tps: 2816.19886
+  dps: 2361.03003
+  tps: 2132.51585
  }
 }
 dps_results: {
@@ -1555,8 +1562,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost_book_ranks-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 8791.84831
-  tps: 7975.75596
+  dps: 6774.25091
+  tps: 6159.91831
  }
 }
 dps_results: {
@@ -1576,8 +1583,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost_book_ranks-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 3137.29596
-  tps: 2830.91358
+  dps: 2374.60869
+  tps: 2144.49504
  }
 }
 dps_results: {

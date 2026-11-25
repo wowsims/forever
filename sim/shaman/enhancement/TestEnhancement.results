@@ -288,6 +288,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 948.22165
+  tps: 693.66452
+  dtps: 8.08862
+  hps: 20.74
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-Champion'sEarthshaker"
  value: {
   dps: 839.69311
@@ -650,8 +659,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 942.3029
-  tps: 689.95907
+  dps: 942.81215
+  tps: 690.32374
   dtps: 8.49099
   hps: 20.94333
  }

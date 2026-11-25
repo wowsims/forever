@@ -330,6 +330,75 @@ func fullAmounts(character *core.Character, before stats.Stats, of ...stats.Stat
 	return full
 }
 
+// Chained Essence of Eranikus 10455 puts 1300240 on every enemy at its use, on the cooldowns its
+// entry states. Each enemy takes the periodic's amount every period, whatever the wearer's spell
+// power, one tick fewer than 12766's duration holds periods, and a Troll takes the row's factor on
+// every tick.
+func TestChainedEssenceOfEranikusTicksOnEveryEnemy(t *testing.T) {
+	sim, character := itemWearerAgainst(t, proto.Class_ClassPriest, equipping(proto.ItemSlot_ItemSlotTrinket1, &proto.ItemSpec{Id: 10455}),
+		&proto.Target{Name: "target", Level: 60},
+		&proto.Target{Name: "troll", Level: 60, CreatureFamily: proto.CreatureFamily_CreatureFamilyTroll})
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellDamage: 500,
+		stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	debuff := spelldata.MustFind(1300240)
+	amount := debuff.EffectN(1).Average()
+	period := debuff.EffectN(1).Period()
+	trollFactor := debuff.EffectN(2).BaseValue()
+	cloud := spelldata.MustFind(12766).Duration()
+	ticks := int32(cloud/period) - 1
+	if amount <= 0 || period <= 0 || trollFactor <= 1 || ticks <= 0 {
+		t.Fatalf("1300240 deals %v every %v at %v times to Trolls over 12766's %v, want an amount, a period and a factor above 1", amount, period, trollFactor, cloud)
+	}
+	poison := character.GetSpell(core.ActionID{SpellID: 1300240})
+	if poison == nil {
+		t.Fatal("10455 registers no 1300240 spell")
+	}
+
+	useTrinketAsEntryStates(t, sim, character, 10455, core.CooldownTypeDPS)
+	for _, enemy := range sim.Encounter.ActiveTargetUnits {
+		if !poison.Dot(enemy).IsActive() {
+			t.Errorf("%s carries no 1300240 after the use", enemy.Label)
+		}
+	}
+
+	stepTo(t, sim, sim.CurrentTime+cloud+time.Millisecond)
+	for _, enemy := range sim.Encounter.ActiveTargetUnits {
+		metrics := poison.SpellMetrics[enemy.UnitIndex]
+		want := amount * float64(ticks)
+		if enemy.CreatureFamily == proto.CreatureFamily_CreatureFamilyTroll {
+			want *= trollFactor
+		}
+		if metrics.Ticks != ticks || !statNear(metrics.TotalDamage, want) {
+			t.Errorf("%s took %d ticks for %v, want %d for %v", enemy.Label, metrics.Ticks, metrics.TotalDamage, ticks, want)
+		}
+		if poison.Dot(enemy).IsActive() {
+			t.Errorf("%s still carries 1300240 after the cloud's %v", enemy.Label, cloud)
+		}
+	}
+}
+
+// The cloud of 10455 puts 1300240 on every enemy however poor the wearer's spell hit, and each tick
+// rolls its own hit, so a wearer who cannot hit misses every tick.
+func TestChainedEssenceOfEranikusLandsAndItsTicksRollHit(t *testing.T) {
+	sim, character := itemWearerAgainst(t, proto.Class_ClassPriest, equipping(proto.ItemSlot_ItemSlotTrinket1, &proto.ItemSpec{Id: 10455}),
+		&proto.Target{Name: "target", Level: 63})
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: -1000})
+	poison := character.GetSpell(core.ActionID{SpellID: 1300240})
+	cloud := spelldata.MustFind(12766).Duration()
+
+	useTrinketAsEntryStates(t, sim, character, 10455, core.CooldownTypeDPS)
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	if !poison.Dot(enemy).IsActive() {
+		t.Fatal("the enemy carries no 1300240 after a use with no spell hit")
+	}
+
+	stepTo(t, sim, sim.CurrentTime+cloud+time.Millisecond)
+	metrics := poison.SpellMetrics[enemy.UnitIndex]
+	if metrics.TickMisses == 0 || metrics.Ticks != 0 || metrics.TotalDamage != 0 {
+		t.Errorf("1300240 landed %d ticks for %v and missed %d, want every tick missed", metrics.Ticks, metrics.TotalDamage, metrics.TickMisses)
+	}
+}
+
 // Lifegiving Gem 19341 raises maximum health by a share of it for the buff's duration and heals for
 // the same amount, on the cooldown its entry states. A larger maximum gets the same share. When the
 // raise fades, health below the lower maximum stays, health above it drops to it, and neither counts

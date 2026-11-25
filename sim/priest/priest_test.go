@@ -438,3 +438,61 @@ func TestStarshardsTicksMeetTheTargetsFullResistance(t *testing.T) {
 		t.Errorf("%d of %d Starshards ticks took no partial resist, want none of at least 100", unresisted, landed)
 	}
 }
+
+// Penance's heal bolts crit with Revelation's charge up and leave it: every heal of the channel crits and
+// the charge outlasts the channel (EV-0149).
+func TestPenanceHealsCritAndLeaveRevelationsCharge(t *testing.T) {
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = 3600
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
+	for slot := range items {
+		items[slot] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: 1613, Enchant: 8217}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid: core.SinglePlayerRaidProto(&proto.Player{
+			Name:          "Penance",
+			Race:          proto.Race_RaceTroll,
+			Class:         proto.Class_ClassPriest,
+			Equipment:     &proto.EquipmentSpec{Items: items},
+			TalentsString: "000000000000001",
+			Spec: &proto.Player_DpsPriest{
+				DpsPriest: &proto.DpsPriest{
+					Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
+				},
+			},
+			Rotation: &proto.APLRotation{},
+		}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	priest := sim.Raid.Parties[0].Players[0].(*Priest)
+	healBolt := spellData.Penance.Highest().Refs()[1].ID
+	channel := priest.GetSpell(core.ActionID{SpellID: healBolt, Tag: 1})
+	bolt := priest.GetSpell(core.ActionID{SpellID: healBolt})
+	buff := priest.GetAuraByID(core.ActionID{SpellID: 1323377})
+	if !priest.Talents.Penance || channel == nil || bolt == nil || buff == nil {
+		t.Fatalf("Penance %v, its heal %v and bolt %v, Revelation %v; want all", priest.Talents.Penance, channel, bolt, buff)
+	}
+
+	buff.Activate(sim)
+	buff.SetStacks(sim, buff.MaxStacks)
+	if !channel.Cast(sim, &priest.Unit) {
+		t.Fatal("Penance's heal did not cast")
+	}
+	for end := sim.CurrentTime + 5*time.Second; sim.CurrentTime < end && !sim.Step(); {
+	}
+	hits, crits := int32(0), int32(0)
+	for _, metrics := range bolt.SpellMetrics {
+		hits += metrics.Hits
+		crits += metrics.Crits
+	}
+	if hits != 0 || crits < 2 {
+		t.Errorf("Penance's heals with Revelation up landed %d without a crit and %d crits, want every one of at least 2 to crit", hits, crits)
+	}
+	if !buff.IsActive() {
+		t.Error("Penance's heals spent Revelation's charge")
+	}
+}

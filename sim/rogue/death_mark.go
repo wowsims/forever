@@ -18,10 +18,10 @@ const (
 	deathMarkCapPerPoint    = 245.0
 )
 
-// The mark stores a share of the damage the rogue's attacks, poisons and ticks deal its target, twice the share for
-// Garrote and Rupture, and deals what it stored when it ends, up to a cap that its combo points, attack power and
-// melee crit chance raise. The stored damage already carries every modifier and the target's armor, so the payout
-// takes neither again.
+// The mark stores a share of the physical damage the rogue's attacks and bleeds deal its target, twice the share for
+// Garrote and Rupture, and none of the poisons' or other magic damage (EV-0192). It deals what it stored when it
+// ends, up to a cap that its combo points, attack power and melee crit chance raise. The stored damage already
+// carries every modifier and the target's armor, so the payout takes neither again.
 func (rogue *Rogue) registerDeathMark() {
 	if !rogue.Talents.DeathMark {
 		return
@@ -47,7 +47,7 @@ func (rogue *Rogue) registerDeathMark() {
 	}
 
 	store := func(aura *core.Aura, _ *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		if spell.Unit != &rogue.Unit || spell == rogue.DeathMark {
+		if spell.Unit != &rogue.Unit || spell == rogue.DeathMark || spell.SpellSchool != core.SpellSchoolPhysical {
 			return
 		}
 		rate := deathMarkStoredPerPoint * float64(comboPoints) * coupDeGrace
