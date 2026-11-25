@@ -103,9 +103,9 @@ white-swing share is worked back from the tenth the count printed to three place
 | Rake                                      |          set          |          set           | bleed, on the tick alone | none      |
 | The weapons' Rends above, Bloodmail       |          set          |                        | bleed                    | a tenth   |
 | Devious Strike                            |          set          |                        | bleed                    | none      |
+| Wound                                     |                       |                        | none                     | the whole |
+| Bigger Rock to the Face, Rock to the Face |                       |                        | bleed                    | the whole |
 
 The rule also reaches rows no count here measured: the hunter's Lacerate 24118 to 24120 and 1299332 (a tenth), Loose
 Clearcutter Blade 1310167 (the whole armor), and Death Mark and Lacerating Strikes, whose payouts already met armor
 and skip it.
-| Wound                                     |                       |                        | none                     | the whole |
-| Bigger Rock to the Face, Rock to the Face |                       |                        | bleed                    | the whole |
