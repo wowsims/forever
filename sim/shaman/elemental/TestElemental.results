@@ -2465,8 +2465,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Dwarf-default-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3350.83678
-  tps: 3225.38164
+  dps: 3330.50718
+  tps: 3204.0649
   dtps: 8.87366
  }
 }
@@ -2489,8 +2489,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Dwarf-default-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 651.6823
-  tps: 611.97843
+  dps: 644.94288
+  tps: 605.09914
  }
 }
 dps_results: {
@@ -2510,8 +2510,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Orc-default-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3378.39717
-  tps: 3256.56165
+  dps: 3341.13388
+  tps: 3220.67839
   dtps: 9.67626
  }
 }
@@ -2534,8 +2534,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Orc-default-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 651.47063
-  tps: 612.62443
+  dps: 644.65339
+  tps: 606.26193
  }
 }
 dps_results: {
@@ -2555,8 +2555,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Troll-default-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3261.11504
-  tps: 3143.37447
+  dps: 3231.73433
+  tps: 3116.06965
   dtps: 9.23759
  }
 }
@@ -2579,8 +2579,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Troll-default-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 632.0077
-  tps: 593.34164
+  dps: 625.88747
+  tps: 587.65082
  }
 }
 dps_results: {
@@ -2600,8 +2600,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-WindshaperSkyborne-default-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3276.58709
-  tps: 3155.14456
+  dps: 3242.2948
+  tps: 3122.17553
   dtps: 8.89397
  }
 }
@@ -2624,8 +2624,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-WindshaperSkyborne-default-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 659.56222
-  tps: 620.32416
+  dps: 650.82334
+  tps: 612.06705
  }
 }
 dps_results: {

@@ -39,6 +39,10 @@ var revelationDirectHits = map[proto.Class]core.ClassFlags{
 // Vampiric Embrace's party heal 15290.
 var revelationSkippedHeals = []int32{20267, 20341, 20342, 20343, 15290}
 
+// Penance's heal bolt, which its channel casts each tick: it crits with the charge up and leaves it
+// (EV-0149).
+var revelationPenanceHeal = core.ClassFlags{Family: 6, Mask: [4]uint32{0, 0x10000}}
+
 // The share of Revelation's chance a spell keeps for its level: all of it down to 12 levels under
 // the wearer, none from 32 levels under, and a straight line between (EV-0149).
 func revelationLevelShare(wearerLevel int32, spellLevel int32) float64 {
@@ -289,14 +293,10 @@ func init() {
 		spelldata.ParseEffects(character, buff, row)
 		character.ItemSwap.RegisterWeaponEnchantBuff(buff, 8217)
 
-		// The charge goes as a cast the buff reaches completes, on every class, and a spell still in
-		// flight keeps the crit it rolled. A channel the mask names (Blizzard, Hurricane) keeps the
-		// charge to its end. A melee or ranged attack the mask names, a paladin's judgement or Hammer
-		// of Wrath, crits and leaves the charge (EV-0028, EV-0149).
-		// TODO: Holy Shock's and Light's Vigil's heals crit here on every cast with the buff up, and
-		// in the logs mostly do not, landing after the charge is gone (EV-0149).
-		// TODO: A charge gained while a hunter channels Volley, a ranged attack, is still spent as the
-		// channel ends. EV-0149 does not record what spends a hunter's charge.
+		// A completed cast the buff reaches spends the charge; an attack crits and keeps it, and a
+		// channel leaves it to its ticks (EV-0028, EV-0149).
+		// TODO: Holy Shock's and Light's Vigil's heals crit on every cast here, and mostly not in the logs (EV-0149).
+		// TODO: A charge gained during Volley or Penance's heal is spent as the channel ends (R-0048).
 		isAttack := func(spell *core.Spell) bool {
 			return spell.DefenseType == core.DefenseTypeMelee || spell.DefenseType == core.DefenseTypeRanged
 		}
@@ -305,14 +305,51 @@ func init() {
 		if critsDirectHits {
 			spends = revelationSpentBy(row, direct)
 		}
-		spelldata.AttachChargeSpender(character, buff, spends, "Revelation Charge",
+		spender := spelldata.AttachChargeSpender(character, buff, spends, "Revelation Charge",
 			func(_ *core.Character, trigger *core.ProcTrigger) {
 				trigger.ProcMask = core.ProcMaskUnknown
 				trigger.Callback = core.CallbackOnCastComplete
 				trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-					return !isAttack(spell)
+					return !isAttack(spell) && !(spell.Flags.Matches(core.SpellFlagChanneled) && character.IsChanneling())
 				}
 			})
+
+		spendCharge := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			buff.RemoveStack(sim)
+		}
+
+		// A channel whose ticks cast a spell of their own spends the charge on its first crit tick, a
+		// spell batch window after it lands (EV-0149).
+		firstTickHit, _ := core.OncePerCast()
+		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
+			Name:               "Revelation Charge - Channel Tick",
+			Callback:           core.CallbackOnSpellHitDealt | core.CallbackOnHealDealt,
+			ClassFlags:         spender.ClassFlags,
+			CanProcFromProcs:   true,
+			Outcome:            core.OutcomeCrit,
+			RequireDamageDealt: true,
+			ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				channel := character.ChanneledDot
+				return channel != nil && channel.Spell.MatchesFlags(spender.ClassFlags) &&
+					!spell.Flags.Matches(core.SpellFlagChanneled) && !isAttack(spell) &&
+					!spell.MatchesFlags(revelationPenanceHeal) && firstTickHit(sim, spell)
+			},
+			Handler: spendCharge,
+		})
+
+		// A channel whose ticks are its own periodic damage spends the charge on its first tick; other
+		// spells' periodic ticks leave it (EV-0149).
+		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
+			Name:       "Revelation Charge - Periodic Channel Tick",
+			Callback:   core.CallbackOnPeriodicDamageDealt | core.CallbackOnPeriodicHealDealt,
+			ClassFlags: spender.ClassFlags,
+			Outcome:    core.OutcomeCrit,
+			ExtraCondition: func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				channel := character.ChanneledDot
+				return channel != nil && channel.Spell == spell
+			},
+			Handler: spendCharge,
+		})
 
 		// The direct hit of a spell in revelationDirectHits crits for the one cast that spends the
 		// charge, and its ticks never do.
@@ -352,10 +389,19 @@ func init() {
 		// spell registered under its item id, reads level 0 and keeps none.
 		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
 		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
+		// A hit event rolls once, on its first result, and not when that result crits. A spell and its
+		// copy roll apart (EV-0149).
 		shares := map[*core.Spell]float64{}
+		var lastSpell *core.Spell
+		var lastAt time.Duration
 		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			if isAttack(spell) {
+				return false
+			}
+			first := spell != lastSpell || sim.CurrentTime != lastAt
+			lastSpell, lastAt = spell, sim.CurrentTime
 			// A landing while the buff is up rolls too and refreshes it.
-			if result.DidCrit() || isAttack(spell) {
+			if !first || result.DidCrit() {
 				return false
 			}
 			share, ok := shares[spell]
