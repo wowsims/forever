@@ -33,7 +33,7 @@ export interface GearData {
 	subscribe: StoreSubscribe;
 	// Each pick adds an item rather than replacing one, so the picker offers items only, with nothing to remove.
 	addOnly?: boolean;
-	// The slots whose items the list offers, each item once and worth its EP in the first slot that lists it. Only the opened slot's when absent.
+	// The slots whose items the list merges, each item once at its first listing slot's EP. The opened slot alone when absent.
 	itemSlots?: readonly ItemSlot[];
 }
 

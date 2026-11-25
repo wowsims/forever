@@ -1,5 +1,6 @@
 import { ItemSlot } from '@generated/proto/common';
 import i18n from '@i18n/config';
+import { translateSlotName } from '@i18n/localization';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import type { IndividualSimHost } from '@sim/sim_host';
@@ -243,6 +244,15 @@ describe('SelectorModal', () => {
 			refreshGear();
 		});
 		expect(getEquippedItem.mock.calls.length).toBe(before + 1);
+	});
+
+	it('titles a list over several slots with every slot it lists', () => {
+		gearData = { ...gearData, itemSlots: [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand] };
+		setup();
+
+		expect(screen.getByTestId('selector-modal-title').textContent).toBe(
+			`${translateSlotName(ItemSlot.ItemSlotMainHand)} / ${translateSlotName(ItemSlot.ItemSlotOffHand)}`,
+		);
 	});
 });
 
