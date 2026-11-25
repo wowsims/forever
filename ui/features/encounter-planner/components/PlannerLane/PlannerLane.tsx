@@ -45,10 +45,10 @@ import {
 	LANE_CLASSES,
 	LANE_GRID_CLASSES,
 	LANE_LABEL_CLASSES,
-	TARGET_LABEL_CLASSES,
 	laneEvents,
 	refKey,
 	rowKinds,
+	TARGET_LABEL_CLASSES,
 	withWindow,
 } from './utils';
 
