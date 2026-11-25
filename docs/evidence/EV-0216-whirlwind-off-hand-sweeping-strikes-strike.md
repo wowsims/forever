@@ -8,7 +8,7 @@
 - Game build: 1.60.1.70938 for 48 of the casts, 1.60.1.70959 for 4 and 1.60.1.71037 for 7, by report date; the
   hotfix each player ran is not recorded
 - Date: 2026-11-15 to 2026-11-22
-- Pull request: not yet opened
+- Pull request: #1236
 
 ## Method
 
@@ -30,8 +30,9 @@ charges up before the cast; 11 casts end with charges left, so the cap does not 
 
 The 59 casts bring 57 of 26654 and 93 of 462890 against 159 landed off-hand strikes, and in every one of them the
 charges spent equal the strikes brought. The four casts the first model misses all end with charges left and bring one
-or two strikes fewer than it predicts. By report build it fits 44 of 48 casts on 70938, 4 of 4 on 70959 and 7 of 7 on 71037. None of the 2,325 Whirlwinds cast with no charges up by the 21 warrior streams
-EV-0213 counts brings either strike, and no cast without an off-hand strike brings a 462890.
+or two strikes fewer than it predicts. By report build it fits 44 of 48 casts on 70938, 4 of 4 on 70959 and 7 of 7 on
+71037. None of the 2,209 Whirlwinds cast with no charges up by the 20 warrior streams EV-0213 counts brings either
+strike, and no cast without an off-hand strike brings a 462890.
 
 462890 deals off-hand damage. In the fights whose gear lists a weapon in each hand, its 96 strikes average 69.8 against
 189.4 for 77 of 26654 and 125.9 for 350 copied hits (12723). Its 93 strikes above log 76 hits and 17 crits, no
