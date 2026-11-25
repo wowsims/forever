@@ -165,8 +165,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BarmanShanker-12791"
  value: {
-  dps: 462.97428
-  tps: 2320.75692
+  dps: 462.91391
+  tps: 2320.62713
   dtps: 393.19761
   hps: 83.53408
  }
@@ -192,8 +192,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 478.48311
-  tps: 2403.21613
+  dps: 477.49174
+  tps: 2401.08468
   dtps: 396.87058
   hps: 84.88223
  }
@@ -246,8 +246,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BloodTalon-12795"
  value: {
-  dps: 464.73779
-  tps: 2336.44967
+  dps: 464.66068
+  tps: 2336.28387
   dtps: 396.44745
   hps: 84.72673
  }
@@ -1677,8 +1677,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-RockonStick-279852"
  value: {
-  dps: 446.17066
-  tps: 2256.9857
+  dps: 445.36485
+  tps: 2255.25322
   dtps: 395.62651
   hps: 84.7221
  }

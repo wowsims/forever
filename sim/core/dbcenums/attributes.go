@@ -56,6 +56,14 @@ const (
 	// other bleeds and DoTs the game files mark, 225 spells in this build.
 	ATTR_EX_8_PERIODIC_CAN_CRIT uint32 = 0x200
 
+	// Two bits named for what the logs show of a spell's periodic physical damage; no name for either
+	// says it, and other enums call the first Do Not Sheathe. Ticks of a spell with the second
+	// ignore armor (Garrote, Rupture, Rip, Rake, Pounce, the warrior's Rend), ticks of one with only
+	// the first meet a tenth of the target's armor (the weapons' Rends), and ticks of one with neither
+	// meet it whole (Wound, Rock to the Face) (EV-0194).
+	ATTR_TICKS_MEET_A_TENTH_OF_ARMOR uint32 = 0x40000
+	ATTR_EX_6_TICKS_IGNORE_ARMOR     uint32 = 0x200000
+
 	ATTR_EX_11_SCALES_WITH_ITEM_LEVEL uint32 = 0x4
 
 	ATTR_EX_12_ONLY_PROC_FROM_CLASS_ABILITIES uint32 = 0x80000000

@@ -128,8 +128,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BarmanShanker-12791"
  value: {
-  dps: 797.40598
-  tps: 566.15825
+  dps: 797.34261
+  tps: 566.11325
   hps: 55.57778
  }
 }
@@ -208,8 +208,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BloodTalon-12795"
  value: {
-  dps: 769.1181
-  tps: 546.07385
+  dps: 769.04757
+  tps: 546.02377
   hps: 65.79528
  }
 }
@@ -232,8 +232,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Bloodrazor-809"
  value: {
-  dps: 787.06362
-  tps: 558.81517
+  dps: 786.95034
+  tps: 558.73474
   hps: 50.4775
  }
 }
@@ -936,8 +936,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-GargoyleShredderTalons-13399"
  value: {
-  dps: 808.59389
-  tps: 574.10166
+  dps: 808.46824
+  tps: 574.01245
   hps: 51.81611
  }
 }
@@ -968,8 +968,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 757.53307
-  tps: 537.84848
+  dps: 757.38194
+  tps: 537.74118
   hps: 55.54389
  }
 }
@@ -1032,8 +1032,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 765.80006
-  tps: 543.71804
+  dps: 765.73801
+  tps: 543.67399
   hps: 55.44222
  }
 }
@@ -1504,8 +1504,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-RockonStick-279852"
  value: {
-  dps: 769.30562
-  tps: 546.20699
+  dps: 768.48207
+  tps: 545.62227
   hps: 51.24
  }
 }

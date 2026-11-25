@@ -182,8 +182,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 885.93161
-  tps: 723.17669
+  dps: 884.56655
+  tps: 722.08464
   dtps: 4.71258
   hps: 26.69953
  }
@@ -281,8 +281,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BloodmailRegalia"
  value: {
-  dps: 912.77125
-  tps: 745.29489
+  dps: 912.66128
+  tps: 745.20691
   dtps: 5.21406
   hps: 25.8191
  }
@@ -587,8 +587,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DrakefangButcher-12463"
  value: {
-  dps: 884.76893
-  tps: 724.73507
+  dps: 884.45191
+  tps: 724.48146
   dtps: 5.84063
   hps: 30.19737
  }
@@ -1010,8 +1010,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-GatorbiteAxe-17730"
  value: {
-  dps: 882.51137
-  tps: 720.96517
+  dps: 882.15236
+  tps: 720.67796
   dtps: 4.93303
   hps: 27.39307
  }
@@ -1235,8 +1235,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-KangtheDecapitator-2291"
  value: {
-  dps: 924.64669
-  tps: 753.62121
+  dps: 924.15024
+  tps: 753.22404
   dtps: 4.32144
   hps: 26.10376
  }
@@ -2063,8 +2063,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 966.19541
-  tps: 786.95721
+  dps: 963.36217
+  tps: 784.69062
   dtps: 4.51923
   hps: 25.03101
  }

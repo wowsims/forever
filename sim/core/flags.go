@@ -199,6 +199,7 @@ const (
 	SpellFlagIgnoreTargetModifiers                          // skip target damage modifiers
 	SpellFlagIgnoreAttackerModifiers                        // skip attacker damage modifiers
 	SpellFlagApplyArmorReduction                            // Forces damage reduction from armor to apply, even if it otherwise wouldn't.
+	SpellFlagTenthArmorTicks                                // Its periodic physical damage meets a tenth of the target's armor, taken after armor penetration, where other ticks ignore armor (EV-0194).
 	SpellFlagNoActiveDefense                                // The physical hit roll skips dodge, parry and block.
 	SpellFlagIncludeTargetBonusDamage                       // Spell benefits from Gift of Arthas and Hemorrhage.
 	SpellFlagBinary                                         // The hit roll resists it in full at the target's average resist, and a landed one takes no partial resist; a physical one is blocked whole. spelldata.SpellConfig sets it from the row.

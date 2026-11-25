@@ -20,7 +20,8 @@ const (
 
 // The mark stores a share of the damage the rogue's attacks, poisons and ticks deal its target, twice the share for
 // Garrote and Rupture, and deals what it stored when it ends, up to a cap that its combo points, attack power and
-// melee crit chance raise. The stored damage already carries every modifier, so the payout takes none again.
+// melee crit chance raise. The stored damage already carries every modifier and the target's armor, so the payout
+// takes neither again.
 func (rogue *Rogue) registerDeathMark() {
 	if !rogue.Talents.DeathMark {
 		return
@@ -35,7 +36,7 @@ func (rogue *Rogue) registerDeathMark() {
 
 	config := spelldata.SpellConfig(&rogue.Unit, deathMarkRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ExtraCastCondition = rogue.FinisherExtraCastCondition
-	config.Flags |= core.SpellFlagIgnoreModifiers
+	config.Flags |= core.SpellFlagIgnoreModifiers | core.SpellFlagIgnoreResists
 
 	currentCap := func(target *core.Unit) float64 {
 		points := float64(comboPoints)

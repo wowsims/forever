@@ -52,6 +52,16 @@ func (s *Spell) AppliesBleed() bool {
 	return s.IsBleed() || s.PeriodicDamageEffect().Mechanic == dbcenums.MECHANIC_BLEED
 }
 
+// Whether the spell's periodic physical damage ignores armor; with neither this nor
+// TicksMeetATenthOfArmor, it meets the target's armor whole (EV-0194).
+func (s *Spell) TicksIgnoreArmor() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_EX_6, dbcenums.ATTR_EX_6_TICKS_IGNORE_ARMOR)
+}
+
+func (s *Spell) TicksMeetATenthOfArmor() bool {
+	return !s.TicksIgnoreArmor() && s.HasAttr(dbcenums.ATTR_INDEX_BASE, dbcenums.ATTR_TICKS_MEET_A_TENTH_OF_ARMOR)
+}
+
 func (s *Spell) RefundsOnMiss() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_1, dbcenums.ATTR_EX_1_DISCOUNT_POWER_ON_MISS)
 }

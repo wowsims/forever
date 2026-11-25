@@ -44,3 +44,33 @@ func TestArmorReductionFromLevel60Attacker(t *testing.T) {
 		t.Fatalf("3731 armor against a level 60 attacker reduces damage by %.4f, want 0.4042", reduction)
 	}
 }
+
+// Periodic physical damage ignores armor, meets all of it under SpellFlagApplyArmorReduction, and meets a
+// tenth of what armor penetration leaves under SpellFlagTenthArmorTicks, below the 75% cap that the whole
+// armor reaches; a direct hit of a spell flagged for a tenth meets the whole armor.
+func TestPeriodicPhysicalDamageMeetsTheArmorItsFlagsName(t *testing.T) {
+	attacker := &Unit{Type: PlayerUnit, Level: 60}
+	attacker.stats[stats.ArmorPenetration] = 1000
+	defender := &Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+	defender.stats[stats.Armor] = 21000
+	attackTable := NewAttackTable(attacker, defender)
+	armorConstant := 400 + 85*float64(attacker.Level)
+	tenth := (defender.Armor() - attacker.stats[stats.ArmorPenetration]) / 10
+
+	for _, tc := range []struct {
+		name       string
+		flags      SpellFlag
+		isPeriodic bool
+		want       float64
+	}{
+		{"a tick", 0, true, 1},
+		{"a tick flagged for the whole armor", SpellFlagApplyArmorReduction, true, 0.25},
+		{"a tick flagged for a tenth", SpellFlagTenthArmorTicks, true, 1 - tenth/(tenth+armorConstant)},
+		{"a direct hit flagged for a tenth", SpellFlagTenthArmorTicks, false, 0.25},
+	} {
+		spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolPhysical, SchoolIndex: stats.SchoolIndexPhysical, Flags: tc.flags}
+		if got, _ := spell.ResistanceMultiplier(nil, tc.isPeriodic, attackTable); !WithinToleranceFloat64(tc.want, got, 1e-9) {
+			t.Errorf("%s keeps %v of its damage, want %v", tc.name, got, tc.want)
+		}
+	}
+}

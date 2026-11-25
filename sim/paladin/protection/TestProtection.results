@@ -290,8 +290,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BloodmailRegalia"
  value: {
-  dps: 417.38597
-  tps: 975.33473
+  dps: 417.27779
+  tps: 975.19086
   dtps: 377.98595
   hps: 18.4525
  }
@@ -299,8 +299,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Bloodrazor-809"
  value: {
-  dps: 403.0987
-  tps: 953.67294
+  dps: 403.01823
+  tps: 953.56592
   dtps: 337.07227
   hps: 17.02917
  }
@@ -1109,8 +1109,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 403.27217
-  tps: 970.68535
+  dps: 403.14768
+  tps: 970.51978
   dtps: 339.55635
   hps: 20.48583
  }
@@ -1190,8 +1190,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 405.7126
-  tps: 972.81976
+  dps: 405.66114
+  tps: 972.75132
   dtps: 341.40084
   hps: 20.65528
  }
@@ -1919,8 +1919,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-RockonStick-279852"
  value: {
-  dps: 401.24541
-  tps: 953.62162
+  dps: 400.46423
+  tps: 952.58265
   dtps: 338.97755
   hps: 17.63917
  }

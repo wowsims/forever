@@ -3,7 +3,7 @@
 - Claim: Axe of the Deep Woods procs at 1.9, Barman Shanker at 1.95 and Blunderflame Bone Bow at 1.95 procs per minute,
   each priced on each landed hit's weapon base speed; Axe of the Deep Woods' rate is measured, and the other two are
   observed, from wearers of one class only. Barman Shanker's Rend deals twice its damage when applied from behind the
-  target, and its ticks lose what a tenth of the target's armor takes off a hit.
+  target.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), 66 reports in all
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-17
@@ -108,19 +108,7 @@ Its Rend ticks before mitigation fall in two groups, 14 and 28; about a third of
 doubled ticks are the Rends applied from behind the target, as 1300787's second effect states. About 14% of the procs
 land on targets immune to the Rend (elementals, golems, constructs, skeletons and ghosts).
 
-The Rend's ticks lose what a tenth of the target's armor takes off a hit, while Garrote's and Rupture's ticks on the
-same targets lose nothing to armor. Each doubled tick that is not a crit and has no overkill, absorb or block is paired
-with the mean share the wearer's normal white swings on the same target lost within 1.5 s of it, and the pairs are
-grouped by that share to the nearest tenth. A white-swing share w means armor A with A/K = x = w/(1 - w), so a tenth of
-the armor takes 0.1x/(1 + 0.1x) off; a tenth of the share would take 0.1w. Garrote's ticks in the same groups deal 4.6%
-to 8% more than before mitigation, a talent's bonus, with no trend in armor.
-
-| White-swing share lost | 0.235 | 0.331 | 0.385 | 0.490 | 0.567 | 0.697 |
-| ---------------------- | ----: | ----: | ----: | ----: | ----: | ----: |
-| Ticks                  |   806 | 2,905 | 7,020 |   708 |   378 |    91 |
-| Tick share lost        |  2.1% |  4.2% |  5.5% |  9.3% | 11.9% | 19.8% |
-| A tenth of the armor   |  3.0% |  4.7% |  5.9% |  8.8% | 11.6% | 18.7% |
-| A tenth of the share   |  2.3% |  3.3% |  3.9% |  4.9% |  5.7% |  7.0% |
+EV-0194 holds how much of the target's armor its ticks meet.
 
 ## Blunderflame Bone Bow (item 275439, spell 1296730): 1.95, observed
 
@@ -168,5 +156,4 @@ The count is EV-0183 §Method, run on these weapons.
 - Pull request: #1214
 
 The count is EV-0186 §Method, run on this weapon alone by the sweep of 2026-11-25, `runs/2026-11-25-barman` in
-`forever-sweep-auto`, whose `barman_results.json` holds the count and whose `bleed_armor4.py` pairs the ticks with the
-white swings.
+`forever-sweep-auto`, whose `barman_results.json` holds the count.

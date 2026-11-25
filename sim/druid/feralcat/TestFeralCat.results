@@ -104,8 +104,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BarmanShanker-12791"
  value: {
-  dps: 747.98306
-  tps: 557.0576
+  dps: 747.92723
+  tps: 557.01786
   hps: 45.9025
  }
 }
@@ -128,8 +128,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 751.6376
-  tps: 559.73875
+  dps: 750.66387
+  tps: 559.0454
   hps: 45.75
  }
 }
@@ -176,8 +176,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BloodTalon-12795"
  value: {
-  dps: 737.20648
-  tps: 549.47809
+  dps: 737.13351
+  tps: 549.42615
   hps: 46.19056
  }
 }
@@ -1440,8 +1440,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-RockonStick-279852"
  value: {
-  dps: 729.14571
-  tps: 543.87147
+  dps: 728.54103
+  tps: 543.441
   hps: 46.10583
  }
 }
