@@ -68,3 +68,47 @@ func TestNutritiousFoodListsTheAmountItHandsWellFed(t *testing.T) {
 		}
 	}
 }
+
+// A plain trigger keeps the triggered spell's own amounts, and the seated Drink a trigger puts up
+// lists nothing.
+func TestATriggeredBuffListsItsOwnStats(t *testing.T) {
+	withDBCInputs(t)
+	instance := dbc.GetDBC()
+
+	firstTriggered := func(t *testing.T, row *spelldata.Spell) *spelldata.Spell {
+		for i := range row.Effects {
+			if e := &row.Effects[i]; e.Type == dbcenums.E_TRIGGER_SPELL {
+				return e.Trigger()
+			}
+		}
+		t.Fatalf("%d triggers no spell", row.ID)
+		return nil
+	}
+	for _, tc := range []struct {
+		name string
+		id   int
+		stat stats.Stat
+	}{
+		{"Blessed Sunfruit, 18124 to 18125", 13810, stats.Strength},
+		{"Windblossom Berries, 26030 to 18191", 11950, stats.Stamina},
+	} {
+		consumable := shippedConsumable(t, instance, tc.id)
+		buff := firstTriggered(t, spelldata.MustFind(consumable.ItemEffects[0].BuffId))
+		want := buff.FirstAura(dbcenums.A_MOD_STAT).BaseValue()
+		if want == 0 {
+			t.Fatalf("%s: %d states no stat", tc.name, buff.ID)
+		}
+		if got := stats.FromProtoArray(consumable.Stats)[tc.stat]; got != want {
+			t.Errorf("%s: %v %v, want %v", tc.name, got, tc.stat, want)
+		}
+	}
+
+	tea := shippedConsumable(t, instance, 249865)
+	drink := firstTriggered(t, spelldata.MustFind(tea.ItemEffects[0].BuffId))
+	if !drink.WhileSeated() || drink.FirstAura(dbcenums.A_MOD_POWER_REGEN).BaseValue() == 0 {
+		t.Fatalf("Peace Tea's %d is no seated mana restore, so the test cannot tell it is left out", drink.ID)
+	}
+	if mp5 := stats.FromProtoArray(tea.Stats)[stats.MP5]; mp5 != 0 {
+		t.Errorf("Peace Tea lists %v MP5 from its seated Drink %d, want none", mp5, drink.ID)
+	}
+}

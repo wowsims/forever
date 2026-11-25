@@ -3,8 +3,10 @@ package dbc
 import (
 	"slices"
 
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -274,12 +276,27 @@ func (consumable *Consumable) GetStatModifiers() *stats.Stats {
 					if stat, ok := spellEffect.ParseStatEffect(spellEffect.Coefficient != 0, 0); ok {
 						stats.AddInplace(&stat)
 					}
+					if spellEffect.EffectTriggerSpell == 0 ||
+						!shared.LandsOnTheUser(spelldata.Find(int32(spellEffect.SpellID)).EffectAtIndex(uint8(spellEffect.EffectIndex))) {
+						continue
+					}
+					switch {
 					// A periodic trigger with a value hands its amount to every effect of the spell it
 					// triggers: Nutritious Food 1248401 states Well Fed 1248422's Strength that way.
-					if spellEffect.EffectAura == dbcenums.A_PERIODIC_TRIGGER_SPELL_WITH_VALUE {
+					case spellEffect.EffectAura == dbcenums.A_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
 						for _, triggered := range dbcInstance.SpellEffects[spellEffect.EffectTriggerSpell] {
 							triggered.EffectBasePoints = spellEffect.EffectBasePoints
 							if stat, ok := triggered.ParseStatEffect(false, 0); ok {
+								stats.AddInplace(&stat)
+							}
+						}
+					// A trigger keeps the triggered spell's own amounts: Blessed Sunfruit 18124 states
+					// 18125's Strength that way. The eating and drinking it triggers last only while
+					// seated (Nutritious Drink 1249920's Drink 430), so they list nothing. A periodic
+					// trigger without a value every 10 s is ParseStatEffect's own.
+					case spellEffect.EffectType == dbcenums.E_TRIGGER_SPELL && !spelldata.Find(int32(spellEffect.EffectTriggerSpell)).WhileSeated():
+						for _, triggered := range dbcInstance.SpellEffects[spellEffect.EffectTriggerSpell] {
+							if stat, ok := triggered.ParseStatEffect(triggered.Coefficient != 0, 0); ok {
 								stats.AddInplace(&stat)
 							}
 						}
