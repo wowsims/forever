@@ -1,6 +1,6 @@
 import type { GearData } from '@features/gear/types';
 import { type ItemSlot, ItemSpec } from '@generated/proto/common';
-import { BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS, BULK_SIM_ITEM_SLOT_TO_SINGLE_ITEM_SLOT, type BulkSimItemSlot } from '@sim/bulk/constants_auto_gen';
+import { BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS, BULK_SIM_ITEM_SLOT_TO_SINGLE_ITEM_SLOT, BulkSimItemSlot } from '@sim/bulk/constants_auto_gen';
 import type { Player } from '@sim/player/player';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import { bulkState } from '@sim/settings/bulk_settings';
@@ -27,9 +27,17 @@ export const createBulkGearData = (player: Player<any>, bulkSlot: BulkSimItemSlo
 	};
 };
 
-/** The item slot whose list a group offers: the first slot of a paired group, the main hand for a dual-wielder's weapons. */
-export const bulkGroupItemSlot = (bulkSlot: BulkSimItemSlot): ItemSlot =>
-	BULK_SIM_ITEM_SLOT_TO_SINGLE_ITEM_SLOT.get(bulkSlot) ?? BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS.get(bulkSlot)![0];
+/**
+ * The item slots whose lists a group offers, one add button each. A paired group offers its first
+ * slot, since both rings and both trinkets list the same items. A dual-wielder's weapons offer both
+ * hands: the main hand's list leaves out the off-hand-only weapons.
+ */
+export const bulkGroupItemSlots = (bulkSlot: BulkSimItemSlot): readonly ItemSlot[] => {
+	const single = BULK_SIM_ITEM_SLOT_TO_SINGLE_ITEM_SLOT.get(bulkSlot);
+	if (single !== undefined) return [single];
+	const pair = BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS.get(bulkSlot)!;
+	return bulkSlot === BulkSimItemSlot.ItemSlotHandWeapon ? pair : [pair[0]];
+};
 
 /**
  * The selector modal's seam for adding to a group: a pick adds the item to the batch instead of

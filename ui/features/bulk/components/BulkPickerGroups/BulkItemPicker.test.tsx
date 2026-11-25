@@ -111,6 +111,8 @@ const mount = () => {
 			fireEvent.click(
 				within(container.querySelector<HTMLElement>(`[data-gear-group="${group}"]`)!).getByRole('button', { name: 'bulk_tab.picker.add_items_to' }),
 			),
+		clickAddHand: (button: number) =>
+			fireEvent.click(within(container.querySelector<HTMLElement>('[data-gear-group="weapons"]')!).getAllByRole('button')[button]),
 		view: () => ({
 			equipped: cell().hasAttribute('data-equipped'),
 			removable: !!cell().querySelector('[data-testid="item-picker-actions-btn"]'),
@@ -200,7 +202,6 @@ describe('BulkItemPickerGroup add button', () => {
 	it.each([
 		['rings', ItemSlot.ItemSlotFinger1],
 		['trinkets', ItemSlot.ItemSlotTrinket1],
-		['weapons', ItemSlot.ItemSlotMainHand],
 		['head', ItemSlot.ItemSlotHead],
 	])('opens the item list for the %s group on its slot', (group, itemSlot) => {
 		const h = mount();
@@ -208,6 +209,18 @@ describe('BulkItemPickerGroup add button', () => {
 		h.clickAdd(group);
 
 		expect(h.modal().open).toBe(true);
+		expect(h.modal().request).toMatchObject({ slot: itemSlot, tab: SelectorModalTabs.Items });
+		expect(h.modal().request!.gearData.getEquippedItem()).toBeNull();
+	});
+
+	it.each([
+		[0, ItemSlot.ItemSlotMainHand],
+		[1, ItemSlot.ItemSlotOffHand],
+	])("opens a dual-wielder's weapons on the hand its button %i names", (button, itemSlot) => {
+		const h = mount();
+
+		h.clickAddHand(button);
+
 		expect(h.modal().request).toMatchObject({ slot: itemSlot, tab: SelectorModalTabs.Items });
 		expect(h.modal().request!.gearData.getEquippedItem()).toBeNull();
 	});

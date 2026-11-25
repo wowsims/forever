@@ -1,3 +1,4 @@
+import { ItemSlot } from '@generated/proto/common';
 import { BulkSimItemSlot } from '@sim/bulk/utils';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
@@ -8,7 +9,13 @@ const meta = {
 	title: 'Features/Bulk/BulkPickerGroups/Components/BulkItemPickerGroup',
 	component: BulkItemPickerGroup,
 	tags: ['autodocs'],
-	args: { bulkSlot: BulkSimItemSlot.ItemSlotFinger, entries: [], onAddItem: fn(), addTooltipId: 'bulk-add-items-tooltip' },
+	args: {
+		bulkSlot: BulkSimItemSlot.ItemSlotFinger,
+		entries: [],
+		addSlots: [ItemSlot.ItemSlotFinger1],
+		onAddItem: fn(),
+		addTooltipId: 'bulk-add-items-tooltip',
+	},
 	argTypes: { entries: { control: false } },
 } satisfies Meta<typeof BulkItemPickerGroup>;
 
@@ -17,3 +24,8 @@ type Story = StoryObj<typeof meta>;
 
 /** A slot group with no items in the batch; a filled group's entries are `BulkItemPicker`s, storied as `BulkItemPickerView`. */
 export const Empty: Story = {};
+
+/** A dual-wielder's weapons: one add button per hand, since the main hand's list leaves out off-hand-only weapons. */
+export const DualWieldWeapons: Story = {
+	args: { bulkSlot: BulkSimItemSlot.ItemSlotHandWeapon, addSlots: [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand] },
+};

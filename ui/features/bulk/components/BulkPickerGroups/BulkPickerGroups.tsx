@@ -6,7 +6,7 @@ import { Tooltip } from '@ui-kit/Tooltip';
 import { useId } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
-import { bulkGroupItemSlot, createBulkAddGearData } from '../../model/gear/gear_data';
+import { bulkGroupItemSlots, createBulkAddGearData } from '../../model/gear/gear_data';
 import { BulkItemPickerGroup } from './BulkItemPickerGroup';
 
 export const BulkPickerGroups = () => {
@@ -22,7 +22,8 @@ export const BulkPickerGroups = () => {
 					key={bulkSlot}
 					bulkSlot={bulkSlot}
 					entries={entries}
-					onAddItem={() => openSelectorModal(bulkGroupItemSlot(bulkSlot), SelectorModalTabs.Items, createBulkAddGearData(player))}
+					addSlots={bulkGroupItemSlots(bulkSlot)}
+					onAddItem={slot => openSelectorModal(slot, SelectorModalTabs.Items, createBulkAddGearData(player))}
 					addTooltipId={addTooltipId}
 				/>
 			))}
