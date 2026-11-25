@@ -13,8 +13,7 @@ func applyRaceEffects(agent Agent) {
 	switch character.Race {
 	case proto.Race_RaceDwarf:
 		character.AddStats(stats.Stats{stats.PhysicalHitPercent: 1, stats.SpellHitPercent: 1}) // Artisan's Precision
-		// Big Game Hunter
-		applyDamageVersus(character, 1259721, proto.MobType_MobTypeBeast)
+		applyDamageVersus(character, 1259721, proto.MobType_MobTypeBeast)                      // Big Game Hunter
 
 		actionID := ActionID{SpellID: 20594}
 

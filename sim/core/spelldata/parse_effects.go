@@ -1,6 +1,7 @@
 package spelldata
 
 import (
+	"cmp"
 	"fmt"
 	"math"
 	"os"
@@ -321,10 +322,7 @@ func parse(unit *core.Unit, character *core.Character, aura *core.Aura, s *Spell
 		casterSlot:      o.casterSlot,
 		showAsSchoolHit: o.showAsSchoolHit,
 		allManaRegen:    o.allManaRegen,
-		versusSource:    core.ActionID{SpellID: s.ID},
-	}
-	if o.itemID != 0 {
-		p.versusSource = core.ActionID{ItemID: o.itemID}
+		versusSource:    cmp.Or(core.ActionID{ItemID: o.itemID}, core.ActionID{SpellID: s.ID}),
 	}
 	if o.casterSlot != nil {
 		o.casterSlot.target = unit

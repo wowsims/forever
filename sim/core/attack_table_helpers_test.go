@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -254,6 +255,55 @@ func TestDamageLogListsTheStatsASpellDeclaresAlone(t *testing.T) {
 	} {
 		if line := vt.damageLine(t, c.spell, OutcomeHit); !strings.HasSuffix(line, c.want) || (c.want == ")" && strings.Contains(line, "[Versus")) {
 			t.Errorf("%s: line %q, want it to end with %q", c.name, line, c.want)
+		}
+	}
+}
+
+func TestDamageLogTagsATickByTheDotsDeclaration(t *testing.T) {
+	const hitTag = ") [Versus Humanoid: {SpellID: 22} +70 RangedAttackPower]"
+	cases := []struct {
+		name    string
+		isAOE   bool
+		dotRead []stats.Stat
+		tick    string
+		spell   *Spell
+	}{
+		{name: "a dot declaring spell damage", dotRead: []stats.Stat{stats.SpellDamage}, tick: ") [Versus Humanoid: {SpellID: 22} +40 SpellDamage]"},
+		{name: "a dot declaring none", dotRead: NoVersusStats, tick: ")"},
+		{name: "a dot declaring nothing", tick: hitTag},
+		{name: "an area dot declaring none", isAOE: true, dotRead: NoVersusStats, tick: ")"},
+	}
+	sim, character := NewWeaponTestSim(t, proto.Race_RaceHuman, WeaponTestSlots(WeaponTestSwordID, 0, 0), nil, func(character *Character) {
+		for i := range cases {
+			id := int32(101 + i)
+			cases[i].spell = character.RegisterSpell(SpellConfig{
+				ActionID:         ActionID{SpellID: id},
+				SpellSchool:      SpellSchoolFire,
+				ProcMask:         ProcMaskSpellDamage,
+				DefenseType:      DefenseTypeMagic,
+				DamageMultiplier: 1,
+				ThreatMultiplier: 1,
+				VersusStats:      []stats.Stat{stats.RangedAttackPower},
+				Dot: DotConfig{
+					Aura:          Aura{Label: fmt.Sprintf("Test Trap %d", id)},
+					IsAOE:         cases[i].isAOE,
+					NumberOfTicks: 1,
+					TickLength:    time.Second,
+					VersusStats:   cases[i].dotRead,
+				},
+			})
+		}
+	})
+	vt := versusLogTestOn(sim, character)
+	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.RangedAttackPower: 70, stats.SpellDamage: 40}, vt.target.MobType)
+
+	for _, c := range cases {
+		if line := vt.damageLine(t, c.spell, OutcomeHit); !strings.HasSuffix(line, hitTag) {
+			t.Errorf("%s: hit line %q, want it to end with %q", c.name, line, hitTag)
+		}
+		line := vt.lineOf(t, func() { vt.tick(c.spell, OutcomeHit) })
+		if !strings.Contains(line, " tick ") || !strings.HasSuffix(line, c.tick) || (c.tick == ")" && strings.Contains(line, "[Versus")) {
+			t.Errorf("%s: tick line %q, want a tick ending with %q", c.name, line, c.tick)
 		}
 	}
 }

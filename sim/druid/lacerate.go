@@ -22,6 +22,7 @@ func (druid *Druid) registerLacerateSpell() {
 	perStack := rank.EffectN(2).Percent()
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ThreatMultiplier = lacerateThreatMultiplier
+	config.VersusStats = core.NoVersusStats
 	config.Dot = spelldata.DotConfig(rank, tick)
 	// Each application stacks the bleed, so a tick is the row's amount per stack.
 	// The bleed gains no attack power (EV-0040).

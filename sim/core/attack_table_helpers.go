@@ -130,10 +130,11 @@ func (parentAura *Aura) AttachMobTypeBonusStats(source ActionID, bonus stats.Sta
 	return parentAura
 }
 
-// The unit's bonuses against each mob type, leaving out a mob type with none. A bonus taken back off
-// can leave a rounding error, which counts as none.
+// A bonus taken back off can leave a rounding error, which counts as none.
+const epsilon = 1e-9
+
+// The unit's bonuses against each mob type, leaving out a mob type with none.
 func (unit *Unit) mobTypeBonusesProto() []*proto.MobTypeBonus {
-	const epsilon = 1e-9
 	var bonuses []*proto.MobTypeBonus
 	for _, mobType := range slices.Sorted(maps.Keys(unit.mobTypeBonuses)) {
 		bonus := unit.mobTypeBonuses[mobType]
@@ -179,7 +180,6 @@ func (spell *Spell) versusLogTag(result *SpellResult, isPeriodic bool) string {
 	if !result.Landed() || result.Damage <= 0 {
 		return ""
 	}
-	const epsilon = 1e-9
 	target := result.Target
 	var entries []string
 	if !spell.Flags.Matches(SpellFlagIgnoreAttackerModifiers | SpellFlagNoDamageVersus) {
@@ -210,11 +210,11 @@ func (spell *Spell) versusLogTag(result *SpellResult, isPeriodic bool) string {
 		}
 		for _, stat := range read {
 			if value := share.stats[stat]; math.Abs(value) > epsilon {
-				sign := ""
+				num := versusNumber(value)
 				if value > 0 {
-					sign = "+"
+					num = "+" + num
 				}
-				entries = append(entries, share.source.String()+" "+sign+versusNumber(value)+" "+stat.StatName())
+				entries = append(entries, share.source.String()+" "+num+" "+stat.StatName())
 			}
 		}
 	}
@@ -224,11 +224,12 @@ func (spell *Spell) versusLogTag(result *SpellResult, isPeriodic bool) string {
 	return " [Versus " + strings.TrimPrefix(target.MobType.String(), "MobType") + family + ": " + strings.Join(entries, "; ") + "]"
 }
 
-// The VersusStats of a spell that states it reads none.
+// The VersusStats of a spell or dot that states it reads none.
 var NoVersusStats = []stats.Stat{}
 
-// The stats against the target's mob type that reach the spell's damage: the spell's VersusStats where
-// it declares them, and otherwise what the spell alone shows:
+// The stats against the target's mob type that reach the spell's damage: on a tick the dot's VersusStats
+// where it declares them, then the spell's VersusStats where it declares them, and otherwise what the
+// spell alone shows:
 //   - AttackPower on a melee proc mask and RangedAttackPower on a ranged one, which weapon damage and
 //     attack power coefficients read;
 //   - PhysicalDamage or SpellDamage where CalcDamage or CalcPeriodicDamage adds BonusDamage, by their
@@ -236,8 +237,18 @@ var NoVersusStats = []stats.Stat{}
 //
 // A spell whose damage reads otherwise declares its VersusStats: a melee or ranged hit with no attack
 // power term (Seal of Fury, Hamstring), or one that adds a versus stat by hand outside BonusDamage
-// (Seal of Command).
+// (Seal of Command). A dot whose ticks read differently from the hit declares its own (Explosive Trap).
 func (spell *Spell) versusStatsRead(target *Unit, isPeriodic bool) []stats.Stat {
+	var dot *Dot
+	if isPeriodic {
+		dot = spell.aoeDot
+		if dot == nil {
+			dot = spell.Dot(target)
+		}
+		if dot != nil && dot.VersusStats != nil {
+			return dot.VersusStats
+		}
+	}
 	if spell.VersusStats != nil {
 		return spell.VersusStats
 	}
@@ -252,10 +263,6 @@ func (spell *Spell) versusStatsRead(target *Unit, isPeriodic bool) []stats.Stat 
 
 	var addsBonusDamage bool
 	if isPeriodic {
-		dot := spell.aoeDot
-		if dot == nil {
-			dot = spell.Dot(target)
-		}
 		addsBonusDamage = dot != nil && dot.BonusCoefficient > 0
 	} else {
 		addsBonusDamage = spell.BonusCoefficient > 0 ||

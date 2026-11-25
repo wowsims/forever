@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"cmp"
 	"fmt"
 	"slices"
 	"time"
@@ -632,10 +633,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 // Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin. The combat
 // log names the item for them, or the buff for an enchant's (item 0).
 func attachVersusStats(aura *core.Aura, buff *spelldata.Spell, itemID int32) {
-	source := core.ActionID{SpellID: buff.ID}
-	if itemID != 0 {
-		source = core.ActionID{ItemID: itemID}
-	}
+	source := cmp.Or(core.ActionID{ItemID: itemID}, core.ActionID{SpellID: buff.ID})
 	for _, effect := range buff.Effects {
 		if bonus := spelldata.VersusBonus(effect.Aura, effect.Average()); bonus != (stats.Stats{}) {
 			aura.AttachMobTypeBonusStats(source, bonus, spelldata.MobTypes(effect.Misc)...)

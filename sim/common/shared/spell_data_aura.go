@@ -14,8 +14,7 @@ import (
 // that land on that unit. The wearer's and the pets' are registered from the config handed in; the
 // enemy's is the row's own aura, one per enemy, shared by every character that applies it, so the
 // first to register it parses it and the multiplier reaches every attacker's hits once. A row
-// restricted to an area puts nothing on anyone in an encounter outside it. The item, 0 for an enchant
-// or a set bonus, is what the combat log names for the wearer's and the pets' bonuses against mob types.
+// restricted to an area puts nothing on anyone in an encounter outside it.
 type spellDataAuras struct {
 	wearer      *core.Aura
 	wearerStats []stats.Stat
@@ -23,6 +22,8 @@ type spellDataAuras struct {
 	enemies     core.AuraArray
 }
 
+// The item, 0 for an enchant or a set bonus, is what the combat log names for the wearer's and pets'
+// bonuses against mob types.
 func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config core.Aura, itemID int32, wearerOpts ...spelldata.ParseOpt) *spellDataAuras {
 	auras := &spellDataAuras{}
 	if row.RequiredAreas != 0 && !character.Env.Encounter.InArea(row.AreaType()) {

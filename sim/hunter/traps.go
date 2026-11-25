@@ -5,6 +5,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // The rows state no attack power share. In game Explosive Trap's initial hit takes 10% of ranged
@@ -60,6 +61,7 @@ func (hunter *Hunter) registerImmolationTrap() {
 		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell))
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
+	config.VersusStats = []stats.Stat{stats.RangedAttackPower}
 
 	config.Dot = spelldata.DotConfig(immolationTrapEffectRank, tick)
 	tickAPShare := trapTotalAPShare / float64(config.Dot.NumberOfTicks)
@@ -91,9 +93,11 @@ func (hunter *Hunter) registerExplosiveTrap() {
 	config.ThreatMultiplier = 1
 	// The hit rolls its base once, below, and the attack power share not at all (EV-0134).
 	config.DirectVariance = 0
+	config.VersusStats = []stats.Stat{stats.RangedAttackPower}
 
 	config.Dot = core.DotConfig{
-		IsAOE: true,
+		IsAOE:       true,
+		VersusStats: core.NoVersusStats,
 		Aura: core.Aura{
 			ActionID: core.ActionID{SpellID: explosiveTrapEffectRank.ID},
 			Label:    explosiveTrapEffectRank.RankedLabel(&hunter.Unit),
