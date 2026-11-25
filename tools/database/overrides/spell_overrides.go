@@ -1089,11 +1089,11 @@ var Spells = []Override{
 	// Heroic Strike and Cleave add flat threat beyond their damage, and none with Attack Power (EV-0042).
 	// The bonus is multiplied by the stance with the damage, and Cleave splits it between the targets it
 	// hits. Heroic Strike Ranks 1 to 4's measured bonuses fit no single share per spell level (EV-0043);
-	// Ranks 5 and 6 measure Rank 4's 2.5 a level (EV-0048, EV-0174), and Ranks 7 to 9 carry it. Cleave's
-	// measured Ranks 1 and 2 fit 1.5 a level (EV-0042, EV-0045), Rank 3 measures 62 and Rank 4 80, and
-	// Rank 5 carries Rank 4's 1.6 (EV-0050). Each rank's bonus is a
-	// whole number: a measured bonus rounds to the nearest one, and each share times its spell level is
-	// whole.
+	// Ranks 5 and 6 measure Rank 4's 2.5 a level (EV-0048, EV-0174), Rank 8 measures 145 (EV-0215), and
+	// Ranks 7 and 9 carry 2.5 a level. Cleave's measured Ranks 1 and 2 fit 1.5 a level (EV-0042,
+	// EV-0045), Rank 3 measures 62 and Rank 4 80, and Rank 5 carries Rank 4's 1.6 (EV-0050). Each rank's
+	// bonus is a whole number: a measured bonus rounds to the nearest one, and each share times its spell
+	// level is whole.
 	{
 		SpellID: 78,
 		Field:   FlatThreat,
@@ -1145,10 +1145,10 @@ var Spells = []Override{
 	},
 	{
 		SpellID: 11567,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.5, // TODO: Measure Heroic Strike Rank 8 in game.
-		Reason:  "Heroic Strike Rank 8: Rank 4's measured share per spell level",
-		Source:  "EV-0004",
+		Field:   FlatThreat,
+		Value:   145,
+		Reason:  "Heroic Strike Rank 8: threat is the damage + 145, times the stance",
+		Source:  "EV-0215",
 	},
 	{
 		SpellID: 25286,

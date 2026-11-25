@@ -24,7 +24,6 @@ flat split over the targets it lands on:
 | Shield Slam Rank 2 (23923) | 202.85 [202.76, 202.94], n 379                     |
 | Shield Slam Rank 3 (23924) | 229.25 [229.10, 229.39], n 36                      |
 | Cleave Rank 4 (11609)      | 80.2 [79.5, 80.8], n 53; one target 80.3, two 79.8 |
-| Heroic Strike Rank 8       | 144 to 145, n 4, too thin to set                   |
 
 178, 203 and 229 is not 4.45 a level and 62 and 80 is not 1.5 a level, so the ranks above them extend the measured
 line, Shield Slam Rank 4 to 255 at level 60 and Cleave Rank 5 at Rank 4's 1.6 a level, 96, until a level 60 log
