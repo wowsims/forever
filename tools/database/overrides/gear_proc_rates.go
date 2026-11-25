@@ -59,7 +59,7 @@ var GearProcRates = []GearProcRate{
 	{
 		Gear:   GearItem,
 		ID:     280032,
-		Reason: "Bolt's Charged Eyeball: the row's 15%, and about a quarter of the shocks land on the wearer (EV-0202)",
+		Reason: "Bolt's Charged Eyeball: the row's 15%, and one shock in four lands on the wearer, the owner's ruling",
 		Source: "EV-0202",
 	},
 	{

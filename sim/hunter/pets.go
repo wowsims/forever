@@ -491,12 +491,16 @@ func (hp *HunterPet) registerDustCloud(rank *spelldata.Spell) *core.Spell {
 	return hp.RegisterSpell(config)
 }
 
-// Attack power for the raid, every player and pet of any party (EV-0199), priced at the pet's level.
+// Attack power for the raid, every player and pet of any party, priced at the pet's level. A guardian
+// gets none, as with totems, and the logs carry no buff on a guardian (EV-0199).
 // A second hunter's wolf shares the aura the first registered on each unit.
 // TODO: the row reaches only the raid within 15 yd of the pet, which the sim leaves out, and in the logs
 // the hunter gets about half the howls (EV-0199).
 func (hp *HunterPet) registerFuriousHowl(rank *spelldata.Spell) *core.Spell {
 	auras := hp.NewAllyAuraArray(func(unit *core.Unit) *core.Aura {
+		if pet, ok := hp.Env.Raid.GetPlayerFromUnit(unit).(core.PetAgent); ok && pet.GetPet().IsGuardian() {
+			return nil
+		}
 		if aura := unit.GetAura(rank.Name); aura != nil {
 			return aura
 		}

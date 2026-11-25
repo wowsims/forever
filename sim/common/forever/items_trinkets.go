@@ -394,8 +394,8 @@ func init() {
 	// times as much damage to Dinosaurs.
 	//
 	// 1311505's first effect casts 1315996, and its second holds the 3. The game files state no split between
-	// the wearer and the target: one shock in four hits the wearer, and a shock on the wearer deals nothing the
-	// sim counts (EV-0202).
+	// the wearer and the target. About a quarter of the shocks hit the wearer (EV-0202), and by the owner's
+	// ruling the sim sends one in four there; a shock on the wearer deals nothing the sim counts.
 	core.NewItemEffect(280032, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1315996)

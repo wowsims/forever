@@ -3311,7 +3311,7 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 1012.14678
+  dps: 1011.49712
   tps: 744.40137
   dtps: 1.33242
  }
@@ -3319,7 +3319,7 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 753.47073
+  dps: 752.83178
   tps: 484.84326
   dtps: 4.62877
  }
@@ -3327,28 +3327,28 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 809.29155
+  dps: 808.68778
   tps: 508.27211
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 331.25415
+  dps: 330.94111
   tps: 192.80265
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 309.33887
+  dps: 309.03602
   tps: 169.64578
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 422.97608
+  dps: 422.56159
   tps: 248.47405
  }
 }

@@ -435,8 +435,7 @@ func (pet *WarlockPet) registerLashOfPain() {
 // description variables do: ((level - 26) * 1.5 + 14 to 17 + 0.078 * the warlock's spell power of the
 // row's school), times the demon's damage multipliers. The demon's own multipliers apply them: Master
 // Demonologist, Unholy Power, Soul Link and the demon's base damage modifier. Every melee, Firebolt and Lash
-// of Pain hit consumes a charge, and the brand's hit never misses and is never fully resisted, though it
-// crits and takes partial resists (EV-0201). The 1 Physical damage row (1293699), a threat marker, is left out.
+// of Pain hit consumes a charge. The 1 Physical damage row (1293699), a threat marker, is left out.
 // TODO: The base damage modifier and Soul Link may not reach the brand in game, since the rows' multiplier
 // names only the pet's and the school's.
 func (pet *WarlockPet) registerDemonicBrand() {
@@ -447,6 +446,11 @@ func (pet *WarlockPet) registerDemonicBrand() {
 		brandRow, schoolDamage = spelldata.MustFind(1293698), stats.FireDamage
 	}
 	brandHit := pet.RegisterSpell(spelldata.SpellConfig(&pet.Unit, brandRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc()))
+	// Both rows state Always Hit: the brand's hit rolls only its crit and partial resists (EV-0201).
+	brandOutcome := brandHit.OutcomeMagicHitAndCrit
+	if brandRow.AlwaysHits() {
+		brandOutcome = brandHit.OutcomeMagicCrit
+	}
 
 	core.MakePermanent(pet.RegisterAura(core.Aura{
 		Label: "Demonic Brand - Consume",
@@ -465,7 +469,7 @@ func (pet *WarlockPet) registerDemonicBrand() {
 
 			spellPower := warlock.GetStat(stats.SpellDamage) + warlock.GetStat(schoolDamage)
 			base := float64(warlock.Level-int32(brandRow.BaseLevel))*1.5 + 0.078*spellPower
-			brandHit.CalcAndDealDamage(sim, result.Target, sim.Roll(base+14, base+17), brandHit.OutcomeMagicCrit)
+			brandHit.CalcAndDealDamage(sim, result.Target, sim.Roll(base+14, base+17), brandOutcome)
 		},
 	}))
 }
