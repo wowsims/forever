@@ -196,6 +196,12 @@ func (warrior *Warrior) registerFlurry() {
 	})
 	trigger := spelldata.ProcTrigger(&warrior.Character, spellData.Flurry.Rank(warrior.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			// Sweeping Strikes' normalized strike (26654) never starts Flurry, an owner ruling: no log
+			// shows Flurry from its crit (EV-0213).
+			if spell == warrior.SweepingStrikesNormalizedAttack {
+				return
+			}
+
 			spendsForCast := (spellData.HeroicStrike.Contains(spell) || spellData.Cleave.Contains(spell)) &&
 				firstHit(sim, spell)
 
