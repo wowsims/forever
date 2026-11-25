@@ -10,8 +10,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { PlanEventKind, PlanEventRef, PlanLaneKind } from '../../model/lanes';
 import {
+	addLabelKey,
 	duplicateEvent,
-	eventLabelKey,
 	eventsOf,
 	healthEndSegment,
 	healthSegments,
@@ -82,6 +82,10 @@ interface PlannerLaneTarget {
 }
 
 const GHOST_CLASSES = 'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center overflow-hidden text-xs font-bold text-white';
+
+// An ability on a target's row keeps the abilities lane's colour, apart from the row's downtimes and tank swaps.
+const barColor = (lane: PlanLaneKind, ref: PlanEventRef): string | undefined =>
+	lane === 'boss' && ref.kind === 'ability' ? 'var(--planner-lane-abilities-bar)' : undefined;
 
 // The ref a later event in the same list has once `removed` is gone from it.
 const afterRemoval = (ref: PlanEventRef, removed: PlanEventRef): PlanEventRef =>
@@ -263,7 +267,7 @@ export const PlannerLane = ({
 				)}
 				<div data-lane-add="" className={target ? 'flex flex-wrap gap-1 px-2' : 'flex flex-wrap gap-1'}>
 					{kinds.map((kind, index) => {
-						const eventLabel = i18n.t(eventLabelKey(kind));
+						const eventLabel = i18n.t(addLabelKey(lane, kind));
 						return (
 							<Button
 								key={kind}
@@ -350,6 +354,7 @@ export const PlannerLane = ({
 				))}
 				{domOrder.flatMap(event => {
 					const name = eventName(plan, event.ref);
+					const color = barColor(lane, event.ref);
 					return event.repeats.map((repeat, index) => {
 						const label = occurrenceName(name, index + 2);
 						return (
@@ -366,6 +371,7 @@ export const PlannerLane = ({
 										fractionToSeconds(repeat.end - repeat.start, baseSeconds),
 									),
 									...tickVars(event.tickSeconds, event.castSeconds),
+									...(color ? cssVars({ '--bar': color }) : undefined),
 								}}>
 								<span className="min-w-0 truncate pl-1">{name}</span>
 								<span className="shrink-0 px-1">{plannerText('occurrence_number', { number: index + 2 })}</span>
@@ -407,6 +413,7 @@ export const PlannerLane = ({
 							fixedWidth={event.fixedWidth}
 							tickSeconds={event.tickSeconds}
 							castSeconds={event.castSeconds}
+							color={barColor(lane, event.ref)}
 							jitter={event.jitter}
 							baseSeconds={baseSeconds}
 							snapSeconds={snapSeconds}

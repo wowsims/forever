@@ -1,3 +1,4 @@
+import { PlanBossAbility_Source } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
 	areaDamagePlan,
@@ -63,8 +64,16 @@ export const TankSwaps: Story = { args: { plan: tankSwapPlan(), target: target(0
 
 export const TargetSelected: Story = { args: { target: target(0, true) } };
 
-export const Abilities: Story = { args: { lane: 'abilities' } };
+// The boss's row with its spell hit, strike, thrash and swing pause, and a pulse it casts, which ticks from its cast end.
+const bossAbilitiesPlan = () => {
+	const plan = customBossPlan();
+	plan.bossAbilities.push({ ...areaDamagePlan().bossAbilities[0], source: PlanBossAbility_Source.Boss, castTime: 2 });
+	return plan;
+};
 
+export const TargetAbilities: Story = { args: { plan: bossAbilitiesPlan(), target: target(0) } };
+
+// The Environment pulse and area hit, which come from no target.
 export const AreaDamage: Story = { args: { lane: 'abilities', plan: areaDamagePlan() } };
 
 export const RepeatingWave: Story = { args: { lane: 'waves', plan: dynamicAddsPlan() } };

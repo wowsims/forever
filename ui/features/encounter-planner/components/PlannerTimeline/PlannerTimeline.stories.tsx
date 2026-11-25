@@ -142,9 +142,10 @@ export const ZoomedOut: Story = {
 	},
 };
 
-// Both ends of the axis are drawn whole: the last ruler label reads "180s" inside the scroller, and nothing scrolls at fit zoom.
+// Both ends of the axis are drawn whole: the last ruler label reads "180s" inside the scroller, and nothing scrolls at fit
+// zoom. The boss's row holds only its health, so its first and last bars are the curve's ends.
 export const AxisEndsVisible: Story = {
-	args: { plan: customBossPlan() },
+	args: { plan: EncounterPlan.create({ bossHealth: customBossPlan().bossHealth }) },
 	parameters: { smoke: false, smokeReason: 'Measures layout, which the DOM test environment does not have.' },
 	play: async ({ canvasElement }) => {
 		const canvas = within(canvasElement);
@@ -165,11 +166,19 @@ export const AxisEndsVisible: Story = {
 	},
 };
 
+// The boss's spell hit carries a name, so its bar on the boss's row is found by it under the smoke test's stubbed locale
+// too, which gives every unnamed event the same name.
+const SPELL_HIT_NAME = 'Fireball';
+const namedSpellHitPlan = () => {
+	const plan = customBossPlan();
+	plan.bossAbilities[0].name = SPELL_HIT_NAME;
+	return plan;
+};
 const abilityBar = (canvasElement: HTMLElement) =>
-	within(within(canvasElement).getByRole('group', { name: plannerText('lanes.abilities') })).getAllByRole('slider')[0];
+	within(within(canvasElement).getByRole('group', { name: planTargetNames[0] })).getByRole('slider', { name: SPELL_HIT_NAME });
 
 // The strings the lane builds, so the story reads the same under the stubbed locale of the smoke test.
-const SPELL_HIT_TIP = eventTooltip(customBossPlan(), { kind: 'ability', index: 0 }, PLAN_BASE_SECONDS, planTargetNames);
+const SPELL_HIT_TIP = eventTooltip(namedSpellHitPlan(), { kind: 'ability', index: 0 }, PLAN_BASE_SECONDS, planTargetNames);
 
 const expectTip = async () => {
 	await expect(await within(document.body).findByText(SPELL_HIT_TIP.title)).toBeVisible();
@@ -177,7 +186,7 @@ const expectTip = async () => {
 };
 
 export const HoverTooltip: Story = {
-	args: { plan: customBossPlan() },
+	args: { plan: namedSpellHitPlan() },
 	play: async ({ canvasElement }) => {
 		await userEvent.hover(abilityBar(canvasElement));
 		await expectTip();
@@ -185,7 +194,7 @@ export const HoverTooltip: Story = {
 };
 
 export const FocusTooltip: Story = {
-	args: { plan: customBossPlan() },
+	args: { plan: namedSpellHitPlan() },
 	play: async ({ canvasElement }) => {
 		abilityBar(canvasElement).focus();
 		await expectTip();
@@ -256,7 +265,7 @@ export const RenameInline: Story = {
 
 // Zoomed in past the width, a drag on empty lane space scrolls the lanes, and a drag on a bar still moves the bar.
 export const PanByDrag: Story = {
-	args: { plan: customBossPlan() },
+	args: { plan: namedSpellHitPlan() },
 	parameters: { smoke: false, smokeReason: 'Scrolls a laid-out scroller with pointer capture, which the DOM test environment does not have.' },
 	play: async ({ args, canvasElement }) => {
 		const canvas = within(canvasElement);

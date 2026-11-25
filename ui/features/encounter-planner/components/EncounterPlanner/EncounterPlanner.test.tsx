@@ -9,6 +9,7 @@ import {
 	MobType,
 	PlanBossAbility,
 	PlanBossAbility_Kind,
+	PlanBossAbility_Source,
 	PlanDowntime,
 	PlanTankSwap,
 	PresetEncounter,
@@ -501,16 +502,25 @@ describe('EncounterPlanner', () => {
 		expect(document.activeElement).toBe(panel);
 	});
 
-	it('turns a new boss ability into a pulse with working defaults, its own fields and no target, and saves it', async () => {
+	const kindOptions = async (dialog: HTMLElement) => {
+		await userEvent.click(within(dialog).getByLabelText('Kind'));
+		return screen.getAllByRole('option').map(option => option.textContent);
+	};
+
+	it("turns a new ability on a target's row into a pulse that target casts, keeps it on the row, and saves it", async () => {
 		const { encounter } = await setup();
 		const dialog = await openPlanner();
-		await add('Abilities', 'Ability');
+		await add('Target 1', 'Ability');
 		expect(within(dialog).queryByLabelText('Target')).not.toBeNull();
+		expect(within(dialog).queryByLabelText('Source')).toBeNull();
 
-		await userEvent.click(within(dialog).getByLabelText('Kind'));
+		expect(await kindOptions(dialog)).toEqual(['Spell hit', 'Strike', 'Thrash', 'Swing timing', 'Pulse', 'Area hit']);
 		await userEvent.click(screen.getByRole('option', { name: 'Pulse' }));
 
-		expect(within(dialog).queryByLabelText('Target')).toBeNull();
+		expect(within(dialog).queryByLabelText('Target')).not.toBeNull();
+		expect(within(dialog).queryByLabelText('Source')).toBeNull();
+		expect(within(lane('Target 1')).getByRole('slider', { name: 'Ability 1' })).toBeTruthy();
+		expect(within(lane('Abilities')).queryAllByRole('slider')).toEqual([]);
 		expect(Number((within(dialog).getByLabelText('Tick every (s)') as HTMLInputElement).value)).toBe(1);
 		expect(Number((within(dialog).getByLabelText('Max damage') as HTMLInputElement).value)).toBe(700);
 		expect(within(dialog).getByRole('region', { name: 'Issues' }).textContent).toContain('No issues.');
@@ -523,6 +533,8 @@ describe('EncounterPlanner', () => {
 		await clickButton('Save');
 		expect(encounter.getPlan().bossAbilities[0]).toMatchObject({
 			kind: PlanBossAbility_Kind.Pulse,
+			source: PlanBossAbility_Source.Boss,
+			targetIndex: 0,
 			tickInterval: 2,
 			tickJitter: 0.2,
 			minDamage: 500,
@@ -531,17 +543,36 @@ describe('EncounterPlanner', () => {
 		});
 	});
 
+	it('adds an Environment pulse in the Abilities lane with no target, offers it only the area kinds, and saves it as Environment', async () => {
+		const { encounter } = await setup();
+		const dialog = await openPlanner();
+		await add('Abilities', 'Environment ability');
+		expect(within(dialog).queryByLabelText('Target')).toBeNull();
+		expect(within(dialog).queryByLabelText('Source')).toBeNull();
+		expect(Number((within(dialog).getByLabelText('Max damage') as HTMLInputElement).value)).toBe(700);
+		expect(within(dialog).getByRole('region', { name: 'Issues' }).textContent).toContain('No issues.');
+
+		expect(await kindOptions(dialog)).toEqual(['Pulse', 'Area hit']);
+		await userEvent.click(screen.getByRole('option', { name: 'Area hit' }));
+
+		expect(within(dialog).queryByLabelText('Target')).toBeNull();
+		expect(within(lane('Abilities')).getByRole('slider', { name: 'Ability 1' })).toBeTruthy();
+		expect(within(lane('Target 1')).queryAllByRole('slider')).toEqual([]);
+		await clickButton('Save');
+		expect(encounter.getPlan().bossAbilities[0]).toMatchObject({ kind: PlanBossAbility_Kind.AreaHit, source: PlanBossAbility_Source.Environment });
+	});
+
 	it("draws every repeat of a new spell hit set to repeat every 30 s as a numbered ghost to the fight's end, and asks for no end", async () => {
 		const { encounter } = await setup();
 		encounter.setDuration(180);
 		const dialog = await openPlanner();
-		await add('Abilities', 'Ability');
+		await add('Target 1', 'Ability');
 		expect(within(dialog).queryByLabelText('End (s)')).toBeNull();
 
 		await openSection('Repeat · none');
 		await commit(within(dialog).getByLabelText('Repeat every (s)'), '30');
 		// The new ability starts at 72 s, so it repeats at 102, 132 and 162 s.
-		const text = lane('Abilities').textContent;
+		const text = lane('Target 1').textContent;
 		for (const number of [2, 3, 4]) expect(text).toContain(`Ability 1#${number}`);
 		expect(text).not.toContain('#5');
 	});
@@ -655,6 +686,68 @@ describe('EncounterPlanner', () => {
 			expect(barsOn(lane('Target 2'))).toEqual(['Downtime 2']);
 			expect(within(lane('Target 1')).queryByRole('button', { name: 'Add Boss health' })).not.toBeNull();
 			expect(within(lane('Target 2')).queryByRole('button', { name: 'Add Boss health' })).toBeNull();
+		});
+
+		it("puts a saved plan's abilities on their targets' rows and its Environment pulses and area hits in the Abilities lane", async () => {
+			const ability = (name: string, kind: PlanBossAbility_Kind, targetIndex: number, source = PlanBossAbility_Source.Environment) =>
+				PlanBossAbility.create({
+					name,
+					kind,
+					targetIndex,
+					source,
+					start: { at: 0.2, jitter: 0 },
+					end: { at: 0.3, jitter: 0 },
+					maxDamage: 100,
+					tickInterval: 1,
+				});
+			await setup({
+				targets: 2,
+				plan: EncounterPlan.create({
+					bossAbilities: [
+						ability('Cleave', PlanBossAbility_Kind.Strike, 1),
+						ability('Fire Nova', PlanBossAbility_Kind.Pulse, 1, PlanBossAbility_Source.Boss),
+						ability('Lava', PlanBossAbility_Kind.Pulse, 1),
+						ability('Blast', PlanBossAbility_Kind.SpellHit, 0),
+					],
+				}),
+			});
+			await openPlanner();
+
+			expect(barsOn(lane('Target 1'))).toEqual(['Blast']);
+			expect(barsOn(lane('Target 2')).sort()).toEqual(['Cleave', 'Fire Nova']);
+			expect(barsOn(lane('Abilities'))).toEqual(['Lava']);
+		});
+
+		it('moves an ability to the row of the target picked in its panel, and saves the target it names', async () => {
+			const { encounter } = await setup({ targets: 2 });
+			const dialog = await openPlanner();
+			await add('Target 1', 'Ability');
+
+			await userEvent.click(within(dialog).getByLabelText('Target'));
+			await userEvent.click(screen.getByRole('option', { name: 'Target 2' }));
+			expect(barsOn(lane('Target 1'))).toEqual([]);
+			expect(barsOn(lane('Target 2'))).toEqual(['Ability 1']);
+			await clickButton('Save');
+			expect(encounter.getPlan().bossAbilities.map(ability => ability.targetIndex)).toEqual([1]);
+		});
+
+		it("adds an Ability from Add event on the first target's row, and an Environment ability in the Abilities lane", async () => {
+			const { encounter } = await setup({ targets: 2 });
+			await openPlanner();
+			const addFromMenu = async (name: string) => {
+				await userEvent.click(screen.getByRole('button', { name: 'Add event' }));
+				await userEvent.click(await screen.findByRole('menuitem', { name }));
+			};
+
+			await addFromMenu('Ability');
+			await addFromMenu('Environment ability');
+			expect(barsOn(lane('Target 1'))).toEqual(['Ability 1']);
+			expect(barsOn(lane('Target 2'))).toEqual([]);
+			expect(barsOn(lane('Abilities'))).toEqual(['Ability 2']);
+			await clickButton('Save');
+			const [targeted, environment] = encounter.getPlan().bossAbilities;
+			expect(targeted).toMatchObject({ kind: PlanBossAbility_Kind.SpellHit, targetIndex: 0 });
+			expect(environment).toMatchObject({ kind: PlanBossAbility_Kind.Pulse, source: PlanBossAbility_Source.Environment });
 		});
 
 		it('names the abilities lane Abilities', async () => {
@@ -896,17 +989,11 @@ describe('EncounterPlanner', () => {
 	});
 
 	describe('panel sections', () => {
-		const pickKind = async (dialog: HTMLElement, kind: string) => {
-			await userEvent.click(within(dialog).getByLabelText('Kind'));
-			await userEvent.click(screen.getByRole('option', { name: kind }));
-		};
-
 		it("groups a pulse's fields under Timing, a closed Repeat and Damage, and names a closed section's values in its title", async () => {
 			const { encounter } = await setup();
 			encounter.setDuration(180);
-			const dialog = await openPlanner();
-			await add('Abilities', 'Ability');
-			await pickKind(dialog, 'Pulse');
+			await openPlanner();
+			await add('Abilities', 'Environment ability');
 			const panel = screen.getByRole('region', { name: 'Ability 1' });
 
 			expect(within(panel).getByLabelText('Kind')).toBeTruthy();
@@ -932,7 +1019,7 @@ describe('EncounterPlanner', () => {
 			});
 			encounter.setDuration(180);
 			await openPlanner();
-			await act(async () => fireEvent.click(within(lane('Abilities')).getAllByRole('slider')[0]));
+			await act(async () => fireEvent.click(within(lane('Target 1')).getByRole('slider', { name: 'Ability 1' })));
 
 			expect(screen.getByRole('button', { name: 'Repeat' })).toBeTruthy();
 			expect(Number((screen.getByLabelText('Repeat every (s)') as HTMLInputElement).value)).toBe(45);
@@ -940,9 +1027,8 @@ describe('EncounterPlanner', () => {
 
 		it('keeps a section with an issue open while the issue lasts, and closes it once the issue is fixed', async () => {
 			await setup();
-			const dialog = await openPlanner();
-			await add('Abilities', 'Ability');
-			await pickKind(dialog, 'Pulse');
+			await openPlanner();
+			await add('Abilities', 'Environment ability');
 			const panel = screen.getByRole('region', { name: 'Ability 1' });
 
 			await commit(within(panel).getByLabelText('Tick every (s)'), '0');
@@ -958,11 +1044,11 @@ describe('EncounterPlanner', () => {
 		it('keeps a section closed on the next event once the player has closed it', async () => {
 			await setup();
 			await openPlanner();
-			await add('Abilities', 'Ability');
+			await add('Target 1', 'Ability');
 			await openSection('Timing');
 			await waitFor(() => expect(screen.queryByLabelText('Start (s)')).toBeNull());
 
-			await add('Abilities', 'Ability');
+			await add('Target 1', 'Ability');
 			const panel = screen.getByRole('region', { name: 'Ability 2' });
 			expect(within(panel).queryByLabelText('Start (s)')).toBeNull();
 			expect(within(panel).getByRole('button', { name: /^Timing · / })).toBeTruthy();

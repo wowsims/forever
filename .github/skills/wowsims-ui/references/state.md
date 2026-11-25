@@ -102,11 +102,14 @@ greppable and cannot capture the wrong object.
 **The encounter plan** is the store field `encounter:plan` (`ui/sim/raid/encounter.ts`: `getPlan`, `setPlan`,
 `hasPlan`), saved in the encounter proto only when it holds an event. The plan points at targets by index, so
 `setTargets` runs `remapPlanTargets`, which follows each old target object to its new position and sends a removed
-target's events to -1, where `validatePlan` flags them (an Environment Pulse or Area hit ignores its target index, so
-its -1 goes unflagged, while a Boss one, `isBossCastArea` in `lanes.ts`, is flagged like a Spell hit); `removeEvent`
+target's events to -1, where `validatePlan` flags them (an Environment Pulse or Area hit, `isEnvironmentArea` in
+`lanes.ts`, ignores its target index, so its -1 goes unflagged, while every other ability is flagged); `removeEvent`
 does the same for the waves an amp names; a
 preset matches the encounter by targets and plan together. The planner dialog is `ui/features/encounter-planner/components/EncounterPlanner/` over the model in
-`ui/features/encounter-planner/model/` (`lanes.ts`, `time.ts`, `validate.ts`), which has no DOM and no React.
+`ui/features/encounter-planner/model/` (`lanes.ts`, `time.ts`, `validate.ts`), which has no DOM and no React. Where an
+ability's bar sits sets its source, so the panel has no Source picker: an Environment Pulse or Area hit sits in the
+Events section's Abilities lane, which offers only those two kinds, and every other ability, a Boss Pulse or Area hit
+included, sits on its target's row, where a switch to an area kind makes it that target's cast (`withAbilityKind`).
 
 **The encounter name** (`encounter:name`) and the mark `encounter:myEncounter` tie the encounter to My encounters, the
 encounters the player built in the planner, in a per-spec `useSavedData` slot keyed by name

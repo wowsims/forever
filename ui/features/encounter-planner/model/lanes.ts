@@ -46,12 +46,13 @@ export type PlanEvent<K extends PlanEventKind = PlanEventKind> = PlanEventMap[K]
 // A span, or a point for events that have no duration.
 type PlanEventWindow = { start: number; end: number } | { at: number };
 
-// The 'boss' lane is one row per encounter target, which holds that target's downtimes and tank swaps, and on the first
-// target the boss health.
+// The 'boss' lane is one row per encounter target, which holds that target's downtimes, tank swaps and abilities, and on
+// the first target the boss health. The 'abilities' lane holds the Environment pulses and area hits, which come from no
+// target (`isEnvironmentArea`).
 export const PLAN_LANES: readonly PlanLaneKind[] = ['boss', 'abilities', 'waves', 'moves', 'amps'];
 
 export const LANE_EVENT_KINDS: Record<PlanLaneKind, ReadonlyArray<PlanEventKind>> = {
-	boss: ['downtime', 'tankSwap', 'bossHealth'],
+	boss: ['downtime', 'tankSwap', 'bossHealth', 'ability'],
 	abilities: ['ability'],
 	waves: ['wave'],
 	moves: ['move'],
@@ -61,6 +62,9 @@ export const LANE_EVENT_KINDS: Record<PlanLaneKind, ReadonlyArray<PlanEventKind>
 export const laneLabelKey = (lane: PlanLaneKind): string => `settings_tab.encounter.planner.lanes.${lane}`;
 export const eventLabelKey = (kind: PlanEventKind): string =>
 	`settings_tab.encounter.planner.events.${kind.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`;
+// What adding the kind in the lane is called: an ability added in the 'abilities' lane is an Environment one.
+export const addLabelKey = (lane: PlanLaneKind, kind: PlanEventKind): string =>
+	lane === 'abilities' ? 'settings_tab.encounter.planner.events.environment_ability' : eventLabelKey(kind);
 
 const time = (at: number): PlanTime => ({ at, jitter: 0 });
 const noRepeat = (): PlanRepeat => ({ interval: 0, jitter: 0, count: 0 });
@@ -140,11 +144,18 @@ export const eventsOf = <K extends PlanEventKind>(plan: EncounterPlan, kind: K):
 
 export const getEvent = (plan: EncounterPlan, ref: PlanEventRef): PlanEvent | undefined => eventsOf(plan, ref.kind)[ref.index];
 
-// A downtime or a tank swap takes the target at targetIndex. Mutates the plan.
-export const addEvent = (plan: EncounterPlan, kind: PlanEventKind, targetIndex = 0): PlanEventRef => {
+// A downtime, a tank swap or an ability takes the target at targetIndex, on whose row it sits. Without one, a downtime or
+// a tank swap takes the first target, and an ability is an Environment pulse, which the 'abilities' lane holds. Mutates
+// the plan.
+export const addEvent = (plan: EncounterPlan, kind: PlanEventKind, targetIndex?: number): PlanEventRef => {
 	const list: PlanEvent[] = eventsOf(plan, kind);
 	const event = defaultEvent(kind);
-	if (kind === 'downtime' || kind === 'tankSwap') (event as PlanDowntime | PlanTankSwap).targetIndex = targetIndex;
+	if (kind === 'downtime' || kind === 'tankSwap') (event as PlanDowntime | PlanTankSwap).targetIndex = targetIndex ?? 0;
+	if (kind === 'ability' && targetIndex !== undefined) (event as PlanBossAbility).targetIndex = targetIndex;
+	else if (kind === 'ability') {
+		withAbilityKind(event as PlanBossAbility, PlanBossAbility_Kind.Pulse);
+		(event as PlanBossAbility).source = PlanBossAbility_Source.Environment;
+	}
 	list.push(event);
 	return { kind, index: list.length - 1 };
 };
@@ -173,6 +184,12 @@ export const isAreaAbility = (ability: PlanBossAbility): boolean =>
 // cast time and Stops swing count. An Environment one comes from no target and ignores all three.
 export const isBossCastArea = (ability: PlanBossAbility): boolean => isAreaAbility(ability) && ability.source === PlanBossAbility_Source.Boss;
 
+// An area ability that comes from no target: the 'abilities' lane holds it, and its target's row every other ability.
+export const isEnvironmentArea = (ability: PlanBossAbility): boolean => isAreaAbility(ability) && ability.source === PlanBossAbility_Source.Environment;
+
+// The kinds an Environment ability can take; one on a target's row takes any.
+export const ENVIRONMENT_KINDS: ReadonlyArray<PlanBossAbility_Kind> = [PlanBossAbility_Kind.Pulse, PlanBossAbility_Kind.AreaHit];
+
 const AREA_DAMAGE_DEFAULTS: Partial<Record<PlanBossAbility_Kind, { min: number; max: number }>> = {
 	[PlanBossAbility_Kind.Pulse]: { min: 500, max: 700 },
 	[PlanBossAbility_Kind.AreaHit]: { min: 1500, max: 2000 },
@@ -180,9 +197,9 @@ const AREA_DAMAGE_DEFAULTS: Partial<Record<PlanBossAbility_Kind, { min: number; 
 
 // Sets the ability's kind. A switch to a window kind whose end is not after its start ends the window DEFAULT_WIDTH
 // after the start. A switch to a kind other than a pulse or an area hit sets the source back to Environment, which
-// only those two read; a switch between the two keeps it. A switch to a pulse or an area hit fills the damage, as
-// fire, and the tick interval and jitter (1 s and 0.2 s) where they are 0, and turns Resistible on when it comes from
-// a kind without that toggle. Mutates the ability.
+// only those two read; a switch between the two keeps it. A switch to a pulse or an area hit fills the damage, as fire,
+// and the tick interval and jitter (1 s and 0.2 s) where they are 0. One from another kind, which sits on its target's
+// row, also becomes that target's cast (Boss) and turns Resistible on. Mutates the ability.
 export const withAbilityKind = (ability: PlanBossAbility, kind: PlanBossAbility_Kind): void => {
 	const wasArea = isAreaAbility(ability);
 	ability.kind = kind;
@@ -202,7 +219,9 @@ export const withAbilityKind = (ability: PlanBossAbility, kind: PlanBossAbility_
 		ability.tickInterval = 1;
 		ability.tickJitter = 0.2;
 	}
-	if (!wasArea) ability.resistible = true;
+	if (wasArea) return;
+	ability.resistible = true;
+	ability.source = PlanBossAbility_Source.Boss;
 };
 
 // The player run speed the sim walks a move's yards at (`GetMovementSpeed` in sim/core/movement.go), in yards per second.

@@ -1,4 +1,4 @@
-import { DamageAmpType, type EncounterPlan, PlanBossAbility_Kind, Target } from '@generated/proto/common';
+import { DamageAmpType, type EncounterPlan, PlanBossAbility_Kind, PlanBossAbility_Source, Target } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { makeStoryEncounter } from '@testing/storybook/fixtures/encounter';
 import {
@@ -117,6 +117,16 @@ export const SwingTiming: Story = { args: { plan: withAbilityKind(PlanBossAbilit
 export const Pulse: Story = { args: { plan: areaDamagePlan(), selected: { kind: 'ability', index: 0 } } };
 
 export const AreaHit: Story = { args: { plan: areaDamagePlan(), selected: { kind: 'ability', index: 1 } } };
+
+// A pulse on a target's row, which that target casts: its target, cast time and Stops swing show.
+const bossCastPulse = () => {
+	const plan = areaDamagePlan();
+	plan.bossAbilities[0].source = PlanBossAbility_Source.Boss;
+	plan.bossAbilities[0].castTime = 2;
+	return plan;
+};
+
+export const BossCastPulse: Story = { args: { plan: bossCastPulse(), selected: { kind: 'ability', index: 0 } } };
 
 const storyTarget = Target.clone(planPresetTargets[0].target!);
 const storyTargetContext = encounterTargetContext(makeStoryEncounter([Target.create({ name: 'Ragnaros' }), storyTarget]), 1, 'target-1');

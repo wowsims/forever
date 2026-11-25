@@ -48,7 +48,7 @@ export interface PlannerTimelineProps {
 	onActivate: (selection: PlannerSelection) => void;
 	/** Called once per finished drag or key press, with a new plan. */
 	onChange: (plan: EncounterPlan) => void;
-	/** A downtime added on a target's row takes that target; one added elsewhere takes the first. */
+	/** An event added on a target's row takes that target. Without one, an ability is an Environment one and a downtime or a tank swap takes the first target. */
 	onAdd: (kind: PlanEventKind, targetIndex?: number) => void;
 	onAddTarget: () => void;
 }

@@ -1181,6 +1181,7 @@
 					"tank_swap": "Tank swap",
 					"boss_health": "Boss health",
 					"ability": "Ability",
+					"environment_ability": "Environment ability",
 					"wave": "Wave",
 					"move": "Move",
 					"amp": "Damage amp"
@@ -1365,7 +1366,6 @@
 					"tick_jitter": "Tick jitter (s)",
 					"resistible": "Resistible",
 					"avoidable": "Avoidable",
-					"source": "Source",
 					"stops_swing": "Stops swing"
 				},
 				"tooltips": {
@@ -1389,7 +1389,6 @@
 					"tick_jitter": "Moves each tick after the first by up to this much either way.",
 					"resistible": "Rolls resistances like a spell of its school; off, it's environmental damage with no roll.",
 					"avoidable": "Skips you while one of the plan's moves walks you; pets still take it.",
-					"source": "Environment comes from no target and lands even while every target is down. Boss is cast by the chosen target, and does nothing while that target is down.",
 					"stops_swing": "The boss stops swinging while it casts and starts a full swing when the cast ends. Off, its swings go on through the cast.",
 					"tank_swap_target": "While a window runs, this target attacks its other tank: its melee, Thrash, Strikes and Spell hits go there, and its Area hits and Pulses still hit everyone. It only matters when you tank (Tank Assignment, shown with threat metrics). A target you tank turns to a tank outside the sim, and one on another tank slot turns to you."
 				},
@@ -1405,10 +1404,6 @@
 					"swing_timing": "Swing timing",
 					"pulse": "Pulse",
 					"area_hit": "Area hit"
-				},
-				"ability_sources": {
-					"environment": "Environment",
-					"boss": "Boss"
 				},
 				"open": "Encounter planner",
 				"title": "Encounter planner",

@@ -4235,6 +4235,9 @@
 										"ability": {
 											"type": "string"
 										},
+										"environment_ability": {
+											"type": "string"
+										},
 										"wave": {
 											"type": "string"
 										},
@@ -4246,7 +4249,7 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["downtime", "tank_swap", "boss_health", "ability", "wave", "move", "amp"]
+									"required": ["downtime", "tank_swap", "boss_health", "ability", "environment_ability", "wave", "move", "amp"]
 								},
 								"validation": {
 									"type": "object",
@@ -4833,9 +4836,6 @@
 										"avoidable": {
 											"type": "string"
 										},
-										"source": {
-											"type": "string"
-										},
 										"stops_swing": {
 											"type": "string"
 										}
@@ -4885,7 +4885,6 @@
 										"tick_jitter",
 										"resistible",
 										"avoidable",
-										"source",
 										"stops_swing"
 									]
 								},
@@ -4952,9 +4951,6 @@
 										"avoidable": {
 											"type": "string"
 										},
-										"source": {
-											"type": "string"
-										},
 										"stops_swing": {
 											"type": "string"
 										},
@@ -4984,7 +4980,6 @@
 										"tick_jitter",
 										"resistible",
 										"avoidable",
-										"source",
 										"stops_swing",
 										"tank_swap_target"
 									]
@@ -5029,19 +5024,6 @@
 									},
 									"additionalProperties": false,
 									"required": ["spell_hit", "strike", "thrash", "swing_timing", "pulse", "area_hit"]
-								},
-								"ability_sources": {
-									"type": "object",
-									"properties": {
-										"environment": {
-											"type": "string"
-										},
-										"boss": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["environment", "boss"]
 								},
 								"open": {
 									"type": "string"
@@ -5143,7 +5125,6 @@
 								"tooltips",
 								"amp_types",
 								"ability_kinds",
-								"ability_sources",
 								"open",
 								"title",
 								"targets",

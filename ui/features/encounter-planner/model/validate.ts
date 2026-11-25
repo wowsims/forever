@@ -2,7 +2,7 @@ import type { AddWave, EncounterPlan, PlanBossAbility, PlanDamageAmp, PlanDownti
 import { DamageAmpType, PlanBossAbility_Kind } from '@generated/proto/common';
 
 import type { PlanEventRef } from './lanes';
-import { firesAtInstants, healthKnots, isAreaAbility, isBossCastArea, occurrences } from './lanes';
+import { firesAtInstants, healthKnots, isAreaAbility, isEnvironmentArea, occurrences } from './lanes';
 import { clamp, type TimeWindow } from './time';
 
 type PlanIssueSeverity = 'error' | 'warning' | 'info';
@@ -133,7 +133,7 @@ export const validatePlan = (plan: EncounterPlan, targetCount: number): PlanIssu
 		}
 		// An Environment pulse or area hit comes from no target, so its target index is never out of range.
 		const area = isAreaAbility(ability);
-		if ((!area || isBossCastArea(ability)) && badTarget(ability.targetIndex)) add(ref, 'error', PLAN_ISSUE_KEYS.targetOutOfRange);
+		if (!isEnvironmentArea(ability) && badTarget(ability.targetIndex)) add(ref, 'error', PLAN_ISSUE_KEYS.targetOutOfRange);
 		if (ability.kind === PlanBossAbility_Kind.Strike && ability.weaponPercent <= 0) add(ref, 'error', PLAN_ISSUE_KEYS.noWeaponDamage);
 		if (ability.kind === PlanBossAbility_Kind.Thrash && (ability.procChance <= 0 || ability.extraAttacks <= 0))
 			add(ref, 'error', PLAN_ISSUE_KEYS.noExtraAttacks);

@@ -10,17 +10,7 @@ import type {
 	PresetEncounter,
 	Target,
 } from '@generated/proto/common';
-import {
-	DamageAmpType,
-	EncounterPlan,
-	PlanBossAbility_Kind,
-	PlanBossAbility_Source,
-	PlanRepeat,
-	PlanTargets,
-	PlanTime,
-	PresetTarget,
-	SpellSchool,
-} from '@generated/proto/common';
+import { DamageAmpType, EncounterPlan, PlanBossAbility_Kind, PlanRepeat, PlanTargets, PlanTime, PresetTarget, SpellSchool } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateSpellSchool } from '@i18n/localization';
 import type { Encounter } from '@sim/raid/encounter';
@@ -28,7 +18,7 @@ import type { ChoiceOption } from '@ui-kit/ChoiceField';
 import type { EnumValueConfig } from '@ui-kit/MultiComboBox';
 
 import type { PlanEvent, PlanEventKind, PlanEventRef } from '../../../model/lanes';
-import { firesAtInstants, getEvent, isBossCastArea, withAbilityKind } from '../../../model/lanes';
+import { ENVIRONMENT_KINDS, firesAtInstants, getEvent, isBossCastArea, isEnvironmentArea, withAbilityKind } from '../../../model/lanes';
 import { fractionToSeconds, secondsToFraction } from '../../../model/time';
 import { PLAN_ISSUE_KEYS } from '../../../model/validate';
 
@@ -80,7 +70,7 @@ export type PlanFieldConfig<E> =
 	| (FieldBase<E> & { type: 'text'; get(event: E): string; set(event: E, value: string): void })
 	| (FieldBase<E> & {
 			type: 'choice';
-			options(context: PlanFieldContext): Array<ChoiceOption<number>>;
+			options(context: PlanFieldContext, event: E): Array<ChoiceOption<number>>;
 			get(event: E): number;
 			set(event: E, value: number): void;
 	  })
@@ -240,11 +230,6 @@ export const ABILITY_KINDS: ReadonlyArray<[PlanBossAbility_Kind, string]> = [
 	[PlanBossAbility_Kind.SwingTiming, 'swing_timing'],
 	[PlanBossAbility_Kind.Pulse, 'pulse'],
 	[PlanBossAbility_Kind.AreaHit, 'area_hit'],
-];
-
-const ABILITY_SOURCES: ReadonlyArray<[PlanBossAbility_Source, string]> = [
-	[PlanBossAbility_Source.Environment, 'environment'],
-	[PlanBossAbility_Source.Boss, 'boss'],
 ];
 
 const SCHOOLS: ReadonlyArray<SpellSchool> = [
@@ -421,20 +406,19 @@ const abilityFields = (): Array<PlanFieldConfig<PlanBossAbility>> => {
 	});
 	return [
 		nameField(),
-		enumField<PlanBossAbility, PlanBossAbility_Kind>(
-			'ability_kind',
-			ABILITY_KINDS.map(([value, name]) => [value, plannerText(`ability_kinds.${name}`)]),
-			event => event.kind,
-			withAbilityKind,
-		),
-		enumField<PlanBossAbility, PlanBossAbility_Source>(
-			'source',
-			ABILITY_SOURCES.map(([value, name]) => [value, plannerText(`ability_sources.${name}`)]),
-			event => event.source,
-			(event, value) => (event.source = value),
-			{ tooltip: tooltip('source'), show: area },
-		),
-		targetField({ show: event => !area(event) || isBossCastArea(event) }),
+		{
+			type: 'choice',
+			id: 'ability_kind',
+			label: label('ability_kind'),
+			options: (_, event) =>
+				ABILITY_KINDS.filter(([value]) => !isEnvironmentArea(event) || ENVIRONMENT_KINDS.includes(value)).map(([value, name]) => ({
+					value,
+					label: plannerText(`ability_kinds.${name}`),
+				})),
+			get: event => event.kind,
+			set: withAbilityKind,
+		},
+		targetField({ show: event => !isEnvironmentArea(event) }),
 		...timeFields<'start', PlanBossAbility>('start', { at: 'start', jitter: 'start_jitter' }, { section: 'timing' }),
 		...timeFields<'end', PlanBossAbility>('end', { at: 'end', jitter: 'end_jitter' }, { section: 'timing', show: event => !firesAtInstants(event) }),
 		...repeatFields<PlanBossAbility>({ section: 'repeat' }),

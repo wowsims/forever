@@ -17,6 +17,7 @@ import {
 	holdBlocker,
 	holdDuringDowntime,
 	holdSegment,
+	isEnvironmentArea,
 	laneLabelKey,
 	moveSeconds,
 	occurrences,
@@ -66,6 +67,17 @@ describe('lanes', () => {
 		addEvent(plan, 'tankSwap');
 		expect(plan.downtimes.map(downtime => downtime.targetIndex)).toEqual([1, 0]);
 		expect(plan.tankSwaps.map(swap => swap.targetIndex)).toEqual([2, 0]);
+	});
+
+	it('adds an ability on the target given as a spell hit for its row, and one without a target as an Environment pulse that does damage', () => {
+		const plan = EncounterPlan.create();
+		addEvent(plan, 'ability', 1);
+		addEvent(plan, 'ability');
+		const [targeted, environment] = plan.bossAbilities;
+		expect(targeted).toMatchObject({ kind: PlanBossAbility_Kind.SpellHit, targetIndex: 1 });
+		expect(isEnvironmentArea(targeted)).toBe(false);
+		expect(environment).toMatchObject({ kind: PlanBossAbility_Kind.Pulse, source: PlanBossAbility_Source.Environment, maxDamage: 700, tickInterval: 1 });
+		expect(isEnvironmentArea(environment)).toBe(true);
 	});
 
 	it('adds, reads and removes events by list and index', () => {
@@ -355,13 +367,21 @@ describe('lanes', () => {
 			});
 		});
 
-		it('keeps the source on a switch between the two area kinds and sets it back to Environment on a switch to any other', () => {
-			const ability = { ...defaultEvent('ability'), source: PlanBossAbility_Source.Boss };
-			withAbilityKind(ability, PlanBossAbility_Kind.Pulse);
-			withAbilityKind(ability, PlanBossAbility_Kind.AreaHit);
-			expect(ability.source).toBe(PlanBossAbility_Source.Boss);
-			withAbilityKind(ability, PlanBossAbility_Kind.SpellHit);
-			expect(ability.source).toBe(PlanBossAbility_Source.Environment);
+		it("makes an ability switched to a pulse or an area hit on its target's row the target's cast, and keeps the source between the two", () => {
+			const targeted = defaultEvent('ability');
+			withAbilityKind(targeted, PlanBossAbility_Kind.Pulse);
+			expect(targeted.source).toBe(PlanBossAbility_Source.Boss);
+			withAbilityKind(targeted, PlanBossAbility_Kind.AreaHit);
+			expect(targeted.source).toBe(PlanBossAbility_Source.Boss);
+			expect(isEnvironmentArea(targeted)).toBe(false);
+			withAbilityKind(targeted, PlanBossAbility_Kind.SpellHit);
+			expect(targeted.source).toBe(PlanBossAbility_Source.Environment);
+			expect(isEnvironmentArea(targeted)).toBe(false);
+
+			const environment = { ...defaultEvent('ability'), kind: PlanBossAbility_Kind.Pulse, source: PlanBossAbility_Source.Environment };
+			withAbilityKind(environment, PlanBossAbility_Kind.AreaHit);
+			withAbilityKind(environment, PlanBossAbility_Kind.Pulse);
+			expect(isEnvironmentArea(environment)).toBe(true);
 		});
 
 		it('keeps damage and an interval already set, and Resistible off on a switch between the two area kinds', () => {

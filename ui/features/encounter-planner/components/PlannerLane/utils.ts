@@ -10,6 +10,7 @@ import {
 	getEvent,
 	healthSegments,
 	isBossCastArea,
+	isEnvironmentArea,
 	LANE_EVENT_KINDS,
 	moveSeconds,
 	occurrences,
@@ -111,26 +112,32 @@ const windowOf = (plan: EncounterPlan, ref: PlanEventRef, baseSeconds: number): 
 	return { start: found.at, end: found.at };
 };
 
-// Whether a downtime or a tank swap sits on one target's row: its own, and on the first target every one that names no
-// target of the `count` the encounter has, which validation flags.
+// Whether a downtime, a tank swap or an ability sits on one target's row: its own, and on the first target every one
+// that names no target of the `count` the encounter has, which validation flags.
 const onTargetRow = (plan: EncounterPlan, ref: PlanEventRef, target: { index: number; count: number }): boolean => {
-	const named = (getEvent(plan, ref) as PlanDowntime | PlanTankSwap).targetIndex;
+	const named = (getEvent(plan, ref) as PlanDowntime | PlanTankSwap | PlanBossAbility).targetIndex;
 	return named === target.index || (target.index === 0 && (named < 0 || named >= target.count));
 };
+
+// Whether the event belongs in the lane: an Environment pulse or area hit in the 'abilities' lane, and every other
+// ability on its target's row.
+const inLane = (plan: EncounterPlan, lane: PlanLaneKind, ref: PlanEventRef): boolean =>
+	ref.kind !== 'ability' || isEnvironmentArea(getEvent(plan, ref) as PlanBossAbility) === (lane === 'abilities');
 
 // The event kinds a row can add; the boss health shapes the first target alone.
 export const rowKinds = (lane: PlanLaneKind, targetIndex?: number): ReadonlyArray<PlanEventKind> =>
 	targetIndex ? LANE_EVENT_KINDS[lane].filter(kind => kind !== 'bossHealth') : LANE_EVENT_KINDS[lane];
 
 // The lane's events in time order, each with the row that keeps it clear of the others, its repeats and jitter included.
-// The boss health segments share the lane's first row, which no downtime takes. With a target, the 'boss' lane holds only
-// that target's row; `target` means nothing in the other lanes.
+// The boss health segments share the lane's first row, which no other event takes. With a target, the 'boss' lane holds
+// only that target's row; `target` means nothing in the other lanes.
 export const laneEvents = (plan: EncounterPlan, lane: PlanLaneKind, baseSeconds: number, target?: { index: number; count: number }): Array<LaneEvent> => {
 	const segments = healthSegments(plan);
 	const events = rowKinds(lane, target?.index).flatMap(kind =>
 		eventsOf(plan, kind).flatMap((_, index) => {
 			const ref: PlanEventRef = { kind, index };
-			if (target && (kind === 'downtime' || kind === 'tankSwap') && !onTargetRow(plan, ref, target)) return [];
+			if (!inLane(plan, lane, ref)) return [];
+			if (target && kind !== 'bossHealth' && !onTargetRow(plan, ref, target)) return [];
 			const window = windowOf(plan, ref, baseSeconds);
 			const all = occurrences(plan, ref, MAX_OCCURRENCES);
 			const ability = kind === 'ability' ? (getEvent(plan, ref) as PlanBossAbility) : undefined;

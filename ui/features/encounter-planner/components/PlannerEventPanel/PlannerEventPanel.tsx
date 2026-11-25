@@ -169,7 +169,7 @@ export const PlannerEventPanel = ({
 					<ChoiceField
 						key={id}
 						{...frame}
-						options={field.options(context)}
+						options={field.options(context, event)}
 						value={field.get(event)}
 						onChange={value => commit(e => field.set(e, value))}
 					/>

@@ -7,7 +7,7 @@ import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { useId } from 'react';
 
 import type { PlanEventKind } from '../../model/lanes';
-import { eventLabelKey, LANE_EVENT_KINDS, PLAN_LANES } from '../../model/lanes';
+import { addLabelKey, LANE_EVENT_KINDS, PLAN_LANES } from '../../model/lanes';
 import { plannerText } from '../EncounterPlanner/utils/configs';
 import { formatSeconds } from '../EncounterPlanner/utils/tips';
 
@@ -17,7 +17,8 @@ export interface PlannerToolbarProps {
 	onZoomIn: () => void;
 	onZoomOut: () => void;
 	onFit: () => void;
-	onAdd: (kind: PlanEventKind) => void;
+	/** The kinds of the targets' rows go to the first target, the others to their lane. */
+	onAdd: (kind: PlanEventKind, targetIndex?: number) => void;
 }
 
 const SNAP_STEPS: ReadonlyArray<number> = [0, 0.5, 1, 5, 10];
@@ -61,11 +62,13 @@ export const PlannerToolbar = ({ snapSeconds, onSnapChange, onZoomIn, onZoomOut,
 					</>
 				}
 				triggerRender={<Button variant="primary" size="sm" />}>
-				{PLAN_LANES.flatMap(lane => LANE_EVENT_KINDS[lane]).map(kind => (
-					<MenuItem key={kind} layout="block" onClick={() => onAdd(kind)}>
-						{i18n.t(eventLabelKey(kind))}
-					</MenuItem>
-				))}
+				{PLAN_LANES.flatMap(lane =>
+					LANE_EVENT_KINDS[lane].map(kind => (
+						<MenuItem key={`${lane}:${kind}`} layout="block" onClick={() => onAdd(kind, lane === 'boss' ? 0 : undefined)}>
+							{i18n.t(addLabelKey(lane, kind))}
+						</MenuItem>
+					)),
+				)}
 			</Menu>
 			<Tooltip id={tooltipId} place="bottom" />
 		</div>

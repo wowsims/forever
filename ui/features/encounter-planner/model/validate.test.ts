@@ -204,7 +204,7 @@ describe('validatePlan', () => {
 
 	it('flags the abilities the sim skips for doing nothing, and accepts a new one of any kind', () => {
 		const plan = EncounterPlan.create();
-		addEvent(plan, 'ability');
+		addEvent(plan, 'ability', 0);
 		const ability = plan.bossAbilities[0];
 		for (const kind of [PlanBossAbility_Kind.SpellHit, PlanBossAbility_Kind.Strike, PlanBossAbility_Kind.Thrash, PlanBossAbility_Kind.SwingTiming]) {
 			ability.kind = kind;
@@ -266,6 +266,14 @@ describe('validatePlan', () => {
 		expect(keys(plan)).toEqual([]);
 	});
 
+	it("flags a new ability on a target's row once its target is gone, and never a new Environment one", () => {
+		const plan = EncounterPlan.create();
+		addEvent(plan, 'ability', 1);
+		addEvent(plan, 'ability');
+		expect(keys(plan, 2)).toEqual([]);
+		expect(keys(plan, 1)).toEqual([`ability0:error:${PLAN_ISSUE_KEYS.targetOutOfRange}`]);
+	});
+
 	it('warns about a wave at the very end of the fight, which never spawns', () => {
 		const plan = EncounterPlan.create();
 		addEventAt(plan, 'wave', 1);
@@ -314,7 +322,7 @@ describe('validatePlan', () => {
 	it('flags targets out of range, including -1', () => {
 		const plan = EncounterPlan.create();
 		downtime(plan, 0.2, 0.4, 2);
-		addEvent(plan, 'ability');
+		addEvent(plan, 'ability', 0);
 		plan.bossAbilities[0].targetIndex = -1;
 		addEvent(plan, 'amp');
 		plan.damageAmps[0].targets!.targetIndices = [0, 3];

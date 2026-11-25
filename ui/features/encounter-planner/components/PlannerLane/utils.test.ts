@@ -8,6 +8,7 @@ import { laneEvents, withWindow } from './utils';
 const downtime = (start: number, end: number) => ({ ...defaultEvent('downtime'), start: { at: start, jitter: 0 }, end: { at: end, jitter: 0 } });
 const BASE = 180;
 const rowsByStart = (plan: EncounterPlan, lane: Parameters<typeof laneEvents>[1]) => laneEvents(plan, lane, BASE).map(event => [event.window.start, event.row]);
+const FIRST_TARGET = { index: 0, count: 1 };
 
 describe('laneEvents', () => {
 	it('puts windows that do not overlap on one row', () => {
@@ -115,12 +116,12 @@ describe('laneEvents', () => {
 			bossAbilities: [
 				ability(PlanBossAbility_Kind.SpellHit),
 				ability(PlanBossAbility_Kind.Strike),
-				ability(PlanBossAbility_Kind.AreaHit),
+				{ ...ability(PlanBossAbility_Kind.AreaHit), source: PlanBossAbility_Source.Boss },
 				{ ...eventAt('ability', 0.2), kind: PlanBossAbility_Kind.Thrash, repeat },
 			],
 			addWaves: [eventAt('wave', 0.2)],
 		});
-		const events = laneEvents(plan, 'abilities', BASE).sort((a, b) => a.ref.index - b.ref.index);
+		const events = laneEvents(plan, 'boss', BASE, FIRST_TARGET).sort((a, b) => a.ref.index - b.ref.index);
 		const width = 10 / BASE;
 		for (const instant of events.slice(0, 3)) {
 			expect([instant.window.start, instant.window.end, instant.tickSeconds, instant.openEnd, instant.fixedWidth]).toEqual([
@@ -137,6 +138,32 @@ describe('laneEvents', () => {
 		const thrash = events[3];
 		expect([thrash.window.end, thrash.repeats.length, thrash.tickSeconds, thrash.fixedWidth]).toEqual([expect.closeTo(0.3), 3, 0, false]);
 		expect(laneEvents(plan, 'waves', BASE).map(event => event.openEnd)).toEqual([true]);
+	});
+
+	it("puts an ability on its target's row, one naming no target on the first, and only an Environment pulse or area hit in the Abilities lane", () => {
+		const ability = (kind: PlanBossAbility_Kind, targetIndex: number, source = PlanBossAbility_Source.Environment) => ({
+			...eventAt('ability', 0.2),
+			kind,
+			targetIndex,
+			source,
+		});
+		const plan = EncounterPlan.create({
+			downtimes: [{ ...eventAt('downtime', 0.6), targetIndex: 1 }],
+			bossAbilities: [
+				ability(PlanBossAbility_Kind.SpellHit, 1),
+				ability(PlanBossAbility_Kind.Pulse, 0, PlanBossAbility_Source.Boss),
+				ability(PlanBossAbility_Kind.AreaHit, 1),
+				ability(PlanBossAbility_Kind.Strike, 5),
+				ability(PlanBossAbility_Kind.Pulse, 0),
+			],
+		});
+		const refs = (lane: Parameters<typeof laneEvents>[1], index?: number) =>
+			laneEvents(plan, lane, BASE, index === undefined ? undefined : { index, count: 2 })
+				.map(event => `${event.ref.kind}:${event.ref.index}`)
+				.sort();
+		expect(refs('boss', 0)).toEqual(['ability:1', 'ability:3']);
+		expect(refs('boss', 1)).toEqual(['ability:0', 'downtime:0']);
+		expect(refs('abilities')).toEqual(['ability:2', 'ability:4']);
 	});
 
 	it("gives a pulse's window and each of its repeats the pulse's tick interval", () => {
@@ -164,7 +191,7 @@ describe('laneEvents', () => {
 			end: { at: 0.14, jitter: 0 },
 			tickInterval: 3,
 		});
-		const [casting, outlasting] = laneEvents(EncounterPlan.create({ bossAbilities: [pulse(2), pulse(8)] }), 'abilities', BASE).sort(
+		const [casting, outlasting] = laneEvents(EncounterPlan.create({ bossAbilities: [pulse(2), pulse(8)] }), 'boss', BASE, FIRST_TARGET).sort(
 			(a, b) => a.ref.index - b.ref.index,
 		);
 		expect([casting.tickSeconds, casting.castSeconds]).toEqual([3, 2]);
