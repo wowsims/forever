@@ -165,7 +165,7 @@ The count is EV-0183 §Method, run on these weapons.
   114313 (2026-11-20 23:47 UTC). The sim's database is 1.60.1.71091, push 114405; the hotfix each player ran is not
   recorded
 - Date: 2026-11-14 to 2026-11-25 07:55 UTC
-- Pull request: #TBD
+- Pull request: #1214
 
 The count is EV-0186 §Method, run on this weapon alone by the sweep of 2026-11-25, `runs/2026-11-25-barman` in
 `forever-sweep-auto`, whose `barman_results.json` holds the count and whose `bleed_armor4.py` pairs the ticks with the
