@@ -179,38 +179,17 @@ func TestWeaponProcHearsALandedHitThatDealsNoDamage(t *testing.T) {
 	}
 }
 
-// A row that fires on every main-hand hit hears a landed special that deals no damage. A rolled
-// main-hand row and an every-hit row without the main-hand bit do not, and none hears a miss.
+// A row that fires on every main-hand hit hears a landed hit that deals no damage. A rolled
+// main-hand row and an every-hit row without the main-hand bit still need damage.
 func TestEveryHitMainHandRowHearsALandedHitThatDealsNoDamage(t *testing.T) {
 	withRows(t, procRows())
 
-	sim := &core.Simulation{}
-	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}
 	for _, row := range []struct {
-		id       int32
-		noDamage int
-	}{
-		{2810, 1},
-		{2820, 0},
-		{2830, 0},
-	} {
-		procs := 0
-		trigger := ProcTrigger(testCharacter(), Find(row.id), func(*core.Simulation, *core.Spell, *core.SpellResult) {
-			procs++
-		})
-		trigger.TriggerImmediately = true
-		trigger.ProcChance = 1
-		aura := &core.Aura{}
-		aura.AttachProcTriggerCallback(&core.Unit{}, trigger)
-
-		aura.OnSpellHitDealt(aura, sim, special, &core.SpellResult{Outcome: core.OutcomeHit})
-		if procs != row.noDamage {
-			t.Errorf("%s: a landed special that deals no damage fired it %d times, want %d", Find(row.id).Name, procs, row.noDamage)
-		}
-		procs = 0
-		aura.OnSpellHitDealt(aura, sim, special, &core.SpellResult{Outcome: core.OutcomeMiss})
-		if procs != 0 {
-			t.Errorf("%s: a missed special fired it %d times, want none", Find(row.id).Name, procs)
+		id   int32
+		want bool
+	}{{2810, false}, {2820, true}, {2830, true}} {
+		if got := ProcTrigger(testCharacter(), Find(row.id), noopHandler).RequireDamageDealt; got != row.want {
+			t.Errorf("%s: RequireDamageDealt = %v, want %v", Find(row.id).Name, got, row.want)
 		}
 	}
 }

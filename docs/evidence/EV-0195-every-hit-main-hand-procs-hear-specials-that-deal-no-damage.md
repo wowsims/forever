@@ -4,12 +4,13 @@
   0x20) fires on a landed main-hand special that deals no damage: Sunder Armor, Rend's application, Concussion Blow and
   Disarm cast Iceblade Hacker's 1298414 and Dreadfrost Saber's 1294940. A rolled equip proc (Hand of Justice 15600,
   Ironfoe 1301046) and an every-hit proc without the main-hand bit (Force Imbued Gauntlets 1302248) fire on those
-  specials no more than on Taunt, which hears nothing.
+  specials at a quarter or less of their share on a damaging special, Hand of Justice's Disarm on 251 triggers aside.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the warrior wearer streams on disk for each item, in
   the fights whose gear lists the item: Iceblade Hacker 20 reports, Dreadfrost Saber 12, Force Imbued Gauntlets 21,
-  Ironfoe 27, Hand of Justice 542
-- Game build: 1.60.1.70938 to 1.60.1.71091 by report date; the hotfix each player ran is not recorded
-- Date: 2026-11-12 to 2026-11-24
+  Ironfoe 27, Hand of Justice 542; and the rogue wearers of Iceblade Hacker in the fights whose gear puts it in the main
+  hand, 6 reports; the reports and fights §Reports lists
+- Game build: 1.60.1.70862 to 1.60.1.71091 by report date; the hotfix each player ran is not recorded
+- Date: 2026-11-10 to 2026-11-24
 - Pull request: #1226
 
 ## Method
@@ -38,10 +39,51 @@ Answered share, then background, in percent; n is the triggers counted.
 | Heroic Strike         | 95.3 / 4.7 (1,202)  | 84.9 / 26.2 (218)   | 96.6 / 14.1 (446)      | 5.89 / 0.11 (950)    | 1.95 / 0.10 (17,509)  |
 | Main-hand white swing | 90.4 / 4.6 (11,606) | 88.7 / 23.5 (8,155) | 95.7 / 11.2 (10,833)   | 11.5 / 0.53 (23,581) | 3.07 / 0.15 (446,104) |
 
-Iceblade Hacker and Dreadfrost Saber answer a special that deals no damage as often as Revenge, Shield Slam and Heroic
-Strike. Ironfoe and Hand of Justice answer it at a tenth or less of a damaging special's share. Force Imbued Gauntlets
+Iceblade Hacker and Dreadfrost Saber answer a special that deals no damage about as often as Revenge, Shield Slam and
+Heroic Strike. Ironfoe and Hand of Justice answer it at a quarter or less of their share on a damaging special, apart
+from Hand of Justice's Disarm on 251 triggers. Force Imbued Gauntlets
 reads 14 points above its background on Sunder Armor and 22 on Rend's 120, against 9 on Taunt and 79 on Revenge: the
 white swings its wide window catches, not a proc of its own.
 
 Ironfoe is both rolled and an extra attack, so these counts do not tell which of the two keeps it off; Hand of Justice is
 both as well.
+
+## Rogues
+
+The same count on the rogue wearers of Iceblade Hacker, in the fights whose gear puts it in the main hand: Garrote 93.9 /
+12.1 (33), Kidney Shot 68.2 / 9.1 (22), Rupture 73.3 / 20.0 (15), against Sinister Strike 78.3 / 25.3 (3,152) and
+Eviscerate 66.4 / 11.5 (547). No Death Mark landing falls in these fights.
+
+## Reports
+
+Report codes and fights, from the fights whose gear lists the item.
+
+Iceblade Hacker, warriors: 3mavCA2tLRc9qwMy 4, 21, 26, 28, 29, 41; 3r4pzgfc172HvbwC 2, 9, 12, 17, 19, 21;
+7fGLbPgqwYDRr2xt 41; 7wGT81AkLYy6dHZF 1; AP4vBCgQj78qD6zW 3; B4wWqM2TbRmdQy7Y 1; CmZh47GDdxbMPRqg 3; DbQwz3av89BpZYfn 1;
+Ft3TAra68jH4CK2G 1; K3xmjRCnMpV2c4qr 42; Pk2mFQLyAvxRXVcb 2; QFktMKaqvbLWP89d 1; Wn9tVQrwFb2MGChP 36;
+YnbJrPgHjLMqwCWx 6, 9, 13, 18, 23, 27, 31, 32, 38, 48, 53; ZGrhmwyRv7HKpqX1 2; gc2BTyJdxXAR7h4D 4; mtgfAK36pdbGM7wH 1, 3;
+rJaTCp796xwvqL1g 1, 4; rTKYMd4yDvaL6Gn8 1; thqTyPArmkxfMnK7 5, 23, 29, 36.
+
+Iceblade Hacker, rogues: 8HvfKkArXpmbhwTF 1; A1yxMTmKatkf3HRJ 15; DNc6QALhxmGbCH3Y 1; Hn8yXmQgGJdZawL3 1;
+JQwbjnVYyGcP4rg8 3, 6; KYmFPtyJ3gkzHfVM 102, 106, 111, 118, 120, 122, 127, 128, 130.
+
+Dreadfrost Saber: 1NBKq2mDWghwR69z 4; 4ynKGp8XCQPNmJLF 5, 6; BFWZDP47JX9ynkCh 1; HqwQhrTj28a19Dfx 1; QJRvHKtmWqNG6hc7 7;
+WYrCyJkdfMXw84Ph 13; mFTa4Zwkcnf1GCVx 1; mzFnf3hbjVK6kYBX 5; rL2hdXv8cKt3PQM4 1; v2aNxQ7mGTdkJryV 1;
+vgrGc2Zt6BzQ849V 1, 4, 6; ynVw7ZgMx4tjF3fQ 15.
+
+Force Imbued Gauntlets: 2DC7xQNm9wHJnVF4 6; 4f2ygdYCzFAvqc6K 6, 10, 13; 9JZtRr8xj46N3fng 1, 3; 9nX7rz3h2bvPJBaH 1;
+B1WXm7QGV4hdHLbK 32; Bg6fnXdYLqHtRhwp 1; DH3dT6tYLKmMrNz8 6; Fhdty4J8jrDV7cbn 1, 3; HmF9nyBdrvAL1wKt 1, 24;
+JmTh2g1fbrqZaRwH 1; MB1yTdQ9xmRXPaK8 1, 11; RJXQC67jbzATWdx1 1; Tmbn84VwC13A7kDr 39; W3DMV9g1FxbkAjaP 1;
+aZKTvVcCHLwhgXzM 6; bMVJtkRrhZpYfa8d 2; f36RaB12wyDcTCGY 1; h4gWnT3HLBbYzMcK 1; k1taHbwL76Cnxv4m 4;
+m6htAf2g7FvD3WVj 1, 3, 5, 7, 9, 11, 13, 15, 17; rYgfPHhG4DKxZF3p 1.
+
+Ironfoe: 1MA3qWLGa8v2hdXP 3, 41, 42; 6fxJHmdyR8DTLhBt 3, 17, 23, 25, 35, 37, 40, 44; BFtRGWmNv8JV1Tbq 2;
+DTMvbWAqcHGPn8xg 11, 14, 18, 26, 29, 31, 40, 43; F27ZvazHdY4RjVAQ 1; FCfzwGJ2NqBZtYcb 1; FLtpV1h8GTz6rgAc 1;
+Hn8yXmQgGJdZawL3 1; KLRwMraFATG1XnWZ 1; PqK7NWmpYF1zA4fT 155; Yvtw3nWdD7Tz2pxh 1, 5; Z6Xm92K3zgfrqM84 1, 6;
+aFtMHKAG1vjTCwcq 4, 15, 21, 26, 28, 34; apMdm4GJH32L1DVC 1; c486my2FLjHPbDX7 22;
+c9yNWjx1PdfgFrmX 8, 12, 16, 21, 31, 34, 36, 42, 44; daTq1vcjC3QBntb8 4, 21, 27, 35, 37; fprTQwWyDJK7gamC 3;
+gT3zDPraq8KMxH6b 1, 5; gdBnpzCGaJ2THt3y 1; gmfpNjd3zBwkr64b 2; n7dy3G4VmhZrzF6R 7; nXZWfk1jK83YATyP 4;
+tvCnHVb9xhpAT2XK 1; v8L6NkQTzMV2mWq3 5; vT1rMa2cNGXLfqp7 9, 12; vYjL3q712CyTGkQh 1, 15.
+
+Hand of Justice: 542 reports, too many to list; every warrior wearer stream on disk with the item in the fight's gear,
+16GhDNRmVn8KWjBT and 1AJgnPFRhjQtacVW among them.
