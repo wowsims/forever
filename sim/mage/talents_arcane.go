@@ -115,8 +115,8 @@ func (mage *Mage) registerArcaneConcentration() {
 		aura.Deactivate(sim)
 	}
 	mage.ClearCasting = mage.RegisterAura(config)
-	// Each cost mod multiplies the cost, and the row's -1000% takes it to 0 whatever Arcane Charges
-	// and Arcane Power add.
+	// The row's -1000% cost makes the cost 0 whatever other cost mods are up, Arcane Charges and Arcane
+	// Power among them.
 	spelldata.ParseEffects(&mage.Character, mage.ClearCasting, clearcastingRank)
 
 	trigger := spelldata.ProcTrigger(&mage.Character, spellData.ArcaneConcentration.Rank(mage.Talents.ArcaneConcentration),

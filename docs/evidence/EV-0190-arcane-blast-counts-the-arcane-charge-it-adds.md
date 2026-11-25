@@ -1,18 +1,20 @@
 # EV-0190: Arcane Blast counts the Arcane Charge it adds
 
 - Claim: Arcane Blast (1239700) adds its Arcane Charge (400573) before its damage, so the hit counts the spell damage of
-  that charge; its mana cost reads the charges held before the cast, 182 × (1 + charges), times 1.3 under Arcane Power,
-  and 0 under Clearcasting.
+  that charge on all but 9 of 212 hits; its mana cost reads the charges held before the cast, 182 × (1 + charges), times
+  1.3 under Arcane Power, and 0 under Clearcasting.
 - Sources: combat log `WoWCombatLog-112426_191754`, logged by a rogue in a level 60 Scholomance group, runs 2 and 3;
   the hits and costs of one level 60 Orc Arcane mage in that group (Arcane Mind 5, Arcane Instability 3, Arcane
   Concentration 5, Missile Barrage 2, Precision 3)
-- Game build: 1.60.1.71091; hotfix push not recorded; relog unknown
+- Game build: 1.60.1.71091; hotfix push and relog not recorded
 - Date: 2026-11-24 19:17 to 23:25 UTC−5 (2026-11-25 00:17 to 04:25 UTC)
 - Pull request: #1221
 
 ## Order in the log
 
-Each Arcane Blast that adds a charge logs the 400573 apply or dose first, then the cast line, then the damage.
+Each Arcane Blast that adds a charge logs the 400573 apply or dose first, then the cast line, then the damage. The
+five Arcane Blasts that missed, four `IMMUNE` and one fully absorbed, log their apply or dose before the cast line too.
+The log has no resisted Arcane Blast.
 
 ## Damage
 
@@ -25,11 +27,14 @@ refresh does.
 
 Log base minus the expected base when the expected base counts only the charges held before the cast:
 
-| Hits                                       |   n | Log − expected, mean [95% interval] |
-| ------------------------------------------ | --: | ----------------------------------- |
-| Added a charge                             | 198 | +20.7 [18.7, 22.6]                  |
-| At 4 charges (refresh only)                |   5 | −0.7 [−8.8, 7.4]                    |
-| No 400573 event in the 5 ms before the hit |   9 | −3.8 [−13.1, 5.5]                   |
+| Hits                                    |   n | Log − expected, mean [95% interval] |
+| --------------------------------------- | --: | ----------------------------------- |
+| Added a charge                          | 198 | +20.7 [18.7, 22.6]                  |
+| At 4 charges (refresh only)             |   5 | −0.7 [−8.8, 7.4]                    |
+| Apply or dose 6 to 15 ms before the hit |   9 | −3.8 [−13.1, 5.5]                   |
+
+The last 9 hits add a charge like the rest, but their apply or dose is logged 6 to 15 ms before the hit, and they deal
+the damage of the charges held before the cast.
 
 The gap on hits that add a charge is one charge's 18.7. Counting that charge, log over expected is 1.004
 [0.999, 1.009] on the same 212 hits. Over all 252 hits, with Arcane Power (×1.3 damage) and Blood Fury (×1.1 spell

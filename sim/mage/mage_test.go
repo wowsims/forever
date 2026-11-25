@@ -151,15 +151,15 @@ func TestMissileBarrageArcaneMissilesKeepsClearcasting(t *testing.T) {
 	}
 }
 
-// An Arcane Blast hits with the Arcane Charge it adds, so its spell damage at the hit holds one more
-// charge than before the cast, and the same at the stack cap.
+// An Arcane Blast hits with the Arcane Charge it adds: the mage's spell damage at the hit is above
+// what it was before the cast, and at the stack cap it is unchanged.
 func TestArcaneBlastHitsWithTheChargeItAdds(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
 	target := mage.CurrentTarget
 	arcaneBlast := mage.GetSpell(core.ActionID{SpellID: spellData.ArcaneBlast.Highest().ID})
 	hit := arcaneBlast.ActionID.String() + " "
 	manaMetrics := mage.NewManaMetrics(arcaneBlast.ActionID)
-	var before, atHit float64
+	var atHit float64
 	hits := 0
 	sim.Log = func(message string, vals ...any) {
 		line := fmt.Sprintf(message, vals...)
@@ -173,7 +173,8 @@ func TestArcaneBlastHitsWithTheChargeItAdds(t *testing.T) {
 	for range 6 {
 		mage.AddMana(sim, mage.MaxMana(), manaMetrics)
 		stacks := mage.ArcaneChargesAura.GetStacks()
-		before, hits = mage.GetStat(stats.SpellDamage), 0
+		before := mage.GetStat(stats.SpellDamage)
+		hits = 0
 		if !arcaneBlast.Cast(sim, target) {
 			t.Fatalf("Arcane Blast did not cast at %v", sim.CurrentTime)
 		}
