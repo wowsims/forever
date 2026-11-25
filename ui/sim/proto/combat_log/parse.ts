@@ -1,5 +1,5 @@
 import { RaidSimResult } from '@generated/proto/api';
-import type { SpellSchool } from '@generated/proto/common';
+import { CreatureFamily, MobType, type SpellSchool, Stat } from '@generated/proto/common';
 
 import { ActionId } from '../action_id';
 import { stringToResourceType } from '../names';
@@ -27,12 +27,18 @@ import {
 	ResourceLog,
 	SpellQueuedLog,
 	StatChangeLog,
+	VersusLog,
+	VersusLogEffect,
 } from './types';
 
 // Preamble patterns, hoisted so parseAll does not allocate a fresh RegExp per line.
 const TIMESTAMP_PREFIX_REGEX = /(\[[0-9.-]+\]) (\[[0-9a-zA-Z\s\-()#]+\])?(.*)/;
 const SPELL_SCHOOL_REGEX = / \(SpellSchool: (-?[0-9]+)\)/;
 const THREAT_REGEX = / \(Threat: (-?[0-9]+\.[0-9]+)\)/;
+const VERSUS_TAG_REGEX = / \[Versus (\w+)(?: \((\w+)\))?: (.*)\]\s*$/;
+const VERSUS_ENTRY_REGEX = /^(\{[^}]*\}) (.+)$/;
+const VERSUS_MULTIPLIER_REGEX = /^x(\d+(?:\.\d+)?)(?: (crit|base))?$/;
+const VERSUS_STAT_REGEX = /^([+-]\d+(?:\.\d+)?) (\w+)$/;
 const TIMESTAMP_REGEX = /\[(-?[0-9]+\.[0-9]+)\]\w*(.*)/;
 
 // Groups: 1 = timestamp, 2 = entity bracket, 3 = the rest.
@@ -119,6 +125,45 @@ function newLog(
 	return { kind: 'plain', raw, logIndex, timestamp, source, target, actionId: null, actionIdAsString: null, spellSchool, threat, activeAuras: [] };
 }
 
+// The Go stat names are the Stat enum's names without the prefix.
+const STAT_BY_GO_NAME = new Map<string, Stat>(
+	Object.entries(Stat)
+		.filter((entry): entry is [string, Stat] => typeof entry[1] === 'number')
+		.map(([name, value]) => [name.replace(/^Stat/, ''), value]),
+);
+
+function parseVersusEffect(text: string): VersusLogEffect | null {
+	const multiplier = VERSUS_MULTIPLIER_REGEX.exec(text);
+	if (multiplier) return { kind: multiplier[2] === 'crit' ? 'crit' : multiplier[2] === 'base' ? 'base' : 'damage', multiplier: parseFloat(multiplier[1]) };
+	const stat = VERSUS_STAT_REGEX.exec(text);
+	const statId = stat ? STAT_BY_GO_NAME.get(stat[2]) : undefined;
+	if (stat && statId !== undefined) return { kind: 'stat', stat: statId, amount: parseFloat(stat[1]) };
+	return null;
+}
+
+type PendingVersus = {
+	mobType: MobType;
+	creatureFamily?: CreatureFamily;
+	entries: Array<{ logString: string; effect: VersusLogEffect }>;
+};
+
+// Reads the " [Versus Undead (Beast): {ItemID: 1} x1.05; ...]" tag at the end of a damage line. An entry
+// that does not read is dropped, a header that does not read drops the tag.
+function parseVersusTag(raw: string): PendingVersus | null {
+	const tag = VERSUS_TAG_REGEX.exec(raw);
+	if (!tag) return null;
+	const mobType = (MobType as unknown as Record<string, number | undefined>)[`MobType${tag[1]}`];
+	if (mobType === undefined) return null;
+	const creatureFamily = tag[2] ? (CreatureFamily as unknown as Record<string, number | undefined>)[`CreatureFamily${tag[2]}`] : undefined;
+	const entries: PendingVersus['entries'] = [];
+	for (const part of tag[3].split('; ')) {
+		const entry = VERSUS_ENTRY_REGEX.exec(part);
+		const effect = entry ? parseVersusEffect(entry[2]) : null;
+		if (entry && effect) entries.push({ logString: entry[1], effect });
+	}
+	return { mobType, creatureFamily, entries };
+}
+
 function buildDamageLog(log: PendingLog, match: RegExpExecArray): DamageLog {
 	const out = log as Mutable<DamageLog>;
 	out.kind = 'damage';
@@ -128,6 +173,8 @@ function buildDamageLog(log: PendingLog, match: RegExpExecArray): DamageLog {
 	const resist = RESIST_BY_TOKEN[match[14]] ?? 0;
 	out.resist = resist && match[13].includes('Pierced') ? (-resist as PartialResist) : resist;
 	out.tick = Boolean(match[2]) && match[2].includes('tick');
+	// Always assigned, like the other kinds' optional fields, so the key exists either way.
+	out.versus = undefined;
 	return out;
 }
 
@@ -389,7 +436,7 @@ const LOG_MATCHERS: Array<LogMatcher> = [
 type MatchedLine = { matcher: LogMatcher; match: RegExpExecArray };
 type PendingLog = Mutable<Omit<BaseLog, 'kind'>> & { kind: LogKind };
 // `key` is the line's action, '' for a line that names none.
-type PendingEntry = { log: PendingLog; matcher: LogMatcher | null; match: RegExpExecArray | null; key: string };
+type PendingEntry = { log: PendingLog; matcher: LogMatcher | null; match: RegExpExecArray | null; key: string; versus?: PendingVersus };
 type ActionIdRequest = { logString: string; playerIndex: number | undefined };
 
 // The dispatch is only equivalent to trying every pattern in order if each guard literal is
@@ -484,6 +531,18 @@ export async function parseAll(result: RaidSimResult): Promise<Array<ParsedLog>>
 		if (!distinctIds.has(key)) {
 			distinctIds.set(key, { logString, playerIndex: source?.index });
 		}
+		if (matched.matcher === LOG_MATCHERS[0] && raw.includes(' [Versus ')) {
+			const versus = parseVersusTag(raw);
+			if (versus) {
+				pending[lineIndex].versus = versus;
+				for (const { logString: sourceString } of versus.entries) {
+					const sourceKey = `${source?.index ?? -1}|${sourceString}`;
+					if (!distinctIds.has(sourceKey)) {
+						distinctIds.set(sourceKey, { logString: sourceString, playerIndex: source?.index });
+					}
+				}
+			}
+		}
 	}
 
 	const keys = [...distinctIds.keys()];
@@ -502,7 +561,16 @@ export async function parseAll(result: RaidSimResult): Promise<Array<ParsedLog>>
 		const actionId = entry.key ? actionIds.get(entry.key)! : null;
 		entry.log.actionId = actionId;
 		entry.log.actionIdAsString = computeActionIdAsString(actionId);
-		return entry.matcher ? entry.matcher.build(entry.log, entry.match!) : buildPlainLog(entry.log);
+		const built = entry.matcher ? entry.matcher.build(entry.log, entry.match!) : buildPlainLog(entry.log);
+		if (entry.versus && built.kind === 'damage') {
+			const prefix = `${entry.log.source?.index ?? -1}|`;
+			(built as Mutable<DamageLog>).versus = {
+				mobType: entry.versus.mobType,
+				creatureFamily: entry.versus.creatureFamily,
+				sources: entry.versus.entries.map(({ logString, effect }) => ({ actionId: actionIds.get(prefix + logString)!, effect })),
+			} satisfies VersusLog;
+		}
+		return built;
 	});
 
 	await Promise.all(

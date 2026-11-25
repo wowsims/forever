@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { castLog, castRotationRow, castRowItem, MORTAL_STRIKE, rotationTrackStyle } from '@testing/storybook/fixtures/results-views';
+import { castLog, castRotationRow, castRowItem, damageLog, MORTAL_STRIKE, rotationTrackStyle, UNDEAD_VERSUS } from '@testing/storybook/fixtures/results-views';
 
 import { CastItem } from './CastItem';
 
@@ -37,3 +37,8 @@ const stackTop = castLog(1);
 
 /** Three casts inside the stack window: the last one draws over the others and counts them. */
 export const Stacked: Story = { args: { item: castRowItem(1, { log: stackTop, stack: [castLog(1), castLog(1), stackTop] }) } };
+
+const versusCast = castLog(1, { damageDealtLogs: [damageLog(1.2, 1500, { versus: UNDEAD_VERSUS })] });
+
+/** A hit of the cast took a versus bonus: the gold dot sits in the icon's corner. */
+export const VersusPip: Story = { args: { item: castRowItem(1, { log: versusCast, stack: [versusCast] }) } };

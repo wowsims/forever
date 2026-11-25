@@ -2813,7 +2813,15 @@
 					}
 				},
 				"delay_tooltip": "Auto delayed by {{delay}}, was ready at {{readyAt}}",
-				"gcd_tooltip": "{{spell}} — {{gcd}}s GCD ({{start}}s → {{end}}s)"
+				"gcd_tooltip": "{{spell}} — {{gcd}}s GCD ({{start}}s → {{end}}s)",
+				"versus": {
+					"header": "Versus {{target}}",
+					"header_family": "Versus {{target}} ({{family}})",
+					"damage": "×{{multiplier}} damage",
+					"crit": "×{{multiplier}} crit damage",
+					"base": "×{{multiplier}} base damage",
+					"stat": "{{amount}} {{stat}}"
+				}
 			},
 			"movement": {
 				"note": "Shows the same single iteration as the timeline. Distances are to the target, and each unit has a bearing of its own so the circles stay apart.",

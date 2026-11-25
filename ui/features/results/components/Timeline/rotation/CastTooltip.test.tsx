@@ -5,7 +5,7 @@ import type { AplEntryPath } from '@sim/proto/combat_log';
 import { constant, sequence, waitFor } from '@testing/apl/builders';
 import { makePlayer } from '@testing/apl/player';
 import { renderWithHost } from '@testing/react';
-import { castLog } from '@testing/storybook/fixtures/results-views';
+import { castLog, damageLog, UNDEAD_VERSUS } from '@testing/storybook/fixtures/results-views';
 import { act } from '@testing-library/react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -94,5 +94,20 @@ describe('CastTooltip', () => {
 		expect((await render({ log: castLog(12, { aplEntryPath: IN_GROUP }) })).innerHTML).toBe(today);
 		expect((await render({ log: castLog(12), aplRun: ran() })).innerHTML).toBe(today);
 		expect((await render({ log: castLog(12, { aplEntryPath: [{ kind: 'priority', index: 40 }] }), aplRun: ran() })).innerHTML).toBe(today);
+	});
+
+	it('lists each versus source once for the hits of a cast, with its effect', async () => {
+		const hits = [damageLog(12.01, 244.59, { versus: UNDEAD_VERSUS }), damageLog(12.01, 489.19, { versus: UNDEAD_VERSUS })];
+		const container = await render({ log: castLog(12, { damageDealtLogs: hits }) });
+
+		const sources = container.querySelectorAll('[data-testid="versus-sources"]');
+		expect(sources).toHaveLength(1);
+		expect(sources[0].textContent).toBe('Versus UndeadSlayer Ring ×1.05 damageSlayer Ring +78 Attack Power');
+	});
+
+	it('shows no versus section when no hit took a bonus', async () => {
+		const container = await render({ log: castLog(12) });
+
+		expect(container.querySelector('[data-testid="versus-sources"]')).toBeNull();
 	});
 });

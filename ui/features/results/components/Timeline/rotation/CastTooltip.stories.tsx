@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { after, constant, sequence, waitFor } from '@testing/apl/builders';
 import { makeAplStoryPlayer } from '@testing/storybook/fixtures/apl';
 import { withSimHost } from '@testing/storybook/fixtures/models';
-import { castLog, damageLog, resultsHostParts } from '@testing/storybook/fixtures/results-views';
+import { castLog, damageLog, resultsHostParts, UNDEAD_VERSUS } from '@testing/storybook/fixtures/results-views';
 
 import { CastTooltip } from './CastTooltip';
 
@@ -94,4 +94,13 @@ export const AplPrepull: Story = { args: ranEntry([{ kind: 'prepull', index: 0 }
 /** Sixty hits under a sequence entry: the tooltip stops at 80% of the window's height and cuts off the last hits. */
 export const AplEntryManyHits: Story = {
 	args: ranEntry(SECOND_STEP, { damageDealtLogs: Array.from({ length: 60 }, (_, i) => chainHit(i % 3, 300 + i)) }),
+};
+
+/** Both hits took the same bonuses against the Undead target, so each source shows once. */
+export const VersusUndead: Story = {
+	args: {
+		log: castLog(12, {
+			damageDealtLogs: [damageLog(12.01, 244.59, { versus: UNDEAD_VERSUS }), damageLog(12.01, 489.19, { outcome: 'crit', versus: UNDEAD_VERSUS })],
+		}),
+	},
 };

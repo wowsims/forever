@@ -9994,6 +9994,31 @@
 								},
 								"gcd_tooltip": {
 									"type": "string"
+								},
+								"versus": {
+									"type": "object",
+									"properties": {
+										"header": {
+											"type": "string"
+										},
+										"header_family": {
+											"type": "string"
+										},
+										"damage": {
+											"type": "string"
+										},
+										"crit": {
+											"type": "string"
+										},
+										"base": {
+											"type": "string"
+										},
+										"stat": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["header", "header_family", "damage", "crit", "base", "stat"]
 								}
 							},
 							"additionalProperties": false,
@@ -10011,7 +10036,8 @@
 								"sections",
 								"cast_tooltip",
 								"delay_tooltip",
-								"gcd_tooltip"
+								"gcd_tooltip",
+								"versus"
 							]
 						},
 						"movement": {

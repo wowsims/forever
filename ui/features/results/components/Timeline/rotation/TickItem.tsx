@@ -12,6 +12,7 @@ export const TickItem = ({ item, index }: TickItemProps) => (
 		data-testid="rotation-item-tick"
 		className="ui-timeline-item top-(--rotation-item-top) z-2 h-(--rotation-item-h) w-1 bg-maroon"
 		data-item-index={index}
-		style={cssVars({ '--t': String(item.start) })}
-	/>
+		style={cssVars({ '--t': String(item.start) })}>
+		{item.log.versus && <span data-testid="rotation-item-versus" className="ui-timeline-versus-pip" />}
+	</div>
 );

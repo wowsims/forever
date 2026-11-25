@@ -48,4 +48,7 @@ export type {
 	SpellQueuedLog,
 	StatChangeLog,
 	ThreatLogGroup,
+	VersusLog,
+	VersusLogEffect,
+	VersusLogSource,
 } from './types';

@@ -6,7 +6,7 @@ import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import type { CastLog } from '@sim/proto/combat_log';
 import { useMemo } from 'react';
 
-import { DamageResult } from '../../DamageResult';
+import { DamageResult, VersusSources } from '../../DamageResult';
 
 export interface CastTooltipProps {
 	log: CastLog;
@@ -97,6 +97,7 @@ export const CastTooltip = ({ log, stack = [log], aplRun }: CastTooltipProps) =>
 					))}
 				</ul>
 			)}
+			<VersusSources logs={damageDealtLogs} />
 			{entry && (
 				<div className="ui-timeline-tooltip-apl">
 					<span>{entry.crumbs.map(crumbText).join(' › ')}</span>

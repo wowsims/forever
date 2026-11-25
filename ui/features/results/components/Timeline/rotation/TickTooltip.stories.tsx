@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { withSimHost } from '@testing/storybook/fixtures/models';
-import { damageLog, DEEP_WOUNDS, resultsHostParts, TARGET } from '@testing/storybook/fixtures/results-views';
+import { damageLog, DEEP_WOUNDS, resultsHostParts, TARGET, UNDEAD_VERSUS } from '@testing/storybook/fixtures/results-views';
 
 import { TickTooltip } from './TickTooltip';
 
@@ -28,3 +28,5 @@ export const WithThreat: Story = {};
 export const CritTick: Story = { args: { log: damageLog(9, 620.5, { actionId: DEEP_WOUNDS, tick: true, outcome: 'crit' }) } };
 
 export const DealtByTheTarget: Story = { args: { log: damageLog(9, 120, { actionId: DEEP_WOUNDS, tick: true, source: TARGET, target: null }) } };
+
+export const VersusUndead: Story = { args: { log: damageLog(9, 325.5, { actionId: DEEP_WOUNDS, tick: true, versus: UNDEAD_VERSUS }) } };

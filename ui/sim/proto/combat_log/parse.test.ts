@@ -1,4 +1,5 @@
 import { RaidSimResult } from '@generated/proto/api';
+import { CreatureFamily, MobType, Stat } from '@generated/proto/common';
 import { describe, expect, it, vi } from 'vitest';
 
 // Resolving an ActionId goes to the item/spell database; every assertion here is about the text
@@ -137,5 +138,57 @@ describe('parseAll on sim log lines', () => {
 		const log = await parseLine(line);
 		expect(log.kind).toBe('plain');
 		expect(log.raw).toBe(line);
+	});
+	// attack_table_helpers.go's versusLogTag: the tag follows "(Threat: X)" at the end of the line.
+	describe('the versus tag', () => {
+		const hit = '[0.01] [Consumer (#1)] [Target 1] {OtherID: 3, Tag: 14} Hit for 157.393 damage (SpellSchool: 1). (Threat: 157.393)';
+		const sourceIds = (log: DamageLog) => log.versus?.sources.map(source => String(source.actionId));
+
+		it('reads the mob type and every source of a direct hit', async () => {
+			const log = (await parseLine(`${hit} [Versus Beast: {SpellID: 20557} x1.05; {SpellID: 13650} +6 PhysicalDamage]`)) as DamageLog;
+			expect(log.amount).toBe(157.393);
+			expect(log.threat).toBe(157.393);
+			expect(log.versus?.mobType).toBe(MobType.MobTypeBeast);
+			expect(log.versus?.creatureFamily).toBeUndefined();
+			expect(sourceIds(log)).toEqual(['{SpellID: 20557}', '{SpellID: 13650}']);
+			expect(log.versus?.sources.map(source => source.effect)).toEqual([
+				{ kind: 'damage', multiplier: 1.05 },
+				{ kind: 'stat', stat: Stat.StatPhysicalDamage, amount: 6 },
+			]);
+		});
+
+		it('reads the tag of a tick', async () => {
+			const log = (await parseLine(
+				'[2.00] [Player (#1)] [Target 1] {SpellID: 1943} tick Hit for 80.000 damage (SpellSchool: 1). (Threat: 80.000) [Versus Undead: {ItemID: 12345} -3 AttackPower]',
+			)) as DamageLog;
+			expect(log.tick).toBe(true);
+			expect(log.versus?.mobType).toBe(MobType.MobTypeUndead);
+			expect(log.versus?.sources[0].effect).toEqual({ kind: 'stat', stat: Stat.StatAttackPower, amount: -3 });
+		});
+
+		it('reads the creature family and the crit and base entries', async () => {
+			const log = (await parseLine(
+				`${hit.replace('Hit', 'Crit')} [Versus Beast (Wolf): {ItemID: 12345} x1.5 crit; {SpellID: 17670} x2 base]`,
+			)) as DamageLog;
+			expect(log.outcome).toBe('crit');
+			expect(log.versus?.creatureFamily).toBe(CreatureFamily.CreatureFamilyWolf);
+			expect(log.versus?.sources.map(source => source.effect)).toEqual([
+				{ kind: 'crit', multiplier: 1.5 },
+				{ kind: 'base', multiplier: 2 },
+			]);
+		});
+
+		it('leaves a line without the tag with no versus', async () => {
+			expect(((await parseLine(hit)) as DamageLog).versus).toBeUndefined();
+		});
+
+		it('skips an entry it cannot read and keeps the rest', async () => {
+			const log = (await parseLine(`${hit} [Versus Beast: {SpellID: 1} +5 NotAStat; {SpellID: 2} x1.1; garbage]`)) as DamageLog;
+			expect(sourceIds(log)).toEqual(['{SpellID: 2}']);
+		});
+
+		it('drops a tag whose mob type it does not know', async () => {
+			expect(((await parseLine(`${hit} [Versus Nonsense: {SpellID: 2} x1.1]`)) as DamageLog).versus).toBeUndefined();
+		});
 	});
 });

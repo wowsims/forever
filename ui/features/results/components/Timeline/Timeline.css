@@ -7,6 +7,10 @@
 		@apply flex h-full w-timeline-segment items-center overflow-x-hidden border-x border-gray-600 font-bold;
 	}
 
+	.ui-timeline-versus-pip {
+		@apply absolute top-0 right-0 h-2 w-2 rounded-full bg-warning;
+	}
+
 	.ui-timeline-row-icon {
 		@apply h-6 w-6 flex-none;
 	}
