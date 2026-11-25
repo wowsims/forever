@@ -1,4 +1,4 @@
-import { ItemQuality, ItemRandomSuffix } from '@generated/proto/common';
+import { ItemQuality, ItemRandomSuffix, type ItemSlot } from '@generated/proto/common';
 import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
@@ -33,6 +33,8 @@ export interface GearData {
 	subscribe: StoreSubscribe;
 	// Each pick adds an item rather than replacing one, so the picker offers items only, with nothing to remove.
 	addOnly?: boolean;
+	// The slots whose items the list offers, each item once and worth its EP in the first slot that lists it. Only the opened slot's when absent.
+	itemSlots?: readonly ItemSlot[];
 }
 
 export enum SelectorModalTabs {

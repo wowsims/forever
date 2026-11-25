@@ -28,9 +28,9 @@ export const createBulkGearData = (player: Player<any>, bulkSlot: BulkSimItemSlo
 };
 
 /**
- * The item slots whose lists a group offers, one add button each. A paired group offers its first
- * slot, since both rings and both trinkets list the same items. A dual-wielder's weapons offer both
- * hands: the main hand's list leaves out the off-hand-only weapons.
+ * The item slots whose lists a group's add picker merges. A paired group offers its first slot,
+ * since both rings and both trinkets list the same items. A dual-wielder's weapons offer both hands:
+ * the main hand's list leaves out the off-hand-only weapons.
  */
 export const bulkGroupItemSlots = (bulkSlot: BulkSimItemSlot): readonly ItemSlot[] => {
 	const single = BULK_SIM_ITEM_SLOT_TO_SINGLE_ITEM_SLOT.get(bulkSlot);
@@ -44,11 +44,12 @@ export const bulkGroupItemSlots = (bulkSlot: BulkSimItemSlot): readonly ItemSlot
  * replacing anything, so nothing reads as equipped and each pick is one more entry. The spec is the
  * bare id, as the list's batch toggle writes it, so the toggle's in-batch match finds it.
  */
-export const createBulkAddGearData = (player: Player<any>): GearData => ({
+export const createBulkAddGearData = (player: Player<any>, itemSlots: readonly ItemSlot[]): GearData => ({
 	equipItem: (newItem: EquippedItem | null) => {
 		if (newItem) addBulkItem(player, ItemSpec.create({ id: newItem.id }));
 	},
 	getEquippedItem: () => null,
 	subscribe: () => () => undefined,
 	addOnly: true,
+	itemSlots,
 });

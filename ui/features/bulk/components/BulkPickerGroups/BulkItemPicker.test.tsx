@@ -111,12 +111,6 @@ const mount = () => {
 			fireEvent.click(
 				within(container.querySelector<HTMLElement>(`[data-gear-group="${group}"]`)!).getByRole('button', { name: 'bulk_tab.picker.add_items_to' }),
 			),
-		clickAddHand: (button: number) =>
-			fireEvent.click(
-				within(container.querySelector<HTMLElement>('[data-gear-group="weapons"]')!).getAllByRole('button', { name: 'bulk_tab.picker.add_items_to' })[
-					button
-				],
-			),
 		view: () => ({
 			equipped: cell().hasAttribute('data-equipped'),
 			removable: !!cell().querySelector('[data-testid="item-picker-actions-btn"]'),
@@ -204,28 +198,18 @@ describe('BulkItemPicker when the batch entry is swapped for an item the player 
 
 describe('BulkItemPickerGroup add button', () => {
 	it.each([
-		['rings', ItemSlot.ItemSlotFinger1],
-		['trinkets', ItemSlot.ItemSlotTrinket1],
-		['head', ItemSlot.ItemSlotHead],
-	])('opens the item list for the %s group on its slot', (group, itemSlot) => {
+		['rings', ItemSlot.ItemSlotFinger1, [ItemSlot.ItemSlotFinger1]],
+		['trinkets', ItemSlot.ItemSlotTrinket1, [ItemSlot.ItemSlotTrinket1]],
+		['weapons', ItemSlot.ItemSlotMainHand, [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand]],
+		['head', ItemSlot.ItemSlotHead, [ItemSlot.ItemSlotHead]],
+	])('opens the item list for the %s group on its slots', (group, itemSlot, itemSlots) => {
 		const h = mount();
 
 		h.clickAdd(group);
 
 		expect(h.modal().open).toBe(true);
 		expect(h.modal().request).toMatchObject({ slot: itemSlot, tab: SelectorModalTabs.Items });
-		expect(h.modal().request!.gearData.getEquippedItem()).toBeNull();
-	});
-
-	it.each([
-		['main hand', 0, ItemSlot.ItemSlotMainHand],
-		['off hand', 1, ItemSlot.ItemSlotOffHand],
-	])("opens the %s list from its button on a dual-wielder's weapons group", (_hand, button, itemSlot) => {
-		const h = mount();
-
-		h.clickAddHand(button);
-
-		expect(h.modal().request).toMatchObject({ slot: itemSlot, tab: SelectorModalTabs.Items });
+		expect(h.modal().request!.gearData.itemSlots).toEqual(itemSlots);
 		expect(h.modal().request!.gearData.getEquippedItem()).toBeNull();
 	});
 

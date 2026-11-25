@@ -90,6 +90,30 @@ describe('buildSelectorTabs', () => {
 	});
 });
 
+describe('the items tab over several slots', () => {
+	const item = (id: number) => Item.create({ id, name: `Item ${id}`, ilvl: 120, scalingOptions });
+	const listsBySlot: Record<number, Item[]> = { 1: [item(1), item(2)], 2: [item(2), item(3)] };
+	const multiSlotPlayer = {
+		getItems: (slot: number) => listsBySlot[slot] ?? [],
+		getEnchants: () => [],
+		computeItemEP: (listed: Item, slot: number) => listed.id * 10 + slot,
+	} as unknown as Player<any>;
+	const itemsTab = buildSelectorTabs({
+		player: multiSlotPlayer,
+		slot: 1,
+		gearData: { ...gearData, addOnly: true, itemSlots: [1, 2] },
+		equippedItem: null,
+	})[0];
+
+	it("lists each slot's items once, in slot order", () => {
+		expect(itemsTab.itemData.map(row => row.id)).toEqual([1, 2, 3]);
+	});
+
+	it('values each item in the first slot that lists it', () => {
+		expect(itemsTab.itemData.map(row => itemsTab.computeEP(row.item))).toEqual([11, 21, 32]);
+	});
+});
+
 describe('the enchants tab EP comparison', () => {
 	it('compares only enchants whose EP is their whole worth, not a proc enchant', () => {
 		const comparable = tabs({ player: {}, item: null }).find(tab => tab.label === SelectorModalTabs.Enchants)!.epComparable!;

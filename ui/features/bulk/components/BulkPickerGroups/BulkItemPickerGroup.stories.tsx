@@ -17,8 +17,3 @@ type Story = StoryObj<typeof meta>;
 
 /** A slot group with no items in the batch; a filled group's entries are `BulkItemPicker`s, storied as `BulkItemPickerView`. */
 export const Empty: Story = {};
-
-/** A dual-wielder's weapons: one add button per hand. */
-export const DualWieldWeapons: Story = {
-	args: { bulkSlot: BulkSimItemSlot.ItemSlotHandWeapon },
-};
