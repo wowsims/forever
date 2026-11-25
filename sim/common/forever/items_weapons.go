@@ -769,10 +769,10 @@ func init() {
 	// damage and slow movement speed by 50% for 5s.
 	//
 	// The generator keeps one proc per item, so both procs are written here. 1298413 casts 1298414 on
-	// each landed main-hand swing and special. 1298414's row states Always Hit, so it rolls only the
-	// melee crit (EV-0164). 1298416 strikes at the procs per minute of the item's chance-on-hit entry on
-	// the axe's speed (EV-0136), and registers nothing while the entry states none; its slow is movement
-	// the sim leaves out.
+	// each landed main-hand swing and special, one that deals no damage included (EV-0195). 1298414's
+	// row states Always Hit, so it rolls only the melee crit (EV-0164). 1298416 strikes at the procs
+	// per minute of the item's chance-on-hit entry on the axe's speed (EV-0136), and registers nothing
+	// while the entry states none; its slow is movement the sim leaves out.
 	core.NewItemEffect(13952, func(agent core.Agent) {
 		character := agent.GetCharacter()
 

@@ -536,8 +536,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DreadfrostSaber-274603"
  value: {
-  dps: 757.12473
-  tps: 537.55856
+  dps: 757.6601
+  tps: 537.93867
   hps: 52.12111
  }
 }
@@ -1144,8 +1144,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 795.81136
-  tps: 565.02607
+  dps: 804.52812
+  tps: 571.21497
   hps: 55.56083
  }
 }
