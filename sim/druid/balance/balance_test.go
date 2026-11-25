@@ -67,7 +67,7 @@ func TestBalance(t *testing.T) {
 // The Moonkin preset on the Balance page.
 const DefaultTalents = "5532220115001351--505302"
 
-// The preset without Dreamstate, and with one point in it.
+// A Moonkin build without Dreamstate, and the same build with one point in it.
 const (
 	noDreamstateTalents  = "5232220115201301--5053"
 	dreamstateOneTalents = "5232220115201311--5053"

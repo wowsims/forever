@@ -486,7 +486,7 @@ func (character *Character) Finalize() {
 		})
 	}
 
-	// A hit that deals damage can push back any unit's hardcast, tanking or not, unless the unit dealt it
+	// A hit that deals damage can push back the hardcast of any character, unless the character dealt it
 	// to itself, as a sapper charge does. The chance is the unit's PushbackChance, which auras covering
 	// every spell lower, less the hardcast spell's own PushbackProtection from the rows that name it.
 	character.MakeProcTriggerAura(ProcTrigger{
@@ -504,15 +504,12 @@ func (character *Character) Finalize() {
 		},
 
 		Handler: func(sim *Simulation, spell *Spell, result *SpellResult) {
-			// The handler runs a spell batch window after the hit, by which time the cast may have ended.
-			if character.Hardcast.Expires <= sim.CurrentTime {
+			// The handler runs a spell batch window after the hit, by which time the cast may have ended
+			// and another may have begun.
+			if character.Hardcast.Expires <= sim.CurrentTime || character.Hardcast.start > sim.CurrentTime-SpellBatchWindow {
 				return
 			}
-			chance := character.PseudoStats.PushbackChance
-			if character.Hardcast.spell != nil {
-				chance -= character.Hardcast.spell.PushbackProtection
-			}
-			if !sim.Proc(chance, "Pushback") {
+			if !sim.Proc(character.PseudoStats.PushbackChance-character.Hardcast.spell.PushbackProtection, "Pushback") {
 				return
 			}
 

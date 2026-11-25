@@ -58,9 +58,9 @@ func (mage *Mage) registerWandSpecialization() {
 	})
 }
 
-// Improved Channeling, a chance to avoid interruption from damage while channeling Arcane Missiles
-// or casting Arcane Blast. A channel runs as a dot and no hit shortens it, so only the hardcasts it
-// names gain from it.
+// Improved Channeling, a chance not to lose casting time to damage while channeling Arcane Missiles or
+// casting Arcane Blast or Arcane Wrath. A channel runs as a dot and no hit shortens it, so only the
+// hardcasts it names gain from it.
 func (mage *Mage) registerImprovedChanneling() {
 	if mage.Talents.ImprovedChanneling == 0 {
 		return

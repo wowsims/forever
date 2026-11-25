@@ -101,3 +101,23 @@ func TestAHitAtTheCastEndLeavesTheCastToLandOnce(t *testing.T) {
 		t.Errorf("the cast landed %d times, want once", *landed)
 	}
 }
+
+// A hit in the last spell batch window of a hardcast is handled after the next hardcast has begun, and
+// leaves that cast's end where it is.
+func TestAHitAtTheCastEndLeavesTheNextCastAlone(t *testing.T) {
+	sim, fc, cast, hit, _ := setupPushbackSim(t)
+	cast.Cast(sim, fc.CurrentTarget)
+	castEnd := fc.Hardcast.Expires
+	stepSwingSim(t, sim, castEnd-SpellBatchWindow/2)
+	hit.Cast(sim, &fc.Unit)
+	stepSwingSim(t, sim, castEnd+SpellBatchWindow/4)
+	if !cast.Cast(sim, fc.CurrentTarget) {
+		t.Fatalf("test setup: the next cast did not begin at %v", sim.CurrentTime)
+	}
+	nextEnd := fc.Hardcast.Expires
+	stepSwingSim(t, sim, castEnd+2*SpellBatchWindow)
+
+	if got := fc.Hardcast.Expires; got != nextEnd {
+		t.Errorf("next cast end %v, want %v", got, nextEnd)
+	}
+}
