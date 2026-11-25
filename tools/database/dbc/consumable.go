@@ -272,9 +272,15 @@ func (consumable *Consumable) GetStatModifiers() *stats.Stats {
 		effect := GetItemEffect(effectID)
 		if effect.ID != 0 {
 			if spellEffects, ok := dbcInstance.SpellEffects[effect.SpellID]; ok {
+				// A seated Drink or Food restores only while the user sits, so it lists only the buffs it
+				// triggers: Blessed Sunfruit Juice 18140's 735 mana a tick lists nothing, its 18141 lists
+				// 10 Spirit.
+				seated := spelldata.Find(int32(effect.SpellID)).WhileSeated()
 				for _, spellEffect := range spellEffects {
-					if stat, ok := spellEffect.ParseStatEffect(spellEffect.Coefficient != 0, 0); ok {
-						stats.AddInplace(&stat)
+					if !seated || spellEffect.EffectAura == dbcenums.A_PERIODIC_TRIGGER_SPELL {
+						if stat, ok := spellEffect.ParseStatEffect(spellEffect.Coefficient != 0, 0); ok {
+							stats.AddInplace(&stat)
+						}
 					}
 					if spellEffect.EffectTriggerSpell == 0 ||
 						!shared.LandsOnTheUser(spelldata.Find(int32(spellEffect.SpellID)).EffectAtIndex(uint8(spellEffect.EffectIndex))) {

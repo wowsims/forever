@@ -266,7 +266,9 @@ The settings offer and order a consumable by the stats db.json lists for it. `Ad
 out. Both read the on-use spell and the spells it triggers on the user, since a food's Well Fed is often a
 spell of its own. The stat parse (`GetStatModifiers` in `tools/database/dbc/consumable.go`) takes the
 amount a periodic trigger with a value hands on, and a plain trigger's own amounts (Blessed Sunfruit 13810's
-18125: 10 Strength), and leaves out a seated Drink or Food a trigger puts up. `AddUnparsedStats` reads
+18125: 10 Strength). It leaves out what a seated Drink or Food restores, whether that is the on-use spell
+or one a trigger puts up: Blessed Sunfruit Juice 13813 lists the 10 Spirit of its 18141 and none of the
+mana its seated 18140 restores. `AddUnparsedStats` reads
 `shared.ConsumableSpells`, so Grilled Squid 13928 and Hot Smoked Bass 13929, whose Well Fed applies
 `A_MOD_CRIT_PCT` 1, list 1% melee, ranged and spell crit.
 

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/tools/database/dbc"
@@ -69,8 +70,8 @@ func TestNutritiousFoodListsTheAmountItHandsWellFed(t *testing.T) {
 	}
 }
 
-// A plain trigger keeps the triggered spell's own amounts, and the seated Drink a trigger puts up
-// lists nothing.
+// A plain trigger keeps the triggered spell's own amounts, and a seated Drink lists nothing, whether
+// it is the on-use spell or one a trigger puts up.
 func TestATriggeredBuffListsItsOwnStats(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -91,6 +92,7 @@ func TestATriggeredBuffListsItsOwnStats(t *testing.T) {
 	}{
 		{"Blessed Sunfruit, 18124 to 18125", 13810, stats.Strength},
 		{"Windblossom Berries, 26030 to 18191", 11950, stats.Stamina},
+		{"Blessed Sunfruit Juice, 18140 to 18141", 13813, stats.Spirit},
 	} {
 		consumable := shippedConsumable(t, instance, tc.id)
 		buff := firstTriggered(t, spelldata.MustFind(consumable.ItemEffects[0].BuffId))
@@ -103,12 +105,21 @@ func TestATriggeredBuffListsItsOwnStats(t *testing.T) {
 		}
 	}
 
+	juice := shippedConsumable(t, instance, 13813)
 	tea := shippedConsumable(t, instance, 249865)
-	drink := firstTriggered(t, spelldata.MustFind(tea.ItemEffects[0].BuffId))
-	if !drink.WhileSeated() || drink.FirstAura(dbcenums.A_MOD_POWER_REGEN).BaseValue() == 0 {
-		t.Fatalf("Peace Tea's %d is no seated mana restore, so the test cannot tell it is left out", drink.ID)
-	}
-	if mp5 := stats.FromProtoArray(tea.Stats)[stats.MP5]; mp5 != 0 {
-		t.Errorf("Peace Tea lists %v MP5 from its seated Drink %d, want none", mp5, drink.ID)
+	for _, tc := range []struct {
+		name       string
+		consumable *proto.Consumable
+		drink      *spelldata.Spell
+	}{
+		{"Blessed Sunfruit Juice, its own 18140", juice, spelldata.MustFind(juice.ItemEffects[0].BuffId)},
+		{"Peace Tea, 1249920 to 430", tea, firstTriggered(t, spelldata.MustFind(tea.ItemEffects[0].BuffId))},
+	} {
+		if !tc.drink.WhileSeated() || tc.drink.FirstAura(dbcenums.A_MOD_POWER_REGEN).BaseValue() == 0 {
+			t.Fatalf("%s: %d is no seated mana restore, so the test cannot tell it is left out", tc.name, tc.drink.ID)
+		}
+		if mp5 := stats.FromProtoArray(tc.consumable.Stats)[stats.MP5]; mp5 != 0 {
+			t.Errorf("%s: %v MP5 from the seated Drink %d, want none", tc.name, mp5, tc.drink.ID)
+		}
 	}
 }
