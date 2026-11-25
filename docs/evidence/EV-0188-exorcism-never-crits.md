@@ -14,8 +14,8 @@
 
 Every damage event of the six Exorcism ranks was counted by hit type. A landed hit is a normal hit or a crit; misses,
 immunities and other outcomes are left out. The 293,088 landed hits come from 9,924 characters in 14,827
-player-report pairs; 7,866 of them are play logged twice, in two reports, and counting each play once leaves 285,222.
-None is a crit, on any day of the count.
+player-report pairs. 7,866 of the hits are second copies of play logged in two reports, and counting each play once
+leaves 285,222. None is a crit, on any day of the count.
 
 | Build        | Landed hits | Crits |
 | ------------ | ----------: | ----: |
