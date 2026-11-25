@@ -285,8 +285,7 @@ func (ss SpellSchool) Matches(other SpellSchool) bool {
 	return (ss & other) != 0
 }
 
-// Holy has no resistance stat, and neither do spell school combinations, which supposedly use the
-// "path of the least resistance".
+// Holy has no resistance stat, and neither does a mask of several schools.
 func (ss SpellSchool) ResistanceStat() (stats.Stat, bool) {
 	switch ss {
 	case SpellSchoolPhysical:
