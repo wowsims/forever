@@ -342,8 +342,6 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=9774
 	// Not simulated: Glimmering Mithril Insignia: "Fearless" (12733) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=12733
-	// Not simulated: Chained Essence of Eranikus: "Cloud of Chained Essence" (12766) - ignored effect type 28
-	// https://www.wowhead.com/forever/spell=12766
 	// Not simulated: Stealthblade: "Stealth" (1300180) - ignored aura type 16
 	// https://www.wowhead.com/forever/spell=1300180
 	// Not simulated: Book of the Dead: "Summon Skeleton" (17490) - ignored effect type 28

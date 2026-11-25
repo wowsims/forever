@@ -173,7 +173,7 @@ func TestAutoShotNeedsABowGunOrCrossbow(t *testing.T) {
 
 // Sniper Shot's buff carries Auto Shot's reach past the 41 yards Hawk Eye gives it, for three Shots: a
 // hunter at 45 yards fires no Auto Shot until Sniper Shot lands, then lands at most three per Sniper
-// Shot, since a miss keeps its charge.
+// Shot.
 func TestSniperShotExtendsAutoShotRange(t *testing.T) {
 	shots := func(castSniperShot bool) (sniperShots, autoShots, landed int32) {
 		rotation := &proto.APLRotation{Type: proto.APLRotation_TypeAPL}
@@ -791,4 +791,30 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	ExplosiveId:    18588,                  // Ez-Thro Dynamite II
 	// Goblin Sapper Charge, Scroll of Strength IV
 	ExtraIds: []int32{10646, 10310},
+}
+
+// A Shot the range modifier names spends a Sniper Shot charge at its cast, a miss included; Serpent Sting,
+// which it does not name, spends none.
+func TestSniperShotChargeGoesAtTheShotsCast(t *testing.T) {
+	sim, hunter := newTalentSim(DefaultMMTalents, proto.HunterOptions_PetNone)
+	target := hunter.CurrentTarget
+	buff := hunter.GetAura(sniperShotRank.Name)
+	hunter.AttackTables[target.UnitIndex].Ranged.BaseMissChance = 1
+
+	for _, tc := range []struct {
+		name  string
+		spell *core.Spell
+		spent int32
+	}{
+		{"a missed Arcane Shot", hunter.GetSpell(core.ActionID{SpellID: arcaneShotRank.ID}), 1},
+		{"a missed Auto Shot", hunter.AutoAttacks.RangedAuto(), 1},
+		{"a Serpent Sting", hunter.GetSpell(core.ActionID{SpellID: serpentStingBookRank.ID}), 0},
+	} {
+		buff.Activate(sim)
+		buff.SetStacks(sim, buff.MaxStacks)
+		tc.spell.SkipCastAndApplyEffects(sim, target)
+		if got := buff.MaxStacks - buff.GetStacks(); got != tc.spent {
+			t.Errorf("%s spent %d Sniper Shot charges, want %d", tc.name, got, tc.spent)
+		}
+	}
 }

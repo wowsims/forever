@@ -282,18 +282,32 @@ func TestBaneOfAgonyTicksFollowSpellPower(t *testing.T) {
 	}
 }
 
-// Casting Bane of Agony spends Amplify Curse. The tooltip names it, but neither of Amplify Curse's class masks in
-// the game files does.
-func TestBaneOfAgonySpendsAmplifyCurse(t *testing.T) {
+// A Bane of Agony that lands spends Amplify Curse, and one that misses leaves it up. The tooltip names the Bane, but
+// neither of Amplify Curse's class masks in the game files does.
+func TestBaneOfAgonySpendsAmplifyCurseWhenItLands(t *testing.T) {
 	sim, warlock := newWarlockSim("000000001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
 	target := sim.Encounter.AllTargetUnits[0]
+	agony := warlock.BaneOfAgony
 
 	warlock.AmplifyCurseAura.Activate(sim)
-	if !warlock.BaneOfAgony.Cast(sim, target) {
+	warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: -200})
+	if !agony.Cast(sim, target) {
 		t.Fatalf("Bane of Agony did not cast")
 	}
+	if agony.SpellMetrics[target.UnitIndex].Misses != 1 {
+		t.Fatalf("Bane of Agony at -200%% spell hit did not miss")
+	}
+	if !warlock.AmplifyCurseAura.IsActive() {
+		t.Fatalf("a Bane of Agony that missed spent Amplify Curse")
+	}
+
+	warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 300})
+	agony.SkipCastAndApplyEffects(sim, target)
+	if !agony.Dot(target).IsActive() {
+		t.Fatalf("Bane of Agony at +100%% spell hit did not land")
+	}
 	if warlock.AmplifyCurseAura.IsActive() {
-		t.Fatalf("Amplify Curse is still up after a Bane of Agony cast")
+		t.Fatalf("Amplify Curse is still up after a Bane of Agony landed")
 	}
 }
 

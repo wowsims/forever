@@ -8,6 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/paladin"
 )
 
@@ -166,6 +167,48 @@ func TestShieldswornStrikeRollsRevelationAtItsSpellLevel(t *testing.T) {
 		pally.OnSpellHitTaken(sim, swing, &core.SpellResult{Target: &pally.Unit, Outcome: core.OutcomeBlock, Damage: 100})
 	}); blockProcs != 0 {
 		t.Errorf("Holy Shield's damage on 6000 blocks procced Revelation %d times, want none", blockProcs)
+	}
+}
+
+// Shieldsworn's strike 456544 crits for 1.5 times, and Holy Shield's damage on a block never crits
+// (EV-0189).
+func TestShieldswornStrikeCritsAndBlockDamageDoesNot(t *testing.T) {
+	gear := core.GetGearSet("../../../ui/specs/paladin/protection/gear_sets", "default").GearSet
+	sim, pally, target := shieldswornPaladin(gear, core.MakeSingleTargetEncounter(0))
+
+	holyShield := pally.GetAuraByID(core.ActionID{SpellID: paladin.HolyShieldRankMap.Highest().ID})
+	holyStrike := pally.GetSpell(core.ActionID{SpellID: paladin.HolyStrikeRankMap.Highest().ID})
+	strike := pally.GetSpell(core.ActionID{SpellID: 456544})
+	if holyShield == nil || holyStrike == nil || strike == nil {
+		t.Fatal("Holy Shield, Holy Strike or Shieldsworn's strike is not registered")
+	}
+	blockDamage := pally.GetSpell(holyShield.ActionID.WithTag(2))
+	if blockDamage == nil {
+		t.Fatal("Holy Shield's block damage is not registered")
+	}
+	pally.AddStatDynamic(sim, stats.SpellCritPercent, 50)
+
+	swing := target.AutoAttacks.MHAuto()
+	for range 2000 {
+		holyShield.Activate(sim)
+		holyShield.SetStacks(sim, holyShield.MaxStacks)
+		holyStrike.SkipCastAndApplyEffects(sim, target)
+		pally.OnSpellHitTaken(sim, swing, &core.SpellResult{Target: &pally.Unit, Outcome: core.OutcomeBlock, Damage: 100})
+	}
+
+	strikes := strike.SpellMetrics[target.UnitIndex]
+	if strikes.Hits == 0 || strikes.Crits == 0 {
+		t.Fatalf("Shieldsworn's strike landed %d hits and %d crits, want both", strikes.Hits, strikes.Crits)
+	}
+	if got, want := float64(strikes.Crits)/float64(strikes.Hits+strikes.Crits), strike.SpellCritChance(target); math.Abs(got-want) > 0.1 {
+		t.Errorf("Shieldsworn's strike crits on %v of its landed hits, want the spell crit chance %v", got, want)
+	}
+	hit := (strikes.TotalDamage - strikes.TotalCritDamage) / float64(strikes.Hits)
+	if got := strikes.TotalCritDamage / float64(strikes.Crits) / hit; math.Abs(got-1.5) > 1e-6 {
+		t.Errorf("a crit of Shieldsworn's strike deals %v times a hit, want 1.5", got)
+	}
+	if blocks := blockDamage.SpellMetrics[target.UnitIndex]; blocks.Hits == 0 || blocks.Crits != 0 {
+		t.Errorf("Holy Shield's damage on a block landed %d hits and %d crits, want hits and no crits", blocks.Hits, blocks.Crits)
 	}
 }
 

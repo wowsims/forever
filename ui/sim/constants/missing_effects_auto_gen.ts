@@ -617,6 +617,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		11603, // Vilerend Slicer
+		[
+			"Wounds the target for 225 damage.", // 1320808 - https://www.wowhead.com/forever/spell=1320808
+		]
+	],
+	[
 		11607, // Dark Iron Sunderer
 		[
 			"Reduces targets armor by 300 for 20s.", // 15280 - https://www.wowhead.com/forever/spell=15280
@@ -740,12 +746,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13057, // Bloodpike
 		[
 			"Wounds the target causing them to bleed for 98 damage over 14s.", // 18202 - https://www.wowhead.com/forever/spell=18202
-		]
-	],
-	[
-		13146, // Shell Launcher Shotgun
-		[
-			"Strike the target with a Flaming Shell for 38 Fire damage.", // 29647 - https://www.wowhead.com/forever/spell=29647
 		]
 	],
 	[

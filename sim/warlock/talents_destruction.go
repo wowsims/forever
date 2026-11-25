@@ -136,12 +136,13 @@ func (warlock *Warlock) applyShadowburn() {
 
 // --- Tier 4 ---
 
-// TODO: Not implemented, as it does not affect sims for now: the row is pushback protection
-// (SPELLMOD_NOT_LOSE_CASTING_TIME), which matters only once the sim models pushback from damage taken.
+// The chance a hit does not push back a hardcast of the spells its class flags name.
 func (warlock *Warlock) applyIntensity() {
 	if warlock.Talents.Intensity == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&warlock.Character, spellData.Intensity.Rank(warlock.Talents.Intensity))
 }
 
 // Effect 2 (SPELLMOD_DAMAGE) raises the direct hits of the spells it names, and effect 3 (SPELLMOD_DOT) their ticks.

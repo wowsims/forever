@@ -9,14 +9,27 @@
   half of a normal white swing, and in the one fight with two reductions the second adds nothing once the first has
   reached its cap: under Force of Will a swing under 102 before armor lands at half of what it would without the buff,
   and Gold-plated 1291908 and Stoneform Shoulders 1298231 read the same on the hit they spend themselves on. A crit
-  doubles the flat amount.
-- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports the Reports section lists; all fights.
+  doubles the flat amount. A periodic Physical tick on an enemy takes none of Gift of Arthas or Lacerations: Gift of
+  Arthas on ticks that ignore armor, meet a tenth of it (two ticks) or meet all of it, Lacerations on ticks that ignore
+  armor or meet all of it and on Deep Wound 412613. A mob's Physical tick on a player takes none of Force of Will or
+  Stoneskin Totem (ranks I to III, and one rank VI tick; IV to VI otherwise too few), and Gold-plated and Stoneform Shoulders neither cut a tick
+  nor spend on one. Force of Will's 51 comes off a mob's melee special and a mob's
+  ranged hit before armor too, and takes at most half of a special; Stoneskin Totem takes its amount off before armor on both. Spikes
+  14104, Shield Spike 12782 and Knockdown 11428 and 16790 take no flat reduction. On Era realms Gift of Arthas also adds its 8
+  before armor to a swing, and adds it to a Deep Wounds 12721 tick.
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports the Reports section lists; all fights. The
+  Era comparison: vanilla.warcraftlogs.com, the 36 reports its section lists; the ticks a player takes and the specials
+  and ranged hits, the reports their sections list.
 - Game build: 1.60.1.70862, 1.60.1.70888, 1.60.1.70938 and 1.60.1.70959 for Force of Will, by event time against the
   time the CDN first listed each build; the Game builds section has the procs on each. The Tenderized and Gold-plated
   reports start on 1.60.1.70790, and the first Stoneskin Totem summon counted is on 2026-11-07 06:52 UTC, two hours
-  after 1.60.1.70862 was listed. The hotfix each player ran is not recorded.
-- Date: 2026-11-05 to 2026-11-19
-- Pull request: #1114; the single applications, Stoneskin Totem, the cap at half a hit and the crits in #1116
+  after 1.60.1.70862 was listed. The tick, special and ranged reports run on 1.60.1.70862 to 1.60.1.71091 by report
+  date. The hotfix each player ran is not recorded. The Era reports' game builds are not recorded.
+- Date: 2026-11-05 to 2026-11-19; the ticks 2026-11-10 to 2026-11-25; the specials and ranged hits 2026-11-10 09:46 to
+  2026-11-25 08:41 UTC; the ticks a player takes 2026-11-13 20:13 to 2026-11-25 11:37 UTC; Era 2023-10-04 to
+  2026-10-01
+- Pull request: #1114; the single applications, Stoneskin Totem, the cap at half a hit and the crits in #1116; the ticks
+  in #1229; Deep Wound, the ticks a player takes, the specials, the ranged hits and Era in #1230
 
 ## Method
 
@@ -260,6 +273,223 @@ Gift of Arthas' swings come from 18 attackers in 8 reports (2026-11-11 to 2026-1
 in 239 reports (2026-11-05 to 2026-11-19) and Lacerations' from 19 attackers in 8 reports (2026-11-11 to 2026-11-18).
 Spell hits against a flat spell damage taken amount, and a flat ranged damage taken amount, were not measured.
 
+## Ticks under a flat Physical damage taken debuff
+
+The reports are every indexed one where Gift of Arthas 11374 shows beside a Physical bleed or item tick (10 reports),
+and the 15 with Tenderized or Lacerations, a tick and no Gift of Arthas, of which 8 hold a tick under the debuff; the
+other 7 add nothing to the counts. Per report, caster and tick spell, the ticks
+with every one of the three debuffs off give r, the median of amount / unmitigatedAmount over 5 or more ticks. A tick
+with the debuff on leaves amount - r x unmitigatedAmount over; a tick that took the debuff's amount leaves the amount,
+or r times it before armor. Only normal ticks count (no crit, absorb or overkill), and none within 50 ms of an event of
+any of the three debuffs on its target.
+
+| Tick                               | Armor (EV-0194) | Gift of Arthas: on / off | Median left over | Lacerations: on / off | Median left over |
+| ---------------------------------- | --------------- | -----------------------: | ---------------: | --------------------: | ---------------: |
+| Rake 1824, 9904                    | none            |                223 / 539 |             0.00 |             115 / 166 |             0.00 |
+| Rip 9752, 9896                     | none            |                 132 / 96 |             0.00 |               56 / 82 |             0.00 |
+| Pounce Bleed 9007, 9824, 9826      | none            |                 48 / 120 |             0.00 |                       |                  |
+| Garrote 11289, 11290               | none            |                101 / 373 |             0.00 |                       |                  |
+| Rupture 11274                      | none            |                113 / 550 |             0.16 |                       |                  |
+| Rend 11572 to 11574 (warrior)      | none            |                142 / 302 |             0.00 |             335 / 488 |             0.00 |
+| Rend 17153 (Kang the Decapitator)  | a tenth         |                   2 / 17 |            -1.50 |                       |                  |
+| Wound 17407 (The Blackrock Slicer) | all             |                280 / 400 |             0.00 |                       |                  |
+| Bigger Rock to the Face 1306816    | all             |                217 / 586 |            -0.31 |           182 / 1,581 |             0.00 |
+| Rock to the Face 1309967           | all             |                  81 / 92 |             0.17 |                       |                  |
+| Deep Wound 412613                  | none            |                          |                  |           545 / 1,136 |             0.00 |
+| All                                |                 |            1,339 / 3,075 |       mean -0.90 |         1,233 / 3,453 |        mean 0.24 |
+
+The All row gives the mean left over across every tick under the debuff, not a median.
+
+Gift of Arthas adds 8 to a swing at a k near 0.65, so a tick that took it would leave 5 to 8 over; Lacerations leaves
+0.65 to 3.2 on a swing at 1 to 5 stacks. On the ticks that meet all of the target's armor, unmitigatedAmount and amount
+read the same with the debuff on and off: The Blackrock Slicer's Wound reads 13 before armor and 8 after it either way.
+The same reports' normal white swings are the control: on the four Gift of Arthas reports fetched for them
+(1TFWH4Yy38KhXMwx, 26KV1wfdJpnaZFhA, 2gZx9BrGYTNwXRk7, Gkc8Y1zZDNb7wWVg), 3,089 swings with the debuff on leave 5.15
+over against 8 x 0.641 = 5.13 before armor, and 4,353 with it off leave 0.00. Tenderized shows on 5 Garrote ticks in
+one report, 0.00 over at the median; no Barman Shanker wearer is in these reports.
+
+Deep Wound 412613 is the damage 412609's periodic dummy deals every 3 s and logs without the tick flag; it counts as a
+tick here, as the sim's Deep Wounds dot does. Its amount equals its
+unmitigatedAmount off the debuffs. Its ticks under Lacerations come from 4 of the Lacerations reports. No report holds
+a Deep Wound under Gift of Arthas.
+
+## Ticks a player takes under a flat reduction
+
+A mob's normal Physical ticks on players in 164 reports (2026-11-13 to 2026-11-25). Per report, mob game id, tick
+spell and receiver, the ticks with every reduction off give r, the median of amount / unmitigatedAmount, and a tick
+with the reduction on leaves amount - r x unmitigatedAmount over. Expected is the mean left over had each tick taken
+the reduction at r, capped at half the tick. Step pairs are consecutive ticks of one bleed on one player that cross
+the reduction's edge. Stoneskin Totem's aura logs no event on the receiver, so a tick counts as covered when the
+receiver's own white swings within 3 s show the reduction.
+
+| Reduction                                          | Ticks on (reports) | Left over, mean (95%)  | Expected | Step pairs: change (reduced) | Control on swings                       |
+| -------------------------------------------------- | -----------------: | ---------------------- | -------: | ---------------------------- | --------------------------------------- |
+| Force of Will 15595 (-51)                          |           369 (22) | -0.51 (-1.06 to -0.02) |    -26.4 | 130: -1.5 (-25.5)            | 6,485 swings -20.2 (expected -20.3)     |
+| Stoneskin Totem, ranks I to III (one tick rank VI) |           277 (19) | -0.01 (-0.07 to 0.04)  |     -5.1 | 23: -0.26 (-4.60)            | 1,079 swings -7.3 (expected -7.9)       |
+| Gold-plated 1291908 (-15)                          |             16 (6) | +0.13                  |     -8.2 | 8: -0.12 (-5.1)              | 91 spend swings -7.5 (expected -8.1)    |
+| Stoneform Shoulders 1298231 (-60)                  |             12 (8) | +7.5 (4.0 to 11.2)     |    -43.3 | 14: +0.57 (-44)              | 296 spend swings -17.5 (expected -22.4) |
+
+The median left over is 0.00 under Force of Will and Stoneskin Totem. Force of Will covers Rend 13445, 12054, 13443,
+11977, 13738 and 16509, Puncture 15976, Rupture 15583 and Vicious Rend 14331, each at a median of 0.00 to 0.10 but Rend
+16509 (4 ticks, -6); on minus off in the same reports reads -0.17 (-0.85 to 0.43), and its 49 ticks of 102 and over
+read -2.7 against -46.2. Its step pairs change by -1.5, the same as their unmitigatedAmount. The Stoneskin Totem ticks
+are almost all Defias Inmate Rend 6547 at about 10 a tick under ranks of 4, 7 and 11: none of the 277 sits within 0.75
+of the reduced value and 216 sit within 0.75 of 0; with covered swings on both sides within 10 s, 208 ticks read -0.14
+to +0.21. The 281 ticks no summon covers read +0.05 over, the same. One covered tick is rank VI (a Rend 13738 of 100 before armor, 0.00 over); 14 more ticks under a rank IV to VI summon
+(6 of them rank VI Puncture 15976 ticks of 185 to 274) read 0.00, -0.47 and +0.33. Gold-plated and Stoneform Shoulders are never spent by a tick: none of 1,666
+and 1,793 removals has a tick within 50 ms without a white swing there too, and the buffs stay up through 39 and 25
+ticks. The Shoulders mean of +7.5 comes from 12 large ticks whose r reads low, and its step pairs carry the reading.
+
+Force of Will ticks on:
+
+17ymZpJ6xFPf4Raj, 3P4tmnWR1j2GXKZa, Cqyp8kKM4jJHtn7f, FJdrDz9w1Vxaf2cT, M6qTRh8GfCBjWJ7p, MWr2C8PbD4GJ9Tmf,
+Q2PbD38mAWa7TzCk, YvZ3CGFnzPk4rJhV, ZR7TAdcnfkgDz3b6, aYyJ9hdFwXKgDk16, bRXtBrFwDj7d4vHP, cav7VZrmPbNW3y29,
+gz2wAdQKhM8C1FZY, kXHvcKN1nJWbRPqw, rtKVYnvZRFqD3N6J, tGmMYvxQADVcbJRK, vF3fwb7aQ9BgGmWt, vMZGmT81jqNf7HPV,
+x9Jty6qTazhGHLKB, ybf3pCJXnTQD2V9G, yv8aMhH6kD7JrT2n, zPKMcn8JN9GkT7vh
+
+Gold-plated ticks on:
+
+4q3p1Vhb2N6Q7rFY, 6CbctYwZzTX9qyjJ, 8cXaMyhkGFZfCBgD, 8z4xqtkQ6jZaPm3f, j7tKNzr3YQXTVR6n, ngCkNVyZRPzM6hYX
+
+Stoneform Shoulders ticks on:
+
+3jARkacpG1LJgCTN, 4j2MDgraFp9zXyhx, C8WHXv24kqZgKb9t, FkHnDCK2NJrAjb3B, aYyJ9hdFwXKgDk16, gBvkpC7D8cRwF9yx,
+nAZxV6PHfGpraBtv, zPKMcn8JN9GkT7vh
+
+Stoneskin covered ticks:
+
+3jARkacpG1LJgCTN, 4Xpzqmk1AZ8FTRLb, 7HP4GKrB9VDdJbt3, 87BwAPvWYCTnKJ6Q, 9bvQ2gKdAt1nFx8C, BzJTG7nxPmD13LbV,
+FkbB7C9QGpjRq1gh, KTL7a4NXMC6yvVWg, PpvQ9WzNTKgnVckA, QZcRmKX4vMVh7f6j, ZJvwyXCfPpGRLk6d, c18vP69HxAyKBY4W,
+dKDBW1hL4XjGMR9v, fNxBnX2JcPkY9mpK, j7tKNzr3YQXTVR6n, p4ndayz3TKkWfZbG, qnCwWrxJdFVgHtvp, wfZA3baBjy2KPJcv,
+wrKpnNaxqj2ydFAM
+
+## Specials and ranged hits under a flat reduction
+
+The tanks of 331 runs in 318 reports, with a mob's Physical hits on them that are not white swings. k is the share
+through armor from the narrowest of 8, 15, 30 and 60 s windows that holds enough hits: the ability's own hits off the
+reduction where they suffice, else the same mob's white swings. A hit with the reduction on is cut by R x k before
+armor and by R after it; the table gives the cut over R x k; it reads 1 before armor and about 1/k, near 2.5, after it. The buff's own events and Stoneskin Totem's summons give
+the windows, and a Stoneskin Totem place counts only where the tank's own white swings show the reduction.
+
+| Reduction            | Hits                      | Hits on (tanks) | Cut over R x k, median |
+| -------------------- | ------------------------- | --------------: | ---------------------: |
+| Force of Will        | white swings (control)    |           6,944 |                   1.00 |
+| Force of Will        | specials, the ability's k |        222 (53) |    1.00 (0.97 to 1.03) |
+| Force of Will        | specials, white-swing k   |        382 (96) |                   1.00 |
+| Force of Will        | ranged, the ability's k   |        159 (37) |                   1.00 |
+| Force of Will        | ranged, white-swing k     |         78 (28) |                   0.99 |
+| Stoneskin Totem V    | white swings              |             285 |                   1.01 |
+| Stoneskin Totem VI   | white swings              |           1,066 |                   1.06 |
+| Stoneskin Totem V/VI | specials                  |        about 90 |           1.00 to 1.16 |
+| Stoneskin Totem V/VI | ranged                    |        about 90 |           0.98 to 1.20 |
+
+Uncovered places read -0.04 to 0.05 on whites and specials but -6.6 on ranged hits, so the Stoneskin Totem ranged rows
+are the weakest.
+
+Strike (321 hits), Cleave (66), Hamstring (51), Sinister Strike (37), Snap Kick, Uppercut, Crusader Strike, Head
+Smash and Skull Crack each read 0.97 to 1.03 under Force of Will; the ranged hits are Shoot (214), Throw Wrench, Throw
+and Hooked Net 14030 (6 hits, 1.02). Force of Will leaves unmitigatedAmount in place: it moves by -3.6 on whites, -3.8 on specials and -0.1 on ranged
+hits, against -51 if the buff were inside it.
+
+Under Force of Will, 101 specials under 102 before armor land at a median of 0.51 of k x unmitigatedAmount, where no
+cap leaves 0 to 0.36: Shield Bash 26 (0.51), Pummel 25 (0.49 and 0.52), Kick 31 (0.50 and 0.52) and Gouge 19 (0.55).
+Ten of them take the ability's own k, 41 the white-swing k and 50 a looser k, the median of the same mob's white swings within 30 s. No mob ranged hit falls under 102:
+the smallest under the buff is 134 before armor and the smallest of 7,526 in any state 131, so the cap on a ranged
+hit is not read. Stoneskin Totem holds 3 specials and no ranged hit under twice its amount, and no tank wore
+Gold-plated; Stoneform Shoulders holds 25 white swings at 1.00 and one ranged hit.
+
+Three Physical mob abilities take no flat reduction. Spikes 14104 (94 hits, 14 tanks; no SpellCategories row, a
+damage shield aura) reads 0.903 of unmitigatedAmount with Force of Will on and off, and a 31 before armor lands at 28
+where the cut would leave 0 to 14. Shield Spike 12782 (54 hits, 24 tanks; a proc trigger aura) reads 0.900 both ways,
+and Knockdown 11428 (32 hits, 18 tanks; DefenseType 0) 0.861 and 0.863. Mortal Strike 13737 (6 hits) and Maul 1242907
+(3 hits) read none as well, on too few hits to settle. Sonic Burst (DefenseType 1, Physical school; 11 hits) takes it before
+armor, so the DefenseType alone does not decide it.
+
+The 318 reports of the specials and ranged hits:
+
+1b7PdYR4HhDXBGT6, YJPVatA7TqpZjb6B, 9zxHaWbYT3gqDQvF, FVqQab31p7KXAJzt, h3VmpYZ4Gt6xNJC7, bF8hVwJNDT6HyRWt,
+cb9gzXjCK3BfH7qM, Mxd3G1mcXFv4RfN2, Xy3tw1gBKbmqZjn9, CxTmQRX2ytGcwA9r, j7xyJdLXHZNA6PQg, FJdrDz9w1Vxaf2cT,
+6xnwM2qCN43Tv8Af, DBzk8qw4yFWtb9rd, 1MA3qWLGa8v2hdXP, xfWNbt8yZKzcRPjC, 4ChPnBrVK2fJLMaX, RGDd1M9QCkjFpymY,
+4vcn3WF1RxXf8VZt, Q2PbD38mAWa7TzCk, M71jtPDgcNR4fq9T, VJ7chPDkjLx4AN8m, CBGfNpnjv2ALw9Kz, gWpPrhyZ42qkJ8CR,
+KHDZjxmTvG32bpJc, AwjKkm6rcg7bDYCW, B8L4cXdvATjqZRJn, Th61fCNHVRx7zgvY, DzGaRHQ89xL3Yfdk, G29y3QBWV7XDR6mj,
+cYqkph6wnzQyLBJT, mwrDFNLdhgJxAvct, PrcWByj746kYq93v, mCn63gBZfLFHaWr9, hk4zpt9dA1DbP7Bq, fYTm9aRnj87Gv6kW,
+p8YfLqgRByAaZrmc, qth9C7PrjnZX1V6Q, VvRNkLTq867HMwn3, QHqPwymAX4rLv6at, 6hDJQWTXwBr419AM, QbhWxjGRkF9Lmzq4,
+c6NdqPkrLXG8KVTp, F9bgjZYDQ6fqPaLk, TjRnfNbzpXH8VwPD, ftqKjgaPmbNvM21n, XHCPnJGcKfZrhQYA, mawXHWz7JRkx9FZA,
+ch87CPWVqaxZYfz3, jq2PK7vmkVBcQNxH, FC4wjyAZkdp2zvrT, KpcADW3GwYqXzgM2, tXzaMRZ9Fj7KcN1f, dfXzhvRb78AnyVxG,
+vHp9QagZGFLBM7PC, kvCd8J41RrZ3zXNp, xc3Z2YnNwCgaG7Vr, q2ZdJ13LthwMmyDR, 18NRV7nL6xh9qA4H, z7dxgt4mMVGLThCf,
+f6HGnWcxNgk7MZJa, RXy8HJ4g7KxzQj1C, qZKvkNVHDYg1xhFm, G6tcKk2rJvQnA3gP, DcyQ2gRV1P9dNrqW, 8Qp4nrZNKaFzy79G,
+JZLXKHRYna3QMND7, 6ZxjBCRVMXWmF7wp, Kjk8dnN3y7BDhYAg, ykAzP8GnZ49mHvYM, DwY13bHMCJWQhaKB, 2jL7TrZMxAR3khbt,
+81rnYqNT3djhJFRy, PxgRcqaK9bdWjTGQ, QZ3hRyAMbDrj9cHz, axADtf8Hv12YFwpK, tMVQfmwA6PkKXnxD, 9QKHCPLay1fMvtpc,
+DznbBXTYqWkcRy9A, jGmXqwPCg6z2cAkN, MAcatzW7rKRgLP8H, qtVTQpLYmZRDxr3J, 8Gw9QFyDmaHVAJ6M, 3VfFmBYjzvhGH7py,
+QXamf2TH1q43Arjw, bTNXKRBGcdQHVWaL, 28mKjfgQBGvJVnW1, QjX3NRAGPqJFxV4v, VdHgfKpqkFBQLPj8, gnBdKW9myaxzNP3b,
+KRZ3XVd4C7QmW1hP, bNvV2YCTJxrdw9Gk, hw2DgmGaQpKByqj1, X138QNDngdVHkKWF, ZBfqYyPN1kwmJHDA, 4thjWV7Xbz2yrxBF,
+qL7cBTb6vKjXtpWJ, MDk4wyGC1dbrY8cH, 2t1WgbHT8Kqdcj7R, tMv7DFn2H6Gwmb9a, kKBvcq826aYPX4W7, MP2rT3L8tYRJWZKj,
+byKwCtXW8g1z2LDR, pnAt9zw3Nh8jQPy2, 1aM8GxnBfXmWDJkV, QFXMdZ81kjzA69KL, 89bLXH276MyragFP, Hb1MxFKkcJZwGLmP,
+L7tdvhcYjgwHTrMz, 6CVPtAT4bdhB9jGR, HWDA2mGnCzL9bhpf, 3CXr8BZMjQV2P6zA, Bhm1dHcrJtR38MDL, v8tw1Hbd6MaWkjQK,
+9TtNqcjaBvHFYQ61, JLt4PFa2qTYKh3XZ, 91wXZG6pN8CDanmR, hWYGMDpr1Bbc6Zzj, GFQKCHpt62M8rRdg, TXGK16YwMmcyj9Cd,
+pBFcvGPyjmAXg41Q, LqRa728dk9CfhvtP, VPAaTzQjxp7F4fGH, YfxF7WykaNtd13wX, TmpqMftny1hV6akj, Yj6tzdvfwGD3XaMB,
+yWVvp3q6f72Dkbth, xCX8YjaRrvKq6tfg, 6FbcqMymaBDk1dWx, 2Wd93tJTkAYDyVQb, Vxj68RbmkJh9TcZX, c2HF3NWbaGxjfD47,
+36C2c1pDdkmbWVHT, TnktYFprB2WdvRgZ, jfbH9rNLaMV1y42v, pynMxHKC9LYGF7qg, VGhX29mL6ra38qd7, g7JdmafLXQZC1zW8,
+VgmapW6THJ2hCrzY, xcpXMhYDnVKwB1N9, f6XP1Am8hvQrcNW7, gYnp4AZVXFLKJGRW, b9VpCT4QgYDqxNKH, xbhfCcYzBdqJAKDT,
+BXDNYVpvMtACK93c, 8G6vKTPrMZyzWqRD, Zf2c1PF49rVDgjw8, HD7wtn1vG2bCAK3z, xt7BwRzWVvbKJTXp, G9NmY7ARvHKyb8Cn,
+6wJQaGNDcmKCYpyB, HhwnDJtfLGZy9TcN, wCFPYVcykNZQKL2t, KbFM6aRp8ZPf92WX, bp8jCcfTa7g2P3xX, WLGy4qAtFxmcrfw1,
+zNXHrnQMfWaZpy3B, jBahy1VdrZAtmPHz, nhv8xkLAa9FW2M3c, 1GzyVFrPntN4wqT3, 3GrqwxDX9BMnTR7H, PC1M9hHgNxzn7VjF,
+QRyTnApLMDf71YqV, rCJPf73AF8HGXhzQ, BcC7YhHLnNxK8P16, 37F6q1AXnMx4CaZz, XV2KLGbtZpNPmMkB, BDHNLb4fyMVzgpmc,
+Lj4GJnrxKt3mCHf2, h4JXmPQDqWL61Cyc, ZfXrLy2MdY6kzah8, vC4PN67gzQwqkRtG, cwfFGZmXJLktrW37, 6rLan1dBPqFhNYmJ,
+H4nMT6FVBwXmJbP1, XVGLhJMyQgzbF4rH, kJA4yvz2xGN6bTmn, ZBXTKqHYa3QfkNxM, BXLbtpMR6j7fYyKq, bWRrmTpMycdvxhJa,
+JGTVprQdtP7yC2M4, adwfGCJAYTmKV8Hh, VjFXGq16923cYgAw, XQmMHk8y1JxC7Kq3, kZ1ztTH2hxFcqDfp, 6YtRQVy7JH2LBwkx,
+LbPgnwx637h8JypD, mGkNCyPt2cHbT8QF, tyLhZXn9DjMJrabm, FdKc7PYDwrNZAnpq, LP1BkVKvbCc4GJpa, 3vF64ZYwGDBthnc9,
+M6rqJ3BzDhfwyVx7, B1WXm7QGV4hdHLbK, DbQwz3av89BpZYfn, hnWavgKQt3ZXLBdV, xwtp9MYN2yqAFTj8, Lk3rDaH67NXmgGcy,
+TFdwYrLxDqKg4pGt, YfMyHA28Wq4h6Zmw, XgqtKv2zpLGCM36V, PjfKAXdcDav2V7Wx, TLj1tbDZBFngW46G, zcdXFhYfnRjLB2TA,
+24aNAYJpqbw8BZg6, 8YKPtj9qzGfgxRwp, GPb9XzKHda2MNA8r, rRPZwL18VzmJvakH, q3Hr8jghPC4QvV9k, kLnmy6N81xJH3Ddc,
+WwxPA8gJ1ZBrKFc9, nqBgxXGVPZD9rTk3, Zw9bfpN2KXgJGjLa, nZ6h32rb1FvCLMmN, YvZ3CGFnzPk4rJhV, 2kcMafz3ZdXnt86G,
+nNprfgPw6V2HQhMA, 8VhQt4NWJ1mrMPRd, LTBg9F2myanCtpxK, QRGNbq3pH8ZKjJAB, 7rZ3cMdWXHwK2vn6, v9WLJyYfwqNVcMPR,
+BYJQGhTZbc3fn4mM, tx6a7T4XqvJVjRMb, d4QwTBaVWJ61gMPY, X2BHzGg93h1vbdM7, 8frXZzVBdthKqmap, dt8pX4hq7RFzKYQJ,
+L1HV6DZB8gYwKja4, 3acmGYqFhJRr2Qy9, p7n6YycZLtBGMx8N, J8YH1pCt7nWbcQha, kjGgzv6mnQxRw9WF, b43N6LhGa1FjXcfw,
+bMVJtkRrhZpYfa8d, a9ncj2L8k7CVhN4b, pq7tYv6FGXhjzfxR, L6qnrh7wFf289NGv, 1kbMHJnC3cv4jhRA, 29tpHdVyKTgQAqCM,
+Tq2Nt1p3cKJwn79R, NAK8CyqwtV2RbB97, BACYmQ13942MgZwk, hFbL7n82Ta4vzNZ3, cfrCmK2dZ8XMPR4Q, McV8Kq9P4rLQpZhF,
+rhKbtwNGmfvBjY1a, ym9qPXgbpGBVCnrJ, chny18qLvaXZCGz4, Pn4VmwMyJBALQZTc, 2TvqNHmpnGhrBk7b, Jj3KHZW7wdFTyLgt,
+bRXTDdAWxkn4hYzG, pWkGJH9gh7Rjw2DM, rTcFgPqB2RktaQbL, FrpBcP9M7mNYb2tf, t1yGxzP7L3Aa6CQr, AQw4CPMyqaNpzKfd,
+rDCpd9J4jPFtqbWM, DBr1v4LafqKzAdQb, jBZ9mvHxCpGWDt2z, BqjcKyxXYp6f8bH3, jrzv4GRTAdfa9ZnH, 1ch386M7ZN9raCFv,
+wRBLd8bjVnvMqKZ7, Vc1NqHTMg7kwrCZ9, B9LgbXrnjG4w78yt, pPqJfKV2k748Ldgb, R16PDpqXMHfF4c28, n34YABdDfXW9Rr12,
+xNqdkFAXbJwyHhcp, RhpdPY6bLq8N3x7k, LRZNQ3HWCKwPbVqf, 3P4tmnWR1j2GXKZa, Hk2aWJDcB7zYAPC1, MpaBFLAfqTb7dzcY,
+29PYjXLhFrMkwBvD, JC3waXhZjQG67c8g, D4fxcgARXZV9tNKW, N79wqY2BTbjHZytR, p62vxGtyAqhgB31a, jV8vf9akMC7Rrctg,
+KW89wpQXb6gTPA4B, TkNDBGzgp8ArCfJa, ytrMnbRHNav1ZKgJ, F1CHQMfPJ9LaBR8Y, YMvcthDX8rFP7NBj, GcLFMVzHmqhYB1Q4,
+3pfN2bLka4RyW6Dc, hHVqt8Wjv2wk4bmg, Ky82P4FT9rRjYVn7, QTL6MGmBbApZf12x, CFNBhYD2Ap6XbVqt, nzXW6jJTC12w4v7m,
+21BPMAdjDtXwT6h7, VAZjF39JMBGDPnYr, 3XGCbk9TQDhA4Maq, C63APp1bwTy8g2Lc, NQMX3yWkpj1PBnaK, TadLyGCwYqxtfKh8,
+YKFpWXL1Td7PGwmg, bM2knDj7VNvGYy1d, aDv4xZG3MXq6zcfJ, vdKqNBwafpHgW6LY, zYjf8K7Xvw2QhNAg, F3T8cfDCJbpHw9W4,
+GWw12BZmXFV4ny6Y, yZ3xq9jPwTDNrVXM, R3JMNnkVWCDwxyda, QL2MaN1g3Htj6ZWF, 4ZX2AmrDnwGpd8WN, bqafJg6RZAL4P2hH,
+aFkCTQyW6HxYtN7Z, ktNawFKnLcqDV1zf, AmTQR8PDqjFZ2kgH, Tg2zJMAW1Lrf4VQx, BpK2gjbGrtxnkNdc, WVj7gKrz2tT6yfwa
+
+## Gift of Arthas on Era realms
+
+36 reports from vanilla.warcraftlogs.com (2023-10-04 to 2026-10-01; EU and US Era realms, 3 Anniversary Hardcore
+reports and 2 on Chinese realms of unknown flavor), 367 fights after the fights logged twice are dropped, 324,708
+white swings. Armor debuffs land through a raid pull, so a k taken from other swings of the same attacker misses;
+instead each run of consecutive normal swings on one target in one debuff state fits amount = k x
+unmitigatedAmount + d. At level 60 the attackers meet the same armor, so the fit separates k and d: d is 8 after armor
+and 8 x k before it. With the debuff off d reads 0.21 to 0.38 by k bin, 0.33 overall.
+
+| k bin (mean k)  | Runs / swings on | d on, minus 0.33 | After armor | Before armor |
+| --------------- | ---------------: | ---------------: | ----------: | -----------: |
+| 0.6–0.7 (0.658) |           8 / 91 |   5.07 (SE 0.08) |           8 |         5.26 |
+| 0.7–0.8 (0.755) |          8 / 109 |             6.00 |           8 |         6.04 |
+| 0.8–0.9 (0.861) |         32 / 442 |             6.97 |           8 |         6.89 |
+| 0.9–1.1 (0.967) |         65 / 733 |             7.86 |           8 |         7.74 |
+
+42 of the 48 runs under a k of 0.9 sit nearer 8 x k than 8, and their median (d - 0.33) / k is 7.97. Era's
+unmitigatedAmount holds no 8 either. Deep Wounds 12721 ticks (1,481 on, 6,397 off, k 1.000) leave 8.52 over on the
+debuff (median 9.00) and 0.22 off it; of 118 pairs of ticks that step from off to on, 76 rise by 8 and none stays the
+same. Rend 11574 (4 ticks) and Rupture 11275 (38) tick only with the debuff on, each after a logged apply, so no off tick
+gives k; each tick's amount equals its unmitigatedAmount.
+
+Era reports: bAqQZaKr8yJ2dXxw, GjZdnQtkFTfKNzax, GcVwANCP4Zt3bXqv, 7V9XTLwzv3chQKnH, PBGtV7qFzTNmrjv3, yKmhq1Lc7JQHaTA3,
+mLHqtkYFb7fn9N6c, 1wtdrgBT6p2bPGCD, cLXmDpTVRjAYWCN3, gA2bLxmNkdpRqWX8, hVtPQZYA6fnyBzNc, pJMqz391bdT6PWHr,
+VcHjhtn7Z1wyGvgK, jFVTN28C6rJ9YxfP, znt2NcXDABh8WdV3, MFKjywprZ7J198a6, 9jzxYAyNbvK7tJcm, YmPJ4qZcrbX7ykwV,
+CjdaKzVDhmbgHfvQ, 8drHW19qYpK23Vhw, nTGdfAHbjZWVyqzR, 7TmXWC234xFqkRfY, D9vBqHfycPCmAFtw, bzpy1PTx783YtHmk,
+qVvTAzjXDadZ7wtf, 2gMTqfwracy64PWt, HhM72aQk8GgPj9rW, KGMw3f1TZkQnxFBc, JqG4YtWXwApvL8TZ, 1XVpPD2hRntg3Q9c,
+L1PTGAnMDqbv6RWZ, dx24jb9ZkVWyfTGr, NcmMnLb2hRDrJGfa, JjVR3KHAhrcTzGxY, zrbWMYdvahLn2AH7, KtLpz1jTPmadvFxq
+
 ## The cap on other flat reductions, on the amounts together and on a crit
 
 None of the 124 window swings under 102 holds a block, a second flat reduction that logs on the wearer or a Stoneskin
@@ -391,6 +621,18 @@ Lacerations:
 
 AnPHcV64wg8DThzZ, q62VRcw1m8fyHN4T, t38h6AJQWzRCHwZy, Xa2MfbLKQCPYH6nr, nPLWN2VDTZMz7Qk6, nP4N7AqTvChFQ2GY,
 D1dxzYbNMKcpZAa2, 6Y2mMtCzb7ZvQKWD
+
+Ticks under Gift of Arthas:
+
+1TFWH4Yy38KhXMwx, 26KV1wfdJpnaZFhA, 2Dv3WbJrMTCFPVgH, 2gZx9BrGYTNwXRk7, C8pJQGXhK6cxgtT2, Gkc8Y1zZDNb7wWVg,
+WmAYZ9MVRPqncTBJ, dYwmDcAyqTBGW61g, hwBvpVCGWtH7gKXf, yqFPH1MKv746dQhB
+
+Ticks under Lacerations:
+
+6Y2mMtCzb7ZvQKWD, 7RaLcAJVWH2nZPrj, BXhNKykZL7MDat8c, D1dxzYbNMKcpZAa2, Kdp4ArYMTxCZWHcX, nPLWN2VDTZMz7Qk6,
+vtbdYWr47pPFKQ3m
+
+Ticks under Tenderized: xMRpbWkrzv2AZTN3
 
 Tenderized:
 

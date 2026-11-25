@@ -65,6 +65,16 @@ func ProcTrigger(character *core.Character, s *Spell, handler core.ProcHandler, 
 
 	settleProcRate(character, s, &trigger)
 
+	// A row that fires on every main-hand hit with no roll hears every one that lands, damage or not:
+	// Sunder Armor, Rend's application, Concussion Blow and Disarm cast Iceblade Hacker's and Dreadfrost
+	// Saber's Frost. A rolled row, and a row without the main-hand bit, still needs damage: Hand of
+	// Justice, Ironfoe and Force Imbued Gauntlets do not proc on those (EV-0195).
+	// TODO: Ingame test needed -- whether Death Mark, which lands for no damage and suppresses weapon procs,
+	// casts these rows' Frost. The sim lets it.
+	if s.ProcFlags[1]&dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY != 0 && trigger.DPM == nil && trigger.ProcChance >= 1 {
+		trigger.RequireDamageDealt = false
+	}
+
 	return trigger
 }
 

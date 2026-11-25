@@ -504,6 +504,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Wounds the target for 225 damage.
+	// https://www.wowhead.com/forever/spell=1320808
+	// unsupported: states no rate
+	// trigger 1320808 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1320808, BuffSpellID: 1320808, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 11603, ItemName: "Vilerend Slicer"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Reduces targets armor by 300 for 20s.
 	// https://www.wowhead.com/forever/spell=15280
 	// unsupported: states no rate
@@ -684,19 +697,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 12930, ItemName: "Briarwood Reed"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Strike the target with a Flaming Shell for 38 Fire damage.
-	// https://www.wowhead.com/forever/spell=29647
-	// unsupported: states no rate
-	// trigger 29647 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 29647, BuffSpellID: 29647, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 13146, ItemName: "Shell Launcher Shotgun"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3844,6 +3844,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16405, BuffSpellID: 16405, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13060, ItemName: "The Needler"},
+		})
+
+	// Strike the target with a Flaming Shell for 38 Fire damage.
+	// https://www.wowhead.com/forever/spell=29647
+	// trigger 29647 (3.75 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 29647, BuffSpellID: 29647, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 13146, ItemName: "Shell Launcher Shotgun"},
 		})
 
 	// Poisons target for 7 Nature damage every 1.0 sec for 15s.

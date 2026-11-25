@@ -66,7 +66,7 @@ func (paladin *Paladin) applySpiritualFocus() {
 		return
 	}
 
-	paladin.PseudoStats.PushbackChance -= spellData.SpiritualFocus.FractionAt(paladin.Talents.SpiritualFocus)
+	spelldata.ParseStatic(&paladin.Character, spellData.SpiritualFocus.Rank(paladin.Talents.SpiritualFocus))
 }
 
 // Improved Seals - Increases the damage done by your Seals and Judgements by 3/6/9/12/15%.

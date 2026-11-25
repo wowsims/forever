@@ -182,8 +182,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 882.00139
-  tps: 719.8244
+  dps: 878.22134
+  tps: 716.80036
   dtps: 4.72586
   hps: 26.78781
  }
@@ -209,10 +209,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BlackbladeofShahram-12592"
  value: {
-  dps: 932.83657
-  tps: 762.19899
-  dtps: 7.2063
-  hps: 26.48823
+  dps: 942.53591
+  tps: 769.83625
+  dtps: 6.91237
+  hps: 26.74155
  }
 }
 dps_results: {
@@ -281,8 +281,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BloodmailRegalia"
  value: {
-  dps: 909.09156
-  tps: 742.36035
+  dps: 905.97493
+  tps: 739.86704
   dtps: 5.38122
   hps: 25.82316
  }
@@ -317,10 +317,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 955.08275
-  tps: 778.00973
-  dtps: 4.41457
-  hps: 25.81384
+  dps: 958.6661
+  tps: 780.62368
+  dtps: 3.84928
+  hps: 25.81486
  }
 }
 dps_results: {
@@ -348,6 +348,15 @@ dps_results: {
   tps: 726.09891
   dtps: 5.81478
   hps: 26.19425
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 957.96173
+  tps: 780.00084
+  dtps: 3.82392
+  hps: 25.80419
  }
 }
 dps_results: {
@@ -587,8 +596,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DrakefangButcher-12463"
  value: {
-  dps: 877.13746
-  tps: 718.85251
+  dps: 873.39382
+  tps: 715.8576
   dtps: 5.91436
   hps: 30.26295
  }
@@ -1010,8 +1019,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-GatorbiteAxe-17730"
  value: {
-  dps: 884.16783
-  tps: 722.72667
+  dps: 880.57501
+  tps: 719.85241
   dtps: 5.42235
   hps: 27.37511
  }
@@ -1235,8 +1244,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-KangtheDecapitator-2291"
  value: {
-  dps: 917.95771
-  tps: 747.93149
+  dps: 916.09119
+  tps: 746.43827
   dtps: 4.07893
   hps: 25.95398
  }
@@ -2063,8 +2072,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 952.27214
-  tps: 775.45425
+  dps: 944.58257
+  tps: 769.3026
   dtps: 4.55595
   hps: 25.08998
  }

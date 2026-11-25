@@ -182,8 +182,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 870.49479
-  tps: 899.22661
+  dps: 883.43421
+  tps: 912.11902
  }
 }
 dps_results: {
@@ -198,6 +198,13 @@ dps_results: {
  value: {
   dps: 886.90348
   tps: 914.70021
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 898.07537
+  tps: 927.12131
  }
 }
 dps_results: {

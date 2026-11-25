@@ -567,6 +567,35 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 	}
 }
 
+// A critical main-hand Whirlwind strike starts Flurry, and a critical Sweeping Strikes normalized
+// strike (26654) does not.
+func TestSweepingStrikesNormalizedStrikeStartsNoFlurry(t *testing.T) {
+	const armsWithFlurry = "30303213032215201-00000000000000003"
+	for _, c := range []struct {
+		name  string
+		spell core.ActionID
+		want  bool
+	}{
+		{"main-hand Whirlwind strike", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), true},
+		{"Sweeping Strikes normalized strike", core.ActionID{SpellID: sweepingStrikesHit, Tag: 1}, false},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, warrior := orcWarriorSim(t, "p1_arms", armsWithFlurry)
+			flurry := warrior.GetAura("Flurry")
+			spell := warrior.GetSpell(c.spell)
+			if flurry == nil || spell == nil {
+				t.Fatalf("Flurry %v, spell %v; want both registered", flurry, spell)
+			}
+
+			warrior.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: core.OutcomeCrit})
+
+			if got := flurry.IsActive(); got != c.want {
+				t.Errorf("a critical %s left Flurry active %v, want %v", c.name, got, c.want)
+			}
+		})
+	}
+}
+
 // A Cleave uses one Flurry charge and one Reckless Swings charge however many targets it hits, and
 // Whirlwind and Bloodthirst use no Reckless Swings charge.
 func TestChargesSpentPerCast(t *testing.T) {
@@ -1426,15 +1455,24 @@ func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
 	}
 }
 
-// An Arms warrior with a two-handed sword, Nightblade, against the given number of targets, with
-// its auto attacks stopped so every swing the test counts comes from the hits it deals. The main
-// hand carries the given enchant, 0 for none. The returned
-// func counts the Sword Specialization swings so far.
+// swordSpecSimWith with a two-handed sword, Nightblade.
 func swordSpecSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs, mainHandEnchant int32) (*core.Simulation, *dps.DpsWarrior, func() int32) {
+	t.Helper()
+	return swordSpecSimWith(t, targets, raidBuffs, mainHandEnchant, 1982, 0)
+}
+
+// An Arms warrior with the given main-hand item and off-hand item, 0 for the gear set's, against the
+// given number of targets, with its auto attacks stopped so every swing the test counts comes from
+// the hits it deals. The main hand carries the given enchant, 0 for none. The returned func counts
+// the Sword Specialization swings so far.
+func swordSpecSimWith(t *testing.T, targets int, raidBuffs *proto.RaidBuffs, mainHandEnchant, mainHand, offHand int32) (*core.Simulation, *dps.DpsWarrior, func() int32) {
 	t.Helper()
 
 	gear := googleProto.Clone(core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_arms").GearSet).(*proto.EquipmentSpec)
-	gear.Items[mainHandSlot] = &proto.ItemSpec{Id: 1982, Enchant: mainHandEnchant}
+	gear.Items[mainHandSlot] = &proto.ItemSpec{Id: mainHand, Enchant: mainHandEnchant}
+	if offHand != 0 {
+		gear.Items[mainHandSlot+1] = &proto.ItemSpec{Id: offHand}
+	}
 	encounter := core.MakeSingleTargetEncounter(0)
 	for len(encounter.Targets) < targets {
 		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
@@ -1476,18 +1514,22 @@ func swordSpecSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs, mainHan
 	return sim, war, swings
 }
 
-// Whirlwind and Cleave roll Sword Specialization once a cast, however many targets they land on, so
-// no cast brings more than one extra swing.
-func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
+// Whirlwind rolls Sword Specialization on every landed strike and Cleave once a cast, and neither
+// cast brings more than one extra swing.
+func TestSwordSpecializationBringsOneSwingAWhirlwindOrCleave(t *testing.T) {
 	for _, c := range []struct {
-		name  string
-		spell core.ActionID
+		name              string
+		spell             core.ActionID
+		mainHand, offHand int32
+		targets           int
+		perStrike         bool
 	}{
-		{"Whirlwind", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)},
-		{"Cleave", core.ActionID{SpellID: 20569}},
+		{"Whirlwind", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), 1982, 0, 4, true},
+		{"Whirlwind, a sword in each hand", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), 15806, 6829, 4, true},
+		{"Cleave", core.ActionID{SpellID: 20569}, 1982, 0, 3, false},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			sim, war, swings := swordSpecSim(t, 3, &proto.RaidBuffs{}, 0)
+			sim, war, swings := swordSpecSimWith(t, c.targets, &proto.RaidBuffs{}, 0, c.mainHand, c.offHand)
 			spell := war.GetSpell(c.spell)
 			if spell == nil {
 				t.Fatalf("the warrior has no %s", c.name)
@@ -1506,6 +1548,13 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 			}
 			if total == 0 {
 				t.Fatalf("1000 casts of %s brought no extra swing, so the check above proves nothing", c.name)
+			}
+			if c.perStrike {
+				const weaponmaster = 1290261
+				onceACast := 1000 * spelldata.Talent(weaponmaster, 5).EffectAt(3).FractionAt(war.Talents.Weaponmaster)
+				if float64(total) < 1.5*onceACast {
+					t.Errorf("1000 casts of %s on %d targets brought %d extra swings, want well above the %.0f one roll a cast brings", c.name, c.targets, total, onceACast)
+				}
 			}
 		})
 	}

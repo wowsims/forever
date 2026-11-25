@@ -375,6 +375,13 @@ var VersusBonuses = []VersusBonus{
 		Reason:      "Argent Defender: 'Undead that strike you are $s2 times as likely to activate this effect'",
 		Source:      "tooltip",
 	},
+	{
+		SpellID:     1300240,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
+		Reason:      "Cloud of Chained Essence (Chained Essence of Eranikus): 'Deals $1300240s2 times as much damage to Trolls'",
+		Source:      "tooltip",
+	},
 }
 
 // The procs whose rate the game files keep outside the spell data and that belong to the spell
@@ -468,9 +475,8 @@ var Spells = []Override{
 		Source:  "EV-0171",
 	},
 
-	// Seal of Light procs 15 a minute and Judgement of Light rolls a flat 50% (EV-0017, EV-0018). Neither
-	// fires on a dodge, a parry or a miss. The ranks no log has measured carry the nearest measured rank's
-	// numbers until one at their level says otherwise.
+	// Seal of Light procs 15 a minute and Judgement of Light rolls a flat 50% (EV-0017, EV-0018, EV-0212).
+	// Neither fires on a dodge, a parry or a miss.
 	{
 		SpellID: 20165,
 		Field:   PPM,
@@ -488,19 +494,19 @@ var Spells = []Override{
 	{
 		SpellID: 20348,
 		Field:   PPM,
-		Value:   15, // TODO: Measure Seal of Light Rank 3 in game.
-		Reason:  "Seal of Light Rank 3: Ranks 1 and 2's measured rate",
-		Source:  "EV-0017, EV-0018",
+		Value:   15,
+		Reason:  "Seal of Light Rank 3: the measured rate, not a per-swing share of 15 per minute",
+		Source:  "EV-0212",
 	},
 	{
 		SpellID: 20349,
 		Field:   PPM,
-		Value:   15, // TODO: Measure Seal of Light Rank 4 in game.
-		Reason:  "Seal of Light Rank 4: Ranks 1 and 2's measured rate",
-		Source:  "EV-0017, EV-0018",
+		Value:   15,
+		Reason:  "Seal of Light Rank 4: the measured rate, not a per-swing share of 15 per minute",
+		Source:  "EV-0212",
 	},
-	// Seal of Wisdom Rank 1 measured the same rate as Seal of Light (EV-0018), and its other ranks carry it
-	// until a log at their level says otherwise.
+	// Seal of Wisdom procs at Seal of Light's rate on every rank; for Rank 2 the pooled reports fit 15
+	// (EV-0018, EV-0212).
 	{
 		SpellID: 20166,
 		Field:   PPM,
@@ -511,16 +517,16 @@ var Spells = []Override{
 	{
 		SpellID: 20356,
 		Field:   PPM,
-		Value:   15, // TODO: Measure Seal of Wisdom Rank 2 in game.
-		Reason:  "Seal of Wisdom Rank 2: Rank 1's measured rate",
-		Source:  "EV-0018",
+		Value:   15,
+		Reason:  "Seal of Wisdom Rank 2: the measured rate, not a per-swing share of 15 per minute",
+		Source:  "EV-0212",
 	},
 	{
 		SpellID: 20357,
 		Field:   PPM,
-		Value:   15, // TODO: Measure Seal of Wisdom Rank 3 in game.
-		Reason:  "Seal of Wisdom Rank 3: Rank 1's measured rate",
-		Source:  "EV-0018",
+		Value:   15,
+		Reason:  "Seal of Wisdom Rank 3: the measured rate, not a per-swing share of 15 per minute",
+		Source:  "EV-0212",
 	},
 	{
 		SpellID: 20185,
@@ -539,16 +545,16 @@ var Spells = []Override{
 	{
 		SpellID: 20345,
 		Field:   ProcChancePct,
-		Value:   50, // TODO: Measure Judgement of Light Rank 3 in game.
-		Reason:  "Judgement of Light Rank 3: Ranks 1 and 2's measured chance",
-		Source:  "EV-0017, EV-0018",
+		Value:   50,
+		Reason:  "Judgement of Light Rank 3: the measured chance on landed melee swings",
+		Source:  "EV-0212",
 	},
 	{
 		SpellID: 20346,
 		Field:   ProcChancePct,
-		Value:   50, // TODO: Measure Judgement of Light Rank 4 in game.
-		Reason:  "Judgement of Light Rank 4: Ranks 1 and 2's measured chance",
-		Source:  "EV-0017, EV-0018",
+		Value:   50,
+		Reason:  "Judgement of Light Rank 4: the measured chance on landed melee swings",
+		Source:  "EV-0212",
 	},
 	{
 		SpellID: 20186,
@@ -560,16 +566,16 @@ var Spells = []Override{
 	{
 		SpellID: 20354,
 		Field:   ProcChancePct,
-		Value:   50, // TODO: Measure Judgement of Wisdom Rank 2 in game.
-		Reason:  "Judgement of Wisdom Rank 2: Rank 1's measured chance",
-		Source:  "EV-0018",
+		Value:   50,
+		Reason:  "Judgement of Wisdom Rank 2: the measured chance on landed melee swings",
+		Source:  "EV-0212",
 	},
 	{
 		SpellID: 20355,
 		Field:   ProcChancePct,
-		Value:   50, // TODO: Measure Judgement of Wisdom Rank 3 in game.
-		Reason:  "Judgement of Wisdom Rank 3: Rank 1's measured chance",
-		Source:  "EV-0018",
+		Value:   50,
+		Reason:  "Judgement of Wisdom Rank 3: the measured chance on landed melee swings",
+		Source:  "EV-0212",
 	},
 	{
 		SpellID: 1318931,
@@ -595,15 +601,15 @@ var Spells = []Override{
 		Source:  "observed",
 	},
 
-	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 2, 4 and 5 and Thunder Clap
-	// Ranks 1 and 4 were measured; the other ranks carry the same share until a log at their level says
-	// otherwise (EV-0019, EV-0048).
+	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 1 to 6 and Thunder Clap
+	// Ranks 1 to 6 were measured; Rend Rank 7 carries the same share until a log at its level says
+	// otherwise (EV-0019, EV-0048, EV-0203).
 	{
 		SpellID: 772,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
-		Reason:  "Rend Rank 1: Rank 2's measured share per tick",
-		Source:  "EV-0019",
+		Reason:  "Rend Rank 1: ticks take 0.02 x Attack Power",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 6546,
@@ -616,8 +622,8 @@ var Spells = []Override{
 		SpellID: 6547,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
-		Reason:  "Rend Rank 3: Rank 2's measured share per tick",
-		Source:  "EV-0019",
+		Reason:  "Rend Rank 3: ticks take 0.02 x Attack Power",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 6548,
@@ -637,8 +643,8 @@ var Spells = []Override{
 		SpellID: 11573,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
-		Reason:  "Rend Rank 6: Rank 2's measured share per tick",
-		Source:  "EV-0019",
+		Reason:  "Rend Rank 6: ticks take 0.02 x Attack Power, read on every tick",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 11574,
@@ -658,15 +664,15 @@ var Spells = []Override{
 		SpellID: 8198,
 		Field:   APCoefDirect,
 		Value:   0.07,
-		Reason:  "Thunder Clap Rank 2: Rank 1's measured share",
-		Source:  "EV-0019",
+		Reason:  "Thunder Clap Rank 2: hits deal 0.07 x Attack Power, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 8204,
 		Field:   APCoefDirect,
 		Value:   0.07,
-		Reason:  "Thunder Clap Rank 3: Rank 1's measured share",
-		Source:  "EV-0019",
+		Reason:  "Thunder Clap Rank 3: hits deal 0.07 x Attack Power, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 8205,
@@ -679,15 +685,15 @@ var Spells = []Override{
 		SpellID: 11580,
 		Field:   APCoefDirect,
 		Value:   0.07,
-		Reason:  "Thunder Clap Rank 5: Rank 1's measured share",
-		Source:  "EV-0019",
+		Reason:  "Thunder Clap Rank 5: hits deal 0.07 x Attack Power, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 11581,
 		Field:   APCoefDirect,
 		Value:   0.07,
-		Reason:  "Thunder Clap Rank 6: Rank 1's measured share",
-		Source:  "EV-0019",
+		Reason:  "Thunder Clap Rank 6: hits deal 0.07 x Attack Power, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 16864,
@@ -839,9 +845,9 @@ var Spells = []Override{
 	{
 		SpellID: 9896,
 		Field:   APCoefPeriodic,
-		Value:   0.0114, // TODO: Measure Rip Rank 6 in game.
-		Reason:  "Rip Rank 6: Rank 1's measured share per tick per combo point",
-		Source:  "EV-0031",
+		Value:   0.0114,
+		Reason:  "Rip Rank 6: measured attack power share per tick per combo point up to 4",
+		Source:  "EV-0210",
 	},
 	{
 		SpellID: 1822,
@@ -986,9 +992,9 @@ var Spells = []Override{
 	{
 		SpellID: 22829,
 		Field:   APCoefDirect,
-		Value:   0.037, // TODO: Measure Ferocious Bite Rank 5 in game.
-		Reason:  "Ferocious Bite Rank 5: Ranks 1 to 3's measured share per combo point; the game files state none",
-		Source:  "EV-0032",
+		Value:   0.037,
+		Reason:  "Ferocious Bite Rank 5: attack power share per combo point, measured; the game files state none",
+		Source:  "EV-0036",
 	},
 	{
 		SpellID: 31018,
@@ -999,27 +1005,28 @@ var Spells = []Override{
 	},
 
 	// Revenge's Attack Power share, the $APR its tooltip states: 0.225 in Defensive Stance is the stance's
-	// own 10%, which stays out of these values. Logs on Ranks 1 and 2 taken before that tooltip fit 0.28 (EV-0049).
+	// own 10%, which stays out of these values. Ranks 1 to 5 fit 0.25 in later logs (EV-0048, EV-0203); logs on Ranks 1
+	// and 2 taken before that tooltip fit 0.28 (EV-0049).
 	{
 		SpellID: 6572,
 		Field:   APCoefDirect,
-		Value:   0.25, // TODO: Measure Revenge Rank 1 in game.
-		Reason:  "Revenge Rank 1: the tooltip's $APR outside Defensive Stance",
-		Source:  "tooltip",
+		Value:   0.25,
+		Reason:  "Revenge Rank 1: 0.25 of attack power outside Defensive Stance, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 6574,
 		Field:   APCoefDirect,
-		Value:   0.25, // TODO: Measure Revenge Rank 2 in game.
-		Reason:  "Revenge Rank 2: the tooltip's $APR outside Defensive Stance",
-		Source:  "tooltip",
+		Value:   0.25,
+		Reason:  "Revenge Rank 2: 0.25 of attack power outside Defensive Stance, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 7379,
 		Field:   APCoefDirect,
-		Value:   0.25, // TODO: Measure Revenge Rank 3 in game.
-		Reason:  "Revenge Rank 3: the tooltip's $APR outside Defensive Stance",
-		Source:  "tooltip",
+		Value:   0.25,
+		Reason:  "Revenge Rank 3: 0.25 of attack power outside Defensive Stance, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 11600,
@@ -1031,9 +1038,9 @@ var Spells = []Override{
 	{
 		SpellID: 11601,
 		Field:   APCoefDirect,
-		Value:   0.25, // TODO: Measure Revenge Rank 5 in game.
-		Reason:  "Revenge Rank 5: the tooltip's $APR outside Defensive Stance",
-		Source:  "tooltip",
+		Value:   0.25,
+		Reason:  "Revenge Rank 5: 0.25 of attack power outside Defensive Stance, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 25288,
@@ -1043,8 +1050,8 @@ var Spells = []Override{
 		Source:  "tooltip",
 	},
 
-	// Sunder Armor's threat grows with the sheet's Attack Power (EV-0042). The other ranks carry its share
-	// until a capture at their level says otherwise.
+	// Sunder Armor's threat grows with Attack Power (EV-0042, EV-0048, EV-0211). Rank 2 carries
+	// Rank 1's share until a capture at its level says otherwise.
 	{
 		SpellID: 7386,
 		Field:   APCoefThreat,
@@ -1069,26 +1076,26 @@ var Spells = []Override{
 	{
 		SpellID: 11596,
 		Field:   APCoefThreat,
-		Value:   0.05, // TODO: Measure Sunder Armor Rank 4 in game.
-		Reason:  "Sunder Armor Rank 4: Rank 1's measured share",
-		Source:  "EV-0042",
+		Value:   0.05,
+		Reason:  "Sunder Armor Rank 4: measured share of the attack power on the cast line",
+		Source:  "EV-0211",
 	},
 	{
 		SpellID: 11597,
 		Field:   APCoefThreat,
-		Value:   0.05, // TODO: Measure Sunder Armor Rank 5 in game.
-		Reason:  "Sunder Armor Rank 5: Rank 1's measured share",
-		Source:  "EV-0042",
+		Value:   0.05,
+		Reason:  "Sunder Armor Rank 5: measured share of the attack power on the cast line",
+		Source:  "EV-0211",
 	},
 
 	// Heroic Strike and Cleave add flat threat beyond their damage, and none with Attack Power (EV-0042).
 	// The bonus is multiplied by the stance with the damage, and Cleave splits it between the targets it
 	// hits. Heroic Strike Ranks 1 to 4's measured bonuses fit no single share per spell level (EV-0043);
-	// Ranks 5 and 6 measure Rank 4's 2.5 a level (EV-0048, EV-0174), and Ranks 7 to 9 carry it. Cleave's
-	// measured Ranks 1 and 2 fit 1.5 a level (EV-0042, EV-0045), Rank 3 measures 62 and Rank 4 80, and
-	// Rank 5 carries Rank 4's 1.6 (EV-0050). Each rank's bonus is a
-	// whole number: a measured bonus rounds to the nearest one, and each share times its spell level is
-	// whole.
+	// Ranks 5 and 6 measure Rank 4's 2.5 a level (EV-0048, EV-0174), Rank 8 measures 145 (EV-0050), and
+	// Ranks 7 and 9 carry 2.5 a level. Cleave's measured Ranks 1 and 2 fit 1.5 a level (EV-0042,
+	// EV-0045), Rank 3 measures 62 and Rank 4 80, and Rank 5 carries Rank 4's 1.6 (EV-0050). Each rank's
+	// bonus is a whole number: a measured bonus rounds to the nearest one, and each share times its spell
+	// level is whole.
 	{
 		SpellID: 78,
 		Field:   FlatThreat,
@@ -1140,10 +1147,10 @@ var Spells = []Override{
 	},
 	{
 		SpellID: 11567,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.5, // TODO: Measure Heroic Strike Rank 8 in game.
-		Reason:  "Heroic Strike Rank 8: Rank 4's measured share per spell level",
-		Source:  "EV-0004",
+		Field:   FlatThreat,
+		Value:   145,
+		Reason:  "Heroic Strike Rank 8: threat is the damage + 145, times the stance",
+		Source:  "EV-0050",
 	},
 	{
 		SpellID: 25286,

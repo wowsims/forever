@@ -165,6 +165,12 @@ for another race's racial or an untaken talent.
   that comes that early is queued for the cast end (`QueueSpell` in `sim/core/spell_queueing.go`), so an action timed
   at a cast end still goes after the cast lands. A Do At that reads the encounter (`Current Time`, a unit's health)
   has no sim to read then: the line is left out with a warning that names the panic (`prepullTime`).
+- **The earliest prepull line the rotation keeps starts the prepull, even when it casts nothing**
+  (`PrepullStartTime` in `sim/core/environment.go`), and mana regen counts from that start (`sim/core/mana.go`). A
+  cast of a spell the character does not know drops its own line, but a group reference line stays when every cast
+  in the group drops; give such a line an `if spell(x).is_known` (Balance's Read Leyline line). A prepull hardcast
+  whose GCD outlasts its cast, as Read Leyline's does, blocks the next prepull cast with no validation warning, so
+  time that cast after the GCD (`spell(x).gcd_hasted_duration`).
 - **A rotation with a Move line looks every reaction time (10 ms) through the GCD**, not once at its end
   (`hasMove` in `sim/core/apl.go`). Change Target costs nothing and has no GCD, so every Change Target line whose
   condition holds fires again on each look: a multi-target APL cycled targets 20 to 40 times a second (PR #734). Gate a

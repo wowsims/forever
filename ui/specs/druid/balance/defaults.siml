@@ -1,0 +1,53 @@
+siml 1
+spec balance_druid
+talents "5532220115001351--505302"
+use "gear_sets/prebis.gear.siml"
+use "apls/default.apl.siml"
+
+settings:
+  race windshaper_skyborne
+  profession1 enchanting
+  profession2 leatherworking
+  reaction_time 100ms
+  channel_clip_delay 100ms
+  distance_from_target 20
+  innervate_target none
+
+consumables:
+  flask flask_of_supreme_power
+  food lobster_stew
+  conjured demonic_rune
+  explosive saf_t_clever_dynamite
+  mh_imbue brilliant_wizard_oil
+  elixir greater_arcane_elixir, elixir_of_nature_power, elixir_of_the_owl, greater_mageblood_elixir
+  resource_pot major_mana_potion
+  offensive_pot major_spellblasting_potion
+
+buffs:
+  greater_blessing_of_kings
+  greater_blessing_of_wisdom 1
+
+party_buffs: mana_spring_totem
+
+raid_buffs:
+  arcane_intellect, prayer_of_spirit, mark_of_the_wild, power_word_fortitude
+  target_dummies 1
+
+debuffs: judgement_of_wisdom, curse_of_elements
+
+sim: iterations 25000
+
+encounter:
+  duration 180
+  duration_variation 5
+  execute_proportion_20 0.2
+  execute_proportion_35 0.35
+  targets(id=31146,
+      name="Raid Target",
+      level=63,
+      stats(attack_power=320, block_value=54, armor=3731, health=1428900),
+      min_base_damage=2601,
+      damage_spread=0.5,
+      swing_speed=2,
+      parry_haste,
+      can_crush)

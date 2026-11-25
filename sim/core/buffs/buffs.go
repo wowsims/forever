@@ -7,6 +7,7 @@ package buffs
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 func init() {
@@ -30,4 +31,11 @@ func NewSpellDataDarkInspirationAuraFor(unit *core.Unit, priest *core.Unit, rank
 		effect.YieldsTies = true
 	}
 	return aura
+}
+
+// The share of an Innervate a druid gains on casting it on another player (Dreamstate): every amount
+// of the row at percent of its value, bidding in Innervate's category.
+func NewSpellDataInnervatesAuraShare(druid *core.Unit, percent int32) *core.Aura {
+	opts := append(innervatesMeta.Options(0), spelldata.ScaledByRanks(percent, 100))
+	return innervatesMeta.buff(druid, true, innervatesMeta.Label+" (Dreamstate)", 0, opts)
 }
