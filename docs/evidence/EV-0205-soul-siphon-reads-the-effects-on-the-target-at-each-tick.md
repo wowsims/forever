@@ -3,8 +3,7 @@
 - Claim: a Soul Siphon channel's tick takes 12% of its base per Corruption, Siphon Life and Bane of Agony of the warlock on
   the target, added together, counted when the tick lands; the damage does not snapshot at the channel's start.
 - Sources: a combat log of an Affliction warlock at levels 46 to 47 in Zul'Farrak (728 Wrack ticks and 224 Drain Life
-  ticks); report code not recorded. The note that first read the 12% in two logs of 2026-11-12 (270 effects, one warlock
-  and three others) records no tick counts, and those logs are not on disk.
+  ticks); report code not recorded.
 - Game build: 1.60.1.70938 by the log's date; the hotfix the player ran is not recorded
 - Date: 2026-11-14
 - Pull request: #1232

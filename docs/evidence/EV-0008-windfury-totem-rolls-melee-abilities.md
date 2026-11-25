@@ -28,8 +28,7 @@ other than Command, shocks, Deep Wound and poisons never roll it.
 
 Triggered hits whose rows carry Not a Proc read all but never in these logs: Windfury Weapon 1 of 78 and 0 of 194 after
 the hotfix; Seal of Command 0 of 117, Judgement of Command 0 of 105, Retaliation 0 of 18 and Sweeping Strikes 0 of 166
-before it. The sim lets them roll the totem anyway, as their rows allow, except Sweeping Strikes' copied hit, which has no
-defense type and never rolls it (EV-0002).
+before it.
 
 Measured and left for logs after the deploy: the Windfury Totem hit ignores armor in every log, the 100 ms cooldown is
 not seen, it gives no Maelstrom Weapon stack, Windfury Weapon and Totem hits spend a Flurry charge after a crit, and
