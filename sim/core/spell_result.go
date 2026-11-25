@@ -409,7 +409,7 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 	// in this field together take at most half of the hit (EV-0154). A periodic tick on an enemy takes none of
 	// its bonus, whether the tick meets the target's armor or not (EV-0154); the sim skips the reductions on a
 	// tick too. The flat ranged and spell amounts land in applyTargetModifiers, after armor and outside this cap.
-	// TODO: The cap is read on normal white swings (EV-0154); measure it on specials and ranged hits.
+	// TODO: The cap is read on white swings and melee specials (EV-0154); read it on a ranged hit under it.
 	// TODO: Measure Force of Will and Stoneskin Totem on a tick a player takes.
 	if !isPeriodic && spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.Flags.Matches(SpellFlagIgnoreTargetModifiers) {
 		result.Damage += max(attackTable.Defender.PseudoStats.BonusPhysicalDamageTaken, min(0, -result.Damage/2))
@@ -464,8 +464,8 @@ func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(spell.Unit.AttackTables[target.UnitIndex], false)
 	baseDamage *= spell.VersusBonus.Against(target)
-	// A weapon strike takes the caster's flat physical damage bonus whole; a physical row that deals
-	// school damage takes it at the row's coefficient.
+	// A weapon strike takes the caster's flat physical damage bonus whole, before armor (EV-0196); a
+	// physical row that deals school damage takes it at the row's coefficient.
 	if spell.BonusCoefficient > 0 {
 		baseDamage += spell.BonusCoefficient * spell.BonusDamage(attackTable)
 	} else if spell.Flags.Matches(SpellFlagPhysicalSchoolDamage) {
