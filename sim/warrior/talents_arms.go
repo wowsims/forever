@@ -486,7 +486,11 @@ func (warrior *Warrior) registerSweepingStrikes() {
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
-			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeAlwaysHit)
+			// The strike is never missed, dodged or parried, and rolls a crit of its own, whether or not the
+			// hit that brought it crit (EV-0213).
+			// TODO: Ingame test needed: whether the strike an Execute brings below 20% rolls a crit too; the
+			// logs measure the Whirlwind ones.
+			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialCritOnly)
 		},
 	})
 
