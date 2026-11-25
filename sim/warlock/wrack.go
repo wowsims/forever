@@ -23,22 +23,10 @@ import (
 func (warlock *Warlock) registerWrackSpell() {
 	rankedSpell := spellData.Wrack.ByID(1316697)
 	wrackTick := rankedSpell.PeriodicEffect()
-	speedup := 1 + rankedSpell.Effect(dbcenums.A_DUMMY, 0).Percent()
 
 	config := warlock.soulSiphonChannelConfig(rankedSpell, wrackTick, nil)
 	config.ClassSpellMask = WarlockSpellWrack
 
-	// The listener below takes a tick on the effect's application plus whole normal periods for a normal one, which
-	// holds while the channel's period divides the normal one. The effects register after this talent, so the check
-	// runs as the channel starts: a row that breaks it panics on the first channel.
-	fastPeriod := func(dot *core.Dot) time.Duration {
-		normal := dot.CalcTickPeriod()
-		fast := time.Duration(float64(normal) / speedup).Round(time.Millisecond)
-		if normal%fast != 0 {
-			panic(fmt.Sprintf("Wrack ticks %s every %v, which does not divide its period of %v", dot.Spell.ActionID, fast, normal))
-		}
-		return fast
-	}
 	// When each effect was last re-timed, cleared each iteration as the clock starts over.
 	retimedAt := map[*core.Dot]time.Duration{}
 	warlock.RegisterResetEffect(func(_ *core.Simulation) {
@@ -47,7 +35,7 @@ func (warlock *Warlock) registerWrackSpell() {
 	config.Dot.Aura.OnGain = func(aura *core.Aura, sim *core.Simulation) {
 		for _, spell := range warlock.afflictionDots {
 			dot := spell.Dot(aura.Unit)
-			retimeOnGrid(sim, dot, fastPeriod(dot), retimedAt)
+			retimeOnGrid(sim, dot, wrackTickPeriod(dot), retimedAt)
 		}
 	}
 	config.Dot.Aura.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
@@ -73,6 +61,22 @@ func (warlock *Warlock) registerWrackSpell() {
 			}
 		},
 	}))
+}
+
+// How much faster Wrack's channel ticks the warlock's Corruption, Siphon Life and Bane of Agony.
+var wrackSpeedup = 1 + spellData.Wrack.ByID(1316697).Effect(dbcenums.A_DUMMY, 0).Percent()
+
+// The period Wrack's channel ticks the effect at. The channel's listener takes a tick on the effect's application
+// plus whole normal periods for a normal one, which holds while this period divides the normal one. The effects
+// register after the talent, so the check runs as the channel starts or a rotation value reads it: a row that
+// breaks it panics there.
+func wrackTickPeriod(dot *core.Dot) time.Duration {
+	normal := dot.CalcTickPeriod()
+	fast := time.Duration(float64(normal) / wrackSpeedup).Round(time.Millisecond)
+	if normal%fast != 0 {
+		panic(fmt.Sprintf("Wrack ticks %s every %v, which does not divide its period of %v", dot.Spell.ActionID, fast, normal))
+	}
+	return fast
 }
 
 // Ticks a running effect every period from now on, at its expiry less whole periods, so its last tick lands on the

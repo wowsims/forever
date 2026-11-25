@@ -2,6 +2,7 @@ package warlock
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -25,9 +26,73 @@ func (warlock *Warlock) NewAPLValue(rot *core.APLRotation, config *proto.APLValu
 			value.label = fmt.Sprintf("Assigned Curse Is Active On All Targets (%s)", curse.ActionID)
 		}
 		return value
+	case *proto.APLValue_WarlockTimeToHalfTick:
+		return warlock.newValueWarlockTimeToHalfTick(rot, config.GetWarlockTimeToHalfTick(), config.Uuid)
 	default:
 		return nil
 	}
+}
+
+type APLValueWarlockTimeToHalfTick struct {
+	core.DefaultAPLValueImpl
+	target core.UnitReference
+	dots   []*core.Spell // Every rank of the effect: Corruption has two
+	label  string
+}
+
+func (warlock *Warlock) newValueWarlockTimeToHalfTick(rot *core.APLRotation, config *proto.APLValueWarlockTimeToHalfTick, uuid *proto.UUID) core.APLValue {
+	target := rot.GetTargetUnit(config.TargetUnit)
+	if target.Get() == nil {
+		return nil
+	}
+	mask := map[proto.APLValueWarlockTimeToHalfTick_WrackDot]int64{
+		proto.APLValueWarlockTimeToHalfTick_Corruption:  WarlockSpellCorruption,
+		proto.APLValueWarlockTimeToHalfTick_SiphonLife:  WarlockSpellSiphonLife,
+		proto.APLValueWarlockTimeToHalfTick_BaneOfAgony: WarlockSpellBaneOfAgony,
+	}[config.Dot]
+	var dots []*core.Spell
+	for _, spell := range warlock.afflictionDots {
+		if spell.Matches(mask) {
+			dots = append(dots, spell)
+		}
+	}
+	if len(dots) == 0 {
+		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Time To Half Tick: the warlock does not know %s", config.Dot)
+		return nil
+	}
+	return &APLValueWarlockTimeToHalfTick{target: target, dots: dots, label: fmt.Sprintf("Time To Half Tick(%s)", config.Dot)}
+}
+
+func (x *APLValueWarlockTimeToHalfTick) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeDuration
+}
+
+// The dot ticks on its expiry less whole normal periods, and Wrack adds the points between them on its own
+// period's grid from the expiry. The half tick read is the latest such point before the expiry that is after now
+// and after the instant the dot is up from, so a half tick due at this instant reads as the next one.
+func (x *APLValueWarlockTimeToHalfTick) GetDuration(sim *core.Simulation) time.Duration {
+	for _, spell := range x.dots {
+		dot := spell.Dot(x.target.Get())
+		remaining, from := dot.RotationReading(sim)
+		if remaining <= 0 {
+			continue
+		}
+		normal, fast := dot.CalcTickPeriod(), wrackTickPeriod(dot)
+		// Points from the expiry back: the half tick is j fast periods before it, j*fast short of the time
+		// left after the instant the dot is up from.
+		upFor := remaining - (from - sim.CurrentTime)
+		for j := int64((upFor - 1) / fast); j > 0; j-- {
+			if back := time.Duration(j) * fast; back%normal != 0 {
+				return remaining - back
+			}
+		}
+		return 0
+	}
+	return 0
+}
+
+func (x *APLValueWarlockTimeToHalfTick) String() string {
+	return x.label
 }
 
 // True while every target that is up holds one of the spells.

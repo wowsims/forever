@@ -38,6 +38,7 @@ import {
 	valueFieldConfig,
 	valueListFieldConfig,
 	variableNameFieldConfig,
+	wrackDotFieldConfig,
 } from './field_descriptors';
 import { newKindImpl as newKindImplFor, resolveField as resolveFieldFor } from './field_specs';
 
@@ -54,6 +55,7 @@ describe('resolveField kinds', () => {
 		const descriptors = [
 			curseTypeFieldConfig('f'),
 			summonTypeFieldConfig('f'),
+			wrackDotFieldConfig('f'),
 			autoTypeFieldConfig('f'),
 			autoSwingTypeFieldConfig('f'),
 			statTypeFieldConfig('f'),

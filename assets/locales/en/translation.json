@@ -2291,6 +2291,10 @@
 					"label": "Active Pet Is",
 					"tooltip": "True while the specified demon is out. No Pet is true while no demon is."
 				},
+				"warlock_time_to_half_tick": {
+					"label": "Time To Half Tick",
+					"tooltip": "Time until your DoT on the target reaches its next half tick: the point halfway between two of its normal ticks, where it also ticks while Wrack is channelled on the target. <b>0</b> while the DoT is down or has no half tick left before it expires."
+				},
 				"protection_paladin_damage_taken_last_global": {
 					"label": "Damage Taken Last Global",
 					"tooltip": "Amount of damage taken in the last 1.5s."
@@ -2394,6 +2398,11 @@
 				"succubus": "Succubus",
 				"felhunter": "Felhunter",
 				"no_summon": "No Pet"
+			},
+			"wrack_dots": {
+				"corruption": "Corruption",
+				"siphon_life": "Siphon Life",
+				"bane_of_agony": "Bane of Agony"
 			},
 			"submenus": {
 				"logic": "Logic",

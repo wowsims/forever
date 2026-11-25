@@ -27,6 +27,7 @@ type FieldDescriptorPayloads = {
 	groupReferenceVariables: { field: string; groupNameField: string; options?: FieldOptions };
 	curseType: { field: string };
 	summonType: { field: string };
+	wrackDot: { field: string };
 	autoType: { field: string };
 	autoSwingType: { field: string };
 	statType: { field: string };
@@ -106,6 +107,10 @@ export function curseTypeFieldConfig(field: string): Descriptor<'curseType'> {
 
 export function summonTypeFieldConfig(field: string): Descriptor<'summonType'> {
 	return { type: 'summonType', field };
+}
+
+export function wrackDotFieldConfig(field: string): Descriptor<'wrackDot'> {
+	return { type: 'wrackDot', field };
 }
 
 export function autoTypeFieldConfig(field: string): Descriptor<'autoType'> {

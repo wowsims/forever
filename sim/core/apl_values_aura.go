@@ -31,6 +31,16 @@ func readDot(sim *Simulation, dot *Dot) auraReading {
 	return dot.Spell.Unit.readLanding(sim, dot.Aura, dot.freshDuration)
 }
 
+// The time until the dot expires and the instant it is up from, as its caster's rotation reads it: from now
+// while it is up, from the cast end while its caster hardcasts it on its target. The time is 0 while it is down.
+func (dot *Dot) RotationReading(sim *Simulation) (remaining time.Duration, from time.Duration) {
+	reading := readDot(sim, dot)
+	if !reading.active {
+		return 0, sim.CurrentTime
+	}
+	return reading.remaining, TernaryDuration(reading.landing, reading.from, sim.CurrentTime)
+}
+
 // While the unit hardcasts the aura's own spell on the aura's unit, the rotation reads the aura as if the
 // cast had landed at the cast end: up for duration from then and, for a stacking aura, with one more
 // stack up to its maximum, or one. While a lookahead reads the rotation with the running channel ended,
