@@ -434,10 +434,11 @@ func (pet *WarlockPet) registerLashOfPain() {
 // Fire from the Imp (1293698), Shadow from the others (1293697). The rows state no amount; their
 // description variables do: ((level - 26) * 1.5 + 14 to 17 + 0.078 * the warlock's spell power of the
 // row's school), times the demon's damage multipliers. The demon's own multipliers apply them: Master
-// Demonologist, Unholy Power, Soul Link and the demon's base damage modifier.
-// TODO: Imp as Fire and the others as Shadow, every hit as an attack, and the hit and crit roll are assumed;
-// the 1 Physical damage row (1293699), a threat marker, is left out. The base damage modifier and Soul Link
-// may not reach the brand in game, since the rows' multiplier names only the pet's and the school's.
+// Demonologist, Unholy Power, Soul Link and the demon's base damage modifier. Every melee, Firebolt and Lash
+// of Pain hit consumes a charge, and the brand's hit never misses and is never fully resisted, though it
+// crits and takes partial resists (EV-0201). The 1 Physical damage row (1293699), a threat marker, is left out.
+// TODO: The base damage modifier and Soul Link may not reach the brand in game, since the rows' multiplier
+// names only the pet's and the school's.
 func (pet *WarlockPet) registerDemonicBrand() {
 	warlock := pet.owner
 
@@ -464,7 +465,7 @@ func (pet *WarlockPet) registerDemonicBrand() {
 
 			spellPower := warlock.GetStat(stats.SpellDamage) + warlock.GetStat(schoolDamage)
 			base := float64(warlock.Level-int32(brandRow.BaseLevel))*1.5 + 0.078*spellPower
-			brandHit.CalcAndDealDamage(sim, result.Target, sim.Roll(base+14, base+17), brandHit.OutcomeMagicHitAndCrit)
+			brandHit.CalcAndDealDamage(sim, result.Target, sim.Roll(base+14, base+17), brandHit.OutcomeMagicCrit)
 		},
 	}))
 }
