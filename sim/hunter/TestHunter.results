@@ -443,9 +443,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 902.36645
-  tps: 924.8298
-  dtps: 8.49105
+  dps: 903.53921
+  tps: 926.10845
+  dtps: 9.14554
   hps: 13.80972
  }
 }

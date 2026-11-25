@@ -400,9 +400,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 750.07272
-  tps: 483.6299
-  dtps: 4.29794
+  dps: 752.4494
+  tps: 486.00658
+  dtps: 4.37982
  }
 }
 dps_results: {
@@ -3303,7 +3303,7 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 1011.49712
+  dps: 1012.14678
   tps: 744.40137
   dtps: 1.33242
  }
@@ -3311,7 +3311,7 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 752.83178
+  dps: 753.47073
   tps: 484.84326
   dtps: 4.62877
  }
@@ -3319,28 +3319,28 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 808.68778
+  dps: 809.29155
   tps: 508.27211
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 330.94111
+  dps: 331.25415
   tps: 192.80265
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 309.03602
+  dps: 309.33887
   tps: 169.64578
  }
 }
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Wolf-turret-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 422.56159
+  dps: 422.97608
   tps: 248.47405
  }
 }
