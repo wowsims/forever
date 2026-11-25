@@ -28,6 +28,9 @@ out of `ProcTypeMask`, the internal cooldown, `CanProcFromProcs` and `ClassSpell
 attributes, the class mask the proc effect names, and the rate the source above points at. A row that
 is a weapon proc aura also excludes the hits of spells flagged Suppress Weapon Procs.
 
+A row that states the main-hand-only bit (word 1, `0x20`) and fires on every hit, with no roll and no manager once the
+rate settles, has `RequireDamageDealt` cleared, so it hears a landed main-hand special that deals no damage (EV-0195).
+
 The trigger carries the class flags of the spell that procs as `ProcSpellClassFlags`. Those flags are
 what a `SPELLMOD_CHANCE_OF_SUCCESS` names: its class mask reaches the proc auras and the poison spells
 themselves, not the spells that feed them. Improved Poisons 14113 names Instant Poison 8680, so
