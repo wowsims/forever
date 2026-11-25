@@ -180,6 +180,7 @@ type Spell struct {
 	GCDMultiplier            float64       // Scales DefaultCast.GCD, after the flat GCD mods and before haste and the GCD minimum; 1 = unmodified. Fed by SpellMod_GlobalCooldown_Pct.
 	unscaledGCD              time.Duration // DefaultCast.GCD is rewritten from this on every GCD mod, so a direct write there is lost.
 	RangeMultiplier          float64       // Scales MaxRange, after the flat range mods; 1 = unmodified. Fed by SpellMod_Range_Pct.
+	PushbackProtection       float64       // The chance a hit does not push back this spell's hardcast, taken off the unit's PushbackChance. Fed by SpellMod_PushbackProtection_Pct.
 	DamageMultiplier         float64
 	DamageMultiplierAdditive float64
 	// Added to DamageMultiplierAdditive on direct hits and direct heals only. Unlike that bucket

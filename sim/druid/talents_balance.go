@@ -53,9 +53,8 @@ func (druid *Druid) applyMoonglow() {
 	druid.parseTalent(druid.Talents.Moonglow, spellData.Moonglow)
 }
 
-// Moonfire's crit chance, and the damage of its hit and of its dot. The fourth effect, Starfire's chance
-// not to lose cast time to damage taken (SPELLMOD_NOT_LOSE_CASTING_TIME), is reported as skipped: the sim
-// pushes back only a tanking character's casts, and rolls one pushback chance for every spell the unit casts.
+// Moonfire's crit chance, the damage of its hit and of its dot, and Starfire's chance not to be pushed
+// back by a hit.
 func (druid *Druid) applyMoonAndStars() {
 	druid.parseTalent(druid.Talents.MoonAndStars, spellData.MoonAndStars)
 }

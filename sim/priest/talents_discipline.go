@@ -139,7 +139,7 @@ func (priest *Priest) applyImprovedPowerWordShield() {
 
 // Gives you a X% chance to gain Focused Casting for 6 sec after being the victim of a melee or ranged critical strike.
 // The Focused Casting effect prevents you from losing casting time when taking damage and increases your resistance to Interrupt effects by 20%.
-// The caster takes no hits in a damage sim, so it changes nothing.
+// TODO: Focused Casting is not built, so a hit in the 6 seconds after a crit taken pushes back a cast as any hit does.
 func (priest *Priest) applyMartyrdom() {
 	if priest.Talents.Martyrdom == 0 {
 		return
