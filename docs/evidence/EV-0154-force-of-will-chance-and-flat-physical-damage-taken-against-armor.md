@@ -11,7 +11,9 @@
   and Gold-plated 1291908 and Stoneform Shoulders 1298231 read the same on the hit they spend themselves on. A crit
   doubles the flat amount. A periodic Physical tick on an enemy takes none of Gift of Arthas or Lacerations: Gift of
   Arthas on ticks that ignore armor, meet a tenth of it (two ticks) or meet all of it, Lacerations on ticks that ignore
-  armor or meet all of it and on Deep Wound 412613. Force of Will's 51 comes off a mob's melee special and a mob's
+  armor or meet all of it and on Deep Wound 412613. A mob's Physical tick on a player takes none of Force of Will or
+  Stoneskin Totem (ranks I to III read; IV to VI too few), and Gold-plated and Stoneform Shoulders neither cut a tick
+  nor spend on one. Force of Will's 51 comes off a mob's melee special and a mob's
   ranged hit before armor too, and takes at most half of a special; Stoneskin Totem reads before armor on both. Spikes
   14104, Shield Spike 12782 and Knockdown 11428 take no flat reduction. On Era realms Gift of Arthas also adds its 8
   before armor to a swing, and adds it to a Deep Wounds 12721 tick.
@@ -23,9 +25,10 @@
   after 1.60.1.70862 was listed. The tick, special and ranged reports run on 1.60.1.70862 to 1.60.1.71091 by report
   date. The hotfix each player ran is not recorded. The Era reports' game builds are not recorded.
 - Date: 2026-11-05 to 2026-11-19; the ticks 2026-11-10 to 2026-11-25; the specials and ranged hits 2026-11-10 09:46 to
-  2026-11-25 08:41 UTC; Era 2023-10-04 to 2026-10-01
+  2026-11-25 08:41 UTC; the ticks a player takes 2026-11-13 20:13 to 2026-11-25 07:12 UTC; Era 2023-10-04 to
+  2026-10-01
 - Pull request: #1114; the single applications, Stoneskin Totem, the cap at half a hit and the crits in #1116; the ticks
-  in #1229; Deep Wound, the specials, the ranged hits and Era in #1230
+  in #1229; Deep Wound, the ticks a player takes, the specials, the ranged hits and Era in #1230
 
 ## Method
 
@@ -302,12 +305,61 @@ read the same with the debuff on and off: The Blackrock Slicer's Wound reads 13 
 The same reports' normal white swings are the control: on the four Gift of Arthas reports fetched for them
 (1TFWH4Yy38KhXMwx, 26KV1wfdJpnaZFhA, 2gZx9BrGYTNwXRk7, Gkc8Y1zZDNb7wWVg), 3,089 swings with the debuff on leave 5.15
 over against 8 x 0.641 = 5.13 before armor, and 4,353 with it off leave 0.00. Tenderized shows on 5 Garrote ticks in
-one report, 0.00 over at the median; no Barman Shanker wearer is in these reports. The flat reductions (Force of Will,
-Stoneskin Totem) on a tick a player takes were not measured.
+one report, 0.00 over at the median; no Barman Shanker wearer is in these reports.
 
 Deep Wound 412613 logs without the tick flag, so its damage events count whole; its amount equals its
 unmitigatedAmount off the debuffs. Its ticks under Lacerations come from 4 of the Lacerations reports. No report holds
 a Deep Wound under Gift of Arthas.
+
+## Ticks a player takes under a flat reduction
+
+A mob's normal Physical ticks on players in 164 reports (2026-11-13 to 2026-11-25). Per report, mob game id, tick
+spell and receiver, the ticks with every reduction off give r, the median of amount / unmitigatedAmount, and a tick
+with the reduction on leaves amount - r x unmitigatedAmount over. Expected is the mean left over had each tick taken
+the reduction at r, capped at half the tick. Step pairs are consecutive ticks of one bleed on one player that cross
+the reduction's edge. Stoneskin Totem's aura logs no event on the receiver, so a tick counts as covered when the
+receiver's own white swings within 3 s show the reduction.
+
+| Reduction                         | Ticks on (reports) | Left over, mean (95%)  | Expected | Step pairs: change (reduced) | Control on swings                       |
+| --------------------------------- | -----------------: | ---------------------- | -------: | ---------------------------- | --------------------------------------- |
+| Force of Will 15595 (-51)         |           369 (22) | -0.51 (-1.06 to -0.02) |    -26.4 | 130: -1.5                    | 6,485 swings -20.2 (expected -20.3)     |
+| Stoneskin Totem, ranks I to III   |           277 (19) | -0.01 (-0.07 to 0.04)  |     -5.1 | 21: -0.24 (-4.65)            | uncovered ticks +0.05                   |
+| Gold-plated 1291908 (-15)         |             16 (6) | +0.13                  |     -8.2 | 8: -0.12                     | 91 spend swings -7.5 (expected -8.1)    |
+| Stoneform Shoulders 1298231 (-60) |             12 (8) | +7.5 (4.0 to 11.2)     |    -43.3 | 14: +0.57 (-44)              | 296 spend swings -17.5 (expected -22.4) |
+
+The median left over is 0.00 under Force of Will and Stoneskin Totem. Force of Will covers Rend 13445, 12054, 13443,
+11977, 13738 and 16509, Puncture 15976, Rupture 15583 and Vicious Rend 14331, each at a median of 0.00 but Rend
+16509 (4 ticks, -6); on minus off in the same reports reads -0.17 (-0.85 to 0.43), and its 49 ticks of 102 and over
+read -2.7 against -46.2. Its step pairs change by -1.5, the same as their unmitigatedAmount. The Stoneskin Totem ticks
+are almost all Defias Inmate Rend 6547 at about 10 a tick under ranks of 4, 7 and 11: none of the 277 sits within 0.75
+of the reduced value and 216 sit within 0.75 of 0; with covered swings on both sides within 10 s, 208 ticks read -0.14
+to +0.21. No tick is covered by ranks IV to VI; 14 ticks under such a summon (6 of them rank VI Puncture 15976 ticks of
+185 to 274) read 0.00, -0.47 and +0.33. Gold-plated and Stoneform Shoulders are never spent by a tick: none of 1,666
+and 1,793 removals has a tick within 50 ms without a white swing there too, and the buffs stay up through 39 and 25
+ticks. The Shoulders mean of +7.5 comes from 12 large ticks whose r reads high, and its step pairs carry the reading.
+
+Force of Will ticks on:
+
+17ymZpJ6xFPf4Raj, 3P4tmnWR1j2GXKZa, Cqyp8kKM4jJHtn7f, FJdrDz9w1Vxaf2cT, M6qTRh8GfCBjWJ7p, MWr2C8PbD4GJ9Tmf,
+Q2PbD38mAWa7TzCk, YvZ3CGFnzPk4rJhV, ZR7TAdcnfkgDz3b6, aYyJ9hdFwXKgDk16, bRXtBrFwDj7d4vHP, cav7VZrmPbNW3y29,
+gz2wAdQKhM8C1FZY, kXHvcKN1nJWbRPqw, rtKVYnvZRFqD3N6J, tGmMYvxQADVcbJRK, vF3fwb7aQ9BgGmWt, vMZGmT81jqNf7HPV,
+x9Jty6qTazhGHLKB, ybf3pCJXnTQD2V9G, yv8aMhH6kD7JrT2n, zPKMcn8JN9GkT7vh
+
+Gold-plated ticks on:
+
+4q3p1Vhb2N6Q7rFY, 6CbctYwZzTX9qyjJ, 8cXaMyhkGFZfCBgD, 8z4xqtkQ6jZaPm3f, j7tKNzr3YQXTVR6n, ngCkNVyZRPzM6hYX
+
+Stoneform Shoulders ticks on:
+
+3jARkacpG1LJgCTN, 4j2MDgraFp9zXyhx, C8WHXv24kqZgKb9t, FkHnDCK2NJrAjb3B, aYyJ9hdFwXKgDk16, gBvkpC7D8cRwF9yx,
+nAZxV6PHfGpraBtv, zPKMcn8JN9GkT7vh
+
+Stoneskin covered ticks:
+
+3jARkacpG1LJgCTN, 4Xpzqmk1AZ8FTRLb, 7HP4GKrB9VDdJbt3, 87BwAPvWYCTnKJ6Q, 9bvQ2gKdAt1nFx8C, BzJTG7nxPmD13LbV,
+FkbB7C9QGpjRq1gh, KTL7a4NXMC6yvVWg, PpvQ9WzNTKgnVckA, QZcRmKX4vMVh7f6j, ZJvwyXCfPpGRLk6d, c18vP69HxAyKBY4W,
+dKDBW1hL4XjGMR9v, fNxBnX2JcPkY9mpK, j7tKNzr3YQXTVR6n, p4ndayz3TKkWfZbG, qnCwWrxJdFVgHtvp, wfZA3baBjy2KPJcv,
+wrKpnNaxqj2ydFAM
 
 ## Specials and ranged hits under a flat reduction
 
