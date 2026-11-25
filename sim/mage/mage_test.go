@@ -151,6 +151,53 @@ func TestMissileBarrageArcaneMissilesKeepsClearcasting(t *testing.T) {
 	}
 }
 
+// An Arcane Blast hits with the Arcane Charge it adds, so its spell damage at the hit holds one more
+// charge than before the cast, and the same at the stack cap.
+func TestArcaneBlastHitsWithTheChargeItAdds(t *testing.T) {
+	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
+	target := mage.CurrentTarget
+	arcaneBlast := mage.GetSpell(core.ActionID{SpellID: spellData.ArcaneBlast.Highest().ID})
+	hit := arcaneBlast.ActionID.String() + " "
+	manaMetrics := mage.NewManaMetrics(arcaneBlast.ActionID)
+	var before, atHit float64
+	hits := 0
+	sim.Log = func(message string, vals ...any) {
+		line := fmt.Sprintf(message, vals...)
+		if strings.Contains(line, hit) && strings.Contains(line, " damage") {
+			atHit = mage.GetStat(stats.SpellDamage)
+			hits++
+		}
+	}
+
+	belowCap, atCap := 0, 0
+	for range 6 {
+		mage.AddMana(sim, mage.MaxMana(), manaMetrics)
+		stacks := mage.ArcaneChargesAura.GetStacks()
+		before, hits = mage.GetStat(stats.SpellDamage), 0
+		if !arcaneBlast.Cast(sim, target) {
+			t.Fatalf("Arcane Blast did not cast at %v", sim.CurrentTime)
+		}
+		stepFor(sim, arcaneBlast.CurCast.CastTime)
+		if hits == 0 {
+			continue
+		}
+		if stacks < mage.ArcaneChargesAura.MaxStacks {
+			belowCap++
+			if atHit <= before {
+				t.Errorf("Arcane Blast cast at %d charges hit at %.1f spell damage, want above the %.1f before the cast", stacks, atHit, before)
+			}
+		} else {
+			atCap++
+			if atHit != before {
+				t.Errorf("Arcane Blast cast at the cap hit at %.1f spell damage, want the %.1f before the cast", atHit, before)
+			}
+		}
+	}
+	if belowCap == 0 || atCap == 0 {
+		t.Fatalf("%d Arcane Blasts hit below the charge cap and %d at it, want both", belowCap, atCap)
+	}
+}
+
 // A rotation of only Arcane Missiles procs Clearcasting at about the talent's chance per channel: the
 // channel start and its five missiles share that chance between them.
 func TestArcaneMissilesSplitsClearcastingChance(t *testing.T) {
