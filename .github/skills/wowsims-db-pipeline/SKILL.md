@@ -173,6 +173,11 @@ names the install itself:
 make db CLASSES=shaman SHARED=0 DB2TOOL_FLAGS="--basedir '<WoW install>' --dbcache <game DBCache.bin> --dbcache <raidbots DBCache.bin>"
 ```
 
+One push can reach two files under different `UniqueID`s with different rows: raidbots held push 114344 with the
+Balance rows from before the rework, the game's cache with the rework. Records of one push apply in file order, so
+the last `--dbcache` wins; name the game's cache last, and check a renamed spell's `SpellName` row in the extracted
+`wowsims.db` before trusting the run.
+
 The game writes that file when it exits, so quit the game before reading it; while it runs, the new records sit in a
 locked `DBCache.bin<pid>.tmp` beside it. A hotfix can also arrive under a push number below the committed stamp, as
 113722 did under 114015, so compare the records of the two files as well as their highest push. A named file of an
