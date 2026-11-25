@@ -8,7 +8,7 @@
   UTC); 12 of the 27 reports start after hotfix push 114313 (2026-11-20 23:47 UTC), one of them after 2026-11-24 01:00
   UTC. The hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-24
-- Pull request: not recorded
+- Pull request: #1231
 
 ## Method
 
