@@ -389,7 +389,7 @@ describe('DropsResults', () => {
 		expect(cardLabels()).toEqual(['Warchief Rend Blackhand', 'Baron Rivendare', 'Overlord Wyrmthalak', 'General Drakkisath']);
 	});
 
-	it('names a row’s new item beside its slot, with its slot and first source under it and every source in the title', () => {
+	it('names a row’s new item beside its slot, with its slot and first source under it and every source in its tooltip', () => {
 		mount({ view: 'items' });
 
 		const row = rowOf(FELSTRIKER);
@@ -397,7 +397,7 @@ describe('DropsResults', () => {
 		expect(label.firstElementChild!.textContent).toBe('Felstriker');
 		const detail = label.lastElementChild!;
 		expect(detail.textContent).toBe(`${translateSlotName(ItemSlot.ItemSlotMainHand)} · ${names.npc(REND)} +1`);
-		expect(detail.getAttribute('title')).toBe(`${names.npc(REND)}\n${names.npc(RIVENDARE)}`);
+		expect(detail.getAttribute('data-tooltip-content')).toBe(`${names.npc(REND)}\n${names.npc(RIVENDARE)}`);
 	});
 
 	it('draws only the slots a row changes', () => {

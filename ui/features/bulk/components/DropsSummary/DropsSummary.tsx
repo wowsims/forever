@@ -1,7 +1,8 @@
 import i18n from '@i18n/config';
 import { formatToNumber } from '@sim/utils/format';
 import { Box } from '@ui-kit/Box';
-import type { ReactNode } from 'react';
+import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
+import { type ReactNode, useId } from 'react';
 
 import { formatBulkDps, formatBulkPct } from '../../model/results/format';
 
@@ -30,43 +31,49 @@ const Tile = ({ title, testId, children }: TileProps) => (
 
 const None = () => <span className="text-gray-400">{t('no_upgrade')}</span>;
 
-export const DropsSummaryView = ({ current, bestDrop, bestSource }: DropsSummaryViewProps) => (
-	<div className="grid grid-cols-1 gap-2 sm:grid-cols-3" data-testid="drops-summary">
-		<Tile title={t('current_gear')} testId="drops-summary-current">
-			<span className="text-xl font-bold">
-				{formatBulkDps(current.avg)} <span className="text-sm font-normal">{i18n.t('sidebar.results.metrics.dps.label')}</span>
-				{current.plusMinus > 0 && <span className="text-sm font-normal"> (±{formatToNumber(current.plusMinus, { maximumFractionDigits: 0 })})</span>}
-			</span>
-		</Tile>
-		<Tile title={t('best_drop')} testId="drops-summary-best-drop">
-			{bestDrop ? (
-				<>
-					<span className="truncate text-xl font-bold" title={bestDrop.name}>
-						{bestDrop.name}
-					</span>
-					<span className="text-sm">
-						<span className="text-success">{formatBulkPct(bestDrop.pct)}</span> {formatBulkDps(bestDrop.dps)}
-					</span>
-				</>
-			) : (
-				<None />
-			)}
-		</Tile>
-		<Tile title={t('best_source')} testId="drops-summary-best-source">
-			{bestSource && bestDrop ? (
-				<>
-					<span className="truncate text-xl font-bold" title={bestSource.label}>
-						{bestSource.label}
-					</span>
-					<span className="text-sm">
-						<span className="text-success">{formatBulkPct(bestDrop.pct)}</span> <span className="text-gray-400">{bestSource.detail}</span>
-					</span>
-				</>
-			) : bestDrop ? (
-				<span className="text-xl text-gray-400">—</span>
-			) : (
-				<None />
-			)}
-		</Tile>
-	</div>
-);
+export const DropsSummaryView = ({ current, bestDrop, bestSource }: DropsSummaryViewProps) => {
+	const tooltipId = useId();
+	return (
+		<div className="grid grid-cols-1 gap-2 sm:grid-cols-3" data-testid="drops-summary">
+			<Tile title={t('current_gear')} testId="drops-summary-current">
+				<span className="text-xl font-bold">
+					{formatBulkDps(current.avg)} <span className="text-sm font-normal">{i18n.t('sidebar.results.metrics.dps.label')}</span>
+					{current.plusMinus > 0 && (
+						<span className="text-sm font-normal"> (±{formatToNumber(current.plusMinus, { maximumFractionDigits: 0 })})</span>
+					)}
+				</span>
+			</Tile>
+			<Tile title={t('best_drop')} testId="drops-summary-best-drop">
+				{bestDrop ? (
+					<>
+						<span className="truncate text-xl font-bold" {...tooltipAnchorProps(tooltipId, bestDrop.name)}>
+							{bestDrop.name}
+						</span>
+						<span className="text-sm">
+							<span className="text-success">{formatBulkPct(bestDrop.pct)}</span> {formatBulkDps(bestDrop.dps)}
+						</span>
+					</>
+				) : (
+					<None />
+				)}
+			</Tile>
+			<Tile title={t('best_source')} testId="drops-summary-best-source">
+				{bestSource && bestDrop ? (
+					<>
+						<span className="truncate text-xl font-bold" {...tooltipAnchorProps(tooltipId, bestSource.label)}>
+							{bestSource.label}
+						</span>
+						<span className="text-sm">
+							<span className="text-success">{formatBulkPct(bestDrop.pct)}</span> <span className="text-gray-400">{bestSource.detail}</span>
+						</span>
+					</>
+				) : bestDrop ? (
+					<span className="text-xl text-gray-400">—</span>
+				) : (
+					<None />
+				)}
+			</Tile>
+			<Tooltip id={tooltipId} />
+		</div>
+	);
+};

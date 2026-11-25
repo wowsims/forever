@@ -16,7 +16,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** An item with a second source shows "+1" after its first, and lists both in its title. */
+/** An item with a second source shows "+1" after its first, and lists both in its tooltip. */
 export const Default: Story = {};
 
 export const OneSource: Story = { args: ring.label! };

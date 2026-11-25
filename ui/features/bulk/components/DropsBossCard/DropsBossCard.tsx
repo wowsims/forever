@@ -2,7 +2,9 @@ import i18n from '@i18n/config';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { ItemCellIcon } from '@ui-kit/ItemCell';
+import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import clsx from 'clsx';
+import { useId } from 'react';
 
 import type { DropsSourceLabel } from '../../model/drops/sources';
 import { formatBulkDps, formatBulkPct } from '../../model/results/format';
@@ -35,6 +37,7 @@ const t = (key: string, options: { count?: number; name?: string } = {}) => i18n
 // load keeps its place over its %. The card selects through a button laid under its content, so each icon's [+] equip
 // button can sit on top of it.
 export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect }: DropsBossCardViewProps) => {
+	const tooltipId = useId();
 	const upgrades = strip.filter(entry => entry.upgrade).length;
 	return (
 		<div
@@ -50,7 +53,6 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 				className="absolute inset-0 focus-visible:focus-ring"
 				aria-pressed={selected}
 				aria-label={label.label}
-				title={label.label}
 				data-testid="drops-boss-select"
 				onClick={onSelect}
 			/>
@@ -79,7 +81,7 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 								)}
 								role="img"
 								aria-label={entry.name}
-								title={entry.name}
+								{...tooltipAnchorProps(tooltipId, entry.name)}
 								style={entry.icon ? { backgroundImage: `url('${entry.icon}')` } : undefined}
 							/>
 							{entry.onEquip && (
@@ -87,7 +89,7 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 									variant="unstyled"
 									className="pointer-events-auto absolute right-0 bottom-0 flex size-4 items-center justify-center bg-black/75 text-2xs text-white hover:text-primary focus-visible:focus-ring"
 									aria-label={t('equip_item', { name: entry.name })}
-									title={t('equip_item', { name: entry.name })}
+									{...tooltipAnchorProps(tooltipId, t('equip_item', { name: entry.name }))}
 									data-testid="drops-boss-equip"
 									onClick={entry.onEquip}>
 									<Icon name="plus" />
@@ -100,7 +102,7 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 					</span>
 				))}
 			</span>
-			<span className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm">
+			<span className="mt-auto flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm">
 				{best ? (
 					<span>
 						{t('best')} <span className="font-bold text-success">{formatBulkPct(best.pct)}</span>{' '}
@@ -113,6 +115,7 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 					{upgrades} / {strip.length} {t('upgrades', { count: strip.length })}
 				</span>
 			</span>
+			<Tooltip id={tooltipId} />
 		</div>
 	);
 };
