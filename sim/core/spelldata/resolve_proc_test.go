@@ -75,6 +75,18 @@ func procRows() []Spell {
 			},
 		},
 		{
+			ID: 2810, Name: "Main-Hand Every Hit", ProcChance: 100, ProcChanceSource: ProcChanceAlways,
+			ProcFlags: [2]uint32{dbcenums.PROC_FLAG_DEAL_MELEE_SWING | dbcenums.PROC_FLAG_DEAL_MELEE_ABILITY, dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY},
+		},
+		{
+			ID: 2820, Name: "Main-Hand Rolled", ProcChance: 6, ProcChanceSource: ProcChanceColumn,
+			ProcFlags: [2]uint32{dbcenums.PROC_FLAG_DEAL_MELEE_SWING | dbcenums.PROC_FLAG_DEAL_MELEE_ABILITY, dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY},
+		},
+		{
+			ID: 2830, Name: "Either Hand Every Hit", ProcChance: 100, ProcChanceSource: ProcChanceAlways,
+			ProcFlags: [2]uint32{0: dbcenums.PROC_FLAG_DEAL_MELEE_SWING | dbcenums.PROC_FLAG_DEAL_MELEE_ABILITY},
+		},
+		{
 			ID: 2950, Name: "Block Damage", ProcChance: 100, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintBlocked,
 			ProcFlags:  [2]uint32{0: dbcenums.PROC_FLAG_TAKE_MELEE_SWING | dbcenums.PROC_FLAG_TAKE_MELEE_ABILITY},
 			CooldownMs: 5000,
@@ -163,6 +175,21 @@ func TestWeaponProcHearsALandedHitThatDealsNoDamage(t *testing.T) {
 		aura.OnSpellHitDealt(aura, sim, special, &core.SpellResult{Outcome: row.outcome})
 		if procs != row.want {
 			t.Errorf("%s rolled the proc %d times, want %d", row.name, procs, row.want)
+		}
+	}
+}
+
+// A row that fires on every main-hand hit hears a landed hit that deals no damage. A rolled
+// main-hand row and an every-hit row without the main-hand bit still need damage.
+func TestEveryHitMainHandRowHearsALandedHitThatDealsNoDamage(t *testing.T) {
+	withRows(t, procRows())
+
+	for _, row := range []struct {
+		id   int32
+		want bool
+	}{{2810, false}, {2820, true}, {2830, true}} {
+		if got := ProcTrigger(testCharacter(), Find(row.id), noopHandler).RequireDamageDealt; got != row.want {
+			t.Errorf("%s: RequireDamageDealt = %v, want %v", Find(row.id).Name, got, row.want)
 		}
 	}
 }
