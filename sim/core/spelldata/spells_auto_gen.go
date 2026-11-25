@@ -36729,11 +36729,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1324778, SpellID: 1300209, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 126, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
-	{ID: 1300240, Name: "Cloud of Chained Essence", School: 8, Attr: [17]uint32{0: 0x8d000000, 1: 0xa8, 2: 0x84004, 4: 0x80, 5: 0x60008, 6: 0x1000, 8: 0x1220, 9: 0x100800, 10: 0x400000, 11: 0x4000000, 13: 0x2, 14: 0x10, 15: 0x2000}, DurationMs: -1, MaxRange: 100,
+	{ID: 1300240, Name: "Cloud of Chained Essence", School: 8, Attr: [17]uint32{0: 0x8d000000, 1: 0xa8, 2: 0x84004, 4: 0x80, 5: 0x60008, 6: 0x1000, 8: 0x1220, 9: 0x100800, 10: 0x400000, 11: 0x4000000, 13: 0x2, 14: 0x10, 15: 0x2000}, DurationMs: -1, MaxRange: 100, VersusEffectIndex: 1, VersusFamilies: []int32{9},
 		Effects: []Effect{
 			{ID: 1324820, SpellID: 1300240, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 140, PvpMult: 1, PeriodMs: 2000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},
 			{ID: 1352467, SpellID: 1300240, Index: 1, BasePoints: 2, PvpMult: 1, ChainAmp: 1},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against CreatureFamilyTroll -- Cloud of Chained Essence (Chained Essence of Eranikus): 'Deals $1300240s2 times as much damage to Trolls'
 	{ID: 1300356, Name: "Lifeforce", School: 2, Attr: [17]uint32{15: 0x2000}, SpellLevel: 50, CastTimeMs: 5000, DefenseType: 1,
 		Effects: []Effect{
 			{ID: 1324960, SpellID: 1300356, Type: dbcenums.E_HEAL, BasePoints: 42, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

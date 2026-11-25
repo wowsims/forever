@@ -349,6 +349,48 @@ func init() {
 		})
 	})
 
+	// Chained Essence of Eranikus
+	// https://www.wowhead.com/forever/item=10455/chained-essence-of-eranikus
+	//
+	// Use: Creates a cloud of poison around the caster. Enemies inside the cloud suffer 140 Nature damage
+	// every 2 sec. Deals 2 times as much damage to Trolls. Lasts for 20 sec.
+	//
+	// The cloud stays where it was made for 12766's duration and puts 1300240 on every enemy in it. The
+	// sim counts every enemy active at the use as inside and none that comes later. The cloud is a ground
+	// effect, so the debuff always lands and each tick rolls its own spell hit and crit. The debuff states
+	// no duration; the cloud's end takes it just before its last tick, so an enemy inside from the start
+	// takes one tick fewer than the cloud has periods. The ticks do not scale with spell power, and the row
+	// states no defense type, so they take the spell crit multiplier (EV-0191).
+	core.NewItemEffect(10455, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		cloud := spelldata.MustFind(12766)
+		row := spelldata.MustFind(1300240)
+		tick := row.FirstAura(dbcenums.A_PERIODIC_DAMAGE)
+
+		config := procSpellConfig(character, row)
+		config.DefenseType = core.DefenseTypeMagic
+		config.VersusBonus = shared.ItemVersusBonus(character, 10455, proto.VersusEffectKind_VersusEffectKindDamage, row)
+		config.Dot = core.DotConfig{
+			Aura:             spelldata.AuraConfig(row),
+			TickLength:       tick.Period(),
+			NumberOfTicks:    int32(cloud.Duration()/tick.Period()) - 1,
+			BonusCoefficient: tick.Coeff(),
+			OnTick: spelldata.PeriodicDamageTick(tick, func(dot *core.Dot) core.OutcomeApplier {
+				return dot.Spell.OutcomeTickMagicHitAndCrit
+			}),
+		}
+		config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+			for _, target := range sim.Encounter.ActiveTargetUnits {
+				spell.Dot(target).Apply(sim)
+			}
+		}
+		poison := character.RegisterSpell(config)
+
+		registerItemOnUse(character, 10455, core.CooldownTypeDPS, nil, func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+			poison.Cast(sim, target)
+		})
+	})
+
 	// Bolt's Charged Eyeball
 	// https://www.wowhead.com/forever/item=280032/bolts-charged-eyeball
 	//

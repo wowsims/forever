@@ -201,6 +201,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 949.5179
+  tps: 947.77057
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-Champion'sArcanum"
  value: {
   dps: 887.52089

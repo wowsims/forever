@@ -446,6 +446,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 753.46112
+  tps: 487.0183
+  dtps: 4.51068
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Champion'sPursuance"
  value: {
   dps: 716.60711
