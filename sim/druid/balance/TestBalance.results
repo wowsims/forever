@@ -279,9 +279,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-ChainedEssenceofEranikus-10455"
  value: {
-  dps: 877.10029
-  tps: 887.90879
-  dtps: 5.61193
+  dps: 882.27765
+  tps: 893.04588
+  dtps: 5.02934
  }
 }
 dps_results: {

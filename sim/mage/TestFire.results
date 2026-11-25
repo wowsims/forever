@@ -203,8 +203,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-ChainedEssenceofEranikus-10455"
  value: {
-  dps: 949.5179
-  tps: 947.77057
+  dps: 950.80561
+  tps: 948.67197
  }
 }
 dps_results: {
