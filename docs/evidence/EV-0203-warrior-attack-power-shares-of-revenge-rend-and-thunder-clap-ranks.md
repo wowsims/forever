@@ -10,7 +10,7 @@
 - Game build: 1.60.1.70790 (the Rend Rank 1 logs), 1.60.1.70862, 1.60.1.70888 and 1.60.1.70938, each count's section
   naming its own; the hotfix each log ran on is not recorded
 - Date: 2026-11-05 to 2026-11-14
-- Pull request: not recorded
+- Pull request: #1232
 
 Each hit's damage is fitted against the sheet's attack power. A share counts as measured when the free slope's 95%
 interval holds the value, or when the damage the row predicts matches the logged amount (a residual centred on 0 or an

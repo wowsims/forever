@@ -7,7 +7,7 @@
 - Game build: 1.60.1.70862 to 1.60.1.70938 (70888 from 2026-11-10 12:44 and 70938 from 2026-11-13 17:09 in the log's
   own clock); the hotfix the player ran is not recorded
 - Date: 2026-11-09 to 2026-11-13
-- Pull request: not recorded
+- Pull request: #1232
 
 A window is the threat the addon logged around one ability, matched to the combat log's damage; the counts are clean
 windows, and the stance's 2.16 in Defensive Stance is divided out of the threat.

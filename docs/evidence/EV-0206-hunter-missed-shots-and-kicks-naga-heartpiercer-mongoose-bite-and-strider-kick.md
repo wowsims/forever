@@ -9,7 +9,7 @@
 - Game build: 1.60.1.70888 to 1.60.1.71037 by report start date, on the US times (70888 from 2026-11-10 15:11 UTC, 70938 from 2026-11-13
   01:36, 70959 from 2026-11-17 15:19, 71037 from 2026-11-20 18:23); the hotfix each player ran is not recorded
 - Date: 2026-11-10 to 2026-11-24
-- Pull request: not recorded
+- Pull request: #1232
 
 Two streams of each of the Mongoose Bite and Strider Kick counts date to build 70862 and hold no counted cast.
 

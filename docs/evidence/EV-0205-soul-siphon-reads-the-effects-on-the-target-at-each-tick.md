@@ -7,7 +7,7 @@
   and three others) records no tick counts, and those logs are not on disk.
 - Game build: 1.60.1.70938 by the log's date; the hotfix the player ran is not recorded
 - Date: 2026-11-14
-- Pull request: not recorded
+- Pull request: #1232
 
 Method: the warlock's Corruption, Siphon Life and Bane of Agony on each target are tracked from their aura applications
 and removals. Two consecutive ticks of one channel on one target, 1.0 s apart (within 0.15 s), count as a pair when
