@@ -74,8 +74,8 @@ before hotfix push 114313, 1.93 [1.89, 1.97] from it to the 2026-11-23 hotfix, a
 window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 1,835 isolated hits. Dropping the swapped stretches (129 active
 minutes, 3.6% of hits, in 8 runs) moved the read from 1.89 to 1.96. Six reports log a run another report holds and count
 once: qTKRwYLvxgJp8Hkt as gbGpK6hx7Xq2rVdn, bV7Tcp3DBzFLrwtk as BPVxqXWLc3FJTpMh, ZyCMmR2WgKGra3xv as VFTC9hrLqm7RJAat,
-9C2rP4Hkqwtv7RdQ as 4VphDGkmWdbTcB7P, VW6NT73MXFw8r4CQ as LNbjwpJhRTZzGP3C, and NRF9y6Mv3gTYfw4j. Reports from
-2026-11-14 to 2026-11-25.
+9C2rP4Hkqwtv7RdQ as 4VphDGkmWdbTcB7P, VW6NT73MXFw8r4CQ as LNbjwpJhRTZzGP3C, and NRF9y6Mv3gTYfw4j as f1VTcBRNpybavLwD.
+Reports from 2026-11-14 to 2026-11-25.
 
 | Class | Wearers | Procs |    Hits |  PPM |
 | ----- | ------: | ----: | ------: | ---: |
