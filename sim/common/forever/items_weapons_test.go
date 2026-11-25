@@ -1861,9 +1861,10 @@ func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T
 
 // Iceblade Hacker 13952 carries both its procs: every landed main-hand swing casts 1298414 on the
 // target, and 1298416 rolls the procs per minute of the item's chance-on-hit entry on the axe's speed
-// and casts its Frostbolt. A missed swing casts neither. With Always Hit on 1298414's row, the swing
-// damage never misses, is never dodged, parried or blocked, and can still crit. While the entry
-// states no rate, the swing's damage stays and the Frostbolt registers nothing.
+// and casts its Frostbolt. A missed swing casts neither. A landed main-hand special that deals no
+// damage casts 1298414 too. With Always Hit on 1298414's row, the swing damage never misses, is never
+// dodged, parried or blocked, and can still crit. While the entry states no rate, the swing's damage
+// stays and the Frostbolt registers nothing.
 func TestIcebladeHackerCarriesBothProcs(t *testing.T) {
 	editSpellRow(t, 1298414, func(s *spelldata.Spell) { s.Attr[dbcenums.ATTR_INDEX_EX_3] |= dbcenums.ATTR_EX_3_ALWAYS_HIT })
 	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13952, 0)})
@@ -1888,6 +1889,12 @@ func TestIcebladeHackerCarriesBothProcs(t *testing.T) {
 	dealHit(t, sim, character, meleeSwing(&character.Unit))
 	if casts(chill) != 1 || casts(frostbolt) != 1 {
 		t.Errorf("a landed swing cast the swing damage %d and the Frostbolt %d times, want each once", casts(chill), casts(frostbolt))
+	}
+	sunder := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, Unit: &character.Unit}
+	character.OnSpellHitDealt(sim, sunder, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if casts(chill) != 2 {
+		t.Errorf("a landed special that deals no damage left the swing damage at %d casts in all, want 2", casts(chill))
 	}
 	for range 500 {
 		chill.Cast(sim, enemy)
@@ -1988,9 +1995,9 @@ func procWeaponWearer(t *testing.T, itemID int32, procName string, target *proto
 }
 
 // Barman Shanker 12791's Rend 1300787, applied from behind the target, ticks for the multiple of its
-// periodic damage its second effect states.
-func TestBarmanShankerRendDealsItsMultipleFromBehind(t *testing.T) {
-	sim, character := procWeaponWearer(t, 12791, "Barman Shanker", &proto.Target{Name: "target", Level: 60}, 0, 0)
+// periodic damage its second effect states, less the armor reduction of a tenth of the target's armor.
+func TestBarmanShankerRendFromBehindTakesATenthOfArmor(t *testing.T) {
+	sim, character := procWeaponWearer(t, 12791, "Barman Shanker", &proto.Target{Name: "target", Level: 60, Stats: stats.Stats{stats.Armor: 3000}.ToProtoArray()}, 0, 0)
 	if character.PseudoStats.InFrontOfTarget {
 		t.Fatal("the wearer stands in front of the target")
 	}
@@ -1999,13 +2006,18 @@ func TestBarmanShankerRendDealsItsMultipleFromBehind(t *testing.T) {
 	if rend == nil {
 		t.Fatal("12791 registers no Rend")
 	}
+	tenth := enemy.Armor() / 10
+	if tenth <= 0 {
+		t.Fatal("the target has no armor")
+	}
+	armorMultiplier := 1 - tenth/(tenth+400+85*float64(character.Level))
 	row := spelldata.MustFind(1300787)
 	multiple := row.EffectN(2).Average()
-	want := row.EffectN(1).Average() * float64(rowTickCount(row, row.EffectN(1))) * multiple
+	want := row.EffectN(1).Average() * float64(rowTickCount(row, row.EffectN(1))) * multiple * armorMultiplier
 	rend.Cast(sim, enemy)
 	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Second)
 	if got := rend.SpellMetrics[enemy.UnitIndex].TotalDamage; multiple <= 1 || math.Abs(got-want) > 0.5 {
-		t.Errorf("a Rend from behind dealt %v, want the row's ticks times %v, %v", got, multiple, want)
+		t.Errorf("a Rend from behind dealt %v, want the row's ticks × %v × %v for a tenth of the armor, %v", got, multiple, armorMultiplier, want)
 	}
 }
 

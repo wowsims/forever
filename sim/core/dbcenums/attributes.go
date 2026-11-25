@@ -56,6 +56,13 @@ const (
 	// other bleeds and DoTs the game files mark, 225 spells in this build.
 	ATTR_EX_8_PERIODIC_CAN_CRIT uint32 = 0x200
 
+	// Two bits that decide how much armor a spell's periodic physical damage meets in the logs, though
+	// neither name says so: with the second the ticks ignore armor, with only the first they meet a
+	// tenth of it, with neither all of it (EV-0194). Spelldata's TicksIgnoreArmor and
+	// TicksMeetATenthOfArmor read them.
+	ATTR_DO_NOT_SHEATHE uint32 = 0x40000
+	ATTR_EX_6_BIT_21    uint32 = 0x200000
+
 	ATTR_EX_11_SCALES_WITH_ITEM_LEVEL uint32 = 0x4
 
 	ATTR_EX_12_ONLY_PROC_FROM_CLASS_ABILITIES uint32 = 0x80000000
