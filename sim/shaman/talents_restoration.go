@@ -22,7 +22,7 @@ func (shaman *Shaman) registerRestorationTalents() {
 	// (16177), 8/17/25% by rank.
 	//
 	// TODO: To be implemented as a buff on the receiver, the way Inspiration is in core/buffs.
-	// Healing Focus (16181) reduces pushback only, which the sim does not model.
+	shaman.applyHealingFocus()
 	// Water Shield (408510): shields.go, registerWaterShieldSpell
 
 	// Tier 4
@@ -48,6 +48,14 @@ func (shaman *Shaman) applyImprovedHealingWave() {
 		return
 	}
 	spelldata.ParseStatic(&shaman.Character, spellData.ImprovedHealingWave.Rank(shaman.Talents.ImprovedHealingWave))
+}
+
+// The chance a hit does not push back a hardcast of the healing spells its class flags name.
+func (shaman *Shaman) applyHealingFocus() {
+	if shaman.Talents.HealingFocus == 0 {
+		return
+	}
+	spelldata.ParseStatic(&shaman.Character, spellData.HealingFocus.Rank(shaman.Talents.HealingFocus))
 }
 
 func (shaman *Shaman) applyTotemicFocus() {
