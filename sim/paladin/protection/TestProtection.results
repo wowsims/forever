@@ -387,6 +387,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 413.16139
+  tps: 976.45285
+  dtps: 344.25193
+  hps: 18.02889
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-Champion'sAegis"
  value: {
   dps: 376.01528
