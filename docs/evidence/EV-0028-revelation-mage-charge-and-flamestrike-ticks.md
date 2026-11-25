@@ -28,7 +28,6 @@ ticks:
 | Arcane Concentration           | Clearcasting after 4 of 95 ticks                                        |
 | Master of Elements, Heating Up | 0 of 41 tick crits                                                      |
 | Revelation's crit and charge   | ticks under the buff crit 16 of 76, as without it; no tick spends it    |
-| Combustion                     | no tick inside a Combustion window                                      |
 
 Ticks roll their partial resist against a tenth of the target's share: on pairs of caster and mob with a share of 0.1 or
 more, 90 of 390 ticks show one, and they resist 0.10 of the share. In the sim, a

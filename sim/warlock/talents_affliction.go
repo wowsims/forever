@@ -129,9 +129,12 @@ func (warlock *Warlock) registerAmplifyCurse() {
 	// Bane of Agony is in neither class mask in the game files, so it is matched by its own spell mask.
 	ampWeakness, ampExhaustion := rankedSpell.EffectN(1).ClassFlags, rankedSpell.EffectN(2).ClassFlags
 
-	// TODO: Confirm that the amp is consumed on cast, regardless of hit.
+	// A curse spends it when it lands; one that misses or is fully resisted leaves it up (EV-0200).
 	auraConfig := spelldata.AuraConfig(rankedSpell)
-	auraConfig.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+	auraConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		if !result.Landed() {
+			return
+		}
 		if spell.MatchesFlags(ampWeakness) || spell.MatchesFlags(ampExhaustion) || spell.Matches(WarlockSpellBaneOfAgony) {
 			aura.Deactivate(sim)
 		}
