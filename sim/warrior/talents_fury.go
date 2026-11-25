@@ -319,7 +319,7 @@ func (warrior *Warrior) registerBloodthirst() {
 
 var piercingHowlRank = spellData.PiercingHowl.Highest()
 
-// TODO: In-game test required if there's any threat interaction
+// A Piercing Howl makes no threat (EV-0204).
 func (warrior *Warrior) registerPiercingHowl() {
 	if !warrior.Talents.PiercingHowl {
 		return
