@@ -83,22 +83,21 @@ func (at *AttackTable) GetBinaryHitChance(spell *Spell) float64 {
 // negative share under 1% pays nothing (EV-0142). The target's own resistance stops at 0, so a debuff
 // that lowers it below 0 adds nothing. A target above the caster's level resists no more for its level.
 func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) float64 {
-	if spell.SchoolIndex <= stats.SchoolIndexPhysical {
+	// Holy has no resistance, so a spell with Holy among its schools meets none and takes no piercing.
+	if spell.SchoolIndex <= stats.SchoolIndexPhysical || spell.SpellSchool.Matches(SpellSchoolHoly) {
 		return 0
 	}
 
 	// A spell of several schools meets the lowest resistance among them, each school's after its own
-	// piercing. A mask with Holy, which has no resistance, meets none and takes no piercing.
+	// piercing.
+	// TODO: In-game testing required: the lowest resistance against a mob that resists one school of a
+	// Frostfire Bolt more than the other; the logs so far only show mobs with no resistance.
 	resistance := math.Inf(1)
 	for _, school := range singleSchools {
 		if !spell.SpellSchool.Matches(school) {
 			continue
 		}
-		stat, ok := school.ResistanceStat()
-		if !ok {
-			resistance = 0
-			break
-		}
+		stat, _ := school.ResistanceStat()
 		schoolResistance := max(0, unit.GetStat(stat))
 		if !spell.Flags.Matches(SpellFlagNoSpellPiercing) {
 			schoolResistance -= attacker.stats[stats.SpellPiercing] + attacker.PseudoStats.SchoolSpellPiercing[school.SchoolIndex()]

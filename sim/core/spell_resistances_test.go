@@ -59,7 +59,7 @@ func TestMultiSchoolSpellMeetsItsLowestResistance(t *testing.T) {
 		want                   float64
 	}{
 		{"no piercing", 0, 0, 40.0 / (40 + 499)},
-		{"fire piercing below frost", 0, 70, 30.0 / (30 + 499)},
+		{"fire after piercing below frost", 0, 70, 30.0 / (30 + 499)},
 		{"piercing beyond both", 50, 0, -10.0 / (10 + 499)},
 	}
 	for _, c := range cases {

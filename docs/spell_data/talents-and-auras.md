@@ -213,8 +213,9 @@ Target resistance by mask 1 becomes `ArmorPenetration`. A mask of all five resis
 `SpellPiercing`, and a mask of some spell schools becomes `SchoolSpellPiercing` for each of them. A mask
 of armor and a spell school is skipped (`core.SpellSchool.PiercingStat`). The per-school kind bids under
 its mask: `SchoolSpellPiercing4` for the Baleflame imbue's fire and `SchoolSpellPiercing16` for
-Balefrost's frost. Core adds a spell's school piercing to `SpellPiercing`; a holy or multi-school spell
-has no resistance stat to pierce.
+Balefrost's frost. Core adds a spell's school piercing to `SpellPiercing`. A spell of several schools meets the
+lowest resistance among them, each after its own piercing; a holy spell, or a mask with holy, has no resistance to
+pierce.
 
 A percentage `SPELLMOD_DAMAGE` raises only direct hits and direct heals (`SpellMod_DirectDamageDone_Pct`),
 and `SPELLMOD_DOT` raises only the ticks (`SpellMod_DotDamageDone_Pct`). A talent that raises both a

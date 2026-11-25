@@ -3,7 +3,6 @@
 - Claim: Exorcism crits at the caster's spell crit chance, as Holy Wrath does, at every rank (879, 5614, 5615, 10312,
   10313, 10314). Its row has the magic defense type and no cannot-crit attribute. Until a server-side change at about
   20:03 UTC on 2026-11-25 it did not crit at all, and the game files do not show that either.
-- Later count: the change and the crit rate after it, §Count of the 2026-11-25 reports
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every report from 2026-11-05 to 2026-11-25 where a
   player deals Exorcism, Holy Wrath or Hammer of Wrath damage; 12,090 of them hold a landed Exorcism hit (US 5,879,
   EU 5,540, KR 346, CN 319, TW 6); all fights.
@@ -11,6 +10,7 @@
   with hits on every build in between and no crit on any; the hotfix each player ran is not recorded
 - Date: 2026-11-05 12:32 to 2026-11-25 05:59 UTC
 - Pull request: #1211
+- Later count: the change and the crit rate after it, §Count of the 2026-11-25 reports
 
 ## Method
 
@@ -53,9 +53,11 @@ Hammer of Wrath is no control: its row has the ranged defense type, and it rolls
 - Game build: 1.60.1.71091; the change is server-side with no hotfix push id, and the owner saw an Exorcism crit in game
   at about 20:17 UTC
 - Date: 2026-11-25 16:00 to 21:12 UTC
+- Pull request: #1223
 
 The last landed Exorcism hit of the no-crit period logs at 20:03:02 UTC and the first crit at 20:03:05 UTC. Before
-that, no hour holds a crit; from it on, 122 paladins crit with Exorcism at about the rate Holy Wrath crits for them.
+that, none of 5,010 landed hits crit; from it on, 122 paladins crit with Exorcism at about the rate Holy Wrath crits
+for them.
 
 | Hour (UTC) | Exorcism landed | Exorcism crits | Holy Wrath landed | Holy Wrath crits |
 | ---------- | --------------: | -------------: | ----------------: | ---------------: |
@@ -69,3 +71,4 @@ that, no hour holds a crit; from it on, 122 paladins crit with Exorcism at about
 From 20:03:05 UTC on, Exorcism crits on 342 of 2,249 landed hits (15.2%) and Holy Wrath on 57 of 328 (17.4%). The 9
 paladins with 10 or more Holy Wrath hits in that window crit 61 of 350 Exorcism hits, against 79 at each one's own
 Holy Wrath rate.
+Revelation names Holy Wrath and not Exorcism (EV-0149), so the control's rate carries the buff's crits.
