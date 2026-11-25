@@ -5,7 +5,7 @@
 - Sources: combat log `WoWCombatLog-112426_191754`, one level 60 rogue, three Scholomance runs
 - Game build: 1.60.1.71091; the hotfix push and whether the player relogged after it not recorded
 - Date: 2026-11-24 19:17 to 23:25 UTC−5 (2026-11-25 00:17 to 04:25 UTC)
-- Pull request: not recorded
+- Pull request: #1219
 
 The rogue is a Forsaken wielding a sword in the main hand and an axe in the off hand, both with Fiery Weapon, Instant
 Poison on the main hand and Deadly Poison on the off hand. The talent set is read from the casts each set alone has:

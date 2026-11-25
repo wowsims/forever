@@ -9,7 +9,7 @@
 - Game build: the Warcraft Logs reports span every build and hotfix from 2026-11-09 to 2026-11-25, with no report's
   build recorded; the combat log is 1.60.1.71091, its hotfix push not recorded
 - Date: 2026-11-09 to 2026-11-25
-- Pull request: not recorded
+- Pull request: #1219
 
 ## Chance
 

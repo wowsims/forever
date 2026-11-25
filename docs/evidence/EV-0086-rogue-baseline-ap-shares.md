@@ -20,7 +20,7 @@ confirmed by a tester. No counts were recorded.
 - Sources: combat log `WoWCombatLog-112426_191754`, one level 60 rogue, three Scholomance runs
 - Game build: 1.60.1.71091; the hotfix push and whether the player relogged after it not recorded
 - Date: 2026-11-24 19:17 to 23:25 UTC−5 (2026-11-25 00:17 to 04:25 UTC)
-- Pull request: not recorded
+- Pull request: #1219
 
 The talent sets are EV-0192's. The third run's combat set takes Venom and Improved Poisons 4/5, and the others neither.
 Each Deadly Poison IV tick (18 a stack in its row) is read by its base amount, before crit, with the stacks from its
