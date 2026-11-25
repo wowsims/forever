@@ -272,8 +272,6 @@ func (rogue *Rogue) registerHackAndSlash() {
 		}
 	}
 
-	// A landed hit from a sword or axe hand rolls the row's chance. In game about half of the resurrections by
-	// another player switch the talent off; the sim keeps it on (EV-0193).
 	// A Windfury Totem hit rolls it at a main-hand hit's chance when the main hand holds a sword or axe (EV-0002, EV-0128).
 	var extraAttack *core.Spell
 	swordAura := rogue.MakeProcTriggerAura(core.ProcTrigger{
