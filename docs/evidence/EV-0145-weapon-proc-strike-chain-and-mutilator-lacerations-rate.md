@@ -8,7 +8,8 @@ EV-0156 dates the reading that a white swing's Judgement refresh rolls a weapon 
   main-hand white swing of the weapon cast rolls the weapon once more at the same chance and never a third time, on 23
   weapons of the table, Mutilator among them; one cast by an ability, a seal's strike, a Windfury hit, an off-hand swing
   or a druid's swing in Cat, Bear or Dire Bear Form rolls nothing; Toofbreak 1320269, whose row states a 100 ms
-  cooldown, brings no second; Judgement of Command rolls a weapon proc twice a cast; Fiery Weapon 803 rolls on a
+  cooldown, brings no second; Judgement of Command rolled a weapon proc twice a cast up to hotfix push 114399 (2026-11-25) and rolls it once from
+  that push (EV-0155); Fiery Weapon 803 rolls on a
   weapon proc's strike under the same rule.
 - Sources: Warcraft Logs reports `AnPHcV64wg8DThzZ` (fights 1, 11, 12), `q62VRcw1m8fyHN4T` (fight 1),
   `Xa2MfbLKQCPYH6nr` (fights 1, 3, 5), `t38h6AJQWzRCHwZy` (fights 1, 3 to 6, 8 to 14), `BXhNKykZL7MDat8c` (fight 8),

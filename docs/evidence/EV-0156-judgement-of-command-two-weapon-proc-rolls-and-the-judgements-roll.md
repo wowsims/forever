@@ -1,7 +1,8 @@
 # EV-0156: Judgement of Command's two weapon proc rolls, and the roll the other Judgements lost
 
-- Claim: a landed Judgement of Command rolls a chance-on-hit weapon effect twice and Fiery Weapon a second time, and
-  rolls Windfury Totem and Vindication once; until a hotfix on 2026-11-13 a Judgement that lands a debuff, a white swing's refresh of
+- Claim: a landed Judgement of Command rolled a chance-on-hit weapon effect twice and Fiery Weapon a second time up to
+  hotfix push 114399 (2026-11-25), and from that push rolls a weapon effect once (EV-0155); it rolls Windfury Totem
+  and Vindication once; until a hotfix on 2026-11-13 a Judgement that lands a debuff, a white swing's refresh of
   that debuff and Judgement of Righteousness each rolled a weapon proc once, and since that hotfix they roll nothing.
 - Sources: the 1,139 Warcraft Logs reports of forever.warcraftlogs.com zone 3000 from 2026-11-06 to 2026-11-19 in
   which a paladin lands Vindication 440667 and procs a chance-on-hit weapon or Fiery Weapon 13897: 1,172 paladins. The
