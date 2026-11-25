@@ -9,14 +9,18 @@
   half of a normal white swing, and in the one fight with two reductions the second adds nothing once the first has
   reached its cap: under Force of Will a swing under 102 before armor lands at half of what it would without the buff,
   and Gold-plated 1291908 and Stoneform Shoulders 1298231 read the same on the hit they spend themselves on. A crit
-  doubles the flat amount.
+  doubles the flat amount. A periodic Physical tick on an enemy takes none of Gift of Arthas or Lacerations: Gift of
+  Arthas on ticks that ignore armor, meet a tenth of it (two ticks) or meet all of it, Lacerations on ticks that ignore
+  armor or meet all of it.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports the Reports section lists; all fights.
 - Game build: 1.60.1.70862, 1.60.1.70888, 1.60.1.70938 and 1.60.1.70959 for Force of Will, by event time against the
   time the CDN first listed each build; the Game builds section has the procs on each. The Tenderized and Gold-plated
   reports start on 1.60.1.70790, and the first Stoneskin Totem summon counted is on 2026-11-07 06:52 UTC, two hours
-  after 1.60.1.70862 was listed. The hotfix each player ran is not recorded.
-- Date: 2026-11-05 to 2026-11-19
-- Pull request: #1114; the single applications, Stoneskin Totem, the cap at half a hit and the crits in #1116
+  after 1.60.1.70862 was listed. The tick reports run on 1.60.1.70862 to 1.60.1.71091 by report date. The hotfix each
+  player ran is not recorded.
+- Date: 2026-11-05 to 2026-11-19; the ticks 2026-11-10 to 2026-11-25
+- Pull request: #1114; the single applications, Stoneskin Totem, the cap at half a hit and the crits in #1116; the ticks
+  in #1229
 
 ## Method
 
@@ -260,6 +264,41 @@ Gift of Arthas' swings come from 18 attackers in 8 reports (2026-11-11 to 2026-1
 in 239 reports (2026-11-05 to 2026-11-19) and Lacerations' from 19 attackers in 8 reports (2026-11-11 to 2026-11-18).
 Spell hits against a flat spell damage taken amount, and a flat ranged damage taken amount, were not measured.
 
+## Ticks under a flat Physical damage taken debuff
+
+The reports are every indexed one where Gift of Arthas 11374 shows beside a Physical bleed or item tick (10 reports),
+and the 15 with Tenderized or Lacerations, a tick and no Gift of Arthas, of which 8 hold a tick under the debuff; the
+other 7 add nothing to the counts. Per report, caster and tick spell, the ticks
+with every one of the three debuffs off give r, the median of amount / unmitigatedAmount over 5 or more ticks. A tick
+with the debuff on leaves amount - r x unmitigatedAmount over; a tick that took the debuff's amount leaves the amount,
+or r times it before armor. Only normal ticks count (no crit, absorb or overkill), and none within 50 ms of an event of
+any of the three debuffs on its target.
+
+| Tick                               | Armor (EV-0194) | Gift of Arthas: on / off | Median left over | Lacerations: on / off | Median left over |
+| ---------------------------------- | --------------- | -----------------------: | ---------------: | --------------------: | ---------------: |
+| Rake 1824, 9904                    | none            |                223 / 539 |             0.00 |             115 / 166 |             0.00 |
+| Rip 9752, 9896                     | none            |                 132 / 96 |             0.00 |               56 / 82 |             0.00 |
+| Pounce Bleed 9007, 9824, 9826      | none            |                 48 / 120 |             0.00 |                       |                  |
+| Garrote 11289, 11290               | none            |                101 / 373 |             0.00 |                       |                  |
+| Rupture 11274                      | none            |                113 / 550 |             0.16 |                       |                  |
+| Rend 11572 to 11574 (warrior)      | none            |                142 / 302 |             0.00 |             335 / 488 |             0.00 |
+| Rend 17153 (Kang the Decapitator)  | a tenth         |                   2 / 17 |            -1.50 |                       |                  |
+| Wound 17407 (The Blackrock Slicer) | all             |                280 / 400 |             0.00 |                       |                  |
+| Bigger Rock to the Face 1306816    | all             |                217 / 586 |            -0.31 |           182 / 1,581 |             0.00 |
+| Rock to the Face 1309967           | all             |                  81 / 92 |             0.17 |                       |                  |
+| All                                |                 |            1,339 / 3,075 |       mean -0.90 |           688 / 2,317 |        mean 0.18 |
+
+The All row gives the mean left over across every tick under the debuff, not a median.
+
+Gift of Arthas adds 8 to a swing at a k near 0.65, so a tick that took it would leave 5 to 8 over; Lacerations leaves
+0.65 to 3.2 on a swing at 1 to 5 stacks. On the ticks that meet all of the target's armor, unmitigatedAmount and amount
+read the same with the debuff on and off: The Blackrock Slicer's Wound reads 13 before armor and 8 after it either way.
+The same reports' normal white swings are the control: on the four Gift of Arthas reports fetched for them
+(1TFWH4Yy38KhXMwx, 26KV1wfdJpnaZFhA, 2gZx9BrGYTNwXRk7, Gkc8Y1zZDNb7wWVg), 3,089 swings with the debuff on leave 5.15
+over against 8 x 0.641 = 5.13 before armor, and 4,353 with it off leave 0.00. Tenderized shows on 5 Garrote ticks in
+one report, 0.00 over at the median; no Barman Shanker wearer is in these reports. The flat reductions (Force of Will,
+Stoneskin Totem) on a tick a player takes were not measured.
+
 ## The cap on other flat reductions, on the amounts together and on a crit
 
 None of the 124 window swings under 102 holds a block, a second flat reduction that logs on the wearer or a Stoneskin
@@ -391,6 +430,18 @@ Lacerations:
 
 AnPHcV64wg8DThzZ, q62VRcw1m8fyHN4T, t38h6AJQWzRCHwZy, Xa2MfbLKQCPYH6nr, nPLWN2VDTZMz7Qk6, nP4N7AqTvChFQ2GY,
 D1dxzYbNMKcpZAa2, 6Y2mMtCzb7ZvQKWD
+
+Ticks under Gift of Arthas:
+
+1TFWH4Yy38KhXMwx, 26KV1wfdJpnaZFhA, 2Dv3WbJrMTCFPVgH, 2gZx9BrGYTNwXRk7, C8pJQGXhK6cxgtT2, Gkc8Y1zZDNb7wWVg,
+WmAYZ9MVRPqncTBJ, dYwmDcAyqTBGW61g, hwBvpVCGWtH7gKXf, yqFPH1MKv746dQhB
+
+Ticks under Lacerations:
+
+6Y2mMtCzb7ZvQKWD, 7RaLcAJVWH2nZPrj, BXhNKykZL7MDat8c, D1dxzYbNMKcpZAa2, Kdp4ArYMTxCZWHcX, nPLWN2VDTZMz7Qk6,
+vtbdYWr47pPFKQ3m
+
+Ticks under Tenderized: xMRpbWkrzv2AZTN3
 
 Tenderized:
 
