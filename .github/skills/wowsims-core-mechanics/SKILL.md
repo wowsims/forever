@@ -64,7 +64,7 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   (`spell.go`).
 - **Periodic physical damage meets the armor its row's attributes name** (EV-0194). `SpellConfig` reads them: none
   where the row sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
-  leaves where it sets only Attributes[0] 0x40000 (`SpellFlagTenthArmorTicks`, the weapons' Rends), and the whole armor
+  leaves where it sets only Attributes[0] 0x40000 (`SpellFlagTenthResistance`, the weapons' Rends), and the whole armor
   where it sets neither (`SpellFlagApplyArmorReduction`, Wound). A periodic spell built by hand with no row ignores
   armor, and one that pays out damage that already met armor (Death Mark, Lacerating Strikes) sets
   `SpellFlagIgnoreResists` (`sim/core/spell_resistances.go`).

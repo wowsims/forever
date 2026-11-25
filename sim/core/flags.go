@@ -199,7 +199,6 @@ const (
 	SpellFlagIgnoreTargetModifiers                          // skip target damage modifiers
 	SpellFlagIgnoreAttackerModifiers                        // skip attacker damage modifiers
 	SpellFlagApplyArmorReduction                            // Its periodic physical damage meets the target's whole armor; spelldata.SpellConfig sets it from the row (EV-0194).
-	SpellFlagTenthArmorTicks                                // Its periodic physical damage meets a tenth of the target's armor, after armor penetration; set from the row, and SpellFlagApplyArmorReduction wins (EV-0194).
 	SpellFlagNoActiveDefense                                // The physical hit roll skips dodge, parry and block.
 	SpellFlagIncludeTargetBonusDamage                       // Spell benefits from Gift of Arthas and Hemorrhage.
 	SpellFlagBinary                                         // The hit roll resists it in full at the target's average resist, and a landed one takes no partial resist; a physical one is blocked whole. spelldata.SpellConfig sets it from the row.
@@ -232,7 +231,7 @@ const (
 	SpellFlagSwapped                                        // Indicates that this spell is not useable because it is from a currently swapped item
 	SpellFlagCastWhileIncapacitated                         // Allows the cast while the unit is incapacitated, e.g. Berserker Rage breaking a Fear.
 	SpellFlagFullResistanceTicks                            // Its ticks meet the target's full resistance, as direct hits do, where other ticks, a channel's included, meet a tenth; a binary spell's ticks then take the Spell Piercing bonus in full (EV-0142).
-	SpellFlagTenthResistance                                // Its hits roll their partial resist against a tenth of the target's average resist, as most ticks do, and take no Spell Piercing bonus, e.g. Flamestrike's ground ticks.
+	SpellFlagTenthResistance                                // Its hits roll their partial resist against a tenth of the target's average resist, as most ticks do, and take no Spell Piercing bonus, e.g. Flamestrike's ground ticks. Its periodic physical damage meets a tenth of the target's armor, after armor penetration; spelldata.SpellConfig sets it from the row, and SpellFlagApplyArmorReduction wins (EV-0194).
 	SpellFlagNoPartialResist                                // The spell's hits never lose damage to a partial resist and gain no Spell Piercing bonus, binary or not (EV-0142).
 	SpellFlagNoSpellPiercing                                // The caster's Spell Piercing does not reach its hits, e.g. Magma Totem's and Searing Totem's attacks (EV-0142).
 	SpellFlagPushback                                       // Damage taken while hardcasting pushes the cast back: SpellInterrupts.InterruptFlags 0x2.

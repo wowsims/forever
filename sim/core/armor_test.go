@@ -46,7 +46,7 @@ func TestArmorReductionFromLevel60Attacker(t *testing.T) {
 }
 
 // Periodic physical damage ignores armor, meets all of it under SpellFlagApplyArmorReduction, and meets a
-// tenth of what armor penetration leaves under SpellFlagTenthArmorTicks, below the 75% cap that the whole
+// tenth of what armor penetration leaves under SpellFlagTenthResistance, below the 75% cap that the whole
 // armor reaches; a direct hit of a spell flagged for a tenth meets the whole armor.
 func TestPeriodicPhysicalDamageMeetsTheArmorItsFlagsName(t *testing.T) {
 	attacker := &Unit{Type: PlayerUnit, Level: 60}
@@ -65,8 +65,8 @@ func TestPeriodicPhysicalDamageMeetsTheArmorItsFlagsName(t *testing.T) {
 	}{
 		{"a tick", 0, true, 1},
 		{"a tick flagged for the whole armor", SpellFlagApplyArmorReduction, true, 0.25},
-		{"a tick flagged for a tenth", SpellFlagTenthArmorTicks, true, 1 - tenth/(tenth+armorConstant)},
-		{"a direct hit flagged for a tenth", SpellFlagTenthArmorTicks, false, 0.25},
+		{"a tick flagged for a tenth", SpellFlagTenthResistance, true, 1 - tenth/(tenth+armorConstant)},
+		{"a direct hit flagged for a tenth", SpellFlagTenthResistance, false, 0.25},
 	} {
 		spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolPhysical, SchoolIndex: stats.SchoolIndexPhysical, Flags: tc.flags}
 		if got, _ := spell.ResistanceMultiplier(nil, tc.isPeriodic, attackTable); !WithinToleranceFloat64(tc.want, got, 1e-9) {

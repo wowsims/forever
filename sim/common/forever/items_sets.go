@@ -787,7 +787,7 @@ func deviousStrike(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	config := procSpellConfigAs(character, deviousStrikeBleed, spelldata.Melee(core.ProcMaskEmpty))
 	// The bleed's ticks ignore armor, although its row's attributes name a tenth of it (EV-0194).
-	config.Flags &^= core.SpellFlagTenthArmorTicks | core.SpellFlagApplyArmorReduction
+	config.Flags &^= core.SpellFlagTenthResistance | core.SpellFlagApplyArmorReduction
 	config.Dot = spelldata.DotConfig(deviousStrikeBleed, deviousStrikeBleed.PeriodicDamageEffect())
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHit)

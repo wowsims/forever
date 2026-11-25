@@ -791,7 +791,7 @@ func TestDefiasLeatherBleedsOnlyFromBehind(t *testing.T) {
 	if bleed == nil || bleed.Dot(target) == nil || bleed.SpellSchool != core.SpellSchoolPhysical {
 		t.Fatal("the 4-piece registers no 1292029 bleed of Physical damage")
 	}
-	if bleed.Flags.Matches(core.SpellFlagTenthArmorTicks | core.SpellFlagApplyArmorReduction) {
+	if bleed.Flags.Matches(core.SpellFlagTenthResistance | core.SpellFlagApplyArmorReduction) {
 		t.Error("the bleed's ticks meet armor, want them to ignore it")
 	}
 	casts := &bleed.SpellMetrics[target.UnitIndex].Casts

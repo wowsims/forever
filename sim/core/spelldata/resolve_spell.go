@@ -379,7 +379,7 @@ func rowFlags(s *Spell) core.SpellFlag {
 		flags |= core.SpellFlagBinary
 	}
 	if s.SpellSchool().Matches(core.SpellSchoolPhysical) && s.PeriodicDamageEffect().HitsAnEnemy() && !s.TicksIgnoreArmor() {
-		flags |= core.Ternary(s.TicksMeetATenthOfArmor(), core.SpellFlagTenthArmorTicks, core.SpellFlagApplyArmorReduction)
+		flags |= core.Ternary(s.TicksMeetATenthOfArmor(), core.SpellFlagTenthResistance, core.SpellFlagApplyArmorReduction)
 	}
 	// Helpful decides who the APL casts the spell on, so it follows the first effect's target. An
 	// attack whose first effect is a self side-effect reads as helpful here and the caller clears it.

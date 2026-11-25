@@ -26,7 +26,7 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 		switch {
 		case !isPeriodic || spell.Flags.Matches(SpellFlagApplyArmorReduction):
 			return attackTable.GetArmorDamageModifier(spell), OutcomeEmpty
-		case spell.Flags.Matches(SpellFlagTenthArmorTicks):
+		case spell.Flags.Matches(SpellFlagTenthResistance):
 			return attackTable.armorDamageModifier(0.1), OutcomeEmpty
 		}
 		return 1, OutcomeEmpty
