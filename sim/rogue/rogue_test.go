@@ -659,9 +659,9 @@ func TestShankRollsTheOffHandPoison(t *testing.T) {
 const deathMarkTalents = "--335223031321001101"
 const deathMarkCoupDeGraceTalents = "-3-335223031321001101"
 
-// Death Mark spends its combo points, stores its share of the rogue's damage per point, twice for Rupture and none of
-// another unit's, pays out what it stored up to the cap, and its payout never crits. Coup de Grace raises the stored
-// share below the cap and the cap itself, each on its own.
+// Death Mark spends its combo points, stores its share of the rogue's physical damage per point, twice for Rupture and
+// none of the rogue's magic damage or another unit's, pays out what it stored up to the cap, and its payout never
+// crits. Coup de Grace raises the stored share below the cap and the cap itself, each on its own.
 func TestDeathMarkStoresAndPaysOut(t *testing.T) {
 	for _, c := range []struct {
 		name        string
@@ -709,6 +709,9 @@ func TestDeathMarkStoresAndPaysOut(t *testing.T) {
 			target.OnSpellHitTaken(sim, rogue.SinisterStrike, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
 			target.OnPeriodicDamageTaken(sim, rogue.Rupture, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
 			target.OnSpellHitTaken(sim, &core.Spell{Unit: targets[1]}, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
+			poison := &core.Spell{Unit: &rogue.Unit, SpellSchool: core.SpellSchoolNature}
+			target.OnSpellHitTaken(sim, poison, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
+			target.OnPeriodicDamageTaken(sim, poison, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
 			wantStored := 3 * deathMarkStoredPerPoint * coup * (hit + 2*hit)
 			if got := payout(); math.Abs(got-wantStored) > 1e-6 {
 				t.Errorf("Death Mark at 3 points pays out %.4f, want %.4f, the stored share with Coup de Grace on it", got, wantStored)
