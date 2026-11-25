@@ -1933,6 +1933,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-ShellLauncherShotgun-13146"
+ value: {
+  dps: 749.90826
+  tps: 482.2693
+  dtps: 3.75143
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-ShortswordofVengeance-754"
  value: {
   dps: 732.62565
