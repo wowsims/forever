@@ -91,7 +91,7 @@ export const SimShell = ({ domRef, host, sim, className, spec, noticeText, known
 											host={host}
 											sim={sim}
 											simReady={simReady}
-											actions={host && <SimRunActions host={host} sim={sim} className="w-full" />}
+											actions={host && <SimRunActions host={host} sim={sim} wrap className="w-full" />}
 										/>
 									</div>
 									{host && <SpecReleaseInfo spec={spec} className="border-t border-border px-sidebar py-2 text-xs text-muted" />}

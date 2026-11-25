@@ -1,13 +1,23 @@
 # EV-0149: Revelation on every class: which hits roll it, the chance, and what spends the charge
 
-- Claim: Revelation (enchant 8217) rolls on each landed non-crit direct hit of a spell with the magic defense type, the
+- Claim: Revelation (enchant 8217) rolls on landed non-crit direct hits of a spell with the magic defense type, the
   wearer's own or an item's, at a chance scaled by a level ramp, clamp((SpellLevel + 32 − level) / 20, 0, 1); periodic
   ticks, damage shields, leech heals and melee or ranged attacks (the paladin's judgements and Hammer of Wrath, the
-  hunter's Arcane Shot and Volley) roll nothing. At level 60 on spells at the full ramp the chance reads 8.94% for
-  mages, 8.84% for warlocks, 8.65% for priests, 7.90% for druids, 7.30% for shamans and 7.02% for paladins, and it falls
-  as the wearer's crit from gear and intellect rises. The charge goes as a spell the buff affects is cast, on every
-  class, and the cast's hit crits even when it lands after the buff is gone; a channelled spell keeps the buff until
-  the channel ends and every hit of it crits meanwhile; the paladin's judgements and Hammer of Wrath crit and leave the
+  hunter's Arcane Shot and Volley) roll nothing. A hit event rolls once however many targets it strikes, and its first
+  result is that one roll: when the first result crits, the event rolls nothing. Until 2026-11-24 20:54 UTC each
+  target rolled. At level 60 on spells at the full ramp the chance reads 8.94% for mages, 8.84% for warlocks, 8.65% for
+  priests, 7.90% for druids, 7.30% for shamans and 7.02% for paladins, and it falls as the wearer's crit from gear and
+  intellect rises. The charge goes as a spell the buff affects is cast, on every class, and the cast's hit crits even
+  when it lands after the buff is gone. A channel whose ticks cast a spell of their own (Blizzard, Hellfire, Rain of
+  Fire, Hurricane) loses it to its first tick, which crits on every target it strikes, and its later ticks crit at
+  their own chance. Arcane Missiles rolls each missile's crit at its launch: the first missile launched after the gain
+  crits and spends the charge as it lands, and a missile in flight at the gain keeps its own roll and spends the charge
+  only when that roll crits. Penance's heals crit with the buff up and leave the charge. Since 2026-11-25 01:13 UTC a
+  channel whose ticks are its own periodic damage (Mind Flay, Wrack, Drain Soul, Drain Life) loses it to its first
+  tick too, which crits, and its later ticks crit at their own chance; from 2026-11-24 20:54 UTC to that switch such a
+  channel crit on every tick with the buff up and left the charge to the next spell the buff affects. Until 20:54 a
+  channel kept the buff to its end and every hit of it crit. Another spell's periodic ticks never spend it. Lightning
+  Overload's bolt rolls apart from the bolt it copies. The paladin's judgements and Hammer of Wrath crit and leave the
   charge. The buff reaches spells its row does not name: Fireball, Pyroblast, Frostfire Bolt, Immolate, Flame Shock,
   Moonfire and Regrowth spend it and crit on their direct hit, and their ticks do not crit.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every character with enchant 8217 on the main hand in
@@ -17,6 +27,11 @@
   procs on each. The hotfix each player ran is not recorded.
 - Date: 2026-11-07 to 2026-11-18
 - Pull request: #1100
+- Later count: what spends the charge in a channel up to 2026-11-24 20:54 UTC, the switch at that time, the direct
+  spells after it, §Count of the 2026-11-24 reports
+- Later count: the roll on a hit of several targets and which result decides it, a channel's first tick, Arcane
+  Missiles' charge, the channels of periodic ticks and Penance, Lightning Overload's roll, periodic ticks, §Count of the
+  2026-11-24 to 2026-11-25 reports
 
 ## Method
 
@@ -220,9 +235,12 @@ At a level estimate of 60, counted alone on ranked class spells of spell level 5
 | Shaman  | 2,972 of 40,695   |  7.30% |
 | Paladin | 426 of 6,066      |  7.02% |
 
-The number of targets a cast hits does not move it: 8.42% on clusters of one roll, 8.79% on 2 to 3, 8.78% on 4 to 6,
-8.83% on 7 to 10 and 8.39% on 11 and over. Nor does the build window: the mages at 60 read 8.59% on 70888 (6
-characters), 8.99% on 70938 and 8.98% after 70959 was listed.
+- Count: §Count of the 2026-11-24 reports
+
+On these reports each target rolled, and the number of targets a cast hits does not move the chance a roll: 8.42% on
+clusters of one roll, 8.79% on 2 to 3, 8.78% on 4 to 6, 8.83% on 7 to 10 and 8.39% on 11 and over. Nor does the build
+window: the mages at 60 read 8.59% on 70888 (6 characters), 8.99% on 70938 and 8.98% after 70959 was listed. Since
+2026-11-24 20:54 UTC a hit event rolls once.
 
 The tooltip says the chance falls as the wearer's crit chance rises. Against crit from gear and intellect, on the
 stretches at a level estimate of 60 and the fitted shares of ranked class spells within 8 levels of the wearer:
@@ -295,10 +313,15 @@ Some instant casts lose the buff at the cast and do not crit: Fire Blast 391 of 
 the Ice Lances and 53 of the Cones of Cold, against 150 of the 1,982 Fire Blasts that crit, so the one charge went to
 the other cast. The rest are not explained.
 
-### A channel keeps it to its end
+### A channel kept it to its end until 2026-11-24
 
-A channelled spell the buff names does not spend the charge at its cast. Every hit of the channel crits while the buff
-is up, and the buff goes when the channel ends. Casts with the buff up and gained from another spell:
+- Count: §Count of the 2026-11-24 reports
+
+On these reports a channelled spell the buff names does not spend the charge at its cast. Every hit of the channel
+crits while the buff is up, and the buff goes when the channel ends. Since 2026-11-24 20:54 UTC a channel whose ticks
+cast a spell of their own loses it to its first tick. A channel whose ticks are its own periodic damage kept it past
+its end from that time and loses it to its first tick since 2026-11-25 01:13 UTC. Casts with the buff up and gained
+from another spell:
 
 | Spell            | Casts | Hits with the buff up | Hits after it is gone |
 | ---------------- | ----: | --------------------- | --------------------- |
@@ -372,7 +395,7 @@ the same: 66 casts with the buff up, 66 crit and 2 lose the buff at the cast.
 ### Spells the buff does not affect
 
 The paladin's Exorcism (171 hits with the buff up), Lay on Hands (7), Seal of Light's heal (117) and Judgement of
-Light's heal (435) are not named, do not crit and do not spend the charge. Exorcism never crits in the logs at all. The
+Light's heal (435) are not named, do not crit and do not spend the charge. Exorcism never crits at all (EV-0188). The
 rows of the two seal heals carry `SpellMisc.Attributes[2]` 0x20000000, cannot crit.
 
 ### The paladin's Holy Shock and Light's Vigil
@@ -619,3 +642,351 @@ bahZczXqfLk3pQR2, 4vcn3WF1RxXf8VZt, a42r3p6ZxtBTRqfQ, hZLykw9dRnYbtvKP, 9R8rhcAw
 4bVQqW6vk7fHzyrw, nYHgB2LKbtFDWVGw, L2c7jBZNwFPpb1tV, jgxBZTv69zf4aMhR, 9xpQ267J41GrDaMf, 1GN2LMtwvY4JQHba,
 p64RG9PVZcDg1XCk, aF69WRYXAT1qNZjM, 4JYa2mQgpVNMF89R, wkNFMH1nAhZ82Rym, tG4CqkJQvyPT2A1Y, t2yjAqMgTvGZHJLC,
 NqKayk8Q9rwWvjpz, 7Kz3LtgfDmbBRGXP, Wza8bdXVRhcgqGnZ, k3QGKZ2jr1ptgRPx, Y8L1VRGqHjKJpbCM, 2PfTacjwkD9xJtzd
+
+## Count of the 2026-11-24 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), wearers of enchant 8217 with a Revelation buff in the
+  56 reports listed below, read in two runs: every such wearer in the first 39, and in the last 17 only the wearers who
+  cast a channel; and a local combat log of a warlock and a mage, levels not recorded, taken 2026-11-24 21:09 local
+  time (WoWCombatLog-112426_210934).
+- Game build: 1.60.1.71037 on EU realms and 1.60.1.71091 on US realms, hotfix push 114378 cache. The change is server
+  side and shows in the reports between 20:53:45 and 20:54:06 UTC on 2026-11-24. No game files row changed: the rows of
+  the proc aura 1248806 and of the seven buffs were pushed again at 114284, byte-identical.
+- Date: 2026-11-24
+- Pull request: #1208
+
+The first run read the first 39 reports listed, with events to 21:34 UTC. Before is the events from 20:00 to 20:53 UTC,
+52 wearers in 35 reports; after is the events from 20:55 UTC, 47 wearers in 31 reports. The second run, at 22:09 UTC,
+fetched the events from 20:00 to about 22:00 UTC of 38 wearers who cast a channel, in 33 reports. The last 17 reports
+listed are among those 33 and new to this count. It read the first run's other wearers as they were. The procs, the
+buffs and the rolls are counted as in §Method. A buff episode runs from an application to its removal, capped at 15.2 s
+after the last proc. A group is a spell's landings within 20 ms of the first, so a channel tick or an area cast on
+several targets is one group, and its first result is its first landing in the log.
+
+Per 5 minutes, buffs that a channel's first tick takes within 300 ms: 0 or 1 in every window from 20:00 to 20:45, of
+15 to 52 each; 5 of 49 at 20:50; and all of them in every window from 20:55 to 21:30, 15 to 34 each.
+
+### A channel's first tick around the switch
+
+Before, the buff went within 60 ms of the first tick in 1 of 338 Blizzard episodes, 0 of 36 Hellfire, 0 of 32 Rain of
+Fire and 0 of 9 Hurricane, and later in 325, 33, 30 and 9 of them; the ticks after the first with the buff up crit on
+every target: Blizzard 6,024 of 6,024, Hellfire 2,101 of 2,101, Rain of Fire 341 of 341, Hurricane 231 of 231. After,
+a later tick that comes with a new proc's buff up crits on every target: Blizzard 114 of 114, Hellfire 20 of 20,
+Hurricane 4 of 4.
+
+In the local log, the warlock's Hellfire first tick crits and the buff goes 103 ms later, with the next tick not
+critting; the mage's Blizzard first tick crits and the buff goes 103 ms later, with the three ticks after it not
+critting.
+
+### Arcane Missiles before the switch
+
+Before, of 90 episodes with a missile landing inside, 4 lost the buff at a missile's landing and 56 at a missile's
+cast event with no landing.
+
+### Direct spells
+
+The charge still goes at the cast and the hit keeps its crit in flight. After, by cast with the buff up:
+
+| Spell          | Casts | Removed at the cast | First hit crits |
+| -------------- | ----: | ------------------: | --------------: |
+| Frostbolt      |    55 |                  54 |              54 |
+| Lightning Bolt |    25 |                  25 |              25 |
+| Shadow Bolt    |     8 |                   7 |               7 |
+| Pyroblast      |     4 |                   4 |               4 |
+
+An instant area cast crits on every target, as a cast that spends the charge at its completion does: Arcane Explosion
+240 of 247 targets in 67 groups of 2 or more, Chain Lightning 20 of 20 in 8.
+
+### Reports
+
+1ZfhArNnJX3gtPcB, 2ztdfwHnv4PgYAxh, 6dwcWm1rYyhgnTxf, bqafJg6RZAL4P2hH, D3yAqmjMcztNdaRW, Dtc8bkGdZ14v7fFa,
+DwKyLCcW9xnX1APV, GtXgCKbJQLxda613, hzQRLkBxWCcdPvD1, jG4ctAQMv9TbrpkY, jPTNyJWtxLzQ8MFZ, JXtPHx4p12WyQqjm,
+KJnv23ZtWfXraV81, LwTNrdJ6zjnmCKZg, man3DYTNht7JxFGk, pqrmA6VNzPaRHdCT, rMydHq3vx9wPjmR1, rvWB6DTH4dPRJVCF,
+tjYN3m2rzFBp1dTb, w63ZvnMVbhQJ1xKC, WXDVmBJ4afK2Lnrh, xZtGRMyAX2FDP1qY, ZKFfkr1J4XaGP38Q, zRFDJLjX42NPpvVn,
+ZzL2CYkARtBjg16v, cHLmxkQT1ZCXbKwy, rNMBcQ4awpV7gz6R, XkTcqKrpMC4L3N1x, abBzgq4AFTM9V3kr, BrMn7X4LPwc2DgN6,
+dBDT9XHZPvwJ3zMR, gnThGBckVLrFDp8A, Hy9FbkDXzLRmZBAc, ktXHy6ZJL4pMwBqA, R4y92czhFrkmtfYA, t9PLr4H8gdkXncRZ,
+6tGyrxPaNM4VQBvq, aFkCTQyW6HxYtN7Z, R3JMNnkVWCDwxyda, 1ZKkyGCWfQaXMvw8, 4JP8jzWgyApchHmb, ARF7PMY3Hp2Df4zK,
+D8Jm7wRdZVnB41z6, JFzM8qt3pDGvxmwa, M7rbCABmXtVTZH3v, nJhyt3PkFzB9Gx7K, Q9BKhWPpadRNXrf7, RckBpyKaVChNjD8W,
+t8gdhDXHfaRGpWVZ, Tb7Pqt16wy2G38kj, wfPqRDzW1ayK6HM4, XzhM6rRYgv1DxGtq, ybrZWq943vHfhXTz, YXbnwGzahjNCZygW,
+yZ3xq9jPwTDNrVXM, Z1hd6JzHVxmPqbtX
+
+## Count of the 2026-11-24 to 2026-11-25 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the streams of wearers of enchant 8217 with a
+  Revelation buff from 477 reports: the 56 §Count of the 2026-11-24 reports lists and the 421 listed below. 502 of the
+  streams, from 295 of the reports, were fetched from 2026-11-24 23:30 UTC to about 2026-11-25 06:50 UTC, and the rest
+  on 2026-11-24; a wearer's run that two reports log is read once.
+- Game build: 1.60.1.71037 on EU realms and 1.60.1.71091 on US realms. A second server change shows in the reports
+  between 01:12:49 and 01:12:55 UTC on 2026-11-25. Hotfix push 114389 adds the periodic harmful proc flag
+  (PROC_FLAG_DEAL_HARMFUL_PERIODIC, 0x40000) to the priest's and the warlock's buff rows, 1323377 and 1323392; the other
+  five buffs and the proc aura 1248806 read as before. The hotfix each player ran is not recorded.
+- Date: 2026-11-24 20:00 UTC to 2026-11-25 06:50 UTC
+- Pull request: #1208
+
+One run at 07:58 UTC on 2026-11-25 read every stream. Before is the events from 20:00 to 20:53 UTC on 2026-11-24,
+between is from 20:55 UTC to 01:12:49 UTC on 2026-11-25, and after is from 01:31 UTC on; §A channel's first tick spends
+it and §Arcane Missiles end between at 01:01:10 UTC. The procs, the buffs, the rolls, the episodes and the groups are
+counted as in §Count of the 2026-11-24 reports, with three changes. 45 more ability ids are read under their spell
+(8289 as Drain Soul, 1278965 as Hurricane, 8418 as Arcane Missiles, 1282383 as Rain of Fire and others), where the
+earlier runs counted each as a spell of its own. A proc is credited to the wearer's latest landing group 0 to 50 ms
+before it, or within 100 ms for §The first result decides, and a heal the wearer gets from its own spell's damage
+(Vampiric Embrace's) is no group. The first landing after a gain skips another spell's periodic tick, and a buff that
+ran out at 15 s counts as ended.
+
+### The switch on 2026-11-25
+
+Buff episodes whose first landing after the gain is a tick of Mind Flay, Wrack, Drain Soul, Drain Life or Starshards,
+per 15 minutes: every window from 20:45 UTC to 00:45 UTC has none lost within 60 ms of that tick and 3 to 30 kept
+past it, the window of 01:00 has 4 lost and 8 kept, and every window from 01:15 to 06:30 has 1 to 27 lost and none
+kept. The first tick that takes the buff logs at 01:12:49 (6RqzaWpYKx7XgjNr, Mind Flay) and the last that leaves it at
+01:12:55 (CVKkd78thnxJPFgW, Wrack). Seven reports show both sides, and each one's last kept and first lost tick bracket
+01:12:55. The last kept and first lost ticks on PvP realms (01:12:55 and 01:12:49, 60 reports) and on Normal realms
+(01:05:33 and 01:14:03, 61 reports) agree, with no sign of a roll-out by instance or by realm.
+
+### One roll a hit event
+
+Groups with the buff down and the share with a proc credited to them, by the number of targets:
+
+| Spell                    | 1 target            | 2                   | 3                   | 4                   | 5 and more          |
+| ------------------------ | ------------------- | ------------------- | ------------------- | ------------------- | ------------------- |
+| Blizzard, after          | 160 of 1,815, 0.088 | 441 of 5,374, 0.082 | 774 of 9,950, 0.078 | 670 of 8,018, 0.084 | 746 of 8,974, 0.083 |
+| Blizzard, before         | 10 of 89, 0.112     | 35 of 306, 0.114    | 78 of 329, 0.237    | 91 of 314, 0.290    | 129 of 302, 0.427   |
+| Hellfire, after          | 83 of 1,064, 0.078  | 197 of 2,537, 0.078 | 358 of 4,479, 0.080 | 345 of 4,604, 0.075 | 309 of 4,249, 0.073 |
+| Hellfire, before         | 6 of 59, 0.102      | 15 of 134, 0.112    | 56 of 217, 0.258    | 93 of 349, 0.266    | 124 of 290, 0.428   |
+| Arcane Explosion, after  | 51 of 716, 0.071    | 124 of 1,772, 0.070 | 221 of 3,265, 0.068 | 233 of 3,130, 0.074 | 232 of 3,269, 0.071 |
+| Arcane Explosion, before | 5 of 49, 0.102      | 19 of 132, 0.144    | 54 of 243, 0.222    | 52 of 228, 0.228    | 89 of 213, 0.418    |
+| Rain of Fire, after      | 16 of 222, 0.072    | 45 of 522, 0.086    | 85 of 940, 0.090    | 64 of 899, 0.071    | 120 of 1,476, 0.081 |
+| Rain of Fire, before     | 2 of 27, 0.074      | 8 of 52, 0.154      | 28 of 159, 0.176    | 43 of 168, 0.256    | 80 of 228, 0.351    |
+| Hurricane, after         | 50 of 752, 0.066    | 95 of 1,392, 0.068  | 110 of 1,954, 0.056 | 133 of 1,892, 0.070 | 155 of 2,330, 0.067 |
+| Flamestrike, after       | 32 of 439, 0.073    | 72 of 978, 0.074    | 126 of 1,716, 0.073 | 100 of 1,450, 0.069 | 85 of 1,399, 0.061  |
+
+Before, the share grows with the targets as one roll a target gives; after, it stays at one roll's chance. Holy Nova
+reads 43 of 265 (0.162) at 5 targets and more from 5 wearers; its damage and its heals may fall in one group, and this
+is not checked.
+
+### The first result decides
+
+Groups with the buff down of Blizzard, Hellfire, Arcane Explosion, Rain of Fire and Chain Lightning together, by which
+of their results crit, and the share with a proc within 100 ms. A mixed group has crits and non-crits among its
+targets:
+
+| Group                        | After                  | Before              |
+| ---------------------------- | ---------------------- | ------------------- |
+| 1 target, no crit            | 320 of 3,571, 0.090    | 28 of 220, 0.127    |
+| 1 target, crit               | 0 of 428               | 0 of 36             |
+| 2 or more, none crit         | 3,626 of 41,522, 0.087 | 678 of 2,396, 0.283 |
+| Mixed, first result not crit | 1,469 of 16,284, 0.090 | 273 of 1,027, 0.266 |
+| Mixed, first result crit     | 4 of 7,172, 0.001      | 90 of 472, 0.191    |
+| 2 or more, all crit          | 2 of 291               | 0 of 20             |
+
+After, the mixed groups whose first result crits proc by spell: Blizzard 1 of 2,964, Hellfire 1 of 1,508, Arcane
+Explosion 1 of 2,033, Rain of Fire 0 of 357, Chain Lightning 1 of 310. Of the 7,172, 9 have a proc within 100 ms: 4
+Chain Lightning casts whose overload lands 16 to 32 ms after, 3 with no other landing and 2 with another spell landing
+beside the proc. Before, the targets that did not crit rolled in those groups.
+
+### One spell striking a target twice at one moment
+
+Landings with the buff down, after 20:55 UTC on 2026-11-24, of one spell id on one target within 10 ms of each other,
+from 823 wearers. Most such pairs are one hit logged twice: Blizzard, Cone of Cold, Frost Nova, Frostbolt, Ice Lance
+and Flamestrike pairs share their crit result in 96 to 100% of pairs, and these are left out. Two separate hits are
+the pairs whose crits mix as independent rolls would (Chain Lightning's overload 408484, Hellfire Effect 11682,
+Hurricane 1278759 and 1278965, Rain of Fire 1282385, Fire Nova 408428), and they proc as one roll:
+
+| Pairs                                       | Procs  | One shared roll expects | Two rolls expect |
+| ------------------------------------------- | ------ | ----------------------- | ---------------- |
+| All, no other landing within 50 ms          | 21/231 | 17.6                    | 34.7             |
+| All, other landings 15 to 50 ms earlier too | 29/351 | 27.0                    | 53.0             |
+| Both not crit, no other landing             | 16/115 | 9.8                     | 18.8             |
+| Both not crit, other landings too           | 19/184 | 16.0                    | 30.6             |
+| First crit, second not                      | 0/40   | 0                       | 2 to 3           |
+
+The pooled rows sit at one shared roll; the rows with both results not crit fall between the two, and one warlock's
+Hellfire makes 122 of their 184 pairs. Lightning Bolt and its overload never land as such a pair, and item procs give
+too few pairs to read. Script `samemoment.py`, output `out/samemoment_1047.txt`.
+
+### A channel's first tick spends it
+
+Buff episodes whose first landing after the gain is a tick of a channel whose ticks cast a spell of their own, after
+and between:
+
+| Spell        | Episodes after | Taken within 60 ms of the first tick | Ended before it | Episodes between | Taken within 60 ms | Ended before it |
+| ------------ | -------------: | -----------------------------------: | --------------: | ---------------: | -----------------: | --------------: |
+| Blizzard     |          2,695 |                                2,613 |              76 |            1,934 |              1,723 |             206 |
+| Hellfire     |            843 |                                  817 |              17 |              765 |                743 |              21 |
+| Hurricane    |            507 |                                  492 |              12 |              689 |                659 |              29 |
+| Rain of Fire |            285 |                                  261 |              23 |              304 |                282 |              21 |
+
+The others outlive the first tick (Hellfire 3 after, Blizzard 1 between), go 60 to 300 ms after it (5 after, 2
+between) or have no removal in the data (11 after, 5 between). The tick that takes it crits on every target it
+strikes, after: Blizzard 11,359 of 11,362 results, Hellfire 4,033 of 4,033, Hurricane 1,907 of 1,907, Rain of Fire
+1,055 of 1,055; between: 6,752 of 6,752, 2,863 of 2,863, 2,633 of 2,633 and 1,184 of 1,184. The ticks after it with
+the buff down crit at the spell's own chance, after:
+
+| Spell        | Later ticks, buff down, crits | The spell's crit with the buff down |
+| ------------ | ----------------------------- | ----------------------------------- |
+| Blizzard     | 2,822 of 31,473, 9.0%         | 13,423 of 146,021, 9.2%             |
+| Hellfire     | 1,399 of 13,766, 10.2%        | 7,870 of 77,726, 10.1%              |
+| Hurricane    | 926 of 6,124, 15.1%           | 4,912 of 33,180, 14.8%              |
+| Rain of Fire | 96 of 925, 10.4%              | 1,747 of 17,562, 9.9%               |
+
+### Arcane Missiles
+
+A missile logs a cast event as it launches and its damage 0.1 to 1.5 s later. Missiles pair with their launches
+channel by channel (39,049 of 42,762 damage events). After, 1,235 episodes have a missile as the first landing after
+the gain: 930 gained from a missile of the running channel, of which 404 lose the buff 0 to 60 ms after that missile
+lands, 401 of them on a crit; and 305 gained from another spell, of which 249 lose it there, all on a crit. By when the
+next missile launched against the gain:
+
+| Gained from              | Next missile launched after the gain | Launched before it or in its millisecond |
+| ------------------------ | ------------------------------------ | ---------------------------------------- |
+| A missile of the channel | 305 of 306 spend it, 87 wearers      | 70 of 543 spend it, 100 wearers          |
+| Another spell            | 192 of 192 spend it, 82 wearers      | 7 of 57 spend it, 38 wearers             |
+
+A missile launched after the gain crits and spends the charge as it lands. One already in flight at the gain keeps its
+own roll and spends the charge only when it crits: those missiles crit 66 of 543 times, and 70 spend it. The launch
+splits them at the gain's millisecond: launched 0 to 20 ms after the gain, 17 of 17 spend it; 0 to 20 ms before, 2 of 21. The in-flight missiles crit less than their wearers' own chance with the buff down suggests, 66 of 539 against 96.5
+expected (96 wearers), where between they read 97 of 431 against 86.1; the cause is not known. Missiles of the channel
+that land more than 100 ms after the one that took the charge and before the wearer's next cast event, so launched
+before it landed, crit 26 of 41 times with the buff down, against 3,365 of 18,407 (18.3%) for the spell.
+
+### A channel of periodic ticks spends it on its first tick
+
+After, buff episodes whose first landing after the gain is a tick of a channel whose ticks are its own periodic
+damage:
+
+| Channel    | Wearers | Episodes | Taken within 60 ms of the first tick                  | Ended before it | First tick crits | Later ticks, buff down, crits | The spell's crit with the buff down |
+| ---------- | ------: | -------: | ----------------------------------------------------- | --------------: | ---------------- | ----------------------------- | ----------------------------------- |
+| Mind Flay  |      27 |      183 | 183                                                   |               0 | 183 of 183       | 20 of 259, 7.7%               | 1,576 of 17,394, 9.1%               |
+| Wrack      |      35 |      110 | 95                                                    |              15 | 97 of 97 results | 46 of 269, 17.1%              | 2,951 of 21,871, 13.5%              |
+| Drain Soul |       5 |        5 | 4, the 5th 207 ms after a tick that killed the target |               0 | 4 of 4           | 0 of 3                        | 52 of 420, 12.4%                    |
+| Drain Life |       9 |       13 | 12                                                    |               1 | 21 of 21 results | 3 of 26                       | 131 of 1,197, 10.9%                 |
+
+The tick that takes it is always the first of a channel cast after the gain, and the buff goes 0 to 34 ms after it,
+11 ms at the median. No episode gains the buff while such a channel runs, as its ticks roll nothing, so a charge
+gained mid-channel is not counted. Starshards has no
+episode after: 6 casts by 3 wearers, none with the buff up.
+
+Between, none of these episodes loses the buff within 60 ms of the first tick: Mind Flay 0 of 210 on 30 wearers, whose
+first tick crits on every target in 207 of 208, Wrack 0 of 67 on 34 wearers, 27 of them ended before the tick, Drain
+Soul 0 of 5, Drain Life 0 of 8 and Starshards 0 of 2. Before, the buff went within 60 ms of the channel's third tick in
+19 of 22 Mind Flay episodes on 4 priests, a tick that crit on every target, and of the sixth tick in 3 of 7 Wrack
+episodes on 5 warlocks.
+
+Another spell's periodic tick does not take it: of 2,323 episodes whose first landing after the gain is such a tick
+(Curse of Agony 541, Corruption 260, Shadow Word: Pain 207, Moonfire 199, Immolate 170, Flame Shock 132, Insect Swarm
+122 and others), 70 lose the buff within 60 ms after it, and 9 of those with no cast or direct landing of the wearer
+at the removal.
+
+### Penance
+
+After, 26 buff episodes on 4 wearers have a Penance heal as the first landing after the gain: 23 keep the buff past it,
+2 end before it and 1 loses it within 60 ms after it, the cause not checked. Its heals with the buff up crit 58 of 58,
+and no Penance heal takes the buff: 13 run out at 15 s and 12 go at another spell. Between, 5 episodes keep it past
+the first heal. A Penance heal logs as a heal, not as a periodic tick, and rolls the chance: 30 of 507 groups with the
+buff down procced, on 5 wearers. Penance's damage is thin: in 2 episodes on 1 wearer whose first Penance landing after
+the gain is a damage bolt, the buff goes within 60 ms of that bolt, which crits.
+
+### Lightning Overload
+
+An overload logs under its own spell id (408477 for the highest Lightning Bolt rank, 408481 and 408484 for Chain
+Lightning). A bolt's overload lands one more flight time after its bolt, 14 ms from that at the median (1,850
+paired), and a Chain Lightning overload 16 to 51 ms after the chain. A cast with another spell landing within 50 ms of
+its landing is left out. After, with the buff down at the landing, the procs per landing:
+
+| Landing                         | Procs               |
+| ------------------------------- | ------------------- |
+| Bolt crit, its overload not     | 16 of 245, 0.065    |
+| Bolt not crit, its overload not | 34 of 612, 0.056    |
+| Bolt not crit, with no overload | 204 of 3,258, 0.063 |
+| Overload crit                   | 0 of 212            |
+| Bolt crit, with no overload     | 0 of 1,029          |
+
+A bolt that crits rolls nothing, so the 16 procs of a critting bolt come from its overload's own roll, on 8 wearers,
+7 to 35 ms after the overload lands, one of them with another landing in the 60 ms before. Chain Lightning's casts
+are fewer and do not settle it: a chain that crits with an overload that does not procs 1 of 44, where a roll of its
+own at about 0.07 gives 3; a chain that does not crit with an overload that does 27 of 61, where the chain's roll gives
+the buff before the overload lands and the overload then crits; both not critting 21 of 152; and a chain with no
+overload 67 of 938.
+
+### Ticks and other readings
+
+Periodic ticks roll nothing: after, 78 of 223,281 groups of periodic ticks with the buff down have a proc credited to
+them, and a tick that lands up to 50 ms after another spell takes that spell's proc; Mind Flay 0 of 15,812, Wrack 0 of
+16,198, Drain Life 0 of 992, Drain Soul 0 of 348, Starshards 0 of 24, Tranquility 0 of 32. A channel's tick that casts a
+spell of its own rolls at about a direct spell's chance, on groups of 2 targets or more with the buff down and no crit:
+Blizzard 1,978 of 22,135 (0.089), Hellfire 884 of 10,513 (0.084), Hurricane 312 of 4,058 (0.077), against Arcane
+Explosion 457 of 5,376 (0.085).
+
+### Reports
+
+1CqLGARDZkPgbvfT, 1FydH2zLq7PhwBQX, 1Fz28TJwRaNkbx74, 1ZvtLH47RNMm3Pfp, 1cGX3fp7CamP62Wx, 1dXDVmCn82Ky69rZ,
+1rzF8qV3jYwLAXZk, 1yxBqh9pwYv6Z7kH, 27LWXV3PAQabzw6C, 28zZgXVaFPvmHTM9, 2FAZ8pGqL9JvfTRg, 2WfkT9ZRCFYvdyQN,
+2ZK3wq1d7MWmvbhC, 2fNJjyTc3C4ABxVZ, 2hcGL8FdDgK9xbrn, 2zJ3GkaPLDnrKBgQ, 32T1KMZz89kwdqFc, 3F4716PHR2fNrkcq,
+3GHvV4hmb96yWB7a, 3LXKpR8kYbWactCm, 3LntpD2XGQfb4jV9, 42XtM7Jwdk9gnvqW, 46vZ2R1qTkyj9dHN, 4A8RTXLg32nDkwhV,
+4MmPTkfjFHbYZKny, 4QDbGNfq7Tt6Wv2a, 4cAnPtXrbLxavk93, 4ky7qHGcVFP3QTaL, 69JqBW7kRr4FTyCP, 6C8bWZy3DQwKzFM2,
+6CkrBFvzWc72Pgnd, 6FZNWyXGzDxHqv2a, 6PN8t7yDdwrVncJb, 6RqzaWpYKx7XgjNr, 6WnAcHKD71rm8FNg, 6YGCTMrthm1djgVz,
+6YZpvDf7xPtaHGdC, 6hGK4Dkv8CyMmfLw, 6j7Ntg1VcpPZzrFf, 6pyjXZhtkWJLmFTM, 6wFAMdmGYJpDj2HZ, 7XRjxY6wkPbpBzrv,
+7dBrzHDjR38Mg4yA, 7dhc14nJpBR2YjyX, 7gCbcw9nrFGZJW83, 7h86LGqYKzdj9QPD, 7nyCwGzLBKqR89xV, 7rbPgnDH8J4mTjwV,
+7wNAZfFxb1rWmX6L, 81DqGMFYnZyRaVtH, 8CnFhxzYJGK2RbMN, 8FWjnvVz6Dx4kYqy, 8H7Xx6J3brhPDjat, 8KQqLYkfhXBrRjyv,
+8PWpYzaDMxwHN2QB, 8dDFP2W76vHJV9QL, 8fKVGRP6JabCTg4z, 93bZ2gByRhHQnLTN, 9ZxdF21LmnDa4wXQ, 9gc7TxLjZhYJVmBA,
+9tgbwD36PjfrncqR, 9w4ZyL23P1nhpca8, A6pmrCYMfGjWK12z, A9jRKpTqfvJynhxt, AFTnz1NcdZjg3qMf, AJCFnYvZ4k8gfBwd,
+AK2QvbhTxdgJLC9n, AMR4zCvWQYpH2LFB, ARwGx6VgavfWDQ4L, AWDftL9aJZmMBxHp, AgQXzkmVdFcDCJjR, Agk16w2fKZrW9vqt,
+AjPcMbG32rNLgHZX, AjWBvdLHzwRMT1kQ, AtT6VF3hPC2ZvQz7, AwLpv269JFtdQhcf, AzC64VwWcap9mNkZ, B16hLXQkryWKFRcb,
+B1aX2vjZQpdYWLgH, B4pz8Pnw9xt3yMgJ, B8YhdtQbP7pGLnqM, B9z43TwnWCjHFDgL, BHT9zJALK4CqP7rv, BLFWVRbKH3ZMTcYy,
+BRqbW8d4r2TDgJtj, Bc4xdN9pVZ2y7WHG, BcXxkd4J8ACDvgQa, ByKpfCMF79xd2b6N, C1gLQGwKhynD7vkj, CAPt7qmH61WnKTMx,
+CQA3rBFw9g21HLct, CRBZjnQmAVxbP7c4, CTRf8tF4YbwgGkzx, CVKkd78thnxJPFgW, CWXBLFfMDAcxN8Jh, CgdpWP2c1XtVJyma,
+CjMJ3LB4kvwWpFAf, CvGk7b3QgfDP92Hn, CxdWQMGavTmFHLcf, D8Apm2FQwW4tv1x3, DB3yYHG8rcQNbpjf, DG3nN14cK9ZBJg6H,
+DM6Y8kJHx7djwBCZ, DRyzwVQch9aGtJFZ, DTd7XJrKnjqV6HmZ, DkgbqPc9LhRzvQtT, DwHL1AWJTaRfpxzk, F24npWZRxtv8hD76,
+F3YnkGDzhZXVRrBK, F8PLBprjC1xdztQG, FNxMyCpTLDgc6qv1, FRWwdT6ajk4J2tVf, FkPczLX6dtYpJ8j1, FnJqWC7tP3HMdjz9,
+Fr2YcVMyWAgQv3XH, Fy47gNjCAGLdM86k, GLrQ4hatzpbYc2CW, GT1hZgpaQfbBCWvt, GXNt7bdaC4nFADHr, GcLFMVzHmqhYB1Q4,
+Ghzvw7mRtXB8HkKM, GnZdPBVXFW6kwp78, Gph6gaZYMz92RbcJ, GwKmMFyX3tT4LjHD, Gyq7vrzaNp86Df2J, H3TqYxR1k4phg2yw,
+HFdPMCzAGqphb7jV, HKbAp9nmrwkC8Y6f, HNDXaqgxpjQznYL9, HxaCdGfh98cPqWFr, JCKxQ1PgBdv3T4z9, JGARfPNCHQ4t9jXW,
+JNTYBgF8W9tp2afq, JRnh1y3aWrdx6TMq, JTzg7HVqtNhQD24Z, JYxQXLkWCqGdjg2c, JgTztkD9c3CFYBAQ, JmxhYRVQvN3b7LTw,
+K2hfvqXYdxJ73DPZ, K3fTgQYRjdJAqacz, KAgb1CFjaxt8VwXf, KDAXQbt3cFJwpL9Y, KZC69BgP8Gjbxn7r, KZNdpF4HwrXVbMhf,
+Kdw6P2fQYBnNcFaq, KfgyHLbX6Zr4QTFa, KqjwWn3L4VGxrcgT, KvZ7f3GLJQ9MVmPB, KwjknzZ8PNcCXvVF, KyRzjkdcPghabTFJ,
+LCqYwgcpM4N9vJtb, LDjcQByk8Z1WqGbK, LFJ4WwtvaHbBjQhq, LQGDyagcxNkrqpVC, LYAyQpRDbCgXF9xj, LgcdyYf4hz13p8Ba,
+LmWCg9VM2zwtAbxT, LrNwTH789mfYqVgA, Lrpfd2D6NCA4a83B, LtmGvDKfBX4QJ6Ac, MCxV7YzAHgK3tZQ1, MYwn3QcLGk2dv6WT,
+MbmKz9aTvV2yX86B, MmPtc9xH3D7gXChz, MrHngb6GtXvBydaJ, Mtpn21bD4ArgcxjL, MxGmyTrH82zNPw6v, MyVQdCAKLPBFrmfY,
+MyZGhvYbCJVtdj7H, NDAryTb6PpkHKM9F, NGzfyVaXFZc3xtwH, NHy97zmbJ3FQWMAr, NLgGJhYQZyPWvdFz, NLzRZTDa2CHnk9X7,
+Ngcb48qvWpQRMtfh, NjA7nRMvt2y3BqdQ, NkhmzpbxcP7nC3t4, NnMA6GgHfRwLJ98Q, P1xTA3jMXHybdLNp, PBJW1T8KhpnaZFRw,
+PRjhkcVtAGxMbNq7, PyjdHqGZ319xFvMf, Pz1mrwty3JaAdT9n, QBN7qpjxz8fg1ndK, QCfgHym3rT1dnXvp, QFfw4GAP8qtHgRjc,
+QJdHMt2h7Bx6pk3F, QNKD3HnVZFApMajY, QTLdrxZXFmPJYv9W, Qjxg7zvYFnKGDBWZ, Qk3DbRw6cpVmZLKP, Qn4dj1wYXBqD3m7L,
+Qqyd3T9HFAfK4vjM, Qr2hVGLaFDydjxNC, QvWPdyTnGJrg1LRD, R4bh7219AjnrNv6G, RB1fCw2AbhVnGgHY, RCzf4xwT91qbMVn6,
+RNMFW6PJgty9zX1H, RVtmpwqLCMrJKajH, RW91FgNq7MBXJjGt, RdqHgVKWNmTCrM8Q, RyFPnfw16q8Kmtxk, T9Q7zcVmL6DAtxkw,
+TB3XRpkHLaMhFrAW, TCVybQX6LBa3j9J2, TCWgZG1HRthpncPY, TCwdgVZb7J9kaQny, TJcwZN8d2rqknGCg, TRDHw9q17a3dPBmg,
+TY8hRktpNaCnDXM2, TaCQNVZFp4MX67Yw, Tc732j1RgGp9xPtW, TgQJ7t3wHrzPqM4C, ThdntKDCMJc1wPkV, Tk17qAa9QyWMwRPJ,
+Tn7YDLcxwgpHqP84, Tqp2f38JaArcjDy6, TyGawFf7MhLnB3Dv, V16TNpMCdKaHqZ2m, V1RFaDpWtq6H793m, V4vAnTpmG3jLMQkq,
+VF4Xdf1KwWjvkmRa, VGqvRAaDPXFkwbzm, VKX1hJ6QZPF2jmbH, VaTW6Kprkfwg9DRX, VpR1MyB7gNHwn9t6, WLw7gXz9A2fBdD4y,
+WMT8mt7CrFxcXaGw, WN8J2FCYbKq9jmL3, WTLqhMGyRAQcBwf8, Wac1vKTnzyQXgBCj, WcVyhzZHXntRwdNT, WpL8cvaMrbgFRYyn,
+WvkHYMPLg917jKwV, Ww7g2kXh3ZMYHLcd, XCR9xc7JmtHy81p6, XF3aTZxCrpBjPhR9, XwPJHVmAjQh3YTF2, Xz2TRxJf4WHabFQw,
+Y2nqwpmRTPL8x37z, Y36rGfA2c7d1RWzH, Y6Lhv1bJw2FkNmn3, YmDQRkyM1AbLrTfj, Yq67b1KDRtWngmQ9, Yv79mPLNKz3FtwWT,
+Yyrb2WHMXnjg4qhk, ZCjrmW6pqQHz4KTB, ZHhbDAfgNPGw7jKn, ZKVYvq3yDgrLC1Bb, Zk39FczKDRAma1P8, a4Z37MJjgwtFCd2p,
+aQJbGwRPqnHF2k3C, b1kBgPqM73QcRF6C, b8yfFZkDXMAgj1QT, bDMNL9yHZqmkBzRg, bDyYhZqdrj6GvCTP, bNfrjh3dkPDBc6QC,
+bR36KWrN1AqhyvpV, bVLmacnZvd4Wr3jT, bWH41fw8CDQAch3K, bYQ4hR6ANxtLHJVF, bZyv764FwND9rxnf, bkKYqzFPa82pVZgn,
+bmpBgLZjywNx47PJ, bnZ2PATGBd6LJRgF, c2FZYnfzkpQ9TG4M, cHZfJLMXvgwby7Wm, cTqwJd7hWF268ZaY, cVCh2Xt8yWDFKf1x,
+cawpdgAx8tfYmGRC, cd8rLAh3Vv6zTqYF, ckFbpzH4TQtJngZm, cqwaR6bk2MPfNAWK, dAjVx8cpfZaWD6F2, dFL2bVYKqmgxHXaQ,
+dJWbNhCMmz7nZcrD, dKnYzPTqv8JCM21t, dLWzb32mAyh1TV6H, dXRxaK8ZT2Mm9rDC, dkNYG8gAxrHKZV6h, dyqMvNQT2X1nFgR6,
+f3hvJkNWbpHPngQz, fTBkLPW4MY2zN8AJ, fWJCNTz48aYgtpMn, fpgRbDCBT7vW1r4w, ftZxDMRNjkHWdG9J, ftmT9VHRhPApYzXd,
+fzDhrGXtF1TapcCj, g4xCKbBzFNA8GDrT, g8aT4fbm3tVpBCwA, gCH7z2k6DnpjF4df, gDFPnNdGWavmjtb2, gJRNmr9XkFBL1dK4,
+gMXbHq74Dtv9njcJ, gRJBtXAQ6vaDP3kT, gZM2vjAfpdt3YwKk, gZfAHd47XvKpW89h, gbPJcNvHG6ydWazX, gfRMznjvGqKPXwbA,
+gpqyFGB3MXWcdjQK, gxFC8pWLVyKQnaXh, gxy3B74pZD9GYHbX, h7cbfBAzpTVQG9y1, h9txYKraHwfn26MB, hG97mXtdPQrzTjKD,
+hMZWYNwyLcDkXJVj, hfc6HbNWJ4FxV9zd, hkHDY7bf1ctRBp9L, hknaKZb92zLWM673, hrxHCqb68LZ7mMaY, hwgAa8M2P7RWdrcj,
+hxW4RgXkVK9NQYPA, j4gkwbLDmXyMNBPT, jBa6QVbPcwDR2v1F, jMm29YB1HRP3VQT4, jRV4tPAG2Bp71Cd9, jXNZ9MbTdWFmHG3D,
+jq8WhaLyYD74gcXB, k1NhZqby2YfHP8zg, k2NcVdrLyzmwP7hB, k7KraJTRmyGDBgWX, kALYFBZ8btdqx432, kAfdFYXcHyjmgvta,
+kL1g29NH7MhXvBRQ, kLMPAKXnJvC7Q1zj, kT1PNbfgAKvY84rz, kcrGd2whRZx6YbTF, m13HVkxp46WCarTd, m2zTNDx8Bhc7pyr3,
+m3GbaCBXw1dj6rQL, m4fkcgFvj9zaAWBp, m7nh21pN9VTPtKdM, mD46wk93VgWpPxrB, mNDwAgTbxnX8MGLF, mNQpyJGVzdhrRgCX,
+mQxY8pRvq6GZykDj, mdwkArzCj27X41DZ, mkP4ZBTpfjAhHqVR, mpx92zHCYLnTKfAv, n4vQdtMkRTc1zxXV, nLp4gAfrQPXRx68k,
+nLxh7GVZpbf8APQt, nM8ZvpbrDqNzFACd, nNaMPcDkxp8tFBzG, nTz1vgfdJYW8XpKF, nYtvxcMjAaDLpzf9, nbPCLHj1yRg6mcdz,
+nf7Vka8WJQdLP9yq, nfzKjkVt6vwLcM2A, nqNJVadK4vRh6pLW, pFv7kyr3RLNAQHCX, pPTzQtF2dXRqraAh, pQRy8fBzdNXnMKW6,
+pTFt2yWhkJrDGRmK, pYzA34RF9GZNqHmd, pc8r6QFxBzdCaKtZ, pqyLrZ6Xa1wdQG2V, pwVcnYPzD7XjAm4t, pwkhWHQqRm8CGX6T,
+py2QfBhmnZvwA38j, q28MR6X4dpf93QLb, qZHchLpJYMRQrG1A, qnAWK2hGrpBfwRjc, qp6P4GLHwa8mdVjM, qtjGQKhR8axwY1pn,
+r2ZR8QXqABm9aTLg, r7wKNFQyWLvka3Z1, rQ8FL4MKkbm6a39X, rXNYR7VkQd4xW1FC, rXVcgLw9B27JACHv, rgjPnt9fdb2LV43C,
+rpLqJyR8932nNM6g, tAjZJdWRzknch9y2, tHXpFG43A7Mbfd1C, tRQVM1c2DCPd8qZY, tdw9jmPgrpzXWZB6, thGK6BjaVJvfnWNP,
+thTwHnVYF4J2WN7P, tv7qQjA1yY4WX82G, txRbXZwMJm4BW7q6, v1qh7nCdNw8QH4Gp, v89dcCW264jZfAXV, vAF3DMCYNjLm9wrn,
+vLa1NzdYWTJbjc7V, vNJaB1t9d2hTPxAC, vNPnZjryCdJqGQpt, vNYrW1QH942ChfpZ, vXprm74b1dYtcJAC, vmWbK6QA4VgnhcFy,
+vyg31APTh4RfpVBN, wYAFrKfHRgdTCWyB, wa3CrXD2QdZ4NFcY, waN34KDtpkBgcX1h, wkDVn8bA9QgrFZCt, wknr9zFjQ68DRcv1,
+wrPjGzWQnHJX7A8K, wtGDFX91YWm8Q6KA, x1WVhMmGHqrXgJK4, xJKy8gwqzmvFd3h2, y4rjQqFwHBzbdRZk, y72Cf4pTxQ1WFbaV,
+yAzcZkPHYrpQ9fGh, yLFbzXntM8dvQ3YC, yQk7NDW4whnA3Rq9, yYrPQWLDJk7AvT46, ydPDgaLYZGzw7R3V, yhjnabTfN9RMz8Pk,
+ymJVMGnA8fcTvXBC, ytkHZ2MNrvpx1YTK, zK2GbRZf6jYcLvmy, zXWcxDG6gMLq4vCj, zY9gApRPwVfj1MT3, zYPAwt4gc1GRDWVk,
+zd39tLrF4RDKZ21A, zd4rcDQ7f2j1bJ3K, znBtTYGHyCgfWcQk, ztnPqVJdCk9YwZBN, zvDJFrNWYBXMT18Z, zw1GNqDB83a2FtpT,
+zyF7WfbwGVCg68cH

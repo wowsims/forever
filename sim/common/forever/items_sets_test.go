@@ -16,6 +16,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
+	"github.com/wowsims/forever/sim/druid"
 )
 
 func init() {
@@ -217,8 +218,8 @@ func wantCastTimeRate(t *testing.T, name string, rowID int32, castTime time.Dura
 // and The Five Thunders reissue's 4-piece 450626. Each row hears melee swings and spell casts at its procs
 // per minute: a landed white swing rolls the rate on its weapon's speed, a spell cast on the time it took
 // and at least castTimeFloor, and a spell's hit or a heal's landing rolls nothing. A buff cast that costs
-// its caster a resource rolls as a spell does, off the global cooldown too; a cast that costs nothing and a
-// melee ability roll nothing.
+// its caster mana rolls as a spell does, off the global cooldown too; a cast that costs nothing or only
+// rage, and a melee ability, roll nothing.
 func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.T) {
 	for _, tc := range []struct {
 		name   string
@@ -281,7 +282,9 @@ func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.
 			}
 			return procs
 		}
-		onGCD, costly := core.Cast{GCD: core.GCDDefault}, &core.SpellCost{BaseCost: 1}
+		onGCD := core.Cast{GCD: core.GCDDefault}
+		costly := &core.SpellCost{BaseCost: 1, ResourceCostImpl: &core.ManaCost{}}
+		rageCost := &core.SpellCost{BaseCost: 1, ResourceCostImpl: &core.RageCost{}}
 		for _, cast := range []struct {
 			spell    *core.Spell
 			castTime time.Duration
@@ -299,6 +302,7 @@ func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.
 			spell *core.Spell
 		}{
 			{"a cast that costs nothing", &core.Spell{ProcMask: core.ProcMaskEmpty, DefaultCast: onGCD, Unit: &wearer.Unit}},
+			{"a cast that costs only rage", &core.Spell{ProcMask: core.ProcMaskEmpty, Cost: rageCost, DefaultCast: onGCD, Unit: &wearer.Unit}},
 			{"a melee ability", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, Cost: costly, DefaultCast: onGCD, Unit: &wearer.Unit}},
 		} {
 			if procs := castProcs(cast.spell, 0); procs != 0 {
@@ -378,8 +382,8 @@ func wantRate(t *testing.T, what string, rolls int, chance, procs float64) {
 
 // The Feralheart Raiment reissue's 4-piece is Wildheart Raiment's 5-piece proc 450608: a landed white swing
 // rolls the row's procs per minute on the weapon's speed and restores 27784's ticks as energy over its
-// duration, in Cat Form alone. A melee ability rolls nothing. The row copy's rate is raised so a thousand
-// swings tell the rate apart.
+// duration. A melee ability rolls nothing. The row copy's rate is raised so a thousand swings tell the rate
+// apart.
 func TestFeralheartRaimentRestoresEnergyOverTimeOnSwings(t *testing.T) {
 	row := editSpellRow(t, 450608, func(s *spelldata.Spell) { s.RPPM *= 12 })
 	energy := spelldata.MustFind(27784)
@@ -410,19 +414,56 @@ func TestFeralheartRaimentRestoresEnergyOverTimeOnSwings(t *testing.T) {
 	wantRate(t, "landed white swings, priced on the weapon's speed,", swings,
 		float64(row.RPPM)*wearer.AutoAttacks.MH().SwingSpeed/60, float64(casts()))
 
-	// The bear's procs fill no bar.
 	stepTo(t, sim, sim.CurrentTime+energy.Duration()+time.Millisecond)
-	if got := spellGain(wearer, energy.ID); got.Events != 0 {
-		t.Errorf("out of Cat Form 27784 restored %v energy over %d ticks, want none", got.Gain, got.Events)
+	bear.ClearForm(sim)
+	bear.CatFormAura.Activate(sim)
+	before, gained := casts(), spellGain(wearer, energy.ID)
+	hitUntil(t, func() { dealHit(t, sim, wearer, meleeSwing(&wearer.Unit)) }, func() bool { return casts() > before })
+	stepTo(t, sim, sim.CurrentTime+energy.Duration()+time.Millisecond)
+	got := spellGain(wearer, energy.ID)
+	if events, gain := got.Events-gained.Events, got.Gain-gained.Gain; events != int32(ticks) || gain != ticks*tick.Average() {
+		t.Errorf("in Cat Form a proc restored %v energy over %d ticks, want the row's %v over %v", gain, events, ticks*tick.Average(), ticks)
+	}
+}
+
+// A druid's 27784 ticks in a bear form come back with Cat Form, on top of the energy the cat left with, at
+// 5/5 Furor; in caster form they are left out (EV-0144).
+func TestFeralheartRaimentEnergyInABearFormComesBackWithCatForm(t *testing.T) {
+	energy := spelldata.MustFind(27784)
+	tick := energy.ProcEnergizeEffect()
+	gain := float64(energy.Duration()/tick.Period()) * tick.Average()
+	if gain <= 0 {
+		t.Fatal("27784 restores nothing, nothing to check")
+	}
+	req := feralheartBearRequest()
+	req.Raid.Parties[0].Players[0].TalentsString = "000000-0500000000010000001" // Furor 5/5
+	sim, bear := bearFromRequest(t, req)
+	wearer := &bear.Character
+	spell := wearer.GetSpell(core.ActionID{SpellID: energy.ID})
+	if spell == nil {
+		t.Fatal("the 4-piece registers no 27784")
+	}
+	ticksOut := func() {
+		spell.Cast(sim, &wearer.Unit)
+		stepTo(t, sim, sim.CurrentTime+energy.Duration()+time.Millisecond)
 	}
 
 	bear.ClearForm(sim)
+	ticksOut()
+	if ticked := spellGain(wearer, energy.ID).Events; ticked != 0 {
+		t.Errorf("in caster form 27784 ticked %d times, want none", ticked)
+	}
+
+	const left = 40.0
 	bear.CatFormAura.Activate(sim)
-	before := casts()
-	hitUntil(t, func() { dealHit(t, sim, wearer, meleeSwing(&wearer.Unit)) }, func() bool { return casts() > before })
-	stepTo(t, sim, sim.CurrentTime+energy.Duration()+time.Millisecond)
-	if got := spellGain(wearer, energy.ID); got.Events != int32(ticks) || got.Gain != ticks*tick.Average() {
-		t.Errorf("in Cat Form a proc restored %v energy over %d ticks, want the row's %v over %v", got.Gain, got.Events, ticks*tick.Average(), ticks)
+	wearer.SpendEnergy(sim, wearer.CurrentEnergy()-left, wearer.NewEnergyMetrics(core.ActionID{SpellID: 1}))
+	bear.ClearForm(sim)
+	bear.DireBearFormAura.Activate(sim)
+	ticksOut()
+	bear.ClearForm(sim)
+	bear.CatFormAura.Activate(sim)
+	if got := wearer.CurrentEnergy(); got != left+gain {
+		t.Errorf("Cat Form came back from a proc in Dire Bear Form with %v energy, want the %v it left with and the proc's %v", got, left, gain)
 	}
 }
 
@@ -475,6 +516,45 @@ func TestFeralheartRaimentRestoresRageWhenStruck(t *testing.T) {
 			t.Errorf("%v s attacker: a cat restored rage %d times, want none", interval, after-before)
 		}
 	}
+}
+
+// The bear request in five Wildheart Raiment pieces, in a fight long enough for thousands of casts.
+func wildheartBear(t *testing.T) (*core.Simulation, *druid.Druid) {
+	t.Helper()
+	req := bearItemRequest()
+	for slot, id := range wildheartPieces {
+		req.Raid.Parties[0].Players[0].Equipment.Items[slot].Id = id
+	}
+	req.Encounter.Duration = 600
+	return bearFromRequest(t, req)
+}
+
+// Wildheart Raiment's 5-piece 450608 rolls nothing on a shapeshift or Shifting Power, though they cost
+// mana, or on Frenzied Regeneration, whose row spends rage: no 27782 mana and no 27784 energy. Faerie Fire,
+// which costs mana, restores the mana at the cast-time rate in a bear form (EV-0144).
+func TestWildheartRaimentShapeshiftsFrenziedRegenerationAndShiftingPowerRollNothing(t *testing.T) {
+	sim, bear := wildheartBear(t)
+	wearer := &bear.Character
+	energy := wearer.GetSpell(core.ActionID{SpellID: 27784})
+	if energy == nil {
+		t.Fatal("the 5-piece registers no 27784")
+	}
+	const casts = 2000
+	procs := func(spell *core.Spell) (mana, energyCasts float64) {
+		manaBefore, energyBefore := spellGain(wearer, 27782).Events, energy.SpellMetrics[wearer.UnitIndex].Casts
+		for range casts {
+			completeCast(t, sim, wearer, spell, 0)
+		}
+		return float64(spellGain(wearer, 27782).Events - manaBefore), float64(energy.SpellMetrics[wearer.UnitIndex].Casts - energyBefore)
+	}
+
+	for _, spell := range []*core.Spell{bear.CatForm.Spell, bear.BearForm.Spell, bear.DireBearForm.Spell, bear.FrenziedRegeneration.Spell, bear.ShiftingPower.Spell} {
+		if mana, energy := procs(spell); mana != 0 || energy != 0 {
+			t.Errorf("%v restored mana %v times and cast 27784 %v times in %d casts, want neither", spell.ActionID, mana, energy, casts)
+		}
+	}
+	mana, _ := procs(bear.FaerieFire.Spell)
+	wantCastTimeRate(t, "Wildheart Raiment 5P: Faerie Fire", 450608, 0, casts, mana)
 }
 
 // Wild Heart 1302708, Wildheart Raiment's 4-piece and the Feralheart Raiment reissue's 5-piece, raises
@@ -743,7 +823,7 @@ func TestTeachingsOfTheFurbolgsRaisesAttackPowerOnHits(t *testing.T) {
 }
 
 // Defias Leather's 4-piece 1292028 casts the bleed 1292029 at the target off a landed melee swing, only
-// while the wearer is not in front of the target.
+// while the wearer is not in front of the target. The bleed's ticks ignore armor.
 func TestDefiasLeatherBleedsOnlyFromBehind(t *testing.T) {
 	sim, rogue := itemWearerWithEquipment(t, proto.Class_ClassRogue, setPieces(map[proto.ItemSlot]int32{
 		proto.ItemSlot_ItemSlotChest: 10399, proto.ItemSlot_ItemSlotLegs: 10400, proto.ItemSlot_ItemSlotHands: 10401,
@@ -753,6 +833,9 @@ func TestDefiasLeatherBleedsOnlyFromBehind(t *testing.T) {
 	bleed := rogue.GetSpell(core.ActionID{SpellID: 1292029})
 	if bleed == nil || bleed.Dot(target) == nil || bleed.SpellSchool != core.SpellSchoolPhysical {
 		t.Fatal("the 4-piece registers no 1292029 bleed of Physical damage")
+	}
+	if bleed.Flags.Matches(core.SpellFlagTenthResistance | core.SpellFlagApplyArmorReduction) {
+		t.Error("the bleed's ticks meet armor, want them to ignore it")
 	}
 	casts := &bleed.SpellMetrics[target.UnitIndex].Casts
 	swing := func() { dealHit(t, sim, rogue, meleeSwing(&rogue.Unit)) }

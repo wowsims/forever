@@ -19,20 +19,21 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// The Shadow Testing build's gear, talents and rotation, which the UI's Shadow Testing gear set,
-// Standard talents and Default rotation read too.
-var shadowTestingBuild = core.GetTestBuildFromJSON(proto.Class_ClassPriest, "../../ui/specs/priest/dps/builds", "testing",
-	core.ItemFilter{}, nil, nil)
+// The Shadow page's default gear and rotation, from ui/specs/priest/dps, and the Standard talents defaults.siml sets.
+var defaultGear = core.GetGearSet("../../ui/specs/priest/dps/gear_sets", "default")
+var defaultRotation = core.GetAplRotation("../../ui/specs/priest/dps/apls", "default")
+const defaultTalents = "00530200103-3-50042201251312051"
 
-// The UI's defaults: Flask of Supreme Power, Major Spellblasting Potion, Nightfin Soup, Demonic Rune,
-// Brilliant Wizard Oil and Ez-Thro Dynamite II.
+// The consumables in defaults.siml: Flask of Supreme Power, Baked Salmon, Demonic Rune, Wizard Oil, the five
+// elixirs, Major Mana Potion and Major Spellblasting Potion.
 var defaultConsumables = &proto.ConsumesSpec{
 	FlaskId:        13512,
-	OffensivePotId: 250937,
-	FoodId:         13931,
+	FoodId:         13935,
 	ConjuredId:     12662,
-	MhImbueId:      20749,
-	ExplosiveId:    18588,
+	MhImbueId:      20750,
+	ElixirIds:      []int32{9264, 13454, 250341, 250337, 250335},
+	ResourcePotId:  13444,
+	OffensivePotId: 250937,
 }
 
 func TestShadowPriest(t *testing.T) {
@@ -40,7 +41,7 @@ func TestShadowPriest(t *testing.T) {
 		{
 			Class:      proto.Class_ClassPriest,
 			Race:       proto.Race_RaceTroll,
-			OtherRaces: []proto.Race{proto.Race_RaceUndead, proto.Race_RaceDwarf, proto.Race_RaceNightElf},
+			OtherRaces: []proto.Race{proto.Race_RaceHuman, proto.Race_RaceUndead, proto.Race_RaceDwarf, proto.Race_RaceNightElf, proto.Race_RaceGnome},
 
 			SpecOptions: core.SpecOptionsCombo{
 				Label: "Shadow",
@@ -58,13 +59,13 @@ func TestShadowPriest(t *testing.T) {
 				},
 			},
 
-			GearSet:     shadowTestingBuild.GearSet,
-			Talents:     shadowTestingBuild.Talents,
+			GearSet:     defaultGear,
+			Talents:     defaultTalents,
 			Consumables: defaultConsumables,
 			Profession1: proto.Profession_Enchanting,
 			Profession2: proto.Profession_Tailoring,
 
-			Rotation: core.RotationCombo{Label: "default", Rotation: shadowTestingBuild.Rotation.Rotation},
+			Rotation: defaultRotation,
 
 			ItemFilter: core.ItemFilter{
 				WeaponTypes: []proto.WeaponType{
@@ -98,7 +99,7 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 			Name:      "Prayer",
 			Race:      proto.Race_RaceTroll,
 			Class:     proto.Class_ClassPriest,
-			Equipment: shadowTestingBuild.GearSet.GearSet,
+			Equipment: defaultGear.GearSet,
 			Spec: &proto.Player_DpsPriest{
 				DpsPriest: &proto.DpsPriest{
 					Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
@@ -167,7 +168,7 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 				Name:          "Spirit Tap",
 				Race:          proto.Race_RaceTroll,
 				Class:         proto.Class_ClassPriest,
-				Equipment:     shadowTestingBuild.GearSet.GearSet,
+				Equipment:     defaultGear.GearSet,
 				TalentsString: talents,
 				Spec: &proto.Player_DpsPriest{
 					DpsPriest: &proto.DpsPriest{
@@ -441,5 +442,63 @@ func TestStarshardsTicksMeetTheTargetsFullResistance(t *testing.T) {
 
 	if landed < 100 || unresisted != 0 {
 		t.Errorf("%d of %d Starshards ticks took no partial resist, want none of at least 100", unresisted, landed)
+	}
+}
+
+// Penance's heal bolts crit with Revelation's charge up and leave it: every heal of the channel crits and
+// the charge outlasts the channel (EV-0149).
+func TestPenanceHealsCritAndLeaveRevelationsCharge(t *testing.T) {
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = 3600
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
+	for slot := range items {
+		items[slot] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: 1613, Enchant: 8217}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid: core.SinglePlayerRaidProto(&proto.Player{
+			Name:          "Penance",
+			Race:          proto.Race_RaceTroll,
+			Class:         proto.Class_ClassPriest,
+			Equipment:     &proto.EquipmentSpec{Items: items},
+			TalentsString: "000000000000001",
+			Spec: &proto.Player_DpsPriest{
+				DpsPriest: &proto.DpsPriest{
+					Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
+				},
+			},
+			Rotation: &proto.APLRotation{},
+		}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	priest := sim.Raid.Parties[0].Players[0].(*Priest)
+	healBolt := spellData.Penance.Highest().Refs()[1].ID
+	channel := priest.GetSpell(core.ActionID{SpellID: healBolt, Tag: 1})
+	bolt := priest.GetSpell(core.ActionID{SpellID: healBolt})
+	buff := priest.GetAuraByID(core.ActionID{SpellID: 1323377})
+	if !priest.Talents.Penance || channel == nil || bolt == nil || buff == nil {
+		t.Fatalf("Penance %v, its heal %v and bolt %v, Revelation %v; want all", priest.Talents.Penance, channel, bolt, buff)
+	}
+
+	buff.Activate(sim)
+	buff.SetStacks(sim, buff.MaxStacks)
+	if !channel.Cast(sim, &priest.Unit) {
+		t.Fatal("Penance's heal did not cast")
+	}
+	for end := sim.CurrentTime + 5*time.Second; sim.CurrentTime < end && !sim.Step(); {
+	}
+	hits, crits := int32(0), int32(0)
+	for _, metrics := range bolt.SpellMetrics {
+		hits += metrics.Hits
+		crits += metrics.Crits
+	}
+	if hits != 0 || crits < 2 {
+		t.Errorf("Penance's heals with Revelation up landed %d without a crit and %d crits, want every one of at least 2 to crit", hits, crits)
+	}
+	if !buff.IsActive() {
+		t.Error("Penance's heals spent Revelation's charge")
 	}
 }

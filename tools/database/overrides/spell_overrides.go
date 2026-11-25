@@ -375,6 +375,13 @@ var VersusBonuses = []VersusBonus{
 		Reason:      "Argent Defender: 'Undead that strike you are $s2 times as likely to activate this effect'",
 		Source:      "tooltip",
 	},
+	{
+		SpellID:     1300240,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
+		Reason:      "Cloud of Chained Essence (Chained Essence of Eranikus): 'Deals $1300240s2 times as much damage to Trolls'",
+		Source:      "tooltip",
+	},
 }
 
 // The procs whose rate the game files keep outside the spell data and that belong to the spell
@@ -463,7 +470,7 @@ var Spells = []Override{
 	{
 		SpellID: 1240047,
 		Field:   SPCoefDirect,
-		Value:   0.11,
+		Value:   0.115,
 		Reason:  "Ice Lance: the damage effect states no coefficient, but the spell scales with spell power in game (EV-0171)",
 		Source:  "EV-0171",
 	},

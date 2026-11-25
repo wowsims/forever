@@ -108,7 +108,7 @@ func (o *reforgeOptimizer) buildEnchantModel(weights core.UnitStats) (*lpVariabl
 				o.applyReforgeStat(objCoeffs, stats.Stat(statIdx), value, weights)
 			}
 		}
-		applyPseudoStats(objCoeffs, pseudoStats, weights)
+		applyPseudoStats(objCoeffs, pseudoStats, weights, o.player.GetClass())
 
 		key := enchantVariableKey(candidate.slot, candidate.enchant.EffectID)
 		variables.set(key, capCoeffs)
@@ -127,8 +127,9 @@ func (o *reforgeOptimizer) buildEnchantModel(weights core.UnitStats) (*lpVariabl
 //     for a channel, what the rating is worth beyond the channels' weights; for any other percent,
 //     the rating's full worth.
 //   - One rating's fallbacks count once, as the largest, under the rating's key.
+//   - Ranged Hit % has no fallback for a class in core.ClassesWithoutRangedHitFallback.
 //   - Any other pseudo-stat counts under its own key.
-func applyPseudoStats(coeffs map[string]float64, pseudoStats []float64, weights core.UnitStats) {
+func applyPseudoStats(coeffs map[string]float64, pseudoStats []float64, weights core.UnitStats, class proto.Class) {
 	fallbacks := map[stats.Stat]float64{}
 	addPercent := func(rating stats.Stat, pseudoStat proto.PseudoStat, value float64, fallbackPerPercent float64) {
 		if value == 0 {
@@ -163,7 +164,11 @@ func applyPseudoStats(coeffs map[string]float64, pseudoStats []float64, weights 
 		}
 		residual := max(0, perPercent-weighted)
 		for i, pseudoStat := range channelStats {
-			addPercent(channels.Rating, pseudoStat, values[i]-common, residual)
+			fallback := 0.0
+			if core.ChannelHasEPFallback(pseudoStat, class) {
+				fallback = residual
+			}
+			addPercent(channels.Rating, pseudoStat, values[i]-common, fallback)
 		}
 	}
 

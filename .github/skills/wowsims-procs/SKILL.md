@@ -78,9 +78,10 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
   The cases (a weapon proc's strike off either hand, oils) are in `references/rulings.md`.
 - **Suppress Caster Procs and Suppress Target Procs keep a spell's hits from `ProcTrigger` listeners on the side each
   bit names** (EV-0165), and Suppress Caster Procs keeps its completed cast from the caster's cast triggers too.
-  `rowFlags` passes all three suppress bits on only when an effect of the row does more than a dummy, a script or a
-  cast of another spell, so a dummy the sim folds with its damage (Execute 20662) carries none of them; an aura with
-  hand-written hit callbacks checks the flag itself.
+  `rowFlags` passes all three suppress bits on only when an effect of the row does more than a dummy, a script or a cast
+  of another spell, so a dummy the sim folds with its damage (Execute 20662) carries none of them. A dummy the sim
+  registers as a spell of its own sets the bit from its row at the call site, as Judgement of Command's landing does
+  (`sim/paladin/seal_of_command.go`); an aura with hand-written hit callbacks checks the flag itself.
 - **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no
   death; both are in `procs.md` (the two death bits), the order of a death in `wowsims-core-mechanics`
   `## Targets and encounter plans`.
@@ -137,15 +138,16 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of
   Clarity's is in `sim/druid/omen_of_clarity.go`, Revelation's in `sim/common/forever/enchants.go`.
 - **Which hits a weapon rate counts** is EV-0155's class census: each landed hit that rolls, priced on its own weapon's
-  base speed; Judgement of Command rolls twice, and Execute twice up to hotfix push 114313 (2026-11-20), and both are
-  left out with their procs. After that push Execute's cast suppresses weapon procs; the first logs read between one and
-  two rolls on few wearers (EV-0155). Druids in a form are left out of every rate. Paladins count, by EV-0155's and
-  EV-0156's rolls, with each run dated against the Judgement hotfix of 2026-11-13: Judgement of Command's two rolls are
-  what read as a higher rate on them. A weapon where their rate reads apart from the other classes' even so leaves them
-  out and says why (owner ruling, 2026-11-23; EV-0184; it takes the place of the rulings of 2026-11-19 in EV-0153 and
-  2026-11-22 in EV-0179). A proc that lands on the target logs almost never on a killing blow, so for such a proc a
-  killing blow is no roll; and a report that lists one stretch of the log under several fight ids repeats its events,
-  which count once (EV-0153).
+  base speed; Judgement of Command rolls twice up to hotfix push 114399 (2026-11-25), and Execute twice up to hotfix
+  push 114313 (2026-11-20), and both are left out with their procs. After push 114313 Execute's cast suppresses weapon
+  procs; the first logs read between one and two rolls on few wearers. After push 114399 Judgement of Command's dummy
+  does, and the judgement rolls once (EV-0155). Druids in a form are left out of every rate. Paladins count, by
+  EV-0155's and EV-0156's rolls, with each run dated against the Judgement hotfix of 2026-11-13: Judgement of Command's
+  two rolls up to push 114399 are what read as a higher rate on them. A weapon where their rate reads apart from the
+  other classes' even so leaves them out and says why (owner ruling, 2026-11-23; EV-0184; it takes the place of the
+  rulings of 2026-11-19 in EV-0153 and 2026-11-22 in EV-0179). A proc that lands on the target logs almost never on a
+  killing blow, so for such a proc a killing blow is no roll; and a report that lists one stretch of the log under
+  several fight ids repeats its events, which count once (EV-0153).
 
 ## Traps
 
@@ -160,6 +162,10 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 - **A harmful-spell-only mask (0x10000) decodes to a cast trigger that ignores misses.** The decoder keeps that rule
   for items, so a spell that must land to proc moves to the hit listener at its call site, as Nature's Grace does
   (`sim/druid/talents_balance.go`, PR #382).
+- **Two triggers on one aura with the same callback keep only the last.** `AttachProcTriggerCallback`
+  (`sim/core/aura_helpers.go`) assigns the aura's `OnCastComplete`, `OnSpellHitDealt` and the rest outright, so a
+  second cast listener on a set bonus aura silently drops the first. Give each trigger its own callback or its own
+  aura (`MakeProcTriggerAura`).
 - **A `core.ProcTrigger` typed by hand with no chance fires on every qualifying hit.** Core turns a `ProcChance` of 0
   into 1; only `spelldata.ProcTrigger` panics on a row that states no rate.
 - **`spelldata.Proc()` does not make a spell a proc.** It marks the spell passive with no cast or cost, and leaves

@@ -1106,6 +1106,9 @@ export class Player<SpecType extends Spec> {
 	}
 
 	setSpecOptions(newSpecOptions: SpecOptions<SpecType>) {
+		// Spec options with no class options (`"options": {}` in saved, shared or imported settings) keep the player's: the class
+		// inputs read their fields, and the sim's spec constructors dereference them. The caller's object is left as it is.
+		if (!newSpecOptions.classOptions) newSpecOptions = { ...newSpecOptions, classOptions: this.getClassOptions() };
 		if (this.specTypeFunctions.optionsEquals(newSpecOptions, this.slice().specOptions as SpecOptions<SpecType>)) return;
 
 		this.patch('specOptions', this.specTypeFunctions.optionsCopy(newSpecOptions));
@@ -1235,7 +1238,7 @@ export class Player<SpecType extends Spec> {
 		if (stats == undefined) {
 			return 0;
 		}
-		return stats.computeEP(this.getEpWeights());
+		return stats.computeEP(this.getEpWeights(), this.getClass());
 	}
 
 	computeEnchantEP(enchant: Enchant, weaponSpeed = 0, epPerWeaponDps = 0): number {
@@ -1286,7 +1289,7 @@ export class Player<SpecType extends Spec> {
 		const bestSuffix = item.randomSuffixOptions.length ? this.getBestRandomSuffix(item) : null;
 		const suffixEP = bestSuffix ? this.computeRandomSuffixEP(bestSuffix, equippedItem.item.randPropPoints) : 0;
 
-		let ep = itemStats.computeEP(epWeights) + suffixEP;
+		let ep = itemStats.computeEP(epWeights, this.getClass()) + suffixEP;
 
 		// Weapon skill counts for each melee hand whose weapon uses it, at that hand's weight.
 		for (const { skill, value } of weaponSkills) {

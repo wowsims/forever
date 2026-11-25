@@ -1,0 +1,13 @@
+siml 1
+spec hunter
+
+// Track the target's creature type, for Improved Tracking. Only the Track that names the target's type can be cast, and
+// not while it is up, so the group also tracks again when a target of another type comes up.
+group "Track the target":
+  cast track_beasts
+  cast track_demons
+  cast track_dragonkin
+  cast track_elementals
+  cast track_giants
+  cast track_humanoids
+  cast track_undead

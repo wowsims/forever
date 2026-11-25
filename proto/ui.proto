@@ -188,6 +188,7 @@ message QuestSource {
 	int32 id = 1;
 	string name = 2;
 	Faction faction = 3; // The side that may take it; Unknown is both.
+	int32 zone_id = 4;   // The quest's AreaTable zone, or a negative QuestSort id for a quest sorted by theme (class, profession, holiday); 0 is unknown.
 }
 message SoldBySource {
 	int32 npc_id = 1;

@@ -305,7 +305,7 @@ func TestFurorLeavingAtZeroTimeWithZeroEnergy(t *testing.T) {
 		t.Fatal("bear cast failed")
 	}
 	sim.CurrentTime = 3 * time.Second
-	fillResource(sim, cat)
+	fillMana(sim, cat)
 	if !cat.CatForm.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("cat cast failed")
 	}

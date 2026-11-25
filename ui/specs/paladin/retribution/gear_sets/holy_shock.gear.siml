@@ -1,18 +1,18 @@
 siml 1
 
-head       magisters_crown
-neck       archlight_talisman + necklace_spell_power
-shoulder   lightforge_spaulders
-back       hide_of_the_wild + cloak_lesser_agility
-chest      vest_of_elements + chest_greater_stats
-wrist      lightforge_bracers + bracer_healing_power
-hands      gauntlets_of_elements + gloves_healing_power
-waist      lightforge_belt
-legs       magisters_leggings + mystic_rugged_armor_kit
-feet       magisters_boots + mystic_rugged_armor_kit
-finger1    blessed_band_of_light
-finger2    channelers_ring
-trinket1   jewel_of_the_guard_captain
-trinket2   adaptive_combat_assistant
-main_hand  shin_blade of_holy_wrath + enchant_2h_weapon_mighty_spell_power
-ranged     libram_of_law
+head       stalwart_helm + arcanum_of_focus
+neck       nacreous_shell_necklace + necklace_spell_power
+shoulder   soulforge_spaulders_ilvl65
+back       arcanoweave_cloak + cloak_agility
+chest      soulforge_breastplate_ilvl60 + chest_greater_stats
+wrist      soulforge_bracers_ilvl65 + bracer_greater_spellpower
+hands      soulforge_gauntlets_ilvl55 + gloves_holy_power
+waist      soulforge_belt_ilvl65
+legs       pristine_scorpid_leggings + arcanum_of_focus
+feet       soulforge_warboots + mystic_rugged_armor_kit
+finger1    channelers_ring
+finger2    don_julios_band
+trinket1   smolderwebs_eye
+trinket2   heart_of_wyrmthalak
+main_hand  destiny + enchant_2h_weapon_spellblasting
+ranged     libram_of_fervor

@@ -206,6 +206,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 924.37746
+  tps: 743.0714
+  dtps: 8.88596
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-Champion'sDreadgear"
  value: {
   dps: 901.58116
@@ -586,8 +594,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 934.59855
-  tps: 751.64847
+  dps: 934.0706
+  tps: 751.23455
   dtps: 9.30342
  }
 }

@@ -151,6 +151,54 @@ func TestMissileBarrageArcaneMissilesKeepsClearcasting(t *testing.T) {
 	}
 }
 
+// An Arcane Blast hits with the Arcane Charge it adds: the mage's spell damage at the hit is above
+// what it was before the cast, and at the stack cap it is unchanged.
+func TestArcaneBlastHitsWithTheChargeItAdds(t *testing.T) {
+	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
+	target := mage.CurrentTarget
+	arcaneBlast := mage.GetSpell(core.ActionID{SpellID: spellData.ArcaneBlast.Highest().ID})
+	hit := arcaneBlast.ActionID.String() + " "
+	manaMetrics := mage.NewManaMetrics(arcaneBlast.ActionID)
+	var atHit float64
+	hits := 0
+	sim.Log = func(message string, vals ...any) {
+		line := fmt.Sprintf(message, vals...)
+		if strings.Contains(line, hit) && strings.Contains(line, " damage") {
+			atHit = mage.GetStat(stats.SpellDamage)
+			hits++
+		}
+	}
+
+	belowCap, atCap := 0, 0
+	for range 6 {
+		mage.AddMana(sim, mage.MaxMana(), manaMetrics)
+		stacks := mage.ArcaneChargesAura.GetStacks()
+		before := mage.GetStat(stats.SpellDamage)
+		hits = 0
+		if !arcaneBlast.Cast(sim, target) {
+			t.Fatalf("Arcane Blast did not cast at %v", sim.CurrentTime)
+		}
+		stepFor(sim, arcaneBlast.CurCast.CastTime)
+		if hits == 0 {
+			continue
+		}
+		if stacks < mage.ArcaneChargesAura.MaxStacks {
+			belowCap++
+			if atHit <= before {
+				t.Errorf("Arcane Blast cast at %d charges hit at %.1f spell damage, want above the %.1f before the cast", stacks, atHit, before)
+			}
+		} else {
+			atCap++
+			if atHit != before {
+				t.Errorf("Arcane Blast cast at the cap hit at %.1f spell damage, want the %.1f before the cast", atHit, before)
+			}
+		}
+	}
+	if belowCap == 0 || atCap == 0 {
+		t.Fatalf("%d Arcane Blasts hit below the charge cap and %d at it, want both", belowCap, atCap)
+	}
+}
+
 // A rotation of only Arcane Missiles procs Clearcasting at about the talent's chance per channel: the
 // channel start and its five missiles share that chance between them.
 func TestArcaneMissilesSplitsClearcastingChance(t *testing.T) {
@@ -330,14 +378,14 @@ func TestBlizzardCastRollsArcaneConcentrationOncePerCast(t *testing.T) {
 	}
 }
 
-// Each enemy a Flamestrike ground tick lands on rolls Revelation: against many enemies a tick procs it far
-// more often than against one.
-func TestFlamestrikeGroundTickRollsRevelationPerTarget(t *testing.T) {
+// A Flamestrike ground tick rolls Revelation once however many enemies it lands on: against many enemies a
+// tick procs it about as often as against one (EV-0149).
+func TestFlamestrikeGroundTickRollsRevelationOnce(t *testing.T) {
 	const ticks, manyTargets = 1500, 8
 	one, many := flamestrikeTickRevelations(t, 1, ticks), flamestrikeTickRevelations(t, manyTargets, ticks)
 
-	if one == 0 || many < 3*one {
-		t.Errorf("Revelation procced on %d of %d ticks on one target and %d on %d targets, want at least three times as many on %d",
+	if one == 0 || many > 2*one {
+		t.Errorf("Revelation procced on %d of %d ticks on one target and %d on %d targets, want about as many on %d",
 			one, ticks, many, manyTargets, manyTargets)
 	}
 }
@@ -420,6 +468,69 @@ func TestRevelationCritsTheDirectHitOfFireballPyroblastAndFrostfireBolt(t *testi
 		}
 		if metrics.Crits != 1 {
 			t.Errorf("%s cast with Revelation up landed without a crit", test.name)
+		}
+	}
+}
+
+// Each Arcane Missiles missile rolls its crit as it launches, and Revelation's charge goes to the first
+// missile launched after it comes: a missile in flight at the gain keeps its own roll and lands without
+// spending the charge, the next one launched crits, and its landing spends the charge. A missile in
+// flight that crits by its own roll spends the charge as it lands (EV-0149).
+func TestArcaneMissilesGiveRevelationsChargeToTheNextMissileLaunched(t *testing.T) {
+	for _, critsInFlight := range []bool{false, true} {
+		sim, mage, buff := newRevelationMage(t, ArcaneTalents, 1)
+		target := mage.CurrentTarget
+		cast := mage.GetSpell(core.ActionID{SpellID: arcaneMissilesBookRank.ID})
+		missile := mage.GetSpell(core.ActionID{SpellID: arcaneMissilesBookRank.PeriodicEffect().TriggerID})
+		if cast == nil || missile == nil {
+			t.Fatalf("Arcane Missiles %v or its missile %v is not registered", cast, missile)
+		}
+		// A missile flies 1.25 s, past the next one's launch a second later.
+		mage.DistanceFromTarget = 25
+		tick := cast.Dot(target).TickPeriod()
+		if missile.TravelTime() <= tick {
+			t.Fatalf("a missile flies %v and the channel ticks every %v, want the flight longer", missile.TravelTime(), tick)
+		}
+		mage.AddStatsDynamic(sim, stats.Stats{
+			stats.SpellCritPercent: -mage.GetStat(stats.SpellCritPercent),
+			stats.SpellHitPercent:  100,
+		})
+		missile.BonusCritPercent -= 100 * missile.SpellCritChance(target)
+		metrics := &missile.SpellMetrics[target.UnitIndex]
+
+		if critsInFlight {
+			missile.BonusCritPercent += 100
+		}
+		if !cast.Cast(sim, target) {
+			t.Fatal("Arcane Missiles did not cast")
+		}
+		stepFor(sim, tick+tick/2)
+		if critsInFlight {
+			missile.BonusCritPercent -= 100
+		}
+		if metrics.Hits+metrics.Crits != 1 || (metrics.Crits == 1) != critsInFlight {
+			t.Fatalf("the first missile launched %d hits and %d crits, want one crit %v", metrics.Hits, metrics.Crits, critsInFlight)
+		}
+		buff.Activate(sim)
+		buff.SetStacks(sim, buff.MaxStacks)
+
+		// The first missile has landed and the second launched.
+		stepFor(sim, missile.TravelTime()-tick/2+2*core.SpellBatchWindow)
+		if critsInFlight {
+			if buff.IsActive() {
+				t.Error("the missile in flight at the gain landed with its own crit and Revelation's charge is still up")
+			}
+			continue
+		}
+		if !buff.IsActive() {
+			t.Fatal("the missile in flight at the gain landed without a crit and spent Revelation's charge")
+		}
+		if metrics.Crits != 1 {
+			t.Fatalf("the missile launched after the gain launched %d crits, want it to crit", metrics.Crits)
+		}
+		stepFor(sim, tick)
+		if buff.IsActive() {
+			t.Error("the missile launched after the gain landed with a crit and Revelation's charge is still up")
 		}
 	}
 }

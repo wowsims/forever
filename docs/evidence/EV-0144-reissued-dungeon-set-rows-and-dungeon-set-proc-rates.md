@@ -4,16 +4,21 @@
   fires that row's bonuses, never the Classic set's (511 to 519); and the dungeon set procs whose rows state 100% and
   no rate fire at procs per minute, a white swing priced on its weapon's base speed and a spell cast on its cast time:
   Warrior's Resolve at 1, Rogue Armor Energize at 0.8, Crusader's Wrath at about 0.9, The Furious Storm and Nature's
-  Bounty's mana at about 1. Nature's Bounty restores its energy off a landed white swing at about 1 a minute on the
-  form's speed, and its rage off a landed melee swing taken at about 1 a minute on the attacker's interval; Wild Heart
-  fires at its row's 5% per landed hit taken, at most once a minute. The Feralheart reissue's pieces count toward its
-  bonuses whichever of its four groups they come from.
+  Bounty's mana at about 1. Nature's Bounty restores its energy off a landed white swing at about 0.9 a minute on the
+  form's paw speed, and its rage off a landed melee swing taken at a chance of about 3.3% to 4.0% that does not rise
+  with the attacker's interval, 1.21 a minute on that interval; a cast that deals no damage rolls it only when its
+  spell costs mana, and none follows a free or rage-costing one. The energy it restores in a bear form comes back with Cat Form. Wild Heart fires at its row's
+  5% per landed hit taken, at most once a minute. The Feralheart reissue's pieces count toward its bonuses whichever
+  of its four groups they come from.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each table names
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-11 to 2026-11-17
 - Pull request: #1086
-- Later count: Nature's Bounty's energy and rage, Wild Heart, §Count of the 2026-11-21 combat logs
+- Later count: which hits roll Nature's Bounty's energy and rage and how the energy ticks, Wild Heart, §Count of the
+  2026-11-21 combat logs
 - Later count: the Feralheart reissue's groups, §Count of the 2026-11-22 combat log
+- Later count: Nature's Bounty's energy in a bear form, §Count of the 2026-11-23 combat log
+- Later count: Nature's Bounty's energy, rage and mana rates, §Count of the 2026-11-13 to 2026-11-25 reports
 
 ## Method
 
@@ -76,18 +81,16 @@ Darkmantle rows, so its three wearers do not tell the rows apart, and no Deathmi
 | ---------------------------------------------- | ------ | ------: | ----------: | -----: | ----------------- | ----------------- | ---------: | ----: | ----------------- | ----------------- |
 | Crusader's Wrath (Lightforge, Soulforge)       | 450625 |      12 |         334 |  9,299 | 3.59% (3.23–3.99) | 0.85 [0.76, 0.95] |        193 | 7,217 | 2.67% (2.33–3.07) | 1.06 [0.77, 1.22] |
 | The Furious Storm (Elements, Thunders)         | 450626 |       4 |          55 |  1,398 | 3.93% (3.03–5.09) | 0.66 [0.59, 1.29] |         70 | 2,654 | 2.64% (2.09–3.32) | 0.96 [0.78, 1.01] |
-| Nature's Bounty, mana (Wildheart, Feralheart)  | 450608 |       7 |           0 |    622 | 0% (0–0.61)       |                   |         64 | 2,827 | 2.26% (1.78–2.88) | 0.81 [0.56, 1.04] |
 | Warrior's Resolve (Valor, Heroism)             | 450587 |      16 |         720 | 21,667 | 3.32% (3.09–3.57) | 0.94 [0.87, 1.01] |          1 | 4,204 | 0.02%             |                   |
 | Rogue Armor Energize (Shadowcraft, Darkmantle) | 27787  |      26 |       1,900 | 70,840 | 2.68% (2.57–2.80) | 0.83 [0.80, 0.86] |          0 | 1,012 | 0%                |                   |
 
 The rows are procs per minute and no flat chance. On swings the chance rises with the weapon's speed while the rate
 holds: Crusader's Wrath rolls 2.79% on weapons under 2.2 s (0.92 a minute), 2.87% from 2.2 to 2.9 s (0.73), 4.75% from
 2.9 to 3.4 s (0.89) and 4.61% above (0.80); Rogue Armor Energize 0.84 a minute under 2.2 s and 0.81 from 2.2 to 2.9 s.
-On casts the chance rises with the cast time: Nature's Bounty restores mana on 1.85% of instants (36 of 1,943), 2.49%
-of casts under 2 s (13 of 523), 3.75% of casts from 2 to 2.75 s (9 of 240) and 4.96% of longer ones (6 of 121); The
-Furious Storm on 2.39% of instants (50 of 2,089) and 4.35% of casts from 2 to 2.75 s (13 of 299). An instant at 1 a
-minute on 1.5 s is 2.5%. Crusader's Wrath shows no such rise on its few hardcasts: 2.75% of instants (183 of 6,655)
-and 1.31% of casts under 2 s (6 of 458, 95% 0.60 to 2.83), nearly all Flash of Light.
+On casts the chance rises with the cast time: The Furious Storm procs on 2.39% of instants (50 of 2,089) and 4.35% of
+casts from 2 to 2.75 s (13 of 299). An instant at 1 a minute on 1.5 s is 2.5%. Crusader's Wrath shows no such rise
+on its few hardcasts: 2.75% of instants (183 of 6,655) and 1.31% of casts under 2 s (6 of 458, 95% 0.60 to 2.83),
+nearly all Flash of Light.
 
 A cast that costs mana rolls the spell rows whether or not it deals damage. On the Lightforge wearers a seal cast is
 followed by Crusader's Wrath 2.0% to 3.3% of the time (Seal of Command 31 of 941, Seal of Righteousness 25 of 839,
@@ -157,17 +160,24 @@ of Flash Heals (47 of 994).
   27782's mana, a landed melee swing 27784's energy over 5 s, and a melee hit taken 27783's rage
 - Sim rate: 1 PPM, observed, on spell casts priced on their cast time, on landed white swings priced on the form's
   speed and on landed melee swings taken priced on the attacker's interval
-- Count: §Count of the 2026-11-21 combat logs, for the energy and the rage
+- Count: §Count of the 2026-11-13 to 2026-11-25 reports, for the energy, the rage and the mana; §Count of the
+  2026-11-21 combat logs, for which hits roll the energy and the rage and how the energy ticks; §Count of the
+  2026-11-23 combat log, for the energy restored in a bear form
 
-| Report           | Fights                                  | Date  | Class | Set                | Swing procs | Swings | Swing PPM | Speeds | Cast procs | Casts | Cast PPM |
-| ---------------- | --------------------------------------- | ----- | ----- | ------------------ | ----------: | -----: | --------: | ------ | ---------: | ----: | -------: |
-| tQfhj2JbzZkYXFvx | 19, 22-23, 25, 28, 41, 44-45, 47-48, 52 | 11-13 | Druid | Feralheart Raiment |           0 |    512 |      0.00 | 3.2    |          3 |   339 |     0.35 |
-| LahKC3yT6JQRwtMn | 1, 4-5, 8-9, 12, 15                     | 11-14 | Druid | Wildheart Raiment  |           0 |     20 |      0.00 | 1.5    |          5 |   516 |     0.36 |
-| 7mnVXCgpyxkbtZGq | 3, 10-11, 17                            | 11-15 | Druid | Wildheart Raiment  |           0 |     83 |      0.00 | 1.5    |         22 |   806 |     0.93 |
-| X6Hp4gDwv7zftxMC | 2                                       | 11-15 | Druid | Wildheart Raiment  |           0 |      0 |      0.00 |        |          5 |   181 |     1.00 |
-| zpvfR1gAaKmbWTMy | 1                                       | 11-15 | Druid | Wildheart Raiment  |           0 |      2 |      0.00 | 2.8    |         10 |   341 |     1.10 |
-| T6VDdFhPxQ43pHM2 | 1                                       | 11-16 | Druid | Wildheart Raiment  |           0 |      0 |      0.00 |        |          5 |   220 |     0.78 |
-| CxTmQRX2ytGcwA9r | 2                                       | 11-16 | Druid | Wildheart Raiment  |           0 |      5 |      0.00 | 2.1    |         14 |   424 |     1.18 |
+A cast that deals no damage rolls only when its spell costs mana, an owner ruling of 2026-11-25 that covers a cast
+costing nothing or only rage or energy. The count of the 2026-11-13 to 2026-11-25 reports backs it for rage and for free
+casts: in a bear form no 27782 follows Demoralizing Roar (0 of 3,840 casts), Growl (0 of 4,615) or Challenging Roar (0
+of 173), and none follows Barkskin (0 of 1,451). Faerie Fire costs mana in caster form and nothing in Cat Form or Dire
+Bear Form (3025 and 9635 take all of its cost), and it rolls like any spell in a form: 27782 follows 184 of 7,545 casts
+in a bear form (2.44%) and 45 of 1,766 in Cat Form (2.55%), where an instant at 1 a minute on 1.5 s is 2.5%.
+
+Shapeshifts, Frenzied Regeneration and Shifting Power roll nothing, an owner ruling of 2026-11-25 that the same count
+backs, though a shift and Shifting Power cost mana and Frenzied Regeneration heals. No 27782 follows any of 955 Cat Form
+casts, 2,174 Dire Bear Form, 164 Moonkin Form, 48 Travel Form, 600 Frenzied Regenerations or 2,163 Shifting Powers. A
+new 27784 (an application or refresh, not a tick) follows 8 Shifting Powers (0.37%) and 3 Dire Bear Form casts, and
+27783 follows 4 Frenzied Regenerations (0.67%), each the background of the swings beside them: every proc after a
+Shifting Power lands 13 to 98 ms after a white swing, and 27783 follows 0.84% of Growls. A cast's proc is one from 60 ms
+before it to 300 ms after it.
 
 ## Wild Heart (sets 185 and 1667)
 
@@ -267,48 +277,21 @@ same pricing reads Warrior's Resolve at 0.94.
 
 A proc is credited to the druid's own event or the hit the druid took that comes last before it, up to 150 ms before;
 the Felwood log's procs trail their swing by up to 121 ms. The form is the druid's power type on its own swing or on
-the swing it takes: energy is Cat Form, rage a bear form. A swing is a landed white swing, priced on the form's paw,
-1 s in Cat Form and 2.5 s in a bear form. An attacker's interval is the median gap under 5 s between its consecutive
-swings, landed or not, for an attacker with at least three. A hit taken is landed when it deals damage; a dodge, a
-parry, a miss and a swing absorbed whole are avoided. A percentage's interval is a Wilson interval per roll, carried
-over to its rate. Both Blackrock Spire druids wear six pieces of one group, and no log holds a druid mixing groups.
+the swing it takes: energy is Cat Form, rage a bear form. A swing is a landed white swing. A hit taken is landed when
+it deals damage; a dodge, a parry, a miss and a swing absorbed whole are avoided. A percentage's interval is a Wilson
+interval per roll. Both Blackrock Spire druids wear six pieces of one group, and no log holds a druid mixing groups.
 
 Nature's Bounty restores its energy off landed white swings alone. None of the 1,015 landed abilities in Cat Form and
 4,461 in a bear form is the last event before a proc, and a swing in caster form procs it as well (1 of 24), with no
 tick logged.
 
-| Druid                    | Form      | Swing procs | Swings | Per swing         | Swing PPM         |
-| ------------------------ | --------- | ----------: | -----: | ----------------- | ----------------- |
-| Level 62, melee pieces   | Cat       |          21 |  1,127 | 1.86% (1.22–2.83) | 1.12 [0.73, 1.70] |
-| Level 61, Felwood        | Cat       |          14 |    875 | 1.60% (0.96–2.67) | 0.96 [0.57, 1.60] |
-| Level 60-61, tank pieces | Dire Bear |          25 |    857 | 2.92% (1.98–4.27) | 0.70 [0.48, 1.03] |
-| Level 61, Felwood        | Dire Bear |           1 |     18 | 5.56%             |                   |
-| All                      | Cat       |          35 |  2,002 | 1.75%             | 1.05 [0.76, 1.45] |
-| All                      | Dire Bear |          26 |    883 | 2.94%             | 0.71 [0.48, 1.03] |
+A Cat Form proc ticks 4 energy a second, five times (33 of 35 procs; two stop after one and two ticks), and a proc
+during the ticks starts five more. The bear in tank pieces logs no tick after any of its 25 procs, while the Felwood
+druid's one proc in Dire Bear Form logs five ticks of 4 energy.
 
-One rate over both forms reads 0.87 a minute [0.68, 1.11]. A Cat Form proc ticks 4 energy a second, five times (33 of
-35 procs; two stop after one and two ticks), and a proc during the ticks starts five more. The bear in tank pieces logs
-no tick after any of its 25 procs, while the Felwood druid's one proc in Dire Bear Form logs five ticks of 4 energy.
-
-In a bear form, 129 of 3,789 landed melee swings taken restore 10 rage (3.40%, 95% 2.87 to 4.03), below the 4.17% that
-1 a minute on the bear's 2.5 s gives: the tank pieces 124 of 3,720, the two Cat Form druids' bear forms 2 of 11 and 3
-of 58. Over the 3,586 hits whose attacker's interval is known, 1 a minute on that interval fits better than any flat
-chance: a log-likelihood of -527.9, against -529.0 for the best flat chance (3.37%) and -532.0 for 4.17%. The best
-rate on the attacker's interval is 1.16 a minute, at -526.6. An interval is a median of logged gaps, so a slowed or
-dual-wielding attacker's is off its weapon's speed. A melee ability taken rolls nothing: in a bear form 1 of 197 landed
-physical abilities taken (Strike, Cleave, Mortal Strike and the like) and none of 270 other spells taken is the last
-hit before a proc, where the swings' 3.40% would give about 7. Another 35 procs follow a landed swing taken in Cat Form
-(16) or caster form (19), with 10 rage each.
-
-| Attacker interval | Procs | Swings taken | Per swing | 1 a minute on it |
-| ----------------- | ----: | -----------: | --------: | ---------------: |
-| 0.5 s             |     6 |          143 |     4.20% |            0.83% |
-| 1 s               |     6 |          312 |     1.92% |            1.67% |
-| 1.5 s             |    29 |        1,065 |     2.72% |            2.50% |
-| 2 s               |    60 |        1,839 |     3.26% |            3.33% |
-| 2.5 s             |    19 |          185 |    10.27% |            4.17% |
-| 3 s               |     1 |           33 |     3.03% |            5.00% |
-| 3.5 s             |     0 |            9 |        0% |            5.83% |
+A proc of the rage restores 10 rage, in a bear form, Cat Form and caster form alike. A melee ability taken rolls
+nothing: in a bear form 1 of 197 landed physical abilities taken (Strike, Cleave, Mortal Strike and the like) and none
+of 270 other spells taken is the last hit before a proc.
 
 Wild Heart follows 4.52% of the landed melee swings taken off its cooldown (79 of 1,748, 95% 3.64 to 5.60), 2.53% of
 the landed spells and melee abilities taken (9 of 356, 1.34 to 4.73) and none of 914 avoided swings: 4.18% of all
@@ -329,3 +312,170 @@ Four Feralheart pieces, two from each of two groups, fire the 4-piece: a landed 
 the same millisecond by 27784, which ticks 4 energy five times. No group holds four pieces, so pieces of different
 groups count toward the set together. Wildheart Raiment's 5-piece, the other set that procs 27784, needs five pieces,
 more than the four armor slots left.
+
+## Count of the 2026-11-23 combat log
+
+- Sources: combat log `WoWCombatLog-112326_164634`, Winterspring: the Felwood log's druid, level field 61, with Furor at
+  5/5 by its player's word, testing whether energy restored in a bear form reaches Cat Form; which set pieces is not
+  recorded
+- Game build: 1.60.1.71037; a hotfix went out on 2026-11-23, and the one the log ran on and whether the player relogged
+  are not recorded
+- Date: 2026-11-23
+- Pull request: #1190
+
+The druid's last energy reading in Cat Form is 16, 0.70 s before it leaves. At the 9 to 10 a second its readings in
+Cat Form climb by, it leaves with about 22, the energy its player read. It spends 0.31 s in caster form and 324 s in
+Dire Bear Form, where two procs of 27784 tick 4 energy ten times, none of it over the bar. It shifts straight back into
+Cat Form and reads 69 energy 2.0 s later, 85 another 1.98 s on, then 100; its player read about 62 on the way back.
+
+Without the ticks, Furor's rule gives about 25 on the way back, 22 and 3 for the time in caster form, which would need
+44 in the 2 s before the 69. With all of them it gives about 65, which would leave 4 for those 2 s. The readings climb
+16 in the 1.98 s after the 69, and 9 to 10 a second before the druid left Cat Form; read back at those rates, it came
+back with 49 to 53. Either way it came back with 24 to 40 more than the rule gives without the ticks. Both bear forms'
+rows stop energy regeneration (effect 5, -100% energy regeneration) and leave the bar as it is, so nothing but the
+ticks added energy in the form. The sim adds every tick.
+
+## Count of the 2026-11-13 to 2026-11-25 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every fight whose gear snapshot holds the set in these
+  404 reports: 13PjqwGHQ9KNdVMF, 16dpWnKbmLh4Gca2, 173V9qkfcr2vb6wB, 1Fc86n3dpAK9yVL4, 1Tf47h2MvyczZbVK,
+  1ZfhArNnJX3gtPcB, 1bhmLzqVX6A32nRx, 1p9ZzLCPw7dV3rJk, 29ZWyVxcrX1ha6Av, 2RPhk6zxZyLjgn4B, 2jBLczpJmTPAhG6g,
+  2q1MandA4HXxL7Ym, 2wPQmVqbdCcZW9gv, 2x7ZjvdbRwFMWKTP, 2zJ3GkaPLDnrKBgQ, 38brBWmH9RLxYGva, 3CjY8yV9pQnrcRFm,
+  3GrqwxDX9BMnTR7H, 3Pm4ZHqnMjLNwBvt, 3TdF61x7gMQ28pKX, 3WQwhXcFVtdHjrkZ, 3dpPvAbwfxzGHhnD, 3mavCA2tLRc9qwMy,
+  3x9pNAJ8PQ6FkHnK, 49AgNFDbqv87x1yr, 4QDbGNfq7Tt6Wv2a, 4QXfD8qGpN9VYbhW, 4YhFbCdznkj9f6yX, 4aPFr7JvYn8d6RNB,
+  4bLKQ2GDHZmh7z9P, 4jXDTv8KyqtNW2Jx, 4rTfkGxMwKWPAXng, 4wT3Fhqxpfky8MKz, 4z2Yy39WAVFDtjN1, 61QxWrdDtkf2VJZm,
+  6FZNWyXGzDxHqv2a, 6H1ydbrf2nCY8QWN, 6KPChRcXAyjVfWB4, 6QZLXm7VfRT8jdH3, 6WwaxM19bkXqJTpc, 6dLVNKn81FrzQmyD,
+  6nMbzLFKRQhy4P1B, 6vAwndj1FxBcDKq8, 6xdrXcamTAgJy3NW, 6ymdcZvW4YfgTLRt, 78wWZfmgrJYzFXvD, 7BTfKw2HpN1XYWvm,
+  7KQd1Lnpqmzjfwv3, 7LrX43AZapzF18JT, 7QkP49vcqVMbHp82, 7Tjny9D2bBpC3v8r, 7VgLNkjPma4ZMAdT, 7faQXRhyZr6V32Fk,
+  7mnVXCgpyxkbtZGq, 7nyCwGzLBKqR89xV, 7xD3CJ4kyjBwdngz, 81nxJWvgActT46Km, 81rnYqNT3djhJFRy, 8FWjnvVz6Dx4kYqy,
+  8WNhJnqLfwv3HZRY, 8fNXPAmnpr4QcMa1, 8vnBNTdtAFJWLmcr, 91t6GAqXZxcyRVgT, 98zV1QdHZYxAPJrF, 9C2qkgtRP8AWTJav,
+  9fWYjH63xNvRb2tk, 9jW8aAGpJmf3KqFr, 9w4ZyL23P1nhpca8, A6qcQ9jtTNXKbvYh, A86pf24tnjvyBLqF, AFgTcYmLZDkHfqwR,
+  AT2jv6mC1wL4KFkJ, AWDftL9aJZmMBxHp, AdncDbNmRQqKfFyP, B7xXw4CjR6mDTp39, BCnafpPbAGY3cRNL, BLYHj7vZkNaQzFxG,
+  BPVxqXWLc3FJTpMh, BRpZwxyfrA3N62vP, BXLbtpMR6j7fYyKq, BZbHXpPhzy4fLrD3, C4ZTK6azvLD9pAjP, C87y34vf6PMtjVgm,
+  CAPt7qmH61WnKTMx, CB8T1LhbRDgYnzJV, CKwpnf78NYPcRjaV, CN1RGx46MPbzr2v9, ChNdrnFtXcqfvwBJ, CxTmQRX2ytGcwA9r,
+  D7hPTJ182zvmVxjH, DALjdvgcWTYBF283, DCWdZLkm2cPJbfz9, Dd7gavzxLtNj3CpQ, DzNPfdcnZCKjvT21, F24npWZRxtv8hD76,
+  F4JAb8gjwrQDCP2T, F8PLBprjC1xdztQG, Fh9AL83KjJPfRd7b, FmPYdK4qkyztLhvR, Fpqw1tPkWfbJVrjy, G7X1CkT8z6PrfjWM,
+  GnM4PzfXLwCDgWTh, GtnhTdayMHCXrA1f, Gx9NyLPCjwDbV3qc, GxDzk8r3aFtdwLTc, H4WY39qjftXdBLVC, H4k1pd8F2b9GmvKM,
+  HPWbDfXYdGhK8k3T, HZrpa6fchzV2Q43L, HwGDCPy8Kp1TanZq, J23kMhZrVA18pXBQ, J7v2ZfpQr3HqK1zN, JG89gCcma1Lbxrfn,
+  JL1Mph8yakgv4QHX, JbQyngR8NWXKardc, Jj3KHZW7wdFTyLgt, JmxhYRVQvN3b7LTw, JnVDpj3rhNL7xWy2, JtWmqfKxnrpV6YXh,
+  K3xmjRCnMpV2c4qr, KNYqn8bcp42rgfJD, KYRHMqa28bVmk3QC, Knrd8xkhRQBpqaPg, KqjwWn3L4VGxrcgT, Kv2JnCDMjhAxzNqg,
+  L49qmxFXhVWbt18z, LD6PJnd87qRCTYjN, LNvtnDxd1H6XfVGk, LYw76XG1CFHQNdJz, LhwmgkKDv8bCj6G1, LjYQFGryP4kdqmp3,
+  LmFvyJYgtpXArVbk, LqRa728dk9CfhvtP, LrxPVytYBd23XjcK, LwTNrdJ6zjnmCKZg, M4KkWa3jmqGthFQT, MAWRFbLpkha1cynK,
+  MQH7fmgdJANkqwxr, MRJHKBWt2TCp17PG, MazXZJYPrAkG7vWm, MhZHzR6WmCtXpqJL, Mtpn21bD4ArgcxjL, N8wyX9FR3TnPBpx2,
+  NAnmwq6MHRdFQ1t9, NB2hDQc4p81tPajb, NC2m46DxFhBz1vwd, NFXmgQGxDV8KZr4d, NHzjDpZvLRyPt9hr, NJnx8ktqvg6aZY9R,
+  NLVFqvYkxgX9f72d, NRF9y6Mv3gTYfw4j, NVg1CmYpMX7dvy4x, NWR9Y381bdGA6Qjr, NnMA6GgHfRwLJ98Q, PC1M9hHgNxzn7VjF,
+  PH6KRGkfYDm91r82, PLD3K2BfrkYxhRWQ, PQfAMVDhrB9Wvxgt, PR8dn7gT932ZbK6H, PVHbqvaXgcWGF6hf, PafbczYWBMjgHCG7,
+  PcJyYBT7WGMqpLm8, PpTRzwqQxWC6vXd1, PvBX13kRyjZ7ngdh, QFB3RZGJqw6mC7NP, QHPmM21WVKjvczf6, QJPAtmBc46LqxK8n,
+  QL2MaN1g3Htj6ZWF, R16PDpqXMHfF4c28, RATPcCrag87jynDN, RBY9pQPCMTtdhfX8, RJakAQgPXWvfFMnD, RW91FgNq7MBXJjGt,
+  RWBahpJkAgVPGNFx, RaTGbvyP3KxH8YwN, RdqHgVKWNmTCrM8Q, RhpdPY6bLq8N3x7k, RwMv31La6FBZ9HDP, T6vkgVaD8YqhyLzf,
+  TCLbZW1g4zrPKHyh, TCVybQX6LBa3j9J2, TQYALMf39F2jWh6a, TX8J9PpR2tgDVLCv, TYRPpgvztLCkNx7K, TZpHz98DxwKyMhca,
+  Tg1Hcb7z2qAXWkCx, Tm42j9AJcV6hrbC8, Tx7MPH9f8Ga6hdrF, TyGawFf7MhLnB3Dv, V4FWBAJKbHZN1cG9, VKfYJ82cMTktxQzL,
+  VvRNkLTq867HMwn3, VzpjcgvbnLCaTZG2, W3dLGjr2q8Pap4Jg, W6qw7QMy4FKTPtXC, WLCqdPQD9AjhFRnJ, WLGy4qAtFxmcrfw1,
+  WLw7gXz9A2fBdD4y, WfZ9MhngNAmqJrkG, WmAYZ9MVRPqncTBJ, WwAp7qrmHYNDPzfg, X2BHzGg93h1vbdM7, X4vmdgTRMytH9r36,
+  X7BT9Nph1tkdW4y6, X9grzJjpW4dhyCNK, XFRwAyMGbYNBjvJT, XKJkTp93czjy1mYM, XLgaA9MNDHZRcWdk, XQmMHk8y1JxC7Kq3,
+  XmxVQnPa1ZNprKqA, XqCydHNfMbG8PxW3, Xz2TRxJf4WHabFQw, XzPyHxjZDvgMR9rA, Y7LzFwD98HmQNkBP, YL2NG4kJ89nQxDKc,
+  YWgrM2yL8ZbR6Dc4, YXbnwGzahjNCZygW, Yb83B2kvHA9gRLGn, Yc7B2gVfwztTm9CM, YfW8dGc74x63Mrjv, Yvtw3nWdD7Tz2pxh,
+  Z2qcmvGaQWDfHwNp, Z7HXT3RzjCxcqwY2, ZDC1zWJM4YFTNckv, ZGJAML2f9FmDtBRn, ZHhbDAfgNPGw7jKn, ZPJc9zfAjY8kLXqC,
+  ZQaAP2GMTY3t9wjX, ZV9CLrWdTcnFRXaQ, ZXwktLq2Vd9pCHKT, ZdrpTz3bCn7FxLv9, Zk39FczKDRAma1P8, Zr83CpF2XTaRtJ7K,
+  ZtWQwvfqBYA1k2Dh, Zvz9BQn4AfbGqwRJ, a6fyx7DFnqbCXrkp, aCPtJ98rdW1jvNbm, adXDZKvrNfC91VH6, agVLrW4R2jcwJhmZ,
+  ayWm6ZYQx4HfbnNA, bRXTDdAWxkn4hYzG, bWH41fw8CDQAch3K, ba9Xj6JFCyM12YTx, bdmJVrhK126gwfBa, bgycvf8pzGCqNBDm,
+  bhwyFTXrA6CaLQzR, bmpBgLZjywNx47PJ, bvZ8GYp2K1fN3DdL, byDnJdBYpGf9jrmQ, byY2HrkRPfvTgWxL, bymT2gMcdD17t4Pw,
+  c48NByWfP2dMqmw3, cAvRpFK8Ym7zMbGq, cAy84TxZktvhKLPB, cBGdRD4xLq3fW9FZ, cKDAmhbfNLwB8nCZ, cR4bJMGaVhC38B7X,
+  cav7VZrmPbNW3y29, ch87CPWVqaxZYfz3, cp4927aKxtMZJBA3, dPJwm1Bj7rQTxg6p, dbrxgnVXcAP3LFa2, dgxVz1N6JjLk87Hm,
+  dmb6aGFDt19zyrXh, dr1BMh6pNxqbFJLf, dwfTvHCVXDy2t74W, f1VTcBRNpybavLwD, fMPL97aCA1ngvKQk, fQaw3NjZ8p6LJWmX,
+  fTBkLPW4MY2zN8AJ, fwLdpTX23mjq1DZr, fxqc8bZrgyBDdCWQ, g1jbdaw47PcBWfCp, g8aT4fbm3tVpBCwA, gDjHvdpcKtmTy62h,
+  gGBmQx9nC18ZD3d2, gJFfZmCxpnAhkDV9, gNHA97Yt4JqMvm6L, gRrPYMv7waz4jQKb, gXFLdJDqAkZhybzp, gbZhtNpCMT4zwK9m,
+  gc2BTyJdxXAR7h4D, gv9V6Ty1Qa3MBZW7, hR7dDX6bPtwrWjf8, hWvTxLktRGzfjqHJ, hmCJ8BNfPkQMdqT7, htxvFBCdVDPrm2pK,
+  hxp4F8HyNrQnBG6g, j38kvadrDXTmMNfK, j4gkwbLDmXyMNBPT, jD8B9Qaf7TNtH1bm, jG4ctAQMv9TbrpkY, jKQDqkwmx46ZLBFg,
+  jhYXCmK4t9kQpwrH, jxFL3qMGJpZgkdPy, k4tc6gJbWzvLZpNh, kDJ4fpxHjYCbTvnK, kG98jRqpFfBryv3c, kX7FtxzjfYnw69TB,
+  kYmZf7TpVjXWrwK6, kcD2LzVGrtZ1xyB6, kjDVcCYFnRdrqTHp, kqd9ZJbhaFKNLGnV, m7FyYPBwvMngHbDk, m7nh21pN9VTPtKdM,
+  mAMPfXWB4qQYgv1p, mP7DvAt8gTNYGh96, mQc2yDWVTvXzbj7q, mVtZ6yW8bBvM4T3L, mXYTLpBg7Jt4vH3A, mXv9TLrc73JbCjKy,
+  mdwkArzCj27X41DZ, mnVfMcAZkhW7B14w, mw1VHbFfXWyPLqk7, n6zXvjmHDJML8RfF, n7dy3G4VmhZrzF6R, nazpht9wm4NYxGW3,
+  nbPCLHj1yRg6mcdz, nqDL2hKfQB4yvjgJ, nrpTgLQdcNKAqk1R, nvYtmN2QTDRgJWXa, p194waK6G3BCxjk7, p1bC8HKyQhV7vWzc,
+  p8d9Hrc2L6ZmWn7t, pDFrB9xgKcNVRWqj, pFKdY162wTQaNyqn, pKJj1NyhWd4L3qMD, pLvb3VWqHTnXPCG4, pT4jnLAvtM91QBb6,
+  pTPKWhJHcByDXYwj, pVaLq4TbGH2QFtfM, pYwZRftkCBqvXdxF, phDrLBTt2Z4RWm9a, pqyLrZ6Xa1wdQG2V, pzMwa8AY9ZymBbG4,
+  q298k6dtBK3VhZXC, qLMkzwp97H8rAJWQ, qWb7x6nhVJNtkwa3, qZPznJCkXrNmjcv7, qh3Y6xGcjgKTQF2n, qrJRyaw31zhH8gPY,
+  qwZX7YgNjLdQmTA8, rGjZQfcNHwXLR4m6, rHxPXVAJYRFKnWDZ, rNmcdj9HkhAfv1tD, rhGw29P4WApnNTqF, rmKx9LgCkPfWvp7h,
+  rqpT3mxb2LAwP1dt, t7mDkLy2G6fVhXHJ, t9PLr4H8gdkXncRZ, tPbh63Rc4J8xdv1Q, tPnNz4ajZhcvAVpf, tQfhj2JbzZkYXFvx,
+  thDJ8pbqRLrW6QMw, twN4W6cRgDyMA2vT, v3wnGDTZQ1FW7gcA, v6PApQm2XfYG7tHN, vBMpqfA2Jgx9Cckb, vDdAGQta1M6NHmCK,
+  vJmHxwgrWjR2Kfnk, vYjL3q712CyTGkQh, vc718aZH43GMpKrP, vhHkwZ1cQJYnfLDt, vqNtgpTXwQfF6JWb, vwxP1TaLzG8A4m7h,
+  vyna9XkWc2GpD1rV, wAbTZ4cMa8t3NXH2, wCJabgqLfmd8v1tK, wr3M9DfXFQZTqj72, x64Wd3Z8A2TKCDXL, xFhXRtJ4KDVHqvmW,
+  xGX3ZTV1jpwHyaP4, xLVtMAzT2NmFy6gG, xNqdkFAXbJwyHhcp, xR6ZGyakX8czKpbQ, xYvZt3LdKCwz8H7T, xZtGRMyAX2FDP1qY,
+  xb49gaHAVryMZh2t, xd64GKNcb7VCqarf, xdK1Pac8CynkFDYB, xqL7rjDwAhJYzVfQ, xt7BwRzWVvbKJTXp, y46bmVXZzPrvwG81,
+  y72Cf4pTxQ1WFbaV, yCvdhZ2q9xLY3VaP, yHtZF9jrbgXJnRVP, yfdCN1t8FmzPxYMD, yfwhbHv8JBVXdGCF, ygMD7q4p8aWk1nG3,
+  ymnQpDv9xMfPqK8k, yq7Aw3B2QkFzgNja, z2L8JXqBRwfvTbPN, z3VLyCTfvwRrdKbN, z9dafy3kFWZK4Gb8, zB1bQy6c3vFW4wdq,
+  zGvXTP7gQ8JjrNmY, zRtFPvfgr8qDjkAc, zWPFXGdt4hVkq3DB, zXQyax7t1CZ8Tq9Y, zcdXFhYfnRjLB2TA, znGLPcrvxA8KbXF4,
+  zpvfR1gAaKmbWTMy, zxtbh1BmNVC8W2FH and zy3r8qhGAH2BRp41. The report index lists 431 reports with a wearer; of the
+  other 27, 15 were not fetched and 12 hold no fight the count kept
+- Game build: 1.60.1.70938 to 1.60.1.71091 by report date; the hotfix each player ran is not recorded
+- Date: 2026-11-13 to 2026-11-25
+- Pull request: #1227
+
+A wearer is a player whose gear snapshot in the report index holds 4 or more pieces of the Feralheart reissue (226772
+to 226803) or 5 or more of Wildheart Raiment, and a fight counts when that snapshot holds the set. A run two reports
+hold counts once: a fight of a player whose name matches a fight already counted and that starts within 2 minutes of it
+is left out. An event a report logs more than once counts once. The form comes from the druid's own applications and
+removals of Cat Form (768), Bear Form (5487), Dire Bear Form (9634) and Moonkin Form (24858). Travel Form (783),
+Aquatic Form (1066) and Tree Form (775) are read the same way, and the swings taken and casts in them count in the All
+rows alone.
+
+An energy proc is an application or refresh of 27784 with a landed white swing of the druid's from 30 ms before it to
+20 ms after; each landed white swing is priced on the form's paw, 1 s in Cat Form and 2.5 s in a bear form. A rage proc
+is a resource change of 27783 from 30 ms before a landed melee swing taken (ability 1) to 20 ms after it. Each landed
+swing taken is priced on its attacker instance's median gap between its swings on the wearer, over the gaps from 500 ms
+to 6 s, clipped to 1 to 4 s, and an attacker with fewer than 3 such gaps is left out. The median gap of an attacker
+that is slowed or dual-wields is off its weapon's speed. A mana proc is a resource change of 27782 from 60 ms before to
+300 ms after a cast of a spell with the magic defense type, leaving out form shifts and the melee swing's own cast
+event; the cast is priced on its time from `begincast` to `cast` and at least 1.5 s. A rate is the procs over the
+summed prices over 60. An interval, on a rate or a percentage, is 2,000 bootstrap draws of whole wearer-reports. The
+scripts are in `requests/forever-feralheart-1125` in the log parser's folder.
+
+The energy reads about 0.9 a minute in both forms.
+
+| Form        | Procs | Landed white swings | Per swing | PPM on the paw    | Wearer-reports | Players |
+| ----------- | ----: | ------------------: | --------: | ----------------- | -------------: | ------: |
+| Cat Form    |   468 |              31,912 |     1.47% | 0.88 [0.77, 0.98] |            107 |      81 |
+| A bear form | 2,181 |              58,381 |     3.74% | 0.90 [0.86, 0.94] |            211 |     138 |
+
+The rage's chance per landed swing taken stays near 3.3% to 4.0% across attacker intervals from 1 s to 4 s and does
+not rise with them, so 1 a minute on the attacker's interval does not fit: on that interval the rage reads 1.21 a
+minute, 1.68 on the fastest attackers and 0.52 on the slowest. Priced on a flat 2 s per swing taken, it reads 1.14
+[1.10, 1.18].
+
+| Form         | Procs | Landed swings taken | Per swing          | PPM on the attacker's interval | Wearer-reports | Players |
+| ------------ | ----: | ------------------: | ------------------ | ------------------------------ | -------------: | ------: |
+| A bear form  | 5,900 |             155,056 | 3.81% [3.66, 3.95] | 1.21 [1.16, 1.26]              |            199 |     131 |
+| Cat Form     |    49 |               1,725 | 2.84% [1.79, 3.77] | 0.94 [0.59, 1.26]              |             75 |      56 |
+| Caster form  |   136 |               3,649 | 3.73% [2.58, 5.20] | 1.17 [0.81, 1.64]              |            189 |     141 |
+| Moonkin Form |    47 |               1,164 | 4.04% [2.80, 5.57] |                                |                |         |
+| All          | 6,135 |             161,632 | 3.80%              | 1.21 [1.16, 1.26]              |            315 |     222 |
+
+"1 a minute on it" is the chance 1 a minute gives on each swing's attacker interval, averaged over the bucket's swings.
+
+| Attacker interval | Procs | Swings taken | Per swing | 1 a minute on it | PPM on it         |
+| ----------------- | ----: | -----------: | --------: | ---------------: | ----------------- |
+| 1 to 1.5 s        |   999 |       30,036 |     3.33% |            1.98% | 1.68 [1.56, 1.82] |
+| 1.5 to 2 s        | 1,150 |       29,799 |     3.86% |            2.85% | 1.36 [1.26, 1.46] |
+| 2 to 2.5 s        | 3,718 |       94,880 |     3.92% |            3.48% | 1.13 [1.07, 1.19] |
+| 2.5 to 3 s        |   196 |        4,847 |     4.04% |            4.48% | 0.90 [0.77, 1.04] |
+| 3 to 3.5 s        |    43 |        1,200 |     3.58% |            5.27% | 0.68 [0.50, 0.87] |
+| 3.5 to 4 s        |    29 |          870 |     3.33% |            6.46% | 0.52 [0.34, 0.70] |
+
+The mana reads about 1 a minute in caster form and Moonkin Form. The casts in a bear form include Growl, Demoralizing
+Roar and Barkskin, which roll nothing (§Nature's Bounty (sets 185 and 1667)), so the bear forms' rate reads low and
+pulls All under the caster forms'.
+
+| Form         | Procs |   Casts | Per cast | PPM on the cast time | Wearer-reports | Players |
+| ------------ | ----: | ------: | -------: | -------------------- | -------------: | ------: |
+| Caster form  | 2,642 |  88,089 |    3.00% | 1.09 [1.05, 1.13]    |            410 |     287 |
+| Moonkin Form |   488 |  16,157 |    3.02% | 1.03 [0.97, 1.08]    |             34 |      31 |
+| Cat Form     |   120 |   5,135 |    2.34% | 0.90 [0.75, 1.07]    |            115 |      90 |
+| A bear form  |   193 |  19,092 |    1.01% | 0.40 [0.35, 0.46]    |            199 |     128 |
+| All          | 3,469 | 129,722 |    2.67% | 0.98 [0.94, 1.02]    |            428 |     297 |
+
+By set, the mana in caster form reads 1.08 [1.01, 1.14] for the Wildheart Raiment wearers (914 of 30,391 casts, 61
+players) and 1.10 [1.04, 1.16] for the Feralheart wearers (1,728 of 57,698, 227 players).
+
+Split at 1.60.1.71037 (2026-11-20 18:23 UTC), the reports before it read 0.97 [0.65, 1.02] for the energy in Cat Form,
+1.00 [0.90, 1.09] in a bear form, 1.18 [1.05, 1.31] for the rage and 0.99 [0.85, 1.11] for the mana, and the reports
+from it 0.87 [0.75, 0.99], 0.88 [0.83, 0.92], 1.21 [1.16, 1.26] and 0.98 [0.94, 1.02].

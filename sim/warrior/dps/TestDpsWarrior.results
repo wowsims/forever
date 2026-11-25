@@ -200,8 +200,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 515.64658
-  tps: 437.73117
+  dps: 514.48768
+  tps: 436.80405
   dtps: 2.97628
   hps: 25.02694
  }
@@ -209,10 +209,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BlackbladeofShahram-12592"
  value: {
-  dps: 556.92346
-  tps: 468.69416
+  dps: 562.51708
+  tps: 473.03142
   dtps: 2.97628
-  hps: 24.48472
+  hps: 24.36611
  }
 }
 dps_results: {
@@ -272,8 +272,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BloodTalon-12795"
  value: {
-  dps: 562.60407
-  tps: 487.60591
+  dps: 562.54147
+  tps: 487.55582
   dtps: 2.94293
   hps: 51.85
  }
@@ -299,8 +299,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Bloodrazor-809"
  value: {
-  dps: 589.31476
-  tps: 505.07838
+  dps: 589.20842
+  tps: 504.9933
   dtps: 2.94293
   hps: 40.27694
  }
@@ -384,6 +384,15 @@ dps_results: {
   tps: 512.82832
   dtps: 3.05866
   hps: 44.80111
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 559.85263
+  tps: 482.40793
+  dtps: 2.94293
+  hps: 43.4625
  }
 }
 dps_results: {
@@ -614,8 +623,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-DrakefangButcher-12463"
  value: {
-  dps: 514.54902
-  tps: 439.00754
+  dps: 514.33486
+  tps: 438.83621
   dtps: 2.97628
   hps: 28.22944
  }
@@ -623,8 +632,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-DreadfrostSaber-274603"
  value: {
-  dps: 547.09643
-  tps: 472.07803
+  dps: 546.74308
+  tps: 471.79534
   dtps: 2.94293
   hps: 41.88667
  }
@@ -1073,8 +1082,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-GargoyleShredderTalons-13399"
  value: {
-  dps: 565.93214
-  tps: 489.02098
+  dps: 565.8305
+  tps: 488.93966
   dtps: 2.97628
   hps: 47.86806
  }
@@ -1082,8 +1091,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-GatorbiteAxe-17730"
  value: {
-  dps: 512.29415
-  tps: 434.88561
+  dps: 512.04897
+  tps: 434.68947
   dtps: 2.97628
   hps: 25.75556
  }
@@ -1109,8 +1118,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 548.01285
-  tps: 474.68666
+  dps: 547.87675
+  tps: 474.57778
   dtps: 2.94293
   hps: 43.83528
  }
@@ -1181,8 +1190,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 563.73244
-  tps: 486.40387
+  dps: 563.67382
+  tps: 486.35698
   dtps: 2.94293
   hps: 44.53
  }
@@ -1262,10 +1271,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Hedgecutter-18498"
  value: {
-  dps: 555.43885
-  tps: 479.15151
+  dps: 554.20977
+  tps: 478.22917
   dtps: 2.94293
-  hps: 45.17389
+  hps: 45.20778
  }
 }
 dps_results: {
@@ -1307,10 +1316,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 589.73362
-  tps: 508.78276
+  dps: 590.75044
+  tps: 508.19346
   dtps: 2.94293
-  hps: 44.66556
+  hps: 44.29278
  }
 }
 dps_results: {
@@ -1361,8 +1370,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-KangtheDecapitator-2291"
  value: {
-  dps: 525.85943
-  tps: 444.99003
+  dps: 525.5296
+  tps: 444.72617
   dtps: 2.97628
   hps: 23.79
  }
@@ -1674,6 +1683,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Ragehammer-10626"
+ value: {
+  dps: 540.13519
+  tps: 457.02008
+  dtps: 2.97628
+  hps: 24.11194
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-RageofMugamba-19577"
  value: {
   dps: 552.76047
@@ -1748,8 +1766,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-RockonStick-279852"
  value: {
-  dps: 573.89428
-  tps: 494.61219
+  dps: 573.09044
+  tps: 493.96912
   dtps: 2.94293
   hps: 40.85306
  }
@@ -2090,8 +2108,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 548.11196
-  tps: 461.46087
+  dps: 545.84784
+  tps: 459.64957
   dtps: 2.97628
   hps: 22.75639
  }
@@ -2351,10 +2369,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-WarbladeofCaerDarrow-13982"
  value: {
-  dps: 558.50468
-  tps: 471.82106
+  dps: 563.18581
+  tps: 475.86139
   dtps: 2.97628
-  hps: 24.87444
+  hps: 25.26417
  }
 }
 dps_results: {
@@ -2400,6 +2418,15 @@ dps_results: {
   tps: 459.15046
   dtps: 3.03963
   hps: 43.03889
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Winter'sBite-10623"
+ value: {
+  dps: 546.5732
+  tps: 472.07304
+  dtps: 2.94293
+  hps: 42.97111
  }
 }
 dps_results: {

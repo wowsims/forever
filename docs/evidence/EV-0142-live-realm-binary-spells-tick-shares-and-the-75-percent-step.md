@@ -5,7 +5,7 @@
   A_DUMMY aura on the target does not count. Its hit roll resists it whole at about the target's average resist, and a
   landed hit or tick takes no partial resist. The Spell Piercing bonus is the negative side of the partial resist roll:
   a landed binary hit takes it at the full share, as do Insect Swarm's and Mind Flay's ticks, while Hurricane's,
-  Entangling Roots', Bane of Agony's, Curse of Agony's and Immolate's DoT ticks and a hit or tick at a tenth of the share take none, and a hit or tick at the
+  Entangling Roots', Bane of Agony's, Bane of Doom's (on few hits), Curse of Agony's, Immolate's, Immolation Trap's and Serpent Sting's DoT ticks and a hit or tick at a tenth of the share take none, and a hit or tick at the
   full share takes it whole. Devouring Plague's and Pyroblast's ticks meet the target's full resistance. A channel's ticks meet a tenth like a DoT's, Starshards' excepted, which meet the full resistance; the
   missiles of Arcane Missiles are hits and meet it in full. No partial resist takes more than 75% of a hit, and damage shields take none.
   Spell Piercing beyond the resistance gives no bonus while the share it makes is under 1%, and from 1% the bonus follows
@@ -26,6 +26,8 @@
   114122; the hotfix a run was on and relogs are not recorded. The items naming a count section have their own
 - Date: 2026-09-27 to 2026-11-17; the items naming a count section have their own
 - Pull request: #1080; each count section names its own
+- Later count: the Incinerate, Shadow Bolt, Death Coil, Shadowburn and Frost Shock lines of §Spell Piercing and §Rows
+  with few hits, §Count of the 2026-11-07 to 2026-11-24 reports
 
 ## Method
 
@@ -96,41 +98,42 @@ not tested.
 
 - Count: §Count of the 2026-11-19 to 2026-11-21 reports
 - Count: §Count of the 2026-11-22 combat log (the warlock's ticks)
-- Count: §Count of the 2026-11-19 to 2026-11-23 reports (the Shadow Bolt, Death Coil, Blast Wave, Shadowburn, Frost Shock
-  and Curse of Agony lines)
+- Count: §Count of the 2026-11-19 to 2026-11-23 reports (the Blast Wave and Curse of Agony lines)
+- Count: §Count of the 2026-11-07 to 2026-11-24 reports (the Incinerate, Shadow Bolt, Death Coil, Shadowburn and Frost
+  Shock lines)
 
 The bonus goes where the partial resist roll goes, at the same share. E is the hits the caster's own rate on plain nukes
 expects.
 
-| Hits                                                             | With a piercing bonus (E), +10% : +20%           |
-| ---------------------------------------------------------------- | ------------------------------------------------ |
-| Mages' nukes                                                     | 23,244 of 82,767, 15,747 : 7,432                 |
-| Binary: Frostbolt                                                | 1,863 of 6,276 (1,802), 1,310 : 531              |
-| Binary: Cone of Cold                                             | 1,111 of 4,675 (1,348), 738 : 366                |
-| Binary: Frost Nova                                               | 418 of 1,781 (481), 287 : 131                    |
-| Binary: Flamestrike's cast                                       | 994 of 3,235 (1,033), 666 : 327                  |
-| Binary: Arcane Wrath                                             | 898 of 3,385 (872), 638 : 257                    |
-| Binary: Ice Lance, Frostfire Bolt                                | 169 of 604 (181), 83 of 325 (91)                 |
-| Binary: Immolate's hit (33 warlocks)                             | 194 of 1,827 (201)                               |
-| Binary: Incinerate (7 warlocks)                                  | 71 of 898 (95)                                   |
-| Binary: Shadow Word: Death (10 priests)                          | 19 of 315 (24)                                   |
-| Shadow Bolt (126 warlocks)                                       | 541 of 4,851 (506), 332 : 206                    |
-| Binary: Death Coil (95 warlocks)                                 | 38 of 258 (27), 23 : 15                          |
-| Binary: Blast Wave (10 mages)                                    | 40 of 156 (48), 27 : 13                          |
-| Binary: Shadowburn (31 warlocks)                                 | 82 of 599 (63), 58 : 22                          |
-| Binary: Frost Shock (37 shamans), against the hit before resists | 45 of 204 (22, and 9 the floor), 36 : 9          |
-| Binary: Earth Shock, +10% bonuses only                           | 42 (32.8)                                        |
-| Binary: Mind Flay ticks (10 priests)                             | 483 of 5,398 (388)                               |
-| Binary: Insect Swarm ticks (13 druids)                           | 1,089 of 9,240 (1,051)                           |
-| Binary: Hurricane ticks                                          | 19 of 7,577, all +10% (786)                      |
-| Binary: Entangling Roots ticks                                   | 0 of 126 (12)                                    |
-| Immolate's DoT ticks                                             | 22 of 5,953 (618)                                |
-| Curse of Agony's ticks (157 warlocks)                            | 1,026 of 100,558 (10,825), 531 : 481, 14 at +30% |
-| Tenth: Corruption, Siphon Life, Wrack ticks                      | 0.06 to 0.08 of E                                |
-| Tenth: Shadow Word: Pain, Flame Shock, Moonfire ticks            | 0.01 to 0.04 of E                                |
-| Tenth: Flamestrike's ground ticks, Rain of Fire                  | 7 of 2,454 (672), 21 of 4,655 (608)              |
-| Drain Life, Drain Soul ticks                                     | 2 of 714                                         |
-| Full share: Pyroblast's DoT ticks                                | 342 of 1,084 (297), 240 : 100                    |
+| Hits                                                            | With a piercing bonus (E), +10% : +20%           |
+| --------------------------------------------------------------- | ------------------------------------------------ |
+| Mages' nukes                                                    | 23,244 of 82,767, 15,747 : 7,432                 |
+| Binary: Frostbolt                                               | 1,863 of 6,276 (1,802), 1,310 : 531              |
+| Binary: Cone of Cold                                            | 1,111 of 4,675 (1,348), 738 : 366                |
+| Binary: Frost Nova                                              | 418 of 1,781 (481), 287 : 131                    |
+| Binary: Flamestrike's cast                                      | 994 of 3,235 (1,033), 666 : 327                  |
+| Binary: Arcane Wrath                                            | 898 of 3,385 (872), 638 : 257                    |
+| Binary: Ice Lance, Frostfire Bolt                               | 169 of 604 (181), 83 of 325 (91)                 |
+| Binary: Immolate's hit (33 warlocks)                            | 194 of 1,827 (201)                               |
+| Binary: Incinerate (22 warlocks)                                | 179 of 1,820 (195), 118 : 61                     |
+| Binary: Shadow Word: Death (10 priests)                         | 19 of 315 (24)                                   |
+| Shadow Bolt outside Improved Shadow Bolt windows (173 warlocks) | 619 of 5,980 (605), 420 : 199                    |
+| Binary: Death Coil (144 warlocks)                               | 50 of 413 (46), 30 : 20                          |
+| Binary: Blast Wave (10 mages)                                   | 40 of 156 (48), 27 : 13                          |
+| Binary: Shadowburn (36 warlocks)                                | 73 of 639 (68), 49 : 24                          |
+| Binary: Frost Shock (44 shamans)                                | 25 of 198 (22), 19 : 5, 1 at +30%                |
+| Binary: Earth Shock, +10% bonuses only                          | 42 (32.8)                                        |
+| Binary: Mind Flay ticks (10 priests)                            | 483 of 5,398 (388)                               |
+| Binary: Insect Swarm ticks (13 druids)                          | 1,089 of 9,240 (1,051)                           |
+| Binary: Hurricane ticks                                         | 19 of 7,577, all +10% (786)                      |
+| Binary: Entangling Roots ticks                                  | 0 of 126 (12)                                    |
+| Immolate's DoT ticks                                            | 22 of 5,953 (618)                                |
+| Curse of Agony's ticks (157 warlocks)                           | 1,026 of 100,558 (10,825), 531 : 481, 14 at +30% |
+| Tenth: Corruption, Siphon Life, Wrack ticks                     | 0.06 to 0.08 of E                                |
+| Tenth: Shadow Word: Pain, Flame Shock, Moonfire ticks           | 0.01 to 0.04 of E                                |
+| Tenth: Flamestrike's ground ticks, Rain of Fire                 | 7 of 2,454 (672), 21 of 4,655 (608)              |
+| Drain Life, Drain Soul ticks                                    | 2 of 714                                         |
+| Full share: Pyroblast's DoT ticks                               | 342 of 1,084 (297), 240 : 100                    |
 
 A warlock with 11 piercing at level 60, on mobs with no Shadow resistance, took no bonus on any tick: Bane of Agony 0 of
 281 (45.5 expected at the full share, 4.2 at a tenth), Corruption, Siphon Life and Wrack 0 of 512 (83 at the full share,
@@ -140,17 +143,40 @@ Agony's ticks take none, and a tick at a tenth of the share takes none at 10 pie
 Mages without piercing take bonuses on binary spells at their fixed-modifier rate (Frostbolt 4.1%, Cone of Cold 4.6%,
 Frost Nova 1.2%, Arcane Wrath 0 of 189, Flamestrike's cast 0 of 1,236), so the bonuses above come from piercing.
 
-Shadow Bolt takes the bonus: warlocks without gear piercing took none in 215 hits, and the three of the 126 warlocks
-that read low at P 0.05 or under (0 of 45, 1 of 35, 2 of 66 hits) are about what chance gives across 126. Curse of
-Agony's ticks take none. Their rate stays flat across gear piercing, 1.03% of 82,285 ticks under 10 piercing and 0.97%
-of 18,273 at 10 to 19, where a tenth of the piercing expects 0 and 274; their +10% and +20% bins come about 1:1, with
-+30% bins the piercing roll cannot give; and at 0.095 of E they read like the tenth-share ticks above. Frost Shock has
-no reading against the median, so it is read against the hit before resists, and its floor is the rate of shamans
-without gear piercing on that reading.
+Shadow Bolt takes the bonus: warlocks without gear piercing took none in 212 hits. Improved Shadow Bolt's Shadow
+Vulnerability (17794) is in the logged amount and not in the hit before resists. Until 2026-11-23 15:45 UTC, where
+§Count of the 2026-11-19 to 2026-11-23 reports ends, 16.7% and 36.0% of the warlocks' direct Shadow hits inside its
+windows log at 1.2 and 1.32 times the hit before resists (of 1,045 hits, against 2.0% and 1.1% outside); after it, 25.0%
+and 39.3% of 336. With the windows' hits kept in the medians, Shadow Bolts inside a window read 2.24 times E before that
+time (116 of 501, E 51.8) and 2.28 after (40 of 168, E 17.5). With the windows' hits left out before the count, as
+§Count of the 2026-11-07 to 2026-11-24 reports does, Shadow Bolts outside the windows read 0.98 of E before (455 of
+4,554, E 466.6) and 1.18 after (164 of 1,426, E 138.8, P 0.020).
 
-Open: Incinerate reads low (P 0.007), and Shadowburn, Death Coil and Frost Shock read above E (P 0.012, 0.023 and 0.009).
-E_ENERGIZE rests on Engulfing Shadows alone, measured before build 71037 and not re-measured. Every piercing source row
-(aura 123) states no class mask, so the source does not pick the spells.
+Curse of Agony's ticks take none. Their rate stays flat across gear piercing, 1.03% of 82,285 ticks under 10 piercing
+and 0.97% of 18,273 at 10 to 19, where a tenth of the piercing expects 0 and 274; their +10% and +20% bins come about
+1:1, with +30% bins the piercing roll cannot give at these shares; and at 0.095 of E they read like the tenth-share
+ticks above.
+
+Incinerate, Shadowburn, Death Coil and Frost Shock take the bonus at about E:
+
+- Incinerate reads 0.92 of E (P 0.13), and 0.97 against Searing Pain, Conflagrate and Soul Fire alone (130 of 1,260, E
+  133.6).
+- Shadowburn reads 1.07 (P 0.30) with Bane of Havoc's hits left out of its median. Bane of Havoc's hits log at 1.00 of the hit before resists, while the warlock's other
+  hits carry Shadow and Flame's (426316) +10% for 20 s: Shadow (1293816) after a Conflagrate, Flame (426311) after a
+  Shadowburn. With Bane of Havoc's hits in its median it reads 91 of 684 (E 73.5, 1.24, P 0.026). Inside Improved
+  Shadow Bolt windows it reads 9 of 30 against 3.3, 6 of them at +20%.
+- Death Coil reads 1.28 of E before 2026-11-23 15:45 UTC (44 of 311, E 34.4) and 0.52 after (6 of 102, E 11.6), apart at
+  P 0.034 (Fisher), and 1.09 pooled (P 0.30). Its leech heal is not tested.
+- Frost Shock reads 1.13 (P 0.29). Read against the hit before resists, the same Frost Shocks give 51 bonuses on 195 of
+  the 198 (3 have no before-resists bin) against 29.1 with the floor: some shamans' hits of every school run at +10%
+  over the hit before resists for stretches, from a source not identified.
+
+All four are binary by their rows (Death Coil's E_HEALTH_LEECH is its damage, beside a fear aura on the target). On mobs
+with a resistance, in the streams of §Count of the 2026-11-07 to 2026-11-24 reports, none of 386 Incinerate, 155
+Shadowburn, 10 Death Coil and 26 Frost Shock landed hits takes a partial resist.
+
+Open: E_ENERGIZE rests on Engulfing Shadows alone, measured before build 71037 and not re-measured. Every piercing source
+row (aura 123) states no class mask, so the source does not pick the spells.
 
 ### The 1% cut
 
@@ -202,6 +228,35 @@ each shaman's own reference rate expects. Searing Totem's attack logs as "Attack
 | Flametongue Attack | 345 of 2,702, 35 shamans (362)      | 0.95   |
 
 Shamans without gear piercing read 201 of 63,498 on Magma Totem and 6 of 4,088 on Searing Totem.
+
+### Rows with few hits
+
+- Count: §Count of the 2026-11-07 to 2026-11-24 reports
+
+E is 7.5·s summed over the hits at a share of 1% or more, and the floor is the bonus rate of casters of the class without
+gear piercing on the same spell and reading. The median reading is that of §Count of the 2026-11-19 to 2026-11-21
+reports; the spell median is the median of the caster's hits of the same spell in the report. The hits needed are those
+for which a count separates the bonus from the floor at P 0.01 on each side, at the row's mean share and the median
+reading's floor.
+
+| Row                                       | Reading        | With a piercing bonus (E), +10% : +20%                                                  | Result                                                              |
+| ----------------------------------------- | -------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Arcane Shot                               | spell median   | 177 of 2,100, 26 hunters at a mean share of 1.11% (174.9, and 84.8 the floor), 133 : 44 | takes the bonus                                                     |
+| Immolation Trap ticks                     | median         | 0 of 191, 8 hunters (14.9)                                                              | take none                                                           |
+| Serpent Sting ticks                       | median         | 54 of 2,114, 23 hunters (171.7, and 10.4 the floor), 53 : 1; +20% 1 against 57.5        | take none                                                           |
+| Bane of Doom ticks                        | median         | 0 of 44, 16 warlocks (5.4, P 0.005); 22 of the 44 take another fight's gear or level 60 | take none, few hits                                                 |
+| Frostbrand Attack (binary)                | before resists | 20 of 82, 8 shamans (9.6, and 0.4 the floor), 13 : 5, 2 at +30%; +20% 5 against 3.2     | takes the bonus, few hits (2.0 of E plus the floor on this reading) |
+| Frostbrand Attack (binary)                | spell median   | 14 of 74, 4 shamans (8.5), 9 : 4, 1 at +30%                                             |                                                                     |
+| Volley                                    | spell median   | 0 of 987, one hunter (84.4); +20% 0 against 28.1                                        | unsettled, leans none                                               |
+| Explosive Trap, Instant and Deadly Poison | every reading  | no hit at a share of 1% or more; 80 to 155 needed                                       | unsettled                                                           |
+| Touch of Weakness (binary)                | median         | 9 of 90, 17 priests (9.6), 8 : 1; the floor is not measured (1 hit without piercing)    | unsettled                                                           |
+
+Arcane Shot takes the bonus by its +20% bins: 44, against a floor of about 1.5 from hunters without piercing, who put
+0.07% of hits at +20%. Its rate is not settled: against E plus the 4.04% floor of all bonuses it reads 0.68 (P 3e-8), on
+its +20% bins alone 44 against 59.7, and by share band (1.00–1.10%, 1.10–1.20%, above) 1.04, 0.83 and 1.18 of E.
+
+Serpent Sting's bonuses over the floor, 53 : 1 at +10% and +20%, are not piercing: its +20% bins are 1 against 57.5, and
+on the spell-median reading, where the same hunters' Arcane Shots read 161 of 1,910 against 160.0, 1 against 96.5.
 
 ## Tick shares
 
@@ -316,3 +371,35 @@ share. Casters logged twice count once. Intervals are Wilson 95%.
 
 Scripts and tables: `forever-piercing-rule-rows-1123` (`tables/edge.txt`, `tables/mage.txt`, `tables/tables.txt`,
 `tables/resist.txt`).
+
+## Count of the 2026-11-07 to 2026-11-24 reports
+
+- Sources: Warcraft Logs reports of Forever (zone 3000) started 2026-11-23 15:45 to 2026-11-24 15:36 UTC: the sweep
+  index's stream files of 701 reports (801 player streams) and 174 of the 267 streams fetched for the Spell Piercing on
+  their gear. The Incinerate, Shadow Bolt, Death Coil, Shadowburn and Frost Shock lines pool them with the reports of
+  §Count of the 2026-11-19 to 2026-11-23 reports, and the partial resist check of §Spell Piercing reads this count's
+  streams and the other 93 fetched streams. §Rows with few hits takes reports of every date from 2026-11-07 22:31 UTC, the other 93 fetched
+  streams among them, and Touch of Weakness and Frostbrand Attack only from 2026-11-19 23:00 UTC
+- Game build: 1.60.1.71037, across the 2026-11-23 hotfix (EV-0134 puts it at about 2026-11-24 02:10 UTC); §Rows with
+  few hits also 1.60.1.70862 from 2026-11-07,
+  1.60.1.70888 from 2026-11-10, 1.60.1.70938 from 2026-11-13 and 1.60.1.70959 from 2026-11-17. The hotfix a run was on
+  and relogs are not recorded
+- Date: 2026-11-23 15:45 to 2026-11-24 15:12 UTC; §Rows with few hits from 2026-11-07 22:31 UTC
+- Pull request: #1204
+
+The count runs as in §Count of the 2026-11-19 to 2026-11-23 reports, with these changes:
+
+- E comes from each caster's rate on the class's other nukes: Conflagrate, Hellfire Effect, Immolate's hit, Bane of
+  Havoc, Searing Pain, Soul Fire and Shadow Bolt for warlocks; Lightning Bolt, Chain Lightning, Fire Nova, Lightning
+  Shield, Flametongue Attack and Flame Shock's hit for shamans. A spell's own hits stay out of its E.
+- A warlock's Shadow hits, direct or tick, from 0 to 12 s after the same warlock's Shadow Bolt crit on the same mob
+  (Improved Shadow Bolt's window) are left out.
+- Frost Shock is read against the median of the shaman's hits of every school on the same mob within 10 seconds.
+- §Rows with few hits counts hits of 20 or more damage before resists. A hit outside every fight that logs gear takes
+  the caster's most piercing in any fight of the report, and a caster without a level counts at level 60 when that gear
+  holds 6 or more piercing, and is left out otherwise.
+- P is Poisson on E plus the floor.
+
+Scripts and tables: `forever-piercing-outliers-1124` (`tables/summary.txt`, `tables/recount_*_isb.txt`,
+`tables/isb_*.txt`, `tables/shadowburn_checks.txt`, `tables/partials_new.txt`, `tables/rows_lowu.txt`,
+`tables/needed.txt`, `tables/outlier_neighbours.txt`, `tables/ticks_abs.txt`).

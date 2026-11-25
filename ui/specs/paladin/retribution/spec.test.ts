@@ -1,6 +1,6 @@
 import { APLGroup, APLRotation } from '@generated/proto/apl';
 import { Cooldowns, Spec } from '@generated/proto/common';
-import { PaladinAura, PaladinJudgement, PaladinSealTwist, RetributionPaladin_Rotation } from '@generated/proto/paladin';
+import { PaladinAura, PaladinJudgement, PaladinSeal, PaladinSealTwist, RetributionPaladin_Rotation } from '@generated/proto/paladin';
 import type { Player } from '@sim/player/player';
 import { describe, expect, it } from 'vitest';
 
@@ -119,6 +119,16 @@ describe('Retribution simple rotation', () => {
 		const unset = generateWith(talents, { uwSocStacks: 0, uwSorStacks: 0 });
 		expect(variable(unset, 'Max Seal of Command Stacks')).toBe('3');
 		expect(variable(unset, 'Max Seal of Righteousness Stacks')).toBe('1');
+	});
+
+	it.each([
+		['Seal of Command when none is picked', { sealOfCommand: true }, {}, 'true', 'false'],
+		['the picked Seal of Righteousness', { sealOfCommand: true }, { seal: PaladinSeal.SealOfRighteousness }, 'false', 'true'],
+		['Seal of Righteousness without Seal of Command', {}, { seal: PaladinSeal.SealOfCommand }, 'false', 'true'],
+	])('keeps %s under Holy Shock', (_, talents, simple, command, righteousness) => {
+		const rotation = generateWith({ holyShock: true, ...talents }, simple);
+		expect(variable(rotation, 'Use Seal of Command')).toBe(command);
+		expect(variable(rotation, 'Use Seal of Righteousness')).toBe(righteousness);
 	});
 
 	it('sets Delay Major CDs in seconds', () => {

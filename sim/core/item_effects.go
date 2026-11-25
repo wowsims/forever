@@ -79,25 +79,27 @@ func NewEnchantEffect(id int32, enchantEffect ApplyEffect) {
 	enchantEffects[id] = enchantEffect
 }
 
-var itemPets = map[int32]func(owner *Character) PetAgent{}
+var itemPets = map[int32][]func(owner *Character) PetAgent{}
 
-// Registers the pet an item's effect summons, such as a creature a proc calls forth. A pet must be
-// added while its owner is constructed, before the item effects run, so the owner builds it then:
-// once for an item it wears or carries in its item swap set, if its class can use the item. The
-// item's effect finds the pet among the owner's PetAgents.
-func NewItemPet(id int32, newPet func(owner *Character) PetAgent) {
+// Registers the pets an item's effect summons, such as the creatures a proc calls forth, one builder for
+// each pet that can be up at once. A pet must be added while its owner is constructed, before the item
+// effects run, so the owner builds them then: once for an item it wears or carries in its item swap set,
+// if its class can use the item. The item's effect finds the pets among the owner's PetAgents.
+func NewItemPet(id int32, newPets ...func(owner *Character) PetAgent) {
 	if _, ok := itemPets[id]; ok {
 		panic(fmt.Sprintf("Cannot add multiple pets for one item: %d", id))
 	}
-	itemPets[id] = newPet
+	itemPets[id] = newPets
 }
 
 func (character *Character) addItemPets() {
 	added := make(map[int32]bool)
 	for _, equipment := range []*Equipment{&character.Equipment, &character.ItemSwap.unEquippedItems} {
 		for _, item := range equipment {
-			if newPet, ok := itemPets[item.ID]; ok && !added[item.ID] && item.UsableBy(character.Class) {
-				character.AddPet(newPet(character))
+			if newPets, ok := itemPets[item.ID]; ok && !added[item.ID] && item.UsableBy(character.Class) {
+				for _, newPet := range newPets {
+					character.AddPet(newPet(character))
+				}
 				added[item.ID] = true
 			}
 		}
