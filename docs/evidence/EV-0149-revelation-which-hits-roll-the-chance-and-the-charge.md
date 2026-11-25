@@ -649,9 +649,9 @@ NqKayk8Q9rwWvjpz, 7Kz3LtgfDmbBRGXP, Wza8bdXVRhcgqGnZ, k3QGKZ2jr1ptgRPx, Y8L1VRGq
   56 reports listed below, read in two runs: every such wearer in the first 39, and in the last 17 only the wearers who
   cast a channel; and a local combat log of a warlock and a mage, levels not recorded, taken 2026-11-24 21:09 local
   time (WoWCombatLog-112426_210934).
-- Game build: 1.60.1.71037 on EU realms and 1.60.1.71091 on US realms, hotfix push 114378 cache. The change is server side and shows in the reports between
-  20:53:45 and 20:54:06 UTC on 2026-11-24. No game files row changed: the rows of the proc aura 1248806 and of the seven
-  buffs were pushed again at 114284, byte-identical.
+- Game build: 1.60.1.71037 on EU realms and 1.60.1.71091 on US realms, hotfix push 114378 cache. The change is server
+  side and shows in the reports between 20:53:45 and 20:54:06 UTC on 2026-11-24. No game files row changed: the rows of
+  the proc aura 1248806 and of the seven buffs were pushed again at 114284, byte-identical.
 - Date: 2026-11-24
 - Pull request: #1208
 
@@ -659,9 +659,9 @@ The first run read the first 39 reports listed, with events to 21:34 UTC. Before
 52 wearers in 35 reports; after is the events from 20:55 UTC, 47 wearers in 31 reports. The second run, at 22:09 UTC,
 fetched the events from 20:00 to about 22:00 UTC of 38 wearers who cast a channel, in 33 reports. The last 17 reports
 listed are among those 33 and new to this count. It read the first run's other wearers as they were. The procs, the
-buffs and the rolls are counted as in §Method. A buff episode runs from an application to its removal, capped at 15.2 s after
-the last proc. A group is a spell's landings within 20 ms of the first, so a channel tick or an area cast on several
-targets is one group, and its first result is its first landing in the log.
+buffs and the rolls are counted as in §Method. A buff episode runs from an application to its removal, capped at 15.2 s
+after the last proc. A group is a spell's landings within 20 ms of the first, so a channel tick or an area cast on
+several targets is one group, and its first result is its first landing in the log.
 
 Per 5 minutes, buffs that a channel's first tick takes within 300 ms: 0 or 1 in every window from 20:00 to 20:45, of
 15 to 52 each; 5 of 49 at 20:50; and all of them in every window from 20:55 to 21:30, 15 to 34 each.
@@ -716,10 +716,10 @@ yZ3xq9jPwTDNrVXM, Z1hd6JzHVxmPqbtX
   Revelation buff from 477 reports: the 56 §Count of the 2026-11-24 reports lists and the 421 listed below. 502 of the
   streams, from 295 of the reports, were fetched from 2026-11-24 23:30 UTC to about 2026-11-25 06:50 UTC, and the rest
   on 2026-11-24; a wearer's run that two reports log is read once.
-- Game build: 1.60.1.71037 on EU realms and 1.60.1.71091 on US realms. A second server change shows in the reports between 01:12:49 and 01:12:55 UTC on 2026-11-25. Hotfix
-  push 114389 adds the periodic harmful proc flag (PROC_FLAG_DEAL_HARMFUL_PERIODIC, 0x40000) to the priest's and the
-  warlock's buff rows, 1323377 and 1323392; the other five buffs and the proc aura 1248806 read as before. The hotfix
-  each player ran is not recorded.
+- Game build: 1.60.1.71037 on EU realms and 1.60.1.71091 on US realms. A second server change shows in the reports
+  between 01:12:49 and 01:12:55 UTC on 2026-11-25. Hotfix push 114389 adds the periodic harmful proc flag
+  (PROC_FLAG_DEAL_HARMFUL_PERIODIC, 0x40000) to the priest's and the warlock's buff rows, 1323377 and 1323392; the other
+  five buffs and the proc aura 1248806 read as before. The hotfix each player ran is not recorded.
 - Date: 2026-11-24 20:00 UTC to 2026-11-25 06:50 UTC
 - Pull request: #1208
 
@@ -784,6 +784,26 @@ Explosion 1 of 2,033, Rain of Fire 0 of 357, Chain Lightning 1 of 310. Of the 7,
 Chain Lightning casts whose overload lands 16 to 32 ms after, 3 with no other landing and 2 with another spell landing
 beside the proc. Before, the targets that did not crit rolled in those groups.
 
+### One spell striking a target twice at one moment
+
+Landings with the buff down, after 20:55 UTC on 2026-11-24, of one spell id on one target within 10 ms of each other,
+from 823 wearers. Most such pairs are one hit logged twice: Blizzard, Cone of Cold, Frost Nova, Frostbolt, Ice Lance
+and Flamestrike pairs share their crit result in 96 to 100% of pairs, and these are left out. Two separate hits are
+the pairs whose crits mix as independent rolls would (Chain Lightning's overload 408484, Hellfire Effect 11682,
+Hurricane 1278759 and 1278965, Rain of Fire 1282385, Fire Nova 408428), and they proc as one roll:
+
+| Pairs                                       | Procs  | One shared roll expects | Two rolls expect |
+| ------------------------------------------- | ------ | ----------------------- | ---------------- |
+| All, no other landing within 50 ms          | 21/231 | 17.6                    | 34.7             |
+| All, other landings 15 to 50 ms earlier too | 29/351 | 27.0                    | 53.0             |
+| Both not crit, no other landing             | 16/115 | 9.8                     | 18.8             |
+| Both not crit, other landings too           | 19/184 | 16.0                    | 30.6             |
+| First crit, second not                      | 0/40   | 0                       | 2 to 3           |
+
+The pooled rows sit at one shared roll; the rows with both results not crit fall between the two, and one warlock's
+Hellfire makes 122 of their 184 pairs. Lightning Bolt and its overload never land as such a pair, and item procs give
+too few pairs to read. Script `samemoment.py`, output `out/samemoment_1047.txt`.
+
 ### A channel's first tick spends it
 
 Buff episodes whose first landing after the gain is a tick of a channel whose ticks cast a spell of their own, after
@@ -823,12 +843,11 @@ next missile launched against the gain:
 | Another spell            | 192 of 192 spend it, 82 wearers      | 7 of 57 spend it, 38 wearers             |
 
 A missile launched after the gain crits and spends the charge as it lands. One already in flight at the gain keeps its
-own roll and spends the charge only when it crits: those missiles crit 66 of 543 times, and 70 spend it. The launch splits them at the gain's millisecond: launched 0 to 20 ms after the gain, 17 of 17 spend it; 0 to
-20 ms before, 2 of 21. The in-flight missiles crit less than their wearers' own chance with the buff down suggests,
-66 of 539 against 96.5 expected (96 wearers), where between they read 97 of 431 against 86.1; the cause is not known.
-Missiles of the channel that land more than 100 ms after the one that took the charge and before the wearer's next cast
-event, so launched before it landed, crit 26 of 41 times with the buff down, against 3,365 of 18,407 (18.3%) for the
-spell.
+own roll and spends the charge only when it crits: those missiles crit 66 of 543 times, and 70 spend it. The launch
+splits them at the gain's millisecond: launched 0 to 20 ms after the gain, 17 of 17 spend it; 0 to 20 ms before, 2 of 21. The in-flight missiles crit less than their wearers' own chance with the buff down suggests, 66 of 539 against 96.5
+expected (96 wearers), where between they read 97 of 431 against 86.1; the cause is not known. Missiles of the channel
+that land more than 100 ms after the one that took the charge and before the wearer's next cast event, so launched
+before it landed, crit 26 of 41 times with the buff down, against 3,365 of 18,407 (18.3%) for the spell.
 
 ### A channel of periodic ticks spends it on its first tick
 
@@ -892,11 +911,11 @@ overload 67 of 938.
 ### Ticks and other readings
 
 Periodic ticks roll nothing: after, 78 of 223,281 groups of periodic ticks with the buff down have a proc credited to
-them, and a tick that lands up to 50 ms after another spell takes that spell's proc; Mind Flay 0 of 15,812, Wrack 0 of 16,198, Drain Life 0 of 992,
-Drain Soul 0 of 348, Starshards 0 of 24, Tranquility 0 of 32. A channel's tick that casts a spell of its own rolls at
-about a direct spell's chance, on groups of 2 targets or more with the buff down and no crit: Blizzard 1,978 of 22,135
-(0.089), Hellfire 884 of 10,513 (0.084), Hurricane 312 of 4,058 (0.077), against Arcane Explosion 457 of 5,376
-(0.085).
+them, and a tick that lands up to 50 ms after another spell takes that spell's proc; Mind Flay 0 of 15,812, Wrack 0 of
+16,198, Drain Life 0 of 992, Drain Soul 0 of 348, Starshards 0 of 24, Tranquility 0 of 32. A channel's tick that casts a
+spell of its own rolls at about a direct spell's chance, on groups of 2 targets or more with the buff down and no crit:
+Blizzard 1,978 of 22,135 (0.089), Hellfire 884 of 10,513 (0.084), Hurricane 312 of 4,058 (0.077), against Arcane
+Explosion 457 of 5,376 (0.085).
 
 ### Reports
 

@@ -43,10 +43,9 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
 	// The dummy lands on the enemy before the damage it names. Its row carries Suppress Weapon Procs,
-	// so weapon procs and combat enchants hear the damage alone and roll once a landed judgement
-	// (EV-0155). The row lacks Not a Proc, so aura procs hear the damage alone too: Windfury Totem and
-	// Vindication roll once (EV-0156). The flags are set here because the spelldata row flags leave
-	// the suppress bits off a dummy.
+	// so weapon procs and combat enchants hear the damage alone and roll once on a landed judgement
+	// (EV-0155). The row lacks Not a Proc, so aura procs such as Windfury Totem and Vindication roll
+	// once too (EV-0156). The row's flags leave the suppress bits off a dummy, so they are set here.
 	dummyConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial),
 		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs))
 	if judgeRank.IsAProc() {

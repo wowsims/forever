@@ -170,9 +170,9 @@ reference leaves them out.
 Mutilate, rogues with a dagger in each hand, 2026-11-14 to 2026-11-20 22:15 UTC before the push and 23:47 UTC to
 2026-11-21 08:49 UTC after it. A unit is one Mutilate's main-hand and off-hand strike, both landed, with no other hit or
 debuff of the rogue on that target within 100 ms and no killing blow. Each poison is put on the hand whose white swings
-roll it for that rogue, and the reference is the same rogue's lone white swing of that hand in the same period. Two rolls
-read about 1.67 for Instant Poison, 1.6 for Deadly Poison and 1.9 for weapon procs; a refreshed Deadly Poison stack at
-its maximum often logs nothing.
+roll it for that rogue, and the reference is the same rogue's lone white swing of that hand in the same period. Two
+rolls read about 1.67 for Instant Poison, 1.6 for Deadly Poison and 1.9 for weapon procs; a refreshed Deadly Poison
+stack at its maximum often logs nothing.
 
 | Mutilate unit, hand       | Period | Rogues |  Units | With a proc | One roll would give | Ratio [95%]       | Reading   |
 | ------------------------- | ------ | -----: | -----: | ----------: | ------------------: | ----------------- | --------- |
@@ -196,8 +196,20 @@ so the cast never rolls the totem. Mutilate's reports are in `codes_mut_before.t
 (`mut_out.md`) and `totem_mut.py` (`totem_out_mutwf.md`).
 
 Reports after the push with lone Judgement of Command units, which the section Judgement of Command after hotfix push
-114399 reads for its rows after push 114313: 1RYWd3fA9tJMPL6G, 1wbzNyLhKQvMGTtm, 28AFzYhbjwZGqx1T, 2d69FD7QXBaVmNtH, 38jkDhQAVGYvpwqc, 3rVjZ4gfbQm12Y6F, 4VdfDNBWZvk8pJnH, 6YqkW3zmJLKNBMnj, 8Dd1whVHJcm4XnRx, 9AVbQBj3Ckq12cTL, APjaWhT6kfvRxZb8, AbBcj4dL7yXVzCft, BtJP21rynT4kQY7C, D1RGNCTjcJxvYd6a, G3TNcd2vzx89a7fj, GHn7VRAP9mjLDTc1, Gm4f9LFAZrWzTJdC, GvBdKFbyLQnH76Jz, HhpZmgKMfXjzWwrk, JdVwfvqRHcxyaF14, Lh87FKNJvRX6Ccpf, MPWQdq86nXbwk7tR, NKHzt9GyVJMd7x3j, NWVCbLJK3taTmkfQ, NxKhn6PDpmg8WF4G, PKVJGwaRHz1qfYZx, PT7AtvXWkrQgLCpn, PqFpXZx4NQ2Mm81v, RphZTjABx9cYDwJF, T9fhDpRaFzGHP4By, VKPvXq7kJwcZGW6L, W9nck8JraRvxBDF4, WBXnyNJ46VYjA2Qm, X93jK7N6aALMpWnD, YB93KnL7VMdtJWH4, YCrzxNT1hWZJQvBL, YdzQHMp4GhrJ2A7n, Z48VBnhdrxPTMYyz, Z8Fx4J1c6htrT7fq, ZC73QxMhdPrpTavb, aV4L8grZWvDRz3MF, bHkgvJcQaRpXYB3y, cj32G8gw9pvAZdxk, hMadZHPw4cA6XLJW, jAdhbnXrCDJfvmQF, jFxXVgMTftpPGDQw, jNLqmbwFYt16JT3v, k96y3KTD4qtpLNrC, ktRfG63rXBLdPcpA, mHFdMA8zXTaxLDyP, mQv7YCGNHwkAMJ6d, mprAaDbTyH7Pvj9R, nrNzAVCtHKfPXdpk, pA1nYfC3BF7vDxJL, pMGyN9hFa8XRAHxV, prw16bXnmtg8cLya, q167YKJGNhjpZcCz, rMkqF3LHcbPvZNwt, rqc2pdNPg4Xyh3nt, wf3Vdy7DxXYgKhMv, wrKpnNaxqj2ydFAM, yRK2MZNanDbAdq1Q, z1dHvNPABL9Kba8J, zCMpYhkZQt7PKanf, zLFgy8AV3JxbHh4w. Execute's weapon procs: 1RYWd3fA9tJMPL6G, 3ygCHfWnAqdmRbrF, 9HCnBrxmMAz8tvjW, DLApcY8P6y2xWqRh, FbhmQgZj9TH7f84t, HaqMK2rTjDn6AY1C, NTbRAz19k3DMZ7Ka, TwYLbd7Fj9NxgRMv, dbXaAxv1cTVMh49j, fmR1tDMXHzTpjPJw, k4v2tVp6gcJRw8fW. The totem
-rows name 126 reports after the push, in `codes_post_totem_r2.txt`; fights are not listed.
+114399 reads for its rows after push 114313: 1RYWd3fA9tJMPL6G, 1wbzNyLhKQvMGTtm, 28AFzYhbjwZGqx1T, 2d69FD7QXBaVmNtH,
+38jkDhQAVGYvpwqc, 3rVjZ4gfbQm12Y6F, 4VdfDNBWZvk8pJnH, 6YqkW3zmJLKNBMnj, 8Dd1whVHJcm4XnRx, 9AVbQBj3Ckq12cTL,
+APjaWhT6kfvRxZb8, AbBcj4dL7yXVzCft, BtJP21rynT4kQY7C, D1RGNCTjcJxvYd6a, G3TNcd2vzx89a7fj, GHn7VRAP9mjLDTc1,
+Gm4f9LFAZrWzTJdC, GvBdKFbyLQnH76Jz, HhpZmgKMfXjzWwrk, JdVwfvqRHcxyaF14, Lh87FKNJvRX6Ccpf, MPWQdq86nXbwk7tR,
+NKHzt9GyVJMd7x3j, NWVCbLJK3taTmkfQ, NxKhn6PDpmg8WF4G, PKVJGwaRHz1qfYZx, PT7AtvXWkrQgLCpn, PqFpXZx4NQ2Mm81v,
+RphZTjABx9cYDwJF, T9fhDpRaFzGHP4By, VKPvXq7kJwcZGW6L, W9nck8JraRvxBDF4, WBXnyNJ46VYjA2Qm, X93jK7N6aALMpWnD,
+YB93KnL7VMdtJWH4, YCrzxNT1hWZJQvBL, YdzQHMp4GhrJ2A7n, Z48VBnhdrxPTMYyz, Z8Fx4J1c6htrT7fq, ZC73QxMhdPrpTavb,
+aV4L8grZWvDRz3MF, bHkgvJcQaRpXYB3y, cj32G8gw9pvAZdxk, hMadZHPw4cA6XLJW, jAdhbnXrCDJfvmQF, jFxXVgMTftpPGDQw,
+jNLqmbwFYt16JT3v, k96y3KTD4qtpLNrC, ktRfG63rXBLdPcpA, mHFdMA8zXTaxLDyP, mQv7YCGNHwkAMJ6d, mprAaDbTyH7Pvj9R,
+nrNzAVCtHKfPXdpk, pA1nYfC3BF7vDxJL, pMGyN9hFa8XRAHxV, prw16bXnmtg8cLya, q167YKJGNhjpZcCz, rMkqF3LHcbPvZNwt,
+rqc2pdNPg4Xyh3nt, wf3Vdy7DxXYgKhMv, wrKpnNaxqj2ydFAM, yRK2MZNanDbAdq1Q, z1dHvNPABL9Kba8J, zCMpYhkZQt7PKanf,
+zLFgy8AV3JxbHh4w. Execute's weapon procs: 1RYWd3fA9tJMPL6G, 3ygCHfWnAqdmRbrF, 9HCnBrxmMAz8tvjW, DLApcY8P6y2xWqRh,
+FbhmQgZj9TH7f84t, HaqMK2rTjDn6AY1C, NTbRAz19k3DMZ7Ka, TwYLbd7Fj9NxgRMv, dbXaAxv1cTVMh49j, fmR1tDMXHzTpjPJw,
+k4v2tVp6gcJRw8fW. The totem rows name 126 reports after the push, in `codes_post_totem_r2.txt`; fights are not listed.
 
 Scripts and output, in `forever-double-roll-post114313`: `extract_r2.py`, `units_r2.py` and `report_r2.py`
 (`report_r2_period.md`), and `totem_ratio.py` and `totem_ranks.py` (`totem_ratio_out_r2.md`, `totem_ranks_out_r2.txt`).
@@ -207,9 +219,9 @@ Scripts and output, in `forever-double-roll-post114313`: `extract_r2.py`, `units
 Hotfix push 114399 sets Suppress Weapon Procs on the five Judgement of Command dummies, 20425, 20961, 20962, 20967
 and 20968. It changes no Judgement of Command damage row (20467, 20963 to 20966) and no Seal of Command row.
 
-- Game build: 1.60.1.71037 on EU realms and 1.60.1.71091 on US realms from 2026-11-24 on; the rows after push 114313 are 1.60.1.71037, as in that section. The
-  lone Judgement of Command units fit one switch best at 2026-11-25 01:15 UTC (95% profile interval 01:15 to 01:20).
-  The hotfix each player ran is not recorded.
+- Game build: 1.60.1.71037 on EU realms and 1.60.1.71091 on US realms from 2026-11-24 on; the rows after push 114313 are
+  1.60.1.71037, as in that section. The lone Judgement of Command units fit one switch best at 2026-11-25 01:15 UTC (95%
+  profile interval 01:15 to 01:20). The hotfix each player ran is not recorded.
 - Date: after push 114313 is 2026-11-20 23:47 to 2026-11-21 08:00 UTC; before push 114399 is 2026-11-24 12:42 to
   2026-11-25 01:15 UTC; after it is 01:15 to 06:10 UTC.
 - Sources: the 157 reports with paladin units from 2026-11-24 12:00 UTC on, 143 of them with lone Judgement of Command

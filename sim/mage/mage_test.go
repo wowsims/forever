@@ -433,12 +433,7 @@ func TestArcaneMissilesGiveRevelationsChargeToTheNextMissileLaunched(t *testing.
 		sim, mage, buff := newRevelationMage(t, ArcaneTalents, 1)
 		target := mage.CurrentTarget
 		cast := mage.GetSpell(core.ActionID{SpellID: arcaneMissilesBookRank.ID})
-		var missile *core.Spell
-		for _, spell := range mage.Spellbook {
-			if spell.ActionID.SpellID == arcaneMissilesBookRank.PeriodicEffect().TriggerID {
-				missile = spell
-			}
-		}
+		missile := mage.GetSpell(core.ActionID{SpellID: arcaneMissilesBookRank.PeriodicEffect().TriggerID})
 		if cast == nil || missile == nil {
 			t.Fatalf("Arcane Missiles %v or its missile %v is not registered", cast, missile)
 		}

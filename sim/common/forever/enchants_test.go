@@ -295,6 +295,22 @@ func revelationWearer(t *testing.T, class proto.Class, spec any) (*core.Simulati
 	return revelationWearerFacing(t, class, spec, 1)
 }
 
+// Takes the character's spell crit to zero.
+func withoutSpellCrit(sim *core.Simulation, character *core.Character) {
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+}
+
+// The proc chance the enchant's entry states for Revelation's buff 1248806, or 0 when it states none.
+func revelationProcChance() float64 {
+	chance := 0.0
+	for _, effect := range core.GetEnchantByEffectID(revelationEnchant).EnchantEffects {
+		if effect.BuffId == 1248806 {
+			chance = effect.GetProc().GetProcChance()
+		}
+	}
+	return chance
+}
+
 func revelationWearerFacing(t *testing.T, class proto.Class, spec any, enemies int) (*core.Simulation, *core.Character) {
 	t.Helper()
 	targets := make([]*proto.Target, enemies)
@@ -406,7 +422,7 @@ func TestRevelationChannelSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	sim, character := revelationWearerFacing(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}}, 3)
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
 	target := character.CurrentTarget
-	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	withoutSpellCrit(sim, character)
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1323400})
 	channel := druid.hurricane.Dot(target)
 
@@ -455,7 +471,7 @@ func TestRevelationChannelOfPeriodicTicksSpendsTheChargeOnItsFirstTick(t *testin
 	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
 	target := character.CurrentTarget
-	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	withoutSpellCrit(sim, character)
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1323400})
 	drain := druid.drain.Dot(target)
 
@@ -590,7 +606,7 @@ func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, 3)
 	mage := sim.Raid.Parties[0].Players[0].(*testMage)
 	target := character.CurrentTarget
-	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	withoutSpellCrit(sim, character)
 
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1248808})
 	if buff == nil {
@@ -677,15 +693,10 @@ func TestRevelationRollsOncePerHitEvent(t *testing.T) {
 	const casts, enemies = 600, 5
 	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, enemies)
 	mage := sim.Raid.Parties[0].Players[0].(*testMage)
-	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	withoutSpellCrit(sim, character)
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1248808})
 
-	chance := 0.0
-	for _, effect := range core.GetEnchantByEffectID(revelationEnchant).EnchantEffects {
-		if effect.BuffId == 1248806 {
-			chance = effect.GetProc().GetProcChance()
-		}
-	}
+	chance := revelationProcChance()
 	if chance <= 0 || chance >= 0.5 {
 		t.Fatalf("the enchant's entry states a chance of %v for 1248806, want one between none and a half", chance)
 	}
@@ -753,7 +764,7 @@ func TestRevelationRollsACopyApartFromTheSpellItCopies(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}})
 	mage := sim.Raid.Parties[0].Players[0].(*testMage)
 	target := character.CurrentTarget
-	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	withoutSpellCrit(sim, character)
 	mage.fireBlast.BonusCritPercent += 100
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1248808})
 
@@ -771,12 +782,7 @@ func TestRevelationRollsACopyApartFromTheSpellItCopies(t *testing.T) {
 		len(echoes) != casts || slices.Contains(echoes, true) {
 		t.Fatalf("%d casts landed %d Fire Blasts and %d Echoes, want every Fire Blast to crit and no Echo", casts, len(blasts), len(echoes))
 	}
-	chance := 0.0
-	for _, effect := range core.GetEnchantByEffectID(revelationEnchant).EnchantEffects {
-		if effect.BuffId == 1248806 {
-			chance = effect.GetProc().GetProcChance()
-		}
-	}
+	chance := revelationProcChance()
 	if want := casts * chance; want <= 0 || float64(procs) < want/2 || float64(procs) > 2*want {
 		t.Errorf("%d Echoes landing beside a critting Fire Blast procced Revelation %d times, want about %.0f", casts, procs, want)
 	}
@@ -920,7 +926,7 @@ func TestFieryWeaponRollsOnTheHandThatCarriesIt(t *testing.T) {
 // shot or a spell. The row's proc flags name the melee hits and its cooldown the lockout.
 func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
 	sim, character := itemSpecWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, &proto.ItemSpec{Id: 8245, Enchant: 7223})
-	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	withoutSpellCrit(sim, character)
 	enemy := sim.Encounter.ActiveTargetUnits[0]
 	enemy.AddStatDynamic(sim, stats.Armor, 5000)
 	row := spelldata.MustFind(435901)

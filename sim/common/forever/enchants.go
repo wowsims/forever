@@ -293,14 +293,10 @@ func init() {
 		spelldata.ParseEffects(character, buff, row)
 		character.ItemSwap.RegisterWeaponEnchantBuff(buff, 8217)
 
-		// The charge goes as a cast the buff reaches completes, on every class, and a spell still in
-		// flight keeps the crit it rolled. A melee or ranged attack the mask names, a paladin's
-		// judgement or Hammer of Wrath, crits and leaves the charge (EV-0028, EV-0149). A channel's cast
-		// spends nothing; a tick of the channel takes the charge, as the listeners below set out.
-		// TODO: Holy Shock's and Light's Vigil's heals crit here on every cast with the buff up, and
-		// in the logs mostly do not, landing after the charge is gone (EV-0149).
-		// TODO: A charge gained while Volley or Penance's heal runs, whose ticks take no charge, is still
-		// spent as the channel ends (R-0048). EV-0149 records no such charge.
+		// A completed cast the buff reaches spends the charge; an attack crits and keeps it, and a
+		// channel leaves it to its ticks (EV-0028, EV-0149).
+		// TODO: Holy Shock's and Light's Vigil's heals crit on every cast here, and mostly not in the logs (EV-0149).
+		// TODO: A charge gained during Volley or Penance's heal is spent as the channel ends (R-0048).
 		isAttack := func(spell *core.Spell) bool {
 			return spell.DefenseType == core.DefenseTypeMelee || spell.DefenseType == core.DefenseTypeRanged
 		}
@@ -319,17 +315,11 @@ func init() {
 			})
 
 		spendCharge := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			if buff.IsActive() {
-				buff.RemoveStack(sim)
-			}
+			buff.RemoveStack(sim)
 		}
 
-		// A channel the mask names whose ticks cast a spell of their own (Blizzard, Hurricane, Hellfire,
-		// Rain of Fire) spends the charge on the first tick that crits from it. Every target that tick
-		// strikes crits, and the charge goes a spell batch window later, so the ticks after it crit at
-		// their own chance. Arcane Missiles' missiles roll their crit as they launch: the first launched
-		// after the charge comes crits, one already in flight keeps its own roll, and the first to land
-		// with a crit spends the charge. Penance's heal bolts leave it (EV-0149).
+		// A channel whose ticks cast a spell of their own spends the charge on its first crit tick, a
+		// spell batch window after it lands (EV-0149).
 		firstTickHit, _ := core.OncePerCast()
 		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
 			Name:               "Revelation Charge - Channel Tick",
@@ -340,17 +330,15 @@ func init() {
 			RequireDamageDealt: true,
 			ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 				channel := character.ChanneledDot
-				return channel != nil && channel.Spell != spell && channel.Spell.MatchesFlags(spender.ClassFlags) &&
+				return channel != nil && channel.Spell.MatchesFlags(spender.ClassFlags) &&
 					!spell.Flags.Matches(core.SpellFlagChanneled) && !isAttack(spell) &&
 					!spell.MatchesFlags(revelationPenanceHeal) && firstTickHit(sim, spell)
 			},
 			Handler: spendCharge,
 		})
 
-		// A channel the mask names whose ticks are its own periodic damage (Mind Flay, Wrack, Drain Soul,
-		// Drain Life) spends the charge on its first tick, which crits from it, and the ticks after it
-		// crit at their own chance. Starshards is such a channel and is not counted. Another spell's
-		// periodic ticks leave the charge (EV-0149).
+		// A channel whose ticks are its own periodic damage spends the charge on its first tick; other
+		// spells' periodic ticks leave it (EV-0149).
 		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
 			Name:       "Revelation Charge - Periodic Channel Tick",
 			Callback:   core.CallbackOnPeriodicDamageDealt | core.CallbackOnPeriodicHealDealt,
@@ -401,10 +389,8 @@ func init() {
 		// spell registered under its item id, reads level 0 and keeps none.
 		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
 		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
-		// One hit event rolls once, however many targets it strikes: the first result of a spell at a
-		// moment that lands for damage or heals is the event's one chance. When that result crits, the
-		// event rolls nothing, whatever its other targets do. Lightning Overload's bolt rolls apart from
-		// the bolt it copies, which shares its spell id, even when both land at one moment (EV-0149).
+		// A hit event rolls once, on its first result, and not when that result crits. A spell and its
+		// copy roll apart (EV-0149).
 		shares := map[*core.Spell]float64{}
 		var lastSpell *core.Spell
 		var lastAt time.Duration
