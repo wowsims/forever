@@ -26,7 +26,6 @@ strikes; every charge spent near a Whirlwind lines up with a white swing.
 | ------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | Gore Drinker                    | one charge and heal per landed strike, each hand and each target, capped by the charges left; see below |
 | Sweeping Strikes, main hand     | exactly one hit and one charge at 2 to 4 targets in 43 casts                                            |
-| Sweeping Strikes, off hand      | no dual-wield Arms warrior in any log                                                                   |
 | Improved Whirlwind              | both hands +27% on the closest target (two warriors); no talent: +0.4%                                  |
 | Deep Wounds                     | 4 fresh applications from off-hand-only crits                                                           |
 | Unbridled Wrath, Windfury Totem | no Whirlwind roll: 0 of 75, 0 of 363                                                                    |
