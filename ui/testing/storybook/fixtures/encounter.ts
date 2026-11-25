@@ -3,22 +3,17 @@ import type { Encounter } from '@sim/raid/encounter';
 import { createSimStore, patchSlice } from '@sim/state/sim_store';
 
 /**
- * The `Encounter` members the target pickers read, on a real store: a write patches the
- * `encounter` slice, so the pickers subscribed to `encounter.targets` re-read and a story stays
- * editable. No preset targets, so the NPC and AI menus offer only their custom entries.
+ * The `Encounter` members the planner's target fields read, on a real store: a write patches the
+ * `encounter` slice. No preset targets, so the NPC and Preset menus offer only their custom entries.
  */
-export const makeStoryEncounter = (targets: Array<TargetProto>, { threat = true }: { threat?: boolean } = {}): Encounter => {
+export const makeStoryEncounter = (targets: Array<TargetProto>): Encounter => {
 	const store = createSimStore();
 	patchSlice(store, 'encounter', { targets });
-	patchSlice(store, 'ui', { showThreatMetrics: threat });
 	const read = () => store.getState().encounter.targets;
 	const encounter = {
 		sim: {
 			store,
 			db: { getAllPresetTargets: () => [] },
-			getShowDamageMetrics: () => true,
-			getShowHealingMetrics: () => false,
-			getShowThreatMetrics: () => store.getState().ui.showThreatMetrics,
 		},
 		getTargets: read,
 		getTarget: (index: number) => read()[index],

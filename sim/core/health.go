@@ -134,6 +134,9 @@ func (character *Character) trackChanceOfDeath(healingModel *proto.HealingModel)
 			character.Unit.Metrics.isTanking = true
 		}
 	}
+	if character.Env.Encounter.plan.swapsOnto(&character.Unit) {
+		character.Unit.Metrics.isTanking = true
+	}
 
 	character.RegisterAura(Aura{
 		Label:    ChanceOfDeathAuraLabel,

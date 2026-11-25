@@ -464,7 +464,13 @@ func (wa *WeaponAttack) swing(sim *Simulation) time.Duration {
 		wa.unit.AutoAttacks.StopRangedUntil(sim, sim.CurrentTime)
 	}
 
-	attackSpell.Cast(sim, wa.unit.CurrentTarget)
+	// A plan's tank swap may send a target's swing to a tank the sim does not model: the swing and a Strike it took
+	// are spent on the timer as if it landed.
+	if victim, swapped := sim.Encounter.plan.tankSwapVictim(wa.unit); !swapped {
+		attackSpell.Cast(sim, wa.unit.CurrentTarget)
+	} else if victim != nil {
+		attackSpell.Cast(sim, victim)
+	}
 
 	if !sim.Options.Interactive && (wa.unit.Rotation != nil) && !wa.unit.Metrics.isTanking {
 		wa.unit.ReactToEvent(sim, false, true)
@@ -755,7 +761,7 @@ func (aa *AutoAttacks) startPull(sim *Simulation) {
 		return
 	}
 
-	if aa.mh.unit.CurrentTarget == nil {
+	if aa.mh.unit.CurrentTarget == nil && !sim.Encounter.plan.swingsUntanked(aa.mh.unit) {
 		return
 	}
 
@@ -852,7 +858,7 @@ func (aa *AutoAttacks) EnableMeleeSwing(sim *Simulation) {
 		return
 	}
 
-	if aa.mh.unit.CurrentTarget == nil {
+	if aa.mh.unit.CurrentTarget == nil && !sim.Encounter.plan.swingsUntanked(aa.mh.unit) {
 		return
 	}
 

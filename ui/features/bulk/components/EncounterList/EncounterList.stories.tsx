@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { encounterListProps, sameAsCurrentEncounterRow } from '@testing/storybook/fixtures/bulk-builds';
+import { encounterListProps, myEncounterRows, sameAsCurrentEncounterRow } from '@testing/storybook/fixtures/bulk-builds';
 import { expect, within } from 'storybook/test';
 
 import { EncounterListView } from './EncounterList';
@@ -12,6 +12,7 @@ const meta = {
 	argTypes: {
 		current: { control: false },
 		presets: { control: false },
+		myEncounters: { control: false },
 		saved: { control: false },
 	},
 	decorators: [
@@ -51,6 +52,16 @@ export const SameAsCurrentEncounter: Story = {
 // With the current encounter unticked, "Three minutes" runs under its own name.
 export const SameAsCurrentEncounterUnticked: Story = {
 	args: { current: { ...defaults.current, checked: false }, saved: [sameAsCurrentEncounterRow(false), ...defaults.saved] },
+};
+
+// My encounters sit between the presets and the saved encounters, and "Long fight" is one row in each of the two groups.
+export const MyEncounters: Story = {
+	args: { myEncounters: myEncounterRows() },
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		await expect(canvas.getAllByRole('group')).toHaveLength(3);
+		await expect(canvas.getAllByRole('checkbox', { name: 'Long fight' })).toHaveLength(2);
+	},
 };
 
 export const Empty: Story = { args: { presets: [], saved: [] } };

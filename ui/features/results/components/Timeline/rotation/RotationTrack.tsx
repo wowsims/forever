@@ -3,6 +3,7 @@ import { requestAplReveal } from '@features/apl/model/reveal';
 import { ROTATION_TAB_ID, useActivateTab } from '@features/hooks/useActivateTab';
 import { usePlayer } from '@sim/context/SimHostContext';
 import { observeElementRect, useVirtualizer } from '@tanstack/react-virtual';
+import { usePointerPan } from '@ui-kit/hooks/usePointerPan';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { cssVars } from '@ui-kit/utils/css';
 import { findScrollParent } from '@ui-kit/utils/dom';
@@ -272,10 +273,7 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 
 	// Grab-to-pan. The horizontal scrollbar sits at the far end of the rotation because the page owns
 	// vertical scrolling, so dragging and shift+wheel are the reachable ways to pan.
-	const pan = useRef<{ pointerId: number; x: number; y: number; scrollLeft: number; scrollTop: number } | null>(null);
-	const panned = useRef(false);
-	const [panning, setPanning] = useState(false);
-	const pageScrollTop = () => (outer.current ? outer.current.scrollTop : window.scrollY);
+	const { panning, handlers: pan } = usePointerPan({ verticalScroller: () => outer.current });
 
 	// A tap opens an item's tooltip with the same touch that clicks it, so a touch opens a cast's entry only from a second
 	// tap, made while its tooltip shows. Null for a press by anything but a finger.
@@ -283,41 +281,7 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 
 	const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
 		shownAtTouch.current = event.pointerType === 'touch' ? (hover ? `${hover.rowKey}:${hover.index}` : '') : null;
-		// Touch already pans both axes natively; taking the pointer would fight it.
-		if (pan.current || event.button !== 0 || event.pointerType === 'touch') return;
-		// Leave the eye toggles, the wowhead links and anything else interactive alone.
-		if ((event.target as Element).closest('button, a, input, select, textarea')) return;
-		pan.current = {
-			pointerId: event.pointerId,
-			x: event.clientX,
-			y: event.clientY,
-			scrollLeft: event.currentTarget.scrollLeft,
-			scrollTop: pageScrollTop(),
-		};
-		panned.current = false;
-		event.currentTarget.setPointerCapture(event.pointerId);
-	};
-
-	const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-		const start = pan.current;
-		if (event.pointerId !== start?.pointerId) return;
-		const dx = event.clientX - start.x;
-		const dy = event.clientY - start.y;
-		if (!panned.current) {
-			if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
-			panned.current = true;
-			setPanning(true);
-		}
-		event.currentTarget.scrollLeft = start.scrollLeft - dx;
-		scrollVerticalBy(start.scrollTop - dy - pageScrollTop());
-	};
-
-	const endPan = (event: ReactPointerEvent<HTMLDivElement>) => {
-		if (event.pointerId !== pan.current?.pointerId) return;
-		if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-		pan.current = null;
-		if (event.type === 'pointercancel') panned.current = false;
-		setPanning(false);
+		pan.onPointerDown(event);
 	};
 
 	// The ruler sits outside the scroller, so a finger dragged along it pans the rows from here; it is `touch-pan-y`, so a
@@ -336,14 +300,6 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 	};
 	const endRulerPan = (event: ReactPointerEvent<HTMLDivElement>) => {
 		if (event.pointerId === rulerPan.current?.pointerId) rulerPan.current = null;
-	};
-
-	// Suppresses the click a pan would otherwise deliver to whatever it ended on.
-	const onClickCapture = (event: ReactMouseEvent<HTMLDivElement>) => {
-		if (!panned.current) return;
-		panned.current = false;
-		event.preventDefault();
-		event.stopPropagation();
 	};
 
 	useEffect(() => {
@@ -471,11 +427,8 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 				)}
 				tabIndex={0}
 				onKeyDown={event => zoomRef.current?.onKeyDown(event)}
+				{...pan}
 				onPointerDown={onPointerDown}
-				onPointerMove={onPointerMove}
-				onPointerUp={endPan}
-				onPointerCancel={endPan}
-				onClickCapture={onClickCapture}
 				onClick={onItemClick}
 				onMouseOver={onItemOver}
 				onMouseMove={onItemMove}

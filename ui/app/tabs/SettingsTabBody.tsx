@@ -117,13 +117,7 @@ export const SettingsTabBody = () => {
 				<TabPanelColumns.Col>
 					{ready && (
 						<>
-							{!gearPlanner && (
-								<ContentBlock
-									rootDataAttributes={{ 'data-block': 'encounter-settings' }}
-									config={{ header: { title: i18n.t('settings_tab.encounter.title') } }}>
-									<EncounterPicker showExecuteProportion={config.encounterPicker.showExecuteProportion} />
-								</ContentBlock>
-							)}
+							{!gearPlanner && <EncounterPicker showExecuteProportion={config.encounterPicker.showExecuteProportion} />}
 							<ContentBlock
 								rootDataAttributes={{ 'data-block': 'player-settings' }}
 								config={{ header: { title: i18n.t('settings_tab.player.title') } }}>

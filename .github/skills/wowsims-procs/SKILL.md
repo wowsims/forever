@@ -83,7 +83,8 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
   registers as a spell of its own sets the bit from its row at the call site, as Judgement of Command's landing does
   (`sim/paladin/seal_of_command.go`); an aura with hand-written hit callbacks checks the flag itself.
 - **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no
-  death; both are in `procs.md` (the two death bits), the order of a death in `wowsims-core-mechanics` `## Targets`.
+  death; both are in `procs.md` (the two death bits), the order of a death in `wowsims-core-mechanics`
+  `## Targets and encounter plans`.
 
 ## Item and enchant procs
 

@@ -8,6 +8,7 @@ import { SIM_CATEGORY_OF_KEY, SimSettingCategories } from '@sim/constants/sim_se
 import { Database } from '@sim/proto/database';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { batch } from '@sim/state/batch';
+import { withoutMyEncounter } from '@sim/state/my_encounter_sharing';
 import { withViewerStatFilters } from '@sim/state/stat_filter_sharing';
 import { toastManager } from '@ui-kit/Toast';
 
@@ -104,7 +105,10 @@ const importSiml = async (host: IndividualSimHost<any>, text: string, path: stri
 	batch(() => {
 		// `fromProto` reads no category as every category, which a file of cooldowns alone must not do.
 		if (categories.length) {
-			host.fromProto(withViewerStatFilters(overPage(IndividualSimSettings, host.toProto(categories), settings), host.sim), categories);
+			host.fromProto(
+				withoutMyEncounter(withViewerStatFilters(overPage(IndividualSimSettings, host.toProto(categories), settings), host.sim)),
+				categories,
+			);
 		}
 		if (cooldowns) host.player.setSimpleCooldowns(cooldowns);
 	});

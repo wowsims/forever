@@ -23,23 +23,36 @@ func timeUntil(sim *Simulation, at time.Duration) time.Duration {
 	return max(at-sim.CurrentTime, 0)
 }
 
-// The current time while the target is enabled; else its schedule's next spawn, or NeverExpires with none.
+// The current time while the target is active; else the time a downtime or its wave brings it in next, or
+// NeverExpires.
 func (target *Target) NextActiveAt(sim *Simulation) time.Duration {
 	if target.IsEnabled() {
 		return sim.CurrentTime
 	}
-	if target.Schedule != nil {
-		return target.Schedule.NextActiveAt(sim)
+	plan := sim.Encounter.plan
+	if plan == nil {
+		return NeverExpires
 	}
-	return NeverExpires
+	state := &plan.targets[target.Index]
+	if state.wave != nil {
+		return state.wave.occurrences.nextAt()
+	}
+	return state.nextActiveAt
 }
 
-// The schedule's despawn, at the latest the fight's end. Without one, the fight's end for a target that is or will be
-// active, else NeverExpires.
+// When the target's current life ends: an add's despawn, the fight's end for the encounter's own targets and
+// for an add that outlives it. A target that is not active dies after the life its next activation starts,
+// or at NeverExpires with none.
 func (target *Target) DiesAt(sim *Simulation) time.Duration {
-	if target.Schedule != nil {
-		if at := target.Schedule.DiesAt(sim); at != NeverExpires {
-			return min(at, sim.Duration)
+	if plan := sim.Encounter.plan; plan != nil {
+		if state := &plan.targets[target.Index]; state.wave != nil {
+			if target.IsEnabled() {
+				return min(state.diesAt, sim.Duration)
+			}
+			if next := state.wave.occurrences.nextAt(); next != NeverExpires {
+				return min(next+state.wave.lifetime(sim), sim.Duration)
+			}
+			return NeverExpires
 		}
 	}
 	if target.NextActiveAt(sim) != NeverExpires {
@@ -57,7 +70,7 @@ func (encounter *Encounter) NumActiveAdds() int {
 }
 
 // Resolves the reference to an enemy target of the encounter, with a warning for a unit that is not one.
-func (rot *APLRotation) getDesignTargetUnit(ref *proto.UnitReference, uuid *proto.UUID) (UnitReference, bool) {
+func (rot *APLRotation) getPlanTargetUnit(ref *proto.UnitReference, uuid *proto.UUID) (UnitReference, bool) {
 	unit := rot.GetTargetUnit(ref)
 	resolvedUnit := unit.Get()
 	if resolvedUnit == nil {
@@ -76,7 +89,7 @@ type APLValueTargetIsActive struct {
 }
 
 func (rot *APLRotation) newValueTargetIsActive(config *proto.APLValueTargetIsActive, uuid *proto.UUID) APLValue {
-	unit, ok := rot.getDesignTargetUnit(config.TargetUnit, uuid)
+	unit, ok := rot.getPlanTargetUnit(config.TargetUnit, uuid)
 	if !ok {
 		return nil
 	}
@@ -116,7 +129,7 @@ type APLValueTimeUntilTargetActive struct {
 }
 
 func (rot *APLRotation) newValueTimeUntilTargetActive(config *proto.APLValueTimeUntilTargetActive, uuid *proto.UUID) APLValue {
-	unit, ok := rot.getDesignTargetUnit(config.TargetUnit, uuid)
+	unit, ok := rot.getPlanTargetUnit(config.TargetUnit, uuid)
 	if !ok {
 		return nil
 	}
@@ -142,7 +155,7 @@ type APLValueTimeUntilTargetDies struct {
 }
 
 func (rot *APLRotation) newValueTimeUntilTargetDies(config *proto.APLValueTimeUntilTargetDies, uuid *proto.UUID) APLValue {
-	unit, ok := rot.getDesignTargetUnit(config.TargetUnit, uuid)
+	unit, ok := rot.getPlanTargetUnit(config.TargetUnit, uuid)
 	if !ok {
 		return nil
 	}

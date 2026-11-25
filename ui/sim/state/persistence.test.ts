@@ -1,4 +1,4 @@
-import { Spec } from '@generated/proto/common';
+import { Encounter as EncounterProto, Spec } from '@generated/proto/common';
 import { DatabaseFilters, IndividualSimSettings, SimSettings, StatFilters } from '@generated/proto/ui';
 import { encodeLinkHash } from '@sim/state/sim_links';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
@@ -65,6 +65,33 @@ describe('loadIndividualSettings', () => {
 		const linked = envelope(SimSettings.create({ filters: DatabaseFilters.create({ minIlvl: 50, statFilters: linkedStatFilters }) }));
 
 		expect(DatabaseFilters.equals(await load(await linkLocation(linked, null)), await load())).toBe(true);
+	});
+});
+
+describe('the My encounters mark', () => {
+	const withEncounter = (name: string) =>
+		IndividualSimSettings.create({ ...envelope(), encounter: EncounterProto.create({ name, myEncounter: true, duration: 200 }) });
+
+	const loadEncounter = async (location: { hash: string; search: string }) => {
+		const env = memoryEnv(location);
+		env.storage.setItem(STORAGE_KEY, IndividualSimSettings.toJsonString(withEncounter('Two adds')));
+		const built = await makeIndividualSim({ env });
+		loadSettings(built);
+		return built.sim.encounter;
+	};
+
+	it('stays on the autosaved encounter through a reload', async () => {
+		const encounter = await loadEncounter({ hash: '', search: '' });
+
+		expect(encounter.getName()).toBe('Two adds');
+		expect(encounter.isMyEncounter()).toBe(true);
+	});
+
+	it('leaves the encounter of a link, even one marked and under the same name', async () => {
+		const encounter = await loadEncounter(await linkLocation(withEncounter('Two adds'), 'e'));
+
+		expect(encounter.getName()).toBe('Two adds');
+		expect(encounter.isMyEncounter()).toBe(false);
 	});
 });
 

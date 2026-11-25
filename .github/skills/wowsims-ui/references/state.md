@@ -99,6 +99,30 @@ with `CONSUMABLE_ORDER_FIELDS`. Prefer it to a hand-built `subscribeAll([...])` 
 source each render, and `useStoreSubscribe` re-subscribes whenever the source identity changes. A named field is also
 greppable and cannot capture the wrong object.
 
+**The encounter plan** is the store field `encounter:plan` (`ui/sim/raid/encounter.ts`: `getPlan`, `setPlan`,
+`hasPlan`), saved in the encounter proto only when it holds an event. The plan points at targets by index, so
+`setTargets` runs `remapPlanTargets`, which follows each old target object to its new position and sends a removed
+target's events to -1, where `validatePlan` flags them (an Environment Pulse or Area hit, `isEnvironmentArea` in
+`lanes.ts`, ignores its target index, so its -1 goes unflagged, while every other ability is flagged); `removeEvent`
+does the same for the waves an amp names; a
+preset matches the encounter by targets and plan together. The planner dialog is `ui/features/encounter-planner/components/EncounterPlanner/` over the model in
+`ui/features/encounter-planner/model/` (`lanes.ts`, `time.ts`, `validate.ts`), which has no DOM and no React. Where an
+ability's bar sits sets its source, so the panel has no Source picker: an Environment Pulse or Area hit sits in the
+Events section's Abilities lane, which offers only those two kinds, and every other ability, a Boss Pulse or Area hit
+included, sits on its target's row, where a switch to an area kind makes it that target's cast (`withAbilityKind`).
+
+**The encounter name** (`encounter:name`) and the mark `encounter:myEncounter` tie the encounter to My encounters, the
+encounters the player built in the planner, in a per-spec `useSavedData` slot keyed by name
+(`ui/features/encounter/hooks/useMyEncounters.ts`). Picking an entry, or storing one from the planner, sets the mark;
+`applyPreset` clears the name and the mark, and `matchesPreset` never matches a named encounter. The mark is in the
+encounter proto, so the autosave keeps it through a reload, and `withoutMyEncounter`
+(`ui/sim/state/my_encounter_sharing.ts`) drops it from every export and import, so an imported encounter under an entry's
+name reads as imported, and its Save adds a new entry under a free name. Both encounter choices, the picker's and the
+planner's, come from `useEncounterChoice` (`ui/features/encounter/hooks/useEncounterChoice.ts`). The planner's draft
+takes up the plan a choice made there writes. A fight with a plan (`hasPlan()` in `ui/sim/raid/encounter.ts`: an event
+in any lane) has its execute proportions in the planner's header only, and the Encounter panel shows them for a
+simple fight.
+
 `StoreField` has two aggregates, `'player:*'` and `'encounter:*'`, which re-render a component on every write to the
 slice. Use one only when nothing narrower works, and keep their number from growing:
 

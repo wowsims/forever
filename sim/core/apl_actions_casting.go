@@ -273,7 +273,7 @@ func (action *APLActionMultidot) IsReady(sim *Simulation) bool {
 			}
 		}
 	} else {
-		// The first maxDots active targets, since a target can be disabled or dead.
+		// The first maxDots active targets: a target can be down and a wave's pool slot idle.
 		dots := int32(0)
 		for _, target := range sim.Encounter.AllTargetUnits {
 			if !target.IsEnabled() {

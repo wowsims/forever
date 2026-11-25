@@ -36,7 +36,7 @@ Each line is a trap of `sim/core` that a spell's row cannot warn about, under th
 
 - **`Pet.Disable` expires only active auras**, which never-expiring auras never join, so a dismiss leaves permanent pet
   auras up (`sim/core/pet.go`). `Target.Disable(sim, true)` is the same: `expireAll` skips a `NeverExpires` aura, so a
-  permanent aura on a target survives its death (`sim/core/target.go`).
+  permanent aura on a target survives a death or a downtime (`sim/core/target.go`).
 
 ## Protos
 

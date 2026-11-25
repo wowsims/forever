@@ -2,7 +2,7 @@
 // (sim/siml/api_test.go).
 import { Player } from '@generated/proto/api';
 import { APLListItem, APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
-import { Spec } from '@generated/proto/common';
+import { Encounter, Spec } from '@generated/proto/common';
 import { IndividualSimSettings, SimlDiagnostic, SimlPrintResult } from '@generated/proto/ui';
 import { SimSettingCategories } from '@sim/constants/sim_settings';
 import { getEnumValues } from '@sim/utils/collections';
@@ -70,6 +70,15 @@ describe('SIML_EXPORTER', () => {
 		await SIML_EXPORTER.getData(host, ticked());
 		expect(toProto).toHaveBeenLastCalledWith([]);
 		expect(asked().categories).toEqual([]);
+	});
+
+	it('says nothing of the encounter being an entry of My encounters', async () => {
+		const own = fakeHost({
+			player: { getSpec: () => Spec.SpecHunter },
+			toProto: () => IndividualSimSettings.create({ encounter: Encounter.create({ name: 'Mine', myEncounter: true }) }),
+		});
+		await SIML_EXPORTER.getData(own, ticked(SimSettingCategories.Encounter));
+		expect(asked().settings.encounter).toMatchObject({ name: 'Mine', myEncounter: false });
 	});
 
 	it('refuses text that would not import, with its problems', async () => {

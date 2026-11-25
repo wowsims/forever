@@ -1,7 +1,8 @@
-import { Encounter, Target } from '@generated/proto/common';
+import { Encounter, EncounterPlan, PlanDowntime, Target } from '@generated/proto/common';
 import { BulkEncounterRef, SavedEncounter } from '@generated/proto/ui';
 import { bulkState, loadStoredBulkEncounters } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
+import { MY_ENCOUNTERS_STORAGE_KEY } from '@sim/state/storage_keys';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -25,14 +26,17 @@ const SAVED_KEY = 'saved-encounters';
 const encounter = (duration: number, durationVariation = 5, targets = 1) =>
 	Encounter.create({ duration, durationVariation, targets: Array.from({ length: targets }, () => Target.create()) });
 
-const hostWith = (presets: Array<{ name: string; encounter?: Encounter }>, saved: Record<string, Encounter>) => {
+const hostWith = (presets: Array<{ name: string; encounter?: Encounter }>, saved: Record<string, Encounter>, mine: Record<string, Encounter> = {}) => {
 	const player = makeBulkPlayer();
 	const record = Object.fromEntries(Object.entries(saved).map(([name, proto]) => [name, SavedEncounter.toJson(SavedEncounter.create({ encounter: proto }))]));
 	player.sim.env.storage.setItem(SAVED_KEY, JSON.stringify(record));
+	const myRecord = Object.fromEntries(Object.entries(mine).map(([name, proto]) => [name, Encounter.toJson(proto)]));
+	player.sim.env.storage.setItem(`test-${MY_ENCOUNTERS_STORAGE_KEY}`, JSON.stringify(myRecord));
 	return {
 		player,
 		sim: player.sim,
 		individualConfig: { presets: { encounters: presets } },
+		getStorageKey: (key: string) => `test-${key}`,
 		getSavedEncounterStorageKey: () => SAVED_KEY,
 	} as unknown as IndividualSimHost<any>;
 };
@@ -84,6 +88,20 @@ describe('pickableBulkEncounters', () => {
 			['Patchwerk', false, 120],
 		]);
 	});
+
+	it('lists My encounters between the presets and the saved encounters, leaving out one with no target', () => {
+		const host = hostWith(
+			[{ name: 'Patchwerk', encounter: encounter(300) }],
+			{ Council: encounter(90) },
+			{ Council: encounter(240), Empty: encounter(60, 5, 0) },
+		);
+
+		expect(pickableBulkEncounters(host).map(({ name, ref, encounter }) => [name, ref.preset, ref.myEncounter, encounter.duration])).toEqual([
+			['Patchwerk', true, false, 300],
+			['Council', false, true, 240],
+			['Council', false, false, 90],
+		]);
+	});
 });
 
 const CURRENT = encounter(180);
@@ -104,6 +122,22 @@ describe('bulkEncounterList', () => {
 			['Patchwerk', true, false, null],
 			['Council', false, false, null],
 			['Patchwerk', false, true, null],
+		]);
+	});
+
+	it('checks a saved encounter and an entry of My encounters of one name apart', () => {
+		const host = hostWith([], { Council: encounter(90) }, { Council: encounter(240) });
+		const mine = BulkEncounterRef.create({ name: 'Council', myEncounter: true });
+		const rows = (checked: BulkEncounterRef[]) =>
+			bulkEncounterList(CURRENT, pickableBulkEncounters(host), checked).map(row => [row.ref.myEncounter, row.checked, row.duplicateOf]);
+
+		expect(rows([mine])).toEqual([
+			[true, true, null],
+			[false, false, null],
+		]);
+		expect(rows([ref('Council')])).toEqual([
+			[true, false, null],
+			[false, true, null],
 		]);
 	});
 
@@ -144,11 +178,26 @@ describe('bulkEncounterList', () => {
 		expect(bulkEncounterRuns(CURRENT, entries, unticked)).toEqual([{ name: 'Three minutes', isCurrent: false, encounter: entries[0].encounter }]);
 	});
 
-	it('compares encounters without their proto version, zone and target names', () => {
+	it('compares encounters without their proto version, name, My encounters mark, zone, target names or an empty plan', () => {
 		const entries = [
 			entryOf('Raid', Encounter.create({ duration: 300, targets: [Target.create()] })),
-			entryOf('Raid elsewhere', Encounter.create({ duration: 300, apiVersion: 7, zoneId: 5, targets: [Target.create({ name: 'Boss' })] })),
+			entryOf(
+				'Raid elsewhere',
+				Encounter.create({
+					duration: 300,
+					apiVersion: 7,
+					name: 'Mine',
+					myEncounter: true,
+					zoneId: 5,
+					plan: EncounterPlan.create(),
+					targets: [Target.create({ name: 'Boss' })],
+				}),
+			),
 			entryOf('Longer raid', Encounter.create({ duration: 301, targets: [Target.create()] })),
+			entryOf(
+				'Raid with a downtime',
+				Encounter.create({ duration: 300, plan: EncounterPlan.create({ downtimes: [PlanDowntime.create()] }), targets: [Target.create()] }),
+			),
 		];
 
 		expect(
@@ -157,7 +206,7 @@ describe('bulkEncounterList', () => {
 				entries,
 				entries.map(entry => entry.ref),
 			).map(row => row.duplicateOf),
-		).toEqual([null, 'Raid', null]);
+		).toEqual([null, 'Raid', null, null]);
 	});
 });
 
@@ -190,5 +239,14 @@ describe('setBulkEncounterChecked', () => {
 
 		expect(bulkState(player).encounters).toEqual([ref('Raid', true)]);
 		expect(currentEncounterChecked(loadStoredBulkEncounters(player)!.encounters)).toBe(false);
+	});
+
+	it('stores an entry of My encounters under its own ref, leaving a saved encounter of its name alone', () => {
+		const player = makeBulkPlayer();
+		const mine = BulkEncounterRef.create({ name: 'Council', myEncounter: true });
+
+		setBulkEncounterChecked(player, mine, true, [mine, ref('Council')]);
+
+		expect(loadStoredBulkEncounters(player)?.encounters).toEqual([CURRENT_ENCOUNTER_REF, mine]);
 	});
 });

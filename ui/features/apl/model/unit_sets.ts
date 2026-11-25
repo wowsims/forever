@@ -1,7 +1,7 @@
 import { UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
 import { Player } from '@sim/player/player';
 
-export type UNIT_SET = 'aura_sources' | 'aura_sources_targets_first' | 'self_and_pets' | 'targets' | 'players';
+export type UNIT_SET = 'aura_sources' | 'aura_sources_targets_first' | 'self_and_pets' | 'targets' | 'any_target' | 'players';
 
 const ownPetRefs = (player: Player<any>) =>
 	player
@@ -9,11 +9,16 @@ const ownPetRefs = (player: Player<any>) =>
 		.asList()
 		.map((_petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) }));
 
+const targetRefs = (player: Player<any>) =>
+	player.sim.encounter.targetsMetadata.asList().map((_targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i }));
+
 export const unitSets: Record<
 	UNIT_SET,
 	{
 		// Uses target icon by default instead of person icon. This should be set to true for inputs that default to CurrentTarget.
 		targetUI?: boolean;
+		// The empty choice reads every target, so it shows as Any Target and the current target is a choice of its own.
+		emptyIsAny?: boolean;
 		getUnits: (player: Player<any>) => Array<UnitReference | undefined>;
 	}
 > = {
@@ -29,19 +34,14 @@ export const unitSets: Record<
 					.getActivePlayers()
 					.filter(filter => filter != player)
 					.map(mapPlayer => UnitReference.create({ type: UnitType.Player, index: mapPlayer.getRaidIndex() })),
-				player.sim.encounter.targetsMetadata.asList().map((targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
+				targetRefs(player),
 			].flat();
 		},
 	},
 	aura_sources_targets_first: {
 		targetUI: true,
 		getUnits: player => {
-			return [
-				undefined,
-				player.sim.encounter.targetsMetadata.asList().map((targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
-				UnitReference.create({ type: UnitType.Self }),
-				ownPetRefs(player),
-			].flat();
+			return [undefined, targetRefs(player), UnitReference.create({ type: UnitType.Self }), ownPetRefs(player)].flat();
 		},
 	},
 	// Lists every own pet. The sim drops a value read from a pet without that resource, so a bare action condition counts as always true and an And or Or loses that branch.
@@ -55,7 +55,20 @@ export const unitSets: Record<
 		getUnits: player => {
 			return [
 				undefined,
-				player.sim.encounter.targetsMetadata.asList().map((_targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
+				targetRefs(player),
+				UnitReference.create({ type: UnitType.PreviousTarget }),
+				UnitReference.create({ type: UnitType.NextTarget }),
+			].flat();
+		},
+	},
+	any_target: {
+		targetUI: true,
+		emptyIsAny: true,
+		getUnits: player => {
+			return [
+				undefined,
+				UnitReference.create({ type: UnitType.CurrentTarget }),
+				targetRefs(player),
 				UnitReference.create({ type: UnitType.PreviousTarget }),
 				UnitReference.create({ type: UnitType.NextTarget }),
 			].flat();

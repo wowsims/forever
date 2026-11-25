@@ -31,13 +31,18 @@ const unitOption = (unit: UnitValue, submenu?: Array<UnitValue>): PathOption<Uni
 	submenu,
 });
 
-/** The default unit shows its icon alone on the trigger. */
-const renderUnit = ({ value: unit, label }: ChoiceOption<UnitValue>) => (
-	<>
-		{(unit.icon || unit.iconUrl) && <UnitIcon icon={unit.icon} iconUrl={unit.iconUrl} />}
-		{unit.value && label}
-	</>
-);
+/** The default unit shows its icon alone on the trigger; where the empty choice is Any Target, its label when it has no icon. */
+const renderUnit =
+	(emptyIsAny: boolean | undefined) =>
+	({ value: unit, label }: ChoiceOption<UnitValue>) => {
+		const hasIcon = unit.icon || unit.iconUrl;
+		return (
+			<>
+				{hasIcon && <UnitIcon icon={unit.icon} iconUrl={unit.iconUrl} />}
+				{(unit.value || (emptyIsAny && !hasIcon)) && label}
+			</>
+		);
+	};
 
 /**
  * The unit a field points at.
@@ -46,7 +51,7 @@ const renderUnit = ({ value: unit, label }: ChoiceOption<UnitValue>) => (
  * label is re-resolved on every render, so a pet that gains a name updates without a store write.
  */
 export const UnitField = ({ player, config, unitSet }: UnitFieldProps) => {
-	const targetUI = unitSets[unitSet].targetUI;
+	const { targetUI, emptyIsAny } = unitSets[unitSet];
 	const metadataVersion = useUnitMetadataVersion(player.sim);
 	// eslint-disable-next-line react-hooks/exhaustive-deps -- the metadata version is what moves when the units do.
 	const models = useMemo(() => unitOptionModels(unitSet, player), [unitSet, player, metadataVersion]);
@@ -68,7 +73,7 @@ export const UnitField = ({ player, config, unitSet }: UnitFieldProps) => {
 	const boundConfig = {
 		...config,
 		extraClassNames: ['my-auto mr-2 ml-0', ...(config.extraClassNames || [])],
-		sourceToValue: (source: UnitReference | undefined) => withIconUrl(refToValue(source, player, targetUI)),
+		sourceToValue: (source: UnitReference | undefined) => withIconUrl(refToValue(source, player, targetUI, emptyIsAny)),
 		valueToSource: (unit: UnitValue) => unit.value,
 	};
 
@@ -81,7 +86,7 @@ export const UnitField = ({ player, config, unitSet }: UnitFieldProps) => {
 			equals={sameUnit}
 			variant="link"
 			placeholder={i18n.t('rotation_tab.apl.helpers.unit_placeholder')}
-			renderValue={renderUnit}
+			renderValue={renderUnit(emptyIsAny)}
 		/>
 	);
 };

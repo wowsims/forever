@@ -15,12 +15,12 @@
     "wowsims-apl": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "a063d514e2429f9bf82e342a3dbc5ccb446cc823d13b23b75b831804fafe8be0"
+      "computedHash": "80544532e882a4b1a73dd070e765d85ae0de2e0cec7eaa829f20ee667bc2671c"
     },
     "wowsims-bulk-sim": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "ed5640ccc79ad922fa21010fcdc4c183df1b67e81574f863e12a4c943124b12e"
+      "computedHash": "8a1294d6a5b46819598f3890e80af47476cd5a4bd2da7e82b9d3d880762dddf3"
     },
     "wowsims-consumables-items": {
       "source": "./.github/skills",
@@ -35,7 +35,7 @@
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "8b27438368b0cdb54e443926a4afcdc220d52e20251e553f819e5b507f70639f"
+      "computedHash": "5777f87888a81325ee5734e21c4104a42b682d6f3eb3a565131592b9cc7aec40"
     },
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
@@ -55,7 +55,7 @@
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "b360d62a11c41f44c38b38e3c02136c5f40c73be0547dde4ef07be4a1bb86e54"
+      "computedHash": "73a10503a87716eba2b054db1ca8845cb8ef3cc7f3a87157d42614b9cbcfa067"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",
@@ -70,7 +70,7 @@
     "wowsims-siml": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "eb9775b77193fce0e77fd890ca441f2c29a97ce11cb9a69d18c6004d692dad04"
+      "computedHash": "b2f8df6b5525cf07f150e7f144279cab9e44af44e8cdc980340ba4f85315a782"
     },
     "wowsims-spec-implementation": {
       "source": "./.github/skills",
@@ -95,7 +95,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "0bd3bf4745748402982ee2338e6619be508b8be670c0eeb5f912b4de23499651"
+      "computedHash": "58159543fd6f88efa5079f64edf10f69606793166b628f7e71f41e7840205bf2"
     }
   }
 }

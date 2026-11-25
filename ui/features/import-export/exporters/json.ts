@@ -2,6 +2,7 @@ import { IndividualSimSettings } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import type { SimSettingCategories } from '@sim/constants/sim_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
+import { withoutMyEncounter } from '@sim/state/my_encounter_sharing';
 import { LINK_DEFAULT_CATEGORIES } from '@sim/state/sim_links';
 import { withoutStatFilters } from '@sim/state/stat_filter_sharing';
 import { jsonStringifyWithFlattenedPaths } from '@sim/utils/json';
@@ -14,21 +15,25 @@ export const createSettingsJson = (host: IndividualSimHost<any>, exportCategorie
 		exportCategories = LINK_DEFAULT_CATEGORIES;
 	}
 
-	return jsonStringifyWithFlattenedPaths(IndividualSimSettings.toJson(withoutStatFilters(host.toProto(exportCategories))), 2, (value, path) => {
-		if (['stats', 'pseudoStats', 'itemSwap'].includes(path[path.length - 1])) {
-			return true;
-		}
+	return jsonStringifyWithFlattenedPaths(
+		IndividualSimSettings.toJson(withoutMyEncounter(withoutStatFilters(host.toProto(exportCategories)))),
+		2,
+		(value, path) => {
+			if (['stats', 'pseudoStats', 'itemSwap'].includes(path[path.length - 1])) {
+				return true;
+			}
 
-		if (['player', 'equipment', 'items'].every((v, i) => path[i] == v)) {
-			return path.length > 3;
-		}
+			if (['player', 'equipment', 'items'].every((v, i) => path[i] == v)) {
+				return path.length > 3;
+			}
 
-		if (path[0] == 'player' && path[1] == 'rotation' && ['prepullActions', 'priorityList', 'groups', 'valueVariables'].includes(path[2])) {
-			return path.length > 3;
-		}
+			if (path[0] == 'player' && path[1] == 'rotation' && ['prepullActions', 'priorityList', 'groups', 'valueVariables'].includes(path[2])) {
+				return path.length > 3;
+			}
 
-		return false;
-	});
+			return false;
+		},
+	);
 };
 
 export const JSON_EXPORTER: ExporterDefinition = {
