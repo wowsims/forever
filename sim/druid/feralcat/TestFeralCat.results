@@ -238,6 +238,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 811.36738
+  tps: 602.09628
+  hps: 45.98722
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Champion'sRefuge"
  value: {
   dps: 655.29794

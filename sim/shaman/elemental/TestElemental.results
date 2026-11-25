@@ -374,6 +374,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 876.97436
+  tps: 806.86901
+  dtps: 7.91472
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Champion'sEarthshaker"
  value: {
   dps: 703.63897

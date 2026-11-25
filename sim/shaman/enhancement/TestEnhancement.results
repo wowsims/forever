@@ -288,6 +288,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 950.30522
+  tps: 695.12302
+  dtps: 8.08862
+  hps: 20.74
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-Champion'sEarthshaker"
  value: {
   dps: 841.74416

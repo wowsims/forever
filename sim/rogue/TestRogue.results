@@ -310,6 +310,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 811.4375
+  tps: 576.12063
+  hps: 59.11917
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Champion'sVestments"
  value: {
   dps: 731.59313

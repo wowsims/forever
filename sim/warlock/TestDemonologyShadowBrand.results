@@ -206,6 +206,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 913.91965
+  tps: 752.28731
+  dtps: 11.05844
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Champion'sDreadgear"
  value: {
   dps: 913.60242

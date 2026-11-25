@@ -459,6 +459,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 585.57375
+  tps: 1869.07322
+  dtps: 329.30441
+  hps: 42.57623
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-Champion'sBattlearmor"
  value: {
   dps: 568.8909
