@@ -200,8 +200,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 515.64658
-  tps: 437.73117
+  dps: 514.48768
+  tps: 436.80405
   dtps: 2.97628
   hps: 25.02694
  }
@@ -272,8 +272,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BloodTalon-12795"
  value: {
-  dps: 562.60407
-  tps: 487.60591
+  dps: 562.54147
+  tps: 487.55582
   dtps: 2.94293
   hps: 51.85
  }
@@ -299,8 +299,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Bloodrazor-809"
  value: {
-  dps: 589.31476
-  tps: 505.07838
+  dps: 589.20842
+  tps: 504.9933
   dtps: 2.94293
   hps: 40.27694
  }
@@ -623,8 +623,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-DrakefangButcher-12463"
  value: {
-  dps: 514.54902
-  tps: 439.00754
+  dps: 514.33486
+  tps: 438.83621
   dtps: 2.97628
   hps: 28.22944
  }
@@ -1082,8 +1082,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-GargoyleShredderTalons-13399"
  value: {
-  dps: 565.93214
-  tps: 489.02098
+  dps: 565.8305
+  tps: 488.93966
   dtps: 2.97628
   hps: 47.86806
  }
@@ -1091,8 +1091,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-GatorbiteAxe-17730"
  value: {
-  dps: 512.29415
-  tps: 434.88561
+  dps: 512.04897
+  tps: 434.68947
   dtps: 2.97628
   hps: 25.75556
  }
@@ -1118,8 +1118,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 548.01285
-  tps: 474.68666
+  dps: 547.87675
+  tps: 474.57778
   dtps: 2.94293
   hps: 43.83528
  }
@@ -1190,8 +1190,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 563.73244
-  tps: 486.40387
+  dps: 563.67382
+  tps: 486.35698
   dtps: 2.94293
   hps: 44.53
  }
@@ -1370,8 +1370,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-KangtheDecapitator-2291"
  value: {
-  dps: 525.85943
-  tps: 444.99003
+  dps: 525.5296
+  tps: 444.72617
   dtps: 2.97628
   hps: 23.79
  }
@@ -1766,8 +1766,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-RockonStick-279852"
  value: {
-  dps: 573.89428
-  tps: 494.61219
+  dps: 573.09044
+  tps: 493.96912
   dtps: 2.94293
   hps: 40.85306
  }
@@ -2108,8 +2108,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 548.11196
-  tps: 461.46087
+  dps: 545.84784
+  tps: 459.64957
   dtps: 2.97628
   hps: 22.75639
  }

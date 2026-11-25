@@ -661,7 +661,8 @@ func init() {
 	// much damage if applied while behind the target.
 	//
 	// Rend 1300787's second effect, a dummy, states the multiplier a Rend applied from behind the target
-	// deals its ticks with (EV-0146).
+	// deals its ticks with (EV-0146). Its ticks meet a tenth of the target's armor, as its row's
+	// attributes say (EV-0194).
 	shared.DamageProcExtras[12791] = func(character *core.Character, config *core.SpellConfig) {
 		if !character.PseudoStats.InFrontOfTarget {
 			config.DamageMultiplier *= spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Average()

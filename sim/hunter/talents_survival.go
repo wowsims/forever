@@ -203,8 +203,8 @@ func (hunter *Hunter) registerLaceratingStrikes() {
 
 	config := spelldata.SpellConfig(&hunter.Unit, laceratingStrikesBleed, spelldata.Proc())
 	config.ProcMask = core.ProcMaskEmpty
-	// A share of the damage the bite dealt, which has every modifier on it already.
-	config.Flags |= core.SpellFlagIgnoreModifiers
+	// A share of the damage the bite dealt, which has every modifier and the target's armor on it already.
+	config.Flags |= core.SpellFlagIgnoreModifiers | core.SpellFlagIgnoreResists
 
 	// The tick is a share of the bite that landed, not the row's amount: 1310536's periodic effect
 	// states one base point, so the amount is snapshot from the bite and the resolver's tick replaced.
