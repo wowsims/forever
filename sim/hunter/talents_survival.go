@@ -169,7 +169,7 @@ func (hunter *Hunter) registerStriderKick() {
 	config := spelldata.SpellConfig(&hunter.Unit, striderKickRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
 	// Effect 3 is the hunter's own movement speed for the row's duration.
-	// TODO: In-game testing required. The speed is taken to come with a kick that misses too.
+	// The speed comes with a kick that misses, is dodged or is parried too (EV-0206).
 	speed := hunter.RegisterAura(spelldata.AuraConfig(striderKickRank))
 	speed.NewActiveMovementSpeedEffect(striderKickRank.EffectN(3).Percent())
 

@@ -400,9 +400,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 750.07272
-  tps: 483.6299
-  dtps: 4.29794
+  dps: 752.46426
+  tps: 486.02144
+  dtps: 4.37982
  }
 }
 dps_results: {
@@ -1930,6 +1930,14 @@ dps_results: {
   dps: 748.96056
   tps: 482.56182
   dtps: 4.61634
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-ShellLauncherShotgun-13146"
+ value: {
+  dps: 749.90826
+  tps: 482.2693
+  dtps: 3.75143
  }
 }
 dps_results: {

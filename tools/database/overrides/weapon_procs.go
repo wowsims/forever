@@ -892,10 +892,10 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Spellsever Crossbow: no proc row",
 		Source:  "EV-0136",
 	},
-	// Fitted the same way on the reports from 2026-11-06 to 2026-11-22 from wearers of one class, too wide an interval,
+	// Fitted the same way on the reports from 2026-11-06 to 2026-11-24 from wearers of one class, too wide an interval,
 	// a lone-unit rate that disagrees or no lone-unit rate to check it, so not final (EV-0120, EV-0136, EV-0146,
-	// EV-0153, EV-0157, EV-0177, EV-0178, EV-0183). The "observed" Source keeps the gear tab's notice up until more
-	// wearers validate it.
+	// EV-0153, EV-0157, EV-0177, EV-0178, EV-0183, EV-0209). The "observed" Source keeps the gear tab's notice up until
+	// more wearers validate it.
 	{
 		ItemID:  810,
 		SpellID: 13439,
@@ -1111,6 +1111,13 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 18202,
 		PPM:     0.9,
 		Reason:  "Bloodpike: column reads 101; a log fit not yet validated (EV-0183)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  13146,
+		SpellID: 29647,
+		PPM:     3.75,
+		Reason:  "Shell Launcher Shotgun: no proc row; a log fit not yet validated (EV-0209)",
 		Source:  "observed",
 	},
 	{
@@ -1552,13 +1559,6 @@ var WeaponProcs = []WeaponProc{
 	// 	SpellID: 16871,
 	// 	PPM:     0, // TODO: waiting for PPM data
 	// 	Reason:  "Bleakwood Hew: column reads 101",
-	// 	Source:  "vanilla-carryover",
-	// },
-	// {
-	// 	ItemID:  13146,
-	// 	SpellID: 29647,
-	// 	PPM:     0, // TODO: waiting for PPM data
-	// 	Reason:  "Shell Launcher Shotgun: no proc row",
 	// 	Source:  "vanilla-carryover",
 	// },
 	// {

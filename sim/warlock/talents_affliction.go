@@ -129,9 +129,12 @@ func (warlock *Warlock) registerAmplifyCurse() {
 	// Bane of Agony is in neither class mask in the game files, so it is matched by its own spell mask.
 	ampWeakness, ampExhaustion := rankedSpell.EffectN(1).ClassFlags, rankedSpell.EffectN(2).ClassFlags
 
-	// TODO: Confirm that the amp is consumed on cast, regardless of hit.
+	// A curse spends it when it lands; one that misses or is fully resisted leaves it up (EV-0200).
 	auraConfig := spelldata.AuraConfig(rankedSpell)
-	auraConfig.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+	auraConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		if !result.Landed() {
+			return
+		}
 		if spell.MatchesFlags(ampWeakness) || spell.MatchesFlags(ampExhaustion) || spell.Matches(WarlockSpellBaneOfAgony) {
 			aura.Deactivate(sim)
 		}
@@ -250,7 +253,7 @@ func (warlock *Warlock) soulSiphonChannelConfig(rankedSpell *spelldata.Spell, ti
 
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 
-	// TODO: Confirm no snapshot from Soul Siphon.
+	// The tick reads the Soul Siphon multiplier when it lands, with no snapshot at the channel's start (EV-0205).
 	// TODO: Confirm in game whether spell haste shortens the ticks; the rows carry no haste attribute, so
 	// neither AffectedByCastSpeed nor HasteReducesDuration is set.
 	config.Dot = spelldata.DotConfig(rankedSpell, tick)

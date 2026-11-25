@@ -600,15 +600,15 @@ var Spells = []Override{
 		Source:  "observed",
 	},
 
-	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 2, 4 and 5 and Thunder Clap
-	// Ranks 1 and 4 were measured; the other ranks carry the same share until a log at their level says
-	// otherwise (EV-0019, EV-0048).
+	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 1 to 6 and Thunder Clap
+	// Ranks 1 to 6 were measured; Rend Rank 7 carries the same share until a log at its level says
+	// otherwise (EV-0019, EV-0048, EV-0203).
 	{
 		SpellID: 772,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
-		Reason:  "Rend Rank 1: Rank 2's measured share per tick",
-		Source:  "EV-0019",
+		Reason:  "Rend Rank 1: ticks take 0.02 x Attack Power",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 6546,
@@ -621,8 +621,8 @@ var Spells = []Override{
 		SpellID: 6547,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
-		Reason:  "Rend Rank 3: Rank 2's measured share per tick",
-		Source:  "EV-0019",
+		Reason:  "Rend Rank 3: ticks take 0.02 x Attack Power",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 6548,
@@ -642,8 +642,8 @@ var Spells = []Override{
 		SpellID: 11573,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
-		Reason:  "Rend Rank 6: Rank 2's measured share per tick",
-		Source:  "EV-0019",
+		Reason:  "Rend Rank 6: ticks take 0.02 x Attack Power, read on every tick",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 11574,
@@ -663,15 +663,15 @@ var Spells = []Override{
 		SpellID: 8198,
 		Field:   APCoefDirect,
 		Value:   0.07,
-		Reason:  "Thunder Clap Rank 2: Rank 1's measured share",
-		Source:  "EV-0019",
+		Reason:  "Thunder Clap Rank 2: hits deal 0.07 x Attack Power, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 8204,
 		Field:   APCoefDirect,
 		Value:   0.07,
-		Reason:  "Thunder Clap Rank 3: Rank 1's measured share",
-		Source:  "EV-0019",
+		Reason:  "Thunder Clap Rank 3: hits deal 0.07 x Attack Power, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 8205,
@@ -684,15 +684,15 @@ var Spells = []Override{
 		SpellID: 11580,
 		Field:   APCoefDirect,
 		Value:   0.07,
-		Reason:  "Thunder Clap Rank 5: Rank 1's measured share",
-		Source:  "EV-0019",
+		Reason:  "Thunder Clap Rank 5: hits deal 0.07 x Attack Power, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 11581,
 		Field:   APCoefDirect,
 		Value:   0.07,
-		Reason:  "Thunder Clap Rank 6: Rank 1's measured share",
-		Source:  "EV-0019",
+		Reason:  "Thunder Clap Rank 6: hits deal 0.07 x Attack Power, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 16864,
@@ -1004,27 +1004,28 @@ var Spells = []Override{
 	},
 
 	// Revenge's Attack Power share, the $APR its tooltip states: 0.225 in Defensive Stance is the stance's
-	// own 10%, which stays out of these values. Logs on Ranks 1 and 2 taken before that tooltip fit 0.28 (EV-0049).
+	// own 10%, which stays out of these values. Ranks 1 to 5 fit 0.25 in later logs (EV-0048, EV-0203); logs on Ranks 1
+	// and 2 taken before that tooltip fit 0.28 (EV-0049).
 	{
 		SpellID: 6572,
 		Field:   APCoefDirect,
-		Value:   0.25, // TODO: Measure Revenge Rank 1 in game.
-		Reason:  "Revenge Rank 1: the tooltip's $APR outside Defensive Stance",
-		Source:  "tooltip",
+		Value:   0.25,
+		Reason:  "Revenge Rank 1: 0.25 of attack power outside Defensive Stance, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 6574,
 		Field:   APCoefDirect,
-		Value:   0.25, // TODO: Measure Revenge Rank 2 in game.
-		Reason:  "Revenge Rank 2: the tooltip's $APR outside Defensive Stance",
-		Source:  "tooltip",
+		Value:   0.25,
+		Reason:  "Revenge Rank 2: 0.25 of attack power outside Defensive Stance, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 7379,
 		Field:   APCoefDirect,
-		Value:   0.25, // TODO: Measure Revenge Rank 3 in game.
-		Reason:  "Revenge Rank 3: the tooltip's $APR outside Defensive Stance",
-		Source:  "tooltip",
+		Value:   0.25,
+		Reason:  "Revenge Rank 3: 0.25 of attack power outside Defensive Stance, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 11600,
@@ -1036,9 +1037,9 @@ var Spells = []Override{
 	{
 		SpellID: 11601,
 		Field:   APCoefDirect,
-		Value:   0.25, // TODO: Measure Revenge Rank 5 in game.
-		Reason:  "Revenge Rank 5: the tooltip's $APR outside Defensive Stance",
-		Source:  "tooltip",
+		Value:   0.25,
+		Reason:  "Revenge Rank 5: 0.25 of attack power outside Defensive Stance, measured",
+		Source:  "EV-0203",
 	},
 	{
 		SpellID: 25288,
