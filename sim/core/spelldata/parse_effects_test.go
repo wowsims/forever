@@ -570,6 +570,7 @@ func TestEveryTableRow(t *testing.T) {
 		{pct, int32(dbcenums.SPELLMOD_PROC_COOLDOWN), -50, "SpellMod_ProcCooldown_Pct", -0.5, false},
 		{pct, int32(dbcenums.SPELLMOD_GLOBAL_COOLDOWN), -10, "SpellMod_GlobalCooldown_Pct", -0.1, false},
 		{pct, int32(dbcenums.SPELLMOD_RANGE), 10, "SpellMod_Range_Pct", 0.1, false},
+		{pct, int32(dbcenums.SPELLMOD_NOT_LOSE_CASTING_TIME), 70, "SpellMod_PushbackProtection_Pct", 0.7, false},
 		{pct, int32(dbcenums.SPELLMOD_EFFECT1), 10, "effect1-assumed-damage SpellMod_DamageDone_Flat", 0.1, false},
 		{pct, int32(dbcenums.SPELLMOD_EFFECT2), 10, "effect2-assumed-damage SpellMod_DamageDone_Flat", 0.1, false},
 		{pct, int32(dbcenums.SPELLMOD_EFFECT3), 10, "effect3-assumed-damage SpellMod_DamageDone_Flat", 0.1, false},

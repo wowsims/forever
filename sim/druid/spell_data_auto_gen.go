@@ -11,7 +11,6 @@ import (
 
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
 //   Bloom: effect 0, 1 of spell 1328621 has no rank curve and is held at its base points
-//   Eclipse: effect 2, 3 of spell 408248 has no rank curve and is held at its base points
 //   Natural Reaction: effect 2, 3 of spell 417051 has no rank curve and is held at its base points
 //   Nature's Splendor: effect 0, 1, 2 of spell 1223083 has no rank curve and is held at its base points
 //   Predatory Discipline: effect 0 of spell 1328613 has no rank curve and is held at its base points
@@ -43,6 +42,7 @@ type generatedSpellData struct {
 	DemoralizingRoar          spelldata.Ladder
 	DireBearForm              spelldata.Ladder
 	DireBearFormTriggered     spelldata.Ladder
+	Dreamstate                spelldata.Ladder
 	Eclipse                   spelldata.Ladder
 	EclipseTriggered          spelldata.Ladder
 	Enrage                    spelldata.Ladder
@@ -72,14 +72,12 @@ type generatedSpellData struct {
 	ImprovedEnrageTriggered   spelldata.Ladder
 	ImprovedEntanglingRoots   spelldata.Ladder
 	ImprovedMarkOfTheWild     spelldata.Ladder
-	ImprovedMoonfire          spelldata.Ladder
 	ImprovedRegrowth          spelldata.Ladder
 	ImprovedRejuvenation      spelldata.Ladder
 	ImprovedStarfire          spelldata.Ladder
 	ImprovedStarfireTriggered spelldata.Ladder
 	ImprovedThorns            spelldata.Ladder
 	ImprovedTranquility       spelldata.Ladder
-	ImprovedWrath             spelldata.Ladder
 	Innervate                 spelldata.Ladder
 	InsectSwarm               spelldata.Ladder
 	Lacerate                  spelldata.Ladder
@@ -88,8 +86,8 @@ type generatedSpellData struct {
 	LivingSpirit              spelldata.Ladder
 	MarkOfTheWild             spelldata.Ladder
 	Maul                      spelldata.Ladder
+	MoonAndStars              spelldata.Ladder
 	Moonfire                  spelldata.Ladder
-	Moonfury                  spelldata.Ladder
 	Moonglow                  spelldata.Ladder
 	MoonkinForm               spelldata.Ladder
 	MoonkinFormTriggered      spelldata.Ladder
@@ -135,6 +133,7 @@ type generatedSpellData struct {
 	ShreddingAttacks          spelldata.Ladder
 	SootheAnimal              spelldata.Ladder
 	Starfire                  spelldata.Ladder
+	StarlightWrath            spelldata.Ladder
 	Subtlety                  spelldata.Ladder
 	Swiftmend                 spelldata.Ladder
 	Swipe                     spelldata.Ladder
@@ -176,6 +175,7 @@ var spellData = generatedSpellData{
 	DemoralizingRoar:          spelldata.Ranked(99, 1735, 9490, 9747, 9898),
 	DireBearForm:              spelldata.Ranked(9634),
 	DireBearFormTriggered:     spelldata.Ranked(9635),
+	Dreamstate:                spelldata.Talent(408258, 5),
 	Eclipse:                   spelldata.Talent(408248, 3),
 	EclipseTriggered:          spelldata.Ranked(408255),
 	Enrage:                    spelldata.Ranked(5229),
@@ -205,14 +205,12 @@ var spellData = generatedSpellData{
 	ImprovedEnrageTriggered:   spelldata.Ranked(17080, 17081),
 	ImprovedEntanglingRoots:   spelldata.Talent(16918, 3),
 	ImprovedMarkOfTheWild:     spelldata.Ranked(17050, 17051, 17053, 17054, 17055),
-	ImprovedMoonfire:          spelldata.Talent(16821, 2),
 	ImprovedRegrowth:          spelldata.Talent(17074, 5),
 	ImprovedRejuvenation:      spelldata.Talent(17111, 3),
-	ImprovedStarfire:          spelldata.Talent(16850, 5),
+	ImprovedStarfire:          spelldata.Talent(16850, 2),
 	ImprovedStarfireTriggered: spelldata.Ranked(16922),
 	ImprovedThorns:            spelldata.Ranked(16836, 16839, 16840),
 	ImprovedTranquility:       spelldata.Talent(17123, 2),
-	ImprovedWrath:             spelldata.Talent(16814, 5),
 	Innervate:                 spelldata.Ranked(29166),
 	InsectSwarm:               spelldata.Ranked(5570, 24974, 24975, 24976, 24977),
 	Lacerate:                  spelldata.Ranked(1328617, 1328616, 414644, 1235826, 1235827),
@@ -221,8 +219,8 @@ var spellData = generatedSpellData{
 	LivingSpirit:              spelldata.Talent(1309631, 3),
 	MarkOfTheWild:             spelldata.Ranked(1126, 5232, 6756, 5234, 8907, 9884, 9885),
 	Maul:                      spelldata.Ranked(6807, 6808, 6809, 8972, 9745, 9880, 9881),
+	MoonAndStars:              spelldata.Talent(16821, 2),
 	Moonfire:                  spelldata.Ranked(8921, 8924, 8925, 8926, 8927, 8928, 8929, 9833, 9834, 9835),
-	Moonfury:                  spelldata.Talent(16896, 5),
 	Moonglow:                  spelldata.Talent(16845, 3),
 	MoonkinForm:               spelldata.Ranked(24858),
 	MoonkinFormTriggered:      spelldata.Ranked(24905, 24907),
@@ -268,6 +266,7 @@ var spellData = generatedSpellData{
 	ShreddingAttacks:          spelldata.Talent(16966, 3),
 	SootheAnimal:              spelldata.Ranked(2908, 8955, 9901),
 	Starfire:                  spelldata.Ranked(2912, 8949, 8950, 8951, 9875, 9876, 25298),
+	StarlightWrath:            spelldata.Talent(16814, 5),
 	Subtlety:                  spelldata.Talent(17118, 3),
 	Swiftmend:                 spelldata.Ranked(18562),
 	Swipe:                     spelldata.Ranked(779, 780, 769, 9754, 9908),

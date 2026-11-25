@@ -28,7 +28,7 @@ message ProtoVersion {
 	// The version the UI stamps every api_version field with. TestProtoVersioning
 	// fails a breaking proto change that does not raise it. A raise comes with
 	// a UI migration for payloads saved under the older number (AGENTS.md).
-	option (current_version_number) = 2;
+	option (current_version_number) = 3;
 
 	// The actual field value is only used within unit tests.
 	int32 saved_version_number = 1;
