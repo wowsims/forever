@@ -10,7 +10,7 @@
 - Game build: 1.60.1.71091; the hotfix push the session ran on is not recorded, nor whether the player relogged after
   it
 - Date: 2026-11-24
-- Pull request: not opened yet
+- Pull request: #1220
 
 ## Holy Strike against Undead
 
