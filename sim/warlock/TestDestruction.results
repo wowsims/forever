@@ -206,6 +206,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 892.11088
+  tps: 702.84985
+  dtps: 10.23962
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Champion'sDreadgear"
  value: {
   dps: 882.76262

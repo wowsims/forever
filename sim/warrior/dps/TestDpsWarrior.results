@@ -387,6 +387,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-ChainedEssenceofEranikus-10455"
+ value: {
+  dps: 559.85263
+  tps: 482.40793
+  dtps: 2.94293
+  hps: 43.4625
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-ClawofCelebras-17738"
  value: {
   dps: 556.22662
