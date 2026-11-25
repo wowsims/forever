@@ -217,8 +217,8 @@ func wantCastTimeRate(t *testing.T, name string, rowID int32, castTime time.Dura
 // and The Five Thunders reissue's 4-piece 450626. Each row hears melee swings and spell casts at its procs
 // per minute: a landed white swing rolls the rate on its weapon's speed, a spell cast on the time it took
 // and at least castTimeFloor, and a spell's hit or a heal's landing rolls nothing. A buff cast that costs
-// its caster a resource rolls as a spell does, off the global cooldown too; a cast that costs nothing and a
-// melee ability roll nothing.
+// its caster mana rolls as a spell does, off the global cooldown too; a cast that costs nothing or only
+// rage, and a melee ability, roll nothing.
 func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.T) {
 	for _, tc := range []struct {
 		name   string
@@ -281,7 +281,9 @@ func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.
 			}
 			return procs
 		}
-		onGCD, costly := core.Cast{GCD: core.GCDDefault}, &core.SpellCost{BaseCost: 1}
+		onGCD := core.Cast{GCD: core.GCDDefault}
+		costly := &core.SpellCost{BaseCost: 1, ResourceCostImpl: &core.ManaCost{}}
+		rageCost := &core.SpellCost{BaseCost: 1, ResourceCostImpl: &core.RageCost{}}
 		for _, cast := range []struct {
 			spell    *core.Spell
 			castTime time.Duration
@@ -299,6 +301,7 @@ func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.
 			spell *core.Spell
 		}{
 			{"a cast that costs nothing", &core.Spell{ProcMask: core.ProcMaskEmpty, DefaultCast: onGCD, Unit: &wearer.Unit}},
+			{"a cast that costs only rage", &core.Spell{ProcMask: core.ProcMaskEmpty, Cost: rageCost, DefaultCast: onGCD, Unit: &wearer.Unit}},
 			{"a melee ability", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, Cost: costly, DefaultCast: onGCD, Unit: &wearer.Unit}},
 		} {
 			if procs := castProcs(cast.spell, 0); procs != 0 {
