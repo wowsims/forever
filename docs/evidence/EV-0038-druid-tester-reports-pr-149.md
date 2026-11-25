@@ -13,4 +13,4 @@ What the pull request body records for Rake, and the Swipe Rank 5 override's Sou
 | Rake 1822, 1823, 1824, 9904, attack power per tick | 0.055 (APCoefPeriodic)         | two testers, 2026-10-01                               |
 | Swipe Rank 5 (9908)                                | 3% of attack power on each hit | Rake and Swipe attack power scaling tests, 2026-10-01 |
 
-A tester's table showed Rake ticks, the Rake hit and Claw rising by the talent's percent with a bleed on the target, and the Rake hit staying put without one. A tester's report stated that Rake's initial hit is not reduced by armor, although only the periodic effect states the bleed mechanic. No counts are recorded in the body.
+A tester's table showed Rake and Rip ticks, the Rake hit and Claw rising by the talent's percent with a bleed on the target, and the Rake hit staying put without one. A tester's report stated that Rake's initial hit is not reduced by armor, although only the periodic effect states the bleed mechanic. No counts are recorded in the body.
