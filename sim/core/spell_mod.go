@@ -675,6 +675,10 @@ const (
 	// SPELLMOD_DAMAGE (misc 0) rows are in game.
 	// Uses FloatValue
 	SpellMod_DirectDamageDone_Pct
+
+	// Adds to the chance a hit does not push back the spell's hardcast: 0.7 is 70%. Two mods add.
+	// Uses FloatValue
+	SpellMod_PushbackProtection_Pct
 )
 
 // The kinds the unit's proc triggers read when they roll or start their cooldown, rather than spells.
@@ -864,6 +868,11 @@ var spellModMap = map[SpellModType]*SpellModFunctions{
 	SpellMod_DirectDamageDone_Pct: {
 		Apply:  applyDirectDamageDonePercent,
 		Remove: removeDirectDamageDonePercent,
+	},
+
+	SpellMod_PushbackProtection_Pct: {
+		Apply:  applyPushbackProtectionPercent,
+		Remove: removePushbackProtectionPercent,
 	},
 
 	// buildMod hands these to the unit's proc triggers, which read them when they roll, and to no
@@ -1438,6 +1447,14 @@ func applyDirectDamageDonePercent(mod *SpellMod, spell *Spell) {
 
 func removeDirectDamageDonePercent(mod *SpellMod, spell *Spell) {
 	spell.DirectDamageMultiplier /= 1 + mod.floatValue
+}
+
+func applyPushbackProtectionPercent(mod *SpellMod, spell *Spell) {
+	spell.PushbackProtection += mod.floatValue
+}
+
+func removePushbackProtectionPercent(mod *SpellMod, spell *Spell) {
+	spell.PushbackProtection -= mod.floatValue
 }
 
 // The chance a proc trigger with these class flags of its own rolls, once the unit's active proc

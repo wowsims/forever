@@ -99,3 +99,6 @@ rogue.spell.death_mark_rank4: was spell 1325758 rank 4, now nothing
 rogue.spell.venom: was spell 1310703, now spell 1329328
 rogue.spell.venom_1329328: was spell 1329328, now nothing
 item.totem_of_the_storm_272432: was item 272432, now nothing
+druid.spell.improved_wrath: was spell 16814, now nothing
+druid.spell.improved_moonfire: was spell 16821, now nothing
+druid.spell.moonfury: was spell 16896, now nothing

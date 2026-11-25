@@ -25,7 +25,7 @@ func (shaman *Shaman) registerElementalTalents() {
 
 	// Tier 4
 	shaman.applyTrialByFire()
-	// Eye of the Storm (29062) reduces pushback only, which the sim does not model.
+	shaman.applyEyeOfTheStorm()
 	// Earthbound (1222988) makes Earthbind Totem root, which the sim does not model.
 
 	// Tier 5
@@ -192,6 +192,14 @@ func (shaman *Shaman) applyTrialByFire() {
 		return
 	}
 	spelldata.ParseStatic(&shaman.Character, spellData.TrialByFire.Rank(shaman.Talents.TrialByFire))
+}
+
+// The chance a hit does not push back a hardcast of the spells its class flags name.
+func (shaman *Shaman) applyEyeOfTheStorm() {
+	if shaman.Talents.EyeOfTheStorm == 0 {
+		return
+	}
+	spelldata.ParseStatic(&shaman.Character, spellData.EyeOfTheStorm.Rank(shaman.Talents.EyeOfTheStorm))
 }
 
 // The range the row states reaches the spells' range checks only. Effect 3 is a dummy.

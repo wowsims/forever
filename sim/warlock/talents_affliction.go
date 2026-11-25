@@ -108,13 +108,14 @@ func (warlock *Warlock) applyImprovedBaneOfAgony() {
 	spelldata.ParseStatic(&warlock.Character, spellData.ImprovedBaneOfAgony.Rank(warlock.Talents.ImprovedBaneOfAgony))
 }
 
-// TODO: Not implemented, as it does not affect sims for now.
-// The row is SPELLMOD_NOT_LOSE_CASTING_TIME (pushback protection) on the drains and Wrack,
-// which the parse skips; it matters only once the sim models pushback from damage taken.
+// The chance a hit does not push back the drains and Wrack. The mod lands on the spells the class flags
+// name, but a channel runs as a dot and no hit shortens it, so it changes nothing.
 func (warlock *Warlock) applyFelConcentration() {
 	if warlock.Talents.FelConcentration == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&warlock.Character, spellData.FelConcentration.Rank(warlock.Talents.FelConcentration))
 }
 
 func (warlock *Warlock) registerAmplifyCurse() {

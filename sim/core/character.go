@@ -484,49 +484,58 @@ func (character *Character) Finalize() {
 				aura.Unit.refreshIncapacitateState()
 			},
 		})
+	}
 
-		character.MakeProcTriggerAura(ProcTrigger{
-			Name:               "Pushback trigger",
-			Callback:           CallbackOnSpellHitTaken,
-			Outcome:            OutcomeLanded,
-			RequireDamageDealt: true,
+	// A hit that deals damage can push back the hardcast of any character, unless the character dealt it
+	// to itself, as a sapper charge does. The chance is the unit's PushbackChance, which auras covering
+	// every spell lower, less the hardcast spell's own PushbackProtection from the rows that name it.
+	character.MakeProcTriggerAura(ProcTrigger{
+		Name:               "Pushback trigger",
+		Callback:           CallbackOnSpellHitTaken,
+		Outcome:            OutcomeLanded,
+		RequireDamageDealt: true,
 
-			ExtraCondition: func(sim *Simulation, spell *Spell, result *SpellResult) bool {
-				return character.Hardcast.Expires > sim.CurrentTime &&
-					(character.Hardcast.IsChanneled || character.Hardcast.Pushback) &&
-					// Dots will not trigger pushback
-					!(spell.dots != nil || spell.aoeDot != nil || (spell.RelatedDotSpell != nil && (spell.RelatedDotSpell.dots != nil || spell.RelatedDotSpell.aoeDot != nil)))
-			},
+		ExtraCondition: func(sim *Simulation, spell *Spell, result *SpellResult) bool {
+			return character.Hardcast.Expires > sim.CurrentTime &&
+				spell.Unit != &character.Unit &&
+				(character.Hardcast.IsChanneled || character.Hardcast.Pushback) &&
+				// Dots will not trigger pushback
+				!(spell.dots != nil || spell.aoeDot != nil || (spell.RelatedDotSpell != nil && (spell.RelatedDotSpell.dots != nil || spell.RelatedDotSpell.aoeDot != nil)))
+		},
 
-			Handler: func(sim *Simulation, spell *Spell, result *SpellResult) {
-				if !sim.Proc(character.PseudoStats.PushbackChance, "Pushback") {
+		Handler: func(sim *Simulation, spell *Spell, result *SpellResult) {
+			// The handler runs a spell batch window after the hit, by which time the cast may have ended
+			// and another may have begun.
+			if character.Hardcast.Expires <= sim.CurrentTime || character.Hardcast.start > sim.CurrentTime-SpellBatchWindow {
+				return
+			}
+			if !sim.Proc(character.PseudoStats.PushbackChance-character.Hardcast.spell.PushbackProtection, "Pushback") {
+				return
+			}
+
+			if character.Hardcast.IsChanneled {
+				// Channeled spells will lose 25% of their total duration
+				pushback := character.Hardcast.CastTime / 4
+				character.Hardcast.Expires = max(sim.CurrentTime, character.Hardcast.Expires-pushback)
+
+				if sim.Log != nil {
+					character.Log(sim, "%s pushed back %s while channeling", character.Hardcast.ActionID, pushback)
+				}
+			} else {
+				pushback := character.Hardcast.pushBack(sim.CurrentTime)
+				if pushback <= 0 {
 					return
 				}
 
-				if character.Hardcast.IsChanneled {
-					// Channeled spells will lose 25% of their total duration
-					pushback := character.Hardcast.CastTime / 4
-					character.Hardcast.Expires = max(sim.CurrentTime, character.Hardcast.Expires-pushback)
-
-					if sim.Log != nil {
-						character.Log(sim, "%s pushed back %s while channeling", character.Hardcast.ActionID, pushback)
-					}
-				} else {
-					pushback := character.Hardcast.pushBack(sim.CurrentTime)
-					if pushback <= 0 {
-						return
-					}
-
-					if sim.Log != nil {
-						character.Log(sim, "%s pushed back %s while casting", character.Hardcast.ActionID, pushback)
-					}
+				if sim.Log != nil {
+					character.Log(sim, "%s pushed back %s while casting", character.Hardcast.ActionID, pushback)
 				}
+			}
 
-				// Re-schedule the cast at the new Expires time
-				character.newHardcastAction(sim)
-			},
-		})
-	}
+			// Re-schedule the cast at the new Expires time
+			character.newHardcastAction(sim)
+		},
+	})
 
 	character.Unit.finalize()
 	character.basePhysicalCritPercent = character.baseStats[stats.PhysicalCritPercent]
