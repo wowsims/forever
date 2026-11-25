@@ -28,10 +28,10 @@ of the same casts.
 
 The 554 strikes log 444 hits and 110 crits: no miss, dodge, parry, block or glance.
 
-| The cast's main-hand Whirlwind strikes | 26654 strikes | Crits       |
-| -------------------------------------- | ------------- | ----------- |
-| At least one crit                      | 242           | 51, 21.1%   |
-| None crit                              | 312           | 59, 18.9%   |
+| The cast's main-hand Whirlwind strikes | 26654 strikes | Crits     |
+| -------------------------------------- | ------------- | --------- |
+| At least one crit                      | 242           | 51, 21.1% |
+| None crit                              | 312           | 59, 18.9% |
 
 The strike's crit does not follow the strike that brought it, unlike Sweeping Strikes' copied hit 12723, which carries
 its hit's crit and never crits itself (EV-0182). Over every Whirlwind cast of these warriors, 1,413 of 7,285 landed

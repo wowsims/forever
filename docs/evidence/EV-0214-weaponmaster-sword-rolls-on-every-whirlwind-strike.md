@@ -36,7 +36,8 @@ the cast: one roll a cast predicts p, one roll a landed strike predicts 1 − (1
 | Sword in each hand    | 282   | 5                 | 56                         | 55.2            | 13.6            |
 
 The two-handed casts read 438 against 465.2 a strike before hotfix push 114313 (2026-11-20 23:47 UTC) and 303 against
-280.1 after it. By landed strikes in the two-handed cast:
+280.1 after it. With a sword in each hand, by report build: 70938 reads 32 against 25.7 a strike, 70959 20 against 26.0
+and 71037 4 against 3.4. By landed strikes in the two-handed cast:
 
 | Landed strikes | Casts | With an extra attack | A roll a strike | One roll a cast |
 | -------------- | ----- | -------------------- | --------------- | --------------- |
