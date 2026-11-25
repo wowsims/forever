@@ -34,8 +34,8 @@
         {"id":22339},
         {"id":272438},
         {"id":18471},
-        {"id":20220,"enchant":8211},
-        {},
+        {"id":20214,"enchant":8217},
+        {"id":19315},
         {"id":23199}
       ]
     },
@@ -98,7 +98,7 @@
         {"action":{"condition":{"variableRef":{"name":"Use Cooldowns"}},"castSpell":{"spellId":{"spellId":16166}}}},
         {"action":{"condition":{"variableRef":{"name":"Use Cooldowns"}},"castSpell":{"spellId":{"spellId":20572}}}},
         {"action":{"condition":{"variableRef":{"name":"Use Cooldowns"}},"castSpell":{"spellId":{"spellId":20554}}}},
-        {"action":{"condition":{"variableRef":{"name":"Multi Target"}},"castSpell":{"spellId":{"spellId":10605}}}},
+        {"action":{"condition":{"or":{"vals":[{"variableRef":{"name":"Multi Target"}},{"and":{"vals":[{"auraIsActive":{"auraId":{"spellId":16246},"includeReactionTime":true}},{"not":{"val":{"auraIsActive":{"auraId":{"spellId":16166},"includeReactionTime":true}}}}]}}]}},"castSpell":{"spellId":{"spellId":10605}}}},
         {"action":{"condition":{"variableRef":{"name":"Multi Target"}},"castSpell":{"spellId":{"spellId":408345}}}},
         {"action":{"multidot":{"spellId":{"spellId":10448,"rank":5},"maxDots":3,"maxOverlap":{"const":{"val":"0ms"}}}}},
         {"action":{"condition":{"and":{"vals":[{"variableRef":{"name":"Single Target"}},{"auraIsKnown":{"auraId":{"spellId":1323418}}},{"auraIsActive":{"auraId":{"spellId":1323418},"includeReactionTime":true}}]}},"castSpell":{"spellId":{"spellId":10414,"rank":7}}}},
