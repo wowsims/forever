@@ -250,7 +250,7 @@ func (warlock *Warlock) soulSiphonChannelConfig(rankedSpell *spelldata.Spell, ti
 
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 
-	// TODO: Confirm no snapshot from Soul Siphon.
+	// The tick reads the Soul Siphon multiplier when it lands, with no snapshot at the channel's start (EV-0205).
 	// TODO: Confirm in game whether spell haste shortens the ticks; the rows carry no haste attribute, so
 	// neither AffectedByCastSpeed nor HasteReducesDuration is set.
 	config.Dot = spelldata.DotConfig(rankedSpell, tick)
