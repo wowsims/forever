@@ -173,7 +173,7 @@ func TestAutoShotNeedsABowGunOrCrossbow(t *testing.T) {
 
 // Sniper Shot's buff carries Auto Shot's reach past the 41 yards Hawk Eye gives it, for three Shots: a
 // hunter at 45 yards fires no Auto Shot until Sniper Shot lands, then lands at most three per Sniper
-// Shot, since a miss keeps its charge.
+// Shot, a miss spending its charge too.
 func TestSniperShotExtendsAutoShotRange(t *testing.T) {
 	shots := func(castSniperShot bool) (sniperShots, autoShots, landed int32) {
 		rotation := &proto.APLRotation{Type: proto.APLRotation_TypeAPL}
