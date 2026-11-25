@@ -1,0 +1,42 @@
+siml 1
+spec dps_priest
+
+var ${Dark Sac} = current_mana <= 2000
+var ${Inner Focus Rules} = not spell(mind_blast).is_ready and current_time >= 4.5s
+var ${SWP Refresh} = not dot(shadow_word_pain).is_active
+var $Troll = spell(shadowguard).is_known
+var ${Night Elf} =
+    spell(elunes_light).is_known
+    and (gcd_is_ready and dot(shadow_word_pain).remaining_time >= 10s and (dot(devouring_plague).remaining_time >= 10s or spell(devouring_plague).time_to_ready >= 8s))
+var $Gnome =
+    spell(eureka).is_known
+    and (gcd_is_ready and dot(shadow_word_pain).remaining_time >= 8s and (dot(devouring_plague).remaining_time >= 8s or spell(devouring_plague).time_to_ready >= 8s))
+var $MF3 = spell(mind_flay).channeled_ticks == 3
+var $MF2 = spell(mind_flay).channeled_ticks == 2
+
+prepull:
+  -3s cast shadowguard if $Troll
+  -1.5s cast mind_blast
+
+priority:
+  cast shadowform if not aura(shadowform).is_active
+  cast dark_sacrifice if $dark_sac
+  cast elunes_light if $night_elf
+  cast eureka if $Gnome
+  group "Cooldowns"
+  autocast_other_cooldowns
+  cast shadow_word_pain if $swp_refresh
+  cast devouring_plague if not dot(devouring_plague).is_active
+  cast mind_blast
+  cast shadow_word_death
+  # cast vampiric_embrace
+  cast starshards
+      if spell(starshards).expected_dpet > spell(mind_flay).expected_dpet
+      and spell(mind_blast).time_to_ready >= 4s
+  # strict_sequence(cast inner_focus, cast starshards)
+  strict_sequence(cast inner_focus, cast mind_flay)
+  channel mind_flay until or($MF3)
+
+group "Cooldowns":
+  cast item.weakness_analyzer
+  cast item.eye_of_the_beast

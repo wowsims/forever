@@ -1,6 +1,6 @@
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as OtherInputs from '@features/settings/model/other_inputs';
-import { APLRotation } from '@generated/proto/apl';
+import { APLRotation, APLRotation_Type } from '@generated/proto/apl';
 import { ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
@@ -66,29 +66,15 @@ export default defineSpec<Spec.SpecDpsPriest>({
 	displayWeaponSkillGroups: [WeaponSkillGroup.Wands],
 
 	defaults: {
-		// Default equipped gear.
-		gear: Presets.ShadowTestingGear.gear,
+		...Presets.Defaults,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: new Stats(),
 		statCaps: (() => {
 			return new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow, 17).withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentHoly, 17);
 		})(),
-		// Default consumes settings.
-		consumables: Presets.DefaultConsumables,
-		// Default talents.
-		talents: Presets.StandardTalents.data,
-		// Default spec-specific settings.
-		specOptions: Presets.DefaultOptions,
-		// Default raid/party buffs settings.
-		raidBuffs: Presets.DefaultRaidBuffs,
-
-		partyBuffs: Presets.DefaultPartyBuffs,
-
-		individualBuffs: Presets.DefaultIndividualBuffs,
-
-		debuffs: Presets.DefaultDebuffs,
-
-		other: Presets.OtherDefaults,
+		// defaults.siml's rotation would make the page start on the APL; it starts on Auto, which runs the same APL on
+		// Shadow talents and the Smite APL when Discipline has more points than Shadow.
+		rotationType: APLRotation_Type.TypeAuto,
 	},
 
 	// IconInputs to include in the 'Player' section on the settings tab.
@@ -112,9 +98,9 @@ export default defineSpec<Spec.SpecDpsPriest>({
 		talents: [Presets.StandardTalents, Presets.SmiteTalents],
 		rotations: [Presets.ROTATION_PRESET_DEFAULT, Presets.ROTATION_SMITE_DEFAULT],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.ShadowTestingGear, Presets.SmiteTestingGear],
+		gear: [Presets.ShadowGear, Presets.SmiteTestingGear],
 		// Preset builds that the user can quickly select.
-		builds: [Presets.ShadowTestingBuild, Presets.SmiteTestingBuild],
+		builds: [Presets.ShadowBuild, Presets.SmiteTestingBuild],
 	},
 
 	autoRotation: (priest: Player<Spec.SpecDpsPriest>): APLRotation => {
