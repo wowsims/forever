@@ -51,26 +51,14 @@ export default defineSpec<Spec.SpecBalanceDruid>({
 	),
 
 	defaults: {
-		// Default equipped gear.
-		gear: Presets.PreBiSGear.gear,
+		...Presets.Defaults,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: Presets.P1EpWeights.epWeights,
 		// Default stat caps for stat weights tab. (also needed for reforging since we don't want to reforge above stat caps)
 		statCaps: (() => {
 			return new Stats().withPseudoStat(PseudoStat.PseudoStatSpellHitPercent, 17);
 		})(),
-		// Default consumes settings.
-		consumables: Presets.DefaultConsumables,
-		// Default talents.
-		talents: Presets.StandardTalents.data,
-		// Default spec-specific settings.
-		specOptions: Presets.DefaultOptions,
-		// Default raid/party buffs settings.
-		raidBuffs: Presets.DefaultRaidBuffs,
-		partyBuffs: Presets.DefaultPartyBuffs,
-		individualBuffs: Presets.DefaultIndividualBuffs,
-		debuffs: Presets.DefaultDebuffs,
-		other: Presets.OtherDefaults,
+		// The page starts on the automatic rotation, which is the default APL; defaults.siml holds that APL.
 		rotationType: APLRotation_Type.TypeAuto,
 	},
 
