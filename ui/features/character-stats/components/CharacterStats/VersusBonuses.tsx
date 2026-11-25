@@ -1,16 +1,22 @@
 import { type PlayerStats, type VersusEffect, VersusEffectKind } from '@generated/proto/api';
-import type { Stat } from '@generated/proto/common';
+import type { AreaType, Stat, Target } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateAreaType, translateCreatureFamily, translateMobType, translateStat } from '@i18n/localization';
+import { useSim } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
 import { signedStatAmount } from '@sim/proto/stats';
 import { AccordionItem } from '@ui-kit/Accordion';
 import { Table, TableCell, TableHeaderCell, TableRow } from '@ui-kit/Table';
+import { useStore } from 'zustand';
+
+import { areaState, familyState, mobTypeState, type VersusMatch } from '../../../gear/model/versus_state';
 
 export type VersusBonusSet = Pick<PlayerStats, 'mobTypeBonuses' | 'areaStats' | 'versusEffects'>;
 
 export interface VersusBonusesViewProps {
 	bonuses: VersusBonusSet;
+	targets: ReadonlyArray<Target>;
+	areaTypes: ReadonlyArray<AreaType>;
 }
 
 interface VersusLine {
@@ -22,8 +28,19 @@ interface VersusLine {
 interface VersusGroup {
 	key: string;
 	label: string;
+	match: VersusMatch;
+	/** The suffix when the group is `off`; a group of an area says it is not in this area. */
+	offKey: 'no_target' | 'not_in_area';
 	lines: Array<VersusLine>;
 }
+
+const suffix = ({ match, offKey }: VersusGroup): string =>
+	match.state === 'on'
+		? ''
+		: i18n.t(match.state === 'partial' ? 'sidebar.character_stats.versus.partial' : `sidebar.character_stats.versus.${offKey}`, {
+				matched: match.matched,
+				total: match.total,
+			});
 
 const signed = (value: number, suffix = '') => `${value > 0 ? '+' : ''}${Number(value.toFixed(2))}${suffix}`;
 
@@ -51,7 +68,7 @@ const effectLines = (effects: Array<VersusEffect>): Array<VersusLine> =>
 		}),
 	}));
 
-const versusGroups = ({ bonuses }: VersusBonusesViewProps): Array<VersusGroup> => {
+const versusGroups = ({ bonuses, targets, areaTypes }: VersusBonusesViewProps): Array<VersusGroup> => {
 	const mobTypes = [...new Set([...bonuses.mobTypeBonuses.map(entry => entry.mobType), ...bonuses.versusEffects.flatMap(effect => effect.mobTypes)])];
 	const mobTypeGroups = mobTypes
 		.sort((a, b) => a - b)
@@ -60,6 +77,8 @@ const versusGroups = ({ bonuses }: VersusBonusesViewProps): Array<VersusGroup> =
 			return {
 				key: `mob-type-${mobType}`,
 				label: i18n.t('sidebar.character_stats.versus.against', { target: translateMobType(mobType) }),
+				match: mobTypeState(mobType, targets),
+				offKey: 'no_target' as const,
 				lines: [
 					...(bonus
 						? [
@@ -77,11 +96,15 @@ const versusGroups = ({ bonuses }: VersusBonusesViewProps): Array<VersusGroup> =
 		.map(family => ({
 			key: `creature-family-${family}`,
 			label: i18n.t('sidebar.character_stats.versus.against', { target: translateCreatureFamily(family) }),
+			match: familyState(family, targets),
+			offKey: 'no_target' as const,
 			lines: effectLines(bonuses.versusEffects.filter(effect => effect.creatureFamilies.includes(family))),
 		}));
 	const areaGroups = bonuses.areaStats.map(entry => ({
 		key: `area-type-${entry.areaType}`,
 		label: i18n.t('sidebar.character_stats.versus.in_area', { area: translateAreaType(entry.areaType) }),
+		match: areaState(entry.areaType, areaTypes),
+		offKey: 'not_in_area' as const,
 		lines: statLines(entry.stats),
 	}));
 	return [...mobTypeGroups, ...familyGroups, ...areaGroups];
@@ -90,14 +113,16 @@ const versusGroups = ({ bonuses }: VersusBonusesViewProps): Array<VersusGroup> =
 export const VersusBonusesView = (props: VersusBonusesViewProps) => (
 	<Table variant="plain" flush>
 		{versusGroups(props).map(group => (
-			<tbody key={group.key} data-testid="character-stats-versus-group">
+			<tbody key={group.key} className="ui-character-stats-versus-group" data-state={group.match.state} data-testid="character-stats-versus-group">
 				<TableRow className="ui-character-stats-row">
 					<TableHeaderCell scope="rowgroup" colSpan={2} wrap className="ui-character-stats-label text-left font-semibold">
+						<span className="ui-character-stats-versus-dot" aria-hidden="true" />
 						{group.label}
+						{group.match.state !== 'on' && <span className="ui-character-stats-versus-suffix"> {suffix(group)}</span>}
 					</TableHeaderCell>
 				</TableRow>
 				{group.lines.map(line => (
-					<TableRow key={line.key} className="ui-character-stats-row">
+					<TableRow key={line.key} className="ui-character-stats-row ui-character-stats-versus-line">
 						<TableCell className="ui-character-stats-label">{line.label}</TableCell>
 						<TableCell className="ui-character-stats-value">{line.value}</TableCell>
 					</TableRow>
@@ -108,12 +133,15 @@ export const VersusBonusesView = (props: VersusBonusesViewProps) => (
 );
 
 export const VersusBonuses = () => {
+	const sim = useSim();
+	const targets = useStore(sim.store, state => state.encounter.targets);
+	const areaTypes = useStore(sim.store, state => state.encounter.areaTypes);
 	const bonuses = usePlayerStore('currentStats');
 	if (!bonuses.mobTypeBonuses.length && !bonuses.areaStats.length && !bonuses.versusEffects.length) return null;
 
 	return (
 		<AccordionItem value="versus" title={i18n.t('sidebar.character_stats.versus.title')} panelClassName="pb-1" testId="character-stats-group-versus">
-			<VersusBonusesView bonuses={bonuses} />
+			<VersusBonusesView bonuses={bonuses} targets={targets} areaTypes={areaTypes} />
 		</AccordionItem>
 	);
 };

@@ -53,6 +53,10 @@ vi.mock('../GearPicker/ItemNoticeIcon', () => ({
 	),
 }));
 
+vi.mock('../VersusChips', () => ({
+	VersusChips: ({ item }: { item: Pick<Item, 'id'> }) => <div data-testid="versus-chips-marker" data-item-id={item.id} />,
+}));
+
 const { ItemListRow, ItemListRowView } = await import('./ItemListRow');
 type ItemListRowProps = Parameters<typeof ItemListRow>[0];
 
@@ -129,6 +133,13 @@ describe('ItemListRow', () => {
 		expect(renderRow({ label: SelectorModalTabs.Items }).container.querySelector(sourceCell)).not.toBeNull();
 		expect(renderRow({ label: SelectorModalTabs.Enchants }).container.querySelector(sourceCell)).not.toBeNull();
 		expect(renderRow({ label: SelectorModalTabs.RandomSuffixes }).container.querySelector(sourceCell)).toBeNull();
+	});
+
+	it('hands the versus chips the item on the items tab alone', () => {
+		const chips = '[data-testid="versus-chips-marker"]';
+		expect(renderRow({ label: SelectorModalTabs.Items }).container.querySelector(chips)?.getAttribute('data-item-id')).toBe('1');
+		expect(renderRow({ label: SelectorModalTabs.Enchants }).container.querySelector(chips)).toBeNull();
+		expect(renderRow({ label: SelectorModalTabs.RandomSuffixes }).container.querySelector(chips)).toBeNull();
 	});
 
 	it.each([

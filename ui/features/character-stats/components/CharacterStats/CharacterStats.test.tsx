@@ -12,7 +12,7 @@ import { WeaponSkillGroup, weaponSkillsInGroups } from '@sim/player/weapon_skill
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { createSimStore, type EncounterSlice, patchSlice, PLAYER_FIELDS, type PlayerSlice, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
-import { CRIT_CAP_INFO, VERSUS_BONUSES } from '@testing/storybook/fixtures/character-stats';
+import { CRIT_CAP_INFO, VERSUS_BONUSES, VERSUS_TARGETS } from '@testing/storybook/fixtures/character-stats';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
@@ -453,6 +453,7 @@ const openVersusGroups = async (view: ReturnType<typeof renderVersus>) => {
 		const [heading, ...lines] = Array.from(group.querySelectorAll('tr'));
 		return {
 			label: heading.textContent,
+			state: group.getAttribute('data-state'),
 			lines: lines.map(line => Array.from(line.querySelectorAll('td')).map(cell => cell.textContent)),
 		};
 	});
@@ -478,16 +479,17 @@ describe('CharacterStats bonuses against a kind of target', () => {
 	];
 	const serpentbane = ['Serpentbane Crown', '×2 damage'];
 	const targetGroups = [
-		{ label: 'Against Beast', lines: [['Damage', '+5%'], serpentbane] },
-		{ label: 'Against Humanoid', lines: [...attackPower('+18'), ['Critical Strike Damage', '+3%']] },
-		{ label: 'Against Undead', lines: attackPower('+99') },
-		{ label: 'Against Earth Elemental', lines: [['Fist of Stone', '×3 restored']] },
-		{ label: 'Against Dwarf', lines: [['Hand of Justice', '×3 proc chance']] },
-		{ label: 'Against Dinosaur', lines: [["Bolt's Charged Eyeball", '×3 damage']] },
-		{ label: 'Against Serpentine', lines: [serpentbane] },
+		{ label: 'Against Beast · no target', state: 'off', lines: [['Damage', '+5%'], serpentbane] },
+		{ label: 'Against Humanoid', state: 'on', lines: [...attackPower('+18'), ['Critical Strike Damage', '+3%']] },
+		{ label: 'Against Undead · no target', state: 'off', lines: attackPower('+99') },
+		{ label: 'Against Earth Elemental · no target', state: 'off', lines: [['Fist of Stone', '×3 restored']] },
+		{ label: 'Against Dwarf · no target', state: 'off', lines: [['Hand of Justice', '×3 proc chance']] },
+		{ label: 'Against Dinosaur · no target', state: 'off', lines: [["Bolt's Charged Eyeball", '×3 damage']] },
+		{ label: 'Against Serpentine · no target', state: 'off', lines: [serpentbane] },
 	];
 	const areaGroup = {
 		label: 'In Forest and Grassland',
+		state: 'on',
 		lines: [
 			['Attack Power', '+28'],
 			['Hit', `+${hit}%`],
@@ -501,6 +503,18 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		);
 
 		expect(await openVersusGroups(view)).toEqual([...targetGroups, areaGroup]);
+	});
+
+	it('marks each group on, partial or off by how many targets of the encounter it matches', async () => {
+		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES }, { targets: VERSUS_TARGETS, areaTypes: [AreaType.AreaTypeSwamp] });
+
+		const groups = await openVersusGroups(view);
+		const byLabel = (label: string) => groups.find(group => group.label?.startsWith(label));
+
+		expect(byLabel('Against Beast')).toMatchObject({ label: 'Against Beast · 1/2 targets', state: 'partial' });
+		expect(byLabel('Against Serpentine')).toMatchObject({ label: 'Against Serpentine · 1/2 targets', state: 'partial' });
+		expect(byLabel('Against Undead')).toMatchObject({ label: 'Against Undead · no target', state: 'off' });
+		expect(byLabel('In Forest')).toMatchObject({ label: 'In Forest and Grassland · not in this area', state: 'off' });
 	});
 
 	it('leaves the group out while the sim reports no bonus against any kind of target', () => {

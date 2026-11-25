@@ -2590,10 +2590,78 @@
 						"ordinal"
 					],
 					"additionalProperties": false
+				},
+				"versus": {
+					"type": "object",
+					"properties": {
+						"against": {
+							"type": "string"
+						},
+						"in_area": {
+							"type": "string"
+						},
+						"partial": {
+							"type": "string"
+						},
+						"target": {
+							"type": "string"
+						},
+						"active_targets_one": {
+							"type": "string"
+						},
+						"active_targets_other": {
+							"type": "string"
+						},
+						"active_some": {
+							"type": "string"
+						},
+						"inactive_targets_one": {
+							"type": "string"
+						},
+						"inactive_targets_other": {
+							"type": "string"
+						},
+						"no_targets": {
+							"type": "string"
+						},
+						"active_area": {
+							"type": "string"
+						},
+						"inactive_area": {
+							"type": "string"
+						},
+						"effect_damage": {
+							"type": "string"
+						},
+						"effect_restore": {
+							"type": "string"
+						},
+						"effect_proc_chance": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"against",
+						"in_area",
+						"partial",
+						"target",
+						"active_targets_one",
+						"active_targets_other",
+						"active_some",
+						"inactive_targets_one",
+						"inactive_targets_other",
+						"no_targets",
+						"active_area",
+						"inactive_area",
+						"effect_damage",
+						"effect_restore",
+						"effect_proc_chance"
+					],
+					"additionalProperties": false
 				}
 			},
 			"additionalProperties": false,
-			"required": ["title", "reforge_success", "gear_sets", "gear_picker", "preset_configurations", "upgrade_summary", "item_notices"]
+			"required": ["title", "reforge_success", "gear_sets", "gear_picker", "preset_configurations", "upgrade_summary", "item_notices", "versus"]
 		},
 		"settings_tab": {
 			"type": "object",
@@ -12688,10 +12756,31 @@
 								},
 								"effect_proc_chance": {
 									"type": "string"
+								},
+								"partial": {
+									"type": "string"
+								},
+								"no_target": {
+									"type": "string"
+								},
+								"not_in_area": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["title", "in_area", "against", "damage", "crit_damage", "effect_damage", "effect_restore", "effect_proc_chance"]
+							"required": [
+								"title",
+								"in_area",
+								"against",
+								"damage",
+								"crit_damage",
+								"effect_damage",
+								"effect_restore",
+								"effect_proc_chance",
+								"partial",
+								"no_target",
+								"not_in_area"
+							]
 						},
 						"tooltip": {
 							"type": "object",

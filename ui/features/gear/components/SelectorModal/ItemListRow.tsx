@@ -19,6 +19,7 @@ import type { ItemData, ItemListType } from '../../types';
 import { SelectorModalTabs } from '../../types';
 import { ItemNoticeIcon } from '../GearPicker/ItemNoticeIcon';
 import { NameDescriptionLabel } from '../ItemCell';
+import { VersusChips } from '../VersusChips';
 import { DiscoveredDot } from './DiscoveredDot';
 import { EpCell, type EpCellProps } from './EpCell';
 import { ItemSource } from './ItemSource';
@@ -37,6 +38,8 @@ export interface ItemListRowViewProps extends RowActionsProps {
 	/** The day an item discovered within the last week was discovered; set, it puts a dot on the icon. */
 	discovered?: string;
 	notice?: ReactNode;
+	/** The chips for the kinds of target and area the item's effects name; the row itself is never dimmed. */
+	versus?: ReactNode;
 	/** The source column; the items and enchants tabs have one. */
 	source?: ReactNode;
 	/** Omitted for a slot the list computes no EP for. */
@@ -54,6 +57,7 @@ export const ItemListRowView = ({
 	onEquip,
 	discovered,
 	notice,
+	versus,
 	source,
 	ep,
 	...actions
@@ -75,6 +79,7 @@ export const ItemListRowView = ({
 					{!!nameDescription && <NameDescriptionLabel nameDescription={nameDescription} />}
 				</span>
 			</WowheadAnchor>
+			{versus}
 			{discovered && (
 				// The icon's box, outside the link, so hovering the dot opens its own tooltip and not the item's.
 				<div className="pointer-events-none absolute top-1/2 left-0 z-1 size-12 -translate-y-1/2">
@@ -163,6 +168,7 @@ export const ItemListRow = ({
 					additionalInfo={hasRandomSuffix ? BEST_RANDOM_SUFFIX_INFO : undefined}
 				/>
 			}
+			versus={isItemsTab && <VersusChips item={itemData.item as unknown as Item} />}
 			source={sourceItem && <ItemSource item={sourceItem} sim={host.sim} faction={faction} />}
 			ep={ep}
 			favourited={favourited}
