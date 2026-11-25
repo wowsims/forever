@@ -7,8 +7,7 @@
 - Date: 2026-10-01
 - Pull request: #172
 
-The game files state no coefficient for either spell. Only Rend Rank 2 and Thunder Clap Rank 1 were verified here; the
-other ranks carry the same share unmeasured.
+The game files state no coefficient for either spell. Only Rend Rank 2 and Thunder Clap Rank 1 were verified here.
 
 | Reading                            | Measured                                                                                                                 |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
