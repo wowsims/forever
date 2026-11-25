@@ -55,7 +55,7 @@ Hammer of Wrath is no control: its row has the ranged defense type, and it rolls
   relog. The Exorcism rows of 1.60.1.71139 with its hotfixes, read after the change, match those of 1.60.1.71091 in
   every field, so the change came from the server.
 - Date: 2026-11-25 05:59 to 20:22 UTC
-- Pull request: #PR
+- Pull request: #1238
 
 Landed Exorcism hits and Holy Wrath's crit rate as the control, counted as in §Method, with play logged in two reports
 counted in both. The last Exorcism hit in the reports is at 19:58:56 UTC.
