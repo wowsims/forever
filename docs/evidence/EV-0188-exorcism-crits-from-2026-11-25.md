@@ -1,8 +1,9 @@
 # EV-0188: Exorcism crits from 2026-11-25
 
 - Claim: Exorcism, at every rank (879, 5614, 5615, 10312, 10313, 10314), could not crit until a server change on
-  2026-11-25 between 19:59 and 20:13 UTC, and crits from then on. Its row has the magic defense type and no cannot-crit
-  attribute on both sides of the change, and no build or hotfix changed its rows, so the game files show neither state.
+  2026-11-25 at about 20:03 UTC, and since then crits like the paladin's other magic Holy spells. Its row has the magic
+  defense type and no cannot-crit attribute on both sides of the change, and no build or hotfix changed its rows, so
+  the game files show neither state.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every report from 2026-11-05 to 2026-11-25 where a
   player deals Exorcism, Holy Wrath or Hammer of Wrath damage; 12,090 of them hold a landed Exorcism hit (US 5,879,
   EU 5,540, KR 346, CN 319, TW 6); all fights.
@@ -47,29 +48,30 @@ Hammer of Wrath is no control: its row has the ranged defense type, and it rolls
 
 ## Count of the 2026-11-25 reports and combat log
 
-- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the 258 reports with a landed Exorcism hit after
-  2026-11-25 05:59 UTC (EU 6,100 hits, US 3,027, KR 323, CN 124); and an EU combat log of 2026-11-25 holding the
-  Exorcism hits of four paladins, all rank 5 (10313) but one rank 2 (5614).
-- Game build: the reports 1.60.1.71091 (US, EU) and 1.60.1.71037 (CN, KR) by event time; US and EU listed
-  1.60.1.71139 at 19:14 UTC, so their last hour ran on either. The combat log ran 1.60.1.71091 throughout, with no
-  relog. The Exorcism rows of 1.60.1.71139 with its hotfixes, read after the change, match those of 1.60.1.71091 in
-  every field, so the change came from the server.
-- Date: 2026-11-25 05:59 to 20:22 UTC
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the 337 reports with a landed Exorcism hit from
+  2026-11-25 05:59 to 21:30 UTC (EU 8,576 hits, US 3,923, KR 344, CN 165); and an EU player's three combat logs of
+  2026-11-25, holding the Exorcism hits of six paladins, all rank 5 (10313) but one rank 2 (5614).
+- Game build: the reports 1.60.1.71091 (US, EU) and 1.60.1.71037 (CN, KR) by event time, and from 19:14 UTC, when US
+  and EU listed 1.60.1.71139, either of 1.60.1.71091 and 1.60.1.71139 there. The first combat log ran 1.60.1.71091 to
+  20:22 UTC with no relog, so it spans the change; the other two ran 1.60.1.71139 after a relog. The Exorcism rows of
+  1.60.1.71139 with its hotfixes, read after the change, match those of 1.60.1.71091 in every field, so the change came
+  from the server.
+- Date: 2026-11-25 05:59 to 21:30 UTC
 - Pull request: #1238
 
-Landed Exorcism hits and Holy Wrath's crit rate as the control, counted as in §Method, with play logged in two reports
-counted in both. The last Exorcism hit in the reports is at 19:58:56 UTC.
+Landed Exorcism hits, with Holy Wrath's crit rate as the control, counted as in §Method; play logged in two reports
+counts in both. The windows split at the first crit.
 
-| Source     | Window (UTC)         | Exorcism landed | Exorcism crits | Holy Wrath landed | Holy Wrath crits |
-| ---------- | -------------------- | --------------: | -------------: | ----------------: | ---------------: |
-| Reports    | 05:59 to 18:59       |           9,008 |              0 |             6,564 |    1,020 (15.5%) |
-| Reports    | 19:00 to 20:00       |             566 |              0 |               473 |       82 (17.3%) |
-| Combat log | 18:20 to 19:26       |              41 |              0 |                 2 |                0 |
-| Combat log | 19:59 to 20:12:24    |              13 |              0 |                 - |                - |
-| Combat log | 20:12:54 to 20:22:40 |              13 |              3 |                 - |                - |
+| Source                    | Window (UTC)         | Exorcism landed | Exorcism crits | Holy Wrath crits |
+| ------------------------- | -------------------- | --------------: | -------------: | ---------------: |
+| Reports                   | 05:59 to 20:03:44    |          12,146 |              0 |   15.9% of 9,131 |
+| Reports                   | 20:03:45 to 21:30    |             862 |    132 (15.3%) |     17.5% of 799 |
+| Combat log, 1.60.1.71091  | 18:20 to 20:03:12    |              45 |              0 |           0 of 2 |
+| Combat log, 1.60.1.71091  | 20:04:19 to 20:22:40 |              22 |              3 |                  |
+| Combat logs, 1.60.1.71139 | 20:29 to 21:08       |              42 |              3 |           1 of 5 |
 
-At the reports' last-hour Holy Wrath rate the 566 hits would hold about 98 crits, and the 41 of them after 19:50
-about 7. The combat log's first crit lands at 20:12:54, with two more by 20:20:06. At 17% its 13 hits from 19:59 to
-20:12:24 miss every crit about 1 time in 11, so the change fell between 19:59 and 20:12:54. The crit rate after the
-change is not counted yet. The bug report, ClassicWoWCommunity/forever-bugs#631, was closed at 20:39 UTC as fixed in a
-hotfix.
+In the reports the last Exorcism hit before the first crit lands at 20:03:39 (EU), the first crit at 20:03:45 (EU)
+and the first US crit at 20:04:30. The 73 hits from 19:59 to 20:03:44 (US 41, EU 32) hold no crit, where a 15% chance would
+miss all of them about 1 time in 140,000, so the change is not earlier than 20:03 and reached both regions together.
+From then on Exorcism crits at about Holy Wrath's rate. The bug report, ClassicWoWCommunity/forever-bugs#631, was
+closed at 20:39 UTC as fixed in a hotfix.
