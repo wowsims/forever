@@ -36,12 +36,13 @@ func AddUnparsedStats(db *WowDatabase) error {
 	return nil
 }
 
-// One consumable's share of AddUnparsedStats, read off its on-use buff's row.
+// One consumable's share of AddUnparsedStats, read off its on-use buff's row and the spells it
+// triggers on the user: food's Well Fed is a spell of its own (Grilled Squid 13928's 1249522
+// triggers 1249523, A_MOD_CRIT_PCT 1).
 func addUnparsedStats(id int32, consumable *proto.Consumable, row *spelldata.Spell) error {
 	var versus, percents stats.Stats
 	var allCrit float64
-	for i := range row.Effects {
-		e := &row.Effects[i]
+	for _, e := range consumableEffects(row) {
 		if e.Type != dbcenums.E_APPLY_AURA {
 			continue
 		}

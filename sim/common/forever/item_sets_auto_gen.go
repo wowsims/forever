@@ -1318,28 +1318,6 @@ func RegisterAllSetBonuses() {
 		5: {1301713},
 	})
 
-	// The Spiritcaller's Rage
-	// https://www.wowhead.com/forever/item-set=2110
-	shared.NewParsedItemSet(2110, "The Spiritcaller's Rage", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// Increases your attack speed and casting speed by 1%.
-		// https://www.wowhead.com/forever/spell=1300957
-		2: {1300957},
-
-		// TODO: Manual implementation required
-		//
-		// Increases the radius of effect of your beneficial Air and Earth totems by 10 yds.
-		// https://www.wowhead.com/forever/spell=1301051
-		// unsupported: effect 1 A_ADD_FLAT_MODIFIER misc 6 is not parsed
-		// 3: {1301051},
-
-		// +36 Attack Power against Elementals.
-		// https://www.wowhead.com/forever/spell=1301090
-		4: {1301090},
-		// Reduces the cooldown of your Stormstrike ability by 0.5 sec.
-		// https://www.wowhead.com/forever/spell=1301709
-		5: {1301709},
-	})
-
 	// The Spiritcaller's Storm
 	// https://www.wowhead.com/forever/item-set=2111
 	shared.NewParsedItemSet(2111, "The Spiritcaller's Storm", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
@@ -1372,52 +1350,6 @@ func RegisterAllSetBonuses() {
 		// Reduces the cooldown of your Swiftmend spell by 3.0 sec.
 		// https://www.wowhead.com/forever/spell=1301250
 		5: {1301250},
-	})
-
-	// Grovekeeper Rage
-	// https://www.wowhead.com/forever/item-set=2113
-	shared.NewParsedItemSet(2113, "Grovekeeper Rage", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// Increased Defense +7
-		// https://www.wowhead.com/forever/spell=1300942
-		2: {1300942},
-
-		// TODO: Manual implementation required
-		//
-		// Your Rebirth spell is now castable in Bear Form and Dire Bear Form and its cast time is reduced by 2.0
-		// sec while you are in Bear Form or Dire Bear Form.
-		// https://www.wowhead.com/forever/spell=1301005
-		// unsupported: effect 2 A_MOD_IGNORE_SHAPESHIFT misc 0 is not parsed
-		// 3: {1301005},
-
-		// Reduces the chance for your melee attacks to be Dodged or Parried by 1.2%.
-		// https://www.wowhead.com/forever/spell=1301076
-		4: {1301076},
-		// Reduces the cooldown of your Berserk ability by 15.0 sec.
-		// https://www.wowhead.com/forever/spell=1301249
-		5: {1301249},
-	})
-
-	// Grovekeeper Ferocity
-	// https://www.wowhead.com/forever/item-set=2115
-	shared.NewParsedItemSet(2115, "Grovekeeper Ferocity", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
-		// Increases your attack speed and casting speed by 1%.
-		// https://www.wowhead.com/forever/spell=1300934
-		2: {1300934},
-
-		// TODO: Manual implementation required
-		//
-		// Your Hibernate spell is now castable in Cat Form and its cast time is reduced by 1.5 sec while you are
-		// in Cat Form, but Hibernate gains a cooldown of 15 sec.
-		// https://www.wowhead.com/forever/spell=1300999
-		// unsupported: effect 3 A_MOD_IGNORE_SHAPESHIFT misc 0 is not parsed
-		// 3: {1300999},
-
-		// +36 Attack Power against Demons.
-		// https://www.wowhead.com/forever/spell=1301075
-		4: {1301075},
-		// Reduces the cooldown of your Shifting Power ability by 1.0 sec.
-		// https://www.wowhead.com/forever/spell=1301247
-		5: {1301247},
 	})
 
 	// Rider of the Plaguelands

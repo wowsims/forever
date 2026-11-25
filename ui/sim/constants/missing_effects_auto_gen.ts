@@ -617,12 +617,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		11603, // Vilerend Slicer
-		[
-			"Wounds the target for 225 damage.", // 1320808 - https://www.wowhead.com/forever/spell=1320808
-		]
-	],
-	[
 		11607, // Dark Iron Sunderer
 		[
 			"Reduces targets armor by 300 for 20s.", // 15280 - https://www.wowhead.com/forever/spell=15280
@@ -3270,6 +3264,12 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				3,
 				[
 					"Your Rebirth spell is now castable in Bear Form and Dire Bear Form and its cast time is reduced by 2.0 sec while you are in Bear Form or Dire Bear Form.", // 1301005 - https://www.wowhead.com/forever/spell=1301005
+				],
+			],
+			[
+				5,
+				[
+					"Reduces the cooldown of your Berserk ability by 15.0 sec.", // 1301249 - https://www.wowhead.com/forever/spell=1301249
 				],
 			],
 		]),

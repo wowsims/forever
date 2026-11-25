@@ -3,7 +3,8 @@
 - Claim: Stinging Viper rolls 1.75 procs per minute, Toxic Revenger 1.8, Meteor Shard 1.55, Bite of Serra'kis 1.45,
   White Obsidian Wand 3.75 (on wand shots), Ravager 1, The Black Knight 0.6 and Heartseeking Crossbow 2.7. A melee-type
   hit cast directly or flagged Not a Proc rolls an on-hit weapon proc, Windfury Totem hits included; a ranged-type
-  hit never does, and a Judgement of Command rolls it twice. Ironfoe's chance is 3% against other targets and 6%
+  hit never does, and a Judgement of Command rolled it twice up to hotfix push 114399 (2026-11-25) and rolls it once
+  from that push (EV-0155). Ironfoe's chance is 3% against other targets and 6%
   against Orcs.
 - Sources: 709 public reports on forever.warcraftlogs.com (zone 3000 listing, 2026-11-14 17:49 to 2026-11-15 07:00
   UTC) that list one of the procs; the codes behind each rate are listed under the rates table.
@@ -32,13 +33,13 @@ ruling: it stays at 1 (pooled 0.94 [0.89, 1.00], its cast hits alone near 1.02).
 
 ## Which hits roll
 
-| Hit                                            | Not a Proc | Defense type | Rolls      | Count                                                                                                                                                                                        |
-| ---------------------------------------------- | ---------- | ------------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Windfury Totem hit (8516, 10608, 10610)        | yes        | melee        | yes        | swings followed by a Windfury Totem hit, which logs about 33 ms after the white hit: procs at a white swing's chance (EV-0128)                                                               |
-| Judgement of Command (20467, 20963–20966)      | yes        | melee        | yes, twice | Bigger Rock: 17.3% at least one proc, 0.95% two (22 / 2,314) against two rolls at 9.1%; Stoneslayer: 23.5%, 1.76% (8 / 455) against two rolls at 12.5%, the chance per roll that gives 23.5% |
-| Judgement of Fury, Judgement of Righteousness  | yes        | ranged       | no         | 0 / 1,242; 0 / 736                                                                                                                                                                           |
-| any ranged-type hit of a melee weapon's wearer | –          | ranged       | no         | 0 in every item                                                                                                                                                                              |
-| Druid Cat Form specials                        | –          | melee        | no         | Bigger Rock 0 / 16,655                                                                                                                                                                       |
+| Hit                                            | Not a Proc | Defense type | Rolls                                        | Count                                                                                                                                                                                        |
+| ---------------------------------------------- | ---------- | ------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Windfury Totem hit (8516, 10608, 10610)        | yes        | melee        | yes                                          | swings followed by a Windfury Totem hit, which logs about 33 ms after the white hit: procs at a white swing's chance (EV-0128)                                                               |
+| Judgement of Command (20467, 20963–20966)      | yes        | melee        | twice to push 114399, once from it (EV-0155) | Bigger Rock: 17.3% at least one proc, 0.95% two (22 / 2,314) against two rolls at 9.1%; Stoneslayer: 23.5%, 1.76% (8 / 455) against two rolls at 12.5%, the chance per roll that gives 23.5% |
+| Judgement of Fury, Judgement of Righteousness  | yes        | ranged       | no                                           | 0 / 1,242; 0 / 736                                                                                                                                                                           |
+| any ranged-type hit of a melee weapon's wearer | –          | ranged       | no                                           | 0 in every item                                                                                                                                                                              |
+| Druid Cat Form specials                        | –          | melee        | no                                           | Bigger Rock 0 / 16,655                                                                                                                                                                       |
 
 ## Rates
 

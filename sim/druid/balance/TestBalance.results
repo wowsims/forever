@@ -2080,8 +2080,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-p1-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4570.40932
-  tps: 4575.87955
+  dps: 4738.52903
+  tps: 4743.99926
   dtps: 5.44323
  }
 }
@@ -2103,8 +2103,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-p1-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 3009.92233
-  tps: 3009.92233
+  dps: 3123.8624
+  tps: 3123.8624
  }
 }
 dps_results: {
@@ -2124,8 +2124,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4081.30284
-  tps: 4087.23776
+  dps: 4230.98711
+  tps: 4236.92203
   dtps: 5.51606
  }
 }
@@ -2147,8 +2147,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 1798.34492
-  tps: 1798.34492
+  dps: 1864.16771
+  tps: 1864.16771
  }
 }
 dps_results: {
@@ -2168,8 +2168,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-p1-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4529.47825
-  tps: 4534.94198
+  dps: 4696.15635
+  tps: 4701.62007
   dtps: 5.32561
  }
 }
@@ -2191,8 +2191,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-p1-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 2959.98141
-  tps: 2959.98141
+  dps: 3071.87866
+  tps: 3071.87866
  }
 }
 dps_results: {
@@ -2212,8 +2212,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4050.06869
-  tps: 4056.22259
+  dps: 4198.61213
+  tps: 4204.76603
   dtps: 5.90088
  }
 }
@@ -2235,8 +2235,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 1766.6541
-  tps: 1766.6541
+  dps: 1831.25966
+  tps: 1831.25966
  }
 }
 dps_results: {
