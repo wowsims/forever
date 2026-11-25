@@ -2995,7 +2995,7 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Hyena-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 1001.87762
+  dps: 1000.83762
   tps: 740.02301
   dtps: 1.54772
  }
@@ -3003,7 +3003,7 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Hyena-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 747.16618
+  dps: 746.17507
   tps: 482.9013
   dtps: 4.6231
  }
@@ -3011,7 +3011,7 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Hyena-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 801.63495
+  dps: 800.61495
   tps: 510.02524
  }
 }
@@ -3039,7 +3039,7 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Raptor-turret-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 1057.68895
+  dps: 1057.56228
   tps: 746.45369
   dtps: 0.69639
  }
@@ -3047,7 +3047,7 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Raptor-turret-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 794.67526
+  dps: 794.53749
   tps: 484.35217
   dtps: 4.67202
  }
@@ -3055,7 +3055,7 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-Settings-Orc-prebis_weave-Raptor-turret-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 850.18036
+  dps: 849.76703
   tps: 505.27424
  }
 }

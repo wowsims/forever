@@ -612,7 +612,7 @@ type PseudoStats struct {
 
 	BonusHealingTaken          float64 // Talisman of Troll Divinity
 	BonusSpellCritPercentTaken float64 // Imp Shadow Bolt / Imp Scorch / Winter's Chill debuff
-	BonusPhysicalDamageTaken   float64 // Gift of Arthas, Stoneskin Totem; lands before armor
+	BonusPhysicalDamageTaken   float64 // Gift of Arthas, Stoneskin Totem; lands before armor, never on a tick (reductions unmeasured)
 	BonusSpellDamageTaken      float64 // Amp Magic
 	BonusRangedDamageTaken     float64 // Physical ranged attacks only: Windwall
 
