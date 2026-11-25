@@ -6,15 +6,16 @@
   Warrior's Resolve at 1, Rogue Armor Energize at 0.8, Crusader's Wrath at about 0.9, The Furious Storm and Nature's
   Bounty's mana at about 1. Nature's Bounty restores its energy off a landed white swing at about 0.9 a minute on the
   form's paw speed, and its rage off a landed melee swing taken at a chance of about 3.3% to 4.0% that does not rise
-  with the attacker's interval, 1.21 a minute on that interval; a cast that costs only rage or energy and deals no
-  damage rolls nothing. The energy it restores in a bear form comes back with Cat Form. Wild Heart fires at its row's
+  with the attacker's interval, 1.21 a minute on that interval; a cast that deals no damage rolls it only when its
+  spell costs mana, and none follows a free or rage-costing one. The energy it restores in a bear form comes back with Cat Form. Wild Heart fires at its row's
   5% per landed hit taken, at most once a minute. The Feralheart reissue's pieces count toward its bonuses whichever
   of its four groups they come from.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each table names
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-11 to 2026-11-17
 - Pull request: #1086
-- Later count: which hits roll Nature's Bounty's energy and rage, Wild Heart, §Count of the 2026-11-21 combat logs
+- Later count: which hits roll Nature's Bounty's energy and rage and how the energy ticks, Wild Heart, §Count of the
+  2026-11-21 combat logs
 - Later count: the Feralheart reissue's groups, §Count of the 2026-11-22 combat log
 - Later count: Nature's Bounty's energy in a bear form, §Count of the 2026-11-23 combat log
 - Later count: Nature's Bounty's energy, rage and mana rates, §Count of the 2026-11-13 to 2026-11-25 reports
@@ -163,11 +164,12 @@ of Flash Heals (47 of 994).
   2026-11-21 combat logs, for which hits roll the energy and the rage and how the energy ticks; §Count of the
   2026-11-23 combat log, for the energy restored in a bear form
 
-A cast that deals no damage and costs nothing or only rage or energy rolls nothing, an owner ruling of 2026-11-25 that
-the count of the 2026-11-13 to 2026-11-25 reports backs. In a bear form no 27782 follows Demoralizing Roar (0 of 3,840
-casts), Growl (0 of 4,615) or Challenging Roar (0 of 173), and none follows Barkskin (0 of 1,451). Faerie Fire cast in a
-bear form or Cat Form rolls like any spell: 27782 follows 184 of 7,545 casts in a bear form (2.44%) and 45 of 1,766 in
-Cat Form (2.55%), where an instant at 1 a minute on 1.5 s is 2.5%.
+A cast that deals no damage rolls only when its spell costs mana, an owner ruling of 2026-11-25 that covers a cast
+costing nothing or only rage or energy. The count of the 2026-11-13 to 2026-11-25 reports backs it for rage and for free
+casts: in a bear form no 27782 follows Demoralizing Roar (0 of 3,840 casts), Growl (0 of 4,615) or Challenging Roar (0
+of 173), and none follows Barkskin (0 of 1,451). Faerie Fire costs mana in caster form and nothing in Cat Form or Dire
+Bear Form (3025 and 9635 take all of its cost), and it rolls like any spell in a form: 27782 follows 184 of 7,545 casts
+in a bear form (2.44%) and 45 of 1,766 in Cat Form (2.55%), where an instant at 1 a minute on 1.5 s is 2.5%.
 
 ## Wild Heart (sets 185 and 1667)
 
@@ -462,6 +464,9 @@ pulls All under the caster forms'.
 | Cat Form     |   120 |   5,135 |    2.34% | 0.90 [0.75, 1.07]    |            115 |      90 |
 | A bear form  |   193 |  19,092 |    1.01% | 0.40 [0.35, 0.46]    |            199 |     128 |
 | All          | 3,469 | 129,722 |    2.67% | 0.98 [0.94, 1.02]    |            428 |     297 |
+
+By set, the mana in caster form reads 1.08 [1.01, 1.14] for the Wildheart Raiment wearers (914 of 30,391 casts, 61
+players) and 1.10 [1.04, 1.16] for the Feralheart wearers (1,728 of 57,698, 227 players).
 
 Split at 1.60.1.71037 (2026-11-20 18:23 UTC), the reports before it read 0.97 [0.65, 1.02] for the energy in Cat Form,
 1.00 [0.90, 1.09] in a bear form, 1.18 [1.05, 1.31] for the rage and 0.99 [0.85, 1.11] for the mana, and the reports
