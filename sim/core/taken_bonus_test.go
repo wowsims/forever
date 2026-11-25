@@ -104,3 +104,20 @@ func TestFlatPhysicalReductionTakesAtMostHalfTheHit(t *testing.T) {
 		})
 	}
 }
+
+// A periodic tick takes none of the flat physical damage taken, a bonus or a reduction.
+func TestFlatPhysicalDamageTakenSkipsTicks(t *testing.T) {
+	sim := SetupFakeRageSim()
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	spell := physicalSpecial(sim.Encounter.ActiveTargetUnits[0], ProcMaskMeleeMHSpecial)
+	fw.stats[stats.Armor] = 0
+
+	for _, flat := range []float64{8, -30} {
+		fw.PseudoStats.BonusPhysicalDamageTaken = flat
+		result := spell.calcDamageInternal(sim, &fw.Unit, 40, 1, true, spell.OutcomeAlwaysHitNoHitCounter)
+		if result.Damage != 40 {
+			t.Errorf("a tick of 40 deals %v under a flat %v, want 40", result.Damage, flat)
+		}
+		spell.DisposeResult(result)
+	}
+}
