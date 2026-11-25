@@ -23,15 +23,13 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) {
 		// Periodic physical damage ignores armor unless flagged to meet all of it or a tenth of it.
-		if isPeriodic && !spell.Flags.Matches(SpellFlagApplyArmorReduction) {
-			if spell.Flags.Matches(SpellFlagTenthArmorTicks) {
-				return attackTable.armorDamageModifier(0.1), OutcomeEmpty
-			}
-			return 1, OutcomeEmpty
+		switch {
+		case !isPeriodic || spell.Flags.Matches(SpellFlagApplyArmorReduction):
+			return attackTable.GetArmorDamageModifier(spell), OutcomeEmpty
+		case spell.Flags.Matches(SpellFlagTenthArmorTicks):
+			return attackTable.armorDamageModifier(0.1), OutcomeEmpty
 		}
-
-		// Physical resistance (armor).
-		return attackTable.GetArmorDamageModifier(spell), OutcomeEmpty
+		return 1, OutcomeEmpty
 	}
 
 	// Magical resistance.

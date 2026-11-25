@@ -4,9 +4,6 @@ import (
 	"testing"
 
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/dbcenums"
-	"github.com/wowsims/forever/sim/core/proto"
-	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
@@ -16,20 +13,10 @@ import (
 // first and meets a tenth, and Wound and Bigger Rock to the Face set neither and meet it whole, a bleed
 // or not.
 func TestPeriodicPhysicalRowsMeetTheArmorTheirAttributesName(t *testing.T) {
-	sim := core.NewSim(&proto.RaidSimRequest{
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-		Raid: &proto.Raid{Parties: []*proto.Party{{
-			Players: []*proto.Player{shaman("Wearer", nil)},
-			Buffs:   &proto.PartyBuffs{},
-		}}},
-		Encounter: &proto.Encounter{
-			Targets:  []*proto.Target{{Name: "target", Level: 60, Stats: stats.Stats{stats.Armor: 3000}.ToProtoArray()}},
-			Duration: 180,
-		},
-	}, simsignals.CreateSignals())
-	sim.Reset()
+	sim := newAuraSim(shaman("Wearer", nil))
 	character := auraTesterAt(sim, 0).GetCharacter()
 	target := character.CurrentTarget
+	target.AddStatsDynamic(sim, stats.Stats{stats.Armor: 3000 - target.Armor()})
 	attackTable := character.AttackTables[target.UnitIndex]
 	tenth := target.Armor() / 10
 	if tenth <= 0 {
@@ -50,8 +37,8 @@ func TestPeriodicPhysicalRowsMeetTheArmorTheirAttributesName(t *testing.T) {
 	} {
 		row := spelldata.MustFind(tc.id)
 		if row.SpellSchool() != core.SpellSchoolPhysical || row.PeriodicDamageEffect() == spelldata.NilEffect ||
-			row.HasAttr(dbcenums.ATTR_INDEX_EX_6, dbcenums.ATTR_EX_6_TICKS_IGNORE_ARMOR) != tc.ignores ||
-			row.HasAttr(dbcenums.ATTR_INDEX_BASE, dbcenums.ATTR_TICKS_MEET_A_TENTH_OF_ARMOR) != tc.tenth ||
+			row.TicksIgnoreArmor() != tc.ignores ||
+			row.TicksMeetATenthOfArmor() != tc.tenth ||
 			row.AppliesBleed() != tc.isBleed {
 			t.Fatalf("%s's row is no physical periodic damage with the attributes and mechanic this case needs", tc.name)
 		}
