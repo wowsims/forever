@@ -141,7 +141,7 @@ parser's folder.
 - Game build: 1.60.1.71091, after hotfix push 114378 (2026-11-24), which moves Fist of Shahram 16601 onto Shahram's
   master; the push the client ran is not recorded
 - Date: 2026-11-25
-- Pull request: #<PR>
+- Pull request: #1217
 
 ### Fist of Shahram
 
