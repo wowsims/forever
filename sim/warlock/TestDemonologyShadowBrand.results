@@ -1586,9 +1586,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Human-demo_shadow_brand-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5275.83223
-  tps: 4922.02134
-  dtps: 11.06109
+  dps: 3493.22095
+  tps: 3244.6135
+  dtps: 11.31107
  }
 }
 dps_results: {
@@ -1610,8 +1610,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Human-demo_shadow_brand-Shadow Brand-demo_shadow_brand-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 3882.94917
-  tps: 3643.97243
+  dps: 2426.58376
+  tps: 2273.80194
  }
 }
 dps_results: {
@@ -1631,8 +1631,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Orc-demo_shadow_brand-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5296.73334
-  tps: 4938.34768
+  dps: 3479.35584
+  tps: 3228.58731
   dtps: 10.94767
  }
 }
@@ -1655,8 +1655,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Orc-demo_shadow_brand-Shadow Brand-demo_shadow_brand-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 3882.13404
-  tps: 3640.71253
+  dps: 2412.0209
+  tps: 2257.55971
  }
 }
 dps_results: {

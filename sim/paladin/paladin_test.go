@@ -92,17 +92,17 @@ func paladinWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulati
 	return sim, pal, pal.CurrentTarget
 }
 
-// A landed Judgement of Command rolls a weapon proc twice: once as its dummy lands and once on its
-// damage. A listener that is no weapon proc hears the damage alone, on the hit and on the cast result,
-// and a judgement that misses rolls none of them (EV-0156).
-func TestJudgementOfCommandRollsAWeaponProcTwice(t *testing.T) {
+// A landed Judgement of Command rolls a weapon proc once, on its damage: its dummy's landing
+// suppresses weapon procs (EV-0155). A listener that is no weapon proc hears the damage alone, on the
+// hit and on the cast result, and a judgement that misses rolls none of them (EV-0156).
+func TestJudgementOfCommandRollsAWeaponProcOnce(t *testing.T) {
 	const casts = 50
 	for _, c := range []struct {
 		name  string
 		lands bool
 		want  tally
 	}{
-		{"a judgement that lands", true, tally{castResults: casts, weaponProc: 2 * casts, hitListener: casts, castResultListener: casts}},
+		{"a judgement that lands", true, tally{castResults: casts, weaponProc: casts, hitListener: casts, castResultListener: casts}},
 		{"a judgement that misses", false, tally{castResults: casts}},
 	} {
 		t.Run(c.name, func(t *testing.T) {
