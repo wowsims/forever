@@ -3,7 +3,6 @@
 package retribution
 
 import (
-	"maps"
 	"math"
 	"strings"
 	"testing"
@@ -18,7 +17,8 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-var sealOfFuryHits = map[string]int64{
+var holyStrikeAndSealOfFuryHits = map[string]int64{
+	"Holy Strike":       paladin.SpellMaskHolyStrike,
 	"Seal of Fury":      paladin.SpellMaskSealOfFuryProc,
 	"Judgement of Fury": paladin.SpellMaskJudgementOfFury,
 }
@@ -105,9 +105,7 @@ func TestSealOfRighteousnessProcTakesJudgementOfTheCrusaderUnderDoneMultipliers(
 // Holy Strike, Seal of Fury's hit and its judgement take Judgement of the Crusader at their
 // coefficient after their done multipliers, so a crit doubles its share and no multiplier scales it.
 func TestJudgementOfTheCrusaderLandsAfterDoneMultipliers(t *testing.T) {
-	hits := maps.Clone(sealOfFuryHits)
-	hits["Holy Strike"] = paladin.SpellMaskHolyStrike
-	for name, mask := range hits {
+	for name, mask := range holyStrikeAndSealOfFuryHits {
 		t.Run(name, func(t *testing.T) {
 			var coefficient float64
 			find := func(character *core.Character) *core.Spell {
