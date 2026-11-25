@@ -9,8 +9,9 @@
   half of a normal white swing, and in the one fight with two reductions the second adds nothing once the first has
   reached its cap: under Force of Will a swing under 102 before armor lands at half of what it would without the buff,
   and Gold-plated 1291908 and Stoneform Shoulders 1298231 read the same on the hit they spend themselves on. A crit
-  doubles the flat amount. A periodic Physical tick on an enemy takes none of Gift of Arthas or Lacerations, whether
-  the tick ignores armor, meets a tenth of it or meets all of it.
+  doubles the flat amount. A periodic Physical tick on an enemy takes none of Gift of Arthas or Lacerations: Gift of
+  Arthas on ticks that ignore armor, meet a tenth of it (two ticks) or meet all of it, Lacerations on ticks that ignore
+  armor or meet all of it.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports the Reports section lists; all fights.
 - Game build: 1.60.1.70862, 1.60.1.70888, 1.60.1.70938 and 1.60.1.70959 for Force of Will, by event time against the
   time the CDN first listed each build; the Game builds section has the procs on each. The Tenderized and Gold-plated
@@ -266,7 +267,8 @@ Spell hits against a flat spell damage taken amount, and a flat ranged damage ta
 ## Ticks under a flat Physical damage taken debuff
 
 The reports are every indexed one where Gift of Arthas 11374 shows beside a Physical bleed or item tick (10 reports),
-and the 15 with Tenderized or Lacerations, a tick and no Gift of Arthas. Per report, caster and tick spell, the ticks
+and the 15 with Tenderized or Lacerations, a tick and no Gift of Arthas, of which 8 hold a tick under the debuff; the
+other 7 add nothing to the counts. Per report, caster and tick spell, the ticks
 with every one of the three debuffs off give r, the median of amount / unmitigatedAmount over 5 or more ticks. A tick
 with the debuff on leaves amount - r x unmitigatedAmount over; a tick that took the debuff's amount leaves the amount,
 or r times it before armor. Only normal ticks count (no crit, absorb or overkill), and none within 50 ms of an event of
@@ -285,6 +287,8 @@ any of the three debuffs on its target.
 | Bigger Rock to the Face 1306816    | all             |                217 / 586 |            -0.31 |           182 / 1,581 |             0.00 |
 | Rock to the Face 1309967           | all             |                  81 / 92 |             0.17 |                       |                  |
 | All                                |                 |            1,339 / 3,075 |       mean -0.90 |           688 / 2,317 |        mean 0.18 |
+
+The All row gives the mean left over across every tick under the debuff, not a median.
 
 Gift of Arthas adds 8 to a swing at a k near 0.65, so a tick that took it would leave 5 to 8 over; Lacerations leaves
 0.65 to 3.2 on a swing at 1 to 5 stacks. On the ticks that meet all of the target's armor, unmitigatedAmount and amount
