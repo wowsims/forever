@@ -22,13 +22,14 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 	}
 
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) {
-		// All physical dots (Bleeds) ignore armor.
-		if isPeriodic && !spell.Flags.Matches(SpellFlagApplyArmorReduction) {
-			return 1, OutcomeEmpty
+		// Periodic physical damage ignores armor unless flagged to meet all of it or a tenth of it.
+		switch {
+		case !isPeriodic || spell.Flags.Matches(SpellFlagApplyArmorReduction):
+			return attackTable.GetArmorDamageModifier(spell), OutcomeEmpty
+		case spell.Flags.Matches(SpellFlagTenthResistance):
+			return attackTable.armorDamageModifier(0.1), OutcomeEmpty
 		}
-
-		// Physical resistance (armor).
-		return attackTable.GetArmorDamageModifier(spell), OutcomeEmpty
+		return 1, OutcomeEmpty
 	}
 
 	// Magical resistance.
@@ -159,6 +160,12 @@ func rollResistTenths(sim *Simulation, chances [11]float64) int {
 }
 
 func (at *AttackTable) GetArmorDamageModifier(spell *Spell) float64 {
+	return at.armorDamageModifier(1)
+}
+
+// The share of a hit left after armorShare of the defender's armor, taken of what the attacker's ignore
+// factor and armor penetration leave.
+func (at *AttackTable) armorDamageModifier(armorShare float64) float64 {
 	if at.IgnoreArmor {
 		return 1.0
 	}
@@ -168,7 +175,7 @@ func (at *AttackTable) GetArmorDamageModifier(spell *Spell) float64 {
 	armorConstant := 400 + 85*float64(at.Attacker.Level)
 	defenderArmor := at.Defender.Armor() - (at.Defender.Armor() * ignoreArmorFactor)
 	// TODO: Forever possibly has different rules as there is Armor Piercing Flat and % values
-	defenderArmor = max(defenderArmor-at.Attacker.stats[stats.ArmorPenetration], 0)
+	defenderArmor = max(defenderArmor-at.Attacker.stats[stats.ArmorPenetration], 0) * armorShare
 	// Damage reduction from armor is capped at 75%.
 	return max(1-defenderArmor/(defenderArmor+armorConstant), 0.25)
 }
