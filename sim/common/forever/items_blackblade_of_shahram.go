@@ -241,16 +241,12 @@ func registerBlessingOfShahram(character *core.Character) *core.Spell {
 }
 
 // Fist of Shahram 16601 lands on Shahram's master, the wearer, and raises the wearer's melee attack
-// speed for the row's duration (EV-0125). A new Fist while one is up refreshes it.
+// speed for the row's duration (EV-0125). The logs show no two Fists up at once, so the sim's own
+// rule is that a new Fist refreshes the one that is up.
 func registerFistOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16601)
-	// SpeedPseudoStats reads only the caster's own speed auras, and this one targets his master.
-	effect := row.FirstAura(dbcenums.A_MOD_MELEE_HASTE_3)
-	speed := make([]float64, stats.PseudoStatsLen)
-	for _, pseudoStat := range spelldata.SpeedAuraPseudoStats[effect.Aura] {
-		speed[pseudoStat] = effect.BasePoints
-	}
-	aura := character.RegisterAura(spelldata.AuraConfig(row)).AttachHastePseudoStats(speed)
+	aura := character.RegisterAura(spelldata.AuraConfig(row))
+	spelldata.ParseEffects(character, aura, row)
 	config := shahramSpellConfig(character, row)
 	config.RelatedSelfBuff = aura
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
