@@ -16,8 +16,9 @@ export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', Defaults
 
 // Six Feralheart pieces sold in Orgrimmar and Ironforge, Orb of the Darkmoon for Darkmoon Faire tickets, Tearfall
 // Bracers of Magic from Stratholme, Rune Band of Wizardry and Eye of the Beast from Blackrock Spire, Therazane's Touch
-// from the Alterac Valley vendors, Hand of Edward the Odd and the crafted Ironfeather Leggings. The cloak, a ring, a
-// trinket and the idol are sold by the Undermine Trader in Stranglethorn Vale.
+// from the Alterac Valley vendors and the crafted Ironfeather Leggings. The cloak, a ring, a trinket and the idol are
+// sold by the Undermine Trader in Stranglethorn Vale. Hand of Edward the Odd, and the Pristine Scale and Fel Leather the
+// leggings take, have no known source.
 export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSGearJson, { devOnly: true });
 
 export const P1Gear = PresetUtils.makePresetGear('P1', P1GearJson, { devOnly: true });

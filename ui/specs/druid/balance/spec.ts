@@ -58,7 +58,7 @@ export default defineSpec<Spec.SpecBalanceDruid>({
 		statCaps: (() => {
 			return new Stats().withPseudoStat(PseudoStat.PseudoStatSpellHitPercent, 17);
 		})(),
-		// The page starts on the automatic rotation, which is the default APL; defaults.siml holds that APL.
+		// defaults.siml's rotation would make the page start on the APL; it starts on Auto, which runs the same APL.
 		rotationType: APLRotation_Type.TypeAuto,
 	},
 
