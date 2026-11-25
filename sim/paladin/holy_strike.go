@@ -29,6 +29,7 @@ func (paladin *Paladin) registerHolyStrike(_ int32, rank *spelldata.Spell) {
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ClassSpellMask = SpellMaskHolyStrike
 	config.TakenBonusCoefficient = coefficient
+	config.VersusStats = []stats.Stat{stats.AttackPower, stats.SpellDamage}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		weaponDamage := spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))

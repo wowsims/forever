@@ -3,6 +3,7 @@ package warrior
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var executeRank = spellData.Execute.Highest()
@@ -20,6 +21,7 @@ func (warrior *Warrior) registerExecute() {
 
 	// TODO: Manual review needed -- the game files state no threat coefficient; 1 until measured in game.
 	config := spelldata.SpellConfig(&warrior.Unit, executeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.VersusStats = []stats.Stat{stats.PhysicalDamage}
 
 	config.ExtraCastCondition = func(_ *core.Simulation, target *core.Unit) bool {
 		return target.IsExecutePhase20()

@@ -228,6 +228,48 @@ func TestDamageLogNamesTheSpellsOwnVersusBonusAndTheFamily(t *testing.T) {
 	}
 }
 
+func TestDamageLogListsTheStatsASpellDeclaresAlone(t *testing.T) {
+	vt := newVersusLogTest()
+	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81, stats.SpellDamage: 40, stats.PhysicalDamage: 6}, vt.target.MobType)
+	holyStrike := func(id int32, read []stats.Stat) *Spell {
+		return vt.unit.RegisterSpell(SpellConfig{
+			ActionID:         ActionID{SpellID: id},
+			SpellSchool:      SpellSchoolHoly,
+			ProcMask:         ProcMaskMeleeMHSpecial,
+			DefenseType:      DefenseTypeMelee,
+			DamageMultiplier: 1,
+			ThreatMultiplier: 1,
+			VersusStats:      read,
+		})
+	}
+
+	for _, c := range []struct {
+		name  string
+		spell *Spell
+		want  string
+	}{
+		{"an undeclared melee hit", holyStrike(101, nil), ") [Versus Humanoid: {SpellID: 22} +81 AttackPower]"},
+		{"a hit declaring spell damage alone", holyStrike(102, []stats.Stat{stats.SpellDamage}), ") [Versus Humanoid: {SpellID: 22} +40 SpellDamage]"},
+		{"a hit declaring none", holyStrike(103, NoVersusStats), ")"},
+	} {
+		if line := vt.damageLine(t, c.spell, OutcomeHit); !strings.HasSuffix(line, c.want) || (c.want == ")" && strings.Contains(line, "[Versus")) {
+			t.Errorf("%s: line %q, want it to end with %q", c.name, line, c.want)
+		}
+	}
+}
+
+func TestDamageLogNamesAnItemsStatsByTheItem(t *testing.T) {
+	vt := newVersusLogTest()
+	item := &Item{ID: 12345, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {MobTypeStats: []*proto.MobTypeStats{
+		{MobTypes: []proto.MobType{vt.target.MobType}, Stats: map[int32]float64{int32(stats.AttackPower): 81}},
+	}}}}
+	vt.unit.addItemMobTypeStats(item, 1)
+
+	if line, want := vt.damageLine(t, vt.strike, OutcomeHit), ") [Versus Humanoid: {ItemID: 12345} +81 AttackPower]"; !strings.HasSuffix(line, want) {
+		t.Errorf("line %q, want it to end with %q", line, want)
+	}
+}
+
 func TestDamageWithoutALogBuildsNoTag(t *testing.T) {
 	vt := newVersusLogTest()
 	vt.sim.Log = nil

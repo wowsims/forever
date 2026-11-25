@@ -97,7 +97,7 @@ func init() {
 			Label:    "Tenets of the Silver Hand",
 			ActionID: core.ActionID{SpellID: 1302545},
 		}))
-		spelldata.ParseEffects(character, aura, spelldata.MustFind(1302545))
+		spelldata.ParseEffects(character, aura, spelldata.MustFind(1302545), spelldata.ForItem(249397))
 	})
 
 	// Sentinel's Libram

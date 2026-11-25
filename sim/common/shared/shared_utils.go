@@ -621,7 +621,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	procAura := character.NewTemporaryStatsAuraWrapped(aura.Label, aura.ActionID, buffStats, aura.Duration, func(config *core.Aura) {
 		config.MaxStacks = aura.MaxStacks
 	})
-	attachVersusStats(procAura.Aura, buff)
+	attachVersusStats(procAura.Aura, buff, cfg.effectSource().itemID())
 	// The item effect entry carries the buff's stats alone; its speed auras come from the row
 	// (Ragehammer's Enrage 12686 states attack power and melee attack speed).
 	procAura.AttachHastePseudoStats(buff.SpeedPseudoStats())
@@ -629,11 +629,16 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 }
 
 // The stats the buff grants against some creature types, which the item effect entry leaves out:
-// Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin.
-func attachVersusStats(aura *core.Aura, buff *spelldata.Spell) {
+// Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin. The combat
+// log names the item for them, or the buff for an enchant's (item 0).
+func attachVersusStats(aura *core.Aura, buff *spelldata.Spell, itemID int32) {
+	source := core.ActionID{SpellID: buff.ID}
+	if itemID != 0 {
+		source = core.ActionID{ItemID: itemID}
+	}
 	for _, effect := range buff.Effects {
 		if bonus := spelldata.VersusBonus(effect.Aura, effect.Average()); bonus != (stats.Stats{}) {
-			aura.AttachMobTypeBonusStats(core.ActionID{SpellID: buff.ID}, bonus, spelldata.MobTypes(effect.Misc)...)
+			aura.AttachMobTypeBonusStats(source, bonus, spelldata.MobTypes(effect.Misc)...)
 		}
 	}
 }
@@ -2047,6 +2052,15 @@ func (s effectSource) actionID() core.ActionID {
 	}
 
 	return core.ActionID{ItemID: s.id}
+}
+
+// The item the effect belongs to, or 0 for an enchant.
+func (s effectSource) itemID() int32 {
+	if s.isEnchant {
+		return 0
+	}
+
+	return s.id
 }
 
 func (s effectSource) eligibleSlots(character *core.Character) []proto.ItemSlot {

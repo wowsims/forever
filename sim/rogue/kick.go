@@ -3,6 +3,7 @@ package rogue
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var kickRank = spellData.Kick.Highest()
@@ -11,6 +12,7 @@ var kickRank = spellData.Kick.Highest()
 func (rogue *Rogue) registerKickSpell() {
 	kickBaseDamage := kickRank.DamageEffect().Average()
 	config := spelldata.SpellConfig(&rogue.Unit, kickRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.VersusStats = []stats.Stat{stats.PhysicalDamage}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)

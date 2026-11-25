@@ -169,7 +169,9 @@ func (unit *Unit) mobTypeBonusesProto() []*proto.MobTypeBonus {
 //   - "x<m> base": the spell's own VersusBonus on its base damage, under the spell's ActionID;
 //   - "+<n> <stat>" or "-<n> <stat>": a stat against the mob type the spell reads (versusStatsRead).
 //
-// The kinds come in that order, each in the order the sources were added. Mob types and families are
+// A bonus an item grants, from its stats, its equip spell, its proc or its on-use, names the item; one
+// from an enchant, a set bonus, a consumable, a talent or a racial names its spell. The kinds come in
+// that order, each in the order the sources were added. Mob types and families are
 // their enum names without the prefix, numbers are rounded to 4 decimals, and no part holds ";" or
 // "]", so the tag ends the line at its only "]". A snapshot dot tick names the sources up at the tick,
 // not the ones its snapshot took.
@@ -222,15 +224,24 @@ func (spell *Spell) versusLogTag(result *SpellResult, isPeriodic bool) string {
 	return " [Versus " + strings.TrimPrefix(target.MobType.String(), "MobType") + family + ": " + strings.Join(entries, "; ") + "]"
 }
 
-// The stats against the target's mob type that reach the spell's damage, judged from the spell alone:
+// The VersusStats of a spell that states it reads none.
+var NoVersusStats = []stats.Stat{}
+
+// The stats against the target's mob type that reach the spell's damage: the spell's VersusStats where
+// it declares them, and otherwise what the spell alone shows:
 //   - AttackPower on a melee proc mask and RangedAttackPower on a ranged one, which weapon damage and
 //     attack power coefficients read;
 //   - PhysicalDamage or SpellDamage where CalcDamage or CalcPeriodicDamage adds BonusDamage, by their
 //     branches.
 //
-// A melee or ranged spell that reads no attack power still lists it, and a spell that adds a versus
-// stat by hand outside BonusDamage does not list it.
+// A spell whose damage reads otherwise declares its VersusStats: a melee or ranged hit with no attack
+// power term (Seal of Fury, Hamstring), or one that adds a versus stat by hand outside BonusDamage
+// (Seal of Command).
 func (spell *Spell) versusStatsRead(target *Unit, isPeriodic bool) []stats.Stat {
+	if spell.VersusStats != nil {
+		return spell.VersusStats
+	}
+
 	var read []stats.Stat
 	if spell.ProcMask.Matches(ProcMaskMelee) {
 		read = append(read, stats.AttackPower)

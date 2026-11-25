@@ -3,6 +3,7 @@ package warrior
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var hamstringRank = spellData.Hamstring.Highest()
@@ -15,6 +16,7 @@ const hamstringThreatMultiplier = 1.25
 func (warrior *Warrior) registerHamstring() {
 	config := spelldata.SpellConfig(&warrior.Unit, hamstringRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ThreatMultiplier = hamstringThreatMultiplier
+	config.VersusStats = []stats.Stat{stats.PhysicalDamage}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcAndDealDamage(sim, target, hamstringBaseDamage, spell.OutcomeMeleeSpecialHitAndCrit)

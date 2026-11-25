@@ -62,6 +62,11 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   scale with stacks or combo points reads them.
 - **Crit damage** is `(base × CritMultiplierPct × CritDamageMultiplier × table − 1) × (CritMultiplierAdditive + 1) + 1`
   (`spell.go`).
+- **The versus tag on a damage line names the stats the spell reads against the mob type** (`versusStatsRead` in
+  `sim/core/attack_table_helpers.go`). It infers attack power from the proc mask and physical or spell damage from the
+  `BonusDamage` branches. A spell whose damage reads otherwise, such as flat damage with no attack power term or spell
+  damage added by hand, sets `SpellConfig.VersusStats`, or `core.NoVersusStats` when it reads none. An item's versus
+  bonus is named by the item when its row is parsed with `spelldata.ForItem`.
 
 ## How many targets
 

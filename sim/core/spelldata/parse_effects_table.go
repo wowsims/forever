@@ -95,6 +95,9 @@ type parser struct {
 
 	// AllManaRegen: a mana regen percent is Innervate's multiplier on the mana regen.
 	allManaRegen bool
+
+	// The item or spell the combat log names for the row's bonuses against mob types (ForItem).
+	versusSource core.ActionID
 }
 
 // One attachment made for one effect: the sim kind it became, the value in the sim's own units, and
@@ -1083,7 +1086,7 @@ func mobTypeStatRow(p *parser, e *Effect, v float64) *attachment {
 	}
 	name := strings.Join(names, "+")
 	a := additive("mob-type-stat "+name, v, p.onAttackTables(func(_ *core.Simulation, delta float64) {
-		p.unit.AddMobTypeBonusStats(core.ActionID{SpellID: p.spell.ID}, VersusBonus(e.Aura, delta), mobTypes...)
+		p.unit.AddMobTypeBonusStats(p.versusSource, VersusBonus(e.Aura, delta), mobTypes...)
 	}))
 	// A bonus against other creature types does not compete with this one.
 	a.key = fmt.Sprintf("%sVersus%d", name, e.Misc)
@@ -1112,7 +1115,7 @@ func (p *parser) versusMultiplier(kind string, key string, e *Effect, v float64,
 	}
 
 	a := multiplier(kind, mult, p.onAttackTables(func(_ *core.Simulation, factor float64) {
-		multiply(core.ActionID{SpellID: p.spell.ID}, factor, mobTypes...)
+		multiply(p.versusSource, factor, mobTypes...)
 	}))
 	a.key = fmt.Sprintf("%s%d", key, e.Misc)
 	return a

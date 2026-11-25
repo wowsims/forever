@@ -41,6 +41,7 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	// the judgement by those.
 	judgementConfig.ClassFlags = judgeDamageRank.ClassFlags
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
+	judgementConfig.VersusStats = []stats.Stat{stats.SpellDamage}
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
 	// The dummy lands on the enemy before the damage it names, and a landing on the melee table rolls
 	// a weapon proc whether or not it deals damage. So a judgement that lands rolls each weapon proc
@@ -77,6 +78,7 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	procConfig := spelldata.SpellConfig(&paladin.Unit, procRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	procConfig.ClassSpellMask = SpellMaskSealOfCommandProc
 	procConfig.TakenBonusCoefficient = coefficient
+	procConfig.VersusStats = []stats.Stat{stats.AttackPower, stats.SpellDamage}
 	procConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		weaponDamage := spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
 		baseDamage := (weaponDamage + coefficient*spell.SpellDamage(target)) * weaponPercent

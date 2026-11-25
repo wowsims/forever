@@ -17,6 +17,7 @@ func (warrior *Warrior) registerShieldBash() {
 	// and parry, and core's canProcFrom decides which weapon procs hear it.
 	config := spelldata.SpellConfig(&warrior.Unit, shieldBashRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ThreatMultiplier = shieldBashThreatMultiplier
+	config.VersusStats = core.NoVersusStats
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := shieldBashRank.DamageEffect().Roll(sim)
