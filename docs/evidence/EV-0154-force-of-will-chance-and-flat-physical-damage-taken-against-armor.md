@@ -12,20 +12,21 @@
   doubles the flat amount. A periodic Physical tick on an enemy takes none of Gift of Arthas or Lacerations: Gift of
   Arthas on ticks that ignore armor, meet a tenth of it (two ticks) or meet all of it, Lacerations on ticks that ignore
   armor or meet all of it and on Deep Wound 412613. A mob's Physical tick on a player takes none of Force of Will or
-  Stoneskin Totem (ranks I to III read; IV to VI too few), and Gold-plated and Stoneform Shoulders neither cut a tick
+  Stoneskin Totem (ranks I to III, and one rank VI tick; IV to VI otherwise too few), and Gold-plated and Stoneform Shoulders neither cut a tick
   nor spend on one. Force of Will's 51 comes off a mob's melee special and a mob's
-  ranged hit before armor too, and takes at most half of a special; Stoneskin Totem reads before armor on both. Spikes
-  14104, Shield Spike 12782 and Knockdown 11428 take no flat reduction. On Era realms Gift of Arthas also adds its 8
+  ranged hit before armor too, and takes at most half of a special; Stoneskin Totem takes its amount off before armor on both. Spikes
+  14104, Shield Spike 12782 and Knockdown 11428 and 16790 take no flat reduction. On Era realms Gift of Arthas also adds its 8
   before armor to a swing, and adds it to a Deep Wounds 12721 tick.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports the Reports section lists; all fights. The
-  Era comparison: vanilla.warcraftlogs.com, the 36 reports its section lists.
+  Era comparison: vanilla.warcraftlogs.com, the 36 reports its section lists; the ticks a player takes and the specials
+  and ranged hits, the reports their sections list.
 - Game build: 1.60.1.70862, 1.60.1.70888, 1.60.1.70938 and 1.60.1.70959 for Force of Will, by event time against the
   time the CDN first listed each build; the Game builds section has the procs on each. The Tenderized and Gold-plated
   reports start on 1.60.1.70790, and the first Stoneskin Totem summon counted is on 2026-11-07 06:52 UTC, two hours
   after 1.60.1.70862 was listed. The tick, special and ranged reports run on 1.60.1.70862 to 1.60.1.71091 by report
   date. The hotfix each player ran is not recorded. The Era reports' game builds are not recorded.
 - Date: 2026-11-05 to 2026-11-19; the ticks 2026-11-10 to 2026-11-25; the specials and ranged hits 2026-11-10 09:46 to
-  2026-11-25 08:41 UTC; the ticks a player takes 2026-11-13 20:13 to 2026-11-25 07:12 UTC; Era 2023-10-04 to
+  2026-11-25 08:41 UTC; the ticks a player takes 2026-11-13 20:13 to 2026-11-25 11:37 UTC; Era 2023-10-04 to
   2026-10-01
 - Pull request: #1114; the single applications, Stoneskin Totem, the cap at half a hit and the crits in #1116; the ticks
   in #1229; Deep Wound, the ticks a player takes, the specials, the ranged hits and Era in #1230
@@ -307,7 +308,8 @@ The same reports' normal white swings are the control: on the four Gift of Artha
 over against 8 x 0.641 = 5.13 before armor, and 4,353 with it off leave 0.00. Tenderized shows on 5 Garrote ticks in
 one report, 0.00 over at the median; no Barman Shanker wearer is in these reports.
 
-Deep Wound 412613 logs without the tick flag, so its damage events count whole; its amount equals its
+Deep Wound 412613 is the damage 412609's periodic dummy deals every 3 s and logs without the tick flag; it counts as a
+tick here, as the sim's Deep Wounds dot does. Its amount equals its
 unmitigatedAmount off the debuffs. Its ticks under Lacerations come from 4 of the Lacerations reports. No report holds
 a Deep Wound under Gift of Arthas.
 
@@ -320,23 +322,23 @@ the reduction at r, capped at half the tick. Step pairs are consecutive ticks of
 the reduction's edge. Stoneskin Totem's aura logs no event on the receiver, so a tick counts as covered when the
 receiver's own white swings within 3 s show the reduction.
 
-| Reduction                         | Ticks on (reports) | Left over, mean (95%)  | Expected | Step pairs: change (reduced) | Control on swings                       |
-| --------------------------------- | -----------------: | ---------------------- | -------: | ---------------------------- | --------------------------------------- |
-| Force of Will 15595 (-51)         |           369 (22) | -0.51 (-1.06 to -0.02) |    -26.4 | 130: -1.5                    | 6,485 swings -20.2 (expected -20.3)     |
-| Stoneskin Totem, ranks I to III   |           277 (19) | -0.01 (-0.07 to 0.04)  |     -5.1 | 21: -0.24 (-4.65)            | uncovered ticks +0.05                   |
-| Gold-plated 1291908 (-15)         |             16 (6) | +0.13                  |     -8.2 | 8: -0.12                     | 91 spend swings -7.5 (expected -8.1)    |
-| Stoneform Shoulders 1298231 (-60) |             12 (8) | +7.5 (4.0 to 11.2)     |    -43.3 | 14: +0.57 (-44)              | 296 spend swings -17.5 (expected -22.4) |
+| Reduction                                          | Ticks on (reports) | Left over, mean (95%)  | Expected | Step pairs: change (reduced) | Control on swings                       |
+| -------------------------------------------------- | -----------------: | ---------------------- | -------: | ---------------------------- | --------------------------------------- |
+| Force of Will 15595 (-51)                          |           369 (22) | -0.51 (-1.06 to -0.02) |    -26.4 | 130: -1.5 (-25.5)            | 6,485 swings -20.2 (expected -20.3)     |
+| Stoneskin Totem, ranks I to III (one tick rank VI) |           277 (19) | -0.01 (-0.07 to 0.04)  |     -5.1 | 23: -0.26 (-4.60)            | 1,079 swings -7.3 (expected -7.9)       |
+| Gold-plated 1291908 (-15)                          |             16 (6) | +0.13                  |     -8.2 | 8: -0.12 (-5.1)              | 91 spend swings -7.5 (expected -8.1)    |
+| Stoneform Shoulders 1298231 (-60)                  |             12 (8) | +7.5 (4.0 to 11.2)     |    -43.3 | 14: +0.57 (-44)              | 296 spend swings -17.5 (expected -22.4) |
 
 The median left over is 0.00 under Force of Will and Stoneskin Totem. Force of Will covers Rend 13445, 12054, 13443,
-11977, 13738 and 16509, Puncture 15976, Rupture 15583 and Vicious Rend 14331, each at a median of 0.00 but Rend
+11977, 13738 and 16509, Puncture 15976, Rupture 15583 and Vicious Rend 14331, each at a median of 0.00 to 0.10 but Rend
 16509 (4 ticks, -6); on minus off in the same reports reads -0.17 (-0.85 to 0.43), and its 49 ticks of 102 and over
 read -2.7 against -46.2. Its step pairs change by -1.5, the same as their unmitigatedAmount. The Stoneskin Totem ticks
 are almost all Defias Inmate Rend 6547 at about 10 a tick under ranks of 4, 7 and 11: none of the 277 sits within 0.75
 of the reduced value and 216 sit within 0.75 of 0; with covered swings on both sides within 10 s, 208 ticks read -0.14
-to +0.21. No tick is covered by ranks IV to VI; 14 ticks under such a summon (6 of them rank VI Puncture 15976 ticks of
-185 to 274) read 0.00, -0.47 and +0.33. Gold-plated and Stoneform Shoulders are never spent by a tick: none of 1,666
+to +0.21. The 281 ticks no summon covers read +0.05 over, the same. One covered tick is rank VI (a Rend 13738 of 100 before armor, 0.00 over); 14 more ticks under a rank IV to VI summon
+(6 of them rank VI Puncture 15976 ticks of 185 to 274) read 0.00, -0.47 and +0.33. Gold-plated and Stoneform Shoulders are never spent by a tick: none of 1,666
 and 1,793 removals has a tick within 50 ms without a white swing there too, and the buffs stay up through 39 and 25
-ticks. The Shoulders mean of +7.5 comes from 12 large ticks whose r reads high, and its step pairs carry the reading.
+ticks. The Shoulders mean of +7.5 comes from 12 large ticks whose r reads low, and its step pairs carry the reading.
 
 Force of Will ticks on:
 
@@ -366,38 +368,41 @@ wrKpnNaxqj2ydFAM
 The tanks of 331 runs in 318 reports, with a mob's Physical hits on them that are not white swings. k is the share
 through armor from the narrowest of 8, 15, 30 and 60 s windows that holds enough hits: the ability's own hits off the
 reduction where they suffice, else the same mob's white swings. A hit with the reduction on is cut by R x k before
-armor and by R after it; the table gives the cut over R x k. The buff's own events and Stoneskin Totem's summons give
+armor and by R after it; the table gives the cut over R x k; it reads 1 before armor and about 1/k, near 2.5, after it. The buff's own events and Stoneskin Totem's summons give
 the windows, and a Stoneskin Totem place counts only where the tank's own white swings show the reduction.
 
-| Reduction            | Hits                      | Hits on (tanks) | Cut over R x k, median | Before armor |
-| -------------------- | ------------------------- | --------------: | ---------------------: | -----------: |
-| Force of Will        | white swings (control)    |           6,944 |                   1.00 |            1 |
-| Force of Will        | specials, the ability's k |        222 (53) |    1.00 (0.97 to 1.04) |            1 |
-| Force of Will        | specials, white-swing k   |        382 (96) |                   1.00 |            1 |
-| Force of Will        | ranged, the ability's k   |        159 (37) |                   1.00 |            1 |
-| Force of Will        | ranged, white-swing k     |         78 (28) |                   0.99 |            1 |
-| Stoneskin Totem V    | white swings              |             285 |                   1.01 |            1 |
-| Stoneskin Totem VI   | white swings              |           1,066 |                   1.06 |            1 |
-| Stoneskin Totem V/VI | specials                  |        about 90 |           1.00 to 1.16 |            1 |
-| Stoneskin Totem V/VI | ranged                    |        about 90 |           0.98 to 1.20 |            1 |
+| Reduction            | Hits                      | Hits on (tanks) | Cut over R x k, median |
+| -------------------- | ------------------------- | --------------: | ---------------------: |
+| Force of Will        | white swings (control)    |           6,944 |                   1.00 |
+| Force of Will        | specials, the ability's k |        222 (53) |    1.00 (0.97 to 1.03) |
+| Force of Will        | specials, white-swing k   |        382 (96) |                   1.00 |
+| Force of Will        | ranged, the ability's k   |        159 (37) |                   1.00 |
+| Force of Will        | ranged, white-swing k     |         78 (28) |                   0.99 |
+| Stoneskin Totem V    | white swings              |             285 |                   1.01 |
+| Stoneskin Totem VI   | white swings              |           1,066 |                   1.06 |
+| Stoneskin Totem V/VI | specials                  |        about 90 |           1.00 to 1.16 |
+| Stoneskin Totem V/VI | ranged                    |        about 90 |           0.98 to 1.20 |
+
+Uncovered places read -0.04 to 0.05 on whites and specials but -6.6 on ranged hits, so the Stoneskin Totem ranged rows
+are the weakest.
 
 Strike (321 hits), Cleave (66), Hamstring (51), Sinister Strike (37), Snap Kick, Uppercut, Crusader Strike, Head
-Smash and Skull Crack each read 0.97 to 1.03 under Force of Will; the ranged hits are Shoot (214), Throw Wrench and
-Throw. Force of Will leaves unmitigatedAmount in place: it moves by -3.6 on whites, -3.8 on specials and -0.1 on ranged
+Smash and Skull Crack each read 0.97 to 1.03 under Force of Will; the ranged hits are Shoot (214), Throw Wrench, Throw
+and Hooked Net 14030 (6 hits, 1.02). Force of Will leaves unmitigatedAmount in place: it moves by -3.6 on whites, -3.8 on specials and -0.1 on ranged
 hits, against -51 if the buff were inside it.
 
 Under Force of Will, 101 specials under 102 before armor land at a median of 0.51 of k x unmitigatedAmount, where no
-cap leaves 0 to 0.46: Shield Bash 26 (0.51), Pummel 25 (0.49 and 0.52), Kick 31 (0.50 and 0.52) and Gouge 19 (0.55).
-Ten of them take the ability's own k, 41 the white-swing k and 50 a 30 s window. No mob ranged hit falls under 102:
+cap leaves 0 to 0.36: Shield Bash 26 (0.51), Pummel 25 (0.49 and 0.52), Kick 31 (0.50 and 0.52) and Gouge 19 (0.55).
+Ten of them take the ability's own k, 41 the white-swing k and 50 a looser k, the median of the same mob's white swings within 30 s. No mob ranged hit falls under 102:
 the smallest under the buff is 134 before armor and the smallest of 7,526 in any state 131, so the cap on a ranged
 hit is not read. Stoneskin Totem holds 3 specials and no ranged hit under twice its amount, and no tank wore
 Gold-plated; Stoneform Shoulders holds 25 white swings at 1.00 and one ranged hit.
 
 Three Physical mob abilities take no flat reduction. Spikes 14104 (94 hits, 14 tanks; no SpellCategories row, a
-damage shield aura) reads 0.903 of unmitigatedAmount with Force of Will on and off, and lands at 28 at 31 before armor
+damage shield aura) reads 0.903 of unmitigatedAmount with Force of Will on and off, and a 31 before armor lands at 28
 where the cut would leave 0 to 14. Shield Spike 12782 (54 hits, 24 tanks; a proc trigger aura) reads 0.900 both ways,
 and Knockdown 11428 (32 hits, 18 tanks; DefenseType 0) 0.861 and 0.863. Mortal Strike 13737 (6 hits) and Maul 1242907
-(3 hits) take none too, on too few hits to read. Sonic Burst (DefenseType 1, Physical school; 11 hits) takes it before
+(3 hits) read none as well, on too few hits to settle. Sonic Burst (DefenseType 1, Physical school; 11 hits) takes it before
 armor, so the DefenseType alone does not decide it.
 
 The 318 reports of the specials and ranged hits:
@@ -463,7 +468,7 @@ reports and 2 on Chinese realms of unknown flavor), 367 fights after the fights 
 white swings. Armor debuffs land through a raid pull, so a k taken from other swings of the same attacker misses;
 instead each run of consecutive normal swings on one target in one debuff state fits amount = k x
 unmitigatedAmount + d. At level 60 the attackers meet the same armor, so the fit separates k and d: d is 8 after armor
-and 8 x k before it. With the debuff off d reads 0.33 in every k bin.
+and 8 x k before it. With the debuff off d reads 0.21 to 0.38 by k bin, 0.33 overall.
 
 | k bin (mean k)  | Runs / swings on | d on, minus 0.33 | After armor | Before armor |
 | --------------- | ---------------: | ---------------: | ----------: | -----------: |
@@ -475,7 +480,8 @@ and 8 x k before it. With the debuff off d reads 0.33 in every k bin.
 42 of the 48 runs under a k of 0.9 sit nearer 8 x k than 8, and their median (d - 0.33) / k is 7.97. Era's
 unmitigatedAmount holds no 8 either. Deep Wounds 12721 ticks (1,481 on, 6,397 off, k 1.000) leave 8.52 over on the
 debuff (median 9.00) and 0.22 off it; of 118 pairs of ticks that step from off to on, 76 rise by 8 and none stays the
-same. Rend and Rupture tick too rarely to read (4 and 38 ticks, none on the debuff).
+same. Rend 11574 (4 ticks) and Rupture 11275 (38) tick only with the debuff on, each after a logged apply, so no off tick
+gives k; each tick's amount equals its unmitigatedAmount.
 
 Era reports: bAqQZaKr8yJ2dXxw, GjZdnQtkFTfKNzax, GcVwANCP4Zt3bXqv, 7V9XTLwzv3chQKnH, PBGtV7qFzTNmrjv3, yKmhq1Lc7JQHaTA3,
 mLHqtkYFb7fn9N6c, 1wtdrgBT6p2bPGCD, cLXmDpTVRjAYWCN3, gA2bLxmNkdpRqWX8, hVtPQZYA6fnyBzNc, pJMqz391bdT6PWHr,
