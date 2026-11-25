@@ -2,7 +2,8 @@
 
 - Claim: Whirlwind's off-hand strike starts Flurry on a crit and spends no charge, Gore Drinker spends a charge and heals
   once per landed Whirlwind or Cleave strike, Sweeping Strikes brings one main-hand hit a Whirlwind, and Weaponmaster
-  (Sword) rolls on every landed Whirlwind strike made with a sword and grants one extra attack a cast at most.
+  (Sword) rolls on every landed Whirlwind strike made with a sword and grants one extra attack a cast at most;
+  Sweeping Strikes' hits do not roll it, from the pooled casts, while the split by cast type is inconclusive.
 - Sources: Forever combat logs of Fury and Arms warriors; local logs of 2026-11-10 and 2026-11-11 hold 97 Whirlwind casts
   by eight dual-wield Fury warriors with Flurry talented; report codes not recorded
 - Game build: not recorded
@@ -89,9 +90,11 @@ No cast logs two extra attack events: 0 of the 797 casts that grant one in the t
 among every cast with no white swing in the 40 ms before it, whoever the warrior. Of those 896, 739 log one white swing
 in the 40 ms after the cast, 11 two and 146 none, so a cast that grants swings once.
 
-Sweeping Strikes' hits: over all two-handed casts, a roll on each Sweeping Strikes hit as well predicts 839.9
-against 741. Split, the casts with Sweeping Strikes hits read 373 against 333.8 for the strikes alone and 428.4 with
-the hits, and the casts without read 368 against 411.5.
+Sweeping Strikes' hits: over all two-handed casts, 741 grant an extra attack, against 745.3 if Sweeping Strikes' hits
+do not roll it and 839.9 if they do. Split by cast type, the prediction misses by about 2.3 sigma in opposite
+directions: the casts with Sweeping Strikes hits read 373 against 333.8 (428.4 if the hits roll), and the casts
+without read 368 against 411.5. The split is inconclusive; it reads as a chance estimate that is off within each
+group, and it does not settle the rule either way.
 
 ### Reports
 
