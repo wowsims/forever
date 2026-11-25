@@ -320,8 +320,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-DeathmistRaiment"
  value: {
-  dps: 859.35514
-  tps: 677.90258
+  dps: 859.36699
+  tps: 677.91188
   dtps: 9.95584
   hps: 9.71037
  }
@@ -1586,8 +1586,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Gnome-destro-Destruction-destro-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 8185.49316
-  tps: 6393.69659
+  dps: 5334.31211
+  tps: 4158.37064
   dtps: 8.91597
  }
 }
@@ -1610,8 +1610,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Gnome-destro-Destruction-destro-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4282.45502
-  tps: 3370.92685
+  dps: 2661.88465
+  tps: 2100.30855
  }
 }
 dps_results: {
@@ -1631,8 +1631,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Orc-destro-Destruction-destro-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 7942.89339
-  tps: 6203.67159
+  dps: 5183.36935
+  tps: 4040.20473
   dtps: 8.86642
  }
 }
@@ -1655,8 +1655,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Orc-destro-Destruction-destro-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4291.76706
-  tps: 3377.63717
+  dps: 2662.5432
+  tps: 2100.32566
  }
 }
 dps_results: {
