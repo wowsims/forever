@@ -18,10 +18,17 @@ func (hunter *Hunter) registerSniperShot() {
 	spelldata.ParseEffects(&hunter.Character, buff, sniperShotRank)
 
 	// One charge per Shot the range mod names, however many targets it hits. The row's proc flags hear
-	// every ranged hit, Sniper Shot's own among them, so the listener takes the mod's class flags.
-	// TODO: Ingame test needed: a Shot that misses keeps the charge (the row's proc flags ask for damage
-	// dealt), and Multi-Shot spends one charge per cast.
-	spelldata.AttachChargeSpender(&hunter.Character, buff, sniperShotRank, "Sniper Shot - Spend")
+	// every ranged hit, Sniper Shot's own among them, so the listener takes the mod's class flags. The
+	// charge goes at the Shot's cast result, a miss included, and Serpent Sting, which the mod does not
+	// name, keeps it (EV-0198).
+	spelldata.AttachChargeSpender(&hunter.Character, buff, sniperShotRank, "Sniper Shot - Spend",
+		func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.Callback = core.CallbackOnCastResult
+			trigger.Outcome = core.OutcomeEmpty
+			trigger.RequireDamageDealt = false
+			trigger.RequireDamageComponent = false
+			trigger.TriggerImmediately = true
+		})
 
 	config := spelldata.SpellConfig(&hunter.Unit, sniperShotRank, spelldata.Melee(core.ProcMaskRangedSpecial))
 	hunter.hasteRangedCast(&config)

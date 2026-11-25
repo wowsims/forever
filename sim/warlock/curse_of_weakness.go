@@ -42,8 +42,8 @@ func (warlock *Warlock) registerCurseOfWeakness() {
 		config.RelatedAuraArrays[warlock.CurseOfWeaknessAmpAuras.FindLabel()] = warlock.CurseOfWeaknessAmpAuras
 	}
 
-	// Roll to hit, and apply in place of any other Curse: amplified if Amplify Curse is up, which the
-	// cast spends after its effects land.
+	// Roll to hit, and apply in place of any other Curse: amplified if Amplify Curse is up, which a
+	// landed cast spends after its effects.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHitNoHitCounter)
 		if result.Landed() {
