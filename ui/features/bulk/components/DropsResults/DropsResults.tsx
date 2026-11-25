@@ -11,9 +11,7 @@ import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { Pill } from '@ui-kit/Pill';
 import { ToggleGroup } from '@ui-kit/ToggleGroup';
-import { useScrollMargin, useScrollParent, VirtualList } from '@ui-kit/VirtualList';
-import clsx from 'clsx';
-import { type ReactNode, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 
 import { useBulkState } from '../../hooks/useBulkState';
 import { wornIdSet } from '../../model/drops/items';
@@ -33,9 +31,9 @@ import { type DropsNames, dropsNamesOf, dropsSourceLabel } from '../../model/dro
 import { baseIlvl } from '../../model/gear/search';
 import { equipAndAnnounce } from '../../model/results/results';
 import { baselineSignificance, isCulled, rowIterations } from '../../model/results/tie_chains';
+import { BulkRankingList } from '../BulkRankingList';
 import { BulkResultRowView } from '../BulkResults/BulkResultRow';
 import { BulkResultSlots } from '../BulkResults/BulkResultSlots';
-import { BulkResultTieGroup } from '../BulkResults/BulkResultTieGroup';
 import { BulkResultsCsvButton } from '../BulkResultsCsvButton';
 import { DropsBossCardView } from '../DropsBossCard';
 import { DropsItemLabel } from '../DropsItemLabel';
@@ -83,35 +81,6 @@ export const DropsResultsView = ({ summary, view, onViewChange, filter, cards, r
 		{view === 'bosses' ? <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">{cards}</div> : <div>{rows}</div>}
 	</div>
 );
-
-// About one plain row; a tie group or a row with a note measures taller once it renders.
-const ESTIMATED_RANKING_HEIGHT = 120;
-
-interface DropsResultListProps {
-	count: number;
-	renderRanking: (index: number) => ReactNode;
-}
-
-// One entry per ranking, a row or a tie group, measured as it renders, since a note, a tie group or a wrapped name
-// changes its height. The list scrolls with whatever scrolls the pane.
-const DropsResultList = ({ count, renderRanking }: DropsResultListProps) => {
-	const listRef = useRef<HTMLDivElement>(null);
-	const scroller = useScrollParent(listRef);
-	const scrollMargin = useScrollMargin(listRef, scroller);
-	return (
-		<div ref={listRef}>
-			<VirtualList
-				measured
-				count={count}
-				rowHeight={ESTIMATED_RANKING_HEIGHT}
-				getScrollElement={() => scroller}
-				scrollMargin={scrollMargin}
-				renderRow={renderRanking}
-				testId="drops-result-list"
-			/>
-		</div>
-	);
-};
 
 // A drop names its zone as the card's detail; any other source names its category, so a quest or vendor zone is not read as a drop zone.
 const sourceText = (key: string, names: DropsNames): string => {
@@ -201,7 +170,7 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 	});
 
 	// Every Drops output is a DPS ranking, so a row shows its DPS whatever the display settings hide.
-	const renderRow = (row: BulkRankedResult, key: number) => {
+	const renderRow = (row: BulkRankedResult) => {
 		const { newItem, slot, sources } = rowDetails.get(row)!;
 		const [first, ...more] = sources;
 		const isCurrent = row === current;
@@ -210,7 +179,6 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 		const significance = baselineSignificance(row, current, iterations);
 		return (
 			<BulkResultRowView
-				key={key}
 				showDamage
 				avg={row.dpsMetrics.avg}
 				plusMinus={lowPrecision ? 0 : stDevToConf95(row.dpsMetrics.stdev, rowIterations(row, iterations))}
@@ -240,16 +208,6 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 		);
 	};
 
-	// Each ranking sits alone in its list entry, so the gap and the rule the rows draw between siblings go on the entry: a
-	// row before a tie group keeps the gap without the rule, as it does in a plain list.
-	const renderRanking = (index: number) => {
-		const chain = chains[index];
-		const last = index === chains.length - 1;
-		if (chain.length > 1) return <BulkResultTieGroup>{chain.map((row, rowIdx) => renderRow(row, rowIdx))}</BulkResultTieGroup>;
-		const beforeGroup = (chains[index + 1]?.length ?? 0) > 1;
-		return <div className={clsx(!last && 'mb-6', !last && !beforeGroup && 'border-b border-b-border pb-6')}>{renderRow(chain[0], 0)}</div>;
-	};
-
 	return (
 		<DropsResultsView
 			summary={
@@ -272,7 +230,7 @@ const DropsResultsPane = ({ results, runSources, runFaction, onActivateTab }: Dr
 			filter={source === null ? null : { label: sourceText(source, names), onClear: () => setSource(null) }}
 			cards={cards}
 			actions={<BulkResultsCsvButton />}
-			rows={<DropsResultList key={source ?? ''} count={chains.length} renderRanking={renderRanking} />}
+			rows={<BulkRankingList key={source ?? ''} chains={chains} renderRow={renderRow} />}
 		/>
 	);
 };

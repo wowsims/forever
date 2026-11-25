@@ -452,6 +452,14 @@ describe('DropsSetup', () => {
 		expect(bulkState(player).dropsExcluded).toEqual([MARK]);
 	});
 
+	it('marks a row of an item that binds on equip with the BoE pill', () => {
+		tickEndgame();
+		openDialog();
+
+		expect(within(row(WEARABLE_ITEM_ID)!).getByTestId('drops-item-boe').textContent).toBe('bulk_tab.drops.results.boe');
+		expect(within(row(FELSTRIKER)!).queryByTestId('drops-item-boe')).toBeNull();
+	});
+
 	it('ticks a row from a press on its sources', () => {
 		tickEndgame();
 		openDialog();

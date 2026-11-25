@@ -1,4 +1,4 @@
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { measureElement, useVirtualizer } from '@tanstack/react-virtual';
 import clsx from 'clsx';
 import { type ReactNode, useEffect, useReducer } from 'react';
 
@@ -70,6 +70,10 @@ export const VirtualList = ({
 		estimateSize: () => rowHeight,
 		overscan: OVERSCAN,
 		scrollMargin,
+		// A row inside a hidden panel measures 0. Taking that would free room for more rows, which
+		// measure 0 too, until React gives up, so a row keeps its last size, or the estimate, instead.
+		measureElement: (element, entry, instance) =>
+			measureElement(element, entry, instance) || (instance.measurementsCache[instance.indexFromElement(element)]?.size ?? rowHeight),
 		...(scrollsWithWindow ? WINDOW_SCROLLER : {}),
 	});
 

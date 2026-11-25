@@ -1,10 +1,9 @@
 import { EnchantLabel } from '@features/gear/components/GearPicker/EnchantLabel';
-import { BindType } from '@generated/proto/ui';
-import i18n from '@i18n/config';
 import type { EquippedItem } from '@sim/proto/equipped_item';
-import { Pill } from '@ui-kit/Pill';
 import { itemQualityClassName } from '@ui-kit/utils/css';
 import clsx from 'clsx';
+
+import { DropsBoePill } from '../DropsBoePill';
 
 export interface DropsItemLabelProps {
 	/** The item the row adds to the worn gear. */
@@ -23,11 +22,7 @@ export const DropsItemLabel = ({ item, slot, source, moreSources }: DropsItemLab
 	<div className="flex min-w-0 flex-col gap-1 text-sm" data-testid="drops-item-label">
 		<span className="flex flex-wrap items-center gap-2">
 			<span className={clsx('wrap-break-word', itemQualityClassName(item.item.quality))}>{item.item.name}</span>
-			{item.item.bindType === BindType.BindTypeOnEquip && (
-				<Pill size="xs" rounded="xs" title={i18n.t('bulk_tab.drops.results.boe_tooltip')} testId="drops-item-boe">
-					{i18n.t('bulk_tab.drops.results.boe')}
-				</Pill>
-			)}
+			<DropsBoePill item={item.item} />
 		</span>
 		<EnchantLabel className="ui-item-picker-label-muted tracking-normal" testId="drops-item-enchant" enchant={item.enchant} />
 		<span className="text-xs text-muted" title={[source, ...moreSources].join('\n')}>

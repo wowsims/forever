@@ -197,4 +197,16 @@ describe('VirtualList', () => {
 		expect(rendered.map(row => row.style.transform)).toEqual(['translateY(0px)', 'translateY(40px)', 'translateY(60px)', 'translateY(100px)']);
 		expect(within(container).getByTestId('virtual-list').style.height).toBe('120px');
 	});
+
+	// happy-dom measures every row at 0, as a browser does a row inside a hidden panel.
+	it('keeps the estimate for a measured row that measures 0, as one in a hidden panel does', () => {
+		const element = scroller();
+		const { container } = render(
+			<VirtualList measured count={2000} rowHeight={ROW_HEIGHT} getScrollElement={() => element} renderRow={index => <span>row {index}</span>} />,
+			{ container: element },
+		);
+
+		expect(rows(container).length).toBeLessThan(50);
+		expect(within(container).getByTestId('virtual-list').style.height).toBe(`${2000 * ROW_HEIGHT}px`);
+	});
 });

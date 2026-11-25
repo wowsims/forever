@@ -49,7 +49,11 @@ mirror of the stage loop because the WASM sim cannot run `bulkSimAsync`.
   `DropsItemsCard` summary, `DropsItemsDialog`), `DropsRunCount`, `DropsResults` (`DropsSummary`, `DropsBossCard`,
   `DropsItemLabel`). `TotalIterations` is the run card's iterations row, shared by Gear, Builds and Drops, and
   `BulkDpsCell` the DPS, margin and difference of a Gear, Builds or Drops result row. A Drops result row is Gear's
-  (`BulkResultRowView`), and `BulkResultSlots` draws the slot cells of both.
+  (`BulkResultRowView`), and `BulkResultSlots` draws the slot cells of both. `BulkRankingList` is the ranking of every
+  mode, Gear's and Builds' in `BulkResults` and Drops' Items view: one measured `VirtualList` entry per ranking, a row
+  or a `BulkResultTieGroup`, since a tie group, a note or a wrapped name changes its height. The list draws the gap and
+  the rule between entries, as a row alone in its entry has no sibling to draw them against, and the rows inside a tie
+  group draw their own.
 - Enchant presets: `ui/features/enchant-presets/` (model, `EnchantPresets` tiles and dialog).
 - Generated, never hand-edited: `ui/sim/bulk/constants_auto_gen.ts` (slot maps) and
   `ui/sim/wasm/bulk_sim/constants_auto_gen.ts` (tuning constants, stage ladder, `BULK_SIM_Z95`), written by
@@ -302,10 +306,9 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   (`getItemById`) through the faction filter but not the phase filter, so a run keeps its cards after a phase switch.
   `DropsResults` shows `DropsSummary`, then the Bosses view (one `DropsBossCard` per ticked leaf the rows reach, best
   gain first, cards with no upgrade last; each icon but a worn one carries a [+] that equips the item's best row) or the
-  Items view (Gear's result rows with no header and no rank, the new item's name with a BoE pill when its
+  Items view (Gear's result rows with no header and no rank, the new item's name with a BoE pill (`DropsBoePill`, which the Items dialog's rows show after the name too) when its
   `UIItem.bind_type` is on equip, its enchant under it as the gear tab draws one, and its slot and sources in a
-  `DropsItemLabel` beside its slot; one `VirtualList` entry per ranking, measured, since a tie group, a note or a
-  wrapped name changes its height; the current gear's row and, per item, every
+  `DropsItemLabel` beside its slot, in the `BulkRankingList` all modes share; the current gear's row and, per item, every
   row that is a proven upgrade (a ring upgrading in both slots lists both) or its best row when none is, filtered by the
   one source a card click picked; that click switches the
   stored view to Items, and the filter is not stored). Every % and every delta uses `dropsGap`, the paired difference

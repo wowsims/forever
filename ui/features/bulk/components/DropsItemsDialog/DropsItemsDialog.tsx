@@ -27,6 +27,7 @@ import { dropsMatchesSearch, dropsPassesFilters } from '../../model/drops/filter
 import { type DropsItem, type DropsItemList, dropsItemsBySlot, dropsItemsBySourceParent, dropsTickCount } from '../../model/drops/items';
 import { type DropsNames, dropsSourceLabel, type DropsSourceNode } from '../../model/drops/sources';
 import { baseIlvl } from '../../model/gear/search';
+import { DropsBoePill } from '../DropsBoePill';
 
 export type DropsGrouping = 'slot' | 'source';
 
@@ -205,7 +206,10 @@ const ItemRow = ({ entry, sources, sourcesTooltipId, onIncludedChange }: ItemRow
 						<WowheadIcon className="size-full" iconUrl={iconUrl} href={href || undefined} navigate={false} tabIndex={-1} />
 					</ItemCellIcon>
 				</span>
-				<Field.Label className={clsx('min-w-0 grow cursor-pointer truncate text-base', itemQualityClassName(item.quality))}>{item.name}</Field.Label>
+				<span className="flex min-w-0 grow items-center gap-2">
+					<Field.Label className={clsx('min-w-0 cursor-pointer truncate text-base', itemQualityClassName(item.quality))}>{item.name}</Field.Label>
+					<DropsBoePill item={item} />
+				</span>
 				{!worn && first && (
 					<span className="flex min-w-0 items-center gap-1 text-xs text-gray-400 md:max-w-2/5">
 						<span className="min-w-0 truncate">{first}</span>

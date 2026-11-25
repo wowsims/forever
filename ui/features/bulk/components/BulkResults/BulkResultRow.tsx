@@ -49,8 +49,6 @@ export interface BulkResultRowViewProps {
 	bundle?: string | null;
 	/** The current gear with other talents, rotation or settings: says so in place of the gear cells. */
 	gearUnchanged?: boolean;
-	/** A tie group follows this row: its own border separates them, so the row draws no separator or padding. */
-	beforeGroup?: boolean;
 	/** A row stopped before the final stage: a note before its Equip button, with the reason in its tooltip. */
 	lowPrecision?: { note: string; tooltip: string };
 	/** Data attributes for the row's root; a `data-testid` among them replaces the row's own. */
@@ -78,7 +76,6 @@ export const BulkResultRowView = ({
 	settings = null,
 	bundle = null,
 	gearUnchanged = false,
-	beforeGroup = false,
 	lowPrecision,
 	rootDataAttributes,
 	onEquip,
@@ -91,10 +88,7 @@ export const BulkResultRowView = ({
 
 	return (
 		<div
-			className={clsx(
-				'flex items-center gap-4 not-last:not-only:mb-6 max-md:flex-wrap',
-				!beforeGroup && 'not-last:not-only:border-b not-last:not-only:border-b-border not-last:not-only:pb-6',
-			)}
+			className="flex items-center gap-4 not-last:not-only:mb-6 not-last:not-only:border-b not-last:not-only:border-b-border not-last:not-only:pb-6 max-md:flex-wrap"
 			data-testid="bulk-sim-result-root"
 			{...rootDataAttributes}>
 			{/* Wide enough for "9,999.99 DPS(±1)" and its pill on one line each, so every row's gear starts at the same x. */}
@@ -196,11 +190,10 @@ export const BulkResultRowView = ({
 export interface BulkResultRowProps {
 	result: BulkRankedResult;
 	results: BulkResults;
-	beforeGroup?: boolean;
 	onActivateTab: (id: string) => void;
 }
 
-export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: BulkResultRowProps) => {
+export const BulkResultRow = ({ result, results, onActivateTab }: BulkResultRowProps) => {
 	const host = useSimHost();
 	const { damage: showDamage } = useDisplayMetrics(host.sim);
 	const { originalGearResults: baseResult, currentGear, iterations } = results;
@@ -243,7 +236,6 @@ export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: B
 			settings={result.settings ? { label: settingsLabel(result.settings) } : null}
 			bundle={result.gearSetup?.bundle ?? null}
 			gearUnchanged={gearUnchanged}
-			beforeGroup={beforeGroup}
 			onEquip={() => equipAndAnnounce(host, result, onActivateTab)}>
 			{!isBaseResult && <BulkResultSlots gear={result.gear} currentGear={currentGear} />}
 		</BulkResultRowView>
