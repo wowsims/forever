@@ -8,7 +8,7 @@
   Concentration 5, Missile Barrage 2, Precision 3)
 - Game build: 1.60.1.71091; hotfix push not recorded; relog unknown
 - Date: 2026-11-24 19:17 to 23:25 UTC−5 (2026-11-25 00:17 to 04:25 UTC)
-- Pull request: not recorded
+- Pull request: #1221
 
 ## Order in the log
 
