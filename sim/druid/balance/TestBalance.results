@@ -2080,8 +2080,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-p1-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4986.02717
-  tps: 4986.13375
+  dps: 5178.3024
+  tps: 5178.40898
  }
 }
 dps_results: {
@@ -2102,8 +2102,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-p1-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 3884.22668
-  tps: 3884.22668
+  dps: 4039.38488
+  tps: 4039.38488
  }
 }
 dps_results: {
@@ -2123,8 +2123,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 7274.99056
-  tps: 7129.70926
+  dps: 5208.80296
+  tps: 5104.84542
  }
 }
 dps_results: {
@@ -2145,8 +2145,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 6012.32786
-  tps: 5892.22019
+  dps: 4087.39127
+  tps: 4005.78233
  }
 }
 dps_results: {
@@ -2166,8 +2166,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-p1-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4950.51649
-  tps: 4950.62288
+  dps: 5141.49503
+  tps: 5141.60142
  }
 }
 dps_results: {
@@ -2188,8 +2188,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-p1-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 3856.09519
-  tps: 3856.09519
+  dps: 4010.12813
+  tps: 4010.12813
  }
 }
 dps_results: {
@@ -2209,8 +2209,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 7265.48559
-  tps: 7120.39411
+  dps: 5173.12139
+  tps: 5069.87719
  }
 }
 dps_results: {
@@ -2231,8 +2231,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 6019.85755
-  tps: 5899.59929
+  dps: 4061.407
+  tps: 3980.31775
  }
 }
 dps_results: {
