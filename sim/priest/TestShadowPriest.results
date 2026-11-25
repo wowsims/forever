@@ -1657,6 +1657,50 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-Settings-Gnome-default-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
+ value: {
+  dps: 861.38366
+  tps: 612.77304
+  dtps: 4.8274
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-Settings-Gnome-default-Shadow-default-FullBuffs-0.0yards-LongSingleTarget"
+ value: {
+  dps: 861.38366
+  tps: 612.77304
+  dtps: 4.8274
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-Settings-Gnome-default-Shadow-default-FullBuffs-0.0yards-ShortSingleTarget"
+ value: {
+  dps: 870.39698
+  tps: 616.21038
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-Settings-Gnome-default-Shadow-default-NoBuffs-0.0yards-LongMultiTarget"
+ value: {
+  dps: 365.08148
+  tps: 255.55703
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-Settings-Gnome-default-Shadow-default-NoBuffs-0.0yards-LongSingleTarget"
+ value: {
+  dps: 365.08148
+  tps: 255.55703
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-Settings-Gnome-default-Shadow-default-NoBuffs-0.0yards-ShortSingleTarget"
+ value: {
+  dps: 600.21053
+  tps: 420.14737
+ }
+}
+dps_results: {
  key: "TestShadowPriest-Settings-Human-default-Shadow-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 861.01961

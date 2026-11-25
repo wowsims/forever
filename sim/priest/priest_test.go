@@ -19,10 +19,9 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// The Shadow page's default gear, rotation and Standard talents, from ui/specs/priest/dps.
+// The Shadow page's default gear and rotation, from ui/specs/priest/dps, and the Standard talents defaults.siml sets.
 var defaultGear = core.GetGearSet("../../ui/specs/priest/dps/gear_sets", "default")
 var defaultRotation = core.GetAplRotation("../../ui/specs/priest/dps/apls", "default")
-
 const defaultTalents = "00530200103-3-50042201251312051"
 
 // The consumables in defaults.siml: Flask of Supreme Power, Baked Salmon, Demonic Rune, Wizard Oil, the five
@@ -42,7 +41,7 @@ func TestShadowPriest(t *testing.T) {
 		{
 			Class:      proto.Class_ClassPriest,
 			Race:       proto.Race_RaceTroll,
-			OtherRaces: []proto.Race{proto.Race_RaceHuman, proto.Race_RaceUndead, proto.Race_RaceDwarf, proto.Race_RaceNightElf},
+			OtherRaces: []proto.Race{proto.Race_RaceHuman, proto.Race_RaceUndead, proto.Race_RaceDwarf, proto.Race_RaceNightElf, proto.Race_RaceGnome},
 
 			SpecOptions: core.SpecOptionsCombo{
 				Label: "Shadow",

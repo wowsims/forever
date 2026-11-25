@@ -72,7 +72,8 @@ export default defineSpec<Spec.SpecDpsPriest>({
 		statCaps: (() => {
 			return new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow, 17).withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentHoly, 17);
 		})(),
-		// The page starts on the automatic rotation, which is the default APL for Shadow talents; defaults.siml holds that APL.
+		// defaults.siml's rotation would make the page start on the APL; it starts on Auto, which runs the same APL on
+		// Shadow talents and the Smite APL when Discipline has more points than Shadow.
 		rotationType: APLRotation_Type.TypeAuto,
 	},
 
