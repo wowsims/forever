@@ -86,12 +86,23 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 		return 0
 	}
 
-	resistance := 0.0
-	if stat, ok := spell.SpellSchool.ResistanceStat(); ok {
-		resistance = max(0, unit.GetStat(stat))
-		if !spell.Flags.Matches(SpellFlagNoSpellPiercing) {
-			resistance -= attacker.stats[stats.SpellPiercing] + attacker.PseudoStats.SchoolSpellPiercing[spell.SchoolIndex]
+	// A spell of several schools meets the lowest resistance among them, each school's after its own
+	// piercing. A mask with Holy, which has no resistance, meets none and takes no piercing.
+	resistance := math.Inf(1)
+	for _, school := range singleSchools {
+		if !spell.SpellSchool.Matches(school) {
+			continue
 		}
+		stat, ok := school.ResistanceStat()
+		if !ok {
+			resistance = 0
+			break
+		}
+		schoolResistance := max(0, unit.GetStat(stat))
+		if !spell.Flags.Matches(SpellFlagNoSpellPiercing) {
+			schoolResistance -= attacker.stats[stats.SpellPiercing] + attacker.PseudoStats.SchoolSpellPiercing[school.SchoolIndex()]
+		}
+		resistance = min(resistance, schoolResistance)
 	}
 	// TODO: 8L + 19 is a fit to Spell Piercing logs and to mobs casting at players of known resistance
 	// (EV-0091). ExpectedStat's ArmorConstant × 0.088 fits them nearly as well; a level 60 log tells the
