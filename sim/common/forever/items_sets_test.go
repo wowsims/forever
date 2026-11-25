@@ -780,7 +780,7 @@ func TestTeachingsOfTheFurbolgsRaisesAttackPowerOnHits(t *testing.T) {
 }
 
 // Defias Leather's 4-piece 1292028 casts the bleed 1292029 at the target off a landed melee swing, only
-// while the wearer is not in front of the target.
+// while the wearer is not in front of the target. The bleed's ticks ignore armor.
 func TestDefiasLeatherBleedsOnlyFromBehind(t *testing.T) {
 	sim, rogue := itemWearerWithEquipment(t, proto.Class_ClassRogue, setPieces(map[proto.ItemSlot]int32{
 		proto.ItemSlot_ItemSlotChest: 10399, proto.ItemSlot_ItemSlotLegs: 10400, proto.ItemSlot_ItemSlotHands: 10401,
@@ -790,6 +790,9 @@ func TestDefiasLeatherBleedsOnlyFromBehind(t *testing.T) {
 	bleed := rogue.GetSpell(core.ActionID{SpellID: 1292029})
 	if bleed == nil || bleed.Dot(target) == nil || bleed.SpellSchool != core.SpellSchoolPhysical {
 		t.Fatal("the 4-piece registers no 1292029 bleed of Physical damage")
+	}
+	if bleed.Flags.Matches(core.SpellFlagTenthArmorTicks) || bleed.Flags.Matches(core.SpellFlagApplyArmorReduction) {
+		t.Error("the bleed's ticks meet armor, want them to ignore it")
 	}
 	casts := &bleed.SpellMetrics[target.UnitIndex].Casts
 	swing := func() { dealHit(t, sim, rogue, meleeSwing(&rogue.Unit)) }

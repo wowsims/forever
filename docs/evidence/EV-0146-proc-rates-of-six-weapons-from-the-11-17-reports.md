@@ -72,10 +72,10 @@ procs on 10,817 lone units, 64 wearers; Eviscerate gives 1.91 (392 procs on 6,16
 3,770) and Kick 1.56 (46 on 884). Shank rolls none: 0 procs on 8,491 lone units. All hits by period: 1.97 [1.89, 2.04]
 before hotfix push 114313, 1.93 [1.89, 1.97] from it to the 2026-11-23 hotfix, and 1.99 [1.92, 2.06] after. Direct:
 window [-11, 100] ms, median 0 ms, 98th percentile 1 ms, 1,835 isolated hits. Dropping the swapped stretches (129 active
-minutes, 3.6% of hits, in 8 runs) moved the read from 1.89 to 1.96. Six reports log a run another report holds and count
-once: qTKRwYLvxgJp8Hkt as gbGpK6hx7Xq2rVdn, bV7Tcp3DBzFLrwtk as BPVxqXWLc3FJTpMh, ZyCMmR2WgKGra3xv as VFTC9hrLqm7RJAat,
-9C2rP4Hkqwtv7RdQ as 4VphDGkmWdbTcB7P, VW6NT73MXFw8r4CQ as LNbjwpJhRTZzGP3C, and NRF9y6Mv3gTYfw4j as f1VTcBRNpybavLwD.
-Reports from 2026-11-14 to 2026-11-25.
+minutes, 3.6% of hits, in 8 runs) moved the read from 1.89 to 1.96. bWH41fw8CDQAch3K holds two wearers' runs. Six
+reports log a run another report holds and count once: qTKRwYLvxgJp8Hkt as gbGpK6hx7Xq2rVdn, bV7Tcp3DBzFLrwtk as
+BPVxqXWLc3FJTpMh, ZyCMmR2WgKGra3xv as VFTC9hrLqm7RJAat, 9C2rP4Hkqwtv7RdQ as 4VphDGkmWdbTcB7P, VW6NT73MXFw8r4CQ as
+LNbjwpJhRTZzGP3C, and NRF9y6Mv3gTYfw4j as f1VTcBRNpybavLwD. Reports from 2026-11-14 to 2026-11-25.
 
 | Class | Wearers | Procs |    Hits |  PPM |
 | ----- | ------: | ----: | ------: | ---: |
@@ -104,9 +104,10 @@ qTKRwYLvxgJp8Hkt 1, 4-8, 11-13, 15-17, 19-21, 23-34; tB6pZ1YcqAJ9NjRH 6, 8-35; t
 thqTyPArmkxfMnK7 5-36, 38; vH9PnJDV81wrthRj 2-5; vfBK4pHa9TtyG67w 1-3; wWC7rvKj98knXZDt 5; wafLQr31X6VYCmNZ 1-3;
 wjxdJBMkD8N3Z6c4 1-26; z6tKVbjgWGpdm3Yc 1; zp9yVrtfTNZJCv7g 5-7, 9-10; zy3r8qhGAH2BRp41 2.
 
-Its Rend ticks before mitigation fall in two groups, 14 and 28; about a third of the logged ticks are the 14. The
-doubled ticks are the Rends applied from behind the target, as 1300787's second effect states. About 14% of the procs
-land on targets immune to the Rend (elementals, golems, constructs, skeletons and ghosts).
+Its non-crit Rend ticks with no overkill, absorb or block fall in two groups before mitigation: 15,517 read 28 and
+7,359 read 14 (a few hundred read 26 or 13). The doubled ticks are the Rends applied from behind the target, as
+1300787's second effect states. Of 10,184 Rend strikes, 1,433 (14%) land on targets immune to the Rend (elementals,
+golems, constructs, skeletons and ghosts).
 
 EV-0194 holds how much of the target's armor its ticks meet.
 

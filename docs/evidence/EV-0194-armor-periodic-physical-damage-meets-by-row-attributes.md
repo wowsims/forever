@@ -3,8 +3,11 @@
 - Claim: The ticks of a spell whose row sets Attributes[6] 0x200000 ignore armor (Garrote, Rupture, Rip, Rake, Pounce
   Bleed and the warrior's Rend); the ticks of a spell whose row sets Attributes[0] 0x40000 without it meet a tenth of the
   target's armor (the weapons' Rends, Barman Shanker's among them); the ticks of a spell whose row sets neither meet the
-  whole armor (Wound, Bigger Rock to the Face, Rock to the Face). The bleed mechanic does not decide it: the Rocks are
-  bleeds and meet the whole armor. No name of either bit says this, so the rule is a correlation across these spells.
+  whole armor (Wound, Bigger Rock to the Face, Rock to the Face). Devious Strike, the Defias Leather set's bleed, has
+  the bits of a tenth and ignores armor. The bleed mechanic does not decide it: the Rocks are
+  bleeds and meet the whole armor. No name of either bit says this, so the rule is a correlation across these spells,
+  measured where the white swings lose up to 0.6 of a hit; what the weapons' Rends lose on more heavily armored
+  targets fits no share of the armor.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the player streams on disk: for the weapons, every
   stream of a player wielding one, from 2,265 reports; for the class spells, 2,500 of the 13,241 report stream files,
   drawn at random (the sorted file list shuffled with Python's `random.seed(1)`), of which 999 reports hold ticks of
@@ -50,21 +53,35 @@ spells' pairs differ from them by 2 points at most.
 Each cell is the share the ticks lose, then what a tenth of the armor takes, in percent. Drakefang Butcher's Rend 14118
 gives 10 pairs, which agree with a tenth.
 
-| Spell (item)                                    |  Pairs |     w 0.1 |     w 0.2 |     w 0.3 |     w 0.4 |     w 0.5 |       w 0.6 |
-| ----------------------------------------------- | -----: | --------: | --------: | --------: | --------: | --------: | ----------: |
-| Rend 13318 (Blood Talon, Killmaim)              |  1,187 |           | 1.8 / 2.8 | 2.8 / 3.7 | 7.7 / 6.3 |           |             |
-| Rend 16403 (Bleeding Crescent, Silithid Ripper) |    224 |           | 1.7 / 2.7 | 3.1 / 4.0 | 7.2 / 6.2 |           |             |
-| Rend 16406 (Hameya's Slayer)                    |    506 |           | 1.9 / 2.9 | 4.9 / 4.8 | 5.1 / 5.9 |           |             |
-| Rend 17153 (Kang the Decapitator)               |  1,981 |           | 2.7 / 2.9 | 4.3 / 4.7 | 5.4 / 5.7 | 8.9 / 8.2 |             |
-| Rend 17504 (Bloodrazor)                         |  4,650 |           | 1.9 / 2.9 | 3.9 / 4.8 | 5.1 / 5.8 | 9.0 / 8.7 | 16.0 / 11.5 |
-| Rend 18075 (Glutton's Cleaver)                  | 10,561 | 0.1 / 1.1 | 1.0 / 2.5 | 2.7 / 4.2 | 4.7 / 5.9 | 8.5 / 8.0 |             |
-| Rend 18078 (Flesh Piercer)                      |    256 |           | 1.5 / 2.8 | 4.4 / 3.7 | 4.8 / 6.2 |           |             |
-| Rend 18200 (Bloodspiller)                       |  1,622 | 1.0 / 1.2 | 2.0 / 2.7 | 3.3 / 3.8 | 9.9 / 6.2 |           |             |
-| Rend 18202 (Bloodpike)                          |  1,084 |           | 1.8 / 2.7 | 4.1 / 3.7 | 5.8 / 5.9 |           |             |
-| Rend 21949 (Gatorbite Axe)                      | 12,940 | 1.0 / 1.5 | 2.3 / 3.0 | 4.3 / 4.7 | 5.1 / 5.9 | 8.1 / 8.3 | 12.8 / 11.3 |
-| Rend 1294426 (Gutwrencher)                      |    104 |           |           |           | 2.6 / 5.9 |           |             |
-| Rend 1300787 (Barman Shanker)                   | 21,494 | 1.0 / 1.4 | 2.3 / 2.9 | 4.1 / 4.7 | 5.4 / 5.9 | 9.8 / 8.7 | 11.7 / 11.5 |
-| Rend 1320824 (Gargoyle Shredder Talons)         |    444 |           | 2.6 / 3.0 | 3.1 / 4.7 | 4.5 / 5.9 | 9.0 / 9.2 |  9.0 / 11.2 |
+| Spell (item)                                    |  Pairs |     w 0.1 |     w 0.2 |     w 0.3 |     w 0.4 |      w 0.5 |       w 0.6 |
+| ----------------------------------------------- | -----: | --------: | --------: | --------: | --------: | ---------: | ----------: |
+| Rend 13318 (Blood Talon, Killmaim)              |  1,187 |           | 1.8 / 2.8 | 2.8 / 3.7 | 7.7 / 6.3 |            |             |
+| Rend 16403 (Bleeding Crescent, Silithid Ripper) |    224 |           | 1.7 / 2.7 | 3.1 / 4.0 | 7.2 / 6.2 |            |             |
+| Rend 16406 (Hameya's Slayer)                    |    506 |           | 1.9 / 2.9 | 4.9 / 4.8 | 5.1 / 5.9 |            |             |
+| Rend 17153 (Kang the Decapitator)               |  1,981 |           | 2.7 / 2.9 | 4.3 / 4.7 | 5.4 / 5.7 |  8.9 / 8.2 |             |
+| Rend 17504 (Bloodrazor)                         |  4,650 |           | 1.9 / 2.9 | 3.9 / 4.8 | 5.1 / 5.8 |  9.0 / 8.7 | 16.0 / 11.5 |
+| Rend 18075 (Glutton's Cleaver)                  | 10,561 | 0.1 / 1.1 | 1.0 / 2.5 | 2.7 / 4.2 | 4.7 / 5.9 |  8.5 / 8.0 |             |
+| Rend 18078 (Flesh Piercer)                      |    256 |           | 1.5 / 2.8 | 4.4 / 3.7 | 4.8 / 6.2 |            |             |
+| Rend 18200 (Bloodspiller)                       |  1,622 | 1.0 / 1.2 | 2.0 / 2.7 | 3.3 / 3.8 | 9.9 / 6.2 |            |             |
+| Rend 18202 (Bloodpike)                          |  1,084 |           | 1.8 / 2.7 | 4.1 / 3.7 | 5.8 / 5.9 |            |             |
+| Rend 21949 (Gatorbite Axe)                      | 12,940 | 1.0 / 1.5 | 2.3 / 3.0 | 4.3 / 4.7 | 5.1 / 5.9 |  8.1 / 8.3 | 12.8 / 11.3 |
+| Rend 1294426 (Gutwrencher)                      |    104 |           |           |           | 2.6 / 5.9 |            |             |
+| Rend 1300787 (Barman Shanker)                   | 21,494 | 1.0 / 1.4 | 2.3 / 2.9 | 4.1 / 4.7 | 5.4 / 5.9 |  9.8 / 8.7 | 11.7 / 11.5 |
+| Rend 1320824 (Gargoyle Shredder Talons)         |    444 |           | 2.6 / 3.0 | 3.1 / 4.7 | 4.5 / 5.9 |  9.0 / 9.2 |  9.0 / 11.2 |
+| Bloodmail 1299739 (Bloodmail Regalia set)       |    793 |           | 2.9 / 3.0 | 3.6 / 4.8 | 4.8 / 5.9 | 12.9 / 8.6 | 18.4 / 12.0 |
+
+## A row with the bits of a tenth that ignores armor
+
+Devious Strike 1292029, the Defias Leather set's bleed, sets Attributes[0] 0x40000 and not Attributes[6] 0x200000, as
+the weapons' Rends and Bloodmail do, yet its ticks lose nothing to armor: 1,064 pairs from 22 reports, and its mean
+tick is about 15 before and after mitigation at every white-swing share. Each cell is the share the ticks lose, then
+what a tenth of the armor takes, in percent. Of the physical periodic rows in the game files, its row alone states a
+damage roll (variance 0.2) and an Amplitude of 1, and the set's proc 1292028 casts it with base 0 on the wearer's
+target, where Bloodmail's proc 1299740 names the enemy with base 7. None of these is known to decide armor.
+
+| Spell (item)                                | Pairs |     w 0.1 |     w 0.2 |     w 0.3 |     w 0.4 |
+| ------------------------------------------- | ----: | --------: | --------: | --------: | --------: |
+| Devious Strike 1292029 (Defias Leather set) | 1,064 | 0.0 / 1.0 | 0.0 / 2.8 | 0.3 / 4.0 | 3.2 / 6.2 |
 
 ## Ticks that meet the whole armor
 
@@ -84,6 +101,7 @@ white-swing share is worked back from the tenth the count printed to three place
 | Garrote, Rupture, Rip, Rend (warrior's)   |          set          |          set           | bleed                    | none      |
 | Pounce Bleed                              |                       |          set           | bleed                    | none      |
 | Rake                                      |          set          |          set           | bleed, on the tick alone | none      |
-| The weapons' Rends above                  |          set          |                        | bleed                    | a tenth   |
+| The weapons' Rends above, Bloodmail       |          set          |                        | bleed                    | a tenth   |
+| Devious Strike                            |          set          |                        | bleed                    | none      |
 | Wound                                     |                       |                        | none                     | the whole |
 | Bigger Rock to the Face, Rock to the Face |                       |                        | bleed                    | the whole |
