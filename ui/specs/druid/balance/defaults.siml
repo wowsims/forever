@@ -12,27 +12,29 @@ settings:
   innervate_target none
 
 gear:
-  head       feralheart_cowl_ilvl60
-  neck       orb_of_the_darkmoon
+  head       feralheart_cowl_ilvl60 + arcanum_of_focus
+  neck       orb_of_the_darkmoon + necklace_spell_power
   shoulder   feralheart_spaulders_ilvl65
-  back       arcanoweave_cloak
-  chest      feralheart_vest_ilvl60
-  wrist      feralheart_wraps
-  hands      feralheart_hands
-  waist      belt_of_the_archmage
-  legs       ironfeather_leggings
-  feet       feralheart_galoshes
-  finger1    songstone_of_ironforge
+  back       arcanoweave_cloak + cloak_subtlety
+  chest      feralheart_vest_ilvl60 + mystic_rugged_armor_kit
+  wrist      tearfall_bracers of_magic_13055 + bracer_greater_spellpower
+  hands      feralheart_hands + gloves_arcane_power
+  waist      feralheart_sash
+  legs       ironfeather_leggings + arcanum_of_focus
+  feet       feralheart_galoshes + mystic_rugged_armor_kit
+  finger1    channelers_ring
   finger2    rune_band_of_wizardry
   trinket1   weakness_analyzer
   trinket2   eye_of_the_beast
-  main_hand  ironbark_staff_20220 + enchant_2h_weapon_spellblasting
+  main_hand  hand_of_edward_the_odd + weapon_revelation
+  off_hand   therazanes_touch + off_hand_superior_intellect
   ranged     swarming_idol
 
 consumables:
   flask flask_of_supreme_power
   food lobster_stew
   conjured demonic_rune
+  explosive saf_t_clever_dynamite
   mh_imbue wizard_oil
   elixir greater_arcane_elixir, elixir_of_nature_power, elixir_of_the_owl, greater_mageblood_elixir
   resource_pot major_mana_potion

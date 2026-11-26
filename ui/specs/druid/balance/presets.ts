@@ -12,7 +12,7 @@ export const StandardRotation = PresetUtils.makePresetAPLRotation('Default', Def
 
 export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', Defaults.talents);
 
-export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultsJson.player.equipment);
+export const DefaultGear = PresetUtils.makePresetGear('Pre-BiS', DefaultsJson.player.equipment);
 
 // Starts on Auto as the page does, which runs the same rotation.
 export const DefaultBuild = PresetUtils.makePresetBuildFromSiml('Default', Spec.SpecBalanceDruid, DefaultsJson, {
@@ -22,16 +22,16 @@ export const DefaultBuild = PresetUtils.makePresetBuildFromSiml('Default', Spec.
 
 // Measured with the sim's stat weights on the default build.
 export const DefaultEpWeights = PresetUtils.makePresetEpWeights(
-	'Default',
+	'Pre-BiS',
 	Stats.fromMap({
-		[Stat.StatIntellect]: 0.21,
+		[Stat.StatIntellect]: 0.19,
 		[Stat.StatSpirit]: 0.04,
 		[Stat.StatSpellDamage]: 1,
-		[Stat.StatArcaneDamage]: 0.62,
-		[Stat.StatNatureDamage]: 0.38,
+		[Stat.StatArcaneDamage]: 0.63,
+		[Stat.StatNatureDamage]: 0.37,
 		[Stat.StatHitRating]: 1.14,
-		[Stat.StatCritRating]: 0.69,
-		[Stat.StatHasteRating]: 0.97,
-		[Stat.StatMP5]: 0.1,
+		[Stat.StatCritRating]: 0.63,
+		[Stat.StatHasteRating]: 0.96,
+		[Stat.StatMP5]: 0.09,
 	}),
 );

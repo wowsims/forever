@@ -184,10 +184,10 @@ export const SelectorModal = ({ state, id = DEFAULT_MODAL_ID, rail = true }: Sel
 			onOpenChange={state.setOpen}
 			onKeyDown={onRailKeyDown}
 			rail={rail && <SlotRail gear={gear} currentSlot={slot} onOpen={openSlot} />}
-			title={slot !== null ? (translateSlotName(slot) ?? '') : ''}
+			title={slot !== null ? (gearData?.itemSlots ?? [slot]).map(translateSlotName).join(' / ') : ''}
 			tabs={tabs.map(tab => ({
 				label: tab.label,
-				pane: slot !== null && <ItemList tab={tab} slot={slot} equippedItem={equippedItem} />,
+				pane: slot !== null && <ItemList tab={tab} slot={slot} itemSlots={gearData?.itemSlots} equippedItem={equippedItem} />,
 			}))}
 			activeTab={activeTab?.label ?? null}
 			onSelectTab={next => request && setSelected({ sequence: request.sequence, tab: next })}
