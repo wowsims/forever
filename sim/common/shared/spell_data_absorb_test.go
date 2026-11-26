@@ -296,3 +296,35 @@ func TestItemProcRollsTheColumnOverAnEffectsChance(t *testing.T) {
 		t.Errorf("a class spell's trigger rolls %v, want its effect's %v over its column's %v", got, hackAndSlash.StatedChance(), column(hackAndSlash))
 	}
 }
+
+// An on-use shield whose row also restores mana every period does so while the shield holds, and stops
+// once the shield is used up: Mark of the Dragon Lord's 17252 on a test trinket.
+func TestOnUseShieldRestoresManaWhileItHolds(t *testing.T) {
+	const itemID int32 = 992901
+	row := spelldata.MustFind(17252)
+	gain := row.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)
+	if gain == spelldata.NilEffect || gain.Period() <= 0 || gain.Average() <= 0 || row.Duration() < 4*gain.Period() {
+		t.Fatal("17252 restores no mana every period over four of them, nothing to check")
+	}
+	sim, caster := newOnUseSimAgainst(t, NewSpellDataAbsorbOnUse, map[int32]*proto.ItemEffect{itemID: testOnUse(17252, 60000, 0, 0)},
+		&proto.ItemSpec{}, 1, asManaUser)
+	caster.SpendMana(sim, caster.CurrentMana(), caster.NewManaMetrics(core.ActionID{SpellID: 1}))
+	shield := absorbAura(t, caster, 17252, itemID)
+
+	onUseSpell(t, caster, itemID).Cast(sim, &caster.Unit)
+	start := sim.CurrentTime
+	stepPast(t, sim, start+2*gain.Period()+time.Millisecond)
+	if got, want := manaGainedBy(caster, itemID), 2*gain.Average(); got != want {
+		t.Errorf("two periods under the shield restored %v mana, want %v", got, want)
+	}
+
+	takenAfterAbsorbs(sim, caster, core.SpellSchoolPhysical, 100*row.AbsorbEffect().Max())
+	if shield.IsActive() {
+		t.Fatal("the shield held a hit far past its amount")
+	}
+	before := manaGainedBy(caster, itemID)
+	stepPast(t, sim, start+4*gain.Period()+time.Millisecond)
+	if got := manaGainedBy(caster, itemID) - before; got != 0 {
+		t.Errorf("two periods after the shield broke restored %v mana, want none", got)
+	}
+}

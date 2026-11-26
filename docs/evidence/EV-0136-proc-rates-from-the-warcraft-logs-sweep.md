@@ -14,10 +14,9 @@
 - Pull request: #1065
 - Later count: Julie's Dagger and Waveslicer, §Count of the 2026-11-13 to 2026-11-17 reports
 - Later count: Flame Wrath, §Count of the 2026-11-12 to 2026-11-18 reports
-- Later count: Bow of Searing Arrows, Coldrage Dagger, Cursed Felblade, Darkwater Talwar, Electrocutioner Leg,
-  Felstriker, Glutton's Cleaver, Grimclaw, Hammer of Expertise, Hanzo Sword, Ironforge Greathammer, Lord General's
-  Sword, Sang'thraze the Deflector, Satyr's Lash, Taran Icebreaker and Toofbreaker, §Count of the 2026-11-05 to
-  2026-11-19 reports
+- Later count: Bow of Searing Arrows, Coldrage Dagger, Cursed Felblade, Darkwater Talwar, Electrocutioner Leg, Glutton's
+  Cleaver, Grimclaw, Hammer of Expertise, Hanzo Sword, Ironforge Greathammer, Lord General's Sword, Sang'thraze the
+  Deflector, Satyr's Lash, Taran Icebreaker and Toofbreaker, §Count of the 2026-11-05 to 2026-11-19 reports
 - Later count: Bloodrazor, Cookie's Tenderizer, Kang the Decapitator, Pyromancer's Baton, Scorpion Sting, Searing Blade,
   Serpent Slicer, Sliverblade, Sul'thraze the Lasher, Sword of Corruption and Twilight Forgehammer, §Count of the
   2026-11-06 to 2026-11-21 reports
@@ -29,9 +28,10 @@
   Fireblaster, Grim Reaper, Gryphon Rider's Stormhammer, Gut Ripper, Hameya's Slayer, Hammer of the Northern Wind,
   Iceblade Hacker, Iron Knuckles, Jom-jom's Gabbar, Killmaim, Linken's Sword of Mastery, Loksey's Training Stick, Mana
   Channeling Wand, Naga Heartpiercer, Night Reaver, Nightblade, Pendulum of Doom, Phantom Blade, Quillshooter,
-  Rivenspike, Shadowblade, Skeletal Club, Spellsever Crossbow, Stalvan's Reaper, Strike of the Hydra, Supercharger
-  Battle Axe, Sword of Decay, Tainted Pierce, The Blackrock Slicer, The Cruel Hand of Timmy, The Ziggler, Thornspike,
-  Twilight Maul, Venomstrike, Vibroblade and X'caliboar, §Count of the 2026-11-06 to 2026-11-22 reports
+  Rivenspike, Skeletal Club, Spellsever Crossbow, Stalvan's Reaper, Strike of the Hydra, Supercharger Battle Axe, Sword
+  of Decay, Tainted Pierce, The Blackrock Slicer, The Ziggler, Thornspike, Twilight Maul, Venomstrike, Vibroblade and
+  X'caliboar, §Count of the 2026-11-06 to 2026-11-22 reports
+- Later count: Felstriker, Shadowblade and The Cruel Hand of Timmy, §Count of the 2026-11-13 to 2026-11-26 reports
 
 ## Method
 
@@ -1097,31 +1097,60 @@ y6D3jqgWt8TvpNYM 1; yMPtxfd1h84c7ART 5.
 
 ## Felstriker (12590)
 
-- Count: §Count of the 2026-11-05 to 2026-11-19 reports
+- Count: §Count of the 2026-11-13 to 2026-11-26 reports
 - Proc: weapon proc 16551
-- Rate: 0.55 PPM, measured
+- Rate: 0.5 PPM, measured
 
-864 procs on 57,996 rolling hits, 21 wearers, 35 runs, in the main hand or the off hand: all hits 0.53 [0.49, 0.56]. The
-rate is all hits, which the one-hand white rate agrees with. One-hand white: 0.53 [0.38, 0.67], 58 procs on 3,873 lone
-units, 6 wearers. Dual-wield white: 0.44 [0.40, 0.53], 222 procs on 17,783 lone units, 15 wearers. Specials: 0.67 [0.42,
-0.97], 34 procs on 1,804 lone units, 11 wearers. Two-roll abilities, priced as one roll: 2.52, 1 proc on 14 lone units.
-Direct: window [-13, 100] ms, median 0 ms, 98th percentile 0 ms, 212 isolated hits. Reports from 2026-11-15 to
-2026-11-19.
+3,197 procs on 217,803 rolling hits, 95 wearers, 153 runs, in the main hand or the off hand: all hits 0.52 [0.50, 0.53].
+The rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 0.51 [0.45, 0.57], 166
+procs on 11,548 lone units, 18 wearers. Dual-wield white, which sets no rate: 0.46 [0.42, 0.49], 779 procs on 60,374
+lone units, 78 wearers. Specials: 0.52 [0.43, 0.62], 128 procs on 8,703 lone units, 58 wearers. Two-roll abilities,
+priced as one roll: 0.75, 1 proc on 47 lone units (Execute), left out of the rate. No paladin wears it in the count.
+Direct: window [-20, 100] ms, median 0 ms, 98th percentile 0 ms, 678 isolated hits. Dropping the swapped stretches (220
+active minutes, 4% of hits, in 19 runs) moved the read from 0.50 to 0.52. 2 runs logged in two reports count once.
+Reports from 2026-11-15 to 2026-11-26.
 
-| Class   | Wearers | Procs |   Hits |  PPM |
-| ------- | ------: | ----: | -----: | ---: |
-| Warrior |       9 |   551 | 36,551 | 0.53 |
-| Rogue   |      11 |   302 | 20,914 | 0.51 |
-| Hunter  |       1 |    11 |    530 | 0.73 |
+Across the 2026-11-23 hotfix, which sets no rate: the reports before 2026-11-24 01:00 UTC read 0.52 [0.50, 0.54], 2,780
+procs, 84 wearers; the reports from then on 0.49 [0.44, 0.55], 417 procs, 14 wearers. The analyzer run on the reports
+from then on alone reads all hits 0.48 [0.43, 0.54], 417 procs, 14 wearers.
 
-Reports and fights: 2jJ1L8FPHzTB4fKG 1-5, 7-12; 2wMznDRvmkpbtHxA 5-7; 2wPQmVqbdCcZW9gv 528 fights from 1 to 629;
-4TxMfmFpzBJ6aN1j 5-7; 7tbWfYqJFd4vzL3p 1-2; 8Gw7m39ZXFz1y2fv 1-32; 8cqCXZHgpw9Px2hK 1-28; B6bvH1fQ4kAcyRzt 1-2;
-FhG3AxYL9ZNP4RvV 1-15; KkRW7Am81LaJqHYz 1-3; M1tPx9DBZGYgCa4f 1-3; MqzhQN9FPHL3fBvT 1-2; NjWKPpHgymCT832A 1-19;
-PKBd6Vz2Gkjwp9Zt 1-2; QNfaZ9MTnWpFrqb4 151 fights from 1 to 199; QkVRc329w8nLTzKp 1-3; TNW9rHBt3MD1X8Ag 1-2;
-YFtvD87kznr1CThg 6-7; bP2CFzkZTLJ8q6Dn 1-8, 10-16; cgMGCdPJQ84wzaBV 12-13; dnDg7j9kRw6WtbML 61, 63-69; gYm2HAtf4bnC8QZT
-6-22; hZLykw9dRnYbtvKP 1-2; jXTVfy3ApWKPYwDG 1-22; jn3dwzWPZ6r2ky1K 1-3; mpgnDQbLWXY8jJP1 1; n7hQW3NYzJwmDaG4 36;
-nX1qbatTzGZ3CAwB 4-7; pRA73YvkarFVLNCZ 1-3; rdcZKVykDFH4f7mn 1-4; tkPZYqTRgCyWG3jM 22-23; vZqVmLYQa6jwP3A9 5-16, 18-21;
-yPVkKpqtfJM27WFB 1-7; yfKb1MthLFDc4ANG 1-7.
+| Class   | Wearers | Procs |    Hits |  PPM |
+| ------- | ------: | ----: | ------: | ---: |
+| Rogue   |      57 | 1,831 | 124,443 | 0.52 |
+| Warrior |      35 | 1,344 |  92,201 | 0.51 |
+| Hunter  |       3 |    22 |   1,159 | 0.67 |
+
+Reports and fights: 1ADrPJVmwgaxLqMc 1; 2aZ6C1vRF7DAHMBn 2-3; 2jJ1L8FPHzTB4fKG 1-5, 7-12; 2qAWx1L63KfkcJaD 1-9;
+2wMznDRvmkpbtHxA 5-7; 2wPQmVqbdCcZW9gv 528 fights from 1 to 629; 3DPvXKRnTJWxZCt8 5-6; 3bdcFvQtDZhnXHfg 15-28;
+3cabDLxwK71Gzq2Q 8-9, 11-12, 14-17; 43R1XHKpfLgybZqm 1-4; 4TxMfmFpzBJ6aN1j 5-7; 4ypMXT8RDZgcKVwf 1-12; 67fqCHN9ZManpxrk
+4-20; 6gnM4ThfQPLHkG83 1-11; 6ht4rB7GNxMFRbCJ 2-5; 6jvXHDwNAakZGBxF 1; 6vAwndj1FxBcDKq8 3; 7HpBD1Z9fJcbA6Ga 1-2;
+7ZWFDG4XBPKqf8zR 33-36; 7gW8baTzVZ9pYXFm 1; 7tbWfYqJFd4vzL3p 1-2; 8Gw7m39ZXFz1y2fv 1-32; 8JTGAcnFYvtmjLN7 5;
+8cqCXZHgpw9Px2hK 1-28; 9JqKQBY68twcR2hT 1; A6qcQ9jtTNXKbvYh 6-45; AfZHhcnwNaRJYpgT 1-3; B6bvH1fQ4kAcyRzt 1-2;
+BPVxqXWLc3FJTpMh 4-6; BfMQJT7g4mZL6taF 1-41, 43, 45-85; CApKmW3knZr8x4HR 34; CxbgQvRAL61MZdc4 1-4; D2nQcj6wFbmBgVyJ
+1-37, 39; F4JAb8gjwrQDCP2T 41; F9hmfgQHZbYTKyz4 1-3; FBLTNkwYgtPzjyfh 1; FDmvgpZLhVbcHqxK 1-5; FhG3AxYL9ZNP4RvV 1-15;
+Ft1rJVHX3kz7yLBZ 1-3; G1Q9MpkRF6BmhD2H 1-3; G29y3QBWV7XDR6mj 11; G7CL9NkZtpXWrBy4 2-19; G9NmY7ARvHKyb8Cn 51, 53-54;
+G9TVWxhmHjdc3Ptw 1-3; GXw2BAjbtRHv9Fr6 2-5; GhHZQDn4zgckNf2R 2-4; Gqvf8dNR3mpJQg2b 1; HLtZjNGzq9bQc6rd 2;
+HvtmnFTPNZQRWg86 1-3; HzKL2XB3rx1hk8Wy 1-4; JK6dgtv2N4QCqjnZ 1-2; JbQyngR8NWXKardc 60, 62-63; JyxTCZaVf2KznHw1 1-3;
+KkRW7Am81LaJqHYz 1-3; L6fHWjbn3NVqgpkr 1-5; LF63qnYybWDpCc12 1-4; LrNcfVvw3PqBQ9CA 1-10; M1tPx9DBZGYgCa4f 1-3;
+MnFgXa87WRKPmADy 1; MqzhQN9FPHL3fBvT 1-2; NjWKPpHgymCT832A 1-19; Nmv3nfLwY91hZy86 6; PKBd6Vz2Gkjwp9Zt 1-2;
+PMtHv3y76FCj8AWB 2-6; Pk6V914wLHJpxA7f 1-3; QMLY8q2XNVry7bpj 42; QNfaZ9MTnWpFrqb4 151 fights from 1 to 199;
+QZ3hRyAMbDrj9cHz 3-14; QkVRc329w8nLTzKp 1-3; QwmphLYJXT7GazMd 9-40; T2aWdxMQ4Bw9tLGv 43; TNW9rHBt3MD1X8Ag 1-2;
+TNak4bKY8JvLqXDF 1-3; TYnZqwA2av9z6jG7 4, 6; Tg1Hcb7z2qAXWkCx 1; TmxZ31fRPBhjApqg 1-4; VL7Yxg3ZmJkNFM1j 2-3;
+VY1qcrJ4HxjCFnfX 1-2; VZAm6yQkGwD3XPKn 1; XWaTVPCnmNAzD7FJ 12-13; XhVMPfc7mqNJt2Wn 1; Y31f7vWzA4nVF6rd 1-2;
+YAZ7thCmypcGBTN8 11-33; YFtvD87kznr1CThg 6-7; YHRv2c3QqWZaLnmh 1-4; YmTFGMK1dg7XBz32 1; ZBXTKqHYa3QfkNxM 1-17;
+ZLqKhFbkAypnaY9t 1-2; ZVf9tDamcR1hk6AP 1; ZhyVJcb2v1zaLx3j 50; ZpNAtvBLPMKmf7YF 1; aFtMHKAG1vjTCwcq 4-34;
+aL7VmXZxPdgcBtjG 2-6, 8; anAZd29rK3vCJ4wQ 1, 3-11, 14; bP2CFzkZTLJ8q6Dn 1-8, 10-16; bPWwqdBY3vn8Kz6H 1-2;
+bxWNdRVg4C3Jwaj2 1-2; cKvwPrNmjRCFzgpZ 1; cPkXNvDW4hnKqMJV 1-2; cgMGCdPJQ84wzaBV 12-13; dF3zbWfawRkZ2j6K 30-31;
+dnDg7j9kRw6WtbML 61, 63-69; fMPL97aCA1ngvKQk 16-20; fRbxm7XVTNw8CYhK 25-29; fq8RFwhABxm2GY7Q 1-2; ftqKjgaPmbNvM21n 1-3;
+gBrvVXRcGKFP6j89 1-2; gHmyrJdbAB2nGkvw 1-4; gRpyT8V4KkBc6fMw 1-2; gYm2HAtf4bnC8QZT 6-22; gnBdKW9myaxzNP3b 1;
+gv9V6Ty1Qa3MBZW7 1-8, 10-36; h4m98xKRPayTnW2X 1-3; hZLykw9dRnYbtvKP 1-2; jC6FzGLJ2yn3kvw9 1-3; jNVAY2Pav8GcbFWn 1-2;
+jXTVfy3ApWKPYwDG 1-22; jn3dwzWPZ6r2ky1K 1-3; kMftb1JGnDLjzPwm 1; kX7FtxzjfYnw69TB 1-3; mCNxAVQ4bj3tvqyJ 1-2;
+mpgnDQbLWXY8jJP1 1; n7hQW3NYzJwmDaG4 36; nX1qbatTzGZ3CAwB 4-7; pRA73YvkarFVLNCZ 1-3; pdKXzcQAHr3MNhCa 1-4, 6;
+qGMZVBwJfdtRxr6Q 1, 3-13; qpYKczLm83WFN7ZR 1; rFRYL1d4yZDcHgq7 1-5; rdcZKVykDFH4f7mn 1-4; t1yGxzP7L3Aa6CQr 1-5;
+t2z1VPDRbwZqfcKN 2-16; t4bYnDj8QMyacA2m 1-2; tPbh63Rc4J8xdv1Q 1-9; thqTyPArmkxfMnK7 5-36, 38; tkPZYqTRgCyWG3jM 22-23;
+tyrGHfnp3ghKNMz7 3; vZqVmLYQa6jwP3A9 5-16, 18-21; vazTdHkmWgA17pLc 1-2; wT6AKYHXqb3tMvGd 1-13; wfV2DJZaNtY8rAHM 1-2;
+x64Wd3Z8A2TKCDXL 1-2, 4-5; xRPN2jwhCg6abJVH 1-5; xbc7XGytaKACYVT9 1-16, 18-19; yPVkKpqtfJM27WFB 1-7; yZvwm7pRYDkAPGL4
+1-3; yfKb1MthLFDc4ANG 1-7; ygMZKDTYd4qCQ9mP 1-5; z9wcdxZaRLhWk1Qf 1-3; zVhC3bma8v4jTBp9 1; zqXGMvdTDmQaZgtL 1-2.
 
 ## Fiery War Axe (870)
 
@@ -2478,39 +2507,54 @@ Z7qF4j3hazBTxHcw 8-10; zMqZ3BNKbFYfAjwp 1-12.
 
 ## Shadowblade (2163)
 
-- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Count: §Count of the 2026-11-13 to 2026-11-26 reports
 - Proc: weapon proc 18138
-- Rate: 1.05 PPM, observed
+- Rate: 1 PPM, observed
 
-2,304 procs on 74,229 rolling hits, 53 wearers, 70 runs, in the main hand or the off hand: all hits 1.03 [1.00, 1.07].
-Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
-Observed: no lone-unit rate checks it. One-hand white: none. Dual-wield white, which sets no rate: 0.95 [0.87, 1.06],
-410 procs on 14,356 lone units, 50 wearers. Specials: 1.02 [0.68, 1.47], 20 procs on 653 lone units, 23 wearers. Travel
-time: the proc lands a median 140 ms after its hit, 98th percentile 279 ms, window [-20, 289] ms (361 isolated hits).
-Dropping the swapped stretches (78 active minutes, 3% of hits, in 9 runs) moved the read from 1.01 to 1.03. Report
-VMfN97kLXxyTpCwW logs the same run as F9bgjZYDQ6fqPaLk and counts once. Reports from 2026-11-13 to 2026-11-22.
+4,339 procs on 142,069 rolling hits, 84 wearers, 114 runs, in the main hand or the off hand: all hits 1.02 [0.99, 1.04].
+The rate is all hits, which the specials rate agrees with. One-hand white: none. Dual-wield white, which sets no rate:
+0.98 [0.91, 1.05], 699 procs on 23,811 lone units, 81 wearers. Specials: 1.02 [0.79, 1.35], 50 procs on 1,638 lone
+units, 37 wearers. No paladin wears it in the count. Travel time: the proc lands a median 140 ms after its hit, 98th
+percentile 300 ms, window [-20, 310] ms (482 isolated hits); lone units are isolated on the hit's own target. Dropping
+the swapped stretches (155 active minutes, 3% of hits, in 18 runs) moved the read from 0.99 to 1.02. One run logged in
+two reports counts once. Reports from 2026-11-13 to 2026-11-26.
 
-| Class   | Wearers | Procs |   Hits |  PPM |
-| ------- | ------: | ----: | -----: | ---: |
-| Rogue   |      45 | 2,068 | 66,407 | 1.04 |
-| Warrior |       3 |   174 |  5,672 | 1.02 |
-| Hunter  |       5 |    62 |  2,150 | 0.96 |
+Across the 2026-11-23 hotfix: the reports before 2026-11-24 01:00 UTC read 1.04 [1.01, 1.07], 3,567 procs on 114,838
+rolling hits, 71 wearers, 94 runs; the reports from then on 0.95 [0.87, 1.01], 772 procs on 27,230 rolling hits, 17
+wearers, 20 runs. The analyzer run on the reports from then on alone reads all hits 0.94 [0.85, 1.02], 772 procs, 17
+wearers, which overlaps the whole count's 1.02 [0.99, 1.04]. The rate is the whole count's, observed by owner ruling of
+2026-11-26: the reports from the hotfix on read lower, 0.95 against 1.04, their intervals meeting at 1.01.
+
+| Class   | Wearers | Procs |    Hits |  PPM |
+| ------- | ------: | ----: | ------: | ---: |
+| Rogue   |      71 | 4,012 | 131,659 | 1.02 |
+| Warrior |       5 |   224 |   7,168 | 1.04 |
+| Hunter  |       8 |   103 |   3,242 | 1.06 |
 
 Reports and fights: 17bVXjMKCRqz3nFH 1-6; 2FXvGj386wa1ptHA 1-6, 8-12; 3GT4tz8gxnphcbkD 1-7; 3HJrg1BGh8xR6Y2z 1-13;
-3qfDVTZ1J29zPChn 1-23; 43R1XHKpfLgybZqm 1-4; 72q1FtWgTMHAcLxG 1, 3-5; 7fz9Kk8rY6jyQAbL 6-10; 8JTGAcnFYvtmjLN7 1-4;
-8TRwjBNPFDMqV6my 1; 9T1NCP4vxBztFYZH 1-6; 9fvqtGwK7RgT31xF 1; ATwq9YWpNbLC6Khc 1-10, 12-17, 19-20; Ba4bzVmX2nDrRN7k 1-3;
-D1HnX9MbVNaLRKBq 1; D46Xm8ncR9WbTFrL 32-71; F8yVqYNM9HQC1aLn 1-6; F9bgjZYDQ6fqPaLk 10-21; FBLTNkwYgtPzjyfh 1;
-FK2TQv9HJyhmLjBa 1-2; FrL4wayTHRtW1CKx 2-15; GB6fVLkvzPhxYJcZ 1-2; GmkC6RtH12vawYTL 1-5; JbKBmGHwCcyVzkjt 1-6, 8-24,
-26-29, 31-33, 35-40, 42-52, 54-59, 61-66; L6XGbAdMqBc19KQ7 1-9; LW1pRgPwCmXBqk9a 1-11, 13-27; LX4B8yPtVnhxDJvq 1;
-NFcRw6HdA7g1BGm2 1; NTJzVdMZBQDaqG83 7-8; NjWKPpHgymCT832A 1-19; Nxtj7m6zcFX9Aq3Z 5; PJpRmw7bf8WvDxA9 1-3;
-PxgRcqaK9bdWjTGQ 2-5; QHqPwymAX4rLv6at 1-2; R792cjGCzgx4NaTM 1-2; T8JKMZh1WwyazjHY 2; TWrFLYwN6tCK9fdm 2, 4-6;
-TdH1RpCqkK7BWw2c 1-2; VMfN97kLXxyTpCwW 1-10; Xjrt9FRMWqJyKdpa 2-3; Ya9kKCWRwqjFpgz1 1-4; Zj2mcQnvKFPBLgCk 1;
-b6YgFwaVqjc7kyrP 1-3; bnMvHkFjxQLJ4VRT 5; byzq9hxPvpDAJac2 1-12; dnDg7j9kRw6WtbML 64-69; f6Q2vmDkJ7YhAy9H 1;
-fcghxMTW4VXFQNHk 13-24, 26-53; gRWbpVBwcJxPjKZ1 4; jgL6xTGHDt19CvNF 2-4; jvqAx3thp6wTz9ZR 1; kxQJCbtq9wLHmjKR 1-6;
-kxt1vq6DGM7YPA8n 1; m3ctFRXJaZnrKzkC 1-3; mdP46qvaFWALKM9B 1-2; pB26nafTCqtMHPcD 1-2; pb3cw9Q62mzh7tWM 1-3;
-qKtgYkmZMVjnLBfr 1; qXPhR7Jtd8jKTB9p 1-3; qmfjQ63TN81AnGkB 1-3; qyDxWPJrCtGzQBcv 1; rf7pqCmzaxAJ9yVD 1-2;
-ry41NG3KdBnRzCAw 1-5; twbKV4fgDyW3XHmn 1-2; vHp9QagZGFLBM7PC 1-2; vyQrDZN7RX82ApnP 1-3; wafLQr31X6VYCmNZ 1-3;
-wkrzY3mDh7RGfMc2 54; xRkgQCj3TD2yb6Fn 1-25; xdK1Pac8CynkFDYB 2-4; ycMCt3n9ZqP2bhaH 1-2, 4-8.
+3qfDVTZ1J29zPChn 1-23; 42wYBypCXH1jVxZM 1-5; 43R1XHKpfLgybZqm 1-4; 72q1FtWgTMHAcLxG 1, 3-5; 7fz9Kk8rY6jyQAbL 6-10;
+8JTGAcnFYvtmjLN7 1-4; 8TRwjBNPFDMqV6my 1; 9T1NCP4vxBztFYZH 1-6; 9fvqtGwK7RgT31xF 1; ATwq9YWpNbLC6Khc 1-10, 12-17, 19-20;
+Ba4bzVmX2nDrRN7k 1-3; CDLFKa2Nw4td3rZk 1-4; D1HnX9MbVNaLRKBq 1; D46Xm8ncR9WbTFrL 32-71; DALjdvgcWTYBF283 7, 9-40, 42-52;
+DCzyMhKTZQ98rmFw 1; DbQwz3av89BpZYfn 1-27; F8yVqYNM9HQC1aLn 1-6; F9bgjZYDQ6fqPaLk 10-21; FBLTNkwYgtPzjyfh 1;
+FK2TQv9HJyhmLjBa 1-2; FrL4wayTHRtW1CKx 2-15; GB6fVLkvzPhxYJcZ 1-2; GmkC6RtH12vawYTL 1-5; J8YH1pCt7nWbcQha 1-11;
+JbKBmGHwCcyVzkjt 1-6, 8-24, 26-29, 31-33, 35-40, 42-52, 54-59, 61-66; L6XGbAdMqBc19KQ7 1-9; LW1pRgPwCmXBqk9a 1-11,
+13-27; LX4B8yPtVnhxDJvq 1; MDmqgxJC689cwQdf 1; NFcRw6HdA7g1BGm2 1; NTJzVdMZBQDaqG83 7-8; NjWKPpHgymCT832A 1-19;
+Nxtj7m6zcFX9Aq3Z 5; PJpRmw7bf8WvDxA9 1-3; PQzCL76fmZF1TyN9 8, 10-12; PxgRcqaK9bdWjTGQ 2-5; PyFHbGW3t8gfXMrQ 3-14;
+QHqPwymAX4rLv6at 1-2; QymjLY4XrbCJxKcP 1-2; R792cjGCzgx4NaTM 1-2; RWjNGhpVvJ36c74n 3; Rcn2dBw6T7vZFbtx 42-45;
+T8JKMZh1WwyazjHY 2; TKDJLt2ABVFw8n9h 2; TWrFLYwN6tCK9fdm 2, 4-6; TdH1RpCqkK7BWw2c 1-2; TgQJ7t3wHrzPqM4C 2;
+V7rWM1fCGc9jHQKt 1-3; VKkWz4Ar72pR1LyB 3; WrP34pNDfdyzhb2H 1-14; Xjrt9FRMWqJyKdpa 2-3; XwT7QqZVhp9gbmzc 1-2;
+YGJ7Kv4m2gXHQrBf 1; YVMcL1DBkbNC9hxH 5-40; Ya9kKCWRwqjFpgz1 1-4; Zj2mcQnvKFPBLgCk 1; b6YgFwaVqjc7kyrP 1-3;
+bWH41fw8CDQAch3K 6; bnMvHkFjxQLJ4VRT 5; br4AMRdq1Wv7jpcB 1-3; byzq9hxPvpDAJac2 1-12; cYXtDBjJZwKQzW2f 1;
+d9VRhFPmDGkLH4vf 1-5; dnDg7j9kRw6WtbML 64-69; dtqaDCLhXYb6BM1r 1-4; f32xyDMjJvAdBHa9 3-4; f6Q2vmDkJ7YhAy9H 1;
+fNZyXdzPRxhkjLcg 1-2; fcghxMTW4VXFQNHk 13-24, 26-53; fcnqgCZtXyY34Gbm 1; gRWbpVBwcJxPjKZ1 4; hAfKnz3MpdvNjQxk 1-5;
+hy3mwRF9GAcfzJ4P 1-2; j3dqRfHCL86cN4Fg 1-2; jgL6xTGHDt19CvNF 2-4; jvqAx3thp6wTz9ZR 1; kxQJCbtq9wLHmjKR 1-6;
+kxt1vq6DGM7YPA8n 1; m3ctFRXJaZnrKzkC 1-3; mDfBWP3bv1HtzChw 6-17, 19, 21, 23-25; mQAvYq6HaW2GJZKb 1-3; mdP46qvaFWALKM9B
+1-2; n19QyaLzWJtCM23d 1-2; nM8ZvpbrDqNzFACd 5-7, 10-18; pB26nafTCqtMHPcD 1-2; pb3cw9Q62mzh7tWM 1-3; qKtgYkmZMVjnLBfr 1;
+qXPhR7Jtd8jKTB9p 1-3; qmfjQ63TN81AnGkB 1-3; qn1cjM6CxJHyp7dr 1; qyDxWPJrCtGzQBcv 1; rf7pqCmzaxAJ9yVD 1-2;
+rvPn71AMTwajKNdG 1; ry41NG3KdBnRzCAw 1-5; t3b8rm9h7CNXag26 1-9; tBgZqFKhaArDmw4d 1; twbKV4fgDyW3XHmn 1-2;
+txBCajcb1MVJ6GPg 1-2; vHp9QagZGFLBM7PC 1-2; vyQrDZN7RX82ApnP 1-3; wXRCbqdLt6mAg8aV 2-3; wafLQr31X6VYCmNZ 1-3;
+wkrzY3mDh7RGfMc2 54; xAHXJLYPCFcb7a4d 3; xRkgQCj3TD2yb6Fn 1-25; xdK1Pac8CynkFDYB 2-4; ycMCt3n9ZqP2bhaH 1-2, 4-8;
+zJAHqrM1h6GKXBcm 1-2.
 
 ## Shortsword of Vengeance (754)
 
@@ -2997,29 +3041,40 @@ aRLP2JdQntKzTx3f 1-2; bGq3mN7JgCDzcyMZ 1, 3-5; bahZczXqfLk3pQR2 1, 3-5, 7-19; bg
 
 ## The Cruel Hand of Timmy (13401)
 
-- Count: §Count of the 2026-11-06 to 2026-11-22 reports
+- Count: §Count of the 2026-11-13 to 2026-11-26 reports
 - Proc: weapon proc 17505
-- Rate: 2.15 PPM, measured
+- Rate: 2.05 PPM, measured
 
-1,949 procs on 30,536 rolling hits, 26 wearers, 34 runs, in the main hand or the off hand: all hits 2.13 [2.02, 2.24].
-The rate is all hits, which the one-hand white rate agrees with. One-hand white: 2.21 [1.91, 2.56], 206 procs on 3,104
-lone units, 7 wearers. Dual-wield white, which sets no rate: 1.95 [1.81, 2.07], 548 procs on 9,370 lone units, 19
-wearers. Specials: 1.47 [1.03, 1.75], 43 procs on 978 lone units, 7 wearers. Direct: window [-10, 100] ms, median 0 ms,
-98th percentile 1 ms, 550 isolated hits. Dropping the swapped stretches (63 active minutes, 5% of hits, in 5 runs) moved
-the read from 2.01 to 2.13. One run logged in two reports counts once. Reports from 2026-11-13 to 2026-11-22.
+3,278 procs on 52,949 rolling hits, 41 wearers, 54 runs, in the main hand or the off hand: all hits 2.06 [1.99, 2.14].
+The rate is all hits, which the one-hand white and specials rates agree with. One-hand white: 2.14 [1.94, 2.35], 376
+procs on 5,864 lone units, 12 wearers. Dual-wield white, which sets no rate: 1.93 [1.76, 2.05], 825 procs on 14,253 lone
+units, 28 wearers. Specials: 1.99 [1.56, 2.40], 110 procs on 1,844 lone units, 13 wearers. Two-roll abilities, priced as
+one roll: 2.40, 12 procs on 167 lone units (Execute), left out of the rate. The paladin check, which sets no rate: lone
+white swings 2.02 [1.46, 2.60], 34 procs on 562 lone units, 11 wearers, not apart from all hits; paladins in at that
+rate, on as many hits per lone unit as the other wearers', read 2.06, so the rate is 2.05 either way. Direct: window
+[-10, 100] ms, median 0 ms, 98th percentile 1 ms, 906 isolated hits. Dropping the swapped stretches (84 active minutes,
+5% of hits, in 6 runs) moved the read from 1.97 to 2.06. One run logged in two reports counts once. Reports from
+2026-11-13 to 2026-11-26.
+
+Across the 2026-11-23 hotfix, which sets no rate: the reports before 2026-11-24 01:00 UTC read 2.09 [2.00, 2.19], 2,695
+procs, 35 wearers; the reports from then on 1.94 [1.79, 2.06], 583 procs, 8 wearers.
 
 | Class   | Wearers | Procs |   Hits |  PPM |
 | ------- | ------: | ----: | -----: | ---: |
-| Rogue   |      11 | 1,017 | 15,946 | 2.13 |
-| Warrior |      15 |   932 | 14,590 | 2.13 |
+| Warrior |      22 | 1,670 | 26,702 | 2.08 |
+| Rogue   |      19 | 1,608 | 26,246 | 2.04 |
 
-Reports and fights: 1ZyhaVDdFtTYWMcC 4-7, 9-12; 3BAz1TDGL9kjy8ZQ 1-2; 72q1FtWgTMHAcLxG 1, 3-5; 8jDqr3JcYRCH1pbK 1-4;
-9yWkxhQqKz1bR8fg 5; BZ8Q1mHKCFJ7YTL6 33; C1cyPbL3RQvGjq8p 48; H8AgW6afwBktp4nv 3; HKjBYG4kRJtnXyc3 1-2; HL1FjV9MzyNDrb48
-1; HTQP1MZrjha2p76V 1; KtCPg2xhR416AvXN 1-6; Qb1yWxa8vHCGL7Yr 2-7, 9-15; QcrC9VK64xXa1JWg 1-8; QdwJD6mHNVfBxrFp 4;
-WmV1qKzjA42DkhHC 2-3; X8xk6GqCPML3YjcR 1-2; XfBLnTDgpdYWkmzJ 1; Zz3YcQk69P7N8rAn 3-4; aZ8yxm3AGgrpTvYh 1;
-hLxABfWVavkM8HGT 1-4; jq2PK7vmkVBcQNxH 4-14; p6mVRBzvWMqnQZFc 11-12; prxnh2JVAPwFdj9z 1-2, 5; qa8wcv4jLYZpGARK 5-9;
-qcdyZAr2ganDtxNW 13-44; rRnVJhQFa9zf7NqK 4-5; rhAc6qLKVn7JQ8GD 1-2; vT1rMa2cNGXLfqp7 9-12; vyna9XkWc2GpD1rV 3-4;
-wnBcvgTJaDPfCYxW 8-47; xGJcKTnzPmAr1aCw 1-4; yCdRrMhYwm69xj1Z 1; zBqkZQ1bxp3cAhDa 15, 17-18; zy3NjCQP7bMp1W8H 1-2.
+Reports and fights: 1ZyhaVDdFtTYWMcC 4-7, 9-12; 3BAz1TDGL9kjy8ZQ 1-2; 3RV6CW8rqMjbYT24 2-3; 72q1FtWgTMHAcLxG 1, 3-5;
+7R9HYFpnN2XCq3bJ 3, 5; 8jDqr3JcYRCH1pbK 1-4; 9yWkxhQqKz1bR8fg 5; ARW6wQJHvNTVjbFG 1-3; BZ8Q1mHKCFJ7YTL6 33;
+C1cyPbL3RQvGjq8p 48; DfKPt6rhYvCQFAy7 1-4, 6-7; FgPGfqyhC8j7rB4Q 11, 13-14; H8AgW6afwBktp4nv 3; HKjBYG4kRJtnXyc3 1-2;
+HL1FjV9MzyNDrb48 1; HNyG1nBQfCqPZYbL 3; HTQP1MZrjha2p76V 1; Jth1dNXDLrjFm7yY 6-13, 15-38; KQZwHXz2TP1W4Mh6 1-9;
+KtCPg2xhR416AvXN 1-6; N8RwqgTVYMvAxG6H 2; Qb1yWxa8vHCGL7Yr 2-7, 9-15; QcrC9VK64xXa1JWg 1-8; QdwJD6mHNVfBxrFp 4;
+WmV1qKzjA42DkhHC 2-3; XfBLnTDgpdYWkmzJ 1; Zz3YcQk69P7N8rAn 3-4; aVXgmYF9Mv2A7LcH 1-13; aZ8yxm3AGgrpTvYh 1;
+anAZd29rK3vCJ4wQ 14; gdN1cBza69wJGKZf 1-3; hLxABfWVavkM8HGT 1-4; hnWavgKQt3ZXLBdV 11-13; jq2PK7vmkVBcQNxH 4-14;
+mNTMK4J9PQcjCR6L 1-3; nzXW6jJTC12w4v7m 1-2; p6mVRBzvWMqnQZFc 11-12; prxnh2JVAPwFdj9z 1-2, 5; qa8wcv4jLYZpGARK 5-9;
+qcdyZAr2ganDtxNW 13-44; rRnVJhQFa9zf7NqK 4-5; rhAc6qLKVn7JQ8GD 1-2; tQvgam4P62MdjCGc 5; tr864mQnJgwHZvpM 1-4;
+vT1rMa2cNGXLfqp7 9-12; vyna9XkWc2GpD1rV 3-4; wTpN2bMCjdWyA4Jg 5-34; wnBcvgTJaDPfCYxW 8-47; wr4CTRnNBDZa1jQM 34-35;
+xGJcKTnzPmAr1aCw 1-4; yCdRrMhYwm69xj1Z 1; zBqkZQ1bxp3cAhDa 15, 17-18; zy3NjCQP7bMp1W8H 1-2.
 
 ## The Ziggler (8006)
 
@@ -3523,3 +3578,18 @@ The count is EV-0183 §Method, run on these weapons.
 On Axe of Inevitable Ruin, Barbaric Crossbow, Black Duskwood Staff, Mana Channeling Wand, Spellsever Crossbow,
 Supercharger Battle Axe, Twilight Maul and X'caliboar, measured, the classes past the first give under 3% of the rolling
 hits.
+
+## Count of the 2026-11-13 to 2026-11-26 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section naming this count
+  lists, from every wearer stream on disk for its weapon; 353 reports in all for the count, 310 of them for these
+  weapons
+- Game build: 1.60.1.70938 to 1.60.1.71139 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
+  UTC, 71091 from 2026-11-24 15:21 UTC in the US and 2026-11-25 02:19 UTC in the EU, 71139 from 2026-11-25 19:14 UTC in
+  the US and the EU); 202 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 167 of them for
+  these weapons, and 66 after 2026-11-24 01:00 UTC, 44 of them for these weapons. The sim's item database is
+  1.60.1.71139, push 114448; the hotfix each player ran is not recorded
+- Date: 2026-11-13 to 2026-11-26
+- Pull request: #1262
+
+The count is EV-0221 §Method, run on these weapons.

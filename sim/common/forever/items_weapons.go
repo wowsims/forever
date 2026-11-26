@@ -335,21 +335,13 @@ func init() {
 	//
 	// Every harmful spell that lands on an enemy rolls it once for each target, damage or not, on the cast
 	// time of the cast that launched it. 21978 lacks Can Proc From Procs, so a spell fired as a proc never
-	// rolls it; Hellfire Effect, whose row lacks Not a Proc, rolls nothing in game (EV-0025). Physical
-	// taunts, shouts and roars and spells an item casts are not the wearer's spells and roll nothing.
+	// rolls it; Hellfire Effect, whose row lacks Not a Proc, rolls nothing in game (EV-0025). Only the
+	// wearer's harmful spells roll it (harmfulSpells).
 	row := spelldata.MustFind(21978)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			castTimePPM(row)(character, trigger)
-			priced := trigger.ExtraCondition
-			trigger.ProcMask = core.ProcMaskUnknown
-			trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
-				harmful := spell.ProcMask.Matches(core.ProcMaskSpellDamage) ||
-					(spell.ProcMask == core.ProcMaskEmpty && spell.DefenseType == core.DefenseTypeMagic &&
-						spell.SpellSchool != core.SpellSchoolPhysical && !spell.Flags.Matches(core.SpellFlagPassiveSpell) &&
-						spell.ActionID.ItemID == 0)
-				return harmful && character.IsOpponent(result.Target) && priced(sim, spell, result)
-			}
+			harmfulSpells(character, trigger)
 		}},
 		[]shared.ItemVariant{
 			{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
@@ -360,15 +352,10 @@ func init() {
 	//
 	// Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.
 	//
-	// 1300435 rolls once for each enemy a harmful spell lands on, a damage over time effect or a debuff
-	// that deals no damage included, apart from Curse of the Elements, Recklessness and Weakness and Hex
-	// of Weakness, which the sim registers with no proc mask, and its 10 ms cooldown lets one landing
-	// proc it once. The chance is the row's procs per minute on the cast time of the cast that launched
-	// the spell, at least 1.5 s (castTimePPM). Damage over time ticks, misses, helpful spells, melee and spells fired as a proc,
-	// Hurricane's ticks among them, never roll it. Each proc casts Shadow 1300437 or Arcane 1300438, one
-	// in two each, and both fly to the target. In game a Hurricane cast rolls once for each enemy its
-	// area reaches until one procs; the sim's Hurricane cast only starts its channel and lands on no
-	// enemy, so it rolls nothing (EV-0115).
+	// 1300435 rolls on each enemy a harmful spell lands on (harmfulSpells) at the row's procs per minute on
+	// the cast time behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one cast
+	// proc it once; each proc casts Shadow 1300437 or Arcane 1300438, one in two each, which fly to that
+	// enemy (EV-0115).
 	core.NewItemEffect(22458, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300435)
@@ -389,7 +376,7 @@ func init() {
 				bolt = bolts[1]
 			}
 			bolt.Cast(sim, result.Target)
-		}, castTimePPM(row))
+		}, castTimePPM(row), harmfulSpells)
 		trigger.Name = "Moonshadow Stave"
 		trigger.ActionID = core.ActionID{ItemID: 22458}
 		trigger.TriggerImmediately = true
@@ -401,12 +388,9 @@ func init() {
 	//
 	// Harmful spell casts have a chance to deal 70 Fire damage. Deals 3 times as much damage to Plants.
 	//
-	// 1300781 rolls once for each enemy a harmful spell lands on, at the row's procs per minute on the
-	// cast time of the cast behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one
-	// cast proc it once. Each proc deals 1300782 to that enemy at once. Spells fired as a proc roll
-	// nothing, and the curses and hex the sim registers with no proc mask neither. In game Hurricane's
-	// cast and Counterspell's interrupt proc it too; the sim leaves both out (EV-0219). The sim has no
-	// Plant creature type.
+	// 1300781 rolls on each enemy a harmful spell lands on (harmfulSpells) at the row's procs per minute on
+	// the cast time behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one cast
+	// proc it once; each proc deals 1300782 to that enemy, three times as much to Plants (EV-0219).
 	core.NewItemEffect(11750, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300781)
@@ -414,6 +398,7 @@ func init() {
 
 		damage := ignition.DamageEffect()
 		config := procSpellConfig(character, ignition)
+		config.VersusBonus = shared.ItemVersusBonus(character, 11750, proto.VersusEffectKind_VersusEffectKindDamage, ignition)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
@@ -421,7 +406,7 @@ func init() {
 
 		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			fire.Cast(sim, result.Target)
-		}, castTimePPM(row))
+		}, castTimePPM(row), harmfulSpells)
 		trigger.Name = "Kindling Stave"
 		trigger.ActionID = core.ActionID{ItemID: 11750}
 		trigger.TriggerImmediately = true
@@ -696,6 +681,20 @@ func init() {
 		}
 	}
 
+	// Toofbreaker
+	// https://www.wowhead.com/forever/item=286430/toofbreaker
+	//
+	// Chance on hit: Bash the target, causing 42 Physical damage. Deals 2 times as much damage if the
+	// target is facing you.
+	//
+	// Toofbreak 1320269's second effect, a dummy, states the multiplier. The target faces a wearer who
+	// stands in front of it, by the owner's ruling.
+	shared.DamageProcExtras[286430] = func(character *core.Character, config *core.SpellConfig) {
+		if character.PseudoStats.InFrontOfTarget {
+			config.DamageMultiplier *= spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Average()
+		}
+	}
+
 	// Flame Wrath
 	// https://www.wowhead.com/forever/item=11809/flame-wrath
 	//
@@ -926,6 +925,23 @@ func creatureFamilyMultiplier(target *core.Unit, multiplier float64, families ..
 		return multiplier
 	}
 	return 1
+}
+
+// Narrows the trigger to landings on an enemy of the wearer's harmful spells: spell damage hits, and
+// spells with no proc mask whose DefenseType is magic and whose school is not Physical, such as the
+// curses, Hex of Weakness and Counterspell. Physical taunts, shouts and roars, spells fired as a proc
+// and spells an item casts are not harmful spells of the wearer's. It runs before any condition the
+// trigger already has (EV-0025, EV-0219).
+func harmfulSpells(character *core.Character, trigger *core.ProcTrigger) {
+	condition := trigger.ExtraCondition
+	trigger.ProcMask = core.ProcMaskUnknown
+	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+		harmful := spell.ProcMask.Matches(core.ProcMaskSpellDamage) ||
+			(spell.ProcMask == core.ProcMaskEmpty && spell.DefenseType == core.DefenseTypeMagic &&
+				spell.SpellSchool != core.SpellSchoolPhysical && !spell.Flags.Matches(core.SpellFlagPassiveSpell) &&
+				spell.ActionID.ItemID == 0)
+		return harmful && character.IsOpponent(result.Target) && (condition == nil || condition(sim, spell, result))
+	}
 }
 
 // The row's procs per minute, priced on the cast time of the cast that launched the hit, at least the

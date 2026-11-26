@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 734.92196
+  tps: 463.62864
+  dtps: 4.84232
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Angerforge'sBattleAxe-11816"
  value: {
   dps: 751.84895
@@ -1079,9 +1087,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 764.94922
-  tps: 483.96378
-  dtps: 4.95929
+  dps: 761.03914
+  tps: 480.68378
+  dtps: 5.01432
  }
 }
 dps_results: {

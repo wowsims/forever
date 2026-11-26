@@ -72,6 +72,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 718.4142
+  tps: 741.02255
+  dtps: 8.80126
+  hps: 15.43639
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Angerforge'sBattleAxe-11816"
  value: {
   dps: 833.494
@@ -884,9 +893,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 765.69858
-  tps: 788.27096
-  dtps: 8.32163
+  dps: 766.10045
+  tps: 788.67283
+  dtps: 8.39807
   hps: 15.63972
  }
 }
@@ -983,9 +992,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 889.12245
-  tps: 911.56722
-  dtps: 8.47543
+  dps: 889.07966
+  tps: 911.56367
+  dtps: 8.45303
   hps: 15.04667
  }
 }
@@ -1208,8 +1217,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 899.41364
-  tps: 921.80398
+  dps: 895.07986
+  tps: 917.4702
   dtps: 8.36657
   hps: 15.04667
  }
@@ -2144,9 +2153,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Shadowblade-2163"
  value: {
-  dps: 772.17439
-  tps: 794.90635
-  dtps: 8.41296
+  dps: 772.26617
+  tps: 794.97656
+  dtps: 8.31973
   hps: 15.92778
  }
 }

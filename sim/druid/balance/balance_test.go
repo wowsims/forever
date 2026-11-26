@@ -80,10 +80,11 @@ func TestBalance(t *testing.T) {
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{config}))
 }
 
-// A Moonkin build without Dreamstate, and the same build with one point in it.
+// A Moonkin build without Dreamstate, and the same build with one point and with all five in it.
 const (
-	noDreamstateTalents  = "5232220115201301--5053"
-	dreamstateOneTalents = "5232220115201311--5053"
+	noDreamstateTalents   = "5232220115201301--5053"
+	dreamstateOneTalents  = "5232220115201311--5053"
+	fullDreamstateTalents = "5232220115201351--5053"
 )
 
 const DefaultArmorType = proto.ArmorType_ArmorTypeLeather
@@ -227,13 +228,13 @@ func TestDreamstateSharesAGiftedInnervate(t *testing.T) {
 	if self <= 0 {
 		t.Fatalf("a self-cast Innervate gains %v regen, want more than 0", self)
 	}
-	if got := gain(t, DefaultTalents, true); math.Abs(got-self) > 1e-9 {
+	if got := gain(t, fullDreamstateTalents, true); math.Abs(got-self) > 1e-9 {
 		t.Errorf("full Dreamstate gains %v regen from a gift, want the self-cast's %v", got, self)
 	}
 	if got := gain(t, dreamstateOneTalents, true); got <= 0 || got >= self {
 		t.Errorf("one point of Dreamstate gains %v regen from a gift, want between 0 and %v", got, self)
 	}
-	if got := gain(t, DefaultTalents, false); math.Abs(got-self) > 1e-9 {
+	if got := gain(t, fullDreamstateTalents, false); math.Abs(got-self) > 1e-9 {
 		t.Errorf("a self-cast with Dreamstate gains %v regen, want the self-cast's %v", got, self)
 	}
 }
