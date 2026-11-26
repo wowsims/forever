@@ -133,15 +133,11 @@ func (vt *versusLogTest) damageLine(t *testing.T, spell *Spell, outcome HitOutco
 
 func (vt *versusLogTest) lineOf(t *testing.T, hit func()) string {
 	t.Helper()
-	vt.logs = nil
-	hit()
-	for _, line := range vt.logs {
-		if strings.Contains(line, "(Threat: ") {
-			return line
-		}
+	lines := vt.linesOf(hit)
+	if len(lines) == 0 {
+		t.Fatalf("no damage line among %q", vt.logs)
 	}
-	t.Fatalf("no damage line among %q", vt.logs)
-	return ""
+	return lines[0]
 }
 
 func TestDamageLogNamesTheVersusSourcesTheHitTook(t *testing.T) {
@@ -238,6 +234,13 @@ func outcomeHit(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Out
 
 // A spell of the school on the melee table whose effects deal the damage baseDamage returns.
 func versusTestHit(unit *Character, id int32, school SpellSchool, baseDamage func(*Spell, *Unit) float64) *Spell {
+	return versusTestSpell(unit, id, school, func(sim *Simulation, target *Unit, spell *Spell) {
+		spell.CalcAndDealDamage(sim, target, baseDamage(spell, target), outcomeHit)
+	})
+}
+
+// A spell of the school on the melee table that runs apply.
+func versusTestSpell(unit *Character, id int32, school SpellSchool, apply func(*Simulation, *Unit, *Spell)) *Spell {
 	return unit.RegisterSpell(SpellConfig{
 		ActionID:         ActionID{SpellID: id},
 		SpellSchool:      school,
@@ -245,9 +248,7 @@ func versusTestHit(unit *Character, id int32, school SpellSchool, baseDamage fun
 		DefenseType:      DefenseTypeMelee,
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-			spell.CalcAndDealDamage(sim, target, baseDamage(spell, target), outcomeHit)
-		},
+		ApplyEffects:     apply,
 	})
 }
 
@@ -415,19 +416,11 @@ const attackPowerTag = ") [Versus Humanoid: {SpellID: 22} +81 AttackPower]"
 func TestDamageLogNamesOnlyWhatEachHitRead(t *testing.T) {
 	vt := newVersusLogTest()
 	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81}, vt.target.MobType)
-	spell := vt.unit.RegisterSpell(SpellConfig{
-		ActionID:         ActionID{SpellID: 101},
-		SpellSchool:      SpellSchoolHoly,
-		ProcMask:         ProcMaskMeleeMHSpecial,
-		DefenseType:      DefenseTypeMelee,
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1,
-		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-			read := spell.CalcDamage(sim, target, attackPowerDamage(spell, target), outcomeHit)
-			flat := spell.CalcDamage(sim, target, 100, outcomeHit)
-			spell.DealDamage(sim, read)
-			spell.DealDamage(sim, flat)
-		},
+	spell := versusTestSpell(vt.unit, 101, SpellSchoolHoly, func(sim *Simulation, target *Unit, spell *Spell) {
+		read := spell.CalcDamage(sim, target, attackPowerDamage(spell, target), outcomeHit)
+		flat := spell.CalcDamage(sim, target, 100, outcomeHit)
+		spell.DealDamage(sim, read)
+		spell.DealDamage(sim, flat)
 	})
 
 	lines := vt.linesOf(func() { spell.SkipCastAndApplyEffects(vt.sim, vt.target) })
@@ -463,16 +456,8 @@ func TestDamageLogNamesAReadOnEveryResultItWentInto(t *testing.T) {
 			spell.CalcAndDealAoeDamage(sim, baseDamage, outcomeHit)
 		}},
 	} {
-		spell := vt.unit.RegisterSpell(SpellConfig{
-			ActionID:         ActionID{SpellID: int32(101 + i)},
-			SpellSchool:      SpellSchoolHoly,
-			ProcMask:         ProcMaskMeleeMHSpecial,
-			DefenseType:      DefenseTypeMelee,
-			DamageMultiplier: 1,
-			ThreatMultiplier: 1,
-			ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-				c.deal(sim, target, spell, attackPowerDamage(spell, target))
-			},
+		spell := versusTestSpell(vt.unit, int32(101+i), SpellSchoolHoly, func(sim *Simulation, target *Unit, spell *Spell) {
+			c.deal(sim, target, spell, attackPowerDamage(spell, target))
 		})
 		lines := vt.linesOf(func() { spell.SkipCastAndApplyEffects(sim, vt.target) })
 		if len(lines) != 2 || !strings.HasSuffix(lines[0], attackPowerTag) || !strings.HasSuffix(lines[1], attackPowerTag) {

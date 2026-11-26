@@ -201,7 +201,7 @@ const showThreatMetrics = displayMetrics.threat;
 column list with `!column.metric || displayMetrics[column.metric]` rather than hiding cells by CSS).
 For input configs, the equivalent is `showWhen` on the input plus the toggle's own store subscription
 (see any spec's `inputs.ts` for the `showWhen: player => …` shape) — never a class the element itself
-renders unconditionally and then hides.
+renders unconditionally and then hides. A toggle that only hides marks inside memoized timeline items (the timeline's versus marks) may hide them from a `data-*` attribute on the plot, so toggling re-renders no item.
 
 ## 5. Locating elements — tests and tools
 

@@ -17,10 +17,15 @@ type VersusBonus struct {
 
 // The factor against the target, 1 where it is none of the mob types and families or there is no bonus.
 func (bonus *VersusBonus) Against(target *Unit) float64 {
-	if bonus != nil && (slices.Contains(bonus.MobTypes, target.MobType) || slices.Contains(bonus.Families, target.CreatureFamily)) {
+	if bonus.Names(target) {
 		return bonus.Multiplier
 	}
 	return 1
+}
+
+// Whether the target is one of the bonus's mob types or families, false where there is no bonus.
+func (bonus *VersusBonus) Names(target *Unit) bool {
+	return bonus != nil && (slices.Contains(bonus.MobTypes, target.MobType) || slices.Contains(bonus.Families, target.CreatureFamily))
 }
 
 func (bonus *VersusBonus) namesFamilyOf(target *Unit) bool {
@@ -47,6 +52,11 @@ type itemVersusBonus struct {
 func (character *Character) NewItemVersusBonus(itemID int32, kind proto.VersusEffectKind, bonus VersusBonus) *VersusBonus {
 	character.itemVersusBonuses = append(character.itemVersusBonuses, itemVersusBonus{itemID: itemID, kind: kind, bonus: &bonus})
 	return &bonus
+}
+
+// The proc of an item's spell, with the item's factor kept for the stats sheet.
+func (character *Character) NewItemVersusProc(itemID int32, kind proto.VersusEffectKind, bonus VersusBonus) *VersusProc {
+	return &VersusProc{Source: ActionID{ItemID: itemID}, VersusBonus: *character.NewItemVersusBonus(itemID, kind, bonus)}
 }
 
 // The worn items' factors. An item swap registers the effects of the items it can swap in as well,

@@ -162,7 +162,7 @@ function parseVersusTag(raw: string, requestId: (logString: string) => string): 
 		const effect = entry ? parseVersusEffect(entry[2]) : null;
 		if (entry && effect) entries.push({ key: requestId(entry[1]), effect });
 	}
-	return { mobType, creatureFamily, entries };
+	return entries.length > 0 ? { mobType, creatureFamily, entries } : null;
 }
 
 function buildDamageLog(log: PendingLog, match: RegExpExecArray): DamageLog {
@@ -434,6 +434,8 @@ const LOG_MATCHERS: Array<LogMatcher> = [
 	},
 ];
 
+const DAMAGE_MATCHER = LOG_MATCHERS[0];
+
 type MatchedLine = { matcher: LogMatcher; match: RegExpExecArray };
 type PendingLog = Mutable<Omit<BaseLog, 'kind'>> & { kind: LogKind };
 // `key` is the line's action, '' for a line that names none.
@@ -533,7 +535,7 @@ export async function parseAll(result: RaidSimResult): Promise<Array<ParsedLog>>
 		// idString() call and a second string per matched line.
 		const key = requestId(source?.index, matched.matcher.idString(matched.match));
 		pending[lineIndex] = { log, ...matched, key };
-		if (matched.matcher === LOG_MATCHERS[0] && raw.includes(' [Versus ')) {
+		if (matched.matcher === DAMAGE_MATCHER && raw.includes(' [Versus ')) {
 			const versus = parseVersusTag(raw, logString => requestId(source?.index, logString));
 			if (versus) pending[lineIndex].versus = versus;
 		}

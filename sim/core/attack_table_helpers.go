@@ -158,7 +158,7 @@ func (parentAura *Aura) AttachMobTypeBonusStats(source ActionID, bonus stats.Sta
 }
 
 // A bonus taken back off can leave a rounding error, which counts as none.
-const epsilon = 1e-9
+const versusEpsilon = 1e-9
 
 // The unit's bonuses against each mob type, leaving out a mob type with none.
 func (unit *Unit) mobTypeBonusesProto() []*proto.MobTypeBonus {
@@ -167,11 +167,11 @@ func (unit *Unit) mobTypeBonusesProto() []*proto.MobTypeBonus {
 		bonus := unit.mobTypeBonuses[mobType]
 		statMap := map[int32]float64{}
 		for stat, value := range bonus.stats[:stats.ProtoStatsLen] {
-			if math.Abs(value) > epsilon {
+			if math.Abs(value) > versusEpsilon {
 				statMap[int32(stat)] = value
 			}
 		}
-		if len(statMap) > 0 || math.Abs(bonus.damageMultiplier-1) > epsilon || math.Abs(bonus.critMultiplier-1) > epsilon {
+		if len(statMap) > 0 || math.Abs(bonus.damageMultiplier-1) > versusEpsilon || math.Abs(bonus.critMultiplier-1) > versusEpsilon {
 			bonuses = append(bonuses, &proto.MobTypeBonus{
 				MobType:              mobType,
 				Stats:                statMap,
@@ -205,10 +205,9 @@ func (unit *Unit) mobTypeBonusesProto() []*proto.MobTypeBonus {
 // A bonus an item grants, from its stats, its equip spell, its proc or its on-use, names the item; one
 // from an enchant, a set bonus, a consumable, a talent or a racial names its spell. The kinds come in
 // that order, each in the order the sources were added, and one source's stats in the order of the stat
-// enum. Mob types and families are
-// their enum names without the prefix, numbers are rounded to 4 decimals, and no part holds ";" or
-// "]", so the tag ends the line at its only "]". A snapshot dot tick names the sources up at the tick,
-// not the ones its snapshot took.
+// enum. Mob types and families are their enum names without the prefix, numbers are rounded to 4
+// decimals, and no part holds ";" or "]", so the tag ends the line at its only "]". A snapshot dot
+// tick names the sources up at the tick, not the ones its snapshot took.
 func (spell *Spell) versusLogTag(result *SpellResult) string {
 	if !result.Landed() || result.Damage <= 0 {
 		return ""
@@ -217,26 +216,22 @@ func (spell *Spell) versusLogTag(result *SpellResult) string {
 	var entries []string
 	if !spell.Flags.Matches(SpellFlagIgnoreAttackerModifiers | SpellFlagNoDamageVersus) {
 		for _, share := range spell.Unit.versusSources {
-			if share.mobType == target.MobType && math.Abs(share.damageMultiplier-1) > epsilon {
+			if share.mobType == target.MobType && math.Abs(share.damageMultiplier-1) > versusEpsilon {
 				entries = append(entries, share.source.String()+" x"+versusNumber(share.damageMultiplier))
 			}
 		}
 	}
 	if result.DidCrit() {
 		for _, share := range spell.Unit.versusSources {
-			if share.mobType == target.MobType && math.Abs(share.critMultiplier-1) > epsilon {
+			if share.mobType == target.MobType && math.Abs(share.critMultiplier-1) > versusEpsilon {
 				entries = append(entries, share.source.String()+" x"+versusNumber(share.critMultiplier)+" crit")
 			}
 		}
 	}
 	byFamily := false
 	for _, share := range spell.Unit.AttackTables[target.UnitIndex].versusCritChances {
-		if math.Abs(share.percent) > epsilon {
-			num := versusNumber(share.percent)
-			if share.percent > 0 {
-				num = "+" + num
-			}
-			entries = append(entries, share.source.String()+" "+num+"% crit chance")
+		if math.Abs(share.percent) > versusEpsilon {
+			entries = append(entries, share.source.String()+" "+signedVersusNumber(share.percent)+"% crit chance")
 			byFamily = byFamily || share.byFamily
 		}
 	}
@@ -258,12 +253,8 @@ func (spell *Spell) versusLogTag(result *SpellResult) string {
 		}
 		for read := result.versusRead; read != 0; read &= read - 1 {
 			stat := stats.Stat(bits.TrailingZeros64(read))
-			if value := share.stats[stat]; math.Abs(value) > epsilon {
-				num := versusNumber(value)
-				if value > 0 {
-					num = "+" + num
-				}
-				entries = append(entries, share.source.String()+" "+num+" "+stat.StatName())
+			if value := share.stats[stat]; math.Abs(value) > versusEpsilon {
+				entries = append(entries, share.source.String()+" "+signedVersusNumber(value)+" "+stat.StatName())
 			}
 		}
 	}
@@ -279,4 +270,12 @@ func (spell *Spell) versusLogTag(result *SpellResult) string {
 
 func versusNumber(v float64) string {
 	return strconv.FormatFloat(math.Round(v*1e4)/1e4, 'f', -1, 64)
+}
+
+func signedVersusNumber(v float64) string {
+	num := versusNumber(v)
+	if v > 0 {
+		num = "+" + num
+	}
+	return num
 }

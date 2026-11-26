@@ -23,19 +23,6 @@ const versusEffectText = (effect: VersusLogEffect): string => {
 	}
 };
 
-const effectKey = (effect: VersusLogEffect) => {
-	switch (effect.kind) {
-		case 'stat':
-			return `stat:${effect.stat}:${effect.amount}`;
-		case 'crit_chance':
-			return `crit_chance:${effect.amount}`;
-		case 'proc_only':
-			return 'proc_only';
-		default:
-			return `${effect.kind}:${effect.multiplier}`;
-	}
-};
-
 interface VersusGroup {
 	key: string;
 	versus: VersusLog;
@@ -51,7 +38,7 @@ const groupVersus = (logs: ReadonlyArray<DamageLog>): Array<VersusGroup> => {
 		const group = groups.get(key) ?? { key, versus, sources: new Map<string, VersusLogSource>() };
 		groups.set(key, group);
 		for (const source of versus.sources) {
-			const sourceKey = `${source.actionId.toString()}|${effectKey(source.effect)}`;
+			const sourceKey = `${source.actionId.toString()}|${JSON.stringify(source.effect)}`;
 			if (!group.sources.has(sourceKey)) group.sources.set(sourceKey, source);
 		}
 	}

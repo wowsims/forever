@@ -132,10 +132,11 @@ export const ItemListRow = ({
 	const { iconUrl, href } = useActionId(itemData.actionId);
 	const isItemsTab = label === SelectorModalTabs.Items;
 	const isEnchantsTab = label === SelectorModalTabs.Enchants;
-	const level = tabHasLevel(label) ? itemData.ilvl || (isItemsTab ? (itemData.item as unknown as Item).ilvl : 0) : undefined;
+	const item = isItemsTab ? (itemData.item as unknown as Item) : undefined;
+	const level = tabHasLevel(label) ? itemData.ilvl || (item?.ilvl ?? 0) : undefined;
 	const enchant = itemData.item as unknown as Enchant;
-	const sourceItem = isItemsTab ? (itemData.item as unknown as Item) : isEnchantsTab ? { id: enchant.itemId, sources: enchant.sources } : undefined;
-	const hasRandomSuffix = isItemsTab && !!(itemData.item as unknown as Item).randomSuffixOptions?.length;
+	const sourceItem = (item ?? isEnchantsTab) ? { id: enchant.itemId, sources: enchant.sources } : undefined;
+	const hasRandomSuffix = !!item?.randomSuffixOptions?.length;
 	const discovered = isItemsTab && firstSeen !== undefined && isNewlyDiscovered(firstSeen) ? discoveredLabel(firstSeen) : undefined;
 
 	const batchPlayer = isIndividualSimHost(host) ? host.player : null;
@@ -168,7 +169,7 @@ export const ItemListRow = ({
 					additionalInfo={hasRandomSuffix ? BEST_RANDOM_SUFFIX_INFO : undefined}
 				/>
 			}
-			versus={isItemsTab && <VersusChips item={itemData.item as unknown as Item} />}
+			versus={item && <VersusChips item={item} />}
 			source={sourceItem && <ItemSource item={sourceItem} sim={host.sim} faction={faction} />}
 			ep={ep}
 			favourited={favourited}

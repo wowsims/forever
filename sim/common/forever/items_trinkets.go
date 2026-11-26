@@ -13,6 +13,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
+var furbolgs = core.VersusBonus{Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyFurbolg}}
+
 func init() {
 	// Jom Gabbar
 	// Use: Increases attack power by 65 and an additional 65 every 2 sec. Lasts 20 sec. (2 Min Cooldown)
@@ -307,15 +309,14 @@ func init() {
 			trigger.ProcChance = 0
 			trigger.DPM = character.NewLegacyPPMManagerWithMainHandSpells(float64(spelldata.MustFind(1318323).RPPM), trigger.ProcMask)
 			trigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
-				return result.Target.CreatureFamily == proto.CreatureFamily_CreatureFamilyFurbolg
+				return furbolgs.Names(result.Target)
 			}
 		}},
 		[]shared.ItemVariant{
 			{ItemID: 269741, ItemName: "Scented Runewood Brooch"},
 		})
 	shared.DamageProcExtras[269741] = func(character *core.Character, config *core.SpellConfig) {
-		furbolgs := character.NewItemVersusBonus(269741, proto.VersusEffectKind_VersusEffectKindProcOnly, core.VersusBonus{Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyFurbolg}})
-		config.VersusProc = &core.VersusProc{Source: core.ActionID{ItemID: 269741}, VersusBonus: *furbolgs}
+		config.VersusProc = character.NewItemVersusProc(269741, proto.VersusEffectKind_VersusEffectKindProcOnly, furbolgs)
 	}
 
 	// Blackhand's Breadth
