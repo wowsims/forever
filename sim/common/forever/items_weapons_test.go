@@ -658,25 +658,31 @@ func landCastHits(t *testing.T, sim *core.Simulation, character *core.Character,
 	stepTo(t, sim, sim.CurrentTime+spelldata.MustFind(rowID).ICD())
 }
 
+// Lands 6000 hits of an instant cast and 6000 of a cast twice castTimeFloor long and checks the procs
+// counted against castTimeChance for the row.
+func checkCastTimeRate(t *testing.T, sim *core.Simulation, character *core.Character, rowID int32, procs func() int32) {
+	t.Helper()
+	spell := fireSpell(&character.Unit)
+	const landings = 6000
+	for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
+		before := procs()
+		for range landings {
+			landCastHits(t, sim, character, spell, castTime, rowID)
+		}
+		want := castTimeChance(t, rowID, castTime)
+		mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
+		if got := float64(procs() - before); math.Abs(got-mean) > 4*deviation {
+			t.Errorf("%d hits of a %v cast procced it %v times, want about %.0f", landings, castTime, got, mean)
+		}
+	}
+}
+
 // Blade of Eternal Darkness 17780 rolls each landed spell hit at 21978's procs per minute on the cast
 // time of the hit's cast, at least castTimeFloor: an instant on the floor, a long cast on its own time.
 // A missile keeps the time of the cast that launched it after the next cast has started.
 func TestBladeOfEternalDarknessPricesEachHitOnItsCastTime(t *testing.T) {
 	sim, character, shadows := boedWearer(t, 1)
-	spell := fireSpell(&character.Unit)
-
-	const landings = 6000
-	for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
-		before := procCasts(sim, shadows)
-		for range landings {
-			landCastHits(t, sim, character, spell, castTime, 21978)
-		}
-		want := castTimeChance(t, 21978, castTime)
-		mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
-		if got := float64(procCasts(sim, shadows) - before); math.Abs(got-mean) > 4*deviation {
-			t.Errorf("%d hits of a %v cast procced it %v times, want about %.0f", landings, castTime, got, mean)
-		}
-	}
+	checkCastTimeRate(t, sim, character, 21978, func() int32 { return procCasts(sim, shadows) })
 }
 
 // A long cast made instant, as Presence of Mind makes one, rolls Blade of Eternal Darkness 17780 on the
@@ -929,19 +935,7 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 
 	t.Run("cast time", func(t *testing.T) {
 		sim, character, bolts := wearer(t)
-		spell := fireSpell(&character.Unit)
-		const landings = 6000
-		for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
-			before := procs(sim, bolts)
-			for range landings {
-				landCastHits(t, sim, character, spell, castTime, 1300435)
-			}
-			want := castTimeChance(t, 1300435, castTime)
-			mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
-			if got := float64(procs(sim, bolts) - before); math.Abs(got-mean) > 4*deviation {
-				t.Errorf("%d hits of a %v cast procced it %v times, want about %.0f", landings, castTime, got, mean)
-			}
-		}
+		checkCastTimeRate(t, sim, character, 1300435, func() int32 { return procs(sim, bolts) })
 	})
 
 	t.Run("school", func(t *testing.T) {
@@ -975,7 +969,7 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 			character.OnPeriodicDamageDealt(sim, spell, result)
 		}},
 		{"spell fired as a proc whose row is one", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
-			spell.Flags |= core.SpellFlagPassiveSpell
+			spell.Flags |= core.SpellFlagPassiveSpell | core.SpellFlagProc
 			spell.ActionID = core.ActionID{SpellID: hurricaneTick}
 			character.OnSpellHitDealt(sim, spell, result)
 		}},
@@ -1000,18 +994,21 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 }
 
 // Kindling Stave 11750 rolls 1300781 on each landed harmful spell at the row's procs per minute on the
-// cast time of the spell's cast, at least castTimeFloor. A spell fired as a proc whose row is one never
-// rolls it, apart from Flamestrike's pulses, which report under the cast's id, and neither does a spell
-// whose row states no defense type, such as the landing that starts Arcane Missiles' channel. Each proc
-// casts 1300782 at the enemy hit.
+// cast time of the spell's cast, at least castTimeFloor. A spell fired as a proc whose own row is one
+// never rolls it, and neither does a spell whose row states no defense type, such as the landing that
+// starts Arcane Missiles' channel. Flamestrike's pulses, whose rows are not procs, roll it under the
+// cast's id. Each proc casts 1300782 at the enemy hit.
 func TestKindlingStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	const hurricaneTick, flamestrikeTick, flamestrikeCast = 1278759, 1279990, 10216
 	if !spelldata.MustFind(flamestrikeCast).IsAProc() {
 		t.Fatalf("want %d's row a proc", flamestrikeCast)
 	}
-	firedAsAProc := func(id core.ActionID) func(*core.Spell) {
+	firedAsAProc := func(id core.ActionID, rowIsAProc bool) func(*core.Spell) {
 		return func(spell *core.Spell) {
 			spell.Flags |= core.SpellFlagPassiveSpell
+			if rowIsAProc {
+				spell.Flags |= core.SpellFlagProc
+			}
 			spell.ActionID = id
 		}
 	}
@@ -1029,19 +1026,7 @@ func TestKindlingStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 
 	t.Run("cast time", func(t *testing.T) {
 		sim, character, fire := wearer(t)
-		spell := fireSpell(&character.Unit)
-		const landings = 6000
-		for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
-			before := procCasts(sim, fire)
-			for range landings {
-				landCastHits(t, sim, character, spell, castTime, 1300781)
-			}
-			want := castTimeChance(t, 1300781, castTime)
-			mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
-			if got := float64(procCasts(sim, fire) - before); math.Abs(got-mean) > 4*deviation {
-				t.Errorf("%d hits of a %v cast procced it %v times, want about %.0f", landings, castTime, got, mean)
-			}
-		}
+		checkCastTimeRate(t, sim, character, 1300781, func() int32 { return procCasts(sim, fire) })
 	})
 
 	// Each hit is dealt at an hour-long cast, a chance that cannot fail.
@@ -1051,12 +1036,9 @@ func TestKindlingStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 		want    int32
 	}{
 		{"spell", func(*core.Spell) {}, 1},
-		{"spell fired as a proc whose row is one", firedAsAProc(core.ActionID{SpellID: hurricaneTick}), 0},
-		{"spell fired as a proc whose row is not one", firedAsAProc(core.ActionID{SpellID: flamestrikeTick}), 1},
-		{"Flamestrike pulse under its cast's id", func(spell *core.Spell) {
-			firedAsAProc(core.ActionID{SpellID: flamestrikeCast, Tag: 1})(spell)
-			spell.ClassFlags = spelldata.MustFind(flamestrikeTick).ClassFlags
-		}, 1},
+		{"spell fired as a proc whose row is one", firedAsAProc(core.ActionID{SpellID: hurricaneTick}, true), 0},
+		{"spell fired as a proc whose row is not one", firedAsAProc(core.ActionID{SpellID: flamestrikeTick}, false), 1},
+		{"Flamestrike pulse under its cast's id", firedAsAProc(core.ActionID{SpellID: flamestrikeCast, Tag: 1}, false), 1},
 		{"spell whose row states no defense type", func(spell *core.Spell) { spell.DefenseType = core.DefenseTypeNone }, 0},
 	} {
 		t.Run(event.name, func(t *testing.T) {

@@ -938,9 +938,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-KindlingStave-11750"
  value: {
-  dps: 909.27999
-  tps: 730.47503
-  dtps: 9.09189
+  dps: 969.84118
+  tps: 778.54444
+  dtps: 9.36806
  }
 }
 dps_results: {

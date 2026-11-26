@@ -841,8 +841,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-KindlingStave-11750"
  value: {
-  dps: 822.50278
-  tps: 709.36067
+  dps: 823.30402
+  tps: 709.93044
  }
 }
 dps_results: {

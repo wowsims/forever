@@ -1,7 +1,7 @@
 # EV-0115: Draconic Infused Emblem, Zealot Plate and Moonshadow Stave proc rates
 
 - Claim: Draconic Infused Emblem 22268 procs 8% on each landed harmful spell hit, Zealot Plate 274651 procs 5% on
-  each landed melee swing taken outside its 15 s cooldown, and Moonshadow Stave 22458 procs 1.5 times a minute on the
+  each landed melee swing taken outside its 15 s cooldown, and Moonshadow Stave 22458 procs 1.6 times a minute on the
   cast time of each landed harmful spell, at least 1.5 s.
 - Sources: Forever dungeon reports on Warcraft Logs, listed per item below with the fights each wearer had the item on
 - Game build: 1.60.1.70862, 1.60.1.70888 and 1.60.1.70938, by report date (counts per item below); hotfix state not
@@ -78,14 +78,6 @@ their last proc.
 The chance is procs per minute times the cast time of the launching cast, at least 1.5 s, divided by 60, rolled when a
 harmful spell lands on a target; the rate is in §Count of the 2026-11-11 to 2026-11-26 reports.
 
-| Model                                      | Log-likelihood |
-| ------------------------------------------ | -------------: |
-| Procs per minute on cast time, per landing |        −3881.3 |
-| Flat 4.05% per landing                     |        −3887.7 |
-| Procs per minute per cast, misses rolling  |        −3886.6 |
-| Procs per minute, Hurricane ticks rolling  |          −4226 |
-| Hurricane cast rolling once                |        −3932.6 |
-
 Nothing else rolls it: Hurricane ticks 0 of 16,615, damage over time ticks 0.7 of 10,625, misses and resists 0 of 159,
 helpful casts 0 of 3,103, Thorns and melee 0 of 1,122. A Hurricane cast procs it on 85 of 591 casts and never twice, so
 it rolls once for each target until one procs. 18 procs stay unmatched.
@@ -103,21 +95,20 @@ it rolls once for each target until one procs. 18 procs stay unmatched.
 - Pull request: #1253
 
 The count runs EV-0219's method (§Method there): roll groups of the wearer's landings within the row's 10 ms cooldown,
-duplicate runs dropped (11), and each wearer's last stretch with no proc where 8 or more were due cut (13,168 groups).
-Both bolts fly at 20 yards a second, so a group procs when a bolt lands on one of its targets at most a travel window
-after it, and the window decides how many procs from other rolls (Hurricane casts) fall in by chance. Kindling Stave's
-druid wearers, whose proc lands at once, put that share at 0.3 % of procs for a 1.6 s window and 1.5 % for 2 s.
+killing blows and moved Devouring Plague applies out, duplicate runs dropped (11), and each wearer's last stretch with
+no proc where 8 or more were due cut (12,858 groups). Both bolts fly at 20 yards a second, so a group procs when a bolt
+lands on one of its targets at most a travel window after it, and the window decides how many procs from other rolls
+(Hurricane casts) fall in by chance. Kindling Stave's druid wearers, whose proc lands at once, put that share at 0.3 %
+of procs for a 1.6 s window and 1.5 % for 2 s.
 
-179,149 groups, 172,687 of them single target; Hurricane's cast and ticks are no roll here.
+172,929 groups, 167,374 of them single target; Hurricane's cast and ticks are no roll here.
 
 | Window | Procs | Procs per minute on cast time | Flat chance, log-likelihood against it |
 | -----: | ----: | ----------------------------- | -------------------------------------- |
-|  1.6 s | 8,134 | 1.515 (95 %: 1.485–1.545)     | 4.32 %, 217.4 lower                    |
-|  2.0 s | 8,398 | 1.565 (1.535–1.595)           | 4.47 %, 212.9 lower                    |
-|  2.5 s | 8,636 | 1.610 (1.580–1.640)           | 4.60 %, 188.8 lower                    |
+|  1.6 s | 8,131 | 1.5827 (95 %: 1.550–1.615)    | 4.50 %, 254.4 lower                    |
+|  2.0 s | 8,395 | 1.6340 (1.605–1.665)          | 4.65 %, 251.1 lower                    |
 
-With the chance share taken out the rate is 1.51 to 1.54 a minute. Single-target groups at a 1.6 s window: 1.5 s or
-instant 4.03 % (5,401 of 133,969), 2.2 to 2.8 s 6.26 % (2,413 of 38,543).
+With the chance share taken out the rate is 1.58 to 1.62 a minute, which rounds to 1.6 at the nearest 0.05.
 
 Reports: cvRTFb1qhGBKNkCD/1-24, p4R6gacHrbwtZPh1/1-4, hCfYgdqVk7QDRZGN/1-3, WKgT9mPJHnYa14Zy/1, f36RaB12wyDcTCGY/1-3,
 rPpHYfq3tNnwJRMd/5-19, NXMZV9xjvWpB7GtP/103-123, 7cpTkjaFB3mz6VgM/272-492, 24kgnZAXbKTW89x6/1-2,

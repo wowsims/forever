@@ -1,8 +1,8 @@
 # EV-0219: Kindling Stave proc rate
 
 - Claim: Kindling Stave 11750's Ignition 1300781 rolls once for each enemy a harmful spell the wearer casts lands on,
-  at 1.72 procs per minute on the cast time of the cast behind the hit, at least 1.5 s, and its 10 ms cooldown lets
-  one cast proc it once.
+  at 1.85 procs per minute on the cast time of the cast behind the hit, at least 1.5 s, and its 10 ms cooldown lets
+  one cast proc it once. A killing blow shows no proc.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every wearer stream of the item, listed with the fights
   each wearer had it on under §Reports; 389 reports, 397 wearers
 - Game build: 1.60.1.70888 to 1.60.1.71139 by report date (70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19
@@ -20,62 +20,68 @@ The proc is 1300782's fire damage on the target of the hit that rolled it, logge
 ## Method
 
 A roll is a landing on an enemy by an ability the wearer casts: direct damage or a debuff apply or refresh. Periodic
-ticks, misses and resists, wand Shoot, Auto Shot and physical hits are left out. A wearer's landings within 10 ms of
-the first form one roll group (the cooldown is the wearer's), which procs at most once, with chance 1 − (1 − p)^N for N
-landings. A group procs when an Ignition lands on one of its targets at most 60 ms after it. p is the procs per minute
-times the median cast time of the ability, at least 1.5 s, over 60. Runs logged in two reports (same wearer, start
-within 2 minutes) keep one copy (6 dropped), and a wearer's last stretch with no proc where 8 or more were due is cut
-(1,244 groups).
+ticks, misses and resists, wand Shoot, Auto Shot and physical hits are left out, and so are killing blows and
+Devouring Plague's applies within 50 ms after it drops from a dying target: neither ever shows an Ignition (Mind Blast
+0 of 346 killing blows, Shadow Word: Death 0 of 1,234, Fire Blast 0 of 763; moved Devouring Plague 0 of 4,017), and
+the proc lands on the enemy the hit struck, so the logs cannot tell a roll on a dead target from no roll. A wearer's
+landings within 10 ms of the first form one roll group (the cooldown is the wearer's), which procs at most once, with
+chance 1 − (1 − p)^N for N landings. A group procs when an Ignition lands on one of its targets at most 60 ms after it.
+p is the procs per minute times the median cast time of the ability, at least 1.5 s, over 60. Runs logged in two
+reports (same wearer, start within 2 minutes) keep one copy (6 dropped), and a wearer's last stretch with no proc where
+8 or more were due is cut (1,196 groups).
 
 ## Rate
 
-208,226 roll groups, 13,801 procs.
+198,490 roll groups, 13,740 procs. The fit is 1.8373 a minute, which rounds to 1.85 at the nearest 0.05.
 
 | Model                                | Fit                       | Log-likelihood |
 | ------------------------------------ | ------------------------- | -------------: |
-| Procs per minute on cast time        | 1.725 (95 %: 1.700–1.755) |       −47969.5 |
-| Linear in cast time (two parameters) | 0.6 % + 2.50 % a second   |       −47968.0 |
-| Flat chance per landing              | 4.72 %                    |       −48256.4 |
+| Procs per minute on cast time        | 1.837 (95 %: 1.810–1.865) |       −47074.5 |
+| Linear in cast time (two parameters) | 0.6 % + 2.70 % a second   |       −47069.0 |
+| Flat chance per landing              | 5.05 %                    |       −47332.1 |
 
 | Groups           |  Groups | Procs | Procs per minute    |
 | ---------------- | ------: | ----: | ------------------- |
-| Single target    | 173,166 | 8,715 | 1.810 (1.775–1.845) |
-| Area (2 or more) |  35,060 | 5,086 | 1.600 (1.560–1.640) |
-| Mage             | 106,985 | 8,943 | 1.750 (1.715–1.780) |
-| Priest           |  48,269 | 2,229 | 1.630 (1.565–1.695) |
-| Warlock          |  32,055 | 1,554 | 1.775 (1.695–1.860) |
-| Druid            |  15,449 |   802 | 1.800 (1.685–1.920) |
-| Shaman           |   5,468 |   273 | 1.455 (1.295–1.625) |
+| Single target    | 167,283 | 8,693 | 1.870 (1.830–1.905) |
+| Area (2 or more) |  31,207 | 5,047 | 1.785 (1.740–1.835) |
+| Mage             | 103,500 | 8,928 | 1.845 (1.810–1.880) |
+| Priest           |  43,067 | 2,188 | 1.865 (1.795–1.940) |
+| Warlock          |  31,651 | 1,549 | 1.800 (1.715–1.885) |
+| Druid            |  14,974 |   802 | 1.870 (1.750–1.995) |
+| Shaman           |   5,298 |   273 | 1.515 (1.345–1.695) |
 
-Single-target groups by cast time: 1.5 s or instant 4.59 % (6,629 of 144,577), 1.5 to 2.2 s 5.29 % (223 of 4,216), 2.2
-to 2.8 s 7.36 % (1,398 of 18,989), 2.8 s and longer 8.64 % (465 of 5,384). The rate holds across hotfix periods: 1.65
-before push 114313, 1.65 from it to 2026-11-23, 1.69 after (per landing, before the cooldown grouping and the cut).
+Single-target groups by cast time: 1.5 s or instant 4.74 % (6,610 of 139,588), 1.5 to 2.2 s 5.52 % (224 of 4,056), 2.2
+to 2.8 s 7.55 % (1,395 of 18,469), 2.8 s and longer 8.97 % (464 of 5,170). Per landing, before the cooldown grouping,
+the cut and the killing blow rule, the rate reads 1.65 before push 114313, 1.65 from it to 2026-11-23 and 1.69 after.
 
 ## Per ability
 
-Per landing, before the cooldown grouping, the duplicate drop and the cut; cast time is the median measured from each
-cast's start, talents and cast speed included.
+Per landing, killing blows and moved Devouring Plague applies out; each Ignition is shared equally among the cast
+landings on its target in the 60 ms before it, so a debuff landing in the same millisecond as a hit (a queued Mind
+Flay beside Mind Blast) takes no proc from it. Cast time is the median measured from each cast's start, talents and
+cast speed included.
 
-| Spell             | Cast time | Landings | Procs | Chance |
-| ----------------- | --------- | -------: | ----: | -----: |
-| Arcane Explosion  | instant   |   64,599 | 2,682 |  4.15% |
-| Arcane Missiles   | instant   |   26,651 | 1,362 |  5.11% |
-| Mind Flay         | instant   |   12,186 |   682 |  5.60% |
-| Shadow Word: Pain | instant   |    9,836 |   482 |  4.90% |
-| Fire Blast        | instant   |    8,207 |   310 |  3.78% |
-| Corruption        | instant   |    4,029 |   198 |  4.91% |
-| Arcane Blast      | 1.5 s     |    8,977 |   479 |  5.34% |
-| Searing Pain      | 1.5 s     |    3,399 |   184 |  5.41% |
-| Mind Blast        | 1.5 s     |    6,740 |   143 |  2.12% |
-| Wrath             | 1.47 s    |    5,374 |   244 |  4.54% |
-| Frostbolt         | 2.5 s     |   14,649 | 1,006 |  6.87% |
-| Starfire          | 2.45 s    |    2,388 |   179 |  7.50% |
-| Flamestrike       | 3.0 s     |    7,386 |   511 |  6.92% |
-| Arcane Wrath      | 3.04 s    |    3,255 |   288 |  8.85% |
-| Fireball          | 3.0 s     |      472 |    43 |  9.11% |
+| Spell              | Cast time | Landings | Procs | Chance |
+| ------------------ | --------- | -------: | ----: | -----: |
+| Arcane Explosion   | instant   |   60,288 | 2,682 |  4.45% |
+| Arcane Missiles    | instant   |   26,041 | 1,358 |  5.21% |
+| Mind Flay          | instant   |   12,186 |   588 |  4.83% |
+| Shadow Word: Pain  | instant   |    9,836 |   490 |  4.98% |
+| Fire Blast         | instant   |    7,444 |   337 |  4.53% |
+| Corruption         | instant   |    4,029 |   208 |  5.16% |
+| Devouring Plague   | instant   |    2,413 |   104 |  4.31% |
+| Shadow Word: Death | instant   |    1,725 |    68 |  3.94% |
+| Arcane Blast       | 1.5 s     |    8,834 |   462 |  5.23% |
+| Mind Blast         | 1.5 s     |    6,394 |   278 |  4.35% |
+| Searing Pain       | 1.5 s     |    3,336 |   180 |  5.40% |
+| Wrath              | 1.47 s    |    5,191 |   244 |  4.70% |
+| Frostbolt          | 2.5 s     |   13,994 | 1,002 |  7.16% |
+| Starfire           | 2.45 s    |    2,270 |   178 |  7.84% |
+| Flamestrike        | 3.0 s     |    7,220 |   500 |  6.93% |
+| Arcane Wrath       | 3.04 s    |    3,099 |   286 |  9.23% |
 
-Each Arcane Missiles missile rolls. Mind Blast (2.12 %) and Devouring Plague (1.70 %) read below the rest and are not
-explained.
+Each Arcane Missiles missile rolls, and Mind Flay rolls once a cast, on the landing that starts its channel. Cone of
+Cold (3.55 %) and Frost Nova (3.24 %) read below the instants on several targets and are not explained.
 
 ## What else rolls in game
 
@@ -86,7 +92,7 @@ explained.
   on several targets under the cooldown gives (Arcane Explosion 4.15 %).
 - Arcane Missiles rolls on its missiles' landings alone. The game logs one cast for each missile (10274 and 10273,
   31,752 casts), and 13 Ignitions land on a cast's target within 60 ms of the cast with no missile landing before them,
-  0.04 % of the casts against the 4.3 % a roll at the cast would give.
+  0.04 % of the casts against the 4.6 % a roll at the cast would give.
 - Hellfire Effect rolls nothing (0 of 39,595), nor do the wearer's spells fired as a proc (Ignite, Shadow Weaving,
   Winter's Chill, Frostbite).
 

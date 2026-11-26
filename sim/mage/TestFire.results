@@ -841,8 +841,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-KindlingStave-11750"
  value: {
-  dps: 922.23761
-  tps: 921.68713
+  dps: 918.82666
+  tps: 918.15441
  }
 }
 dps_results: {

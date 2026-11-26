@@ -390,10 +390,6 @@ func init() {
 			}
 			bolt.Cast(sim, result.Target)
 		}, castTimePPM(row))
-		priced := trigger.ExtraCondition
-		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
-			return !firedAsAProc(spell) && priced(sim, spell, result)
-		}
 		trigger.Name = "Moonshadow Stave"
 		trigger.ActionID = core.ActionID{ItemID: 22458}
 		trigger.TriggerImmediately = true
@@ -405,21 +401,16 @@ func init() {
 	//
 	// Harmful spell casts have a chance to deal 70 Fire damage. Deals 3 times as much damage to Plants.
 	//
-	// 1300781 rolls once for each enemy a harmful spell hit lands on, Arcane Missiles' missiles and
-	// Flamestrike's pulses included, at the row's procs per minute on the cast time of the cast behind
-	// the hit, at least 1.5 s (castTimePPM); a pulse is priced as an instant. Its 10 ms cooldown lets one
-	// cast proc it once, and each proc deals 1300782 to that enemy at once. Other spells fired as a proc,
-	// the pulses of Blizzard, Rain of Fire, Hurricane and Hellfire among them, roll nothing. In game
-	// Blizzard, Rain of Fire and Hurricane casts proc it on an enemy in their area at the cast, and
-	// Counterspell's interrupt procs it; the sim leaves both out (EV-0219). The sim has no Plant creature
-	// type, so the triple damage to Plants is left out.
+	// 1300781 rolls once for each enemy a harmful spell lands on, at the row's procs per minute on the
+	// cast time of the cast behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one
+	// cast proc it once. Each proc deals 1300782 to that enemy at once. Spells fired as a proc roll
+	// nothing, and the curses and hex the sim registers with no proc mask neither. In game Hurricane's
+	// cast and Counterspell's interrupt proc it too; the sim leaves both out (EV-0219). The sim has no
+	// Plant creature type.
 	core.NewItemEffect(11750, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300781)
 		ignition := spelldata.MustFind(1300782)
-		// Flamestrike's pulses report under the cast's id, whose row is a proc; every rank's pulse row
-		// carries these class flags and no other row does.
-		flamestrikePulse := spelldata.MustFind(1279990).ClassFlags
 
 		damage := ignition.DamageEffect()
 		config := procSpellConfig(character, ignition)
@@ -431,10 +422,6 @@ func init() {
 		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			fire.Cast(sim, result.Target)
 		}, castTimePPM(row))
-		priced := trigger.ExtraCondition
-		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
-			return (!firedAsAProc(spell) || spell.ClassFlags == flamestrikePulse) && priced(sim, spell, result)
-		}
 		trigger.Name = "Kindling Stave"
 		trigger.ActionID = core.ActionID{ItemID: 11750}
 		trigger.TriggerImmediately = true
@@ -947,9 +934,8 @@ func creatureFamilyMultiplier(target *core.Unit, multiplier float64, families ..
 // cast's end for a missile, so one still in flight keeps it when the next cast of the spell starts. It
 // is the time the cast took after talents, Presence of Mind and cast speed. The chance depends on the
 // hit, so Chance(1) leaves core no roll of its own and the condition draws it after the cooldown check
-// and before the cooldown starts. A spell whose row states no defense type is not a harmful spell to
-// the trigger, so the never-miss landing that starts Arcane Missiles' or Penance's channel rolls
-// nothing and their missiles do (EV-0219).
+// and before the cooldown starts. A spell with no defense type rolls nothing, so the landing that
+// starts Arcane Missiles' channel rolls nothing and its missiles do (EV-0025, EV-0219).
 // TODO: Verify in game whether cast speed shortens the time the chance is priced on; Omen of Clarity's
 // is priced on the unhasted time.
 func castTimePPM(row *spelldata.Spell) spelldata.ProcOpt {

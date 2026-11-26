@@ -1257,9 +1257,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-KindlingStave-11750"
  value: {
-  dps: 880.63793
-  tps: 794.59733
-  dtps: 4.30715
+  dps: 880.3837
+  tps: 795.33249
+  dtps: 4.33965
  }
 }
 dps_results: {

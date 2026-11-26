@@ -929,8 +929,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-KindlingStave-11750"
  value: {
-  dps: 819.11823
-  tps: 584.25983
+  dps: 819.45126
+  tps: 584.5062
   dtps: 5.95728
  }
 }

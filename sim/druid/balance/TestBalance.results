@@ -1192,9 +1192,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-KindlingStave-11750"
  value: {
-  dps: 845.15327
-  tps: 678.21775
-  dtps: 6.41142
+  dps: 849.51651
+  tps: 681.62072
+  dtps: 6.53015
  }
 }
 dps_results: {
@@ -1392,9 +1392,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-MoonshadowStave-22458"
  value: {
-  dps: 843.98037
-  tps: 677.50423
-  dtps: 6.8703
+  dps: 842.88269
+  tps: 676.58848
+  dtps: 6.84699
  }
 }
 dps_results: {
