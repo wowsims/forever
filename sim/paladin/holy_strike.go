@@ -3,6 +3,7 @@ package paladin
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var HolyStrikeRankMap = spellData.HolyStrike
@@ -28,7 +29,7 @@ func (paladin *Paladin) registerHolyStrike(_ int32, rank *spelldata.Spell) {
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ClassSpellMask = SpellMaskHolyStrike
 	config.TakenBonusCoefficient = coefficient
-	config.VersusStats = []stats.Stat{stats.AttackPower, stats.SpellDamage}
+	config.VersusStats = []stats.Stat{stats.AttackPower}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		weaponDamage := spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
