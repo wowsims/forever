@@ -714,10 +714,10 @@
 		"versus": {
 			"partial": "{{name}} {{matched}}/{{total}}",
 			"target": "{{name}} (Target {{number}})",
-			"active_targets_one": "Active: the target is {{targets}}",
+			"active_targets_one": "Active: target is {{targets}}",
 			"active_targets_other": "Active on all {{count}} targets",
 			"active_some": "Active on {{matched}} of {{total}} targets",
-			"inactive_targets_one": "Inactive: the target is {{targets}}",
+			"inactive_targets_one": "Inactive: target is {{targets}}",
 			"inactive_targets_other": "Inactive: targets are {{targets}}",
 			"no_targets": "Inactive: the encounter has no targets",
 			"active_area": "Active: the encounter is in a {{area}} area",
@@ -3746,6 +3746,8 @@
 				"effect_damage": "×{{factor}} damage",
 				"effect_restore": "×{{factor}} restored",
 				"effect_proc_chance": "×{{factor}} proc chance",
+				"effect_crit_chance": "×{{factor}} crit chance",
+				"effect_proc_only": "Procs only against these",
 				"partial": "on {{matched}}/{{total}} targets",
 				"no_target": "· no target",
 				"not_in_area": "· not in this area"

@@ -67,8 +67,8 @@ describe('VersusChips', () => {
 	it('follows the encounter as its targets and areas change', () => {
 		const { setEncounter } = setup(ITEM, [target(MobType.MobTypeBeast)]);
 		expect(chips().map(({ state, description }) => [state, description])).toEqual([
-			['off', '+81 Attack Power. Inactive: the target is Beast'],
-			['off', 'Inactive: the target is Beast'],
+			['off', '+81 Attack Power. Inactive: target is Beast'],
+			['off', 'Inactive: target is Beast'],
 			['off', '+28 Attack Power. Inactive: the encounter is not in a Snowy area'],
 		]);
 
@@ -91,7 +91,21 @@ describe('VersusChips', () => {
 		const wolf = screen.getAllByTestId('gear-versus-chip')[1];
 		expect(wolf.dataset.state).toBe('on');
 		fireEvent.mouseEnter(wolf);
-		expect((await screen.findByRole('tooltip')).textContent).toBe('Against Wolf×1.5 damageActive: the target is Wolf');
+		expect((await screen.findByRole('tooltip')).textContent).toBe('Against Wolf×1.5 damageActive: target is Wolf');
+	});
+
+	it('shows the crit chance factor and the proc-only note of the worn item', async () => {
+		const wolf = (kind: VersusEffectKind, multiplier: number) =>
+			VersusEffect.create({ itemId: 1, creatureFamilies: [CreatureFamily.CreatureFamilyWolf], multiplier, kind });
+		setup(
+			ITEM,
+			[target(MobType.MobTypeBeast, CreatureFamily.CreatureFamilyWolf)],
+			[],
+			[wolf(VersusEffectKind.VersusEffectKindCritChance, 2), wolf(VersusEffectKind.VersusEffectKindProcOnly, 0)],
+		);
+
+		fireEvent.mouseEnter(screen.getAllByTestId('gear-versus-chip')[1]);
+		expect((await screen.findByRole('tooltip')).textContent).toBe('Against Wolf×2 crit chanceProcs only against theseActive: target is Wolf');
 	});
 
 	it('shows nothing for an item that names no kind of target or area', () => {

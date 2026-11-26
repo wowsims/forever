@@ -313,8 +313,9 @@ func init() {
 		[]shared.ItemVariant{
 			{ItemID: 269741, ItemName: "Scented Runewood Brooch"},
 		})
-	shared.DamageProcExtras[269741] = func(_ *core.Character, config *core.SpellConfig) {
-		config.VersusProc = &core.VersusProc{Source: core.ActionID{ItemID: 269741}, VersusBonus: core.VersusBonus{Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyFurbolg}}}
+	shared.DamageProcExtras[269741] = func(character *core.Character, config *core.SpellConfig) {
+		furbolgs := character.NewItemVersusBonus(269741, proto.VersusEffectKind_VersusEffectKindProcOnly, core.VersusBonus{Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyFurbolg}})
+		config.VersusProc = &core.VersusProc{Source: core.ActionID{ItemID: 269741}, VersusBonus: *furbolgs}
 	}
 
 	// Blackhand's Breadth
@@ -331,7 +332,8 @@ func init() {
 		row := spelldata.MustFind(1318944)
 		crit := row.EffectN(1).BaseValue()
 		source := core.ActionID{ItemID: 13965}
-		orcsAndOgres := &core.VersusBonus{Multiplier: 2, Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc, proto.CreatureFamily_CreatureFamilyOgre}}
+		orcsAndOgres := character.NewItemVersusBonus(13965, proto.VersusEffectKind_VersusEffectKindCritChance,
+			core.VersusBonus{Multiplier: 2, Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc, proto.CreatureFamily_CreatureFamilyOgre}})
 
 		marks := character.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 			return target.RegisterAura(core.Aura{

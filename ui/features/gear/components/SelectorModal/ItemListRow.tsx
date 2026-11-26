@@ -68,31 +68,25 @@ export const ItemListRowView = ({
 				{ilvl || null}
 			</div>
 		)}
-		<div className="relative flex flex-1 items-center gap-1" data-testid="selector-modal-list-label-cell" data-active={active ? '' : undefined}>
-			<div className="flex min-w-[10vw] items-center gap-2">
-				<WowheadAnchor
-					className="ui-selector-modal-list-item-link"
-					testId="selector-modal-list-item-link"
-					href={href || undefined}
-					onActivate={onEquip}>
-					<img className="ui-selector-modal-list-item-icon" data-testid="selector-modal-list-item-icon" src={iconUrl || undefined} alt="" />
-					<span
-						className={clsx('ui-selector-modal-list-item-name', itemQualityClassName(quality))}
-						data-testid="selector-modal-list-item-name"
-						data-quality={quality}>
-						{name}
-						{!!nameDescription && <NameDescriptionLabel nameDescription={nameDescription} />}
-					</span>
-				</WowheadAnchor>
-				{versus}
-			</div>
+		<div className="ui-selector-modal-list-label-cell" data-testid="selector-modal-list-label-cell" data-active={active ? '' : undefined}>
+			<WowheadAnchor className="ui-selector-modal-list-item-link" testId="selector-modal-list-item-link" href={href || undefined} onActivate={onEquip}>
+				<img className="ui-selector-modal-list-item-icon" data-testid="selector-modal-list-item-icon" src={iconUrl || undefined} alt="" />
+				<span
+					className={clsx('ui-selector-modal-list-item-name', itemQualityClassName(quality))}
+					data-testid="selector-modal-list-item-name"
+					data-quality={quality}>
+					{name}
+					{!!nameDescription && <NameDescriptionLabel nameDescription={nameDescription} />}
+				</span>
+			</WowheadAnchor>
+			<div className="ui-selector-modal-list-item-notice">{notice}</div>
+			<div className="ui-selector-modal-list-item-versus">{versus}</div>
 			{discovered && (
 				// The icon's box, outside the link, so hovering the dot opens its own tooltip and not the item's.
 				<div className="pointer-events-none absolute top-1/2 left-0 z-1 size-12 -translate-y-1/2">
 					<DiscoveredDot label={discovered} />
 				</div>
 			)}
-			{notice}
 		</div>
 		{source !== undefined && (
 			<div className="w-64 max-md:hidden" data-testid="selector-modal-list-item-source-container">

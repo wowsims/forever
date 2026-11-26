@@ -5,6 +5,7 @@ package forever_test
 import (
 	"fmt"
 	"math"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -333,6 +334,12 @@ func TestSwineFistsDealDamageOnlyToSwine(t *testing.T) {
 	character := sim.Raid.Parties[0].Players[0].GetCharacter()
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
 	swine, aquatic := sim.Encounter.ActiveTargetUnits[0], sim.Encounter.ActiveTargetUnits[1]
+	playerStats := &proto.PlayerStats{}
+	character.FillPlayerStats(playerStats)
+	if sheet := playerStats.VersusEffects; len(sheet) != 1 || sheet[0].ItemId != 10760 || sheet[0].Kind != proto.VersusEffectKind_VersusEffectKindProcOnly ||
+		!slices.Equal(sheet[0].CreatureFamilies, []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilySwine}) {
+		t.Errorf("the stats sheet lists %v, want the proc against Swine only", sheet)
+	}
 	damage := character.GetSpell(core.ActionID{SpellID: 1293782})
 	if damage == nil {
 		t.Fatal("10760 registers no damage spell")

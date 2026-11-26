@@ -1135,8 +1135,17 @@ func TestExtraAttackVersusSwingNamesTheItem(t *testing.T) {
 }
 
 // Blackhand's Breadth 13965 marks the target with 1318944's crit chance for the wearer's hits on it,
-// doubled on an Orc or an Ogre, where the combat log names the item for all of it.
+// doubled on an Orc or an Ogre, where the combat log names the item for all of it. The wearer's stats
+// sheet lists the doubling against both families.
 func TestBlackhandsBreadthDoublesItsMarkOnOrcsAndOgres(t *testing.T) {
+	_, wearer := trinketWarriorFacing(t, 13965, 810, 0, proto.MobType_MobTypeHumanoid)
+	playerStats := &proto.PlayerStats{}
+	wearer.FillPlayerStats(playerStats)
+	if sheet := playerStats.VersusEffects; len(sheet) != 1 || sheet[0].ItemId != 13965 || sheet[0].Kind != proto.VersusEffectKind_VersusEffectKindCritChance ||
+		sheet[0].Multiplier != 2 || !slices.Equal(sheet[0].CreatureFamilies, []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc, proto.CreatureFamily_CreatureFamilyOgre}) {
+		t.Errorf("the stats sheet lists %v, want the crit chance doubled against Orcs and Ogres", sheet)
+	}
+
 	crit := spelldata.MustFind(1318944).EffectN(1).BaseValue()
 	if crit <= 0 {
 		t.Fatal("1318944 states no crit chance")

@@ -478,11 +478,15 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		['Ranged Attack Power', amount],
 	];
 	const serpentbane = ['Serpentbane Crown', '×2 damage'];
+	const crit = ["Blackhand's Breadth", '×2 crit chance'];
 	const targetGroups = [
 		{ label: 'Against Beast · no target', state: 'off', lines: [['Damage', '+5%'], serpentbane] },
 		{ label: 'Against Humanoid', state: 'on', lines: [...attackPower('+18'), ['Critical Strike Damage', '+3%']] },
 		{ label: 'Against Undead · no target', state: 'off', lines: attackPower('+99') },
 		{ label: 'Against Earth Elemental · no target', state: 'off', lines: [['Fist of Stone', '×3 restored']] },
+		{ label: 'Against Swine · no target', state: 'off', lines: [['Swine Fists', 'Procs only against these']] },
+		{ label: 'Against Orc · no target', state: 'off', lines: [crit] },
+		{ label: 'Against Ogre · no target', state: 'off', lines: [crit] },
 		{ label: 'Against Dwarf · no target', state: 'off', lines: [['Hand of Justice', '×3 proc chance']] },
 		{ label: 'Against Dinosaur · no target', state: 'off', lines: [["Bolt's Charged Eyeball", '×3 damage']] },
 		{ label: 'Against Serpentine · no target', state: 'off', lines: [serpentbane] },

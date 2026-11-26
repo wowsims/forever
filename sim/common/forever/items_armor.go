@@ -78,7 +78,8 @@ func init() {
 		damage := row.DamageEffect()
 
 		config := procSpellConfig(character, row)
-		config.VersusProc = &core.VersusProc{Source: core.ActionID{ItemID: 10760}, VersusBonus: core.VersusBonus{Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilySwine}}}
+		swine := character.NewItemVersusBonus(10760, proto.VersusEffectKind_VersusEffectKindProcOnly, core.VersusBonus{Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilySwine}})
+		config.VersusProc = &core.VersusProc{Source: core.ActionID{ItemID: 10760}, VersusBonus: *swine}
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}

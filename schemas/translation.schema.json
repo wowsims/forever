@@ -12776,6 +12776,12 @@
 								"effect_proc_chance": {
 									"type": "string"
 								},
+								"effect_crit_chance": {
+									"type": "string"
+								},
+								"effect_proc_only": {
+									"type": "string"
+								},
 								"partial": {
 									"type": "string"
 								},
@@ -12796,6 +12802,8 @@
 								"effect_damage",
 								"effect_restore",
 								"effect_proc_chance",
+								"effect_crit_chance",
+								"effect_proc_only",
 								"partial",
 								"no_target",
 								"not_in_area"

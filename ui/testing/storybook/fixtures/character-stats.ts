@@ -106,5 +106,21 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindProcChance,
 		},
+		{
+			itemId: 13965,
+			itemName: "Blackhand's Breadth",
+			mobTypes: [],
+			creatureFamilies: [CreatureFamily.CreatureFamilyOrc, CreatureFamily.CreatureFamilyOgre],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindCritChance,
+		},
+		{
+			itemId: 10760,
+			itemName: 'Swine Fists',
+			mobTypes: [],
+			creatureFamilies: [CreatureFamily.CreatureFamilySwine],
+			multiplier: 0,
+			kind: VersusEffectKind.VersusEffectKindProcOnly,
+		},
 	],
 };

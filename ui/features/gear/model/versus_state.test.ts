@@ -1,8 +1,9 @@
+import { VersusEffect, VersusEffectKind } from '@generated/proto/api';
 import { AreaType, CreatureFamily, MobType, Target } from '@generated/proto/common';
 import { UIItem } from '@generated/proto/ui';
 import { describe, expect, it } from 'vitest';
 
-import { areaState, familyState, itemVersusChips, mobTypeState, namesVersus } from './versus_state';
+import { areaState, familyState, itemVersusChips, mobTypeState, namesVersus, versusEffectFactor } from './versus_state';
 
 const target = (mobType: MobType, creatureFamily = CreatureFamily.CreatureFamilyUnknown) => Target.create({ mobType, creatureFamily });
 
@@ -80,5 +81,18 @@ describe('itemVersusChips', () => {
 		expect(namesVersus(item)).toBe(false);
 		expect(itemVersusChips(item, [target(MobType.MobTypeUndead)], [AreaType.AreaTypeSnowy])).toEqual([]);
 		expect(namesVersus(UIItem.create({ areaTypes: [AreaType.AreaTypeSnowy] }))).toBe(true);
+	});
+});
+
+describe('versusEffectFactor', () => {
+	const read = (kind: VersusEffectKind, multiplier: number) => versusEffectFactor(VersusEffect.create({ kind, multiplier }));
+
+	it('gives a key for every kind of effect the sim reports', () => {
+		const keys = Object.values(VersusEffectKind)
+			.filter((kind): kind is VersusEffectKind => typeof kind === 'number')
+			.map(kind => read(kind, 2));
+
+		expect(new Set(keys).size).toBe(keys.length);
+		for (const key of keys) expect(key).toMatch(/^sidebar\.character_stats\.versus\.effect_/);
 	});
 });

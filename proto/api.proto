@@ -776,6 +776,8 @@ enum VersusEffectKind {
 	VersusEffectKindDamage = 0;
 	VersusEffectKindRestore = 1; // The mana, rage or energy the spell restores.
 	VersusEffectKindProcChance = 2; // How likely the item's proc is.
+	VersusEffectKindCritChance = 3; // The crit chance the item adds against the target, as a multiple of its stated amount.
+	VersusEffectKindProcOnly = 4; // The item's proc fires against these targets only.
 }
 message PartyStats {
 	repeated PlayerStats players = 1;
