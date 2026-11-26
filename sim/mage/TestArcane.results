@@ -189,7 +189,7 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-BookoftheDead-13353"
  value: {
-  dps: 855.5235
+  dps: 855.5259
   tps: 725.51596
  }
 }

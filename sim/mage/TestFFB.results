@@ -189,7 +189,7 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-BookoftheDead-13353"
  value: {
-  dps: 888.98453
+  dps: 888.98693
   tps: 904.45223
  }
 }

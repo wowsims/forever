@@ -14,10 +14,10 @@ var GuardianCreatures = map[int32]shared.GuardianCreature{
 }
 
 // Book of the Dead 13353: "Summons a Skeleton that will protect you for 1min." The skeleton has the level 60 creature
-// health and armor and swings every 2 s for 2 s of the creature dps, 15% either side (EV-0217).
+// health and armor and swings every 2 s for 2 s of the creature dps, 14% either side (EV-0217).
 var summonedSkeleton = shared.GuardianCreature{
 	Name:   "Summoned Skeleton",
 	Health: 1.0,
 	Armor:  1.0,
-	Swing:  shared.GuardianSwing{Share: 1.0, Speed: 2.0, Variance: 0.15},
+	Swing:  shared.GuardianSwing{Share: 1.0, Speed: 2.0, Variance: 0.14},
 }
