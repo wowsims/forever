@@ -4,7 +4,6 @@ import { Spec, Stat } from '@generated/proto/common';
 import { Stats } from '@sim/proto/stats';
 
 import DefaultsJson from './defaults.siml';
-import DefaultGearJson from './gear_sets/default.gear.siml';
 
 // The spec's defaults, from defaults.siml.
 export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecBalanceDruid, DefaultsJson);
@@ -13,7 +12,7 @@ export const StandardRotation = PresetUtils.makePresetAPLRotation('Default', Def
 
 export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', Defaults.talents);
 
-export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultGearJson, { devOnly: true });
+export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultsJson.player.equipment, { devOnly: true });
 
 // Starts on Auto as the page does, which runs the same rotation.
 export const DefaultBuild = PresetUtils.makePresetBuildFromSiml('Default', Spec.SpecBalanceDruid, DefaultsJson, {

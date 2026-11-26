@@ -20,16 +20,17 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// The rotation defaults.siml holds, under the label the expected results name.
-func defaultRotation() core.RotationCombo {
+// The gear set and rotation defaults.siml holds, under the labels the expected results name.
+func defaultSetup() (core.GearSetCombo, core.RotationCombo) {
 	f, err := siml.ReadFile("../../../ui/specs/druid/balance/defaults.siml")
 	if err != nil {
 		panic(err)
 	}
-	return core.RotationCombo{Label: "default", Rotation: f.Rotation()}
+	return core.GearSetCombo{Label: "default", GearSet: f.Equipment()}, core.RotationCombo{Label: "default", Rotation: f.Rotation()}
 }
 
 func TestBalance(t *testing.T) {
+	gearSet, rotation := defaultSetup()
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
 			Class:      proto.Class_ClassDruid,
@@ -42,9 +43,9 @@ func TestBalance(t *testing.T) {
 					},
 				},
 			}},
-			GearSet:          core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "default"),
+			GearSet:          gearSet,
 			Talents:          DefaultTalents,
-			Rotation:         defaultRotation(),
+			Rotation:         rotation,
 			Consumables:      DefaultConsumables,
 			Profession1:      proto.Profession_Enchanting,
 			Profession2:      proto.Profession_Tailoring,
