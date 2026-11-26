@@ -1865,10 +1865,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-ShimmeringPlatinumWarhammer-15418"
  value: {
-  dps: 911.93518
-  tps: 745.17409
-  dtps: 5.3271
-  hps: 27.59386
+  dps: 915.71562
+  tps: 748.45696
+  dtps: 5.23193
+  hps: 27.59589
  }
 }
 dps_results: {

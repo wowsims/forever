@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 854.23401
+  tps: 688.54
+  dtps: 9.36422
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-AnkhofLife-1713"
  value: {
   dps: 967.76434
