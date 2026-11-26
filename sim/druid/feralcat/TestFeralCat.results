@@ -776,8 +776,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 801.21292
-  tps: 594.87578
+  dps: 797.59135
+  tps: 592.30446
   hps: 45.98722
  }
 }

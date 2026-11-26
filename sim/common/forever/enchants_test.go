@@ -976,3 +976,26 @@ func TestLesserBeastslayerAddsDamageAgainstBeasts(t *testing.T) {
 		}
 	}
 }
+
+// Enchant 2H Weapon - Grand Arcanist 7941 puts up 1231138, whose spell power rides on the buff while
+// its E_ENERGIZE restores the row's mana with each proc.
+func TestGrandArcanistRestoresItsBuffsManaWithEachProc(t *testing.T) {
+	gain := spelldata.MustFind(1231138).EnergizeEffect()
+	if gain == spelldata.NilEffect || gain.Max() <= 0 {
+		t.Fatal("1231138 restores no mana, nothing to check")
+	}
+	items := weaponSlots(1613, 0)
+	items[proto.ItemSlot_ItemSlotMainHand].Enchant = 7941
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassPaladin, &proto.EquipmentSpec{Items: items})
+	character.SpendMana(sim, character.CurrentMana(), character.NewManaMetrics(core.ActionID{SpellID: instantSpellID}))
+	buff := character.GetAura("Enchant 2H Weapon - Grand Arcanist Proc")
+	if buff == nil {
+		t.Fatal("7941 registers no buff")
+	}
+
+	spell := fireSpell(&character.Unit)
+	hitUntil(t, func() { dealHit(t, sim, character, spell) }, buff.IsActive)
+	if got := spellGain(character, 1231138); got.Events != 1 || got.Gain < gain.Min() || got.Gain > gain.Max() {
+		t.Errorf("the proc restored %v mana over %d gains, want one gain of %v to %v", got.Gain, got.Events, gain.Min(), gain.Max())
+	}
+}

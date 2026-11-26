@@ -910,9 +910,9 @@ func TestBladeOfEternalDarknessRestoresManaWithEachProc(t *testing.T) {
 }
 
 // Moonshadow Stave 22458 rolls 1300435 on each landed harmful spell at the row's procs per minute on the
-// cast time of the spell's cast, at least castTimeFloor, a landing that deals no damage too. A miss, a
-// damage over time tick and a spell fired as a proc whose row is one never roll. Each proc casts
-// Shadow 1300437 or Arcane 1300438, one in two each.
+// cast time of the spell's cast, at least castTimeFloor, a landing that deals no damage and a magic
+// spell with no proc mask, as a curse is, too. A miss, a damage over time tick and a spell fired as a
+// proc whose row is one never roll. Each proc casts Shadow 1300437 or Arcane 1300438, one in two each.
 func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	const hurricaneTick, flamestrikeTick = 1278759, 1279990
 	if !spelldata.MustFind(hurricaneTick).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {
@@ -960,6 +960,10 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 		{"debuff application that deals no damage", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
 			character.OnSpellHitDealt(sim, spell, result)
 		}},
+		{"magic spell with no proc mask", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			spell.ProcMask = core.ProcMaskEmpty
+			character.OnSpellHitDealt(sim, spell, result)
+		}},
 		{"miss", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
 			result.Outcome = core.OutcomeMiss
 			character.OnSpellHitDealt(sim, spell, result)
@@ -994,7 +998,8 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 }
 
 // Kindling Stave 11750 rolls 1300781 on each landed harmful spell at the row's procs per minute on the
-// cast time of the spell's cast, at least castTimeFloor. A spell fired as a proc whose own row is one
+// cast time of the spell's cast, at least castTimeFloor. A magic spell with no proc mask, as a curse or
+// Counterspell is, rolls it and a Physical one does not. A spell fired as a proc whose own row is one
 // never rolls it, and neither does a spell whose row states no defense type, such as the landing that
 // starts Arcane Missiles' channel. Flamestrike's pulses, whose rows are not procs, roll it under the
 // cast's id. Each proc casts 1300782 at the enemy hit.
@@ -1036,6 +1041,11 @@ func TestKindlingStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 		want    int32
 	}{
 		{"spell", func(*core.Spell) {}, 1},
+		{"magic spell with no proc mask", func(spell *core.Spell) { spell.ProcMask = core.ProcMaskEmpty }, 1},
+		{"Physical spell with no proc mask", func(spell *core.Spell) {
+			spell.ProcMask = core.ProcMaskEmpty
+			spell.SpellSchool = core.SpellSchoolPhysical
+		}, 0},
 		{"spell fired as a proc whose row is one", firedAsAProc(core.ActionID{SpellID: hurricaneTick}, true), 0},
 		{"spell fired as a proc whose row is not one", firedAsAProc(core.ActionID{SpellID: flamestrikeTick}, false), 1},
 		{"Flamestrike pulse under its cast's id", firedAsAProc(core.ActionID{SpellID: flamestrikeCast, Tag: 1}, false), 1},
@@ -1054,6 +1064,45 @@ func TestKindlingStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 				t.Errorf("a %s cast 1300782 at the enemy hit %d times, want %d", event.name, got, event.want)
 			}
 		})
+	}
+}
+
+// Kindling Stave 11750's 1300782 deals its row's factor at its second effect times as much to a Plant
+// as to any other target from the same rolls, and the wearer's stats sheet lists the factor against
+// Plants.
+func TestKindlingStaveDealsItsFactorToPlants(t *testing.T) {
+	factor := spelldata.MustFind(1300782).EffectAtIndex(1).BaseValue()
+	if factor <= 1 {
+		t.Fatalf("1300782 states a factor of %v, want one above 1 to tell the targets apart", factor)
+	}
+	deal := func(family proto.CreatureFamily) (float64, []*proto.VersusEffect) {
+		sim, character := weaponWearer(t, proto.Class_ClassDruid, 11750, 1)
+		character.AutoAttacks.CancelAutoSwing(sim)
+		target := sim.Encounter.ActiveTargetUnits[0]
+		target.CreatureFamily = family
+		fire := character.GetSpell(core.ActionID{SpellID: 1300782})
+		if fire == nil {
+			t.Fatal("11750 registers no 1300782")
+		}
+		for range 20 {
+			fire.Cast(sim, target)
+		}
+		playerStats := &proto.PlayerStats{}
+		character.FillPlayerStats(playerStats)
+		return fire.SpellMetrics[target.UnitIndex].TotalDamage, playerStats.VersusEffects
+	}
+
+	plant, sheet := deal(proto.CreatureFamily_CreatureFamilyPlant)
+	other, _ := deal(proto.CreatureFamily_CreatureFamilyUnknown)
+	if other <= 0 {
+		t.Fatalf("1300782 dealt %v to a target of no family, want some damage", other)
+	}
+	if !core.WithinToleranceFloat64(plant, factor*other, 1e-6) {
+		t.Errorf("1300782 dealt %v to a Plant, want %v times the %v it dealt to a target of no family", plant, factor, other)
+	}
+	if len(sheet) != 1 || sheet[0].ItemId != 11750 || sheet[0].Multiplier != factor ||
+		!slices.Equal(sheet[0].CreatureFamilies, []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant}) {
+		t.Errorf("the stats sheet lists %v, want 11750's factor of %v against Plants", sheet, factor)
 	}
 }
 

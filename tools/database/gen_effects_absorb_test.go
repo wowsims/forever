@@ -99,9 +99,8 @@ func TestAbsorbDealsOnlyListedBreakDamage(t *testing.T) {
 }
 
 // An item proc whose spell, or one its trigger casts, puts an absorb on the wearer routes to the absorb
-// shape. Uther's Strength 11302's equip aura 8397 casts 10368 and rolls the chance in its ProcChance
-// column over the one its tooltip states on an effect; Truesilver Champion 7960's chance on hit
-// states no rate.
+// shape. Jang'thraze the Protector 11086's chance on hit 11657 is the absorb and rolls the item's
+// procs per minute; Truesilver Champion 7960's chance on hit states no rate.
 func TestItemProcAbsorbRoutes(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -115,7 +114,7 @@ func TestItemProcAbsorbRoutes(t *testing.T) {
 		rate     string
 		rateRule string
 	}{
-		{11302, 10368, 8397, EffectParseResultSuccess, nil, "trigger 8397 (", "the column over effect"},
+		{11086, 11657, 11657, EffectParseResultSuccess, nil, "trigger 11657 (", "ppm on the item"},
 		{7960, 9800, 9800, EffectParseResultRefused, []string{spelldata.ReasonStatesNoRate}, "trigger 9800 (every time,", ""},
 	} {
 		t.Run(fmt.Sprint(tc.itemID), func(t *testing.T) {

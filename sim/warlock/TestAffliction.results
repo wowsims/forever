@@ -401,8 +401,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 865.53734
-  tps: 676.13101
+  dps: 865.43354
+  tps: 676.05026
   dtps: 8.20135
  }
 }
@@ -474,9 +474,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 898.13653
-  tps: 700.1708
-  dtps: 8.64515
+  dps: 901.91157
+  tps: 704.73274
+  dtps: 8.03214
  }
 }
 dps_results: {
@@ -546,9 +546,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 873.26972
-  tps: 681.03366
-  dtps: 8.64515
+  dps: 874.62846
+  tps: 683.39038
+  dtps: 8.65928
  }
 }
 dps_results: {
@@ -930,9 +930,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-KindlingStave-11750"
  value: {
-  dps: 821.33996
-  tps: 640.66066
-  dtps: 8.64271
+  dps: 814.50514
+  tps: 635.16593
+  dtps: 8.47655
  }
 }
 dps_results: {

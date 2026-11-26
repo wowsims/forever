@@ -401,8 +401,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 957.22385
-  tps: 741.9434
+  dps: 957.14105
+  tps: 741.86103
   dtps: 8.44044
  }
 }
@@ -474,9 +474,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 970.76499
-  tps: 754.14325
-  dtps: 8.69619
+  dps: 986.02721
+  tps: 770.00441
+  dtps: 8.47435
  }
 }
 dps_results: {
@@ -546,9 +546,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 941.74943
-  tps: 730.97928
-  dtps: 8.69619
+  dps: 951.21448
+  tps: 741.63659
+  dtps: 8.38693
  }
 }
 dps_results: {
@@ -930,9 +930,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-KindlingStave-11750"
  value: {
-  dps: 952.46707
-  tps: 740.34478
-  dtps: 8.23136
+  dps: 950.73078
+  tps: 738.69765
+  dtps: 8.32403
  }
 }
 dps_results: {

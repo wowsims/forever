@@ -91,6 +91,8 @@ spell is cast on: Chastise's 64 allows a Humanoid, Exorcism's 36 an Undead or a 
 mask names some other unit and the cast is not limited: Bestial Wrath's Beast is the pet it lands on,
 and Holy Wrath's Undead and Demon are the enemies its area hits, which the spell's effects pick
 themselves. A target of unknown mob type is in no mask and is refused. A weapon swing checks no target.
+An item's or consumable's area damage built in `sim/common/shared` (`calcMultiTargetDamage`) deals nothing
+to the enemies of its area outside the mask: Stratholme Holy Water's 17291 burns only the Undead.
 
 `CastRequirement.NotUnderHigherRank` is set on a ranked row whose only effect that does something is
 the periodic, an effect with a tick period; a dummy or script effect does not count. The cast is
