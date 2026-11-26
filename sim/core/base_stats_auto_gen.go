@@ -21,9 +21,8 @@ const HasteRatingPerHastePercent = 10.000000
 // ExpectedStat's creature values at the character level
 const CreatureHealthMaxLevel = 4365.0
 const CreatureArmorMaxLevel = 3566.0
-const CreatureAutoAttackDpsMaxLevel = 60.45291519165039
 
-// ExpectedStat's creature values by level, for a creature whose level is not the character's
+// ExpectedStat's creature values by level
 type CreatureStats struct {
 	Health, Armor, AutoAttackDps float64
 }

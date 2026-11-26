@@ -51,7 +51,7 @@ const hawkOwnerUnarmedWeaponAP = 7.0
 // neither, and were read with Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks, so the
 // swing here is before them.
 var hawkLogDamageMultiplier = spellData.UnleashedFury.MultiplierAt(5) * spellData.FocusedFire.MultiplierAt(2)
-var hawkSwingAverage = 0.153 * core.CreatureAutoAttackDpsMaxLevel * 2.5 / hawkLogDamageMultiplier
+var hawkSwingAverage = 0.153 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps * 2.5 / hawkLogDamageMultiplier
 
 var hawkSwing = core.Weapon{
 	BaseDamageMin:     hawkSwingAverage * (1 - 0.22),

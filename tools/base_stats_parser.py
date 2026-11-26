@@ -187,8 +187,7 @@ import (
     output += "// ExpectedStat's creature values at the character level\n"
     output += f"const CreatureHealthMaxLevel = {cs.Creature['Health']!r}\n"
     output += f"const CreatureArmorMaxLevel = {cs.Creature['Armor']!r}\n"
-    output += f"const CreatureAutoAttackDpsMaxLevel = {cs.Creature['AutoAttackDps']!r}\n"
-    output += "\n// ExpectedStat's creature values by level, for a creature whose level is not the character's\n"
+    output += "\n// ExpectedStat's creature values by level\n"
     output += "type CreatureStats struct {\n\tHealth, Armor, AutoAttackDps float64\n}\n\n"
     output += "var CreatureStatsByLevel = map[int32]CreatureStats{\n"
     for lvl, (health, armor, dps) in sorted(cs.CreatureByLevel.items()):
