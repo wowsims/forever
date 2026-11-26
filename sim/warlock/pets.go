@@ -43,17 +43,17 @@ type petModel struct {
 }
 
 // A demon's own health, armor and weapon are fixed shares of the creature values for its level in the game
-// files (core.CreatureHealthMaxLevel, core.CreatureArmorMaxLevel, core.CreatureAutoAttackDpsMaxLevel), each
+// files (core.CreatureHealthMaxLevel, core.CreatureArmorMaxLevel, core.CreatureStatsByLevel), each
 // demon with its own shares.
 // TODO: The shares are not yet read at 60 (EV-0075, EV-0076).
 //
 // The Sayaad's average swing before attack power: 0.698 of the creature dps at 2.0 s. Its sheet's damage range
 // spans 21.5% either side of the average (EV-0075).
-const sayaadSwingAverage = 0.698 * core.CreatureAutoAttackDpsMaxLevel * 2
+var sayaadSwingAverage = 0.698 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps * 2
 
 // The Voidwalker's average swing before attack power and before its melee is halved: 0.494 of the creature dps
 // at 2.0 s, spanning 26.4% either side (EV-0076).
-const voidwalkerSwingAverage = 0.494 * core.CreatureAutoAttackDpsMaxLevel * 2
+var voidwalkerSwingAverage = 0.494 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps * 2
 
 // The sheet gives no crit from Agility or Intellect, and a demon's own stats give no regen. A demon has
 // no crit of its own: its crit is the warlock's (see petStatInheritance). The Imp's, Voidwalker's and Sayaad's
