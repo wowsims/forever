@@ -75,9 +75,9 @@ call site. A preset rotation follows `wowsims-apl` `## Timing`, and its cast cou
 ## Rotations, gear sets and builds
 
 A spec's presets are files under `ui/specs/<class>/<spec>/`. The hunter, the Balance druid, the Retribution and
-Protection paladins and the Shadow priest (but for its Smite testing build) write them in SIML, and so do the Feral
-druids for their rotations and gear sets, which `sim/siml/SPEC.md`
-describes, and the other specs keep JSON until their developers move them; `core.GetAplRotation` and `core.GetGearSet`
+Protection paladins and the Shadow priest (but for its Smite testing build) write them in SIML, which
+`sim/siml/SPEC.md` describes, and so do the Feral druids for their rotations and gear sets. The other specs keep JSON
+until their developers move them; `core.GetAplRotation` and `core.GetGearSet`
 read an `.apl.siml` or `.gear.siml` when one is there and the JSON otherwise. To move a spec, print each JSON file with
 `go run --tags=with_db ./cmd/wowsimcli siml print -kind apl|gear|siml -spec <field>`, check it with `siml verify`, and
 write the spec's `defaults.siml` as the hunter's is written. A build that turns item swap on takes its swap set as the
