@@ -83,10 +83,12 @@ export default defineSpec<Spec.SpecBalanceDruid>({
 	presets: {
 		epWeights: [Presets.P1EpWeights, Presets.PreBiSEpWeights],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.StandardTalents],
-		rotations: [Presets.StandardRotation],
+		talents: [Presets.StandardTalents, Presets.DefaultBuildTalents],
+		rotations: [Presets.StandardRotation, Presets.DefaultBuildRotation],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.PreBiSGear, Presets.P1Gear],
+		gear: [Presets.PreBiSGear, Presets.P1Gear, Presets.DefaultBuildGear],
+		// Preset builds that the user can quickly select.
+		builds: [Presets.DefaultBuild],
 	},
 
 	autoRotation: (_player: Player<Spec.SpecBalanceDruid>): APLRotation => {

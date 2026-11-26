@@ -1,8 +1,10 @@
 import * as PresetUtils from '@app/preset_utils';
 import { Spec, Stat } from '@generated/proto/common';
+import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 
 import DefaultAPL from './apls/default.apl.siml';
+import DefaultBuildJson from './builds/default.build.json';
 import DefaultsJson from './defaults.siml';
 import P1GearJson from './gear_sets/p1.gear.siml';
 import PreBiSGearJson from './gear_sets/prebis.gear.siml';
@@ -22,6 +24,11 @@ export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', Defaults
 export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSGearJson, { devOnly: true });
 
 export const P1Gear = PresetUtils.makePresetGear('P1', P1GearJson, { devOnly: true });
+
+export const DefaultBuildGear = PresetUtils.makePresetGear('Default', DefaultBuildJson.player.equipment, { devOnly: true });
+export const DefaultBuildTalents = PresetUtils.makePresetTalents('Default', SavedTalents.create({ talentsString: DefaultBuildJson.player.talentsString }));
+export const DefaultBuildRotation = PresetUtils.makePresetAPLRotation('Default Build', DefaultBuildJson.player.rotation);
+export const DefaultBuild = PresetUtils.makePresetBuildFromJSON('Default', Spec.SpecBalanceDruid, DefaultBuildJson, { gear: DefaultBuildGear });
 
 // Measured on the P1 gear with the Moonkin talents and the default consumables and buffs.
 export const P1EpWeights = PresetUtils.makePresetEpWeights(
