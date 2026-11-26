@@ -2145,8 +2145,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Toofbreaker-286430"
  value: {
-  dps: 437.44911
-  tps: 2213.34727
+  dps: 440.69707
+  tps: 2220.3304
   dtps: 395.20652
   hps: 83.75649
  }
@@ -2181,10 +2181,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Uther'sStrength-11302"
  value: {
-  dps: 526.79824
-  tps: 2642.68165
-  dtps: 393.4969
-  hps: 85.5701
+  dps: 526.38713
+  tps: 2640.72107
+  dtps: 394.65739
+  hps: 85.62528
  }
 }
 dps_results: {
