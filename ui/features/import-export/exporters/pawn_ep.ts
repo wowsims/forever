@@ -65,7 +65,8 @@ export const PAWN_EP_EXPORTER: ExporterDefinition = {
 		const namesToWeights: Record<string, number> = {};
 		allUnitStats.forEach(stat => {
 			const statName = getName(stat);
-			const weight = epValues.getUnitStat(stat);
+			// Pawn uses percentage weights for its rating keys in Forever.
+			const weight = stat.storedEpToShown(epValues.getUnitStat(stat));
 			if (weight == 0 || statName == '') {
 				return;
 			}

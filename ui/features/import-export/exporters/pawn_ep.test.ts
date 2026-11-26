@@ -35,11 +35,22 @@ describe('PAWN_EP_EXPORTER', () => {
 		[Stat.StatFeralAttackPower, 'FeralAp'],
 		[Stat.StatArmorPenetration, 'ArmorPenetration'],
 		[Stat.StatDefenseRating, 'DefenseRating'],
-		[Stat.StatBlockRating, 'BlockRating'],
 		[Stat.StatBlockValue, 'BlockValue'],
 		[Stat.StatShadowResistance, 'ShadowResist'],
 	])('writes stat %i as Pawn key %s', (stat, name) => {
 		expect(exportFor(new Stats().withStat(stat, 0.58))).toContain(`${name}=0.580`);
+	});
+
+	it.each([
+		[Stat.StatHitRating, 'HitRating', 2.5, '25.000'],
+		[Stat.StatCritRating, 'CritRating', 0.5, '7.000'],
+		[Stat.StatHasteRating, 'HasteRating', 0.4, '4.000'],
+		[Stat.StatExpertiseRating, 'ExpertiseRating', 0.5, '5.000'],
+		[Stat.StatDodgeRating, 'DodgeRating', 0.5, '6.000'],
+		[Stat.StatParryRating, 'ParryRating', 0.2, '3.000'],
+		[Stat.StatBlockRating, 'BlockRating', 0.2, '1.000'],
+	])('exports stat %i per percentage point under %s', (stat, name, stored, expected) => {
+		expect(exportFor(new Stats().withStat(stat, stored))).toContain(`${name}=${expected}`);
 	});
 
 	it('adds ranged attack power into Ap and writes it alone as Rap', () => {
