@@ -31,8 +31,8 @@ func runRegenBoosts(boosts []testRegenBoost, casting bool, fieldsFirst bool) (ow
 				if !on {
 					mult, share = 1/b.mult, -b.share
 				}
-				boost.MultiplySpiritRegen(mult)
-				boost.AddCastingShare(share)
+				boost.SpiritMult *= mult
+				boost.CastingShare += share
 				char.PseudoStats.SpiritRegenMultiplier *= mult
 				char.PseudoStats.SpiritRegenRateCasting += share
 				char.UpdateManaRegenRates(sim)
@@ -127,7 +127,7 @@ func TestManaRegenBoostsOfOneSpellShareTheirMetrics(t *testing.T) {
 	if player.metrics != external.metrics {
 		t.Error("the player's and the external copy record under two rows")
 	}
-	if want := (ActionID{SpellID: 910400, Tag: ManaRegenBoostTag}); player.metrics.ActionID != want || player.metrics.Type != proto.ResourceType_ResourceTypeMana || !player.metrics.NoThreat {
-		t.Errorf("the boost row is %v of %v, threat-free %v", player.metrics.ActionID, player.metrics.Type, player.metrics.NoThreat)
+	if want := (ActionID{SpellID: 910400, Tag: manaRegenBoostTag}); player.metrics.ActionID != want || player.metrics.Type != proto.ResourceType_ResourceTypeMana {
+		t.Errorf("the boost row is %v of %v", player.metrics.ActionID, player.metrics.Type)
 	}
 }

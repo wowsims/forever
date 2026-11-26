@@ -408,17 +408,11 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	// On an aura whose row also raises the mana regen by a percent (Innervate, Evocation), each change
 	// is told to the aura's boost too, so core credits the regen the aura adds to its own metrics.
 	dbcenums.A_MOD_MANA_REGEN_INTERRUPT: func(p *parser, e *Effect, v float64) *attachment {
-		share := &p.unit.PseudoStats.SpiritRegenRateCasting
-		boost := p.manaRegenBoost()
-		if boost == nil {
-			return p.refreshingManaRegen(p.pseudoAdd("spirit-regen-casting", "SpiritRegenRateCasting", []*float64{share}, v/100))
+		fields := []*float64{&p.unit.PseudoStats.SpiritRegenRateCasting}
+		if boost := p.manaRegenBoost(); boost != nil {
+			fields = append(fields, &boost.CastingShare)
 		}
-		a := additive("spirit-regen-casting", v/100, func(_ *core.Simulation, delta float64) {
-			boost.AddCastingShare(delta)
-			*share += delta
-		})
-		a.key = "SpiritRegenRateCasting"
-		return p.refreshingManaRegen(a)
+		return p.refreshingManaRegen(p.pseudoAdd("spirit-regen-casting", "SpiritRegenRateCasting", fields, v/100))
 	},
 	dbcenums.A_MOD_POWER_REGEN_PERCENT: func(p *parser, e *Effect, v float64) *attachment {
 		switch e.Misc {
@@ -428,22 +422,17 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 				apply := (*core.Unit).MultiplyInnervateManaRegenSpeed
 				if boost != nil {
 					apply = func(unit *core.Unit, sim *core.Simulation, factor float64) {
-						boost.MultiplyInnervate(factor)
+						boost.Innervate *= factor
 						unit.MultiplyInnervateManaRegenSpeed(sim, factor)
 					}
 				}
 				return p.speed("mana-regen", "ManaRegenMultiplier", apply, core.MultiplierFromPercent(v))
 			}
-			spiritMult := &p.unit.PseudoStats.SpiritRegenMultiplier
-			if boost == nil || p.stacking || core.MultiplierFromPercent(v) <= 0 {
-				return p.refreshingManaRegen(p.pseudoMultiplier("spirit-regen", "SpiritRegenMultiplier", []*float64{spiritMult}, core.MultiplierFromPercent(v)))
+			fields := []*float64{&p.unit.PseudoStats.SpiritRegenMultiplier}
+			if boost != nil {
+				fields = append(fields, &boost.SpiritMult)
 			}
-			a := multiplier("spirit-regen", core.MultiplierFromPercent(v), func(_ *core.Simulation, factor float64) {
-				boost.MultiplySpiritRegen(factor)
-				*spiritMult *= factor
-			})
-			a.key = "SpiritRegenMultiplier"
-			return p.refreshingManaRegen(a)
+			return p.refreshingManaRegen(p.pseudoMultiplier("spirit-regen", "SpiritRegenMultiplier", fields, core.MultiplierFromPercent(v)))
 		case int32(dbcenums.POWER_ENERGY):
 			if !p.unit.HasEnergyBar() {
 				return nil
