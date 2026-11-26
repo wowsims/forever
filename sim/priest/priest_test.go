@@ -12,6 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/stats"
+	"github.com/wowsims/forever/sim/siml"
 )
 
 func init() {
@@ -19,71 +20,60 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// The Shadow page's default gear and rotation, from ui/specs/priest/dps, and the Standard talents defaults.siml sets.
-var defaultGear = core.GetGearSet("../../ui/specs/priest/dps/gear_sets", "default")
-var defaultRotation = core.GetAplRotation("../../ui/specs/priest/dps/apls", "default")
-const defaultTalents = "00530200103-3-50042201251312051"
+// The Shadow page's default build, all from defaults.siml: race, professions, spec options, talents, gear, rotation,
+// consumables, distance, timings, buffs, debuffs, target dummies and encounter.
+var defaultBuild = readDefaultBuild()
 
-// The consumables in defaults.siml: Flask of Supreme Power, Baked Salmon, Demonic Rune, Wizard Oil, the five
-// elixirs, Major Mana Potion and Major Spellblasting Potion.
-var defaultConsumables = &proto.ConsumesSpec{
-	FlaskId:        13512,
-	FoodId:         13935,
-	ConjuredId:     12662,
-	MhImbueId:      20750,
-	ElixirIds:      []int32{9264, 13454, 250341, 250337, 250335},
-	ResourcePotId:  13444,
-	OffensivePotId: 250937,
+var defaultGear = defaultBuild.GearSet
+
+func readDefaultBuild() core.CharacterSuiteConfig {
+	f, err := siml.ReadFile("../../ui/specs/priest/dps/defaults.siml")
+	if err != nil {
+		panic(err)
+	}
+	settings, player := f.Settings, f.Settings.GetPlayer()
+	return core.CharacterSuiteConfig{
+		Class:              proto.Class_ClassPriest,
+		Race:               player.GetRace(),
+		Profession1:        player.GetProfession1(),
+		Profession2:        player.GetProfession2(),
+		GearSet:            core.GearSetCombo{Label: "default", GearSet: f.Equipment()},
+		SpecOptions:        core.SpecOptionsCombo{Label: "Shadow", SpecOptions: player.GetSpec()},
+		Talents:            player.GetTalentsString(),
+		Rotation:           core.RotationCombo{Label: "default", Rotation: f.Rotation()},
+		Encounter:          core.EncounterCombo{Label: "default", Encounter: settings.GetEncounter()},
+		StartingDistance:   player.GetDistanceFromTarget(),
+		ReactionTimeMs:     player.GetReactionTimeMs(),
+		ChannelClipDelayMs: player.GetChannelClipDelayMs(),
+		Consumables:        player.GetConsumables(),
+		IndividualBuffs:    player.GetBuffs(),
+		PartyBuffs:         settings.GetPartyBuffs(),
+		RaidBuffs:          settings.GetRaidBuffs(),
+		Debuffs:            settings.GetDebuffs(),
+		Cooldowns:          player.GetCooldowns(),
+		TargetDummies:      settings.GetTargetDummies(),
+	}
 }
 
 func TestShadowPriest(t *testing.T) {
-	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
-		{
-			Class:      proto.Class_ClassPriest,
-			Race:       proto.Race_RaceTroll,
-			OtherRaces: []proto.Race{proto.Race_RaceHuman, proto.Race_RaceUndead, proto.Race_RaceDwarf, proto.Race_RaceNightElf, proto.Race_RaceGnome},
-
-			SpecOptions: core.SpecOptionsCombo{
-				Label: "Shadow",
-				SpecOptions: &proto.Player_DpsPriest{
-					DpsPriest: &proto.DpsPriest{
-						Options: &proto.DpsPriest_Options{
-							ClassOptions: &proto.PriestOptions{
-								// Begin the sim already in Shadowform so the opener
-								// doesn't spend a GCD casting it.
-								PreShadowform: true,
-								Armor:         proto.PriestOptions_InnerFire,
-							},
-						},
-					},
-				},
-			},
-
-			GearSet:     defaultGear,
-			Talents:     defaultTalents,
-			Consumables: defaultConsumables,
-			Profession1: proto.Profession_Enchanting,
-			Profession2: proto.Profession_Tailoring,
-
-			Rotation: defaultRotation,
-
-			ItemFilter: core.ItemFilter{
-				WeaponTypes: []proto.WeaponType{
-					proto.WeaponType_WeaponTypeDagger,
-					proto.WeaponType_WeaponTypeStaff,
-					proto.WeaponType_WeaponTypeMace,
-					proto.WeaponType_WeaponTypeOffHand,
-				},
-				ArmorType: proto.ArmorType_ArmorTypeCloth,
-				RangedWeaponTypes: []proto.RangedWeaponType{
-					proto.RangedWeaponType_RangedWeaponTypeWand,
-				},
-				// Blacklist melee enchants that appear on cloth-relevant slots but
-				// are never used by casters.
-				EnchantBlacklist: []int32{2673, 3225, 3273},
-			},
+	config := defaultBuild
+	config.OtherRaces = []proto.Race{proto.Race_RaceTroll, proto.Race_RaceUndead, proto.Race_RaceDwarf, proto.Race_RaceNightElf, proto.Race_RaceGnome}
+	config.ItemFilter = core.ItemFilter{
+		WeaponTypes: []proto.WeaponType{
+			proto.WeaponType_WeaponTypeDagger,
+			proto.WeaponType_WeaponTypeStaff,
+			proto.WeaponType_WeaponTypeMace,
+			proto.WeaponType_WeaponTypeOffHand,
 		},
-	}))
+		ArmorType: proto.ArmorType_ArmorTypeCloth,
+		RangedWeaponTypes: []proto.RangedWeaponType{
+			proto.RangedWeaponType_RangedWeaponTypeWand,
+		},
+		// Blacklist melee enchants that appear on cloth-relevant slots but
+		// are never used by casters.
+		EnchantBlacklist: []int32{2673, 3225, 3273},
+	}
+	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{config}))
 }
 
 // The priest's own Prayer of Fortitude bids in the raid buff's category. Alone, the cast adds the

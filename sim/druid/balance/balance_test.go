@@ -20,60 +20,65 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// The gear set and rotation defaults.siml holds, under the labels the expected results name.
-func defaultSetup() (core.GearSetCombo, core.RotationCombo) {
+// The Balance page's default build, all from defaults.siml: race, professions, spec options, talents, gear,
+// rotation, consumables, distance, timings, buffs, debuffs, target dummies and encounter.
+var defaultBuild = readDefaultBuild()
+
+// The Moonkin talents defaults.siml sets.
+var DefaultTalents = defaultBuild.Talents
+
+func readDefaultBuild() core.CharacterSuiteConfig {
 	f, err := siml.ReadFile("../../../ui/specs/druid/balance/defaults.siml")
 	if err != nil {
 		panic(err)
 	}
-	return core.GearSetCombo{Label: "default", GearSet: f.Equipment()}, core.RotationCombo{Label: "default", Rotation: f.Rotation()}
+	settings, player := f.Settings, f.Settings.GetPlayer()
+	return core.CharacterSuiteConfig{
+		Class:              proto.Class_ClassDruid,
+		Race:               player.GetRace(),
+		Profession1:        player.GetProfession1(),
+		Profession2:        player.GetProfession2(),
+		GearSet:            core.GearSetCombo{Label: "default", GearSet: f.Equipment()},
+		SpecOptions:        core.SpecOptionsCombo{Label: "Standard", SpecOptions: player.GetSpec()},
+		Talents:            player.GetTalentsString(),
+		Rotation:           core.RotationCombo{Label: "default", Rotation: f.Rotation()},
+		Encounter:          core.EncounterCombo{Label: "default", Encounter: settings.GetEncounter()},
+		StartingDistance:   player.GetDistanceFromTarget(),
+		ReactionTimeMs:     player.GetReactionTimeMs(),
+		ChannelClipDelayMs: player.GetChannelClipDelayMs(),
+		Consumables:        player.GetConsumables(),
+		IndividualBuffs:    player.GetBuffs(),
+		PartyBuffs:         settings.GetPartyBuffs(),
+		RaidBuffs:          settings.GetRaidBuffs(),
+		Debuffs:            settings.GetDebuffs(),
+		Cooldowns:          player.GetCooldowns(),
+		TargetDummies:      settings.GetTargetDummies(),
+	}
 }
 
 func TestBalance(t *testing.T) {
-	gearSet, rotation := defaultSetup()
-	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
-		{
-			Class:      proto.Class_ClassDruid,
-			Race:       proto.Race_RaceNightElf,
-			OtherRaces: []proto.Race{proto.Race_RaceTauren},
-			SpecOptions: core.SpecOptionsCombo{Label: "Standard", SpecOptions: &proto.Player_BalanceDruid{
-				BalanceDruid: &proto.BalanceDruid{
-					Options: &proto.BalanceDruid_Options{
-						ClassOptions: &proto.DruidOptions{},
-					},
-				},
-			}},
-			GearSet:          gearSet,
-			Talents:          DefaultTalents,
-			Rotation:         rotation,
-			Consumables:      DefaultConsumables,
-			Profession1:      proto.Profession_Enchanting,
-			Profession2:      proto.Profession_Tailoring,
-			StartingDistance: 20,
-			ItemFilter: core.ItemFilter{
-				WeaponTypes:       DefaultWeaponTypes,
-				ArmorType:         DefaultArmorType,
-				RangedWeaponTypes: DefaultRangedWeaponTypes,
-			},
-			EPReferenceStat: proto.Stat_StatSpellDamage,
-			StatsToWeigh: []proto.Stat{
-				proto.Stat_StatIntellect,
-				proto.Stat_StatSpellDamage,
-				proto.Stat_StatArcaneDamage,
-				proto.Stat_StatNatureDamage,
-				proto.Stat_StatSpellPiercing,
-				proto.Stat_StatHitRating,
-				proto.Stat_StatCritRating,
-				proto.Stat_StatHasteRating,
-				proto.Stat_StatMP5,
-				proto.Stat_StatSpirit,
-			},
-		},
-	}))
+	config := defaultBuild
+	config.OtherRaces = []proto.Race{proto.Race_RaceNightElf, proto.Race_RaceTauren}
+	config.ItemFilter = core.ItemFilter{
+		WeaponTypes:       DefaultWeaponTypes,
+		ArmorType:         DefaultArmorType,
+		RangedWeaponTypes: DefaultRangedWeaponTypes,
+	}
+	config.EPReferenceStat = proto.Stat_StatSpellDamage
+	config.StatsToWeigh = []proto.Stat{
+		proto.Stat_StatIntellect,
+		proto.Stat_StatSpellDamage,
+		proto.Stat_StatArcaneDamage,
+		proto.Stat_StatNatureDamage,
+		proto.Stat_StatSpellPiercing,
+		proto.Stat_StatHitRating,
+		proto.Stat_StatCritRating,
+		proto.Stat_StatHasteRating,
+		proto.Stat_StatMP5,
+		proto.Stat_StatSpirit,
+	}
+	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{config}))
 }
-
-// The Moonkin preset on the Balance page.
-const DefaultTalents = "5532220115001351--505302"
 
 // A Moonkin build without Dreamstate, and the same build with one point in it.
 const (
@@ -92,20 +97,6 @@ var DefaultWeaponTypes = []proto.WeaponType{
 
 var DefaultRangedWeaponTypes = []proto.RangedWeaponType{
 	proto.RangedWeaponType_RangedWeaponTypeIdol,
-}
-
-// The Balance page's consumes: Flask of Supreme Power, Greater Arcane Elixir, Elixir of Nature Power,
-// Elixir of the Owl, Greater Mageblood Elixir, Lobster Stew, Brilliant Wizard Oil, Major Spellblasting
-// Potion, Major Mana Potion, Demonic Rune and SAF-T Clever Dynamite.
-var DefaultConsumables = &proto.ConsumesSpec{
-	FlaskId:        13512,
-	ElixirIds:      []int32{13454, 250343, 250337, 250341},
-	FoodId:         13933,
-	MhImbueId:      20749,
-	OffensivePotId: 250937,
-	ResourcePotId:  13444,
-	ConjuredId:     12662,
-	ExplosiveId:    260814,
 }
 
 // Self keeps the mana. Someone else still spends the cast and the cooldown; a dummy receives the mana.
