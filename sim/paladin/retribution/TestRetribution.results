@@ -938,10 +938,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 953.20494
-  tps: 776.06885
+  dps: 952.26012
+  tps: 775.31299
   dtps: 3.55825
-  hps: 25.81079
+  hps: 25.80927
  }
 }
 dps_results: {

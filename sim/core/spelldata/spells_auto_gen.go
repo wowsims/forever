@@ -35417,10 +35417,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1305615, SpellID: 1287840, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SPELL_HIT_CHANCE, BasePoints: 7, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1287842, Name: "Bastion of Tyranny", School: 1, Attr: [17]uint32{0: 0x10, 8: 0x1000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 15000, ProcChance: 101, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintHeals,
+	{ID: 1287842, Name: "Bastion of Tyranny", School: 1, Attr: [17]uint32{0: 0x10, 8: 0x1000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 15000, ProcChance: 101, AreaBonusGroups: []int32{9326}, AreaMultiplier: 2, AreaDurationMultiplier: 1, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1305618, SpellID: 1287842, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_INCREASE_HEALTH_2, BasePoints: 620, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: AreaBonus x2 (duration x1) in [9326] -- Bastion of Tyranny: 'This effect is doubled in Strongholds and Cities'; no companion row
 	{ID: 1289402, Name: "Ensemble: Shen'dorei Magister's Garb", School: 32, Attr: [17]uint32{0: 0x100, 13: 0x2000000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true,
 		Effects: []Effect{
 			{ID: 1345070, SpellID: 1289402, Type: dbcenums.E_LEARN_TRANSMOG_SET, BaseLevel: 60, PvpMult: 1, Misc: 5700, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

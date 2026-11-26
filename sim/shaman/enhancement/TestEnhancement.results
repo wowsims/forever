@@ -803,10 +803,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 937.47281
-  tps: 686.0146
-  dtps: 8.44391
-  hps: 20.87556
+  dps: 934.08415
+  tps: 683.55591
+  dtps: 8.44498
+  hps: 20.80778
  }
 }
 dps_results: {

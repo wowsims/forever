@@ -126,6 +126,14 @@ type AreaBonus struct {
 
 var AreaBonuses = []AreaBonus{
 	{
+		SpellID:            1287842,
+		Groups:             []int32{9326},
+		Multiplier:         2,
+		DurationMultiplier: 1,
+		Reason:             "Bastion of Tyranny: 'This effect is doubled in Strongholds and Cities'; no companion row",
+		Source:             "tooltip",
+	},
+	{
 		SpellID:            1249113,
 		Groups:             []int32{9203},
 		Multiplier:         2,

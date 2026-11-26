@@ -20,7 +20,9 @@ export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearSet
 });
 
 const encounter = Encounter.defaultEncounterProto();
-encounter.targets[0].minBaseDamage = 6000;
+encounter.duration = 180;
+encounter.durationVariation = 5;
+encounter.targets[0].minBaseDamage = 6500;
 export const DefaultEncounter = PresetUtils.makePresetEncounter('Default', encounter);
 
 export const DefaultEp = BearEp;
@@ -52,7 +54,7 @@ export const OtherDefaults: Partial<SimUIOtherDefaults> = {
 	distanceFromTarget: 25,
 	reactionTime: 250,
 	healingModel: HealingModel.create({
-		hps: 2200,
+		hps: 1300,
 		cadenceSeconds: 0.4,
 		cadenceVariation: 1.2,
 		absorbFrac: 0.02,
