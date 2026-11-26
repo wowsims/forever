@@ -133,8 +133,8 @@ var ripTick = ripRank.PeriodicEffect()
 ```
 
 **A hand number is a Go literal with a review comment.** A hand-supplied threat number, PPM or
-coefficient keeps the same marker a resolver-built config carries. `sim/warrior/hamstring.go` puts it
-above the resolver call that writes the 1:
+coefficient keeps the same marker a resolver-built config carries. Until a log measures the number,
+the marker sits above the resolver call that writes the 1:
 
 ```go
 // TODO: Manual review needed -- the game files state no threat coefficient; 1 until measured in game.
@@ -148,6 +148,9 @@ same field, written as a struct-literal line:
 // TODO: Manual review needed -- the game files state no threat coefficient; 1 until measured in game.
 ThreatMultiplier: 1,
 ```
+
+Once a log measures it, the number becomes a named constant with its rule and evidence id above it, as
+`hamstringThreatMultiplier` in `sim/warrior/hamstring.go`.
 
 ## Worked examples
 
