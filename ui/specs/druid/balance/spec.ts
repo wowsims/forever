@@ -53,7 +53,7 @@ export default defineSpec<Spec.SpecBalanceDruid>({
 	defaults: {
 		...Presets.Defaults,
 		// Default EP weights for sorting gear in the gear picker.
-		epWeights: Presets.P1EpWeights.epWeights,
+		epWeights: Presets.DefaultEpWeights.epWeights,
 		// Default stat caps for stat weights tab. (also needed for reforging since we don't want to reforge above stat caps)
 		statCaps: (() => {
 			return new Stats().withPseudoStat(PseudoStat.PseudoStatSpellHitPercent, 17);
@@ -81,12 +81,14 @@ export default defineSpec<Spec.SpecBalanceDruid>({
 	},
 
 	presets: {
-		epWeights: [Presets.P1EpWeights, Presets.PreBiSEpWeights],
+		epWeights: [Presets.DefaultEpWeights],
 		// Preset talents that the user can quickly select.
 		talents: [Presets.StandardTalents],
 		rotations: [Presets.StandardRotation],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.PreBiSGear, Presets.P1Gear],
+		gear: [Presets.DefaultGear],
+		// Preset builds that the user can quickly select.
+		builds: [Presets.DefaultBuild],
 	},
 
 	autoRotation: (_player: Player<Spec.SpecBalanceDruid>): APLRotation => {

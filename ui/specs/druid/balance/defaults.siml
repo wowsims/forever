@@ -1,8 +1,6 @@
 siml 1
 spec balance_druid
 talents "5532220115001351--505302"
-use "gear_sets/prebis.gear.siml"
-use "apls/default.apl.siml"
 
 settings:
   race windshaper_skyborne
@@ -13,12 +11,29 @@ settings:
   distance_from_target 20
   innervate_target none
 
+gear:
+  head       feralheart_cowl_ilvl60
+  neck       orb_of_the_darkmoon
+  shoulder   feralheart_spaulders_ilvl65
+  back       arcanoweave_cloak
+  chest      feralheart_vest_ilvl60
+  wrist      feralheart_wraps
+  hands      feralheart_hands
+  waist      belt_of_the_archmage
+  legs       ironfeather_leggings
+  feet       feralheart_galoshes
+  finger1    songstone_of_ironforge
+  finger2    rune_band_of_wizardry
+  trinket1   weakness_analyzer
+  trinket2   eye_of_the_beast
+  main_hand  ironbark_staff_20220 + enchant_2h_weapon_spellblasting
+  ranged     swarming_idol
+
 consumables:
   flask flask_of_supreme_power
   food lobster_stew
   conjured demonic_rune
-  explosive saf_t_clever_dynamite
-  mh_imbue brilliant_wizard_oil
+  mh_imbue wizard_oil
   elixir greater_arcane_elixir, elixir_of_nature_power, elixir_of_the_owl, greater_mageblood_elixir
   resource_pot major_mana_potion
   offensive_pot major_spellblasting_potion
@@ -51,3 +66,98 @@ encounter:
       swing_speed=2,
       parry_haste,
       can_crush)
+
+apl:
+  var ${wrath flight} = spell(wrath).travel_time
+  var ${wrath to pull} = spell(wrath).cast_time + $wrath_flight
+  // Read Leyline's GCD ends 100ms before the first Wrath. Wrath's GCD stands in for it: both are the 1.5s GCD under the
+  // same haste, and every race knows Wrath.
+  var ${ley to wrath} = spell(wrath).gcd_hasted_duration + $wrath_to_pull + 50ms
+  var ${potion window} = min(remaining_time, 120s)
+  var ${rune ready in} = spell(item.demonic_rune).time_to_ready
+  var ${innervate ready in} = spell(innervate).time_to_ready
+  var ${mana at window end} = -45 * $potion_window + current_mana
+  var $spellblast =
+      $mana_at_window_end >= 0
+      or $rune_ready_in < $potion_window and $mana_at_window_end >= -1200
+      or $innervate_ready_in + 20s < $potion_window and $mana_at_window_end >= -3000
+      or $rune_ready_in < $potion_window and $innervate_ready_in + 20s < $potion_window and $mana_at_window_end >= -4200
+  var ${no mana potion needed} =
+      73.3 * $potion_window < current_mana_regen * $potion_window + current_mana + -1000
+      or $rune_ready_in < $potion_window and 73.3 * $potion_window < current_mana_regen * $potion_window + current_mana + 200
+
+prepull:
+  // Only High Order Skyborne knows Read Leyline. For every other race the row is left out, so the prepull starts at
+  // the first Wrath.
+  (0s - $ley_to_wrath) group "Read Leyline, then Wrath twice" if spell(read_leyline).is_known
+  (0s - $wrath_to_pull + 0.05s) group "Read Leyline, then Wrath twice"
+  (0s - $wrath_flight + 0.05s) group "Read Leyline, then Wrath twice"
+
+priority:
+  /// Spellblasting when the bar lasts, otherwise a mana potion
+  group "Spellblasting or a mana potion"
+  autocast_other_cooldowns
+  /// Under 40% with more than 30s left or under 10%, or with 380s or more left when 100s of regen would not cap you
+  cast innervate
+      if remaining_time >= 380s and current_mana_regen * 100 + current_mana < max_mana
+      or current_mana_percent < 40% and (remaining_time > 30s or current_mana_percent < 10%)
+  /// Revelation Hurricane on 3 or more targets, then 5 or more targets, 3 or more in the last 14s, or 4 targets once both dots are on every target
+  group "Hurricane on several targets"
+  /// Moonfire and Insect Swarm on up to 4 targets
+  group "Refresh Moonfire and Insect Swarm"
+  /// Starfire with Revelation, Wrath when a dot is about to fall, Starfire while Eclipse has a charge, otherwise Wrath
+  group "Starfire with Eclipse, otherwise Wrath"
+
+group "Read Leyline, then Wrath twice":
+  /// High Order Skyborne only, on the first row. On the Wrath rows it is on cooldown
+  cast read_leyline if spell(read_leyline).is_known
+  /// The two Wrath rows: the first lands just after the pull, the second starts as the first ends
+  cast wrath
+
+group "Spellblasting or a mana potion":
+  /// Spellblasting when either mana check says the bar lasts to the next potion
+  cast other.offensive_potion if $spellblast or $no_mana_potion_needed
+  /// Mana potion when both checks fail
+  cast other.resource_potion if not ($spellblast or $no_mana_potion_needed)
+
+group "Hurricane on several targets":
+  /// Revelation up on 3 or more targets: Hurricane so every tick crits (test 2/3/4)
+  cast hurricane
+      if aura(revelation_1323400).is_known
+      and aura(revelation_1323400).is_active
+      and number_targets >= 3
+  /// 5 or more targets
+  cast hurricane if number_targets >= 5
+  /// 3 or more targets with under 14s left
+  cast hurricane if number_targets >= 3 and remaining_time < 14s
+  /// 4 targets, once Moonfire and Insect Swarm are active on every target
+  cast hurricane
+      if number_targets == 4
+      and dot(moonfire).is_active_on_all_targets
+      and dot(insect_swarm).is_active_on_all_targets
+
+group "Refresh Moonfire and Insect Swarm":
+  /// Last 2.5s: Moonfire. On 3 or more targets the Hurricane lines above already cast
+  cast moonfire if remaining_time <= 2.5s
+  /// Up to 4 targets, once it has fallen off, while more than 8s remains
+  multidot(moonfire, max_dots=4, max_overlap=none) if remaining_time > 8s
+  /// Up to 4 targets, once it has fallen off, while more than 8s remains
+  multidot(insect_swarm, max_dots=4, max_overlap=none) if remaining_time > 8s
+
+group "Starfire with Eclipse, otherwise Wrath":
+  /// Revelation up on under 3 targets: spend it on Starfire
+  cast starfire
+      if aura(revelation_1323400).is_known
+      and aura(revelation_1323400).is_active(include_reaction_time=true)
+      and number_targets < 3
+  /// Wrath when Moonfire or Insect Swarm would fall during the cast and Wrath is not hit capped, so the landing Wrath refreshes Eclipse before the dot is recast. Skipped while Revelation is up so the proc is not spent on Wrath
+  cast wrath
+      if (not aura(revelation_1323400).is_known or not aura(revelation_1323400).is_active)
+      and not spell(wrath).is_hit_capped
+      and (dot(moonfire).is_active and dot(moonfire).remaining_time <= spell(wrath).cast_time or dot(insect_swarm).is_active and dot(insect_swarm).remaining_time <= spell(wrath).cast_time)
+  /// Starfire while Eclipse has a charge the running cast leaves. Each landed Wrath grants 2 charges (cap 4, 15s); each Starfire spends one
+  cast starfire
+      if aura(eclipse).is_active
+      and (aura(eclipse).num_stacks > 1 or not spell(starfire).is_casting)
+  /// Wrath otherwise, unconditional so a Starfire the mana cannot pay for never leaves the druid idle
+  cast wrath
