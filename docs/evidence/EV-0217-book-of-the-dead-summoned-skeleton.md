@@ -7,7 +7,7 @@
   Winterspring and Stratholme
 - Game build: not recorded
 - Date: 2026-11-25, 03:11 and 20:44 local time
-- Pull request: not recorded
+- Pull request: #1250
 
 The logs hold 11 summons and 215 swings. Health, armor and attack power come from the skeleton's own advanced info on
 its swing lines, and the swing damage from the `baseAmount` field, the damage before the target's armor. The owner's
