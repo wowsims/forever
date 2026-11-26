@@ -1,56 +1,37 @@
 import * as PresetUtils from '@app/preset_utils';
+import { APLRotation_Type } from '@generated/proto/apl';
 import { Spec, Stat } from '@generated/proto/common';
 import { Stats } from '@sim/proto/stats';
 
-import DefaultAPL from './apls/default.apl.siml';
 import DefaultsJson from './defaults.siml';
-import P1GearJson from './gear_sets/p1.gear.siml';
-import PreBiSGearJson from './gear_sets/prebis.gear.siml';
 
 // The spec's defaults, from defaults.siml.
 export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecBalanceDruid, DefaultsJson);
 
-export const StandardRotation = PresetUtils.makePresetAPLRotation('Default', DefaultAPL);
+export const StandardRotation = PresetUtils.makePresetAPLRotation('Default', DefaultsJson.player.rotation);
 
 export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', Defaults.talents);
 
-// Six Feralheart pieces sold in Orgrimmar and Ironforge, Orb of the Darkmoon for Darkmoon Faire tickets, Tearfall
-// Bracers of Magic from Stratholme, Rune Band of Wizardry and Eye of the Beast from Blackrock Spire, Therazane's Touch
-// from the Alterac Valley vendors and the crafted Ironfeather Leggings. The cloak, a ring, a trinket and the idol are
-// sold by the Undermine Trader in Stranglethorn Vale. Hand of Edward the Odd, and the Pristine Scale and Fel Leather the
-// leggings take, have no known source.
-export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSGearJson, { devOnly: true });
+export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultsJson.player.equipment, { devOnly: true });
 
-export const P1Gear = PresetUtils.makePresetGear('P1', P1GearJson, { devOnly: true });
+// Starts on Auto as the page does, which runs the same rotation.
+export const DefaultBuild = PresetUtils.makePresetBuildFromSiml('Default', Spec.SpecBalanceDruid, DefaultsJson, {
+	gear: DefaultGear,
+	rotationType: APLRotation_Type.TypeAuto,
+});
 
-// Measured on the P1 gear with the Moonkin talents and the default consumables and buffs.
-export const P1EpWeights = PresetUtils.makePresetEpWeights(
-	'P1',
+// Measured with the sim's stat weights on the default build.
+export const DefaultEpWeights = PresetUtils.makePresetEpWeights(
+	'Default',
 	Stats.fromMap({
-		[Stat.StatIntellect]: 0.25,
-		[Stat.StatSpirit]: 0.05,
-		[Stat.StatSpellDamage]: 1,
-		[Stat.StatArcaneDamage]: 0.63,
-		[Stat.StatNatureDamage]: 0.37,
-		[Stat.StatHitRating]: 1.2,
-		[Stat.StatCritRating]: 0.77,
-		[Stat.StatHasteRating]: 1.03,
-		[Stat.StatMP5]: 0.13,
-	}),
-);
-
-// Measured on the Pre-BiS gear with the Moonkin talents and the default consumables and buffs.
-export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
-	'Pre-BiS',
-	Stats.fromMap({
-		[Stat.StatIntellect]: 0.2,
+		[Stat.StatIntellect]: 0.21,
 		[Stat.StatSpirit]: 0.04,
 		[Stat.StatSpellDamage]: 1,
-		[Stat.StatArcaneDamage]: 0.63,
-		[Stat.StatNatureDamage]: 0.37,
-		[Stat.StatHitRating]: 1.17,
-		[Stat.StatCritRating]: 0.63,
+		[Stat.StatArcaneDamage]: 0.62,
+		[Stat.StatNatureDamage]: 0.38,
+		[Stat.StatHitRating]: 1.14,
+		[Stat.StatCritRating]: 0.69,
 		[Stat.StatHasteRating]: 0.97,
-		[Stat.StatMP5]: 0.13,
+		[Stat.StatMP5]: 0.1,
 	}),
 );
