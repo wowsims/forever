@@ -10,7 +10,7 @@
   them for these weapons, and 66 after 2026-11-24 01:00 UTC, 9 of them for these weapons. The sim's item database is
   1.60.1.71139, push 114448; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-26
-- Pull request: not recorded
+- Pull request: #1262
 
 ## Method
 
