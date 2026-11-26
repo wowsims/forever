@@ -63,9 +63,8 @@ var hawkSwing = core.Weapon{
 
 // Effect 3 is the number of hawks up at once. A hawk's swing follows its owner's ranged speed while
 // it is up, a quiver's and Quick Shots' included; Berserking's attack speed does not reach it in
-// game. Its crit is half the tamed pet's, the higher of melee and ranged (inheritedCrit), with none
-// from Agility: with Ferocity 5/5 it reads 10 plus half the owner's crit, and with no Ferocity half the
-// tamed pet's (EV-0074). Its melee hit and expertise are the tamed pet's.
+// game. Its crit is the tamed pet's, the higher of the owner's melee and ranged crit (inheritedCrit)
+// with none from Agility. Its melee hit and expertise are the tamed pet's (EV-0074).
 func (hunter *Hunter) newHawks() []*HawkPet {
 	if !hunter.Talents.SummonHawk {
 		return nil
@@ -81,7 +80,7 @@ func (hunter *Hunter) newHawks() []*HawkPet {
 				return stats.Stats{
 					stats.Armor:               ownerStats[stats.Armor] * 0.3,
 					stats.AttackPower:         (ownerStats[stats.RangedAttackPower] + hunter.hawkWeaponAP()) * 0.8,
-					stats.PhysicalCritPercent: hunter.inheritedCrit(ownerStats) * 0.5,
+					stats.PhysicalCritPercent: hunter.inheritedCrit(ownerStats),
 					stats.PhysicalHitPercent:  inheritedHit(ownerStats),
 					stats.ExpertisePercent:    ownerStats[stats.ExpertisePercent],
 				}
