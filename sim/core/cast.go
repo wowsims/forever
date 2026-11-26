@@ -25,7 +25,8 @@ type Hardcast struct {
 	Pushback    bool
 	ResetsSwing bool // The melee swing waits out the cast, then starts a full swing when it completes.
 	CastTime    time.Duration
-	spell       *Spell // The spell being cast, whose cooldowns start when it lands.
+	start       time.Duration // When the cast began; a hit before then does not push it back.
+	spell       *Spell        // The spell being cast, whose cooldowns start when it lands.
 }
 
 // A hit pushes a cast back by SpellPushbackDuration, but never leaves more than the full cast time to
@@ -278,6 +279,7 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 				Pushback:    spell.Flags.Matches(SpellFlagPushback),
 				ResetsSwing: !isChanneled && !spell.Flags.Matches(SpellFlagKeepsSwingTimer),
 				CastTime:    spell.CurCast.CastTime,
+				start:       sim.CurrentTime,
 				spell:       spell,
 			}
 

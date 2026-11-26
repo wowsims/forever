@@ -16,7 +16,7 @@ type oathOfLight struct {
 // Oath of Light (talent)
 // https://www.wowhead.com/forever/spell=1328548
 //
-// Swear an Oath to protect target ally for 5 min, increasing the healing of your Holy Light on them
+// Swear an Oath to protect target ally for 1 hour, increasing the healing of your Holy Light on them
 // by up to 400, your Flash of Light by up to 115, and your Holy Shock by up to 229. Only one Oath of
 // Light may be sworn by the Paladin at any one time.
 //

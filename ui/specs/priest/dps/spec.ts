@@ -1,9 +1,8 @@
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as OtherInputs from '@features/settings/model/other_inputs';
-import { APLRotation } from '@generated/proto/apl';
+import { APLRotation, APLRotation_Type } from '@generated/proto/apl';
 import { ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
-import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
@@ -66,29 +65,14 @@ export default defineSpec<Spec.SpecDpsPriest>({
 	displayWeaponSkillGroups: [WeaponSkillGroup.Wands],
 
 	defaults: {
-		// Default equipped gear.
-		gear: Presets.ShadowTestingGear.gear,
+		...Presets.Defaults,
 		// Default EP weights for sorting gear in the gear picker.
-		epWeights: new Stats(),
+		epWeights: Presets.ShadowEpWeights.epWeights,
 		statCaps: (() => {
 			return new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow, 17).withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentHoly, 17);
 		})(),
-		// Default consumes settings.
-		consumables: Presets.DefaultConsumables,
-		// Default talents.
-		talents: Presets.StandardTalents.data,
-		// Default spec-specific settings.
-		specOptions: Presets.DefaultOptions,
-		// Default raid/party buffs settings.
-		raidBuffs: Presets.DefaultRaidBuffs,
-
-		partyBuffs: Presets.DefaultPartyBuffs,
-
-		individualBuffs: Presets.DefaultIndividualBuffs,
-
-		debuffs: Presets.DefaultDebuffs,
-
-		other: Presets.OtherDefaults,
+		// defaults.siml's rotation would make the page start on the APL; it starts on Auto, which runs the same APL.
+		rotationType: APLRotation_Type.TypeAuto,
 	},
 
 	// IconInputs to include in the 'Player' section on the settings tab.
@@ -109,22 +93,15 @@ export default defineSpec<Spec.SpecDpsPriest>({
 	presets: {
 		epWeights: [Presets.ShadowEpWeights, Presets.SmiteEpWeights],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.StandardTalents, Presets.SmiteTalents],
-		rotations: [Presets.ROTATION_PRESET_DEFAULT, Presets.ROTATION_SMITE_DEFAULT],
+		talents: [Presets.StandardTalents],
+		rotations: [Presets.ROTATION_PRESET_DEFAULT],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.ShadowTestingGear, Presets.SmiteTestingGear],
+		gear: [Presets.ShadowGear],
 		// Preset builds that the user can quickly select.
-		builds: [Presets.ShadowTestingBuild, Presets.SmiteTestingBuild],
+		builds: [Presets.ShadowBuild],
 	},
 
-	autoRotation: (priest: Player<Spec.SpecDpsPriest>): APLRotation => {
-		const [disc, , shadow] = priest.getTalentTreePoints();
-
-		if (disc > shadow) {
-			return Presets.ROTATION_SMITE_DEFAULT.rotation.rotation!;
-		}
-		return Presets.ROTATION_PRESET_DEFAULT.rotation.rotation!;
-	},
+	autoRotation: (): APLRotation => Presets.ROTATION_PRESET_DEFAULT.rotation.rotation!,
 
 	reforge: {},
 });

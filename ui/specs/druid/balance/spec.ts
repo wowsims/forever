@@ -51,26 +51,14 @@ export default defineSpec<Spec.SpecBalanceDruid>({
 	),
 
 	defaults: {
-		// Default equipped gear.
-		gear: Presets.PreBiSGear.gear,
+		...Presets.Defaults,
 		// Default EP weights for sorting gear in the gear picker.
-		epWeights: Presets.P1EpWeights.epWeights,
+		epWeights: Presets.DefaultEpWeights.epWeights,
 		// Default stat caps for stat weights tab. (also needed for reforging since we don't want to reforge above stat caps)
 		statCaps: (() => {
 			return new Stats().withPseudoStat(PseudoStat.PseudoStatSpellHitPercent, 17);
 		})(),
-		// Default consumes settings.
-		consumables: Presets.DefaultConsumables,
-		// Default talents.
-		talents: Presets.StandardTalents.data,
-		// Default spec-specific settings.
-		specOptions: Presets.DefaultOptions,
-		// Default raid/party buffs settings.
-		raidBuffs: Presets.DefaultRaidBuffs,
-		partyBuffs: Presets.DefaultPartyBuffs,
-		individualBuffs: Presets.DefaultIndividualBuffs,
-		debuffs: Presets.DefaultDebuffs,
-		other: Presets.OtherDefaults,
+		// defaults.siml's rotation would make the page start on the APL; it starts on Auto, which runs the same APL.
 		rotationType: APLRotation_Type.TypeAuto,
 	},
 
@@ -93,12 +81,14 @@ export default defineSpec<Spec.SpecBalanceDruid>({
 	},
 
 	presets: {
-		epWeights: [Presets.P1EpWeights, Presets.PreBiSEpWeights],
+		epWeights: [Presets.DefaultEpWeights],
 		// Preset talents that the user can quickly select.
 		talents: [Presets.StandardTalents],
 		rotations: [Presets.StandardRotation],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.PreBiSGear, Presets.P1Gear],
+		gear: [Presets.DefaultGear],
+		// Preset builds that the user can quickly select.
+		builds: [Presets.DefaultBuild],
 	},
 
 	autoRotation: (_player: Player<Spec.SpecBalanceDruid>): APLRotation => {

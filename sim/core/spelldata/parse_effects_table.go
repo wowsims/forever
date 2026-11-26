@@ -712,6 +712,10 @@ var pctModTable = map[dbcenums.SpellModOp]row{
 	dbcenums.SPELLMOD_RANGE: func(p *parser, e *Effect, v float64) *attachment {
 		return p.rangeMod("SpellMod_Range_Pct", p.modConfig(e, core.SpellMod_Range_Pct), v)
 	},
+	// The chance a hit does not push back a hardcast of the spells the class mask names.
+	dbcenums.SPELLMOD_NOT_LOSE_CASTING_TIME: func(p *parser, e *Effect, v float64) *attachment {
+		return p.modFloat("SpellMod_PushbackProtection_Pct", p.modConfig(e, core.SpellMod_PushbackProtection_Pct), v)
+	},
 	dbcenums.SPELLMOD_EFFECT1: pctEffectAmount,
 	dbcenums.SPELLMOD_EFFECT2: pctEffectAmount,
 	dbcenums.SPELLMOD_EFFECT3: pctEffectAmount,

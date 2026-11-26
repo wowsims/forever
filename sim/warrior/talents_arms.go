@@ -334,15 +334,13 @@ func (warrior *Warrior) registerWeaponmaster() {
 
 	// 1290261 states no proc flags at all, so the row decodes to a listener that hears nothing:
 	// the shape, the mask and the rate's effect are all the caller's. Sweeping Strikes' hits never
-	// roll it, and Whirlwind and Cleave roll it once a cast however many targets they land on
-	// (EV-0054). Which target's hit takes that roll is not measured; here the first landed one
-	// does, since a hit that is avoided never reaches the condition. A Windfury Totem hit rolls it
-	// as a white swing does (EV-0002). Swings other procs grant (Hand of Justice, Thrash Blade) bring
-	// one as well.
-	// TODO: Ingame test needed: whether Whirlwind's off-hand strike (its own spell, 462891 in game)
-	// rolls its own chance; the sim gives both hands the cast's one roll. A dual-wield Weaponmaster
-	// 5/5 log with an off-hand sword, about 150 Whirlwinds on 2 or more targets, settles it.
-	firstAoeHit, resetFirstAoeHit := core.OncePerCast()
+	// roll it. Every landed Whirlwind strike with a sword rolls it, either hand and every target, and
+	// one cast grants one extra attack at most (EV-0054). Cleave rolls it once a cast however many
+	// targets it lands on, on its first landed hit; no log measures Cleave. A Windfury Totem hit
+	// rolls it as a white swing does (EV-0002). Swings other procs grant (Hand of Justice, Thrash
+	// Blade) bring one as well.
+	firstCleaveHit, resetFirstCleaveHit := core.OncePerCast()
+	firstWhirlwindGrant, resetFirstWhirlwindGrant := core.OncePerCast()
 	swordTrigger := core.ProcTrigger{
 		Name:            "Weaponmaster (Sword)",
 		ActionID:        actionID.WithTag(3),
@@ -356,16 +354,25 @@ func (warrior *Warrior) registerWeaponmaster() {
 			if !spell.ProcMask.Matches(swordMask) || spell.ActionID.SpellID == sweepingStrikesHitID {
 				return false
 			}
-			if spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) && (spellData.Whirlwind.Contains(spell) || spellData.Cleave.Contains(spell)) {
-				return firstAoeHit(sim, spell)
+			if spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) && spellData.Cleave.Contains(spell) {
+				return firstCleaveHit(sim, spell)
 			}
 			return true
 		},
 	}
 	onInit := warrior.ExtraAttackProc(&swordTrigger, actionID.SpellID, 1)
+	// The handler queues a swing on every success, so a Whirlwind's later successes are dropped here.
+	grant := swordTrigger.Handler
+	swordTrigger.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		if spellData.Whirlwind.Contains(spell) && !firstWhirlwindGrant(sim, spell) {
+			return
+		}
+		grant(sim, spell, result)
+	}
 	swordAura := warrior.MakeProcTriggerAura(swordTrigger).ApplyOnInit(onInit).ApplyOnInit(func(aura *core.Aura, _ *core.Simulation) {
 		aura.OnReset = func(aura *core.Aura, sim *core.Simulation) {
-			resetFirstAoeHit()
+			resetFirstCleaveHit()
+			resetFirstWhirlwindGrant()
 			if swordMask == core.ProcMaskUnknown {
 				aura.Deactivate(sim)
 			} else {
@@ -486,7 +493,11 @@ func (warrior *Warrior) registerSweepingStrikes() {
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
-			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeAlwaysHit)
+			// The strike is never missed, dodged or parried, and rolls a crit of its own, whether or not the
+			// hit that brought it crit (EV-0213).
+			// TODO: Ingame test needed: whether the strike an Execute brings below 20% rolls a crit too; the
+			// logs measure the Whirlwind ones.
+			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialCritOnly)
 		},
 	})
 
@@ -501,7 +512,8 @@ func (warrior *Warrior) registerSweepingStrikes() {
 
 			// Whirlwind brings its one strike through CastNormalizedSweepingStrikesAttack, from the main
 			// hand's results: one hit and one charge a cast (EV-0054).
-			// TODO: Ingame test needed: whether Whirlwind's off-hand strike brings a hit of its own.
+			// TODO: Whirlwind's off-hand strike also brings off-hand strikes of Sweeping Strikes (462890 in
+			// game), each spending a charge, and the sim casts none; how many a cast brings is open (EV-0216).
 			if spell == hitSpell || spell == warrior.SweepingStrikesNormalizedAttack || spellData.ThunderClap.Contains(spell) || spellData.Whirlwind.Contains(spell) {
 				return
 			}

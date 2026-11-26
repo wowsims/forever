@@ -58,12 +58,15 @@ func (mage *Mage) registerWandSpecialization() {
 	})
 }
 
-// Improved Channeling, a chance to avoid interruption from damage while channeling Arcane Missiles
-// or casting Arcane Blast. The sim models no pushback, so there is nothing to apply.
+// Improved Channeling, a chance not to lose casting time to damage while channeling Arcane Missiles or
+// casting Arcane Blast or Arcane Wrath. A channel runs as a dot and no hit shortens it, so only the
+// hardcasts it names gain from it.
 func (mage *Mage) registerImprovedChanneling() {
 	if mage.Talents.ImprovedChanneling == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&mage.Character, spellData.ImprovedChanneling.Rank(mage.Talents.ImprovedChanneling))
 }
 
 // "Reduces your target's resistance to all your spells by 15 and reduces the threat caused by your
@@ -115,8 +118,8 @@ func (mage *Mage) registerArcaneConcentration() {
 		aura.Deactivate(sim)
 	}
 	mage.ClearCasting = mage.RegisterAura(config)
-	// The row's -1000% cost is what lets Clearcasting beat Arcane Charges and Arcane Power, which
-	// raise the cost in the same additive bucket.
+	// The row's -1000% cost makes the cost 0 whatever other cost mods are up, Arcane Charges and Arcane
+	// Power among them.
 	spelldata.ParseEffects(&mage.Character, mage.ClearCasting, clearcastingRank)
 
 	trigger := spelldata.ProcTrigger(&mage.Character, spellData.ArcaneConcentration.Rank(mage.Talents.ArcaneConcentration),

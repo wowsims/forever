@@ -690,19 +690,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Strike the target with a Flaming Shell for 38 Fire damage.
-	// https://www.wowhead.com/forever/spell=29647
-	// unsupported: states no rate
-	// trigger 29647 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 29647, BuffSpellID: 29647, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 13146, ItemName: "Shell Launcher Shotgun"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Knocks target silly for 1s. Orcs and Ogres are stunned for 2 times as long.
 	// https://www.wowhead.com/forever/spell=17308
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -3844,6 +3831,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16405, BuffSpellID: 16405, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13060, ItemName: "The Needler"},
+		})
+
+	// Strike the target with a Flaming Shell for 38 Fire damage.
+	// https://www.wowhead.com/forever/spell=29647
+	// trigger 29647 (3.75 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 29647, BuffSpellID: 29647, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 13146, ItemName: "Shell Launcher Shotgun"},
 		})
 
 	// Poisons target for 7 Nature damage every 1.0 sec for 15s.

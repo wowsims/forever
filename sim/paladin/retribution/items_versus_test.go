@@ -149,10 +149,10 @@ func TestPremierLuminousGlovesRaiseFlashOfLightCrit(t *testing.T) {
 	}
 }
 
-// Seal of Fury's hit and its judgement take the paladin's spell power but none of the spell damage
-// against the target's creature type (EV-0143).
-func TestSealOfFuryTakesNoSpellDamageAgainstTheTargetsType(t *testing.T) {
-	for name, mask := range sealOfFuryHits {
+// Holy Strike, Seal of Fury's hit and its judgement take the paladin's spell power but none of the
+// spell damage against the target's creature type (EV-0143, EV-0189).
+func TestHolyStrikeAndSealOfFuryTakeNoSpellDamageAgainstTheTargetsType(t *testing.T) {
+	for name, mask := range holyStrikeAndSealOfFuryHits {
 		t.Run(name, func(t *testing.T) {
 			damage := func(general, versus float64) float64 {
 				damage, _ := twentyCasts(t, spellWithMask(mask), func(sim *core.Simulation, character *core.Character, _ *core.Spell) {

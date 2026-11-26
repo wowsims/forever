@@ -15,7 +15,7 @@ afterAll(() => {
 describe('LandingHero', () => {
 	it('heads the page with the expansion name and renders the welcome text without its markup tags', () => {
 		render(<LandingHero />);
-		expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Forever Simulations');
+		expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('WoW Forever Simulations');
 		const blurb = document.getElementById('description');
 		expect(blurb?.textContent).toMatch(/^WoWSims is a fan-made open-source project/);
 		expect(blurb?.textContent).not.toMatch(/<\w+>/);

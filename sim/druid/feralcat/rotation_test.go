@@ -937,3 +937,22 @@ func TestAdaptiveRipBuildLeavesTimeForNextGlobal(t *testing.T) {
 		})
 	}
 }
+
+// On a bleed-immune target the shipped rotation casts no Rake or Rip and finishes with Ferocious Bite.
+func TestShippedAPLSkipsBleedsOnABleedImmuneTarget(t *testing.T) {
+	for _, talents := range []string{DefaultTalents, HybridTalents} {
+		req := sweepRequest(talents, core.GetAplRotation("../../../ui/specs/druid/feralcat/apls", "adaptive").Rotation, false, 5)
+		req.Encounter.Targets[0].BleedImmune = true
+		result := core.RunRaidSim(req)
+		if result.Error != nil {
+			t.Fatal(result.Error.Message)
+		}
+		actions := result.RaidMetrics.Parties[0].Players[0].Actions
+		if rake, rip := castsOf(actions, spellRake), castsOf(actions, spellRip); rake != 0 || rip != 0 {
+			t.Fatalf("%s: %d Rakes and %d Rips on a bleed-immune target, want none", talents, rake, rip)
+		}
+		if castsOf(actions, spellBite) == 0 {
+			t.Fatalf("%s: no Ferocious Bite on a bleed-immune target", talents)
+		}
+	}
+}

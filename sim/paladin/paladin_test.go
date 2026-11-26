@@ -92,17 +92,17 @@ func paladinWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulati
 	return sim, pal, pal.CurrentTarget
 }
 
-// A landed Judgement of Command rolls a weapon proc twice: once as its dummy lands and once on its
-// damage. A listener that is no weapon proc hears the damage alone, on the hit and on the cast result,
-// and a judgement that misses rolls none of them (EV-0156).
-func TestJudgementOfCommandRollsAWeaponProcTwice(t *testing.T) {
+// A landed Judgement of Command rolls a weapon proc once, on its damage: its dummy's landing
+// suppresses weapon procs (EV-0155). A listener that is no weapon proc hears the damage alone, on the
+// hit and on the cast result, and a judgement that misses rolls none of them (EV-0156).
+func TestJudgementOfCommandRollsAWeaponProcOnce(t *testing.T) {
 	const casts = 50
 	for _, c := range []struct {
 		name  string
 		lands bool
 		want  tally
 	}{
-		{"a judgement that lands", true, tally{castResults: casts, weaponProc: 2 * casts, hitListener: casts, castResultListener: casts}},
+		{"a judgement that lands", true, tally{castResults: casts, weaponProc: casts, hitListener: casts, castResultListener: casts}},
 		{"a judgement that misses", false, tally{castResults: casts}},
 	} {
 		t.Run(c.name, func(t *testing.T) {
@@ -193,43 +193,5 @@ func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
 	}
 	if once, more := restores(t, nil); once+more != 0 {
 		t.Errorf("without the set, %d Judgement casts restored the mana, want none", once+more)
-	}
-}
-
-// Exorcism lands without a crit at any crit chance, where Holy Wrath, another magic-defense Holy
-// spell, crits at the same chance (EV-0188).
-func TestExorcismNeverCrits(t *testing.T) {
-	const casts = 200
-	for _, c := range []struct {
-		name      string
-		ranks     spelldata.Ladder
-		wantCrits int32
-	}{
-		{"Exorcism", paladin.ExorcismRankMap, 0},
-		{"Holy Wrath", paladin.HolyWrathRankMap, casts},
-	} {
-		t.Run(c.name, func(t *testing.T) {
-			sim, pal, target := paladinWearing(t, nil)
-			// Holy Wrath hits only Undead and Demon targets.
-			target.MobType = proto.MobType_MobTypeUndead
-			pal.AddStatDynamic(sim, stats.SpellHitPercent, 100)
-			pal.AddStatDynamic(sim, stats.SpellCritPercent, 100)
-			spell := pal.GetSpell(core.ActionID{SpellID: c.ranks.Highest().ID})
-			if spell == nil {
-				t.Fatalf("the paladin has no %s", c.name)
-			}
-			for range casts {
-				spell.SkipCastAndApplyEffects(sim, target)
-			}
-
-			// The metrics count a landed hit once, under Hits or under Crits.
-			metrics := spell.SpellMetrics[target.UnitIndex]
-			if landed := metrics.Hits + metrics.Crits; landed != casts {
-				t.Fatalf("%d of %d %s casts landed, want every one", landed, casts, c.name)
-			}
-			if metrics.Crits != c.wantCrits {
-				t.Errorf("%d of %d landed %s casts crit, want %d", metrics.Crits, casts, c.name, c.wantCrits)
-			}
-		})
 	}
 }

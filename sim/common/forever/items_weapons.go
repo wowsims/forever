@@ -457,8 +457,7 @@ func init() {
 	// An Auto Shot or ranged special that lands rolls it at the procs per minute of the item's
 	// chance-on-hit entry, on the bow's speed (EV-0136). The roll comes on the shot's cast result at its
 	// release, and Pierce Heart strikes then. 1292647 is physical on the melee table. The stun on Naga
-	// is crowd control the sim leaves out.
-	// TODO: Ingame test needed: whether a missed shot rolls it too.
+	// is crowd control the sim leaves out. A missed Auto Shot never rolls it (EV-0206).
 	newEntryRateItemEffect(3078, 1292647, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(1292647)
 		damage := row.DamageEffect()
@@ -660,7 +659,8 @@ func init() {
 	// much damage if applied while behind the target.
 	//
 	// Rend 1300787's second effect, a dummy, states the multiplier a Rend applied from behind the target
-	// deals its ticks with (EV-0146).
+	// deals its ticks with (EV-0146). Its ticks meet a tenth of the target's armor, as its row's
+	// attributes say (EV-0194).
 	shared.DamageProcExtras[12791] = func(character *core.Character, config *core.SpellConfig) {
 		if !character.PseudoStats.InFrontOfTarget {
 			config.DamageMultiplier *= spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Average()
@@ -767,10 +767,10 @@ func init() {
 	// damage and slow movement speed by 50% for 5s.
 	//
 	// The generator keeps one proc per item, so both procs are written here. 1298413 casts 1298414 on
-	// each landed main-hand swing and special. 1298414's row states Always Hit, so it rolls only the
-	// melee crit (EV-0164). 1298416 strikes at the procs per minute of the item's chance-on-hit entry on
-	// the axe's speed (EV-0136), and registers nothing while the entry states none; its slow is movement
-	// the sim leaves out.
+	// each landed main-hand swing and special, one that deals no damage included (EV-0195). 1298414's
+	// row states Always Hit, so it rolls only the melee crit (EV-0164). 1298416 strikes at the procs
+	// per minute of the item's chance-on-hit entry on the axe's speed (EV-0136), and registers nothing
+	// while the entry states none; its slow is movement the sim leaves out.
 	core.NewItemEffect(13952, func(agent core.Agent) {
 		character := agent.GetCharacter()
 

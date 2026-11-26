@@ -131,10 +131,10 @@ func attachSetBonusProc(character *core.Character, setBonusAura *core.Aura, row 
 }
 
 // A listener for the row's procs per minute on spell casts. A cast of a damaging or healing spell rolls
-// once, and so does any other cast that costs its caster a resource and is no melee or ranged ability: a
-// seal, a blessing, a totem, Judgement. A cast that costs nothing rolls nothing, on the global cooldown
-// or off it (EV-0144). The chance depends on the cast, so Chance(1) leaves core no roll of its own and
-// the condition draws it.
+// once, and so does any other cast whose spell costs mana before cost modifiers and is no melee or ranged
+// ability: a seal, a blessing, a totem, Judgement. Any other cast rolls nothing, on the global cooldown or
+// off it, such as one that costs nothing or only rage or energy (EV-0144). The chance depends on the cast,
+// so Chance(1) leaves core no roll of its own and the condition draws it.
 func SpellCastPPMTrigger(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcTrigger {
 	trigger := spelldata.ProcTrigger(character, row, handler, spelldata.Chance(1))
 	trigger.Name = row.Name + " - Cast"
@@ -145,12 +145,21 @@ func SpellCastPPMTrigger(character *core.Character, row *spelldata.Spell, handle
 	trigger.RequireDamageDealt = false
 	flags := trigger.ProcSpellClassFlags
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		if !spell.ProcMask.Matches(core.ProcMaskSpellDamage|core.ProcMaskSpellHealing) && (spell.Cost == nil || spell.Cost.BaseCost <= 0) {
+		if !spell.ProcMask.Matches(core.ProcMaskSpellDamage|core.ProcMaskSpellHealing) && !costsMana(spell) {
 			return false
 		}
 		return RollCastTimePPM(sim, character, row, flags, spell.CurCast.CastTime)
 	}
 	return trigger
+}
+
+// Whether the spell costs its caster mana before cost modifiers.
+func costsMana(spell *core.Spell) bool {
+	if spell.Cost == nil || spell.Cost.BaseCost <= 0 {
+		return false
+	}
+	_, ok := spell.Cost.ResourceCostImpl.(*core.ManaCost)
+	return ok
 }
 
 // Whether a cast that took castTime procs the row's procs per minute: the rate on that time, at least

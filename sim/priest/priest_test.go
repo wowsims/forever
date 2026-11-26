@@ -12,6 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/stats"
+	"github.com/wowsims/forever/sim/siml"
 )
 
 func init() {
@@ -19,70 +20,60 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// The Shadow Testing build's gear, talents and rotation, which the UI's Shadow Testing gear set,
-// Standard talents and Default rotation read too.
-var shadowTestingBuild = core.GetTestBuildFromJSON(proto.Class_ClassPriest, "../../ui/specs/priest/dps/builds", "testing",
-	core.ItemFilter{}, nil, nil)
+// The Shadow page's default build, all from defaults.siml: race, professions, spec options, talents, gear, rotation,
+// consumables, distance, timings, buffs, debuffs, target dummies and encounter.
+var defaultBuild = readDefaultBuild()
 
-// The UI's defaults: Flask of Supreme Power, Major Spellblasting Potion, Nightfin Soup, Demonic Rune,
-// Brilliant Wizard Oil and Ez-Thro Dynamite II.
-var defaultConsumables = &proto.ConsumesSpec{
-	FlaskId:        13512,
-	OffensivePotId: 250937,
-	FoodId:         13931,
-	ConjuredId:     12662,
-	MhImbueId:      20749,
-	ExplosiveId:    18588,
+var defaultGear = defaultBuild.GearSet
+
+func readDefaultBuild() core.CharacterSuiteConfig {
+	f, err := siml.ReadFile("../../ui/specs/priest/dps/defaults.siml")
+	if err != nil {
+		panic(err)
+	}
+	settings, player := f.Settings, f.Settings.GetPlayer()
+	return core.CharacterSuiteConfig{
+		Class:              proto.Class_ClassPriest,
+		Race:               player.GetRace(),
+		Profession1:        player.GetProfession1(),
+		Profession2:        player.GetProfession2(),
+		GearSet:            core.GearSetCombo{Label: "default", GearSet: f.Equipment()},
+		SpecOptions:        core.SpecOptionsCombo{Label: "Shadow", SpecOptions: player.GetSpec()},
+		Talents:            player.GetTalentsString(),
+		Rotation:           core.RotationCombo{Label: "default", Rotation: f.Rotation()},
+		Encounter:          core.EncounterCombo{Label: "default", Encounter: settings.GetEncounter()},
+		StartingDistance:   player.GetDistanceFromTarget(),
+		ReactionTimeMs:     player.GetReactionTimeMs(),
+		ChannelClipDelayMs: player.GetChannelClipDelayMs(),
+		Consumables:        player.GetConsumables(),
+		IndividualBuffs:    player.GetBuffs(),
+		PartyBuffs:         settings.GetPartyBuffs(),
+		RaidBuffs:          settings.GetRaidBuffs(),
+		Debuffs:            settings.GetDebuffs(),
+		Cooldowns:          player.GetCooldowns(),
+		TargetDummies:      settings.GetTargetDummies(),
+	}
 }
 
 func TestShadowPriest(t *testing.T) {
-	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
-		{
-			Class:      proto.Class_ClassPriest,
-			Race:       proto.Race_RaceTroll,
-			OtherRaces: []proto.Race{proto.Race_RaceUndead, proto.Race_RaceDwarf, proto.Race_RaceNightElf},
-
-			SpecOptions: core.SpecOptionsCombo{
-				Label: "Shadow",
-				SpecOptions: &proto.Player_DpsPriest{
-					DpsPriest: &proto.DpsPriest{
-						Options: &proto.DpsPriest_Options{
-							ClassOptions: &proto.PriestOptions{
-								// Begin the sim already in Shadowform so the opener
-								// doesn't spend a GCD casting it.
-								PreShadowform: true,
-								Armor:         proto.PriestOptions_InnerFire,
-							},
-						},
-					},
-				},
-			},
-
-			GearSet:     shadowTestingBuild.GearSet,
-			Talents:     shadowTestingBuild.Talents,
-			Consumables: defaultConsumables,
-			Profession1: proto.Profession_Enchanting,
-			Profession2: proto.Profession_Tailoring,
-
-			Rotation: core.RotationCombo{Label: "default", Rotation: shadowTestingBuild.Rotation.Rotation},
-
-			ItemFilter: core.ItemFilter{
-				WeaponTypes: []proto.WeaponType{
-					proto.WeaponType_WeaponTypeDagger,
-					proto.WeaponType_WeaponTypeStaff,
-					proto.WeaponType_WeaponTypeMace,
-					proto.WeaponType_WeaponTypeOffHand,
-				},
-				ArmorType: proto.ArmorType_ArmorTypeCloth,
-				RangedWeaponTypes: []proto.RangedWeaponType{
-					proto.RangedWeaponType_RangedWeaponTypeWand,
-				},
-				// Blacklist melee enchants that appear on cloth-relevant slots but
-				// are never used by casters.
-				EnchantBlacklist: []int32{2673, 3225, 3273},
-			},
+	config := defaultBuild
+	config.OtherRaces = []proto.Race{proto.Race_RaceTroll, proto.Race_RaceUndead, proto.Race_RaceDwarf, proto.Race_RaceNightElf, proto.Race_RaceGnome}
+	config.ItemFilter = core.ItemFilter{
+		WeaponTypes: []proto.WeaponType{
+			proto.WeaponType_WeaponTypeDagger,
+			proto.WeaponType_WeaponTypeStaff,
+			proto.WeaponType_WeaponTypeMace,
+			proto.WeaponType_WeaponTypeOffHand,
 		},
-	}))
+		ArmorType: proto.ArmorType_ArmorTypeCloth,
+		RangedWeaponTypes: []proto.RangedWeaponType{
+			proto.RangedWeaponType_RangedWeaponTypeWand,
+		},
+		// Blacklist melee enchants that appear on cloth-relevant slots but
+		// are never used by casters.
+		EnchantBlacklist: []int32{2673, 3225, 3273},
+	}
+	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{config}))
 }
 
 // The priest's own Prayer of Fortitude bids in the raid buff's category. Alone, the cast adds the
@@ -98,7 +89,7 @@ func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 			Name:      "Prayer",
 			Race:      proto.Race_RaceTroll,
 			Class:     proto.Class_ClassPriest,
-			Equipment: shadowTestingBuild.GearSet.GearSet,
+			Equipment: defaultGear.GearSet,
 			Spec: &proto.Player_DpsPriest{
 				DpsPriest: &proto.DpsPriest{
 					Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
@@ -167,7 +158,7 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 				Name:          "Spirit Tap",
 				Race:          proto.Race_RaceTroll,
 				Class:         proto.Class_ClassPriest,
-				Equipment:     shadowTestingBuild.GearSet.GearSet,
+				Equipment:     defaultGear.GearSet,
 				TalentsString: talents,
 				Spec: &proto.Player_DpsPriest{
 					DpsPriest: &proto.DpsPriest{
@@ -436,5 +427,63 @@ func TestStarshardsTicksMeetTheTargetsFullResistance(t *testing.T) {
 
 	if landed < 100 || unresisted != 0 {
 		t.Errorf("%d of %d Starshards ticks took no partial resist, want none of at least 100", unresisted, landed)
+	}
+}
+
+// Penance's heal bolts crit with Revelation's charge up and leave it: every heal of the channel crits and
+// the charge outlasts the channel (EV-0149).
+func TestPenanceHealsCritAndLeaveRevelationsCharge(t *testing.T) {
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = 3600
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
+	for slot := range items {
+		items[slot] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: 1613, Enchant: 8217}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid: core.SinglePlayerRaidProto(&proto.Player{
+			Name:          "Penance",
+			Race:          proto.Race_RaceTroll,
+			Class:         proto.Class_ClassPriest,
+			Equipment:     &proto.EquipmentSpec{Items: items},
+			TalentsString: "000000000000001",
+			Spec: &proto.Player_DpsPriest{
+				DpsPriest: &proto.DpsPriest{
+					Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}},
+				},
+			},
+			Rotation: &proto.APLRotation{},
+		}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	priest := sim.Raid.Parties[0].Players[0].(*Priest)
+	healBolt := spellData.Penance.Highest().Refs()[1].ID
+	channel := priest.GetSpell(core.ActionID{SpellID: healBolt, Tag: 1})
+	bolt := priest.GetSpell(core.ActionID{SpellID: healBolt})
+	buff := priest.GetAuraByID(core.ActionID{SpellID: 1323377})
+	if !priest.Talents.Penance || channel == nil || bolt == nil || buff == nil {
+		t.Fatalf("Penance %v, its heal %v and bolt %v, Revelation %v; want all", priest.Talents.Penance, channel, bolt, buff)
+	}
+
+	buff.Activate(sim)
+	buff.SetStacks(sim, buff.MaxStacks)
+	if !channel.Cast(sim, &priest.Unit) {
+		t.Fatal("Penance's heal did not cast")
+	}
+	for end := sim.CurrentTime + 5*time.Second; sim.CurrentTime < end && !sim.Step(); {
+	}
+	hits, crits := int32(0), int32(0)
+	for _, metrics := range bolt.SpellMetrics {
+		hits += metrics.Hits
+		crits += metrics.Crits
+	}
+	if hits != 0 || crits < 2 {
+		t.Errorf("Penance's heals with Revelation up landed %d without a crit and %d crits, want every one of at least 2 to crit", hits, crits)
+	}
+	if !buff.IsActive() {
+		t.Error("Penance's heals spent Revelation's charge")
 	}
 }

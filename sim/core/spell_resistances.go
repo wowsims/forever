@@ -22,13 +22,14 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 	}
 
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) {
-		// All physical dots (Bleeds) ignore armor.
-		if isPeriodic && !spell.Flags.Matches(SpellFlagApplyArmorReduction) {
-			return 1, OutcomeEmpty
+		// Periodic physical damage ignores armor unless flagged to meet all of it or a tenth of it.
+		switch {
+		case !isPeriodic || spell.Flags.Matches(SpellFlagApplyArmorReduction):
+			return attackTable.GetArmorDamageModifier(spell), OutcomeEmpty
+		case spell.Flags.Matches(SpellFlagTenthResistance):
+			return attackTable.armorDamageModifier(0.1), OutcomeEmpty
 		}
-
-		// Physical resistance (armor).
-		return attackTable.GetArmorDamageModifier(spell), OutcomeEmpty
+		return 1, OutcomeEmpty
 	}
 
 	// Magical resistance.
@@ -82,16 +83,26 @@ func (at *AttackTable) GetBinaryHitChance(spell *Spell) float64 {
 // negative share under 1% pays nothing (EV-0142). The target's own resistance stops at 0, so a debuff
 // that lowers it below 0 adds nothing. A target above the caster's level resists no more for its level.
 func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) float64 {
-	if spell.SchoolIndex <= stats.SchoolIndexPhysical {
+	// Holy has no resistance, so a spell with Holy among its schools meets none and takes no piercing.
+	if spell.SchoolIndex <= stats.SchoolIndexPhysical || spell.SpellSchool.Matches(SpellSchoolHoly) {
 		return 0
 	}
 
-	resistance := 0.0
-	if stat, ok := spell.SpellSchool.ResistanceStat(); ok {
-		resistance = max(0, unit.GetStat(stat))
-		if !spell.Flags.Matches(SpellFlagNoSpellPiercing) {
-			resistance -= attacker.stats[stats.SpellPiercing] + attacker.PseudoStats.SchoolSpellPiercing[spell.SchoolIndex]
+	// A spell of several schools meets the lowest resistance among them, each school's after its own
+	// piercing.
+	// TODO: In-game testing required: the lowest resistance against a mob that resists one school of a
+	// Frostfire Bolt more than the other; the logs so far only show mobs with no resistance.
+	resistance := math.Inf(1)
+	for _, school := range singleSchools {
+		if !spell.SpellSchool.Matches(school) {
+			continue
 		}
+		stat, _ := school.ResistanceStat()
+		schoolResistance := max(0, unit.GetStat(stat))
+		if !spell.Flags.Matches(SpellFlagNoSpellPiercing) {
+			schoolResistance -= attacker.stats[stats.SpellPiercing] + attacker.PseudoStats.SchoolSpellPiercing[school.SchoolIndex()]
+		}
+		resistance = min(resistance, schoolResistance)
 	}
 	// TODO: 8L + 19 is a fit to Spell Piercing logs and to mobs casting at players of known resistance
 	// (EV-0091). ExpectedStat's ArmorConstant × 0.088 fits them nearly as well; a level 60 log tells the
@@ -159,6 +170,12 @@ func rollResistTenths(sim *Simulation, chances [11]float64) int {
 }
 
 func (at *AttackTable) GetArmorDamageModifier(spell *Spell) float64 {
+	return at.armorDamageModifier(1)
+}
+
+// The share of a hit left after armorShare of the defender's armor, taken of what the attacker's ignore
+// factor and armor penetration leave.
+func (at *AttackTable) armorDamageModifier(armorShare float64) float64 {
 	if at.IgnoreArmor {
 		return 1.0
 	}
@@ -168,7 +185,7 @@ func (at *AttackTable) GetArmorDamageModifier(spell *Spell) float64 {
 	armorConstant := 400 + 85*float64(at.Attacker.Level)
 	defenderArmor := at.Defender.Armor() - (at.Defender.Armor() * ignoreArmorFactor)
 	// TODO: Forever possibly has different rules as there is Armor Piercing Flat and % values
-	defenderArmor = max(defenderArmor-at.Attacker.stats[stats.ArmorPenetration], 0)
+	defenderArmor = max(defenderArmor-at.Attacker.stats[stats.ArmorPenetration], 0) * armorShare
 	// Damage reduction from armor is capped at 75%.
 	return max(1-defenderArmor/(defenderArmor+armorConstant), 0.25)
 }

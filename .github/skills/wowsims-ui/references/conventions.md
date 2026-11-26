@@ -7,13 +7,14 @@ styling, component state and locating elements, `ui/README.md` ("How to author a
 ## Formatting
 
 `oxfmt` is the formatter; prettier is not a dependency. `npm run fmt` is `npx oxfmt . --check` over the whole repo,
-including the markdown in `.github/skills/`, the workflows and the JSON schemas, so run it after editing any of them.
-It skips `ignorePatterns` in `.oxfmtrc.json` (generated files, `assets/**`, the SIML name table `sim/siml/names.json`,
-the per-spec preset JSON (`*.apl.json`, `*.build.json`, `*.gear.json` and `presets/**/*.json`) and the talent JSON,
-whose reformatting would be a diff nobody can review) and anything `.gitignore` hides. A new preset JSON directory
-needs its own ignore entry. The hunter's and the Retribution and Protection paladins' rotations, gear sets, builds and
-defaults are SIML (`*.siml`), which oxfmt does not read: their form is the one `go run --tags=with_db ./cmd/wowsimcli
-siml fmt -w <files>` writes, and `siml fmt -check ui/specs` fails on a committed file in any other. Print the config:
+including the markdown in `.github/skills/`, the workflows and the JSON schemas, so run it after editing any of them. It
+skips `ignorePatterns` in `.oxfmtrc.json` (generated files, `assets/**`, the SIML name table `sim/siml/names.json`, the
+per-spec preset JSON (`*.apl.json`, `*.build.json`, `*.gear.json` and `presets/**/*.json`) and the talent JSON, whose
+reformatting would be a diff nobody can review) and anything `.gitignore` hides. A new preset JSON directory needs its
+own ignore entry. The hunter's, the Balance druid's and the Retribution and Protection paladins' rotations, gear sets,
+builds and defaults, the Shadow priest's defaults, gear set and rotation, and the Feral druids' rotations and gear sets,
+are SIML (`*.siml`), which oxfmt does not read: their form is the one `go run --tags=with_db ./cmd/wowsimcli siml fmt -w <files>` writes, and `siml fmt -check
+ui/specs` fails on a committed file in any other. Print the config:
 
 ```
 node -e "console.log(require('./.oxfmtrc.json'))"
@@ -58,9 +59,11 @@ Adding a spec is three edits:
 build-config edit and no HTML file.
 
 Preset data: gear sets, APLs, builds and the spec's defaults are files under the spec folder, never TS literals. The
-hunter and the Retribution and Protection paladins write them in SIML (`gear_sets/*.gear.siml`, `apls/*.apl.siml`,
-`builds/*.siml`, `defaults.siml`); every other spec keeps JSON (`*.gear.json`, `*.apl.json`, `*.build.json`) with its
-defaults in `spec.ts`, until it moves. On SIML, `spec.ts` takes the proto-backed `defaults` from `defaults.siml` through
+hunter, the Balance druid and the Retribution and Protection paladins write them in SIML (`gear_sets/*.gear.siml`,
+`apls/*.apl.siml`, `builds/*.siml`, `defaults.siml`), and so does the Shadow priest.
+The Feral druids write `apls/*.apl.siml` and `gear_sets/*.gear.siml` and keep their defaults in TypeScript. Every
+other spec keeps JSON (`*.gear.json`, `*.apl.json`, `*.build.json`) with its defaults in `spec.ts`, until it
+moves. On SIML, `spec.ts` takes the proto-backed `defaults` from `defaults.siml` through
 `PresetUtils.specDefaultsFromSettings` and keeps only the UI-only ones (EP weights, stat caps, soft caps) in TypeScript.
 `presets.ts` imports a SIML file as its message's JSON (`import DefaultApl from './apls/default.apl.siml'`), which
 `tools/vite/siml.mts` reads at build time and fails the build on, with the file, line and column of each problem, and

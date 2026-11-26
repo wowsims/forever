@@ -76,6 +76,12 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   fires only, or more often, against some targets sets `VersusProc` ("x3 proc chance", "proc only"). The header names
   the target's family when an entry matched it by its family. A versus factor on something other than damage, such as
   a stun's duration or a restore, and a cast allowed only on some targets, get no tag.
+- **Periodic physical damage meets the armor its row's attributes name** (EV-0194). `SpellConfig` reads them: none
+  where the row sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
+  leaves where it sets only Attributes[0] 0x40000 (`SpellFlagTenthResistance`, the weapons' Rends), and the whole armor
+  where it sets neither (`SpellFlagApplyArmorReduction`, Wound). A periodic spell built by hand with no row ignores
+  armor, and one that pays out damage that already met armor (Death Mark, Lacerating Strikes) sets
+  `SpellFlagIgnoreResists` (`sim/core/spell_resistances.go`).
 
 ## How many targets
 

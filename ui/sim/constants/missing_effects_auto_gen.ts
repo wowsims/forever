@@ -743,12 +743,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13146, // Shell Launcher Shotgun
-		[
-			"Strike the target with a Flaming Shell for 38 Fire damage.", // 29647 - https://www.wowhead.com/forever/spell=29647
-		]
-	],
-	[
 		13198, // Hurd Smasher
 		[
 			"Knocks target silly for 1s. Orcs and Ogres are stunned for 2 times as long.", // 17308 - https://www.wowhead.com/forever/spell=17308
@@ -764,13 +758,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13262, // Ashbringer
 		[
 			"Blasts a target for 700 Fire damage.", // 18112 - https://www.wowhead.com/forever/spell=18112
-		]
-	],
-	[
-		13353, // Book of the Dead
-		[
-			"", // 1298517 - https://www.wowhead.com/forever/spell=1298517
-			"Summons a Skeleton that will protect you for 1min.", // 17490 - https://www.wowhead.com/forever/spell=17490
 		]
 	],
 	[

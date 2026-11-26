@@ -14,11 +14,17 @@ import (
 // each tick.
 const trapTotalAPShare = 0.10
 
-// TODO: In-game testing required. The game files carry no trap object, so its trigger radius and
-// arming delay are not in the store. Forever lets traps be placed in combat; a trap lies where the
-// hunter stood and springs on a target within this radius once armed.
+// TODO: In-game testing required. The game files carry no trap object, so its trigger radius is not
+// in the store. Forever lets traps be placed in combat; a trap lies where the hunter stood and springs
+// on a target within this radius once armed.
 const trapTriggerRadius = 5
-const trapArmingDelay = 500 * time.Millisecond
+
+// The game files carry no arming delay either. A trap arms 0.8 s after it is placed and looks for a
+// target every 0.4 s from a point that falls evenly in its first 0.4 s; about one trap in four springs
+// a check later (EV-0218).
+const trapArmingDelay = 800 * time.Millisecond
+const trapCheckInterval = 400 * time.Millisecond
+const trapLateCheckChance = 0.24
 
 var immolationTrapRank = spellData.ImmolationTrap.Highest()
 var immolationTrapEffectRank = spellData.ImmolationTrapTriggered.Highest()
@@ -43,8 +49,12 @@ func (hunter *Hunter) trapConfig(rank *spelldata.Spell, trigger *core.Spell) cor
 		if hunter.DistanceFromTarget > trapTriggerRadius+1e-6 {
 			return
 		}
+		delay := trapArmingDelay + time.Duration(sim.RandomFloat("Trap Check")*float64(trapCheckInterval))
+		if sim.Proc(trapLateCheckChance, "Trap Check") {
+			delay += trapCheckInterval
+		}
 		sim.AddPendingAction(&core.PendingAction{
-			NextActionAt: sim.CurrentTime + trapArmingDelay,
+			NextActionAt: sim.CurrentTime + delay,
 			OnAction: func(sim *core.Simulation) {
 				trigger.Cast(sim, target)
 			},
@@ -62,6 +72,10 @@ func (hunter *Hunter) registerImmolationTrap() {
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 	config.VersusStats = []stats.Stat{stats.RangedAttackPower}
+
+	// The trap casts the debuff where it lies, so the row's 10 yd range from the hunter does not
+	// limit it.
+	config.MaxRange = 0
 
 	config.Dot = spelldata.DotConfig(immolationTrapEffectRank, tick)
 	tickAPShare := trapTotalAPShare / float64(config.Dot.NumberOfTicks)

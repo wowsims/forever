@@ -75,28 +75,32 @@ func TestIgnoreTargetSchoolBonusTakesNoneOfTheBonus(t *testing.T) {
 	}
 }
 
-// A flat physical reduction takes at most half of a hit. A flat bonus has no such limit.
-func TestFlatPhysicalReductionTakesAtMostHalfTheHit(t *testing.T) {
+// A flat physical reduction takes at most half of a hit, and a flat bonus has no such limit. A periodic tick
+// takes neither.
+func TestFlatPhysicalDamageTaken(t *testing.T) {
 	sim := SetupFakeRageSim()
 	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
 	spell := physicalSpecial(sim.Encounter.ActiveTargetUnits[0], ProcMaskMeleeMHSpecial)
 	fw.stats[stats.Armor] = 0
 
 	tests := []struct {
-		name string
-		flat float64
-		base float64
-		want float64
+		name     string
+		flat     float64
+		base     float64
+		periodic bool
+		want     float64
 	}{
 		{name: "a hit of four times the reduction", flat: -30, base: 120, want: 90},
 		{name: "a hit of twice the reduction", flat: -30, base: 60, want: 30},
 		{name: "a hit under the reduction", flat: -30, base: 20, want: 10},
 		{name: "a bonus larger than the hit", flat: 30, base: 20, want: 50},
+		{name: "a tick under a bonus", flat: 8, base: 40, periodic: true, want: 40},
+		{name: "a tick under a reduction", flat: -30, base: 40, periodic: true, want: 40},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			fw.PseudoStats.BonusPhysicalDamageTaken = test.flat
-			result := spell.calcDamageInternal(sim, &fw.Unit, test.base, 1, false, spell.OutcomeAlwaysHitNoHitCounter)
+			result := spell.calcDamageInternal(sim, &fw.Unit, test.base, 1, test.periodic, spell.OutcomeAlwaysHitNoHitCounter)
 			if !WithinToleranceFloat64(test.want, result.Damage, 0.001) {
 				t.Fatalf("Damage taken: Expected: %0.3f, Actual: %0.3f", test.want, result.Damage)
 			}

@@ -108,24 +108,28 @@ def GenExpectedStats(dbPath: str, level: int):
     return stats
 
 
-def GenCreatureExpectedStats(dbPath: str, level: int):
+def GenCreatureStatsByLevel(dbPath: str):
     conn = sqlite3.connect(dbPath)
     rows = conn.execute(
-        """SELECT CreatureHealth, CreatureArmor, CreatureAutoAttackDps
-           FROM ExpectedStat WHERE Lvl = ? AND ContentSetID = 0""",
-        (level,),
+        """SELECT Lvl, CreatureHealth, CreatureArmor, CreatureAutoAttackDps
+           FROM ExpectedStat WHERE ContentSetID = 0 AND Lvl <= ? ORDER BY Lvl""",
+        (BASE_LEVEL + BOSS_LEVEL_OFFSET,),
     ).fetchall()
     conn.close()
 
-    if len(rows) != 1:
-        raise SystemExit(f"ExpectedStat has {len(rows)} level {level} rows, expected one")
-    health, armor, autoAttackDps = rows[0]
-    return {"Health": float(health), "Armor": float(armor), "AutoAttackDps": float(autoAttackDps)}
+    levels = [row[0] for row in rows]
+    if len(levels) != len(set(levels)):
+        raise SystemExit("ExpectedStat has more than one row for a level")
+    missing = sorted(set(range(1, BASE_LEVEL + BOSS_LEVEL_OFFSET + 1)) - set(levels))
+    if missing:
+        raise SystemExit(f"ExpectedStat has no creature row for levels {missing}")
+    return {int(lvl): (float(health), float(armor), float(dps)) for lvl, health, armor, dps in rows}
 
 
 class ClassStats:
     Expected: dict
     Creature: dict
+    CreatureByLevel: dict
     MCritBase: dict
     SCritBase: dict
     CombatRatings: dict
@@ -171,7 +175,12 @@ import (
     output += "// ExpectedStat's creature values at the character level\n"
     output += f"const CreatureHealthMaxLevel = {cs.Creature['Health']!r}\n"
     output += f"const CreatureArmorMaxLevel = {cs.Creature['Armor']!r}\n"
-    output += f"const CreatureAutoAttackDpsMaxLevel = {cs.Creature['AutoAttackDps']!r}\n"
+    output += "\n// ExpectedStat's creature values by level\n"
+    output += "type CreatureStats struct {\n\tHealth, Armor, AutoAttackDps float64\n}\n\n"
+    output += "var CreatureStatsByLevel = map[int32]CreatureStats{\n"
+    for lvl, (health, armor, dps) in sorted(cs.CreatureByLevel.items()):
+        output += f"\t{lvl}: {{Health: {health!r}, Armor: {armor!r}, AutoAttackDps: {dps!r}}},\n"
+    output += "}\n"
 
     output += '''var CritPerAgiMaxLevel = map[proto.Class]float64{
 proto.Class_ClassUnknown: 0.0,'''
@@ -235,7 +244,9 @@ def GenMechanicsTsFile(cs: ClassStats):
 if __name__ == "__main__":
     args = ClassStats()
     args.Expected = GenExpectedStats(BASE_DIR + DB_PATH, BASE_LEVEL)
-    args.Creature = GenCreatureExpectedStats(BASE_DIR + DB_PATH, BASE_LEVEL)
+    args.CreatureByLevel = GenCreatureStatsByLevel(BASE_DIR + DB_PATH)
+    health, armor, _ = args.CreatureByLevel[BASE_LEVEL]
+    args.Creature = {"Health": health, "Armor": armor}
     args.MCritBase = GenNameIndexedDb(BASE_DIR + DIR_PATH + MELEE_CRIT_BASE)
     args.SCritBase = GenNameIndexedDb(BASE_DIR + DIR_PATH + SPELL_CRIT_BASE)
     args.CombatRatings = GenNameIndexedDb(BASE_DIR + DIR_PATH + COMBAT_RATINGS)

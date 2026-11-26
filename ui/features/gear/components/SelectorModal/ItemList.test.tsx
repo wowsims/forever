@@ -1,4 +1,4 @@
-import { Class, Faction, ItemQuality, ItemSlot, ItemType, Race, ScalingItemProperties, Stat } from '@generated/proto/common';
+import { Class, Faction, HandType, ItemQuality, ItemSlot, ItemType, Race, ScalingItemProperties, Stat } from '@generated/proto/common';
 import { ItemEffect } from '@generated/proto/spell';
 import { ContentPhase, DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
@@ -123,10 +123,11 @@ describe('ItemList', () => {
 		slot = ItemSlot.ItemSlotHead,
 		equipped = null as EquippedItem | null,
 		over = {} as Partial<SelectorTab>,
+		itemSlots = undefined as readonly ItemSlot[] | undefined,
 	} = {}) =>
 		render(
 			<SimHostProvider host={host}>
-				<ItemList tab={tab(label, over)} slot={slot} equippedItem={equipped} />
+				<ItemList tab={tab(label, over)} slot={slot} itemSlots={itemSlots} equippedItem={equipped} />
 			</SimHostProvider>,
 		);
 
@@ -161,6 +162,28 @@ describe('ItemList', () => {
 				getFaction: () => (realStore.getState().players[0]?.race == Race.RaceOrc ? Faction.Horde : Faction.Alliance),
 			},
 		});
+	});
+
+	it('keeps a row of a list over several slots when it passes the filters in a slot it fits', () => {
+		const weapon = (id: number, name: string, handType: HandType) => ({
+			...row(id, name, 500),
+			item: Item.create({ id, name, type: ItemType.ItemTypeWeapon, handType, scalingOptions: { 0: ScalingItemProperties.create({ ilvl: 500 }) } }),
+		});
+		(host.player as any).filterItemData = (idxs: number[], _itemAt: unknown, slot: ItemSlot) => (slot === ItemSlot.ItemSlotMainHand ? [] : idxs);
+
+		const { container } = setup({
+			slot: ItemSlot.ItemSlotMainHand,
+			itemSlots: [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand],
+			over: {
+				itemData: [
+					weapon(1, 'Right Claw', HandType.HandTypeMainHand),
+					weapon(2, 'Left Claw', HandType.HandTypeOffHand),
+					weapon(3, 'Dagger', HandType.HandTypeOneHand),
+				],
+			},
+		});
+
+		expect(names(container)?.sort()).toEqual(['Dagger', 'Left Claw']);
 	});
 
 	it('offers the filters button and its dialog only on the items tab', () => {

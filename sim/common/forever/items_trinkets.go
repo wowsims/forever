@@ -352,15 +352,53 @@ func init() {
 		})
 	})
 
+	// Chained Essence of Eranikus
+	// https://www.wowhead.com/forever/item=10455/chained-essence-of-eranikus
+	//
+	// Use: Creates a cloud of poison around the caster. Enemies inside the cloud suffer 140 Nature damage
+	// every 2 sec. Deals 2 times as much damage to Trolls. Lasts for 20 sec.
+	//
+	// The cloud puts 1300240 on every enemy active at the use and none that comes later. It is a ground
+	// effect, so the debuff always lands and each tick rolls its own spell hit and crit. Its end takes the
+	// debuff just before the last tick, so each enemy takes one tick fewer than the cloud has periods, with no
+	// spell power (EV-0191).
+	core.NewItemEffect(10455, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		cloud := spelldata.MustFind(12766)
+		row := spelldata.MustFind(1300240)
+		tick := row.FirstAura(dbcenums.A_PERIODIC_DAMAGE)
+
+		config := procSpellConfig(character, row)
+		config.DefenseType = core.DefenseTypeMagic
+		config.VersusBonus = shared.ItemVersusBonus(character, 10455, proto.VersusEffectKind_VersusEffectKindDamage, row)
+		config.Dot = core.DotConfig{
+			Aura:             spelldata.AuraConfig(row),
+			TickLength:       tick.Period(),
+			NumberOfTicks:    int32(cloud.Duration()/tick.Period()) - 1,
+			BonusCoefficient: tick.Coeff(),
+			OnTick: spelldata.PeriodicDamageTick(tick, func(dot *core.Dot) core.OutcomeApplier {
+				return dot.Spell.OutcomeTickMagicHitAndCrit
+			}),
+		}
+		config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+			spell.ApplyAllDots(sim)
+		}
+		poison := character.RegisterSpell(config)
+
+		registerItemOnUse(character, 10455, core.CooldownTypeDPS, nil, func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+			poison.Cast(sim, target)
+		})
+	})
+
 	// Bolt's Charged Eyeball
 	// https://www.wowhead.com/forever/item=280032/bolts-charged-eyeball
 	//
 	// Equip: Dealing damage has a chance to deal 60 Nature damage to you or your current target. Deals 3
 	// times as much damage to Dinosaurs.
 	//
-	// 1311505's first effect casts 1315996, and its second holds the 3.
-	// TODO: The game files state no split between the wearer and the target. The sim gives the wearer one
-	// shock in two, and a shock on the wearer deals nothing the sim counts; a combat log would settle it.
+	// 1311505's first effect casts 1315996, and its second holds the 3. The game files state no split between
+	// the wearer and the target. About a quarter of the shocks hit the wearer (EV-0202), and by the owner's
+	// ruling the sim sends one in four there; a shock on the wearer deals nothing the sim counts.
 	core.NewItemEffect(280032, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1315996)
@@ -375,7 +413,7 @@ func init() {
 		shock := character.RegisterSpell(config)
 
 		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-			if sim.Proc(0.5, "Bolt's Charged Eyeball") {
+			if sim.Proc(0.75, "Bolt's Charged Eyeball") {
 				shock.Cast(sim, result.Target)
 			}
 		})

@@ -115,14 +115,14 @@ func init() {
 	// Libram of Law
 	// https://www.wowhead.com/forever/item=272435/libram-of-law
 	//
-	// Increases the damage of your Judgement ability by 4%. The game files' mask names Judgement of
-	// Righteousness and Judgement of Fury, not Judgement of Command.
+	// Increases the damage of your Judgement ability by 4%.
 	core.NewItemEffect(272435, func(agent core.Agent) {
-		agent.GetCharacter().AddStaticMod(core.SpellModConfig{
-			ClassMask:  SpellMaskJudgementOfRighteousness | SpellMaskJudgementOfFury,
-			Kind:       core.SpellMod_DamageDone_Pct,
-			FloatValue: 0.04,
-		})
+		character := agent.GetCharacter()
+		aura := core.MakePermanent(character.RegisterAura(core.Aura{
+			Label:    "Libram of Law",
+			ActionID: core.ActionID{SpellID: 1291086},
+		}))
+		spelldata.ParseEffects(character, aura, spelldata.MustFind(1291086))
 	})
 
 	// Libram of Economy
