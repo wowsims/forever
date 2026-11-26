@@ -100,7 +100,7 @@ it rolls once for each target until one procs. 18 procs stay unmatched.
   71037 160, 71091 68, 71091 or 71139 17; 235 start after hotfix push 114313 (2026-11-20 23:47 UTC). The hotfix each
   player ran is not recorded
 - Date: 2026-11-11 to 2026-11-26
-- Pull request: #
+- Pull request: #1253
 
 The count runs EV-0219's method (§Method there): roll groups of the wearer's landings within the row's 10 ms cooldown,
 duplicate runs dropped (11), and each wearer's last stretch with no proc where 8 or more were due cut (13,168 groups).

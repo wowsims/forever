@@ -11,7 +11,7 @@
   71037 170, 71091 60, 71091 or 71139 16; 232 start after hotfix push 114313 (2026-11-20 23:47 UTC). The hotfix each
   player ran is not recorded
 - Date: 2026-11-11 to 2026-11-26
-- Pull request: #
+- Pull request: #1253
 
 The proc is 1300782's fire damage on the target of the hit that rolled it, logged 0 to 49 ms after that hit (median
 26 ms). The game files state no rate: the column reads 100 and no procs per minute row exists, while the tooltip reads
