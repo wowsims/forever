@@ -1,5 +1,10 @@
-import type { SimWarning } from '@sim/sim_host';
+import type { SimWarning, SimWarningAction } from '@sim/sim_host';
 import type { StoreSubscribe } from '@sim/state/subscriptions';
+
+export interface SimWarningLine {
+	text: string;
+	action?: SimWarningAction;
+}
 
 export class WarningsRegistry {
 	private readonly warnings: Array<SimWarning> = [];
@@ -15,11 +20,12 @@ export class WarningsRegistry {
 
 	// A fresh array per call, so a React consumer must read it through
 	// useStoreSubscribe's snapshot cache rather than useSyncExternalStore.
-	readonly getContents = (): Array<string> =>
-		this.warnings
-			.map(warning => warning.getContent())
-			.flat()
-			.filter(content => content !== '');
+	// A warning's action goes on its last line.
+	readonly getContents = (): Array<SimWarningLine> =>
+		this.warnings.flatMap(({ getContent, action }) => {
+			const lines = [getContent()].flat().filter(content => content !== '');
+			return lines.map((text, index) => (action && index === lines.length - 1 ? { text, action } : { text }));
+		});
 
 	add(warning: SimWarning): () => void {
 		this.warnings.push(warning);
