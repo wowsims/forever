@@ -9,6 +9,13 @@ var ${Use Arcane Shot} = true
 var ${Use Sniper Shot} = true
 var ${Use Summon Hawk} = false
 
+// Serpent Sting fits in a gap: none of the shots the rotation uses comes up within 2.5 s.
+def serpent_fits =
+    not ($use_aimed_shot and spell(aimed_shot).time_to_ready <= 2.5s)
+    and not ($use_multi_shot and spell(multi_shot).time_to_ready <= 2.5s)
+    and not ($use_arcane_shot and spell(arcane_shot).time_to_ready <= 2.5s)
+    and not ($use_sniper_shot and spell(sniper_shot).is_ready)
+
 prepull:
   -24s group "Track the target"
   -22s cast hunters_mark
@@ -16,18 +23,30 @@ prepull:
   -19s move $pull_range
   // Open with Sniper Shot, started one cast before the pull so it lands as the fight starts.
   (spell(sniper_shot).cast_time * -1) cast sniper_shot if $use_sniper_shot
+  -1s cast other.offensive_potion
 
 priority:
+  /// Open with Serpent Sting, then Arcane Shot.
+  sequence "Opener" [cast serpent_sting, cast arcane_shot if $use_arcane_shot]
   autocast_other_cooldowns if current_time >= 5s
-  cast hunters_mark if not target.aura(hunters_mark).is_active
-  cast serpent_sting if not dot(serpent_sting).is_active
+  reset_sequence("Serpent, Mark, Arcane") if sequence("Serpent, Mark, Arcane").is_complete
+  /// Hunter's Mark has under 20 s left: put it in the free GCD behind Serpent Sting, before it drops.
+  sequence "Serpent, Mark, Arcane" [cast serpent_sting if target.aura(hunters_mark).remaining_time < 20s and serpent_fits, cast hunters_mark, wait until spell(arcane_shot).is_ready, cast arcane_shot]
+      if $use_arcane_shot
+  reset_sequence("Serpent, Arcane") if sequence("Serpent, Arcane").is_complete
+  /// Serpent Sting in the gap, then wait for Arcane Shot and press it before anything else, even if Aimed Shot comes up first.
+  sequence "Serpent, Arcane" [cast serpent_sting if serpent_fits, wait until spell(arcane_shot).is_ready, cast arcane_shot]
+      if $use_arcane_shot
   reset_sequence("HHA") if hawk_and_arcane and sequence("HHA").is_complete
   sequence "HHA" [cast summon_hawk, cast summon_hawk, cast arcane_shot] if hawk_and_arcane
   cast summon_hawk if $use_summon_hawk and not $use_arcane_shot
-  cast arcane_shot if $use_arcane_shot and not $use_summon_hawk
+  /// Otherwise press the first shot that is ready.
   cast aimed_shot if $use_aimed_shot
   cast multi_shot if $use_multi_shot
-  /// The least damage per second of casting, so it waits until none of the shots above is ready.
   cast sniper_shot if $use_sniper_shot
+  cast arcane_shot if $use_arcane_shot and not $use_summon_hawk
+  /// Without Arcane Shot there is no gap to fill: keep Hunter's Mark and Serpent Sting up.
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  cast serpent_sting if not dot(serpent_sting).is_active
   /// Start of the fight: get to my spot without losing an Auto Shot.
   group "Walk in" if self.unit_distance != $shoot_spot
