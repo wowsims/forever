@@ -6,6 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/common"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/siml"
 )
 
 func init() {
@@ -28,12 +29,12 @@ func TestElemental(t *testing.T) {
 					},
 				},
 			}},
-			GearSet:     defaultBuild.GearSet,
+			GearSet:     core.GearSetCombo{Label: "default", GearSet: defaults.Equipment()},
 			Talents:     DefaultTalents,
-			Consumables: defaultBuild.Consumables,
+			Consumables: defaults.Settings.GetPlayer().GetConsumables(),
 			Profession1: proto.Profession_Leatherworking,
 			Profession2: proto.Profession_Enchanting,
-			Rotation:    core.RotationCombo{Label: "default", Rotation: defaultBuild.Rotation.Rotation},
+			Rotation:    core.RotationCombo{Label: "default", Rotation: defaults.Rotation()},
 			ItemFilter: core.ItemFilter{
 				WeaponTypes:       DefaultWeaponTypes,
 				ArmorType:         DefaultArmorType,
@@ -43,11 +44,18 @@ func TestElemental(t *testing.T) {
 	}))
 }
 
-// The Default build's gear, talents, consumables and rotation, which the UI's defaults read too.
-var defaultBuild = core.GetTestBuildFromJSON(proto.Class_ClassShaman, "../../../ui/specs/shaman/elemental/builds", "default",
-	core.ItemFilter{}, nil, nil)
+// The page's defaults, whose gear, talents, consumables and rotation the suite sims.
+var defaults = readDefaults()
 
-var DefaultTalents = defaultBuild.Talents
+var DefaultTalents = defaults.Settings.GetPlayer().GetTalentsString()
+
+func readDefaults() *siml.File {
+	f, err := siml.ReadFile("../../../ui/specs/shaman/elemental/defaults.siml")
+	if err != nil {
+		panic(err)
+	}
+	return f
+}
 
 const DefaultArmorType = proto.ArmorType_ArmorTypeMail
 

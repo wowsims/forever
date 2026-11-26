@@ -3,19 +3,19 @@ import { Spec, Stat } from '@generated/proto/common';
 import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 
-import DefaultBuildJson from './builds/default.build.json';
-import BudgetGearJson from './gear_sets/budget.gear.json';
+import DefaultsJson from './defaults.siml';
+import BudgetGearJson from './gear_sets/budget.gear.siml';
 
-// The spec's defaults, from the Default build.
-export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecElementalShaman, DefaultBuildJson);
+// The spec's defaults, from defaults.siml.
+export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecElementalShaman, DefaultsJson);
 
-export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', DefaultBuildJson.player.rotation);
+export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', DefaultsJson.player.rotation);
 
-export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultBuildJson.player.equipment);
+export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultsJson.player.equipment);
 
 export const BudgetGear = PresetUtils.makePresetGear('Budget', BudgetGearJson);
 
-export const DefaultBuild = PresetUtils.makePresetBuildFromJSON('Default', Spec.SpecElementalShaman, DefaultBuildJson, { gear: DefaultGear });
+export const DefaultBuild = PresetUtils.makePresetBuildFromSiml('Default', Spec.SpecElementalShaman, DefaultsJson, { gear: DefaultGear });
 
 // Measured on the earlier Testing gear with the Standard talents over a three minute fight. Hit is its value below the
 // 17% cap.
@@ -35,11 +35,6 @@ export const DefaultEpWeights = PresetUtils.makePresetEpWeights(
 	}),
 );
 
-export const StandardTalents = {
-	name: 'Standard',
-	data: SavedTalents.create({
-		talentsString: DefaultBuildJson.player.talentsString,
-	}),
-};
+export const StandardTalents = PresetUtils.makePresetTalents('Standard', Defaults.talents);
 
 export const ManaTideTalents = PresetUtils.makePresetTalents('Mana Tide', SavedTalents.create({ talentsString: '5500331013001351-04-053150001001' }));
