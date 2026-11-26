@@ -36741,10 +36741,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1324972, SpellID: 1300364, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DETECTED_RANGE, BasePoints: -10, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1300435, Name: "Moonshadow", School: 1, Attr: [17]uint32{0: 0x1c0, 15: 0x2000}, SpellLevel: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10000}, ICDMs: 10, RPPM: 1.5, RefIDs: []int32{1300437}, ProcChanceSource: ProcChancePPM,
+	{ID: 1300435, Name: "Moonshadow", School: 1, Attr: [17]uint32{0: 0x1c0, 15: 0x2000}, SpellLevel: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10000}, ICDMs: 10, RPPM: 1.6, RefIDs: []int32{1300437}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 1325075, SpellID: 1300435, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, Variance: 0.6666666865348816, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}}, // override: PPM 1.5 -- Moonshadow Stave: 1.5 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'
+		}}, // override: PPM 1.6 -- Moonshadow Stave: 1.6 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'
 	{ID: 1300437, Name: "Moonshadow", School: 32, Speed: 20, Attr: [17]uint32{0: 0xad000010, 1: 0x20018088, 2: 0x4, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, MaxRange: 100, DefenseType: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1325078, SpellID: 1300437, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 91, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -36801,10 +36801,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1325588, SpellID: 1300763, Type: dbcenums.E_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
-	{ID: 1300781, Name: "Ignition", School: 1, Attr: [17]uint32{0: 0x1c0, 15: 0x2000}, SpellLevel: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10000}, ICDMs: 10, RefIDs: []int32{1300782}, ProcChanceSource: ProcChancePPM,
+	{ID: 1300781, Name: "Ignition", School: 1, Attr: [17]uint32{0: 0x1c0, 15: 0x2000}, SpellLevel: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10000}, ICDMs: 10, RPPM: 1.85, RefIDs: []int32{1300782}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 1325611, SpellID: 1300781, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, Variance: 0.6666666865348816, PvpMult: 1, TriggerID: 1300782, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: PPM 1.85 -- Kindling Stave: 1.85 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'
 	{ID: 1300782, Name: "Ignition", School: 4, Attr: [17]uint32{15: 0x2000}, SpellLevel: 1, MaxRange: 100, DefenseType: 1,
 		Effects: []Effect{
 			{ID: 1325612, SpellID: 1300782, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 70, Variance: 0.30000001192092896, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},

@@ -1158,6 +1158,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-KindlingStave-11750"
+ value: {
+  dps: 720.72357
+  tps: 537.79363
+  hps: 46.17361
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-KissoftheSpider-22954"
  value: {
   dps: 811.45245

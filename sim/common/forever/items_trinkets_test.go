@@ -1298,7 +1298,7 @@ func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
 			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
 		}},
 		{"landed hit of a spell fired as a proc whose row is one", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
-			spell.Flags |= core.SpellFlagPassiveSpell
+			spell.Flags |= core.SpellFlagPassiveSpell | core.SpellFlagProc
 			spell.ActionID = core.ActionID{SpellID: hurricaneTick}
 			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
 		}},

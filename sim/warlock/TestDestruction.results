@@ -928,6 +928,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-KindlingStave-11750"
+ value: {
+  dps: 929.69617
+  tps: 729.31203
+  dtps: 10.37218
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-KissoftheSpider-22954"
  value: {
   dps: 936.19035
