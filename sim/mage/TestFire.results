@@ -133,8 +133,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 913.27733
-  tps: 913.43212
+  dps: 918.12502
+  tps: 918.59611
  }
 }
 dps_results: {
@@ -836,6 +836,13 @@ dps_results: {
  value: {
   dps: 869.43758
   tps: 872.15302
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-KindlingStave-11750"
+ value: {
+  dps: 918.82666
+  tps: 918.15441
  }
 }
 dps_results: {

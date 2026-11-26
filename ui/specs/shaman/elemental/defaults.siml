@@ -1,0 +1,108 @@
+siml 1
+spec elemental_shaman
+talents "5500331023001351-05500001-053"
+
+settings:
+  race windshaper_skyborne
+  profession1 leatherworking
+  profession2 enchanting
+  reaction_time 100ms
+  distance_from_target 20
+
+gear:
+  head       coif_of_the_five_thunders_ilvl60 + arcanum_of_focus
+  neck       nacreous_shell_necklace + necklace_spell_power
+  shoulder   pauldrons_of_the_five_thunders_ilvl65
+  back       arcanoweave_cloak + cloak_subtlety
+  chest      robes_of_dark_summons + mystic_rugged_armor_kit
+  wrist      bindings_of_the_five_thunders_ilvl65 + bracer_greater_spellpower
+  hands      gauntlets_of_the_five_thunders_ilvl55 + gloves_natural_power
+  waist      cord_of_the_five_thunders_ilvl65
+  legs       ironfeather_leggings + arcanum_of_focus
+  feet       slippers_of_the_five_thunders + mystic_rugged_armor_kit
+  finger1    channelers_ring
+  finger2    rune_band_of_wizardry
+  trinket1   weakness_analyzer
+  trinket2   royal_seal_of_eldrethalas_18471
+  main_hand  ironbark_staff_20220 + enchant_2h_weapon_spellblasting
+  ranged     totem_of_the_storm
+
+consumables:
+  flask flask_of_supreme_power
+  food baked_salmon
+  conjured demonic_rune
+  mh_imbue wizard_oil
+  extra cerebral_cortex_compound
+  elixir elixir_of_nature_power,
+      arcane_elixir,
+      elixir_of_sages,
+      greater_mageblood_elixir,
+      elixir_of_greater_fortitude
+  resource_pot major_mana_potion
+
+buffs:
+  greater_blessing_of_kings
+  greater_blessing_of_wisdom 1
+
+raid_buffs: arcane_intellect, prayer_of_spirit, mark_of_the_wild, power_word_fortitude, moonkin_aura
+
+debuffs: judgement_of_wisdom, curse_of_elements
+
+encounter:
+  duration 180
+  duration_variation 5
+  execute_proportion_20 0.2
+  execute_proportion_35 0.35
+  targets(id=31146,
+      name="Raid Target",
+      level=63,
+      stats(attack_power=320, block_value=54, armor=3731, health=1428900),
+      min_base_damage=2601,
+      damage_spread=0.5,
+      swing_speed=2,
+      parry_haste,
+      can_crush)
+
+apl:
+  var ${Single Target} = number_targets == 1
+  var ${Multi Target} = not $single_target
+  var ${Use Cooldowns} = $multi_target or dot(flame_shock).is_active
+
+prepull:
+  -5.5s cast water_shield
+  -4s cast strength_of_earth_totem
+  -3s cast windfury_totem
+  -2s cast mana_spring_totem
+  -1s cast searing_totem if $single_target
+  -1s cast magma_totem if $multi_target
+
+priority:
+  cast other.resource_potion if current_mana_percent < 80%
+  cast item.demonic_rune if current_mana_percent < 70%
+  cast mana_tide_totem if current_mana_percent < 50%
+  # cast water_shield if not aura(water_shield).is_active(include_reaction_time=true)
+  group "Recast Totems"
+  autocast_other_cooldowns
+  cast elemental_mastery if $use_cooldowns
+  cast blood_fury if $use_cooldowns
+  cast berserking if $use_cooldowns
+  cast chain_lightning
+      if $multi_target
+      or aura(clearcasting).is_active(include_reaction_time=true) and not aura(elemental_mastery).is_active(include_reaction_time=true)
+  cast fire_nova if $multi_target
+  multidot(flame_shock, max_dots=3, max_overlap=0ms)
+  cast earth_shock
+      if $single_target
+      and aura(revelation_1323418).is_known
+      and aura(revelation_1323418).is_active(include_reaction_time=true)
+  cast lightning_bolt_10392_tag0 if current_mana_percent < 20%
+  cast lightning_bolt
+
+group "Recast Totems":
+  cast strength_of_earth_totem if totem_remaining_time(earth, include_reaction_time=true) == 0
+  cast searing_totem
+      if $single_target
+      and totem_remaining_time(fire, include_reaction_time=true) == 0
+  cast magma_totem if $multi_target and totem_remaining_time(fire, include_reaction_time=true) == 0
+  cast mana_spring_totem if totem_remaining_time(water, include_reaction_time=true) == 0
+  cast windfury_totem if totem_remaining_time(air, include_reaction_time=true) == 0

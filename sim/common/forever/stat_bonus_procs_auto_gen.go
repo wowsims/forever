@@ -532,19 +532,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Harmful spell casts have a chance to deal 70 Fire damage. Deals 3 times as much damage to Plants.
-	// https://www.wowhead.com/forever/spell=1300782
-	// unsupported: states no rate
-	// trigger 1300781 (no stated rate, core.CallbackOnCastComplete, core.ProcMaskSpellDamage) -> buff 1300782
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1300781, BuffSpellID: 1300782},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 11750, ItemName: "Kindling Stave"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Dying heals all party members within 40 yds for 1176.
 	// https://www.wowhead.com/forever/spell=1300891
 	// unsupported: ProcTypeMask DEATH; no callback in the proc mask; the heal lands on implicit target 22, not the wearer

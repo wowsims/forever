@@ -803,9 +803,16 @@ var Spells = []Override{
 	{
 		SpellID: 1300435,
 		Field:   PPM,
-		Value:   1.5,
-		Reason:  "Moonshadow Stave: 1.5 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'",
+		Value:   1.6,
+		Reason:  "Moonshadow Stave: 1.6 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'",
 		Source:  "EV-0115",
+	},
+	{
+		SpellID: 1300781,
+		Field:   PPM,
+		Value:   1.85,
+		Reason:  "Kindling Stave: 1.85 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'",
+		Source:  "EV-0219",
 	},
 	{
 		SpellID: 1079,
