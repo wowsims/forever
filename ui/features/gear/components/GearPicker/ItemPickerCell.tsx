@@ -66,7 +66,11 @@ export const ItemPickerCell = ({ slot, ready, align }: ItemPickerCellProps) => {
 			extraLabels={
 				<>
 					{quickSwapTooltip}
-					{item && <VersusChips item={item.item} />}
+					{item && (
+						<div className="mt-1 empty:hidden">
+							<VersusChips item={item.item} />
+						</div>
+					)}
 				</>
 			}
 		/>

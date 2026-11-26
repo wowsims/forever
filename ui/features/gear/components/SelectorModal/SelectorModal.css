@@ -7,37 +7,43 @@
 		@apply relative flex items-center gap-4 bg-gray-900 p-2 hover:bg-gray-800 [&[data-active]_.ui-selector-modal-list-item-icon]:outline-2 [&[data-active]_.ui-selector-modal-list-item-icon]:outline-success;
 	}
 
-	/* The link, icon and name, spans both rows; the notice sits beside the name on the first, and the
-	   versus chips take the second under the name, which collapses when the item names no target or area. */
+	/* The link spans both rows and shares them through a subgrid, so the name and its notice end the first
+	   row and the versus chips start the second, one row gap below. Without chips the second row is empty
+	   and the name and notice centre on the icon. */
 	.ui-selector-modal-list-label-cell {
-		@apply relative grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] grid-rows-[1fr_auto] items-center gap-x-1;
+		@apply relative grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] grid-rows-[1fr_auto] items-center gap-x-1 gap-y-1;
 
-		/* With chips under it, the name keeps to the top of the first row, and the notice beside it. */
 		&:has(.ui-selector-modal-list-item-versus:not(:empty)) {
-			.ui-selector-modal-list-item-name {
-				@apply self-start pt-px;
+			.ui-selector-modal-list-item-name,
+			.ui-selector-modal-list-item-notice {
+				@apply row-span-1 self-end;
 			}
 
+			/* The name's line height, so the notice centres on the name; the icon keeps the dialog's text-sm. */
 			.ui-selector-modal-list-item-notice {
-				@apply h-lh self-start pt-px text-md;
+				@apply h-lh text-md *:text-sm;
 			}
 		}
 	}
 
 	.ui-selector-modal-list-item-link {
-		@apply relative z-1 col-start-1 row-span-2 row-start-1 flex items-center self-stretch;
+		@apply relative z-1 col-start-1 row-span-2 row-start-1 grid grid-cols-[auto_auto] grid-rows-subgrid items-center;
+
+		.ui-selector-modal-list-item-icon {
+			@apply row-span-2;
+		}
 	}
 
 	.ui-selector-modal-list-item-name {
-		@apply ml-2 flex cursor-pointer flex-wrap items-baseline gap-x-1 text-md font-normal tracking-normal;
+		@apply col-start-2 row-span-2 row-start-1 ml-2 flex cursor-pointer flex-wrap items-baseline gap-x-1 text-md font-normal tracking-normal;
 	}
 
 	.ui-selector-modal-list-item-notice {
-		@apply col-start-2 row-start-1 flex items-center justify-self-start;
+		@apply col-start-2 row-span-2 row-start-1 flex items-center justify-self-start;
 	}
 
 	/* It lies over the link's lower half, so only the chips take the pointer. */
 	.ui-selector-modal-list-item-versus {
-		@apply pointer-events-none relative z-2 col-span-2 col-start-1 row-start-2 pl-14 empty:hidden [&_.ui-versus-chip]:pointer-events-auto;
+		@apply pointer-events-none relative z-2 col-span-2 col-start-1 row-start-2 self-start pl-14 empty:hidden [&_.ui-versus-chip]:pointer-events-auto;
 	}
 }
