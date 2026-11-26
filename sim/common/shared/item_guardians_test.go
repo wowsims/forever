@@ -2,10 +2,12 @@ package shared
 
 import (
 	"fmt"
+	"math"
 	"testing"
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -103,5 +105,90 @@ func TestNewGuardianOnUseRegistersNothingForAnUnmeasuredCreature(t *testing.T) {
 	}
 	if guardians := Guardians(&wearer.Character, spelldata.MustFind(servantSummon)); len(guardians) != 0 {
 		t.Errorf("an unmeasured creature's item built %d guardians, want none", len(guardians))
+	}
+}
+
+// A guardian whose summon puts it beside its owner comes up as far from the target as the owner stands and walks
+// in to melee range at its run speed, swinging only once it is there.
+func TestNewGuardianOnUsePutsTheGuardiansUpBesideTheOwnerAndWalksThemIn(t *testing.T) {
+	sim, wearer := newServantSim(t, 993104, map[int32]GuardianCreature{servantCreature: servant})
+	wearer.AutoAttacks.CancelAutoSwing(sim)
+	wearer.DistanceFromTarget = 30
+	guardian := Guardians(&wearer.Character, spelldata.MustFind(servantSummon))[0]
+	target := wearer.CurrentTarget
+
+	start := sim.CurrentTime
+	onUseSpell(t, wearer, 993104).Cast(sim, target)
+	if guardian.DistanceFromTarget != 30 {
+		t.Fatalf("%s comes up %.1f yd from the target, want the owner's 30", guardian.Name, guardian.DistanceFromTarget)
+	}
+	if speed := guardian.GetMovementSpeed(); speed != 7 {
+		t.Errorf("%s walks at %.2f yd/s, want 7", guardian.Name, speed)
+	}
+	arrival := start + core.DurationFromSeconds((30-core.MaxMeleeRange)/guardian.GetMovementSpeed())
+	stepPast(t, sim, arrival-100*time.Millisecond)
+	if swings := guardian.AutoAttacks.MHAuto().SpellMetrics[target.UnitIndex].Casts; swings != 0 {
+		t.Errorf("%s swung %d times before it reached melee range", guardian.Name, swings)
+	}
+	stepPast(t, sim, arrival+time.Second)
+	if guardian.DistanceFromTarget > core.MaxMeleeRange {
+		t.Errorf("%s stands %.1f yd from the target a second after it should have arrived", guardian.Name, guardian.DistanceFromTarget)
+	}
+	if swings := guardian.AutoAttacks.MHAuto().SpellMetrics[target.UnitIndex].Casts; swings == 0 {
+		t.Errorf("%s has not swung a second after it reached melee range", guardian.Name)
+	}
+}
+
+// A guardian whose summon puts it at the target comes up in melee range however far its owner stands.
+func TestNewGuardianOnUsePutsAGuardianSummonedAtTheTargetInMeleeRange(t *testing.T) {
+	editRow(t, servantSummon, func(row *spelldata.Spell) {
+		row.Effects[0].Target[0] = dbcenums.TARGET_DEST_TARGET_RANDOM
+	})
+	sim, wearer := newServantSim(t, 993105, map[int32]GuardianCreature{servantCreature: servant})
+	wearer.AutoAttacks.CancelAutoSwing(sim)
+	wearer.DistanceFromTarget = 30
+	guardian := Guardians(&wearer.Character, spelldata.MustFind(servantSummon))[0]
+
+	onUseSpell(t, wearer, 993105).Cast(sim, wearer.CurrentTarget)
+	if guardian.DistanceFromTarget > core.MaxMeleeRange {
+		t.Errorf("%s comes up %.1f yd from the target, want melee range", guardian.Name, guardian.DistanceFromTarget)
+	}
+}
+
+// A creature with a level of its own takes the creature numbers for that level, whatever its owner's.
+func TestGuardianCreatureWithALevelTakesThatLevelsCreatureNumbers(t *testing.T) {
+	leveled := servant
+	leveled.Level = 57
+	_, wearer := newServantSim(t, 993106, map[int32]GuardianCreature{servantCreature: leveled})
+	guardian := Guardians(&wearer.Character, spelldata.MustFind(servantSummon))[0]
+	level57 := core.CreatureStatsByLevel[57]
+
+	base := guardian.GetBaseStats()
+	if base[stats.Health] != 0.5*level57.Health || base[stats.Armor] != 0.25*level57.Armor {
+		t.Errorf("%s has %.1f health and %.1f armor, want half the level 57 creature health and a quarter of its armor",
+			guardian.Name, base[stats.Health], base[stats.Armor])
+	}
+	if want := 0.5 * level57.AutoAttackDps * 2.0 * 1.1; math.Abs(guardian.AutoAttacks.MH().BaseDamageMax-want) > 1e-9 {
+		t.Errorf("%s swings up to %.2f, want half of 2 s of the level 57 creature dps plus 10%%, %.2f",
+			guardian.Name, guardian.AutoAttacks.MH().BaseDamageMax, want)
+	}
+}
+
+// A creature with glancing blows of its own glances 2% of its landed swings for each point of defense the level 60
+// target has over its skill, and a glancing blow takes the damage range of the nearest level listed below the target's.
+func TestGuardianGlanceSetsTheChanceFromSkillAndTheDamageFromTheTargetsLevel(t *testing.T) {
+	glancing := servant
+	glancing.Swing.Glance = &GuardianGlance{Skill: 280, Damage: map[int32][2]float64{58: {0.5, 0.6}, 61: {0.1, 0.2}}}
+	_, wearer := newServantSim(t, 993107, map[int32]GuardianCreature{servantCreature: glancing})
+	guardian := Guardians(&wearer.Character, spelldata.MustFind(servantSummon))[0]
+
+	hand := guardian.AttackTables[wearer.CurrentTarget.UnitIndex].MH
+	if math.Abs(hand.BaseGlanceChance-0.4) > 1e-9 {
+		t.Errorf("%s glances %.2f against level 60, want 2%% for each of the 20 defense over its 280 skill, 0.40",
+			guardian.Name, hand.BaseGlanceChance)
+	}
+	if hand.GlanceMultiplierMin != 0.5 || hand.GlanceMultiplierMax != 0.6 {
+		t.Errorf("%s's glancing blows deal %.2f to %.2f of a hit against level 60, want level 58's 0.5 to 0.6",
+			guardian.Name, hand.GlanceMultiplierMin, hand.GlanceMultiplierMax)
 	}
 }
