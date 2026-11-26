@@ -2523,7 +2523,7 @@ Across the 2026-11-23 hotfix: the reports before 2026-11-24 01:00 UTC read 1.04 
 rolling hits, 71 wearers, 94 runs; the reports from then on 0.95 [0.87, 1.01], 772 procs on 27,230 rolling hits, 17
 wearers, 20 runs. The analyzer run on the reports from then on alone reads all hits 0.94 [0.85, 1.02], 772 procs, 17
 wearers, which overlaps the whole count's 1.02 [0.99, 1.04]. The rate is the whole count's, observed by owner ruling of
-2026-11-26 because the two halves read apart.
+2026-11-26: the reports from the hotfix on read lower, 0.95 against 1.04, their intervals meeting at 1.01.
 
 | Class   | Wearers | Procs |    Hits |  PPM |
 | ------- | ------: | ----: | ------: | ---: |
@@ -3585,9 +3585,9 @@ hits.
   lists, from every wearer stream on disk for its weapon; 353 reports in all for the count, 310 of them for these
   weapons
 - Game build: 1.60.1.70938 to 1.60.1.71139 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC, 71091 from 2026-11-24 15:21 UTC in the US and 2026-11-25 02:19 UTC in the EU, 71139 by 2026-11-25 22:38 UTC; its
-  rollout time is not recorded); 202 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 167 of
-  them for these weapons, and 66 after 2026-11-24 01:00 UTC, 44 of them for these weapons. The sim's item database is
+  UTC, 71091 from 2026-11-24 15:21 UTC in the US and 2026-11-25 02:19 UTC in the EU, 71139 from 2026-11-25 19:14 UTC in
+  the US and the EU); 202 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 167 of them for
+  these weapons, and 66 after 2026-11-24 01:00 UTC, 44 of them for these weapons. The sim's item database is
   1.60.1.71139, push 114448; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-26
 - Pull request: #1262

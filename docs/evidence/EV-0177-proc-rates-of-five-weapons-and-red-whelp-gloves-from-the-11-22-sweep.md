@@ -183,10 +183,10 @@ The count is EV-0183 §Method, run on these weapons.
   Warhammer section lists, from every wearer stream on disk for it; 353 reports in all for the count, 9 of them for
   Shimmering Platinum Warhammer
 - Game build: 1.60.1.70938 to 1.60.1.71139 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC, 71091 from 2026-11-24 15:21 UTC in the US and 2026-11-25 02:19 UTC in the EU, 71139 by 2026-11-25 22:38 UTC; its
-  rollout time is not recorded); 202 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 6 of
-  them for Shimmering Platinum Warhammer, and 66 after 2026-11-24 01:00 UTC, 4 of them for Shimmering Platinum
-  Warhammer. The sim's item database is 1.60.1.71139, push 114448; the hotfix each player ran is not recorded
+  UTC, 71091 from 2026-11-24 15:21 UTC in the US and 2026-11-25 02:19 UTC in the EU, 71139 from 2026-11-25 19:14 UTC in
+  the US and the EU); 202 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 6 of them for
+  Shimmering Platinum Warhammer, and 66 after 2026-11-24 01:00 UTC, 4 of them for Shimmering Platinum Warhammer. The
+  sim's item database is 1.60.1.71139, push 114448; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-26
 - Pull request: #1262
 

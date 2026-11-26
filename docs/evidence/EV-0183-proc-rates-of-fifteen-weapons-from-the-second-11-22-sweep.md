@@ -384,10 +384,10 @@ The count is EV-0186 §Method, run on this weapon.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights the Electrified Dagger section
   lists, from every wearer stream on disk for it; 353 reports in all for the count, 23 of them for Electrified Dagger
 - Game build: 1.60.1.70938 to 1.60.1.71139 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC, 71091 from 2026-11-24 15:21 UTC in the US and 2026-11-25 02:19 UTC in the EU, 71139 by 2026-11-25 22:38 UTC; its
-  rollout time is not recorded); 202 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 20 of
-  them for Electrified Dagger, and 66 after 2026-11-24 01:00 UTC, 11 of them for Electrified Dagger. The sim's item
-  database is 1.60.1.71139, push 114448; the hotfix each player ran is not recorded
+  UTC, 71091 from 2026-11-24 15:21 UTC in the US and 2026-11-25 02:19 UTC in the EU, 71139 from 2026-11-25 19:14 UTC in
+  the US and the EU); 202 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 20 of them for
+  Electrified Dagger, and 66 after 2026-11-24 01:00 UTC, 11 of them for Electrified Dagger. The sim's item database is
+  1.60.1.71139, push 114448; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-26
 - Pull request: #1262
 

@@ -5,9 +5,9 @@
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each weapon's section lists, from
   every wearer stream on disk for the two weapons; 18 reports in all for them, of the count's 353
 - Game build: 1.60.1.70938 to 1.60.1.71139 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
-  UTC, 71091 from 2026-11-24 15:21 UTC in the US and 2026-11-25 02:19 UTC in the EU, 71139 by 2026-11-25 22:38 UTC; its
-  rollout time is not recorded); 202 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 12 of
-  them for these weapons, and 66 after 2026-11-24 01:00 UTC, 9 of them for these weapons. The sim's item database is
+  UTC, 71091 from 2026-11-24 15:21 UTC in the US and 2026-11-25 02:19 UTC in the EU, 71139 from 2026-11-25 19:14 UTC in
+  the US and the EU); 202 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 12 of them for
+  these weapons, and 66 after 2026-11-24 01:00 UTC, 9 of them for these weapons. The sim's item database is
   1.60.1.71139, push 114448; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-26
 - Pull request: #1262
@@ -36,8 +36,8 @@ their expected procs at 1 PPM, with an interval of 2,000 bootstrap draws over ru
 under 5 wearers. The analyzer run again on the reports from that time on alone (`analyze_posthotfix.py`, the run
 `runs/2026-11-26-posthotfix`) gives each of the 103 items with 100 or more procs and 5 or more wearers there an all-hits
 interval that overlaps the whole count's, so the hotfix moved no rate and each weapon takes the whole count's.
-Shadowblade's and Shimmering Platinum Warhammer's halves read apart, and by owner ruling of 2026-11-26 both stay
-observed.
+Shadowblade's reports from that time on read lower than those before it (their intervals meet at 1.01), and Shimmering
+Platinum Warhammer's higher; by owner ruling of 2026-11-26 both stay observed.
 
 ## Rates
 

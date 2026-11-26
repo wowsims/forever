@@ -1284,7 +1284,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Whipfang's Skinsearer: no proc row; a log fit not yet validated (EV-0186)",
 		Source:  "observed",
 	},
-	// Fitted the same way on the reports from 2026-11-17 to 2026-11-26, from wearers of one class, no lone-unit rate to
+	// Fitted the same way on the reports from 2026-11-13 to 2026-11-26, from wearers of one class, no lone-unit rate to
 	// check it, too wide an interval, or reports before and after the 2026-11-23 hotfix that read apart, to call final
 	// (EV-0136, EV-0177, EV-0183, EV-0221). The "observed" Source keeps the gear tab's notice up until more wearers
 	// validate it.
