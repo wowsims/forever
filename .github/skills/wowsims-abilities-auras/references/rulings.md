@@ -16,7 +16,7 @@ request that settled it and its evidence. This index lists the ones this skill o
 ## Reading the row
 
 - **R-0008** A talent's trait curve applies with the sign the game files state: `docs/rulings/R-0008-talent-curve-sign-follows-game-files.md`
-- **R-0009** Seal of Righteousness keeps the tooltip coefficients over the rows' zero: `docs/rulings/R-0009-seal-of-righteousness-tooltip-coefficients.md`
+- **R-0009** Seal of Righteousness keeps hand coefficients over the rows' zero: `docs/rulings/R-0009-seal-of-righteousness-tooltip-coefficients.md`
 - **R-0010** Shield Bash and Shield Slam register as main-hand melee specials: `docs/rulings/R-0010-shield-specials-main-hand-special.md`
 - **R-0011** A hand-built melee or ranged special states its row's DefenseType: `docs/rulings/R-0011-hand-built-special-states-defensetype.md`
 
