@@ -335,8 +335,8 @@ func init() {
 	//
 	// Every harmful spell that lands on an enemy rolls it once for each target, damage or not, on the cast
 	// time of the cast that launched it. 21978 lacks Can Proc From Procs, so a spell fired as a proc never
-	// rolls it; Hellfire Effect, whose row lacks Not a Proc, rolls nothing in game (EV-0025). Physical
-	// taunts, shouts and roars and spells an item casts are not the wearer's spells and roll nothing.
+	// rolls it; Hellfire Effect, whose row lacks Not a Proc, rolls nothing in game (EV-0025). Only the
+	// wearer's harmful spells roll it (harmfulSpells).
 	row := spelldata.MustFind(21978)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
@@ -352,13 +352,10 @@ func init() {
 	//
 	// Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.
 	//
-	// 1300435 rolls once for each enemy a harmful spell lands on (harmfulSpells), a damage over time
-	// effect, a curse or another spell that deals no damage included, and its 10 ms cooldown lets one
-	// landing proc it once, so a Hurricane cast rolls once for each enemy in its area until one procs.
-	// The chance is the row's procs per minute on the cast time of the cast that launched the spell, at
-	// least 1.5 s (castTimePPM). Damage over time ticks, misses, helpful spells, melee and spells fired as
-	// a proc, Hurricane's ticks among them, never roll it. Each proc casts Shadow 1300437 or Arcane
-	// 1300438, one in two each, and both fly to the target (EV-0115).
+	// 1300435 rolls on each enemy a harmful spell lands on (harmfulSpells) at the row's procs per minute on
+	// the cast time behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one cast
+	// proc it once; each proc casts Shadow 1300437 or Arcane 1300438, one in two each, which fly to that
+	// enemy (EV-0115).
 	core.NewItemEffect(22458, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300435)
@@ -391,11 +388,9 @@ func init() {
 	//
 	// Harmful spell casts have a chance to deal 70 Fire damage. Deals 3 times as much damage to Plants.
 	//
-	// 1300781 rolls once for each enemy a harmful spell lands on (harmfulSpells), a curse or
-	// Counterspell's interrupt included, at the row's procs per minute on the cast time of the cast behind
-	// the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one cast proc it once. Hurricane,
-	// Blizzard and Rain of Fire roll it at the cast on each enemy in their area. Each proc deals 1300782
-	// to that enemy at once, three times as much to a Plant. Spells fired as a proc roll nothing (EV-0219).
+	// 1300781 rolls on each enemy a harmful spell lands on (harmfulSpells) at the row's procs per minute on
+	// the cast time behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one cast
+	// proc it once; each proc deals 1300782 to that enemy, three times as much to Plants (EV-0219).
 	core.NewItemEffect(11750, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300781)

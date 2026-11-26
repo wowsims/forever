@@ -229,8 +229,7 @@ func init() {
 	// Sometimes heals bearer of 158 to 238 damage when damaging an enemy in melee. This effect occurs
 	// twice as often in Strongholds and Cities.
 	//
-	// The game files state no rate for 23689; the item's entry carries the rate outside Strongholds and
-	// Cities, and an encounter there rolls twice that.
+	// 23689's rate is the item entry's, twice that in Strongholds and Cities.
 	newEntryRateItemEffect(19287, 23682, func(character *core.Character, ppm float64) {
 		if character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
 			ppm *= 2
@@ -515,11 +514,7 @@ func init() {
 	// encounter half of it. The sim fixes the encounter's area for the run, so the chance is fixed when
 	// the trigger is built.
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 20847, BuffSpellID: 18946,
-		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
-			if !character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
-				trigger.ProcChance /= 2
-			}
-		}},
+		Rate: halvedOutside(proto.AreaType_AreaTypeStrongholdsCities)},
 		[]shared.ItemVariant{
 			{ItemID: 14557, ItemName: "The Lion Horn of Stormwind"},
 		})
@@ -534,12 +529,7 @@ func init() {
 	// an encounter there rolls the whole column and any other encounter half of it, as The Lion Horn of
 	// Stormwind does.
 	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 8397, BuffSpellID: 10368,
-		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
-			encounter := character.Env.Encounter
-			if !encounter.InArea(proto.AreaType_AreaTypeWasteland) && !encounter.InArea(proto.AreaType_AreaTypeHaunted) {
-				trigger.ProcChance /= 2
-			}
-		}},
+		Rate: halvedOutside(proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted)},
 		[]shared.ItemVariant{
 			{ItemID: 11302, ItemName: "Uther's Strength"},
 		})
@@ -558,8 +548,7 @@ func init() {
 		if slices.ContainsFunc(character.Env.Encounter.AllTargetUnits, isElemental) {
 			agility += row.EffectN(2).BaseValue()
 		}
-		effects := core.GetItemByID(280071).ItemEffects
-		onUse := effects[slices.IndexFunc(effects, func(effect *proto.ItemEffect) bool { return effect.GetOnUse() != nil })]
+		onUse := itemOnUseEffect(280071)
 		core.RegisterTemporaryStatsOnUseCD(character, onUse.BuffName, stats.Stats{stats.Agility: agility}, row.Duration(),
 			core.SpellConfig{ActionID: core.ActionID{ItemID: 280071}, Cast: shared.OnUseCast(character, onUse)})
 	})
@@ -574,8 +563,9 @@ func init() {
 	// by hand: 1318931 rolls once for each enemy a harmful spell lands on (harmfulSpells), an area spell
 	// once per target and each Arcane Missiles missile on its own. A spell that applies a damage over
 	// time effect or a debuff rolls too, a curse included. Damage over time ticks never roll, and
-	// neither does a spell fired as a proc, such as Hellfire Effect. The 8% is the row's ProcChance, which an override sets; hardcasts and instants
-	// roll it alike. Misses are undetermined, so only landed spells roll (EV-0115).
+	// neither does a spell fired as a proc, such as Hellfire Effect. The 8% is the row's ProcChance,
+	// which an override sets; hardcasts and instants roll it alike. Misses are undetermined, so only
+	// landed spells roll (EV-0115).
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			trigger.Callback = core.CallbackOnSpellHitDealt
@@ -621,6 +611,15 @@ func registerCountdownOnUse(character *core.Character, itemID int32, row *spelld
 	})
 }
 
+// Half the row's chance in an encounter in none of the areas, whose doubled chance the column states.
+func halvedOutside(areas ...proto.AreaType) spelldata.ProcOpt {
+	return func(character *core.Character, trigger *core.ProcTrigger) {
+		if !slices.ContainsFunc(areas, character.Env.Encounter.InArea) {
+			trigger.ProcChance /= 2
+		}
+	}
+}
+
 // Whether the enemy is an elemental: of the Elemental type, or of an elemental family.
 func isElemental(target *core.Unit) bool {
 	return target.MobType == proto.MobType_MobTypeElemental ||
@@ -628,19 +627,23 @@ func isElemental(target *core.Unit) bool {
 		target.CreatureFamily == proto.CreatureFamily_CreatureFamilyFireElemental
 }
 
-// The item's use as a major cooldown, on the cooldowns its on-use effect states. The use completes no
-// cast, so a buff that counts casts does not count the use that applied it.
-func registerItemOnUse(character *core.Character, itemID int32, cdType core.CooldownType, buff *core.StatBuffAura, apply core.ApplySpellResults) {
+// The item's on-use effect; an item with none panics.
+func itemOnUseEffect(itemID int32) *proto.ItemEffect {
 	effects := core.GetItemByID(itemID).ItemEffects
 	i := slices.IndexFunc(effects, func(effect *proto.ItemEffect) bool { return effect.GetOnUse() != nil })
 	if i < 0 {
 		panic(fmt.Sprintf("item %d has no on-use effect", itemID))
 	}
+	return effects[i]
+}
 
+// The item's use as a major cooldown, on the cooldowns its on-use effect states. The use completes no
+// cast, so a buff that counts casts does not count the use that applied it.
+func registerItemOnUse(character *core.Character, itemID int32, cdType core.CooldownType, buff *core.StatBuffAura, apply core.ApplySpellResults) {
 	config := core.SpellConfig{
 		ActionID:     core.ActionID{ItemID: itemID},
 		Flags:        core.SpellFlagNoOnCastComplete,
-		Cast:         shared.OnUseCast(character, effects[i]),
+		Cast:         shared.OnUseCast(character, itemOnUseEffect(itemID)),
 		ApplyEffects: apply,
 	}
 	if buff != nil {

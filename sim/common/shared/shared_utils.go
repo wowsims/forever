@@ -714,23 +714,21 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 }
 
 // The handler followed by the row's own gain into the wearer's mana, rage or energy, where the row
-// states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana, and Righteous
-// Fire 1231138 raises spell power and restores mana. The
-// gain targets the caster, so it comes with every proc whether the damage lands or not, a full
-// resist included (EV-0108).
-func withProcEnergize(character *core.Character, damage *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
-	gain := damage.EnergizeEffect()
-	if gain == spelldata.NilEffect || gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
+// states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana, and
+// Righteous Fire 1231138 raises spell power and restores mana. The gain targets the caster, so it
+// comes with every proc whether the damage lands or not, a full resist included (EV-0108).
+func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
+	gain := row.EnergizeEffect()
+	if gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
 		return handler
 	}
-	power := dbcenums.PowerType(gain.Misc)
-	bar, ok := energizedBarOf(character, power, core.ActionID{SpellID: damage.ID})
+	restore, ok := effectGain(character, gain, core.ActionID{SpellID: row.ID})
 	if !ok {
 		return handler
 	}
 	return func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		handler(sim, spell, result)
-		bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+		restore(sim)
 	}
 }
 
@@ -1391,19 +1389,14 @@ func NewSpellDataPeriodicDamageOnUse(itemID int32) {
 func NewSpellDataHealOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeSurvival, func(character *core.Character, heal *spelldata.Spell) core.SpellConfig {
 		config := spellDataProcHealSpell(character, heal, false)
-		gain := heal.EnergizeEffect()
-		if gain == spelldata.NilEffect {
-			return config
-		}
-		power := dbcenums.PowerType(gain.Misc)
-		bar, ok := energizedBarOf(character, power, core.ActionID{ItemID: itemID})
+		restore, ok := effectGain(character, heal.EnergizeEffect(), core.ActionID{ItemID: itemID})
 		if !ok {
 			return config
 		}
 		applyEffects := config.ApplyEffects
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			applyEffects(sim, target, spell)
-			bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+			restore(sim)
 		}
 		return config
 	})
@@ -1432,22 +1425,13 @@ func NewSpellDataAbsorbOnUse(itemID int32) {
 // Lord's 17252 restores mana every period until the shield is used up or runs out.
 func attachShieldEnergize(character *core.Character, shield *core.Aura, absorb *spelldata.Spell, itemID int32) {
 	gain := absorb.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)
-	if gain == spelldata.NilEffect {
-		return
-	}
-	power := dbcenums.PowerType(gain.Misc)
-	bar, ok := energizedBarOf(character, power, core.ActionID{ItemID: itemID})
+	restore, ok := effectGain(character, gain, core.ActionID{ItemID: itemID})
 	if !ok {
 		return
 	}
 	var ticks *core.PendingAction
 	shield.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
-		ticks = core.StartPeriodicAction(sim, core.PeriodicActionOptions{
-			Period: gain.Period(),
-			OnAction: func(sim *core.Simulation) {
-				bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
-			},
-		})
+		ticks = core.StartPeriodicAction(sim, core.PeriodicActionOptions{Period: gain.Period(), OnAction: restore})
 	})
 	shield.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
 		ticks.Cancel(sim)

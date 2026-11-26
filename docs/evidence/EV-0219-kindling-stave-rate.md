@@ -11,7 +11,7 @@
   71037 170, 71091 60, 71091 or 71139 16; 232 start after hotfix push 114313 (2026-11-20 23:47 UTC). The hotfix each
   player ran is not recorded
 - Date: 2026-11-11 to 2026-11-26
-- Pull request: #1253
+- Pull request: #1253; the harmful spells that deal no damage, #1255
 
 The proc is 1300782's fire damage on the target of the hit that rolled it, logged 0 to 49 ms after that hit (median
 26 ms). The game files state no rate: the column reads 100 and no procs per minute row exists, while the tooltip reads
@@ -91,7 +91,7 @@ Cold (3.55 %) and Frost Nova (3.24 %) read below the instants on several targets
 - Harmful spells that deal no damage roll it like any other landing. Per landing, as §Per ability counts them before
   the killing blow rule: Curse of the Elements 4.65 % (77 of 1,655), Curse of Recklessness 5.10 % (23 of 451) and
   4.35 % (5 of 115) on its lower rank, Curse of Tongues 6.47 % (9 of 139), Silence 4.11 % (12 of 292), Faerie Fire
-  4.03 % (10 of 248), Polymorph 3.85 % (7 of 182) and 6.16 % (13 of 211).
+  4.03 % (10 of 248), and Polymorph 3.85 % (7 of 182) on rank 12825 and 6.16 % (13 of 211) on rank 12826.
 - Flamestrike's pulses 1279990 and 1279989 roll at 3.4 % a landing (818 of 23,905), about what an instant-priced roll
   on several targets under the cooldown gives (Arcane Explosion 4.15 %).
 - Arcane Missiles rolls on its missiles' landings alone. The game logs one cast for each missile (10274 and 10273,

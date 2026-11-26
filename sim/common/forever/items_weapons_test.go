@@ -911,9 +911,8 @@ func TestBladeOfEternalDarknessRestoresManaWithEachProc(t *testing.T) {
 
 // Moonshadow Stave 22458 rolls 1300435 on each landed harmful spell at the row's procs per minute on the
 // cast time of the spell's cast, at least castTimeFloor, a landing that deals no damage and a magic
-// spell with no proc mask, as a curse is, too. A miss, a
-// damage over time tick and a spell fired as a proc whose row is one never roll. Each proc casts
-// Shadow 1300437 or Arcane 1300438, one in two each.
+// spell with no proc mask, as a curse is, too. A miss, a damage over time tick and a spell fired as a
+// proc whose row is one never roll. Each proc casts Shadow 1300437 or Arcane 1300438, one in two each.
 func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	const hurricaneTick, flamestrikeTick = 1278759, 1279990
 	if !spelldata.MustFind(hurricaneTick).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {

@@ -122,6 +122,22 @@ func energizedBarOf(character *core.Character, power dbcenums.PowerType, actionI
 	return energizedBar{}, false
 }
 
+// One roll of the effect's gain into the bar its misc value names, metered under the action, or false
+// where there is no effect or the character has no such bar.
+func effectGain(character *core.Character, gain *spelldata.Effect, actionID core.ActionID) (func(*core.Simulation), bool) {
+	if gain == spelldata.NilEffect {
+		return nil, false
+	}
+	power := dbcenums.PowerType(gain.Misc)
+	bar, ok := energizedBarOf(character, power, actionID)
+	if !ok {
+		return nil, false
+	}
+	return func(sim *core.Simulation) {
+		bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+	}, true
+}
+
 // Whether the power type is one of the bars a gain fills: mana, rage or energy.
 func EnergizesABar(power dbcenums.PowerType) bool {
 	switch power {

@@ -994,21 +994,8 @@ func TestGrandArcanistRestoresItsBuffsManaWithEachProc(t *testing.T) {
 	}
 
 	spell := fireSpell(&character.Unit)
-	for hits := 0; !buff.IsActive(); hits++ {
-		if hits > 2000 {
-			t.Fatal("2000 landed spell hits never procced the enchant")
-		}
-		character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
-		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
-	}
-	var restored float64
-	var events int32
-	for _, r := range character.Metrics.ToProto().Resources {
-		if r.Id.GetSpellId() == 1231138 {
-			restored, events = r.Gain, r.Events
-		}
-	}
-	if events != 1 || restored < gain.Min() || restored > gain.Max() {
-		t.Errorf("the proc restored %v mana over %d gains, want one gain of %v to %v", restored, events, gain.Min(), gain.Max())
+	hitUntil(t, func() { dealHit(t, sim, character, spell) }, buff.IsActive)
+	if got := spellGain(character, 1231138); got.Events != 1 || got.Gain < gain.Min() || got.Gain > gain.Max() {
+		t.Errorf("the proc restored %v mana over %d gains, want one gain of %v to %v", got.Gain, got.Events, gain.Min(), gain.Max())
 	}
 }

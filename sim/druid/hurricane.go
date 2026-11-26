@@ -34,12 +34,9 @@ func (druid *Druid) registerHurricaneSpell() {
 	// The channel ticks on an A_PERIODIC_DUMMY, which DotConfig does not read, so the dot is by hand.
 	tickLength := hurricaneRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0).Period()
 
-	// The cast's dummy (effect 1) lands on every enemy in the area as the channel starts: a hit with no
-	// damage, which a listener on the enemy hears and a listener that needs damage does not. It reports
-	// under the cast's id with tag 1 and records no metrics or log lines. Omen of Clarity rolls at the
-	// cast itself, in registerOmenOfClarity (EV-0115, EV-0219).
-	landing := druid.RegisterSpell(spelldata.SpellConfig(&druid.Unit, hurricaneRank, spelldata.Magic(core.ProcMaskSpellDamage),
-		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))
+	// The cast lands on every enemy in the area as the channel starts. Omen of Clarity rolls at the cast
+	// itself, in registerOmenOfClarity (EV-0115, EV-0219).
+	land := spelldata.RegisterAreaCastLanding(&druid.Unit, hurricaneRank)
 
 	config := spelldata.SpellConfig(&druid.Unit, hurricaneRank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.Dot = core.DotConfig{
@@ -53,9 +50,7 @@ func (druid *Druid) registerHurricaneSpell() {
 		},
 	}
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		for _, target := range sim.Encounter.ActiveTargetUnits {
-			landing.CalcAndDealOutcome(sim, target, landing.OutcomeAlwaysHit)
-		}
+		land(sim)
 		spell.AOEDot().Apply(sim)
 	}
 
