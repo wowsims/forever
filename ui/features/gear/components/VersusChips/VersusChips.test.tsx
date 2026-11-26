@@ -74,7 +74,7 @@ describe('VersusChips', () => {
 
 		setEncounter([target(MobType.MobTypeUndead), target(MobType.MobTypeUndead)], [AreaType.AreaTypeSnowy]);
 		expect(chips().map(({ state, description }) => [state, description])).toEqual([
-			['on', '+81 Attack Power. Active on all 2 targets'],
+			['on', '+81 Attack Power. Active on all targets (2)'],
 			['off', 'Inactive: targets are Undead (Target 1), Undead (Target 2)'],
 			['on', '+28 Attack Power. Active: the encounter is in a Snowy area'],
 		]);
