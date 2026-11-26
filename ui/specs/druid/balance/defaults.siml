@@ -37,6 +37,7 @@ consumables:
   elixir greater_arcane_elixir, elixir_of_nature_power, elixir_of_the_owl, greater_mageblood_elixir
   resource_pot major_mana_potion
   offensive_pot major_spellblasting_potion
+  extra cerebral_cortex_compound
 
 buffs:
   greater_blessing_of_kings
