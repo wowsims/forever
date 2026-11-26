@@ -2753,6 +2753,7 @@
 					"threat": "Threat"
 				},
 				"show_gcd": "Show GCD",
+				"show_versus": "Show versus bonuses",
 				"chart_options": {
 					"time_axis": "Time (s)",
 					"waiting_for_data": "Waiting for data...",

@@ -28,7 +28,7 @@ export const CastItem = ({ item, index, iconUrl }: CastItemProps) => (
 			className="h-(--rotation-item-h) w-(--rotation-item-h) flex-none border-b-3 border-gray-600 group-data-[density=coarse]/scroller:hidden group-data-[outcome=cancelled]/cast:border-cancel group-data-[outcome=crit]/cast:border-damage-crit group-data-[outcome=hit]/cast:border-damage-hit group-data-[outcome=miss]/cast:border-damage-miss group-data-[outcome=partial]/cast:border-damage-partial"
 			iconUrl={iconUrl}>
 			{item.stack.some(cast => cast.damageDealtLogs.some(hit => hit.versus)) && (
-				<span data-testid="rotation-item-versus" className="ui-timeline-versus-pip" />
+				<span data-testid="rotation-item-versus" className="ui-timeline-versus-corner" />
 			)}
 		</WowheadIcon>
 		{item.stack.length > 1 && (

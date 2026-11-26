@@ -9791,6 +9791,9 @@
 								"show_gcd": {
 									"type": "string"
 								},
+								"show_versus": {
+									"type": "string"
+								},
 								"chart_options": {
 									"type": "object",
 									"properties": {
@@ -10007,6 +10010,7 @@
 								"note",
 								"chart_types",
 								"show_gcd",
+								"show_versus",
 								"chart_options",
 								"tooltips",
 								"floatingActionBar",

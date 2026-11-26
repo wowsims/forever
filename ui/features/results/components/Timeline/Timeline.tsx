@@ -28,6 +28,8 @@ export const Timeline = ({ active }: TimelineProps) => {
 	// GCD spans are model rows and model items, not a CSS overlay: a row hidden with display still
 	// owns its height in the windower's prefix sums. So the toggle rebuilds the model.
 	const [showGcd, setShowGcd] = useState(false);
+	// The versus marks are only hidden, so the toggle leaves the model alone.
+	const [showVersus, setShowVersus] = useState(true);
 
 	// A cleared result still emits, with an empty raid.
 	const player = useMemo(() => (shown ? (shown.result.getRaidIndexedPlayers(shown.filter)[0] ?? null) : null), [shown]);
@@ -85,6 +87,14 @@ export const Timeline = ({ active }: TimelineProps) => {
 						value={showGcd}
 						onChange={setShowGcd}
 					/>
+					<BooleanPicker
+						id="timeline-show-versus"
+						label={i18n.t('results_tab.details.timeline.show_versus')}
+						layout="inline"
+						className={['w-auto', 'whitespace-nowrap']}
+						value={showVersus}
+						onChange={setShowVersus}
+					/>
 					<ChartViewPicker value={view} onChange={setView} className="w-auto shrink-0" />
 				</div>
 			</div>
@@ -94,7 +104,7 @@ export const Timeline = ({ active }: TimelineProps) => {
 						<TimelineChart spec={spec} />
 					</div>
 				) : (
-					<div className="m-auto" data-testid="rotation-plot">
+					<div className="m-auto" data-testid="rotation-plot" data-versus={showVersus ? 'shown' : 'hidden'}>
 						<RotationTrack model={model} active={active} aplRun={aplRun} />
 					</div>
 				)}
