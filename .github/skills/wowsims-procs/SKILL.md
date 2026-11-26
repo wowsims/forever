@@ -108,6 +108,8 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   an override row on gear, and a `PPM(n)` literal with a review TODO only where no override fits. An item whose code
   reads its rate from its chance-on-hit entry (`newEntryRateItemEffect`) takes it in `WeaponProcs`, never in a `Spells`
   PPM override: the entry carries only the first, while the generator's missing check counts either as a rate.
+- **A measured procs per minute is rounded to the nearest 0.05** from the fit at full precision (1.7269 is 1.75), and
+  the evidence file gives both. A fit printed on a finer grid (1.725) is not a rounded rate.
 - **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` sets the rate's
   `ProcRateStatus` (`proto/ui.proto`, set by `rateOrigin` and `knownRates` in `tools/database/gen_effects.go`), which the gear tab's notice shows
   (`ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, `observed` is a

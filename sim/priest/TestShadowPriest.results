@@ -927,6 +927,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-KindlingStave-11750"
+ value: {
+  dps: 819.45126
+  tps: 584.5062
+  dtps: 5.95728
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-KissoftheSpider-22954"
  value: {
   dps: 823.44933
