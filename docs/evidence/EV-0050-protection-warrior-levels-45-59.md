@@ -84,7 +84,7 @@ it lands on.
 - Game build: 1.60.1.71091 on 2026-11-24 and 1.60.1.71139 from the 2026-11-25 18:17 login; the hotfix is not recorded;
   no reading moves between the two builds
 - Date: 2026-11-24 to 2026-11-26
-- Pull request: #TBD
+- Pull request: #1254
 
 The method is EV-0220's. Each flat is the window's own threat divided by 2.16, less the damage; Cleave's is read as one
 flat a cast split over the targets it lands on.
