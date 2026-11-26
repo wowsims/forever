@@ -51,7 +51,6 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfFury
 	judgementConfig.TakenBonusCoefficient = judgementCoefficient
-	judgementConfig.VersusStats = core.NoVersusStats
 	judgementConfig.DirectVariance = judgementDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, judgementDamage.Average()+judgementCoefficient*spell.SpellDamage(target), spell.OutcomeRangedHitAndCrit)
@@ -87,7 +86,6 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	procConfig := spelldata.SpellConfig(&paladin.Unit, procRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(), spelldata.Flags(core.SpellFlagProc))
 	procConfig.ClassSpellMask = SpellMaskSealOfFuryProc
 	procConfig.TakenBonusCoefficient = procCoefficient
-	procConfig.VersusStats = core.NoVersusStats
 	procConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcDamage(sim, target, damage+procCoefficient*spell.SpellDamage(target), spell.OutcomeMeleeSpecialCritOnly)
 		sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{

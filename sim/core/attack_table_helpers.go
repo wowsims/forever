@@ -3,6 +3,7 @@ package core
 import (
 	"maps"
 	"math"
+	"math/bits"
 	"slices"
 	"strconv"
 	"strings"
@@ -199,15 +200,16 @@ func (unit *Unit) mobTypeBonusesProto() []*proto.MobTypeBonus {
 //   - "x<m> proc chance": the proc that cast the spell is m times as likely against the target
 //     (VersusProc), under the proc's ActionID;
 //   - "proc only": the proc that cast the spell fires only against targets such as this one;
-//   - "+<n> <stat>" or "-<n> <stat>": a stat against the mob type the spell reads (versusStatsRead).
+//   - "+<n> <stat>" or "-<n> <stat>": a stat against the mob type the hit's damage read (VersusStat).
 //
 // A bonus an item grants, from its stats, its equip spell, its proc or its on-use, names the item; one
 // from an enchant, a set bonus, a consumable, a talent or a racial names its spell. The kinds come in
-// that order, each in the order the sources were added. Mob types and families are
+// that order, each in the order the sources were added, and one source's stats in the order of the stat
+// enum. Mob types and families are
 // their enum names without the prefix, numbers are rounded to 4 decimals, and no part holds ";" or
 // "]", so the tag ends the line at its only "]". A snapshot dot tick names the sources up at the tick,
 // not the ones its snapshot took.
-func (spell *Spell) versusLogTag(result *SpellResult, isPeriodic bool) string {
+func (spell *Spell) versusLogTag(result *SpellResult) string {
 	if !result.Landed() || result.Damage <= 0 {
 		return ""
 	}
@@ -250,12 +252,12 @@ func (spell *Spell) versusLogTag(result *SpellResult, isPeriodic bool) string {
 		}
 		byFamily = byFamily || proc.namesFamilyOf(target)
 	}
-	read := spell.versusStatsRead(target, isPeriodic)
 	for _, share := range spell.Unit.versusSources {
 		if share.mobType != target.MobType {
 			continue
 		}
-		for _, stat := range read {
+		for read := result.versusRead; read != 0; read &= read - 1 {
+			stat := stats.Stat(bits.TrailingZeros64(read))
 			if value := share.stats[stat]; math.Abs(value) > epsilon {
 				num := versusNumber(value)
 				if value > 0 {
@@ -273,60 +275,6 @@ func (spell *Spell) versusLogTag(result *SpellResult, isPeriodic bool) string {
 		family = " (" + strings.TrimPrefix(target.CreatureFamily.String(), "CreatureFamily") + ")"
 	}
 	return " [Versus " + strings.TrimPrefix(target.MobType.String(), "MobType") + family + ": " + strings.Join(entries, "; ") + "]"
-}
-
-// The VersusStats of a spell or dot that states it reads none.
-var NoVersusStats = []stats.Stat{}
-
-// The stats against the target's mob type that reach the spell's damage: on a tick the dot's VersusStats
-// where it declares them, then the spell's VersusStats where it declares them, and otherwise what the
-// spell alone shows:
-//   - AttackPower on a melee proc mask and RangedAttackPower on a ranged one, which weapon damage and
-//     attack power coefficients read;
-//   - PhysicalDamage or SpellDamage where CalcDamage or CalcPeriodicDamage adds BonusDamage, by their
-//     branches.
-//
-// A spell whose damage reads otherwise declares its VersusStats: a melee or ranged hit with no attack
-// power term (Seal of Fury, Hamstring), or one that adds a versus stat by hand outside BonusDamage
-// (Seal of Command). A dot whose ticks read differently from the hit declares its own (Explosive Trap).
-func (spell *Spell) versusStatsRead(target *Unit, isPeriodic bool) []stats.Stat {
-	var dot *Dot
-	if isPeriodic {
-		dot = spell.aoeDot
-		if dot == nil {
-			dot = spell.Dot(target)
-		}
-		if dot != nil && dot.VersusStats != nil {
-			return dot.VersusStats
-		}
-	}
-	if spell.VersusStats != nil {
-		return spell.VersusStats
-	}
-
-	var read []stats.Stat
-	if spell.ProcMask.Matches(ProcMaskMelee) {
-		read = append(read, stats.AttackPower)
-	}
-	if spell.ProcMask.Matches(ProcMaskRanged) {
-		read = append(read, stats.RangedAttackPower)
-	}
-
-	var addsBonusDamage bool
-	if isPeriodic {
-		addsBonusDamage = dot != nil && dot.BonusCoefficient > 0
-	} else {
-		addsBonusDamage = spell.BonusCoefficient > 0 ||
-			(!spell.Flags.Matches(SpellFlagPhysicalSchoolDamage) && spell.SpellSchool.Matches(SpellSchoolPhysical))
-	}
-	if addsBonusDamage {
-		if spell.SpellSchool.Matches(SpellSchoolPhysical) {
-			read = append(read, stats.PhysicalDamage)
-		} else if !spell.Flags.Matches(SpellFlagIgnoreTargetSchoolBonus) {
-			read = append(read, stats.SpellDamage)
-		}
-	}
-	return read
 }
 
 func versusNumber(v float64) string {

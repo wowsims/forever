@@ -4,8 +4,6 @@ import (
 	"math"
 	"strconv"
 	"time"
-
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 type OnSnapshot func(sim *Simulation, target *Unit, dot *Dot)
@@ -32,8 +30,6 @@ type DotConfig struct {
 	BonusCoefficient float64 // EffectBonusCoefficient in the game files' SpellEffect table, "SP mod" on Wowhead (not necessarily shown there even if > 0)
 
 	PeriodicDamageMultiplier float64 // Multiplier for periodic damage on top of the spell's damage multiplier
-
-	VersusStats []stats.Stat // The stats against the target's mob type the ticks read, where they differ from the spell's (versusStatsRead); NoVersusStats for none.
 
 	RankGroup string // Ranks of one periodic share it: a caster keeps one of them on a unit, channels excepted.
 	Rank      int32  // With RankGroup: this rank's place in it, the higher number winning. A ground effect (IsAOE) of any rank replaces the one down.
@@ -70,8 +66,6 @@ type Dot struct {
 	BonusCoefficient float64 // EffectBonusCoefficient in the game files' SpellEffect table, "SP mod" on Wowhead (not necessarily shown there even if > 0)
 
 	PeriodicDamageMultiplier float64 // Multiplier for periodic damage on top of the spell's damage multiplier
-
-	VersusStats []stats.Stat // The stats against the target's mob type the ticks read, as the dot declares them; nil when the ticks follow the spell's.
 
 	affectedByCastSpeed  bool // tick length are shortened based on casting speed
 	affectedByRealHaste  bool // tick length are shortened based on real haste
@@ -328,6 +322,7 @@ func (dot *Dot) durationExtendInternal(sim *Simulation, extendBy time.Duration, 
 // the tick is simply an extra tick.
 func (dot *Dot) TickOnce(sim *Simulation) {
 	if dot.onTick != nil {
+		dot.Spell.versusRead = 0 // A tick names the versus stats it reads itself.
 		dot.onTick(sim, dot.Unit, dot)
 	}
 }
@@ -499,7 +494,6 @@ func (spell *Spell) createDots(config DotConfig, isHot bool) {
 		BonusCoefficient:         config.BonusCoefficient,
 		BaseDurationMultiplier:   1,
 		PeriodicDamageMultiplier: config.PeriodicDamageMultiplier,
-		VersusStats:              config.VersusStats,
 	}
 
 	auraConfig := config.Aura

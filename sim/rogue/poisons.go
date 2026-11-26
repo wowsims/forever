@@ -4,7 +4,6 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // The poison items whose weapon imbue casts a rank of Deadly or Instant Poison. Each is the item's
@@ -99,7 +98,6 @@ func (rogue *Rogue) registerPoisonProc(consumable core.Consumable, chance float6
 func (rogue *Rogue) registerDeadlyPoisonSpell(deadlyPoisonRank *spelldata.Spell) {
 	config := spelldata.SpellConfig(&rogue.Unit, deadlyPoisonRank, spelldata.Magic(core.ProcMaskSpellDamageProc))
 	config.ClassSpellMask = RogueSpellDeadlyPoison
-	config.VersusStats = []stats.Stat{stats.AttackPower}
 	tick := deadlyPoisonRank.PeriodicEffect()
 	apScaling := 0.009 // Per tick and stack, measured in game (EV-0086).
 
@@ -134,7 +132,6 @@ func (rogue *Rogue) registerInstantPoisonSpell(instantPoisonRank *spelldata.Spel
 	ipBaseDamage := instantPoisonRank.DamageEffect().Average()
 	config := spelldata.SpellConfig(&rogue.Unit, instantPoisonRank, spelldata.Magic(core.ProcMaskSpellDamageProc))
 	config.ClassSpellMask = RogueSpellInstantPoison
-	config.VersusStats = []stats.Stat{stats.AttackPower}
 	apScaling := 0.01 // Measured in game (EV-0086).
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

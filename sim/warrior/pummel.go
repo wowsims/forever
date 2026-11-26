@@ -3,7 +3,6 @@ package warrior
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var pummelRank = spellData.Pummel.ByID(6554)
@@ -11,7 +10,6 @@ var pummelBaseDamage = pummelRank.DamageEffect().Average()
 
 func (warrior *Warrior) registerPummel() {
 	config := spelldata.SpellConfig(&warrior.Unit, pummelRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
-	config.VersusStats = []stats.Stat{stats.PhysicalDamage}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcAndDealDamage(sim, target, pummelBaseDamage, spell.OutcomeMeleeSpecialHitAndCrit)

@@ -3,7 +3,6 @@ package paladin
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var HammerOfWrathRankMap = spellData.HammerOfWrath
@@ -18,7 +17,6 @@ func (paladin *Paladin) registerHammerOfWrath(_ int32, rank *spelldata.Spell) {
 
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskRangedSpecial))
 	config.ClassSpellMask = SpellMaskHammerOfWrath
-	config.VersusStats = []stats.Stat{stats.SpellDamage}
 	// The game files' 1s GCD sits at core's floor, so it is named as the floor too or GCDTime clamps
 	// it.
 	config.Cast.DefaultCast.GCDMin = rank.GCD()

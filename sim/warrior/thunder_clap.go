@@ -4,7 +4,6 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var thunderClapRank = spellData.ThunderClap.Highest()
@@ -46,7 +45,6 @@ func (warrior *Warrior) registerThunderClap() {
 	config := spelldata.SpellConfig(&warrior.Unit, thunderClapRank,
 		spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskRangedSpecial
-	config.VersusStats = []stats.Stat{stats.AttackPower}
 	config.DamageMultiplier = 1
 	// Threat is 1 times the damage with no flat bonus, at 1 to 4 targets, Improved Thunder Clap included.
 	config.ThreatMultiplier = 1

@@ -869,7 +869,8 @@ func TestEquipAuraNamesItsVersusBonusByTheItem(t *testing.T) {
 	for i, want := range []string{fmt.Sprintf("{ItemID: %d} +", itemID), fmt.Sprintf("{SpellID: %d} +", sealOfTheDawnVersus)} {
 		lines = nil
 		tester := auraTesterAt(sim, i)
-		tester.strike.Cast(sim, tester.CurrentTarget)
+		// The test strike deals flat damage, so this hit reads the attack power the tag names.
+		tester.strike.CalcAndDealDamage(sim, tester.CurrentTarget, 100+tester.strike.MeleeAttackPower(tester.CurrentTarget)/14, tester.strike.OutcomeAlwaysHit)
 		var tag string
 		for _, line := range lines {
 			if _, after, found := strings.Cut(line, " [Versus Demon: "); found {

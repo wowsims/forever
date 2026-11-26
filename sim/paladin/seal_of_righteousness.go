@@ -52,7 +52,6 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfRighteousness
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
-	judgementConfig.VersusStats = []stats.Stat{stats.SpellDamage}
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, judgeDamage.Average(), spell.OutcomeRangedHitAndCrit)
@@ -73,7 +72,6 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		VersusStats:      []stats.Stat{stats.SpellDamage},
 
 		// No BonusCoefficient: the coefficient depends on the hand, and Judgement of the Crusader
 		// sits inside the base with the spell power, under the done multipliers, so the proc adds

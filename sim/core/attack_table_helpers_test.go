@@ -111,8 +111,13 @@ func versusLogTestOn(sim *Simulation, unit *Character) *versusLogTest {
 	return vt
 }
 
+// Deals 100 damage; the strike adds attack power to it, as a weapon strike does.
 func (vt *versusLogTest) deal(spell *Spell, outcome HitOutcome) {
-	result := spell.CalcDamage(vt.sim, vt.target, 100, func(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Outcome = outcome })
+	baseDamage := 100.0
+	if spell == vt.strike {
+		baseDamage += spell.MeleeAttackPower(vt.target) / 14
+	}
+	result := spell.CalcDamage(vt.sim, vt.target, baseDamage, func(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Outcome = outcome })
 	spell.DealDamage(vt.sim, result)
 }
 
@@ -229,49 +234,79 @@ func TestDamageLogNamesTheSpellsOwnVersusBonusAndTheFamily(t *testing.T) {
 	}
 }
 
-func TestDamageLogListsTheStatsASpellDeclaresAlone(t *testing.T) {
-	vt := newVersusLogTest()
-	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81, stats.SpellDamage: 40, stats.PhysicalDamage: 6}, vt.target.MobType)
-	holyStrike := func(id int32, read []stats.Stat) *Spell {
-		return vt.unit.RegisterSpell(SpellConfig{
-			ActionID:         ActionID{SpellID: id},
-			SpellSchool:      SpellSchoolHoly,
-			ProcMask:         ProcMaskMeleeMHSpecial,
-			DefenseType:      DefenseTypeMelee,
-			DamageMultiplier: 1,
-			ThreatMultiplier: 1,
-			VersusStats:      read,
-		})
-	}
+func outcomeHit(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Outcome = OutcomeHit }
 
-	for _, c := range []struct {
-		name  string
-		spell *Spell
-		want  string
+// A spell of the school on the melee table whose effects deal the damage baseDamage returns.
+func versusTestHit(unit *Character, id int32, school SpellSchool, baseDamage func(*Spell, *Unit) float64) *Spell {
+	return unit.RegisterSpell(SpellConfig{
+		ActionID:         ActionID{SpellID: id},
+		SpellSchool:      school,
+		ProcMask:         ProcMaskMeleeMHSpecial,
+		DefenseType:      DefenseTypeMelee,
+		DamageMultiplier: 1,
+		ThreatMultiplier: 1,
+		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
+			spell.CalcAndDealDamage(sim, target, baseDamage(spell, target), outcomeHit)
+		},
+	})
+}
+
+func flatDamage(*Spell, *Unit) float64 { return 100 }
+
+func attackPowerDamage(spell *Spell, target *Unit) float64 {
+	return 100 + spell.MeleeAttackPower(target)/14
+}
+
+func TestDamageLogListsTheStatsTheDamageRead(t *testing.T) {
+	vt := newVersusLogTest()
+	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81, stats.RangedAttackPower: 70, stats.SpellDamage: 40, stats.PhysicalDamage: 6}, vt.target.MobType)
+
+	for i, c := range []struct {
+		name       string
+		school     SpellSchool
+		baseDamage func(*Spell, *Unit) float64
+		want       string
 	}{
-		{"an undeclared melee hit", holyStrike(101, nil), ") [Versus Humanoid: {SpellID: 22} +81 AttackPower]"},
-		{"a hit declaring spell damage alone", holyStrike(102, []stats.Stat{stats.SpellDamage}), ") [Versus Humanoid: {SpellID: 22} +40 SpellDamage]"},
-		{"a hit declaring none", holyStrike(103, NoVersusStats), ")"},
+		{"a melee hit of flat holy damage", SpellSchoolHoly, flatDamage, ")"},
+		{"a flat physical strike, which takes the flat physical bonus", SpellSchoolPhysical, flatDamage, ") [Versus Humanoid: {SpellID: 22} +6 PhysicalDamage]"},
+		{"a holy hit on attack power", SpellSchoolHoly, attackPowerDamage, ") [Versus Humanoid: {SpellID: 22} +81 AttackPower]"},
+		{"a holy hit on ranged attack power", SpellSchoolHoly, func(spell *Spell, target *Unit) float64 {
+			return 100 + spell.RangedAttackPower(target)/14
+		}, ") [Versus Humanoid: {SpellID: 22} +70 RangedAttackPower]"},
+		{"a holy hit on attack power that adds spell damage by hand", SpellSchoolHoly, func(spell *Spell, target *Unit) float64 {
+			return attackPowerDamage(spell, target) + spell.VersusStat(target, stats.SpellDamage)
+		}, ") [Versus Humanoid: {SpellID: 22} +40 SpellDamage; {SpellID: 22} +81 AttackPower]"},
 	} {
-		if line := vt.damageLine(t, c.spell, OutcomeHit); !strings.HasSuffix(line, c.want) || (c.want == ")" && strings.Contains(line, "[Versus")) {
+		spell := versusTestHit(vt.unit, int32(101+i), c.school, c.baseDamage)
+		line := vt.lineOf(t, func() { spell.SkipCastAndApplyEffects(vt.sim, vt.target) })
+		if !strings.HasSuffix(line, c.want) || (c.want == ")" && strings.Contains(line, "[Versus")) {
 			t.Errorf("%s: line %q, want it to end with %q", c.name, line, c.want)
 		}
 	}
 }
 
-func TestDamageLogTagsATickByTheDotsDeclaration(t *testing.T) {
+func TestDamageLogTagsATickByWhatTheTickRead(t *testing.T) {
 	const hitTag = ") [Versus Humanoid: {SpellID: 22} +70 RangedAttackPower]"
+	rangedTick := func(sim *Simulation, target *Unit, dot *Dot) {
+		dot.Spell.CalcAndDealPeriodicDamage(sim, target, 100+dot.Spell.RangedAttackPower(target)/14, dot.OutcomeTick)
+	}
+	flatTick := func(sim *Simulation, target *Unit, dot *Dot) {
+		dot.Spell.CalcAndDealPeriodicDamage(sim, target, 100, dot.OutcomeTick)
+	}
+	// An area dot lives on its caster and ticks every enemy.
+	flatAreaTick := func(sim *Simulation, _ *Unit, dot *Dot) {
+		dot.Spell.CalcAndDealPeriodicAoeDamage(sim, 100, dot.OutcomeTick)
+	}
 	cases := []struct {
-		name    string
-		isAOE   bool
-		dotRead []stats.Stat
-		tick    string
-		spell   *Spell
+		name   string
+		isAOE  bool
+		onTick OnTick
+		tick   string
+		spell  *Spell
 	}{
-		{name: "a dot declaring spell damage", dotRead: []stats.Stat{stats.SpellDamage}, tick: ") [Versus Humanoid: {SpellID: 22} +40 SpellDamage]"},
-		{name: "a dot declaring none", dotRead: NoVersusStats, tick: ")"},
-		{name: "a dot declaring nothing", tick: hitTag},
-		{name: "an area dot declaring none", isAOE: true, dotRead: NoVersusStats, tick: ")"},
+		{name: "a dot whose ticks read ranged attack power", onTick: rangedTick, tick: hitTag},
+		{name: "a dot of flat ticks", onTick: flatTick, tick: ")"},
+		{name: "an area dot of flat ticks", isAOE: true, onTick: flatAreaTick, tick: ")"},
 	}
 	sim, character := NewWeaponTestSim(t, proto.Race_RaceHuman, WeaponTestSlots(WeaponTestSwordID, 0, 0), nil, func(character *Character) {
 		for i := range cases {
@@ -283,13 +318,15 @@ func TestDamageLogTagsATickByTheDotsDeclaration(t *testing.T) {
 				DefenseType:      DefenseTypeMagic,
 				DamageMultiplier: 1,
 				ThreatMultiplier: 1,
-				VersusStats:      []stats.Stat{stats.RangedAttackPower},
+				ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
+					spell.CalcAndDealDamage(sim, target, 100+spell.RangedAttackPower(target)/14, outcomeHit)
+				},
 				Dot: DotConfig{
 					Aura:          Aura{Label: fmt.Sprintf("Test Trap %d", id)},
 					IsAOE:         cases[i].isAOE,
 					NumberOfTicks: 1,
 					TickLength:    time.Second,
-					VersusStats:   cases[i].dotRead,
+					OnTick:        cases[i].onTick,
 				},
 			})
 		}
@@ -298,12 +335,79 @@ func TestDamageLogTagsATickByTheDotsDeclaration(t *testing.T) {
 	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.RangedAttackPower: 70, stats.SpellDamage: 40}, vt.target.MobType)
 
 	for _, c := range cases {
-		if line := vt.damageLine(t, c.spell, OutcomeHit); !strings.HasSuffix(line, hitTag) {
+		if line := vt.lineOf(t, func() { c.spell.SkipCastAndApplyEffects(sim, vt.target) }); !strings.HasSuffix(line, hitTag) {
 			t.Errorf("%s: hit line %q, want it to end with %q", c.name, line, hitTag)
 		}
-		line := vt.lineOf(t, func() { vt.tick(c.spell, OutcomeHit) })
+		dot := c.spell.AOEDot()
+		if !c.isAOE {
+			dot = c.spell.Dot(vt.target)
+		}
+		line := vt.lineOf(t, func() { dot.TickOnce(sim) })
 		if !strings.Contains(line, " tick ") || !strings.HasSuffix(line, c.tick) || (c.tick == ")" && strings.Contains(line, "[Versus")) {
 			t.Errorf("%s: tick line %q, want a tick ending with %q", c.name, line, c.tick)
+		}
+	}
+}
+
+// A read no hit dealt, of damage only expected, of threat or before the cast, leaves no stat on a later hit.
+func TestDamageLogNamesNoStatALeftoverReadTook(t *testing.T) {
+	vt := newVersusLogTest()
+	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81}, vt.target.MobType)
+	expected := vt.unit.RegisterSpell(SpellConfig{
+		ActionID:         ActionID{SpellID: 101},
+		SpellSchool:      SpellSchoolHoly,
+		ProcMask:         ProcMaskMeleeMHSpecial,
+		DefenseType:      DefenseTypeMelee,
+		DamageMultiplier: 1,
+		ThreatMultiplier: 1,
+		ExpectedInitialDamage: func(sim *Simulation, target *Unit, spell *Spell, _ bool) *SpellResult {
+			return spell.CalcDamage(sim, target, attackPowerDamage(spell, target), outcomeHit)
+		},
+	})
+	threat := vt.unit.RegisterSpell(SpellConfig{
+		ActionID:            ActionID{SpellID: 102},
+		SpellSchool:         SpellSchoolHoly,
+		ProcMask:            ProcMaskMeleeMHSpecial,
+		DefenseType:         DefenseTypeMelee,
+		DamageMultiplier:    1,
+		ThreatMultiplier:    1,
+		ThreatAPCoefficient: 1,
+	})
+	cast := versusTestHit(vt.unit, 103, SpellSchoolHoly, flatDamage)
+
+	for _, c := range []struct {
+		name string
+		hit  func()
+	}{
+		{"a hit after its expected damage read attack power", func() {
+			expected.ExpectedInitialDamage(vt.sim, vt.target)
+			vt.deal(expected, OutcomeHit)
+		}},
+		{"a hit whose threat reads attack power", func() { vt.deal(threat, OutcomeHit) }},
+		{"the next hit of that spell", func() { vt.deal(threat, OutcomeHit) }},
+		{"a cast after attack power was read outside it", func() {
+			cast.MeleeAttackPower(vt.target)
+			cast.SkipCastAndApplyEffects(vt.sim, vt.target)
+		}},
+	} {
+		if line := vt.lineOf(t, c.hit); strings.Contains(line, "[Versus") {
+			t.Errorf("%s: line %q, want no tag", c.name, line)
+		}
+	}
+}
+
+// A cleave reads attack power once for all its targets, and deals them after computing them all.
+func TestDamageLogNamesAReadOnEveryResultItWentInto(t *testing.T) {
+	vt := newVersusLogTest()
+	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81}, vt.target.MobType)
+	baseDamage := attackPowerDamage(vt.strike, vt.target)
+	first := vt.strike.CalcDamage(vt.sim, vt.target, baseDamage, outcomeHit)
+	second := vt.strike.CalcDamage(vt.sim, vt.target, baseDamage, outcomeHit)
+
+	const want = ") [Versus Humanoid: {SpellID: 22} +81 AttackPower]"
+	for _, result := range []*SpellResult{second, first} {
+		if line := vt.lineOf(t, func() { vt.strike.DealDamage(vt.sim, result) }); !strings.HasSuffix(line, want) {
+			t.Errorf("line %q, want it to end with %q", line, want)
 		}
 	}
 }

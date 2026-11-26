@@ -3,7 +3,6 @@ package hunter
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // Rank 1 hits for 5 at half the mana of the highest rank, a cheap main-hand special for the on-hit
@@ -18,7 +17,6 @@ func (hunter *Hunter) registerWingClip() {
 func (hunter *Hunter) registerWingClipRank(rank *spelldata.Spell) {
 	hit := rank.EffectN(2)
 	config := spelldata.SpellConfig(&hunter.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
-	config.VersusStats = []stats.Stat{stats.PhysicalDamage}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, hit.Roll(sim), spell.OutcomeMeleeSpecialHitAndCrit)

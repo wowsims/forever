@@ -41,7 +41,6 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	// the judgement by those.
 	judgementConfig.ClassFlags = judgeDamageRank.ClassFlags
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
-	judgementConfig.VersusStats = []stats.Stat{stats.SpellDamage}
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
 	// The dummy lands on the enemy before the damage it names. Its row carries Suppress Weapon Procs,
 	// so weapon procs and combat enchants hear the damage alone and roll once on a landed judgement
@@ -81,12 +80,11 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	procConfig := spelldata.SpellConfig(&paladin.Unit, procRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	procConfig.ClassSpellMask = SpellMaskSealOfCommandProc
 	procConfig.TakenBonusCoefficient = coefficient
-	procConfig.VersusStats = []stats.Stat{stats.AttackPower, stats.SpellDamage}
 	procConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		weaponDamage := spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
 		baseDamage := (weaponDamage + coefficient*spell.SpellDamage(target)) * weaponPercent
 
-		baseDamage += coefficient * spell.Unit.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.SpellDamage]
+		baseDamage += coefficient * spell.VersusStat(target, stats.SpellDamage)
 
 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 		dealAfterBatch(sim, spell, result)

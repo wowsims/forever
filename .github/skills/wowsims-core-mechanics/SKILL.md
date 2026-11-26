@@ -62,12 +62,14 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   scale with stacks or combo points reads them.
 - **Crit damage** is `(base × CritMultiplierPct × CritDamageMultiplier × table − 1) × (CritMultiplierAdditive + 1) + 1`
   (`spell.go`).
-- **The versus tag on a damage line names the stats the spell reads against the mob type** (`versusStatsRead` in
-  `sim/core/attack_table_helpers.go`). It infers attack power from the proc mask and physical or spell damage from the
-  `BonusDamage` branches. A spell whose damage reads otherwise, such as flat damage with no attack power term or spell
-  damage added by hand, sets `SpellConfig.VersusStats`, or `core.NoVersusStats` when it reads none; a dot whose ticks read otherwise than its spell sets
-  `DotConfig.VersusStats`, which a tick checks first. An item's versus
-  bonus is named by the item when its row is parsed with `spelldata.ForItem`.
+- **The versus tag on a damage line names the stats the hit's damage read against the mob type** (`versusLogTag` in
+  `sim/core/attack_table_helpers.go`). `MeleeAttackPower`, `RangedAttackPower` and `BonusDamage` mark each versus stat
+  they read on the spell, and a result carries the marks its cast or tick made by the time its damage is computed, so a
+  new spell or item declares nothing. The hits one cast computes share its marks, as a cleave that reads attack power
+  once for every target needs. A formula that adds a versus stat by hand reads it through `spell.VersusStat`
+  (Seal of Command), not the attack table. A read outside the damage stays off the tag: threat's attack power share,
+  an expected-damage value, and a read before the cast or tick. An item's versus bonus is named by the item when its
+  row is parsed with `spelldata.ForItem`.
 - **The versus tag names every versus effect and nothing else**, so a versus effect coded by hand goes through a
   tracked helper, never a bare check of `MobType` or `CreatureFamily`. Stats, damage and crit damage against a mob type
   go through `AddMobTypeBonusStats`, `AttachMobTypeBonusStats`, `MultiplyDamageVersus` or `MultiplyCritDamageVersus`

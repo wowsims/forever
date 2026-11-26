@@ -7,7 +7,6 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 func (warrior *Warrior) registerArmsTalents() {
@@ -468,7 +467,6 @@ func (warrior *Warrior) registerSweepingStrikes() {
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
-		VersusStats:      []stats.Stat{stats.PhysicalDamage},
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			damage := copyDamage

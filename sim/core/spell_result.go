@@ -25,6 +25,7 @@ type SpellResult struct {
 
 	inUse           bool
 	castResultDealt bool
+	versusRead      uint64 // The spell's versusRead when the damage was computed, which the combat log's versus tag names.
 }
 
 type SpellResultSlice []*SpellResult
@@ -81,6 +82,7 @@ func (spell *Spell) NewResult(target *Unit) *SpellResult {
 	result.BlockedDamage = 0
 	result.PreArmorDamage = 0
 	result.castResultDealt = false
+	result.versusRead = 0
 
 	return result
 }
@@ -99,6 +101,7 @@ func (spell *Spell) CloneResult(result *SpellResult) *SpellResult {
 	newResult.PostOutcomeDamage = result.PostOutcomeDamage
 	newResult.BlockedDamage = result.BlockedDamage
 	newResult.PreArmorDamage = result.PreArmorDamage
+	newResult.versusRead = result.versusRead
 
 	return newResult
 }
@@ -175,7 +178,10 @@ func (spell *Spell) ThreatFromDamage(sim *Simulation, outcome HitOutcome, damage
 	if outcome.Matches(OutcomeLanded) {
 		bonus := spell.FlatThreatBonus
 		if spell.ThreatAPCoefficient != 0 {
+			// Threat is no damage: the attack power it reads stays out of the versus tag.
+			versusRead := spell.versusRead
 			bonus += spell.ThreatAPCoefficient * spell.MeleeAttackPower(attackTable.Defender)
+			spell.versusRead = versusRead
 		}
 		threat := (damage*spell.ThreatMultiplier + bonus) * spell.unitThreatMultiplier()
 		return threat
@@ -189,7 +195,22 @@ func (spell *Spell) MeleeAttackPower(target *Unit) float64 {
 }
 
 func (spell *Spell) RangedAttackPower(target *Unit) float64 {
-	return spell.Unit.stats[stats.RangedAttackPower] + target.PseudoStats.BonusRangedAttackPower + spell.Unit.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.RangedAttackPower]
+	return spell.Unit.stats[stats.RangedAttackPower] + target.PseudoStats.BonusRangedAttackPower + spell.VersusStat(target, stats.RangedAttackPower)
+}
+
+// The caster's stat against the target's mob type. A damage spell that adds one by hand reads it here, so
+// the combat log's versus tag names it on the hit.
+func (spell *Spell) VersusStat(target *Unit, stat stats.Stat) float64 {
+	return spell.versusStat(spell.Unit.AttackTables[target.UnitIndex], stat)
+}
+
+// The stat the table's attacker has against its defender's mob type, marked on the spell when it is not 0.
+func (spell *Spell) versusStat(attackTable *AttackTable, stat stats.Stat) float64 {
+	value := attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stat]
+	if value != 0 {
+		spell.versusRead |= 1 << stat
+	}
+	return value
 }
 
 // ExpertisePercent is fed by ExpertiseRating through a stat dependency and directly by the
@@ -243,11 +264,11 @@ func (spell *Spell) BonusDamage(attackTable *AttackTable) float64 {
 	bonusDamage := spell.BonusBaseDamage
 
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) {
-		bonusDamage += spell.Unit.stats[stats.PhysicalDamage] + attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.PhysicalDamage]
+		bonusDamage += spell.Unit.stats[stats.PhysicalDamage] + spell.versusStat(attackTable, stats.PhysicalDamage)
 	} else {
 		bonusDamage += spell.SpellDamage(attackTable.Defender)
 		if !spell.Flags.Matches(SpellFlagIgnoreTargetSchoolBonus) {
-			bonusDamage += attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.SpellDamage]
+			bonusDamage += spell.versusStat(attackTable, stats.SpellDamage)
 		}
 	}
 
@@ -454,6 +475,8 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 			target.LogLabel(), spell.ActionID, spell.Unit.GetStat(stats.AttackPower), spell.Unit.GetStat(stats.RangedAttackPower), spell.SpellDamage(target), baseDamage, afterAttackMods, afterResistances, afterTargetMods, afterOutcome, afterPostOutcome)
 	}
 
+	// The marks stay on the spell: a cleave reads its attack power once for every target it hits.
+	result.versusRead = spell.versusRead
 	result.Threat = spell.ThreatFromDamage(sim, result.Outcome, result.Damage, attackTable)
 
 	return result
@@ -615,9 +638,9 @@ func (spell *Spell) dealDamageInternal(sim *Simulation, isPeriodic bool, result 
 
 	if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
 		if isPeriodic {
-			spell.Unit.Log(sim, "%s %s tick %s (SpellSchool: %d). (Threat: %0.3f)%s", result.Target.LogLabel(), spell.ActionID, result.DamageString(), spell.SpellSchool, result.Threat, spell.versusLogTag(result, true))
+			spell.Unit.Log(sim, "%s %s tick %s (SpellSchool: %d). (Threat: %0.3f)%s", result.Target.LogLabel(), spell.ActionID, result.DamageString(), spell.SpellSchool, result.Threat, spell.versusLogTag(result))
 		} else {
-			spell.Unit.Log(sim, "%s %s %s (SpellSchool: %d). (Threat: %0.3f)%s", result.Target.LogLabel(), spell.ActionID, result.DamageString(), spell.SpellSchool, result.Threat, spell.versusLogTag(result, false))
+			spell.Unit.Log(sim, "%s %s %s (SpellSchool: %d). (Threat: %0.3f)%s", result.Target.LogLabel(), spell.ActionID, result.DamageString(), spell.SpellSchool, result.Threat, spell.versusLogTag(result))
 		}
 	}
 
