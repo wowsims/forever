@@ -158,9 +158,6 @@ func RegisterAllOnUseCds() {
 	// on use: 1314412 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(282778) // Mark of the Red Flight - https://www.wowhead.com/forever/spell=1314412
 
-	// Agility
-	shared.NewSimpleStatActive(280071) // Flamebreak Talisman - https://www.wowhead.com/forever/spell=1315878
-
 	// Agility / Intellect / Spirit / Stamina / Strength
 	shared.NewSimpleStatActive(270226) // Golden Banana - https://www.wowhead.com/forever/spell=1287571
 

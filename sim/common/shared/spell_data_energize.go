@@ -13,7 +13,8 @@ import (
 // item's cooldowns with the cast time and global cooldown the row states. Each aura the spell
 // triggers on the wearer goes up with the gain (WearerAuraTriggers). A character without that bar
 // does not register it. The cooldown manager uses it once the whole gain fits under the bar's
-// maximum.
+// maximum. In the areas the row's area bonus names, each gain takes its factor: Second Wind's 15604
+// doubles in Mountainous areas.
 func NewSpellDataEnergizeOnUse(itemID int32) {
 	registerSpellDataOnUseCooldown(itemID, func(character *core.Character, row *spelldata.Spell) (core.SpellConfig, core.MajorCooldown, bool) {
 		effect := row.ProcEnergizeEffect()
@@ -23,8 +24,9 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 			return core.SpellConfig{}, core.MajorCooldown{}, false
 		}
 
+		area, _ := row.AreaBonus(&character.Env.Encounter)
 		amount := func(sim *core.Simulation) float64 {
-			return barAmount(power, effect.Roll(sim))
+			return barAmount(power, effect.Roll(sim)*area)
 		}
 
 		var triggered []*core.Aura
@@ -60,7 +62,7 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 			}
 		}
 
-		whole := barAmount(power, effect.Max()*ticks)
+		whole := barAmount(power, effect.Max()*area*ticks)
 
 		return config, core.MajorCooldown{
 			Type: bar.cdType,

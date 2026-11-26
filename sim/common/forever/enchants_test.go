@@ -976,3 +976,39 @@ func TestLesserBeastslayerAddsDamageAgainstBeasts(t *testing.T) {
 		}
 	}
 }
+
+// Enchant 2H Weapon - Grand Arcanist 7941 puts up 1231138, whose spell power rides on the buff while
+// its E_ENERGIZE restores the row's mana with each proc.
+func TestGrandArcanistRestoresItsBuffsManaWithEachProc(t *testing.T) {
+	gain := spelldata.MustFind(1231138).EnergizeEffect()
+	if gain == spelldata.NilEffect || gain.Max() <= 0 {
+		t.Fatal("1231138 restores no mana, nothing to check")
+	}
+	items := weaponSlots(1613, 0)
+	items[proto.ItemSlot_ItemSlotMainHand].Enchant = 7941
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassPaladin, &proto.EquipmentSpec{Items: items})
+	character.SpendMana(sim, character.CurrentMana(), character.NewManaMetrics(core.ActionID{SpellID: instantSpellID}))
+	buff := character.GetAura("Enchant 2H Weapon - Grand Arcanist Proc")
+	if buff == nil {
+		t.Fatal("7941 registers no buff")
+	}
+
+	spell := fireSpell(&character.Unit)
+	for hits := 0; !buff.IsActive(); hits++ {
+		if hits > 2000 {
+			t.Fatal("2000 landed spell hits never procced the enchant")
+		}
+		character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	}
+	var restored float64
+	var events int32
+	for _, r := range character.Metrics.ToProto().Resources {
+		if r.Id.GetSpellId() == 1231138 {
+			restored, events = r.Gain, r.Events
+		}
+	}
+	if events != 1 || restored < gain.Min() || restored > gain.Max() {
+		t.Errorf("the proc restored %v mana over %d gains, want one gain of %v to %v", restored, events, gain.Min(), gain.Max())
+	}
+}

@@ -52,6 +52,18 @@ var GearProcRates = []GearProcRate{
 	},
 	{
 		Gear:   GearItem,
+		ID:     11302,
+		Reason: "Uther's Strength: half 8397's 4% column, or all of it in Wasteland and Haunted areas",
+		Source: "tooltip",
+	},
+	{
+		Gear:   GearItem,
+		ID:     19287,
+		Reason: "Darkmoon Card: Heroism: the entry's 2 ppm, or twice that in Strongholds and Cities",
+		Source: "vanilla-carryover",
+	},
+	{
+		Gear:   GearItem,
 		ID:     260205,
 		Reason: "Highborne Research Tablet: 2.95 ppm on weapon hits on their weapon's speed and on spell hits on their cast time, 1.5 s at least; Thunder Clap never rolls it",
 		Source: "EV-0131",

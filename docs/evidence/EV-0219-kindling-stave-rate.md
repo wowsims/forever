@@ -88,6 +88,10 @@ Cold (3.55 %) and Frost Nova (3.24 %) read below the instants on several targets
 - Blizzard, Rain of Fire and Hurricane casts proc it on an enemy in their area at the cast (about 840 procs), while their
   pulses roll nothing (Blizzard 5 of 127,274, Hurricane 2 of 43,516, Rain of Fire 2 of 24,817).
 - Counterspell's interrupt procs it (about 190 procs).
+- Harmful spells that deal no damage roll it like any other landing. Per landing, as §Per ability counts them before
+  the killing blow rule: Curse of the Elements 4.65 % (77 of 1,655), Curse of Recklessness 5.10 % (23 of 451) and
+  4.35 % (5 of 115) on its lower rank, Curse of Tongues 6.47 % (9 of 139), Silence 4.11 % (12 of 292), Faerie Fire
+  4.03 % (10 of 248), Polymorph 3.85 % (7 of 182) and 6.16 % (13 of 211).
 - Flamestrike's pulses 1279990 and 1279989 roll at 3.4 % a landing (818 of 23,905), about what an instant-priced roll
   on several targets under the cooldown gives (Arcane Explosion 4.15 %).
 - Arcane Missiles rolls on its missiles' landings alone. The game logs one cast for each missile (10274 and 10273,

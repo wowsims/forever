@@ -40,7 +40,7 @@ func newOnUseSimWearing(t *testing.T, register func(int32), trinkets map[int32]*
 	return newOnUseSimAgainst(t, register, trinkets, neck, 1)
 }
 
-func newOnUseSimAgainst(t *testing.T, register func(int32), trinkets map[int32]*proto.ItemEffect, neck *proto.ItemSpec, targetCount int) (*core.Simulation, *testCaster) {
+func newOnUseSimAgainst(t *testing.T, register func(int32), trinkets map[int32]*proto.ItemEffect, neck *proto.ItemSpec, targetCount int, playerOpts ...func(*proto.Player)) (*core.Simulation, *testCaster) {
 	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket2+1)
 	for i := range items {
@@ -58,7 +58,7 @@ func newOnUseSimAgainst(t *testing.T, register func(int32), trinkets map[int32]*
 		slot++
 	}
 
-	sim := newTestCasterSimAgainst(items, nil, targetCount)
+	sim := newTestCasterSimAgainst(items, nil, targetCount, playerOpts...)
 	caster := sim.Raid.Parties[0].Players[0].(*testCaster)
 	caster.AddStatsDynamic(sim, stats.Stats{
 		stats.SpellHitPercent:  100,
@@ -487,4 +487,41 @@ func TestAnAlwaysHitRowUsedFromAnItemNeverMisses(t *testing.T) {
 	if metrics := proc.SpellMetrics[target.UnitIndex]; metrics.Misses != 0 || metrics.Hits+metrics.Crits != 1 {
 		t.Errorf("the proc's spell took %d hits, %d crits and %d misses, want it to land", metrics.Hits, metrics.Crits, metrics.Misses)
 	}
+}
+
+// An on-use heal whose row also restores mana restores it with the heal: Major Recombobulator's 23064
+// on a test trinket.
+func TestOnUseHealRestoresTheManaItsRowStates(t *testing.T) {
+	const itemID int32 = 992902
+	gain := spelldata.MustFind(23064).EnergizeEffect()
+	if gain == spelldata.NilEffect || gain.Max() <= 0 {
+		t.Fatal("23064 restores no mana, nothing to check")
+	}
+	sim, caster := newOnUseSimAgainst(t, NewSpellDataHealOnUse, map[int32]*proto.ItemEffect{itemID: testOnUse(23064, 60000, 0, 0)},
+		&proto.ItemSpec{}, 1, asManaUser)
+	caster.SpendMana(sim, caster.CurrentMana(), caster.NewManaMetrics(core.ActionID{SpellID: 1}))
+	health := caster.CurrentHealth()
+
+	onUseSpell(t, caster, itemID).Cast(sim, &caster.Unit)
+	if caster.CurrentHealth() <= health {
+		t.Error("the use healed nothing")
+	}
+	if got := manaGainedBy(caster, itemID); got < gain.Min() || got > gain.Max() {
+		t.Errorf("the use restored %v mana, want %v to %v", got, gain.Min(), gain.Max())
+	}
+}
+
+// The caster as the mana user the consumable tests register, whose mana bar the stand-in lacks.
+func asManaUser(player *proto.Player) {
+	player.Class, player.Spec = proto.Class_ClassWarlock, &proto.Player_Warlock{}
+}
+
+// The mana the item restored, apart from the health it healed under the same id.
+func manaGainedBy(caster *testCaster, itemID int32) float64 {
+	for _, r := range caster.Metrics.ToProto().Resources {
+		if r.Id.GetItemId() == itemID && r.Type == proto.ResourceType_ResourceTypeMana {
+			return r.ActualGain
+		}
+	}
+	return 0
 }

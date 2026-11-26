@@ -3544,15 +3544,6 @@ func RegisterAllProcs() {
 			{ItemID: 11086, ItemName: "Jang'thraze the Protector"},
 		})
 
-	// 2% chance when struck in melee to gain a holy shield, absorbing 216 damage for 15s. This chance is doubled
-	// in Wasteland and Haunted areas.
-	// https://www.wowhead.com/forever/spell=10368
-	// trigger 8397 (4%, the column over effect 1's 2%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 10368
-	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 8397, BuffSpellID: 10368},
-		[]shared.ItemVariant{
-			{ItemID: 11302, ItemName: "Uther's Strength"},
-		})
-
 	// Corrosive acid that deals 13 Nature damage every 2.0 sec and lowers target's armor by 50 for 14s.
 	// https://www.wowhead.com/forever/spell=13526
 	// trigger 13526 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)

@@ -2576,8 +2576,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Toofbreaker-286430"
  value: {
-  dps: 561.76897
-  tps: 1856.3565
+  dps: 564.09965
+  tps: 1861.39079
   dtps: 318.59461
   hps: 44.98915
  }
@@ -2621,9 +2621,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Uther'sStrength-11302"
  value: {
-  dps: 581.14726
-  tps: 1861.53762
-  dtps: 326.81766
+  dps: 581.80104
+  tps: 1864.0195
+  dtps: 327.86516
   hps: 42.57623
  }
 }
