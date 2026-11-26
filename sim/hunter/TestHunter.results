@@ -785,7 +785,7 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Dragon'sCall-10847"
  value: {
-  dps: 801.73161
+  dps: 800.8632
   tps: 808.84856
   dtps: 8.50563
   hps: 14.58917

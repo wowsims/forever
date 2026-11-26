@@ -2,6 +2,7 @@ package shared
 
 import (
 	"fmt"
+	"math"
 	"testing"
 	"time"
 
@@ -148,5 +149,24 @@ func TestNewGuardianOnUsePutsAGuardianSummonedAtTheTargetInMeleeRange(t *testing
 	onUseSpell(t, wearer, 993105).Cast(sim, wearer.CurrentTarget)
 	if guardian.DistanceFromTarget > core.MaxMeleeRange {
 		t.Errorf("%s comes up %.1f yd from the target, want melee range", guardian.Name, guardian.DistanceFromTarget)
+	}
+}
+
+// A creature with a level of its own takes the creature numbers for that level, whatever its owner's.
+func TestGuardianCreatureWithALevelTakesThatLevelsCreatureNumbers(t *testing.T) {
+	leveled := servant
+	leveled.Level = 57
+	_, wearer := newServantSim(t, 993106, map[int32]GuardianCreature{servantCreature: leveled})
+	guardian := Guardians(&wearer.Character, spelldata.MustFind(servantSummon))[0]
+	level57 := core.CreatureStatsByLevel[57]
+
+	base := guardian.GetBaseStats()
+	if base[stats.Health] != 0.5*level57.Health || base[stats.Armor] != 0.25*level57.Armor {
+		t.Errorf("%s has %.1f health and %.1f armor, want half the level 57 creature health and a quarter of its armor",
+			guardian.Name, base[stats.Health], base[stats.Armor])
+	}
+	if want := 0.5 * level57.AutoAttackDps * 2.0 * 1.1; math.Abs(guardian.AutoAttacks.MH().BaseDamageMax-want) > 1e-9 {
+		t.Errorf("%s swings up to %.2f, want half of 2 s of the level 57 creature dps plus 10%%, %.2f",
+			guardian.Name, guardian.AutoAttacks.MH().BaseDamageMax, want)
 	}
 }

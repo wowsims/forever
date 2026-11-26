@@ -11,17 +11,25 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// A creature an item or a set bonus summons as a guardian at its owner's level, as the logs measure it. The game files
-// hold no creature row, only the summon's, which states the creature, how many come and for how long; so the
-// creature's health, armor, swing and spells are stated as shares of the creature numbers for the level
-// (core.CreatureHealthMaxLevel, core.CreatureArmorMaxLevel, core.CreatureAutoAttackDpsMaxLevel). The guardian takes
-// nothing from its owner.
+// A creature an item or a set bonus summons as a guardian, as the logs measure it. The game files hold no creature
+// row, only the summon's, which states the creature, how many come and for how long; so the creature's health, armor,
+// swing and spells are stated as shares of the creature numbers for its level (core.CreatureStatsByLevel). The guardian
+// takes nothing from its owner.
 type GuardianCreature struct {
 	Name   string        // The pet's name; with more than one up at once, numbered.
+	Level  int32         // The creature's own level when it does not take its owner's; 0 takes the owner's.
 	Health float64       // Share of the creature health.
 	Armor  float64       // Share of the creature armor.
 	Swing  GuardianSwing // A zero Speed: the guardian never swings.
 	Cast   *GuardianCast // The one spell the guardian casts between swings, or nil.
+}
+
+// The creature numbers for the creature's level.
+func (creature GuardianCreature) Stats() core.CreatureStats {
+	if creature.Level == 0 {
+		return core.CreatureStatsByLevel[core.CharacterLevel]
+	}
+	return core.CreatureStatsByLevel[creature.Level]
 }
 
 // A physical swing whose normal hit before armor is Share of Speed seconds of the creature dps, Variance either side.
@@ -116,8 +124,8 @@ func newGuardian(owner *core.Character, name string, summon *spelldata.Spell, cr
 		Name:  name,
 		Owner: owner,
 		BaseStats: stats.Stats{
-			stats.Health: creature.Health * core.CreatureHealthMaxLevel,
-			stats.Armor:  creature.Armor * core.CreatureArmorMaxLevel,
+			stats.Health: creature.Health * creature.Stats().Health,
+			stats.Armor:  creature.Armor * creature.Stats().Armor,
 		},
 		StatInheritance: func(_ stats.Stats) stats.Stats {
 			return stats.Stats{}
@@ -126,7 +134,7 @@ func newGuardian(owner *core.Character, name string, summon *spelldata.Spell, cr
 		StartsInMeleeRange: !summonsBesideCaster(summon),
 	})}
 	if swing := creature.Swing; swing.Speed > 0 {
-		average := swing.Share * core.CreatureAutoAttackDpsMaxLevel * swing.Speed
+		average := swing.Share * creature.Stats().AutoAttackDps * swing.Speed
 		guardian.EnableAutoAttacks(guardian, core.AutoAttackOptions{
 			MainHand: core.Weapon{
 				BaseDamageMin: average * (1 - swing.Variance),
@@ -139,6 +147,9 @@ func newGuardian(owner *core.Character, name string, summon *spelldata.Spell, cr
 	}
 	return guardian
 }
+
+// The creature numbers for the guardian's level, which its spells scale with.
+func (guardian *Guardian) CreatureStats() core.CreatureStats { return guardian.creature.Stats() }
 
 func (guardian *Guardian) GetPet() *core.Pet                   { return &guardian.Pet }
 func (guardian *Guardian) Reset(_ *core.Simulation)            {}
