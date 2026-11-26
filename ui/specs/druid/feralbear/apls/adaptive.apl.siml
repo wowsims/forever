@@ -1,0 +1,104 @@
+siml 1
+spec feral_bear_druid
+
+type apl
+var ${Healthstone health threshold} = 30%
+var ${Barkskin health threshold} = 60%
+var ${Maul minimum rage} = 20
+var ${Attack-power reduction is covered} =
+    not target.aura(demoralizing_roar).should_refresh(max_overlap=0s)
+    or target.aura(vindication).is_known and target.aura(vindication).is_active
+var ${Ready to return to the main weapon} =
+    active_item_swap_set(swap1)
+    and current_time >= 30s
+    and auto_time_since_last(main_hand_auto) <= 0.1s
+    and not aura(haste).is_active
+var ${Maul leaves rage for a nearby Primal Bite} =
+    not spell(primal_bite).is_known
+    or spell(primal_bite).time_to_ready > 1.5s
+    or current_rage - spell(maul_tag1).current_cost >= spell(primal_bite).current_cost
+
+simple: cooldowns(hp_percent_for_defensives=0.4)
+
+prepull:
+  -10s cast enrage
+  -33s item_swap(swap1) if spell(item.manual_crowd_pummeler).is_known
+  -0.01s item_swap(main) if not active_item_swap_set(swap1)
+
+priority:
+  /// Charge into melee when available
+  cast feral_charge_bear if unit_distance > 5
+  /// Run into melee when Charge cannot close the gap
+  move 5 if unit_distance > 5
+  /// Finish closing to melee before damage abilities
+  wait until not unit_distance > 5 if unit_distance > 5
+  /// Activate the equipped MCP once in melee
+  cast item.manual_crowd_pummeler if unit_distance <= 5
+  /// Use Barkskin when health falls to the chosen threshold
+  cast barkskin if current_health_percent <= $barkskin_health_threshold
+  /// Use Elune's Light when available
+  cast elunes_light if spell(elunes_light).is_known
+  /// Use Sapper without leaving Bear Form
+  cast item.goblin_sapper_charge if spell(item.goblin_sapper_charge).is_known
+  /// Use the selected defensive potion on cooldown
+  cast other.defensive_potion if spell(other.defensive_potion).is_known
+  /// Otherwise use the selected offensive potion when rage is low
+  cast other.offensive_potion
+      if spell(other.offensive_potion).is_known
+      and not spell(other.defensive_potion).is_known
+      and current_rage < 20
+  /// Use Major Healthstone at the low-health threshold
+  cast item.major_healthstone on self
+      if selected_conjured(item.major_healthstone)
+      and current_health_percent <= $healthstone_health_threshold
+  /// Optional on-use items: enable the rows for equipped items
+  group "Optional on-use items"
+  /// Use Frenzied Regeneration at the low-health threshold
+  cast frenzied_regeneration if current_health_percent < 25%
+  /// Use Enrage when rage is below Lacerate’s cost
+  cast enrage
+      if spell(lacerate).is_known
+      and gcd_is_ready
+      and current_rage < spell(lacerate).current_cost
+  /// After the MCP opener, return to the main weapon just after a Bear swing
+  item_swap(main) if $ready_to_return_to_the_main_weapon
+  /// Apply Faerie Fire when missing; maintain it unless the raid supplies it
+  cast faerie_fire
+      if spell(faerie_fire).is_known
+      and target.aura(faerie_fire).should_refresh(max_overlap=0s)
+  /// Maintain the attack-power debuff when the raid does not cover it
+  cast demoralizing_roar if not $attack_power_reduction_is_covered
+  /// Use Primal Bite before spending rage on filler
+  cast primal_bite if spell(primal_bite).is_known
+  /// Build or refresh Lacerate when no higher-priority attack needs the global
+  cast lacerate
+  /// Queue Maul with enough rage left for a nearby Primal Bite
+  cast maul if current_rage >= $maul_minimum_rage and $maul_leaves_rage_for_a_nearby_primal_bite
+
+group "Optional on-use items":
+  /// Enable Earthstrike when equipped
+  # cast item.earthstrike if spell(item.earthstrike).is_known
+  /// Enable Slayer’s Crest when equipped
+  # cast item.slayers_crest if spell(item.slayers_crest).is_known
+  /// Enable Badge of the Swarmguard when equipped
+  # cast item.badge_of_the_swarmguard if spell(item.badge_of_the_swarmguard).is_known
+  /// Enable Jom Gabbar when equipped
+  # cast jom_gabbar if spell(jom_gabbar).is_known
+  /// Enable Kiss of the Spider when equipped
+  # cast item.kiss_of_the_spider if spell(item.kiss_of_the_spider).is_known
+  /// Enable Molten Heart of the Mountain when equipped
+  # cast item.molten_heart_of_the_mountain if spell(item.molten_heart_of_the_mountain).is_known
+  /// Enable Flamebreak Talisman when equipped
+  # cast item.flamebreak_talisman if spell(item.flamebreak_talisman).is_known
+  /// Enable Adaptive Combat Assistant at 40% health or lower
+  # cast item.adaptive_combat_assistant
+      if spell(item.adaptive_combat_assistant).is_known
+      and current_health_percent <= 40%
+  /// Enable Smoking Heart of the Mountain at 40% health or lower
+  # cast item.smoking_heart_of_the_mountain
+      if spell(item.smoking_heart_of_the_mountain).is_known
+      and current_health_percent <= 40%
+  /// Enable Arena Grand Master at 40% health or lower
+  # cast item.arena_grand_master
+      if spell(item.arena_grand_master).is_known
+      and current_health_percent <= 40%

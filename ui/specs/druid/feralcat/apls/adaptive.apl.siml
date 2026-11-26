@@ -1,0 +1,187 @@
+siml 1
+spec feral_cat_druid
+
+var ${Shifting Power energy ceiling} = 53
+var ${Tea energy ceiling} = 15
+var ${Rip target CP} = 4
+var ${Preferred Rip CP with zero or two Blood Frenzy points} = 5
+var ${Rip minimum fight left} = 8s
+var ${Bite minimum CP without Blood Frenzy} = 5
+var ${Bite minimum CP with Blood Frenzy} = 4
+var ${Bite energy target} = 75
+var ${Reduced Bite energy target} = 60
+var ${Bite energy target with Clearcasting} = 45
+var ${Bite minimum Rip remaining without Blood Frenzy} = 4s
+var ${Bite minimum Rip remaining with Blood Frenzy} = 3s
+var ${Short-fight Claw Bite minimum Rip remaining} = 2s
+var ${Short-fight Claw Bite duration ceiling} = 60s
+var ${Paid-builder energy threshold} = 60
+var ${Paid-builder pooling CP} = 4
+var ${Paid-builder pooling CP with two Blood Frenzy points} = 3
+var ${Fight-end Bite CP} = 5
+var ${Ravage approach without Clearcasting} = 10
+var ${Ravage approach with Clearcasting} = 30
+var ${Shifting Power ready} =
+    aura(cat_form).is_active
+    and current_energy <= $shifting_power_energy_ceiling
+    and spell(shifting_power).can_cast
+var ${Rake due} =
+    target.aura(rake).is_inactive(include_reaction_time=true)
+    and target.time_until_target_dies > 6s
+var ${Rip due} =
+    current_combo_points >= $rip_target_cp
+    and (not (not talent_is_known(blood_frenzy) or talent_rank(blood_frenzy) >= 2 and talent_is_known(shifting_power)) or current_combo_points >= $preferred_rip_cp_with_zero_or_two_blood_frenzy_points or not $one_more_builder_funds_next_global_rip)
+    and target.aura(rip).is_inactive(include_reaction_time=true)
+    and target.time_until_target_dies >= $rip_minimum_fight_left
+var ${Final-global Bite} =
+    aura(cat_form).is_active
+    and target.time_until_target_dies <= 1s
+    and current_combo_points >= 2
+var ${Ready to return to the main weapon} =
+    active_item_swap_set(swap1)
+    and current_time >= 30s
+    and not aura(haste).is_active
+var ${Ready to activate MCP} = not aura(prowl).is_active and unit_distance <= 5
+var ${Mana potion fits and is needed} =
+    spell(other.resource_potion).is_known
+    and gcd_time_to_ready <= 0s
+    and spell(other.resource_potion).time_to_ready <= 0s
+    and max_mana - current_mana >= 2250
+    and current_mana < 1400
+    and remaining_time >= 15s
+var ${Tea is selected and energy is low} =
+    aura(cat_form).is_active
+    and (selected_conjured(item.thistle_tea) or selected_conjured(item.demonic_rune))
+    and current_energy <= $tea_energy_ceiling
+var ${Rune can restore mana after Tea} =
+    selected_conjured(item.demonic_rune)
+    and spell(item.thistle_tea).time_to_ready > 0s
+    and max_mana - current_mana >= 1500
+    and current_health > 2000
+var ${Fight-end Bite is worthwhile} =
+    aura(cat_form).is_active
+    and current_combo_points >= $fight_end_bite_cp
+    and (talent_is_known(predatory_discipline) or current_energy <= 55)
+    and target.time_until_target_dies < $rip_minimum_fight_left
+var ${Claw can replace Shred} =
+    aura(cat_form).is_active
+    and not spell(shred).can_cast
+    and current_energy >= spell(shred).current_cost
+    and (aura(clearcasting).is_active or not ($bite_combo_points_and_rip_window and not $bite_energy_is_funded))
+var ${Innervate can restore needed mana} =
+    aura(cat_form).is_active
+    and spell(innervate).is_ready
+    and (not aura(energized).is_known or not aura(energized).is_active)
+    and current_mana < 1400
+    and gcd_time_to_ready <= 0s
+    and current_energy <= 30
+    and not aura(clearcasting).is_active
+    and remaining_time >= 15s
+var ${Ravage opener fits the approach} =
+    target.aura(faerie_fire_external).is_known
+    and target.aura(faerie_fire_external).is_active
+    and (aura(clearcasting).is_active and unit_distance <= $ravage_approach_with_clearcasting or not aura(clearcasting).is_active and unit_distance <= $ravage_approach_without_clearcasting)
+var ${Drop Prowl for this opener} =
+    aura(prowl).is_active
+    and (not $ravage_opener_fits_the_approach or unit_distance <= 5 and not spell(ravage).can_cast)
+var ${One more builder funds next-global Rip} =
+    target.time_until_target_dies >= $rip_minimum_fight_left + 1s
+    and (talent_is_known(shredding_attacks) and spell(shred).can_cast and current_energy + 10 >= spell(shred).current_cost + spell(rip).current_cost or not talent_is_known(shredding_attacks) and spell(claw).can_cast and current_energy + 10 >= spell(claw).current_cost + spell(rip).current_cost)
+var ${Midfight Bite is worthwhile} = $bite_combo_points_and_rip_window and $bite_energy_is_funded
+var ${Bite combo points and Rip window} =
+    aura(cat_form).is_active
+    and talent_is_known(predatory_discipline)
+    and (talent_is_known(blood_frenzy) and current_combo_points >= $bite_minimum_cp_with_blood_frenzy or not talent_is_known(blood_frenzy) and current_combo_points >= $bite_minimum_cp_without_blood_frenzy)
+    and (talent_is_known(blood_frenzy) and dot(rip).remaining_time >= $bite_minimum_rip_remaining_with_blood_frenzy or not talent_is_known(blood_frenzy) and ($use_the_short_claw_bite_window and dot(rip).remaining_time >= $short_fight_claw_bite_minimum_rip_remaining or not $use_the_short_claw_bite_window and dot(rip).remaining_time >= $bite_minimum_rip_remaining_without_blood_frenzy))
+var ${Paid builder fits the energy pool} =
+    not ($bite_combo_points_and_rip_window and not $bite_energy_is_funded)
+    and (talent_rank(blood_frenzy) == 1 or current_energy >= $paid_builder_energy_threshold or (not talent_is_known(blood_frenzy) or talent_rank(blood_frenzy) >= 2 and $use_ferocity_with_two_blood_frenzy_points) and current_combo_points < $paid_builder_pooling_cp or talent_rank(blood_frenzy) >= 2 and not $use_ferocity_with_two_blood_frenzy_points and current_combo_points < $paid_builder_pooling_cp_with_two_blood_frenzy_points)
+var ${Use Ferocity Hybrid tuning} =
+    not talent_is_known(blood_frenzy)
+    and not talent_is_known(shredding_attacks)
+    and talent_is_known(predatory_discipline)
+    and talent_is_known(shifting_power)
+    and aura(reduced_claw_and_rake_cost).is_known
+    and aura(reduced_claw_and_rake_cost).is_active
+var ${Use Ferocity with two Blood Frenzy points} =
+    (talent_rank(blood_frenzy) >= 2 and talent_is_known(shifting_power))
+    and not talent_is_known(shredding_attacks)
+    and talent_is_known(predatory_discipline)
+    and talent_is_known(shifting_power)
+    and aura(reduced_claw_and_rake_cost).is_known
+    and aura(reduced_claw_and_rake_cost).is_active
+var ${Use the short Claw Bite window} =
+    not talent_is_known(shredding_attacks)
+    and not $use_ferocity_hybrid_tuning
+    and current_time + remaining_time <= $short_fight_claw_bite_duration_ceiling
+var ${Bite energy is funded} =
+    aura(clearcasting).is_active and current_energy >= $bite_energy_target_with_clearcasting
+    or not aura(clearcasting).is_active and (current_energy >= $bite_energy_target or (current_combo_points >= 5 or talent_rank(blood_frenzy) >= 2 and not talent_is_known(shredding_attacks)) and current_energy >= $reduced_bite_energy_target)
+
+prepull:
+  -33s item_swap(swap1) if spell(item.manual_crowd_pummeler).is_known
+  -1s cast prowl
+  -0.01s item_swap(main) if not active_item_swap_set(swap1)
+  -0.01s cast dash
+
+priority:
+  /// After MCP haste expires, re-equip the main weapon
+  item_swap(main) if $ready_to_return_to_the_main_weapon
+  /// Drop Prowl when the faster approach wins or Ravage cannot be used
+  cancel_aura(prowl) if $drop_prowl_for_this_opener
+  /// Maintain Faerie Fire for the raid before personal damage
+  cast faerie_fire
+      if spell(faerie_fire).is_known
+      and target.aura(faerie_fire).should_refresh(max_overlap=0s)
+  /// Run into melee with Dash
+  move 5 if unit_distance > 5
+  /// Finish closing to melee before damage abilities
+  wait until not unit_distance > 5 if unit_distance > 5
+  /// Prowl is active: open with Ravage
+  cast ravage if aura(prowl).is_active
+  /// Activate the equipped MCP once in melee and out of Prowl
+  cast item.manual_crowd_pummeler if $ready_to_activate_mcp
+  /// Outside Cat Form: return after utility casts
+  cast cat_form if not aura(cat_form).is_active
+  /// Bite before this target dies with enough combo points
+  cast ferocious_bite if $final_global_bite
+  /// Use other available cooldowns
+  autocast_other_cooldowns
+  /// Use the selected mana potion below 1400 mana when its full gain fits and at least 15 seconds remain
+  cast other.resource_potion on self if $mana_potion_fits_and_is_needed
+  /// Use Elune’s Light when available
+  cast elunes_light if spell(elunes_light).is_known
+  /// Bite while Rip has time left, using the energy pool for your talents and combo points
+  cast ferocious_bite if $midfight_bite_is_worthwhile
+  /// Shifting Power is ready at or below its energy ceiling
+  cast shifting_power if $shifting_power_ready
+  /// Use Thistle Tea when energy is low
+  cast item.thistle_tea if $tea_is_selected_and_energy_is_low
+  /// Use Demonic Rune after Tea when missing 1500 mana
+  cast item.demonic_rune if $rune_can_restore_mana_after_tea
+  /// In Cat Form: use the selected offensive potion
+  cast other.offensive_potion if aura(cat_form).is_active
+  /// Bite before this target dies when Rip is no longer worthwhile
+  cast ferocious_bite if $fight_end_bite_is_worthwhile
+  /// Spend Clearcasting on Shred when Bite is not ready
+  cast shred if aura(cat_form).is_active and aura(clearcasting).is_active
+  /// Refresh Rip at four points; with zero or two Blood Frenzy points, build to five first when the following Rip is funded
+  cast rip if aura(cat_form).is_active and $rip_due
+  /// Refresh Rake after reacting to its expiry, if enough fight time remains
+  cast rake if aura(cat_form).is_active and $rake_due
+  /// Use Shred with Shredding Attacks unless pooling energy
+  cast shred
+      if aura(cat_form).is_active
+      and talent_is_known(shredding_attacks)
+      and current_energy >= spell(shred).current_cost
+      and $paid_builder_fits_the_energy_pool
+  /// Without Shredding Attacks, use Claw unless pooling energy
+  cast claw
+      if aura(cat_form).is_active
+      and not talent_is_known(shredding_attacks)
+      and current_energy >= spell(claw).current_cost
+      and $paid_builder_fits_the_energy_pool
+  /// Use Claw when Shred cannot land, pooling paid casts for Bite
+  cast claw if $claw_can_replace_shred and current_energy >= spell(claw).current_cost
+  /// Innervate when mana is low and enough fight time remains
+  cast innervate if $innervate_can_restore_needed_mana
