@@ -755,13 +755,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13353, // Book of the Dead
-		[
-			"", // 1298517 - https://www.wowhead.com/forever/spell=1298517
-			"Summons a Skeleton that will protect you for 1min.", // 17490 - https://www.wowhead.com/forever/spell=17490
-		]
-	],
-	[
 		13379, // Piccolo of the Flaming Fire
 		[
 			"Causes nearby players to dance.", // 18400 - https://www.wowhead.com/forever/spell=18400

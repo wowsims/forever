@@ -33,6 +33,26 @@ func TestBearShippedAplRuns(t *testing.T) {
 	}
 }
 
+// On a bleed-immune target the shipped rotation casts no Lacerate and Swipes in its place.
+func TestShippedAPLSwipesInPlaceOfLacerateOnABleedImmuneTarget(t *testing.T) {
+	for _, talents := range []string{DefaultTalents, HybridTalents} {
+		req := bearNakedRequest()
+		req.Raid.Parties[0].Players[0].TalentsString = talents
+		req.Encounter.Targets[0].BleedImmune = true
+		result := core.RunSim(req, nil, simsignals.CreateSignals())
+		if result.Error != nil {
+			t.Fatalf("sim error: %s", result.Error.Message)
+		}
+		actions := result.RaidMetrics.Parties[0].Players[0].Actions
+		if n := bearCastsOf(actions, spellLacerate); n != 0 {
+			t.Fatalf("%s: %d Lacerates on a bleed-immune target, want none", talents, n)
+		}
+		if bearCastsOf(actions, spellSwipe) == 0 {
+			t.Fatalf("%s: no Swipe on a bleed-immune target", talents)
+		}
+	}
+}
+
 func bearNakedRequest() *proto.RaidSimRequest {
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
 	for i := range items {

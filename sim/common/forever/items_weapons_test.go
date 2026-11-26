@@ -1195,8 +1195,8 @@ func TestDragonsCallSummonsTheWhelpForTheRowsDuration(t *testing.T) {
 }
 
 // Acid Spit 9591 states its base points as a percent of the creature auto attack dps for the caster's
-// level, which is the owner's. Its hits roll the row's variance, so their mean sits at that amount.
-func TestAcidSpitDealsItsPercentOfTheCreatureDpsAtTheOwnersLevel(t *testing.T) {
+// level, the whelp's own 57. Its hits roll the row's variance, so their mean sits at that amount.
+func TestAcidSpitDealsItsPercentOfTheCreatureDpsAtTheWhelpsLevel(t *testing.T) {
 	// Long enough for 100 summons a cooldown apart.
 	sim, character := weaponWearerFor(t, proto.Class_ClassWarrior, 10847, 1, 5000)
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -1210,11 +1210,11 @@ func TestAcidSpitDealsItsPercentOfTheCreatureDpsAtTheOwnersLevel(t *testing.T) {
 	stepTo(t, sim, sim.CurrentTime+spelldata.MustFind(13049).Duration())
 
 	metrics := whelp.GetSpell(core.ActionID{SpellID: 9591}).SpellMetrics[enemy.UnitIndex]
-	want := spelldata.MustFind(9591).EffectN(1).BaseValue() / 100 * core.CreatureAutoAttackDpsMaxLevel
+	want := spelldata.MustFind(9591).EffectN(1).BaseValue() / 100 * core.CreatureStatsByLevel[57].AutoAttackDps
 	got := (metrics.TotalDamage - metrics.TotalCritDamage) / float64(metrics.Hits)
 	if metrics.Hits < 200 || math.Abs(got-want) > 0.015*want {
-		t.Errorf("Acid Spit's %d hits average %.1f, want the row's percent of the creature dps at level %d, %.1f",
-			metrics.Hits, got, core.CharacterLevel, want)
+		t.Errorf("Acid Spit's %d hits average %.1f, want the row's percent of the level 57 creature dps, %.1f",
+			metrics.Hits, got, want)
 	}
 }
 
