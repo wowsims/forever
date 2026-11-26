@@ -2,8 +2,9 @@
 
 - Claim: In Defensive Stance with Defiance 3 a warrior's threat is 2.16 times the action's own; Shield Bash Rank 3 makes
   1.5 times its damage as threat and Thunder Clap Rank 6 1 times, Demoralizing Shout Rank 5 makes 47 threat a target and
-  Battle Shout Rank 6 none, each times the stance, and an Execute makes 1.25 times its damage as threat, times the
-  stance, which in Battle Stance is its damage.
+  Battle Shout Rank 6 none, each times the stance; an Execute's threat equals its damage in Battle Stance, and one
+  Berserker Stance reading fits 1.25 x 0.8 times it; damage shields and Retaliation hits make about their damage as
+  threat, Windfury Totem hits 1.065 times it, and Disarm and Challenging Shout none.
 - Sources: combat logs, ThreatLog and StatLedger of one protection warrior at level 60 in dungeon groups; no report
   codes; for the Berserker Stance Execute, a screenshot of another in-game threat addon on the same warrior
 - Game build: 1.60.1.71091 on 2026-11-24 and 1.60.1.71139 from the 2026-11-25 18:17 login; the hotfix is not recorded;
@@ -49,7 +50,7 @@ Other readings in the same windows:
 | ------------------------- | ---------------------------------------------------------------------- |
 | Damage shields            | 0.995 [0.992, 1.006] times the damage (n 15)                           |
 | Windfury Totem hits       | 1.065 [1.033, 1.118] times the damage (n 8)                            |
-| Retaliation hits          | about 1 times the damage on 13 crowded windows                         |
+| Retaliation hits          | 0.99 to 1.10 times the damage on 7 of 13 crowded windows               |
 | Disarm, Challenging Shout | Disarm 0 (n 1); Challenging Shout reads −4.2 to 8.5 on 8 of 11 windows |
 
 Not measured: Revenge Rank 6, Heroic Strike Rank 9, Battle Shout Rank 7, Whirlwind, Overpower and Slam (never cast);
