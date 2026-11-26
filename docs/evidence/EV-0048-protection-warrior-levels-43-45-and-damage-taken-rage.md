@@ -10,6 +10,7 @@
 - Game build: 1.60.1.70862
 - Date: 2026-11-08 to 2026-11-09
 - Pull request: #932
+- Later count: Concussion Blow, §Count of the 2026-11-24 to 2026-11-26 logs
 
 ## Warrior rulings, levels 43 to 45
 
@@ -22,7 +23,6 @@
 | Revenge Rank 4 attack power share 0.25                    | 0.2518 [0.2455, 0.2581], 601 hits                             |
 | Sunder Armor Rank 3: 117 + 0.05 x sheet attack power      | 125 windows                                                   |
 | Heroic Strike Rank 5 flat threat (2.5 a spell level)      | +80.5 [79.6, 81.5], n 6                                       |
-| Concussion Blow makes no threat                           | -0.05 over 6 windows                                          |
 
 Which ranks this file measures: Rend Ranks 4 and 5, Thunder Clap Rank 4 and Revenge Ranks 3 and 4 for the threat. Rend
 Rank 2 and Thunder Clap Rank 1 come from the levels 13 and 14 logs (EV-0019). Rend Ranks 1, 3 and 6 and Thunder Clap
@@ -47,3 +47,17 @@ the armor factor), which removes per-mob damage multipliers. k follows the attac
 The warrior's pairs are unblocked hits in Defensive Stance. The rows at 46 (36%), 50 (38%) and 63 (40%) stay; they rest
 on a few dozen hits, and level 50 had 3 new hits in this pass. Mana and energy using attackers give about half this rage
 (warrior 0.519 x, bear 0.553 x, energy 0.501 x on one mob).
+
+## Count of the 2026-11-24 to 2026-11-26 logs
+
+- Sources: combat logs, ThreatLog and StatLedger of one protection warrior at level 60 in dungeon groups, Defiance 3
+- Game build: 1.60.1.71091 on 2026-11-24 and 1.60.1.71139 from the 2026-11-25 18:17 login; the hotfix is not recorded;
+  no reading moves between the two builds
+- Date: 2026-11-24 to 2026-11-26
+- Pull request: #TBD
+
+The method is EV-0220's.
+
+| Reading                         | Measured                                                                    |
+| ------------------------------- | --------------------------------------------------------------------------- |
+| Concussion Blow makes no threat | 0 on 2 of 5 strict windows and 0.93, 2 logged threat points, on the other 3 |

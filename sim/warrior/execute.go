@@ -18,8 +18,10 @@ func (warrior *Warrior) registerExecute() {
 
 	var rageMetrics *core.ResourceMetrics
 
-	// TODO: Manual review needed -- the game files state no threat coefficient; 1 until measured in game.
+	// Execute's threat is 1.25 times its damage, times the stance, which the game files do not state.
+	// In Battle Stance that is the damage itself, which the logs read (EV-0220).
 	config := spelldata.SpellConfig(&warrior.Unit, executeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.ThreatMultiplier = 1.25
 
 	config.ExtraCastCondition = func(_ *core.Simulation, target *core.Unit) bool {
 		return target.IsExecutePhase20()

@@ -20,6 +20,7 @@ func (warrior *Warrior) registerDemoralizingShout() {
 	config := spelldata.SpellConfig(&warrior.Unit, demoralizingShoutRank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty
 	config.ThreatMultiplier = 1
+	// The row's threat effect, 47 a target at level 60, is what the logs read (EV-0220).
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		for _, aoeTarget := range sim.Encounter.ActiveTargetUnits {

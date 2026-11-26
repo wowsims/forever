@@ -1093,9 +1093,8 @@ var Spells = []Override{
 	// hits. Heroic Strike Ranks 1 to 4's measured bonuses fit no single share per spell level (EV-0043);
 	// Ranks 5 and 6 measure Rank 4's 2.5 a level (EV-0048, EV-0174), Rank 8 measures 145 (EV-0050), and
 	// Ranks 7 and 9 carry 2.5 a level. Cleave's measured Ranks 1 and 2 fit 1.5 a level (EV-0042,
-	// EV-0045), Rank 3 measures 62 and Rank 4 80, and Rank 5 carries Rank 4's 1.6 (EV-0050). Each rank's
-	// bonus is a whole number: a measured bonus rounds to the nearest one, and each share times its spell
-	// level is whole.
+	// EV-0045), and Ranks 3, 4 and 5 measure 62, 80 and 100 (EV-0050). Each rank's bonus is a whole
+	// number: a measured bonus rounds to the nearest one, and each share times its spell level is whole.
 	{
 		SpellID: 78,
 		Field:   FlatThreat,
@@ -1190,8 +1189,8 @@ var Spells = []Override{
 	{
 		SpellID: 20569,
 		Field:   FlatThreat,
-		Value:   96, // TODO: Measure Cleave Rank 5 in game.
-		Reason:  "Cleave Rank 5: Rank 4's measured 1.6 a spell level at spell level 60",
+		Value:   100,
+		Reason:  "Cleave Rank 5: adds 100 beyond its damage, split over the targets it lands on, times the stance",
 		Source:  "EV-0050",
 	},
 
@@ -1269,8 +1268,7 @@ var Spells = []Override{
 	},
 
 	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too (EV-0004,
-	// EV-0050). Rank 4 extends the line through Ranks 2 and 3 (4.33 a spell level from 48 to 54) to spell
-	// level 60, rounded to the nearest whole number.
+	// EV-0050). Every rank's flat is measured, rounded to the nearest whole number.
 	{
 		SpellID: 23922,
 		Field:   FlatThreat,
@@ -1295,8 +1293,8 @@ var Spells = []Override{
 	{
 		SpellID: 23925,
 		Field:   FlatThreat,
-		Value:   255, // TODO: Measure Shield Slam Rank 4 in game.
-		Reason:  "Shield Slam Rank 4: the line through the measured Ranks 2 and 3 at spell level 60",
+		Value:   254,
+		Reason:  "Shield Slam Rank 4: threat is the damage + 254, times the stance",
 		Source:  "EV-0050",
 	},
 	{
