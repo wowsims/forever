@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 745.66317
+  tps: 471.05562
+  dtps: 4.55407
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Angerforge'sBattleAxe-11816"
  value: {
   dps: 762.05559

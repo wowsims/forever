@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 805.50255
+  tps: 633.54395
+  dtps: 9.94886
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-AnkhofLife-1713"
  value: {
   dps: 919.55944
