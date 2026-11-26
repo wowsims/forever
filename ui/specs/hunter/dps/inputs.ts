@@ -92,14 +92,16 @@ export const PetTypeInput = <SpecType extends HunterSpecs>() =>
 		],
 	});
 
-// The Faster Attack or Slower Attack passive the tamed creature carries on top of the 2 s swing.
-// Every rank shares one icon, so the rank is written on it.
+// The Faster Attack or Slower Attack passive a tamed Cat carries on top of the 2 s swing. No other
+// family has one, so the picker shows for a Cat alone. Every rank shares one icon, so the rank is
+// written on it.
 export const PetAttackSpeed = <SpecType extends HunterSpecs>() =>
 	InputHelpers.makeClassOptionsEnumIconInput<SpecType, HunterOptions_PetAttackSpeed>({
 		fieldName: 'petAttackSpeed',
 		label: i18n.t('settings_tab.other.pet_attack_speed.label'),
 		labelTooltip: i18n.t('settings_tab.other.pet_attack_speed.tooltip'),
 		numColumns: 5,
+		showWhen: player => player.getClassOptions().petType === HunterOptions_PetType.Cat,
 		values: [
 			{ value: HunterOptions_PetAttackSpeed.PetAttackSpeedNone, tooltip: i18n.t('settings_tab.other.pet_attack_speed.none') },
 			{
