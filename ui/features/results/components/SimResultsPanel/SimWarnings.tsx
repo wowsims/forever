@@ -36,12 +36,20 @@ export const SimWarnings = ({ warnings, ready, className }: SimWarningsProps) =>
 					</Button>
 					<Tooltip
 						id={id}
+						clickable
 						widthClassName="w-full"
 						place="bottom"
 						content={
 							<ul className="mb-0 ps-2 text-start">
-								{contents.map((warning, index) => (
-									<li key={`${index}:${warning}`}>{warning}</li>
+								{contents.map(({ text, action }, index) => (
+									<li key={`${index}:${text}`}>
+										{text}
+										{action && (
+											<Button variant="outline-light" className="my-1 block" onClick={action.run}>
+												{action.label}
+											</Button>
+										)}
+									</li>
 								))}
 							</ul>
 						}
