@@ -7,9 +7,9 @@
 			"toggle": "Toggle navigation"
 		},
 		"home": {
-			"title": "WoWSims - Forever DPS & Gear Simulators",
+			"title": "WoWSims - WoW Forever DPS & Gear Simulators",
 			"description": "Free, open-source World of Warcraft® Forever simulators. Sim your DPS, compare gear and optimize your character.",
-			"heading": "<expansion>Forever</expansion> Simulations",
+			"heading": "<expansion>WoW Forever</expansion> Simulations",
 			"allSpecs": "All Specializations",
 			"welcomeDescription": "<brand>WoWSims</brand> is a fan-made open-source project started in 2021 with the goal of providing user-friendly tools for players to simulate their gameplay in <bold>World of Warcraft® Classic</bold>. Since then we've supported every Classic release, and now we're carrying that forward into <expansion>World of Warcraft®: Forever</expansion>. It's thanks to dozens of developers, hundreds of players, and thousands of hours of time that we've been able to keep the project going so that our users can continue to make the most out of their gameplay."
 		},
@@ -471,9 +471,9 @@
 		}
 	},
 	"sim": {
-		"title": "Forever {{spec}} {{class}} simulator",
+		"title": "WoW Forever {{spec}} {{class}} simulator",
 		"description": "{{spec}} {{class}} simulations for World of Warcraft® Forever.",
-		"title_class": "Forever {{class}} simulator",
+		"title_class": "WoW Forever {{class}} simulator",
 		"description_class": "{{class}} simulations for World of Warcraft® Forever.",
 		"basic_bis_disclaimer": "<p>Preset gear lists are intended as rough approximations of BIS, and will often not be the absolute highest-DPS setup for you. Your optimal gear setup will depend on many factors; that's why we have a sim!</p><p>Items may also be omitted from the presets if they are highly contested and clearly better utilized on other classes, to encourage equitable gearing for the raid as a whole.</p>",
 		"healing_sim_disclaimer": "*** WARNING - USE AT YOUR OWN RISK ***\n\nThe entire concept of a healing sim is EXPERIMENTAL. All results should be taken with an EXTREMELY large grain of salt.\n\nThis tool is currently more similar to a spreadsheet than a true sim. Options for specifying incoming damage profiles in order to have proper reactive rotations have not yet been added.",
