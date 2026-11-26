@@ -68,6 +68,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 780.54437
+  tps: 673.79819
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-AnkhofLife-1713"
  value: {
   dps: 834.4714
