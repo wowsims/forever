@@ -396,18 +396,87 @@ func TestDamageLogNamesNoStatALeftoverReadTook(t *testing.T) {
 	}
 }
 
-// A cleave reads attack power once for all its targets, and deals them after computing them all.
-func TestDamageLogNamesAReadOnEveryResultItWentInto(t *testing.T) {
+// The damage lines a hit logs, in order.
+func (vt *versusLogTest) linesOf(hit func()) []string {
+	vt.logs = nil
+	hit()
+	var lines []string
+	for _, line := range vt.logs {
+		if strings.Contains(line, "(Threat: ") {
+			lines = append(lines, line)
+		}
+	}
+	return lines
+}
+
+const attackPowerTag = ") [Versus Humanoid: {SpellID: 22} +81 AttackPower]"
+
+// Two hits one cast computes: the first reads attack power, the second deals flat damage.
+func TestDamageLogNamesOnlyWhatEachHitRead(t *testing.T) {
 	vt := newVersusLogTest()
 	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81}, vt.target.MobType)
-	baseDamage := attackPowerDamage(vt.strike, vt.target)
-	first := vt.strike.CalcDamage(vt.sim, vt.target, baseDamage, outcomeHit)
-	second := vt.strike.CalcDamage(vt.sim, vt.target, baseDamage, outcomeHit)
+	spell := vt.unit.RegisterSpell(SpellConfig{
+		ActionID:         ActionID{SpellID: 101},
+		SpellSchool:      SpellSchoolHoly,
+		ProcMask:         ProcMaskMeleeMHSpecial,
+		DefenseType:      DefenseTypeMelee,
+		DamageMultiplier: 1,
+		ThreatMultiplier: 1,
+		ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
+			read := spell.CalcDamage(sim, target, attackPowerDamage(spell, target), outcomeHit)
+			flat := spell.CalcDamage(sim, target, 100, outcomeHit)
+			spell.DealDamage(sim, read)
+			spell.DealDamage(sim, flat)
+		},
+	})
 
-	const want = ") [Versus Humanoid: {SpellID: 22} +81 AttackPower]"
-	for _, result := range []*SpellResult{second, first} {
-		if line := vt.lineOf(t, func() { vt.strike.DealDamage(vt.sim, result) }); !strings.HasSuffix(line, want) {
-			t.Errorf("line %q, want it to end with %q", line, want)
+	lines := vt.linesOf(func() { spell.SkipCastAndApplyEffects(vt.sim, vt.target) })
+	if len(lines) != 2 || !strings.HasSuffix(lines[0], attackPowerTag) || strings.Contains(lines[1], "[Versus") {
+		t.Errorf("lines %q, want the first to end with %q and the second untagged", lines, attackPowerTag)
+	}
+}
+
+// A cleave or an area hit reads attack power once for all its targets, and the batched ones deal them
+// after computing them all.
+func TestDamageLogNamesAReadOnEveryResultItWentInto(t *testing.T) {
+	request := fakeRageSimRequest()
+	request.Encounter.Targets = append(request.Encounter.Targets, &proto.Target{Name: "second target", Level: 63, MobType: proto.MobType_MobTypeHumanoid, SwingSpeed: 2})
+	sim := setupFakeRageSimFrom(request)
+	vt := versusLogTestOn(sim, &sim.Raid.Parties[0].Players[0].(*FakeRageWarrior).Character)
+	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81}, vt.target.MobType)
+
+	for i, c := range []struct {
+		name string
+		deal func(sim *Simulation, target *Unit, spell *Spell, baseDamage float64)
+	}{
+		{"a cleave dealt last target first", func(sim *Simulation, target *Unit, spell *Spell, baseDamage float64) {
+			results := spell.CalcCleaveDamage(sim, target, 2, baseDamage, outcomeHit)
+			for i := len(results) - 1; i >= 0; i-- {
+				spell.DealDamage(sim, results[i])
+			}
+		}},
+		{"a batched area hit", func(sim *Simulation, _ *Unit, spell *Spell, baseDamage float64) {
+			spell.CalcAoeDamage(sim, baseDamage, outcomeHit)
+			spell.DealBatchedAoeDamage(sim)
+		}},
+		{"an area hit dealt target by target", func(sim *Simulation, _ *Unit, spell *Spell, baseDamage float64) {
+			spell.CalcAndDealAoeDamage(sim, baseDamage, outcomeHit)
+		}},
+	} {
+		spell := vt.unit.RegisterSpell(SpellConfig{
+			ActionID:         ActionID{SpellID: int32(101 + i)},
+			SpellSchool:      SpellSchoolHoly,
+			ProcMask:         ProcMaskMeleeMHSpecial,
+			DefenseType:      DefenseTypeMelee,
+			DamageMultiplier: 1,
+			ThreatMultiplier: 1,
+			ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
+				c.deal(sim, target, spell, attackPowerDamage(spell, target))
+			},
+		})
+		lines := vt.linesOf(func() { spell.SkipCastAndApplyEffects(sim, vt.target) })
+		if len(lines) != 2 || !strings.HasSuffix(lines[0], attackPowerTag) || !strings.HasSuffix(lines[1], attackPowerTag) {
+			t.Errorf("%s: lines %q, want two, each ending with %q", c.name, lines, attackPowerTag)
 		}
 	}
 }

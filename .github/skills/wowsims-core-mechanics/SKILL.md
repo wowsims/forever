@@ -64,12 +64,13 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   (`spell.go`).
 - **The versus tag on a damage line names the stats the hit's damage read against the mob type** (`versusLogTag` in
   `sim/core/attack_table_helpers.go`). `MeleeAttackPower`, `RangedAttackPower` and `BonusDamage` mark each versus stat
-  they read on the spell, and a result carries the marks its cast or tick made by the time its damage is computed, so a
-  new spell or item declares nothing. The hits one cast computes share its marks, as a cleave that reads attack power
-  once for every target needs. A formula that adds a versus stat by hand reads it through `spell.VersusStat`
-  (Seal of Command), not the attack table. A read outside the damage stays off the tag: threat's attack power share,
-  an expected-damage value, and a read before the cast or tick. An item's versus bonus is named by the item when its
-  row is parsed with `spelldata.ForItem`.
+  they read on the spell, and each result takes the marks made since the spell's last result, so a new spell or item
+  declares nothing and a second hit in one cast names only its own reads. The area and cleave iterations
+  (`CalcAoeDamage`, `CalcCleaveDamage` and their deal and periodic forms) hand the marks read before them to every
+  target's result, for a base damage read once (Thunder Clap, Whirlwind, Multi-Shot). A formula that adds a versus
+  stat by hand reads it through `spell.VersusStat` (Seal of Command), not the attack table. A read outside the damage
+  stays off the tag: threat's attack power share, an expected-damage value, and a read before the cast or tick. An
+  item's versus bonus is named by the item when its row is parsed with `spelldata.ForItem`.
 - **The versus tag names every versus effect and nothing else**, so a versus effect coded by hand goes through a
   tracked helper, never a bare check of `MobType` or `CreatureFamily`. Stats, damage and crit damage against a mob type
   go through `AddMobTypeBonusStats`, `AttachMobTypeBonusStats`, `MultiplyDamageVersus` or `MultiplyCritDamageVersus`

@@ -86,6 +86,7 @@ export const VersusChipsView = ({ item, targets, areaTypes, versusEffects }: Ver
 						<Pill
 							tone={TONES[chip.state]}
 							size="xs"
+							rounded="xs"
 							tabIndex={0}
 							className="ui-versus-chip cursor-pointer focus-visible:focus-ring"
 							data-state={chip.state}

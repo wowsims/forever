@@ -25,7 +25,7 @@ type SpellResult struct {
 
 	inUse           bool
 	castResultDealt bool
-	versusRead      uint64 // The spell's versusRead when the damage was computed, which the combat log's versus tag names.
+	versusRead      uint64 // The versus stats the damage read, taken off the spell as it was computed; the combat log's versus tag names them.
 }
 
 type SpellResultSlice []*SpellResult
@@ -475,8 +475,9 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 			target.LogLabel(), spell.ActionID, spell.Unit.GetStat(stats.AttackPower), spell.Unit.GetStat(stats.RangedAttackPower), spell.SpellDamage(target), baseDamage, afterAttackMods, afterResistances, afterTargetMods, afterOutcome, afterPostOutcome)
 	}
 
-	// The marks stay on the spell: a cleave reads its attack power once for every target it hits.
+	// The hit takes the versus stats read since the spell's last hit, so the next hit names only its own.
 	result.versusRead = spell.versusRead
+	spell.versusRead = 0
 	result.Threat = spell.ThreatFromDamage(sim, result.Outcome, result.Damage, attackTable)
 
 	return result
@@ -699,10 +700,14 @@ func fixedBaseDamageFactory(baseDamage float64) BaseDamageCalculator {
 	}
 }
 
+// Every target's hit takes the versus stats read before the iteration, which the base damage they
+// share read once.
 func (spell *Spell) aoeIteration(sim *Simulation, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator, singleResultCalculator SpellResultIteration) SpellResultSlice {
 	spell.resultSlice = spell.resultSlice[:0]
+	versusRead := spell.versusRead
 
 	for _, aoeTarget := range sim.Encounter.ActiveTargetUnits {
+		spell.versusRead = versusRead
 		baseDamage := baseDamageCalculator(sim, spell)
 		spell.resultSlice = append(spell.resultSlice, singleResultCalculator(sim, aoeTarget, baseDamage, outcomeApplier))
 	}
@@ -722,12 +727,15 @@ func (spell *Spell) CalcAndDealPeriodicAoeDamage(sim *Simulation, baseDamage flo
 	return spell.aoeIteration(sim, outcomeApplier, fixedBaseDamageFactory(baseDamage), spell.CalcAndDealPeriodicDamage)
 }
 
+// Every target's hit takes the versus stats read before the iteration, as in aoeIteration.
 func (spell *Spell) cleaveIteration(sim *Simulation, firstTarget *Unit, maxTargets int32, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator, singleResultCalculator SpellResultIteration) SpellResultSlice {
 	spell.resultSlice = spell.resultSlice[:0]
 	numTargets := min(maxTargets, sim.Environment.ActiveTargetCount())
 	curTarget := firstTarget
+	versusRead := spell.versusRead
 
 	for range numTargets {
+		spell.versusRead = versusRead
 		baseDamage := baseDamageCalculator(sim, spell)
 		spell.resultSlice = append(spell.resultSlice, singleResultCalculator(sim, curTarget, baseDamage, outcomeApplier))
 		curTarget = sim.Environment.NextActiveTargetUnit(curTarget)
