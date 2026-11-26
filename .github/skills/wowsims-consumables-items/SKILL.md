@@ -112,7 +112,8 @@ is registered. Items and enchants work differently:
   the creature's entry in `forever.GuardianCreatures` (`sim/common/forever/item_guardians.go`), keyed by the creature id
   the `E_SUMMON` names: its health, armor and swing as shares of the creature numbers for its level
   (`core.CreatureStatsByLevel`; the owner's, or its own `Level` when the logs show it fixed, as the Emerald Dragon
-  Whelp's 57) and the one spell it casts, measured in logs. A use whose creature has no entry registers nothing, and the generator lists the item as
+  Whelp's 57), its own glancing blows (`GuardianGlance`) where the logs read them apart from the attack table, and the
+  one spell it casts, measured in logs. A use whose creature has no entry registers nothing, and the generator lists the item as
   missing its effect until the next db run after the entry lands. A summon on a proc or a set bonus is wired by hand
   with `shared.RegisterItemGuardian`, `shared.Guardians` and `shared.SummonGuardians`: Dragon's Call's whelp in
   `sim/common/forever/items_weapons.go`, its creature in `sim/common/forever/items_dragons_call.go`, and the Violet

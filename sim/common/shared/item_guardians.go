@@ -2,6 +2,7 @@ package shared
 
 import (
 	"fmt"
+	"maps"
 	"slices"
 	"time"
 
@@ -37,6 +38,26 @@ type GuardianSwing struct {
 	Share    float64
 	Speed    float64
 	Variance float64
+	Glance   *GuardianGlance // Glancing blows as the logs read them, in place of the attack table's; nil keeps the table's.
+}
+
+// Glancing blows that follow the target's level: a chance of 2% for each point of defense, 5 a level, the target has
+// over Skill, and a glancing blow's share of a hit drawn uniformly from the range Damage gives for the target's level,
+// the nearest level listed below it, or the lowest listed.
+type GuardianGlance struct {
+	Skill  float64
+	Damage map[int32][2]float64
+}
+
+func (glance *GuardianGlance) damage(level int32) [2]float64 {
+	levels := slices.Sorted(maps.Keys(glance.Damage))
+	pick := levels[0]
+	for _, listed := range levels {
+		if listed <= level {
+			pick = listed
+		}
+	}
+	return glance.Damage[pick]
 }
 
 // A spell the guardian casts on its target: the first within FirstMax of the summon, each next one a uniform wait of
@@ -151,8 +172,24 @@ func newGuardian(owner *core.Character, name string, summon *spelldata.Spell, cr
 // The creature numbers for the guardian's level, which its spells scale with.
 func (guardian *Guardian) CreatureStats() core.CreatureStats { return guardian.creature.Stats() }
 
-func (guardian *Guardian) GetPet() *core.Pet                   { return &guardian.Pet }
-func (guardian *Guardian) Reset(_ *core.Simulation)            {}
+func (guardian *Guardian) GetPet() *core.Pet { return &guardian.Pet }
+
+// Writes the guardian's own glancing blows into its tables against the enemies.
+func (guardian *Guardian) Reset(_ *core.Simulation) {
+	glance := guardian.creature.Swing.Glance
+	if glance == nil {
+		return
+	}
+	for _, table := range guardian.AttackTables {
+		if table == nil || table.Defender.Type != core.EnemyUnit {
+			continue
+		}
+		damage := glance.damage(table.Defender.Level)
+		table.MH.BaseGlanceChance = core.Clamp((5*float64(table.Defender.Level)-glance.Skill)*0.02, 0, 1)
+		table.MH.GlanceMultiplierMin, table.MH.GlanceMultiplierMax = damage[0], damage[1]
+	}
+}
+
 func (guardian *Guardian) OnEncounterStart(_ *core.Simulation) {}
 
 func (guardian *Guardian) Initialize() {

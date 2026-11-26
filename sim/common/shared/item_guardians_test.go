@@ -170,3 +170,22 @@ func TestGuardianCreatureWithALevelTakesThatLevelsCreatureNumbers(t *testing.T) 
 			guardian.Name, guardian.AutoAttacks.MH().BaseDamageMax, want)
 	}
 }
+
+// A creature with glancing blows of its own glances 2% of its landed swings for each point of defense the level 60
+// target has over its skill, and a glancing blow takes the damage range of the nearest level listed below the target's.
+func TestGuardianGlanceSetsTheChanceFromSkillAndTheDamageFromTheTargetsLevel(t *testing.T) {
+	glancing := servant
+	glancing.Swing.Glance = &GuardianGlance{Skill: 280, Damage: map[int32][2]float64{58: {0.5, 0.6}, 61: {0.1, 0.2}}}
+	_, wearer := newServantSim(t, 993107, map[int32]GuardianCreature{servantCreature: glancing})
+	guardian := Guardians(&wearer.Character, spelldata.MustFind(servantSummon))[0]
+
+	hand := guardian.AttackTables[wearer.CurrentTarget.UnitIndex].MH
+	if math.Abs(hand.BaseGlanceChance-0.4) > 1e-9 {
+		t.Errorf("%s glances %.2f against level 60, want 2%% for each of the 20 defense over its 280 skill, 0.40",
+			guardian.Name, hand.BaseGlanceChance)
+	}
+	if hand.GlanceMultiplierMin != 0.5 || hand.GlanceMultiplierMax != 0.6 {
+		t.Errorf("%s's glancing blows deal %.2f to %.2f of a hit against level 60, want level 58's 0.5 to 0.6",
+			guardian.Name, hand.GlanceMultiplierMin, hand.GlanceMultiplierMax)
+	}
+}

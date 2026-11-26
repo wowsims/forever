@@ -713,8 +713,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Dragon'sCall-10847"
  value: {
-  dps: 584.5313
-  tps: 1840.11668
+  dps: 582.7372
+  tps: 1840.07125
   dtps: 320.24505
   hps: 40.83303
  }
