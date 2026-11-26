@@ -129,7 +129,7 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAbsorbOnUse(10543) // Goblin Construction Helmet - https://www.wowhead.com/forever/spell=12561
 	// on use: 13234 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(10721) // Gnomish Harm Prevention Belt - https://www.wowhead.com/forever/spell=13234
-	// on use: 17252 (A_SCHOOL_ABSORB); not simulated: A_PERIODIC_ENERGIZE
+	// on use: 17252 (A_SCHOOL_ABSORB, A_PERIODIC_ENERGIZE)
 	shared.NewSpellDataAbsorbOnUse(13143) // Mark of the Dragon Lord - https://www.wowhead.com/forever/spell=17252
 	// on use: 21956 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(17759) // Mark of Resolution - https://www.wowhead.com/forever/spell=21956
@@ -157,9 +157,6 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAbsorbOnUse(272437) // Adaptive Combat Assistant - https://www.wowhead.com/forever/spell=1291097
 	// on use: 1314412 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(282778) // Mark of the Red Flight - https://www.wowhead.com/forever/spell=1314412
-
-	// Agility
-	shared.NewSimpleStatActive(280071) // Flamebreak Talisman - https://www.wowhead.com/forever/spell=1315878
 
 	// Agility / Intellect / Spirit / Stamina / Strength
 	shared.NewSimpleStatActive(270226) // Golden Banana - https://www.wowhead.com/forever/spell=1287571
@@ -294,7 +291,7 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataHealOnUse(15108) // Orb of Dar'Orahil - https://www.wowhead.com/forever/spell=18957
 	// on use: 20631 (A_PERIODIC_HEAL)
 	shared.NewSpellDataHealOnUse(16768) // Furbolg Medicine Pouch - https://www.wowhead.com/forever/spell=20631
-	// on use: 23064 (E_HEAL); not simulated: E_DISPEL_MECHANIC, E_ENERGIZE
+	// on use: 23064 (E_HEAL, E_ENERGIZE); not simulated: E_DISPEL_MECHANIC
 	shared.NewSpellDataHealOnUse(18637) // Major Recombobulator - https://www.wowhead.com/forever/spell=23064
 	// on use: 24354 (E_HEAL)
 	shared.NewSpellDataHealOnUse(19990) // Blessed Prayer Beads - https://www.wowhead.com/forever/spell=24354

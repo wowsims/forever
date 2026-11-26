@@ -821,19 +821,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Blasts a target for 105 Fire damage.
-	// https://www.wowhead.com/forever/spell=18833
-	// unsupported: states no rate
-	// trigger 18833 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18833, BuffSpellID: 18833, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 14555, ItemName: "Alcor's Sunrazor"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Corrupts the target, causing 84 damage over 9s.
 	// https://www.wowhead.com/forever/spell=18656
 	// unsupported: states no rate
@@ -3196,7 +3183,7 @@ func RegisterAllProcs() {
 
 	// Sends a shadowy bolt at the enemy causing 125 Shadow damage.
 	// https://www.wowhead.com/forever/spell=18138
-	// trigger 18138 (1.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 18138 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18138, BuffSpellID: 18138, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 2163, ItemName: "Shadowblade"},
@@ -3544,15 +3531,6 @@ func RegisterAllProcs() {
 			{ItemID: 11086, ItemName: "Jang'thraze the Protector"},
 		})
 
-	// 2% chance when struck in melee to gain a holy shield, absorbing 216 damage for 15s. This chance is doubled
-	// in Wasteland and Haunted areas.
-	// https://www.wowhead.com/forever/spell=10368
-	// trigger 8397 (4%, the column over effect 1's 2%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 10368
-	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 8397, BuffSpellID: 10368},
-		[]shared.ItemVariant{
-			{ItemID: 11302, ItemName: "Uther's Strength"},
-		})
-
 	// Corrosive acid that deals 13 Nature damage every 2.0 sec and lowers target's armor by 50 for 14s.
 	// https://www.wowhead.com/forever/spell=13526
 	// trigger 13526 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -3677,7 +3655,7 @@ func RegisterAllProcs() {
 
 	// All attacks are guaranteed to land and will be critical strikes for the next 3s.
 	// https://www.wowhead.com/forever/spell=16551
-	// trigger 16551 (0.55 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 16551 (0.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 16551, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 12590, ItemName: "Felstriker"},
@@ -3902,7 +3880,7 @@ func RegisterAllProcs() {
 
 	// Steals 85 life from target enemy.
 	// https://www.wowhead.com/forever/spell=17505
-	// trigger 17505 (2.15 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 17505 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17505, BuffSpellID: 17505, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13401, ItemName: "The Cruel Hand of Timmy"},
@@ -3956,9 +3934,17 @@ func RegisterAllProcs() {
 			{ItemID: 14541, ItemName: "Barovian Family Sword"},
 		})
 
+	// Blasts a target for 105 Fire damage.
+	// https://www.wowhead.com/forever/spell=18833
+	// trigger 18833 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18833, BuffSpellID: 18833, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 14555, ItemName: "Alcor's Sunrazor"},
+		})
+
 	// Blasts a target for 252 Nature damage.
 	// https://www.wowhead.com/forever/spell=19874
-	// trigger 19874 (1.85 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 19874 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 19874, BuffSpellID: 19874, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 15418, ItemName: "Shimmering Platinum Warhammer"},
@@ -4122,7 +4108,7 @@ func RegisterAllProcs() {
 
 	// Blasts a target for 45 Nature damage.
 	// https://www.wowhead.com/forever/spell=23592
-	// trigger 23592 (1.25 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 23592 (1.35 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 23592, BuffSpellID: 23592, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 19100, ItemName: "Electrified Dagger"},

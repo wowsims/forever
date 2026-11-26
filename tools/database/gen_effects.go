@@ -2382,11 +2382,13 @@ func routeOnUseSpell(itemID int, buffID int32, instance *dbc.DBC) *ProcRouting {
 		}
 	case heal != spelldata.NilEffect:
 		routing.Shape = ShapeHeal
-		routing.Summary = onUseSummary(s, heal)
+		// NewSpellDataHealOnUse restores the resource the row's energize states with the heal.
+		routing.Summary = onUseSummary(s, heal, s.EnergizeEffect())
 		routing.Unsupported = append(routing.Unsupported, healTargetUnsupported(s, dbcenums.TARGET_UNIT_TARGET_ALLY)...)
 	case absorb != spelldata.NilEffect:
 		routing.Shape = ShapeAbsorb
-		routing.Summary = onUseSummary(s, append([]*spelldata.Effect{absorb}, statsBesideTheAbsorb(instance, s)...)...)
+		// NewSpellDataAbsorbOnUse restores the row's periodic energize while the shield holds.
+		routing.Summary = onUseSummary(s, append([]*spelldata.Effect{absorb, s.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)}, statsBesideTheAbsorb(instance, s)...)...)
 		routing.Unsupported = append(routing.Unsupported, absorbUnsupported(s)...)
 	case energize != spelldata.NilEffect:
 		routing.Shape = ShapeEnergize

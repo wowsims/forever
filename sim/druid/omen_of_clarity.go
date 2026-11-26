@@ -38,8 +38,9 @@ func (druid *Druid) registerOmenOfClarity() {
 		if !spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) && spell.ClassFlags.Family != omen.ClassFlags.Family {
 			return false
 		}
-		// Hurricane's ticks never roll it.
-		if spellData.HurricaneTriggered.Contains(spell) {
+		// Hurricane's ticks never roll it, and the cast trigger below rolls its cast, so the cast's
+		// landings roll nothing here.
+		if spellData.HurricaneTriggered.Contains(spell) || spellData.Hurricane.Contains(spell) {
 			return false
 		}
 		return roll(sim, spell)

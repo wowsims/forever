@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 748.80893
+  tps: 557.45715
+  hps: 46.17361
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-AnkhofLife-1713"
  value: {
   dps: 794.78177
@@ -472,8 +480,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 743.26319
-  tps: 553.60087
+  dps: 743.48251
+  tps: 553.75658
   hps: 46.2075
  }
 }
@@ -696,8 +704,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Felstriker-12590"
  value: {
-  dps: 752.32636
-  tps: 559.9739
+  dps: 751.69517
+  tps: 559.46053
   hps: 46.12278
  }
 }
@@ -776,8 +784,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 801.21292
-  tps: 594.87578
+  dps: 797.59135
+  tps: 592.30446
   hps: 45.98722
  }
 }
@@ -1536,8 +1544,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Shadowblade-2163"
  value: {
-  dps: 737.78296
-  tps: 549.90537
+  dps: 737.4048
+  tps: 549.63687
   hps: 46.52944
  }
 }
@@ -1560,8 +1568,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-ShimmeringPlatinumWarhammer-15418"
  value: {
-  dps: 777.06412
-  tps: 577.59661
+  dps: 778.94912
+  tps: 578.93496
   hps: 45.98722
  }
 }
@@ -1744,8 +1752,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 731.89742
-  tps: 545.4903
+  dps: 731.66886
+  tps: 545.32802
   hps: 46.2075
  }
 }

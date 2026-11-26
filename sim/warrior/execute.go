@@ -14,12 +14,16 @@ var executeBaseDamage = executeRank.EffectN(1).Average()
 // The tooltip's $*10;F1: the dummy's chain amplitude, times 10, per extra point of rage.
 var executeDamagePerRage = float64(executeRank.EffectN(1).ChainAmp) * 10
 
+// Execute's threat is 1.25 times its damage, times the stance, which the game files do not state.
+// In Battle Stance that is the damage itself, which the logs read (EV-0220).
+const executeThreatMultiplier = 1.25
+
 func (warrior *Warrior) registerExecute() {
 
 	var rageMetrics *core.ResourceMetrics
 
-	// TODO: Manual review needed -- the game files state no threat coefficient; 1 until measured in game.
 	config := spelldata.SpellConfig(&warrior.Unit, executeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.ThreatMultiplier = executeThreatMultiplier
 
 	config.ExtraCastCondition = func(_ *core.Simulation, target *core.Unit) bool {
 		return target.IsExecutePhase20()
