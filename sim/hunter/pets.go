@@ -31,7 +31,7 @@ var petAttackSpeeds = map[proto.HunterOptions_PetAttackSpeed]spelldata.Ladder{
 
 // A tamed pet's own armor and health are the creature values for its level in the game files
 // (core.CreatureArmorMaxLevel, core.CreatureHealthMaxLevel), and its own attack power is 30% of the creature
-// dps (core.CreatureAutoAttackDpsMaxLevel) as attack power, 14 a point of dps, with nothing from Strength:
+// dps (core.CreatureStatsByLevel) as attack power, 14 a point of dps, with nothing from Strength:
 // the creature dps × 4.2 rounded down, with the owner's 10% rounded down beside it (EV-0070).
 // TODO: Health is one reading (EV-0070). The creature health is kept until a second reading at another
 // Stamina.
@@ -41,14 +41,14 @@ var petBaseStats = stats.Stats{
 	stats.AttackPower: petAttackPower,
 }
 
-const petAttackPower = 0.3 * 14 * core.CreatureAutoAttackDpsMaxLevel
+var petAttackPower = 0.3 * 14 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps
 
 // The creature dps is the pet's auto attack damage with its own attack power in it, so the swing before
 // attack power is the creature dps less that attack power over 14, over the 2.0 s, spanning 20% either side:
 // a Cat's logged swings before armor are this swing plus attack power over 14, over the swing as sped up,
 // with the Cat's +10% and happiness (EV-0071). The pet sheet shows the whole creature dps as the weapon and leaves
 // happiness out, so its damage range is not the damage the pet deals.
-const petSwingAverage = (core.CreatureAutoAttackDpsMaxLevel - petAttackPower/14) * 2
+var petSwingAverage = (core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps - petAttackPower/14) * 2
 
 var petSwing = core.Weapon{
 	BaseDamageMin: petSwingAverage * (1 - 0.2),
@@ -196,8 +196,11 @@ func (hp *HunterPet) ApplyTalents() {
 	spelldata.ParseStatic(&hp.Character, hp.family.Passive.Highest(), spelldata.SkipEffects(2))
 
 	// An attack speed acts through a Simulation, which a static passive has none of, so these two
-	// are auras the pet is never without.
-	hp.applyAttackSpeed(petAttackSpeeds[opts.PetAttackSpeed].Highest())
+	// are auras the pet is never without. Only a Cat carries a Faster or Slower Attack passive; every
+	// other family swings every 2 s.
+	if opts.PetType == proto.HunterOptions_Cat {
+		hp.applyAttackSpeed(petAttackSpeeds[opts.PetAttackSpeed].Highest())
+	}
 	// The same attack speed aura as Faster Attack: its "reduces damage" is the normalization.
 	if opts.CobraReflexes {
 		hp.applyAttackSpeed(cobraReflexesRank)

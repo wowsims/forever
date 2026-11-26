@@ -3,7 +3,6 @@ import * as OtherInputs from '@features/settings/model/other_inputs';
 import { APLRotation, APLRotation_Type } from '@generated/proto/apl';
 import { ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
-import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
@@ -68,12 +67,11 @@ export default defineSpec<Spec.SpecDpsPriest>({
 	defaults: {
 		...Presets.Defaults,
 		// Default EP weights for sorting gear in the gear picker.
-		epWeights: new Stats(),
+		epWeights: Presets.ShadowEpWeights.epWeights,
 		statCaps: (() => {
 			return new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow, 17).withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentHoly, 17);
 		})(),
-		// defaults.siml's rotation would make the page start on the APL; it starts on Auto, which runs the same APL on
-		// Shadow talents and the Smite APL when Discipline has more points than Shadow.
+		// defaults.siml's rotation would make the page start on the APL; it starts on Auto, which runs the same APL.
 		rotationType: APLRotation_Type.TypeAuto,
 	},
 
@@ -95,22 +93,15 @@ export default defineSpec<Spec.SpecDpsPriest>({
 	presets: {
 		epWeights: [Presets.ShadowEpWeights, Presets.SmiteEpWeights],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.StandardTalents, Presets.SmiteTalents],
-		rotations: [Presets.ROTATION_PRESET_DEFAULT, Presets.ROTATION_SMITE_DEFAULT],
+		talents: [Presets.StandardTalents],
+		rotations: [Presets.ROTATION_PRESET_DEFAULT],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.ShadowGear, Presets.SmiteTestingGear],
+		gear: [Presets.ShadowGear],
 		// Preset builds that the user can quickly select.
-		builds: [Presets.ShadowBuild, Presets.SmiteTestingBuild],
+		builds: [Presets.ShadowBuild],
 	},
 
-	autoRotation: (priest: Player<Spec.SpecDpsPriest>): APLRotation => {
-		const [disc, , shadow] = priest.getTalentTreePoints();
-
-		if (disc > shadow) {
-			return Presets.ROTATION_SMITE_DEFAULT.rotation.rotation!;
-		}
-		return Presets.ROTATION_PRESET_DEFAULT.rotation.rotation!;
-	},
+	autoRotation: (): APLRotation => Presets.ROTATION_PRESET_DEFAULT.rotation.rotation!,
 
 	reforge: {},
 });

@@ -1,8 +1,6 @@
 siml 1
 spec dps_priest
 talents "00530200103-3-50042201251312051"
-use "gear_sets/default.gear.siml"
-use "apls/default.apl.siml"
 
 settings:
   race human
@@ -13,6 +11,24 @@ settings:
   distance_from_target 20
   armor inner_fire
   pre_shadowform
+
+gear:
+  head       spellweavers_turban + arcanum_of_focus
+  neck       nacreous_shell_necklace + necklace_spell_power
+  shoulder   virtuous_epaulets
+  back       arcanoweave_cloak
+  chest      robe_of_winter_night + mystic_rugged_armor_kit
+  wrist      tearfall_bracers of_shadow_wrath_13062 + bracer_greater_spellpower
+  hands      gloves_of_spell_mastery + mystic_rugged_armor_kit
+  waist      belt_of_the_archmage
+  legs       masters_leggings of_shadow_wrath + arcanum_of_focus
+  feet       masters_boots of_shadow_wrath + mystic_rugged_armor_kit
+  finger1    songstone_of_ironforge
+  finger2    don_rodrigos_band
+  trinket1   weakness_analyzer
+  trinket2   eye_of_the_beast
+  main_hand  headmasters_charge + enchant_2h_weapon_spellblasting
+  ranged     skuls_ghastly_touch
 
 consumables:
   flask flask_of_supreme_power
@@ -26,6 +42,7 @@ consumables:
       elixir_of_greater_fortitude
   resource_pot major_mana_potion
   offensive_pot major_spellblasting_potion
+  extra cerebral_cortex_compound
 
 buffs:
   greater_blessing_of_kings
@@ -53,3 +70,44 @@ encounter:
       swing_speed=2,
       parry_haste,
       can_crush)
+
+apl:
+  var ${Dark Sac} = current_mana <= 2000
+  var ${Inner Focus Rules} = not spell(mind_blast).is_ready and current_time >= 4.5s
+  var ${SWP Refresh} = not dot(shadow_word_pain).is_active
+  var $Troll = spell(shadowguard).is_known
+  var ${Night Elf} =
+      spell(elunes_light).is_known
+      and (gcd_is_ready and dot(shadow_word_pain).remaining_time >= 10s and (dot(devouring_plague).remaining_time >= 10s or spell(devouring_plague).time_to_ready >= 8s))
+  var $Gnome =
+      spell(eureka).is_known
+      and (gcd_is_ready and dot(shadow_word_pain).remaining_time >= 8s and (dot(devouring_plague).remaining_time >= 8s or spell(devouring_plague).time_to_ready >= 8s))
+  var $MF3 = spell(mind_flay).channeled_ticks == 3
+  var $MF2 = spell(mind_flay).channeled_ticks == 2
+
+prepull:
+  -3s cast shadowguard if $Troll
+  -1.5s cast mind_blast
+
+priority:
+  cast shadowform if not aura(shadowform).is_active
+  cast dark_sacrifice if $dark_sac
+  cast elunes_light if $night_elf
+  cast eureka if $Gnome
+  group "Cooldowns"
+  autocast_other_cooldowns
+  cast shadow_word_pain if $swp_refresh
+  cast devouring_plague if not dot(devouring_plague).is_active
+  cast mind_blast
+  cast shadow_word_death
+  # cast vampiric_embrace
+  cast starshards
+      if spell(starshards).expected_dpet > spell(mind_flay).expected_dpet
+      and spell(mind_blast).time_to_ready >= 4s
+  # strict_sequence(cast inner_focus, cast starshards)
+  strict_sequence(cast inner_focus, cast mind_flay)
+  channel mind_flay until or($MF3)
+
+group "Cooldowns":
+  cast item.weakness_analyzer
+  cast item.eye_of_the_beast

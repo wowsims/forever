@@ -236,6 +236,7 @@ func RegisterAllStatConsumables() {
 		268913, // Expiring Crocolisk Steak
 		274971, // Briny Seafood Stew
 		274976, // Plain Ol' Paletusk
+		286152, // Plated Armorfish
 	} {
 		shared.NewSpellDataStatConsumable(itemID)
 	}

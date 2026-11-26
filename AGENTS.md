@@ -6,8 +6,7 @@ files (`tools/database`, `sim/core/spelldata`). It needs Node 26 (`.nvmrc`) and 
 
 The hunter's, the Balance druid's, the Retribution paladin's and the Protection paladin's rotations, gear sets and sim
 setups are SIML files (`*.siml`), as are the Shadow priest's defaults, gear set and rotation and the Feral druids'
-rotations and gear sets; the other specs, and the priest's Smite testing build, keep theirs as JSON until each moves,
-and the Go suites and the site read either.
+rotations and gear sets; the other specs keep theirs as JSON until each moves, and the Go suites and the site read either.
 `sim/siml/SPEC.md` is the language, and the `wowsims-siml` skill a short guide to it with every action and value, where
 its tools are and how to start its language server. A change to a proto, `proto/apl.proto` most of all, reaches SIML on
 its own; run `make siml` after one, and fix the `.siml` files the check names when a kind or field is taken out or

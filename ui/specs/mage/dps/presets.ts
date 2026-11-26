@@ -132,7 +132,7 @@ export const ArcaneFireBuild = PresetUtils.makePresetBuild('Arcane Fire', {
 
 export const FFBBuild = PresetUtils.makePresetBuild('FFB', {
 	group: 'FFB',
-	gear: PreRaidArcaneGear,
+	gear: PreRaidFireGear,
 	talents: FFBTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: FFBAplPreset,

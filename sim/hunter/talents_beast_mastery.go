@@ -70,7 +70,7 @@ func (hunter *Hunter) registerUnleashedFury() {
 
 // Effect 1 adds to the crit chance of Tamed Pet Passive (19591), which states 0. Its class flags
 // match the Summon Hawk dive too, which the store carries; the tooltip names the hawks, which take
-// it whole: a hawk with Ferocity 5/5 read 10 plus half its owner's crit.
+// it whole (EV-0074).
 func (hunter *Hunter) registerFerocity() {
 	if hunter.Talents.Ferocity == 0 {
 		return
