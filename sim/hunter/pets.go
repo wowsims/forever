@@ -196,8 +196,11 @@ func (hp *HunterPet) ApplyTalents() {
 	spelldata.ParseStatic(&hp.Character, hp.family.Passive.Highest(), spelldata.SkipEffects(2))
 
 	// An attack speed acts through a Simulation, which a static passive has none of, so these two
-	// are auras the pet is never without.
-	hp.applyAttackSpeed(petAttackSpeeds[opts.PetAttackSpeed].Highest())
+	// are auras the pet is never without. Only a Cat carries a Faster or Slower Attack passive; every
+	// other family swings every 2 s.
+	if opts.PetType == proto.HunterOptions_Cat {
+		hp.applyAttackSpeed(petAttackSpeeds[opts.PetAttackSpeed].Highest())
+	}
 	// The same attack speed aura as Faster Attack: its "reduces damage" is the normalization.
 	if opts.CobraReflexes {
 		hp.applyAttackSpeed(cobraReflexesRank)
