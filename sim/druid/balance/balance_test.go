@@ -12,11 +12,21 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
+	"github.com/wowsims/forever/sim/siml"
 )
 
 func init() {
 	RegisterBalanceDruid()
 	common.RegisterAllEffects()
+}
+
+// The rotation defaults.siml holds, under the label the expected results name.
+func defaultRotation() core.RotationCombo {
+	f, err := siml.ReadFile("../../../ui/specs/druid/balance/defaults.siml")
+	if err != nil {
+		panic(err)
+	}
+	return core.RotationCombo{Label: "default", Rotation: f.Rotation()}
 }
 
 func TestBalance(t *testing.T) {
@@ -34,7 +44,7 @@ func TestBalance(t *testing.T) {
 			}},
 			GearSet:          core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "default"),
 			Talents:          DefaultTalents,
-			Rotation:         core.GetAplRotation("../../../ui/specs/druid/balance/apls", "default"),
+			Rotation:         defaultRotation(),
 			Consumables:      DefaultConsumables,
 			Profession1:      proto.Profession_Enchanting,
 			Profession2:      proto.Profession_Tailoring,

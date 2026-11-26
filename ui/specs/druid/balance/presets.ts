@@ -3,14 +3,13 @@ import { APLRotation_Type } from '@generated/proto/apl';
 import { Spec, Stat } from '@generated/proto/common';
 import { Stats } from '@sim/proto/stats';
 
-import DefaultAPL from './apls/default.apl.siml';
 import DefaultsJson from './defaults.siml';
 import DefaultGearJson from './gear_sets/default.gear.siml';
 
 // The spec's defaults, from defaults.siml.
 export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecBalanceDruid, DefaultsJson);
 
-export const StandardRotation = PresetUtils.makePresetAPLRotation('Default', DefaultAPL);
+export const StandardRotation = PresetUtils.makePresetAPLRotation('Default', DefaultsJson.player.rotation);
 
 export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', Defaults.talents);
 
