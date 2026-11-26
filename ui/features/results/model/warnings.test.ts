@@ -39,7 +39,7 @@ describe('WarningsRegistry', () => {
 
 		expect(registry.getContents()).toEqual([]);
 		content = 'gear';
-		expect(registry.getContents()).toEqual(['gear']);
+		expect(registry.getContents()).toEqual([{ text: 'gear' }]);
 	});
 
 	it('flattens an array return and drops only its empty entries', () => {
@@ -47,7 +47,7 @@ describe('WarningsRegistry', () => {
 		registry.add(warning(() => ['one', '', 'two']).warning);
 		registry.add(warning(() => 'three').warning);
 
-		expect(registry.getContents()).toEqual(['one', 'two', 'three']);
+		expect(registry.getContents()).toEqual([{ text: 'one' }, { text: 'two' }, { text: 'three' }]);
 	});
 
 	// Widening this filter to `.trim()` would change the warning item's `hide` state at load for any
@@ -56,7 +56,7 @@ describe('WarningsRegistry', () => {
 		const registry = new WarningsRegistry();
 		registry.add(warning(() => ' ').warning);
 
-		expect(registry.getContents()).toEqual([' ']);
+		expect(registry.getContents()).toEqual([{ text: ' ' }]);
 	});
 
 	it("notifies subscribers when a warning's own source fires", () => {
@@ -109,7 +109,7 @@ describe('WarningsRegistry', () => {
 
 		remove();
 
-		expect(registry.getContents()).toEqual(['talents']);
+		expect(registry.getContents()).toEqual([{ text: 'talents' }]);
 		expect(gear.store.listeners).toBe(0);
 		expect(notifications).toBe(1);
 

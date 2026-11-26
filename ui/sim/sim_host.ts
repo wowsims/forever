@@ -16,9 +16,16 @@ import type { StoreSubscribe } from './state/subscriptions';
 import type { WorkerProgressCallback } from './workers/worker_pool';
 
 // Config for displaying a warning to the user whenever a condition is met.
+export interface SimWarningAction {
+	label: string;
+	run: () => void;
+}
+
 export interface SimWarning {
 	updateOn: StoreSubscribe;
 	getContent: () => string | Array<string>;
+	/** A one-click fix, shown as a button under the warning's text. */
+	action?: SimWarningAction;
 }
 
 // The slice of the sim host (app/individual_sim_ui.tsx) that features reach for.
