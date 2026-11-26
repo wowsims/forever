@@ -168,12 +168,15 @@ func init() {
 	// Everlook Delivery Bot: 1295271 marks the target, and once as many spells or attacks as its first
 	// two effects bound have landed on it, 1295633 deals its Fire damage to it and the mark goes. The
 	// count is rolled when the mark goes on, and the mark's ProcFlags state what counts. The tooltip
-	// halves the count in snowy areas, which the row names no area for, so the sim does not.
+	// halves both bounds in Snowy areas, which the row names no area for.
 	core.NewItemEffect(274760, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		markRow := spelldata.MustFind(1295271)
 		deliveryRow := spelldata.MustFind(1295633)
 		fewest, most := int32(markRow.EffectN(1).BaseValue()), int32(markRow.EffectN(2).BaseValue())
+		if character.Env.Encounter.InArea(proto.AreaType_AreaTypeSnowy) {
+			fewest, most = fewest/2, most/2
+		}
 
 		deliveryConfig := spelldata.SpellConfig(&character.Unit, deliveryRow, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc())
 		if deliveryRow.IsAProc() {
@@ -223,10 +226,14 @@ func init() {
 	// Darkmoon Card: Heroism
 	// https://www.wowhead.com/forever/item=19287/darkmoon-card-heroism
 	//
-	// Sometimes heals bearer of 158 to 238 damage when damaging an enemy in melee.
+	// Sometimes heals bearer of 158 to 238 damage when damaging an enemy in melee. This effect occurs
+	// twice as often in Strongholds and Cities.
 	//
-	// The game files state no rate for 23689; the item's entry carries it.
+	// 23689's rate is the item entry's, twice that in Strongholds and Cities.
 	newEntryRateItemEffect(19287, 23682, func(character *core.Character, ppm float64) {
+		if character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
+			ppm *= 2
+		}
 		row := spelldata.MustFind(23682)
 		heal := row.HealEffect()
 
@@ -507,14 +514,44 @@ func init() {
 	// encounter half of it. The sim fixes the encounter's area for the run, so the chance is fixed when
 	// the trigger is built.
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 20847, BuffSpellID: 18946,
-		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
-			if !character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
-				trigger.ProcChance /= 2
-			}
-		}},
+		Rate: halvedOutside(proto.AreaType_AreaTypeStrongholdsCities)},
 		[]shared.ItemVariant{
 			{ItemID: 14557, ItemName: "The Lion Horn of Stormwind"},
 		})
+
+	// Uther's Strength
+	// https://www.wowhead.com/forever/item=11302/uthers-strength
+	//
+	// 2% chance when struck in melee to gain a holy shield, absorbing 216 damage for 15s. This chance is
+	// doubled in Wasteland and Haunted areas.
+	//
+	// 8397's ProcChance is the chance doubled in Wasteland and Haunted areas, its first effect the 2%, so
+	// an encounter there rolls the whole column and any other encounter half of it, as The Lion Horn of
+	// Stormwind does.
+	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 8397, BuffSpellID: 10368,
+		Rate: halvedOutside(proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted)},
+		[]shared.ItemVariant{
+			{ItemID: 11302, ItemName: "Uther's Strength"},
+		})
+
+	// Flamebreak Talisman
+	// https://www.wowhead.com/forever/item=280071/flamebreak-talisman
+	//
+	// Use: Increase your agility by 33 for 30 sec. If there is an elemental nearby, gain an additional 33.
+	//
+	// 1315878's second effect is the additional Agility. By the owner's ruling an elemental is nearby
+	// when any enemy in the encounter is one: an Elemental, or of the Earth or Fire Elemental family.
+	core.NewItemEffect(280071, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1315878)
+		agility := row.EffectN(1).BaseValue()
+		if slices.ContainsFunc(character.Env.Encounter.AllTargetUnits, isElemental) {
+			agility += row.EffectN(2).BaseValue()
+		}
+		onUse := itemOnUseEffect(280071)
+		core.RegisterTemporaryStatsOnUseCD(character, onUse.BuffName, stats.Stats{stats.Agility: agility}, row.Duration(),
+			core.SpellConfig{ActionID: core.ActionID{ItemID: 280071}, Cast: shared.OnUseCast(character, onUse)})
+	})
 
 	// Draconic Infused Emblem
 	// https://www.wowhead.com/forever/item=22268/draconic-infused-emblem
@@ -523,17 +560,18 @@ func init() {
 	// This spell damage increase is doubled against Dragonkin.
 	//
 	// The row's lone harmful-spell bit decodes to a cast, so the listener is moved to landed spell hits
-	// by hand: 1318931 rolls once for each enemy a harmful spell lands on, an area spell once per
-	// target and each Arcane Missiles missile on its own. A spell that applies a damage over time
-	// effect or a debuff rolls too, apart from Curse of the Elements, Recklessness and Weakness and Hex
-	// of Weakness, which the sim registers with no proc mask. Damage over time ticks never roll, and
-	// neither does a spell fired as a proc, such as Hellfire Effect. The 8% is the row's ProcChance, which an override sets; hardcasts and instants
-	// roll it alike. Misses are undetermined, so only landed spells roll (EV-0115).
+	// by hand: 1318931 rolls once for each enemy a harmful spell lands on (harmfulSpells), an area spell
+	// once per target and each Arcane Missiles missile on its own. A spell that applies a damage over
+	// time effect or a debuff rolls too, a curse included. Damage over time ticks never roll, and
+	// neither does a spell fired as a proc, such as Hellfire Effect. The 8% is the row's ProcChance,
+	// which an override sets; hardcasts and instants roll it alike. Misses are undetermined, so only
+	// landed spells roll (EV-0115).
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930,
-		Rate: func(_ *core.Character, trigger *core.ProcTrigger) {
+		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			trigger.Callback = core.CallbackOnSpellHitDealt
 			trigger.Outcome = core.OutcomeLanded
 			trigger.RequireDamageDealt = false
+			harmfulSpells(character, trigger)
 		}},
 		[]shared.ItemVariant{
 			{ItemID: 22268, ItemName: "Draconic Infused Emblem"},
@@ -573,19 +611,39 @@ func registerCountdownOnUse(character *core.Character, itemID int32, row *spelld
 	})
 }
 
-// The item's use as a major cooldown, on the cooldowns its on-use effect states. The use completes no
-// cast, so a buff that counts casts does not count the use that applied it.
-func registerItemOnUse(character *core.Character, itemID int32, cdType core.CooldownType, buff *core.StatBuffAura, apply core.ApplySpellResults) {
+// Half the row's chance in an encounter in none of the areas, whose doubled chance the column states.
+func halvedOutside(areas ...proto.AreaType) spelldata.ProcOpt {
+	return func(character *core.Character, trigger *core.ProcTrigger) {
+		if !slices.ContainsFunc(areas, character.Env.Encounter.InArea) {
+			trigger.ProcChance /= 2
+		}
+	}
+}
+
+// Whether the enemy is an elemental: of the Elemental type, or of an elemental family.
+func isElemental(target *core.Unit) bool {
+	return target.MobType == proto.MobType_MobTypeElemental ||
+		target.CreatureFamily == proto.CreatureFamily_CreatureFamilyEarthElemental ||
+		target.CreatureFamily == proto.CreatureFamily_CreatureFamilyFireElemental
+}
+
+// The item's on-use effect; an item with none panics.
+func itemOnUseEffect(itemID int32) *proto.ItemEffect {
 	effects := core.GetItemByID(itemID).ItemEffects
 	i := slices.IndexFunc(effects, func(effect *proto.ItemEffect) bool { return effect.GetOnUse() != nil })
 	if i < 0 {
 		panic(fmt.Sprintf("item %d has no on-use effect", itemID))
 	}
+	return effects[i]
+}
 
+// The item's use as a major cooldown, on the cooldowns its on-use effect states. The use completes no
+// cast, so a buff that counts casts does not count the use that applied it.
+func registerItemOnUse(character *core.Character, itemID int32, cdType core.CooldownType, buff *core.StatBuffAura, apply core.ApplySpellResults) {
 	config := core.SpellConfig{
 		ActionID:     core.ActionID{ItemID: itemID},
 		Flags:        core.SpellFlagNoOnCastComplete,
-		Cast:         shared.OnUseCast(character, effects[i]),
+		Cast:         shared.OnUseCast(character, itemOnUseEffect(itemID)),
 		ApplyEffects: apply,
 	}
 	if buff != nil {
