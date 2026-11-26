@@ -5,6 +5,7 @@ type apl
 var ${Healthstone health threshold} = 30%
 var ${Barkskin health threshold} = 60%
 var ${Maul minimum rage} = 20
+var ${Bleed-immune Swipe minimum rage} = 30
 var ${Attack-power reduction is covered} =
     not target.aura(demoralizing_roar).should_refresh(max_overlap=0s)
     or target.aura(vindication).is_known and target.aura(vindication).is_active
@@ -70,8 +71,10 @@ priority:
   cast demoralizing_roar if not $attack_power_reduction_is_covered
   /// Use Primal Bite before spending rage on filler
   cast primal_bite if spell(primal_bite).is_known
-  /// Build or refresh Lacerate when no higher-priority attack needs the global
-  cast lacerate
+  /// Build or refresh Lacerate when no higher-priority attack needs the global and bleeds can land
+  cast lacerate if not target_is_bleed_immune
+  /// Bleeds cannot land on this target: Swipe takes Lacerate's global when rage allows
+  cast swipe if target_is_bleed_immune and current_rage >= $bleed_immune_swipe_minimum_rage
   /// Queue Maul with enough rage left for a nearby Primal Bite
   cast maul if current_rage >= $maul_minimum_rage and $maul_leaves_rage_for_a_nearby_primal_bite
 

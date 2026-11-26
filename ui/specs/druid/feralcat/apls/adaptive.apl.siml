@@ -21,15 +21,19 @@ var ${Paid-builder pooling CP with two Blood Frenzy points} = 3
 var ${Fight-end Bite CP} = 5
 var ${Ravage approach without Clearcasting} = 10
 var ${Ravage approach with Clearcasting} = 30
+var ${Bleed-immune Bite CP} = 5
+var ${Bleed-immune Bite energy} = 95
 var ${Shifting Power ready} =
     aura(cat_form).is_active
     and current_energy <= $shifting_power_energy_ceiling
     and spell(shifting_power).can_cast
 var ${Rake due} =
-    target.aura(rake).is_inactive(include_reaction_time=true)
+    not target_is_bleed_immune
+    and target.aura(rake).is_inactive(include_reaction_time=true)
     and target.time_until_target_dies > 6s
 var ${Rip due} =
-    current_combo_points >= $rip_target_cp
+    not target_is_bleed_immune
+    and current_combo_points >= $rip_target_cp
     and (not (not talent_is_known(blood_frenzy) or talent_rank(blood_frenzy) >= 2 and talent_is_known(shifting_power)) or current_combo_points >= $preferred_rip_cp_with_zero_or_two_blood_frenzy_points or not $one_more_builder_funds_next_global_rip)
     and target.aura(rip).is_inactive(include_reaction_time=true)
     and target.time_until_target_dies >= $rip_minimum_fight_left
@@ -68,6 +72,7 @@ var ${Claw can replace Shred} =
     and not spell(shred).can_cast
     and current_energy >= spell(shred).current_cost
     and (aura(clearcasting).is_active or not ($bite_combo_points_and_rip_window and not $bite_energy_is_funded))
+    and not $pool_combo_points_for_a_bleed_immune_bite
 var ${Innervate can restore needed mana} =
     aura(cat_form).is_active
     and spell(innervate).is_ready
@@ -95,6 +100,7 @@ var ${Bite combo points and Rip window} =
     and (talent_is_known(blood_frenzy) and dot(rip).remaining_time >= $bite_minimum_rip_remaining_with_blood_frenzy or not talent_is_known(blood_frenzy) and ($use_the_short_claw_bite_window and dot(rip).remaining_time >= $short_fight_claw_bite_minimum_rip_remaining or not $use_the_short_claw_bite_window and dot(rip).remaining_time >= $bite_minimum_rip_remaining_without_blood_frenzy))
 var ${Paid builder fits the energy pool} =
     not ($bite_combo_points_and_rip_window and not $bite_energy_is_funded)
+    and not $pool_combo_points_for_a_bleed_immune_bite
     and (talent_rank(blood_frenzy) == 1 or current_energy >= $paid_builder_energy_threshold or (not talent_is_known(blood_frenzy) or talent_rank(blood_frenzy) >= 2 and $use_ferocity_with_two_blood_frenzy_points) and current_combo_points < $paid_builder_pooling_cp or talent_rank(blood_frenzy) >= 2 and not $use_ferocity_with_two_blood_frenzy_points and current_combo_points < $paid_builder_pooling_cp_with_two_blood_frenzy_points)
 var ${Use Ferocity Hybrid tuning} =
     not talent_is_known(blood_frenzy)
@@ -114,6 +120,14 @@ var ${Use the short Claw Bite window} =
     not talent_is_known(shredding_attacks)
     and not $use_ferocity_hybrid_tuning
     and current_time + remaining_time <= $short_fight_claw_bite_duration_ceiling
+var ${Bleed-immune Bite is ready} =
+    aura(cat_form).is_active
+    and target_is_bleed_immune
+    and current_combo_points >= $bleed_immune_bite_cp
+    and current_energy >= $bleed_immune_bite_energy
+var ${Pool combo points for a bleed-immune Bite} =
+    target_is_bleed_immune
+    and current_combo_points >= $bleed_immune_bite_cp
 var ${Bite energy is funded} =
     aura(clearcasting).is_active and current_energy >= $bite_energy_target_with_clearcasting
     or not aura(clearcasting).is_active and (current_energy >= $bite_energy_target or (current_combo_points >= 5 or talent_rank(blood_frenzy) >= 2 and not talent_is_known(shredding_attacks)) and current_energy >= $reduced_bite_energy_target)
@@ -153,6 +167,8 @@ priority:
   cast elunes_light if spell(elunes_light).is_known
   /// Bite while Rip has time left, using the energy pool for your talents and combo points
   cast ferocious_bite if $midfight_bite_is_worthwhile
+  /// Bleeds cannot land on this target: Bite is the only finisher
+  cast ferocious_bite if $bleed_immune_bite_is_ready
   /// Shifting Power is ready at or below its energy ceiling
   cast shifting_power if $shifting_power_ready
   /// Use Thistle Tea when energy is low
