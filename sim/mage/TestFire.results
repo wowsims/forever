@@ -187,6 +187,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-BookoftheDead-13353"
+ value: {
+  dps: 944.33357
+  tps: 930.36836
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-BristleconeCloak-275833"
  value: {
   dps: 923.81003

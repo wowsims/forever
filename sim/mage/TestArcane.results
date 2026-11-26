@@ -187,6 +187,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-BookoftheDead-13353"
+ value: {
+  dps: 855.5235
+  tps: 725.51596
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-BristleconeCloak-275833"
  value: {
   dps: 822.24797

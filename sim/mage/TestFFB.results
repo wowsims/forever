@@ -187,6 +187,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-BookoftheDead-13353"
+ value: {
+  dps: 888.98453
+  tps: 904.45223
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-BristleconeCloak-275833"
  value: {
   dps: 875.6204
