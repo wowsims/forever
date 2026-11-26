@@ -189,8 +189,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-BookoftheDead-13353"
  value: {
-  dps: 841.78053
-  tps: 766.1215
+  dps: 841.08659
+  tps: 765.48876
  }
 }
 dps_results: {

@@ -27,10 +27,15 @@ type GuardianCreature struct {
 
 // The creature numbers for the creature's level.
 func (creature GuardianCreature) Stats() core.CreatureStats {
-	if creature.Level == 0 {
-		return core.CreatureStatsByLevel[core.CharacterLevel]
+	level := creature.Level
+	if level == 0 {
+		level = core.CharacterLevel
 	}
-	return core.CreatureStatsByLevel[creature.Level]
+	values, listed := core.CreatureStatsByLevel[level]
+	if !listed {
+		panic(fmt.Sprintf("%s: the game files hold no creature values for level %d", creature.Name, level))
+	}
+	return values
 }
 
 // A physical swing whose normal hit before armor is Share of Speed seconds of the creature dps, Variance either side.
@@ -78,6 +83,7 @@ type Guardian struct {
 	creature   GuardianCreature
 	cast       *core.Spell
 	nextCastAt time.Duration
+	walkEnd    time.Duration
 }
 
 // Builds the guardians an item summons with the item's owner, through core.NewItemPet: as many as the summon's row
@@ -154,6 +160,11 @@ func newGuardian(owner *core.Character, name string, summon *spelldata.Spell, cr
 		IsGuardian:         true,
 		StartsInMeleeRange: !summonsBesideCaster(summon),
 	})}
+	if creature.Level != 0 {
+		guardian.Level = creature.Level
+	}
+	// A guardian walks in at 7 yd/s: none of Book of the Dead's skeletons reached its target faster than 6.6 (EV-0217).
+	guardian.PseudoStats.MovementSpeedMultiplier = 7.0 / 8.0
 	if swing := creature.Swing; swing.Speed > 0 {
 		average := swing.Share * creature.Stats().AutoAttackDps * swing.Speed
 		guardian.EnableAutoAttacks(guardian, core.AutoAttackOptions{
@@ -232,14 +243,17 @@ func (guardian *Guardian) ExecuteCustomRotation(sim *core.Simulation) {
 		if !guardian.cast.Cast(sim, guardian.CurrentTarget) {
 			guardian.WaitUntil(sim, sim.CurrentTime+guardian.castWait(sim))
 		}
+	case guardian.Moving:
+		guardian.WaitUntil(sim, max(guardian.walkEnd, sim.CurrentTime))
 	case guardian.DistanceFromTarget > reach:
 		walk := guardian.DistanceFromTarget - (reach - 1)
 		guardian.MoveTo(reach-1, sim)
-		guardian.WaitUntil(sim, sim.CurrentTime+core.DurationFromSeconds(walk/guardian.GetMovementSpeed()))
+		guardian.walkEnd = sim.CurrentTime + core.DurationFromSeconds(walk/guardian.GetMovementSpeed())
+		guardian.WaitUntil(sim, guardian.walkEnd)
 	case guardian.cast == nil:
 		guardian.WaitUntil(sim, sim.CurrentTime+guardian.summon.Duration())
 	default:
-		guardian.WaitUntil(sim, guardian.nextCastAt)
+		guardian.WaitUntil(sim, max(guardian.nextCastAt, sim.CurrentTime))
 	}
 }
 

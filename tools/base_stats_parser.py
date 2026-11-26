@@ -135,6 +135,9 @@ def GenCreatureStatsByLevel(dbPath: str):
     levels = [row[0] for row in rows]
     if len(levels) != len(set(levels)):
         raise SystemExit("ExpectedStat has more than one row for a level")
+    missing = sorted(set(range(1, BASE_LEVEL + BOSS_LEVEL_OFFSET + 1)) - set(levels))
+    if missing:
+        raise SystemExit(f"ExpectedStat has no creature row for levels {missing}")
     return {int(lvl): (float(health), float(armor), float(dps)) for lvl, health, armor, dps in rows}
 
 

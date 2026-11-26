@@ -17,8 +17,8 @@ import (
 // fits as well (0.5 gives 82), so the log does not tell the two apart. The attack power the whelp shows in game is
 // left out; the swing carries all its damage.
 //
-// It glances 2% of its landed swings for each point of defense the target has over 250, so against level 60 and up
-// every landed swing glances, and a glancing blow deals the share of a hit the logs read for the target's level, down
+// It glances 2% of its swings for each point of defense the target has over 250, so against level 60 and up every
+// swing that lands glances, and a glancing blow deals the share of a hit the logs read for the target's level, down
 // to 1% to 18% against levels 62 and 63 (EV-0021).
 //
 // The first Acid Spit 9591 starts 0 to 1.8 s after the summon, each next wait is 0.2 to 3.5 s, and a spit's

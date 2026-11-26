@@ -122,6 +122,9 @@ func TestNewGuardianOnUsePutsTheGuardiansUpBesideTheOwnerAndWalksThemIn(t *testi
 	if guardian.DistanceFromTarget != 30 {
 		t.Fatalf("%s comes up %.1f yd from the target, want the owner's 30", guardian.Name, guardian.DistanceFromTarget)
 	}
+	if speed := guardian.GetMovementSpeed(); speed != 7 {
+		t.Errorf("%s walks at %.2f yd/s, want 7", guardian.Name, speed)
+	}
 	arrival := start + core.DurationFromSeconds((30-core.MaxMeleeRange)/guardian.GetMovementSpeed())
 	stepPast(t, sim, arrival-100*time.Millisecond)
 	if swings := guardian.AutoAttacks.MHAuto().SpellMetrics[target.UnitIndex].Casts; swings != 0 {
