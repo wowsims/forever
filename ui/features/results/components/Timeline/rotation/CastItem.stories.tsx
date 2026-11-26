@@ -40,5 +40,5 @@ export const Stacked: Story = { args: { item: castRowItem(1, { log: stackTop, st
 
 const versusCast = castLog(1, { damageDealtLogs: [damageLog(1.2, 1500, { versus: UNDEAD_VERSUS })] });
 
-/** A hit of the cast took a versus bonus: the gold dot sits in the icon's corner. */
-export const VersusPip: Story = { args: { item: castRowItem(1, { log: versusCast, stack: [versusCast] }) } };
+/** A hit of the cast took a versus bonus: a folded corner on the icon marks it. */
+export const VersusMark: Story = { args: { item: castRowItem(1, { log: versusCast, stack: [versusCast] }) } };

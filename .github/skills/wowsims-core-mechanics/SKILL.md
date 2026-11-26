@@ -67,8 +67,7 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   they read on the spell, and each result takes the marks made since the spell's last result, so a new spell or item
   declares nothing and a second hit in one cast names only its own reads. The area and cleave iterations
   (`CalcAoeDamage`, `CalcCleaveDamage` and their deal and periodic forms) hand the marks read before them to every
-  target's result, for a base damage read once (Thunder Clap, Whirlwind, Multi-Shot). A cleave or area hit
-  whose base damage reads attack power once takes the primary target's versus stats on every target, and a secondary
+  target's result, for a base damage read once (Thunder Clap, Whirlwind, Multi-Shot). A secondary
   target of another mob type is tagged by its own mob type's sources. A formula that adds a versus
   stat by hand reads it through `spell.VersusStat` (Seal of Command), not the attack table. A read outside the damage
   stays off the tag: threat's attack power share, an expected-damage value, and a read before the cast or tick. An

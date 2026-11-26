@@ -25,6 +25,6 @@ type Story = StoryObj<typeof meta>;
 
 export const OneTick: Story = {};
 
-export const VersusPip: Story = {
+export const VersusMark: Story = {
 	args: { item: { ...tickRowItem(2), log: damageLog(2, 325.5, { actionId: DEEP_WOUNDS, tick: true, versus: UNDEAD_VERSUS }) } },
 };

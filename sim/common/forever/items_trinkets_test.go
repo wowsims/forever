@@ -285,6 +285,12 @@ func dodgeSwing(t *testing.T, sim *core.Simulation, character *core.Character, a
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 }
 
+// The tag body of a damage line, the text after " [Versus ", or "" when the line carries none.
+func versusTag(line string) string {
+	_, tag, _ := strings.Cut(line, " [Versus ")
+	return tag
+}
+
 // The damage lines the sim logs while the hits run.
 func damageLines(sim *core.Simulation, hits func()) []string {
 	var lines []string
@@ -1095,6 +1101,17 @@ func expectExtraAttackVersus(t *testing.T, itemID int32, name string, rowID int3
 			if spread := 5 * math.Sqrt(hits*target.want*(1-target.want)); math.Abs(float64(procs())-hits*target.want) > spread {
 				t.Errorf("%d of %d landed melee hits procced it, want %v within %v", procs(), hits, hits*target.want, spread)
 			}
+
+			granted := spelldata.MustFind(rowID).EffectN(1).Trigger()
+			extraAttack := character.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: granted.ID})
+			lines := damageLines(sim, func() { extraAttack.CalcAndDealDamage(sim, enemy, 100, extraAttack.OutcomeAlwaysHit) })
+			wantTag := ""
+			if target.family == family {
+				wantTag = fmt.Sprintf("%s (%s): {ItemID: %d} x%v proc chance]", strings.TrimPrefix(enemy.MobType.String(), "MobType"), strings.TrimPrefix(family.String(), "CreatureFamily"), itemID, factor)
+			}
+			if len(lines) != 1 || versusTag(lines[0]) != wantTag {
+				t.Errorf("%d's swing on a %v logs %q, want one line tagged %q", itemID, target.family, lines, wantTag)
+			}
 		})
 	}
 }
@@ -1103,35 +1120,6 @@ func expectExtraAttackVersus(t *testing.T, itemID int32, name string, rowID int3
 // target the column divided by its second effect's value (the rule registerExtraAttackVersus states).
 func TestHandOfJusticeIsLikelierAgainstDwarves(t *testing.T) {
 	expectExtraAttackVersus(t, 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
-}
-
-// The swing Hand of Justice 11815 or Ironfoe 11684 grants names the item in the combat log on a target
-// of the family its row makes it likelier against, with the row's factor, and nothing on another.
-func TestExtraAttackVersusSwingNamesTheItem(t *testing.T) {
-	for _, c := range []struct {
-		itemID, rowID int32
-		family        proto.CreatureFamily
-	}{
-		{11815, 15600, proto.CreatureFamily_CreatureFamilyDwarf},
-		{11684, 1301046, proto.CreatureFamily_CreatureFamilyOrc},
-	} {
-		factor := spelldata.MustFind(c.rowID).EffectN(2).BasePoints
-		for _, family := range []proto.CreatureFamily{c.family, proto.CreatureFamily_CreatureFamilyUnknown} {
-			sim, character, _ := extraAttackWearer(t, c.itemID, c.rowID)
-			enemy := character.CurrentTarget
-			enemy.CreatureFamily = family
-			swing := character.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: spelldata.MustFind(c.rowID).EffectN(1).Trigger().ID})
-			lines := damageLines(sim, func() { swing.CalcAndDealDamage(sim, enemy, 100, swing.OutcomeAlwaysHit) })
-
-			want := ")"
-			if family == c.family {
-				want = fmt.Sprintf(" (%s): {ItemID: %d} x%v proc chance]", strings.TrimPrefix(family.String(), "CreatureFamily"), c.itemID, factor)
-			}
-			if len(lines) != 1 || !strings.HasSuffix(lines[0], want) || (want == ")" && strings.Contains(lines[0], "[Versus")) {
-				t.Errorf("%d's swing on a %v logs %q, want one line ending with %q", c.itemID, family, lines, want)
-			}
-		}
-	}
 }
 
 // Blackhand's Breadth 13965 marks the target with 1318944's crit chance for the wearer's hits on it,
@@ -1155,9 +1143,9 @@ func TestBlackhandsBreadthDoublesItsMarkOnOrcsAndOgres(t *testing.T) {
 		want   float64
 		tag    string
 	}{
-		{proto.CreatureFamily_CreatureFamilyOrc, 2 * crit, fmt.Sprintf(") [Versus Humanoid (Orc): {ItemID: 13965} +%v%% crit chance]", 2*crit)},
-		{proto.CreatureFamily_CreatureFamilyOgre, 2 * crit, fmt.Sprintf(") [Versus Humanoid (Ogre): {ItemID: 13965} +%v%% crit chance]", 2*crit)},
-		{proto.CreatureFamily_CreatureFamilyDwarf, crit, ")"},
+		{proto.CreatureFamily_CreatureFamilyOrc, 2 * crit, fmt.Sprintf("Humanoid (Orc): {ItemID: 13965} +%v%% crit chance]", 2*crit)},
+		{proto.CreatureFamily_CreatureFamilyOgre, 2 * crit, fmt.Sprintf("Humanoid (Ogre): {ItemID: 13965} +%v%% crit chance]", 2*crit)},
+		{proto.CreatureFamily_CreatureFamilyDwarf, crit, ""},
 	} {
 		sim, character := trinketWarriorFacing(t, 13965, 810, 0, proto.MobType_MobTypeHumanoid)
 		enemy := character.CurrentTarget
@@ -1173,8 +1161,8 @@ func TestBlackhandsBreadthDoublesItsMarkOnOrcsAndOgres(t *testing.T) {
 
 		mainHand := character.AutoAttacks.MHAuto()
 		lines := damageLines(sim, func() { mainHand.CalcAndDealDamage(sim, enemy, 100, mainHand.OutcomeAlwaysHit) })
-		if len(lines) != 1 || !strings.HasSuffix(lines[0], c.tag) || (c.tag == ")" && strings.Contains(lines[0], "[Versus")) {
-			t.Errorf("a swing on a marked %v logs %q, want one line ending with %q", c.family, lines, c.tag)
+		if len(lines) != 1 || versusTag(lines[0]) != c.tag {
+			t.Errorf("a swing on a marked %v logs %q, want one line tagged %q", c.family, lines, c.tag)
 		}
 	}
 }

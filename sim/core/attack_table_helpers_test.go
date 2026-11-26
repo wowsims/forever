@@ -99,14 +99,7 @@ func versusLogTestOn(sim *Simulation, unit *Character) *versusLogTest {
 		unit:   unit,
 		target: sim.Encounter.ActiveTargetUnits[0],
 	}
-	vt.strike = vt.unit.RegisterSpell(SpellConfig{
-		ActionID:         ActionID{SpellID: 100},
-		SpellSchool:      SpellSchoolPhysical,
-		ProcMask:         ProcMaskMeleeMHSpecial,
-		DefenseType:      DefenseTypeMelee,
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1,
-	})
+	vt.strike = versusTestSpell(vt.unit, 100, SpellSchoolPhysical, nil)
 	sim.Log = func(message string, vals ...any) { vt.logs = append(vt.logs, fmt.Sprintf(message, vals...)) }
 	return vt
 }
@@ -155,14 +148,14 @@ func TestDamageLogNamesTheVersusSourcesTheHitTook(t *testing.T) {
 		outcome HitOutcome
 		want    string
 	}{
-		{OutcomeHit, ") [Versus Humanoid: {ItemID: 11} x1.05; {SpellID: 22} +81 AttackPower]"},
-		{OutcomeCrit, ") [Versus Humanoid: {ItemID: 11} x1.05; {SpellID: 33} x1.1 crit; {SpellID: 22} +81 AttackPower]"},
+		{OutcomeHit, "Humanoid: {ItemID: 11} x1.05; {SpellID: 22} +81 AttackPower]"},
+		{OutcomeCrit, "Humanoid: {ItemID: 11} x1.05; {SpellID: 33} x1.1 crit; {SpellID: 22} +81 AttackPower]"},
 	} {
-		if line := vt.damageLine(t, vt.strike, c.outcome); !strings.HasSuffix(line, c.want) {
-			t.Errorf("%v line %q, want it to end with %q", c.outcome, line, c.want)
+		if line := vt.damageLine(t, vt.strike, c.outcome); versusTag(line) != c.want {
+			t.Errorf("%v line %q, want the tag %q", c.outcome, line, c.want)
 		}
 	}
-	if line := vt.damageLine(t, vt.strike, OutcomeMiss); strings.Contains(line, "[Versus") {
+	if line := vt.damageLine(t, vt.strike, OutcomeMiss); versusTag(line) != "" {
 		t.Errorf("a miss is tagged: %q", line)
 	}
 }
@@ -173,7 +166,7 @@ func TestDamageLogTagsNoSourceOfAnotherMobType(t *testing.T) {
 	vt.unit.MultiplyDamageVersus(ActionID{ItemID: 11}, 1.05, undead)
 	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81}, undead)
 
-	if line := vt.damageLine(t, vt.strike, OutcomeHit); !strings.HasSuffix(line, ")") || strings.Contains(line, "[Versus") {
+	if line := vt.damageLine(t, vt.strike, OutcomeHit); versusTag(line) != "" {
 		t.Errorf("a hit on a Humanoid is tagged with bonuses against Undead: %q", line)
 	}
 }
@@ -189,11 +182,11 @@ func TestDamageLogDropsASourceTakenBackOff(t *testing.T) {
 	vt.unit.MultiplyDamageVersus(ActionID{ItemID: 11}, 1/1.05, vt.target.MobType)
 
 	aura.Activate(sim)
-	if line, want := vt.damageLine(t, vt.strike, OutcomeHit), ") [Versus Humanoid: {SpellID: 22} +81 AttackPower]"; !strings.HasSuffix(line, want) {
-		t.Errorf("line %q while the aura is up, want it to end with %q", line, want)
+	if line, want := vt.damageLine(t, vt.strike, OutcomeHit), "Humanoid: {SpellID: 22} +81 AttackPower]"; versusTag(line) != want {
+		t.Errorf("line %q while the aura is up, want the tag %q", line, want)
 	}
 	aura.Deactivate(sim)
-	if line := vt.damageLine(t, vt.strike, OutcomeHit); strings.Contains(line, "[Versus") {
+	if line := vt.damageLine(t, vt.strike, OutcomeHit); versusTag(line) != "" {
 		t.Errorf("line %q after the aura fell off, want no tag", line)
 	}
 }
@@ -205,8 +198,8 @@ func TestDamageLogTagsATickByTheDotsBonusCoefficient(t *testing.T) {
 	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81, stats.SpellDamage: 40}, vt.target.MobType)
 
 	line := vt.lineOf(t, func() { vt.tick(fa.Spell, OutcomeHit) })
-	if want := ") [Versus Demon: {SpellID: 22} +40 SpellDamage]"; !strings.Contains(line, " tick ") || !strings.HasSuffix(line, want) {
-		t.Errorf("tick line %q, want a tick ending with %q", line, want)
+	if want := "Demon: {SpellID: 22} +40 SpellDamage]"; !strings.Contains(line, " tick ") || versusTag(line) != want {
+		t.Errorf("tick line %q, want a tick with the tag %q", line, want)
 	}
 }
 
@@ -225,17 +218,21 @@ func TestDamageLogNamesTheSpellsOwnVersusBonusAndTheFamily(t *testing.T) {
 	})
 	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81, stats.SpellDamage: 40}, vt.target.MobType)
 
-	if line, want := vt.damageLine(t, bolt, OutcomeHit), ") [Versus Humanoid (Orc): {SpellID: 101} x3 base; {SpellID: 22} +40 SpellDamage]"; !strings.HasSuffix(line, want) {
-		t.Errorf("line %q, want it to end with %q", line, want)
+	if line, want := vt.damageLine(t, bolt, OutcomeHit), "Humanoid (Orc): {SpellID: 101} x3 base; {SpellID: 22} +40 SpellDamage]"; versusTag(line) != want {
+		t.Errorf("line %q, want the tag %q", line, want)
 	}
 }
 
-func outcomeHit(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Outcome = OutcomeHit }
+// The tag body of a damage line, the text after " [Versus ", or "" when the line carries none.
+func versusTag(line string) string {
+	_, tag, _ := strings.Cut(line, " [Versus ")
+	return tag
+}
 
 // A spell of the school on the melee table whose effects deal the damage baseDamage returns.
 func versusTestHit(unit *Character, id int32, school SpellSchool, baseDamage func(*Spell, *Unit) float64) *Spell {
 	return versusTestSpell(unit, id, school, func(sim *Simulation, target *Unit, spell *Spell) {
-		spell.CalcAndDealDamage(sim, target, baseDamage(spell, target), outcomeHit)
+		spell.CalcAndDealDamage(sim, target, baseDamage(spell, target), spell.OutcomeAlwaysHitNoHitCounter)
 	})
 }
 
@@ -268,26 +265,26 @@ func TestDamageLogListsTheStatsTheDamageRead(t *testing.T) {
 		baseDamage func(*Spell, *Unit) float64
 		want       string
 	}{
-		{"a melee hit of flat holy damage", SpellSchoolHoly, flatDamage, ")"},
-		{"a flat physical strike, which takes the flat physical bonus", SpellSchoolPhysical, flatDamage, ") [Versus Humanoid: {SpellID: 22} +6 PhysicalDamage]"},
-		{"a holy hit on attack power", SpellSchoolHoly, attackPowerDamage, ") [Versus Humanoid: {SpellID: 22} +81 AttackPower]"},
+		{"a melee hit of flat holy damage", SpellSchoolHoly, flatDamage, ""},
+		{"a flat physical strike, which takes the flat physical bonus", SpellSchoolPhysical, flatDamage, "Humanoid: {SpellID: 22} +6 PhysicalDamage]"},
+		{"a holy hit on attack power", SpellSchoolHoly, attackPowerDamage, "Humanoid: {SpellID: 22} +81 AttackPower]"},
 		{"a holy hit on ranged attack power", SpellSchoolHoly, func(spell *Spell, target *Unit) float64 {
 			return 100 + spell.RangedAttackPower(target)/14
-		}, ") [Versus Humanoid: {SpellID: 22} +70 RangedAttackPower]"},
+		}, "Humanoid: {SpellID: 22} +70 RangedAttackPower]"},
 		{"a holy hit on attack power that adds spell damage by hand", SpellSchoolHoly, func(spell *Spell, target *Unit) float64 {
 			return attackPowerDamage(spell, target) + spell.VersusStat(target, stats.SpellDamage)
-		}, ") [Versus Humanoid: {SpellID: 22} +40 SpellDamage; {SpellID: 22} +81 AttackPower]"},
+		}, "Humanoid: {SpellID: 22} +40 SpellDamage; {SpellID: 22} +81 AttackPower]"},
 	} {
 		spell := versusTestHit(vt.unit, int32(101+i), c.school, c.baseDamage)
 		line := vt.lineOf(t, func() { spell.SkipCastAndApplyEffects(vt.sim, vt.target) })
-		if !strings.HasSuffix(line, c.want) || (c.want == ")" && strings.Contains(line, "[Versus")) {
-			t.Errorf("%s: line %q, want it to end with %q", c.name, line, c.want)
+		if versusTag(line) != c.want {
+			t.Errorf("%s: line %q, want the tag %q", c.name, line, c.want)
 		}
 	}
 }
 
 func TestDamageLogTagsATickByWhatTheTickRead(t *testing.T) {
-	const hitTag = ") [Versus Humanoid: {SpellID: 22} +70 RangedAttackPower]"
+	const hitTag = "Humanoid: {SpellID: 22} +70 RangedAttackPower]"
 	rangedTick := func(sim *Simulation, target *Unit, dot *Dot) {
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, 100+dot.Spell.RangedAttackPower(target)/14, dot.OutcomeTick)
 	}
@@ -306,8 +303,8 @@ func TestDamageLogTagsATickByWhatTheTickRead(t *testing.T) {
 		spell  *Spell
 	}{
 		{name: "a dot whose ticks read ranged attack power", onTick: rangedTick, tick: hitTag},
-		{name: "a dot of flat ticks", onTick: flatTick, tick: ")"},
-		{name: "an area dot of flat ticks", isAOE: true, onTick: flatAreaTick, tick: ")"},
+		{name: "a dot of flat ticks", onTick: flatTick, tick: ""},
+		{name: "an area dot of flat ticks", isAOE: true, onTick: flatAreaTick, tick: ""},
 	}
 	sim, character := NewWeaponTestSim(t, proto.Race_RaceHuman, WeaponTestSlots(WeaponTestSwordID, 0, 0), nil, func(character *Character) {
 		for i := range cases {
@@ -320,7 +317,7 @@ func TestDamageLogTagsATickByWhatTheTickRead(t *testing.T) {
 				DamageMultiplier: 1,
 				ThreatMultiplier: 1,
 				ApplyEffects: func(sim *Simulation, target *Unit, spell *Spell) {
-					spell.CalcAndDealDamage(sim, target, 100+spell.RangedAttackPower(target)/14, outcomeHit)
+					spell.CalcAndDealDamage(sim, target, 100+spell.RangedAttackPower(target)/14, spell.OutcomeAlwaysHitNoHitCounter)
 				},
 				Dot: DotConfig{
 					Aura:          Aura{Label: fmt.Sprintf("Test Trap %d", id)},
@@ -336,16 +333,16 @@ func TestDamageLogTagsATickByWhatTheTickRead(t *testing.T) {
 	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.RangedAttackPower: 70, stats.SpellDamage: 40}, vt.target.MobType)
 
 	for _, c := range cases {
-		if line := vt.lineOf(t, func() { c.spell.SkipCastAndApplyEffects(sim, vt.target) }); !strings.HasSuffix(line, hitTag) {
-			t.Errorf("%s: hit line %q, want it to end with %q", c.name, line, hitTag)
+		if line := vt.lineOf(t, func() { c.spell.SkipCastAndApplyEffects(sim, vt.target) }); versusTag(line) != hitTag {
+			t.Errorf("%s: hit line %q, want the tag %q", c.name, line, hitTag)
 		}
 		dot := c.spell.AOEDot()
 		if !c.isAOE {
 			dot = c.spell.Dot(vt.target)
 		}
 		line := vt.lineOf(t, func() { dot.TickOnce(sim) })
-		if !strings.Contains(line, " tick ") || !strings.HasSuffix(line, c.tick) || (c.tick == ")" && strings.Contains(line, "[Versus")) {
-			t.Errorf("%s: tick line %q, want a tick ending with %q", c.name, line, c.tick)
+		if !strings.Contains(line, " tick ") || versusTag(line) != c.tick {
+			t.Errorf("%s: tick line %q, want a tick with the tag %q", c.name, line, c.tick)
 		}
 	}
 }
@@ -362,18 +359,11 @@ func TestDamageLogNamesNoStatALeftoverReadTook(t *testing.T) {
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
 		ExpectedInitialDamage: func(sim *Simulation, target *Unit, spell *Spell, _ bool) *SpellResult {
-			return spell.CalcDamage(sim, target, attackPowerDamage(spell, target), outcomeHit)
+			return spell.CalcDamage(sim, target, attackPowerDamage(spell, target), spell.OutcomeAlwaysHitNoHitCounter)
 		},
 	})
-	threat := vt.unit.RegisterSpell(SpellConfig{
-		ActionID:            ActionID{SpellID: 102},
-		SpellSchool:         SpellSchoolHoly,
-		ProcMask:            ProcMaskMeleeMHSpecial,
-		DefenseType:         DefenseTypeMelee,
-		DamageMultiplier:    1,
-		ThreatMultiplier:    1,
-		ThreatAPCoefficient: 1,
-	})
+	threat := versusTestSpell(vt.unit, 102, SpellSchoolHoly, nil)
+	threat.ThreatAPCoefficient = 1
 	cast := versusTestHit(vt.unit, 103, SpellSchoolHoly, flatDamage)
 
 	for _, c := range []struct {
@@ -391,7 +381,7 @@ func TestDamageLogNamesNoStatALeftoverReadTook(t *testing.T) {
 			cast.SkipCastAndApplyEffects(vt.sim, vt.target)
 		}},
 	} {
-		if line := vt.lineOf(t, c.hit); strings.Contains(line, "[Versus") {
+		if line := vt.lineOf(t, c.hit); versusTag(line) != "" {
 			t.Errorf("%s: line %q, want no tag", c.name, line)
 		}
 	}
@@ -410,22 +400,22 @@ func (vt *versusLogTest) linesOf(hit func()) []string {
 	return lines
 }
 
-const attackPowerTag = ") [Versus Humanoid: {SpellID: 22} +81 AttackPower]"
+const attackPowerTag = "Humanoid: {SpellID: 22} +81 AttackPower]"
 
 // Two hits one cast computes: the first reads attack power, the second deals flat damage.
 func TestDamageLogNamesOnlyWhatEachHitRead(t *testing.T) {
 	vt := newVersusLogTest()
 	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81}, vt.target.MobType)
 	spell := versusTestSpell(vt.unit, 101, SpellSchoolHoly, func(sim *Simulation, target *Unit, spell *Spell) {
-		read := spell.CalcDamage(sim, target, attackPowerDamage(spell, target), outcomeHit)
-		flat := spell.CalcDamage(sim, target, 100, outcomeHit)
+		read := spell.CalcDamage(sim, target, attackPowerDamage(spell, target), spell.OutcomeAlwaysHitNoHitCounter)
+		flat := spell.CalcDamage(sim, target, 100, spell.OutcomeAlwaysHitNoHitCounter)
 		spell.DealDamage(sim, read)
 		spell.DealDamage(sim, flat)
 	})
 
 	lines := vt.linesOf(func() { spell.SkipCastAndApplyEffects(vt.sim, vt.target) })
-	if len(lines) != 2 || !strings.HasSuffix(lines[0], attackPowerTag) || strings.Contains(lines[1], "[Versus") {
-		t.Errorf("lines %q, want the first to end with %q and the second untagged", lines, attackPowerTag)
+	if len(lines) != 2 || versusTag(lines[0]) != attackPowerTag || versusTag(lines[1]) != "" {
+		t.Errorf("lines %q, want the first tagged %q and the second untagged", lines, attackPowerTag)
 	}
 }
 
@@ -443,25 +433,25 @@ func TestDamageLogNamesAReadOnEveryResultItWentInto(t *testing.T) {
 		deal func(sim *Simulation, target *Unit, spell *Spell, baseDamage float64)
 	}{
 		{"a cleave dealt last target first", func(sim *Simulation, target *Unit, spell *Spell, baseDamage float64) {
-			results := spell.CalcCleaveDamage(sim, target, 2, baseDamage, outcomeHit)
+			results := spell.CalcCleaveDamage(sim, target, 2, baseDamage, spell.OutcomeAlwaysHitNoHitCounter)
 			for i := len(results) - 1; i >= 0; i-- {
 				spell.DealDamage(sim, results[i])
 			}
 		}},
 		{"a batched area hit", func(sim *Simulation, _ *Unit, spell *Spell, baseDamage float64) {
-			spell.CalcAoeDamage(sim, baseDamage, outcomeHit)
+			spell.CalcAoeDamage(sim, baseDamage, spell.OutcomeAlwaysHitNoHitCounter)
 			spell.DealBatchedAoeDamage(sim)
 		}},
 		{"an area hit dealt target by target", func(sim *Simulation, _ *Unit, spell *Spell, baseDamage float64) {
-			spell.CalcAndDealAoeDamage(sim, baseDamage, outcomeHit)
+			spell.CalcAndDealAoeDamage(sim, baseDamage, spell.OutcomeAlwaysHitNoHitCounter)
 		}},
 	} {
 		spell := versusTestSpell(vt.unit, int32(101+i), SpellSchoolHoly, func(sim *Simulation, target *Unit, spell *Spell) {
 			c.deal(sim, target, spell, attackPowerDamage(spell, target))
 		})
 		lines := vt.linesOf(func() { spell.SkipCastAndApplyEffects(sim, vt.target) })
-		if len(lines) != 2 || !strings.HasSuffix(lines[0], attackPowerTag) || !strings.HasSuffix(lines[1], attackPowerTag) {
-			t.Errorf("%s: lines %q, want two, each ending with %q", c.name, lines, attackPowerTag)
+		if len(lines) != 2 || versusTag(lines[0]) != attackPowerTag || versusTag(lines[1]) != attackPowerTag {
+			t.Errorf("%s: lines %q, want two, each tagged %q", c.name, lines, attackPowerTag)
 		}
 	}
 }
@@ -473,8 +463,8 @@ func TestDamageLogNamesAnItemsStatsByTheItem(t *testing.T) {
 	}}}}
 	vt.unit.addItemMobTypeStats(item, 1)
 
-	if line, want := vt.damageLine(t, vt.strike, OutcomeHit), ") [Versus Humanoid: {ItemID: 12345} +81 AttackPower]"; !strings.HasSuffix(line, want) {
-		t.Errorf("line %q, want it to end with %q", line, want)
+	if line, want := vt.damageLine(t, vt.strike, OutcomeHit), "Humanoid: {ItemID: 12345} +81 AttackPower]"; versusTag(line) != want {
+		t.Errorf("line %q, want the tag %q", line, want)
 	}
 }
 
@@ -485,8 +475,8 @@ func TestDamageLogNamesACritChanceTheTargetsFamilyRaises(t *testing.T) {
 		wantCrit float64
 		want     string
 	}{
-		{proto.CreatureFamily_CreatureFamilyOrc, 10, ") [Versus Humanoid (Orc): {ItemID: 13965} +10% crit chance]"},
-		{proto.CreatureFamily_CreatureFamilyUnknown, 5, ")"},
+		{proto.CreatureFamily_CreatureFamilyOrc, 10, "Humanoid (Orc): {ItemID: 13965} +10% crit chance]"},
+		{proto.CreatureFamily_CreatureFamilyUnknown, 5, ""},
 	} {
 		vt := newVersusLogTest()
 		vt.target.CreatureFamily = c.family
@@ -496,11 +486,11 @@ func TestDamageLogNamesACritChanceTheTargetsFamilyRaises(t *testing.T) {
 		if table.BonusCritPercent != c.wantCrit {
 			t.Errorf("against %v the crit chance is %v, want %v", c.family, table.BonusCritPercent, c.wantCrit)
 		}
-		if line := vt.damageLine(t, vt.strike, OutcomeHit); !strings.HasSuffix(line, c.want) || (c.want == ")" && strings.Contains(line, "[Versus")) {
-			t.Errorf("against %v line %q, want it to end with %q", c.family, line, c.want)
+		if line := vt.damageLine(t, vt.strike, OutcomeHit); versusTag(line) != c.want {
+			t.Errorf("against %v line %q, want the tag %q", c.family, line, c.want)
 		}
 		vt.unit.AddCritChanceVersus(ActionID{ItemID: 13965}, vt.target, -5, orcs)
-		if line := vt.damageLine(t, vt.strike, OutcomeHit); table.BonusCritPercent != 0 || strings.Contains(line, "[Versus") {
+		if line := vt.damageLine(t, vt.strike, OutcomeHit); table.BonusCritPercent != 0 || versusTag(line) != "" {
 			t.Errorf("against %v the crit chance is %v once taken back off and the line %q, want none and no tag", c.family, table.BonusCritPercent, line)
 		}
 	}
@@ -514,16 +504,16 @@ func TestDamageLogNamesTheProcThatCastTheSpell(t *testing.T) {
 		family proto.CreatureFamily
 		want   string
 	}{
-		{"a likelier proc on a Dwarf", 3, proto.CreatureFamily_CreatureFamilyDwarf, ") [Versus Humanoid (Dwarf): {ItemID: 11815} x3 proc chance]"},
-		{"a proc on Dwarves alone on a Dwarf", 0, proto.CreatureFamily_CreatureFamilyDwarf, ") [Versus Humanoid (Dwarf): {ItemID: 11815} proc only]"},
-		{"a likelier proc on another target", 3, proto.CreatureFamily_CreatureFamilyUnknown, ")"},
+		{"a likelier proc on a Dwarf", 3, proto.CreatureFamily_CreatureFamilyDwarf, "Humanoid (Dwarf): {ItemID: 11815} x3 proc chance]"},
+		{"a proc on Dwarves alone on a Dwarf", 0, proto.CreatureFamily_CreatureFamilyDwarf, "Humanoid (Dwarf): {ItemID: 11815} proc only]"},
+		{"a likelier proc on another target", 3, proto.CreatureFamily_CreatureFamilyUnknown, ""},
 	} {
 		vt := newVersusLogTest()
 		vt.target.CreatureFamily = c.family
 		vt.strike.VersusProc = &VersusProc{Source: ActionID{ItemID: 11815}, VersusBonus: VersusBonus{Multiplier: c.mult, Families: dwarves}}
 
-		if line := vt.damageLine(t, vt.strike, OutcomeHit); !strings.HasSuffix(line, c.want) || (c.want == ")" && strings.Contains(line, "[Versus")) {
-			t.Errorf("%s: line %q, want it to end with %q", c.name, line, c.want)
+		if line := vt.damageLine(t, vt.strike, OutcomeHit); versusTag(line) != c.want {
+			t.Errorf("%s: line %q, want the tag %q", c.name, line, c.want)
 		}
 	}
 }
