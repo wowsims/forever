@@ -1,7 +1,7 @@
 siml 1
 spec balance_druid
 talents "5532220115001351--505302"
-use "gear_sets/prebis.gear.siml"
+use "gear_sets/default.gear.siml"
 use "apls/default.apl.siml"
 
 settings:
