@@ -3413,7 +3413,9 @@
 			"unspent_talent_points": "You have {{count}} unspent talent point(s).",
 			"broken_talents": "These talents are missing their tier or prerequisite points, so the build is not possible in game. The sim still applies them: {{talents}}.",
 			"windfury_over_flametongue": "Windfury Totem and Flametongue Totem do not stack: only Windfury Totem applies.",
-			"elemental_stormstrike": "Stormstrike is selected, which points to a hybrid Enhancement build. Use the Enhancement sim to sim it."
+			"elemental_stormstrike": "Stormstrike is selected, which points to a hybrid Enhancement build. Use the Enhancement sim to sim it.",
+			"hunter_improved_tracking": "Improved Tracking adds no damage against the main target: no Track spell tracks its creature type ({{mobType}}).",
+			"set_target_mob_type": "Set the main target to {{mobType}}"
 		},
 		"buttons": {
 			"simulate": "Simulate",

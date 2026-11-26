@@ -2,8 +2,10 @@ import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as other_inputs from '@features/settings/model/other_inputs';
 import { StatCapType } from '@generated/proto/api';
 import { APLListItem, APLRotation, APLValueVariable } from '@generated/proto/apl';
-import { Cooldowns, HandType, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
+import { Cooldowns, HandType, ItemSlot, MobType, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { Hunter_Rotation_Playstyle as Playstyle } from '@generated/proto/hunter';
+import i18n from '@i18n/config';
+import { translateMobType } from '@i18n/localization';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
@@ -11,6 +13,7 @@ import * as AplUtils from '@sim/proto/apl_utils';
 import { SpecRotation } from '@sim/proto/spec_types';
 import { StatCap, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
+import { subscribeAll, subscribeEncounterField, subscribePlayerField } from '@sim/state/subscriptions';
 
 import * as HunterInputs from './inputs';
 import * as Presets from './presets';
@@ -22,7 +25,22 @@ export default defineSpec<Spec.SpecHunter>({
 	cssScheme: PlayerClasses.getCssScheme(PlayerClasses.Hunter),
 	// List any known bugs / issues here and they'll be shown on the site.
 	knownIssues: [],
-	warnings: [],
+	warnings: [
+		// No Track spell names a mechanical target or one of no type, so Improved Tracking adds nothing against them.
+		simUI => ({
+			updateOn: subscribeAll([subscribePlayerField(simUI.player, 'talentsString'), subscribeEncounterField(simUI.sim.encounter, 'targets')]),
+			getContent: () => {
+				const mobType = simUI.sim.encounter.primaryTarget.mobType;
+				const untracked = mobType === MobType.MobTypeUnknown || mobType === MobType.MobTypeMechanical;
+				if (!simUI.player.getTalents().improvedTracking || !untracked) return '';
+				return i18n.t('sidebar.warnings.hunter_improved_tracking', { mobType: translateMobType(mobType) });
+			},
+			action: {
+				label: i18n.t('sidebar.warnings.set_target_mob_type', { mobType: translateMobType(MobType.MobTypeDragonkin) }),
+				run: () => simUI.sim.encounter.modifyTarget(0, target => (target.mobType = MobType.MobTypeDragonkin)),
+			},
+		}),
+	],
 	// All stats for which EP should be calculated.
 	epStats: [
 		Stat.StatAgility,
