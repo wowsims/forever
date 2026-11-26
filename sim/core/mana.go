@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"math"
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -29,10 +30,19 @@ type manaBar struct {
 
 	manaCastingMetrics    *ResourceMetrics
 	manaNotCastingMetrics *ResourceMetrics
-	JowManaMetrics        *ResourceMetrics
-	VtManaMetrics         *ResourceMetrics
-	JowiseManaMetrics     *ResourceMetrics
-	manaGainSpell         *Spell // Holds the threat mana gains make.
+
+	manaRegenBoosts       map[*Aura]*ManaRegenBoost
+	activeManaRegenBoosts []*ManaRegenBoost // In the order they were gained.
+	// The regen per second without the active boosts, and the boost that takes the rest of it, as of
+	// the last rate change.
+	unboostedRegenWhileCasting    float64
+	unboostedRegenWhileNotCasting float64
+	regenBoostMetrics             *ResourceMetrics
+
+	JowManaMetrics    *ResourceMetrics
+	VtManaMetrics     *ResourceMetrics
+	JowiseManaMetrics *ResourceMetrics
+	manaGainSpell     *Spell // Holds the threat mana gains make.
 
 	ReplenishmentAura *Aura
 
@@ -177,8 +187,7 @@ func (unit *Unit) SpiritManaRegenPerSecond() float64 {
 // (Blessing of Wisdom, Mana Spring) ticks its own amount under it (EV-0114). Taking Innervate's surplus
 // on that share back off keeps a factor of 1 bit-exact. Skyborne Energized's multiplier scales all
 // of it.
-func (unit *Unit) multipliedManaRegen(spiritRegen float64) float64 {
-	innervate := unit.innervateManaRegenMultiplier
+func (unit *Unit) multipliedManaRegen(spiritRegen float64, innervate float64) float64 {
 	return ((unit.MP5ManaRegenPerSecond()+spiritRegen)*innervate - unit.PseudoStats.EnergizeMP5/5.0*(innervate-1)) * unit.manaRegenMultiplier
 }
 
@@ -186,13 +195,14 @@ func (unit *Unit) multipliedManaRegen(spiritRegen float64) float64 {
 // considered to be casting.
 func (unit *Unit) ManaRegenPerSecondWhileCasting() float64 {
 	// The shares of spirit regen that continue while casting add up to at most all of it.
-	return unit.multipliedManaRegen(unit.SpiritManaRegenPerSecond() * unit.PseudoStats.SpiritRegenMultiplier * min(unit.PseudoStats.SpiritRegenRateCasting, 1))
+	return unit.multipliedManaRegen(unit.SpiritManaRegenPerSecond()*unit.PseudoStats.SpiritRegenMultiplier*min(unit.PseudoStats.SpiritRegenRateCasting, 1),
+		unit.innervateManaRegenMultiplier)
 }
 
 // Returns the rate of mana regen per second, assuming this unit is
 // considered to be not casting.
 func (unit *Unit) ManaRegenPerSecondWhileNotCasting() float64 {
-	return unit.multipliedManaRegen(unit.SpiritManaRegenPerSecond() * unit.PseudoStats.SpiritRegenMultiplier)
+	return unit.multipliedManaRegen(unit.SpiritManaRegenPerSecond()*unit.PseudoStats.SpiritRegenMultiplier, unit.innervateManaRegenMultiplier)
 }
 
 // Recomputes the regen rates the mana bar ticks at, after crediting the regen so far at the old ones.
@@ -203,6 +213,72 @@ func (unit *Unit) UpdateManaRegenRates(sim *Simulation) {
 	}
 	unit.manaRegenWhileCasting = unit.ManaRegenPerSecondWhileCasting()
 	unit.manaRegenWhileNotCasting = unit.ManaRegenPerSecondWhileNotCasting()
+	unit.updateUnboostedManaRegen()
+}
+
+// A buff that raises the mana regen for a while, such as Innervate or Evocation. The regen above what
+// the unit would regenerate without it goes to the buff's own metrics, so the regen rows show the
+// unit's own regen and the buff's row shows what it added. The mana the unit gains is the same either way.
+type ManaRegenBoost struct {
+	metrics      *ResourceMetrics
+	spiritMult   float64 // Its factor on PseudoStats.SpiritRegenMultiplier.
+	innervate    float64 // Its factor on the Innervate multiplier.
+	castingShare float64 // What it adds to PseudoStats.SpiritRegenRateCasting.
+}
+
+func (boost *ManaRegenBoost) MultiplySpiritRegen(factor float64) { boost.spiritMult *= factor }
+func (boost *ManaRegenBoost) MultiplyInnervate(factor float64)   { boost.innervate *= factor }
+func (boost *ManaRegenBoost) AddCastingShare(delta float64)      { boost.castingShare += delta }
+
+// The tag on a boost's metrics. The aura often shares its spell's action ID, whose mana cost has
+// metrics of its own (a druid's own Innervate), and two metrics under one ID do not combine.
+const ManaRegenBoostTag = 99997
+
+// The boost the aura gives, made on the first call; its metrics take the aura's spell, tagged
+// ManaRegenBoostTag. A caller that changes a regen field while the aura is up tells the boost the
+// same change.
+func (unit *Unit) ManaRegenBoost(aura *Aura) *ManaRegenBoost {
+	if boost := unit.manaRegenBoosts[aura]; boost != nil {
+		return boost
+	}
+	boost := &ManaRegenBoost{metrics: unit.NewManaMetrics(aura.ActionID.WithTag(ManaRegenBoostTag)), spiritMult: 1, innervate: 1}
+	// Regen makes no threat, and neither does the part of it a boost adds.
+	boost.metrics.NoThreat = true
+	if unit.manaRegenBoosts == nil {
+		unit.manaRegenBoosts = make(map[*Aura]*ManaRegenBoost)
+	}
+	unit.manaRegenBoosts[aura] = boost
+
+	// The fields may change before the aura counts as up (an exclusive category applies them first) or
+	// after, so listing and unlisting the boost credits the regen so far and recomputes the split
+	// either way. While the boost is listed with its factors at 1, it takes nothing.
+	aura.ApplyOnGain(func(_ *Aura, sim *Simulation) {
+		unit.activeManaRegenBoosts = append(unit.activeManaRegenBoosts, boost)
+		unit.UpdateManaRegenRates(sim)
+	}).ApplyOnExpire(func(_ *Aura, sim *Simulation) {
+		unit.activeManaRegenBoosts = slices.DeleteFunc(unit.activeManaRegenBoosts, func(b *ManaRegenBoost) bool { return b == boost })
+		unit.UpdateManaRegenRates(sim)
+	})
+	return boost
+}
+
+// The regen rates with the active boosts' factors taken back out. The most recently gained boost takes
+// what the boosts add between them.
+func (unit *Unit) updateUnboostedManaRegen() {
+	unit.regenBoostMetrics = nil
+	if len(unit.activeManaRegenBoosts) == 0 {
+		return
+	}
+	spiritMult, share, innervate := unit.PseudoStats.SpiritRegenMultiplier, unit.PseudoStats.SpiritRegenRateCasting, unit.innervateManaRegenMultiplier
+	for _, boost := range unit.activeManaRegenBoosts {
+		spiritMult /= boost.spiritMult
+		share -= boost.castingShare
+		innervate /= boost.innervate
+	}
+	spiritRegen := unit.SpiritManaRegenPerSecond() * spiritMult
+	unit.unboostedRegenWhileCasting = unit.multipliedManaRegen(spiritRegen*min(max(share, 0), 1), innervate)
+	unit.unboostedRegenWhileNotCasting = unit.multipliedManaRegen(spiritRegen, innervate)
+	unit.regenBoostMetrics = unit.activeManaRegenBoosts[len(unit.activeManaRegenBoosts)-1].metrics
 }
 
 func (unit *Unit) MultiplyManaRegenSpeed(sim *Simulation, multiplier float64) {
@@ -232,12 +308,41 @@ func (mb *manaBar) creditManaRegen(sim *Simulation) {
 	if !unit.channelPaidMana() {
 		castingUntil = max(from, min(unit.PseudoStats.FiveSecondRuleRefreshTime, sim.CurrentTime))
 	}
-	if amount := unit.manaRegenWhileCasting * (castingUntil - from).Seconds(); amount > 0 {
-		unit.AddMana(sim, amount, unit.manaCastingMetrics)
+	if seconds := (castingUntil - from).Seconds(); seconds > 0 {
+		mb.addRegen(sim, unit.manaRegenWhileCasting*seconds, unit.unboostedRegenWhileCasting*seconds, unit.manaCastingMetrics)
 	}
-	if amount := unit.manaRegenWhileNotCasting * (sim.CurrentTime - castingUntil).Seconds(); amount > 0 {
-		unit.AddMana(sim, amount, unit.manaNotCastingMetrics)
+	if seconds := (sim.CurrentTime - castingUntil).Seconds(); seconds > 0 {
+		mb.addRegen(sim, unit.manaRegenWhileNotCasting*seconds, unit.unboostedRegenWhileNotCasting*seconds, unit.manaNotCastingMetrics)
 	}
+}
+
+// Adds the regen as one gain, capped at max mana once, and splits what it records: the unboosted
+// share to the regen metrics, the rest to the boost, each with its share of what the cap let through.
+func (mb *manaBar) addRegen(sim *Simulation, amount float64, unboosted float64, metrics *ResourceMetrics) {
+	if amount <= 0 {
+		return
+	}
+	boostMetrics := mb.regenBoostMetrics
+	if boostMetrics == nil || unboosted >= amount {
+		mb.unit.AddMana(sim, amount, metrics)
+		return
+	}
+	unboosted = max(unboosted, 0)
+
+	oldMana := mb.currentMana
+	newMana := min(oldMana+amount, mb.unit.MaxMana())
+	gain := newMana - oldMana
+	ownShare := unboosted / amount
+	metrics.AddEvent(unboosted, gain*ownShare)
+	boostMetrics.AddEvent(amount-unboosted, gain*(1-ownShare))
+
+	if sim.Log != nil {
+		mb.unit.Log(sim, "Gained %0.3f mana from %s, %0.3f of it from %s (%0.3f --> %0.3f) of %0.0f total.",
+			amount, metrics.ActionID, amount-unboosted, boostMetrics.ActionID, oldMana, newMana, mb.unit.MaxMana())
+	}
+
+	mb.currentMana = newMana
+	mb.unit.Metrics.ManaGained += gain
 }
 
 func (mb *manaBar) RunTask(sim *Simulation) time.Duration {
@@ -331,6 +436,13 @@ func (mb *manaBar) reset() {
 
 	mb.manaRegenMultiplier = 1.0
 	mb.innervateManaRegenMultiplier = 1.0
+
+	// Every boost's aura expired with the last iteration; this drops what rounding left of its factors.
+	mb.activeManaRegenBoosts = mb.activeManaRegenBoosts[:0]
+	mb.regenBoostMetrics = nil
+	for _, boost := range mb.manaRegenBoosts {
+		boost.spiritMult, boost.innervate, boost.castingShare = 1, 1, 0
+	}
 
 	mb.oom = false
 	mb.paidBy = nil
