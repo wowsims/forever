@@ -2,9 +2,11 @@ package shared
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
@@ -70,7 +72,7 @@ func RegisterItemGuardian(itemID int32, summon *spelldata.Spell, creature Guardi
 // A use item whose spell summons a guardian; sim/common/forever/item_guardians_auto_gen.go registers every one the
 // game files hold. It registers nothing while creatures has no entry for the summon's creature, so the item keeps
 // only its stats until the creature is measured. The use casts on the item's own cooldown and the category cooldown it
-// shares, and puts the guardians up on the wearer's target.
+// shares, and puts the guardians up against the wearer's target.
 func NewGuardianOnUse(itemID int32, summonID int32, creatures map[int32]GuardianCreature) {
 	summon := spelldata.MustFind(summonID)
 	creature, measured := creatures[summon.SummonEffect().Misc]
@@ -94,6 +96,21 @@ func summonCount(summon *spelldata.Spell) int {
 	return max(1, int(summon.SummonEffect().BasePoints))
 }
 
+// The spots beside the caster a summon's row can put its creature on.
+var casterSummonSpots = []dbcenums.ImplicitTarget{
+	dbcenums.TARGET_DEST_CASTER, dbcenums.TARGET_DEST_CASTER_SUMMON, dbcenums.TARGET_DEST_CASTER_UNK_36,
+	dbcenums.TARGET_DEST_CASTER_FRONT_RIGHT, dbcenums.TARGET_DEST_CASTER_BACK_RIGHT, dbcenums.TARGET_DEST_CASTER_BACK_LEFT,
+	dbcenums.TARGET_DEST_CASTER_FRONT_LEFT, dbcenums.TARGET_DEST_CASTER_FRONT, dbcenums.TARGET_DEST_CASTER_BACK,
+	dbcenums.TARGET_DEST_CASTER_RIGHT, dbcenums.TARGET_DEST_CASTER_LEFT, dbcenums.TARGET_DEST_CASTER_RANDOM,
+	dbcenums.TARGET_DEST_CASTER_RADIUS,
+}
+
+// A summon appears where its row puts it (R-0055): beside the caster, from where it walks in as a pet does, or
+// otherwise on the enemy, a spot the player picks included.
+func summonsBesideCaster(summon *spelldata.Spell) bool {
+	return slices.Contains(casterSummonSpots, summon.SummonEffect().Target[0])
+}
+
 func newGuardian(owner *core.Character, name string, summon *spelldata.Spell, creature GuardianCreature) *Guardian {
 	guardian := &Guardian{summon: summon, creature: creature, Pet: core.NewPet(core.PetConfig{
 		Name:  name,
@@ -106,7 +123,7 @@ func newGuardian(owner *core.Character, name string, summon *spelldata.Spell, cr
 			return stats.Stats{}
 		},
 		IsGuardian:         true,
-		StartsInMeleeRange: true,
+		StartsInMeleeRange: !summonsBesideCaster(summon),
 	})}
 	if swing := creature.Swing; swing.Speed > 0 {
 		average := swing.Share * core.CreatureAutoAttackDpsMaxLevel * swing.Speed
@@ -150,15 +167,31 @@ func (guardian *Guardian) castWait(sim *core.Simulation) time.Duration {
 	return time.Duration(sim.RollWithLabel(float64(cast.WaitMin), float64(cast.WaitMax), cast.WaitLabel))
 }
 
-// A guardian with no spell only swings, so its rotation sleeps for as long as it can be up.
+// How close the guardian walks: into melee range when it swings, else to its spell's range.
+func (guardian *Guardian) reach() float64 {
+	if guardian.creature.Swing.Speed > 0 || guardian.cast == nil || guardian.cast.MaxRange == 0 {
+		return core.MaxMeleeRange
+	}
+	return guardian.cast.EffectiveMaxRange()
+}
+
+// A guardian casts its spell, a hardcast, only standing within its range, and walks in to its reach between casts. One
+// with no spell only swings, so its rotation sleeps for as long as it can be up once it stands in melee range.
 func (guardian *Guardian) ExecuteCustomRotation(sim *core.Simulation) {
-	switch {
+	canCast := guardian.cast != nil && sim.CurrentTime >= guardian.nextCastAt && !guardian.Moving && guardian.cast.InRange()
+	switch reach := guardian.reach(); {
+	case canCast:
+		if !guardian.cast.Cast(sim, guardian.CurrentTarget) {
+			guardian.WaitUntil(sim, sim.CurrentTime+guardian.castWait(sim))
+		}
+	case guardian.DistanceFromTarget > reach:
+		walk := guardian.DistanceFromTarget - (reach - 1)
+		guardian.MoveTo(reach-1, sim)
+		guardian.WaitUntil(sim, sim.CurrentTime+core.DurationFromSeconds(walk/guardian.GetMovementSpeed()))
 	case guardian.cast == nil:
 		guardian.WaitUntil(sim, sim.CurrentTime+guardian.summon.Duration())
-	case sim.CurrentTime < guardian.nextCastAt:
+	default:
 		guardian.WaitUntil(sim, guardian.nextCastAt)
-	case !guardian.cast.Cast(sim, guardian.CurrentTarget):
-		guardian.WaitUntil(sim, sim.CurrentTime+guardian.castWait(sim))
 	}
 }
 
@@ -173,8 +206,9 @@ func Guardians(character *core.Character, summon *spelldata.Spell) []*Guardian {
 	return guardians
 }
 
-// Puts up as many guardians as the summon's row brings on the target for the row's duration. A summon takes the
-// guardians that are not up first, then the first ones.
+// Puts up as many guardians as the summon's row brings against the target for the row's duration. A summon takes the
+// guardians that are not up first, then the first ones. One that comes up beside its owner stands as far from the
+// target as the owner does now; one already up stays where it is.
 func SummonGuardians(sim *core.Simulation, guardians []*Guardian, target *core.Unit) {
 	if len(guardians) == 0 {
 		return
@@ -184,6 +218,10 @@ func SummonGuardians(sim *core.Simulation, guardians []*Guardian, target *core.U
 		core.FilterSlice(guardians, func(g *Guardian) bool { return g.IsEnabled() })...)
 	for _, guardian := range order[:min(count, len(order))] {
 		guardian.CurrentTarget = target
+		if !guardian.IsEnabled() && summonsBesideCaster(guardian.summon) {
+			guardian.Owner.UpdatePosition(sim, false)
+			guardian.DistanceFromTarget = guardian.Owner.DistanceFromTarget
+		}
 		guardian.EnableWithTimeout(sim, guardian, guardian.summon.Duration())
 	}
 }

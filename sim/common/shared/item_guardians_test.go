@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -103,5 +104,49 @@ func TestNewGuardianOnUseRegistersNothingForAnUnmeasuredCreature(t *testing.T) {
 	}
 	if guardians := Guardians(&wearer.Character, spelldata.MustFind(servantSummon)); len(guardians) != 0 {
 		t.Errorf("an unmeasured creature's item built %d guardians, want none", len(guardians))
+	}
+}
+
+// A guardian whose summon puts it beside its owner comes up as far from the target as the owner stands and walks
+// in to melee range at its run speed, swinging only once it is there.
+func TestNewGuardianOnUsePutsTheGuardiansUpBesideTheOwnerAndWalksThemIn(t *testing.T) {
+	sim, wearer := newServantSim(t, 993104, map[int32]GuardianCreature{servantCreature: servant})
+	wearer.AutoAttacks.CancelAutoSwing(sim)
+	wearer.DistanceFromTarget = 30
+	guardian := Guardians(&wearer.Character, spelldata.MustFind(servantSummon))[0]
+	target := wearer.CurrentTarget
+
+	start := sim.CurrentTime
+	onUseSpell(t, wearer, 993104).Cast(sim, target)
+	if guardian.DistanceFromTarget != 30 {
+		t.Fatalf("%s comes up %.1f yd from the target, want the owner's 30", guardian.Name, guardian.DistanceFromTarget)
+	}
+	arrival := start + core.DurationFromSeconds((30-core.MaxMeleeRange)/guardian.GetMovementSpeed())
+	stepPast(t, sim, arrival-100*time.Millisecond)
+	if swings := guardian.AutoAttacks.MHAuto().SpellMetrics[target.UnitIndex].Casts; swings != 0 {
+		t.Errorf("%s swung %d times before it reached melee range", guardian.Name, swings)
+	}
+	stepPast(t, sim, arrival+time.Second)
+	if guardian.DistanceFromTarget > core.MaxMeleeRange {
+		t.Errorf("%s stands %.1f yd from the target a second after it should have arrived", guardian.Name, guardian.DistanceFromTarget)
+	}
+	if swings := guardian.AutoAttacks.MHAuto().SpellMetrics[target.UnitIndex].Casts; swings == 0 {
+		t.Errorf("%s has not swung a second after it reached melee range", guardian.Name)
+	}
+}
+
+// A guardian whose summon puts it at the target comes up in melee range however far its owner stands.
+func TestNewGuardianOnUsePutsAGuardianSummonedAtTheTargetInMeleeRange(t *testing.T) {
+	editRow(t, servantSummon, func(row *spelldata.Spell) {
+		row.Effects[0].Target[0] = dbcenums.TARGET_DEST_TARGET_RANDOM
+	})
+	sim, wearer := newServantSim(t, 993105, map[int32]GuardianCreature{servantCreature: servant})
+	wearer.AutoAttacks.CancelAutoSwing(sim)
+	wearer.DistanceFromTarget = 30
+	guardian := Guardians(&wearer.Character, spelldata.MustFind(servantSummon))[0]
+
+	onUseSpell(t, wearer, 993105).Cast(sim, wearer.CurrentTarget)
+	if guardian.DistanceFromTarget > core.MaxMeleeRange {
+		t.Errorf("%s comes up %.1f yd from the target, want melee range", guardian.Name, guardian.DistanceFromTarget)
 	}
 }

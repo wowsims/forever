@@ -117,6 +117,7 @@ is registered. Items and enchants work differently:
   `sim/common/forever/items_weapons.go`, its creature in `sim/common/forever/items_dragons_call.go`, and the Violet
   Sorcerer's Vestments elemental in `sim/common/forever/items_sets.go`. A summon that is no guardian (a companion, a
   sign, an area effect) goes in `overrides.NotGuardianSummons` with its reason; a totem stays out by its summon slot.
+  Where the creature comes up, beside its owner to walk in or on the enemy, follows the summon's row (R-0055).
 - **The folder follows who can use the item**, as `references/rulings.md` states. A class test binary registers only
   its own package, so a shared set left in a class folder never reaches the other classes' AllItems suites;
   `TestGearSetsHoldOnlyTheirClassItems` in `sim/item_class_allowlist_test.go` fails a preset wearing another class's
