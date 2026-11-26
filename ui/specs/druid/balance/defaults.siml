@@ -33,7 +33,7 @@ consumables:
   flask flask_of_supreme_power
   food lobster_stew
   conjured demonic_rune
-  mh_imbue brilliant_wizard_oil
+  mh_imbue wizard_oil
   elixir greater_arcane_elixir, elixir_of_nature_power, elixir_of_the_owl, greater_mageblood_elixir
   resource_pot major_mana_potion
   offensive_pot major_spellblasting_potion
