@@ -198,17 +198,18 @@ describe('BulkItemPicker when the batch entry is swapped for an item the player 
 
 describe('BulkItemPickerGroup add button', () => {
 	it.each([
-		['rings', ItemSlot.ItemSlotFinger1],
-		['trinkets', ItemSlot.ItemSlotTrinket1],
-		['weapons', ItemSlot.ItemSlotMainHand],
-		['head', ItemSlot.ItemSlotHead],
-	])('opens the item list for the %s group on its slot', (group, itemSlot) => {
+		['rings', [ItemSlot.ItemSlotFinger1]],
+		['trinkets', [ItemSlot.ItemSlotTrinket1]],
+		['weapons', [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand]],
+		['head', [ItemSlot.ItemSlotHead]],
+	])('opens the item list for the %s group on its slots', (group, itemSlots) => {
 		const h = mount();
 
 		h.clickAdd(group);
 
 		expect(h.modal().open).toBe(true);
-		expect(h.modal().request).toMatchObject({ slot: itemSlot, tab: SelectorModalTabs.Items });
+		expect(h.modal().request).toMatchObject({ slot: itemSlots[0], tab: SelectorModalTabs.Items });
+		expect(h.modal().request!.gearData.itemSlots).toEqual(itemSlots);
 		expect(h.modal().request!.gearData.getEquippedItem()).toBeNull();
 	});
 
