@@ -211,54 +211,9 @@
 							}
 						}
 					}
-				},
-				{
-					"action": {
-						"castSpell": {
-							"spellId": {
-								"otherId": "OtherActionOffensivePotion"
-							}
-						}
-					},
-					"doAtValue": {
-						"const": {
-							"val": "-1s"
-						}
-					}
 				}
 			],
 			"priorityList": [
-				{
-					"notes": "Open with Serpent Sting, then Arcane Shot.",
-					"action": {
-						"sequence": {
-							"name": "Opener",
-							"actions": [
-								{
-									"castSpell": {
-										"spellId": {
-											"spellId": 13555,
-											"rank": 8
-										}
-									}
-								},
-								{
-									"condition": {
-										"variableRef": {
-											"name": "Use Arcane Shot"
-										}
-									},
-									"castSpell": {
-										"spellId": {
-											"spellId": 14287,
-											"rank": 8
-										}
-									}
-								}
-							]
-						}
-					}
-				},
 				{
 					"action": {
 						"condition": {
@@ -280,398 +235,46 @@
 				{
 					"action": {
 						"condition": {
-							"sequenceIsComplete": {
-								"sequenceName": "Serpent, Mark, Arcane"
+							"not": {
+								"val": {
+									"auraIsActive": {
+										"sourceUnit": {
+											"type": "CurrentTarget"
+										},
+										"auraId": {
+											"spellId": 14325
+										}
+									}
+								}
 							}
 						},
-						"resetSequence": {
-							"sequenceName": "Serpent, Mark, Arcane"
+						"castSpell": {
+							"spellId": {
+								"spellId": 14325,
+								"rank": 4
+							}
 						}
 					}
 				},
 				{
-					"notes": "Hunter's Mark has under 20 s left: put it in the free GCD behind Serpent Sting, before it drops.",
 					"action": {
 						"condition": {
-							"variableRef": {
-								"name": "Use Arcane Shot"
-							}
-						},
-						"sequence": {
-							"name": "Serpent, Mark, Arcane",
-							"actions": [
-								{
-									"condition": {
-										"and": {
-											"vals": [
-												{
-													"cmp": {
-														"op": "OpLt",
-														"lhs": {
-															"auraRemainingTime": {
-																"sourceUnit": {
-																	"type": "CurrentTarget"
-																},
-																"auraId": {
-																	"spellId": 14325
-																}
-															}
-														},
-														"rhs": {
-															"const": {
-																"val": "20s"
-															}
-														}
-													}
-												},
-												{
-													"and": {
-														"vals": [
-															{
-																"not": {
-																	"val": {
-																		"and": {
-																			"vals": [
-																				{
-																					"variableRef": {
-																						"name": "Use Aimed Shot"
-																					}
-																				},
-																				{
-																					"cmp": {
-																						"op": "OpLe",
-																						"lhs": {
-																							"spellTimeToReady": {
-																								"spellId": {
-																									"spellId": 20904,
-																									"rank": 6
-																								}
-																							}
-																						},
-																						"rhs": {
-																							"const": {
-																								"val": "2.5s"
-																							}
-																						}
-																					}
-																				}
-																			]
-																		}
-																	}
-																}
-															},
-															{
-																"not": {
-																	"val": {
-																		"and": {
-																			"vals": [
-																				{
-																					"variableRef": {
-																						"name": "Use Multi-Shot"
-																					}
-																				},
-																				{
-																					"cmp": {
-																						"op": "OpLe",
-																						"lhs": {
-																							"spellTimeToReady": {
-																								"spellId": {
-																									"spellId": 2643
-																								}
-																							}
-																						},
-																						"rhs": {
-																							"const": {
-																								"val": "2.5s"
-																							}
-																						}
-																					}
-																				}
-																			]
-																		}
-																	}
-																}
-															},
-															{
-																"not": {
-																	"val": {
-																		"and": {
-																			"vals": [
-																				{
-																					"variableRef": {
-																						"name": "Use Arcane Shot"
-																					}
-																				},
-																				{
-																					"cmp": {
-																						"op": "OpLe",
-																						"lhs": {
-																							"spellTimeToReady": {
-																								"spellId": {
-																									"spellId": 14287,
-																									"rank": 8
-																								}
-																							}
-																						},
-																						"rhs": {
-																							"const": {
-																								"val": "2.5s"
-																							}
-																						}
-																					}
-																				}
-																			]
-																		}
-																	}
-																}
-															},
-															{
-																"not": {
-																	"val": {
-																		"and": {
-																			"vals": [
-																				{
-																					"variableRef": {
-																						"name": "Use Sniper Shot"
-																					}
-																				},
-																				{
-																					"spellIsReady": {
-																						"spellId": {
-																							"spellId": 1310786,
-																							"rank": 3
-																						}
-																					}
-																				}
-																			]
-																		}
-																	}
-																}
-															}
-														]
-													}
-												}
-											]
-										}
-									},
-									"castSpell": {
+							"not": {
+								"val": {
+									"dotIsActive": {
 										"spellId": {
 											"spellId": 13555,
 											"rank": 8
 										}
 									}
-								},
-								{
-									"castSpell": {
-										"spellId": {
-											"spellId": 14325,
-											"rank": 4
-										}
-									}
-								},
-								{
-									"waitUntil": {
-										"condition": {
-											"spellIsReady": {
-												"spellId": {
-													"spellId": 14287,
-													"rank": 8
-												}
-											}
-										}
-									}
-								},
-								{
-									"castSpell": {
-										"spellId": {
-											"spellId": 14287,
-											"rank": 8
-										}
-									}
 								}
-							]
-						}
-					}
-				},
-				{
-					"action": {
-						"condition": {
-							"sequenceIsComplete": {
-								"sequenceName": "Serpent, Arcane"
 							}
 						},
-						"resetSequence": {
-							"sequenceName": "Serpent, Arcane"
-						}
-					}
-				},
-				{
-					"notes": "Serpent Sting in the gap, then wait for Arcane Shot and press it before anything else, even if Aimed Shot comes up first.",
-					"action": {
-						"condition": {
-							"variableRef": {
-								"name": "Use Arcane Shot"
+						"castSpell": {
+							"spellId": {
+								"spellId": 13555,
+								"rank": 8
 							}
-						},
-						"sequence": {
-							"name": "Serpent, Arcane",
-							"actions": [
-								{
-									"condition": {
-										"and": {
-											"vals": [
-												{
-													"not": {
-														"val": {
-															"and": {
-																"vals": [
-																	{
-																		"variableRef": {
-																			"name": "Use Aimed Shot"
-																		}
-																	},
-																	{
-																		"cmp": {
-																			"op": "OpLe",
-																			"lhs": {
-																				"spellTimeToReady": {
-																					"spellId": {
-																						"spellId": 20904,
-																						"rank": 6
-																					}
-																				}
-																			},
-																			"rhs": {
-																				"const": {
-																					"val": "2.5s"
-																				}
-																			}
-																		}
-																	}
-																]
-															}
-														}
-													}
-												},
-												{
-													"not": {
-														"val": {
-															"and": {
-																"vals": [
-																	{
-																		"variableRef": {
-																			"name": "Use Multi-Shot"
-																		}
-																	},
-																	{
-																		"cmp": {
-																			"op": "OpLe",
-																			"lhs": {
-																				"spellTimeToReady": {
-																					"spellId": {
-																						"spellId": 2643
-																					}
-																				}
-																			},
-																			"rhs": {
-																				"const": {
-																					"val": "2.5s"
-																				}
-																			}
-																		}
-																	}
-																]
-															}
-														}
-													}
-												},
-												{
-													"not": {
-														"val": {
-															"and": {
-																"vals": [
-																	{
-																		"variableRef": {
-																			"name": "Use Arcane Shot"
-																		}
-																	},
-																	{
-																		"cmp": {
-																			"op": "OpLe",
-																			"lhs": {
-																				"spellTimeToReady": {
-																					"spellId": {
-																						"spellId": 14287,
-																						"rank": 8
-																					}
-																				}
-																			},
-																			"rhs": {
-																				"const": {
-																					"val": "2.5s"
-																				}
-																			}
-																		}
-																	}
-																]
-															}
-														}
-													}
-												},
-												{
-													"not": {
-														"val": {
-															"and": {
-																"vals": [
-																	{
-																		"variableRef": {
-																			"name": "Use Sniper Shot"
-																		}
-																	},
-																	{
-																		"spellIsReady": {
-																			"spellId": {
-																				"spellId": 1310786,
-																				"rank": 3
-																			}
-																		}
-																	}
-																]
-															}
-														}
-													}
-												}
-											]
-										}
-									},
-									"castSpell": {
-										"spellId": {
-											"spellId": 13555,
-											"rank": 8
-										}
-									}
-								},
-								{
-									"waitUntil": {
-										"condition": {
-											"spellIsReady": {
-												"spellId": {
-													"spellId": 14287,
-													"rank": 8
-												}
-											}
-										}
-									}
-								},
-								{
-									"castSpell": {
-										"spellId": {
-											"spellId": 14287,
-											"rank": 8
-										}
-									}
-								}
-							]
 						}
 					}
 				},
@@ -789,51 +392,6 @@
 					}
 				},
 				{
-					"notes": "Otherwise press the first shot that is ready.",
-					"action": {
-						"condition": {
-							"variableRef": {
-								"name": "Use Aimed Shot"
-							}
-						},
-						"castSpell": {
-							"spellId": {
-								"spellId": 20904,
-								"rank": 6
-							}
-						}
-					}
-				},
-				{
-					"action": {
-						"condition": {
-							"variableRef": {
-								"name": "Use Multi-Shot"
-							}
-						},
-						"castSpell": {
-							"spellId": {
-								"spellId": 2643
-							}
-						}
-					}
-				},
-				{
-					"action": {
-						"condition": {
-							"variableRef": {
-								"name": "Use Sniper Shot"
-							}
-						},
-						"castSpell": {
-							"spellId": {
-								"spellId": 1310786,
-								"rank": 3
-							}
-						}
-					}
-				},
-				{
 					"action": {
 						"condition": {
 							"and": {
@@ -864,26 +422,16 @@
 					}
 				},
 				{
-					"notes": "Without Arcane Shot there is no gap to fill: keep Hunter's Mark and Serpent Sting up.",
 					"action": {
 						"condition": {
-							"not": {
-								"val": {
-									"auraIsActive": {
-										"sourceUnit": {
-											"type": "CurrentTarget"
-										},
-										"auraId": {
-											"spellId": 14325
-										}
-									}
-								}
+							"variableRef": {
+								"name": "Use Aimed Shot"
 							}
 						},
 						"castSpell": {
 							"spellId": {
-								"spellId": 14325,
-								"rank": 4
+								"spellId": 20904,
+								"rank": 6
 							}
 						}
 					}
@@ -891,21 +439,29 @@
 				{
 					"action": {
 						"condition": {
-							"not": {
-								"val": {
-									"dotIsActive": {
-										"spellId": {
-											"spellId": 13555,
-											"rank": 8
-										}
-									}
-								}
+							"variableRef": {
+								"name": "Use Multi-Shot"
 							}
 						},
 						"castSpell": {
 							"spellId": {
-								"spellId": 13555,
-								"rank": 8
+								"spellId": 2643
+							}
+						}
+					}
+				},
+				{
+					"notes": "The least damage per second of casting, so it waits until none of the shots above is ready.",
+					"action": {
+						"condition": {
+							"variableRef": {
+								"name": "Use Sniper Shot"
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 1310786,
+								"rank": 3
 							}
 						}
 					}
