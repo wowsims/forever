@@ -32,13 +32,14 @@ var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4
 //
 //	proc = value/100 * speed * hand(speed) + coefficient * (spell power + Judgement of the Crusader)
 //	  two-hander:  hand = 1.2,                                  coefficient 0.12
-//	  one-hander:  hand = 0.85 - 0.2 * max(0, 2.0 - speed),     coefficient 0.1
+//	  one-hander:  hand = 0.85 - 0.17 * max(0, 2.0 - speed),    coefficient 0.1
 //
-// The two-hander line is exact. One-handers sit on 0.85 from 2.0 up and lose a little per tenth of
-// a second below that; the straight line through the fast points is one of two shapes the data
-// allows (EV-0059). The spell power part takes one coefficient per hand type at every speed and
-// rank, outside the fast-weapon penalty, and Judgement of the Crusader counts as spell power at
-// the same coefficient. A crit doubles the unrounded total.
+// The two-hander line is exact. One-handers sit on 0.85 from 2.0 up and lose 0.017 per tenth of a
+// second below that. The slope is measured from 1.9 down to 1.6 speed, where a straight line and
+// a power law fit equally well, and the line is extended to the faster weapons (EV-0059). The
+// spell power part takes one coefficient per hand type at every speed and rank, outside the
+// fast-weapon penalty, and Judgement of the Crusader counts as spell power at the same
+// coefficient. A crit doubles the unrounded total.
 //
 // The tooltip's 0.0765 fits none of the one-handers, whose coefficient is 0.1 (EV-0059).
 func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spell) {
@@ -121,5 +122,5 @@ func sealOfRighteousnessHand(mh *core.Item) (hand float64, coefficient float64) 
 	if mh.HandType == proto.HandType_HandTypeTwoHand {
 		return 1.2, 0.12
 	}
-	return 0.85 - 0.2*max(0, 2.0-mh.SwingSpeed), 0.1
+	return 0.85 - 0.17*max(0, 2.0-mh.SwingSpeed), 0.1
 }
