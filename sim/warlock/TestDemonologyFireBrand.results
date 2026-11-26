@@ -928,6 +928,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-KindlingStave-11750"
+ value: {
+  dps: 910.64438
+  tps: 708.15637
+  dtps: 8.59926
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-KissoftheSpider-22954"
  value: {
   dps: 936.44916

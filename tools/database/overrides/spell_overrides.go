@@ -808,6 +808,13 @@ var Spells = []Override{
 		Source:  "EV-0115",
 	},
 	{
+		SpellID: 1300781,
+		Field:   PPM,
+		Value:   1.72,
+		Reason:  "Kindling Stave: 1.72 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'",
+		Source:  "EV-0219",
+	},
+	{
 		SpellID: 1079,
 		Field:   APCoefPeriodic,
 		Value:   0.0114,

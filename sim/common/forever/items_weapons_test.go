@@ -600,8 +600,8 @@ func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 	}
 }
 
-// The shortest cast time Blade of Eternal Darkness 17780 and Moonshadow Stave 22458 price their chance
-// on (EV-0025, EV-0115).
+// The shortest cast time Blade of Eternal Darkness 17780, Moonshadow Stave 22458 and Kindling Stave
+// 11750 price their chance on (EV-0025, EV-0115, EV-0219).
 const castTimeFloor = 1500 * time.Millisecond
 
 // The chance a trigger priced on cast time rolls on a hit whose cast took castTime: the row's procs per
@@ -994,6 +994,82 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 			event.deal(sim, character, spell, result)
 			if got := procs(sim, bolts); got != event.want {
 				t.Errorf("a %s procced it %d times, want %d", event.name, got, event.want)
+			}
+		})
+	}
+}
+
+// Kindling Stave 11750 rolls 1300781 on each landed harmful spell at the row's procs per minute on the
+// cast time of the spell's cast, at least castTimeFloor. A spell fired as a proc whose row is one never
+// rolls it, apart from Flamestrike's pulses, which report under the cast's id, and neither does a spell
+// whose row states no defense type, such as the landing that starts Arcane Missiles' channel. Each proc
+// casts 1300782 at the enemy hit.
+func TestKindlingStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
+	const hurricaneTick, flamestrikeTick, flamestrikeCast = 1278759, 1279990, 10216
+	if !spelldata.MustFind(flamestrikeCast).IsAProc() {
+		t.Fatalf("want %d's row a proc", flamestrikeCast)
+	}
+	firedAsAProc := func(id core.ActionID) func(*core.Spell) {
+		return func(spell *core.Spell) {
+			spell.Flags |= core.SpellFlagPassiveSpell
+			spell.ActionID = id
+		}
+	}
+	wearer := func(t *testing.T) (*core.Simulation, *core.Character, *core.Spell) {
+		t.Helper()
+		sim, character := weaponWearerFor(t, proto.Class_ClassDruid, 11750, 1, 7200)
+		character.AutoAttacks.CancelAutoSwing(sim)
+		proc := character.GetAura("Kindling Stave")
+		fire := character.GetSpell(core.ActionID{SpellID: 1300782})
+		if proc == nil || proc.Dpm != nil || fire == nil {
+			t.Fatal("11750 registers no 1300782, or no proc that rolls its own chance")
+		}
+		return sim, character, fire
+	}
+
+	t.Run("cast time", func(t *testing.T) {
+		sim, character, fire := wearer(t)
+		spell := fireSpell(&character.Unit)
+		const landings = 6000
+		for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
+			before := procCasts(sim, fire)
+			for range landings {
+				landCastHits(t, sim, character, spell, castTime, 1300781)
+			}
+			want := castTimeChance(t, 1300781, castTime)
+			mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
+			if got := float64(procCasts(sim, fire) - before); math.Abs(got-mean) > 4*deviation {
+				t.Errorf("%d hits of a %v cast procced it %v times, want about %.0f", landings, castTime, got, mean)
+			}
+		}
+	})
+
+	// Each hit is dealt at an hour-long cast, a chance that cannot fail.
+	for _, event := range []struct {
+		name    string
+		prepare func(*core.Spell)
+		want    int32
+	}{
+		{"spell", func(*core.Spell) {}, 1},
+		{"spell fired as a proc whose row is one", firedAsAProc(core.ActionID{SpellID: hurricaneTick}), 0},
+		{"spell fired as a proc whose row is not one", firedAsAProc(core.ActionID{SpellID: flamestrikeTick}), 1},
+		{"Flamestrike pulse under its cast's id", func(spell *core.Spell) {
+			firedAsAProc(core.ActionID{SpellID: flamestrikeCast, Tag: 1})(spell)
+			spell.ClassFlags = spelldata.MustFind(flamestrikeTick).ClassFlags
+		}, 1},
+		{"spell whose row states no defense type", func(spell *core.Spell) { spell.DefenseType = core.DefenseTypeNone }, 0},
+	} {
+		t.Run(event.name, func(t *testing.T) {
+			sim, character, fire := wearer(t)
+			spell := fireSpell(&character.Unit)
+			event.prepare(spell)
+			target := character.CurrentTarget
+			result := &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100}
+			spell.CurCast.CastTime = time.Hour
+			character.OnCastResult(sim, spell, result)
+			character.OnSpellHitDealt(sim, spell, result)
+			if got := fire.SpellMetrics[target.UnitIndex].Casts; got != event.want {
+				t.Errorf("a %s cast 1300782 at the enemy hit %d times, want %d", event.name, got, event.want)
 			}
 		})
 	}

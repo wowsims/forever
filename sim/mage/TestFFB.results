@@ -832,6 +832,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-KindlingStave-11750"
+ value: {
+  dps: 862.0975
+  tps: 891.6453
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-KissoftheSpider-22954"
  value: {
   dps: 898.96242

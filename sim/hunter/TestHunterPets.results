@@ -1445,6 +1445,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-KindlingStave-11750"
+ value: {
+  dps: 764.90573
+  tps: 488.35452
+  dtps: 4.697
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-KissoftheSpider-22954"
  value: {
   dps: 789.81468

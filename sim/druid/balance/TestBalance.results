@@ -1182,6 +1182,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-KindlingStave-11750"
+ value: {
+  dps: 845.15327
+  tps: 678.21775
+  dtps: 6.41142
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-KissoftheSpider-22954"
  value: {
   dps: 871.25043

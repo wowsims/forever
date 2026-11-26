@@ -1255,6 +1255,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-KindlingStave-11750"
+ value: {
+  dps: 880.63793
+  tps: 794.59733
+  dtps: 4.30715
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-KissoftheSpider-22954"
  value: {
   dps: 912.12433

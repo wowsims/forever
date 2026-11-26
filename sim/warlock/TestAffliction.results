@@ -928,6 +928,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-KindlingStave-11750"
+ value: {
+  dps: 802.86136
+  tps: 627.79682
+  dtps: 8.42346
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-KissoftheSpider-22954"
  value: {
   dps: 830.49509
