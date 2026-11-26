@@ -127,9 +127,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-Alcor'sSunrazor-14555"
  value: {
-  dps: 812.58568
-  tps: 652.86899
-  dtps: 6.37221
+  dps: 767.0281
+  tps: 765.20981
+  dtps: 6.20779
  }
 }
 dps_results: {
