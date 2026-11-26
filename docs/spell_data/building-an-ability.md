@@ -138,8 +138,8 @@ out of the pickers altogether.
 1. **The row, plus what no row states.** `sim/warrior/pummel.go` and `sim/warrior/slam.go`: the
    resolver, then the cast condition and `ApplyEffects`.
 2. **The row, then an override of one of its fields.** `sim/warrior/hamstring.go` pins the threat
-   numbers with their review marker, because the game files state no threat coefficient. Write the
-   override after the call, on its own line, with the reason beside it.
+   multiplier as a named constant with its measurement, because the game files state no threat
+   coefficient. Write the override after the call, on its own line, with the reason beside it.
 3. **A hand-written `core.SpellConfig` reading the row's values.** The Sweeping Strikes hit spell in
    `sim/warrior/talents_arms.go` is a spell the sim registers and the store does not carry, so it is
    built by hand out of the parent's numbers.
