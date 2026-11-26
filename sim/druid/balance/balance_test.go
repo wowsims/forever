@@ -12,6 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
+	"github.com/wowsims/forever/sim/siml"
 )
 
 func init() {
@@ -19,7 +20,17 @@ func init() {
 	common.RegisterAllEffects()
 }
 
+// The gear set and rotation defaults.siml holds, under the labels the expected results name.
+func defaultSetup() (core.GearSetCombo, core.RotationCombo) {
+	f, err := siml.ReadFile("../../../ui/specs/druid/balance/defaults.siml")
+	if err != nil {
+		panic(err)
+	}
+	return core.GearSetCombo{Label: "default", GearSet: f.Equipment()}, core.RotationCombo{Label: "default", Rotation: f.Rotation()}
+}
+
 func TestBalance(t *testing.T) {
+	gearSet, rotation := defaultSetup()
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
 			Class:      proto.Class_ClassDruid,
@@ -32,12 +43,9 @@ func TestBalance(t *testing.T) {
 					},
 				},
 			}},
-			GearSet: core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "p1"),
-			OtherGearSets: []core.GearSetCombo{
-				core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "prebis"),
-			},
+			GearSet:          gearSet,
 			Talents:          DefaultTalents,
-			Rotation:         core.GetAplRotation("../../../ui/specs/druid/balance/apls", "default"),
+			Rotation:         rotation,
 			Consumables:      DefaultConsumables,
 			Profession1:      proto.Profession_Enchanting,
 			Profession2:      proto.Profession_Tailoring,
