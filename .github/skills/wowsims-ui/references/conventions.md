@@ -60,7 +60,7 @@ build-config edit and no HTML file.
 
 Preset data: gear sets, APLs, builds and the spec's defaults are files under the spec folder, never TS literals. The
 hunter, the Balance druid and the Retribution and Protection paladins write them in SIML (`gear_sets/*.gear.siml`,
-`apls/*.apl.siml`, `builds/*.siml`, `defaults.siml`), and so does the Shadow priest but for its Smite testing build;
+`apls/*.apl.siml`, `builds/*.siml`, `defaults.siml`), and so does the Shadow priest;
 every other spec keeps JSON (`*.gear.json`, `*.apl.json`, `*.build.json`) with its defaults in `spec.ts`, until it
 moves. On SIML, `spec.ts` takes the proto-backed `defaults` from `defaults.siml` through
 `PresetUtils.specDefaultsFromSettings` and keeps only the UI-only ones (EP weights, stat caps, soft caps) in TypeScript.
