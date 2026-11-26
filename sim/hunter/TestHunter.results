@@ -72,6 +72,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 724.54259
+  tps: 746.63777
+  dtps: 8.76399
+  hps: 14.69083
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Angerforge'sBattleAxe-11816"
  value: {
   dps: 813.10212
@@ -884,9 +893,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 758.32245
-  tps: 779.70502
-  dtps: 8.60405
+  dps: 757.97892
+  tps: 779.36148
+  dtps: 8.52612
   hps: 14.65694
  }
 }
@@ -2153,9 +2162,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Shadowblade-2163"
  value: {
-  dps: 759.82964
-  tps: 781.20836
-  dtps: 9.02148
+  dps: 759.52771
+  tps: 780.87084
+  dtps: 9.16102
   hps: 14.69083
  }
 }

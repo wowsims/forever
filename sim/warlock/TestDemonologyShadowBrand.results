@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 865.73197
+  tps: 698.71712
+  dtps: 10.95198
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-AnkhofLife-1713"
  value: {
   dps: 956.04251

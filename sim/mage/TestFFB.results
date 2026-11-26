@@ -68,6 +68,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 817.87348
+  tps: 846.8547
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-AnkhofLife-1713"
  value: {
   dps: 876.56011

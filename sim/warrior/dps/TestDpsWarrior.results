@@ -1892,10 +1892,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-ShimmeringPlatinumWarhammer-15418"
  value: {
-  dps: 538.38016
-  tps: 472.6697
+  dps: 543.34033
+  tps: 476.64954
   dtps: 2.97628
-  hps: 25.89111
+  hps: 26.00972
  }
 }
 dps_results: {
@@ -2135,8 +2135,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 560.7937
-  tps: 497.40453
+  dps: 560.71943
+  tps: 497.43145
   dtps: 2.94293
   hps: 45.80083
  }

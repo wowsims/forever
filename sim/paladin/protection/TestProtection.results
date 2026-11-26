@@ -2252,8 +2252,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 414.77188
-  tps: 992.65712
+  dps: 415.14812
+  tps: 993.25388
   dtps: 340.6598
   hps: 22.02778
  }

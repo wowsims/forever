@@ -78,6 +78,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 745.21392
+  tps: 532.15165
+  dtps: 6.59051
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-AnkhofLife-1713"
  value: {
   dps: 815.60571

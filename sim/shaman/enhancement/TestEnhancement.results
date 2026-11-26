@@ -1442,10 +1442,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-ShimmeringPlatinumWarhammer-15418"
  value: {
-  dps: 928.03939
-  tps: 681.27488
-  dtps: 7.76406
-  hps: 25.29806
+  dps: 928.37379
+  tps: 681.40191
+  dtps: 8.3862
+  hps: 25.26417
  }
 }
 dps_results: {

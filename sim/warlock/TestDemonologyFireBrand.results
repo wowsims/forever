@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 838.14058
+  tps: 646.56323
+  dtps: 8.65025
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-AnkhofLife-1713"
  value: {
   dps: 948.81799

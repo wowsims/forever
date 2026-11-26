@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 776.15059
+  tps: 705.48537
+  dtps: 4.67295
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Angerforge'sBattleAxe-11816"
  value: {
   dps: 816.8277
