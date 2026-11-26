@@ -1,6 +1,7 @@
 import i18n from '@i18n/config';
 import { translateCreatureFamily, translateMobType, translateStat } from '@i18n/localization';
 import type { DamageLog, VersusLog, VersusLogEffect, VersusLogSource } from '@sim/proto/combat_log';
+import { signedStatAmount } from '@sim/proto/stats';
 import { WowheadIcon } from '@ui-kit/WowheadIcon';
 
 export interface VersusSourcesProps {
@@ -13,7 +14,10 @@ const signedAmount = (amount: number) => `${amount > 0 ? '+' : ''}${Number(amoun
 const versusEffectText = (effect: VersusLogEffect): string => {
 	switch (effect.kind) {
 		case 'stat':
-			return i18n.t('results_tab.details.timeline.versus.stat', { amount: signedAmount(effect.amount), stat: translateStat(effect.stat) });
+			return i18n.t('results_tab.details.timeline.versus.stat', {
+				amount: signedStatAmount(effect.stat, effect.amount),
+				stat: translateStat(effect.stat),
+			});
 		case 'crit_chance':
 			return i18n.t('results_tab.details.timeline.versus.crit_chance', { amount: signedAmount(effect.amount) });
 		case 'proc_only':

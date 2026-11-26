@@ -2818,7 +2818,7 @@
 					"base": "×{{multiplier}} base damage",
 					"crit_chance": "{{amount}}% crit chance",
 					"proc_chance": "×{{multiplier}} proc chance",
-					"proc_only": "procs only against these",
+					"proc_only": "Procs only against these",
 					"stat": "{{amount}} {{stat}}"
 				}
 			},
