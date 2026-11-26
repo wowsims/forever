@@ -99,8 +99,10 @@ export const VersusBonusesView = (props: VersusBonusesViewProps) => (
 			<tbody key={group.key} className="ui-character-stats-versus-group" data-state={group.match.state} data-testid="character-stats-versus-group">
 				<TableRow className="ui-character-stats-row">
 					<TableHeaderCell scope="rowgroup" colSpan={2} wrap className="ui-character-stats-label text-left font-semibold">
-						<span className="ui-character-stats-versus-dot" aria-hidden="true" />
-						{group.label}
+						<span className="ui-character-stats-versus-heading">
+							<span className="ui-character-stats-versus-dot" aria-hidden="true" />
+							{group.label}
+						</span>
 						{group.match.state === 'off' && (
 							<span className="ui-character-stats-versus-suffix"> {i18n.t(`sidebar.character_stats.versus.${group.offKey}`)}</span>
 						)}
