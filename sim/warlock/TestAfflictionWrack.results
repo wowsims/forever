@@ -136,8 +136,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 905.25082
-  tps: 728.81511
+  dps: 906.04089
+  tps: 729.43453
   dtps: 9.0125
  }
 }
@@ -192,9 +192,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 973.82124
-  tps: 782.7813
-  dtps: 9.67635
+  dps: 982.98155
+  tps: 789.6475
+  dtps: 9.67038
  }
 }
 dps_results: {
@@ -208,8 +208,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-ChainedEssenceofEranikus-10455"
  value: {
-  dps: 975.2114
-  tps: 783.91974
+  dps: 976.08871
+  tps: 784.60755
   dtps: 8.94668
  }
 }
@@ -1274,8 +1274,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-ShardoftheFallenStar-21891"
  value: {
-  dps: 970.2279
-  tps: 779.69716
+  dps: 972.02564
+  tps: 781.10659
   dtps: 9.14839
  }
 }
@@ -1586,8 +1586,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-Average-Default"
  value: {
-  dps: 1001.32235
-  tps: 803.86268
+  dps: 1003.2906
+  tps: 805.40579
   dtps: 9.69414
  }
 }

@@ -807,3 +807,28 @@ func TestCounterspellLandingIsHeard(t *testing.T) {
 		t.Error("no landed Counterspell procced Blade of Eternal Darkness")
 	}
 }
+
+// Each enemy a Flamestrike ground tick lands on adds a stack of Combustion's crit, and each crit spends one of
+// its charges.
+func TestCombustionCountsEachFlamestrikeTickHit(t *testing.T) {
+	sim, mage := newMageSimAgainst(FireTalents, longEncounter(3))
+	charges, crit := mage.GetAura("Combustion"), mage.GetAura("Combustion Crit")
+	tick := flamestrikeTick(t, mage)
+
+	charges.Activate(sim)
+	landed, crits := 0, 0
+	for _, result := range tick.CalcAndDealAoeDamage(sim, 100, tick.OutcomeMagicHitAndCrit) {
+		if result.Landed() {
+			landed++
+		}
+		if result.DidCrit() {
+			crits++
+		}
+	}
+	if crit.GetStacks() != int32(1+landed) {
+		t.Errorf("a tick that landed on %d enemies left %d stacks of Combustion's crit, want %d", landed, crit.GetStacks(), 1+landed)
+	}
+	if charges.GetStacks() != int32(3-crits) {
+		t.Errorf("a tick that crit %d enemies left %d of Combustion's charges, want %d", crits, charges.GetStacks(), 3-crits)
+	}
+}

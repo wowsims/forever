@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"math"
 	"testing"
 	"time"
 
@@ -64,7 +65,13 @@ func TestBalance(t *testing.T) {
 }
 
 // The Moonkin preset on the Balance page.
-const DefaultTalents = "5232220115501351--5053"
+const DefaultTalents = "5532220115001351--505302"
+
+// A Moonkin build without Dreamstate, and the same build with one point in it.
+const (
+	noDreamstateTalents  = "5232220115201301--5053"
+	dreamstateOneTalents = "5232220115201311--5053"
+)
 
 const DefaultArmorType = proto.ArmorType_ArmorTypeLeather
 
@@ -94,6 +101,7 @@ var DefaultConsumables = &proto.ConsumesSpec{
 }
 
 // Self keeps the mana. Someone else still spends the cast and the cooldown; a dummy receives the mana.
+// Without Dreamstate the caster gains none of it.
 func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	for _, c := range []struct {
 		name     string
@@ -104,7 +112,7 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 		{"someone else", true, false},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			sim, druid := balanceDruid(t, c.gift, 0, 1)
+			sim, druid := balanceDruid(t, noDreamstateTalents, c.gift, 0, 1)
 			spell := druid.GetSpell(core.ActionID{SpellID: 29166})
 			if spell == nil {
 				t.Fatal("Innervate is not registered")
@@ -139,7 +147,7 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	}
 
 	t.Run("someone else with an incoming innervate", func(t *testing.T) {
-		sim, druid := balanceDruid(t, true, 1, 1)
+		sim, druid := balanceDruid(t, noDreamstateTalents, true, 1, 1)
 		spell := druid.GetSpell(core.ActionID{SpellID: 29166})
 		if spell == nil {
 			t.Fatal("Innervate is not registered")
@@ -172,7 +180,7 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	})
 
 	t.Run("cast at the dummy", func(t *testing.T) {
-		sim, druid := balanceDruid(t, false, 0, 1)
+		sim, druid := balanceDruid(t, noDreamstateTalents, false, 0, 1)
 		spell := druid.GetSpell(core.ActionID{SpellID: 29166})
 		if spell == nil {
 			t.Fatal("Innervate is not registered")
@@ -197,7 +205,41 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	})
 }
 
-func balanceDruid(t *testing.T, gift bool, incoming int32, targets int) (*core.Simulation, *core.Character) {
+// Dreamstate gives the caster a share of an Innervate cast on someone else: all of it at full rank, less at
+// one point, and nothing extra on a self-cast.
+func TestDreamstateSharesAGiftedInnervate(t *testing.T) {
+	gain := func(t *testing.T, talents string, gift bool) float64 {
+		sim, druid := balanceDruid(t, talents, gift, 0, 1)
+		spell := druid.GetSpell(core.ActionID{SpellID: 29166})
+		if spell == nil {
+			t.Fatal("Innervate is not registered")
+		}
+		before := druid.ManaRegenPerSecondWhileNotCasting()
+		if !spell.Cast(sim, sim.Encounter.ActiveTargetUnits[0]) {
+			t.Fatal("Innervate did not cast")
+		}
+		if gift && !sim.Raid.GetFirstTargetDummy().HasActiveAuraWithTag(buffs.InnervatesCategory) {
+			t.Error("the dummy has no Innervate")
+		}
+		return druid.ManaRegenPerSecondWhileNotCasting() - before
+	}
+
+	self := gain(t, noDreamstateTalents, false)
+	if self <= 0 {
+		t.Fatalf("a self-cast Innervate gains %v regen, want more than 0", self)
+	}
+	if got := gain(t, DefaultTalents, true); math.Abs(got-self) > 1e-9 {
+		t.Errorf("full Dreamstate gains %v regen from a gift, want the self-cast's %v", got, self)
+	}
+	if got := gain(t, dreamstateOneTalents, true); got <= 0 || got >= self {
+		t.Errorf("one point of Dreamstate gains %v regen from a gift, want between 0 and %v", got, self)
+	}
+	if got := gain(t, DefaultTalents, false); math.Abs(got-self) > 1e-9 {
+		t.Errorf("a self-cast with Dreamstate gains %v regen, want the self-cast's %v", got, self)
+	}
+}
+
+func balanceDruid(t *testing.T, talents string, gift bool, incoming int32, targets int) (*core.Simulation, *core.Character) {
 	t.Helper()
 	target := &proto.UnitReference{}
 	if gift {
@@ -207,7 +249,7 @@ func balanceDruid(t *testing.T, gift bool, incoming int32, targets int) (*core.S
 		Class:         proto.Class_ClassDruid,
 		Race:          proto.Race_RaceNightElf,
 		Equipment:     &proto.EquipmentSpec{},
-		TalentsString: DefaultTalents,
+		TalentsString: talents,
 		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
 		Buffs:         &proto.IndividualBuffs{Innervates: incoming},
 	}, &proto.Player_BalanceDruid{
@@ -235,7 +277,7 @@ func balanceDruid(t *testing.T, gift bool, incoming int32, targets int) (*core.S
 // A Balance druid in a fresh sim with this many targets; a duration other than 0 resets the sim to run that long.
 func newBalanceDruid(t *testing.T, targets int, duration time.Duration) (*core.Simulation, *BalanceDruid) {
 	t.Helper()
-	sim, _ := balanceDruid(t, false, 0, targets)
+	sim, _ := balanceDruid(t, DefaultTalents, false, 0, targets)
 	if duration != 0 {
 		sim.Cleanup()
 		sim.BaseDuration = duration

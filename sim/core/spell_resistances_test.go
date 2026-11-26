@@ -43,6 +43,37 @@ func TestSchoolSpellPiercingLowersOnlyItsSchool(t *testing.T) {
 	}
 }
 
+// A Frostfire spell meets the lower of the target's fire and frost resistance after each school's
+// piercing, so piercing beyond both makes the share negative; a mask with Holy meets none.
+func TestMultiSchoolSpellMeetsItsLowestResistance(t *testing.T) {
+	defender := Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+	defender.stats[stats.FireResistance] = 100
+	defender.stats[stats.FrostResistance] = 40
+	attacker := Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+	frostfire := &Spell{SpellSchool: SpellSchoolFrostfire, SchoolIndex: stats.SchoolIndexFire}
+	holyfire := &Spell{SpellSchool: SpellSchoolHoly | SpellSchoolFire, SchoolIndex: stats.SchoolIndexFire}
+
+	cases := []struct {
+		name                   string
+		piercing, firePiercing float64
+		want                   float64
+	}{
+		{"no piercing", 0, 0, 40.0 / (40 + 499)},
+		{"fire after piercing below frost", 0, 70, 30.0 / (30 + 499)},
+		{"piercing beyond both", 50, 0, -10.0 / (10 + 499)},
+	}
+	for _, c := range cases {
+		attacker.stats[stats.SpellPiercing] = c.piercing
+		attacker.PseudoStats.SchoolSpellPiercing[stats.SchoolIndexFire] = c.firePiercing
+		if got := defender.averageResist(frostfire, &attacker, false); !WithinToleranceFloat64(c.want, got, 1e-9) {
+			t.Errorf("%s: Frostfire average resist = %v, want %v", c.name, got, c.want)
+		}
+		if got := defender.averageResist(holyfire, &attacker, false); got != 0 {
+			t.Errorf("%s: Holy and Fire average resist = %v, want 0", c.name, got)
+		}
+	}
+}
+
 // Against 150 resistance a plain spell is often partially resisted. A binary spell's hits and ticks never
 // are once it lands, nor is a spell flagged SpellFlagNoPartialResist. Spell Piercing beyond the
 // resistance gives a binary spell's hits and full-share ticks the bonus, and its tenth-share ticks and a

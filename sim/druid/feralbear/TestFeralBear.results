@@ -282,9 +282,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 531.39854
-  tps: 2651.49562
-  dtps: 395.61739
+  dps: 533.80577
+  tps: 2656.67116
+  dtps: 395.65406
   hps: 85.62528
  }
 }

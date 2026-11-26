@@ -458,8 +458,7 @@ func init() {
 	// An Auto Shot or ranged special that lands rolls it at the procs per minute of the item's
 	// chance-on-hit entry, on the bow's speed (EV-0136). The roll comes on the shot's cast result at its
 	// release, and Pierce Heart strikes then. 1292647 is physical on the melee table. The stun on Naga
-	// is crowd control the sim leaves out.
-	// TODO: Ingame test needed: whether a missed shot rolls it too.
+	// is crowd control the sim leaves out. A missed Auto Shot never rolls it (EV-0206).
 	newEntryRateItemEffect(3078, 1292647, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(1292647)
 		damage := row.DamageEffect()

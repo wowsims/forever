@@ -17,9 +17,8 @@ func (paladin *Paladin) registerExorcism(_ int32, rank *spelldata.Spell) {
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = SpellMaskExorcism
 
-	// Never crits, although the row has no cannot-crit attribute (EV-0188).
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHit)
+		spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHitAndCrit)
 	}
 
 	paladin.RegisterSpell(config)
