@@ -409,8 +409,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 922.5681
-  tps: 723.86682
+  dps: 922.7294
+  tps: 723.99096
   dtps: 10.01738
  }
 }
@@ -482,9 +482,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 931.56294
-  tps: 730.81354
-  dtps: 10.01738
+  dps: 958.43191
+  tps: 753.88685
+  dtps: 10.20104
  }
 }
 dps_results: {
@@ -554,9 +554,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 902.10657
-  tps: 708.00054
-  dtps: 10.01738
+  dps: 929.34331
+  tps: 731.58257
+  dtps: 10.17914
  }
 }
 dps_results: {
@@ -938,9 +938,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-KindlingStave-11750"
  value: {
-  dps: 929.69617
-  tps: 729.31203
-  dtps: 10.37218
+  dps: 920.59263
+  tps: 721.94575
+  dtps: 10.07687
  }
 }
 dps_results: {

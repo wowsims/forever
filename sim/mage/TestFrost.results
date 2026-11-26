@@ -414,8 +414,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 862.79362
-  tps: 796.11189
+  dps: 885.60022
+  tps: 822.54152
  }
 }
 dps_results: {
@@ -491,8 +491,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 841.96257
-  tps: 777.36395
+  dps: 864.03279
+  tps: 802.201
  }
 }
 dps_results: {

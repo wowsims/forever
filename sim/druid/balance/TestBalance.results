@@ -536,9 +536,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 906.43565
-  tps: 725.93493
-  dtps: 6.18867
+  dps: 909.92247
+  tps: 734.37569
+  dtps: 5.59358
  }
 }
 dps_results: {
@@ -616,9 +616,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 877.76914
-  tps: 703.46039
-  dtps: 6.18867
+  dps: 878.11917
+  tps: 709.20624
+  dtps: 5.96561
  }
 }
 dps_results: {
@@ -2080,9 +2080,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-default-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5356.12327
-  tps: 4232.46083
-  dtps: 0.21402
+  dps: 5355.95702
+  tps: 4239.33614
  }
 }
 dps_results: {
@@ -2125,9 +2124,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-default-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5327.28553
-  tps: 4209.2446
-  dtps: 0.21402
+  dps: 5327.11756
+  tps: 4216.10419
  }
 }
 dps_results: {
@@ -2170,9 +2168,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-WindshaperSkyborne-default-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5443.21947
-  tps: 4300.20822
-  dtps: 0.44095
+  dps: 5442.98896
+  tps: 4307.208
  }
 }
 dps_results: {

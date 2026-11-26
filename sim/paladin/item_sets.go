@@ -39,8 +39,7 @@ var ItemSetJusticeBattlegear = core.NewItemSet(core.ItemSet{
 				ExposeToAPL(1300951)
 		},
 		4: func(agent core.Agent, setBonusAura *core.Aura) {
-			// +36 Attack Power against Undead. The game files' text says Demons; the effect's
-			// creature-type mask is Undead.
+			// +36 Attack Power against Undead.
 			spelldata.ParseEffects(agent.GetCharacter(), setBonusAura, spelldata.MustFind(1301084))
 			setBonusAura.ExposeToAPL(1301084)
 		},

@@ -474,3 +474,16 @@ func applyCost(config *core.SpellConfig, s *Spell) {
 		config.Cast.DefaultCast.NonEmpty = true
 	}
 }
+
+// The landing an area channel's cast makes on every enemy as the channel starts: the cast's dummy as a
+// hit with no damage, which a listener on the enemy hears and a listener that needs damage does not. It
+// reports under the cast's id with tag 1 and records no metrics or log lines (EV-0116, EV-0219).
+func RegisterAreaCastLanding(unit *core.Unit, cast *Spell) func(sim *core.Simulation) {
+	landing := unit.RegisterSpell(SpellConfig(unit, cast, Magic(core.ProcMaskSpellDamage), Proc(), Tag(1),
+		Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))
+	return func(sim *core.Simulation) {
+		for _, target := range sim.Encounter.ActiveTargetUnits {
+			landing.CalcAndDealOutcome(sim, target, landing.OutcomeAlwaysHit)
+		}
+	}
+}

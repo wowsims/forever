@@ -515,10 +515,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 931.79935
-  tps: 682.50397
-  dtps: 8.44461
-  hps: 20.87556
+  dps: 932.24801
+  tps: 684.97158
+  dtps: 7.64537
+  hps: 20.85861
  }
 }
 dps_results: {
@@ -605,10 +605,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 925.91686
-  tps: 678.38622
-  dtps: 8.44461
-  hps: 20.87556
+  dps: 925.37102
+  tps: 679.55143
+  dtps: 7.6259
+  hps: 20.82472
  }
 }
 dps_results: {
@@ -803,10 +803,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 937.47281
-  tps: 686.0146
-  dtps: 8.44391
-  hps: 20.87556
+  dps: 934.08415
+  tps: 683.55591
+  dtps: 8.44498
+  hps: 20.80778
  }
 }
 dps_results: {

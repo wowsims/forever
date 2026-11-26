@@ -686,9 +686,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 410.50414
-  tps: 979.72231
-  dtps: 333.45871
+  dps: 410.42213
+  tps: 980.22165
+  dtps: 332.41495
   hps: 18.19833
  }
 }
@@ -785,9 +785,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 407.16144
-  tps: 970.88957
-  dtps: 333.68747
+  dps: 407.08153
+  tps: 971.35504
+  dtps: 332.93348
   hps: 18.19833
  }
 }
@@ -1001,10 +1001,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 406.97692
-  tps: 970.91838
-  dtps: 341.72609
-  hps: 18.35083
+  dps: 407.94326
+  tps: 971.71252
+  dtps: 342.35974
+  hps: 18.3
  }
 }
 dps_results: {
@@ -1613,9 +1613,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-MajorRecombobulator-18637"
  value: {
-  dps: 406.3032
-  tps: 967.88243
-  dtps: 344.86964
+  dps: 406.31098
+  tps: 968.36683
+  dtps: 344.97107
   hps: 21.87621
  }
 }
@@ -1649,9 +1649,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-MarkoftheDragonLord-13143"
  value: {
-  dps: 404.10939
-  tps: 965.03095
-  dtps: 339.99459
+  dps: 404.11148
+  tps: 964.99788
+  dtps: 339.99053
   hps: 18.26611
  }
 }
@@ -2495,8 +2495,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Toofbreaker-286430"
  value: {
-  dps: 403.54649
-  tps: 977.56315
+  dps: 406.01368
+  tps: 980.8445
   dtps: 340.25895
   hps: 21.12972
  }
@@ -2542,7 +2542,7 @@ dps_results: {
  value: {
   dps: 407.73628
   tps: 971.73096
-  dtps: 342.47068
+  dtps: 343.43068
   hps: 18.02889
  }
 }

@@ -118,6 +118,7 @@
         "heart_of_the_wild": {"spellId": 17003, "registeredBy": ["balance_druid", "feral_bear_druid", "feral_cat_druid", "restoration_druid"], "talentOnlyBy": ["balance_druid", "feral_bear_druid", "feral_cat_druid", "restoration_druid"], "uncastable": true},
         "hurricane": {"spellId": 17402, "rank": 3, "registeredBy": ["balance_druid"]},
         "hurricane_1278759": {"spellId": 1278759, "rank": 3, "registeredBy": ["balance_druid"], "uncastable": true},
+        "hurricane_tag1": {"spellId": 17402, "tag": 1, "rank": 3, "registeredBy": ["balance_druid"], "uncastable": true},
         "improved_entangling_roots": {"spellId": 16918, "registeredBy": ["balance_druid", "feral_bear_druid", "feral_cat_druid", "restoration_druid"], "talentOnlyBy": ["balance_druid", "feral_bear_druid", "feral_cat_druid", "restoration_druid"], "uncastable": true},
         "improved_regrowth": {"spellId": 17074, "registeredBy": ["balance_druid", "feral_bear_druid", "feral_cat_druid", "restoration_druid"], "talentOnlyBy": ["balance_druid", "feral_bear_druid", "feral_cat_druid", "restoration_druid"], "uncastable": true},
         "improved_rejuvenation": {"spellId": 17111, "registeredBy": ["balance_druid", "feral_bear_druid", "feral_cat_druid", "restoration_druid"], "talentOnlyBy": ["balance_druid", "feral_bear_druid", "feral_cat_druid", "restoration_druid"], "uncastable": true},

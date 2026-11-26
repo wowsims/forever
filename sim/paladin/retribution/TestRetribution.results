@@ -578,8 +578,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 951.46227
-  tps: 774.6745
+  dps: 951.3253
+  tps: 774.56493
   dtps: 3.56978
   hps: 25.80469
  }
@@ -641,9 +641,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 948.93362
-  tps: 773.13231
-  dtps: 4.18974
+  dps: 949.05097
+  tps: 774.08562
+  dtps: 3.9748
   hps: 26.21695
  }
 }
@@ -731,9 +731,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 943.20542
-  tps: 768.54975
-  dtps: 4.18974
+  dps: 943.22227
+  tps: 769.22664
+  dtps: 3.98442
   hps: 26.21695
  }
 }
@@ -938,10 +938,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 953.20494
-  tps: 776.06885
+  dps: 952.26012
+  tps: 775.31299
   dtps: 3.55825
-  hps: 25.81079
+  hps: 25.80927
  }
 }
 dps_results: {
