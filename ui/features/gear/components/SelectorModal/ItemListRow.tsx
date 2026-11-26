@@ -135,7 +135,7 @@ export const ItemListRow = ({
 	const item = isItemsTab ? (itemData.item as unknown as Item) : undefined;
 	const level = tabHasLevel(label) ? itemData.ilvl || (item?.ilvl ?? 0) : undefined;
 	const enchant = itemData.item as unknown as Enchant;
-	const sourceItem = (item ?? isEnchantsTab) ? { id: enchant.itemId, sources: enchant.sources } : undefined;
+	const sourceItem = item ?? (isEnchantsTab ? { id: enchant.itemId, sources: enchant.sources } : undefined);
 	const hasRandomSuffix = !!item?.randomSuffixOptions?.length;
 	const discovered = isItemsTab && firstSeen !== undefined && isNewlyDiscovered(firstSeen) ? discoveredLabel(firstSeen) : undefined;
 

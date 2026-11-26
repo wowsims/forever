@@ -163,6 +163,15 @@ describe('ItemListRow', () => {
 		expect(marker?.getAttribute('data-source-count')).toBe('1');
 	});
 
+	it('shows an item row the sources of the item itself', () => {
+		const item = { id: 7, ilvl: 0, sources: [{}, {}] } as unknown as Item;
+		const { container } = renderRow({ label: SelectorModalTabs.Items, itemData: makeItemData({ id: 7, item: item as unknown as ItemListType }) });
+		const marker = container.querySelector('[data-testid="item-source-marker"]');
+
+		expect(marker?.getAttribute('data-item-id')).toBe('7');
+		expect(marker?.getAttribute('data-source-count')).toBe('2');
+	});
+
 	// Suffix ids and item ids share one number space, so a suffix id read as an item id finds another item's notice.
 	it.each([
 		['by enchant id on the enchants tab', SelectorModalTabs.Enchants, 1894, null, '1894'],
