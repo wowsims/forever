@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"slices"
 	"testing"
 	"time"
 
@@ -18,12 +19,13 @@ const (
 
 // A test consumable under Goblin Sapper Charge's id 10646 (13241, a 5 min cooldown of its own, needs
 // Engineering), which the spec selects by its flag, and test explosives standing in for Ez-Thro
-// Dynamite II 18588 (23000) and Crystal Charge 11566 (15239).
+// Dynamite II 18588 (23000), Crystal Charge 11566 (15239) and Stratholme Holy Water 13180 (17291).
 const (
 	goblinSapperID     int32 = 10646
 	testDynamiteID     int32 = 991202
 	testCrystalID      int32 = 991203
 	testUnskilledSapID int32 = 991204
+	testHolyWaterID    int32 = 991205
 )
 
 func init() {
@@ -37,8 +39,9 @@ func init() {
 		explosive(testDynamiteID, 23000, 0, proto.Profession_ProfessionUnknown),
 		explosive(testCrystalID, 15239, 0, proto.Profession_ProfessionUnknown),
 		explosive(testUnskilledSapID, 13241, 300000, proto.Profession_Engineering),
+		explosive(testHolyWaterID, 17291, 0, proto.Profession_ProfessionUnknown),
 	}})
-	for _, id := range []int32{goblinSapperID, testDynamiteID, testCrystalID, testUnskilledSapID} {
+	for _, id := range []int32{goblinSapperID, testDynamiteID, testCrystalID, testUnskilledSapID, testHolyWaterID} {
 		NewSpellDataExplosive(id)
 	}
 }
@@ -124,6 +127,34 @@ func TestSapperDamagesEveryEnemyAndTheThrower(t *testing.T) {
 	took := health - caster.CurrentHealth()
 	if low, high := thrower.Min(), thrower.Max(); took < low || took > high {
 		t.Errorf("the thrower took %v, want one roll of %v to %v", took, low, high)
+	}
+}
+
+// An area explosive whose row names the creature types it hits damages the enemies of those types in
+// its area and no other: 17291 burns the one of its type and leaves the one of another.
+func TestAnAreaExplosiveHitsOnlyTheCreatureTypesItsRowNames(t *testing.T) {
+	row := spelldata.MustFind(17291)
+	named := spelldata.MobTypes(row.TargetCreatureType)
+	if len(named) == 0 || !row.DamageEffect().HitsAnArea() {
+		t.Fatalf("17291 names creature types %v over an area %v, nothing to check", named, row.DamageEffect().HitsAnArea())
+	}
+	other := proto.MobType_MobTypeBeast
+	if slices.Contains(named, other) {
+		t.Fatalf("17291 names %v among its types, want a type it does not name", other)
+	}
+	sim, caster := newExplosiveSim(t, &proto.ConsumesSpec{ExtraIds: []int32{testHolyWaterID}}, proto.Profession_ProfessionUnknown, 2)
+	hit, missed := sim.Encounter.ActiveTargetUnits[0], sim.Encounter.ActiveTargetUnits[1]
+	hit.MobType, missed.MobType = named[0], other
+	water := onUseSpell(t, caster, testHolyWaterID)
+	if !water.Cast(sim, hit) {
+		t.Fatalf("the holy water could not be used")
+	}
+	sim.Step()
+	if got := water.SpellMetrics[hit.UnitIndex].TotalDamage; got <= 0 {
+		t.Errorf("the %v enemy took %v, want the row's damage", named[0], got)
+	}
+	if got := water.SpellMetrics[missed.UnitIndex].TotalDamage; got != 0 {
+		t.Errorf("the %v enemy took %v, want none", other, got)
 	}
 }
 

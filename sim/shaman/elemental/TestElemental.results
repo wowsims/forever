@@ -609,9 +609,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 893.91528
-  tps: 808.90917
-  dtps: 4.65836
+  dps: 887.8914
+  tps: 809.53205
+  dtps: 4.59359
  }
 }
 dps_results: {
@@ -689,9 +689,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 870.53971
-  tps: 788.48352
-  dtps: 4.65836
+  dps: 868.87697
+  tps: 792.26603
+  dtps: 4.4483
  }
 }
 dps_results: {
