@@ -108,21 +108,6 @@ def GenExpectedStats(dbPath: str, level: int):
     return stats
 
 
-def GenCreatureExpectedStats(dbPath: str, level: int):
-    conn = sqlite3.connect(dbPath)
-    rows = conn.execute(
-        """SELECT CreatureHealth, CreatureArmor, CreatureAutoAttackDps
-           FROM ExpectedStat WHERE Lvl = ? AND ContentSetID = 0""",
-        (level,),
-    ).fetchall()
-    conn.close()
-
-    if len(rows) != 1:
-        raise SystemExit(f"ExpectedStat has {len(rows)} level {level} rows, expected one")
-    health, armor, autoAttackDps = rows[0]
-    return {"Health": float(health), "Armor": float(armor), "AutoAttackDps": float(autoAttackDps)}
-
-
 def GenCreatureStatsByLevel(dbPath: str):
     conn = sqlite3.connect(dbPath)
     rows = conn.execute(
@@ -259,8 +244,9 @@ def GenMechanicsTsFile(cs: ClassStats):
 if __name__ == "__main__":
     args = ClassStats()
     args.Expected = GenExpectedStats(BASE_DIR + DB_PATH, BASE_LEVEL)
-    args.Creature = GenCreatureExpectedStats(BASE_DIR + DB_PATH, BASE_LEVEL)
     args.CreatureByLevel = GenCreatureStatsByLevel(BASE_DIR + DB_PATH)
+    health, armor, _ = args.CreatureByLevel[BASE_LEVEL]
+    args.Creature = {"Health": health, "Armor": armor}
     args.MCritBase = GenNameIndexedDb(BASE_DIR + DIR_PATH + MELEE_CRIT_BASE)
     args.SCritBase = GenNameIndexedDb(BASE_DIR + DIR_PATH + SPELL_CRIT_BASE)
     args.CombatRatings = GenNameIndexedDb(BASE_DIR + DIR_PATH + COMBAT_RATINGS)

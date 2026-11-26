@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"cmp"
 	"fmt"
 	"maps"
 	"slices"
@@ -23,19 +24,6 @@ type GuardianCreature struct {
 	Armor  float64       // Share of the creature armor.
 	Swing  GuardianSwing // A zero Speed: the guardian never swings.
 	Cast   *GuardianCast // The one spell the guardian casts between swings, or nil.
-}
-
-// The creature numbers for the creature's level.
-func (creature GuardianCreature) Stats() core.CreatureStats {
-	level := creature.Level
-	if level == 0 {
-		level = core.CharacterLevel
-	}
-	values, listed := core.CreatureStatsByLevel[level]
-	if !listed {
-		panic(fmt.Sprintf("%s: the game files hold no creature values for level %d", creature.Name, level))
-	}
-	return values
 }
 
 // A physical swing whose normal hit before armor is Share of Speed seconds of the creature dps, Variance either side.
@@ -147,12 +135,17 @@ func summonsBesideCaster(summon *spelldata.Spell) bool {
 }
 
 func newGuardian(owner *core.Character, name string, summon *spelldata.Spell, creature GuardianCreature) *Guardian {
+	level := cmp.Or(creature.Level, core.CharacterLevel)
+	values, listed := core.CreatureStatsByLevel[level]
+	if !listed {
+		panic(fmt.Sprintf("%s: the game files hold no creature values for level %d", creature.Name, level))
+	}
 	guardian := &Guardian{summon: summon, creature: creature, Pet: core.NewPet(core.PetConfig{
 		Name:  name,
 		Owner: owner,
 		BaseStats: stats.Stats{
-			stats.Health: creature.Health * creature.Stats().Health,
-			stats.Armor:  creature.Armor * creature.Stats().Armor,
+			stats.Health: creature.Health * values.Health,
+			stats.Armor:  creature.Armor * values.Armor,
 		},
 		StatInheritance: func(_ stats.Stats) stats.Stats {
 			return stats.Stats{}
@@ -160,13 +153,11 @@ func newGuardian(owner *core.Character, name string, summon *spelldata.Spell, cr
 		IsGuardian:         true,
 		StartsInMeleeRange: !summonsBesideCaster(summon),
 	})}
-	if creature.Level != 0 {
-		guardian.Level = creature.Level
-	}
+	guardian.Level = level
 	// A guardian walks in at 7 yd/s: none of Book of the Dead's skeletons reached its target faster than 6.6 (EV-0217).
-	guardian.PseudoStats.MovementSpeedMultiplier = 7.0 / 8.0
+	guardian.PseudoStats.MovementSpeedMultiplier = 7 / guardian.GetMovementSpeed()
 	if swing := creature.Swing; swing.Speed > 0 {
-		average := swing.Share * creature.Stats().AutoAttackDps * swing.Speed
+		average := swing.Share * values.AutoAttackDps * swing.Speed
 		guardian.EnableAutoAttacks(guardian, core.AutoAttackOptions{
 			MainHand: core.Weapon{
 				BaseDamageMin: average * (1 - swing.Variance),
@@ -181,30 +172,29 @@ func newGuardian(owner *core.Character, name string, summon *spelldata.Spell, cr
 }
 
 // The creature numbers for the guardian's level, which its spells scale with.
-func (guardian *Guardian) CreatureStats() core.CreatureStats { return guardian.creature.Stats() }
+func (guardian *Guardian) CreatureStats() core.CreatureStats {
+	return core.CreatureStatsByLevel[guardian.Level]
+}
 
 func (guardian *Guardian) GetPet() *core.Pet { return &guardian.Pet }
 
-// Writes the guardian's own glancing blows into its tables against the enemies.
-func (guardian *Guardian) Reset(_ *core.Simulation) {
-	glance := guardian.creature.Swing.Glance
-	if glance == nil {
-		return
-	}
-	for _, table := range guardian.AttackTables {
-		if table == nil || table.Defender.Type != core.EnemyUnit {
-			continue
-		}
-		damage := glance.damage(table.Defender.Level)
-		table.MH.BaseGlanceChance = core.Clamp((5*float64(table.Defender.Level)-glance.Skill)*0.02, 0, 1)
-		table.MH.GlanceMultiplierMin, table.MH.GlanceMultiplierMax = damage[0], damage[1]
-	}
-}
+func (guardian *Guardian) Reset(_ *core.Simulation) {}
 
 func (guardian *Guardian) OnEncounterStart(_ *core.Simulation) {}
 
 func (guardian *Guardian) Initialize() {
 	guardian.Pet.Initialize()
+	if glance := guardian.creature.Swing.Glance; glance != nil {
+		// The guardian's own glancing blows replace the ones its tables against the enemies are built with.
+		guardian.Env.RegisterPostFinalizeEffect(func() {
+			for _, target := range guardian.Env.Encounter.AllTargetUnits {
+				hand := &guardian.AttackTables[target.UnitIndex].MH
+				damage := glance.damage(target.Level)
+				hand.BaseGlanceChance = core.Clamp((5*float64(target.Level)-glance.Skill)*0.02, 0, 1)
+				hand.GlanceMultiplierMin, hand.GlanceMultiplierMax = damage[0], damage[1]
+			}
+		})
+	}
 	cast := guardian.creature.Cast
 	if cast == nil {
 		return
