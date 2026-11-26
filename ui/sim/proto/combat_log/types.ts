@@ -131,10 +131,14 @@ export interface PlainLog extends BaseLog {
 }
 
 // One effect of a versus source on a hit, as sim/core/attack_table_helpers.go's versusLogTag prints it:
-// a damage multiplier ("x1.05"), a crit damage multiplier ("x1.5 crit"), the spell's own factor on its
-// base damage ("x2 base"), or a stat against the mob type ("+81 AttackPower").
+// a damage multiplier ("x1.05"), a crit damage multiplier ("x1.5 crit"), crit chance against the target
+// ("+10% crit chance"), the spell's own factor on its base damage ("x2 base"), how many times likelier
+// the proc that cast the spell is ("x3 proc chance"), a proc that fires against no other target ("proc
+// only"), or a stat against the mob type ("+81 AttackPower").
 export type VersusLogEffect =
-	| { readonly kind: 'damage' | 'crit' | 'base'; readonly multiplier: number }
+	| { readonly kind: 'damage' | 'crit' | 'base' | 'proc_chance'; readonly multiplier: number }
+	| { readonly kind: 'crit_chance'; readonly amount: number }
+	| { readonly kind: 'proc_only' }
 	| { readonly kind: 'stat'; readonly stat: Stat; readonly amount: number };
 
 export interface VersusLogSource {
@@ -145,7 +149,7 @@ export interface VersusLogSource {
 // The versus bonuses a landed hit took against its target.
 export interface VersusLog {
 	readonly mobType: MobType;
-	// Only when the spell's own versus bonus matched the target's creature family.
+	// Only when an entry matched the target by its creature family.
 	readonly creatureFamily?: CreatureFamily;
 	readonly sources: ReadonlyArray<VersusLogSource>;
 }

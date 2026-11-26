@@ -178,6 +178,19 @@ describe('parseAll on sim log lines', () => {
 			]);
 		});
 
+		it('reads the crit chance and proc entries', async () => {
+			const log = (await parseLine(
+				`${hit} [Versus Humanoid (Orc): {ItemID: 13965} +10% crit chance; {ItemID: 11684} x2 proc chance; {ItemID: 10760} proc only]`,
+			)) as DamageLog;
+			expect(log.versus?.creatureFamily).toBe(CreatureFamily.CreatureFamilyOrc);
+			expect(sourceIds(log)).toEqual(['{ItemID: 13965}', '{ItemID: 11684}', '{ItemID: 10760}']);
+			expect(log.versus?.sources.map(source => source.effect)).toEqual([
+				{ kind: 'crit_chance', amount: 10 },
+				{ kind: 'proc_chance', multiplier: 2 },
+				{ kind: 'proc_only' },
+			]);
+		});
+
 		it('leaves a line without the tag with no versus', async () => {
 			expect(((await parseLine(hit)) as DamageLog).versus).toBeUndefined();
 		});

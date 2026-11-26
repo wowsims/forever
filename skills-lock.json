@@ -35,7 +35,7 @@
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "33f58505ccc30d195620172c77e8d5f63178e4d21c2f5b3ba4043f24a1423ee3"
+      "computedHash": "47be1d4d82bcd08470c16c67f4577fffadc86705f4cc3b19dbef485f9c40da1a"
     },
     "wowsims-db-pipeline": {
       "source": "./.github/skills",

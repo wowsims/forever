@@ -320,13 +320,67 @@ func TestDamageLogNamesAnItemsStatsByTheItem(t *testing.T) {
 	}
 }
 
+func TestDamageLogNamesACritChanceTheTargetsFamilyRaises(t *testing.T) {
+	orcs := &VersusBonus{Multiplier: 2, Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc}}
+	for _, c := range []struct {
+		family   proto.CreatureFamily
+		wantCrit float64
+		want     string
+	}{
+		{proto.CreatureFamily_CreatureFamilyOrc, 10, ") [Versus Humanoid (Orc): {ItemID: 13965} +10% crit chance]"},
+		{proto.CreatureFamily_CreatureFamilyUnknown, 5, ")"},
+	} {
+		vt := newVersusLogTest()
+		vt.target.CreatureFamily = c.family
+		table := vt.unit.AttackTables[vt.target.UnitIndex]
+		vt.unit.AddCritChanceVersus(ActionID{ItemID: 13965}, vt.target, 5, orcs)
+
+		if table.BonusCritPercent != c.wantCrit {
+			t.Errorf("against %v the crit chance is %v, want %v", c.family, table.BonusCritPercent, c.wantCrit)
+		}
+		if line := vt.damageLine(t, vt.strike, OutcomeHit); !strings.HasSuffix(line, c.want) || (c.want == ")" && strings.Contains(line, "[Versus")) {
+			t.Errorf("against %v line %q, want it to end with %q", c.family, line, c.want)
+		}
+		vt.unit.AddCritChanceVersus(ActionID{ItemID: 13965}, vt.target, -5, orcs)
+		if line := vt.damageLine(t, vt.strike, OutcomeHit); table.BonusCritPercent != 0 || strings.Contains(line, "[Versus") {
+			t.Errorf("against %v the crit chance is %v once taken back off and the line %q, want none and no tag", c.family, table.BonusCritPercent, line)
+		}
+	}
+}
+
+func TestDamageLogNamesTheProcThatCastTheSpell(t *testing.T) {
+	dwarves := []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyDwarf}
+	for _, c := range []struct {
+		name   string
+		mult   float64
+		family proto.CreatureFamily
+		want   string
+	}{
+		{"a likelier proc on a Dwarf", 3, proto.CreatureFamily_CreatureFamilyDwarf, ") [Versus Humanoid (Dwarf): {ItemID: 11815} x3 proc chance]"},
+		{"a proc on Dwarves alone on a Dwarf", 0, proto.CreatureFamily_CreatureFamilyDwarf, ") [Versus Humanoid (Dwarf): {ItemID: 11815} proc only]"},
+		{"a likelier proc on another target", 3, proto.CreatureFamily_CreatureFamilyUnknown, ")"},
+	} {
+		vt := newVersusLogTest()
+		vt.target.CreatureFamily = c.family
+		vt.strike.VersusProc = &VersusProc{Source: ActionID{ItemID: 11815}, VersusBonus: VersusBonus{Multiplier: c.mult, Families: dwarves}}
+
+		if line := vt.damageLine(t, vt.strike, OutcomeHit); !strings.HasSuffix(line, c.want) || (c.want == ")" && strings.Contains(line, "[Versus")) {
+			t.Errorf("%s: line %q, want it to end with %q", c.name, line, c.want)
+		}
+	}
+}
+
 func TestDamageWithoutALogBuildsNoTag(t *testing.T) {
 	vt := newVersusLogTest()
 	vt.sim.Log = nil
 	hit := func() { vt.deal(vt.strike, OutcomeHit) }
 	without := testing.AllocsPerRun(100, hit)
+	vt.target.CreatureFamily = proto.CreatureFamily_CreatureFamilyOrc
+	orcs := VersusBonus{Multiplier: 2, Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc}}
 	vt.unit.MultiplyDamageVersus(ActionID{ItemID: 11}, 1.05, vt.target.MobType)
 	vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81}, vt.target.MobType)
+	vt.unit.AddCritChanceVersus(ActionID{ItemID: 13965}, vt.target, 5, &orcs)
+	vt.strike.VersusProc = &VersusProc{Source: ActionID{ItemID: 11815}, VersusBonus: orcs}
 
 	if with := testing.AllocsPerRun(100, hit); with != without {
 		t.Errorf("a hit with no log allocates %v times under versus bonuses, %v without", with, without)

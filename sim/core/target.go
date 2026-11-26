@@ -487,6 +487,8 @@ type AttackTable struct {
 	// DamageDoneByCasterExtraMultiplier is.
 	// Used with EnableCritChanceByCaster/DisableCritChanceByCaster
 	CritChanceByCasterBonus []DynamicCritChanceByCaster
+
+	versusCritChances []*versusCritChance // The sources of BonusCritPercent the defender's mob type or family grants, for the combat log.
 }
 
 func NewAttackTable(attacker *Unit, defender *Unit) *AttackTable {

@@ -2,7 +2,6 @@ package forever
 
 import (
 	"fmt"
-	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/common/shared"
@@ -888,16 +887,13 @@ func registerExtraAttackVersus(character *core.Character, itemID int32, name str
 	onInit := character.ExtraAttackProc(&trigger, extraAttacks.ID, int(extraAttacks.ExtraAttacksEffect().BasePoints))
 	aura := character.MakeProcTriggerAura(trigger)
 	aura.ApplyOnInit(onInit)
+	// The swing the proc grants is the main-hand swing's copy tagged with the extra attack's ID.
+	aura.ApplyOnInit(func(_ *core.Aura, _ *core.Simulation) {
+		if swing := character.GetSpell(character.AutoAttacks.MHConfig().ActionID.WithTag(extraAttacks.ID)); swing != nil {
+			swing.VersusProc = &core.VersusProc{Source: trigger.ActionID, VersusBonus: *versus}
+		}
+	})
 	character.ItemSwap.RegisterProc(itemID, aura)
-}
-
-// The factor an effect applies against the creature families it names, and 1 against any other
-// target.
-func creatureFamilyMultiplier(target *core.Unit, multiplier float64, families ...proto.CreatureFamily) float64 {
-	if slices.Contains(families, target.CreatureFamily) {
-		return multiplier
-	}
-	return 1
 }
 
 // The row's procs per minute, priced on the cast time of the cast that launched the hit, at least the

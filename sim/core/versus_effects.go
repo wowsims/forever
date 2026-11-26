@@ -23,6 +23,18 @@ func (bonus *VersusBonus) Against(target *Unit) float64 {
 	return 1
 }
 
+func (bonus *VersusBonus) namesFamilyOf(target *Unit) bool {
+	return bonus != nil && slices.Contains(bonus.Families, target.CreatureFamily)
+}
+
+// The proc that casts a spell, where it fires only against the targets the bonus names or more often
+// against them, for the combat log to name on the spell's hits on them. The bonus's Multiplier is how
+// many times likelier the proc is against them, 0 where it fires against no other target.
+type VersusProc struct {
+	Source ActionID
+	VersusBonus
+}
+
 type itemVersusBonus struct {
 	itemID int32
 	kind   proto.VersusEffectKind

@@ -9996,12 +9996,21 @@
 										"base": {
 											"type": "string"
 										},
+										"crit_chance": {
+											"type": "string"
+										},
+										"proc_chance": {
+											"type": "string"
+										},
+										"proc_only": {
+											"type": "string"
+										},
 										"stat": {
 											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["header", "header_family", "damage", "crit", "base", "stat"]
+									"required": ["header", "header_family", "damage", "crit", "base", "crit_chance", "proc_chance", "proc_only", "stat"]
 								}
 							},
 							"additionalProperties": false,

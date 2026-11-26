@@ -3,8 +3,10 @@
 package forever_test
 
 import (
+	"fmt"
 	"math"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -281,6 +283,19 @@ func dodgeSwing(t *testing.T, sim *core.Simulation, character *core.Character, a
 	t.Helper()
 	character.OnSpellHitTaken(sim, meleeSwing(attacker), &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeDodge})
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+}
+
+// The damage lines the sim logs while the hits run.
+func damageLines(sim *core.Simulation, hits func()) []string {
+	var lines []string
+	sim.Log = func(message string, vals ...any) {
+		if line := fmt.Sprintf(message, vals...); strings.Contains(line, "(Threat: ") {
+			lines = append(lines, line)
+		}
+	}
+	hits()
+	sim.Log = nil
+	return lines
 }
 
 func dealHit(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell) {
@@ -766,7 +781,8 @@ func tabletMissileCaster(seed int64) (*core.Simulation, *core.Character) {
 
 // Scented Runewood Brooch 269741's 1318323 rolls its row's procs per minute on the main hand's speed
 // for a landed main-hand swing and a landed spell hit alike, and casts 1318324 on the target, but only
-// when the target is a Furbolg. A hit on any other target never casts it.
+// when the target is a Furbolg. A hit on any other target never casts it. The combat log names the item
+// on the damage.
 func TestScentedRunewoodBroochProcsOnlyAgainstFurbolg(t *testing.T) {
 	sim, character := trinketWarriorWielding(t, 269741, 810, 0)
 	proc := character.GetAura("Scented Runewood Brooch")
@@ -805,9 +821,12 @@ func TestScentedRunewoodBroochProcsOnlyAgainstFurbolg(t *testing.T) {
 	}
 
 	enemy.CreatureFamily = proto.CreatureFamily_CreatureFamilyFurbolg
-	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	lines := damageLines(sim, func() { dealHit(t, sim, character, meleeSwing(&character.Unit)) })
 	if got := casts(); got != 1 {
 		t.Errorf("a swing on a Furbolg cast it %d times, want once", got)
+	}
+	if want := ") [Versus Unknown (Furbolg): {ItemID: 269741} proc only]"; len(lines) != 1 || !strings.HasSuffix(lines[0], want) {
+		t.Errorf("the swing on a Furbolg logs %q, want one damage line ending with %q", lines, want)
 	}
 	dealHit(t, sim, character, fireSpell(&character.Unit))
 	if got := casts(); got != 2 {
@@ -1015,6 +1034,71 @@ func expectExtraAttackVersus(t *testing.T, itemID int32, name string, rowID int3
 // target the column divided by its second effect's value (the rule registerExtraAttackVersus states).
 func TestHandOfJusticeIsLikelierAgainstDwarves(t *testing.T) {
 	expectExtraAttackVersus(t, 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
+}
+
+// The swing Hand of Justice 11815 or Ironfoe 11684 grants names the item in the combat log on a target
+// of the family its row makes it likelier against, with the row's factor, and nothing on another.
+func TestExtraAttackVersusSwingNamesTheItem(t *testing.T) {
+	for _, c := range []struct {
+		itemID, rowID int32
+		family        proto.CreatureFamily
+	}{
+		{11815, 15600, proto.CreatureFamily_CreatureFamilyDwarf},
+		{11684, 1301046, proto.CreatureFamily_CreatureFamilyOrc},
+	} {
+		factor := spelldata.MustFind(c.rowID).EffectN(2).BasePoints
+		for _, family := range []proto.CreatureFamily{c.family, proto.CreatureFamily_CreatureFamilyUnknown} {
+			sim, character, _ := extraAttackWearer(t, c.itemID, c.rowID)
+			enemy := character.CurrentTarget
+			enemy.CreatureFamily = family
+			swing := character.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: spelldata.MustFind(c.rowID).EffectN(1).Trigger().ID})
+			lines := damageLines(sim, func() { swing.CalcAndDealDamage(sim, enemy, 100, swing.OutcomeAlwaysHit) })
+
+			want := ")"
+			if family == c.family {
+				want = fmt.Sprintf(" (%s): {ItemID: %d} x%v proc chance]", strings.TrimPrefix(family.String(), "CreatureFamily"), c.itemID, factor)
+			}
+			if len(lines) != 1 || !strings.HasSuffix(lines[0], want) || (want == ")" && strings.Contains(lines[0], "[Versus")) {
+				t.Errorf("%d's swing on a %v logs %q, want one line ending with %q", c.itemID, family, lines, want)
+			}
+		}
+	}
+}
+
+// Blackhand's Breadth 13965 marks the target with 1318944's crit chance for the wearer's hits on it,
+// doubled on an Orc or an Ogre, where the combat log names the item for all of it.
+func TestBlackhandsBreadthDoublesItsMarkOnOrcsAndOgres(t *testing.T) {
+	crit := spelldata.MustFind(1318944).EffectN(1).BaseValue()
+	if crit <= 0 {
+		t.Fatal("1318944 states no crit chance")
+	}
+	for _, c := range []struct {
+		family proto.CreatureFamily
+		want   float64
+		tag    string
+	}{
+		{proto.CreatureFamily_CreatureFamilyOrc, 2 * crit, fmt.Sprintf(") [Versus Humanoid (Orc): {ItemID: 13965} +%v%% crit chance]", 2*crit)},
+		{proto.CreatureFamily_CreatureFamilyOgre, 2 * crit, fmt.Sprintf(") [Versus Humanoid (Ogre): {ItemID: 13965} +%v%% crit chance]", 2*crit)},
+		{proto.CreatureFamily_CreatureFamilyDwarf, crit, ")"},
+	} {
+		sim, character := trinketWarriorFacing(t, 13965, 810, 0, proto.MobType_MobTypeHumanoid)
+		enemy := character.CurrentTarget
+		enemy.CreatureFamily = c.family
+		table := character.AttackTables[enemy.UnitIndex]
+		before := table.BonusCritPercent
+		if use := character.GetSpell(core.ActionID{ItemID: 13965}); use == nil || !use.Cast(sim, enemy) {
+			t.Fatal("13965 could not be used")
+		}
+		if got := table.BonusCritPercent - before; got != c.want {
+			t.Errorf("the mark on a %v adds %v%% crit, want %v", c.family, got, c.want)
+		}
+
+		mainHand := character.AutoAttacks.MHAuto()
+		lines := damageLines(sim, func() { mainHand.CalcAndDealDamage(sim, enemy, 100, mainHand.OutcomeAlwaysHit) })
+		if len(lines) != 1 || !strings.HasSuffix(lines[0], c.tag) || (c.tag == ")" && strings.Contains(lines[0], "[Versus")) {
+			t.Errorf("a swing on a marked %v logs %q, want one line ending with %q", c.family, lines, c.tag)
+		}
+	}
 }
 
 // Hand of Justice 11815 grants nothing on a landed melee hit inside 15600's cooldown after a proc, and

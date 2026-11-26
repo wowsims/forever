@@ -105,6 +105,32 @@ func (unit *Unit) MultiplyCritDamageVersus(source ActionID, mult float64, mobTyp
 	unit.changeMobTypeBonuses(source, mobTypes, func(versus *mobTypeBonus) { versus.critMultiplier *= mult })
 }
 
+// One source's crit chance against a defender, which the defender's mob type or family grants.
+type versusCritChance struct {
+	source   ActionID
+	percent  float64
+	byFamily bool
+}
+
+// Adds crit chance to the unit's hits on the target: percent, times the bonus's factor against it. Where
+// the bonus names the target, the combat log names the source for all of it as a versus effect. A
+// negative percent takes it away.
+func (unit *Unit) AddCritChanceVersus(source ActionID, target *Unit, percent float64, versus *VersusBonus) {
+	at := unit.AttackTables[target.UnitIndex]
+	mult := versus.Against(target)
+	at.BonusCritPercent += percent * mult
+	if mult == 1 {
+		return
+	}
+	for _, share := range at.versusCritChances {
+		if share.source == source {
+			share.percent += percent * mult
+			return
+		}
+	}
+	at.versusCritChances = append(at.versusCritChances, &versusCritChance{source: source, percent: percent * mult, byFamily: versus.namesFamilyOf(target)})
+}
+
 // Adds to the share of every defender's armor the unit's attacks ignore; a negative delta takes it away.
 func (unit *Unit) AddArmorIgnoreFactor(delta float64) {
 	for _, at := range unit.AttackTables {
@@ -162,12 +188,17 @@ func (unit *Unit) mobTypeBonusesProto() []*proto.MobTypeBonus {
 //	[Versus Undead: {ItemID: 12345} x1.05; {SpellID: 17670} x2 base; {ItemID: 12345} +81 AttackPower]
 //
 // The tag opens with a space and "[Versus ", then the target's mob type, then " (<creature family>)"
-// when the spell's VersusBonus matched the target's family, then ": ". The entries follow, separated
-// by "; ", each an ActionID in the log's {SpellID: n} or {ItemID: n} form, a space, and one effect:
+// when an entry matched the target by its family, then ": ". The entries follow, separated by "; ",
+// each an ActionID in the log's {SpellID: n} or {ItemID: n} form, a space, and one effect:
 //   - "x<m>": a damage multiplier against the mob type, unless the spell ignores attacker modifiers
 //     or damage versus creature types;
 //   - "x<m> crit": a crit damage multiplier against the mob type, on a crit only;
+//   - "+<n>% crit chance" or "-<n>% crit chance": crit chance against the target
+//     (AddCritChanceVersus);
 //   - "x<m> base": the spell's own VersusBonus on its base damage, under the spell's ActionID;
+//   - "x<m> proc chance": the proc that cast the spell is m times as likely against the target
+//     (VersusProc), under the proc's ActionID;
+//   - "proc only": the proc that cast the spell fires only against targets such as this one;
 //   - "+<n> <stat>" or "-<n> <stat>": a stat against the mob type the spell reads (versusStatsRead).
 //
 // A bonus an item grants, from its stats, its equip spell, its proc or its on-use, names the item; one
@@ -196,12 +227,28 @@ func (spell *Spell) versusLogTag(result *SpellResult, isPeriodic bool) string {
 			}
 		}
 	}
-	family := ""
+	byFamily := false
+	for _, share := range spell.Unit.AttackTables[target.UnitIndex].versusCritChances {
+		if math.Abs(share.percent) > epsilon {
+			num := versusNumber(share.percent)
+			if share.percent > 0 {
+				num = "+" + num
+			}
+			entries = append(entries, share.source.String()+" "+num+"% crit chance")
+			byFamily = byFamily || share.byFamily
+		}
+	}
 	if mult := spell.VersusBonus.Against(target); mult != 1 {
 		entries = append(entries, spell.ActionID.String()+" x"+versusNumber(mult)+" base")
-		if slices.Contains(spell.VersusBonus.Families, target.CreatureFamily) {
-			family = " (" + strings.TrimPrefix(target.CreatureFamily.String(), "CreatureFamily") + ")"
+		byFamily = byFamily || spell.VersusBonus.namesFamilyOf(target)
+	}
+	if proc := spell.VersusProc; proc != nil {
+		if mult := proc.Against(target); mult == 0 {
+			entries = append(entries, proc.Source.String()+" proc only")
+		} else if mult != 1 {
+			entries = append(entries, proc.Source.String()+" x"+versusNumber(mult)+" proc chance")
 		}
+		byFamily = byFamily || proc.namesFamilyOf(target)
 	}
 	read := spell.versusStatsRead(target, isPeriodic)
 	for _, share := range spell.Unit.versusSources {
@@ -220,6 +267,10 @@ func (spell *Spell) versusLogTag(result *SpellResult, isPeriodic bool) string {
 	}
 	if len(entries) == 0 {
 		return ""
+	}
+	family := ""
+	if byFamily {
+		family = " (" + strings.TrimPrefix(target.CreatureFamily.String(), "CreatureFamily") + ")"
 	}
 	return " [Versus " + strings.TrimPrefix(target.MobType.String(), "MobType") + family + ": " + strings.Join(entries, "; ") + "]"
 }

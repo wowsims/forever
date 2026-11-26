@@ -68,6 +68,14 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   damage added by hand, sets `SpellConfig.VersusStats`, or `core.NoVersusStats` when it reads none; a dot whose ticks read otherwise than its spell sets
   `DotConfig.VersusStats`, which a tick checks first. An item's versus
   bonus is named by the item when its row is parsed with `spelldata.ForItem`.
+- **The versus tag names every versus effect and nothing else**, so a versus effect coded by hand goes through a
+  tracked helper, never a bare check of `MobType` or `CreatureFamily`. Stats, damage and crit damage against a mob type
+  go through `AddMobTypeBonusStats`, `AttachMobTypeBonusStats`, `MultiplyDamageVersus` or `MultiplyCritDamageVersus`
+  ("+81 AttackPower", "x1.05", "x1.5 crit"). Crit chance against one target goes through `AddCritChanceVersus`
+  ("+10% crit chance"). A factor on base damage is `SpellConfig.VersusBonus` ("x2 base"). A spell cast by a proc that
+  fires only, or more often, against some targets sets `VersusProc` ("x3 proc chance", "proc only"). The header names
+  the target's family when an entry matched it by its family. A versus factor on something other than damage, such as
+  a stun's duration or a restore, and a cast allowed only on some targets, get no tag.
 
 ## How many targets
 

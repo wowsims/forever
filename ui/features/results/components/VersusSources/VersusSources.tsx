@@ -8,17 +8,33 @@ export interface VersusSourcesProps {
 	logs: ReadonlyArray<DamageLog>;
 }
 
+const signedAmount = (amount: number) => `${amount > 0 ? '+' : ''}${Number(amount.toFixed(4))}`;
+
 const versusEffectText = (effect: VersusLogEffect): string => {
-	if (effect.kind === 'stat') {
-		return i18n.t('results_tab.details.timeline.versus.stat', {
-			amount: `${effect.amount > 0 ? '+' : ''}${Number(effect.amount.toFixed(4))}`,
-			stat: translateStat(effect.stat),
-		});
+	switch (effect.kind) {
+		case 'stat':
+			return i18n.t('results_tab.details.timeline.versus.stat', { amount: signedAmount(effect.amount), stat: translateStat(effect.stat) });
+		case 'crit_chance':
+			return i18n.t('results_tab.details.timeline.versus.crit_chance', { amount: signedAmount(effect.amount) });
+		case 'proc_only':
+			return i18n.t('results_tab.details.timeline.versus.proc_only');
+		default:
+			return i18n.t(`results_tab.details.timeline.versus.${effect.kind}`, { multiplier: Number(effect.multiplier.toFixed(4)) });
 	}
-	return i18n.t(`results_tab.details.timeline.versus.${effect.kind}`, { multiplier: Number(effect.multiplier.toFixed(4)) });
 };
 
-const effectKey = (effect: VersusLogEffect) => (effect.kind === 'stat' ? `stat:${effect.stat}:${effect.amount}` : `${effect.kind}:${effect.multiplier}`);
+const effectKey = (effect: VersusLogEffect) => {
+	switch (effect.kind) {
+		case 'stat':
+			return `stat:${effect.stat}:${effect.amount}`;
+		case 'crit_chance':
+			return `crit_chance:${effect.amount}`;
+		case 'proc_only':
+			return 'proc_only';
+		default:
+			return `${effect.kind}:${effect.multiplier}`;
+	}
+};
 
 interface VersusGroup {
 	key: string;

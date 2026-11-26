@@ -37,8 +37,10 @@ const SPELL_SCHOOL_REGEX = / \(SpellSchool: (-?[0-9]+)\)/;
 const THREAT_REGEX = / \(Threat: (-?[0-9]+\.[0-9]+)\)/;
 const VERSUS_TAG_REGEX = / \[Versus (\w+)(?: \((\w+)\))?: (.*)\]\s*$/;
 const VERSUS_ENTRY_REGEX = /^(\{[^}]*\}) (.+)$/;
-const VERSUS_MULTIPLIER_REGEX = /^x(\d+(?:\.\d+)?)(?: (crit|base))?$/;
+const VERSUS_MULTIPLIER_REGEX = /^x(\d+(?:\.\d+)?)(?: (crit|base|proc chance))?$/;
+const VERSUS_CRIT_CHANCE_REGEX = /^([+-]\d+(?:\.\d+)?)% crit chance$/;
 const VERSUS_STAT_REGEX = /^([+-]\d+(?:\.\d+)?) (\w+)$/;
+const VERSUS_MULTIPLIER_KIND = { crit: 'crit', base: 'base', 'proc chance': 'proc_chance' } as const;
 const TIMESTAMP_REGEX = /\[(-?[0-9]+\.[0-9]+)\]\w*(.*)/;
 
 // Groups: 1 = timestamp, 2 = entity bracket, 3 = the rest.
@@ -127,7 +129,13 @@ function newLog(
 
 function parseVersusEffect(text: string): VersusLogEffect | null {
 	const multiplier = VERSUS_MULTIPLIER_REGEX.exec(text);
-	if (multiplier) return { kind: (multiplier[2] as 'crit' | 'base' | undefined) ?? 'damage', multiplier: parseFloat(multiplier[1]) };
+	if (multiplier) {
+		const kind = multiplier[2] ? VERSUS_MULTIPLIER_KIND[multiplier[2] as keyof typeof VERSUS_MULTIPLIER_KIND] : 'damage';
+		return { kind, multiplier: parseFloat(multiplier[1]) };
+	}
+	const critChance = VERSUS_CRIT_CHANCE_REGEX.exec(text);
+	if (critChance) return { kind: 'crit_chance', amount: parseFloat(critChance[1]) };
+	if (text === 'proc only') return { kind: 'proc_only' };
 	const stat = VERSUS_STAT_REGEX.exec(text);
 	const statId = stat ? (Stat[`Stat${stat[2]}` as keyof typeof Stat] as Stat | undefined) : undefined;
 	if (stat && statId !== undefined) return { kind: 'stat', stat: statId, amount: parseFloat(stat[1]) };
