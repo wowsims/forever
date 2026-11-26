@@ -12,7 +12,7 @@ export const StandardRotation = PresetUtils.makePresetAPLRotation('Default', Def
 
 export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', Defaults.talents);
 
-export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultsJson.player.equipment, { devOnly: true });
+export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultsJson.player.equipment);
 
 // Starts on Auto as the page does, which runs the same rotation.
 export const DefaultBuild = PresetUtils.makePresetBuildFromSiml('Default', Spec.SpecBalanceDruid, DefaultsJson, {
