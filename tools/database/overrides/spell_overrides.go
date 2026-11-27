@@ -173,6 +173,30 @@ var AreaBonuses = []AreaBonus{
 		Reason:             "Siphon the Grave (Rotmender's Raiment 4pc): 'Restores twice as much Mana in Haunted and Wasteland areas'; no companion row",
 		Source:             "tooltip",
 	},
+	{
+		SpellID:            15604,
+		Groups:             []int32{9165},
+		Multiplier:         2,
+		DurationMultiplier: 1,
+		Reason:             "Second Wind: 'This effect is doubled in Mountainous areas'; no companion row",
+		Source:             "tooltip",
+	},
+	{
+		SpellID:            24865,
+		Groups:             []int32{9163, 9202},
+		Multiplier:         2,
+		DurationMultiplier: 1,
+		Reason:             "Sanctified Orb: 'This effect is doubled in Wasteland and Haunted areas'; no companion row",
+		Source:             "tooltip",
+	},
+	{
+		SpellID:            1287842,
+		Groups:             []int32{9326},
+		Multiplier:         2,
+		DurationMultiplier: 1,
+		Reason:             "Bastion of Tyranny (Mark of Tyranny): 'This effect is doubled in Strongholds and Cities'; no companion row",
+		Source:             "tooltip",
+	},
 }
 
 // A factor a row deals, restores or procs against some targets, which only its tooltip names ("Deals
@@ -245,6 +269,49 @@ var VersusBonuses = []VersusBonus{
 		EffectIndex: 1,
 		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
 		Reason:      "Prototype Pathcarver: 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1300782,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
+		Reason:      "Kindling Stave: 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1302344,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
+		Reason:      "Hedgecutter: 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1302166,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic},
+		Reason:      "Waveslicer: 'Deals $s2 times as much damage to Aquatic enemies'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1293518,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
+		Reason:      "Grass Killer (Brush Cutter, Deadhead Blade): 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1299869,
+		EffectIndex: 1,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:      "Corpse Eater (Eater of the Dead): 'Deals $s2 times as much damage to Undead'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1293787,
+		EffectIndex: 1,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeUndead},
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilySwine},
+		Reason:      "Holy Cleaver (X'caliboar): 'Deals $s2 times as much damage to Undead and Swine'",
 		Source:      "tooltip",
 	},
 	{
@@ -803,9 +870,16 @@ var Spells = []Override{
 	{
 		SpellID: 1300435,
 		Field:   PPM,
-		Value:   1.5,
-		Reason:  "Moonshadow Stave: 1.5 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'",
+		Value:   1.6,
+		Reason:  "Moonshadow Stave: 1.6 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'",
 		Source:  "EV-0115",
+	},
+	{
+		SpellID: 1300781,
+		Field:   PPM,
+		Value:   1.85,
+		Reason:  "Kindling Stave: 1.85 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'",
+		Source:  "EV-0219",
 	},
 	{
 		SpellID: 1079,
@@ -1093,9 +1167,8 @@ var Spells = []Override{
 	// hits. Heroic Strike Ranks 1 to 4's measured bonuses fit no single share per spell level (EV-0043);
 	// Ranks 5 and 6 measure Rank 4's 2.5 a level (EV-0048, EV-0174), Rank 8 measures 145 (EV-0050), and
 	// Ranks 7 and 9 carry 2.5 a level. Cleave's measured Ranks 1 and 2 fit 1.5 a level (EV-0042,
-	// EV-0045), Rank 3 measures 62 and Rank 4 80, and Rank 5 carries Rank 4's 1.6 (EV-0050). Each rank's
-	// bonus is a whole number: a measured bonus rounds to the nearest one, and each share times its spell
-	// level is whole.
+	// EV-0045), and Ranks 3, 4 and 5 measure 62, 80 and 100 (EV-0050). Each rank's bonus is a whole
+	// number: a measured bonus rounds to the nearest one, and each share times its spell level is whole.
 	{
 		SpellID: 78,
 		Field:   FlatThreat,
@@ -1190,8 +1263,8 @@ var Spells = []Override{
 	{
 		SpellID: 20569,
 		Field:   FlatThreat,
-		Value:   96, // TODO: Measure Cleave Rank 5 in game.
-		Reason:  "Cleave Rank 5: Rank 4's measured 1.6 a spell level at spell level 60",
+		Value:   100,
+		Reason:  "Cleave Rank 5: adds 100 beyond its damage, split over the targets it lands on, times the stance",
 		Source:  "EV-0050",
 	},
 
@@ -1269,8 +1342,7 @@ var Spells = []Override{
 	},
 
 	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too (EV-0004,
-	// EV-0050). Rank 4 extends the line through Ranks 2 and 3 (4.33 a spell level from 48 to 54) to spell
-	// level 60, rounded to the nearest whole number.
+	// EV-0050). Every rank's flat is measured, rounded to the nearest whole number.
 	{
 		SpellID: 23922,
 		Field:   FlatThreat,
@@ -1295,8 +1367,8 @@ var Spells = []Override{
 	{
 		SpellID: 23925,
 		Field:   FlatThreat,
-		Value:   255, // TODO: Measure Shield Slam Rank 4 in game.
-		Reason:  "Shield Slam Rank 4: the line through the measured Ranks 2 and 3 at spell level 60",
+		Value:   254,
+		Reason:  "Shield Slam Rank 4: threat is the damage + 254, times the stance",
 		Source:  "EV-0050",
 	},
 	{

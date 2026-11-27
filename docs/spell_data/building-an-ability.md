@@ -91,6 +91,8 @@ spell is cast on: Chastise's 64 allows a Humanoid, Exorcism's 36 an Undead or a 
 mask names some other unit and the cast is not limited: Bestial Wrath's Beast is the pet it lands on,
 and Holy Wrath's Undead and Demon are the enemies its area hits, which the spell's effects pick
 themselves. A target of unknown mob type is in no mask and is refused. A weapon swing checks no target.
+An item's or consumable's area damage built in `sim/common/shared` (`calcMultiTargetDamage`) deals nothing
+to the enemies of its area outside the mask: Stratholme Holy Water's 17291 burns only the Undead.
 
 `CastRequirement.NotUnderHigherRank` is set on a ranked row whose only effect that does something is
 the periodic, an effect with a tick period; a dummy or script effect does not count. The cast is
@@ -136,8 +138,8 @@ out of the pickers altogether.
 1. **The row, plus what no row states.** `sim/warrior/pummel.go` and `sim/warrior/slam.go`: the
    resolver, then the cast condition and `ApplyEffects`.
 2. **The row, then an override of one of its fields.** `sim/warrior/hamstring.go` pins the threat
-   numbers with their review marker, because the game files state no threat coefficient. Write the
-   override after the call, on its own line, with the reason beside it.
+   multiplier as a named constant with its measurement, because the game files state no threat
+   coefficient. Write the override after the call, on its own line, with the reason beside it.
 3. **A hand-written `core.SpellConfig` reading the row's values.** The Sweeping Strikes hit spell in
    `sim/warrior/talents_arms.go` is a spell the sim registers and the store does not carry, so it is
    built by hand out of the parent's numbers.

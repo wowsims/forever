@@ -20,7 +20,7 @@ func (druid *Druid) registerHurricaneSpell() {
 	if hurricaneTickRank.IsAProc() {
 		tickConfig.Flags |= core.SpellFlagProc
 	}
-	// A tick takes no Spell Piercing bonus, though other binary hits do (EV-0142).
+	// A tick takes no Spell Piercing bonus, though most binary hits do (EV-0142).
 	tickConfig.Flags |= core.SpellFlagNoPartialResist
 	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		outcome := spell.OutcomeMagicHitAndCrit
@@ -34,6 +34,10 @@ func (druid *Druid) registerHurricaneSpell() {
 	// The channel ticks on an A_PERIODIC_DUMMY, which DotConfig does not read, so the dot is by hand.
 	tickLength := hurricaneRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0).Period()
 
+	// The cast lands on every enemy in the area as the channel starts. Omen of Clarity rolls at the cast
+	// itself, in registerOmenOfClarity (EV-0115, EV-0219).
+	land := spelldata.RegisterAreaCastLanding(&druid.Unit, hurricaneRank)
+
 	config := spelldata.SpellConfig(&druid.Unit, hurricaneRank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.Dot = core.DotConfig{
 		IsAOE:               true,
@@ -46,6 +50,7 @@ func (druid *Druid) registerHurricaneSpell() {
 		},
 	}
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		land(sim)
 		spell.AOEDot().Apply(sim)
 	}
 

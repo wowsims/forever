@@ -127,6 +127,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 477.58289
+  tps: 2392.03708
+  dtps: 394.14597
+  hps: 83.69656
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-AnkhofLife-1713"
  value: {
   dps: 526.38713
@@ -579,8 +588,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 475.79893
-  tps: 2384.03254
+  dps: 476.04799
+  tps: 2384.56802
   dtps: 389.14578
   hps: 83.72131
  }
@@ -831,10 +840,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Felstriker-12590"
  value: {
-  dps: 485.96884
-  tps: 2448.02174
-  dtps: 394.81915
-  hps: 84.58307
+  dps: 485.30972
+  tps: 2446.04541
+  dtps: 392.83333
+  hps: 84.46002
  }
 }
 dps_results: {
@@ -1360,6 +1369,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-KindlingStave-11750"
+ value: {
+  dps: 447.8794
+  tps: 2268.22424
+  dtps: 393.58689
+  hps: 83.71673
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-KissoftheSpider-22954"
  value: {
   dps: 539.01763
@@ -1776,8 +1794,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Shadowblade-2163"
  value: {
-  dps: 462.98645
-  tps: 2310.91423
+  dps: 462.75842
+  tps: 2310.42396
   dtps: 388.67225
   hps: 83.14387
  }
@@ -1803,8 +1821,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-ShimmeringPlatinumWarhammer-15418"
  value: {
-  dps: 514.65417
-  tps: 2530.68754
+  dps: 516.99741
+  tps: 2535.72549
   dtps: 393.47945
   hps: 83.9845
  }
@@ -2010,8 +2028,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 462.42048
-  tps: 2317.8544
+  dps: 462.01294
+  tps: 2316.9782
   dtps: 394.27689
   hps: 84.01263
  }
@@ -2136,8 +2154,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Toofbreaker-286430"
  value: {
-  dps: 437.44911
-  tps: 2213.34727
+  dps: 440.69707
+  tps: 2220.3304
   dtps: 395.20652
   hps: 83.75649
  }
@@ -2172,10 +2190,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Uther'sStrength-11302"
  value: {
-  dps: 526.79824
-  tps: 2642.68165
-  dtps: 393.4969
-  hps: 85.5701
+  dps: 526.38713
+  tps: 2640.72107
+  dtps: 394.65739
+  hps: 85.62528
  }
 }
 dps_results: {

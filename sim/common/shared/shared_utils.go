@@ -415,7 +415,7 @@ type SpellDataProc struct {
 	// A rate option in place of the one the item's entry and the trigger's row give, for a rate priced on
 	// something neither states. It may reshape the listener: Blade of Eternal Darkness hears every landed
 	// harmful spell and prices the row's procs per minute on its cast's time, and Draconic Infused Emblem
-	// only moves the row's cast listener to landed spell hits.
+	// moves the row's cast listener to landed harmful spells.
 	Rate spelldata.ProcOpt
 }
 
@@ -424,6 +424,16 @@ type SpellDataProc struct {
 // Sul'thraze the Lasher's delayed Shadow Lash. Hand-written code fills it from init, so the item's
 // effect stays generated and the generator still lists the item's other effects no code simulates.
 var DamageProcExtras = map[int32]func(character *core.Character, config *core.SpellConfig){}
+
+// What an item changes on the listener its generated proc builds, by item id, before the handler is
+// set: Felstriker's buff goes up in the instant of the hit that procs it. Hand-written code fills it
+// from init, so the item's effect stays generated.
+var ProcTriggerExtras = map[int32]func(trigger *core.ProcTrigger){}
+
+// How much longer than its rows state the buff of an item's generated proc lasts, by item id:
+// Felstriker's buff counts its 3 s from the spell batch its proc would land in. Hand-written code
+// fills it from init.
+var ProcBuffDurationExtras = map[int32]time.Duration{}
 
 // Registers the same effect once per item that carries it, the way the stat-bonus constructors do it.
 func NewSpellDataProc(cfg SpellDataProc, variants []ItemVariant) {
@@ -477,7 +487,7 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 	procAura := spellDataProcAura(character, cfg, trigger, buff, effect)
 
 	listener := spellDataProcListener(character, cfg, source, trigger)
-	listener.Handler = spellDataProcHandler(buff, procAura)
+	listener.Handler = withProcEnergize(character, buff, spellDataProcHandler(buff, procAura))
 
 	// The same fallback the database layer applies: Bulwark of Azzinoth's armor buff sits in a
 	// spell category with a 60s recovery while its trigger states nothing. Only a buff that is a
@@ -512,6 +522,9 @@ func spellDataProcListener(character *core.Character, cfg SpellDataProc, source 
 		weaponProcShape(cfg), rate, statedWeaponProcChance(cfg.IsWeaponProc, source))
 	config.Name = cfg.Name
 	config.ActionID = source.actionID()
+	if extra, ok := ProcTriggerExtras[source.id]; ok && !source.isEnchant {
+		extra(&config)
+	}
 
 	return config
 }
@@ -646,12 +659,17 @@ func attachVersusStats(aura *core.Aura, buff *spelldata.Spell, itemID int32) {
 // aura of no duration is one core refuses to activate mid-fight, so a pair of rows that states none
 // anywhere is refused here, where the message can name what to look at.
 func procBuffDuration(cfg SpellDataProc, trigger *spelldata.Spell, buff *spelldata.Spell) time.Duration {
+	var extra time.Duration
+	if source := cfg.effectSource(); !source.isEnchant {
+		extra = ProcBuffDurationExtras[source.id]
+	}
+
 	if buff.DurationMs != 0 {
-		return buff.Duration()
+		return buff.Duration() + extra
 	}
 
 	if trigger.DurationMs != 0 {
-		return trigger.Duration()
+		return trigger.Duration() + extra
 	}
 
 	panic(fmt.Sprintf("%s (%d): neither the proc's spell %d nor its buff %d states a duration for the aura it applies",
@@ -716,23 +734,22 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 	source.registerTrigger(character, config)
 }
 
-// The handler followed by the damage row's own gain into the wearer's mana, rage or energy, where the
-// row states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana. The
-// gain targets the caster, so it comes with every proc whether the damage lands or not, a full
-// resist included (EV-0108).
-func withProcEnergize(character *core.Character, damage *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
-	gain := damage.EnergizeEffect()
-	if gain == spelldata.NilEffect || gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
+// The handler followed by the row's own gain into the wearer's mana, rage or energy, where the row
+// states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana, and
+// Righteous Fire 1231138 raises spell power and restores mana. The gain targets the caster, so it
+// comes with every proc whether the damage lands or not, a full resist included (EV-0108).
+func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
+	gain := row.EnergizeEffect()
+	if gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
 		return handler
 	}
-	power := dbcenums.PowerType(gain.Misc)
-	bar, ok := energizedBarOf(character, power, core.ActionID{SpellID: damage.ID})
+	restore, ok := effectGain(character, gain, core.ActionID{SpellID: row.ID})
 	if !ok {
 		return handler
 	}
 	return func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		handler(sim, spell, result)
-		bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+		restore(sim)
 	}
 }
 
@@ -954,12 +971,30 @@ func applyDotIfLanded(area bool) afterDealt {
 	}
 }
 
+// The damage of an effect that reaches more than its target, without the enemies outside the
+// creature types the row names: Stratholme Holy Water's 17291 burns only the Undead in its area. Those
+// enemies still take their rolls and count toward a split and the AoE cap.
+func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
+	results := calcMultiTargetDamageOnAll(sim, spell, target, row, effect, outcome)
+	if row.TargetCreatureType == 0 {
+		return results
+	}
+	mobTypes := spelldata.MobTypes(row.TargetCreatureType)
+	return slices.DeleteFunc(results, func(result *core.SpellResult) bool {
+		if slices.Contains(mobTypes, result.Target.MobType) {
+			return false
+		}
+		spell.DisposeResult(result)
+		return true
+	})
+}
+
 // The damage of an effect that reaches more than its target, dealt as a batch: every enemy in
 // its area, or the row's MaxTargets of them from the target out; or a chain of ChainTargets keeping
 // ChainAmp of the damage at each jump. A split row rolls once and divides the roll evenly among the
 // targets it reaches. Otherwise each target rolls its own, and an uncapped area takes the encounter's
 // AoE cap the way an explosive does.
-func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
+func calcMultiTargetDamageOnAll(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
 	roll := func(sim *core.Simulation, _ *core.Spell) float64 {
 		return effect.DirectAmount(sim)
 	}
@@ -1370,10 +1405,21 @@ func NewSpellDataPeriodicDamageOnUse(itemID int32) {
 	})
 }
 
-// An on-use item whose spell heals the wearer, at once or over time.
+// An on-use item whose spell heals the wearer, at once or over time, and with the heal restores the
+// resource its row's energize effect states: Major Recombobulator's 23064 restores mana too.
 func NewSpellDataHealOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeSurvival, func(character *core.Character, heal *spelldata.Spell) core.SpellConfig {
-		return spellDataProcHealSpell(character, heal, false)
+		config := spellDataProcHealSpell(character, heal, false)
+		restore, ok := effectGain(character, heal.EnergizeEffect(), core.ActionID{ItemID: itemID})
+		if !ok {
+			return config
+		}
+		applyEffects := config.ApplyEffects
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			applyEffects(sim, target, spell)
+			restore(sim)
+		}
+		return config
 	})
 }
 
@@ -1391,7 +1437,25 @@ func NewSpellDataAbsorbOnUse(itemID int32) {
 				config.RelatedSelfBuff.AttachStatsBuff(buffStats)
 			}
 		}
+		attachShieldEnergize(character, config.RelatedSelfBuff, absorb, itemID)
 		return config
+	})
+}
+
+// The resource the absorb's row restores every period while its shield holds: Mark of the Dragon
+// Lord's 17252 restores mana every period until the shield is used up or runs out.
+func attachShieldEnergize(character *core.Character, shield *core.Aura, absorb *spelldata.Spell, itemID int32) {
+	gain := absorb.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)
+	restore, ok := effectGain(character, gain, core.ActionID{ItemID: itemID})
+	if !ok {
+		return
+	}
+	var ticks *core.PendingAction
+	shield.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
+		ticks = core.StartPeriodicAction(sim, core.PeriodicActionOptions{Period: gain.Period(), OnAction: restore})
+	})
+	shield.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
+		ticks.Cancel(sim)
 	})
 }
 

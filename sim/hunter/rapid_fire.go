@@ -11,6 +11,7 @@ func (hunter *Hunter) registerRapidFire() {
 	aura := hunter.RegisterAura(spelldata.AuraConfig(rapidFireRank))
 
 	spelldata.ParseEffects(&hunter.Character, aura, rapidFireRank)
+	hunter.speedPetFocusWith(aura, rangedHasteOf(rapidFireRank))
 
 	config := spelldata.SpellConfig(&hunter.Unit, rapidFireRank, spelldata.Flags(core.SpellFlagAPL))
 

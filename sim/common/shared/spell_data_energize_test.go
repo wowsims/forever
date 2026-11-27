@@ -61,6 +61,12 @@ type testTrinket struct {
 // The player wearing the trinkets, each registered through its own constructor.
 func newBarSim(t *testing.T, player *proto.Player, trinkets ...testTrinket) (*core.Simulation, *testCaster) {
 	t.Helper()
+	return newBarSimIn(t, nil, player, trinkets...)
+}
+
+// newBarSim in an encounter in the areas given.
+func newBarSimIn(t *testing.T, areas []proto.AreaType, player *proto.Player, trinkets ...testTrinket) (*core.Simulation, *testCaster) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket2+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
@@ -85,8 +91,9 @@ func newBarSim(t *testing.T, player *proto.Player, trinkets ...testTrinket) (*co
 			Buffs:   &proto.PartyBuffs{},
 		}}},
 		Encounter: &proto.Encounter{
-			Targets:  []*proto.Target{{Name: "target", Level: 60, MobType: proto.MobType_MobTypeDemon}},
-			Duration: 600,
+			Targets:   []*proto.Target{{Name: "target", Level: 60, MobType: proto.MobType_MobTypeDemon}},
+			Duration:  600,
+			AreaTypes: areas,
 		},
 	}, simsignals.CreateSignals())
 	sim.Reset()
@@ -285,5 +292,31 @@ func TestOnUseEnergizeSkipsACharacterWithoutTheBar(t *testing.T) {
 		if wearer.GetSpell(actionID) != nil || wearer.GetInitialMajorCooldown(actionID).Spell != nil {
 			t.Errorf("%s: the item registered an on-use", tc.name)
 		}
+	}
+}
+
+// Second Wind 11819 casts 15604, mana every period, and each gain doubles in the Mountainous areas its
+// row's area bonus names.
+func TestOnUseEnergizeTakesItsAreaBonus(t *testing.T) {
+	const windID int32 = 991311
+	row := spelldata.MustFind(15604)
+	per, _, ticks := ticksOf(t, row)
+	for _, c := range []struct {
+		name   string
+		areas  []proto.AreaType
+		factor float64
+	}{
+		{"Forest", []proto.AreaType{proto.AreaType_AreaTypeForestGrassland}, 1},
+		{"Mountainous", []proto.AreaType{proto.AreaType_AreaTypeMountainous}, 2},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, mage := newBarSimIn(t, c.areas, testMage(), testTrinket{windID, NewSpellDataEnergizeOnUse, testOnUse(15604, 180000, 0, 0)})
+			mage.SpendMana(sim, mage.CurrentMana(), mage.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen, Tag: 99}))
+			onUseSpell(t, mage, windID).Cast(sim, &mage.Unit)
+			stepPast(t, sim, sim.CurrentTime+row.Duration())
+			if gained, _ := gainedFrom(mage, windID); gained != c.factor*per*float64(ticks) {
+				t.Errorf("Second Wind restored %v in %v, want %v", gained, c.areas, c.factor*per*float64(ticks))
+			}
+		})
 	}
 }

@@ -19,7 +19,7 @@ export class Rogue extends PlayerClass<Class.ClassRogue> {
 	static rangedWeaponTypes = getClassRangedWeaponTypes(Rogue.classID);
 
 	readonly classID = Rogue.classID;
-	readonly friendlyName = Rogue.name;
+	readonly friendlyName = Rogue.friendlyName;
 	readonly hexColor = Rogue.hexColor;
 	readonly specs = Rogue.specs;
 	readonly races = Rogue.races;

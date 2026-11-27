@@ -14,6 +14,10 @@ note that tracks the same numbers links the id.
 - A new count of items or claims a file already holds rewrites that file: their rows and sections take the newest
   numbers in place, under the same id, and none of their older numbers stays in that file or in any other. A corrected
   reading of a claim is rewritten in its file the same way. No file says that another replaces part of it.
+- Every file states the game as it is now observed. When newer evidence overrules a claim, a hotfix's change included,
+  the claim and its counts are replaced completely in every file that states them, not kept as history dated up to the
+  change; a file whose count ran before the change keeps only its method, worded so that it claims nothing the game no
+  longer does.
 - A file whose every part has moved to other files keeps only its title and a `Replaced by: EV-0057` line under it,
   or `Replaced by: EV-0057, EV-0060` when its parts went to several homes, with no data, and every citation moves to
   the file that holds each part.

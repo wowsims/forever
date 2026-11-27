@@ -3,7 +3,7 @@
 - Claim: Heart of Wyrmthalak (22321) casts Flame Lash 1.95 times a minute on landed melee and ranged hits, each hit on
   its own weapon's speed and Auto Shot and ranged specials on the ranged weapon's, with no cooldown; the rate is
   measured. Shield Slam rolls it, and the count takes Shield Bash as a roll too; Volley, debuff-only landings (Sunder
-  Armor, Rend's landing, stings) and Sap and Death Mark never do, nor Shank up to 2026-11-19. A proc on each of two
+  Armor, Rend's landing, stings) and Sap and Death Mark never do; a Shank rolls it once (EV-0155). A proc on each of two
   targets is two procs. Its damage is tripled against orcs.
 - Sources: Warcraft Logs, the 7 players whose every gear snapshot shows the trinket in 813rPaLtcdpHy67q,
   Hwq97xLh6gv8ZPrY, KPwXNByAG2xQm9ra, NXMZV9xjvWpB7GtP (two players), bYaT9KXtGwqvV6d4 and dvkzFtPH3WR9C4Km, and the
@@ -17,8 +17,8 @@
 
 Flame Lash (27655) lands 20 to 50 ms after the hit that procs it, so a proc counts for the latest landed melee or
 ranged hit of the wearer on the same target within 100 ms before it. A landed hit is a hit, crit, glancing or blocked
-hit. Left out as hits: poison, weapon enchant, Seal and damage shield hits, ticks, and Volley and Shank, whose rows
-suppress weapon procs. Druids, whose forms swing at their own speeds, and the paladin, whose Seal hits land with the
+hit. Left out as hits: poison, weapon enchant, Seal and damage shield hits, ticks, Volley, whose row suppresses weapon
+procs, and Shank. Druids, whose forms swing at their own speeds, and the paladin, whose Seal hits land with the
 swing, are left out.
 
 Each kind of hit is priced as procs per minute on the speed of the weapon behind it: a one-weapon white swing and a
@@ -37,7 +37,6 @@ quiver. Each rate carries a 95% likelihood interval from the hits and one from 2
 | Auto Shot                | 3       | 295 / 2,820         | 2.06 PPM | 1.84 to 2.28 | 1.92 to 2.49 |
 | Ranged specials          | 3       | 35 / 481            | 1.60 PPM | 1.15 to 2.17 | 1.42 to 1.90 |
 | Volley                   | 2       | 0 / 2,941           | 0        |              |              |
-| Shank                    | 4       | 0 / 593             | 0        |              |              |
 
 A flat chance per hit fits worse: the best one, 8.3%, has a log likelihood of -3,219.3 against -3,201.7 for the best
 rate per minute. Auto Shot alone shows the speed: 7.05% of landed shots at a 2.2 s bow, 12.9% at 3.1 s and 11.25% at 3.3 s.

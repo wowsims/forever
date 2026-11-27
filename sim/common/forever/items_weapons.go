@@ -327,6 +327,21 @@ func init() {
 			{ItemID: 13393, ItemName: "Malown's Slam"},
 		})
 
+	// Felstriker
+	// https://www.wowhead.com/forever/item=12590/felstriker
+	//
+	// Chance on hit: All attacks are guaranteed to land and will be critical strikes for the next 3s.
+	//
+	// Felstriker 16551 goes up in the instant of the hit that procs it, after that hit's own roll, so the
+	// Windfury Totem hit the same hit sets off rolls under it (EV-0225). An extra swing it sets off does
+	// too, by the same order; that swing is not measured. The buff lasts its 3 s from the spell batch the
+	// proc would have landed in, so it ends one batch window after 3 s; the owner rules the difference
+	// is server rounding (EV-0225).
+	shared.ProcTriggerExtras[12590] = func(trigger *core.ProcTrigger) {
+		trigger.TriggerImmediately = true
+	}
+	shared.ProcBuffDurationExtras[12590] = core.SpellBatchWindow
+
 	// Blade of Eternal Darkness
 	// https://www.wowhead.com/forever/item=17780/blade-of-eternal-darkness
 	//
@@ -334,40 +349,31 @@ func init() {
 	//
 	// Every harmful spell that lands on an enemy rolls it once for each target, damage or not, on the cast
 	// time of the cast that launched it. 21978 lacks Can Proc From Procs, so a spell fired as a proc never
-	// rolls it; Hellfire Effect, whose row lacks Not a Proc, rolls nothing in game (EV-0025). Physical
-	// taunts, shouts and roars and spells an item casts are not the wearer's spells and roll nothing.
+	// rolls it; Hellfire Effect, whose row lacks Not a Proc, rolls nothing in game (EV-0025). Only the
+	// wearer's harmful spells roll it (harmfulSpells).
 	row := spelldata.MustFind(21978)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			castTimePPM(row)(character, trigger)
-			priced := trigger.ExtraCondition
-			trigger.ProcMask = core.ProcMaskUnknown
-			trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
-				harmful := spell.ProcMask.Matches(core.ProcMaskSpellDamage) ||
-					(spell.ProcMask == core.ProcMaskEmpty && spell.DefenseType == core.DefenseTypeMagic &&
-						spell.SpellSchool != core.SpellSchoolPhysical && !spell.Flags.Matches(core.SpellFlagPassiveSpell) &&
-						spell.ActionID.ItemID == 0)
-				return harmful && character.IsOpponent(result.Target) && priced(sim, spell, result)
-			}
+			harmfulSpells(character, trigger)
 		}},
 		[]shared.ItemVariant{
 			{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
 		})
+	// Engulfing Shadows 27860 is binary by its row, but a landed hit takes no Spell Piercing bonus (EV-0142).
+	shared.DamageProcExtras[17780] = func(_ *core.Character, config *core.SpellConfig) {
+		config.Flags |= core.SpellFlagNoPartialResist
+	}
 
 	// Moonshadow Stave
 	// https://www.wowhead.com/forever/item=22458/moonshadow-stave
 	//
 	// Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.
 	//
-	// 1300435 rolls once for each enemy a harmful spell lands on, a damage over time effect or a debuff
-	// that deals no damage included, apart from Curse of the Elements, Recklessness and Weakness and Hex
-	// of Weakness, which the sim registers with no proc mask, and its 10 ms cooldown lets one landing
-	// proc it once. The chance is the row's procs per minute on the cast time of the cast that launched
-	// the spell, at least 1.5 s (castTimePPM). Damage over time ticks, misses, helpful spells, melee and spells fired as a proc,
-	// Hurricane's ticks among them, never roll it. Each proc casts Shadow 1300437 or Arcane 1300438, one
-	// in two each, and both fly to the target. In game a Hurricane cast rolls once for each enemy its
-	// area reaches until one procs; the sim's Hurricane cast only starts its channel and lands on no
-	// enemy, so it rolls nothing (EV-0115).
+	// 1300435 rolls on each enemy a harmful spell lands on (harmfulSpells) at the row's procs per minute on
+	// the cast time behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one cast
+	// proc it once; each proc casts Shadow 1300437 or Arcane 1300438, one in two each, which fly to that
+	// enemy (EV-0115).
 	core.NewItemEffect(22458, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300435)
@@ -388,15 +394,41 @@ func init() {
 				bolt = bolts[1]
 			}
 			bolt.Cast(sim, result.Target)
-		}, castTimePPM(row))
-		priced := trigger.ExtraCondition
-		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
-			return !firedAsAProc(spell) && priced(sim, spell, result)
-		}
+		}, castTimePPM(row), harmfulSpells)
 		trigger.Name = "Moonshadow Stave"
 		trigger.ActionID = core.ActionID{ItemID: 22458}
 		trigger.TriggerImmediately = true
 		character.ItemSwap.RegisterProc(22458, character.MakeProcTriggerAura(trigger))
+	})
+
+	// Kindling Stave
+	// https://www.wowhead.com/forever/item=11750/kindling-stave
+	//
+	// Harmful spell casts have a chance to deal 70 Fire damage. Deals 3 times as much damage to Plants.
+	//
+	// 1300781 rolls on each enemy a harmful spell lands on (harmfulSpells) at the row's procs per minute on
+	// the cast time behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one cast
+	// proc it once; each proc deals 1300782 to that enemy, three times as much to Plants (EV-0219).
+	core.NewItemEffect(11750, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1300781)
+		ignition := spelldata.MustFind(1300782)
+
+		damage := ignition.DamageEffect()
+		config := procSpellConfig(character, ignition)
+		config.VersusBonus = shared.ItemVersusBonus(character, 11750, proto.VersusEffectKind_VersusEffectKindDamage, ignition)
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
+		}
+		fire := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			fire.Cast(sim, result.Target)
+		}, castTimePPM(row), harmfulSpells)
+		trigger.Name = "Kindling Stave"
+		trigger.ActionID = core.ActionID{ItemID: 11750}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(11750, character.MakeProcTriggerAura(trigger))
 	})
 
 	// Spinal Reaper
@@ -667,6 +699,20 @@ func init() {
 		}
 	}
 
+	// Toofbreaker
+	// https://www.wowhead.com/forever/item=286430/toofbreaker
+	//
+	// Chance on hit: Bash the target, causing 42 Physical damage. Deals 2 times as much damage if the
+	// target is facing you.
+	//
+	// Toofbreak 1320269's second effect, a dummy, states the multiplier. The target faces a wearer who
+	// stands in front of it, by the owner's ruling.
+	shared.DamageProcExtras[286430] = func(character *core.Character, config *core.SpellConfig) {
+		if character.PseudoStats.InFrontOfTarget {
+			config.DamageMultiplier *= spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Average()
+		}
+	}
+
 	// Flame Wrath
 	// https://www.wowhead.com/forever/item=11809/flame-wrath
 	//
@@ -896,13 +942,31 @@ func registerExtraAttackVersus(character *core.Character, itemID int32, name str
 	character.ItemSwap.RegisterProc(itemID, aura)
 }
 
+// Narrows the trigger to landings on an enemy of the wearer's harmful spells: spell damage hits, and
+// spells with no proc mask whose DefenseType is magic and whose school is not Physical, such as the
+// curses, Hex of Weakness and Counterspell. Physical taunts, shouts and roars, spells fired as a proc
+// and spells an item casts are not harmful spells of the wearer's. It runs before any condition the
+// trigger already has (EV-0025, EV-0219).
+func harmfulSpells(character *core.Character, trigger *core.ProcTrigger) {
+	condition := trigger.ExtraCondition
+	trigger.ProcMask = core.ProcMaskUnknown
+	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+		harmful := spell.ProcMask.Matches(core.ProcMaskSpellDamage) ||
+			(spell.ProcMask == core.ProcMaskEmpty && spell.DefenseType == core.DefenseTypeMagic &&
+				spell.SpellSchool != core.SpellSchoolPhysical && !spell.Flags.Matches(core.SpellFlagPassiveSpell) &&
+				spell.ActionID.ItemID == 0)
+		return harmful && character.IsOpponent(result.Target) && (condition == nil || condition(sim, spell, result))
+	}
+}
+
 // The row's procs per minute, priced on the cast time of the cast that launched the hit, at least the
 // global cooldown's 1.5 s, and rolled by each direct spell hit that lands, one that deals no damage
 // included. The cast time is read where the cast deals the hit's result, which is the
 // cast's end for a missile, so one still in flight keeps it when the next cast of the spell starts. It
 // is the time the cast took after talents, Presence of Mind and cast speed. The chance depends on the
 // hit, so Chance(1) leaves core no roll of its own and the condition draws it after the cooldown check
-// and before the cooldown starts.
+// and before the cooldown starts. A spell with no defense type rolls nothing, so the landing that
+// starts Arcane Missiles' channel rolls nothing and its missiles do (EV-0025, EV-0219).
 // TODO: Verify in game whether cast speed shortens the time the chance is priced on; Omen of Clarity's
 // is priced on the unhasted time.
 func castTimePPM(row *spelldata.Spell) spelldata.ProcOpt {
@@ -928,7 +992,7 @@ func castTimePPM(row *spelldata.Spell) spelldata.ProcOpt {
 				castTime = spell.CurCast.CastTime
 			}
 			delete(castTimes, result)
-			return shared.RollCastTimePPM(sim, character, row, flags, castTime)
+			return spell.DefenseType != core.DefenseTypeNone && shared.RollCastTimePPM(sim, character, row, flags, castTime)
 		}
 		spelldata.Chance(1)(character, trigger)
 	}

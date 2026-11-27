@@ -11,16 +11,17 @@
 - Date: 2026-11-06 to 2026-11-22
 - Pull request: #1180
 - Later count: Hedgecutter, §Count of the 2026-11-06 to 2026-11-23 reports
+- Later count: Electrified Dagger, §Count of the 2026-11-13 to 2026-11-26 reports
 
 ## Method
 
 The count is EV-0153's Method, run again over every wearer stream on disk for the 94 items it rates, the ones here and
 those of EV-0120, EV-0121, EV-0125, EV-0131, EV-0133, EV-0136, EV-0146, EV-0150, EV-0153, EV-0157, EV-0177 and EV-0178,
 with the same classes and forms left out, intervals, lone-unit checks, swap drop, credit windows and calls of measured
-or observed. From hotfix push 114313 (2026-11-20 23:47 UTC) each Mutilate strike rolls its own hand once; before it
-Mutilate is left out with its procs, as the two-roll abilities are. From 2026-11-20 a Shank rolls the off-hand weapon
-once (EV-0155 §Shank from 2026-11-20), and the count takes it as an off-hand roll. A lone-unit rate from fewer than 5
-wearers takes a Poisson interval on its procs.
+or observed. Each Mutilate strike rolls its own hand once (EV-0155); the count takes each Mutilate from hotfix push
+114313 (2026-11-20 23:47 UTC) as those rolls and leaves out the ones before it with their procs, as it does the two-roll
+abilities. A Shank rolls the off-hand weapon once (EV-0155), and the count takes each Shank from 2026-11-20 as an
+off-hand roll. A lone-unit rate from fewer than 5 wearers takes a Poisson interval on its procs.
 
 Rolls and procs follow EV-0155 with these rules. A debuff-only landing (Sunder Armor, Rend's landing, Cheap Shot, a
 sting) rolls a weapon proc once, and an equip proc only where its own lone landings proc at half the white chance or
@@ -48,7 +49,6 @@ Rate is the override row's rate. The one-hand white and specials columns give th
 | ------------------------- | -----: | ---: | -------- | ----------------- | -------------: | ------: | -------------- | --------- |
 | Bloodpike                 |  13057 |  0.9 | observed | 0.90 [0.77, 0.96] |    170 / 3,533 |      13 | 0.85 (57)      | 0.70 (30) |
 | Darkmist Dirk             | 285102 | 3.65 | observed | 3.66 [3.18, 3.79] |    418 / 4,280 |       5 | -              | 3.59 (42) |
-| Electrified Dagger        |  19100 | 1.25 | observed | 1.27 [1.17, 1.48] |    262 / 6,862 |       5 | -              | 1.05 (7)  |
 | Flesh Piercer             |   3336 | 0.95 | observed | 0.95 [0.85, 1.04] |   519 / 16,313 |      20 | -              | 0.88 (65) |
 | Frightskull Shaft         |  14531 |    3 | observed | 3.02 [2.93, 3.16] |  1,036 / 6,046 |       6 | 2.78 (254)     | -         |
 | Gargoyle Shredder Talons  |  13399 | 2.05 | observed | 2.06 [1.82, 2.19] |    282 / 4,556 |       5 | -              | -         |
@@ -99,22 +99,31 @@ Direct: window [-10, 100] ms, median 0 ms, 98th percentile 1 ms, 115 isolated hi
 Reports and fights: NvrDh4t3a1zcyfBd 1-10; R8LnATFfcY4KZmv1 1-7; hf1pF42aPHMv9kLX 15-20, 22, 24-36; r1tJ39Xp7M8byN64
 7-8, 10-11; wL9nrZqGN71QTcKk 1-3.
 
-## Electrified Dagger (item 19100, spell 23592): 1.25, observed
+## Electrified Dagger (item 19100, spell 23592): 1.35, observed
 
-262 procs on 6,862 rolling hits, 5 wearers, 7 runs, in the main hand or the off hand: all hits 1.27 [1.17, 1.48].
+- Count: §Count of the 2026-11-13 to 2026-11-26 reports
+
+979 procs on 24,050 rolling hits, 15 wearers, 23 runs, in the main hand or the off hand: all hits 1.36 [1.27, 1.46].
 Neither the one-hand white swings nor the specials reach 50 procs, so no lone-unit rate checks the all-hits rate.
-Observed: no lone-unit rate checks it; every wearer is a rogue; the interval is wider than 10% of the rate. One-hand
-white: none. Dual-wield white, which sets no rate: 1.42 [1.20, 1.74], 66 procs on 1,553 lone units, 5 wearers. Specials:
-1.05 [0.42, 2.17], 7 procs on 222 lone units, 2 wearers (a Poisson interval: under 5 wearers). Direct: window [-10, 100]
-ms, median 0 ms, 98th percentile 0 ms, 44 isolated hits. Dropping the swapped stretches (6.8 active minutes, 2% of hits,
-in 1 run) moved the read from 1.24 to 1.27. Reports from 2026-11-17 to 2026-11-21.
+Observed: no lone-unit rate checks it; every wearer is a rogue. One-hand white: none. Dual-wield white, which sets no
+rate: 1.33 [1.23, 1.48], 240 procs on 6,013 lone units, 15 wearers. Specials: 1.10 [0.62, 1.82], 15 procs on 454 lone
+units, 4 wearers (a Poisson interval: under 5 wearers). No paladin wears it in the count. Direct: window [-10, 100] ms,
+median 0 ms, 98th percentile 1 ms, 148 isolated hits. Dropping the swapped stretches (13 active minutes, 1% of hits, in
+2 runs) moved the read from 1.34 to 1.36. Reports from 2026-11-17 to 2026-11-26.
 
-| Class | Wearers | Procs |  Hits |  PPM |
-| ----- | ------: | ----: | ----: | ---: |
-| Rogue |       5 |   262 | 6,862 | 1.27 |
+Across the 2026-11-23 hotfix, which sets no rate: the reports before 2026-11-24 01:00 UTC read 1.30 [1.17, 1.44], 447
+procs, 10 wearers; the reports from then on 1.40 [1.29, 1.52], 532 procs, 7 wearers.
 
-Reports and fights: B6JLrnWKF9htyjv2 1; JWwXvLm1C9TgGykB 2; Pz3XcdNk8xCRjaTA 78 fights from 11 to 97; QHqPwymAX4rLv6at
-1-2; WqfyDhVHxT93Q7Pt 25-30; gRWbpVBwcJxPjKZ1 4; mr8DVQNXZ7CTJK6y 2-4.
+| Class | Wearers | Procs |   Hits |  PPM |
+| ----- | ------: | ----: | -----: | ---: |
+| Rogue |      15 |   979 | 24,050 | 1.36 |
+
+Reports and fights: 26RK9CBMPd3hHLm1 1, 3; 4P6DwTZCpKhA2fRx 1-6; 6FGBpCzVjqbXL8aY 1-6; 6nDXNY3H2gc4JdCL 1-3;
+83zLZQ4mYRPVrWaw 1-2; B6JLrnWKF9htyjv2 1; DH46zMyNxbfvRB3d 1; HG9xpPjdkr3VM8zt 1-2; Hg3j9FQxmNGP2DZM 3; JWwXvLm1C9TgGykB
+2; NjA7nRMvt2y3BqdQ 3-4; Pz3XcdNk8xCRjaTA 11-14, 16-20, 22-25, 27-30, 32-38, 40-49, 51-78, 80-84, 86-89, 91-97;
+QHqPwymAX4rLv6at 1-2; WqfyDhVHxT93Q7Pt 25-30; ZrYG8vXWTC6F4yQh 2-4; gCH7z2k6DnpjF4df 1-3; gLZ3CQrKAJvVXFY8 1;
+gRWbpVBwcJxPjKZ1 4; mDtg7CTxPqhKzGvQ 1; mr8DVQNXZ7CTJK6y 2-4; mvpgNjDRWKkXJ2tM 2; tPbh63Rc4J8xdv1Q 1-9; x8DrRH6NKhac7QZv
+1-3.
 
 ## Flesh Piercer (item 3336, spell 18078): 0.95, observed
 
@@ -369,3 +378,17 @@ zD4VF1278AymkKXY 4-5.
 - Pull request: #1198
 
 The count is EV-0186 §Method, run on this weapon.
+
+## Count of the 2026-11-13 to 2026-11-26 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights the Electrified Dagger section
+  lists, from every wearer stream on disk for it; 353 reports in all for the count, 23 of them for Electrified Dagger
+- Game build: 1.60.1.70938 to 1.60.1.71139 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
+  UTC, 71091 from 2026-11-24 15:21 UTC in the US and 2026-11-25 02:19 UTC in the EU, 71139 from 2026-11-25 19:14 UTC in
+  the US and the EU); 202 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 20 of them for
+  Electrified Dagger, and 66 after 2026-11-24 01:00 UTC, 11 of them for Electrified Dagger. The sim's item database is
+  1.60.1.71139, push 114448; the hotfix each player ran is not recorded
+- Date: 2026-11-13 to 2026-11-26
+- Pull request: #1262
+
+The count is EV-0221 §Method, run on this weapon.

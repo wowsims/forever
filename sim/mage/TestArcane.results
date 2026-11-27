@@ -68,6 +68,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 780.54437
+  tps: 673.79819
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-AnkhofLife-1713"
  value: {
   dps: 834.4714
@@ -133,8 +140,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 834.76179
-  tps: 720.73752
+  dps: 834.11363
+  tps: 720.75442
  }
 }
 dps_results: {
@@ -407,8 +414,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 874.07184
-  tps: 749.97957
+  dps: 905.15771
+  tps: 788.41431
  }
 }
 dps_results: {
@@ -484,8 +491,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 846.93202
-  tps: 728.15357
+  dps: 875.32541
+  tps: 762.11072
  }
 }
 dps_results: {
@@ -836,6 +843,13 @@ dps_results: {
  value: {
   dps: 780.54437
   tps: 673.79819
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-KindlingStave-11750"
+ value: {
+  dps: 823.30402
+  tps: 709.93044
  }
 }
 dps_results: {

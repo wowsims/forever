@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 854.23401
+  tps: 688.54
+  dtps: 9.36422
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-AnkhofLife-1713"
  value: {
   dps: 967.76434
@@ -401,8 +409,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 974.62845
-  tps: 783.2619
+  dps: 974.59502
+  tps: 783.2357
   dtps: 9.55277
  }
 }
@@ -474,9 +482,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 973.70193
-  tps: 782.53551
-  dtps: 9.66822
+  dps: 982.98019
+  tps: 791.68063
+  dtps: 9.85616
  }
 }
 dps_results: {
@@ -546,9 +554,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 949.56887
-  tps: 763.6152
-  dtps: 9.66822
+  dps: 955.02392
+  tps: 770.16623
+  dtps: 9.48553
  }
 }
 dps_results: {
@@ -933,6 +941,14 @@ dps_results: {
   dps: 854.23401
   tps: 688.54
   dtps: 9.36422
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-KindlingStave-11750"
+ value: {
+  dps: 968.90062
+  tps: 777.9237
+  dtps: 9.23415
  }
 }
 dps_results: {

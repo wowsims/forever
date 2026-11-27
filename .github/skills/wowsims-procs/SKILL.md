@@ -108,6 +108,8 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   an override row on gear, and a `PPM(n)` literal with a review TODO only where no override fits. An item whose code
   reads its rate from its chance-on-hit entry (`newEntryRateItemEffect`) takes it in `WeaponProcs`, never in a `Spells`
   PPM override: the entry carries only the first, while the generator's missing check counts either as a rate.
+- **A measured procs per minute is rounded to the nearest 0.05** from the fit at full precision (1.7269 is 1.75), and
+  the evidence file gives both. A fit printed on a finer grid (1.725) is not a rounded rate.
 - **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` sets the rate's
   `ProcRateStatus` (`proto/ui.proto`, set by `rateOrigin` and `knownRates` in `tools/database/gen_effects.go`), which the gear tab's notice shows
   (`ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, `observed` is a
@@ -137,16 +139,14 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of
   Clarity's is in `sim/druid/omen_of_clarity.go`, Revelation's in `sim/common/forever/enchants.go`.
 - **Which hits a weapon rate counts** is EV-0155's class census: each landed hit that rolls, priced on its own weapon's
-  base speed; Judgement of Command rolls twice up to hotfix push 114399 (2026-11-25), and Execute twice up to hotfix
-  push 114313 (2026-11-20), and both are left out with their procs. After push 114313 Execute's cast suppresses weapon
-  procs; the first logs read between one and two rolls on few wearers. After push 114399 Judgement of Command's dummy
-  does, and the judgement rolls once (EV-0155). Druids in a form are left out of every rate. Paladins count, by
-  EV-0155's and EV-0156's rolls, with each run dated against the Judgement hotfix of 2026-11-13: Judgement of Command's
-  two rolls up to push 114399 are what read as a higher rate on them. A weapon where their rate reads apart from the
-  other classes' even so leaves them out and says why (owner ruling, 2026-11-23; EV-0184; it takes the place of the
-  rulings of 2026-11-19 in EV-0153 and 2026-11-22 in EV-0179). A proc that lands on the target logs almost never on a
-  killing blow, so for such a proc a killing blow is no roll; and a report that lists one stretch of the log under
-  several fight ids repeats its events, which count once (EV-0153).
+  base speed. Execute and Judgement of Command roll the weapon once (EV-0155); a count of reports from before hotfix
+  push 114313 (2026-11-20 23:47 UTC) leaves Execute out with its procs, and one from before hotfix push 114399
+  (2026-11-25 01:15 UTC) Judgement of Command. Druids in a form are left out of every rate. Paladins count, by
+  EV-0155's and EV-0156's rolls, with each run dated against the Judgement hotfix of 2026-11-13. A weapon where their
+  rate reads apart from the other classes' even so leaves them out and says why (owner ruling, 2026-11-23; EV-0184; it
+  takes the place of the rulings of 2026-11-19 in EV-0153 and 2026-11-22 in EV-0179). A proc that lands on the target
+  logs almost never on a killing blow, so for such a proc a killing blow is no roll; and a report that lists one stretch
+  of the log under several fight ids repeats its events, which count once (EV-0153).
 
 ## Traps
 

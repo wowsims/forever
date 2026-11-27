@@ -46,7 +46,8 @@ func (warrior *Warrior) registerThunderClap() {
 		spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskRangedSpecial
 	config.DamageMultiplier = 1
-	// Threat is 1 times the damage with no flat bonus, at 1 to 4 targets, Improved Thunder Clap included.
+	// Threat is 1 times the damage with no flat bonus, at 1 to 4 targets, Improved Thunder Clap included
+	// (EV-0048, EV-0220).
 	config.ThreatMultiplier = 1
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
