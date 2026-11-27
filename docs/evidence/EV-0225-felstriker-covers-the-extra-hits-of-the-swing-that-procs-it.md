@@ -9,7 +9,7 @@
   18:23 UTC, 71091 from 2026-11-24 15:21 UTC and in the EU from 2026-11-25 02:19 UTC, 71139 from 2026-11-25 19:14 UTC);
   the hotfix each player ran is not recorded
 - Date: 2026-11-15 to 2026-11-26
-- Pull request: #
+- Pull request: #1271
 
 ## Method
 
