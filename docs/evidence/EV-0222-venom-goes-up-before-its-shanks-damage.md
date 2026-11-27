@@ -49,4 +49,5 @@ Instant Poison's chance is 0.2 (EV-0087) and Improved Poisons adds at most 10 po
 Venom stays at 0.3 or under; 65 of the 117 Venom streams with 20 or more counted Shanks read 0.4 or more.
 
 Scripts and output, in `forever-venom-1127`: `venom.py` (`venom_out.txt`, and `venom_out_posthotfix.txt` with
-`SINCE=1795482000000`), `venom_order.py` (`venom_order_out.txt`), `rate.py` (`rate_out.txt`) and `control.py` (`control_out.txt`).
+`SINCE=1795482000000`), `venom_order.py` (`venom_order_out.txt`), `rate.py` (`rate_out.txt`) and `control.py`
+(`control_out.txt`).
