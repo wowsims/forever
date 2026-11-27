@@ -110,6 +110,11 @@ every run writes `<Suite>.results.tmp`, which git ignores; its presence means no
   generic aura behaviour goes in `sim/common/shared/spell_data_aura_test.go`; class items together in
   `sim/common/forever/class_items_test.go`; buffs and debuffs in `sim/core/buffs/meta_constructors_test.go` (shapes)
   and `sim/core/buffs/meta_test.go` (values). UI component tests are `wowsims-ui`.
+- **A test that steps the sim to a time queues its own wake there.** Nothing in the sim keeps time moving: with an
+  empty rotation the queue runs dry, `sim.Step()` returns finished without advancing, and a `for sim.CurrentTime < end`
+  loop spins forever or stops far past `end`. Add a no-op `core.PendingAction` at `end`, then step until the clock
+  reaches it (`stepFor` in `sim/mage/mage_test.go`). Execute phases are the same: step to the crossing time, not until
+  `IsExecutePhase35()` turns true (`stepToExecute35` in `sim/warlock/warlock_test.go`).
 - **A snapshot test writes its list when missing** and rewrites it under an `UPDATE_*` variable, and its path joins the
   snapshot block in `.gitignore`; the suites' `.results` stay tracked.
 

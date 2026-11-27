@@ -320,6 +320,14 @@ func TestVampiricEmbraceHealsThePriestMoreThanTheParty(t *testing.T) {
 	}
 }
 
+// Steps to the moment the targets cross 20% health.
+func stepToExecute20(sim *core.Simulation) {
+	at := time.Duration((1 - sim.Encounter.ExecuteProportion_20) * float64(sim.Duration))
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: at, OnAction: func(*core.Simulation) {}})
+	for sim.CurrentTime < at && !sim.Step() {
+	}
+}
+
 // Early Demise reads the health of each Shadow Word: Death's own target: the crit bonus is off for a cast
 // while the target is above its threshold and on once the target is below it.
 func TestEarlyDemiseFollowsTheCastsTarget(t *testing.T) {
@@ -361,8 +369,7 @@ func TestEarlyDemiseFollowsTheCastsTarget(t *testing.T) {
 	if got := spell.BonusCritPercent - base; math.Abs(got) > 1e-9 {
 		t.Errorf("Shadow Word: Death at a target above 20%% has %v bonus crit, want 0", got)
 	}
-	for !target.IsExecutePhase20() && !sim.Step() {
-	}
+	stepToExecute20(sim)
 	spell.SkipCastAndApplyEffects(sim, target)
 	if got := spell.BonusCritPercent - base; math.Abs(got-bonus) > 1e-9 {
 		t.Errorf("Shadow Word: Death at a target below 20%% has %v bonus crit, want %v", got, bonus)

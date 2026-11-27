@@ -56,8 +56,8 @@ character_stats_results: {
 dps_results: {
  key: "TestFFB-AllItems-AdaptiveCombatAssistant-272437"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -84,8 +84,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-ArenaGrandMaster-19024"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -98,15 +98,15 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Atiesh,GreatstaffoftheGuardian-22589"
  value: {
-  dps: 966.73937
-  tps: 996.10174
+  dps: 965.32148
+  tps: 994.67169
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-BadgeoftheSwarmguard-21670"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -119,8 +119,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-BehemothBones-280065"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -154,15 +154,15 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-BlazefuryMedallion-17111"
  value: {
-  dps: 876.56412
-  tps: 905.54061
+  dps: 877.30078
+  tps: 906.28074
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-BlazingEmblem-2802"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -197,14 +197,14 @@ dps_results: {
  key: "TestFFB-AllItems-BookoftheDead-13353"
  value: {
   dps: 888.22669
-  tps: 903.69199
+  tps: 903.69222
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-BristleconeCloak-275833"
  value: {
-  dps: 875.81794
-  tps: 904.79443
+  dps: 876.55432
+  tps: 905.53428
  }
 }
 dps_results: {
@@ -231,8 +231,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Champion'sRegalia"
  value: {
-  dps: 781.54661
-  tps: 806.21009
+  dps: 781.82922
+  tps: 806.49783
  }
 }
 dps_results: {
@@ -245,15 +245,15 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-CloakofFlames-3475"
  value: {
-  dps: 883.21097
-  tps: 912.15658
+  dps: 883.94735
+  tps: 912.89643
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-ColdBasiliskEye-5079"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -281,21 +281,21 @@ dps_results: {
  key: "TestFFB-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 881.34891
-  tps: 910.40601
+  tps: 910.40607
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-DarkmoonCard:Heroism-19287"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-DarkmoonCard:Maelstrom-19289"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -322,36 +322,36 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Defender'sGripStabilizer-272440"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-Defiler'sTalisman-20072"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-Defiler'sTalisman-21115"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-Defiler'sTalisman-21116"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-DormantHeartoftheMountain-249473"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -371,23 +371,23 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-DreadmistRaiment"
  value: {
-  dps: 773.78785
-  tps: 798.71083
-  hps: 8.16143
+  dps: 775.69385
+  tps: 800.61733
+  hps: 8.23782
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-EarthenSigil-20525"
  value: {
-  dps: 878.63298
-  tps: 908.21473
+  dps: 878.92712
+  tps: 908.50803
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-Earthstrike-21180"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -400,8 +400,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-EidolonTalisman-18340"
  value: {
-  dps: 876.56412
-  tps: 905.54061
+  dps: 877.30078
+  tps: 906.28074
  }
 }
 dps_results: {
@@ -415,7 +415,7 @@ dps_results: {
  key: "TestFFB-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
   dps: 903.67365
-  tps: 936.71898
+  tps: 936.71956
  }
 }
 dps_results: {
@@ -498,8 +498,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 858.241
-  tps: 886.94014
+  dps: 858.19046
+  tps: 886.885
  }
 }
 dps_results: {
@@ -547,8 +547,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-EssenceofthePureFlame-18815"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -575,15 +575,15 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-EyeofMoam-21473"
  value: {
-  dps: 910.66485
-  tps: 939.84872
+  dps: 914.60673
+  tps: 943.84881
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-EyeoftheDead-23047"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -603,15 +603,15 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-FetishofChitinousSpikes-21488"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-FetishoftheSandReaver-21647"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -638,15 +638,15 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-ForceofWill-11810"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -673,8 +673,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-FrozenHeartoftheMountain-249469"
  value: {
-  dps: 897.07416
-  tps: 926.18995
+  dps: 901.01604
+  tps: 930.19005
  }
 }
 dps_results: {
@@ -701,8 +701,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-GlyphofDeflection-23040"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -736,8 +736,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-HandofJustice-11815"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -750,43 +750,43 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Hazza'rah'sCharmofMagic-19959"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-Headmaster'sCharge-13937"
  value: {
   dps: 880.49187
-  tps: 909.39535
+  tps: 909.39549
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-HeartofWyrmthalak-22321"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-HeartoftheScale-13164"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-HibernationCrystal-20636"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 880.28412
-  tps: 908.89246
+  dps: 879.15527
+  tps: 907.75815
  }
 }
 dps_results: {
@@ -799,8 +799,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Illusionist'sAttire"
  value: {
-  dps: 831.40346
-  tps: 859.18819
+  dps: 834.04223
+  tps: 861.84207
  }
 }
 dps_results: {
@@ -834,8 +834,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-JomGabbar-23570"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -869,15 +869,15 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-LapidisTankardofTidesippe-4696"
  value: {
-  dps: 878.2012
-  tps: 902.55972
+  dps: 879.49715
+  tps: 903.86427
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-LieutenantCommander'sRegalia"
  value: {
-  dps: 781.54661
-  tps: 806.21009
+  dps: 781.82922
+  tps: 806.49783
  }
 }
 dps_results: {
@@ -890,15 +890,15 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Lifestone-833"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -911,8 +911,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Loatheb'sReflection-23042"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -939,22 +939,22 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Magister'sRegalia"
  value: {
-  dps: 747.74091
-  tps: 774.40187
+  dps: 747.6237
+  tps: 774.2778
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-MajorRecombobulator-18637"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-ManaChannelingWand-18483"
  value: {
-  dps: 883.52968
-  tps: 912.4446
+  dps: 884.64207
+  tps: 913.58146
  }
 }
 dps_results: {
@@ -967,22 +967,22 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-MarkofResolution-17759"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-MarkofTyranny-13966"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-MarkoftheChosen-17774"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -995,8 +995,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-MarkoftheRedFlight-282778"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -1009,8 +1009,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 882.18584
-  tps: 909.46902
+  dps: 880.68205
+  tps: 907.96175
  }
 }
 dps_results: {
@@ -1023,8 +1023,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-MoltenHeartoftheMountain-249470"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -1044,15 +1044,15 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-OrbofFire-12805"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-PetrifiedScarab-21685"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -1065,22 +1065,22 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Prismcharm-15867"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-RegaliaofUndeadCleansing"
  value: {
-  dps: 875.49905
-  tps: 904.5608
+  dps: 876.23515
+  tps: 905.30036
  }
 }
 dps_results: {
@@ -1100,8 +1100,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-RuneoftheDawn-19812"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -1121,15 +1121,15 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-ScentedRunewoodBrooch-269741"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-SealoftheDawn-13209"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -1142,8 +1142,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-SecondWind-11819"
  value: {
-  dps: 876.68644
-  tps: 906.00992
+  dps: 877.67894
+  tps: 907.01321
  }
 }
 dps_results: {
@@ -1191,8 +1191,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Slayer'sCrest-23041"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -1205,8 +1205,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-SmokingHeartoftheMountain-11811"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -1226,8 +1226,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-StormclothRegalia"
  value: {
-  dps: 734.28487
-  tps: 759.47127
+  dps: 729.31122
+  tps: 754.44174
  }
 }
 dps_results: {
@@ -1240,50 +1240,50 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-TalismanofArathor-20071"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-TalismanofArathor-21117"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-TalismanofArathor-21118"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-TalismanofAscendance-22678"
  value: {
-  dps: 916.14015
-  tps: 945.32402
+  dps: 920.15395
+  tps: 949.39604
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-TalismanofEphemeralPower-18820"
  value: {
-  dps: 896.698
-  tps: 925.88187
+  dps: 900.61469
+  tps: 929.85677
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-TeachingsoftheFurbolgs"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-TheBurrower'sShell-23558"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -1310,8 +1310,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-TheLionHornofStormwind-14557"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -1331,8 +1331,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
-  dps: 930.02329
-  tps: 959.20716
+  dps: 934.18795
+  tps: 963.43003
  }
 }
 dps_results: {
@@ -1352,8 +1352,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Thunderbrew'sBootFlask-744"
  value: {
-  dps: 878.41842
-  tps: 907.24314
+  dps: 877.80774
+  tps: 906.88374
  }
 }
 dps_results: {
@@ -1366,8 +1366,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-ToySoldier-274386"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -1380,22 +1380,22 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Uther'sStrength-11302"
  value: {
-  dps: 882.30469
-  tps: 911.48856
+  dps: 886.27117
+  tps: 915.51325
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-VestmentsoftheDevout"
  value: {
-  dps: 741.89741
-  tps: 768.97696
+  dps: 744.035
+  tps: 771.13274
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-VigilanceCharm-18370"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
@@ -1415,8 +1415,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-WeaknessAnalyzer-272438"
  value: {
-  dps: 895.44322
-  tps: 924.632
+  dps: 899.45888
+  tps: 928.70588
  }
 }
 dps_results: {
@@ -1436,29 +1436,29 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-ZandalarianHeroBadge-19948"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-ZandalarianHeroCharm-19950"
  value: {
-  dps: 900.93308
-  tps: 930.11695
+  dps: 904.90468
+  tps: 934.14676
  }
 }
 dps_results: {
  key: "TestFFB-AllItems-ZandalarianHeroMedallion-19949"
  value: {
-  dps: 877.87307
-  tps: 907.05694
+  dps: 881.81496
+  tps: 911.05704
  }
 }
 dps_results: {
  key: "TestFFB-Average-Default"
  value: {
-  dps: 902.81965
-  tps: 931.48292
+  dps: 902.91175
+  tps: 931.5786
  }
 }
 dps_results: {
@@ -1520,22 +1520,22 @@ dps_results: {
 dps_results: {
  key: "TestFFB-Settings-HighOrderSkyborne-preraid-Default-ffb-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 948.58868
-  tps: 990.44137
+  dps: 948.68783
+  tps: 990.2829
  }
 }
 dps_results: {
  key: "TestFFB-Settings-HighOrderSkyborne-preraid-Default-ffb-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 344.12656
-  tps: 353.81042
+  dps: 344.41522
+  tps: 354.1063
  }
 }
 dps_results: {
  key: "TestFFB-Settings-HighOrderSkyborne-preraid-Default-ffb-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 344.12656
-  tps: 353.81042
+  dps: 344.41522
+  tps: 354.1063
  }
 }
 dps_results: {

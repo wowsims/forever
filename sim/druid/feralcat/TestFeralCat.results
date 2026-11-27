@@ -264,8 +264,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Champion'sSanctuary"
  value: {
-  dps: 715.80486
-  tps: 534.02914
+  dps: 716.06396
+  tps: 534.29647
   hps: 45.445
  }
 }
@@ -585,7 +585,7 @@ dps_results: {
  key: "TestFeralCat-AllItems-EnchantWeapon-Insight-8216"
  value: {
   dps: 794.45725
-  tps: 590.06245
+  tps: 590.06558
   hps: 46.03806
  }
 }
@@ -905,7 +905,7 @@ dps_results: {
  key: "TestFeralCat-AllItems-GoldenBanana-270226"
  value: {
   dps: 795.79189
-  tps: 591.46554
+  tps: 591.46691
   hps: 45.98722
  }
 }
@@ -921,7 +921,7 @@ dps_results: {
  key: "TestFeralCat-AllItems-GrovekeeperFerocity"
  value: {
   dps: 774.99311
-  tps: 575.73485
+  tps: 575.73609
   hps: 46.54639
  }
 }
@@ -1001,7 +1001,7 @@ dps_results: {
  key: "TestFeralCat-AllItems-Headmaster'sCharge-13937"
  value: {
   dps: 731.76258
-  tps: 545.62651
+  tps: 545.62979
   hps: 46.15667
  }
 }
@@ -1097,7 +1097,7 @@ dps_results: {
  key: "TestFeralCat-AllItems-IdoloftheDream-220606"
  value: {
   dps: 800.99943
-  tps: 593.40707
+  tps: 593.40877
   hps: 46.055
  }
 }
@@ -1200,8 +1200,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-LieutenantCommander'sSanctuary"
  value: {
-  dps: 715.80486
-  tps: 534.02914
+  dps: 716.06396
+  tps: 534.29647
   hps: 45.445
  }
 }
@@ -1337,7 +1337,7 @@ dps_results: {
  key: "TestFeralCat-AllItems-MindtapTalisman-18371"
  value: {
   dps: 791.50132
-  tps: 588.11161
+  tps: 588.11069
   hps: 46.03806
  }
 }
@@ -1432,9 +1432,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Ragehammer-10626"
  value: {
-  dps: 758.14549
-  tps: 564.98252
-  hps: 47.00389
+  dps: 757.40814
+  tps: 564.45099
+  hps: 46.98694
  }
 }
 dps_results: {
@@ -2048,9 +2048,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-Average-Default"
  value: {
-  dps: 791.36342
-  tps: 588.03724
-  hps: 46.50116
+  dps: 791.36263
+  tps: 588.0366
+  hps: 46.50133
  }
 }
 dps_results: {
@@ -2080,15 +2080,15 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-DefaultTalents-BleedAssumed-adaptive-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 422.02796
-  tps: 301.42797
+  dps: 421.52902
+  tps: 301.07372
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-DefaultTalents-BleedAssumed-adaptive-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 422.02796
-  tps: 301.42797
+  dps: 421.52902
+  tps: 301.07372
  }
 }
 dps_results: {
@@ -2125,15 +2125,15 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-DefaultTalents-PrepullClearcasting-adaptive-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 419.84618
-  tps: 299.95374
+  dps: 419.98878
+  tps: 300.05499
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-DefaultTalents-PrepullClearcasting-adaptive-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 419.84618
-  tps: 299.95374
+  dps: 419.98878
+  tps: 300.05499
  }
 }
 dps_results: {
@@ -2170,15 +2170,15 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-DefaultTalents-Standard-adaptive-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 420.5143
-  tps: 300.35327
+  dps: 420.01535
+  tps: 299.99902
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-DefaultTalents-Standard-adaptive-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 420.5143
-  tps: 300.35327
+  dps: 420.01535
+  tps: 299.99902
  }
 }
 dps_results: {
@@ -2260,15 +2260,15 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-Hybrid-PrepullClearcasting-adaptive-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 383.37858
-  tps: 274.18497
+  dps: 383.32604
+  tps: 274.14767
  }
 }
 dps_results: {
  key: "TestFeralCat-Settings-NightElf-default-Hybrid-PrepullClearcasting-adaptive-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 383.37858
-  tps: 274.18497
+  dps: 383.32604
+  tps: 274.14767
  }
 }
 dps_results: {

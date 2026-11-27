@@ -293,7 +293,7 @@ func (pet *Pet) Enable(sim *Simulation, petAgent PetAgent) {
 	}
 	//reset current mana after applying stats
 	pet.manaBar.reset()
-	pet.manaBar.lastManaTick = sim.CurrentTime
+	pet.manaBar.restartRegen(sim)
 
 	//reset current health after applying stats
 	pet.healthBar.reset(sim)
@@ -492,6 +492,7 @@ func (pet *Pet) Disable(sim *Simulation) {
 		return
 	}
 
+	pet.manaBar.creditManaTicks()
 	if pet.isDynamic {
 		pet.resetDynamicStats(sim)
 	} else {

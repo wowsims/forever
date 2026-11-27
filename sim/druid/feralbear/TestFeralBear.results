@@ -1668,10 +1668,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Ragehammer-10626"
  value: {
-  dps: 489.59598
-  tps: 2447.04661
-  dtps: 393.8259
-  hps: 85.47938
+  dps: 489.03427
+  tps: 2446.37986
+  dtps: 393.42923
+  hps: 85.49633
  }
 }
 dps_results: {

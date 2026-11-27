@@ -288,6 +288,7 @@ func newBalanceDruid(t *testing.T, targets int, duration time.Duration) (*core.S
 
 // Steps the sim until the clock reaches until.
 func stepUntil(sim *core.Simulation, until time.Duration) {
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: until, OnAction: func(*core.Simulation) {}})
 	for sim.CurrentTime < until && !sim.Step() {
 	}
 }

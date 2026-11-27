@@ -715,7 +715,9 @@ func arcaneConcentrationChance(mage *Mage) float64 {
 }
 
 func stepFor(sim *core.Simulation, d time.Duration) {
-	for end := sim.CurrentTime + d; sim.CurrentTime < end && !sim.Step(); {
+	end := sim.CurrentTime + d
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: end, OnAction: func(*core.Simulation) {}})
+	for sim.CurrentTime < end && !sim.Step() {
 	}
 }
 

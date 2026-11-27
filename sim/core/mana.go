@@ -12,8 +12,9 @@ import (
 
 const ThreatPerManaGained = 0.5
 
-// Mana regenerates continuously in game; the bar credits it every 100 ms, and at once whenever the
-// rate it regenerates at changes.
+// Mana regenerates continuously in game and shows on a 100 ms grid of ticks from the start of the
+// prepull. The ticks are no events: a read or a change of the mana credits the regen up to the last
+// tick at or before it, and a change of the rate the bar regenerates at credits it up to the moment itself.
 const manaTickDuration = time.Second / 10
 
 type manaBar struct {
@@ -44,10 +45,9 @@ type manaBar struct {
 
 	ReplenishmentAura *Aura
 
-	agent        Agent         // Told of every mana tick; nil while the bar does not tick.
+	sim          *Simulation   // The sim whose ticks the regen follows; nil while the bar does not regenerate.
 	lastManaTick time.Duration // The regen is credited up to here.
-	nextManaTick time.Duration
-	paidBy       *Spell // The spell that last paid mana, until a channel it starts claims the payment.
+	paidBy       *Spell        // The spell that last paid mana, until a channel it starts claims the payment.
 
 	// OOM while the rotation skips a spell it wants for its mana cost, whatever it casts instead. A pass
 	// the unit starts free to act updates it.
@@ -101,14 +101,14 @@ func (unit *Unit) HasManaBar() bool {
 	return unit.manaBar.unit != nil
 }
 
-// Empty handler so Agents don't have to provide one if they have no logic to add.
-func (unit *Unit) OnManaTick(sim *Simulation) {}
-
 // Gets the Maxiumum mana including bonus and temporary affects that would increase your mana pool.
 func (unit *Unit) MaxMana() float64 {
 	return unit.stats[stats.Mana]
 }
+
+// The mana with the regen up to the last tick, as the 100 ms ticks show it.
 func (unit *Unit) CurrentMana() float64 {
+	unit.creditManaTicks()
 	return unit.currentMana
 }
 func (unit *Unit) CurrentManaPercent() float64 {
@@ -168,6 +168,7 @@ func (mb *manaBar) doneIteration(sim *Simulation) {
 		return
 	}
 
+	mb.creditManaTicks()
 	mb.EndOOMEvent(sim)
 }
 
@@ -308,36 +309,58 @@ func (unit *Unit) MultiplyInnervateManaRegenSpeed(sim *Simulation, multiplier fl
 	unit.UpdateManaRegenRates(sim)
 }
 
-// Credits the regen since the last tick. Up to the end of the five-second rule window, or all of it
-// while a paid channel runs, it comes at the casting rate, and after that at the full rate.
+// Credits the regen up to the current time, for a change of the rate it comes at.
 func (mb *manaBar) creditManaRegen(sim *Simulation) {
-	if mb.agent == nil || sim.CurrentTime <= mb.lastManaTick {
+	if mb.sim != nil {
+		mb.creditRegenUntil(sim, sim.CurrentTime)
+	}
+}
+
+// Credits the regen up to the last tick at or before now, which is what a read of the mana sees. A change of
+// what the regen reads (the mana, max mana, a channel) credits it first too, so the regen before the
+// change counts as it stood.
+func (mb *manaBar) creditManaTicks() {
+	if mb.sim == nil {
+		return
+	}
+	if tick := mb.sim.manaTicks.last(mb.sim.CurrentTime); tick > mb.lastManaTick {
+		mb.creditRegenUntil(mb.sim, tick)
+	}
+}
+
+// Credits the regen from the last credit up to until. Up to the end of the five-second rule window, or
+// all of it while a paid channel runs, it comes at the casting rate, and after that at the full rate.
+func (mb *manaBar) creditRegenUntil(sim *Simulation, until time.Duration) {
+	if until <= mb.lastManaTick {
 		return
 	}
 	unit := mb.unit
 	from := mb.lastManaTick
-	mb.lastManaTick = sim.CurrentTime
+	mb.lastManaTick = until
 	if !unit.IsEnabled() {
 		return
 	}
 
-	castingUntil := sim.CurrentTime
+	castingUntil := until
 	if !unit.channelPaidMana() {
-		castingUntil = max(from, min(unit.PseudoStats.FiveSecondRuleRefreshTime, sim.CurrentTime))
+		castingUntil = max(from, min(unit.PseudoStats.FiveSecondRuleRefreshTime, until))
 	}
-	if seconds := (castingUntil - from).Seconds(); seconds > 0 {
-		mb.addRegen(sim, seconds, true)
+	if castingUntil > from {
+		mb.addRegen(sim, from, castingUntil, true)
 	}
-	if seconds := (sim.CurrentTime - castingUntil).Seconds(); seconds > 0 {
-		mb.addRegen(sim, seconds, false)
+	if until > castingUntil {
+		mb.addRegen(sim, castingUntil, until, false)
 	}
 }
 
-// Adds the regen of these seconds as one gain, capped at max mana once, and splits what it records:
+// Adds the regen from from to until as one gain, capped at max mana once, and splits what it records:
 // each active boost's addition to its metrics and the rest to the regen row, each with its share of
-// what the cap let through.
-func (mb *manaBar) addRegen(sim *Simulation, seconds float64, casting bool) {
+// what the cap let through. Each row counts the ticks the stretch shows as its events. Regen makes no
+// threat.
+func (mb *manaBar) addRegen(sim *Simulation, from, until time.Duration, casting bool) {
 	unit := mb.unit
+	seconds := (until - from).Seconds()
+	ticks := int32((sim.manaTicks.last(until) - sim.manaTicks.last(from)) / manaTickDuration)
 	amount, own, metrics := unit.manaRegenWhileNotCasting*seconds, unit.unboostedRegenWhileNotCasting*seconds, unit.manaNotCastingMetrics
 	if casting {
 		amount, own, metrics = unit.manaRegenWhileCasting*seconds, unit.unboostedRegenWhileCasting*seconds, unit.manaCastingMetrics
@@ -345,54 +368,59 @@ func (mb *manaBar) addRegen(sim *Simulation, seconds float64, casting bool) {
 	if amount <= 0 {
 		return
 	}
-	if len(mb.activeManaRegenBoosts) == 0 || own >= amount {
-		unit.AddMana(sim, amount, metrics)
-		return
-	}
-	own = max(own, 0)
 
 	oldMana := mb.currentMana
 	newMana := min(oldMana+amount, unit.MaxMana())
-	share := (newMana - oldMana) / amount
-	metrics.AddEvent(own, own*share)
-	for _, boost := range mb.activeManaRegenBoosts {
-		added := boost.addedWhileNotCasting * seconds
-		if casting {
-			added = boost.addedWhileCasting * seconds
-		}
-		if added > 0 {
-			boost.metrics.AddEvent(added, added*share)
+	boosted := 0.0
+	if len(mb.activeManaRegenBoosts) == 0 || own >= amount {
+		metrics.addEvents(ticks, amount, newMana-oldMana)
+	} else {
+		own = max(own, 0)
+		boosted = amount - own
+		share := (newMana - oldMana) / amount
+		metrics.addEvents(ticks, own, own*share)
+		for _, boost := range mb.activeManaRegenBoosts {
+			added := boost.addedWhileNotCasting * seconds
+			if casting {
+				added = boost.addedWhileCasting * seconds
+			}
+			if added > 0 {
+				boost.metrics.addEvents(ticks, added, added*share)
+			}
 		}
 	}
 
 	if sim.Log != nil {
-		unit.Log(sim, "Gained %0.3f mana from %s, %0.3f of it from regen boosts (%0.3f --> %0.3f) of %0.0f total.",
-			amount, metrics.ActionID, amount-own, oldMana, newMana, unit.MaxMana())
+		mb.logRegen(sim, from, until, amount, boosted, oldMana, newMana, metrics)
 	}
 
 	mb.currentMana = newMana
 	unit.Metrics.ManaGained += newMana - oldMana
 }
 
-func (mb *manaBar) RunTask(sim *Simulation) time.Duration {
-	if sim.CurrentTime < mb.nextManaTick {
-		return mb.nextManaTick
+// Logs a regen gain with the stretch it covers, so the timeline can show the mana at every tick in it:
+// the stretch's first tick, and how many ticks show it. Each but the last shows the regen up to its
+// own time, capped at max mana. The last, at the end of the stretch or at the log time if that comes
+// first, shows the mana after the gain.
+func (mb *manaBar) logRegen(sim *Simulation, from, until time.Duration, amount, boosted, oldMana, newMana float64, metrics *ResourceMetrics) {
+	first, last := sim.manaTicks.after(from), until
+	if (until-sim.manaTicks.first)%manaTickDuration != 0 {
+		last = sim.manaTicks.after(until)
 	}
-	mb.creditManaRegen(sim)
-	if mb.unit.IsEnabled() {
-		mb.agent.OnManaTick(sim)
+	stretch := fmt.Sprintf("regenerating from %0.6fs to %0.6fs in %d ticks from %0.6fs",
+		from.Seconds(), until.Seconds(), (last-first)/manaTickDuration+1, first.Seconds())
+	if boosted > 0 {
+		mb.unit.Log(sim, "Gained %0.3f mana from %s, %0.3f of it from regen boosts (%0.3f --> %0.3f) of %0.0f total, %s.",
+			amount, metrics.ActionID, boosted, oldMana, newMana, mb.unit.MaxMana(), stretch)
+		return
 	}
-	mb.nextManaTick = sim.CurrentTime + manaTickDuration
-	return mb.nextManaTick
+	mb.unit.Log(sim, "Gained %0.3f mana from %s (%0.3f --> %0.3f) of %0.0f total, %s.",
+		amount, metrics.ActionID, oldMana, newMana, mb.unit.MaxMana(), stretch)
 }
 
-// Starts the ticks, with the regen counting from the start of the prepull.
-func (mb *manaBar) enable(sim *Simulation, agent Agent) {
-	mb.agent = agent
-	mb.lastManaTick = sim.Environment.PrepullStartTime()
-	mb.nextManaTick = mb.lastManaTick + manaTickDuration
-	sim.AddTask(mb)
-	sim.RescheduleTask(mb.nextManaTick)
+// Starts the regen over at the current time, as a summoned pet's bar does; the regen before it is lost.
+func (mb *manaBar) restartRegen(sim *Simulation) {
+	mb.lastManaTick = sim.CurrentTime
 }
 
 // Whether the unit is channeling a spell it paid mana for. The five seconds count from the channel's
@@ -402,7 +430,9 @@ func (unit *Unit) channelPaidMana() bool {
 }
 
 // Whether the starting channel's cast paid mana: its own spell's, or the spell whose RelatedDotSpell it is.
+// The regen up to the channel comes as it stood before it.
 func (mb *manaBar) claimChannelPayment(dot *Dot) bool {
+	mb.creditManaTicks()
 	paidBy := mb.paidBy
 	mb.paidBy = nil
 	return paidBy != nil && (paidBy == dot.Spell || paidBy.RelatedDotSpell == dot.Spell)
@@ -431,25 +461,51 @@ func (unit *Unit) TimeUntilManaRegen(sim *Simulation, desiredMana float64) time.
 		return NeverExpires
 	}
 
-	reachedAt := sim.CurrentTime + regenTime
-	if reachedAt <= unit.nextManaTick {
-		return unit.nextManaTick - sim.CurrentTime
+	reachedAt, nextTick := sim.CurrentTime+regenTime, sim.manaTicks.after(sim.CurrentTime)
+	if reachedAt <= nextTick {
+		return nextTick - sim.CurrentTime
 	}
-	ticks := (reachedAt - unit.nextManaTick + manaTickDuration - 1) / manaTickDuration
-	return unit.nextManaTick + ticks*manaTickDuration - sim.CurrentTime
+	ticks := (reachedAt - nextTick + manaTickDuration - 1) / manaTickDuration
+	return nextTick + ticks*manaTickDuration - sim.CurrentTime
 }
 
+// The grid the mana bars show their regen on. A tick is a point in time, not an event: a read of the
+// mana credits the regen up to the last tick at or before it.
+type manaTicks struct {
+	first time.Duration // The start of the prepull, where the grid starts.
+}
+
+// Starts the grid over.
+func (mt *manaTicks) reset(sim *Simulation) {
+	mt.first = sim.Environment.PrepullStartTime()
+}
+
+// The last tick at or before t.
+func (mt *manaTicks) last(t time.Duration) time.Duration {
+	return mt.first + (t-mt.first)/manaTickDuration*manaTickDuration
+}
+
+// The first tick after t.
+func (mt *manaTicks) after(t time.Duration) time.Duration {
+	return mt.first + ((t-mt.first)/manaTickDuration+1)*manaTickDuration
+}
+
+// Starts the regen of every mana bar, counting from the start of the prepull.
 func (sim *Simulation) enableManaTicks() {
+	enable := func(mb *manaBar) {
+		mb.sim = sim
+		mb.lastManaTick = sim.manaTicks.first
+	}
 	for _, party := range sim.Raid.Parties {
 		for _, player := range party.Players {
 			character := player.GetCharacter()
 			if character.HasManaBar() {
-				character.manaBar.enable(sim, player)
+				enable(&character.manaBar)
 			}
 
 			for _, petAgent := range character.PetAgents {
 				if pet := petAgent.GetPet(); pet.HasManaBar() {
-					pet.manaBar.enable(sim, petAgent)
+					enable(&pet.manaBar)
 				}
 			}
 		}

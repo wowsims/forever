@@ -431,7 +431,11 @@ func (resourceMetrics *ResourceMetrics) ActualGainForCurrentIteration() float64 
 }
 
 func (resourceMetrics *ResourceMetrics) AddEvent(gain float64, actualGain float64) {
-	resourceMetrics.Events++
+	resourceMetrics.addEvents(1, gain, actualGain)
+}
+
+func (resourceMetrics *ResourceMetrics) addEvents(events int32, gain float64, actualGain float64) {
+	resourceMetrics.Events += events
 	resourceMetrics.Gain += gain
 	resourceMetrics.ActualGain += actualGain
 }

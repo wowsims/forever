@@ -90,7 +90,7 @@
     "wowsims-testing": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "f159de81c32847c0e7f0204aef2fc3625f0ff8d41d1097477cae4fe8cfc5918e"
+      "computedHash": "8183d63c5d77141392191d485364ed6e57356048f20c6324098bb5ed1a69b0e1"
     },
     "wowsims-ui": {
       "source": "./.github/skills",

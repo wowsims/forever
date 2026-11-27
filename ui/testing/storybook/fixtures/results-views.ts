@@ -204,6 +204,7 @@ export const resourceLog = (timestamp: number, valueBefore: number, valueAfter: 
 	valueAfter,
 	isSpend: valueAfter < valueBefore,
 	total: 100,
+	regen: null,
 	...overrides,
 });
 

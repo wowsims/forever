@@ -1,4 +1,5 @@
 import { RaidSimResult } from '@generated/proto/api';
+import { ResourceType } from '@generated/proto/spell';
 import { describe, expect, it, vi } from 'vitest';
 
 // Casts and hits are bucketed by the action's string, so the braced id in the log text stands in
@@ -30,7 +31,7 @@ vi.mock('../action_id', () => {
 	return { ActionId };
 });
 
-import { buildCastLogs } from './derive';
+import { buildCastLogs, buildResourceGroups } from './derive';
 import { parseAll } from './parse';
 
 const MISSILE = '{SpellID: 25346}';
@@ -117,5 +118,47 @@ describe('buildCastLogs', () => {
 		const castLogs = await castLogsOf(lines);
 
 		expect(castLogs.map(log => log.damageDealtLogs.map(ddl => ddl.amount))).toEqual([[1000]]);
+	});
+});
+
+// A regen line as mana.go logs it: the gain, then the stretch it covers and the 100 ms ticks that show it.
+const regen = (time: number, amount: number, before: number, after: number, from: number, to: number, ticks: number, firstTick: number, tag = 2) =>
+	`[${time.toFixed(2)}] [Player (#1)] Gained ${amount.toFixed(3)} mana from {OtherID: 2, Tag: ${tag}} (${before.toFixed(3)} --> ${after.toFixed(3)}) of 1000 total, ` +
+	`regenerating from ${from.toFixed(6)}s to ${to.toFixed(6)}s in ${ticks} ticks from ${firstTick.toFixed(6)}s.`;
+const spend = (time: number, amount: number, before: number) =>
+	`[${time.toFixed(2)}] [Player (#1)] Spent ${amount.toFixed(3)} mana from {SpellID: 25346} (${before.toFixed(3)} --> ${(before - amount).toFixed(3)}) of 1000 total.`;
+
+const manaStepsOf = async (lines: Array<string>) =>
+	buildResourceGroups(await parseAll(RaidSimResult.create({ logs: lines.join('\n') })))[ResourceType.ResourceTypeMana].map(group => [
+		group.timestamp,
+		Number(group.valueAfter.toFixed(3)),
+	]);
+
+describe('buildResourceGroups', () => {
+	// A read at 1.25 credits the regen up to the tick at 1.2: 2 mana per second up to the end of the
+	// five-second rule at 1.05, 100 per second after it, which max mana stops at 1000.
+	it('gives a regen stretch a step per tick, split at the five-second rule and capped at max mana', async () => {
+		const lines = [regen(1.25, 1.5, 990, 991.5, 0.3, 1.05, 8, 0.4, 1), regen(1.25, 15, 991.5, 1000, 1.05, 1.2, 2, 1.1), spend(1.25, 100, 1000)];
+
+		expect(await manaStepsOf(lines)).toEqual([
+			[0.4, 990.2],
+			[0.5, 990.4],
+			[0.6, 990.6],
+			[0.7, 990.8],
+			[0.8, 991],
+			[0.9, 991.2],
+			[1, 991.4],
+			[1.1, 996.5],
+			[1.2, 1000],
+			[1.25, 900],
+		]);
+	});
+
+	// A rate change at 1.37 credits the regen up to that moment, past the tick at 1.3.
+	it('puts the last step of a stretch that ends between two ticks at the line', async () => {
+		expect(await manaStepsOf([regen(1.37, 17, 900, 917, 1.2, 1.37, 2, 1.3)])).toEqual([
+			[1.3, 910],
+			[1.37, 917],
+		]);
 	});
 });

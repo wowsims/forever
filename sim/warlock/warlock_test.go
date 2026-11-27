@@ -107,8 +107,16 @@ func warlockPlayer(name string, talents string, options *proto.WarlockOptions) *
 }
 
 func stepFor(sim *core.Simulation, d time.Duration) {
-	for end := sim.CurrentTime + d; sim.CurrentTime < end && !sim.Step(); {
+	end := sim.CurrentTime + d
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: end, OnAction: func(*core.Simulation) {}})
+	for sim.CurrentTime < end && !sim.Step() {
 	}
+}
+
+// Steps to the moment the targets cross 35% health, at least one millisecond on.
+func stepToExecute35(sim *core.Simulation) {
+	at := time.Duration((1 - sim.Encounter.ExecuteProportion_35) * float64(sim.Duration))
+	stepFor(sim, max(at-sim.CurrentTime, time.Millisecond))
 }
 
 // Soul Fire takes the Soul Shard its row states, and none while Decimation's buff (440873) is up.
@@ -186,8 +194,7 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 	encounter.Duration = 3600
 	encounter.ExecuteProportion_35 = 1
 	sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, encounter)
-	for !sim.Encounter.AllTargetUnits[0].IsExecutePhase35() && !sim.Step() {
-	}
+	stepToExecute35(sim)
 	warlock.DistanceFromTarget = 30
 	target := sim.Encounter.AllTargetUnits[0]
 	decimation := warlock.GetAuraByID(core.ActionID{SpellID: 440873})
@@ -657,10 +664,8 @@ func TestDecimationBonusAtAnyHealthBuffBelow35(t *testing.T) {
 	if buffFromLandedCast() {
 		t.Errorf("a Searing Pain that landed on a target above 35%% granted Decimation's buff")
 	}
-	for !target.IsExecutePhase35() && !sim.Step() {
-	}
-	for !plainTarget.IsExecutePhase35() && !plainSim.Step() {
-	}
+	stepToExecute35(sim)
+	stepToExecute35(plainSim)
 	checkBonus("below 35%")
 	if !buffFromLandedCast() {
 		t.Errorf("a Searing Pain that landed on a target below 35%% granted no Decimation buff")

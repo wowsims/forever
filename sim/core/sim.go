@@ -62,7 +62,8 @@ type Simulation struct {
 	minTaskTime time.Duration
 	tasks       []Task
 
-	movingUnits []*Unit // Units on a walk, whose position advance keeps current.
+	movingUnits []*Unit   // Units on a walk, whose position advance keeps current.
+	manaTicks   manaTicks // The grid the mana bars show their regen on.
 
 	isInPrepull bool
 	isResetting bool // A target disabled now starts the iteration disabled, with the raid moved off it at the pull.
@@ -430,6 +431,7 @@ func (sim *Simulation) reset() {
 
 	sim.tasks = sim.tasks[:0]
 	sim.minTaskTime = NeverExpires
+	sim.manaTicks.reset(sim)
 
 	sim.movingUnits = sim.movingUnits[:0]
 
@@ -508,6 +510,14 @@ func (sim *Simulation) runPendingActions() {
 func (sim *Simulation) Step() bool {
 	last := len(sim.pendingActions) - 1
 	pa := sim.pendingActions[last]
+
+	// An aura expires at its own time, so what its expiry changes counts from then even when no other
+	// event comes at it.
+	if expires := sim.minTrackerTime; expires > sim.CurrentTime && expires < pa.NextActionAt && expires < sim.minWeaponAttackTime &&
+		expires < sim.minTaskTime && expires <= sim.endOfCombatDuration {
+		sim.advance(expires)
+		return false
+	}
 
 	if pa.NextActionAt >= sim.minWeaponAttackTime && sim.minWeaponAttackTime <= sim.minTaskTime {
 		if sim.minWeaponAttackTime > sim.endOfCombatDuration {
