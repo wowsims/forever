@@ -287,7 +287,7 @@ Report, fight and time into the fight, class and weapon (`examples_out.md`):
   UTC), the 2026-11-23 hotfix (2026-11-24 01:00 UTC) and hotfix push 114399 (2026-11-25 02:00 UTC); the hour that holds
   each of the two pushes is left out. The Windfury Totem count takes the reports by their start, from 2026-11-20 00:00
   UTC
-- Pull request: #1266
+- Pull request: #1266, #1273
 
 Hotfix push 114281 takes the flags that suppressed weapon procs off Shank's row. The first Shank followed by a weapon
 proc in these logs is at 2026-11-20 01:10 UTC.
