@@ -20,7 +20,7 @@ export class Warrior extends PlayerClass<Class.ClassWarrior> {
 	static rangedWeaponTypes = getClassRangedWeaponTypes(Warrior.classID);
 
 	readonly classID = Warrior.classID;
-	readonly friendlyName = Warrior.name;
+	readonly friendlyName = Warrior.friendlyName;
 	readonly hexColor = Warrior.hexColor;
 	readonly specs = Warrior.specs;
 	readonly races = Warrior.races;
