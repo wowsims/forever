@@ -8,8 +8,8 @@
 - Later count: Stoneslayer, §Count of the 2026-11-14 to 2026-11-15 reports
 
 Each rate is the procs over the landed hits of the weapon carrying them, white swings and specials alike, as the sim's
-weapon proc listens, at the weapon's speed (a druid's at the paw's). Shield Slam, Shield Bash and Shank hits are left
-out, since they roll a chance-on-hit weapon about once in a thousand.
+weapon proc listens, at the weapon's speed (a druid's at the paw's). Shield Slam and Shield Bash hits are left out,
+since they roll a chance-on-hit weapon about once in a thousand, and so are Shank hits.
 
 | Weapon                      | Item   | PPM | Measured                                                                                          | First report and fight              |
 | --------------------------- | ------ | --- | ------------------------------------------------------------------------------------------------- | ----------------------------------- |
