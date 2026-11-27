@@ -92,8 +92,10 @@ type ProcTrigger struct {
 // such as Sweeping Strikes' copied hit 12723, is no weapon hit either, while its normalized hit 26654,
 // with melee DefenseType, is (EV-0007). Aura procs (Aura::IsProcTriggeredOnEvent) skip triggered spells that lack Not a
 // Proc, unless the listener carries Can Proc From Procs. Auto attacks, extra attacks included, carry
-// neither flag and so are always eligible.
-func (config *ProcTrigger) canProcFrom(spell *Spell) bool {
+// neither flag and so are always eligible. A dot's tick is no cast, so it reaches them whatever laid
+// the dot; a tick that is the hit of a spell the aura casts (SpellFlagTicksAreCasts) is a cast like
+// any other (EV-0226).
+func (config *ProcTrigger) canProcFrom(spell *Spell, tick bool) bool {
 	if config.IsWeaponProc {
 		if !spell.ProcMask.Matches(ProcMaskMeleeOrRanged) || spell.Flags.Matches(SpellFlagSuppressWeaponProcs) {
 			return false
@@ -103,13 +105,17 @@ func (config *ProcTrigger) canProcFrom(spell *Spell) bool {
 		}
 		return !spell.CastRequirement.Shield && (spell.DefenseType == DefenseTypeMelee || spell.DefenseType == DefenseTypeRanged)
 	}
+	if tick && !spell.Flags.Matches(SpellFlagTicksAreCasts) {
+		return true
+	}
 	return config.CanProcFromProcs || !spell.Flags.Matches(SpellFlagProc)
 }
 
 // The spell-side checks every callback path applies, in one place so the paths cannot drift:
-// eligibility, the flag filters, the class spell filters and the hit-kind mask.
-func (config *ProcTrigger) matchesSpell(spell *Spell) bool {
-	if !config.canProcFrom(spell) {
+// eligibility, the flag filters, the class spell filters and the hit-kind mask. tick is whether the
+// event is a periodic tick.
+func (config *ProcTrigger) matchesSpell(spell *Spell, tick bool) bool {
+	if !config.canProcFrom(spell, tick) {
 		return false
 	}
 	if config.SpellFlags != SpellFlagNone && !spell.Flags.Matches(config.SpellFlags) {
@@ -250,8 +256,8 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 		sim.AddPendingAction(&dp.pa)
 	}
 
-	callback := func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
-		if !config.matchesSpell(spell) {
+	callback := func(sim *Simulation, spell *Spell, result *SpellResult, tick bool) {
+		if !config.matchesSpell(spell, tick) {
 			return
 		}
 		if config.Outcome != OutcomeEmpty {
@@ -286,16 +292,20 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 	// The caster's procs skip a spell flagged Suppress Caster Procs, its cast included, and the target's
 	// skip one flagged Suppress Target Procs; the hit still reaches every other listener, rage and health
 	// included.
-	skipping := func(suppressed SpellFlag) func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
-		return func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
+	skipping := func(suppressed SpellFlag, tick bool) func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
+		return func(_ *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
 			if spell.Flags.Matches(suppressed) {
 				return
 			}
-			callback(aura, sim, spell, result)
+			callback(sim, spell, result, tick)
 		}
 	}
-	dealt := skipping(SpellFlagSuppressCasterProcs)
-	taken := skipping(SpellFlagSuppressTargetProcs)
+	dealt := skipping(SpellFlagSuppressCasterProcs, false)
+	taken := skipping(SpellFlagSuppressTargetProcs, false)
+	// Only the damage ticks the caster deals are measured as reaching every listener (EV-0226).
+	// TODO: Ingame test needed -- whether a proc's heal ticks, and the ticks a unit takes, reach a listener that cannot
+	// proc from procs. The sim treats them as hits.
+	tickDealt := skipping(SpellFlagSuppressCasterProcs, true)
 
 	if config.Callback.Matches(CallbackOnSpellHitDealt) {
 		procAura.OnSpellHitDealt = dealt
@@ -304,7 +314,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 		procAura.OnSpellHitTaken = taken
 	}
 	if config.Callback.Matches(CallbackOnPeriodicDamageDealt) {
-		procAura.OnPeriodicDamageDealt = dealt
+		procAura.OnPeriodicDamageDealt = tickDealt
 	}
 	if config.Callback.Matches(CallbackOnHealDealt) {
 		procAura.OnHealDealt = dealt
@@ -314,7 +324,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 	}
 	if config.Callback.Matches(CallbackOnCastComplete) {
 		procAura.OnCastComplete = func(aura *Aura, sim *Simulation, spell *Spell) {
-			if spell.Flags.Matches(SpellFlagSuppressCasterProcs) || !config.matchesSpell(spell) {
+			if spell.Flags.Matches(SpellFlagSuppressCasterProcs) || !config.matchesSpell(spell, false) {
 				return
 			}
 			if icd.Duration != 0 && !icd.IsReady(sim) {
@@ -334,7 +344,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 	}
 	if config.Callback.Matches(CallbackOnApplyEffects) {
 		procAura.OnApplyEffects = func(aura *Aura, sim *Simulation, target *Unit, spell *Spell) {
-			if !config.matchesSpell(spell) {
+			if !config.matchesSpell(spell, false) {
 				return
 			}
 			if icd.Duration != 0 && !icd.IsReady(sim) {

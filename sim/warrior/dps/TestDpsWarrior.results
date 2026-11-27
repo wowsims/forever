@@ -326,8 +326,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 561.57154
-  tps: 500.15306
+  dps: 561.71265
+  tps: 500.26595
   dtps: 2.96126
   hps: 43.4625
  }
@@ -1109,10 +1109,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 573.46462
-  tps: 511.69839
+  dps: 578.27905
+  tps: 515.98554
   dtps: 3.07454
-  hps: 43.69972
+  hps: 44.02167
  }
 }
 dps_results: {

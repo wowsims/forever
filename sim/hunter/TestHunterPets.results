@@ -408,9 +408,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 762.81539
-  tps: 485.33831
-  dtps: 4.83594
+  dps: 762.60406
+  tps: 485.12698
+  dtps: 4.86937
  }
 }
 dps_results: {
@@ -1199,9 +1199,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 748.06029
-  tps: 475.571
-  dtps: 5.19331
+  dps: 745.46945
+  tps: 473.67528
+  dtps: 4.74286
  }
 }
 dps_results: {

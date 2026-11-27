@@ -172,11 +172,7 @@ func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
 				t.Fatal("Judgement did not cast")
 			}
 			before := pal.CurrentMana()
-			// An empty action at the end of the window keeps the step from running past it.
-			until := sim.CurrentTime + 5*core.SpellBatchWindow
-			sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: until, OnAction: func(*core.Simulation) {}}))
-			for sim.CurrentTime < until && !sim.Step() {
-			}
+			stepFor(t, sim, 5*core.SpellBatchWindow)
 			switch regained := pal.CurrentMana() - before; {
 			case regained >= 2*gain-1e-6:
 				more++
@@ -255,11 +251,7 @@ func TestSealOfRighteousnessHitIsPricedOnVengeanceBeforeTheCrit(t *testing.T) {
 			if !swing.Cast(sim, target) {
 				t.Fatal("the white swing did not cast")
 			}
-			// An empty action at the end of the window keeps the step from running past it.
-			until := sim.CurrentTime + 5*core.SpellBatchWindow
-			sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: until, OnAction: func(*core.Simulation) {}}))
-			for sim.CurrentTime < until && !sim.Step() {
-			}
+			stepFor(t, sim, 5*core.SpellBatchWindow)
 
 			hit := dealt() - before
 			critted := swing.SpellMetrics[target.UnitIndex].Crits > crits
@@ -382,6 +374,102 @@ func TestConsecrationCastSetsOffNoTouchOfTheGrave(t *testing.T) {
 		}
 		if drains != 0 {
 			t.Errorf("on %d enemies at a time, %d Consecration casts drained %d times, want none", enemies, casts, drains)
+		}
+	}
+}
+
+// Bolt's Charged Eyeball hears neither Consecration's cast nor its ticks: the cast lands for no damage,
+// which its mask of melee, ranged and spell hits does not hear, and a tick is a proc dealt as periodic
+// damage, which an Equip effect that cannot proc from procs does not hear. A white hit that lands still
+// casts the shock (EV-0226).
+func TestConsecrationSetsOffNoBoltsChargedEyeball(t *testing.T) {
+	const casts, swings, enemies = 500, 400, 3
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = casts*13 + swings*4
+	for range enemies - 1 {
+		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	}
+	sim, pal, target := paladinWearingAgainst(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 280032}, encounter, proto.Race_RaceHuman)
+	shock := pal.GetSpell(core.ActionID{SpellID: 1315996})
+	if shock == nil {
+		t.Fatal("280032 registers no 1315996")
+	}
+	consecration := pal.GetSpell(core.ActionID{SpellID: paladin.ConsecrationRankMap.Highest().ID})
+	if consecration == nil {
+		t.Fatal("the paladin has no Consecration")
+	}
+	pal.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+	shocks := func() int {
+		n := 0
+		for _, metrics := range shock.SpellMetrics {
+			n += int(metrics.Casts)
+		}
+		return n
+	}
+	for range casts {
+		consecration.SkipCastAndApplyEffects(sim, target)
+		for consecration.AOEDot().IsActive() {
+			if sim.Step() {
+				t.Fatal("the encounter ended before the casts did")
+			}
+		}
+		stepFor(t, sim, 4*time.Second) // past the trinket's 3 s cooldown, so every landing and tick could roll
+	}
+	if got := shocks(); got != 0 {
+		t.Errorf("%d Consecration casts on %d enemies cast %d shocks, want none", casts, enemies, got)
+	}
+
+	swing := pal.AutoAttacks.MHAuto()
+	for range swings {
+		pal.OnSpellHitDealt(sim, swing, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 1})
+		stepFor(t, sim, 4*time.Second) // past the trinket's 3 s cooldown
+	}
+	if shocks() == 0 {
+		t.Errorf("%d landed white hits cast no shock, want some", swings)
+	}
+}
+
+// A Consecration tick that crits gives no Vengeance: the tick is periodic damage, and Vengeance's mask hears hits
+// alone. A white swing that crits gives it (EV-0226).
+func TestConsecrationCritGivesNoVengeance(t *testing.T) {
+	sim, pal, target := paladinWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotMainHand: 21395})
+	vengeance := pal.GetAuraByID(core.ActionID{SpellID: 20050})
+	consecration := pal.GetSpell(core.ActionID{SpellID: paladin.ConsecrationRankMap.Highest().ID})
+	if vengeance == nil || consecration == nil || consecration.RelatedDotSpell == nil {
+		t.Fatal("the paladin has no Vengeance or no Consecration ticks")
+	}
+	pal.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+	pal.AddStatDynamic(sim, stats.SpellCritPercent, 100)
+
+	consecration.SkipCastAndApplyEffects(sim, target)
+	for consecration.AOEDot().IsActive() {
+		if sim.Step() {
+			t.Fatal("the encounter ended before the ticks did")
+		}
+		if vengeance.IsActive() {
+			t.Fatal("a Consecration tick that crit gave Vengeance, want none")
+		}
+	}
+	if consecration.RelatedDotSpell.SpellMetrics[target.UnitIndex].CritTicks == 0 {
+		t.Fatal("no Consecration tick crit, so the check proves nothing")
+	}
+
+	pal.OnSpellHitDealt(sim, pal.AutoAttacks.MHAuto(), &core.SpellResult{Target: target, Outcome: core.OutcomeCrit, Damage: 1})
+	stepFor(t, sim, 5*core.SpellBatchWindow)
+	if !vengeance.IsActive() {
+		t.Error("a white swing that crit gave no Vengeance")
+	}
+}
+
+// Runs the sim for d, failing the test if the encounter ends first. An empty action at the end keeps the queue from
+// running dry.
+func stepFor(t *testing.T, sim *core.Simulation, d time.Duration) {
+	t.Helper()
+	end := sim.CurrentTime + d
+	sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: end, OnAction: func(*core.Simulation) {}}))
+	for sim.CurrentTime < end {
+		if sim.Step() {
+			t.Fatal("the encounter ended early")
 		}
 	}
 }

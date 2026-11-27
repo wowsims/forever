@@ -96,7 +96,7 @@ func (rogue *Rogue) registerPoisonProc(consumable core.Consumable, chance float6
 }
 
 func (rogue *Rogue) registerDeadlyPoisonSpell(deadlyPoisonRank *spelldata.Spell) {
-	config := spelldata.SpellConfig(&rogue.Unit, deadlyPoisonRank, spelldata.Magic(core.ProcMaskSpellDamageProc))
+	config := spelldata.SpellConfig(&rogue.Unit, deadlyPoisonRank, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Triggered())
 	config.ClassSpellMask = RogueSpellDeadlyPoison
 	tick := deadlyPoisonRank.PeriodicEffect()
 	apScaling := 0.009 // Per tick and stack, measured in game (EV-0086).
@@ -130,7 +130,7 @@ func (rogue *Rogue) registerDeadlyPoisonSpell(deadlyPoisonRank *spelldata.Spell)
 
 func (rogue *Rogue) registerInstantPoisonSpell(instantPoisonRank *spelldata.Spell) {
 	ipBaseDamage := instantPoisonRank.DamageEffect().Average()
-	config := spelldata.SpellConfig(&rogue.Unit, instantPoisonRank, spelldata.Magic(core.ProcMaskSpellDamageProc))
+	config := spelldata.SpellConfig(&rogue.Unit, instantPoisonRank, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Triggered())
 	config.ClassSpellMask = RogueSpellInstantPoison
 	apScaling := 0.01 // Measured in game (EV-0086).
 

@@ -17,10 +17,7 @@ func (warlock *Warlock) registerRainOfFire() {
 	waveHit := waveRow.DamageEffect()
 
 	// Fired by the channel; hits every enemy in the area
-	waveConfig := spelldata.SpellConfig(&warlock.Unit, waveRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
-	if waveRow.IsAProc() {
-		waveConfig.Flags |= core.SpellFlagProc
-	}
+	waveConfig := spelldata.SpellConfig(&warlock.Unit, waveRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered())
 	waveConfig.ClassSpellMask = WarlockSpellRainOfFire
 	waveConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		for _, target := range sim.Encounter.ActiveTargetUnits {
