@@ -198,14 +198,16 @@ func (e *Expression) Eval(ctx *TooltipContext) float64 {
 //
 // There exists one exception of such conditions that is (c)[1-4]
 // c = Current specialization index. It can be 1 to 4, top to bottom in the talent window
+//
+// pc names a PlayerCondition row instead of a spell (Crumbling Hearthstone's $?pc923[Orgrimmar][Stormwind]).
 type SpellCondition struct {
 	Op      string
 	SpellId int64
 }
 
 func (s *SpellCondition) Capture(values []string) error {
-	s.Op = values[0][:1]
-	s.SpellId, _ = strconv.ParseInt(values[0][1:], 10, 64)
+	s.Op = strings.TrimRight(values[0], "0123456789")
+	s.SpellId, _ = strconv.ParseInt(values[0][len(s.Op):], 10, 64)
 	return nil
 }
 
@@ -213,6 +215,7 @@ type BoolTerminalValue struct {
 	Negated        *string           `parser:"@NOT?"`
 	SpellCondition *SpellCondition   `parser:"@SpellCond"`
 	SpellRef       *SimpleSpellValue `parser:"|@@"`
+	Variable       *string           `parser:"| '$' @VarName"` // A player value such as the level, $?$pl>=55.
 	Number         *float64          `parser:"| @(Float|Int)"`
 	Subexpression  *BoolExpression   `parser:"| '(' @@ ')'"`
 }
@@ -248,6 +251,10 @@ func (b BoolTerminalValue) Eval(ctx *TooltipContext) float64 {
 		return b.SpellRef.Eval(ctx)
 	}
 
+	if b.Variable != nil {
+		return ctx.Variables[*b.Variable]
+	}
+
 	if b.EvalBool(ctx) {
 		return 1
 	}
@@ -270,6 +277,11 @@ func (s SpellCondition) EvalBool(ctx *TooltipContext) bool {
 		fallthrough
 	case "a":
 		return ctx.DataProvider.HasAura(s.SpellId)
+	case "pc":
+		// The extracted game files tables hold no PlayerCondition rows, so the condition reads as not met and
+		// adds no text a character may lack: the foods' experience bonus line ($@spelldesc1243969) stays out,
+		// and Crumbling Hearthstone reads Stormwind.
+		return false
 	default:
 		panic("Unsupported spell condition")
 	}
@@ -289,6 +301,10 @@ func (b BoolTerminalValue) EvalBool(ctx *TooltipContext) bool {
 		return b.Subexpression.Eval(ctx)
 	}
 
+	if b.Variable != nil {
+		return b.Eval(ctx) != 0
+	}
+
 	return false
 }
 
@@ -302,11 +318,15 @@ func (b BoolGeneralTerm) Eval(ctx *TooltipContext) bool {
 	switch b.Right[0].Operator {
 	case ">":
 		return left > right
+	case ">=":
+		return left >= right
 	case "<":
 		return left < right
+	case "<=":
+		return left <= right
 	case "!=":
 		return left != right
-	case "=":
+	case "=", "==":
 		return left == right
 	}
 
@@ -373,8 +393,35 @@ type VariableRef struct {
 	StaticVarName  string `parser:"|'$'@VarName (?!'(')"`
 }
 
+// Another spell's description, or its buff text for $@spellaura and $@auradesc. The id may stand in angle
+// brackets, $@spelldesc<1243081>; a reference with none (Summon Infernal's $@spellaura) names no spell.
 type DescriptionRef struct {
-	SpellId int64 `parser:"@Int"`
+	Kind    string `parser:"@DescLookup"`
+	SpellId int64  `parser:"( '<' @Int '>' | @Int )?"`
+}
+
+// A provider that reads a spell's buff text as well as its description.
+type AuraTextProvider interface {
+	GetSpellAuraDescription(spellId int64) string
+}
+
+// A provider that reads the row values behind $u (the stacks an aura reaches), $q (an effect's misc value) and
+// $v (the highest target level).
+type RowValueProvider interface {
+	GetSpellMaxStacks(spellId int64) int64
+	GetEffectMiscValue(spellId int64, effectIdx int64) float64
+	GetSpellMaxTargetLevel(spellId int64) float64
+}
+
+// The text the reference includes: the description, or the buff text where the provider has one.
+func (d DescriptionRef) Text(provider TooltipDataProvider) string {
+	if d.Kind == "$@spellaura" || d.Kind == "$@auradesc" {
+		if aura, ok := provider.(AuraTextProvider); ok {
+			return aura.GetSpellAuraDescription(d.SpellId)
+		}
+		return ""
+	}
+	return provider.GetSpellDescription(d.SpellId)
 }
 
 type SpellNameRef struct {
@@ -425,6 +472,8 @@ func (f *Function) Eval(ctx *TooltipContext) float64 {
 	case "floor":
 		arg := (*f.Args)[0].Eval(ctx)
 		return math.Floor(arg)
+	case "abs":
+		return math.Abs((*f.Args)[0].Eval(ctx))
 	case "cond":
 		cond := (*f.Args)[0].Eval(ctx)
 		if cond > 0 {
@@ -490,6 +539,7 @@ type ComputedValue struct {
 }
 
 type ComplexValue struct {
+	Pos, EndPos        lexer.Position      // Where the value starts and ends in the text, which tells the spaces around it.
 	MathExpression     *MathExpression     `parser:"@@"`
 	VariableAssignment *VariableAssignment `parser:"|@@"`
 	Terniary           *Ternary            `parser:"|'$?'@@"`
@@ -497,10 +547,15 @@ type ComplexValue struct {
 	ComputedValue      *ComputedValue      `parser:"|@@"`
 	Word               *string             `parser:"|@(Ident|Int|Op|Float)"`
 	Punctuation        *string             `parser:"|@Punct"`
-	DescriptionRef     *DescriptionRef     `parser:"|DescLookup @@"`
+	DescriptionRef     *DescriptionRef     `parser:"|@@"`
 	SpellNameRef       *SpellNameRef       `parser:"|'$@spellname'@@"`
 	SpellIconRef       *SpellIconRef       `parser:"|'$@spellicon'@@"`
+	Null               bool                `parser:"|@'$@null'"`       // Nothing: the game writes no text for it.
+	AuraCaster         bool                `parser:"|@'$@auracaster'"` // The name of the unit that cast the aura.
 }
+
+// A tooltip outside the game has no caster to name.
+const auraCasterText = "the caster"
 
 func (c ComplexValue) isPunctuation() bool {
 	return c.Punctuation != nil
@@ -517,7 +572,7 @@ type TooltipAST struct {
 var ternParser = regexp.MustCompile(`^\$(\d*)([glLG])(.+):$`)
 
 func (d DescriptionRef) String(ctx *TooltipContext) string {
-	desc := ctx.DataProvider.GetSpellDescription(d.SpellId)
+	desc := d.Text(ctx.DataProvider)
 	if len(desc) == 0 {
 		return desc
 	}
@@ -565,7 +620,8 @@ func (s ShortTernary) String(ctx *TooltipContext) string {
 	case "L":
 		fallthrough
 	case "l":
-		if ctx.LastEval <= 1 {
+		// Singular for one alone: 0 extra attacks, 0.5 seconds.
+		if math.Abs(ctx.LastEval) == 1 {
 			return left
 		}
 
@@ -707,16 +763,26 @@ func (s SimpleSpellValue) Eval(ctx *TooltipContext) float64 {
 
 		return radius
 
-		// DUnno what's the difference
 	case "n":
-		fallthrough
-	case "u":
 		return float64(ctx.DataProvider.GetSpellStacks(s.getSpellId(ctx)))
+	case "u":
+		if rows, ok := ctx.DataProvider.(RowValueProvider); ok {
+			return float64(rows.GetSpellMaxStacks(s.getSpellId(ctx)))
+		}
+		return float64(ctx.DataProvider.GetSpellStacks(s.getSpellId(ctx)))
+	case "q":
+		if rows, ok := ctx.DataProvider.(RowValueProvider); ok {
+			return rows.GetEffectMiscValue(s.getSpellId(ctx), s.Selector.EffectIndex-1)
+		}
+		return 0
 	case "b":
 		return float64(ctx.DataProvider.GetEffectPointsPerResource(s.getSpellId(ctx), s.Selector.EffectIndex-1))
 	case "V":
 		fallthrough // Max Target Level SpelLTargetRestrictions.dbc
 	case "v":
+		if rows, ok := ctx.DataProvider.(RowValueProvider); ok {
+			return rows.GetSpellMaxTargetLevel(s.getSpellId(ctx))
+		}
 		return 0
 	case "k":
 		return ctx.DataProvider.GetEffectEnchantValue(s.getSpellId(ctx), s.Selector.EffectIndex-1)
@@ -790,6 +856,10 @@ func (s SimpleSpellValue) String(ctx *TooltipContext) string {
 	case "M":
 		fallthrough
 	case "b":
+		fallthrough
+	case "q":
+		fallthrough
+	case "v":
 		fallthrough
 	case "k":
 
@@ -889,6 +959,10 @@ func (c ComplexValue) String(ctx *TooltipContext) string {
 		return (*c.SpellNameRef).String(ctx)
 	}
 
+	if c.AuraCaster {
+		return auraCasterText
+	}
+
 	return ""
 }
 
@@ -910,11 +984,15 @@ type tooltipFix struct {
 	Replace string
 }
 
+// $B as a line break, which the game files' spell texts never write: their $b is an effect's points per combo
+// point (Expose Armor's ${$b*-1}), and $bh and $bc the healing power and its coefficient (Prayer of Mending).
+var lineBreakFix = tooltipFix{Regex: regexp.MustCompile(`(.)\$[bB]([^\d])`), Replace: "$1\n$2"}
+
 var fixes = []tooltipFix{
 	{Regex: regexp.MustCompile(`\(\<\$`), Replace: "($<"},
 	{Regex: regexp.MustCompile(`,\<\$`), Replace: ",$<"},
 	{Regex: regexp.MustCompile(`\]\]`), Replace: "]"},
-	{Regex: regexp.MustCompile(`(.)\$[bB]([^\d])`), Replace: "$1\n$2"},
+	lineBreakFix,
 	{Regex: regexp.MustCompile(`\)\r\n\[`), Replace: ")["},
 	{Regex: regexp.MustCompile(`\]\$\[`), Replace: "]["},
 	{Regex: regexp.MustCompile(`\{(\d+[a-zA-Z]\d)`), Replace: "{$$$1"},
@@ -935,13 +1013,14 @@ func getLexer() *lexer.StatefulDefinition {
 		"Root": {
 			{Name: "CommentStart", Pattern: `--`, Action: lexer.Push("Comment")},
 			{Name: "TernStart", Pattern: `(\$|\])\?`, Action: lexer.Push("Ternary")},
-			{Name: "DescLookup", Pattern: `\$@(spelldesc|spelltooltip)`, Action: nil},
+			{Name: "DescLookup", Pattern: `\$@(spelldesc|spelltooltip|spellaura|auradesc)`, Action: nil},
 			{Name: "SpellLookup", Pattern: `\$@spellname`, Action: nil},
 			{Name: "IconLookup", Pattern: `\$@spellicon`, Action: nil},
+			{Name: "TextLookup", Pattern: `\$@(null|auracaster)`, Action: nil},
 			lexer.Include("Shared"),
 			{Name: "Ident", Pattern: `[#a-zA-Z'0-9|()"&][a-zA-Z'0-9"#|()-\\_&]*`, Action: nil},
-			{Name: "Tok", Pattern: `[\[\]\{\}=?\<\>]`, Action: nil},
-			{Name: "Punct", Pattern: `[.,:\!?%;\]\r\n]`},
+			{Name: "Tok", Pattern: `[\[\]\{\}=]`, Action: nil},
+			{Name: "Punct", Pattern: `[.,:\!?%;\]\r\n<>~]`}, // ??? as a placeholder text, <Combat between players...> on a sanctuary
 			{Name: "SpellCond2", Pattern: `\?[aspc]\d{2,}`, Action: nil},
 		},
 		"Comment": {
@@ -951,7 +1030,7 @@ func getLexer() *lexer.StatefulDefinition {
 			{Name: "BEND", Pattern: `\)`, Action: nil},
 			{Name: "BSTART", Pattern: `\(`, Action: nil},
 			{Name: "BOC", Pattern: `[\|\&]`, Action: nil},
-			{Name: "BOP", Pattern: `([\<\>]|!=|=)`, Action: nil},
+			{Name: "BOP", Pattern: `(>=|<=|==|!=|[<>=])`, Action: nil},
 			{Name: "NOT", Pattern: `!`, Action: nil},
 		},
 		"Math": {
@@ -983,7 +1062,7 @@ func getLexer() *lexer.StatefulDefinition {
 		"Ternary": {
 			lexer.Include("Boolean"),
 			lexer.Include("Shared"),
-			{Name: "SpellCond", Pattern: `[aspc]\d{1,}`, Action: nil},
+			{Name: "SpellCond", Pattern: `(pc|[aspc])\d{1,}`, Action: nil},
 			{Name: "TernEnd", Pattern: `(\[|=)`, Action: lexer.Pop()},
 		},
 		"Variable": {
@@ -991,7 +1070,7 @@ func getLexer() *lexer.StatefulDefinition {
 			{Name: "SimpleComp", Pattern: `[/*]`, Action: nil},
 			{Name: "SimpleTok", Pattern: `[;]`, Action: nil},
 			{Name: "VarName", Pattern: `[a-zA-Z]{2,}\d*`, Action: lexer.Pop()},
-			{Name: "SpMod", Pattern: "[a-zA-Z][0-9]?", Action: lexer.Pop()},
+			{Name: "SpMod", Pattern: "[a-zA-Z][0-9]{0,2}", Action: lexer.Pop()}, // $s10: a spell can have more than nine effects
 			{Name: "SpellCond2", Pattern: `\?[aspc]\d{2,}`, Action: lexer.Pop()},
 		},
 	})

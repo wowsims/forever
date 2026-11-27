@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"image"
 	"image/jpeg"
+	"maps"
 	"os"
 	"path/filepath"
 	"slices"
@@ -139,7 +140,7 @@ func iconFDIDs(listfile string) (map[string]uint32, error) {
 	return fdids, scanner.Err()
 }
 
-// Every icon name the shipped database holds, db.bin and leftover_db.bin together, and the spell tooltips'.
+// Every icon name the shipped database holds, db.bin and leftover_db.bin together, and the tooltips'.
 func iconNames() []string {
 	db := database.Load()
 	var names []string
@@ -155,16 +156,23 @@ func iconNames() []string {
 	for _, data := range slices.Concat(db.ItemIcons, db.SpellIcons) {
 		names = append(names, data.Icon)
 	}
-	// The spells the site's tooltips show, whose icons the item database does not name (tools/database/tooltips.go).
-	if data, err := os.ReadFile(filepath.Join("assets", "database", "tooltips.json")); err == nil {
+	// The spells and items the site's tooltips show, whose icons the item database does not name
+	// (tools/database/tooltips.go), from both tooltip files.
+	for _, file := range []string{"tooltips.json", "tooltips_extra.json"} {
+		data, err := os.ReadFile(filepath.Join("assets", "database", file))
+		if err != nil {
+			continue
+		}
+		type named struct {
+			Icon string `json:"i"`
+		}
 		var tooltips struct {
-			Spells map[string]struct {
-				Icon string `json:"i"`
-			} `json:"spells"`
+			Spells map[string]named `json:"spells"`
+			Items  map[string]named `json:"items"`
 		}
 		if err := json.Unmarshal(data, &tooltips); err == nil {
-			for _, spell := range tooltips.Spells {
-				names = append(names, spell.Icon)
+			for _, entry := range slices.Concat(slices.Collect(maps.Values(tooltips.Spells)), slices.Collect(maps.Values(tooltips.Items))) {
+				names = append(names, entry.Icon)
 			}
 		}
 	}

@@ -1997,3 +1997,42 @@ func TestGoreDrinkerSpendsOneChargePerLandedStrike(t *testing.T) {
 		})
 	}
 }
+
+// The sheet states the form of the stance the warrior starts the fight in, its stance spell's shapeshift form.
+func TestSheetStatesTheDefaultStancesForm(t *testing.T) {
+	for stance, name := range map[proto.WarriorStance]string{
+		proto.WarriorStance_WarriorStanceBattle:    "Battle Stance",
+		proto.WarriorStance_WarriorStanceDefensive: "Defensive Stance",
+		proto.WarriorStance_WarriorStanceBerserker: "Berserker Stance",
+	} {
+		var want dbcenums.ShapeshiftForm
+		for _, row := range spelldata.ByName(name) {
+			if form := row.ShapeshiftForm(); form != 0 {
+				want = form
+			}
+		}
+		if want == 0 {
+			t.Fatalf("no %s row shifts into a form", name)
+		}
+		player := &proto.Player{
+			Name:          name,
+			Race:          proto.Race_RaceOrc,
+			Class:         proto.Class_ClassWarrior,
+			Equipment:     &proto.EquipmentSpec{},
+			TalentsString: furyTalents,
+			Spec: &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{Options: &proto.DpsWarrior_Options{
+				ClassOptions: &proto.WarriorOptions{DefaultStance: stance},
+			}}},
+		}
+		result := core.ComputeStats(&proto.ComputeStatsRequest{
+			Raid:      core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter: core.MakeSingleTargetEncounter(0),
+		})
+		if result.ErrorResult != "" {
+			t.Fatal(result.ErrorResult)
+		}
+		if got := result.RaidStats.Parties[0].Players[0].GetShapeshiftForm(); got != int32(want) {
+			t.Errorf("starting in %s, the sheet states form %d, want %d", name, got, want)
+		}
+	}
+}

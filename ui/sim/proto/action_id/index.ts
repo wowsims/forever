@@ -223,10 +223,12 @@ export class ActionId {
 		return this.itemId == other.itemId && this.randomSuffixId == other.randomSuffixId && this.spellId == other.spellId && this.otherId == other.otherId;
 	}
 
-	static makeItemUrl(id: number, randomSuffixId?: number): string {
+	/** The enchant is its effect id. */
+	static makeItemUrl(id: number, randomSuffixId?: number, enchantId?: number): string {
 		const url = new URL(wowheadEntityUrl('item', id));
 		url.searchParams.set('level', String(CHARACTER_LEVEL));
 		if (randomSuffixId) url.searchParams.set('bonus', String(randomSuffixId));
+		if (enchantId) url.searchParams.set('ench', String(enchantId));
 		return url.toString();
 	}
 	static makeSpellUrl(id: number, rank = 0, definitionId = 0): string {

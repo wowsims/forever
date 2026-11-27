@@ -789,6 +789,17 @@ func LoadAndWriteRawSpellEffects(dbHelper *DBHelper, inputsDir string) (map[int]
 
 	RawSpellEffectBySpellIdAndIndex := make(map[int]map[int]dbc.SpellEffect)
 	for spellID, effects := range groupedBySpellID {
+		// A row for another difficulty, a raid's or a heroic dungeon's, can stand under the same index as the
+		// normal one, which is the one kept: Dark Mending heals 30000, not its raid row's 100000.
+		slices.SortStableFunc(effects, func(a, b dbc.SpellEffect) int {
+			switch {
+			case a.DifficultyID == 0 && b.DifficultyID != 0:
+				return 1
+			case a.DifficultyID != 0 && b.DifficultyID == 0:
+				return -1
+			}
+			return 0
+		})
 		RawSpellEffectBySpellIdAndIndex[spellID] = CacheBy(effects, func(e dbc.SpellEffect) int {
 			return e.EffectIndex
 		})
@@ -1955,6 +1966,7 @@ func ScanSpells(rows *sql.Rows) (dbc.Spell, error) {
 		&spell.Variables,
 		&spell.MaxCumulativeStacks,
 		&spell.MaxTargets,
+		&spell.MaxTargetLevel,
 		&spell.RequiredAreasID,
 		&iconId,
 	)
@@ -2039,6 +2051,7 @@ func LoadAndWriteSpells(dbHelper *DBHelper, inputsDir string) ([]dbc.Spell, erro
 	COALESCE(sdv.Variables, ""),
 	COALESCE(sao.CumulativeAura, 0),
 	COALESCE(str.MaxTargets, 0),
+	COALESCE(str.MaxTargetLevel, 0),
 	COALESCE(scr.RequiredAreasID, 0),
 	COALESCE(sm.SpellIconFileDataID, 0)
 FROM

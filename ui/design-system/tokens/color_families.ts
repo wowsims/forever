@@ -8,7 +8,7 @@ export interface ColorFamily {
 }
 
 export const COLOR_FAMILIES: ReadonlyArray<ColorFamily> = [
-	{ name: 'Base', segments: ['black', 'white', 'grey', 'gray', 'blue', 'orange', 'maroon', 'frozen', 'light', 'off'] },
+	{ name: 'Base', segments: ['black', 'white', 'grey', 'gray', 'blue', 'gold', 'silver', 'copper', 'orange', 'maroon', 'frozen', 'light', 'off'] },
 	{ name: 'Surface', segments: ['background', 'foreground', 'surface', 'overlay', 'panel', 'border', 'muted', 'scrim', 'input', 'table', 'spinner', 'sim'] },
 	{ name: 'Primary', segments: ['primary'] },
 	{ name: 'Secondary', segments: ['secondary'] },

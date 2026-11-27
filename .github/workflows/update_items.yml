@@ -120,8 +120,33 @@ jobs:
             - name: Check the regenerated code builds 🧪
               run: |
                   go build ./...
-                  go test ./tools/database/
+                  go test ./tools/database/ -skip '^TestItemSpellTextsCompile$'
                   npm run type-check
+
+            # A spell the item database names whose game files text the tooltip compiler cannot read shows no text
+            # on the site. Like the tests below, a failure still opens the pull request, which names the spells, and
+            # fails the job after.
+            - name: Check the item spells' tooltips 💬
+              id: tooltips
+              continue-on-error: true
+              run: |
+                  set -o pipefail
+                  status=0
+                  go test ./tools/database/ -run '^TestItemSpellTextsCompile$' -count=1 2>&1 | tee "$RUNNER_TEMP/tooltips.log" || status=1
+                  {
+                      echo "summary<<TOOLTIPS_EOF"
+                      if [ "$status" -eq 0 ]; then
+                          echo "Every spell the item database names has its tooltip text (\`TestItemSpellTextsCompile\`)."
+                      else
+                          echo "Spells the item database names that have no tooltip text (\`TestItemSpellTextsCompile\`):"
+                          echo
+                          echo '```'
+                          grep -E 'no tooltip text|^(FAIL|panic:)' "$RUNNER_TEMP/tooltips.log" | head -n 100 || true
+                          echo '```'
+                      fi
+                      echo "TOOLTIPS_EOF"
+                  } >> "$GITHUB_OUTPUT"
+                  exit "$status"
 
             # The SIML name table names every item, enchant and suffix of the database and every spell the sim
             # registers, so the pull request carries the names a new row adds (sim/siml/SPEC.md §7.4). Like the
@@ -176,6 +201,8 @@ jobs:
                       - Hotfixes: ${{ steps.db.outputs.hotfixes }} (from ${{ env.DBCACHE_URL }})
                       - Ran `make db CLASSES=none SHARED=0 --cdn` and `simlnames`; the Go builds, the generator tests pass and the UI type-checks
 
+                      ${{ steps.tooltips.outputs.summary }}
+
                       ${{ steps.tests.outputs.summary }}
 
                       ${{ steps.db.outputs.report }}
@@ -190,6 +217,12 @@ jobs:
               if: steps.tests.outcome == 'failure'
               run: |
                   echo "::error::Go tests fail; the pull request lists them"
+                  exit 1
+
+            - name: Fail on the item spells' tooltips
+              if: steps.tooltips.outcome == 'failure'
+              run: |
+                  echo "::error::Spells the item database names have no tooltip text; the pull request lists them"
                   exit 1
 
     # The pull request checks do not run for a pull request the workflow token opened, so the same

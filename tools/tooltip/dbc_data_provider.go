@@ -6,14 +6,23 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
-	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/dbc"
 )
 
 type EffectMap map[int]dbc.SpellEffect
 type DBCTooltipDataProvider struct {
-	DBC *dbc.DBC
+	DBC        *dbc.DBC
+	Modifiers  Modifiers   // The talents' spell modifiers the compiled texts leave to the player's points.
+	Conditions *Conditions // What the compiled texts' conditions on spells, auras and passives read off the player.
+}
+
+func (d DBCTooltipDataProvider) GetModifiers() Modifiers {
+	return d.Modifiers
+}
+
+func (d DBCTooltipDataProvider) GetConditions() *Conditions {
+	return d.Conditions
 }
 
 func GetEffectByIndex(effects map[int]dbc.SpellEffect, index int) *dbc.SpellEffect {
@@ -44,7 +53,7 @@ func (d DBCTooltipDataProvider) GetSpellPPM(spellId int64) float64 {
 func (d DBCTooltipDataProvider) GetSpellProcCooldown(spellId int64) time.Duration {
 	spell, ok := d.DBC.Spells[int(spellId)]
 	if !ok {
-		return 1
+		return 0
 	}
 
 	return time.Duration(spell.ProcCategoryRecovery) * time.Millisecond
@@ -53,7 +62,7 @@ func (d DBCTooltipDataProvider) GetSpellProcCooldown(spellId int64) time.Duratio
 func (d DBCTooltipDataProvider) GetSpellMaxTargets(spellId int64) int64 {
 	spell, ok := d.DBC.Spells[int(spellId)]
 	if !ok {
-		return 1
+		return 0
 	}
 
 	return int64(spell.MaxTargets)
@@ -62,7 +71,7 @@ func (d DBCTooltipDataProvider) GetSpellMaxTargets(spellId int64) int64 {
 func (d DBCTooltipDataProvider) GetEffectAmplitude(spellId int64, effectIdx int64) float64 {
 	effectEntries, ok := d.DBC.SpellEffects[int(spellId)]
 	if !ok {
-		return 1
+		return 0
 	}
 
 	effect := GetEffectByIndex(effectEntries, int(effectIdx))
@@ -76,7 +85,7 @@ func (d DBCTooltipDataProvider) GetEffectAmplitude(spellId int64, effectIdx int6
 func (d DBCTooltipDataProvider) GetEffectChainAmplitude(spellId int64, effectIdx int64) float64 {
 	effectEntries, ok := d.DBC.SpellEffects[int(spellId)]
 	if !ok {
-		return 1
+		return 0
 	}
 
 	effect := GetEffectByIndex(effectEntries, int(effectIdx))
@@ -90,7 +99,7 @@ func (d DBCTooltipDataProvider) GetEffectChainAmplitude(spellId int64, effectIdx
 func (d DBCTooltipDataProvider) GetEffectPointsPerResource(spellId int64, effectIdx int64) float64 {
 	effectEntries, ok := d.DBC.SpellEffects[int(spellId)]
 	if !ok {
-		return 1
+		return 0
 	}
 
 	effect := GetEffectByIndex(effectEntries, int(effectIdx))
@@ -105,7 +114,7 @@ func (d DBCTooltipDataProvider) GetEffectPointsPerResource(spellId int64, effect
 func (d DBCTooltipDataProvider) GetEffectMaxTargets(spellId int64, effectIdx int64) int64 {
 	effectEntries, ok := d.DBC.SpellEffects[int(spellId)]
 	if !ok {
-		return 1
+		return 0
 	}
 
 	effect := GetEffectByIndex(effectEntries, int(effectIdx))
@@ -185,29 +194,6 @@ func (d DBCTooltipDataProvider) GetAttackPower() float64 {
 	return 1
 }
 
-func (d DBCTooltipDataProvider) ShouldUseBaseScaling(spellId int64) bool {
-	spellEntry, ok := d.DBC.Spells[int(spellId)]
-	if !ok {
-		return false
-	}
-
-	// need proper scaling entry
-	return spellEntry.SpellClassSet > 0
-}
-func (d DBCTooltipDataProvider) GetClass(spellId int64) proto.Class {
-	spellEntry, ok := d.DBC.Spells[int(spellId)]
-	if !ok {
-		return proto.Class_ClassUnknown
-	}
-
-	for class, family := range core.ClassSpellFamilies {
-		if family == spellEntry.SpellClassSet {
-			return class
-		}
-	}
-	return proto.Class_ClassUnknown
-}
-
 // GetEffectScaledValue implements TooltipDataProvider.
 func (d DBCTooltipDataProvider) GetEffectScaledValue(spellId int64, effectIdx int64) float64 {
 	amount := d.GetEffectAmount(spellId, effectIdx)
@@ -219,59 +205,30 @@ func (d DBCTooltipDataProvider) GetEffectScaledValue(spellId int64, effectIdx in
 // and which spell power those are.
 type EffectAmount struct {
 	Base, AP, SP float64
-	Low, High    float64 // The range the sim rolls at the character's level, from its spell store; 0 for an effect the store does not hold.
+	Low, High    float64 // The ends of the roll at the character's level; both Base on an effect that does not roll.
 	Ranged       bool    // SpellCategories.DefenseType 3: the attack power is ranged attack power.
 	School       int32   // The spell's school mask: the spell power is that school's.
 	Heal         bool    // A healing effect: the spell power is healing power.
+	Kind         string  // A damage or healing effect's kind, direct or periodic, which the player's done multipliers and talents change; "" for any other.
 }
 
+// An effect the spell does not have reads 0.
 func (d DBCTooltipDataProvider) GetEffectAmount(spellId int64, effectIdx int64) EffectAmount {
-	effectEntries, ok := d.DBC.SpellEffects[int(spellId)]
-	class := d.GetClass(spellId)
-
-	if !ok {
-		return EffectAmount{Base: 1}
+	spell, ok := d.DBC.Spells[int(spellId)]
+	effect := GetEffectByIndex(d.DBC.SpellEffects[int(spellId)], int(effectIdx))
+	if !ok || effect == nil {
+		return EffectAmount{}
 	}
 
-	effect := GetEffectByIndex(effectEntries, int(effectIdx))
-	if effect == nil {
-		return EffectAmount{Base: 1}
-	}
-
-	spell := d.DBC.Spells[int(spellId)]
 	amount := EffectAmount{Ranged: spell.DefenseType == 3, School: spell.SchoolMask}
-	if stored := spelldata.Find(int32(spellId)).EffectAtIndex(uint8(effectIdx)); stored != spelldata.NilEffect {
-		amount.Low, amount.High = stored.Min(), stored.Max()
-	}
-
-	// using class scaling
-	if effect.Coefficient > 0 && d.ShouldUseBaseScaling(spellId) {
-		baseValue := 0.0
-
-		// for now use generic unk13 scaling for level 90
-		if class == proto.Class_ClassUnknown {
-			baseValue = 1710.000000
-		} else {
-			baseValue = core.ClassBaseScaling[class]
-		}
-
-		amount.Base += baseValue * effect.Coefficient
-	} else {
-		amount.Base += float64(effect.EffectBasePoints)
-
-		if spell.MaxScalingLevel > 0 {
-			amount.Base += effect.EffectRealPointsPerLevel * math.Min(float64(spell.MaxScalingLevel), core.CharacterLevel)
-		} else {
-			amount.Base += float64(effect.EffectDieSides)
-		}
-	}
+	amount.Base, amount.Low, amount.High = rowAmount(spell, effect)
 
 	shouldScale := false
 	switch effect.EffectType {
 	case dbcenums.E_SCHOOL_DAMAGE:
-		shouldScale = true
+		shouldScale, amount.Kind = true, amountDamage
 	case dbcenums.E_HEAL:
-		shouldScale, amount.Heal = true, true
+		shouldScale, amount.Heal, amount.Kind = true, true, amountHeal
 
 	case dbcenums.E_APPLY_AURA,
 		dbcenums.E_APPLY_AREA_AURA_ENEMY,
@@ -284,9 +241,9 @@ func (d DBCTooltipDataProvider) GetEffectAmount(spellId int64, effectIdx int64) 
 		dbcenums.E_APPLY_AURA_ON_PET:
 		switch effect.EffectAura {
 		case dbcenums.A_PERIODIC_DAMAGE:
-			shouldScale = true
+			shouldScale, amount.Kind = true, amountPeriodicDamage
 		case dbcenums.A_PERIODIC_HEAL:
-			shouldScale, amount.Heal = true, true
+			shouldScale, amount.Heal, amount.Kind = true, true, amountPeriodicHeal
 		}
 	}
 
@@ -295,6 +252,35 @@ func (d DBCTooltipDataProvider) GetEffectAmount(spellId int64, effectIdx int64) 
 		amount.SP = max(effect.EffectBonusCoefficient, 0)
 	}
 	return amount
+}
+
+// An effect's amount and the ends of its roll at the character's level, read off the game files rows the way a
+// tooltip writes them: the base points plus the gain for each level between the spell's BaseLevel and the
+// character's, up to its MaxLevel, and EffectVariance spreading the base points half its width either side. Each
+// rounds a half away from zero: Pyroblast rank 6's 191 ± 23.6 plus 12.6 reads 180 to 227. float32 as the spell
+// store reads the same rows, whose own ends round outward for the sim.
+func rowAmount(spell dbc.Spell, effect *dbc.SpellEffect) (base, low, high float64) {
+	level := float32(core.CharacterLevel)
+	if spell.MaxLevel > 0 {
+		level = min(level, float32(spell.MaxLevel))
+	}
+	gain := max(level-float32(spell.BaseLevel), 0) * float32(effect.EffectRealPointsPerLevel)
+	points := float32(effect.EffectBasePoints)
+	side := float32(math.Abs(effect.EffectBasePoints)) * float32(effect.Variance) / 2
+	round := func(v float32) float64 { return math.Round(float64(v)) }
+	return round(points + gain), round(points - side + gain), round(points + side + gain)
+}
+
+func (d DBCTooltipDataProvider) GetEffectBonusCoefficient(spellId int64, effectIdx int64) float64 {
+	effect := GetEffectByIndex(d.DBC.SpellEffects[int(spellId)], int(effectIdx))
+	if effect == nil {
+		return 0
+	}
+	return effect.EffectBonusCoefficient
+}
+
+func (d DBCTooltipDataProvider) GetSpellAuraDescription(spellId int64) string {
+	return d.DBC.Spells[int(spellId)].AuraDescription
 }
 
 // GetDescriptionVariableString implements TooltipDataProvider.
@@ -307,35 +293,14 @@ func (d DBCTooltipDataProvider) GetDescriptionVariableString(spellId int64) stri
 	return spellEntry.Variables
 }
 
-// effectEnd returns one end of the range the sim rolls for an effect at the character's level. An
-// effect the spell store does not carry reads its base points at both ends, whatever variance it
-// states.
-func (d DBCTooltipDataProvider) effectEnd(spellId int64, effectIdx int64, end func(*spelldata.Effect) float64) float64 {
-	if effect := spelldata.Find(int32(spellId)).EffectAtIndex(uint8(effectIdx)); effect != spelldata.NilEffect {
-		return end(effect)
-	}
-
-	effectEntries, ok := d.DBC.SpellEffects[int(spellId)]
-	if !ok {
-		return 0
-	}
-
-	effect := GetEffectByIndex(effectEntries, int(effectIdx))
-	if effect == nil {
-		return 0
-	}
-
-	return float64(effect.EffectBasePoints)
-}
-
 // GetEffectBaseValue implements TooltipDataProvider.
 func (d DBCTooltipDataProvider) GetEffectBaseValue(spellId int64, effectIdx int64) float64 {
-	return d.effectEnd(spellId, effectIdx, (*spelldata.Effect).Min)
+	return d.GetEffectAmount(spellId, effectIdx).Low
 }
 
 // GetEffectMaxValue implements TooltipDataProvider.
 func (d DBCTooltipDataProvider) GetEffectMaxValue(spellId int64, effectIdx int64) float64 {
-	return d.effectEnd(spellId, effectIdx, (*spelldata.Effect).Max)
+	return d.GetEffectAmount(spellId, effectIdx).High
 }
 
 // GetEffectPeriod implements TooltipDataProvider.
@@ -414,6 +379,28 @@ func (d DBCTooltipDataProvider) GetSpellStacks(spellId int64) int64 {
 	}
 
 	return 0
+}
+
+// $u: the stacks the aura reaches, or its charges where it does not stack (Reckoning stores 4 attacks).
+func (d DBCTooltipDataProvider) GetSpellMaxStacks(spellId int64) int64 {
+	if stacks := d.DBC.Spells[int(spellId)].MaxCumulativeStacks; stacks > 0 {
+		return int64(stacks)
+	}
+	return d.GetSpellStacks(spellId)
+}
+
+// $q: an effect's first misc value, such as the mana Resurrection gives back.
+func (d DBCTooltipDataProvider) GetEffectMiscValue(spellId int64, effectIdx int64) float64 {
+	effect := GetEffectByIndex(d.DBC.SpellEffects[int(spellId)], int(effectIdx))
+	if effect == nil || len(effect.EffectMiscValues) == 0 {
+		return 0
+	}
+	return float64(effect.EffectMiscValues[0])
+}
+
+// $v: the highest level of target the spell affects (SpellTargetRestrictions.MaxTargetLevel).
+func (d DBCTooltipDataProvider) GetSpellMaxTargetLevel(spellId int64) float64 {
+	return float64(d.DBC.Spells[int(spellId)].MaxTargetLevel)
 }
 
 // HasAura implements TooltipDataProvider.

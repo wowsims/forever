@@ -30,23 +30,6 @@ export const AURA_AS_RESOURCE: ActionId[] = [
 	ActionId.fromOtherId(OtherAction.OtherActionItemSwap, APLActionItemSwap_SwapSet.Main),
 	ActionId.fromOtherId(OtherAction.OtherActionItemSwap, APLActionItemSwap_SwapSet.Swap1),
 
-	// Vengeance
-	ActionId.fromSpellId(84840), // Druid
-	ActionId.fromSpellId(84839), // Paladin
-	ActionId.fromSpellId(93098), // Warrior
-	ActionId.fromSpellId(93099), // Death Knight
-	ActionId.fromSpellId(120267), // Monk
-
-	// Monk
-	ActionId.fromSpellId(124255, 1), // Stagger
-	ActionId.fromSpellId(128938), // Elusive Brew - Stacks
-	ActionId.fromSpellId(115308), // Elusive Brew - Active
-	ActionId.fromSpellId(1247279), // Tiger Eye Brew - Stacks
-	ActionId.fromSpellId(1247275), // Tiger Eye Brew - Active
-
-	// Mage
-	ActionId.fromSpellId(148022), // Icicle
-
 	// Warlock
 	ActionId.fromItemId(6265), // Soul Shards
 ];

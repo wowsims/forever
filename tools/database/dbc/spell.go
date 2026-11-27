@@ -48,6 +48,7 @@ type Spell struct {
 	Variables             string
 	MaxCumulativeStacks   int32
 	MaxTargets            int32
+	MaxTargetLevel        int32 // SpellTargetRestrictions.MaxTargetLevel: the highest level of target the spell affects.
 	RequiredAreasID       int32
 	IconPath              string
 }

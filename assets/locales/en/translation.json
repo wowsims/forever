@@ -3834,6 +3834,7 @@
 		"kept_tooltip": "This item is showing because you have it selected. Use the filters to permanently show it."
 	},
 	"tooltips": {
+		"wowhead_link": "Wowhead",
 		"item_level": "Item Level {{ilvl}}",
 		"binding": {
 			"picked_up": "Binds when picked up",
@@ -3841,6 +3842,8 @@
 			"used": "Binds when used"
 		},
 		"unique": "Unique",
+		"unique_count": "Unique ({{n}})",
+		"unique_equipped": "Unique-Equipped",
 		"slots": {
 			"head": "Head",
 			"neck": "Neck",
@@ -3858,20 +3861,35 @@
 			"one_hand": "One-Hand",
 			"main_hand": "Main Hand",
 			"off_hand": "Off Hand",
-			"two_hand": "Two-Hand"
+			"two_hand": "Two-Hand",
+			"held_in_off_hand": "Held In Off-hand",
+			"shirt": "Shirt",
+			"tabard": "Tabard",
+			"ammo": "Ammo",
+			"thrown": "Thrown",
+			"relic": "Relic"
 		},
 		"damage": "{{min}} - {{max}} Damage",
+		"damage_school": "{{min}} - {{max}} {{school}} Damage",
 		"speed": "Speed {{speed}}",
 		"dps": "({{dps}} damage per second)",
 		"armor": "{{armor}} Armor",
+		"block": "{{value}} Block",
+		"container": "{{slots}} Slot {{type}}",
+		"ammo_dps": "Adds {{dps}} damage per second",
 		"stat": "+{{value}} {{stat}}",
 		"weapon_damage": "Damage",
+		"enchanted": "Enchanted: {{name}}",
 		"requires_level": "Requires Level {{level}}",
+		"requires": "Requires {{name}}",
+		"requires_skill": "Requires {{skill}} ({{rank}})",
+		"requires_reputation": "Requires {{faction}} - {{standing}}",
 		"classes": "Classes: {{classes}}",
 		"use": "Use: {{text}}",
 		"equip": "Equip: {{text}}",
 		"chance_on_hit": "Chance on hit: {{text}}",
 		"cooldown": "({{time}} Cooldown)",
+		"charges": "{{n}} Charges",
 		"time": {
 			"sec": "{{n}} Sec",
 			"min": "{{n}} Min",
@@ -3880,6 +3898,8 @@
 		},
 		"set": "{{name}} ({{worn}}/{{total}})",
 		"set_bonus": "({{count}}) Set: {{text}}",
+		"set_bonus_active": "Set: {{text}}",
+		"sell_price": "Sell Price:",
 		"equip_stats": {
 			"hit": "Improves your chance to hit by {{value}}%.",
 			"crit": "Improves your chance to get a critical strike by {{value}}%.",

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { GameTooltip } from '@ui-kit/GameTooltip';
 import { expect, userEvent, within } from 'storybook/test';
 
 import { LocaleHtml as LocaleHtmlContent } from './LocaleHtml';
@@ -9,6 +10,13 @@ const PLACES: Array<TooltipPlace> = ['top', 'right', 'bottom', 'left'];
 const PADDINGS = [true, false];
 
 const ANCHOR = 'border border-primary px-4 py-2 text-white';
+
+const ICONS = 'https://wow.zamimg.com/images/wow/icons/large';
+const LINKED_ANCHORS = [
+	{ name: 'Summon Hawk', icon: 'spell_nature_ravenform', href: 'https://wowhead.com/forever/spell=1293241' },
+	{ name: 'Improved Revenge', icon: 'ability_warrior_revenge', href: 'https://wowhead.com/forever/spell=12797' },
+	{ name: 'Devilsaur Gauntlets', icon: 'inv_gauntlets_26', href: 'https://wowhead.com/forever/item=15063' },
+];
 
 const meta = {
 	title: 'Kit/Tooltip',
@@ -90,4 +98,36 @@ export const LocaleHtml: Story = {
 	args: {
 		content: <LocaleHtmlContent html="Increases <strong>haste</strong> by <em>5%</em> for 10 sec." />,
 	},
+};
+
+/** Two rows of icons that link to their pages: the pointer reaches each tooltip's link, and moving on to the next icon switches to its tooltip. */
+export const CarriesLink: Story = {
+	args: { id: 'tooltip-story-linked', anchorSelect: 'a[href^="https://wowhead.com/forever/"]', carriesLink: true, content: undefined },
+	render: args => (
+		<div className="flex flex-col items-start gap-2 p-24">
+			{[0, 1].map(row => (
+				<div key={row} className="flex gap-2">
+					{LINKED_ANCHORS.map(anchor => (
+						<a
+							key={anchor.name}
+							href={anchor.href}
+							aria-label={anchor.name}
+							className="size-10 border border-border bg-cover"
+							style={{ backgroundImage: `url('${ICONS}/${anchor.icon}.jpg')` }}
+						/>
+					))}
+				</div>
+			))}
+			<Tooltip
+				{...args}
+				maxWidth="max-w-96"
+				render={({ activeAnchor }) => {
+					const anchor = LINKED_ANCHORS.find(({ href }) => href === activeAnchor?.getAttribute('href'));
+					return anchor ? (
+						<GameTooltip name={anchor.name} iconUrl={`${ICONS}/${anchor.icon}.jpg`} link={{ href: anchor.href, label: 'Wowhead' }} />
+					) : null;
+				}}
+			/>
+		</div>
+	),
 };

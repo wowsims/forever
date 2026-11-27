@@ -107,8 +107,9 @@ with headless `playwright-core`. It is not a dependency of this repo, so use a l
 
 - Route `**/*wowhead.com/**` through one `page.route` handler that aborts every request except those to
   `nether.wowhead.com`, so a Wowhead link or redirect cannot take the page away. Names, icons and hover tooltips come
-  from `assets/database/tooltips.json` (`ui/sim/proto/tooltips.ts`); only a spell or item that file lacks takes its name
-  and icon from that Wowhead API, and its row stays blank when the API is blocked.
+  from `assets/database/tooltips.json`, and from `tooltips_extra.json` for an id the first lacks
+  (`ui/sim/proto/tooltips.ts`); only a spell or item neither holds takes its name and icon from that Wowhead API, and its
+  row stays blank when the API is blocked.
 - Load with `waitUntil: 'load'` and then wait about 8 seconds; the page never reaches `networkidle`.
 - A fresh profile opens the onboarding tour, whose shield takes every click. Set the localStorage key `__forever_onboarding` to `skipped`
   in `page.addInitScript` before the page loads.

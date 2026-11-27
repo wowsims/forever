@@ -13102,6 +13102,9 @@
 		"tooltips": {
 			"type": "object",
 			"properties": {
+				"wowhead_link": {
+					"type": "string"
+				},
 				"item_level": {
 					"type": "string"
 				},
@@ -13122,6 +13125,12 @@
 					"required": ["picked_up", "equipped", "used"]
 				},
 				"unique": {
+					"type": "string"
+				},
+				"unique_count": {
+					"type": "string"
+				},
+				"unique_equipped": {
 					"type": "string"
 				},
 				"slots": {
@@ -13177,6 +13186,24 @@
 						},
 						"two_hand": {
 							"type": "string"
+						},
+						"held_in_off_hand": {
+							"type": "string"
+						},
+						"shirt": {
+							"type": "string"
+						},
+						"tabard": {
+							"type": "string"
+						},
+						"ammo": {
+							"type": "string"
+						},
+						"thrown": {
+							"type": "string"
+						},
+						"relic": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -13197,10 +13224,19 @@
 						"one_hand",
 						"main_hand",
 						"off_hand",
-						"two_hand"
+						"two_hand",
+						"held_in_off_hand",
+						"shirt",
+						"tabard",
+						"ammo",
+						"thrown",
+						"relic"
 					]
 				},
 				"damage": {
+					"type": "string"
+				},
+				"damage_school": {
 					"type": "string"
 				},
 				"speed": {
@@ -13209,7 +13245,16 @@
 				"dps": {
 					"type": "string"
 				},
+				"container": {
+					"type": "string"
+				},
+				"ammo_dps": {
+					"type": "string"
+				},
 				"armor": {
+					"type": "string"
+				},
+				"block": {
 					"type": "string"
 				},
 				"stat": {
@@ -13218,7 +13263,19 @@
 				"weapon_damage": {
 					"type": "string"
 				},
+				"enchanted": {
+					"type": "string"
+				},
 				"requires_level": {
+					"type": "string"
+				},
+				"requires": {
+					"type": "string"
+				},
+				"requires_skill": {
+					"type": "string"
+				},
+				"requires_reputation": {
 					"type": "string"
 				},
 				"classes": {
@@ -13234,6 +13291,9 @@
 					"type": "string"
 				},
 				"cooldown": {
+					"type": "string"
+				},
+				"charges": {
 					"type": "string"
 				},
 				"time": {
@@ -13259,6 +13319,12 @@
 					"type": "string"
 				},
 				"set_bonus": {
+					"type": "string"
+				},
+				"set_bonus_active": {
+					"type": "string"
+				},
+				"sell_price": {
 					"type": "string"
 				},
 				"equip_stats": {
@@ -13340,25 +13406,39 @@
 			},
 			"additionalProperties": false,
 			"required": [
+				"wowhead_link",
 				"item_level",
 				"binding",
 				"unique",
+				"unique_count",
+				"unique_equipped",
 				"slots",
 				"damage",
+				"damage_school",
 				"speed",
 				"dps",
 				"armor",
+				"block",
+				"container",
+				"ammo_dps",
 				"stat",
 				"weapon_damage",
+				"enchanted",
 				"requires_level",
+				"requires",
+				"requires_skill",
+				"requires_reputation",
 				"classes",
 				"use",
 				"equip",
 				"chance_on_hit",
 				"cooldown",
+				"charges",
 				"time",
 				"set",
 				"set_bonus",
+				"set_bonus_active",
+				"sell_price",
 				"equip_stats"
 			]
 		}

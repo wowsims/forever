@@ -1,7 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { Tooltip } from './Tooltip';
+
+const pointer = vi.hoisted(() => ({ hover: true }));
+vi.mock('../../shared/pointer', () => ({ hasHover: () => pointer.hover }));
 
 const Anchored = ({ content = 'Reforge to hit cap' }: { content?: string }) => (
 	<>
@@ -59,5 +62,87 @@ describe('Tooltip', () => {
 		fireEvent.mouseEnter(screen.getByRole('button'));
 		await screen.findByText('Reforge to hit cap');
 		expect(document.querySelectorAll('style[id^="react-tooltip-"]')).toHaveLength(0);
+	});
+
+	describe('carriesLink', () => {
+		afterEach(() => {
+			pointer.hover = true;
+		});
+
+		// Two link anchors and a tooltip that names its anchor and links to its page, as the game tooltips do.
+		const Linked = ({ carriesLink = true }: { carriesLink?: boolean }) => (
+			<>
+				<a href="https://example.com/1">first</a>
+				<a href="https://example.com/2">second</a>
+				<Tooltip
+					id="linked"
+					anchorSelect='a[href^="https://example.com/"]'
+					carriesLink={carriesLink}
+					render={({ activeAnchor }) => (
+						<span>
+							Tooltip of {activeAnchor?.textContent}
+							<a href={activeAnchor?.getAttribute('href') ?? ''}>page</a>
+						</span>
+					)}
+				/>
+			</>
+		);
+		const pause = (ms: number) => act(() => new Promise(resolve => setTimeout(resolve, ms)));
+
+		it('stays open while the pointer moves from the anchor onto its link, which anchors no tooltip', async () => {
+			render(<Linked />);
+			fireEvent.mouseOver(screen.getByText('first'));
+			const page = await screen.findByRole('link', { name: 'page' });
+
+			fireEvent.mouseOut(screen.getByText('first'), { relatedTarget: page });
+			fireEvent.mouseOver(page);
+			await pause(250);
+			expect(screen.getByRole('tooltip').textContent).toContain('Tooltip of first');
+			expect(screen.getByRole('link', { name: 'page' }).getAttribute('href')).toBe('https://example.com/1');
+		});
+
+		it('still hides when the pointer leaves an anchor after one closed by Escape with the pointer on its link', async () => {
+			render(<Linked />);
+			fireEvent.mouseOver(screen.getByText('first'));
+			const page = await screen.findByRole('link', { name: 'page' });
+			fireEvent.mouseOut(screen.getByText('first'), { relatedTarget: page });
+			fireEvent.mouseOver(page);
+			fireEvent.keyDown(window, { key: 'Escape' });
+			await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
+
+			fireEvent.mouseOver(screen.getByText('second'));
+			await screen.findByText(/Tooltip of second/);
+			fireEvent.mouseOut(screen.getByText('second'), { relatedTarget: document.body });
+			await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
+		});
+
+		it('switches to the next anchor the pointer moves onto', async () => {
+			render(<Linked />);
+			fireEvent.mouseOver(screen.getByText('first'));
+			await screen.findByText(/Tooltip of first/);
+
+			fireEvent.mouseOut(screen.getByText('first'), { relatedTarget: screen.getByText('second') });
+			fireEvent.mouseOver(screen.getByText('second'), { relatedTarget: screen.getByText('first') });
+			expect(await screen.findByText(/Tooltip of second/)).toBeTruthy();
+		});
+
+		it('without hover, opens on a tap of a link anchor instead of following it, and follows its own link', async () => {
+			pointer.hover = false;
+			render(<Linked />);
+			expect(fireEvent.click(screen.getByText('first'))).toBe(false);
+			const page = await screen.findByRole('link', { name: 'page' });
+			expect(fireEvent.click(page)).toBe(true);
+		});
+
+		it('leaves a tapped link anchor to follow its link on a tooltip that carries none', () => {
+			pointer.hover = false;
+			render(<Linked carriesLink={false} />);
+			expect(fireEvent.click(screen.getByText('first'))).toBe(true);
+		});
+
+		it('leaves a clicked link anchor to follow its link where there is hover', () => {
+			render(<Linked />);
+			expect(fireEvent.click(screen.getByText('first'))).toBe(true);
+		});
 	});
 });

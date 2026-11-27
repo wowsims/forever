@@ -818,3 +818,54 @@ func TestSniperShotChargeGoesAtTheShotsCast(t *testing.T) {
 		}
 	}
 }
+
+// The sheet's damage multipliers carry Lone Wolf on every school while no pet is out, and the hunter's own
+// multipliers stay as they are with one out; healing never moves.
+func TestDoneMultipliersCarryLoneWolfWithoutAPet(t *testing.T) {
+	doneMultipliers := func(talents string, pet proto.HunterOptions_PetType) *proto.DoneMultipliers {
+		player := &proto.Player{
+			Name:          "Lone Wolf",
+			Race:          proto.Race_RaceOrc,
+			Class:         proto.Class_ClassHunter,
+			Equipment:     &proto.EquipmentSpec{},
+			TalentsString: talents,
+			Spec: &proto.Player_Hunter{Hunter: &proto.Hunter{Options: &proto.Hunter_Options{
+				ClassOptions: &proto.HunterOptions{PetType: pet, PetUptime: 1},
+			}}},
+			Rotation: &proto.APLRotation{},
+		}
+		result := core.ComputeStats(&proto.ComputeStatsRequest{
+			Raid:      core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter: core.MakeSingleTargetEncounter(0),
+		})
+		if result.ErrorResult != "" {
+			t.Fatal(result.ErrorResult)
+		}
+		return result.RaidStats.Parties[0].Players[0].GetDoneMultipliers()
+	}
+	withoutLoneWolf := strings.Replace(DefaultMMTalents, "25115", "25015", 1)
+	loneWolf := spellData.LoneWolf.EffectAt(1).MultiplierAt(1)
+	if loneWolf <= 1 {
+		t.Fatalf("Lone Wolf multiplies damage by %v, want more than 1", loneWolf)
+	}
+
+	for _, pet := range []proto.HunterOptions_PetType{proto.HunterOptions_PetNone, proto.HunterOptions_Cat} {
+		base := doneMultipliers(withoutLoneWolf, pet)
+		with := doneMultipliers(DefaultMMTalents, pet)
+		want := loneWolf
+		if pet != proto.HunterOptions_PetNone {
+			want = 1
+		}
+		if len(with.GetDamage()) != len(proto.SpellSchool_name) || len(base.GetDamage()) != len(with.GetDamage()) {
+			t.Fatalf("with %s, the sheet states %d and %d school damage multipliers, want %d", pet, len(base.GetDamage()), len(with.GetDamage()), len(proto.SpellSchool_name))
+		}
+		for school := range with.GetDamage() {
+			if got := with.GetDamage()[school] / base.GetDamage()[school]; math.Abs(got-want) > 1e-9 {
+				t.Errorf("with %s, Lone Wolf multiplies %s damage on the sheet by %v, want %v", pet, proto.SpellSchool(school), got, want)
+			}
+		}
+		if with.GetHealing() != base.GetHealing() {
+			t.Errorf("with %s, Lone Wolf moves healing on the sheet from %v to %v", pet, base.GetHealing(), with.GetHealing())
+		}
+	}
+}

@@ -560,6 +560,8 @@ func (character *Character) FillPlayerStats(playerStats *proto.PlayerStats) {
 	playerStats.MobTypeBonuses = character.mobTypeBonusesProto()
 	playerStats.AreaStats = character.Equipment.areaStatsProto()
 	playerStats.VersusEffects = character.versusEffectsProto()
+	playerStats.DoneMultipliers = character.doneMultipliersProto()
+	playerStats.ShapeshiftForm = int32(character.ShapeshiftForm)
 
 	character.clearBuildPhaseAuras(CharacterBuildPhaseAll)
 	playerStats.Sets = character.GetActiveSetBonusNames()
