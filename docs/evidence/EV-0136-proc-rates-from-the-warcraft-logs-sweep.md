@@ -2571,8 +2571,8 @@ and Mongoose Bite 0 on 3), left out of the rate. Direct: window [-10, 100] ms, m
 isolated hits. Dropping the swapped stretches (5.5 active minutes, 1% of hits, in 1 run) moved the read from 0.99 to
 1.00. Reports from 2026-11-13 to 2026-11-22.
 
-With the off-hand wearers' 129 Shanks from 2026-11-20 counted as rolls (EV-0155), all hits read
-0.99 [0.93, 1.06], the same rate rounded.
+With the off-hand wearers' 129 Shanks from 2026-11-20 counted as rolls (EV-0155), all hits read 0.99 [0.93, 1.06], the
+same rate rounded.
 
 | Class   | Wearers | Procs |  Hits |  PPM |
 | ------- | ------: | ----: | ----: | ---: |

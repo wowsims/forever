@@ -30,10 +30,10 @@ One Lacerations attempt is a debuff application, a stack gained, a refresh with 
 (the debuff already at 5), or a 0-amount damage event of 10370, which is a Lacerations that missed, was dodged or was
 parried. The seven wearers log 1,308 attempts.
 
-An attempt is credited by time to what rolled it. A landed Lacerations logs within 2 ms of the hit that rolled it.
-A failed one logs when that hit is cast, so for a hit that lands late (Judgement of Command, a seal's strike, a
-Windfury Totem hit) it sits 4 to 20 ms before the hit, and goes to the
-next hit or debuff within 30 ms. All but one attempt has such an owner.
+An attempt is credited by time to what rolled it. A landed Lacerations logs within 2 ms of the hit that rolled it. A
+failed one logs when that hit is cast, so for a hit that lands late (Judgement of Command, a seal's strike, a Windfury
+Totem hit) it sits 4 to 20 ms before the hit, and goes to the next hit or debuff within 30 ms. All but one attempt has
+such an owner.
 
 A hit counts when it is the wearer's only hit event on that target within 100 ms, no periodic tick falls there, it is
 not a killing blow and a gear snapshot shows the axe. A white swing also needs no other debuff of the wearer at its
@@ -62,8 +62,8 @@ Auto Shot (546), Volley (818), Multi-Shot (180), Arcane Shot (140), Hammer of Wr
 Consecration (6,004 ticks) and Sweeping Strikes' copied hit (2 of 121) roll nothing. Rend's application rolls with no
 damage event beside it.
 
-Overpower (12 of 35) and Rend's application (33 of 103) read above the white swing's chance. Raptor Strike reads below it here (0 of 21, at most
-15.5%) and rolls on the other weapons.
+Overpower (12 of 35) and Rend's application (33 of 103) read above the white swing's chance. Raptor Strike reads below
+it here (0 of 21, at most 15.5%) and rolls on the other weapons.
 
 ## The hit roll of Lacerations
 
@@ -221,11 +221,10 @@ Rend is in `p6mVRBzvWMqnQZFc`, fight 2, at 21:44.354.
 
 ## Fiery Weapon on a weapon proc's strike
 
-The combat log of EV-0130 has Fiery Weapon 803 on a two-handed mace whose proc is the bleed 1306816 and on a
-two-handed sword whose proc is the strike 12731. Units and rolls are EV-0130's. A unit where one of the paladin's
-Judgement debuffs is refreshed or Vindication goes on the target is left out. On
-units with no line of the weapon's proc Fiery Weapon reads 34.3% a roll on the mace (370 of 1,080) and 36.8% on the
-sword (176 of 478).
+The combat log of EV-0130 has Fiery Weapon 803 on a two-handed mace whose proc is the bleed 1306816 and on a two-handed
+sword whose proc is the strike 12731. Units and rolls are EV-0130's. A unit where one of the paladin's Judgement debuffs
+is refreshed or Vindication goes on the target is left out. On units with no line of the weapon's proc Fiery Weapon
+reads 34.3% a roll on the mace (370 of 1,080) and 36.8% on the sword (176 of 478).
 
 170 units hold one landed weapon proc and no failed one:
 

@@ -52,11 +52,12 @@ minute from a flat chance per hit.
 The intervals are Wilson intervals on the chance. The whole-run row counts every proc and every roll of a run. The rate
 is the rate over all rolls of both classes, rounded to 0.05. Paladins are in the rate (owner ruling, 2026-11-23): they
 count by EV-0155's and EV-0156's rolls wherever their rate does not read apart from the other classes'. Every run here
-is after the hotfix of the Judgement rows on 2026-11-13, and no run casts Judgement of Command. The two classes' rates over all rolls have overlapping intervals, and across the 6 runs the chance per roll
-gives a chi-square of 4.7 on 5 degrees of freedom. The lone white swings do not check the rate: the paladins' read 3.64%
-on 16 procs where the shaman's read 2.21%, and both classes together have 39 procs, under the 50 EV-0153 asks of a
-lone-unit rate. The rate is observed: 4 wearers give it, where a measured rate takes 5, and its interval reaches further
-than 10% from the read. At 0.5 procs per minute the 9,911 rolls give 132 procs.
+is after the hotfix of the Judgement rows on 2026-11-13, and no run casts Judgement of Command. The two classes' rates
+over all rolls have overlapping intervals, and across the 6 runs the chance per roll gives a chi-square of 4.7 on 5
+degrees of freedom. The lone white swings do not check the rate: the paladins' read 3.64% on 16 procs where the shaman's
+read 2.21%, and both classes together have 39 procs, under the 50 EV-0153 asks of a lone-unit rate. The rate is
+observed: 4 wearers give it, where a measured rate takes 5, and its interval reaches further than 10% from the read. At
+0.5 procs per minute the 9,911 rolls give 132 procs.
 
 | Report           | Fight | Class   | Region | Build          | Procs | Rolls |  PPM | Longest stretch with no proc |
 | ---------------- | ----: | ------- | ------ | -------------- | ----: | ----: | ---: | ---------------------------: |

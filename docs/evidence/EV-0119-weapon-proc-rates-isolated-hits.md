@@ -2,8 +2,8 @@
 
 - Claim: Stinging Viper rolls 1.75 procs per minute, Toxic Revenger 1.8, Meteor Shard 1.55, Bite of Serra'kis 1.45,
   White Obsidian Wand 3.75 (on wand shots), Ravager 1, The Black Knight 0.6 and Heartseeking Crossbow 2.7. A melee-type
-  hit cast directly or flagged Not a Proc rolls an on-hit weapon proc, Windfury Totem hits included; a ranged-type
-  hit never does, and a Judgement of Command rolls it once (EV-0155). Ironfoe's chance is 3% against other targets and 6%
+  hit cast directly or flagged Not a Proc rolls an on-hit weapon proc, Windfury Totem hits included; a ranged-type hit
+  never does, and a Judgement of Command rolls it once (EV-0155). Ironfoe's chance is 3% against other targets and 6%
   against Orcs.
 - Sources: 709 public reports on forever.warcraftlogs.com (zone 3000 listing, 2026-11-14 17:49 to 2026-11-15 07:00
   UTC) that list one of the procs; the codes behind each rate are listed under the rates table.
@@ -19,12 +19,12 @@ A wearer is a player whose combatant info lists the item in the worn fights; run
 A proc is one event of the proc spell's main event (its damage, its aura application or refresh, or its extra
 attack); same-target events of one millisecond from two hits count as two, an area proc's other targets as one.
 
-Each rate comes from isolated hits: a landed hit with no other landed hit of the wearer within the proc's logging
-window (50 to 400 ms, from the gap between a proc and the hit before it), so each proc has one hit that can have
-rolled it. Only wearers with the item in the main hand (or the ranged slot) and no off-hand weapon count, by class:
-dual wielders log both hands' swings under one ability, and Druid forms swing the paw (feral wearers are left out).
-Casts that land without a damage event (Sunder Armor, Rend) count as hits; Shield Slam, Shield Bash, Shank and
-Thunder Clap roll no main-hand weapon proc and are left out (EV-0155). PPM = chance × 60 / the weapon's speed. Haste leaves the per-hit
+Each rate comes from isolated hits: a landed hit with no other landed hit of the wearer within the proc's logging window
+(50 to 400 ms, from the gap between a proc and the hit before it), so each proc has one hit that can have rolled it.
+Only wearers with the item in the main hand (or the ranged slot) and no off-hand weapon count, by class: dual wielders
+log both hands' swings under one ability, and Druid forms swing the paw (feral wearers are left out). Casts that land
+without a damage event (Sunder Armor, Rend) count as hits; Shield Slam, Shield Bash, Shank and Thunder Clap roll no
+main-hand weapon proc and are left out (EV-0155). PPM = chance × 60 / the weapon's speed. Haste leaves the per-hit
 chance alone, since the rate is priced on the weapon's base speed.
 
 Each rate is the pooled rate of its table, all its rows, rounded to the nearest 0.05 step. Ravager's is an owner

@@ -1,15 +1,14 @@
 # EV-0155: Which hits roll a weapon proc, by class
 
-- Claim: Execute and Judgement of Command each roll the main-hand weapon once and equip procs once. A Mutilate rolls
-  the main-hand weapon once and the off-hand weapon once. The landings of Serpent Sting,
-  Concussive Shot and Scorpid Sting roll the ranged weapon once. A dual wielder's Whirlwind rolls each hand's weapon
-  once. Sap and Death Mark roll nothing. Windfury
-  Weapon and Windfury Totem hits roll once; imbue strikes and poisons add no roll. A weapon proc's melee-table strike
-  that a main-hand white swing casts rolls the main-hand weapon once more, Loksey's Training Stick's Tough Love and the
-  Rend procs among them; magic procs never do. Mongoose Bite and Mocking Blow are not settled: thin samples here read
-  above one roll, a larger separate count reads one. Summon Hawk's hits roll the ranged weapon once. A rogue's Shank
-  rolls the off-hand weapon and equip procs once and the main-hand weapon never; Torturing Poker, which procs only from
-  its own hand's hits, never procs from it.
+- Claim: Execute and Judgement of Command each roll the main-hand weapon once and equip procs once. A Mutilate rolls the
+  main-hand weapon once and the off-hand weapon once. The landings of Serpent Sting, Concussive Shot and Scorpid Sting
+  roll the ranged weapon once. A dual wielder's Whirlwind rolls each hand's weapon once. Sap and Death Mark roll
+  nothing. Windfury Weapon and Windfury Totem hits roll once; imbue strikes and poisons add no roll. A weapon proc's
+  melee-table strike that a main-hand white swing casts rolls the main-hand weapon once more, Loksey's Training Stick's
+  Tough Love and the Rend procs among them; magic procs never do. Mongoose Bite and Mocking Blow are not settled: thin
+  samples here read above one roll, a larger separate count reads one. Summon Hawk's hits roll the ranged weapon once. A
+  rogue's Shank rolls the off-hand weapon and equip procs once and the main-hand weapon never; Torturing Poker, which
+  procs only from its own hand's hits, never procs from it.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every indexed wearer run of the 24 census weapons: 2,670
   runs in 2,361 reports, too many to list; the examples below name report, fight and time
 - Game build: 1.60.1.70790 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114196; the hotfix
@@ -43,8 +42,8 @@ chance pooled over every class but paladins and druids in a form. A ratio of 1 i
 is none. The interval is a wearer bootstrap.
 
 Scripts and output, in `forever-double-roll-1119`: `extract.py`, `units.py` and `report.py` (`report_out.md`, the full
-table), `pooled.py` (`pooled_out.md`), `wf.py` (`wf_out.md`), `chain.py` (`chain_out.md`), `jud.py` (`jud_out.md`) and
-`examples.py` (`examples_out.md`).
+table), `pooled.py` (`pooled_out.md`), `wf.py` (`wf_out.md`), `chain.py` (`chain_out.md`) and `examples.py`
+(`examples_out.md`).
 
 ## Lone units of one event
 
@@ -128,9 +127,9 @@ Two rolls read about 1.81:
 | 1–4   |       39 |                153/480 | 1.68 [1.38, 1.98] |                   10/74 |
 | 5     |       50 |              507/1,350 | 2.09 [1.89, 2.31] |                   18/97 |
 
-Every rank's cast rolls the totem, an avoided Execute included; leaving out one warrior at a time keeps
-ranks 1–4 at 1.60 to 1.74. Shield Slam and Shield Bash drew no Windfury hit on 2026-11-20, so the reference leaves them
-out.
+Every rank's cast rolls the totem as well as its strike, an avoided Execute included; leaving out one warrior at a time
+keeps ranks 1–4 at 1.60 to 1.74. Shield Slam and Shield Bash drew no Windfury hit on 2026-11-20, so the reference
+leaves them out.
 
 Mutilate, rogues with a dagger in each hand, 2026-11-20 23:47 UTC to 2026-11-21 08:49 UTC. A unit is one Mutilate's
 main-hand and off-hand strike, both landed, with no other hit or debuff of the rogue on that target within 100 ms and no
@@ -146,9 +145,9 @@ section Count of the 2026-11-20 to 2026-11-27 reports.
 | Deadly Poison, off hand   |     22 | 3,166 |       1,320 |               1,293 | 1.02 [0.98, 1.07] | one roll |
 
 Windfury Totem off a landed Mutilate, against the same rogue's other main-hand specials and Eviscerate, reads one roll:
-1.16 [1.04, 1.28] on 83 rogues from 2026-11-14 to 2026-11-20 22:15 UTC and 0.94 [0.79, 1.13] on 15 after the push,
-where two rolls read about 1.8. A dodged, parried or missed Mutilate cast is followed by no Windfury hit, 0 of 925 and 0
-of 136, so the cast never rolls the totem. Mutilate's reports are in `codes_mut_after.txt` (29), `codes_mutwf_before.txt`
+1.16 [1.04, 1.28] on 83 rogues from 2026-11-14 to 2026-11-20 22:15 UTC and 0.94 [0.79, 1.13] on 15 after the push, where
+two rolls read about 1.8. A dodged, parried or missed Mutilate cast is followed by no Windfury hit, 0 of 925 and 0 of
+136, so the cast never rolls the totem. Mutilate's reports are in `codes_mut_after.txt` (29), `codes_mutwf_before.txt`
 (121) and `codes_mutwf_after.txt` (24); its scripts are `mut.py`, `mut_report.py` (`mut_out.md`) and `totem_mut.py`
 (`totem_out_mutwf.md`).
 
@@ -189,12 +188,12 @@ The Seal of Command strike beside its white swing reads two rolls. A lone Judgem
 Judgement of the Crusader landing, each with its Judgement cast, hold no proc, so neither the Judgement cast nor those
 judgements roll.
 
-Crusader (Holy Strength 20007) and Windfury Totem hits off a lone Judgement of Command, from the 589 report streams
-with a paladin from 2026-11-24 12:41 UTC on (760 paladin runs once a player's run logged twice counts once), with no
-weapon filter, against each run's own lone white swings. Crusader takes runs with 100 lone white
-swings and the enchant seen; Windfury Totem takes runs with 20 lone white swings with the totem in range (another
-Windfury Totem hit of the paladin within 5 s outside the unit). The fit is the one above with p the run's own chance
-per white swing.
+Crusader (Holy Strength 20007) and Windfury Totem hits off a lone Judgement of Command after the switch, from the 589
+report streams with a paladin from 2026-11-24 12:41 UTC on (760 paladin runs once a player's run logged twice counts
+once), with no weapon filter, against each run's own lone white swings. Crusader takes runs with 100 lone white swings
+and the enchant seen; Windfury Totem takes runs with 20 lone white swings with the totem in range (another Windfury
+Totem hit of the paladin within 5 s outside the unit). The fit is the one above with p the run's own chance per white
+swing.
 
 | Proc           | Paladins | Units | With a proc | One roll would give | Rolls per hit [95%] | Reading        |
 | -------------- | -------: | ----: | ----------: | ------------------: | ------------------- | -------------- |
@@ -279,18 +278,24 @@ Report, fight and time into the fight, class and weapon (`examples_out.md`):
 
 ## Count of the 2026-11-20 to 2026-11-27 reports
 
-- Game build: 1.60.1.70959 to 1.60.1.71139 by report date (71037 from 2026-11-20 18:23 UTC, 71091 from 2026-11-24
-  15:21, 71139 from 2026-11-25 19:14); the hotfix each player ran is not recorded, and the rows split by the time of
-  each event at hotfix push 114313 (2026-11-21 00:00 UTC, the hour before it left out), the 2026-11-23 hotfix (2026-11-24 01:00) and hotfix push
-  114399 (2026-11-25 02:00)
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the streams of every rogue, warrior and paladin wearer
   of the weapons and equip procs the sweep's roll watch follows, too many to list
+- Game build: 1.60.1.70959 to 1.60.1.71139 by report date (71037 from 2026-11-20 18:23 UTC, 71091 from 2026-11-24 15:21,
+  71139 from 2026-11-25 19:14); the hotfix each player ran is not recorded
+- Date: 2026-11-20 00:00 UTC to 2026-11-27, by the time of each event, split at hotfix push 114313 (2026-11-21 00:00
+  UTC), the 2026-11-23 hotfix (2026-11-24 01:00 UTC) and hotfix push 114399 (2026-11-25 02:00 UTC); the hour that holds
+  each of the two pushes is left out
+- Pull request: #1266
+
+Hotfix push 114281 takes the flags that suppressed weapon procs off Shank's row. The first Shank followed by a weapon
+proc in these logs is at 2026-11-20 01:10 UTC.
 
 A unit is a wearer's lone Shank, Execute, Judgement of Command or Mutilate on one target, a Mutilate's main-hand and
-off-hand strike together, with killing blows left out. One roll gives the procs the same
-wearers' lone white swings of the hand predict in the same period: an off-hand or main-hand weapon's chance per swing,
-or, for an equip proc, its rate on the weapon's speed. The rolls are the number of such rolls that gives the procs
-counted, and the interval comes from 300 draws of whole wearers. A run logged in two reports counts once.
+off-hand strike together, with killing blows left out. One roll gives the procs the lone white swings in the same period
+predict: the same class's on the same item and hand, or, where the class has fewer than 30, the chance pooled over every
+class but paladins and druids in a form. An equip proc takes its rate on the weapon's speed, or its chance per swing
+where it has a flat chance. The rolls are the procs counted over the procs one roll gives, and the interval comes from
+300 draws of whole wearers. A run logged in two reports counts once.
 
 | Proc            | Period                                 | Wearers | Lone Shanks | Procs | One roll gives | Rolls [95%]       |
 | --------------- | -------------------------------------- | ------: | ----------: | ----: | -------------: | ----------------- |
@@ -298,7 +303,7 @@ counted, and the interval comes from 300 draws of whole wearers. A run logged in
 | Off hand        | hotfix push 114313 to the 11-23 hotfix |     291 |      18,395 |   899 |            898 | 1.00 [0.93, 1.08] |
 | Off hand        | the 11-23 hotfix to hotfix push 114399 |      79 |       4,539 |   219 |            212 | 1.03 [0.88, 1.27] |
 | Off hand        | after hotfix push 114399               |      74 |       4,063 |   205 |            201 | 1.02 [0.89, 1.18] |
-| Main hand       | 2026-11-20 to hotfix push 114313       |      72 |       2,640 |     7 |            164 | 0.04 [0.00, 0.13] |
+| Main hand       | 2026-11-20 to hotfix push 114313       |      72 |       2,640 |     7 |            163 | 0.04 [0.00, 0.13] |
 | Main hand       | hotfix push 114313 to the 11-23 hotfix |     262 |      13,417 |     6 |            820 | 0.01 [0.00, 0.02] |
 | Main hand       | the 11-23 hotfix to hotfix push 114399 |     102 |       5,290 |     3 |            359 | 0.01 [0.00, 0.03] |
 | Main hand       | after hotfix push 114399               |     102 |       5,066 |     0 |            258 | 0.00 [0.00, 0.00] |
@@ -335,6 +340,11 @@ Execute and Mutilate from hotfix push 114313, and Judgement of Command from hotf
 
 Execute rolls the main-hand weapon and equip procs once in every period since hotfix push 114313, and Judgement of
 Command since hotfix push 114399. A Mutilate rolls the main-hand weapon once and the off-hand weapon once.
+
+Equip procs read one roll off both before those pushes too, in the same count: Judgement of Command 0.95 [0.70, 1.12]
+on 14 wearers from 2026-11-06 to 2026-11-20, 1.04 [0.72, 1.36] on 19 from hotfix push 114313 to the 11-23 hotfix and
+1.11 [0.75, 1.35] on 8 from that hotfix to hotfix push 114399; Execute 1.00 [0.83, 1.16] on 26 from 2026-11-06 to
+2026-11-20 and 1.25 [0.73, 1.88] on 8 from 2026-11-20 to hotfix push 114313.
 
 Scripts and output, in `forever-sweep-auto`: `roll_watch.py` (its main-hand Shank row) and the run
 `runs/2026-11-27-shank` (`roll_watch.md`, `shank_rows.json`, `all_rows.json`).

@@ -20,9 +20,8 @@ those of EV-0120, EV-0121, EV-0125, EV-0131, EV-0133, EV-0136, EV-0146, EV-0150,
 with the same classes and forms left out, intervals, lone-unit checks, swap drop, credit windows and calls of measured
 or observed. Each Mutilate strike rolls its own hand once (EV-0155); the count takes each Mutilate from hotfix push
 114313 (2026-11-20 23:47 UTC) as those rolls and leaves out the ones before it with their procs, as it does the two-roll
-abilities. A Shank rolls the off-hand weapon once
-(EV-0155), and the count takes each Shank from 2026-11-20 as an off-hand roll. A lone-unit rate from fewer than 5
-wearers takes a Poisson interval on its procs.
+abilities. A Shank rolls the off-hand weapon once (EV-0155), and the count takes each Shank from 2026-11-20 as an
+off-hand roll. A lone-unit rate from fewer than 5 wearers takes a Poisson interval on its procs.
 
 Rolls and procs follow EV-0155 with these rules. A debuff-only landing (Sunder Armor, Rend's landing, Cheap Shot, a
 sting) rolls a weapon proc once, and an equip proc only where its own lone landings proc at half the white chance or
