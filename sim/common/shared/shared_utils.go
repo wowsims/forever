@@ -976,12 +976,12 @@ func applyDotIfLanded(area bool) afterDealt {
 // enemies still take their rolls and count toward a split and the AoE cap.
 func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
 	results := calcMultiTargetDamageOnAll(sim, spell, target, row, effect, outcome)
-	if row.TargetCreatureType == 0 {
+	targets := row.TargetCreatureTypes()
+	if targets.IsEmpty() {
 		return results
 	}
-	mobTypes := spelldata.MobTypes(row.TargetCreatureType)
 	return slices.DeleteFunc(results, func(result *core.SpellResult) bool {
-		if slices.Contains(mobTypes, result.Target.MobType) {
+		if targets.Matches(result.Target) {
 			return false
 		}
 		spell.DisposeResult(result)

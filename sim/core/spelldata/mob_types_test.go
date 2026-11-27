@@ -37,11 +37,11 @@ func TestAVersusAuraFollowsItsAuraOnTheAttackTables(t *testing.T) {
 	ParseEffects(character, aura, row)
 
 	aura.Activate(sim)
-	if got := undead.MobTypeBonusStats[proto.MobType_MobTypeUndead][stats.AttackPower]; got != 99 {
+	if got := undead.VersusStats[stats.AttackPower]; got != 99 {
 		t.Errorf("attack power against Undead while up: %v, want 99", got)
 	}
 	aura.Deactivate(sim)
-	if got := undead.MobTypeBonusStats[proto.MobType_MobTypeUndead][stats.AttackPower]; got != 0 {
+	if got := undead.VersusStats[stats.AttackPower]; got != 0 {
 		t.Errorf("attack power against Undead after expiry: %v, want 0", got)
 	}
 
@@ -65,7 +65,7 @@ func TestAStaticVersusRowWaitsForTheAttackTables(t *testing.T) {
 	if kinds := appliedKinds(parsed); !slices.Equal(kinds, []string{"mob-type-stat AttackPower"}) {
 		t.Fatalf("the static path attached %v, want the bonus against Undead", kinds)
 	}
-	if got := table.MobTypeBonusStats[proto.MobType_MobTypeUndead][stats.AttackPower]; got != 0 {
+	if got := table.VersusStats[stats.AttackPower]; got != 0 {
 		t.Errorf("attack power against Undead before the environment is finalized: %v, want 0", got)
 	}
 
@@ -73,7 +73,7 @@ func TestAStaticVersusRowWaitsForTheAttackTables(t *testing.T) {
 	finalized.Env = &core.Environment{State: core.Finalized}
 	table = undeadTable(finalized)
 	ParseStatic(finalized, row)
-	if got := table.MobTypeBonusStats[proto.MobType_MobTypeUndead][stats.AttackPower]; got != 99 {
+	if got := table.VersusStats[stats.AttackPower]; got != 99 {
 		t.Errorf("attack power against Undead once finalized: %v, want 99", got)
 	}
 }
@@ -107,10 +107,10 @@ func TestAVersusAuraBidsPerCreatureTypeMask(t *testing.T) {
 	againstUndead.Activate(sim)
 	againstDemons.Activate(sim)
 	weakerAgainstUndead.Activate(sim)
-	if got := undead.MobTypeBonusStats[proto.MobType_MobTypeUndead][stats.AttackPower]; got != 99 {
+	if got := undead.VersusStats[stats.AttackPower]; got != 99 {
 		t.Errorf("attack power against Undead: %v, want the stronger 99 alone", got)
 	}
-	if got := demon.MobTypeBonusStats[proto.MobType_MobTypeDemon][stats.AttackPower]; got != 185 {
+	if got := demon.VersusStats[stats.AttackPower]; got != 185 {
 		t.Errorf("attack power against Demons: %v, want 185", got)
 	}
 }

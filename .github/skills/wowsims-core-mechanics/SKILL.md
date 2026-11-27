@@ -88,7 +88,9 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   ("+10% crit chance"). A factor on base damage is `SpellConfig.VersusBonus` ("x2 base"). A spell cast by a proc that
   fires only, or more often, against some targets sets `VersusProc` ("x3 proc chance", "proc only"). The header names
   the target's family when an entry matched it by its family. A versus factor on something other than damage, such as
-  a stun's duration or a restore, and a cast allowed only on some targets, get no tag. An item's factor goes through
+  a stun's duration or a restore, and a cast allowed only on some targets, get no tag. Which targets an effect names is
+  a `core.VersusTargets` (`Matches`, `AnyIn`): a row's `TargetCreatureTypes()`, a mask's `spelldata.TargetCreatures`,
+  and `shared.OnlyAgainst` for a proc that fires only on hits against them. An item's factor goes through
   `character.NewItemVersusBonus`, `NewItemVersusProc` or `shared.ItemVersusBonus` with its `VersusEffectKind`
   (`Damage`, `Restore`, `ProcChance`, `CritChance`, `ProcOnly`), which list it on the stats sheet and in the gear
   chip's tooltip. Each helper takes the `ActionID` the bonus is credited to (the item for an item's stats and spells,

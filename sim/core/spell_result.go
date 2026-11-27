@@ -206,7 +206,7 @@ func (spell *Spell) VersusStat(target *Unit, stat stats.Stat) float64 {
 
 // The stat the table's attacker has against its defender's mob type, marked on the spell when it is not 0.
 func (spell *Spell) versusStat(attackTable *AttackTable, stat stats.Stat) float64 {
-	value := attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stat]
+	value := attackTable.VersusStats[stat]
 	if value != 0 {
 		spell.versusRead |= 1 << stat
 	}

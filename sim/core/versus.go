@@ -6,26 +6,41 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
+// The targets a versus effect names: any of the mob types or creature families.
+type VersusTargets struct {
+	MobTypes []proto.MobType
+	Families []proto.CreatureFamily
+}
+
+// Whether the unit is of one of the mob types or families.
+func (targets VersusTargets) Matches(unit *Unit) bool {
+	return slices.Contains(targets.MobTypes, unit.MobType) || slices.Contains(targets.Families, unit.CreatureFamily)
+}
+
+// Whether the targets name no mob type and no family.
+func (targets VersusTargets) IsEmpty() bool {
+	return len(targets.MobTypes) == 0 && len(targets.Families) == 0
+}
+
+// Whether any of the units is one of the targets.
+func (targets VersusTargets) AnyIn(units []*Unit) bool {
+	return slices.ContainsFunc(units, targets.Matches)
+}
+
 // A factor a spell deals or restores against a target of any of the mob types or creature families,
 // once however many of them the target is. The game files state the factor on a row and name the
 // targets only in its tooltip.
 type VersusBonus struct {
+	VersusTargets
 	Multiplier float64
-	MobTypes   []proto.MobType
-	Families   []proto.CreatureFamily
 }
 
 // The factor against the target, 1 where it is none of the mob types and families or there is no bonus.
 func (bonus *VersusBonus) Against(target *Unit) float64 {
-	if bonus.Names(target) {
+	if bonus != nil && bonus.Matches(target) {
 		return bonus.Multiplier
 	}
 	return 1
-}
-
-// Whether the target is one of the bonus's mob types or families, false where there is no bonus.
-func (bonus *VersusBonus) Names(target *Unit) bool {
-	return bonus != nil && (slices.Contains(bonus.MobTypes, target.MobType) || slices.Contains(bonus.Families, target.CreatureFamily))
 }
 
 func (bonus *VersusBonus) namesFamilyOf(target *Unit) bool {

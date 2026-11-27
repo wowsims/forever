@@ -448,7 +448,7 @@ func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
 		sim.Reset()
 		character := sim.Raid.Parties[0].Players[0].GetCharacter()
 		table := character.AttackTables[character.CurrentTarget.UnitIndex]
-		if got := table.MobTypeBonusStats[mobType]; got != wantStats[mobType] {
+		if got := table.VersusStats; got != wantStats[mobType] {
 			t.Errorf("against %s the attack table holds %v, the sheet %v", mobType, got, wantStats[mobType])
 		}
 		if !WithinToleranceFloat64(table.DamageDealtMultiplier, bonus.DamageMultiplier, 1e-9) {

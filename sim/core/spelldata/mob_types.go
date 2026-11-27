@@ -1,6 +1,7 @@
 package spelldata
 
 import (
+	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -52,4 +53,14 @@ func MobTypes(mask int32) []proto.MobType {
 		}
 	}
 	return out
+}
+
+// The targets a creature type mask names, as MobTypes decodes it.
+func TargetCreatures(mask int32) core.VersusTargets {
+	return core.VersusTargets{MobTypes: MobTypes(mask)}
+}
+
+// The targets the row's TargetCreatureType limits it to, none where it states no limit.
+func (s *Spell) TargetCreatureTypes() core.VersusTargets {
+	return TargetCreatures(s.TargetCreatureType)
 }

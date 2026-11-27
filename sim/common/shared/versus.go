@@ -15,3 +15,13 @@ func ItemVersusBonus(character *core.Character, itemID int32, kind proto.VersusE
 	}
 	return character.NewItemVersusBonus(itemID, kind, bonus)
 }
+
+// Narrows a proc to hits on the targets, before any condition it already has.
+func OnlyAgainst(targets core.VersusTargets) spelldata.ProcOpt {
+	return func(_ *core.Character, trigger *core.ProcTrigger) {
+		condition := trigger.ExtraCondition
+		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			return targets.Matches(result.Target) && (condition == nil || condition(sim, spell, result))
+		}
+	}
+}

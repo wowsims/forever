@@ -2,7 +2,6 @@ package paladin
 
 import (
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -15,6 +14,7 @@ var HolyWrathRankMap = spellData.HolyWrath
 // targets within 20 yds and stunning them for 2 sec.
 func (paladin *Paladin) registerHolyWrath(_ int32, rank *spelldata.Spell) {
 	damage := rank.DamageEffect()
+	targets := rank.TargetCreatureTypes()
 
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = SpellMaskHolyWrath
@@ -22,7 +22,7 @@ func (paladin *Paladin) registerHolyWrath(_ int32, rank *spelldata.Spell) {
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		results := []*core.SpellResult{}
 		for _, aoeTarget := range sim.Encounter.ActiveTargetUnits {
-			if aoeTarget.MobType == proto.MobType_MobTypeUndead || aoeTarget.MobType == proto.MobType_MobTypeDemon {
+			if targets.Matches(aoeTarget) {
 				results = append(results, spell.CalcDamage(sim, aoeTarget, damage.Average(), spell.OutcomeMagicHitAndCrit))
 			}
 		}

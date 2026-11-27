@@ -32,11 +32,18 @@ type versusSource struct {
 	mobTypeBonus
 }
 
-// Changes the unit's bonus against each of the mob types once, however often the list names one, as
-// the attack tables count it, and the source's share of it.
-func (unit *Unit) changeMobTypeBonuses(source ActionID, mobTypes []proto.MobType, change func(bonus *mobTypeBonus)) {
+// Changes every attack table whose defender is of one of the mob types, then the unit's bonus against
+// each mob type and the source's share of it, once per mob type however often the list names it, as
+// the attack tables count it.
+func (unit *Unit) changeVersus(source ActionID, mobTypes []proto.MobType, changeTable func(at *AttackTable), change func(bonus *mobTypeBonus)) {
 	if unit.AttackTables == nil {
 		return
+	}
+	targets := VersusTargets{MobTypes: mobTypes}
+	for _, at := range unit.AttackTables {
+		if targets.Matches(at.Defender) {
+			changeTable(at)
+		}
 	}
 	if unit.mobTypeBonuses == nil {
 		unit.mobTypeBonuses = make(map[proto.MobType]*mobTypeBonus)
@@ -69,12 +76,9 @@ func (unit *Unit) versusSource(source ActionID, mobType proto.MobType) *versusSo
 // Adds stats the unit has against every defender of the mob types; a negative bonus takes them away.
 // The source is the item or spell the combat log names for them.
 func (unit *Unit) AddMobTypeBonusStats(source ActionID, bonus stats.Stats, mobTypes ...proto.MobType) {
-	for _, at := range unit.AttackTables {
-		if mobType := at.Defender.MobType; slices.Contains(mobTypes, mobType) {
-			at.MobTypeBonusStats[mobType] = at.MobTypeBonusStats[mobType].Add(bonus)
-		}
-	}
-	unit.changeMobTypeBonuses(source, mobTypes, func(versus *mobTypeBonus) { versus.stats = versus.stats.Add(bonus) })
+	unit.changeVersus(source, mobTypes,
+		func(at *AttackTable) { at.VersusStats = at.VersusStats.Add(bonus) },
+		func(versus *mobTypeBonus) { versus.stats = versus.stats.Add(bonus) })
 }
 
 // An item's stats against mob types, every copy worn counting; sign -1 takes them off.
@@ -87,23 +91,17 @@ func (character *Character) addItemMobTypeStats(item *Item, sign float64) {
 // Multiplies the damage the unit deals to every defender of the mob types; 1/mult takes the
 // multiplier back off. The source is the item or spell the combat log names for it.
 func (unit *Unit) MultiplyDamageVersus(source ActionID, mult float64, mobTypes ...proto.MobType) {
-	for _, at := range unit.AttackTables {
-		if slices.Contains(mobTypes, at.Defender.MobType) {
-			at.DamageDealtMultiplier *= mult
-		}
-	}
-	unit.changeMobTypeBonuses(source, mobTypes, func(versus *mobTypeBonus) { versus.damageMultiplier *= mult })
+	unit.changeVersus(source, mobTypes,
+		func(at *AttackTable) { at.DamageDealtMultiplier *= mult },
+		func(versus *mobTypeBonus) { versus.damageMultiplier *= mult })
 }
 
 // Multiplies the crit damage the unit deals to every defender of the mob types on top of the damage
 // multiplier; 1/mult takes it back off. The source is the item or spell the combat log names for it.
 func (unit *Unit) MultiplyCritDamageVersus(source ActionID, mult float64, mobTypes ...proto.MobType) {
-	for _, at := range unit.AttackTables {
-		if slices.Contains(mobTypes, at.Defender.MobType) {
-			at.CritMultiplier *= mult
-		}
-	}
-	unit.changeMobTypeBonuses(source, mobTypes, func(versus *mobTypeBonus) { versus.critMultiplier *= mult })
+	unit.changeVersus(source, mobTypes,
+		func(at *AttackTable) { at.CritMultiplier *= mult },
+		func(versus *mobTypeBonus) { versus.critMultiplier *= mult })
 }
 
 // One source's crit chance against a defender, which the defender's mob type or family grants.

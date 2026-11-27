@@ -13,7 +13,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-var furbolgs = core.VersusBonus{Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyFurbolg}}
+var furbolgs = core.VersusTargets{Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyFurbolg}}
 
 func init() {
 	// Jom Gabbar
@@ -315,15 +315,13 @@ func init() {
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			trigger.ProcChance = 0
 			trigger.DPM = character.NewLegacyPPMManagerWithMainHandSpells(float64(spelldata.MustFind(1318323).RPPM), trigger.ProcMask)
-			trigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
-				return furbolgs.Names(result.Target)
-			}
+			shared.OnlyAgainst(furbolgs)(character, trigger)
 		}},
 		[]shared.ItemVariant{
 			{ItemID: 269741, ItemName: "Scented Runewood Brooch"},
 		})
 	shared.DamageProcExtras[269741] = func(character *core.Character, config *core.SpellConfig) {
-		config.VersusProc = character.NewItemVersusProc(269741, proto.VersusEffectKind_VersusEffectKindProcOnly, furbolgs)
+		config.VersusProc = character.NewItemVersusProc(269741, proto.VersusEffectKind_VersusEffectKindProcOnly, core.VersusBonus{VersusTargets: furbolgs})
 	}
 
 	// Blackhand's Breadth
@@ -547,11 +545,15 @@ func init() {
 	//
 	// 1315878's second effect is the additional Agility. By the owner's ruling an elemental is nearby
 	// when any enemy in the encounter is one: an Elemental, or of the Earth or Fire Elemental family.
+	elementals := core.VersusTargets{
+		MobTypes: []proto.MobType{proto.MobType_MobTypeElemental},
+		Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental, proto.CreatureFamily_CreatureFamilyFireElemental},
+	}
 	core.NewItemEffect(280071, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1315878)
 		agility := row.EffectN(1).BaseValue()
-		if slices.ContainsFunc(character.Env.Encounter.AllTargetUnits, isElemental) {
+		if elementals.AnyIn(character.Env.Encounter.AllTargetUnits) {
 			agility += row.EffectN(2).BaseValue()
 		}
 		onUse := itemOnUseEffect(280071)
@@ -624,13 +626,6 @@ func halvedOutside(areas ...proto.AreaType) spelldata.ProcOpt {
 			trigger.ProcChance /= 2
 		}
 	}
-}
-
-// Whether the enemy is an elemental: of the Elemental type, or of an elemental family.
-func isElemental(target *core.Unit) bool {
-	return target.MobType == proto.MobType_MobTypeElemental ||
-		target.CreatureFamily == proto.CreatureFamily_CreatureFamilyEarthElemental ||
-		target.CreatureFamily == proto.CreatureFamily_CreatureFamilyFireElemental
 }
 
 // The item's on-use effect; an item with none panics.

@@ -78,17 +78,16 @@ func init() {
 		damage := row.DamageEffect()
 
 		config := procSpellConfig(character, row)
-		config.VersusProc = character.NewItemVersusProc(10760, proto.VersusEffectKind_VersusEffectKindProcOnly, core.VersusBonus{Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilySwine}})
+		swine := core.VersusTargets{Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilySwine}}
+		config.VersusProc = character.NewItemVersusProc(10760, proto.VersusEffectKind_VersusEffectKindProcOnly, core.VersusBonus{VersusTargets: swine})
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
 		swineFists := character.RegisterSpell(config)
 
 		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1293783), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-			if config.VersusProc.Names(result.Target) {
-				swineFists.Cast(sim, result.Target)
-			}
-		})
+			swineFists.Cast(sim, result.Target)
+		}, shared.OnlyAgainst(swine))
 		trigger.Name = "Swine Fists"
 		trigger.ActionID = core.ActionID{ItemID: 10760}
 		trigger.TriggerImmediately = true

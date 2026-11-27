@@ -64,11 +64,8 @@ func TestJusticeBattlegearFourPieceGrantsAttackPowerAgainstUndead(t *testing.T) 
 	})
 	table := character.AttackTables[character.CurrentTarget.UnitIndex]
 
-	if got, want := table.MobTypeBonusStats[proto.MobType_MobTypeUndead], (stats.Stats{stats.AttackPower: spelldata.MustFind(1301084).EffectN(1).Average()}); got != want {
+	if got, want := table.VersusStats, (stats.Stats{stats.AttackPower: spelldata.MustFind(1301084).EffectN(1).Average()}); got != want {
 		t.Errorf("the bonus against Undead is %v, want %v", got, want)
-	}
-	if got := table.MobTypeBonusStats[proto.MobType_MobTypeDemon]; got != (stats.Stats{}) {
-		t.Errorf("the bonus against Demons is %v, want none", got)
 	}
 }
 

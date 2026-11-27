@@ -283,7 +283,7 @@ func TestFineryOfInfiniteWisdomRaisesShadowWordPain(t *testing.T) {
 // the creature types its effect names, Undead, and nothing against a Humanoid. Three pieces add none.
 func TestRaimentsOfConvictionAddSpellDamageAgainstUndead(t *testing.T) {
 	versus := func(wearer *priest.Priest, target *core.Unit) float64 {
-		return wearer.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.SpellDamage]
+		return wearer.AttackTables[target.UnitIndex].VersusStats[stats.SpellDamage]
 	}
 	worn := map[proto.ItemSlot]int32{
 		proto.ItemSlot_ItemSlotShoulder: 273922,

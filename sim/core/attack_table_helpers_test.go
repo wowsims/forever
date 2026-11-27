@@ -23,15 +23,15 @@ func TestAddMobTypeBonusStatsAddsAgainstTheNamedTypes(t *testing.T) {
 	bonus := stats.Stats{stats.AttackPower: 150}
 
 	unit.AddMobTypeBonusStats(ActionID{SpellID: 1}, bonus, proto.MobType_MobTypeUndead, proto.MobType_MobTypeDemon)
-	if got := undead.MobTypeBonusStats[proto.MobType_MobTypeUndead][stats.AttackPower]; got != 150 {
+	if got := undead.VersusStats[stats.AttackPower]; got != 150 {
 		t.Errorf("Undead attack power %v, want 150", got)
 	}
-	if got := humanoid.MobTypeBonusStats[proto.MobType_MobTypeHumanoid][stats.AttackPower]; got != 0 {
+	if got := humanoid.VersusStats[stats.AttackPower]; got != 0 {
 		t.Errorf("Humanoid attack power %v, want 0", got)
 	}
 
 	unit.AddMobTypeBonusStats(ActionID{SpellID: 1}, bonus.Invert(), proto.MobType_MobTypeUndead)
-	if got := undead.MobTypeBonusStats[proto.MobType_MobTypeUndead][stats.AttackPower]; got != 0 {
+	if got := undead.VersusStats[stats.AttackPower]; got != 0 {
 		t.Errorf("Undead attack power %v after the negative bonus, want 0", got)
 	}
 }
@@ -71,11 +71,11 @@ func TestAttachMobTypeBonusStatsFollowsTheAura(t *testing.T) {
 		AttachMobTypeBonusStats(ActionID{SpellID: 1}, stats.Stats{stats.SpellDamage: 58}, proto.MobType_MobTypeUndead)
 
 	aura.OnGain(aura, nil)
-	if got := undead.MobTypeBonusStats[proto.MobType_MobTypeUndead][stats.SpellDamage]; got != 58 {
+	if got := undead.VersusStats[stats.SpellDamage]; got != 58 {
 		t.Errorf("spell damage against Undead %v while up, want 58", got)
 	}
 	aura.OnExpire(aura, nil)
-	if got := undead.MobTypeBonusStats[proto.MobType_MobTypeUndead][stats.SpellDamage]; got != 0 {
+	if got := undead.VersusStats[stats.SpellDamage]; got != 0 {
 		t.Errorf("spell damage against Undead %v after expiry, want 0", got)
 	}
 }

@@ -48,7 +48,7 @@ func warriorWithConsumes(t *testing.T, consumes *proto.ConsumesSpec, mainHand, o
 
 func bonusAgainstTarget(character *core.Character) stats.Stats {
 	target := character.CurrentTarget
-	return character.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType]
+	return character.AttackTables[target.UnitIndex].VersusStats
 }
 
 // Potion of Demon Slaying 9224 casts 11406: attack power against Demons for the spell's duration. The item states no cooldown of its own, so the potion runs on the spell's
