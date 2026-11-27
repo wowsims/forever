@@ -328,6 +328,21 @@ func init() {
 			{ItemID: 13393, ItemName: "Malown's Slam"},
 		})
 
+	// Felstriker
+	// https://www.wowhead.com/forever/item=12590/felstriker
+	//
+	// Chance on hit: All attacks are guaranteed to land and will be critical strikes for the next 3s.
+	//
+	// Felstriker 16551 goes up in the instant of the hit that procs it, after that hit's own roll, so the
+	// Windfury Totem hit the same hit sets off rolls under it (EV-0225). An extra swing it sets off does
+	// too, by the same order; that swing is not measured. The buff lasts its 3 s from the spell batch the
+	// proc would have landed in, so it ends one batch window after 3 s; the owner rules the difference
+	// is server rounding (EV-0225).
+	shared.ProcTriggerExtras[12590] = func(trigger *core.ProcTrigger) {
+		trigger.TriggerImmediately = true
+	}
+	shared.ProcBuffDurationExtras[12590] = core.SpellBatchWindow
+
 	// Blade of Eternal Darkness
 	// https://www.wowhead.com/forever/item=17780/blade-of-eternal-darkness
 	//

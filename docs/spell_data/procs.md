@@ -227,6 +227,11 @@ would hide them, since it turns every generated effect of the item off. The vari
 listener's name, and in a test run each roll label draws its own random stream, so renaming it moves
 the item's `AllItems` rows even where nothing else changed.
 
+What a generated proc changes on its listener goes into `shared.ProcTriggerExtras` under the item id the same way.
+Felstriker 12590 sets `TriggerImmediately` there, so its buff covers the Windfury Totem hit of the hit that procs it
+(EV-0225) and the other hits queued after the procing hit in that instant. `shared.ProcBuffDurationExtras` lengthens
+such a buff by item id; Felstriker's lasts one spell batch window past its 3 s, an owner ruling (EV-0225).
+
 An effect entry carries flat stats only, so a buff the game files state as a percentage of a stat
 (`A_MOD_PERCENT_STAT`, misc the stat index, -1 all five) has none, and the generator routes it as auras:
 `NewSpellDataAuraProc` parses the buff's row, whose multiplier works through a dynamic stat dependency
