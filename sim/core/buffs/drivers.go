@@ -284,13 +284,17 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	strike := newWindfuryTotemStrike(char)
 
 	// The totem rolls on what the raid aura's row hears: a main-hand melee
-	// swing or melee ability that lands, whether or not it deals damage. The
-	// row's mask names both hands, and the tooltip's main-hand rule is the
-	// server's. Ranged attacks and spells never roll it, and neither does the
-	// hit of a proc without Not a Proc, since the row lacks Can Proc From
-	// Procs. Holy Strike, Stormstrike, Shred, Rake, Ferocious Bite, Claw and
-	// bear Swipe roll it, and triggered spells never: Seal of Fury, poisons,
-	// Consecration ticks (EV-0008). An auto attack, another proc's
+	// swing or melee ability that lands, whether or not it deals damage, and
+	// an off-hand ability the character casts itself, a rogue's Shank
+	// (EV-0155). The row's mask names both hands, and the tooltip's main-hand
+	// rule is the server's for the rest: off-hand swings never roll it
+	// (EV-0008), and neither does Mutilate's off-hand strike (EV-0155); the
+	// sim holds Whirlwind's off-hand strike to the same rule. Ranged attacks
+	// and spells never roll it, and neither does the hit of a proc without Not
+	// a Proc, since the row lacks Can Proc From Procs. Holy Strike,
+	// Stormstrike, Shred, Rake, Ferocious Bite, Claw and bear Swipe roll it,
+	// and triggered spells never: Seal of Fury, poisons, Consecration ticks
+	// (EV-0008). An auto attack, another proc's
 	// extra swing included, always rolls it. The proc rolls off the hit's cast
 	// result, and the Windfury Totem hit follows once that hit has been dealt, in the same
 	// instant. It requires a main hand, but it lands inside the 100 ms
@@ -312,10 +316,12 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	// hits, Seal of Command, Judgement of Command and Retaliation (EV-0002).
 	// A hit with no defense type is no melee attack and never rolls it:
 	// Sweeping Strikes' copied hit 12723. Its normalized hit 26654 rolls it once.
+	// An off-hand special rolls it only when it is no other spell's strike.
 	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		return spell.DefenseType != core.DefenseTypeNone
+		return spell.DefenseType != core.DefenseTypeNone &&
+			(spell.IsMH() || !spell.Flags.Matches(core.SpellFlagPassiveSpell))
 	}
-	trigger.ProcMask &= core.ProcMaskMeleeMH
+	trigger.ProcMask &= core.ProcMaskMeleeMH | core.ProcMaskMeleeOHSpecial
 	trigger.RequireDamageDealt = false
 	return char.MakeProcTriggerAura(trigger)
 }

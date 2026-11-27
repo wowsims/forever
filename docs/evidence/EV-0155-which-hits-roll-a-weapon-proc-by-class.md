@@ -7,8 +7,8 @@
   melee-table strike that a main-hand white swing casts rolls the main-hand weapon once more, Loksey's Training Stick's
   Tough Love and the Rend procs among them; magic procs never do. Mongoose Bite and Mocking Blow are not settled: thin
   samples here read above one roll, a larger separate count reads one. Summon Hawk's hits roll the ranged weapon once. A
-  rogue's Shank rolls the off-hand weapon and equip procs once and the main-hand weapon never; Torturing Poker, which
-  procs only from its own hand's hits, never procs from it.
+  rogue's Shank rolls the off-hand weapon and equip procs once, the main-hand weapon never and Windfury Totem once;
+  Torturing Poker, which procs only from its own hand's hits, never procs from it.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every indexed wearer run of the 24 census weapons: 2,670
   runs in 2,361 reports, too many to list; the examples below name report, fight and time
 - Game build: 1.60.1.70790 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114196; the hotfix
@@ -279,12 +279,14 @@ Report, fight and time into the fight, class and weapon (`examples_out.md`):
 ## Count of the 2026-11-20 to 2026-11-27 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the streams of every rogue, warrior and paladin wearer
-  of the weapons and equip procs the sweep's roll watch follows, too many to list
+  of the weapons and equip procs the sweep's roll watch follows, and of every rogue with Windfury Totem hits, too many
+  to list
 - Game build: 1.60.1.70959 to 1.60.1.71139 by report date (71037 from 2026-11-20 18:23 UTC, 71091 from 2026-11-24 15:21,
   71139 from 2026-11-25 19:14); the hotfix each player ran is not recorded
 - Date: 2026-11-20 00:00 UTC to 2026-11-27, by the time of each event, split at hotfix push 114313 (2026-11-21 00:00
   UTC), the 2026-11-23 hotfix (2026-11-24 01:00 UTC) and hotfix push 114399 (2026-11-25 02:00 UTC); the hour that holds
-  each of the two pushes is left out
+  each of the two pushes is left out. The Windfury Totem count takes the reports by their start, from 2026-11-20 00:00
+  UTC
 - Pull request: #1266
 
 Hotfix push 114281 takes the flags that suppressed weapon procs off Shank's row. The first Shank followed by a weapon
@@ -346,5 +348,19 @@ on 14 wearers from 2026-11-06 to 2026-11-20, 1.04 [0.72, 1.36] on 19 from hotfix
 1.11 [0.75, 1.35] on 8 from that hotfix to hotfix push 114399; Execute 1.00 [0.83, 1.16] on 26 from 2026-11-06 to
 2026-11-20 and 1.25 [0.73, 1.88] on 8 from 2026-11-20 to hotfix push 114313.
 
+A Shank rolls Windfury Totem once, at a Sinister Strike's rate. Here a unit is a rogue's lone Shank, Sinister Strike or
+white swing, with no other hit or cast of the rogue within 100 ms, in the streams of rogues with Windfury Totem hits,
+and it counts when a Windfury Totem hit on the same target follows 0 to 60 ms later. The baseline moves each lone
+Shank's time 2 s later where no event lies within 100 ms. The log names every white swing Melee, so the white swings of
+both hands count together. Reports are taken by their start, and a run logged in two reports counts in each.
+
+| Lone unit                        |   Units | With a Windfury Totem hit |  Share |
+| -------------------------------- | ------: | ------------------------: | -----: |
+| Shank                            |  53,871 |                     5,486 | 10.18% |
+| Sinister Strike                  | 118,554 |                    11,916 | 10.05% |
+| White swing, either hand         | 843,355 |                    28,079 |  3.33% |
+| Baseline, 2 s after a lone Shank |  26,981 |                         2 |  0.01% |
+
 Scripts and output, in `forever-sweep-auto`: `roll_watch.py` (its main-hand Shank row) and the run
-`runs/2026-11-27-shank` (`roll_watch.md`, `shank_rows.json`, `all_rows.json`).
+`runs/2026-11-27-shank` (`roll_watch.md`, `shank_rows.json`, `all_rows.json`); in `forever-venom-1127`:
+`shank_wf_ctl.py` (`shank_wf_ctl_out.txt`).
