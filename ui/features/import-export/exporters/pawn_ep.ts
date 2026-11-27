@@ -47,6 +47,8 @@ const STAT_NAMES: Record<Stat, string> = {
 	[Stat.StatShadowResistance]: 'ShadowResist',
 };
 
+// Pawn has no key for weapon skill, Feral Combat skill, school hit or percent ranged hit, so those weights stay out.
+// The off-hand weight is written after the loop, as Pawn needs it as a difference.
 const PSEUDO_STAT_NAMES: Partial<Record<PseudoStat, string>> = {
 	[PseudoStat.PseudoStatMainHandDps]: 'MeleeDps',
 	[PseudoStat.PseudoStatRangedDps]: 'RangedDps',
@@ -65,7 +67,8 @@ export const PAWN_EP_EXPORTER: ExporterDefinition = {
 		const namesToWeights: Record<string, number> = {};
 		allUnitStats.forEach(stat => {
 			const statName = getName(stat);
-			const weight = epValues.getUnitStat(stat);
+			// Pawn stores the number a tooltip line shows, and the game shows hit, crit, haste, expertise, dodge, parry and block as a percent ("Improves your chance to hit by 1.8%"), so those weights go out per percentage point.
+			const weight = stat.storedEpToShown(epValues.getUnitStat(stat));
 			if (weight == 0 || statName == '') {
 				return;
 			}
@@ -74,6 +77,11 @@ export const PAWN_EP_EXPORTER: ExporterDefinition = {
 		// Pawn scores an item's "+X Attack Power" line as Ap alone, and that item grants as much ranged attack power, so the ranged weight goes into Ap as well as Rap.
 		if (namesToWeights.Rap) {
 			namesToWeights.Ap = (namesToWeights.Ap ?? 0) + namesToWeights.Rap;
+		}
+		// Pawn scores every melee weapon at MeleeDps and an Off Hand weapon at OffHandDps on top, so OffHandDps holds what the off-hand weight differs by.
+		const offHandDps = epValues.getPseudoStat(PseudoStat.PseudoStatOffHandDps);
+		if (offHandDps != 0) {
+			namesToWeights.OffHandDps = offHandDps - (namesToWeights.MeleeDps ?? 0);
 		}
 
 		return (
