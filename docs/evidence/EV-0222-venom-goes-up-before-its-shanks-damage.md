@@ -43,10 +43,10 @@ show none. Full resists and the Shanks that put no Venom up stay in the counts.
 | Shanks counted                     | Streams | Shanks | With an Instant Poison | Share |
 | ---------------------------------- | ------: | -----: | ---------------------: | ----: |
 | Fresh Shanks, streams with Venom   |     119 |  9,244 |                  3,531 | 0.382 |
-| Every Shank, streams with no Venom |     514 | 42,824 |                  8,326 | 0.194 |
+| Every Shank, streams with no Venom |     516 | 42,935 |                  8,349 | 0.194 |
 
 Instant Poison's chance is 0.2 (EV-0087) and Improved Poisons adds at most 10 points, so a poison rolled without
 Venom stays at 0.3 or under; 65 of the 117 Venom streams with 20 or more counted Shanks read 0.4 or more.
 
 Scripts and output, in `forever-venom-1127`: `venom.py` (`venom_out.txt`, and `venom_out_posthotfix.txt` with
-`SINCE=1795482000000`), `venom_order.py` (`venom_order_out.txt`), `rate.py` and `control.py`.
+`SINCE=1795482000000`), `venom_order.py` (`venom_order_out.txt`), `rate.py` (`rate_out.txt`) and `control.py` (`control_out.txt`).
