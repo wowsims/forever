@@ -15,6 +15,7 @@ func TestItemEffectTypesReadEveryEffectAndItsTriggerChain(t *testing.T) {
 		zoneGroup   = 6589
 		undeadMask  = 1 << 5
 		demonMask   = 1 << 2
+		beastMask   = 1 << 0
 
 		equipSpell, procSpell, triggeredSpell, loopSpell, zoneSpell = 9000001, 9000002, 9000003, 9000004, 9000005
 		taggedItem, zoneItem, plainItem                             = 9100001, 9100002, 9100003
@@ -32,8 +33,11 @@ func TestItemEffectTypesReadEveryEffectAndItsTriggerChain(t *testing.T) {
 		zoneSpell:      {RequiredAreasID: zoneGroup},
 	}
 	dbcInstance.SpellEffects = map[int]map[int]SpellEffect{
-		equipSpell: {0: {EffectAura: dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS, EffectMiscValues: []int{undeadMask}}},
-		procSpell:  {0: {EffectTriggerSpell: triggeredSpell}},
+		equipSpell: {
+			0: {EffectAura: dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS, EffectMiscValues: []int{undeadMask}},
+			1: {EffectAura: dbcenums.A_MOD_DAMAGE_DONE_CREATURE, EffectMiscValues: []int{beastMask}},
+		},
+		procSpell: {0: {EffectTriggerSpell: triggeredSpell}},
 		triggeredSpell: {
 			0: {EffectAura: dbcenums.A_MOD_DAMAGE_DONE_VERSUS, EffectMiscValues: []int{demonMask | undeadMask}},
 			1: {EffectTriggerSpell: loopSpell},
@@ -50,8 +54,8 @@ func TestItemEffectTypesReadEveryEffectAndItsTriggerChain(t *testing.T) {
 	if want := []proto.AreaType{proto.AreaType_AreaTypeForestGrassland, proto.AreaType_AreaTypeDesert}; !slices.Equal(areaTypes, want) {
 		t.Errorf("area types = %v, want %v: the equip spell's area and the triggered spell's", areaTypes, want)
 	}
-	if want := []proto.MobType{proto.MobType_MobTypeDemon, proto.MobType_MobTypeUndead}; !slices.Equal(mobTypes, want) {
-		t.Errorf("mob types = %v, want %v: each once, from both versus auras", mobTypes, want)
+	if want := []proto.MobType{proto.MobType_MobTypeBeast, proto.MobType_MobTypeDemon, proto.MobType_MobTypeUndead}; !slices.Equal(mobTypes, want) {
+		t.Errorf("mob types = %v, want %v: each once, from the three versus auras", mobTypes, want)
 	}
 
 	if want := []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyNaga, proto.CreatureFamily_CreatureFamilySatyr}; !slices.Equal(families, want) {

@@ -15,6 +15,7 @@ var versusAuras = []EffectAuraType{
 	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS,
 	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS,
 	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS,
+	dbcenums.A_MOD_DAMAGE_DONE_CREATURE,
 	dbcenums.A_MOD_DAMAGE_DONE_VERSUS,
 	dbcenums.A_MOD_CRIT_PERCENT_VERSUS,
 }
