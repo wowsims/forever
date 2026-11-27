@@ -1,9 +1,10 @@
-import { Class, PseudoStat, RangedWeaponType } from '@generated/proto/common';
+import { Class, PseudoStat, RangedWeaponType, Stat } from '@generated/proto/common';
 import type { UIItem } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import type { StatAttribution, Stats, UnitStat } from '@sim/proto/stats';
+import { NoticeIcon } from '@ui-kit/Notice';
 import { Skeleton } from '@ui-kit/Skeleton';
 import { TableCell, TableRow } from '@ui-kit/Table';
 import { Tooltip } from '@ui-kit/Tooltip';
@@ -17,6 +18,9 @@ import { bonusStatClass, bonusTone } from './utils/stat_display';
 
 /** The weapons whose speed the effective-weapon-speed tooltip row is meaningful for. */
 const HUNTER_RANGED_TYPES = [RangedWeaponType.RangedWeaponTypeBow, RangedWeaponType.RangedWeaponTypeCrossbow, RangedWeaponType.RangedWeaponTypeGun];
+
+/** Spell Piercing beyond the target's resistance gives no bonus while it makes a share under 1% of piercing + 8L + 19: under 6 at level 60 (EV-0142). */
+const MIN_SPELL_PIERCING = 6;
 
 export interface StatRowViewProps {
 	displayStat: DisplayStat;
@@ -58,6 +62,8 @@ export const StatRowView = ({
 		unitStat.equalsPseudoStat(PseudoStat.PseudoStatRangedHastePercent) &&
 		!!rangedWeapon &&
 		HUNTER_RANGED_TYPES.includes(rangedWeapon.rangedWeaponType);
+	const spellPiercing = attribution.final.getStat(Stat.StatSpellPiercing);
+	const piercingTooLow = unitStat.equalsStat(Stat.StatSpellPiercing) && spellPiercing > 0 && spellPiercing < MIN_SPELL_PIERCING;
 
 	// A row with an off-hand half shows each hand on its own line, prefixed MH and OH, while dual
 	// wielding with hands that differ, and the main-hand value alone otherwise.
@@ -86,7 +92,14 @@ export const StatRowView = ({
 
 	return (
 		<TableRow testId="character-stats-table-row" className="ui-character-stats-row">
-			<TableCell className="ui-character-stats-label">{unitStat.getShortName(playerClass)}</TableCell>
+			<TableCell className="ui-character-stats-label">
+				{unitStat.getShortName(playerClass)}
+				{piercingTooLow && !pending && (
+					<NoticeIcon level="warning" size="1x" label={i18n.t('common.list_picker.warnings')} className="ml-1">
+						{i18n.t('sidebar.character_stats.spell_piercing_too_low', { min: MIN_SPELL_PIERCING })}
+					</NoticeIcon>
+				)}
+			</TableCell>
 			<TableCell className="ui-character-stats-value">
 				{pending ? (
 					<Skeleton />
