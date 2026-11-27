@@ -618,17 +618,52 @@ func TestSoulHarvestOnADrainSoulKill(t *testing.T) {
 	}
 }
 
-// Decimation's damage bonus counts against the target of each Shadow Bolt once that target is below 35% health,
-// and not while it is above.
-func TestDecimationBonusAgainstTheTargetBelow35(t *testing.T) {
+// Decimation raises Shadow Bolt's and Searing Pain's damage by its effect 4 against a target above and below 35%
+// health alike, while a cast that lands grants its buff (440873) only against a target below 35%.
+func TestDecimationBonusAtAnyHealthBuffBelow35(t *testing.T) {
 	sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
-	target := sim.Encounter.AllTargetUnits[0]
-	above := warlock.ShadowBolt.ExpectedInitialDamage(sim, target)
+	plainSim, plain := newWarlockSim("", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+	target, plainTarget := sim.Encounter.AllTargetUnits[0], plainSim.Encounter.AllTargetUnits[0]
+	decimation := warlock.GetAuraByID(core.ActionID{SpellID: 440873})
+	want := 1 + spellData.Decimation.Rank(2).EffectN(4).Percent()
+	if want == 1 {
+		t.Fatal("Decimation 2/2 states no damage bonus on effect 4, so the checks below prove nothing")
+	}
+
+	checkBonus := func(phase string) {
+		t.Helper()
+		for _, pair := range [][2]*core.Spell{{warlock.ShadowBolt, plain.ShadowBolt}, {warlock.SearingPain, plain.SearingPain}} {
+			got := pair[0].ExpectedInitialDamage(sim, target) / pair[1].ExpectedInitialDamage(plainSim, plainTarget)
+			if math.Abs(got-want) > 1e-9 {
+				t.Errorf("%s against a target %s is %.4f times that with no Decimation, want %.4f", pair[0].ActionID, phase, got, want)
+			}
+		}
+	}
+	// Casts until one lands, and reports whether it left the buff up.
+	buffFromLandedCast := func() bool {
+		for range 100 {
+			decimation.Deactivate(sim)
+			misses := warlock.SearingPain.SpellMetrics[target.UnitIndex].Misses
+			warlock.SearingPain.SkipCastAndApplyEffects(sim, target)
+			if warlock.SearingPain.SpellMetrics[target.UnitIndex].Misses == misses {
+				return decimation.IsActive()
+			}
+		}
+		t.Fatal("no Searing Pain landed in 100 casts")
+		return false
+	}
+
+	checkBonus("above 35%")
+	if buffFromLandedCast() {
+		t.Errorf("a Searing Pain that landed on a target above 35%% granted Decimation's buff")
+	}
 	for !target.IsExecutePhase35() && !sim.Step() {
 	}
-	want := 1 + spellData.Decimation.Rank(2).EffectN(4).Percent()
-	if got := warlock.ShadowBolt.ExpectedInitialDamage(sim, target) / above; math.Abs(got-want) > 1e-9 {
-		t.Errorf("Shadow Bolt against the target below 35%% is %.4f times that while it was above, want %.4f", got, want)
+	for !plainTarget.IsExecutePhase35() && !plainSim.Step() {
+	}
+	checkBonus("below 35%")
+	if !buffFromLandedCast() {
+		t.Errorf("a Searing Pain that landed on a target below 35%% granted no Decimation buff")
 	}
 }
 
