@@ -19,7 +19,7 @@ export class Hunter extends PlayerClass<Class.ClassHunter> {
 	static rangedWeaponTypes = getClassRangedWeaponTypes(Hunter.classID);
 
 	readonly classID = Hunter.classID;
-	readonly friendlyName = Hunter.name;
+	readonly friendlyName = Hunter.friendlyName;
 	readonly hexColor = Hunter.hexColor;
 	readonly specs = Hunter.specs;
 	readonly races = Hunter.races;
