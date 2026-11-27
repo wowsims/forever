@@ -3755,6 +3755,7 @@
 				"effect_duration": "×{{factor}} duration",
 				"effect_amount": "×{{factor}} effect",
 				"effect_flat_heal": "heals {{amount}} (flat)",
+				"effect_hits_needed": "Procs after half the hits",
 				"state_on": "All targets",
 				"state_partial": "{{matched}}/{{total}} targets",
 				"state_off": "No target",

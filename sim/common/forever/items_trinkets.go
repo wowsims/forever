@@ -175,8 +175,8 @@ func init() {
 		character := agent.GetCharacter()
 		markRow := spelldata.MustFind(1295271)
 		deliveryRow := spelldata.MustFind(1295633)
-		// The sheet lists the halved bounds, each rounded down, as twice the chance of a delivery.
-		divisor := int32(character.RegisterArea(core.ActionID{ItemID: 274760}, proto.VersusEffectKind_VersusEffectKindProcChance,
+		// Each bound is halved and rounded down, which the sheet lists as half the hits a delivery needs.
+		divisor := int32(character.RegisterArea(core.ActionID{ItemID: 274760}, proto.VersusEffectKind_VersusEffectKindHitsNeeded,
 			core.AreaBonus{AreaTargets: core.AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeSnowy}}, Multiplier: 2}))
 		fewest, most := int32(markRow.EffectN(1).BaseValue())/divisor, int32(markRow.EffectN(2).BaseValue())/divisor
 
@@ -503,9 +503,9 @@ func init() {
 	// chance is doubled in Strongholds and Cities.
 	//
 	// The tooltip states the chance as ${$h/2}%: 20847's ProcChance is the chance doubled in Strongholds
-	// and Cities, so by the owner's ruling an encounter there rolls the whole column and any other
-	// encounter half of it. The sim fixes the encounter's area for the run, so the chance is fixed when
-	// the trigger is built.
+	// and Cities, so an encounter there rolls the whole column and any other encounter half of it
+	// (R-0057). The sim fixes the encounter's area for the run, so the chance is fixed when the trigger
+	// is built.
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 20847, BuffSpellID: 18946,
 		Rate: halvedOutside(14557, proto.AreaType_AreaTypeStrongholdsCities)},
 		[]shared.ItemVariant{
@@ -519,8 +519,7 @@ func init() {
 	// doubled in Wasteland and Haunted areas.
 	//
 	// 8397's ProcChance is the chance doubled in Wasteland and Haunted areas, its first effect the 2%, so
-	// an encounter there rolls the whole column and any other encounter half of it, as The Lion Horn of
-	// Stormwind does.
+	// an encounter there rolls the whole column and any other encounter half of it (R-0057).
 	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 8397, BuffSpellID: 10368,
 		Rate: halvedOutside(11302, proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted)},
 		[]shared.ItemVariant{
@@ -605,8 +604,8 @@ func registerCountdownOnUse(character *core.Character, itemID int32, row *spelld
 	})
 }
 
-// Half the row's chance in an encounter in none of the areas, whose doubled chance the column states. The
-// item keeps the doubling on the stats sheet.
+// Half the row's chance in an encounter in none of the areas, whose doubled chance the column states
+// (R-0057). The item keeps the doubling on the stats sheet.
 func halvedOutside(itemID int32, areas ...proto.AreaType) spelldata.ProcOpt {
 	return func(character *core.Character, trigger *core.ProcTrigger) {
 		trigger.ProcChance *= character.RegisterArea(core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindProcChance,

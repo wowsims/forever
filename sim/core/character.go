@@ -375,7 +375,9 @@ func (character *Character) applyItemEffects(agent Agent) {
 	character.Equipment.applyItemEffects(agent, registeredItemEffects, registeredItemEnchantEffects)
 
 	if character.ItemSwap.IsEnabled() {
-		character.ItemSwap.unEquippedItems.applyItemEffects(agent, registeredItemEffects, registeredItemEnchantEffects)
+		character.registerSwapOnly(func() {
+			character.ItemSwap.unEquippedItems.applyItemEffects(agent, registeredItemEffects, registeredItemEnchantEffects)
+		})
 	}
 
 	character.registerEquipSpeedAuras()

@@ -212,6 +212,17 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			amount: 0,
 		},
 		{
+			itemId: 274760,
+			source: itemSource(274760),
+			itemName: 'Everlook Delivery Bot',
+			mobTypes: [],
+			creatureFamilies: [],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindHitsNeeded,
+			areaTypes: [AreaType.AreaTypeSnowy],
+			amount: 0,
+		},
+		{
 			itemId: 19287,
 			source: itemSource(19287),
 			itemName: 'Darkmoon Card: Heroism',

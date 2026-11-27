@@ -19,6 +19,10 @@
 		@apply inline-flex flex-col;
 	}
 
+	.ui-character-stats-versus-line .ui-character-stats-value {
+		@apply font-normal;
+	}
+
 	.ui-character-stats-versus-group {
 		&[data-state='off'] .ui-character-stats-versus-line {
 			@apply text-muted;

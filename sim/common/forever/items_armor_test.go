@@ -77,7 +77,7 @@ func itemWearerIn(t *testing.T, class proto.Class, equipment *proto.EquipmentSpe
 		&proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180, AreaTypes: areas})
 }
 
-func itemWearerInEncounter(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec, encounter *proto.Encounter) (*core.Simulation, *core.Character) {
+func itemWearerInEncounter(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec, encounter *proto.Encounter, playerOpts ...func(*proto.Player)) (*core.Simulation, *core.Character) {
 	t.Helper()
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceHuman,
@@ -85,6 +85,9 @@ func itemWearerInEncounter(t *testing.T, class proto.Class, equipment *proto.Equ
 		Consumables: &proto.ConsumesSpec{},
 		Buffs:       &proto.IndividualBuffs{},
 		Rotation:    &proto.APLRotation{},
+	}
+	for _, opt := range playerOpts {
+		opt(player)
 	}
 	switch class {
 	case proto.Class_ClassPaladin:

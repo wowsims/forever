@@ -795,6 +795,7 @@ enum VersusEffectKind {
 	VersusEffectKindDuration = 5; // How long the source's effect lasts on the target.
 	VersusEffectKindEffect = 6; // How strong the source's effect is: the stats, regeneration or heal it states.
 	VersusEffectKindFlatHeal = 7; // The source's heal is the flat amount, whatever it rolls elsewhere.
+	VersusEffectKindHitsNeeded = 8; // The source's proc needs the hits it states divided by the multiplier.
 }
 message PartyStats {
 	repeated PlayerStats players = 1;

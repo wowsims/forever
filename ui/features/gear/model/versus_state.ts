@@ -80,6 +80,7 @@ const EFFECT_KEYS: Record<VersusEffectKind, string> = {
 	[VersusEffectKind.VersusEffectKindDuration]: 'effect_duration',
 	[VersusEffectKind.VersusEffectKindEffect]: 'effect_amount',
 	[VersusEffectKind.VersusEffectKindFlatHeal]: 'effect_flat_heal',
+	[VersusEffectKind.VersusEffectKindHitsNeeded]: 'effect_hits_needed',
 };
 
 export const versusEffectFactor = (effect: VersusEffect): string =>

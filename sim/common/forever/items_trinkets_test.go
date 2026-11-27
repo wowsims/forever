@@ -1349,7 +1349,7 @@ func TestAreaFactorsListUnderTheirSourceOnTheSheet(t *testing.T) {
 	}{
 		{"Darkmoon Card: Heroism", proto.Class_ClassWarrior, trinket(heroism), []entry{{core.ActionID{ItemID: heroism}, procChance, 2, cities}}},
 		{"Everlook Delivery Bot", proto.Class_ClassWarrior, trinket(everlook),
-			[]entry{{core.ActionID{ItemID: everlook}, procChance, 2, []proto.AreaType{proto.AreaType_AreaTypeSnowy}}}},
+			[]entry{{core.ActionID{ItemID: everlook}, proto.VersusEffectKind_VersusEffectKindHitsNeeded, 2, []proto.AreaType{proto.AreaType_AreaTypeSnowy}}}},
 		{"The Lion Horn of Stormwind", proto.Class_ClassWarrior, trinket(lionHorn), []entry{{core.ActionID{ItemID: lionHorn}, procChance, 2, cities}}},
 		{"Uther's Strength", proto.Class_ClassWarrior, trinket(uthers),
 			[]entry{{core.ActionID{ItemID: uthers}, procChance, 2, []proto.AreaType{proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted}}}},

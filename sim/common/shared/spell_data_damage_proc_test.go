@@ -86,7 +86,8 @@ func TestItemDamageProcCritsReachListenersThatHearProcs(t *testing.T) {
 
 // An enchant's damage proc whose trigger states a factor against some targets, The Chief's Enforcer's
 // 1294339 against Trolls, lists the factor on the stats sheet under the trigger's spell: the enchant's
-// own id names no spell.
+// own id names no spell. With an item swap set it lists the factor while the worn weapon carries the
+// enchant, and nothing while only the item swap set's weapon does.
 func TestEnchantDamageProcListsItsVersusFactorByItsSpell(t *testing.T) {
 	const swordID, enchantID, strike int32 = 991690, 991691, 1294339
 	want, ok := spelldata.MustFind(strike).VersusBonus()
@@ -106,6 +107,19 @@ func TestEnchantDamageProcListsItsVersusFactorByItsSpell(t *testing.T) {
 	if sheet := playerStats.VersusEffects; len(sheet) != 1 || core.ProtoToActionID(sheet[0].Source) != (core.ActionID{SpellID: strike}) ||
 		sheet[0].ItemId != 0 || sheet[0].Multiplier != want.Multiplier || !slices.Equal(sheet[0].CreatureFamilies, want.Families) {
 		t.Errorf("the stats sheet lists %v, want %d's factor of %v against %v", sheet, strike, want.Multiplier, want.Families)
+	}
+
+	plain, enchanted := testHands(&proto.ItemSpec{Id: swordID}, &proto.ItemSpec{}), testHands(&proto.ItemSpec{Id: swordID, Enchant: enchantID}, &proto.ItemSpec{})
+	swapSheet := func(worn []*proto.ItemSpec) []*proto.VersusEffect {
+		playerStats := &proto.PlayerStats{}
+		newTestCasterSim(worn, enchanted).Raid.Parties[0].Players[0].GetCharacter().FillPlayerStats(playerStats)
+		return playerStats.VersusEffects
+	}
+	if sheet := swapSheet(enchanted); len(sheet) != 1 || core.ProtoToActionID(sheet[0].Source) != (core.ActionID{SpellID: strike}) {
+		t.Errorf("with the enchant on the worn weapon and the item swap set's the stats sheet lists %v, want %d's factor", sheet, strike)
+	}
+	if sheet := swapSheet(plain); len(sheet) != 0 {
+		t.Errorf("with the enchant only on the item swap set's weapon the stats sheet lists %v, want none", sheet)
 	}
 }
 

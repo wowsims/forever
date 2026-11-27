@@ -12816,6 +12816,9 @@
 								"effect_flat_heal": {
 									"type": "string"
 								},
+								"effect_hits_needed": {
+									"type": "string"
+								},
 								"state_on": {
 									"type": "string"
 								},
@@ -12853,6 +12856,7 @@
 								"effect_duration",
 								"effect_amount",
 								"effect_flat_heal",
+								"effect_hits_needed",
 								"state_on",
 								"state_partial",
 								"state_off",

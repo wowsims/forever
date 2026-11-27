@@ -557,6 +557,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		{ label: 'Dwarf', ...noTarget, lines: [['Hand of Justice', '×3 proc chance']] },
 		{ label: 'Dinosaur', ...noTarget, lines: [["Bolt's Charged Eyeball", '×3 damage']] },
 		{ label: 'Serpentine', ...noTarget, lines: [serpentbane] },
+		{ label: 'Snowy', chip: 'Not in area', state: 'off', lines: [['Everlook Delivery Bot', 'Procs after half the hits']] },
 		citiesGroup,
 	];
 
@@ -568,7 +569,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 
 		await openVersusGroups(view);
 		await waitFor(() => expect(versusGroups(view)).toEqual([humanoid, areaGroup]));
-		openInactive(view, '11 inactive bonuses');
+		openInactive(view, '12 inactive bonuses');
 		await waitFor(() => expect(versusGroups(view)).toEqual([humanoid, areaGroup, ...inactiveGroups]));
 	});
 
@@ -576,7 +577,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES }, { targets: VERSUS_TARGETS, areaTypes: [AreaType.AreaTypeSwamp] });
 
 		await openVersusGroups(view);
-		openInactive(view, '9 inactive bonuses');
+		openInactive(view, '10 inactive bonuses');
 		const byLabel = (label: string) => versusGroups(view).find(group => group.label === label);
 
 		await waitFor(() =>
@@ -595,7 +596,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 	it("shows a source line with its item's or spell's icon, a set bonus's factor by its spell, and an area's stat line with none", async () => {
 		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES }, { targets: VERSUS_TARGETS, areaTypes: VERSUS_AREA_TYPES });
 		await openVersusGroups(view);
-		openInactive(view, '8 inactive bonuses');
+		openInactive(view, '9 inactive bonuses');
 
 		const iconOf = (label: string) => {
 			const rows = view.container.querySelectorAll('[data-testid="character-stats-versus-group"] tr');

@@ -114,13 +114,15 @@ describe('VersusChips', () => {
 			[],
 			[AreaType.AreaTypeSnowy],
 			[
-				VersusEffect.create({ itemId: 1, areaTypes: [AreaType.AreaTypeSnowy], multiplier: 2, kind: VersusEffectKind.VersusEffectKindProcChance }),
+				VersusEffect.create({ itemId: 1, areaTypes: [AreaType.AreaTypeSnowy], multiplier: 2, kind: VersusEffectKind.VersusEffectKindHitsNeeded }),
 				VersusEffect.create({ itemId: 2, areaTypes: [AreaType.AreaTypeSnowy], multiplier: 3, kind: VersusEffectKind.VersusEffectKindEffect }),
 			],
 		);
 
 		fireEvent.mouseEnter(screen.getAllByTestId('gear-versus-chip')[2]);
-		expect((await screen.findByRole('tooltip')).textContent).toBe('In Snowy+28 Attack Power×2 proc chanceActive: the encounter is in a Snowy area');
+		expect((await screen.findByRole('tooltip')).textContent).toBe(
+			'In Snowy+28 Attack PowerProcs after half the hitsActive: the encounter is in a Snowy area',
+		);
 	});
 
 	it('shows nothing for an item that names no kind of target or area', () => {

@@ -96,6 +96,8 @@ type versusRegistration struct {
 	bonus  *VersusBonus
 	areas  []proto.AreaType
 	amount float64
+	// Registered by a set bonus, an enchant or an item only the item swap set holds.
+	swapOnly bool
 }
 
 // The factor a source's spell deals, restores or adds against the mob types and families, kept for the
@@ -111,11 +113,24 @@ func (character *Character) RegisterVersusProc(source ActionID, kind proto.Versu
 	return &VersusProc{Source: source, VersusBonus: *character.RegisterVersus(source, kind, bonus)}
 }
 
-// The registered factors. An item swap registers the effects of the items it can swap in as well, so
-// an item the character does not wear is left out; a spell's source is listed while it is registered.
+// Runs apply, which registers the effects of a set bonus or of items only the item swap set holds, and
+// marks the factors it registers as the swap set's.
+func (character *Character) registerSwapOnly(apply func()) {
+	start := len(character.versusRegistrations)
+	apply()
+	for i := start; i < len(character.versusRegistrations); i++ {
+		character.versusRegistrations[i].swapOnly = true
+	}
+}
+
+// The registered factors of the gear the character wears. An item swap registers the effects of the
+// items, enchants and set bonuses it can swap in as well, and the sheet leaves those out.
 func (character *Character) versusEffectsProto() []*proto.VersusEffect {
 	var effects []*proto.VersusEffect
 	for _, versus := range character.versusRegistrations {
+		if versus.swapOnly {
+			continue
+		}
 		effect := &proto.VersusEffect{
 			Source:           versus.source.ToProto(),
 			MobTypes:         versus.bonus.MobTypes,

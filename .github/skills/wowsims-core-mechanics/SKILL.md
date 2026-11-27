@@ -102,13 +102,15 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   (`Damage`, `Restore`, `ProcChance`, `CritChance`, `ProcOnly`, `Duration`), which list it on the stats sheet. Each
   helper takes the `ActionID` the bonus is credited to (the item for an item's stats and spells, the spell for an
   enchant with no item, a set bonus, a talent or a racial); the stats sheet's Versus bonuses group shows one row per
-  credited source. An item's factor is listed only while the item is worn, and in its gear chip's tooltip; a spell's
-  while it is registered, an item swap's spare enchant or set bonus included.
+  credited source. An item's factor is listed only while the item is worn, and in its gear chip's tooltip; an
+  enchant's or a set bonus's only while the worn gear gives it, so one only the item swap set holds is left out
+  (`registerSwapOnly`).
 - **An area factor goes through `character.RegisterArea`** (`sim/core/area.go`) with a `core.AreaBonus` (the
   `AreaTargets` and the factor) and a `VersusEffectKind` (`Effect` for stats, regeneration or a heal). It returns the
   factor in the encounter, 1 outside its areas, since the areas are fixed for the run, and lists it on the stats sheet
   under its area in every encounter. A row's `overrides.AreaBonuses` entry reads as `spelldata.Spell.AreaBonus()`. A
-  rule on top of the factor stays at its site (Everlook Delivery Bot's halved counts rounded down). A flat amount in
+  rule on top of the factor stays at its site (Everlook Delivery Bot's halved counts rounded down, listed as
+  `HitsNeeded`). A flat amount in
   the areas goes through `character.RegisterAreaAmount`, which lists the amount and returns whether the encounter is
   in them (Krol'dok Battlegear's `FlatHeal`); a check with nothing to list is `AreaTargets.In` or `Encounter.InArea`.
 - **Periodic physical damage meets the armor its row's attributes name** (EV-0194). `SpellConfig` reads them: none
