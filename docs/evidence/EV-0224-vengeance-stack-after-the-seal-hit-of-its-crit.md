@@ -1,8 +1,8 @@
 # EV-0224: A crit's Vengeance stack comes after the seal hit of the same swing
 
-- Claim: the Vengeance stack (talent 20049, buff 20050, logged as Conviction) that a white swing's crit adds lands after
-  the hits that swing procs. The swing's Seal of Righteousness and Seal of Fury hits are priced on the stacks from
-  before the crit, and so is its Windfury Totem hit.
+- Claim: the Vengeance stack (talent 20049, buff 20050, logged as Conviction) that a white swing's crit adds comes after
+  that swing's Seal of Righteousness, Seal of Fury and Windfury Totem hits, which are priced on the stacks from before
+  the crit. Seal of Command's hits do not settle the order.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every paladin stream on disk in the sweep's stream cache
   that holds a Vengeance event: 1,246 streams in 1,224 reports, 600 streams in 586 reports before hotfix push 114313
   and 646 streams in 638 reports after it. The report codes are in the scripts' inputs and are not listed here.
@@ -32,8 +32,9 @@ those stacks reads. A hit priced before the crit reads like the other hits at kâ
 at k. Windfury Totem and Seal of Command hits are read the same way.
 
 Scripts and outputs: `requests/forever-aura-order-1127` in the log parser's folder: `extract.py` builds the stream
-cache, `probe.py` runs the probes (`conviction_noexp_sor`, `conviction_noexp_wft`, `conviction_noexp_soc` and
-`conviction_sof`), and `probe_out.txt`, `probe_split_out.txt` and `conviction_out.txt` hold the output.
+cache, `count_vengeance_reports.py` counts the streams, reports and builds, `probe.py` runs the probes
+(`conviction_noexp_sor`, `conviction_noexp_wft`, `conviction_noexp_soc` and `conviction_sof`), and `probe_out.txt` and
+`conviction_out.txt` hold the output.
 
 ## Seal of Righteousness
 

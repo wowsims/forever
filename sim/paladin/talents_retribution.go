@@ -273,8 +273,11 @@ func (paladin *Paladin) applyVengeance() {
 		},
 	})
 
-	// The stack a crit adds comes after the procs of that same hit, so the Seal of Righteousness or
-	// Seal of Fury hit a critical swing procs is priced on the stacks from before the crit (EV-0224).
+	// The stack a crit adds comes after every proc of that same hit: those procs run a batch window
+	// after the hit, queued in its instant, and the stack queues behind them from its own deferred
+	// handler. A critical swing's Seal of Righteousness or Seal of Fury hit is priced on the stacks
+	// from before the crit (EV-0224); Seal of Command, a spent Echo and Judgement of Light's heal
+	// follow the same order unmeasured.
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.Vengeance.Rank(paladin.Talents.Vengeance), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		sim.RunAfterCurrentEvent(func(sim *core.Simulation) {
 			vengeance.Activate(sim)
