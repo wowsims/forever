@@ -615,7 +615,7 @@ dps_results: {
  key: "TestEnhancement-AllItems-EnchantWeapon-Insight-8216"
  value: {
   dps: 921.44277
-  tps: 674.81322
+  tps: 674.81552
   dtps: 8.48402
   hps: 20.87556
  }
@@ -636,6 +636,15 @@ dps_results: {
   tps: 675.65257
   dtps: 8.44461
   hps: 20.87556
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 929.15586
+  tps: 679.72132
+  dtps: 8.36281
+  hps: 20.75694
  }
 }
 dps_results: {
@@ -1379,10 +1388,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-SeepingWillow-12969"
  value: {
-  dps: 911.0355
-  tps: 667.83753
-  dtps: 7.74974
-  hps: 22.50222
+  dps: 914.95531
+  tps: 670.5567
+  dtps: 7.67087
+  hps: 22.43444
  }
 }
 dps_results: {

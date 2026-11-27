@@ -510,6 +510,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Demonfork-12621"
+ value: {
+  dps: 793.69692
+  tps: 563.52481
+  hps: 50.81639
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-DevilsaurArmor"
  value: {
   dps: 796.9248
@@ -738,6 +746,14 @@ dps_results: {
  value: {
   dps: 811.4737
   tps: 576.14632
+  hps: 59.91556
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 816.47264
+  tps: 579.69557
   hps: 59.91556
  }
 }

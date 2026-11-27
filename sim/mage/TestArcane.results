@@ -517,6 +517,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 822.79877
+  tps: 708.59126
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-EnchantWeapon-MinorBeastslayer-249"
  value: {
   dps: 822.79877

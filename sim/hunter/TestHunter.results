@@ -729,6 +729,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Demonfork-12621"
+ value: {
+  dps: 798.38936
+  tps: 820.46117
+  dtps: 8.5652
+  hps: 15.04667
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Demonshear-13348"
  value: {
   dps: 898.78521
@@ -1002,7 +1011,7 @@ dps_results: {
  key: "TestHunter-AllItems-EnchantWeapon-Insight-8216"
  value: {
   dps: 889.01467
-  tps: 911.37105
+  tps: 911.36814
   dtps: 8.80216
   hps: 15.04667
  }
@@ -1022,6 +1031,15 @@ dps_results: {
   dps: 889.12245
   tps: 911.56722
   dtps: 8.47543
+  hps: 15.04667
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 895.04849
+  tps: 916.80207
+  dtps: 8.93677
   hps: 15.04667
  }
 }

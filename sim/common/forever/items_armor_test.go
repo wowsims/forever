@@ -695,3 +695,49 @@ func TestStoneformShouldersReduceOnlyTheNextPhysicalHit(t *testing.T) {
 		t.Errorf("after a Physical hit taken the flat Physical damage taken is %v off, want 0", got)
 	}
 }
+
+// Skullflame Shield 1168 rolls both its procs on melee hits taken. 18815's Drain Life 18817 hits the
+// attacker only while the wearer is in front of its target, and 18816's Flamestrike 18818 rolls either
+// way and deals the row's damage to every enemy.
+func TestSkullflameShieldDrainsOnlyInFrontAndBurnsEveryEnemy(t *testing.T) {
+	targets := []*proto.Target{{Name: "first", Level: 60}, {Name: "second", Level: 60}, {Name: "third", Level: 60}}
+	sim, character := itemWearerAgainst(t, proto.Class_ClassWarrior, equipping(proto.ItemSlot_ItemSlotOffHand, &proto.ItemSpec{Id: 1168}), targets...)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	attacker := sim.Encounter.ActiveTargetUnits[0]
+	drainLife := character.GetSpell(core.ActionID{SpellID: 18817})
+	flamestrike := character.GetSpell(core.ActionID{SpellID: 18818})
+	if drainLife == nil || flamestrike == nil {
+		t.Fatalf("1168 registers Drain Life %v and Flamestrike %v, want both", drainLife != nil, flamestrike != nil)
+	}
+
+	takeHits := func() {
+		for range 2000 {
+			character.SetCurrentHealthPercent(0.5)
+			takeHit(t, sim, character, meleeSwing(attacker))
+		}
+	}
+
+	character.PseudoStats.InFrontOfTarget = false
+	takeHits()
+	if got := drainLife.SpellMetrics[attacker.UnitIndex].Casts; got != 0 {
+		t.Errorf("behind its target the wearer cast Drain Life %d times, want none", got)
+	}
+	casts := flamestrike.SpellMetrics[attacker.UnitIndex].Casts
+	if casts == 0 {
+		t.Fatal("behind its target the wearer cast no Flamestrike")
+	}
+	flame := spelldata.MustFind(18818).DamageEffect()
+	for _, enemy := range sim.Encounter.ActiveTargetUnits {
+		metrics := flamestrike.SpellMetrics[enemy.UnitIndex]
+		hits := float64(metrics.Hits)
+		if metrics.Hits != casts || metrics.TotalDamage < hits*flame.Min() || metrics.TotalDamage > hits*flame.Max() {
+			t.Errorf("%s took %d Flamestrike hits for %v over %d casts, want one per cast within the row's roll", enemy.Label, metrics.Hits, metrics.TotalDamage, casts)
+		}
+	}
+
+	character.PseudoStats.InFrontOfTarget = true
+	takeHits()
+	if got := drainLife.SpellMetrics[attacker.UnitIndex].Casts; got == 0 {
+		t.Error("in front of its target the wearer cast no Drain Life")
+	}
+}

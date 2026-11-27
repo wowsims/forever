@@ -36,13 +36,22 @@ func (warlock *Warlock) registerHellfire() {
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = WarlockSpellHellfire
 
+	// The burn takes the caster's Fire damage done modifiers and crits at the caster's spell crit chance
+	// for the channel's crit damage, Ruin's included (EV-0229). Versus bonuses and the target's debuffs
+	// stay out, since the caster is the one burned.
 	// TODO: The burn on the caster is taken as health lost, not as Fire damage its resistance could reduce.
+	burnTable := core.NewAttackTable(&warlock.Unit, &warlock.Unit)
 	config.Dot = spelldata.DotConfig(rankedSpell, channelTick)
 	config.Dot.SelfOnly = true
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		hellfireEffect.Cast(sim, target)
+		spell := dot.Spell
 		spellPower := warlock.GetStat(stats.SpellDamage) + warlock.GetStat(stats.FireDamage)
-		warlock.SpendHealth(sim, selfBurn.Average()+selfBurn.Coeff()*spellPower, dot.Spell.HealthMetrics(&warlock.Unit))
+		burn := (selfBurn.Average() + selfBurn.Coeff()*spellPower) * spell.AttackerDamageMultiplier(burnTable, true)
+		if sim.RandomFloat("Hellfire Burn Crit") < (warlock.GetStat(stats.SpellCritPercent)+spell.BonusCritPercent)/100 {
+			burn *= spell.CritDamageMultiplier(nil)
+		}
+		warlock.SpendHealth(sim, burn, spell.HealthMetrics(&warlock.Unit))
 	}
 
 	// Channel on the caster

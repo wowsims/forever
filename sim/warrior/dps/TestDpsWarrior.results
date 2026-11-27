@@ -549,6 +549,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Demonfork-12621"
+ value: {
+  dps: 565.07722
+  tps: 501.1571
+  dtps: 2.94293
+  hps: 39.32806
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Demonshear-13348"
  value: {
   dps: 545.11878
@@ -841,6 +850,15 @@ dps_results: {
  value: {
   dps: 554.81663
   tps: 494.74914
+  dtps: 2.94293
+  hps: 43.4625
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 558.32755
+  tps: 496.908
   dtps: 2.94293
   hps: 43.4625
  }
@@ -1820,8 +1838,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-SeepingWillow-12969"
  value: {
-  dps: 546.21187
-  tps: 479.9589
+  dps: 552.65535
+  tps: 485.11369
   dtps: 2.97628
   hps: 23.99333
  }

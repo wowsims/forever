@@ -54,13 +54,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0003",
 	},
 	{
-		ItemID:  12969,
-		SpellID: 17196,
-		PPM:     0.9,
-		Reason:  "Seeping Willow: column reads 101",
-		Source:  "EV-0003",
-	},
-	{
 		ItemID:  13183,
 		SpellID: 18203,
 		PPM:     1.7,
@@ -1258,6 +1251,23 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 16921,
 		PPM:     0.9,
 		Reason:  "Masterwork Stormhammer: column reads 101; a log fit not yet validated (EV-0184)",
+		Source:  "observed",
+	},
+	// Fitted over all hits of one paladin wearer each in one combat log, the seal hits rolling as the sim's do. A rate
+	// read from paladins alone stays observed (EV-0003, EV-0228). The "observed" Source keeps the gear tab's notice up
+	// until more wearers validate it.
+	{
+		ItemID:  12621,
+		SpellID: 16603,
+		PPM:     3.25,
+		Reason:  "Demonfork: no proc row; a log fit not yet validated (EV-0228)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  12969,
+		SpellID: 17196,
+		PPM:     2.1,
+		Reason:  "Seeping Willow: column reads 101; a log fit not yet validated (EV-0003)",
 		Source:  "observed",
 	},
 	// Fitted the same way on the reports from 2026-11-06 to 2026-11-23, from wearers of one class, no lone-unit rate to

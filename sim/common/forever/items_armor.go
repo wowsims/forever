@@ -224,24 +224,7 @@ func init() {
 	// When struck has a 3% chance of stealing 240 life from the attacker over 4s.
 	core.NewItemEffect(12628, func(agent core.Agent) {
 		character := agent.GetCharacter()
-		row := spelldata.MustFind(16608)
-		leech := row.FirstAura(dbcenums.A_PERIODIC_LEECH)
-		healthMetrics := character.NewHealthMetrics(core.ActionID{SpellID: row.ID})
-
-		config := procSpellConfig(character, row)
-		config.Dot = spelldata.DotConfig(row, leech, spelldata.Label("Demon Forged Breastplate"))
-		config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-			result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, leech.Average(), row.TickOutcome(dot))
-			shared.GainLeechHealth(sim, character, result.Damage, leech, healthMetrics)
-		}
-		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
-			if result.Landed() {
-				spell.Dot(target).Apply(sim)
-			}
-			spell.DealOutcome(sim, result)
-		}
-		drain := character.RegisterSpell(config)
+		drain := registerLeechDrain(character, spelldata.MustFind(16608), "Demon Forged Breastplate")
 
 		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(16611), func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 			drain.Cast(sim, spell.Unit)
@@ -250,6 +233,59 @@ func init() {
 		trigger.ActionID = core.ActionID{ItemID: 12628}
 		trigger.TriggerImmediately = true
 		character.ItemSwap.RegisterProc(12628, character.MakeProcTriggerAura(trigger))
+	})
+
+	// Skullflame Shield
+	// https://www.wowhead.com/forever/item=1168/skullflame-shield
+	//
+	// When struck in melee combat, has a 3% chance of stealing 270 life from target enemy.
+	// When struck in combat has a 2% chance of dealing 115 Fire damage to all targets around you.
+	//
+	// Both roll on each landed melee hit taken. The sim has no attacker facing, so Drain Life takes the
+	// attacker's life only while the wearer is In Front of Target, an owner ruling; Flamestrike hits every
+	// enemy around the wearer (EV-0227).
+	core.NewItemEffect(1168, func(agent core.Agent) {
+		character := agent.GetCharacter()
+
+		drainRow := spelldata.MustFind(18817)
+		leech := drainRow.DamageEffect()
+		healthMetrics := character.NewHealthMetrics(core.ActionID{SpellID: drainRow.ID})
+		drainConfig := procSpellConfig(character, drainRow)
+		drainConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			result := spell.CalcAndDealDamage(sim, target, leech.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
+			shared.GainLeechHealth(sim, character, result.Damage, leech, healthMetrics)
+		}
+		drainLife := character.RegisterSpell(drainConfig)
+
+		drainTrigger := spelldata.ProcTrigger(character, spelldata.MustFind(18815), func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+			drainLife.Cast(sim, spell.Unit)
+		})
+		drainTrigger.Name = "Skullflame Shield - Drain Life"
+		drainTrigger.ActionID = core.ActionID{ItemID: 1168}
+		drainTrigger.TriggerImmediately = true
+		drainTrigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+			return character.PseudoStats.InFrontOfTarget
+		}
+		character.ItemSwap.RegisterProc(1168, character.MakeProcTriggerAura(drainTrigger))
+
+		flameRow := spelldata.MustFind(18818)
+		flame := flameRow.DamageEffect()
+		flameConfig := procSpellConfig(character, flameRow)
+		flameConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+			spell.CalcAoeDamageWithVariance(sim, spell.OutcomeMagicHitAndCrit, func(sim *core.Simulation, _ *core.Spell) float64 {
+				return flame.DirectAmount(sim) * sim.Encounter.AOECapMultiplier()
+			})
+			spell.DealBatchedAoeDamage(sim)
+		}
+		flamestrike := character.RegisterSpell(flameConfig)
+
+		flameTrigger := spelldata.ProcTrigger(character, spelldata.MustFind(18816), func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+			flamestrike.Cast(sim, spell.Unit)
+		})
+		flameTrigger.Name = "Skullflame Shield - Flamestrike"
+		flameTrigger.ActionID = core.ActionID{ItemID: 1168}
+		flameTrigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(1168, character.MakeProcTriggerAura(flameTrigger))
 	})
 
 	// Stoneform Shoulders
@@ -339,4 +375,25 @@ func procSpellConfig(character *core.Character, row *spelldata.Spell) core.Spell
 func procSpellConfigAs(character *core.Character, row *spelldata.Spell, kind spelldata.SpellOpt) core.SpellConfig {
 	config := spelldata.SpellConfig(&character.Unit, row, kind, spelldata.Proc(), spelldata.Triggered())
 	return config
+}
+
+// A proc's A_PERIODIC_LEECH drain: the cast rolls hit and puts the dot on, and each tick heals the wearer
+// the effect's share of what it dealt.
+func registerLeechDrain(character *core.Character, row *spelldata.Spell, label string) *core.Spell {
+	leech := row.FirstAura(dbcenums.A_PERIODIC_LEECH)
+	healthMetrics := character.NewHealthMetrics(core.ActionID{SpellID: row.ID})
+	config := procSpellConfig(character, row)
+	config.Dot = spelldata.DotConfig(row, leech, spelldata.Label(label))
+	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+		result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, leech.Average(), row.TickOutcome(dot))
+		shared.GainLeechHealth(sim, character, result.Damage, leech, healthMetrics)
+	}
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
+		if result.Landed() {
+			spell.Dot(target).Apply(sim)
+		}
+		spell.DealOutcome(sim, result)
+	}
+	return character.RegisterSpell(config)
 }

@@ -402,6 +402,43 @@ func TestSkullforgeReaverBrandsOnMainHandHitsAndHealsTheWearer(t *testing.T) {
 	}
 }
 
+// Demonfork 12621 casts 16603 at the procs per minute of the item's entry, on the weapon's speed, off
+// landed main-hand swings and specials, and a second proc refreshes the drain. The drain's ticks and heal
+// are the shared leech drain's, which TestDemonForgedBreastplateDrainsTheAttacker covers.
+func TestDemonforkDrainsTheTargetIntoTheWearer(t *testing.T) {
+	withEntryPPM(t, 12621, 16603, 3)
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(12621, 0)})
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Demonfork")
+	drain := character.GetSpell(core.ActionID{SpellID: 16603})
+	if proc == nil || proc.Dpm == nil || drain == nil {
+		t.Fatal("12621 registers no drain or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 12621, 16603)
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHSpecial, 12621, 16603)
+
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	row := spelldata.MustFind(16603)
+	enemy := character.CurrentTarget
+
+	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	if got := drain.SpellMetrics[enemy.UnitIndex].Casts; got != 0 {
+		t.Errorf("a missed swing cast %d drains, want none", got)
+	}
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if !drain.Dot(enemy).IsActive() {
+		t.Fatal("a main-hand swing put no drain on the target")
+	}
+
+	stepTo(t, sim, sim.CurrentTime+row.FirstAura(dbcenums.A_PERIODIC_LEECH).Period())
+	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Unit: &character.Unit}
+	character.OnSpellHitDealt(sim, special, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
+	if got := drain.Dot(enemy).RemainingDuration(sim); got != row.Duration() {
+		t.Errorf("a proc on a drained target leaves the drain %v, want the row's full %v", got, row.Duration())
+	}
+}
+
 // Barovian Family Sword 14541 casts Siphon Health 18652 at the procs per minute of the item's entry, on
 // the sword's speed, and the drain goes on a target above the wearer's level with no hit roll. It ticks
 // every period for the row's duration, and each tick casts the heal the drain's row links to on the

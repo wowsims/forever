@@ -1,8 +1,9 @@
 # EV-0151: What rolls Flame Wrath, and its damage, which takes no spell power
 
 - Claim: a paladin's melee abilities roll Flame Wrath 11809's 16559; in Cat and Bear Form only the white swing does, and
-  Maul, Swipe, Lacerate, Primal Bite, Claw, Rake and Shred roll nothing. 16559 hits every enemy near the wearer once for
-  the row's 154 Fire damage with no spell power share, and crits at the wearer's spell crit chance.
+  Maul, Swipe, Lacerate, Primal Bite, Claw, Rake, Shred, Ferocious Bite and Rip roll nothing. 16559 hits every enemy
+  near the wearer once for the row's 154 Fire damage with no spell power share, and crits at the wearer's spell crit
+  chance.
 - Sources: Warcraft Logs reports (forever.warcraftlogs.com, zone 3000), every fight in which the wearer's gear
   snapshot holds 11809 in the main hand: 1X37tZRzgkmd9rNP, 1a3Qn7JpLk8AH2hV, 1nTQBK4hmcaLbFZV, 1z6PXMGdQBDvrCqx,
   2wFyAGLf1CqZKnaz, 2wZ3P6y9N4f7kXVq, 3R69PBjxZvcfbnX8, 3qfDVTZ1J29zPChn, 4BFrCYZajATmLfgn, 4f2ygdYCzFAvqc6K,
@@ -27,6 +28,7 @@
   while CN, KR and TW still listed 70938 on 2026-11-18. The hotfix each player ran is not recorded
 - Date: 2026-11-12 14:54 to 2026-11-18 14:18 UTC
 - Pull request: #1104
+- Later count: Claw, Rake, Ferocious Bite and Rip in Cat Form, §Count of the 2026-11-25 combat log
 
 ## Method
 
@@ -54,9 +56,7 @@ Landed hits other than white swings, each with no other damage line of the weare
 | Druid, Bear Form | Maul                 |          0 / 5,084 |
 | Druid, Bear Form | Primal Bite          |          1 / 4,653 |
 | Druid, Bear Form | Lacerate             |          2 / 3,153 |
-| Druid, Cat Form  | Rake                 |            2 / 635 |
 | Druid, Cat Form  | Shred                |            0 / 538 |
-| Druid, Cat Form  | Claw                 |            0 / 746 |
 | Paladin          | Holy Strike          |           67 / 692 |
 | Paladin          | Judgement of Command |           37 / 521 |
 
@@ -81,3 +81,25 @@ talent (17069, 2% more damage of every school a rank) splits them, rank 0 druids
 
 Paladins crit 16.1% of 3,549 landed hits, against 15.8% on their own spells and 18.3% on white swings; the warrior
 crit 11.2% of 456 against 46.6% on white swings.
+
+## Count of the 2026-11-25 combat log
+
+- Sources: a combat log of a feral druid in Cat Form wearing 11809 in the main hand, in a group, level not recorded
+- Game build: 1.60.1.71091, after hotfix push 114399, relogged
+- Date: 2026-11-25 15:25 to 16:40 UTC
+- Pull request: #1280
+
+A unit is a landed hit of the wearer in Cat Form, or a Rip that lands, with no other hit, swing, miss or cast of the
+wearer within 100 ms; ticks, auras, energizes and other procs do not break it. Killing blows are left out. A unit has a
+proc when 16560 goes up or refreshes on the wearer from 20 ms before it to 60 ms after it. Scripts and output:
+`group-2026-11-25-flexi` in the proc research folder, `scripts/melee_procs.py` (`tables/melee_summary.md`).
+
+| Hit            | With a proc / hits |
+| -------------- | -----------------: |
+| White swing    |         33 / 1,037 |
+| Claw           |            0 / 195 |
+| Rake           |            0 / 175 |
+| Ferocious Bite |             0 / 35 |
+| Rip, landing   |             0 / 18 |
+
+At the white swing's 3.2%, the 405 hits of Claw, Rake and Ferocious Bite would carry 13 procs.
