@@ -564,7 +564,7 @@ func init() {
 	// once per target and each Arcane Missiles missile on its own. A spell that applies a damage over
 	// time effect or a debuff rolls too, a curse included. Damage over time ticks never roll, and
 	// neither does a spell fired as a proc, such as Hellfire Effect. The 8% is the row's ProcChance,
-	// which an override sets; hardcasts and instants roll it alike. Misses are undetermined, so only
+	// which an override sets; most hardcasts roll it like instants. Misses are undetermined, so only
 	// landed spells roll (EV-0115).
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
