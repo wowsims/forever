@@ -273,9 +273,16 @@ func (paladin *Paladin) applyVengeance() {
 		},
 	})
 
+	// The stack a crit adds comes after every proc of that same hit: those procs run a batch window
+	// after the hit, queued in its instant, and the stack queues behind them from its own deferred
+	// handler. A critical swing's Seal of Righteousness or Seal of Fury hit is priced on the stacks
+	// from before the crit (EV-0224); Seal of Command, a spent Echo and Judgement of Light's heal
+	// follow the same order unmeasured.
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.Vengeance.Rank(paladin.Talents.Vengeance), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-		vengeance.Activate(sim)
-		vengeance.AddStack(sim)
+		sim.RunAfterCurrentEvent(func(sim *core.Simulation) {
+			vengeance.Activate(sim)
+			vengeance.AddStack(sim)
+		})
 	})
 	trigger.Name = "Vengeance - Trigger" + paladin.Label
 	// The row's harmful-spell bit hears every spell, item spells too, and the sim registers an on-use
