@@ -19,7 +19,7 @@ export class Warlock extends PlayerClass<Class.ClassWarlock> {
 	static rangedWeaponTypes = getClassRangedWeaponTypes(Warlock.classID);
 
 	readonly classID = Warlock.classID;
-	readonly friendlyName = Warlock.name;
+	readonly friendlyName = Warlock.friendlyName;
 	readonly hexColor = Warlock.hexColor;
 	readonly specs = Warlock.specs;
 	readonly races = Warlock.races;

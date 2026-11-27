@@ -21,7 +21,7 @@ export class Shaman extends PlayerClass<Class.ClassShaman> {
 	static rangedWeaponTypes = getClassRangedWeaponTypes(Shaman.classID);
 
 	readonly classID = Shaman.classID;
-	readonly friendlyName = Shaman.name;
+	readonly friendlyName = Shaman.friendlyName;
 	readonly hexColor = Shaman.hexColor;
 	readonly specs = Shaman.specs;
 	readonly races = Shaman.races;
