@@ -380,6 +380,73 @@ func TestHurricaneCastRollsOmenPerTarget(t *testing.T) {
 	}
 }
 
+// A Hurricane cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the channel
+// starts, and its ticks roll none (EV-0115).
+func TestHurricaneCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
+	const casts, enemies = 2000, 5
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)
+	for slot := range items {
+		items[slot] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotTrinket1].Id = 22268
+	player := core.WithSpec(&proto.Player{
+		Class:         proto.Class_ClassDruid,
+		Race:          proto.Race_RaceNightElf,
+		Equipment:     &proto.EquipmentSpec{Items: items},
+		TalentsString: DefaultTalents,
+		Rotation:      &proto.APLRotation{},
+	}, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{Options: &proto.BalanceDruid_Options{ClassOptions: &proto.DruidOptions{}}}})
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = casts * 11
+	for range enemies - 1 {
+		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	druid := sim.Raid.Parties[0].Players[0].(*BalanceDruid)
+	buff := druid.GetAuraByID(core.ActionID{SpellID: 1318930})
+	if buff == nil {
+		t.Fatal("22268 registers no 1318930")
+	}
+
+	// The proc is deferred by the spell batch window, one pending action each, so each step deals at most
+	// one, and the buff comes down before the next roll can refresh it.
+	var atCast, onTicks int
+	for range casts {
+		start := sim.CurrentTime
+		druid.Hurricane.SkipCastAndApplyEffects(sim, druid.CurrentTarget)
+		for druid.Hurricane.AOEDot().IsActive() || sim.CurrentTime < start+100*time.Millisecond {
+			if sim.Step() {
+				t.Fatal("the encounter ended before the casts did")
+			}
+			if buff.IsActive() {
+				if sim.CurrentTime < start+100*time.Millisecond {
+					atCast++
+				} else {
+					onTicks++
+				}
+				buff.Deactivate(sim)
+			}
+		}
+	}
+
+	chance := spelldata.MustFind(1318931).StatedChance()
+	if chance <= 0 || chance >= 1 {
+		t.Fatalf("1318931 states a chance of %v, want one between none and certain", chance)
+	}
+	rolls := float64(casts * enemies)
+	if mean, deviation := chance*rolls, math.Sqrt(chance*(1-chance)*rolls); math.Abs(float64(atCast)-mean) > 4*deviation {
+		t.Errorf("%d Hurricane casts on %d enemies procced it %d times at the cast, want about %.0f", casts, enemies, atCast, mean)
+	}
+	if onTicks != 0 {
+		t.Errorf("Hurricane ticks procced it %d times, want none", onTicks)
+	}
+}
+
 // A helpful cast such as Thorns rolls Omen of Clarity in Moonkin Form, after it spends Clearcasting;
 // in caster form it rolls nothing, and neither does a shift into Moonkin Form.
 func TestHelpfulCastsRollOmenInMoonkinFormOnly(t *testing.T) {

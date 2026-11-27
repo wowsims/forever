@@ -655,6 +655,63 @@ func TestShankRollsTheOffHandPoison(t *testing.T) {
 	}
 }
 
+// Venom goes up before Shank deals its damage, so the Instant Poison that Shank's own hit procs is cast under Venom.
+// Auto attacks cast the poison between Shanks, so only the casts inside each Shank are counted.
+func TestShankPutsVenomUpBeforeItsPoisonProcs(t *testing.T) {
+	player := &proto.Player{
+		Name:          "Rogue",
+		Race:          proto.Race_RaceHuman,
+		Class:         proto.Class_ClassRogue,
+		Equipment:     core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "muti").GearSet,
+		TalentsString: venomFlashOfSteelTalents,
+		Consumables:   &proto.ConsumesSpec{OhWeaponImbueId: 8928}, // Instant Poison VI
+		Spec:          DefaultOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
+	target := sim.Encounter.AllTargetUnits[0]
+	if rogue.InstantPoison == nil {
+		t.Fatal("the off hand's imbue registered no Instant Poison")
+	}
+	venom := auraOf(t, rogue, venomBuff.ID)
+
+	var inShank, withVenom int
+	var shanking bool
+	applyPoison := rogue.InstantPoison.ApplyEffects
+	rogue.InstantPoison.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		if shanking {
+			inShank++
+			if venom.IsActive() {
+				withVenom++
+			}
+		}
+		applyPoison(sim, target, spell)
+	}
+
+	for range 100 {
+		waitForGCD(t, sim, rogue)
+		rogue.Shank.CD.Reset()
+		venom.Deactivate(sim)
+		shanking = true
+		if !rogue.Shank.Cast(sim, target) {
+			t.Fatal("Shank did not cast")
+		}
+		shanking = false
+	}
+	if inShank == 0 {
+		t.Fatal("Instant Poison cast off none of 100 Shanks")
+	}
+	if withVenom != inShank {
+		t.Errorf("Venom was up for %d of the %d Instant Poisons cast inside Shank, want all", withVenom, inShank)
+	}
+}
+
 // Mutilate's strikes take the poison bonus from the target's poisons at the cast. On a clean target, a Deadly Poison
 // the off-hand strike puts up leaves the main-hand strike after it unraised; on a target poisoned before the cast, both
 // strikes take the bonus.
