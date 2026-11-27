@@ -19,7 +19,7 @@ import { bonusStatClass, bonusTone } from './utils/stat_display';
 /** The weapons whose speed the effective-weapon-speed tooltip row is meaningful for. */
 const HUNTER_RANGED_TYPES = [RangedWeaponType.RangedWeaponTypeBow, RangedWeaponType.RangedWeaponTypeCrossbow, RangedWeaponType.RangedWeaponTypeGun];
 
-/** Spell Piercing gives no bonus while piercing / (piercing + 8L + 19) is under 1%: under 6 at level 60 (EV-0142). */
+/** Spell Piercing beyond the target's resistance gives no bonus while it makes a share under 1% of piercing + 8L + 19: under 6 at level 60 (EV-0142). */
 const MIN_SPELL_PIERCING = 6;
 
 export interface StatRowViewProps {
@@ -55,8 +55,6 @@ export const StatRowView = ({
 			? bonusStats.getPseudoStat(unitStat.getPseudoStat())
 			: 0;
 	const contextualClass = bonusStatClass(bonusStatValue);
-	const spellPiercing = unitStat.equalsStat(Stat.StatSpellPiercing) ? attribution.final.getStat(Stat.StatSpellPiercing) : 0;
-	const piercingTooLow = spellPiercing > 0 && spellPiercing < MIN_SPELL_PIERCING;
 	const tone = bonusTone(bonusStatValue);
 
 	const showEffectiveWeaponSpeed =
@@ -64,6 +62,8 @@ export const StatRowView = ({
 		unitStat.equalsPseudoStat(PseudoStat.PseudoStatRangedHastePercent) &&
 		!!rangedWeapon &&
 		HUNTER_RANGED_TYPES.includes(rangedWeapon.rangedWeaponType);
+	const spellPiercing = attribution.final.getStat(Stat.StatSpellPiercing);
+	const piercingTooLow = unitStat.equalsStat(Stat.StatSpellPiercing) && spellPiercing > 0 && spellPiercing < MIN_SPELL_PIERCING;
 
 	// A row with an off-hand half shows each hand on its own line, prefixed MH and OH, while dual
 	// wielding with hands that differ, and the main-hand value alone otherwise.
@@ -95,7 +95,7 @@ export const StatRowView = ({
 			<TableCell className="ui-character-stats-label">
 				{unitStat.getShortName(playerClass)}
 				{piercingTooLow && !pending && (
-					<NoticeIcon level="warning" size="1x" label={i18n.t('common.list_picker.warnings')} className="ml-1" testId="spell-piercing-notice">
+					<NoticeIcon level="warning" size="1x" label={i18n.t('common.list_picker.warnings')} className="ml-1">
 						{i18n.t('sidebar.character_stats.spell_piercing_too_low', { min: MIN_SPELL_PIERCING })}
 					</NoticeIcon>
 				)}

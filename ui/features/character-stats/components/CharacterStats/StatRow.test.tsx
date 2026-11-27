@@ -85,7 +85,7 @@ describe('StatRowView', () => {
 		[6, false],
 	])('warns at %i Spell Piercing: %s', (piercing, warns) => {
 		const attribution = { ...makeStatAttribution(), final: new Stats().withStat(Stat.StatSpellPiercing, piercing) };
-		const { container } = renderRow({ displayStat: { stat: SPELL_PIERCING }, playerClass: Class.ClassMage, attribution });
-		expect(container.querySelector('[data-testid="spell-piercing-notice"]') !== null).toBe(warns);
+		renderRow({ displayStat: { stat: SPELL_PIERCING }, playerClass: Class.ClassMage, attribution });
+		expect(screen.queryByRole('button', { name: 'common.list_picker.warnings' }) !== null).toBe(warns);
 	});
 });
