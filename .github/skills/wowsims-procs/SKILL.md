@@ -169,9 +169,8 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   into 1; only `spelldata.ProcTrigger` panics on a row that states no rate.
 - **`spelldata.Proc()` does not make a spell a proc.** It marks the spell passive with no cast or cost, and leaves
   `core.SpellFlagProc` off, so every trigger hears it. A spell the game triggers (a channel's tick, a wave, an item's
-  bolt, a poison's hit) adds the flag from its row with `spelldata.Triggered()`, as Consecration's pulses and the
-  poisons do; older sites spell it out as `if row.IsAProc() { config.Flags |= core.SpellFlagProc }` (Volley,
-  Hellfire Effect, Blizzard's tick). A spell built on the player's own cast row leaves it off.
+  bolt, a poison's hit) adds the flag from its row with `spelldata.Triggered()`, as Volley's waves, Hellfire Effect,
+  Blizzard's tick and Consecration's pulses do. A spell built on the player's own cast row leaves it off.
 - **A dot's tick is no cast, but a tick its aura casts is.** A listener that cannot proc from procs hears every dot's
   ticks, a proc's dot's included (Deadly Poison, Wound, Immolation Trap). It does not hear a tick that is the hit of
   a spell the aura casts each period: a Treat As Periodic row (`ATTR_EX_3_TREAT_AS_PERIODIC`, Consecration's pulses),

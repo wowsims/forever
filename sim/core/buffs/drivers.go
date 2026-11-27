@@ -243,10 +243,7 @@ func newWindfuryTotemStrike(char *core.Character) *core.Spell {
 	attackPower := WindfuryTotemPriority()
 	config := spelldata.SpellConfig(&char.Unit, windfuryTotemStrike,
 		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(),
-		spelldata.Flags(core.SpellFlagCountsAsSwing))
-	if windfuryTotemStrike.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+		spelldata.Flags(core.SpellFlagCountsAsSwing), spelldata.Triggered())
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		weaponDamage := char.MHWeaponDamage(sim, spell.MeleeAttackPower(target)+attackPower)
 		baseDamage := windfuryTotemStrike.WeaponStrike(sim, spell, weaponDamage, 0)

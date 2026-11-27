@@ -178,8 +178,8 @@ func newTwoTargetSim(talents string) (*core.Simulation, *Rogue) {
 // fired whatever the order of actions at the same time.
 func stepPastBatch(sim *core.Simulation, wait time.Duration) {
 	at := sim.CurrentTime + wait + core.SpellBatchWindow
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
 	for sim.CurrentTime <= at {
-		sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
 		sim.Step()
 	}
 }
@@ -1042,9 +1042,9 @@ func newRogueWearingWith(t *testing.T, worn map[proto.ItemSlot]int32, consumes *
 		items[slot].Id = id
 	}
 	player := &proto.Player{
-		Name:      "Rogue",
-		Race:      proto.Race_RaceHuman,
-		Class:     proto.Class_ClassRogue,
+		Name:        "Rogue",
+		Race:        proto.Race_RaceHuman,
+		Class:       proto.Class_ClassRogue,
 		Equipment:   &proto.EquipmentSpec{Items: items},
 		Consumables: consumes,
 		Spec:        DefaultOptions,
@@ -1227,7 +1227,7 @@ func TestBoltsChargedEyeballHearsPoisonTicksButNotPoisonHits(t *testing.T) {
 		before := shock.SpellMetrics[target.UnitIndex].Casts
 		for range rolls {
 			roll()
-			stepFor(t, sim, 4*time.Second)
+			stepPastBatch(sim, 3*time.Second) // past the trinket's 3 s cooldown
 		}
 		return shock.SpellMetrics[target.UnitIndex].Casts - before
 	}
@@ -1243,18 +1243,5 @@ func TestBoltsChargedEyeballHearsPoisonTicksButNotPoisonHits(t *testing.T) {
 	})
 	if ticks == 0 {
 		t.Errorf("%d Deadly Poison ticks cast no shock, want some", rolls)
-	}
-}
-
-// Runs the sim for d, failing the test if the encounter ends first. An empty action at the end keeps the queue from
-// running dry.
-func stepFor(t *testing.T, sim *core.Simulation, d time.Duration) {
-	t.Helper()
-	end := sim.CurrentTime + d
-	sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: end, OnAction: func(*core.Simulation) {}}))
-	for sim.CurrentTime < end {
-		if sim.Step() {
-			t.Fatal("the encounter ended early")
-		}
 	}
 }

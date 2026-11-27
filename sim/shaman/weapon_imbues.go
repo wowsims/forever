@@ -138,10 +138,7 @@ func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 	attackPower := windfuryWeaponAttack.EffectN(1).Average() * shaman.windfuryWeaponMultiplier
 
 	config := spelldata.SpellConfig(&shaman.Unit, windfuryWeaponStrike,
-		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
-	if windfuryWeaponStrike.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(), spelldata.Triggered())
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		weaponDamage := shaman.MHWeaponDamage(sim, spell.MeleeAttackPower(target)+attackPower)
 		baseDamage := windfuryWeaponStrike.WeaponStrike(sim, spell, weaponDamage, 0)

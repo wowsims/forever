@@ -75,7 +75,9 @@ Two more listeners that can proc from procs and hear spell hits roll on an item'
   Firebolt 18083 3 on priests. A per-hit chance read the same way gave 5.4% on the wearers' own damage spells and 9.5%
   on their heals against the row's 35%, so only the windows are used.
 - Flametongue and Frostbrand Attack: 37 Insight gains have only their hits in the 400 ms before them, and lone hits
-  read 8 of 1,093. Whether an imbue's hit rolls these listeners is not settled.
+  read 8 of 1,093. Insight's 45 s lockout thins the lone-hit reading. The sim lets an imbue's hit roll Insight from its
+  row's Can Proc From Procs, as Lightning Shield's orb rolls Revelation (EV-0149) and Flametongue Totem's crits give
+  Vengeance (EV-0226) (R-0051); Insight itself is unmeasured.
 
 ## Reports
 

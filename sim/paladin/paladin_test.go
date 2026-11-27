@@ -172,11 +172,7 @@ func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
 				t.Fatal("Judgement did not cast")
 			}
 			before := pal.CurrentMana()
-			// An empty action at the end of the window keeps the step from running past it.
-			until := sim.CurrentTime + 5*core.SpellBatchWindow
-			sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: until, OnAction: func(*core.Simulation) {}}))
-			for sim.CurrentTime < until && !sim.Step() {
-			}
+			stepFor(t, sim, 5*core.SpellBatchWindow)
 			switch regained := pal.CurrentMana() - before; {
 			case regained >= 2*gain-1e-6:
 				more++
@@ -255,11 +251,7 @@ func TestSealOfRighteousnessHitIsPricedOnVengeanceBeforeTheCrit(t *testing.T) {
 			if !swing.Cast(sim, target) {
 				t.Fatal("the white swing did not cast")
 			}
-			// An empty action at the end of the window keeps the step from running past it.
-			until := sim.CurrentTime + 5*core.SpellBatchWindow
-			sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: until, OnAction: func(*core.Simulation) {}}))
-			for sim.CurrentTime < until && !sim.Step() {
-			}
+			stepFor(t, sim, 5*core.SpellBatchWindow)
 
 			hit := dealt() - before
 			critted := swing.SpellMetrics[target.UnitIndex].Crits > crits
@@ -430,7 +422,7 @@ func TestConsecrationSetsOffNoBoltsChargedEyeball(t *testing.T) {
 	swing := pal.AutoAttacks.MHAuto()
 	for range swings {
 		pal.OnSpellHitDealt(sim, swing, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 1})
-		stepFor(t, sim, 4*time.Second) // past the trinket's 3 s cooldown, so every landing and tick could roll
+		stepFor(t, sim, 4*time.Second) // past the trinket's 3 s cooldown
 	}
 	if shocks() == 0 {
 		t.Errorf("%d landed white hits cast no shock, want some", swings)

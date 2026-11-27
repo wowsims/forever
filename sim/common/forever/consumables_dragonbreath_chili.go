@@ -18,10 +18,7 @@ func init() {
 		row := spelldata.MustFind(15851)
 		damage := row.DamageEffect()
 
-		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc())
-		if row.IsAProc() {
-			config.Flags |= core.SpellFlagProc
-		}
+		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc(), spelldata.Triggered())
 		config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 			for _, target := range sim.Encounter.ActiveTargetUnits {
 				spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)

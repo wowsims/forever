@@ -1,13 +1,14 @@
 # EV-0226: Consecration's pulses and landings that deal no damage roll no proc of a melee, ranged and spell mask
 
 - Claim: a hit of Consecration's pulse rows (1280345 to 1280349, Treat As Periodic and no Not A Proc) rolls none of
-  Bolt's Charged Eyeball (trigger 1311505), Cursed Murloc Eye (1292674) and Vengeance (20049), and neither do Deep
-  Wound and Ignite, the other Treat As Periodic hits counted. A periodic tick rolls the Eyeball, whose mask holds the
-  periodic bit, also when a proc laid the dot (Deadly Poison, Wound, Immolation Trap), while the direct hit of a proc
-  (Instant Poison, Lightning Shield, Fiery Weapon, Shadowguard, Touch of Weakness) rolls none of it. Flametongue
-  Totem's crits set off Vengeance, which can proc from procs, as Fiery Weapon's do. A spell landing that deals no
-  damage (a debuff, a dot's application, the Consecration cast) rolls none of the Eyeball and Murloc Eye, whose masks
-  pair the harmful-spell bit with melee and ranged bits, as it rolls no Highborne Research Tablet (EV-0021).
+  Bolt's Charged Eyeball (trigger 1311505), Cursed Murloc Eye (1292674) and Vengeance (20049). Deep Wound and Ignite,
+  the other Treat As Periodic hits counted, roll neither the Eyeball nor Murloc Eye. A periodic tick rolls the Eyeball,
+  whose mask holds the periodic bit, also when a proc laid the dot (Deadly Poison, Wound, Immolation Trap), while the
+  direct hit of a proc (Instant Poison, Lightning Shield, Fiery Weapon, Shadowguard, Touch of Weakness) rolls none of
+  it. Flametongue Totem's crits (Flametongue Attack) set off Vengeance, which can proc from procs, as Fiery Weapon's do.
+  A spell landing that deals no damage (a debuff, a dot's application, the Consecration cast) rolls none of the Eyeball
+  and Murloc Eye, whose masks pair the harmful-spell bit with melee and ranged bits, as it rolls no Highborne Research
+  Tablet (EV-0021).
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000). The Eyeball: every player whose gear lists item 280032
   or who deals 1315996, 1,014 players in 922 reports. Murloc Eye: wearers of 273840 in the reports from 2026-11-26 on,
   396 players in 329 reports. Vengeance: paladins who gain 20050 from 2026-11-24 on, 3,463 players in 2,601 reports. The report codes are in the
@@ -48,6 +49,10 @@ read below the trigger's 15%. Within 60 s after a shock, an isolated white swing
 times in 84,290 (14.3%), from 14.7% at 3 to 4 s to 13.3% at 20 to 60 s, and 15 of the 48,906 gaps between two shocks
 under 6 s are shorter than 2.75 s. The zero readings stand against the landed hits of the same stretches.
 
+Instant Poison and Fiery Weapon land with the weapon hit that casts them, so few of their hits pass alone. A white
+swing with one other landed hit beside it, past the cooldown and within 60 s after a shock, shows whether that hit
+rolls too: a second roll beside the swing reads about 27.75% (1 − 0.85²).
+
 ## The Eyeball
 
 | Roll                                                                                                       | Procs  | Rolls   | Rate  |
@@ -62,12 +67,24 @@ under 6 s are shorter than 2.75 s. The zero readings stand against the landed hi
 | Periodic tick of Wound, Skullforge Brand, Seeping Willow and Venomhide Poison, dots a weapon proc lays     | 272    | 4,413   | 6.16% |
 | Landed direct hit, damage shields left out                                                                 | 30,376 | 473,890 | 6.41% |
 | Damage shield (Retribution Aura, Thorns, Fire Shield, Holy Shield's block damage, spikes)                  | 0      | 42,907  | 0%    |
-| Direct hit of a proc: Instant Poison, Lightning Shield, Fiery Weapon, Shadowguard, Touch of Weakness       | 0      | 1,328   | 0%    |
+| Direct hit of a proc: Lightning Shield's orb                                                               | 0      | 742     | 0%    |
+| Direct hit of a proc: Instant Poison                                                                       | 0      | 307     | 0%    |
+| Direct hit of a proc: Shadowguard                                                                          | 0      | 144     | 0%    |
+| Direct hit of a proc: Fiery Weapon                                                                         | 0      | 108     | 0%    |
+| Direct hit of a proc: Touch of Weakness                                                                    | 0      | 27      | 0%    |
 | Landing with no damage, all                                                                                | 2      | 118,402 | 0.00% |
 | Of those: Hunter's Mark, Faerie Fire, Sunder Armor                                                         | 0      | 16,836  | 0%    |
 | Of those: Demoralizing Shout and Roar                                                                      | 0      | 9,288   | 0%    |
 | Of those: the application of Corruption, Shadow Word: Pain, Serpent Sting, Insect Swarm and Curse of Agony | 0      | 27,616  | 0%    |
 | Avoided hit                                                                                                | 3      | 69,732  | 0.00% |
+
+| White swing, and the one landed hit beside it     | Procs  | Rolls  | Rate  |
+| ------------------------------------------------- | ------ | ------ | ----- |
+| None                                              | 12,040 | 84,290 | 14.3% |
+| Instant Poison                                    | 689    | 4,940  | 13.9% |
+| Fiery Weapon                                      | 193    | 1,338  | 14.4% |
+| Flametongue Attack (Flametongue Weapon and Totem) | 110    | 807    | 13.6% |
+| Windfury Totem's attack, a second roll            | 1,166  | 4,464  | 26.1% |
 
 ## Cursed Murloc Eye
 
@@ -76,6 +93,8 @@ under 6 s are shorter than 2.75 s. The zero readings stand against the landed hi
 | Landed direct hit, damage shields left out | 107,163 | 122,860 |
 | Consecration pulse                         | 0       | 2,888   |
 | Periodic tick                              | 1       | 71,954  |
+| Deep Wound                                 | 0       | 247     |
+| Ignite                                     | 1       | 304     |
 | Landing with no damage, all                | 17      | 41,791  |
 | Of those: Hunter's Mark and Faerie Fire    | 0       | 1,824   |
 | Avoided hit                                | 17      | 23,095  |
@@ -93,9 +112,10 @@ does.
 | Seal of Fury          | 135                      | 139    | 520                    | 750     |
 | Hammer of Wrath       | 403                      | 436    | 3,593                  | 5,758   |
 | Fiery Weapon          | 805                      | 818    | 2,301                  | 3,285   |
-| Flametongue Totem     | 159                      | 163    | 472                    | 625     |
+| Flametongue Attack    | 159                      | 163    | 472                    | 625     |
 | Holy Strike           | 4,538                    | 4,613  | 11,539                 | 15,899  |
 | White swing           | 24,058                   | 24,462 | 63,199                 | 83,051  |
 
-Vengeance's row carries Can Proc From Procs, and Seal of Righteousness, Fiery Weapon and Flametongue Totem, procs
-without Not A Proc, set it off; its mask holds no periodic bit.
+Vengeance's row carries Can Proc From Procs, and Seal of Righteousness, Fiery Weapon and Flametongue Attack (10444,
+16368 and 29469, the hit Flametongue Totem gives), procs without Not A Proc, set it off; its mask holds no periodic
+bit.

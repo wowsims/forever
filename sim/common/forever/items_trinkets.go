@@ -178,10 +178,7 @@ func init() {
 			fewest, most = fewest/2, most/2
 		}
 
-		deliveryConfig := spelldata.SpellConfig(&character.Unit, deliveryRow, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc())
-		if deliveryRow.IsAProc() {
-			deliveryConfig.Flags |= core.SpellFlagProc
-		}
+		deliveryConfig := spelldata.SpellConfig(&character.Unit, deliveryRow, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc(), spelldata.Triggered())
 		damage := deliveryRow.DamageEffect()
 		cannotCrit := deliveryRow.CannotCrit()
 		deliveryConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -237,10 +234,7 @@ func init() {
 		row := spelldata.MustFind(23682)
 		heal := row.HealEffect()
 
-		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc())
-		if row.IsAProc() {
-			config.Flags |= core.SpellFlagProc
-		}
+		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
 		// The row states no defense type; a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

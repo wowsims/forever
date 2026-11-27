@@ -228,10 +228,7 @@ func dreadmistDarkReward(name string) core.ApplySetBonus {
 		character := agent.GetCharacter()
 		heal := dreadmistHeal.HealEffect()
 
-		config := spelldata.SpellConfig(&character.Unit, dreadmistHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc())
-		if dreadmistHeal.IsAProc() {
-			config.Flags |= core.SpellFlagProc
-		}
+		config := spelldata.SpellConfig(&character.Unit, dreadmistHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
 		// The row states no defense type, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -502,10 +499,7 @@ func warriorsResolve(name string) core.ApplySetBonus {
 		character := agent.GetCharacter()
 		heal := warriorsResolveHeal.HealEffect()
 
-		config := spelldata.SpellConfig(&character.Unit, warriorsResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc())
-		if warriorsResolveHeal.IsAProc() {
-			config.Flags |= core.SpellFlagProc
-		}
+		config := spelldata.SpellConfig(&character.Unit, warriorsResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
 		// The row states no defense type, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -710,10 +704,7 @@ var ItemSetKroldokBattlegear = core.NewItemSet(core.ItemSet{
 
 func kroldokResolve(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
-	config := spelldata.SpellConfig(&character.Unit, kroldokResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc())
-	if kroldokResolveHeal.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+	config := spelldata.SpellConfig(&character.Unit, kroldokResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
 	amount := kroldokResolveHeal.HealEffect().DirectAmount
 	if character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
 		stronghold := kroldokResolveHeal.EffectN(2).BasePoints
