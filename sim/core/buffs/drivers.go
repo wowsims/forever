@@ -274,7 +274,7 @@ func newWindfuryTotemStrike(char *core.Character) *core.Spell {
 	return char.RegisterSpell(config)
 }
 
-// The Windfury Totem proc on the character's main hand, inactive until a totem
+// The Windfury Totem proc, inactive until a totem
 // aura holding WindfuryTotemCategory turns it on. A character under both the
 // party buff and a totem of its own casting has one proc, built once.
 func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
@@ -289,16 +289,16 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	// (EV-0155). The row's mask names both hands, and the tooltip's main-hand
 	// rule is the server's for the rest: off-hand swings never roll it
 	// (EV-0008), and neither does Mutilate's off-hand strike (EV-0155); the
-	// sim holds Whirlwind's off-hand strike to the same rule. Ranged attacks
-	// and spells never roll it, and neither does the hit of a proc without Not
-	// a Proc, since the row lacks Can Proc From Procs. Holy Strike,
-	// Stormstrike, Shred, Rake, Ferocious Bite, Claw and bear Swipe roll it,
-	// and triggered spells never: Seal of Fury, poisons, Consecration ticks
-	// (EV-0008). An auto attack, another proc's
-	// extra swing included, always rolls it. The proc rolls off the hit's cast
-	// result, and the Windfury Totem hit follows once that hit has been dealt, in the same
-	// instant. It requires a main hand, but it lands inside the 100 ms
-	// cooldown its proc has just started, so it never rolls.
+	// sim holds Whirlwind's off-hand strike to the same rule (no log measures
+	// it). Ranged attacks and spells never roll it, and neither does the hit of
+	// a proc without Not a Proc, since the row lacks Can Proc From Procs. Holy
+	// Strike, Stormstrike, Shred, Rake, Ferocious Bite, Claw and bear Swipe roll
+	// it, and triggered spells never: Seal of Fury, poisons, Consecration ticks
+	// (EV-0008). An auto attack, another proc's extra swing included, always
+	// rolls it. The proc rolls off the hit's cast result, and the Windfury Totem
+	// hit follows once that hit has been dealt, in the same instant. It requires
+	// a main hand, but it lands inside the 100 ms cooldown its proc has just
+	// started, so it never rolls.
 	trigger := spelldata.ProcTrigger(char, windfuryTotemSpell, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 		target := result.Target
 		sim.RunAfterCurrentEvent(func(sim *core.Simulation) {
@@ -316,10 +316,11 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	// hits, Seal of Command, Judgement of Command and Retaliation (EV-0002).
 	// A hit with no defense type is no melee attack and never rolls it:
 	// Sweeping Strikes' copied hit 12723. Its normalized hit 26654 rolls it once.
-	// An off-hand special rolls it only when it is no other spell's strike.
+	// An off-hand special rolls it only when a rotation casts it, never as
+	// another spell's strike (EV-0155 for Shank).
 	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		return spell.DefenseType != core.DefenseTypeNone &&
-			(spell.IsMH() || !spell.Flags.Matches(core.SpellFlagPassiveSpell))
+			(spell.IsMH() || spell.Flags.Matches(core.SpellFlagAPL))
 	}
 	trigger.ProcMask &= core.ProcMaskMeleeMH | core.ProcMaskMeleeOHSpecial
 	trigger.RequireDamageDealt = false

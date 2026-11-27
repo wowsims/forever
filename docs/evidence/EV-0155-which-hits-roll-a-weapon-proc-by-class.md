@@ -279,8 +279,8 @@ Report, fight and time into the fight, class and weapon (`examples_out.md`):
 ## Count of the 2026-11-20 to 2026-11-27 reports
 
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the streams of every rogue, warrior and paladin wearer
-  of the weapons and equip procs the sweep's roll watch follows, and of every rogue with Windfury Totem hits, too many
-  to list
+  of the weapons and equip procs the sweep's roll watch follows, and of every rogue among the sweep's wearer streams
+  with Windfury Totem hits, too many to list
 - Game build: 1.60.1.70959 to 1.60.1.71139 by report date (71037 from 2026-11-20 18:23 UTC, 71091 from 2026-11-24 15:21,
   71139 from 2026-11-25 19:14); the hotfix each player ran is not recorded
 - Date: 2026-11-20 00:00 UTC to 2026-11-27, by the time of each event, split at hotfix push 114313 (2026-11-21 00:00
@@ -349,10 +349,11 @@ on 14 wearers from 2026-11-06 to 2026-11-20, 1.04 [0.72, 1.36] on 19 from hotfix
 2026-11-20 and 1.25 [0.73, 1.88] on 8 from 2026-11-20 to hotfix push 114313.
 
 A Shank rolls Windfury Totem once, at a Sinister Strike's rate. Here a unit is a rogue's lone Shank, Sinister Strike or
-white swing, with no other hit or cast of the rogue within 100 ms, in the streams of rogues with Windfury Totem hits,
-and it counts when a Windfury Totem hit on the same target follows 0 to 60 ms later. The baseline moves each lone
-Shank's time 2 s later where no event lies within 100 ms. The log names every white swing Melee, so the white swings of
-both hands count together. Reports are taken by their start, and a run logged in two reports counts in each.
+white swing, with no other hit or cast of the rogue within 100 ms outside the same millisecond, in the streams of rogues
+with Windfury Totem hits, and it counts when a Windfury Totem hit on the same target follows 0 to 60 ms later. The
+baseline moves each lone Shank's time 2 s later where no event lies within 100 ms. The log names every white swing
+Melee, so the white swings of both hands count together. Reports are taken by their start, and a run logged in two
+reports counts in each.
 
 | Lone unit                        |   Units | With a Windfury Totem hit |  Share |
 | -------------------------------- | ------: | ------------------------: | -----: |
@@ -360,6 +361,9 @@ both hands count together. Reports are taken by their start, and a run logged in
 | Sinister Strike                  | 118,554 |                    11,916 | 10.05% |
 | White swing, either hand         | 843,355 |                    28,079 |  3.33% |
 | Baseline, 2 s after a lone Shank |  26,981 |                         2 |  0.01% |
+
+Both shares sit below the row's chance because the sample includes stretches without the totem and avoided hits, for
+Shank and Sinister Strike alike.
 
 Scripts and output, in `forever-sweep-auto`: `roll_watch.py` (its main-hand Shank row) and the run
 `runs/2026-11-27-shank` (`roll_watch.md`, `shank_rows.json`, `all_rows.json`); in `forever-venom-1127`:
