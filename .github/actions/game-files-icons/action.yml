@@ -1,0 +1,26 @@
+name: Game files icons
+description: Decodes the icons the database names from the game files into assets/icons (tools/icons), with the CDN downloads restored from the Actions cache when an earlier run on the same build saved them.
+runs:
+    using: composite
+    steps:
+        # The version service names the build the CDN serves, and its build config hash keys the cache.
+        - name: Resolve the current build
+          id: build
+          shell: bash
+          run: |
+              config=$(curl -fsS --retry 3 "https://us.version.battle.net/wowf/versions" | awk -F'|' '$1 == "us"' | cut -d'|' -f2)
+              test -n "$config"
+              echo "config=$config" >> "$GITHUB_OUTPUT"
+
+        - name: Restore the CDN downloads
+          uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+          with:
+              path: |
+                  tools/db2tool/cdncache
+                  tools/db2tool/listfile.csv
+                  tools/db2tool/TACTKeys.txt
+              key: icons-wowf-${{ steps.build.outputs.config }}
+
+        - name: Decode the icons
+          shell: bash
+          run: make icons

@@ -309,6 +309,12 @@ db:
 	@echo "Running DBC generation tool"
 	go run tools/database/gen_db/*.go -outDir=./assets -gen=db $(GEN_DB_FLAGS)
 
+# Decodes the icon of every item, enchant, consumable and spell the database names from the game files into the
+# gitignored assets/icons, which the build copies beside the site. Reads the current build off Blizzard's CDN.
+.PHONY: icons
+icons: sim/core/proto/api.pb.go
+	go run ./tools/icons
+
 # Regenerates sim/<class>/spell_data_auto_gen.go from tools/database/wowsims.db, so it
 # runs after `make db` and from the repo root.
 .PHONY: spelldata

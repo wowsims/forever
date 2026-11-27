@@ -159,6 +159,24 @@ export function wowheadEntityUrl(entity: WowheadEntity, id: number, rank = 0, de
 	return query ? `${url}?${query}` : url;
 }
 
+// The large icons deploy decodes from the game files (tools/icons), served beside the site. A name the
+// manifest does not list comes from zamimg, and so does every name while the manifest loads, when it fails
+// to load, and on a build that has no icons folder.
+const LOCAL_ICON_BASE_URL = '/forever/assets/icons';
+let localIcons: ReadonlySet<string> = new Set();
+
+// A missing manifest fails to parse on Cloudflare Pages, which answers a missing file with the site's HTML.
+export async function loadLocalIcons(): Promise<void> {
+	try {
+		const response = await fetch(`${LOCAL_ICON_BASE_URL}/manifest.json`);
+		if (!response.ok) throw new Error(`HTTP ${response.status}`);
+		localIcons = new Set(await response.json());
+	} catch (error) {
+		console.warn(`No local icons, so every icon comes from zamimg: ${error}`);
+	}
+}
+
 export function wowheadIconUrl(iconLabel: string, size: 'large' | 'medium' | 'small' = 'large'): string {
+	if (size === 'large' && localIcons.has(iconLabel)) return `${LOCAL_ICON_BASE_URL}/${iconLabel}.jpg`;
 	return `${WOWHEAD_ICON_BASE_URL}/${size}/${iconLabel}.jpg`;
 }

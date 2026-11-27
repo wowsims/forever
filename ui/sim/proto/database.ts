@@ -10,7 +10,7 @@ import { EquippedItem } from './equipped_item';
 import { Gear, ItemSwapGear } from './gear';
 import { enchantAppliesToItem, getEligibleEnchantSlots, getEligibleItemSlots } from './items';
 import { Stats } from './stats';
-import { WOWHEAD_DOMAIN, WOWHEAD_EXPANSION_ENV } from './wowhead';
+import { loadLocalIcons, WOWHEAD_DOMAIN, WOWHEAD_EXPANSION_ENV } from './wowhead';
 
 const dbUrlJson = '/forever/assets/database/db.json';
 const dbUrlBin = '/forever/assets/database/db.bin';
@@ -31,7 +31,8 @@ export class Database {
 	static async get(): Promise<Database> {
 		if (!Database.loadPromise) {
 			Database.loadPromise = (async () => {
-				const [dbData, itemFirstSeen] = await Promise.all([Database.loadWithRetry(), Database.loadItemFirstSeen()]);
+				// Every icon url is built after the database loads, so the local icon manifest loads with it.
+				const [dbData, itemFirstSeen] = await Promise.all([Database.loadWithRetry(), Database.loadItemFirstSeen(), loadLocalIcons()]);
 				const db = new Database(dbData, itemFirstSeen);
 				Database.instance = db;
 				return db;

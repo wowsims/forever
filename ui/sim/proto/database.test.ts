@@ -18,10 +18,11 @@ const freshDatabase = async () => {
 const okResponse = () => ({ json: () => Promise.resolve({}) });
 
 const FIRST_SEEN_URL = '/forever/assets/database/item_first_seen.json';
-// `Database.get` fetches the first-seen stamps beside db.json; this answers them with no entries so
-// the inner mock sees and counts the db.json requests alone.
+const ICON_MANIFEST_URL = '/forever/assets/icons/manifest.json';
+// `Database.get` fetches the first-seen stamps beside db.json and the local icon manifest; this answers
+// both with no entries so the inner mock sees and counts the db.json requests alone.
 const withFirstSeen = (respond: (url: string) => Promise<unknown>) =>
-	vi.fn((url: string) => (url === FIRST_SEEN_URL ? Promise.resolve(Response.json([])) : respond(url)));
+	vi.fn((url: string) => (url === FIRST_SEEN_URL || url === ICON_MANIFEST_URL ? Promise.resolve(Response.json([])) : respond(url)));
 
 // `runAllTimersAsync` drains what is scheduled when it is called; the retry schedules its next
 // backoff from inside a rejection handler, so under load the third attempt can be scheduled after
@@ -99,7 +100,11 @@ describe('Database.get', () => {
 	}, 30000);
 
 	it('reads the first-seen stamps beside db.json', async () => {
-		const bodies: Record<string, unknown> = { '/forever/assets/database/db.json': {}, [FIRST_SEEN_URL]: [{ id: 7, firstSeen: 1700000000 }] };
+		const bodies: Record<string, unknown> = {
+			'/forever/assets/database/db.json': {},
+			[FIRST_SEEN_URL]: [{ id: 7, firstSeen: 1700000000 }],
+			[ICON_MANIFEST_URL]: [],
+		};
 		vi.stubGlobal(
 			'fetch',
 			vi.fn((url: string) => Promise.resolve(Response.json(bodies[url]))),
@@ -115,7 +120,9 @@ describe('Database.get', () => {
 	it('loads with no stamps and one warning when the first-seen file is missing', async () => {
 		vi.stubGlobal(
 			'fetch',
-			vi.fn((url: string) => Promise.resolve(url === FIRST_SEEN_URL ? new Response('Not found', { status: 404 }) : Response.json({}))),
+			vi.fn((url: string) =>
+				Promise.resolve(url === FIRST_SEEN_URL ? new Response('Not found', { status: 404 }) : Response.json(url === ICON_MANIFEST_URL ? [] : {})),
+			),
 		);
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
