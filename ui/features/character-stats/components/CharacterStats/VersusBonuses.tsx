@@ -113,7 +113,7 @@ const versusGroups = ({ bonuses, targets, areaTypes }: VersusBonusesViewProps): 
 
 const ItemIcon = ({ itemId }: { itemId: number }) => {
 	const { iconUrl } = useActionId(ActionId.fromItemId(itemId));
-	return <WowheadIcon as="div" className="size-4 flex-none" testId="character-stats-versus-item-icon" iconUrl={iconUrl} />;
+	return <WowheadIcon as="div" className="size-4 flex-none border border-border" testId="character-stats-versus-item-icon" iconUrl={iconUrl} />;
 };
 
 const GroupRows = ({ group }: { group: VersusGroup }) => (
