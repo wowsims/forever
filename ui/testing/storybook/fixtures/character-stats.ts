@@ -60,7 +60,7 @@ const spellSource = (spellId: number) => ActionID.create({ rawId: { oneofKind: '
 const humanoidStats = { [Stat.StatAttackPower]: 6, [Stat.StatRangedAttackPower]: 6 };
 const undeadStats = { [Stat.StatAttackPower]: 18, [Stat.StatRangedAttackPower]: 18 };
 
-/** A Troll hunter with Beast Slaying, The Jaw Breaker and Humanoid Slaying against Humanoids, Gargoyle Slashers against Undead, an area ring, items whose spells deal, restore or last more against some targets, and the Chain of the Scarlet Crusade 4-piece's damage against Undead. */
+/** A Troll hunter with Beast Slaying, The Jaw Breaker and Humanoid Slaying against Humanoids, Gargoyle Slashers against Undead, an area ring, items whose spells deal, restore or last more against some targets, the Chain of the Scarlet Crusade 4-piece's damage against Undead, and area factors: Golden Banana's in Forest and Grassland, Darkmoon Card: Heroism's and the Krol'dok Battlegear 4-piece's in Strongholds and Cities. */
 export const VERSUS_BONUSES: VersusBonusSet = {
 	mobTypeBonuses: [
 		{
@@ -98,6 +98,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			creatureFamilies: [CreatureFamily.CreatureFamilyDinosaur],
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindDamage,
+			areaTypes: [],
 		},
 		{
 			itemId: 274609,
@@ -107,6 +108,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			creatureFamilies: [CreatureFamily.CreatureFamilySerpentine],
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindDamage,
+			areaTypes: [],
 		},
 		{
 			itemId: 17943,
@@ -116,6 +118,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			creatureFamilies: [CreatureFamily.CreatureFamilyEarthElemental],
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindRestore,
+			areaTypes: [],
 		},
 		{
 			itemId: 11815,
@@ -125,6 +128,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			creatureFamilies: [CreatureFamily.CreatureFamilyDwarf],
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindProcChance,
+			areaTypes: [],
 		},
 		{
 			itemId: 13965,
@@ -134,6 +138,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			creatureFamilies: [CreatureFamily.CreatureFamilyOrc, CreatureFamily.CreatureFamilyOgre],
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindCritChance,
+			areaTypes: [],
 		},
 		{
 			itemId: 10760,
@@ -143,6 +148,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			creatureFamilies: [CreatureFamily.CreatureFamilySwine],
 			multiplier: 0,
 			kind: VersusEffectKind.VersusEffectKindProcOnly,
+			areaTypes: [],
 		},
 		{
 			itemId: 9477,
@@ -152,6 +158,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			creatureFamilies: [CreatureFamily.CreatureFamilyTroll],
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindDamage,
+			areaTypes: [],
 		},
 		{
 			itemId: 9477,
@@ -161,6 +168,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			creatureFamilies: [CreatureFamily.CreatureFamilyTroll],
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindDuration,
+			areaTypes: [],
 		},
 		{
 			itemId: 0,
@@ -170,6 +178,47 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			creatureFamilies: [],
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindDamage,
+			areaTypes: [],
+		},
+		{
+			itemId: 270226,
+			source: itemSource(270226),
+			itemName: 'Golden Banana',
+			mobTypes: [],
+			creatureFamilies: [],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindEffect,
+			areaTypes: [AreaType.AreaTypeForestGrassland],
+		},
+		{
+			itemId: 270226,
+			source: itemSource(270226),
+			itemName: 'Golden Banana',
+			mobTypes: [],
+			creatureFamilies: [],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindDuration,
+			areaTypes: [AreaType.AreaTypeForestGrassland],
+		},
+		{
+			itemId: 19287,
+			source: itemSource(19287),
+			itemName: 'Darkmoon Card: Heroism',
+			mobTypes: [],
+			creatureFamilies: [],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindProcChance,
+			areaTypes: [AreaType.AreaTypeStrongholdsCities],
+		},
+		{
+			itemId: 0,
+			source: spellSource(1324298),
+			itemName: '',
+			mobTypes: [],
+			creatureFamilies: [],
+			multiplier: 44 / 18,
+			kind: VersusEffectKind.VersusEffectKindEffect,
+			areaTypes: [AreaType.AreaTypeStrongholdsCities],
 		},
 	],
 };

@@ -24,7 +24,8 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 			return core.SpellConfig{}, core.MajorCooldown{}, false
 		}
 
-		area, _ := row.AreaBonus(&character.Env.Encounter)
+		amountBonus, _ := row.AreaBonus()
+		area := character.RegisterArea(core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindRestore, amountBonus)
 		amount := func(sim *core.Simulation) float64 {
 			return barAmount(power, effect.Roll(sim)*area)
 		}

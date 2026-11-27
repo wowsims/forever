@@ -108,6 +108,21 @@ describe('VersusChips', () => {
 		expect((await screen.findByRole('tooltip')).textContent).toBe('Against Wolf×2 crit chanceProcs only against theseActive: target is Wolf');
 	});
 
+	it("shows the worn item's area factor on its area chip, after the area's stats", async () => {
+		setup(
+			ITEM,
+			[],
+			[AreaType.AreaTypeSnowy],
+			[
+				VersusEffect.create({ itemId: 1, areaTypes: [AreaType.AreaTypeSnowy], multiplier: 2, kind: VersusEffectKind.VersusEffectKindProcChance }),
+				VersusEffect.create({ itemId: 2, areaTypes: [AreaType.AreaTypeSnowy], multiplier: 3, kind: VersusEffectKind.VersusEffectKindEffect }),
+			],
+		);
+
+		fireEvent.mouseEnter(screen.getAllByTestId('gear-versus-chip')[2]);
+		expect((await screen.findByRole('tooltip')).textContent).toBe('In Snowy+28 Attack Power×2 proc chanceActive: the encounter is in a Snowy area');
+	});
+
 	it('shows nothing for an item that names no kind of target or area', () => {
 		setup(UIItem.create({ id: 1 }), [target(MobType.MobTypeUndead)], [AreaType.AreaTypeSnowy]);
 

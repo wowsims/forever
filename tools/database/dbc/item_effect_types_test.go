@@ -115,3 +115,54 @@ func TestTooltipTargetsReadsTheNamesAfterALead(t *testing.T) {
 		}
 	}
 }
+
+func TestTooltipAreasReadsTheAreaNamesAfterIn(t *testing.T) {
+	const (
+		forest   = proto.AreaType_AreaTypeForestGrassland
+		swamp    = proto.AreaType_AreaTypeSwamp
+		cities   = proto.AreaType_AreaTypeStrongholdsCities
+		cavern   = proto.AreaType_AreaTypeCavernous
+		haunted  = proto.AreaType_AreaTypeHaunted
+		wastes   = proto.AreaType_AreaTypeWasteland
+		mountain = proto.AreaType_AreaTypeMountainous
+	)
+	for _, tc := range []struct {
+		tooltip string
+		areas   []proto.AreaType
+	}{
+		{tooltip: "Melee attacks have a chance to increase your Critical Strike chance by 2%. This effect is doubled in swamps.", areas: []proto.AreaType{swamp}},
+		{tooltip: "This effect is doubled in Marsh and Swamp areas.", areas: []proto.AreaType{swamp, swamp}},
+		{tooltip: "Increases Spirit by 10 in Cavernous or Underground areas.", areas: []proto.AreaType{cavern, cavern}},
+		{tooltip: "This chance is doubled in Wasteland and Haunted areas.", areas: []proto.AreaType{wastes, haunted}},
+		{tooltip: "Healing is doubled in Strongholds and Cities.", areas: []proto.AreaType{cities, cities}},
+		{tooltip: "Gain an additional 5 in Forest and Grassland areas. This effect is doubled in Mountainous areas.", areas: []proto.AreaType{forest, forest, mountain}},
+		{tooltip: "2% chance when struck in melee to gain a holy shield."},
+		{tooltip: "Increases movement speed. While out of combat, gain an additional 10%."},
+	} {
+		if areas := tooltipAreas(tc.tooltip); !slices.Equal(areas, tc.areas) {
+			t.Errorf("%q names %v, want %v", tc.tooltip, areas, tc.areas)
+		}
+	}
+}
+
+// A set piece takes the areas its set bonuses' tooltips name, and no mob type a set bonus names.
+func TestItemEffectTypesReadTheSetBonusAreas(t *testing.T) {
+	const setID, bonusSpell, versusBonus, piece = 9200001, 9000011, 9000012, 9100011
+
+	previous := dbcInstance
+	dbcInstance = NewDBC()
+	t.Cleanup(func() { dbcInstance = previous })
+
+	dbcInstance.Spells = map[int]Spell{
+		bonusSpell:  {Description: "Chance on block to heal for 18. Healing is doubled in Strongholds and Cities."},
+		versusBonus: {Description: "Deals 2 times as much damage to Undead."},
+	}
+	dbcInstance.indexSpellEffects()
+	dbcInstance.Items[piece] = Item{ItemSetId: setID}
+	dbcInstance.ItemSetSpells[setID] = []ItemSetSpell{{ItemSetID: setID, Threshold: 4, SpellID: bonusSpell}, {ItemSetID: setID, Threshold: 5, SpellID: versusBonus}}
+
+	areaTypes, mobTypes, families := ItemEffectTypes(piece)
+	if want := []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}; !slices.Equal(areaTypes, want) || len(mobTypes)+len(families) != 0 {
+		t.Errorf("the set piece names %v, %v and %v, want %v alone", areaTypes, mobTypes, families, want)
+	}
+}

@@ -41,7 +41,11 @@ const valueLines = (chip: VersusChip, item: UIItem, versusEffects: ReadonlyArray
 	const effects = versusEffects.filter(
 		effect =>
 			effect.itemId === item.id &&
-			(chip.kind === 'mobType' ? effect.mobTypes.includes(chip.value) : chip.kind === 'family' && effect.creatureFamilies.includes(chip.value)),
+			(chip.kind === 'mobType'
+				? effect.mobTypes.includes(chip.value)
+				: chip.kind === 'family'
+					? effect.creatureFamilies.includes(chip.value)
+					: effect.areaTypes.includes(chip.value)),
 	);
 	return [...stats.flatMap(statLines), ...effects.map(versusEffectFactor)];
 };

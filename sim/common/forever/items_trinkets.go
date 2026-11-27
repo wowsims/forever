@@ -175,10 +175,10 @@ func init() {
 		character := agent.GetCharacter()
 		markRow := spelldata.MustFind(1295271)
 		deliveryRow := spelldata.MustFind(1295633)
-		fewest, most := int32(markRow.EffectN(1).BaseValue()), int32(markRow.EffectN(2).BaseValue())
-		if character.Env.Encounter.InArea(proto.AreaType_AreaTypeSnowy) {
-			fewest, most = fewest/2, most/2
-		}
+		// The sheet lists the halved bounds, each rounded down, as twice the chance of a delivery.
+		divisor := int32(character.RegisterArea(core.ActionID{ItemID: 274760}, proto.VersusEffectKind_VersusEffectKindProcChance,
+			core.AreaBonus{AreaTargets: core.AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeSnowy}}, Multiplier: 2}))
+		fewest, most := int32(markRow.EffectN(1).BaseValue())/divisor, int32(markRow.EffectN(2).BaseValue())/divisor
 
 		deliveryConfig := spelldata.SpellConfig(&character.Unit, deliveryRow, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc())
 		if deliveryRow.IsAProc() {
@@ -233,9 +233,8 @@ func init() {
 	//
 	// 23689's rate is the item entry's, twice that in Strongholds and Cities.
 	newEntryRateItemEffect(19287, 23682, func(character *core.Character, ppm float64) {
-		if character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
-			ppm *= 2
-		}
+		ppm *= character.RegisterArea(core.ActionID{ItemID: 19287}, proto.VersusEffectKind_VersusEffectKindProcChance,
+			core.AreaBonus{AreaTargets: core.AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}}, Multiplier: 2})
 		row := spelldata.MustFind(23682)
 		heal := row.HealEffect()
 
@@ -517,7 +516,7 @@ func init() {
 	// encounter half of it. The sim fixes the encounter's area for the run, so the chance is fixed when
 	// the trigger is built.
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 20847, BuffSpellID: 18946,
-		Rate: halvedOutside(proto.AreaType_AreaTypeStrongholdsCities)},
+		Rate: halvedOutside(14557, proto.AreaType_AreaTypeStrongholdsCities)},
 		[]shared.ItemVariant{
 			{ItemID: 14557, ItemName: "The Lion Horn of Stormwind"},
 		})
@@ -532,7 +531,7 @@ func init() {
 	// an encounter there rolls the whole column and any other encounter half of it, as The Lion Horn of
 	// Stormwind does.
 	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 8397, BuffSpellID: 10368,
-		Rate: halvedOutside(proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted)},
+		Rate: halvedOutside(11302, proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted)},
 		[]shared.ItemVariant{
 			{ItemID: 11302, ItemName: "Uther's Strength"},
 		})
@@ -615,12 +614,12 @@ func registerCountdownOnUse(character *core.Character, itemID int32, row *spelld
 	})
 }
 
-// Half the row's chance in an encounter in none of the areas, whose doubled chance the column states.
-func halvedOutside(areas ...proto.AreaType) spelldata.ProcOpt {
+// Half the row's chance in an encounter in none of the areas, whose doubled chance the column states. The
+// item keeps the doubling on the stats sheet.
+func halvedOutside(itemID int32, areas ...proto.AreaType) spelldata.ProcOpt {
 	return func(character *core.Character, trigger *core.ProcTrigger) {
-		if !slices.ContainsFunc(areas, character.Env.Encounter.InArea) {
-			trigger.ProcChance /= 2
-		}
+		trigger.ProcChance *= character.RegisterArea(core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindProcChance,
+			core.AreaBonus{AreaTargets: core.AreaTargets{Areas: areas}, Multiplier: 2}) / 2
 	}
 }
 

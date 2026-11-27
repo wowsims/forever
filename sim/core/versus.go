@@ -94,6 +94,7 @@ type versusRegistration struct {
 	source ActionID
 	kind   proto.VersusEffectKind
 	bonus  *VersusBonus
+	areas  []proto.AreaType
 }
 
 // The factor a source's spell deals, restores or adds against the mob types and families, kept for the
@@ -120,6 +121,7 @@ func (character *Character) versusEffectsProto() []*proto.VersusEffect {
 			CreatureFamilies: versus.bonus.Families,
 			Multiplier:       versus.bonus.Multiplier,
 			Kind:             versus.kind,
+			AreaTypes:        versus.areas,
 		}
 		if itemID := versus.source.ItemID; itemID != 0 {
 			slot := slices.IndexFunc(character.Equipment[:], func(item Item) bool { return item.ID == itemID })

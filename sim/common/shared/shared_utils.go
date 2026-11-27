@@ -1376,7 +1376,7 @@ func NewSimpleStatActive(itemID int32) {
 				Cast:     OnUseCast(character, itemEffect),
 			}
 
-			buffStats, buffDuration := onUseStatBuff(character, itemEffect)
+			buffStats, buffDuration := onUseStatBuff(character, itemID, itemEffect)
 			buff := core.RegisterTemporaryStatsOnUseCD(character, itemEffect.BuffName, buffStats, buffDuration, spellConfig)
 			attachCarriedProc(character, buff.Aura, spelldata.Find(itemEffect.BuffId))
 		}
@@ -1490,7 +1490,7 @@ func NewSpellDataAbsorbOnUse(itemID int32) {
 			if itemEffect.BuffId != absorb.ID {
 				continue
 			}
-			if buffStats, _ := onUseStatBuff(character, itemEffect); buffStats != (stats.Stats{}) {
+			if buffStats, _ := onUseStatBuff(character, itemID, itemEffect); buffStats != (stats.Stats{}) {
 				config.RelatedSelfBuff.AttachStatsBuff(buffStats)
 			}
 		}
@@ -1695,9 +1695,12 @@ func OnUseCast(character *core.Character, itemEffect *proto.ItemEffect) core.Cas
 	return cast
 }
 
-// The on-use buff's stats and duration, scaled by its area bonus.
-func onUseStatBuff(character *core.Character, itemEffect *proto.ItemEffect) (stats.Stats, time.Duration) {
-	amount, duration := spelldata.Find(itemEffect.BuffId).AreaBonus(&character.Env.Encounter)
+// The on-use buff's stats and duration, scaled by its area bonus, which the item keeps on the stats sheet.
+func onUseStatBuff(character *core.Character, itemID int32, itemEffect *proto.ItemEffect) (stats.Stats, time.Duration) {
+	amountBonus, durationBonus := spelldata.Find(itemEffect.BuffId).AreaBonus()
+	source := core.ActionID{ItemID: itemID}
+	amount := character.RegisterArea(source, proto.VersusEffectKind_VersusEffectKindEffect, amountBonus)
+	duration := character.RegisterArea(source, proto.VersusEffectKind_VersusEffectKindDuration, durationBonus)
 	buffStats := stats.FromProtoMap(itemEffect.GetScalingOptions()[int32(0)].GetStats()).Multiply(amount)
 	return buffStats, time.Duration(float64(itemEffect.EffectDurationMs)*duration) * time.Millisecond
 }

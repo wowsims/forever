@@ -86,9 +86,9 @@ in `sim/common/shared` pin both halves on those three rows with a rate that exis
 doubled in some kind of area while the game files state no companion row for it ("This effect is doubled
 in Volcanic areas" on Molten Fury). A row names the AreaGroup ids (any one of them counts), the factor
 on the effect's amounts and the factor on its duration. These go onto `Spell.AreaBonusGroups`,
-`AreaMultiplier` and `AreaDurationMultiplier`. `row.AreaBonus(&character.Env.Encounter)` reads them
-against the encounter's area set. The override is stale once the row states a `RequiredAreasID` of its
-own. The on-use stat actives that `shared.NewSimpleStatActive` registers and the on-use resource gains
+`AreaMultiplier` and `AreaDurationMultiplier`. `row.AreaBonus()` reads them as two `core.AreaBonus`
+values, which `character.RegisterArea` turns into the factors in the encounter and lists on the stats
+sheet. The override is stale once the row states a `RequiredAreasID` of its own. The on-use stat actives that `shared.NewSimpleStatActive` registers and the on-use resource gains
 `shared.NewSpellDataEnergizeOnUse` registers read it; a proc chance the tooltip says is doubled has no
 reader yet.
 

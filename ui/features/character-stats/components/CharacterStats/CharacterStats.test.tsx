@@ -484,6 +484,7 @@ const SOURCE_NAMES: Record<number, string> = {
 	19153: 'Humanoid Slaying',
 	13957: 'Gargoyle Slashers',
 	1293674: 'Enraging Light',
+	1324298: "Krol'dok Resolve",
 };
 
 describe('CharacterStats bonuses against a kind of target', () => {
@@ -519,13 +520,23 @@ describe('CharacterStats bonuses against a kind of target', () => {
 			['Humanoid Slaying', '×1.03 damage', '×1.03 crit damage'],
 		],
 	};
+	const forestStats = [
+		['Attack Power', '+28'],
+		['Hit', `+${hit}%`],
+	];
 	const areaGroup = {
 		label: 'Forest and Grassland',
 		chip: 'In area',
 		state: 'on',
+		lines: [...forestStats, ['Golden Banana', '×2 effect', '×2 duration']],
+	};
+	const citiesGroup = {
+		label: 'Strongholds and Cities',
+		chip: 'Not in area',
+		state: 'off',
 		lines: [
-			['Attack Power', '+28'],
-			['Hit', `+${hit}%`],
+			['Darkmoon Card: Heroism', '×2 proc chance'],
+			["Krol'dok Resolve", '×2.44 effect'],
 		],
 	};
 	const inactiveGroups = [
@@ -546,6 +557,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		{ label: 'Dwarf', ...noTarget, lines: [['Hand of Justice', '×3 proc chance']] },
 		{ label: 'Dinosaur', ...noTarget, lines: [["Bolt's Charged Eyeball", '×3 damage']] },
 		{ label: 'Serpentine', ...noTarget, lines: [serpentbane] },
+		citiesGroup,
 	];
 
 	it('lists each mob type, creature family and area the sim reports a bonus against, the active ones first and the rest behind one toggle, one line per source with what it gives, then one per source of a factor with each kind it has', async () => {
@@ -556,7 +568,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 
 		await openVersusGroups(view);
 		await waitFor(() => expect(versusGroups(view)).toEqual([humanoid, areaGroup]));
-		openInactive(view, '10 inactive bonuses');
+		openInactive(view, '11 inactive bonuses');
 		await waitFor(() => expect(versusGroups(view)).toEqual([humanoid, areaGroup, ...inactiveGroups]));
 	});
 
@@ -564,7 +576,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES }, { targets: VERSUS_TARGETS, areaTypes: [AreaType.AreaTypeSwamp] });
 
 		await openVersusGroups(view);
-		openInactive(view, '8 inactive bonuses');
+		openInactive(view, '9 inactive bonuses');
 		const byLabel = (label: string) => versusGroups(view).find(group => group.label === label);
 
 		await waitFor(() =>
@@ -577,12 +589,13 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		expect(byLabel('Serpentine')).toMatchObject({ chip: '1/2 targets', state: 'partial', lines: [serpentbane] });
 		expect(byLabel('Undead')).toMatchObject(noTarget);
 		expect(byLabel('Forest and Grassland')).toMatchObject({ chip: 'Not in area', state: 'off' });
+		await waitFor(() => expect(byLabel('Strongholds and Cities')).toMatchObject(citiesGroup));
 	});
 
 	it("shows a source line with its item's or spell's icon, a set bonus's factor by its spell, and an area's stat line with none", async () => {
 		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES }, { targets: VERSUS_TARGETS, areaTypes: VERSUS_AREA_TYPES });
 		await openVersusGroups(view);
-		openInactive(view, '7 inactive bonuses');
+		openInactive(view, '8 inactive bonuses');
 
 		const iconOf = (label: string) => {
 			const rows = view.container.querySelectorAll('[data-testid="character-stats-versus-group"] tr');
@@ -594,6 +607,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 			expect(iconOf('The Jaw Breaker')).toContain('item_22322');
 			expect(iconOf('Serpentbane Crown')).toContain('item_274609');
 			expect(iconOf('Enraging Light')).toContain('spell_1293674');
+			expect(iconOf("Krol'dok Resolve")).toContain('spell_1324298');
 		});
 		expect(iconOf('Attack Power')).toBeNull();
 	});
@@ -606,7 +620,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 
 		expect(await openVersusGroups(view)).toEqual([]);
 		openInactive(view, '1 inactive bonus');
-		expect(versusGroups(view)).toEqual([{ ...areaGroup, chip: 'Not in area', state: 'off' }]);
+		expect(versusGroups(view)).toEqual([{ ...areaGroup, chip: 'Not in area', state: 'off', lines: forestStats }]);
 	});
 
 	it('leaves the group out while the sim reports no bonus against any kind of target', () => {

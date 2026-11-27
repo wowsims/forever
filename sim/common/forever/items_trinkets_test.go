@@ -1318,6 +1318,79 @@ func TestLionHornOfStormwindDoublesItsChanceInStrongholdsAndCities(t *testing.T)
 	}
 }
 
+// Each area effect lists its factor under its source on the stats sheet, in an encounter in none of its
+// areas as in one of them: the item, or the spell of a set bonus.
+func TestAreaFactorsListUnderTheirSourceOnTheSheet(t *testing.T) {
+	const (
+		heroism, everlook, lionHorn, uthers, secondWind, banana = 19287, 274760, 14557, 11302, 11819, 270226
+		kroldok, violet, defias, rotmender                      = 1324298, 1324318, 1324684, 1321560
+	)
+	cities := []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}
+	forest := []proto.AreaType{proto.AreaType_AreaTypeForestGrassland}
+	trinket := func(id int32) *proto.EquipmentSpec {
+		return equipping(proto.ItemSlot_ItemSlotTrinket1, &proto.ItemSpec{Id: id})
+	}
+	kroldokRow, violetRow, defiasRow := spelldata.MustFind(1324296), spelldata.MustFind(1324315), spelldata.MustFind(1324683)
+	secondWindRow, bananaRow, siphonRow := spelldata.MustFind(15604), spelldata.MustFind(1287571), spelldata.MustFind(1321558)
+	secondEffect := func(row *spelldata.Spell) float64 { return row.EffectN(2).BaseValue() / row.EffectN(1).BaseValue() }
+	type entry struct {
+		source     core.ActionID
+		kind       proto.VersusEffectKind
+		multiplier float64
+		areas      []proto.AreaType
+	}
+	procChance, effect := proto.VersusEffectKind_VersusEffectKindProcChance, proto.VersusEffectKind_VersusEffectKindEffect
+	for _, tc := range []struct {
+		name      string
+		class     proto.Class
+		equipment *proto.EquipmentSpec
+		want      []entry
+	}{
+		{"Darkmoon Card: Heroism", proto.Class_ClassWarrior, trinket(heroism), []entry{{core.ActionID{ItemID: heroism}, procChance, 2, cities}}},
+		{"Everlook Delivery Bot", proto.Class_ClassWarrior, trinket(everlook),
+			[]entry{{core.ActionID{ItemID: everlook}, procChance, 2, []proto.AreaType{proto.AreaType_AreaTypeSnowy}}}},
+		{"The Lion Horn of Stormwind", proto.Class_ClassWarrior, trinket(lionHorn), []entry{{core.ActionID{ItemID: lionHorn}, procChance, 2, cities}}},
+		{"Uther's Strength", proto.Class_ClassWarrior, trinket(uthers),
+			[]entry{{core.ActionID{ItemID: uthers}, procChance, 2, []proto.AreaType{proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted}}}},
+		{"Second Wind", proto.Class_ClassPaladin, trinket(secondWind),
+			[]entry{{core.ActionID{ItemID: secondWind}, proto.VersusEffectKind_VersusEffectKindRestore, float64(secondWindRow.AreaMultiplier),
+				[]proto.AreaType{proto.AreaType_AreaTypeMountainous}}}},
+		{"Golden Banana", proto.Class_ClassWarrior, trinket(banana), []entry{
+			{core.ActionID{ItemID: banana}, effect, float64(bananaRow.AreaMultiplier), forest},
+			{core.ActionID{ItemID: banana}, proto.VersusEffectKind_VersusEffectKindDuration, float64(bananaRow.AreaDurationMultiplier), forest},
+		}},
+		{"Krol'dok Battlegear", proto.Class_ClassWarrior, setPieces(kroldokPieces(4)),
+			[]entry{{core.ActionID{SpellID: kroldok}, effect, kroldokRow.EffectN(2).BasePoints / kroldokRow.EffectN(1).BasePoints, cities}}},
+		{"Violet Sorcerer's Vestments", proto.Class_ClassPaladin, setPieces(violetFour()), []entry{{core.ActionID{SpellID: violet}, effect, secondEffect(violetRow), cities}}},
+		{"Defias Enforcer's Garb", proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
+			proto.ItemSlot_ItemSlotHead: 287019, proto.ItemSlot_ItemSlotShoulder: 276741, proto.ItemSlot_ItemSlotChest: 287020,
+			proto.ItemSlot_ItemSlotLegs: 276746, proto.ItemSlot_ItemSlotFeet: 287021,
+		}), []entry{{core.ActionID{SpellID: defias}, effect, secondEffect(defiasRow), []proto.AreaType{proto.AreaType_AreaTypeSwamp}}}},
+		{"Rotmender's Raiment", proto.Class_ClassPaladin, setPieces(map[proto.ItemSlot]int32{
+			proto.ItemSlot_ItemSlotChest: 286978, proto.ItemSlot_ItemSlotHands: 286979, proto.ItemSlot_ItemSlotWaist: 286980,
+			proto.ItemSlot_ItemSlotLegs: 271207,
+		}), []entry{{core.ActionID{SpellID: rotmender}, proto.VersusEffectKind_VersusEffectKindRestore, float64(siphonRow.AreaMultiplier),
+			[]proto.AreaType{proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted}}}},
+	} {
+		for _, areas := range [][]proto.AreaType{nil, tc.want[0].areas[:1]} {
+			_, character := itemWearerIn(t, tc.class, tc.equipment, areas...)
+			playerStats := &proto.PlayerStats{}
+			character.FillPlayerStats(playerStats)
+			var got []entry
+			for _, sheet := range playerStats.VersusEffects {
+				if len(sheet.AreaTypes) > 0 {
+					got = append(got, entry{core.ProtoToActionID(sheet.Source), sheet.Kind, sheet.Multiplier, sheet.AreaTypes})
+				}
+			}
+			if !slices.EqualFunc(got, tc.want, func(a, b entry) bool {
+				return a.source == b.source && a.kind == b.kind && a.multiplier == b.multiplier && slices.Equal(a.areas, b.areas)
+			}) {
+				t.Errorf("%s in %v: the stats sheet lists %v, want %v", tc.name, areas, got, tc.want)
+			}
+		}
+	}
+}
+
 // Draconic Infused Emblem 22268's 1318931 rolls its row's chance on every landed harmful spell hit,
 // one that deals no damage and a magic spell with no proc mask, as a curse is, too, and on nothing
 // else: a heal, a cast with no hit, a miss, a damage over time tick and a spell fired as a proc never

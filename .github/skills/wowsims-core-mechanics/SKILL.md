@@ -99,6 +99,12 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   enchant with no item, a set bonus, a talent or a racial); the stats sheet's Versus bonuses group shows one row per
   credited source. An item's factor is listed only while the item is worn, and in its gear chip's tooltip; a spell's
   while it is registered, an item swap's spare enchant or set bonus included.
+- **An area factor goes through `character.RegisterArea`** (`sim/core/area.go`) with a `core.AreaBonus` (the
+  `AreaTargets` and the factor) and a `VersusEffectKind` (`Effect` for stats, regeneration or a heal). It returns the
+  factor in the encounter, 1 outside its areas, since the areas are fixed for the run, and lists it on the stats sheet
+  under its area in every encounter. A row's `overrides.AreaBonuses` entry reads as `spelldata.Spell.AreaBonus()`. A
+  rule on top of the factor stays at its site (Krol'dok Battlegear's flat heal, Everlook Delivery Bot's halved counts
+  rounded down); a check with no factor is `AreaTargets.In` or `Encounter.InArea`.
 - **Periodic physical damage meets the armor its row's attributes name** (EV-0194). `SpellConfig` reads them: none
   where the row sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
   leaves where it sets only Attributes[0] 0x40000 (`SpellFlagTenthResistance`, the weapons' Rends), and the whole armor

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -489,6 +490,45 @@ func TestSheetListsEachSourceOfAMobTypeBonus(t *testing.T) {
 	if got := ProtoToActionID(sources[1].ActionId); got != spell || len(sources[1].Stats) != 0 ||
 		!WithinToleranceFloat64(sources[1].DamageMultiplier, 1.1, 1e-9) || sources[1].CritDamageMultiplier != 1 {
 		t.Errorf("the second share is %v, want %v with a 1.1 damage multiplier alone", sources[1], spell)
+	}
+}
+
+// An area factor applies in an encounter in any of its areas, once however many, and the sheet lists it under
+// its source and areas in every encounter; a factor of 1 or in no area is not listed.
+func TestSheetListsEachAreaFactorInEveryEncounter(t *testing.T) {
+	areas := AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted}}
+	source := ActionID{SpellID: 990932}
+	for _, tc := range []struct {
+		name  string
+		areas []proto.AreaType
+		want  float64
+	}{
+		{"in no area", nil, 1},
+		{"in another area", []proto.AreaType{proto.AreaType_AreaTypeSnowy}, 1},
+		{"in one of the areas", []proto.AreaType{proto.AreaType_AreaTypeSnowy, proto.AreaType_AreaTypeHaunted}, 3},
+		{"in both areas", []proto.AreaType{proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted}, 3},
+	} {
+		encounter := weaponTestEncounter()
+		encounter.AreaTypes = tc.areas
+		sim := NewSim(&proto.RaidSimRequest{SimOptions: &proto.SimOptions{RandomSeed: 1},
+			Raid: weaponTestRaid(proto.Race_RaceHuman, WeaponTestSlots(WeaponTestSwordID, 0, 0), nil), Encounter: encounter}, simsignals.CreateSignals())
+		character := sim.Raid.Parties[0].Players[0].GetCharacter()
+		if got := character.RegisterArea(source, proto.VersusEffectKind_VersusEffectKindRestore, AreaBonus{AreaTargets: areas, Multiplier: 3}); got != tc.want {
+			t.Errorf("%s: the factor is x%v, want x%v", tc.name, got, tc.want)
+		}
+		character.RegisterArea(source, proto.VersusEffectKind_VersusEffectKindDuration, AreaBonus{AreaTargets: areas, Multiplier: 1})
+		character.RegisterArea(source, proto.VersusEffectKind_VersusEffectKindEffect, AreaBonus{Multiplier: 3})
+
+		var listed []*proto.VersusEffect
+		for _, effect := range character.versusEffectsProto() {
+			if ProtoToActionID(effect.Source) == source {
+				listed = append(listed, effect)
+			}
+		}
+		if len(listed) != 1 || listed[0].Kind != proto.VersusEffectKind_VersusEffectKindRestore || listed[0].Multiplier != 3 ||
+			!slices.Equal(listed[0].AreaTypes, areas.Areas) || len(listed[0].MobTypes)+len(listed[0].CreatureFamilies) != 0 {
+			t.Errorf("%s: the sheet lists %v for the source, want its x3 restore in Wasteland and Haunted areas alone", tc.name, listed)
+		}
 	}
 }
 

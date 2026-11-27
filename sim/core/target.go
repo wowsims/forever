@@ -39,10 +39,6 @@ func areaTypeSet(areaTypes []proto.AreaType) []proto.AreaType {
 	return set
 }
 
-func (encounter *Encounter) InArea(areaType proto.AreaType) bool {
-	return slices.Contains(encounter.AreaTypes, areaType)
-}
-
 func NewEncounter(options *proto.Encounter) Encounter {
 	options.ExecuteProportion_35 = max(options.ExecuteProportion_35, options.ExecuteProportion_20)
 	totalTargetCount := max(len(options.Targets), 1)

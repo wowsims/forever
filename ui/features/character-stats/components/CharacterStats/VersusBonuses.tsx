@@ -113,13 +113,18 @@ const versusGroups = ({ bonuses, targets, areaTypes }: VersusBonusesViewProps): 
 			area: false,
 			lines: effectLines(bonuses.versusEffects.filter(effect => effect.creatureFamilies.includes(family))),
 		}));
-	const areaGroups = bonuses.areaStats.map(entry => ({
-		key: `area-type-${entry.areaType}`,
-		label: translateAreaType(entry.areaType),
-		match: areaState(entry.areaType, areaTypes),
-		area: true,
-		lines: areaStatLines(entry.stats),
-	}));
+	const areaGroups = [...new Set([...bonuses.areaStats.map(entry => entry.areaType), ...bonuses.versusEffects.flatMap(effect => effect.areaTypes)])]
+		.sort((a, b) => a - b)
+		.map(areaType => ({
+			key: `area-type-${areaType}`,
+			label: translateAreaType(areaType),
+			match: areaState(areaType, areaTypes),
+			area: true,
+			lines: [
+				...areaStatLines(bonuses.areaStats.find(entry => entry.areaType === areaType)?.stats ?? {}),
+				...effectLines(bonuses.versusEffects.filter(effect => effect.areaTypes.includes(areaType))),
+			],
+		}));
 	return [...mobTypeGroups, ...familyGroups, ...areaGroups];
 };
 
