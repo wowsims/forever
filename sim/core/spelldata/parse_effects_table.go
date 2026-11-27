@@ -405,19 +405,34 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	// The share of spirit regen that continues while casting, which core caps at all of it, and a
 	// multiplier on spirit regen, or under AllManaRegen Innervate's multiplier on the mana regen. The
 	// energy bar's regen and Innervate's are speeds, which need the Simulation an aura's gain hands over.
+	// On an aura whose row also raises the mana regen by a percent (Innervate, Evocation), each change
+	// is told to the aura's boost too, so core credits the regen the aura adds to its own metrics.
 	dbcenums.A_MOD_MANA_REGEN_INTERRUPT: func(p *parser, e *Effect, v float64) *attachment {
-		return p.refreshingManaRegen(p.pseudoAdd("spirit-regen-casting", "SpiritRegenRateCasting",
-			[]*float64{&p.unit.PseudoStats.SpiritRegenRateCasting}, v/100))
+		fields := []*float64{&p.unit.PseudoStats.SpiritRegenRateCasting}
+		if boost := p.manaRegenBoost(); boost != nil {
+			fields = append(fields, &boost.CastingShare)
+		}
+		return p.refreshingManaRegen(p.pseudoAdd("spirit-regen-casting", "SpiritRegenRateCasting", fields, v/100))
 	},
 	dbcenums.A_MOD_POWER_REGEN_PERCENT: func(p *parser, e *Effect, v float64) *attachment {
 		switch e.Misc {
 		case int32(dbcenums.POWER_MANA):
+			boost := p.manaRegenBoost()
 			if p.allManaRegen {
-				return p.speed("mana-regen", "ManaRegenMultiplier", (*core.Unit).MultiplyInnervateManaRegenSpeed,
-					core.MultiplierFromPercent(v))
+				apply := (*core.Unit).MultiplyInnervateManaRegenSpeed
+				if boost != nil {
+					apply = func(unit *core.Unit, sim *core.Simulation, factor float64) {
+						boost.Innervate *= factor
+						unit.MultiplyInnervateManaRegenSpeed(sim, factor)
+					}
+				}
+				return p.speed("mana-regen", "ManaRegenMultiplier", apply, core.MultiplierFromPercent(v))
 			}
-			return p.refreshingManaRegen(p.pseudoMultiplier("spirit-regen", "SpiritRegenMultiplier",
-				[]*float64{&p.unit.PseudoStats.SpiritRegenMultiplier}, core.MultiplierFromPercent(v)))
+			fields := []*float64{&p.unit.PseudoStats.SpiritRegenMultiplier}
+			if boost != nil {
+				fields = append(fields, &boost.SpiritMult)
+			}
+			return p.refreshingManaRegen(p.pseudoMultiplier("spirit-regen", "SpiritRegenMultiplier", fields, core.MultiplierFromPercent(v)))
 		case int32(dbcenums.POWER_ENERGY):
 			if !p.unit.HasEnergyBar() {
 				return nil
@@ -708,6 +723,10 @@ var pctModTable = map[dbcenums.SpellModOp]row{
 	},
 	dbcenums.SPELLMOD_RANGE: func(p *parser, e *Effect, v float64) *attachment {
 		return p.rangeMod("SpellMod_Range_Pct", p.modConfig(e, core.SpellMod_Range_Pct), v)
+	},
+	// The chance a hit does not push back a hardcast of the spells the class mask names.
+	dbcenums.SPELLMOD_NOT_LOSE_CASTING_TIME: func(p *parser, e *Effect, v float64) *attachment {
+		return p.modFloat("SpellMod_PushbackProtection_Pct", p.modConfig(e, core.SpellMod_PushbackProtection_Pct), v)
 	},
 	dbcenums.SPELLMOD_EFFECT1: pctEffectAmount,
 	dbcenums.SPELLMOD_EFFECT2: pctEffectAmount,

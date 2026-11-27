@@ -213,17 +213,23 @@ Target resistance by mask 1 becomes `ArmorPenetration`. A mask of all five resis
 `SpellPiercing`, and a mask of some spell schools becomes `SchoolSpellPiercing` for each of them. A mask
 of armor and a spell school is skipped (`core.SpellSchool.PiercingStat`). The per-school kind bids under
 its mask: `SchoolSpellPiercing4` for the Baleflame imbue's fire and `SchoolSpellPiercing16` for
-Balefrost's frost. Core adds a spell's school piercing to `SpellPiercing`; a holy or multi-school spell
-has no resistance stat to pierce.
+Balefrost's frost. Core adds a spell's school piercing to `SpellPiercing`. A spell of several schools meets the
+lowest resistance among them, each after its own piercing; a holy spell, or a mask with holy, has no resistance to
+pierce.
 
 A percentage `SPELLMOD_DAMAGE` raises only direct hits and direct heals (`SpellMod_DirectDamageDone_Pct`),
 and `SPELLMOD_DOT` raises only the ticks (`SpellMod_DotDamageDone_Pct`). A talent that raises both a
 spell and its dot therefore states the percentage twice, and each effect attaches its own mod (Improved
-Serpent Sting 19464, Improved Moonfire 16821). `SPELLMOD_ALL_EFFECTS` raises both
+Serpent Sting 19464, Moon and Stars 16821). `SPELLMOD_ALL_EFFECTS` raises both
 (`SpellMod_DamageDone_Flat`).
 
+A percentage `SPELLMOD_NOT_LOSE_CASTING_TIME` adds to the named spells' `PushbackProtection`
+(`SpellMod_PushbackProtection_Pct`), and two rows on one spell add. A hit pushes back a hardcast at the unit's
+`PushbackChance` less that protection; `A_REDUCE_PUSHBACK` lowers `PushbackChance` for every spell (Concentration
+Aura 19746). A channel runs as a dot, which no hit shortens.
+
 Two percentage rows of `SPELLMOD_DAMAGE`, `SPELLMOD_DOT` or `SPELLMOD_COST` on one spell multiply in
-game, each as its own factor: Improved Wrath and Moonglow on a Wrath costing 120 Mana leave 45, not 30.
+game, each as its own factor: Starlight Wrath and Moonglow on a Wrath costing 120 Mana leave 45, not 30.
 The sim gives each of those rows its own factor: a hit's applies after the additive bucket that
 `SPELLMOD_ALL_EFFECTS` sums into, and a cost's goes into `SpellMod_PowerCost_Pct`. A cost row that takes the
 whole cost or more (the Clearcasting family) makes the spell free while it is up, whatever the other

@@ -18,11 +18,10 @@ func _() {
 	_ = x[ProcMaskRangedSpecial-128]
 	_ = x[ProcMaskSpellDamage-256]
 	_ = x[ProcMaskSpellHealing-512]
-	_ = x[ProcMaskSpellDamageProc-1024]
-	_ = x[ProcMaskLast-2048]
+	_ = x[ProcMaskLast-1024]
 }
 
-const _ProcMask_name = "ProcMaskUnknownProcMaskEmptyProcMaskMeleeMHAutoProcMaskMeleeOHAutoProcMaskMeleeMHSpecialProcMaskMeleeOHSpecialProcMaskRangedAutoProcMaskRangedSpecialProcMaskSpellDamageProcMaskSpellHealingProcMaskSpellDamageProcProcMaskLast"
+const _ProcMask_name = "ProcMaskUnknownProcMaskEmptyProcMaskMeleeMHAutoProcMaskMeleeOHAutoProcMaskMeleeMHSpecialProcMaskMeleeOHSpecialProcMaskRangedAutoProcMaskRangedSpecialProcMaskSpellDamageProcMaskSpellHealingProcMaskLast"
 
 var _ProcMask_map = map[ProcMask]string{
 	0:    _ProcMask_name[0:15],
@@ -35,8 +34,7 @@ var _ProcMask_map = map[ProcMask]string{
 	128:  _ProcMask_name[128:149],
 	256:  _ProcMask_name[149:168],
 	512:  _ProcMask_name[168:188],
-	1024: _ProcMask_name[188:211],
-	2048: _ProcMask_name[211:223],
+	1024: _ProcMask_name[188:200],
 }
 
 func (i ProcMask) String() string {

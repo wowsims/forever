@@ -402,6 +402,43 @@ func TestSkullforgeReaverBrandsOnMainHandHitsAndHealsTheWearer(t *testing.T) {
 	}
 }
 
+// Demonfork 12621 casts 16603 at the procs per minute of the item's entry, on the weapon's speed, off
+// landed main-hand swings and specials, and a second proc refreshes the drain. The drain's ticks and heal
+// are the shared leech drain's, which TestDemonForgedBreastplateDrainsTheAttacker covers.
+func TestDemonforkDrainsTheTargetIntoTheWearer(t *testing.T) {
+	withEntryPPM(t, 12621, 16603, 3)
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(12621, 0)})
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Demonfork")
+	drain := character.GetSpell(core.ActionID{SpellID: 16603})
+	if proc == nil || proc.Dpm == nil || drain == nil {
+		t.Fatal("12621 registers no drain or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 12621, 16603)
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHSpecial, 12621, 16603)
+
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	row := spelldata.MustFind(16603)
+	enemy := character.CurrentTarget
+
+	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	if got := drain.SpellMetrics[enemy.UnitIndex].Casts; got != 0 {
+		t.Errorf("a missed swing cast %d drains, want none", got)
+	}
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if !drain.Dot(enemy).IsActive() {
+		t.Fatal("a main-hand swing put no drain on the target")
+	}
+
+	stepTo(t, sim, sim.CurrentTime+row.FirstAura(dbcenums.A_PERIODIC_LEECH).Period())
+	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Unit: &character.Unit}
+	character.OnSpellHitDealt(sim, special, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
+	if got := drain.Dot(enemy).RemainingDuration(sim); got != row.Duration() {
+		t.Errorf("a proc on a drained target leaves the drain %v, want the row's full %v", got, row.Duration())
+	}
+}
+
 // Barovian Family Sword 14541 casts Siphon Health 18652 at the procs per minute of the item's entry, on
 // the sword's speed, and the drain goes on a target above the wearer's level with no hit roll. It ticks
 // every period for the row's duration, and each tick casts the heal the drain's row links to on the
@@ -503,6 +540,86 @@ func TestMalownsSlamRaisesStrengthOnMainHandHits(t *testing.T) {
 	}
 }
 
+// Felstriker 12590 puts up 16551 in the instant of the swing that procs it, after that swing's own roll:
+// the Windfury Totem hit the same swing sets off neither misses nor lands a plain hit, while the swings
+// that proc it still land plain hits (EV-0225). The Hand of Justice swing follows by the same order. The
+// buff lasts one spell batch window past its row's duration. Every landed main-hand hit procs Felstriker
+// and the extra hit's proc here.
+func TestFelstrikerCoversTheExtraHitsOfTheSwingThatProcsIt(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		trinket int32
+		buffs   *proto.RaidBuffs
+		proc    string
+		extra   core.ActionID
+	}{
+		{"Windfury Totem", 0, &proto.RaidBuffs{WindfuryTotem: true}, "Windfury Totem Trigger", core.ActionID{SpellID: 10610}},
+		{"Hand of Justice", 11815, &proto.RaidBuffs{}, "Hand of Justice",
+			core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: spelldata.MustFind(15600).EffectN(1).Trigger().ID}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			items := weaponSlots(12590, 0)
+			items[proto.ItemSlot_ItemSlotTrinket1].Id = tc.trinket
+			player := &proto.Player{
+				Name: "Wearer", Class: proto.Class_ClassWarrior, Race: proto.Race_RaceHuman,
+				Equipment:   &proto.EquipmentSpec{Items: items},
+				Consumables: &proto.ConsumesSpec{},
+				Buffs:       &proto.IndividualBuffs{},
+				Rotation:    &proto.APLRotation{},
+			}
+			core.WithSpec(player, &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}})
+			sim := core.NewSim(&proto.RaidSimRequest{
+				SimOptions: &proto.SimOptions{RandomSeed: 1},
+				Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}, Buffs: tc.buffs},
+				Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+			}, simsignals.CreateSignals())
+			sim.Reset()
+			character := sim.Raid.Parties[0].Players[0].GetCharacter()
+			character.AutoAttacks.CancelAutoSwing(sim)
+			target := character.CurrentTarget
+
+			felstriker, proc := character.GetAura("Felstriker"), character.GetAura(tc.proc)
+			buff := character.GetAuraByID(core.ActionID{SpellID: 16551})
+			mhAuto, extra := character.AutoAttacks.MHAuto(), character.GetSpell(tc.extra)
+			if felstriker == nil || felstriker.Dpm == nil || proc == nil || proc.Icd == nil || buff == nil || extra == nil {
+				t.Fatalf("12590 registers no proc or no 16551, or %s registers no proc with a cooldown or no extra hit", tc.name)
+			}
+			if want := spelldata.MustFind(16551).Duration() + core.SpellBatchWindow; buff.Duration != want {
+				t.Errorf("16551 lasts %v, want its row's duration and one spell batch window, %v", buff.Duration, want)
+			}
+			*felstriker.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+			if proc.Dpm != nil {
+				*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+			}
+
+			swing, extraHits := &mhAuto.SpellMetrics[target.UnitIndex], &extra.SpellMetrics[target.UnitIndex]
+			procs, procSwingHits := 0, int32(0)
+			for i := 0; i < 2000 && procs < 100; i++ {
+				buff.Deactivate(sim)
+				proc.Icd.Reset()
+				hits := swing.Hits
+				mhAuto.Cast(sim, target)
+				if proc.Icd.IsReady(sim) {
+					continue
+				}
+				procs++
+				procSwingHits += swing.Hits - hits
+				stepTo(t, sim, sim.CurrentTime+1)
+			}
+			if procs < 100 {
+				t.Fatalf("2000 main-hand autos procced %s %d times, want 100", tc.name, procs)
+			}
+			if extraHits.Casts < int32(procs) || extraHits.Crits == 0 || extraHits.Misses != 0 || extraHits.Hits != 0 {
+				t.Errorf("%d procs cast %d extra hits with %d crits, %d misses and %d plain hits, want an extra hit per proc, crits, and no miss or plain hit",
+					procs, extraHits.Casts, extraHits.Crits, extraHits.Misses, extraHits.Hits)
+			}
+			if procSwingHits == 0 {
+				t.Errorf("none of the %d swings that procced it landed a plain hit, want the swing that procs 16551 to roll its own table", procs)
+			}
+		})
+	}
+}
+
 // Ragehammer 10626 procs Enrage 12686, whose row states attack power and melee attack speed; the item
 // effect entry carries only the attack power, and the speed comes from the row.
 func TestRagehammerEnrageRaisesAttackPowerAndMeleeSpeed(t *testing.T) {
@@ -600,8 +717,8 @@ func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 	}
 }
 
-// The shortest cast time Blade of Eternal Darkness 17780 and Moonshadow Stave 22458 price their chance
-// on (EV-0025, EV-0115).
+// The shortest cast time Blade of Eternal Darkness 17780, Moonshadow Stave 22458 and Kindling Stave
+// 11750 price their chance on (EV-0025, EV-0115, EV-0219).
 const castTimeFloor = 1500 * time.Millisecond
 
 // The chance a trigger priced on cast time rolls on a hit whose cast took castTime: the row's procs per
@@ -658,25 +775,31 @@ func landCastHits(t *testing.T, sim *core.Simulation, character *core.Character,
 	stepTo(t, sim, sim.CurrentTime+spelldata.MustFind(rowID).ICD())
 }
 
+// Lands 6000 hits of an instant cast and 6000 of a cast twice castTimeFloor long and checks the procs
+// counted against castTimeChance for the row.
+func checkCastTimeRate(t *testing.T, sim *core.Simulation, character *core.Character, rowID int32, procs func() int32) {
+	t.Helper()
+	spell := fireSpell(&character.Unit)
+	const landings = 6000
+	for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
+		before := procs()
+		for range landings {
+			landCastHits(t, sim, character, spell, castTime, rowID)
+		}
+		want := castTimeChance(t, rowID, castTime)
+		mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
+		if got := float64(procs() - before); math.Abs(got-mean) > 4*deviation {
+			t.Errorf("%d hits of a %v cast procced it %v times, want about %.0f", landings, castTime, got, mean)
+		}
+	}
+}
+
 // Blade of Eternal Darkness 17780 rolls each landed spell hit at 21978's procs per minute on the cast
 // time of the hit's cast, at least castTimeFloor: an instant on the floor, a long cast on its own time.
 // A missile keeps the time of the cast that launched it after the next cast has started.
 func TestBladeOfEternalDarknessPricesEachHitOnItsCastTime(t *testing.T) {
 	sim, character, shadows := boedWearer(t, 1)
-	spell := fireSpell(&character.Unit)
-
-	const landings = 6000
-	for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
-		before := procCasts(sim, shadows)
-		for range landings {
-			landCastHits(t, sim, character, spell, castTime, 21978)
-		}
-		want := castTimeChance(t, 21978, castTime)
-		mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
-		if got := float64(procCasts(sim, shadows) - before); math.Abs(got-mean) > 4*deviation {
-			t.Errorf("%d hits of a %v cast procced it %v times, want about %.0f", landings, castTime, got, mean)
-		}
-	}
+	checkCastTimeRate(t, sim, character, 21978, func() int32 { return procCasts(sim, shadows) })
 }
 
 // A long cast made instant, as Presence of Mind makes one, rolls Blade of Eternal Darkness 17780 on the
@@ -735,6 +858,43 @@ func TestBladeOfEternalDarknessRollsEachEnemyOfALandingOnce(t *testing.T) {
 	mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
 	if got := float64(procCasts(sim, shadows) - certain); math.Abs(got-mean) > 4*deviation {
 		t.Errorf("%d landings on %d enemies procced it %v times, want about %.0f", landings, enemies, got, mean)
+	}
+}
+
+// Engulfing Shadows, the spell Blade of Eternal Darkness 17780 casts, takes no Spell Piercing bonus beyond
+// a target's Shadow resistance, and against a resistance its hit roll still resists it whole with no
+// partial resist on a landed hit.
+func TestEngulfingShadowsTakesNoSpellPiercingBonus(t *testing.T) {
+	sim, character, shadows := boedWearer(t, 1)
+	target := sim.Encounter.ActiveTargetUnits[0]
+	metrics := &shadows.SpellMetrics[target.UnitIndex]
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellPiercing: 100})
+
+	const casts = 1000
+	castAll := func() (landed, missed int32) {
+		hits, misses := metrics.Hits+metrics.Crits, metrics.Misses
+		for range casts {
+			shadows.Cast(sim, target)
+			stepTo(t, sim, sim.CurrentTime+time.Second)
+		}
+		return metrics.Hits + metrics.Crits - hits, metrics.Misses - misses
+	}
+
+	landedBare, missedBare := castAll()
+	if landedBare == 0 {
+		t.Fatal("no Engulfing Shadows landed")
+	}
+	if pierced := metrics.PiercedHits + metrics.PiercedCrits; pierced != 0 {
+		t.Errorf("%d of %d Engulfing Shadows took a Spell Piercing bonus, want none", pierced, landedBare)
+	}
+
+	target.AddStatsDynamic(sim, stats.Stats{stats.ShadowResistance: 300})
+	landed, missed := castAll()
+	if missed <= missedBare+casts/10 {
+		t.Errorf("Shadow resistance above the piercing resisted %d of %d Engulfing Shadows whole, against %d misses with none", missed, casts, missedBare)
+	}
+	if resisted := metrics.ResistedHits + metrics.ResistedCrits; resisted != 0 {
+		t.Errorf("%d of %d landed Engulfing Shadows took a partial resist, want none", resisted, landed)
 	}
 }
 
@@ -904,9 +1064,9 @@ func TestBladeOfEternalDarknessRestoresManaWithEachProc(t *testing.T) {
 }
 
 // Moonshadow Stave 22458 rolls 1300435 on each landed harmful spell at the row's procs per minute on the
-// cast time of the spell's cast, at least castTimeFloor, a landing that deals no damage too. A miss, a
-// damage over time tick and a spell fired as a proc whose row is one never roll. Each proc casts
-// Shadow 1300437 or Arcane 1300438, one in two each.
+// cast time of the spell's cast, at least castTimeFloor, a landing that deals no damage and a magic
+// spell with no proc mask, as a curse is, too. A miss, a damage over time tick and a spell fired as a
+// proc whose row is one never roll. Each proc casts Shadow 1300437 or Arcane 1300438, one in two each.
 func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	const hurricaneTick, flamestrikeTick = 1278759, 1279990
 	if !spelldata.MustFind(hurricaneTick).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {
@@ -929,19 +1089,7 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 
 	t.Run("cast time", func(t *testing.T) {
 		sim, character, bolts := wearer(t)
-		spell := fireSpell(&character.Unit)
-		const landings = 6000
-		for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
-			before := procs(sim, bolts)
-			for range landings {
-				landCastHits(t, sim, character, spell, castTime, 1300435)
-			}
-			want := castTimeChance(t, 1300435, castTime)
-			mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
-			if got := float64(procs(sim, bolts) - before); math.Abs(got-mean) > 4*deviation {
-				t.Errorf("%d hits of a %v cast procced it %v times, want about %.0f", landings, castTime, got, mean)
-			}
-		}
+		checkCastTimeRate(t, sim, character, 1300435, func() int32 { return procs(sim, bolts) })
 	})
 
 	t.Run("school", func(t *testing.T) {
@@ -966,6 +1114,10 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 		{"debuff application that deals no damage", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
 			character.OnSpellHitDealt(sim, spell, result)
 		}},
+		{"magic spell with no proc mask", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			spell.ProcMask = core.ProcMaskEmpty
+			character.OnSpellHitDealt(sim, spell, result)
+		}},
 		{"miss", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
 			result.Outcome = core.OutcomeMiss
 			character.OnSpellHitDealt(sim, spell, result)
@@ -975,7 +1127,7 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 			character.OnPeriodicDamageDealt(sim, spell, result)
 		}},
 		{"spell fired as a proc whose row is one", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
-			spell.Flags |= core.SpellFlagPassiveSpell
+			spell.Flags |= core.SpellFlagPassiveSpell | core.SpellFlagProc
 			spell.ActionID = core.ActionID{SpellID: hurricaneTick}
 			character.OnSpellHitDealt(sim, spell, result)
 		}},
@@ -996,6 +1148,115 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 				t.Errorf("a %s procced it %d times, want %d", event.name, got, event.want)
 			}
 		})
+	}
+}
+
+// Kindling Stave 11750 rolls 1300781 on each landed harmful spell at the row's procs per minute on the
+// cast time of the spell's cast, at least castTimeFloor. A magic spell with no proc mask, as a curse or
+// Counterspell is, rolls it and a Physical one does not. A spell fired as a proc whose own row is one
+// never rolls it, and neither does a spell whose row states no defense type, such as the landing that
+// starts Arcane Missiles' channel. Flamestrike's pulses, whose rows are not procs, roll it under the
+// cast's id. Each proc casts 1300782 at the enemy hit.
+func TestKindlingStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
+	const hurricaneTick, flamestrikeTick, flamestrikeCast = 1278759, 1279990, 10216
+	if !spelldata.MustFind(flamestrikeCast).IsAProc() {
+		t.Fatalf("want %d's row a proc", flamestrikeCast)
+	}
+	firedAsAProc := func(id core.ActionID, rowIsAProc bool) func(*core.Spell) {
+		return func(spell *core.Spell) {
+			spell.Flags |= core.SpellFlagPassiveSpell
+			if rowIsAProc {
+				spell.Flags |= core.SpellFlagProc
+			}
+			spell.ActionID = id
+		}
+	}
+	wearer := func(t *testing.T) (*core.Simulation, *core.Character, *core.Spell) {
+		t.Helper()
+		sim, character := weaponWearerFor(t, proto.Class_ClassDruid, 11750, 1, 7200)
+		character.AutoAttacks.CancelAutoSwing(sim)
+		proc := character.GetAura("Kindling Stave")
+		fire := character.GetSpell(core.ActionID{SpellID: 1300782})
+		if proc == nil || proc.Dpm != nil || fire == nil {
+			t.Fatal("11750 registers no 1300782, or no proc that rolls its own chance")
+		}
+		return sim, character, fire
+	}
+
+	t.Run("cast time", func(t *testing.T) {
+		sim, character, fire := wearer(t)
+		checkCastTimeRate(t, sim, character, 1300781, func() int32 { return procCasts(sim, fire) })
+	})
+
+	// Each hit is dealt at an hour-long cast, a chance that cannot fail.
+	for _, event := range []struct {
+		name    string
+		prepare func(*core.Spell)
+		want    int32
+	}{
+		{"spell", func(*core.Spell) {}, 1},
+		{"magic spell with no proc mask", func(spell *core.Spell) { spell.ProcMask = core.ProcMaskEmpty }, 1},
+		{"Physical spell with no proc mask", func(spell *core.Spell) {
+			spell.ProcMask = core.ProcMaskEmpty
+			spell.SpellSchool = core.SpellSchoolPhysical
+		}, 0},
+		{"spell fired as a proc whose row is one", firedAsAProc(core.ActionID{SpellID: hurricaneTick}, true), 0},
+		{"spell fired as a proc whose row is not one", firedAsAProc(core.ActionID{SpellID: flamestrikeTick}, false), 1},
+		{"Flamestrike pulse under its cast's id", firedAsAProc(core.ActionID{SpellID: flamestrikeCast, Tag: 1}, false), 1},
+		{"spell whose row states no defense type", func(spell *core.Spell) { spell.DefenseType = core.DefenseTypeNone }, 0},
+	} {
+		t.Run(event.name, func(t *testing.T) {
+			sim, character, fire := wearer(t)
+			spell := fireSpell(&character.Unit)
+			event.prepare(spell)
+			target := character.CurrentTarget
+			result := &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100}
+			spell.CurCast.CastTime = time.Hour
+			character.OnCastResult(sim, spell, result)
+			character.OnSpellHitDealt(sim, spell, result)
+			if got := fire.SpellMetrics[target.UnitIndex].Casts; got != event.want {
+				t.Errorf("a %s cast 1300782 at the enemy hit %d times, want %d", event.name, got, event.want)
+			}
+		})
+	}
+}
+
+// Kindling Stave 11750's 1300782 deals its row's factor at its second effect times as much to a Plant
+// as to any other target from the same rolls, and the wearer's stats sheet lists the factor against
+// Plants.
+func TestKindlingStaveDealsItsFactorToPlants(t *testing.T) {
+	factor := spelldata.MustFind(1300782).EffectAtIndex(1).BaseValue()
+	if factor <= 1 {
+		t.Fatalf("1300782 states a factor of %v, want one above 1 to tell the targets apart", factor)
+	}
+	deal := func(family proto.CreatureFamily) (float64, []*proto.VersusEffect) {
+		sim, character := weaponWearer(t, proto.Class_ClassDruid, 11750, 1)
+		character.AutoAttacks.CancelAutoSwing(sim)
+		target := sim.Encounter.ActiveTargetUnits[0]
+		target.CreatureFamily = family
+		fire := character.GetSpell(core.ActionID{SpellID: 1300782})
+		if fire == nil {
+			t.Fatal("11750 registers no 1300782")
+		}
+		for range 20 {
+			fire.Cast(sim, target)
+		}
+		playerStats := &proto.PlayerStats{}
+		character.FillPlayerStats(playerStats)
+		return fire.SpellMetrics[target.UnitIndex].TotalDamage, playerStats.VersusEffects
+	}
+
+	plant, sheet := deal(proto.CreatureFamily_CreatureFamilyPlant)
+	other, _ := deal(proto.CreatureFamily_CreatureFamilyUnknown)
+	if other <= 0 {
+		t.Fatalf("1300782 dealt %v to a target of no family, want some damage", other)
+	}
+	if !core.WithinToleranceFloat64(plant, factor*other, 1e-6) {
+		t.Errorf("1300782 dealt %v to a Plant, want %v times the %v it dealt to a target of no family", plant, factor, other)
+	}
+	if len(sheet) != 1 || sheet[0].ItemId != 11750 || sheet[0].Multiplier != factor ||
+		!slices.Equal(sheet[0].CreatureFamilies, []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant}) {
+		t.Errorf("the stats sheet lists %v, want 11750's factor of %v against Plants", sheet, factor)
 	}
 }
 
@@ -1119,8 +1380,8 @@ func TestDragonsCallSummonsTheWhelpForTheRowsDuration(t *testing.T) {
 }
 
 // Acid Spit 9591 states its base points as a percent of the creature auto attack dps for the caster's
-// level, which is the owner's. Its hits roll the row's variance, so their mean sits at that amount.
-func TestAcidSpitDealsItsPercentOfTheCreatureDpsAtTheOwnersLevel(t *testing.T) {
+// level, the whelp's own 57. Its hits roll the row's variance, so their mean sits at that amount.
+func TestAcidSpitDealsItsPercentOfTheCreatureDpsAtTheWhelpsLevel(t *testing.T) {
 	// Long enough for 100 summons a cooldown apart.
 	sim, character := weaponWearerFor(t, proto.Class_ClassWarrior, 10847, 1, 5000)
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -1134,11 +1395,11 @@ func TestAcidSpitDealsItsPercentOfTheCreatureDpsAtTheOwnersLevel(t *testing.T) {
 	stepTo(t, sim, sim.CurrentTime+spelldata.MustFind(13049).Duration())
 
 	metrics := whelp.GetSpell(core.ActionID{SpellID: 9591}).SpellMetrics[enemy.UnitIndex]
-	want := spelldata.MustFind(9591).EffectN(1).BaseValue() / 100 * core.CreatureAutoAttackDpsMaxLevel
+	want := spelldata.MustFind(9591).EffectN(1).BaseValue() / 100 * core.CreatureStatsByLevel[57].AutoAttackDps
 	got := (metrics.TotalDamage - metrics.TotalCritDamage) / float64(metrics.Hits)
 	if metrics.Hits < 200 || math.Abs(got-want) > 0.015*want {
-		t.Errorf("Acid Spit's %d hits average %.1f, want the row's percent of the creature dps at level %d, %.1f",
-			metrics.Hits, got, core.CharacterLevel, want)
+		t.Errorf("Acid Spit's %d hits average %.1f, want the row's percent of the level 57 creature dps, %.1f",
+			metrics.Hits, got, want)
 	}
 }
 
@@ -1861,9 +2122,10 @@ func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T
 
 // Iceblade Hacker 13952 carries both its procs: every landed main-hand swing casts 1298414 on the
 // target, and 1298416 rolls the procs per minute of the item's chance-on-hit entry on the axe's speed
-// and casts its Frostbolt. A missed swing casts neither. With Always Hit on 1298414's row, the swing
-// damage never misses, is never dodged, parried or blocked, and can still crit. While the entry
-// states no rate, the swing's damage stays and the Frostbolt registers nothing.
+// and casts its Frostbolt. A missed swing casts neither. A landed main-hand special that deals no
+// damage casts 1298414 too. With Always Hit on 1298414's row, the swing damage never misses, is never
+// dodged, parried or blocked, and can still crit. While the entry states no rate, the swing's damage
+// stays and the Frostbolt registers nothing.
 func TestIcebladeHackerCarriesBothProcs(t *testing.T) {
 	editSpellRow(t, 1298414, func(s *spelldata.Spell) { s.Attr[dbcenums.ATTR_INDEX_EX_3] |= dbcenums.ATTR_EX_3_ALWAYS_HIT })
 	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13952, 0)})
@@ -1888,6 +2150,12 @@ func TestIcebladeHackerCarriesBothProcs(t *testing.T) {
 	dealHit(t, sim, character, meleeSwing(&character.Unit))
 	if casts(chill) != 1 || casts(frostbolt) != 1 {
 		t.Errorf("a landed swing cast the swing damage %d and the Frostbolt %d times, want each once", casts(chill), casts(frostbolt))
+	}
+	sunder := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, Unit: &character.Unit}
+	character.OnSpellHitDealt(sim, sunder, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if casts(chill) != 2 {
+		t.Errorf("a landed special that deals no damage left the swing damage at %d casts in all, want 2", casts(chill))
 	}
 	for range 500 {
 		chill.Cast(sim, enemy)

@@ -196,6 +196,12 @@ func (warrior *Warrior) registerFlurry() {
 	})
 	trigger := spelldata.ProcTrigger(&warrior.Character, spellData.Flurry.Rank(warrior.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			// Sweeping Strikes' normalized strike (26654) never starts Flurry, an owner ruling: no log
+			// shows Flurry from its crit (EV-0213).
+			if spell == warrior.SweepingStrikesNormalizedAttack {
+				return
+			}
+
 			spendsForCast := (spellData.HeroicStrike.Contains(spell) || spellData.Cleave.Contains(spell)) &&
 				firstHit(sim, spell)
 
@@ -319,7 +325,7 @@ func (warrior *Warrior) registerBloodthirst() {
 
 var piercingHowlRank = spellData.PiercingHowl.Highest()
 
-// TODO: In-game test required if there's any threat interaction
+// A Piercing Howl makes no threat (EV-0204).
 func (warrior *Warrior) registerPiercingHowl() {
 	if !warrior.Talents.PiercingHowl {
 		return

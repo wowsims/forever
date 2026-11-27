@@ -8,6 +8,7 @@ import { useSimStore } from '@sim/hooks/useSimStore';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { useUiStore } from '@sim/hooks/useUiStore';
 import type { EquippedItem } from '@sim/proto/equipped_item';
+import { getEligibleItemSlots } from '@sim/proto/items';
 import { subscribeSimField } from '@sim/state/subscriptions';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
@@ -134,10 +135,12 @@ const toggle = (tab: SelectorModalTabs, name: string, label: string, value: bool
 export interface ItemListProps {
 	tab: SelectorTab;
 	slot: ItemSlot;
+	// The slots the items tab lists; a row stays when it passes the filters in one of them it fits. The opened slot alone when absent.
+	itemSlots?: readonly ItemSlot[];
 	equippedItem: EquippedItem | null;
 }
 
-export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
+export const ItemList = ({ tab, slot, itemSlots, equippedItem }: ItemListProps) => {
 	const host = useSimHost();
 	const player = host.player;
 	const sim = player.sim;
@@ -160,12 +163,25 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 
 	const itemsToDisplay = useMemo(() => {
 		let idxs = itemData.map((_, index) => index);
-		const currentEquippedItem = player.getEquippedItem(slot);
 
 		if (label === SelectorModalTabs.Items) {
-			idxs = player.filterItemData(idxs, index => itemData[index].item as unknown as Item, slot);
+			const itemAt = (index: number) => itemData[index].item as unknown as Item;
+			if (itemSlots && itemSlots.length > 1) {
+				const kept = new Set(
+					itemSlots.flatMap(itemSlot =>
+						player.filterItemData(
+							idxs.filter(index => getEligibleItemSlots(itemAt(index)).includes(itemSlot)),
+							itemAt,
+							itemSlot,
+						),
+					),
+				);
+				idxs = idxs.filter(index => kept.has(index));
+			} else {
+				idxs = player.filterItemData(idxs, itemAt, slot);
+			}
 		} else if (label === SelectorModalTabs.Enchants) {
-			idxs = player.filterEnchantData(idxs, index => itemData[index].item as unknown as Enchant, slot, currentEquippedItem);
+			idxs = player.filterEnchantData(idxs, index => itemData[index].item as unknown as Enchant, slot, equippedItem);
 		}
 
 		idxs = idxs.filter(
@@ -185,7 +201,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 		// `isFavourited` happening to close over `filters` too. `race` is named for the same reason:
 		// the faction filter follows the race unless the user picked a faction.
 		// oxlint-disable-next-line react-hooks/exhaustive-deps
-	}, [itemData, player, sim, slot, label, phase, search, sortBy, sortDirection, computeEP, isFavourited, filters, race]);
+	}, [itemData, player, sim, slot, itemSlots, equippedItem, label, phase, search, sortBy, sortDirection, computeEP, isFavourited, filters, race]);
 
 	const showEPOptions = slotSortsByEP(slot);
 	const equipped = equippedToItem(equippedItem);

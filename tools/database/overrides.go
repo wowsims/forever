@@ -59,6 +59,7 @@ var IgnoreSpellEffectBySpellEffectType = map[dbc.SpellEffectType][]int{
 // entries here and only a handful of them were noise.
 var IgnoreMissingEffectBySpellID = map[int]string{
 	16372:   "Seal of Ascension - no tooltip and no mechanic",
+	1298517: "Book of the Dead - a dummy aura with no tooltip; whatever it does in game, the skeleton's measured numbers hold it (EV-0217)",
 	1318846: "Eye of the Beast - no tooltip and no mechanic; the item's crit and its on-use are its other two effects",
 }
 

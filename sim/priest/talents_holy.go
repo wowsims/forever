@@ -40,12 +40,14 @@ func (priest *Priest) registerHolyTalents() {
 	priest.applyPrayerOfMending()
 }
 
-// Gives you a 70% chance to avoid interruption caused by damage while casting any spell.
-// The caster takes no hits in a damage sim, so it changes nothing.
+// Gives you a 70% chance to avoid interruption caused by damage while casting any spell. The row names
+// the spells by their class flags.
 func (priest *Priest) applyTwilightFocus() {
 	if priest.Talents.TwilightFocus == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&priest.Character, spellData.TwilightFocus.Rank(priest.Talents.TwilightFocus))
 }
 
 // Increases the amount healed by your Renew spell by 5%.

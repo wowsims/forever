@@ -12120,6 +12120,12 @@
 						"elemental_stormstrike": {
 							"type": "string"
 						},
+						"hunter_improved_tracking": {
+							"type": "string"
+						},
+						"set_target_mob_type": {
+							"type": "string"
+						},
 						"label": {
 							"type": "string"
 						}
@@ -12131,6 +12137,8 @@
 						"broken_talents",
 						"windfury_over_flametongue",
 						"elemental_stormstrike",
+						"hunter_improved_tracking",
+						"set_target_mob_type",
 						"label"
 					]
 				},
@@ -13094,6 +13102,9 @@
 						"melee_crit_cap": {
 							"type": "string"
 						},
+						"spell_piercing_too_low": {
+							"type": "string"
+						},
 						"weapon_skill": {
 							"type": "string"
 						},
@@ -13315,6 +13326,7 @@
 						"groups",
 						"hands",
 						"melee_crit_cap",
+						"spell_piercing_too_low",
 						"weapon_skill",
 						"versus",
 						"tooltip",

@@ -12,32 +12,32 @@
 - Date: 2026-11-09 to 2026-11-22
 - Pull request: #1168
 - Later count: Hookfang Shanker, Hurd Smasher and Siegebreaker's Blaster, §Count of the 2026-11-06 to 2026-11-22 reports
+- Later count: Shimmering Platinum Warhammer, §Count of the 2026-11-13 to 2026-11-26 reports
 
 ## Method
 
 The count is EV-0153's Method, run again by the automated sweep of 2026-11-22 over every wearer stream on disk, with the
 same rolling hits, classes and forms left out, intervals, lone-unit checks, swap drop, credit windows and calls of
-measured or observed. From hotfix push 114313 (2026-11-20 23:47 UTC) each Mutilate strike rolls its own hand once;
-before it Mutilate is left out with its procs, as the two-roll abilities are. No two counted runs of one player overlap
-in time.
+measured or observed. Each Mutilate strike rolls its own hand once (EV-0155); the count takes each Mutilate from hotfix
+push 114313 (2026-11-20 23:47 UTC) as those rolls and leaves out the ones before it with their procs, as it does the
+two-roll abilities. No two counted runs of one player overlap in time.
 
-The run counts no Shank as a roll, though from 2026-11-20 Shank rolls the off-hand weapon (EV-0155 §Shank from
-2026-11-20). The Lobotomizer's read counts those Shanks as off-hand rolls.
+The run counts no Shank as a roll, though Shank rolls the off-hand weapon (EV-0155). The Lobotomizer's read counts the
+off-hand wearers' Shanks from 2026-11-20 as off-hand rolls.
 
 Scripts and inputs, in `forever-sweep-auto`: the run `runs/2026-11-22-1122`, whose `results.json` (`analyze.py` version
-12, cache `cache_v13`) holds the counts of Shimmering Platinum Warhammer and of the count's weapons in EV-0136 and
-EV-0175, and whose cached records give Red Whelp Gloves' lone units. The Lobotomizer's count comes from `analyze.py`
-version 14 (cache `cache_v14`), which counts Shank's off-hand roll, on the same wearer streams. The rate is each
-result's `all_hits`, matched on item and `effect_spell`.
+12, cache `cache_v13`) holds the counts of the count's weapons in EV-0136 and EV-0175, and whose cached records give Red
+Whelp Gloves' lone units. The Lobotomizer's count comes from `analyze.py` version 14 (cache `cache_v14`), which counts
+Shank's off-hand roll, on the same wearer streams. The rate is each result's `all_hits`, matched on item and
+`effect_spell`.
 
 ## Rates
 
 Rate is the override row's rate. The one-hand white and specials columns give the read and, in parentheses, the procs.
 
-| Weapon                        |  Item | Rate | Call     | All hits [95%]    | Procs / hits | Wearers | One-hand white | Specials |
-| ----------------------------- | ----: | ---: | -------- | ----------------- | -----------: | ------: | -------------- | -------- |
-| Shimmering Platinum Warhammer | 15418 | 1.85 | observed | 1.85 [1.74, 1.90] |  487 / 5,102 |       3 | 1.59 (101)     | -        |
-| The Lobotomizer               | 19324 | 0.55 | observed | 0.53 [0.49, 0.57] | 166 / 10,503 |       5 | -              | -        |
+| Weapon          |  Item | Rate | Call     | All hits [95%]    | Procs / hits | Wearers | One-hand white | Specials |
+| --------------- | ----: | ---: | -------- | ----------------- | -----------: | ------: | -------------- | -------- |
+| The Lobotomizer | 19324 | 0.55 | observed | 0.53 [0.49, 0.57] | 166 / 10,503 |       5 | -              | -        |
 
 ## Hookfang Shanker (item 11635, spell 13526): 1.95, observed
 
@@ -79,19 +79,31 @@ Reports and fights: 1TFWH4Yy38KhXMwx 6; 2ZLD7Jvwfa1n3xyM 1-2; ACJhv8TgVcbpRM3f 1
 Tf1YmVratWLwcjkp 3-4; VqfFdmTwMzxrcH1N 1-2; daTq1vcjC3QBntb8 4-18, 20-27, 29-42; hqp4yWv6fY7c8PwV 2-3; q98JvNkWnKzyrwgM
 1-6; qZTd9F3pkMLJcA6V 1-3.
 
-## Shimmering Platinum Warhammer (item 15418, spell 19874): 1.85, observed
+## Shimmering Platinum Warhammer (item 15418, spell 19874): 2.05, observed
 
-487 procs on 5,102 rolling hits, 3 wearers, 4 runs, in the main hand: all hits 1.85 [1.74, 1.90] (Poisson [1.69, 2.02]).
-The rate is all hits, which the one-hand white rate agrees with. Observed: 3 wearers, every one a shaman. One-hand
-white: 1.59 [1.30, 1.94], 101 procs on 1,226 lone units, 3 wearers (a Poisson interval: under 5 wearers). Travel time:
-the proc lands a median 106 ms after its hit, 98th percentile 234 ms, window [24, 244] ms (42 isolated hits). Left out:
-1 of 5 runs in Cat or Bear Form. Reports from 2026-11-18 to 2026-11-21.
+- Count: §Count of the 2026-11-13 to 2026-11-26 reports
+
+924 procs on 8,797 rolling hits, 6 wearers, 9 runs, in the main hand: all hits 2.03 [1.91, 2.16]. The rate is all hits,
+which the one-hand white rate agrees with. Observed: every wearer is a shaman. One-hand white: 1.94 [1.72, 2.48], 210
+procs on 2,100 lone units, 6 wearers. Specials: none. The paladin check, which sets no rate: lone white swings 2.58
+[1.33, 4.51], 12 procs on 90 lone units, 2 wearers (a Poisson interval: under 5 wearers), not apart from all hits;
+paladins in at that rate, on as many hits per lone unit as the shamans', read 2.06, so the rate is 2.05 either way.
+Travel time: the proc lands a median 112 ms after its hit, 98th percentile 250 ms, window [-20, 260] ms (183 isolated
+hits). Left out: 1 of 10 runs in Cat or Bear Form. Reports from 2026-11-18 to 2026-11-26.
+
+Across the 2026-11-23 hotfix: the reports before 2026-11-24 01:00 UTC read 1.91 [1.78, 2.11] (Poisson [1.75, 2.09]:
+under 5 wearers), 513 procs on 5,187 rolling hits, 3 wearers, 5 runs; the reports from then on 2.20 [2.13, 2.28]
+(Poisson [2.00, 2.43]: under 5 wearers), 411 procs on 3,610 rolling hits, 4 wearers, 4 runs. The analyzer run on the
+reports from then on alone reads all hits 2.20 [2.13, 2.28], 411 procs, 4 wearers, which overlaps the whole count's 2.03
+[1.91, 2.16]. The rate is the whole count's; the owner ruling of 2026-11-26 keeps it observed while the two halves read
+apart.
 
 | Class  | Wearers | Procs |  Hits |  PPM |
 | ------ | ------: | ----: | ----: | ---: |
-| Shaman |       3 |   487 | 5,102 | 1.85 |
+| Shaman |       6 |   924 | 8,797 | 2.03 |
 
-Reports and fights: DvrjQXqZ9HN8a74z 1-4; KNtHCAPd97ZMTLBf 1-2; jWfDCghpYJKy9G3N 1-8; ycMCt3n9ZqP2bhaH 1-2, 4-8.
+Reports and fights: 68B7qNxMZLtRAh9j 1-2, 4; 6qtBhwN9grpafnDC 1-3; ARVPq7wnrdzpWQkH 9-18, 20; DvrjQXqZ9HN8a74z 1-4;
+KNtHCAPd97ZMTLBf 1-2; WKkRPDJb8njrtQp1 1-2; jWfDCghpYJKy9G3N 1-8; rvPn71AMTwajKNdG 1; ycMCt3n9ZqP2bhaH 1-2, 4-8.
 
 ## Siegebreaker's Blaster (item 282561, spell 1314040): 5.25, observed
 
@@ -164,3 +176,18 @@ t2jHDfcvLkK96bdV 1-9; tcBj1NqHbxM7AaZp 1-4; wPrMvF2qYa61TCGB 1; y4fHqpA8Qt2m3Vaj
 - Pull request: #1180
 
 The count is EV-0183 §Method, run on these weapons.
+
+## Count of the 2026-11-13 to 2026-11-26 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights the Shimmering Platinum
+  Warhammer section lists, from every wearer stream on disk for it; 353 reports in all for the count, 9 of them for
+  Shimmering Platinum Warhammer
+- Game build: 1.60.1.70938 to 1.60.1.71139 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20 18:23
+  UTC, 71091 from 2026-11-24 15:21 UTC in the US and 2026-11-25 02:19 UTC in the EU, 71139 from 2026-11-25 19:14 UTC in
+  the US and the EU); 202 reports of the count start after hotfix push 114313 (2026-11-20 23:47 UTC), 6 of them for
+  Shimmering Platinum Warhammer, and 66 after 2026-11-24 01:00 UTC, 4 of them for Shimmering Platinum Warhammer. The
+  sim's item database is 1.60.1.71139, push 114448; the hotfix each player ran is not recorded
+- Date: 2026-11-13 to 2026-11-26
+- Pull request: #1262
+
+The count is EV-0221 §Method, run on this weapon.

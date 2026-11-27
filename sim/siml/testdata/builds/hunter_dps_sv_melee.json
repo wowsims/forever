@@ -37,7 +37,7 @@
 					"enchant": 904
 				},
 				{
-					"id": 272106
+					"id": 18686
 				},
 				{
 					"id": 13340,
@@ -64,19 +64,19 @@
 				},
 				{
 					"id": 226881,
-					"enchant": 1887
+					"enchant": 911
 				},
 				{
 					"id": 272408
 				},
 				{
-					"id": 13098
+					"id": 19325
 				},
 				{
 					"id": 22321
 				},
 				{
-					"id": 19289
+					"id": 260205
 				},
 				{
 					"id": 1728,
@@ -88,7 +88,7 @@
 				},
 				{
 					"id": 18323,
-					"enchant": 8720
+					"enchant": 664
 				}
 			]
 		},
@@ -115,12 +115,11 @@
 					"quiverBonus": "AncientSinewWrappedLamina",
 					"ammo": "ThoriumHeadedArrow",
 					"petType": "Raptor",
-					"petUptime": 1,
-					"petAttackSpeed": "FasterAttackII"
+					"petUptime": 1
 				}
 			}
 		},
-		"talentsString": "53200005001-005005-5302002300500221",
+		"talentsString": "53200005001-005005-5002302300500221",
 		"profession1": "Engineering",
 		"profession2": "Blacksmithing",
 		"rotation": {

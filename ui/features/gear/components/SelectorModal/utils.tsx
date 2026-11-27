@@ -1,4 +1,5 @@
 import type { ItemSlot } from '@generated/proto/common';
+import type { UIItem as Item } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import { isStaticEnchant } from '@sim/proto/items';
@@ -50,10 +51,19 @@ export const buildSelectorTabs = ({ player, slot, gearData, equippedItem }: Sele
 	const weaponSpeed = equippedItem?.item.weaponSpeed ?? 0;
 	const epPerWeaponDps = weaponSpeed ? player.computeWeaponDpsEP(slot) : 0;
 
+	const itemSlotById = new Map<number, ItemSlot>();
+	const listedItems: Item[] = [];
+	for (const itemSlot of gearData.itemSlots ?? [slot]) {
+		for (const item of player.getItems(itemSlot)) {
+			if (itemSlotById.has(item.id)) continue;
+			itemSlotById.set(item.id, itemSlot);
+			listedItems.push(item);
+		}
+	}
 	const items = describe({
 		label: SelectorModalTabs.Items,
-		itemData: itemsTabData(player, gearData, player.getItems(slot)),
-		computeEP: item => player.computeItemEP(item, slot),
+		itemData: itemsTabData(player, gearData, listedItems),
+		computeEP: item => player.computeItemEP(item, itemSlotById.get(item.id) ?? slot),
 		equippedToItem: item => item?.item,
 		onRemove: gearData.addOnly ? undefined : () => gearData.equipItem(null),
 	});

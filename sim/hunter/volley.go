@@ -20,10 +20,7 @@ func (hunter *Hunter) registerVolley() {
 	waveBase := volleyWaveRank.DamageEffect().Average()
 	apShare := volleyRank.EffectN(1).Coeff()
 
-	waveConfig := spelldata.SpellConfig(&hunter.Unit, volleyWaveRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.Proc())
-	if volleyWaveRank.IsAProc() {
-		waveConfig.Flags |= core.SpellFlagProc
-	}
+	waveConfig := spelldata.SpellConfig(&hunter.Unit, volleyWaveRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.Proc(), spelldata.Triggered())
 	waveConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		for _, target := range sim.Encounter.ActiveTargetUnits {
 			spell.CalcAndDealDamage(sim, target, waveBase+apShare*spell.RangedAttackPower(target), spell.OutcomeRangedHitAndCrit)

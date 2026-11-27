@@ -54,13 +54,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0003",
 	},
 	{
-		ItemID:  12969,
-		SpellID: 17196,
-		PPM:     0.9,
-		Reason:  "Seeping Willow: column reads 101",
-		Source:  "EV-0003",
-	},
-	{
 		ItemID:  13183,
 		SpellID: 18203,
 		PPM:     1.7,
@@ -391,13 +384,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
-		ItemID:  12590,
-		SpellID: 16551,
-		PPM:     0.55,
-		Reason:  "Felstriker: no proc row",
-		Source:  "EV-0136",
-	},
-	{
 		ItemID:  14145,
 		SpellID: 18381,
 		PPM:     2.05,
@@ -600,6 +586,28 @@ var WeaponProcs = []WeaponProc{
 		PPM:     2.95,
 		Reason:  "Winter's Bite: column reads 101; Hammer of the Northern Wind casts the same spell",
 		Source:  "EV-0186",
+	},
+	// Measured by EV-0153's method on the reports from 2026-11-13 to 2026-11-26 (EV-0136, EV-0221).
+	{
+		ItemID:  12590,
+		SpellID: 16551,
+		PPM:     0.5,
+		Reason:  "Felstriker: no proc row",
+		Source:  "EV-0136",
+	},
+	{
+		ItemID:  13401,
+		SpellID: 17505,
+		PPM:     2.05,
+		Reason:  "The Cruel Hand of Timmy: column reads 101",
+		Source:  "EV-0136",
+	},
+	{
+		ItemID:  14555,
+		SpellID: 18833,
+		PPM:     1.95,
+		Reason:  "Alcor's Sunrazor: no proc row",
+		Source:  "EV-0221",
 	},
 	// Measured by EV-0153's method on the reports from 2026-11-06 to 2026-11-22 (EV-0121, EV-0136, EV-0146, EV-0150,
 	// EV-0153, EV-0177, EV-0183).
@@ -821,13 +829,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0150",
 	},
 	{
-		ItemID:  13401,
-		SpellID: 17505,
-		PPM:     2.15,
-		Reason:  "The Cruel Hand of Timmy: column reads 101",
-		Source:  "EV-0136",
-	},
-	{
 		ItemID:  13952,
 		SpellID: 1298416,
 		PPM:     2,
@@ -892,10 +893,10 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Spellsever Crossbow: no proc row",
 		Source:  "EV-0136",
 	},
-	// Fitted the same way on the reports from 2026-11-06 to 2026-11-22 from wearers of one class, too wide an interval,
+	// Fitted the same way on the reports from 2026-11-06 to 2026-11-24 from wearers of one class, too wide an interval,
 	// a lone-unit rate that disagrees or no lone-unit rate to check it, so not final (EV-0120, EV-0136, EV-0146,
-	// EV-0153, EV-0157, EV-0177, EV-0178, EV-0183). The "observed" Source keeps the gear tab's notice up until more
-	// wearers validate it.
+	// EV-0153, EV-0157, EV-0177, EV-0178, EV-0183, EV-0209). The "observed" Source keeps the gear tab's notice up until
+	// more wearers validate it.
 	{
 		ItemID:  810,
 		SpellID: 13439,
@@ -943,13 +944,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 29639,
 		PPM:     4,
 		Reason:  "Dwarven Hand Cannon: no proc row; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  2163,
-		SpellID: 18138,
-		PPM:     1.05,
-		Reason:  "Shadowblade: no proc row; shares the trigger with Black Duskwood Staff; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
@@ -1114,6 +1108,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
+		ItemID:  13146,
+		SpellID: 29647,
+		PPM:     3.75,
+		Reason:  "Shell Launcher Shotgun: no proc row; a log fit not yet validated (EV-0209)",
+		Source:  "observed",
+	},
+	{
 		ItemID:  13204,
 		SpellID: 17315,
 		PPM:     3,
@@ -1184,13 +1185,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  19100,
-		SpellID: 23592,
-		PPM:     1.25,
-		Reason:  "Electrified Dagger: no proc row; a log fit not yet validated (EV-0183)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  19323,
 		SpellID: 23454,
 		PPM:     1.05,
@@ -1243,13 +1237,6 @@ var WeaponProcs = []WeaponProc{
 	// rate to check it, so not final (EV-0177). The "observed" Source keeps the gear tab's notice up until more wearers
 	// validate it.
 	{
-		ItemID:  15418,
-		SpellID: 19874,
-		PPM:     1.85,
-		Reason:  "Shimmering Platinum Warhammer: no proc row; a log fit not yet validated (EV-0177)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  19324,
 		SpellID: 1290950,
 		PPM:     0.55,
@@ -1264,6 +1251,23 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 16921,
 		PPM:     0.9,
 		Reason:  "Masterwork Stormhammer: column reads 101; a log fit not yet validated (EV-0184)",
+		Source:  "observed",
+	},
+	// Fitted over all hits of one paladin wearer each in one combat log, the seal hits rolling as the sim's do. A rate
+	// read from paladins alone stays observed (EV-0003, EV-0228). The "observed" Source keeps the gear tab's notice up
+	// until more wearers validate it.
+	{
+		ItemID:  12621,
+		SpellID: 16603,
+		PPM:     3.25,
+		Reason:  "Demonfork: no proc row; a log fit not yet validated (EV-0228)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  12969,
+		SpellID: 17196,
+		PPM:     2.1,
+		Reason:  "Seeping Willow: column reads 101; a log fit not yet validated (EV-0003)",
 		Source:  "observed",
 	},
 	// Fitted the same way on the reports from 2026-11-06 to 2026-11-23, from wearers of one class, no lone-unit rate to
@@ -1288,6 +1292,38 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 1316039,
 		PPM:     0.75,
 		Reason:  "Whipfang's Skinsearer: no proc row; a log fit not yet validated (EV-0186)",
+		Source:  "observed",
+	},
+	// Fitted the same way on the reports from 2026-11-13 to 2026-11-26, from wearers of one class, no lone-unit rate to
+	// check it, too wide an interval, or reports before and after the 2026-11-23 hotfix that read apart, to call final
+	// (EV-0136, EV-0177, EV-0183, EV-0221). The "observed" Source keeps the gear tab's notice up until more wearers
+	// validate it.
+	{
+		ItemID:  2163,
+		SpellID: 18138,
+		PPM:     1,
+		Reason:  "Shadowblade: no proc row; shares the trigger with Black Duskwood Staff; a log fit not yet validated (EV-0136)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  12528,
+		SpellID: 56,
+		PPM:     1.05,
+		Reason:  "The Judge's Gavel: no proc row; a log fit not yet validated (EV-0221)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  15418,
+		SpellID: 19874,
+		PPM:     2.05,
+		Reason:  "Shimmering Platinum Warhammer: no proc row; a log fit not yet validated (EV-0177)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  19100,
+		SpellID: 23592,
+		PPM:     1.35,
+		Reason:  "Electrified Dagger: no proc row; a log fit not yet validated (EV-0183)",
 		Source:  "observed",
 	},
 	// Fitted the same way from too few wearers, wearers of one class, too wide an interval or no lone-unit rate to
@@ -1552,13 +1588,6 @@ var WeaponProcs = []WeaponProc{
 	// 	SpellID: 16871,
 	// 	PPM:     0, // TODO: waiting for PPM data
 	// 	Reason:  "Bleakwood Hew: column reads 101",
-	// 	Source:  "vanilla-carryover",
-	// },
-	// {
-	// 	ItemID:  13146,
-	// 	SpellID: 29647,
-	// 	PPM:     0, // TODO: waiting for PPM data
-	// 	Reason:  "Shell Launcher Shotgun: no proc row",
 	// 	Source:  "vanilla-carryover",
 	// },
 	// {

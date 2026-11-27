@@ -108,13 +108,14 @@ func (warlock *Warlock) applyImprovedBaneOfAgony() {
 	spelldata.ParseStatic(&warlock.Character, spellData.ImprovedBaneOfAgony.Rank(warlock.Talents.ImprovedBaneOfAgony))
 }
 
-// TODO: Not implemented, as it does not affect sims for now.
-// The row is SPELLMOD_NOT_LOSE_CASTING_TIME (pushback protection) on the drains and Wrack,
-// which the parse skips; it matters only once the sim models pushback from damage taken.
+// The chance a hit does not push back the drains and Wrack. The mod lands on the spells the class flags
+// name, but a channel runs as a dot and no hit shortens it, so it changes nothing.
 func (warlock *Warlock) applyFelConcentration() {
 	if warlock.Talents.FelConcentration == 0 {
 		return
 	}
+
+	spelldata.ParseStatic(&warlock.Character, spellData.FelConcentration.Rank(warlock.Talents.FelConcentration))
 }
 
 func (warlock *Warlock) registerAmplifyCurse() {
@@ -129,9 +130,12 @@ func (warlock *Warlock) registerAmplifyCurse() {
 	// Bane of Agony is in neither class mask in the game files, so it is matched by its own spell mask.
 	ampWeakness, ampExhaustion := rankedSpell.EffectN(1).ClassFlags, rankedSpell.EffectN(2).ClassFlags
 
-	// TODO: Confirm that the amp is consumed on cast, regardless of hit.
+	// A curse spends it when it lands; one that misses or is fully resisted leaves it up (EV-0200).
 	auraConfig := spelldata.AuraConfig(rankedSpell)
-	auraConfig.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+	auraConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		if !result.Landed() {
+			return
+		}
 		if spell.MatchesFlags(ampWeakness) || spell.MatchesFlags(ampExhaustion) || spell.Matches(WarlockSpellBaneOfAgony) {
 			aura.Deactivate(sim)
 		}
@@ -250,7 +254,7 @@ func (warlock *Warlock) soulSiphonChannelConfig(rankedSpell *spelldata.Spell, ti
 
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 
-	// TODO: Confirm no snapshot from Soul Siphon.
+	// The tick reads the Soul Siphon multiplier when it lands, with no snapshot at the channel's start (EV-0205).
 	// TODO: Confirm in game whether spell haste shortens the ticks; the rows carry no haste attribute, so
 	// neither AffectedByCastSpeed nor HasteReducesDuration is set.
 	config.Dot = spelldata.DotConfig(rankedSpell, tick)

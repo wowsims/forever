@@ -23,8 +23,8 @@ before the 2026-11-13 hotfix that stopped a paladin's Judgements rolling weapon 
   killing blows left out. A Waning Moon at the swing (5 ms before to 30 ms after) or a Waxing Moon within 600 ms of it
   is a proc. This count needs no roll table and sets the rate.
 - All hits: every landed roll, with a white swing, a seal's strike, Holy Strike and a Windfury Totem hit as one roll
-  and Judgement of Command as two, as weapon procs roll for a paladin after the 2026-11-13 hotfix. That this proc hears
-  the same rolls is not measured; the count checks the rate and sets nothing.
+  and Judgement of Command as two. That this proc hears the same rolls is not measured; the count checks the rate and
+  sets nothing.
 
 ## Rate
 

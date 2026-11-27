@@ -406,10 +406,11 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 	afterAttackMods := result.Damage
 	// The target's flat physical damage taken lands before its armor: Gift of Arthas adds 8 times the
 	// share of a swing that gets through, and Force of Will takes its 51 off the same way. The reductions
-	// in this field together take at most half of the hit (EV-0154). The flat ranged and spell amounts land
-	// in applyTargetModifiers, after armor and outside this cap.
-	// TODO: The cap is read on normal white swings (EV-0154); measure it on specials, ranged hits and ticks.
-	if spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.Flags.Matches(SpellFlagIgnoreTargetModifiers) {
+	// in this field together take at most half of the hit (EV-0154). A periodic tick takes none of this field:
+	// a bonus on an enemy, whether the tick meets the target's armor or not, or a reduction on a player (EV-0154).
+	// The flat ranged and spell amounts land in applyTargetModifiers, after armor and outside this cap.
+	// TODO: The cap is read on white swings and melee specials (EV-0154); read it on a ranged hit under twice the reduction.
+	if !isPeriodic && spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.Flags.Matches(SpellFlagIgnoreTargetModifiers) {
 		result.Damage += max(attackTable.Defender.PseudoStats.BonusPhysicalDamageTaken, min(0, -result.Damage/2))
 	}
 	result.applyResistances(sim, spell, isPeriodic, attackTable)
@@ -462,8 +463,8 @@ func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(spell.Unit.AttackTables[target.UnitIndex], false)
 	baseDamage *= spell.VersusBonus.Against(target)
-	// A weapon strike takes the caster's flat physical damage bonus whole; a physical row that deals
-	// school damage takes it at the row's coefficient.
+	// A weapon strike takes the caster's flat physical damage bonus whole, before armor; a physical row
+	// that deals school damage takes it at the row's coefficient (EV-0196).
 	if spell.BonusCoefficient > 0 {
 		baseDamage += spell.BonusCoefficient * spell.BonusDamage(attackTable)
 	} else if spell.Flags.Matches(SpellFlagPhysicalSchoolDamage) {

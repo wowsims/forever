@@ -7,14 +7,14 @@ import { Encounter } from '@sim/raid/encounter';
 import { OtherDefaults as SimUIOtherDefaults } from '@sim/spec_config';
 
 import { BearEp, HybridEp } from '../feral_ep';
-import AdaptiveApl from './apls/adaptive.apl.json';
-import Level60GearJson from './gear_sets/default.gear.json';
+import AdaptiveApl from './apls/adaptive.apl.siml';
+import Level60GearSet from './gear_sets/default.gear.siml';
 export const ROTATION_ADAPTIVE = PresetUtils.makePresetAPLRotation('Adaptive Bear', AdaptiveApl);
 
 export const BearTalents = PresetUtils.makePresetTalents('Bear', SavedTalents.create({ talentsString: '050022-5023030212310112501-055' }));
 export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050012-50230302123110125011-055' }));
 
-export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJson, {
+export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearSet, {
 	devOnly: true,
 	tooltip: 'Leather at level 60 with no set bonus and no proc. The idol slot is empty: every idol has an effect.',
 });

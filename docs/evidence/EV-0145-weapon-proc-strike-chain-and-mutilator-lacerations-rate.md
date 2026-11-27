@@ -1,16 +1,12 @@
 # EV-0145: A weapon proc's strike and what it rolls, and Mutilator's Lacerations rate and hit roll
 
-EV-0156 dates the reading that a white swing's Judgement refresh rolls a weapon proc on its own: it holds to
-2026-11-13, and since that day's hotfix the refresh rolls nothing.
-
 - Claim: Mutilator 12469 rolls Lacerations 10370 on 19.9% of landed main-hand white swings, 4.8 procs per minute on its
   2.5 s speed; Lacerations rolls the melee hit table itself, and 12.2% of them fail; a weapon proc's strike that a
   main-hand white swing of the weapon cast rolls the weapon once more at the same chance and never a third time, on 23
   weapons of the table, Mutilator among them; one cast by an ability, a seal's strike, a Windfury hit, an off-hand swing
   or a druid's swing in Cat, Bear or Dire Bear Form rolls nothing; Toofbreak 1320269, whose row states a 100 ms
-  cooldown, brings no second; Judgement of Command rolled a weapon proc twice a cast up to hotfix push 114399
-  (2026-11-25) and rolls it once from that push (EV-0155); Fiery Weapon 803 rolls on a weapon proc's strike under the
-  same rule.
+  cooldown, brings no second; Judgement of Command rolls a weapon proc once a cast (EV-0155); Fiery Weapon 803 rolls on
+  a weapon proc's strike under the same rule.
 - Sources: Warcraft Logs reports `AnPHcV64wg8DThzZ` (fights 1, 11, 12), `q62VRcw1m8fyHN4T` (fight 1),
   `Xa2MfbLKQCPYH6nr` (fights 1, 3, 5), `t38h6AJQWzRCHwZy` (fights 1, 3 to 6, 8 to 14), `BXhNKykZL7MDat8c` (fight 8),
   `nPLWN2VDTZMz7Qk6` (fight 1) and `nP4N7AqTvChFQ2GY` (fights 1, 3 to 10): three paladins, two warriors and two
@@ -34,10 +30,10 @@ One Lacerations attempt is a debuff application, a stack gained, a refresh with 
 (the debuff already at 5), or a 0-amount damage event of 10370, which is a Lacerations that missed, was dodged or was
 parried. The seven wearers log 1,308 attempts.
 
-An attempt is credited by time to what rolled it. A landed Lacerations logs within 2 ms of the hit that rolled it.
-A failed one logs when that hit is cast, so for a hit that lands late (Judgement of Command, a seal's strike, the
-Judgement debuff a white swing refreshes, a Windfury Totem hit) it sits 4 to 20 ms before the hit, and goes to the
-next hit or debuff within 30 ms. All but one attempt has such an owner.
+An attempt is credited by time to what rolled it. A landed Lacerations logs within 2 ms of the hit that rolled it. A
+failed one logs when that hit is cast, so for a hit that lands late (Judgement of Command, a seal's strike, a Windfury
+Totem hit) it sits 4 to 20 ms before the hit, and goes to the next hit or debuff within 30 ms. All but one attempt has
+such an owner.
 
 A hit counts when it is the wearer's only hit event on that target within 100 ms, no periodic tick falls there, it is
 not a killing blow and a gear snapshot shows the axe. A white swing also needs no other debuff of the wearer at its
@@ -47,31 +43,27 @@ counts toward the attempts only.
 
 ## Chance per roll
 
-| Roll                                                 | With an attempt | Rolls | Chance |
-| ---------------------------------------------------- | --------------: | ----: | -----: |
-| White swing, landed                                  |             259 | 1,299 |  19.9% |
-| White swing, missed or avoided                       |               0 |   305 |     0% |
-| Holy Strike                                          |              78 |   360 |  21.7% |
-| Seal of Command's strike                             |              47 |   220 |  21.4% |
-| Seal of Righteousness, one strike                    |              46 |   255 |  18.0% |
-| Seal of Righteousness, three strikes                 |              22 |    48 |  45.8% |
-| Windfury Totem hit                                   |              21 |   109 |  19.3% |
-| Judgement of the Crusader refreshed by a white swing |              50 |   216 |  23.1% |
-| Cleave                                               |              10 |    68 |  14.7% |
+| Roll                                 | With an attempt | Rolls | Chance |
+| ------------------------------------ | --------------: | ----: | -----: |
+| White swing, landed                  |             259 | 1,299 |  19.9% |
+| White swing, missed or avoided       |               0 |   305 |     0% |
+| Holy Strike                          |              78 |   360 |  21.7% |
+| Seal of Command's strike             |              47 |   220 |  21.4% |
+| Seal of Righteousness, one strike    |              46 |   255 |  18.0% |
+| Seal of Righteousness, three strikes |              22 |    48 |  45.8% |
+| Windfury Totem hit                   |              21 |   109 |  19.3% |
+| Cleave                               |              10 |    68 |  14.7% |
 
 The white swing's 95% interval is 17.9% to 22.2%. The three wearers with 300 swings or more read 19.8%, 18.4% and
 23.1%; the first ran build 70888 and the other two 70938. Every wearer has the same 2.5 s weapon, so the logs cannot
-tell a flat chance from procs per minute. Three rolls at 19.9% give 48.6% for the three seal strikes. The Judgement
-refresh reads 40 of 195 alone and 10 of 21 where Vindication goes on the target at the same millisecond.
+tell a flat chance from procs per minute. Three rolls at 19.9% give 48.6% for the three seal strikes.
 
 Auto Shot (546), Volley (818), Multi-Shot (180), Arcane Shot (140), Hammer of Wrath (107), Thunder Clap (61),
 Consecration (6,004 ticks) and Sweeping Strikes' copied hit (2 of 121) roll nothing. Rend's application rolls with no
 damage event beside it.
 
-Judgement of Command (122 of 344), Execute (14 of 36), Overpower (12 of 35) and Rend's application (33 of 103) read
-above the white swing's chance. Judgement of Command and Execute show two attempts on one cast 12 times, which is a
-second roll and no chain (the section on the other weapons). Raptor Strike reads below it here (0 of 21, at most
-15.5%) and rolls on the other weapons.
+Overpower (12 of 35) and Rend's application (33 of 103) read above the white swing's chance. Raptor Strike reads below
+it here (0 of 21, at most 15.5%) and rolls on the other weapons.
 
 ## The hit roll of Lacerations
 
@@ -151,7 +143,6 @@ Example units, by report, fight and time into the fight:
 | Unit                                                             | Report             | Fight | Time      |
 | ---------------------------------------------------------------- | ------------------ | ----: | --------- |
 | A white swing with two Strength of Stone                         | `2zXhygVYpkrMZGxT` |     1 | 5:26.266  |
-| Three attempts: two at a white swing, one at a Judgement refresh | `6T3M1HRAxyntv9DL` |     1 | 4:23.811  |
 | A druid's white swing in a form with one Bigger Rock to the Face | `1WHqx7bPa8mkGydJ` |     1 | 3:37.180  |
 | A white swing with one Toofbreak                                 | `1BNXynxVbH4kGt8R` |     1 | 0:44.852  |
 | One of the four off-hand white swings with two Rock to the Face  | `7xNZAm1c9gy4nVXB` |     1 | 90:30.259 |
@@ -163,9 +154,9 @@ a first, and no third. A chain that went on at the same chance would have left a
 Bigger Stick, Rock on Stick, Stoneslayer, Ripsaw, Princess Theradras' Scepter, Mutilator and Gatorbite Axe would each
 have shown about 10 or more; the other weapons rest on the pooled count.
 
-1,110 units hold three attempts or more, and each holds as many rolls beside them, with Judgement of Command counted
-as two. The 13 with one white swing, no ability and three attempts show the third roll: a Judgement debuff the swing
-refreshes 26 to 39 ms later in 11, a Rend application in one and a Cheap Shot in one.
+1,110 units hold three attempts or more, and the count takes as many rolls beside each of them, with Judgement of
+Command as two. The 13 with one white swing, no ability and three attempts hold a third event the count takes as a
+roll: a Judgement debuff the swing refreshes 26 to 39 ms later in 11, a Rend application in one and a Cheap Shot in one.
 
 By the build each region's version file named when the report started:
 
@@ -199,16 +190,6 @@ Windfury Weapon's two swings land together, so they are read off the units of on
 swings. Of the 3,147 with an attempt, 2,797 hold one, 339 two and 11 three. Three rolls with no chain give 2,816, 318
 and 12; a chain off the two swings gives 2,655, 444 and 46, with 3 at four.
 
-### Judgement of Command and Execute
-
-A lone Judgement of Command has an attempt on 7,560 of 38,665 casts and two on 453, priced per weapon and class on the
-white swing's chance. One roll a cast gives 3,784 with an attempt; two rolls give 7,184, and 383 with two. A lone
-Holy Strike on the same weapons has 6,440 of 64,800 against 5,740 for one roll, with 2 holding two.
-
-Execute sits between: 917 of 6,984 with an attempt and 46 with two, against 699 for one roll and 1,325 and 72 for
-two. A missed Execute with nothing else in its unit has an attempt beside it 122 times, so Execute has a second roll
-that does not need its damage to land. Its chance is not settled here.
-
 ### A druid's form
 
 A druid's lone white swing in a form brings no second: 0 of 8,616 landed firsts in Cat Form, 0 of 8,364 in Dire Bear
@@ -240,11 +221,10 @@ Rend is in `p6mVRBzvWMqnQZFc`, fight 2, at 21:44.354.
 
 ## Fiery Weapon on a weapon proc's strike
 
-The combat log of EV-0130 has Fiery Weapon 803 on a two-handed mace whose proc is the bleed 1306816 and on a
-two-handed sword whose proc is the strike 12731. Units and rolls are EV-0130's. A unit where one of the paladin's
-Judgement debuffs is refreshed or Vindication goes on the target is left out, since a refresh rolls on its own. On
-units with no line of the weapon's proc Fiery Weapon reads 34.3% a roll on the mace (370 of 1,080) and 36.8% on the
-sword (176 of 478).
+The combat log of EV-0130 has Fiery Weapon 803 on a two-handed mace whose proc is the bleed 1306816 and on a two-handed
+sword whose proc is the strike 12731. Units and rolls are EV-0130's. A unit where one of the paladin's Judgement debuffs
+is refreshed or Vindication goes on the target is left out. On units with no line of the weapon's proc Fiery Weapon
+reads 34.3% a roll on the mace (370 of 1,080) and 36.8% on the sword (176 of 478).
 
 170 units hold one landed weapon proc and no failed one:
 

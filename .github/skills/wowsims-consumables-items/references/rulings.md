@@ -10,3 +10,4 @@ request that settled it and its evidence. This index lists the ones this skill o
 - **R-0030** Caster spell power and healing power follow the item budget formulas: `docs/rulings/R-0030-caster-spell-power-budget-formulas.md`
 - **R-0052** An item's bonus armor is its stat 50, never its QualityModifier: `docs/rulings/R-0052-bonus-armor-from-stat-50-only.md`
 - **R-0054** Each stat counts its strongest elixir or scroll, and three raid buffs overwrite them: `docs/rulings/R-0054-elixir-and-scroll-stats-strongest-only.md`
+- **R-0055** A summon appears where its row puts it and walks in from beside its owner as a pet does: `docs/rulings/R-0055-summons-appear-where-their-row-puts-them.md`

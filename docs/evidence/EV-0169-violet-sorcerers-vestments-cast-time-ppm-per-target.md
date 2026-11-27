@@ -12,6 +12,7 @@
 - Game build: 1.60.1.70862 to 1.60.1.71037 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-10 to 2026-11-20
 - Pull request: #1146
+- Later count: the Arcane Elemental's swing spread, §Count of the 2026-11-22 to 2026-11-26 reports
 
 ## Method
 
@@ -122,7 +123,7 @@ divided by 2 s of CreatureAutoAttackDps for the owner's level stays flat:
 | 52          |      22 |         64 |          0.625 |
 | 54          |      61 |         67 |          0.625 |
 
-The median share per summon is 0.620, which the sim takes, ±10% around it, the spread within one summon. The highest
+The median share per summon is 0.620, which the sim takes, ±10% around it, the spread within one summon. A later count reads the spread wider (§Count of the 2026-11-22 to 2026-11-26 reports). The highest
 required level of the gear worn reads 0.705 on the same summons, since it sits below the true level. No owner above
 level 54 summons it in the logs: players at 55 or higher wear at most 4 pieces. The share does not follow the owner's
 spell power: the spell damage on the gear worn (27 to 160) explains none of what level leaves over (correlation 0.08).
@@ -181,3 +182,35 @@ v34xDNZRfyCPrKBJ, v6Ljcx9QBTZNakgt, vBnYM4rZGP8TpxJk*, vLGwZxXBaVcpMT7H*, vLTrfb
 vwCYLZdVtGHJ4jTc, wCRkQYvLABp1XZ8b, wDyPtkh3FzT8LpNn, wKanqBZGFzhWrAT7, wXYW7VL6hQnqxk3C, wdJqg9Z6nRaYC8pT,
 wr3tCAx6cF7YkmKG*, xdvQ6hbRDmTVaH78, xnrg9m6jDMR1kaLN, y7qfkc91hA3DKQ4g*, y8HvMVq7QdBTatGm, yDFdKBrtAnxcHLq4,
 yGj8MbJ7YrxnZmWq*, yaYtkz3mNhTWwxAJ, ym6CzKL4B1hnYaJQ, ymAPWzKdB6Zkv24f*, yrLT3aAxhf7NYGWF*, zAhyL8K49vgpGJB1
+
+## Count of the 2026-11-22 to 2026-11-26 reports
+
+- Sources: Warcraft Logs, the most recent 80 reports of the index that show the elemental, 68 of them with every
+  summoning owner at one level (CombatantInfo talent points plus 9), 1,866 summons, every fight: 14tADW8fNJVQXHrc
+  1CqLGARDZkPgbvfT 3kwxTK2vaNF4bnmG 6M3bTt14x2NCJpHm 6QTCqZDXGkw3zxAR 6rYg3mdkcabw2KBy 8CM7yzrvA6XxJjnH Bx3rjgZKP1Mdwmc9
+  CWv16HZmhf8MdDkx D8zT4tNLrf3qJjRB DBRxLWYb6C7NwMjd DKQtH6xRYPbJ1wmB DVtZX1phqmGWwjFb DWHGXnMq3C1QxfKk DacpbKhBYMtWTX9w
+  FkdD2nRKq69QfrbV GCKYgWbhy63RfdnX H48N3h1xTtPpCzf6 JFq8jRT9LknXbhYt JjykYBbNptThwnMq K167JbfnMawdLhGj KVdBmnxNAq67JaWY
+  KaDHpG7jWZq9Mbrv KrL2mg4z91JywcaA L2q6gJZcAYBN9nhx LjwdycPTqW16zD8Y M4Hnv3DBGYy7K6Ta MHgbdFZ1kfqLryjA NHybc4tWj7mBfVYn
+  P1ZLcHtqKxafyFhN TvV6DAXQ1nPWtFGf WAaHF3V1n6fjTmGQ WKNzJR9bLvw4km7r XwCcyYamnPVrFbpz Z61CYA8Hkm2BrX7T adKbP1CTxNfqAc2v
+  apnN4Y9DPfr7x8A1 c2AdNMhYHK9XLrnw cXHzNRGhZxFbY23v gJcYWTyvpZdkf3rj gnh4YNZx6vatjrkw hKVnLJxBr4gm82pk jT9kHabVqcFvdQyR
+  kCrpqBKg876LMDNn mak23hp9W6TPfLbD md2chvkJRBgyQYPq myGVwL7f8jd6krZ3 nMdAxwvXCJktDz4K ntBPr23FkhfHc6AC qFbC9yK4xLcNYr1j
+  qPKr1A2w437Fn8ZL r6nLTFwhBGym82RM rWZxT7q1ngfh6RVA t8Rz6hqAw2fQBVpY tQcCBNXbaMLJrKvD wC9xrvghAYWG1KbM wWrXjzCAq2N13gQ9
+  xFfczhPt6TBCrL98 xFm3wWAcpMVKPg6N xXZdDLm3JgAnVjqG xaCYh1Rb3LfTPjDA y8kZjaPvxwJmQnKT yH1PVBbQcrhvwYTp yQVzPkFcbqjNB7tK
+  yRNG4zhtgCPKApaL zL76DHZdbPtpgYcm zLCyp6G7qR9AcDNx zr6R4LyA29ZJN3T7
+- Game build: 1.60.1.71037 to 1.60.1.71139 by the report dates; hotfixes not recorded
+- Date: 2026-11-22 to 2026-11-26
+- Pull request: #1250
+
+Normal hits before armor on targets of level 60 and below, with no debuff that lowers the elemental's damage on it, as
+EV-0217 counts them; owners from level 32 to 57. Over 7,416 hits the share of 2 s of the creature dps for the owner's
+level is 0.614 (0.613 to 0.615), with the 1st to 99th percentile at 0.500 to 0.681. At single owner levels the hits
+run wider than ±10% of 0.62 rounded down and about as wide as ±14%:
+
+| Owner level | Hits  | Logged   | ±10% rounded down | ±14% rounded down |
+| ----------- | ----- | -------- | ----------------- | ----------------- |
+| 35          | 4,470 | 30 to 38 | 31 to 38          | 30 to 39          |
+| 40          | 815   | 35 to 46 | 36 to 44          | 34 to 46          |
+| 43          | 839   | 42 to 53 | 43 to 52          | 41 to 54          |
+
+The owner's level comes from talent points, which can read a level low, so the width is not settled and the sim keeps
+±10%.

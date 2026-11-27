@@ -1,4 +1,4 @@
-import { Class, Faction, ItemQuality, ItemSlot, ItemType, Race, ScalingItemProperties, Stat } from '@generated/proto/common';
+import { Class, EnchantType, Faction, HandType, ItemQuality, ItemSlot, ItemType, Race, ScalingItemProperties, Stat } from '@generated/proto/common';
 import { ItemEffect } from '@generated/proto/spell';
 import { ContentPhase, DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
@@ -123,10 +123,11 @@ describe('ItemList', () => {
 		slot = ItemSlot.ItemSlotHead,
 		equipped = null as EquippedItem | null,
 		over = {} as Partial<SelectorTab>,
+		itemSlots = undefined as readonly ItemSlot[] | undefined,
 	} = {}) =>
 		render(
 			<SimHostProvider host={host}>
-				<ItemList tab={tab(label, over)} slot={slot} equippedItem={equipped} />
+				<ItemList tab={tab(label, over)} slot={slot} itemSlots={itemSlots} equippedItem={equipped} />
 			</SimHostProvider>,
 		);
 
@@ -153,7 +154,6 @@ describe('ItemList', () => {
 					getPhase: () => 5,
 					getShowEPValues: () => showEPValues,
 				},
-				getEquippedItem: () => null,
 				getPlayerClass: () => ({ weaponTypes: [{ weaponType: 1 }] }),
 				getClass: () => Class.ClassWarrior,
 				filterItemData: (idxs: number[]) => idxs,
@@ -161,6 +161,28 @@ describe('ItemList', () => {
 				getFaction: () => (realStore.getState().players[0]?.race == Race.RaceOrc ? Faction.Horde : Faction.Alliance),
 			},
 		});
+	});
+
+	it('keeps a row of a list over several slots when it passes the filters in a slot it fits', () => {
+		const weapon = (id: number, name: string, handType: HandType) => ({
+			...row(id, name, 500),
+			item: Item.create({ id, name, type: ItemType.ItemTypeWeapon, handType, scalingOptions: { 0: ScalingItemProperties.create({ ilvl: 500 }) } }),
+		});
+		(host.player as any).filterItemData = (idxs: number[], _itemAt: unknown, slot: ItemSlot) => (slot === ItemSlot.ItemSlotMainHand ? [] : idxs);
+
+		const { container } = setup({
+			slot: ItemSlot.ItemSlotMainHand,
+			itemSlots: [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand],
+			over: {
+				itemData: [
+					weapon(1, 'Right Claw', HandType.HandTypeMainHand),
+					weapon(2, 'Left Claw', HandType.HandTypeOffHand),
+					weapon(3, 'Dagger', HandType.HandTypeOneHand),
+				],
+			},
+		});
+
+		expect(names(container)?.sort()).toEqual(['Dagger', 'Left Claw']);
 	});
 
 	it('offers the filters button and its dialog only on the items tab', () => {
@@ -378,6 +400,27 @@ describe('ItemList', () => {
 		expect(container.querySelector('[data-testid="selector-modal-list"]')!.hasAttribute('data-hide-ep')).toBe(true);
 	});
 
+	it('lists the enchants that fit the item the open gear set holds, not the one the main gear holds', () => {
+		const weapon = (effectId: number, name: string, enchantType: EnchantType) =>
+			Enchant.create({ effectId, name, type: ItemType.ItemTypeWeapon, enchantType });
+		const twoHand = weapon(1, 'Two-Hand', EnchantType.EnchantTypeTwoHand);
+		const anyWeapon = weapon(2, 'Any Weapon', EnchantType.EnchantTypeNormal);
+		const held = (handType: HandType) => ({ item: Item.create({ type: ItemType.ItemTypeWeapon, handType }), enchant: null }) as unknown as EquippedItem;
+		Object.assign(host.player, {
+			getEquippedItem: () => held(HandType.HandTypeMainHand),
+			filterEnchantData: Player.prototype.filterEnchantData,
+			isEnchantRelevant: () => true,
+		});
+
+		const { container } = setup({
+			label: SelectorModalTabs.Enchants,
+			slot: ItemSlot.ItemSlotMainHand,
+			equipped: held(HandType.HandTypeTwoHand),
+			over: { itemData: [twoHand, anyWeapon].map(enchantRow) },
+		});
+		expect(names(container).sort()).toEqual(['Any Weapon', 'Two-Hand']);
+	});
+
 	it('lists the enchants worth something to the spec, the procs and the equipped one, and every enchant once Show All is ticked', () => {
 		const head = (effectId: number, name: string, over: Partial<Enchant> = {}) => Enchant.create({ effectId, name, type: ItemType.ItemTypeHead, ...over });
 		const granting = (stat: Stat) => ({ stats: new Stats().withStat(stat, 3).asProtoArray() });
@@ -386,12 +429,15 @@ describe('ItemList', () => {
 		const proc = head(3, 'Proc', { enchantEffects: [ItemEffect.create()] });
 		const equipped = head(4, 'Equipped', granting(Stat.StatIntellect));
 		Object.assign(host.player, {
-			getEquippedItem: () => ({ item: Item.create({ type: ItemType.ItemTypeHead }), enchant: equipped }),
 			filterEnchantData: Player.prototype.filterEnchantData,
 			isEnchantRelevant: (enchant: Enchant) => isEnchantRelevantFor(enchant, { epStats: [Stat.StatStrength], epPseudoStats: [], displayStats: [] }),
 		});
 
-		const { container } = setup({ label: SelectorModalTabs.Enchants, over: { itemData: [relevant, worthless, proc, equipped].map(enchantRow) } });
+		const { container } = setup({
+			label: SelectorModalTabs.Enchants,
+			equipped: { item: Item.create({ type: ItemType.ItemTypeHead }), enchant: equipped } as unknown as EquippedItem,
+			over: { itemData: [relevant, worthless, proc, equipped].map(enchantRow) },
+		});
 		expect(names(container).sort()).toEqual(['Equipped', 'Proc', 'Relevant']);
 
 		act(() => container.querySelector<HTMLElement>('#show-all-enchants-selector-enchants')!.click());

@@ -22,12 +22,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		1168, // Skullflame Shield
-		[
-			"When struck in combat has a 2% chance of dealing 115 Fire damage to all targets around you.", // 18818 - https://www.wowhead.com/forever/spell=18818
-		]
-	],
-	[
 		1265, // Scorpion Sting
 		[
 			"Poisons target for 13 Nature damage every 5.0 sec for 25s.", // 18208 - https://www.wowhead.com/forever/spell=18208
@@ -617,6 +611,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		11603, // Vilerend Slicer
+		[
+			"Wounds the target for 225 damage.", // 1320808 - https://www.wowhead.com/forever/spell=1320808
+		]
+	],
+	[
 		11607, // Dark Iron Sunderer
 		[
 			"Reduces targets armor by 300 for 20s.", // 15280 - https://www.wowhead.com/forever/spell=15280
@@ -638,12 +638,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		11702, // Grizzle's Skinner
 		[
 			"Skin a Humanoid target.", // 1300763 - https://www.wowhead.com/forever/spell=1300763
-		]
-	],
-	[
-		11750, // Kindling Stave
-		[
-			"Harmful spell casts have a chance to deal 70 Fire damage. Deals 3 times as much damage to Plants.", // 1300782 - https://www.wowhead.com/forever/spell=1300782
 		]
 	],
 	[
@@ -674,12 +668,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		12528, // The Judge's Gavel
 		[
 			"Stuns target for 3s.", // 56 - https://www.wowhead.com/forever/spell=56
-		]
-	],
-	[
-		12621, // Demonfork
-		[
-			"Transfers 10 health every 1.0 seconds from the target to the caster for 5s.", // 16603 - https://www.wowhead.com/forever/spell=16603
 		]
 	],
 	[
@@ -743,12 +731,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13146, // Shell Launcher Shotgun
-		[
-			"Strike the target with a Flaming Shell for 38 Fire damage.", // 29647 - https://www.wowhead.com/forever/spell=29647
-		]
-	],
-	[
 		13198, // Hurd Smasher
 		[
 			"Knocks target silly for 1s. Orcs and Ogres are stunned for 2 times as long.", // 17308 - https://www.wowhead.com/forever/spell=17308
@@ -764,13 +746,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13262, // Ashbringer
 		[
 			"Blasts a target for 700 Fire damage.", // 18112 - https://www.wowhead.com/forever/spell=18112
-		]
-	],
-	[
-		13353, // Book of the Dead
-		[
-			"", // 1298517 - https://www.wowhead.com/forever/spell=1298517
-			"Summons a Skeleton that will protect you for 1min.", // 17490 - https://www.wowhead.com/forever/spell=17490
 		]
 	],
 	[
@@ -852,12 +827,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		14154, // Truefaith Vestments
 		[
 			"Reduces the cooldown of your Fade ability by 2.0 sec.", // 18388 - https://www.wowhead.com/forever/spell=18388
-		]
-	],
-	[
-		14555, // Alcor's Sunrazor
-		[
-			"Blasts a target for 105 Fire damage.", // 18833 - https://www.wowhead.com/forever/spell=18833
 		]
 	],
 	[
@@ -2427,12 +2396,6 @@ export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 		1894, // Enchant Weapon - Icy Chill
 		[
 			"Permanently enchant a melee weapon to often chill the target reducing their movement and attack speed.", // 20005 - https://www.wowhead.com/forever/spell=20005
-		]
-	],
-	[
-		1898, // Enchant Weapon - Lifestealing
-		[
-			"Permanently enchant a melee weapon to often steal life from the enemy and give it to the wielder.", // 20004 - https://www.wowhead.com/forever/spell=20004
 		]
 	],
 	[

@@ -8,8 +8,7 @@ import (
 
 var thunderClapRank = spellData.ThunderClap.Highest()
 
-// The Attack Power share is 0.07: Rank 4 hits for floor(0.99 * (55 + 0.07 * AP)) (EV-0019, EV-0048).
-// TODO: Ranks 2, 3, 5 and 6 carry the same share unmeasured. Verify it on them once logs at their level exist.
+// The Attack Power share is 0.07: Rank 4 hits for floor(0.99 * (55 + 0.07 * AP)) (EV-0019, EV-0048, EV-0203).
 var thunderClapBaseDamage = thunderClapRank.DamageEffect().Average()
 var thunderClapAPCoeff = thunderClapRank.DamageEffect().APCoeff()
 var thunderClapSlow = thunderClapRank.EffectN(2).BaseValue()
@@ -47,7 +46,8 @@ func (warrior *Warrior) registerThunderClap() {
 		spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskRangedSpecial
 	config.DamageMultiplier = 1
-	// Threat is 1 times the damage with no flat bonus, at 1 to 4 targets, Improved Thunder Clap included.
+	// Threat is 1 times the damage with no flat bonus, at 1 to 4 targets, Improved Thunder Clap included
+	// (EV-0048, EV-0220).
 	config.ThreatMultiplier = 1
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

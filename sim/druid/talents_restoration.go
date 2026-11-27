@@ -73,13 +73,9 @@ func (druid *Druid) applyLivingSpirit() {
 	druid.parseTalent(druid.Talents.LivingSpirit, spellData.LivingSpirit)
 }
 
-// The chance a hit does not push back an Arcane or Nature cast. Every spell the druid hardcasts is
-// one, so the unit's own pushback chance carries it.
+// The chance a hit does not push back a hardcast of the spells its class flags name.
 func (druid *Druid) applyNaturesFocus() {
-	if druid.Talents.NaturesFocus == 0 {
-		return
-	}
-	druid.PseudoStats.PushbackChance -= spellData.NaturesFocus.FractionAt(druid.Talents.NaturesFocus)
+	druid.parseTalent(druid.Talents.NaturesFocus, spellData.NaturesFocus)
 }
 
 func (druid *Druid) applyReflection() {

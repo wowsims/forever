@@ -25,8 +25,8 @@ func (mage *Mage) registerIceBarrierSpell() {
 //
 // The shield's effects 2 and 3 raise Frost damage while it holds, and Frigid Power raises it again for
 // the full minute, however soon the shield breaks. The spell power share is the tooltip's, since the
-// row states no coefficient, and Frost Warding's effect 3 raises the whole absorb. The sim models no
-// pushback, so the casting time clause does nothing.
+// row states no coefficient, and Frost Warding's effect 3 raises the whole absorb. No effect of the row
+// states the casting time clause: a hit the shield absorbs whole deals no damage, so it pushes back no cast.
 func (mage *Mage) registerIceBarrierRank(_ int32, rank *spelldata.Spell) {
 	frigidPower := mage.RegisterAura(spelldata.AuraConfig(frigidPowerRank))
 	spelldata.ParseEffects(&mage.Character, frigidPower, frigidPowerRank)

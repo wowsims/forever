@@ -17,10 +17,7 @@ func (warlock *Warlock) registerRainOfFire() {
 	waveHit := waveRow.DamageEffect()
 
 	// Fired by the channel; hits every enemy in the area
-	waveConfig := spelldata.SpellConfig(&warlock.Unit, waveRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
-	if waveRow.IsAProc() {
-		waveConfig.Flags |= core.SpellFlagProc
-	}
+	waveConfig := spelldata.SpellConfig(&warlock.Unit, waveRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered())
 	waveConfig.ClassSpellMask = WarlockSpellRainOfFire
 	waveConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		for _, target := range sim.Encounter.ActiveTargetUnits {
@@ -29,12 +26,9 @@ func (warlock *Warlock) registerRainOfFire() {
 	}
 	wave := warlock.RegisterSpell(waveConfig)
 
-	// The cast's dummy (effect 1) lands on every enemy in the area as the channel starts: a hit with no
-	// damage, which a listener on the enemy hears and a listener that needs damage does not, so
-	// Judgement of Wisdom on each enemy there rolls once. It reports under the cast's id with tag 1 and
-	// records no metrics or log lines (EV-0116).
-	landing := warlock.RegisterSpell(spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage),
-		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))
+	// The cast lands on every enemy in the area as the channel starts, so Judgement of Wisdom on each
+	// enemy there rolls once (EV-0116).
+	land := spelldata.RegisterAreaCastLanding(&warlock.Unit, rankedSpell)
 
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = WarlockSpellRainOfFire
@@ -47,9 +41,7 @@ func (warlock *Warlock) registerRainOfFire() {
 
 	// Channel over the area
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		for _, target := range sim.Encounter.ActiveTargetUnits {
-			landing.CalcAndDealOutcome(sim, target, landing.OutcomeAlwaysHit)
-		}
+		land(sim)
 		spell.AOEDot().Apply(sim)
 	}
 

@@ -43,22 +43,6 @@ func RegisterAllEnchants() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Permanently enchant a melee weapon to often steal life from the enemy and give it to the wielder.
-	// https://www.wowhead.com/forever/spell=20032
-	// unsupported: states no rate
-	// trigger 20004 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{
-	//	Name:           "Enchant Weapon - Lifestealing",
-	//	EnchantID:      1898,
-	//	TriggerSpellID: 20004,
-	//	BuffSpellID:    20004,
-	//	IsWeaponProc:   true,
-	// }, nil)
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Permanently enchant a melee weapon to often inflict a curse on the target reducing their melee damage.
 	// https://www.wowhead.com/forever/spell=20033
 	// unsupported: states no rate

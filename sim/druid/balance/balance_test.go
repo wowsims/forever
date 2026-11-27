@@ -1,6 +1,7 @@
 package balance
 
 import (
+	"math"
 	"testing"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
+	"github.com/wowsims/forever/sim/siml"
 )
 
 func init() {
@@ -18,53 +20,72 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-func TestBalance(t *testing.T) {
-	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
-		{
-			Class:      proto.Class_ClassDruid,
-			Race:       proto.Race_RaceNightElf,
-			OtherRaces: []proto.Race{proto.Race_RaceTauren},
-			SpecOptions: core.SpecOptionsCombo{Label: "Standard", SpecOptions: &proto.Player_BalanceDruid{
-				BalanceDruid: &proto.BalanceDruid{
-					Options: &proto.BalanceDruid_Options{
-						ClassOptions: &proto.DruidOptions{},
-					},
-				},
-			}},
-			GearSet: core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "p1"),
-			OtherGearSets: []core.GearSetCombo{
-				core.GetGearSet("../../../ui/specs/druid/balance/gear_sets", "prebis"),
-			},
-			Talents:          DefaultTalents,
-			Rotation:         core.GetAplRotation("../../../ui/specs/druid/balance/apls", "default"),
-			Consumables:      DefaultConsumables,
-			Profession1:      proto.Profession_Enchanting,
-			Profession2:      proto.Profession_Tailoring,
-			StartingDistance: 20,
-			ItemFilter: core.ItemFilter{
-				WeaponTypes:       DefaultWeaponTypes,
-				ArmorType:         DefaultArmorType,
-				RangedWeaponTypes: DefaultRangedWeaponTypes,
-			},
-			EPReferenceStat: proto.Stat_StatSpellDamage,
-			StatsToWeigh: []proto.Stat{
-				proto.Stat_StatIntellect,
-				proto.Stat_StatSpellDamage,
-				proto.Stat_StatArcaneDamage,
-				proto.Stat_StatNatureDamage,
-				proto.Stat_StatSpellPiercing,
-				proto.Stat_StatHitRating,
-				proto.Stat_StatCritRating,
-				proto.Stat_StatHasteRating,
-				proto.Stat_StatMP5,
-				proto.Stat_StatSpirit,
-			},
-		},
-	}))
+// The Balance page's default build, all from defaults.siml: race, professions, spec options, talents, gear,
+// rotation, consumables, distance, timings, buffs, debuffs, target dummies and encounter.
+var defaultBuild = readDefaultBuild()
+
+// The Moonkin talents defaults.siml sets.
+var DefaultTalents = defaultBuild.Talents
+
+func readDefaultBuild() core.CharacterSuiteConfig {
+	f, err := siml.ReadFile("../../../ui/specs/druid/balance/defaults.siml")
+	if err != nil {
+		panic(err)
+	}
+	settings, player := f.Settings, f.Settings.GetPlayer()
+	return core.CharacterSuiteConfig{
+		Class:              proto.Class_ClassDruid,
+		Race:               player.GetRace(),
+		Profession1:        player.GetProfession1(),
+		Profession2:        player.GetProfession2(),
+		GearSet:            core.GearSetCombo{Label: "default", GearSet: f.Equipment()},
+		SpecOptions:        core.SpecOptionsCombo{Label: "Standard", SpecOptions: player.GetSpec()},
+		Talents:            player.GetTalentsString(),
+		Rotation:           core.RotationCombo{Label: "default", Rotation: f.Rotation()},
+		Encounter:          core.EncounterCombo{Label: "default", Encounter: settings.GetEncounter()},
+		StartingDistance:   player.GetDistanceFromTarget(),
+		ReactionTimeMs:     player.GetReactionTimeMs(),
+		ChannelClipDelayMs: player.GetChannelClipDelayMs(),
+		Consumables:        player.GetConsumables(),
+		IndividualBuffs:    player.GetBuffs(),
+		PartyBuffs:         settings.GetPartyBuffs(),
+		RaidBuffs:          settings.GetRaidBuffs(),
+		Debuffs:            settings.GetDebuffs(),
+		Cooldowns:          player.GetCooldowns(),
+		TargetDummies:      settings.GetTargetDummies(),
+	}
 }
 
-// The Moonkin preset on the Balance page.
-const DefaultTalents = "5232220115501351--5053"
+func TestBalance(t *testing.T) {
+	config := defaultBuild
+	config.OtherRaces = []proto.Race{proto.Race_RaceNightElf, proto.Race_RaceTauren}
+	config.ItemFilter = core.ItemFilter{
+		WeaponTypes:       DefaultWeaponTypes,
+		ArmorType:         DefaultArmorType,
+		RangedWeaponTypes: DefaultRangedWeaponTypes,
+	}
+	config.EPReferenceStat = proto.Stat_StatSpellDamage
+	config.StatsToWeigh = []proto.Stat{
+		proto.Stat_StatIntellect,
+		proto.Stat_StatSpellDamage,
+		proto.Stat_StatArcaneDamage,
+		proto.Stat_StatNatureDamage,
+		proto.Stat_StatSpellPiercing,
+		proto.Stat_StatHitRating,
+		proto.Stat_StatCritRating,
+		proto.Stat_StatHasteRating,
+		proto.Stat_StatMP5,
+		proto.Stat_StatSpirit,
+	}
+	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{config}))
+}
+
+// A Moonkin build without Dreamstate, and the same build with one point and with all five in it.
+const (
+	noDreamstateTalents   = "5232220115201301--5053"
+	dreamstateOneTalents  = "5232220115201311--5053"
+	fullDreamstateTalents = "5232220115201351--5053"
+)
 
 const DefaultArmorType = proto.ArmorType_ArmorTypeLeather
 
@@ -79,21 +100,8 @@ var DefaultRangedWeaponTypes = []proto.RangedWeaponType{
 	proto.RangedWeaponType_RangedWeaponTypeIdol,
 }
 
-// The Balance page's consumes: Flask of Supreme Power, Greater Arcane Elixir, Elixir of Nature Power,
-// Elixir of the Owl, Greater Mageblood Elixir, Lobster Stew, Brilliant Wizard Oil, Major Spellblasting
-// Potion, Major Mana Potion, Demonic Rune and SAF-T Clever Dynamite.
-var DefaultConsumables = &proto.ConsumesSpec{
-	FlaskId:        13512,
-	ElixirIds:      []int32{13454, 250343, 250337, 250341},
-	FoodId:         13933,
-	MhImbueId:      20749,
-	OffensivePotId: 250937,
-	ResourcePotId:  13444,
-	ConjuredId:     12662,
-	ExplosiveId:    260814,
-}
-
 // Self keeps the mana. Someone else still spends the cast and the cooldown; a dummy receives the mana.
+// Without Dreamstate the caster gains none of it.
 func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	for _, c := range []struct {
 		name     string
@@ -104,7 +112,7 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 		{"someone else", true, false},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			sim, druid := balanceDruid(t, c.gift, 0, 1)
+			sim, druid := balanceDruid(t, noDreamstateTalents, c.gift, 0, 1)
 			spell := druid.GetSpell(core.ActionID{SpellID: 29166})
 			if spell == nil {
 				t.Fatal("Innervate is not registered")
@@ -139,7 +147,7 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	}
 
 	t.Run("someone else with an incoming innervate", func(t *testing.T) {
-		sim, druid := balanceDruid(t, true, 1, 1)
+		sim, druid := balanceDruid(t, noDreamstateTalents, true, 1, 1)
 		spell := druid.GetSpell(core.ActionID{SpellID: 29166})
 		if spell == nil {
 			t.Fatal("Innervate is not registered")
@@ -172,7 +180,7 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	})
 
 	t.Run("cast at the dummy", func(t *testing.T) {
-		sim, druid := balanceDruid(t, false, 0, 1)
+		sim, druid := balanceDruid(t, noDreamstateTalents, false, 0, 1)
 		spell := druid.GetSpell(core.ActionID{SpellID: 29166})
 		if spell == nil {
 			t.Fatal("Innervate is not registered")
@@ -197,7 +205,41 @@ func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	})
 }
 
-func balanceDruid(t *testing.T, gift bool, incoming int32, targets int) (*core.Simulation, *core.Character) {
+// Dreamstate gives the caster a share of an Innervate cast on someone else: all of it at full rank, less at
+// one point, and nothing extra on a self-cast.
+func TestDreamstateSharesAGiftedInnervate(t *testing.T) {
+	gain := func(t *testing.T, talents string, gift bool) float64 {
+		sim, druid := balanceDruid(t, talents, gift, 0, 1)
+		spell := druid.GetSpell(core.ActionID{SpellID: 29166})
+		if spell == nil {
+			t.Fatal("Innervate is not registered")
+		}
+		before := druid.ManaRegenPerSecondWhileNotCasting()
+		if !spell.Cast(sim, sim.Encounter.ActiveTargetUnits[0]) {
+			t.Fatal("Innervate did not cast")
+		}
+		if gift && !sim.Raid.GetFirstTargetDummy().HasActiveAuraWithTag(buffs.InnervatesCategory) {
+			t.Error("the dummy has no Innervate")
+		}
+		return druid.ManaRegenPerSecondWhileNotCasting() - before
+	}
+
+	self := gain(t, noDreamstateTalents, false)
+	if self <= 0 {
+		t.Fatalf("a self-cast Innervate gains %v regen, want more than 0", self)
+	}
+	if got := gain(t, fullDreamstateTalents, true); math.Abs(got-self) > 1e-9 {
+		t.Errorf("full Dreamstate gains %v regen from a gift, want the self-cast's %v", got, self)
+	}
+	if got := gain(t, dreamstateOneTalents, true); got <= 0 || got >= self {
+		t.Errorf("one point of Dreamstate gains %v regen from a gift, want between 0 and %v", got, self)
+	}
+	if got := gain(t, fullDreamstateTalents, false); math.Abs(got-self) > 1e-9 {
+		t.Errorf("a self-cast with Dreamstate gains %v regen, want the self-cast's %v", got, self)
+	}
+}
+
+func balanceDruid(t *testing.T, talents string, gift bool, incoming int32, targets int) (*core.Simulation, *core.Character) {
 	t.Helper()
 	target := &proto.UnitReference{}
 	if gift {
@@ -207,7 +249,7 @@ func balanceDruid(t *testing.T, gift bool, incoming int32, targets int) (*core.S
 		Class:         proto.Class_ClassDruid,
 		Race:          proto.Race_RaceNightElf,
 		Equipment:     &proto.EquipmentSpec{},
-		TalentsString: DefaultTalents,
+		TalentsString: talents,
 		Rotation:      &proto.APLRotation{Type: proto.APLRotation_TypeAPL},
 		Buffs:         &proto.IndividualBuffs{Innervates: incoming},
 	}, &proto.Player_BalanceDruid{
@@ -235,7 +277,7 @@ func balanceDruid(t *testing.T, gift bool, incoming int32, targets int) (*core.S
 // A Balance druid in a fresh sim with this many targets; a duration other than 0 resets the sim to run that long.
 func newBalanceDruid(t *testing.T, targets int, duration time.Duration) (*core.Simulation, *BalanceDruid) {
 	t.Helper()
-	sim, _ := balanceDruid(t, false, 0, targets)
+	sim, _ := balanceDruid(t, DefaultTalents, false, 0, targets)
 	if duration != 0 {
 		sim.Cleanup()
 		sim.BaseDuration = duration
@@ -335,6 +377,73 @@ func TestHurricaneCastRollsOmenPerTarget(t *testing.T) {
 	}
 	if float64(five) < 2.5*float64(one) {
 		t.Errorf("Hurricane procs Omen of Clarity %d of %d casts on five targets, %d on one; want about four times as often", five, casts, one)
+	}
+}
+
+// A Hurricane cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the channel
+// starts, and its ticks roll none (EV-0115).
+func TestHurricaneCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
+	const casts, enemies = 2000, 5
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)
+	for slot := range items {
+		items[slot] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotTrinket1].Id = 22268
+	player := core.WithSpec(&proto.Player{
+		Class:         proto.Class_ClassDruid,
+		Race:          proto.Race_RaceNightElf,
+		Equipment:     &proto.EquipmentSpec{Items: items},
+		TalentsString: DefaultTalents,
+		Rotation:      &proto.APLRotation{},
+	}, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{Options: &proto.BalanceDruid_Options{ClassOptions: &proto.DruidOptions{}}}})
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = casts * 11
+	for range enemies - 1 {
+		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	druid := sim.Raid.Parties[0].Players[0].(*BalanceDruid)
+	buff := druid.GetAuraByID(core.ActionID{SpellID: 1318930})
+	if buff == nil {
+		t.Fatal("22268 registers no 1318930")
+	}
+
+	// The proc is deferred by the spell batch window, one pending action each, so each step deals at most
+	// one, and the buff comes down before the next roll can refresh it.
+	var atCast, onTicks int
+	for range casts {
+		start := sim.CurrentTime
+		druid.Hurricane.SkipCastAndApplyEffects(sim, druid.CurrentTarget)
+		for druid.Hurricane.AOEDot().IsActive() || sim.CurrentTime < start+100*time.Millisecond {
+			if sim.Step() {
+				t.Fatal("the encounter ended before the casts did")
+			}
+			if buff.IsActive() {
+				if sim.CurrentTime < start+100*time.Millisecond {
+					atCast++
+				} else {
+					onTicks++
+				}
+				buff.Deactivate(sim)
+			}
+		}
+	}
+
+	chance := spelldata.MustFind(1318931).StatedChance()
+	if chance <= 0 || chance >= 1 {
+		t.Fatalf("1318931 states a chance of %v, want one between none and certain", chance)
+	}
+	rolls := float64(casts * enemies)
+	if mean, deviation := chance*rolls, math.Sqrt(chance*(1-chance)*rolls); math.Abs(float64(atCast)-mean) > 4*deviation {
+		t.Errorf("%d Hurricane casts on %d enemies procced it %d times at the cast, want about %.0f", casts, enemies, atCast, mean)
+	}
+	if onTicks != 0 {
+		t.Errorf("Hurricane ticks procced it %d times, want none", onTicks)
 	}
 }
 

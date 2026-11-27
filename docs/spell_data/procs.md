@@ -28,6 +28,9 @@ out of `ProcTypeMask`, the internal cooldown, `CanProcFromProcs` and `ClassSpell
 attributes, the class mask the proc effect names, and the rate the source above points at. A row that
 is a weapon proc aura also excludes the hits of spells flagged Suppress Weapon Procs.
 
+A row that states the main-hand-only bit (word 1, `0x20`) and fires on every hit, with no roll and no manager once the
+rate settles, has `RequireDamageDealt` cleared, so it hears a landed main-hand special that deals no damage (EV-0195).
+
 The trigger carries the class flags of the spell that procs as `ProcSpellClassFlags`. Those flags are
 what a `SPELLMOD_CHANCE_OF_SUCCESS` names: its class mask reaches the proc auras and the poison spells
 themselves, not the spells that feed them. Improved Poisons 14113 names Instant Poison 8680, so
@@ -207,8 +210,9 @@ A set bonus proc whose row hears melee swings and spell casts at procs per minut
 (`attachSetBonusProc` in `sim/common/shared/item_sets.go`). The swings roll the rate on their weapon's
 speed. A cast rolls it once on the time it took, at least 1.5 s (`shared.SpellCastPPMTrigger`), and a
 spell's hit or a heal's landing rolls nothing. The casts that roll are those of a damaging or healing
-spell and every other cast that costs its caster a resource and is no melee or ranged ability: a seal,
-a totem, the paladin's Judgement. A cast that costs nothing rolls nothing. Lightforge Armor's Crusader's Wrath 450625 and The Elements' The Furious Storm 450626 are the
+spell and every other cast whose spell costs mana and is no melee or ranged ability: a seal, a totem,
+the paladin's Judgement. Any other cast rolls nothing, such as one that costs nothing or only rage or
+energy. Lightforge Armor's Crusader's Wrath 450625 and The Elements' The Furious Storm 450626 are the
 cases. Wildheart Raiment's 450608 is written by hand (`wildheartEnergize`), since each of its listeners
 restores a different bar (EV-0144). `shared.RollCastTimePPM`
 is the price both this listener and `castTimePPM` roll.
@@ -222,6 +226,11 @@ generator keeps listing its other effects no code simulates. A hand-written regi
 would hide them, since it turns every generated effect of the item off. The variant's `ItemName` is the
 listener's name, and in a test run each roll label draws its own random stream, so renaming it moves
 the item's `AllItems` rows even where nothing else changed.
+
+What a generated proc changes on its listener goes into `shared.ProcTriggerExtras` under the item id the same way.
+Felstriker 12590 sets `TriggerImmediately` there, so its buff covers the Windfury Totem hit of the hit that procs it
+(EV-0225) and the other hits queued after the procing hit in that instant. `shared.ProcBuffDurationExtras` lengthens
+such a buff by item id; Felstriker's lasts one spell batch window past its 3 s, an owner ruling (EV-0225).
 
 An effect entry carries flat stats only, so a buff the game files state as a percentage of a stat
 (`A_MOD_PERCENT_STAT`, misc the stat index, -1 all five) has none, and the generator routes it as auras:

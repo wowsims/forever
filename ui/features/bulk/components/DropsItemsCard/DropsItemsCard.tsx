@@ -7,7 +7,7 @@ import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { useId } from 'react';
 
 import { type DropsItemList, dropsItemsBySlot, dropsTickCount } from '../../model/drops/items';
-import { bulkGroupItemSlot } from '../../model/gear/gear_data';
+import { bulkGroupItemSlots } from '../../model/gear/gear_data';
 
 export interface DropsItemsCardViewProps {
 	list: DropsItemList;
@@ -60,7 +60,7 @@ export const DropsItemsCardView = ({ list, hidden, onChoose }: DropsItemsCardVie
 										data-state={state}
 										data-testid="drops-items-slot"
 										className="relative size-12 border border-border bg-cover data-[state=all]:border-primary data-[state=none]:opacity-40"
-										style={{ backgroundImage: `url(${getEmptySlotIconUrl(bulkGroupItemSlot(slot.slot))})` }}
+										style={{ backgroundImage: `url(${getEmptySlotIconUrl(bulkGroupItemSlots(slot.slot)[0])})` }}
 										{...tooltipAnchorProps(tooltipId, label)}>
 										<span className="absolute inset-x-0 bottom-0 bg-black py-px text-center text-2xs leading-none tabular-nums" aria-hidden>
 											{slot.ticked}

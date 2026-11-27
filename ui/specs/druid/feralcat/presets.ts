@@ -5,9 +5,9 @@ import { FeralCatDruid_Options as FeralDruidOptions } from '@generated/proto/dru
 import { SavedTalents } from '@generated/proto/ui';
 
 import { CatEp, HybridEp } from '../feral_ep';
-import AdaptiveApl from './apls/adaptive.apl.json';
-import Level60GearJson from './gear_sets/default.gear.json';
-import PreRaidGearJson from './gear_sets/pre_raid.gear.json';
+import AdaptiveApl from './apls/adaptive.apl.siml';
+import Level60GearSet from './gear_sets/default.gear.siml';
+import PreRaidGearSet from './gear_sets/pre_raid.gear.siml';
 
 // Another raid member's bleed keeps Rend and Tear up.
 export const DefaultOptions = FeralDruidOptions.create({ assumeBleedActive: true });
@@ -34,12 +34,12 @@ export const OtherDefaults = {
 };
 
 // Leather at 60 with no set bonus and no proc.
-export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJson, {
+export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearSet, {
 	devOnly: true,
 	tooltip: 'Leather at level 60 with no set bonus and no proc. Fist of Cenarius and the Howling Idol.',
 });
 
-export const PreRaidGear = PresetUtils.makePresetGear('Pre-raid', PreRaidGearJson, {
+export const PreRaidGear = PresetUtils.makePresetGear('Pre-raid', PreRaidGearSet, {
 	devOnly: true,
 	tooltip: 'Pre-raid leather with The Unstoppable Force, Wolfshead Helm and full enchants.',
 });

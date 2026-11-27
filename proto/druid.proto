@@ -9,21 +9,21 @@ import "common.proto";
 // DruidTalents message.
 message DruidTalents {
     // Balance
-    int32 improved_wrath = 1 [(talent_spell_id) = 16814, (talent_max_rank) = 5];
+    int32 starlight_wrath = 1 [(talent_spell_id) = 16814, (talent_max_rank) = 5];
     int32 genesis = 2 [(talent_spell_id) = 1223081, (talent_max_rank) = 5];
     int32 moonglow = 3 [(talent_spell_id) = 16845, (talent_max_rank) = 3];
-    int32 improved_moonfire = 4 [(talent_spell_id) = 16821, (talent_max_rank) = 2];
+    int32 moon_and_stars = 4 [(talent_spell_id) = 16821, (talent_max_rank) = 2];
     int32 natures_majesty = 5 [(talent_spell_id) = 1223082, (talent_max_rank) = 2];
     int32 natures_reach = 6 [(talent_spell_id) = 16819, (talent_max_rank) = 2];
     int32 improved_entangling_roots = 7 [(talent_spell_id) = 16918, (talent_max_rank) = 3];
     bool natures_splendor = 8 [(talent_spell_id) = 1223083];
     bool insect_swarm = 9 [(talent_spell_id) = 5570];
     int32 vengeance = 10 [(talent_spell_id) = 16909, (talent_max_rank) = 5];
-    int32 improved_starfire = 11 [(talent_spell_id) = 16850, (talent_max_rank) = 5];
+    int32 improved_starfire = 11 [(talent_spell_id) = 16850, (talent_max_rank) = 2];
     int32 overgrowth = 12 [(talent_spell_id) = 17245, (talent_max_rank) = 2];
     bool natures_grace = 13 [(talent_spell_id) = 16880];
     int32 eclipse = 14 [(talent_spell_id) = 408248, (talent_max_rank) = 3];
-    int32 moonfury = 15 [(talent_spell_id) = 16896, (talent_max_rank) = 5];
+    int32 dreamstate = 15 [(talent_spell_id) = 408258, (talent_max_rank) = 5];
     bool moonkin_form = 16 [(talent_spell_id) = 24858];
     // Feral Combat
     int32 ferocity = 17 [(talent_spell_id) = 16934, (talent_max_rank) = 5];

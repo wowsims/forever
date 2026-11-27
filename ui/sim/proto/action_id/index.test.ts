@@ -44,6 +44,8 @@ describe('ActionId.fill', () => {
 		const tag = (key: string) => i18n.t(`common.action_tags.${key}` as never);
 		const cases: Array<[ActionId, string, string]> = [
 			[ActionId.fromSpellId(1290261, 0, 1), 'Weaponmaster', `Weaponmaster (${weapons('axe', 'polearm')})`],
+			[ActionId.fromSpellId(29166, 0, 99997), 'Innervate', 'Innervate'],
+			[ActionId.fromSpellId(1242853, 0, 99997), 'Soul Harvest', 'Soul Harvest'],
 			[ActionId.fromSpellId(1290261, 0, 2), 'Weaponmaster', `Weaponmaster (${weapons('mace', 'staff')})`],
 			[ActionId.fromSpellId(1290261, 0, 3), 'Weaponmaster', `Weaponmaster (${weapons('sword')})`],
 			[ActionId.fromSpellId(20423, 0, 1), 'Seal of Fury', `Seal of Fury (${tag('shield')})`],

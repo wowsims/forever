@@ -82,6 +82,7 @@ func (hunter *Hunter) registerDeadlyAspects(hawkAuras []*core.Aura) {
 
 	quickShotsAura := hunter.RegisterAura(spelldata.AuraConfig(quickShots))
 	spelldata.ParseEffects(&hunter.Character, quickShotsAura, quickShots)
+	hunter.speedPetFocusWith(quickShotsAura, rangedHasteOf(quickShots))
 	quickStrikesAura := hunter.RegisterAura(spelldata.AuraConfig(quickStrikes))
 	spelldata.ParseEffects(&hunter.Character, quickStrikesAura, quickStrikes)
 

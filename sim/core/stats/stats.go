@@ -595,7 +595,7 @@ type PseudoStats struct {
 	///////////////////////////////////////////////////
 
 	CanBlock       bool
-	CanBlockSpells bool // With CanBlock, non-physical melee attacks roll a block too (A_ALLOW_BLOCKING_SPELLS). Magic spells stay unblockable.
+	CanBlockSpells bool // With CanBlock, enemy spells and non-physical melee attacks roll a block too (A_ALLOW_BLOCKING_SPELLS).
 	CanParry       bool
 	CanCrush       bool
 
@@ -612,7 +612,7 @@ type PseudoStats struct {
 
 	BonusHealingTaken          float64 // Talisman of Troll Divinity
 	BonusSpellCritPercentTaken float64 // Imp Shadow Bolt / Imp Scorch / Winter's Chill debuff
-	BonusPhysicalDamageTaken   float64 // Gift of Arthas, Stoneskin Totem; lands before armor
+	BonusPhysicalDamageTaken   float64 // Gift of Arthas, Stoneskin Totem; lands before armor, never on a tick
 	BonusSpellDamageTaken      float64 // Amp Magic
 	BonusRangedDamageTaken     float64 // Physical ranged attacks only: Windwall
 

@@ -132,7 +132,7 @@ export const ArcaneFireBuild = PresetUtils.makePresetBuild('Arcane Fire', {
 
 export const FFBBuild = PresetUtils.makePresetBuild('FFB', {
 	group: 'FFB',
-	gear: PreRaidArcaneGear,
+	gear: PreRaidFireGear,
 	talents: FFBTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: FFBAplPreset,
@@ -145,7 +145,7 @@ export const FireBuild = PresetUtils.makePresetBuild('Fire', {
 	talents: FireTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: FireAplPreset,
-	settings: DefaultSettings,
+	settings: { ...DefaultSettings, consumables: { ...DefaultConsumables, mhWeaponImbueId: Consumables.ScrollOfImbueGreaterFlame.id } },
 });
 
 export const FrostSettings: PresetSettings = {

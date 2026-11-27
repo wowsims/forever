@@ -37,7 +37,7 @@
 					"enchant": 904
 				},
 				{
-					"id": 272106
+					"id": 18686
 				},
 				{
 					"id": 13340,
@@ -64,13 +64,13 @@
 				},
 				{
 					"id": 13967,
-					"enchant": 1887
+					"enchant": 911
 				},
 				{
 					"id": 272408
 				},
 				{
-					"id": 18500
+					"id": 19325
 				},
 				{
 					"id": 13965
@@ -85,7 +85,7 @@
 				{},
 				{
 					"id": 19107,
-					"enchant": 8720
+					"enchant": 664
 				}
 			]
 		},
@@ -111,8 +111,7 @@
 					"quiverBonus": "AncientSinewWrappedLamina",
 					"ammo": "ThoriumHeadedArrow",
 					"petType": "Raptor",
-					"petUptime": 1,
-					"petAttackSpeed": "FasterAttackII"
+					"petUptime": 1
 				}
 			}
 		},

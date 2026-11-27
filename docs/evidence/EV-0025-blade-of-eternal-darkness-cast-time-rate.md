@@ -12,6 +12,7 @@
 - Date: 2026-11-14 for the mage reports and Pjd9MWAXgCYTcn7Z; 2026-11-17 for VRrgQJFbdXckaZq7, NTJzVdMZBQDaqG83 and the
   Maraudon log; 2026-11-18 for the Stratholme log
 - Pull request: #1007; the harmful spells that deal no damage, #1097; Hellfire and the Stratholme log, #1110
+- Later count: what Arcane Missiles rolls, §Count of the 2026-11-11 to 2026-11-26 reports
 
 On the three mage reports the blade is confirmed in the main hand by combatant info in 12 fights; the other fights with
 procs are inferred from those procs. There are 554 procs, each tied to the event at its timestamp.
@@ -22,7 +23,7 @@ procs are inferred from those procs. There are 554 procs, each tied to the event
 | Single-target casts (Arcane Wrath 45, Fire Blast 34, Arcane Blast 32, Fireball 18, Pyroblast 5, Scorch 5) |   145 |
 | Flamestrike's periodic spell 1279990                                                                      |    75 |
 | Arcane Missiles missiles                                                                                  |    58 |
-| Counterspell, Arcane Missiles channel starts, mixed                                                       |    20 |
+| Counterspell and mixed                                                                                    |    20 |
 | DoT ticks (0 of 488), Ignite (0 of 377), wand Shoot (0 of 132)                                            |     0 |
 
 An area spell rolls once for each target. On short-tier AoE the per-landing rate rises with the targets hit: 3.8% at 1
@@ -37,8 +38,8 @@ weapon speed is 1.5 s, so a manager on the main hand's speed would price every h
 Fitted per tier, the rate is 4.5% (4.1 to 5.0) on instants, triggered spells and 1.5 s casts and 9.1% (7.5 to 10.9) on 3 s
 casts.
 
-Harmful spells that deal no damage also rolled in game (Counterspell 5 of 92, Arcane Missiles channel starts 6 of 219),
-11 of the 554 procs; the section below has the other classes' casts. Misses are undetermined, since the sample has 2 true
+Harmful spells that deal no damage also rolled in game (Counterspell 5 of 92),
+5 of the 554 procs; the section below has the other classes' casts. Misses are undetermined, since the sample has 2 true
 misses or full resists, so only landed spells roll.
 
 The cast-time fit rests on one player and mage spells only. Only two cast-time levels exist (about 1.5 s and 2.95 s), so a two-tier rule
@@ -115,3 +116,19 @@ channels procced nothing, where 4.5% a hit predicts about 125 once the 0.1 s coo
 lacks the Not a Proc attribute, so it is a spell fired as a proc. Arcane Missiles' missiles 10274 and 25346, fired each
 second by their channel's periodic aura as Hellfire Effect is, and Flamestrike's periodic spell 1279990 carry that
 attribute, and both proc it on the mage reports.
+
+## Count of the 2026-11-11 to 2026-11-26 reports
+
+- Count: what Arcane Missiles rolls
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every mage wearer's stream: cvRTFb1qhGBKNkCD,
+  Nq3C7bVGnvmyh2Pw, JK1z96cCrj28tpBV, rQcmf2q3M1JNp7xz, QjwpA7DPVfCZKkMy, GrYb4TX1ZhcqzFQv, bD4AfYM1QHdJpWac,
+  jfTHRg4qNbmtDKcz, thpfdBZg4C3nrzRY, dbrxgnVXcAP3LFa2, ykvAGjz9dmwB6hYL, QBdJpmVM31WY72fH, tdgRQcrLDf7qbWjY,
+  pmYfrNjGcVZ2qvkL, cTqwJd7hWF268ZaY, rZHTpCQD7kWmbfgd, BHFT64JQNyRMVaPD, the fights each wearer had the blade on
+- Game build: by report date as EV-0219 gives it; the hotfix each player ran is not recorded
+- Date: 2026-11-11 to 2026-11-26
+- Pull request: #1253
+
+Arcane Missiles rolls the blade on its missiles' landings alone. The game logs one cast for each missile, and a proc is
+timed by Engulfing Shadows' mana gain, which logs at the roll while its bolt flies. Of 1,509 procs, 112 come within
+60 ms after a missile landing and 1 within 60 ms after a missile's cast with no landing; a roll at the first missile's
+cast would add about 25 (2,764 missile casts, about 550 channels at five missiles each, 4.5 % a roll).

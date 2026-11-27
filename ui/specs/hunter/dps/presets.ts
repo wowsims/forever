@@ -28,9 +28,10 @@ export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecHunter, De
 
 // The best Phase 1 gear outside raids for each playstyle, from batch sims of the SV Weave, MM and SV Melee builds.
 // Cheap leaves out exalted reputation, battleground quartermaster gear, epic crafts, the Beastmaster vendor pieces and
-// world drops other than random-suffix ones, Sword of Zeal and Eaglehorn Long Bow. Neither takes Warsong Gulch or
-// Alterac Valley gear that needs Exalted. The weave's two-hander and bow come as a pair: the melee swing resets Auto
-// Shot, so each weave lasts as long as the slower of the two swings, and a slow two-hander only pays with a slow bow.
+// world drops other than random-suffix ones, Sword of Zeal and Eaglehorn Long Bow. Max takes Exalted with one faction,
+// Alterac Valley's, for Don Julio's Band, and no Warsong Gulch gear that needs Exalted. The weave's two-hander and bow
+// come as a pair: the melee swing resets Auto Shot, so each weave lasts as long as the slower of the two swings, and a
+// slow two-hander only pays with a slow bow.
 // The turret sets keep a two-hander for its stats, so under the Auto rotation, which weaves with any two-hander, they
 // need a turret rotation.
 export const PreBisWeaveGear = PresetUtils.makePresetGear('Pre-BiS', PreBisWeaveGearJson, { group: 'Weave' });
