@@ -419,7 +419,7 @@ Scripts and tables: `forever-piercing-outliers-1124` (`tables/summary.txt`, `tab
 - Date: 2026-11-27 07:59 to 09:27 UTC (08:59 to 10:27 in the player's local time, CET): 5 piercing from 07:59:05 to 08:35
   and from 09:20:48 to 09:24:46 UTC, 6 piercing from 09:24:48 to 09:26:56 UTC. StatLedger shows more time at 5 piercing
   (08:42 to 09:14 UTC) and at 6 (09:14:20 to 09:20:23 UTC) whose combat log was not provided
-- Pull request: this branch's, not yet opened
+- Pull request: #1267
 
 The bonus is the negative resisted field of a SPELL_DAMAGE event in the raw combat log: −10, −20 or −30% of the hit
 before resists, taken before the crit multiplier. Every SPELL_DAMAGE of the caster counts, and no hit took a partial
