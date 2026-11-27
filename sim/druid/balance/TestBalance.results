@@ -638,6 +638,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 837.90627
+  tps: 835.76999
+  dtps: 7.93135
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-EnchantWeapon-MinorBeastslayer-249"
  value: {
   dps: 837.90627

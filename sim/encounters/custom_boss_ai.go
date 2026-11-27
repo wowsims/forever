@@ -292,7 +292,8 @@ func (ai *DefaultTankAI) registerMagicSpell() {
 		SpellSchool: spellSchool,
 		DefenseType: core.DefenseTypeMagic,
 
-		ProcMask: core.ProcMaskEmpty,
+		// The tank's listeners on harmful spells taken hear it, Shield Specialization's on a block among them.
+		ProcMask: core.ProcMaskSpellDamage,
 		Flags:    core.SpellFlagBinary | core.SpellFlagAPL,
 
 		Cast: core.CastConfig{
@@ -324,7 +325,7 @@ func (ai *DefaultTankAI) registerMagicSpell() {
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := sim.RollWithLabel(ai.Config.MagicSpellMinDamage, ai.Config.MagicSpellMaxDamage, "Dummy Spell")
-			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeAlwaysHit)
+			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeEnemySpellHit)
 		},
 	})
 

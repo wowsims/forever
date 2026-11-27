@@ -234,7 +234,7 @@ var windfuryTotemHoldsOver = []string{
 // The Windfury Totem hit's row is the Windfury Weapon hit's (439440) in every column but the
 // class mask: weapon damage on the target, Not a Proc, main hand required. It
 // deals the main hand's weapon damage with the raid aura's attack power added,
-// on the weapon special's table of miss, dodge, parry and crit, never a
+// after a Shank too (EV-0230), on the weapon special's table of miss, dodge, parry and crit, never a
 // glancing blow, and it is reduced by armor as a white hit is. Rank 3 adds
 // attack power and ranks 1 and 2 add none (EV-0002); the sim stands rank 3
 // only. It counts as a main-hand swing for the procs that hear melee swings

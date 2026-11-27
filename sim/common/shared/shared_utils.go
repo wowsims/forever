@@ -429,6 +429,9 @@ var DamageProcExtras = map[int32]func(character *core.Character, config *core.Sp
 // from init, so the item's effect stays generated.
 var ProcTriggerExtras = map[int32]func(trigger *core.ProcTrigger){}
 
+// The same for an enchant's generated proc, by enchant id, given the wearer: Insight rolls once per cast.
+var EnchantProcTriggerExtras = map[int32]func(character *core.Character, trigger *core.ProcTrigger){}
+
 // How much longer than its rows state the buff of an item's generated proc lasts, by item id:
 // Felstriker's buff counts its 3 s from the spell batch its proc would land in. Hand-written code
 // fills it from init.
@@ -523,6 +526,9 @@ func spellDataProcListener(character *core.Character, cfg SpellDataProc, source 
 	config.ActionID = source.actionID()
 	if extra, ok := ProcTriggerExtras[source.id]; ok && !source.isEnchant {
 		extra(&config)
+	}
+	if extra, ok := EnchantProcTriggerExtras[source.id]; ok && source.isEnchant {
+		extra(character, &config)
 	}
 
 	return config
