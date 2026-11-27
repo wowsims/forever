@@ -67,7 +67,7 @@ is in `building-an-ability.md` §When not to take a default.
 - **`FromCaster` slots are numbered across the class.** Shadow Weaving holds slot 0 of 2 and the Discipline
   `AttachDDBC` slot 1 (`sim/priest/talents_shadow.go`, `sim/priest/talents_discipline.go`), so a new per-caster debuff
   raises the total in every call. An item has no slot to take, since any class can wear it: Blackhand's Breadth's crit
-  for its wearer alone adds to `AttackTable.BonusCritPercent` while its mark is up (`sim/common/forever/items_trinkets.go`).
+  for its wearer alone goes through `AddCritChanceVersus` while its mark is up (`sim/common/forever/items_trinkets.go`).
 
 ## A talent's modifiers
 

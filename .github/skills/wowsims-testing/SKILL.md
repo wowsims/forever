@@ -109,7 +109,11 @@ every run writes `<Suite>.results.tmp`, which git ignores; its presence means no
   form, equipment, buff or proc mechanics goes in the generic core or `sim/common/shared` tests. Item, enchant and
   generic aura behaviour goes in `sim/common/shared/spell_data_aura_test.go`; class items together in
   `sim/common/forever/class_items_test.go`; buffs and debuffs in `sim/core/buffs/meta_constructors_test.go` (shapes)
-  and `sim/core/buffs/meta_test.go` (values). UI component tests are `wowsims-ui`.
+  and `sim/core/buffs/meta_test.go` (values). A versus effect is proven against a target with and without its `MobType`
+  or `CreatureFamily`, reading the factor off `spelldata.MustFind(id).VersusBonus()`
+  (`TestProcSpellsDealTheirVersusFactor` in `sim/common/forever/items_weapons_test.go`); the combat log tag's form is
+  tested in `sim/core/attack_table_helpers_test.go`, and the stats sheet's per-source shares in
+  `sim/core/character_sheet_test.go`. UI component tests are `wowsims-ui`.
 - **A snapshot test writes its list when missing** and rewrites it under an `UPDATE_*` variable, and its path joins the
   snapshot block in `.gitignore`; the suites' `.results` stay tracked.
 

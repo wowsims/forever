@@ -74,6 +74,13 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   stat by hand reads it through `spell.VersusStat` (Seal of Command), not the attack table. A read outside the damage
   stays off the tag: threat's attack power share, an expected-damage value, and a read before the cast or tick. An
   item's versus bonus is named by the item when its row is parsed with `spelldata.ForItem`.
+- **Spell power read by hand takes no spell damage against the target's creature type.** `BonusDamage`, which a spell's
+  or dot's `BonusCoefficient` adds, takes it, and `MeleeAttackPower(target)` and `RangedAttackPower(target)` take the
+  attack power; `spell.SpellDamage(target)` leaves it out. A formula that multiplies `spell.SpellDamage(target)` itself
+  adds `coefficient * spell.VersusStat(target, stats.SpellDamage)` where the logs show the spell takes it (Seal of
+  Command) and leaves it out where they show it does not (Holy Strike, Seal of Fury; EV-0143, EV-0189). A damage shield
+  sets `SpellFlagIgnoreTargetSchoolBonus` (EV-0141), and a totem's attack `SpellFlagNoDamageVersus`, which drops the
+  aura 168 multiplier.
 - **The versus tag names every versus effect and nothing else**, so a versus effect coded by hand goes through a
   tracked helper, never a bare check of `MobType` or `CreatureFamily`. Stats, damage and crit damage against a mob type
   go through `AddMobTypeBonusStats`, `AttachMobTypeBonusStats`, `MultiplyDamageVersus` or `MultiplyCritDamageVersus`
@@ -81,7 +88,12 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   ("+10% crit chance"). A factor on base damage is `SpellConfig.VersusBonus` ("x2 base"). A spell cast by a proc that
   fires only, or more often, against some targets sets `VersusProc` ("x3 proc chance", "proc only"). The header names
   the target's family when an entry matched it by its family. A versus factor on something other than damage, such as
-  a stun's duration or a restore, and a cast allowed only on some targets, get no tag.
+  a stun's duration or a restore, and a cast allowed only on some targets, get no tag. An item's factor goes through
+  `character.NewItemVersusBonus`, `NewItemVersusProc` or `shared.ItemVersusBonus` with its `VersusEffectKind`
+  (`Damage`, `Restore`, `ProcChance`, `CritChance`, `ProcOnly`), which list it on the stats sheet and in the gear
+  chip's tooltip. Each helper takes the `ActionID` the bonus is credited to (the item for an item's stats and spells,
+  the spell for an enchant with no item, a set bonus, a talent or a racial); the stats sheet's Versus bonuses group
+  shows one row per credited source.
 - **Periodic physical damage meets the armor its row's attributes name** (EV-0194). `SpellConfig` reads them: none
   where the row sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
   leaves where it sets only Attributes[0] 0x40000 (`SpellFlagTenthResistance`, the weapons' Rends), and the whole armor

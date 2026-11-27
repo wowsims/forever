@@ -22,6 +22,15 @@ What the game files' item, enchant, suffix and set rows say, and where they misl
   `ui/sim/proto/equipped_item.ts`).
 - **An `S03 - …` ItemSetSpell row still ships when it sits in Forever's own threshold layout of the set.** Compare
   the layout with the set's Season of Discovery copy in the game files, not the name.
+- **A creature group a tooltip names needs a `CreatureFamily`.** The families are the sim's own groups
+  (`proto/common.proto`); the game files' CreatureFamily table holds pet families. The gear chips and filters read
+  `UIItem.creature_families`, which `ItemEffectTypes` (`tools/database/dbc/item_effect_types.go`) fills from the tooltip
+  through `tooltipTargetNames` after a lead in `tooltipTargetLead`. A name neither knows gives no chip, and
+  `overrides.VersusBonuses` cannot name it: add the enum value at the next free number, the name, the family in
+  `ui/features/encounter/components/TargetsPicker/utils/configs.ts` and its label in `ui/i18n/entity_mapping.ts` and the
+  locale. A group with no value counts its nearest family and its override says so (Golems and Titan-forged count as
+  Earth Elementals). After `make db`, the item's `mobTypes`, `creatureFamilies` and `areaTypes` in
+  `assets/database/db.json` name what its tooltip names.
 - **An ItemSet row's `RequiredSkill` gates the set's bonuses.** Blood Tiger Harness 442 and Primal Batskin 441 state
   Leatherworking (165) at 300, Bloodvine Garb 421 states Tailoring and The Darksoul 444 Blacksmithing. `gen_db` reads
   the column with the set's spells and registers such a set through `shared.NewParsedProfessionItemSet`, which sets

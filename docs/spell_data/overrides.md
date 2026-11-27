@@ -100,7 +100,8 @@ of its own where no effect states one (Gloves of Holy Might's tripling). These g
 `Spell.VersusEffectIndex`, `VersusMultiplier`, `VersusMobTypes` and `VersusFamilies`, and
 `row.VersusBonus()` reads them; `shared.ItemVersusBonus` hands it to a spell and the stats sheet. The
 generator refuses a row whose effect no longer holds a factor above 1 on an `E_NONE`, `E_DUMMY`,
-`A_DUMMY` or trigger effect, and a `Multiplier` once the row states a factor on one of those.
+`A_DUMMY` or trigger effect, and a `Multiplier` once the row states a factor above 1 on an `E_NONE`, `E_DUMMY` or
+`A_DUMMY` effect.
 
 A consumable's spells take these overrides like any other spell's; the lists that add, remove or
 replace a consumable itself are in [Consumables](../consumables.md).

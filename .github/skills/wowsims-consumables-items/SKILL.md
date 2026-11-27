@@ -71,6 +71,9 @@ db.json lists outside the parse and §What the settings offer, which holds the E
 
 - **A conditional stat never goes into `stats`.** The sim reads the rows, never the lists, so a list that is wrong
   moves the settings and no sim number.
+- **An area type is an area group `areaTypeByGroup` maps** (`sim/core/spelldata/area.go`, each entry citing a tooltip). A
+  row whose `RequiredAreas` group it lacks counts as a single zone: the item aura builders refuse it and the gear names
+  no area. "Doubled in X areas" with no companion row is an `overrides.AreaBonuses` row (`docs/spell_data/overrides.md`).
 
 ## Hand-written effects
 
