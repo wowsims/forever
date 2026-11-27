@@ -808,6 +808,35 @@ func TestCounterspellLandingIsHeard(t *testing.T) {
 	}
 }
 
+// Frostfire Bolt's damage over time ticks meet the target's full resistance, so Spell Piercing beyond it
+// gives them its bonus.
+func TestFrostfireBoltTicksTakeTheSpellPiercingBonus(t *testing.T) {
+	sim, mage := newMageSimAgainst(FFBTalents, longEncounter(1))
+	target := mage.CurrentTarget
+	rank := spellData.FrostfireBolt.Highest()
+	bolt := mage.GetSpell(core.ActionID{SpellID: rank.ID})
+	dot := mage.GetSpell(core.ActionID{SpellID: rank.ID, Tag: 1})
+	if bolt == nil || dot == nil {
+		t.Fatal("Frostfire Bolt or its damage over time is not registered")
+	}
+	mage.AddStatsDynamic(sim, stats.Stats{stats.SpellPiercing: 100})
+	mage.AddDynamicMod(core.SpellModConfig{Kind: core.SpellMod_PowerCost_Pct, FloatValue: -1}).Activate()
+
+	for range 100 {
+		stepFor(sim, max(bolt.TimeToReady(sim), mage.GCD.TimeToReady(sim), core.SpellBatchWindow))
+		bolt.Cast(sim, target)
+		stepFor(sim, bolt.CurCast.CastTime+15*time.Second)
+	}
+
+	metrics := dot.SpellMetrics[target.UnitIndex]
+	if metrics.Ticks+metrics.CritTicks == 0 {
+		t.Fatal("no Frostfire Bolt tick landed")
+	}
+	if metrics.PiercedTicks+metrics.PiercedCritTicks == 0 {
+		t.Errorf("none of %d Frostfire Bolt ticks took a Spell Piercing bonus", metrics.Ticks+metrics.CritTicks)
+	}
+}
+
 // Each enemy a Flamestrike ground tick lands on adds a stack of Combustion's crit, and each crit spends one of
 // its charges.
 func TestCombustionCountsEachFlamestrikeTickHit(t *testing.T) {

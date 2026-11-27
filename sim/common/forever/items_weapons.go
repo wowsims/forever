@@ -346,6 +346,10 @@ func init() {
 		[]shared.ItemVariant{
 			{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
 		})
+	// Engulfing Shadows 27860 is binary by its row, but a landed hit takes no Spell Piercing bonus (EV-0142).
+	shared.DamageProcExtras[17780] = func(_ *core.Character, config *core.SpellConfig) {
+		config.Flags |= core.SpellFlagNoPartialResist
+	}
 
 	// Moonshadow Stave
 	// https://www.wowhead.com/forever/item=22458/moonshadow-stave

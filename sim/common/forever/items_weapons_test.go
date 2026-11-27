@@ -744,6 +744,43 @@ func TestBladeOfEternalDarknessRollsEachEnemyOfALandingOnce(t *testing.T) {
 	}
 }
 
+// Engulfing Shadows, the spell Blade of Eternal Darkness 17780 casts, takes no Spell Piercing bonus beyond
+// a target's Shadow resistance, and against a resistance its hit roll still resists it whole with no
+// partial resist on a landed hit.
+func TestEngulfingShadowsTakesNoSpellPiercingBonus(t *testing.T) {
+	sim, character, shadows := boedWearer(t, 1)
+	target := sim.Encounter.ActiveTargetUnits[0]
+	metrics := &shadows.SpellMetrics[target.UnitIndex]
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellPiercing: 100})
+
+	const casts = 1000
+	castAll := func() (landed, missed int32) {
+		hits, misses := metrics.Hits+metrics.Crits, metrics.Misses
+		for range casts {
+			shadows.Cast(sim, target)
+			stepTo(t, sim, sim.CurrentTime+time.Second)
+		}
+		return metrics.Hits + metrics.Crits - hits, metrics.Misses - misses
+	}
+
+	landedBare, missedBare := castAll()
+	if landedBare == 0 {
+		t.Fatal("no Engulfing Shadows landed")
+	}
+	if pierced := metrics.PiercedHits + metrics.PiercedCrits; pierced != 0 {
+		t.Errorf("%d of %d Engulfing Shadows took a Spell Piercing bonus, want none", pierced, landedBare)
+	}
+
+	target.AddStatsDynamic(sim, stats.Stats{stats.ShadowResistance: 300})
+	landed, missed := castAll()
+	if missed <= missedBare+casts/10 {
+		t.Errorf("Shadow resistance above the piercing resisted %d of %d Engulfing Shadows whole, against %d misses with none", missed, casts, missedBare)
+	}
+	if resisted := metrics.ResistedHits + metrics.ResistedCrits; resisted != 0 {
+		t.Errorf("%d of %d landed Engulfing Shadows took a partial resist, want none", resisted, landed)
+	}
+}
+
 // A landed harmful spell rolls Blade of Eternal Darkness 17780 whether or not it deals damage, a
 // spell with no proc mask too when its DefenseType is magic, its school is not Physical and the
 // wearer cast it. A damage over time tick, a wand shot, a miss, a melee ability or a Physical taunt
