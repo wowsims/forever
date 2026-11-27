@@ -655,6 +655,97 @@ func TestShankRollsTheOffHandPoison(t *testing.T) {
 	}
 }
 
+// Windfury Totem rolls once on a landed Shank, an off-hand ability the rogue casts itself, and once on a landed
+// Mutilate, whose off-hand strike adds no roll. A landed off-hand white swing never rolls it.
+func TestShankRollsWindfuryTotem(t *testing.T) {
+	// Hand of Justice's extra attack is a main-hand swing, which rolls the totem, so it comes off.
+	equipment := core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "muti").GearSet
+	for i, item := range equipment.Items {
+		if item.Id == 11815 {
+			equipment.Items[i] = &proto.ItemSpec{}
+		}
+	}
+	player := &proto.Player{
+		Name:          "Rogue",
+		Race:          proto.Race_RaceHuman,
+		Class:         proto.Class_ClassRogue,
+		Equipment:     equipment,
+		TalentsString: "00530311231251031-32030302020103-001",
+		Spec:          DefaultOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{WindfuryTotem: true}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: 1800, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
+	target := sim.Encounter.AllTargetUnits[0]
+	windfury := rogue.GetSpell(core.ActionID{SpellID: 10610})
+	if windfury == nil || rogue.Mutilate == nil {
+		t.Fatalf("Windfury Totem hit %v, Mutilate %v; want both registered", windfury, rogue.Mutilate)
+	}
+	rogue.AutoAttacks.CancelAutoSwing(sim)
+	tables := rogue.AttackTables[target.UnitIndex]
+	for _, hand := range []*core.AttackTableHand{&tables.MH, &tables.OH} {
+		hand.BaseMissChance, hand.BaseDodgeChance, hand.BaseParryChance, hand.BaseBlockChance = 0, 0, 0, 0
+	}
+	chance := float64(spelldata.MustFind(10612).ProcChance) / 100
+	if chance == 0 {
+		t.Fatal("Windfury Totem's row states no proc chance")
+	}
+
+	// Each cast stands past the proc's cooldown, and its Windfury Totem hit is dealt in the same instant.
+	const casts = 2000
+	rate := func(spell *core.Spell) (landedRate float64, perLanded float64) {
+		hits := func() int32 { return windfury.SpellMetrics[target.UnitIndex].Casts }
+		landed := func() int32 {
+			m := spell.SpellMetrics[target.UnitIndex]
+			return m.Hits + m.Crits + m.Glances
+		}
+		hitsBefore, landedBefore := hits(), landed()
+		for range casts {
+			spell.SkipCastAndApplyEffects(sim, target)
+			next := sim.CurrentTime + 200*time.Millisecond
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: next, OnAction: func(*core.Simulation) {}})
+			for sim.CurrentTime < next {
+				if sim.Step() {
+					t.Fatal("the sim ended between casts")
+				}
+			}
+		}
+		n := landed() - landedBefore
+		return float64(n) / casts, float64(hits()-hitsBefore) / float64(max(n, 1))
+	}
+	// Four standard deviations of the count one roll a landed cast gives.
+	tolerance := 4 * math.Sqrt(chance*(1-chance)/casts)
+
+	for _, c := range []struct {
+		name  string
+		spell *core.Spell
+	}{
+		{"Shank", rogue.Shank},
+		{"Mutilate", rogue.Mutilate},
+	} {
+		landed, got := rate(c.spell)
+		if landed != 1 {
+			t.Errorf("%s landed on a share of %v of its casts, want all", c.name, landed)
+		}
+		if math.Abs(got-chance) > tolerance {
+			t.Errorf("%s brings a Windfury Totem hit on a share of %v of its landed casts, want one roll's %v", c.name, got, chance)
+		}
+	}
+
+	landed, got := rate(rogue.AutoAttacks.OHAuto())
+	if landed == 0 {
+		t.Fatal("no off-hand white swing landed")
+	}
+	if got != 0 {
+		t.Errorf("off-hand white swings bring a Windfury Totem hit on a share of %v of the landed ones, want none", got)
+	}
+}
+
 // Venom goes up before Shank deals its damage, so the Instant Poison that Shank's own hit procs is cast under Venom.
 // Auto attacks cast the poison between Shanks, so only the casts inside each Shank are counted.
 func TestShankPutsVenomUpBeforeItsPoisonProcs(t *testing.T) {
