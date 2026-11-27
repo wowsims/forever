@@ -6,6 +6,7 @@
 - Date: 2026-11-12 for the combat log; not recorded for the Warcraft Logs reports
 - Pull request: #958
 - Later count: the Emerald Dragon Whelp's level, swing and Acid Spit, §Count of the 2026-11-21 to 2026-11-26 reports
+- Later count: the Highborne Research Tablet's landings, ticks and avoided hits, §Count of the 2026-11-18 to 2026-11-27 reports
 
 ## Highborne Research Tablet (260205)
 
@@ -139,3 +140,25 @@ uniformly from the range fitted to each level's 5th to 95th percentile, and leve
 
 The rule reads 5 to 8 points under the logs against levels 56 to 59, the levels where the share of a hit starts to
 fall.
+
+## Count of the 2026-11-18 to 2026-11-27 reports
+
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), wearers of 260205 from 2026-11-18 on, 1,707 players in
+  1,256 reports; the report codes are in the scripts' inputs and are not listed here
+- Game build: 1.60.1.70938 to 1.60.1.71139 by each report's region and start, against the CDN times EV-0226 lists; the
+  reports by build are 9, 228, 607, 158 and 254 from 70938 on. The raidbots hotfix caches EV-0226 reads hold no record
+  of 1318159 or 1265634.
+- Date: 2026-11-18 to 2026-11-27
+- Pull request: #1277
+
+The method is EV-0226's §Method, with the Tablet's damage 1265634 as the proc. It is a missile, so the proc may follow
+within 1,200 ms, and no other landed hit may fall within 1,500 ms. A landing that deals no damage rolls nothing, as the
+mask's pairing of the harmful-spell bit with melee and ranged bits says (EV-0226).
+
+| Roll                                       | Procs | Rolls   |
+| ------------------------------------------ | ----- | ------- |
+| Landed direct hit, damage shields left out | 9,660 | 102,115 |
+| Periodic tick                              | 0     | 13,987  |
+| Landing with no damage, all                | 2     | 31,530  |
+| Of those: Hunter's Mark and Faerie Fire    | 1     | 9,985   |
+| Avoided hit                                | 5     | 17,992  |

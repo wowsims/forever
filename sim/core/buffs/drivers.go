@@ -234,7 +234,7 @@ var windfuryTotemHoldsOver = []string{
 // The Windfury Totem hit's row is the Windfury Weapon hit's (439440) in every column but the
 // class mask: weapon damage on the target, Not a Proc, main hand required. It
 // deals the main hand's weapon damage with the raid aura's attack power added,
-// on the weapon special's table of miss, dodge, parry and crit, never a
+// after a Shank too (EV-0230), on the weapon special's table of miss, dodge, parry and crit, never a
 // glancing blow, and it is reduced by armor as a white hit is. Rank 3 adds
 // attack power and ranks 1 and 2 add none (EV-0002); the sim stands rank 3
 // only. It counts as a main-hand swing for the procs that hear melee swings
@@ -243,10 +243,7 @@ func newWindfuryTotemStrike(char *core.Character) *core.Spell {
 	attackPower := WindfuryTotemPriority()
 	config := spelldata.SpellConfig(&char.Unit, windfuryTotemStrike,
 		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(),
-		spelldata.Flags(core.SpellFlagCountsAsSwing))
-	if windfuryTotemStrike.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+		spelldata.Flags(core.SpellFlagCountsAsSwing), spelldata.Triggered())
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		weaponDamage := char.MHWeaponDamage(sim, spell.MeleeAttackPower(target)+attackPower)
 		baseDamage := windfuryTotemStrike.WeaponStrike(sim, spell, weaponDamage, 0)
@@ -384,12 +381,9 @@ func NewFlametongueTotemProcTrigger(char *core.Character) *core.Aura {
 		return procTrigger
 	}
 
-	config := spelldata.SpellConfig(&char.Unit, flametongueTotemAttack, spelldata.Proc())
+	config := spelldata.SpellConfig(&char.Unit, flametongueTotemAttack, spelldata.Proc(), spelldata.Triggered())
 	config.ActionID = core.ActionID{SpellID: flametongueTotemCast.ID, Tag: 1}
-	config.ProcMask = core.ProcMaskSpellDamageProc
-	if flametongueTotemAttack.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+	config.ProcMask = core.ProcMaskSpellDamage
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

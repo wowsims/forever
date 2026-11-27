@@ -730,6 +730,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 543.48609
+  tps: 2706.61768
+  dtps: 394.80856
+  hps: 87.01462
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-EnchantWeapon-MinorBeastslayer-249"
  value: {
   dps: 538.80815
@@ -1776,8 +1785,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-SeepingWillow-12969"
  value: {
-  dps: 499.94603
-  tps: 2499.06504
+  dps: 508.95784
+  tps: 2518.44044
   dtps: 393.47945
   hps: 83.9845
  }

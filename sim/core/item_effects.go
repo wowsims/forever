@@ -45,11 +45,10 @@ func MissingEnchantEffects() []int32 { return missingEnchantEffects }
 func NewItemEffect(id int32, itemEffect ApplyEffect) {
 	if WITH_DB {
 		if GetItemByID(id) == nil {
-			// Forever's item set is a subset of TBC's -- 81 items these effects were
-			// written for are simply not in the game files any more, and item 1168 is not
-			// in the DBC at all. Skipping keeps the implementation around for the day
-			// an item comes back, where panicking would stop the sim from starting and
-			// deleting the code would lose work that is still correct.
+			// Forever's item set is a subset of TBC's, so some items these effects were
+			// written for are not in the game files. Skipping keeps the implementation
+			// around for the day an item comes back, where panicking would stop the sim
+			// from starting and deleting the code would lose work that is still correct.
 			missingItemEffects = append(missingItemEffects, id)
 			return
 		}

@@ -26,10 +26,7 @@ func init() {
 	// weapon procs but not Bladestorm.
 	newEntryRateItemEffect(7717, 9632, func(character *core.Character, ppm float64) {
 		strikeRow := spelldata.MustFind(9633)
-		strikeConfig := spelldata.SpellConfig(&character.Unit, strikeRow, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
-		if strikeRow.IsAProc() {
-			strikeConfig.Flags |= core.SpellFlagProc
-		}
+		strikeConfig := spelldata.SpellConfig(&character.Unit, strikeRow, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(), spelldata.Triggered())
 		strikeConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := strikeRow.WeaponStrike(sim, spell, spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
 			spell.CalcAoeDamage(sim, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
@@ -166,10 +163,7 @@ func init() {
 		perfected := character.RegisterAura(spelldata.AuraConfig(perfectedRow, spelldata.Label("Blade of Hanna Perfected Form")))
 		spelldata.ParseEffects(character, perfected, perfectedRow, spelldata.Effects(2))
 
-		config := spelldata.SpellConfig(&character.Unit, perfectedRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc())
-		if perfectedRow.IsAProc() {
-			config.Flags |= core.SpellFlagProc
-		}
+		config := spelldata.SpellConfig(&character.Unit, perfectedRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc(), spelldata.Triggered())
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit)
 			perfected.Activate(sim)
@@ -311,6 +305,30 @@ func init() {
 		trigger.ActionID = core.ActionID{ItemID: 13361}
 		trigger.TriggerImmediately = true
 		character.ItemSwap.RegisterProc(13361, character.MakeProcTriggerAura(trigger))
+	})
+
+	// Demonfork
+	// https://www.wowhead.com/forever/item=12621/demonfork
+	//
+	// Chance on hit: Transfers 10 health every 1.0 seconds from the target to the caster for 5s.
+	//
+	// The game files state no rate for 16603; the item's chance-on-hit entry carries the one measured on
+	// the weapon's speed, with Seal of Fury's hits rolling it as the sim's do (EV-0228). A proc on a
+	// drained target refreshes the drain.
+	newEntryRateItemEffect(12621, 16603, func(character *core.Character, ppm float64) {
+		row := spelldata.MustFind(16603)
+		drain := registerLeechDrain(character, row, "Demonfork")
+
+		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			drain.Cast(sim, result.Target)
+		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewDynamicLegacyProcForWeapon(12621, ppm, 0)
+		})
+		trigger.Name = "Demonfork"
+		trigger.ActionID = core.ActionID{ItemID: 12621}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(12621, character.MakeProcTriggerAura(trigger))
 	})
 
 	// Malown's Slam
@@ -723,11 +741,7 @@ func init() {
 	// 16559's second effect casts 16560, the tooltip's Fire Shield, on the wearer. The generated damage
 	// spell does not follow it, so each proc puts it on here for its duration, a later proc refreshing
 	// it (EV-0136). It raises Fire resistance and deals its damage shield's amount to each attacker
-	// that strikes the wearer.
-	//
-	// TODO: in Cat and Bear Form only the white swing rolls 16559 (EV-0151), while the generated weapon proc hears
-	// every landed melee hit, Maul and the form's other attacks included. Whether a form keeps every chance-on-hit
-	// weapon to the white swing is not settled.
+	// that strikes the wearer. A druid's form attacks roll it as any other melee hit does (R-0056).
 	shared.DamageProcExtras[11809] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Trigger()
 		shield := character.RegisterAura(spelldata.AuraConfig(row, spelldata.Label("Flame Wrath Fire Shield")))
@@ -823,10 +837,7 @@ func init() {
 
 		chillRow := spelldata.MustFind(1298414)
 		chill := chillRow.DamageEffect()
-		chillConfig := spelldata.SpellConfig(&character.Unit, chillRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc())
-		if chillRow.IsAProc() {
-			chillConfig.Flags |= core.SpellFlagProc
-		}
+		chillConfig := spelldata.SpellConfig(&character.Unit, chillRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc(), spelldata.Triggered())
 		var chillOutcome core.OutcomeApplier
 		chillConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, chill.DirectAmount(sim), chillOutcome))

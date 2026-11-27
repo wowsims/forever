@@ -48,6 +48,15 @@ var EnchantProcs = []EnchantProc{
 		Source:    "EV-0135",
 	},
 	{
+		EnchantID: 1898,
+		SpellID:   20004,
+		Kind:      RatePPM,
+		Value:     4,
+		Reason: "Lifestealing: 20004 states no proc chance, and the tooltip says 'often'; fitted over all hits of " +
+			"one paladin, the seal hits rolling as the sim's do; a log fit not yet validated (EV-0228)",
+		Source: "observed",
+	},
+	{
 		EnchantID: 8217,
 		SpellID:   1248806,
 		Kind:      RateChance,

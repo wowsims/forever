@@ -47,10 +47,7 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	// (EV-0155). The row lacks Not a Proc, so aura procs such as Windfury Totem and Vindication roll
 	// once too (EV-0156). The row's flags leave the suppress bits off a dummy, so they are set here.
 	dummyConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial),
-		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs))
-	if judgeRank.IsAProc() {
-		dummyConfig.Flags |= core.SpellFlagProc
-	}
+		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs), spelldata.Triggered())
 	if judgeRank.SuppressesWeaponProcs() {
 		dummyConfig.Flags |= core.SpellFlagSuppressWeaponProcs
 	}

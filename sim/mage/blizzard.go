@@ -19,10 +19,7 @@ func (mage *Mage) registerBlizzardRank(rank int32, castRank *spelldata.Spell) {
 	tickRank := spellData.BlizzardTriggered.Rank(rank)
 	cannotCrit := tickRank.CannotCrit()
 
-	tickConfig := spelldata.SpellConfig(&mage.Unit, tickRank, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
-	if tickRank.IsAProc() {
-		tickConfig.Flags |= core.SpellFlagProc
-	}
+	tickConfig := spelldata.SpellConfig(&mage.Unit, tickRank, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered())
 	tickConfig.ClassSpellMask = MageSpellBlizzard
 	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		outcome := spell.OutcomeMagicHitAndCrit

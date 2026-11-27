@@ -129,7 +129,7 @@ func TestJudgementOfTheCrusaderLandsAfterDoneMultipliers(t *testing.T) {
 }
 
 // One Consecration on one enemy more than the ground marks, on the same seed, after setup has
-// changed the paladin, the spell or the enemies: per enemy, the damage its ticks deal and the
+// changed the paladin, the ticks' spell or the enemies: per enemy, the damage its ticks deal and the
 // ticks that land, a crit counting as its multiplier. The last enemy is the one left unmarked.
 func consecrationTicks(t *testing.T, setup func(*core.Simulation, *core.Character, *core.Spell)) (damage, landed []float64) {
 	t.Helper()
@@ -141,16 +141,21 @@ func consecrationTicks(t *testing.T, setup func(*core.Simulation, *core.Characte
 	if spell == nil {
 		t.Fatal("Consecration is not registered")
 	}
-	setup(sim, character, spell)
+	// The ticks are the pulse row's spell, which holds the ground.
+	ticks := spell.RelatedDotSpell
+	if ticks == nil {
+		t.Fatal("Consecration has no spell for its ticks")
+	}
+	setup(sim, character, ticks)
 	spell.SkipCastAndApplyEffects(sim, character.CurrentTarget)
 	stepPast(sim, rank.Duration()+time.Second)
 	for _, target := range sim.Encounter.AllTargetUnits {
-		metrics := spell.SpellMetrics[target.UnitIndex]
+		metrics := ticks.SpellMetrics[target.UnitIndex]
 		if metrics.ResistedTicks+metrics.ResistedCritTicks > 0 {
 			t.Fatalf("%d of the ticks on an enemy were partly resisted, want none", metrics.ResistedTicks+metrics.ResistedCritTicks)
 		}
 		damage = append(damage, metrics.TotalDamage)
-		landed = append(landed, float64(metrics.Ticks)+float64(metrics.CritTicks)*spell.CritDamageMultiplier(character.AttackTables[target.UnitIndex]))
+		landed = append(landed, float64(metrics.Ticks)+float64(metrics.CritTicks)*ticks.CritDamageMultiplier(character.AttackTables[target.UnitIndex]))
 	}
 	return damage, landed
 }

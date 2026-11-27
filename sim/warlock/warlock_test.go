@@ -625,16 +625,50 @@ func TestSoulHarvestOnADrainSoulKill(t *testing.T) {
 	}
 }
 
-// Decimation's damage bonus counts against the target of each Shadow Bolt once that target is below 35% health,
-// and not while it is above.
-func TestDecimationBonusAgainstTheTargetBelow35(t *testing.T) {
+// Decimation raises Shadow Bolt's and Searing Pain's damage by its effect 4 against a target above and below 35%
+// health alike, while a cast that lands grants its buff (440873) only against a target below 35%.
+func TestDecimationBonusAtAnyHealthBuffBelow35(t *testing.T) {
 	sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
-	target := sim.Encounter.AllTargetUnits[0]
-	above := warlock.ShadowBolt.ExpectedInitialDamage(sim, target)
-	stepToExecute35(sim)
+	plainSim, plain := newWarlockSim("", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+	target, plainTarget := sim.Encounter.AllTargetUnits[0], plainSim.Encounter.AllTargetUnits[0]
+	decimation := warlock.GetAuraByID(core.ActionID{SpellID: 440873})
 	want := 1 + spellData.Decimation.Rank(2).EffectN(4).Percent()
-	if got := warlock.ShadowBolt.ExpectedInitialDamage(sim, target) / above; math.Abs(got-want) > 1e-9 {
-		t.Errorf("Shadow Bolt against the target below 35%% is %.4f times that while it was above, want %.4f", got, want)
+	if want == 1 {
+		t.Fatal("Decimation 2/2 states no damage bonus on effect 4, so the checks below prove nothing")
+	}
+
+	checkBonus := func(phase string) {
+		t.Helper()
+		for _, pair := range [][2]*core.Spell{{warlock.ShadowBolt, plain.ShadowBolt}, {warlock.SearingPain, plain.SearingPain}} {
+			got := pair[0].ExpectedInitialDamage(sim, target) / pair[1].ExpectedInitialDamage(plainSim, plainTarget)
+			if math.Abs(got-want) > 1e-9 {
+				t.Errorf("%s against a target %s is %.4f times that with no Decimation, want %.4f", pair[0].ActionID, phase, got, want)
+			}
+		}
+	}
+	// Casts until one lands, and reports whether it left the buff up.
+	buffFromLandedCast := func() bool {
+		for range 100 {
+			decimation.Deactivate(sim)
+			misses := warlock.SearingPain.SpellMetrics[target.UnitIndex].Misses
+			warlock.SearingPain.SkipCastAndApplyEffects(sim, target)
+			if warlock.SearingPain.SpellMetrics[target.UnitIndex].Misses == misses {
+				return decimation.IsActive()
+			}
+		}
+		t.Fatal("no Searing Pain landed in 100 casts")
+		return false
+	}
+
+	checkBonus("above 35%")
+	if buffFromLandedCast() {
+		t.Errorf("a Searing Pain that landed on a target above 35%% granted Decimation's buff")
+	}
+	stepToExecute35(sim)
+	stepToExecute35(plainSim)
+	checkBonus("below 35%")
+	if !buffFromLandedCast() {
+		t.Errorf("a Searing Pain that landed on a target below 35%% granted no Decimation buff")
 	}
 }
 
@@ -1387,5 +1421,42 @@ func TestChannelCastsDrainNoTouchOfTheGrave(t *testing.T) {
 		if got := drains(channel); got != 0 {
 			t.Errorf("%s casts drained with Touch of the Grave %d times, want none", spelldata.MustFind(channel.SpellID).Name, got)
 		}
+	}
+}
+
+// Hellfire's burn on the caster takes the caster's Fire damage done modifiers and crits at the caster's spell
+// crit chance for the channel's crit damage, which Ruin raises (EV-0229).
+func TestHellfireBurnTakesFireModifiersAndCrits(t *testing.T) {
+	burnRatios := func(talents string) (modified float64, crit float64) {
+		sim, warlock := newWarlockSim(talents, &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+		channel := warlock.Hellfire.AOEDot()
+		channel.Apply(sim)
+		burn := func() float64 {
+			warlock.SetCurrentHealthPercent(1)
+			channel.TickOnce(sim)
+			return warlock.MaxHealth() - warlock.CurrentHealth()
+		}
+
+		warlock.AddStatDynamic(sim, stats.SpellCritPercent, -200)
+		plain := burn()
+		if plain <= 0 {
+			t.Fatalf("Hellfire burned %.1f health, want some", plain)
+		}
+		warlock.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexFire] *= 1.3
+		modified = burn() / plain
+		warlock.AddStatDynamic(sim, stats.SpellCritPercent, 400)
+		crit = burn() / plain / modified
+		if want := warlock.Hellfire.CritDamageMultiplier(nil); math.Abs(crit-want) > 1e-9 {
+			t.Errorf("a crit burn is %.4f times the plain burn, want the channel's crit damage %.4f", crit, want)
+		}
+		return modified, crit
+	}
+
+	modified, plainCrit := burnRatios("")
+	if math.Abs(modified-1.3) > 1e-9 {
+		t.Errorf("Hellfire's burn is %.4f times as much with Fire damage done 1.3 times, want 1.3", modified)
+	}
+	if _, ruinCrit := burnRatios("--0000005"); ruinCrit <= plainCrit {
+		t.Errorf("a crit burn is %.4f times the plain burn with Ruin and %.4f without, want more with Ruin", ruinCrit, plainCrit)
 	}
 }

@@ -60,11 +60,8 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	if paladin.Talents.Shieldsworn {
 		if paladin.shieldswornStrike == nil {
 			strike := spellData.ShieldswornTriggered.ByID(shieldswornStrikeID)
-			strikeConfig := spelldata.SpellConfig(&paladin.Unit, strike, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
+			strikeConfig := spelldata.SpellConfig(&paladin.Unit, strike, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered())
 			strikeConfig.ClassSpellMask = SpellMaskHolyShieldProc
-			if strike.IsAProc() {
-				strikeConfig.Flags |= core.SpellFlagProc
-			}
 			strikeConfig.ThreatMultiplier = procConfig.ThreatMultiplier
 			strikeConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 				spell.CalcAndDealDamage(sim, target, paladin.shieldswornStrikeDamage, spell.OutcomeMagicHitAndCrit)

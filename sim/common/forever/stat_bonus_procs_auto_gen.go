@@ -215,19 +215,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// When struck in combat has a 2% chance of dealing 115 Fire damage to all targets around you.
-	// https://www.wowhead.com/forever/spell=18818
-	// unsupported: a second proc of the item would fold under the first's listener
-	// trigger 18816 (effect 1's chance, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 18818
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18816, BuffSpellID: 18818},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 1168, ItemName: "Skullflame Shield - Flamestrike"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Blasts a target for 140 Fire damage.
 	// https://www.wowhead.com/forever/spell=1300753
 	// unsupported: states no rate
@@ -504,6 +491,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Wounds the target for 225 damage.
+	// https://www.wowhead.com/forever/spell=1320808
+	// unsupported: states no rate
+	// trigger 1320808 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1320808, BuffSpellID: 1320808, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 11603, ItemName: "Vilerend Slicer"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Reduces targets armor by 300 for 20s.
 	// https://www.wowhead.com/forever/spell=15280
 	// unsupported: states no rate
@@ -581,21 +581,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 12528, ItemName: "The Judge's Gavel"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Transfers 10 health every 1.0 seconds from the target to the caster for 5s.
-	// https://www.wowhead.com/forever/spell=16603
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 12621, ItemName: "Demonfork"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3130,14 +3115,6 @@ func RegisterAllProcs() {
 			{ItemID: 942, ItemName: "Freezing Band"},
 		})
 
-	// When struck in melee combat, has a 3% chance of stealing 270 life from target enemy.
-	// https://www.wowhead.com/forever/spell=18817
-	// trigger 18815 (effect 1's chance, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 18817
-	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18815, BuffSpellID: 18817},
-		[]shared.ItemVariant{
-			{ItemID: 1168, ItemName: "Skullflame Shield - Drain Life"},
-		})
-
 	// When struck in combat has a 1% chance of raising a thorny shield that inflicts 5 Nature damage to attackers
 	// when hit and increases Nature resistance by 50 for 30s.
 	//
@@ -3752,7 +3729,7 @@ func RegisterAllProcs() {
 
 	// Deals 51 Nature damage every 2.0 sec to all enemies within an 8 yard radius of the caster for 10s.
 	// https://www.wowhead.com/forever/spell=17196
-	// trigger 17196 (0.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 17196 (2.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17196, BuffSpellID: 17196, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 12969, ItemName: "Seeping Willow"},

@@ -255,9 +255,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 880.33557
-  tps: 877.38247
-  dtps: 8.02612
+  dps: 882.73131
+  tps: 880.00567
+  dtps: 8.55564
  }
 }
 dps_results: {
@@ -638,6 +638,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 837.90627
+  tps: 835.76999
+  dtps: 7.93135
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-EnchantWeapon-MinorBeastslayer-249"
  value: {
   dps: 837.90627
@@ -888,9 +896,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 858.23479
-  tps: 855.57023
-  dtps: 7.89829
+  dps: 858.0452
+  tps: 855.36526
+  dtps: 7.95942
  }
 }
 dps_results: {

@@ -115,6 +115,14 @@ jobs:
             - name: Build Storybook 📚
               run: npm run storybook:build
 
+            # Only for the preview below, which serves them like the live site; a failure leaves it on zamimg icons.
+            - name: Decode the game files icons 🖼️
+              if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+              uses: ./.github/actions/game-files-icons
+              continue-on-error: true
+              # A stalled download fails the step, which continue-on-error then lets pass.
+              timeout-minutes: 10
+
             - name: Build 🔧
               env:
                   # The release the page shows names the commit the preview comment names, not the merge commit.

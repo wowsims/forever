@@ -233,11 +233,20 @@ func (s *cdnStore) cached(rel, md5hex string) ([]byte, error) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return nil, err
 	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+	// A temp file of its own, so two reads of one file at the same time never write the same one.
+	tmp, err := os.CreateTemp(filepath.Dir(path), filepath.Base(path)+".*.tmp")
+	if err != nil {
 		return nil, err
 	}
-	return data, os.Rename(tmp, path)
+	_, err = tmp.Write(data)
+	if closeErr := tmp.Close(); err == nil {
+		err = closeErr
+	}
+	if err != nil {
+		os.Remove(tmp.Name())
+		return nil, err
+	}
+	return data, os.Rename(tmp.Name(), path)
 }
 
 // mergeArchiveIndex adds every entry of one archive's .index to the store.
