@@ -713,8 +713,7 @@ func TestShankPutsVenomUpBeforeItsPoisonProcs(t *testing.T) {
 }
 
 // Mutilate's strikes take the poison bonus from the target's poisons at the cast. On a clean target, a Deadly Poison
-// the off-hand strike puts up leaves the main-hand strike after it unraised; on a target poisoned before the cast, both
-// strikes take the bonus.
+// either strike puts up raises neither strike; on a target poisoned before the cast, both strikes take the bonus.
 func TestMutilateTakesThePoisonBonusFromThePoisonsAtTheCast(t *testing.T) {
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
@@ -728,7 +727,7 @@ func TestMutilateTakesThePoisonBonusFromThePoisonsAtTheCast(t *testing.T) {
 		Class:         proto.Class_ClassRogue,
 		Equipment:     &proto.EquipmentSpec{Items: items},
 		TalentsString: "00530311231251031-32030302020103-001",
-		Consumables:   &proto.ConsumesSpec{OhWeaponImbueId: 8985}, // Deadly Poison IV
+		Consumables:   &proto.ConsumesSpec{MhWeaponImbueId: 8985, OhWeaponImbueId: 8985}, // Deadly Poison IV
 		Spec:          DefaultOptions,
 		Rotation:      &proto.APLRotation{},
 	}
@@ -798,17 +797,17 @@ func TestMutilateTakesThePoisonBonusFromThePoisonsAtTheCast(t *testing.T) {
 
 	putUp := 0
 	for range 100 {
-		mhDamage, _, before, after := mutilate(false)
-		if before || !after || mhDamage == 0 {
+		mhDamage, ohDamage, before, after := mutilate(false)
+		if before || !after || mhDamage == 0 || ohDamage == 0 {
 			continue
 		}
 		putUp++
-		if !near(mhDamage, cleanMH) {
-			t.Fatalf("on a clean target the main-hand strike deals %.2f after the off-hand strike put Deadly Poison up, want the clean %.2f", mhDamage, cleanMH)
+		if !near(mhDamage, cleanMH) || !near(ohDamage, cleanOH) {
+			t.Fatalf("on a clean target whose Deadly Poison a strike put up, the strikes deal %.2f and %.2f, want the clean %.2f and %.2f", mhDamage, ohDamage, cleanMH, cleanOH)
 		}
 	}
 	if putUp == 0 {
-		t.Fatal("no off-hand strike of 100 Mutilates on a clean target put Deadly Poison up before a normal main-hand hit")
+		t.Fatal("no strike of 100 Mutilates on a clean target put Deadly Poison up in a cast that landed two normal hits")
 	}
 
 	poisonedPairs := 0
