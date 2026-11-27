@@ -11,6 +11,8 @@ import { buildWowheadTooltipDataset, wowheadEntityUrl, wowheadIconUrl, WowheadTo
 
 // Shieldsworn's talent id, the tag on the Shield Specialization mana its Holy Strike causes.
 const SHIELDSWORN_TAG = 1328544;
+// The tag on the mana a regen boost adds (manaRegenBoostTag in sim/core/mana.go); it names no source.
+const MANA_REGEN_BOOST_TAG = 99997;
 // The Holy Shield hit a Shieldsworn Holy Strike casts, a spell of its own.
 const SHIELDSWORN_STRIKE_ID = 456544;
 // The Echo Unsealed Wrath stores for each seal that deals damage. A seal's hit that a spent Echo casts is
@@ -438,6 +440,7 @@ export class ActionId {
 			case 'Mana Tide Totem':
 			case 'Unholy Frenzy':
 			case 'Power Infusion':
+				if (tag === MANA_REGEN_BOOST_TAG) break;
 				if (tag != -1) {
 					if (tag === playerIndex || playerIndex == undefined) {
 						name += ` (${i18n.t('common.action_tags.self')})`;
@@ -712,7 +715,7 @@ export class ActionId {
 					name += ` (${i18n.t('common.action_tags.self')})`;
 				} else if (this.itemId && tag === 2) {
 					name += ` (${i18n.t('common.action_tags.dot')})`;
-				} else if (tag) {
+				} else if (tag && tag !== MANA_REGEN_BOOST_TAG) {
 					name += ' (??)';
 				}
 				break;
