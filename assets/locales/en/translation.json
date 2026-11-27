@@ -3714,7 +3714,7 @@
 				"off": "OH"
 			},
 			"melee_crit_cap": "Melee Crit Cap",
-			"spell_piercing_too_low": "Spell Piercing beyond the target's resistance gives no bonus below {{min}}.",
+			"spell_piercing_too_low": "Spell Piercing first cancels the target's resistance. You need at least {{min}} beyond that before it adds bonus damage.",
 			"weapon_skill": "Weapon Skill",
 			"versus": {
 				"title": "Bonus",
