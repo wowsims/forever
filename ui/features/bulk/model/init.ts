@@ -7,8 +7,10 @@ import {
 	loadStoredBatchEncounter,
 	loadStoredBulkBuildEnchantPresets,
 	loadStoredBulkBundles,
+	loadStoredBulkDropsCombinedGain,
 	loadStoredBulkDropsExcluded,
 	loadStoredBulkDropsFilters,
+	loadStoredBulkDropsOrder,
 	loadStoredBulkDropsSources,
 	loadStoredBulkDropsView,
 	loadStoredBulkEncounters,
@@ -92,9 +94,19 @@ const loadSettings = (player: Player<any>) => {
 		patchBulkState(player, { dropsView });
 	}
 
+	const dropsOrder = loadStoredBulkDropsOrder(player);
+	if (dropsOrder != null) {
+		patchBulkState(player, { dropsOrder });
+	}
+
 	const dropsFilters = loadStoredBulkDropsFilters(player);
 	if (dropsFilters != null) {
 		patchBulkState(player, { dropsFilters });
+	}
+
+	const dropsCombinedGain = loadStoredBulkDropsCombinedGain(player);
+	if (dropsCombinedGain != null) {
+		patchBulkState(player, { dropsCombinedGain });
 	}
 
 	const mode = loadStoredBulkMode(player);

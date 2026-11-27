@@ -2,15 +2,17 @@ import { enchantPresetPool } from '@features/enchant-presets/model/enchant_prese
 import { readSavedSettings } from '@features/settings/model/saved_settings';
 import { BulkSettings, ProgressMetrics } from '@generated/proto/api';
 import { APLRotation } from '@generated/proto/apl';
-import { Profession } from '@generated/proto/common';
+import { type Encounter, type Faction, Profession } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import { BulkEncounterResults, BulkEncounterSetup, BulkSimOverrides, BulkSimProgressConfig } from '@sim/bulk/types';
+import { BulkDropsCombined, BulkEncounterResults, BulkEncounterSetup, BulkResults, BulkSimOverrides, BulkSimProgressConfig } from '@sim/bulk/types';
 import type { Player } from '@sim/player/player';
+import type { Gear } from '@sim/proto/gear';
 import { getGearIdentityKey } from '@sim/proto/items';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { RequestTypes } from '@sim/sim_signal_manager';
 import type { BulkMode } from '@sim/state/sim_store';
+import { Z_95 } from '@sim/utils/math';
 import { BULK_SIM_DEFAULT_TOP_RESULTS } from '@sim/wasm/bulk_sim/constants_auto_gen';
 import { estimateBulkSimIterations } from '@sim/wasm/bulk_sim/estimate';
 import { toastManager } from '@ui-kit/Toast';
@@ -21,10 +23,13 @@ import { bulkBuildPlan, type BulkBuildStep, bulkBuildStep, bulkBundlePlans, bulk
 import { bulkBundleRuns, pickableBulkBundleParts } from '../builds/bundles';
 import { bulkEnchantPickEntries, bulkEnchantPickRuns } from '../builds/enchant_picks';
 import { bulkEncounterRuns, pickableBulkEncounters } from '../builds/encounters';
+import { dropsCombinedSets } from '../drops/combined';
+import { dropsGap } from '../drops/results';
 import { dropsRequestSettings } from '../drops/settings';
 import { createBulkSettingsProto } from '../gear/settings';
 import { bulkRunMode } from '../mode';
 import { type BulkFinishedRequest, rankEncounterResults } from '../results/results';
+import { hasPairedDiffToBaseline } from '../results/tie_chains';
 import { type CoreBulkSimResult, runCoreBulkSim as runCoreBulkSimImpl } from './core_sim';
 import { BulkProgress, type BulkRequestIterations, type BulkStepsTiming, candidateGearProgress, requestIterationsProgress, simProgress } from './progress';
 import { bulkTopResults } from './top_results';
@@ -180,11 +185,13 @@ const runWithBulkAbort = async <T>(player: Player<any>, promise: Promise<T>, sig
 	}
 };
 
+// `title` names every stage of the request on the progress bar in place of the stage's own name.
 const runCoreBulkSim = async (
 	host: IndividualSimHost<any>,
 	signal: AbortSignal,
 	bulkSettings: BulkSettings,
 	overrides: BulkSimOverrides,
+	title?: string,
 ): Promise<CoreBulkSimResult> => {
 	const { player } = host;
 	return runCoreBulkSimImpl(
@@ -192,7 +199,7 @@ const runCoreBulkSim = async (
 			simUI: host,
 			throwIfBulkAborted: abortSignal => throwIfBulkAborted(player, abortSignal),
 			runWithBulkAbort: (promise, abortSignal) => runWithBulkAbort(player, promise, abortSignal),
-			setSimProgress: (metrics, config) => setSimProgress(player, metrics, config),
+			setSimProgress: (metrics, config) => setSimProgress(player, metrics, title ? { ...config, title } : config),
 			debugOptimisationRound: (message, data) => console.debug(`[bulk-core] ${message}`, data ?? ''),
 		},
 		signal,
@@ -347,6 +354,54 @@ const buildsModePlan = (host: IndividualSimHost<any>, current: CurrentBuild, top
 	});
 };
 
+// One request for every Drops card's combined set, a set two cards share sent once, after the run's own steps. Every set
+// counts among the top results, so the request goes straight to the high stage and culls none. It sims every set at the
+// run's own iteration count, its finalists' when that stage ran, and skips the finalist stage, so a combined gain is as
+// precise as the run's best rows. Its seed differs from the run's, so each gain is the paired difference to this
+// request's own baseline. On the progress bar it follows the run's one step under its own title, the step's time left
+// cleared.
+const runDropsCombined = async (
+	host: IndividualSimHost<any>,
+	signal: AbortSignal,
+	results: BulkResults,
+	encounter: Encounter,
+	runSources: readonly string[],
+	runFaction: Faction,
+): Promise<Map<string, BulkDropsCombined> | null> => {
+	const { player } = host;
+	const sets = dropsCombinedSets(player.sim.db, results, runSources, runFaction);
+	const keyOf = (gear: Gear) => getGearIdentityKey(gear.asSpec());
+	const candidates = [...new Map([...sets.values()].map(set => [keyOf(set.gear), set.gear])).values()];
+	if (!candidates.length) return null;
+
+	throwIfBulkAborted(player, signal);
+	const run = runOf(player);
+	const minIterations = results.iterations;
+	const expected = minIterations * (candidates.length + 1);
+	run.steps = { ...run.steps, running: run.steps.groups.length };
+	run.request = { before: 0, expected, stepExpected: expected, simmed: 0 };
+	run.simStart = new Date().getTime();
+	emitProgress(player, run.progress);
+	const result = await runCoreBulkSim(
+		host,
+		signal,
+		BulkSettings.create(),
+		{ encounter, candidates, topResults: 0, minIterations },
+		i18n.t('bulk_tab.progress.combined_gain_rounds'),
+	);
+
+	const baseline = { gear: results.currentGear, dpsMetrics: result.referenceDpsMetrics };
+	const rows = new Map(result.topGearResults.map(row => [keyOf(row.gear), row]));
+	const combined = new Map<string, BulkDropsCombined>();
+	for (const [groupKey, { gear, itemIds, leftOutIds }] of sets) {
+		const row = rows.get(keyOf(gear));
+		if (!row) continue;
+		const margin = hasPairedDiffToBaseline(row) ? Z_95 * row.pairedErrorToBaseline : 0;
+		combined.set(groupKey, { itemIds, leftOutIds, gain: dropsGap(row, baseline), margin, baselineDps: baseline.dpsMetrics.avg });
+	}
+	return combined;
+};
+
 export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 	const { sim, player } = host;
 	const run = runOf(player);
@@ -394,8 +449,10 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 	// The ticks and the side the Drops request was built from, which its results group by.
 	const dropsRunSources = bulkState(player).dropsSources;
 	const dropsRunFaction = player.getFaction();
+	const dropsCombinedGain = drops && bulkState(player).dropsCombinedGain;
+	let dropsCombined: ReadonlyMap<string, BulkDropsCombined> | null = null;
 	const resultsPatch = (results: BulkEncounterResults[] | null) => {
-		if (drops) return { dropsResults: results, dropsRunSources, dropsRunFaction };
+		if (drops) return { dropsResults: results, dropsRunSources, dropsRunFaction, dropsCombined };
 		return builds ? { buildsResults: results } : { gearResults: results };
 	};
 	const entries: BulkEncounterResults[] = [];
@@ -442,6 +499,10 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 				// Drops ranks every row the sim returns, culled ones included.
 				results: rankEncounterResults(finished, baseGear, drops ? 0 : topResults),
 			});
+		}
+		// After the push, so a cancel or error here keeps the run's own results.
+		if (dropsCombinedGain && entries.length) {
+			dropsCombined = await runDropsCombined(host, abortSignal, entries[0].results, plan[0].encounter.encounter, dropsRunSources, dropsRunFaction);
 		}
 	} catch (error) {
 		runError = error;

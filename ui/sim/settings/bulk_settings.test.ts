@@ -9,15 +9,19 @@ import { specStorageKey } from '../state/storage_keys';
 import { BULK_SIM_DEFAULT_TOP_RESULTS } from '../wasm/bulk_sim/constants_auto_gen';
 import {
 	loadStoredBatchEncounter,
+	loadStoredBulkDropsCombinedGain,
 	loadStoredBulkDropsExcluded,
 	loadStoredBulkDropsFilters,
+	loadStoredBulkDropsOrder,
 	loadStoredBulkDropsSources,
 	loadStoredBulkDropsView,
 	loadStoredBulkMode,
 	loadStoredBulkTopResults,
 	storeBatchEncounter,
+	storeBulkDropsCombinedGain,
 	storeBulkDropsExcluded,
 	storeBulkDropsFilters,
+	storeBulkDropsOrder,
 	storeBulkDropsSources,
 	storeBulkDropsView,
 	storeBulkMode,
@@ -118,5 +122,26 @@ describe('Drops storage', () => {
 		const player = playerOn();
 		setRaw(player, 'bulk-drops-view.v1', 'cards');
 		expect(loadStoredBulkDropsView(player)).toBeNull();
+	});
+
+	it('loads the Bosses order it stored, and an unknown one as nothing stored', () => {
+		const player = playerOn();
+		expect(loadStoredBulkDropsOrder(player)).toBeNull();
+		storeBulkDropsOrder(player, 'zone');
+		expect(loadStoredBulkDropsOrder(player)).toBe('zone');
+
+		setRaw(player, 'bulk-drops-order.v1', 'boss');
+
+		expect(loadStoredBulkDropsOrder(player)).toBeNull();
+	});
+
+	it('loads the Combined gain tick it stored, and anything else as nothing stored', () => {
+		const player = playerOn();
+		storeBulkDropsCombinedGain(player, false);
+		expect(loadStoredBulkDropsCombinedGain(player)).toBe(false);
+
+		setRaw(player, 'bulk-drops-combined-gain.v1', '1');
+
+		expect(loadStoredBulkDropsCombinedGain(player)).toBeNull();
 	});
 });

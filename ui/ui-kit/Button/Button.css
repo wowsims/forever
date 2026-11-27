@@ -264,6 +264,24 @@
 		}
 	}
 
+	.ui-button-field {
+		@apply border-surface-border bg-surface text-foreground;
+
+		&:where(:not([data-disabled])) {
+			&:hover {
+				@apply border-input-focus-border text-primary;
+			}
+
+			&:active {
+				@apply border-input-focus-border text-primary-hover;
+			}
+		}
+
+		&:focus-visible {
+			@apply border-input-focus-border shadow-focus-input outline-none;
+		}
+	}
+
 	.ui-button:where([data-size]) {
 		@apply px-(--control-padding-x) py-(--control-padding-y);
 	}

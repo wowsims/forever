@@ -557,6 +557,7 @@ export class Sim {
 				topResults: overrides.topResults ?? 0,
 				allResults: overrides.topResults === 0,
 				cullToBaseline: overrides.cullToBaseline ?? false,
+				minIterations: overrides.minIterations ?? 0,
 				// The native sim generates candidates for a request with bulk settings and no candidates, so an explicit list,
 				// which is empty once every candidate repeats the baseline, goes without bulk settings.
 				bulkSettings: explicitCandidates ? undefined : bulkSettings,

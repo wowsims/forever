@@ -117,6 +117,8 @@ export interface BulkSimOverrides {
 	topResults?: number;
 	/** Culls each stage against the baseline and returns the culled candidates in culledResults; the sim reads no topResults then. */
 	cullToBaseline?: boolean;
+	/** The high stage's minimum iterations, raised to this count, with no finalist stage after it; absent keeps both as planned. */
+	minIterations?: number;
 }
 
 export interface BulkEncounterResults {
@@ -127,6 +129,20 @@ export interface BulkEncounterResults {
 	duration: number;
 	durationVariation: number | null;
 	results: BulkResults;
+}
+
+/** One Drops source card's upgrades simmed together as one gear set, in a request of its own. */
+export interface BulkDropsCombined {
+	/** The items the set wears, best gain first. */
+	itemIds: readonly number[];
+	/** The card's upgrades a slot or Unique-Equipped conflict kept out of the set. */
+	leftOutIds: readonly number[];
+	/** The set's paired DPS difference to that request's own baseline. */
+	gain: number;
+	/** The gain's 95% confidence margin from its paired error; 0 on a row the sim could not pair. */
+	margin: number;
+	/** That baseline's average DPS. */
+	baselineDps: number;
 }
 
 export interface BulkSimRoundConfig {

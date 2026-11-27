@@ -523,6 +523,9 @@ message BulkSimRequest {
 	// cull on the rest when more stay than the stage's max survivors, and returns the dropped ones in culled_results.
 	// top_results and all_results are not read then.
 	bool cull_to_baseline = 9;
+	// Raises the high stage's minimum iterations to this count and skips the finalist stage, so every candidate and the
+	// baseline end at the same count, the one the caller asked for. 0 keeps the stage's own minimum and the finalist stage.
+	int32 min_iterations = 10;
 }
 
 // RPC ReforgeOptimize

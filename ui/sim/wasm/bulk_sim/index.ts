@@ -100,7 +100,11 @@ export const runConcurrentBulkSim = async (
 		if (singleStage && stageConfig.stage !== BulkSimStage.BulkSimStageHigh) continue;
 		if (!shouldRunBulkSimStage(stageConfig, candidates.length, topResults)) continue;
 
-		const stageResult = await runConcurrentBulkSimStage(request, candidates, stageConfig, workerPool, onProgress, signals, carry);
+		const runConfig =
+			stageConfig.stage === BulkSimStage.BulkSimStageHigh
+				? { ...stageConfig, minIterations: Math.max(stageConfig.minIterations ?? 0, request.minIterations) }
+				: stageConfig;
+		const stageResult = await runConcurrentBulkSimStage(request, candidates, runConfig, workerPool, onProgress, signals, carry);
 		if (stageResult.baseline?.error) return makeAndSendBulkSimError(stageResult.baseline.error, onProgress);
 		const candidateError = stageResult.results.find(candidateResult => candidateResult.error)?.error;
 		if (candidateError) return makeAndSendBulkSimError(candidateError, onProgress);
@@ -159,15 +163,17 @@ export const runConcurrentBulkSim = async (
 
 	// Finalist refinement: add lockstep iterations to the displayed top results until their
 	// ranking is statistically separated (or the budget runs out), so near-ties do not flip
-	// order between runs with different seeds.
+	// order between runs with different seeds. A request with minIterations keeps the count it asked for.
 	const highResults = latestResults;
 	const highBaseline = latestBaseline;
-	const finalistResult = await runConcurrentBulkSimFinalistStage(request, latestBaseline, latestResults, topResults, workerPool, onProgress, signals);
-	latestBaseline = finalistResult.baseline;
-	latestResults = finalistResult.results;
-	if (finalistResult.metrics) {
-		result.stageMetrics.push(finalistResult.metrics);
-		result.timings!.finalistStageSeconds = finalistResult.metrics.durationSeconds;
+	if (!request.minIterations) {
+		const finalistResult = await runConcurrentBulkSimFinalistStage(request, latestBaseline, latestResults, topResults, workerPool, onProgress, signals);
+		latestBaseline = finalistResult.baseline;
+		latestResults = finalistResult.results;
+		if (finalistResult.metrics) {
+			result.stageMetrics.push(finalistResult.metrics);
+			result.timings!.finalistStageSeconds = finalistResult.metrics.durationSeconds;
+		}
 	}
 	if (signals.abort.isTriggered()) return makeAndSendBulkSimError(ErrorOutcome.create({ type: ErrorOutcomeType.ErrorOutcomeAborted }), onProgress);
 

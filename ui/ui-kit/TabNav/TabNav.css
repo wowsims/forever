@@ -30,10 +30,10 @@
 			@apply items-stretch;
 
 			& .ui-tab {
-				@apply min-w-0 flex-1 justify-center px-1 py-0 text-xs;
+				@apply min-w-0 flex-1 justify-center px-1 py-0 text-xs tracking-normal;
 
 				&[data-active]::after {
-					@apply top-0 bottom-auto h-1 bg-primary;
+					@apply h-1 bg-primary;
 				}
 			}
 		}

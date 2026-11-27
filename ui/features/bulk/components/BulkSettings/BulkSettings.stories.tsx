@@ -63,7 +63,8 @@ const meta = {
 		openGroups: ['freezes'],
 		onOpenGroupsChange: fn(),
 		groups: 'all',
-		runLabel: 'Simulate Batch',
+		runLabel: 'Find best gear',
+		summary: { label: 'Combinations', value: 48, pending: false },
 		enchants: (
 			<EnchantPresetsView
 				presets={[
@@ -126,8 +127,21 @@ export const Builds: Story = {
 export const Drops: Story = {
 	args: {
 		groups: 'enchants',
-		runLabel: 'Simulate Drops',
+		runLabel: 'Find next drop',
 		openGroups: ['enchants'],
-		combinationsCount: <DropsRunCountView pending={false} ready picked={12} candidates={19} iterations={380000} iterationsLimit={1000000} error={null} />,
+		combinationsCount: (
+			<DropsRunCountView
+				pending={false}
+				ready
+				picked={12}
+				twoHanderSkipped={0}
+				candidates={19}
+				iterations={380000}
+				iterationsLimit={1000000}
+				error={null}
+				combinedGain={false}
+				onCombinedGainChange={fn()}
+			/>
+		),
 	},
 };

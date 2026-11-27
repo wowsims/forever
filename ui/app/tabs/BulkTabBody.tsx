@@ -30,6 +30,9 @@ import { Icon } from '@ui-kit/Icon';
 import { TabNav, TabPanel, TabPanels } from '@ui-kit/TabNav';
 import { TabPanelColumns } from '@ui-kit/TabPanelColumns';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+
+import { useUpgradesSlots } from '../UpgradesSlots';
 
 const PANES = [
 	{ id: 'bulkSetupTab', labelKey: 'bulk_tab.tabs.setup' },
@@ -82,6 +85,7 @@ export const BulkTabBody = () => {
 	const [importOpen, setImportOpen] = useState(false);
 	const [selectedEncounter, selectEncounter] = useBulkResultSelection();
 	const selector = useSelectorModalState();
+	const slots = useUpgradesSlots();
 	const resultsMode = useRef(runMode);
 	// Starting a run clears its mode's results and drops back to setup; finishing one opens the results. Switching modes
 	// swaps the results shown and keeps the pane.
@@ -95,12 +99,13 @@ export const BulkTabBody = () => {
 
 	return (
 		<OpenSelectorModalContext value={selector.openTab}>
-			<Tabs.Root className="w-full pt-2" data-testid="bulk-tab-tabs" value={activeId} onValueChange={next => setActiveId(next as BulkPaneId)}>
-				<TabNav tabs={PANES.map(pane => ({ id: pane.id, label: i18n.t(pane.labelKey) }))} />
-				<TabPanels>
-					<TabPanel value="bulkSetupTab">
-						<TabPanelColumns.Root fullWidth>
-							<BulkBuildsProvider>
+			<BulkBuildsProvider>
+				{slots.panel && createPortal(<BulkSettings dock={slots.action ? slots : null} />, slots.panel)}
+				<Tabs.Root className="w-full pt-2" data-testid="bulk-tab-tabs" value={activeId} onValueChange={next => setActiveId(next as BulkPaneId)}>
+					<TabNav tabs={PANES.map(pane => ({ id: pane.id, label: i18n.t(pane.labelKey) }))} />
+					<TabPanels>
+						<TabPanel value="bulkSetupTab">
+							<TabPanelColumns.Root fullWidth>
 								<TabPanelColumns.Left variant="auto-columns">
 									{builds ? (
 										<BulkBuildsColumns />
@@ -124,36 +129,31 @@ export const BulkTabBody = () => {
 										</>
 									)}
 								</TabPanelColumns.Left>
-								<BulkSettings />
-							</BulkBuildsProvider>
-						</TabPanelColumns.Root>
-					</TabPanel>
-					<TabPanel value="bulkResultsTab">
-						<TabPanelColumns.Root fullWidth>
-							<TabPanelColumns.Left variant="stacked">
-								{drops ? (
-									<DropsResults onActivateTab={activateTab} />
-								) : (
-									<BulkResults onActivateTab={activateTab} selected={selectedEncounter} />
+							</TabPanelColumns.Root>
+						</TabPanel>
+						<TabPanel value="bulkResultsTab">
+							<TabPanelColumns.Root fullWidth>
+								<TabPanelColumns.Left variant="stacked">
+									{drops ? <DropsResults /> : <BulkResults onActivateTab={activateTab} selected={selectedEncounter} />}
+								</TabPanelColumns.Left>
+								{/* A Drops run has one encounter, so its pane carries the export itself. */}
+								{!drops && results && results.length > 0 && (
+									<BulkEncounterResults
+										selected={selectedEncounter}
+										onSelect={selectEncounter}
+										footer={
+											<div className="flex flex-wrap gap-2">
+												<BulkResultsCsvButton />
+												{results.length > 1 && <BulkCompareButton />}
+											</div>
+										}
+									/>
 								)}
-							</TabPanelColumns.Left>
-							{/* A Drops run has one encounter, so its pane carries the export itself. */}
-							{!drops && results && results.length > 0 && (
-								<BulkEncounterResults
-									selected={selectedEncounter}
-									onSelect={selectEncounter}
-									footer={
-										<div className="flex flex-wrap gap-2">
-											<BulkResultsCsvButton />
-											{results.length > 1 && <BulkCompareButton />}
-										</div>
-									}
-								/>
-							)}
-						</TabPanelColumns.Root>
-					</TabPanel>
-				</TabPanels>
-			</Tabs.Root>
+							</TabPanelColumns.Root>
+						</TabPanel>
+					</TabPanels>
+				</Tabs.Root>
+			</BulkBuildsProvider>
 			{importOpen && <BulkGearImporterDialog open onOpenChange={setImportOpen} />}
 			<SelectorModal state={selector} id="bulk-selector-modal" rail={false} />
 			{isRunning && <BulkProgressDialog />}

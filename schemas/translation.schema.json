@@ -4572,10 +4572,29 @@
 			"additionalProperties": false,
 			"required": ["title", "copy_button", "reset_button", "saved_talents", "points_remaining"]
 		},
+		"sim_sides": {
+			"type": "object",
+			"properties": {
+				"label": {
+					"type": "string"
+				},
+				"single": {
+					"type": "string"
+				},
+				"upgrades": {
+					"type": "string"
+				}
+			},
+			"additionalProperties": false,
+			"required": ["label", "single", "upgrades"]
+		},
 		"bulk_tab": {
 			"type": "object",
 			"properties": {
 				"title": {
+					"type": "string"
+				},
+				"modes_label": {
 					"type": "string"
 				},
 				"download_native": {
@@ -4800,7 +4819,13 @@
 								"best_drop": {
 									"type": "string"
 								},
-								"best_source": {
+								"farm_first": {
+									"type": "string"
+								},
+								"farm_first_upgrades_one": {
+									"type": "string"
+								},
+								"farm_first_upgrades_other": {
 									"type": "string"
 								},
 								"no_upgrade": {
@@ -4857,13 +4882,67 @@
 								},
 								"run_simulation": {
 									"type": "string"
+								},
+								"next_upgrade_title": {
+									"type": "string"
+								},
+								"next_upgrade_note": {
+									"type": "string"
+								},
+								"order_label": {
+									"type": "string"
+								},
+								"order": {
+									"type": "object",
+									"properties": {
+										"recommended": {
+											"type": "string"
+										},
+										"gain": {
+											"type": "string"
+										},
+										"upgrades": {
+											"type": "string"
+										},
+										"zone": {
+											"type": "string"
+										},
+										"combined": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["recommended", "gain", "upgrades", "zone", "combined"]
+								},
+								"run_again": {
+									"type": "string"
+								},
+								"combined_gain": {
+									"type": "string"
+								},
+								"combined_help": {
+									"type": "string"
+								},
+								"combined_tooltip": {
+									"type": "string"
+								},
+								"combined_items": {
+									"type": "string"
+								},
+								"combined_left_out": {
+									"type": "string"
+								},
+								"combined_partial": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
 							"required": [
 								"current_gear",
 								"best_drop",
-								"best_source",
+								"farm_first",
+								"farm_first_upgrades_one",
+								"farm_first_upgrades_other",
 								"no_upgrade",
 								"view",
 								"upgrades_one",
@@ -4878,7 +4957,18 @@
 								"boe_tooltip",
 								"equip_item",
 								"low_precision_tooltip",
-								"run_simulation"
+								"run_simulation",
+								"next_upgrade_title",
+								"next_upgrade_note",
+								"order_label",
+								"order",
+								"run_again",
+								"combined_gain",
+								"combined_help",
+								"combined_tooltip",
+								"combined_items",
+								"combined_left_out",
+								"combined_partial"
 							]
 						},
 						"run": {
@@ -4905,10 +4995,30 @@
 									},
 									"additionalProperties": false,
 									"required": ["one_change", "slots", "hands"]
+								},
+								"two_hander_skipped_one": {
+									"type": "string"
+								},
+								"two_hander_skipped_other": {
+									"type": "string"
+								},
+								"combined_gain": {
+									"type": "string"
+								},
+								"combined_gain_tooltip": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["items_picked", "candidates", "notes"]
+							"required": [
+								"items_picked",
+								"candidates",
+								"notes",
+								"two_hander_skipped_one",
+								"two_hander_skipped_other",
+								"combined_gain",
+								"combined_gain_tooltip"
+							]
 						}
 					},
 					"additionalProperties": false,
@@ -5045,10 +5155,13 @@
 						},
 						"simulate_drops": {
 							"type": "string"
+						},
+						"simulate_builds": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["import_bags", "import_favorites", "clear_items", "simulate_batch", "simulate_drops"]
+					"required": ["import_bags", "import_favorites", "clear_items", "simulate_batch", "simulate_drops", "simulate_builds"]
 				},
 				"search": {
 					"type": "object",
@@ -5140,10 +5253,19 @@
 								},
 								"current": {
 									"type": "string"
+								},
+								"edit": {
+									"type": "string"
+								},
+								"edit_title": {
+									"type": "string"
+								},
+								"edit_note": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["label", "tooltip", "current"]
+							"required": ["label", "tooltip", "current", "edit", "edit_title", "edit_note"]
 						},
 						"groups": {
 							"type": "object",
@@ -5485,6 +5607,9 @@
 						},
 						"step_progress": {
 							"type": "string"
+						},
+						"combined_gain_rounds": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -5504,7 +5629,8 @@
 						"done",
 						"running",
 						"pending",
-						"step_progress"
+						"step_progress",
+						"combined_gain_rounds"
 					]
 				},
 				"notifications": {
@@ -5728,6 +5854,7 @@
 			"additionalProperties": false,
 			"required": [
 				"title",
+				"modes_label",
 				"download_native",
 				"tabs",
 				"modes",
@@ -13391,6 +13518,7 @@
 		"gear_tab",
 		"settings_tab",
 		"talents_tab",
+		"sim_sides",
 		"bulk_tab",
 		"rotation_tab",
 		"results_tab",

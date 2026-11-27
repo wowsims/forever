@@ -67,7 +67,6 @@
 	--spacing-sim-header-minus: calc(var(--spacing-sim-header) - 1px);
 	--spacing-cr-icon-offset: calc(var(--spacing-cr-icon) + --spacing(6));
 	--spacing-log-body-min-h: calc(100dvh - var(--spacing-sim-header) - var(--spacing-page) - var(--spacing-sim-dock));
-	--spacing-bulk-settings-max-h: calc(100dvh - var(--spacing-sim-header) - var(--spacing-page) - var(--spacing-sim-dock));
 	--spacing-sim-dock-inset-h: calc(100dvh - var(--spacing-sim-dock));
 	--spacing-filter-popover-max-h: min(60vh, var(--available-height));
 

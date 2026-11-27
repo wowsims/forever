@@ -650,10 +650,11 @@ const renderSettings = (props: Partial<BulkSettingsViewProps> = {}) => {
 			topResults={null}
 			batchEncounter={null}
 			combinationsCount={<span data-testid="count" />}
+			summary={{ label: 'Combinations', value: 1, pending: false }}
 			canRun
 			openGroups={['freezes']}
 			groups="all"
-			runLabel="Simulate Batch"
+			runLabel="Find best gear"
 			enchants={null}
 			frozenItems={[RING_VIEW]}
 			weaponFreeze={null}
@@ -700,13 +701,13 @@ describe('BulkSettingsView', () => {
 });
 
 describe('BulkSettings in Drops mode', () => {
-	it('shows the Drops run card with Simulate Drops, the enchant group alone and no Top results', () => {
+	it('shows the Drops run card with Find next drop, the enchant group alone and no Top results', () => {
 		const { groups } = mount({ mode: 'drops' });
 
 		expect(groups()).toEqual(['bulk-settings-group-enchants-trigger']);
 		expect(screen.queryByTestId('bulk-top-results')).toBeNull();
 		expect(screen.getByTestId('bulk-batch-encounter')).toBeTruthy();
-		expect(simulate().textContent).toBe('Simulate Drops');
+		expect(simulate().textContent).toBe('Find next drop');
 	});
 
 	it('lists the picked items, the candidates and the minimum iterations', () => {
@@ -720,7 +721,7 @@ describe('BulkSettings in Drops mode', () => {
 		expect(screen.getAllByTestId('drops-run-note')).toHaveLength(3);
 	});
 
-	it('keeps Simulate Drops off with nothing picked, whatever the count', () => {
+	it('keeps Find next drop off with nothing picked, whatever the count', () => {
 		const { player } = mount({ mode: 'drops', combinations: 0 });
 
 		expect(simulate().disabled).toBe(true);
@@ -729,7 +730,7 @@ describe('BulkSettings in Drops mode', () => {
 		expect(simulate().disabled).toBe(true);
 	});
 
-	it('turns Simulate Drops on once an item is picked and counted', () => {
+	it('turns Find next drop on once an item is picked and counted', () => {
 		drops.picked = [7];
 		const { player } = mount({ mode: 'drops', combinations: 0 });
 

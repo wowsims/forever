@@ -126,6 +126,9 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 		if !shouldRunBulkSimStage(stageConfig, len(candidates), topResults) {
 			continue
 		}
+		if stageConfig.Stage == proto.BulkSimStage_BulkSimStageHigh {
+			stageConfig.MinIterations = max(stageConfig.MinIterations, request.MinIterations)
+		}
 
 		stageResult := runBulkSimStage(request, candidates, stageConfig, carry, progress, signals)
 		if stageResult.Baseline != nil && stageResult.Baseline.Error != nil {
@@ -175,10 +178,13 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 
 	// Finalist refinement: add lockstep iterations to the first top results (the default five under
 	// cull_to_baseline) until their ranking is statistically separated (or the budget runs out), so
-	// near-ties do not flip order between runs with different seeds.
+	// near-ties do not flip order between runs with different seeds. A request with min_iterations
+	// keeps the count it asked for.
 	var finalistMetrics *proto.BulkSimStageMetrics
 	highResults, highBaseline := latestResults, latestBaseline
-	latestBaseline, latestResults, finalistMetrics = runBulkSimFinalistStage(request, latestBaseline, latestResults, topResults, progress, signals)
+	if request.MinIterations == 0 {
+		latestBaseline, latestResults, finalistMetrics = runBulkSimFinalistStage(request, latestBaseline, latestResults, topResults, progress, signals)
+	}
 	if finalistMetrics != nil {
 		result.StageMetrics = append(result.StageMetrics, finalistMetrics)
 		setBulkSimStageTiming(result.Timings, proto.BulkSimStage_BulkSimStageFinalist, finalistMetrics.DurationSeconds)

@@ -17,6 +17,7 @@ const VARIANTS: Array<ButtonVariant> = [
 	'outline-secondary',
 	'outline-light',
 	'outline-cancel',
+	'field',
 	'unstyled',
 ];
 
@@ -59,6 +60,7 @@ export const OutlinePrimary: Story = { args: { variant: 'outline-primary' } };
 export const OutlineSecondary: Story = { args: { variant: 'outline-secondary' } };
 export const OutlineLight: Story = { args: { variant: 'outline-light' } };
 export const OutlineCancel: Story = { args: { variant: 'outline-cancel' } };
+export const FieldVariant: Story = { args: { variant: 'field' } };
 export const Unstyled: Story = { args: { variant: 'unstyled' } };
 
 /** `sm` is the default; a button inside a sized Field takes the field's size. */

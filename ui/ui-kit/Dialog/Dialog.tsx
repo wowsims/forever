@@ -5,9 +5,13 @@ import { FieldContext } from '@ui-kit/Field/context/FieldContext';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import { Icon } from '@ui-kit/Icon';
 import clsx from 'clsx';
-import type { KeyboardEventHandler, ReactNode, RefObject } from 'react';
+import { createContext, type KeyboardEventHandler, type ReactNode, type RefObject, use } from 'react';
 
 export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+
+// True inside a dialog's popup, so a dialog opened from it is elevated without being told: Base UI nests the two but
+// draws no backdrop for the inner one.
+const DialogNestedContext = createContext(false);
 
 export interface DialogProps {
 	open: boolean;
@@ -66,6 +70,7 @@ export const Dialog = ({
 	testId,
 }: DialogProps) => {
 	const portalContainer = usePortalContainer();
+	const raised = elevated || use(DialogNestedContext);
 	return (
 		<BaseDialog.Root
 			open={open}
@@ -81,8 +86,8 @@ export const Dialog = ({
 				{/* Named, because with a `container` the portal renders a wrapper element of its own. */}
 				<BaseDialog.Portal data-testid="sim-dialog-portal" container={portalContainer ?? undefined} keepMounted={keepMounted}>
 					{/* Base UI renders no backdrop for a nested dialog (`enabled: forceRender || !nested`), so an elevated one has to ask for its own. */}
-					<BaseDialog.Backdrop className="ui-dialog-backdrop" data-testid="sim-dialog-backdrop" data-elevated={elevated} forceRender={elevated} />
-					<BaseDialog.Viewport className="ui-dialog-viewport" data-testid="sim-dialog-viewport" data-elevated={elevated}>
+					<BaseDialog.Backdrop className="ui-dialog-backdrop" data-testid="sim-dialog-backdrop" data-elevated={raised} forceRender={raised} />
+					<BaseDialog.Viewport className="ui-dialog-viewport" data-testid="sim-dialog-viewport" data-elevated={raised}>
 						<BaseDialog.Popup
 							className={clsx(
 								'ui-dialog',
@@ -96,34 +101,38 @@ export const Dialog = ({
 							data-testid={testId ?? 'sim-dialog-popup'}
 							data-size={size}
 							onKeyDown={onKeyDown}>
-							{(title != null || headerChildren != null || !preventClose) && (
-								<div
-									className={clsx('flex shrink-0 items-start', 'ui-dialog-header', headerFlush && 'ui-dialog-header-flush')}
-									data-testid="sim-dialog-header"
-									data-bare={false}>
-									{title != null && (
-										<BaseDialog.Title className="ui-dialog-title" data-testid="sim-dialog-title">
-											{title}
-										</BaseDialog.Title>
-									)}
-									{headerChildren}
-									{!preventClose && (
-										<BaseDialog.Close
-											render={<Button iconOnly aria-label={i18n.t('common.close')} className={clsx('ui-dialog-close', closeClassName)} />}
-											data-testid="sim-dialog-close">
-											<Icon name="xmark" size="2xl" />
-										</BaseDialog.Close>
-									)}
+							<DialogNestedContext value>
+								{(title != null || headerChildren != null || !preventClose) && (
+									<div
+										className={clsx('flex shrink-0 items-start', 'ui-dialog-header', headerFlush && 'ui-dialog-header-flush')}
+										data-testid="sim-dialog-header"
+										data-bare={false}>
+										{title != null && (
+											<BaseDialog.Title className="ui-dialog-title" data-testid="sim-dialog-title">
+												{title}
+											</BaseDialog.Title>
+										)}
+										{headerChildren}
+										{!preventClose && (
+											<BaseDialog.Close
+												render={
+													<Button iconOnly aria-label={i18n.t('common.close')} className={clsx('ui-dialog-close', closeClassName)} />
+												}
+												data-testid="sim-dialog-close">
+												<Icon name="xmark" size="2xl" />
+											</BaseDialog.Close>
+										)}
+									</div>
+								)}
+								<div className={clsx('ui-dialog-body', scrollContents && 'overflow-auto', bodyClassName)} data-testid="sim-dialog-body">
+									{children}
 								</div>
-							)}
-							<div className={clsx('ui-dialog-body', scrollContents && 'overflow-auto', bodyClassName)} data-testid="sim-dialog-body">
-								{children}
-							</div>
-							{footer != null && (
-								<div className="ui-dialog-footer" data-testid="sim-dialog-footer">
-									{footer}
-								</div>
-							)}
+								{footer != null && (
+									<div className="ui-dialog-footer" data-testid="sim-dialog-footer">
+										{footer}
+									</div>
+								)}
+							</DialogNestedContext>
 						</BaseDialog.Popup>
 					</BaseDialog.Viewport>
 				</BaseDialog.Portal>

@@ -1,4 +1,5 @@
 import i18n from '@i18n/config';
+import { formatToNumber } from '@sim/utils/format';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { ItemCellIcon } from '@ui-kit/ItemCell';
@@ -10,7 +11,7 @@ import type { DropsSourceLabel } from '../../model/drops/sources';
 import { formatBulkDps, formatBulkPct } from '../../model/results/format';
 
 export interface DropsBossCardViewProps {
-	/** Null on a card with no upgrade. */
+	/** Null hides it. */
 	rank: number | null;
 	label: DropsSourceLabel;
 	/** Every item the source dropped, best first, then the worn ones. */
@@ -25,19 +26,27 @@ export interface DropsBossCardViewProps {
 		/** Equips the item's best row; absent on a worn item. */
 		onEquip?: () => void;
 	}>;
+	/** Null on a card with no upgrade. */
 	best: { dps: number; pct: number } | null;
+	/**
+	 * The source's upgrades simmed together as one set; absent when the run simmed none for it. `marginPct` is the gain's
+	 * 95% margin in the same %, 0 to leave it out; `leftOut` names the upgrades a conflict kept out.
+	 */
+	combined?: { dps: number; pct: number; marginPct: number; items: readonly string[]; leftOut: readonly string[] } | null;
 	selected: boolean;
 	onSelect: () => void;
 }
 
-const t = (key: string, options: { count?: number; name?: string } = {}) => i18n.t(`bulk_tab.drops.results.${key}`, options);
+const t = (key: string, options: { count?: number; name?: string; items?: string; included?: number; total?: number } = {}) =>
+	i18n.t(`bulk_tab.drops.results.${key}`, options);
 
 // "N / M upgrades", plural on M: N counts the strip's upgrades, M its items, worn ones included.
 // Each strip entry is a fixed column, its icon a fixed tile with a surface fill and the item level, so an icon that fails to
 // load keeps its place over its %. The card selects through a button laid under its content, so each icon's [+] equip
 // button can sit on top of it.
-export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect }: DropsBossCardViewProps) => {
+export const DropsBossCardView = ({ rank, label, strip, best, combined, selected, onSelect }: DropsBossCardViewProps) => {
 	const tooltipId = useId();
+	const combinedTooltipId = useId();
 	const upgrades = strip.filter(entry => entry.upgrade).length;
 	return (
 		<div
@@ -46,7 +55,7 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 				'hover:border-primary has-focus-visible:border-primary data-selected:border-primary data-[upgrade=none]:opacity-60',
 			)}
 			data-testid="drops-boss-card"
-			data-upgrade={rank === null ? 'none' : undefined}
+			data-upgrade={best === null ? 'none' : undefined}
 			data-selected={selected ? '' : undefined}>
 			<Button
 				variant="unstyled"
@@ -57,7 +66,11 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 				onClick={onSelect}
 			/>
 			<span className="flex items-baseline gap-2">
-				{rank !== null && <span className="text-sm text-gray-400">{rank}</span>}
+				{rank !== null && (
+					<span className="text-sm text-gray-400" data-testid="drops-boss-rank">
+						{rank}
+					</span>
+				)}
 				<span className="min-w-0 truncate font-bold" data-testid="drops-boss-label">
 					{label.label}
 				</span>
@@ -115,6 +128,46 @@ export const DropsBossCardView = ({ rank, label, strip, best, selected, onSelect
 					{upgrades} / {strip.length} {t('upgrades', { count: strip.length })}
 				</span>
 			</span>
+			{combined && (
+				<span className="flex flex-wrap items-center gap-x-2 text-sm" data-testid="drops-boss-combined">
+					<span>
+						{t('combined_gain')}{' '}
+						<span className={clsx('font-bold', combined.pct > 0 ? 'text-success' : 'text-gray-400')}>{formatBulkPct(combined.pct)}</span>{' '}
+						{combined.marginPct > 0 && (
+							<>
+								<span className="text-xs text-gray-400" data-testid="drops-boss-combined-margin">
+									±{formatToNumber(combined.marginPct, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+								</span>{' '}
+							</>
+						)}
+						<span className="text-xs text-gray-400">{formatBulkDps(combined.dps)}</span>
+					</span>
+					{combined.leftOut.length > 0 && (
+						<span className="text-xs text-gray-400" data-testid="drops-boss-combined-partial">
+							{t('combined_partial', { included: combined.items.length, total: combined.items.length + combined.leftOut.length })}
+						</span>
+					)}
+					{/* Positioned, so it sits over the card's select button. */}
+					<Button
+						variant="unstyled"
+						className="relative flex items-center text-gray-400 hover:text-primary focus-visible:focus-ring"
+						aria-label={t('combined_help')}
+						data-testid="drops-boss-combined-help"
+						{...tooltipAnchorProps(combinedTooltipId)}>
+						<Icon name="circle-info" />
+					</Button>
+					<Tooltip
+						id={combinedTooltipId}
+						content={
+							<span className="grid max-w-xs gap-1" data-testid="drops-boss-combined-tooltip">
+								<span>{t('combined_tooltip')}</span>
+								<span>{t('combined_items', { items: combined.items.join(', ') })}</span>
+								{combined.leftOut.length > 0 && <span>{t('combined_left_out', { items: combined.leftOut.join(', ') })}</span>}
+							</span>
+						}
+					/>
+				</span>
+			)}
 			<Tooltip id={tooltipId} />
 		</div>
 	);

@@ -1,8 +1,9 @@
 import type { Faction } from '@generated/proto/common';
 import type { UIItem } from '@generated/proto/ui';
-import type { BulkRankedResult, BulkResults, TopGearResult } from '@sim/bulk/types';
+import type { BulkDropsCombined, BulkRankedResult, BulkResults, TopGearResult } from '@sim/bulk/types';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import type { Gear } from '@sim/proto/gear';
+import type { BulkDropsOrder } from '@sim/state/sim_store';
 import { pushTo } from '@sim/utils/collections';
 
 import { buildTieChains, hasPairedDiffToBaseline, isTiedWithBaseline } from '../results/tie_chains';
@@ -102,6 +103,9 @@ export const topUpgrade = (items: readonly DropsResultItem[]) =>
 // The largest gain among a card's upgrades, so a tied row above them does not lead the card; its first item's on a card with none.
 const bestGain = (group: DropsSourceGroup) => (topUpgrade(group.items) ?? group.items[0]).gain;
 
+// Best gain first, groups with no upgrade last.
+const byBestGain = (a: DropsSourceGroup, b: DropsSourceGroup) => Number(b.upgrades > 0) - Number(a.upgrades > 0) || bestGain(b) - bestGain(a);
+
 /** One card per ticked leaf the run's rows reach, best gain first, groups with no upgrade last. `itemById` is a `DropsItemLookup`. */
 export const dropsSourceGroups = (
 	items: readonly DropsResultItem[],
@@ -126,7 +130,62 @@ export const dropsSourceGroups = (
 			wornIds: wornByKey.get(key) ?? [],
 			upgrades: groupItems.filter(entry => entry.upgrade).length,
 		}))
-		.sort((a, b) => Number(b.upgrades > 0) - Number(a.upgrades > 0) || bestGain(b) - bestGain(a));
+		.sort(byBestGain);
+};
+
+// The card's upgrades over its strip, worn items included, as its "N / M" reads.
+const upgradeShare = (group: DropsSourceGroup) => group.upgrades / (group.items.length + group.wornIds.length);
+
+const byShare = (a: DropsSourceGroup, b: DropsSourceGroup) => upgradeShare(b) - upgradeShare(a) || bestGain(b) - bestGain(a);
+
+/**
+ * Best gain first, groups with no upgrade last. The cards whose best upgrade the results cannot tell apart from the best
+ * upgrade of the card leading them, by the test that brackets two rows as tied (`buildTieChains` on the pair), go by
+ * upgrade share and then best gain. Each tie is with the leader, never chained through a neighbour, so a card can only
+ * pass cards within the error of its own gain.
+ */
+const recommendedOrder = (groups: readonly DropsSourceGroup[], iterations: number): DropsSourceGroup[] => {
+	const sorted = [...groups].sort(byBestGain);
+	const runs: Array<{ leader: TopGearResult; groups: DropsSourceGroup[] }> = [];
+	for (const group of sorted.filter(entry => entry.upgrades > 0)) {
+		const top = topUpgrade(group.items)!.best;
+		const run = runs.at(-1);
+		if (run && buildTieChains([run.leader, top], null, iterations).length === 1) run.groups.push(group);
+		else runs.push({ leader: top, groups: [group] });
+	}
+	return [...runs.flatMap(run => run.groups.sort(byShare)), ...sorted.filter(group => !group.upgrades)];
+};
+
+/**
+ * The cards in the Bosses view's order. `recommended` is `recommendedOrder`; `gain` is `dropsSourceGroups`' own order;
+ * `upgrades` goes by upgrade count, then share, then best gain; `zone` by the label's detail (a drop's zone, any other
+ * source's category), `recommended` within one; `combined` by Combined gain, the cards without one after by best gain.
+ * Groups with no upgrade come last under every order but `zone`, where they come last in their zone.
+ */
+export const dropsOrderedGroups = (
+	groups: readonly DropsSourceGroup[],
+	order: BulkDropsOrder,
+	iterations: number,
+	combined: ReadonlyMap<string, BulkDropsCombined> | null,
+): DropsSourceGroup[] => {
+	switch (order) {
+		case 'recommended':
+			return recommendedOrder(groups, iterations);
+		case 'gain':
+			return [...groups].sort(byBestGain);
+		case 'upgrades':
+			return [...groups].sort((a, b) => b.upgrades - a.upgrades || byShare(a, b));
+		case 'zone':
+			return recommendedOrder(groups, iterations).sort((a, b) => a.label.detail.localeCompare(b.label.detail));
+		case 'combined': {
+			const gainOf = (group: DropsSourceGroup) => combined?.get(group.key)?.gain;
+			return [...groups].sort((a, b) => {
+				const [gainA, gainB] = [gainOf(a), gainOf(b)];
+				if (gainA === undefined || gainB === undefined) return Number(gainA === undefined) - Number(gainB === undefined) || byBestGain(a, b);
+				return gainB - gainA;
+			});
+		}
+	}
 };
 
 /**
@@ -153,11 +212,11 @@ export interface DropsSummary {
 	current: BulkRankedResult;
 	/** The upgrade with the largest gain; null when nothing upgrades. */
 	best: DropsResultItem | null;
-	/** The first card holding `best`; null when nothing upgrades, or when `best` has no card among the run's sources. */
-	bestGroup: DropsSourceGroup | null;
+	/** The Recommended order's first card, whatever order the view shows; null when no card holds an upgrade. */
+	farmFirst: DropsSourceGroup | null;
 }
 
 export const dropsSummary = (results: BulkResults, items: readonly DropsResultItem[], groups: readonly DropsSourceGroup[]): DropsSummary => {
-	const best = topUpgrade(items) ?? null;
-	return { current: results.originalGearResults, best, bestGroup: (best && groups.find(group => group.items.includes(best))) ?? null };
+	const [first] = recommendedOrder(groups, results.iterations);
+	return { current: results.originalGearResults, best: topUpgrade(items) ?? null, farmFirst: first?.upgrades ? first : null };
 };

@@ -24,7 +24,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 
 import type { BulkSimItemSlot } from '../bulk/constants_auto_gen';
-import type { BulkEncounterResults, BulkPickerEntry } from '../bulk/types';
+import type { BulkDropsCombined, BulkEncounterResults, BulkPickerEntry } from '../bulk/types';
 import { ENCOUNTER_DEFAULTS } from '../constants/encounter';
 import { CURRENT_PHASE } from '../constants/other';
 import type { EquippedItem } from '../proto/equipped_item';
@@ -229,6 +229,10 @@ export type BulkMode = 'gear' | 'drops' | 'builds';
 // Drops lists its results by the sources the items drop from, or by the items.
 export type BulkDropsView = 'bosses' | 'items';
 
+// How the Bosses view orders its cards; `combined` reads the Combined gain and is offered only with it.
+export const BULK_DROPS_ORDERS = ['recommended', 'gain', 'upgrades', 'zone', 'combined'] as const;
+export type BulkDropsOrder = (typeof BULK_DROPS_ORDERS)[number];
+
 // Bulk (batch) sim tab, one slice per player. The autosave and the combination
 // count react to the `v` counters, never to the entry: the run fields are
 // written without a bump because the combination count writes them itself.
@@ -255,8 +259,11 @@ export interface BulkSlice {
 	// The ids of the items under the ticked sources that Drops has unticked, sorted.
 	dropsExcluded: readonly number[];
 	dropsView: BulkDropsView;
+	dropsOrder: BulkDropsOrder;
 	// What the Drops items dialog shows, never what runs; null until set, which reads as the class's defaults.
 	dropsFilters: DatabaseFilters | null;
+	// Whether a Drops run sims each source card's upgrades together once the single items are done.
+	dropsCombinedGain: boolean;
 	// Picked in the top navigation; Drops is no power tool, Builds counts only with power tools on.
 	mode: BulkMode;
 	// How many results each mode ranks per encounter while power tools are on; 0 is All. Without power tools Gear ranks 5.
@@ -282,6 +289,8 @@ export interface BulkSlice {
 	dropsRunSources: readonly string[];
 	// The side the last Drops run started on; its item lookup filters by it, not by the race as it is now.
 	dropsRunFaction: Faction;
+	// The last Drops run's combined sets by source card key; null when the run simmed none.
+	dropsCombined: ReadonlyMap<string, BulkDropsCombined> | null;
 	v: { settings: number; items: number };
 }
 

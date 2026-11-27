@@ -92,10 +92,14 @@ func (generator *bulkSimCandidateGenerator) singleChangeGearSets() ([]core.Equip
 	return sets, nil
 }
 
-// What goes in the off hand beside a new main-hand item. A two-hander leaves it empty.
+// What goes in the off hand beside a new main-hand item. A two-hander leaves it empty. Any other main-hand item under a
+// worn two-hander has none, so it makes no candidate: in place of the two-hander it would leave the off hand empty.
 func (generator *bulkSimCandidateGenerator) offHandPartners(base core.EquipmentSpec, newItem core.Item) []core.ItemSpec {
 	if newItem.HandType == proto.HandType_HandTypeTwoHand {
 		return []core.ItemSpec{{}}
+	}
+	if generator.baseEquipment[proto.ItemSlot_ItemSlotMainHand].HandType == proto.HandType_HandTypeTwoHand {
+		return nil
 	}
 	return generator.handPartners(base, newItem, proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand)
 }

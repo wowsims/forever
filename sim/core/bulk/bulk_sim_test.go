@@ -792,6 +792,50 @@ func TestBulkSimCullToBaselineRefinesOnlyTheDefaultTopResults(t *testing.T) {
 	}
 }
 
+// The crit chests of the test above, which leave the high stage's ranking unresolved at the high stage floor, so the
+// finalist stage would run there.
+func TestBulkSimWithMinIterationsSimsEveryCandidateAtThatCountAndSkipsTheFinalistStage(t *testing.T) {
+	cases := []struct {
+		name       string
+		multiplier int32
+	}{
+		{"at the high stage floor", 1},
+		{"above the high stage floor", 3},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			useCheapBulkSimStages(t)
+			request := chestBulkSimRequest(670, nil)
+			for idx := range 12 {
+				critRating := 10 * (idx + 1)
+				gear := statChestBulkSimGear(int32(932000+critRating), map[int32]float64{int32(proto.Stat_StatAttackPower): 700, int32(proto.Stat_StatCritRating): float64(critRating)})
+				request.Candidates = append(request.Candidates, &proto.BulkGearCandidate{Index: int32(idx), Gear: gear})
+			}
+			request.AllResults = true
+			request.MinIterations = tc.multiplier * bulkSimHighStageFloor()
+			result := runBulkSim(request, nil, simsignals.CreateSignals())
+			if result.Error != nil {
+				t.Fatalf("bulk sim failed: %s", result.Error.Message)
+			}
+
+			if stages := bulkSimStagesRun(result); len(stages) != 1 || stages[0] != proto.BulkSimStage_BulkSimStageHigh {
+				t.Fatalf("ran stages %v, want the high stage alone", stages)
+			}
+			if got := simmedIterations(result.Baseline); got != request.MinIterations {
+				t.Fatalf("baseline simmed %d iterations, want %d", got, request.MinIterations)
+			}
+			if len(result.TopResults) != 12 {
+				t.Fatalf("got %d top results, want all 12 candidates", len(result.TopResults))
+			}
+			for _, row := range result.TopResults {
+				if got := simmedIterations(row); got != request.MinIterations {
+					t.Fatalf("top result %d simmed %d iterations, want %d", row.CandidateIndex, got, request.MinIterations)
+				}
+			}
+		})
+	}
+}
+
 func TestBulkSimCullToBaselineIsDeterministic(t *testing.T) {
 	useCheapBulkSimStages(t)
 	request := cullToBaselineRequest()

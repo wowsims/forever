@@ -1,7 +1,9 @@
-import { ArmorType, Class, Faction, HandType, ItemType, Profession, ScalingItemProperties, WeaponType } from '@generated/proto/common';
+import { ArmorType, Class, Faction, HandType, ItemSlot, ItemType, Profession, ScalingItemProperties, WeaponType } from '@generated/proto/common';
 import { ContentPhase, DungeonDifficulty, UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
 import { BulkSimItemSlot } from '@sim/bulk/utils';
 import { PlayerSpecs } from '@sim/player/specs';
+import { EquippedItem } from '@sim/proto/equipped_item';
+import { Gear } from '@sim/proto/gear';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -14,6 +16,7 @@ import {
 	dropsLevelItems,
 	dropsPhaseItems,
 	dropsPickedItemIds,
+	dropsTwoHanderSkipped,
 	dropsUsableItems,
 } from './items';
 import { dropsItemSourceKeys, type DropsNames, dropsSourceTree } from './sources';
@@ -266,5 +269,38 @@ describe('dropsLevelItems', () => {
 			sources: [instanceDrop(DungeonDifficulty.DifficultyRaid, MOLTEN_CORE, 11502), quest(Faction.Unknown)],
 		});
 		expect(kept([raid])).toEqual([[1, [raid.sources[0]]]]);
+	});
+});
+
+describe('dropsTwoHanderSkipped', () => {
+	const ONE = weapon(1, 'One', HandType.HandTypeOneHand);
+	const MAIN = weapon(2, 'Main', HandType.HandTypeMainHand);
+	const OFF = weapon(3, 'Off', HandType.HandTypeOffHand);
+	const SHIELD = weapon(4, 'Shield', HandType.HandTypeOffHand, WeaponType.WeaponTypeShield);
+	const TWO = weapon(5, 'Two', HandType.HandTypeTwoHand);
+	const CHEST = item({ id: 6, name: 'Chest' });
+	const WORN_TWO = weapon(7, 'Worn Two', HandType.HandTypeTwoHand);
+	const WORN_ONE = weapon(8, 'Worn One', HandType.HandTypeOneHand);
+	const wearing = (mainHand: UIItem) => new Gear({ [ItemSlot.ItemSlotMainHand]: new EquippedItem({ item: mainHand }) });
+	const PICKS = [ONE, MAIN, OFF, SHIELD, TWO, CHEST];
+
+	it('under a worn two-hander, skips every one-hander and off-hand item and keeps the two-hander', () => {
+		expect(dropsTwoHanderSkipped(list(PICKS), wearing(WORN_TWO), PlayerSpecs.DpsWarrior)).toBe(4);
+	});
+
+	it('leaves out an off-hand weapon the class cannot hold, which makes no candidate in any hand', () => {
+		const single = ctx({ playerSpec: PlayerSpecs.RetributionPaladin, canDualWield: false });
+		expect(dropsTwoHanderSkipped(list(PICKS, single), wearing(WORN_TWO), PlayerSpecs.RetributionPaladin)).toBe(3);
+	});
+
+	it('counts the picks only: no worn item, and no item unticked', () => {
+		const context = ctx({ wornIds: new Set([ONE.id]) });
+		const picked = list(PICKS, context, BOTH, new Set([SHIELD.id]));
+		expect(dropsTwoHanderSkipped(picked, wearing(WORN_TWO), PlayerSpecs.DpsWarrior)).toBe(2);
+	});
+
+	it('skips nothing under a one-handed main hand or an empty one', () => {
+		expect(dropsTwoHanderSkipped(list(PICKS), wearing(WORN_ONE), PlayerSpecs.DpsWarrior)).toBe(0);
+		expect(dropsTwoHanderSkipped(list(PICKS), new Gear({}), PlayerSpecs.DpsWarrior)).toBe(0);
 	});
 });

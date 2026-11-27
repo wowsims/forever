@@ -6,7 +6,7 @@ import { getGearIdentityKey } from '@sim/proto/items';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { batch } from '@sim/state/batch';
 import { bulkSimHighStageFloor } from '@sim/wasm/bulk_sim/estimate';
-import { toastManager } from '@ui-kit/Toast';
+import { toastManager, type ToastOptions } from '@ui-kit/Toast';
 
 import { bonusStatsKey } from '../builds/gear_setups';
 import { rotationKey } from '../builds/rotations';
@@ -123,9 +123,14 @@ export const equipBulkResult = (host: IndividualSimHost<any>, result: BulkRanked
 const equippedToast = (equipped: BulkEquipped): string =>
 	equipped === 'build' ? i18n.t('bulk_tab.results.build_equipped') : i18n.t('bulk_tab.results.gear_equipped');
 
-// Equip on a result row: applies the row, opens the gear tab and toasts what it applied.
+// Applies the row and toasts what it applied, as `toast` builds the toast from that text when given. Returns the toast's id.
+export const equipAndToast = (host: IndividualSimHost<any>, result: BulkRankedResult, toast?: (text: string) => Omit<ToastOptions, 'variant'>): string => {
+	const text = equippedToast(equipBulkResult(host, result));
+	return toastManager.add({ variant: 'success', ...(toast ? toast(text) : { body: text }) });
+};
+
+// Equip on a Gear or Builds result row: applies the row, opens the gear tab and toasts what it applied.
 export const equipAndAnnounce = (host: IndividualSimHost<any>, result: BulkRankedResult, onActivateTab: (id: string) => void) => {
-	const equipped = equipBulkResult(host, result);
 	onActivateTab('gear-tab');
-	toastManager.add({ variant: 'success', body: equippedToast(equipped) });
+	equipAndToast(host, result);
 };

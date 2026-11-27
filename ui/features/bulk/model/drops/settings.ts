@@ -7,12 +7,14 @@ import type { Database } from '@sim/proto/database';
 import {
 	bulkState,
 	patchBulkState,
+	storeBulkDropsCombinedGain,
 	storeBulkDropsExcluded,
 	storeBulkDropsFilters,
+	storeBulkDropsOrder,
 	storeBulkDropsSources,
 	storeBulkDropsView,
 } from '@sim/settings/bulk_settings';
-import type { BulkDropsView } from '@sim/state/sim_store';
+import type { BulkDropsOrder, BulkDropsView } from '@sim/state/sim_store';
 import { memoLast } from '@sim/utils/misc';
 
 import { dropsDefaultFilters } from './filters';
@@ -51,6 +53,17 @@ export const setDropsItemsIncluded = (player: Player<any>, ids: readonly number[
 export const setDropsView = (player: Player<any>, view: BulkDropsView) => {
 	patchBulkState(player, { dropsView: view });
 	storeBulkDropsView(player, view);
+};
+
+export const setDropsOrder = (player: Player<any>, order: BulkDropsOrder) => {
+	patchBulkState(player, { dropsOrder: order });
+	storeBulkDropsOrder(player, order);
+};
+
+// No bump: the setting adds a request after the run and leaves the candidate count alone.
+export const setDropsCombinedGain = (player: Player<any>, on: boolean) => {
+	patchBulkState(player, { dropsCombinedGain: on });
+	storeBulkDropsCombinedGain(player, on);
 };
 
 export const dropsFiltersOf = (player: Player<any>): DatabaseFilters => bulkState(player).dropsFilters ?? dropsDefaultFilters(player.getPlayerClass());

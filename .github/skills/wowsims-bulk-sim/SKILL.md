@@ -45,7 +45,7 @@ mirror of the stage loop because the WASM sim cannot run `bulkSimAsync`.
 - Drops mode, `ui/features/bulk/model/drops/`: `sources.ts` (the source leaf keys, labels and tree), `items.ts` (the
   pickable list), `filters.ts` (the items dialog's search and filters), `settings.ts` (the setters and
   `dropsRequestSettings`), `results.ts` (`dropsGap`, rows grouped by
-  item and by source). Components under `ui/features/bulk/components/`: `DropsSetup` (`DropsSources` tree,
+  item and by source), `combined.ts` (the Combined gain sets). Components under `ui/features/bulk/components/`: `DropsSetup` (`DropsSources` tree,
   `DropsItemsCard` summary, `DropsItemsDialog`), `DropsRunCount`, `DropsResults` (`DropsSummary`, `DropsBossCard`,
   `DropsItemLabel`). `TotalIterations` is the run card's iterations row, shared by Gear, Builds and Drops, and
   `BulkDpsCell` the DPS, margin and difference of a Gear, Builds or Drops result row. A Drops result row is Gear's
@@ -124,10 +124,11 @@ not ship, and core code reading an item the player does not wear gets nil.
   other trinket, other hand) is the same Unique-Equipped item or shares its limit category (`excludesEachOther`).
   Enchant presets apply to new items only; with no pool entry that fits, the new item takes the slot's worn
   enchant when it fits, else none; into an empty slot it keeps its own. Worn items join no pool and are never
-  re-enchanted. A two-hander goes in the main hand and empties the off hand. A one-hander under a worn two-hander
-  goes in the main hand with the off hand empty. For a dual wielder, the one-hander worn in the new item's hand
-  may also move to the other hand, keeping its own enchant. An off-hand-only item under a worn two-hander makes
-  no candidate. The freeze fields, the weapon-type filters among them, have no effect. A set equal to the
+  re-enchanted. A two-hander goes in the main hand and empties the off hand. Under a worn two-hander only a new
+  two-hander makes a candidate: a one-hander, a main-hand-only or an off-hand-only item would leave the other hand
+  empty, so it makes none in either hand (`offHandPartners`, `mainHandPartners`, which only `single_change` calls, so
+  Gear mode's combinations are untouched). For a dual wielder, the one-hander worn in the new item's hand may also
+  move to the other hand, keeping its own enchant. The freeze fields, the weapon-type filters among them, have no effect. A set equal to the
   baseline or an earlier set is dropped, and the count equals the candidate list.
 - Game rules the generator encodes: no reforging, gems or sockets (an `ItemSpec` is id, random suffix and
   enchant); no Titan's Grip, so a two-hander never shares the hands with an off-hand; the Ranged slot iterates like
@@ -188,6 +189,8 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
 - Finalist stage (`runBulkSimFinalistStage` / `runConcurrentBulkSimFinalistStage`): the top `topResults` and the
   baseline get lockstep extra iterations until every adjacent pair separates at `BulkSimZ95`, or
   `BulkSimFinalistMaxExtraIterationMultiplier` × the iterations so far is spent. Its results are the displayed set.
+  A request with `min_iterations` (Go and wasm alike) raises the high stage's minimum to that count and skips the
+  finalist stage, so every candidate and the baseline end at that count; the Drops Combined gain request sends it.
   `all_results` ranks every candidate, generated ones too, and the sim resolves it to its candidate count, so native
   Gear runs need no count from the UI. All three modes send the batch's top results (`BulkSimOverrides.topResults`)
   through `Sim.runBulkSim`; Drops sends the default 5 with `cullToBaseline`. An override of N goes out as
@@ -287,10 +290,11 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   set); `Player.passesItemFilters` holds the checks both lists run, here for each item's first slot. Search and filters
   only change what the dialog shows: a ticked item they hide stays ticked and is sent, and neither reaches
   `BulkSettings`, the seed or the count.
-  Four keys store the Drops picks per spec: `bulk-drops-sources.v1` (the ticked leaf keys, sorted),
-  `bulk-drops-excluded.v1` (item ids unticked under them), `bulk-drops-view.v1` (`bosses` or `items`) and
-  `bulk-drops-filters.v1` (the dialog's filters). The sources and excluded ids bump `settings` so the count refreshes;
-  the view and the filters do not.
+  Six keys store the Drops picks per spec: `bulk-drops-sources.v1` (the ticked leaf keys, sorted),
+  `bulk-drops-excluded.v1` (item ids unticked under them), `bulk-drops-view.v1` (`bosses` or `items`),
+  `bulk-drops-order.v1` (the Bosses view's order, `BULK_DROPS_ORDERS`), `bulk-drops-filters.v1` (the dialog's filters)
+  and `bulk-drops-combined-gain.v1` (`true` or `false`, the Combined gain tick in `DropsRunCount`, off until set). The
+  sources and excluded ids bump `settings` so the count refreshes; the view, the order, the filters and the tick do not.
 - The Drops request (`dropsRequestSettings`) is `BulkSettings` with `single_change` on, the picked item ids as `items`
   and Gear's enchant pool (`enchantPresetPool`). It sends `BulkSimOverrides.cullToBaseline` with
   `BULK_SIM_DEFAULT_TOP_RESULTS` (`bulkTopResults` returns it in Drops), so every candidate comes back once, in
@@ -299,7 +303,9 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   Simulate stays off, while one candidate is enough to run (`canRunDropsBatch`, `canRunBatch` with a minimum of 1). Its
   iterations are the estimate at the default top results (`bulkDropsIterations`, `bulkGearIterations` at
   `BULK_SIM_DEFAULT_TOP_RESULTS`). The row for the iterations, `TotalIterations`, is shared with the Gear and Builds
-  cards and carries the limit warning.
+  cards and carries the limit warning. Under a worn two-hander one note counts the picked one-handers and off-hand
+  items it skips, which make no candidate (`dropsTwoHanderSkipped`, which places each pick in every slot
+  `getEligibleItemSlots` and `canEquipItem` allow, as `single_change` does); the generator itself says nothing.
 - Drops results: `dropsStarted` and `dropsResults` are the mode's own, like Gear's and Builds'. A run also stores
   `dropsRunSources` (the ticked leaf keys) and `dropsRunFaction` (`player.getFaction()`) as it started. The boss cards
   group by those, never by the tree or the race as they are now, and `dropsItemLookup` resolves items one id at a time
@@ -317,9 +323,37 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   its average can sit below the current gear's while its paired difference is an upgrade. The CSV's `diff` and
   `diff_pct` take it too, and the margin at the row's own iteration count. An upgrade is a row `dropsGap` puts above the
   current gear and `isTiedWithBaseline` tells apart from it. An item's best row is its proven upgrade with the largest
-  gain, else its best average. `DropsSummary.bestGroup` is null when `best` has no card among the run's sources, and the
-  summary then shows the best drop without a best source; the best-source tile shows the best drop's gain. M in "N / M"
-  counts the card's strip, the source's worn items too.
+  gain, else its best average. The summary's Best drop tile is `best`, the single upgrade with the largest gain; its
+  Farm first tile is `DropsSummary.farmFirst`, the Recommended order's first card whatever order the view shows, with
+  "N of M drops" as the card counts them. It is null when no card holds an upgrade, and the tile then shows a dash
+  beside a best drop. M in "N / M" counts the card's strip, the source's worn items too.
+- Combined gain (`dropsCombinedGain`, opt-in): once the Drops request finishes, `runBulkBatch` sends one more request
+  with a set for every card with more than one upgrade (`dropsCombinedSets` in `model/drops/combined.ts`, which groups
+  the cards as `DropsResults` does). A set is the card's upgrades worn together: each upgrade, largest gain first, takes
+  its best upgrade row whose changed slots (by item id, against the current gear) no earlier pick took and whose items
+  nothing left in the set excludes by Unique-Equipped or limit category; the row brings every slot it changed, so the
+  generator's hand rules carry over, and a ring may take the other ring slot. A card where fewer than two fit gets no
+  set. The request sends the sets as `candidates` with `topResults` 0 and `BulkSettings.create()`, deduped by gear key
+  (two cards can share a set), so it runs single-stage at the high stage and culls none, and with `minIterations` the
+  run's `BulkResults.iterations` (its finalists' count when that stage ran, else the high stage's), so every set sims at
+  the precision of the run's best rows with no finalist stage. Its seed is its own, so each gain is the row's `dropsGap`
+  against that request's own baseline, stored with its margin (`Z_95` × `pairedErrorToBaseline`, 0 on an unpaired row),
+  the baseline's DPS and the included and left-out ids in `dropsCombined` by card key. The card shows the gain and its ±
+  as a % of that baseline and the run's current DPS plus the gain, with an info tooltip that names the set and any upgrade left out. It reports through the same
+  progress bar under its own title (no step row: the dialog freezes its rows at mount), and runs after the encounter
+  push, so a cancel or error in it keeps the Drops results and restores the gear; every run clears `dropsCombined`.
+- The Bosses view's Order by menu (`dropsOrderedGroups`, at the view only: `dropsSummary` takes Farm first from the
+  Recommended order whatever the menu shows). Recommended is best gain first and cards with no upgrade last, and a run of cards whose best upgrade
+  rows `buildTieChains` brackets together goes by upgrade share (N / M), then best gain. Biggest upgrade is
+  `dropsSourceGroups`' order; Most upgrades goes by count, then share; Zone by the label's detail, Recommended within
+  a zone; Combined gain, offered only while `dropsCombined` is set, by the combined gain, the cards without one after
+  by best gain. A stored Combined gain order reads as Recommended on a run without it and stays stored. Only
+  Recommended numbers the cards; `DropsBossCard` dims on a null `best`.
+- Equip from a Drops row or card icon equips in place and stays on the Upgrades side (`equipAndToast`); a Gear or
+  Builds row's equip opens the gear tab (`equipAndAnnounce`). The Drops toast carries Run Drops again. That button holds
+  the run button's gate (`canRunDropsBatch`, `bulkRunLimits`, Drops mode, sim ready), so it stays off until the equip's
+  recount clears `combinationsPending`; it closes the toast and calls `runBulkBatch`, which takes the gear it starts on
+  as the baseline.
 - A row culled before the finalist set (`isCulled`: `culledStage` set to a stage) is lower precision: no ±, no tight
   bracket, an empty `dps_margin_95` in the CSV, a "Ruled out early" note before its Equip button, and it brackets only
   with the current gear. Drops rows show their DPS

@@ -1,7 +1,7 @@
 import { BulkSimStage, DistributionMetrics } from '@generated/proto/api';
 import { Faction, HandType, ItemSlot, ItemType } from '@generated/proto/common';
 import { type UIItem, UIItem_FactionRestriction, UIItemSource } from '@generated/proto/ui';
-import type { TopGearResult } from '@sim/bulk/types';
+import type { BulkDropsCombined, BulkRankedResult, TopGearResult } from '@sim/bulk/types';
 import { EquippedItem } from '@sim/proto/equipped_item';
 import { Gear } from '@sim/proto/gear';
 import { CURRENT_ROTATION_SETUP, CURRENT_TALENT_SETUP } from '@testing/storybook/fixtures/bulk-compare';
@@ -11,7 +11,17 @@ import { describe, expect, it } from 'vitest';
 
 import { rankEncounterResults } from '../results/results';
 import { wornIdSet } from './items';
-import { dropsGap, dropsItemChains, dropsItemLookup, dropsNewItem, dropsResultItems, dropsSourceGroups, dropsSummary } from './results';
+import {
+	dropsGap,
+	dropsItemChains,
+	dropsItemLookup,
+	dropsNewItem,
+	dropsOrderedGroups,
+	dropsResultItems,
+	type DropsSourceGroup,
+	dropsSourceGroups,
+	dropsSummary,
+} from './results';
 
 const REND_KEY = `drop:${BLACKROCK_SPIRE}:${REND}`;
 const RIVENDARE_KEY = `drop:${STRATHOLME}:${RIVENDARE}`;
@@ -229,7 +239,7 @@ describe('dropsSourceGroups', () => {
 		const groups = dropsSourceGroups(items, RUN_SOURCES, CURRENT_GEAR, itemById, names);
 		expect(groups.map(entry => entry.key)).toEqual([REND_KEY, WYRMTHALAK_KEY]);
 		const summary = dropsSummary(results, items, groups);
-		expect([summary.best?.itemId, summary.bestGroup?.key]).toEqual([RING.id, REND_KEY]);
+		expect([summary.best?.itemId, summary.farmFirst?.key]).toEqual([RING.id, REND_KEY]);
 	});
 
 	it('counts a worn item of a ticked source in N / M without an upgrade', () => {
@@ -267,12 +277,12 @@ describe('dropsItemChains', () => {
 });
 
 describe('dropsSummary', () => {
-	it('names the best drop and the best boss', () => {
+	it('names the best drop and the card to farm first', () => {
 		const summary = dropsSummary(RESULTS, ITEM_RESULTS, GROUPS);
 		expect(summary.current).toBe(CURRENT);
 		expect(summary.best?.itemId).toBe(RING.id);
-		expect(summary.bestGroup?.key).toBe(REND_KEY);
-		expect(summary.bestGroup?.items).toContain(summary.best);
+		expect(summary.farmFirst?.key).toBe(REND_KEY);
+		expect(summary.farmFirst?.items).toContain(summary.best);
 	});
 
 	it('names the upgrade with the largest gain as the best drop, on the best boss’s card', () => {
@@ -284,17 +294,17 @@ describe('dropsSummary', () => {
 		const items = dropsResultItems(results);
 		const groups = dropsSourceGroups(items, RUN_SOURCES, CURRENT_GEAR, itemById, names);
 		const summary = dropsSummary(results, items, groups);
-		expect([summary.best?.itemId, summary.bestGroup?.key]).toEqual([BELT.id, WYRMTHALAK_KEY]);
-		expect(summary.bestGroup?.items).toContain(summary.best);
+		expect([summary.best?.itemId, summary.farmFirst?.key]).toEqual([BELT.id, WYRMTHALAK_KEY]);
+		expect(summary.farmFirst?.items).toContain(summary.best);
 		expect(groups.map(entry => entry.key)).toEqual([WYRMTHALAK_KEY, REND_KEY]);
 	});
 
-	it('names no best drop or boss when nothing upgrades', () => {
+	it('names no best drop or card to farm first when nothing upgrades', () => {
 		const results = rank([paired(wearing({ [ItemSlot.ItemSlotChest]: CHEST }), 752, {}, 1.5), paired(TWO_HANDER_GEAR, 740)]);
 		const items = dropsResultItems(results);
 		const groups = dropsSourceGroups(items, RUN_SOURCES, CURRENT_GEAR, itemById, names);
 		expect(groups.map(entry => entry.upgrades)).toEqual([0, 0]);
-		expect(dropsSummary(results, items, groups)).toEqual({ current: results.originalGearResults, best: null, bestGroup: null });
+		expect(dropsSummary(results, items, groups)).toEqual({ current: results.originalGearResults, best: null, farmFirst: null });
 	});
 });
 
@@ -309,5 +319,85 @@ describe('dropsItemLookup', () => {
 		expect(lookup(hordeOnly.id)).toBeUndefined();
 		expect(lookup(mixed.id)?.sources).toEqual([drop(BLACKROCK_SPIRE, REND)]);
 		expect(lookup(later.id)).toBe(later);
+	});
+});
+
+describe('dropsOrderedGroups', () => {
+	// A card whose items gain `gains` over the current gear, upgrades where `upgrade` holds, in the zone `detail`. Each
+	// item's best row is paired with the baseline; with no backend rank, two cards' best rows compare unpaired at ±1 DPS.
+	const card = (key: string, detail: string, gains: number[], upgrades: number, extra: Partial<TopGearResult> = {}): DropsSourceGroup => ({
+		key,
+		label: { label: key, detail },
+		items: gains.map((gain, index) => ({
+			itemId: index,
+			best: paired(CURRENT_GEAR, CURRENT_DPS + gain, index === 0 ? extra : {}) as BulkRankedResult,
+			upgradeRows: [],
+			upgrade: index < upgrades,
+			gain,
+		})),
+		wornIds: [],
+		upgrades,
+	});
+	// A is 0.5 DPS above B, inside the error, B upgrades with both its items and A with one of three; C is 10 DPS below both.
+	const A = card('A', 'Stratholme', [20, -5, -8], 1);
+	const B = card('B', 'Blackrock Spire', [19.5, 3], 2);
+	const C = card('C', 'Blackrock Spire', [10, 9, 8], 3);
+	const D = card('D', 'Scholomance', [-2], 0);
+	// In `dropsSourceGroups`' order.
+	const GROUPS = [A, B, C, D];
+	const keys = (groups: DropsSourceGroup[]) => groups.map(group => group.key);
+	const order = (value: Parameters<typeof dropsOrderedGroups>[1], combined: ReadonlyMap<string, BulkDropsCombined> | null = null) =>
+		keys(dropsOrderedGroups(GROUPS, value, N, combined));
+
+	it('Recommended breaks a tie between two best upgrades by upgrade share, and keeps cards with no upgrade last', () => {
+		expect(order('recommended')).toEqual(['B', 'A', 'C', 'D']);
+	});
+
+	it('gives the summary the Recommended order’s first card to farm first, not the card with the best gain', () => {
+		expect(dropsSummary({ ...RESULTS, iterations: N }, [], GROUPS).farmFirst?.key).toBe('B');
+		expect(dropsSummary({ ...RESULTS, iterations: N }, [], [D]).farmFirst).toBeNull();
+	});
+
+	it('Recommended keeps the gain order where the paired error to the next row tells the two apart', () => {
+		const first = card('A', 'Stratholme', [20, -5, -8], 1, { backendRank: 0, pairedErrorToNextResult: 0.1 });
+		const second = card('B', 'Blackrock Spire', [19.5, 3], 2, { backendRank: 1 });
+		expect(keys(dropsOrderedGroups([first, second, C, D], 'recommended', N, null))).toEqual(['A', 'B', 'C', 'D']);
+	});
+
+	it('Recommended ties each card with the card leading its run, so a card passes only the cards within the error of its gain', () => {
+		// 2 DPS apart, inside the error of two rows at ±1, 4 DPS apart outside it. The last card has the best share.
+		const steps = [20, 18, 16, 14].map((gain, index) => card(`S${index}`, 'Stratholme', index === 3 ? [gain] : [gain, -1, -2], 1));
+		expect(keys(dropsOrderedGroups(steps, 'recommended', N, null))).toEqual(['S0', 'S1', 'S3', 'S2']);
+	});
+
+	it('Biggest upgrade goes by best gain alone', () => {
+		expect(order('gain')).toEqual(['A', 'B', 'C', 'D']);
+	});
+
+	it('Most upgrades goes by upgrade count, then share', () => {
+		const half = card('E', 'Scholomance', [15, 14, -1, -2], 2);
+		expect(keys(dropsOrderedGroups([A, B, C, half, D], 'upgrades', N, null))).toEqual(['C', 'B', 'E', 'A', 'D']);
+	});
+
+	it('Zone goes by the zone, Recommended within one', () => {
+		expect(order('zone')).toEqual(['B', 'C', 'D', 'A']);
+	});
+
+	it('Combined gain puts the cards with one first, largest first, and the rest after by best gain', () => {
+		const combined = (gain: number): BulkDropsCombined => ({ itemIds: [], leftOutIds: [], gain, margin: 0, baselineDps: CURRENT_DPS });
+		expect(
+			order(
+				'combined',
+				new Map([
+					['C', combined(30)],
+					['B', combined(25)],
+				]),
+			),
+		).toEqual(['C', 'B', 'A', 'D']);
+	});
+
+	it('returns a copy and leaves the groups in their order', () => {
+		dropsOrderedGroups(GROUPS, 'upgrades', N, null);
+		expect(keys(GROUPS)).toEqual(['A', 'B', 'C', 'D']);
 	});
 });

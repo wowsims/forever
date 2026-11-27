@@ -77,6 +77,10 @@ const PORTAL_EXCEPTIONS: Record<string, string> = {};
 
 const OVERLAY_PORTAL_EXCEPTIONS: Record<string, string> = {
 	'app/SimTabs.tsx': 'a layout slot for the tab panes, not an overlay',
+	'app/tabs/BulkTabBody.tsx':
+		"portals the Upgrades run panel into UpgradesSlots' panel slot in the sidebar or the dock's sheet, a layout slot, not an overlay",
+	'features/bulk/components/BulkSettings/BulkSettings.tsx':
+		"portals the run button and its count into the dock bar's slots, layout slots in SimDock.tsx, not an overlay",
 	'features/results/components/LogRunner/LogRunner.tsx':
 		"portals its sticky header into DrStickySlotContext's dr-sticky-slot, a layout slot in DetailedResults.tsx, not an overlay",
 	'features/results/components/Timeline/rotation/RotationTrack.tsx':

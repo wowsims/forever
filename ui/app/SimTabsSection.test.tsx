@@ -8,8 +8,7 @@ import { Stats } from '@sim/proto/stats';
 import { bulkState, loadStoredBulkMode, patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
 import { createSimStore, patchSlice, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { memoryEnv } from '@testing/sim/memory_env';
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SimHostObject } from './individual_sim_ui';
@@ -89,33 +88,17 @@ const mount = ({ powerTools }: { powerTools: boolean }) => {
 	return player;
 };
 
-const batchTab = () => within(document.querySelector('header')!).getByTestId(BULK_TAB_ID);
+const header = () => within(document.querySelector('header')!);
 const click = (element: HTMLElement) => act(() => void fireEvent.click(element));
-const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
-// A whole press, one frame long, since Base UI opens a pressed menu on the next frame.
-const press = (element: HTMLElement, pointerType: 'mouse' | 'touch') =>
-	act(async () => {
-		fireEvent.pointerDown(element, { pointerType, button: 0 });
-		fireEvent.mouseDown(element, { button: 0 });
-		fireEvent.pointerUp(element, { pointerType, button: 0 });
-		fireEvent.mouseUp(element, { button: 0 });
-		fireEvent.click(element, { button: 0 });
-		await nextFrame();
-	});
-const hover = (element: HTMLElement) =>
-	act(async () => {
-		fireEvent.pointerEnter(element, { pointerType: 'mouse' });
-		fireEvent.mouseEnter(element);
-		fireEvent.mouseMove(element);
-		await nextFrame();
-	});
-const leave = (element: HTMLElement) =>
-	act(async () => {
-		fireEvent.pointerLeave(element, { pointerType: 'mouse' });
-		fireEvent.mouseLeave(element);
-		await nextFrame();
-	});
-const modeItems = () => screen.queryAllByRole('menuitem').map(item => item.getAttribute('data-testid'));
+const sideButton = (side: 'single' | 'upgrades') =>
+	within(screen.getByTestId('sim-side-switch')).getByText(`sim_sides.${side}`).closest('button') as HTMLButtonElement;
+const modeTabs = () => [...within(screen.getByTestId('bulk-mode-tabs')).getAllByRole('tab')].map(tab => tab.getAttribute('data-testid'));
+const selectedMode = () =>
+	[...within(screen.getByTestId('bulk-mode-tabs')).getAllByRole('tab')]
+		.filter(tab => tab.getAttribute('aria-selected') === 'true')
+		.map(tab => tab.getAttribute('data-testid'));
+const openPanelId = () =>
+	[...document.querySelectorAll<HTMLElement>('[role="tabpanel"]')].find(panel => !panel.hasAttribute('hidden'))?.firstElementChild?.id ?? null;
 const groups = () =>
 	[...document.querySelectorAll('[data-testid^="bulk-settings-group-"][data-testid$="-trigger"]')].map(trigger => trigger.getAttribute('data-testid'));
 
@@ -123,172 +106,98 @@ beforeEach(() => {
 	localStorage.clear();
 });
 
-describe('SimTabsSection batch tab', () => {
-	it('opens a menu of Gear and Drops without power tools', async () => {
+describe('SimTabsSection side switch', () => {
+	it('shows the single sim tabs and no batch tab until Upgrades is picked', () => {
 		mount({ powerTools: false });
 
-		expect(batchTab().textContent).toBe('bulk_tab.title');
-		expect(batchTab().getAttribute('aria-haspopup')).toBe('menu');
+		expect(screen.queryByTestId('bulk-mode-tabs')).toBeNull();
+		expect(header().queryByTestId(BULK_TAB_ID)).toBeNull();
+		expect(header().getByTestId('sim-tabs')).toBeTruthy();
+		expect(sideButton('single').getAttribute('aria-pressed')).toBe('true');
+		expect(sideButton('upgrades').getAttribute('aria-pressed')).toBe('false');
+	});
 
-		await hover(batchTab());
-		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops']);
-		await leave(batchTab());
+	it('opens the Upgrades side with the mode tabs in place of the single sim tabs', async () => {
+		mount({ powerTools: false });
 
-		await press(batchTab(), 'mouse');
+		await click(sideButton('upgrades'));
 
-		expect(batchTab().getAttribute('aria-selected')).toBe('true');
+		expect(sideButton('upgrades').getAttribute('aria-pressed')).toBe('true');
+		expect(openPanelId()).toBe(BULK_TAB_ID);
+		expect(screen.queryByTestId('sim-tabs')).toBeNull();
+		expect(modeTabs()).toEqual(['bulk-mode-gear', 'bulk-mode-drops']);
 		expect(groups()).toEqual(['bulk-settings-group-enchants-trigger', 'bulk-settings-group-freezes-trigger']);
 	});
 
-	it('marks the mode the batch tab opens in, Gear for a stored Builds with power tools off', async () => {
-		const player = mount({ powerTools: false });
-		act(() => patchBulkState(player, { mode: 'builds' }));
-		const current = () => screen.queryAllByRole('menuitem').filter(item => item.getAttribute('aria-current') === 'true');
+	it('returns to the single sim tab that was open before Upgrades', async () => {
+		mount({ powerTools: false });
+		await click(header().getByTestId('rotation-tab'));
+		expect(header().getByTestId('rotation-tab').getAttribute('aria-selected')).toBe('true');
 
-		await hover(batchTab());
-		expect(current().map(item => item.getAttribute('data-testid'))).toEqual(['bulk-mode-gear']);
+		await click(sideButton('upgrades'));
+		await click(sideButton('single'));
 
-		await click(screen.getByTestId('bulk-mode-drops'));
-		await hover(batchTab());
-		expect(current().map(item => item.getAttribute('data-testid'))).toEqual(['bulk-mode-drops']);
+		expect(header().getByTestId('rotation-tab').getAttribute('aria-selected')).toBe('true');
+		expect(screen.queryByTestId('bulk-mode-tabs')).toBeNull();
 	});
 
-	it('switches to Drops from the hover menu without power tools', async () => {
+	it('returns to the first single tab when no other was opened', async () => {
+		mount({ powerTools: false });
+
+		await click(sideButton('upgrades'));
+		await click(sideButton('single'));
+
+		expect(header().getByTestId('gear-tab').getAttribute('aria-selected')).toBe('true');
+	});
+});
+
+describe('SimTabsSection Upgrades modes', () => {
+	it('marks Gear as the mode in a stored Builds with power tools off', async () => {
 		const player = mount({ powerTools: false });
-		await hover(batchTab());
+		act(() => patchBulkState(player, { mode: 'builds' }));
+		await click(sideButton('upgrades'));
+
+		expect(selectedMode()).toEqual(['bulk-mode-gear']);
+	});
+
+	it('switches to Drops from its tab without power tools', async () => {
+		const player = mount({ powerTools: false });
+		await click(sideButton('upgrades'));
 
 		await click(screen.getByTestId('bulk-mode-drops'));
 
 		expect(bulkState(player).mode).toBe('drops');
 		expect(loadStoredBulkMode(player)).toBe('drops');
-		expect(batchTab().getAttribute('aria-selected')).toBe('true');
+		expect(selectedMode()).toEqual(['bulk-mode-drops']);
 		expect(screen.getByTestId('bulk-run-card')).toBeTruthy();
 		expect(groups()).toEqual(['bulk-settings-group-enchants-trigger']);
 	});
 
-	it('opens the batch tab in its mode on a mouse click with power tools on, leaving no menu open', async () => {
+	it('offers Builds with power tools on and opens the run card alone from it', async () => {
 		const player = mount({ powerTools: true });
-		act(() => patchBulkState(player, { mode: 'builds' }));
-
-		await hover(batchTab());
-		await press(batchTab(), 'mouse');
-		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops', 'bulk-mode-builds']);
-		await leave(batchTab());
-
-		expect(modeItems()).toEqual([]);
-		expect(bulkState(player).mode).toBe('builds');
-		expect(batchTab().getAttribute('aria-selected')).toBe('true');
-		expect(groups()).toEqual([]);
-	});
-
-	it('opens the batch tab and the menu on a tap with power tools on', async () => {
-		mount({ powerTools: true });
-
-		await press(batchTab(), 'touch');
-
-		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops', 'bulk-mode-builds']);
-		expect(batchTab().getAttribute('aria-selected')).toBe('true');
-	});
-
-	it.each([
-		['Enter', '{Enter}'],
-		['Space', ' '],
-		['ArrowDown', '{ArrowDown}'],
-	])('opens the menu from the keyboard with %s', async (_name, key) => {
-		mount({ powerTools: true });
-		act(() => batchTab().focus());
-
-		await userEvent.keyboard(key);
-
-		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops', 'bulk-mode-builds']);
-		expect(batchTab().getAttribute('aria-selected')).toBe('true');
-	});
-
-	it('moves along the tab strip with ArrowLeft and ArrowRight onto and off the batch tab', async () => {
-		mount({ powerTools: true });
-		const gear = within(document.querySelector('header')!).getByTestId('gear-tab');
-
-		// The strip loops: left of the first tab is the batch tab, the last one.
-		fireEvent.keyDown(gear, { key: 'ArrowLeft' });
-		await waitFor(() => expect(document.activeElement).toBe(batchTab()));
-		expect(batchTab().getAttribute('aria-selected')).toBe('true');
-
-		fireEvent.keyDown(batchTab(), { key: 'ArrowRight' });
-		await waitFor(() => expect(document.activeElement).toBe(gear));
-		expect(gear.getAttribute('aria-selected')).toBe('true');
-	});
-
-	it('reads Batch on a tab that carries the menu with power tools on', () => {
-		mount({ powerTools: true });
-
-		expect(batchTab().textContent).toBe('bulk_tab.title');
-		expect(batchTab().getAttribute('role')).toBe('tab');
-		expect(batchTab().getAttribute('aria-haspopup')).toBe('menu');
-	});
-
-	it('switches to Builds from the hover menu, opening the batch tab with the run card alone', async () => {
-		const player = mount({ powerTools: true });
-		await hover(batchTab());
-		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops', 'bulk-mode-builds']);
-		expect(batchTab().getAttribute('aria-selected')).toBe('false');
+		await click(sideButton('upgrades'));
+		expect(modeTabs()).toEqual(['bulk-mode-gear', 'bulk-mode-drops', 'bulk-mode-builds']);
 
 		await click(screen.getByTestId('bulk-mode-builds'));
 
 		expect(bulkState(player).mode).toBe('builds');
 		expect(loadStoredBulkMode(player)).toBe('builds');
-		expect(batchTab().textContent).toBe('bulk_tab.title');
-		expect(batchTab().getAttribute('aria-selected')).toBe('true');
+		expect(selectedMode()).toEqual(['bulk-mode-builds']);
 		expect(groups()).toEqual([]);
 		expect(screen.getByTestId('bulk-run-card')).toBeTruthy();
 	});
 
-	it('opens the batch tab in the picked mode while another tab holds focus, and focuses the batch tab', async () => {
-		const player = mount({ powerTools: true });
-		const rotation = within(document.querySelector('header')!).getByTestId('rotation-tab');
-		await userEvent.click(rotation);
-		expect(document.activeElement).toBe(rotation);
-		expect(rotation.getAttribute('aria-selected')).toBe('true');
-
-		await hover(batchTab());
-		await act(async () => {
-			fireEvent.click(screen.getByTestId('bulk-mode-builds'));
-			await nextFrame();
-		});
-
-		expect(modeItems()).toEqual([]);
-		expect(bulkState(player).mode).toBe('builds');
-		expect(document.activeElement).toBe(batchTab());
-		expect(batchTab().getAttribute('aria-selected')).toBe('true');
-		expect(rotation.getAttribute('aria-selected')).toBe('false');
-		expect(screen.getByTestId('bulk-run-card')).toBeTruthy();
-	});
-
-	it('leaves the focused tab open when the menu closes on Escape without a pick', async () => {
-		const player = mount({ powerTools: true });
-		const rotation = within(document.querySelector('header')!).getByTestId('rotation-tab');
-		await userEvent.click(rotation);
-
-		await hover(batchTab());
-		expect(modeItems()).toEqual(['bulk-mode-gear', 'bulk-mode-drops', 'bulk-mode-builds']);
-		await userEvent.keyboard('{Escape}');
-		await act(nextFrame);
-
-		expect(modeItems()).toEqual([]);
-		expect(bulkState(player).mode).toBe('gear');
-		expect(rotation.getAttribute('aria-selected')).toBe('true');
-		expect(batchTab().getAttribute('aria-selected')).toBe('false');
-	});
-
-	it('keeps the stored mode with power tools off, and runs Gear until they are back on', () => {
+	it('keeps the stored mode with power tools off, and runs Gear until they are back on', async () => {
 		const player = mount({ powerTools: false });
 		act(() => patchBulkState(player, { mode: 'builds' }));
+		await click(sideButton('upgrades'));
 
-		expect(batchTab().textContent).toBe('bulk_tab.title');
+		expect(modeTabs()).toEqual(['bulk-mode-gear', 'bulk-mode-drops']);
 		expect(groups()).toEqual(['bulk-settings-group-enchants-trigger', 'bulk-settings-group-freezes-trigger']);
 
 		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
 
-		expect(batchTab().textContent).toBe('bulk_tab.title');
+		expect(selectedMode()).toEqual(['bulk-mode-builds']);
 		expect(groups()).toEqual([]);
 	});
 });

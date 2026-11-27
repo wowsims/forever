@@ -30,12 +30,13 @@ import { raceToFaction } from '@sim/proto/utils';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { type BulkMode, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
+import { Z_95 } from '@sim/utils/math';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { makeUIEnchant, makeUIItem } from '@testing/storybook/fixtures/protos';
 import { beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 
-import { setDropsFilters, setDropsSources } from '../drops/settings';
+import { setDropsCombinedGain, setDropsFilters, setDropsSources } from '../drops/settings';
 import { initBulk } from '../init';
 import { setBulkMode } from '../mode';
 import { compareMatrix } from '../results/compare';
@@ -973,6 +974,21 @@ describe('runBulkBatch', () => {
 		expect(bulkState(host.player).dropsRunSources).toEqual([DRAKKISATH]);
 	});
 
+	it('takes the gear a Drops run starts on as its baseline, an item just equipped among it, and puts that gear back', async () => {
+		const host = batchHost({ mode: 'drops' });
+		setDropsSources(host.player, [DRAKKISATH]);
+		const equipped = CURRENT_GEAR.withEquippedItem(ItemSlot.ItemSlotChest, makeEquippedItem({ item: DROP_ITEMS[1] }));
+		vi.spyOn(host.player, 'getGear').mockReturnValue(equipped);
+		vi.mocked(runCoreBulkSim).mockResolvedValue(DROPS_CORE_RESULT as never);
+
+		await runBulkBatch(host);
+
+		expect(calls()[0][2].items).toEqual([]);
+		expect(bulkState(host.player).runGear).toBe(equipped);
+		expect(bulkState(host.player).dropsResults![0].results.currentGear).toBe(equipped);
+		expect(host.player.setGearAsync).toHaveBeenLastCalledWith(equipped);
+	});
+
 	it('runs a stored Drops with power tools off', async () => {
 		const host = batchHost({ mode: 'drops', powerTools: false, batchEncounter: COUNCIL_REF });
 		setDropsSources(host.player, [DRAKKISATH]);
@@ -999,6 +1015,136 @@ describe('runBulkBatch', () => {
 
 		expect(calls()).toHaveLength(4);
 		expect(bulkState(host.player).buildsResults!.map(entry => entry.isCurrent)).toEqual([true]);
+	});
+});
+
+describe('the Drops combined gain', () => {
+	beforeEach(() => {
+		vi.mocked(runCoreBulkSim).mockReset();
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+	});
+
+	const REND = 'drop:1583:10429';
+	const wearing = (slot: ItemSlot, id: number, type: ItemType) =>
+		new Gear({ ...CURRENT_GEAR.asMap(), [slot]: makeEquippedItem({ item: { id, type, unique: false } }) });
+	const CHEST_GEAR = wearing(ItemSlot.ItemSlotChest, 102, ItemType.ItemTypeChest);
+	const RING_GEAR = wearing(ItemSlot.ItemSlotFinger1, 103, ItemType.ItemTypeFinger);
+	const upgrade = (gear: Gear, gain: number) => ({
+		gear,
+		dpsMetrics: { avg: 1000 + gain, stdev: 1 },
+		pairedErrorToBaseline: 1,
+		pairedDpsDiffToBaseline: gain,
+	});
+	// Drakkisath's chest and ring both upgrade.
+	const MAIN_RESULT = { ...CORE_RESULT, topGearResults: [upgrade(CHEST_GEAR, 50), upgrade(RING_GEAR, 30)] };
+	// The set's paired difference, 37, is neither the single gains' sum nor its average's gap to this request's baseline.
+	const combinedResult = async (_context: unknown, _signal: unknown, _settings: unknown, overrides: BulkSimOverrides) => ({
+		...CORE_RESULT,
+		referenceDpsMetrics: { avg: 1003, stdev: 1 },
+		topGearResults: (overrides.candidates ?? []).map(gear => ({
+			gear,
+			dpsMetrics: { avg: 1100, stdev: 1 },
+			pairedErrorToBaseline: 1,
+			pairedDpsDiffToBaseline: 37,
+		})),
+	});
+	const dropsHost = (sources = [DRAKKISATH]) => {
+		const host = batchHost({ mode: 'drops' });
+		setDropsSources(host.player, sources);
+		return host;
+	};
+	const SET = { itemIds: [102, 103], leftOutIds: [], gain: 37, margin: Z_95, baselineDps: 1003 };
+
+	it('is off until set, and a run then sends the one Drops request', async () => {
+		const host = dropsHost();
+		vi.mocked(runCoreBulkSim).mockResolvedValue(MAIN_RESULT as never);
+
+		await runBulkBatch(host);
+
+		expect(calls()).toHaveLength(1);
+		expect(bulkState(host.player).dropsCombined).toBeNull();
+	});
+
+	it('sims a card’s upgrades together in one more request with no cull at the run’s iterations, reading the gain from its own baseline', async () => {
+		const host = dropsHost();
+		setDropsCombinedGain(host.player, true);
+		vi.mocked(runCoreBulkSim)
+			.mockResolvedValueOnce(MAIN_RESULT as never)
+			.mockImplementationOnce(combinedResult as never);
+
+		await runBulkBatch(host);
+
+		expect(calls()).toHaveLength(2);
+		const [, , settings, overrides] = calls()[1];
+		expect(settings).toEqual(BulkSettings.create());
+		// The main run's 100 iterations, which the request sims every set at.
+		expect(overrides).toEqual({ encounter: CURRENT, candidates: [expect.any(Gear)], topResults: 0, minIterations: 100 });
+		const ids = overrides.candidates![0].asArray().flatMap(equipped => (equipped ? [equipped.id] : []));
+		expect(ids.sort()).toEqual([101, 102, 103]);
+		expect(bulkState(host.player).dropsCombined).toEqual(new Map([[DRAKKISATH, SET]]));
+		expect(bulkState(host.player).dropsResults).toHaveLength(1);
+	});
+
+	it('sends a set two cards share once and gives it to both', async () => {
+		const host = dropsHost([DRAKKISATH, REND]);
+		const both = [
+			UIItemSource.create(DROP_ITEMS[0].sources[0]),
+			UIItemSource.create({ source: { oneofKind: 'drop', drop: { difficulty: 0, npcId: 10429, zoneId: 1583, otherName: '', category: '' } } }),
+		];
+		const items = DROP_ITEMS.map(entry => (entry.id === 102 || entry.id === 103 ? { ...entry, sources: both } : entry));
+		host.player.sim.db.getAllItems = () => [...items, dropItem(105, ItemType.ItemTypeHead)];
+		setDropsCombinedGain(host.player, true);
+		vi.mocked(runCoreBulkSim)
+			.mockResolvedValueOnce(MAIN_RESULT as never)
+			.mockImplementationOnce(combinedResult as never);
+
+		await runBulkBatch(host);
+
+		expect(calls()[1][3].candidates).toHaveLength(1);
+		expect(bulkState(host.player).dropsCombined).toEqual(
+			new Map([
+				[DRAKKISATH, SET],
+				[REND, SET],
+			]),
+		);
+	});
+
+	it('keeps the run’s results and restores the gear when the combined request is cancelled, and a new run clears the sets', async () => {
+		const host = dropsHost();
+		setDropsCombinedGain(host.player, true);
+		vi.mocked(runCoreBulkSim)
+			.mockResolvedValueOnce(MAIN_RESULT as never)
+			.mockImplementationOnce(combinedResult as never);
+		await runBulkBatch(host);
+		expect(bulkState(host.player).dropsCombined).not.toBeNull();
+
+		let combinedWhileRunning: unknown;
+		vi.mocked(runCoreBulkSim)
+			.mockResolvedValueOnce(MAIN_RESULT as never)
+			.mockImplementationOnce(async () => {
+				combinedWhileRunning = bulkState(host.player).dropsCombined;
+				await cancelBulkBatch(host);
+				throw new Error('Bulk Sim Aborted');
+			});
+		await runBulkBatch(host);
+
+		expect(combinedWhileRunning).toBeNull();
+		expect(calls()).toHaveLength(4);
+		expect(bulkState(host.player).dropsResults).toHaveLength(1);
+		expect(bulkState(host.player).dropsCombined).toBeNull();
+		expect(bulkState(host.player).isRunning).toBe(false);
+		expect(host.player.setGearAsync).toHaveBeenLastCalledWith(CURRENT_GEAR);
+	});
+
+	it('skips the combined request when no card has two upgrades', async () => {
+		const host = dropsHost();
+		setDropsCombinedGain(host.player, true);
+		vi.mocked(runCoreBulkSim).mockResolvedValue({ ...CORE_RESULT, topGearResults: [upgrade(CHEST_GEAR, 50)] } as never);
+
+		await runBulkBatch(host);
+
+		expect(calls()).toHaveLength(1);
+		expect(bulkState(host.player).dropsCombined).toBeNull();
 	});
 });
 

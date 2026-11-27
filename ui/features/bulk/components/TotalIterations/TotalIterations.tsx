@@ -50,7 +50,7 @@ export const TotalIterations = ({ pending, iterations, overLimit, warningText }:
 						<Tooltip id={tooltipId} place="left" content={warningText} />
 					</>
 				)}
-				{pending ? <Spinner size="sm" /> : formatToNumber(iterations)}
+				{pending ? <Spinner size="xs" /> : formatToNumber(iterations)}
 			</dd>
 		</>
 	);

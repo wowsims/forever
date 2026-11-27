@@ -58,14 +58,14 @@ export const CombinationsCountView = ({
 				<>
 					<dt className="font-normal">{i18n.t('bulk_tab.settings.gear_setups')}</dt>
 					<dd className="mb-0 text-right font-bold tabular-nums" data-testid="bulk-gear-setups">
-						{countPending ? <Spinner size="sm" /> : formatToNumber(builds.setups)}
+						{countPending ? <Spinner size="xs" /> : formatToNumber(builds.setups)}
 					</dd>
 				</>
 			) : (
 				<>
 					<dt className="font-normal">{i18n.t('bulk_tab.settings.combinations')}</dt>
 					<dd className="mb-0 text-right font-bold tabular-nums" data-testid="bulk-combinations">
-						{pending ? <Spinner size="sm" /> : formatToNumber(combinations)}
+						{pending ? <Spinner size="xs" /> : formatToNumber(combinations)}
 					</dd>
 				</>
 			)}

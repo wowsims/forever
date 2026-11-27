@@ -7,8 +7,8 @@ import type { Player } from '@sim/player/player';
 import { PlayerSpecs } from '@sim/player/specs';
 import { EquippedItem } from '@sim/proto/equipped_item';
 import type { Gear } from '@sim/proto/gear';
-import { loadStoredBulkDropsView, patchBulkState } from '@sim/settings/bulk_settings';
-import { patchSlice, PLAYER_FIELDS, type PlayerSlice, seedKeyed, zeroVersions } from '@sim/state/sim_store';
+import { bulkState, loadStoredBulkDropsOrder, loadStoredBulkDropsView, patchBulkState } from '@sim/settings/bulk_settings';
+import { type BulkSlice, patchSlice, PLAYER_FIELDS, type PlayerSlice, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import {
 	BLACKROCK_SPIRE,
@@ -19,11 +19,16 @@ import {
 	REND,
 	RIVENDARE,
 	WORN_ITEM_ID,
+	WYRMTHALAK,
 } from '@testing/storybook/fixtures/bulk-drops';
 import { makeUIItem } from '@testing/storybook/fixtures/protos';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { setDropsOrder } from '../../model/drops/settings';
+import { runBulkBatch } from '../../model/run/run';
 import { DropsResults } from './DropsResults';
 
 vi.mock('@i18n/config', () => ({
@@ -34,8 +39,12 @@ vi.mock('@i18n/config', () => ({
 }));
 vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: 'icon.jpg', name: '', href: '', ready: true }) }));
 vi.mock('@sim/proto/enchants', () => ({ getEnchantDescription: async (enchant: UIEnchant) => enchant.name }));
-const toastAdd = vi.hoisted(() => vi.fn());
-vi.mock('@ui-kit/Toast', () => ({ toastManager: { add: toastAdd } }));
+const toastAdd = vi.hoisted(() => vi.fn(() => 'toast-1'));
+const toastClose = vi.hoisted(() => vi.fn());
+// The standard area's manager only: the results' own inline note renders through the real kit.
+vi.mock('@ui-kit/Toast', async importOriginal => ({ ...(await importOriginal<object>()), toastManager: { add: toastAdd, close: toastClose } }));
+vi.mock('@sim/hooks/useSimReady', () => ({ useSimReady: () => true }));
+vi.mock('../../model/run/run', () => ({ runBulkBatch: vi.fn(async () => {}) }));
 
 const RESULTS = 'bulk_tab.drops.results';
 const FELSTRIKER = 2001;
@@ -44,7 +53,6 @@ const REIVER = 2005;
 const DRACORIAN = 2004;
 const BLACKBLADE = 2002;
 const names = dropsNamesFixture();
-const onActivateTab = vi.fn();
 
 let player: Player<any>;
 let gear: Gear;
@@ -59,6 +67,7 @@ interface MountOptions {
 	runFaction?: Faction;
 	liveFaction?: Faction;
 	itemsOf?: (items: UIItem[]) => UIItem[];
+	combined?: BulkSlice['dropsCombined'];
 }
 
 const mount = ({
@@ -70,6 +79,7 @@ const mount = ({
 	runFaction = Faction.Alliance,
 	liveFaction = Faction.Alliance,
 	itemsOf,
+	combined = null,
 }: MountOptions = {}) => {
 	const items = itemsOf ? itemsOf(dropsItemsFixture()) : dropsItemsFixture();
 	const { dropsResults, dropsRunSources } = dropsResultsFixture();
@@ -108,11 +118,12 @@ const mount = ({
 		dropsRunFaction: runFaction,
 		dropsResults: started ? dropsResults : null,
 		dropsRunSources: runSources ? runSources(dropsRunSources) : dropsRunSources,
+		dropsCombined: combined,
 		...(view ? { dropsView: view } : {}),
 	});
 	return render(
 		<SimHostProvider host={{ player, sim: player.sim } as never}>
-			<DropsResults onActivateTab={onActivateTab} />
+			<DropsResults />
 		</SimHostProvider>,
 	);
 };
@@ -125,9 +136,18 @@ const rowOf = (id: number) => resultRows().find(row => row.getAttribute('data-it
 const view = (name: string) => screen.getByRole('button', { name: `${RESULTS}.view.${name}` });
 
 beforeEach(() => {
-	onActivateTab.mockClear();
 	toastAdd.mockClear();
+	toastClose.mockClear();
+	vi.mocked(runBulkBatch).mockClear();
+	localStorage.clear();
 });
+
+const orderField = () => within(screen.getByTestId('drops-order')).getByRole('combobox');
+const orderOptions = async () => {
+	await userEvent.click(orderField());
+	return screen.getAllByRole('option');
+};
+const ranks = () => cards().map(card => within(card).queryByTestId('drops-boss-rank')?.textContent ?? null);
 
 describe('DropsResults', () => {
 	it('opens on the stored view, Bosses by default, and stores a switch to Items', () => {
@@ -142,12 +162,25 @@ describe('DropsResults', () => {
 		expect(resultRows().length).toBeGreaterThan(0);
 	});
 
-	it('shows the summary tiles: the current gear, the best drop and the best boss', () => {
+	it('opens on a warning in flow that cannot be closed, naming the results next upgrades only', async () => {
+		mount();
+		const note = await within(screen.getByTestId('drops-next-upgrade-note')).findByTestId('sim-toast');
+		expect(note.getAttribute('data-variant')).toBe('warning');
+		expect(within(note).getByTestId('sim-toast-title').textContent).toBe(`${RESULTS}.next_upgrade_title`);
+		expect(within(note).getByTestId('sim-toast-body').textContent).toBe(`${RESULTS}.next_upgrade_note`);
+		expect(within(note).queryByTestId('sim-toast-close')).toBeNull();
+		expect(screen.getByTestId('drops-next-upgrade-note').getAttribute('data-inline')).toBe('true');
+	});
+
+	it('shows the summary tiles: the current gear, the best drop and the card to farm first with its upgrades', () => {
 		mount();
 		expect(screen.getByTestId('drops-summary-current').textContent).toContain('750');
 		expect(screen.getByTestId('drops-summary-best-drop').textContent).toContain('Felstriker');
 		expect(screen.getByTestId('drops-summary-best-drop').textContent).toContain('4.00%');
-		expect(screen.getByTestId('drops-summary-best-source').textContent).toContain('Warchief Rend Blackhand');
+		const farmFirst = screen.getByTestId('drops-summary-farm-first').textContent;
+		expect(farmFirst).toContain('Warchief Rend Blackhand');
+		expect(farmFirst).toContain(`${RESULTS}.farm_first_upgrades#1`);
+		expect(farmFirst).toContain('Blackrock Spire');
 	});
 
 	it('ranks the cards by best gain and dims the ones with no upgrade, last', () => {
@@ -166,6 +199,25 @@ describe('DropsResults', () => {
 		expect(strip[0].getAttribute('data-worn')).toBeNull();
 		expect(strip[1].hasAttribute('data-worn')).toBe(true);
 		expect(within(cards()[3]).getByTestId('drops-boss-upgrades').textContent).toContain(`0 / 1 ${RESULTS}.upgrades#1`);
+	});
+
+	it('shows a card’s combined gain over the combined request’s own baseline, and marks a set that left an upgrade out', () => {
+		mount();
+		expect(screen.queryByTestId('drops-boss-combined')).toBeNull();
+
+		const wyrmthalak = `drop:${BLACKROCK_SPIRE}:${WYRMTHALAK}`;
+		act(() =>
+			patchBulkState(player, {
+				dropsCombined: new Map([[wyrmthalak, { itemIds: [MARK, REIVER], leftOutIds: [DRACORIAN], gain: 19, margin: 1.9, baselineDps: 760 }]]),
+			}),
+		);
+
+		const [combined] = screen.getAllByTestId('drops-boss-combined');
+		expect(within(cards()[2]).getByTestId('drops-boss-combined')).toBe(combined);
+		expect(combined.textContent).toContain('+2.50%');
+		expect(within(combined).getByTestId('drops-boss-combined-margin').textContent).toBe('±0.25');
+		expect(combined.textContent).toContain('769.00');
+		expect(within(combined).getByTestId('drops-boss-combined-partial')).toBeTruthy();
 	});
 
 	it('filters the item list to a card’s source on a click, and clears it', () => {
@@ -258,14 +310,13 @@ describe('DropsResults', () => {
 		expect(within(screen.getByTestId('drops-results')).getByTestId('bulk-results-export-csv')).toBeTruthy();
 	});
 
-	it('equips a row’s gear and opens the gear tab', () => {
+	it('equips a row’s gear in place and announces it', () => {
 		mount();
 		fireEvent.click(view('items'));
 
 		fireEvent.click(within(rowOf(FELSTRIKER)).getByRole('button', { name: 'bulk_tab.results.equip_button' }));
 
 		expect(player.getGear().getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.id).toBe(FELSTRIKER);
-		expect(onActivateTab).toHaveBeenCalledWith('gear-tab');
 		expect(toastAdd).toHaveBeenCalledTimes(1);
 	});
 
@@ -278,10 +329,68 @@ describe('DropsResults', () => {
 		fireEvent.click(within(felstriker).getByTestId('drops-boss-equip'));
 
 		expect(player.getGear().getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.id).toBe(FELSTRIKER);
-		expect(onActivateTab).toHaveBeenCalledWith('gear-tab');
+		expect(toastAdd).toHaveBeenCalledTimes(1);
 		for (const worn of screen.queryAllByTestId('drops-boss-strip-item').filter(entry => entry.hasAttribute('data-worn'))) {
 			expect(within(worn).queryByTestId('drops-boss-equip')).toBeNull();
 		}
+	});
+
+	it('orders the cards by the stored pick, with the rank under Recommended alone, and leaves Farm first on the Recommended first card', async () => {
+		mount();
+		expect(orderField().textContent).toBe(`${RESULTS}.order.recommended`);
+		expect(ranks()).toEqual(['1', '2', '3', null]);
+
+		const options = await orderOptions();
+		expect(options.map(option => option.textContent)).toEqual(['recommended', 'gain', 'upgrades', 'zone'].map(order => `${RESULTS}.order.${order}`));
+		await userEvent.click(options[2]);
+
+		expect([bulkState(player).dropsOrder, loadStoredBulkDropsOrder(player)]).toEqual(['upgrades', 'upgrades']);
+		expect(cardLabels()).toEqual(['Overlord Wyrmthalak', 'Warchief Rend Blackhand', 'Baron Rivendare', 'General Drakkisath']);
+		expect(ranks()).toEqual([null, null, null, null]);
+		expect(cards().map(card => card.getAttribute('data-upgrade'))).toEqual([null, null, null, 'none']);
+		expect(screen.getByTestId('drops-summary-farm-first').textContent).toContain('Warchief Rend Blackhand');
+	});
+
+	it('offers Combined gain on a run with combined results, the cards with one first', async () => {
+		const wyrmthalak = `drop:${BLACKROCK_SPIRE}:${WYRMTHALAK}`;
+		mount({ combined: new Map([[wyrmthalak, { itemIds: [MARK, REIVER], leftOutIds: [], gain: 19, margin: 1.9, baselineDps: 760 }]]) });
+
+		const options = await orderOptions();
+		expect(options.at(-1)!.textContent).toBe(`${RESULTS}.order.combined`);
+		await userEvent.click(options.at(-1)!);
+
+		expect(loadStoredBulkDropsOrder(player)).toBe('combined');
+		expect(cardLabels()).toEqual(['Overlord Wyrmthalak', 'Warchief Rend Blackhand', 'Baron Rivendare', 'General Drakkisath']);
+	});
+
+	it('reads a stored Combined gain order as Recommended on a run without combined results, and keeps it stored', async () => {
+		mount();
+		act(() => setDropsOrder(player, 'combined'));
+
+		expect(orderField().textContent).toBe(`${RESULTS}.order.recommended`);
+		expect(ranks()).toEqual(['1', '2', '3', null]);
+		expect((await orderOptions()).map(option => option.textContent)).not.toContain(`${RESULTS}.order.combined`);
+		expect(loadStoredBulkDropsOrder(player)).toBe('combined');
+	});
+
+	it('offers Run Drops again on the equip toast once the recount is in', () => {
+		mount();
+		act(() => patchBulkState(player, { mode: 'drops', dropsSources: bulkState(player).dropsRunSources, combinationsPending: true, combinations: 3 }));
+		fireEvent.click(view('items'));
+		fireEvent.click(within(rowOf(FELSTRIKER)).getByRole('button', { name: 'bulk_tab.results.equip_button' }));
+
+		const [[toast]] = toastAdd.mock.calls as unknown as [[{ variant: string; body: ReactNode }]];
+		render(<SimHostProvider host={{ player, sim: player.sim } as never}>{toast.body}</SimHostProvider>);
+		const again = screen.getByTestId('drops-run-again') as HTMLButtonElement;
+		expect(again.textContent).toBe(`${RESULTS}.run_again`);
+		expect(again.disabled).toBe(true);
+
+		act(() => patchBulkState(player, { combinationsPending: false }));
+		expect(again.disabled).toBe(false);
+		fireEvent.click(again);
+
+		expect(toastClose).toHaveBeenCalledWith('toast-1');
+		expect(runBulkBatch).toHaveBeenCalledTimes(1);
 	});
 
 	it('keeps the run’s cards under a phase that lists none of its items', () => {
@@ -298,11 +407,11 @@ describe('DropsResults', () => {
 		expect(resultRows().length).toBeGreaterThan(0);
 	});
 
-	it('names no card for the best drop when no ticked source of the run reaches it', () => {
-		mount({ runSources: all => all.filter(key => !key.endsWith(`:${REND}`) && !key.endsWith(`:${RIVENDARE}`)) });
+	it('names no card to farm first when no ticked source of the run holds an upgrade', () => {
+		mount({ runSources: all => all.filter(key => ![REND, RIVENDARE, WYRMTHALAK].some(npc => key.endsWith(`:${npc}`))) });
 
 		expect(screen.getByTestId('drops-summary-best-drop').textContent).toContain('Felstriker');
-		expect(screen.getByTestId('drops-summary-best-source').textContent).toBe(`${RESULTS}.best_source—`);
+		expect(screen.getByTestId('drops-summary-farm-first').textContent).toBe(`${RESULTS}.farm_first—`);
 	});
 
 	// Felstriker needs level 40 here, so it leaves Deadmines below the cutoff while Blackrock Spire's other loot keeps it.

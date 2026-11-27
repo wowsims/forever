@@ -8,6 +8,7 @@ import {
 	bulkState,
 	loadStoredBulkDropsExcluded,
 	loadStoredBulkDropsFilters,
+	loadStoredBulkDropsOrder,
 	loadStoredBulkDropsSources,
 	loadStoredBulkDropsView,
 } from '@sim/settings/bulk_settings';
@@ -24,6 +25,7 @@ import {
 	setDropsExcluded,
 	setDropsFilters,
 	setDropsItemsIncluded,
+	setDropsOrder,
 	setDropsSources,
 	setDropsView,
 } from './settings';
@@ -192,6 +194,12 @@ describe('Drops setters', () => {
 		const before = settingsVersion();
 		setDropsView(player, 'items');
 		expect([bulkState(player).dropsView, loadStoredBulkDropsView(player), settingsVersion()]).toEqual(['items', 'items', before]);
+	});
+
+	it('stores the Bosses order without recounting', () => {
+		const before = settingsVersion();
+		setDropsOrder(player, 'upgrades');
+		expect([bulkState(player).dropsOrder, loadStoredBulkDropsOrder(player), settingsVersion()]).toEqual(['upgrades', 'upgrades', before]);
 	});
 
 	it('reads the class defaults until the filters are set, then stores them without recounting', () => {

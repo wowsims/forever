@@ -12,6 +12,8 @@ export type ButtonVariant =
 	| 'outline-secondary'
 	| 'outline-light'
 	| 'outline-cancel'
+	/** Drawn like a form field (the select look's border and background), for a button that sits beside one. */
+	| 'field'
 	| 'unstyled';
 
 /** `none` has no padding and keeps the button font. */

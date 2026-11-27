@@ -1,4 +1,4 @@
-import { Faction, HandType, ItemType } from '@generated/proto/common';
+import { Faction, HandType, ItemSlot, ItemType } from '@generated/proto/common';
 import { type UIItem, UIItem_FactionRestriction, type UIItemSource } from '@generated/proto/ui';
 import { type BulkSimItemSlot, getBulkItemSlotFromSlot, getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import { Player } from '@sim/player/player';
@@ -168,6 +168,20 @@ export const dropsPickedItemIds = (list: DropsItemList): number[] =>
 		.filter(entry => entry.included && !entry.worn)
 		.map(entry => entry.item.id)
 		.sort((a, b) => a - b);
+
+/**
+ * The picked items a worn two-hander skips, 0 under any other main hand. An item goes in each slot it fits that the class
+ * can equip it in, as `single_change` places it, and under a worn two-hander only a two-hander makes a candidate: any
+ * other item in either hand would leave the other hand empty.
+ */
+export const dropsTwoHanderSkipped = (list: DropsItemList, gear: Gear, playerSpec: PlayerSpec<any>): number => {
+	if (gear.getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.handType !== HandType.HandTypeTwoHand) return 0;
+	return list.items.filter(({ item, included, worn }) => {
+		if (!included || worn || item.handType === HandType.HandTypeTwoHand) return false;
+		const slots = getEligibleItemSlots(item).filter(slot => canEquipItem(item, playerSpec, slot));
+		return slots.includes(ItemSlot.ItemSlotMainHand) || slots.includes(ItemSlot.ItemSlotOffHand);
+	}).length;
+};
 
 export const dropsItemsBySlot = (list: DropsItemList): Array<{ slot: BulkSimItemSlot; items: DropsItem[] }> => {
 	const bySlot = new Map<BulkSimItemSlot, DropsItem[]>();

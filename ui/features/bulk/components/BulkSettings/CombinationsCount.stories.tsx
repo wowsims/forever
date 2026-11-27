@@ -42,7 +42,7 @@ export const BuildsWithNoBundleTicked: Story = {
 	args: { builds: { setups: 0, bundles: 0, encounters: 2, runs: 0, builds: 0, totalIterations: 0, largestRequestIterations: 0 } },
 };
 
-/** One bundle of one gear setup under one encounter is a single build, which leaves Simulate Batch nothing to compare. */
+/** One bundle of one gear setup under one encounter is a single build, which leaves Find best gear nothing to compare. */
 export const BuildsWithOneBuild: Story = {
 	args: { builds: { setups: 1, bundles: 1, encounters: 1, runs: 1, builds: 1, totalIterations: 20000, largestRequestIterations: 20000 } },
 };

@@ -3,6 +3,16 @@ import { BULK_SIM_DEFAULT_TOP_RESULTS } from '@sim/wasm/bulk_sim/constants_auto_
 import { estimateBulkSimIterations } from '@sim/wasm/bulk_sim/estimate';
 
 import type { BulkBuildsCount } from './builds/builds';
+import { bulkCombinationsLimit, bulkIterationsLimit } from './run/limits';
+
+/**
+ * The run button's limits. The iterations gate needs power tools, which hold the Top results control that lowers it.
+ * Without them Gear and Drops gate on the combinations limit alone, and past the iterations limit the run card only warns.
+ */
+export const bulkRunLimits = (isNative: boolean | undefined, powerTools: boolean): { combinations: number; iterations: number } => ({
+	combinations: bulkCombinationsLimit(isNative),
+	iterations: powerTools ? bulkIterationsLimit(isNative) : Number.POSITIVE_INFINITY,
+});
 
 /** The Gear run's minimum iterations at its top results (0 for All); 0 while the count reports an error. */
 export const bulkGearIterations = (slice: BulkSlice, topResults: number): number =>

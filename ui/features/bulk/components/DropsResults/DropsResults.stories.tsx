@@ -10,6 +10,8 @@ import { DropsItemLabel } from '../DropsItemLabel';
 import { DropsSummaryView } from '../DropsSummary';
 import { DropsResultsView } from './DropsResults';
 
+const ORDERS = ['recommended', 'gain', 'upgrades', 'zone'] as const;
+
 const cards = dropsCardsFixture();
 const rows = dropsRowsFixture();
 
@@ -37,7 +39,7 @@ const summary = (
 	<DropsSummaryView
 		current={{ avg: 750, plusMinus: 2 }}
 		bestDrop={{ name: 'Felstriker', dps: 780, pct: 4 }}
-		bestSource={{ label: 'Warchief Rend Blackhand', detail: 'Blackrock Spire' }}
+		farmFirst={{ label: 'Warchief Rend Blackhand', detail: 'Blackrock Spire', upgrades: 2, total: 5 }}
 	/>
 );
 
@@ -49,6 +51,9 @@ const meta = {
 		summary,
 		view: 'bosses',
 		onViewChange: fn(),
+		order: 'recommended',
+		orders: ORDERS,
+		onOrderChange: fn(),
 		filter: null,
 		cards: cards.map(card => <DropsBossCardView key={card.label.label} {...card} />),
 		rows: rows.map(row),
@@ -63,6 +68,15 @@ export const Bosses: Story = {
 	play: async ({ args, canvasElement }) => {
 		await userEvent.click(within(canvasElement).getByRole('button', { name: 'bulk_tab.drops.results.view.items' }));
 		await expect(args.onViewChange).toHaveBeenCalledWith('items');
+	},
+};
+
+/** A run with Combined gain offers that order too; an order other than Recommended hides the cards' rank. */
+export const OrderedByCombinedGain: Story = {
+	args: {
+		order: 'combined',
+		orders: [...ORDERS, 'combined'],
+		cards: cards.map(card => <DropsBossCardView key={card.label.label} {...card} rank={null} />),
 	},
 };
 
@@ -87,7 +101,7 @@ export const FilteredBySource: Story = {
 /** Every card dimmed: no item beat the current gear. */
 export const NoUpgrade: Story = {
 	args: {
-		summary: <DropsSummaryView current={{ avg: 750, plusMinus: 2 }} bestDrop={null} bestSource={null} />,
+		summary: <DropsSummaryView current={{ avg: 750, plusMinus: 2 }} bestDrop={null} farmFirst={null} />,
 		cards: cards.slice(2).map(card => <DropsBossCardView key={card.label.label} {...card} />),
 	},
 };

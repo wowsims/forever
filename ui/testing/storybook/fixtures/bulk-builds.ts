@@ -32,6 +32,7 @@ export const batchEncounterProps = (overrides: Partial<BatchEncounterViewProps> 
 	picked: CURRENT_ENCOUNTER_REF,
 	summary: '3:00 ±5s · 1 target',
 	onChange: fn(),
+	onEdit: fn(),
 	...overrides,
 });
 

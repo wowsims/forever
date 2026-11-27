@@ -495,15 +495,15 @@ func TestSingleChangeWeaponPlacements(t *testing.T) {
 		{"dual wield, shield", warrior, s, d, h, [][2]int32{{s, h}, {d, h}}},
 		{"dual wield, two-hander", warrior, s, d, tw, [][2]int32{{tw, 0}}},
 		{"dual wield over a shield, the shield stays off hand", warrior, s, sh, n, [][2]int32{{n, sh}, {n, s}, {s, n}}},
-		{"dual wield under a two-hander, one-hander", warrior, w, sh, n, [][2]int32{{n, 0}}},
-		{"dual wield under a two-hander, main-hand-only weapon", warrior, w, sh, m, [][2]int32{{m, 0}}},
+		{"dual wield under a two-hander, one-hander", warrior, w, sh, n, nil},
+		{"dual wield under a two-hander, main-hand-only weapon", warrior, w, sh, m, nil},
 		{"dual wield under a two-hander, two-hander", warrior, w, sh, tw, [][2]int32{{tw, 0}}},
 		{"dual wield under a two-hander, shield", warrior, w, sh, h, nil},
 		{"no dual wield, one-hander", paladin, s, sh, n, [][2]int32{{n, sh}}},
 		{"no dual wield, two-hander", paladin, s, sh, tw, [][2]int32{{tw, 0}}},
 		{"no dual wield, shield", paladin, s, sh, h, [][2]int32{{s, h}}},
 		{"no dual wield, dagger the class cannot use", paladin, s, sh, d, nil},
-		{"no dual wield under a two-hander, one-hander", paladin, w, sh, n, [][2]int32{{n, 0}}},
+		{"no dual wield under a two-hander, one-hander", paladin, w, sh, n, nil},
 		{"no dual wield under a two-hander, shield", paladin, w, sh, h, nil},
 	}
 	for _, row := range rows {
@@ -579,22 +579,6 @@ func TestSingleChangeWeaponPoolsPerHand(t *testing.T) {
 		{scSwordWorn, bulkEnchantWeaponKept, scSwordNew, bulkEnchantWeaponB},
 		{scDaggerWorn, 0, scSwordNew, bulkEnchantWeaponB},
 	}
-	if got := weaponSpecs(gear); !slices.Equal(got, want) {
-		t.Fatalf("weapons %v, want %v", got, want)
-	}
-}
-
-func TestSingleChangeOneHandUnderTwoHandDropsTheTwoHandEnchant(t *testing.T) {
-	registerBulkEnchantFixtures()
-	registerSingleChangeFixtures()
-	equipment := bulkEnchantEquipment(
-		bulkEnchantEquipped{slot: proto.ItemSlot_ItemSlotMainHand, id: scTwoHandWorn, enchant: bulkEnchantTwoHandOnly},
-	)
-	settings := &proto.BulkSettings{Items: bulkEnchantSelection(scSwordNew), SingleChange: true}
-
-	_, gear := singleChangeGear(t, proto.Spec_SpecDpsWarrior, proto.Class_ClassWarrior, true, equipment, settings)
-
-	want := [][4]int32{{scSwordNew, 0, 0, 0}}
 	if got := weaponSpecs(gear); !slices.Equal(got, want) {
 		t.Fatalf("weapons %v, want %v", got, want)
 	}

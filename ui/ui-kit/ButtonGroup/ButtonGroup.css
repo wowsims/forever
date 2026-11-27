@@ -2,8 +2,14 @@
 	.ui-button-group {
 		@apply inline-flex align-middle;
 
-		&:not([data-gap]) > .ui-button ~ .ui-button {
+		/* A select-look ChoiceField joins the buttons like one of them, so a field and its action read as one control. */
+		&:not([data-gap]) > :where(.ui-button, .ui-choice-field-trigger) ~ :where(.ui-button, .ui-choice-field-trigger) {
 			@apply -ml-px;
+		}
+
+		/* A joined control draws its hover and focus border over its neighbour's. */
+		&:not([data-gap]) > :is(:hover, :focus-visible) {
+			@apply relative z-1;
 		}
 
 		&[data-gap] {

@@ -10,11 +10,14 @@ export interface DropsSummaryViewProps {
 	current: { avg: number; plusMinus: number };
 	/** Null when nothing upgrades. */
 	bestDrop: { name: string; dps: number; pct: number } | null;
-	/** Null when nothing upgrades, or when no card holds the best drop (the tile then shows a dash). Its gain is the best drop's. */
-	bestSource: { label: string; detail: string } | null;
+	/**
+	 * The card the Recommended order puts first, with its upgrades of its drops, worn ones included, as the card counts them.
+	 * Null when no card holds an upgrade; the tile then shows a dash beside a best drop.
+	 */
+	farmFirst: { label: string; detail: string; upgrades: number; total: number } | null;
 }
 
-const t = (key: string) => i18n.t(`bulk_tab.drops.results.${key}`);
+const t = (key: string, options: { count?: number; total?: number } = {}) => i18n.t(`bulk_tab.drops.results.${key}`, options);
 
 interface TileProps {
 	title: string;
@@ -31,7 +34,7 @@ const Tile = ({ title, testId, children }: TileProps) => (
 
 const None = () => <span className="text-gray-400">{t('no_upgrade')}</span>;
 
-export const DropsSummaryView = ({ current, bestDrop, bestSource }: DropsSummaryViewProps) => {
+export const DropsSummaryView = ({ current, bestDrop, farmFirst }: DropsSummaryViewProps) => {
 	const tooltipId = useId();
 	return (
 		<div className="grid grid-cols-1 gap-2 sm:grid-cols-3" data-testid="drops-summary">
@@ -57,14 +60,15 @@ export const DropsSummaryView = ({ current, bestDrop, bestSource }: DropsSummary
 					<None />
 				)}
 			</Tile>
-			<Tile title={t('best_source')} testId="drops-summary-best-source">
-				{bestSource && bestDrop ? (
+			<Tile title={t('farm_first')} testId="drops-summary-farm-first">
+				{farmFirst ? (
 					<>
-						<span className="truncate text-xl font-bold" {...tooltipAnchorProps(tooltipId, bestSource.label)}>
-							{bestSource.label}
+						<span className="truncate text-xl font-bold" {...tooltipAnchorProps(tooltipId, farmFirst.label)}>
+							{farmFirst.label}
 						</span>
 						<span className="text-sm">
-							<span className="text-success">{formatBulkPct(bestDrop.pct)}</span> <span className="text-gray-400">{bestSource.detail}</span>
+							{t('farm_first_upgrades', { count: farmFirst.upgrades, total: farmFirst.total })}
+							<span className="text-gray-400"> · {farmFirst.detail}</span>
 						</span>
 					</>
 				) : bestDrop ? (

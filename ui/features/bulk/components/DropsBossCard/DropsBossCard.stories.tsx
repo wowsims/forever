@@ -41,7 +41,24 @@ export const Default: Story = {
 
 export const AllUpgrades: Story = { args: second };
 
+/** The source's upgrades simmed together as one set; the (i) names the items in it. */
+export const CombinedGain: Story = {
+	args: { ...second, combined: { dps: 768.2, pct: 2.43, marginPct: 0.12, items: ['Mark of the Dragon Lord', 'Reiver Claws'], leftOut: [] } },
+};
+
+/** Two hand upgrades cannot both be worn, so the set leaves the smaller one out and says so. */
+export const CombinedGainPartial: Story = {
+	args: {
+		...second,
+		strip: [...second.strip, { itemId: 2004, icon: second.strip[1].icon, name: 'Dracorian Gauntlets', ilvl: 63, gainPct: 0.2, upgrade: true }],
+		combined: { dps: 768.2, pct: 2.43, marginPct: 0.12, items: ['Mark of the Dragon Lord', 'Reiver Claws'], leftOut: ['Dracorian Gauntlets'] },
+	},
+};
+
 export const Selected: Story = { args: { selected: true } };
+
+/** An upgrade card with its rank hidden, as every order but Recommended shows it. */
+export const Unranked: Story = { args: { rank: null } };
 
 /** No upgrade: the card dims and names no best gain. */
 export const NoUpgrade: Story = { args: none };
