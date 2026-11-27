@@ -149,7 +149,7 @@ fall.
   reports by build are 9, 228, 607, 158 and 254 from 70938 on. The raidbots hotfix caches EV-0226 reads hold no record
   of 1318159 or 1265634.
 - Date: 2026-11-18 to 2026-11-27
-- Pull request: not recorded
+- Pull request: #1277
 
 The method is EV-0226's §Method, with the Tablet's damage 1265634 as the proc. It is a missile, so the proc may follow
 within 1,200 ms, and no other landed hit may fall within 1,500 ms. A landing that deals no damage rolls nothing, as the

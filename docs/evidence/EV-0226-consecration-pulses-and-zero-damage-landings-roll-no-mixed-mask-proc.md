@@ -24,7 +24,7 @@
   2026-11-09 21:42 UTC lists any of these spells, though only some exports carry a spell diff. The hotfix each player
   ran is not recorded.
 - Date: 2026-11-10 to 2026-11-27
-- Pull request: not recorded
+- Pull request: #1277
 
 ## Method
 
