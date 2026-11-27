@@ -1,8 +1,8 @@
 import type { ItemSlot } from '@generated/proto/common';
 import { useActionId } from '@sim/hooks/useActionId';
-import { useActionIdWowheadDataset } from '@sim/hooks/useActionIdWowheadDataset';
 import type { WowheadDatasetProps } from '@sim/hooks/useWowheadDataset';
 import type { EquippedItem } from '@sim/proto/equipped_item';
+import { enchantTooltipAnchor } from '@sim/proto/tooltips';
 import type { ResolvedIcon } from '@ui-kit/Field';
 import { Icon } from '@ui-kit/Icon';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
@@ -69,7 +69,7 @@ export const GearChangeIcon = ({ slot, item, previousItem, showEnchant = false }
 	const itemEnchant = showEnchant ? (item?.enchant ?? undefined) : undefined;
 	const enchantActionIdOf = useMemo(() => (showEnchant && item?.enchant ? enchantActionId(item.enchant) : undefined), [showEnchant, item]);
 	const { iconUrl: enchantIconUrl, href: enchantHref } = useActionId(enchantActionIdOf);
-	const enchantWowhead = useActionIdWowheadDataset(enchantActionIdOf);
+	const enchantWowhead = useMemo(() => (itemEnchant ? enchantTooltipAnchor(itemEnchant) : undefined), [itemEnchant]);
 	const enchant = itemEnchant ? { name: itemEnchant.name, iconUrl: enchantIconUrl, href: enchantHref } : undefined;
 
 	return (

@@ -9,8 +9,9 @@ import { ConnectedIconEnumPicker } from './ConnectedIconEnumPicker';
 import type { IconEnumPickerConfig } from './types';
 import { iconEnumPickerShown } from './utils';
 
-// No spell has the site's own tooltip here, so every buff tooltip is wowhead's, and no test fetches the tooltip file.
-vi.mock('@sim/proto/tooltips', async importOriginal => ({ ...(await importOriginal<object>()), hasSpellTooltip: async () => false }));
+// Whether a spell has the site's own tooltip, answered per test, so no test fetches the tooltip file.
+const hasSpellTooltip = vi.hoisted(() => vi.fn(async (_spellId: number) => false));
+vi.mock('@sim/proto/tooltips', async importOriginal => ({ ...(await importOriginal<object>()), hasSpellTooltip }));
 
 const frostId = filled(ActionId.fromSpellId(7302), 'Frost Armor', 'frost.jpg');
 const moltenId = filled(ActionId.fromSpellId(30482), 'Molten Armor', 'molten.jpg');
@@ -76,7 +77,11 @@ beforeEach(() => {
 		return this;
 	});
 });
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => {
+	vi.restoreAllMocks();
+	hasSpellTooltip.mockReset();
+	hasSpellTooltip.mockImplementation(async () => false);
+});
 
 describe('ConnectedIconEnumPicker', () => {
 	it('resolves each value’s action id into its option’s icon and link', () => {
@@ -92,9 +97,7 @@ describe('ConnectedIconEnumPicker', () => {
 	});
 
 	it('shows a value’s buffActionId buff tooltip under its actionId’s icon, on the option and on the selection, from the start', async () => {
-		const tooltipData = vi
-			.spyOn(ActionId, 'makeSpellTooltipData')
-			.mockImplementation(async (id, params) => `spell=${id}${params?.useBuffAura ? '&buff=1' : ''}`);
+		hasSpellTooltip.mockImplementation(async () => true);
 		const options = new Options();
 		options.value = 2;
 		mount(
@@ -106,24 +109,26 @@ describe('ConnectedIconEnumPicker', () => {
 		await act(async () => {});
 		expect(iconOf(button())).toBe('molten.jpg');
 		expect(button().getAttribute('href')).toBe(ActionId.makeSpellUrl(18789));
-		expect(button().getAttribute('data-wowhead')).toBe('spell=18789&buff=1');
-		expect(tooltipData.mock.calls.map(([id]) => id)).toEqual([18789]);
+		expect(button().getAttribute('data-spell-tooltip')).toBe('18789');
+		expect(button().getAttribute('data-spell-buff')).toBe('true');
+		expect(hasSpellTooltip.mock.calls.map(([id]) => id)).toEqual([18789]);
 
 		open();
-		expect(button().getAttribute('data-wowhead')).toBe('spell=18789&buff=1');
-		expect(optionAnchor(2).getAttribute('data-wowhead')).toBe('spell=18789&buff=1');
+		expect(button().getAttribute('data-spell-tooltip')).toBe('18789');
+		expect(optionAnchor(2).getAttribute('data-spell-tooltip')).toBe('18789');
+		expect(optionAnchor(2).getAttribute('data-spell-buff')).toBe('true');
 		await act(async () => {});
 		expect(iconOf(optionAnchor(2))).toBe('molten.jpg');
-		expect(optionAnchor(1).hasAttribute('data-wowhead')).toBe(false);
+		expect(optionAnchor(1).hasAttribute('data-spell-tooltip')).toBe(false);
 		expect(optionAnchor(1).getAttribute('href')).toBe(ActionId.makeSpellUrl(7302));
-		expect(tooltipData).toHaveBeenCalledTimes(1);
+		expect(hasSpellTooltip).toHaveBeenCalledTimes(1);
 	});
 
 	it('leaves an option whose buff tooltip lookup fails without one, keeps the others, and surfaces the failure', async () => {
 		const failure = new Error('lookup failed');
-		vi.spyOn(ActionId, 'makeSpellTooltipData').mockImplementation(async id => {
+		hasSpellTooltip.mockImplementation(async id => {
 			if (id === 18790) throw failure;
-			return `spell=${id}`;
+			return true;
 		});
 		const unhandled: Array<unknown> = [];
 		const onUnhandledRejection = (error: unknown) => unhandled.push(error);
@@ -144,8 +149,8 @@ describe('ConnectedIconEnumPicker', () => {
 			await act(async () => await new Promise(resolve => setImmediate(resolve)));
 
 			open();
-			expect(optionAnchor(1).getAttribute('data-wowhead')).toBe('spell=18789');
-			expect(optionAnchor(2).hasAttribute('data-wowhead')).toBe(false);
+			expect(optionAnchor(1).getAttribute('data-spell-tooltip')).toBe('18789');
+			expect(optionAnchor(2).hasAttribute('data-spell-tooltip')).toBe(false);
 			expect(unhandled).toEqual([failure]);
 		} finally {
 			process.removeListener('unhandledRejection', onUnhandledRejection);

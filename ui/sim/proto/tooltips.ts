@@ -39,6 +39,12 @@ export interface ItemTooltipData {
 	f?: string;
 	/** Spells as [trigger, spell id, cooldown in ms]: trigger 0 is a use, 1 an equip effect, 2 a chance on hit. */
 	e?: Array<[number, number, number]>;
+	/** For an item the item database does not hold, a consumable or an enchant's item: name, quality, icon, item level and required level. */
+	n?: string;
+	q?: number;
+	i?: string;
+	l?: number;
+	r?: number;
 }
 
 export interface SetTooltipData {
@@ -65,7 +71,8 @@ let loading: Promise<TooltipFile> | null = null;
 export const loadTooltips = (): Promise<TooltipFile> =>
 	(loading ??= fetch(TOOLTIPS_URL)
 		.then(response => (response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`))))
-		.then((data: TooltipFile) => (loaded = data))
+		// A file missing a section, such as one written before the section existed, reads that section as empty.
+		.then((data: Partial<TooltipFile>) => (loaded = { spells: data.spells ?? {}, items: data.items ?? {}, sets: data.sets ?? {} }))
 		.catch(error => {
 			console.warn(`Tooltips failed to load from ${TOOLTIPS_URL}:`, error);
 			loading = null;
@@ -77,17 +84,32 @@ export const loadedSpellTooltip = (spellId: number): SpellTooltipData | undefine
 export const loadedItemTooltip = (itemId: number): ItemTooltipData | undefined => loaded.items[itemId];
 export const loadedSetTooltip = (setId: number): SetTooltipData | undefined => loaded.sets[setId];
 
-// A tooltip with text of its own; a spell the game files give only a name, such as an enchant's "Item +AGI Leg R1", keeps wowhead's.
-const hasText = (data: SpellTooltipData | undefined) => !!(data && (data.d?.length || data.a?.length || data.x));
+export const hasLoadedSpellTooltip = (spellId: number): boolean => !!loaded.spells[spellId];
 
-export const hasLoadedSpellTooltip = (spellId: number): boolean => hasText(loaded.spells[spellId]);
-
-export const hasSpellTooltip = async (spellId: number): Promise<boolean> => hasText((await loadTooltips()).spells[spellId]);
+export const hasSpellTooltip = async (spellId: number): Promise<boolean> => !!(await loadTooltips()).spells[spellId];
 
 export const hasItemTooltip = async (itemId: number): Promise<boolean> => !!(await loadTooltips()).items[itemId];
 
 /** The tooltip host every spell and item anchor opts into (ui/features/tooltips). */
 export const SPELL_TOOLTIP_ID = 'spell-tooltip';
+
+const WOWHEAD_LINK = 'a[href*="wowhead.com/forever/"]';
+
+/**
+ * What the host opens on, as wowhead's script did: an anchor marked for it, and any link to a spell or item page that no
+ * other tooltip claims. Every icon links to its page, so a view needs nothing more to show the tooltip.
+ */
+export const SPELL_TOOLTIP_SELECTOR = [
+	`[data-tooltip-id="${SPELL_TOOLTIP_ID}"]`,
+	`${WOWHEAD_LINK}[href*="spell="]:not([data-tooltip-id])`,
+	`${WOWHEAD_LINK}[href*="item="]:not([data-tooltip-id])`,
+].join(', ');
+
+/** The spell or item a link to its page names, with the random suffix an item link carries. */
+export const tooltipFromLink = (href: string): { spellId?: number; itemId?: number; randomSuffix?: number } => {
+	const id = (key: string) => Number(new RegExp(`(?:^|[/?&])${key}=(\\d+)`).exec(href)?.[1]) || undefined;
+	return { spellId: id('spell'), itemId: id('item'), randomSuffix: id('bonus') };
+};
 
 /** Props for an anchor whose tooltip is the spell's own, which also keep wowhead's script off it. A talent anchor shows the talent's ranks; the spell a talent teaches shows as a spell elsewhere. */
 export const spellTooltipAnchor = (spellId: number, options: { buff?: boolean; talent?: boolean } = {}): Record<string, string> => ({
@@ -97,6 +119,30 @@ export const spellTooltipAnchor = (spellId: number, options: { buff?: boolean; t
 	...(options.talent ? { 'data-spell-talent': 'true' } : {}),
 	'data-disable-wowhead-tooltip': 'true',
 });
+
+/** Props for an anchor whose tooltip is an enchant's: the enchant by its effect id, and the spell or item that tells rows sharing an effect id apart. */
+export const enchantTooltipAnchor = (enchant: { effectId: number; spellId: number; itemId: number }): Record<string, string> => ({
+	'data-tooltip-id': SPELL_TOOLTIP_ID,
+	'data-enchant-tooltip': String(enchant.effectId),
+	...(enchant.spellId ? { 'data-enchant-spell': String(enchant.spellId) } : {}),
+	...(enchant.itemId ? { 'data-enchant-item': String(enchant.itemId) } : {}),
+	'data-disable-wowhead-tooltip': 'true',
+});
+
+/** A spell's or an item's name, icon and rank from the tooltips, the same fields wowhead's tooltip lookup answered. */
+export const tooltipIconData = async (
+	kind: 'spell' | 'item',
+	id: number,
+): Promise<{ name: string; icon: string; rank: number; hasBuff: boolean } | undefined> => {
+	const file = await loadTooltips();
+	if (kind === 'item') {
+		const item = file.items[id];
+		return item?.n && item.i ? { name: item.n, icon: item.i, rank: 0, hasBuff: false } : undefined;
+	}
+	const spell = file.spells[id];
+	if (!spell?.i) return undefined;
+	return { name: spell.n, icon: spell.i, rank: Number(/(\d+)/.exec(spell.r ?? '')?.[1] ?? 0), hasBuff: !!spell.a?.length };
+};
 
 /** Props for an anchor whose tooltip is the item's own: the item, and the random suffix and enchant it carries. */
 export const itemTooltipAnchor = (itemId: number, options: { randomSuffix?: number; enchant?: number } = {}): Record<string, string> => ({

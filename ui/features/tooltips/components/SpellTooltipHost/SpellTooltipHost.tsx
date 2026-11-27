@@ -10,7 +10,9 @@ import {
 	loadedSpellTooltip,
 	renderTooltipText,
 	SPELL_TOOLTIP_ID,
+	SPELL_TOOLTIP_SELECTOR,
 	type SpellTooltipData,
+	tooltipFromLink,
 	type TooltipPlayer,
 	tooltipPlayer,
 	type TooltipSegment,
@@ -22,20 +24,32 @@ import { GameTooltip, type GameTooltipLine } from '@ui-kit/GameTooltip';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { useMemo } from 'react';
 
-import { itemTooltipLines } from '../../model/item_tooltip';
+import { enchantText, itemTooltipLines, otherItemTooltipLines } from '../../model/item_tooltip';
 
-/** The one tooltip every spell and item anchor opens (spellTooltipAnchor, itemTooltipAnchor), with the player's stats, talents and gear worked in. */
+/** The one tooltip every spell, item and enchant anchor opens (spellTooltipAnchor, itemTooltipAnchor, enchantTooltipAnchor), with the player's stats, talents and gear worked in. */
 export const SpellTooltipHost = () => (
 	<Tooltip
 		id={SPELL_TOOLTIP_ID}
+		anchorSelect={SPELL_TOOLTIP_SELECTOR}
 		maxWidth="max-w-96"
 		render={({ activeAnchor }) => {
 			const attribute = (name: string) => Number(activeAnchor?.getAttribute(name)) || 0;
-			const itemId = attribute('data-item-tooltip');
-			if (itemId) return <ItemTooltip itemId={itemId} randomSuffix={attribute('data-item-suffix')} enchant={attribute('data-item-enchant')} />;
-			const spellId = attribute('data-spell-tooltip');
-			if (!spellId) return null;
 			const flag = (name: string) => activeAnchor?.getAttribute(name) === 'true';
+			// A marked anchor says what it shows; any other is a link to a spell's or an item's page.
+			const link = activeAnchor?.hasAttribute('data-tooltip-id') ? {} : tooltipFromLink(activeAnchor?.getAttribute('href') ?? '');
+			const itemId = attribute('data-item-tooltip') || link.itemId;
+			if (itemId)
+				return (
+					<ItemTooltip
+						itemId={itemId}
+						randomSuffix={attribute('data-item-suffix') || link.randomSuffix || 0}
+						enchant={attribute('data-item-enchant')}
+					/>
+				);
+			const effectId = attribute('data-enchant-tooltip');
+			if (effectId) return <EnchantTooltip effectId={effectId} spellId={attribute('data-enchant-spell')} itemId={attribute('data-enchant-item')} />;
+			const spellId = attribute('data-spell-tooltip') || link.spellId;
+			if (!spellId) return null;
 			return <SpellTooltip spellId={spellId} buff={flag('data-spell-buff')} talent={flag('data-spell-talent')} />;
 		}}
 	/>
@@ -120,7 +134,7 @@ const ItemTooltip = ({ itemId, randomSuffix, enchant }: ItemTooltipProps) => {
 	const gear = usePlayerStore('gear');
 	const db = Database.getSync();
 	const equipped = useMemo(() => db.lookupItemSpec(ItemSpec.create({ id: itemId, randomSuffix, enchant })), [db, itemId, randomSuffix, enchant]);
-	if (!equipped) return null;
+	if (!equipped) return <OtherItemTooltip itemId={itemId} reader={reader} />;
 
 	const worn = new Set(gear.asArray().flatMap(item => (item ? [item.id] : [])));
 	const lines = itemTooltipLines({
@@ -136,4 +150,50 @@ const ItemTooltip = ({ itemId, randomSuffix, enchant }: ItemTooltipProps) => {
 	});
 	const name = equipped.randomSuffix ? `${equipped.item.name} ${equipped.randomSuffix.name}` : equipped.item.name;
 	return <GameTooltip name={name} quality={equipped.item.quality} iconUrl={wowheadIconUrl(equipped.item.icon)} lines={lines} testId="item-tooltip" />;
+};
+
+const spellTextOf = (spellId: number, reader: TooltipPlayer) => {
+	const segments = loadedSpellTooltip(spellId)?.d;
+	return segments?.length ? renderTooltipText(segments, reader) : undefined;
+};
+
+/** An item the item database does not hold, a consumable or an enchant's item, from the tooltips alone. */
+const OtherItemTooltip = ({ itemId, reader }: { itemId: number; reader: TooltipPlayer }) => {
+	const data = loadedItemTooltip(itemId);
+	if (!data?.n) return null;
+	return (
+		<GameTooltip
+			name={data.n}
+			quality={data.q}
+			iconUrl={data.i ? wowheadIconUrl(data.i) : undefined}
+			lines={otherItemTooltipLines(data, spellId => spellTextOf(spellId, reader))}
+			testId="item-tooltip"
+		/>
+	);
+};
+
+interface EnchantTooltipProps {
+	effectId: number;
+	spellId: number;
+	itemId: number;
+}
+
+/** An enchant: its name, what it adds, and the text of the spell or item that applies it. */
+const EnchantTooltip = ({ effectId, spellId, itemId }: EnchantTooltipProps) => {
+	const { reader } = usePlayerReader();
+	const rows = Database.getSync().getEnchantsByEffectId(effectId);
+	const enchant = rows.find(row => row.spellId === spellId && row.itemId === itemId) ?? rows[0];
+	if (!enchant) return null;
+	const itemText = enchant.itemId ? loadedItemTooltip(enchant.itemId)?.e?.find(([trigger]) => trigger === 0) : undefined;
+	const text = spellTextOf(enchant.spellId, reader) ?? (itemText && spellTextOf(itemText[1], reader));
+	const icon = loadedSpellTooltip(enchant.spellId)?.i ?? (enchant.itemId ? loadedItemTooltip(enchant.itemId)?.i : undefined) ?? enchant.icon;
+	return (
+		<GameTooltip
+			name={enchant.name}
+			quality={enchant.quality}
+			iconUrl={icon ? wowheadIconUrl(icon) : undefined}
+			lines={[{ left: enchantText(enchant), tone: 'green' }, ...(text ? [{ left: text, tone: 'gold' as const }] : [])]}
+			testId="enchant-tooltip"
+		/>
+	);
 };

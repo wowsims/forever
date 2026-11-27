@@ -10,6 +10,7 @@ import { EquippedItem } from './equipped_item';
 import { Gear, ItemSwapGear } from './gear';
 import { enchantAppliesToItem, getEligibleEnchantSlots, getEligibleItemSlots } from './items';
 import { Stats } from './stats';
+import { tooltipIconData } from './tooltips';
 import { loadLocalIcons, WOWHEAD_DOMAIN, WOWHEAD_EXPANSION_ENV } from './wowhead';
 
 const dbUrlJson = '/forever/assets/database/db.json';
@@ -386,7 +387,10 @@ export class Database {
 	private static async getWowheadSpellTooltipData(id: number): Promise<IconData> {
 		return Database.getWowheadTooltipData(id, 'spell');
 	}
-	private static async getWowheadTooltipData(id: number, tooltipPostfix: string): Promise<IconData> {
+	// The tooltips the site ships hold every spell and item the database names; wowhead answers only an id they lack.
+	private static async getWowheadTooltipData(id: number, tooltipPostfix: 'item' | 'spell'): Promise<IconData> {
+		const own = await tooltipIconData(tooltipPostfix, id);
+		if (own) return IconData.create({ id, ...own });
 		const params = new URLSearchParams({ lvl: String(CHARACTER_LEVEL), dataEnv: String(WOWHEAD_EXPANSION_ENV) });
 		const url = `https://nether.wowhead.com/${WOWHEAD_DOMAIN}/tooltip/${tooltipPostfix}/${id}?${params}`;
 		try {

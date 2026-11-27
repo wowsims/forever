@@ -3,8 +3,8 @@ import { enchantActionId } from '@features/gear/model/item_data';
 import type { ItemSlot } from '@generated/proto/common';
 import type { UIEnchant as Enchant } from '@generated/proto/ui';
 import { useActionId } from '@sim/hooks/useActionId';
-import { useActionIdWowheadDataset } from '@sim/hooks/useActionIdWowheadDataset';
 import type { WowheadDatasetProps } from '@sim/hooks/useWowheadDataset';
+import { enchantTooltipAnchor } from '@sim/proto/tooltips';
 import { Icon } from '@ui-kit/Icon';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import { WowheadIcon } from '@ui-kit/WowheadIcon';
@@ -54,7 +54,7 @@ export interface EnchantPresetTileProps {
 export const EnchantPresetTile = memo(({ slot, enchant, checked, onToggle }: EnchantPresetTileProps) => {
 	const actionId = useMemo(() => enchantActionId(enchant), [enchant]);
 	const { iconUrl, href } = useActionId(actionId);
-	const wowhead = useActionIdWowheadDataset(actionId);
+	const wowhead = useMemo(() => enchantTooltipAnchor(enchant), [enchant]);
 	const description = useEnchantDescription(enchant);
 	const toggle = useCallback(() => onToggle(slot, enchant.effectId), [onToggle, slot, enchant]);
 

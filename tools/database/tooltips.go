@@ -1,6 +1,7 @@
 package database
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"maps"
@@ -12,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/dbc"
 	"github.com/wowsims/forever/tools/tooltip"
@@ -41,11 +43,17 @@ type spellTooltip struct {
 }
 
 // An item's binding (1 when picked up, 2 when equipped, 3 when used), its flavour text and its spells as
-// [trigger, spell id, cooldown in ms]: trigger 0 is a use, 1 an equip effect and 2 a chance on hit.
+// [trigger, spell id, cooldown in ms]: trigger 0 is a use, 1 an equip effect and 2 a chance on hit. An item the item
+// database does not hold, a consumable or an enchant's item, carries its name, quality, icon and levels too.
 type itemTooltip struct {
-	Binding int        `json:"b,omitempty"`
-	Flavor  string     `json:"f,omitempty"`
-	Spells  [][3]int32 `json:"e,omitempty"`
+	Binding       int        `json:"b,omitempty"`
+	Flavor        string     `json:"f,omitempty"`
+	Spells        [][3]int32 `json:"e,omitempty"`
+	Name          string     `json:"n,omitempty"`
+	Quality       int32      `json:"q,omitempty"`
+	Icon          string     `json:"i,omitempty"`
+	ItemLevel     int32      `json:"l,omitempty"`
+	RequiredLevel int32      `json:"r,omitempty"`
 }
 
 // A set's name, its pieces the database holds, and its bonuses as [pieces worn, spell id].
@@ -58,13 +66,48 @@ type setTooltip struct {
 // The item spell triggers a tooltip shows: use, equip and chance on hit.
 var shownItemTriggers = map[int]bool{0: true, 1: true, 2: true}
 
-// Writes the tooltip of every spell the site can show to path: the spells the sim's store holds, every talent
-// in the trees (their spell ids and points), and the spells of the items given and of their sets, with those
-// items' and sets' own parts. A condition on a rank of a talent the trees offer is left to the player's points,
-// one on a talent they do not offer is false; the store's rows give the header lines.
-func WriteTooltips(path string, instance *dbc.DBC, treeTalents map[int32]int32, rawTalents []RawTalent, itemIDs []int32) error {
+// Writes the tooltip of every spell and item the site can show to path: the spells the sim's store holds, every
+// talent in the trees (their spell ids and points), and every item, consumable, enchant and spell the databases
+// given name, with the spells of those items and of their sets. A condition on a rank of a talent the trees offer
+// is left to the player's points, one on a talent they do not offer is false; the store's rows give the header lines.
+func WriteTooltips(path string, helper *DBHelper, instance *dbc.DBC, treeTalents map[int32]int32, rawTalents []RawTalent, databases ...*proto.UIDatabase) error {
 	ids := map[int32]bool{}
+	inDatabase := map[int32]bool{}
+	var itemIDs, otherIDs []int32
+	for _, db := range databases {
+		for _, item := range db.Items {
+			itemIDs = append(itemIDs, item.Id)
+			inDatabase[item.Id] = true
+		}
+	}
+	other := func(id int32) {
+		if id != 0 && !inDatabase[id] {
+			otherIDs = append(otherIDs, id)
+		}
+	}
+	for _, db := range databases {
+		for _, data := range db.SpellIcons {
+			ids[data.Id] = true
+		}
+		for _, enchant := range db.Enchants {
+			if enchant.SpellId != 0 {
+				ids[enchant.SpellId] = true
+			}
+			other(enchant.ItemId)
+		}
+		for _, consumable := range db.Consumables {
+			other(consumable.Id)
+		}
+		for _, data := range db.ItemIcons {
+			other(data.Id)
+		}
+	}
 	items, sets := itemTooltips(instance, itemIDs)
+	others, err := otherItemTooltips(helper, instance, otherIDs)
+	if err != nil {
+		return err
+	}
+	maps.Copy(items, others)
 	for _, item := range items {
 		for _, spell := range item.Spells {
 			ids[spell[1]] = true
@@ -143,13 +186,7 @@ func itemTooltips(instance *dbc.DBC, itemIDs []int32) (map[int32]itemTooltip, ma
 		if !ok {
 			continue
 		}
-		item := itemTooltip{Binding: row.Bonding, Flavor: row.Flavor}
-		for _, effect := range instance.ItemEffectsByParentID[int(id)] {
-			if shownItemTriggers[effect.TriggerType] && effect.SpellID != 0 {
-				item.Spells = append(item.Spells, [3]int32{int32(effect.TriggerType), int32(effect.SpellID), int32(effect.CoolDownMSec)})
-			}
-		}
-		items[id] = item
+		items[id] = itemTooltip{Binding: row.Bonding, Flavor: row.Flavor, Spells: itemSpells(instance, id)}
 
 		if row.ItemSetId == 0 {
 			continue
@@ -170,6 +207,52 @@ func itemTooltips(instance *dbc.DBC, itemIDs []int32) (map[int32]itemTooltip, ma
 		sets[id] = set
 	}
 	return items, sets
+}
+
+const otherItemsQuery = `
+	SELECT i.ID, s.Display_lang, s.OverallQualityID, s.ItemLevel, s.RequiredLevel, s.Bonding, COALESCE(s.Description_lang, ''), i.IconFileDataID
+	FROM Item i
+	JOIN ItemSparse s ON s.ID = i.ID`
+
+// The tooltips of items the item database does not hold, each whole: the parts any item has, and its name, quality,
+// icon and levels.
+func otherItemTooltips(helper *DBHelper, instance *dbc.DBC, ids []int32) (map[int32]itemTooltip, error) {
+	wanted := map[int32]bool{}
+	for _, id := range ids {
+		wanted[id] = true
+	}
+	type row struct {
+		id     int32
+		item   itemTooltip
+		iconID int
+	}
+	rows, err := LoadRows(helper.db, otherItemsQuery, func(rows *sql.Rows) (row, error) {
+		var r row
+		err := rows.Scan(&r.id, &r.item.Name, &r.item.Quality, &r.item.ItemLevel, &r.item.RequiredLevel, &r.item.Binding, &r.item.Flavor, &r.iconID)
+		return r, err
+	})
+	if err != nil {
+		return nil, fmt.Errorf("loading the items for tooltips: %w", err)
+	}
+	items := map[int32]itemTooltip{}
+	for _, r := range rows {
+		if !wanted[r.id] {
+			continue
+		}
+		r.item.Icon = iconName(iconsMap[r.iconID])
+		r.item.Spells = itemSpells(instance, r.id)
+		items[r.id] = r.item
+	}
+	return items, nil
+}
+
+func itemSpells(instance *dbc.DBC, id int32) (spells [][3]int32) {
+	for _, effect := range instance.ItemEffectsByParentID[int(id)] {
+		if shownItemTriggers[effect.TriggerType] && effect.SpellID != 0 {
+			spells = append(spells, [3]int32{int32(effect.TriggerType), int32(effect.SpellID), int32(effect.CoolDownMSec)})
+		}
+	}
+	return spells
 }
 
 // The icon name the item database and the site's icon folder use for a listfile path: the file name without its

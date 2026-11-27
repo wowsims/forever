@@ -158,7 +158,7 @@ const statLines = (equipped: EquippedItem): Array<GameTooltipLine> => {
 	return lines;
 };
 
-const spellLines = (data: ItemTooltipData | undefined, spellText: ItemTooltipInput['spellText']): Array<GameTooltipLine> =>
+const spellLines = (data: ItemTooltipData | undefined, spellText: (spellId: number) => string | undefined): Array<GameTooltipLine> =>
 	(data?.e ?? []).flatMap(([trigger, spellId, cooldownMs]) => {
 		const text = spellText(spellId);
 		if (!text) return [];
@@ -183,7 +183,7 @@ const setLines = ({ set, worn, itemName, spellText }: ItemTooltipInput): Array<G
 
 // An enchant as the game writes it on the item: its stats, such as "+7 Agility", or for one without, its name without the
 // recipe's "Enchant Weapon - " (Crusader).
-const enchantText = (enchant: Enchant) => {
+export const enchantText = (enchant: Enchant) => {
 	const stats = enchant.stats.flatMap((value, stat) => (value > 0 ? [t('stat', { value: Math.round(value), stat: translateStat(stat) })] : []));
 	if (enchant.weaponDamage > 0) stats.push(t('stat', { value: Math.round(enchant.weaponDamage), stat: t('weapon_damage') }));
 	return stats.length ? stats.join(', ') : enchant.name.replace(/^Enchant [^-]+ - /, '');
@@ -203,5 +203,16 @@ export const itemTooltipLines = (input: ItemTooltipInput): Array<GameTooltipLine
 	if (classes.length) lines.push({ left: t('classes', { classes: classes.join(', ') }) });
 	lines.push(...spellLines(data, input.spellText), ...setLines(input));
 	if (data?.f) lines.push({ left: `"${data.f}"`, tone: 'gold', spaced: true });
+	return lines;
+};
+
+/** The tooltip of an item the item database does not hold, a consumable or an enchant's item: the parts the tooltips carry. */
+export const otherItemTooltipLines = (data: ItemTooltipData, spellText: (spellId: number) => string | undefined): Array<GameTooltipLine> => {
+	const lines: Array<GameTooltipLine> = [];
+	if (data.l) lines.push({ left: t('item_level', { ilvl: data.l }), tone: 'gold' });
+	if (data.b && BINDING_KEYS[data.b]) lines.push({ left: t(`binding.${BINDING_KEYS[data.b]}`) });
+	if (data.r && data.r > 1) lines.push({ left: t('requires_level', { level: data.r }) });
+	lines.push(...spellLines(data, spellText));
+	if (data.f) lines.push({ left: `"${data.f}"`, tone: 'gold', spaced: true });
 	return lines;
 };

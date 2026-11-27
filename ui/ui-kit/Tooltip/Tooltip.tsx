@@ -13,6 +13,8 @@ const DEFAULT_MAX_WIDTH = 'max-w-tooltip max-xl:max-w-tooltip-lg max-md:max-w-to
 export interface TooltipProps {
 	/** Anchors opt in with `data-tooltip-id={id}`; one Tooltip can serve many of them. */
 	id: string;
+	/** A selector for the anchors in place of `data-tooltip-id`, for a tooltip every element of a kind opens. */
+	anchorSelect?: string;
 	content?: ReactNode;
 	/** Per-anchor content, for one Tooltip serving a whole column: read the row off `activeAnchor`. Returning nothing renders no tooltip at all. */
 	render?: ITooltip['render'];
@@ -45,6 +47,7 @@ export const Tooltip = forwardRef<TooltipRefProps, TooltipProps>(
 	(
 		{
 			id,
+			anchorSelect,
 			content,
 			render,
 			place = 'top',
@@ -70,6 +73,7 @@ export const Tooltip = forwardRef<TooltipRefProps, TooltipProps>(
 			<ReactTooltip
 				ref={ref}
 				id={id}
+				anchorSelect={anchorSelect}
 				render={render}
 				place={place}
 				clickable={clickable}

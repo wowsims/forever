@@ -106,10 +106,9 @@ with headless `playwright-core`. It is not a dependency of this repo, so use a l
 `~/.cache/ms-playwright` (a `chromium_headless_shell-*` matching that install's version). What works:
 
 - Route `**/*wowhead.com/**` through one `page.route` handler that aborts every request except those to
-  `nether.wowhead.com`, so a Wowhead link or redirect cannot take the page away. A spell or item missing from the
-  database's icons, such as the triggered Divine Aegis 431624, takes its name and icon from that tooltip API, so
-  blocking it leaves the row blank. The same API feeds Wowhead's hover popups: a shot that hovers an icon picker aborts
-  `nether.wowhead.com` too. Without network those rows stay blank on both builds.
+  `nether.wowhead.com`, so a Wowhead link or redirect cannot take the page away. Names, icons and hover tooltips come
+  from `assets/database/tooltips.json` (`ui/sim/proto/tooltips.ts`); only a spell or item that file lacks takes its name
+  and icon from that Wowhead API, and its row stays blank when the API is blocked.
 - Load with `waitUntil: 'load'` and then wait about 8 seconds; the page never reaches `networkidle`.
 - A fresh profile opens the onboarding tour, whose shield takes every click. Set the localStorage key `__forever_onboarding` to `skipped`
   in `page.addInitScript` before the page loads.
@@ -154,4 +153,4 @@ the Storybook config takes only `UI_ALIASES` from it, plus React, Tailwind, the 
 `assets/` under `/forever/assets`, where fonts and spec backgrounds are root-absolute. `.storybook/preview.tsx` imports
 `.storybook/storybook.css` (the Storybook stylesheet entry, see `ui/STYLING.md`), the i18n config and
 `ui/shared/page_boot.ts`, stubs `gtag`, and adds the spec toolbar and the `withSimUi` frame;
-`.storybook/preview-head.html` loads the Wowhead tooltip script.
+`.storybook/preview-head.html` loads the site footer's stylesheet.

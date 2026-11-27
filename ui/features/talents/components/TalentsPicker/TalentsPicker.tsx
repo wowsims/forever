@@ -8,7 +8,6 @@ import type { TalentPoints } from '@sim/talents/talents_string';
 import { parseTalentsString, serializeTalentsString, totalPointsSpent } from '@sim/talents/talents_string';
 import { CopyButton } from '@ui-kit/CopyButton';
 import { Field } from '@ui-kit/Field';
-import { useWowheadTooltipRefresh } from '@ui-kit/hooks/useWowheadTooltipRefresh';
 import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 
 import { MAX_POINTS_PLAYER } from '../../model/can_set_points';
@@ -67,8 +66,6 @@ export const TalentsPicker = <TalentsProto,>({ config }: TalentsPickerProps<Tale
 		if (!trees) return;
 		trees.children[INITIAL_TREE_IDX]?.scrollIntoView({ block: 'nearest', inline: 'center' });
 	}, []);
-
-	useWowheadTooltipRefresh(value);
 
 	if (hidden) return null;
 
