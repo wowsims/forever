@@ -66,11 +66,16 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   (`spell.go`).
 - **The versus tag on a damage line names the stats the hit's damage read against the mob type** (`versusLogTag` in
   `sim/core/attack_table_helpers.go`). `MeleeAttackPower`, `RangedAttackPower` and `BonusDamage` mark each versus stat
-  they read on the spell, and each result takes the marks made since the spell's last result, so a new spell or item
-  declares nothing and a second hit in one cast names only its own reads. The area and cleave iterations
-  (`CalcAoeDamage`, `CalcCleaveDamage` and their deal and periodic forms) hand the marks read before them to every
-  target's result, for a base damage read once (Thunder Clap, Whirlwind, Multi-Shot). A secondary
-  target of another mob type is tagged by its own mob type's sources. A formula that adds a versus
+  they read on the spell, and each result takes the marks made since the spell's last result, so a single-target spell
+  or an item declares nothing and a second hit in one cast names only its own reads. An area or cleave hit whose base damage
+  reads attack power once, on its first target, passes the stat and the damage a point of it adds (`core.StatRead`)
+  to `CalcCleaveDamageReading` or `CalcAoeDamageReading`. Each target's hit then takes its own versus share of the
+  stat, and its tag names the stat only when that share is not 0 (Whirlwind, Thunder Clap, Cleave, Multi-Shot,
+  Ravager's Bladestorm). The weapon helpers' `PerAttackPower` forms (`sim/core/attack.go`) and a row's
+  `WeaponPercent` give the damage per point. The other area and cleave iterations (`CalcAoeDamage`,
+  `CalcCleaveDamage` and their deal and periodic forms) hand the marks read before them to every target's result.
+  The attack power a target grants its attackers (`BonusAttackPower`, and `BonusRangedAttackPower` from Hunter's
+  Mark) still comes from the first target alone. A formula that adds a versus
   stat by hand reads it through `spell.VersusStat` (Seal of Command), not the attack table. A read outside the damage
   stays off the tag: threat's attack power share, an expected-damage value, and a read before the cast or tick. An
   item's versus bonus is named by the item when its row is parsed with `spelldata.ForItem`.

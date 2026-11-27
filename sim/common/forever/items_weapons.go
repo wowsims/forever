@@ -10,6 +10,7 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 func init() {
@@ -31,7 +32,8 @@ func init() {
 		}
 		strikeConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := strikeRow.WeaponStrike(sim, spell, spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
-			spell.CalcAoeDamage(sim, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+			read := core.StatRead{Stat: stats.AttackPower, PerPoint: strikeRow.WeaponPercent() * spell.Unit.MHWeaponDamagePerAttackPower()}
+			spell.CalcAoeDamageReading(sim, target, baseDamage, read, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 			spell.DealBatchedAoeDamage(sim)
 		}
 		strike := character.RegisterSpell(strikeConfig)

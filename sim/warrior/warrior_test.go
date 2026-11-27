@@ -1997,3 +1997,81 @@ func TestGoreDrinkerSpendsOneChargePerLandedStrike(t *testing.T) {
 		})
 	}
 }
+
+// A Fury warrior with no rotation and no auto attacks against a target of each mob type in order,
+// with the given attack power against Humanoids.
+func versusCleaveSim(t *testing.T, mobTypes []proto.MobType, humanoidAttackPower float64) (*core.Simulation, *dps.DpsWarrior) {
+	t.Helper()
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = nil
+	for _, mobType := range mobTypes {
+		target := core.FreshDefaultTargetConfig()
+		target.MobType = mobType
+		encounter.Targets = append(encounter.Targets, target)
+	}
+	player := &proto.Player{
+		Name:          "Versus",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassWarrior,
+		Equipment:     core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_fury").GearSet,
+		TalentsString: furyTalents,
+		Spec:          dpsOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	war := sim.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+	war.AutoAttacks.CancelAutoSwing(sim)
+	war.AddMobTypeBonusStats(core.ActionID{ItemID: 1}, stats.Stats{stats.AttackPower: humanoidAttackPower}, proto.MobType_MobTypeHumanoid)
+	return sim, war
+}
+
+// Whirlwind, Thunder Clap and Cleave read attack power once, on their first target, and each target's
+// hit takes its own attack power against its mob type: a Beast beside a Humanoid takes none of the
+// Humanoid's, and a Humanoid beside the Beast the read was made on takes its own.
+func TestCleavesTakeEachTargetsOwnVersusAttackPower(t *testing.T) {
+	humanoid, beast := proto.MobType_MobTypeHumanoid, proto.MobType_MobTypeBeast
+	for _, c := range []struct {
+		name  string
+		spell core.ActionID
+	}{
+		{"Whirlwind", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)},
+		{"Whirlwind's off-hand strike", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotOffHand)},
+		{"Thunder Clap", core.ActionID{SpellID: 11581}},
+		{"Cleave", core.ActionID{SpellID: 20569}},
+	} {
+		for _, mobTypes := range [][]proto.MobType{{humanoid, beast}, {beast, humanoid}} {
+			damage := func(humanoidAttackPower float64) []float64 {
+				sim, war := versusCleaveSim(t, mobTypes, humanoidAttackPower)
+				spell := war.GetSpell(c.spell)
+				if spell == nil {
+					t.Fatalf("the warrior has no %s", c.name)
+				}
+				for range 50 {
+					spell.SkipCastAndApplyEffects(sim, sim.Encounter.ActiveTargetUnits[0])
+				}
+				var dealt []float64
+				for _, target := range sim.Encounter.ActiveTargetUnits {
+					dealt = append(dealt, spell.SpellMetrics[target.UnitIndex].TotalDamage)
+				}
+				return dealt
+			}
+			without, with := damage(0), damage(300)
+			for i, mobType := range mobTypes {
+				if without[i] == 0 {
+					t.Fatalf("%s on %v dealt no damage to its %v target, so the check proves nothing", c.name, mobTypes, mobType)
+				}
+				if mobType == beast && math.Abs(with[i]-without[i]) > 1e-6*without[i] {
+					t.Errorf("%s on %v dealt the Beast %.4f with attack power against Humanoids, want its %.4f without", c.name, mobTypes, with[i], without[i])
+				}
+				if mobType == humanoid && with[i] <= without[i] {
+					t.Errorf("%s on %v dealt the Humanoid %.4f with attack power against Humanoids, want above its %.4f without", c.name, mobTypes, with[i], without[i])
+				}
+			}
+		}
+	}
+}

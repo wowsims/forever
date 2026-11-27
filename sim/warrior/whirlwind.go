@@ -4,6 +4,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var whirlwindRank = spellData.Whirlwind.Highest()
@@ -29,7 +30,8 @@ func (warrior *Warrior) registerWhirlwind() {
 
 	ohConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := warrior.OHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
-		results := spell.CalcCleaveDamage(sim, target, int32(whirlwindRank.MaxTargets), baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+		read := core.StatRead{Stat: stats.AttackPower, PerPoint: warrior.OHNormalizedWeaponDamagePerAttackPower()}
+		results := spell.CalcCleaveDamageReading(sim, target, int32(whirlwindRank.MaxTargets), baseDamage, read, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 		scaleClosest(sim, spell, results)
 		spell.DealBatchedAoeDamage(sim)
 	}
@@ -43,7 +45,8 @@ func (warrior *Warrior) registerWhirlwind() {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := warrior.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
-		results := spell.CalcCleaveDamage(sim, target, int32(whirlwindRank.MaxTargets), baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+		read := core.StatRead{Stat: stats.AttackPower, PerPoint: warrior.MHNormalizedWeaponDamagePerAttackPower()}
+		results := spell.CalcCleaveDamageReading(sim, target, int32(whirlwindRank.MaxTargets), baseDamage, read, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 		scaleClosest(sim, spell, results)
 		warrior.CastNormalizedSweepingStrikesAttack(results, sim)
 		spell.DealBatchedAoeDamage(sim)

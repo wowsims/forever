@@ -4,6 +4,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var thunderClapRank = spellData.ThunderClap.Highest()
@@ -52,7 +53,8 @@ func (warrior *Warrior) registerThunderClap() {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := thunderClapBaseDamage + thunderClapAPCoeff*spell.MeleeAttackPower(target)
-		results := spell.CalcCleaveDamage(sim, target, int32(thunderClapRank.MaxTargets), baseDamage, spell.OutcomeMagicHitAndCrit)
+		read := core.StatRead{Stat: stats.AttackPower, PerPoint: thunderClapAPCoeff}
+		results := spell.CalcCleaveDamageReading(sim, target, int32(thunderClapRank.MaxTargets), baseDamage, read, spell.OutcomeMagicHitAndCrit)
 
 		for _, result := range results {
 			if result.Landed() {

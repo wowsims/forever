@@ -185,6 +185,20 @@ func (unit *Unit) RangedWeaponDamage(sim *Simulation, attackPower float64) float
 	return unit.AutoAttacks.ranged.CalculateWeaponDamage(sim, attackPower)
 }
 
+// The damage a point of attack power adds to the weapon damage helpers above.
+func (unit *Unit) MHWeaponDamagePerAttackPower() float64 {
+	return unit.AutoAttacks.mh.SwingSpeed / unit.AutoAttacks.mh.AttackPowerPerDPS
+}
+func (unit *Unit) MHNormalizedWeaponDamagePerAttackPower() float64 {
+	return unit.AutoAttacks.mh.NormalizedSwingSpeed / unit.AutoAttacks.mh.AttackPowerPerDPS
+}
+func (unit *Unit) OHNormalizedWeaponDamagePerAttackPower() float64 {
+	return 0.5 * unit.AutoAttacks.oh.NormalizedSwingSpeed / unit.AutoAttacks.oh.AttackPowerPerDPS
+}
+func (unit *Unit) RangedNormalizedWeaponDamagePerAttackPower() float64 {
+	return unit.AutoAttacks.ranged.NormalizedSwingSpeed / unit.AutoAttacks.ranged.AttackPowerPerDPS
+}
+
 type MeleeDamageCalculator func(attackPower float64, bonusWeaponDamage float64) float64
 
 // Returns whether this hit effect is associated with the main-hand weapon.

@@ -2,6 +2,8 @@ package core
 
 import (
 	"fmt"
+	"maps"
+	"math"
 	"strings"
 	"testing"
 	"time"
@@ -453,6 +455,67 @@ func TestDamageLogNamesAReadOnEveryResultItWentInto(t *testing.T) {
 		if len(lines) != 2 || versusTag(lines[0]) != attackPowerTag || versusTag(lines[1]) != attackPowerTag {
 			t.Errorf("%s: lines %q, want two, each tagged %q", c.name, lines, attackPowerTag)
 		}
+	}
+}
+
+// A cleave or an area hit that declares the attack power its base damage read gives each target its own
+// versus share of it, from either end: a Beast takes none of the Humanoid's, and a Humanoid gains its own
+// when the base damage was read on the Beast.
+func TestAreaHitsReadingAStatTakeEachTargetsOwnVersusShare(t *testing.T) {
+	request := fakeRageSimRequest()
+	request.Encounter.Targets = append(request.Encounter.Targets, &proto.Target{Name: "second target", Level: 63, MobType: proto.MobType_MobTypeBeast, SwingSpeed: 2})
+	sim := setupFakeRageSimFrom(request)
+	vt := versusLogTestOn(sim, &sim.Raid.Parties[0].Players[0].(*FakeRageWarrior).Character)
+	humanoid, beast := vt.target, sim.Encounter.ActiveTargetUnits[1]
+	read := StatRead{Stat: stats.AttackPower, PerPoint: 1.0 / 14}
+
+	for i, c := range []struct {
+		name string
+		calc func(sim *Simulation, target *Unit, spell *Spell, baseDamage float64) SpellResultSlice
+	}{
+		{"a cleave", func(sim *Simulation, target *Unit, spell *Spell, baseDamage float64) SpellResultSlice {
+			return spell.CalcCleaveDamageReading(sim, target, 2, baseDamage, read, spell.OutcomeAlwaysHitNoHitCounter)
+		}},
+		{"an area hit", func(sim *Simulation, target *Unit, spell *Spell, baseDamage float64) SpellResultSlice {
+			return spell.CalcAoeDamageReading(sim, target, baseDamage, read, spell.OutcomeAlwaysHitNoHitCounter)
+		}},
+	} {
+		damage := map[*Unit]float64{}
+		spell := versusTestSpell(vt.unit, int32(101+i), SpellSchoolHoly, func(sim *Simulation, target *Unit, spell *Spell) {
+			for _, result := range c.calc(sim, target, spell, attackPowerDamage(spell, target)) {
+				damage[result.Target] = result.Damage
+			}
+			spell.DealBatchedAoeDamage(sim)
+		})
+		castOn := func(target *Unit) map[*Unit]string {
+			tags := map[*Unit]string{}
+			lines := vt.linesOf(func() { spell.SkipCastAndApplyEffects(sim, target) })
+			for _, line := range lines {
+				if strings.Contains(line, beast.LogLabel()) {
+					tags[beast] = versusTag(line)
+				} else {
+					tags[humanoid] = versusTag(line)
+				}
+			}
+			if len(lines) != 2 {
+				t.Fatalf("%s on %s: lines %q, want two", c.name, target.Label, lines)
+			}
+			return tags
+		}
+
+		castOn(humanoid)
+		without := maps.Clone(damage)
+		vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81}, humanoid.MobType)
+		for _, first := range []*Unit{humanoid, beast} {
+			tags := castOn(first)
+			if tags[humanoid] != attackPowerTag || tags[beast] != "" {
+				t.Errorf("%s read on the %s: Humanoid tag %q and Beast tag %q, want %q and none", c.name, first.MobType, tags[humanoid], tags[beast], attackPowerTag)
+			}
+			if math.Abs(damage[beast]-without[beast]) > 1e-9 || damage[humanoid] <= without[humanoid] {
+				t.Errorf("%s read on the %s: Humanoid %v and Beast %v, want the Humanoid above %v and the Beast at %v", c.name, first.MobType, damage[humanoid], damage[beast], without[humanoid], without[beast])
+			}
+		}
+		vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: -81}, humanoid.MobType)
 	}
 }
 
