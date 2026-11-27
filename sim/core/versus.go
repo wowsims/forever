@@ -6,6 +6,41 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
+// The mob type each creature family belongs to. A target of a family and no mob type of its own counts
+// as the family's mob type in every versus check: a Fire Elemental with none is an Elemental. A target's
+// own mob type stays its only one, so an undead Troll stays Undead. Aquatic spans Beasts, Elementals and
+// Humanoids and Serpentine Beasts and Humanoids, so neither gives one. The UI keeps a copy for the versus
+// chips (ui/features/gear/model/versus_state.ts); this table is the one both follow.
+var creatureFamilyMobTypes = [...]proto.MobType{
+	proto.CreatureFamily_CreatureFamilyUnknown:        proto.MobType_MobTypeUnknown,
+	proto.CreatureFamily_CreatureFamilyNaga:           proto.MobType_MobTypeHumanoid,
+	proto.CreatureFamily_CreatureFamilySatyr:          proto.MobType_MobTypeDemon,
+	proto.CreatureFamily_CreatureFamilyAquatic:        proto.MobType_MobTypeUnknown,
+	proto.CreatureFamily_CreatureFamilyEarthElemental: proto.MobType_MobTypeElemental,
+	proto.CreatureFamily_CreatureFamilyFireElemental:  proto.MobType_MobTypeElemental,
+	proto.CreatureFamily_CreatureFamilyMountainGiant:  proto.MobType_MobTypeGiant,
+	proto.CreatureFamily_CreatureFamilySwine:          proto.MobType_MobTypeBeast,
+	proto.CreatureFamily_CreatureFamilyPlant:          proto.MobType_MobTypeElemental,
+	proto.CreatureFamily_CreatureFamilyTroll:          proto.MobType_MobTypeHumanoid,
+	proto.CreatureFamily_CreatureFamilyOrc:            proto.MobType_MobTypeHumanoid,
+	proto.CreatureFamily_CreatureFamilyOgre:           proto.MobType_MobTypeHumanoid,
+	proto.CreatureFamily_CreatureFamilyWolf:           proto.MobType_MobTypeBeast,
+	proto.CreatureFamily_CreatureFamilyWorgen:         proto.MobType_MobTypeHumanoid,
+	proto.CreatureFamily_CreatureFamilyMurloc:         proto.MobType_MobTypeHumanoid,
+	proto.CreatureFamily_CreatureFamilyFurbolg:        proto.MobType_MobTypeHumanoid,
+	proto.CreatureFamily_CreatureFamilyDwarf:          proto.MobType_MobTypeHumanoid,
+	proto.CreatureFamily_CreatureFamilyDinosaur:       proto.MobType_MobTypeBeast,
+	proto.CreatureFamily_CreatureFamilySerpentine:     proto.MobType_MobTypeUnknown,
+}
+
+// The target's own mob type, or its family's where it has none.
+func targetMobType(options *proto.Target) proto.MobType {
+	if options.MobType != proto.MobType_MobTypeUnknown || int(options.CreatureFamily) >= len(creatureFamilyMobTypes) {
+		return options.MobType
+	}
+	return creatureFamilyMobTypes[options.CreatureFamily]
+}
+
 // The targets a versus effect names: any of the mob types or creature families.
 type VersusTargets struct {
 	MobTypes []proto.MobType

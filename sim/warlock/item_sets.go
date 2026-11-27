@@ -5,7 +5,6 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // The rows ItemSetSpell names for each set's thresholds. None of them is a warlock class spell, so the
@@ -184,22 +183,8 @@ var ItemSetDemonheartRaiment = core.NewItemSet(core.ItemSet{
 	Slots: sixPieceSlots,
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: parsedSetBonus(demonheartHit),
-		// The parse table reads A_MOD_DAMAGE_DONE_CREATURE as physical and spell damage; this bonus
-		// keeps the spell damage the sim holds against the mob types the effect's mask names.
-		4: func(agent core.Agent, setBonusAura *core.Aura) {
-			warlock := agent.(WarlockAgent).GetWarlock()
-			effect := demonheartDemons.EffectN(1)
-			bonus := stats.Stats{stats.SpellDamage: effect.BaseValue()}
-			mobTypes := spelldata.MobTypes(effect.Misc)
-			versusSource := core.ActionID{SpellID: demonheartDemons.ID}
-
-			setBonusAura.
-				ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
-					warlock.AddMobTypeBonusStats(versusSource, bonus, mobTypes...)
-				}).
-				ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
-					warlock.AddMobTypeBonusStats(versusSource, bonus.Invert(), mobTypes...)
-				})
+		4: func(_ core.Agent, setBonusAura *core.Aura) {
+			shared.AttachSpellDamageVersus(setBonusAura, demonheartDemons)
 		},
 		// "Your Life Tap generates 20% more Mana at no additional Health cost." The dummy's amount goes into
 		// lifeTapManaBonus, which registerLifeTap adds to Improved Life Tap's share. No test wears it, since

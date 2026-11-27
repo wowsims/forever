@@ -703,10 +703,20 @@ func fixedBaseDamageFactory(baseDamage float64) BaseDamageCalculator {
 // Every target's hit takes the versus stats read before the iteration, which the base damage they
 // share read once.
 func (spell *Spell) aoeIteration(sim *Simulation, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator, singleResultCalculator SpellResultIteration) SpellResultSlice {
+	return spell.unitsIteration(sim, sim.Encounter.ActiveTargetUnits, outcomeApplier, baseDamageCalculator, singleResultCalculator)
+}
+
+// The damage on each of the units in turn, each taking the versus stats read before the iteration, as
+// in aoeIteration.
+func (spell *Spell) CalcDamageOnEach(sim *Simulation, units []*Unit, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator) SpellResultSlice {
+	return spell.unitsIteration(sim, units, outcomeApplier, baseDamageCalculator, spell.CalcDamage)
+}
+
+func (spell *Spell) unitsIteration(sim *Simulation, units []*Unit, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator, singleResultCalculator SpellResultIteration) SpellResultSlice {
 	spell.resultSlice = spell.resultSlice[:0]
 	versusRead := spell.versusRead
 
-	for _, aoeTarget := range sim.Encounter.ActiveTargetUnits {
+	for _, aoeTarget := range units {
 		spell.versusRead = versusRead
 		baseDamage := baseDamageCalculator(sim, spell)
 		spell.resultSlice = append(spell.resultSlice, singleResultCalculator(sim, aoeTarget, baseDamage, outcomeApplier))
@@ -795,8 +805,10 @@ func (dot *Dot) CalcAndDealPeriodicSnapshotDamage(sim *Simulation, target *Unit,
 	return result
 }
 
+// The tick's base damage and attacker multiplier against the target, as CalcPeriodicDamage reads them:
+// the spell's VersusBonus scales the base before the bonus coefficient's power joins it.
 func (dot *Dot) Snapshot(target *Unit, baseDamage float64) {
-	dot.SnapshotBaseDamage = baseDamage
+	dot.SnapshotBaseDamage = baseDamage * dot.Spell.VersusBonus.Against(target)
 	attackTable := dot.Spell.Unit.AttackTables[target.UnitIndex]
 	if dot.BonusCoefficient > 0 {
 		dot.SnapshotBaseDamage += dot.BonusCoefficient * dot.Spell.BonusDamage(attackTable)
@@ -806,7 +818,7 @@ func (dot *Dot) Snapshot(target *Unit, baseDamage float64) {
 }
 
 func (dot *Dot) SnapshotPhysical(target *Unit, baseDamage float64) {
-	dot.SnapshotBaseDamage = baseDamage
+	dot.SnapshotBaseDamage = baseDamage * dot.Spell.VersusBonus.Against(target)
 	// At this time, not aware of any physical-scaling DoTs that need BonusCoefficient
 	attackTable := dot.Spell.Unit.AttackTables[target.UnitIndex]
 	dot.SnapshotAttackerMultiplier = dot.Spell.AttackerDamageMultiplier(attackTable, true) *

@@ -125,6 +125,15 @@ func energizedBarOf(character *core.Character, power dbcenums.PowerType, actionI
 // One roll of the effect's gain into the bar its misc value names, metered under the action, or false
 // where there is no effect or the character has no such bar.
 func effectGain(character *core.Character, gain *spelldata.Effect, actionID core.ActionID) (func(*core.Simulation), bool) {
+	restore, ok := scaledEffectGain(character, gain, actionID)
+	if !ok {
+		return nil, false
+	}
+	return func(sim *core.Simulation) { restore(sim, 1) }, true
+}
+
+// The same, the roll multiplied by a factor.
+func scaledEffectGain(character *core.Character, gain *spelldata.Effect, actionID core.ActionID) (func(*core.Simulation, float64), bool) {
 	if gain == spelldata.NilEffect {
 		return nil, false
 	}
@@ -133,8 +142,8 @@ func effectGain(character *core.Character, gain *spelldata.Effect, actionID core
 	if !ok {
 		return nil, false
 	}
-	return func(sim *core.Simulation) {
-		bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+	return func(sim *core.Simulation, factor float64) {
+		bar.add(sim, barAmount(power, gain.Roll(sim)*factor), bar.metrics)
 	}, true
 }
 

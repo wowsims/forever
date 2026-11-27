@@ -12,6 +12,23 @@ describe('mobTypeState', () => {
 	it('never matches a target of unknown mob type', () => {
 		expect(mobTypeState(MobType.MobTypeUnknown, [target(MobType.MobTypeUnknown)])).toEqual({ state: 'off', matched: 0, total: 1 });
 	});
+
+	it("counts a target of a family and no mob type of its own as the family's mob type", () => {
+		const targets = [
+			target(MobType.MobTypeUnknown, CreatureFamily.CreatureFamilyFireElemental),
+			target(MobType.MobTypeUnknown, CreatureFamily.CreatureFamilyAquatic),
+		];
+
+		expect(mobTypeState(MobType.MobTypeElemental, targets)).toEqual({ state: 'partial', matched: 1, total: 2 });
+	});
+
+	it("counts a target of its own mob type as that type alone, whatever its family's", () => {
+		expect(mobTypeState(MobType.MobTypeHumanoid, [target(MobType.MobTypeUndead, CreatureFamily.CreatureFamilyTroll)])).toEqual({
+			state: 'off',
+			matched: 0,
+			total: 1,
+		});
+	});
 });
 
 describe('familyState', () => {

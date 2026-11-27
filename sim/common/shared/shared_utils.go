@@ -487,7 +487,7 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 	procAura := spellDataProcAura(character, cfg, trigger, buff, effect)
 
 	listener := spellDataProcListener(character, cfg, source, trigger)
-	listener.Handler = withProcEnergize(character, buff, spellDataProcHandler(buff, procAura))
+	listener.Handler, _ = withProcEnergize(character, buff, spellDataProcHandler(buff, procAura), nil)
 
 	// The same fallback the database layer applies: Bulwark of Azzinoth's armor buff sits in a
 	// spell category with a 60s recovery while its trigger states nothing. Only a buff that is a
@@ -734,27 +734,39 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 		extra(character, &damageConfig)
 	}
 	attachProcDamage(character, &config, damageConfig)
-	config.Handler = withProcEnergize(character, damage, config.Handler)
+	// The restore takes the trigger's factor against the hit's target, as an energize proc's does.
+	var restoreVersus *core.VersusBonus
+	handler, restores := withProcEnergize(character, damage, config.Handler, func(target *core.Unit) float64 { return restoreVersus.Against(target) })
+	if restores {
+		restoreVersus = RegisterVersus(character, source.versusSource(trigger), proto.VersusEffectKind_VersusEffectKindRestore, trigger)
+	}
+	config.Handler = handler
 	source.registerTrigger(character, config)
 }
 
 // The handler followed by the row's own gain into the wearer's mana, rage or energy, where the row
-// states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana, and
-// Righteous Fire 1231138 raises spell power and restores mana. The gain targets the caster, so it
-// comes with every proc whether the damage lands or not, a full resist included (EV-0108).
-func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
+// states one on its caster, and whether it does: Engulfing Shadows 27860 deals Shadow damage and
+// restores mana, and Righteous Fire 1231138 raises spell power and restores mana. The gain targets the
+// caster, so it comes with every proc whether the damage lands or not, a full resist included
+// (EV-0108). Where factor is set, the gain is multiplied by factor of the hit's target.
+func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler, factor func(target *core.Unit) float64) (core.ProcHandler, bool) {
 	gain := row.EnergizeEffect()
 	if gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
-		return handler
+		return handler, false
 	}
-	restore, ok := effectGain(character, gain, core.ActionID{SpellID: row.ID})
+	restore, ok := scaledEffectGain(character, gain, core.ActionID{SpellID: row.ID})
 	if !ok {
-		return handler
+		return handler, false
 	}
 	return func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		handler(sim, spell, result)
-		restore(sim)
-	}
+		scale := 1.0
+		// A cast listener hears no hit, so no target.
+		if factor != nil && result != nil {
+			scale = factor(result.Target)
+		}
+		restore(sim, scale)
+	}, true
 }
 
 // The spell the proc casts, as its row states it: school, defense type, spell power share, travel
@@ -975,21 +987,62 @@ func applyDotIfLanded(area bool) afterDealt {
 	}
 }
 
-// The damage of an effect that reaches more than its target, without the enemies outside the
-// creature types the row names: Stratholme Holy Water's 17291 burns only the Undead in its area. Those
-// enemies still take their rolls and count toward a split and the AoE cap.
+// The damage of an effect that reaches more than its target. A row that names creature types skips
+// the enemies outside them, as Holy Wrath does: they take no roll and count toward neither a split,
+// the row's MaxTargets nor the AoE cap. Stratholme Holy Water's 17291 burns only the Undead in its
+// area (EV-0231).
 func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
-	results := calcMultiTargetDamageOnAll(sim, spell, target, row, effect, outcome)
-	targets := row.TargetCreatureTypes()
-	if targets.IsEmpty() {
-		return results
+	types := row.TargetCreatureTypes()
+	if types.IsEmpty() {
+		return calcMultiTargetDamageOnAll(sim, spell, target, row, effect, outcome)
 	}
-	return slices.DeleteFunc(results, func(result *core.SpellResult) bool {
-		if targets.Matches(result.Target) {
-			return false
+
+	// The enemies the effect reaches, in the order calcMultiTargetDamageOnAll takes them.
+	var units []*core.Unit
+	if effect.HitsAnArea() && row.MaxTargets == 0 {
+		for _, unit := range sim.Encounter.ActiveTargetUnits {
+			if types.Matches(unit) {
+				units = append(units, unit)
+			}
 		}
-		spell.DisposeResult(result)
-		return true
+	} else {
+		reach := int(row.MaxTargets)
+		if !effect.HitsAnArea() {
+			reach = int(effect.ChainTargets)
+		}
+		unit := target
+		for range sim.Environment.ActiveTargetCount() {
+			if len(units) == reach {
+				break
+			}
+			if types.Matches(unit) {
+				units = append(units, unit)
+			}
+			unit = sim.Environment.NextActiveTargetUnit(unit)
+		}
+	}
+	if len(units) == 0 {
+		return nil
+	}
+
+	switch {
+	case !effect.HitsAnArea():
+		keep := 1.0
+		return spell.CalcDamageOnEach(sim, units, outcome, func(sim *core.Simulation, _ *core.Spell) float64 {
+			damage := effect.DirectAmount(sim) * keep
+			keep *= float64(effect.ChainAmp)
+			return damage
+		})
+	case row.SplitsDamage:
+		share := effect.Roll(sim) / float64(len(units))
+		return spell.CalcDamageOnEach(sim, units, outcome, func(*core.Simulation, *core.Spell) float64 { return share })
+	}
+	aoeCap := 1.0
+	if row.MaxTargets == 0 {
+		aoeCap = core.AOECapMultiplierOf(len(units))
+	}
+	return spell.CalcDamageOnEach(sim, units, outcome, func(sim *core.Simulation, _ *core.Spell) float64 {
+		return effect.DirectAmount(sim) * aoeCap
 	})
 }
 

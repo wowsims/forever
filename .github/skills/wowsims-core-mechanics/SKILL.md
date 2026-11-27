@@ -90,7 +90,9 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   the target's family when an entry matched it by its family. A versus factor on something other than damage, such as
   a stun's duration or a restore, and a cast allowed only on some targets, get no tag. Which targets an effect names is
   a `core.VersusTargets` (`Matches`, `AnyIn`): a row's `TargetCreatureTypes()`, a mask's `spelldata.TargetCreatures`,
-  and `shared.OnlyAgainst` for a proc that fires only on hits against them. A source's factor goes through
+  and `shared.OnlyAgainst` for a proc that fires only on hits against them. A target of a creature family and no mob
+  type of its own counts as the family's mob type in every versus check (`creatureFamilyMobTypes` in
+  `sim/core/versus.go`, which `NewTarget` reads, mirrored for the gear chips in `ui/features/gear/model/versus_state.ts`). A source's factor goes through
   `character.RegisterVersus`, `RegisterVersusProc` or `shared.RegisterVersus` with its `VersusEffectKind`
   (`Damage`, `Restore`, `ProcChance`, `CritChance`, `ProcOnly`, `Duration`), which list it on the stats sheet. Each
   helper takes the `ActionID` the bonus is credited to (the item for an item's stats and spells, the spell for an
@@ -109,6 +111,10 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **An area effect reaches every enemy in it** (`Effect.HitsAnArea()`, `HitsACone()`, `HitsAroundTheCaster()` in
   `sim/core/spelldata/resolve_spell.go`). `MaxTargets` has no `SpellConfig` field: a caller that caps reads
   `s.MaxTargets`, and "up to $s3 targets" or `SPELLMOD_JUMP_TARGETS` is the total count.
+- **An area limited to creature types skips the enemies outside them.** They take no roll and count toward neither a
+  split, `MaxTargets` nor the AoE cap: Holy Wrath, and Stratholme Holy Water's 17291 through `calcMultiTargetDamage`
+  (`sim/common/shared/shared_utils.go`, EV-0231). `spell.CalcDamageOnEach` rolls the damage on the enemies kept, and
+  `core.AOECapMultiplierOf` gives the cap for their count.
 
 ## What the row forbids
 

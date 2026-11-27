@@ -113,7 +113,9 @@ every run writes `<Suite>.results.tmp`, which git ignores; its presence means no
   or `CreatureFamily`, reading the factor off `spelldata.MustFind(id).VersusBonus()`
   (`TestProcSpellsDealTheirVersusFactor` in `sim/common/forever/items_weapons_test.go`); the combat log tag's form is
   tested in `sim/core/attack_table_helpers_test.go`, and the stats sheet's per-source shares in
-  `sim/core/character_sheet_test.go`. UI component tests are `wowsims-ui`.
+  `sim/core/character_sheet_test.go`. A target of a family and no mob type counts as the family's mob type only when
+  `NewTarget` builds it from a `proto.Target`, so a test that sets `CreatureFamily` on a built unit sets its `MobType`
+  too. UI component tests are `wowsims-ui`.
 - **A snapshot test writes its list when missing** and rewrites it under an `UPDATE_*` variable, and its path joins the
   snapshot block in `.gitignore`; the suites' `.results` stay tracked.
 

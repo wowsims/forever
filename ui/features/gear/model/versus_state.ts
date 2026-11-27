@@ -25,9 +25,37 @@ const countMatch = (matched: number, total: number): VersusMatch => ({
 	total,
 });
 
-/** A target of `MobTypeUnknown` never matches. */
+// A copy of the sim's table of the mob type each creature family belongs to (`creatureFamilyMobTypes` in
+// sim/core/versus.go), which this one follows: Aquatic and Serpentine span several mob types and give none.
+const FAMILY_MOB_TYPES: Record<CreatureFamily, MobType> = {
+	[CreatureFamily.CreatureFamilyUnknown]: MobType.MobTypeUnknown,
+	[CreatureFamily.CreatureFamilyNaga]: MobType.MobTypeHumanoid,
+	[CreatureFamily.CreatureFamilySatyr]: MobType.MobTypeDemon,
+	[CreatureFamily.CreatureFamilyAquatic]: MobType.MobTypeUnknown,
+	[CreatureFamily.CreatureFamilyEarthElemental]: MobType.MobTypeElemental,
+	[CreatureFamily.CreatureFamilyFireElemental]: MobType.MobTypeElemental,
+	[CreatureFamily.CreatureFamilyMountainGiant]: MobType.MobTypeGiant,
+	[CreatureFamily.CreatureFamilySwine]: MobType.MobTypeBeast,
+	[CreatureFamily.CreatureFamilyPlant]: MobType.MobTypeElemental,
+	[CreatureFamily.CreatureFamilyTroll]: MobType.MobTypeHumanoid,
+	[CreatureFamily.CreatureFamilyOrc]: MobType.MobTypeHumanoid,
+	[CreatureFamily.CreatureFamilyOgre]: MobType.MobTypeHumanoid,
+	[CreatureFamily.CreatureFamilyWolf]: MobType.MobTypeBeast,
+	[CreatureFamily.CreatureFamilyWorgen]: MobType.MobTypeHumanoid,
+	[CreatureFamily.CreatureFamilyMurloc]: MobType.MobTypeHumanoid,
+	[CreatureFamily.CreatureFamilyFurbolg]: MobType.MobTypeHumanoid,
+	[CreatureFamily.CreatureFamilyDwarf]: MobType.MobTypeHumanoid,
+	[CreatureFamily.CreatureFamilyDinosaur]: MobType.MobTypeBeast,
+	[CreatureFamily.CreatureFamilySerpentine]: MobType.MobTypeUnknown,
+};
+
+/** The target's own mob type, or its family's where it has none, as the sim counts it. */
+export const targetMobType = (target: Target): MobType =>
+	target.mobType === MobType.MobTypeUnknown ? (FAMILY_MOB_TYPES[target.creatureFamily] ?? MobType.MobTypeUnknown) : target.mobType;
+
+/** A target of `MobTypeUnknown` with no family of a mob type never matches. */
 export const mobTypeState = (mobType: MobType, targets: ReadonlyArray<Target>): VersusMatch =>
-	countMatch(mobType === MobType.MobTypeUnknown ? 0 : targets.filter(target => target.mobType === mobType).length, targets.length);
+	countMatch(mobType === MobType.MobTypeUnknown ? 0 : targets.filter(target => targetMobType(target) === mobType).length, targets.length);
 
 /** Matches on the target's family alone, as the sim does; a target of `CreatureFamilyUnknown` never matches. */
 export const familyState = (family: CreatureFamily, targets: ReadonlyArray<Target>): VersusMatch =>

@@ -543,11 +543,8 @@ func init() {
 	// Use: Increase your agility by 33 for 30 sec. If there is an elemental nearby, gain an additional 33.
 	//
 	// 1315878's second effect is the additional Agility. By the owner's ruling an elemental is nearby
-	// when any enemy in the encounter is one: an Elemental, or of the Earth or Fire Elemental family.
-	elementals := core.VersusTargets{
-		MobTypes: []proto.MobType{proto.MobType_MobTypeElemental},
-		Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental, proto.CreatureFamily_CreatureFamilyFireElemental},
-	}
+	// when any enemy in the encounter is an Elemental, an Earth or Fire Elemental among them.
+	elementals := core.VersusTargets{MobTypes: []proto.MobType{proto.MobType_MobTypeElemental}}
 	core.NewItemEffect(280071, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1315878)

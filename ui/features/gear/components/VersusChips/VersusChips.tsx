@@ -11,7 +11,7 @@ import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { Fragment, useId } from 'react';
 import { useStore } from 'zustand';
 
-import { itemVersusChips, namesVersus, type VersusChip, versusEffectFactor, type VersusState } from '../../model/versus_state';
+import { itemVersusChips, namesVersus, targetMobType, type VersusChip, versusEffectFactor, type VersusState } from '../../model/versus_state';
 
 const TONES: Record<VersusState, PillTone> = { on: 'positive', partial: 'warning', off: 'neutral' };
 
@@ -22,7 +22,7 @@ const chipName = (chip: VersusChip) =>
 const targetName = (chip: VersusChip, target: Target) =>
 	chip.kind === 'family' && target.creatureFamily !== CreatureFamily.CreatureFamilyUnknown
 		? translateCreatureFamily(target.creatureFamily)
-		: translateMobType(target.mobType);
+		: translateMobType(targetMobType(target));
 
 const statLines = (stats: { [key: number]: number }) =>
 	Object.entries(stats).map(([key, amount]) => {

@@ -1421,7 +1421,7 @@ func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
 }
 
 // Flamebreak Talisman 280071's use grants 1315878's first Agility, and its second on top when any enemy
-// in the encounter is an elemental, by type or by family.
+// in the encounter is an elemental, by its type or by a family of that type.
 func TestFlamebreakTalismanAddsItsSecondAgilityAgainstAnElemental(t *testing.T) {
 	row := spelldata.MustFind(1315878)
 	first, second := row.EffectN(1).BaseValue(), row.EffectN(2).BaseValue()

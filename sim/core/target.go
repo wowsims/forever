@@ -99,9 +99,14 @@ func (encounter *Encounter) AOECapMultiplier() float64 {
 	return encounter.aoeCapMultiplier
 }
 
-// With no active target the division gives +Inf, which the min keeps at 1.
 func (encounter *Encounter) updateAOECapMultiplier() {
-	encounter.aoeCapMultiplier = min(20/float64(len(encounter.ActiveTargets)), 1)
+	encounter.aoeCapMultiplier = AOECapMultiplierOf(len(encounter.ActiveTargets))
+}
+
+// The share of its damage an uncapped area deals each of the targets it reaches: all of it up to 20
+// targets, 20 / targets past them. With no target the division gives +Inf, which the min keeps at 1.
+func AOECapMultiplierOf(targets int) float64 {
+	return min(20/float64(targets), 1)
 }
 
 func (encounter *Encounter) addActiveTarget(target *Target) {
@@ -175,7 +180,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 			Index:          targetIndex,
 			Label:          "Target " + strconv.Itoa(int(targetIndex)+1),
 			Level:          options.Level,
-			MobType:        options.MobType,
+			MobType:        targetMobType(options),
 			CreatureFamily: options.CreatureFamily,
 			BleedImmune:    options.BleedImmune,
 			auraTracker:    newAuraTracker(),
