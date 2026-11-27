@@ -655,6 +655,127 @@ func TestShankRollsTheOffHandPoison(t *testing.T) {
 	}
 }
 
+// Mutilate's strikes take the poison bonus from the target's poisons at the cast. On a clean target, a Deadly Poison
+// the off-hand strike puts up leaves the main-hand strike after it unraised; on a target poisoned before the cast, both
+// strikes take the bonus.
+func TestMutilateTakesThePoisonBonusFromThePoisonsAtTheCast(t *testing.T) {
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 2632 // Curved Dagger
+	items[proto.ItemSlot_ItemSlotOffHand].Id = 18392 // Distracting Dagger
+	player := &proto.Player{
+		Name:          "Rogue",
+		Race:          proto.Race_RaceHuman,
+		Class:         proto.Class_ClassRogue,
+		Equipment:     &proto.EquipmentSpec{Items: items},
+		TalentsString: "00530311231251031-32030302020103-001",
+		Consumables:   &proto.ConsumesSpec{OhWeaponImbueId: 8985}, // Deadly Poison IV
+		Spec:          DefaultOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
+	target := sim.Encounter.AllTargetUnits[0]
+	if rogue.Mutilate == nil || rogue.DeadlyPoison == nil {
+		t.Fatal("the rogue has no Mutilate or no Deadly Poison")
+	}
+	rogue.AutoAttacks.CancelAutoSwing(sim)
+	target.PseudoStats.BaseDodgeChance = 0
+	rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	// Weapons without a damage range, so a strike's normal hit deals one amount.
+	mh, oh := *rogue.AutoAttacks.MH(), *rogue.AutoAttacks.OH()
+	mh.BaseDamageMax, oh.BaseDamageMax = mh.BaseDamageMin, oh.BaseDamageMin
+	rogue.AutoAttacks.SetMH(mh)
+	rogue.AutoAttacks.SetOH(oh)
+	poison := rogue.DeadlyPoison.Dot(target)
+
+	// One Mutilate; each strike's damage, 0 for a strike that was not a normal hit, and whether Deadly Poison was up
+	// at the cast and after it.
+	mutilate := func(poisoned bool) (mhDamage, ohDamage float64, before, after bool) {
+		t.Helper()
+		rogue.GCD.Reset()
+		rogue.AddEnergy(sim, 100, rogue.EnergyRefundMetrics)
+		poison.Deactivate(sim)
+		if poisoned {
+			poison.Apply(sim)
+			poison.SetStacks(sim, 1)
+		}
+		before = poison.IsActive()
+		damage := func(strike *core.Spell, cast func()) float64 {
+			m := &strike.SpellMetrics[target.UnitIndex]
+			hits, dealt := m.Hits, m.TotalDamage
+			cast()
+			if m.Hits != hits+1 {
+				return 0
+			}
+			return m.TotalDamage - dealt
+		}
+		mhDamage = damage(rogue.MutilateMH, func() {
+			ohDamage = damage(rogue.MutilateOH, func() {
+				if !rogue.Mutilate.Cast(sim, target) {
+					t.Fatal("Mutilate did not cast")
+				}
+			})
+		})
+		return mhDamage, ohDamage, before, poison.IsActive()
+	}
+
+	var cleanMH, cleanOH float64
+	for tries := 0; cleanMH == 0 || cleanOH == 0; tries++ {
+		if tries > 100 {
+			t.Fatal("100 Mutilates on a clean target gave no pair of normal hits without a poison")
+		}
+		if mhDamage, ohDamage, _, after := mutilate(false); !after && mhDamage > 0 && ohDamage > 0 {
+			cleanMH, cleanOH = mhDamage, ohDamage
+		}
+	}
+	bonus := 1 + mutilateCastRank.EffectN(4).Percent()
+	near := func(got, want float64) bool { return math.Abs(got-want) < 1e-6*want }
+
+	putUp := 0
+	for range 100 {
+		mhDamage, _, before, after := mutilate(false)
+		if before || !after || mhDamage == 0 {
+			continue
+		}
+		putUp++
+		if !near(mhDamage, cleanMH) {
+			t.Fatalf("on a clean target the main-hand strike deals %.2f after the off-hand strike put Deadly Poison up, want the clean %.2f", mhDamage, cleanMH)
+		}
+	}
+	if putUp == 0 {
+		t.Fatal("no off-hand strike of 100 Mutilates on a clean target put Deadly Poison up before a normal main-hand hit")
+	}
+
+	poisonedPairs := 0
+	for range 20 {
+		mhDamage, ohDamage, before, _ := mutilate(true)
+		if !before {
+			t.Fatal("Deadly Poison is not up at the cast")
+		}
+		if mhDamage == 0 || ohDamage == 0 {
+			continue
+		}
+		poisonedPairs++
+		if !near(mhDamage, cleanMH*bonus) {
+			t.Errorf("on a poisoned target the main-hand strike deals %.2f, want the poison bonus over the clean %.2f", mhDamage, cleanMH)
+		}
+		if !near(ohDamage, cleanOH*bonus) {
+			t.Errorf("on a poisoned target the off-hand strike deals %.2f, want the poison bonus over the clean %.2f", ohDamage, cleanOH)
+		}
+	}
+	if poisonedPairs == 0 {
+		t.Fatal("no Mutilate of 20 on a poisoned target landed two normal hits")
+	}
+}
+
 // Death Mark under 31 Subtlety points, with and without Coup de Grace 3/3.
 const deathMarkTalents = "--335223031321001101"
 const deathMarkCoupDeGraceTalents = "-3-335223031321001101"
