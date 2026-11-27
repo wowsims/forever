@@ -23,11 +23,13 @@
   its own
 - Game build: live realms from 2026-11-05 on 1.60.1.70862, 1.60.1.70888 from 2026-11-10 and
   1.60.1.70938 from 2026-11-13, the last reports after the 2026-11-16 hotfix push 114115 and possibly the 2026-11-17 push
-  114122; the hotfix a run was on and relogs are not recorded. The items naming a count section have their own
+  114122, all before the 2026-11-19 hotfix after which binary spells take the Spell Piercing bonus; the hotfix a run was
+  on and relogs are not recorded. The items naming a count section have their own
 - Date: 2026-09-27 to 2026-11-17; the items naming a count section have their own
 - Pull request: #1080; each count section names its own
 - Later count: the Incinerate, Shadow Bolt, Death Coil, Shadowburn and Frost Shock lines of §Spell Piercing and §Rows
   with few hits, §Count of the 2026-11-07 to 2026-11-24 reports
+- Later count: the 5 and 6 piercing reading at level 60 of §The 1% cut, §Count of the 2026-11-27 test
 
 ## Method
 
@@ -89,10 +91,10 @@ of 355 (149.4) and Bane of Agony 10 of 37 (12.0). Gahz'rilla Fang's 3742 showed 
 10 of 32 (16.0).
 
 Two effects rest on one spell each: E_CREATE_AREATRIGGER on Flamestrike's cast, which also carries a dummy aura on the
-caster, and E_ENERGIZE on Engulfing Shadows, not re-measured on build 71037 (below). E_NONE rows do not follow the
-rule: Smokey's Lighter took no resist of any kind in 3,300 hits (0 of 179 with a partial and 0 of 179 RESIST against 68.8
-at a mean share of 0.38), and Cloud of Chained Essence none in 4,246 applications and 15,460 ticks. E_TRIGGER_SPELL is
-not tested.
+caster, and E_ENERGIZE on Engulfing Shadows, read through Spell Piercing before the 2026-11-19 hotfix and not
+re-measured since (below). E_NONE rows do not follow the rule: Smokey's Lighter took no resist of any kind in 3,300 hits
+(0 of 179 with a partial and 0 of 179 RESIST against 68.8 at a mean share of 0.38), and Cloud of Chained Essence none in
+4,246 applications and 15,460 ticks. E_TRIGGER_SPELL is not tested.
 
 ## Spell Piercing
 
@@ -175,12 +177,14 @@ All four are binary by their rows (Death Coil's E_HEALTH_LEECH is its damage, be
 with a resistance, in the streams of §Count of the 2026-11-07 to 2026-11-24 reports, none of 386 Incinerate, 155
 Shadowburn, 10 Death Coil and 26 Frost Shock landed hits takes a partial resist.
 
-Open: E_ENERGIZE rests on Engulfing Shadows alone, measured before build 71037 and not re-measured. Every piercing source
-row (aura 123) states no class mask, so the source does not pick the spells.
+Open: E_ENERGIZE rests on Engulfing Shadows alone, measured before the 2026-11-19 hotfix, while a landed binary hit took
+no Spell Piercing bonus, and not re-measured. Every piercing source row (aura 123) states no class mask, so the source
+does not pick the spells.
 
 ### The 1% cut
 
 - Count: §Count of the 2026-11-19 to 2026-11-23 reports
+- Count: §Count of the 2026-11-27 test (one mage at 5 and 6 piercing, level 60)
 
 A caster's gear piercing p at level L makes the share s = p / (p + 8L + 19). Under 1% it gives no bonus; from 1% the
 bonus lands on about 7.5·s of hits, with no rounding. The rows are the hits of casters other than mages.
@@ -201,8 +205,10 @@ The rate climbs inside 1 to 2%, where a share rounded to whole percent would sta
 The cut is no whole number of piercing points either: 5 piercing gives the bonus at levels 52, 56 and 57 (s 1.14%, 1.06%,
 1.04%; 9.58%, 5.99% and 2.95% of hits, one priest each) and not at level 60 (s 0.992%: 0.64% [0.49, 0.83] over 20
 casters), and 4 gives it at level 40 (3.64% [1.93, 6.78], 2 casters) and not from level 50 to 60. The cut lies between
-s 0.992% and about 1.04%. Between 1.00 and 1.05% casters read both ways: 3 casters other than mages took it on 2.97%
-[1.86, 4.71] of 572 hits, and 2 mages without the talent on 0 of 817 [0, 0.47%].
+s 0.992% and about 1.04%, so at level 60 between 5 and 6 piercing: one mage without Arcane Subtlety took no bonus in 265
+hits at 5 (s 0.992%) and 17 in 231 at 6 (s 1.188%, 20.6 at 7.5·s). Between 1.00 and 1.05% casters read both ways: 3
+casters other than mages took it on 2.97% [1.86, 4.71] of 572 hits, and 2 mages without the talent on 0 of 817 [0,
+0.47%].
 
 Mages: Arcane Subtlety at rank 2 adds about 14 piercing (the sim's row gives 15). Mages at rank 2 and level 60 with 0, 5,
 11 and 14 gear piercing (s 2.9 to 5.5% with the talent at 15) took the bonus on 21.0, 28.3, 35.6 and 40.2% of 10,673,
@@ -403,3 +409,37 @@ The count runs as in §Count of the 2026-11-19 to 2026-11-23 reports, with these
 Scripts and tables: `forever-piercing-outliers-1124` (`tables/summary.txt`, `tables/recount_*_isb.txt`,
 `tables/isb_*.txt`, `tables/shadowburn_checks.txt`, `tables/partials_new.txt`, `tables/rows_lowu.txt`,
 `tables/needed.txt`, `tables/outlier_neighbours.txt`, `tables/ticks_abs.txt`).
+
+## Count of the 2026-11-27 test
+
+- Sources: combat logs of one level 60 Frost mage without Arcane Subtlety, EU, in Dire Maul, Blackrock Depths and the
+  Stormwind Stockade, at 5 Spell Piercing on the character sheet (wrists off) and at 6 (wrists on, chest off); the
+  StatLedger addon read the gear piercing at every gear change
+- Game build: 1.60.1.71139 by StatLedger's login lines, on the latest hotfix push of 71139 at the time, relogged
+- Date: 2026-11-27 07:59 to 09:27 UTC (08:59 to 10:27 in the player's local time, CET): 5 piercing from 07:59:05 to 08:35
+  and from 09:20:48 to 09:24:46 UTC, 6 piercing from 09:24:48 to 09:26:56 UTC. StatLedger shows more time at 5 piercing
+  (08:42 to 09:14 UTC) and at 6 (09:14:20 to 09:20:23 UTC) whose combat log was not provided
+- Pull request: this branch's, not yet opened
+
+The bonus is the negative resisted field of a SPELL_DAMAGE event in the raw combat log: −10, −20 or −30% of the hit
+before resists, taken before the crit multiplier. Every SPELL_DAMAGE of the caster counts, and no hit took a partial
+(positive) resist. Each target of an area spell counts as its own hit, since it rolls its own bonus and its own step: of
+43 Blizzard waves on 2 or more targets, none gave every target a bonus, 15 gave some and 28 none, and one wave on 15
+targets logged −8 and −4 on two of them and nothing on the other 13. The share is s = p / (p + 8 × 60 + 19).
+
+| Hits                                 | 5 piercing (s 0.992%) | 6 piercing (s 1.188%) |
+| ------------------------------------ | --------------------- | --------------------- |
+| Arcane Explosion                     | 0 of 78               | 5 of 52               |
+| Blizzard                             | 0 of 118              | 9 of 162              |
+| Frost Nova                           | 0 of 23               | 3 of 15               |
+| Cone of Cold                         | 0 of 19               | 0 of 2                |
+| Frostbolt                            | 0 of 13               |                       |
+| Arcane Missiles                      | 0 of 8                |                       |
+| Ice Lance                            | 0 of 4                |                       |
+| Fire Blast                           | 0 of 2                |                       |
+| All                                  | 0 of 265              | 17 of 231 (7.4%)      |
+| Expected at 7.5·s with no cut        | 19.7                  | 20.6                  |
+| Expected at the 0.58% of §The 1% cut | 1.5                   | 1.3                   |
+
+At 7.5·s with no cut, 0 of 265 has a chance of about 3·10⁻⁹. Blizzard's waves are hits of their own spell and take the
+bonus at the full share: 9 of 162 at 6 piercing (14.4 at 7.5·s), where a tenth of the share, under the cut, gives none.

@@ -2,8 +2,8 @@
 
 - Claim: the constant K in a = R / (R + K), L being the caster's level, fits 8L + 19; ExpectedStat's ArmorConstant × 0.088 fits nearly as well.
 - Sources: Spell Piercing logs from level 20 to 50 and mobs near level 38 casting at players of known resistance (a tracking issue, #76, holds the per-level data and charts); at level 49 to 51 the logs of a mage with 15 Spell Piercing
-- Game build: not recorded
-- Date: 2026-11-11 and 2026-11-12 for the level 49 to 51 logs
+- Game build: not recorded; every log is from before the 2026-11-19 hotfix (1.60.1.71037, hotfixes 114309, 114310, 114312, 114313 and 114314) after which binary spells take the Spell Piercing bonus (EV-0142)
+- Date: 2026-11-11 and 2026-11-12 for the level 49 to 51 logs, the others not recorded; all before the 2026-11-19 hotfix
 - Pull request: #961
 
 The mage at levels 49 to 51 with 15 Spell Piercing had a bonus on 1,500 of 5,756 direct hits, which is 7.5a, so a = 0.0347 and K = 417 (399 to 435). 9L gives 450 there, 3.7 sigma off.
