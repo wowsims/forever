@@ -424,6 +424,11 @@ type SpellDataProc struct {
 // effect stays generated and the generator still lists the item's other effects no code simulates.
 var DamageProcExtras = map[int32]func(character *core.Character, config *core.SpellConfig){}
 
+// What an item changes on the listener its generated proc builds, by item id, before the handler is
+// set: Felstriker's buff goes up in the instant of the hit that procs it. Hand-written code fills it
+// from init, so the item's effect stays generated.
+var ProcTriggerExtras = map[int32]func(trigger *core.ProcTrigger){}
+
 // Registers the same effect once per item that carries it, the way the stat-bonus constructors do it.
 func NewSpellDataProc(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataProc)
@@ -511,6 +516,9 @@ func spellDataProcListener(character *core.Character, cfg SpellDataProc, source 
 		weaponProcShape(cfg), rate, statedWeaponProcChance(cfg.IsWeaponProc, source))
 	config.Name = cfg.Name
 	config.ActionID = source.actionID()
+	if extra, ok := ProcTriggerExtras[source.id]; ok && !source.isEnchant {
+		extra(&config)
+	}
 
 	return config
 }

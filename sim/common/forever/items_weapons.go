@@ -328,6 +328,18 @@ func init() {
 			{ItemID: 13393, ItemName: "Malown's Slam"},
 		})
 
+	// Felstriker
+	// https://www.wowhead.com/forever/item=12590/felstriker
+	//
+	// Chance on hit: All attacks are guaranteed to land and will be critical strikes for the next 3s.
+	//
+	// Felstriker 16551 goes up in the instant of the hit that procs it, after that hit's own roll, so the
+	// Windfury Totem hit the same hit sets off lands and crits (EV-0225), and an extra swing it sets off
+	// does too.
+	shared.ProcTriggerExtras[12590] = func(trigger *core.ProcTrigger) {
+		trigger.TriggerImmediately = true
+	}
+
 	// Blade of Eternal Darkness
 	// https://www.wowhead.com/forever/item=17780/blade-of-eternal-darkness
 	//
