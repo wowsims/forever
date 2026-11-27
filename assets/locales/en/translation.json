@@ -3714,7 +3714,7 @@
 				"off": "OH"
 			},
 			"melee_crit_cap": "Melee Crit Cap",
-			"spell_piercing_too_low": "Spell Piercing beyond the target's resistance gives no bonus below {{min}}. A weapon imbue's piercing is not counted here.",
+			"spell_piercing_too_low": "Spell Piercing beyond the target's resistance gives no bonus below {{min}}.",
 			"weapon_skill": "Weapon Skill",
 			"versus": {
 				"title": "Bonus",
