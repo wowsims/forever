@@ -494,10 +494,11 @@ func TestSheetListsEachSourceOfAMobTypeBonus(t *testing.T) {
 }
 
 // An area factor applies in an encounter in any of its areas, once however many, and the sheet lists it under
-// its source and areas in every encounter; a factor of 1 or in no area is not listed.
+// its source and areas in every encounter; a factor of 1 or in no area is not listed. A flat amount in the
+// areas is listed the same way, with its amount.
 func TestSheetListsEachAreaFactorInEveryEncounter(t *testing.T) {
 	areas := AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted}}
-	source := ActionID{SpellID: 990932}
+	source, flatSource := ActionID{SpellID: 990932}, ActionID{SpellID: 990933}
 	for _, tc := range []struct {
 		name  string
 		areas []proto.AreaType
@@ -528,6 +529,15 @@ func TestSheetListsEachAreaFactorInEveryEncounter(t *testing.T) {
 		if len(listed) != 1 || listed[0].Kind != proto.VersusEffectKind_VersusEffectKindRestore || listed[0].Multiplier != 3 ||
 			!slices.Equal(listed[0].AreaTypes, areas.Areas) || len(listed[0].MobTypes)+len(listed[0].CreatureFamilies) != 0 {
 			t.Errorf("%s: the sheet lists %v for the source, want its x3 restore in Wasteland and Haunted areas alone", tc.name, listed)
+		}
+
+		if inArea := character.RegisterAreaAmount(flatSource, proto.VersusEffectKind_VersusEffectKindFlatHeal, areas, 44); inArea != (tc.want != 1) {
+			t.Errorf("%s: the flat amount reads the encounter in the areas as %v", tc.name, inArea)
+		}
+		flat := character.versusEffectsProto()
+		if last := flat[len(flat)-1]; ProtoToActionID(last.Source) != flatSource || last.Kind != proto.VersusEffectKind_VersusEffectKindFlatHeal ||
+			last.Amount != 44 || !slices.Equal(last.AreaTypes, areas.Areas) {
+			t.Errorf("%s: the sheet lists %v last, want the flat heal of 44 in Wasteland and Haunted areas", tc.name, last)
 		}
 	}
 }

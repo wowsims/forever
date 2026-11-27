@@ -691,10 +691,10 @@ var (
 // (5) Set: Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.
 //
 // Every blocked melee or ranged hit heals, a block that leaves no damage too, at most once a second. The
-// heal rolls around 18, and in Strongholds and Cities it is the flat 44 of the heal's second effect. Every
-// landed melee or ranged hit taken adds a stack and refreshes the buff, at most once every 3 s. The 5-piece
-// buff also makes the wearer larger and turns them into an ogre at 20 stacks, which has no place in the sim
-// (EV-0160).
+// heal rolls around 18, and in Strongholds and Cities it is the flat 44 of the heal's second effect, which
+// the stats sheet lists (EV-0160). Every landed melee or ranged hit taken adds a stack and refreshes the
+// buff, at most once every 3 s. The 5-piece buff also makes the wearer larger and turns them into an ogre at
+// 20 stacks, which has no place in the sim (EV-0160).
 var ItemSetKroldokBattlegear = core.NewItemSet(core.ItemSet{
 	ID:   2135,
 	Name: "Krol'dok Battlegear",
@@ -717,9 +717,7 @@ func kroldokResolve(agent core.Agent, setBonusAura *core.Aura) {
 	amount := kroldokResolveHeal.HealEffect().DirectAmount
 	strongholds := core.AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}}
 	stronghold := kroldokResolveHeal.EffectN(2).BasePoints
-	character.RegisterArea(core.ActionID{SpellID: kroldokResolveProc.ID}, proto.VersusEffectKind_VersusEffectKindEffect,
-		core.AreaBonus{AreaTargets: strongholds, Multiplier: stronghold / kroldokResolveHeal.EffectN(1).BasePoints})
-	if strongholds.In(&character.Env.Encounter) {
+	if character.RegisterAreaAmount(core.ActionID{SpellID: kroldokResolveProc.ID}, proto.VersusEffectKind_VersusEffectKindFlatHeal, strongholds, stronghold) {
 		amount = func(*core.Simulation) float64 { return stronghold }
 		config.DirectVariance = 0
 	}

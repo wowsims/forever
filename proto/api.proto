@@ -784,6 +784,7 @@ message VersusEffect {
 	VersusEffectKind kind = 6;
 	ActionID source = 7; // The item, or the spell of a set bonus or an enchant.
 	repeated AreaType area_types = 8; // Set for an area factor, which names no mob type or family.
+	double amount = 9; // The flat amount of a FlatHeal, which states no multiplier.
 }
 enum VersusEffectKind {
 	VersusEffectKindDamage = 0;
@@ -793,6 +794,7 @@ enum VersusEffectKind {
 	VersusEffectKindProcOnly = 4; // The source's proc fires against these targets only.
 	VersusEffectKindDuration = 5; // How long the source's effect lasts on the target.
 	VersusEffectKindEffect = 6; // How strong the source's effect is: the stats, regeneration or heal it states.
+	VersusEffectKindFlatHeal = 7; // The source's heal is the flat amount, whatever it rolls elsewhere.
 }
 message PartyStats {
 	repeated PlayerStats players = 1;

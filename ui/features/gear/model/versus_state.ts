@@ -79,7 +79,11 @@ const EFFECT_KEYS: Record<VersusEffectKind, string> = {
 	[VersusEffectKind.VersusEffectKindProcOnly]: 'effect_proc_only',
 	[VersusEffectKind.VersusEffectKindDuration]: 'effect_duration',
 	[VersusEffectKind.VersusEffectKindEffect]: 'effect_amount',
+	[VersusEffectKind.VersusEffectKindFlatHeal]: 'effect_flat_heal',
 };
 
 export const versusEffectFactor = (effect: VersusEffect): string =>
-	i18n.t(`sidebar.character_stats.versus.${EFFECT_KEYS[effect.kind]}`, { factor: Number(effect.multiplier.toFixed(2)) });
+	i18n.t(`sidebar.character_stats.versus.${EFFECT_KEYS[effect.kind]}`, {
+		factor: Number(effect.multiplier.toFixed(2)),
+		amount: Number(effect.amount.toFixed(2)),
+	});

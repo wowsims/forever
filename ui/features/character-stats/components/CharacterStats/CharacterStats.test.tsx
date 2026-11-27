@@ -536,7 +536,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		state: 'off',
 		lines: [
 			['Darkmoon Card: Heroism', '×2 proc chance'],
-			["Krol'dok Resolve", '×2.44 effect'],
+			["Krol'dok Resolve", 'heals 44 (flat)'],
 		],
 	};
 	const inactiveGroups = [

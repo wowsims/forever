@@ -1838,9 +1838,14 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 	// Example loop over your items
 	for _, parsed := range db.Items {
 		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-		parsed.AreaTypes, parsed.MobTypes, parsed.CreatureFamilies = dbc.ItemEffectTypes(parsed.Id)
-
 		hand := implementedByHand(parsed.Id)
+		parsed.AreaTypes, parsed.MobTypes, parsed.CreatureFamilies = dbc.ItemEffectTypes(parsed.Id, hand, func(pieces int32) bool {
+			return slices.ContainsFunc(core.ItemSets(), func(set *core.ItemSet) bool {
+				_, ok := set.Bonuses[pieces]
+				return ok && coversSet(set, parsed.SetId, parsed.SetName)
+			})
+		})
+
 		if hand {
 			for _, effect := range instance.ItemEffectsByParentID[int(parsed.Id)] {
 				if !handProcStatesNoRate(parsed.Id, effect) {

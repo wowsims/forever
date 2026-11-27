@@ -12813,6 +12813,9 @@
 								"effect_amount": {
 									"type": "string"
 								},
+								"effect_flat_heal": {
+									"type": "string"
+								},
 								"state_on": {
 									"type": "string"
 								},
@@ -12849,6 +12852,7 @@
 								"effect_proc_only",
 								"effect_duration",
 								"effect_amount",
+								"effect_flat_heal",
 								"state_on",
 								"state_partial",
 								"state_off",

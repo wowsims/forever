@@ -74,8 +74,9 @@ db.json lists outside the parse and §What the settings offer, which holds the E
 - **An area type is an area group `areaTypeByGroup` maps** (`sim/core/spelldata/area.go`, each entry citing a tooltip). A
   row whose `RequiredAreas` group it lacks counts as a single zone: the item aura builders refuse it and the gear names
   no area. "Doubled in X areas" with no companion row is an `overrides.AreaBonuses` row (`docs/spell_data/overrides.md`).
-  An item's gear chips also take the areas its spells' tooltips name after "in" (`tooltipAreas`), and a set piece the
-  ones its set bonuses' tooltips name, so a hand-written area effect needs no list for its chip.
+  An item the sim models by hand also takes the areas its spells' tooltips name after "in" (`tooltipAreas`), and a set
+  piece the ones the tooltips of its hand-written set bonuses name, so a hand-written area effect needs no list for its
+  chip and an effect the sim does not model gets none.
 
 ## Hand-written effects
 

@@ -103,8 +103,9 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   `AreaTargets` and the factor) and a `VersusEffectKind` (`Effect` for stats, regeneration or a heal). It returns the
   factor in the encounter, 1 outside its areas, since the areas are fixed for the run, and lists it on the stats sheet
   under its area in every encounter. A row's `overrides.AreaBonuses` entry reads as `spelldata.Spell.AreaBonus()`. A
-  rule on top of the factor stays at its site (Krol'dok Battlegear's flat heal, Everlook Delivery Bot's halved counts
-  rounded down); a check with no factor is `AreaTargets.In` or `Encounter.InArea`.
+  rule on top of the factor stays at its site (Everlook Delivery Bot's halved counts rounded down). A flat amount in
+  the areas goes through `character.RegisterAreaAmount`, which lists the amount and returns whether the encounter is
+  in them (Krol'dok Battlegear's `FlatHeal`); a check with nothing to list is `AreaTargets.In` or `Encounter.InArea`.
 - **Periodic physical damage meets the armor its row's attributes name** (EV-0194). `SpellConfig` reads them: none
   where the row sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
   leaves where it sets only Attributes[0] 0x40000 (`SpellFlagTenthResistance`, the weapons' Rends), and the whole armor

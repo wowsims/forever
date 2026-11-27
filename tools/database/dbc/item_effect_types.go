@@ -154,13 +154,13 @@ func tooltipTargets(tooltip string) (mobTypes []proto.MobType, families []proto.
 
 // The terrain areas, mob types and creature groups an item's effects and stats state a bonus in or
 // against, which the gear picker filters by: the areas a spell requires or is stronger in, the mob types
-// a versus aura or a creature type stat counts against. A tooltip states the rest, the creature groups
-// and the areas of a hand-written effect among them, which no row holds (tooltipTargets, tooltipAreas).
-// Every item effect counts, whatever triggers it, with each spell its trigger chain reaches, and each
-// piece of a set takes the areas its bonuses' tooltips name. A spell that requires a single zone names
-// no terrain area, and one that can only hit a mob type (TargetCreatureType: a stun, a charm) states no
-// bonus against it.
-func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.CreatureFamily) {
+// a versus aura or a creature type stat counts against. A tooltip states the rest, which no row holds: the
+// creature groups (tooltipTargets), and the areas (tooltipAreas) only of an effect the sim models by hand,
+// as only hand-written code reads a tooltip's area: the item's own effects where modelledItem is set, and
+// the set bonuses modelledSetBonus names by their piece count. Every item effect counts, whatever triggers
+// it, with each spell its trigger chain reaches. A spell that requires a single zone names no terrain
+// area, and one that can only hit a mob type (TargetCreatureType: a stun, a charm) states no bonus against it.
+func ItemEffectTypes(itemID int32, modelledItem bool, modelledSetBonus func(pieces int32) bool) ([]proto.AreaType, []proto.MobType, []proto.CreatureFamily) {
 	var areaTypes []proto.AreaType
 	var mobTypes []proto.MobType
 	var families []proto.CreatureFamily
@@ -183,7 +183,9 @@ func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.C
 		for _, group := range spelldata.Find(int32(spellID)).AreaBonusGroups {
 			addArea(group)
 		}
-		areaTypes = append(areaTypes, tooltipAreas(spell.Description)...)
+		if modelledItem {
+			areaTypes = append(areaTypes, tooltipAreas(spell.Description)...)
+		}
 		tooltipMobs, tooltipFamilies := tooltipTargets(spell.Description)
 		mobTypes = append(mobTypes, tooltipMobs...)
 		families = append(families, tooltipFamilies...)
@@ -201,7 +203,9 @@ func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.C
 		visit(itemEffect.SpellID)
 	}
 	for _, setSpell := range dbcInstance.ItemSetSpells[dbcInstance.Items[int(itemID)].ItemSetId] {
-		areaTypes = append(areaTypes, tooltipAreas(dbcInstance.Spells[setSpell.SpellID].Description)...)
+		if modelledSetBonus(int32(setSpell.Threshold)) {
+			areaTypes = append(areaTypes, tooltipAreas(dbcInstance.Spells[setSpell.SpellID].Description)...)
+		}
 	}
 	for _, stat := range dbcInstance.Items[int(itemID)].BonusStat {
 		if versus, ok := mobTypeStatByBonusStat[stat]; ok {

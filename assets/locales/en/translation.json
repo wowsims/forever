@@ -3754,6 +3754,7 @@
 				"effect_proc_only": "Procs only against these",
 				"effect_duration": "×{{factor}} duration",
 				"effect_amount": "×{{factor}} effect",
+				"effect_flat_heal": "heals {{amount}} (flat)",
 				"state_on": "All targets",
 				"state_partial": "{{matched}}/{{total}} targets",
 				"state_off": "No target",

@@ -99,6 +99,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindDamage,
 			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 274609,
@@ -109,6 +110,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindDamage,
 			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 17943,
@@ -119,6 +121,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindRestore,
 			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 11815,
@@ -129,6 +132,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindProcChance,
 			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 13965,
@@ -139,6 +143,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindCritChance,
 			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 10760,
@@ -149,6 +154,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 0,
 			kind: VersusEffectKind.VersusEffectKindProcOnly,
 			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 9477,
@@ -159,6 +165,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindDamage,
 			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 9477,
@@ -169,6 +176,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindDuration,
 			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 0,
@@ -179,6 +187,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindDamage,
 			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 270226,
@@ -189,6 +198,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindEffect,
 			areaTypes: [AreaType.AreaTypeForestGrassland],
+			amount: 0,
 		},
 		{
 			itemId: 270226,
@@ -199,6 +209,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindDuration,
 			areaTypes: [AreaType.AreaTypeForestGrassland],
+			amount: 0,
 		},
 		{
 			itemId: 19287,
@@ -209,6 +220,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindProcChance,
 			areaTypes: [AreaType.AreaTypeStrongholdsCities],
+			amount: 0,
 		},
 		{
 			itemId: 0,
@@ -216,9 +228,10 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			itemName: '',
 			mobTypes: [],
 			creatureFamilies: [],
-			multiplier: 44 / 18,
-			kind: VersusEffectKind.VersusEffectKindEffect,
+			multiplier: 0,
+			kind: VersusEffectKind.VersusEffectKindFlatHeal,
 			areaTypes: [AreaType.AreaTypeStrongholdsCities],
+			amount: 44,
 		},
 	],
 };

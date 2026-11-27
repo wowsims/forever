@@ -1333,11 +1333,12 @@ func TestAreaFactorsListUnderTheirSourceOnTheSheet(t *testing.T) {
 	kroldokRow, violetRow, defiasRow := spelldata.MustFind(1324296), spelldata.MustFind(1324315), spelldata.MustFind(1324683)
 	secondWindRow, bananaRow, siphonRow := spelldata.MustFind(15604), spelldata.MustFind(1287571), spelldata.MustFind(1321558)
 	secondEffect := func(row *spelldata.Spell) float64 { return row.EffectN(2).BaseValue() / row.EffectN(1).BaseValue() }
+	// The value is the factor, or a flat heal's amount.
 	type entry struct {
-		source     core.ActionID
-		kind       proto.VersusEffectKind
-		multiplier float64
-		areas      []proto.AreaType
+		source core.ActionID
+		kind   proto.VersusEffectKind
+		value  float64
+		areas  []proto.AreaType
 	}
 	procChance, effect := proto.VersusEffectKind_VersusEffectKindProcChance, proto.VersusEffectKind_VersusEffectKindEffect
 	for _, tc := range []struct {
@@ -1360,7 +1361,7 @@ func TestAreaFactorsListUnderTheirSourceOnTheSheet(t *testing.T) {
 			{core.ActionID{ItemID: banana}, proto.VersusEffectKind_VersusEffectKindDuration, float64(bananaRow.AreaDurationMultiplier), forest},
 		}},
 		{"Krol'dok Battlegear", proto.Class_ClassWarrior, setPieces(kroldokPieces(4)),
-			[]entry{{core.ActionID{SpellID: kroldok}, effect, kroldokRow.EffectN(2).BasePoints / kroldokRow.EffectN(1).BasePoints, cities}}},
+			[]entry{{core.ActionID{SpellID: kroldok}, proto.VersusEffectKind_VersusEffectKindFlatHeal, kroldokRow.EffectN(2).BasePoints, cities}}},
 		{"Violet Sorcerer's Vestments", proto.Class_ClassPaladin, setPieces(violetFour()), []entry{{core.ActionID{SpellID: violet}, effect, secondEffect(violetRow), cities}}},
 		{"Defias Enforcer's Garb", proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
 			proto.ItemSlot_ItemSlotHead: 287019, proto.ItemSlot_ItemSlotShoulder: 276741, proto.ItemSlot_ItemSlotChest: 287020,
@@ -1379,11 +1380,15 @@ func TestAreaFactorsListUnderTheirSourceOnTheSheet(t *testing.T) {
 			var got []entry
 			for _, sheet := range playerStats.VersusEffects {
 				if len(sheet.AreaTypes) > 0 {
-					got = append(got, entry{core.ProtoToActionID(sheet.Source), sheet.Kind, sheet.Multiplier, sheet.AreaTypes})
+					value := sheet.Multiplier
+					if sheet.Kind == proto.VersusEffectKind_VersusEffectKindFlatHeal {
+						value = sheet.Amount
+					}
+					got = append(got, entry{core.ProtoToActionID(sheet.Source), sheet.Kind, value, sheet.AreaTypes})
 				}
 			}
 			if !slices.EqualFunc(got, tc.want, func(a, b entry) bool {
-				return a.source == b.source && a.kind == b.kind && a.multiplier == b.multiplier && slices.Equal(a.areas, b.areas)
+				return a.source == b.source && a.kind == b.kind && a.value == b.value && slices.Equal(a.areas, b.areas)
 			}) {
 				t.Errorf("%s in %v: the stats sheet lists %v, want %v", tc.name, areas, got, tc.want)
 			}
