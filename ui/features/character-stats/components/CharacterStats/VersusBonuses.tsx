@@ -77,13 +77,18 @@ const sourceLines = (sources: Array<MobTypeBonusSource>): Array<VersusLine> =>
 		};
 	});
 
-const effectLines = (effects: Array<VersusEffect>): Array<VersusLine> =>
-	effects.map(effect => ({
-		key: `item-${effect.itemId}`,
-		actionId: ActionId.fromItemId(effect.itemId),
-		label: effect.itemName,
-		values: [versusEffectFactor(effect)],
-	}));
+// One line per source, an item or the spell of a set bonus or an enchant, with each kind of factor it has.
+const effectLines = (effects: Array<VersusEffect>): Array<VersusLine> => {
+	const lines = new Map<string, VersusLine>();
+	for (const effect of effects) {
+		const actionId = ActionId.fromProto(effect.source!);
+		const key = `effect-${actionId.equalityKey()}`;
+		const line = lines.get(key) ?? { key, actionId, label: effect.itemName || undefined, values: [] };
+		line.values.push(versusEffectFactor(effect));
+		lines.set(key, line);
+	}
+	return [...lines.values()];
+};
 
 const versusGroups = ({ bonuses, targets, areaTypes }: VersusBonusesViewProps): Array<VersusGroup> => {
 	const mobTypes = [...new Set([...bonuses.mobTypeBonuses.map(entry => entry.mobType), ...bonuses.versusEffects.flatMap(effect => effect.mobTypes)])];

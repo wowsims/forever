@@ -96,7 +96,7 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   row id, effect index and the mob types or creature families go in `overrides.VersusBonuses`
   (`tools/database/overrides/spell_overrides.go`, `docs/spell_data/overrides.md`), or the spell deals 1× and the
   stats sheet's Versus bonuses group leaves the item out. A factor no effect states is that row's `Multiplier`. A hand-written effect
-  sets `SpellConfig.VersusBonus` through `shared.ItemVersusBonus` on the row. A proc that is N times as likely against
+  sets `SpellConfig.VersusBonus` through `shared.RegisterVersus` on the row. A proc that is N times as likely against
   them (Hand of Justice, Ironfoe, Argent Defender) takes the bonus with `VersusEffectKindProcChance` and passes
   its `Against` to `NewTargetScaledChanceManager` or `NewAttackerSwingPPMManager` as the scale. The generated
   damage, energize and on-use builders read a `VersusBonuses` row on the row they build from as a factor on the damage

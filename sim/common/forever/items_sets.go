@@ -850,9 +850,7 @@ func enragingLight(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	damage := enragedLight.DamageEffect()
 	config := procSpellConfigAs(character, enragedLight, spelldata.Magic(core.ProcMaskSpellDamage))
-	if versus, ok := enragingLightProc.VersusBonus(); ok {
-		config.VersusBonus = &versus
-	}
+	config.VersusBonus = shared.RegisterVersus(character, core.ActionID{SpellID: enragingLightProc.ID}, proto.VersusEffectKind_VersusEffectKindDamage, enragingLightProc)
 	var outcome core.OutcomeApplier
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), outcome)

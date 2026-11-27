@@ -729,7 +729,7 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 		config.ICD = damage.Cooldown()
 	}
 	damageConfig := spellDataProcDamageSpell(character, damage, true)
-	damageConfig.VersusBonus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindDamage, trigger)
+	damageConfig.VersusBonus = RegisterVersus(character, source.versusSource(trigger), proto.VersusEffectKind_VersusEffectKindDamage, trigger)
 	if extra, ok := DamageProcExtras[source.id]; ok && !source.isEnchant {
 		extra(character, &damageConfig)
 	}
@@ -1374,7 +1374,7 @@ func CarriedProcUnsupported(row *spelldata.Spell) []string {
 func NewSpellDataDamageOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, damage *spelldata.Spell) core.SpellConfig {
 		config := spellDataOnUseDamageSpell(character, damage)
-		config.VersusBonus = ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindDamage, damage)
+		config.VersusBonus = RegisterVersus(character, core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindDamage, damage)
 		return config
 	})
 }
@@ -1392,7 +1392,7 @@ func NewSpellDataPeriodicDamageOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, row *spelldata.Spell) core.SpellConfig {
 		periodic := row.FirstAura(dbcenums.A_PERIODIC_TRIGGER_SPELL)
 		damageConfig := spellDataProcDamageSpell(character, spelldata.MustFind(periodic.TriggerID), true)
-		damageConfig.VersusBonus = ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindDamage, row)
+		damageConfig.VersusBonus = RegisterVersus(character, core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindDamage, row)
 		damage := character.RegisterSpell(damageConfig)
 
 		config := spelldata.SpellConfig(&character.Unit, row, castBy(false))
@@ -2115,6 +2115,16 @@ func (s effectSource) isAlreadyImplemented() bool {
 func (s effectSource) actionID() core.ActionID {
 	if s.isEnchant {
 		return core.ActionID{SpellID: s.id}
+	}
+
+	return core.ActionID{ItemID: s.id}
+}
+
+// The source the stats sheet names for the effect's versus factor: the item, or the enchant's trigger
+// spell, since an enchant's own id is no spell id.
+func (s effectSource) versusSource(trigger *spelldata.Spell) core.ActionID {
+	if s.isEnchant {
+		return core.ActionID{SpellID: trigger.ID}
 	}
 
 	return core.ActionID{ItemID: s.id}

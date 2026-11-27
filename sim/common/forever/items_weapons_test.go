@@ -2439,7 +2439,8 @@ func TestProcSpellsDealTheirVersusFactor(t *testing.T) {
 		t.Error("Rage of Sul'thraze carries a versus bonus of its own, want the Lash alone to carry it")
 	}
 
-	// The Chief's Enforcer's stun lasts the strike's factor longer on a Troll.
+	// The Chief's Enforcer's stun lasts the strike's factor longer on a Troll, and the wearer's stats
+	// sheet lists the factor for the damage and for the stun's duration.
 	stun := spelldata.MustFind(1294340)
 	factor, _ := spelldata.MustFind(1294339).VersusBonus()
 	for _, family := range []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyUnknown, proto.CreatureFamily_CreatureFamilyTroll} {
@@ -2451,6 +2452,19 @@ func TestProcSpellsDealTheirVersusFactor(t *testing.T) {
 		if aura := character.CurrentTarget.GetAura(fmt.Sprintf("%s %d", stun.Name, stun.ID)); aura == nil || aura.Duration != want {
 			t.Errorf("against %v the stun is registered %v, want it lasting %v", family, aura, want)
 		}
+	}
+	_, character = procWeaponWearer(t, 9477, "The Chief's Enforcer", troll, 0, 0)
+	playerStats := &proto.PlayerStats{}
+	character.FillPlayerStats(playerStats)
+	var kinds []proto.VersusEffectKind
+	for _, effect := range playerStats.VersusEffects {
+		if core.ProtoToActionID(effect.Source) == (core.ActionID{ItemID: 9477}) && effect.Multiplier == factor.Multiplier &&
+			slices.Equal(effect.CreatureFamilies, factor.Families) {
+			kinds = append(kinds, effect.Kind)
+		}
+	}
+	if !slices.Equal(kinds, []proto.VersusEffectKind{proto.VersusEffectKind_VersusEffectKindDamage, proto.VersusEffectKind_VersusEffectKindDuration}) {
+		t.Errorf("the stats sheet lists %v, want 9477's factor of %v against Trolls for the damage and the stun's duration", playerStats.VersusEffects, factor.Multiplier)
 	}
 }
 

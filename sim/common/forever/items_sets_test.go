@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"maps"
 	"math"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -854,7 +855,8 @@ func TestDefiasLeatherBleedsOnlyFromBehind(t *testing.T) {
 
 // Chain of the Scarlet Crusade's 4-piece 1293674 puts 1293673 up off a hit taken. While it is up every
 // landed melee hit, and no spell hit, casts 1293675's Holy damage at the target, which deals 1293674's
-// first effect times as much to an Undead target.
+// first effect times as much to an Undead target. The wearer's stats sheet lists the factor under
+// 1293674.
 func TestChainOfTheScarletCrusadeLightsMeleeHits(t *testing.T) {
 	factor := spelldata.MustFind(1293674).EffectN(1).BaseValue()
 	if factor <= 1 {
@@ -899,6 +901,15 @@ func TestChainOfTheScarletCrusadeLightsMeleeHits(t *testing.T) {
 	plain, undead := dealt[proto.MobType_MobTypeUnknown], dealt[proto.MobType_MobTypeUndead]
 	if plain <= 0 || math.Abs(undead/plain-factor) > 1e-6 {
 		t.Errorf("1293675 dealt %v to an Undead target and %v to another, want the row's %v times", undead, plain, factor)
+	}
+
+	_, warrior := itemWearerFacing(t, proto.Class_ClassWarrior, setPieces(pieces), proto.MobType_MobTypeUnknown)
+	playerStats := &proto.PlayerStats{}
+	warrior.FillPlayerStats(playerStats)
+	if sheet := playerStats.VersusEffects; len(sheet) != 1 || core.ProtoToActionID(sheet[0].Source) != (core.ActionID{SpellID: 1293674}) ||
+		sheet[0].Kind != proto.VersusEffectKind_VersusEffectKindDamage || sheet[0].Multiplier != factor ||
+		!slices.Equal(sheet[0].MobTypes, []proto.MobType{proto.MobType_MobTypeUndead}) {
+		t.Errorf("the stats sheet lists %v, want 1293674's factor of %v against Undead", sheet, factor)
 	}
 }
 

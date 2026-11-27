@@ -165,7 +165,7 @@ func registerSpellDataEnergizeProc(cfg SpellDataProc) {
 			return
 		}
 		// Kept for the stats sheet only once the wearer has the bar the gain fills.
-		versus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindRestore, trigger)
+		versus = RegisterVersus(character, source.versusSource(trigger), proto.VersusEffectKind_VersusEffectKindRestore, trigger)
 		config := spellDataProcListener(character, cfg, source, trigger)
 		config.Handler = handler
 		source.registerTrigger(character, config)

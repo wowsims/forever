@@ -90,12 +90,13 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   the target's family when an entry matched it by its family. A versus factor on something other than damage, such as
   a stun's duration or a restore, and a cast allowed only on some targets, get no tag. Which targets an effect names is
   a `core.VersusTargets` (`Matches`, `AnyIn`): a row's `TargetCreatureTypes()`, a mask's `spelldata.TargetCreatures`,
-  and `shared.OnlyAgainst` for a proc that fires only on hits against them. An item's factor goes through
-  `character.NewItemVersusBonus`, `NewItemVersusProc` or `shared.ItemVersusBonus` with its `VersusEffectKind`
-  (`Damage`, `Restore`, `ProcChance`, `CritChance`, `ProcOnly`), which list it on the stats sheet and in the gear
-  chip's tooltip. Each helper takes the `ActionID` the bonus is credited to (the item for an item's stats and spells,
-  the spell for an enchant with no item, a set bonus, a talent or a racial); the stats sheet's Versus bonuses group
-  shows one row per credited source.
+  and `shared.OnlyAgainst` for a proc that fires only on hits against them. A source's factor goes through
+  `character.RegisterVersus`, `RegisterVersusProc` or `shared.RegisterVersus` with its `VersusEffectKind`
+  (`Damage`, `Restore`, `ProcChance`, `CritChance`, `ProcOnly`, `Duration`), which list it on the stats sheet. Each
+  helper takes the `ActionID` the bonus is credited to (the item for an item's stats and spells, the spell for an
+  enchant with no item, a set bonus, a talent or a racial); the stats sheet's Versus bonuses group shows one row per
+  credited source. An item's factor is listed only while the item is worn, and in its gear chip's tooltip; a spell's
+  while it is registered, an item swap's spare enchant or set bonus included.
 - **Periodic physical damage meets the armor its row's attributes name** (EV-0194). `SpellConfig` reads them: none
   where the row sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
   leaves where it sets only Attributes[0] 0x40000 (`SpellFlagTenthResistance`, the weapons' Rends), and the whole armor

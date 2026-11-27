@@ -478,7 +478,13 @@ const openInactive = (view: ReturnType<typeof renderVersus>, name: string) => {
 
 // The test setup loads no locale, so an interpolated heading or factor reads as its bare key; the English
 // strings are what show which target a heading names and which factor a line carries.
-const SOURCE_NAMES: Record<number, string> = { 20557: 'Beast Slaying', 22322: 'The Jaw Breaker', 19153: 'Humanoid Slaying', 13957: 'Gargoyle Slashers' };
+const SOURCE_NAMES: Record<number, string> = {
+	20557: 'Beast Slaying',
+	22322: 'The Jaw Breaker',
+	19153: 'Humanoid Slaying',
+	13957: 'Gargoyle Slashers',
+	1293674: 'Enraging Light',
+};
 
 describe('CharacterStats bonuses against a kind of target', () => {
 	beforeAll(() => {
@@ -524,9 +530,17 @@ describe('CharacterStats bonuses against a kind of target', () => {
 	};
 	const inactiveGroups = [
 		{ label: 'Beast', ...noTarget, lines: [beastSlaying, serpentbane] },
-		{ label: 'Undead', ...noTarget, lines: [['Gargoyle Slashers', '+18 Attack Power', '+18 Ranged Attack Power']] },
+		{
+			label: 'Undead',
+			...noTarget,
+			lines: [
+				['Gargoyle Slashers', '+18 Attack Power', '+18 Ranged Attack Power'],
+				['Enraging Light', '×3 damage'],
+			],
+		},
 		{ label: 'Earth Elemental', ...noTarget, lines: [['Fist of Stone', '×3 restored']] },
 		{ label: 'Swine', ...noTarget, lines: [['Swine Fists', 'Procs only against these']] },
+		{ label: 'Troll', ...noTarget, lines: [["The Chief's Enforcer", '×2 damage', '×2 duration']] },
 		{ label: 'Orc', ...noTarget, lines: [crit] },
 		{ label: 'Ogre', ...noTarget, lines: [crit] },
 		{ label: 'Dwarf', ...noTarget, lines: [['Hand of Justice', '×3 proc chance']] },
@@ -534,7 +548,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		{ label: 'Serpentine', ...noTarget, lines: [serpentbane] },
 	];
 
-	it('lists each mob type, creature family and area the sim reports a bonus against, the active ones first and the rest behind one toggle, one line per source with what it gives, then one per item factor', async () => {
+	it('lists each mob type, creature family and area the sim reports a bonus against, the active ones first and the rest behind one toggle, one line per source with what it gives, then one per source of a factor with each kind it has', async () => {
 		const view = renderVersus(
 			{ finalStats: new Stats().toProto(), ...VERSUS_BONUSES },
 			{ targets: [Target.create({ mobType: MobType.MobTypeHumanoid })], areaTypes: [AreaType.AreaTypeForestGrassland] },
@@ -542,7 +556,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 
 		await openVersusGroups(view);
 		await waitFor(() => expect(versusGroups(view)).toEqual([humanoid, areaGroup]));
-		openInactive(view, '9 inactive bonuses');
+		openInactive(view, '10 inactive bonuses');
 		await waitFor(() => expect(versusGroups(view)).toEqual([humanoid, areaGroup, ...inactiveGroups]));
 	});
 
@@ -550,7 +564,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES }, { targets: VERSUS_TARGETS, areaTypes: [AreaType.AreaTypeSwamp] });
 
 		await openVersusGroups(view);
-		openInactive(view, '7 inactive bonuses');
+		openInactive(view, '8 inactive bonuses');
 		const byLabel = (label: string) => versusGroups(view).find(group => group.label === label);
 
 		await waitFor(() =>
@@ -565,9 +579,10 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		expect(byLabel('Forest and Grassland')).toMatchObject({ chip: 'Not in area', state: 'off' });
 	});
 
-	it("shows a source line with its item's or spell's icon and an area's stat line with none", async () => {
+	it("shows a source line with its item's or spell's icon, a set bonus's factor by its spell, and an area's stat line with none", async () => {
 		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES }, { targets: VERSUS_TARGETS, areaTypes: VERSUS_AREA_TYPES });
 		await openVersusGroups(view);
+		openInactive(view, '7 inactive bonuses');
 
 		const iconOf = (label: string) => {
 			const rows = view.container.querySelectorAll('[data-testid="character-stats-versus-group"] tr');
@@ -578,6 +593,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 			expect(iconOf('Beast Slaying')).toContain('spell_20557');
 			expect(iconOf('The Jaw Breaker')).toContain('item_22322');
 			expect(iconOf('Serpentbane Crown')).toContain('item_274609');
+			expect(iconOf('Enraging Light')).toContain('spell_1293674');
 		});
 		expect(iconOf('Attack Power')).toBeNull();
 	});

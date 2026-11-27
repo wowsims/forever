@@ -272,7 +272,7 @@ func init() {
 		damage := row.DamageEffect()
 
 		config := procSpellConfig(character, row)
-		config.VersusBonus = shared.ItemVersusBonus(character, 260205, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
+		config.VersusBonus = shared.RegisterVersus(character, core.ActionID{ItemID: 260205}, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
@@ -321,7 +321,7 @@ func init() {
 			{ItemID: 269741, ItemName: "Scented Runewood Brooch"},
 		})
 	shared.DamageProcExtras[269741] = func(character *core.Character, config *core.SpellConfig) {
-		config.VersusProc = character.NewItemVersusProc(269741, proto.VersusEffectKind_VersusEffectKindProcOnly, core.VersusBonus{VersusTargets: furbolgs})
+		config.VersusProc = character.RegisterVersusProc(core.ActionID{ItemID: 269741}, proto.VersusEffectKind_VersusEffectKindProcOnly, core.VersusBonus{VersusTargets: furbolgs})
 	}
 
 	// Blackhand's Breadth
@@ -331,15 +331,14 @@ func init() {
 	// effect is doubled against Orcs and Ogres.
 	//
 	// 1318944's A_MOD_CRIT_CHANCE_FOR_CASTER raises the crit chance of the wearer's attacks and spells
-	// against the marked target, and no one else's. The doubling is the tooltip's alone: the equip dummy
-	// 1318945 states no amount.
+	// against the marked target, and no one else's. The doubling is the tooltip's alone, so an override
+	// puts it on 1318944: the equip dummy 1318945 states no amount.
 	core.NewItemEffect(13965, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1318944)
 		crit := row.EffectN(1).BaseValue()
 		versusSource := core.ActionID{ItemID: 13965}
-		orcsAndOgres := character.NewItemVersusBonus(13965, proto.VersusEffectKind_VersusEffectKindCritChance,
-			core.VersusBonus{Multiplier: 2, Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc, proto.CreatureFamily_CreatureFamilyOgre}})
+		orcsAndOgres := shared.RegisterVersus(character, versusSource, proto.VersusEffectKind_VersusEffectKindCritChance, row)
 
 		marks := character.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 			return target.RegisterAura(core.Aura{
@@ -378,7 +377,7 @@ func init() {
 
 		config := procSpellConfig(character, row)
 		config.DefenseType = core.DefenseTypeMagic
-		config.VersusBonus = shared.ItemVersusBonus(character, 10455, proto.VersusEffectKind_VersusEffectKindDamage, row)
+		config.VersusBonus = shared.RegisterVersus(character, core.ActionID{ItemID: 10455}, proto.VersusEffectKind_VersusEffectKindDamage, row)
 		config.Dot = core.DotConfig{
 			Aura:             spelldata.AuraConfig(row),
 			TickLength:       tick.Period(),
@@ -414,7 +413,7 @@ func init() {
 		damage := row.DamageEffect()
 
 		config := procSpellConfig(character, row)
-		config.VersusBonus = shared.ItemVersusBonus(character, 280032, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
+		config.VersusBonus = shared.RegisterVersus(character, core.ActionID{ItemID: 280032}, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}

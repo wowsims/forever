@@ -416,7 +416,7 @@ func init() {
 
 		damage := ignition.DamageEffect()
 		config := procSpellConfig(character, ignition)
-		config.VersusBonus = shared.ItemVersusBonus(character, 11750, proto.VersusEffectKind_VersusEffectKindDamage, ignition)
+		config.VersusBonus = shared.RegisterVersus(character, core.ActionID{ItemID: 11750}, proto.VersusEffectKind_VersusEffectKindDamage, ignition)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
@@ -782,7 +782,7 @@ func init() {
 	shared.DamageProcExtras[9477] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(1294340)
 		label := fmt.Sprintf("%s %d", row.Name, row.ID)
-		versus := config.VersusBonus
+		versus := shared.RegisterVersus(character, core.ActionID{ItemID: 9477}, proto.VersusEffectKind_VersusEffectKindDuration, spelldata.MustFind(1294339))
 		stuns := character.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 			if aura := target.GetAura(label); aura != nil {
 				return aura
@@ -924,7 +924,7 @@ func registerExtraAttackVersus(character *core.Character, itemID int32, name str
 	trigger := spelldata.ProcTrigger(character, row, nil)
 	trigger.Name = name
 	trigger.ActionID = core.ActionID{ItemID: itemID}
-	versus := shared.ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindProcChance, row)
+	versus := shared.RegisterVersus(character, core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindProcChance, row)
 	if versus == nil {
 		panic(fmt.Sprintf("%d states no versus bonus for %s", rowID, name))
 	}

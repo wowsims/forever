@@ -60,7 +60,7 @@ const spellSource = (spellId: number) => ActionID.create({ rawId: { oneofKind: '
 const humanoidStats = { [Stat.StatAttackPower]: 6, [Stat.StatRangedAttackPower]: 6 };
 const undeadStats = { [Stat.StatAttackPower]: 18, [Stat.StatRangedAttackPower]: 18 };
 
-/** A Troll hunter with Beast Slaying, The Jaw Breaker and Humanoid Slaying against Humanoids, Gargoyle Slashers against Undead, an area ring and items whose spells deal or restore more against some targets. */
+/** A Troll hunter with Beast Slaying, The Jaw Breaker and Humanoid Slaying against Humanoids, Gargoyle Slashers against Undead, an area ring, items whose spells deal, restore or last more against some targets, and the Chain of the Scarlet Crusade 4-piece's damage against Undead. */
 export const VERSUS_BONUSES: VersusBonusSet = {
 	mobTypeBonuses: [
 		{
@@ -92,6 +92,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 	versusEffects: [
 		{
 			itemId: 280032,
+			source: itemSource(280032),
 			itemName: "Bolt's Charged Eyeball",
 			mobTypes: [],
 			creatureFamilies: [CreatureFamily.CreatureFamilyDinosaur],
@@ -100,6 +101,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 		},
 		{
 			itemId: 274609,
+			source: itemSource(274609),
 			itemName: 'Serpentbane Crown',
 			mobTypes: [MobType.MobTypeBeast],
 			creatureFamilies: [CreatureFamily.CreatureFamilySerpentine],
@@ -108,6 +110,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 		},
 		{
 			itemId: 17943,
+			source: itemSource(17943),
 			itemName: 'Fist of Stone',
 			mobTypes: [],
 			creatureFamilies: [CreatureFamily.CreatureFamilyEarthElemental],
@@ -116,6 +119,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 		},
 		{
 			itemId: 11815,
+			source: itemSource(11815),
 			itemName: 'Hand of Justice',
 			mobTypes: [],
 			creatureFamilies: [CreatureFamily.CreatureFamilyDwarf],
@@ -124,6 +128,7 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 		},
 		{
 			itemId: 13965,
+			source: itemSource(13965),
 			itemName: "Blackhand's Breadth",
 			mobTypes: [],
 			creatureFamilies: [CreatureFamily.CreatureFamilyOrc, CreatureFamily.CreatureFamilyOgre],
@@ -132,11 +137,39 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 		},
 		{
 			itemId: 10760,
+			source: itemSource(10760),
 			itemName: 'Swine Fists',
 			mobTypes: [],
 			creatureFamilies: [CreatureFamily.CreatureFamilySwine],
 			multiplier: 0,
 			kind: VersusEffectKind.VersusEffectKindProcOnly,
+		},
+		{
+			itemId: 9477,
+			source: itemSource(9477),
+			itemName: "The Chief's Enforcer",
+			mobTypes: [],
+			creatureFamilies: [CreatureFamily.CreatureFamilyTroll],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindDamage,
+		},
+		{
+			itemId: 9477,
+			source: itemSource(9477),
+			itemName: "The Chief's Enforcer",
+			mobTypes: [],
+			creatureFamilies: [CreatureFamily.CreatureFamilyTroll],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindDuration,
+		},
+		{
+			itemId: 0,
+			source: spellSource(1293674),
+			itemName: '',
+			mobTypes: [MobType.MobTypeUndead],
+			creatureFamilies: [],
+			multiplier: 3,
+			kind: VersusEffectKind.VersusEffectKindDamage,
 		},
 	],
 };

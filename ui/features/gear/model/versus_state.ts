@@ -49,6 +49,7 @@ const EFFECT_KEYS: Record<VersusEffectKind, string> = {
 	[VersusEffectKind.VersusEffectKindProcChance]: 'effect_proc_chance',
 	[VersusEffectKind.VersusEffectKindCritChance]: 'effect_crit_chance',
 	[VersusEffectKind.VersusEffectKindProcOnly]: 'effect_proc_only',
+	[VersusEffectKind.VersusEffectKindDuration]: 'effect_duration',
 };
 
 export const versusEffectFactor = (effect: VersusEffect): string =>

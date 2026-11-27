@@ -98,7 +98,7 @@ times as likely to activate this effect"), which no column names. A row names
 the mob types and creature families and the effect whose base points are the factor, or a `Multiplier`
 of its own where no effect states one (Gloves of Holy Might's tripling). These go onto
 `Spell.VersusEffectIndex`, `VersusMultiplier`, `VersusMobTypes` and `VersusFamilies`, and
-`row.VersusBonus()` reads them; `shared.ItemVersusBonus` hands it to a spell and the stats sheet. The
+`row.VersusBonus()` reads them; `shared.RegisterVersus` hands it to a spell and the stats sheet. The
 generator refuses a row whose effect no longer holds a factor above 1 on an `E_NONE`, `E_DUMMY`,
 `A_DUMMY` or trigger effect, and a `Multiplier` once the row states a factor above 1 on an `E_NONE`, `E_DUMMY` or
 `A_DUMMY` effect.

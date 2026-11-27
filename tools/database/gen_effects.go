@@ -2468,7 +2468,7 @@ func castsOnUse(itemID int, spellID int, instance *dbc.DBC) bool {
 }
 
 // The row's factor against some targets where its effect does nothing else, an E_NONE or E_DUMMY: the
-// damage on-use builders apply it (shared.ItemVersusBonus). Breath of Fire's 12257 states its factor
+// damage on-use builders apply it (shared.RegisterVersus). Breath of Fire's 12257 states its factor
 // on the E_TRIGGER_SPELL that casts Strong Alcohol, which stays not simulated.
 func versusFactorModelled(s *spelldata.Spell) []*spelldata.Effect {
 	e := s.VersusFactorEffect()
@@ -2535,7 +2535,7 @@ func (r *ProcRouting) ProcConstructor() string {
 // becomes the item's weapon skill (foldEquipWeaponSkills). An equip spell whose stats fold into the item
 // (EquipSpellFolds), or that grants only stats against creature types, carries its bonus against a creature
 // type into the item's mob type stats (addEquipSpellMobTypeStats).
-var itemAuraKinds = []dbcenums.EffectAuraType{
+var itemAuraKinds = append([]dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,
 	dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN,
@@ -2555,11 +2555,7 @@ var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_DODGE_PERCENT,
 	dbcenums.A_MOD_PARRY_PERCENT,
 	dbcenums.A_MOD_SKILL,
-	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS,
-	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS,
-	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS,
-	dbcenums.A_MOD_DAMAGE_DONE_CREATURE,
-}
+}, spelldata.VersusStatAuras()...)
 
 // The auras an item's or an enchant's equip spell is emitted as an aura for, beside itemAuraKinds: a
 // damage shield kept up while it is worn. A proc's damage shield row is left out: its proc flags state

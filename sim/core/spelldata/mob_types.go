@@ -1,6 +1,8 @@
 package spelldata
 
 import (
+	"slices"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -38,6 +40,18 @@ var versusAuras = map[dbcenums.EffectAuraType]VersusAuraEffect{
 func VersusAura(aura dbcenums.EffectAuraType) (VersusAuraEffect, bool) {
 	versus, ok := versusAuras[aura]
 	return versus, ok
+}
+
+// The versus auras that grant stats, in aura order.
+func VersusStatAuras() []dbcenums.EffectAuraType {
+	var auras []dbcenums.EffectAuraType
+	for aura, versus := range versusAuras {
+		if len(versus.Stats) > 0 {
+			auras = append(auras, aura)
+		}
+	}
+	slices.Sort(auras)
+	return auras
 }
 
 // Each stat the aura grants, at the amount; none for a multiplier.

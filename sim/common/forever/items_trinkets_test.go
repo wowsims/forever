@@ -1138,7 +1138,8 @@ func TestBlackhandsBreadthDoublesItsMarkOnOrcsAndOgres(t *testing.T) {
 	_, wearer := trinketWarriorFacing(t, 13965, 810, 0, proto.MobType_MobTypeHumanoid)
 	playerStats := &proto.PlayerStats{}
 	wearer.FillPlayerStats(playerStats)
-	if sheet := playerStats.VersusEffects; len(sheet) != 1 || sheet[0].ItemId != 13965 || sheet[0].Kind != proto.VersusEffectKind_VersusEffectKindCritChance ||
+	if sheet := playerStats.VersusEffects; len(sheet) != 1 || core.ProtoToActionID(sheet[0].Source) != (core.ActionID{ItemID: 13965}) ||
+		sheet[0].ItemId != 13965 || sheet[0].Kind != proto.VersusEffectKind_VersusEffectKindCritChance ||
 		sheet[0].Multiplier != 2 || !slices.Equal(sheet[0].CreatureFamilies, []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc, proto.CreatureFamily_CreatureFamilyOgre}) {
 		t.Errorf("the stats sheet lists %v, want the crit chance doubled against Orcs and Ogres", sheet)
 	}

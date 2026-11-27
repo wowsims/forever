@@ -55,42 +55,45 @@ type VersusProc struct {
 	VersusBonus
 }
 
-type itemVersusBonus struct {
-	itemID int32
+type versusRegistration struct {
+	source ActionID
 	kind   proto.VersusEffectKind
 	bonus  *VersusBonus
 }
 
-// The factor an item's spell deals or restores against the mob types and families, kept for the stats
-// sheet. A damage spell applies it as its SpellConfig.VersusBonus; any other amount is multiplied by
-// Against at the call site.
-func (character *Character) NewItemVersusBonus(itemID int32, kind proto.VersusEffectKind, bonus VersusBonus) *VersusBonus {
-	character.itemVersusBonuses = append(character.itemVersusBonuses, itemVersusBonus{itemID: itemID, kind: kind, bonus: &bonus})
+// The factor a source's spell deals, restores or adds against the mob types and families, kept for the
+// stats sheet under the source: an item, or the spell of a set bonus or an enchant. A damage spell
+// applies it as its SpellConfig.VersusBonus; any other amount is multiplied by Against at the call site.
+func (character *Character) RegisterVersus(source ActionID, kind proto.VersusEffectKind, bonus VersusBonus) *VersusBonus {
+	character.versusRegistrations = append(character.versusRegistrations, versusRegistration{source: source, kind: kind, bonus: &bonus})
 	return &bonus
 }
 
-// The proc of an item's spell, with the item's factor kept for the stats sheet.
-func (character *Character) NewItemVersusProc(itemID int32, kind proto.VersusEffectKind, bonus VersusBonus) *VersusProc {
-	return &VersusProc{Source: ActionID{ItemID: itemID}, VersusBonus: *character.NewItemVersusBonus(itemID, kind, bonus)}
+// The proc of a source's spell, with the source's factor kept for the stats sheet.
+func (character *Character) RegisterVersusProc(source ActionID, kind proto.VersusEffectKind, bonus VersusBonus) *VersusProc {
+	return &VersusProc{Source: source, VersusBonus: *character.RegisterVersus(source, kind, bonus)}
 }
 
-// The worn items' factors. An item swap registers the effects of the items it can swap in as well,
-// so an item the character does not wear is left out.
+// The registered factors. An item swap registers the effects of the items it can swap in as well, so
+// an item the character does not wear is left out; a spell's source is listed while it is registered.
 func (character *Character) versusEffectsProto() []*proto.VersusEffect {
 	var effects []*proto.VersusEffect
-	for _, versus := range character.itemVersusBonuses {
-		slot := slices.IndexFunc(character.Equipment[:], func(item Item) bool { return item.ID == versus.itemID })
-		if slot < 0 {
-			continue
-		}
-		effects = append(effects, &proto.VersusEffect{
-			ItemId:           versus.itemID,
-			ItemName:         character.Equipment[slot].Name,
+	for _, versus := range character.versusRegistrations {
+		effect := &proto.VersusEffect{
+			Source:           versus.source.ToProto(),
 			MobTypes:         versus.bonus.MobTypes,
 			CreatureFamilies: versus.bonus.Families,
 			Multiplier:       versus.bonus.Multiplier,
 			Kind:             versus.kind,
-		})
+		}
+		if itemID := versus.source.ItemID; itemID != 0 {
+			slot := slices.IndexFunc(character.Equipment[:], func(item Item) bool { return item.ID == itemID })
+			if slot < 0 {
+				continue
+			}
+			effect.ItemId, effect.ItemName = itemID, character.Equipment[slot].Name
+		}
+		effects = append(effects, effect)
 	}
 	return effects
 }

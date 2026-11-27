@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"slices"
 	"testing"
 	"time"
 
@@ -80,6 +81,31 @@ func TestItemDamageProcCritsReachListenersThatHearProcs(t *testing.T) {
 				t.Errorf("the listener without it heard %d crits, want none", heard[false])
 			}
 		})
+	}
+}
+
+// An enchant's damage proc whose trigger states a factor against some targets, The Chief's Enforcer's
+// 1294339 against Trolls, lists the factor on the stats sheet under the trigger's spell: the enchant's
+// own id names no spell.
+func TestEnchantDamageProcListsItsVersusFactorByItsSpell(t *testing.T) {
+	const swordID, enchantID, strike int32 = 991690, 991691, 1294339
+	want, ok := spelldata.MustFind(strike).VersusBonus()
+	if !ok {
+		t.Fatalf("%d states no versus factor", strike)
+	}
+	core.AddToDatabase(&proto.SimDatabase{
+		Items:    []*proto.SimItem{testOneHander(swordID)},
+		Enchants: []*proto.SimEnchant{{EffectId: enchantID, Name: "Test Strike Enchant", Type: proto.ItemType_ItemTypeWeapon}},
+	})
+	registerSpellDataDamageProc(SpellDataProc{Name: "Test Strike Enchant", EnchantID: enchantID, TriggerSpellID: strike,
+		BuffSpellID: strike, IsWeaponProc: true, Rate: spelldata.Chance(1)})
+
+	_, caster := newWielderSim(testHands(&proto.ItemSpec{Id: swordID, Enchant: enchantID}, &proto.ItemSpec{}))
+	playerStats := &proto.PlayerStats{}
+	caster.FillPlayerStats(playerStats)
+	if sheet := playerStats.VersusEffects; len(sheet) != 1 || core.ProtoToActionID(sheet[0].Source) != (core.ActionID{SpellID: strike}) ||
+		sheet[0].ItemId != 0 || sheet[0].Multiplier != want.Multiplier || !slices.Equal(sheet[0].CreatureFamilies, want.Families) {
+		t.Errorf("the stats sheet lists %v, want %d's factor of %v against %v", sheet, strike, want.Multiplier, want.Families)
 	}
 }
 

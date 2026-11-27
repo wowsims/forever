@@ -3751,6 +3751,7 @@
 				"effect_proc_chance": "×{{factor}} proc chance",
 				"effect_crit_chance": "×{{factor}} crit chance",
 				"effect_proc_only": "Procs only against these",
+				"effect_duration": "×{{factor}} duration",
 				"state_on": "All targets",
 				"state_partial": "{{matched}}/{{total}} targets",
 				"state_off": "No target",
