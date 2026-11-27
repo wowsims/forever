@@ -1,9 +1,9 @@
 name: Game files icons
-description: Decodes the icons the database names from the game files into assets/icons (tools/icons), with the CDN downloads restored from the Actions cache when an earlier run on the same build saved them.
+description: Decodes the icons the database names from the game files into assets/icons (tools/icons), or restores them from the Actions cache when an earlier run decoded the same build, database and decoder.
 runs:
     using: composite
     steps:
-        # The version service names the build the CDN serves, and its build config hash keys the cache.
+        # The version service names the build the CDN serves.
         - name: Resolve the current build
           id: build
           shell: bash
@@ -12,28 +12,22 @@ runs:
               test -n "$config"
               echo "config=$config" >> "$GITHUB_OUTPUT"
 
-        - name: Restore the CDN downloads
+        - name: Restore the icons
           id: restore
           uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
           with:
-              path: |
-                  tools/db2tool/cdncache
-                  tools/db2tool/listfile.csv
-                  tools/db2tool/TACTKeys.txt
-              key: icons-wowf-${{ steps.build.outputs.config }}
+              path: assets/icons
+              key: icons-wowf-${{ steps.build.outputs.config }}-${{ hashFiles('assets/database/db.bin', 'assets/database/leftover_db.bin', 'tools/icons/**', 'tools/db2tool/tact/**') }}
 
         - name: Decode the icons
+          if: steps.restore.outputs.cache-hit != 'true'
           shell: bash
           run: make icons
 
-        # Saved only after a run that decoded, since a key once saved is never saved again: a run that failed
-        # halfway would leave the build's cache half full.
-        - name: Save the CDN downloads
+        # A failed decode stops the action before this step, so the cache only ever holds a complete set.
+        - name: Save the icons
           if: steps.restore.outputs.cache-hit != 'true'
           uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
           with:
-              path: |
-                  tools/db2tool/cdncache
-                  tools/db2tool/listfile.csv
-                  tools/db2tool/TACTKeys.txt
+              path: assets/icons
               key: ${{ steps.restore.outputs.cache-primary-key }}

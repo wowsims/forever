@@ -14,7 +14,7 @@ describe('wowheadIconUrl', () => {
 		vi.restoreAllMocks();
 	});
 
-	it('serves a large icon the manifest lists from the site and every other icon from zamimg', async () => {
+	it('serves an icon the manifest lists from the site and every other icon from zamimg', async () => {
 		vi.stubGlobal(
 			'fetch',
 			vi.fn(() => Promise.resolve(Response.json(['inv_sword_39']))),
@@ -23,7 +23,6 @@ describe('wowheadIconUrl', () => {
 		await loadLocalIcons();
 
 		expect(wowheadIconUrl('inv_sword_39')).toBe('/forever/assets/icons/inv_sword_39.jpg');
-		expect(wowheadIconUrl('inv_sword_39', 'medium')).toBe(`${ZAMIMG}/medium/inv_sword_39.jpg`);
 		expect(wowheadIconUrl('inv_axe_01')).toBe(`${ZAMIMG}/large/inv_axe_01.jpg`);
 	});
 

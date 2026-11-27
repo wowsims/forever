@@ -24,7 +24,7 @@ func decodeBLP(data []byte) (*image.NRGBA, error) {
 	h := int(binary.LittleEndian.Uint32(data[16:]))
 	offset := int(binary.LittleEndian.Uint32(data[20:]))
 	size := int(binary.LittleEndian.Uint32(data[84:]))
-	if w <= 0 || h <= 0 || w > 4096 || h > 4096 || offset < 0 || size < 0 || offset+size > len(data) {
+	if w <= 0 || h <= 0 || w > 4096 || h > 4096 || offset+size > len(data) {
 		return nil, fmt.Errorf("bad header: %dx%d, mip at %d+%d of %d bytes", w, h, offset, size, len(data))
 	}
 	mip := data[offset : offset+size]
@@ -56,6 +56,11 @@ func setPixel(img *image.NRGBA, i int, r, g, b, a uint8) {
 	copy(img.Pix[i*4:], []uint8{r, g, b, a})
 }
 
+// The i-th 4-bit alpha of a run packed low nibble first, scaled to 0-255.
+func alpha4(b []byte, i int) uint8 {
+	return (b[i/2] >> (4 * (i % 2)) & 0xF) * 17
+}
+
 // One palette index per pixel, then the alpha bits packed low bit first.
 func decodePalette(img *image.NRGBA, mip, palette []byte, alphaSize uint8) error {
 	n := img.Rect.Dx() * img.Rect.Dy()
@@ -70,7 +75,7 @@ func decodePalette(img *image.NRGBA, mip, palette []byte, alphaSize uint8) error
 		case 1:
 			a = (alpha[i/8] >> (i % 8) & 1) * 255
 		case 4:
-			a = (alpha[i/2] >> (4 * (i % 2)) & 0xF) * 17
+			a = alpha4(alpha, i)
 		case 8:
 			a = alpha[i]
 		}
@@ -102,7 +107,7 @@ func decodeDXT(img *image.NRGBA, mip []byte, alphaSize, alphaType uint8) error {
 					decodeDXT5Alpha(block, &px)
 				} else {
 					for i := range 16 {
-						px[i][3] = (block[i/2] >> (4 * (i % 2)) & 0xF) * 17
+						px[i][3] = alpha4(block, i)
 					}
 				}
 			}
@@ -121,11 +126,12 @@ func decodeDXT(img *image.NRGBA, mip []byte, alphaSize, alphaType uint8) error {
 // colours and transparent black.
 func decodeColorBlock(block []byte, px *[16][4]uint8, dxt1 bool) {
 	c0, c1 := binary.LittleEndian.Uint16(block), binary.LittleEndian.Uint16(block[2:])
+	four := !dxt1 || c0 > c1
 	var colors [4][4]uint8
 	colors[0], colors[1] = rgb565(c0), rgb565(c1)
 	for ch := range 3 {
 		a, b := int(colors[0][ch]), int(colors[1][ch])
-		if c0 > c1 || !dxt1 {
+		if four {
 			colors[2][ch] = uint8((2*a + b) / 3)
 			colors[3][ch] = uint8((a + 2*b) / 3)
 		} else {
@@ -133,7 +139,7 @@ func decodeColorBlock(block []byte, px *[16][4]uint8, dxt1 bool) {
 		}
 	}
 	colors[2][3] = 255
-	if c0 > c1 || !dxt1 {
+	if four {
 		colors[3][3] = 255
 	}
 	indices := binary.LittleEndian.Uint32(block[4:])
@@ -151,20 +157,15 @@ func rgb565(c uint16) [4]uint8 {
 func decodeDXT5Alpha(block []byte, px *[16][4]uint8) {
 	a0, a1 := int(block[0]), int(block[1])
 	alphas := [8]int{a0, a1}
-	if a0 > a1 {
-		for i := 1; i < 7; i++ {
-			alphas[i+1] = ((7-i)*a0 + i*a1) / 7
-		}
-	} else {
-		for i := 1; i < 5; i++ {
-			alphas[i+1] = ((5-i)*a0 + i*a1) / 5
-		}
+	steps := 7
+	if a0 <= a1 {
+		steps = 5
 		alphas[6], alphas[7] = 0, 255
 	}
-	var bits uint64
-	for i := range 6 {
-		bits |= uint64(block[2+i]) << (8 * i)
+	for i := 1; i < steps; i++ {
+		alphas[i+1] = ((steps-i)*a0 + i*a1) / steps
 	}
+	bits := binary.LittleEndian.Uint64(block) >> 16 // the 48 index bits after the two endpoints
 	for i := range 16 {
 		px[i][3] = uint8(alphas[bits>>(3*i)&7])
 	}

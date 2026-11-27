@@ -10,7 +10,6 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -19,24 +18,28 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/wowsims/forever/assets/database"
 	"github.com/wowsims/forever/tools/db2tool/tact"
+	"golang.org/x/sync/errgroup"
+)
+
+// The folder the icons and manifest.json go to, and the product and version service region whose current build
+// they are read from.
+const (
+	out     = "assets/icons"
+	product = "wowf"
+	region  = "us"
 )
 
 func main() {
-	out := flag.String("out", "assets/icons", "the folder the icons and manifest.json are written to")
-	product := flag.String("product", "wowf", "the product whose current build is read")
-	region := flag.String("region", "us", "the version service region")
-	flag.Parse()
-	if err := run(*out, *product, *region); err != nil {
+	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, "icons:", err)
 		os.Exit(1)
 	}
 }
 
-func run(out, product, region string) error {
+func run() error {
 	toolHome := filepath.Join("tools", "db2tool")
 	build, err := tact.OpenCDN(product, region, filepath.Join(toolHome, "cdncache"))
 	if err != nil {
@@ -50,25 +53,21 @@ func run(out, product, region string) error {
 	if err != nil {
 		return err
 	}
+	// Without the key list the few encrypted icons fail to decode and stay on zamimg; the rest still decode.
 	keyFile := filepath.Join(toolHome, "TACTKeys.txt")
-	if err := tact.RefreshKeyFile(keyFile, ""); err != nil {
-		return err
-	}
 	build.Keys = tact.NewKeyStore()
-	if _, err := build.Keys.LoadKeyFile(keyFile); err != nil {
-		return err
+	if err := tact.RefreshKeyFile(keyFile, ""); err != nil {
+		fmt.Fprintln(os.Stderr, "icons: warning:", err)
+	} else if _, err := build.Keys.LoadKeyFile(keyFile); err != nil {
+		fmt.Fprintln(os.Stderr, "icons: warning:", err)
 	}
 	fmt.Printf("Reading icons from %s %s\n", build.Entry.Product, build.Entry.Version)
 
-	type icon struct {
-		name string
-		fdid uint32
-	}
-	var icons []icon
-	var missing []string
-	for _, name := range iconNames() {
-		if fdid, ok := fdids[name]; ok {
-			icons = append(icons, icon{name, fdid})
+	names := iconNames()
+	var missing, found []string
+	for _, name := range names {
+		if _, ok := fdids[name]; ok {
+			found = append(found, name)
 		} else {
 			missing = append(missing, name+": not in the listfile")
 		}
@@ -77,39 +76,32 @@ func run(out, product, region string) error {
 	if err := os.MkdirAll(out, 0o755); err != nil {
 		return err
 	}
-	var mu sync.Mutex
-	var written []string
-	work := make(chan icon)
-	var wg sync.WaitGroup
-	for range 16 {
-		wg.Go(func() {
-			for ic := range work {
-				err := writeIcon(build, ic.fdid, filepath.Join(out, ic.name+".jpg"))
-				mu.Lock()
-				if err != nil {
-					missing = append(missing, fmt.Sprintf("%s (%d): %v", ic.name, ic.fdid, err))
-				} else {
-					written = append(written, ic.name)
-				}
-				mu.Unlock()
-			}
+	errs := make([]error, len(found))
+	var g errgroup.Group
+	g.SetLimit(16)
+	for i, name := range found {
+		g.Go(func() error {
+			errs[i] = writeIcon(build, fdids[name], filepath.Join(out, name+".jpg"))
+			return nil
 		})
 	}
-	for _, ic := range icons {
-		work <- ic
+	g.Wait()
+	var written []string
+	for i, name := range found {
+		if errs[i] != nil {
+			missing = append(missing, fmt.Sprintf("%s (%d): %v", name, fdids[name], errs[i]))
+		} else {
+			written = append(written, name)
+		}
 	}
-	close(work)
-	wg.Wait()
 
-	slices.Sort(missing)
 	for _, m := range missing {
 		fmt.Println("Left to zamimg: " + m)
 	}
 	// With nothing decoded the site would quietly fall back to zamimg for every icon, so the run fails instead.
 	if len(written) == 0 {
-		return fmt.Errorf("decoded none of the %d icons the database names", len(icons)+len(missing))
+		return fmt.Errorf("decoded none of the %d icons the database names", len(names))
 	}
-	slices.Sort(written)
 	manifest, err := json.Marshal(written)
 	if err != nil {
 		return err
