@@ -91,10 +91,13 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		},
 	}
 
-	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		// The cast rolls its own hit only so that procs on a resist can fire; the ground is laid whether
-		// it lands or not. The roll counts nothing, so the row's Miss % is the ticks' own.
-		spell.CalcAndDealOutcome(sim, target, spell.OutcomeTickMagicHitNoHitCounter)
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		// The cast rolls its own hit on every enemy in the area, so a harmful-spell proc rolls once for
+		// each enemy it lands on (EV-0115); the ground is laid whether it lands or not. The roll counts
+		// nothing, so the row's Miss % is the ticks' own.
+		for _, target := range sim.Encounter.ActiveTargetUnits {
+			spell.CalcAndDealOutcome(sim, target, spell.OutcomeTickMagicHitNoHitCounter)
+		}
 
 		spell.AOEDot().Apply(sim)
 		markTargets(sim, rank.Duration())

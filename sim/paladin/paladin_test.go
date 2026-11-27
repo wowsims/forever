@@ -3,6 +3,7 @@ package paladin_test
 import (
 	"math"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/common"
 	"github.com/wowsims/forever/sim/core"
@@ -66,6 +67,12 @@ func listeningPaladin(t *testing.T) (*core.Simulation, *paladin.Paladin, *core.U
 // on one target.
 func paladinWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulation, *paladin.Paladin, *core.Unit) {
 	t.Helper()
+	return paladinWearingAgainst(t, worn, core.MakeSingleTargetEncounter(0))
+}
+
+// The same paladin against the encounter's targets.
+func paladinWearingAgainst(t *testing.T, worn map[proto.ItemSlot]int32, encounter *proto.Encounter) (*core.Simulation, *paladin.Paladin, *core.Unit) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for slot := range items {
 		items[slot] = &proto.ItemSpec{Id: worn[proto.ItemSlot(slot)]}
@@ -83,7 +90,7 @@ func paladinWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulati
 	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  core.MakeSingleTargetEncounter(0),
+		Encounter:  encounter,
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 	}, simsignals.CreateSignals())
 	sim.Reset()
@@ -193,5 +200,55 @@ func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
 	}
 	if once, more := restores(t, nil); once+more != 0 {
 		t.Errorf("without the set, %d Judgement casts restored the mana, want none", once+more)
+	}
+}
+
+// A Consecration cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the ground is
+// laid, and its ticks roll none (EV-0115).
+func TestConsecrationCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
+	const casts, enemies = 2000, 5
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = casts * 9
+	for range enemies - 1 {
+		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	}
+	sim, pal, target := paladinWearingAgainst(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 22268}, encounter)
+	buff := pal.GetAuraByID(core.ActionID{SpellID: 1318930})
+	if buff == nil {
+		t.Fatal("22268 registers no 1318930")
+	}
+	consecration := pal.GetSpell(core.ActionID{SpellID: paladin.ConsecrationRankMap.Highest().ID})
+	if consecration == nil {
+		t.Fatal("the paladin has no Consecration")
+	}
+	pal.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+
+	// Each step deals at most one proc, so the buff comes down before the next roll can refresh it.
+	var atCast, onTicks int
+	for range casts {
+		start := sim.CurrentTime
+		consecration.SkipCastAndApplyEffects(sim, target)
+		for consecration.AOEDot().IsActive() || sim.CurrentTime < start+100*time.Millisecond {
+			if sim.Step() {
+				t.Fatal("the encounter ended before the casts did")
+			}
+			if buff.IsActive() {
+				if sim.CurrentTime < start+100*time.Millisecond {
+					atCast++
+				} else {
+					onTicks++
+				}
+				buff.Deactivate(sim)
+			}
+		}
+	}
+
+	chance := spelldata.MustFind(1318931).StatedChance()
+	rolls := float64(casts * enemies)
+	if mean, deviation := chance*rolls, math.Sqrt(chance*(1-chance)*rolls); math.Abs(float64(atCast)-mean) > 4*deviation {
+		t.Errorf("%d Consecration casts on %d enemies procced it %d times at the cast, want about %.0f", casts, enemies, atCast, mean)
+	}
+	if onTicks != 0 {
+		t.Errorf("Consecration ticks procced it %d times, want none", onTicks)
 	}
 }

@@ -1287,6 +1287,59 @@ func TestRainOfFireCastReturnsJudgementOfWisdomManaFromEachEnemy(t *testing.T) {
 	}
 }
 
+// A Rain of Fire cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the channel
+// starts, and its waves roll none (EV-0115).
+func TestRainOfFireCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
+	const casts, enemies = 2000, 5
+	player := warlockPlayer("Warlock", "", &proto.WarlockOptions{})
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)
+	for slot := range items {
+		items[slot] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotTrinket1].Id = 22268
+	player.Equipment = &proto.EquipmentSpec{Items: items}
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = casts * 9
+	for range enemies - 1 {
+		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	}
+	sim := newWarlockRaidSim(core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}), encounter)
+	warlock := sim.Raid.Parties[0].Players[0].(*Warlock)
+	buff := warlock.GetAuraByID(core.ActionID{SpellID: 1318930})
+	if buff == nil {
+		t.Fatal("22268 registers no 1318930")
+	}
+
+	// Each step deals at most one proc, so the buff comes down before the next roll can refresh it.
+	var atCast, onWaves int
+	for range casts {
+		start := sim.CurrentTime
+		warlock.RainOfFire.SkipCastAndApplyEffects(sim, warlock.CurrentTarget)
+		for warlock.RainOfFire.AOEDot().IsActive() || sim.CurrentTime < start+100*time.Millisecond {
+			if sim.Step() {
+				t.Fatal("the encounter ended before the casts did")
+			}
+			if buff.IsActive() {
+				if sim.CurrentTime < start+100*time.Millisecond {
+					atCast++
+				} else {
+					onWaves++
+				}
+				buff.Deactivate(sim)
+			}
+		}
+	}
+
+	chance := spelldata.MustFind(1318931).StatedChance()
+	rolls := float64(casts * enemies)
+	if mean, deviation := chance*rolls, math.Sqrt(chance*(1-chance)*rolls); math.Abs(float64(atCast)-mean) > 4*deviation {
+		t.Errorf("%d Rain of Fire casts on %d enemies procced it %d times at the cast, want about %.0f", casts, enemies, atCast, mean)
+	}
+	if onWaves != 0 {
+		t.Errorf("Rain of Fire waves procced it %d times, want none", onWaves)
+	}
+}
+
 // Touch of the Grave needs a hit that deals damage, and the Rain of Fire and Hellfire casts deal none, so
 // neither drains. Searing Pain shows that the drain hears the warlock's spells.
 func TestChannelCastsDrainNoTouchOfTheGrave(t *testing.T) {

@@ -2729,8 +2729,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-Settings-Human-default-Protection-default-FullBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1695.79768
-  tps: 3405.06352
+  dps: 1696.54701
+  tps: 3423.39386
   dtps: 7020.00302
   hps: 43.93694
  }
@@ -2756,8 +2756,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-Settings-Human-default-Protection-default-NoBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1030.20027
-  tps: 2019.74151
+  dps: 1029.34882
+  tps: 2017.33564
   dtps: 11185.46711
  }
 }
@@ -2780,8 +2780,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-Settings-Undead-default-Protection-default-FullBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1700.84753
-  tps: 3410.68827
+  dps: 1700.52818
+  tps: 3423.76784
   dtps: 7034.6509
   hps: 43.93694
  }
@@ -2807,8 +2807,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-Settings-Undead-default-Protection-default-NoBuffs-5.0yards-LongMultiTarget"
  value: {
-  dps: 1039.9544
-  tps: 2034.65767
+  dps: 1039.67883
+  tps: 2033.89218
   dtps: 11195.92912
  }
 }
