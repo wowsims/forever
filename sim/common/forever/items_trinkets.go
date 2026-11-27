@@ -339,7 +339,7 @@ func init() {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1318944)
 		crit := row.EffectN(1).BaseValue()
-		source := core.ActionID{ItemID: 13965}
+		versusSource := core.ActionID{ItemID: 13965}
 		orcsAndOgres := character.NewItemVersusBonus(13965, proto.VersusEffectKind_VersusEffectKindCritChance,
 			core.VersusBonus{Multiplier: 2, Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc, proto.CreatureFamily_CreatureFamilyOgre}})
 
@@ -349,10 +349,10 @@ func init() {
 				ActionID: core.ActionID{SpellID: row.ID},
 				Duration: row.Duration(),
 				OnGain: func(aura *core.Aura, _ *core.Simulation) {
-					character.AddCritChanceVersus(source, aura.Unit, crit, orcsAndOgres)
+					character.AddCritChanceVersus(versusSource, aura.Unit, crit, orcsAndOgres)
 				},
 				OnExpire: func(aura *core.Aura, _ *core.Simulation) {
-					character.AddCritChanceVersus(source, aura.Unit, -crit, orcsAndOgres)
+					character.AddCritChanceVersus(versusSource, aura.Unit, -crit, orcsAndOgres)
 				},
 			})
 		})

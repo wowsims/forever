@@ -191,14 +191,14 @@ var ItemSetDemonheartRaiment = core.NewItemSet(core.ItemSet{
 			effect := demonheartDemons.EffectN(1)
 			bonus := stats.Stats{stats.SpellDamage: effect.BaseValue()}
 			mobTypes := spelldata.MobTypes(effect.Misc)
-			source := core.ActionID{SpellID: demonheartDemons.ID}
+			versusSource := core.ActionID{SpellID: demonheartDemons.ID}
 
 			setBonusAura.
 				ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
-					warlock.AddMobTypeBonusStats(source, bonus, mobTypes...)
+					warlock.AddMobTypeBonusStats(versusSource, bonus, mobTypes...)
 				}).
 				ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
-					warlock.AddMobTypeBonusStats(source, bonus.Invert(), mobTypes...)
+					warlock.AddMobTypeBonusStats(versusSource, bonus.Invert(), mobTypes...)
 				})
 		},
 		// "Your Life Tap generates 20% more Mana at no additional Health cost." The dummy's amount goes into
