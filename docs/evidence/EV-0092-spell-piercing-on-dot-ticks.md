@@ -7,25 +7,28 @@
   of 9,019 casters in 5,352 reports: every mage of the reports read, every wearer of Blade of Eternal Darkness, the
   priests of reports that show Devouring Plague or Starshards, the casters of every class with 4 or more Spell Piercing
   on their gear and 8% of the other casters; the research folder `forever-piercing-posthotfix-1127`
-  (`tables/reports.txt`) lists the reports
+  (`tables/reports.txt`) lists the reports; the reading against the hit before resists was checked on one report from
+  2026-11-07 to 2026-11-13, cvRTFb1qhGBKNkCD, against a combat log of the same run (#1005); its class, level and game
+  build are not recorded
 - Game build: 1.60.1.70959 or 1.60.1.71037 until 2026-11-20 18:23 UTC, 1.60.1.71037 until 2026-11-24 15:21 UTC (US) and
   2026-11-25 02:19 UTC (EU), 1.60.1.71091 until 2026-11-25 19:14 UTC and 1.60.1.71139 from then; all after the
-  2026-11-19 hotfix (hotfixes 114309, 114310, 114312, 114313 and 114314). The hotfix a run was on and relogs are not
-  recorded
-- Date: 2026-11-19 23:03 to 2026-11-27 05:50 UTC
+  2026-11-19 hotfix (hotfixes 114309, 114310, 114312, 114313 and 114314) except that report and its combat log, which are
+  from before it. The hotfix a run was on and relogs are not recorded
+- Date: 2026-11-19 23:03 to 2026-11-27 05:50 UTC; the checked report and its combat log from 2026-11-07 to 2026-11-13
 - Pull request: #1267
 
 Warcraft Logs drops the negative resisted amount that Spell Piercing logs, so a bonus is a normal hit or tick with
 nothing resisted whose damage is 1.1, 1.2 or 1.3 times the median of the same caster's other same-school hits on the
 same mob within 10 seconds (within 2.5%), on mobs whose plain direct hits of that school show 3% or fewer partial
-resists; a spell of two schools counts on mobs clean in both. Read against the hit before resists instead, one report,
-cvRTFb1qhGBKNkCD, was checked one to one against a combat log of 1,425 hits before the 2026-11-19 hotfix: every −10% or −20% hit of the
-combat log lands in the matching bin and no unpierced hit does; the median reading cancels the fixed +10% or +20% that
-talents and debuffs put on whole spells, which look the same on one hit. Warlocks' Shadow hits 0 to 12 seconds after their own Shadow Bolt crit on the mob (Improved Shadow
-Bolt) are left out. Ticks count from 50 damage before resists, except Frostfire Bolt's and Fireball's, which are 9 to 24:
-these are read on whole numbers, the tick against 1.1, 1.2 or 1.3 times its damage before resists and the median of the
-caster's other ticks of the spell on the mob, within 1 point, and a tick that fits two steps or none is left out. E is
-the hits times the caster's own bonus rate on its class's other spells (mages: Arcane Explosion, Arcane Missiles, Arcane
+resists; a spell of two schools counts on mobs clean in both. The reading against the hit before resists was checked one
+to one on one report, cvRTFb1qhGBKNkCD, against a combat log of 1,425 hits from before the 2026-11-19 hotfix: every −10%
+or −20% hit of the combat log lands in the matching bin and no unpierced hit does. The median reading cancels the
+fixed +10% or +20% that talents and debuffs put on whole spells, which look the same on one hit. Warlocks' Shadow hits 0
+to 12 seconds after their own Shadow Bolt crit on the mob (Improved Shadow Bolt) are left out. Ticks count from 50
+damage before resists, except Frostfire Bolt's and Fireball's, which are 9 to 24: these are read on whole numbers, the
+tick against 1.1, 1.2 or 1.3 times its damage before resists and the median of the caster's other ticks of the spell on
+the mob, within 1 point, and a tick that fits two steps or none is left out. E is the hits times the caster's own bonus
+rate on its class's other spells (mages: Arcane Explosion, Arcane Missiles, Arcane
 Blast, Fire Blast, Blizzard, Fireball's and Pyroblast's hits, Scorch; priests: Mind Blast, Shadow Word: Death, Mind
 Flay's ticks, Smite, Holy Fire's hit; warlocks: Conflagrate, Hellfire Effect, Incinerate, Bane of Havoc, Searing Pain,
 Soul Fire, Immolate's hit), over casters with 30 or more such hits (mages 40) of which 5% or more (mages 12%) take a

@@ -32,9 +32,10 @@
 - Pull request: #1080; each count section names its own
 - Later count: the Incinerate, Shadow Bolt, Death Coil, Shadowburn and Frost Shock lines of §Spell Piercing and §Rows
   with few hits, §Count of the 2026-11-07 to 2026-11-24 reports
-- Later count: the 5 and 6 piercing reading at level 60 of §The 1% cut, §Count of the 2026-11-27 test
-- Later count: Engulfing Shadows in §Which spells are binary and §Spell Piercing, §Count of the 2026-11-19 to
-  2026-11-27 reports
+- Later count: the 5 and 6 piercing reading at level 60 of §The 1% cut, and the area spells' own rolls, §Count of the
+  2026-11-27 test
+- Later count: Engulfing Shadows in §Which spells are binary and §Spell Piercing, and the Frostbolt, Cone of Cold,
+  Frostfire Bolt, Mind Flay and Insect Swarm lines of §Spell Piercing, §Count of the 2026-11-19 to 2026-11-27 reports
 
 ## Method
 
@@ -110,45 +111,48 @@ caster, and E_ENERGIZE on Engulfing Shadows. E_NONE rows do not follow the rule:
 - Count: §Count of the 2026-11-19 to 2026-11-23 reports (the Blast Wave line)
 - Count: §Count of the 2026-11-07 to 2026-11-24 reports (the Incinerate, Shadow Bolt, Death Coil, Shadowburn and Frost
   Shock lines)
-- Count: §Count of the 2026-11-19 to 2026-11-27 reports (the Engulfing Shadows line)
+- Count: §Count of the 2026-11-19 to 2026-11-27 reports (the Frostbolt, Cone of Cold, Frostfire Bolt, Mind Flay,
+  Insect Swarm and Engulfing Shadows lines)
 
 The bonus goes where the partial resist roll goes, at the same share. E is the hits the caster's own rate on plain nukes
 expects.
 
-| Hits                                                                 | With a piercing bonus (E), +10% : +20% |
-| -------------------------------------------------------------------- | -------------------------------------- |
-| Mages' nukes                                                         | 23,244 of 82,767, 15,747 : 7,432       |
-| Binary: Frostbolt                                                    | 1,863 of 6,276 (1,802), 1,310 : 531    |
-| Binary: Cone of Cold                                                 | 1,111 of 4,675 (1,348), 738 : 366      |
-| Binary: Frost Nova                                                   | 418 of 1,781 (481), 287 : 131          |
-| Binary: Flamestrike's cast                                           | 994 of 3,235 (1,033), 666 : 327        |
-| Binary: Arcane Wrath                                                 | 898 of 3,385 (872), 638 : 257          |
-| Binary: Ice Lance, Frostfire Bolt                                    | 169 of 604 (181), 83 of 325 (91)       |
-| Binary: Immolate's hit (33 warlocks)                                 | 194 of 1,827 (201)                     |
-| Binary: Incinerate (22 warlocks)                                     | 179 of 1,820 (195), 118 : 61           |
-| Binary: Shadow Word: Death (10 priests)                              | 19 of 315 (24)                         |
-| Shadow Bolt outside Improved Shadow Bolt windows (173 warlocks)      | 619 of 5,980 (605), 420 : 199          |
-| Binary: Death Coil (144 warlocks)                                    | 50 of 413 (46), 30 : 20                |
-| Binary: Blast Wave (10 mages)                                        | 40 of 156 (48), 27 : 13                |
-| Binary: Shadowburn (36 warlocks)                                     | 73 of 639 (68), 49 : 24                |
-| Binary: Frost Shock (44 shamans)                                     | 25 of 198 (22), 19 : 5, 1 at +30%      |
-| Binary: Earth Shock, +10% bonuses only                               | 42 (32.8)                              |
-| Binary: Mind Flay ticks (10 priests)                                 | 483 of 5,398 (388)                     |
-| Binary: Insect Swarm ticks (13 druids)                               | 1,089 of 9,240 (1,051)                 |
-| Binary: Hurricane ticks                                              | 19 of 7,577, all +10% (786)            |
-| Binary: Entangling Roots ticks                                       | 0 of 126 (12)                          |
-| Binary: Engulfing Shadows (11 mages), against the hit before resists | 0 of 484 (137.8)                       |
-| Tenth: Siphon Life, Wrack ticks                                      | 0.06 to 0.08 of E                      |
-| Tenth: Flame Shock, Moonfire ticks                                   | 0.02 to 0.04 of E                      |
-| Tenth: Flamestrike's ground ticks, Rain of Fire                      | 7 of 2,454 (672), 21 of 4,655 (608)    |
-| Drain Life, Drain Soul ticks                                         | 2 of 714                               |
+| Hits                                                                 | With a piercing bonus (E), +10% : +20%                 |
+| -------------------------------------------------------------------- | ------------------------------------------------------ |
+| Mages' nukes                                                         | 23,244 of 82,767, 15,747 : 7,432                       |
+| Binary: Frostbolt (1,732 mages)                                      | 28,025 of 101,630 (28,543), 19,786 : 8,222, 17 at +30% |
+| Binary: Cone of Cold (1,899 mages)                                   | 12,113 of 42,467 (11,807), 7,288 : 4,427, 398 at +30%  |
+| Binary: Frost Nova                                                   | 418 of 1,781 (481), 287 : 131                          |
+| Binary: Flamestrike's cast                                           | 994 of 3,235 (1,033), 666 : 327                        |
+| Binary: Arcane Wrath                                                 | 898 of 3,385 (872), 638 : 257                          |
+| Binary: Ice Lance                                                    | 169 of 604 (181)                                       |
+| Binary: Frostfire Bolt's hit (151 mages)                             | 295 of 1,414 (307), 201 : 94                           |
+| Binary: Immolate's hit (33 warlocks)                                 | 194 of 1,827 (201)                                     |
+| Binary: Incinerate (22 warlocks)                                     | 179 of 1,820 (195), 118 : 61                           |
+| Binary: Shadow Word: Death (10 priests)                              | 19 of 315 (24)                                         |
+| Shadow Bolt outside Improved Shadow Bolt windows (173 warlocks)      | 619 of 5,980 (605), 420 : 199                          |
+| Binary: Death Coil (144 warlocks)                                    | 50 of 413 (46), 30 : 20                                |
+| Binary: Blast Wave (10 mages)                                        | 40 of 156 (48), 27 : 13                                |
+| Binary: Shadowburn (36 warlocks)                                     | 73 of 639 (68), 49 : 24                                |
+| Binary: Frost Shock (44 shamans)                                     | 25 of 198 (22), 19 : 5, 1 at +30%                      |
+| Binary: Earth Shock, +10% bonuses only                               | 42 (32.8)                                              |
+| Binary: Mind Flay ticks (76 priests)                                 | 3,997 of 38,818 (4,030), 2,912 : 1,083, 2 at +30%      |
+| Binary: Insect Swarm ticks (106 druids)                              | 4,746 of 45,806 (4,548), 3,408 : 1,336, 2 at +30%      |
+| Binary: Hurricane ticks                                              | 19 of 7,577, all +10% (786)                            |
+| Binary: Entangling Roots ticks                                       | 0 of 126 (12)                                          |
+| Binary: Engulfing Shadows (11 mages), against the hit before resists | 0 of 484 (137.8)                                       |
+| Tenth: Siphon Life, Wrack ticks                                      | 0.06 to 0.08 of E                                      |
+| Tenth: Flame Shock, Moonfire ticks                                   | 0.02 to 0.04 of E                                      |
+| Tenth: Flamestrike's ground ticks, Rain of Fire                      | 7 of 2,454 (672), 21 of 4,655 (608)                    |
+| Drain Life, Drain Soul ticks                                         | 2 of 714                                               |
 
 A warlock with 11 piercing at level 60, on mobs with no Shadow resistance, took no bonus on Siphon Life's and Wrack's
 ticks, 0 of 333 (53.9 expected at the full share, 5.0 with a tenth of the piercing rounded down to 1 point), nor on
 Drain Life's (0 of 62) and Drain Soul's (0 of 3). So a tick at a tenth of the share takes none at 10 piercing or more.
 
-Mages without piercing take bonuses on binary spells at their fixed-modifier rate (Frostbolt 4.1%, Cone of Cold 4.6%,
-Frost Nova 1.2%, Arcane Wrath 0 of 189, Flamestrike's cast 0 of 1,236), so the bonuses above come from piercing.
+Mages without piercing take far fewer bonuses on binary spells, so the bonuses above come from piercing: Frostbolt 126
+of 41,012 and Cone of Cold 696 of 14,012 on the median reading, and Frost Nova 1.2%, Arcane Wrath 0 of 189 and
+Flamestrike's cast 0 of 1,236 at their fixed-modifier rate against the hit before resists.
 
 Shadow Bolt takes the bonus: warlocks without gear piercing took none in 212 hits. Improved Shadow Bolt's Shadow
 Vulnerability (17794) is in the logged amount and not in the hit before resists. Until 2026-11-23 15:45 UTC, where
@@ -276,7 +280,7 @@ on the spell-median reading, where the same hunters' Arcane Shots read 161 of 1,
 | Seeping Willow                                          | 156 of 156                                  | 0.99                                                                                       |
 | Rain of Fire                                            | 232 of 738                                  | 0.12                                                                                       |
 | Other DoT ticks                                         | 1,267 of 4,309                              | Corruption 0.10, Flame Shock 0.09, Shadow Word: Pain 0.11, Siphon Life 0.09, Moonfire 0.12 |
-| Curse of Agony, Immolate's DoT                          | 0 of 953, 0 of 558                          |                                                                                            |
+| Bane of Agony, Immolate's DoT                           | 0 of 953, 0 of 558                          |                                                                                            |
 | Hellfire Effect, Arcane Missiles' missiles (full share) | 2,740 of 2,810, 303 of 325                  | 0.99, 0.99                                                                                 |
 
 ### Channels
@@ -455,10 +459,17 @@ bonus at the full share: 9 of 162 at 6 piercing (14.4 at 7.5·s), where a tenth 
 - Date: 2026-11-19 23:03 to 2026-11-27 05:50 UTC
 - Pull request: #1267
 
-The Spell Piercing reading is EV-0092's, except that a mage has no other Shadow spell to set a median, so Engulfing
-Shadows' hits are read against the hit before resists; E is each mage's own rate on its reference spells. The resist count runs this file's Method, on pairs whose share comes from the wearer's own control
-nukes on the mob or else from every caster's in the report; with the mob's share over every report as a third source,
-0 of 58 landed hits take a partial (58.0 for a plain nuke) and 41 of 99 casts resist whole (39.8).
+The Spell Piercing reading is EV-0092's: the median reading, with E from each caster's own rate on its class's other
+spells and the line's own spell left out; druids' are Wrath, Starfire, Moonfire's hit and Insect Swarm's ticks. The
+mages' floor is the rate of mages whose rate on those spells is under 4% over 40 or more hits. Mages are read on the
+median here, where §Count of the 2026-11-19 to 2026-11-21 reports read them against the hit before resists: on this
+count's wider set of mages that reading puts Frostbolt at 1.22 of E, and 4.4% of the Frostbolts of mages without
+piercing at a bonus. Engulfing Shadows alone is read against the hit before resists, since a mage has no other Shadow
+spell to set a median; E is each mage's own rate on its reference spells.
 
-Scripts and tables: `forever-piercing-posthotfix-1127` (RESULTS.md, `tables/analyze.txt`, `tables/es.txt`,
-`tables/es_gear.txt`).
+The resist count runs this file's Method, on pairs whose share comes from the wearer's own control nukes on the mob or
+else from every caster's in the report; with the mob's share over every report as a third source, 0 of 58 landed hits
+take a partial (58.0 for a plain nuke) and 41 of 99 casts resist whole (39.8).
+
+Scripts and tables: `forever-piercing-posthotfix-1127` (RESULTS.md, `tables/analyze.txt`,
+`tables/controls_abs_first_run.txt`, `tables/es.txt`, `tables/es_gear.txt`).
