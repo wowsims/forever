@@ -100,8 +100,8 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   them (Hand of Justice, Ironfoe, Argent Defender) takes the bonus with `VersusEffectKindProcChance` and passes
   its `Against` to `NewTargetScaledChanceManager` or `NewAttackerSwingPPMManager` as the scale. The generated
   damage, energize and on-use builders read a `VersusBonuses` row on the row they build from as a factor on the damage
-  or the restore, so a "times as likely" row comes with a hand-written effect. `go run ./tools/spelldata <id>` prints no
-  versus override; the row's `// override: VersusBonus` comment in `sim/core/spelldata/spells_auto_gen.go` shows it.
+  or the restore, so a "times as likely" row comes with a hand-written effect.
+  `go run ./tools/spelldata <id>` prints the versus and area overrides on `versus` and `area` lines.
 
 ## Measuring a rate
 
