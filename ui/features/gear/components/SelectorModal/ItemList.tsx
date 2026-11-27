@@ -167,7 +167,6 @@ export const ItemList = ({ tab, slot, itemSlots, equippedItem }: ItemListProps) 
 
 	const itemsToDisplay = useMemo(() => {
 		let idxs = itemData.map((_, index) => index);
-		const currentEquippedItem = player.getEquippedItem(slot);
 
 		if (label === SelectorModalTabs.Items) {
 			const itemAt = (index: number) => itemData[index].item as unknown as Item;
@@ -186,7 +185,7 @@ export const ItemList = ({ tab, slot, itemSlots, equippedItem }: ItemListProps) 
 				idxs = player.filterItemData(idxs, itemAt, slot);
 			}
 		} else if (label === SelectorModalTabs.Enchants) {
-			idxs = player.filterEnchantData(idxs, index => itemData[index].item as unknown as Enchant, slot, currentEquippedItem);
+			idxs = player.filterEnchantData(idxs, index => itemData[index].item as unknown as Enchant, slot, equippedItem);
 		}
 
 		idxs = idxs.filter(
@@ -206,7 +205,7 @@ export const ItemList = ({ tab, slot, itemSlots, equippedItem }: ItemListProps) 
 		// `isFavourited` happening to close over `filters` too. `race` is named for the same reason:
 		// the faction filter follows the race unless the user picked a faction.
 		// oxlint-disable-next-line react-hooks/exhaustive-deps
-	}, [itemData, player, sim, slot, itemSlots, label, phase, search, sortBy, sortDirection, computeEP, isFavourited, filters, race]);
+	}, [itemData, player, sim, slot, itemSlots, equippedItem, label, phase, search, sortBy, sortDirection, computeEP, isFavourited, filters, race]);
 
 	const showEPOptions = slotSortsByEP(slot);
 	const equipped = equippedToItem(equippedItem);
