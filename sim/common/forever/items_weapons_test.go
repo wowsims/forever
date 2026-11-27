@@ -503,6 +503,86 @@ func TestMalownsSlamRaisesStrengthOnMainHandHits(t *testing.T) {
 	}
 }
 
+// Felstriker 12590 puts up 16551 in the instant of the swing that procs it, after that swing's own roll:
+// the Windfury Totem hit the same swing sets off neither misses nor lands a plain hit, while the swings
+// that proc it still land plain hits (EV-0225). The Hand of Justice swing follows by the same order. The
+// buff lasts one spell batch window past its row's duration. Every landed main-hand hit procs Felstriker
+// and the extra hit's proc here.
+func TestFelstrikerCoversTheExtraHitsOfTheSwingThatProcsIt(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		trinket int32
+		buffs   *proto.RaidBuffs
+		proc    string
+		extra   core.ActionID
+	}{
+		{"Windfury Totem", 0, &proto.RaidBuffs{WindfuryTotem: true}, "Windfury Totem Trigger", core.ActionID{SpellID: 10610}},
+		{"Hand of Justice", 11815, &proto.RaidBuffs{}, "Hand of Justice",
+			core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: spelldata.MustFind(15600).EffectN(1).Trigger().ID}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			items := weaponSlots(12590, 0)
+			items[proto.ItemSlot_ItemSlotTrinket1].Id = tc.trinket
+			player := &proto.Player{
+				Name: "Wearer", Class: proto.Class_ClassWarrior, Race: proto.Race_RaceHuman,
+				Equipment:   &proto.EquipmentSpec{Items: items},
+				Consumables: &proto.ConsumesSpec{},
+				Buffs:       &proto.IndividualBuffs{},
+				Rotation:    &proto.APLRotation{},
+			}
+			core.WithSpec(player, &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}})
+			sim := core.NewSim(&proto.RaidSimRequest{
+				SimOptions: &proto.SimOptions{RandomSeed: 1},
+				Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}, Buffs: tc.buffs},
+				Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+			}, simsignals.CreateSignals())
+			sim.Reset()
+			character := sim.Raid.Parties[0].Players[0].GetCharacter()
+			character.AutoAttacks.CancelAutoSwing(sim)
+			target := character.CurrentTarget
+
+			felstriker, proc := character.GetAura("Felstriker"), character.GetAura(tc.proc)
+			buff := character.GetAuraByID(core.ActionID{SpellID: 16551})
+			mhAuto, extra := character.AutoAttacks.MHAuto(), character.GetSpell(tc.extra)
+			if felstriker == nil || felstriker.Dpm == nil || proc == nil || proc.Icd == nil || buff == nil || extra == nil {
+				t.Fatalf("12590 registers no proc or no 16551, or %s registers no proc with a cooldown or no extra hit", tc.name)
+			}
+			if want := spelldata.MustFind(16551).Duration() + core.SpellBatchWindow; buff.Duration != want {
+				t.Errorf("16551 lasts %v, want its row's duration and one spell batch window, %v", buff.Duration, want)
+			}
+			*felstriker.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+			if proc.Dpm != nil {
+				*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+			}
+
+			swing, extraHits := &mhAuto.SpellMetrics[target.UnitIndex], &extra.SpellMetrics[target.UnitIndex]
+			procs, procSwingHits := 0, int32(0)
+			for i := 0; i < 2000 && procs < 100; i++ {
+				buff.Deactivate(sim)
+				proc.Icd.Reset()
+				hits := swing.Hits
+				mhAuto.Cast(sim, target)
+				if proc.Icd.IsReady(sim) {
+					continue
+				}
+				procs++
+				procSwingHits += swing.Hits - hits
+				stepTo(t, sim, sim.CurrentTime+1)
+			}
+			if procs < 100 {
+				t.Fatalf("2000 main-hand autos procced %s %d times, want 100", tc.name, procs)
+			}
+			if extraHits.Casts < int32(procs) || extraHits.Crits == 0 || extraHits.Misses != 0 || extraHits.Hits != 0 {
+				t.Errorf("%d procs cast %d extra hits with %d crits, %d misses and %d plain hits, want an extra hit per proc, crits, and no miss or plain hit",
+					procs, extraHits.Casts, extraHits.Crits, extraHits.Misses, extraHits.Hits)
+			}
+			if procSwingHits == 0 {
+				t.Errorf("none of the %d swings that procced it landed a plain hit, want the swing that procs 16551 to roll its own table", procs)
+			}
+		})
+	}
+}
+
 // Ragehammer 10626 procs Enrage 12686, whose row states attack power and melee attack speed; the item
 // effect entry carries only the attack power, and the speed comes from the row.
 func TestRagehammerEnrageRaisesAttackPowerAndMeleeSpeed(t *testing.T) {
