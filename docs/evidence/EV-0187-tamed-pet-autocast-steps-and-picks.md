@@ -122,7 +122,7 @@ zmDY4LVX7N8vh9aR, zmTNyXkfqtpgcM1H, zn64f9D8TVt3wFZq, zp9yVrtfTNZJCv7g, zpvfR1gA
 - Sources: Warcraft Logs, the reports below, the tamed pets of level 60 hunters on the Forever servers; all fights
 - Game build: as in EV-0072 §Count of the 2026-11-11 to 2026-11-26 reports
 - Date: 2026-11-11 to 2026-11-26
-- Pull request: not recorded
+- Pull request: #1274
 
 The reports were found as in EV-0134 §Method, and a hunter counts at 51 talent points. A pet's kit is the abilities it
 cast in the fight, less Dash, Dive, Prowl and Cower, which it casts only to close in or out of combat; the 258 pets from

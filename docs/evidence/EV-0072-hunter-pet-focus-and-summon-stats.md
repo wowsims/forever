@@ -24,7 +24,7 @@ A sim run locally at the summon gave the pet 51.6 attack power, 10% of the owner
   2026-11-16, as in EV-0131; the build of the reports from 2026-11-17 to 2026-11-26 is not recorded. The hotfix each
   player ran is not recorded.
 - Date: 2026-11-11 to 2026-11-26
-- Pull request: not recorded
+- Pull request: #1274
 
 The reports were found as in EV-0134 §Method, and a hunter counts at 51 talent points. A Claw or Bite cast logs the
 pet's focus before its cost, so the focus regained between two casts is the second cast's focus less the first's after
