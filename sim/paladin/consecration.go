@@ -91,10 +91,18 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		},
 	}
 
-	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		// The cast rolls its own hit only so that procs on a resist can fire; the ground is laid whether
-		// it lands or not. The roll counts nothing, so the row's Miss % is the ticks' own.
-		spell.CalcAndDealOutcome(sim, target, spell.OutcomeTickMagicHitNoHitCounter)
+	// The cast lands on each enemy in the area as a spell of its own, as an area channel's cast does
+	// (spelldata.RegisterAreaCastLanding): a harmful-spell proc rolls once for each enemy, and a listener
+	// that needs a damage component, such as Touch of the Grave, hears none of it (EV-0115). The
+	// landing rolls hit, but the ground is laid whether it lands or not, and the roll counts nothing, so
+	// the row's Miss % is the ticks' own.
+	landing := paladin.RegisterSpell(spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage),
+		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))
+
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		for _, target := range sim.Encounter.ActiveTargetUnits {
+			landing.CalcAndDealOutcome(sim, target, landing.OutcomeTickMagicHitNoHitCounter)
+		}
 
 		spell.AOEDot().Apply(sim)
 		markTargets(sim, rank.Duration())
