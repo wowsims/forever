@@ -7,24 +7,43 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The stats each versus aura grants against the creature types its misc value masks. Flat damage done
-// against them reaches every school: Beastslayer 7784 adds its 2 to weapon hits and spells alike.
-var versusStats = map[dbcenums.EffectAuraType][]stats.Stat{
-	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS:  {stats.AttackPower},
-	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS: {stats.RangedAttackPower},
-	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS:   {stats.SpellDamage},
-	dbcenums.A_MOD_DAMAGE_DONE_CREATURE:       {stats.PhysicalDamage, stats.SpellDamage},
+// What a versus aura gives against the creature types its misc value masks: stats at the effect's
+// amount, or a multiplier of one plus the amount in percent.
+type VersusAuraEffect struct {
+	Stats      []stats.Stat
+	Multiplier VersusMultiplier
 }
 
-// The stats a versus aura grants; none when the aura is no versus aura.
-func VersusStats(aura dbcenums.EffectAuraType) []stats.Stat {
-	return versusStats[aura]
+// What a versus aura's multiplier scales.
+type VersusMultiplier int
+
+const (
+	VersusMultiplierDamage     VersusMultiplier = iota + 1 // The damage dealt.
+	VersusMultiplierCritDamage                             // The crit damage dealt, on top of the damage multiplier.
+)
+
+// Every versus aura and what it gives. Flat damage done against creature types reaches every school:
+// Beastslayer 7784 adds its 2 to weapon hits and spells alike.
+var versusAuras = map[dbcenums.EffectAuraType]VersusAuraEffect{
+	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS:  {Stats: []stats.Stat{stats.AttackPower}},
+	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS: {Stats: []stats.Stat{stats.RangedAttackPower}},
+	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS:   {Stats: []stats.Stat{stats.SpellDamage}},
+	dbcenums.A_MOD_DAMAGE_DONE_CREATURE:       {Stats: []stats.Stat{stats.PhysicalDamage, stats.SpellDamage}},
+	dbcenums.A_MOD_DAMAGE_DONE_VERSUS:         {Multiplier: VersusMultiplierDamage},
+	dbcenums.A_MOD_CRIT_PERCENT_VERSUS:        {Multiplier: VersusMultiplierCritDamage},
 }
 
-// Each stat a versus aura grants, at the amount; none when the aura is no versus aura.
-func VersusBonus(aura dbcenums.EffectAuraType, amount float64) stats.Stats {
+// What the aura gives against the creature types its misc value masks, and false when it is no versus
+// aura.
+func VersusAura(aura dbcenums.EffectAuraType) (VersusAuraEffect, bool) {
+	versus, ok := versusAuras[aura]
+	return versus, ok
+}
+
+// Each stat the aura grants, at the amount; none for a multiplier.
+func (v VersusAuraEffect) Bonus(amount float64) stats.Stats {
 	var bonus stats.Stats
-	for _, stat := range versusStats[aura] {
+	for _, stat := range v.Stats {
 		bonus[stat] = amount
 	}
 	return bonus

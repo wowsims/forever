@@ -2749,22 +2749,27 @@ func routeEnchantSlot(slot dbc.EnchantProcSlot, instance *dbc.DBC) *ProcRouting 
 	return routing
 }
 
-// The game files' CreatureType ids, which TargetCreatureType names as 1 << (id - 1). The damage
-// proc does not read the restriction.
-var creatureTypes = []string{1: "beasts", 2: "dragonkin", 3: "demons", 4: "elementals", 5: "giants",
-	6: "undead", 7: "humanoids", 8: "critters", 9: "mechanicals"}
-
+// The creatures a TargetCreatureType mask names by the bit 1 << (CreatureType - 1), each by its mob type
+// in the plural, or by its CreatureType id where it has no mob type. The damage proc does not read the
+// restriction.
 func creatureTypeNames(mask int32) string {
 	var names []string
 	for id := 1; id <= 32; id++ {
-		if mask&(1<<(id-1)) == 0 {
+		bit := int32(1) << (id - 1)
+		if mask&bit == 0 {
 			continue
 		}
-		if id < len(creatureTypes) {
-			names = append(names, creatureTypes[id])
-		} else {
+		mobTypes := spelldata.MobTypes(bit)
+		if len(mobTypes) == 0 {
 			names = append(names, fmt.Sprintf("creature type %d", id))
+			continue
 		}
+		name := strings.ToLower(strings.TrimPrefix(mobTypes[0].String(), "MobType"))
+		// Undead and dragonkin are their own plurals.
+		if mobTypes[0] != proto.MobType_MobTypeUndead && mobTypes[0] != proto.MobType_MobTypeDragonkin {
+			name += "s"
+		}
+		names = append(names, name)
 	}
 	return strings.Join(names, " and ")
 }

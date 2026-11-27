@@ -286,7 +286,7 @@ spell crit alike: Elixir of the Mongoose 13452 and the 250337/250338/250348/2503
 whatever hit or crit rating it weighs, so by default the Hit food picker shows for the melee and
 ranged specs and not for the casters.
 
-**Mob type stats.** A versus aura (`spelldata.VersusStats`: `A_MOD_MELEE_ATTACK_POWER_VERSUS`,
+**Mob type stats.** A versus aura (`spelldata.VersusAura`: `A_MOD_MELEE_ATTACK_POWER_VERSUS`,
 `A_MOD_RANGED_ATTACK_POWER_VERSUS`, `A_MOD_FLAT_SPELL_DAMAGE_VERSUS` or
 `A_MOD_DAMAGE_DONE_CREATURE`, the last both physical and spell damage) grants its stats only against
 the creature types its misc value masks. Its amount goes into `mob_type_stats` (`mobTypeStats` in

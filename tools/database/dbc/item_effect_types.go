@@ -5,20 +5,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
-
-// The auras whose misc value is a creature type mask.
-var versusAuras = []EffectAuraType{
-	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS,
-	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS,
-	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS,
-	dbcenums.A_MOD_DAMAGE_DONE_CREATURE,
-	dbcenums.A_MOD_DAMAGE_DONE_VERSUS,
-	dbcenums.A_MOD_CRIT_PERCENT_VERSUS,
-}
 
 // What a spell tooltip calls the creatures an effect counts against, each also read with a plural s.
 // A name that holds another comes first, so "Earth Elementals" is no Elemental.
@@ -154,7 +143,7 @@ func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.C
 		families = append(families, tooltipFamilies...)
 
 		for _, effect := range effects {
-			if slices.Contains(versusAuras, effect.EffectAura) && len(effect.EffectMiscValues) > 0 {
+			if _, ok := spelldata.VersusAura(effect.EffectAura); ok && len(effect.EffectMiscValues) > 0 {
 				mobTypes = append(mobTypes, spelldata.MobTypes(int32(effect.EffectMiscValues[0]))...)
 			}
 			if effect.EffectTriggerSpell != 0 {

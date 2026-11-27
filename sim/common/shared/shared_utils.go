@@ -617,7 +617,10 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// on the trigger while the buff it applies states none.
 	if stacks := max(buff.MaxStack, trigger.MaxStack); stacks > 0 {
 		// A stacking buff's bonus against creature types, and its speed, would need adding per stack.
-		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool { return len(spelldata.VersusStats(e.Aura)) > 0 }) {
+		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool {
+			versus, _ := spelldata.VersusAura(e.Aura)
+			return len(versus.Stats) > 0
+		}) {
 			panic(fmt.Sprintf("%s (%d): a stacking proc grants stats against creature types, which only a single buff carries", cfg.Name, cfg.ItemID))
 		}
 		if len(buff.SpeedEffects()) > 0 {
@@ -648,7 +651,8 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 func attachVersusStats(aura *core.Aura, buff *spelldata.Spell, itemID int32) {
 	versusSource := cmp.Or(core.ActionID{ItemID: itemID}, core.ActionID{SpellID: buff.ID})
 	for _, effect := range buff.Effects {
-		if bonus := spelldata.VersusBonus(effect.Aura, effect.Average()); bonus != (stats.Stats{}) {
+		versus, _ := spelldata.VersusAura(effect.Aura)
+		if bonus := versus.Bonus(effect.Average()); bonus != (stats.Stats{}) {
 			aura.AttachMobTypeBonusStats(versusSource, bonus, spelldata.MobTypes(effect.Misc)...)
 		}
 	}
