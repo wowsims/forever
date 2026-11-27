@@ -104,3 +104,10 @@ export const VersusUndead: Story = {
 		}),
 	},
 };
+
+/** Only Target 1 is Undead: its hit carries the tag and the header names it, while Target 2's hit shows no bonus. */
+export const VersusOneOfTwoTargets: Story = {
+	args: {
+		log: castLog(12, { damageDealtLogs: [chainHit(0, 612.4, { versus: UNDEAD_VERSUS }), chainHit(1, 428.68)] }),
+	},
+};

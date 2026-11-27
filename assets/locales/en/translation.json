@@ -2813,6 +2813,7 @@
 				"versus": {
 					"header": "Versus {{target}}",
 					"header_family": "Versus {{target}} ({{family}})",
+					"tag_family": "{{target}} ({{family}})",
 					"damage": "×{{multiplier}} damage",
 					"crit": "×{{multiplier}} crit damage",
 					"base": "×{{multiplier}} base damage",

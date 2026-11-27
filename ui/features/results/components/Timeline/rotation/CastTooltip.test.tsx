@@ -1,11 +1,11 @@
 import type { AplRun } from '@features/apl/model/apl_entry';
 import { APLAction, APLRotation } from '@generated/proto/apl';
 import i18n from '@i18n/config';
-import type { AplEntryPath } from '@sim/proto/combat_log';
+import { type AplEntryPath, Entity } from '@sim/proto/combat_log';
 import { constant, sequence, waitFor } from '@testing/apl/builders';
 import { makePlayer } from '@testing/apl/player';
 import { renderWithHost } from '@testing/react';
-import { castLog, damageLog, UNDEAD_VERSUS } from '@testing/storybook/fixtures/results-views';
+import { castLog, damageLog, TARGET, UNDEAD_VERSUS } from '@testing/storybook/fixtures/results-views';
 import { act } from '@testing-library/react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -109,5 +109,41 @@ describe('CastTooltip', () => {
 		const container = await render({ log: castLog(12) });
 
 		expect(container.querySelector('[data-testid="versus-sources"]')).toBeNull();
+	});
+
+	describe('with hits on two targets', () => {
+		const second = new Entity('Raid Target', '', 1, true, false);
+		const twoTargets = () => [damageLog(12.01, 244.59, { target: TARGET, versus: UNDEAD_VERSUS }), damageLog(12.01, 489.19, { target: second })];
+
+		it('tags only the hit that took a bonus, and names its target in the header', async () => {
+			const container = await render({ log: castLog(12, { damageDealtLogs: twoTargets() }) });
+
+			const hits = container.querySelectorAll('.ui-timeline-tooltip-hits li');
+			expect(hits[0].querySelector('[data-testid="versus-tag"]')?.textContent).toBe('Undead');
+			expect(hits[1].querySelector('[data-testid="versus-tag"]')).toBeNull();
+			expect(container.querySelector('[data-testid="versus-sources"] span')?.textContent).toBe('Versus Undead [Target 1]');
+		});
+
+		it('lists every target that took the bonus, in the order first hit', async () => {
+			const hits = [
+				damageLog(12.01, 244.59, { target: second, versus: UNDEAD_VERSUS }),
+				damageLog(12.01, 489.19, { target: TARGET, versus: UNDEAD_VERSUS }),
+				damageLog(12.02, 100, { target: second, versus: UNDEAD_VERSUS }),
+			];
+			const container = await render({ log: castLog(12, { damageDealtLogs: hits }) });
+
+			expect(container.querySelector('[data-testid="versus-sources"] span')?.textContent).toBe('Versus Undead [Target 2], [Target 1]');
+		});
+
+		it('names no target in the header when every hit landed on one target', async () => {
+			const hits = [
+				damageLog(12.01, 244.59, { target: TARGET, versus: UNDEAD_VERSUS }),
+				damageLog(12.01, 489.19, { target: TARGET, versus: UNDEAD_VERSUS }),
+			];
+			const container = await render({ log: castLog(12, { damageDealtLogs: hits }) });
+
+			expect(container.querySelector('[data-testid="versus-sources"] span')?.textContent).toBe('Versus Undead');
+			expect(container.querySelectorAll('[data-testid="versus-tag"]')).toHaveLength(2);
+		});
 	});
 });

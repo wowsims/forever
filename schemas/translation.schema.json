@@ -9987,6 +9987,9 @@
 										"header_family": {
 											"type": "string"
 										},
+										"tag_family": {
+											"type": "string"
+										},
 										"damage": {
 											"type": "string"
 										},
@@ -10010,7 +10013,18 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["header", "header_family", "damage", "crit", "base", "crit_chance", "proc_chance", "proc_only", "stat"]
+									"required": [
+										"header",
+										"header_family",
+										"tag_family",
+										"damage",
+										"crit",
+										"base",
+										"crit_chance",
+										"proc_chance",
+										"proc_only",
+										"stat"
+									]
 								}
 							},
 							"additionalProperties": false,
