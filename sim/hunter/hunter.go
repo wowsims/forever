@@ -132,6 +132,9 @@ func (hunter *Hunter) Initialize() {
 	hunter.registerMongooseBite()
 	hunter.registerRapidFire()
 	hunter.registerAspects()
+	if berserking := hunter.GetAura("Berserking"); berserking != nil {
+		hunter.speedPetFocusWith(berserking, 1.1)
+	}
 	hunter.registerHuntersMark()
 	hunter.addPvpGloves()
 }
