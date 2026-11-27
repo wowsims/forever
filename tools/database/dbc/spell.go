@@ -43,6 +43,8 @@ type Spell struct {
 	ChannelInterruptFlags []int
 	ShapeshiftMask        []int
 	Description           string
+	AuraDescription       string // The buff's text, which the aura shows on the target.
+	Subtext               string // The rank or kind under the name, such as "Rank 5" or "Talent".
 	Variables             string
 	MaxCumulativeStacks   int32
 	MaxTargets            int32

@@ -9,6 +9,9 @@ import { ConnectedIconEnumPicker } from './ConnectedIconEnumPicker';
 import type { IconEnumPickerConfig } from './types';
 import { iconEnumPickerShown } from './utils';
 
+// No spell has the site's own tooltip here, so every buff tooltip is wowhead's, and no test fetches the tooltip file.
+vi.mock('@sim/proto/tooltips', async importOriginal => ({ ...(await importOriginal<object>()), hasSpellTooltip: async () => false }));
+
 const frostId = filled(ActionId.fromSpellId(7302), 'Frost Armor', 'frost.jpg');
 const moltenId = filled(ActionId.fromSpellId(30482), 'Molten Armor', 'molten.jpg');
 

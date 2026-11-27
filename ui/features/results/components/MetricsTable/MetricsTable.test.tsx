@@ -10,7 +10,7 @@ import { MetricsActionCell } from './MetricsActionCell';
 import { MetricsTable } from './MetricsTable';
 
 vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: '', name: '', href: 'https://wowhead/spell=1', ready: true }) }));
-vi.mock('@sim/proto/action_id/tooltip_data', () => ({ actionIdWowheadTooltipData: () => Promise.resolve('spell=1') }));
+vi.mock('@sim/proto/action_id/tooltip_data', () => ({ actionIdTooltipProps: () => Promise.resolve({ 'data-wowhead': 'spell=1' }) }));
 
 interface Metric {
 	name: string;

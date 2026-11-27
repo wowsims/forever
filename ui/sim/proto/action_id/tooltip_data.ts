@@ -1,7 +1,15 @@
 import type { EquippedItem } from '../equipped_item';
 import type { Gear } from '../gear';
+import { hasSpellTooltip, spellTooltipAnchor } from '../tooltips';
 import type { WowheadTooltipItemParams, WowheadTooltipSpellParams } from '../wowhead';
 import { ActionId } from './index';
+
+/** The tooltip props for an action's anchor: a spell with a tooltip of its own shows that, anything else wowhead's. */
+export async function actionIdTooltipProps(actionId: ActionId, options: { useBuffAura?: boolean } = {}): Promise<Record<string, string>> {
+	const spellId = actionId.itemId ? 0 : actionId.spellIdTooltipOverride || actionId.spellId;
+	if (spellId && (await hasSpellTooltip(spellId))) return spellTooltipAnchor(spellId, { buff: options.useBuffAura });
+	return { 'data-wowhead': await actionIdWowheadTooltipData(actionId, options) };
+}
 
 export function actionIdWowheadTooltipData(
 	actionId: ActionId,

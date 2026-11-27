@@ -1269,7 +1269,11 @@
 				"name_exists": "Talents with name {{name}} already exists."
 			}
 		},
-		"points_remaining": "Points Remaining"
+		"points_remaining": "Points Remaining",
+		"tooltip": {
+			"rank": "Rank {{rank}}/{{max}}",
+			"next_rank": "Next rank:"
+		}
 	},
 	"bulk_tab": {
 		"title": "Batch",

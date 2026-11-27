@@ -5,7 +5,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { ActionLink } from './ActionLink';
 
 const tooltipData = vi.hoisted(() => vi.fn(() => Promise.resolve('spell=12345')));
-vi.mock('@sim/proto/action_id/tooltip_data', () => ({ actionIdWowheadTooltipData: tooltipData }));
+vi.mock('@sim/proto/action_id/tooltip_data', () => ({
+	actionIdTooltipProps: (...args: Parameters<typeof tooltipData>) => tooltipData(...args).then((url: string) => ({ 'data-wowhead': url })),
+}));
 
 const actionId = (extra: Record<string, unknown> = {}) =>
 	({

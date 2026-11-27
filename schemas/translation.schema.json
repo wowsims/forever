@@ -4567,10 +4567,23 @@
 				},
 				"points_remaining": {
 					"type": "string"
+				},
+				"tooltip": {
+					"type": "object",
+					"properties": {
+						"rank": {
+							"type": "string"
+						},
+						"next_rank": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["rank", "next_rank"]
 				}
 			},
 			"additionalProperties": false,
-			"required": ["title", "copy_button", "reset_button", "saved_talents", "points_remaining"]
+			"required": ["title", "copy_button", "reset_button", "saved_talents", "points_remaining", "tooltip"]
 		},
 		"bulk_tab": {
 			"type": "object",
