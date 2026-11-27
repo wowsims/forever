@@ -1,9 +1,10 @@
-import { Class, PseudoStat, RangedWeaponType } from '@generated/proto/common';
+import { Class, PseudoStat, RangedWeaponType, Stat } from '@generated/proto/common';
 import type { UIItem } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import type { StatAttribution, Stats, UnitStat } from '@sim/proto/stats';
+import { NoticeIcon } from '@ui-kit/Notice';
 import { Skeleton } from '@ui-kit/Skeleton';
 import { TableCell, TableRow } from '@ui-kit/Table';
 import { Tooltip } from '@ui-kit/Tooltip';
@@ -17,6 +18,9 @@ import { bonusStatClass, bonusTone } from './utils/stat_display';
 
 /** The weapons whose speed the effective-weapon-speed tooltip row is meaningful for. */
 const HUNTER_RANGED_TYPES = [RangedWeaponType.RangedWeaponTypeBow, RangedWeaponType.RangedWeaponTypeCrossbow, RangedWeaponType.RangedWeaponTypeGun];
+
+/** Spell Piercing gives no bonus while piercing / (piercing + 8L + 19) is under 1%: under 6 at level 60 (EV-0142). */
+const MIN_SPELL_PIERCING = 6;
 
 export interface StatRowViewProps {
 	displayStat: DisplayStat;
@@ -51,6 +55,8 @@ export const StatRowView = ({
 			? bonusStats.getPseudoStat(unitStat.getPseudoStat())
 			: 0;
 	const contextualClass = bonusStatClass(bonusStatValue);
+	const spellPiercing = unitStat.equalsStat(Stat.StatSpellPiercing) ? attribution.final.getStat(Stat.StatSpellPiercing) : 0;
+	const piercingTooLow = spellPiercing > 0 && spellPiercing < MIN_SPELL_PIERCING;
 	const tone = bonusTone(bonusStatValue);
 
 	const showEffectiveWeaponSpeed =
@@ -86,7 +92,14 @@ export const StatRowView = ({
 
 	return (
 		<TableRow testId="character-stats-table-row" className="ui-character-stats-row">
-			<TableCell className="ui-character-stats-label">{unitStat.getShortName(playerClass)}</TableCell>
+			<TableCell className="ui-character-stats-label">
+				{unitStat.getShortName(playerClass)}
+				{piercingTooLow && !pending && (
+					<NoticeIcon level="warning" size="1x" label={i18n.t('common.list_picker.warnings')} className="ml-1" testId="spell-piercing-notice">
+						{i18n.t('sidebar.character_stats.spell_piercing_too_low', { min: MIN_SPELL_PIERCING })}
+					</NoticeIcon>
+				)}
+			</TableCell>
 			<TableCell className="ui-character-stats-value">
 				{pending ? (
 					<Skeleton />

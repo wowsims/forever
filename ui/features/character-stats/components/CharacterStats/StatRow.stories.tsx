@@ -75,3 +75,12 @@ export const EditableBonus: Story = {
 	args: { bonusStatsLink: <BonusStatsLink unitStat={STRENGTH} /> },
 	decorators: [withSimHost({ player: { getBonusStats: () => new Stats(), setBonusStats: () => {} } })],
 };
+
+/** Spell Piercing from 1 to 5 gives no bonus at level 60, and the label carries a warning saying so. */
+export const SpellPiercingTooLow: Story = {
+	args: {
+		displayStat: { stat: UnitStat.fromStat(Stat.StatSpellPiercing) },
+		playerClass: Class.ClassMage,
+		attribution: { ...makeStatAttribution(), final: new Stats().withStat(Stat.StatSpellPiercing, 5) },
+	},
+};
