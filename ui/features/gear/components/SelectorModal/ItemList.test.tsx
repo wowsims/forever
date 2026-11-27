@@ -154,7 +154,6 @@ describe('ItemList', () => {
 					getPhase: () => 5,
 					getShowEPValues: () => showEPValues,
 				},
-				getEquippedItem: () => null,
 				getPlayerClass: () => ({ weaponTypes: [{ weaponType: 1 }] }),
 				getClass: () => Class.ClassWarrior,
 				filterItemData: (idxs: number[]) => idxs,
