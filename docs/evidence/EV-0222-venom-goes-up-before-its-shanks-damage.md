@@ -8,7 +8,7 @@
   18:23, 71091 from 2026-11-24 15:21, 71139 from 2026-11-25 19:14); the hotfix each player ran is not recorded, and the
   reports from after the 2026-11-23 hotfix read the same
 - Date: 2026-11-13 to 2026-11-26
-- Pull request: #
+- Pull request: #1269
 
 Each Shank's damage event is matched with the Venom apply or refresh logged within 50 ms of it. A poison hit is an
 Instant Poison damage event with a normal hit (no crit, no partial resist) on the Shank's target, 0 to 50 ms after the
