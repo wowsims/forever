@@ -203,6 +203,89 @@ func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
 	}
 }
 
+// A white swing that crits adds its Vengeance stack after the hits it procs, so its Seal of
+// Righteousness hit is priced on the stacks from before the crit, like the hit a swing without a crit
+// procs at those stacks (EV-0224).
+func TestSealOfRighteousnessHitIsPricedOnVengeanceBeforeTheCrit(t *testing.T) {
+	// The damage of the Seal of Righteousness hit a white swing procs under Vengeance at the stacks
+	// given, from a swing that crits or from one that lands without a crit. The seal's hit never crits,
+	// so it adds no stack of its own and the amounts compare.
+	sealHit := func(t *testing.T, stacks int32, crit bool) float64 {
+		t.Helper()
+		sim, pal, target := paladinWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotMainHand: 21395})
+		vengeance := pal.GetAuraByID(core.ActionID{SpellID: 20050})
+		if vengeance == nil {
+			t.Fatal("the paladin has no Vengeance")
+		}
+		seal := pal.GetSpell(core.ActionID{SpellID: paladin.SealOfRighteousnessRankMap.Highest().ID})
+		if seal == nil {
+			t.Fatal("the paladin has no Seal of Righteousness")
+		}
+		seal.SkipCastAndApplyEffects(sim, target)
+
+		var sealHits []*core.Spell
+		for _, spell := range pal.Spellbook {
+			if spell.Matches(paladin.SpellMaskSealOfRighteousnessProc) && spell.ActionID.Tag == 0 {
+				spell.BonusCritPercent = -1000
+				sealHits = append(sealHits, spell)
+			}
+		}
+		dealt := func() (total float64) {
+			for _, spell := range sealHits {
+				total += spell.SpellMetrics[target.UnitIndex].TotalDamage
+			}
+			return total
+		}
+
+		pal.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+		if crit {
+			pal.AddStatDynamic(sim, stats.PhysicalCritPercent, 100)
+		} else {
+			pal.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
+		}
+
+		swing := pal.AutoAttacks.MHAuto()
+		for range 100 {
+			vengeance.Deactivate(sim)
+			if stacks > 0 {
+				vengeance.Activate(sim)
+				vengeance.SetStacks(sim, stacks)
+			}
+			before, crits := dealt(), swing.SpellMetrics[target.UnitIndex].Crits
+			if !swing.Cast(sim, target) {
+				t.Fatal("the white swing did not cast")
+			}
+			// An empty action at the end of the window keeps the step from running past it.
+			until := sim.CurrentTime + 5*core.SpellBatchWindow
+			sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: until, OnAction: func(*core.Simulation) {}}))
+			for sim.CurrentTime < until && !sim.Step() {
+			}
+
+			hit := dealt() - before
+			critted := swing.SpellMetrics[target.UnitIndex].Crits > crits
+			if hit <= 0 || critted != crit {
+				continue
+			}
+			if crit && vengeance.GetStacks() != stacks+1 {
+				t.Fatalf("a crit from %d Vengeance stacks left %d, want %d", stacks, vengeance.GetStacks(), stacks+1)
+			}
+			return hit
+		}
+		t.Fatalf("no white swing in 100 procced a Seal of Righteousness hit with crit %v", crit)
+		return 0
+	}
+
+	for _, stacks := range []int32{0, 3} {
+		atStacks := sealHit(t, stacks, false)
+		if above := sealHit(t, stacks+1, false); above <= atStacks {
+			t.Fatalf("a Seal of Righteousness hit at %d Vengeance stacks deals %.3f, at %d %.3f, want more with the stack", stacks+1, above, stacks, atStacks)
+		}
+		if fromCrit := sealHit(t, stacks, true); math.Abs(fromCrit-atStacks) > 1e-6 {
+			t.Errorf("a crit from %d Vengeance stacks procs a Seal of Righteousness hit of %.3f, want %.3f, the hit at %d stacks", stacks, fromCrit, atStacks, stacks)
+		}
+	}
+}
+
 // A Consecration cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the ground is
 // laid, and its ticks roll none (EV-0115).
 func TestConsecrationCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {

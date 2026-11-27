@@ -194,8 +194,11 @@ func (rogue *Rogue) registerMutilate() {
 		return
 	}
 
-	rogue.MutilateMH = rogue.newMutilateHitSpell(true)
-	rogue.MutilateOH = rogue.newMutilateHitSpell(false)
+	// Both strikes take the poison bonus from the target's poisons at the cast, so a poison either strike's own proc
+	// puts up raises neither (EV-0223).
+	var poisoned bool
+	rogue.MutilateMH = rogue.newMutilateHitSpell(true, &poisoned)
+	rogue.MutilateOH = rogue.newMutilateHitSpell(false, &poisoned)
 
 	// The cast's landing rolls no weapon proc, poison or Windfury Totem; each hand rolls once from its own
 	// strike (EV-0155).
@@ -210,6 +213,8 @@ func (rogue *Rogue) registerMutilate() {
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHit) // Miss/Dodge/Parry/Hit
 		if result.Landed() {
 			rogue.AddComboPoints(sim, target, int32(pointGen), spell.ComboPointMetrics())
+			// TODO: Detect any poison on the target, not just rogue poisons
+			poisoned = (rogue.DeadlyPoison != nil && rogue.DeadlyPoison.Dot(target).IsActive()) || rogue.WoundPoisonDebuffAuras.Get(target).IsActive()
 			rogue.MutilateOH.Cast(sim, target)
 			rogue.MutilateMH.Cast(sim, target)
 		} else {
@@ -221,7 +226,7 @@ func (rogue *Rogue) registerMutilate() {
 	rogue.Mutilate = rogue.RegisterSpell(config)
 }
 
-func (rogue *Rogue) newMutilateHitSpell(isMH bool) *core.Spell {
+func (rogue *Rogue) newMutilateHitSpell(isMH bool, poisoned *bool) *core.Spell {
 	hitRank := mutilateCastRank.EffectN(3).Trigger() // 1241590, off hand
 	spellOpt := spelldata.Melee(core.ProcMaskMeleeOHSpecial)
 	if isMH {
@@ -251,8 +256,7 @@ func (rogue *Rogue) newMutilateHitSpell(isMH bool) *core.Spell {
 		}
 
 		oldMultiplier := spell.DamageMultiplier
-		// TODO: Detect any poison on the target, not just rogue poisons
-		if (rogue.DeadlyPoison != nil && rogue.DeadlyPoison.Dot(target).IsActive()) || rogue.WoundPoisonDebuffAuras.Get(target).IsActive() {
+		if *poisoned {
 			spell.DamageMultiplier *= 1 + mutilateCastRank.EffectN(4).Percent()
 		}
 
