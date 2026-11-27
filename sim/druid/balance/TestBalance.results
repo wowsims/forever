@@ -1502,14 +1502,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestBalance-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 882.19948
-  tps: 879.43395
-  dtps: 8.67707
- }
-}
-dps_results: {
  key: "TestBalance-AllItems-Satyr'sLash-17752"
  value: {
   dps: 767.0281
@@ -1519,14 +1511,6 @@ dps_results: {
 }
 dps_results: {
  key: "TestBalance-AllItems-ScentedRunewoodBrooch-269741"
- value: {
-  dps: 882.19948
-  tps: 879.43395
-  dtps: 8.67707
- }
-}
-dps_results: {
- key: "TestBalance-AllItems-SealoftheDawn-13209"
  value: {
   dps: 882.19948
   tps: 879.43395

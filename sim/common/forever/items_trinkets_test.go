@@ -58,11 +58,11 @@ func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck in
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// Seal of the Dawn 13209 and Rune of the Dawn 19812 state their bonus against Undead as item stats 128 and
-// 136, at the value their equip spells 23930 and 24198 state. Counterattack Lodestone 18537 and Royal Seal
-// of Eldre'Thalas 18467 fold equip spells 1318938 and 1318479 into their stats, the bonus against Mechanical
-// and Demon targets with them. The sim adds each bonus to the attack table of a target of that mob type
-// alone.
+// Seal of the Dawn 13209 and Rune of the Dawn 19812 fold equip spells 23930 and 24198, which grant only
+// their bonus against Undead, into their mob type stats. Counterattack Lodestone 18537 and Royal Seal of
+// Eldre'Thalas 18467 fold equip spells 1318938 and 1318479 into their stats, the bonus against Mechanical
+// and Demon targets with them. The sim adds each bonus once, to the attack table of a target of that mob
+// type alone.
 func TestTrinketsGrantTheirBonusAgainstTheirMobTypeAlone(t *testing.T) {
 	seal, rune := spelldata.MustFind(23930), spelldata.MustFind(24198)
 	lodestone, royalSeal := spelldata.MustFind(1318938), spelldata.MustFind(1318479)

@@ -1668,7 +1668,7 @@ func storeWeaponScopedEnchant(instance *dbc.DBC, enchant dbc.Enchant, parsed *pr
 
 	for spellID := range enchantEquipSpellIDs(enchant) {
 		equip := spelldata.Find(int32(spellID))
-		if dbc.EquipSpellFolds(spellID) && !grantsOnlyVersusStats(equip) {
+		if dbc.EquipSpellFolds(spellID) && !dbc.GrantsOnlyVersusStats(equip) {
 			continue
 		}
 
@@ -2533,8 +2533,8 @@ func (r *ProcRouting) ProcConstructor() string {
 // An equip spell that only restates a weapon skill or creature type stat the item's own stats state leaves
 // the item (dropRestatedItemStats), and one that raises only weapon skills the item's stats do not state
 // becomes the item's weapon skill (foldEquipWeaponSkills). An equip spell whose stats fold into the item
-// (EquipSpellFolds) carries its bonus against a creature type into the item's mob type stats
-// (addEquipSpellMobTypeStats).
+// (EquipSpellFolds), or that grants only stats against creature types, carries its bonus against a creature
+// type into the item's mob type stats (addEquipSpellMobTypeStats).
 var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,
@@ -2565,13 +2565,6 @@ var itemAuraKinds = []dbcenums.EffectAuraType{
 // damage shield kept up while it is worn. A proc's damage shield row is left out: its proc flags state
 // when the shield deals damage, which the proc shapes would read as when it is applied.
 var equipAuraKinds = append(slices.Clone(itemAuraKinds), dbcenums.A_DAMAGE_SHIELD)
-
-// Whether every effect of the spell is a stat against creature types.
-func grantsOnlyVersusStats(row *spelldata.Spell) bool {
-	return len(row.Effects) > 0 && !slices.ContainsFunc(row.Effects, func(e spelldata.Effect) bool {
-		return len(spelldata.VersusStats(e.Aura)) == 0
-	})
-}
 
 func keepsAnEquipAura(row *spelldata.Spell) bool {
 	return row.FirstAura(equipAuraKinds...) != spelldata.NilEffect

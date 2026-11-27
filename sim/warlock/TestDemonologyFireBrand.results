@@ -1200,14 +1200,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDemonologyFireBrand-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 948.25274
-  tps: 734.763
-  dtps: 8.44044
- }
-}
-dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Sang'thrazetheDeflector-9379"
  value: {
   dps: 838.14058
@@ -1225,14 +1217,6 @@ dps_results: {
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ScentedRunewoodBrooch-269741"
- value: {
-  dps: 948.25274
-  tps: 734.763
-  dtps: 8.44044
- }
-}
-dps_results: {
- key: "TestDemonologyFireBrand-AllItems-SealoftheDawn-13209"
  value: {
   dps: 948.25274
   tps: 734.763

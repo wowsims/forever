@@ -1837,14 +1837,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 756.52685
-  tps: 479.04977
-  dtps: 4.87034
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-Sang'thrazetheDeflector-9379"
  value: {
   dps: 730.01688
@@ -1862,14 +1854,6 @@ dps_results: {
 }
 dps_results: {
  key: "TestHunterPets-AllItems-ScentedRunewoodBrooch-269741"
- value: {
-  dps: 756.52685
-  tps: 479.04977
-  dtps: 4.87034
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-SealoftheDawn-13209"
  value: {
   dps: 756.52685
   tps: 479.04977

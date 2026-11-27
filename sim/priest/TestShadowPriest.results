@@ -1207,14 +1207,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 815.52576
-  tps: 582.56048
-  dtps: 8.06583
- }
-}
-dps_results: {
  key: "TestShadowPriest-AllItems-Satyr'sLash-17752"
  value: {
   dps: 745.21392
@@ -1224,14 +1216,6 @@ dps_results: {
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-ScentedRunewoodBrooch-269741"
- value: {
-  dps: 815.52576
-  tps: 582.56048
-  dtps: 8.06583
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-SealoftheDawn-13209"
  value: {
   dps: 815.52576
   tps: 582.56048
