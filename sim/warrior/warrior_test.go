@@ -587,7 +587,7 @@ func TestSweepingStrikesNormalizedStrikeStartsNoFlurry(t *testing.T) {
 				t.Fatalf("Flurry %v, spell %v; want both registered", flurry, spell)
 			}
 
-			warrior.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: core.OutcomeCrit})
+			warrior.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: core.OutcomeCrit, Damage: 1})
 
 			if got := flurry.IsActive(); got != c.want {
 				t.Errorf("a critical %s left Flurry active %v, want %v", c.name, got, c.want)
@@ -823,7 +823,7 @@ func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {
 			t.Fatalf("both hands average %0.1f damage; the test needs two different weapons", mh)
 		}
 
-		war.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+		war.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit, Damage: 1})
 
 		weapon := war.AutoAttacks.MH()
 		if c.offHand {
@@ -850,7 +850,7 @@ func TestThunderClapCritStartsNoDeepWounds(t *testing.T) {
 		t.Fatalf("Deep Wound %v, Thunder Clap %v; want both registered", bleed, clap)
 	}
 
-	war.OnSpellHitDealt(sim, clap, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+	war.OnSpellHitDealt(sim, clap, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit, Damage: 1})
 
 	if bleed.Dot(war.CurrentTarget).IsActive() {
 		t.Error("a Thunder Clap crit started Deep Wounds, want no bleed")
@@ -867,7 +867,7 @@ func TestDeepWoundsTicksIgnoreTheWarriorsDamageBonuses(t *testing.T) {
 			t.Fatalf("Deep Wound %v, main-hand swing %v; want both registered", bleed, swing)
 		}
 		war.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical] *= bonus
-		war.OnSpellHitDealt(sim, swing, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+		war.OnSpellHitDealt(sim, swing, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit, Damage: 1})
 		bleed.Dot(war.CurrentTarget).TickOnce(sim)
 		return bleed.SpellMetrics[war.CurrentTarget.UnitIndex].TotalDamage
 	}

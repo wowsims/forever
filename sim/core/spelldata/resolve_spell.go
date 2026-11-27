@@ -233,6 +233,17 @@ func Proc() SpellOpt {
 	}
 }
 
+// A spell the game triggers off a hit or an aura (a channel's tick, a wave, an item's bolt, a poison's hit) is a proc,
+// which only a listener that can proc from procs hears, unless its row carries Not A Proc. A spell built on the
+// player's own cast row takes no Triggered().
+func Triggered() SpellOpt {
+	return func(config *core.SpellConfig, s *Spell) {
+		if s.IsAProc() {
+			config.Flags |= core.SpellFlagProc
+		}
+	}
+}
+
 // Flags the game files do not state, such as the sim's own metrics and rotation flags.
 func Flags(flags core.SpellFlag) SpellOpt {
 	return func(config *core.SpellConfig, _ *Spell) {
@@ -365,6 +376,9 @@ func rowFlags(s *Spell) core.SpellFlag {
 		if s.SuppressesTargetProcs() {
 			flags |= core.SpellFlagSuppressTargetProcs
 		}
+	}
+	if s.TicksAreCasts() {
+		flags |= core.SpellFlagTicksAreCasts
 	}
 	if s.PushedBack() {
 		flags |= core.SpellFlagPushback

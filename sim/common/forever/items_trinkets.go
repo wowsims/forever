@@ -180,10 +180,7 @@ func init() {
 			core.AreaBonus{AreaTargets: core.AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeSnowy}}, Multiplier: 2}))
 		fewest, most := int32(markRow.EffectN(1).BaseValue())/divisor, int32(markRow.EffectN(2).BaseValue())/divisor
 
-		deliveryConfig := spelldata.SpellConfig(&character.Unit, deliveryRow, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc())
-		if deliveryRow.IsAProc() {
-			deliveryConfig.Flags |= core.SpellFlagProc
-		}
+		deliveryConfig := spelldata.SpellConfig(&character.Unit, deliveryRow, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc(), spelldata.Triggered())
 		damage := deliveryRow.DamageEffect()
 		cannotCrit := deliveryRow.CannotCrit()
 		deliveryConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -238,10 +235,7 @@ func init() {
 		row := spelldata.MustFind(23682)
 		heal := row.HealEffect()
 
-		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc())
-		if row.IsAProc() {
-			config.Flags |= core.SpellFlagProc
-		}
+		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
 		// The row states no defense type; a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -290,9 +284,6 @@ func init() {
 		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 			return !spell.MatchesFlags(thunderClap)
 		}
-		// The row's harmful-spell bit lets any landed hit roll, one that deals no damage included; in game
-		// only a hit that dealt damage rolls (EV-0021).
-		trigger.RequireDamageDealt = true
 		trigger.Name = "Highborne Research Tablet"
 		trigger.ActionID = core.ActionID{ItemID: 260205}
 		trigger.TriggerImmediately = true

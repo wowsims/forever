@@ -556,3 +556,17 @@ func auraName(a dbcenums.EffectAuraType) string {
 	}
 	return fmt.Sprintf("A_%d", a)
 }
+
+// The boost the parsed aura gives when its row raises the mana regen by a percent (Innervate,
+// Evocation), or nil for a passive, a dry run or any other row.
+func (p *parser) manaRegenBoost() *core.ManaRegenBoost {
+	if p.aura == nil {
+		return nil
+	}
+	for _, e := range p.spell.Effects {
+		if e.Aura == dbcenums.A_MOD_POWER_REGEN_PERCENT && e.Misc == int32(dbcenums.POWER_MANA) {
+			return p.unit.ManaRegenBoost(p.aura)
+		}
+	}
+	return nil
+}

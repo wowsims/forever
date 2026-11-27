@@ -67,10 +67,7 @@ func (hunter *Hunter) registerImmolationTrap() {
 
 	config := spelldata.SpellConfig(&hunter.Unit, immolationTrapEffectRank,
 		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.RemoveFlags(core.SpellFlagAPL),
-		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell))
-	if immolationTrapEffectRank.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell), spelldata.Triggered())
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 

@@ -34,6 +34,11 @@ func (paladin *Paladin) registerConsecrationMark() {
 //
 // The ground ticks once a period after the cast, none at the cast. Each tick rolls spell hit and crit
 // on its own, though no row in the ladder states Periodic Can Crit.
+//
+// A tick is the pulse row's hit, which its periodic dummy casts: a proc, since the row lacks Not A Proc,
+// and periodic damage, since it carries Treat As Periodic. So neither a listener on spell hits nor one on
+// periodic damage that cannot proc from procs hears it (EV-0226).
+// TODO: Ingame test needed -- whether a periodic listener that can proc from procs hears a tick. The sim lets it.
 func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	tickSpell := spellData.ConsecrationTriggered.Rank(n)
 	tick := tickSpell.EffectN(1)
@@ -60,10 +65,10 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		}
 	}
 
-	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
-	config.ClassSpellMask = SpellMaskConsecration
+	pulseConfig := spelldata.SpellConfig(&paladin.Unit, tickSpell, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered())
+	pulseConfig.ClassSpellMask = SpellMaskConsecration
 
-	config.Dot = core.DotConfig{
+	pulseConfig.Dot = core.DotConfig{
 		IsAOE: true,
 		Aura: core.Aura{
 			ActionID: core.ActionID{SpellID: rank.ID},
@@ -90,6 +95,11 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 			}
 		},
 	}
+	pulse := paladin.RegisterSpell(pulseConfig)
+
+	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
+	config.ClassSpellMask = SpellMaskConsecration
+	config.RelatedDotSpell = pulse
 
 	// The cast lands on each enemy in the area as a spell of its own, as an area channel's cast does
 	// (spelldata.RegisterAreaCastLanding): a harmful-spell proc rolls once for each enemy, and a listener
@@ -99,12 +109,12 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	landing := paladin.RegisterSpell(spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage),
 		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))
 
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
 		for _, target := range sim.Encounter.ActiveTargetUnits {
 			landing.CalcAndDealOutcome(sim, target, landing.OutcomeTickMagicHitNoHitCounter)
 		}
 
-		spell.AOEDot().Apply(sim)
+		pulse.AOEDot().Apply(sim)
 		markTargets(sim, rank.Duration())
 	}
 

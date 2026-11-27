@@ -3142,10 +3142,8 @@ func buildSpellProcInfo(procSpell *dbc.Spell, tooltip string, itemType proto.Ite
 		requiresOutcome = false
 	}
 
-	// Proc-ness is a flag on the listener, not a hit kind in the mask. ProcMaskSpellDamageProc is
-	// deliberately never emitted: that is the weapon-imbue shape (Flametongue, rogue poisons), kept
-	// a distinct hit kind so that Shiffar's Nexus-Horn, Wrath of Cenarius and Robe of the Elder
-	// Scribes proc off Ignite, Elemental Overload and Hurricane's DoT rather than off imbue crits.
+	// Proc-ness is a flag on the listener, not a hit kind in the mask: a poison's or an imbue's hit is
+	// spell damage, which only a listener that can proc from procs hears (EV-0226).
 	info.CanProcFromProcs = procSpell.CanProcFromProcs()
 	info.HonoursWeaponProcSuppression = procSpell.IsWeaponProcAura()
 

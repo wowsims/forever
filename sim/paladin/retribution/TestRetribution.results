@@ -317,10 +317,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 957.49592
-  tps: 779.59365
-  dtps: 3.77413
-  hps: 25.79148
+  dps: 956.52503
+  tps: 778.728
+  dtps: 3.82377
+  hps: 25.79504
  }
 }
 dps_results: {
@@ -1055,10 +1055,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 960.17722
-  tps: 781.77911
-  dtps: 3.99179
-  hps: 26.22627
+  dps: 955.39656
+  tps: 778.66434
+  dtps: 4.73728
+  hps: 26.19035
  }
 }
 dps_results: {

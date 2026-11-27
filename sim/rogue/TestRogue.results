@@ -264,8 +264,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 816.21891
-  tps: 579.51542
+  dps: 816.72924
+  tps: 579.87776
   hps: 59.91556
  }
 }
@@ -976,9 +976,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 788.06701
-  tps: 559.52758
-  hps: 58.27194
+  dps: 789.21615
+  tps: 560.34347
+  hps: 57.96694
  }
 }
 dps_results: {

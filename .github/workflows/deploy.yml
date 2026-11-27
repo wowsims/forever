@@ -65,6 +65,14 @@ jobs:
             - name: Install binaryen and rsync
               run: sudo apt-get update && sudo apt-get install -y binaryen rsync
 
+            # The site serves the icons this decodes and takes any it lacks from zamimg, so a failure here still
+            # deploys, with every icon from zamimg.
+            - name: Decode the game files icons 🖼️
+              uses: ./.github/actions/game-files-icons
+              continue-on-error: true
+              # A stalled download fails the step, which continue-on-error then lets pass.
+              timeout-minutes: 10
+
             - name: Build 🔧
               run: |
                   make dist/forever/.dirstamp

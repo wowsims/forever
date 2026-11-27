@@ -16,10 +16,7 @@ func (druid *Druid) registerHurricaneSpell() {
 	cannotCrit := hurricaneTickRank.CannotCrit()
 
 	tickConfig := spelldata.SpellConfig(&druid.Unit, hurricaneTickRank,
-		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
-	if hurricaneTickRank.IsAProc() {
-		tickConfig.Flags |= core.SpellFlagProc
-	}
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered())
 	// A tick takes no Spell Piercing bonus, though most binary hits do (EV-0142).
 	tickConfig.Flags |= core.SpellFlagNoPartialResist
 	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {

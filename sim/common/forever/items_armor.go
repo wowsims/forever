@@ -337,9 +337,6 @@ func procSpellConfig(character *core.Character, row *spelldata.Spell) core.Spell
 
 // The same for a spell of the kind given, such as spelldata.Melee.
 func procSpellConfigAs(character *core.Character, row *spelldata.Spell, kind spelldata.SpellOpt) core.SpellConfig {
-	config := spelldata.SpellConfig(&character.Unit, row, kind, spelldata.Proc())
-	if row.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+	config := spelldata.SpellConfig(&character.Unit, row, kind, spelldata.Proc(), spelldata.Triggered())
 	return config
 }

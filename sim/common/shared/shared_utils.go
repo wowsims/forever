@@ -1620,9 +1620,7 @@ func castBy(asProc bool) spelldata.SpellOpt {
 // the bar, it has no cast time to spend either, and it is a proc unless the row says it is not.
 func procSpell(config *core.SpellConfig, row *spelldata.Spell) {
 	spelldata.Proc()(config, row)
-	if row.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+	spelldata.Triggered()(config, row)
 }
 
 func itemUseSpell(config *core.SpellConfig, _ *spelldata.Spell) {

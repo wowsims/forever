@@ -127,32 +127,13 @@ func applyFixedUptimeAura(aura *core.Aura, uptime float64, tickLength time.Durat
 
 // A druid innervates a character who is nearly out of mana, so that every other
 // mana cooldown is spent first. The row's auras raise the mana regen while it
-// is up, and the metrics record what the character gains from it.
+// is up, and the mana bar credits what they add to the aura's metrics.
 func driveInnervates(char *core.Character, individual *proto.IndividualBuffs) {
 	aura := NewSpellDataInnervatesAura(&char.Unit, false, 0)
-	manaMetrics := char.NewManaMetrics(aura.ActionID)
 
-	threshold, expectedMana := 0.0, 0.0
+	threshold := 0.0
 	char.Env.RegisterPostFinalizeEffect(func() {
 		threshold = innervateManaThreshold(char)
-		// Spell 29166 states +400% mana regen on the mana bar (aura 110), Spirit and MP5 alike, which
-		// prices the mana the metrics record. MP5 runs while casting without Innervate and Spirit regen
-		// does not, so Innervate adds the whole multiplied Spirit regen and the MP5 above its own.
-		multiplier := core.MultiplierFromPercent(innervatesSpell.Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue())
-		expectedMana = (char.SpiritManaRegenPerSecond()*multiplier + char.MP5ManaRegenPerSecond()*(multiplier-1)) *
-			aura.Duration.Seconds()
-	})
-
-	const ticks = 10
-	aura.ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
-		perTick := expectedMana / ticks
-		core.StartPeriodicAction(sim, core.PeriodicActionOptions{
-			Period:   aura.Duration / ticks,
-			NumTicks: ticks,
-			OnAction: func(sim *core.Simulation) {
-				manaMetrics.AddEvent(perTick, perTick)
-			},
-		})
 	})
 
 	newGeneratedExternalCD(char, aura, generatedExternalCD{
@@ -262,10 +243,7 @@ func newWindfuryTotemStrike(char *core.Character) *core.Spell {
 	attackPower := WindfuryTotemPriority()
 	config := spelldata.SpellConfig(&char.Unit, windfuryTotemStrike,
 		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(),
-		spelldata.Flags(core.SpellFlagCountsAsSwing))
-	if windfuryTotemStrike.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+		spelldata.Flags(core.SpellFlagCountsAsSwing), spelldata.Triggered())
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		weaponDamage := char.MHWeaponDamage(sim, spell.MeleeAttackPower(target)+attackPower)
 		baseDamage := windfuryTotemStrike.WeaponStrike(sim, spell, weaponDamage, 0)
@@ -403,12 +381,9 @@ func NewFlametongueTotemProcTrigger(char *core.Character) *core.Aura {
 		return procTrigger
 	}
 
-	config := spelldata.SpellConfig(&char.Unit, flametongueTotemAttack, spelldata.Proc())
+	config := spelldata.SpellConfig(&char.Unit, flametongueTotemAttack, spelldata.Proc(), spelldata.Triggered())
 	config.ActionID = core.ActionID{SpellID: flametongueTotemCast.ID, Tag: 1}
-	config.ProcMask = core.ProcMaskSpellDamageProc
-	if flametongueTotemAttack.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+	config.ProcMask = core.ProcMaskSpellDamage
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
