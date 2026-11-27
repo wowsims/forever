@@ -606,6 +606,12 @@ func shamanWearing(t *testing.T, encounter *proto.Encounter, worn map[proto.Item
 	for i := range items {
 		items[i] = &proto.ItemSpec{Id: worn[proto.ItemSlot(i)]}
 	}
+	return shamanWearingSpecs(t, encounter, items)
+}
+
+// The same shaman wearing the item specs, one per slot.
+func shamanWearingSpecs(t *testing.T, encounter *proto.Encounter, items []*proto.ItemSpec) (*core.Simulation, *shaman.Shaman) {
+	t.Helper()
 	player := &proto.Player{
 		Name:      "Wearer",
 		Race:      proto.Race_RaceOrc,
@@ -787,5 +793,49 @@ func TestMagmaTotemPulsesAsItEnds(t *testing.T) {
 	}
 	if got := pulse.SpellMetrics[target.UnitIndex].Casts; got != 20 {
 		t.Errorf("a 40 s Magma Totem pulsed %d times, want 20", got)
+	}
+}
+
+// Lightning Shield's orb is a proc's spell hit, which Revelation, able to proc from procs, hears (EV-0149, R-0051).
+func TestLightningShieldOrbRollsRevelation(t *testing.T) {
+	const hits = 300
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: 2244, Enchant: 8217} // Revelation
+	sim, sham := shamanWearingSpecs(t, &proto.Encounter{Duration: hits, Targets: []*proto.Target{core.NewDefaultTarget()}}, items)
+	sham.AutoAttacks.CancelAutoSwing(sim)
+	target := sim.Encounter.ActiveTargetUnits[0]
+	buff := sham.GetAuraByID(core.ActionID{SpellID: 1323418})
+	orb := sham.GetSpell(core.ActionID{SpellID: spelldata.MustFind(10432).Refs()[0].ID})
+	if buff == nil || orb == nil {
+		t.Fatal("the shaman's Revelation buff or Lightning Shield's orb is not registered")
+	}
+
+	procs := 0
+	for range hits {
+		buff.Deactivate(sim)
+		sham.OnSpellHitDealt(sim, orb, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 1})
+		stepFor(t, sim, 5*core.SpellBatchWindow)
+		if buff.IsActive() {
+			procs++
+		}
+	}
+	if procs == 0 {
+		t.Errorf("%d Lightning Shield orb hits procced Revelation none of the time, want some", hits)
+	}
+}
+
+// Runs the sim for d, failing the test if the encounter ends first. An empty action at the end keeps the queue from
+// running dry.
+func stepFor(t *testing.T, sim *core.Simulation, d time.Duration) {
+	t.Helper()
+	end := sim.CurrentTime + d
+	sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: end, OnAction: func(*core.Simulation) {}}))
+	for sim.CurrentTime < end {
+		if sim.Step() {
+			t.Fatal("the encounter ended early")
+		}
 	}
 }

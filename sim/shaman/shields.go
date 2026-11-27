@@ -102,7 +102,7 @@ var lightningShieldOrb = lightningShieldRank.Refs()[0]
 // strike the attacker with the orb.
 func (shaman *Shaman) registerLightningShieldSpell() func(sim *core.Simulation, attacker *core.Unit) {
 	orbConfig := spelldata.SpellConfig(&shaman.Unit, lightningShieldOrb,
-		spelldata.Magic(core.ProcMaskSpellDamageProc), spelldata.Proc(), spelldata.Flags(core.SpellFlagProc|SpellFlagShamanSpell))
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered(), spelldata.Flags(SpellFlagShamanSpell))
 	orbConfig.ClassSpellMask = SpellMaskLightningShield
 	damage := lightningShieldOrb.DamageEffect()
 	orbConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
