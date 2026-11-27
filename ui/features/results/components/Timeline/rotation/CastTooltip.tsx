@@ -7,7 +7,7 @@ import type { CastLog } from '@sim/proto/combat_log';
 import { useMemo } from 'react';
 
 import { DamageResult } from '../../DamageResult';
-import { VersusSources } from '../../VersusSources';
+import { VersusSources, VersusTag } from '../../VersusSources';
 
 export interface CastTooltipProps {
 	log: CastLog;
@@ -87,6 +87,12 @@ export const CastTooltip = ({ log, stack = [log], aplRun }: CastTooltipProps) =>
 						<li key={index}>
 							<span>
 								{ddl.timestamp.toFixed(2)}s - <DamageResult log={ddl} />
+								{ddl.versus && (
+									<>
+										{' '}
+										<VersusTag versus={ddl.versus} />
+									</>
+								)}
 							</span>
 							{showThreatMetrics && !ddl.source?.isTarget && (
 								<span>
