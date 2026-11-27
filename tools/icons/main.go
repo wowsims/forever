@@ -7,6 +7,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"flag"
@@ -16,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -44,6 +46,10 @@ func run(out, product, region string) error {
 	if err := listfile.Refresh(); err != nil {
 		return err
 	}
+	fdids, err := iconFDIDs(listfile.Path)
+	if err != nil {
+		return err
+	}
 	keyFile := filepath.Join(toolHome, "TACTKeys.txt")
 	if err := tact.RefreshKeyFile(keyFile, ""); err != nil {
 		return err
@@ -54,8 +60,6 @@ func run(out, product, region string) error {
 	}
 	fmt.Printf("Reading icons from %s %s\n", build.Entry.Product, build.Entry.Version)
 
-	// The listfile loads on the first lookup and is not safe for concurrent use, so every id is found
-	// before the downloads start.
 	type icon struct {
 		name string
 		fdid uint32
@@ -63,16 +67,11 @@ func run(out, product, region string) error {
 	var icons []icon
 	var missing []string
 	for _, name := range iconNames() {
-		fdid, err := listfile.GetFDID("interface/icons/" + name + ".blp")
-		if err != nil {
-			// The database writes a space in a game path as a dash.
-			fdid, err = listfile.GetFDID("interface/icons/" + strings.ReplaceAll(name, "-", " ") + ".blp")
-		}
-		if err != nil {
+		if fdid, ok := fdids[name]; ok {
+			icons = append(icons, icon{name, fdid})
+		} else {
 			missing = append(missing, name+": not in the listfile")
-			continue
 		}
-		icons = append(icons, icon{name, fdid})
 	}
 
 	if err := os.MkdirAll(out, 0o755); err != nil {
@@ -102,6 +101,14 @@ func run(out, product, region string) error {
 	close(work)
 	wg.Wait()
 
+	slices.Sort(missing)
+	for _, m := range missing {
+		fmt.Println("Left to zamimg: " + m)
+	}
+	// With nothing decoded the site would quietly fall back to zamimg for every icon, so the run fails instead.
+	if len(written) == 0 {
+		return fmt.Errorf("decoded none of the %d icons the database names", len(icons)+len(missing))
+	}
 	slices.Sort(written)
 	manifest, err := json.Marshal(written)
 	if err != nil {
@@ -110,12 +117,34 @@ func run(out, product, region string) error {
 	if err := os.WriteFile(filepath.Join(out, "manifest.json"), manifest, 0o644); err != nil {
 		return err
 	}
-	slices.Sort(missing)
 	fmt.Printf("Wrote %d icons to %s; %d left to zamimg\n", len(written), out, len(missing))
-	for _, m := range missing {
-		fmt.Println("  " + m)
-	}
 	return nil
+}
+
+// The file data id of every icon in the listfile, by the name gen_db gives it (database.GetIconName): the
+// file name without its extension, lowercased, with its spaces as dashes.
+func iconFDIDs(listfile string) (map[string]uint32, error) {
+	f, err := os.Open(listfile)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	fdids := make(map[string]uint32)
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		id, path, ok := strings.Cut(scanner.Text(), ";")
+		path = strings.ToLower(path)
+		if !ok || !strings.HasPrefix(path, "interface/icons/") {
+			continue
+		}
+		fdid, err := strconv.ParseUint(id, 10, 32)
+		if err != nil {
+			continue
+		}
+		name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+		fdids[strings.ReplaceAll(name, " ", "-")] = uint32(fdid)
+	}
+	return fdids, scanner.Err()
 }
 
 // Every icon name the shipped database holds, db.bin and leftover_db.bin together.

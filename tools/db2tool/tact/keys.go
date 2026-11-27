@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -24,6 +25,7 @@ const defaultKeyFileURL = "https://raw.githubusercontent.com/wowdev/TACTKeys/mas
 // not find, so the extractor can say what is still locked.
 type KeyStore struct {
 	keys    map[uint64][16]byte
+	mu      sync.Mutex // Guards missing, which decryption writes while several files may be opening at once.
 	missing map[uint64]struct{}
 }
 
@@ -42,6 +44,8 @@ func (s *KeyStore) Has(name uint64) bool {
 
 // Missing lists the key names decryption asked for and did not have, sorted.
 func (s *KeyStore) Missing() []uint64 {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	out := make([]uint64, 0, len(s.missing))
 	for n := range s.missing {
 		out = append(out, n)
@@ -56,7 +60,9 @@ func (s *KeyStore) lookup(name uint64) ([16]byte, bool) {
 	}
 	k, ok := s.keys[name]
 	if !ok {
+		s.mu.Lock()
 		s.missing[name] = struct{}{}
+		s.mu.Unlock()
 	}
 	return k, ok
 }

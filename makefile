@@ -311,6 +311,7 @@ db:
 
 # Decodes the icon of every item, enchant, consumable and spell the database names from the game files into the
 # gitignored assets/icons, which the build copies beside the site. Reads the current build off Blizzard's CDN.
+# Run it in a make call of its own before the build: make lists assets/ when it reads this file, before any recipe runs.
 .PHONY: icons
 icons: sim/core/proto/api.pb.go
 	go run ./tools/icons
