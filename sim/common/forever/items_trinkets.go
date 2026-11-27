@@ -289,9 +289,6 @@ func init() {
 		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 			return !spell.MatchesFlags(thunderClap)
 		}
-		// The row's harmful-spell bit lets any landed hit roll, one that deals no damage included; in game
-		// only a hit that dealt damage rolls (EV-0021).
-		trigger.RequireDamageDealt = true
 		trigger.Name = "Highborne Research Tablet"
 		trigger.ActionID = core.ActionID{ItemID: 260205}
 		trigger.TriggerImmediately = true

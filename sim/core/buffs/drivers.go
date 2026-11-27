@@ -403,12 +403,9 @@ func NewFlametongueTotemProcTrigger(char *core.Character) *core.Aura {
 		return procTrigger
 	}
 
-	config := spelldata.SpellConfig(&char.Unit, flametongueTotemAttack, spelldata.Proc())
+	config := spelldata.SpellConfig(&char.Unit, flametongueTotemAttack, spelldata.Proc(), spelldata.Triggered())
 	config.ActionID = core.ActionID{SpellID: flametongueTotemCast.ID, Tag: 1}
-	config.ProcMask = core.ProcMaskSpellDamageProc
-	if flametongueTotemAttack.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+	config.ProcMask = core.ProcMaskSpellDamage
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

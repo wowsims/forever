@@ -1028,6 +1028,12 @@ func TestDeathMarkStoresAndPaysOut(t *testing.T) {
 // A reset sim of one untalented rogue with no rotation wearing the items, against one target that neither dodges nor is missed.
 func newRogueWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulation, *Rogue, *core.Unit) {
 	t.Helper()
+	return newRogueWearingWith(t, worn, nil, core.LongDuration)
+}
+
+// The same rogue with the consumables, in a fight of the duration in seconds.
+func newRogueWearingWith(t *testing.T, worn map[proto.ItemSlot]int32, consumes *proto.ConsumesSpec, duration float64) (*core.Simulation, *Rogue, *core.Unit) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
@@ -1039,13 +1045,14 @@ func newRogueWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulat
 		Name:      "Rogue",
 		Race:      proto.Race_RaceHuman,
 		Class:     proto.Class_ClassRogue,
-		Equipment: &proto.EquipmentSpec{Items: items},
-		Spec:      DefaultOptions,
-		Rotation:  &proto.APLRotation{},
+		Equipment:   &proto.EquipmentSpec{Items: items},
+		Consumables: consumes,
+		Spec:        DefaultOptions,
+		Rotation:    &proto.APLRotation{},
 	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		Encounter:  &proto.Encounter{Duration: duration, Targets: []*proto.Target{core.NewDefaultTarget()}},
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 	}, simsignals.CreateSignals())
 	sim.Reset()
@@ -1196,4 +1203,58 @@ func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
 
 	// 28815's cooldown does not hold the next grant back.
 	grant()
+}
+
+// Bolt's Charged Eyeball cannot proc from procs, so it hears no hit of Instant Poison, a proc, but it hears Deadly
+// Poison's ticks, which are a dot's own and no cast (EV-0226).
+func TestBoltsChargedEyeballHearsPoisonTicksButNotPoisonHits(t *testing.T) {
+	const rolls = 300
+	sim, rogue, target := newRogueWearingWith(t, map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotMainHand: 12590,
+		proto.ItemSlot_ItemSlotOffHand:  18392,
+		proto.ItemSlot_ItemSlotTrinket1: 280032,
+	}, &proto.ConsumesSpec{MhWeaponImbueId: 8928, OhWeaponImbueId: 8985}, 2*rolls*5) // Instant Poison VI, Deadly Poison IV
+	if rogue.InstantPoison == nil || rogue.DeadlyPoison == nil {
+		t.Fatal("the imbues registered no Instant Poison or Deadly Poison")
+	}
+	shock := rogue.GetSpell(core.ActionID{SpellID: 1315996})
+	if shock == nil {
+		t.Fatal("280032 registers no 1315996")
+	}
+
+	// Each roll waits out the trinket's 3 s cooldown.
+	shocks := func(roll func()) int32 {
+		before := shock.SpellMetrics[target.UnitIndex].Casts
+		for range rolls {
+			roll()
+			stepFor(t, sim, 4*time.Second)
+		}
+		return shock.SpellMetrics[target.UnitIndex].Casts - before
+	}
+
+	hits := shocks(func() {
+		rogue.OnSpellHitDealt(sim, rogue.InstantPoison, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 1})
+	})
+	if hits != 0 {
+		t.Errorf("%d Instant Poison hits cast %d shocks, want none", rolls, hits)
+	}
+	ticks := shocks(func() {
+		rogue.OnPeriodicDamageDealt(sim, rogue.DeadlyPoison, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 1})
+	})
+	if ticks == 0 {
+		t.Errorf("%d Deadly Poison ticks cast no shock, want some", rolls)
+	}
+}
+
+// Runs the sim for d, failing the test if the encounter ends first. An empty action at the end keeps the queue from
+// running dry.
+func stepFor(t *testing.T, sim *core.Simulation, d time.Duration) {
+	t.Helper()
+	end := sim.CurrentTime + d
+	sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: end, OnAction: func(*core.Simulation) {}}))
+	for sim.CurrentTime < end {
+		if sim.Step() {
+			t.Fatal("the encounter ended early")
+		}
+	}
 }

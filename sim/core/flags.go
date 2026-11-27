@@ -60,11 +60,6 @@ const (
 	ProcMaskRangedSpecial
 	ProcMaskSpellDamage
 	ProcMaskSpellHealing
-	// Spell damage dealt by a weapon imbue or poison (Flametongue, Frostbrand, rogue poisons). A hit
-	// kind, not proc-ness (that is SpellFlagProc). It is deliberately not a member of
-	// ProcMaskSpellDamage, so a listener whose mask is ProcMaskSpellDamage never hears these hits
-	// even when it can proc from procs; that is the whole reason the bit survives.
-	ProcMaskSpellDamageProc
 
 	ProcMaskLast
 )
@@ -244,6 +239,7 @@ const (
 	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) and the caster's spell damage against the target's creature type (an item's mob type stats, e.g. Courier's Clasp; EV-0141) add nothing to the spell's hits, though its other spell power applies at its coefficient: a damage shield.
 	SpellFlagNoDamageVersus                                 // The caster's damage against a creature type (aura 168, e.g. Beast Slaying) adds nothing to the spell's hits, though its other damage done multipliers apply: a totem's attack.
 	SpellFlagCountsAsSwing                                  // Its hits count as main-hand melee swings: landed ones grant rage as an auto attack's do, and a listener with HearsCountedSwings hears them, e.g. a Windfury Totem hit.
+	SpellFlagTicksAreCasts                                  // Its periodic damage is the hits of a spell its aura casts each period (a periodic dummy's or trigger's row, or a Treat As Periodic row), so a proc's ticks reach only the listeners that can proc from procs, as its hits do; the damage ticks of a dot of its own reach every listener (EV-0226). spelldata.SpellConfig sets it from the row.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1
