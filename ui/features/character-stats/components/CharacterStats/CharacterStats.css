@@ -19,27 +19,7 @@
 		@apply inline-flex flex-col;
 	}
 
-	.ui-character-stats-versus-heading {
-		@apply inline-flex items-center gap-1;
-	}
-
-	.ui-character-stats-versus-dot {
-		@apply size-2 shrink-0 rounded-full bg-current text-muted;
-	}
-
-	.ui-character-stats-versus-suffix {
-		@apply font-normal text-muted;
-	}
-
 	.ui-character-stats-versus-group {
-		&[data-state='on'] .ui-character-stats-versus-dot {
-			@apply text-success;
-		}
-
-		&[data-state='partial'] .ui-character-stats-versus-dot {
-			@apply text-link-warning;
-		}
-
 		&[data-state='off'] .ui-character-stats-versus-line {
 			@apply text-muted;
 		}

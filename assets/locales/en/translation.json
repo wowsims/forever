@@ -3738,7 +3738,7 @@
 			"melee_crit_cap": "Melee Crit Cap",
 			"weapon_skill": "Weapon Skill",
 			"versus": {
-				"title": "Bonus",
+				"title": "Versus bonuses",
 				"in_area": "In {{area}}",
 				"against": "Against {{target}}",
 				"damage": "Damage",
@@ -3748,9 +3748,13 @@
 				"effect_proc_chance": "×{{factor}} proc chance",
 				"effect_crit_chance": "×{{factor}} crit chance",
 				"effect_proc_only": "Procs only against these",
-				"partial": "on {{matched}}/{{total}} targets",
-				"no_target": "· no target",
-				"not_in_area": "· not in this area"
+				"state_on": "All targets",
+				"state_partial": "{{matched}}/{{total}} targets",
+				"state_off": "No target",
+				"state_area_on": "In area",
+				"state_area_off": "Not in area",
+				"inactive_one": "{{count}} inactive bonus",
+				"inactive_other": "{{count}} inactive bonuses"
 			},
 			"tooltip": {
 				"base": "Base:",

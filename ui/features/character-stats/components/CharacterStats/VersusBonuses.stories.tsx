@@ -26,3 +26,6 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+/** With no target and no area, every group sits behind the inactive toggle. */
+export const NoneActive: Story = { args: { targets: [], areaTypes: [] } };
