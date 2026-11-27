@@ -397,7 +397,8 @@ func TestBlizzardCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	}
 	blizzard := mage.GetSpell(core.ActionID{SpellID: spellData.Blizzard.Highest().ID})
 
-	// Each step deals at most one proc, so the buff comes down before the next roll can refresh it.
+	// The proc is deferred by the spell batch window, one pending action each, so each step deals at most
+	// one, and the buff comes down before the next roll can refresh it.
 	var atCast, onTicks int
 	for range casts {
 		start := sim.CurrentTime
@@ -418,6 +419,9 @@ func TestBlizzardCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	}
 
 	chance := spelldata.MustFind(1318931).StatedChance()
+	if chance <= 0 || chance >= 1 {
+		t.Fatalf("1318931 states a chance of %v, want one between none and certain", chance)
+	}
 	rolls := float64(casts * enemies)
 	if mean, deviation := chance*rolls, math.Sqrt(chance*(1-chance)*rolls); math.Abs(float64(atCast)-mean) > 4*deviation {
 		t.Errorf("%d Blizzard casts on %d enemies procced it %d times at the cast, want about %.0f", casts, enemies, atCast, mean)

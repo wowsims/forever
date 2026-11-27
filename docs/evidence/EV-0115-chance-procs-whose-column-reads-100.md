@@ -1,10 +1,10 @@
 # EV-0115: Draconic Infused Emblem, Zealot Plate and Moonshadow Stave proc rates
 
-- Claim: Draconic Infused Emblem 22268 procs 8% on each landed harmful spell hit, and an area spell whose damage comes
-  in pulses (Blizzard, Consecration, Hurricane, Rain of Fire) rolls it once for each enemy in its area at the cast and
-  never on a pulse; Zealot Plate 274651 procs 5% on
-  each landed melee swing taken outside its 15 s cooldown, and Moonshadow Stave 22458 procs 1.6 times a minute on the
-  cast time of each landed harmful spell, at least 1.5 s.
+- Claim: Draconic Infused Emblem 22268 procs about 8% (the count's 7.84% [7.75, 7.94], rounded) on each landed harmful
+  spell hit, and an area spell whose damage comes in pulses (Blizzard, Consecration, Hurricane, Rain of Fire) rolls it
+  once for each enemy in its area at the cast and never on a pulse; Zealot Plate 274651 procs 5% on each landed melee
+  swing taken outside its 15 s cooldown, and Moonshadow Stave 22458 procs 1.6 times a minute on the cast time of each
+  landed harmful spell, at least 1.5 s.
 - Sources: Forever dungeon reports on Warcraft Logs, listed per item below with the fights each wearer had the item on
 - Game build: 1.60.1.70862, 1.60.1.70888 and 1.60.1.70938, by report date (counts per item below); hotfix state not
   recorded. No hotfix changed 1318930, 1318931, 1294666, 1294668, 1300435, 1300437 or 1300438 on these builds.
@@ -174,12 +174,14 @@ H8hLvnkbazAcB16Y/1-2, yP8V12WGtDpjdcA4/1-5, BYaWg2t341pDvFTj/1-2
 
 ## Count of the 2026-11-11 to 2026-11-27 reports
 
-- Item: Draconic Infused Emblem
-- Game build: 1.60.1.70938 to 1.60.1.71139 by report date (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20
-  18:23, 71091 from 2026-11-24 15:21, 71139 from 2026-11-25 19:14); the hotfix each player ran is not recorded, and
-  the reports from after the 2026-11-23 hotfix read the same in every class
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the streams of 1,480 wearers (275 mages, 406 warlocks,
-  322 paladins, 197 priests, 150 druids, 130 shamans), too many to list
+  322 paladins, 197 priests, 150 druids, 130 shamans), too many to list; for Touch of the Grave the streams of the
+  1,562 paladins that show it
+- Game build: 1.60.1.70888 to 1.60.1.71139 by report date (70938 from 2026-11-13 01:36 UTC, 70959 from 2026-11-17 15:19
+  UTC, 71037 from 2026-11-20 18:23, 71091 from 2026-11-24 15:21, 71139 from 2026-11-25 19:14); the hotfix each player
+  ran is not recorded, and the reports from after the 2026-11-23 hotfix read the same in every class
+- Date: 2026-11-11 to 2026-11-27
+- Pull request: #1268
 
 Only the fights whose combatant info shows the emblem count, and a run logged in two reports counts once. A proc is an
 apply or refresh of 1318930. A landing is a damage event that is no tick, or a debuff apply or refresh, of a spell with
@@ -197,10 +199,18 @@ landings of spells the wearer has a cast of, which leaves out item and talent pr
 | Priest  |               3,347 / 47,604 | 7.03% [6.80, 7.26] |       6.60% |          7.13% |            7.28% |
 | All     |             25,334 / 322,972 | 7.84% [7.75, 7.94] |             |                |                  |
 
-No class reads apart from the others by more than a point and a half. Debuff-only landings read about 7.3% in every
-class with enough of them (the warlocks' 105,058: 7.33% [7.18, 7.49]), direct hits 8 to 9%. A few spells read well
-above 8% on lone hits: Frostbolt 12.0% (602 of 5,033), Starfire 11.1% (1,057 of 9,556) and Arcane Wrath 13.7% (602 of
-4,401), whether or not they crit; this count does not explain them.
+The classes read from 7.03% (priest) to 8.67% (mage). Debuff-only landings read about 7.3% in every class with enough
+of them but the mage (the warlocks' 105,058: 7.33% [7.18, 7.49]; the mage's 3,457 applies 9.86% [8.91, 10.90]), and
+direct hits from 6.60% (priest) to 9.22% (warlock). A few spells read well above 8% on lone hits: Frostbolt 12.0% (602
+of 5,033), Starfire 11.1% (1,057 of 9,556) and Arcane Wrath 13.7% (602 of 4,401), and their crits read like their
+other hits (in `diag_1127.py`, whose lone window ignores the landings of the eight spells it watches): Frostbolt
+crits 12.8% of 1,300 against 11.3% of 4,850 other hits with no debuff apply beside them (11.3% of 1,060 against 12.4%
+of 3,667 with one), Starfire 10.4% against 11.4% and Arcane Wrath 13.9% against 13.4%. This count does not explain the
+three.
+
+A spell fired as a proc never rolls it: Hellfire Effect 0 of 2,028 lone hits. Each Arcane Missiles missile rolls on its
+own, 2,334 of 29,067 lone missiles (8.0%), and the channel's cast none of 28,203. Most hardcasts read like instants
+(Arcane Blast 7.5%, Wrath 7.0%, Shadow Bolt 8.9%, Lightning Bolt 8.7%, against Fire Blast 7.3% and Earth Shock 7.2%).
 
 An area spell whose damage comes in pulses rolls the emblem at its cast, once for each enemy in its area: the procs
 log with the cast, and the chance a cast procs rises with the enemies its first pulse hits as 1 − 0.92ⁿ. Its pulses
@@ -217,9 +227,15 @@ never roll: Blizzard 0 of 2,435 lone pulses, Hurricane 0 of 2,151, Rain of Fire 
 
 The first pulse lands up to 3.5 s after the cast, and its enemies are those it hits within 300 ms; a cast counts only
 with no other landing of the wearer from 60 ms before it to 1.2 s after. The channels read high on one enemy, which
-enemies entering the area after the first pulse would give; Consecration, which pulses at once, fits at every count.
-Flamestrike, with a direct hit as well, reads above one roll for each enemy (68.2% of 66 casts on 6 or more enemies).
+enemies entering the area after the first pulse would give. Consecration reads a little under 1 − 0.92ⁿ at one to five
+enemies (24.7% of 1,451 casts against 28.4% at four). Flamestrike, with a direct hit as well, reads above one roll for
+each enemy (68.2% of 66 casts on 6 or more enemies).
+
+Consecration's cast never sets off Touch of the Grave: 0 drains in the 50 ms after 49,856 lone casts on one to six or
+more enemies, against 74,887 after 952,079 landed white swings (7.87%) of the same paladins. A cast counts here with no
+other damage, heal or cast of the paladin from 60 ms before it to 900 ms after.
 
 Scripts and output, in `forever-draconic-emblem`: `emblem_1127.py` (`out_1127.txt`, and `out_1127_posthotfix.txt`
-with the reports from 2026-11-24 01:00 UTC on), `area_1127.py` (`area_out_1127.txt`) and `src_1127.py`, which names
-the event logged before each proc.
+with the reports from 2026-11-24 01:00 UTC on), `area_1127.py` (`area_out_1127.txt`), `diag_1127.py`
+(`diag_1127_out.txt`) and `src_1127.py`, which names the event logged before each proc; in
+`forever-consecration-cast-1127`: `cast.py` (`cast_out.txt`).
