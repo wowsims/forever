@@ -40,6 +40,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **A proc handler runs inside `applyEffects` only with `TriggerImmediately`.** Without it, which is how
   `spelldata.ProcTrigger` builds one, it is a pending action one `SpellBatchWindow` (10 ms) later (`aura_helpers.go`),
   after `OnCastComplete`; a stepped test needs `sim.Step()` to see it fire.
+- **`sim.RunAfterCurrentEvent` from a deferred handler runs after the other deferred handlers of that instant.**
+  Pending actions at one time and priority run in the order queued (`AddPendingAction`); Vengeance's stack uses it.
 - **`CallbackOnCastComplete` carries no result**, so `Outcome` and `RequireDamageDealt` are never read and no manager
   rolls (`aura_helpers.go`). A proc off the cast's hit roll uses `CallbackOnCastResult` (`spell_result.go`). Prove an order at runtime: `wowsims-testing` `## Proving a claim at runtime`.
 
