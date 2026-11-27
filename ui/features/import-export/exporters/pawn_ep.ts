@@ -48,7 +48,7 @@ const STAT_NAMES: Record<Stat, string> = {
 };
 
 // Pawn has no key for weapon skill, Feral Combat skill, school hit or percent ranged hit, so those weights stay out.
-// The off-hand weight is written after the loop, as Pawn needs it as a difference.
+// The off-hand weight is written after the loop.
 const PSEUDO_STAT_NAMES: Partial<Record<PseudoStat, string>> = {
 	[PseudoStat.PseudoStatMainHandDps]: 'MeleeDps',
 	[PseudoStat.PseudoStatRangedDps]: 'RangedDps',
