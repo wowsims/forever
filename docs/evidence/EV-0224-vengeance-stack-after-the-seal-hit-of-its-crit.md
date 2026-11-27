@@ -12,7 +12,7 @@
   73 reports. The reading holds on both sides of hotfix push 114313 (2026-11-20 23:47 UTC). The hotfix each player ran
   is not recorded.
 - Date: 2026-11-07 to 2026-11-27
-- Pull request: #
+- Pull request: #1270
 
 ## Method
 
