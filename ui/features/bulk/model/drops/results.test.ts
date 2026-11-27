@@ -384,7 +384,7 @@ describe('dropsOrderedGroups', () => {
 	});
 
 	it('Combined gain puts the cards with one first, largest first, and the rest after by best gain', () => {
-		const combined = (gain: number): BulkDropsCombined => ({ itemIds: [], leftOutIds: [], gain, margin: 0, baselineDps: CURRENT_DPS });
+		const combined = (gain: number): BulkDropsCombined => ({ itemIds: [], leftOutIds: [], gain, margin: 1, baselineDps: CURRENT_DPS });
 		expect(
 			order(
 				'combined',
@@ -394,6 +394,19 @@ describe('dropsOrderedGroups', () => {
 				]),
 			),
 		).toEqual(['C', 'B', 'A', 'D']);
+	});
+
+	it('Combined gain puts a proven set above a larger one within its margin, as a single upgrade must clear it', () => {
+		const combined = (gain: number, margin: number): BulkDropsCombined => ({ itemIds: [], leftOutIds: [], gain, margin, baselineDps: CURRENT_DPS });
+		expect(
+			order(
+				'combined',
+				new Map([
+					['C', combined(30, 40)],
+					['B', combined(25, 5)],
+				]),
+			),
+		).toEqual(['B', 'C', 'A', 'D']);
 	});
 
 	it('returns a copy and leaves the groups in their order', () => {

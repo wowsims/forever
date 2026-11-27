@@ -28,6 +28,7 @@ import {
 	dropsOrderedGroups,
 	dropsResultItems,
 	dropsSourceGroups,
+	isProvenCombined,
 	dropsSummary,
 	runSourceKeys,
 	topUpgrade,
@@ -248,6 +249,7 @@ const DropsResultsPane = ({ results, runSources, runFaction, combined }: DropsRe
 						dps: current.dpsMetrics.avg + together.gain,
 						pct: (together.gain / together.baselineDps) * 100,
 						marginPct: (together.margin / together.baselineDps) * 100,
+						proven: isProvenCombined(together),
 						items: together.itemIds.map(nameOf),
 						leftOut: together.leftOutIds.map(nameOf),
 					}

@@ -156,10 +156,14 @@ const recommendedOrder = (groups: readonly DropsSourceGroup[], iterations: numbe
 	return [...runs.flatMap(run => run.groups.sort(byShare)), ...sorted.filter(group => !group.upgrades)];
 };
 
+/** A combined set beats the current gear by more than its 95% margin, the rule a single upgrade passes; an unpaired set never does. */
+export const isProvenCombined = (set: BulkDropsCombined): boolean => set.margin > 0 && set.gain > set.margin;
+
 /**
  * The cards in the Bosses view's order. `recommended` is `recommendedOrder`; `gain` is `dropsSourceGroups`' own order;
  * `upgrades` goes by upgrade count, then share, then best gain; `zone` by the label's detail (a drop's zone, any other
- * source's category), `recommended` within one; `combined` by Combined gain, the cards without one after by best gain.
+ * source's category), `recommended` within one; `combined` by Combined gain, proven ones first, the cards without one after
+ * by best gain.
  * Groups with no upgrade come last under every order but `zone`, where they come last in their zone.
  */
 export const dropsOrderedGroups = (
@@ -178,11 +182,11 @@ export const dropsOrderedGroups = (
 		case 'zone':
 			return recommendedOrder(groups, iterations).sort((a, b) => a.label.detail.localeCompare(b.label.detail));
 		case 'combined': {
-			const gainOf = (group: DropsSourceGroup) => combined?.get(group.key)?.gain;
+			const of = (group: DropsSourceGroup) => combined?.get(group.key);
 			return [...groups].sort((a, b) => {
-				const [gainA, gainB] = [gainOf(a), gainOf(b)];
-				if (gainA === undefined || gainB === undefined) return Number(gainA === undefined) - Number(gainB === undefined) || byBestGain(a, b);
-				return gainB - gainA;
+				const [setA, setB] = [of(a), of(b)];
+				if (setA === undefined || setB === undefined) return Number(setA === undefined) - Number(setB === undefined) || byBestGain(a, b);
+				return Number(isProvenCombined(setB)) - Number(isProvenCombined(setA)) || setB.gain - setA.gain;
 			});
 		}
 	}

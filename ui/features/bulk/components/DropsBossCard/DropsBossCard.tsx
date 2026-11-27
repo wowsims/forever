@@ -30,9 +30,10 @@ export interface DropsBossCardViewProps {
 	best: { dps: number; pct: number } | null;
 	/**
 	 * The source's upgrades simmed together as one set; absent when the run simmed none for it. `marginPct` is the gain's
-	 * 95% margin in the same %, 0 to leave it out; `leftOut` names the upgrades a conflict kept out.
+	 * 95% margin in the same %, 0 to leave it out; `proven` when the gain clears that margin, as a single upgrade must;
+	 * `leftOut` names the upgrades a conflict kept out.
 	 */
-	combined?: { dps: number; pct: number; marginPct: number; items: readonly string[]; leftOut: readonly string[] } | null;
+	combined?: { dps: number; pct: number; marginPct: number; proven: boolean; items: readonly string[]; leftOut: readonly string[] } | null;
 	selected: boolean;
 	onSelect: () => void;
 }
@@ -132,7 +133,7 @@ export const DropsBossCardView = ({ rank, label, strip, best, combined, selected
 				<span className="flex flex-wrap items-center gap-x-2 text-sm" data-testid="drops-boss-combined">
 					<span>
 						{t('combined_gain')}{' '}
-						<span className={clsx('font-bold', combined.pct > 0 ? 'text-success' : 'text-gray-400')}>{formatBulkPct(combined.pct)}</span>{' '}
+						<span className={clsx('font-bold', combined.proven ? 'text-success' : 'text-gray-400')}>{formatBulkPct(combined.pct)}</span>{' '}
 						{combined.marginPct > 0 && (
 							<>
 								<span className="text-xs text-gray-400" data-testid="drops-boss-combined-margin">
@@ -161,6 +162,7 @@ export const DropsBossCardView = ({ rank, label, strip, best, combined, selected
 						content={
 							<span className="grid max-w-xs gap-1" data-testid="drops-boss-combined-tooltip">
 								<span>{t('combined_tooltip')}</span>
+								{!combined.proven && <span data-testid="drops-boss-combined-unproven">{t('combined_unproven')}</span>}
 								<span>{t('combined_items', { items: combined.items.join(', ') })}</span>
 								{combined.leftOut.length > 0 && <span>{t('combined_left_out', { items: combined.leftOut.join(', ') })}</span>}
 							</span>

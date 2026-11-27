@@ -4934,6 +4934,9 @@
 								},
 								"combined_partial": {
 									"type": "string"
+								},
+								"combined_unproven": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,

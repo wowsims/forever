@@ -1381,7 +1381,8 @@
 				"combined_tooltip": "The DPS gain from wearing this source's marked upgrades together, simmed as one gear set. Drops are not guaranteed, so you may get only some of them.",
 				"combined_items": "In the set: {{items}}",
 				"combined_left_out": "Left out, as they cannot be worn with the set: {{items}}",
-				"combined_partial": "{{included}} of {{total}} upgrades"
+				"combined_partial": "{{included}} of {{total}} upgrades",
+				"combined_unproven": "Within the sim's error of your current gear, so the gain is not proven."
 			},
 			"run": {
 				"items_picked": "Items picked",

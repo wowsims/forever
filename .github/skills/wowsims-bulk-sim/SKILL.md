@@ -339,14 +339,14 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   the precision of the run's best rows with no finalist stage. Its seed is its own, so each gain is the row's `dropsGap`
   against that request's own baseline, stored with its margin (`Z_95` × `pairedErrorToBaseline`, 0 on an unpaired row),
   the baseline's DPS and the included and left-out ids in `dropsCombined` by card key. The card shows the gain and its ±
-  as a % of that baseline and the run's current DPS plus the gain, with an info tooltip that names the set and any upgrade left out. It reports through the same
+  as a % of that baseline and the run's current DPS plus the gain, with an info tooltip that names the set and any upgrade left out. A gain counts as proven (`isProvenCombined`) only when it clears its margin, the rule a single upgrade passes at `Z_95`; an unproven or unpaired gain stays grey and its tooltip says so. It reports through the same
   progress bar under its own title (no step row: the dialog freezes its rows at mount), and runs after the encounter
   push, so a cancel or error in it keeps the Drops results and restores the gear; every run clears `dropsCombined`.
 - The Bosses view's Order by menu (`dropsOrderedGroups`, at the view only: `dropsSummary` takes Farm first from the
   Recommended order whatever the menu shows). Recommended is best gain first and cards with no upgrade last, and a run of cards whose best upgrade
   rows `buildTieChains` brackets together goes by upgrade share (N / M), then best gain. Biggest upgrade is
   `dropsSourceGroups`' order; Most upgrades goes by count, then share; Zone by the label's detail, Recommended within
-  a zone; Combined gain, offered only while `dropsCombined` is set, by the combined gain, the cards without one after
+  a zone; Combined gain, offered only while `dropsCombined` is set, proven sets first, then by the combined gain, the cards without one after
   by best gain. A stored Combined gain order reads as Recommended on a run without it and stays stored. Only
   Recommended numbers the cards; `DropsBossCard` dims on a null `best`.
 - Equip from a Drops row or card icon equips in place and stays on the Upgrades side (`equipAndToast`); a Gear or
