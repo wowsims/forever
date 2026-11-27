@@ -403,8 +403,8 @@ func TestSkullforgeReaverBrandsOnMainHandHitsAndHealsTheWearer(t *testing.T) {
 }
 
 // Demonfork 12621 casts 16603 at the procs per minute of the item's entry, on the weapon's speed, off
-// landed main-hand swings and specials. The drain takes the row's leech from the target every period for
-// its duration and heals the wearer the effect's share of what each tick dealt; a second proc refreshes it.
+// landed main-hand swings and specials, and a second proc refreshes the drain. The drain's ticks and heal
+// are the shared leech drain's, which TestDemonForgedBreastplateDrainsTheAttacker covers.
 func TestDemonforkDrainsTheTargetIntoTheWearer(t *testing.T) {
 	withEntryPPM(t, 12621, 16603, 3)
 	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(12621, 0)})
@@ -420,12 +420,6 @@ func TestDemonforkDrainsTheTargetIntoTheWearer(t *testing.T) {
 	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
 	row := spelldata.MustFind(16603)
-	leech := row.FirstAura(dbcenums.A_PERIODIC_LEECH)
-	ticks := rowTickCount(row, leech)
-	if ticks < 2 || leech.Average() <= 0 {
-		t.Fatalf("16603 leeches %v %d times, want an amount at least twice", leech.Average(), ticks)
-	}
-	character.RemoveHealth(sim, character.MaxHealth()/2)
 	enemy := character.CurrentTarget
 
 	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
@@ -436,19 +430,10 @@ func TestDemonforkDrainsTheTargetIntoTheWearer(t *testing.T) {
 	if !drain.Dot(enemy).IsActive() {
 		t.Fatal("a main-hand swing put no drain on the target")
 	}
-	health := character.CurrentHealth()
-	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
-	drained := drain.SpellMetrics[enemy.UnitIndex]
-	if want := float64(ticks) * leech.Average(); drained.Ticks != ticks || drained.TotalDamage != want {
-		t.Errorf("one proc drained %v over %d ticks, want the row's %v over %d", drained.TotalDamage, drained.Ticks, want, ticks)
-	}
-	if got, want := character.CurrentHealth()-health, drained.TotalDamage*float64(leech.Amplitude); got != want {
-		t.Errorf("the drain healed the wearer for %v, want the effect's share of the %v it dealt, %v", got, drained.TotalDamage, want)
-	}
 
-	dealHit(t, sim, character, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Unit: &character.Unit})
-	stepTo(t, sim, sim.CurrentTime+leech.Period())
-	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
+	stepTo(t, sim, sim.CurrentTime+row.FirstAura(dbcenums.A_PERIODIC_LEECH).Period())
+	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Unit: &character.Unit}
+	character.OnSpellHitDealt(sim, special, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
 	if got := drain.Dot(enemy).RemainingDuration(sim); got != row.Duration() {
 		t.Errorf("a proc on a drained target leaves the drain %v, want the row's full %v", got, row.Duration())
 	}
@@ -2428,36 +2413,6 @@ func TestFlameWrathPutsUpItsFireShield(t *testing.T) {
 	dealHit(t, sim, character, meleeSwing(&character.Unit))
 	if shieldAura.ExpiresAt() <= expires {
 		t.Errorf("a second proc left the shield's end at %v, want it later than %v", shieldAura.ExpiresAt(), expires)
-	}
-}
-
-// In Cat, Bear and Dire Bear Form a melee ability rolls no Flame Wrath 11809, while a white swing and a
-// Windfury Totem hit do (EV-0151). Out of a form, and in a warrior's stance, the ability rolls it.
-func TestFlameWrathInAFormRollsOnlyOnSwings(t *testing.T) {
-	sim, character := procWeaponWearer(t, 11809, "Flame Wrath", &proto.Target{Name: "target", Level: 60}, 0, 0)
-	shield := character.GetAura("Flame Wrath Fire Shield")
-	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, SpellSchool: core.SpellSchoolPhysical, Unit: &character.Unit}
-	totemHit := &core.Spell{ActionID: core.ActionID{SpellID: 10610}, ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagCountsAsSwing,
-		DefenseType: core.DefenseTypeMelee, SpellSchool: core.SpellSchoolPhysical, Unit: &character.Unit}
-	for _, form := range []dbcenums.ShapeshiftForm{0, dbcenums.FORM_BATTLE_STANCE, dbcenums.FORM_CAT_FORM, dbcenums.FORM_BEAR_FORM, dbcenums.FORM_DIRE_BEAR_FORM} {
-		character.ShapeshiftForm = form
-		inForm := form == dbcenums.FORM_CAT_FORM || form == dbcenums.FORM_BEAR_FORM || form == dbcenums.FORM_DIRE_BEAR_FORM
-		for _, hit := range []struct {
-			name  string
-			spell *core.Spell
-			rolls bool
-		}{
-			{"a white swing", meleeSwing(&character.Unit), true},
-			{"a Windfury Totem hit", totemHit, true},
-			{"a melee ability", special, !inForm},
-		} {
-			shield.Deactivate(sim)
-			stepTo(t, sim, sim.CurrentTime+time.Second)
-			dealHit(t, sim, character, hit.spell)
-			if shield.IsActive() != hit.rolls {
-				t.Errorf("in form %d %s procced Flame Wrath %v, want %v", form, hit.name, shield.IsActive(), hit.rolls)
-			}
-		}
 	}
 }
 

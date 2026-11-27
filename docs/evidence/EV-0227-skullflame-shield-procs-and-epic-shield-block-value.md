@@ -9,9 +9,8 @@
 - Sources: combat log, one Protection paladin at level 60 wearing the shield in all 85 COMBATANT_INFO snapshots, group
   dungeons (Stratholme, Sunken Temple, Blackmaw Hold, The Shaper's Terrace, Dire Maul, Scholomance, Blackrock Depths,
   Lower and Upper Blackrock Spire, Alcaz Prison). The Forever item tooltips of the 165 shields in `db.json`.
-- Game build: 1.60.1.71091 until the session's 20:11 break, 1.60.1.71139 from the 21:16 restart; after hotfix push
-  114399 (2026-11-25 01:15 UTC), relogged
-- Date: 2026-11-25 15:33 to 2026-11-26 04:51 CET; tooltips read 2026-11-27
+- Game build: 1.60.1.71091 until 2026-11-25 19:11 UTC, 1.60.1.71139 from 20:16 UTC, after hotfix push 114399, relogged
+- Date: 2026-11-25 14:33 to 2026-11-26 03:51 UTC; tooltips read 2026-11-27
 - Pull request: #1280
 
 One wearer, so the rates are observed, not measured. Hits taken are the events of creatures on the wearer: 17,658 in
@@ -50,8 +49,7 @@ blocked, absorbed, immune, spell or ranged event.
 | 150 to 180                              | 0 / 545              |
 
 In front: 236 / 8,208 = 2.88 % [2.53, 3.26]. Behind: 3 / 1,757, at the edge of the arc where blocks and parries still
-show. The failures log nothing. Flamestrike on lone hits reads 1.44 % from the front and 2.12 % from behind. The sim has
-no attacker facing, so Drain Life follows the wearer's In Front of Target setting (owner ruling, 2026-11-27).
+show. The failures log nothing. Flamestrike on lone hits reads 1.44 % from the front and 2.12 % from behind.
 
 ## Flamestrike rate and payload
 
