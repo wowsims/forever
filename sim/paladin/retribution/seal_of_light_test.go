@@ -60,8 +60,7 @@ func TestSealOfLightHealsAtTheRowsRate(t *testing.T) {
 		before := pal.CurrentHealth()
 		strike.SkipCastAndApplyEffects(sim, pal.CurrentTarget)
 		seal.Refresh(sim)
-		for end := sim.CurrentTime + core.SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
-		}
+		stepPast(sim, core.SpellBatchWindow)
 		hits++
 		if pal.CurrentHealth() > before {
 			heals++

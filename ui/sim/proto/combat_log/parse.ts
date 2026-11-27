@@ -140,6 +140,16 @@ function buildResourceLog(log: PendingLog, match: RegExpExecArray): ResourceLog 
 	out.valueAfter = parseFloat(match[6]);
 	out.isSpend = match[1] == 'Spent';
 	out.total = match[8] !== undefined ? parseFloat(match[8]) : 0;
+	out.regen =
+		match[9] !== undefined
+			? {
+					from: parseFloat(match[10]),
+					to: parseFloat(match[11]),
+					amount: parseFloat(match[2]),
+					ticks: parseInt(match[12]),
+					firstTick: parseFloat(match[13]),
+				}
+			: null;
 	// Always assigned, including when undefined: the parity dump discovers fields with
 	// Object.keys, so the key must exist either way.
 	return out;
@@ -302,7 +312,8 @@ const LOG_MATCHERS: Array<LogMatcher> = [
 	},
 	{
 		guard: [' from '],
-		regex: /(Gained|Spent) (\d+\.?\d*) (\S.+?\S) from (.*?) \((\d+\.?\d*) --> (\d+\.?\d*)\)( of (\d+\.?\d*) total)?/,
+		// Groups 10 to 13 are a regen gain's stretch: from, to, the number of ticks and the first tick.
+		regex: /(Gained|Spent) (\d+\.?\d*) (\S.+?\S) from (.*?) \((\d+\.?\d*) --> (\d+\.?\d*)\)( of (\d+\.?\d*) total)?(, regenerating from (-?\d+\.\d+)s to (-?\d+\.\d+)s in (\d+) ticks from (-?\d+\.\d+)s)?/,
 		idString: match => match[4],
 		build: (log, match) => buildResourceLog(log, match),
 	},

@@ -1,8 +1,11 @@
 package core
 
 import (
+	"fmt"
 	"math"
+	"regexp"
 	"slices"
+	"strconv"
 	"testing"
 	"time"
 
@@ -46,9 +49,10 @@ func newManaTickTest(register func(char *Character) *Spell) *channelTest {
 	})
 }
 
-// Casts the spell at 0 and runs to until in 100 ms steps, calling at[t] right after the step to t.
-// Returns the spans with the regen of a unit outside the five-second rule as from, to pairs, each
-// span running from just after from up to and including to.
+// Casts the spell at 0 and runs to until in 100 ms steps, reading the mana after each step, which
+// credits the regen up to it, and calling at[t] right after the step to t. Returns the spans with the
+// regen of a unit outside the five-second rule as from, to pairs, each span running from just after
+// from up to and including to.
 func (ct *channelTest) fullRegenSpans(until time.Duration, at map[time.Duration]func(*channelTest)) []time.Duration {
 	ct.start()
 	if !ct.spell.Cast(ct.sim, ct.fw.CurrentTarget) {
@@ -58,6 +62,7 @@ func (ct *channelTest) fullRegenSpans(until time.Duration, at map[time.Duration]
 	for t := manaTestStep; t <= until; t += manaTestStep {
 		before := ct.fw.manaNotCastingMetrics.Events
 		ct.runUntil(t)
+		ct.fw.CurrentMana()
 		if ct.fw.manaNotCastingMetrics.Events > before {
 			if n := len(spans); n > 0 && spans[n-1] == t-manaTestStep {
 				spans[n-1] = t
@@ -261,6 +266,97 @@ func TestManaBarResetMidFightKeepsTicking(t *testing.T) {
 	ct.start()
 	ct.runUntil(time.Second)
 	ct.fw.manaBar.reset()
+	ct.fw.manaBar.restartRegen(ct.sim)
 	ct.fw.currentMana = 1000
 	ct.wantManaAt(t, manaAt{3 * time.Second, 1000 + 10*2})
+}
+
+// A logged regen gain: the mana before and after it, what it adds before max mana caps it, and the
+// stretch it covers with the ticks that show it.
+type regenLine struct {
+	before, after, amount float64
+	from, to, firstTick   time.Duration
+	ticks                 int
+}
+
+var regenLinePattern = regexp.MustCompile(`Gained ([\d.]+) mana from .*\(([\d.]+) --> ([\d.]+)\) of \d+ total, regenerating from (-?[\d.]+)s to (-?[\d.]+)s in (\d+) ticks from (-?[\d.]+)s\.`)
+
+// Runs a fight of 10 s with 10 mana per second of MP5 on top of the spirit regen: a paid instant at
+// 1.25 s opens the five-second rule, and the regen speed doubles at 2.05 s. The mana is read at every
+// multiple of every up to 10 s. Returns the mana read at each 100 ms tick and the regen lines logged.
+func regenFight(every time.Duration) (map[time.Duration]float64, []regenLine) {
+	ct := newManaTickTest(func(char *Character) *Spell { return char.RegisterSpell(paidSpellConfig(910302, 0)) })
+	var lines []regenLine
+	ct.sim.Log = func(message string, vals ...any) {
+		m := regenLinePattern.FindStringSubmatch(fmt.Sprintf(message, vals...))
+		if m == nil {
+			return
+		}
+		f := func(i int) float64 { v, _ := strconv.ParseFloat(m[i], 64); return v }
+		ticks, _ := strconv.Atoi(m[6])
+		lines = append(lines, regenLine{f(2), f(3), f(1), DurationFromSeconds(f(4)), DurationFromSeconds(f(5)), DurationFromSeconds(f(7)), ticks})
+	}
+	ct.start()
+	ct.fw.AddStatDynamic(ct.sim, stats.MP5, 50)
+	ct.fw.currentMana = 1000
+
+	events := map[time.Duration]func(){
+		1250 * time.Millisecond: func() {
+			if !ct.spell.Cast(ct.sim, ct.fw.CurrentTarget) {
+				panic("the paid instant was not cast")
+			}
+		},
+		2050 * time.Millisecond: func() { ct.fw.MultiplyManaRegenSpeed(ct.sim, 2) },
+	}
+	var stops []time.Duration
+	for at := every; at <= 10*time.Second; at += every {
+		stops = append(stops, at)
+	}
+	for at := range events {
+		stops = append(stops, at)
+	}
+	slices.Sort(stops)
+
+	mana := map[time.Duration]float64{}
+	for _, at := range slices.Compact(stops) {
+		ct.runUntil(at)
+		if event := events[at]; event != nil {
+			event()
+		} else {
+			mana[at] = ct.fw.CurrentMana()
+		}
+	}
+	return mana, lines
+}
+
+// The regen lines of a fight read only twice tile it from the start of the prepull to its end with no
+// gap and no overlap, each naming the ticks inside its stretch. Rebuilt from those lines, the mana at
+// every tick is what a fight read at every tick shows.
+func TestManaRegenLinesTileTheFight(t *testing.T) {
+	ticked, _ := regenFight(manaTestStep)
+	_, lines := regenFight(5 * time.Second)
+
+	var credited time.Duration
+	rebuilt := map[time.Duration]float64{}
+	for _, line := range lines {
+		if line.from != credited {
+			t.Fatalf("a regen line from %v follows the regen credited up to %v", line.from, credited)
+		}
+		credited = line.to
+		lastTick := line.firstTick + time.Duration(line.ticks-1)*manaTestStep
+		if line.firstTick <= line.from || line.firstTick > line.from+manaTestStep || lastTick < line.to || lastTick >= line.to+manaTestStep {
+			t.Errorf("the regen from %v to %v shows on %d ticks from %v", line.from, line.to, line.ticks, line.firstTick)
+		}
+		for tick := line.firstTick; tick <= line.to; tick += manaTestStep {
+			rebuilt[tick] = min(line.before+line.amount*(tick-line.from).Seconds()/(line.to-line.from).Seconds(), line.after)
+		}
+	}
+	if credited != 10*time.Second {
+		t.Errorf("the regen lines end at %v, want the end of the fight", credited)
+	}
+	for tick := manaTestStep; tick <= 10*time.Second; tick += manaTestStep {
+		if got, want := rebuilt[tick], ticked[tick]; math.Abs(got-want) > 0.002 {
+			t.Errorf("%v mana at %v rebuilt from the regen lines, want %v as read there", got, tick, want)
+		}
+	}
 }

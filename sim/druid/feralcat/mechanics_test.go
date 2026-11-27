@@ -1044,12 +1044,18 @@ func TestFurorPausesEnergyInBear(t *testing.T) {
 	}
 }
 
+// Schedules a no-op action at the time, so stepping stops there however little else is queued.
+func wakeAt(sim *core.Simulation, at time.Duration) {
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: at, OnAction: func(*core.Simulation) {}})
+}
+
 func TestFurorBearTicksAndDirectTransitions(t *testing.T) {
 	sim, cat := newCat(t, furorTalents, nil)
 	cat.SpendEnergy(sim, 70, cat.NewEnergyMetrics(core.ActionID{SpellID: 1}))
 	if !cat.BearForm.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("Bear entry failed")
 	}
+	wakeAt(sim, 2*time.Second)
 	for sim.CurrentTime < 2*time.Second {
 		if sim.Step() {
 			t.Fatal("simulation ended in Bear")
@@ -1062,6 +1068,7 @@ func TestFurorBearTicksAndDirectTransitions(t *testing.T) {
 	if !cat.DireBearForm.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("Dire Bear entry failed")
 	}
+	wakeAt(sim, 4*time.Second)
 	for sim.CurrentTime < 4*time.Second {
 		if sim.Step() {
 			t.Fatal("simulation ended in Dire Bear")
@@ -1078,6 +1085,7 @@ func TestFurorBearTicksAndDirectTransitions(t *testing.T) {
 		t.Fatalf("Cat energy = %v, want 30", cat.CurrentEnergy())
 	}
 	returned := sim.CurrentTime
+	wakeAt(sim, returned+time.Second)
 	for sim.CurrentTime < returned+time.Second {
 		if sim.Step() {
 			t.Fatal("simulation ended in Cat")

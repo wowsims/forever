@@ -160,7 +160,9 @@ func TestFireNovaHitsAreProcs(t *testing.T) {
 			crits := hits.SpellMetrics[target.UnitIndex].Crits
 			cast.SkipCastAndApplyEffects(sim, target)
 			casts++
-			for end := sim.CurrentTime + core.SpellBatchWindow; sim.CurrentTime <= end && !ended; {
+			end := sim.CurrentTime + core.SpellBatchWindow
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: end + 1, OnAction: func(*core.Simulation) {}})
+			for sim.CurrentTime <= end && !ended {
 				ended = sim.Step()
 			}
 			if hits.SpellMetrics[target.UnitIndex].Crits > crits {
@@ -302,7 +304,9 @@ func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
 
 	// A trigger's handler runs a spell batch window after the hit.
 	settle := func() {
-		for end := sim.CurrentTime + core.SpellBatchWindow; sim.CurrentTime <= end; {
+		end := sim.CurrentTime + core.SpellBatchWindow
+		sim.AddPendingAction(&core.PendingAction{NextActionAt: end + 1, OnAction: func(*core.Simulation) {}})
+		for sim.CurrentTime <= end {
 			if sim.Step() {
 				t.Fatal("the encounter ended")
 			}
@@ -696,7 +700,9 @@ func TestStormcallersGarbProcsOnlyOffTheSpellsItsTooltipNames(t *testing.T) {
 		for range casts {
 			wrath.Deactivate(sim)
 			spell.Proc(sim, sham.CurrentTarget)
-			for end := sim.CurrentTime + core.SpellBatchWindow; sim.CurrentTime <= end; {
+			end := sim.CurrentTime + core.SpellBatchWindow
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: end + 1, OnAction: func(*core.Simulation) {}})
+			for sim.CurrentTime <= end {
 				if sim.Step() {
 					t.Fatal("the encounter ended")
 				}

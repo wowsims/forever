@@ -57,8 +57,7 @@ func twentyCasts(t *testing.T, find func(*core.Character) *core.Spell, setup fun
 	for range 20 {
 		spell.SkipCastAndApplyEffects(sim, target)
 		// A seal proc deals its damage a spell batch after the hit.
-		for end := sim.CurrentTime + core.SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
-		}
+		stepPast(sim, core.SpellBatchWindow)
 	}
 	metrics := spell.SpellMetrics[target.UnitIndex]
 	return metrics.TotalDamage, float64(metrics.Hits) + float64(metrics.Crits)*spell.CritDamageMultiplier(character.AttackTables[target.UnitIndex])
@@ -144,8 +143,7 @@ func consecrationTicks(t *testing.T, setup func(*core.Simulation, *core.Characte
 	}
 	setup(sim, character, spell)
 	spell.SkipCastAndApplyEffects(sim, character.CurrentTarget)
-	for end := sim.CurrentTime + rank.Duration() + time.Second; sim.CurrentTime <= end && !sim.Step(); {
-	}
+	stepPast(sim, rank.Duration()+time.Second)
 	for _, target := range sim.Encounter.AllTargetUnits {
 		metrics := spell.SpellMetrics[target.UnitIndex]
 		if metrics.ResistedTicks+metrics.ResistedCritTicks > 0 {

@@ -2,6 +2,7 @@ package holy
 
 import (
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
@@ -13,6 +14,13 @@ import (
 // Enchant Weapon - Revelation 8217 gives a paladin buff 1323419, whose crit modifier and charge name
 // Holy Light by its class flags (family 10) and not Lay on Hands. Holy Light with the buff up takes
 // the crit and spends the charge; Lay on Hands leaves the charge up.
+// Steps until the clock is past end, with a wake of its own just after it.
+func stepPast(sim *core.Simulation, end time.Duration) {
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: end + 1, OnAction: func(*core.Simulation) {}})
+	for sim.CurrentTime <= end && !sim.Step() {
+	}
+}
+
 func TestRevelationReachesHolyLight(t *testing.T) {
 	gear := core.GetGearSet("../../../ui/specs/paladin/holy/gear_sets", "default").GearSet
 	gear.Items[proto.ItemSlot_ItemSlotMainHand].Enchant = 8217
@@ -57,9 +65,7 @@ func TestRevelationReachesHolyLight(t *testing.T) {
 		if !spell.Cast(sim, &pally.Unit) {
 			t.Fatalf("%s could not be cast", spell.ActionID)
 		}
-		for at := sim.CurrentTime + spell.CurCast.CastTime; sim.CurrentTime <= at+core.SpellBatchWindow; {
-			sim.Step()
-		}
+		stepPast(sim, sim.CurrentTime+spell.CurCast.CastTime+core.SpellBatchWindow)
 	}
 
 	castAndStep(holyLight)
@@ -107,9 +113,7 @@ func TestRevelationHearsSealOfLightsHealAndNotJudgementOfLights(t *testing.T) {
 	procs := func(heal *core.Spell) bool {
 		for range 300 {
 			heal.Cast(sim, &pally.Unit)
-			for at := sim.CurrentTime; sim.CurrentTime <= at+core.SpellBatchWindow; {
-				sim.Step()
-			}
+			stepPast(sim, sim.CurrentTime+core.SpellBatchWindow)
 			if buff.IsActive() {
 				return true
 			}

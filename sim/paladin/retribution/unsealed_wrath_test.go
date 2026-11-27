@@ -15,9 +15,16 @@ import (
 // land in and the talent's proc cooldown, so the next swing is heard.
 var unsealedWrathSwing = core.ActionID{OtherID: 1}
 
-func passUnsealedWrathCooldown(sim *core.Simulation) {
-	for end := sim.CurrentTime + spelldata.MustFind(1310735).ICD() + 2*core.SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
+// Steps until the clock is past the duration from now, with a wake of its own just after it.
+func stepPast(sim *core.Simulation, d time.Duration) {
+	end := sim.CurrentTime + d
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: end + 1, OnAction: func(*core.Simulation) {}})
+	for sim.CurrentTime <= end && !sim.Step() {
 	}
+}
+
+func passUnsealedWrathCooldown(sim *core.Simulation) {
+	stepPast(sim, spelldata.MustFind(1310735).ICD()+2*core.SpellBatchWindow)
 }
 
 // A paladin with Unsealed Wrath and no rotation or auto attacks, a main-hand weapon to swap to, a
@@ -127,8 +134,7 @@ func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
 			for range 100 {
 				castSeal(t, sim, pal, c.seal)
 				pal.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: pal.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
-				for end := sim.CurrentTime + time.Second + 2*core.SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
-				}
+				stepPast(sim, time.Second+2*core.SpellBatchWindow)
 			}
 			if procs() == 0 {
 				t.Errorf("100 landed Windfury Totem hits under %s procced it none, want some", c.name)

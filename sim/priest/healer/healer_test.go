@@ -107,6 +107,7 @@ func TestHolyBindingHealsThePriestForFlashHealOnOthers(t *testing.T) {
 	heal := func(spell *core.Spell, target *core.Unit) {
 		spell.SkipCastAndApplyEffects(sim, target)
 		until := sim.CurrentTime + core.SpellBatchWindow
+		sim.AddPendingAction(&core.PendingAction{NextActionAt: until + 1, OnAction: func(*core.Simulation) {}})
 		for sim.CurrentTime <= until {
 			if sim.Step() {
 				t.Fatal("the sim ended inside the batch window")

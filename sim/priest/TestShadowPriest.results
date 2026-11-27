@@ -1090,7 +1090,7 @@ dps_results: {
  key: "TestShadowPriest-AllItems-MindtapTalisman-18371"
  value: {
   dps: 814.8425
-  tps: 581.92891
+  tps: 581.924
   dtps: 5.27024
  }
 }
@@ -1250,7 +1250,7 @@ dps_results: {
  key: "TestShadowPriest-AllItems-SecondWind-11819"
  value: {
   dps: 820.01165
-  tps: 585.73031
+  tps: 585.72978
   dtps: 5.47725
  }
 }
@@ -1632,16 +1632,16 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-Settings-Dwarf-default-Shadow-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 834.13548
-  tps: 596.15592
+  dps: 834.12946
+  tps: 596.1517
   dtps: 8.8861
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Dwarf-default-Shadow-default-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 834.13548
-  tps: 596.15592
+  dps: 834.12946
+  tps: 596.1517
   dtps: 8.8861
  }
 }
@@ -1656,15 +1656,15 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-Settings-Dwarf-default-Shadow-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 352.86657
-  tps: 247.0066
+  dps: 352.55848
+  tps: 246.79094
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Dwarf-default-Shadow-default-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 352.86657
-  tps: 247.0066
+  dps: 352.55848
+  tps: 246.79094
  }
 }
 dps_results: {
@@ -1812,16 +1812,16 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-Settings-Troll-default-Shadow-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 832.9125
-  tps: 596.5501
+  dps: 832.91049
+  tps: 596.5487
   dtps: 10.98772
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Troll-default-Shadow-default-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 832.9125
-  tps: 596.5501
+  dps: 832.91049
+  tps: 596.5487
   dtps: 10.98772
  }
 }
@@ -1857,16 +1857,16 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-default-Shadow-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 834.30442
-  tps: 597.19575
+  dps: 834.2964
+  tps: 597.19013
   dtps: 10.30483
  }
 }
 dps_results: {
  key: "TestShadowPriest-Settings-Undead-default-Shadow-default-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 834.30442
-  tps: 597.19575
+  dps: 834.2964
+  tps: 597.19013
   dtps: 10.30483
  }
 }

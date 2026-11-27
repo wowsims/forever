@@ -404,6 +404,8 @@ func (unit *Unit) addStatsDynamic(sim *Simulation, bonus *stats.Stats) {
 		panic("Not finalized, use AddStats instead!")
 	}
 
+	// The regen so far meets the max mana it had.
+	unit.creditManaTicks()
 	unit.statsWithoutDeps.AddInplace(bonus)
 
 	if !unit.Env.MeasuringStats || unit.Env.State == Finalized {
@@ -470,6 +472,7 @@ func (unit *Unit) processDynamicBonus(sim *Simulation, bonus *stats.Stats) {
 
 func (unit *Unit) EnableDynamicStatDep(sim *Simulation, dep *stats.StatDependency) {
 	if unit.StatDependencyManager.EnableDynamicStatDep(dep) {
+		unit.creditManaTicks()
 		oldStats := unit.stats
 		unit.stats = unit.ApplyStatDependencies(unit.statsWithoutDeps).FloorGameStats()
 		d := unit.stats.Subtract(oldStats)
@@ -482,6 +485,7 @@ func (unit *Unit) EnableDynamicStatDep(sim *Simulation, dep *stats.StatDependenc
 }
 func (unit *Unit) DisableDynamicStatDep(sim *Simulation, dep *stats.StatDependency) {
 	if unit.StatDependencyManager.DisableDynamicStatDep(dep) {
+		unit.creditManaTicks()
 		oldStats := unit.stats
 		unit.stats = unit.ApplyStatDependencies(unit.statsWithoutDeps).FloorGameStats()
 		d := unit.stats.Subtract(oldStats)
@@ -497,6 +501,7 @@ func (unit *Unit) UpdateDynamicStatDep(sim *Simulation, dep *stats.StatDependenc
 	dep.UpdateValue(newAmount)
 
 	if unit.Env.IsFinalized() {
+		unit.creditManaTicks()
 		oldStats := unit.stats
 		unit.stats = unit.ApplyStatDependencies(unit.statsWithoutDeps).FloorGameStats()
 		statsChange := unit.stats.Subtract(oldStats)

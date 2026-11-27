@@ -189,7 +189,6 @@ func (a *testAgent) AddRaidBuffs(_ *proto.RaidBuffs)                            
 func (a *testAgent) AddPartyBuffs(_ *proto.PartyBuffs)                                {}
 func (a *testAgent) ApplyTalents()                                                    {}
 func (a *testAgent) Reset(_ *core.Simulation)                                         {}
-func (a *testAgent) OnManaTick(_ *core.Simulation)                                    {}
 func (a *testAgent) OnEncounterStart(_ *core.Simulation)                              {}
 func (a *testAgent) ExecuteCustomRotation(_ *core.Simulation)                         {}
 func (a *testAgent) NewAPLValue(_ *core.APLRotation, _ *proto.APLValue) core.APLValue { return nil }

@@ -151,6 +151,18 @@ export interface ResourceLog extends BaseLog {
 	readonly valueAfter: number;
 	readonly isSpend: boolean;
 	readonly total: number;
+	// The stretch a mana regen gain covers; null for every other line.
+	readonly regen: RegenStretch | null;
+}
+
+// The sim credits mana regen for a whole stretch at once and logs it with the 100 ms ticks that show
+// it, so the timeline can draw a step per tick. Times are in seconds.
+export interface RegenStretch {
+	readonly from: number;
+	readonly to: number;
+	readonly amount: number; // The gain before max mana caps it.
+	readonly ticks: number;
+	readonly firstTick: number;
 }
 
 export interface AuraLog extends BaseLog {

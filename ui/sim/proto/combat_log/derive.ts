@@ -27,6 +27,7 @@ import {
 	isCastCompleted,
 	isDamage,
 	isResource,
+	RegenStretch,
 	ResourceGroupLog,
 	ResourceLog,
 	ThreatLogGroup,
@@ -131,17 +132,42 @@ export function buildThreatGroups(logs: Array<CombatLog>): Array<ThreatLogGroup>
 
 const RESOURCE_TYPES = (getEnumValues(ResourceType) as Array<ResourceType>).filter(val => val != ResourceType.ResourceTypeNone);
 
+const REGEN_TICK = 0.1;
+
+// The log prints its times to the hundredth of a second.
+const logTime = (seconds: number): number => Number(seconds.toFixed(2));
+
+// A regen line as one step per tick of its stretch. Each step but the last shows the regen up to its
+// tick, capped by the mana after the whole gain, which is max mana when the cap cut the gain. The last
+// step, at the stretch's end or at the line's own time if that comes first, shows the mana after it.
+function regenSteps(log: ResourceLog, regen: RegenStretch): Array<ResourceLog> {
+	const steps: Array<ResourceLog> = [];
+	let valueBefore = log.valueBefore;
+	for (let i = 0; i < regen.ticks; i++) {
+		const tick = regen.firstTick + i * REGEN_TICK;
+		const last = i == regen.ticks - 1;
+		const valueAfter = last ? log.valueAfter : Math.min(log.valueBefore + (regen.amount * (tick - regen.from)) / (regen.to - regen.from), log.valueAfter);
+		steps.push({ ...log, timestamp: last ? Math.min(logTime(tick), log.timestamp) : logTime(tick), valueBefore, valueAfter });
+		valueBefore = valueAfter;
+	}
+	return steps;
+}
+
 export function buildResourceGroups(logs: Array<CombatLog>): Record<ResourceType, Array<ResourceGroupLog>> {
 	// Bucket by resource type in one pass rather than filtering the whole log array once per
 	// resource type.
 	const byResourceType = new Map<ResourceType, Array<ResourceLog>>();
 	for (const log of logs) {
 		if (!isResource(log)) continue;
-		const existing = byResourceType.get(log.resourceType);
-		if (existing) {
-			existing.push(log);
+		let existing = byResourceType.get(log.resourceType);
+		if (!existing) {
+			existing = [];
+			byResourceType.set(log.resourceType, existing);
+		}
+		if (log.regen) {
+			existing.push(...regenSteps(log, log.regen));
 		} else {
-			byResourceType.set(log.resourceType, [log]);
+			existing.push(log);
 		}
 	}
 
