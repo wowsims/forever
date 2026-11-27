@@ -2292,24 +2292,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Human-muti-Mutilate-Rogue-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 840.44074
-  tps: 596.71293
+  dps: 841.82383
+  tps: 597.69492
   hps: 68.93
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-muti-Mutilate-Rogue-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 840.44074
-  tps: 596.71293
+  dps: 841.82383
+  tps: 597.69492
   hps: 68.93
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-muti-Mutilate-Rogue-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 891.68886
-  tps: 633.09909
+  dps: 893.02464
+  tps: 634.04749
   hps: 71.01417
  }
 }
@@ -2337,24 +2337,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Human-muti-Mutilate-Rogue-default_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 862.48774
-  tps: 612.36629
+  dps: 863.87082
+  tps: 613.34828
   hps: 68.93
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-muti-Mutilate-Rogue-default_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 862.48774
-  tps: 612.36629
+  dps: 863.87082
+  tps: 613.34828
   hps: 68.93
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-muti-Mutilate-Rogue-default_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 914.89387
-  tps: 649.57465
+  dps: 916.22965
+  tps: 650.52305
   hps: 71.01417
  }
 }
@@ -2562,24 +2562,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Orc-muti-Mutilate-Rogue-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 836.46848
-  tps: 593.89262
+  dps: 837.6859
+  tps: 594.75699
   hps: 68.81139
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-muti-Mutilate-Rogue-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 836.46848
-  tps: 593.89262
+  dps: 837.6859
+  tps: 594.75699
   hps: 68.81139
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-muti-Mutilate-Rogue-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 894.82896
-  tps: 635.32856
+  dps: 895.64032
+  tps: 635.90463
   hps: 71.065
  }
 }
@@ -2607,24 +2607,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Orc-muti-Mutilate-Rogue-default_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 858.18535
-  tps: 609.3116
+  dps: 859.40277
+  tps: 610.17597
   hps: 68.81139
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-muti-Mutilate-Rogue-default_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 858.18535
-  tps: 609.3116
+  dps: 859.40277
+  tps: 610.17597
   hps: 68.81139
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-muti-Mutilate-Rogue-default_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 917.99686
-  tps: 651.77777
+  dps: 918.80822
+  tps: 652.35384
   hps: 71.065
  }
 }

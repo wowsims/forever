@@ -2,6 +2,7 @@ package mage
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"testing"
 	"time"
@@ -375,6 +376,58 @@ func TestBlizzardCastRollsArcaneConcentrationOncePerCast(t *testing.T) {
 	}
 	if five > 2*one {
 		t.Errorf("Blizzard came out with Clearcasting on %d of %d casts on five targets, %d on one; want about as often", five, casts, one)
+	}
+}
+
+// A Blizzard cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the channel
+// starts, and its ticks roll none (EV-0115).
+func TestBlizzardCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
+	const casts, enemies = 2000, 5
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)
+	for slot := range items {
+		items[slot] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotTrinket1].Id = 22268
+	encounter := longEncounter(enemies)
+	encounter.Duration = casts * 9
+	sim, mage := newMageSimWearing(FrostTalents, encounter, &proto.EquipmentSpec{Items: items})
+	buff := mage.GetAuraByID(core.ActionID{SpellID: 1318930})
+	if buff == nil {
+		t.Fatal("22268 registers no 1318930")
+	}
+	blizzard := mage.GetSpell(core.ActionID{SpellID: spellData.Blizzard.Highest().ID})
+
+	// The proc is deferred by the spell batch window, one pending action each, so each step deals at most
+	// one, and the buff comes down before the next roll can refresh it.
+	var atCast, onTicks int
+	for range casts {
+		start := sim.CurrentTime
+		blizzard.SkipCastAndApplyEffects(sim, mage.CurrentTarget)
+		for blizzard.AOEDot().IsActive() || sim.CurrentTime < start+100*time.Millisecond {
+			if sim.Step() {
+				t.Fatal("the encounter ended before the casts did")
+			}
+			if buff.IsActive() {
+				if sim.CurrentTime < start+100*time.Millisecond {
+					atCast++
+				} else {
+					onTicks++
+				}
+				buff.Deactivate(sim)
+			}
+		}
+	}
+
+	chance := spelldata.MustFind(1318931).StatedChance()
+	if chance <= 0 || chance >= 1 {
+		t.Fatalf("1318931 states a chance of %v, want one between none and certain", chance)
+	}
+	rolls := float64(casts * enemies)
+	if mean, deviation := chance*rolls, math.Sqrt(chance*(1-chance)*rolls); math.Abs(float64(atCast)-mean) > 4*deviation {
+		t.Errorf("%d Blizzard casts on %d enemies procced it %d times at the cast, want about %.0f", casts, enemies, atCast, mean)
+	}
+	if onTicks != 0 {
+		t.Errorf("Blizzard ticks procced it %d times, want none", onTicks)
 	}
 }
 
