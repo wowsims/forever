@@ -9,7 +9,7 @@
 - Game build: 1.60.1.71091 until 2026-11-25 19:11 UTC and 1.60.1.71139 from 20:16 UTC, after hotfix push 114399,
   relogged
 - Date: 2026-11-25 14:33 to 2026-11-26 03:51 UTC
-- Pull request: not opened yet
+- Pull request: #1280
 
 ## Hellfire's burn
 

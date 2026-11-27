@@ -11,7 +11,7 @@
 - Game build: 1.60.1.71091 up to the log's gap at 2026-11-25 19:11 UTC, 1.60.1.71139 from its restart at 20:16 UTC,
   after hotfix push 114399, relogged
 - Date: 2026-11-25 14:33 to 2026-11-26 03:51 UTC
-- Pull request: not opened yet
+- Pull request: #1280
 
 One log and one wearer of each item. No count of public reports (Warcraft Logs) has checked these yet.
 

@@ -59,7 +59,7 @@ nearest 0.05 step.
   of Command, the only wearer of Seeping Willow (3.6 s), level not recorded
 - Game build: 1.60.1.71091, after hotfix push 114399, relogged
 - Date: 2026-11-25, 15:27 to 19:09 UTC
-- Pull request: not opened yet
+- Pull request: #1280
 
 The rate is the procs over Σ(3.6 s ÷ 60) of the paladin's rolling hits: landed white swings, Holy Strikes, Judgement of
 Command landings (one roll each, EV-0155), Windfury Totem hits and the strikes of Seal of Command and Seal of

@@ -8,7 +8,7 @@
 - Game build: 1.60.1.71091 (the 1.8 s daggers, 2026-11-25 14:33 to 15:07 UTC) and 1.60.1.71139 (the dagger and axe,
   2026-11-25 21:21 to 23:27 UTC), after hotfix push 114399, relogged
 - Date: 2026-11-25
-- Pull request: not opened yet
+- Pull request: #1280
 
 Each Windfury Totem hit that is neither a crit nor a glance is matched to the rogue's last hit on any target 5 to 60 ms
 before it: a Shank, a main-hand white swing or a main-hand ability. Its damage before armor is divided by the median of

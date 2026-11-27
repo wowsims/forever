@@ -72,7 +72,7 @@ row, which matches Rain of Fire's.
   hotfix changed the Blizzard tick rows, Arcane Concentration 11213 or Clearcasting 12536 on those builds. The combat log
   1.60.1.71091 until 2026-11-25 19:11 UTC and 1.60.1.71139 from 20:16 UTC, after hotfix push 114399, relogged
 - Date: the reports 2026-11-07 to 2026-11-14; the combat log 2026-11-25 14:33 to 2026-11-26 03:51 UTC
-- Pull request: #1021 (the reports); not opened yet (the combat log)
+- Pull request: #1021 (the reports); #1280 (the combat log)
 
 Reports (40; builds 70862: 1, 70888: 2, 70938: 37): 176QTFWR8PtdfGZB, 17AwLhaHjGqWtgrk, 19KWay63j2HvGdgQ,
 1BNXynxVbH4kGt8R, 1YJdRn73FrtMwvxp, 1ZJVMgcYWTyRQh2w, 1ZyhaVDdFtTYWMcC, 1hRZ2v8PwKWt7DkX, 1pDcTvkrCBhZJRgf,

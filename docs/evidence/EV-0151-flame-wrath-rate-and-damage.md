@@ -87,7 +87,7 @@ crit 11.2% of 456 against 46.6% on white swings.
 - Sources: a combat log of a feral druid in Cat Form wearing 11809 in the main hand, in a group, level not recorded
 - Game build: 1.60.1.71091, after hotfix push 114399, relogged
 - Date: 2026-11-25 15:25 to 16:40 UTC
-- Pull request: not opened yet
+- Pull request: #1280
 
 A unit is a landed hit of the wearer in Cat Form, or a Rip that lands, with no other hit, swing, miss or cast of the
 wearer within 100 ms; ticks, auras, energizes and other procs do not break it. Killing blows are left out. A unit has a

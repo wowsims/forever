@@ -12,7 +12,7 @@
 - Game build: 1.60.1.71091 until the session's 20:11 break, 1.60.1.71139 from the 21:16 restart; after hotfix push
   114399 (2026-11-25 01:15 UTC), relogged
 - Date: 2026-11-25 15:33 to 2026-11-26 04:51 CET; tooltips read 2026-11-27
-- Pull request: not recorded
+- Pull request: #1280
 
 One wearer, so the rates are observed, not measured. Hits taken are the events of creatures on the wearer: 17,658 in
 all, 9,968 of them landed melee (hit, partial block, crushing blow, crit). Drain Life is credited to the attacker it
