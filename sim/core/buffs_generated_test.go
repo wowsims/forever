@@ -717,8 +717,9 @@ func windfuryTotemSim(t *testing.T) (*core.Simulation, *petOwner, *core.Unit, *c
 }
 
 // Windfury Totem's proc is the raid aura's: a main-hand auto or main-hand
-// special that lands can fire it, whether or not it deals damage. No other hit
-// can, a proc's hit and a hit with no defense type included. Each proc casts
+// special that lands can fire it, whether or not it deals damage, and so can an
+// off-hand special a rotation casts. No other hit can, another spell's off-hand
+// strike, a proc's hit and a hit with no defense type included. Each proc casts
 // the Windfury hit, and the cooldown lets hits in one instant fire it once.
 func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 	for _, row := range []struct {
@@ -733,8 +734,9 @@ func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 		{"a main-hand special landing no damage", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}, core.OutcomeHit, 0, true},
 		{"a main-hand special with no defense type", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}, core.OutcomeHit, 100, false},
 		{"a missed main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, DefenseType: core.DefenseTypeMelee}, core.OutcomeMiss, 0, false},
-		{"an off-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto}, core.OutcomeHit, 100, false},
-		{"an off-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial}, core.OutcomeHit, 100, false},
+		{"an off-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto, DefenseType: core.DefenseTypeMelee}, core.OutcomeHit, 100, false},
+		{"an off-hand special a rotation casts", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial, DefenseType: core.DefenseTypeMelee, Flags: core.SpellFlagAPL}, core.OutcomeHit, 100, true},
+		{"another spell's off-hand strike", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial, DefenseType: core.DefenseTypeMelee, Flags: core.SpellFlagPassiveSpell}, core.OutcomeHit, 100, false},
 		{"a ranged auto", &core.Spell{ProcMask: core.ProcMaskRangedAuto}, core.OutcomeHit, 100, false},
 		{"a ranged special", &core.Spell{ProcMask: core.ProcMaskRangedSpecial}, core.OutcomeHit, 100, false},
 		{"a spell", &core.Spell{ProcMask: core.ProcMaskSpellDamage}, core.OutcomeHit, 100, false},
