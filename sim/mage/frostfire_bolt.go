@@ -11,13 +11,15 @@ func (mage *Mage) registerFrostfireBoltSpell() {
 	mage.registerFrostfireBoltRank(spellData.FrostfireBolt.Len(), spellData.FrostfireBolt.Highest())
 }
 
-// The DoT (effect 3) is its own spell, like Fireball's.
+// The DoT (effect 3) is its own spell, like Fireball's. Its ticks meet the target's full resistance, so
+// they take the Spell Piercing bonus at the full share (EV-0092).
 // The slow (effect 1) does nothing to a boss.
 func (mage *Mage) registerFrostfireBoltRank(_ int32, rank *spelldata.Spell) {
 	damage := rank.DamageEffect()
 
 	dotConfig := spelldata.SpellConfig(&mage.Unit, rank,
-		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Tag(1))
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Tag(1),
+		spelldata.Flags(core.SpellFlagFullResistanceTicks))
 	dotConfig.ClassSpellMask = MageSpellFrostfireBoltDot
 	tick := rank.PeriodicEffect()
 	dotConfig.Dot = spelldata.DotConfig(rank, tick)
