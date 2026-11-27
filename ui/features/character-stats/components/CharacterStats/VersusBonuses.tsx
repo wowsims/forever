@@ -160,11 +160,11 @@ export const VersusBonusesView = (props: VersusBonusesViewProps) => {
 						<TableCell colSpan={2} className="ui-character-stats-label">
 							<Button
 								variant="unstyled"
-								className="flex cursor-pointer items-center gap-1 text-muted hover:text-link-hover focus-visible:focus-ring"
+								className="flex w-full cursor-pointer items-center justify-between gap-1 text-muted hover:text-link-hover focus-visible:focus-ring"
 								aria-expanded={showInactive}
 								onClick={() => setShowInactive(!showInactive)}>
-								<Icon name="chevron-down" fixedWidth className={clsx('transition-transform duration-150', !showInactive && '-rotate-90')} />
 								{i18n.t('sidebar.character_stats.versus.inactive', { count: inactive.length })}
+								<Icon name="chevron-down" fixedWidth className={clsx('transition-transform duration-150', !showInactive && '-rotate-90')} />
 							</Button>
 						</TableCell>
 					</TableRow>
