@@ -429,6 +429,11 @@ var DamageProcExtras = map[int32]func(character *core.Character, config *core.Sp
 // from init, so the item's effect stays generated.
 var ProcTriggerExtras = map[int32]func(trigger *core.ProcTrigger){}
 
+// How much longer than its rows state the buff of an item's generated proc lasts, by item id:
+// Felstriker's buff counts its 3 s from the spell batch its proc would land in. Hand-written code
+// fills it from init.
+var ProcBuffDurationExtras = map[int32]time.Duration{}
+
 // Registers the same effect once per item that carries it, the way the stat-bonus constructors do it.
 func NewSpellDataProc(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataProc)
@@ -651,12 +656,17 @@ func attachVersusStats(aura *core.Aura, buff *spelldata.Spell) {
 // aura of no duration is one core refuses to activate mid-fight, so a pair of rows that states none
 // anywhere is refused here, where the message can name what to look at.
 func procBuffDuration(cfg SpellDataProc, trigger *spelldata.Spell, buff *spelldata.Spell) time.Duration {
+	var extra time.Duration
+	if source := cfg.effectSource(); !source.isEnchant {
+		extra = ProcBuffDurationExtras[source.id]
+	}
+
 	if buff.DurationMs != 0 {
-		return buff.Duration()
+		return buff.Duration() + extra
 	}
 
 	if trigger.DurationMs != 0 {
-		return trigger.Duration()
+		return trigger.Duration() + extra
 	}
 
 	panic(fmt.Sprintf("%s (%d): neither the proc's spell %d nor its buff %d states a duration for the aura it applies",

@@ -704,8 +704,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Felstriker-12590"
  value: {
-  dps: 750.66871
-  tps: 558.76398
+  dps: 751.60003
+  tps: 559.42522
   hps: 46.15667
  }
 }

@@ -3,7 +3,9 @@
 - Claim: Felstriker 16551 goes up as the swing that procs it lands, so the Windfury Totem hit that swing sets off
   mostly lands under it and crits; the swing that procs it mostly rolls without it.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), 154 streams of Felstriker wearers, one per wearer and
-  report (91 rogue, 60 warrior, 3 hunter), in the 152 reports under Reports, all their fights
+  report (91 rogue, 60 warrior, 3 hunter), in the 152 reports under Reports, all their fights. A rogue's stream in
+  report tkPZYqTRgCyWG3jM is not in the count, since the stream cache ran out of memory on it; a later recount with
+  it moves the Melee shares by 0.001 at most and leaves the Windfury Totem ones as they are
 - Game build: 1.60.1.70938 for 15 reports, 1.60.1.70959 for 49, 1.60.1.71037 for 78, 1.60.1.71091 for 6 and
   1.60.1.71139 for 4, by report date against the US times (70959 from 2026-11-17 15:19 UTC, 71037 from 2026-11-20
   18:23 UTC, 71091 from 2026-11-24 15:21 UTC and in the EU from 2026-11-25 02:19 UTC, 71139 from 2026-11-25 19:14 UTC);
@@ -44,9 +46,12 @@ The Windfury Totem hit of the clean sequence crits 0.647, far above the 0.222 wi
 with it up. So most of those hits, though not all, roll under Felstriker. The count is thin at 170 hits, but 0.647 is
 about 13 standard errors above the share with Felstriker down.
 
-The Melee events logged after an apply crit 0.367, near the 0.301 with Felstriker down and far from the 0.904 with it
-up. That window does not isolate the swing that procced the buff: it also holds off-hand swings and any other swing
-within 50 ms. Even so, the swing that procs it does not crit under it as a rule.
+The Melee events logged after an apply crit 0.367, above the 0.301 with Felstriker down but only about a tenth of the
+way to the 0.904 with it up. That window does not isolate the swing that procced the buff: it also holds off-hand
+swings and any other swing within 50 ms. Even so, the swing that procs it does not crit under it as a rule.
+
+The owner rules that the buff ending 3,000 to 3,010 ms after the hit that procs it is server rounding, so the sim
+lets it last one spell batch window past its 3 s.
 
 Only Felstriker was counted. Neither the extra swings of Hand of Justice and the like nor the other weapon buffs were
 counted.

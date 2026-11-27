@@ -1127,8 +1127,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Felstriker-12590"
  value: {
-  dps: 725.42267
-  tps: 748.14933
+  dps: 725.54731
+  tps: 748.27397
   dtps: 9.3544
   hps: 16.23278
  }

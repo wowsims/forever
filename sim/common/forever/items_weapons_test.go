@@ -504,9 +504,10 @@ func TestMalownsSlamRaisesStrengthOnMainHandHits(t *testing.T) {
 }
 
 // Felstriker 12590 puts up 16551 in the instant of the swing that procs it, after that swing's own roll:
-// the Windfury Totem hit or the Hand of Justice swing the same swing sets off neither misses nor lands a
-// plain hit, while the swings that proc it still land plain hits (EV-0225). Every landed main-hand hit
-// procs Felstriker and the extra hit's proc here.
+// the Windfury Totem hit the same swing sets off neither misses nor lands a plain hit, while the swings
+// that proc it still land plain hits (EV-0225). The Hand of Justice swing follows by the same order. The
+// buff lasts one spell batch window past its row's duration. Every landed main-hand hit procs Felstriker
+// and the extra hit's proc here.
 func TestFelstrikerCoversTheExtraHitsOfTheSwingThatProcsIt(t *testing.T) {
 	for _, tc := range []struct {
 		name    string
@@ -545,6 +546,9 @@ func TestFelstrikerCoversTheExtraHitsOfTheSwingThatProcsIt(t *testing.T) {
 			mhAuto, extra := character.AutoAttacks.MHAuto(), character.GetSpell(tc.extra)
 			if felstriker == nil || felstriker.Dpm == nil || proc == nil || proc.Icd == nil || buff == nil || extra == nil {
 				t.Fatalf("12590 registers no proc or no 16551, or %s registers no proc with a cooldown or no extra hit", tc.name)
+			}
+			if want := spelldata.MustFind(16551).Duration() + core.SpellBatchWindow; buff.Duration != want {
+				t.Errorf("16551 lasts %v, want its row's duration and one spell batch window, %v", buff.Duration, want)
 			}
 			*felstriker.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
 			if proc.Dpm != nil {
