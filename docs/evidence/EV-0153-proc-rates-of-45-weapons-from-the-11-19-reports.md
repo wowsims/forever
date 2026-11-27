@@ -39,9 +39,9 @@ The rolling hits are the ones the class census (EV-0155) finds rolling a weapon 
 Sap, Death Mark, Shield Slam, Shield Bash, Thunder Clap, Volley, periodic ticks, damage shields, Deep Wounds, Sweeping
 Strikes hits, poisons, imbue strikes, pets and spells roll nothing, and Shank hits are left out.
 
-Execute rolls twice, and Judgement of Command rolled twice up to hotfix push 114399 (2026-11-25) and rolls once from it
-(EV-0155). They are left out, and so are Mongoose Bite and Mocking Blow, whose few hits do not settle whether they roll
-once or twice: their hits count as no roll, and every proc from 20 ms before one of them to 50 ms after it is dropped.
+The count leaves out Execute and Judgement of Command as two-roll abilities, and Mongoose Bite and Mocking Blow, whose
+few hits do not settle whether they roll once or twice: their hits count as no roll, and every proc from 20 ms before
+one of them to 50 ms after it is dropped.
 
 A proc that lands on the target logs almost never on a killing blow: over the 45 weapons #1108 counted, 3.7% of the
 white swings that leave the target alive are followed by a proc and 0.7% of the killing ones. A proc that buffs the

@@ -28,11 +28,10 @@ with no gear snapshot of another main hand between them, and the longest run wit
 killing blow is no roll, as in EV-0153. Of the 1,816 procs, the 32 that open or close one of the 16 stretches, the 2 on
 the 351 killing-blow units and the 10 with no melee-table hit at their millisecond are outside the 1,772 of the rate.
 
-The rolls are EV-0155's and EV-0156's: a white swing, a seal's hit, Holy Strike, a Windfury Totem hit and a melee
-ability roll once, Judgement of Command twice (up to hotfix push 114399 on 2026-11-25; once from it, EV-0155) and, in
-these warrior runs of 2026-11-17, Execute twice. The two-roll hits stay in the count: without the units that hold only a
-Judgement of Command or an Execute (528 rolls, 35 procs) the chance is 1,737 of 25,838, the same 6.72%. Every run starts
-after the Judgement's own roll ended on 2026-11-13. A lone white swing is a white swing with no other melee-table hit of
+The count takes a white swing, a seal's hit, Holy Strike, a Windfury Totem hit and a melee ability as one roll each,
+and Judgement of Command and, in these warrior runs of 2026-11-17, Execute as two. The two-roll hits stay in the count:
+without the units that hold only a Judgement of Command or an Execute (528 rolls, 35 procs) the chance is 1,737 of
+25,838, the same 6.72%. Every run starts after the hotfix of the Judgement rows on 2026-11-13. A lone white swing is a white swing with no other melee-table hit of
 the wearer within 100 ms; it needs no roll table and checks the rate.
 
 Each tick of the drain is paired with the heal the wearer logs as Siphon Health 18653 within 5 ms of it.

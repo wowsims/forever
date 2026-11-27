@@ -18,9 +18,9 @@
 
 The count is EV-0153's Method, run again by the automated sweep of 2026-11-22 over every wearer stream on disk, with the
 same rolling hits, classes and forms left out, intervals, lone-unit checks, swap drop, credit windows and calls of
-measured or observed. From hotfix push 114313 (2026-11-20 23:47 UTC) each Mutilate strike rolls its own hand once;
-before it Mutilate is left out with its procs, as the two-roll abilities are. No two counted runs of one player overlap
-in time.
+measured or observed. Each Mutilate strike rolls its own hand once (EV-0155); the count takes each Mutilate from hotfix
+push 114313 (2026-11-20 23:47 UTC) as those rolls and leaves out the ones before it with their procs, as it does the
+two-roll abilities. No two counted runs of one player overlap in time.
 
 The run counts no Shank as a roll, though Shank rolls the off-hand weapon (EV-0155). The Lobotomizer's read counts those Shanks as off-hand rolls.
 
