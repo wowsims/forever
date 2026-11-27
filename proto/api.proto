@@ -761,6 +761,16 @@ message MobTypeBonus {
 	map<int32, double> stats = 2; // keys are the numeric values of Stat
 	double damage_multiplier = 3;
 	double crit_damage_multiplier = 4; // On top of damage_multiplier, for a critical strike alone.
+	// What each source adds to the fields above, one entry per source in the order the sim added them,
+	// leaving out a source whose share nets to nothing.
+	repeated MobTypeBonusSource sources = 5;
+}
+// One source's share of a MobTypeBonus.
+message MobTypeBonusSource {
+	ActionID action_id = 1; // The item, or the spell of an enchant, set bonus, consumable, talent or racial.
+	map<int32, double> stats = 2; // keys are the numeric values of Stat
+	double damage_multiplier = 3;
+	double crit_damage_multiplier = 4;
 }
 // The factor one item's spell deals or restores against a target of any of the mob types or creature
 // families, once however many of them the target is.

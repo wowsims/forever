@@ -1,6 +1,6 @@
 import type { VersusBonusSet } from '@features/character-stats/components/CharacterStats/VersusBonuses';
 import { type MeleeCritCapInfo, VersusEffectKind } from '@generated/proto/api';
-import { AreaType, CreatureFamily, MobType, PseudoStat, RangedWeaponType, Stat, Target } from '@generated/proto/common';
+import { ActionID, AreaType, CreatureFamily, MobType, PseudoStat, RangedWeaponType, Stat, Target } from '@generated/proto/common';
 import { UIItem } from '@generated/proto/ui';
 import { type StatAttribution, Stats, type UnitStat } from '@sim/proto/stats';
 
@@ -55,21 +55,37 @@ export const VERSUS_TARGETS = [
 
 export const VERSUS_AREA_TYPES = [AreaType.AreaTypeForestGrassland];
 
-/** A Troll with a Humanoid trinket and crit damage, a weapon stone against Undead, an area ring and three items whose spells deal or restore more against some targets. */
+const itemSource = (itemId: number) => ActionID.create({ rawId: { oneofKind: 'itemId', itemId } });
+const spellSource = (spellId: number) => ActionID.create({ rawId: { oneofKind: 'spellId', spellId } });
+const humanoidStats = { [Stat.StatAttackPower]: 6, [Stat.StatRangedAttackPower]: 6 };
+const undeadStats = { [Stat.StatAttackPower]: 18, [Stat.StatRangedAttackPower]: 18 };
+
+/** A Troll hunter with Beast Slaying, The Jaw Breaker and Humanoid Slaying against Humanoids, Gargoyle Slashers against Undead, an area ring and items whose spells deal or restore more against some targets. */
 export const VERSUS_BONUSES: VersusBonusSet = {
 	mobTypeBonuses: [
-		{ mobType: MobType.MobTypeBeast, stats: {}, damageMultiplier: 1.05, critDamageMultiplier: 1 },
+		{
+			mobType: MobType.MobTypeBeast,
+			stats: {},
+			damageMultiplier: 1.05,
+			critDamageMultiplier: 1,
+			sources: [{ actionId: spellSource(20557), stats: {}, damageMultiplier: 1.05, critDamageMultiplier: 1 }],
+		},
 		{
 			mobType: MobType.MobTypeHumanoid,
-			stats: { [Stat.StatAttackPower]: 18, [Stat.StatRangedAttackPower]: 18 },
-			damageMultiplier: 1,
+			stats: humanoidStats,
+			damageMultiplier: 1.03,
 			critDamageMultiplier: 1.03,
+			sources: [
+				{ actionId: itemSource(22322), stats: humanoidStats, damageMultiplier: 1, critDamageMultiplier: 1 },
+				{ actionId: spellSource(19153), stats: {}, damageMultiplier: 1.03, critDamageMultiplier: 1.03 },
+			],
 		},
 		{
 			mobType: MobType.MobTypeUndead,
-			stats: { [Stat.StatAttackPower]: 99, [Stat.StatRangedAttackPower]: 99 },
+			stats: undeadStats,
 			damageMultiplier: 1,
 			critDamageMultiplier: 1,
+			sources: [{ actionId: itemSource(13957), stats: undeadStats, damageMultiplier: 1, critDamageMultiplier: 1 }],
 		},
 	],
 	areaStats: [{ areaType: AreaType.AreaTypeForestGrassland, stats: { [Stat.StatAttackPower]: 28, [Stat.StatHitRating]: 10 } }],

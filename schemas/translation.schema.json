@@ -12772,13 +12772,13 @@
 								"against": {
 									"type": "string"
 								},
-								"damage": {
-									"type": "string"
-								},
-								"crit_damage": {
+								"stat": {
 									"type": "string"
 								},
 								"effect_damage": {
+									"type": "string"
+								},
+								"effect_crit_damage": {
 									"type": "string"
 								},
 								"effect_restore": {
@@ -12820,9 +12820,9 @@
 								"title",
 								"in_area",
 								"against",
-								"damage",
-								"crit_damage",
+								"stat",
 								"effect_damage",
+								"effect_crit_damage",
 								"effect_restore",
 								"effect_proc_chance",
 								"effect_crit_chance",

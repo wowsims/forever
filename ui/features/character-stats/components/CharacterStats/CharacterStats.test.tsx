@@ -13,7 +13,7 @@ import { Database } from '@sim/proto/database';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { createSimStore, type EncounterSlice, patchSlice, PLAYER_FIELDS, type PlayerSlice, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
-import { CRIT_CAP_INFO, VERSUS_BONUSES, VERSUS_TARGETS } from '@testing/storybook/fixtures/character-stats';
+import { CRIT_CAP_INFO, VERSUS_AREA_TYPES, VERSUS_BONUSES, VERSUS_TARGETS } from '@testing/storybook/fixtures/character-stats';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -461,7 +461,11 @@ const versusGroups = (view: ReturnType<typeof renderVersus>) =>
 			label: heading.textContent!.replace(chip, ''),
 			chip,
 			state: group.getAttribute('data-state'),
-			lines: lines.map(line => Array.from(line.querySelectorAll('td')).map(cell => cell.textContent)),
+			lines: lines.map(line => {
+				const label = line.querySelector('.ui-character-stats-label')!;
+				const value = line.querySelector('.ui-character-stats-value')!;
+				return [label.textContent, ...Array.from(value.children).map(entry => entry.textContent)];
+			}),
 		};
 	});
 
@@ -474,6 +478,8 @@ const openInactive = (view: ReturnType<typeof renderVersus>, name: string) => {
 
 // The test setup loads no locale, so an interpolated heading or factor reads as its bare key; the English
 // strings are what show which target a heading names and which factor a line carries.
+const SOURCE_NAMES: Record<number, string> = { 20557: 'Beast Slaying', 22322: 'The Jaw Breaker', 19153: 'Humanoid Slaying', 13957: 'Gargoyle Slashers' };
+
 describe('CharacterStats bonuses against a kind of target', () => {
 	beforeAll(() => {
 		i18n.addResourceBundle('en', 'translation', english, true, true);
@@ -482,21 +488,31 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		i18n.removeResourceBundle('en', 'translation');
 	});
 	beforeEach(() => {
-		vi.spyOn(Database, 'getItemIconData').mockImplementation(itemId => Promise.resolve(IconData.create({ id: itemId, icon: `item_${itemId}` })));
+		vi.spyOn(Database, 'getItemIconData').mockImplementation(itemId =>
+			Promise.resolve(IconData.create({ id: itemId, name: SOURCE_NAMES[itemId], icon: `item_${itemId}` })),
+		);
+		vi.spyOn(Database, 'getSpellIconData').mockImplementation(spellId =>
+			Promise.resolve(IconData.create({ id: spellId, name: SOURCE_NAMES[spellId], icon: `spell_${spellId}` })),
+		);
 	});
 	afterEach(() => {
 		window.localStorage.clear();
 	});
 
 	const hit = Number(UnitStat.fromStat(Stat.StatHitRating).convertRatingToPercent(10)!.toFixed(2));
-	const attackPower = (amount: string) => [
-		['Attack Power', amount],
-		['Ranged Attack Power', amount],
-	];
 	const serpentbane = ['Serpentbane Crown', '×2 damage'];
+	const beastSlaying = ['Beast Slaying', '×1.05 damage'];
 	const crit = ["Blackhand's Breadth", '×2 crit chance'];
 	const noTarget = { chip: 'No target', state: 'off' };
-	const humanoid = { label: 'Humanoid', chip: 'All targets', state: 'on', lines: [...attackPower('+18'), ['Critical Strike Damage', '+3%']] };
+	const humanoid = {
+		label: 'Humanoid',
+		chip: 'All targets',
+		state: 'on',
+		lines: [
+			['The Jaw Breaker', '+6 Attack Power', '+6 Ranged Attack Power'],
+			['Humanoid Slaying', '×1.03 damage', '×1.03 crit damage'],
+		],
+	};
 	const areaGroup = {
 		label: 'Forest and Grassland',
 		chip: 'In area',
@@ -507,8 +523,8 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		],
 	};
 	const inactiveGroups = [
-		{ label: 'Beast', ...noTarget, lines: [['Damage', '+5%'], serpentbane] },
-		{ label: 'Undead', ...noTarget, lines: attackPower('+99') },
+		{ label: 'Beast', ...noTarget, lines: [beastSlaying, serpentbane] },
+		{ label: 'Undead', ...noTarget, lines: [['Gargoyle Slashers', '+18 Attack Power', '+18 Ranged Attack Power']] },
 		{ label: 'Earth Elemental', ...noTarget, lines: [['Fist of Stone', '×3 restored']] },
 		{ label: 'Swine', ...noTarget, lines: [['Swine Fists', 'Procs only against these']] },
 		{ label: 'Orc', ...noTarget, lines: [crit] },
@@ -518,15 +534,16 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		{ label: 'Serpentine', ...noTarget, lines: [serpentbane] },
 	];
 
-	it('lists each mob type, creature family and area the sim reports a bonus against, the active ones first and the rest behind one toggle, one line per item factor', async () => {
+	it('lists each mob type, creature family and area the sim reports a bonus against, the active ones first and the rest behind one toggle, one line per source with what it gives, then one per item factor', async () => {
 		const view = renderVersus(
 			{ finalStats: new Stats().toProto(), ...VERSUS_BONUSES },
 			{ targets: [Target.create({ mobType: MobType.MobTypeHumanoid })], areaTypes: [AreaType.AreaTypeForestGrassland] },
 		);
 
-		expect(await openVersusGroups(view)).toEqual([humanoid, areaGroup]);
+		await openVersusGroups(view);
+		await waitFor(() => expect(versusGroups(view)).toEqual([humanoid, areaGroup]));
 		openInactive(view, '9 inactive bonuses');
-		expect(versusGroups(view)).toEqual([humanoid, areaGroup, ...inactiveGroups]);
+		await waitFor(() => expect(versusGroups(view)).toEqual([humanoid, areaGroup, ...inactiveGroups]));
 	});
 
 	it('marks each group on, partial or off by how many targets of the encounter it matches, once in its heading', async () => {
@@ -536,27 +553,33 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		openInactive(view, '7 inactive bonuses');
 		const byLabel = (label: string) => versusGroups(view).find(group => group.label === label);
 
-		expect(byLabel('Beast')).toMatchObject({
-			chip: '1/2 targets',
-			state: 'partial',
-			lines: [['Damage', '+5%'], serpentbane],
-		});
+		await waitFor(() =>
+			expect(byLabel('Beast')).toMatchObject({
+				chip: '1/2 targets',
+				state: 'partial',
+				lines: [beastSlaying, serpentbane],
+			}),
+		);
 		expect(byLabel('Serpentine')).toMatchObject({ chip: '1/2 targets', state: 'partial', lines: [serpentbane] });
 		expect(byLabel('Undead')).toMatchObject(noTarget);
 		expect(byLabel('Forest and Grassland')).toMatchObject({ chip: 'Not in area', state: 'off' });
 	});
 
-	it("shows an item line with its item's icon and a summed stat line with none", async () => {
-		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES }, { targets: VERSUS_TARGETS });
+	it("shows a source line with its item's or spell's icon and an area's stat line with none", async () => {
+		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES }, { targets: VERSUS_TARGETS, areaTypes: VERSUS_AREA_TYPES });
 		await openVersusGroups(view);
 
-		const lineOf = (label: string) => view.getAllByText(label)[0].closest('tr')!;
-		await waitFor(() =>
-			expect(lineOf('Serpentbane Crown').querySelector<HTMLElement>('[data-testid="character-stats-versus-item-icon"]')!.style.backgroundImage).toContain(
-				'item_274609',
-			),
-		);
-		expect(lineOf('Damage').querySelector('[data-testid="character-stats-versus-item-icon"]')).toBeNull();
+		const iconOf = (label: string) => {
+			const rows = view.container.querySelectorAll('[data-testid="character-stats-versus-group"] tr');
+			const line = Array.from(rows).find(row => row.querySelector('.ui-character-stats-label')?.textContent === label)!;
+			return line.querySelector<HTMLElement>('[data-testid="character-stats-versus-source-icon"]')?.style.backgroundImage ?? null;
+		};
+		await waitFor(() => {
+			expect(iconOf('Beast Slaying')).toContain('spell_20557');
+			expect(iconOf('The Jaw Breaker')).toContain('item_22322');
+			expect(iconOf('Serpentbane Crown')).toContain('item_274609');
+		});
+		expect(iconOf('Attack Power')).toBeNull();
 	});
 
 	it('shows only the toggle while no group is active, in the singular for one', async () => {

@@ -24,8 +24,8 @@ type mobTypeBonus struct {
 	critMultiplier   float64
 }
 
-// One source's share of the unit's bonus against one mob type, for the combat log to name the sources
-// of a hit's versus bonus. A share taken back off stays in the list at its neutral value.
+// One source's share of the unit's bonus against one mob type, for the combat log and the stats sheet
+// to name the sources of a versus bonus. A share taken back off stays in the list at its neutral value.
 type versusSource struct {
 	source  ActionID
 	mobType proto.MobType
@@ -160,25 +160,52 @@ func (parentAura *Aura) AttachMobTypeBonusStats(source ActionID, bonus stats.Sta
 // A bonus taken back off can leave a rounding error, which counts as none.
 const versusEpsilon = 1e-9
 
-// The unit's bonuses against each mob type, leaving out a mob type with none.
+// The stats as a proto map, leaving out any that only a rounding error left behind.
+func versusStatMap(bonus stats.Stats) map[int32]float64 {
+	statMap := map[int32]float64{}
+	for stat, value := range bonus[:stats.ProtoStatsLen] {
+		if math.Abs(value) > versusEpsilon {
+			statMap[int32(stat)] = value
+		}
+	}
+	return statMap
+}
+
+func (bonus *mobTypeBonus) isNone(statMap map[int32]float64) bool {
+	return len(statMap) == 0 && math.Abs(bonus.damageMultiplier-1) <= versusEpsilon && math.Abs(bonus.critMultiplier-1) <= versusEpsilon
+}
+
+// The unit's bonuses against each mob type, leaving out a mob type with none. Each lists its sources'
+// shares, leaving out a share that nets to none.
 func (unit *Unit) mobTypeBonusesProto() []*proto.MobTypeBonus {
 	var bonuses []*proto.MobTypeBonus
 	for _, mobType := range slices.Sorted(maps.Keys(unit.mobTypeBonuses)) {
 		bonus := unit.mobTypeBonuses[mobType]
-		statMap := map[int32]float64{}
-		for stat, value := range bonus.stats[:stats.ProtoStatsLen] {
-			if math.Abs(value) > versusEpsilon {
-				statMap[int32(stat)] = value
+		statMap := versusStatMap(bonus.stats)
+		if bonus.isNone(statMap) {
+			continue
+		}
+		var sources []*proto.MobTypeBonusSource
+		for _, share := range unit.versusSources {
+			if share.mobType != mobType {
+				continue
+			}
+			if shareStats := versusStatMap(share.stats); !share.isNone(shareStats) {
+				sources = append(sources, &proto.MobTypeBonusSource{
+					ActionId:             share.source.ToProto(),
+					Stats:                shareStats,
+					DamageMultiplier:     share.damageMultiplier,
+					CritDamageMultiplier: share.critMultiplier,
+				})
 			}
 		}
-		if len(statMap) > 0 || math.Abs(bonus.damageMultiplier-1) > versusEpsilon || math.Abs(bonus.critMultiplier-1) > versusEpsilon {
-			bonuses = append(bonuses, &proto.MobTypeBonus{
-				MobType:              mobType,
-				Stats:                statMap,
-				DamageMultiplier:     bonus.damageMultiplier,
-				CritDamageMultiplier: bonus.critMultiplier,
-			})
-		}
+		bonuses = append(bonuses, &proto.MobTypeBonus{
+			MobType:              mobType,
+			Stats:                statMap,
+			DamageMultiplier:     bonus.damageMultiplier,
+			CritDamageMultiplier: bonus.critMultiplier,
+			Sources:              sources,
+		})
 	}
 	return bonuses
 }

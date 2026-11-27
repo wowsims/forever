@@ -430,6 +430,9 @@ func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
 	if beast := sheet[proto.MobType_MobTypeBeast]; beast == nil || beast.DamageMultiplier <= 1 {
 		t.Fatalf("the sheet lists %v against Beasts, want the racial's damage multiplier", beast)
 	}
+	if sources := sheet[proto.MobType_MobTypeHumanoid].Sources; len(sources) != 1 || ProtoToActionID(sources[0].ActionId) != (ActionID{ItemID: ringID}) {
+		t.Errorf("the sheet credits %v against Humanoids, want the ring alone", sources)
+	}
 	if len(playerStats.AreaStats) != 1 || playerStats.AreaStats[0].AreaType != proto.AreaType_AreaTypeForestGrassland ||
 		stats.FromProtoMap(playerStats.AreaStats[0].Stats) != (stats.Stats{stats.AttackPower: ringAreaAttackPower}) {
 		t.Errorf("the sheet lists area stats %v, want the ring's attack power in Forest and Grassland", playerStats.AreaStats)
@@ -451,6 +454,41 @@ func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
 		if !WithinToleranceFloat64(table.DamageDealtMultiplier, bonus.DamageMultiplier, 1e-9) {
 			t.Errorf("against %s the attack table multiplies damage by %v, the sheet by %v", mobType, table.DamageDealtMultiplier, bonus.DamageMultiplier)
 		}
+	}
+}
+
+// Each source's share against a mob type is its own entry, named by its ActionID, in the order the sources
+// were added; a share taken back off is left out, and a share that keeps one of its stats lists that one.
+func TestSheetListsEachSourceOfAMobTypeBonus(t *testing.T) {
+	sim := NewSim(&proto.RaidSimRequest{SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid: weaponTestRaid(proto.Race_RaceHuman, WeaponTestSlots(WeaponTestSwordID, 0, 0), nil), Encounter: weaponTestEncounter()}, simsignals.CreateSignals())
+	character := sim.Raid.Parties[0].Players[0].GetCharacter()
+	item, spell, removedItem, removedSpell := ActionID{ItemID: 990928}, ActionID{SpellID: 990929}, ActionID{ItemID: 990930}, ActionID{SpellID: 990931}
+	demon := proto.MobType_MobTypeDemon
+	character.AddMobTypeBonusStats(item, stats.Stats{stats.AttackPower: 10, stats.SpellDamage: 5}, demon)
+	character.AddMobTypeBonusStats(removedItem, stats.Stats{stats.AttackPower: 7}, demon)
+	character.MultiplyDamageVersus(spell, 1.1, demon)
+	character.MultiplyCritDamageVersus(removedSpell, 1.2, demon)
+	character.AddMobTypeBonusStats(removedItem, stats.Stats{stats.AttackPower: -7}, demon)
+	character.MultiplyCritDamageVersus(removedSpell, 1/1.2, demon)
+	character.AddMobTypeBonusStats(item, stats.Stats{stats.SpellDamage: -5}, demon)
+
+	var sources []*proto.MobTypeBonusSource
+	for _, bonus := range character.mobTypeBonusesProto() {
+		if bonus.MobType == demon {
+			sources = bonus.Sources
+		}
+	}
+	if len(sources) != 2 {
+		t.Fatalf("the sheet credits %v against Demons, want the item's and the spell's shares alone", sources)
+	}
+	if got := ProtoToActionID(sources[0].ActionId); got != item || stats.FromProtoMap(sources[0].Stats) != (stats.Stats{stats.AttackPower: 10}) ||
+		sources[0].DamageMultiplier != 1 || sources[0].CritDamageMultiplier != 1 {
+		t.Errorf("the first share is %v, want %v with 10 attack power alone", sources[0], item)
+	}
+	if got := ProtoToActionID(sources[1].ActionId); got != spell || len(sources[1].Stats) != 0 ||
+		!WithinToleranceFloat64(sources[1].DamageMultiplier, 1.1, 1e-9) || sources[1].CritDamageMultiplier != 1 {
+		t.Errorf("the second share is %v, want %v with a 1.1 damage multiplier alone", sources[1], spell)
 	}
 }
 

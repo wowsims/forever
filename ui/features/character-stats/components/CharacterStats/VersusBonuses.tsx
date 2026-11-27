@@ -1,5 +1,5 @@
 import { areaState, familyState, mobTypeState, versusEffectFactor, type VersusMatch, type VersusState } from '@features/gear/model/versus_state';
-import type { PlayerStats, VersusEffect } from '@generated/proto/api';
+import type { MobTypeBonusSource, PlayerStats, VersusEffect } from '@generated/proto/api';
 import type { AreaType, Stat, Target } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateAreaType, translateCreatureFamily, translateMobType, translateStat } from '@i18n/localization';
@@ -28,10 +28,12 @@ export interface VersusBonusesViewProps {
 
 interface VersusLine {
 	key: string;
-	label: string;
-	value: string;
-	/** The item a line of an item's factor comes from; a stat line sums several sources and has none. */
-	itemId?: number;
+	/** The source a line names by its icon and name; an area's stat line sums its items and has none. */
+	actionId?: ActionId;
+	/** The name shown in place of the source's own, or the stat an area line sums. */
+	label?: string;
+	/** What the line gives, one entry per stat or factor. */
+	values: Array<string>;
 }
 
 interface VersusGroup {
@@ -50,23 +52,37 @@ const stateText = ({ match, area }: VersusGroup) =>
 		? i18n.t('sidebar.character_stats.versus.state_partial', { matched: match.matched, total: match.total })
 		: i18n.t(`sidebar.character_stats.versus.${area ? 'state_area_' : 'state_'}${match.state}`);
 
-const signed = (value: number, suffix = '') => `${value > 0 ? '+' : ''}${Number(value.toFixed(2))}${suffix}`;
+const statEntries = (stats: { [key: number]: number }): Array<[Stat, number]> => Object.entries(stats).map(([key, value]) => [Number(key) as Stat, value]);
 
-const statLines = (stats: { [key: number]: number }): Array<VersusLine> =>
-	Object.entries(stats).map(([key, value]) => {
-		const stat = Number(key) as Stat;
-		return { key: `stat-${stat}`, label: translateStat(stat), value: signedStatAmount(stat, value) };
+const areaStatLines = (stats: { [key: number]: number }): Array<VersusLine> =>
+	statEntries(stats).map(([stat, value]) => ({ key: `stat-${stat}`, label: translateStat(stat), values: [signedStatAmount(stat, value)] }));
+
+// Worded and rounded as versusEffectFactor words an item's factor.
+const factorValues = (key: string, multiplier: number): Array<string> =>
+	Math.abs(multiplier - 1) < 1e-9 ? [] : [i18n.t(`sidebar.character_stats.versus.${key}`, { factor: Number(multiplier.toFixed(2)) })];
+
+const sourceLines = (sources: Array<MobTypeBonusSource>): Array<VersusLine> =>
+	sources.map(source => {
+		const actionId = ActionId.fromProto(source.actionId!);
+		return {
+			key: `source-${actionId.equalityKey()}`,
+			actionId,
+			values: [
+				...statEntries(source.stats).map(([stat, value]) =>
+					i18n.t('sidebar.character_stats.versus.stat', { amount: signedStatAmount(stat, value), stat: translateStat(stat) }),
+				),
+				...factorValues('effect_damage', source.damageMultiplier),
+				...factorValues('effect_crit_damage', source.critDamageMultiplier),
+			],
+		};
 	});
-
-const multiplierLines = (key: string, multiplier: number): Array<VersusLine> =>
-	Math.abs(multiplier - 1) < 1e-9 ? [] : [{ key, label: i18n.t(`sidebar.character_stats.versus.${key}`), value: signed((multiplier - 1) * 100, '%') }];
 
 const effectLines = (effects: Array<VersusEffect>): Array<VersusLine> =>
 	effects.map(effect => ({
 		key: `item-${effect.itemId}`,
+		actionId: ActionId.fromItemId(effect.itemId),
 		label: effect.itemName,
-		value: versusEffectFactor(effect),
-		itemId: effect.itemId,
+		values: [versusEffectFactor(effect)],
 	}));
 
 const versusGroups = ({ bonuses, targets, areaTypes }: VersusBonusesViewProps): Array<VersusGroup> => {
@@ -80,16 +96,7 @@ const versusGroups = ({ bonuses, targets, areaTypes }: VersusBonusesViewProps): 
 				label: translateMobType(mobType),
 				match: mobTypeState(mobType, targets),
 				area: false,
-				lines: [
-					...(bonus
-						? [
-								...statLines(bonus.stats),
-								...multiplierLines('damage', bonus.damageMultiplier),
-								...multiplierLines('crit_damage', bonus.critDamageMultiplier),
-							]
-						: []),
-					...effectLines(bonuses.versusEffects.filter(effect => effect.mobTypes.includes(mobType))),
-				],
+				lines: [...sourceLines(bonus?.sources ?? []), ...effectLines(bonuses.versusEffects.filter(effect => effect.mobTypes.includes(mobType)))],
 			};
 		});
 	const familyGroups = [...new Set(bonuses.versusEffects.flatMap(effect => effect.creatureFamilies))]
@@ -106,14 +113,19 @@ const versusGroups = ({ bonuses, targets, areaTypes }: VersusBonusesViewProps): 
 		label: translateAreaType(entry.areaType),
 		match: areaState(entry.areaType, areaTypes),
 		area: true,
-		lines: statLines(entry.stats),
+		lines: areaStatLines(entry.stats),
 	}));
 	return [...mobTypeGroups, ...familyGroups, ...areaGroups];
 };
 
-const ItemIcon = ({ itemId }: { itemId: number }) => {
-	const { iconUrl } = useActionId(ActionId.fromItemId(itemId));
-	return <WowheadIcon as="div" className="size-4 flex-none border border-border" testId="character-stats-versus-item-icon" iconUrl={iconUrl} />;
+const SourceLabel = ({ actionId, label }: { actionId: ActionId; label?: string }) => {
+	const { iconUrl, name } = useActionId(actionId);
+	return (
+		<>
+			<WowheadIcon as="div" className="size-4 flex-none border border-border" testId="character-stats-versus-source-icon" iconUrl={iconUrl} />
+			{label ?? name}
+		</>
+	);
 };
 
 const GroupRows = ({ group }: { group: VersusGroup }) => (
@@ -129,14 +141,22 @@ const GroupRows = ({ group }: { group: VersusGroup }) => (
 			</TableHeaderCell>
 		</TableRow>
 		{group.lines.map(line => (
+			// One cell per line, so a long value widens its own line and not the whole table's value column.
 			<TableRow key={line.key} className="ui-character-stats-row ui-character-stats-versus-line">
-				<TableCell className="ui-character-stats-label">
-					<span className="flex items-center gap-2">
-						{line.itemId !== undefined && <ItemIcon itemId={line.itemId} />}
-						{line.label}
+				<TableCell colSpan={2}>
+					<span className="flex items-start justify-between gap-2">
+						<span className="ui-character-stats-label flex min-w-0 items-center gap-2">
+							{line.actionId ? <SourceLabel actionId={line.actionId} label={line.label} /> : line.label}
+						</span>
+						<span className="ui-character-stats-value shrink-0 text-right">
+							{line.values.map(value => (
+								<span key={value} className="block whitespace-nowrap">
+									{value}
+								</span>
+							))}
+						</span>
 					</span>
 				</TableCell>
-				<TableCell className="ui-character-stats-value">{line.value}</TableCell>
 			</TableRow>
 		))}
 	</tbody>
