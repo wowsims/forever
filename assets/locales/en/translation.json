@@ -2812,7 +2812,6 @@
 				"gcd_tooltip": "{{spell}} — {{gcd}}s GCD ({{start}}s → {{end}}s)",
 				"versus": {
 					"header": "Versus {{target}}",
-					"header_family": "Versus {{target}} ({{family}})",
 					"tag_family": "{{target}} ({{family}})",
 					"damage": "×{{multiplier}} damage",
 					"crit": "×{{multiplier}} crit damage",

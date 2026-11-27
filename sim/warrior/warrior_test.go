@@ -2032,7 +2032,9 @@ func versusCleaveSim(t *testing.T, mobTypes []proto.MobType, humanoidAttackPower
 
 // Whirlwind, Thunder Clap and Cleave read attack power once, on their first target, and each target's
 // hit takes its own attack power against its mob type: a Beast beside a Humanoid takes none of the
-// Humanoid's, and a Humanoid beside the Beast the read was made on takes its own.
+// Humanoid's, and a Humanoid beside the Beast the read was made on takes its own. With the same seed, the
+// Humanoid second takes the same damage after a Beast as after another Humanoid, which pins the damage
+// each point adds.
 func TestCleavesTakeEachTargetsOwnVersusAttackPower(t *testing.T) {
 	humanoid, beast := proto.MobType_MobTypeHumanoid, proto.MobType_MobTypeBeast
 	for _, c := range []struct {
@@ -2044,23 +2046,27 @@ func TestCleavesTakeEachTargetsOwnVersusAttackPower(t *testing.T) {
 		{"Thunder Clap", core.ActionID{SpellID: 11581}},
 		{"Cleave", core.ActionID{SpellID: 20569}},
 	} {
-		for _, mobTypes := range [][]proto.MobType{{humanoid, beast}, {beast, humanoid}} {
-			damage := func(humanoidAttackPower float64) []float64 {
-				sim, war := versusCleaveSim(t, mobTypes, humanoidAttackPower)
-				spell := war.GetSpell(c.spell)
-				if spell == nil {
-					t.Fatalf("the warrior has no %s", c.name)
-				}
-				for range 50 {
-					spell.SkipCastAndApplyEffects(sim, sim.Encounter.ActiveTargetUnits[0])
-				}
-				var dealt []float64
-				for _, target := range sim.Encounter.ActiveTargetUnits {
-					dealt = append(dealt, spell.SpellMetrics[target.UnitIndex].TotalDamage)
-				}
-				return dealt
+		damage := func(mobTypes []proto.MobType, humanoidAttackPower float64) []float64 {
+			sim, war := versusCleaveSim(t, mobTypes, humanoidAttackPower)
+			spell := war.GetSpell(c.spell)
+			if spell == nil {
+				t.Fatalf("the warrior has no %s", c.name)
 			}
-			without, with := damage(0), damage(300)
+			for range 50 {
+				spell.SkipCastAndApplyEffects(sim, sim.Encounter.ActiveTargetUnits[0])
+			}
+			var dealt []float64
+			for _, target := range sim.Encounter.ActiveTargetUnits {
+				dealt = append(dealt, spell.SpellMetrics[target.UnitIndex].TotalDamage)
+			}
+			return dealt
+		}
+		readOnBeast, readOnHumanoid := damage([]proto.MobType{beast, humanoid}, 300)[1], damage([]proto.MobType{humanoid, humanoid}, 300)[1]
+		if math.Abs(readOnBeast-readOnHumanoid) > 1e-9*readOnHumanoid {
+			t.Errorf("%s dealt the second Humanoid %.6f after a Beast, want the %.6f it takes after a Humanoid", c.name, readOnBeast, readOnHumanoid)
+		}
+		for _, mobTypes := range [][]proto.MobType{{humanoid, beast}, {beast, humanoid}} {
+			without, with := damage(mobTypes, 0), damage(mobTypes, 300)
 			for i, mobType := range mobTypes {
 				if without[i] == 0 {
 					t.Fatalf("%s on %v dealt no damage to its %v target, so the check proves nothing", c.name, mobTypes, mobType)

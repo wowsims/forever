@@ -1,6 +1,7 @@
 import {
 	Class,
 	ConsumableType,
+	CreatureFamily,
 	HandType,
 	ItemSlot,
 	MobType,
@@ -9,18 +10,21 @@ import {
 	PseudoStat,
 	Race,
 	Stat,
+	Target,
 	WeaponType,
 	ZoneStats,
 } from '@generated/proto/common';
 import { Consumable } from '@generated/proto/db';
 import { ItemEffect, ResourceType, SpellEffect } from '@generated/proto/spell';
 import { UIEnchant, UIItem } from '@generated/proto/ui';
-import { describe, expect, it } from 'vitest';
+import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import type { EquippedItem } from '../proto/equipped_item';
 import { Stats, UnitStat } from '../proto/stats';
 import {
 	consumableAllowed,
+	consumableOrderOf,
 	ConsumableSlot,
 	consumableSlot,
 	consumableUniverse,
@@ -32,6 +36,10 @@ import {
 	relevanceFor,
 	relevantConsumableIds,
 } from './consumables';
+
+vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
+
+beforeAll(() => serveDatabase());
 
 const stats = (granted: Partial<Record<Stat, number>>) => {
 	const out = new Array<number>(42).fill(0);
@@ -420,6 +428,14 @@ describe('orderedByEp', () => {
 		const sturdy = consumable({ id: 8, name: 'Sturdy', lvl: 10, stats: stats({ [Stat.StatStamina]: 15 }) });
 		const weights = Stats.fromMap({ [Stat.StatStamina]: 1, [Stat.StatHitRating]: 1 });
 		expect(orderedIds([sturdy, natural], weights, undefined)).toEqual([7, 8]);
+	});
+});
+
+describe('consumableOrderOf', () => {
+	it("orders against the first target's family's mob type where it has none of its own", async () => {
+		const { sim, player } = await makeIndividualSim();
+		sim.encounter.setTargets([Target.create({ creatureFamily: CreatureFamily.CreatureFamilyWolf })]);
+		expect(consumableOrderOf(player).mobType).toBe(MobType.MobTypeBeast);
 	});
 });
 

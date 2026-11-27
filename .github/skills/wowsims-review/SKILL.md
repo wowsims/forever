@@ -107,10 +107,10 @@ The first eight have a section in `references/defects.md`.
 - **What the gear tab states.** Check that a hand-written item, enchant or set proc whose code now rolls something
   its rows do not state has a row in `tools/database/overrides/gear_proc_rates.go`, and that no row there is stale;
   `wowsims-procs` `## Measuring a rate`.
-- **Versus effects.** Check that a hand-coded versus effect goes through the tracked helpers, an item's factor through
-  the item constructors, a tooltip "times as much" or "times as likely" has its `VersusBonuses` row, and a hand
-  formula's spell power takes or leaves the versus spell damage as the logs say; `wowsims-core-mechanics`
-  `## What scales`.
+- **Versus effects.** Check that a hand-coded versus effect registers through `RegisterVersus`, `RegisterVersusProc`
+  or `shared.RegisterVersus` and an area factor through `RegisterArea` or `RegisterAreaAmount`, a tooltip "times as
+  much" or "times as likely" has its `VersusBonuses` row, and a hand formula's spell power takes or leaves the versus
+  spell damage as the logs say; `wowsims-core-mechanics` `## What scales`.
 - **What a preset line sees.** Check that a line reading something the running cast's landing changes
   carries `not(Spell Is Casting(X))` (`wowsims-apl` `## Timing`), and that its cast counts were judged as
   `wowsims-apl` `## Presets` says.

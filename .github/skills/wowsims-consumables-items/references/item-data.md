@@ -28,7 +28,7 @@ What the game files' item, enchant, suffix and set rows say, and where they misl
   through `tooltipTargetNames` after a lead in `tooltipTargetLead`. A name neither knows gives no chip, and
   `overrides.VersusBonuses` cannot name it: add the enum value at the next free number, the name, the family in
   `ui/features/encounter/components/TargetsPicker/utils/configs.ts`, its mob type in `creatureFamilyMobTypes`
-  (`sim/core/versus.go`) and its copy in `ui/features/gear/model/versus_state.ts`, and its label in
+  (`sim/core/versus.go`), which `gen_db -gen=go-to-ts` copies for the UI, and its label in
   `ui/i18n/entity_mapping.ts` and the locale. A group with no value counts its nearest family and its override says so (Golems and Titan-forged count as
   Earth Elementals). After `make db`, the item's `mobTypes`, `creatureFamilies` and `areaTypes` in
   `assets/database/db.json` name what its tooltip names.

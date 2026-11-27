@@ -311,7 +311,7 @@ func init() {
 			{ItemID: 269741, ItemName: "Scented Runewood Brooch"},
 		})
 	shared.DamageProcExtras[269741] = func(character *core.Character, config *core.SpellConfig) {
-		config.VersusProc = character.RegisterVersusProc(core.ActionID{ItemID: 269741}, proto.VersusEffectKind_VersusEffectKindProcOnly, core.VersusBonus{VersusTargets: furbolgs})
+		config.VersusProc = character.RegisterVersusProc(core.ActionID{ItemID: 269741}, furbolgs)
 	}
 
 	// Blackhand's Breadth

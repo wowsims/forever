@@ -12,6 +12,7 @@ import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import * as AplUtils from '@sim/proto/apl_utils';
 import { SpecRotation } from '@sim/proto/spec_types';
 import { StatCap, UnitStat } from '@sim/proto/stats';
+import { targetMobType } from '@sim/proto/target';
 import { defineSpec } from '@sim/spec_config';
 import { subscribeAll, subscribeEncounterField, subscribePlayerField } from '@sim/state/subscriptions';
 
@@ -30,7 +31,7 @@ export default defineSpec<Spec.SpecHunter>({
 		simUI => ({
 			updateOn: subscribeAll([subscribePlayerField(simUI.player, 'talentsString'), subscribeEncounterField(simUI.sim.encounter, 'targets')]),
 			getContent: () => {
-				const mobType = simUI.sim.encounter.primaryTarget.mobType;
+				const mobType = targetMobType(simUI.sim.encounter.primaryTarget);
 				const untracked = mobType === MobType.MobTypeUnknown || mobType === MobType.MobTypeMechanical;
 				if (!simUI.player.getTalents().improvedTracking || !untracked) return '';
 				return i18n.t('sidebar.warnings.hunter_improved_tracking', { mobType: translateMobType(mobType) });

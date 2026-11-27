@@ -55,7 +55,7 @@ type Character struct {
 
 	areaStatsAura *Aura // Unset unless an item worn or in the swap set has stats in the encounter's area types.
 
-	versusRegistrations []versusRegistration
+	versusEffects []*proto.VersusEffect
 
 	// Consumables this Character will be using.
 	Consumables *proto.ConsumesSpec

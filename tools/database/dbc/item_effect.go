@@ -30,7 +30,7 @@ func addAreaStats(opts *proto.ScalingItemProperties, areaType proto.AreaType, st
 // against Mechanical targets.
 func addEquipSpellMobTypeStats(opts *proto.ScalingItemProperties, spellID int) {
 	for _, effect := range spelldata.MustFind(int32(spellID)).Effects {
-		versus, _ := spelldata.VersusAura(effect.Aura)
+		versus := spelldata.VersusAura(effect.Aura)
 		if len(versus.Stats) == 0 {
 			continue
 		}
@@ -46,7 +46,7 @@ func addEquipSpellMobTypeStats(opts *proto.ScalingItemProperties, spellID int) {
 // Whether every effect of the spell is a stat against creature types.
 func GrantsOnlyVersusStats(row *spelldata.Spell) bool {
 	return len(row.Effects) > 0 && !slices.ContainsFunc(row.Effects, func(e spelldata.Effect) bool {
-		versus, _ := spelldata.VersusAura(e.Aura)
+		versus := spelldata.VersusAura(e.Aura)
 		return len(versus.Stats) == 0
 	})
 }
@@ -643,7 +643,7 @@ func restatedBonuses(effect SpellEffect) []statedBonus {
 		return nil
 	}
 	var bonuses []statedBonus
-	versus, _ := spelldata.VersusAura(effect.EffectAura)
+	versus := spelldata.VersusAura(effect.EffectAura)
 	for _, stat := range versus.Stats {
 		for _, mobType := range spelldata.MobTypes(misc) {
 			bonuses = append(bonuses, statedBonus{mobType: mobType, stat: proto.Stat(stat)})

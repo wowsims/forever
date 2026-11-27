@@ -6,12 +6,13 @@ import { translateAreaType, translateCreatureFamily, translateMobType, translate
 import { useSim } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
 import { signedStatAmount } from '@sim/proto/stats';
+import { targetMobType } from '@sim/proto/target';
 import { Pill, type PillTone } from '@ui-kit/Pill';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { Fragment, useId } from 'react';
 import { useStore } from 'zustand';
 
-import { itemVersusChips, namesVersus, targetMobType, type VersusChip, versusEffectFactor, type VersusState } from '../../model/versus_state';
+import { itemVersusChips, namesVersus, type VersusChip, versusEffectFactor, versusEffectValues, type VersusState } from '../../model/versus_state';
 
 const TONES: Record<VersusState, PillTone> = { on: 'positive', partial: 'warning', off: 'neutral' };
 
@@ -38,15 +39,7 @@ const valueLines = (chip: VersusChip, item: UIItem, versusEffects: ReadonlyArray
 			: chip.kind === 'area'
 				? (scaling?.areaStats ?? []).filter(entry => entry.areaType === chip.value).map(entry => entry.stats)
 				: [];
-	const effects = versusEffects.filter(
-		effect =>
-			effect.itemId === item.id &&
-			(chip.kind === 'mobType'
-				? effect.mobTypes.includes(chip.value)
-				: chip.kind === 'family'
-					? effect.creatureFamilies.includes(chip.value)
-					: effect.areaTypes.includes(chip.value)),
-	);
+	const effects = versusEffects.filter(effect => effect.itemId === item.id && versusEffectValues(effect, chip.kind).includes(chip.value));
 	return [...stats.flatMap(statLines), ...effects.map(versusEffectFactor)];
 };
 

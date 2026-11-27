@@ -42,15 +42,15 @@ func (character *Character) RegisterArea(source ActionID, kind proto.VersusEffec
 	if len(bonus.Areas) == 0 || bonus.Multiplier == 1 {
 		return 1
 	}
-	character.versusRegistrations = append(character.versusRegistrations,
-		versusRegistration{source: source, kind: kind, bonus: &VersusBonus{Multiplier: bonus.Multiplier}, areas: bonus.Areas})
+	character.versusEffects = append(character.versusEffects,
+		&proto.VersusEffect{Source: source.ToProto(), Kind: kind, Multiplier: bonus.Multiplier, AreaTypes: bonus.Areas})
 	return bonus.Factor(&character.Env.Encounter)
 }
 
-// Whether the encounter is in any of the areas, where a source's effect is a flat amount, kept for the stats
+// Whether the encounter is in any of the areas, where a source's heal is a flat amount, kept for the stats
 // sheet under the source in every encounter as RegisterArea keeps a factor.
-func (character *Character) RegisterAreaAmount(source ActionID, kind proto.VersusEffectKind, areas AreaTargets, amount float64) bool {
-	character.versusRegistrations = append(character.versusRegistrations,
-		versusRegistration{source: source, kind: kind, bonus: &VersusBonus{}, areas: areas.Areas, amount: amount})
+func (character *Character) RegisterAreaAmount(source ActionID, areas AreaTargets, amount float64) bool {
+	character.versusEffects = append(character.versusEffects,
+		&proto.VersusEffect{Source: source.ToProto(), Kind: proto.VersusEffectKind_VersusEffectKindFlatHeal, AreaTypes: areas.Areas, Amount: amount})
 	return areas.In(&character.Env.Encounter)
 }

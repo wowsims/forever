@@ -149,7 +149,7 @@ func TestUnparsedStatsListAVersusStatWithNoMobTypeAsAPlainStat(t *testing.T) {
 	}
 	const demons = 1 << (3 - 1)
 	row := &spelldata.Spell{Effects: []spelldata.Effect{versus(0, 40), versus(demons, 60)}}
-	melee, _ := spelldata.VersusAura(dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS)
+	melee := spelldata.VersusAura(dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS)
 	stat := melee.Stats[0]
 	consumable := &proto.Consumable{}
 	if err := addUnparsedStats(0, consumable, row); err != nil {

@@ -708,7 +708,7 @@ func kroldokResolve(agent core.Agent, setBonusAura *core.Aura) {
 	amount := kroldokResolveHeal.HealEffect().DirectAmount
 	strongholds := core.AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}}
 	stronghold := kroldokResolveHeal.EffectN(2).BasePoints
-	if character.RegisterAreaAmount(core.ActionID{SpellID: kroldokResolveProc.ID}, proto.VersusEffectKind_VersusEffectKindFlatHeal, strongholds, stronghold) {
+	if character.RegisterAreaAmount(core.ActionID{SpellID: kroldokResolveProc.ID}, strongholds, stronghold) {
 		amount = func(*core.Simulation) float64 { return stronghold }
 		config.DirectVariance = 0
 	}

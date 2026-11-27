@@ -1,4 +1,13 @@
-import { areaState, familyState, mobTypeState, versusEffectFactor, type VersusMatch, type VersusState } from '@features/gear/model/versus_state';
+import {
+	areaState,
+	familyState,
+	mobTypeState,
+	type VersusChip,
+	versusEffectFactor,
+	versusEffectValues,
+	type VersusMatch,
+	type VersusState,
+} from '@features/gear/model/versus_state';
 import type { MobTypeBonusSource, PlayerStats, VersusEffect } from '@generated/proto/api';
 import type { AreaType, Stat, Target } from '@generated/proto/common';
 import i18n from '@i18n/config';
@@ -90,41 +99,34 @@ const effectLines = (effects: Array<VersusEffect>): Array<VersusLine> => {
 	return [...lines.values()];
 };
 
+const uniqueSorted = (values: ReadonlyArray<number>): Array<number> => [...new Set(values)].sort((a, b) => a - b);
+
 const versusGroups = ({ bonuses, targets, areaTypes }: VersusBonusesViewProps): Array<VersusGroup> => {
-	const mobTypes = [...new Set([...bonuses.mobTypeBonuses.map(entry => entry.mobType), ...bonuses.versusEffects.flatMap(effect => effect.mobTypes)])];
-	const mobTypeGroups = mobTypes
-		.sort((a, b) => a - b)
-		.map(mobType => {
-			const bonus = bonuses.mobTypeBonuses.find(entry => entry.mobType === mobType);
-			return {
-				key: `mob-type-${mobType}`,
-				label: translateMobType(mobType),
-				match: mobTypeState(mobType, targets),
-				area: false,
-				lines: [...sourceLines(bonus?.sources ?? []), ...effectLines(bonuses.versusEffects.filter(effect => effect.mobTypes.includes(mobType)))],
-			};
-		});
-	const familyGroups = [...new Set(bonuses.versusEffects.flatMap(effect => effect.creatureFamilies))]
-		.sort((a, b) => a - b)
-		.map(family => ({
-			key: `creature-family-${family}`,
-			label: translateCreatureFamily(family),
-			match: familyState(family, targets),
-			area: false,
-			lines: effectLines(bonuses.versusEffects.filter(effect => effect.creatureFamilies.includes(family))),
-		}));
-	const areaGroups = [...new Set([...bonuses.areaStats.map(entry => entry.areaType), ...bonuses.versusEffects.flatMap(effect => effect.areaTypes)])]
-		.sort((a, b) => a - b)
-		.map(areaType => ({
-			key: `area-type-${areaType}`,
-			label: translateAreaType(areaType),
-			match: areaState(areaType, areaTypes),
-			area: true,
-			lines: [
-				...areaStatLines(bonuses.areaStats.find(entry => entry.areaType === areaType)?.stats ?? {}),
-				...effectLines(bonuses.versusEffects.filter(effect => effect.areaTypes.includes(areaType))),
-			],
-		}));
+	const { versusEffects } = bonuses;
+	const valuesOf = (kind: VersusChip['kind']) => versusEffects.flatMap(effect => versusEffectValues(effect, kind));
+	const effectsOn = (kind: VersusChip['kind'], value: number) =>
+		effectLines(versusEffects.filter(effect => versusEffectValues(effect, kind).includes(value)));
+	const mobTypeGroups = uniqueSorted([...bonuses.mobTypeBonuses.map(entry => entry.mobType), ...valuesOf('mobType')]).map(mobType => ({
+		key: `mob-type-${mobType}`,
+		label: translateMobType(mobType),
+		match: mobTypeState(mobType, targets),
+		area: false,
+		lines: [...sourceLines(bonuses.mobTypeBonuses.find(entry => entry.mobType === mobType)?.sources ?? []), ...effectsOn('mobType', mobType)],
+	}));
+	const familyGroups = uniqueSorted(valuesOf('family')).map(family => ({
+		key: `creature-family-${family}`,
+		label: translateCreatureFamily(family),
+		match: familyState(family, targets),
+		area: false,
+		lines: effectsOn('family', family),
+	}));
+	const areaGroups = uniqueSorted([...bonuses.areaStats.map(entry => entry.areaType), ...valuesOf('area')]).map(areaType => ({
+		key: `area-type-${areaType}`,
+		label: translateAreaType(areaType),
+		match: areaState(areaType, areaTypes),
+		area: true,
+		lines: [...areaStatLines(bonuses.areaStats.find(entry => entry.areaType === areaType)?.stats ?? {}), ...effectsOn('area', areaType)],
+	}));
 	return [...mobTypeGroups, ...familyGroups, ...areaGroups];
 };
 

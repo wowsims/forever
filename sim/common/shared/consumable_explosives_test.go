@@ -159,7 +159,7 @@ func TestAnAreaExplosiveHitsOnlyTheCreatureTypesItsRowNames(t *testing.T) {
 }
 
 // The enemies outside an area explosive's creature types do not count toward the AoE cap: 17291 deals
-// its whole roll to the one Undead among 40 targets, not half of it (EV-0231).
+// its whole roll to the one Undead among 40 targets, not half of it (R-0058).
 func TestAnAreaExplosivesCapCountsOnlyTheCreatureTypesItsRowNames(t *testing.T) {
 	row := spelldata.MustFind(17291)
 	effect := row.DamageEffect()

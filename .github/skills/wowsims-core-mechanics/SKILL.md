@@ -97,9 +97,11 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   a `core.VersusTargets` (`Matches`, `AnyIn`): a row's `TargetCreatureTypes()`, a mask's `spelldata.TargetCreatures`,
   and `shared.OnlyAgainst` for a proc that fires only on hits against them. A target of a creature family and no mob
   type of its own counts as the family's mob type in every versus check (`creatureFamilyMobTypes` in
-  `sim/core/versus.go`, which `NewTarget` reads, mirrored for the gear chips in `ui/features/gear/model/versus_state.ts`). A source's factor goes through
-  `character.RegisterVersus`, `RegisterVersusProc` or `shared.RegisterVersus` with its `VersusEffectKind`
-  (`Damage`, `Restore`, `ProcChance`, `CritChance`, `ProcOnly`, `Duration`), which list it on the stats sheet. Each
+  `sim/core/versus.go`, which `NewTarget` reads; `gen_db -gen=go-to-ts` copies it for the UI's `targetMobType` in
+  `ui/sim/proto/target.ts`). A source's factor goes through
+  `character.RegisterVersus` or `shared.RegisterVersus` with its `VersusEffectKind` (`Damage`, `Restore`,
+  `ProcChance`, `CritChance`, `Duration`), or `RegisterVersusProc` for a proc against the targets alone (`ProcOnly`),
+  which list it on the stats sheet. Each
   helper takes the `ActionID` the bonus is credited to (the item for an item's stats and spells, the spell for an
   enchant with no item, a set bonus, a talent or a racial); the stats sheet's Versus bonuses group shows one row per
   credited source. An item's factor is listed only while the item is worn, and in its gear chip's tooltip; an
@@ -125,10 +127,10 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **An area effect reaches every enemy in it** (`Effect.HitsAnArea()`, `HitsACone()`, `HitsAroundTheCaster()` in
   `sim/core/spelldata/resolve_spell.go`). `MaxTargets` has no `SpellConfig` field: a caller that caps reads
   `s.MaxTargets`, and "up to $s3 targets" or `SPELLMOD_JUMP_TARGETS` is the total count.
-- **An area limited to creature types skips the enemies outside them.** They take no roll and count toward neither a
-  split, `MaxTargets` nor the AoE cap: Holy Wrath, and Stratholme Holy Water's 17291 through `calcMultiTargetDamage`
-  (`sim/common/shared/shared_utils.go`, EV-0231). `spell.CalcDamageOnEach` rolls the damage on the enemies kept, and
-  `core.AOECapMultiplierOf` gives the cap for their count.
+- **An area limited to creature types skips the enemies outside them.** They take no roll (Holy Wrath, and Stratholme
+  Holy Water's 17291 through `calcMultiTargetDamage` in `sim/common/shared/shared_utils.go`, EV-0231) and count toward
+  neither a split, `MaxTargets` nor the AoE cap (R-0058). `spell.CalcDamageOnEach` rolls the damage on the enemies
+  kept, and `core.AOECapMultiplierOf` gives the cap for their count.
 
 ## What the row forbids
 

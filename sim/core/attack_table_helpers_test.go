@@ -506,6 +506,7 @@ func TestAreaHitsReadingAStatTakeEachTargetsOwnVersusShare(t *testing.T) {
 		castOn(humanoid)
 		without := maps.Clone(damage)
 		vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: 81}, humanoid.MobType)
+		readOnHumanoid := 0.0
 		for _, first := range []*Unit{humanoid, beast} {
 			tags := castOn(first)
 			if tags[humanoid] != attackPowerTag || tags[beast] != "" {
@@ -513,6 +514,11 @@ func TestAreaHitsReadingAStatTakeEachTargetsOwnVersusShare(t *testing.T) {
 			}
 			if math.Abs(damage[beast]-without[beast]) > 1e-9 || damage[humanoid] <= without[humanoid] {
 				t.Errorf("%s read on the %s: Humanoid %v and Beast %v, want the Humanoid above %v and the Beast at %v", c.name, first.MobType, damage[humanoid], damage[beast], without[humanoid], without[beast])
+			}
+			if first == humanoid {
+				readOnHumanoid = damage[humanoid]
+			} else if math.Abs(damage[humanoid]-readOnHumanoid) > 1e-9 {
+				t.Errorf("%s read on the Beast: the Humanoid took %v, want the %v it takes read on itself", c.name, damage[humanoid], readOnHumanoid)
 			}
 		}
 		vt.unit.AddMobTypeBonusStats(ActionID{SpellID: 22}, stats.Stats{stats.AttackPower: -81}, humanoid.MobType)

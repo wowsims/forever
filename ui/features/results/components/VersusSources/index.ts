@@ -1,1 +1,1 @@
-export { VersusSources, VersusTag } from './VersusSources';
+export { VersusSources } from './VersusSources';

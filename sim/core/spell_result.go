@@ -707,48 +707,38 @@ type StatRead struct {
 	PerPoint float64
 }
 
-// A StatRead with the versus share of the stat in the value the base damage read.
-type sharedRead struct {
-	StatRead
-	read float64
-}
-
-func (spell *Spell) sharedRead(readTarget *Unit, read StatRead) sharedRead {
-	return sharedRead{StatRead: read, read: spell.Unit.AttackTables[readTarget.UnitIndex].VersusStats[read.Stat]}
-}
-
-// The base damage with the target's own versus share of the stat in place of the one it read, so the
-// hit names the stat only when its own share is not 0.
-func (spell *Spell) withOwnVersusShare(shared *sharedRead, target *Unit, baseDamage float64) float64 {
-	spell.versusRead &^= 1 << shared.Stat
-	if own := spell.versusStat(spell.Unit.AttackTables[target.UnitIndex], shared.Stat); own != shared.read {
-		baseDamage += shared.PerPoint * (own - shared.read)
+// The step that hits a target with its own versus share of the stat in place of the one the base damage
+// read against readTarget, so the hit names the stat only when its own share is not 0.
+func (spell *Spell) ownVersusShare(readTarget *Unit, read StatRead) SpellResultIteration {
+	readShare := spell.Unit.AttackTables[readTarget.UnitIndex].VersusStats[read.Stat]
+	return func(sim *Simulation, target *Unit, baseDamage float64, outcomeApplier OutcomeApplier) *SpellResult {
+		spell.versusRead &^= 1 << read.Stat
+		if own := spell.versusStat(spell.Unit.AttackTables[target.UnitIndex], read.Stat); own != readShare {
+			baseDamage += read.PerPoint * (own - readShare)
+		}
+		return spell.CalcDamage(sim, target, baseDamage, outcomeApplier)
 	}
-	return baseDamage
 }
 
 // Every target's hit takes the versus stats read before the iteration, which the base damage they
-// share read once; with a shared read, its stat is each target's own.
-func (spell *Spell) aoeIteration(sim *Simulation, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator, singleResultCalculator SpellResultIteration, shared *sharedRead) SpellResultSlice {
-	return spell.unitsIteration(sim, sim.Encounter.ActiveTargetUnits, outcomeApplier, baseDamageCalculator, singleResultCalculator, shared)
+// share read once.
+func (spell *Spell) aoeIteration(sim *Simulation, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator, singleResultCalculator SpellResultIteration) SpellResultSlice {
+	return spell.unitsIteration(sim, sim.Encounter.ActiveTargetUnits, outcomeApplier, baseDamageCalculator, singleResultCalculator)
 }
 
 // The damage on each of the units in turn, each taking the versus stats read before the iteration, as
 // in aoeIteration.
 func (spell *Spell) CalcDamageOnEach(sim *Simulation, units []*Unit, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator) SpellResultSlice {
-	return spell.unitsIteration(sim, units, outcomeApplier, baseDamageCalculator, spell.CalcDamage, nil)
+	return spell.unitsIteration(sim, units, outcomeApplier, baseDamageCalculator, spell.CalcDamage)
 }
 
-func (spell *Spell) unitsIteration(sim *Simulation, units []*Unit, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator, singleResultCalculator SpellResultIteration, shared *sharedRead) SpellResultSlice {
+func (spell *Spell) unitsIteration(sim *Simulation, units []*Unit, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator, singleResultCalculator SpellResultIteration) SpellResultSlice {
 	spell.resultSlice = spell.resultSlice[:0]
 	versusRead := spell.versusRead
 
 	for _, aoeTarget := range units {
 		spell.versusRead = versusRead
 		baseDamage := baseDamageCalculator(sim, spell)
-		if shared != nil {
-			baseDamage = spell.withOwnVersusShare(shared, aoeTarget, baseDamage)
-		}
 		spell.resultSlice = append(spell.resultSlice, singleResultCalculator(sim, aoeTarget, baseDamage, outcomeApplier))
 	}
 
@@ -756,7 +746,7 @@ func (spell *Spell) unitsIteration(sim *Simulation, units []*Unit, outcomeApplie
 }
 
 func (spell *Spell) CalcAndDealAoeDamageWithVariance(sim *Simulation, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator) SpellResultSlice {
-	return spell.aoeIteration(sim, outcomeApplier, baseDamageCalculator, spell.CalcAndDealDamage, nil)
+	return spell.aoeIteration(sim, outcomeApplier, baseDamageCalculator, spell.CalcAndDealDamage)
 }
 
 func (spell *Spell) CalcAndDealAoeDamage(sim *Simulation, baseDamage float64, outcomeApplier OutcomeApplier) SpellResultSlice {
@@ -764,11 +754,11 @@ func (spell *Spell) CalcAndDealAoeDamage(sim *Simulation, baseDamage float64, ou
 }
 
 func (spell *Spell) CalcAndDealPeriodicAoeDamage(sim *Simulation, baseDamage float64, outcomeApplier OutcomeApplier) SpellResultSlice {
-	return spell.aoeIteration(sim, outcomeApplier, fixedBaseDamageFactory(baseDamage), spell.CalcAndDealPeriodicDamage, nil)
+	return spell.aoeIteration(sim, outcomeApplier, fixedBaseDamageFactory(baseDamage), spell.CalcAndDealPeriodicDamage)
 }
 
 // Every target's hit takes the versus stats read before the iteration, as in aoeIteration.
-func (spell *Spell) cleaveIteration(sim *Simulation, firstTarget *Unit, maxTargets int32, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator, singleResultCalculator SpellResultIteration, shared *sharedRead) SpellResultSlice {
+func (spell *Spell) cleaveIteration(sim *Simulation, firstTarget *Unit, maxTargets int32, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator, singleResultCalculator SpellResultIteration) SpellResultSlice {
 	spell.resultSlice = spell.resultSlice[:0]
 	numTargets := min(maxTargets, sim.Environment.ActiveTargetCount())
 	curTarget := firstTarget
@@ -777,9 +767,6 @@ func (spell *Spell) cleaveIteration(sim *Simulation, firstTarget *Unit, maxTarge
 	for range numTargets {
 		spell.versusRead = versusRead
 		baseDamage := baseDamageCalculator(sim, spell)
-		if shared != nil {
-			baseDamage = spell.withOwnVersusShare(shared, curTarget, baseDamage)
-		}
 		spell.resultSlice = append(spell.resultSlice, singleResultCalculator(sim, curTarget, baseDamage, outcomeApplier))
 		curTarget = sim.Environment.NextActiveTargetUnit(curTarget)
 	}
@@ -788,7 +775,7 @@ func (spell *Spell) cleaveIteration(sim *Simulation, firstTarget *Unit, maxTarge
 }
 
 func (spell *Spell) CalcAndDealCleaveDamageWithVariance(sim *Simulation, firstTarget *Unit, maxTargets int32, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator) SpellResultSlice {
-	return spell.cleaveIteration(sim, firstTarget, maxTargets, outcomeApplier, baseDamageCalculator, spell.CalcAndDealDamage, nil)
+	return spell.cleaveIteration(sim, firstTarget, maxTargets, outcomeApplier, baseDamageCalculator, spell.CalcAndDealDamage)
 }
 
 func (spell *Spell) CalcAndDealCleaveDamage(sim *Simulation, firstTarget *Unit, maxTargets int32, baseDamage float64, outcomeApplier OutcomeApplier) SpellResultSlice {
@@ -801,25 +788,23 @@ func (spell *Spell) CalcAoeDamage(sim *Simulation, baseDamage float64, outcomeAp
 	return spell.CalcAoeDamageWithVariance(sim, outcomeApplier, fixedBaseDamageFactory(baseDamage))
 }
 func (spell *Spell) CalcAoeDamageWithVariance(sim *Simulation, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator) SpellResultSlice {
-	return spell.aoeIteration(sim, outcomeApplier, baseDamageCalculator, spell.CalcDamage, nil)
+	return spell.aoeIteration(sim, outcomeApplier, baseDamageCalculator, spell.CalcDamage)
 }
 
 func (spell *Spell) CalcCleaveDamage(sim *Simulation, firstTarget *Unit, maxTargets int32, baseDamage float64, outcomeApplier OutcomeApplier) SpellResultSlice {
 	return spell.CalcCleaveDamageWithVariance(sim, firstTarget, maxTargets, outcomeApplier, fixedBaseDamageFactory(baseDamage))
 }
 func (spell *Spell) CalcCleaveDamageWithVariance(sim *Simulation, firstTarget *Unit, maxTargets int32, outcomeApplier OutcomeApplier, baseDamageCalculator BaseDamageCalculator) SpellResultSlice {
-	return spell.cleaveIteration(sim, firstTarget, maxTargets, outcomeApplier, baseDamageCalculator, spell.CalcDamage, nil)
+	return spell.cleaveIteration(sim, firstTarget, maxTargets, outcomeApplier, baseDamageCalculator, spell.CalcDamage)
 }
 
 // CalcAoeDamage and CalcCleaveDamage for a base damage that read the stat against readTarget (the cleave's
 // first target): each target's hit takes its own versus share of the stat in place of the one read.
 func (spell *Spell) CalcAoeDamageReading(sim *Simulation, readTarget *Unit, baseDamage float64, read StatRead, outcomeApplier OutcomeApplier) SpellResultSlice {
-	shared := spell.sharedRead(readTarget, read)
-	return spell.aoeIteration(sim, outcomeApplier, fixedBaseDamageFactory(baseDamage), spell.CalcDamage, &shared)
+	return spell.aoeIteration(sim, outcomeApplier, fixedBaseDamageFactory(baseDamage), spell.ownVersusShare(readTarget, read))
 }
 func (spell *Spell) CalcCleaveDamageReading(sim *Simulation, firstTarget *Unit, maxTargets int32, baseDamage float64, read StatRead, outcomeApplier OutcomeApplier) SpellResultSlice {
-	shared := spell.sharedRead(firstTarget, read)
-	return spell.cleaveIteration(sim, firstTarget, maxTargets, outcomeApplier, fixedBaseDamageFactory(baseDamage), spell.CalcDamage, &shared)
+	return spell.cleaveIteration(sim, firstTarget, maxTargets, outcomeApplier, fixedBaseDamageFactory(baseDamage), spell.ownVersusShare(firstTarget, read))
 }
 
 func (spell *Spell) DealBatchedAoeDamage(sim *Simulation) {
@@ -829,7 +814,7 @@ func (spell *Spell) DealBatchedAoeDamage(sim *Simulation) {
 }
 
 func (spell *Spell) CalcPeriodicAoeDamage(sim *Simulation, baseDamage float64, outcomeApplier OutcomeApplier) SpellResultSlice {
-	return spell.aoeIteration(sim, outcomeApplier, fixedBaseDamageFactory(baseDamage), spell.CalcPeriodicDamage, nil)
+	return spell.aoeIteration(sim, outcomeApplier, fixedBaseDamageFactory(baseDamage), spell.CalcPeriodicDamage)
 }
 
 func (spell *Spell) DealBatchedPeriodicDamage(sim *Simulation) {

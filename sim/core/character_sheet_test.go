@@ -531,7 +531,7 @@ func TestSheetListsEachAreaFactorInEveryEncounter(t *testing.T) {
 			t.Errorf("%s: the sheet lists %v for the source, want its x3 restore in Wasteland and Haunted areas alone", tc.name, listed)
 		}
 
-		if inArea := character.RegisterAreaAmount(flatSource, proto.VersusEffectKind_VersusEffectKindFlatHeal, areas, 44); inArea != (tc.want != 1) {
+		if inArea := character.RegisterAreaAmount(flatSource, areas, 44); inArea != (tc.want != 1) {
 			t.Errorf("%s: the flat amount reads the encounter in the areas as %v", tc.name, inArea)
 		}
 		flat := character.versusEffectsProto()

@@ -7,7 +7,8 @@ import type { CastLog } from '@sim/proto/combat_log';
 import { useMemo } from 'react';
 
 import { DamageResult } from '../../DamageResult';
-import { VersusSources, VersusTag } from '../../VersusSources';
+import { VersusSources } from '../../VersusSources';
+import { VersusTag } from '../../VersusTag';
 
 export interface CastTooltipProps {
 	log: CastLog;

@@ -487,7 +487,7 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 	procAura := spellDataProcAura(character, cfg, trigger, buff, effect)
 
 	listener := spellDataProcListener(character, cfg, source, trigger)
-	listener.Handler, _ = withProcEnergize(character, buff, spellDataProcHandler(buff, procAura), nil)
+	listener.Handler = withProcEnergize(character, buff, spellDataProcHandler(buff, procAura), nil)
 
 	// The same fallback the database layer applies: Bulwark of Azzinoth's armor buff sits in a
 	// spell category with a 60s recovery while its trigger states nothing. Only a buff that is a
@@ -618,7 +618,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	if stacks := max(buff.MaxStack, trigger.MaxStack); stacks > 0 {
 		// A stacking buff's bonus against creature types, and its speed, would need adding per stack.
 		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool {
-			versus, _ := spelldata.VersusAura(e.Aura)
+			versus := spelldata.VersusAura(e.Aura)
 			return len(versus.Stats) > 0
 		}) {
 			panic(fmt.Sprintf("%s (%d): a stacking proc grants stats against creature types, which only a single buff carries", cfg.Name, cfg.ItemID))
@@ -651,7 +651,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 func attachVersusStats(aura *core.Aura, buff *spelldata.Spell, itemID int32) {
 	versusSource := cmp.Or(core.ActionID{ItemID: itemID}, core.ActionID{SpellID: buff.ID})
 	for _, effect := range buff.Effects {
-		versus, _ := spelldata.VersusAura(effect.Aura)
+		versus := spelldata.VersusAura(effect.Aura)
 		if bonus := versus.Bonus(effect.Average()); bonus != (stats.Stats{}) {
 			aura.AttachMobTypeBonusStats(versusSource, bonus, spelldata.MobTypes(effect.Misc)...)
 		}
@@ -735,38 +735,39 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 	}
 	attachProcDamage(character, &config, damageConfig)
 	// The restore takes the trigger's factor against the hit's target, as an energize proc's does.
-	var restoreVersus *core.VersusBonus
-	handler, restores := withProcEnergize(character, damage, config.Handler, func(target *core.Unit) float64 { return restoreVersus.Against(target) })
-	if restores {
-		restoreVersus = RegisterVersus(character, source.versusSource(trigger), proto.VersusEffectKind_VersusEffectKindRestore, trigger)
-	}
-	config.Handler = handler
+	config.Handler = withProcEnergize(character, damage, config.Handler, func() *core.VersusBonus {
+		return RegisterVersus(character, source.versusSource(trigger), proto.VersusEffectKind_VersusEffectKindRestore, trigger)
+	})
 	source.registerTrigger(character, config)
 }
 
 // The handler followed by the row's own gain into the wearer's mana, rage or energy, where the row
-// states one on its caster, and whether it does: Engulfing Shadows 27860 deals Shadow damage and
-// restores mana, and Righteous Fire 1231138 raises spell power and restores mana. The gain targets the
-// caster, so it comes with every proc whether the damage lands or not, a full resist included
-// (EV-0108). Where factor is set, the gain is multiplied by factor of the hit's target.
-func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler, factor func(target *core.Unit) float64) (core.ProcHandler, bool) {
+// states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana, and
+// Righteous Fire 1231138 raises spell power and restores mana. The gain targets the caster, so it comes
+// with every proc whether the damage lands or not, a full resist included (EV-0108). Where register is
+// set, it registers the factor the gain takes against the hit's target, once the row has a gain.
+func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler, register func() *core.VersusBonus) core.ProcHandler {
 	gain := row.EnergizeEffect()
 	if gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
-		return handler, false
+		return handler
 	}
 	restore, ok := scaledEffectGain(character, gain, core.ActionID{SpellID: row.ID})
 	if !ok {
-		return handler, false
+		return handler
+	}
+	var versus *core.VersusBonus
+	if register != nil {
+		versus = register()
 	}
 	return func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		handler(sim, spell, result)
 		scale := 1.0
 		// A cast listener hears no hit, so no target.
-		if factor != nil && result != nil {
-			scale = factor(result.Target)
+		if result != nil {
+			scale = versus.Against(result.Target)
 		}
 		restore(sim, scale)
-	}, true
+	}
 }
 
 // The spell the proc casts, as its row states it: school, defense type, spell power share, travel
@@ -988,9 +989,9 @@ func applyDotIfLanded(area bool) afterDealt {
 }
 
 // The damage of an effect that reaches more than its target. A row that names creature types skips
-// the enemies outside them, as Holy Wrath does: they take no roll and count toward neither a split,
-// the row's MaxTargets nor the AoE cap. Stratholme Holy Water's 17291 burns only the Undead in its
-// area (EV-0231).
+// the enemies outside them: they take no roll, so Stratholme Holy Water's 17291 burns only the Undead
+// in its area (EV-0231), and count toward neither a split, the row's MaxTargets nor the AoE cap
+// (R-0058).
 func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
 	types := row.TargetCreatureTypes()
 	if types.IsEmpty() {

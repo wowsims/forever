@@ -9,8 +9,8 @@ import (
 // The mob type each creature family belongs to. A target of a family and no mob type of its own counts
 // as the family's mob type in every versus check: a Fire Elemental with none is an Elemental. A target's
 // own mob type stays its only one, so an undead Troll stays Undead. Aquatic spans Beasts, Elementals and
-// Humanoids and Serpentine Beasts and Humanoids, so neither gives one. The UI keeps a copy for the versus
-// chips (ui/features/gear/model/versus_state.ts); this table is the one both follow.
+// Humanoids and Serpentine Beasts and Humanoids, so neither gives one. make go-to-ts writes the UI's copy
+// (CREATURE_FAMILY_MOB_TYPES) from this table.
 var creatureFamilyMobTypes = [...]proto.MobType{
 	proto.CreatureFamily_CreatureFamilyUnknown:        proto.MobType_MobTypeUnknown,
 	proto.CreatureFamily_CreatureFamilyNaga:           proto.MobType_MobTypeHumanoid,
@@ -90,57 +90,34 @@ type VersusProc struct {
 	VersusBonus
 }
 
-type versusRegistration struct {
-	source ActionID
-	kind   proto.VersusEffectKind
-	bonus  *VersusBonus
-	areas  []proto.AreaType
-	amount float64
-	// Registered by a set bonus, an enchant or an item only the item swap set holds.
-	swapOnly bool
-}
-
 // The factor a source's spell deals, restores or adds against the mob types and families, kept for the
 // stats sheet under the source: an item, or the spell of a set bonus or an enchant. A damage spell
 // applies it as its SpellConfig.VersusBonus; any other amount is multiplied by Against at the call site.
 func (character *Character) RegisterVersus(source ActionID, kind proto.VersusEffectKind, bonus VersusBonus) *VersusBonus {
-	character.versusRegistrations = append(character.versusRegistrations, versusRegistration{source: source, kind: kind, bonus: &bonus})
+	character.versusEffects = append(character.versusEffects, &proto.VersusEffect{Source: source.ToProto(), Kind: kind,
+		MobTypes: bonus.MobTypes, CreatureFamilies: bonus.Families, Multiplier: bonus.Multiplier})
 	return &bonus
 }
 
-// The proc of a source's spell, with the source's factor kept for the stats sheet.
-func (character *Character) RegisterVersusProc(source ActionID, kind proto.VersusEffectKind, bonus VersusBonus) *VersusProc {
-	return &VersusProc{Source: source, VersusBonus: *character.RegisterVersus(source, kind, bonus)}
+// The proc of a source's spell that fires against the targets alone, kept for the stats sheet.
+func (character *Character) RegisterVersusProc(source ActionID, targets VersusTargets) *VersusProc {
+	bonus := character.RegisterVersus(source, proto.VersusEffectKind_VersusEffectKindProcOnly, VersusBonus{VersusTargets: targets})
+	return &VersusProc{Source: source, VersusBonus: *bonus}
 }
 
 // Runs apply, which registers the effects of a set bonus or of items only the item swap set holds, and
-// marks the factors it registers as the swap set's.
+// leaves the factors it registers off the stats sheet.
 func (character *Character) registerSwapOnly(apply func()) {
-	start := len(character.versusRegistrations)
+	start := len(character.versusEffects)
 	apply()
-	for i := start; i < len(character.versusRegistrations); i++ {
-		character.versusRegistrations[i].swapOnly = true
-	}
+	character.versusEffects = character.versusEffects[:start]
 }
 
-// The registered factors of the gear the character wears. An item swap registers the effects of the
-// items, enchants and set bonuses it can swap in as well, and the sheet leaves those out.
+// The registered factors of the gear the character wears, each item source named by its worn item.
 func (character *Character) versusEffectsProto() []*proto.VersusEffect {
 	var effects []*proto.VersusEffect
-	for _, versus := range character.versusRegistrations {
-		if versus.swapOnly {
-			continue
-		}
-		effect := &proto.VersusEffect{
-			Source:           versus.source.ToProto(),
-			MobTypes:         versus.bonus.MobTypes,
-			CreatureFamilies: versus.bonus.Families,
-			Multiplier:       versus.bonus.Multiplier,
-			Kind:             versus.kind,
-			AreaTypes:        versus.areas,
-			Amount:           versus.amount,
-		}
-		if itemID := versus.source.ItemID; itemID != 0 {
+	for _, effect := range character.versusEffects {
+		if itemID := effect.Source.GetItemId(); itemID != 0 {
 			slot := slices.IndexFunc(character.Equipment[:], func(item Item) bool { return item.ID == itemID })
 			if slot < 0 {
 				continue

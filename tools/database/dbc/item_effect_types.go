@@ -191,7 +191,7 @@ func ItemEffectTypes(itemID int32, modelledItem bool, modelledSetBonus func(piec
 		families = append(families, tooltipFamilies...)
 
 		for _, effect := range effects {
-			if _, ok := spelldata.VersusAura(effect.EffectAura); ok && len(effect.EffectMiscValues) > 0 {
+			if spelldata.IsVersusAura(effect.EffectAura) && len(effect.EffectMiscValues) > 0 {
 				mobTypes = append(mobTypes, spelldata.MobTypes(int32(effect.EffectMiscValues[0]))...)
 			}
 			if effect.EffectTriggerSpell != 0 {

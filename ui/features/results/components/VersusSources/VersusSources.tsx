@@ -1,11 +1,11 @@
 import i18n from '@i18n/config';
-import { translateCreatureFamily, translateMobType, translateStat } from '@i18n/localization';
+import { translateStat } from '@i18n/localization';
 import type { DamageLog, Entity, VersusLog, VersusLogEffect, VersusLogSource } from '@sim/proto/combat_log';
 import { signedStatAmount } from '@sim/proto/stats';
-import { Pill } from '@ui-kit/Pill';
 import { WowheadIcon } from '@ui-kit/WowheadIcon';
 import { Fragment } from 'react';
 
+import { versusTargetName } from '../../model/versus';
 import { EntityLabel } from '../EntityLabel';
 
 export interface VersusSourcesProps {
@@ -49,26 +49,11 @@ const groupVersus = (logs: ReadonlyArray<DamageLog>): Array<VersusGroup> => {
 		const key = `${versus.mobType}:${versus.creatureFamily ?? ''}`;
 		const group = groups.get(key) ?? { key, versus, sources: new Map<string, VersusLogSource>(), targets: new Map<string, Entity>() };
 		groups.set(key, group);
-		if (target && !group.targets.has(targetKey(target))) group.targets.set(targetKey(target), target);
-		for (const source of versus.sources) {
-			const sourceKey = `${source.actionId.toString()}|${JSON.stringify(source.effect)}`;
-			if (!group.sources.has(sourceKey)) group.sources.set(sourceKey, source);
-		}
+		if (target) group.targets.set(targetKey(target), target);
+		for (const source of versus.sources) group.sources.set(`${source.actionId.toString()}|${JSON.stringify(source.effect)}`, source);
 	}
 	return [...groups.values()];
 };
-
-/** The target kind a hit that took a versus bonus is tagged with: "Humanoid", or "Humanoid (Orc)" with a creature family. */
-export const VersusTag = ({ versus }: { versus: VersusLog }) => (
-	<Pill tone="warning" size="xs" rounded="xs" testId="versus-tag">
-		{versus.creatureFamily === undefined
-			? translateMobType(versus.mobType)
-			: i18n.t('results_tab.details.timeline.versus.tag_family', {
-					target: translateMobType(versus.mobType),
-					family: translateCreatureFamily(versus.creatureFamily),
-				})}
-	</Pill>
-);
 
 /** The versus bonuses the hits took: "Versus Undead", then one line per source with its effect. */
 export const VersusSources = ({ logs }: VersusSourcesProps) => {
@@ -82,12 +67,7 @@ export const VersusSources = ({ logs }: VersusSourcesProps) => {
 			{groups.map(({ key, versus, sources, targets }) => (
 				<div key={key} data-testid="versus-sources" className="flex flex-col gap-1">
 					<span className="font-bold text-warning">
-						{versus.creatureFamily === undefined
-							? i18n.t('results_tab.details.timeline.versus.header', { target: translateMobType(versus.mobType) })
-							: i18n.t('results_tab.details.timeline.versus.header_family', {
-									target: translateMobType(versus.mobType),
-									family: translateCreatureFamily(versus.creatureFamily),
-								})}
+						{i18n.t('results_tab.details.timeline.versus.header', { target: versusTargetName(versus) })}
 						{nameTargets &&
 							[...targets.values()].map((target, index) => (
 								<Fragment key={targetKey(target)}>

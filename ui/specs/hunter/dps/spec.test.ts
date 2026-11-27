@@ -1,11 +1,37 @@
 import { APLRotation } from '@generated/proto/apl';
-import { Cooldowns, Spec } from '@generated/proto/common';
+import { Cooldowns, CreatureFamily, MobType, Spec, Target } from '@generated/proto/common';
 import { Hunter_Rotation, Hunter_Rotation_Playstyle as Playstyle } from '@generated/proto/hunter';
 import type { Player } from '@sim/player/player';
-import { describe, expect, it } from 'vitest';
+import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import * as Presets from './presets';
 import spec from './spec';
+
+vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
+
+beforeAll(() => serveDatabase());
+
+describe('the Improved Tracking warning', () => {
+	const warningAgainst = async (target: Target) => {
+		const { sim, player, host } = await makeIndividualSim({ spec: Spec.SpecHunter });
+		player.setTalentsString('--5');
+		sim.encounter.setTargets([target]);
+		return spec.warnings![0](host).getContent();
+	};
+
+	it("counts a target of a family and no mob type of its own as the family's mob type", async () => {
+		expect(await warningAgainst(Target.create({ creatureFamily: CreatureFamily.CreatureFamilyWolf }))).toBe('');
+	});
+
+	it('warns against a target of no mob type whose family gives none', async () => {
+		expect(await warningAgainst(Target.create({ creatureFamily: CreatureFamily.CreatureFamilyAquatic }))).not.toBe('');
+	});
+
+	it('warns against a mechanical target', async () => {
+		expect(await warningAgainst(Target.create({ mobType: MobType.MobTypeMechanical }))).not.toBe('');
+	});
+});
 
 const generate = (simple: Partial<Hunter_Rotation>) =>
 	APLRotation.toJson(spec.simpleRotation!({} as Player<Spec.SpecHunter>, Hunter_Rotation.create(simple), Cooldowns.create()));
