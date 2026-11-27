@@ -139,16 +139,14 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of
   Clarity's is in `sim/druid/omen_of_clarity.go`, Revelation's in `sim/common/forever/enchants.go`.
 - **Which hits a weapon rate counts** is EV-0155's class census: each landed hit that rolls, priced on its own weapon's
-  base speed; Judgement of Command rolls twice up to hotfix push 114399 (2026-11-25), and Execute twice up to hotfix
-  push 114313 (2026-11-20), and both are left out with their procs. After push 114313 Execute's cast suppresses weapon
-  procs; the first logs read between one and two rolls on few wearers. After push 114399 Judgement of Command's dummy
-  does, and the judgement rolls once (EV-0155). Druids in a form are left out of every rate. Paladins count, by
-  EV-0155's and EV-0156's rolls, with each run dated against the Judgement hotfix of 2026-11-13: Judgement of Command's
-  two rolls up to push 114399 are what read as a higher rate on them. A weapon where their rate reads apart from the
-  other classes' even so leaves them out and says why (owner ruling, 2026-11-23; EV-0184; it takes the place of the
-  rulings of 2026-11-19 in EV-0153 and 2026-11-22 in EV-0179). A proc that lands on the target logs almost never on a
-  killing blow, so for such a proc a killing blow is no roll; and a report that lists one stretch of the log under
-  several fight ids repeats its events, which count once (EV-0153).
+  base speed. Execute and Judgement of Command roll the weapon once (EV-0155); a count of reports from before hotfix
+  push 114313 (2026-11-20 23:47 UTC) leaves Execute out with its procs, and one from before hotfix push 114399
+  (2026-11-25 01:15 UTC) Judgement of Command. Druids in a form are left out of every rate. Paladins count, by
+  EV-0155's and EV-0156's rolls, with each run dated against the Judgement hotfix of 2026-11-13. A weapon where their
+  rate reads apart from the other classes' even so leaves them out and says why (owner ruling, 2026-11-23; EV-0184; it
+  takes the place of the rulings of 2026-11-19 in EV-0153 and 2026-11-22 in EV-0179). A proc that lands on the target
+  logs almost never on a killing blow, so for such a proc a killing blow is no roll; and a report that lists one stretch
+  of the log under several fight ids repeats its events, which count once (EV-0153).
 
 ## Traps
 
@@ -171,8 +169,21 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   into 1; only `spelldata.ProcTrigger` panics on a row that states no rate.
 - **`spelldata.Proc()` does not make a spell a proc.** It marks the spell passive with no cast or cost, and leaves
   `core.SpellFlagProc` off, so every trigger hears it. A spell the game triggers (a channel's tick, a wave, an item's
-  bolt) adds the flag from its row, `if row.IsAProc() { config.Flags |= core.SpellFlagProc }`, as Volley, Hellfire
-  Effect and Blizzard's tick do; a spell built on the player's own cast row leaves it off.
+  bolt, a poison's hit) adds the flag from its row with `spelldata.Triggered()`, as Volley's waves, Hellfire Effect,
+  Blizzard's tick and Consecration's pulses do. A spell built on the player's own cast row leaves it off.
+- **A dot's tick is no cast, but a tick its aura casts is.** A listener that cannot proc from procs hears every dot's
+  ticks, a proc's dot's included (Deadly Poison, Wound, Immolation Trap). It does not hear a tick that is the hit of
+  a spell the aura casts each period: a Treat As Periodic row (`ATTR_EX_3_TREAT_AS_PERIODIC`, Consecration's pulses),
+  or a periodic dummy or trigger with no periodic damage of its own (Ignite, Deep Wounds) (EV-0226).
+  `spelldata.SpellConfig` sets `SpellFlagTicksAreCasts` from the row. Such a spell holds the dot, carries the proc
+  flag and deals through `CalcPeriodicDamage` (`sim/paladin/consecration.go`). Whether a periodic listener that can
+  proc from procs hears those ticks is unmeasured; the sim lets it. A wave without the attribute, Hurricane's or Rain
+  of Fire's, is a direct hit.
+- **A poison's or an imbue's hit is a proc's spell damage** (R-0051): `ProcMaskSpellDamage` with `SpellFlagProc`, so
+  only a listener that can proc from procs hears it.
+- **A mask that pairs the harmful-spell bit with melee or ranged bits needs damage.** A debuff or a dot's application
+  that lands for nothing rolls none of the three items measured with that shape, and `DecodeProcTypeMask` applies the
+  rule to every such mask (EV-0021, EV-0226). A mask of spell bits alone hears those landings.
 
 ## Keeping this skill true
 

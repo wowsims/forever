@@ -121,6 +121,20 @@ func (s *Spell) IsAProc() bool {
 	return !s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_NOT_A_PROC)
 }
 
+// Whether the spell's periodic damage is the hits of a spell its aura casts each period, which reach a
+// listener as casts do, where a dot's own ticks are no cast: a Treat As Periodic row is such a hit
+// itself, and a row whose periodic effect is a periodic dummy or trigger, with no periodic damage of its
+// own, casts one, as Consecration, Ignite and Deep Wounds do (EV-0226).
+func (s *Spell) TicksAreCasts() bool {
+	if s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_TREAT_AS_PERIODIC) {
+		return true
+	}
+	if s.FirstAura(dbcenums.A_PERIODIC_DAMAGE, dbcenums.A_PERIODIC_DAMAGE_PERCENT, dbcenums.A_PERIODIC_LEECH, dbcenums.A_PERIODIC_HEAL) != NilEffect {
+		return false
+	}
+	return s.FirstAura(dbcenums.A_PERIODIC_DUMMY, dbcenums.A_PERIODIC_TRIGGER_SPELL) != NilEffect
+}
+
 func (s *Spell) SuppressesWeaponProcs() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_4, dbcenums.ATTR_EX_4_SUPPRESS_WEAPON_PROCS)
 }

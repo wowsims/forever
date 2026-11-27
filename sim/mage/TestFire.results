@@ -140,8 +140,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 918.12502
-  tps: 918.59611
+  dps: 917.67443
+  tps: 918.18012
  }
 }
 dps_results: {
@@ -189,8 +189,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 950.45843
-  tps: 948.12775
+  dps: 936.06361
+  tps: 933.49271
  }
 }
 dps_results: {

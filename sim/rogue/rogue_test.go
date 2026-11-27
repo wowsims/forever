@@ -178,8 +178,8 @@ func newTwoTargetSim(talents string) (*core.Simulation, *Rogue) {
 // fired whatever the order of actions at the same time.
 func stepPastBatch(sim *core.Simulation, wait time.Duration) {
 	at := sim.CurrentTime + wait + core.SpellBatchWindow
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
 	for sim.CurrentTime <= at {
-		sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
 		sim.Step()
 	}
 }
@@ -655,6 +655,274 @@ func TestShankRollsTheOffHandPoison(t *testing.T) {
 	}
 }
 
+// Windfury Totem rolls once on a landed Shank, an off-hand ability the rogue casts itself, and once on a landed
+// Mutilate, whose off-hand strike adds no roll. A landed off-hand white swing never rolls it.
+func TestShankRollsWindfuryTotem(t *testing.T) {
+	// Hand of Justice's extra attack is a main-hand swing, which rolls the totem, so it comes off.
+	equipment := core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "muti").GearSet
+	for i, item := range equipment.Items {
+		if item.Id == 11815 {
+			equipment.Items[i] = &proto.ItemSpec{}
+		}
+	}
+	player := &proto.Player{
+		Name:          "Rogue",
+		Race:          proto.Race_RaceHuman,
+		Class:         proto.Class_ClassRogue,
+		Equipment:     equipment,
+		TalentsString: "00530311231251031-32030302020103-001",
+		Spec:          DefaultOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{WindfuryTotem: true}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: 1800, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
+	target := sim.Encounter.AllTargetUnits[0]
+	windfury := rogue.GetSpell(core.ActionID{SpellID: 10610})
+	if windfury == nil || rogue.Mutilate == nil {
+		t.Fatalf("Windfury Totem hit %v, Mutilate %v; want both registered", windfury, rogue.Mutilate)
+	}
+	rogue.AutoAttacks.CancelAutoSwing(sim)
+	tables := rogue.AttackTables[target.UnitIndex]
+	for _, hand := range []*core.AttackTableHand{&tables.MH, &tables.OH} {
+		hand.BaseMissChance, hand.BaseDodgeChance, hand.BaseParryChance, hand.BaseBlockChance = 0, 0, 0, 0
+	}
+	chance := float64(spelldata.MustFind(10612).ProcChance) / 100
+	if chance == 0 {
+		t.Fatal("Windfury Totem's row states no proc chance")
+	}
+
+	// Each cast stands past the proc's cooldown, and its Windfury Totem hit is dealt in the same instant.
+	const casts = 2000
+	rate := func(spell *core.Spell) (landedRate float64, perLanded float64) {
+		hits := func() int32 { return windfury.SpellMetrics[target.UnitIndex].Casts }
+		landed := func() int32 {
+			m := spell.SpellMetrics[target.UnitIndex]
+			return m.Hits + m.Crits + m.Glances
+		}
+		hitsBefore, landedBefore := hits(), landed()
+		for range casts {
+			spell.SkipCastAndApplyEffects(sim, target)
+			next := sim.CurrentTime + 200*time.Millisecond
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: next, OnAction: func(*core.Simulation) {}})
+			for sim.CurrentTime < next {
+				if sim.Step() {
+					t.Fatal("the sim ended between casts")
+				}
+			}
+		}
+		n := landed() - landedBefore
+		return float64(n) / casts, float64(hits()-hitsBefore) / float64(max(n, 1))
+	}
+	// Four standard deviations of the count one roll a landed cast gives.
+	tolerance := 4 * math.Sqrt(chance*(1-chance)/casts)
+
+	for _, c := range []struct {
+		name  string
+		spell *core.Spell
+	}{
+		{"Shank", rogue.Shank},
+		{"Mutilate", rogue.Mutilate},
+	} {
+		landed, got := rate(c.spell)
+		if landed != 1 {
+			t.Errorf("%s landed on a share of %v of its casts, want all", c.name, landed)
+		}
+		if math.Abs(got-chance) > tolerance {
+			t.Errorf("%s brings a Windfury Totem hit on a share of %v of its landed casts, want one roll's %v", c.name, got, chance)
+		}
+	}
+
+	landed, got := rate(rogue.AutoAttacks.OHAuto())
+	if landed == 0 {
+		t.Fatal("no off-hand white swing landed")
+	}
+	if got != 0 {
+		t.Errorf("off-hand white swings bring a Windfury Totem hit on a share of %v of the landed ones, want none", got)
+	}
+}
+
+// Venom goes up before Shank deals its damage, so the Instant Poison that Shank's own hit procs is cast under Venom.
+// Auto attacks cast the poison between Shanks, so only the casts inside each Shank are counted.
+func TestShankPutsVenomUpBeforeItsPoisonProcs(t *testing.T) {
+	player := &proto.Player{
+		Name:          "Rogue",
+		Race:          proto.Race_RaceHuman,
+		Class:         proto.Class_ClassRogue,
+		Equipment:     core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "muti").GearSet,
+		TalentsString: venomFlashOfSteelTalents,
+		Consumables:   &proto.ConsumesSpec{OhWeaponImbueId: 8928}, // Instant Poison VI
+		Spec:          DefaultOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
+	target := sim.Encounter.AllTargetUnits[0]
+	if rogue.InstantPoison == nil {
+		t.Fatal("the off hand's imbue registered no Instant Poison")
+	}
+	venom := auraOf(t, rogue, venomBuff.ID)
+
+	var inShank, withVenom int
+	var shanking bool
+	applyPoison := rogue.InstantPoison.ApplyEffects
+	rogue.InstantPoison.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		if shanking {
+			inShank++
+			if venom.IsActive() {
+				withVenom++
+			}
+		}
+		applyPoison(sim, target, spell)
+	}
+
+	for range 100 {
+		waitForGCD(t, sim, rogue)
+		rogue.Shank.CD.Reset()
+		venom.Deactivate(sim)
+		shanking = true
+		if !rogue.Shank.Cast(sim, target) {
+			t.Fatal("Shank did not cast")
+		}
+		shanking = false
+	}
+	if inShank == 0 {
+		t.Fatal("Instant Poison cast off none of 100 Shanks")
+	}
+	if withVenom != inShank {
+		t.Errorf("Venom was up for %d of the %d Instant Poisons cast inside Shank, want all", withVenom, inShank)
+	}
+}
+
+// Mutilate's strikes take the poison bonus from the target's poisons at the cast. On a clean target, a Deadly Poison
+// either strike puts up raises neither strike; on a target poisoned before the cast, both strikes take the bonus.
+func TestMutilateTakesThePoisonBonusFromThePoisonsAtTheCast(t *testing.T) {
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 2632 // Curved Dagger
+	items[proto.ItemSlot_ItemSlotOffHand].Id = 18392 // Distracting Dagger
+	player := &proto.Player{
+		Name:          "Rogue",
+		Race:          proto.Race_RaceHuman,
+		Class:         proto.Class_ClassRogue,
+		Equipment:     &proto.EquipmentSpec{Items: items},
+		TalentsString: "00530311231251031-32030302020103-001",
+		Consumables:   &proto.ConsumesSpec{MhWeaponImbueId: 8985, OhWeaponImbueId: 8985}, // Deadly Poison IV
+		Spec:          DefaultOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	rogue := sim.Raid.Parties[0].Players[0].(RogueAgent).GetRogue()
+	target := sim.Encounter.AllTargetUnits[0]
+	if rogue.Mutilate == nil || rogue.DeadlyPoison == nil {
+		t.Fatal("the rogue has no Mutilate or no Deadly Poison")
+	}
+	rogue.AutoAttacks.CancelAutoSwing(sim)
+	target.PseudoStats.BaseDodgeChance = 0
+	rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	// Weapons without a damage range, so a strike's normal hit deals one amount.
+	mh, oh := *rogue.AutoAttacks.MH(), *rogue.AutoAttacks.OH()
+	mh.BaseDamageMax, oh.BaseDamageMax = mh.BaseDamageMin, oh.BaseDamageMin
+	rogue.AutoAttacks.SetMH(mh)
+	rogue.AutoAttacks.SetOH(oh)
+	poison := rogue.DeadlyPoison.Dot(target)
+
+	// One Mutilate; each strike's damage, 0 for a strike that was not a normal hit, and whether Deadly Poison was up
+	// at the cast and after it.
+	mutilate := func(poisoned bool) (mhDamage, ohDamage float64, before, after bool) {
+		t.Helper()
+		rogue.GCD.Reset()
+		rogue.AddEnergy(sim, 100, rogue.EnergyRefundMetrics)
+		poison.Deactivate(sim)
+		if poisoned {
+			poison.Apply(sim)
+			poison.SetStacks(sim, 1)
+		}
+		before = poison.IsActive()
+		damage := func(strike *core.Spell, cast func()) float64 {
+			m := &strike.SpellMetrics[target.UnitIndex]
+			hits, dealt := m.Hits, m.TotalDamage
+			cast()
+			if m.Hits != hits+1 {
+				return 0
+			}
+			return m.TotalDamage - dealt
+		}
+		mhDamage = damage(rogue.MutilateMH, func() {
+			ohDamage = damage(rogue.MutilateOH, func() {
+				if !rogue.Mutilate.Cast(sim, target) {
+					t.Fatal("Mutilate did not cast")
+				}
+			})
+		})
+		return mhDamage, ohDamage, before, poison.IsActive()
+	}
+
+	var cleanMH, cleanOH float64
+	for tries := 0; cleanMH == 0 || cleanOH == 0; tries++ {
+		if tries > 100 {
+			t.Fatal("100 Mutilates on a clean target gave no pair of normal hits without a poison")
+		}
+		if mhDamage, ohDamage, _, after := mutilate(false); !after && mhDamage > 0 && ohDamage > 0 {
+			cleanMH, cleanOH = mhDamage, ohDamage
+		}
+	}
+	bonus := 1 + mutilateCastRank.EffectN(4).Percent()
+	near := func(got, want float64) bool { return math.Abs(got-want) < 1e-6*want }
+
+	putUp := 0
+	for range 100 {
+		mhDamage, ohDamage, before, after := mutilate(false)
+		if before || !after || mhDamage == 0 || ohDamage == 0 {
+			continue
+		}
+		putUp++
+		if !near(mhDamage, cleanMH) || !near(ohDamage, cleanOH) {
+			t.Fatalf("on a clean target whose Deadly Poison a strike put up, the strikes deal %.2f and %.2f, want the clean %.2f and %.2f", mhDamage, ohDamage, cleanMH, cleanOH)
+		}
+	}
+	if putUp == 0 {
+		t.Fatal("no strike of 100 Mutilates on a clean target put Deadly Poison up in a cast that landed two normal hits")
+	}
+
+	poisonedPairs := 0
+	for range 20 {
+		mhDamage, ohDamage, before, _ := mutilate(true)
+		if !before {
+			t.Fatal("Deadly Poison is not up at the cast")
+		}
+		if mhDamage == 0 || ohDamage == 0 {
+			continue
+		}
+		poisonedPairs++
+		if !near(mhDamage, cleanMH*bonus) {
+			t.Errorf("on a poisoned target the main-hand strike deals %.2f, want the poison bonus over the clean %.2f", mhDamage, cleanMH)
+		}
+		if !near(ohDamage, cleanOH*bonus) {
+			t.Errorf("on a poisoned target the off-hand strike deals %.2f, want the poison bonus over the clean %.2f", ohDamage, cleanOH)
+		}
+	}
+	if poisonedPairs == 0 {
+		t.Fatal("no Mutilate of 20 on a poisoned target landed two normal hits")
+	}
+}
+
 // Death Mark under 31 Subtlety points, with and without Coup de Grace 3/3.
 const deathMarkTalents = "--335223031321001101"
 const deathMarkCoupDeGraceTalents = "-3-335223031321001101"
@@ -760,6 +1028,12 @@ func TestDeathMarkStoresAndPaysOut(t *testing.T) {
 // A reset sim of one untalented rogue with no rotation wearing the items, against one target that neither dodges nor is missed.
 func newRogueWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulation, *Rogue, *core.Unit) {
 	t.Helper()
+	return newRogueWearingWith(t, worn, nil, core.LongDuration)
+}
+
+// The same rogue with the consumables, in a fight of the duration in seconds.
+func newRogueWearingWith(t *testing.T, worn map[proto.ItemSlot]int32, consumes *proto.ConsumesSpec, duration float64) (*core.Simulation, *Rogue, *core.Unit) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
@@ -768,16 +1042,17 @@ func newRogueWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulat
 		items[slot].Id = id
 	}
 	player := &proto.Player{
-		Name:      "Rogue",
-		Race:      proto.Race_RaceHuman,
-		Class:     proto.Class_ClassRogue,
-		Equipment: &proto.EquipmentSpec{Items: items},
-		Spec:      DefaultOptions,
-		Rotation:  &proto.APLRotation{},
+		Name:        "Rogue",
+		Race:        proto.Race_RaceHuman,
+		Class:       proto.Class_ClassRogue,
+		Equipment:   &proto.EquipmentSpec{Items: items},
+		Consumables: consumes,
+		Spec:        DefaultOptions,
+		Rotation:    &proto.APLRotation{},
 	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		Encounter:  &proto.Encounter{Duration: duration, Targets: []*proto.Target{core.NewDefaultTarget()}},
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 	}, simsignals.CreateSignals())
 	sim.Reset()
@@ -928,4 +1203,45 @@ func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
 
 	// 28815's cooldown does not hold the next grant back.
 	grant()
+}
+
+// Bolt's Charged Eyeball cannot proc from procs, so it hears no hit of Instant Poison, a proc, but it hears Deadly
+// Poison's ticks, which are a dot's own and no cast (EV-0226).
+func TestBoltsChargedEyeballHearsPoisonTicksButNotPoisonHits(t *testing.T) {
+	const rolls = 300
+	sim, rogue, target := newRogueWearingWith(t, map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotMainHand: 12590,
+		proto.ItemSlot_ItemSlotOffHand:  18392,
+		proto.ItemSlot_ItemSlotTrinket1: 280032,
+	}, &proto.ConsumesSpec{MhWeaponImbueId: 8928, OhWeaponImbueId: 8985}, 2*rolls*5) // Instant Poison VI, Deadly Poison IV
+	if rogue.InstantPoison == nil || rogue.DeadlyPoison == nil {
+		t.Fatal("the imbues registered no Instant Poison or Deadly Poison")
+	}
+	shock := rogue.GetSpell(core.ActionID{SpellID: 1315996})
+	if shock == nil {
+		t.Fatal("280032 registers no 1315996")
+	}
+
+	// Each roll waits out the trinket's 3 s cooldown.
+	shocks := func(roll func()) int32 {
+		before := shock.SpellMetrics[target.UnitIndex].Casts
+		for range rolls {
+			roll()
+			stepPastBatch(sim, 3*time.Second) // past the trinket's 3 s cooldown
+		}
+		return shock.SpellMetrics[target.UnitIndex].Casts - before
+	}
+
+	hits := shocks(func() {
+		rogue.OnSpellHitDealt(sim, rogue.InstantPoison, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 1})
+	})
+	if hits != 0 {
+		t.Errorf("%d Instant Poison hits cast %d shocks, want none", rolls, hits)
+	}
+	ticks := shocks(func() {
+		rogue.OnPeriodicDamageDealt(sim, rogue.DeadlyPoison, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 1})
+	})
+	if ticks == 0 {
+		t.Errorf("%d Deadly Poison ticks cast no shock, want some", rolls)
+	}
 }

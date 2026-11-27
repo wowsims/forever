@@ -452,9 +452,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 898.49616
-  tps: 920.97608
-  dtps: 8.46525
+  dps: 899.25757
+  tps: 921.78579
+  dtps: 8.63699
   hps: 15.04667
  }
 }
@@ -1127,10 +1127,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Felstriker-12590"
  value: {
-  dps: 724.98228
-  tps: 747.75712
-  dtps: 9.38028
-  hps: 16.21583
+  dps: 725.54731
+  tps: 748.27397
+  dtps: 9.3544
+  hps: 16.23278
  }
 }
 dps_results: {
@@ -1343,10 +1343,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 870.30216
-  tps: 892.92797
-  dtps: 9.14582
-  hps: 14.65694
+  dps: 873.53058
+  tps: 896.1095
+  dtps: 9.26225
+  hps: 14.70778
  }
 }
 dps_results: {

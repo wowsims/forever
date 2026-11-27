@@ -216,8 +216,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 804.82416
-  tps: 597.44183
+  dps: 804.72333
+  tps: 597.37024
   hps: 45.98722
  }
 }
@@ -704,9 +704,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Felstriker-12590"
  value: {
-  dps: 751.69517
-  tps: 559.46053
-  hps: 46.12278
+  dps: 751.60003
+  tps: 559.42522
+  hps: 46.15667
  }
 }
 dps_results: {
@@ -864,9 +864,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 787.97449
-  tps: 585.81143
-  hps: 45.78389
+  dps: 787.71945
+  tps: 585.64195
+  hps: 45.73306
  }
 }
 dps_results: {

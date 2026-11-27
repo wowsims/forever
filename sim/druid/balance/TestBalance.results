@@ -215,9 +215,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 821.76223
-  tps: 820.74729
-  dtps: 6.75912
+  dps: 820.34546
+  tps: 819.35885
+  dtps: 6.75269
  }
 }
 dps_results: {
@@ -255,9 +255,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 880.33557
-  tps: 877.38247
-  dtps: 8.02612
+  dps: 882.73131
+  tps: 880.00567
+  dtps: 8.55564
  }
 }
 dps_results: {
@@ -888,9 +888,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 858.23479
-  tps: 855.57023
-  dtps: 7.89829
+  dps: 858.0452
+  tps: 855.36526
+  dtps: 7.95942
  }
 }
 dps_results: {

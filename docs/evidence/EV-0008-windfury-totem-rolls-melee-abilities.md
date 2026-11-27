@@ -2,7 +2,8 @@
 
 - Claim: Windfury Totem rolls on a main-hand melee swing or melee ability that lands, Holy Strike, Stormstrike, Shred,
   Rake, Ferocious Bite, Claw and bear Swipe included, and never on avoided hits, off-hand swings, DoT ticks or spells;
-  triggered hits whose rows carry Not a Proc all but never roll it.
+  triggered hits whose rows carry Not a Proc all but never roll it. Of the off-hand abilities, a rogue's Shank rolls it
+  (EV-0155).
 - Sources: combat logs after the hotfix, ranks 1 to 3 of the totem, seven players; report codes not recorded
 - Game build: not recorded
 - Date: 2026-11-13

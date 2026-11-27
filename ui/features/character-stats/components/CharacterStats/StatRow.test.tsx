@@ -11,6 +11,7 @@ const MELEE_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent);
 const OFF_HAND_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatOffHandHitPercent);
 const RANGED_HASTE = UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHastePercent);
 const STRENGTH = UnitStat.fromStat(Stat.StatStrength);
+const SPELL_PIERCING = UnitStat.fromStat(Stat.StatSpellPiercing);
 
 const renderRow = (props: Partial<StatRowViewProps>) =>
 	render(
@@ -76,5 +77,15 @@ describe('StatRowView', () => {
 		const { container } = renderRow({ displayStat: { stat: RANGED_HASTE }, playerClass: Class.ClassHunter, rangedWeapon: makeRangedWeapon() });
 		fireEvent.mouseEnter(container.querySelector('[data-testid="stat-value-link"]')!);
 		expect(await screen.findByText(`${(2.9 / 1.15).toFixed(2)}s`)).toBeTruthy();
+	});
+
+	it.each([
+		[0, false],
+		[5, true],
+		[6, false],
+	])('warns at %i Spell Piercing: %s', (piercing, warns) => {
+		const attribution = { ...makeStatAttribution(), final: new Stats().withStat(Stat.StatSpellPiercing, piercing) };
+		renderRow({ displayStat: { stat: SPELL_PIERCING }, playerClass: Class.ClassMage, attribution });
+		expect(screen.queryByRole('button', { name: 'common.list_picker.warnings' }) !== null).toBe(warns);
 	});
 });

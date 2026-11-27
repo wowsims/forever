@@ -12,11 +12,12 @@ type OnFocusGain func(*Simulation, float64)
 type focusBar struct {
 	unit *Unit
 
-	maxFocus          float64
-	currentFocus      float64
-	focusRegenPerTick float64
-	focusTickDuration time.Duration
-	nextFocusTick     time.Duration
+	maxFocus             float64
+	currentFocus         float64
+	focusRegenPerTick    float64
+	focusRegenMultiplier float64
+	focusTickDuration    time.Duration
+	nextFocusTick        time.Duration
 
 	regenMetrics       *ResourceMetrics
 	focusRefundMetrics *ResourceMetrics
@@ -27,17 +28,22 @@ func (unit *Unit) EnableFocusBar(focusRegenMultiplier float64) {
 	unit.SetCurrentPowerBar(FocusBar)
 
 	unit.focusBar = focusBar{
-		unit:               unit,
-		maxFocus:           100.0,
-		focusRegenPerTick:  1 * focusRegenMultiplier,
-		focusTickDuration:  time.Second / 10,
-		regenMetrics:       unit.NewFocusMetrics(ActionID{OtherID: proto.OtherAction_OtherActionFocusRegen}),
-		focusRefundMetrics: unit.NewFocusMetrics(ActionID{OtherID: proto.OtherAction_OtherActionRefund}),
+		unit:                 unit,
+		maxFocus:             100.0,
+		focusRegenPerTick:    1 * focusRegenMultiplier,
+		focusRegenMultiplier: 1,
+		focusTickDuration:    time.Second / 10,
+		regenMetrics:         unit.NewFocusMetrics(ActionID{OtherID: proto.OtherAction_OtherActionFocusRegen}),
+		focusRefundMetrics:   unit.NewFocusMetrics(ActionID{OtherID: proto.OtherAction_OtherActionRefund}),
 	}
 }
 
 func (unit *Unit) HasFocusBar() bool {
 	return unit.focusBar.unit != nil
+}
+
+func (fb *focusBar) MultiplyFocusRegenSpeed(multiplier float64) {
+	fb.focusRegenMultiplier *= multiplier
 }
 
 func (fb *focusBar) AddFocus(sim *Simulation, amount float64, metrics *ResourceMetrics) {
@@ -75,7 +81,7 @@ func (fb *focusBar) RunTask(sim *Simulation) time.Duration {
 	if sim.CurrentTime < fb.nextFocusTick {
 		return fb.nextFocusTick
 	}
-	fb.AddFocus(sim, fb.focusRegenPerTick, fb.regenMetrics)
+	fb.AddFocus(sim, fb.focusRegenPerTick*fb.focusRegenMultiplier, fb.regenMetrics)
 	fb.nextFocusTick = sim.CurrentTime + fb.focusTickDuration
 	return fb.nextFocusTick
 }
@@ -86,6 +92,7 @@ func (fb *focusBar) reset(sim *Simulation) {
 	}
 
 	fb.currentFocus = fb.maxFocus
+	fb.focusRegenMultiplier = 1
 
 	if fb.unit.Type != PetUnit {
 		fb.enable(sim, sim.Environment.PrepullStartTime())

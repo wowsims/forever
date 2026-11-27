@@ -138,10 +138,7 @@ func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 	attackPower := windfuryWeaponAttack.EffectN(1).Average() * shaman.windfuryWeaponMultiplier
 
 	config := spelldata.SpellConfig(&shaman.Unit, windfuryWeaponStrike,
-		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
-	if windfuryWeaponStrike.IsAProc() {
-		config.Flags |= core.SpellFlagProc
-	}
+		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(), spelldata.Triggered())
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		weaponDamage := shaman.MHWeaponDamage(sim, spell.MeleeAttackPower(target)+attackPower)
 		baseDamage := windfuryWeaponStrike.WeaponStrike(sim, spell, weaponDamage, 0)
@@ -181,8 +178,8 @@ func (shaman *Shaman) RegisterWindfuryImbue() {
 // over weapon speeds of 1.3 to 4.0 s adds 16344's m1 for every 100 s of swing to its damage.
 func (shaman *Shaman) newFlametongueImbueSpell() *core.Spell {
 	config := spelldata.SpellConfig(&shaman.Unit, flametongueWeaponAttack,
-		spelldata.Magic(core.ProcMaskSpellDamageProc), spelldata.Proc(),
-		spelldata.Flags(core.SpellFlagProc|SpellFlagShamanSpell))
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(),
+		spelldata.Triggered(), spelldata.Flags(SpellFlagShamanSpell))
 	config.ClassSpellMask = SpellMaskFlametongueWeapon
 
 	perSwing := flametongueWeaponProc.EffectN(1)
@@ -213,7 +210,7 @@ func (shaman *Shaman) RegisterFlametongueImbue() {
 // modelled.
 func (shaman *Shaman) RegisterFrostbrandImbue() {
 	config := spelldata.SpellConfig(&shaman.Unit, frostbrandWeaponAttack,
-		spelldata.Magic(core.ProcMaskSpellDamageProc), spelldata.Proc(), spelldata.Flags(core.SpellFlagProc|SpellFlagShamanSpell))
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered(), spelldata.Flags(SpellFlagShamanSpell))
 	config.ClassSpellMask = SpellMaskFrostbrandWeapon
 	damage := frostbrandWeaponAttack.DamageEffect()
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

@@ -26,10 +26,7 @@ func init() {
 	// weapon procs but not Bladestorm.
 	newEntryRateItemEffect(7717, 9632, func(character *core.Character, ppm float64) {
 		strikeRow := spelldata.MustFind(9633)
-		strikeConfig := spelldata.SpellConfig(&character.Unit, strikeRow, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
-		if strikeRow.IsAProc() {
-			strikeConfig.Flags |= core.SpellFlagProc
-		}
+		strikeConfig := spelldata.SpellConfig(&character.Unit, strikeRow, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(), spelldata.Triggered())
 		strikeConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := strikeRow.WeaponStrike(sim, spell, spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
 			spell.CalcAoeDamage(sim, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
@@ -166,10 +163,7 @@ func init() {
 		perfected := character.RegisterAura(spelldata.AuraConfig(perfectedRow, spelldata.Label("Blade of Hanna Perfected Form")))
 		spelldata.ParseEffects(character, perfected, perfectedRow, spelldata.Effects(2))
 
-		config := spelldata.SpellConfig(&character.Unit, perfectedRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc())
-		if perfectedRow.IsAProc() {
-			config.Flags |= core.SpellFlagProc
-		}
+		config := spelldata.SpellConfig(&character.Unit, perfectedRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc(), spelldata.Triggered())
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit)
 			perfected.Activate(sim)
@@ -328,6 +322,21 @@ func init() {
 			{ItemID: 13393, ItemName: "Malown's Slam"},
 		})
 
+	// Felstriker
+	// https://www.wowhead.com/forever/item=12590/felstriker
+	//
+	// Chance on hit: All attacks are guaranteed to land and will be critical strikes for the next 3s.
+	//
+	// Felstriker 16551 goes up in the instant of the hit that procs it, after that hit's own roll, so the
+	// Windfury Totem hit the same hit sets off rolls under it (EV-0225). An extra swing it sets off does
+	// too, by the same order; that swing is not measured. The buff lasts its 3 s from the spell batch the
+	// proc would have landed in, so it ends one batch window after 3 s; the owner rules the difference
+	// is server rounding (EV-0225).
+	shared.ProcTriggerExtras[12590] = func(trigger *core.ProcTrigger) {
+		trigger.TriggerImmediately = true
+	}
+	shared.ProcBuffDurationExtras[12590] = core.SpellBatchWindow
+
 	// Blade of Eternal Darkness
 	// https://www.wowhead.com/forever/item=17780/blade-of-eternal-darkness
 	//
@@ -346,6 +355,10 @@ func init() {
 		[]shared.ItemVariant{
 			{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
 		})
+	// Engulfing Shadows 27860 is binary by its row, but a landed hit takes no Spell Piercing bonus (EV-0142).
+	shared.DamageProcExtras[17780] = func(_ *core.Character, config *core.SpellConfig) {
+		config.Flags |= core.SpellFlagNoPartialResist
+	}
 
 	// Moonshadow Stave
 	// https://www.wowhead.com/forever/item=22458/moonshadow-stave
@@ -804,10 +817,7 @@ func init() {
 
 		chillRow := spelldata.MustFind(1298414)
 		chill := chillRow.DamageEffect()
-		chillConfig := spelldata.SpellConfig(&character.Unit, chillRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc())
-		if chillRow.IsAProc() {
-			chillConfig.Flags |= core.SpellFlagProc
-		}
+		chillConfig := spelldata.SpellConfig(&character.Unit, chillRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc(), spelldata.Triggered())
 		var chillOutcome core.OutcomeApplier
 		chillConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, chill.DirectAmount(sim), chillOutcome))
