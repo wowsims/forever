@@ -17,6 +17,8 @@ export interface SpellTooltipData {
 	n: string;
 	/** The rank or kind under the name, such as "Rank 5". */
 	r?: string;
+	/** Icon name. */
+	i?: string;
 	/** The cost, range, cast time and cooldown lines as [left, right]. */
 	h?: Array<[string, string]>;
 	/** Description. */
@@ -29,40 +31,79 @@ export interface SpellTooltipData {
 	x?: Array<Array<TooltipSegment>>;
 }
 
-const TOOLTIPS_URL = '/forever/assets/database/tooltips.json';
+/** What an item's tooltip takes from the game files beyond the item database. */
+export interface ItemTooltipData {
+	/** Binding: 1 when picked up, 2 when equipped, 3 when used. */
+	b?: number;
+	/** Flavour text. */
+	f?: string;
+	/** Spells as [trigger, spell id, cooldown in ms]: trigger 0 is a use, 1 an equip effect, 2 a chance on hit. */
+	e?: Array<[number, number, number]>;
+}
 
-let loaded: Record<string, SpellTooltipData> = {};
-let loading: Promise<Record<string, SpellTooltipData>> | null = null;
+export interface SetTooltipData {
+	n: string;
+	/** The pieces' item ids. */
+	p: Array<number>;
+	/** Bonuses as [pieces worn, spell id]. */
+	b: Array<[number, number]>;
+}
+
+interface TooltipFile {
+	spells: Record<string, SpellTooltipData>;
+	items: Record<string, ItemTooltipData>;
+	sets: Record<string, SetTooltipData>;
+}
+
+const TOOLTIPS_URL = '/forever/assets/database/tooltips.json';
+const EMPTY: TooltipFile = { spells: {}, items: {}, sets: {} };
+
+let loaded: TooltipFile = EMPTY;
+let loading: Promise<TooltipFile> | null = null;
 
 /** Loads the tooltips once; a failed load is tried again on the next call and reads as no tooltips meanwhile. */
-export const loadSpellTooltips = (): Promise<Record<string, SpellTooltipData>> =>
+export const loadTooltips = (): Promise<TooltipFile> =>
 	(loading ??= fetch(TOOLTIPS_URL)
 		.then(response => (response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`))))
-		.then((data: Record<string, SpellTooltipData>) => (loaded = data))
+		.then((data: TooltipFile) => (loaded = data))
 		.catch(error => {
-			console.warn(`Spell tooltips failed to load from ${TOOLTIPS_URL}:`, error);
+			console.warn(`Tooltips failed to load from ${TOOLTIPS_URL}:`, error);
 			loading = null;
-			return {};
+			return EMPTY;
 		}));
 
-/** A tooltip already loaded, for a render that cannot wait. */
-export const loadedSpellTooltip = (spellId: number): SpellTooltipData | undefined => loaded[spellId];
+/** Tooltips already loaded, for a render that cannot wait. */
+export const loadedSpellTooltip = (spellId: number): SpellTooltipData | undefined => loaded.spells[spellId];
+export const loadedItemTooltip = (itemId: number): ItemTooltipData | undefined => loaded.items[itemId];
+export const loadedSetTooltip = (setId: number): SetTooltipData | undefined => loaded.sets[setId];
 
 // A tooltip with text of its own; a spell the game files give only a name, such as an enchant's "Item +AGI Leg R1", keeps wowhead's.
 const hasText = (data: SpellTooltipData | undefined) => !!(data && (data.d?.length || data.a?.length || data.x));
 
-export const hasLoadedSpellTooltip = (spellId: number): boolean => hasText(loaded[spellId]);
+export const hasLoadedSpellTooltip = (spellId: number): boolean => hasText(loaded.spells[spellId]);
 
-export const hasSpellTooltip = async (spellId: number): Promise<boolean> => hasText((await loadSpellTooltips())[spellId]);
+export const hasSpellTooltip = async (spellId: number): Promise<boolean> => hasText((await loadTooltips()).spells[spellId]);
 
-/** The tooltip host every spell anchor opts into (ui/features/tooltips). */
+export const hasItemTooltip = async (itemId: number): Promise<boolean> => !!(await loadTooltips()).items[itemId];
+
+/** The tooltip host every spell and item anchor opts into (ui/features/tooltips). */
 export const SPELL_TOOLTIP_ID = 'spell-tooltip';
 
-/** Props for an anchor whose tooltip is the spell's own, which also keep wowhead's script off it. */
-export const spellTooltipAnchor = (spellId: number, options: { buff?: boolean } = {}): Record<string, string> => ({
+/** Props for an anchor whose tooltip is the spell's own, which also keep wowhead's script off it. A talent anchor shows the talent's ranks; the spell a talent teaches shows as a spell elsewhere. */
+export const spellTooltipAnchor = (spellId: number, options: { buff?: boolean; talent?: boolean } = {}): Record<string, string> => ({
 	'data-tooltip-id': SPELL_TOOLTIP_ID,
 	'data-spell-tooltip': String(spellId),
 	...(options.buff ? { 'data-spell-buff': 'true' } : {}),
+	...(options.talent ? { 'data-spell-talent': 'true' } : {}),
+	'data-disable-wowhead-tooltip': 'true',
+});
+
+/** Props for an anchor whose tooltip is the item's own: the item, and the random suffix and enchant it carries. */
+export const itemTooltipAnchor = (itemId: number, options: { randomSuffix?: number; enchant?: number } = {}): Record<string, string> => ({
+	'data-tooltip-id': SPELL_TOOLTIP_ID,
+	'data-item-tooltip': String(itemId),
+	...(options.randomSuffix ? { 'data-item-suffix': String(options.randomSuffix) } : {}),
+	...(options.enchant ? { 'data-item-enchant': String(options.enchant) } : {}),
 	'data-disable-wowhead-tooltip': 'true',
 });
 

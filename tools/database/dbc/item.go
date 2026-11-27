@@ -47,6 +47,7 @@ type Item struct {
 	UpgradePath           []int
 	LimitCategory         int
 	Bonding               int
+	Flavor                string                    // ItemSparse.Description_lang, the quoted line at the bottom of the tooltip.
 	EquipWeaponSkills     []*proto.WeaponSkillValue // The weapon skills of the equip spells folded into the item (foldEquipWeaponSkills).
 }
 

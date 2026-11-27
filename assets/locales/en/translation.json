@@ -3832,5 +3832,72 @@
 		},
 		"group_count": "{{group}} ({{shown}}/{{total}})",
 		"kept_tooltip": "This item is showing because you have it selected. Use the filters to permanently show it."
+	},
+	"tooltips": {
+		"item_level": "Item Level {{ilvl}}",
+		"binding": {
+			"picked_up": "Binds when picked up",
+			"equipped": "Binds when equipped",
+			"used": "Binds when used"
+		},
+		"unique": "Unique",
+		"slots": {
+			"head": "Head",
+			"neck": "Neck",
+			"shoulder": "Shoulder",
+			"back": "Back",
+			"chest": "Chest",
+			"wrist": "Wrist",
+			"hands": "Hands",
+			"waist": "Waist",
+			"legs": "Legs",
+			"feet": "Feet",
+			"finger": "Finger",
+			"trinket": "Trinket",
+			"ranged": "Ranged",
+			"one_hand": "One-Hand",
+			"main_hand": "Main Hand",
+			"off_hand": "Off Hand",
+			"two_hand": "Two-Hand"
+		},
+		"damage": "{{min}} - {{max}} Damage",
+		"speed": "Speed {{speed}}",
+		"dps": "({{dps}} damage per second)",
+		"armor": "{{armor}} Armor",
+		"stat": "+{{value}} {{stat}}",
+		"weapon_damage": "Damage",
+		"requires_level": "Requires Level {{level}}",
+		"classes": "Classes: {{classes}}",
+		"use": "Use: {{text}}",
+		"equip": "Equip: {{text}}",
+		"chance_on_hit": "Chance on hit: {{text}}",
+		"cooldown": "({{time}} Cooldown)",
+		"time": {
+			"sec": "{{n}} Sec",
+			"min": "{{n}} Min",
+			"hour": "{{n}} Hour",
+			"hours": "{{n}} Hours"
+		},
+		"set": "{{name}} ({{worn}}/{{total}})",
+		"set_bonus": "({{count}}) Set: {{text}}",
+		"equip_stats": {
+			"hit": "Improves your chance to hit by {{value}}%.",
+			"crit": "Improves your chance to get a critical strike by {{value}}%.",
+			"haste": "Improves your haste by {{value}}%.",
+			"attack_power": "+{{value}} Attack Power.",
+			"ranged_attack_power": "+{{value}} ranged Attack Power.",
+			"feral_attack_power": "+{{value}} Attack Power in Cat, Bear, and Dire Bear forms only.",
+			"spell_damage": "Increases damage and healing done by magical spells and effects by up to {{value}}.",
+			"school_damage": "Increases damage done by {{school}} spells and effects by up to {{value}}.",
+			"healing": "Increases healing done by spells and effects by up to {{value}}.",
+			"mp5": "Restores {{value}} mana per 5 sec.",
+			"defense": "Increased Defense +{{value}}.",
+			"dodge": "Increases your chance to dodge an attack by {{value}}%.",
+			"parry": "Increases your chance to parry an attack by {{value}}%.",
+			"block": "Increases your chance to block attacks with a shield by {{value}}%.",
+			"block_value": "Increases the block value of your shield by {{value}}.",
+			"spell_piercing": "Decreases the magical resistances of your spell targets by {{value}}.",
+			"other": "+{{value}} {{stat}}."
+		}
 	}
 }

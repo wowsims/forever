@@ -69,6 +69,7 @@ func ScanRawItemData(rows *sql.Rows) (dbc.Item, error) {
 		&raw.LimitCategory,
 		&raw.Bonding,
 		&maxCount,
+		&raw.Flavor,
 	)
 	if err != nil {
 		panic(err)
@@ -146,7 +147,8 @@ func LoadAndWriteRawItems(dbHelper *DBHelper, filter string, inputsDir string) (
 			 COALESCE(ind.Description_lang, ''),
 			s.LimitCategory,
 			s.Bonding,
-			COALESCE(s.MaxCount, 0) as MaxCount
+			COALESCE(s.MaxCount, 0) as MaxCount,
+			COALESCE(s.Description_lang, '') as Flavor
 		FROM Item i
 		JOIN ItemSparse s ON i.ID = s.ID
 		JOIN ItemClass ic ON i.ClassID = ic.ClassID

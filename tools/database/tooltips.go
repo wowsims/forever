@@ -6,8 +6,10 @@ import (
 	"maps"
 	"math"
 	"os"
+	"path/filepath"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -15,11 +17,20 @@ import (
 	"github.com/wowsims/forever/tools/tooltip"
 )
 
-// One spell's tooltip for the site (ui/sim/proto/tooltips.ts): its name and rank, the cost, range, cast and
-// cooldown lines as [left, right] pairs, and its description and buff text compiled by tooltip.Compile.
+// The site's tooltips (ui/sim/proto/tooltips.ts): spells by id, and the parts of an item's tooltip the item
+// database does not hold, by item id, with its sets by set id.
+type tooltipFile struct {
+	Spells map[int32]spellTooltip `json:"spells"`
+	Items  map[int32]itemTooltip  `json:"items"`
+	Sets   map[int32]setTooltip   `json:"sets"`
+}
+
+// One spell's tooltip: its name, rank and icon, the cost, range, cast and cooldown lines as [left, right]
+// pairs, and its description and buff text compiled by tooltip.Compile.
 type spellTooltip struct {
 	Name  string            `json:"n"`
 	Rank  string            `json:"r,omitempty"`
+	Icon  string            `json:"i,omitempty"`
 	Lines [][2]string       `json:"h,omitempty"`
 	Text  []tooltip.Segment `json:"d,omitempty"`
 	Aura  []tooltip.Segment `json:"a,omitempty"`
@@ -29,11 +40,41 @@ type spellTooltip struct {
 	RankTexts [][]tooltip.Segment `json:"x,omitempty"`
 }
 
-// Writes the tooltip of every spell the site can show, the spells the sim's store holds and every talent in
-// the trees (their spell ids and points), to path. A condition on a rank of a talent the trees offer is left
-// to the player's points, one on a talent they do not offer is false; the store's rows give the header lines.
-func WriteSpellTooltips(path string, instance *dbc.DBC, treeTalents map[int32]int32, rawTalents []RawTalent) error {
+// An item's binding (1 when picked up, 2 when equipped, 3 when used), its flavour text and its spells as
+// [trigger, spell id, cooldown in ms]: trigger 0 is a use, 1 an equip effect and 2 a chance on hit.
+type itemTooltip struct {
+	Binding int        `json:"b,omitempty"`
+	Flavor  string     `json:"f,omitempty"`
+	Spells  [][3]int32 `json:"e,omitempty"`
+}
+
+// A set's name, its pieces the database holds, and its bonuses as [pieces worn, spell id].
+type setTooltip struct {
+	Name    string     `json:"n"`
+	Pieces  []int32    `json:"p"`
+	Bonuses [][2]int32 `json:"b"`
+}
+
+// The item spell triggers a tooltip shows: use, equip and chance on hit.
+var shownItemTriggers = map[int]bool{0: true, 1: true, 2: true}
+
+// Writes the tooltip of every spell the site can show to path: the spells the sim's store holds, every talent
+// in the trees (their spell ids and points), and the spells of the items given and of their sets, with those
+// items' and sets' own parts. A condition on a rank of a talent the trees offer is left to the player's points,
+// one on a talent they do not offer is false; the store's rows give the header lines.
+func WriteTooltips(path string, instance *dbc.DBC, treeTalents map[int32]int32, rawTalents []RawTalent, itemIDs []int32) error {
 	ids := map[int32]bool{}
+	items, sets := itemTooltips(instance, itemIDs)
+	for _, item := range items {
+		for _, spell := range item.Spells {
+			ids[spell[1]] = true
+		}
+	}
+	for _, set := range sets {
+		for _, bonus := range set.Bonuses {
+			ids[bonus[1]] = true
+		}
+	}
 	talents := map[int64]tooltip.Talent{}
 	for id := range treeTalents {
 		ids[id] = true
@@ -69,7 +110,7 @@ func WriteSpellTooltips(path string, instance *dbc.DBC, treeTalents map[int32]in
 		if !ok || row.NameLang == "" {
 			continue
 		}
-		t := spellTooltip{Name: row.NameLang, Rank: row.Subtext, Lines: headerLines(spelldata.Find(id)), MaxPoints: treeTalents[id]}
+		t := spellTooltip{Name: row.NameLang, Rank: row.Subtext, Icon: iconName(row.IconPath), Lines: headerLines(spelldata.Find(id)), MaxPoints: treeTalents[id]}
 		t.RankTexts = rankTexts(provider, id, row.Description, treeTalents[id], talents)
 		var err error
 		if row.Description != "" {
@@ -85,12 +126,60 @@ func WriteSpellTooltips(path string, instance *dbc.DBC, treeTalents map[int32]in
 		tooltips[id] = t
 	}
 
-	data, err := json.Marshal(tooltips)
+	data, err := json.Marshal(tooltipFile{Spells: tooltips, Items: items, Sets: sets})
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Wrote %d spell tooltips to %s (%d KB); %d texts did not compile\n", len(tooltips), path, len(data)/1024, failed)
+	fmt.Printf("Wrote %d spell, %d item and %d set tooltips to %s (%d KB); %d texts did not compile\n",
+		len(tooltips), len(items), len(sets), path, len(data)/1024, failed)
 	return os.WriteFile(path, data, 0o644)
+}
+
+func itemTooltips(instance *dbc.DBC, itemIDs []int32) (map[int32]itemTooltip, map[int32]setTooltip) {
+	items := map[int32]itemTooltip{}
+	sets := map[int32]setTooltip{}
+	for _, id := range itemIDs {
+		row, ok := instance.Items[int(id)]
+		if !ok {
+			continue
+		}
+		item := itemTooltip{Binding: row.Bonding, Flavor: row.Flavor}
+		for _, effect := range instance.ItemEffectsByParentID[int(id)] {
+			if shownItemTriggers[effect.TriggerType] && effect.SpellID != 0 {
+				item.Spells = append(item.Spells, [3]int32{int32(effect.TriggerType), int32(effect.SpellID), int32(effect.CoolDownMSec)})
+			}
+		}
+		items[id] = item
+
+		if row.ItemSetId == 0 {
+			continue
+		}
+		set, ok := sets[int32(row.ItemSetId)]
+		if !ok {
+			set = setTooltip{Name: row.ItemSetName}
+			for _, bonus := range instance.ItemSetSpells[row.ItemSetId] {
+				set.Bonuses = append(set.Bonuses, [2]int32{int32(bonus.Threshold), int32(bonus.SpellID)})
+			}
+			slices.SortFunc(set.Bonuses, func(a, b [2]int32) int { return int(a[0] - b[0]) })
+		}
+		set.Pieces = append(set.Pieces, id)
+		sets[int32(row.ItemSetId)] = set
+	}
+	for id, set := range sets {
+		slices.Sort(set.Pieces)
+		sets[id] = set
+	}
+	return items, sets
+}
+
+// The icon name the item database and the site's icon folder use for a listfile path: the file name without its
+// extension, lowercased, with its spaces as dashes (GetIconName).
+func iconName(path string) string {
+	if path == "" {
+		return ""
+	}
+	name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+	return strings.ToLower(strings.ReplaceAll(name, " ", "-"))
 }
 
 // A talent's description at each rank, read off the store's ladder for it; none when every rank reads alike.

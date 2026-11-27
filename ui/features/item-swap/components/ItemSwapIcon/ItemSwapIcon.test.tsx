@@ -35,7 +35,7 @@ vi.mock('@sim/hooks/useActionId', () => ({
 
 const tooltip = { settles: [] as Array<(url: string) => void> };
 vi.mock('@sim/proto/action_id/tooltip_data', () => ({
-	equippedItemWowheadTooltipData: () => new Promise<string>(resolve => tooltip.settles.push(resolve)),
+	equippedItemTooltipProps: () => new Promise<string>(resolve => tooltip.settles.push(resolve)).then(url => ({ 'data-wowhead': url })),
 }));
 
 const { ItemSwapIcon, ItemSwapIconView } = await import('./ItemSwapIcon');

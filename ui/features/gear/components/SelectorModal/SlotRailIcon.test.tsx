@@ -13,7 +13,7 @@ vi.mock('@sim/hooks/useActionId', () => ({ useActionId }));
 vi.mock('@sim/hooks/useWowheadDataset', () => ({ useWowheadDataset }));
 vi.mock('@sim/hooks/usePlayerStore', () => ({ usePlayerStore: () => ({}) }));
 vi.mock('@sim/proto/action_id/tooltip_data', () => ({
-	equippedItemWowheadTooltipData: () => Promise.resolve(''),
+	equippedItemTooltipProps: () => Promise.resolve({ 'data-wowhead': '' }),
 }));
 
 const { SlotRailIcon } = await import('./SlotRailIcon');

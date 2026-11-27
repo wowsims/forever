@@ -1,5 +1,5 @@
 import { useActionId } from '@sim/hooks/useActionId';
-import { useSpellTooltipAnchor } from '@sim/hooks/useSpellTooltipAnchor';
+import { useTalentTooltipAnchor } from '@sim/hooks/useTalentTooltipAnchor';
 import { ActionId } from '@sim/proto/action_id';
 import type { TalentConfig } from '@sim/talents/config';
 import { isRightClick } from '@ui-kit/utils/dom';
@@ -28,7 +28,7 @@ export const TalentPicker = <TalentsProto,>({ config, points, canAdd, broken, al
 	const { iconUrl } = useActionId(ActionId.fromTalent(config.spellId, 1, definitionId));
 	const href = ActionId.makeSpellUrl(config.spellId, Math.max(points, 1), definitionId);
 	// The site's own tooltip, which reads the points off the talents themselves (ui/features/tooltips).
-	const tooltip = useSpellTooltipAnchor(config.spellId);
+	const tooltip = useTalentTooltipAnchor(config.spellId);
 	const isFull = points >= config.maxPoints;
 
 	const spend = () => onSetPoints(points + 1);

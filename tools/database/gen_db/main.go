@@ -14,6 +14,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	assetsdb "github.com/wowsims/forever/assets/database"
 	"github.com/wowsims/forever/sim"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -102,7 +103,8 @@ func main() {
 			log.Fatalf("failed to run overrides: %v", err)
 		}
 		writeDBCInputs(helper, inputsDir)
-		writeSpellTooltips(helper, dbc.GetDBC(), dbDir, inputsDir)
+		committed := assetsdb.Load()
+		writeTooltips(helper, dbc.GetDBC(), dbDir, inputsDir, itemIDs(committed.Items)) // db.bin and leftover_db.bin together
 		return
 	} else if *genAsset != "db" {
 		panic("Invalid gen value")
@@ -379,10 +381,18 @@ func main() {
 	applyRepSources(db, factionNames)
 	db.WriteBinaryAndJson(fmt.Sprintf("%s/db.bin", dbDir), fmt.Sprintf("%s/db.json", dbDir))
 	database.UpdateItemFirstSeen(fmt.Sprintf("%s/item_first_seen.json", dbDir), db.Items, time.Now().Unix())
-	writeSpellTooltips(helper, instance, dbDir, inputsDir)
+	writeTooltips(helper, instance, dbDir, inputsDir, append(slices.Collect(maps.Keys(db.Items)), slices.Collect(maps.Keys(leftovers.Items))...))
 }
 
-func writeSpellTooltips(helper *database.DBHelper, instance *dbc.DBC, dbDir string, inputsDir string) {
+func itemIDs(items []*proto.UIItem) []int32 {
+	ids := make([]int32, len(items))
+	for i, item := range items {
+		ids[i] = item.Id
+	}
+	return ids
+}
+
+func writeTooltips(helper *database.DBHelper, instance *dbc.DBC, dbDir string, inputsDir string, items []int32) {
 	talents, err := database.LoadTalents(helper)
 	if err != nil {
 		log.Fatalf("failed to load the talents: %v", err)
@@ -395,7 +405,7 @@ func writeSpellTooltips(helper *database.DBHelper, instance *dbc.DBC, dbDir stri
 			}
 		}
 	}
-	if err := database.WriteSpellTooltips(fmt.Sprintf("%s/tooltips.json", dbDir), instance, treeTalents, talents); err != nil {
+	if err := database.WriteTooltips(fmt.Sprintf("%s/tooltips.json", dbDir), instance, treeTalents, talents, items); err != nil {
 		log.Fatalf("failed to write the spell tooltips: %v", err)
 	}
 }

@@ -13098,6 +13098,269 @@
 			},
 			"additionalProperties": false,
 			"required": ["title", "triggers", "spec_defaults", "all", "groups", "group_count", "kept_tooltip"]
+		},
+		"tooltips": {
+			"type": "object",
+			"properties": {
+				"item_level": {
+					"type": "string"
+				},
+				"binding": {
+					"type": "object",
+					"properties": {
+						"picked_up": {
+							"type": "string"
+						},
+						"equipped": {
+							"type": "string"
+						},
+						"used": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["picked_up", "equipped", "used"]
+				},
+				"unique": {
+					"type": "string"
+				},
+				"slots": {
+					"type": "object",
+					"properties": {
+						"head": {
+							"type": "string"
+						},
+						"neck": {
+							"type": "string"
+						},
+						"shoulder": {
+							"type": "string"
+						},
+						"back": {
+							"type": "string"
+						},
+						"chest": {
+							"type": "string"
+						},
+						"wrist": {
+							"type": "string"
+						},
+						"hands": {
+							"type": "string"
+						},
+						"waist": {
+							"type": "string"
+						},
+						"legs": {
+							"type": "string"
+						},
+						"feet": {
+							"type": "string"
+						},
+						"finger": {
+							"type": "string"
+						},
+						"trinket": {
+							"type": "string"
+						},
+						"ranged": {
+							"type": "string"
+						},
+						"one_hand": {
+							"type": "string"
+						},
+						"main_hand": {
+							"type": "string"
+						},
+						"off_hand": {
+							"type": "string"
+						},
+						"two_hand": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": [
+						"head",
+						"neck",
+						"shoulder",
+						"back",
+						"chest",
+						"wrist",
+						"hands",
+						"waist",
+						"legs",
+						"feet",
+						"finger",
+						"trinket",
+						"ranged",
+						"one_hand",
+						"main_hand",
+						"off_hand",
+						"two_hand"
+					]
+				},
+				"damage": {
+					"type": "string"
+				},
+				"speed": {
+					"type": "string"
+				},
+				"dps": {
+					"type": "string"
+				},
+				"armor": {
+					"type": "string"
+				},
+				"stat": {
+					"type": "string"
+				},
+				"weapon_damage": {
+					"type": "string"
+				},
+				"requires_level": {
+					"type": "string"
+				},
+				"classes": {
+					"type": "string"
+				},
+				"use": {
+					"type": "string"
+				},
+				"equip": {
+					"type": "string"
+				},
+				"chance_on_hit": {
+					"type": "string"
+				},
+				"cooldown": {
+					"type": "string"
+				},
+				"time": {
+					"type": "object",
+					"properties": {
+						"sec": {
+							"type": "string"
+						},
+						"min": {
+							"type": "string"
+						},
+						"hour": {
+							"type": "string"
+						},
+						"hours": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["sec", "min", "hour", "hours"]
+				},
+				"set": {
+					"type": "string"
+				},
+				"set_bonus": {
+					"type": "string"
+				},
+				"equip_stats": {
+					"type": "object",
+					"properties": {
+						"hit": {
+							"type": "string"
+						},
+						"crit": {
+							"type": "string"
+						},
+						"haste": {
+							"type": "string"
+						},
+						"attack_power": {
+							"type": "string"
+						},
+						"ranged_attack_power": {
+							"type": "string"
+						},
+						"feral_attack_power": {
+							"type": "string"
+						},
+						"spell_damage": {
+							"type": "string"
+						},
+						"school_damage": {
+							"type": "string"
+						},
+						"healing": {
+							"type": "string"
+						},
+						"mp5": {
+							"type": "string"
+						},
+						"defense": {
+							"type": "string"
+						},
+						"dodge": {
+							"type": "string"
+						},
+						"parry": {
+							"type": "string"
+						},
+						"block": {
+							"type": "string"
+						},
+						"block_value": {
+							"type": "string"
+						},
+						"spell_piercing": {
+							"type": "string"
+						},
+						"other": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": [
+						"hit",
+						"crit",
+						"haste",
+						"attack_power",
+						"ranged_attack_power",
+						"feral_attack_power",
+						"spell_damage",
+						"school_damage",
+						"healing",
+						"mp5",
+						"defense",
+						"dodge",
+						"parry",
+						"block",
+						"block_value",
+						"spell_piercing",
+						"other"
+					]
+				}
+			},
+			"additionalProperties": false,
+			"required": [
+				"item_level",
+				"binding",
+				"unique",
+				"slots",
+				"damage",
+				"speed",
+				"dps",
+				"armor",
+				"stat",
+				"weapon_damage",
+				"requires_level",
+				"classes",
+				"use",
+				"equip",
+				"chance_on_hit",
+				"cooldown",
+				"time",
+				"set",
+				"set_bonus",
+				"equip_stats"
+			]
 		}
 	},
 	"additionalProperties": false,
@@ -13116,7 +13379,8 @@
 		"info",
 		"sidebar",
 		"saved_data_transfer",
-		"stat_filters"
+		"stat_filters",
+		"tooltips"
 	],
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"title": "Generated Schema",
