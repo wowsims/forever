@@ -1,6 +1,7 @@
 # EV-0024: Sword of Dismemberment procs 0.6 times a minute
 
-- Claim: Sword of Dismemberment 287005, whose Dismember row 1324687 states no rate, procs at 0.6 per minute without extra attacks or haste; seal and judgement hits roll it.
+- Claim: Sword of Dismemberment 287005, whose Dismember row 1324687 states no rate, procs at 0.6 per minute without
+  extra attacks or haste; seal hits and Judgement of Command roll it.
 - Sources: Warcraft Logs reports of dungeons below the end game (Scarlet Monastery, Razorfen Downs, Uldaman, Zul'Farrak, Maraudon, Sunken Temple, Krol'dok Stronghold, Alcaz Prison and The Drowned City), 2791 reports searched, the proc found in 11; the three kept runs are hWHgAPGmrNpDxwCR, FMcQw7KgbLjhy3CN and VnD3b8WCJQfxr4XZ
 - Game build: not recorded
 - Date: 2026-11-13
