@@ -24,11 +24,10 @@ before its damage line, and about 17 ms after a white swing.
 
 ## Which hits roll
 
-Ranged-type hits (Judgement of Righteousness) roll nothing, 0 of 95 isolated ones, and a Judgement of Command rolled
-twice up to hotfix push 114399 (2026-11-25), as EV-0119 found, and rolls once from that push (EV-0155). A Seal of
-Righteousness hit rolls the sword as well: clusters of a white swing and its seal hit procced 12 times in 98 (12.2%),
-single white swings 10 times in 168 (6.0%), and a fit with the seal rolling explains the clusters better than one
-without it (log-likelihood -277.6 against -282.0).
+Ranged-type hits (Judgement of Righteousness) roll nothing, 0 of 95 isolated ones, and a Judgement of Command rolls once
+(EV-0155). A Seal of Righteousness hit rolls the sword as well: clusters of a white swing and its seal hit procced 12
+times in 98 (12.2%), single white swings 10 times in 168 (6.0%), and a fit with the seal rolling explains the clusters
+better than one without it (log-likelihood -277.6 against -282.0).
 
 ## Rate
 

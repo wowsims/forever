@@ -3,11 +3,13 @@ spec elemental_shaman
 talents "5500331023001351-05500001-053"
 
 settings:
+  name "Player"
   race windshaper_skyborne
   profession1 leatherworking
   profession2 enchanting
   reaction_time 100ms
   distance_from_target 20
+  healing_model()
 
 gear:
   head       coif_of_the_five_thunders_ilvl60 + arcanum_of_focus
@@ -24,8 +26,11 @@ gear:
   finger2    rune_band_of_wizardry
   trinket1   weakness_analyzer
   trinket2   royal_seal_of_eldrethalas_18471
-  main_hand  ironbark_staff_20220 + enchant_2h_weapon_spellblasting
+  main_hand  headmasters_charge + enchant_2h_weapon_spellblasting
   ranged     totem_of_the_storm
+  bonus_stats()
+
+item_swap: prepull_bonus_stats()
 
 consumables:
   flask flask_of_supreme_power
@@ -43,6 +48,8 @@ consumables:
 buffs:
   greater_blessing_of_kings
   greater_blessing_of_wisdom 1
+
+party_buffs:
 
 raid_buffs: arcane_intellect, prayer_of_spirit, mark_of_the_wild, power_word_fortitude, moonkin_aura
 
@@ -67,6 +74,8 @@ apl:
   var ${Single Target} = number_targets == 1
   var ${Multi Target} = not $single_target
   var ${Use Cooldowns} = $multi_target or dot(flame_shock).is_active
+
+cooldowns:
 
 prepull:
   -5.5s cast water_shield

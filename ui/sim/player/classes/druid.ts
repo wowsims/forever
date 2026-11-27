@@ -23,7 +23,7 @@ export class Druid extends PlayerClass<Class.ClassDruid> {
 	static rangedWeaponTypes = getClassRangedWeaponTypes(Druid.classID);
 
 	readonly classID = Druid.classID;
-	readonly friendlyName = Druid.name;
+	readonly friendlyName = Druid.friendlyName;
 	readonly hexColor = Druid.hexColor;
 	readonly specs = Druid.specs;
 	readonly races = Druid.races;

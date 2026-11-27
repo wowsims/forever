@@ -3,6 +3,7 @@ package paladin_test
 import (
 	"math"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/common"
 	"github.com/wowsims/forever/sim/core"
@@ -66,13 +67,19 @@ func listeningPaladin(t *testing.T) (*core.Simulation, *paladin.Paladin, *core.U
 // on one target.
 func paladinWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulation, *paladin.Paladin, *core.Unit) {
 	t.Helper()
+	return paladinWearingAgainst(t, worn, core.MakeSingleTargetEncounter(0), proto.Race_RaceHuman)
+}
+
+// The same paladin of the race against the encounter's targets.
+func paladinWearingAgainst(t *testing.T, worn map[proto.ItemSlot]int32, encounter *proto.Encounter, race proto.Race) (*core.Simulation, *paladin.Paladin, *core.Unit) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for slot := range items {
 		items[slot] = &proto.ItemSpec{Id: worn[proto.ItemSlot(slot)]}
 	}
 	player := &proto.Player{
 		Name:          "Paladin",
-		Race:          proto.Race_RaceHuman,
+		Race:          race,
 		Class:         proto.Class_ClassPaladin,
 		Equipment:     &proto.EquipmentSpec{Items: items},
 		TalentsString: retributionTalents,
@@ -83,7 +90,7 @@ func paladinWearing(t *testing.T, worn map[proto.ItemSlot]int32) (*core.Simulati
 	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  core.MakeSingleTargetEncounter(0),
+		Encounter:  encounter,
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 	}, simsignals.CreateSignals())
 	sim.Reset()
@@ -193,5 +200,188 @@ func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
 	}
 	if once, more := restores(t, nil); once+more != 0 {
 		t.Errorf("without the set, %d Judgement casts restored the mana, want none", once+more)
+	}
+}
+
+// A white swing that crits adds its Vengeance stack after the hits it procs, so its Seal of
+// Righteousness hit is priced on the stacks from before the crit, like the hit a swing without a crit
+// procs at those stacks (EV-0224).
+func TestSealOfRighteousnessHitIsPricedOnVengeanceBeforeTheCrit(t *testing.T) {
+	// The damage of the Seal of Righteousness hit a white swing procs under Vengeance at the stacks
+	// given, from a swing that crits or from one that lands without a crit. The seal's hit never crits,
+	// so it adds no stack of its own and the amounts compare.
+	sealHit := func(t *testing.T, stacks int32, crit bool) float64 {
+		t.Helper()
+		sim, pal, target := paladinWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotMainHand: 21395})
+		vengeance := pal.GetAuraByID(core.ActionID{SpellID: 20050})
+		if vengeance == nil {
+			t.Fatal("the paladin has no Vengeance")
+		}
+		seal := pal.GetSpell(core.ActionID{SpellID: paladin.SealOfRighteousnessRankMap.Highest().ID})
+		if seal == nil {
+			t.Fatal("the paladin has no Seal of Righteousness")
+		}
+		seal.SkipCastAndApplyEffects(sim, target)
+
+		var sealHits []*core.Spell
+		for _, spell := range pal.Spellbook {
+			if spell.Matches(paladin.SpellMaskSealOfRighteousnessProc) && spell.ActionID.Tag == 0 {
+				spell.BonusCritPercent = -1000
+				sealHits = append(sealHits, spell)
+			}
+		}
+		dealt := func() (total float64) {
+			for _, spell := range sealHits {
+				total += spell.SpellMetrics[target.UnitIndex].TotalDamage
+			}
+			return total
+		}
+
+		pal.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+		if crit {
+			pal.AddStatDynamic(sim, stats.PhysicalCritPercent, 100)
+		} else {
+			pal.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
+		}
+
+		swing := pal.AutoAttacks.MHAuto()
+		for range 100 {
+			vengeance.Deactivate(sim)
+			if stacks > 0 {
+				vengeance.Activate(sim)
+				vengeance.SetStacks(sim, stacks)
+			}
+			before, crits := dealt(), swing.SpellMetrics[target.UnitIndex].Crits
+			if !swing.Cast(sim, target) {
+				t.Fatal("the white swing did not cast")
+			}
+			// An empty action at the end of the window keeps the step from running past it.
+			until := sim.CurrentTime + 5*core.SpellBatchWindow
+			sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{DoAt: until, OnAction: func(*core.Simulation) {}}))
+			for sim.CurrentTime < until && !sim.Step() {
+			}
+
+			hit := dealt() - before
+			critted := swing.SpellMetrics[target.UnitIndex].Crits > crits
+			if hit <= 0 || critted != crit {
+				continue
+			}
+			if crit && vengeance.GetStacks() != stacks+1 {
+				t.Fatalf("a crit from %d Vengeance stacks left %d, want %d", stacks, vengeance.GetStacks(), stacks+1)
+			}
+			return hit
+		}
+		t.Fatalf("no white swing in 100 procced a Seal of Righteousness hit with crit %v", crit)
+		return 0
+	}
+
+	for _, stacks := range []int32{0, 3} {
+		atStacks := sealHit(t, stacks, false)
+		if above := sealHit(t, stacks+1, false); above <= atStacks {
+			t.Fatalf("a Seal of Righteousness hit at %d Vengeance stacks deals %.3f, at %d %.3f, want more with the stack", stacks+1, above, stacks, atStacks)
+		}
+		if fromCrit := sealHit(t, stacks, true); math.Abs(fromCrit-atStacks) > 1e-6 {
+			t.Errorf("a crit from %d Vengeance stacks procs a Seal of Righteousness hit of %.3f, want %.3f, the hit at %d stacks", stacks, fromCrit, atStacks, stacks)
+		}
+	}
+}
+
+// A Consecration cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the ground is
+// laid, and its ticks roll none (EV-0115).
+func TestConsecrationCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
+	const casts, enemies = 2000, 5
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = casts * 9
+	for range enemies - 1 {
+		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	}
+	sim, pal, target := paladinWearingAgainst(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 22268}, encounter, proto.Race_RaceHuman)
+	buff := pal.GetAuraByID(core.ActionID{SpellID: 1318930})
+	if buff == nil {
+		t.Fatal("22268 registers no 1318930")
+	}
+	consecration := pal.GetSpell(core.ActionID{SpellID: paladin.ConsecrationRankMap.Highest().ID})
+	if consecration == nil {
+		t.Fatal("the paladin has no Consecration")
+	}
+	pal.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+
+	// The proc is deferred by the spell batch window, one pending action each, so each step deals at most
+	// one, and the buff comes down before the next roll can refresh it.
+	var atCast, onTicks int
+	for range casts {
+		start := sim.CurrentTime
+		consecration.SkipCastAndApplyEffects(sim, target)
+		for consecration.AOEDot().IsActive() || sim.CurrentTime < start+100*time.Millisecond {
+			if sim.Step() {
+				t.Fatal("the encounter ended before the casts did")
+			}
+			if buff.IsActive() {
+				if sim.CurrentTime < start+100*time.Millisecond {
+					atCast++
+				} else {
+					onTicks++
+				}
+				buff.Deactivate(sim)
+			}
+		}
+	}
+
+	chance := spelldata.MustFind(1318931).StatedChance()
+	if chance <= 0 || chance >= 1 {
+		t.Fatalf("1318931 states a chance of %v, want one between none and certain", chance)
+	}
+	rolls := float64(casts * enemies)
+	if mean, deviation := chance*rolls, math.Sqrt(chance*(1-chance)*rolls); math.Abs(float64(atCast)-mean) > 4*deviation {
+		t.Errorf("%d Consecration casts on %d enemies procced it %d times at the cast, want about %.0f", casts, enemies, atCast, mean)
+	}
+	if onTicks != 0 {
+		t.Errorf("Consecration ticks procced it %d times, want none", onTicks)
+	}
+}
+
+// An Undead paladin's Consecration cast sets off no Touch of the Grave, on one enemy or on many: its
+// landing on each enemy deals no damage and lays no dot (EV-0115).
+func TestConsecrationCastSetsOffNoTouchOfTheGrave(t *testing.T) {
+	const casts = 100
+	for _, enemies := range []int{1, 5} {
+		encounter := core.MakeSingleTargetEncounter(0)
+		encounter.Duration = casts
+		for range enemies - 1 {
+			encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+		}
+		sim, pal, target := paladinWearingAgainst(t, nil, encounter, proto.Race_RaceUndead)
+		drain := pal.GetSpell(core.ActionID{SpellID: 1260198})
+		if drain == nil {
+			t.Fatal("the Undead paladin has no Touch of the Grave drain")
+		}
+		consecration := pal.GetSpell(core.ActionID{SpellID: paladin.ConsecrationRankMap.Highest().ID})
+		if consecration == nil {
+			t.Fatal("the paladin has no Consecration")
+		}
+		pal.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+
+		// The ground is taken away half a second after each cast, before its first tick, so only the
+		// cast's landings could set off the drain.
+		for range casts {
+			consecration.SkipCastAndApplyEffects(sim, target)
+			sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{
+				DoAt:     sim.CurrentTime + 500*time.Millisecond,
+				OnAction: consecration.AOEDot().Deactivate,
+			}))
+			for consecration.AOEDot().IsActive() {
+				if sim.Step() {
+					t.Fatal("the encounter ended before the casts did")
+				}
+			}
+		}
+
+		drains := 0
+		for _, metrics := range drain.SpellMetrics {
+			drains += int(metrics.Casts)
+		}
+		if drains != 0 {
+			t.Errorf("on %d enemies at a time, %d Consecration casts drained %d times, want none", enemies, casts, drains)
+		}
 	}
 }

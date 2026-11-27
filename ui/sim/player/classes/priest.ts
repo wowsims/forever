@@ -20,7 +20,7 @@ export class Priest extends PlayerClass<Class.ClassPriest> {
 	static rangedWeaponTypes = getClassRangedWeaponTypes(Priest.classID);
 
 	readonly classID = Priest.classID;
-	readonly friendlyName = Priest.name;
+	readonly friendlyName = Priest.friendlyName;
 	readonly hexColor = Priest.hexColor;
 	readonly specs = Priest.specs;
 	readonly races = Priest.races;
