@@ -11,7 +11,7 @@
   the reading is the same on both sides of it; the hotfix each player ran is not recorded
 - Date: 2026-11-14 to 2026-11-26 (report starts 2026-11-14 04:17 to 2026-11-26 14:38 UTC; the census reads reports from
   2026-10-14 to 2026-11-27, and the first Mutilate is in a report of 2026-11-14)
-- Pull request: #
+- Pull request: #1272
 
 ## Method
 
