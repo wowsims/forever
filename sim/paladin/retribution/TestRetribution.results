@@ -741,7 +741,7 @@ dps_results: {
  key: "TestRetribution-AllItems-EnchantWeapon-Insight-8216"
  value: {
   dps: 940.19814
-  tps: 765.7662
+  tps: 765.76299
   dtps: 4.19422
   hps: 26.19204
  }
@@ -762,6 +762,15 @@ dps_results: {
   tps: 766.28873
   dtps: 4.57785
   hps: 26.19204
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 946.48807
+  tps: 771.17172
+  dtps: 4.77251
+  hps: 26.22254
  }
 }
 dps_results: {
@@ -1811,10 +1820,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-SeepingWillow-12969"
  value: {
-  dps: 920.42833
-  tps: 750.09146
-  dtps: 4.04194
-  hps: 26.19611
+  dps: 927.98336
+  tps: 756.58289
+  dtps: 4.48464
+  hps: 26.19103
  }
 }
 dps_results: {

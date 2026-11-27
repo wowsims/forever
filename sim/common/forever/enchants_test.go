@@ -313,12 +313,17 @@ func revelationProcChance() float64 {
 
 func revelationWearerFacing(t *testing.T, class proto.Class, spec any, enemies int) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return enchantWearerFacing(t, revelationEnchant, class, spec, enemies)
+}
+
+func enchantWearerFacing(t *testing.T, enchant int32, class proto.Class, spec any, enemies int) (*core.Simulation, *core.Character) {
+	t.Helper()
 	targets := make([]*proto.Target, enemies)
 	for i := range targets {
 		targets[i] = &proto.Target{Name: "target", Level: 60}
 	}
 	items := weaponSlots(1613, 0)
-	items[proto.ItemSlot_ItemSlotMainHand].Enchant = revelationEnchant
+	items[proto.ItemSlot_ItemSlotMainHand].Enchant = enchant
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceTauren,
 		Equipment: &proto.EquipmentSpec{Items: items},
@@ -715,6 +720,38 @@ func TestRevelationRollsOncePerHitEvent(t *testing.T) {
 	}
 	if want := casts * chance; float64(procs) < want/2 || float64(procs) > 2*want {
 		t.Errorf("%d casts on %d enemies procced Revelation %d times, want about %.0f, one roll a cast", casts, enemies, procs, want)
+	}
+}
+
+// Enchant Weapon - Insight 8216 rolls once per cast however many targets it reaches: an Arcane Explosion
+// that lands on 5 enemies with the cooldown ready procs it about as often as the row's chance for one roll
+// (EV-0229).
+func TestInsightRollsOncePerCast(t *testing.T) {
+	const casts, enemies = 600, 5
+	sim, character := enchantWearerFacing(t, 8216, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, enemies)
+	mage := sim.Raid.Parties[0].Players[0].(*testMage)
+	buff := character.GetAuraByID(core.ActionID{SpellID: 1299796})
+	trigger := character.GetAura("Enchant Weapon - Insight")
+	if buff == nil || trigger == nil || trigger.Icd == nil {
+		t.Fatal("8216 registers no buff 1299796 or no trigger with a cooldown")
+	}
+
+	procs := 0
+	for range casts {
+		buff.Deactivate(sim)
+		trigger.Icd.Reset()
+		mage.explosion.Cast(sim, character.CurrentTarget)
+		stepTo(t, sim, sim.CurrentTime+2*core.SpellBatchWindow)
+		if buff.IsActive() {
+			procs++
+		}
+	}
+	if hits := len(mage.crits[mage.explosion]); hits != casts*enemies {
+		t.Fatalf("%d casts landed %d hits, want %d", casts, hits, casts*enemies)
+	}
+	chance := spelldata.MustFind(1248758).StatedChance()
+	if want := casts * chance; float64(procs) < want*0.75 || float64(procs) > want*1.25 {
+		t.Errorf("%d casts on %d enemies procced Insight %d times, want about %.0f, one roll a cast", casts, enemies, procs, want)
 	}
 }
 

@@ -79,6 +79,19 @@ func init() {
 		IsWeaponProc:   true,
 	}, nil)
 
+	// Enchant Weapon - Lifestealing
+	// EffectID: 1898, Proc SpellID: 20004
+	// Permanently enchant a melee weapon to often steal life from the enemy and give it to the wielder.
+	// https://www.wowhead.com/forever/spell=20032
+	// The game files state no rate; the enchant's effect entry carries its procs per minute (EV-0228).
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{
+		Name:           "Enchant Weapon - Lifestealing",
+		EnchantID:      1898,
+		TriggerSpellID: 20004,
+		BuffSpellID:    20004,
+		IsWeaponProc:   true,
+	}, nil)
+
 	// Felsteel Shield Spike
 	// EffectID: 2714, Proc SpellID: 29455
 	// Permanently attaches a felsteel spike to your shield that deals 26 to 38 damage to attackers whose melee attacks you block.
@@ -272,6 +285,19 @@ func init() {
 			Handler: handler,
 		})
 	})
+
+	// Enchant Weapon - Insight
+	// https://www.wowhead.com/forever/spell=1248757
+	// A chance to grant Insight when you cast a spell, increasing Spirit by 100% for 10s.
+	// The registration is generated; a cast rolls once, on its first heal or hit, however many targets it
+	// reaches (EV-0229).
+	shared.EnchantProcTriggerExtras[8216] = func(character *core.Character, trigger *core.ProcTrigger) {
+		firstHit, resetFirstHit := core.OncePerCast()
+		character.RegisterResetEffect(func(_ *core.Simulation) { resetFirstHit() })
+		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			return firstHit(sim, spell)
+		}
+	}
 
 	// Enchant Weapon - Revelation
 	// EffectID: 8217, Proc SpellID: 1248806

@@ -307,6 +307,46 @@ func init() {
 		character.ItemSwap.RegisterProc(13361, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Demonfork
+	// https://www.wowhead.com/forever/item=12621/demonfork
+	//
+	// Chance on hit: Transfers 10 health every 1.0 seconds from the target to the caster for 5s.
+	//
+	// The game files state no rate for 16603; the item's chance-on-hit entry carries the one measured on
+	// the weapon's speed, with Seal of Fury's hits rolling it as the sim's do (EV-0228). A proc on a
+	// drained target refreshes the drain.
+	newEntryRateItemEffect(12621, 16603, func(character *core.Character, ppm float64) {
+		row := spelldata.MustFind(16603)
+		leech := row.FirstAura(dbcenums.A_PERIODIC_LEECH)
+		healthMetrics := character.NewHealthMetrics(core.ActionID{SpellID: row.ID})
+
+		config := procSpellConfig(character, row)
+		config.Dot = spelldata.DotConfig(row, leech, spelldata.Label("Demonfork"))
+		config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+			result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, leech.Average(), row.TickOutcome(dot))
+			shared.GainLeechHealth(sim, character, result.Damage, leech, healthMetrics)
+		}
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
+			if result.Landed() {
+				spell.Dot(target).Apply(sim)
+			}
+			spell.DealOutcome(sim, result)
+		}
+		drain := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			drain.Cast(sim, result.Target)
+		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewDynamicLegacyProcForWeapon(12621, ppm, 0)
+		})
+		trigger.Name = "Demonfork"
+		trigger.ActionID = core.ActionID{ItemID: 12621}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(12621, character.MakeProcTriggerAura(trigger))
+	})
+
 	// Malown's Slam
 	// https://www.wowhead.com/forever/item=13393/malowns-slam
 	//
@@ -719,9 +759,18 @@ func init() {
 	// it (EV-0136). It raises Fire resistance and deals its damage shield's amount to each attacker
 	// that strikes the wearer.
 	//
-	// TODO: in Cat and Bear Form only the white swing rolls 16559 (EV-0151), while the generated weapon proc hears
-	// every landed melee hit, Maul and the form's other attacks included. Whether a form keeps every chance-on-hit
-	// weapon to the white swing is not settled.
+	// In Cat, Bear and Dire Bear Form only the white swing rolls 16559, and the form's attacks, Maul included, roll
+	// nothing (EV-0151). A Windfury Totem hit counts as a swing here; no log holds one in a form.
+	// TODO: whether a form keeps every chance-on-hit weapon to the white swing is not measured.
+	shared.ProcTriggerExtras[11809] = func(trigger *core.ProcTrigger) {
+		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			switch spell.Unit.ShapeshiftForm {
+			case dbcenums.FORM_CAT_FORM, dbcenums.FORM_BEAR_FORM, dbcenums.FORM_DIRE_BEAR_FORM:
+				return spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || spell.Flags.Matches(core.SpellFlagCountsAsSwing)
+			}
+			return true
+		}
+	}
 	shared.DamageProcExtras[11809] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Trigger()
 		shield := character.RegisterAura(spelldata.AuraConfig(row, spelldata.Label("Flame Wrath Fire Shield")))

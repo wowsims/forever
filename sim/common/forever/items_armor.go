@@ -252,6 +252,60 @@ func init() {
 		character.ItemSwap.RegisterProc(12628, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Skullflame Shield
+	// https://www.wowhead.com/forever/item=1168/skullflame-shield
+	//
+	// When struck in melee combat, has a 3% chance of stealing 270 life from target enemy.
+	// When struck in combat has a 2% chance of dealing 115 Fire damage to all targets around you.
+	//
+	// Both roll on each landed melee hit taken. Drain Life takes the attacker's life only while the
+	// wearer is in front of its target; Flamestrike hits every enemy around the wearer (EV-0227).
+	core.NewItemEffect(1168, func(agent core.Agent) {
+		character := agent.GetCharacter()
+
+		drainRow := spelldata.MustFind(18817)
+		leech := drainRow.DamageEffect()
+		healthMetrics := character.NewHealthMetrics(core.ActionID{SpellID: drainRow.ID})
+		drainConfig := procSpellConfigAs(character, drainRow, spelldata.Magic(core.ProcMaskSpellDamage))
+		drainConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			result := spell.CalcAndDealDamage(sim, target, leech.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
+			shared.GainLeechHealth(sim, character, result.Damage, leech, healthMetrics)
+		}
+		drainLife := character.RegisterSpell(drainConfig)
+
+		drainTrigger := spelldata.ProcTrigger(character, spelldata.MustFind(18815), func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+			drainLife.Cast(sim, spell.Unit)
+		})
+		drainTrigger.Name = "Skullflame Shield - Drain Life"
+		drainTrigger.ActionID = core.ActionID{ItemID: 1168}
+		drainTrigger.TriggerImmediately = true
+		drainTrigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+			return character.PseudoStats.InFrontOfTarget
+		}
+		character.ItemSwap.RegisterProc(1168, character.MakeProcTriggerAura(drainTrigger))
+
+		flameRow := spelldata.MustFind(18818)
+		flame := flameRow.DamageEffect()
+		flameConfig := procSpellConfigAs(character, flameRow, spelldata.Magic(core.ProcMaskSpellDamage))
+		flameConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+			results := spell.CalcAoeDamageWithVariance(sim, spell.OutcomeMagicHitAndCrit, func(sim *core.Simulation, _ *core.Spell) float64 {
+				return flame.DirectAmount(sim) * sim.Encounter.AOECapMultiplier()
+			})
+			for _, result := range results {
+				spell.DealDamage(sim, result)
+			}
+		}
+		flamestrike := character.RegisterSpell(flameConfig)
+
+		flameTrigger := spelldata.ProcTrigger(character, spelldata.MustFind(18816), func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+			flamestrike.Cast(sim, spell.Unit)
+		})
+		flameTrigger.Name = "Skullflame Shield - Flamestrike"
+		flameTrigger.ActionID = core.ActionID{ItemID: 1168}
+		flameTrigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(1168, character.MakeProcTriggerAura(flameTrigger))
+	})
+
 	// Stoneform Shoulders
 	// https://www.wowhead.com/forever/item=13955/stoneform-shoulders
 	//

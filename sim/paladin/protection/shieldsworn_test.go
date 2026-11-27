@@ -9,7 +9,9 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
+	_ "github.com/wowsims/forever/sim/encounters"
 	"github.com/wowsims/forever/sim/paladin"
+	googleproto "google.golang.org/protobuf/proto"
 )
 
 // A Holy Strike puts up Shieldsworn's 6 sec spell block, whether or not it lands. While it is up a Fire swing
@@ -106,6 +108,78 @@ func TestShieldswornBlocksNonPhysicalSwings(t *testing.T) {
 	restore := pally.MaxMana() * spelldata.MustFind(1310925).EffectN(1).Percent()
 	if got := pally.CurrentMana() - manaBefore; math.Abs(got-restore) > 1e-6 {
 		t.Fatalf("a blocked Fire swing restored %.2f mana, want Shield Specialization's %.2f", got, restore)
+	}
+}
+
+// While Shieldsworn's spell block is up the custom boss's magic spell rolls the paladin's block chance, and a
+// blocked spell is a block to Holy Shield, which spends a charge and deals its damage to the boss, and to Shield
+// Specialization, which restores mana. Without it no spell is blocked (EV-0228).
+func TestShieldswornBlocksEnemySpells(t *testing.T) {
+	boss := googleproto.Clone(core.GetPresetTargetWithPath("Default/Boss").Config).(*proto.Target)
+	for _, input := range boss.TargetInputs {
+		if input.Label == "Has Magic spell" {
+			input.BoolValue = true
+		}
+	}
+	gear := core.GetGearSet("../../../ui/specs/paladin/protection/gear_sets", "default").GearSet
+	sim, pally, target := shieldswornPaladin(gear, &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{boss}})
+
+	var magic *core.Spell
+	for _, spell := range target.Spellbook {
+		if spell.DefenseType == core.DefenseTypeMagic {
+			magic = spell
+		}
+	}
+	spellBlock := pally.GetAuraByID(core.ActionID{SpellID: 1328551})
+	holyShield := pally.GetAuraByID(core.ActionID{SpellID: paladin.HolyShieldRankMap.Highest().ID})
+	if magic == nil || spellBlock == nil || holyShield == nil {
+		t.Fatal("the boss's magic spell, Shieldsworn's spell block or Holy Shield is not registered")
+	}
+	blockDamage := pally.GetSpell(holyShield.ActionID.WithTag(2))
+	metrics := func() core.SpellMetrics {
+		return magic.SpellMetrics[pally.UnitIndex]
+	}
+
+	for range 200 {
+		magic.SkipCastAndApplyEffects(sim, &pally.Unit)
+	}
+	if blocks := metrics().Blocks; blocks != 0 {
+		t.Fatalf("%d of 200 spells were blocked without Shieldsworn's spell block up", blocks)
+	}
+
+	spellBlock.Activate(sim)
+	pally.SpendMana(sim, pally.CurrentMana()/2, pally.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionNone}))
+	manaBefore := pally.CurrentMana()
+	holyShield.Activate(sim)
+	holyShield.SetStacks(sim, holyShield.MaxStacks)
+	blocksBefore := metrics().Blocks
+	for range 200 {
+		magic.SkipCastAndApplyEffects(sim, &pally.Unit)
+		if metrics().Blocks > blocksBefore {
+			break
+		}
+	}
+	if metrics().Blocks == blocksBefore {
+		t.Fatal("none of 200 spells were blocked with the spell block and Holy Shield up")
+	}
+	if holyShield.GetStacks() != holyShield.MaxStacks-1 || blockDamage.SpellMetrics[target.UnitIndex].Casts != 1 {
+		t.Fatalf("a blocked spell left Holy Shield at %d of %d charges and cast its damage %d times, want one charge and one cast",
+			holyShield.GetStacks(), holyShield.MaxStacks, blockDamage.SpellMetrics[target.UnitIndex].Casts)
+	}
+	restore := pally.MaxMana() * spelldata.MustFind(1310925).EffectN(1).Percent()
+	if got := pally.CurrentMana() - manaBefore; math.Abs(got-restore) > 1e-6 {
+		t.Fatalf("a blocked spell restored %.2f mana, want Shield Specialization's %.2f", got, restore)
+	}
+
+	holyShield.Deactivate(sim)
+	blocksBefore = metrics().Blocks
+	const casts = 4000
+	for range casts {
+		magic.SkipCastAndApplyEffects(sim, &pally.Unit)
+	}
+	want := pally.GetTotalBlockChanceAsDefender(magic, target.AttackTables[pally.UnitIndex])
+	if got := float64(metrics().Blocks-blocksBefore) / casts; want <= 0 || math.Abs(got-want) > 0.03 {
+		t.Fatalf("%v of the spells were blocked with the spell block up, want the block chance %v", got, want)
 	}
 }
 

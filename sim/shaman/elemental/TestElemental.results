@@ -526,6 +526,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Demonfork-12621"
+ value: {
+  dps: 776.15059
+  tps: 705.48537
+  dtps: 4.67295
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-DevilsaurArmor"
  value: {
   dps: 835.2564
@@ -705,9 +713,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 834.53602
-  tps: 757.96024
-  dtps: 4.83417
+  dps: 833.89737
+  tps: 757.30724
+  dtps: 5.21936
  }
 }
 dps_results: {
@@ -720,6 +728,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestElemental-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 838.39349
+  tps: 761.20335
+  dtps: 4.59457
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-EnchantWeapon-Lifestealing-1898"
  value: {
   dps: 838.39349
   tps: 761.20335

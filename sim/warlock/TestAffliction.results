@@ -562,8 +562,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 847.03078
-  tps: 661.02488
+  dps: 847.36541
+  tps: 661.32949
   dtps: 8.5954
  }
 }
@@ -577,6 +577,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestAffliction-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 853.48507
+  tps: 665.81474
+  dtps: 8.64515
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-EnchantWeapon-Lifestealing-1898"
  value: {
   dps: 853.48507
   tps: 665.81474

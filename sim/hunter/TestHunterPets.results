@@ -653,6 +653,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Demonfork-12621"
+ value: {
+  dps: 732.31544
+  tps: 463.62864
+  dtps: 4.84232
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Demonshear-13348"
  value: {
   dps: 754.16875
@@ -910,6 +918,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 750.72044
+  tps: 473.1938
+  dtps: 4.84232
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-EnchantWeapon-Lifestealing-1898"
  value: {
   dps: 750.72044
   tps: 473.1938

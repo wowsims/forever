@@ -585,7 +585,7 @@ dps_results: {
  key: "TestFeralCat-AllItems-EnchantWeapon-Insight-8216"
  value: {
   dps: 794.45725
-  tps: 590.0386
+  tps: 590.06245
   hps: 46.03806
  }
 }
@@ -602,6 +602,14 @@ dps_results: {
  value: {
   dps: 794.16608
   tps: 589.87459
+  hps: 45.98722
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 798.18429
+  tps: 592.72752
   hps: 45.98722
  }
 }
@@ -1528,8 +1536,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-SeepingWillow-12969"
  value: {
-  dps: 763.84432
-  tps: 568.30078
+  dps: 769.6382
+  tps: 572.41444
   hps: 45.97028
  }
 }

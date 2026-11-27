@@ -1383,3 +1383,40 @@ func TestChannelCastsDrainNoTouchOfTheGrave(t *testing.T) {
 		}
 	}
 }
+
+// Hellfire's burn on the caster takes the caster's Fire damage done modifiers and crits at the caster's spell
+// crit chance for the channel's crit damage, which Ruin raises (EV-0229).
+func TestHellfireBurnTakesFireModifiersAndCrits(t *testing.T) {
+	burnRatios := func(talents string) (modified float64, crit float64) {
+		sim, warlock := newWarlockSim(talents, &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+		channel := warlock.Hellfire.AOEDot()
+		channel.Apply(sim)
+		burn := func() float64 {
+			warlock.SetCurrentHealthPercent(1)
+			channel.TickOnce(sim)
+			return warlock.MaxHealth() - warlock.CurrentHealth()
+		}
+
+		warlock.AddStatDynamic(sim, stats.SpellCritPercent, -200)
+		plain := burn()
+		if plain <= 0 {
+			t.Fatalf("Hellfire burned %.1f health, want some", plain)
+		}
+		warlock.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexFire] *= 1.3
+		modified = burn() / plain
+		warlock.AddStatDynamic(sim, stats.SpellCritPercent, 400)
+		crit = burn() / plain / modified
+		if want := warlock.Hellfire.CritDamageMultiplier(nil); math.Abs(crit-want) > 1e-9 {
+			t.Errorf("a crit burn is %.4f times the plain burn, want the channel's crit damage %.4f", crit, want)
+		}
+		return modified, crit
+	}
+
+	modified, plainCrit := burnRatios("")
+	if math.Abs(modified-1.3) > 1e-9 {
+		t.Errorf("Hellfire's burn is %.4f times as much with Fire damage done 1.3 times, want 1.3", modified)
+	}
+	if _, ruinCrit := burnRatios("--0000005"); ruinCrit <= plainCrit {
+		t.Errorf("a crit burn is %.4f times the plain burn with Ruin and %.4f without, want more with Ruin", ruinCrit, plainCrit)
+	}
+}
