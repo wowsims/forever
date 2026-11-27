@@ -25,7 +25,7 @@ window (50 to 400 ms, from the gap between a proc and the hit before it), so eac
 rolled it. Only wearers with the item in the main hand (or the ranged slot) and no off-hand weapon count, by class:
 dual wielders log both hands' swings under one ability, and Druid forms swing the paw (feral wearers are left out).
 Casts that land without a damage event (Sunder Armor, Rend) count as hits; Shield Slam, Shield Bash, Shank and
-Thunder Clap roll no weapon proc and are left out. PPM = chance × 60 / the weapon's speed. Haste leaves the per-hit
+Thunder Clap roll no main-hand weapon proc and are left out (EV-0155). PPM = chance × 60 / the weapon's speed. Haste leaves the per-hit
 chance alone, since the rate is priced on the weapon's base speed.
 
 Each rate is the pooled rate of its table, all its rows, rounded to the nearest 0.05 step. Ravager's is an owner

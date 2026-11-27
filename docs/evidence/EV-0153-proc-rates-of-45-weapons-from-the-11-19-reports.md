@@ -36,8 +36,8 @@ The rolling hits are the ones the class census (EV-0155) finds rolling a weapon 
 - the strike chain (EV-0145): the first landed melee-table strike of a weapon proc within 30 ms after a main-hand white
   swing is one more roll. A magic proc adds none, and neither does a strike with its own cooldown.
 
-Sap, Death Mark, Shield Slam, Shield Bash, Shank, Thunder Clap, Volley, periodic ticks, damage shields, Deep Wounds,
-Sweeping Strikes hits, poisons, imbue strikes, pets and spells roll nothing.
+Sap, Death Mark, Shield Slam, Shield Bash, Thunder Clap, Volley, periodic ticks, damage shields, Deep Wounds, Sweeping
+Strikes hits, poisons, imbue strikes, pets and spells roll nothing, and Shank hits are left out.
 
 Execute rolls twice, and Judgement of Command rolled twice up to hotfix push 114399 (2026-11-25) and rolls once from it
 (EV-0155). They are left out, and so are Mongoose Bite and Mocking Blow, whose few hits do not settle whether they roll

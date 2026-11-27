@@ -14,16 +14,17 @@ Judgement of Command reading: it rolls twice up to that push (2026-11-25) and on
   that a main-hand white swing casts rolls the main-hand weapon once more, Loksey's Training Stick's Tough Love and the
   Rend procs among them; magic procs never do. Mongoose Bite and Mocking Blow are not settled: thin samples here read
   above one roll, a larger separate count reads one. Summon Hawk's hits roll the ranged weapon once. A rogue's Shank
-  rolls no weapon proc up to 2026-11-19; from 2026-11-20 it rolls the off-hand weapon once and the main-hand weapon
-  never.
+  rolls the off-hand weapon and equip procs once and the main-hand weapon never; Torturing Poker, which procs only from
+  its own hand's hits, never procs from it.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), every indexed wearer run of the 24 census weapons: 2,670
   runs in 2,361 reports, too many to list; the examples below name report, fight and time
 - Game build: 1.60.1.70790 to 1.60.1.70959 by report date; the sim's database is 1.60.1.70959, push 114196; the hotfix
   each player ran is not recorded
 - Date: 2026-11-05 to 2026-11-19; the sections After hotfix push 114313, Judgement of Command after hotfix push 114399
-  and Shank from 2026-11-20 have their own build and dates
-- Pull request: #1108; #1151 added the section After hotfix push 114313, #1168 the section Shank from 2026-11-20,
-  #1208 the section Judgement of Command after hotfix push 114399
+  and Count of the 2026-11-20 to 2026-11-27 reports have their own build and dates
+- Pull request: #1108; #1151 added the section After hotfix push 114313, #1208 the section Judgement of Command after
+  hotfix push 114399
+- Later count: Shank, §Count of the 2026-11-20 to 2026-11-27 reports
 
 ## Method
 
@@ -77,7 +78,6 @@ fewer than 50 units with a proc.
 | Rogue        | dual-wield main hand | W                         |     176 |  37,329 |       3,237 |           3 |               3,237 | 1.00 [1.00, 1.00] | one roll           |
 | Rogue        | dual-wield main hand | A: Sinister Strike        |     167 |  29,542 |       2,563 |           0 |               2,510 | 1.02 [0.96, 1.09] | one roll           |
 | Rogue        | off hand             | A: Sinister Strike        |      59 |  14,175 |           0 |           0 |                 949 | 0.00 [0.00, 0.00] | none               |
-| Rogue        | dual-wield main hand | A: Shank                  |     140 |  10,592 |           0 |           0 |                 908 | 0.00 [0.00, 0.00] | none               |
 | Rogue        | dual-wield main hand | D: Sap                    |      39 |     102 |           0 |           0 |                   9 | 0.00 [0.00, 0.00] | none (thin)        |
 | Rogue        | dual-wield main hand | D: Death Mark             |       4 |     127 |           0 |           0 |                  11 | 0.00 [0.00, 0.00] | none (thin)        |
 | Paladin      | main hand            | A: Judgement of Command   |     274 |  17,148 |       3,524 |         202 |               1,906 | 1.85 [1.78, 1.93] | two rolls          |
@@ -283,32 +283,6 @@ fights are not listed.
 Scripts and output, in `forever-joc-suppress-1125`: `extract_r2.py` and `units_r2.py` (the units), `joc_bins.py`
 (`joc_bins_out.md`) and `crusader_totem.py` (`crusader_totem_out.md`).
 
-## Shank from 2026-11-20
-
-Hotfix push 114281 takes the flags that suppressed weapon procs off Shank's row. The first Shank followed by a weapon
-proc in these logs is at 2026-11-20 01:10 UTC.
-
-- Game build: 1.60.1.70790 to 1.60.1.71037 by report date (71037 from 2026-11-20 18:23 UTC); the hotfix each player ran
-  is not recorded
-- Date: 2026-11-06 to 2026-11-19 before, 2026-11-20 to 2026-11-22 after, split at 00:00 UTC
-
-A unit is a rogue wearer's lone Shank or lone white swing of the weapon's hand, with no other event within 300 ms, over
-every weapon in the 2026-11-22 sweep whose proc lands with no travel time; it has a proc when the weapon's proc logs
-from 20 ms before to 40 ms after it. The counts are pooled per wearer stream, not deduplicated by run, with no interval.
-
-| Weapon    | Period                   | Lone Shanks with a proc | Lone white swings with a proc | Ratio |
-| --------- | ------------------------ | ----------------------: | ----------------------------: | ----: |
-| Off hand  | 2026-11-06 to 2026-11-19 |              0 / 21,535 |        4,032 / 86,619 (4.65%) |  0.00 |
-| Off hand  | from 2026-11-20          |     275 / 5,891 (4.67%) |        1,594 / 36,986 (4.31%) |  1.08 |
-| Main hand | 2026-11-06 to 2026-11-19 |              0 / 23,031 |        4,481 / 72,167 (6.21%) |  0.00 |
-| Main hand | from 2026-11-20          |      17 / 4,491 (0.38%) |        1,070 / 22,003 (4.86%) |  0.08 |
-
-From 2026-11-20 a Shank rolls the off-hand weapon once, at about the off-hand white swing's chance, and the main-hand
-weapon never.
-
-Scripts and inputs, in `forever-sweep-auto`: the run `runs/2026-11-22-1122` (`runs_detail.csv`, `results.json`) and the
-analyzer's cached records (`cache_v13`).
-
 ## Windfury hits, imbues and poisons
 
 Units of one white swing with one Windfury hit, against one roll per hit (`wf_out.md`):
@@ -378,3 +352,42 @@ Report, fight and time into the fight, class and weapon (`examples_out.md`):
   warrior, Strike of the Hydra; 6wxzV4YyNCh1aqfd 1 28:30.342 warrior, Kang the Decapitator.
 - A missed Execute alone, with a proc: 1xqBcj4CZQXV38Pv 1 8:26.401 warrior, Loksey's Training Stick; 1a3pDtCcPgBkL6wm
   1 18:31.732 warrior, Strike of the Hydra; nqmgcYrPz9B1fLDx 1 26:49.602 warrior, Electrocutioner Leg.
+
+## Count of the 2026-11-20 to 2026-11-27 reports
+
+- Game build: 1.60.1.70959 to 1.60.1.71139 by report date (71037 from 2026-11-20 18:23 UTC, 71091 from 2026-11-24
+  15:21, 71139 from 2026-11-25 19:14); the hotfix each player ran is not recorded, and the rows split by the time of
+  each event at hotfix push 114313 (2026-11-21 00:00 UTC, the hour before it left out), the 2026-11-23 hotfix (2026-11-24 01:00) and hotfix push
+  114399 (2026-11-25 02:00)
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the streams of every rogue wearer of the weapons and
+  equip procs the sweep's roll watch follows, too many to list
+
+A unit is a rogue wearer's lone Shank on one target, with killing blows left out. One roll gives the procs the same
+wearers' lone white swings of the hand predict in the same period: an off-hand or main-hand weapon's chance per swing,
+or, for an equip proc, its rate on the weapon's speed. The rolls are the number of such rolls that gives the procs
+counted, and the interval comes from 300 draws of whole wearers. A run logged in two reports counts once.
+
+| Proc            | Period                                 | Wearers | Lone Shanks | Procs | One roll gives | Rolls [95%]       |
+| --------------- | -------------------------------------- | ------: | ----------: | ----: | -------------: | ----------------- |
+| Off hand        | 2026-11-20 to hotfix push 114313       |      84 |       3,840 |   195 |            220 | 0.88 [0.69, 1.02] |
+| Off hand        | hotfix push 114313 to the 11-23 hotfix |     291 |      18,395 |   899 |            898 | 1.00 [0.93, 1.08] |
+| Off hand        | the 11-23 hotfix to hotfix push 114399 |      79 |       4,539 |   219 |            212 | 1.03 [0.88, 1.27] |
+| Off hand        | after hotfix push 114399               |      74 |       4,063 |   205 |            201 | 1.02 [0.89, 1.18] |
+| Main hand       | 2026-11-20 to hotfix push 114313       |      72 |       2,640 |     7 |            164 | 0.04 [0.00, 0.13] |
+| Main hand       | hotfix push 114313 to the 11-23 hotfix |     262 |      13,417 |     6 |            820 | 0.01 [0.00, 0.02] |
+| Main hand       | the 11-23 hotfix to hotfix push 114399 |     102 |       5,290 |     3 |            359 | 0.01 [0.00, 0.03] |
+| Main hand       | after hotfix push 114399               |     102 |       5,066 |     0 |            258 | 0.00 [0.00, 0.00] |
+| Equip           | 2026-11-20 to hotfix push 114313       |      11 |         799 |    44 |             50 | 0.87 [0.64, 1.09] |
+| Equip           | hotfix push 114313 to the 11-23 hotfix |      74 |       5,367 |   308 |            331 | 0.93 [0.81, 1.05] |
+| Equip           | the 11-23 hotfix to hotfix push 114399 |      40 |       2,297 |   173 |            160 | 1.08 [0.91, 1.25] |
+| Equip           | after hotfix push 114399               |      30 |       1,351 |    71 |             90 | 0.79 [0.62, 1.00] |
+| Torturing Poker | 2026-11-20 to hotfix push 114313       |       6 |         420 |     0 |            377 | 0.00 [0.00, 0.00] |
+| Torturing Poker | hotfix push 114313 to the 11-23 hotfix |      13 |         624 |     0 |            551 | 0.00 [0.00, 0.00] |
+| Torturing Poker | the 11-23 hotfix to hotfix push 114399 |       3 |         205 |     0 |            164 | 0.00 [0.00, 0.00] |
+
+A Shank rolls the off-hand weapon and equip procs once and the main-hand weapon never, in every period since hotfix
+push 114281; the main hand reads 0.00 to 0.04 rolls. Torturing Poker in the off hand, whose proc hears only its own
+hand's hits, never procs from a Shank; after hotfix push 114399 two wearers hold no lone Shank.
+
+Scripts and output, in `forever-sweep-auto`: `roll_watch.py` (its main-hand Shank row) and the run
+`runs/2026-11-27-shank` (`roll_watch.md`, `shank_rows.json`).

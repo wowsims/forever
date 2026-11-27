@@ -22,8 +22,7 @@ measured or observed. From hotfix push 114313 (2026-11-20 23:47 UTC) each Mutila
 before it Mutilate is left out with its procs, as the two-roll abilities are. No two counted runs of one player overlap
 in time.
 
-The run counts no Shank as a roll, though from 2026-11-20 Shank rolls the off-hand weapon (EV-0155 §Shank from
-2026-11-20). The Lobotomizer's read counts those Shanks as off-hand rolls.
+The run counts no Shank as a roll, though Shank rolls the off-hand weapon (EV-0155). The Lobotomizer's read counts those Shanks as off-hand rolls.
 
 Scripts and inputs, in `forever-sweep-auto`: the run `runs/2026-11-22-1122`, whose `results.json` (`analyze.py` version
 12, cache `cache_v13`) holds the counts of the count's weapons in EV-0136 and EV-0175, and whose cached records give Red

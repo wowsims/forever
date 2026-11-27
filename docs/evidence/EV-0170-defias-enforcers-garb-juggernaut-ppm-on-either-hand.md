@@ -61,7 +61,7 @@ The all-hits count reads 10% above the lone units. Procs land beside rolls the t
 poison applications, Blade Flurry's copied hits, Windfury Totem hits, and harmful casts with no damage. Which of
 these roll is not settled.
 On rogues' lone units Distract procs it 111 of 1,145 times (a debuff on every mob in its area), Slice and Dice 71 of
-3,157 and Kick 24 of 366. Shank (10 of 6,308), Sap (0 of 181), misses (5 of 17,306), ticks (0 of 6,290) and spell hits
+3,157 and Kick 24 of 366. Sap (0 of 181), misses (5 of 17,306), ticks (0 of 6,290) and spell hits
 such as Instant Poison (0 of 1,616) do not proc it.
 
 ## Reports
