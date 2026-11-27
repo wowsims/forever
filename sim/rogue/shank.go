@@ -12,7 +12,8 @@ var bootKnifePoints = spellData.BootKnifeTriggered.Highest()
 // The row is Always Hit, so only the crit is rolled. Shank strikes with the off hand and carries an off-hand special's
 // mask, so the off hand's poison and weapon procs, the procs that hear melee specials, Blade Flurry and the modifiers
 // scoped to the off hand (Dual Wield Specialization, Hack and Slash) all reach it. Its row adds no combo point, so it
-// is no builder and Seal Fate does not hear it.
+// is no builder and Seal Fate does not hear it. Venom goes up before the damage, so the poison the hit procs carries its
+// bonus (EV-0222).
 func (rogue *Rogue) registerShank() {
 	config := spelldata.SpellConfig(&rogue.Unit, shankRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
 	config.DamageMultiplier = shankRank.DamageEffect().Percent()
@@ -37,6 +38,9 @@ func (rogue *Rogue) registerShank() {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
+		if venomAura != nil {
+			venomAura.Activate(sim)
+		}
 		baseDamage := rogue.OHWeaponDamage(sim, spell.MeleeAttackPower(target))
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialCritOnly)
 		rogue.AddEnergy(sim, energy, spell.EnergyMetrics())
@@ -44,9 +48,6 @@ func (rogue *Rogue) registerShank() {
 			return
 		}
 
-		if venomAura != nil {
-			venomAura.Activate(sim)
-		}
 		if bootKnifeMetrics != nil && sim.Proc(bootKnifeChance, "Boot Knife") {
 			rogue.AddComboPoints(sim, target, int32(bootKnifePoints.ProcEnergizeEffect().Average()), bootKnifeMetrics)
 		}
