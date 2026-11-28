@@ -152,8 +152,8 @@ func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
 }
 
 // Argent Defender 13243's 17350 rolls the row's procs per minute priced on the attacker's time between its
-// own swings, a dual wielder's two hands together, and doubled when an Undead strikes. The row copy rests no
-// cooldown and carries a higher rate, so the cases sit far apart.
+// own swings, a dual wielder's two hands together, and doubled when an Undead strikes. The test's copy of the
+// row has no internal cooldown and a higher rate, so the cases differ clearly.
 func TestArgentDefenderPricesTheAttackersSwings(t *testing.T) {
 	const ppm = 6
 	row := editSpellRow(t, 17350, func(s *spelldata.Spell) { s.ICDMs, s.RPPM = 0, ppm })
