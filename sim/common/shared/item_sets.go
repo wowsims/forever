@@ -116,7 +116,7 @@ func attachSetBonusProc(character *core.Character, setBonusAura *core.Aura, row 
 			return
 		}
 	case setBonusProcAuras:
-		auras := newSpellDataAuras(character, fired, spelldata.AuraConfig(fired))
+		auras := newSpellDataAuras(character, fired, spelldata.AuraConfig(fired), 0)
 		callback := trigger.Callback
 		trigger.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			auras.activate(sim, procDamageTarget(character, callback, spell, result))

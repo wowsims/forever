@@ -7,6 +7,20 @@
 		@apply flex h-full w-timeline-segment items-center overflow-x-hidden border-x border-gray-600 font-bold;
 	}
 
+	/* A folded corner on a cast icon and a cap on a tick mark a hit that got a versus bonus. */
+	.ui-timeline-versus-corner {
+		@apply pointer-events-none absolute top-0 right-0 size-2 bg-warning;
+		clip-path: polygon(0 0, 100% 0, 100% 100%);
+	}
+
+	.ui-timeline-versus-cap {
+		@apply pointer-events-none absolute inset-x-0 top-0 h-1 bg-warning;
+	}
+
+	[data-versus='hidden'] :is(.ui-timeline-versus-corner, .ui-timeline-versus-cap) {
+		@apply hidden;
+	}
+
 	.ui-timeline-row-icon {
 		@apply h-6 w-6 flex-none;
 	}

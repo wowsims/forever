@@ -2,6 +2,7 @@ package shared
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -834,5 +835,50 @@ func TestItemDotDealsTheRowsFactorAgainstItsTargets(t *testing.T) {
 	}
 	if !core.WithinToleranceFloat64(dragonkin, factor*other, 1e-6) {
 		t.Errorf("the spell dealt %v to a Dragonkin, want %v times the %v it dealt to a Mechanical target", dragonkin, factor, other)
+	}
+}
+
+// Seal of the Dawn 13209's equip spell: attack power and ranged attack power against Undead.
+const sealOfTheDawnVersus int32 = 23930
+
+// The combat log names an item's equip spell's bonus against mob types by the item, and an enchant's
+// by the spell. The row's mask is narrowed to Demon, the test target's creature type.
+func TestEquipAuraNamesItsVersusBonusByTheItem(t *testing.T) {
+	const itemID, swordID, enchantID int32 = 992270, 992271, 992272
+	editRow(t, sealOfTheDawnVersus, func(s *spelldata.Spell) {
+		for i := range s.Effects {
+			s.Effects[i].Misc = 1 << 2 // Demon
+		}
+	})
+	needAmount(t, "23930's attack power", spelldata.MustFind(sealOfTheDawnVersus).FirstAura(dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS).Average())
+	withAuraItem(itemID, proto.ItemType_ItemTypeTrinket)
+	NewSpellDataEquipAura(SpellDataProc{TriggerSpellID: sealOfTheDawnVersus},
+		[]ItemVariant{{ItemID: itemID, ItemName: "Test Seal"}})
+	core.AddToDatabase(&proto.SimDatabase{
+		Items:    []*proto.SimItem{testOneHander(swordID)},
+		Enchants: []*proto.SimEnchant{{EffectId: enchantID, Name: "Test Slayer Enchant", Type: proto.ItemType_ItemTypeWeapon}},
+	})
+	registerSpellDataEquipAura(SpellDataProc{Name: "Test Slayer Enchant", EnchantID: enchantID, TriggerSpellID: sealOfTheDawnVersus})
+
+	enchanted := shaman("Enchanted", nil)
+	enchanted.Equipment.Items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: swordID, Enchant: enchantID}
+	sim := newAuraSim(shaman("Wearer", map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: itemID}), enchanted)
+	var lines []string
+	sim.Log = func(message string, vals ...any) { lines = append(lines, fmt.Sprintf(message, vals...)) }
+
+	for i, want := range []string{fmt.Sprintf("{ItemID: %d} +", itemID), fmt.Sprintf("{SpellID: %d} +", sealOfTheDawnVersus)} {
+		lines = nil
+		tester := auraTesterAt(sim, i)
+		// The test strike's own effects deal flat damage, so this hit adds the attack power the tag names by hand.
+		tester.strike.CalcAndDealDamage(sim, tester.CurrentTarget, 100+tester.strike.MeleeAttackPower(tester.CurrentTarget)/14, tester.strike.OutcomeAlwaysHit)
+		var tag string
+		for _, line := range lines {
+			if _, after, found := strings.Cut(line, " [Versus Demon: "); found {
+				tag = after
+			}
+		}
+		if !strings.HasPrefix(tag, want) || !strings.HasSuffix(tag, " AttackPower]") {
+			t.Errorf("%s's strike is tagged %q, want the attack power under %q", tester.Label, tag, want)
+		}
 	}
 }

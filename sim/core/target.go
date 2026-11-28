@@ -39,10 +39,6 @@ func areaTypeSet(areaTypes []proto.AreaType) []proto.AreaType {
 	return set
 }
 
-func (encounter *Encounter) InArea(areaType proto.AreaType) bool {
-	return slices.Contains(encounter.AreaTypes, areaType)
-}
-
 func NewEncounter(options *proto.Encounter) Encounter {
 	options.ExecuteProportion_35 = max(options.ExecuteProportion_35, options.ExecuteProportion_20)
 	totalTargetCount := max(len(options.Targets), 1)
@@ -99,9 +95,14 @@ func (encounter *Encounter) AOECapMultiplier() float64 {
 	return encounter.aoeCapMultiplier
 }
 
-// With no active target the division gives +Inf, which the min keeps at 1.
 func (encounter *Encounter) updateAOECapMultiplier() {
-	encounter.aoeCapMultiplier = min(20/float64(len(encounter.ActiveTargets)), 1)
+	encounter.aoeCapMultiplier = AOECapMultiplierOf(len(encounter.ActiveTargets))
+}
+
+// The share of its damage an uncapped area deals each of the targets it reaches: all of it up to 20
+// targets, 20 / targets past them. With no target the division gives +Inf, which the min keeps at 1.
+func AOECapMultiplierOf(targets int) float64 {
+	return min(20/float64(targets), 1)
 }
 
 func (encounter *Encounter) addActiveTarget(target *Target) {
@@ -175,7 +176,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 			Index:          targetIndex,
 			Label:          "Target " + strconv.Itoa(int(targetIndex)+1),
 			Level:          options.Level,
-			MobType:        options.MobType,
+			MobType:        targetMobType(options),
 			CreatureFamily: options.CreatureFamily,
 			BleedImmune:    options.BleedImmune,
 			auraTracker:    newAuraTracker(),
@@ -477,7 +478,7 @@ type AttackTable struct {
 	// If set, the damage taken multiplier is multiplied by the callbacks result.
 	DamageDoneByCasterMultiplier DynamicDamageDoneByCaster
 
-	MobTypeBonusStats map[proto.MobType]stats.Stats // Bonus stats against mobs of the current type.
+	VersusStats stats.Stats // The attacker's stats against the defender's mob type.
 
 	// When you need more then 1 active, default to using the above one
 	// Used with EnableDamageDoneByCaster/DisableDamageDoneByCaster
@@ -487,6 +488,8 @@ type AttackTable struct {
 	// DamageDoneByCasterExtraMultiplier is.
 	// Used with EnableCritChanceByCaster/DisableCritChanceByCaster
 	CritChanceByCasterBonus []DynamicCritChanceByCaster
+
+	versusCritChances []*versusCritChance // The sources of BonusCritPercent the defender's mob type or family grants, for the combat log.
 }
 
 func NewAttackTable(attacker *Unit, defender *Unit) *AttackTable {
@@ -499,8 +502,6 @@ func NewAttackTable(attacker *Unit, defender *Unit) *AttackTable {
 		DamageTakenMultiplier:       1,
 		RangedDamageTakenMultiplier: 1,
 		HealingDealtMultiplier:      1,
-
-		MobTypeBonusStats: make(map[proto.MobType]stats.Stats),
 	}
 
 	if defender.Type == EnemyUnit {

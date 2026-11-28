@@ -1347,11 +1347,11 @@ func TestDamageShieldTakesNoSpellPowerVersusTheAttacker(t *testing.T) {
 	if want := damage + buffs.DamageShieldSpellPowerCoefficient*100; without != want {
 		t.Errorf("under 100 spell power the shield deals %v, want %v", without, want)
 	}
-	char.AddMobTypeBonusStats(stats.Stats{stats.SpellDamage: 100}, attacker.MobType)
+	char.AddMobTypeBonusStats(core.ActionID{SpellID: 1}, stats.Stats{stats.SpellDamage: 100}, attacker.MobType)
 	if with := hit(); with != without {
 		t.Errorf("under 100 spell power against the attacker's type the shield deals %v, want the %v it deals without", with, without)
 	}
-	char.MultiplyDamageVersus(2, attacker.MobType)
+	char.MultiplyDamageVersus(core.ActionID{SpellID: 1}, 2, attacker.MobType)
 	if got, want := hit(), 2*without; got != want {
 		t.Errorf("under a double damage multiplier against the attacker's type the shield deals %v, want %v", got, want)
 	}

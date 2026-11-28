@@ -489,7 +489,7 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 	procAura := spellDataProcAura(character, cfg, trigger, buff, effect)
 
 	listener := spellDataProcListener(character, cfg, source, trigger)
-	listener.Handler = withProcEnergize(character, buff, spellDataProcHandler(buff, procAura))
+	listener.Handler = withProcEnergize(character, buff, spellDataProcHandler(buff, procAura), nil)
 
 	// The same fallback the database layer applies: Bulwark of Azzinoth's armor buff sits in a
 	// spell category with a 60s recovery while its trigger states nothing. Only a buff that is a
@@ -622,7 +622,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// on the trigger while the buff it applies states none.
 	if stacks := max(buff.MaxStack, trigger.MaxStack); stacks > 0 {
 		// A stacking buff's bonus against creature types, and its speed, would need adding per stack.
-		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool { return len(spelldata.VersusStats(e.Aura)) > 0 }) {
+		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool { return len(spelldata.VersusAura(e.Aura).Stats) > 0 }) {
 			panic(fmt.Sprintf("%s (%d): a stacking proc grants stats against creature types, which only a single buff carries", cfg.Name, cfg.ItemID))
 		}
 		if len(buff.SpeedEffects()) > 0 {
@@ -640,7 +640,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	procAura := character.NewTemporaryStatsAuraWrapped(aura.Label, aura.ActionID, buffStats, aura.Duration, func(config *core.Aura) {
 		config.MaxStacks = aura.MaxStacks
 	})
-	attachVersusStats(procAura.Aura, buff)
+	attachVersusStats(procAura.Aura, buff, cfg.effectSource().versusSource(buff))
 	// The item effect entry carries the buff's stats alone; its speed auras come from the row
 	// (Ragehammer's Enrage 12686 states attack power and melee attack speed).
 	procAura.AttachHastePseudoStats(buff.SpeedPseudoStats())
@@ -648,11 +648,12 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 }
 
 // The stats the buff grants against some creature types, which the item effect entry leaves out:
-// Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin.
-func attachVersusStats(aura *core.Aura, buff *spelldata.Spell) {
+// Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin. The combat
+// log names the item for them, or the buff for an enchant's.
+func attachVersusStats(aura *core.Aura, buff *spelldata.Spell, source core.ActionID) {
 	for _, effect := range buff.Effects {
-		if bonus := spelldata.VersusBonus(effect.Aura, effect.Average()); bonus != (stats.Stats{}) {
-			aura.AttachMobTypeBonusStats(bonus, spelldata.MobTypes(effect.Misc)...)
+		if bonus := spelldata.VersusAura(effect.Aura).Bonus(effect.Average()); bonus != (stats.Stats{}) {
+			aura.AttachMobTypeBonusStats(source, bonus, spelldata.MobTypes(effect.Misc)...)
 		}
 	}
 }
@@ -728,31 +729,44 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 		config.ICD = damage.Cooldown()
 	}
 	damageConfig := spellDataProcDamageSpell(character, damage, true)
-	damageConfig.VersusBonus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindDamage, trigger)
+	damageConfig.VersusBonus = RegisterVersus(character, source.versusSource(trigger), proto.VersusEffectKind_VersusEffectKindDamage, trigger)
 	if extra, ok := DamageProcExtras[source.id]; ok && !source.isEnchant {
 		extra(character, &damageConfig)
 	}
 	attachProcDamage(character, &config, damageConfig)
-	config.Handler = withProcEnergize(character, damage, config.Handler)
+	// The restore takes the trigger's factor against the hit's target, as an energize proc's does.
+	config.Handler = withProcEnergize(character, damage, config.Handler, func() *core.VersusBonus {
+		return RegisterVersus(character, source.versusSource(trigger), proto.VersusEffectKind_VersusEffectKindRestore, trigger)
+	})
 	source.registerTrigger(character, config)
 }
 
 // The handler followed by the row's own gain into the wearer's mana, rage or energy, where the row
 // states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana, and
-// Righteous Fire 1231138 raises spell power and restores mana. The gain targets the caster, so it
-// comes with every proc whether the damage lands or not, a full resist included (EV-0108).
-func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
+// Righteous Fire 1231138 raises spell power and restores mana. The gain targets the caster, so it comes
+// with every proc whether the damage lands or not, a full resist included (EV-0108). Where register is
+// set, it registers the factor the gain takes against the hit's target, once the row has a gain.
+func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler, register func() *core.VersusBonus) core.ProcHandler {
 	gain := row.EnergizeEffect()
 	if gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
 		return handler
 	}
-	restore, ok := effectGain(character, gain, core.ActionID{SpellID: row.ID})
+	restore, ok := scaledEffectGain(character, gain, core.ActionID{SpellID: row.ID})
 	if !ok {
 		return handler
 	}
+	var versus *core.VersusBonus
+	if register != nil {
+		versus = register()
+	}
 	return func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		handler(sim, spell, result)
-		restore(sim)
+		scale := 1.0
+		// A cast listener hears no hit, so no target.
+		if result != nil {
+			scale = versus.Against(result.Target)
+		}
+		restore(sim, scale)
 	}
 }
 
@@ -802,6 +816,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	}
 
 	single := make(core.SpellResultSlice, 1)
+	creatureTypes := damage.TargetCreatureTypes()
 	onLanding := bothAfter(debuffOnLanding(character, damage), leechOnLanding(character, damage, effect))
 	periodic := damage.PeriodicDamageEffect()
 	if periodic == spelldata.NilEffect {
@@ -809,7 +824,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			bind(spell)
 			if multiTarget {
-				dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, hitOutcome), onLanding)
+				dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, creatureTypes, damage, effect, hitOutcome), onLanding)
 				return
 			}
 			single[0] = spell.CalcDamage(sim, target, effect.DirectAmount(sim), hitOutcome)
@@ -835,7 +850,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 		bind(spell)
 		switch {
 		case areaHit:
-			dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, hitOutcome), after)
+			dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, creatureTypes, damage, effect, hitOutcome), after)
 			return
 		case areaDot:
 			rolls = rolls[:0]
@@ -974,21 +989,61 @@ func applyDotIfLanded(area bool) afterDealt {
 	}
 }
 
-// The damage of an effect that reaches more than its target, without the enemies outside the
-// creature types the row names: Stratholme Holy Water's 17291 burns only the Undead in its area. Those
-// enemies still take their rolls and count toward a split and the AoE cap.
-func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
-	results := calcMultiTargetDamageOnAll(sim, spell, target, row, effect, outcome)
-	if row.TargetCreatureType == 0 {
-		return results
+// The damage of an effect that reaches more than its target. A row that names creature types skips
+// the enemies outside them: they take no roll, so Stratholme Holy Water's 17291 burns only the Undead
+// in its area (EV-0231), and count toward neither a split, the row's MaxTargets nor the AoE cap
+// (R-0058).
+func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, types core.VersusTargets, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
+	if types.IsEmpty() {
+		return calcMultiTargetDamageOnAll(sim, spell, target, row, effect, outcome)
 	}
-	mobTypes := spelldata.MobTypes(row.TargetCreatureType)
-	return slices.DeleteFunc(results, func(result *core.SpellResult) bool {
-		if slices.Contains(mobTypes, result.Target.MobType) {
-			return false
+
+	// The enemies the effect reaches, in the order calcMultiTargetDamageOnAll takes them.
+	var units []*core.Unit
+	if effect.HitsAnArea() && row.MaxTargets == 0 {
+		for _, unit := range sim.Encounter.ActiveTargetUnits {
+			if types.Matches(unit) {
+				units = append(units, unit)
+			}
 		}
-		spell.DisposeResult(result)
-		return true
+	} else {
+		reach := int(row.MaxTargets)
+		if !effect.HitsAnArea() {
+			reach = int(effect.ChainTargets)
+		}
+		unit := target
+		for range sim.Environment.ActiveTargetCount() {
+			if len(units) == reach {
+				break
+			}
+			if types.Matches(unit) {
+				units = append(units, unit)
+			}
+			unit = sim.Environment.NextActiveTargetUnit(unit)
+		}
+	}
+	if len(units) == 0 {
+		return nil
+	}
+
+	switch {
+	case !effect.HitsAnArea():
+		keep := 1.0
+		return spell.CalcDamageOnEach(sim, units, outcome, func(sim *core.Simulation, _ *core.Spell) float64 {
+			damage := effect.DirectAmount(sim) * keep
+			keep *= float64(effect.ChainAmp)
+			return damage
+		})
+	case row.SplitsDamage:
+		share := effect.Roll(sim) / float64(len(units))
+		return spell.CalcDamageOnEach(sim, units, outcome, func(*core.Simulation, *core.Spell) float64 { return share })
+	}
+	aoeCap := 1.0
+	if row.MaxTargets == 0 {
+		aoeCap = core.AOECapMultiplierOf(len(units))
+	}
+	return spell.CalcDamageOnEach(sim, units, outcome, func(sim *core.Simulation, _ *core.Spell) float64 {
+		return effect.DirectAmount(sim) * aoeCap
 	})
 }
 
@@ -1322,7 +1377,7 @@ func NewSimpleStatActive(itemID int32) {
 				Cast:     OnUseCast(character, itemEffect),
 			}
 
-			buffStats, buffDuration := onUseStatBuff(character, itemEffect)
+			buffStats, buffDuration := onUseStatBuff(character, itemID, itemEffect)
 			buff := core.RegisterTemporaryStatsOnUseCD(character, itemEffect.BuffName, buffStats, buffDuration, spellConfig)
 			attachCarriedProc(character, buff.Aura, spelldata.Find(itemEffect.BuffId))
 		}
@@ -1373,7 +1428,7 @@ func CarriedProcUnsupported(row *spelldata.Spell) []string {
 func NewSpellDataDamageOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, damage *spelldata.Spell) core.SpellConfig {
 		config := spellDataOnUseDamageSpell(character, damage)
-		config.VersusBonus = ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindDamage, damage)
+		config.VersusBonus = RegisterVersus(character, core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindDamage, damage)
 		return config
 	})
 }
@@ -1391,7 +1446,7 @@ func NewSpellDataPeriodicDamageOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, row *spelldata.Spell) core.SpellConfig {
 		periodic := row.FirstAura(dbcenums.A_PERIODIC_TRIGGER_SPELL)
 		damageConfig := spellDataProcDamageSpell(character, spelldata.MustFind(periodic.TriggerID), true)
-		damageConfig.VersusBonus = ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindDamage, row)
+		damageConfig.VersusBonus = RegisterVersus(character, core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindDamage, row)
 		damage := character.RegisterSpell(damageConfig)
 
 		config := spelldata.SpellConfig(&character.Unit, row, castBy(false))
@@ -1436,7 +1491,7 @@ func NewSpellDataAbsorbOnUse(itemID int32) {
 			if itemEffect.BuffId != absorb.ID {
 				continue
 			}
-			if buffStats, _ := onUseStatBuff(character, itemEffect); buffStats != (stats.Stats{}) {
+			if buffStats, _ := onUseStatBuff(character, itemID, itemEffect); buffStats != (stats.Stats{}) {
 				config.RelatedSelfBuff.AttachStatsBuff(buffStats)
 			}
 		}
@@ -1639,9 +1694,12 @@ func OnUseCast(character *core.Character, itemEffect *proto.ItemEffect) core.Cas
 	return cast
 }
 
-// The on-use buff's stats and duration, scaled by its area bonus.
-func onUseStatBuff(character *core.Character, itemEffect *proto.ItemEffect) (stats.Stats, time.Duration) {
-	amount, duration := spelldata.Find(itemEffect.BuffId).AreaBonus(&character.Env.Encounter)
+// The on-use buff's stats and duration, scaled by its area bonus, which the item keeps on the stats sheet.
+func onUseStatBuff(character *core.Character, itemID int32, itemEffect *proto.ItemEffect) (stats.Stats, time.Duration) {
+	amountBonus, durationBonus := spelldata.Find(itemEffect.BuffId).AreaBonus()
+	source := core.ActionID{ItemID: itemID}
+	amount := character.RegisterArea(source, proto.VersusEffectKind_VersusEffectKindEffect, amountBonus)
+	duration := character.RegisterArea(source, proto.VersusEffectKind_VersusEffectKindDuration, durationBonus)
 	buffStats := stats.FromProtoMap(itemEffect.GetScalingOptions()[int32(0)].GetStats()).Multiply(amount)
 	return buffStats, time.Duration(float64(itemEffect.EffectDurationMs)*duration) * time.Millisecond
 }
@@ -2115,6 +2173,25 @@ func (s effectSource) actionID() core.ActionID {
 	}
 
 	return core.ActionID{ItemID: s.id}
+}
+
+// The source the stats sheet names for the effect's versus factor: the item, or the enchant's trigger
+// spell, since an enchant's own id is no spell id.
+func (s effectSource) versusSource(trigger *spelldata.Spell) core.ActionID {
+	if s.isEnchant {
+		return core.ActionID{SpellID: trigger.ID}
+	}
+
+	return core.ActionID{ItemID: s.id}
+}
+
+// The item the effect belongs to, or 0 for an enchant.
+func (s effectSource) itemID() int32 {
+	if s.isEnchant {
+		return 0
+	}
+
+	return s.id
 }
 
 func (s effectSource) eligibleSlots(character *core.Character) []proto.ItemSlot {

@@ -3,8 +3,10 @@
 package forever_test
 
 import (
+	"fmt"
 	"math"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -56,11 +58,11 @@ func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck in
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// Seal of the Dawn 13209 and Rune of the Dawn 19812 state their bonus against Undead as item stats 128 and
-// 136, at the value their equip spells 23930 and 24198 state. Counterattack Lodestone 18537 and Royal Seal
-// of Eldre'Thalas 18467 fold equip spells 1318938 and 1318479 into their stats, the bonus against Mechanical
-// and Demon targets with them. The sim adds each bonus to the attack table of a target of that mob type
-// alone.
+// Seal of the Dawn 13209 and Rune of the Dawn 19812 fold equip spells 23930 and 24198, which grant only
+// their bonus against Undead, into their mob type stats. Counterattack Lodestone 18537 and Royal Seal of
+// Eldre'Thalas 18467 fold equip spells 1318938 and 1318479 into their stats, the bonus against Mechanical
+// and Demon targets with them. The sim adds each bonus once, to the attack table of a target of that mob
+// type alone.
 func TestTrinketsGrantTheirBonusAgainstTheirMobTypeAlone(t *testing.T) {
 	seal, rune := spelldata.MustFind(23930), spelldata.MustFind(24198)
 	lodestone, royalSeal := spelldata.MustFind(1318938), spelldata.MustFind(1318479)
@@ -281,6 +283,25 @@ func dodgeSwing(t *testing.T, sim *core.Simulation, character *core.Character, a
 	t.Helper()
 	character.OnSpellHitTaken(sim, meleeSwing(attacker), &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeDodge})
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+}
+
+// The tag body of a damage line, the text after " [Versus ", or "" when the line carries none.
+func versusTag(line string) string {
+	_, tag, _ := strings.Cut(line, " [Versus ")
+	return tag
+}
+
+// The damage lines the sim logs while the hits run.
+func damageLines(sim *core.Simulation, hits func()) []string {
+	var lines []string
+	sim.Log = func(message string, vals ...any) {
+		if line := fmt.Sprintf(message, vals...); strings.Contains(line, "(Threat: ") {
+			lines = append(lines, line)
+		}
+	}
+	hits()
+	sim.Log = nil
+	return lines
 }
 
 func dealHit(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell) {
@@ -844,7 +865,8 @@ func tabletMissileCaster(seed int64) (*core.Simulation, *core.Character) {
 
 // Scented Runewood Brooch 269741's 1318323 rolls its row's procs per minute on the main hand's speed
 // for a landed main-hand swing and a landed spell hit alike, and casts 1318324 on the target, but only
-// when the target is a Furbolg. A hit on any other target never casts it.
+// when the target is a Furbolg. A hit on any other target never casts it. The combat log names the item
+// on the damage.
 func TestScentedRunewoodBroochProcsOnlyAgainstFurbolg(t *testing.T) {
 	sim, character := trinketWarriorWielding(t, 269741, 810, 0)
 	proc := character.GetAura("Scented Runewood Brooch")
@@ -883,9 +905,12 @@ func TestScentedRunewoodBroochProcsOnlyAgainstFurbolg(t *testing.T) {
 	}
 
 	enemy.CreatureFamily = proto.CreatureFamily_CreatureFamilyFurbolg
-	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	lines := damageLines(sim, func() { dealHit(t, sim, character, meleeSwing(&character.Unit)) })
 	if got := casts(); got != 1 {
 		t.Errorf("a swing on a Furbolg cast it %d times, want once", got)
+	}
+	if want := ") [Versus Unknown (Furbolg): {ItemID: 269741} proc only]"; len(lines) != 1 || !strings.HasSuffix(lines[0], want) {
+		t.Errorf("the swing on a Furbolg logs %q, want one damage line ending with %q", lines, want)
 	}
 	dealHit(t, sim, character, fireSpell(&character.Unit))
 	if got := casts(); got != 2 {
@@ -1085,6 +1110,17 @@ func expectExtraAttackVersus(t *testing.T, itemID int32, name string, rowID int3
 			if spread := 5 * math.Sqrt(hits*target.want*(1-target.want)); math.Abs(float64(procs())-hits*target.want) > spread {
 				t.Errorf("%d of %d landed melee hits procced it, want %v within %v", procs(), hits, hits*target.want, spread)
 			}
+
+			granted := spelldata.MustFind(rowID).EffectN(1).Trigger()
+			extraAttack := character.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: granted.ID})
+			lines := damageLines(sim, func() { extraAttack.CalcAndDealDamage(sim, enemy, 100, extraAttack.OutcomeAlwaysHit) })
+			wantTag := ""
+			if target.family == family {
+				wantTag = fmt.Sprintf("%s (%s): {ItemID: %d} x%v proc chance]", strings.TrimPrefix(enemy.MobType.String(), "MobType"), strings.TrimPrefix(family.String(), "CreatureFamily"), itemID, factor)
+			}
+			if len(lines) != 1 || versusTag(lines[0]) != wantTag {
+				t.Errorf("%d's swing on a %v logs %q, want one line tagged %q", itemID, target.family, lines, wantTag)
+			}
 		})
 	}
 }
@@ -1093,6 +1129,52 @@ func expectExtraAttackVersus(t *testing.T, itemID int32, name string, rowID int3
 // target the column divided by its second effect's value (the rule registerExtraAttackVersus states).
 func TestHandOfJusticeIsLikelierAgainstDwarves(t *testing.T) {
 	expectExtraAttackVersus(t, 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
+}
+
+// Blackhand's Breadth 13965 marks the target with 1318944's crit chance for the wearer's hits on it,
+// doubled on an Orc or an Ogre, where the combat log names the item for all of it. The wearer's stats
+// sheet lists the doubling against both families.
+func TestBlackhandsBreadthDoublesItsMarkOnOrcsAndOgres(t *testing.T) {
+	_, wearer := trinketWarriorFacing(t, 13965, 810, 0, proto.MobType_MobTypeHumanoid)
+	playerStats := &proto.PlayerStats{}
+	wearer.FillPlayerStats(playerStats)
+	if sheet := playerStats.VersusEffects; len(sheet) != 1 || core.ProtoToActionID(sheet[0].Source) != (core.ActionID{ItemID: 13965}) ||
+		sheet[0].ItemId != 13965 || sheet[0].Kind != proto.VersusEffectKind_VersusEffectKindCritChance ||
+		sheet[0].Multiplier != 2 || !slices.Equal(sheet[0].CreatureFamilies, []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc, proto.CreatureFamily_CreatureFamilyOgre}) {
+		t.Errorf("the stats sheet lists %v, want the crit chance doubled against Orcs and Ogres", sheet)
+	}
+
+	crit := spelldata.MustFind(1318944).EffectN(1).BaseValue()
+	if crit <= 0 {
+		t.Fatal("1318944 states no crit chance")
+	}
+	for _, c := range []struct {
+		family proto.CreatureFamily
+		want   float64
+		tag    string
+	}{
+		{proto.CreatureFamily_CreatureFamilyOrc, 2 * crit, fmt.Sprintf("Humanoid (Orc): {ItemID: 13965} +%v%% crit chance]", 2*crit)},
+		{proto.CreatureFamily_CreatureFamilyOgre, 2 * crit, fmt.Sprintf("Humanoid (Ogre): {ItemID: 13965} +%v%% crit chance]", 2*crit)},
+		{proto.CreatureFamily_CreatureFamilyDwarf, crit, ""},
+	} {
+		sim, character := trinketWarriorFacing(t, 13965, 810, 0, proto.MobType_MobTypeHumanoid)
+		enemy := character.CurrentTarget
+		enemy.CreatureFamily = c.family
+		table := character.AttackTables[enemy.UnitIndex]
+		before := table.BonusCritPercent
+		if use := character.GetSpell(core.ActionID{ItemID: 13965}); use == nil || !use.Cast(sim, enemy) {
+			t.Fatal("13965 could not be used")
+		}
+		if got := table.BonusCritPercent - before; got != c.want {
+			t.Errorf("the mark on a %v adds %v%% crit, want %v", c.family, got, c.want)
+		}
+
+		mainHand := character.AutoAttacks.MHAuto()
+		lines := damageLines(sim, func() { mainHand.CalcAndDealDamage(sim, enemy, 100, mainHand.OutcomeAlwaysHit) })
+		if len(lines) != 1 || versusTag(lines[0]) != c.tag {
+			t.Errorf("a swing on a marked %v logs %q, want one line tagged %q", c.family, lines, c.tag)
+		}
+	}
 }
 
 // Hand of Justice 11815 grants nothing on a landed melee hit inside 15600's cooldown after a proc, and
@@ -1236,6 +1318,84 @@ func TestLionHornOfStormwindDoublesItsChanceInStrongholdsAndCities(t *testing.T)
 	}
 }
 
+// Each area effect lists its factor under its source on the stats sheet, in an encounter in none of its
+// areas as in one of them: the item, or the spell of a set bonus.
+func TestAreaFactorsListUnderTheirSourceOnTheSheet(t *testing.T) {
+	const (
+		heroism, everlook, lionHorn, uthers, secondWind, banana = 19287, 274760, 14557, 11302, 11819, 270226
+		kroldok, violet, defias, rotmender                      = 1324298, 1324318, 1324684, 1321560
+	)
+	cities := []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}
+	forest := []proto.AreaType{proto.AreaType_AreaTypeForestGrassland}
+	trinket := func(id int32) *proto.EquipmentSpec {
+		return equipping(proto.ItemSlot_ItemSlotTrinket1, &proto.ItemSpec{Id: id})
+	}
+	kroldokRow, violetRow, defiasRow := spelldata.MustFind(1324296), spelldata.MustFind(1324315), spelldata.MustFind(1324683)
+	secondWindRow, bananaRow, siphonRow := spelldata.MustFind(15604), spelldata.MustFind(1287571), spelldata.MustFind(1321558)
+	secondEffect := func(row *spelldata.Spell) float64 { return row.EffectN(2).BaseValue() / row.EffectN(1).BaseValue() }
+	// The value is the factor, or a flat heal's amount.
+	type entry struct {
+		source core.ActionID
+		kind   proto.VersusEffectKind
+		value  float64
+		areas  []proto.AreaType
+	}
+	procChance, effect := proto.VersusEffectKind_VersusEffectKindProcChance, proto.VersusEffectKind_VersusEffectKindEffect
+	for _, tc := range []struct {
+		name      string
+		class     proto.Class
+		equipment *proto.EquipmentSpec
+		want      []entry
+	}{
+		{"Darkmoon Card: Heroism", proto.Class_ClassWarrior, trinket(heroism), []entry{{core.ActionID{ItemID: heroism}, procChance, 2, cities}}},
+		{"Everlook Delivery Bot", proto.Class_ClassWarrior, trinket(everlook),
+			[]entry{{core.ActionID{ItemID: everlook}, proto.VersusEffectKind_VersusEffectKindHitsNeeded, 2, []proto.AreaType{proto.AreaType_AreaTypeSnowy}}}},
+		{"The Lion Horn of Stormwind", proto.Class_ClassWarrior, trinket(lionHorn), []entry{{core.ActionID{ItemID: lionHorn}, procChance, 2, cities}}},
+		{"Uther's Strength", proto.Class_ClassWarrior, trinket(uthers),
+			[]entry{{core.ActionID{ItemID: uthers}, procChance, 2, []proto.AreaType{proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted}}}},
+		{"Second Wind", proto.Class_ClassPaladin, trinket(secondWind),
+			[]entry{{core.ActionID{ItemID: secondWind}, proto.VersusEffectKind_VersusEffectKindRestore, float64(secondWindRow.AreaMultiplier),
+				[]proto.AreaType{proto.AreaType_AreaTypeMountainous}}}},
+		{"Golden Banana", proto.Class_ClassWarrior, trinket(banana), []entry{
+			{core.ActionID{ItemID: banana}, effect, float64(bananaRow.AreaMultiplier), forest},
+			{core.ActionID{ItemID: banana}, proto.VersusEffectKind_VersusEffectKindDuration, float64(bananaRow.AreaDurationMultiplier), forest},
+		}},
+		{"Krol'dok Battlegear", proto.Class_ClassWarrior, setPieces(kroldokPieces(4)),
+			[]entry{{core.ActionID{SpellID: kroldok}, proto.VersusEffectKind_VersusEffectKindFlatHeal, kroldokRow.EffectN(2).BasePoints, cities}}},
+		{"Violet Sorcerer's Vestments", proto.Class_ClassPaladin, setPieces(violetFour()), []entry{{core.ActionID{SpellID: violet}, effect, secondEffect(violetRow), cities}}},
+		{"Defias Enforcer's Garb", proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
+			proto.ItemSlot_ItemSlotHead: 287019, proto.ItemSlot_ItemSlotShoulder: 276741, proto.ItemSlot_ItemSlotChest: 287020,
+			proto.ItemSlot_ItemSlotLegs: 276746, proto.ItemSlot_ItemSlotFeet: 287021,
+		}), []entry{{core.ActionID{SpellID: defias}, effect, secondEffect(defiasRow), []proto.AreaType{proto.AreaType_AreaTypeSwamp}}}},
+		{"Rotmender's Raiment", proto.Class_ClassPaladin, setPieces(map[proto.ItemSlot]int32{
+			proto.ItemSlot_ItemSlotChest: 286978, proto.ItemSlot_ItemSlotHands: 286979, proto.ItemSlot_ItemSlotWaist: 286980,
+			proto.ItemSlot_ItemSlotLegs: 271207,
+		}), []entry{{core.ActionID{SpellID: rotmender}, proto.VersusEffectKind_VersusEffectKindRestore, float64(siphonRow.AreaMultiplier),
+			[]proto.AreaType{proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted}}}},
+	} {
+		for _, areas := range [][]proto.AreaType{nil, tc.want[0].areas[:1]} {
+			_, character := itemWearerIn(t, tc.class, tc.equipment, areas...)
+			playerStats := &proto.PlayerStats{}
+			character.FillPlayerStats(playerStats)
+			var got []entry
+			for _, sheet := range playerStats.VersusEffects {
+				if len(sheet.AreaTypes) > 0 {
+					value := sheet.Multiplier
+					if sheet.Kind == proto.VersusEffectKind_VersusEffectKindFlatHeal {
+						value = sheet.Amount
+					}
+					got = append(got, entry{core.ProtoToActionID(sheet.Source), sheet.Kind, value, sheet.AreaTypes})
+				}
+			}
+			if !slices.EqualFunc(got, tc.want, func(a, b entry) bool {
+				return a.source == b.source && a.kind == b.kind && a.value == b.value && slices.Equal(a.areas, b.areas)
+			}) {
+				t.Errorf("%s in %v: the stats sheet lists %v, want %v", tc.name, areas, got, tc.want)
+			}
+		}
+	}
+}
+
 // Draconic Infused Emblem 22268's 1318931 rolls its row's chance on every landed harmful spell hit,
 // one that deals no damage and a magic spell with no proc mask, as a curse is, too, and on nothing
 // else: a heal, a cast with no hit, a miss, a damage over time tick and a spell fired as a proc never
@@ -1339,7 +1499,7 @@ func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
 }
 
 // Flamebreak Talisman 280071's use grants 1315878's first Agility, and its second on top when any enemy
-// in the encounter is an elemental, by type or by family.
+// in the encounter is an elemental, by its type or by a family of that type.
 func TestFlamebreakTalismanAddsItsSecondAgilityAgainstAnElemental(t *testing.T) {
 	row := spelldata.MustFind(1315878)
 	first, second := row.EffectN(1).BaseValue(), row.EffectN(2).BaseValue()

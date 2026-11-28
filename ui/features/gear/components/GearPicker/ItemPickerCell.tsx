@@ -10,6 +10,7 @@ import { useOpenSelectorModal } from '../../hooks/useSelectorModal';
 import { createGearData } from '../../model/gear_data';
 import { SelectorModalTabs } from '../../types';
 import { ItemDetailCell, type ItemDetailCellProps } from '../ItemCell';
+import { VersusChips } from '../VersusChips';
 import { QuickEnchantList } from './QuickEnchantList';
 
 export interface ItemPickerCellProps {
@@ -55,5 +56,23 @@ export const ItemPickerCell = ({ slot, ready, align }: ItemPickerCellProps) => {
 			/>
 		);
 
-	return <ItemDetailCell slot={slot} item={item} align={align} onOpen={open} enchantTooltipId={`${tooltipId}-enchant`} extraLabels={quickSwapTooltip} />;
+	return (
+		<ItemDetailCell
+			slot={slot}
+			item={item}
+			align={align}
+			onOpen={open}
+			enchantTooltipId={`${tooltipId}-enchant`}
+			extraLabels={
+				<>
+					{quickSwapTooltip}
+					{item && (
+						<div className="mt-1 empty:hidden">
+							<VersusChips item={item.item} />
+						</div>
+					)}
+				</>
+			}
+		/>
+	);
 };

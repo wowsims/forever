@@ -1,6 +1,7 @@
 package core
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -407,7 +408,7 @@ func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
 	}})
 	weaponTestTalents = func(character *Character) {
 		MakePermanent(character.RegisterAura(Aura{Label: "Test Undead Bane", BuildPhase: CharacterBuildPhaseTalents})).
-			AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: auraSpellDamage}, proto.MobType_MobTypeUndead)
+			AttachMobTypeBonusStats(ActionID{SpellID: 1}, stats.Stats{stats.SpellDamage: auraSpellDamage}, proto.MobType_MobTypeUndead)
 	}
 	defer func() { weaponTestTalents = nil }()
 	equipped := WeaponTestSlots(WeaponTestSwordID, 0, 0)
@@ -430,6 +431,9 @@ func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
 	if beast := sheet[proto.MobType_MobTypeBeast]; beast == nil || beast.DamageMultiplier <= 1 {
 		t.Fatalf("the sheet lists %v against Beasts, want the racial's damage multiplier", beast)
 	}
+	if sources := sheet[proto.MobType_MobTypeHumanoid].Sources; len(sources) != 1 || ProtoToActionID(sources[0].ActionId) != (ActionID{ItemID: ringID}) {
+		t.Errorf("the sheet credits %v against Humanoids, want the ring alone", sources)
+	}
 	if len(playerStats.AreaStats) != 1 || playerStats.AreaStats[0].AreaType != proto.AreaType_AreaTypeForestGrassland ||
 		stats.FromProtoMap(playerStats.AreaStats[0].Stats) != (stats.Stats{stats.AttackPower: ringAreaAttackPower}) {
 		t.Errorf("the sheet lists area stats %v, want the ring's attack power in Forest and Grassland", playerStats.AreaStats)
@@ -445,11 +449,95 @@ func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
 		sim.Reset()
 		character := sim.Raid.Parties[0].Players[0].GetCharacter()
 		table := character.AttackTables[character.CurrentTarget.UnitIndex]
-		if got := table.MobTypeBonusStats[mobType]; got != wantStats[mobType] {
+		if got := table.VersusStats; got != wantStats[mobType] {
 			t.Errorf("against %s the attack table holds %v, the sheet %v", mobType, got, wantStats[mobType])
 		}
 		if !WithinToleranceFloat64(table.DamageDealtMultiplier, bonus.DamageMultiplier, 1e-9) {
 			t.Errorf("against %s the attack table multiplies damage by %v, the sheet by %v", mobType, table.DamageDealtMultiplier, bonus.DamageMultiplier)
+		}
+	}
+}
+
+// Each source's share against a mob type is its own entry, named by its ActionID, in the order the sources
+// were added; a share taken back off is left out, and a share that keeps one of its stats lists that one.
+func TestSheetListsEachSourceOfAMobTypeBonus(t *testing.T) {
+	sim := NewSim(&proto.RaidSimRequest{SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid: weaponTestRaid(proto.Race_RaceHuman, WeaponTestSlots(WeaponTestSwordID, 0, 0), nil), Encounter: weaponTestEncounter()}, simsignals.CreateSignals())
+	character := sim.Raid.Parties[0].Players[0].GetCharacter()
+	item, spell, removedItem, removedSpell := ActionID{ItemID: 990928}, ActionID{SpellID: 990929}, ActionID{ItemID: 990930}, ActionID{SpellID: 990931}
+	demon := proto.MobType_MobTypeDemon
+	character.AddMobTypeBonusStats(item, stats.Stats{stats.AttackPower: 10, stats.SpellDamage: 5}, demon)
+	character.AddMobTypeBonusStats(removedItem, stats.Stats{stats.AttackPower: 7}, demon)
+	character.MultiplyDamageVersus(spell, 1.1, demon)
+	character.MultiplyCritDamageVersus(removedSpell, 1.2, demon)
+	character.AddMobTypeBonusStats(removedItem, stats.Stats{stats.AttackPower: -7}, demon)
+	character.MultiplyCritDamageVersus(removedSpell, 1/1.2, demon)
+	character.AddMobTypeBonusStats(item, stats.Stats{stats.SpellDamage: -5}, demon)
+
+	var sources []*proto.MobTypeBonusSource
+	for _, bonus := range character.mobTypeBonusesProto() {
+		if bonus.MobType == demon {
+			sources = bonus.Sources
+		}
+	}
+	if len(sources) != 2 {
+		t.Fatalf("the sheet credits %v against Demons, want the item's and the spell's shares alone", sources)
+	}
+	if got := ProtoToActionID(sources[0].ActionId); got != item || stats.FromProtoMap(sources[0].Stats) != (stats.Stats{stats.AttackPower: 10}) ||
+		sources[0].DamageMultiplier != 1 || sources[0].CritDamageMultiplier != 1 {
+		t.Errorf("the first share is %v, want %v with 10 attack power alone", sources[0], item)
+	}
+	if got := ProtoToActionID(sources[1].ActionId); got != spell || len(sources[1].Stats) != 0 ||
+		!WithinToleranceFloat64(sources[1].DamageMultiplier, 1.1, 1e-9) || sources[1].CritDamageMultiplier != 1 {
+		t.Errorf("the second share is %v, want %v with a 1.1 damage multiplier alone", sources[1], spell)
+	}
+}
+
+// An area factor applies in an encounter in any of its areas, once however many, and the sheet lists it under
+// its source and areas in every encounter; a factor of 1 or in no area is not listed. A flat amount in the
+// areas is listed the same way, with its amount.
+func TestSheetListsEachAreaFactorInEveryEncounter(t *testing.T) {
+	areas := AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted}}
+	source, flatSource := ActionID{SpellID: 990932}, ActionID{SpellID: 990933}
+	for _, tc := range []struct {
+		name  string
+		areas []proto.AreaType
+		want  float64
+	}{
+		{"in no area", nil, 1},
+		{"in another area", []proto.AreaType{proto.AreaType_AreaTypeSnowy}, 1},
+		{"in one of the areas", []proto.AreaType{proto.AreaType_AreaTypeSnowy, proto.AreaType_AreaTypeHaunted}, 3},
+		{"in both areas", []proto.AreaType{proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted}, 3},
+	} {
+		encounter := weaponTestEncounter()
+		encounter.AreaTypes = tc.areas
+		sim := NewSim(&proto.RaidSimRequest{SimOptions: &proto.SimOptions{RandomSeed: 1},
+			Raid: weaponTestRaid(proto.Race_RaceHuman, WeaponTestSlots(WeaponTestSwordID, 0, 0), nil), Encounter: encounter}, simsignals.CreateSignals())
+		character := sim.Raid.Parties[0].Players[0].GetCharacter()
+		if got := character.RegisterArea(source, proto.VersusEffectKind_VersusEffectKindRestore, AreaBonus{AreaTargets: areas, Multiplier: 3}); got != tc.want {
+			t.Errorf("%s: the factor is x%v, want x%v", tc.name, got, tc.want)
+		}
+		character.RegisterArea(source, proto.VersusEffectKind_VersusEffectKindDuration, AreaBonus{AreaTargets: areas, Multiplier: 1})
+		character.RegisterArea(source, proto.VersusEffectKind_VersusEffectKindEffect, AreaBonus{Multiplier: 3})
+
+		var listed []*proto.VersusEffect
+		for _, effect := range character.versusEffectsProto() {
+			if ProtoToActionID(effect.Source) == source {
+				listed = append(listed, effect)
+			}
+		}
+		if len(listed) != 1 || listed[0].Kind != proto.VersusEffectKind_VersusEffectKindRestore || listed[0].Multiplier != 3 ||
+			!slices.Equal(listed[0].AreaTypes, areas.Areas) || len(listed[0].MobTypes)+len(listed[0].CreatureFamilies) != 0 {
+			t.Errorf("%s: the sheet lists %v for the source, want its x3 restore in Wasteland and Haunted areas alone", tc.name, listed)
+		}
+
+		if inArea := character.RegisterAreaAmount(flatSource, areas, 44); inArea != (tc.want != 1) {
+			t.Errorf("%s: the flat amount reads the encounter in the areas as %v", tc.name, inArea)
+		}
+		flat := character.versusEffectsProto()
+		if last := flat[len(flat)-1]; ProtoToActionID(last.Source) != flatSource || last.Kind != proto.VersusEffectKind_VersusEffectKindFlatHeal ||
+			last.Amount != 44 || !slices.Equal(last.AreaTypes, areas.Areas) {
+			t.Errorf("%s: the sheet lists %v last, want the flat heal of 44 in Wasteland and Haunted areas", tc.name, last)
 		}
 	}
 }

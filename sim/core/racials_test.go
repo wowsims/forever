@@ -12,6 +12,10 @@ import (
 )
 
 func setupRacialSim(race proto.Race) (*Simulation, *FakeRageWarrior) {
+	return setupRacialSimAgainst(race, &proto.Target{Name: "target", Level: 63, MobType: proto.MobType_MobTypeElemental})
+}
+
+func setupRacialSimAgainst(race proto.Race, target *proto.Target) (*Simulation, *FakeRageWarrior) {
 	sim := NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{
 			RandomSeed: 100,
@@ -35,9 +39,7 @@ func setupRacialSim(race proto.Race) (*Simulation, *FakeRageWarrior) {
 			},
 		},
 		Encounter: &proto.Encounter{
-			Targets: []*proto.Target{
-				{Name: "target", Level: 63, MobType: proto.MobType_MobTypeElemental},
-			},
+			Targets:  []*proto.Target{target},
 			Duration: 180,
 		},
 	}, simsignals.CreateSignals())

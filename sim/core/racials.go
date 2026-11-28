@@ -13,7 +13,7 @@ func applyRaceEffects(agent Agent) {
 	switch character.Race {
 	case proto.Race_RaceDwarf:
 		character.AddStats(stats.Stats{stats.PhysicalHitPercent: 1, stats.SpellHitPercent: 1}) // Artisan's Precision
-		applyDamageVersus(character, proto.MobType_MobTypeBeast)
+		applyDamageVersus(character, 1259721, proto.MobType_MobTypeBeast)                      // Big Game Hunter
 
 		actionID := ActionID{SpellID: 20594}
 
@@ -158,7 +158,7 @@ func applyRaceEffects(agent Agent) {
 		// Endurance 20550 scales all health, flat health added later included (EV-0037).
 		character.MultiplyStat(stats.Health, 1.05)
 	case proto.Race_RaceTroll:
-		applyDamageVersus(character, proto.MobType_MobTypeBeast)
+		applyDamageVersus(character, 20557, proto.MobType_MobTypeBeast) // Beast Slaying
 
 		actionID := ActionID{SpellID: 20554}
 
@@ -223,7 +223,7 @@ func applyRaceEffects(agent Agent) {
 const innervateTag = "Innervate"
 
 func applySkyborneSharedRacials(character *Character) {
-	applyDamageVersus(character, proto.MobType_MobTypeElemental)
+	applyDamageVersus(character, 1259707, proto.MobType_MobTypeElemental) // Elemental Insight
 
 	character.PseudoStats.AttackSpeedMultiplier *= 1.02
 	character.PseudoStats.CastSpeedMultiplier *= 1.02
@@ -291,9 +291,9 @@ func applyCommand(character *Character) {
 // Beast Slaying 20557, Big Game Hunter 1259721 and Elemental Insight 1259707 state one effect, aura 168:
 // 5% damage against the creature type. Their rows carry no aura 547, the critical damage half that
 // Humanoid Slaying 19151 states.
-func applyDamageVersus(character *Character, mobType proto.MobType) {
+func applyDamageVersus(character *Character, spellID int32, mobType proto.MobType) {
 	character.Env.RegisterPostFinalizeEffect(func() {
-		character.MultiplyDamageVersus(1.05, mobType)
+		character.MultiplyDamageVersus(ActionID{SpellID: spellID}, 1.05, mobType)
 	})
 }
 

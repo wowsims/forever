@@ -38,7 +38,7 @@ func TestOnUseStatBuffScalesByTheEncounterArea(t *testing.T) {
 		agent := newTestAgent()
 		agent.character.Env = &core.Environment{Encounter: core.Encounter{AreaTypes: tc.areas}}
 
-		buffStats, duration := onUseStatBuff(agent.character, tc.effect)
+		buffStats, duration := onUseStatBuff(agent.character, 0, tc.effect)
 		if got := buffStats[stats.AttackPower]; got != tc.wantAP {
 			t.Errorf("%s: attack power = %v, want %v", tc.name, got, tc.wantAP)
 		}

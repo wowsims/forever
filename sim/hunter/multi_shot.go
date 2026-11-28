@@ -5,6 +5,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var multiShotRank = spellData.MultiShot.Highest()
@@ -18,7 +19,8 @@ func (hunter *Hunter) registerMultiShot() {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := hunter.RangedNormalizedWeaponDamage(sim, spell.RangedAttackPower(target)) + normalizedShotBonus
-		for _, result := range spell.CalcCleaveDamage(sim, target, multiShotTargets, baseDamage, spell.OutcomeRangedHitAndCrit) {
+		read := core.StatRead{Stat: stats.RangedAttackPower, PerPoint: hunter.RangedNormalizedWeaponDamagePerAttackPower()}
+		for _, result := range spell.CalcCleaveDamageReading(sim, target, multiShotTargets, baseDamage, read, spell.OutcomeRangedHitAndCrit) {
 			spell.DealCastResult(sim, result)
 		}
 

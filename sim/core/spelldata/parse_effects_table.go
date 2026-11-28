@@ -95,6 +95,9 @@ type parser struct {
 
 	// AllManaRegen: a mana regen percent is Innervate's multiplier on the mana regen.
 	allManaRegen bool
+
+	// The item or spell the combat log names for the row's bonuses against mob types (ForItem).
+	versusSource core.ActionID
 }
 
 // One attachment made for one effect: the sim kind it became, the value in the sim's own units, and
@@ -1091,18 +1094,19 @@ func statShareRow(p *parser, e *Effect, v float64) *attachment {
 // A stat the unit has against the mob types a creature type mask names, which the sim keeps on the
 // attack tables.
 func mobTypeStatRow(p *parser, e *Effect, v float64) *attachment {
+	versus := VersusAura(e.Aura)
 	mobTypes := MobTypes(e.Misc)
 	if len(mobTypes) == 0 {
 		return nil
 	}
 
 	var names []string
-	for _, stat := range versusStats[e.Aura] {
+	for _, stat := range versus.Stats {
 		names = append(names, stat.StatName())
 	}
 	name := strings.Join(names, "+")
 	a := additive("mob-type-stat "+name, v, p.onAttackTables(func(_ *core.Simulation, delta float64) {
-		p.unit.AddMobTypeBonusStats(VersusBonus(e.Aura, delta), mobTypes...)
+		p.unit.AddMobTypeBonusStats(p.versusSource, versus.Bonus(delta), mobTypes...)
 	}))
 	// A bonus against other creature types does not compete with this one.
 	a.key = fmt.Sprintf("%sVersus%d", name, e.Misc)
@@ -1123,7 +1127,7 @@ func critDamageVersusRow(p *parser, e *Effect, v float64) *attachment {
 
 // A multiplier against the mob types a creature type mask names, on the attack tables. Whether a
 // second stack multiplies again is not stated, so a stacking row is skipped.
-func (p *parser) versusMultiplier(kind string, key string, e *Effect, v float64, multiply func(mult float64, mobTypes ...proto.MobType)) *attachment {
+func (p *parser) versusMultiplier(kind string, key string, e *Effect, v float64, multiply func(source core.ActionID, mult float64, mobTypes ...proto.MobType)) *attachment {
 	mobTypes := MobTypes(e.Misc)
 	mult := core.MultiplierFromPercent(v)
 	if p.stacking || len(mobTypes) == 0 || mult <= 0 {
@@ -1131,7 +1135,7 @@ func (p *parser) versusMultiplier(kind string, key string, e *Effect, v float64,
 	}
 
 	a := multiplier(kind, mult, p.onAttackTables(func(_ *core.Simulation, factor float64) {
-		multiply(factor, mobTypes...)
+		multiply(p.versusSource, factor, mobTypes...)
 	}))
 	a.key = fmt.Sprintf("%s%d", key, e.Misc)
 	return a

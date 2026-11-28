@@ -1216,14 +1216,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDestruction-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 937.99399
-  tps: 736.16269
-  dtps: 9.87054
- }
-}
-dps_results: {
  key: "TestDestruction-AllItems-Sang'thrazetheDeflector-9379"
  value: {
   dps: 824.34996
@@ -1241,14 +1233,6 @@ dps_results: {
 }
 dps_results: {
  key: "TestDestruction-AllItems-ScentedRunewoodBrooch-269741"
- value: {
-  dps: 937.99399
-  tps: 736.16269
-  dtps: 9.87054
- }
-}
-dps_results: {
- key: "TestDestruction-AllItems-SealoftheDawn-13209"
  value: {
   dps: 937.99399
   tps: 736.16269

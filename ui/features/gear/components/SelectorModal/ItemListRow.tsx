@@ -19,6 +19,7 @@ import type { ItemData, ItemListType } from '../../types';
 import { SelectorModalTabs } from '../../types';
 import { ItemNoticeIcon } from '../GearPicker/ItemNoticeIcon';
 import { NameDescriptionLabel } from '../ItemCell';
+import { VersusChips } from '../VersusChips';
 import { DiscoveredDot } from './DiscoveredDot';
 import { EpCell, type EpCellProps } from './EpCell';
 import { ItemSource } from './ItemSource';
@@ -37,6 +38,8 @@ export interface ItemListRowViewProps extends RowActionsProps {
 	/** The day an item discovered within the last week was discovered; set, it puts a dot on the icon. */
 	discovered?: string;
 	notice?: ReactNode;
+	/** The chips for the kinds of target and area the item's effects name. */
+	versus?: ReactNode;
 	/** The source column; the items and enchants tabs have one. */
 	source?: ReactNode;
 	/** Omitted for a slot the list computes no EP for. */
@@ -54,6 +57,7 @@ export const ItemListRowView = ({
 	onEquip,
 	discovered,
 	notice,
+	versus,
 	source,
 	ep,
 	...actions
@@ -64,7 +68,7 @@ export const ItemListRowView = ({
 				{ilvl || null}
 			</div>
 		)}
-		<div className="relative flex flex-1 items-center gap-1" data-testid="selector-modal-list-label-cell" data-active={active ? '' : undefined}>
+		<div className="ui-selector-modal-list-label-cell" data-testid="selector-modal-list-label-cell" data-active={active ? '' : undefined}>
 			<WowheadAnchor className="ui-selector-modal-list-item-link" testId="selector-modal-list-item-link" href={href || undefined} onActivate={onEquip}>
 				<img className="ui-selector-modal-list-item-icon" data-testid="selector-modal-list-item-icon" src={iconUrl || undefined} alt="" />
 				<span
@@ -75,13 +79,14 @@ export const ItemListRowView = ({
 					{!!nameDescription && <NameDescriptionLabel nameDescription={nameDescription} />}
 				</span>
 			</WowheadAnchor>
+			<div className="ui-selector-modal-list-item-notice">{notice}</div>
+			<div className="ui-selector-modal-list-item-versus">{versus}</div>
 			{discovered && (
 				// The icon's box, outside the link, so hovering the dot opens its own tooltip and not the item's.
 				<div className="pointer-events-none absolute top-1/2 left-0 z-1 size-12 -translate-y-1/2">
 					<DiscoveredDot label={discovered} />
 				</div>
 			)}
-			{notice}
 		</div>
 		{source !== undefined && (
 			<div className="w-64 max-md:hidden" data-testid="selector-modal-list-item-source-container">
@@ -127,10 +132,11 @@ export const ItemListRow = ({
 	const { iconUrl, href } = useActionId(itemData.actionId);
 	const isItemsTab = label === SelectorModalTabs.Items;
 	const isEnchantsTab = label === SelectorModalTabs.Enchants;
-	const level = tabHasLevel(label) ? itemData.ilvl || (isItemsTab ? (itemData.item as unknown as Item).ilvl : 0) : undefined;
+	const item = isItemsTab ? (itemData.item as unknown as Item) : undefined;
+	const level = tabHasLevel(label) ? itemData.ilvl || (item?.ilvl ?? 0) : undefined;
 	const enchant = itemData.item as unknown as Enchant;
-	const sourceItem = isItemsTab ? (itemData.item as unknown as Item) : isEnchantsTab ? { id: enchant.itemId, sources: enchant.sources } : undefined;
-	const hasRandomSuffix = isItemsTab && !!(itemData.item as unknown as Item).randomSuffixOptions?.length;
+	const sourceItem = item ?? (isEnchantsTab ? { id: enchant.itemId, sources: enchant.sources } : undefined);
+	const hasRandomSuffix = !!item?.randomSuffixOptions?.length;
 	const discovered = isItemsTab && firstSeen !== undefined && isNewlyDiscovered(firstSeen) ? discoveredLabel(firstSeen) : undefined;
 
 	const batchPlayer = isIndividualSimHost(host) ? host.player : null;
@@ -163,6 +169,7 @@ export const ItemListRow = ({
 					additionalInfo={hasRandomSuffix ? BEST_RANDOM_SUFFIX_INFO : undefined}
 				/>
 			}
+			versus={item && <VersusChips item={item} />}
 			source={sourceItem && <ItemSource item={sourceItem} sim={host.sim} faction={faction} />}
 			ep={ep}
 			favourited={favourited}

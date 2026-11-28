@@ -22,7 +22,9 @@ type spellDataAuras struct {
 	enemies     core.AuraArray
 }
 
-func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config core.Aura, wearerOpts ...spelldata.ParseOpt) *spellDataAuras {
+// The item, 0 for an enchant or a set bonus, is what the combat log names for the wearer's and pets'
+// bonuses against mob types.
+func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config core.Aura, itemID int32, wearerOpts ...spelldata.ParseOpt) *spellDataAuras {
 	auras := &spellDataAuras{}
 	if row.RequiredAreas != 0 && !character.Env.Encounter.InArea(row.AreaType()) {
 		return auras
@@ -32,7 +34,7 @@ func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config c
 		auras.wearer = character.RegisterAura(config)
 		if effects := spelldata.ItemAuraParsedOn(row, spelldata.AuraOnWearer); len(effects) > 0 {
 			auras.wearerStats = spelldata.ParseEffects(character, auras.wearer, row,
-				append([]spelldata.ParseOpt{spelldata.Effects(effects...)}, wearerOpts...)...).Stats()
+				append([]spelldata.ParseOpt{spelldata.Effects(effects...), spelldata.ForItem(itemID)}, wearerOpts...)...).Stats()
 		}
 		for _, shield := range spelldata.ItemAuraDamageShields(row) {
 			buffs.AttachDamageShield(auras.wearer, row.SpellSchool(), shield.Average(), shield.Coeff(), spelldata.DamageShieldHits(row), spelldata.DamageShieldLockout(row))
@@ -45,7 +47,7 @@ func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config c
 				continue
 			}
 			aura := pet.RegisterAura(config)
-			spelldata.ParseEffects(&pet.Character, aura, row, spelldata.Effects(effects...))
+			spelldata.ParseEffects(&pet.Character, aura, row, spelldata.Effects(effects...), spelldata.ForItem(itemID))
 			auras.pets = append(auras.pets, aura)
 		}
 	}
@@ -86,7 +88,7 @@ func registerSpellDataAuraProc(cfg SpellDataProc) {
 
 		config := spelldata.AuraConfig(buff, spelldata.Label(cfg.Name+" Proc"))
 		config.Duration = procBuffDuration(cfg, trigger, buff)
-		auras := newSpellDataAuras(character, buff, config)
+		auras := newSpellDataAuras(character, buff, config, source.itemID())
 
 		proc := spellDataProcListener(character, cfg, source, trigger)
 		if proc.ICD == 0 && buff.ID != trigger.ID {
@@ -167,7 +169,7 @@ func registerSpellDataEquipAura(cfg SpellDataProc) {
 		if hands := source.weaponHands(character, slots); hands != 0 {
 			opts = append(opts, spelldata.OnHand(hands))
 		}
-		auras := newSpellDataAuras(character, row, config, opts...)
+		auras := newSpellDataAuras(character, row, config, source.itemID(), opts...)
 		for _, aura := range append([]*core.Aura{auras.wearer}, auras.pets...) {
 			if aura != nil {
 				source.registerProc(character, aura, slots)
@@ -182,7 +184,7 @@ func registerSpellDataEquipAura(cfg SpellDataProc) {
 // that names it uses it.
 func NewSpellDataAuraOnUse(itemID int32) {
 	registerSpellDataOnUseCooldown(itemID, func(character *core.Character, row *spelldata.Spell) (core.SpellConfig, core.MajorCooldown, bool) {
-		auras := newSpellDataAuras(character, row, spelldata.AuraConfig(row))
+		auras := newSpellDataAuras(character, row, spelldata.AuraConfig(row), itemID)
 		cooldown := core.MajorCooldown{Type: onUseAuraCooldownType(row, auras)}
 		if lowersThreat(row) {
 			cooldown = core.MajorCooldown{Type: core.CooldownTypeUnknown, DisableAutocast: true}

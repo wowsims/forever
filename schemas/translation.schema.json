@@ -2590,10 +2590,58 @@
 						"ordinal"
 					],
 					"additionalProperties": false
+				},
+				"versus": {
+					"type": "object",
+					"properties": {
+						"partial": {
+							"type": "string"
+						},
+						"target": {
+							"type": "string"
+						},
+						"active_targets_one": {
+							"type": "string"
+						},
+						"active_targets_other": {
+							"type": "string"
+						},
+						"active_some": {
+							"type": "string"
+						},
+						"inactive_targets_one": {
+							"type": "string"
+						},
+						"inactive_targets_other": {
+							"type": "string"
+						},
+						"no_targets": {
+							"type": "string"
+						},
+						"active_area": {
+							"type": "string"
+						},
+						"inactive_area": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"partial",
+						"target",
+						"active_targets_one",
+						"active_targets_other",
+						"active_some",
+						"inactive_targets_one",
+						"inactive_targets_other",
+						"no_targets",
+						"active_area",
+						"inactive_area"
+					],
+					"additionalProperties": false
 				}
 			},
 			"additionalProperties": false,
-			"required": ["title", "reforge_success", "gear_sets", "gear_picker", "preset_configurations", "upgrade_summary", "item_notices"]
+			"required": ["title", "reforge_success", "gear_sets", "gear_picker", "preset_configurations", "upgrade_summary", "item_notices", "versus"]
 		},
 		"settings_tab": {
 			"type": "object",
@@ -9743,6 +9791,9 @@
 								"show_gcd": {
 									"type": "string"
 								},
+								"show_versus": {
+									"type": "string"
+								},
 								"chart_options": {
 									"type": "object",
 									"properties": {
@@ -9926,6 +9977,40 @@
 								},
 								"gcd_tooltip": {
 									"type": "string"
+								},
+								"versus": {
+									"type": "object",
+									"properties": {
+										"header": {
+											"type": "string"
+										},
+										"tag_family": {
+											"type": "string"
+										},
+										"damage": {
+											"type": "string"
+										},
+										"crit": {
+											"type": "string"
+										},
+										"base": {
+											"type": "string"
+										},
+										"crit_chance": {
+											"type": "string"
+										},
+										"proc_chance": {
+											"type": "string"
+										},
+										"proc_only": {
+											"type": "string"
+										},
+										"stat": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["header", "tag_family", "damage", "crit", "base", "crit_chance", "proc_chance", "proc_only", "stat"]
 								}
 							},
 							"additionalProperties": false,
@@ -9934,6 +10019,7 @@
 								"note",
 								"chart_types",
 								"show_gcd",
+								"show_versus",
 								"chart_options",
 								"tooltips",
 								"floatingActionBar",
@@ -9943,7 +10029,8 @@
 								"sections",
 								"cast_tooltip",
 								"delay_tooltip",
-								"gcd_tooltip"
+								"gcd_tooltip",
+								"versus"
 							]
 						},
 						"movement": {
@@ -12685,13 +12772,13 @@
 								"against": {
 									"type": "string"
 								},
-								"damage": {
-									"type": "string"
-								},
-								"crit_damage": {
+								"stat": {
 									"type": "string"
 								},
 								"effect_damage": {
+									"type": "string"
+								},
+								"effect_crit_damage": {
 									"type": "string"
 								},
 								"effect_restore": {
@@ -12699,10 +12786,71 @@
 								},
 								"effect_proc_chance": {
 									"type": "string"
+								},
+								"effect_crit_chance": {
+									"type": "string"
+								},
+								"effect_proc_only": {
+									"type": "string"
+								},
+								"effect_duration": {
+									"type": "string"
+								},
+								"effect_amount": {
+									"type": "string"
+								},
+								"effect_flat_heal": {
+									"type": "string"
+								},
+								"effect_hits_needed": {
+									"type": "string"
+								},
+								"state_on": {
+									"type": "string"
+								},
+								"state_partial": {
+									"type": "string"
+								},
+								"state_off": {
+									"type": "string"
+								},
+								"state_area_on": {
+									"type": "string"
+								},
+								"state_area_off": {
+									"type": "string"
+								},
+								"inactive_one": {
+									"type": "string"
+								},
+								"inactive_other": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["title", "in_area", "against", "damage", "crit_damage", "effect_damage", "effect_restore", "effect_proc_chance"]
+							"required": [
+								"title",
+								"in_area",
+								"against",
+								"stat",
+								"effect_damage",
+								"effect_crit_damage",
+								"effect_restore",
+								"effect_proc_chance",
+								"effect_crit_chance",
+								"effect_proc_only",
+								"effect_duration",
+								"effect_amount",
+								"effect_flat_heal",
+								"effect_hits_needed",
+								"state_on",
+								"state_partial",
+								"state_off",
+								"state_area_on",
+								"state_area_off",
+								"inactive_one",
+								"inactive_other"
+							]
 						},
 						"tooltip": {
 							"type": "object",

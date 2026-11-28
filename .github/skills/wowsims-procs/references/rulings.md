@@ -14,3 +14,4 @@ request that settled it and its evidence. This index lists the ones this skill o
 - **R-0048** A charge buff that names its spells by class flags is spent at the end of a channel that hits it: `docs/rulings/R-0048-charge-buff-spent-at-channel-end.md`
 - **R-0051** An item's magic proc is a spell hit to the listeners that hear procs: `docs/rulings/R-0051-item-magic-proc-is-a-spell-hit.md`
 - **R-0056** A druid's form attacks roll chance-on-hit weapon procs as any other melee hit does: `docs/rulings/R-0056-druid-form-attacks-roll-weapon-procs.md`
+- **R-0057** A ProcChance column twice the tooltip's chance is the chance in the tooltip's area, halved elsewhere: `docs/rulings/R-0057-area-doubled-proc-chance-halved-outside.md`

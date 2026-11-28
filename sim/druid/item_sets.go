@@ -5,7 +5,6 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 func parsedSetBonus(rows ...*spelldata.Spell) core.ApplySetBonus {
@@ -38,12 +37,8 @@ var ItemSetGrovekeeperEclipse = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: parsedSetBonus(spelldata.MustFind(1300940)), // +1% hit
 		4: func(_ core.Agent, setBonusAura *core.Aura) {
-			// The parse table reads A_MOD_DAMAGE_DONE_CREATURE as physical and spell damage; this
-			// bonus keeps the spell damage alone, its amount and creature type mask read off the row.
 			row := spelldata.MustFind(1301073)
-			setBonusAura.
-				AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: row.EffectN(1).BaseValue()}, spelldata.MobTypes(row.EffectN(1).Misc)...).
-				ExposeToAPL(row.ID)
+			shared.AttachSpellDamageVersus(setBonusAura, row).ExposeToAPL(row.ID)
 		},
 		5: parsedSetBonus(spelldata.MustFind(1301242)), // Insect Swarm lasts 3 sec longer
 	},

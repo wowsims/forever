@@ -199,11 +199,15 @@ func (s *Spell) FiredSpell() *Spell {
 func (s *Spell) WeaponStrike(sim *core.Simulation, spell *core.Spell, weaponDamage, extra float64) float64 {
 	flat := s.firstOfType(dbcenums.E_NORMALIZED_WEAPON_DMG, dbcenums.E_WEAPON_DAMAGE_NOSCHOOL,
 		dbcenums.E_WEAPON_DAMAGE)
-	percent := 1.0
+	return (flat.RollAt(sim, spell.Unit.Level) + weaponDamage + extra) * s.WeaponPercent()
+}
+
+// The share of the weapon damage a weapon strike deals, 1 where the spell states none.
+func (s *Spell) WeaponPercent() float64 {
 	if p := s.firstOfType(dbcenums.E_WEAPON_PERCENT_DAMAGE); p != NilEffect {
-		percent = p.Percent()
+		return p.Percent()
 	}
-	return (flat.RollAt(sim, spell.Unit.Level) + weaponDamage + extra) * percent
+	return 1
 }
 
 // The effect granting the caster extra attacks, whose BasePoints is how many.

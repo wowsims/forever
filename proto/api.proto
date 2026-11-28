@@ -752,7 +752,7 @@ message PlayerStats {
 	// final_stats holds none of them; the sim adds those of the encounter's own area types when the fight starts.
 	repeated AreaStats area_stats = 15;
 	// The factors the worn items' spells deal or restore against the mob types and creature families their
-	// tooltips name, one entry for each item.
+	// tooltips name, or take while the encounter is in the areas they name, one entry for each source and kind.
 	repeated VersusEffect versus_effects = 16;
 }
 // What the player has against a target of one mob type alone.
@@ -761,21 +761,41 @@ message MobTypeBonus {
 	map<int32, double> stats = 2; // keys are the numeric values of Stat
 	double damage_multiplier = 3;
 	double crit_damage_multiplier = 4; // On top of damage_multiplier, for a critical strike alone.
+	// What each source adds to the fields above, one entry per source in the order the sim added them,
+	// leaving out a source whose share nets to nothing.
+	repeated MobTypeBonusSource sources = 5;
 }
-// The factor one item's spell deals or restores against a target of any of the mob types or creature
-// families, once however many of them the target is.
+// One source's share of a MobTypeBonus.
+message MobTypeBonusSource {
+	ActionID action_id = 1; // The item, or the spell of an enchant, set bonus, consumable, talent or racial.
+	map<int32, double> stats = 2; // keys are the numeric values of Stat
+	double damage_multiplier = 3;
+	double crit_damage_multiplier = 4;
+}
+// The factor one source's spell deals, restores or adds against a target of any of the mob types or
+// creature families, once however many of them the target is, or while the encounter is in any of the
+// area types.
 message VersusEffect {
-	int32 item_id = 1;
+	int32 item_id = 1; // The worn item, for an item source; 0 for a spell source.
 	string item_name = 2;
 	repeated MobType mob_types = 3;
 	repeated CreatureFamily creature_families = 4;
 	double multiplier = 5;
 	VersusEffectKind kind = 6;
+	ActionID source = 7; // The item, or the spell of a set bonus or an enchant.
+	repeated AreaType area_types = 8; // Set for an area factor, which names no mob type or family.
+	double amount = 9; // The flat amount of a FlatHeal, which states no multiplier.
 }
 enum VersusEffectKind {
 	VersusEffectKindDamage = 0;
 	VersusEffectKindRestore = 1; // The mana, rage or energy the spell restores.
-	VersusEffectKindProcChance = 2; // How likely the item's proc is.
+	VersusEffectKindProcChance = 2; // How likely the source's proc is.
+	VersusEffectKindCritChance = 3; // The crit chance the source adds against the target, as a multiple of its stated amount.
+	VersusEffectKindProcOnly = 4; // The source's proc fires against these targets only.
+	VersusEffectKindDuration = 5; // How long the source's effect lasts on the target.
+	VersusEffectKindEffect = 6; // How strong the source's effect is: the stats, regeneration or heal it states.
+	VersusEffectKindFlatHeal = 7; // The source's heal is the flat amount, whatever it rolls elsewhere.
+	VersusEffectKindHitsNeeded = 8; // The source's proc needs the hits it states divided by the multiplier.
 }
 message PartyStats {
 	repeated PlayerStats players = 1;

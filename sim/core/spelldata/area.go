@@ -28,12 +28,13 @@ func (s *Spell) AreaType() proto.AreaType {
 	return AreaTypeOfGroup(s.RequiredAreas)
 }
 
-// The amount and duration factors in this encounter; 1 and 1 outside the bonus's areas.
-func (s *Spell) AreaBonus(encounter *core.Encounter) (amount, duration float64) {
+// The factors the row's area bonus puts on its amount and on its duration, which an override supplies;
+// neither names an area where the row has no bonus.
+func (s *Spell) AreaBonus() (amount, duration core.AreaBonus) {
+	var areas core.AreaTargets
 	for _, group := range s.AreaBonusGroups {
-		if encounter.InArea(AreaTypeOfGroup(group)) {
-			return float64(s.AreaMultiplier), float64(s.AreaDurationMultiplier)
-		}
+		areas.Areas = append(areas.Areas, AreaTypeOfGroup(group))
 	}
-	return 1, 1
+	return core.AreaBonus{AreaTargets: areas, Multiplier: float64(s.AreaMultiplier)},
+		core.AreaBonus{AreaTargets: areas, Multiplier: float64(s.AreaDurationMultiplier)}
 }

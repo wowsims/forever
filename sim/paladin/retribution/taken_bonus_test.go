@@ -181,7 +181,7 @@ func TestConsecrationMarkedTickTakesJudgementOfTheCrusaderAfterDoneMultipliers(t
 				}
 				bonus = character.CurrentTarget.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly]
 			}
-			character.AddMobTypeBonusStats(stats.Stats{stats.SpellDamage: spellDamage}, proto.MobType_MobTypeUndead)
+			character.AddMobTypeBonusStats(core.ActionID{SpellID: 1}, stats.Stats{stats.SpellDamage: spellDamage}, proto.MobType_MobTypeUndead)
 			spell.DamageMultiplier *= multiplier
 		})
 	}

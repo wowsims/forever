@@ -2,7 +2,6 @@ package forever
 
 import (
 	"fmt"
-	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/common/shared"
@@ -11,6 +10,7 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 func init() {
@@ -29,7 +29,8 @@ func init() {
 		strikeConfig := spelldata.SpellConfig(&character.Unit, strikeRow, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(), spelldata.Triggered())
 		strikeConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := strikeRow.WeaponStrike(sim, spell, spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
-			spell.CalcAoeDamage(sim, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+			read := core.StatRead{Stat: stats.AttackPower, PerPoint: strikeRow.WeaponPercent() * spell.Unit.MHWeaponDamagePerAttackPower()}
+			spell.CalcAoeDamageReading(sim, target, baseDamage, read, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 			spell.DealBatchedAoeDamage(sim)
 		}
 		strike := character.RegisterSpell(strikeConfig)
@@ -435,7 +436,7 @@ func init() {
 
 		damage := ignition.DamageEffect()
 		config := procSpellConfig(character, ignition)
-		config.VersusBonus = shared.ItemVersusBonus(character, 11750, proto.VersusEffectKind_VersusEffectKindDamage, ignition)
+		config.VersusBonus = shared.RegisterVersus(character, core.ActionID{ItemID: 11750}, proto.VersusEffectKind_VersusEffectKindDamage, ignition)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
@@ -797,7 +798,7 @@ func init() {
 	shared.DamageProcExtras[9477] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(1294340)
 		label := fmt.Sprintf("%s %d", row.Name, row.ID)
-		versus := config.VersusBonus
+		versus := shared.RegisterVersus(character, core.ActionID{ItemID: 9477}, proto.VersusEffectKind_VersusEffectKindDuration, spelldata.MustFind(1294339))
 		stuns := character.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 			if aura := target.GetAura(label); aura != nil {
 				return aura
@@ -936,7 +937,7 @@ func registerExtraAttackVersus(character *core.Character, itemID int32, name str
 	trigger := spelldata.ProcTrigger(character, row, nil)
 	trigger.Name = name
 	trigger.ActionID = core.ActionID{ItemID: itemID}
-	versus := shared.ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindProcChance, row)
+	versus := shared.RegisterVersus(character, core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindProcChance, row)
 	if versus == nil {
 		panic(fmt.Sprintf("%d states no versus bonus for %s", rowID, name))
 	}
@@ -945,16 +946,13 @@ func registerExtraAttackVersus(character *core.Character, itemID int32, name str
 	onInit := character.ExtraAttackProc(&trigger, extraAttacks.ID, int(extraAttacks.ExtraAttacksEffect().BasePoints))
 	aura := character.MakeProcTriggerAura(trigger)
 	aura.ApplyOnInit(onInit)
+	// The swing the proc grants is the main-hand swing's copy tagged with the extra attack's ID.
+	aura.ApplyOnInit(func(_ *core.Aura, _ *core.Simulation) {
+		if swing := character.GetSpell(character.AutoAttacks.MHConfig().ActionID.WithTag(extraAttacks.ID)); swing != nil {
+			swing.VersusProc = &core.VersusProc{Source: trigger.ActionID, VersusBonus: *versus}
+		}
+	})
 	character.ItemSwap.RegisterProc(itemID, aura)
-}
-
-// The factor an effect applies against the creature families it names, and 1 against any other
-// target.
-func creatureFamilyMultiplier(target *core.Unit, multiplier float64, families ...proto.CreatureFamily) float64 {
-	if slices.Contains(families, target.CreatureFamily) {
-		return multiplier
-	}
-	return 1
 }
 
 // Narrows the trigger to landings on an enemy of the wearer's harmful spells: spell damage hits, and

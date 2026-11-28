@@ -131,13 +131,13 @@ describe('RowItemView', () => {
 
 	it('counts the casts a stack hides under its icon, and leaves a lone cast unmarked', () => {
 		const stacked = (count: number) =>
-			mountItem(cast({ start: 2, end: 2, stack: Array(count).fill({}) })).querySelector('[data-testid="rotation-item-stack-count"]');
+			mountItem(cast({ start: 2, end: 2, stack: Array(count).fill({ damageDealtLogs: [] }) })).querySelector('[data-testid="rotation-item-stack-count"]');
 		expect(stacked(3)!.textContent).toBe('3');
 		expect(stacked(1)).toBeNull();
 	});
 
 	it('draws a tick as a mark at its own time, with no span', () => {
-		const element = mountItem({ kind: 'tick', start: 7, end: 7 } as TickItem);
+		const element = mountItem({ kind: 'tick', start: 7, end: 7, log: {} } as TickItem);
 		expect(element.dataset.testid).toBe('rotation-item-tick');
 		expect(vars(element)).toEqual({ t: '7', dur: '' });
 	});

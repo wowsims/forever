@@ -64,6 +64,57 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   scale with stacks or combo points reads them.
 - **Crit damage** is `(base × CritMultiplierPct × CritDamageMultiplier × table − 1) × (CritMultiplierAdditive + 1) + 1`
   (`spell.go`).
+- **The versus tag on a damage line names the stats the hit's damage read against the mob type** (`versusLogTag` in
+  `sim/core/attack_table_helpers.go`). `MeleeAttackPower`, `RangedAttackPower` and `BonusDamage` mark each versus stat
+  they read on the spell, and each result takes the marks made since the spell's last result, so a single-target spell
+  or an item declares nothing and a second hit in one cast names only its own reads. An area or cleave hit whose base damage
+  reads attack power once, on its first target, passes the stat and the damage a point of it adds (`core.StatRead`)
+  to `CalcCleaveDamageReading` or `CalcAoeDamageReading`. Each target's hit then takes its own versus share of the
+  stat, and its tag names the stat only when that share is not 0 (Whirlwind, Thunder Clap, Cleave, Multi-Shot,
+  Ravager's Bladestorm). The weapon helpers' `PerAttackPower` forms (`sim/core/attack.go`) and a row's
+  `WeaponPercent` give the damage per point. The other area and cleave iterations (`CalcAoeDamage`,
+  `CalcCleaveDamage` and their deal and periodic forms) hand the marks read before them to every target's result.
+  The attack power a target grants its attackers (`BonusAttackPower`, and `BonusRangedAttackPower` from Hunter's
+  Mark) still comes from the first target alone. A formula that adds a versus
+  stat by hand reads it through `spell.VersusStat` (Seal of Command), not the attack table. A read outside the damage
+  stays off the tag: threat's attack power share, an expected-damage value, and a read before the cast or tick. An
+  item's versus bonus is named by the item when its row is parsed with `spelldata.ForItem`.
+- **Spell power read by hand takes no spell damage against the target's creature type.** `BonusDamage`, which a spell's
+  or dot's `BonusCoefficient` adds, takes it, and `MeleeAttackPower(target)` and `RangedAttackPower(target)` take the
+  attack power; `spell.SpellDamage(target)` leaves it out. A formula that multiplies `spell.SpellDamage(target)` itself
+  adds `coefficient * spell.VersusStat(target, stats.SpellDamage)` where the logs show the spell takes it (Seal of
+  Command) and leaves it out where they show it does not (Holy Strike, Seal of Fury; EV-0143, EV-0189). A damage shield
+  sets `SpellFlagIgnoreTargetSchoolBonus` (EV-0141), and a totem's attack `SpellFlagNoDamageVersus`, which drops the
+  aura 168 multiplier.
+- **The versus tag names every versus effect and nothing else**, so a versus effect coded by hand goes through a
+  tracked helper, never a bare check of `MobType` or `CreatureFamily`. Stats, damage and crit damage against a mob type
+  go through `AddMobTypeBonusStats`, `AttachMobTypeBonusStats`, `MultiplyDamageVersus` or `MultiplyCritDamageVersus`
+  ("+81 AttackPower", "x1.05", "x1.5 crit"). Crit chance against one target goes through `AddCritChanceVersus`
+  ("+10% crit chance"). A factor on base damage is `SpellConfig.VersusBonus` ("x2 base"). A spell cast by a proc that
+  fires only, or more often, against some targets sets `VersusProc` ("x3 proc chance", "proc only"). The header names
+  the target's family when an entry matched it by its family. A versus factor on something other than damage, such as
+  a stun's duration or a restore, and a cast allowed only on some targets, get no tag. Which targets an effect names is
+  a `core.VersusTargets` (`Matches`, `AnyIn`): a row's `TargetCreatureTypes()`, a mask's `spelldata.TargetCreatures`,
+  and `shared.OnlyAgainst` for a proc that fires only on hits against them. A target of a creature family and no mob
+  type of its own counts as the family's mob type in every versus check (`creatureFamilyMobTypes` in
+  `sim/core/versus.go`, which `NewTarget` reads; `gen_db -gen=go-to-ts` copies it for the UI's `targetMobType` in
+  `ui/sim/proto/target.ts`). A source's factor goes through
+  `character.RegisterVersus` or `shared.RegisterVersus` with its `VersusEffectKind` (`Damage`, `Restore`,
+  `ProcChance`, `CritChance`, `Duration`), or `RegisterVersusProc` for a proc against the targets alone (`ProcOnly`),
+  which list it on the stats sheet. Each
+  helper takes the `ActionID` the bonus is credited to (the item for an item's stats and spells, the spell for an
+  enchant with no item, a set bonus, a talent or a racial); the stats sheet's Versus bonuses group shows one row per
+  credited source. An item's factor is listed only while the item is worn, and in its gear chip's tooltip; an
+  enchant's or a set bonus's only while the worn gear gives it, so one only the item swap set holds is left out
+  (`registerSwapOnly`).
+- **An area factor goes through `character.RegisterArea`** (`sim/core/area.go`) with a `core.AreaBonus` (the
+  `AreaTargets` and the factor) and a `VersusEffectKind` (`Effect` for stats, regeneration or a heal). It returns the
+  factor in the encounter, 1 outside its areas, since the areas are fixed for the run, and lists it on the stats sheet
+  under its area in every encounter. A row's `overrides.AreaBonuses` entry reads as `spelldata.Spell.AreaBonus()`. A
+  rule on top of the factor stays at its site (Everlook Delivery Bot's halved counts rounded down, listed as
+  `HitsNeeded`). A flat amount in
+  the areas goes through `character.RegisterAreaAmount`, which lists the amount and returns whether the encounter is
+  in them (Krol'dok Battlegear's `FlatHeal`); a check with nothing to list is `AreaTargets.In` or `Encounter.InArea`.
 - **Periodic physical damage meets the armor its row's attributes name** (EV-0194). `SpellConfig` reads them: none
   where the row sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
   leaves where it sets only Attributes[0] 0x40000 (`SpellFlagTenthResistance`, the weapons' Rends), and the whole armor
@@ -76,6 +127,10 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **An area effect reaches every enemy in it** (`Effect.HitsAnArea()`, `HitsACone()`, `HitsAroundTheCaster()` in
   `sim/core/spelldata/resolve_spell.go`). `MaxTargets` has no `SpellConfig` field: a caller that caps reads
   `s.MaxTargets`, and "up to $s3 targets" or `SPELLMOD_JUMP_TARGETS` is the total count.
+- **An area limited to creature types skips the enemies outside them.** They take no roll (Holy Wrath, and Stratholme
+  Holy Water's 17291 through `calcMultiTargetDamage` in `sim/common/shared/shared_utils.go`, EV-0231) and count toward
+  neither a split, `MaxTargets` nor the AoE cap (R-0058). `spell.CalcDamageOnEach` rolls the damage on the enemies
+  kept, and `core.AOECapMultiplierOf` gives the cap for their count.
 
 ## What the row forbids
 

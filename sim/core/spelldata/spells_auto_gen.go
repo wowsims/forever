@@ -39074,10 +39074,10 @@ var generatedSpells = []Spell{
 			{ID: 1352638, SpellID: 1318938, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS, BasePoints: 30, BaseLevel: 60, PvpMult: 1, Misc: 256, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1352639, SpellID: 1318938, Index: 3, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS, BasePoints: 30, BaseLevel: 60, PvpMult: 1, Misc: 256, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1318944, Name: "Blackhand's Breadth", School: 1, Attr: [17]uint32{0: 0x4000000, 1: 0x400, 8: 0x1000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 20000, MaxRange: 100, DispelType: 1, PreventionType: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+	{ID: 1318944, Name: "Blackhand's Breadth", School: 1, Attr: [17]uint32{0: 0x4000000, 1: 0x400, 8: 0x1000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, DurationMs: 20000, MaxRange: 100, DispelType: 1, PreventionType: 1, ProcChance: 101, VersusMultiplier: 2, VersusFamilies: []int32{10, 11}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1352648, SpellID: 1318944, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_CRIT_CHANCE_FOR_CASTER, BasePoints: 5, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x2 against CreatureFamilyOrc, CreatureFamilyOgre -- Blackhand's Breadth: 'This effect is doubled against Orcs and Ogres' on its crit chance; neither 1318944 nor 1318945 states the 2
 	{ID: 1318945, Name: "Blackhand's Breadth", School: 1, Attr: [17]uint32{0: 0x1c0, 2: 0x4, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, NoSpellLevels: true, MaxRange: 50000,
 		Effects: []Effect{
 			{ID: 1352649, SpellID: 1318945, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

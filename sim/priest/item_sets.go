@@ -5,7 +5,6 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // A bonus whose row the parse states whole, exposed to the APL under the row's id.
@@ -156,12 +155,7 @@ var ItemSetRaimentsOfConviction = core.NewItemSet(core.ItemSet{
 		2: parsedSetBonus(1300955), // Improves your chance to hit by 1%.
 		4: func(_ core.Agent, setBonusAura *core.Aura) {
 			// Increases damage done by your spells and effects by up to 21 when fighting Undead.
-			// The parse table reads A_MOD_DAMAGE_DONE_CREATURE as physical and spell damage; this
-			// bonus keeps the spell damage alone, its amount and creature types read off the effect.
-			effect := convictionUndeadDamage.EffectN(1)
-			setBonusAura.
-				AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: effect.BaseValue()}, spelldata.MobTypes(effect.Misc)...).
-				ExposeToAPL(convictionUndeadDamage.ID)
+			shared.AttachSpellDamageVersus(setBonusAura, convictionUndeadDamage).ExposeToAPL(convictionUndeadDamage.ID)
 		},
 		5: parsedSetBonus(1301706), // Reduces the cooldown of your Devouring Plague spell by 60 sec.
 	},

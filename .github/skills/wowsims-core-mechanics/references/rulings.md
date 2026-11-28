@@ -12,3 +12,4 @@ request that settled it and its evidence. This index lists the ones this skill o
 - **R-0037** OOM runs while the highest-priority wanted spell is skipped for mana: `docs/rulings/R-0037-oom-skipped-spell-for-mana.md`
 - **R-0038** Dynamic pets refresh their inherited stats from the owner at the pet heartbeat: `docs/rulings/R-0038-dynamic-pets-refresh-inherited-stats.md`
 - **R-0050** Saved settings carry proto field numbers, so a new field takes the next free number: `docs/rulings/R-0050-proto-fields-append-live-alpha.md`
+- **R-0058** Targets outside a row's creature types count toward no split, MaxTargets or AoE cap: `docs/rulings/R-0058-other-creature-types-outside-split-and-caps.md`

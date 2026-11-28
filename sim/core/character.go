@@ -55,7 +55,7 @@ type Character struct {
 
 	areaStatsAura *Aura // Unset unless an item worn or in the swap set has stats in the encounter's area types.
 
-	itemVersusBonuses []itemVersusBonus
+	versusEffects []*proto.VersusEffect
 
 	// Consumables this Character will be using.
 	Consumables *proto.ConsumesSpec
@@ -375,7 +375,9 @@ func (character *Character) applyItemEffects(agent Agent) {
 	character.Equipment.applyItemEffects(agent, registeredItemEffects, registeredItemEnchantEffects)
 
 	if character.ItemSwap.IsEnabled() {
-		character.ItemSwap.unEquippedItems.applyItemEffects(agent, registeredItemEffects, registeredItemEnchantEffects)
+		character.registerSwapOnly(func() {
+			character.ItemSwap.unEquippedItems.applyItemEffects(agent, registeredItemEffects, registeredItemEnchantEffects)
+		})
 	}
 
 	character.registerEquipSpeedAuras()
@@ -402,17 +404,17 @@ func (character *Character) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {
 // Gear stats for the encounter's area types are on from the reset to the end of the fight. No build phase applies
 // them, so the sheet's totals leave them out.
 func (character *Character) registerAreaStatsAura() {
-	areaTypes := character.Env.Encounter.AreaTypes
-	if character.Equipment.areaStats(areaTypes) == (stats.Stats{}) && character.ItemSwap.swapEquip.areaStats(areaTypes) == (stats.Stats{}) {
+	encounter := &character.Env.Encounter
+	if character.Equipment.areaStats(encounter) == (stats.Stats{}) && character.ItemSwap.swapEquip.areaStats(encounter) == (stats.Stats{}) {
 		return
 	}
 	character.areaStatsAura = MakePermanent(character.RegisterAura(Aura{
 		Label: "Area Stats",
 		OnGain: func(_ *Aura, sim *Simulation) {
-			character.AddStatsDynamic(sim, character.Equipment.areaStats(areaTypes))
+			character.AddStatsDynamic(sim, character.Equipment.areaStats(encounter))
 		},
 		OnExpire: func(_ *Aura, sim *Simulation) {
-			character.AddStatsDynamic(sim, character.Equipment.areaStats(areaTypes).Invert())
+			character.AddStatsDynamic(sim, character.Equipment.areaStats(encounter).Invert())
 		},
 	}))
 }
@@ -422,8 +424,8 @@ func (character *Character) swapItemAreaStats(sim *Simulation, oldItem *Item, ne
 	if !character.areaStatsAura.IsActive() {
 		return
 	}
-	areaTypes := character.Env.Encounter.AreaTypes
-	character.AddStatsDynamic(sim, newItem.areaStats(areaTypes).Subtract(oldItem.areaStats(areaTypes)))
+	encounter := &character.Env.Encounter
+	character.AddStatsDynamic(sim, newItem.areaStats(encounter).Subtract(oldItem.areaStats(encounter)))
 }
 
 func (character *Character) initialize(agent Agent) {

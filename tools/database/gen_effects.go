@@ -1668,7 +1668,7 @@ func storeWeaponScopedEnchant(instance *dbc.DBC, enchant dbc.Enchant, parsed *pr
 
 	for spellID := range enchantEquipSpellIDs(enchant) {
 		equip := spelldata.Find(int32(spellID))
-		if dbc.EquipSpellFolds(spellID) && !grantsOnlyVersusStats(equip) {
+		if dbc.EquipSpellFolds(spellID) && !dbc.GrantsOnlyVersusStats(equip) {
 			continue
 		}
 
@@ -1838,9 +1838,14 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 	// Example loop over your items
 	for _, parsed := range db.Items {
 		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-		parsed.AreaTypes, parsed.MobTypes, parsed.CreatureFamilies = dbc.ItemEffectTypes(parsed.Id)
-
 		hand := implementedByHand(parsed.Id)
+		parsed.AreaTypes, parsed.MobTypes, parsed.CreatureFamilies = dbc.ItemEffectTypes(parsed.Id, hand, func(pieces int32) bool {
+			return slices.ContainsFunc(core.ItemSets(), func(set *core.ItemSet) bool {
+				_, ok := set.Bonuses[pieces]
+				return ok && coversSet(set, parsed.SetId, parsed.SetName)
+			})
+		})
+
 		if hand {
 			for _, effect := range instance.ItemEffectsByParentID[int(parsed.Id)] {
 				if !handProcStatesNoRate(parsed.Id, effect) {
@@ -2468,7 +2473,7 @@ func castsOnUse(itemID int, spellID int, instance *dbc.DBC) bool {
 }
 
 // The row's factor against some targets where its effect does nothing else, an E_NONE or E_DUMMY: the
-// damage on-use builders apply it (shared.ItemVersusBonus). Breath of Fire's 12257 states its factor
+// damage on-use builders apply it (shared.RegisterVersus). Breath of Fire's 12257 states its factor
 // on the E_TRIGGER_SPELL that casts Strong Alcohol, which stays not simulated.
 func versusFactorModelled(s *spelldata.Spell) []*spelldata.Effect {
 	e := s.VersusFactorEffect()
@@ -2533,9 +2538,9 @@ func (r *ProcRouting) ProcConstructor() string {
 // An equip spell that only restates a weapon skill or creature type stat the item's own stats state leaves
 // the item (dropRestatedItemStats), and one that raises only weapon skills the item's stats do not state
 // becomes the item's weapon skill (foldEquipWeaponSkills). An equip spell whose stats fold into the item
-// (EquipSpellFolds) carries its bonus against a creature type into the item's mob type stats
-// (addEquipSpellMobTypeStats).
-var itemAuraKinds = []dbcenums.EffectAuraType{
+// (EquipSpellFolds), or that grants only stats against creature types, carries its bonus against a creature
+// type into the item's mob type stats (addEquipSpellMobTypeStats).
+var itemAuraKinds = append([]dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,
 	dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN,
@@ -2555,23 +2560,12 @@ var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_DODGE_PERCENT,
 	dbcenums.A_MOD_PARRY_PERCENT,
 	dbcenums.A_MOD_SKILL,
-	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS,
-	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS,
-	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS,
-	dbcenums.A_MOD_DAMAGE_DONE_CREATURE,
-}
+}, spelldata.VersusStatAuras()...)
 
 // The auras an item's or an enchant's equip spell is emitted as an aura for, beside itemAuraKinds: a
 // damage shield kept up while it is worn. A proc's damage shield row is left out: its proc flags state
 // when the shield deals damage, which the proc shapes would read as when it is applied.
 var equipAuraKinds = append(slices.Clone(itemAuraKinds), dbcenums.A_DAMAGE_SHIELD)
-
-// Whether every effect of the spell is a stat against creature types.
-func grantsOnlyVersusStats(row *spelldata.Spell) bool {
-	return len(row.Effects) > 0 && !slices.ContainsFunc(row.Effects, func(e spelldata.Effect) bool {
-		return len(spelldata.VersusStats(e.Aura)) == 0
-	})
-}
 
 func keepsAnEquipAura(row *spelldata.Spell) bool {
 	return row.FirstAura(equipAuraKinds...) != spelldata.NilEffect
@@ -2756,22 +2750,27 @@ func routeEnchantSlot(slot dbc.EnchantProcSlot, instance *dbc.DBC) *ProcRouting 
 	return routing
 }
 
-// The game files' CreatureType ids, which TargetCreatureType names as 1 << (id - 1). The damage
-// proc does not read the restriction.
-var creatureTypes = []string{1: "beasts", 2: "dragonkin", 3: "demons", 4: "elementals", 5: "giants",
-	6: "undead", 7: "humanoids", 8: "critters", 9: "mechanicals"}
-
+// The creatures a TargetCreatureType mask names by the bit 1 << (CreatureType - 1), each by its mob type
+// in the plural, or by its CreatureType id where it has no mob type. The damage proc does not read the
+// restriction.
 func creatureTypeNames(mask int32) string {
 	var names []string
 	for id := 1; id <= 32; id++ {
-		if mask&(1<<(id-1)) == 0 {
+		bit := int32(1) << (id - 1)
+		if mask&bit == 0 {
 			continue
 		}
-		if id < len(creatureTypes) {
-			names = append(names, creatureTypes[id])
-		} else {
+		mobTypes := spelldata.MobTypes(bit)
+		if len(mobTypes) == 0 {
 			names = append(names, fmt.Sprintf("creature type %d", id))
+			continue
 		}
+		name := strings.ToLower(strings.TrimPrefix(mobTypes[0].String(), "MobType"))
+		// Undead and dragonkin are their own plurals.
+		if mobTypes[0] != proto.MobType_MobTypeUndead && mobTypes[0] != proto.MobType_MobTypeDragonkin {
+			name += "s"
+		}
+		names = append(names, name)
 	}
 	return strings.Join(names, " and ")
 }

@@ -3,6 +3,7 @@ package warrior
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // Rank 8 is the top rank the trainer teaches; Rank 9 comes from Manual of Heroic Strike IX.
@@ -39,7 +40,8 @@ func (warrior *Warrior) registerCleave() {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := cleaveRank.WeaponStrike(sim, spell, warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
-		results := spell.CalcCleaveDamage(sim, target, cleaveTargets, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+		read := core.StatRead{Stat: stats.AttackPower, PerPoint: cleaveRank.WeaponPercent() * warrior.MHWeaponDamagePerAttackPower()}
+		results := spell.CalcCleaveDamageReading(sim, target, cleaveTargets, baseDamage, read, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
 		// The flat threat is the cleave's total, split between the targets it lands on.
 		if landed := results.NumLandedHits(); landed > 1 {

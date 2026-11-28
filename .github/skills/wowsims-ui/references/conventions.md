@@ -99,6 +99,16 @@ enters a stat. A new stat display goes through the percent conversion on `UnitSt
 `convertRatingToPercent` for a value and `storedEpToShown` for a weight. Defense rating buys skill, so it shows as a
 skill number with no percent sign.
 
+## Versus and areas
+
+The sim owns every versus rule, and the UI shows what it sends. A target's mob type is `targetMobType`
+(`ui/sim/proto/target.ts`), never `target.mobType`: a target with a creature family and no mob type of its own counts
+as the family's, from the generated `CREATURE_FAMILY_MOB_TYPES`. Whether an item's mob types, families or areas match
+the encounter, the chip tones and a factor's wording are in `ui/features/gear/model/versus_state.ts`, which the gear
+chips (`VersusChips`) and the sidebar's Versus bonuses group (`VersusBonuses.tsx`) share. The sidebar lists the
+player's `versusEffects` as the sim registered them, and adds no source of its own. A damage line's versus tag in the
+results is `VersusTag`, named by `versusTargetName` (`ui/features/results/model/versus.ts`).
+
 ## Code that looks dead but is not
 
 - There is no raid sim UI. The individual sim models a one-party raid, which is why `Raid` and `Party` exist in

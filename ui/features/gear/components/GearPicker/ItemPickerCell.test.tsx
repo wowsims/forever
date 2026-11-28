@@ -17,7 +17,7 @@ const { ItemPickerCell } = await import('./ItemPickerCell');
 
 const equippedItem = (id: number) =>
 	({
-		item: { id, name: `Item ${id}`, quality: ItemQuality.ItemQualityEpic, nameDescription: '' },
+		item: { id, name: `Item ${id}`, quality: ItemQuality.ItemQualityEpic, nameDescription: '', mobTypes: [], creatureFamilies: [], areaTypes: [] },
 		ilvl: 120,
 		randomSuffix: undefined,
 		enchant: undefined,

@@ -1368,25 +1368,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestEnhancement-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 930.59966
-  tps: 681.10864
-  dtps: 8.34111
-  hps: 20.77389
- }
-}
-dps_results: {
  key: "TestEnhancement-AllItems-ScentedRunewoodBrooch-269741"
- value: {
-  dps: 930.59966
-  tps: 681.10864
-  dtps: 8.34111
-  hps: 20.77389
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-SealoftheDawn-13209"
  value: {
   dps: 930.59966
   tps: 681.10864

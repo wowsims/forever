@@ -1,6 +1,6 @@
 import type { VersusBonusSet } from '@features/character-stats/components/CharacterStats/VersusBonuses';
 import { type MeleeCritCapInfo, VersusEffectKind } from '@generated/proto/api';
-import { AreaType, CreatureFamily, MobType, PseudoStat, RangedWeaponType, Stat } from '@generated/proto/common';
+import { ActionID, AreaType, CreatureFamily, MobType, PseudoStat, RangedWeaponType, Stat, Target } from '@generated/proto/common';
 import { UIItem } from '@generated/proto/ui';
 import { type StatAttribution, Stats, type UnitStat } from '@sim/proto/stats';
 
@@ -48,56 +48,201 @@ export const CRIT_CAP_INFO: MeleeCritCapInfo = {
 	delta: -8.4,
 };
 
-/** A Troll with a Humanoid trinket and crit damage, a weapon stone against Undead, an area ring and three items whose spells deal or restore more against some targets. */
+export const VERSUS_TARGETS = [
+	Target.create({ mobType: MobType.MobTypeHumanoid, creatureFamily: CreatureFamily.CreatureFamilyDwarf }),
+	Target.create({ mobType: MobType.MobTypeBeast, creatureFamily: CreatureFamily.CreatureFamilySerpentine }),
+];
+
+export const VERSUS_AREA_TYPES = [AreaType.AreaTypeForestGrassland];
+
+const itemSource = (itemId: number) => ActionID.create({ rawId: { oneofKind: 'itemId', itemId } });
+const spellSource = (spellId: number) => ActionID.create({ rawId: { oneofKind: 'spellId', spellId } });
+const humanoidStats = { [Stat.StatAttackPower]: 6, [Stat.StatRangedAttackPower]: 6 };
+const undeadStats = { [Stat.StatAttackPower]: 18, [Stat.StatRangedAttackPower]: 18 };
+
+/** A Troll hunter with Beast Slaying, The Jaw Breaker and Humanoid Slaying against Humanoids, Gargoyle Slashers against Undead, an area ring, items whose spells deal, restore or last more against some targets, the Chain of the Scarlet Crusade 4-piece's damage against Undead, and area factors: Golden Banana's in Forest and Grassland, Darkmoon Card: Heroism's and the Krol'dok Battlegear 4-piece's in Strongholds and Cities. */
 export const VERSUS_BONUSES: VersusBonusSet = {
 	mobTypeBonuses: [
-		{ mobType: MobType.MobTypeBeast, stats: {}, damageMultiplier: 1.05, critDamageMultiplier: 1 },
+		{
+			mobType: MobType.MobTypeBeast,
+			stats: {},
+			damageMultiplier: 1.05,
+			critDamageMultiplier: 1,
+			sources: [{ actionId: spellSource(20557), stats: {}, damageMultiplier: 1.05, critDamageMultiplier: 1 }],
+		},
 		{
 			mobType: MobType.MobTypeHumanoid,
-			stats: { [Stat.StatAttackPower]: 18, [Stat.StatRangedAttackPower]: 18 },
-			damageMultiplier: 1,
+			stats: humanoidStats,
+			damageMultiplier: 1.03,
 			critDamageMultiplier: 1.03,
+			sources: [
+				{ actionId: itemSource(22322), stats: humanoidStats, damageMultiplier: 1, critDamageMultiplier: 1 },
+				{ actionId: spellSource(19153), stats: {}, damageMultiplier: 1.03, critDamageMultiplier: 1.03 },
+			],
 		},
 		{
 			mobType: MobType.MobTypeUndead,
-			stats: { [Stat.StatAttackPower]: 99, [Stat.StatRangedAttackPower]: 99 },
+			stats: undeadStats,
 			damageMultiplier: 1,
 			critDamageMultiplier: 1,
+			sources: [{ actionId: itemSource(13957), stats: undeadStats, damageMultiplier: 1, critDamageMultiplier: 1 }],
 		},
 	],
 	areaStats: [{ areaType: AreaType.AreaTypeForestGrassland, stats: { [Stat.StatAttackPower]: 28, [Stat.StatHitRating]: 10 } }],
 	versusEffects: [
 		{
 			itemId: 280032,
+			source: itemSource(280032),
 			itemName: "Bolt's Charged Eyeball",
 			mobTypes: [],
 			creatureFamilies: [CreatureFamily.CreatureFamilyDinosaur],
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindDamage,
+			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 274609,
+			source: itemSource(274609),
 			itemName: 'Serpentbane Crown',
 			mobTypes: [MobType.MobTypeBeast],
 			creatureFamilies: [CreatureFamily.CreatureFamilySerpentine],
 			multiplier: 2,
 			kind: VersusEffectKind.VersusEffectKindDamage,
+			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 17943,
+			source: itemSource(17943),
 			itemName: 'Fist of Stone',
 			mobTypes: [],
 			creatureFamilies: [CreatureFamily.CreatureFamilyEarthElemental],
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindRestore,
+			areaTypes: [],
+			amount: 0,
 		},
 		{
 			itemId: 11815,
+			source: itemSource(11815),
 			itemName: 'Hand of Justice',
 			mobTypes: [],
 			creatureFamilies: [CreatureFamily.CreatureFamilyDwarf],
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindProcChance,
+			areaTypes: [],
+			amount: 0,
+		},
+		{
+			itemId: 13965,
+			source: itemSource(13965),
+			itemName: "Blackhand's Breadth",
+			mobTypes: [],
+			creatureFamilies: [CreatureFamily.CreatureFamilyOrc, CreatureFamily.CreatureFamilyOgre],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindCritChance,
+			areaTypes: [],
+			amount: 0,
+		},
+		{
+			itemId: 10760,
+			source: itemSource(10760),
+			itemName: 'Swine Fists',
+			mobTypes: [],
+			creatureFamilies: [CreatureFamily.CreatureFamilySwine],
+			multiplier: 0,
+			kind: VersusEffectKind.VersusEffectKindProcOnly,
+			areaTypes: [],
+			amount: 0,
+		},
+		{
+			itemId: 9477,
+			source: itemSource(9477),
+			itemName: "The Chief's Enforcer",
+			mobTypes: [],
+			creatureFamilies: [CreatureFamily.CreatureFamilyTroll],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindDamage,
+			areaTypes: [],
+			amount: 0,
+		},
+		{
+			itemId: 9477,
+			source: itemSource(9477),
+			itemName: "The Chief's Enforcer",
+			mobTypes: [],
+			creatureFamilies: [CreatureFamily.CreatureFamilyTroll],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindDuration,
+			areaTypes: [],
+			amount: 0,
+		},
+		{
+			itemId: 0,
+			source: spellSource(1293674),
+			itemName: '',
+			mobTypes: [MobType.MobTypeUndead],
+			creatureFamilies: [],
+			multiplier: 3,
+			kind: VersusEffectKind.VersusEffectKindDamage,
+			areaTypes: [],
+			amount: 0,
+		},
+		{
+			itemId: 270226,
+			source: itemSource(270226),
+			itemName: 'Golden Banana',
+			mobTypes: [],
+			creatureFamilies: [],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindEffect,
+			areaTypes: [AreaType.AreaTypeForestGrassland],
+			amount: 0,
+		},
+		{
+			itemId: 270226,
+			source: itemSource(270226),
+			itemName: 'Golden Banana',
+			mobTypes: [],
+			creatureFamilies: [],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindDuration,
+			areaTypes: [AreaType.AreaTypeForestGrassland],
+			amount: 0,
+		},
+		{
+			itemId: 274760,
+			source: itemSource(274760),
+			itemName: 'Everlook Delivery Bot',
+			mobTypes: [],
+			creatureFamilies: [],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindHitsNeeded,
+			areaTypes: [AreaType.AreaTypeSnowy],
+			amount: 0,
+		},
+		{
+			itemId: 19287,
+			source: itemSource(19287),
+			itemName: 'Darkmoon Card: Heroism',
+			mobTypes: [],
+			creatureFamilies: [],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindProcChance,
+			areaTypes: [AreaType.AreaTypeStrongholdsCities],
+			amount: 0,
+		},
+		{
+			itemId: 0,
+			source: spellSource(1324298),
+			itemName: '',
+			mobTypes: [],
+			creatureFamilies: [],
+			multiplier: 0,
+			kind: VersusEffectKind.VersusEffectKindFlatHeal,
+			areaTypes: [AreaType.AreaTypeStrongholdsCities],
+			amount: 44,
 		},
 	],
 };

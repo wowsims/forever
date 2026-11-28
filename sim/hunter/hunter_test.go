@@ -818,3 +818,77 @@ func TestSniperShotChargeGoesAtTheShotsCast(t *testing.T) {
 		}
 	}
 }
+
+// Multi-Shot reads ranged attack power once, on its first target, and each target's hit takes its own
+// ranged attack power against its mob type: a Beast beside a Humanoid takes none of the Humanoid's, and
+// a Humanoid beside the Beast the read was made on takes its own. With the same seed, the Humanoid second
+// takes the same damage after a Beast as after another Humanoid, which pins the damage each point adds.
+func TestMultiShotTakesEachTargetsOwnVersusRangedAttackPower(t *testing.T) {
+	humanoid, beast := proto.MobType_MobTypeHumanoid, proto.MobType_MobTypeBeast
+	damage := func(mobTypes []proto.MobType, humanoidRangedAttackPower float64) []float64 {
+		encounter := core.MakeSingleTargetEncounter(0)
+		encounter.Targets = nil
+		for _, mobType := range mobTypes {
+			target := core.FreshDefaultTargetConfig()
+			target.MobType = mobType
+			encounter.Targets = append(encounter.Targets, target)
+		}
+		player := &proto.Player{
+			Name:          "Versus",
+			Race:          proto.Race_RaceOrc,
+			Class:         proto.Class_ClassHunter,
+			Equipment:     core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave").GearSet,
+			TalentsString: DefaultMMTalents,
+			Spec: &proto.Player_Hunter{Hunter: &proto.Hunter{Options: &proto.Hunter_Options{
+				ClassOptions: &proto.HunterOptions{PetType: proto.HunterOptions_PetNone},
+			}}},
+			Rotation: &proto.APLRotation{},
+		}
+		sim := core.NewSim(&proto.RaidSimRequest{
+			Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+			Encounter:  encounter,
+			SimOptions: &proto.SimOptions{RandomSeed: 1},
+		}, simsignals.CreateSignals())
+		sim.Reset()
+		hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+		hunter.AutoAttacks.CancelAutoSwing(sim)
+		hunter.AddMobTypeBonusStats(core.ActionID{ItemID: 1}, stats.Stats{stats.RangedAttackPower: humanoidRangedAttackPower}, humanoid)
+		spell := hunter.GetSpell(core.ActionID{SpellID: multiShotRank.ID})
+		if spell == nil {
+			t.Fatal("the hunter has no Multi-Shot")
+		}
+
+		for range 50 {
+			spell.SkipCastAndApplyEffects(sim, sim.Encounter.ActiveTargetUnits[0])
+			landed := sim.CurrentTime + 3*time.Second
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: landed, OnAction: func(*core.Simulation) {}})
+			for sim.CurrentTime < landed {
+				sim.Step()
+			}
+		}
+		var dealt []float64
+		for _, target := range sim.Encounter.ActiveTargetUnits {
+			dealt = append(dealt, spell.SpellMetrics[target.UnitIndex].TotalDamage)
+		}
+		return dealt
+	}
+
+	readOnBeast, readOnHumanoid := damage([]proto.MobType{beast, humanoid}, 300)[1], damage([]proto.MobType{humanoid, humanoid}, 300)[1]
+	if math.Abs(readOnBeast-readOnHumanoid) > 1e-9*readOnHumanoid {
+		t.Errorf("Multi-Shot dealt the second Humanoid %.6f after a Beast, want the %.6f it takes after a Humanoid", readOnBeast, readOnHumanoid)
+	}
+	for _, mobTypes := range [][]proto.MobType{{humanoid, beast}, {beast, humanoid}} {
+		without, with := damage(mobTypes, 0), damage(mobTypes, 300)
+		for i, mobType := range mobTypes {
+			if without[i] == 0 {
+				t.Fatalf("Multi-Shot on %v dealt no damage to its %v target, so the check proves nothing", mobTypes, mobType)
+			}
+			if mobType == beast && math.Abs(with[i]-without[i]) > 1e-6*without[i] {
+				t.Errorf("Multi-Shot on %v dealt the Beast %.4f with ranged attack power against Humanoids, want its %.4f without", mobTypes, with[i], without[i])
+			}
+			if mobType == humanoid && with[i] <= without[i] {
+				t.Errorf("Multi-Shot on %v dealt the Humanoid %.4f with ranged attack power against Humanoids, want above its %.4f without", mobTypes, with[i], without[i])
+			}
+		}
+	}
+}
