@@ -55,7 +55,7 @@ func (unit *Unit) readLanding(sim *Simulation, aura *Aura, duration func() time.
 }
 
 func (rot *APLRotation) newValueAuraIsKnown(config *proto.APLValueAuraIsKnown, uuid *proto.UUID) APLValue {
-	aura := rot.GetAPLAura(rot.GetSourceUnit(config.SourceUnit), config.AuraId)
+	aura := NewAuraReference(rot.GetSourceUnit(config.SourceUnit), config.AuraId)
 	return rot.newValueConst(&proto.APLValueConst{
 		Val: Ternary(aura.Get() != nil, "true", "false"),
 	}, uuid)

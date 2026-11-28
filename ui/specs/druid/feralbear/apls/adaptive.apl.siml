@@ -33,7 +33,9 @@ priority:
   /// Finish closing to melee before damage abilities
   wait until not unit_distance > 5 if unit_distance > 5
   /// Activate the equipped MCP once in melee
-  cast item.manual_crowd_pummeler if unit_distance <= 5
+  cast item.manual_crowd_pummeler
+      if spell(item.manual_crowd_pummeler).is_known
+      and unit_distance <= 5
   /// Use Barkskin when health falls to the chosen threshold
   cast barkskin if current_health_percent <= $barkskin_health_threshold
   /// Use equipped defensive trinkets when health falls
@@ -51,7 +53,8 @@ priority:
       and current_rage < 20
   /// Use Major Healthstone at the low-health threshold
   cast item.major_healthstone on self
-      if selected_conjured(item.major_healthstone)
+      if spell(item.major_healthstone).is_known
+      and selected_conjured(item.major_healthstone)
       and current_health_percent <= $healthstone_health_threshold
   /// Optional on-use items: enable the rows for equipped items
   group "Optional on-use items"

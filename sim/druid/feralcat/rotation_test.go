@@ -761,35 +761,19 @@ func withoutIdleAutocast(preset *proto.APLRotation, warnings map[string][]string
 	return warnings
 }
 
-// Availability guards can report omitted optional spells; malformed conditions must still fail.
+// Public gear keeps automatic on-use support available when consumables are omitted.
 func TestAdaptiveCatAvailabilityWarnings(t *testing.T) {
 	for _, consumes := range []bool{true, false} {
 		preset := defaultCatRotation()
 		req := catValidationRequest(preset)
+		req.Raid.Parties[0].Players[0].Equipment = core.GetGearSet("../../../ui/specs/druid/feralcat/gear_sets", "cat").GearSet
 		if !consumes {
 			req.Raid.Parties[0].Players[0].Profession1 = proto.Profession_ProfessionUnknown
 			req.Raid.Parties[0].Players[0].Consumables = &proto.ConsumesSpec{}
 		}
-		expected := map[string]bool{
-			"Cat (#1) does not know spell {SpellID: 1259705}":   true,
-			"No aura found on Cat (#1) for: {SpellID: 1270842}": true,
-			"Cat (#1) does not know spell {SpellID: 1259686}":   true,
-			"Cat (#1) does not know spell {ItemID: 9449}":       true,
-			"Cat (#1) does not know spell {ItemID: 12662}":      true,
-			"Cat (#1) picks no potion for {OtherID: 26}":        true,
-			"No swap set configured in Settings.":               true,
-			"No aura found on Cat (#1) for: {SpellID: 27851}":   true,
-			"No aura found on Cat (#1) for: {SpellID: 446212}":  true,
-		}
-		if !consumes {
-			expected["Cat (#1) does not know spell {ItemID: 7676}"] = true
-			expected["Cat (#1) picks no potion for {OtherID: 24}"] = true
-		}
-		for line, messages := range withoutIdleAutocast(preset, aplWarnings(t, preset, req)) {
-			for _, message := range messages {
-				if !expected[message] {
-					t.Errorf("consumes=%t line %s: %s", consumes, line, message)
-				}
+		for line, messages := range aplWarnings(t, preset, req) {
+			if len(messages) != 0 {
+				t.Errorf("consumes=%t line %s: %v", consumes, line, messages)
 			}
 		}
 		result := core.RunSim(&proto.RaidSimRequest{Raid: req.Raid, Encounter: req.Encounter, SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 20, IsTest: true}}, nil, simsignals.CreateSignals())

@@ -252,7 +252,7 @@ func TestValueAndWarnsOfADroppedBranchThatCouldChangeIt(t *testing.T) {
 		read bool
 	}{
 		{"And", andValue(yes, missing), []string{"No aura found", "this 'And' check could not be resolved and was dropped"}, true},
-		{"And with a constant false branch", andValue(missing, constValue("false")), []string{"No aura found"}, false},
+		{"And with a constant false branch", andValue(missing, constValue("false")), nil, false},
 		{"Or", orValue(yes, missing), []string{"No aura found"}, true},
 	} {
 		rot.curValidations = nil
@@ -881,10 +881,14 @@ func TestValueUnknownIDs(t *testing.T) {
 func TestValueSpellIsKnown(t *testing.T) {
 	sim, _, rot := setupFakeRageRotation()
 
+	rot.curValidations = nil
 	known := rot.newValueSpellIsKnown(&proto.APLValueSpellIsKnown{SpellId: fakeRendActionID.ToProto()}, nil)
 	unknown := rot.newValueSpellIsKnown(&proto.APLValueSpellIsKnown{SpellId: ActionID{SpellID: 1}.ToProto()}, nil)
 	if !known.GetBool(sim) || unknown.GetBool(sim) {
 		t.Fatalf("Is Known: Rend = %t, unknown = %t, want true, false", known.GetBool(sim), unknown.GetBool(sim))
+	}
+	if len(rot.curValidations) != 0 {
+		t.Fatal("spell availability checks must not warn")
 	}
 }
 
@@ -954,8 +958,8 @@ func TestValueTalentIsKnown(t *testing.T) {
 		if got := value.GetBool(sim); got != tc.want {
 			t.Errorf("%s: got %t, want %t", tc.name, got, tc.want)
 		}
-		if warned := len(rot.curValidations) > 0; warned == tc.want {
-			t.Errorf("%s: warned %t, want a warning only for an unknown talent", tc.name, warned)
+		if len(rot.curValidations) != 0 {
+			t.Errorf("%s: availability checks must not warn", tc.name)
 		}
 	}
 	rot.curValidations = nil
@@ -982,8 +986,8 @@ func TestValueTalentRank(t *testing.T) {
 		if value.Type() != proto.APLValueType_ValueTypeInt || value.GetInt(sim) != tc.want {
 			t.Errorf("%s: got %s, want %d", tc.name, renderValue(sim, value), tc.want)
 		}
-		if warned := len(rot.curValidations) > 0; warned != (tc.want == 0) {
-			t.Errorf("%s: warned %t, want a warning only for a talent with no points", tc.name, warned)
+		if len(rot.curValidations) != 0 {
+			t.Errorf("%s: an unallocated talent has rank zero without a warning", tc.name)
 		}
 	}
 	rot.curValidations = nil
@@ -1270,10 +1274,15 @@ func TestValueAuras(t *testing.T) {
 		"Aura Num Stacks for a non-stacking aura":           rot.newValueAuraNumStacks(&proto.APLValueAuraNumStacks{AuraId: plainID}, nil),
 	})
 
+	rot.curValidations = nil
 	known := rot.newValueAuraIsKnown(&proto.APLValueAuraIsKnown{AuraId: plainID}, nil)
 	unknown := rot.newValueAuraIsKnown(&proto.APLValueAuraIsKnown{AuraId: ActionID{SpellID: testMissingAuraID}.ToProto()}, nil)
 	if !known.GetBool(sim) || unknown.GetBool(sim) {
 		t.Errorf("Aura Is Known: registered = %t, missing = %t, want true, false", known.GetBool(sim), unknown.GetBool(sim))
+	}
+
+	if len(rot.curValidations) != 0 {
+		t.Fatal("aura availability checks must not warn")
 	}
 
 	isActive := rot.newValueAuraIsActive(&proto.APLValueAuraIsActive{AuraId: plainID}, nil)

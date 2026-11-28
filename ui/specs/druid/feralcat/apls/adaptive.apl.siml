@@ -17,7 +17,6 @@ var ${Short-fight Claw Bite minimum Rip remaining} = 2s
 var ${Short-fight Claw Bite duration ceiling} = 60s
 var ${Paid-builder energy threshold} = 60
 var ${Paid-builder pooling CP} = 4
-var ${Paid-builder pooling CP with two Blood Frenzy points} = 4
 var ${Fight-end Bite CP} = 5
 var ${Ravage approach without Clearcasting} = 10
 var ${Ravage approach with Clearcasting} = 30
@@ -54,11 +53,13 @@ var ${Mana potion fits and is needed} =
     and current_mana < 1400
     and remaining_time >= 15s
 var ${Tea is selected and energy is low} =
-    aura(cat_form).is_active
+    spell(item.thistle_tea).is_known
+    and aura(cat_form).is_active
     and (selected_conjured(item.thistle_tea) or selected_conjured(item.demonic_rune))
     and current_energy <= $tea_energy_ceiling
 var ${Rune can restore mana after Tea} =
-    selected_conjured(item.demonic_rune)
+    spell(item.demonic_rune).is_known
+    and selected_conjured(item.demonic_rune)
     and spell(item.thistle_tea).time_to_ready > 0s
     and max_mana - current_mana >= 1500
     and current_health > 2000
@@ -101,7 +102,7 @@ var ${Bite combo points and Rip window} =
 var ${Paid builder fits the energy pool} =
     not $pool_combo_points_for_a_bleed_immune_bite
     and not ($bite_combo_points_and_rip_window and not $bite_energy_is_funded)
-    and (talent_rank(blood_frenzy) == 1 or (not talent_is_known(blood_frenzy) or talent_rank(blood_frenzy) >= 2 and $use_ferocity_with_two_blood_frenzy_points) and current_combo_points < $paid_builder_pooling_cp or talent_rank(blood_frenzy) >= 2 and not $use_ferocity_with_two_blood_frenzy_points and current_combo_points < $paid_builder_pooling_cp_with_two_blood_frenzy_points or (current_energy >= $paid_builder_energy_threshold and not $use_ferocity_hybrid_tuning and not $howling_hybrid_in_a_longer_fight or current_energy >= 65 and $use_ferocity_hybrid_tuning or current_energy >= 70 and $howling_hybrid_in_a_longer_fight))
+    and (talent_rank(blood_frenzy) == 1 or current_combo_points < $paid_builder_pooling_cp or (current_energy >= $paid_builder_energy_threshold and not $use_ferocity_hybrid_tuning and not $howling_hybrid_in_a_longer_fight or current_energy >= 65 and $use_ferocity_hybrid_tuning or current_energy >= 70 and $howling_hybrid_in_a_longer_fight))
 var ${Use Ferocity Hybrid tuning} =
     not talent_is_known(blood_frenzy)
     and not talent_is_known(shredding_attacks)
@@ -115,13 +116,6 @@ var ${Howling Hybrid in a longer fight} =
     and talent_is_known(shifting_power)
     and spell(shifting_power).full_cooldown < 8s
     and not $use_the_short_claw_bite_window
-var ${Use Ferocity with two Blood Frenzy points} =
-    (talent_rank(blood_frenzy) >= 2 and talent_is_known(shifting_power))
-    and not talent_is_known(shredding_attacks)
-    and talent_is_known(predatory_discipline)
-    and talent_is_known(shifting_power)
-    and aura(reduced_claw_and_rake_cost).is_known
-    and aura(reduced_claw_and_rake_cost).is_active
 var ${Use the short Claw Bite window} =
     not talent_is_known(shredding_attacks)
     and not $use_ferocity_hybrid_tuning
@@ -160,7 +154,9 @@ priority:
   /// Prowl is active: open with Ravage
   cast ravage if aura(prowl).is_active
   /// Activate the equipped MCP once in melee and out of Prowl
-  cast item.manual_crowd_pummeler if $ready_to_activate_mcp
+  cast item.manual_crowd_pummeler
+      if spell(item.manual_crowd_pummeler).is_known
+      and $ready_to_activate_mcp
   /// Outside Cat Form: return after utility casts
   cast cat_form if not aura(cat_form).is_active
   /// Bite before this target dies with enough combo points
@@ -182,7 +178,7 @@ priority:
   /// Use Demonic Rune after Tea when missing 1500 mana
   cast item.demonic_rune if $rune_can_restore_mana_after_tea
   /// In Cat Form: use the selected offensive potion
-  cast other.offensive_potion if aura(cat_form).is_active
+  cast other.offensive_potion if spell(other.offensive_potion).is_known and aura(cat_form).is_active
   /// Bite before this target dies when Rip is no longer worthwhile
   cast ferocious_bite if $fight_end_bite_is_worthwhile
   /// Spend Clearcasting on Shred when Bite is not ready

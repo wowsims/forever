@@ -521,7 +521,7 @@ func TestAdaptiveBearKeepsSingleTargetPriority(t *testing.T) {
 	}
 }
 
-// Omitted utility items and debuffs produce availability warnings, not malformed rotation branches.
+// Optional items and talents validate cleanly, with or without consumables.
 func TestAdaptiveBearAvailabilityWarnings(t *testing.T) {
 	for _, consumes := range []bool{true, false} {
 		req := bearRequest(selectedAdaptiveBearAPL(), 20)
@@ -529,26 +529,9 @@ func TestAdaptiveBearAvailabilityWarnings(t *testing.T) {
 			req.Raid.Parties[0].Players[0].Consumables = &proto.ConsumesSpec{}
 			req.Raid.Parties[0].Players[0].Profession1 = proto.Profession_ProfessionUnknown
 		}
-		expected := map[string]bool{
-			"No swap set configured in Settings.":                       true,
-			"Bear (#1) does not know talent {SpellID: 17056} (Rank 1)":  true,
-			"Bear (#1) does not know spell {ItemID: 9449}":              true,
-			"Bear (#1) picks no potion for {OtherID: 26}":               true,
-			"No aura found on Target 1 for: {SpellID: 440667, Tag: -1}": true,
-		}
-		for _, id := range []int32{18370, 20072, 20071, 272437} {
-			expected[fmt.Sprintf("Bear (#1) does not know spell {ItemID: %d}", id)] = true
-		}
-		if !consumes {
-			expected["Bear (#1) does not know spell {ItemID: 10646}"] = true
-			expected["Bear (#1) does not know spell {ItemID: 9421}"] = true
-			expected["Bear (#1) picks no potion for {OtherID: 25}"] = true
-		}
 		for line, messages := range bearAPLWarnings(t, req) {
-			for _, message := range messages {
-				if !expected[message] {
-					t.Errorf("consumes=%t line %d: %s", consumes, line, message)
-				}
+			if len(messages) != 0 {
+				t.Errorf("consumes=%t line %d: %v", consumes, line, messages)
 			}
 		}
 		result := core.RunSim(req, nil, simsignals.CreateSignals())
