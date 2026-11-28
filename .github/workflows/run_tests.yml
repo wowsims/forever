@@ -15,6 +15,22 @@ on:
                 description: 'Commit that TestProtoVersioning diffs the protos against (defaults to remote master)'
                 required: false
                 type: string
+            # The deploy and the release take the site build-ui builds from this artifact instead of building it again.
+            site-artifact:
+                description: 'Upload dist/forever as the site artifact'
+                required: false
+                type: boolean
+                default: false
+            wasm-opt:
+                description: 'Optimize lib.wasm with wasm-opt'
+                required: false
+                type: boolean
+                default: false
+            icons:
+                description: 'Decode the game files icons into the build'
+                required: false
+                type: boolean
+                default: false
 # Runs called from master (deploy, release) have no pull request number; the
 # run id keeps each in a group of its own so none is cancelled or queued.
 concurrency:
@@ -115,13 +131,19 @@ jobs:
             - name: Build Storybook 📚
               run: npm run storybook:build
 
-            # Only for the preview below, which serves them like the live site; a failure leaves it on zamimg icons.
+            # For the preview below, which serves them like the live site, and for a caller that asks; a failure leaves
+            # the build on zamimg icons.
             - name: Decode the game files icons 🖼️
-              if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+              if: inputs.icons || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
               uses: ./.github/actions/game-files-icons
               continue-on-error: true
               # A stalled download fails the step, which continue-on-error then lets pass.
               timeout-minutes: 10
+
+            # The build optimizes lib.wasm when wasm-opt is on the PATH and skips it otherwise.
+            - name: Install binaryen
+              if: inputs.wasm-opt
+              run: sudo apt-get update && sudo apt-get install -y binaryen
 
             - name: Build 🔧
               env:
@@ -129,6 +151,16 @@ jobs:
                   BUILD_COMMIT: ${{ github.event.pull_request.head.sha }}
               run: |
                   make dist/forever/.dirstamp
+
+            - name: Upload the site
+              if: inputs.site-artifact
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: site
+                  path: dist/forever
+                  include-hidden-files: true
+                  if-no-files-found: error
+                  retention-days: 1
 
             # Each pull request from this repository gets its build hosted at
             # https://<hash>.wowsims-forever.pages.dev/forever/ as a Cloudflare Pages preview; fork
