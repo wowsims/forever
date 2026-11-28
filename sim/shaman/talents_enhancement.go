@@ -119,9 +119,8 @@ func (shaman *Shaman) applyFlurry() {
 		return
 	}
 
-	// 16257 supplies the duration, the three charges and the 0.5 s between charges spent. The
-	// haste is the talent's ranked dummy, 6% a point on trait curve 85300, which the tooltip of 16256
-	// reads as $m1; the buff's own 10% is replaced in game, its tooltip reading the applied $w1.
+	// The haste is the talent's ranked dummy, which the tooltip of 16256 reads as $m1; the buff's own
+	// 10% is replaced in game, its tooltip reading the applied $w1.
 	flurryAura := shaman.RegisterAura(spelldata.AuraConfig(flurryBuff)).
 		AttachMultiplyMeleeSpeed(spellData.Flurry.MultiplierAt(shaman.Talents.Flurry))
 
@@ -131,14 +130,9 @@ func (shaman *Shaman) applyFlurry() {
 	}
 
 	// The row has no roll and the crit is the condition, read off the result here because the same
-	// listener has to see the swings that spend a charge. Any melee crit sets three charges,
-	// Stormstrike's, a Windfury Weapon hit's and a Windfury Totem hit's (10610) included. A white
-	// swing spends one whatever its outcome, as Warrior Flurry's does. 16257's proc flags name swings
-	// alone, but a Windfury Weapon hit spends one too; a Windfury Totem hit, Stormstrike and spells
-	// spend none (EV-0010). A white or Stormstrike crit spends none, and a Windfury Weapon hit in its
-	// instant spends one, so such a crit followed by Windfury Weapon hits leaves two; in the instant a
-	// Windfury Weapon hit's own crit gained the charges, the next Windfury Weapon hit spends none
-	// (EV-0010). A white swing in the instant of a gain spends none.
+	// listener has to see the swings that spend a charge. Any melee crit sets three charges. 16257's
+	// proc flags name swings alone, but a Windfury Weapon hit spends one too (EV-0010). A white swing
+	// in the instant of a gain spends none.
 	var gainedByImbue bool
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.Flurry.Rank(shaman.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -188,8 +182,7 @@ func (shaman *Shaman) applySpiritWeapons() {
 	rank := spellData.SpiritWeapons.Highest()
 
 	// Effect 1 cuts threat always, and effect 2 raises Rockbiter Weapon (Passive)'s own threat
-	// effect, which the imbue reads. Effect 3 is the dummy stating the result under Rockbiter,
-	// 0.7 x 1.86, the tooltip's 30% more.
+	// effect, which the imbue reads. Effect 3 is the dummy stating the result under Rockbiter.
 	spelldata.ParseStatic(&shaman.Character, rank, spelldata.Effects(1))
 	shaman.spiritWeaponsRockbiterThreat = rank.EffectN(2).Percent()
 }
@@ -211,8 +204,7 @@ func (shaman *Shaman) applyImprovedStormstrike() {
 	rank := spellData.ImprovedStormstrike.Rank(shaman.Talents.ImprovedStormstrike)
 
 	// The tooltip's $m1 is the chance on a Stormstrike to gain the regen and $m2 the chance a dodge
-	// or parry resets the cooldown, both 50/100 by rank. Effect 3, a flat 20 the tooltip does not
-	// name, is unused.
+	// or parry resets the cooldown. Effect 3, a flat 20 the tooltip does not name, is unused.
 	regenAura := shaman.RegisterAura(spelldata.AuraConfig(improvedStormstrikeBuff))
 	spelldata.ParseEffects(&shaman.Character, regenAura, improvedStormstrikeBuff)
 
@@ -245,7 +237,7 @@ func (shaman *Shaman) applyImprovedStormstrike() {
 
 var maelstromWeaponBuff = spellData.MaelstromWeaponTriggered.Highest()
 
-// The talent's effect 2, the tooltip's $s2, is the rate per minute: 6 at one point up to 10 at five.
+// The talent's effect 2, the tooltip's $s2, is the rate per minute.
 func maelstromWeaponPPM(rank *spelldata.Spell) float64 {
 	return rank.EffectN(2).BaseValue()
 }
@@ -257,8 +249,6 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 
 	rank := spellData.MaelstromWeapon.Rank(shaman.Talents.MaelstromWeapon)
 
-	// 408505 supplies the duration, the five stacks and the spells its two mods reach. The amount
-	// per stack is the talent's ranked effect 1, -20% at every point.
 	perStack := rank.EffectN(1).Percent()
 	castTimeMod := shaman.AddDynamicMod(core.SpellModConfig{
 		Kind:       core.SpellMod_CastTime_Pct,
@@ -271,10 +261,9 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	consumes := maelstromWeaponBuff.EffectN(1).ClassFlags
 
 	// Maelstrom Ready! (408501) goes up as the stacks reach five and comes off with them or at the
-	// next Chain Lightning; while it is up a Chain Lightning keeps Clearcasting (EV-0180). Its row, a
-	// dummy with one charge and no duration, is in the game files but not in the spell store, so the
-	// aura is built here. The Healing Wave and Lesser Healing Wave that also take it off are not in
-	// the sim.
+	// next Chain Lightning (EV-0180). Its row, a dummy with one charge and no duration, is in the game
+	// files but not in the spell store, so the aura is built here. The Healing Wave and Lesser Healing Wave
+	// that also take it off are not in the sim.
 	readyAura := shaman.RegisterAura(core.Aura{
 		Label:    "Maelstrom Ready!",
 		ActionID: core.ActionID{SpellID: 408501},
@@ -311,11 +300,9 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	maelstromAura := shaman.RegisterAura(config)
 	shaman.maelstromWeaponAura, shaman.maelstromReadyAura = maelstromAura, readyAura
 
-	// The tooltip's $s3 is the stack count, which the buff row's five also states. The row's chance
-	// column is the "no roll" 100; the tooltip prices the chance per hit on the main hand's speed,
-	// so the rate per minute is effect 2. A proc at five stacks refreshes the buff. A Windfury Totem
-	// hit never procs it (EV-0009), though a Windfury Weapon hit, whose row differs only in the
-	// class mask, does.
+	// The row's chance column is the "no roll" 100; the tooltip prices the chance per hit on the main
+	// hand's speed, so the rate per minute is effect 2. A Windfury Totem hit never procs it (EV-0009),
+	// though a Windfury Weapon hit, whose row differs only in the class mask, does.
 	trigger := spelldata.ProcTrigger(&shaman.Character, rank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			maelstromAura.Activate(sim)
@@ -340,8 +327,7 @@ func (shaman *Shaman) applyRageOfTheFarseer() {
 		return
 	}
 
-	// Effect 1 is the melee and ranged attack speed, which the parse does not read. Effect 2 is the
-	// model's size.
+	// Effect 1 is the melee and ranged attack speed, which the parse does not read.
 	rageAura := shaman.RegisterAura(spelldata.AuraConfig(rageOfTheFarseerRank)).
 		AttachMultiplyAttackSpeed(1 + rageOfTheFarseerRank.EffectN(1).Percent())
 

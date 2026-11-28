@@ -55,9 +55,7 @@ func swingHealed(sim *core.Simulation, caster *testCaster, outcome core.HitOutco
 
 // A stat buff carrying a proc is built where the proc fires a heal on the wearer, and refused where it
 // fires nothing the store carries, a spell that heals no one, a heal on someone else, a heal over time
-// with no period, or where the buff spends charges. Aegis Heal 23781 is the heal on the wearer,
-// Sulfuras's Fireball 21162 the damage, Recovery's 1248759 is reshaped into a heal on an ally, and
-// the proc heal over time 1297357 loses its period.
+// with no period, or where the buff spends charges.
 func TestCarriedProcUnsupported(t *testing.T) {
 	const healID, damageID, allyHealID int32 = 23781, 21162, 1248759
 	onWearer := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER}
@@ -114,8 +112,7 @@ func stepPast(t *testing.T, sim *core.Simulation, until time.Duration) {
 }
 
 // Recovery heals the wearer for its row's share of its maximum health when the target dodges or
-// parries the wearer's melee attack. A landed swing does not proc it, nor does the wearer dodging an
-// attack it takes, and a second avoided swing inside the trigger's ProcCategoryRecovery heals nothing.
+// parries the wearer's melee attack.
 func TestRecoveryHealsWhenTheWearersAttackIsDodgedOrParried(t *testing.T) {
 	sim, caster, heal := newHealProcSim(t, 990971, 990972, recoveryHeal, 0)
 	share := spelldata.MustFind(recoveryHeal).ProcHealEffect().Percent()
@@ -174,8 +171,8 @@ func TestProcHealCritsUnlessTheRowRulesItOut(t *testing.T) {
 	}
 }
 
-// Darkmoon Card: Heroism's 23682 states its heal as E_HEAL 198 with a 0.4 spread, which the proc
-// rolls rather than reading as a share of maximum health.
+// Darkmoon Card: Heroism's 23682 states its heal as E_HEAL with a spread, which the proc rolls rather
+// than reading as a share of maximum health.
 func TestProcHealRollsAStatedAmount(t *testing.T) {
 	const fixedHeal int32 = 23682
 	effect := spelldata.MustFind(fixedHeal).ProcHealEffect()
@@ -310,8 +307,8 @@ func TestProcHotCritsOnlyWhereTheRowLetsItsTicksCrit(t *testing.T) {
 }
 
 // A second proc while the HoT runs starts it over: the ticks already landed stay landed and a full
-// run of ticks follows the second proc. 1248761's lockout is the earliest it can come; copies of the
-// rows fix a lockout that ends while the HoT still runs.
+// run of ticks follows the second proc. Copies of the rows fix a lockout that ends while the HoT still
+// runs.
 func TestProcHotStartsOverOnASecondProc(t *testing.T) {
 	editRow(t, recoveryTrigger, func(s *spelldata.Spell) { s.ICDMs = 10000 })
 	editRow(t, procHot, func(s *spelldata.Spell) {

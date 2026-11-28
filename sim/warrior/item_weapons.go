@@ -13,9 +13,8 @@ func init() {
 	// On landing a killing blow that grants experience or honor, your next attack will critically
 	// strike.
 	//
-	// 418509 hears the killing blow, and its dummy effect's 100 is the crit chance the next attack
-	// gets. The game files state no buff for it, so the buff lasts until a melee or ranged attack
-	// spends it, landed or not.
+	// 418509's dummy effect is the crit chance the next attack gets. The game files state no buff for it,
+	// so the buff lasts until a melee or ranged attack spends it, landed or not.
 	core.NewItemEffect(208222, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(418509)

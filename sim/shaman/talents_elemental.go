@@ -82,13 +82,12 @@ func (shaman *Shaman) applyElementalDevastation() {
 		return
 	}
 
-	// 30165 supplies the duration. The crit is the talent's own ladder, 3/6/9 by rank, which is
-	// what the tooltip of 30160 reads; the buff row states a flat 3.
+	// The crit is the talent's own ladder, which is what the tooltip of 30160 reads; the buff row
+	// states a flat 3.
 	critAura := shaman.RegisterAura(spelldata.AuraConfig(elementalDevastationBuff)).
 		AttachStatBuff(stats.PhysicalCritPercent, shaman.ElementalDevastationCritPercent())
 
-	// The row hears harmful spells with no roll, and the tooltip's "Critical Strikes with direct
-	// damage spells" makes the crit the outcome.
+	// The row hears harmful spells with no roll, and the tooltip makes the crit the outcome.
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.ElementalDevastation.Rank(shaman.Talents.ElementalDevastation),
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			critAura.Activate(sim)
@@ -118,9 +117,8 @@ func (shaman *Shaman) applyElementalFocus() {
 	var procTime time.Duration
 
 	// A Lightning Bolt that consumes five Maelstrom Weapon stacks keeps the charge, and so does a
-	// Chain Lightning cast while Maelstrom Ready! is up, which still costs nothing (EV-0180). Both
-	// auras come off as the cast completes, in no fixed order with this one, so the cast is checked
-	// before its effects apply.
+	// Chain Lightning cast while Maelstrom Ready! is up (EV-0180). Both auras come off as the cast
+	// completes, in no fixed order with this one, so the cast is checked before its effects apply.
 	var kept bool
 	config := spelldata.AuraConfig(clearcastingBuff)
 	config.OnGain = func(aura *core.Aura, sim *core.Simulation) {
@@ -144,7 +142,7 @@ func (shaman *Shaman) applyElementalFocus() {
 	clearcastingAura := shaman.RegisterAura(config)
 	spelldata.ParseEffects(&shaman.Character, clearcastingAura, clearcastingBuff)
 
-	// The row rolls its own 10%. The tooltip limits it to Fire, Frost and Nature damage spells.
+	// The tooltip limits it to Fire, Frost and Nature damage spells.
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.ElementalFocus.Highest(),
 		func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 			procSpellID, procTime = spell.SpellID, sim.CurrentTime
@@ -165,8 +163,8 @@ func (shaman *Shaman) applyElementalFocus() {
 		return spell.SpellSchool.Matches(core.SpellSchoolFire | core.SpellSchoolFrost | core.SpellSchoolNature)
 	}
 
-	// A Lightning Overload's launch rolls once too, since Elemental Focus's row can proc from procs
-	// (EV-0137). No cast listener hears an overload, so its launch calls the trigger's cast listener.
+	// A Lightning Overload's launch rolls once too (EV-0137). No cast listener hears an overload, so
+	// its launch calls the trigger's cast listener.
 	triggerAura := shaman.MakeProcTriggerAura(trigger)
 	shaman.OnSpellRegistered(func(spell *core.Spell) {
 		if !spell.Matches(SpellMaskOverload) {
@@ -227,8 +225,7 @@ func (shaman *Shaman) applyCallOfThunder() {
 
 var lightningMasteryRank = spellData.LightningMastery.Highest()
 
-// The row states one charge and casts that would spend it, but the tooltip reads "Lasts $d": the buff
-// lasts its full 15 s, no cast spends it, and Chain Lightning has no cooldown while it is up (EV-0137).
+// The row states one charge and casts that would spend it, but no cast spends it (EV-0137).
 func (shaman *Shaman) applyLightningMastery() {
 	if !shaman.Talents.LightningMastery {
 		return

@@ -56,8 +56,7 @@ func spellGain(character *core.Character, spellID int32) *proto.ResourceMetrics 
 }
 
 // Stormshroud Armor's 2-piece 18979 and 3-piece 23863 are proc triggers the generated set builds: a melee
-// hit casts 18980's Nature damage at the target at the row's chance, and restores 23864's energy at its own,
-// which the bear's energy bar holds for Cat Form.
+// hit casts 18980 and restores 23864's energy, which the bear's energy bar holds for Cat Form.
 func TestStormshroudArmorProcsItsLightningAndItsEnergy(t *testing.T) {
 	items := bearItemSlots()
 	items[proto.ItemSlot_ItemSlotChest].Id = 15056
@@ -96,11 +95,8 @@ func TestVolcanicArmorProcsItsFirebolt(t *testing.T) {
 		func() bool { return firebolt.SpellMetrics[target.UnitIndex].Casts > 0 })
 }
 
-// Battlegear of Valor's 5-piece 450587, and the Battlegear of Heroism reissue's 4-piece that carries the same
-// row, roll the row's procs per minute on landed white swings of either hand, each on its own weapon's speed,
-// and on Windfury Totem hits as a main-hand swing, and never on a main-hand special such as Heroic Strike
-// or Cleave. Each proc heals the wearer for 450589's heal, and restores its rage to a wearer with a rage bar.
-// Four Valor pieces beside a Heroism piece carry no proc.
+// Battlegear of Valor's 5-piece 450587 and the Battlegear of Heroism reissue's 4-piece roll the row's procs
+// per minute on landed white swings and Windfury Totem hits, never on a main-hand special, and heal for 450589.
 func TestWarriorsResolveHealsAndRestoresRageOnSwings(t *testing.T) {
 	row := spelldata.MustFind(450587)
 	resolve := spelldata.MustFind(450589)
@@ -141,9 +137,8 @@ func TestWarriorsResolveHealsAndRestoresRageOnSwings(t *testing.T) {
 			}
 		}
 
-		// Each hit now procs it wherever the manager hears it, and a Windfury Totem hit reaches the
-		// manager as a main-hand swing, never as an off-hand one. The warrior stand-in has no rage bar,
-		// so the proc heals alone.
+		// Each hit procs it wherever the manager hears it, and a Windfury Totem hit reaches the
+		// manager as a main-hand swing. The warrior stand-in has no rage bar, so the proc heals alone.
 		strike := &core.Spell{ActionID: core.ActionID{SpellID: 10610}, ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagCountsAsSwing, SpellSchool: core.SpellSchoolPhysical, Unit: &warrior.Unit}
 		special := &core.Spell{ActionID: core.ActionID{SpellID: 11567}, ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, Unit: &warrior.Unit}
 		healed := &warrior.GetSpell(core.ActionID{SpellID: resolve.ID}).SpellMetrics[warrior.UnitIndex]
@@ -214,12 +209,9 @@ func wantCastTimeRate(t *testing.T, name string, rowID int32, castTime time.Dura
 	wantRate(t, fmt.Sprintf("%s: casts of %v", name, castTime), casts, castTimeChance(t, rowID, castTime), procs)
 }
 
-// Lightforge Armor's 5-piece and the Soulforge Armor reissue's 4-piece share 450625, The Elements' 5-piece
-// and The Five Thunders reissue's 4-piece 450626. Each row hears melee swings and spell casts at its procs
-// per minute: a landed white swing rolls the rate on its weapon's speed, a spell cast on the time it took
-// and at least castTimeFloor, and a spell's hit or a heal's landing rolls nothing. A buff cast that costs
-// its caster mana rolls as a spell does, off the global cooldown too; a cast that costs nothing or only
-// rage, and a melee ability, roll nothing.
+// Each row hears melee swings and spell casts at its procs per minute: a landed white swing rolls the rate
+// on its weapon's speed, a spell cast on the time it took; a cast that costs nothing or only rage, and a
+// melee ability, roll nothing.
 func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.T) {
 	for _, tc := range []struct {
 		name   string
@@ -380,10 +372,8 @@ func wantRate(t *testing.T, what string, rolls int, chance, procs float64) {
 	}
 }
 
-// The Feralheart Raiment reissue's 4-piece is Wildheart Raiment's 5-piece proc 450608: a landed white swing
-// rolls the row's procs per minute on the weapon's speed and restores 27784's ticks as energy over its
-// duration. A melee ability rolls nothing. The row copy's rate is raised so a thousand swings tell the rate
-// apart.
+// The Feralheart Raiment reissue's 4-piece 450608 restores 27784's ticks as energy off a landed white swing
+// at the row's procs per minute. The row copy's rate is raised so a thousand swings tell the rate apart.
 func TestFeralheartRaimentRestoresEnergyOverTimeOnSwings(t *testing.T) {
 	row := editSpellRow(t, 450608, func(s *spelldata.Spell) { s.RPPM *= 12 })
 	energy := spelldata.MustFind(27784)
@@ -426,8 +416,7 @@ func TestFeralheartRaimentRestoresEnergyOverTimeOnSwings(t *testing.T) {
 	}
 }
 
-// A druid's 27784 ticks in a bear form come back with Cat Form, on top of the energy the cat left with, at
-// 5/5 Furor; in caster form they are left out (EV-0144).
+// A druid's 27784 ticks in a bear form come back with Cat Form; in caster form they are left out (EV-0144).
 func TestFeralheartRaimentEnergyInABearFormComesBackWithCatForm(t *testing.T) {
 	energy := spelldata.MustFind(27784)
 	tick := energy.ProcEnergizeEffect()
@@ -467,10 +456,8 @@ func TestFeralheartRaimentEnergyInABearFormComesBackWithCatForm(t *testing.T) {
 	}
 }
 
-// The 4-piece's proc 450608 also restores 27783's rage on a landed melee swing taken, at the row's procs per
-// minute on the attacker's time between its own swings, and only to a bear. A dodged swing, a melee ability
-// taken and a swing dealt restore none. The row copy's rate is raised so a thousand hits tell the rate
-// apart.
+// The 4-piece's proc 450608 also restores 27783's rage on a landed melee swing taken, and only to a bear. The
+// row copy's rate is raised so a thousand hits tell the rate apart.
 func TestFeralheartRaimentRestoresRageWhenStruck(t *testing.T) {
 	row := editSpellRow(t, 450608, func(s *spelldata.Spell) { s.RPPM *= 18 })
 	rage := spelldata.MustFind(27783).EffectN(1).Tenths()
@@ -529,9 +516,8 @@ func wildheartBear(t *testing.T) (*core.Simulation, *druid.Druid) {
 	return bearFromRequest(t, req)
 }
 
-// Wildheart Raiment's 5-piece 450608 rolls nothing on a shapeshift or Shifting Power, though they cost
-// mana, or on Frenzied Regeneration, whose row spends rage: no 27782 mana and no 27784 energy. Faerie Fire,
-// which costs mana, restores the mana at the cast-time rate in a bear form (EV-0144).
+// Wildheart Raiment's 5-piece 450608 rolls nothing on a shapeshift, Shifting Power or Frenzied Regeneration;
+// Faerie Fire restores the mana at the cast-time rate in a bear form (EV-0144).
 func TestWildheartRaimentShapeshiftsFrenziedRegenerationAndShiftingPowerRollNothing(t *testing.T) {
 	sim, bear := wildheartBear(t)
 	wearer := &bear.Character
@@ -557,9 +543,8 @@ func TestWildheartRaimentShapeshiftsFrenziedRegenerationAndShiftingPowerRollNoth
 	wantCastTimeRate(t, "Wildheart Raiment 5P: Faerie Fire", 450608, 0, casts, mana)
 }
 
-// Wild Heart 1302708, Wildheart Raiment's 4-piece and the Feralheart Raiment reissue's 5-piece, raises
-// movement speed by 1302707's percent for its duration off a landed hit taken, a dodged swing excluded,
-// and then rests for the row's cooldown. The row copy procs on every hit.
+// Wild Heart 1302708 raises movement speed by 1302707's percent off a landed hit taken, and then rests for
+// the row's cooldown. The row copy procs on every hit.
 func TestWildHeartSpeedsTheWearerWhenStruck(t *testing.T) {
 	row := editSpellRow(t, 1302708, func(s *spelldata.Spell) { s.ProcChance = 100 })
 	buffRow := spelldata.MustFind(1302707)
@@ -671,9 +656,8 @@ func kroldokPieces(n int) map[proto.ItemSlot]int32 {
 	return pieces
 }
 
-// Krol'dok Battlegear's 4-piece 1324298 casts 1324296's heal on the wearer on a blocked melee or ranged
-// hit, one the block leaves no damage too, and on no other hit; it then rests the row's cooldown. The heal
-// rolls the row's spread, and in Strongholds and Cities is the flat amount of its second effect.
+// Krol'dok Battlegear's 4-piece 1324298 casts 1324296's heal on a blocked melee or ranged hit and on no
+// other hit; in Strongholds and Cities the heal is the flat amount of its second effect.
 func TestKroldokBattlegearHealsOnBlocks(t *testing.T) {
 	proc, healRow := spelldata.MustFind(1324298), spelldata.MustFind(1324296)
 	heal, stronghold := healRow.HealEffect(), healRow.EffectN(2).BasePoints
@@ -730,8 +714,7 @@ func TestKroldokBattlegearHealsOnBlocks(t *testing.T) {
 }
 
 // Krol'dok Battlegear's 5-piece 1324309 adds a stack of 1324308's Stamina on a landed melee or ranged hit
-// taken, one that deals no damage too, and refreshes it; a dodge and a spell hit add none. It then rests
-// the row's cooldown, and the stacks stop at the row's most.
+// taken; a dodge and a spell hit add none.
 func TestKroldokBattlegearStacksStaminaOnHitsTaken(t *testing.T) {
 	proc, buffRow := spelldata.MustFind(1324309), spelldata.MustFind(1324308)
 	stamina := buffRow.FirstAura(dbcenums.A_MOD_STAT).BasePoints
@@ -785,8 +768,8 @@ func TestKroldokBattlegearStacksStaminaOnHitsTaken(t *testing.T) {
 	}
 }
 
-// Teachings of the Furbolgs' 2-piece 1294087 puts 1294071 up off a landed melee or ranged hit, for the
-// attack power and ranged attack power its effects state. A heal puts nothing up.
+// Teachings of the Furbolgs' 2-piece 1294087 puts 1294071 up off a landed melee or ranged hit. A heal puts
+// nothing up.
 func TestTeachingsOfTheFurbolgsRaisesAttackPowerOnHits(t *testing.T) {
 	row := spelldata.MustFind(1294071)
 	melee, ranged := row.EffectN(1).BaseValue(), row.EffectN(2).BaseValue()
@@ -853,8 +836,8 @@ func TestDefiasLeatherBleedsOnlyFromBehind(t *testing.T) {
 }
 
 // Chain of the Scarlet Crusade's 4-piece 1293674 puts 1293673 up off a hit taken. While it is up every
-// landed melee hit, and no spell hit, casts 1293675's Holy damage at the target, which deals 1293674's
-// first effect times as much to an Undead target.
+// landed melee hit, and no spell hit, casts 1293675, which deals 1293674's first effect times as much to
+// an Undead target.
 func TestChainOfTheScarletCrusadeLightsMeleeHits(t *testing.T) {
 	factor := spelldata.MustFind(1293674).EffectN(1).BaseValue()
 	if factor <= 1 {
@@ -929,8 +912,7 @@ func TestDeathboneGuardianLowersDodgeAndParry(t *testing.T) {
 }
 
 // Rotmender's Raiment's 4-piece 1321560 casts 1321558 off a cast that leaves the wearer below the share of
-// mana its first effect states, which restores the row's mana every tick, and then rests the row's
-// cooldown. A cast above that share restores nothing.
+// mana its first effect states, and then rests the row's cooldown.
 func TestRotmendersRaimentRestoresManaWhenLow(t *testing.T) {
 	proc, row := spelldata.MustFind(1321560), spelldata.MustFind(1321558)
 	tick := row.ProcEnergizeEffect()
@@ -1038,7 +1020,7 @@ func TestTheGladiatorHastesOnLandedMeleeHits(t *testing.T) {
 
 // Bloodmail Regalia's 3-piece 1299740 puts the bleed 1299739 on the target off a landed white swing, Windfury
 // Weapon hit 439440 or Windfury Totem hit, never off another melee ability such as Stormstrike or a
-// spell hit. The bleed lands without a hit roll and ticks for the row's duration.
+// spell hit.
 func TestBloodmailRegaliaBleedsOnSwings(t *testing.T) {
 	row := spelldata.MustFind(1299739)
 	sim, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
@@ -1079,8 +1061,7 @@ func TestBloodmailRegaliaBleedsOnSwings(t *testing.T) {
 }
 
 // Necropile Raiment's 3-piece 1299737 casts the leech 1299735 at the target off a landed harmful spell, never
-// off a missed one or a melee hit. The drain lands without a hit roll and heals the wearer for the damage it
-// dealt.
+// off a missed one or a melee hit, and heals the wearer for the damage it dealt.
 func TestNecropileRaimentDrainsOnSpellLandings(t *testing.T) {
 	row := spelldata.MustFind(1299735)
 	sim, warrior := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(map[proto.ItemSlot]int32{
@@ -1125,9 +1106,8 @@ func violetFour() map[proto.ItemSlot]int32 {
 }
 
 // Violet Sorcerer's Vestments' 4-piece 1324318 rolls its row's procs per minute once for each enemy a
-// damaging spell lands on, priced on the spell's cast time and at least castTimeFloor, and puts 1324315 up;
-// a melee hit and a heal roll nothing. The buff lets the share of mana regeneration its first effect states
-// go on while casting, and in Strongholds and Cities the share its second effect states.
+// damaging spell lands on and puts 1324315 up. The buff lets the share of mana regeneration its first
+// effect states go on while casting, and in Strongholds and Cities the share its second effect states.
 func TestVioletSorcerersVestmentsRegenOnEachTargetALandingHits(t *testing.T) {
 	row := spelldata.MustFind(1324315)
 	sim, paladin := itemWearerAgainst(t, proto.Class_ClassPaladin, setPieces(violetFour()),
@@ -1185,8 +1165,7 @@ func TestVioletSorcerersVestmentsRegenOnEachTargetALandingHits(t *testing.T) {
 }
 
 // Violet Sorcerer's Vestments' 5-piece 1324323 casts 1324322 off a landed damaging spell, never off a melee
-// hit, and then rests the row's cooldown. The cast summons an Arcane Elemental on the spell's target, which
-// swings at it every 2.0 s until the summon's duration runs out, and a summon while one is up brings the other.
+// hit, and then rests the row's cooldown; a summon while one is up brings the other.
 func TestVioletSorcerersVestmentsSummonTheArcaneElemental(t *testing.T) {
 	proc, call := spelldata.MustFind(1324323), spelldata.MustFind(1324322)
 	sim, paladin := itemWearerWithEquipment(t, proto.Class_ClassPaladin, setPieces(violetPieces))
@@ -1245,9 +1224,8 @@ func TestVioletSorcerersVestmentsSummonTheArcaneElemental(t *testing.T) {
 }
 
 // Defias Enforcer's Garb's 5-piece 1324684 rolls its row's procs per minute on landed melee hits of either
-// hand, each on its own weapon's speed, though the row names the main hand alone, and puts 1324683 up; a
-// spell hit rolls nothing. The buff raises crit by its first effect's percent, and in a swamp by its second
-// effect's.
+// hand, though the row names the main hand alone. The buff raises crit by its first effect's percent, and
+// in a swamp by its second effect's.
 func TestDefiasEnforcersGarbCritsOffEitherHand(t *testing.T) {
 	row, buffRow := spelldata.MustFind(1324684), spelldata.MustFind(1324683)
 	const mainHand, offHand = northernShortsword, warKnife

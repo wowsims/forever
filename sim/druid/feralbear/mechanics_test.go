@@ -394,8 +394,7 @@ func TestBearFormsRaiseThreatByTheirPassive(t *testing.T) {
 	}
 }
 
-// A landed Faerie Fire in Dire Bear Form threatens for twice the caster's level, which the form's threat
-// multiplier raises. In Cat Form it threatens for none.
+// A landed Faerie Fire in Dire Bear Form threatens for twice the caster's level; in Cat Form for none.
 func TestFaerieFireThreatensInBearFormOnly(t *testing.T) {
 	cast := func(level int32, inCat bool) (threat, multiplier float64) {
 		sim, bear := newBear(t)
@@ -577,8 +576,7 @@ func TestSwipeGainsThreePercentOfAttackPower(t *testing.T) {
 
 // The bear forms scale the items' bonus armor by their 180% or 360% (A_MOD_BONUS_ARMOR_PCT) as well as
 // their base armor, and Thick Hide adds the level times 3 plus $m1/100 = 2 base armor per point of bonus
-// defense, which the form scales too. The UI's bear has Thick Hide 3/3 and gear with bonus armor and
-// defense.
+// defense, which the form scales too.
 func TestBearFormsScaleBonusArmorAndThickHideDefense(t *testing.T) {
 	sim := core.NewSim(bearRequest(selectedAdaptiveBearAPL(), 1), simsignals.CreateSignals())
 	sim.Reset()

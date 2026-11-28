@@ -6,9 +6,8 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The debuff is this warlock's own copy of the one the raid option builds, parsed from the row: -37
-// physical damage done by the target. Its category keeps it from stacking with another warlock's copy
-// or a raid one.
+// The debuff is this warlock's own copy of the one the raid option builds. Its category keeps it from
+// stacking with another warlock's copy or a raid one.
 func (warlock *Warlock) registerCurseOfWeakness() {
 	rankedSpell := spellData.CurseOfWeakness.ByID(11708)
 
@@ -22,7 +21,7 @@ func (warlock *Warlock) registerCurseOfWeakness() {
 	config.RelatedAuraArrays = warlock.CurseOfWeaknessAuras.ToMap()
 
 	if warlock.Talents.AmplifyCurse {
-		// Amplify Curse's first effect is SPELLMOD_ALL_EFFECTS +50% naming this curse: -37 becomes -55.
+		// Amplify Curse's first effect is SPELLMOD_ALL_EFFECTS +50% naming this curse.
 		ampWeakness := spellData.AmplifyCurse.ByID(18288).EffectN(1)
 
 		// The same row, built the way the shared debuff is, with Amplify Curse's +50% parsed onto it.

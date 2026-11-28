@@ -10,9 +10,9 @@ import (
 )
 
 // Flasks of Natural Accuracy 274273, Aggression 274274, Precision 274275 and Swiftness 274276. The
-// first effect of each spell is its Stamina. The second, an A_DUMMY, is the bonus the spell's text
-// grants in Mount Hyjal, Hyjal Summit and the Barrow Deeps, where the sim takes every fight to be; the
-// auras after it name what the bonus is and state 0 themselves.
+// second effect, an A_DUMMY, is the bonus the spell's text grants in Mount Hyjal, Hyjal Summit and the
+// Barrow Deeps, where the sim takes every fight to be; the auras after it name what the bonus is and
+// state 0 themselves.
 var NaturalFlasks = []int32{274273, 274274, 274275, 274276}
 
 func init() {
@@ -44,8 +44,7 @@ func init() {
 	}
 }
 
-// The zone bonus as the auras after the dummy name it, each by the dummy's percent: hit, crit and a
-// lower chance to be dodged or parried as stats, and melee and ranged or casting speed as haste.
+// The zone bonus as the auras after the dummy name it, each by the dummy's percent.
 type NaturalFlaskZoneBonus struct {
 	Stats              stats.Stats
 	AttackHastePercent float64

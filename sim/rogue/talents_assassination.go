@@ -51,9 +51,8 @@ func (rogue *Rogue) registerCoupDeGrace() {
 
 var remorselessRank = spellData.RemorselessAttacksTriggered.Highest()
 
-// The talent row hears the killing blow, and a credited kill grants Remorseless. The buff row states
-// a flat 40% crit where the talent's effect 1 is 20/40% by rank, so the row is scaled by the ranks
-// taken. The spells its crit mod names spend its one charge.
+// The talent row hears the killing blow, and a credited kill grants Remorseless. The buff row states a flat
+// 40% crit where the talent's effect 1 is 20/40% by rank, so the row is scaled by the ranks taken.
 func (rogue *Rogue) registerRemorselessAttacks() {
 	if rogue.Talents.RemorselessAttacks == 0 {
 		return
@@ -194,14 +193,12 @@ func (rogue *Rogue) registerMutilate() {
 		return
 	}
 
-	// Both strikes take the poison bonus from the target's poisons at the cast, so a poison either strike's own proc
-	// puts up raises neither (EV-0223).
+	// Both strikes take the poison bonus from the target's poisons at the cast (EV-0223).
 	var poisoned bool
 	rogue.MutilateMH = rogue.newMutilateHitSpell(true, &poisoned)
 	rogue.MutilateOH = rogue.newMutilateHitSpell(false, &poisoned)
 
-	// The cast's landing rolls no weapon proc, poison or Windfury Totem; each hand rolls once from its own
-	// strike (EV-0155).
+	// Each hand rolls once from its own strike (EV-0155).
 	config := spelldata.SpellConfig(&rogue.Unit, mutilateCastRank, spelldata.Melee(core.ProcMaskEmpty))
 	pointGen := mutilateCastRank.EnergizeEffect().Average()
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
@@ -236,7 +233,7 @@ func (rogue *Rogue) newMutilateHitSpell(isMH bool, poisoned *bool) *core.Spell {
 	mutilateHitBaseDamage := hitRank.DamageEffect().Average()
 	config := spelldata.SpellConfig(&rogue.Unit, hitRank, spellOpt)
 	// Part of the Mutilate cast: its spell id, so metrics see one cast, and its class flags, so whatever
-	// names the cast reaches the strikes, Eureka!'s damage modifier and Head Rush alike.
+	// names the cast reaches the strikes.
 	// TODO: Ingame test needed: whether Eureka! raises Mutilate's strikes.
 	config.Flags |= SpellFlagBuilder | SpellFlagColdBlooded | core.SpellFlagPassiveSpell
 	config.Flags &^= core.SpellFlagAPL

@@ -10,11 +10,9 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The auras a row puts on the wearer, on each of its pets and on an enemy, each carrying the effects
-// that land on that unit. The wearer's and the pets' are registered from the config handed in; the
-// enemy's is the row's own aura, one per enemy, shared by every character that applies it, so the
-// first to register it parses it and the multiplier reaches every attacker's hits once. A row
-// restricted to an area puts nothing on anyone in an encounter outside it.
+// The auras a row puts on the wearer, on each of its pets and on an enemy. The enemy's is the row's own
+// aura, one per enemy, shared by every character that applies it, so the first to register it parses it
+// and the multiplier reaches every attacker's hits once.
 type spellDataAuras struct {
 	wearer      *core.Aura
 	wearerStats []stats.Stat
@@ -123,12 +121,9 @@ func registerSpellDataAuraProc(cfg SpellDataProc) {
 }
 
 // An item or enchant whose equip spell applies auras: the row's auras on the wearer and on each
-// summoned pet for as long as the item or the enchant is worn. An equip spell that only re-applies another aura on a period is read as
-// that aura.
-//
-// The generator emits no equip spell that states spell modifiers: each class registers its own through
-// this constructor in its item files, ported or not, and an item whose modifier has no sim value stays
-// in the missing effects list.
+// summoned pet for as long as the item or the enchant is worn. An equip spell that only re-applies
+// another aura on a period is read as that aura. The generator emits no equip spell that states spell
+// modifiers: each class registers its own through this constructor.
 func NewSpellDataEquipAura(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataEquipAura)
 }
@@ -178,8 +173,7 @@ func registerSpellDataEquipAura(cfg SpellDataProc) {
 
 // An on-use item whose spell applies auras: the wearer's buff, its pets' and the debuff on the enemy
 // it is used on, for the row's duration. One that lowers the wearer's threat is never used on its own:
-// the sim gains nothing from less threat and a tank loses by it, so only a timing or an APL action
-// that names it uses it.
+// the sim gains nothing from less threat and a tank loses by it.
 func NewSpellDataAuraOnUse(itemID int32) {
 	registerSpellDataOnUseCooldown(itemID, func(character *core.Character, row *spelldata.Spell) (core.SpellConfig, core.MajorCooldown, bool) {
 		auras := newSpellDataAuras(character, row, spelldata.AuraConfig(row))
@@ -209,8 +203,7 @@ func lowersThreat(row *spelldata.Spell) bool {
 	return false
 }
 
-// A buff the game spends by charges starts with its full count, and the hits its row names spend
-// them: Weakness Analyzer's 1291101 drops on the first non-periodic crit.
+// A buff the game spends by charges starts with its full count, and the hits its row names spend them.
 func spellDataOnUseAuraSpell(character *core.Character, row *spelldata.Spell, auras *spellDataAuras) core.SpellConfig {
 	charged := auras.wearer != nil && SpendsItsCharges(row)
 	if charged {

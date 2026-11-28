@@ -58,9 +58,7 @@ func partyItemRaid(class proto.Class, slot proto.ItemSlot, itemID int32, party *
 	return &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: party}}}
 }
 
-// Darkspear 12802's 1314143 grants 16939's crit, physical and spell, for 16939's duration, on the
-// chance of melee hits 1314143 states and with its time between procs. Over 300 wielders the first
-// proc takes one over the chance hits on average.
+// Darkspear 12802's 1314143 grants 16939's crit on the chance 1314143 states, with its time between procs.
 func TestDarkspearGrantsItsPartyCritOnItsChance(t *testing.T) {
 	trigger, crit := spelldata.MustFind(1314143), spelldata.MustFind(16939)
 	chance := trigger.StatedChance()
@@ -122,8 +120,7 @@ func TestDarkspearGrantsItsPartyCritOnItsChance(t *testing.T) {
 	hitsToProc(sim, character, buff)
 }
 
-// The party's Darkspear and the wielder's own bid in one category: with both up, the wielder has
-// 16939's crit once, not twice.
+// The party's Darkspear and the wielder's own bid in one category: the wielder has 16939's crit once.
 func TestDarkspearAndThePartysDarkspearDoNotStack(t *testing.T) {
 	sim, character := partyItemWearer(t, 1, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotMainHand, 12802, &proto.PartyBuffs{Darkspear: true})
 	own, party := character.GetAura("Darkspear (Player)"), character.GetAura("Darkspear (External)")
@@ -141,8 +138,7 @@ func TestDarkspearAndThePartysDarkspearDoNotStack(t *testing.T) {
 	}
 }
 
-// Admiral's Hat 10030 uses 12022 on the cooldown its on-use effect states: 12022's Stamina for
-// 12022's duration. Used beside the party's Admiral's Hat it adds nothing more.
+// Admiral's Hat 10030 uses 12022; used beside the party's Admiral's Hat it adds nothing more.
 func TestAdmiralsHatGrantsItsStaminaOnce(t *testing.T) {
 	const hat = 10030
 	buff := spelldata.MustFind(12022)
@@ -177,8 +173,7 @@ func TestAdmiralsHatGrantsItsStaminaOnce(t *testing.T) {
 	}
 }
 
-// Headmaster's Charge 13937 uses 18264 on the cooldown its on-use effect states: 18264's Intellect for
-// 18264's duration. Used beside the party's Headmaster's Charge it adds nothing more.
+// Headmaster's Charge 13937 uses 18264; used beside the party's Headmaster's Charge it adds nothing more.
 func TestHeadmastersChargeGrantsItsIntellectOnce(t *testing.T) {
 	const staff = 13937
 	buff := spelldata.MustFind(18264)

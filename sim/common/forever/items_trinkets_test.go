@@ -59,8 +59,7 @@ func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck in
 // Seal of the Dawn 13209 and Rune of the Dawn 19812 state their bonus against Undead as item stats 128 and
 // 136, at the value their equip spells 23930 and 24198 state. Counterattack Lodestone 18537 and Royal Seal
 // of Eldre'Thalas 18467 fold equip spells 1318938 and 1318479 into their stats, the bonus against Mechanical
-// and Demon targets with them. The sim adds each bonus to the attack table of a target of that mob type
-// alone.
+// and Demon targets with them.
 func TestTrinketsGrantTheirBonusAgainstTheirMobTypeAlone(t *testing.T) {
 	seal, rune := spelldata.MustFind(23930), spelldata.MustFind(24198)
 	lodestone, royalSeal := spelldata.MustFind(1318938), spelldata.MustFind(1318479)
@@ -166,7 +165,7 @@ func useTrinket(t *testing.T, sim *core.Simulation, character *core.Character, i
 }
 
 // Uses the item, checking it against the cooldown, category and category cooldown its db entry's
-// on-use effect states; a category with no cooldown of its own runs for the effect's duration.
+// on-use effect states.
 func useTrinketAsEntryStates(t *testing.T, sim *core.Simulation, character *core.Character, itemID int32, cdType core.CooldownType) *core.Spell {
 	t.Helper()
 	for _, effect := range core.GetItemByID(itemID).ItemEffects {
@@ -188,9 +187,8 @@ func useTrinketAsEntryStates(t *testing.T, sim *core.Simulation, character *core
 	return nil
 }
 
-// Aegis of Preservation 19345's on-use 23780 grants its armor and, while it runs, heals the wearer
-// 23781's amount on each melee or ranged hit taken, read from the generated stat on-use: nothing on a
-// spell hit, and nothing once the 20 s buff has run out.
+// Aegis of Preservation 19345's on-use 23780, while it runs, heals the wearer 23781's amount on each
+// melee or ranged hit taken, read from the generated stat on-use.
 func TestAegisOfPreservationHealsOnHitsTakenWhileItRuns(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassPriest, proto.ItemSlot_ItemSlotTrinket1, 19345)
 	character.RemoveHealth(sim, character.MaxHealth()/2)
@@ -290,7 +288,7 @@ func dealHit(t *testing.T, sim *core.Simulation, character *core.Character, spel
 }
 
 // The buff the item's use put up, checked to carry all of at least 2 stacks or charges for the row's
-// duration: a Zandalarian trinket's or the Petrified Scarab's countdown, Vigilance Charm's charges.
+// duration.
 func countdownBuff(t *testing.T, character *core.Character, spellID int32) (*core.Aura, int32) {
 	t.Helper()
 	buff := character.GetAuraByID(core.ActionID{SpellID: spellID})
@@ -330,10 +328,9 @@ func fullAmounts(character *core.Character, before stats.Stats, of ...stats.Stat
 	return full
 }
 
-// Chained Essence of Eranikus 10455 puts 1300240 on every enemy at its use, on the cooldowns its
-// entry states. Each enemy takes the periodic's amount every period, whatever the wearer's spell
-// power, one tick fewer than 12766's duration holds periods, and a Troll takes the row's factor on
-// every tick.
+// Chained Essence of Eranikus 10455 puts 1300240 on every enemy at its use. Each enemy takes the
+// periodic's amount whatever the wearer's spell power, one tick fewer than 12766's duration holds
+// periods, and a Troll takes the row's factor on every tick.
 func TestChainedEssenceOfEranikusTicksOnEveryEnemy(t *testing.T) {
 	sim, character := itemWearerAgainst(t, proto.Class_ClassPriest, equipping(proto.ItemSlot_ItemSlotTrinket1, &proto.ItemSpec{Id: 10455}),
 		&proto.Target{Name: "target", Level: 60},
@@ -378,7 +375,7 @@ func TestChainedEssenceOfEranikusTicksOnEveryEnemy(t *testing.T) {
 }
 
 // The cloud of 10455 puts 1300240 on every enemy however poor the wearer's spell hit, and each tick
-// rolls its own hit, so a wearer who cannot hit misses every tick.
+// rolls its own hit.
 func TestChainedEssenceOfEranikusLandsAndItsTicksRollHit(t *testing.T) {
 	sim, character := itemWearerAgainst(t, proto.Class_ClassPriest, equipping(proto.ItemSlot_ItemSlotTrinket1, &proto.ItemSpec{Id: 10455}),
 		&proto.Target{Name: "target", Level: 63})
@@ -399,8 +396,7 @@ func TestChainedEssenceOfEranikusLandsAndItsTicksRollHit(t *testing.T) {
 	}
 }
 
-// Lifegiving Gem 19341 raises maximum health by a share of it for the buff's duration and heals for
-// the same amount, on the cooldown its entry states. A larger maximum gets the same share. When the
+// Lifegiving Gem 19341 raises maximum health by a share of it and heals for the same amount. When the
 // raise fades, health below the lower maximum stays, health above it drops to it, and neither counts
 // as damage taken.
 func TestLifegivingGemRaisesMaximumHealthByAShare(t *testing.T) {
@@ -488,7 +484,7 @@ func TestZandalarianHeroBadgeLosesArmorPerHitTaken(t *testing.T) {
 }
 
 // Zandalarian Hero Medallion 19949 adds melee and ranged damage on 24661's stacks, one stack's share
-// less for each hit dealt, on the shared cooldown its entry states.
+// less for each hit dealt.
 func TestZandalarianHeroMedallionLosesDamagePerHit(t *testing.T) {
 	sim, character := trinketWarrior(t, 19949)
 	before := character.GetStats()
@@ -556,8 +552,8 @@ func TestPetrifiedScarabLosesResistancePerSpellTaken(t *testing.T) {
 }
 
 // Everlook Delivery Bot 274760 marks the target with 1295271; once as many spells or attacks as the
-// mark's first two effects bound have landed on it, 1295633 deals its row's Fire to it and the mark
-// is gone. In a Snowy area both bounds are halved.
+// mark's first two effects bound have landed on it, 1295633 deals its row's Fire to it. In a Snowy
+// area both bounds are halved.
 func TestEverlookDeliveryBotDeliversAfterItsCount(t *testing.T) {
 	t.Run("anywhere", func(t *testing.T) { checkEverlookDelivery(t, 1) })
 	t.Run("Snowy", func(t *testing.T) { checkEverlookDelivery(t, 2, proto.AreaType_AreaTypeSnowy) })
@@ -599,8 +595,7 @@ func checkEverlookDelivery(t *testing.T, divisor int, areas ...proto.AreaType) {
 }
 
 // Darkmoon Card: Heroism 19287's 23689 procs on the wearer's melee hits, and not on its spells, at the
-// procs per minute of the item's entry, twice that in Strongholds and Cities: the chance on a swing
-// scales with the weapon's speed. It heals the wearer through 23682 for that row's roll.
+// procs per minute of the item's entry, twice that in Strongholds and Cities.
 func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 	procOf := func(character *core.Character) *core.Aura {
 		t.Helper()
@@ -652,9 +647,8 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 }
 
 // Highborne Research Tablet 260205's 1318159 rolls its row's procs per minute on the main hand's
-// speed for a landed main-hand hit that deals damage, and casts 1265634 on the target. A ranged
-// special with no ranged weapon behind it rolls on the main hand's speed too, Thunder Clap excepted,
-// which never rolls it. A hit that deals none (an application) never rolls.
+// speed for a landed main-hand hit that deals damage. A ranged special with no ranged weapon behind
+// it rolls on the main hand's speed too, Thunder Clap excepted, which never rolls it.
 func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
 	sim, character := trinketWarriorWielding(t, 260205, 810, 0)
 	proc := character.GetAura("Highborne Research Tablet")
@@ -738,8 +732,7 @@ func TestHighborneResearchTabletPricesSpellsOnCastTime(t *testing.T) {
 	}
 }
 
-// The missile caster stand-in's spell: a missile with a 1 s flight whose cast time each cast takes
-// from missileCastTime.
+// The missile caster stand-in's spell.
 const missileSpellID = 133
 
 var missileCastTime time.Duration
@@ -770,8 +763,8 @@ func init() {
 }
 
 // Highborne Research Tablet 260205 prices a spell hit on the cast time of the cast that dealt it, 1.5 s
-// at least: an instant's missile at 1.5 s, a 3 s cast's at 3 s, and a 3 s cast's still in flight when an
-// instant recast of the spell starts at 3 s too.
+// at least: a 3 s cast's at 3 s, and a 3 s cast's still in flight when an instant recast of the spell
+// starts at 3 s too.
 func TestHighborneResearchTabletPricesSpellHitsOnTheirCast(t *testing.T) {
 	for _, tc := range []struct {
 		name           string
@@ -844,7 +837,7 @@ func tabletMissileCaster(seed int64) (*core.Simulation, *core.Character) {
 
 // Scented Runewood Brooch 269741's 1318323 rolls its row's procs per minute on the main hand's speed
 // for a landed main-hand swing and a landed spell hit alike, and casts 1318324 on the target, but only
-// when the target is a Furbolg. A hit on any other target never casts it.
+// when the target is a Furbolg.
 func TestScentedRunewoodBroochProcsOnlyAgainstFurbolg(t *testing.T) {
 	sim, character := trinketWarriorWielding(t, 269741, 810, 0)
 	proc := character.GetAura("Scented Runewood Brooch")
@@ -894,8 +887,7 @@ func TestScentedRunewoodBroochProcsOnlyAgainstFurbolg(t *testing.T) {
 }
 
 // Scented Runewood Brooch 269741 rolls its row's procs per minute on a caster's spell hits at the
-// main-hand weapon's speed though the caster never swings it, and a spell hit casts 1318324 only on
-// a Furbolg.
+// main-hand weapon's speed though the caster never swings it.
 func TestScentedRunewoodBroochProcsOnACastersSpellsOnTheMainHandsSpeed(t *testing.T) {
 	const slow, fast = 810, 776
 	if core.GetItemByID(slow).SwingSpeed == core.GetItemByID(fast).SwingSpeed {
@@ -934,8 +926,7 @@ func TestScentedRunewoodBroochProcsOnACastersSpellsOnTheMainHandsSpeed(t *testin
 }
 
 // Dormant Heart of the Mountain 249473's 1249118 answers a heal of any rank of Greater Heal, Healing
-// Touch, Healing Wave or Holy Light with 1249119: the row's healing and spell damage for its
-// duration. Another heal, such as Flash of Light, does not.
+// Touch, Healing Wave or Holy Light with 1249119. Another heal, such as Flash of Light, does not.
 func TestDormantHeartOfTheMountainAnswersTheFourHeals(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassPaladin, proto.ItemSlot_ItemSlotTrinket1, 249473)
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1249119})
@@ -982,7 +973,7 @@ func TestDormantHeartOfTheMountainAnswersTheFourHeals(t *testing.T) {
 }
 
 // Vigilance Charm 18370's Vigilant 1302264 goes up with its dodge and its charges, and each attack the
-// wearer dodges spends one: a landed hit taken spends none, and the last dodge takes the buff down.
+// wearer dodges spends one.
 func TestVigilanceCharmSpendsAChargePerDodge(t *testing.T) {
 	sim, character := trinketWarrior(t, 18370)
 	before := character.GetStats()
@@ -1023,10 +1014,8 @@ func editSpellRow(t *testing.T, id int32, edit func(*spelldata.Spell)) *spelldat
 	return row
 }
 
-// A warrior wearing the extra attack item, the trinket in the first trinket slot and any other item
-// in the main hand, who swings only when the test deals a hit. The returned func counts the procs of
-// the extra attack the row's first effect grants: the extra attacks swung over the extra attacks
-// one proc swings.
+// A warrior wearing the extra attack item, who swings only when the test deals a hit. The returned
+// func counts the procs of the extra attack the row's first effect grants.
 func extraAttackWearer(t *testing.T, itemID int32, rowID int32) (*core.Simulation, *core.Character, func() int32) {
 	t.Helper()
 	var sim *core.Simulation
@@ -1049,9 +1038,7 @@ func extraAttackWearer(t *testing.T, itemID int32, rowID int32) (*core.Simulatio
 
 // Checks registerExtraAttackVersus's rule for an item: on a target of the family it rolls the row's
 // column, on any other target the column divided by the factor, and states that chance against its
-// current target. Each case counts the procs of many
-// landed melee hits, within five standard deviations of the count. The row rests no cooldown, so every
-// hit rolls.
+// current target.
 func expectExtraAttackVersus(t *testing.T, itemID int32, name string, rowID int32, family proto.CreatureFamily) {
 	t.Helper()
 	row := editSpellRow(t, rowID, func(s *spelldata.Spell) { s.ICDMs = 0 })
@@ -1096,7 +1083,7 @@ func TestHandOfJusticeIsLikelierAgainstDwarves(t *testing.T) {
 }
 
 // Hand of Justice 11815 grants nothing on a landed melee hit inside 15600's cooldown after a proc, and
-// rolls again once the cooldown ends. The row copy procs on every hit.
+// rolls again once the cooldown ends.
 func TestHandOfJusticeRestsForItsRowsCooldown(t *testing.T) {
 	editSpellRow(t, 15600, func(s *spelldata.Spell) {
 		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
@@ -1128,7 +1115,7 @@ func TestHandOfJusticeRestsForItsRowsCooldown(t *testing.T) {
 
 // Mark of the Chosen 17774 puts up 21970 for its row's duration on a melee, ranged or harmful spell
 // hit taken, and a heal taken never does. After a proc of any kind every hit rests for 21969's
-// cooldown, which outlasts the buff. The row copy procs on every hit.
+// cooldown.
 func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
 	editSpellRow(t, 21969, func(s *spelldata.Spell) {
 		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
@@ -1194,9 +1181,7 @@ func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
 }
 
 // The Lion Horn of Stormwind 14557 rolls half of 20847's column on a melee hit taken, and the whole
-// column when the encounter is in Strongholds and Cities. Each case counts the procs of many hits
-// taken, within four standard deviations of the count. The row copy rests no cooldown, so every hit
-// rolls.
+// column when the encounter is in Strongholds and Cities.
 func TestLionHornOfStormwindDoublesItsChanceInStrongholdsAndCities(t *testing.T) {
 	row := editSpellRow(t, 20847, func(s *spelldata.Spell) { s.ICDMs = 0 })
 	column := row.StatedChance()
@@ -1238,8 +1223,7 @@ func TestLionHornOfStormwindDoublesItsChanceInStrongholdsAndCities(t *testing.T)
 
 // Draconic Infused Emblem 22268's 1318931 rolls its row's chance on every landed harmful spell hit,
 // one that deals no damage and a magic spell with no proc mask, as a curse is, too, and on nothing
-// else: a heal, a cast with no hit, a miss, a damage over time tick and a spell fired as a proc never
-// roll.
+// else.
 func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
 	const hurricaneTick, flamestrikeTick = 1278759, 1279990
 	if !spelldata.MustFind(hurricaneTick).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {

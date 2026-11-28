@@ -5,8 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.IceLance lists.
+// Only the highest rank is registered.
 func (mage *Mage) registerIceLanceSpell() {
 	mage.registerIceLanceRank(spellData.IceLance.Len(), spellData.IceLance.Highest())
 }
@@ -15,8 +14,7 @@ func (mage *Mage) registerIceLanceSpell() {
 // https://www.wowhead.com/forever/spell=1240047
 //
 // Frost damage to one enemy, raised by effect 2's percentage ("Deals $s2% increased damage to Frozen
-// targets", 300) while the target is frozen. Its 8 sec cooldown runs on category 19, which
-// Fire Blast shares, so casting either puts both on cooldown.
+// targets", 300) while the target is frozen.
 //
 // The damage effect states no spell power coefficient; the store carries one measured in game as an
 // override (tools/database/overrides, EV-0171). Effects 3 (20) and 4 (5) are server-side scripts the

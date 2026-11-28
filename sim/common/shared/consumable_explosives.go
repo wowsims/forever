@@ -9,9 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Why the damage builders cannot run the spell, or nil where they can. A cloud has to state how long
-// it lasts, and its damage has to tick, land on an enemy and state Always Hit, since the cloud rolls
-// no hit for it.
+// Why the damage builders cannot run the spell, or nil where they can.
 func DamageConsumableUnsupported(s *spelldata.Spell) []string {
 	cloud, damage := DamageCloudOf(s)
 	if cloud == spelldata.Nil {
@@ -35,10 +33,8 @@ func DamageConsumableUnsupported(s *spelldata.Spell) []string {
 }
 
 // The cloud a consumable's missile leaves where it lands, and the damage over time the cloud puts on
-// the enemies inside it: the spell's E_TRIGGER_MISSILE fires a spell whose E_CREATE_AREATRIGGER is
-// the cloud, and the damage is the first spell the cloud triggers that deals periodic damage
-// (Caustic Smog Potion's 1252525 fires 1252526, which puts 1252543 on the enemies). Nil and Nil
-// where the spell leaves no such cloud: Disorienting Smog Potion's cloud deals no damage.
+// the enemies inside it (Caustic Smog Potion's 1252525 fires 1252526, which puts 1252543 on the
+// enemies).
 func DamageCloudOf(row *spelldata.Spell) (cloud, damage *spelldata.Spell) {
 	for i := range row.Effects {
 		if row.Effects[i].Type != dbcenums.E_TRIGGER_MISSILE {
@@ -75,12 +71,9 @@ func consumableDamageSpell(character *core.Character, itemID int32, row *spellda
 	return spellDataOnUseDamageSpell(character, row)
 }
 
-// A cloud's damage. The row's missile flies to the target, at its speed and for no less than its
-// minimum flight time, and the cloud it leaves there puts its damage over time on every enemy for
-// as long as the cloud lasts: Caustic Smog Potion's 1252543 ticks every second for 1252526's 12 sec.
-// The damage states Always Hit (DamageConsumableUnsupported), so it goes on each enemy unrolled. The
-// ticks count under the item, tagged 2 apart from the damage to the user's tag 1
-// (registerCasterDamageSpell).
+// A cloud's damage, on every enemy for as long as the cloud lasts. The damage states Always Hit
+// (DamageConsumableUnsupported), so it goes on each enemy unrolled. The ticks count under the item,
+// tagged 2 apart from the damage to the user's tag 1 (registerCasterDamageSpell).
 func cloudDamageSpell(character *core.Character, itemID int32, row, cloud, damage *spelldata.Spell) core.SpellConfig {
 	lasting := *damage
 	lasting.DurationMs = cloud.DurationMs
@@ -99,18 +92,11 @@ func cloudDamageSpell(character *core.Character, itemID int32, row, cloud, damag
 }
 
 // An explosive used from the bar: the damage its on-use spell deals, on the item's cooldown and the
-// category cooldown every explosive shares, and the damage the spell deals to the thrower where the
-// row states one. Only a character with the profession and skill the item requires can use it.
+// category cooldown every explosive shares.
 //
-// Throwing one leaves the melee swing timer running, though no row states Do Not Reset Combat Timers:
-// the next swing lands on its old schedule after dynamite, copper bombs and iron grenades alike, and
-// a swing due during the 1 sec cast lands in it (EV-0088).
-//
-// Starting the cast drops the attack queued for the next swing, which can be queued again once the
-// cast ends: dynamite, grenades and bombs. The instant sapper charge keeps it (EV-0088).
-//
-// A bomb or grenade whose row's mechanic is stun is a stun as a whole: a stun-immune target, such as a
-// raid boss, is immune to its damage too. Dynamite and sapper charges state no mechanic and hit it.
+// Throwing one leaves the melee swing timer running, and starting the cast drops the attack queued
+// for the next swing (EV-0088). A bomb or grenade whose row's mechanic is stun is a stun as a whole:
+// a stun-immune target is immune to its damage too.
 func NewSpellDataExplosive(itemID int32) {
 	core.NewSpellDataConsumableEffect(itemID, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -163,9 +149,8 @@ func NewSpellDataExplosive(itemID int32) {
 	})
 }
 
-// The damage a consumable's spell deals its user, rolled from e, as a spell of its own under config,
-// tagged 1, so that it reaches the character as a harmful spell hit, which is what a listener on spell
-// damage taken hears.
+// The damage a consumable's spell deals its user, as a spell of its own tagged 1, so that it reaches
+// the character as a harmful spell hit, which is what a listener on spell damage taken hears.
 func registerCasterDamageSpell(character *core.Character, config core.SpellConfig, e *spelldata.Effect) *core.Spell {
 	config.ActionID = config.ActionID.WithTag(1)
 	config.DirectVariance = e.DirectVariance()

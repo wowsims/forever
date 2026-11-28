@@ -29,10 +29,9 @@ func init() {
 	})
 }
 
-// A character wearing one item, against a level 60 target: the warrior stand-in, with a paladin the
-// stand-in registered as the holy paladin, which has a mana bar, with a rogue the stand-in
-// registered as the rogue, which shoots its ranged weapon, and with a druid or a shaman the healer
-// stand-ins of items_relics_test.go.
+// A character wearing one item, against a level 60 target: the warrior stand-in, with a rogue the
+// stand-in registered as the rogue, which shoots its ranged weapon, and with a druid or a shaman the
+// healer stand-ins of items_relics_test.go.
 func itemWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, itemID int32) (*core.Simulation, *core.Character) {
 	t.Helper()
 	return itemSpecWearer(t, class, slot, &proto.ItemSpec{Id: itemID})
@@ -111,8 +110,7 @@ func damageInRange(metrics core.SpellMetrics, effect *spelldata.Effect) bool {
 	return metrics.Crits == 0 && metrics.TotalDamage >= casts*effect.Min() && metrics.TotalDamage <= casts*effect.Max()
 }
 
-// Zealot Plate 274651's 1294668 restores 1294666's mana when a melee swing taken lands, and nothing on
-// a spell taken. It then rests for the row's cooldown.
+// Zealot Plate 274651's 1294668 restores 1294666's mana when a melee swing taken lands, then rests.
 func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
 	editSpellRow(t, 1294668, func(s *spelldata.Spell) {
 		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
@@ -153,12 +151,9 @@ func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
 	}
 }
 
-// Argent Defender 13243's 17350 rolls the row's procs per minute on each landed melee hit taken,
-// priced on the attacker's time between its own swings, a dual wielder's two hands together, and
-// doubled by the row's second effect when an Undead strikes, and states that chance against its
-// current target. Each case counts the procs of many hits
-// on a row copy that rests no cooldown and carries a higher rate, so the cases sit far apart, within
-// five standard deviations of the count.
+// Argent Defender 13243's 17350 rolls the row's procs per minute priced on the attacker's time between its
+// own swings, a dual wielder's two hands together, and doubled when an Undead strikes. The row copy rests no
+// cooldown and carries a higher rate, so the cases sit far apart.
 func TestArgentDefenderPricesTheAttackersSwings(t *testing.T) {
 	const ppm = 6
 	row := editSpellRow(t, 17350, func(s *spelldata.Spell) { s.ICDMs, s.RPPM = 0, ppm })
@@ -211,9 +206,8 @@ func TestArgentDefenderPricesTheAttackersSwings(t *testing.T) {
 }
 
 // Argent Defender 13243 raises the block chance by 17351's amount when a melee hit taken lands and
-// deals damage, and nothing on a dodge, a hit the block took whole, a spell taken or a hit from an
-// attacker with no melee auto attack. It then rests for 17350's cooldown. The row copy's rate procs
-// on every hit from the 2 s attacker.
+// deals damage, then rests for 17350's cooldown. The row copy's rate procs on every hit from the 2 s
+// attacker.
 func TestArgentDefenderRaisesBlockAndRests(t *testing.T) {
 	editSpellRow(t, 17350, func(s *spelldata.Spell) { s.RPPM = 60 })
 	block := float64(spelldata.MustFind(17351).EffectN(1).BasePoints)
@@ -279,7 +273,7 @@ func argentDefenderWearer(t *testing.T, targets ...*proto.Target) (*core.Simulat
 }
 
 // Black Grasp of the Destroyer 22194 restores 29471's mana on each landed melee or ranged hit, and
-// nothing on a spell; a wearer without mana registers nothing.
+// nothing on a spell.
 func TestBlackGraspOfTheDestroyerRestoresManaPerHit(t *testing.T) {
 	gain := spelldata.MustFind(29471).EnergizeEffect().Average()
 	sim, character := itemWearer(t, proto.Class_ClassPaladin, proto.ItemSlot_ItemSlotHands, 22194)
@@ -380,8 +374,8 @@ func TestGlovesOfHolyMightTripleDamageAgainstUndead(t *testing.T) {
 }
 
 // Thick Obsidian Breastplate 22196's 27539 has a chance, on a spell hit taken, to shield the wearer
-// against that spell's school with the Fire row 27533's absorb roll for its duration. The chance has
-// 27539's internal cooldown, and a Physical spell, which has no shield, does not spend it.
+// against that spell's school with the Fire row 27533's absorb roll. A Physical spell, which has no
+// shield, does not spend the internal cooldown.
 func TestThickObsidianBreastplateShieldsTheSchoolHit(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, 22196)
 	enemy := sim.Encounter.ActiveTargetUnits[0]
@@ -454,9 +448,7 @@ func TestThickObsidianBreastplateShieldsTheSchoolHit(t *testing.T) {
 	}
 }
 
-// Demon Forged Breastplate 12628's 16611 has a chance, on a melee hit taken, to cast 16608 on the
-// attacker: the row's leech every period for its duration, each tick healing the wearer for the
-// effect's share of the damage it dealt, times the wearer's healing taken multiplier.
+// Demon Forged Breastplate 12628's 16611 has a chance, on a melee hit taken, to cast 16608 on the attacker.
 func TestDemonForgedBreastplateDrainsTheAttacker(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, 12628)
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
@@ -496,8 +488,7 @@ func TestDemonForgedBreastplateDrainsTheAttacker(t *testing.T) {
 
 // Maw of Min'loth 274608's 1295064 has a chance, on a melee hit taken, to cast 1295065 on the attacker,
 // read from the generated registrations: the row's E_HEALTH_LEECH amount on the melee table, reduced
-// by the attacker's armor, and the wearer gains the effect's Amplitude share of the damage dealt. A
-// cast that misses, is dodged or is parried deals nothing and heals nothing.
+// by the attacker's armor.
 func TestMawOfMinlothLeechesTheAttacker(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotOffHand, 274608)
 	character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalCritPercent: -character.GetStat(stats.PhysicalCritPercent)})
@@ -602,9 +593,8 @@ func TestArathiLeatherBonusesActivateAtTheirPieceCounts(t *testing.T) {
 
 // A row that deals its damage off its own trigger, read from the generated registrations: the
 // A_PROC_TRIGGER_DAMAGE roll lands on the attacker of every melee hit the wearer blocks, whatever
-// RecoveryTime the row states, and a hit not blocked deals nothing. Girdle of Extracted Answers
-// 276742 carries 1308777 on an item and Thorium Shield Spike 1704 carries 16624 on an enchant, both
-// Physical; Aegis of the Scarlet Commander 7726's 1293539 is Holy and rolls on the spell table.
+// RecoveryTime the row states. Aegis of the Scarlet Commander 7726's 1293539 is Holy and rolls on the
+// spell table.
 func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
 	for _, tc := range []struct {
 		name    string
@@ -656,7 +646,7 @@ func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
 }
 
 // Stoneform Shoulders 13955 put up 1298231's flat Physical damage taken at the encounter start, and the
-// first Physical hit taken that deals damage spends it: a spell hit and a dodged attack leave it up.
+// first Physical hit taken that deals damage spends it.
 func TestStoneformShouldersReduceOnlyTheNextPhysicalHit(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotShoulder, 13955)
 	reduction := spelldata.MustFind(1298231).EffectN(1).BasePoints
@@ -681,8 +671,7 @@ func TestStoneformShouldersReduceOnlyTheNextPhysicalHit(t *testing.T) {
 }
 
 // Skullflame Shield 1168 rolls both its procs on melee hits taken. 18815's Drain Life 18817 hits the
-// attacker only while the wearer is in front of its target, and 18816's Flamestrike 18818 rolls either
-// way and deals the row's damage to every enemy.
+// attacker only while the wearer is in front of its target.
 func TestSkullflameShieldDrainsOnlyInFrontAndBurnsEveryEnemy(t *testing.T) {
 	targets := []*proto.Target{{Name: "first", Level: 60}, {Name: "second", Level: 60}, {Name: "third", Level: 60}}
 	sim, character := itemWearerAgainst(t, proto.Class_ClassWarrior, equipping(proto.ItemSlot_ItemSlotOffHand, &proto.ItemSpec{Id: 1168}), targets...)

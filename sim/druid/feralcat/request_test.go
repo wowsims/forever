@@ -39,7 +39,6 @@ func withFeralDigit(talents string, index int, digit byte) string {
 
 // A 180-second fight against a level-63 demon with the cat UI's default raid buffs and debuffs,
 // the Level 60 gear preset (ui/specs/druid/feralcat/gear_sets/default.gear.siml), and no consumables.
-// Weapon is Fist of Cenarius. Howling Idol shortens Shifting Power by 1s.
 func sweepRequest(talents string, rotation *proto.APLRotation, cannotShred bool, iterations int32) *proto.RaidSimRequest {
 	return &proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 101, Iterations: iterations, IsTest: true},

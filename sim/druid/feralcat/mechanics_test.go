@@ -547,8 +547,7 @@ func TestHowlingIdolShortensShiftingPower(t *testing.T) {
 }
 
 // Symbols of Unending Life's 3-piece bonus gives back the energy of its spell 26976 when Rip or
-// Ferocious Bite is missed, dodged or parried, on top of the finisher's own miss refund. A finisher
-// that lands and a combo builder that misses get none.
+// Ferocious Bite is missed, dodged or parried, on top of the finisher's own miss refund.
 func TestSymbolsOfUnendingLifeRefundsAvoidedFinishers(t *testing.T) {
 	gain := spelldata.MustFind(26976).EnergizeEffect().BaseValue()
 	if gain <= 0 {
@@ -578,8 +577,7 @@ func TestSymbolsOfUnendingLifeRefundsAvoidedFinishers(t *testing.T) {
 		target.PseudoStats.BaseDodgeChance = 0
 	}
 
-	// The energy the cat holds a moment after the cast, once a proc's batch window has passed. It
-	// starts below its cap with the room for the refund, and with five combo points.
+	// The energy the cat holds a moment after the cast, once a proc's batch window has passed.
 	energyAfter := func(t *testing.T, worn map[proto.ItemSlot]int32, ability, outcome string, prepare setup) float64 {
 		t.Helper()
 		sim, cat := newCatWearing(t, "", nil, worn)

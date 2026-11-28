@@ -51,12 +51,9 @@ func init() {
 }
 
 // A caster with three druid spells at the wearer's level: Wrath, which Revelation's druid buff 1323400
-// names (family 7 bit 0), Moonfire, which it does not name and reaches all the same (bit 1), and one it
-// does not reach (bit 4). Hurricane is a three-tick channel whose ticks cast a spell of their own on
-// every enemy, a proc that fires no cast listener, both under Wrath's flags. Drain is a channel under
-// Wrath's flags whose own hit lands before its dot starts and whose ticks are its own periodic damage,
-// which rolls to crit. Swarm is the same dot cast with no channel. Bolt, under Wrath's flags, rolls at
-// the cast and lands a second later.
+// names, Moonfire, which it does not name and reaches all the same, and one it does not reach. Hurricane's
+// ticks cast a spell of their own on every enemy. Drain is a channel whose ticks are its own periodic
+// damage. Swarm is the same dot cast with no channel.
 type testDruid struct {
 	core.Character
 	wrath, moonfire, outside, hurricane, drain, swarm, bolt *core.Spell
@@ -168,9 +165,9 @@ func (d *testDruid) Initialize() {
 	})
 }
 
-// A hunter with two ranged shots: Arcane Shot, which Revelation's hunter buff 1323410 names (family 9
-// bit 11), and Aimed Shot, which it does not (bit 17). Volley's wave is a ranged attack with a spell
-// proc mask, so only its defense type keeps it from rolling.
+// A hunter with two ranged shots: Arcane Shot, which Revelation's hunter buff 1323410 names, and Aimed
+// Shot, which it does not. Volley's wave is a ranged attack with a spell proc mask, so only its defense
+// type keeps it from rolling.
 type testHunter struct {
 	core.Character
 	arcaneShot, aimedShot, wave *core.Spell
@@ -214,12 +211,10 @@ func (h *testHunter) Initialize() {
 	})
 }
 
-// A mage with spells Revelation's mage buff 1248808 names: Fire Blast (family 3 bit 1), Frostbolt
-// (bit 5), which rolls at the cast and lands a second later, with its first rank beside it, Arcane
-// Explosion (bit 12), which hits every target, and Arcane Missiles (bit 11), a three-tick channel, with
-// a second channeled cast under its flags that starts no channel. Fireball (bit 0) is not named. Echo
-// is a proc that copies Fire Blast under its spell id with a tag of its own, as Lightning Overload copies
-// its bolt. None rolls to miss, and each keeps the crits of its landings.
+// A mage with spells Revelation's mage buff 1248808 names: Fire Blast, Frostbolt with its first rank
+// beside it, Arcane Explosion, and Arcane Missiles, with a second channeled cast under its flags that
+// starts no channel. Fireball is not named. Echo copies Fire Blast under its spell id with a tag of its
+// own, as Lightning Overload copies its bolt.
 type testMage struct {
 	core.Character
 	fireBlast, frostbolt, firstRank, fireball, explosion, missiles, missile, stalled, echo *core.Spell
@@ -349,10 +344,8 @@ func chargeRevelation(sim *core.Simulation, buff *core.Aura) {
 	buff.SetStacks(sim, buff.MaxStacks)
 }
 
-// Enchant Weapon - Revelation 8217 gives a druid its class's buff 1323400 on a direct spell that lands
-// without a crit: a charge of crit for the row's duration on the spells its mask names, spent by the
-// next of them and not by a spell the buff does not reach. Moonfire, which the mask does not name, crits
-// on its direct hit and spends the charge too (EV-0149). A warrior has no Revelation buff.
+// Enchant Weapon - Revelation 8217 gives a druid its class's buff 1323400. Moonfire, which the mask does
+// not name, crits on its direct hit and spends the charge too (EV-0149).
 func TestRevelationGrantsTheWearersClassBuff(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
@@ -420,9 +413,7 @@ func TestRevelationGrantsTheWearersClassBuff(t *testing.T) {
 	}
 }
 
-// A channel whose ticks cast a spell of their own spends the charge on its first tick: the channel's
-// cast leaves it, every enemy that tick strikes crits, and the ticks after it crit at their own chance.
-// The ticks roll Revelation too (EV-0149).
+// A channel whose ticks cast a spell of their own spends the charge on its first tick (EV-0149).
 func TestRevelationChannelSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	sim, character := revelationWearerFacing(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}}, 3)
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
@@ -469,9 +460,8 @@ func TestRevelationChannelSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	}
 }
 
-// A channel whose ticks are its own periodic damage spends the charge on its first tick: the channel's
-// cast leaves it, the first tick crits, and the ticks after it crit at their own chance. The same dot
-// cast with no channel, its cast past, crits on every tick with the charge up and leaves it (EV-0149).
+// A channel whose ticks are its own periodic damage spends the charge on its first tick; the same dot
+// cast with no channel leaves it (EV-0149).
 func TestRevelationChannelOfPeriodicTicksSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
@@ -510,9 +500,7 @@ func TestRevelationChannelOfPeriodicTicksSpendsTheChargeOnItsFirstTick(t *testin
 	}
 }
 
-// A ranged attack rolls nothing, so no shot procs a hunter's buff 1323410, not even Arcane Shot, which
-// its mask names, nor a wave with a spell's proc mask. With the buff up, a shot the mask names crits and
-// leaves the charge, as a paladin's judgement does (EV-0149).
+// A ranged attack rolls nothing, and a shot the mask names crits and leaves the charge (EV-0149).
 func TestRevelationHearsNoRangedAttack(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassHunter, &proto.Player_Hunter{Hunter: &proto.Hunter{}})
 	hunter := sim.Raid.Parties[0].Players[0].(*testHunter)
@@ -549,8 +537,7 @@ func TestRevelationHearsNoRangedAttack(t *testing.T) {
 	}
 }
 
-// An item's magic proc rolls Revelation: Crest of Retribution 13375's 17496 strikes back at a block, and
-// its landings proc the paladin's buff 1323419 (EV-0149).
+// An item's magic proc rolls Revelation: Crest of Retribution 13375's 17496 (EV-0149).
 func TestRevelationRollsOnAnItemsMagicProc(t *testing.T) {
 	items := weaponSlots(2244, 13375)
 	items[proto.ItemSlot_ItemSlotMainHand].Enchant = revelationEnchant
@@ -568,8 +555,7 @@ func TestRevelationRollsOnAnItemsMagicProc(t *testing.T) {
 	}
 }
 
-// An item's heal rolls Revelation too: Krol'dok Battlegear's 4-piece casts Krol'dok Resolve 1324296 on the
-// wearer at a block, and its heals proc the paladin's buff 1323419 (EV-0149).
+// An item's heal rolls Revelation too: Krol'dok Battlegear's 4-piece Krol'dok Resolve 1324296 (EV-0149).
 func TestRevelationRollsOnAnItemsHeal(t *testing.T) {
 	equipment := setPieces(kroldokPieces(4))
 	equipment.Items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: 2244, Enchant: revelationEnchant}
@@ -602,11 +588,8 @@ func revelationProcsOnBlocks(t *testing.T, sim *core.Simulation, character *core
 	return procs
 }
 
-// A mage's buff 1248808 spends its charge as the cast it reaches completes. Every target of an area
-// cast crits and the next cast does not; a missile rolled at the cast keeps its crit in flight, a
-// spell cast while it flies gets none, and its landing spends no charge. A channel's first missile
-// crits and spends the charge, and a channeled cast that starts no channel spends it as it completes
-// (EV-0149).
+// A mage's buff 1248808 spends its charge as the cast it reaches completes, and a channel's first missile
+// spends it (EV-0149).
 func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, 3)
 	mage := sim.Raid.Parties[0].Players[0].(*testMage)
@@ -692,8 +675,7 @@ func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	}
 }
 
-// A hit event rolls Revelation once however many enemies it strikes: an Arcane Explosion that lands on 5
-// enemies without a crit procs it about as often as the enchant's chance for one roll (EV-0149).
+// A hit event rolls Revelation once however many enemies it strikes (EV-0149).
 func TestRevelationRollsOncePerHitEvent(t *testing.T) {
 	const casts, enemies = 600, 5
 	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, enemies)
@@ -723,9 +705,7 @@ func TestRevelationRollsOncePerHitEvent(t *testing.T) {
 	}
 }
 
-// Enchant Weapon - Insight 8216 rolls once per cast however many targets it reaches: an Arcane Explosion
-// that lands on 5 enemies with the cooldown ready procs it about as often as the row's chance for one roll
-// (EV-0229).
+// Enchant Weapon - Insight 8216 rolls once per cast however many targets it reaches (EV-0229).
 func TestInsightRollsOncePerCast(t *testing.T) {
 	const casts, enemies = 600, 5
 	sim, character := enchantWearerFacing(t, 8216, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, enemies)
@@ -755,8 +735,7 @@ func TestInsightRollsOncePerCast(t *testing.T) {
 	}
 }
 
-// The first result of a hit event is its one chance: an Arcane Explosion whose first target crits never
-// procs Revelation, whatever its other targets do, and one whose first target does not crit can (EV-0149).
+// The first result of a hit event is its one chance (EV-0149).
 func TestRevelationRollsNothingWhenAnEventsFirstResultCrits(t *testing.T) {
 	const casts, enemies = 600, 5
 	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, enemies)
@@ -793,9 +772,7 @@ func TestRevelationRollsNothingWhenAnEventsFirstResultCrits(t *testing.T) {
 	}
 }
 
-// A copy of a spell that shares its spell id rolls apart from it, as Lightning Overload's bolt does: Echo
-// landing without a crit at the moment Fire Blast lands with one procs Revelation about as often as the
-// enchant's chance for one roll (EV-0149).
+// A copy of a spell that shares its spell id rolls apart from it (EV-0149).
 func TestRevelationRollsACopyApartFromTheSpellItCopies(t *testing.T) {
 	const casts = 600
 	sim, character := revelationWearer(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}})
@@ -825,8 +802,7 @@ func TestRevelationRollsACopyApartFromTheSpellItCopies(t *testing.T) {
 	}
 }
 
-// The charge goes as the cast completes on a class other than the mage too: a druid's bolt spends it as
-// it is cast and keeps the crit it rolled while it flies (EV-0149).
+// The charge goes as the cast completes on a class other than the mage too (EV-0149).
 func TestRevelationDruidSpendsTheChargeAtTheCast(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
@@ -842,8 +818,7 @@ func TestRevelationDruidSpendsTheChargeAtTheCast(t *testing.T) {
 	}
 }
 
-// A spell far under the wearer's level rolls nothing: Frostbolt's first rank never procs Revelation at
-// 60, and a Fire Blast rank near the wearer's level does (EV-0149).
+// A spell far under the wearer's level rolls nothing (EV-0149).
 func TestRevelationRollsNothingOffASpellFarUnderTheWearer(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}})
 	if low, high := spelldata.MustFind(116).SpellLevel, spelldata.MustFind(10199).SpellLevel; int32(low)+32 > character.Level || int32(high)+12 < character.Level {
@@ -869,9 +844,8 @@ func TestRevelationRollsNothingOffASpellFarUnderTheWearer(t *testing.T) {
 	}
 }
 
-// Fireball has a periodic part and the mage's buff 1248808 does not name it. Its cast spends the charge
-// all the same and its direct hit crits, while the spell's own crit chance, which a tick on the same
-// spell would roll, stays where it was (EV-0149).
+// The mage's buff 1248808 does not name Fireball. Its cast spends the charge all the same and its direct
+// hit crits (EV-0149).
 func TestRevelationCritsTheDirectHitOfASpellItsRowDoesNotName(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}})
 	mage := sim.Raid.Parties[0].Players[0].(*testMage)
@@ -959,8 +933,7 @@ func TestFieryWeaponRollsOnTheHandThatCarriesIt(t *testing.T) {
 
 // Enchant Chest - Retricutioner 7223 keeps 435901's damage shield up while the enchant is worn, read
 // from the generated registrations: the row's amount lands whole on the attacker of a melee hit taken,
-// through the target's armor and with no roll to miss, once per the row's 5 s, and nothing on a ranged
-// shot or a spell. The row's proc flags name the melee hits and its cooldown the lockout.
+// once per the row's cooldown.
 func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
 	sim, character := itemSpecWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, &proto.ItemSpec{Id: 8245, Enchant: 7223})
 	withoutSpellCrit(sim, character)

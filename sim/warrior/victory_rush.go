@@ -32,11 +32,9 @@ func (warrior *Warrior) registerVictoryRush() {
 		baseDamage := victoryRushRank.DamageEffect().Average() + victoryRushAPCoef*spell.MeleeAttackPower(target)
 		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 
-		// The attack deals its heal itself, so both show on one row. The heal makes healing threat as any
-		// heal does: half the health it restores, times the stance, split between the enemies in combat.
-		// Whether healing done and taken modifiers change it is not measured, so it restores the row's
-		// share of maximum health with none of them. It skips the healing calculation, which would add
-		// the attack's damage modifiers, and counts no second hit.
+		// The attack deals its heal itself, so both show on one row. Whether healing done and taken
+		// modifiers change it is not measured, so it restores the row's share of maximum health with none
+		// of them. It skips the healing calculation, which would add the attack's damage modifiers.
 		heal := spell.NewResult(&warrior.Unit)
 		heal.Damage = warrior.MaxHealth() * victoryRushHealPercent
 		heal.Outcome = core.OutcomeHit

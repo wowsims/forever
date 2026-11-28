@@ -28,7 +28,7 @@ func (druid *Druid) registerOmenOfClarity() {
 	}
 	// Chance(1) keeps the resolver from building a procs-per-minute manager and leaves core no roll of
 	// its own. The chance depends on what hit, so it is drawn here, after the ICD check and before the
-	// ICD starts. Only auto attacks and druid spells roll it.
+	// ICD starts.
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		// The 15 October development notes take Faerie Fire cast in Cat, Bear or Dire Bear Form off
 		// Omen of Clarity. No row states it.
@@ -47,11 +47,10 @@ func (druid *Druid) registerOmenOfClarity() {
 	}
 	druid.OmenOfClarityAura = druid.MakeProcTriggerAura(trigger)
 
-	// Two kinds of cast roll it at the cast, on the same chance and cooldown: Hurricane once for each
-	// target its area reaches, a proc ending the rolls, and the helpful buffs Thorns and Innervate once,
-	// in Moonkin Form only. Mark of the Wild and Nature's Grasp roll as those do, and the sim casts
-	// neither; a shapeshift rolls nothing. The buff comes a spell batch later, after the cast has paid
-	// its cost or spent Clearcasting, so a proc never makes its own cast free.
+	// Hurricane and the helpful buffs Thorns and Innervate roll it at the cast, on the same chance and
+	// cooldown. Mark of the Wild and Nature's Grasp roll as those do, and the sim casts neither; a
+	// shapeshift rolls nothing. The buff comes a spell batch later, after the cast has paid its cost or
+	// spent Clearcasting, so a proc never makes its own cast free.
 	//
 	// Core gives every trigger a cooldown of its own, and the row's proc mask hears no helpful cast, so
 	// this trigger gates on and starts the hit trigger's cooldown itself.

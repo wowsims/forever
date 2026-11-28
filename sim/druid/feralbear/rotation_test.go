@@ -503,8 +503,8 @@ func bearTarget() *proto.Target {
 	return target
 }
 
-// bearAPLWarnings is what the APL editor marks with a warning or an error, by priority list line;
-// group i's line j is 100*(i+1)+j. Prepull lines are -1 and validations by UUID -2. Information (the blue icon) is left out.
+// What the APL editor marks with a warning or an error, by priority list line; group i's line j is
+// 100*(i+1)+j. Prepull lines are -1 and validations by UUID -2.
 func bearAPLWarnings(t *testing.T, req *proto.RaidSimRequest) map[int][]string {
 	t.Helper()
 	stats := core.ComputeStats(&proto.ComputeStatsRequest{Raid: req.Raid, Encounter: req.Encounter}).

@@ -34,7 +34,7 @@ const bonescytheStrikes = RogueSpellBackstab | RogueSpellSinisterStrike | RogueS
 // "Your Backstab, Sinister Strike, and Hemorrhage critical hits cause you to regain 5 energy."
 //
 // The row hears every landed melee ability, and its class flags name Eviscerate, Shank and Mutilate too. The
-// tooltip's three spells and its crit are set here; the cooldown is the row's.
+// tooltip's three spells and its crit are set here.
 func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 	rogue := agent.(RogueAgent).GetRogue()
 	trigger := spelldata.ProcTrigger(&rogue.Character, bonescytheHeadRush, nil)
@@ -49,10 +49,8 @@ func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 // "Your Eviscerate has a chance per combo point to reveal a flaw in your opponent's armor, granting a 100%
 // critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage."
 //
-// A landed Eviscerate rolls 28814's chance per combo point it spent, the effect's points per resource, and grants
-// 28815's one charge; 28815's cooldown does not limit the roll. The buff's class flags name Shank, Mutilate and the
-// Season of Discovery strikes too; the crit and the charge are the tooltip's three here. A crit of one of them spends
-// the charge, as the row's proc states.
+// 28815's cooldown does not limit the roll. The buff's class flags name Shank, Mutilate and the Season of Discovery
+// strikes too; the crit and the charge are the tooltip's three here.
 func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
 	rogue := agent.(RogueAgent).GetRogue()
 	buff := rogue.RegisterAura(spelldata.AuraConfig(revealedFlaw)).AttachSpellMod(core.SpellModConfig{

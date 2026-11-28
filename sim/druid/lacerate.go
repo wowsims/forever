@@ -9,8 +9,7 @@ import (
 const lacerateHitSpellID = 414647
 
 // The tooltip's "Causes a high amount of threat", which the rows state no effect for: in game the hit and
-// the ticks each threaten for 10/3 of their damage, with no flat part, before the form's threat multiplier
-// (EV-0034, EV-0037).
+// the ticks each threaten for 10/3 of their damage (EV-0034, EV-0037).
 const lacerateThreatMultiplier = 10.0 / 3
 
 func (druid *Druid) registerLacerateSpell() {
@@ -36,9 +35,8 @@ func (druid *Druid) registerLacerateSpell() {
 	hitConfig.ThreatMultiplier = lacerateThreatMultiplier
 	hit := druid.RegisterSpell(hitConfig)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		// The rank's cast is what misses, is dodged, parried or immune: every SPELL_MISSED in the log
-		// names the rank, never 414647 (EV-0033). The hit follows a landed cast and rolls block and crit, and its
-		// row's No Active Defense takes block out, so it only rolls crit.
+		// The rank's cast is what misses, is dodged, parried or immune (EV-0033). The hit rolls block and
+		// crit, and its row's No Active Defense takes block out, so it only rolls crit.
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHitNoHitCounter)
 		if !result.Landed() {
 			spell.DealOutcome(sim, result)
@@ -50,8 +48,8 @@ func (druid *Druid) registerLacerateSpell() {
 		if dot.IsActive() {
 			stacks = min(dot.GetStacks()+1, dot.MaxStacks)
 		}
-		// The tooltip's "$s2% weapon damage per existing application" counts the application this cast adds:
-		// in game the hits grow 1:2:3:4:5 with the stacks after the cast, so a first Lacerate hits for $s2% (EV-0040).
+		// The tooltip's "$s2% weapon damage per existing application" counts the application this cast adds
+		// (EV-0040).
 		weapon := druid.MHWeaponDamage(sim, hit.MeleeAttackPower(target))
 		damage := weapon * perStack * float64(stacks) * druid.rendAndTearMultiplier(target)
 		hit.CalcAndDealDamage(sim, target, damage, hit.OutcomeMeleeSpecialBlockAndCrit)

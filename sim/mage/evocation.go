@@ -8,9 +8,8 @@ import (
 
 var evocationRank = spellData.Evocation.Highest()
 
-// While channeling, spirit regen is increased by 1500% (effect 1) and all of it continues while
-// casting (effect 2). Both are parsed onto the channel's aura; the casting share stops at all of
-// the spirit regen, so Mage Armor and Arcane Meditation add nothing during it.
+// The casting share (effect 2) stops at all of the spirit regen, so Mage Armor and Arcane Meditation
+// add nothing during the channel.
 func (mage *Mage) registerEvocation() {
 	config := spelldata.SpellConfig(&mage.Unit, evocationRank, spelldata.Flags(core.SpellFlagAPL))
 	config.ClassSpellMask = MageSpellEvocation

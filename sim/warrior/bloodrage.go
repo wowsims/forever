@@ -11,8 +11,7 @@ var bloodrageOverTime = bloodrageRank.EffectN(2).Trigger()
 var bloodrageOverTimeTick = bloodrageOverTime.PeriodicEffect()
 
 func (warrior *Warrior) registerBloodrage() {
-	// In game the instant rage makes 5 threat per rage in Battle and Defensive Stance alike, and Defiance
-	// does not scale it, while the rage over time takes the stance's multiplier (EV-0044).
+	// The instant rage makes 5 threat per rage in Battle and Defensive Stance alike (EV-0044).
 	// TODO: Ingame test needed -- whether a threat buff scales the instant rage's threat.
 	instantRageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: bloodrageRank.ID})
 	instantRageMetrics.UnscaledThreat = true

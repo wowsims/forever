@@ -14,8 +14,7 @@ func init() {
 	//
 	// 28142 is a party aura, and the wearer is in its own party, so the staff puts the party buff's own
 	// copy on the wearer. The party buff's Atiesh - Mage count is the staves the other party members
-	// carry, as for the other three staves, whose party auras reach their wearer through the item's
-	// stats.
+	// carry.
 	core.NewItemEffect(22589, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		aura := core.MakePermanent(buffs.NewSpellDataAtieshMageAura(&character.Unit, true, 0, 1))

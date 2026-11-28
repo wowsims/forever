@@ -18,34 +18,25 @@ import (
 // 422 if the target is stunned or incapacitated.
 //
 // The game files state the stunned number, and the game halves it otherwise. The judgement's damage
-// sits on the spell its own dummy names, which the family's triggered ladder carries one rank above
-// the proc. The proc spell 20424 has no rank subtext and heads that ladder: its 70% of weapon damage
-// and the 0.29 coefficient on that same effect are read from it, and 7 procs per minute is the
-// number the Classic sim carries.
+// sits on the spell its dummy names, one rank above the proc on the family's triggered ladder, which
+// the proc spell 20424 heads with no rank subtext. 7 procs per minute is the Classic sim's number.
 //
-// The coefficient sits on the weapon-percent effect, and the percent applies to the paladin's own
-// spell power as well as the weapon (EV-0061). Improved Seals raises the percent itself (the tooltip
-// reads 80% with the talent, 70 * 1.15). The Holy damage the target takes extra, Judgement of the Crusader and
-// the damage-against-mob-type gear, is added after the percent at the full coefficient, so it scales at 29%
-// whatever the talent.
+// The weapon percent applies to spell power too (EV-0061); the taken Holy bonuses add after it.
 func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfCommand.Rank(rank.RankNumber())
 	judgeDamageRank := spellData.SealOfCommandTriggered.ByID(int32(judgeRank.EffectN(1).BaseValue()))
 	judgeDamage := judgeDamageRank.DamageEffect()
 
-	// Melee in SpellCategories with No Active Defense: hit and crit on the melee table, never
-	// dodged, parried or blocked.
+	// Melee in SpellCategories with No Active Defense: the melee table, never dodged, parried or blocked.
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfCommand
-	// The judgement's dummy states no class flags; the damage spell it names does, and modifiers find
-	// the judgement by those.
+	// The dummy states no class flags; modifiers find the judgement by the damage spell's.
 	judgementConfig.ClassFlags = judgeDamageRank.ClassFlags
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
-	// The dummy lands on the enemy before the damage it names. Its row carries Suppress Weapon Procs,
-	// so weapon procs and combat enchants hear the damage alone and roll once on a landed judgement
-	// (EV-0155). The row lacks Not a Proc, so aura procs such as Windfury Totem and Vindication roll
-	// once too (EV-0156). The row's flags leave the suppress bits off a dummy, so they are set here.
+	// The dummy lands on the enemy before the damage it names. Weapon procs roll once on a landed
+	// judgement (EV-0155), aura procs once too (EV-0156). The row's flags leave the suppress bits off a
+	// dummy, so they are set here.
 	dummyConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial),
 		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs), spelldata.Triggered())
 	if judgeRank.SuppressesWeaponProcs() {
@@ -70,10 +61,8 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	procEffect := procRank.EffectN(1)
 	weaponPercent := procEffect.Percent() * spellData.ImprovedSeals.MultiplierAt(paladin.Talents.ImprovedSeals)
 	coefficient := procEffect.Coeff()
-	// 20424 carries Not a Proc: it is an ability hit to every listener, weapon procs included. No
-	// BonusCoefficient: the spell power goes through the weapon percent, so the proc adds it by hand
-	// below rather than letting CalcDamage add it on top. The Holy damage the target takes extra is
-	// taken at the full coefficient after the done multipliers, where core adds it.
+	// 20424 carries Not a Proc: an ability hit to every listener, weapon procs included. No BonusCoefficient:
+	// spell power goes through the weapon percent; core adds the taken Holy damage at the full coefficient.
 	procConfig := spelldata.SpellConfig(&paladin.Unit, procRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	procConfig.ClassSpellMask = SpellMaskSealOfCommandProc
 	procConfig.TakenBonusCoefficient = coefficient
@@ -89,10 +78,8 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	procSpell := paladin.RegisterSpell(procConfig)
 	echoSpell := paladin.registerEchoHit(procConfig, echoOfCommandID)
 
-	// The seal and its Echo roll the same chance: an Echo of Command "empowers your next melee
-	// attack with a chance to activate Seal of Command". The Echo's stored copies ignore the seal's
-	// 1 sec ICD and do not start it, so a spend of three copies rolls three times and can proc three
-	// times.
+	// The Echo rolls the seal's chance ("a chance to activate Seal of Command"); its stored copies ignore
+	// the seal's 1 sec ICD and do not start it.
 	dpm := paladin.NewLegacyPPMManager(7, core.ProcMaskMeleeWhiteHit)
 	icd := core.Cooldown{Timer: paladin.NewTimer(), Duration: time.Second}
 	rollProc := func(sim *core.Simulation) bool {

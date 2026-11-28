@@ -29,8 +29,8 @@ func (warrior *Warrior) registerExecute() {
 		return target.IsExecutePhase20()
 	}
 
-	// The cast makes an attack of its own before the damage: a miss, dodge and parry roll that deals
-	// nothing, after which the damage rolls the table again. Each one that lands rolls Windfury Totem (EV-0002).
+	// The cast makes an attack of its own before the damage, after which the damage rolls the table again.
+	// Each one that lands rolls Windfury Totem (EV-0002).
 	// Only the listeners on a cast result hear the cast's attack.
 	castAttack := warrior.RegisterSpell(core.SpellConfig{
 		ActionID:         core.ActionID{SpellID: executeRank.ID, Tag: 1},

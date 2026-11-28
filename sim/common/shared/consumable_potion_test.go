@@ -61,8 +61,7 @@ const (
 	other    = proto.ConsumableType_ConsumableTypeOther
 )
 
-// The player with the consumables in its spec, each of its type and registered through the potion
-// builder, at half health, with its spells certain to hit and never to crit.
+// The player with the consumables in its spec, registered through the potion builder.
 func newConsumableSim(t *testing.T, player *proto.Player, consumes *proto.ConsumesSpec, trinket int32, consumables ...testConsumable) (*core.Simulation, *testCaster) {
 	t.Helper()
 	return newConsumableSimAgainst(t, player, consumes, trinket, 1, consumables...)
@@ -138,9 +137,8 @@ func gainedBy(caster *testCaster, itemID int32) float64 {
 	return 0
 }
 
-// Major Mana Potion 13444 casts 17531, E_ENERGIZE mana with a spread; the test's on-use runs on
-// potion category 4 for 120 s. The spec's resource potion is a major cooldown the manager holds until
-// the whole gain fits; another potion the spec lists is only a spell, on the same category.
+// Major Mana Potion 13444 casts 17531. The spec's resource potion is a major cooldown the manager holds
+// until the whole gain fits; another potion the spec lists is only a spell.
 func TestPotionRestoresManaOnThePotionCategory(t *testing.T) {
 	const resourceID, otherID int32 = 992001, 992002
 	sim, drinker := newConsumableSim(t, manaUser(), &proto.ConsumesSpec{ResourcePotId: resourceID, Potions: []int32{otherID}}, 0,
@@ -182,8 +180,7 @@ func TestPotionRestoresManaOnThePotionCategory(t *testing.T) {
 	}
 }
 
-// Mighty Rage Potion 13442 casts 17528: E_ENERGIZE into rage, stated in tenths, with a spread, and
-// A_MOD_STAT Strength for the row's duration.
+// Mighty Rage Potion 13442 casts 17528: E_ENERGIZE into rage, stated in tenths, and A_MOD_STAT Strength.
 func TestPotionGivesRageAndItsStrength(t *testing.T) {
 	const potionID int32 = 992003
 	sim, drinker := newConsumableSim(t, rageUser(), &proto.ConsumesSpec{ResourcePotId: potionID}, 0,
@@ -211,9 +208,7 @@ func TestPotionGivesRageAndItsStrength(t *testing.T) {
 	}
 }
 
-// Demonic Rune 12662 casts 16666: E_ENERGIZE mana and E_SCHOOL_DAMAGE Shadow to the user, both with a
-// spread; the test's on-use runs on conjured category 1153 for 120 s. The conjured item is a major
-// cooldown only while it is the spec's chosen one.
+// Demonic Rune 12662 casts 16666: E_ENERGIZE mana and E_SCHOOL_DAMAGE Shadow to the user.
 func TestConjuredRuneRestoresManaAtTheCostOfLife(t *testing.T) {
 	const runeID, otherID int32 = 992004, 992005
 	sim, drinker := newConsumableSim(t, manaUser(), &proto.ConsumesSpec{ConjuredId: otherID, ConjuredItems: []int32{runeID, otherID}}, 0,
@@ -269,8 +264,7 @@ func TestConjuredRuneAlwaysHitsTheUser(t *testing.T) {
 	}
 }
 
-// Thistle Tea 7676 casts 9512, E_ENERGIZE into energy, here a copy with no spread. The test's on-use
-// runs on a 300 s cooldown of its own and conjured category 1153 for 120 s.
+// Thistle Tea 7676 casts 9512, E_ENERGIZE into energy, here a copy with no spread.
 func TestConjuredTeaRestoresAFlatAmountOfEnergy(t *testing.T) {
 	const teaID int32 = 992006
 	withoutSpread(t, 9512)
@@ -294,8 +288,7 @@ func TestConjuredTeaRestoresAFlatAmountOfEnergy(t *testing.T) {
 	}
 }
 
-// Razorlash Root 17747 casts 21955: A_PERIODIC_HEAL and A_PERIODIC_ENERGIZE mana every period for the
-// row's duration.
+// Razorlash Root 17747 casts 21955: A_PERIODIC_HEAL and A_PERIODIC_ENERGIZE mana.
 func TestConjuredRootHealsAndRestoresManaOverTime(t *testing.T) {
 	const rootID int32 = 992007
 	sim, drinker := newConsumableSim(t, manaUser(), &proto.ConsumesSpec{ConjuredItems: []int32{rootID}}, 0,
@@ -338,8 +331,7 @@ func TestPotionRestoresAShareOfTheBar(t *testing.T) {
 }
 
 // A test potion whose on-use states cooldown -1, category 0 and category cooldown -1, as Minor
-// Spellblasting Potion 250932's does, runs on its spell's category: a copy of 1251919 states potion
-// category 4 for 120 s.
+// Spellblasting Potion 250932's does, runs on its spell's category.
 func TestPotionDefersToItsSpellsCategory(t *testing.T) {
 	const blastingID, manaID int32 = 992009, 992010
 	editRow(t, 1251919, func(s *spelldata.Spell) { s.Category, s.CategoryCooldownMs = 4, 120000 })
@@ -362,8 +354,7 @@ func TestPotionDefersToItsSpellsCategory(t *testing.T) {
 	}
 }
 
-// Alchemists' Stone 13503's 17619 raises the healing and mana potions give by its effect's share:
-// Major Healing Potion 13446's 17534 and Major Mana Potion's 17531, not a healthstone's heal.
+// Alchemists' Stone 13503's 17619 raises the healing and mana potions give, not a healthstone's heal.
 func TestAlchemistsStoneRaisesHealingAndManaPotions(t *testing.T) {
 	stone := spelldata.MustFind(alchemistsStoneSpellID).FirstAura(dbcenums.A_DUMMY).BasePoints / 100
 	if stone <= 0 {
@@ -398,10 +389,8 @@ func TestAlchemistsStoneRaisesHealingAndManaPotions(t *testing.T) {
 	}
 }
 
-// Greater Fire Protection Potion 13457 casts 17543: A_SCHOOL_ABSORB of Fire on the drinker for the
-// row's duration, its spread removed in a copy; the test's on-use runs on potion category 4 for 120 s.
-// The defensive potion is a survival major cooldown whose shield takes fire damage only; Alchemists'
-// Stone does not raise it.
+// Greater Fire Protection Potion 13457 casts 17543: A_SCHOOL_ABSORB of Fire on the drinker, which
+// Alchemists' Stone does not raise.
 func TestProtectionPotionShieldsAgainstItsSchool(t *testing.T) {
 	const potionID int32 = 992021
 	const fireProtection int32 = 17543
@@ -433,9 +422,8 @@ func TestProtectionPotionShieldsAgainstItsSchool(t *testing.T) {
 	}
 }
 
-// Flame Deflector 4376 casts 4057, A_SCHOOL_ABSORB Fire; the test's on-use runs on a 900 s cooldown
-// of its own with no category. Outside the potion and conjured categories it is a major cooldown
-// whenever the spec names it, which the manager holds back for a player no tank slot lists.
+// Flame Deflector 4376 casts 4057, A_SCHOOL_ABSORB Fire: a major cooldown whenever the spec names it,
+// which the manager holds back for a player no tank slot lists.
 func TestOnUseConsumableShieldsOnTheItemsCooldown(t *testing.T) {
 	const deflectorID int32 = 992022
 	sim, user := newConsumableSim(t, manaUser(), &proto.ConsumesSpec{ExtraIds: []int32{deflectorID}}, 0,
@@ -526,9 +514,8 @@ func TestConsumableUnsupportedNamesWhatStopsIt(t *testing.T) {
 	}
 }
 
-// Caustic Smog Potion's 1252525 leaves the cloud 1252526, which puts 1252543 on the enemies inside
-// it. The cloud has to state how long it lasts, and its damage has to state Always Hit, since the
-// cloud rolls none. Disorienting Smog Potion's cloud deals no damage.
+// Caustic Smog Potion's cloud has to state how long it lasts, and its damage has to state Always Hit,
+// since the cloud rolls none.
 func TestADamageCloudNamesWhatStopsIt(t *testing.T) {
 	cloud, damage := DamageCloudOf(spelldata.MustFind(1252525))
 	if cloud.ID != 1252526 || damage.ID != 1252543 {
@@ -562,8 +549,7 @@ func TestADamageCloudNamesWhatStopsIt(t *testing.T) {
 	}
 }
 
-// A damage potion is an offensive potion: a potion of category 4, never an explosive, and a DPS major
-// cooldown only as the spec's offensive potion pick.
+// A damage potion is never an explosive, and a DPS major cooldown only as the spec's offensive potion pick.
 func TestADamagePotionIsAnOffensivePotion(t *testing.T) {
 	for i, row := range []int32{1252525, 1252554} {
 		pickedID, otherID := 993001+2*int32(i), 993002+2*int32(i)
@@ -590,10 +576,8 @@ func TestADamagePotionIsAnOffensivePotion(t *testing.T) {
 	}
 }
 
-// Caustic Smog Potion's 1252525 flies at its Speed for no less than its MinDuration, and the cloud
-// 1252526 leaves puts 1252543 on every enemy for the cloud's duration. 1252543 states Always Hit, so
-// it lands on each enemy even for a drinker who cannot hit anything, and every tick rolls its own
-// amount. The potion shares category 4 with a mana potion.
+// Caustic Smog Potion's 1252525 flies at its Speed for no less than its MinDuration. 1252543 lands on
+// each enemy even for a drinker who cannot hit anything, and every tick rolls its own amount.
 func TestCausticSmogPotionPoisonsEveryEnemyInTheCloud(t *testing.T) {
 	row := spelldata.MustFind(1252525)
 	cloud, damage := DamageCloudOf(row)
@@ -663,9 +647,8 @@ func TestCausticSmogPotionPoisonsEveryEnemyInTheCloud(t *testing.T) {
 	}
 }
 
-// Dragonfire Potion's 1252554 burns every enemy in its cone with a hit and a damage over time, and
-// reaches as far as the cone's radius. The row states Fixed Travel Time, so the fire lands its Speed
-// in seconds after use, 1 sec, from any distance.
+// Dragonfire Potion's 1252554 reaches as far as the cone's radius. The row states Fixed Travel Time,
+// so the fire lands its Speed in seconds after use from any distance.
 func TestDragonfirePotionBurnsEveryEnemyInItsCone(t *testing.T) {
 	row := spelldata.MustFind(1252554)
 	if !row.FixedTravelTime() {

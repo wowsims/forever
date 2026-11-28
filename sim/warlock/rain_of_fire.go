@@ -6,9 +6,8 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// A channel over an area: every 2 sec its periodic dummy (effect 3) fires the wave (1282385) at every enemy
-// in it, each wave rolling hit and crit on each target. Both rows carry Rain of Fire's class flags, so the
-// talents naming it reach the waves.
+// A channel over an area: its periodic dummy (effect 3) fires the wave (1282385) at every enemy in it.
+// Both rows carry Rain of Fire's class flags, so the talents naming it reach the waves.
 func (warlock *Warlock) registerRainOfFire() {
 	rankedSpell := spellData.RainOfFire.ByID(11678)
 	channelTick := rankedSpell.Effect(dbcenums.A_PERIODIC_DUMMY, 0)

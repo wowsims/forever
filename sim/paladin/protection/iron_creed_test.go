@@ -9,8 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// In game Iron Creed's damage reduction comes from making a Holy Strike, the way Reckoning's extra
-// attack comes from making a swing: a strike that misses, is dodged or is parried grants it too (EV-0057).
+// Iron Creed's damage reduction comes from making a Holy Strike, whether or not it lands (EV-0057).
 func TestIronCreedFromAnyHolyStrike(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Class:         proto.Class_ClassPaladin,
@@ -43,9 +42,8 @@ func TestIronCreedFromAnyHolyStrike(t *testing.T) {
 		return metrics.Misses + metrics.Dodges + metrics.Parries
 	}
 
-	// Strikes until one is avoided, checking that every strike before it, and that one, grants the
-	// buff. A proc's handler runs one spell batch window after the hit, so each strike is followed
-	// by stepping past that window.
+	// Strikes until one is avoided. A proc's handler runs one spell batch window after the hit, so each
+	// strike is followed by stepping past that window.
 	for range 500 {
 		ironCreed.Deactivate(sim)
 		before := avoided()

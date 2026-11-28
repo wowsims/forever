@@ -12,9 +12,7 @@ var TalentTreeSizes = [3]int{16, 16, 18}
 
 var autoShotRank = spellData.AutoShot.Highest()
 
-// In game Multi-Shot and Aimed Shot hit 9 harder than the rows' normalised weapon damage across the
-// whole weapon roll, and Auto Shot hits for its own; the game files state no such bonus (EV-0068).
-// Sniper Shot, the third normalised shot, takes none here.
+// In game Multi-Shot and Aimed Shot hit 9 harder than the rows' normalised weapon damage (EV-0068).
 // TODO: In-game testing required: whether the 9 is flat or grows with ranged attack power, and whether Sniper Shot,
 // which no log has shown, takes it too.
 const normalizedShotBonus = 9
@@ -84,8 +82,7 @@ func NewHunter(character *core.Character, options *proto.Player, hunterOptions *
 
 	hunter.EnableManaBar()
 
-	// Arrows add their damage per second to the ranged weapon, times its speed. A gun is taken to
-	// fire them too, so no bullets are kept beside them.
+	// A gun is taken to fire arrows too, so no bullets are kept beside them.
 	hunter.PseudoStats.BonusRangedDps += arrows[hunterOptions.Ammo.String()].DPS
 	hunter.PseudoStats.RangedSpeedMultiplier *= core.SymmetricMultiplierFromPercent(quivers[hunterOptions.QuiverBonus.String()].Haste)
 
@@ -98,9 +95,7 @@ func NewHunter(character *core.Character, options *proto.Player, hunterOptions *
 		AutoSwingMelee:  true,
 	})
 
-	// Auto Shot is row 75: its range, its missile speed, the bow, gun or crossbow it needs, and the
-	// class flags that put the auto inside the talents that name it: Hawk Eye, Mortal Shots and
-	// Deadly Aspects.
+	// Auto Shot is row 75; its class flags put the auto inside the talents that name it.
 	rangedConfig := hunter.AutoAttacks.RangedConfig()
 	rangedConfig.MinRange = core.MinRangedRange // the row's 8 yd, counted from both units' reach
 	rangedConfig.MaxRange = float64(autoShotRank.MaxRange)

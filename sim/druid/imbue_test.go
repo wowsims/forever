@@ -75,8 +75,7 @@ func TestCatPawTakesTheWeaponstoneOnce(t *testing.T) {
 	}
 }
 
-// A form swap rebuilds the paw from the main hand, as the druid's item swap callback does; the rebuilt
-// paw keeps the stone's 8, once.
+// A form swap rebuilds the paw from the main hand; the rebuilt paw keeps the stone's 8, once.
 func TestCatPawKeepsTheWeaponstoneWhenRebuilt(t *testing.T) {
 	const spiritchaserStaff, denseWeightstone = 1613, 12643
 	character := catWithMainHand(t, spiritchaserStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})

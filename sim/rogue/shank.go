@@ -9,11 +9,8 @@ var shankRank = spellData.Shank.Highest()
 var venomBuff = spellData.VenomTriggered.Highest()
 var bootKnifePoints = spellData.BootKnifeTriggered.Highest()
 
-// The row is Always Hit, so only the crit is rolled. Shank strikes with the off hand and carries an off-hand special's
-// mask, so the off hand's poison and weapon procs, the procs that hear melee specials, Blade Flurry and the modifiers
-// scoped to the off hand (Dual Wield Specialization, Hack and Slash) all reach it. Its row adds no combo point, so it
-// is no builder and Seal Fate does not hear it. Venom goes up before the damage, so the poison the hit procs rolls at
-// Venom's raised chance and deals its raised damage (EV-0222).
+// Its row adds no combo point, so it is no builder and Seal Fate does not hear it. Venom goes up before the damage
+// (EV-0222).
 func (rogue *Rogue) registerShank() {
 	config := spelldata.SpellConfig(&rogue.Unit, shankRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
 	config.DamageMultiplier = shankRank.DamageEffect().Percent()
@@ -29,7 +26,7 @@ func (rogue *Rogue) registerShank() {
 	}
 
 	// Boot Knife's proc row names no class flags, so a trigger built from it would hear every melee special, while its
-	// tooltip gives the points to Shank alone. Shank rolls them itself, as finishers roll Ruthlessness.
+	// tooltip gives the points to Shank alone.
 	bootKnifeChance := spellData.BootKnife.EffectAt(1).FractionAt(rogue.Talents.BootKnife)
 	var bootKnifeMetrics *core.ResourceMetrics
 	if rogue.Talents.BootKnife > 0 {

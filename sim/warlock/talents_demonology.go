@@ -72,8 +72,7 @@ func (warlock *Warlock) applyDemonicEmbrace() {
 	spelldata.ParseStatic(&warlock.Character, spellData.DemonicEmbrace.Rank(warlock.Talents.DemonicEmbrace), spelldata.Effects(1))
 }
 
-// All damage the demons deal. The row's modifier names no spell the sim registers, so it is the pet's own
-// damage multiplier; the Firebolt tooltip's $?s18769 reads this talent too.
+// The row's modifier names no spell the sim registers, so it is the pet's own damage multiplier.
 func (warlock *Warlock) applyUnholyPower() {
 	if warlock.Talents.UnholyPower == 0 {
 		return
@@ -95,8 +94,7 @@ func (warlock *Warlock) applyImprovedVoidwalker() {
 	}
 }
 
-// The demons' maximum health and mana (effect 1), and the warlock's maximum mana (effect 2). The parse skips
-// both, so they are applied here.
+// The parse skips both effects, so they are applied here.
 func (warlock *Warlock) applyFelVitality() {
 	if warlock.Talents.FelVitality == 0 {
 		return
@@ -133,11 +131,7 @@ func (warlock *Warlock) applyImprovedSayaad() {
 	spelldata.ParseStatic(&warlock.Succubus.Character, spellData.ImprovedSayaad.Rank(warlock.Talents.ImprovedSayaad))
 }
 
-// The sacrificed demon grants its effect until a summon cancels it (summonDemon): the Imp 15% more
-// Shadow damage (18789), the Succubus 15% more Fire damage (18791), the Voidwalker mana every 4 sec (18792),
-// the Felhunter health every 4 sec (18790), which does not affect sims. The demon sacrificed before the
-// fight (settled in resolveSacrifice) is sacrificed at the start; casting the talent's spell (18788)
-// sacrifices the demon out. The row states no cast time, cost or cooldown.
+// The sacrificed demon grants its effect until a summon cancels it (summonDemon).
 func (warlock *Warlock) applyDemonicSacrifice() {
 	if !warlock.Talents.DemonicSacrifice {
 		return
@@ -168,8 +162,7 @@ func (warlock *Warlock) applyDemonicSacrifice() {
 		spelldata.ParseEffects(&warlock.Character, aura, effectRow)
 		warlock.DemonicSacrificeAuras[summon] = aura
 
-		// Fel Energy's A_OBS_MOD_POWER: a share of maximum mana every period while the aura is up,
-		// which the parse skips.
+		// Fel Energy's A_OBS_MOD_POWER, which the parse skips.
 		if summon == proto.WarlockOptions_Voidwalker {
 			restore := effectRow.EffectN(1)
 			manaMetrics := warlock.NewManaMetrics(core.ActionID{SpellID: effectRow.ID})
@@ -210,8 +203,7 @@ func (warlock *Warlock) applyDemonicSacrifice() {
 	warlock.DemonicSacrifice = warlock.RegisterSpell(config)
 }
 
-// Shortens the summons' cast (effect 1) and lowers their cost (effect 2), through the class flags the
-// summon rows share.
+// Shortens the summons' cast (effect 1) and lowers their cost (effect 2).
 func (warlock *Warlock) applyMasterSummoner() {
 	if warlock.Talents.MasterSummoner == 0 {
 		return
@@ -222,10 +214,8 @@ func (warlock *Warlock) applyMasterSummoner() {
 
 // --- Tier 4 ---
 
-// Effect 2 shortens Soul Fire's cooldown, and effect 4 raises Shadow Bolt's and Searing Pain's damage. The tooltip
-// ties the damage bonus to a target below 35% health, but the row states no condition, and in game the bonus counts
-// at any target health (EV-0232). A cast of either that lands on a target below effect 3's health percent grants
-// Decimation (440873): for 10 sec Soul Fire casts faster and, by the buff's A_NO_REAGENT_USE, takes no Soul Shard.
+// The tooltip ties the damage bonus to a target below 35% health, but in game the bonus counts at any target
+// health (EV-0232).
 // The buff sits on the warlock, so a cast at a low target carries its Soul Fire bonus to any other target.
 func (warlock *Warlock) applyDecimation() {
 	if warlock.Talents.Decimation == 0 {
@@ -240,8 +230,8 @@ func (warlock *Warlock) applyDecimation() {
 		panic(fmt.Sprintf("Decimation %d: effect 3 states a %.0f%% health threshold, but only the 35%% execute phase is tracked", rank.ID, threshold))
 	}
 
-	// The buff's row states the 2/2 value, -40%; the talent's effect 1 prices the rank (-20% at 1/2), so the
-	// buff takes the row's duration and Soul Fire's flags, and the rank's value.
+	// The buff's row states the 2/2 value; the talent's effect 1 prices the rank, so the buff takes the
+	// rank's value.
 	decimationRow := spellData.DecimationTriggered.ByID(440873)
 	decimationAura := warlock.RegisterAura(spelldata.AuraConfig(decimationRow)).AttachSpellMod(core.SpellModConfig{
 		Kind:       core.SpellMod_CastTime_Pct,
@@ -251,9 +241,7 @@ func (warlock *Warlock) applyDecimation() {
 	noReagent := decimationRow.Effect(dbcenums.A_NO_REAGENT_USE, 0)
 	warlock.reagentWaivers = append(warlock.reagentWaivers, reagentWaiver{aura: decimationAura, flags: noReagent.ClassFlags})
 
-	// The buff comes with the cast, and only when its hit lands: a miss grants nothing.
-	// Shadow Bolt and Searing Pain roll their hit at the cast, so the trigger reads its cast result, before a
-	// bolt lands.
+	// Shadow Bolt and Searing Pain roll their hit at the cast, so the trigger reads its cast result.
 	warlock.MakeProcTriggerAura(core.ProcTrigger{
 		Name:           "Decimation - Trigger",
 		Callback:       core.CallbackOnCastResult,
@@ -271,8 +259,7 @@ func (warlock *Warlock) applyDecimation() {
 	})
 }
 
-// For 15 sec, the next summon casts 5.5 sec faster (effect 1) for half the mana (effect 2), and spends
-// the buff.
+// The next summon casts 5.5 sec faster (effect 1) for half the mana (effect 2), and spends the buff.
 func (warlock *Warlock) applyFelDomination() {
 	if !warlock.Talents.FelDomination {
 		return
@@ -297,10 +284,9 @@ func (warlock *Warlock) applyFelDomination() {
 	warlock.RegisterSpell(config)
 }
 
-// Searing Pain brands the target (1293696) for 10 sec; the demon's next attacks against it each consume a
-// charge and deal the brand's damage (pets.go). Effect 1, Searing Pain's lower threat, is parsed.
-// The brand row has no charges of its own; the ladder's effect 2, a charges modifier, gives them, 2/4/6 by
-// rank: the brand lands with 6 at 3/3, though the tooltip reads 3 (EV-0083).
+// Searing Pain brands the target; the demon's next attacks against it each consume a charge (pets.go).
+// The brand row has no charges of its own; the ladder's effect 2 gives them: the brand lands with 6 at 3/3,
+// though the tooltip reads 3 (EV-0083).
 func (warlock *Warlock) applyDemonicBrand() {
 	if warlock.Talents.DemonicBrand == 0 {
 		return
@@ -387,10 +373,8 @@ func (warlock *Warlock) applyDemonicKnowledge() {
 
 // --- Tier 6 ---
 
-// Grants the warlock and the demon out an effect by demon, its four dummies read by the tooltip: the Imp
-// more Fire damage (effect 1), the Voidwalker less Physical damage taken (effect 2), the Succubus more Shadow
-// damage (effect 3), the Felhunter less magic damage taken (effect 4). The warlock's share lasts while
-// that demon is out; the demon's own is always on it, as it acts only while out.
+// Grants the warlock and the demon out an effect by demon, its four dummies read by the tooltip. The
+// warlock's share lasts while that demon is out; the demon's own is always on it, as it acts only while out.
 func (warlock *Warlock) applyMasterDemonologist() {
 	if warlock.Talents.MasterDemonologist == 0 {
 		return

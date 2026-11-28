@@ -167,8 +167,7 @@ var ItemSetPlagueheartRaiment = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		// 2pc (28831) heals the wearer off Shadow Bolt hits, which does not affect sims.
 		4: shared.ParsedSetBonus(plagueCorruption),
-		// Effect 2 lowers the threat of Corruption, Immolate, Curse of Agony and Siphon Life. Effect 1,
-		// 25% less threat from spell crits, has no place in the sim's threat.
+		// Effect 1, 25% less threat from spell crits, has no place in the sim's threat.
 		6: shared.ParsedSetBonus(plagueThreat),
 		// 8pc (28830) takes 12% off Life Tap's health cost, which does not affect sims.
 	},
@@ -200,9 +199,8 @@ var ItemSetDemonheartRaiment = core.NewItemSet(core.ItemSet{
 					warlock.AddMobTypeBonusStats(bonus.Invert(), mobTypes...)
 				})
 		},
-		// "Your Life Tap generates 20% more Mana at no additional Health cost." The dummy's amount goes into
-		// lifeTapManaBonus, which registerLifeTap adds to Improved Life Tap's share. No test wears it, since
-		// only four of the six pieces ship.
+		// "Your Life Tap generates 20% more Mana at no additional Health cost." No test wears it, since only
+		// four of the six pieces ship.
 		// TODO: Ingame test needed -- whether the 20% adds to Improved Life Tap or multiplies with it, and
 		// whether the demon's Demonic Energies share grows with it.
 		5: func(agent core.Agent, setBonusAura *core.Aura) {

@@ -397,8 +397,7 @@ func TestBleedImmuneTargetTakesNoRakeAndNoAssumedBleed(t *testing.T) {
 }
 
 // Rend and Tear raises Shred on a bleeding target, by the same amount under each of the cat's own
-// bleeds. With the bleed assumed, a target with no bleed of the cat's own takes the same raised Shred,
-// and another player's bleed counts the same.
+// bleeds, an assumed bleed and another player's bleed.
 func TestAssumedBleedRaisesShredLikeOwnBleed(t *testing.T) {
 	const rendAndTear5 = "0000000000000000-00000000000100005000-0000000000000000"
 	shred := func(assume bool, bleed func(cat, other *FeralDruid) *druid.DruidSpell) float64 {
@@ -454,7 +453,7 @@ func newCatBesideAnother(t *testing.T, talents string) (*core.Simulation, *Feral
 }
 
 // Rend and Tear raises Rake, Rip and Pounce Bleed ticks. Each tick counts its own bleed as the bleed on the
-// target, and the talent is the only difference between the two builds.
+// target.
 func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 	const rendAndTear5 = "0000000000000000-00000000000000005000-0000000000000000"
 	want := 1 + spelldata.Talent(1223246, 5).Rank(5).EffectN(1).Percent()

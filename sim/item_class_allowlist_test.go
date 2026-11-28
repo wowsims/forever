@@ -52,8 +52,7 @@ func TestClassRestrictedItemsCarryTheirAllowlist(t *testing.T) {
 	}
 }
 
-// Gri'lek's Charm of Valor 19952 may only be used by a paladin: its on-use registers for a paladin
-// wearing it and not for a warrior.
+// Gri'lek's Charm of Valor 19952 may only be used by a paladin.
 func TestClassRestrictedOnUseRegistersOnlyForItsClass(t *testing.T) {
 	const charmID int32 = 19952
 
@@ -89,7 +88,7 @@ func TestClassRestrictedOnUseRegistersOnlyForItsClass(t *testing.T) {
 }
 
 // Every gear set and build the specs ship holds only items its class may use; the class is the folder
-// the spec sits in, ui/specs/<class>/<spec>/gear_sets or ui/specs/<class>/<spec>/builds.
+// the spec sits in.
 func TestGearSetsHoldOnlyTheirClassItems(t *testing.T) {
 	gearFiles, err := filepath.Glob("../ui/specs/*/*/gear_sets/*.gear.json")
 	if err != nil {

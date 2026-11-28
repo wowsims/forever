@@ -20,8 +20,7 @@ type oathOfLight struct {
 // by up to 400, your Flash of Light by up to 115, and your Holy Shock by up to 229. Only one Oath of
 // Light may be sworn by the Paladin at any one time.
 //
-// The three effects state the bonuses, which grow with the paladin's level; the heals read them when
-// the target carries the Oath.
+// The three effects state the bonuses, which grow with the paladin's level.
 // TODO: Verify in game whether a lower rank of Holy Light, Flash of Light or Holy Shock gets less than
 // the full bonus, as the tooltip's "up to" says.
 func (paladin *Paladin) registerOathOfLight() {

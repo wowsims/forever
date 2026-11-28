@@ -37,9 +37,7 @@ const (
 	sigmoidRevenge int32 = 1291099
 )
 
-// A threat reduction is worth nothing the sim scores, so the item is never used on its own: its major
-// cooldown files under no type and never asks to be used. Used by hand, it takes the row's share off
-// the wearer's threat for the row's duration.
+// A threat reduction is worth nothing the sim scores, so the item is never used on its own.
 func TestOnUseThreatReductionIsNeverUsedOnItsOwn(t *testing.T) {
 	row := spelldata.MustFind(eyeOfDiminution)
 	needAmount(t, "28862's threat", row.FirstAura(dbcenums.A_MOD_THREAT).Mean())
@@ -73,8 +71,7 @@ func TestOnUseThreatReductionIsNeverUsedOnItsOwn(t *testing.T) {
 }
 
 // The wearer's buff sorts the on-use: a block, dodge or parry chance or a damage shield makes it a
-// survival cooldown, spirit alone a mana cooldown, and a crit chance a DPS cooldown. Each row stands in
-// for the aura it carries on the wearer.
+// survival cooldown, spirit alone a mana cooldown, and a crit chance a DPS cooldown.
 func TestOnUseAuraCooldownTypeFollowsTheWearersBuff(t *testing.T) {
 	for i, tc := range []struct {
 		row  int32

@@ -6,8 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Demon Armor (11735), parsed from its row: armor and Shadow resistance. Its in-combat health regen is left
-// out by the parse. Demonic Aegis raises every amount it states.
+// Demon Armor (11735), parsed from its row. Its in-combat health regen is left out by the parse.
 func (warlock *Warlock) registerArmors() {
 	rankedSpell := spellData.DemonArmor.ByID(11735)
 

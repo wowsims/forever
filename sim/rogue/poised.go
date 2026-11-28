@@ -8,8 +8,8 @@ import (
 var poisedPassive = spelldata.MustFind(1328825)
 var poisedBuff = poisedPassive.Refs()[0]
 
-// At maximum energy and out of combat the next ability costs less. Every fight starts out of combat
-// at full energy, so the buff is up from the start until the first ability spends it.
+// Every fight starts out of combat at full energy, so the buff is up from the start until the first ability
+// spends it.
 func (rogue *Rogue) registerPoised() {
 	aura := rogue.RegisterAura(spelldata.AuraConfig(poisedBuff))
 	spelldata.ParseEffects(&rogue.Character, aura, poisedBuff)

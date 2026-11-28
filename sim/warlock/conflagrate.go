@@ -6,7 +6,7 @@ import (
 )
 
 // Granted by the Conflagrate talent: ignites the warlock's own Immolate and consumes it, unless Shadow and
-// Flame keeps it burning. The 10 sec cooldown is the row's category cooldown.
+// Flame keeps it burning.
 func (warlock *Warlock) registerConflagrate() {
 	rankedSpell := spellData.Conflagrate.ByID(18932)
 	conflagrateHit := rankedSpell.DamageEffect()

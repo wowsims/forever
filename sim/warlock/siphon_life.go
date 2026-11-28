@@ -5,8 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// A periodic leech like Drain Life's: each tick heals the caster for what it deals. The row marks
-// Periodic Can Crit, so the ticks crit.
+// A periodic leech: each tick heals the caster for what it deals.
 func (warlock *Warlock) registerSiphonLifeSpell() {
 	rankedSpell := spellData.SiphonLife.ByID(18881)
 	siphonLifeTick := rankedSpell.PeriodicEffect()

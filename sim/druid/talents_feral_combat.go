@@ -61,9 +61,9 @@ func (druid *Druid) applyThickHide() {
 		return
 	}
 	row := spellData.ThickHide.Rank(druid.Talents.ThickHide)
-	// Effect 2 prices armor as the level times its base points: 60, 120 or 180 at level 60. Effect 1 /
-	// 100 is base armor per point of defense skill beyond five times the level, which is the defense the
-	// gear and buffs add (one rating is one skill point). Both are base armor, which the bear forms scale.
+	// Effect 1 / 100 is base armor per point of defense skill beyond five times the level, which is the
+	// defense the gear and buffs add (one rating is one skill point). Both are base armor, which the bear
+	// forms scale.
 	// Ranks 1 and 2 follow the level times the base points, not the game files' per-level formula (EV-0039).
 	bonus := float64(druid.level()) * row.EffectN(2).BaseValue()
 	perDefense := row.EffectN(1).BaseValue() / 100 / core.DefenseRatingPerDefenseLevel
@@ -102,7 +102,7 @@ func (druid *Druid) applyPredatoryStrikes() {
 	if druid.Talents.PredatoryStrikes == 0 {
 		return
 	}
-	// The dummy is a percent of level as attack power, and only while shapeshifted. 150 at 3/3 is 90 at 60.
+	// The dummy is a percent of level as attack power, and only while shapeshifted.
 	ap := float64(druid.level()) * spellData.PredatoryStrikes.Rank(druid.Talents.PredatoryStrikes).EffectN(1).Percent()
 	for _, aura := range []*core.Aura{druid.CatFormAura, druid.BearFormAura, druid.DireBearFormAura} {
 		if aura != nil {
@@ -141,8 +141,9 @@ func (druid *Druid) applyBloodFrenzy() {
 			}
 			return
 		}
-		// Blood Frenzy 2/2 in Bear Form restores 5 rage on every non-periodic crit, once per Swipe target.
-		// The cat's extra combo point on a non-periodic builder crit is the tooltip, not an effect on the row.
+		// Blood Frenzy 2/2 in Bear Form restores 5 rage on every non-periodic crit, once per Swipe target
+		// (EV-0032). The cat's extra combo point on a non-periodic builder crit is the tooltip, not an effect
+		// on the row.
 		if druid.InForm(Cat) && druid.isComboBuilder(spell) && sim.Proc(comboChance, "Blood Frenzy Combo Point") {
 			druid.AddComboPoints(sim, result.Target, 1, combo)
 		}
@@ -158,8 +159,7 @@ func (druid *Druid) applyNaturalReaction() {
 	rageSpell := spellData.NaturalReactionTriggered.Highest()
 	metrics := druid.NewRageMetrics(core.ActionID{SpellID: rageSpell.ID})
 	// The proc mask names every hit taken and has no dodge bit, so the row's trigger listens to landed
-	// hits; the tooltip's "each time you dodge" is the outcome. Every rank restores the triggered
-	// spell's 5 rage, and the rank sets the chance ($m2).
+	// hits; the tooltip's "each time you dodge" is the outcome.
 	trigger := spelldata.ProcTrigger(&druid.Character, row, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		if druid.InForm(Bear) {
 			druid.AddRage(sim, rageSpell.EnergizeEffect().Tenths(), metrics)

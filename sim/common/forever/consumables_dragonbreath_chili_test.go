@@ -12,7 +12,7 @@ import (
 )
 
 // Dragonbreath Chili 12217's 15852 rolls its chance on the eater's melee hits, at most once per its
-// internal cooldown, and casts 15851, whose fire damage stays within the row's roll.
+// internal cooldown, and casts 15851.
 func TestDragonbreathChiliBreathesFireOnMeleeHits(t *testing.T) {
 	const sword = 2078
 	trigger, breath := spelldata.MustFind(15852), spelldata.MustFind(15851)

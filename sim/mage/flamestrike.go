@@ -6,25 +6,19 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.Flamestrike lists.
+// Only the highest rank is registered.
 func (mage *Mage) registerFlamestrikeSpells() {
 	mage.registerFlamestrikeSpell(spellData.Flamestrike.Len(), spellData.Flamestrike.Highest())
 }
 
 // The cast's row names no tick spell, only an area trigger, so the cast and
 // spellData.FlamestrikeTriggered pair by rank. The burn (MageSpellFlamestrikeDot) is the ground effect
-// on the cast's row: every 2 sec it casts the tick spell, which hits each enemy in the area and rolls a
-// crit unless the tick's row bars it. The burn deals nothing, and its casts record no metrics or log
-// lines. The tick spell keeps its row's class flags, rank and coefficient but reports under the cast's
-// id with tag 1, as Fireball's DoT does, so its damage is the DoT line under Flamestrike's header. The
-// burn carries the same id and registers first, so a lookup of that id finds the spell that holds the
-// area dot.
+// on the cast's row. The tick spell keeps its row's class flags, rank and coefficient but reports under
+// the cast's id with tag 1, so its damage is the DoT line under Flamestrike's header. The burn carries
+// the same id and registers first, so a lookup of that id finds the spell that holds the area dot.
 //
-// Each tick is a direct hit of the tick spell, so a hit listener hears every enemy it lands on. The
-// tick's row is outside the class flags of Revelation's crit and charge, and it costs nothing, so it
-// neither takes nor spends Revelation or Clearcasting. A tick rolls its partial resist against a tenth of
-// the target's share, as a DoT's tick does (EV-0028), and takes no Spell Piercing bonus (EV-0142).
+// A tick rolls its partial resist against a tenth of the target's share (EV-0028), and takes no Spell
+// Piercing bonus (EV-0142).
 func (mage *Mage) registerFlamestrikeSpell(rank int32, castRank *spelldata.Spell) {
 	tickRank := spellData.FlamestrikeTriggered.Rank(rank)
 	cannotCrit := tickRank.CannotCrit()

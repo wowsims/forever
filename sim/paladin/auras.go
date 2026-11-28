@@ -20,9 +20,8 @@ func auraRank(rank *spelldata.Spell) buffs.PaladinAuraRank {
 	return buffs.PaladinAuraRank{SpellID: rank.ID, Rank: rank.RankNumber()}
 }
 
-// The castable aura spell: instant, on the GCD, free. The aura it turns on is one of the self-cast
-// paladin auras in sim/core/buffs, which already sit in PaladinAuraCategory so one cast replaces the
-// last.
+// The castable aura spell. The aura it turns on already sits in PaladinAuraCategory, so one cast
+// replaces the last.
 func (paladin *Paladin) registerAuraSpell(rank *spelldata.Spell, aura *core.Aura, classMask int64) {
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty

@@ -13,8 +13,6 @@ import (
 func (paladin *Paladin) registerDivineFavor() {
 	rank := spellData.DivineFavor.Highest()
 
-	// The crit and the one charge the next Holy Light, Flash of Light or Holy Shock spends are the
-	// row's.
 	divineFavorAura := paladin.RegisterAura(spelldata.AuraConfig(rank, spelldata.Label("Divine Favor"+paladin.Label)))
 	spelldata.ParseEffects(&paladin.Character, divineFavorAura, rank)
 	// The cast spends the charge whether or not it lands, so a resisted Holy Shock, or one a Light's

@@ -12,8 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Infernal Lasso 219345's on-use: ItemEffect 183857 casts 443265, A_PERIODIC_DAMAGE on the target. The
-// test's on-use puts it on a 5 min cooldown in category 1141 for 12 s.
+// Infernal Lasso 219345's on-use: ItemEffect 183857 casts 443265, A_PERIODIC_DAMAGE on the target.
 const (
 	lassoSpell    int32 = 443265
 	lassoCategory int32 = 1141
@@ -88,7 +87,7 @@ func dealtUntil(t *testing.T, sim *core.Simulation, spell *core.Spell, start, af
 }
 
 // The amount a row's ticking effect lands each tick before power, how often it ticks, and how many
-// ticks its duration holds. A row that ticks nothing leaves the test nothing to check, and fails it.
+// ticks its duration holds.
 func ticksOf(t *testing.T, row *spelldata.Spell) (float64, time.Duration, int) {
 	t.Helper()
 	e := row.PeriodicEffect()
@@ -338,9 +337,8 @@ func TestOnUseDotTicksCritWithoutAHitRoll(t *testing.T) {
 	}
 }
 
-// A copy of Linken's Boomerang 11905's on-use, 15712, thrown from 20 yards, states a cast time
-// and no global cooldown: it lands when the cast completes. A copy of the lasso's 443265 states
-// neither and lands at once.
+// A copy of Linken's Boomerang's 15712 states a cast time and no global cooldown: it lands when the
+// cast completes. A copy of the lasso's 443265 states neither and lands at once.
 func TestOnUseCastsForTheCastTimeItsRowStates(t *testing.T) {
 	const boomerangID, lassoID int32 = 991018, 991019
 	editRow(t, 15712, func(s *spelldata.Spell) { s.CastTimeMs, s.GCDMs = 500, 0 })
@@ -460,9 +458,8 @@ func TestOnUseHealReachesTheHealingListeners(t *testing.T) {
 	}
 }
 
-// Dragonfire Potion's 1252554 states Always Hit. Used from an item it lands for a wearer who cannot
-// hit anything, and its damage over time goes on with it; the same row cast as a proc's spell lands
-// too.
+// Dragonfire Potion's 1252554 states Always Hit: used from an item it lands for a wearer who cannot hit
+// anything, and the same row cast as a proc's spell lands too.
 func TestAnAlwaysHitRowUsedFromAnItemNeverMisses(t *testing.T) {
 	const neckID, itemID int32 = 991021, 991022
 	const dragonfire int32 = 1252554

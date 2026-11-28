@@ -498,8 +498,8 @@ func abortById(this js.Value, args []js.Value) any {
 	return outArray
 }
 
-// The name table SIML requests read and write names with, which the worker hands over with simlNames before its first
-// request: lib.wasm is built without the with_db tag, so it holds none of its own.
+// The name table SIML requests read and write names with: lib.wasm is built without the with_db tag,
+// so it holds none of its own.
 var simlNames *siml.Names
 
 // Reads args[0], the bytes of sim/siml/names.json, as the name table. Gives the error, or "" once it is read.
@@ -512,8 +512,7 @@ func setSimlNames(this js.Value, args []js.Value) any {
 	return js.ValueOf("")
 }
 
-// Answers the SIML request in args[0] with handle, which answers a request that comes before the name table with an
-// error, or nil when the request does not unmarshal.
+// Answers the SIML request in args[0] with handle, or nil when the request does not unmarshal.
 func simlCall[Req, Res googleProto.Message](args []js.Value, req Req, handle func(Req, *siml.Names) Res) any {
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), req); err != nil {
 		log.Printf("Failed to parse request: %s", err)
@@ -530,10 +529,8 @@ func simlCall[Req, Res googleProto.Message](args []js.Value, req Req, handle fun
 	return outArray
 }
 
-// Assumes args[0] is a Uint8Array
-// readRequestId extracts the string request id from a JS argument. A missing argument
-// renders as js.Value strings like "<undefined>", which must be treated as no id (an empty
-// id makes the signal API return its error).
+// A missing argument renders as js.Value strings like "<undefined>", which must be treated as no id
+// (an empty id makes the signal API return its error).
 func readRequestId(arg js.Value) string {
 	if arg.Type() != js.TypeString {
 		return ""

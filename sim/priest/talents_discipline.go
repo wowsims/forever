@@ -42,8 +42,6 @@ func (priest *Priest) registerDisciplineTalents() {
 }
 
 // Your Smite and Penance spells deal X% increased damage to targets afflicted with your Holy Fire or Shadow Word: Pain.
-// The marker on each target is up while any rank of this priest's Holy Fire or Shadow Word: Pain is on it
-// (attachPowerInLightMarker).
 func (priest *Priest) applyPowerInLight() {
 	if priest.Talents.PowerInLight == 0 {
 		return
@@ -63,9 +61,8 @@ func (priest *Priest) applyPowerInLight() {
 	})
 }
 
-// Switches the target's Power in Light marker from a Holy Fire or Shadow Word: Pain rank's dot. A dot
-// that drops leaves the marker on while another of them is still up; a replaced rank's dot expires
-// before the new rank's dot gains, so the marker ends up on.
+// Switches the target's Power in Light marker from a Holy Fire or Shadow Word: Pain rank's dot. A
+// replaced rank's dot expires before the new rank's dot gains, so the marker ends up on.
 func (priest *Priest) attachPowerInLightMarker(config *core.SpellConfig) {
 	if priest.powerInLightAuras == nil {
 		return
@@ -199,7 +196,7 @@ func (priest *Priest) applyMeditation() {
 }
 
 // Increases the Armor bonus of your Inner Fire spell by X% and increases its total charges by Y.
-// The armor (effect 1) scales Inner Fire's own parse in inner_fire.go; the charges go through here.
+// The armor (effect 1) scales Inner Fire's own parse in inner_fire.go.
 func (priest *Priest) applyImprovedInnerFire() {
 	if priest.Talents.ImprovedInnerFire == 0 {
 		return

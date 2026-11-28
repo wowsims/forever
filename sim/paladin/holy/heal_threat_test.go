@@ -9,8 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// Holy Light, Flash of Light and Holy Shock's heal make 0.25 threat a point healed in game, half of
-// what other heals make, before the paladin's own threat modifiers (EV-0057, EV-0058).
+// Holy Light, Flash of Light and Holy Shock's heal make 0.25 threat a point healed (EV-0057, EV-0058).
 func TestPaladinHealsMakeQuarterHealingThreat(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Class:         proto.Class_ClassPaladin,

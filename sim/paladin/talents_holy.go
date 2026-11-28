@@ -188,8 +188,8 @@ func (paladin *Paladin) applyDivinePrecision() {
 // that enter your Consecration.
 //
 // The bonus is the Holy damage from caster mod on the mark Consecration lays on those enemies, which
-// states 0 points: the server sets them from the talent's rank, and registerConsecrationMark reads them
-// from here. A flat multiplier on every Holy hit, after the crit.
+// states 0 points: the server sets them from the talent's rank. A flat multiplier on every Holy hit,
+// after the crit.
 func (paladin *Paladin) applyConsecratedGround() {
 	if paladin.Talents.ConsecratedGround == 0 {
 		return
@@ -201,8 +201,7 @@ func (paladin *Paladin) applyConsecratedGround() {
 // Holy Power - Increases the critical strike healing bonus of your Holy spells by 10/20/30/40/50%.
 //
 // The row is A_MOD_CRITICAL_HEALING_AMOUNT on the Holy school. That aura multiplies the whole
-// critical heal, the 150% included, so 5/5 makes a heal crit 225%. A SPELLMOD_CRIT_DAMAGE_BONUS
-// modifier such as the druid's Vengeance scales only the 50% bonus. Every paladin heal is Holy.
+// critical heal, the 150% included, so 5/5 makes a heal crit 225%. Every paladin heal is Holy.
 func (paladin *Paladin) applyHolyPower() {
 	if paladin.Talents.HolyPower == 0 {
 		return

@@ -41,8 +41,7 @@ func (druid *Druid) applyHeartOfTheWild() {
 	if druid.Talents.HeartOfTheWild == 0 {
 		return
 	}
-	// Effect 1 is the Intellect ($s1), which the parse reads from its stat mask. The bear Stamina ($s2)
-	// and cat Strength ($s3) are dummies the forms carry.
+	// The bear Stamina ($s2) and cat Strength ($s3) are dummies the forms carry.
 	druid.parseTalent(druid.Talents.HeartOfTheWild, spellData.HeartOfTheWild)
 	row := spellData.HeartOfTheWild.Rank(druid.Talents.HeartOfTheWild)
 	strength := druid.NewDynamicMultiplyStat(stats.Strength, 1+row.EffectN(3).Percent())
@@ -82,10 +81,8 @@ func (druid *Druid) applyReflection() {
 	druid.parseTalent(druid.Talents.Reflection, spellData.Reflection)
 }
 
-// applyGiftOfNature implements Gift of Nature, new in Forever.
-//
 // TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// the effect can be modelled.
 func (druid *Druid) applyGiftOfNature() {
 	if druid.Talents.GiftOfNature == 0 {
 		return
@@ -100,60 +97,48 @@ func (druid *Druid) applyBloom() {
 	}
 }
 
-// applyTranquilSpirit implements Tranquil Spirit, new in Forever.
-//
 // TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// the effect can be modelled.
 func (druid *Druid) applyTranquilSpirit() {
 	if druid.Talents.TranquilSpirit == 0 {
 		return
 	}
 }
 
-// applyImprovedRejuvenation implements Improved Rejuvenation, new in Forever.
-//
 // TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// the effect can be modelled.
 func (druid *Druid) applyImprovedRejuvenation() {
 	if druid.Talents.ImprovedRejuvenation == 0 {
 		return
 	}
 }
 
-// applySwiftmend implements Swiftmend, new in Forever.
-//
 // TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// the effect can be modelled.
 func (druid *Druid) applySwiftmend() {
 	if !druid.Talents.Swiftmend {
 		return
 	}
 }
 
-// applyImprovedTranquility implements Improved Tranquility, new in Forever.
-//
 // TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// the effect can be modelled.
 func (druid *Druid) applyImprovedTranquility() {
 	if druid.Talents.ImprovedTranquility == 0 {
 		return
 	}
 }
 
-// applyImprovedRegrowth implements Improved Regrowth, new in Forever.
-//
 // TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// the effect can be modelled.
 func (druid *Druid) applyImprovedRegrowth() {
 	if druid.Talents.ImprovedRegrowth == 0 {
 		return
 	}
 }
 
-// applyWildGrowth implements Wild Growth, new in Forever.
-//
 // TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
+// the effect can be modelled.
 func (druid *Druid) applyWildGrowth() {
 	if !druid.Talents.WildGrowth {
 		return

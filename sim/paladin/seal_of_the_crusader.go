@@ -19,10 +19,8 @@ import (
 // 161. Your melee strikes will refresh the spell's duration. Only one Judgement per Paladin can be
 // active at any one time.
 //
-// The game files state no number for the damage each attack loses. In game the seal swings the weapon
-// as a 1.4 times faster, lighter one: each white hit deals 1/1.4 of its damage, attack power's share
-// included, and Vindication's chance on each swing drops by the same 1.4 (EV-0062).
-// The white damage a second and the procs a minute hold.
+// The game files state no number for the damage each attack loses. Each white hit deals 1/1.4 of its
+// damage (EV-0062).
 func (paladin *Paladin) registerSealOfTheCrusader(_ int32, rank *spelldata.Spell) {
 	judgementRank := spellData.SealOfTheCrusaderTriggered.ByID(int32(rank.EffectN(3).BaseValue()))
 	judgementAuras := paladin.newJudgementAuras(func(target *core.Unit) *core.Aura {

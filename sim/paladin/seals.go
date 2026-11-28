@@ -20,8 +20,7 @@ func hearsSwing(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool
 	return spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || buffs.IsWindfuryTotemStrike(spell)
 }
 
-// One rank of one seal: the castable spell's row, the aura the cast puts up, the judgement it
-// unleashes, and the per-hit effect Unsealed Wrath's Echo can replay.
+// One rank of one seal.
 type sealConfig struct {
 	rank      *spelldata.Spell
 	classMask int64
@@ -46,8 +45,7 @@ const (
 	echoOfWisdomID        = 1328206
 )
 
-// Unsealed Wrath: the copy of a seal's hit that a spent Echo casts, tagged with the Echo's spell id so
-// its damage reports apart. Nil without the talent.
+// Unsealed Wrath: the copy of a seal's hit that a spent Echo casts.
 func (paladin *Paladin) registerEchoHit(config core.SpellConfig, echoID int32) *core.Spell {
 	if !paladin.Talents.UnsealedWrath {
 		return nil
@@ -136,9 +134,7 @@ func afterBatch(sim *core.Simulation, priority core.ActionPriority, onAction fun
 	}))
 }
 
-// The judgement debuffs Light, Wisdom, Justice and the Crusader put up: the paladin's white swings
-// and Windfury Totem hits refresh them, and Judgement has to find the aura for the target it
-// judges.
+// The judgement debuffs Light, Wisdom, Justice and the Crusader put up.
 func (paladin *Paladin) newJudgementAuras(makeAura func(target *core.Unit) *core.Aura) core.AuraArray {
 	auras := paladin.NewEnemyAuraArray(makeAura)
 	paladin.JudgementAuras = append(paladin.JudgementAuras, auras)

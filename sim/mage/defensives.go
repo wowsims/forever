@@ -12,13 +12,11 @@ var frostWardTrainerRank = spellData.FrostWard.ByID(10177)
 var frostWardBookRank = spellData.FrostWard.ByID(28609)
 
 func (mage *Mage) registerDefensiveSpells() {
-	// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-	// spellData.FireWard lists.
+	// Only the highest rank is registered.
 	mage.registerWardSpell(spellData.FireWard.Highest(), nil, nil)
 	mage.registerFrostWardSpell(frostWardTrainerRank)
 	mage.registerFrostWardSpell(frostWardBookRank)
-	// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-	// spellData.ManaShield lists.
+	// Only the highest rank is registered.
 	mage.registerManaShieldSpell(spellData.ManaShield.Len(), spellData.ManaShield.Highest())
 	mage.registerCounterspellSpell()
 }
@@ -34,10 +32,9 @@ func (mage *Mage) registerFrostWardSpell(rank *spelldata.Spell) {
 	}, nil)
 }
 
-// An absorb shield on the row's effect 1, which takes only the school its misc names. Fire Ward and
-// Frost Ward share a category cooldown; their effect 2 is the reflect or negate Improved Fire Ward and
-// Frost Warding give a chance to, which needs an enemy casting at the mage, so it is not modelled.
-// The shield absorbs effect 1's value, or what absorbAt answers when the ward is cast.
+// An absorb shield on the row's effect 1, which takes only the school its misc names. The wards'
+// effect 2 is the reflect or negate Improved Fire Ward and Frost Warding give a chance to, which needs
+// an enemy casting at the mage, so it is not modelled.
 func (mage *Mage) registerWardSpell(rank *spelldata.Spell, absorbAt func() float64, onAbsorbed core.OnDamageAbsorbedCallback) *core.DamageAbsorptionAura {
 	absorbEffect := rank.EffectN(1)
 	school := core.SpellSchool(absorbEffect.Misc)
@@ -69,8 +66,7 @@ func (mage *Mage) registerWardSpell(rank *spelldata.Spell, absorbAt func() float
 }
 
 // Mana Shield: "Absorbs $s1 physical damage, at the cost of 2 mana per damage absorbed. Lasts 1 min."
-// The school is effect 1's misc (1, physical) and the mana per point its amplitude. Arcane Shielding
-// lowers the mana per point (its effect 1). The shield breaks once the mana runs out; the hit that
+// The mana per point is effect 1's amplitude. The shield breaks once the mana runs out; the hit that
 // empties it is still absorbed whole.
 func (mage *Mage) registerManaShieldSpell(_ int32, rank *spelldata.Spell) {
 	manaPerPoint := float64(rank.EffectN(1).Amplitude) * (1 + spellData.ArcaneShielding.EffectAt(1).FractionAt(mage.Talents.ArcaneShielding))
@@ -88,9 +84,8 @@ func (mage *Mage) registerManaShieldSpell(_ int32, rank *spelldata.Spell) {
 		})
 }
 
-// Counterspell interrupts the target's cast and locks it out of that school for 10 sec. The sim has
-// no enemy cast to stop, so the spell takes its mana, global cooldown and cooldown and rolls to hit;
-// a landing deals no damage and is what a listener for landed harmful spells hears.
+// The sim has no enemy cast to stop, so the spell takes its mana, global cooldown and cooldown and
+// rolls to hit; a landing is what a listener for landed harmful spells hears.
 func (mage *Mage) registerCounterspellSpell() {
 	config := spelldata.SpellConfig(&mage.Unit, counterspellRank, spelldata.Magic(core.ProcMaskEmpty))
 

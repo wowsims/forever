@@ -6,15 +6,13 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.Blizzard lists.
+// Only the highest rank is registered.
 func (mage *Mage) registerBlizzardSpell() {
 	mage.registerBlizzardRank(spellData.Blizzard.Len(), spellData.Blizzard.Highest())
 }
 
-// Each tick casts the same rank of spellData.BlizzardTriggered on every enemy in the area, and rolls
-// a crit unless the tick's row bars it. The cast's row names no tick spell, only an area trigger, so
-// the two pair by rank.
+// Each tick casts the same rank of spellData.BlizzardTriggered. The cast's row names no tick spell,
+// only an area trigger, so the two pair by rank.
 func (mage *Mage) registerBlizzardRank(rank int32, castRank *spelldata.Spell) {
 	tickRank := spellData.BlizzardTriggered.Rank(rank)
 	cannotCrit := tickRank.CannotCrit()
@@ -31,7 +29,7 @@ func (mage *Mage) registerBlizzardRank(rank int32, castRank *spelldata.Spell) {
 	tickSpell := mage.RegisterSpell(tickConfig)
 
 	// The cast lands on every enemy in the area as the channel starts. Arcane Concentration rolls at the
-	// cast itself, in registerArcaneConcentration (EV-0116).
+	// cast itself (EV-0116).
 	land := spelldata.RegisterAreaCastLanding(&mage.Unit, castRank)
 
 	config := spelldata.SpellConfig(&mage.Unit, castRank, spelldata.Magic(core.ProcMaskSpellDamage))

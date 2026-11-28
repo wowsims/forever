@@ -14,9 +14,8 @@ import (
 )
 
 // A creature an item or a set bonus summons as a guardian, as the logs measure it. The game files hold no creature
-// row, only the summon's, which states the creature, how many come and for how long; so the creature's health, armor,
-// swing and spells are stated as shares of the creature numbers for its level (core.CreatureStatsByLevel). The guardian
-// takes nothing from its owner.
+// row, only the summon's, so the creature's health, armor, swing and spells are stated as shares of the creature
+// numbers for its level.
 type GuardianCreature struct {
 	Name   string        // The pet's name; with more than one up at once, numbered.
 	Level  int32         // The creature's own level when it does not take its owner's; 0 takes the owner's.
@@ -35,8 +34,7 @@ type GuardianSwing struct {
 }
 
 // Glancing blows that follow the target's level: a chance of 2% for each point of defense, 5 a level, the target has
-// over Skill, and a glancing blow's share of a hit drawn uniformly from the range Damage gives for the target's level,
-// the nearest level listed below it, or the lowest listed.
+// over Skill, and a glancing blow's share of a hit drawn uniformly from the range Damage gives for the target's level.
 type GuardianGlance struct {
 	Skill  float64
 	Damage map[int32][2]float64
@@ -55,8 +53,7 @@ func (glance *GuardianGlance) damage(level int32) [2]float64 {
 
 // A spell the guardian casts on its target: the first within FirstMax of the summon, each next one a uniform wait of
 // WaitMin to WaitMax after the last one's cast end. A hardcast holds the swing. The wait is drawn as the cast ends,
-// before the cast's own rolls, and a cast that fails to start waits a fresh draw from then. Each draw goes under its
-// label.
+// before the cast's own rolls, and a cast that fails to start waits a fresh draw from then.
 type GuardianCast struct {
 	FirstMax              time.Duration
 	WaitMin, WaitMax      time.Duration
@@ -74,9 +71,8 @@ type Guardian struct {
 	walkEnd    time.Duration
 }
 
-// Builds the guardians an item summons with the item's owner, through core.NewItemPet: as many as the summon's row
-// brings at once. Where more can be up than one summon brings, as when the summon rests less than its duration, each
-// piece carrying one registers its own under its own name.
+// Builds the guardians an item summons with the item's owner: as many as the summon's row brings at once.
+// Where more can be up than one summon brings, each piece carrying one registers its own under its own name.
 func RegisterItemGuardian(itemID int32, summon *spelldata.Spell, creature GuardianCreature) {
 	count := summonCount(summon)
 	builders := make([]func(owner *core.Character) core.PetAgent, count)
@@ -92,10 +88,7 @@ func RegisterItemGuardian(itemID int32, summon *spelldata.Spell, creature Guardi
 	core.NewItemPet(itemID, builders...)
 }
 
-// A use item whose spell summons a guardian; sim/common/forever/item_guardians_auto_gen.go registers every one the
-// game files hold. It registers nothing while creatures has no entry for the summon's creature, so the item keeps
-// only its stats until the creature is measured. The use casts on the item's own cooldown and the category cooldown it
-// shares, and puts the guardians up against the wearer's target.
+// A use item whose spell summons a guardian. The item keeps only its stats until the creature is measured.
 func NewGuardianOnUse(itemID int32, summonID int32, creatures map[int32]GuardianCreature) {
 	summon := spelldata.MustFind(summonID)
 	creature, measured := creatures[summon.SummonEffect().Misc]
@@ -128,8 +121,7 @@ var casterSummonSpots = []dbcenums.ImplicitTarget{
 	dbcenums.TARGET_DEST_CASTER_RADIUS,
 }
 
-// A summon appears where its row puts it (R-0055): beside the caster, from where it walks in as a pet does, or
-// otherwise on the enemy, a spot the player picks included.
+// A summon appears where its row puts it (R-0055).
 func summonsBesideCaster(summon *spelldata.Spell) bool {
 	return slices.Contains(casterSummonSpots, summon.SummonEffect().Target[0])
 }
@@ -224,8 +216,8 @@ func (guardian *Guardian) reach() float64 {
 	return guardian.cast.EffectiveMaxRange()
 }
 
-// A guardian casts its spell, a hardcast, only standing within its range, and walks in to its reach between casts. One
-// with no spell only swings, so its rotation sleeps for as long as it can be up once it stands in melee range.
+// A guardian casts its spell, a hardcast, only standing within its range (R-0055). One with no spell only swings, so
+// its rotation sleeps for as long as it can be up once it stands in melee range.
 func (guardian *Guardian) ExecuteCustomRotation(sim *core.Simulation) {
 	canCast := guardian.cast != nil && sim.CurrentTime >= guardian.nextCastAt && !guardian.Moving && guardian.cast.InRange()
 	switch reach := guardian.reach(); {
@@ -259,8 +251,7 @@ func Guardians(character *core.Character, summon *spelldata.Spell) []*Guardian {
 }
 
 // Puts up as many guardians as the summon's row brings against the target for the row's duration. A summon takes the
-// guardians that are not up first, then the first ones. One that comes up beside its owner stands as far from the
-// target as the owner does now; one already up stays where it is.
+// guardians that are not up first, then the first ones.
 func SummonGuardians(sim *core.Simulation, guardians []*Guardian, target *core.Unit) {
 	if len(guardians) == 0 {
 		return

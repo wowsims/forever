@@ -74,8 +74,7 @@ func TestSplitDamageDividesOneRollAmongTheTargets(t *testing.T) {
 }
 
 // Prototype Pathcarver 1295270 splits its damage "between up to $s3 nearby enemies", its MaxTargets,
-// and does not roll. One target fewer than the cap share it among themselves; one more than the cap
-// share it as many ways as the cap and the last takes none. A copy fixes the cap at 5.
+// and does not roll.
 func TestSplitDamageStopsAtTheRowsMaxTargets(t *testing.T) {
 	editRow(t, 1295270, func(s *spelldata.Spell) { s.MaxTargets = 5 })
 	row := spelldata.MustFind(1295270)
@@ -150,9 +149,9 @@ func TestAreaDamageOverTimeGoesOnEveryEnemyTheHitLandsOn(t *testing.T) {
 	}
 }
 
-// An area damage over time with no hit reaches every enemy in its area up to the row's MaxTargets:
-// one target more than the cap takes none. A copy of Ez-Thro Radiation Bomb's 435968 that keeps only
-// its damage over time and caps its targets stands in for the rows that state one.
+// An area damage over time with no hit reaches every enemy in its area up to the row's MaxTargets. A
+// copy of 435968 that keeps only its damage over time and caps its targets stands in for the rows that
+// state one.
 func TestAreaDamageOverTimeWithoutAHitStopsAtTheRowsMaxTargets(t *testing.T) {
 	editRow(t, 435968, func(s *spelldata.Spell) {
 		s.Effects = []spelldata.Effect{*s.PeriodicDamageEffect()}
@@ -174,8 +173,7 @@ func TestAreaDamageOverTimeWithoutAHitStopsAtTheRowsMaxTargets(t *testing.T) {
 }
 
 // Chain Lightning 21179 jumps to its chain targets, each keeping the row's share of the damage the one
-// before it took, and a target past the chain takes none. A copy without its variance and with three
-// chain targets makes the jumps exact.
+// before it took. A copy without its variance makes the jumps exact.
 func TestChainDamageJumpsToItsChainTargets(t *testing.T) {
 	editRow(t, 21179, func(s *spelldata.Spell) {
 		s.Effects[0].Variance = 0

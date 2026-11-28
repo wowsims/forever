@@ -19,8 +19,7 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// Each book rank registers beside the trainer's top rank. Backstab builds a combo point at either rank, Eviscerate
-// spends them all at either rank and hits harder at the book rank, and both ranks of Feint run one category cooldown.
+// Each book rank registers beside the trainer's top rank.
 func TestBookRanksBesideTrainerRanks(t *testing.T) {
 	newRogue := func(rank *spelldata.Spell) (*core.Simulation, *Rogue, *core.Spell) {
 		player := core.WithSpec(&proto.Player{
@@ -185,7 +184,7 @@ func stepPastBatch(sim *core.Simulation, wait time.Duration) {
 }
 
 // Remorseless Attacks hears the killing blow: a credited kill gives Sinister Strike the crit of the
-// talent's rank, a death the raid gets no kill for does not, and the strike spends it.
+// talent's rank, a death the raid gets no kill for does not.
 func TestRemorselessAttacksCritsTheStrikeAfterAKill(t *testing.T) {
 	sim, rogue := newTwoTargetSim("01")
 	dying, other := sim.Encounter.AllTargets[0], sim.Encounter.AllTargetUnits[1]
@@ -214,8 +213,7 @@ func TestRemorselessAttacksCritsTheStrikeAfterAKill(t *testing.T) {
 	}
 }
 
-// A miss, dodge or parry of the strike spends Remorseless as a landed one does, and the landed strike
-// still rolls its crit with the bonus.
+// A miss, dodge or parry of the strike spends Remorseless as a landed one does.
 func TestRemorselessAttacksSpendsOnAvoidedStrikesAndCritsLandedOnes(t *testing.T) {
 	sim, rogue := newTwoTargetSim("01")
 	target := sim.Encounter.AllTargetUnits[1]
@@ -927,9 +925,8 @@ func TestMutilateTakesThePoisonBonusFromThePoisonsAtTheCast(t *testing.T) {
 const deathMarkTalents = "--335223031321001101"
 const deathMarkCoupDeGraceTalents = "-3-335223031321001101"
 
-// Death Mark spends its combo points, stores its share of the rogue's physical damage per point, twice for Rupture and
-// none of the rogue's magic damage or another unit's, pays out what it stored up to the cap, and its payout never
-// crits. Coup de Grace raises the stored share below the cap and the cap itself, each on its own.
+// Death Mark stores its share of the rogue's physical damage per point and pays out what it stored up to the cap.
+// Coup de Grace raises the stored share below the cap and the cap itself, each on its own.
 func TestDeathMarkStoresAndPaysOut(t *testing.T) {
 	for _, c := range []struct {
 		name        string
@@ -1065,8 +1062,7 @@ func newRogueWearingWith(t *testing.T, worn map[proto.ItemSlot]int32, consumes *
 }
 
 // Bonescythe Armor's 4-piece bonus: a crit of Sinister Strike or Backstab regains the energy of the spell its row
-// casts, while a Sinister Strike that does not crit and a crit of Shank, which the row's class flags also name, regain
-// none.
+// casts, while a crit of Shank, which the row's class flags also name, regains none.
 func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 	sim, rogue, target := newRogueWearing(t, map[proto.ItemSlot]int32{
 		proto.ItemSlot_ItemSlotHead:     22478, // Bonescythe Helmet
@@ -1128,9 +1124,8 @@ func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 }
 
 // Bonescythe Armor's 8-piece bonus: a landed Eviscerate grants Revealed Flaw 28815 at 28814's chance per combo point
-// it spent, and never at none. Its charge raises the crit of Sinister Strike and Backstab by 28815's percent and
-// leaves Shank's, which the row's class flags also name, alone; a Sinister Strike crit spends it. 28815's cooldown
-// does not hold a second grant back.
+// it spent. Its charge raises the crit of Sinister Strike and Backstab and leaves Shank's, which the row's class flags
+// also name, alone. 28815's cooldown does not hold a second grant back.
 func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
 	sim, rogue, target := newRogueWearing(t, map[proto.ItemSlot]int32{
 		proto.ItemSlot_ItemSlotHead:     22478, // Bonescythe Helmet
@@ -1205,8 +1200,7 @@ func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
 	grant()
 }
 
-// Bolt's Charged Eyeball cannot proc from procs, so it hears no hit of Instant Poison, a proc, but it hears Deadly
-// Poison's ticks, which are a dot's own and no cast (EV-0226).
+// Bolt's Charged Eyeball hears no hit of Instant Poison, a proc, but it hears Deadly Poison's ticks (EV-0226).
 func TestBoltsChargedEyeballHearsPoisonTicksButNotPoisonHits(t *testing.T) {
 	const rolls = 300
 	sim, rogue, target := newRogueWearingWith(t, map[proto.ItemSlot]int32{

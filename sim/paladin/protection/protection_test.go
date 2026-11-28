@@ -63,8 +63,7 @@ func protectionSuite() core.CharacterSuiteConfig {
 	}
 }
 
-// A Windfury Totem hit, landed or avoided, spends Reckoning's stored charges as a main-hand swing
-// does but swings none of them; the next main-hand swing swings each stored charge.
+// A Windfury Totem hit, landed or avoided, spends Reckoning's stored charges but swings none of them.
 func TestWindfuryTotemsStrikeSpendsReckoningWithNoSwing(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Class:         proto.Class_ClassPaladin,

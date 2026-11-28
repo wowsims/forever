@@ -66,9 +66,8 @@ func (mage *Mage) registerAccelerant() {
 	spelldata.ParseStatic(&mage.Character, spellData.Accelerant.Rank(mage.Talents.Accelerant))
 }
 
-// A Fire spell's crit burns the target for a share of its damage (11119, 8% per point) over 4 sec.
-// The DoT (412538) stacks to 1, so it rolls: a new crit adds its share to what the current DoT has
-// not ticked yet and restarts it over the full duration.
+// A Fire spell's crit burns the target for a share of its damage (11119). The DoT (412538) stacks to 1,
+// so it rolls: a new crit adds its share to what the current DoT has not ticked yet and restarts it.
 func (mage *Mage) registerIgnite() {
 	if mage.Talents.Ignite == 0 {
 		return
@@ -125,8 +124,7 @@ func (mage *Mage) registerFlameThrowing() {
 
 // "Gives your Fire spells a 10% chance to stun the target for 2 sec."
 //
-// Not modelled: the proc (12355) is an A_MOD_STUN, which a boss the sim fights is immune to, the same
-// reason Frostbite's freeze is not modelled.
+// Not modelled: the proc (12355) is an A_MOD_STUN, which a boss the sim fights is immune to.
 func (mage *Mage) registerImpact() {
 	if mage.Talents.Impact == 0 {
 		return
@@ -138,8 +136,6 @@ func (mage *Mage) registerBurningSoul() {
 		return
 	}
 
-	// Effect 1 is the chance a hit does not push back the Fire spells. Effect 2 is the threat, on misc 4,
-	// the Fire school.
 	spelldata.ParseStatic(&mage.Character, spellData.BurningSoul.Rank(mage.Talents.BurningSoul))
 }
 
@@ -175,8 +171,8 @@ func (mage *Mage) registerCombustionTalent() {
 	mage.registerCombustionSpell()
 }
 
-// Improved Fire Ward, a chance for Fire Ward to reflect Fire spells (effect 1, a flat modifier on
-// Fire Ward's effect 2). The reflect needs an enemy casting Fire at the mage, so it is not modelled.
+// A chance for Fire Ward to reflect Fire spells. The reflect needs an enemy casting Fire at the mage,
+// so it is not modelled.
 func (mage *Mage) registerImprovedFireWard() {
 	if mage.Talents.ImprovedFireWard == 0 {
 		return
@@ -271,10 +267,8 @@ const firePowerMaxEffects = 4
 // "Increases the damage done by your Fire spells by 1/2/3% per your Fire effects on the target, up to
 // a maximum increase of 12%. Effects which mix multiple schools of magic do not qualify."
 //
-// Both effects are dummies, so the count is by hand: Ignite, Improved Scorch and the Fireball and
-// Pyroblast DoTs, each counted once. Impact's stun is not modelled, so it never counts, and the
-// Frostfire Bolt DoT mixes schools; Frostfire Bolt still takes the bonus as a Fire spell. Ignite
-// ignores every modifier, so it takes none.
+// Both effects are dummies, so the count is by hand. Impact's stun is not modelled, so it never counts,
+// and the Frostfire Bolt DoT mixes schools. Ignite ignores every modifier, so it takes none.
 func (mage *Mage) registerFirePower() {
 	if mage.Talents.FirePower == 0 {
 		return

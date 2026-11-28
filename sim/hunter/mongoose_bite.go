@@ -50,8 +50,7 @@ func (hunter *Hunter) registerMongooseBite() {
 var exposePreyWindow = spellData.ExposePreyTriggered.Highest()
 
 // Expose Prey opens its own Mongoose Bite window off any attack on a target carrying Hunter's Mark.
-// The rate is the effect ladder the tooltip's $m1 names, 5/10 by rank, and the mark is the caller's
-// condition. Without the talent the window is nil, which reads as an aura that is down.
+// Without the talent the window is nil, which reads as an aura that is down.
 func (hunter *Hunter) registerExposePrey() *core.Aura {
 	if hunter.Talents.ExposePrey == 0 {
 		return nil

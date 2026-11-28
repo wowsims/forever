@@ -11,8 +11,7 @@ import (
 )
 
 // Enchant Weapon - Revelation 8217 gives a paladin buff 1323419, whose crit modifier and charge name
-// Holy Light by its class flags (family 10) and not Lay on Hands. Holy Light with the buff up takes
-// the crit and spends the charge; Lay on Hands leaves the charge up.
+// Holy Light by its class flags and not Lay on Hands.
 func TestRevelationReachesHolyLight(t *testing.T) {
 	gear := core.GetGearSet("../../../ui/specs/paladin/holy/gear_sets", "default").GearSet
 	gear.Items[proto.ItemSlot_ItemSlotMainHand].Enchant = 8217

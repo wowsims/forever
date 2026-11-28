@@ -73,7 +73,7 @@ func init() {
 	// Lifegiving Gem: Gift of Life 23725 raises maximum health by 15% for 20 s (23782) and heals for as
 	// much (23783). Both are scripted: the dummy states neither, and 23782 states 0 for its
 	// A_MOD_INCREASE_HEALTH and is not in the spell store, so the 15% is the tooltip's and the 20 s is
-	// 23782's duration. When the raise fades, only health above the lower maximum goes.
+	// 23782's duration.
 	core.NewItemEffect(19341, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		actionID := core.ActionID{SpellID: 23725}
@@ -105,14 +105,12 @@ func init() {
 		})
 	})
 
-	// The four buffs below go on at full strength and lose a stack each time their trigger fires. Each
-	// takes its trigger and duration from the on-use row; the stacks are a second, scripted row. Where
-	// the spell store lacks that row, the count and the amount a stack carries are stated here with
-	// the row they come from.
+	// Each of the four buffs below takes its trigger and duration from the on-use row; the stacks are a
+	// second, scripted row. Where the spell store lacks that row, the count and the amount a stack carries
+	// are stated here with the row they come from.
 
 	// Zandalarian Hero Badge: 2000 armor and 30 defense, less 200 armor and 3 defense for each melee
-	// or ranged hit taken. Brittle Armor 24575 states the armor (A_MOD_ARMOR_NO_MODS), the defense
-	// and the count of a stack.
+	// or ranged hit taken.
 	core.NewItemEffect(19948, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(24574)
@@ -167,8 +165,7 @@ func init() {
 
 	// Everlook Delivery Bot: 1295271 marks the target, and once as many spells or attacks as its first
 	// two effects bound have landed on it, 1295633 deals its Fire damage to it and the mark goes. The
-	// count is rolled when the mark goes on, and the mark's ProcFlags state what counts. The tooltip
-	// halves both bounds in Snowy areas, which the row names no area for.
+	// tooltip halves both bounds in Snowy areas, which the row names no area for.
 	core.NewItemEffect(274760, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		markRow := spelldata.MustFind(1295271)
@@ -225,8 +222,6 @@ func init() {
 	//
 	// Sometimes heals bearer of 158 to 238 damage when damaging an enemy in melee. This effect occurs
 	// twice as often in Strongholds and Cities.
-	//
-	// 23689's rate is the item entry's, twice that in Strongholds and Cities.
 	newEntryRateItemEffect(19287, 23682, func(character *core.Character, ppm float64) {
 		if character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
 			ppm *= 2
@@ -270,10 +265,7 @@ func init() {
 		}
 		ancientPower := character.RegisterSpell(config)
 
-		// Weapon hits roll the row's procs per minute on their weapon's speed, Auto Shot and ranged
-		// specials on the ranged weapon's. The row's harmful-spell bit makes spell hits roll the same rate,
-		// each priced on its cast time and 1.5 s at least. An area spell rolls it once per target, which is
-		// unmeasured. Thunder Clap never rolls it (EV-0131).
+		// Thunder Clap never rolls it (EV-0131). An area spell rolls it once per target, which is unmeasured.
 		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			ancientPower.Cast(sim, result.Target)
 		}, func(character *core.Character, trigger *core.ProcTrigger) {
@@ -294,12 +286,9 @@ func init() {
 	//
 	// Harmful spell casts and attacks against Furbolg have a chance to deal 105 Nature damage.
 	//
-	// 1318323 rolls the procs per minute an override puts on the row on the landed melee, ranged and
-	// harmful spell hits its row names, and casts 1318324 on the target (EV-0136). A weapon hit rolls on
-	// its weapon's speed. A spell hit rolls on the main-hand weapon's speed, a caster's who never swings
-	// included, by the owner's ruling: the logs do not settle how a spell hit is priced. Only a hit on a
-	// Furbolg rolls it: no row limits the target, the tooltip does. Its on-use, Irresistible Scent
-	// 1296664, charms the target, which the sim does not model.
+	// 1318323 rolls the procs per minute an override puts on the row; a spell hit rolls on the main-hand
+	// weapon's speed by the owner's ruling (EV-0136).
+	// Its on-use, Irresistible Scent 1296664, charms the target, which the sim does not model.
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1318323, BuffSpellID: 1318324,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			trigger.ProcChance = 0
@@ -318,9 +307,7 @@ func init() {
 	// Use: Marks your target, increasing your Critical Strike chance against them by 5% for 20 sec. This
 	// effect is doubled against Orcs and Ogres.
 	//
-	// 1318944's A_MOD_CRIT_CHANCE_FOR_CASTER raises the crit chance of the wearer's attacks and spells
-	// against the marked target, and no one else's. The doubling is the tooltip's alone: the equip dummy
-	// 1318945 states no amount.
+	// The doubling is the tooltip's alone: the equip dummy 1318945 states no amount.
 	core.NewItemEffect(13965, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1318944)
@@ -354,9 +341,8 @@ func init() {
 	// every 2 sec. Deals 2 times as much damage to Trolls. Lasts for 20 sec.
 	//
 	// The cloud puts 1300240 on every enemy active at the use and none that comes later. It is a ground
-	// effect, so the debuff always lands and each tick rolls its own spell hit and crit. Its end takes the
-	// debuff just before the last tick, so each enemy takes one tick fewer than the cloud has periods, with no
-	// spell power (EV-0191).
+	// effect, so the debuff always lands and each tick rolls its own spell hit and crit.
+	// One tick fewer than the cloud has periods, with no spell power (EV-0191).
 	core.NewItemEffect(10455, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		cloud := spelldata.MustFind(12766)
@@ -391,9 +377,9 @@ func init() {
 	// Equip: Dealing damage has a chance to deal 60 Nature damage to you or your current target. Deals 3
 	// times as much damage to Dinosaurs.
 	//
-	// 1311505's first effect casts 1315996, and its second holds the 3. The game files state no split between
-	// the wearer and the target. About a quarter of the shocks hit the wearer (EV-0202), and by the owner's
-	// ruling the sim sends one in four there; a shock on the wearer deals nothing the sim counts.
+	// 1311505's second effect holds the 3. The game files state no split between the wearer and the
+	// target. About a quarter of the shocks hit the wearer (EV-0202), and by the owner's ruling the sim
+	// sends one in four there; a shock on the wearer deals nothing the sim counts.
 	core.NewItemEffect(280032, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1315996)
@@ -450,8 +436,8 @@ func init() {
 	//
 	// Use: Increases your chance to Dodge by 20% for 20s or until you Dodge 3 attacks.
 	//
-	// Vigilant 1302264 goes up with its 3 charges, and each attack the wearer dodges spends one. Its
-	// ProcTypeMask names the melee and ranged attacks taken and no outcome; the dodge is the tooltip's.
+	// Vigilant 1302264's ProcTypeMask names the melee and ranged attacks taken and no outcome; the dodge
+	// is the tooltip's.
 	core.NewItemEffect(18370, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1302264)
@@ -475,9 +461,8 @@ func init() {
 	// 1% chance on Melee hit to gain 1 extra attack. Attacks against Dwarves are 3 times as likely to
 	// activate this effect.
 	//
-	// The tooltip states the chance as ${$h/3}%. 15600's ProcChance is the chance against a Dwarf and its
-	// second effect, a dummy, is the "3 times as likely". The chance against a Dwarf holds whatever
-	// the wearer's race (EV-0007).
+	// The tooltip states the chance as ${$h/3}%. The chance against a Dwarf holds whatever the wearer's
+	// race (EV-0007).
 	core.NewItemEffect(11815, func(agent core.Agent) {
 		registerExtraAttackVersus(agent.GetCharacter(), 11815, "Hand of Justice", 15600)
 	})
@@ -487,8 +472,7 @@ func init() {
 	//
 	// Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.
 	//
-	// 21969's ProcTypeMask also names helpful spells taken, but every measured proc followed a
-	// hit taken, so it hears the melee, ranged and harmful spell hits taken alone (EV-0036).
+	// 21969 hears the melee, ranged and harmful spell hits taken alone (EV-0036).
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 21969, BuffSpellID: 21970},
 		[]shared.ItemVariant{
 			{ItemID: 17774, ItemName: "Mark of the Chosen"},
@@ -551,12 +535,9 @@ func init() {
 	// This spell damage increase is doubled against Dragonkin.
 	//
 	// The row's lone harmful-spell bit decodes to a cast, so the listener is moved to landed spell hits
-	// by hand: 1318931 rolls once for each enemy a harmful spell lands on (harmfulSpells), an area spell
-	// once per target and each Arcane Missiles missile on its own. A spell that applies a damage over
-	// time effect or a debuff rolls too, a curse included. Damage over time ticks never roll, and
-	// neither does a spell fired as a proc, such as Hellfire Effect. The 8% is the row's ProcChance,
-	// which an override sets; most hardcasts roll it like instants. Misses are undetermined, so only
-	// landed spells roll (EV-0115).
+	// by hand. Misses are undetermined, so only landed spells roll.
+	// 1318931 rolls once for each enemy a harmful spell lands on. The 8% is the row's ProcChance, which an
+	// override sets (EV-0115).
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			trigger.Callback = core.CallbackOnSpellHitDealt

@@ -56,9 +56,8 @@ func (shaman *Shaman) registerFireTotem(rank *spelldata.Spell, mask int64, perio
 	return shaman.RegisterSpell(config)
 }
 
-// The totem casts its attack, 10436, at its target. The first lands at the end of the first 2.2 s
-// cast, and the totem waits 0.225 s after each cast ends before it starts the next while it keeps its
-// target: one attack every 2.425 s (EV-0011).
+// The totem waits 0.225 s after each cast ends before it starts the next while it keeps its
+// target (EV-0011).
 var searingTotemPeriod = searingAttackRank.CastTime() + 225*time.Millisecond
 
 func (shaman *Shaman) registerSearingTotemSpell() {
@@ -100,9 +99,8 @@ func (shaman *Shaman) registerMagmaTotemSpell() {
 		},
 	})
 
-	// A totem that stands its full time also pulses at the moment it ends, so a 40 s Magma Totem pulses
-	// 20 times and a 20 s one 10 times (EV-0181). The aura's expiry cancels the pulse that falls due at
-	// the same time, so that last pulse is cast here.
+	// A totem that stands its full time also pulses at the moment it ends (EV-0181). The aura's expiry
+	// cancels the pulse that falls due at the same time, so that last pulse is cast here.
 	shaman.MagmaTotem.RelatedSelfBuff.ApplyOnExpire(func(aura *core.Aura, sim *core.Simulation) {
 		if sim.CurrentTime == shaman.TotemExpirations[FireTotem] && (sim.CurrentTime-aura.StartedAt())%period == 0 {
 			pulse.Cast(sim, shaman.CurrentTarget)
@@ -111,9 +109,7 @@ func (shaman *Shaman) registerMagmaTotemSpell() {
 }
 
 // "Instantly inflicts $408428s1 fire damage to enemies within $408428a1 yd of your active Fire totem."
-// The cast deals nothing itself: it casts the Fire Nova row of its own rank, 408428, which hits. Each
-// row carries its own class flags, so Trial by Fire's cooldown reaches the cast and its damage the
-// hit, and Call of Flame and Elemental Fury name the hit alone.
+// The cast deals nothing itself: it casts the Fire Nova row of its own rank, 408428, which hits.
 // The hit lacks Not a Proc, so only listeners that can proc from procs hear it. It reports as the
 // cast's spell tagged 1, so the results show the cast and its hits as one row. The cast deals no
 // damage and the damage table leaves it out, so the hit holds the casts and the cast time: it is not

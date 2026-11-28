@@ -78,8 +78,7 @@ func (shaman *Shaman) registerBuffTotem(rank *spelldata.Spell, slot int, buff *c
 	return shaman.RegisterSpell(config)
 }
 
-// A weapon totem stands as an aura of the totem row's duration that holds the totem's category, which
-// turns its proc on. The proc is core/buffs', shared with the raid buff of the same totem.
+// The proc is core/buffs', shared with the raid buff of the same totem.
 func (shaman *Shaman) registerWeaponTotem(rank *spelldata.Spell, slot int, category string, priority float64, procTrigger *core.Aura) *core.Spell {
 	duration := rank.Duration()
 
@@ -107,8 +106,7 @@ func (shaman *Shaman) registerWeaponTotem(rank *spelldata.Spell, slot int, categ
 	return shaman.RegisterSpell(config)
 }
 
-// The rows already carry Improved Weapon Totems: Windfury's attack power and Flametongue's damage are
-// its 30% and 12% over their untalented values, so nothing applies the talent.
+// The rows already carry Improved Weapon Totems, so nothing applies the talent.
 func (shaman *Shaman) registerWindfuryTotemSpell() {
 	shaman.WindfuryTotem = shaman.registerWeaponTotem(windfuryTotemRank, AirTotem, buffs.WindfuryTotemCategory,
 		buffs.WindfuryTotemPriority(), buffs.NewWindfuryTotemProcTrigger(&shaman.Character))
@@ -122,8 +120,7 @@ func (shaman *Shaman) registerFlametongueTotemSpell() {
 }
 
 func (shaman *Shaman) registerStrengthOfEarthTotemSpell() {
-	// The rows already carry Enhancing Totems: Strength of Earth's and Grace of Air's amounts are its 15%
-	// over their untalented values, so nothing applies the talent.
+	// The rows already carry Enhancing Totems, so nothing applies the talent.
 	for _, rank := range strengthOfEarthTotemRanks {
 		shaman.registerBuffTotem(rank, EarthTotem,
 			buffs.NewSpellDataStrengthOfEarthTotemRankAura(&shaman.Unit, spellData.StrengthOfEarthTotemTriggered.Rank(rank.RankNumber())))
@@ -149,10 +146,8 @@ func (shaman *Shaman) registerFrostResistanceTotemSpell() {
 		buffs.NewSpellDataFrostResistanceTotemAura(&shaman.Unit, true, 0))
 }
 
-// Commented out upstream of this fork by "only 1 totem per type" (53970b1d84), not by
-// the Forever stubbing pass, and never called since. It is kept rather than reduced to
-// the usual empty-body no-op because the body is the only record of how the totem was
-// modelled; shaman.HealingStreamTotem stays nil until someone revisits totem slots.
+// The body is the only record of how the totem was modelled; shaman.HealingStreamTotem stays nil
+// until someone revisits totem slots.
 /* func (shaman *Shaman) registerHealingStreamTotemSpell() {
 	config := shaman.newTotemSpellConfig(3, 5394, SpellMaskBasicTotem, time.Second)
 	hsHeal := shaman.RegisterSpell(core.SpellConfig{

@@ -98,8 +98,7 @@ func (rogue *Rogue) registerRiposte() {
 		return
 	}
 
-	// Only Riposte's cast spends the window. The row's one charge on any melee ability is not modelled: in game a
-	// Sinister Strike leaves Riposte usable (EV-0099).
+	// Only Riposte's cast spends the window (EV-0099).
 	window := rogue.RegisterAura(spelldata.AuraConfig(riposteWindow))
 
 	trigger := spelldata.ProcTrigger(&rogue.Character, spellData.DefensiveState.Highest(),

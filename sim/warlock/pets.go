@@ -35,30 +35,22 @@ type petModel struct {
 
 	mp5PerOwnerIntellect float64 // MP5 per point of the warlock's Intellect
 
-	// Melee, for the demons that have it: the weapon's damage range and swing, and a multiplier on
-	// everything the demon deals.
+	// Melee, for the demons that have it; damageMod multiplies everything the demon deals.
 	meleeMin, meleeMax float64
 	swingSpeed         float64
 	damageMod          float64
 }
 
-// A demon's own health, armor and weapon are fixed shares of the creature values for its level in the game
-// files (core.CreatureHealthMaxLevel, core.CreatureArmorMaxLevel, core.CreatureStatsByLevel), each
-// demon with its own shares.
+// A demon's own health, armor and weapon are shares of the creature values for its level.
 // TODO: The shares are not yet read at 60 (EV-0075, EV-0076).
 //
-// The Sayaad's average swing before attack power: 0.698 of the creature dps at 2.0 s. Its sheet's damage range
-// spans 21.5% either side of the average (EV-0075).
+// The Sayaad's average swing before attack power (EV-0075).
 var sayaadSwingAverage = 0.698 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps * 2
 
-// The Voidwalker's average swing before attack power and before its melee is halved: 0.494 of the creature dps
-// at 2.0 s, spanning 26.4% either side (EV-0076).
+// The Voidwalker's average swing before attack power and the halving (EV-0076).
 var voidwalkerSwingAverage = 0.494 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps * 2
 
-// The sheet gives no crit from Agility or Intellect, and a demon's own stats give no regen. A demon has
-// no crit of its own: its crit is the warlock's (see petStatInheritance). The Imp's, Voidwalker's and Sayaad's
-// own health and armor are shares of the creature values and the Voidwalker's and Sayaad's attack power is
-// fixed, with nothing from Stamina or Strength; the Felhunter has no armor of its own.
+// The sheet gives no crit from Agility or Intellect, and the Felhunter has no armor of its own.
 var petModels = map[proto.WarlockOptions_Summon]petModel{
 	proto.WarlockOptions_Imp: {
 		baseStats: stats.Stats{
@@ -107,8 +99,7 @@ var petModels = map[proto.WarlockOptions_Summon]petModel{
 		meleeMin:             sayaadSwingAverage * (1 - 0.215),
 		meleeMax:             sayaadSwingAverage * (1 + 0.215),
 		swingSpeed:           2,
-		// Lash of Pain deals (16 + 0.429 × Spell Damage) × 1.10 under 5/5 Unholy Power, with no
-		// multiplier of the Sayaad's own (EV-0077).
+		// No multiplier of the Sayaad's own (EV-0077).
 		damageMod: 1,
 	},
 	proto.WarlockOptions_Felhunter: {
@@ -125,8 +116,6 @@ var petModels = map[proto.WarlockOptions_Summon]petModel{
 }
 
 // The Voidwalker, Succubus and Felhunter share their level 60 stats and base mana, each with its own base health.
-// The Voidwalker's and Succubus's Stamina and Strength convert to nothing (their health and attack power are set
-// directly).
 func meleeDemonStats(baseHealth float64) stats.Stats {
 	return stats.Stats{
 		stats.Strength:  129,
@@ -140,12 +129,10 @@ func meleeDemonStats(baseHealth float64) stats.Stats {
 	}
 }
 
-// What a demon takes from the warlock. Warlock Pet Scaling (416189) names the stats it inherits - health,
-// attack power, spell damage, resistances, armor, hit, crit, haste, mana regen - but states no amounts,
-// which the server supplies, so the shares are hand-kept. The pet model sheet gives Stamina and Intellect
-// a share of 0, yet its totals give every demon more health and ~10,870 more mana than its own stats, all
-// from the warlock. Health is 2 a point of the warlock's Stamina, on top of the demon's own, from the Nov 3 patch
-// notes. Regen is each demon's share of the warlock's Intellect as MP5 (EV-0080).
+// What a demon takes from the warlock. Warlock Pet Scaling (416189) names the stats it inherits but states
+// no amounts, so the shares are hand-kept. The pet model sheet gives Stamina and Intellect a share of 0, yet
+// its totals give every demon more health and ~10,870 more mana than its own stats, all from the warlock.
+// Health is 2 a point of the warlock's Stamina, from the Nov 3 patch notes. Regen shares (EV-0080).
 // TODO: Ingame test needed: confirm on live that demons gain 2 health a point of the warlock's Stamina.
 // TODO: The regen shares are read at one level only (EV-0080), and the Felhunter's not at all. The warlock's share of
 // mana; resistances and haste.
@@ -157,13 +144,12 @@ func (warlock *Warlock) petStatInheritance(mp5PerOwnerIntellect float64) core.Pe
 		return stats.Stats{
 			stats.Health: ownerStats[stats.Stamina] * 2,
 			stats.MP5:    ownerStats[stats.Intellect] * mp5PerOwnerIntellect,
-			// Demon Armor included: a level 30 Imp's own armor is the level 20 share only with it (EV-0078).
+			// Demon Armor included (EV-0078).
 			// TODO: In game a demon's armor is fixed at the summon (EV-0078), while its attack power and
 			// spell damage follow the warlock's.
 			stats.Armor:       ownerStats[stats.Armor] * 0.35,
 			stats.AttackPower: spellDamage * 0.17,
-			// A tenth: a Sayaad's Spell Damage is a tenth of the warlock's, plus Demonic Knowledge's own share
-			// when taken (EV-0079).
+			// A tenth (EV-0079).
 			// TODO: Measured on the Sayaad only (EV-0079).
 			stats.SpellDamage: spellDamage * 0.10,
 
@@ -173,10 +159,10 @@ func (warlock *Warlock) petStatInheritance(mp5PerOwnerIntellect float64) core.Pe
 			stats.PhysicalHitPercent: ownerStats[stats.SpellHitPercent] * 8 / 17,
 			stats.SpellHitPercent:    ownerStats[stats.SpellHitPercent],
 
-			// A demon takes the warlock's spell crit as its melee and spell crit, with no crit of its own:
+			// The warlock's spell crit as melee and spell crit, with no crit of its own:
 			// https://github.com/ClassicWoWCommunity/forever-bugs/issues/331#issuecomment-6160342081
-			// TODO: Not live yet: in game a demon still has its own crit and takes only the
-			// warlock's "+X% critical strike" gear (EV-0081). Verify in game once the change ships.
+			// TODO: Not live yet: in game a demon still has its own crit (EV-0081). Verify in game once the
+			// change ships.
 			stats.PhysicalCritPercent: ownerStats[stats.SpellCritPercent],
 			stats.SpellCritPercent:    ownerStats[stats.SpellCritPercent],
 		}
@@ -368,9 +354,8 @@ func (pet *WarlockPet) ExecuteCustomRotation(sim *core.Simulation) {
 // --- Imp ---
 
 // The Imp's Blood Pact on each player in the warlock's party, the warlock among them and no pets, up while
-// the Imp is out. With the Imp out at the start it counts in the build phase. It shares the party buff's
-// category, so a Blood Pact ticked in the settings and the Imp's own are worth one buff. Each warlock's
-// Imp puts up its own copy, and with two Imps out the strongest applies.
+// the Imp is out. It shares the party buff's category, so a Blood Pact ticked in the settings and the Imp's
+// own are worth one buff, and with two Imps out the strongest applies.
 func (warlock *Warlock) registerBloodPact() {
 	impAtStart := warlock.Imp.EnabledOnStart()
 	auras := warlock.NewPartyAuraArray(func(member *core.Character) *core.Aura {
@@ -399,7 +384,6 @@ func (pet *WarlockPet) registerFirebolt() {
 	config.ClassSpellMask = WarlockSpellImpFireBolt
 	pet.reach = config.MaxRange
 
-	// Roll the damage and to hit, then land it after the bolt's travel time
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcDamage(sim, target, fireboltHit.Average(), spell.OutcomeMagicHitAndCrit)
 		spell.DealDamageAfterTravel(sim, result)
@@ -420,7 +404,6 @@ func (pet *WarlockPet) registerLashOfPain() {
 	config := spelldata.SpellConfig(&pet.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = WarlockSpellSuccubusLashOfPain
 
-	// Roll the damage and to hit
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, lashHit.Average(), spell.OutcomeMagicHitAndCrit)
 	}
@@ -430,12 +413,11 @@ func (pet *WarlockPet) registerLashOfPain() {
 
 // --- Demonic Brand ---
 
-// Each of the demon's hits on a target the warlock branded consumes a charge and deals the brand's damage:
-// Fire from the Imp (1293698), Shadow from the others (1293697). The rows state no amount; their
-// description variables do: ((level - 26) * 1.5 + 14 to 17 + 0.078 * the warlock's spell power of the
-// row's school), times the demon's damage multipliers. The demon's own multipliers apply them: Master
-// Demonologist, Unholy Power, Soul Link and the demon's base damage modifier. Every melee, Firebolt and Lash
-// of Pain hit consumes a charge. The 1 Physical damage row (1293699), a threat marker, is left out.
+// Each of the demon's hits on a target the warlock branded consumes a charge and deals the brand's damage.
+// The rows state no amount; their description variables do: ((level - 26) * 1.5 + 14 to 17 + 0.078 * the
+// warlock's spell power of the row's school), times the demon's damage multipliers. The demon's own
+// multipliers apply them: Master Demonologist, Unholy Power, Soul Link and the base damage modifier. The 1
+// Physical damage row (1293699), a threat marker, is left out.
 // TODO: The base damage modifier and Soul Link may not reach the brand in game, since the rows' multiplier
 // names only the pet's and the school's.
 func (pet *WarlockPet) registerDemonicBrand() {

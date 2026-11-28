@@ -13,7 +13,7 @@ func (warrior *Warrior) registerShieldBlock() {
 	spelldata.ParseEffects(&warrior.Character, aura, shieldBlockRank)
 
 	// The block that spends the last charge leaves the aura up to the end of its spell batch, so the
-	// other attacks landing in that batch are blocked too and spend nothing (EV-0047, EV-0004).
+	// other attacks landing in that batch are blocked too (EV-0047, EV-0004).
 	// Holy Shield spends charges on blocks the same way but is not measured, and it still ends at its last block.
 	lastChargeSpent := false
 	batchEnd := &core.PendingAction{
@@ -36,9 +36,8 @@ func (warrior *Warrior) registerShieldBlock() {
 		dropBatchEnd(sim)
 	})
 
-	// The row states the melee and ranged hits the listener hears and the two charges the aura
-	// starts with. The block that spends a charge is an outcome no proc mask states, and a full
-	// block deals no damage, so both of those are the caller's.
+	// The block that spends a charge is an outcome no proc mask states, and a full block deals no damage,
+	// so both of those are the caller's.
 	trigger := spelldata.ProcTrigger(&warrior.Character, shieldBlockRank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			if aura.GetStacks() > 1 {

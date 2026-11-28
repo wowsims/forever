@@ -13,8 +13,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Mark of Resolution 17759's on-use spell 21956, A_SCHOOL_ABSORB with Misc 1 (Physical) on the caster.
-// The test trinkets carrying it run on a cooldown and in a category of the tests' own.
+// Mark of Resolution 17759's on-use spell 21956. The test trinkets carrying it run on a cooldown and in a
+// category of the tests' own.
 const (
 	resolutionSpell    int32 = 21956
 	resolutionCategory int32 = 2554
@@ -30,8 +30,7 @@ func withoutSpread(t *testing.T, spellID int32) {
 	editRow(t, spellID, func(s *spelldata.Spell) { s.Effects[0].Variance = 0 })
 }
 
-// The amount the row's absorb effect shields for, once its spread is gone, after checking the effect
-// absorbs Physical and not Fire, which the tests below hit it with.
+// The amount the row's absorb effect shields for, once its spread is gone.
 func physicalAbsorb(t *testing.T, spellID int32) float64 {
 	t.Helper()
 	withoutSpread(t, spellID)
@@ -61,9 +60,7 @@ func absorbAura(t *testing.T, caster *testCaster, row int32, sourceID int32) *co
 	return aura
 }
 
-// The shield takes the row's amount off the physical damage the wearer takes: a hit of twice that
-// lands for the other half, and the shield it used up is gone. A fire hit before it is not absorbed
-// and leaves the shield whole.
+// The shield takes the row's amount off the physical damage the wearer takes. A fire hit is not absorbed.
 func TestOnUseAbsorbTakesPhysicalDamageOffItsShield(t *testing.T) {
 	const itemID int32 = 991201
 	amount := physicalAbsorb(t, resolutionSpell)
@@ -163,10 +160,8 @@ func TestOnUseAbsorbRollsTheRowsSpread(t *testing.T) {
 	}
 }
 
-// Blazing Emblem 2802's on-use casts 13744, A_SCHOOL_ABSORB of Fire beside A_MOD_RESISTANCE of Fire for
-// the row's duration; its effect entry carries the resistance as a stat. The resistance is up with the
-// shield and stays while a hit eats part of it; the hit that uses the shield up removes it, resistance
-// and all.
+// Blazing Emblem 2802's on-use casts 13744, A_SCHOOL_ABSORB of Fire beside A_MOD_RESISTANCE of Fire; the
+// hit that uses the shield up removes it, resistance and all.
 func TestOnUseAbsorbCarriesTheStatsItsEffectStates(t *testing.T) {
 	const itemID, emblemSpell int32 = 991208, 13744
 	if spelldata.Find(emblemSpell) == spelldata.Nil {
@@ -211,8 +206,7 @@ func TestOnUseAbsorbCarriesTheStatsItsEffectStates(t *testing.T) {
 }
 
 // Enchant Chest - Absorption 8220: its equip aura 1249072 rolls a chance on a melee hit taken, at most
-// once per its internal cooldown, and casts 1249073, A_SCHOOL_ABSORB of Physical until used up. A copy
-// of the trigger rolling 100% stands in, so every hit taken outside the lockout procs.
+// once per its internal cooldown, and casts 1249073, A_SCHOOL_ABSORB of Physical until used up.
 func TestAbsorbProcShieldsTheWearerOnAMeleeHitTaken(t *testing.T) {
 	const chestID, enchantID int32 = 991206, 991207
 	const trigger, absorb int32 = 1249072, 1249073

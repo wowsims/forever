@@ -100,8 +100,7 @@ var DefaultRangedWeaponTypes = []proto.RangedWeaponType{
 	proto.RangedWeaponType_RangedWeaponTypeIdol,
 }
 
-// Self keeps the mana. Someone else still spends the cast and the cooldown; a dummy receives the mana.
-// Without Dreamstate the caster gains none of it.
+// Someone else still spends the cast and the cooldown; without Dreamstate the caster gains none of the mana.
 func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	for _, c := range []struct {
 		name     string
@@ -380,8 +379,7 @@ func TestHurricaneCastRollsOmenPerTarget(t *testing.T) {
 	}
 }
 
-// A Hurricane cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the channel
-// starts, and its ticks roll none (EV-0115).
+// A Hurricane cast rolls Draconic Infused Emblem 22268 once per enemy, its ticks none (EV-0115).
 func TestHurricaneCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)

@@ -42,8 +42,7 @@ func paladinWearing(t *testing.T, talents string, equipment *proto.EquipmentSpec
 	return sim.Raid.Parties[0].Players[0].(paladin.PaladinAgent).GetPaladin()
 }
 
-// Conviction 3/3 gives 6% crit to every spell and attack while the two-handed axe is equipped:
-// the auto attacks, Holy Strike and Hammer of Wrath alike.
+// Conviction 3/3 gives 6% crit to every spell and attack while the two-handed axe is equipped.
 func TestConvictionGivesEverySpellAndAttackCrit(t *testing.T) {
 	pal, base := convictionPaladin(t, UnsealedWrathTalents), convictionPaladin(t, noConvictionTalents)
 	if pal.Talents.Conviction != 3 || base.Talents.Conviction != 0 {
@@ -74,10 +73,7 @@ func TestConvictionGivesEverySpellAndAttackCrit(t *testing.T) {
 }
 
 // Two-Handed Weapon Specialization gives every Holy damage spell the bonus the physical attacks take
-// while a two-hander is equipped, whatever its defense type: the melee-defense Holy Strike, Seal of
-// Righteousness hit and Judgement of Command, the ranged-defense Judgement of Righteousness and Hammer
-// of Wrath, and the magic-defense Consecration, Exorcism, Holy Wrath and Retribution Aura's shield.
-// Holy Light heals and takes none. With a one-hander in the main hand no spell takes it.
+// while a two-hander is equipped, whatever its defense type.
 func TestTwoHandedWeaponSpecializationHolyReach(t *testing.T) {
 	pal, base := convictionPaladin(t, UnsealedWrathTalents), convictionPaladin(t, noTwoHandedSpecTalents)
 	if pal.Talents.TwoHandedWeaponSpecialization == 0 || base.Talents.TwoHandedWeaponSpecialization != 0 ||

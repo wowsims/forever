@@ -36,7 +36,6 @@ func (warrior *Warrior) makeStanceSpell(rank *spelldata.Spell, aura *core.Aura) 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
 		if warrior.WarriorInputs.StanceSnapshot {
 			// Delayed, so same-GCD casts are affected by the current aura.
-			// Alternatively, those casts could just (artificially) happen before the stance change.
 			pa := sim.GetConsumedPendingActionFromPool()
 			pa.NextActionAt = sim.CurrentTime + 10*time.Millisecond
 			pa.OnAction = aura.Activate
@@ -77,9 +76,8 @@ func (warrior *Warrior) registerDefensiveStanceAura() *core.Aura {
 	spelldata.ParseEffects(&warrior.Character, aura, defensiveStancePassive)
 
 	if warrior.Talents.Defiance > 0 {
-		// The stance the talent's threat applies in is the aura it hangs on. The row states the
-		// shield, but the parse never scopes to a shield, so it is the caller's condition, re-read
-		// on an off-hand swap.
+		// The stance the talent's threat applies in is the aura it hangs on. The row states the shield,
+		// but the parse never scopes to a shield, so it is the caller's condition.
 		defiance := spelldata.ParseEffects(&warrior.Character, aura,
 			spellData.Defiance.Rank(warrior.Talents.Defiance),
 			spelldata.Conditional(func() bool { return warrior.PseudoStats.CanBlock }))

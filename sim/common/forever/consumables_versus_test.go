@@ -51,8 +51,8 @@ func bonusAgainstTarget(character *core.Character) stats.Stats {
 	return character.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType]
 }
 
-// Potion of Demon Slaying 9224 casts 11406: attack power against Demons for the spell's duration. The item states no cooldown of its own, so the potion runs on the spell's
-// category timer and category cooldown.
+// Potion of Demon Slaying 9224 casts 11406. The item states no cooldown of its own, so the potion runs on the
+// spell's category timer and category cooldown.
 func TestPotionOfDemonSlayingIsAPotion(t *testing.T) {
 	sim, character := warriorWithConsumes(t, &proto.ConsumesSpec{OffensivePotId: 9224}, 0, 0, proto.MobType_MobTypeDemon)
 	row := spelldata.MustFind(11406)
@@ -97,9 +97,8 @@ func TestPotionOfDemonSlayingIsAPotion(t *testing.T) {
 	}
 }
 
-// Consecrated Sharpening Stone 23122 casts 28891, which puts enchant 2684 on a weapon of the
-// subclasses its SpellEquippedItems mask names; the enchant's equip spell 28893 grants melee and
-// ranged attack power against Undead, once per enchanted hand.
+// Consecrated Sharpening Stone 23122 casts 28891, which puts enchant 2684 on a weapon; the enchant's
+// equip spell 28893 grants melee and ranged attack power against Undead, once per enchanted hand.
 func TestConsecratedSharpeningStoneCountsOncePerHandItTakes(t *testing.T) {
 	const sword, dagger, shield = 2078, 4571, 1276
 	row := spelldata.MustFind(28893)

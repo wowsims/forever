@@ -16,10 +16,8 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// Stats-only suite: this spec is a gear planner, it has no healing rotation.
-// Pins the final character stats for each gear preset so the passives stay covered. The empty APL
-// rotation and the fake prepull (no SkipRotation) make it exercise a full environment reset, the
-// path the UI's stats request takes.
+// Pins the final character stats for each gear preset. The empty APL rotation and the fake prepull
+// (no SkipRotation) make it exercise a full environment reset, the path the UI's stats request takes.
 func TestHealerPriest(t *testing.T) {
 	var generators []core.TestGenerator
 	for _, gearSet := range []string{"preraid"} {
@@ -47,9 +45,8 @@ func TestHealerPriest(t *testing.T) {
 	core.RunTestSuite(t, t.Name(), generators)
 }
 
-// Holy Binding heals the priest for its share of a Flash Heal on another player, with no threat. A
-// Flash Heal on the priest itself and the priest's other heals give nothing back. The test sits with
-// the healer spec because only the healer registers Flash Heal.
+// Holy Binding heals the priest for its share of a Flash Heal on another player, with no threat. The
+// test sits with the healer spec because only the healer registers Flash Heal.
 func TestHolyBindingHealsThePriestForFlashHealOnOthers(t *testing.T) {
 	share := spelldata.MustFind(1328569).EffectN(1).Percent()
 	if share == 0 {

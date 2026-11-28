@@ -18,9 +18,7 @@ const trapTotalAPShare = 0.10
 // on a target within this radius once armed.
 const trapTriggerRadius = 5
 
-// The game files carry no arming delay either. A trap arms 0.8 s after it is placed and looks for a
-// target every 0.4 s from a point that falls evenly in its first 0.4 s; about one trap in four springs
-// a check later (EV-0218).
+// The game files carry no arming delay either. Arming time and target checks (EV-0218).
 const trapArmingDelay = 800 * time.Millisecond
 const trapCheckInterval = 400 * time.Millisecond
 const trapLateCheckChance = 0.24
@@ -35,9 +33,8 @@ func (hunter *Hunter) registerTraps() {
 	hunter.registerExplosiveTrap()
 }
 
-// The placement spell: shared trap cooldown, mana and GCD from its row. The trap lies at the hunter's
-// distance from the target when placed, so moving away afterwards does not stop it; a trap placed
-// out of reach of the standing target never springs.
+// The placement spell. The trap lies at the hunter's distance from the target when placed, so moving
+// away afterwards does not stop it; a trap placed out of reach of the standing target never springs.
 func (hunter *Hunter) trapConfig(rank *spelldata.Spell, trigger *core.Spell) core.SpellConfig {
 	config := spelldata.SpellConfig(&hunter.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty

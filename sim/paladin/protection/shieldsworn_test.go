@@ -14,9 +14,9 @@ import (
 	googleproto "google.golang.org/protobuf/proto"
 )
 
-// A Holy Strike puts up Shieldsworn's 6 sec spell block, whether or not it lands. While it is up a Fire swing
-// rolls the paladin's block chance, and a blocked Fire swing is a block to Holy Shield, which spends
-// a charge, and to Shield Specialization, which restores mana.
+// A Holy Strike puts up Shieldsworn's spell block, whether or not it lands. While it is up a Fire swing
+// rolls the paladin's block chance, and a blocked Fire swing is a block to Holy Shield and to Shield
+// Specialization.
 func TestShieldswornBlocksNonPhysicalSwings(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Targets[0].SpellSchool = proto.SpellSchool_SpellSchoolFire
@@ -111,9 +111,8 @@ func TestShieldswornBlocksNonPhysicalSwings(t *testing.T) {
 	}
 }
 
-// While Shieldsworn's spell block is up the custom boss's magic spell rolls the paladin's block chance, and a
-// blocked spell is a block to Holy Shield, which spends a charge and deals its damage to the boss, and to Shield
-// Specialization, which restores mana. Without it no spell is blocked (EV-0228).
+// While Shieldsworn's spell block is up a magic spell rolls the paladin's block chance, and a blocked
+// spell is a block to Holy Shield and to Shield Specialization (EV-0228).
 func TestShieldswornBlocksEnemySpells(t *testing.T) {
 	boss := googleproto.Clone(core.GetPresetTargetWithPath("Default/Boss").Config).(*proto.Target)
 	for _, input := range boss.TargetInputs {
@@ -183,8 +182,8 @@ func TestShieldswornBlocksEnemySpells(t *testing.T) {
 	}
 }
 
-// Shieldsworn's strike 456544 rolls Enchant Weapon - Revelation 8217 at the share of spell level 30 under a
-// level 60 wearer, a tenth of the chance, and Holy Shield's damage on a block rolls nothing (EV-0161).
+// Shieldsworn's strike rolls Revelation at the share of spell level 30 under a level 60 wearer, and Holy
+// Shield's damage on a block rolls nothing (EV-0161).
 func TestShieldswornStrikeRollsRevelationAtItsSpellLevel(t *testing.T) {
 	gear := core.GetGearSet("../../../ui/specs/paladin/protection/gear_sets", "default").GearSet
 	gear.Items[proto.ItemSlot_ItemSlotMainHand].Enchant = 8217
@@ -244,8 +243,7 @@ func TestShieldswornStrikeRollsRevelationAtItsSpellLevel(t *testing.T) {
 	}
 }
 
-// Shieldsworn's strike 456544 crits for 1.5 times, and Holy Shield's damage on a block never crits
-// (EV-0189).
+// Shieldsworn's strike crits for 1.5 times, and Holy Shield's damage on a block never crits (EV-0189).
 func TestShieldswornStrikeCritsAndBlockDamageDoesNot(t *testing.T) {
 	gear := core.GetGearSet("../../../ui/specs/paladin/protection/gear_sets", "default").GearSet
 	sim, pally, target := shieldswornPaladin(gear, core.MakeSingleTargetEncounter(0))

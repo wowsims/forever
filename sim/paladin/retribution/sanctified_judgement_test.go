@@ -58,8 +58,7 @@ func judgeSealOfRighteousness(t *testing.T, talents string) (baseCost, paid, ref
 }
 
 // Sanctified Judgement at 3/3 returns 60% of the judged seal's base mana cost on every Judgement,
-// and Benediction's 10% cut on the seal is added to the refund instead of taken from it: a 90 mana
-// seal costs 81 and returns 59.4 (EV-0063).
+// and Benediction's 10% cut on the seal is added to the refund instead of taken from it (EV-0063).
 func TestSanctifiedJudgementReturnsSealMana(t *testing.T) {
 	baseCost, paid, refund := judgeSealOfRighteousness(t, UnsealedWrathTalents)
 	if math.Abs(paid-baseCost*0.9) > 1e-6 {

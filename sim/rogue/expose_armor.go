@@ -12,8 +12,7 @@ var exposeArmorRank = spellData.ExposeArmor.Highest()
 
 func (rogue *Rogue) registerExposeArmorSpell() {
 	rogue.ExposeArmorAuras = rogue.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-		// The generated aura is the five-point finisher, which is what the raid
-		// config applies; a cast that spends fewer combo points needs a driver
+		// The generated aura is the five-point finisher; a cast that spends fewer combo points needs a driver
 		// that prices the aura from rogue.ComboPoints, and there is none yet.
 		return buffs.NewSpellDataExposeArmorAura(target, true, 0)
 	})

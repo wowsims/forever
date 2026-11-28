@@ -112,9 +112,8 @@ func (u *Updater) Check(ctx context.Context) (*Release, error) {
 	return &Release{Tag: "v" + rel.Version(), URL: rel.URL, rel: rel}, nil
 }
 
-// Downloads the release, checks it against checksums.txt and replaces the executable with it. The library's own
-// UpdateTo looks inside the archive for a file named like the executable, which fails when the user renamed it, so
-// the archive is read here by the release name instead.
+// The library's own UpdateTo looks inside the archive for a file named like the executable, which fails when the
+// user renamed it, so the archive is read here by the release name instead.
 func (u *Updater) Apply(ctx context.Context, release *Release) error {
 	if !u.CanWrite() {
 		return ErrNotWritable
@@ -164,10 +163,9 @@ func (u *Updater) CanWrite() bool {
 	return true
 }
 
-// Starts the executable again with args (os.Args[1:] keeps the same ones). On Windows it starts as a child with the
-// same console and this process exits at once, so a shell that started the simulator gets its prompt back; the
-// process must not wait, because a second update renames the executable onto the .old file it would still run from.
-// Elsewhere it replaces this process. Returns only on failure.
+// Starts the executable again with args. On Windows it starts as a child with the same console and this process
+// exits at once, so a shell that started the simulator gets its prompt back; the process must not wait, because a
+// second update renames the executable onto the .old file it would still run from. Returns only on failure.
 func (u *Updater) Restart(args []string) error {
 	env := append(os.Environ(), restartedFromEnv+"=1")
 	if runtime.GOOS != "windows" {

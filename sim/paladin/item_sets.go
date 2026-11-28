@@ -11,8 +11,8 @@ import (
 )
 
 // The six slots of a Justice set. The game files ship the sets' current pieces under encryption, so
-// the slots follow the older pieces the game files have seen: shoulders, hands, legs and feet, with
-// head and chest for the two the ItemSet row still lists.
+// the slots follow the older pieces the game files have seen, with head and chest for the two the
+// ItemSet row still lists.
 var justiceSetSlots = []proto.ItemSlot{
 	proto.ItemSlot_ItemSlotHead,
 	proto.ItemSlot_ItemSlotShoulder,

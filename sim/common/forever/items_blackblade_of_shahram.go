@@ -12,8 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Shahram 10718, whom 16602 summons, casts one of his six spells and nothing else, picked by these
-// weights (EV-0125).
+// Shahram 10718 casts one of his six spells, picked by these weights (EV-0125).
 var shahramPicks = []struct {
 	spellID  int32
 	weight   float64
@@ -27,13 +26,12 @@ var shahramPicks = []struct {
 	{16601, 2, registerFistOfShahram},
 }
 
-// Shahram begins his hardcast 1.03 to 1.83 s after the summon (EV-0125); the sim draws the delay
-// uniformly over that range.
+// When Shahram begins his hardcast after the summon (EV-0125).
 const shahramCastStartMin = 1030 * time.Millisecond
 const shahramCastStartMax = 1830 * time.Millisecond
 
 // The most Will of Shahram stacks the wearer can carry. The game files state no cap, so this one is
-// the sim's own. With every stack up, a new Will replaces the stack closest to fading.
+// the sim's own.
 const shahramWillMaxStacks = 5
 
 func init() {
@@ -42,11 +40,7 @@ func init() {
 	//
 	// Chance on hit: Summons the infernal spirit of Shahram.
 	//
-	// The game files state no rate for 16602; the item's chance-on-hit entry carries the one measured
-	// on the sword's speed. The sim summons no Shahram: each proc picks one of his spells, which lands
-	// after his cast start and the picked row's hardcast. His spells take nothing from the wearer's
-	// damage modifiers and put no threat on the wearer, and they roll the wearer's spell hit table;
-	// Flames rolls the wearer's spell crit as well.
+	// Measured rate (EV-0125). The sim summons no Shahram: each proc picks one of his spells.
 	newEntryRateItemEffect(12592, 16602, func(character *core.Character, ppm float64) {
 		type pickedSpell struct {
 			spell    *core.Spell
@@ -97,8 +91,7 @@ func init() {
 	})
 }
 
-// One of Shahram's spells as the wearer casts it: out of the rotation, with no cast of its own, and
-// with Shahram's threat, which is not the wearer's.
+// One of Shahram's spells as the wearer casts it, with Shahram's threat, which is not the wearer's.
 func shahramSpellConfig(character *core.Character, row *spelldata.Spell) core.SpellConfig {
 	config := procSpellConfig(character, row)
 	config.ThreatMultiplier = 0
@@ -117,9 +110,7 @@ func registerFlamesOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(config)
 }
 
-// Will of Shahram 16598 lands on Shahram's master, the wearer, as one more stack of the row's stats.
-// Each stack fades the row's duration after its own landing (EV-0125), and the aura lasts until the
-// latest one does.
+// Each stack fades the row's duration after its own landing (EV-0125).
 func registerWillOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16598)
 	effect := row.EffectN(1)
@@ -131,8 +122,8 @@ func registerWillOfShahram(character *core.Character) *core.Spell {
 	config.MaxStacks = shahramWillMaxStacks
 	aura := core.MakeStackingAura(character, core.StackingStatAura{Aura: config, BonusPerStack: perStack})
 
-	// When each stack fades, oldest first. A stack's fade is a pending action of its own, which drops
-	// every stack due by then, so the action of a stack already replaced or expired drops nothing.
+	// When each stack fades, oldest first. A fade drops every stack due by then, so the action of a
+	// stack already replaced or expired drops nothing.
 	var fades []time.Duration
 	aura.ApplyOnReset(func(_ *core.Aura, _ *core.Simulation) {
 		fades = fades[:0]
@@ -165,8 +156,7 @@ func registerWillOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(spell)
 }
 
-// Curse of Shahram 16597 slows the attacks of every enemy around Shahram it lands on; the movement
-// slow does nothing in the sim.
+// Slows the attacks of every enemy around Shahram it lands on; the movement slow does nothing in the sim.
 func registerCurseOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16597)
 	debuffs := shared.EnemyDebuffAuras(character, row, row.Duration(), row.DebuffEffects())
@@ -181,8 +171,7 @@ func registerCurseOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(config)
 }
 
-// Might of Shahram 16600 stuns every enemy around Shahram it lands on, which a stun-immune enemy
-// misses in full.
+// Stuns every enemy around Shahram it lands on.
 func registerMightOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16600)
 	label := fmt.Sprintf("%s %d", row.Name, row.ID)
@@ -206,8 +195,8 @@ func registerMightOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(config)
 }
 
-// Blessing of Shahram 16599 restores mana to each player of the wearer's party, never to a pet, every
-// period for the row's duration; two Blessings tick side by side (EV-0125). Its heal is left out.
+// Restores mana to each player of the wearer's party, never to a pet; two Blessings tick side by
+// side (EV-0125). Its heal is left out.
 func registerBlessingOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16599)
 	mana := row.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)
@@ -240,10 +229,9 @@ func registerBlessingOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(config)
 }
 
-// Fist of Shahram 16601 lands on Shahram's master, the wearer, and raises the wearer's melee attack
-// speed for the row's duration. Two Fists run side by side, each on its own timer (EV-0125), and
-// their speed counts once, an owner ruling. Every copy lasts the row's duration, so the newest
-// fades last and one aura refreshed by each Fist holds the same speed for the same time.
+// Two Fists run side by side, each on its own timer (EV-0125), and their speed counts once, an owner
+// ruling. Every copy lasts the row's duration, so one aura refreshed by each Fist holds the same speed
+// for the same time.
 func registerFistOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16601)
 	aura := character.RegisterAura(spelldata.AuraConfig(row))

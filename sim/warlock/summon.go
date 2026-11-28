@@ -6,9 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The summons the APL casts, each by its own row: a 10 sec cast for a share of base mana, both of which
-// Master Summoner and Fel Domination lower through the class flags the four rows share. The Voidwalker,
-// Succubus and Felhunter take the Soul Shard their rows state; the Imp's row states none.
+// The summons the APL casts, each by its own row.
 func (warlock *Warlock) registerSummons() {
 	warlock.SummonImp = warlock.registerSummon(spellData.SummonImp.Highest(), warlock.Imp)
 	warlock.SummonVoidwalker = warlock.registerSummon(spellData.SummonVoidwalker.Highest(), warlock.Voidwalker)
@@ -36,8 +34,9 @@ func (warlock *Warlock) registerSummon(row *spelldata.Spell, pet *WarlockPet) *c
 	return warlock.RegisterSpell(config)
 }
 
-// Dismisses the demon out and brings in this one, the same demon included, which returns at full mana. Summoning cancels Demonic Sacrifice's effect: any
-// demon without Demonic Pact, and with it only the demon sacrificed.
+// Dismisses the demon out and brings in this one, the same demon included, which returns at full mana.
+// Summoning cancels Demonic Sacrifice's effect: any demon without Demonic Pact, and with it only the demon
+// sacrificed.
 func (warlock *Warlock) summonDemon(sim *core.Simulation, pet *WarlockPet) {
 	if warlock.ActivePet != nil {
 		// Before the dismissal, so the stun ending does not set the dismissed demon's swings going again

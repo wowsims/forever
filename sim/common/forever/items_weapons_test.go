@@ -112,8 +112,7 @@ func weaponWearerFor(t *testing.T, class proto.Class, itemID int32, targets int,
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// The procs per minute the item's chance-on-hit entry states for the spell, which is the rate the
-// weapon's proc registers on.
+// The procs per minute the item's chance-on-hit entry states for the spell.
 func itemEntryPPM(t *testing.T, itemID int32, spellID int32) float64 {
 	t.Helper()
 	for _, effect := range core.GetItemByID(itemID).ItemEffects {
@@ -125,8 +124,7 @@ func itemEntryPPM(t *testing.T, itemID int32, spellID int32) float64 {
 	return 0
 }
 
-// Sets the procs per minute on the item's chance-on-hit entry for the spell for the length of the
-// test; 0 leaves the entry stating no rate.
+// Sets the procs per minute on the item's chance-on-hit entry for the spell for the length of the test.
 func withEntryPPM(t *testing.T, itemID int32, spellID int32, ppm float64) {
 	t.Helper()
 	for _, effect := range core.GetItemByID(itemID).ItemEffects {
@@ -143,8 +141,7 @@ func withEntryPPM(t *testing.T, itemID int32, spellID int32, ppm float64) {
 	t.Fatalf("%d has no chance-on-hit entry for %d", itemID, spellID)
 }
 
-// Checks the proc rolls the item entry's procs per minute on the weapon's speed, a chance between
-// none and certain.
+// Checks the proc rolls the item entry's procs per minute on the weapon's speed.
 func expectWeaponRate(t *testing.T, sim *core.Simulation, proc *core.Aura, mask core.ProcMask, itemID, spellID int32) {
 	t.Helper()
 	want := itemEntryPPM(t, itemID, spellID) * core.GetItemByID(itemID).SwingSpeed / 60
@@ -159,8 +156,7 @@ func rowTickCount(row *spelldata.Spell, tick *spelldata.Effect) int32 {
 }
 
 // The Green Tower 1204 carries both its generated effects, composed into the one registration core
-// takes per item: 1325228's damage shield deals its amount to the attacker of each melee hit taken
-// while the off-hand is held, and the stat proc 17154 its hits trigger registers beside it.
+// takes per item: 1325228's damage shield and the stat proc 17154.
 func TestTheGreenTowerCarriesItsShieldAndItsProc(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotOffHand, 1204)
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
@@ -176,10 +172,8 @@ func TestTheGreenTowerCarriesItsShieldAndItsProc(t *testing.T) {
 	}
 }
 
-// Ravager 7717 procs Bladestorm 9632 at the procs per minute of the item's chance-on-hit entry.
-// Bladestorm is a channel on the wearer for the row's duration that cuts off a cast in progress and
-// holds back the auto attacks, and every period strikes each enemy with 9633: main-hand weapon damage
-// plus the strike row's flat amount. The strikes do not proc Bladestorm.
+// Ravager 7717 procs Bladestorm 9632, a channel that every period strikes each enemy with 9633. The
+// strikes do not proc Bladestorm.
 func TestRavagerChannelsBladestormOverEveryEnemy(t *testing.T) {
 	t.Skip("Ravager 7717 is not in the live game files; this runs again once they hold it")
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 7717, 3)
@@ -271,8 +265,7 @@ func TestRavagerChannelsBladestormOverEveryEnemy(t *testing.T) {
 	}
 }
 
-// Heartseeking Crossbow 13040's 29626 procs at the procs per minute of the item's entry, on the
-// crossbow's speed, and strikes the target with Shadowbolt 29640 for its row's roll.
+// Heartseeking Crossbow 13040's 29626 strikes the target with Shadowbolt 29640 for its row's roll.
 func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 	if core.GetItemByID(13040) == nil {
 		t.Skip("item 13040 is not in the live game files; this runs again once they hold it")
@@ -299,9 +292,8 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 	}
 }
 
-// Naga Heartpiercer 3078's 1292647 procs at the procs per minute of the item's entry, on the bow's
-// speed, off the cast result of a ranged shot that lands, and Pierce Heart strikes then. A missed shot
-// casts none, and the shot's hit, dealt later, rolls no second one.
+// Naga Heartpiercer 3078's 1292647 procs off the cast result of a ranged shot that lands, and the
+// shot's hit, dealt later, rolls no second one.
 func TestNagaHeartpiercerStrikesOffLandedShots(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassRogue, proto.ItemSlot_ItemSlotRanged, 3078)
 	enemy := sim.Encounter.ActiveTargetUnits[0]
@@ -332,10 +324,8 @@ func TestNagaHeartpiercerStrikesOffLandedShots(t *testing.T) {
 	}
 }
 
-// Skullforge Reaver 13361 in the main hand casts 17484 at the procs per minute of the item's entry, on
-// the sword's speed, off landed main-hand swings and specials, and never off a miss, the off hand's
-// swings or a ranged hit. The brand drains the target every period for the row's duration and heals
-// the wearer the row's heal every period, and a second proc refreshes it.
+// Skullforge Reaver 13361 casts 17484 off landed main-hand swings and specials. The brand drains the
+// target and heals the wearer every period, and a second proc refreshes it.
 func TestSkullforgeReaverBrandsOnMainHandHitsAndHealsTheWearer(t *testing.T) {
 	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13361, 0)})
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -402,9 +392,9 @@ func TestSkullforgeReaverBrandsOnMainHandHitsAndHealsTheWearer(t *testing.T) {
 	}
 }
 
-// Demonfork 12621 casts 16603 at the procs per minute of the item's entry, on the weapon's speed, off
-// landed main-hand swings and specials, and a second proc refreshes the drain. The drain's ticks and heal
-// are the shared leech drain's, which TestDemonForgedBreastplateDrainsTheAttacker covers.
+// Demonfork 12621 casts 16603 off landed main-hand swings and specials, and a second proc refreshes
+// the drain. The drain's ticks and heal are the shared leech drain's, which
+// TestDemonForgedBreastplateDrainsTheAttacker covers.
 func TestDemonforkDrainsTheTargetIntoTheWearer(t *testing.T) {
 	withEntryPPM(t, 12621, 16603, 3)
 	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(12621, 0)})
@@ -439,11 +429,9 @@ func TestDemonforkDrainsTheTargetIntoTheWearer(t *testing.T) {
 	}
 }
 
-// Barovian Family Sword 14541 casts Siphon Health 18652 at the procs per minute of the item's entry, on
-// the sword's speed, and the drain goes on a target above the wearer's level with no hit roll. It ticks
-// every period for the row's duration, and each tick casts the heal the drain's row links to on the
-// wearer, for the amount the drain's row states whatever the tick dealt. The heal crits on a roll of
-// its own.
+// Barovian Family Sword 14541 casts Siphon Health 18652, and the drain goes on a target above the
+// wearer's level with no hit roll. Each tick casts the heal the drain's row links to on the wearer, for
+// the amount the drain's row states whatever the tick dealt.
 func TestBarovianFamilySwordHealsTheWearerWithEveryTick(t *testing.T) {
 	sim, character := itemWearerAgainst(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(14541, 0)},
 		&proto.Target{Name: "target", Level: 63})
@@ -504,8 +492,7 @@ func TestBarovianFamilySwordHealsTheWearerWithEveryTick(t *testing.T) {
 }
 
 // Malown's Slam 13393 puts Surge of Strength 17499 on the wearer at the procs per minute of the item's
-// entry for 17500, on the mace's speed, off landed main-hand swings and specials and never off a miss.
-// The buff raises Strength by the row's amount for the row's duration.
+// entry for 17500, off landed main-hand swings and specials.
 func TestMalownsSlamRaisesStrengthOnMainHandHits(t *testing.T) {
 	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13393, 0)})
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -540,11 +527,8 @@ func TestMalownsSlamRaisesStrengthOnMainHandHits(t *testing.T) {
 	}
 }
 
-// Felstriker 12590 puts up 16551 in the instant of the swing that procs it, after that swing's own roll:
-// the Windfury Totem hit the same swing sets off neither misses nor lands a plain hit, while the swings
-// that proc it still land plain hits (EV-0225). The Hand of Justice swing follows by the same order. The
-// buff lasts one spell batch window past its row's duration. Every landed main-hand hit procs Felstriker
-// and the extra hit's proc here.
+// Felstriker 12590 puts up 16551 in the instant of the swing that procs it, after that swing's own roll
+// (EV-0225). The Hand of Justice swing follows by the same order.
 func TestFelstrikerCoversTheExtraHitsOfTheSwingThatProcsIt(t *testing.T) {
 	for _, tc := range []struct {
 		name    string
@@ -657,10 +641,8 @@ func TestRagehammerEnrageRaisesAttackPowerAndMeleeSpeed(t *testing.T) {
 	}
 }
 
-// Hand of Edward the Odd 2243 procs Focus 18803 at the procs per minute of the item's chance-on-hit
-// entry, which the test states. Focus makes the next spell with a cast time instant, on its whole
-// global cooldown, and that cast spends it; an instant leaves it up, and unspent it fades after the
-// row's duration.
+// Hand of Edward the Odd 2243 procs Focus 18803. Focus makes the next spell with a cast time instant,
+// on its whole global cooldown; an instant leaves it up.
 func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 	if core.GetItemByID(2243) == nil {
 		t.Skip("item 2243 is not in the live game files; this runs again once they hold it")
@@ -721,9 +703,8 @@ func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 // 11750 price their chance on (EV-0025, EV-0115, EV-0219).
 const castTimeFloor = 1500 * time.Millisecond
 
-// The chance a trigger priced on cast time rolls on a hit whose cast took castTime: the row's procs per
-// minute on that time, at least castTimeFloor. Highborne Research Tablet 260205 prices its spell
-// hits this way too (EV-0131).
+// The chance a trigger priced on cast time rolls on a hit whose cast took castTime. Highborne Research
+// Tablet 260205 prices its spell hits this way too (EV-0131).
 func castTimeChance(t *testing.T, rowID int32, castTime time.Duration) float64 {
 	t.Helper()
 	ppm := float64(spelldata.MustFind(rowID).RPPM)
@@ -757,8 +738,7 @@ func procCasts(sim *core.Simulation, spell *core.Spell) int32 {
 }
 
 // One landing of a spell cast in castTime on every enemy at once, as an area spell's. Each result is
-// dealt at the cast, and the hits land once the next cast, an instant, has started. The sim then steps
-// past the cooldown of the trigger's row.
+// dealt at the cast, and the hits land once the next cast, an instant, has started.
 func landCastHits(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell, castTime time.Duration, rowID int32) {
 	t.Helper()
 	enemies := sim.Encounter.ActiveTargetUnits
@@ -795,8 +775,8 @@ func checkCastTimeRate(t *testing.T, sim *core.Simulation, character *core.Chara
 }
 
 // Blade of Eternal Darkness 17780 rolls each landed spell hit at 21978's procs per minute on the cast
-// time of the hit's cast, at least castTimeFloor: an instant on the floor, a long cast on its own time.
-// A missile keeps the time of the cast that launched it after the next cast has started.
+// time of the hit's cast. A missile keeps the time of the cast that launched it after the next cast
+// has started.
 func TestBladeOfEternalDarknessPricesEachHitOnItsCastTime(t *testing.T) {
 	sim, character, shadows := boedWearer(t, 1)
 	checkCastTimeRate(t, sim, character, 21978, func() int32 { return procCasts(sim, shadows) })
@@ -861,9 +841,8 @@ func TestBladeOfEternalDarknessRollsEachEnemyOfALandingOnce(t *testing.T) {
 	}
 }
 
-// Engulfing Shadows, the spell Blade of Eternal Darkness 17780 casts, takes no Spell Piercing bonus beyond
-// a target's Shadow resistance, and against a resistance its hit roll still resists it whole with no
-// partial resist on a landed hit.
+// Engulfing Shadows, the spell Blade of Eternal Darkness 17780 casts, takes no Spell Piercing bonus
+// beyond a target's Shadow resistance, and no partial resist on a landed hit.
 func TestEngulfingShadowsTakesNoSpellPiercingBonus(t *testing.T) {
 	sim, character, shadows := boedWearer(t, 1)
 	target := sim.Encounter.ActiveTargetUnits[0]
@@ -898,12 +877,8 @@ func TestEngulfingShadowsTakesNoSpellPiercingBonus(t *testing.T) {
 	}
 }
 
-// A landed harmful spell rolls Blade of Eternal Darkness 17780 whether or not it deals damage, a
-// spell with no proc mask too when its DefenseType is magic, its school is not Physical and the
-// wearer cast it. A damage over time tick, a wand shot, a miss, a melee ability or a Physical taunt
-// with no proc mask, a spell fired as a proc or cast by an item with no proc mask and a landing on the
-// wearer never roll it. Each is dealt at an hour-long cast, a chance that cannot fail, as core deals a cast's result
-// before its hit.
+// A landed harmful spell rolls Blade of Eternal Darkness 17780 whether or not it deals damage. Each is
+// dealt at an hour-long cast, a chance that cannot fail, as core deals a cast's result before its hit.
 func TestBladeOfEternalDarknessRollsLandedHarmfulSpellsOnly(t *testing.T) {
 	for _, event := range []struct {
 		name string
@@ -971,8 +946,8 @@ func TestBladeOfEternalDarknessRollsLandedHarmfulSpellsOnly(t *testing.T) {
 	}
 }
 
-// An untalented Troll priest wielding Blade of Eternal Darkness 17780 against one level 60 target for
-// two hours, its spells free and certain to land, and the spell the proc casts.
+// An untalented Troll priest wielding Blade of Eternal Darkness 17780, its spells free and certain to
+// land, and the spell the proc casts.
 func boedPriest(t *testing.T) (*core.Simulation, *priest.Priest, *core.Spell) {
 	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
@@ -1006,10 +981,8 @@ func boedPriest(t *testing.T) (*core.Simulation, *priest.Priest, *core.Spell) {
 	return sim, wearer, shadows
 }
 
-// Hex of Weakness 9035, which deals no damage and has no proc mask, Shadow Word: Pain 589, whose
-// landing deals none, and Holy Fire 14914, which deals damage and applies its damage over time effect,
-// each roll Blade of Eternal Darkness 17780 once a landing at the chance of their cast time; the
-// ticks roll nothing.
+// Hex of Weakness 9035, Shadow Word: Pain 589 and Holy Fire 14914 each roll Blade of Eternal Darkness
+// 17780 once a landing at the chance of their cast time; the ticks roll nothing.
 func TestBladeOfEternalDarknessRollsEachLandingOfAHexOrDamageOverTimeOnce(t *testing.T) {
 	for _, id := range []int32{9035, 589, 14914} {
 		t.Run(fmt.Sprint(id), func(t *testing.T) {
@@ -1064,9 +1037,7 @@ func TestBladeOfEternalDarknessRestoresManaWithEachProc(t *testing.T) {
 }
 
 // Moonshadow Stave 22458 rolls 1300435 on each landed harmful spell at the row's procs per minute on the
-// cast time of the spell's cast, at least castTimeFloor, a landing that deals no damage and a magic
-// spell with no proc mask, as a curse is, too. A miss, a damage over time tick and a spell fired as a
-// proc whose row is one never roll. Each proc casts Shadow 1300437 or Arcane 1300438, one in two each.
+// cast time of the spell's cast. Each proc casts Shadow 1300437 or Arcane 1300438, one in two each.
 func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	const hurricaneTick, flamestrikeTick = 1278759, 1279990
 	if !spelldata.MustFind(hurricaneTick).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {
@@ -1152,11 +1123,8 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 }
 
 // Kindling Stave 11750 rolls 1300781 on each landed harmful spell at the row's procs per minute on the
-// cast time of the spell's cast, at least castTimeFloor. A magic spell with no proc mask, as a curse or
-// Counterspell is, rolls it and a Physical one does not. A spell fired as a proc whose own row is one
-// never rolls it, and neither does a spell whose row states no defense type, such as the landing that
-// starts Arcane Missiles' channel. Flamestrike's pulses, whose rows are not procs, roll it under the
-// cast's id. Each proc casts 1300782 at the enemy hit.
+// cast time of the spell's cast. A spell whose row states no defense type never rolls it, such as the
+// landing that starts Arcane Missiles' channel. Each proc casts 1300782 at the enemy hit.
 func TestKindlingStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	const hurricaneTick, flamestrikeTick, flamestrikeCast = 1278759, 1279990, 10216
 	if !spelldata.MustFind(flamestrikeCast).IsAProc() {
@@ -1221,9 +1189,8 @@ func TestKindlingStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	}
 }
 
-// Kindling Stave 11750's 1300782 deals its row's factor at its second effect times as much to a Plant
-// as to any other target from the same rolls, and the wearer's stats sheet lists the factor against
-// Plants.
+// Kindling Stave 11750's 1300782 deals its row's factor at its second effect times as much to a Plant,
+// and the wearer's stats sheet lists the factor against Plants.
 func TestKindlingStaveDealsItsFactorToPlants(t *testing.T) {
 	factor := spelldata.MustFind(1300782).EffectAtIndex(1).BaseValue()
 	if factor <= 1 {
@@ -1261,7 +1228,7 @@ func TestKindlingStaveDealsItsFactorToPlants(t *testing.T) {
 }
 
 // A hand-written proc that runs at its item entry's procs per minute registers nothing while the entry
-// states none: Hand of Edward the Odd 2243 equips and swings with no Focus proc and no Focus aura.
+// states none (Hand of Edward the Odd 2243).
 func TestAnEntryRateProcRegistersNothingWhileTheEntryStatesNoRate(t *testing.T) {
 	if core.GetItemByID(2243) == nil {
 		t.Skip("item 2243 is not in the live game files; this runs again once they hold it")
@@ -1292,9 +1259,8 @@ func TestThunderfuryProcsAtItsEntryRate(t *testing.T) {
 	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 19019, 21992)
 }
 
-// Dragon's Call 10847 casts 13049 at the procs per minute of the item's chance-on-hit entry, on the
-// sword's speed, off any landed main-hand hit, an application that deals no damage included. A miss
-// casts nothing, and no hit rolls during the row's category cooldown, which starts at the proc.
+// Dragon's Call 10847 casts 13049 off any landed main-hand hit, an application that deals no damage
+// included, and no hit rolls during the row's category cooldown, which starts at the proc.
 func TestDragonsCallCastsOnLandedHitsOutsideItsCooldown(t *testing.T) {
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 10847, 1)
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -1425,9 +1391,8 @@ func TestDragonsCallInTheSwapSetOwnsTheWhelp(t *testing.T) {
 // The spells Shahram can land for the wearer.
 var shahramSpellIDs = []int32{16596, 16597, 16598, 16599, 16600, 16601}
 
-// Blackblade of Shahram 12592 casts 16602 at the procs per minute of the item's chance-on-hit entry,
-// on the sword's speed, off main-hand hits. Each summon lands one of Shahram's spells, none of them
-// before its row's hardcast has run.
+// Blackblade of Shahram 12592 casts 16602 off main-hand hits. Each summon lands one of Shahram's
+// spells, none of them before its row's hardcast has run.
 func TestBlackbladeOfShahramLandsOneSpellPerSummonAfterItsHardcast(t *testing.T) {
 	sim, character := weaponWearerFor(t, proto.Class_ClassShaman, 12592, 1, 6000)
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -1834,10 +1799,7 @@ func TestBlessingOfShahramRestoresManaForPartyPlayers(t *testing.T) {
 	}
 }
 
-// Spinal Reaper 288901's 21185 hears a killing blow and fires 21186. A wearer with a mana bar gains the
-// mana 21186's effect 1 states, one with only a rage bar the rage its effect 2 states in tenths. A
-// death with no kill credit gives nothing, and a second kill inside the row's cooldown gives nothing
-// either.
+// Spinal Reaper 288901's 21185 hears a killing blow and fires 21186.
 func TestSpinalReaperRestoresPowerOnAKillingBlow(t *testing.T) {
 	const reaper = 288901
 	if core.GetItemByID(reaper) == nil {
@@ -1911,8 +1873,7 @@ func TestIronfoeIsLikelierAgainstOrcs(t *testing.T) {
 }
 
 // Blade of Hanna 2801 adds a stack of Improving Form 1325509 on each main-hand swing. Only the swing
-// that brings the stacks to the count the row names casts Perfected Form 1325508: its damage once,
-// its +20 to every stat for the row's duration, and the stacks gone so they build again.
+// that brings the stacks to the count the row names casts Perfected Form 1325508.
 func TestBladeOfHannaPerfectsItsFormAtThirtyStacks(t *testing.T) {
 	if core.GetItemByID(2801) == nil {
 		t.Skip("item 2801 is not in the live game files; this runs again once they hold it")
@@ -1966,10 +1927,8 @@ func TestBladeOfHannaPerfectsItsFormAtThirtyStacks(t *testing.T) {
 	}
 }
 
-// Claymore of Two Moons 280080 rolls 1309550 at the row's procs per minute on the weapon's speed,
-// on white swings and melee specials alike. Each proc casts Waxing Moon 1319378, a spell hit whose
-// damage lands after its flight, or puts up Waning Moon 1319382's Strength for the row's duration,
-// and never both.
+// Claymore of Two Moons 280080 rolls 1309550 on white swings and melee specials alike. Each proc casts
+// Waxing Moon 1319378 or puts up Waning Moon 1319382's Strength, and never both.
 func TestClaymoreOfTwoMoonsWaxesOrWanesOnEachProc(t *testing.T) {
 	if core.GetItemByID(280080) == nil {
 		t.Skip("item 280080 is not in the live game files; this runs again once they hold it")
@@ -2042,10 +2001,8 @@ func TestClaymoreOfTwoMoonsWaxesOrWanesOnEachProc(t *testing.T) {
 	}
 }
 
-// White Obsidian Wand 274425 rolls 1294058 on a caster's wand shots at the procs per minute of the
-// item's chance-on-hit entry, on the wand's speed, and on nothing else. A landed shot puts it up, a
-// missed one does not, and Shoot leaves it up. The next spell of a school the row names that pays mana
-// costs the row's amount less and spends it; a free cast keeps it.
+// White Obsidian Wand 274425 rolls 1294058 on a caster's wand shots and on nothing else, and Shoot
+// leaves it up. The next spell of a school the row names that pays mana spends it; a free cast keeps it.
 func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T) {
 	sim, wearer := priestWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotRanged: 274425})
 	character := &wearer.Character
@@ -2121,11 +2078,8 @@ func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T
 }
 
 // Iceblade Hacker 13952 carries both its procs: every landed main-hand swing casts 1298414 on the
-// target, and 1298416 rolls the procs per minute of the item's chance-on-hit entry on the axe's speed
-// and casts its Frostbolt. A missed swing casts neither. A landed main-hand special that deals no
-// damage casts 1298414 too. With Always Hit on 1298414's row, the swing damage never misses, is never
-// dodged, parried or blocked, and can still crit. While the entry states no rate, the swing's damage
-// stays and the Frostbolt registers nothing.
+// target, and 1298416 casts its Frostbolt. A landed main-hand special that deals no damage casts
+// 1298414 too.
 func TestIcebladeHackerCarriesBothProcs(t *testing.T) {
 	editSpellRow(t, 1298414, func(s *spelldata.Spell) { s.Attr[dbcenums.ATTR_INDEX_EX_3] |= dbcenums.ATTR_EX_3_ALWAYS_HIT })
 	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13952, 0)})
@@ -2173,9 +2127,8 @@ func TestIcebladeHackerCarriesBothProcs(t *testing.T) {
 	}
 }
 
-// Mana Channeling Wand 18483 rolls 1302348 on a caster's landed wand shots at the procs per minute of
-// the item's chance-on-hit entry, on the wand's speed, and on nothing else. Each proc restores the
-// mana of 1302350, the spell 1302348 fires; a missed shot restores none.
+// Mana Channeling Wand 18483 rolls 1302348 on a caster's landed wand shots and on nothing else. Each
+// proc restores the mana of 1302350, the spell 1302348 fires.
 func TestManaChannelingWandRestoresManaOnLandedShots(t *testing.T) {
 	sim, wearer := priestWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotRanged: 18483})
 	character := &wearer.Character
@@ -2216,8 +2169,7 @@ func TestManaChannelingWandRestoresManaOnLandedShots(t *testing.T) {
 }
 
 // A warrior holding the item in the main hand against one target with no armor, which spends the
-// execute35 and execute20 shares of the encounter's end below 35% and 20% health. Its auto attacks
-// are off, every hit lands and none crits, and the item's proc fires on every main-hand hit.
+// execute35 and execute20 shares of the encounter's end below 35% and 20% health.
 func procWeaponWearer(t *testing.T, itemID int32, procName string, target *proto.Target, execute35, execute20 float64) (*core.Simulation, *core.Character) {
 	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
@@ -2284,7 +2236,7 @@ func TestBarmanShankerRendFromBehindTakesATenthOfArmor(t *testing.T) {
 
 // Sul'thraze the Lasher 9372: a landed Rage of Sul'thraze 1294430 puts Shadow Lash 1294431 on the
 // target, which deals its damage when its duration runs out. A Rage that lands while the Lash runs puts
-// up no second one and leaves its time alone; a missed Rage puts up none.
+// up no second one and leaves its time alone.
 func TestSulthrazeTheLasherLashesOnceAfterItsDuration(t *testing.T) {
 	sim, character := procWeaponWearer(t, 9372, "Sul'thraze the Lasher", &proto.Target{Name: "target", Level: 60}, 0, 0)
 	enemy := character.CurrentTarget
@@ -2321,9 +2273,9 @@ func TestSulthrazeTheLasherLashesOnceAfterItsDuration(t *testing.T) {
 	}
 }
 
-// Pendulum of Doom 9425's Fatal Wound 10373, Diabolic Skiver 9475's Fatal Wound 18206, Blackhand Doomsaw
-// 12583's Fatal Wound 16549 and Gut Ripper 2164's Wound 18107 deal the percent their row states more to a target below the health percent
-// their row states, from that phase's start, and their plain damage to a target above it.
+// Pendulum of Doom 9425's Fatal Wound 10373, Diabolic Skiver 9475's Fatal Wound 18206, Blackhand
+// Doomsaw 12583's Fatal Wound 16549 and Gut Ripper 2164's Wound 18107 deal the percent their row
+// states more to a target below the health percent their row states, from that phase's start.
 func TestFatalWoundDealsMoreBelowTheExecuteHealth(t *testing.T) {
 	for _, item := range []struct {
 		itemID, spellID int32
@@ -2381,9 +2333,8 @@ func TestFatalWoundDealsMoreBelowTheExecuteHealth(t *testing.T) {
 	}
 }
 
-// Flame Wrath 11809's proc puts 16560 on the wearer for the row's duration, raising its Fire
-// resistance by the row's amount, and a melee hit taken then casts the shield's damage at the
-// attacker. A later proc refreshes it.
+// Flame Wrath 11809's proc puts 16560 on the wearer, and a melee hit taken then casts the shield's
+// damage at the attacker. A later proc refreshes it.
 func TestFlameWrathPutsUpItsFireShield(t *testing.T) {
 	sim, character := procWeaponWearer(t, 11809, "Flame Wrath", &proto.Target{Name: "target", Level: 60}, 0, 0)
 	enemy := character.CurrentTarget
@@ -2424,10 +2375,8 @@ func castDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit) floa
 }
 
 // The factor each item's row states against its tooltip's creatures, read through the row's versus
-// bonus: Gahz'rilla Fang 9467's 3742 against Aquatic enemies, The Chief's Enforcer 9477's 1294339
-// against Trolls, Angerforge's Battle Axe 11816's 1300783 against Orcs, and Sul'thraze the Lasher
-// 9372's Shadow Lash 1294431 against Trolls, which its Rage of Sul'thraze 1294430 states and leaves
-// its own hit without.
+// bonus, and Sul'thraze the Lasher 9372's Shadow Lash 1294431 against Trolls, which its Rage of
+// Sul'thraze 1294430 states and leaves its own hit without.
 func TestProcSpellsDealTheirVersusFactor(t *testing.T) {
 	for _, tc := range []struct {
 		itemID         int32

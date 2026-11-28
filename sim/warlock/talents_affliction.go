@@ -66,9 +66,8 @@ func (warlock *Warlock) applyGrimReach() {
 	spelldata.ParseStatic(&warlock.Character, spellData.GrimReach.Rank(warlock.Talents.GrimReach))
 }
 
-// Killing a target with this warlock's Drain Soul on it grants Soul Harvest (1242853). The talent row states
-// no proc, so the trigger is the kill Drain Soul's PROC_FLAG_KILL hears: the raid's kill roll decides it. The
-// buff row states the 2/2 value; the talent's dummies price it at each rank.
+// The talent row states no proc, so the trigger is the kill Drain Soul's PROC_FLAG_KILL hears: the raid's
+// kill roll decides it. The buff row states the 2/2 value; the talent's dummies price it at each rank.
 func (warlock *Warlock) applySoulHarvest() {
 	if warlock.Talents.SoulHarvest == 0 {
 		return
@@ -236,8 +235,8 @@ func (warlock *Warlock) soulSiphonPerEffect() float64 {
 
 // The multiplier a Soul Siphon spell's tick takes. Row 17804 is a single A_DUMMY stating the per-effect
 // share only, with no class flags and no cap, so the spells and effects are the tooltip's: Drain Life,
-// Drain Soul and Wrack, each of which calls this, gain the share per Corruption, Siphon Life and Bane of
-// Agony of this warlock's on the target. The tooltip's cap of three shares is those three effects.
+// Drain Soul and Wrack gain the share per Corruption, Siphon Life and Bane of Agony of this warlock's on
+// the target. The tooltip's cap of three shares is those three effects.
 func (warlock *Warlock) soulSiphonMultiplier(target *core.Unit, multiplierPerEffect float64) float64 {
 	if multiplierPerEffect == 0 {
 		return 1
@@ -245,9 +244,7 @@ func (warlock *Warlock) soulSiphonMultiplier(target *core.Unit, multiplierPerEff
 	return 1 + multiplierPerEffect*warlock.AfflictionCount(target)
 }
 
-// Builds a Soul Siphon channel: Drain Life, Drain Soul and Wrack share the tick, hit roll and expected
-// damage, and differ in the tick effect and what each adds on top. afterTick, when given, runs on each
-// tick's result once it is dealt (Drain Life's heal).
+// Builds a Soul Siphon channel. afterTick, when given, runs on each tick's result once it is dealt.
 func (warlock *Warlock) soulSiphonChannelConfig(rankedSpell *spelldata.Spell, tick *spelldata.Effect,
 	afterTick func(sim *core.Simulation, result *core.SpellResult)) core.SpellConfig {
 	soulSiphonMult := warlock.soulSiphonPerEffect()

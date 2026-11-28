@@ -41,8 +41,7 @@ var ItemSetBattlegearOfMight = core.NewItemSet(core.ItemSet{
 			// The row states A_ADD_PCT_MODIFIER on the threat, which the parse maps to
 			// SpellMod_ThreatMultiplier_Pct: that scales the threat a spell's damage makes, and
 			// Sunder Armor deals none. All of its threat is the flat bonus and its attack power
-			// share, which SpellMod_FlatThreatBonus_Pct scales together, so only the amount and the
-			// spells it names come off the row.
+			// share, which SpellMod_FlatThreatBonus_Pct scales together.
 			setBonusAura.AttachSpellMod(core.SpellModConfig{
 				ClassFlags: mightSunderThreat.EffectN(1).ClassFlags,
 				Kind:       core.SpellMod_FlatThreatBonus_Pct,
@@ -125,8 +124,7 @@ var ItemSetBattlegearOfWrath = core.NewItemSet(core.ItemSet{
 			parry.AttachProcTrigger(consume)
 
 			// The rate is the proc chance column, which the tooltip's $h% says is a real roll; the
-			// block it fires on is the row's, off its block hint, which the decoder reads as the
-			// outcome and as a hit that carries no damage.
+			// block it fires on is the row's.
 			trigger := spelldata.ProcTrigger(&warrior.Character, wrathParryProc,
 				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 					parry.Activate(sim)

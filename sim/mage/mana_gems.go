@@ -7,9 +7,8 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// One of each conjured gem, best first, one use each per fight. Each is shown as its item. The
-// conjure spells' E_CREATE_ITEM states item 0 (Conjure Mana Ruby, 10054), so the item ids are stated
-// here; ItemXItemEffect links each item to its Replenish Mana spell.
+// One of each conjured gem, best first, one use each per fight. The conjure spells' E_CREATE_ITEM
+// states item 0 (Conjure Mana Ruby, 10054), so the item ids are stated here.
 var manaGems = []struct {
 	itemID int32
 	name   string
@@ -21,10 +20,9 @@ var manaGems = []struct {
 	{5514, "Mana Agate", spellData.ConjureManaAgateTriggered.Highest()},
 }
 
-// The cooldown the gems share: their items' on-use category, which healthstones and the other
-// conjured consumables share too, not the Replenish Mana rows' 60 sec category 30. Every gem's item
-// states the same category, so the first gem the consumables catalogue carries sets it for all four;
-// Mana Agate is not in the catalogue.
+// The cooldown the gems share: their items' on-use category, not the Replenish Mana rows' 60 sec
+// category 30. Every gem's item states the same category, so the first gem the consumables catalogue
+// carries sets it for all four; Mana Agate is not in the catalogue.
 func (mage *Mage) manaGemCooldown() core.Cooldown {
 	for _, gem := range manaGems {
 		if onUses := core.GetConsumableByID(gem.itemID).OnUseEffects(); len(onUses) > 0 {

@@ -31,10 +31,9 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 		6: func(agent core.Agent, setBonusAura *core.Aura) {
 			character := agent.GetCharacter()
 
-			// A_MOD_DAMAGE_TAKEN rather than a from-caster aura: every caster's spells take it. "Up to
-			// $s1" is spell damage against the target, which each spell takes at its own coefficient,
-			// as Judgement of the Crusader does, so it is not parsed into the flat damage taken.
-			// The row's one charge is spent by the next spell that hits the target.
+			// A_MOD_DAMAGE_TAKEN: every caster's spells take it. "Up to $s1" is spell damage against the
+			// target, which each spell takes at its own coefficient, so it is not parsed into the flat
+			// damage taken. The row's one charge is spent by the next spell that hits the target.
 			taken := frostfireVulnDebuff.EffectN(1)
 			var takenSchools []stats.SchoolIndex
 			for school := core.SpellSchoolHoly; school <= core.SpellSchoolArcane; school <<= 1 {
@@ -64,9 +63,8 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 				return aura.AttachProcTrigger(consume)
 			})
 
-			// The rate is the proc chance column. PROC_FLAG_DEAL_HARMFUL_SPELL decodes to the cast,
-			// which names no target; the debuff goes on the one a damage spell landed on, the
-			// tooltip's "your damage spells".
+			// PROC_FLAG_DEAL_HARMFUL_SPELL decodes to the cast, which names no target; the debuff goes
+			// on the one a damage spell landed on, the tooltip's "your damage spells".
 			trigger := spelldata.ProcTrigger(character, frostfireVulnerability,
 				func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 					debuffs.Get(result.Target).Activate(sim)
@@ -120,9 +118,9 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 			consume.TriggerImmediately = true
 			buff.AttachProcTrigger(consume)
 
-			// The rate is the proc chance column. The proc effect's class flags name another
-			// class's family, which the resolver drops. It listens to landed damage spells for the
-			// consume's reason, so the hit that procs it keeps its threat and the next one loses it.
+			// The proc effect's class flags name another class's family, which the resolver drops.
+			// It listens to landed damage spells for the consume's reason, so the hit that procs it
+			// keeps its threat and the next one loses it.
 			trigger := spelldata.ProcTrigger(character, frostfireNotThere,
 				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 					buff.Activate(sim)
@@ -148,7 +146,7 @@ var (
 // Tier 1
 //
 // The ItemSet row lists six pieces, but the game files ship only the shoulders, hands, legs and feet, so the
-// 5-piece bonus cannot be worn yet and no test wears it.
+// 5-piece bonus cannot be worn yet.
 var ItemSetManaflareRegalia = core.NewItemSet(core.ItemSet{
 	ID:   2098,
 	Name: "Manaflare Regalia",
@@ -166,8 +164,7 @@ var ItemSetManaflareRegalia = core.NewItemSet(core.ItemSet{
 		// critical strike chance while your Combustion spell is active, and has a 10% increased chance to trigger
 		// Fingers of Frost."
 		//
-		// Three dummies the talents read while this aura is up: effect 1 in registerMissileBarrage, effect 2 in
-		// registerCombustionSpell, effect 3 in registerFingersOfFrost. Each chance adds its points to the talent's.
+		// Three dummies the talents read while this aura is up. Each chance adds its points to the talent's.
 		// TODO: Ingame test needed -- whether the 10% adds percentage points to each proc chance or scales it.
 		5: func(agent core.Agent, setBonusAura *core.Aura) {
 			agent.(MageAgent).GetMage().manaflareAura = setBonusAura

@@ -45,8 +45,7 @@ func (hunter *Hunter) registerAspect(row *spelldata.Spell) *core.Aura {
 }
 
 // The parse has no row for movement speed, so effect 1 is set by hand, with Pathfinding's
-// SPELLMOD_EFFECT1 added to it. Effect 2 dazes the hunter when struck: a slow of its own, which
-// MultiplyMovementSpeed stacks on the aspect's speed.
+// SPELLMOD_EFFECT1 added to it. Effect 2 dazes the hunter when struck: a slow of its own.
 func (hunter *Hunter) registerAspectOfTheCheetah() {
 	speed := aspectOfTheCheetahRank.EffectN(1).Percent() + spellData.Pathfinding.EffectAt(1).FractionAt(hunter.Talents.Pathfinding)
 	aura := hunter.registerAspect(aspectOfTheCheetahRank)
@@ -70,10 +69,10 @@ func (hunter *Hunter) registerAspectOfTheCheetah() {
 	aura.AttachProcTrigger(daze)
 }
 
-// Deadly Aspects is the chance the aspects' own procs fire with: the Hawk and Beast rows state the
-// trigger and no rate, and the talent adds SPELLMOD_CHANCE_OF_SUCCESS to each - 2% a rank - which
-// the parse has no row for. The tooltip names Auto Shot and melee auto attacks where the rows hear
-// every ranged and melee hit, so each mask is narrowed to the white hits by hand.
+// The chance the aspects' own procs fire with: the Hawk and Beast rows state the trigger and no rate,
+// and the talent adds SPELLMOD_CHANCE_OF_SUCCESS to each, which the parse has no row for. The tooltip
+// names Auto Shot and melee auto attacks where the rows hear every ranged and melee hit, so each mask
+// is narrowed to the white hits by hand.
 func (hunter *Hunter) registerDeadlyAspects(hawkAuras []*core.Aura) {
 	rank := hunter.Talents.DeadlyAspects
 	if rank == 0 {

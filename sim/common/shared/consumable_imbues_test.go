@@ -16,11 +16,9 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Test imbues shaped like four of the game's: an oil like Brilliant Wizard Oil 20749 (Effect 54,
-// healing, spell damage and a spell crit percent), a stone like Dense Sharpening Stone 12404 (Effect
-// 54, flat weapon damage), a firestone like Firestone 13699 (Effect 360, fire spell damage) and a
-// spellstone like Major Spellstone 13603 (Effect 360, fire and shadow damage and 2% cast speed). The
-// main set wears two test one-handers, and the item swap set two others.
+// Test imbues shaped like four of the game's: an oil like Brilliant Wizard Oil 20749, a stone like
+// Dense Sharpening Stone 12404, a firestone like Firestone 13699 and a spellstone like Major
+// Spellstone 13603. The main set wears two test one-handers, and the item swap set two others.
 const (
 	swapTestOil int32 = 991531 + iota
 	swapTestStone
@@ -129,8 +127,7 @@ func TestTemporaryEnchantStatsApplyPerEnchantedHand(t *testing.T) {
 }
 
 // The spellstone's cast speed multiplies the wearer's spell haste while the weapon carrying it is
-// worn, arriving and leaving with the swap weapon, also when the swap weapon is a second copy of the
-// main set's; the oil states no speed and gets no speed aura.
+// worn, also when the swap weapon is a second copy of the main set's.
 func TestTemporaryEnchantHasteFollowsTheEnchantedHand(t *testing.T) {
 	_, bare := newImbueSwapSim(t, &proto.ConsumesSpec{}, false)
 	for _, tc := range []struct {
@@ -178,8 +175,7 @@ func TestTemporaryEnchantHasteFollowsTheEnchantedHand(t *testing.T) {
 	}
 }
 
-// On the hand from the start, the spellstone is gear on the character sheet: its fire and shadow
-// damage and its cast speed show in the gear column, and the later columns add no more of them.
+// On the hand from the start, the spellstone is gear on the character sheet.
 func TestTemporaryEnchantSpeedShowsAsGearOnTheSheet(t *testing.T) {
 	sheet := func(consumes *proto.ConsumesSpec) *proto.PlayerStats {
 		request := &proto.ComputeStatsRequest{Raid: imbueSwapRaid(imbueSwapPlayer(consumes, false)), Encounter: imbueSwapEncounter}
@@ -205,8 +201,7 @@ func TestTemporaryEnchantSpeedShowsAsGearOnTheSheet(t *testing.T) {
 	}
 }
 
-// An imbue the spec names for the item swap set goes on the swap weapon alone: its stats and flat
-// weapon damage arrive with that weapon and leave when the main set is worn again.
+// An imbue the spec names for the item swap set goes on the swap weapon alone.
 func TestSwapImbueFollowsTheSwapWeapon(t *testing.T) {
 	for _, tc := range []struct {
 		name       string
@@ -257,9 +252,8 @@ func TestSwapImbueFollowsTheSwapWeapon(t *testing.T) {
 	}
 }
 
-// Shadow Oil 3824, enchant 25: its combat spell 350026 is cast off the enchanted weapon's hits, at the
-// chance the store writes onto 350026's row from the enchantment, with the 10 s internal cooldown the
-// override states.
+// Shadow Oil 3824, enchant 25: its combat spell 350026 is cast off the enchanted weapon's hits, with
+// the 10 s internal cooldown the override states.
 func TestTemporaryEnchantCombatSpellRegistersAWeaponProc(t *testing.T) {
 	shadowOil := core.Consumable{Id: 3824, Name: "Shadow Oil", TemporaryEnchant: &core.Enchant{
 		EffectID:       25,
@@ -285,10 +279,8 @@ func TestTemporaryEnchantCombatSpellRegistersAWeaponProc(t *testing.T) {
 	}
 }
 
-// Scroll of Imbue Manablade's enchant 8715 names 1308913, a chance on the wearer's melee swings and
-// abilities with a ProcCategoryRecovery, firing 1306613's E_ENERGIZE mana; Scroll of Imbue Spark's
-// 8707 names 1307644, a chance on the melee hits the wearer takes with a lockout of its own, firing
-// 1306610's E_MODIFY_COOLDOWNS_BY_CATEGORY, a reduction of one category's cooldown.
+// Scroll of Imbue Manablade's enchant 8715 names 1308913, firing 1306613's mana; Scroll of Imbue
+// Spark's 8707 names 1307644, firing 1306610's reduction of one category's cooldown.
 const (
 	manabladeProc int32 = 1308913
 	sparkProc     int32 = 1307644
@@ -348,7 +340,6 @@ func takeHit(t *testing.T, sim *core.Simulation, caster *testCaster) {
 
 // A proc row stating one A_PROC_TRIGGER_SPELL is built where the spell it fires restores mana to the
 // wearer or changes one of the wearer's category cooldowns, and refused where that spell does neither.
-// Three store rows, reshaped for the test, stand in for the spells fired.
 func TestFiredSpellUnsupported(t *testing.T) {
 	const gainID, cooldownID, damageID int32 = 1306613, 1306610, 1293421
 	onWearer := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER}
@@ -379,7 +370,7 @@ func TestFiredSpellUnsupported(t *testing.T) {
 
 // Each main-hand hit outside the trigger's lockout rolls its chance for the mana the fired spell
 // rolls, a hit inside it or off the other hand restores nothing, and a wearer with no mana bar gets
-// no listener at all. A copy of the trigger fixes the lockout at 3 s.
+// no listener at all.
 func TestManabladeRestoresManaOnTheImbuedHandsHits(t *testing.T) {
 	const imbueID int32 = 991503
 	editRow(t, manabladeProc, func(s *spelldata.Spell) { s.ICDMs = 3000 })
@@ -427,8 +418,7 @@ func TestManabladeRestoresManaOnTheImbuedHandsHits(t *testing.T) {
 
 // A melee hit the wearer takes rolls the chance that takes the fired spell's reduction off its
 // category's cooldown, the one Fire Blast runs on; the wearer's own hits do not, and neither does a
-// hit inside the trigger's lockout. The category is held for the whole reduction, which a proc makes
-// ready at once. Copies of the rows fix the lockout at 4 s and the reduction at 100 s.
+// hit inside the trigger's lockout.
 func TestSparkResetsItsCategoryOnHitsTaken(t *testing.T) {
 	editRow(t, sparkProc, func(s *spelldata.Spell) { s.ICDMs = 4000 })
 	editRow(t, firedSpell(sparkProc).ID, func(s *spelldata.Spell) {

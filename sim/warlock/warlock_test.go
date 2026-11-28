@@ -20,8 +20,7 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// Each suite runs a build preset from ui/specs/warlock/dps/builds, the file the UI's build of that name reads:
-// its talents, demons, consumables and rotation, on the gear set of the same name, its own race and the one named.
+// Each suite runs a build preset from ui/specs/warlock/dps/builds, the file the UI's build of that name reads.
 func TestDemonologyFireBrand(t *testing.T) {
 	runBuildSuite(t, "Fire Brand", "demo_fire_brand", proto.Race_RaceHuman)
 }
@@ -179,8 +178,8 @@ func TestDemonHitIsTheWarlocksSpellHit(t *testing.T) {
 	}
 }
 
-// In execute, Decimation's buff (440873) comes with the cast of a Shadow Bolt or Searing Pain whose hit lands,
-// before a Shadow Bolt reaches the target; a miss grants nothing, and the bolt's impact grants nothing either.
+// In execute, Decimation's buff (440873) comes with the cast of a Shadow Bolt or Searing Pain whose hit lands;
+// a miss grants nothing, and the bolt's impact grants nothing either.
 func TestDecimationGrantedOnLandedCast(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Duration = 3600
@@ -227,8 +226,7 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 
 // Bane of Agony's base ramps in thirds while each tick reads the spell power of the moment, with its share
 // unramped, and Amplify Curse (talent 9) raises the whole tick for the whole of the Bane it landed with, spent or
-// not. Each tick leaves its base and share in the dot's snapshot base, which the last tick clears as the dot ends,
-// so the test reads the first 11.
+// not. The last tick clears the dot's snapshot base as the dot ends, so the test reads the first 11.
 func TestBaneOfAgonyTicksFollowSpellPower(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Duration = 600
@@ -311,9 +309,8 @@ func TestBaneOfAgonySpendsAmplifyCurseWhenItLands(t *testing.T) {
 	}
 }
 
-// A Bane of Agony recast at an instant its tick is due, before the tick's action runs, deals that tick as the old
-// Bane ends at the ramp of its time since the old Bane landed: at its first tick, the first third's share, the same
-// as the new Bane's first tick.
+// A Bane of Agony recast at an instant its tick is due deals that tick as the old Bane ends at the ramp of its time
+// since the old Bane landed: at its first tick, the same as the new Bane's first tick.
 func TestBaneOfAgonyRecastAtADueTickKeepsItsRamp(t *testing.T) {
 	sim, warlock := newWarlockSim("", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
 	target := sim.Encounter.AllTargetUnits[0]
@@ -343,10 +340,8 @@ func TestBaneOfAgonyRecastAtADueTickKeepsItsRamp(t *testing.T) {
 	}
 }
 
-// The Imp's Blood Pact is up on the party's players while the Imp is out, counts in the stats with the Imp out at
-// the start, and drops when the Imp is dismissed or sacrificed. A Blood Pact ticked in the party buffs adds nothing
-// while the Imp's is up and takes over once it drops. With two Imps in the party one Blood Pact counts, and it
-// stays up while either Imp is out.
+// The Imp's Blood Pact is up on the party's players while the Imp is out, and drops when the Imp is dismissed or
+// sacrificed.
 func TestBloodPactLastsWhileTheImpIsOut(t *testing.T) {
 	bloodPact := buffs.BloodPactValue(0)
 	encounter := core.MakeSingleTargetEncounter(0)
@@ -714,13 +709,9 @@ func TestExpectedDotTickCountsItsCrits(t *testing.T) {
 
 // While Wrack is channelled on a target, this warlock's Corruption, Siphon Life and Bane of Agony there also tick on
 // the half points of their period from their application: each half point from the instant the channel starts up
-// to the instant it ends, both included. Their own ticks and their expiry stay, and every tick deals in full;
-// Bane of Agony's ramp follows the time since it landed, a tick on a third's end taking the lower third, and each
-// Siphon Life tick heals the warlock for its damage. The custom metric wrack holds the half-point ticks' damage,
-// each tick's in full. The warlock's effect on another target and a second warlock's on the channelled target tick
-// as they do without Wrack. The windows are in seconds from the effect's application, shaped like channels logged
-// in game, and one with no end runs the channel out: one started on a half point ticks it at once, and a recast at
-// the instant one ends ticks that point once. Siphon Life is the 14th affliction talent, Wrack the 17th.
+// to the instant it ends, both included. The windows are in seconds from the effect's application, shaped like
+// channels logged in game, and one with no end runs the channel out. Siphon Life is the 14th affliction talent,
+// Wrack the 17th.
 func TestWrackTicksTheHalfPointsOfTheWarlocksDots(t *testing.T) {
 	type window struct{ from, to float64 }
 	corruption := func(w *Warlock) *core.Spell { return w.Corruption }
@@ -908,9 +899,7 @@ type wrackEvent struct {
 }
 
 // A warlock with Wrack and no crit, the warlock's Corruption on the target, Wrack's channel there, the time
-// Corruption was applied, and a check to run on Corruption's ticks once it has ended. Each start and end of the
-// channel with Corruption up keeps its application, duration and expiry, and the last leaves it the ticks it deals
-// later.
+// Corruption was applied, and a check to run on Corruption's ticks once it has ended.
 func newWrackOnCorruption(t *testing.T) (*core.Simulation, *Warlock, *core.Dot, *core.Dot, time.Duration, func([]dotTick)) {
 	t.Helper()
 	sim, warlock := newWarlockSim("00000000000001001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
@@ -998,8 +987,7 @@ func checkFullTicks(t *testing.T, ticks []dotTick, start time.Duration, want []f
 
 // Wrack's channel starting or ending at an instant Corruption has a tick due deals that tick once, whether the event
 // runs before the tick's own action or after it, and the next tick falls on the grid of the period the channel
-// leaves. A channel recast at the half point another one ended on ticks that point once, also when the end runs
-// before the tick and the recast after it.
+// leaves.
 func TestWrackOnADueTickDealsItOnce(t *testing.T) {
 	cases := []struct {
 		name   string
@@ -1238,7 +1226,6 @@ func TestSoulSiphonCountsCorruptionSiphonLifeAndAgony(t *testing.T) {
 
 // Hellfire Effect and the Rain of Fire wave are cast by their channels, so Judgement of Wisdom on the target
 // hears their hits only when the hit's row is flagged Not a Proc or the judgement's row can proc from procs.
-// Searing Pain shows the judgement hears the warlock's own casts.
 func TestChannelEffectsReturnJudgementOfWisdomManaAsTheirRowsAllow(t *testing.T) {
 	raid := core.SinglePlayerRaidProto(warlockPlayer("Warlock", "", &proto.WarlockOptions{}), &proto.PartyBuffs{}, &proto.RaidBuffs{},
 		&proto.Debuffs{JudgementOfWisdom: true})
@@ -1322,8 +1309,7 @@ func TestRainOfFireCastReturnsJudgementOfWisdomManaFromEachEnemy(t *testing.T) {
 	}
 }
 
-// A Rain of Fire cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the channel
-// starts, and its waves roll none (EV-0115).
+// A Rain of Fire cast rolls Draconic Infused Emblem 22268 once for each enemy, and its waves roll none (EV-0115).
 func TestRainOfFireCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	player := warlockPlayer("Warlock", "", &proto.WarlockOptions{})
@@ -1380,7 +1366,7 @@ func TestRainOfFireCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 }
 
 // Touch of the Grave needs a hit that deals damage, and the Rain of Fire and Hellfire casts deal none, so
-// neither drains. Searing Pain shows that the drain hears the warlock's spells.
+// neither drains.
 func TestChannelCastsDrainNoTouchOfTheGrave(t *testing.T) {
 	player := warlockPlayer("Warlock", "", &proto.WarlockOptions{})
 	player.Race = proto.Race_RaceUndead
@@ -1419,8 +1405,8 @@ func TestChannelCastsDrainNoTouchOfTheGrave(t *testing.T) {
 	}
 }
 
-// Hellfire's burn on the caster takes the caster's Fire damage done modifiers and crits at the caster's spell
-// crit chance for the channel's crit damage, which Ruin raises (EV-0229).
+// Hellfire's burn on the caster takes the caster's Fire damage done modifiers and crits for the channel's crit
+// damage, which Ruin raises (EV-0229).
 func TestHellfireBurnTakesFireModifiersAndCrits(t *testing.T) {
 	burnRatios := func(talents string) (modified float64, crit float64) {
 		sim, warlock := newWarlockSim(talents, &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))

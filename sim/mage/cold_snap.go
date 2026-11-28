@@ -11,9 +11,8 @@ var coldSnapRank = spellData.ColdSnap.Highest()
 // https://www.wowhead.com/forever/spell=12472
 //
 // "Finishes the remaining cooldown on all your other Frost spells." The row's effect is a dummy, so
-// "Frost spells" is read as the school: Frost Nova, Cone of Cold, Ice Block and Ice Barrier. A
-// cooldown a spell of another school also runs on is left alone, so Frost Ward, which shares
-// category 56 with Fire Ward, is not reset.
+// "Frost spells" is read as the school. A cooldown a spell of another school also runs on is left
+// alone, so Frost Ward, which shares category 56 with Fire Ward, is not reset.
 func (mage *Mage) registerColdSnapSpell() {
 	var resets []*core.Spell
 

@@ -44,9 +44,7 @@ func runFor(sim *core.Simulation, d time.Duration) {
 }
 
 // Innervate lets all of the spirit regen continue while casting and multiplies the spirit regen and
-// the gear's MP5 by its row's mana regen factor, whatever share Reverence already lets through: with the
-// standard talents' 2/2 Reverence it is the same regen, and Reverence's 30% is back once the aura falls
-// off. The mana bar's regen follows each change.
+// the gear's MP5 by its row's mana regen factor, whatever share Reverence already lets through.
 func TestInnervateMultipliesTheFullRegen(t *testing.T) {
 	factor := core.MultiplierFromPercent(spelldata.MustFind(29166).Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue())
 	for _, c := range []struct {
@@ -103,9 +101,7 @@ func TestInnervateMultipliesTheFullRegen(t *testing.T) {
 }
 
 // Innervate multiplies the Spirit regen and the MP5 from gear, but a periodic energize buff ticks its
-// own mana under it: over the whole Innervate the paladin gains the multiplied Spirit and gear regen
-// plus the buff's mana as it ticks without Innervate. Any other mana regen multiplier, such as Skyborne
-// Energized's, scales the buff's mana with the rest.
+// own mana under it. Any other mana regen multiplier scales the buff's mana with the rest.
 func TestInnervateLeavesEnergizeBuffsUnscaled(t *testing.T) {
 	factor := core.MultiplierFromPercent(spelldata.MustFind(29166).Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue())
 	for _, c := range []struct {

@@ -11,9 +11,8 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
-// Runs entirely on its own goroutine: candidate generation alone can take minutes for a
-// large selection, and the HTTP handler has to hand the client its progress id first or
-// there is nothing to poll and nothing to cancel.
+// Runs entirely on its own goroutine: candidate generation alone can take minutes, and the HTTP
+// handler has to hand the client its progress id first.
 func BulkSimAsync(request *proto.BulkSimRequest, progress chan *proto.ProgressMetrics, requestId string) {
 	go runBulkSimAsync(request, progress, requestId)
 }
@@ -35,10 +34,9 @@ func runBulkSimAsync(request *proto.BulkSimRequest, progress chan *proto.Progres
 		}
 	}()
 
-	// Registered before generation, not after: generation can take minutes, and the
-	// client already holds its progress id, so an abort arriving in that window has to
-	// land somewhere. bulk.BulkSimAsync registers the same id itself, so the id is
-	// handed back before delegating to it.
+	// Registered before generation: the client already holds its progress id, so an abort arriving
+	// in that window has to land somewhere. bulk.BulkSimAsync registers the same id itself, so the id
+	// is handed back before delegating to it.
 	signals, err := simsignals.RegisterWithId(requestId)
 	if err != nil {
 		finishBulkSim(progress, proto.BulkSimStage_BulkSimStageError, &proto.BulkSimResult{

@@ -62,8 +62,7 @@ var ItemSetFineryOfInfiniteWisdom = core.NewItemSet(core.ItemSet{
 		proto.ItemSlot_ItemSlotBack,
 	},
 	Bonuses: map[int32]core.ApplySetBonus{
-		// Increases the damage of your Shadow Word: Pain spell by 5%. The row's class flags name
-		// Shadow Word: Pain alone.
+		// Increases the damage of your Shadow Word: Pain spell by 5%.
 		3: parsedSetBonus(26172),
 	},
 })
@@ -157,7 +156,7 @@ var ItemSetRaimentsOfConviction = core.NewItemSet(core.ItemSet{
 		4: func(_ core.Agent, setBonusAura *core.Aura) {
 			// Increases damage done by your spells and effects by up to 21 when fighting Undead.
 			// The parse table reads A_MOD_DAMAGE_DONE_CREATURE as physical and spell damage; this
-			// bonus keeps the spell damage alone, its amount and creature types read off the effect.
+			// bonus keeps the spell damage alone.
 			effect := convictionUndeadDamage.EffectN(1)
 			setBonusAura.
 				AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: effect.BaseValue()}, spelldata.MobTypes(effect.Misc)...).

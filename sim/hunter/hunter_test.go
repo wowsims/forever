@@ -94,9 +94,9 @@ var DefaultOptions = &proto.Player_Hunter{
 	},
 }
 
-// Every pet family, fully trained, on one race, talent set and rotation: the pet's own suite, so
-// that each family's abilities run without multiplying the hunter's. The talents are Beast Mastery,
-// the pet's tree, and the rotation sends two hawks for each Arcane Shot, the two spells sharing a cooldown.
+// Every pet family, fully trained: the pet's own suite, so that each family's abilities run without
+// multiplying the hunter's. The rotation sends two hawks for each Arcane Shot, the two spells sharing a
+// cooldown.
 func TestHunterPets(t *testing.T) {
 	turretRotation := core.GetAplRotation("../../ui/specs/hunter/dps/apls", "default")
 	turretRotation.Label = "turret"
@@ -122,7 +122,7 @@ func TestHunterPets(t *testing.T) {
 }
 
 // Auto Shot needs the bow, gun or crossbow its row names: a thrown weapon in the ranged slot fires
-// none and starts no windup, the weave set's bow fires them.
+// none and starts no windup.
 func TestAutoShotNeedsABowGunOrCrossbow(t *testing.T) {
 	const thrown = 20814 // Master's Throwing Dagger
 	if item := core.GetItemByID(thrown); item == nil || item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeThrown {
@@ -171,9 +171,7 @@ func TestAutoShotNeedsABowGunOrCrossbow(t *testing.T) {
 	}
 }
 
-// Sniper Shot's buff carries Auto Shot's reach past the 41 yards Hawk Eye gives it, for three Shots: a
-// hunter at 45 yards fires no Auto Shot until Sniper Shot lands, then lands at most three per Sniper
-// Shot.
+// Sniper Shot's buff carries Auto Shot's reach past the 41 yards Hawk Eye gives it, for three Shots.
 func TestSniperShotExtendsAutoShotRange(t *testing.T) {
 	shots := func(castSniperShot bool) (sniperShots, autoShots, landed int32) {
 		rotation := &proto.APLRotation{Type: proto.APLRotation_TypeAPL}
@@ -381,7 +379,7 @@ func TestLaceratingStrikesReplacesTheBleedOnTheNextBite(t *testing.T) {
 }
 
 // Strider Kick's 30% speed lasts the row's 3 seconds, and a walk that outlasts it ends where it was
-// going: a walk out to range started 2.5 seconds after the kick runs its first half second at 130%.
+// going.
 func TestStriderKickSpeedRunsOutMidWalk(t *testing.T) {
 	player := &proto.Player{
 		Name:               "Kick",
@@ -462,8 +460,7 @@ func TestMinorSpeedBootsRunFaster(t *testing.T) {
 	}
 }
 
-// Survivalist's Discipline shortens the traps' shared cooldown by 20% a rank: a placed Explosive Trap
-// holds Immolation Trap back 30, 24 or 18 seconds.
+// Survivalist's Discipline shortens the traps' shared cooldown by 20% a rank.
 func TestSurvivalistsDisciplineShortensTheTrapCooldown(t *testing.T) {
 	for points, want := range []time.Duration{30 * time.Second, 24 * time.Second, 18 * time.Second} {
 		player := &proto.Player{

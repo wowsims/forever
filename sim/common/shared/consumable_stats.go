@@ -11,13 +11,7 @@ import (
 )
 
 // A consumable whose on-use spell puts auras on the user that the parser attaches: an elixir, a
-// flask, a scroll, food's Well Fed. Each spell that carries such auras, the on-use spell's own or one
-// it triggers on the user, becomes an aura of its own.
-//
-// A buff that outlasts the item's cooldown is up from the pull: for the whole iteration where the row
-// persists through death, and for the row's duration otherwise. A scroll is up for the whole
-// iteration too, and its stats count with the elixirs' (R-0054). A buff its cooldown outlasts is used
-// in combat, on that cooldown.
+// flask, a scroll, food's Well Fed. A scroll's stats count with the elixirs' (R-0054).
 func NewSpellDataStatConsumable(itemID int32) {
 	core.NewSpellDataConsumableEffect(itemID, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -44,8 +38,7 @@ func NewSpellDataStatConsumable(itemID int32) {
 	})
 }
 
-// Whether a buff of the consumable is shorter than the item's cooldown, so the item is used in combat
-// rather than up from the pull.
+// Whether a buff of the consumable is shorter than the item's cooldown, so the item is used in combat.
 func usedInCombat(buffs []*spelldata.Spell, cooldowns consumableCooldowns) bool {
 	return slices.ContainsFunc(buffs, func(buff *spelldata.Spell) bool {
 		return buff.DurationMs > 0 && buff.Duration() < cooldowns.longest()
@@ -53,9 +46,7 @@ func usedInCombat(buffs []*spelldata.Spell, cooldowns consumableCooldowns) bool 
 }
 
 // The category a stat consumable is used one at a time with the others of, or 0: one whose cooldown
-// lasts as long as each of the consumable's buffs, which are up from the pull. The Blasted Lands buffs
-// 8410-8424 share category 103's 1 h, as long as each lasts. The generator makes the category an
-// exclusive group.
+// lasts as long as each of the consumable's buffs, which are up from the pull.
 func OneAtATimeCategory(itemEffect *proto.ItemEffect) int32 {
 	row := spelldata.Find(itemEffect.BuffId)
 	buffs := consumableBuffs(row)
@@ -68,9 +59,8 @@ func OneAtATimeCategory(itemEffect *proto.ItemEffect) int32 {
 	return cooldowns.category
 }
 
-// The consumable's on-use spell and each spell it triggers on the user: food puts its Well Fed buff up
-// that way. A periodic trigger with a value hands its amount to every effect of the spell it
-// triggers: Nutritious Food states Well Fed's Strength that way.
+// The consumable's on-use spell and each spell it triggers on the user. A periodic trigger with a
+// value hands its amount to every effect of the spell it triggers.
 func ConsumableSpells(row *spelldata.Spell) []*spelldata.Spell {
 	spells := []*spelldata.Spell{row}
 	for i := range row.Effects {
@@ -110,10 +100,7 @@ func LandsOnTheUser(e *spelldata.Effect) bool {
 		dbcenums.TARGET_UNIT_TARGET_ANY}, e.Target[0])
 }
 
-// Why the stat builder cannot put up the auras of the consumable's spells, or nil where it can: an
-// aura the parser does not attach, other than the model's size, one whose amount the server rolls,
-// and a spell that states no duration for its aura. The eating and drinking are left out, since they
-// last only while seated.
+// Why the stat builder cannot put up the auras of the consumable's spells, or nil where it can.
 func StatConsumableUnsupported(row *spelldata.Spell) []string {
 	var unsupported []string
 	for _, s := range ConsumableSpells(row) {
@@ -186,8 +173,7 @@ func consumableAura(character *core.Character, consumable core.Consumable, buff 
 	return aura
 }
 
-// Whether the consumable's spells put a crit chance on the user, which counts under ElixirCrit for an
-// elixir. The generator puts such elixirs into one group.
+// Whether the consumable's spells put a crit chance on the user.
 func GrantsCrit(row *spelldata.Spell) bool {
 	return slices.ContainsFunc(consumableBuffs(row), func(s *spelldata.Spell) bool { return len(critEffects(s)) > 0 })
 }
@@ -205,8 +191,7 @@ func critEffects(s *spelldata.Spell) []int32 {
 	return positions
 }
 
-// The item used from the bar on its own cooldown and the category cooldown it shares, with the cast
-// time and global cooldown its spell states.
+// The item used from the bar on its own cooldown and the category cooldown it shares.
 func registerConsumableOnUse(character *core.Character, consumable core.Consumable, itemEffect *proto.ItemEffect,
 	row *spelldata.Spell, auras []*core.Aura) {
 	spell := character.RegisterSpell(core.SpellConfig{

@@ -10,7 +10,7 @@ var whirlwindRank = spellData.Whirlwind.Highest()
 
 func (warrior *Warrior) registerWhirlwind() {
 	// Improved Whirlwind's A_DUMMY is the share it adds to the damage dealt to the closest enemy, which
-	// is the first one a strike hits. The parse skips the dummy, so both hands scale that result here.
+	// is the first one a strike hits.
 	closestBonus := 1 + spellData.ImprovedWhirlwind.Rank(warrior.Talents.ImprovedWhirlwind).EffectN(2).Percent()
 	scaleClosest := func(sim *core.Simulation, spell *core.Spell, results core.SpellResultSlice) {
 		if closestBonus == 1 || len(results) == 0 {
@@ -21,8 +21,7 @@ func (warrior *Warrior) registerWhirlwind() {
 		result.Threat = spell.ThreatFromDamage(sim, result.Outcome, result.Damage, spell.Unit.AttackTables[result.Target.UnitIndex])
 	}
 
-	// The tooltip of 1680 strikes with both melee weapons, and the row states only the one weapon
-	// damage effect, so the off-hand strike is a sub-spell on the same row.
+	// The row states only the one weapon damage effect, so the off-hand strike is a sub-spell on it.
 	ohConfig := spelldata.SpellConfig(&warrior.Unit, whirlwindRank,
 		spelldata.Melee(core.ProcMaskMeleeOHSpecial), spelldata.Proc())
 	ohConfig.ActionID = ohConfig.ActionID.WithHand(proto.ItemSlot_ItemSlotOffHand)

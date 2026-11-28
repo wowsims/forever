@@ -17,8 +17,7 @@ import (
 var consecratedGroundTalents = "55320015020121251-503020005001"
 
 // Consecration marks its bonus targets as it is cast, and the mark outlasts the ground by the mark
-// row's duration. A Holy hit on a marked target takes Consecrated Ground's bonus, and a target past
-// the bonus targets takes none.
+// row's duration.
 func TestConsecratedGroundMarksTheBonusTargetsAtTheCast(t *testing.T) {
 	ground := paladin.ConsecrationRankMap.Highest()
 	bonusTargets := int(ground.Effect(dbcenums.A_PERIODIC_DUMMY, 0).Average())
@@ -89,8 +88,7 @@ func TestConsecratedGroundMarksTheBonusTargetsAtTheCast(t *testing.T) {
 	}
 }
 
-// The mark is Consecration's own, laid on the first bonus targets with or without the talent; without
-// it the mark's damage from caster mod stays at the row's 0 points.
+// Without the talent the mark's damage from caster mod stays at the row's 0 points.
 func TestConsecrationMarksTheBonusTargetsWithoutTheTalent(t *testing.T) {
 	ground := paladin.ConsecrationRankMap.Highest()
 	bonusTargets := int(ground.Effect(dbcenums.A_PERIODIC_DUMMY, 0).Average())

@@ -7,11 +7,8 @@ import (
 )
 
 // The tooltip's "reduces base armor by 27% in Bear Form and 16% in Dire Bear Form". The row carries the
-// penalty as effect 4, an A_DUMMY with no value. In Bear Form the game takes 27% of the item armor and the
-// items' bonus armor, both after the form's multiplier, and of the 2 armor per Agility (EV-0032, EV-0109).
-// Buff armor stays whole and the level adds nothing. Thick Hide's armor stays whole, as no measured druid had
-// it. Dire Bear Form takes its 16% from the same share: the item and bonus armor after the form's multiplier
-// and the Agility armor drop by 16% (EV-0034).
+// penalty as effect 4, an A_DUMMY with no value. Bear Form's share of the armor (EV-0032, EV-0109) and
+// Dire Bear Form's (EV-0034). Thick Hide's armor stays whole, as no measured druid had it.
 const (
 	enrageBearArmorScale     = 0.73
 	enrageDireBearArmorScale = 0.84
@@ -24,9 +21,9 @@ func (druid *Druid) registerEnrageSpell() {
 	config.Flags |= core.SpellFlagAPL
 	config.Hot = spelldata.DotConfig(rank, periodic)
 	config.Hot.SelfOnly = true
-	// The periodic rage is the row's first effect, so a SPELLMOD_EFFECT1 on Enrage (Enraged Idol's
-	// 1291060) raises each tick. The parse puts that modifier on BonusBaseDamage, in the row's tenths of rage.
-	// The combat log writes no line for these ticks, though each threatens as any rage gained does.
+	// The parse puts a SPELLMOD_EFFECT1 on Enrage (Enraged Idol's 1291060) on BonusBaseDamage, in the
+	// row's tenths of rage. The combat log writes no line for these ticks, though each threatens as any
+	// rage gained does.
 	config.Hot.OnTick = func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
 		druid.AddRage(sim, periodic.Tenths()+dot.Spell.BonusBaseDamage/10, druid.enrageMetrics())
 	}

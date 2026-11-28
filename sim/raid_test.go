@@ -106,8 +106,7 @@ func TestFixedRaid(t *testing.T) {
 }
 */
 
-// The Dynamic Adds preset's two targets each work on their own: an encounter with the add alone, or the boss alone,
-// simulates as plain targets.
+// The Dynamic Adds preset's two targets each work on their own.
 func TestDynamicAddsTargetsAlone(t *testing.T) {
 	boss := core.GetPresetTargetWithID(99999)
 	add := core.GetPresetTargetWithID(99998)
@@ -160,8 +159,7 @@ func runDynamicAdds(t *testing.T, duration float64, killSharePercent *float64) s
 	return result.Logs
 }
 
-// The Dynamic Adds boss spawns its add 10 s in and every 30 s after, and the add dies 20 s after each spawn: a 180 s
-// fight spawns at 10 s, 40 s, ... and the add dies at 30 s, 60 s, ... and at the fight's end.
+// The Dynamic Adds boss spawns its add 10 s in and every 30 s after, and the add dies 20 s after each spawn.
 func TestDynamicAddsPresetEncounter(t *testing.T) {
 	logs := runDynamicAdds(t, 180, nil)
 	spawns := logTimes(logs, "Spawned 1 adds")
@@ -176,8 +174,7 @@ func TestDynamicAddsPresetEncounter(t *testing.T) {
 	}
 }
 
-// The boss's Kill share % input is the chance the raid gets each despawning add's kill: 0 never credits it, 100
-// always does, and 20 credits some and not others.
+// The boss's Kill share % input is the chance the raid gets each despawning add's kill.
 func TestDynamicAddsKillShare(t *testing.T) {
 	for _, tc := range []struct {
 		percent       float64

@@ -13,8 +13,7 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// Stats-only suite: this spec is a gear planner, it has no healing rotation.
-// Pins the final character stats for each gear preset so the passives stay covered. The empty APL
+// Stats-only suite: this spec is a gear planner, it has no healing rotation. The empty APL
 // rotation and the fake prepull (no SkipRotation) make it exercise a full environment reset, the
 // path the UI's stats request takes.
 func TestRestorationShaman(t *testing.T) {

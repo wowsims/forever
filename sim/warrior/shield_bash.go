@@ -14,7 +14,7 @@ const shieldBashThreatMultiplier = 1.5
 
 func (warrior *Warrior) registerShieldBash() {
 	// A main-hand special, though the row requires the shield: the main-hand weapon skill sets its miss
-	// and parry, and core's canProcFrom decides which weapon procs hear it.
+	// and parry.
 	config := spelldata.SpellConfig(&warrior.Unit, shieldBashRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ThreatMultiplier = shieldBashThreatMultiplier
 

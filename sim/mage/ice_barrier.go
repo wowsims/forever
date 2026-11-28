@@ -10,8 +10,7 @@ import (
 // it; its tooltip does ("$1326891s1%").
 var frigidPowerRank = spellData.IceBarrierTriggered.ByID(1326891)
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.IceBarrier lists.
+// Only the highest rank is registered.
 func (mage *Mage) registerIceBarrierSpell() {
 	mage.registerIceBarrierRank(spellData.IceBarrier.Len(), spellData.IceBarrier.Highest())
 }

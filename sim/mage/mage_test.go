@@ -152,8 +152,7 @@ func TestMissileBarrageArcaneMissilesKeepsClearcasting(t *testing.T) {
 	}
 }
 
-// An Arcane Blast hits with the Arcane Charge it adds: the mage's spell damage at the hit is above
-// what it was before the cast, and at the stack cap it is unchanged.
+// An Arcane Blast hits with the Arcane Charge it adds.
 func TestArcaneBlastHitsWithTheChargeItAdds(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
 	target := mage.CurrentTarget
@@ -200,8 +199,7 @@ func TestArcaneBlastHitsWithTheChargeItAdds(t *testing.T) {
 	}
 }
 
-// A rotation of only Arcane Missiles procs Clearcasting at about the talent's chance per channel: the
-// channel start and its five missiles share that chance between them.
+// A rotation of only Arcane Missiles procs Clearcasting at about the talent's chance per channel.
 func TestArcaneMissilesSplitsClearcastingChance(t *testing.T) {
 	_, mage := newMageSim(ArcaneTalents)
 	chance := arcaneConcentrationChance(mage)
@@ -224,8 +222,7 @@ func TestArcaneMissilesSplitsClearcastingChance(t *testing.T) {
 	}
 }
 
-// The Arcane Missiles channel rolls Arcane Concentration once as it starts, before its first missile flies,
-// at a sixth of the talent's chance.
+// The Arcane Missiles channel rolls Arcane Concentration once as it starts, at a sixth of the talent's chance.
 func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
 	target := mage.CurrentTarget
@@ -257,7 +254,7 @@ func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 }
 
 // The missiles of the Arcane Missiles channel are hits, so each rolls its partial resist against the
-// target's whole average resist where a channel's ticks roll against a tenth of it (EV-0142).
+// target's whole average resist (EV-0142).
 func TestArcaneMissilesMeetTheTargetsFullResistance(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
 	target := mage.CurrentTarget
@@ -379,8 +376,7 @@ func TestBlizzardCastRollsArcaneConcentrationOncePerCast(t *testing.T) {
 	}
 }
 
-// A Blizzard cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the channel
-// starts, and its ticks roll none (EV-0115).
+// A Blizzard cast rolls Draconic Infused Emblem 22268 once for each enemy, and its ticks roll none (EV-0115).
 func TestBlizzardCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)
@@ -431,8 +427,7 @@ func TestBlizzardCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	}
 }
 
-// A Flamestrike ground tick rolls Revelation once however many enemies it lands on: against many enemies a
-// tick procs it about as often as against one (EV-0149).
+// A Flamestrike ground tick rolls Revelation once however many enemies it lands on (EV-0149).
 func TestFlamestrikeGroundTickRollsRevelationOnce(t *testing.T) {
 	const ticks, manyTargets = 1500, 8
 	one, many := flamestrikeTickRevelations(t, 1, ticks), flamestrikeTickRevelations(t, manyTargets, ticks)
@@ -526,9 +521,7 @@ func TestRevelationCritsTheDirectHitOfFireballPyroblastAndFrostfireBolt(t *testi
 }
 
 // Each Arcane Missiles missile rolls its crit as it launches, and Revelation's charge goes to the first
-// missile launched after it comes: a missile in flight at the gain keeps its own roll and lands without
-// spending the charge, the next one launched crits, and its landing spends the charge. A missile in
-// flight that crits by its own roll spends the charge as it lands (EV-0149).
+// missile launched after it comes (EV-0149).
 func TestArcaneMissilesGiveRevelationsChargeToTheNextMissileLaunched(t *testing.T) {
 	for _, critsInFlight := range []bool{false, true} {
 		sim, mage, buff := newRevelationMage(t, ArcaneTalents, 1)
@@ -678,8 +671,7 @@ func flamestrikeTick(t *testing.T, mage *Mage) *core.Spell {
 	return nil
 }
 
-// A mage with no gear but a staff enchanted with Revelation, against the given number of targets for an
-// hour, and the mage's Revelation buff.
+// A mage with no gear but a staff enchanted with Revelation, and the mage's Revelation buff.
 func newRevelationMage(t *testing.T, talents string, targets int) (*core.Simulation, *Mage, *core.Aura) {
 	const staff = 1613
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
@@ -695,8 +687,7 @@ func newRevelationMage(t *testing.T, talents string, targets int) (*core.Simulat
 	return sim, mage, buff
 }
 
-// How many of the given Flamestrike ground ticks proc Revelation against the given number of targets, the
-// buff taken down after every tick.
+// How many of the given Flamestrike ground ticks proc Revelation, the buff taken down after every tick.
 func flamestrikeTickRevelations(t *testing.T, targets, ticks int) (revelations int) {
 	sim, mage, buff := newRevelationMage(t, ArcaneTalents, targets)
 	burn := flamestrikeBurn(t, mage)

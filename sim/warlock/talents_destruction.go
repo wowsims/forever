@@ -48,8 +48,8 @@ func (warlock *Warlock) applyDestructiveReach() {
 	}
 }
 
-// Shadow Bolt crits leave Shadow Vulnerability (17794) on the target: 12 sec of more Shadow damage taken from
-// this warlock, with no charges, so another crit refreshes it. The row states rank 1; the talent prices the rank.
+// Shadow Vulnerability (17794) has no charges, so another crit refreshes it. The row states rank 1; the
+// talent prices the rank.
 func (warlock *Warlock) applyImprovedShadowBolt() {
 	if warlock.Talents.ImprovedShadowBolt == 0 {
 		return
@@ -190,10 +190,7 @@ func (warlock *Warlock) applyFireAndBrimstone() {
 
 // --- Tier 6 ---
 
-// Conflagrate hits leave more Shadow damage for 20 sec (1293816), Shadowburn hits more Fire damage
-// (426311), both parsed from their rows at the talent's amount. Effect 2 is both the chance Conflagrate keeps
-// Immolate burning and the chance Shadowburn refunds its Soul Shard, 100% at 5/5. The row's effects are dummies
-// the tooltip reads.
+// The row's effects are dummies the tooltip reads.
 func (warlock *Warlock) applyShadowAndFlame() {
 	if warlock.Talents.ShadowAndFlame == 0 {
 		return
@@ -213,9 +210,7 @@ func (warlock *Warlock) applyShadowAndFlame() {
 		},
 	})
 
-	// The talent's effects 3 and 4 price the buffs at each rank: "increases all Shadow damage you deal by
-	// $m3%" and "all Fire damage you deal by $m4%". The buff rows' own 10% does not apply, so each buff
-	// parses a copy of its row with the talent's amount.
+	// The talent's effects 3 and 4 price the buffs at each rank; the buff rows' own 10% does not apply.
 	buffOnHit := func(buffRow *spelldata.Spell, amount *spelldata.Effect, hitBy spelldata.Ladder) {
 		buff := warlock.RegisterAura(spelldata.AuraConfig(buffRow))
 		priced := *buffRow

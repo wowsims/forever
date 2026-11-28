@@ -10,8 +10,8 @@ import (
 
 var ConsecrationRankMap = spellData.Consecration
 
-// The mark the ground lays on the first enemies inside it, one aura per enemy: the bonus tick's dummy,
-// and Consecrated Ground's Holy damage from caster mod, whose points the server sets from the talent.
+// The mark the ground lays on the first enemies inside it: the bonus tick's dummy, and Consecrated
+// Ground's Holy damage from caster mod, whose points the server sets from the talent.
 // The area trigger keeps it up while the ground stands, so it outlives the last tick by the row's
 // 0.6 sec.
 func (paladin *Paladin) registerConsecrationMark() {
@@ -35,9 +35,8 @@ func (paladin *Paladin) registerConsecrationMark() {
 // The ground ticks once a period after the cast, none at the cast. Each tick rolls spell hit and crit
 // on its own, though no row in the ladder states Periodic Can Crit.
 //
-// A tick is the pulse row's hit, which its periodic dummy casts: a proc, since the row lacks Not A Proc,
-// and periodic damage, since it carries Treat As Periodic. So neither a listener on spell hits nor one on
-// periodic damage that cannot proc from procs hears it (EV-0226).
+// A tick is a proc and periodic damage, so neither a listener on spell hits nor one on periodic damage
+// that cannot proc from procs hears it (EV-0226).
 // TODO: Ingame test needed -- whether a periodic listener that can proc from procs hears a tick. The sim lets it.
 func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	tickSpell := spellData.ConsecrationTriggered.Rank(n)
@@ -50,8 +49,6 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	numberOfTicks := int32(rank.Duration() / tickLength)
 	markTail := spellData.ConsecratedGroundTriggered.Highest().Duration()
 
-	// The ground marks the enemies inside it, up to the bonus targets, and keeps every mark up for the
-	// time it has left and the mark's tail: at the cast, and at each tick for an enemy that came later.
 	markTargets := func(sim *core.Simulation, remaining time.Duration) {
 		marked := 0
 		for _, target := range sim.Encounter.ActiveTargetUnits {
@@ -77,9 +74,8 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		NumberOfTicks:    numberOfTicks,
 		TickLength:       tickLength,
 		BonusCoefficient: tick.Coeff(),
-		// The marked enemies take the bonus and its coefficient in the same hit: the dot's coefficient
-		// is raised for their hit alone, so core adds their spell damage under the done multipliers and
-		// Judgement of the Crusader after them (EV-0143).
+		// The marked enemies take the bonus and its coefficient in the same hit (EV-0143): the dot's
+		// coefficient is raised for their hit alone.
 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
 			markTargets(sim, dot.RemainingDuration(sim))
 			coefficient := dot.BonusCoefficient
@@ -101,11 +97,9 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	config.ClassSpellMask = SpellMaskConsecration
 	config.RelatedDotSpell = pulse
 
-	// The cast lands on each enemy in the area as a spell of its own, as an area channel's cast does
-	// (spelldata.RegisterAreaCastLanding): a harmful-spell proc rolls once for each enemy, and a listener
-	// that needs a damage component, such as Touch of the Grave, hears none of it (EV-0115). The
-	// landing rolls hit, but the ground is laid whether it lands or not, and the roll counts nothing, so
-	// the row's Miss % is the ticks' own.
+	// The cast lands on each enemy in the area as a spell of its own: a harmful-spell proc rolls once for
+	// each enemy (EV-0115). The landing rolls hit, but the ground is laid whether it lands or not, and
+	// the roll counts nothing, so the row's Miss % is the ticks' own.
 	landing := paladin.RegisterSpell(spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage),
 		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))
 

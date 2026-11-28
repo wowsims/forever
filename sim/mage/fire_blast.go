@@ -5,13 +5,11 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// spellData.FireBlast holds the seven trainer ranks, 2136 to 10199.
-// The game files also carry 400616 to 400623, the copies the Season of Discovery rune passive
-// Overheat (400615) swaps onto the action bar. Overheat is an Engrave grant with no place in
-// Forever, and the generator drops its stand-ins.
+// The game files carry 400616 to 400623, the copies the rune passive Overheat (400615) swaps onto
+// the action bar. Overheat is an Engrave grant with no place in Forever, and the generator
+// drops its stand-ins.
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.FireBlast lists.
+// Only the highest rank is registered.
 func (mage *Mage) registerFireBlastSpell() {
 	mage.registerFireBlastRank(spellData.FireBlast.Len(), spellData.FireBlast.Highest())
 }

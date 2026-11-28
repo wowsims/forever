@@ -238,8 +238,7 @@ func (priest *Priest) applyEarlyDemise() {
 	})
 
 	// The threshold is the target's health, and the game files state no buff that would carry the bonus to another
-	// target, so the bonus follows the target of each Shadow Word: Death. The sim tracks a target's health as its
-	// execute phase, so only a 20% threshold can be read.
+	// target, so the bonus follows the target of each Shadow Word: Death.
 	if threshold := spellData.EarlyDemise.EffectAt(2).ValueAt(priest.Talents.EarlyDemise); threshold != 20 {
 		panic(fmt.Sprintf("priest: Early Demise %d states a %.0f%% health threshold, and the sim tracks the 20%% phase only",
 			spellData.EarlyDemise.Rank(priest.Talents.EarlyDemise).ID, threshold))

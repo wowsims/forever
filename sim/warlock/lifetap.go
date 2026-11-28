@@ -7,8 +7,8 @@ import (
 )
 
 // Converts the row's amount + Spirit of health into as much mana, 1:1, with Improved Life Tap and Demonheart
-// Raiment's 5pc each raising the mana alone. The two shares add: base × (1 + Improved Life Tap + 5pc).
-// Improved Life Tap's row is a dummy only this formula reads, so the talent is read here rather than parsed.
+// Raiment's 5pc each raising the mana alone. Improved Life Tap's row is a dummy only this formula reads,
+// so the talent is read here.
 func (warlock *Warlock) registerLifeTap() {
 	rankedSpell := spellData.LifeTap.ByID(11689)
 	baseAmount := rankedSpell.EffectN(1).Average()

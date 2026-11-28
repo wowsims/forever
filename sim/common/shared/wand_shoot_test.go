@@ -56,8 +56,7 @@ func init() {
 	)
 }
 
-// Registers Shoot where the classes do, while the character is built, a three-charge buff that any
-// ranged attack hit spends, and a marker spell for a rotation to cast when its condition holds.
+// Registers Shoot where the classes do, while the character is built.
 type wandCaster struct {
 	testCaster
 	shoot   *core.Spell
@@ -96,7 +95,7 @@ type wandSimOptions struct {
 }
 
 // newWandSim with a swap set that holds the swapped ranged slot, when it is set, and the given weapon
-// skills. The rotation defaults to an empty one and the target level to 60.
+// skills.
 func newSwapWandSim(t *testing.T, o wandSimOptions) (*core.Simulation, *wandCaster) {
 	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
@@ -245,8 +244,7 @@ func TestWandShoot(t *testing.T) {
 		}
 	})
 
-	// Shoots the shadow wand 300 times at a target of the given level, with the given weapon skills and the
-	// stats bonus reads off the caster, and returns Shoot's metrics.
+	// Shoots the shadow wand 300 times at a target of the given level and returns Shoot's metrics.
 	shoot300 := func(t *testing.T, targetLevel int32, bonus func(*wandCaster) stats.Stats, weaponSkills ...*proto.WeaponSkillValue) core.SpellMetrics {
 		t.Helper()
 		sim, caster := newSwapWandSim(t, wandSimOptions{ranged: &proto.ItemSpec{Id: shadowWandID}, targetLevel: targetLevel, weaponSkills: weaponSkills})
@@ -539,8 +537,8 @@ func wandSpecializationMod() core.SpellModConfig {
 }
 
 func TestWandShootReadsEquippedWand(t *testing.T) {
-	// Swaps the second ranged slot in and casts Shoot twice, the second time right after the first shot,
-	// then checks the shots against the wand now equipped: the second comes one wand speed after the first.
+	// Swaps the second ranged slot in and casts Shoot twice, then checks the shots against the wand now
+	// equipped.
 	checkSwappedShoot := func(t *testing.T, ranged, swapped *proto.ItemSpec, school core.SpellSchool, speed time.Duration) {
 		t.Helper()
 		sim, caster := newSwapWandSim(t, wandSimOptions{ranged: ranged, swapped: swapped})

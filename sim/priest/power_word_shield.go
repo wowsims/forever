@@ -11,8 +11,7 @@ func (priest *Priest) registerPowerWordShield() {
 		return target.GetOrRegisterAura(spelldata.AuraConfig(weakenedSoul))
 	})
 
-	// Every rank puts up the same shield on a target, so a cast of any rank replaces the one up. The
-	// damage it absorbs is credited as shielding to the rank that cast it.
+	// Every rank puts up the same shield on a target, so a cast of any rank replaces the one up.
 	highest := spellData.PowerWordShield.Highest()
 	schools := core.SpellSchool(highest.AbsorbEffect().Misc)
 	absorbLabel := spelldata.Label(highest.Name + " - " + priest.Label)

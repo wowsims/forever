@@ -5,8 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.ArcaneWrath lists.
+// Only the highest rank is registered.
 func (mage *Mage) registerArcaneWrathSpell() {
 	mage.registerArcaneWrathRank(spellData.ArcaneWrath.Len(), spellData.ArcaneWrath.Highest())
 }
@@ -15,9 +14,8 @@ func (mage *Mage) registerArcaneWrathSpell() {
 // https://www.wowhead.com/forever/spell=1326082
 //
 // "Launches a projectile of pure Arcane energy at the enemy target, causing $s1 Arcane damage. This
-// spell gains additional Spell Damage equal to $s2% of your maximum Mana." Effect 2 holds the share
-// of maximum mana, which counts as spell damage of this spell alone, scaled by the damage effect's
-// coefficient like the rest.
+// spell gains additional Spell Damage equal to $s2% of your maximum Mana." The share of maximum mana
+// counts as spell damage of this spell alone, scaled by the damage effect's coefficient like the rest.
 func (mage *Mage) registerArcaneWrathRank(_ int32, rank *spelldata.Spell) {
 	damage := rank.DamageEffect()
 	maxManaShare := rank.EffectN(2).Percent()

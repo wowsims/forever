@@ -14,17 +14,14 @@ import (
 )
 
 // Eternal Power, the Dormant Heart of the Mountain proc: 1249118 carries the proc flags and 1249119
-// is the buff it applies. The item IDs below are the test's own, so that registering them cannot
-// collide with a real effect.
+// is the buff it applies.
 const (
 	healProcTrigger int32 = 1249118
 	healProcBuff    int32 = 1249119
 )
 
-// core skips an effect whose item the game files do not ship, which every id below is: the test's own
-// ids are chosen to be absent from the shipped database so that registering them cannot collide with
-// a real effect. Putting them in the database first is what lets the registration run under the
-// with_db build tag as it does without it.
+// core skips an effect whose item the game files do not ship, which every test id is. Putting them in
+// the database first is what lets the registration run under the with_db build tag as it does without it.
 func withTestItems(ids ...int32) {
 	items := make([]*proto.SimItem, 0, len(ids))
 	for _, id := range ids {
@@ -274,10 +271,9 @@ func TestSpellDataProcAppliesToACharacter(t *testing.T) {
 	}
 }
 
-// A damage proc has no buff at all: the row it names is a spell that deals damage, and what the
-// game files state about that spell is its school, its hit table and the amount it rolls. What it does
-// not state is that the game casts it off a hit, which is the GCD, the cost and the cast time this
-// has to strip.
+// A damage proc has no buff at all: the row it names is a spell that deals damage. What it does not
+// state is that the game casts it off a hit, which is the GCD, the cost and the cast time this has to
+// strip.
 func TestSpellDataDamageProcAppliesToACharacter(t *testing.T) {
 	const itemID int32 = 990301
 
@@ -336,9 +332,8 @@ func TestSpellDataDamageProcAppliesToACharacter(t *testing.T) {
 	}
 }
 
-// Which unit a proc's damage lands on, per callback. The self-hit case is the one the sapper charges
-// created: a character deals that hit to itself, and a proc reading the result answered it by
-// hitting its own wearer.
+// Which unit a proc's damage lands on, per callback. The self-hit case is the sapper charges': a
+// character deals that hit to itself.
 func TestProcDamageTarget(t *testing.T) {
 	character := &core.Character{Unit: core.Unit{Label: "Wearer"}}
 	enemy := &core.Unit{Label: "Enemy"}
@@ -454,8 +449,7 @@ func TestStatedEnchantChanceRollsOnTheEnchantedWeaponOnly(t *testing.T) {
 }
 
 // A main-hand special that requires a shield, or has magic DefenseType, reaches the main hand's equip
-// proc, but neither the weapon's chance-on-hit effect nor its combat enchant, which both hear a plain
-// main-hand special.
+// proc, but neither the weapon's chance-on-hit effect nor its combat enchant.
 func TestWeaponProcsIgnoreShieldAndMagicDefenseSpecials(t *testing.T) {
 	const weaponID, enchantID int32 = 990601, 990602
 	core.AddToDatabase(&proto.SimDatabase{
@@ -516,7 +510,7 @@ func TestWeaponProcsIgnoreShieldAndMagicDefenseSpecials(t *testing.T) {
 
 // A PPM override on a rate-less enchant proc's row clears its refusal, and the registration measures
 // the rate on the enchanted weapon's hits. An equip aura that hears only spells never rolls, which is
-// the refusal its rate gets. Each row's copy is stripped of any rate of its own first.
+// the refusal its rate gets.
 func TestSpellDataProcTakesAPPMOverride(t *testing.T) {
 	const mainHandID, offHandID, enchantID int32 = 990501, 990502, 990503
 	const ppm = 2.0

@@ -99,9 +99,8 @@ func paladinWearingAgainst(t *testing.T, worn map[proto.ItemSlot]int32, encounte
 	return sim, pal, pal.CurrentTarget
 }
 
-// A landed Judgement of Command rolls a weapon proc once, on its damage: its dummy's landing
-// suppresses weapon procs (EV-0155). A listener that is no weapon proc hears the damage alone, on the
-// hit and on the cast result, and a judgement that misses rolls none of them (EV-0156).
+// A landed Judgement of Command rolls a weapon proc once, on its damage (EV-0155). A listener that is
+// no weapon proc hears the damage alone, and a judgement that misses rolls none of them (EV-0156).
 func TestJudgementOfCommandRollsAWeaponProcOnce(t *testing.T) {
 	const casts = 50
 	for _, c := range []struct {
@@ -142,8 +141,7 @@ func TestJudgementOfCommandRollsAWeaponProcOnce(t *testing.T) {
 }
 
 // Battlegear of Eternal Justice's 3-piece bonus restores the mana of its spell 26975 on its row's
-// share of Judgement casts, once a cast at most: the judgement each cast unleashes rolls nothing. A
-// paladin without the set regains none.
+// share of Judgement casts, once a cast at most.
 func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
 	gain := spelldata.MustFind(26975).EnergizeEffect().BaseValue()
 	chance := spelldata.MustFind(26135).StatedChance()
@@ -152,8 +150,7 @@ func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
 	}
 	const casts = 1000
 
-	// How many Judgement casts restored the mana once, and how many more than once. Each cast starts
-	// at half mana and reads the mana a moment after the cast, once a proc's batch window has passed.
+	// How many Judgement casts restored the mana once, and how many more than once.
 	restores := func(t *testing.T, worn map[proto.ItemSlot]int32) (once, more int) {
 		t.Helper()
 		sim, pal, target := paladinWearing(t, worn)
@@ -199,13 +196,10 @@ func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
 	}
 }
 
-// A white swing that crits adds its Vengeance stack after the hits it procs, so its Seal of
-// Righteousness hit is priced on the stacks from before the crit, like the hit a swing without a crit
-// procs at those stacks (EV-0224).
+// A white swing that crits adds its Vengeance stack after the hits it procs (EV-0224).
 func TestSealOfRighteousnessHitIsPricedOnVengeanceBeforeTheCrit(t *testing.T) {
 	// The damage of the Seal of Righteousness hit a white swing procs under Vengeance at the stacks
-	// given, from a swing that crits or from one that lands without a crit. The seal's hit never crits,
-	// so it adds no stack of its own and the amounts compare.
+	// given. The seal's hit never crits, so it adds no stack of its own and the amounts compare.
 	sealHit := func(t *testing.T, stacks int32, crit bool) float64 {
 		t.Helper()
 		sim, pal, target := paladinWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotMainHand: 21395})
@@ -278,8 +272,7 @@ func TestSealOfRighteousnessHitIsPricedOnVengeanceBeforeTheCrit(t *testing.T) {
 	}
 }
 
-// A Consecration cast rolls Draconic Infused Emblem 22268 once for each enemy in its area as the ground is
-// laid, and its ticks roll none (EV-0115).
+// A Consecration cast rolls Draconic Infused Emblem once for each enemy, and its ticks roll none (EV-0115).
 func TestConsecrationCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	encounter := core.MakeSingleTargetEncounter(0)
@@ -332,8 +325,7 @@ func TestConsecrationCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	}
 }
 
-// An Undead paladin's Consecration cast sets off no Touch of the Grave, on one enemy or on many: its
-// landing on each enemy deals no damage and lays no dot (EV-0115).
+// An Undead paladin's Consecration cast sets off no Touch of the Grave (EV-0115).
 func TestConsecrationCastSetsOffNoTouchOfTheGrave(t *testing.T) {
 	const casts = 100
 	for _, enemies := range []int{1, 5} {
@@ -378,9 +370,7 @@ func TestConsecrationCastSetsOffNoTouchOfTheGrave(t *testing.T) {
 	}
 }
 
-// Bolt's Charged Eyeball hears neither Consecration's cast nor its ticks: the cast lands for no damage,
-// which its mask of melee, ranged and spell hits does not hear, and a tick is a proc dealt as periodic
-// damage, which an Equip effect that cannot proc from procs does not hear. A white hit that lands still
+// Bolt's Charged Eyeball hears neither Consecration's cast nor its ticks. A white hit that lands still
 // casts the shock (EV-0226).
 func TestConsecrationSetsOffNoBoltsChargedEyeball(t *testing.T) {
 	const casts, swings, enemies = 500, 400, 3
@@ -429,8 +419,7 @@ func TestConsecrationSetsOffNoBoltsChargedEyeball(t *testing.T) {
 	}
 }
 
-// A Consecration tick that crits gives no Vengeance: the tick is periodic damage, and Vengeance's mask hears hits
-// alone. A white swing that crits gives it (EV-0226).
+// A Consecration tick that crits gives no Vengeance. A white swing that crits gives it (EV-0226).
 func TestConsecrationCritGivesNoVengeance(t *testing.T) {
 	sim, pal, target := paladinWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotMainHand: 21395})
 	vengeance := pal.GetAuraByID(core.ActionID{SpellID: 20050})

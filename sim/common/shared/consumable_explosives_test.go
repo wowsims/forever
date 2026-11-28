@@ -17,9 +17,9 @@ const (
 	explosivesCategoryMs int32 = 60000
 )
 
-// A test consumable under Goblin Sapper Charge's id 10646 (13241, a 5 min cooldown of its own, needs
-// Engineering), which the spec selects by its flag, and test explosives standing in for Ez-Thro
-// Dynamite II 18588 (23000), Crystal Charge 11566 (15239) and Stratholme Holy Water 13180 (17291).
+// A test consumable under Goblin Sapper Charge's id 10646 (13241), which the spec selects by its flag,
+// and test explosives standing in for Ez-Thro Dynamite II 18588 (23000), Crystal Charge 11566 (15239)
+// and Stratholme Holy Water 13180 (17291).
 const (
 	goblinSapperID     int32 = 10646
 	testDynamiteID     int32 = 991202
@@ -89,8 +89,7 @@ func newExplosiveSimAt(t *testing.T, consumes *proto.ConsumesSpec, profession pr
 }
 
 // 13241 rolls its damage on every enemy around the thrower, each target rolling its own, and the
-// thrower's own damage on the thrower; the thrower's half is a spell of its own tagged 1, a harmful
-// spell hit.
+// thrower's own damage on the thrower.
 func TestSapperDamagesEveryEnemyAndTheThrower(t *testing.T) {
 	sim, caster := newExplosiveSim(t, &proto.ConsumesSpec{ExtraIds: []int32{goblinSapperID}}, proto.Profession_Engineering, 3)
 	sapper := onUseSpell(t, caster, goblinSapperID)
@@ -131,7 +130,7 @@ func TestSapperDamagesEveryEnemyAndTheThrower(t *testing.T) {
 }
 
 // An area explosive whose row names the creature types it hits damages the enemies of those types in
-// its area and no other: 17291 burns the one of its type and leaves the one of another.
+// its area and no other (17291).
 func TestAnAreaExplosiveHitsOnlyTheCreatureTypesItsRowNames(t *testing.T) {
 	row := spelldata.MustFind(17291)
 	named := spelldata.MobTypes(row.TargetCreatureType)
@@ -159,7 +158,7 @@ func TestAnAreaExplosiveHitsOnlyTheCreatureTypesItsRowNames(t *testing.T) {
 }
 
 // An explosive whose damage lands on an area around the thrower and whose row states no range reaches
-// as far as the area's radius: 13241 is usable from its 10 yd and not a yard past it.
+// as far as the area's radius (13241).
 func TestAnExplosiveAroundTheThrowerReachesOnlyItsRadius(t *testing.T) {
 	row := spelldata.MustFind(13241)
 	effect := row.DamageEffect()
@@ -180,8 +179,8 @@ func TestAnExplosiveAroundTheThrowerReachesOnlyItsRadius(t *testing.T) {
 	}
 }
 
-// Every test explosive names category 24: using one puts the others out of reach for its 60 s, and
-// the test sapper's own 5 min cooldown runs beside it.
+// Every test explosive names category 24: using one puts the others out of reach, and the test
+// sapper's own cooldown runs beside it.
 func TestExplosivesShareTheirCategoryCooldown(t *testing.T) {
 	sim, caster := newExplosiveSim(t, &proto.ConsumesSpec{ExplosiveId: testDynamiteID, ExtraIds: []int32{goblinSapperID}}, proto.Profession_Engineering, 1)
 	sapper, dynamite := onUseSpell(t, caster, goblinSapperID), onUseSpell(t, caster, testDynamiteID)
@@ -227,8 +226,8 @@ func TestDynamiteLandsAfterItsCastAndFlight(t *testing.T) {
 	}
 }
 
-// 15239 states the stun mechanic, as the bombs and grenades do: a level 63 target, stun-immune as a
-// raid boss is, takes none of its damage, where a level 60 one takes it.
+// 15239 states the stun mechanic: a level 63 target, stun-immune as a raid boss is, takes none of its
+// damage.
 func TestStunExplosiveMissesAStunImmuneTarget(t *testing.T) {
 	for _, c := range []struct {
 		level int32

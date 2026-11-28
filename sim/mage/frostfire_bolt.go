@@ -5,14 +5,13 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Only the highest rank is registered: the mage casts the rank configured here, not every rank
-// spellData.FrostfireBolt lists.
+// Only the highest rank is registered.
 func (mage *Mage) registerFrostfireBoltSpell() {
 	mage.registerFrostfireBoltRank(spellData.FrostfireBolt.Len(), spellData.FrostfireBolt.Highest())
 }
 
-// The DoT (effect 3) is its own spell, like Fireball's. Its ticks meet the target's full resistance, so
-// they take the Spell Piercing bonus at the full share (EV-0092).
+// The DoT's ticks (effect 3) meet the target's full resistance, so they take the Spell Piercing bonus
+// at the full share (EV-0092).
 // The slow (effect 1) does nothing to a boss.
 func (mage *Mage) registerFrostfireBoltRank(_ int32, rank *spelldata.Spell) {
 	damage := rank.DamageEffect()

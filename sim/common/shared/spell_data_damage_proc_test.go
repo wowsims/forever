@@ -13,10 +13,9 @@ import (
 // Vengeance 20049 states Can Proc From Procs, and its harmful spell bit hears a crit of any school.
 const vengeanceTalent int32 = 20049
 
-// Storm Gauntlets 12632's 16615 casts Lightning Strike 16614 off each melee hit, and Blazefury
-// Medallion 17111's 7711 casts Fire Strike 7712 the same way. Their hits are procs, so an aura hears
-// them only where it carries Can Proc From Procs: Vengeance's listener, built from its row as the
-// paladin builds it, procs off their crits, and the same listener without the attribute does not.
+// Storm Gauntlets' 16615 casts Lightning Strike 16614 off each melee hit, and Blazefury Medallion's 7711
+// casts Fire Strike 7712 the same way. Their hits are procs, so an aura hears them only where it carries
+// Can Proc From Procs.
 func TestItemDamageProcCritsReachListenersThatHearProcs(t *testing.T) {
 	for _, tc := range []struct {
 		name                    string
@@ -123,8 +122,7 @@ const (
 	lacerations   int32 = 10370
 )
 
-// A neck whose listener is built as a weapon enchant's or an oil's, counting the row's strikes it
-// hears.
+// A neck whose listener is built as a weapon enchant's or an oil's, counting the row's strikes it hears.
 func strikeListenerNeck(neckID int32, name string, row int32, heard *int) *proto.ItemSpec {
 	withAuraItem(neckID, proto.ItemType_ItemTypeNeck)
 	core.NewItemEffect(neckID, func(agent core.Agent) {
@@ -142,12 +140,9 @@ func strikeListenerNeck(neckID int32, name string, row int32, heard *int) *proto
 	return &proto.ItemSpec{Id: neckID}
 }
 
-// Rend and Forging Strike at a chance below 1, on both hands. A strike a main-hand swing cast is a
-// main-hand special: the main hand's weapon procs hear it, immediate and deferred alike, and its own
-// weapon rolls again. A strike an off-hand swing cast is heard by no weapon proc on either hand, its
-// own weapon included. Auto attacks' and Windfury Weapon's (Forging Strike only, it needs damage)
-// listeners hear neither. Swings of the two hands in turn, unsettled, leave the main-hand strikes
-// heard.
+// A strike a main-hand swing cast is a main-hand special: the main hand's weapon procs hear it and its own
+// weapon rolls again. A strike an off-hand swing cast is heard by no weapon proc on either hand. Auto
+// attacks' and Windfury Weapon's (Forging Strike only, it needs damage) listeners hear neither.
 func TestWeaponProcStrikeIsHeardOnlyFromTheMainHand(t *testing.T) {
 	for _, tc := range []struct {
 		name                     string
@@ -267,14 +262,9 @@ func TestWeaponProcStrikeIsHeardOnlyFromTheMainHand(t *testing.T) {
 	}
 }
 
-// Two test one-handers, each with its own row and rate: Forging Strike in the main hand and Rend in
-// the off hand, each measured on the weapon carrying it, so a wielder that dual wields carries them.
-// A strike a main-hand swing cast rolls the main-hand weapon's proc and never the off-hand one's, and
-// one an off-hand swing cast rolls neither: off-hand swings cast Rends that roll nothing, and
-// main-hand swings cast Forging Strikes that roll Forging Strike again and never Rend. The off-hand
-// weapon's rate is procs per minute in one case and a flat chance in its row's column in the other;
-// both roll on the off hand's hits only. The swings are the test's own, so the wielder's auto attacks
-// are off.
+// Forging Strike in the main hand and Rend in the off hand, on a wielder that dual wields: a strike a
+// main-hand swing cast rolls the main-hand weapon's proc and never the off-hand one's, and one an off-hand
+// swing cast rolls neither.
 func TestWeaponProcStrikeRollsOnlyTheMainHandWeapon(t *testing.T) {
 	const swings = 20
 	for _, tc := range []struct {
@@ -330,9 +320,8 @@ func TestWeaponProcStrikeRollsOnlyTheMainHandWeapon(t *testing.T) {
 	}
 }
 
-// A strike whose own weapon procs on every hit and that always lands, cast by a main-hand white swing:
-// it rolls its weapon once more, one spell batch after the strike that asked for it, and the strike
-// that roll casts rolls nothing however long the fight runs (EV-0145).
+// A strike a main-hand white swing cast rolls its weapon once more, and the strike that roll casts
+// rolls nothing (EV-0145).
 func TestWeaponProcStrikeAWhiteSwingCastRollsItsWeaponOnce(t *testing.T) {
 	const weaponID int32 = 991616
 	const batches = 5
@@ -359,13 +348,7 @@ func TestWeaponProcStrikeAWhiteSwingCastRollsItsWeaponOnce(t *testing.T) {
 	}
 }
 
-// What cast the strike decides whether it rolls its weapon again. Forging Strike 1317432 deals a hit
-// and Mutilator's Lacerations 10370 applies a debuff alone; each is rolled at 100% in the main hand
-// by a wielder whose strikes always land. A main-hand white swing casts two strikes, the second off
-// the first. A main-hand ability, a hit that counts as a swing the way a Windfury Totem hit does, and
-// the white swing of a paw, which a druid in Cat, Bear or Dire Bear Form swings, cast one each. A
-// listener built as a weapon enchant's hears the first strike of a weapon's white swing and no other
-// (EV-0145).
+// What cast the strike decides whether it rolls its weapon again (EV-0145).
 func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
@@ -418,10 +401,7 @@ func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) 
 	}
 }
 
-// A strike whose row states a cooldown of its own is not cast again while it runs. Forging Strike's
-// row, given a cooldown and rolled at 100%, is cast once by a white swing, the second roll that
-// strike brings included, by no swing inside the cooldown, and once by the first swing after it
-// (EV-0145).
+// A strike whose row states a cooldown of its own is not cast again while it runs (EV-0145).
 func TestWeaponProcStrikeOnItsOwnCooldownIsNotCastAgain(t *testing.T) {
 	const weaponID int32 = 991718
 	const cooldown = 3 * time.Second
@@ -453,9 +433,7 @@ func TestWeaponProcStrikeOnItsOwnCooldownIsNotCastAgain(t *testing.T) {
 }
 
 // Every landed Rend puts its bleed on the target, a Rend that its own strike chained included, and
-// no weapon proc hears the bleed's ticks. A test one-hander carries a copy of the row at a chance
-// below 1, with a bleed short enough for every swing to fit the fight, and each swing lands once the
-// last bleed has run out.
+// no weapon proc hears the bleed's ticks. The bleed is short enough for every swing to fit the fight.
 func TestWeaponProcStrikeChainAppliesEachLandedBleed(t *testing.T) {
 	const weaponID, neckID, rend int32 = 991612, 991613, rendStrike
 	const swings = 10
@@ -491,9 +469,8 @@ func TestWeaponProcStrikeChainAppliesEachLandedBleed(t *testing.T) {
 	}
 }
 
-// A test one-hander carrying the row in the off hand, a plain one in the main hand, and a wielder whose
-// strikes always land. The plain one keeps the test's in the off hand: a one-hander equipped with
-// the main hand empty goes to the main hand.
+// A test one-hander carrying the row in the off hand. The plain one in the main hand keeps it there: a
+// one-hander equipped with the main hand empty goes to the main hand.
 func newOffHandProcSim(t *testing.T, weaponID, row int32, neck *proto.ItemSpec) (*core.Simulation, *testCaster, *core.Unit) {
 	t.Helper()
 	const plainMainHandID int32 = 991622
@@ -509,8 +486,7 @@ func newOffHandProcSim(t *testing.T, weaponID, row int32, neck *proto.ItemSpec) 
 	return sim, caster, sim.Encounter.ActiveTargetUnits[0]
 }
 
-// Rend rolled at 100% in the off hand: the strike an off-hand swing casts puts its bleed on the
-// target and rolls its own weapon no more.
+// The Rend an off-hand swing casts puts its bleed on the target and rolls its own weapon no more.
 func TestOffHandWeaponProcStrikeAppliesItsBleed(t *testing.T) {
 	const weaponID, rend int32 = 991617, rendStrike
 	editRow(t, rend, alwaysProcs)
@@ -527,9 +503,8 @@ func TestOffHandWeaponProcStrikeAppliesItsBleed(t *testing.T) {
 	}
 }
 
-// Forging Strike rolled at 100% in the off hand, given a missile speed: the strike an off-hand swing
-// casts lands after its flight, and its own weapon and a main-hand weapon proc hear the landing no
-// more than they would an instant strike.
+// Forging Strike in the off hand, given a missile speed: its own weapon and a main-hand weapon proc hear
+// the landing no more than they would an instant strike.
 func TestOffHandWeaponProcStrikeInFlightIsHeardByNoWeaponProc(t *testing.T) {
 	const weaponID, neckID int32 = 991618, 991619
 	editRow(t, forgingStrike, func(s *spelldata.Spell) {
@@ -594,9 +569,8 @@ func TestMagicWeaponProcIsHeardByNoWeaponProc(t *testing.T) {
 	}
 }
 
-// A damage proc whose trigger carries the kill bit, Blazefury Medallion 17111's 7711 edited to hear a
-// killing blow alone. The kill passes the proc no spell and names the dying target, so its damage goes
-// to the next target still up, and with none left it casts nothing.
+// A damage proc whose trigger hears a killing blow alone: the kill passes the proc no spell and names the
+// dying target, so its damage goes to the next target still up, and with none left it casts nothing.
 func TestKillingBlowDamageProcHitsTheNextTarget(t *testing.T) {
 	for _, tc := range []struct {
 		name        string
@@ -640,9 +614,8 @@ func TestKillingBlowDamageProcHitsTheNextTarget(t *testing.T) {
 	}
 }
 
-// Blazing Rapier 12777's chance-on-hit Blaze 16898 deals Fire every period for its duration and
-// nothing up front, and states no rate. Rolled at 100% for the test, the damage proc puts the damage
-// over time on the target the swing hit, and it ticks the row's duration over its period.
+// Blaze 16898 deals Fire every period and nothing up front: the damage proc puts the damage over time on
+// the target the swing hit, and it ticks the row's duration over its period.
 func TestWeaponProcDealingDamageOverTimeAloneAppliesIt(t *testing.T) {
 	const weaponID, blaze int32 = 991605, 16898
 	editRow(t, blaze, alwaysProcs)
@@ -668,9 +641,8 @@ func TestWeaponProcDealingDamageOverTimeAloneAppliesIt(t *testing.T) {
 	}
 }
 
-// Engulfing Shadows 27860 deals Shadow damage to the enemy and restores mana to its caster, cast here
-// off Blazefury Medallion 17111's 7711 on each melee hit. The wearer gains the row's mana with the
-// proc, whether the damage lands or misses.
+// Engulfing Shadows 27860 deals Shadow damage and restores mana to its caster: the wearer gains the row's
+// mana with the proc, whether the damage lands or misses.
 func TestDamageProcRestoresTheWearersManaLandedOrNot(t *testing.T) {
 	const trinketID, engulfingShadows int32 = 991632, 27860
 	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: trinketID, Name: "Test Engulfing Shadows",

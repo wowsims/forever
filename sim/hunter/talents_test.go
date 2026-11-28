@@ -118,7 +118,7 @@ func TestIntimidationCritsThePetsNextAttack(t *testing.T) {
 }
 
 // Rapid Killing comes with a killing blow or the death of an enemy with the hunter's Serpent Sting on
-// it, once per death, and not with an unstung death the raid gets no kill for.
+// it, once per death.
 func TestRapidKillingComesWithAKillingBlowOrAStungDeath(t *testing.T) {
 	sim, hunter := newTalentSim("-0000002", proto.HunterOptions_PetNone)
 	target := sim.Encounter.AllTargets[0]

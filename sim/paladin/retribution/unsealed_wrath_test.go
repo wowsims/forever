@@ -140,8 +140,7 @@ func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
 var noSacredArbiterTalents = "050250002-501-15233011200301351" // The Unsealed Wrath build with Sacred Arbiter's point in Deflection.
 
 // A landed white swing refreshes Judgement of the Crusader on its target, and so does a Windfury
-// Totem hit. Seal of Command's hit and Judgement of Command leave it running down, and so does
-// Holy Strike unless Sacred Arbiter is taken (EV-0117).
+// Totem hit (EV-0117). Holy Strike leaves it running down unless Sacred Arbiter is taken.
 func TestJudgementDebuffRefreshesOnWhiteSwingsAndWindfuryTotemsStrike(t *testing.T) {
 	for _, build := range []struct {
 		name          string
@@ -207,9 +206,7 @@ func TestJudgementDebuffRefreshesOnWhiteSwingsAndWindfuryTotemsStrike(t *testing
 	}
 }
 
-// A Windfury Totem hit neither stores nor spends an Echo, though the seals hear it as a white
-// swing and other rows' melee swing bit hears it as a main-hand swing. Each landed swing stores one
-// copy whether or not a Windfury Totem hit follows, and one landing past the proc cooldown stores none.
+// A Windfury Totem hit neither stores nor spends an Echo, though the seals hear it as a white swing.
 func TestUnsealedWrathStoresNoCopyFromWindfuryTotemsStrike(t *testing.T) {
 	sim, pal, swing, _ := unsealedWrathPaladinWith(t, UnsealedWrathTalents, &proto.RaidBuffs{WindfuryTotem: true})
 	strike := pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})

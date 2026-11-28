@@ -9,12 +9,9 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// An on-use item whose spell restores the wearer's mana, rage or energy, at once or over time, on the
-// item's cooldowns with the cast time and global cooldown the row states. Each aura the spell
-// triggers on the wearer goes up with the gain (WearerAuraTriggers). A character without that bar
-// does not register it. The cooldown manager uses it once the whole gain fits under the bar's
-// maximum. In the areas the row's area bonus names, each gain takes its factor: Second Wind's 15604
-// doubles in Mountainous areas.
+// An on-use item whose spell restores the wearer's mana, rage or energy, at once or over time. Each aura
+// the spell triggers on the wearer goes up with the gain. The cooldown manager uses it once the whole
+// gain fits under the bar's maximum.
 func NewSpellDataEnergizeOnUse(itemID int32) {
 	registerSpellDataOnUseCooldown(itemID, func(character *core.Character, row *spelldata.Spell) (core.SpellConfig, core.MajorCooldown, bool) {
 		effect := row.ProcEnergizeEffect()
@@ -73,8 +70,7 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 	})
 }
 
-// The on-use row's E_TRIGGER_SPELL effects whose spell puts auras on the wearer: Mindtap Talisman's
-// 1302205 triggers Tapped Mind 1302206, which lowers Intellect for its own duration.
+// The on-use row's E_TRIGGER_SPELL effects whose spell puts auras on the wearer.
 func WearerAuraTriggers(row *spelldata.Spell) []*spelldata.Effect {
 	var triggers []*spelldata.Effect
 	for i := range row.Effects {
@@ -148,9 +144,7 @@ func EnergizesABar(power dbcenums.PowerType) bool {
 }
 
 // An item or enchant proc whose trigger's row fires a spell that restores the wearer's mana, rage or
-// energy, read off the trigger alone the way FiredSpellUnsupported reads it: Idol of Longevity
-// 23004's 28847 refunds 28848's mana on each Healing Touch cast. A wearer without that bar registers
-// no listener.
+// energy, read off the trigger alone the way FiredSpellUnsupported reads it.
 func NewSpellDataEnergizeProc(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataEnergizeProc)
 }

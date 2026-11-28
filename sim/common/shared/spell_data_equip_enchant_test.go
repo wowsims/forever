@@ -32,10 +32,8 @@ func init() {
 // Hit Weapon +2, 430391: A_MOD_HIT_CHANCE on the wearer, restricted to melee weapons.
 const hitWeapon int32 = 430391
 
-// A weapon enchant whose equip spell is weapon-scoped puts its aura up while the enchant is worn, and
-// the aura's hit reaches the attacks made with the hand the enchant is on, while that hand holds a
-// weapon its row names. The row is narrowed to daggers and freed of its area, and the enchant sits on
-// the off-hand dagger beside a main-hand sword or a second dagger.
+// A weapon enchant whose equip spell is weapon-scoped: the aura's hit reaches the attacks made with the
+// hand the enchant is on, while that hand holds a weapon its row names.
 func TestWeaponScopedEnchantReachesTheWeaponItNames(t *testing.T) {
 	const swordID, daggerID, enchantID int32 = 990981, 990982, 990983
 
