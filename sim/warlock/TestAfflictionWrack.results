@@ -1650,22 +1650,22 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-Settings-Orc-aff_wrack-Wrack-aff_wrack-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 405.7036
-  tps: 350.80129
+  dps: 408.06093
+  tps: 352.16527
  }
 }
 dps_results: {
  key: "TestAfflictionWrack-Settings-Orc-aff_wrack-Wrack-aff_wrack-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 608.79538
-  tps: 505.47408
+  dps: 600.07977
+  tps: 498.35054
  }
 }
 dps_results: {
  key: "TestAfflictionWrack-Settings-Orc-aff_wrack-Wrack-aff_wrack-NoBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 658.02586
-  tps: 525.18827
+  dps: 653.2143
+  tps: 520.83501
  }
 }
 dps_results: {
