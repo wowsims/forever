@@ -57,8 +57,7 @@ export const GroupVariablesField = ({ player, config, groupNameField, getParentV
 		const groupName = parentValue?.[groupNameField];
 		const group = groupName ? (player.aplRotation?.groups || []).find(candidate => candidate.name === groupName) : undefined;
 		const names = placeholderNames(group);
-		// One check for three cases: no group named, a name that resolves to nothing — deleting
-		// a group leaves every reference to it dangling — and a group that declares no placeholder all
+		// No group named, a name that resolves to nothing and a group that declares no placeholder all
 		// land here, and none of them may write. Deriving an empty set from them would empty the live
 		// rotation's `variables` on a render alone, and retribution's default APL ships a reference
 		// passing a variable to a group that declares no placeholder at all.
