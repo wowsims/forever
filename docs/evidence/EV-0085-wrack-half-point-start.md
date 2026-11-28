@@ -57,7 +57,7 @@ Three things are not modelled and not settled: 20 channels ended near 4.5 s with
 - Sources: Warcraft Logs, 387 Forever reports with 391 warlocks who channelled Wrack, every warlock stream fetched for the proc-rate sweeps; report codes in the count's `records.json`, kept outside the repository with its scripts
 - Game build: 1.60.1.70938 to 1.60.1.71139 and the hotfixes between, pooled
 - Date: 2026-11-13 17:05 to 2026-11-27 04:07 UTC
-- Pull request: not recorded
+- Pull request: #1286
 
 Each Corruption, Siphon Life and Bane of Agony instance with no refresh is put on the grid of its application as logged (its applydebuff), and each half point within 0.3 s of a Wrack channel's start or end on the same target is checked for a tick within 0.15 s of it that is not one of the effect's own ticks. Timestamps are in milliseconds. The effects' own ticks log a median 4 ms after their grid point (5th to 95th percentile −10 to +17 ms, 183,187 ticks), so a point's instant is known to about that.
 
