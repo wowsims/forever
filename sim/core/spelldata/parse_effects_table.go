@@ -70,7 +70,7 @@ type parser struct {
 	// skipped instead of attached.
 	conditional bool
 
-	// The row states CumulativeAura, or the caller counts the aura more than once, so a value follows
+	// The spell states CumulativeAura, or the caller counts the aura more than once, so a value follows
 	// a level other than 1. The rows whose value cannot be scaled are skipped while this is set;
 	// IgnoreStacks clears the stacks' share of it.
 	stacking bool
@@ -82,7 +82,7 @@ type parser struct {
 	// DryRun: the rows are read for what they would attach, and nothing is registered on the unit.
 	dry bool
 
-	// OnHand: the weapon the row sits on.
+	// OnHand: the weapon the spell sits on.
 	hand core.ProcMask
 
 	// The slot FromCaster names, which the rows that reach only the caster's attacks share. Nil
@@ -156,10 +156,10 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	// The damage the unit deals and takes, by school mask. A row that names ranged weapons alone is a
 	// mod on the attacks made with them; one that names a melee weapon holds while it is equipped. A
 	// melee weapon's row of every school is one multiplier. Any other gives its Physical as a school
-	// multiplier and every other school the percent on its melee-defense spells only (EV-0064, EV-0022),
-	// whether the mask names that school or leaves it out. A row whose aura reaches beyond its weapon
-	// (WeaponDamageSchools) gives every school of its mask as a school multiplier, and the
-	// schools past the mask the percent on their melee-defense spells.
+	// multiplier and every other school the percent on its melee-defense spells only, whether the mask
+	// names that school or leaves it out; the game files hold no such row with a school past Physical. A
+	// row whose aura reaches beyond its weapon (WeaponDamageSchools) gives every school of its mask as a
+	// school multiplier (EV-0022), and the schools past the mask the percent on their melee-defense spells.
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE: func(p *parser, e *Effect, v float64) *attachment {
 		rule, scope, ok := p.weaponScope(e)
 		switch {
@@ -404,7 +404,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	// The share of spirit regen that continues while casting, and a multiplier on spirit regen, or under
 	// AllManaRegen Innervate's multiplier on the mana regen. The energy bar's regen and Innervate's are
 	// speeds, which need the Simulation an aura's gain hands over.
-	// On an aura whose row also raises the mana regen by a percent (Innervate, Evocation), each change
+	// On an aura whose spell also raises the mana regen by a percent (Innervate, Evocation), each change
 	// is told to the aura's boost too, so core credits the regen the aura adds to its own metrics.
 	dbcenums.A_MOD_MANA_REGEN_INTERRUPT: func(p *parser, e *Effect, v float64) *attachment {
 		fields := []*float64{&p.unit.PseudoStats.SpiritRegenRateCasting}
@@ -680,8 +680,8 @@ var flatModTable = map[dbcenums.SpellModOp]row{
 // A_ADD_PCT_MODIFIER: a percentage the game files state as an integer, handed over as a fraction. Two such
 // rows on one spell multiply, for cost, direct damage and periodic damage alike, and a flat
 // A_ADD_FLAT_MODIFIER on the same spell applies before any percent. The aura type decides which table a
-// row takes, whatever its tooltip reads: Unleashed Fury 19616 describes a percent and its row is a flat
-// 107 modifier.
+// row takes, whatever its tooltip reads: Unleashed Fury 19616 describes a percent and the game files state a
+// flat 107 modifier.
 var pctModTable = map[dbcenums.SpellModOp]row{
 	dbcenums.SPELLMOD_DAMAGE: func(p *parser, e *Effect, v float64) *attachment {
 		// Direct hits only: ticks take SPELLMOD_DOT, which a talent states beside it when it raises both.

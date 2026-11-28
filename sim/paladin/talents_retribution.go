@@ -84,7 +84,7 @@ func (paladin *Paladin) applyConviction() {
 // 68/136/204 for 30 sec.
 //
 // The game files state no rate. In game it is 5 procs a minute (EV-0062). Melee specials roll the
-// same chance (EV-0156); the row's proc mask also hears them.
+// same chance (EV-0156); the spell's proc mask also hears them.
 const vindicationPPM = 5
 
 func (paladin *Paladin) applyVindication() {
@@ -94,7 +94,7 @@ func (paladin *Paladin) applyVindication() {
 
 	rank := spellData.VindicationTriggered.Highest()
 
-	// The raid's Vindication row, priced at the paladin's ranks, so it bids against the raid's
+	// The raid's Vindication spell, priced at the paladin's ranks, so it bids against the raid's
 	// attack power reductions rather than stacking with them.
 	targetAuras := paladin.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 		return buffs.NewSpellDataVindicationAura(target, true, paladin.Talents.Vindication)
@@ -225,9 +225,9 @@ func (paladin *Paladin) applySacredArbiter() {
 // Two-Handed Weapon Specialization - Increases the Physical and Holy damage you deal by 2/4/6%, and
 // reduces all threat you generate by 7/14/20% while a two-handed melee weapon is equipped.
 //
-// The row's aura reaches beyond its weapon, so the parse gives all Physical and Holy damage the
-// percent while a two-hander is equipped, magic-defense and ranged-defense Holy spells included.
-// Healing takes none.
+// The spell's aura reaches beyond its weapon, so the parse gives all Physical and Holy damage the
+// percent while a two-hander is equipped, magic-defense and ranged-defense Holy spells included
+// (EV-0022). Healing takes none.
 func (paladin *Paladin) applyTwoHandedWeaponSpecialization() {
 	if paladin.Talents.TwoHandedWeaponSpecialization == 0 {
 		return
@@ -280,7 +280,7 @@ func (paladin *Paladin) applyVengeance() {
 		})
 	})
 	trigger.Name = "Vengeance - Trigger" + paladin.Label
-	// The row's harmful-spell bit hears every spell, item spells too, and the sim registers an on-use
+	// The spell's harmful-spell bit hears every spell, item spells too, and the sim registers an on-use
 	// item's or an explosive's spell under ProcMaskEmpty, so the listener hears any hit.
 	trigger.ProcMask = core.ProcMaskUnknown
 	paladin.MakeProcTriggerAura(trigger)
@@ -361,7 +361,7 @@ func (paladin *Paladin) applyUnsealedWrath() {
 		}
 	})
 	trigger.Name = "Unsealed Wrath" + paladin.Label
-	// The row's proc cooldown is shorter than any swing timer, so it turns away only a swing dealt in
+	// The spell's proc cooldown is shorter than any swing timer, so it turns away only a swing dealt in
 	// the instant of another, which is an extra attack such as Hand of Justice's: that one neither
 	// stores nor uses a copy.
 	trigger.Outcome = core.OutcomeLanded
