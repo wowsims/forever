@@ -1,6 +1,6 @@
 # EV-0085: Wrack ticks the half points of a dot from the channel's start
 
-- Claim: while Wrack is channelled the half points of an effect's tick grid tick too: a half point ticks when the channel is on the target at its instant, from the channel's start up to its end, and a 6 s channel lined up on the grid ticks one of the two half points at its edges.
+- Claim: while Wrack is channelled the half points of an effect's tick grid tick too: a half point ticks when the channel is on the target at its instant, from the channel's start up to its end, and a 6 s channel lined up on the grid ticks one of the two half points at its edges, the start's and the end's about as often.
 - Sources: combat logs, two samples: two logs of one Affliction warlock (36 effects with Wrack channelled on their target, 329 ticks), and two more logs of another warlock and three others (270 effects, timed to about 0.05 s); report codes not recorded
 - Game build: not recorded
 - Date: not recorded
@@ -65,13 +65,15 @@ Half points near an edge with no other channel edge near the point, by where the
 
 | Half point            | Ticked, near a start | Ticked, near an end |
 | --------------------- | -------------------- | ------------------- |
-| 0.16 s or more before | 0 of 3,372           | 3,442 of 3,475      |
-| 0.04 to 0.02 s before | 30 of 541            | 349 of 355          |
-| under 0.02 s before   | 517 of 1,771         | 511 of 700          |
-| under 0.02 s after    | 2,184 of 2,663       | 112 of 798          |
-| 0.02 to 0.04 s after  | 4,800 of 4,816       | 2 of 935            |
-| 0.16 s or more after  | 5,077 of 5,101       | 0 of 2,440          |
+| 0.16 s or more before | 0 of 3,424           | 3,488 of 3,521      |
+| 0.04 to 0.16 s before | 28 of 2,967          | 1,987 of 1,999      |
+| 0.02 to 0.04 s before | 30 of 549            | 353 of 359          |
+| under 0.02 s before   | 519 of 1,779         | 511 of 700          |
+| under 0.02 s after    | 2,209 of 2,688       | 112 of 804          |
+| 0.02 to 0.04 s after  | 4,897 of 4,913       | 2 of 949            |
+| 0.04 to 0.16 s after  | 8,531 of 8,556       | 9 of 3,155          |
+| 0.16 s or more after  | 5,137 of 5,161       | 0 of 2,460          |
 
-A half point ticks when the channel is on the target at its instant, at the start and at the end alike: either way the share passes one half within 5 ms before the logged edge, and within 0.02 s the share follows the spread of the effects' own ticks. No tick logged after the channel's removal, and 413 logged in the same millisecond as it; 569 logged in the same millisecond as the channel's start. A channel that lands a few hundredths of a second after a half point ticks it only where the point fell due in that same instant.
+A half point ticks when the channel is on the target at its instant, at the start and at the end alike: either way the share passes one half within 5 ms of the logged edge. Within 0.02 s of a start it rises from 29% to 82%, and within 0.02 s of an end it falls from 73% to 14%. Of the ticks within 0.06 s of a lone edge, none logged after the channel's removal and 323 in the same millisecond as it; 518 logged in the same millisecond as the channel's start. A channel that lands a few hundredths of a second after a half point ticks it only where the point fell due in that same instant.
 
-Of 309 full channels (5.99 to 6.01 s) that started within 0.01 s of a Corruption or Siphon Life half point, with both edge points away from any other channel's edge and the effect up past the channel's end, 285 ticked exactly one of their two edge points, 22 both and 2 neither: 1.07 edge points on average, so 2.07 half points a channel. Bane of Agony's 108 such channels ticked one edge point in 104, both in 4.
+Of 309 full channels (5.99 to 6.01 s) that started within 0.01 s of a Corruption or Siphon Life half point, with both edge points away from any other channel's edge and the effect up past the channel's end, 285 ticked exactly one of their two edge points (157 the start's, 128 the end's), 22 both and 2 neither: 1.07 edge points on average, so 2.07 half points a channel. Bane of Agony's 108 such channels ticked one edge point in 104 (52 each), both in 4.

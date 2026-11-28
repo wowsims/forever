@@ -982,10 +982,10 @@ func checkFullTicks(t *testing.T, ticks []dotTick, start time.Duration, want []f
 }
 
 // Wrack's channel starting, ending or recast at an instant Corruption has a tick or a half point due is settled
-// before the half point, whatever the event's priority: a start on the tick at 3 s ticks it once, a start on the
+// before the half point at any priority, the lowest included as the event is queued before the point: a start on the tick at 3 s ticks it once, a start on the
 // half point 4.5 s ticks that point at once, an end on the half point 7.5 s leaves it, and an end there with a
 // recast at that instant ticks it once.
-func TestWrackOnADueTickDealsItOnce(t *testing.T) {
+func TestWrackEdgeOnADuePointIsSettledFirst(t *testing.T) {
 	cases := []struct {
 		name   string
 		events func(priority core.ActionPriority) []wrackEvent
@@ -1039,7 +1039,7 @@ func TestWrackOnADueTickDealsItOnce(t *testing.T) {
 
 // Wrack's channel running out on Corruption's half point 7.5 s leaves that point, and a channel recast at that
 // instant ticks it once, whether the recast runs before the channel's expiry or after it.
-func TestWrackRunningOutOnATickDealsItOnce(t *testing.T) {
+func TestWrackRunningOutOnAHalfPointLeavesIt(t *testing.T) {
 	cases := []struct {
 		name   string
 		events []wrackEvent
@@ -1059,6 +1059,42 @@ func TestWrackRunningOutOnATickDealsItOnce(t *testing.T) {
 			ticks := recordDotTicks(sim, corruption)[0]
 			sim.Cleanup()
 			checkFullTicks(t, ticks, start, c.want)
+		})
+	}
+}
+
+// Wrack's channel moved to a second target at 5 s ends it on the first, which keeps only its half point 4.5 s, and
+// gives the second's Corruption its points 7.5 s and 10.5 s; a first target dying at 5 s takes no half point after.
+func TestWrackHalfPointsFollowTheChannelsTarget(t *testing.T) {
+	encounter := &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.FreshDefaultTargetConfig(), core.FreshDefaultTargetConfig()}}
+	for _, c := range []struct {
+		name        string
+		at5         func(sim *core.Simulation, warlock *Warlock, targets []*core.Unit)
+		first, then []float64
+	}{
+		{name: "moved to the second target", at5: func(sim *core.Simulation, warlock *Warlock, targets []*core.Unit) {
+			warlock.Wrack.Dot(targets[1]).Apply(sim)
+		}, first: []float64{3, 4.5, 6, 9, 12, 15, 18}, then: []float64{3, 6, 7.5, 9, 10.5, 12, 15, 18}},
+		{name: "the first target dies", at5: func(sim *core.Simulation, _ *Warlock, _ []*core.Unit) {
+			sim.Encounter.ActiveTargets[0].Disable(sim, true)
+		}, first: []float64{3, 4.5}, then: []float64{3, 6, 9, 12, 15, 18}},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, warlock := newWarlockSim("00000000000001001", &proto.WarlockOptions{}, encounter)
+			warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -100})
+			targets := sim.Encounter.AllTargetUnits
+			first, second := warlock.Corruption.Dot(targets[0]), warlock.Corruption.Dot(targets[1])
+			first.Apply(sim)
+			second.Apply(sim)
+			start := sim.CurrentTime
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: start + 3200*time.Millisecond, OnAction: warlock.Wrack.Dot(targets[0]).Apply})
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: start + 5*time.Second, OnAction: func(sim *core.Simulation) {
+				c.at5(sim, warlock, targets)
+			}})
+			ticks := recordDotTicks(sim, first, second)
+			sim.Cleanup()
+			checkFullTicks(t, ticks[0], start, c.first)
+			checkFullTicks(t, ticks[1], start, c.then)
 		})
 	}
 }

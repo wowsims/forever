@@ -2,7 +2,6 @@ package warlock
 
 import (
 	"fmt"
-	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
@@ -10,8 +9,9 @@ import (
 )
 
 // While the channel is on the target, the half points of this warlock's Corruption, Siphon Life and Bane of Agony
-// there tick too, in full, from the channel's start up to its end, the end left out (EV-0085). A half point runs at
-// the lowest priority, so a channel starting, ending or recast at its instant is settled first.
+// there tick too, in full, from the channel's start up to its end. In game a channel lined up on the grid ticks one
+// of its two edge points, the start's and the end's about as often (EV-0085); here it is always the start's. A half
+// point runs at the lowest priority, so a channel starting, ending or recast at its instant is settled first.
 func (warlock *Warlock) registerWrackSpell() {
 	rankedSpell := spellData.Wrack.ByID(1316697)
 	wrackTick := rankedSpell.PeriodicEffect()
@@ -20,8 +20,8 @@ func (warlock *Warlock) registerWrackSpell() {
 	config := warlock.soulSiphonChannelConfig(rankedSpell, wrackTick, nil)
 	config.ClassSpellMask = WarlockSpellWrack
 
-	// The channel's period must divide the effect's. The effects register after this talent, so the check runs at
-	// the first channel.
+	// The half period under the channel must divide the effect's own. The effects register after this talent, so the
+	// check runs when a channel first starts over each effect.
 	fastPeriod := func(dot *core.Dot) time.Duration {
 		normal := dot.TickPeriod()
 		fast := time.Duration(float64(normal) / speedup).Round(time.Millisecond)
@@ -32,14 +32,14 @@ func (warlock *Warlock) registerWrackSpell() {
 	}
 	// Each effect's next half point under the channel, cleared each iteration as the clock starts over.
 	pending := map[*core.Dot]*core.PendingAction{}
+	var halfPointDot *core.Dot // the effect whose half point is ticking
 	warlock.RegisterResetEffect(func(_ *core.Simulation) {
 		clear(pending)
 	})
-	// Queues the effect's half point that lies points whole channel periods before its expiry, or the next one
-	// before it when that point is one of the effect's own ticks.
+	// Queues the effect's half point that lies points half periods before its expiry, or the one after it when that
+	// point is one of the effect's own ticks.
 	var queueHalfPoint func(sim *core.Simulation, channel *core.Aura, dot *core.Dot, points time.Duration)
 	queueHalfPoint = func(sim *core.Simulation, channel *core.Aura, dot *core.Dot, points time.Duration) {
-		delete(pending, dot)
 		fast, expiresAt := fastPeriod(dot), dot.ExpiresAt()
 		if (points*fast)%dot.TickPeriod() == 0 {
 			points--
@@ -53,8 +53,12 @@ func (warlock *Warlock) registerWrackSpell() {
 			if !channel.IsActive() || !dot.IsActive() || dot.ExpiresAt() != expiresAt {
 				return
 			}
+			halfPointDot = dot
 			dot.TickOnce(sim)
-			queueHalfPoint(sim, channel, dot, points-1)
+			halfPointDot = nil
+			if channel.IsActive() && dot.IsActive() {
+				queueHalfPoint(sim, channel, dot, points-1)
+			}
 		}
 		pending[dot] = pa
 		sim.AddPendingAction(pa)
@@ -78,14 +82,11 @@ func (warlock *Warlock) registerWrackSpell() {
 
 	warlock.Wrack = warlock.RegisterSpell(config)
 
-	// A tick off the effect's own grid is Wrack's and records its damage under the key wrack; none before the pull.
+	// A half point's tick records its damage on its spell under the key wrack; none before the pull.
 	core.MakePermanent(warlock.RegisterAura(core.Aura{
 		Label: "Wrack Contribution",
 		OnPeriodicDamageDealt: func(_ *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			if sim.CurrentTime < 0 || !slices.Contains(warlock.afflictionDots, spell) {
-				return
-			}
-			if dot := spell.Dot(result.Target); (sim.CurrentTime-dot.StartedAt())%dot.CalcTickPeriod() != 0 {
+			if dot := halfPointDot; dot != nil && sim.CurrentTime >= 0 && spell == dot.Spell && result.Target == dot.Unit {
 				spell.RecordCustomMetric(result.Target, "wrack", result.Damage)
 			}
 		},
