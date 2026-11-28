@@ -226,7 +226,7 @@ func dreadmistDarkReward(name string) core.ApplySetBonus {
 		heal := dreadmistHeal.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, dreadmistHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
-		// The game files state no defense type, and a heal crits for the magic multiplier.
+		// No defense type in game files, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealHealing(sim, target, heal.DirectAmount(sim), spell.OutcomeHealingCrit)
@@ -489,7 +489,7 @@ func warriorsResolve(name string) core.ApplySetBonus {
 		heal := warriorsResolveHeal.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, warriorsResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
-		// The game files state no defense type, and a heal crits for the magic multiplier.
+		// No defense type in game files, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealHealing(sim, target, heal.DirectAmount(sim), spell.OutcomeHealingCrit)
@@ -987,7 +987,7 @@ var (
 )
 
 // Proc chance measurement in EV-0166.
-// The game files state no chance.
+// No chance in game files.
 const roarOfTheCrowdChance = 0.072
 
 // https://www.wowhead.com/forever/item-set=1/the-gladiator
@@ -1029,7 +1029,7 @@ var (
 )
 
 // Proc chance measurement in EV-0167.
-// The game files state no chance.
+// No chance in game files.
 const bloodmailChance = 0.107
 
 // https://www.wowhead.com/forever/item-set=123/bloodmail-regalia
@@ -1081,7 +1081,7 @@ var (
 )
 
 // Proc chance measurement in EV-0168.
-// The game files state no chance.
+// No chance in game files.
 const necropileDrainChance = 0.139
 
 // https://www.wowhead.com/forever/item-set=122/necropile-raiment

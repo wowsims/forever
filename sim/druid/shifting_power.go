@@ -15,7 +15,7 @@ func (druid *Druid) registerShiftingPowerSpell() {
 	config := spelldata.SpellConfig(&druid.Unit, rank)
 	config.Flags |= core.SpellFlagAPL
 	// The October 8 hotfixes: "Shifting Power can no longer be used while already at Full Energy."
-	// The game files state no such rule.
+	// Not in game files.
 	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
 		return druid.Talents.ShiftingPower && druid.CurrentEnergy() < druid.MaximumEnergy()
 	}

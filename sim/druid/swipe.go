@@ -5,7 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The 3% attack power share is an override on the row: the game files state none.
+// The 3% attack power share is an override on the row. Not in game files.
 func (druid *Druid) registerSwipeBearSpell() {
 	rank := spellData.Swipe.Highest()
 	damageEffect := rank.DamageEffect()

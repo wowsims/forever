@@ -97,7 +97,7 @@ func init() {
 	//
 	// Smite your target for 112 Holy damage. Damage is tripled against Undead.
 	//
-	// The game files state no power coefficient, so tripling the amount triples the hit. Its defense type is
+	// No power coefficient in game files, so tripling the amount triples the hit. Its defense type is
 	// ranged, so it rolls on the ranged hit table.
 	core.NewItemEffect(867, func(agent core.Agent) {
 		character := agent.GetCharacter()

@@ -35,7 +35,7 @@
     "wowsims-conventions": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "8f763d7e438eca270b7b64ed4c6a35a6e4c1dba6f5bc5cffd3f1ccbe47abe1e0"
+      "computedHash": "2863c40af416d0ede54e1bacaafd2b2cc542bb46878232b44b707d54c9d630fa"
     },
     "wowsims-core-mechanics": {
       "source": "./.github/skills",

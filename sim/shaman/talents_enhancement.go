@@ -90,7 +90,7 @@ func (shaman *Shaman) applyElementalWeapons() {
 	shaman.windfuryWeaponMultiplier = 1 + rank.EffectN(3).Percent()
 }
 
-// The cost reduction is permanent; the game files state no proc.
+// The cost reduction is permanent. No proc in game files.
 func (shaman *Shaman) applyShamanisticFocus() {
 	if !shaman.Talents.ShamanisticFocus {
 		return

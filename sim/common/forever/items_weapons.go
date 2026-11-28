@@ -109,7 +109,7 @@ func init() {
 	// Chance on hit: Calls forth an Emerald Dragon Whelp to protect you in battle for a short period of
 	// time.
 	//
-	// The game files state no rate for 13049; the item's chance-on-hit entry carries the one measured on
+	// No rate for 13049 in game files; the item's chance-on-hit entry carries the one measured on
 	// the sword's speed. Any landed hit rolls it, Rend's and Concussion Blow's applications included. The
 	// spell's category cooldown starts at the proc, and no hit rolls while it runs. The cast summons the
 	// Emerald Dragon Whelp 8776 its E_SUMMON names, on the hit enemy, for the spell's duration.
@@ -146,7 +146,7 @@ func init() {
 	// inflicting 490 Physical damage to your current target and increasing all your stats by 20 for
 	// 20 sec.
 	//
-	// The game files state no cooldown.
+	// No cooldown in game files.
 	core.NewItemEffect(2801, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		stackRow := spelldata.MustFind(1325509)
@@ -226,7 +226,7 @@ func init() {
 	//
 	// Chance to strike your ranged target with a Shadowbolt for 13 to 19 Shadow damage.
 	//
-	// The game files state no rate for 29626; the item's entry carries it, measured on the
+	// No rate for 29626 in game files; the item's entry carries it, measured on the
 	// crossbow's speed.
 	newEntryRateItemEffect(13040, 29640, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(29640)
@@ -603,7 +603,7 @@ func init() {
 			panic(fmt.Sprintf("Barovian Family Sword: %d links to %d spells, want its heal alone", row.ID, len(linked)))
 		}
 		healConfig := procSpellConfigAs(character, linked[0], spelldata.Magic(core.ProcMaskSpellHealing))
-		// The game files state no defense type for the heal, and a heal crits for the magic multiplier.
+		// No defense type for the heal in game files, and a heal crits for the magic multiplier.
 		healConfig.DefenseType = core.DefenseTypeMagic
 		healConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealHealing(sim, target, drain.Roll(sim), spell.OutcomeHealingCrit)

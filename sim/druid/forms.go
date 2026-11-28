@@ -105,7 +105,7 @@ func (druid *Druid) feralWeapon(swingSpeed float64) core.Weapon {
 	return paw
 }
 
-// Bear rage factor in EV-0037. The game files state no druid rage multiplier of its own.
+// Bear rage factor in EV-0037. No druid rage multiplier in game files.
 const BearRageIsTwoHanded = true
 
 func (druid *Druid) GetBearWeapon() core.Weapon {

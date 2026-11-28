@@ -83,7 +83,7 @@ func (paladin *Paladin) applyConviction() {
 // Vindication - Gives your damaging melee attacks a chance to reduce the target's Attack Power by
 // 68/136/204 for 30 sec.
 //
-// The game files state no rate. In game it is 5 procs a minute (EV-0062). Melee specials roll the
+// No rate in game files. In game it is 5 procs a minute (EV-0062). Melee specials roll the
 // same chance (EV-0156); the spell's proc mask also hears them.
 const vindicationPPM = 5
 

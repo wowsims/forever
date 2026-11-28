@@ -28,7 +28,7 @@ func (warrior *Warrior) registerIntercept() {
 	config := spelldata.SpellConfig(&warrior.Unit, interceptRank, spelldata.Flags(core.SpellFlagAPL|core.SpellFlagMovesToTarget))
 
 	aura := core.MakeDashAura(&warrior.Unit, "Intercept", actionID, config.Cast.CD.Duration, func(sim *core.Simulation) {
-		// Targets at raid boss level are immune to the stun and its damage; the game files do not state it.
+		// Targets at raid boss level are immune to the stun and its damage. Not in game files.
 		if interceptTarget.Level >= core.CharacterLevel+3 {
 			return
 		}

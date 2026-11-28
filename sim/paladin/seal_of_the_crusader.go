@@ -19,7 +19,7 @@ import (
 // 161. Your melee strikes will refresh the spell's duration. Only one Judgement per Paladin can be
 // active at any one time.
 //
-// The game files state no number for the damage each attack loses. White hit damage in EV-0062.
+// The damage each attack loses is not in game files. White hit damage in EV-0062.
 func (paladin *Paladin) registerSealOfTheCrusader(_ int32, rank *spelldata.Spell) {
 	judgementRank := spellData.SealOfTheCrusaderTriggered.ByID(int32(rank.EffectN(3).BaseValue()))
 	judgementAuras := paladin.newJudgementAuras(func(target *core.Unit) *core.Aura {

@@ -31,7 +31,7 @@ func (druid *Druid) registerOmenOfClarity() {
 	// ICD starts.
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		// The 15 October development notes take Faerie Fire cast in Cat, Bear or Dire Bear Form off
-		// Omen of Clarity. The game files state none.
+		// Omen of Clarity. Not in game files.
 		if spellData.FaerieFire.Contains(spell) && druid.InForm(Cat|Bear|DireBear) {
 			return false
 		}

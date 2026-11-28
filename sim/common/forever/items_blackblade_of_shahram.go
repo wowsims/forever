@@ -30,7 +30,7 @@ var shahramPicks = []struct {
 const shahramCastStartMin = 1030 * time.Millisecond
 const shahramCastStartMax = 1830 * time.Millisecond
 
-// The most Will of Shahram stacks the wearer can carry. The game files state no cap, so this one is
+// The most Will of Shahram stacks the wearer can carry. No cap in game files, so this one is
 // the sim's own.
 const shahramWillMaxStacks = 5
 

@@ -7,7 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The game files state no attack power share. In game Explosive Trap's initial hit takes 10% of ranged
+// No attack power share in game files. In game Explosive Trap's initial hit takes 10% of ranged
 // attack power and its ticks take none (EV-0068). TODO: In-game testing required for Immolation Trap,
 // which the Forever notes give the same 10% over its whole duration, split evenly over the ticks and read at
 // each tick.

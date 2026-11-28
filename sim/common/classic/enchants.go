@@ -35,7 +35,7 @@ func init() {
 	// EffectID: 1900, Proc SpellID: 20007
 	// Permanently enchant a melee weapon so that often when attacking in melee
 	// it heals for 75 to 125 and increases Strength by 100 for 15 sec.
-	// The game files state no rate: 20007 has no proc chance and 458112's ProcChance 100 is the
+	// No rate in game files: 20007 has no proc chance and 458112's ProcChance 100 is the
 	// sentinel beside "often". The enchant's effect entry carries it.
 	core.NewEnchantEffect(1900, func(agent core.Agent) {
 		character := agent.GetCharacter()

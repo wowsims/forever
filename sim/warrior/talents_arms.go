@@ -81,7 +81,7 @@ func (warrior *Warrior) registerImprovedOverpower() {
 var angerManagementRank = spellData.AngerManagement.Highest()
 
 // The rage regen aura on effect 1 states its amount on the rage bar's tenths, per five seconds as every
-// A_MOD_POWER_REGEN does. The game files state no tick for it, so the rage arrives as one gain every five
+// A_MOD_POWER_REGEN does. No tick for it in game files, so the rage arrives as one gain every five
 // seconds. The tooltip's "$m2 Rage every $m3 sec" reads the two dummies instead, 1 rage every 3 seconds.
 var angerManagementRage = angerManagementRank.EffectN(1).Tenths()
 

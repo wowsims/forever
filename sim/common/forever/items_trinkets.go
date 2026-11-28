@@ -231,7 +231,7 @@ func init() {
 		heal := row.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
-		// The game files state no defense type; a heal crits for the magic multiplier.
+		// No defense type in game files; a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealHealing(sim, target, heal.DirectAmount(sim), spell.OutcomeHealingCrit)

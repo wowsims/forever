@@ -79,6 +79,9 @@ These apply to every file and every piece of GitHub text, in Go and TypeScript a
   one the sim does not follow, a disagreement with a tooltip or a log), name the game files: "the game files state no
   chance". "Row" stays for a literal row: an override row, a row of a named game table, a row the spell store code
   builds or looks up, a row of a test table or of a list in the UI.
+- **"Not in game files."** A sentence that only says the data lacks something is that short: "The tooltip: "These
+  effects cause no threat." Not in game files.", "No rate in game files; the item's entry carries it." Never "The
+  game files state it in no field".
 
 ## Plain prose
 
