@@ -313,12 +313,17 @@ func revelationProcChance() float64 {
 
 func revelationWearerFacing(t *testing.T, class proto.Class, spec any, enemies int) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return enchantWearerFacing(t, revelationEnchant, class, spec, enemies)
+}
+
+func enchantWearerFacing(t *testing.T, enchant int32, class proto.Class, spec any, enemies int) (*core.Simulation, *core.Character) {
+	t.Helper()
 	targets := make([]*proto.Target, enemies)
 	for i := range targets {
 		targets[i] = &proto.Target{Name: "target", Level: 60}
 	}
 	items := weaponSlots(1613, 0)
-	items[proto.ItemSlot_ItemSlotMainHand].Enchant = revelationEnchant
+	items[proto.ItemSlot_ItemSlotMainHand].Enchant = enchant
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceTauren,
 		Equipment: &proto.EquipmentSpec{Items: items},
@@ -718,6 +723,38 @@ func TestRevelationRollsOncePerHitEvent(t *testing.T) {
 	}
 }
 
+// Enchant Weapon - Insight 8216 rolls once per cast however many targets it reaches: an Arcane Explosion
+// that lands on 5 enemies with the cooldown ready procs it about as often as the row's chance for one roll
+// (EV-0229).
+func TestInsightRollsOncePerCast(t *testing.T) {
+	const casts, enemies = 600, 5
+	sim, character := enchantWearerFacing(t, 8216, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, enemies)
+	mage := sim.Raid.Parties[0].Players[0].(*testMage)
+	buff := character.GetAuraByID(core.ActionID{SpellID: 1299796})
+	trigger := character.GetAura("Enchant Weapon - Insight")
+	if buff == nil || trigger == nil || trigger.Icd == nil {
+		t.Fatal("8216 registers no buff 1299796 or no trigger with a cooldown")
+	}
+
+	procs := 0
+	for range casts {
+		buff.Deactivate(sim)
+		trigger.Icd.Reset()
+		mage.explosion.Cast(sim, character.CurrentTarget)
+		stepTo(t, sim, sim.CurrentTime+2*core.SpellBatchWindow)
+		if buff.IsActive() {
+			procs++
+		}
+	}
+	if hits := len(mage.crits[mage.explosion]); hits != casts*enemies {
+		t.Fatalf("%d casts landed %d hits, want %d", casts, hits, casts*enemies)
+	}
+	chance := spelldata.MustFind(1248758).StatedChance()
+	if want := casts * chance; float64(procs) < want*0.75 || float64(procs) > want*1.25 {
+		t.Errorf("%d casts on %d enemies procced Insight %d times, want about %.0f, one roll a cast", casts, enemies, procs, want)
+	}
+}
+
 // The first result of a hit event is its one chance: an Arcane Explosion whose first target crits never
 // procs Revelation, whatever its other targets do, and one whose first target does not crit can (EV-0149).
 func TestRevelationRollsNothingWhenAnEventsFirstResultCrits(t *testing.T) {
@@ -974,5 +1011,28 @@ func TestLesserBeastslayerAddsDamageAgainstBeasts(t *testing.T) {
 		if got, want := character.AutoAttacks.MHAuto().BonusDamage(attackTable), character.GetStat(stats.PhysicalDamage)+c.want; got != want {
 			t.Errorf("a main-hand swing at a target of %v deals %v bonus damage, want %v", c.against, got, want)
 		}
+	}
+}
+
+// Enchant 2H Weapon - Grand Arcanist 7941 puts up 1231138, whose spell power rides on the buff while
+// its E_ENERGIZE restores the row's mana with each proc.
+func TestGrandArcanistRestoresItsBuffsManaWithEachProc(t *testing.T) {
+	gain := spelldata.MustFind(1231138).EnergizeEffect()
+	if gain == spelldata.NilEffect || gain.Max() <= 0 {
+		t.Fatal("1231138 restores no mana, nothing to check")
+	}
+	items := weaponSlots(1613, 0)
+	items[proto.ItemSlot_ItemSlotMainHand].Enchant = 7941
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassPaladin, &proto.EquipmentSpec{Items: items})
+	character.SpendMana(sim, character.CurrentMana(), character.NewManaMetrics(core.ActionID{SpellID: instantSpellID}))
+	buff := character.GetAura("Enchant 2H Weapon - Grand Arcanist Proc")
+	if buff == nil {
+		t.Fatal("7941 registers no buff")
+	}
+
+	spell := fireSpell(&character.Unit)
+	hitUntil(t, func() { dealHit(t, sim, character, spell) }, buff.IsActive)
+	if got := spellGain(character, 1231138); got.Events != 1 || got.Gain < gain.Min() || got.Gain > gain.Max() {
+		t.Errorf("the proc restored %v mana over %d gains, want one gain of %v to %v", got.Gain, got.Events, gain.Min(), gain.Max())
 	}
 }

@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 744.17197
+  tps: 554.49302
+  hps: 46.25833
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-AnkhofLife-1713"
  value: {
   dps: 791.67709
@@ -208,8 +216,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 800.73082
-  tps: 594.90859
+  dps: 800.58965
+  tps: 594.79374
   hps: 45.80083
  }
 }
@@ -472,8 +480,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 738.26582
-  tps: 550.23996
+  dps: 738.48513
+  tps: 550.39567
   hps: 46.08889
  }
 }
@@ -576,8 +584,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 791.34824
-  tps: 587.82781
+  dps: 790.73729
+  tps: 587.28096
   hps: 45.93639
  }
 }
@@ -594,6 +602,14 @@ dps_results: {
  value: {
   dps: 790.06265
   tps: 587.31957
+  hps: 45.80083
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 794.08086
+  tps: 590.1725
   hps: 45.80083
  }
 }
@@ -696,9 +712,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Felstriker-12590"
  value: {
-  dps: 750.30205
-  tps: 558.71803
-  hps: 46.13972
+  dps: 749.22294
+  tps: 557.9452
+  hps: 46.15667
  }
 }
 dps_results: {
@@ -856,9 +872,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 785.75452
-  tps: 584.14634
-  hps: 45.63139
+  dps: 783.88664
+  tps: 582.609
+  hps: 45.68222
  }
 }
 dps_results: {
@@ -1520,8 +1536,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-SeepingWillow-12969"
  value: {
-  dps: 761.81972
-  tps: 567.21929
+  dps: 767.60503
+  tps: 571.33432
   hps: 45.88556
  }
 }
@@ -1536,8 +1552,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Shadowblade-2163"
  value: {
-  dps: 739.51543
-  tps: 551.52041
+  dps: 739.12957
+  tps: 551.24645
   hps: 46.63111
  }
 }
@@ -1560,8 +1576,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-ShimmeringPlatinumWarhammer-15418"
  value: {
-  dps: 772.86019
-  tps: 574.9922
+  dps: 774.80139
+  tps: 576.36517
   hps: 45.86861
  }
 }
@@ -1744,8 +1760,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-TheCruelHandofTimmy-13401"
  value: {
-  dps: 727.11881
-  tps: 542.38075
+  dps: 726.91882
+  tps: 542.23876
   hps: 46.15667
  }
 }

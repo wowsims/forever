@@ -3,7 +3,6 @@
 // Neither layout lives here — both are `components/ResultMetricList`, picked by its `layout` prop.
 import { Spec } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import { Hunter } from '@sim/player/classes/hunter';
 import { Rogue } from '@sim/player/classes/rogue';
 import { Warrior } from '@sim/player/classes/warrior';
 import { PlayerSpecs } from '@sim/player/specs/index';
@@ -30,7 +29,7 @@ export type ToplineMetricsOptions = {
 	displayMetrics?: ToplineDisplayMetrics;
 };
 
-const NO_MANA_CLASSES = [Rogue, Warrior, Hunter];
+const NO_MANA_CLASSES = [Rogue, Warrior];
 
 // The two specs whose topline drops Time-to-OOM and HPS. The list is narrower than the set of
 // tank specs: a protection warrior and a feral bear both tank, but only the bear's sheet drops

@@ -22,7 +22,7 @@ export class Paladin extends PlayerClass<Class.ClassPaladin> {
 	static rangedWeaponTypes = getClassRangedWeaponTypes(Paladin.classID);
 
 	readonly classID = Paladin.classID;
-	readonly friendlyName = Paladin.name;
+	readonly friendlyName = Paladin.friendlyName;
 	readonly cssClass = Paladin.cssClass;
 	readonly hexColor = Paladin.hexColor;
 	readonly specs = Paladin.specs;

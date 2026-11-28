@@ -233,6 +233,17 @@ func Proc() SpellOpt {
 	}
 }
 
+// A spell the game triggers off a hit or an aura (a channel's tick, a wave, an item's bolt, a poison's hit) is a proc,
+// which only a listener that can proc from procs hears, unless its row carries Not A Proc. A spell built on the
+// player's own cast row takes no Triggered().
+func Triggered() SpellOpt {
+	return func(config *core.SpellConfig, s *Spell) {
+		if s.IsAProc() {
+			config.Flags |= core.SpellFlagProc
+		}
+	}
+}
+
 // Flags the game files do not state, such as the sim's own metrics and rotation flags.
 func Flags(flags core.SpellFlag) SpellOpt {
 	return func(config *core.SpellConfig, _ *Spell) {
@@ -366,6 +377,9 @@ func rowFlags(s *Spell) core.SpellFlag {
 			flags |= core.SpellFlagSuppressTargetProcs
 		}
 	}
+	if s.TicksAreCasts() {
+		flags |= core.SpellFlagTicksAreCasts
+	}
 	if s.PushedBack() {
 		flags |= core.SpellFlagPushback
 	}
@@ -472,5 +486,18 @@ func applyCost(config *core.SpellConfig, s *Spell) {
 	spends := cost > 0 || costPct > 0
 	if spends && config.Cast.DefaultCast.GCD == 0 && config.Cast.DefaultCast.CastTime == 0 {
 		config.Cast.DefaultCast.NonEmpty = true
+	}
+}
+
+// The landing an area channel's cast makes on every enemy as the channel starts: the cast's dummy as a
+// hit with no damage, which a listener on the enemy hears and a listener that needs damage does not. It
+// reports under the cast's id with tag 1 and records no metrics or log lines (EV-0116, EV-0219).
+func RegisterAreaCastLanding(unit *core.Unit, cast *Spell) func(sim *core.Simulation) {
+	landing := unit.RegisterSpell(SpellConfig(unit, cast, Magic(core.ProcMaskSpellDamage), Proc(), Tag(1),
+		Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))
+	return func(sim *core.Simulation) {
+		for _, target := range sim.Encounter.ActiveTargetUnits {
+			landing.CalcAndDealOutcome(sim, target, landing.OutcomeAlwaysHit)
+		}
 	}
 }

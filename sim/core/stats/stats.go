@@ -595,7 +595,7 @@ type PseudoStats struct {
 	///////////////////////////////////////////////////
 
 	CanBlock       bool
-	CanBlockSpells bool // With CanBlock, non-physical melee attacks roll a block too (A_ALLOW_BLOCKING_SPELLS). Magic spells stay unblockable.
+	CanBlockSpells bool // With CanBlock, enemy spells and non-physical melee attacks roll a block too (A_ALLOW_BLOCKING_SPELLS).
 	CanParry       bool
 	CanCrush       bool
 

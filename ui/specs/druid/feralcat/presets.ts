@@ -3,10 +3,13 @@ import * as Consumables from '@features/settings/model/consumables_auto_gen';
 import { ConsumesSpec, Profession, Race } from '@generated/proto/common';
 import { FeralCatDruid_Options as FeralDruidOptions } from '@generated/proto/druid';
 import { SavedTalents } from '@generated/proto/ui';
+import { Encounter } from '@sim/raid/encounter';
 
 import { CatEp, HybridEp } from '../feral_ep';
 import AdaptiveApl from './apls/adaptive.apl.siml';
+import RoleGearSet from './gear_sets/cat.gear.siml';
 import Level60GearSet from './gear_sets/default.gear.siml';
+import HybridGearSet from './gear_sets/hybrid.gear.siml';
 import PreRaidGearSet from './gear_sets/pre_raid.gear.siml';
 
 // Another raid member's bleed keeps Rend and Tear up.
@@ -18,9 +21,24 @@ export const DefaultConsumables = ConsumesSpec.create({
 	conjuredId: Consumables.DemonicRune.id,
 	explosiveId: Consumables.EZThroDarkBomb.id,
 	mhImbueId: Consumables.DenseWeightstone.id,
+	extraIds: [
+		Consumables.JujuMight.id,
+		Consumables.GroundScorpokAssay.id,
+		Consumables.GoblinSapperCharge.id,
+		Consumables.JujuPower.id,
+		Consumables.RumseyRumBlackLabel.id,
+		Consumables.DragonbreathChili.id,
+	],
+	elixirIds: [
+		Consumables.ElixirOfTheMongoose.id,
+		Consumables.ElixirOfThePhalanx.id,
+		Consumables.GreaterMagebloodElixir.id,
+		Consumables.GiftOfArthas.id,
+		Consumables.ElixirOfMinorForce.id,
+		Consumables.GreaterArcaneElixir.id,
+		Consumables.ElixirOfFirePower.id,
+	],
 	swapMhImbueId: Consumables.DenseWeightstone.id,
-	extraIds: [Consumables.JujuMight.id, Consumables.GroundScorpokAssay.id, Consumables.GoblinSapperCharge.id],
-	elixirIds: [Consumables.ElixirOfCunning.id, Consumables.ElixirOfThePhalanx.id, Consumables.GreaterMagebloodElixir.id, Consumables.ElixirOfTheGrizzly.id],
 	resourcePotId: Consumables.MajorManaPotion.id,
 	offensivePotId: Consumables.MightyRagePotion.id,
 });
@@ -56,3 +74,11 @@ export const JVMES_APL = {
 };
 export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050021-53200032123012125001-055' }));
 export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050012-50230302123110125011-055' }));
+
+export const CatGear = PresetUtils.makePresetGear('Cat', RoleGearSet);
+export const HybridGear = PresetUtils.makePresetGear('Hybrid', HybridGearSet);
+
+const encounter = Encounter.defaultEncounterProto();
+encounter.duration = 180;
+encounter.durationVariation = 5;
+export const DefaultEncounter = PresetUtils.makePresetEncounter('Default', encounter);

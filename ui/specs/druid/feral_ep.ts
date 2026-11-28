@@ -37,7 +37,7 @@ export const BearEp = Stats.fromMap(
 		[Stat.StatArmorPenetration]: 0.076942239137796131,
 		[Stat.StatExpertiseRating]: 1.4908756993816326,
 		[Stat.StatDefenseRating]: 0.44509948787822168,
-		[Stat.StatDodgeRating]: -0.0061422686303552639,
+		[Stat.StatDodgeRating]: 0,
 		[Stat.StatArmor]: 0.20223136852452989,
 		[Stat.StatBonusArmor]: 0.20223136852452961,
 		[Stat.StatHealth]: 0.078520181776663769,

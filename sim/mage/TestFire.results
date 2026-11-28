@@ -68,6 +68,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 869.43758
+  tps: 872.15302
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-AnkhofLife-1713"
  value: {
   dps: 948.96105
@@ -133,8 +140,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 918.12502
-  tps: 918.59611
+  dps: 917.67443
+  tps: 918.18012
  }
 }
 dps_results: {
@@ -182,8 +189,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 950.45843
-  tps: 948.12775
+  dps: 936.06361
+  tps: 933.49271
  }
 }
 dps_results: {
@@ -407,8 +414,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 975.58008
-  tps: 971.20015
+  dps: 978.50758
+  tps: 982.57408
  }
 }
 dps_results: {
@@ -484,8 +491,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 943.87059
-  tps: 940.78855
+  dps: 945.98529
+  tps: 950.26684
  }
 }
 dps_results: {
@@ -504,6 +511,13 @@ dps_results: {
 }
 dps_results: {
  key: "TestFire-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 917.12125
+  tps: 915.08161
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-EnchantWeapon-Lifestealing-1898"
  value: {
   dps: 917.12125
   tps: 915.08161

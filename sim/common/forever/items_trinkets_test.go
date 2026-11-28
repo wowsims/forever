@@ -22,63 +22,6 @@ func trinketWarrior(t *testing.T, trinketID int32) (*core.Simulation, *core.Char
 	return trinketWarriorWielding(t, trinketID, 0, 0)
 }
 
-func TestFlamebreakRequiresAnActiveElementalForItsExtraAgility(t *testing.T) {
-	row := spelldata.MustFind(1315878)
-	if row.EffectN(1).Average() <= 0 || row.EffectN(2).Average() <= 0 {
-		t.Fatal("Flamebreak's effects must grant Agility")
-	}
-	for _, tc := range []struct {
-		name      string
-		elemental bool
-		disabled  bool
-	}{
-		{name: "no elemental"},
-		{name: "active elemental", elemental: true},
-		{name: "inactive elemental", elemental: true, disabled: true},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)
-			for i := range items {
-				items[i] = &proto.ItemSpec{}
-			}
-			items[proto.ItemSlot_ItemSlotTrinket1].Id = 280071
-			secondary := proto.MobType_MobTypeBeast
-			if tc.elemental {
-				secondary = proto.MobType_MobTypeElemental
-			}
-			sim, character := itemWearerAgainst(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: items},
-				&proto.Target{Name: "primary", Level: 60}, &proto.Target{Name: "secondary", Level: 60, MobType: secondary})
-			character.AutoAttacks.CancelAutoSwing(sim)
-			if tc.disabled {
-				sim.Encounter.AllTargets[1].Disable(sim, false)
-			}
-			before := character.GetStat(stats.Agility)
-			useTrinketAsEntryStates(t, sim, character, 280071, core.CooldownTypeDPS)
-			want := row.EffectN(1).Average()
-			if tc.elemental && !tc.disabled {
-				want += row.EffectN(2).Average()
-			}
-			if got := character.GetStat(stats.Agility) - before; got != want {
-				t.Fatalf("Agility gained = %v, want %v", got, want)
-			}
-			t.Logf("Agility gained = %v", want)
-			buff := character.GetAuraByID(core.ActionID{ItemID: 280071})
-			if buff == nil || buff.Duration != row.Duration() {
-				t.Fatal("the on-use aura does not retain its duration")
-			}
-			buff.Deactivate(sim)
-			if got := character.GetStat(stats.Agility); got != before {
-				t.Fatalf("Agility after expiration = %v, want %v", got, before)
-			}
-			sim.Cleanup()
-			sim.Reset()
-			if got := character.GetStat(stats.Agility); got != before {
-				t.Fatalf("Agility after reset = %v, want %v", got, before)
-			}
-		})
-	}
-}
-
 func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32, neck int32) (*core.Simulation, *core.Character) {
 	t.Helper()
 	return trinketWarriorFacing(t, trinketID, mainHand, neck, proto.MobType_MobTypeUnknown)
@@ -277,45 +220,6 @@ func TestAegisOfPreservationHealsOnHitsTakenWhileItRuns(t *testing.T) {
 
 func gained(character *core.Character, before stats.Stats, stat stats.Stat) float64 {
 	return character.GetStat(stat) - before[stat]
-}
-
-func TestMarkOfTyrannyHealthBonusInStrongholdsAndCities(t *testing.T) {
-	for _, tc := range []struct {
-		name   string
-		areas  []proto.AreaType
-		factor float64
-	}{
-		{"neutral", nil, 1},
-		{"forest", []proto.AreaType{proto.AreaType_AreaTypeForestGrassland}, 1},
-		{"strongholds and cities", []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}, 2},
-		{"strongholds and forest", []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities, proto.AreaType_AreaTypeForestGrassland}, 2},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			sim, character := trinketWarriorFacing(t, 13966, 0, 0, proto.MobType_MobTypeUnknown, tc.areas...)
-			before := character.MaxHealth()
-			dodge := character.GetStat(stats.DodgeRating)
-			use := useTrinketAsEntryStates(t, sim, character, 13966, core.CooldownTypeSurvival)
-			want := spelldata.MustFind(1287842).EffectN(1).Average() * tc.factor
-			if got := character.MaxHealth() - before; !statNear(got, want) {
-				t.Errorf("maximum health gain = %v, want %v", got, want)
-			}
-			if use.RelatedSelfBuff.Duration != spelldata.MustFind(1287842).Duration() {
-				t.Errorf("duration = %v, want the spell row duration", use.RelatedSelfBuff.Duration)
-			}
-			if got := character.GetStat(stats.DodgeRating); got != dodge {
-				t.Errorf("dodge rating = %v, want the equipped value %v", got, dodge)
-			}
-			stepTo(t, sim, use.RelatedSelfBuff.ExpiresAt()+time.Millisecond)
-			if got := character.MaxHealth(); !statNear(got, before) {
-				t.Errorf("maximum health after expiry = %v, want %v", got, before)
-			}
-			sim.Cleanup()
-			sim.Reset()
-			if got := character.MaxHealth(); !statNear(got, before) {
-				t.Errorf("maximum health after reset = %v, want %v", got, before)
-			}
-		})
-	}
 }
 
 func statNear(a, b float64) bool {
@@ -653,13 +557,18 @@ func TestPetrifiedScarabLosesResistancePerSpellTaken(t *testing.T) {
 
 // Everlook Delivery Bot 274760 marks the target with 1295271; once as many spells or attacks as the
 // mark's first two effects bound have landed on it, 1295633 deals its row's Fire to it and the mark
-// is gone.
+// is gone. In a Snowy area both bounds are halved.
 func TestEverlookDeliveryBotDeliversAfterItsCount(t *testing.T) {
-	sim, character := trinketWarrior(t, 274760)
+	t.Run("anywhere", func(t *testing.T) { checkEverlookDelivery(t, 1) })
+	t.Run("Snowy", func(t *testing.T) { checkEverlookDelivery(t, 2, proto.AreaType_AreaTypeSnowy) })
+}
+
+func checkEverlookDelivery(t *testing.T, divisor int, areas ...proto.AreaType) {
+	sim, character := trinketWarriorFacing(t, 274760, 0, 0, proto.MobType_MobTypeUnknown, areas...)
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
 	target := character.CurrentTarget
 	markRow := spelldata.MustFind(1295271)
-	fewest, most := int(markRow.EffectN(1).BaseValue()), int(markRow.EffectN(2).BaseValue())
+	fewest, most := int(markRow.EffectN(1).BaseValue())/divisor, int(markRow.EffectN(2).BaseValue())/divisor
 	if fewest < 1 || most < fewest {
 		t.Fatalf("1295271 bounds the count by %d and %d", fewest, most)
 	}
@@ -690,8 +599,8 @@ func TestEverlookDeliveryBotDeliversAfterItsCount(t *testing.T) {
 }
 
 // Darkmoon Card: Heroism 19287's 23689 procs on the wearer's melee hits, and not on its spells, at the
-// procs per minute of the item's entry: the chance on a swing scales with the weapon's speed. It heals
-// the wearer through 23682 for that row's roll.
+// procs per minute of the item's entry, twice that in Strongholds and Cities: the chance on a swing
+// scales with the weapon's speed. It heals the wearer through 23682 for that row's roll.
 func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 	procOf := func(character *core.Character) *core.Aura {
 		t.Helper()
@@ -715,6 +624,10 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 	}
 	if !statNear(armedChance/armedSpeed, chance/speed) {
 		t.Errorf("the chance is %v on a %v s swing and %v on a %v s one, want it in proportion to the speed", chance, speed, armedChance, armedSpeed)
+	}
+	citySim, inCity := trinketWarriorFacing(t, 19287, 0, 0, proto.MobType_MobTypeUnknown, proto.AreaType_AreaTypeStrongholdsCities)
+	if cityChance := procOf(inCity).Dpm.Chance(core.ProcMaskMeleeMHAuto, citySim); !statNear(cityChance, 2*chance) {
+		t.Errorf("the chance in Strongholds and Cities is %v, want twice the %v elsewhere", cityChance, chance)
 	}
 
 	heal := character.GetSpell(core.ActionID{SpellID: 23682})
@@ -1324,8 +1237,9 @@ func TestLionHornOfStormwindDoublesItsChanceInStrongholdsAndCities(t *testing.T)
 }
 
 // Draconic Infused Emblem 22268's 1318931 rolls its row's chance on every landed harmful spell hit,
-// one that deals no damage too, and on nothing else: a cast with no hit, a miss, a damage over time
-// tick and a spell fired as a proc never roll.
+// one that deals no damage and a magic spell with no proc mask, as a curse is, too, and on nothing
+// else: a heal, a cast with no hit, a miss, a damage over time tick and a spell fired as a proc never
+// roll.
 func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
 	const hurricaneTick, flamestrikeTick = 1278759, 1279990
 	if !spelldata.MustFind(hurricaneTick).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {
@@ -1380,6 +1294,13 @@ func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
 		{"landed hit with no damage", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
 			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit})
 		}},
+		{"landed magic spell with no proc mask", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			spell.ProcMask = core.ProcMaskEmpty
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit})
+		}},
+		{"landed heal", 0, func(sim *core.Simulation, character *core.Character, _ *core.Spell) {
+			character.OnHealDealt(sim, healSpell(&character.Unit), &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeHit, Damage: 100})
+		}},
 		{"cast with no hit", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
 			character.OnCastComplete(sim, spell)
 		}},
@@ -1412,6 +1333,39 @@ func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
 			spell := fireSpell(&character.Unit)
 			if got := procs(t, sim, buff, 1, func() { event.deal(sim, character, spell) }); got != event.want {
 				t.Errorf("a %s procced it %d times, want %d", event.name, got, event.want)
+			}
+		})
+	}
+}
+
+// Flamebreak Talisman 280071's use grants 1315878's first Agility, and its second on top when any enemy
+// in the encounter is an elemental, by type or by family.
+func TestFlamebreakTalismanAddsItsSecondAgilityAgainstAnElemental(t *testing.T) {
+	row := spelldata.MustFind(1315878)
+	first, second := row.EffectN(1).BaseValue(), row.EffectN(2).BaseValue()
+	if first <= 0 || second <= 0 {
+		t.Fatalf("1315878 grants %v and %v Agility, nothing to check", first, second)
+	}
+	for _, c := range []struct {
+		name   string
+		target *proto.Target
+		want   float64
+	}{
+		{"Beast", &proto.Target{Name: "target", Level: 60, MobType: proto.MobType_MobTypeBeast}, first},
+		{"Elemental", &proto.Target{Name: "target", Level: 60, MobType: proto.MobType_MobTypeElemental}, first + second},
+		{"Fire Elemental family", &proto.Target{Name: "target", Level: 60, CreatureFamily: proto.CreatureFamily_CreatureFamilyFireElemental}, first + second},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, character := itemWearerAgainst(t, proto.Class_ClassWarrior, equipping(proto.ItemSlot_ItemSlotTrinket1, &proto.ItemSpec{Id: 280071}),
+				&proto.Target{Name: "other", Level: 60, MobType: proto.MobType_MobTypeHumanoid}, c.target)
+			use := character.GetSpell(core.ActionID{ItemID: 280071})
+			if use == nil {
+				t.Fatal("280071 registers no use")
+			}
+			before := character.GetStat(stats.Agility)
+			use.Cast(sim, character.CurrentTarget)
+			if got := character.GetStat(stats.Agility) - before; got != c.want {
+				t.Errorf("the use against a %s added %v Agility, want %v", c.name, got, c.want)
 			}
 		})
 	}

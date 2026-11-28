@@ -53,6 +53,10 @@ const PSEUDO_STAT_NAMES: Partial<Record<PseudoStat, string>> = {
 
 const getName = (stat: UnitStat): string => (stat.isStat() ? STAT_NAMES[stat.getStat()] : (PSEUDO_STAT_NAMES[stat.getPseudoStat()] ?? ''));
 
+// Sixty Upgrades takes the ratings as a percent chance, so a per-rating weight is scaled to per-percent.
+// Its Forever mode has one hit and one crit that cover melee, ranged and spells, as the rating does.
+const getScale = (stat: UnitStat): number => (stat.isStat() ? (stat.convertPercentToRating(1) ?? 1) : 1);
+
 export const SIXTY_UPGRADES_EP_EXPORTER: ExporterDefinition = {
 	title: i18n.t('export.sixty_upgrades_ep.title'),
 	allowDownload: true,
@@ -64,7 +68,7 @@ export const SIXTY_UPGRADES_EP_EXPORTER: ExporterDefinition = {
 		const namesToWeights: Record<string, number> = {};
 		allUnitStats.forEach(stat => {
 			const statName = getName(stat);
-			const weight = stat.storedEpToShown(epValues.getUnitStat(stat));
+			const weight = epValues.getUnitStat(stat) * getScale(stat);
 			if (weight == 0 || statName == '') {
 				return;
 			}

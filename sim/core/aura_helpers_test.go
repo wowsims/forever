@@ -21,7 +21,7 @@ func TestProcTriggerClassFlags(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		if got := config.matchesSpell(test.spell); got != test.want {
+		if got := config.matchesSpell(test.spell, false); got != test.want {
 			t.Errorf("%s: matchesSpell = %v, want %v", test.name, got, test.want)
 		}
 	}
@@ -45,7 +45,7 @@ func TestProcTriggerWithBothMasksRequiresBoth(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		if got := config.matchesSpell(test.spell); got != test.want {
+		if got := config.matchesSpell(test.spell, false); got != test.want {
 			t.Errorf("%s: matchesSpell = %v, want %v", test.name, got, test.want)
 		}
 	}
@@ -67,7 +67,37 @@ func TestProcTriggerClassSpellsOnly(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		if got := config.matchesSpell(test.spell); got != test.want {
+		if got := config.matchesSpell(test.spell, false); got != test.want {
+			t.Errorf("%s: matchesSpell = %v, want %v", test.name, got, test.want)
+		}
+	}
+}
+
+// A listener that cannot proc from procs skips a proc's hits but hears a dot's ticks, whatever laid the dot, unless the
+// ticks are the hits of a spell the aura casts (EV-0226). One that can proc from procs hears all of them.
+func TestProcTriggerHearsAProcsTicksButNotItsHits(t *testing.T) {
+	proc := &Spell{Flags: SpellFlagProc}
+	castTicks := &Spell{Flags: SpellFlagProc | SpellFlagTicksAreCasts}
+	notAProc := &Spell{Flags: SpellFlagTicksAreCasts}
+
+	tests := []struct {
+		name             string
+		canProcFromProcs bool
+		spell            *Spell
+		tick             bool
+		want             bool
+	}{
+		{"a proc's hit", false, proc, false, false},
+		{"a proc's dot's tick", false, proc, true, true},
+		{"a proc's tick that its aura casts", false, castTicks, true, false},
+		{"a tick its aura casts, not a proc", false, notAProc, true, true},
+		{"a proc's hit, can proc from procs", true, proc, false, true},
+		{"a proc's tick that its aura casts, can proc from procs", true, castTicks, true, true},
+	}
+
+	for _, test := range tests {
+		config := ProcTrigger{CanProcFromProcs: test.canProcFromProcs}
+		if got := config.matchesSpell(test.spell, test.tick); got != test.want {
 			t.Errorf("%s: matchesSpell = %v, want %v", test.name, got, test.want)
 		}
 	}

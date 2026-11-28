@@ -88,8 +88,9 @@ in Volcanic areas" on Molten Fury). A row names the AreaGroup ids (any one of th
 on the effect's amounts and the factor on its duration. These go onto `Spell.AreaBonusGroups`,
 `AreaMultiplier` and `AreaDurationMultiplier`. `row.AreaBonus(&character.Env.Encounter)` reads them
 against the encounter's area set. The override is stale once the row states a `RequiredAreasID` of its
-own. The on-use stat actives that `shared.NewSimpleStatActive` registers read it; a proc chance the
-tooltip says is doubled has no reader yet.
+own. The on-use stat actives that `shared.NewSimpleStatActive` registers and the on-use resource gains
+`shared.NewSpellDataEnergizeOnUse` registers read it; a proc chance the tooltip says is doubled has no
+reader yet.
 
 `overrides.VersusBonuses` is the third, for a row whose tooltip says it deals, restores or procs N times as
 much against some creatures ("Deals $s2 times as much damage to Plants", "Attacks against Dwarves are $s2

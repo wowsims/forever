@@ -313,7 +313,8 @@ func (paladin *Paladin) applyIronCreed() {
 // Strike that lands. The spell block comes with every strike made with a shield, an avoided one
 // too (EV-0022). It is the triggered row's
 // A_ALLOW_BLOCKING_SPELLS, which the parser has no kind for. While it is up, a melee swing of any
-// school rolls the paladin's block chance. Magic spells stay unblockable.
+// school and an enemy's spell roll the paladin's block chance, and a blocked spell is a block to Holy
+// Shield, Reckoning and Shield Specialization (EV-0228).
 func (paladin *Paladin) applyShieldsworn() {
 	if !paladin.Talents.Shieldsworn {
 		return

@@ -67,6 +67,8 @@ tools/db2tool/DBDCache
 tools/db2tool/dbfilesclient/
 tools/db2tool/caches/
 tools/db2tool/cdncache/
+# Icons `make icons` decodes from the game files; deploy and the previews make their own.
+assets/icons/
 
 # Client-extracted databases and caches. Output of `make db` from a local WoW
 # install, tens of MB each, and rebuildable - the same reason wowsims.db is here.

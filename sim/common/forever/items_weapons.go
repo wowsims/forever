@@ -26,10 +26,7 @@ func init() {
 	// weapon procs but not Bladestorm.
 	newEntryRateItemEffect(7717, 9632, func(character *core.Character, ppm float64) {
 		strikeRow := spelldata.MustFind(9633)
-		strikeConfig := spelldata.SpellConfig(&character.Unit, strikeRow, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
-		if strikeRow.IsAProc() {
-			strikeConfig.Flags |= core.SpellFlagProc
-		}
+		strikeConfig := spelldata.SpellConfig(&character.Unit, strikeRow, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(), spelldata.Triggered())
 		strikeConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := strikeRow.WeaponStrike(sim, spell, spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
 			spell.CalcAoeDamage(sim, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
@@ -166,10 +163,7 @@ func init() {
 		perfected := character.RegisterAura(spelldata.AuraConfig(perfectedRow, spelldata.Label("Blade of Hanna Perfected Form")))
 		spelldata.ParseEffects(character, perfected, perfectedRow, spelldata.Effects(2))
 
-		config := spelldata.SpellConfig(&character.Unit, perfectedRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc())
-		if perfectedRow.IsAProc() {
-			config.Flags |= core.SpellFlagProc
-		}
+		config := spelldata.SpellConfig(&character.Unit, perfectedRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc(), spelldata.Triggered())
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit)
 			perfected.Activate(sim)
@@ -313,6 +307,30 @@ func init() {
 		character.ItemSwap.RegisterProc(13361, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Demonfork
+	// https://www.wowhead.com/forever/item=12621/demonfork
+	//
+	// Chance on hit: Transfers 10 health every 1.0 seconds from the target to the caster for 5s.
+	//
+	// The game files state no rate for 16603; the item's chance-on-hit entry carries the one measured on
+	// the weapon's speed, with Seal of Fury's hits rolling it as the sim's do (EV-0228). A proc on a
+	// drained target refreshes the drain.
+	newEntryRateItemEffect(12621, 16603, func(character *core.Character, ppm float64) {
+		row := spelldata.MustFind(16603)
+		drain := registerLeechDrain(character, row, "Demonfork")
+
+		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			drain.Cast(sim, result.Target)
+		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewDynamicLegacyProcForWeapon(12621, ppm, 0)
+		})
+		trigger.Name = "Demonfork"
+		trigger.ActionID = core.ActionID{ItemID: 12621}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(12621, character.MakeProcTriggerAura(trigger))
+	})
+
 	// Malown's Slam
 	// https://www.wowhead.com/forever/item=13393/malowns-slam
 	//
@@ -328,6 +346,21 @@ func init() {
 			{ItemID: 13393, ItemName: "Malown's Slam"},
 		})
 
+	// Felstriker
+	// https://www.wowhead.com/forever/item=12590/felstriker
+	//
+	// Chance on hit: All attacks are guaranteed to land and will be critical strikes for the next 3s.
+	//
+	// Felstriker 16551 goes up in the instant of the hit that procs it, after that hit's own roll, so the
+	// Windfury Totem hit the same hit sets off rolls under it (EV-0225). An extra swing it sets off does
+	// too, by the same order; that swing is not measured. The buff lasts its 3 s from the spell batch the
+	// proc would have landed in, so it ends one batch window after 3 s; the owner rules the difference
+	// is server rounding (EV-0225).
+	shared.ProcTriggerExtras[12590] = func(trigger *core.ProcTrigger) {
+		trigger.TriggerImmediately = true
+	}
+	shared.ProcBuffDurationExtras[12590] = core.SpellBatchWindow
+
 	// Blade of Eternal Darkness
 	// https://www.wowhead.com/forever/item=17780/blade-of-eternal-darkness
 	//
@@ -335,40 +368,31 @@ func init() {
 	//
 	// Every harmful spell that lands on an enemy rolls it once for each target, damage or not, on the cast
 	// time of the cast that launched it. 21978 lacks Can Proc From Procs, so a spell fired as a proc never
-	// rolls it; Hellfire Effect, whose row lacks Not a Proc, rolls nothing in game (EV-0025). Physical
-	// taunts, shouts and roars and spells an item casts are not the wearer's spells and roll nothing.
+	// rolls it; Hellfire Effect, whose row lacks Not a Proc, rolls nothing in game (EV-0025). Only the
+	// wearer's harmful spells roll it (harmfulSpells).
 	row := spelldata.MustFind(21978)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			castTimePPM(row)(character, trigger)
-			priced := trigger.ExtraCondition
-			trigger.ProcMask = core.ProcMaskUnknown
-			trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
-				harmful := spell.ProcMask.Matches(core.ProcMaskSpellDamage) ||
-					(spell.ProcMask == core.ProcMaskEmpty && spell.DefenseType == core.DefenseTypeMagic &&
-						spell.SpellSchool != core.SpellSchoolPhysical && !spell.Flags.Matches(core.SpellFlagPassiveSpell) &&
-						spell.ActionID.ItemID == 0)
-				return harmful && character.IsOpponent(result.Target) && priced(sim, spell, result)
-			}
+			harmfulSpells(character, trigger)
 		}},
 		[]shared.ItemVariant{
 			{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
 		})
+	// Engulfing Shadows 27860 is binary by its row, but a landed hit takes no Spell Piercing bonus (EV-0142).
+	shared.DamageProcExtras[17780] = func(_ *core.Character, config *core.SpellConfig) {
+		config.Flags |= core.SpellFlagNoPartialResist
+	}
 
 	// Moonshadow Stave
 	// https://www.wowhead.com/forever/item=22458/moonshadow-stave
 	//
 	// Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.
 	//
-	// 1300435 rolls once for each enemy a harmful spell lands on, a damage over time effect or a debuff
-	// that deals no damage included, apart from Curse of the Elements, Recklessness and Weakness and Hex
-	// of Weakness, which the sim registers with no proc mask, and its 10 ms cooldown lets one landing
-	// proc it once. The chance is the row's procs per minute on the cast time of the cast that launched
-	// the spell, at least 1.5 s (castTimePPM). Damage over time ticks, misses, helpful spells, melee and spells fired as a proc,
-	// Hurricane's ticks among them, never roll it. Each proc casts Shadow 1300437 or Arcane 1300438, one
-	// in two each, and both fly to the target. In game a Hurricane cast rolls once for each enemy its
-	// area reaches until one procs; the sim's Hurricane cast only starts its channel and lands on no
-	// enemy, so it rolls nothing (EV-0115).
+	// 1300435 rolls on each enemy a harmful spell lands on (harmfulSpells) at the row's procs per minute on
+	// the cast time behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one cast
+	// proc it once; each proc casts Shadow 1300437 or Arcane 1300438, one in two each, which fly to that
+	// enemy (EV-0115).
 	core.NewItemEffect(22458, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300435)
@@ -389,7 +413,7 @@ func init() {
 				bolt = bolts[1]
 			}
 			bolt.Cast(sim, result.Target)
-		}, castTimePPM(row))
+		}, castTimePPM(row), harmfulSpells)
 		trigger.Name = "Moonshadow Stave"
 		trigger.ActionID = core.ActionID{ItemID: 22458}
 		trigger.TriggerImmediately = true
@@ -401,12 +425,9 @@ func init() {
 	//
 	// Harmful spell casts have a chance to deal 70 Fire damage. Deals 3 times as much damage to Plants.
 	//
-	// 1300781 rolls once for each enemy a harmful spell lands on, at the row's procs per minute on the
-	// cast time of the cast behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one
-	// cast proc it once. Each proc deals 1300782 to that enemy at once. Spells fired as a proc roll
-	// nothing, and the curses and hex the sim registers with no proc mask neither. In game Hurricane's
-	// cast and Counterspell's interrupt proc it too; the sim leaves both out (EV-0219). The sim has no
-	// Plant creature type.
+	// 1300781 rolls on each enemy a harmful spell lands on (harmfulSpells) at the row's procs per minute on
+	// the cast time behind the hit, at least 1.5 s (castTimePPM), and its 10 ms cooldown lets one cast
+	// proc it once; each proc deals 1300782 to that enemy, three times as much to Plants (EV-0219).
 	core.NewItemEffect(11750, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300781)
@@ -414,6 +435,7 @@ func init() {
 
 		damage := ignition.DamageEffect()
 		config := procSpellConfig(character, ignition)
+		config.VersusBonus = shared.ItemVersusBonus(character, 11750, proto.VersusEffectKind_VersusEffectKindDamage, ignition)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
@@ -421,7 +443,7 @@ func init() {
 
 		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			fire.Cast(sim, result.Target)
-		}, castTimePPM(row))
+		}, castTimePPM(row), harmfulSpells)
 		trigger.Name = "Kindling Stave"
 		trigger.ActionID = core.ActionID{ItemID: 11750}
 		trigger.TriggerImmediately = true
@@ -696,6 +718,20 @@ func init() {
 		}
 	}
 
+	// Toofbreaker
+	// https://www.wowhead.com/forever/item=286430/toofbreaker
+	//
+	// Chance on hit: Bash the target, causing 42 Physical damage. Deals 2 times as much damage if the
+	// target is facing you.
+	//
+	// Toofbreak 1320269's second effect, a dummy, states the multiplier. The target faces a wearer who
+	// stands in front of it, by the owner's ruling.
+	shared.DamageProcExtras[286430] = func(character *core.Character, config *core.SpellConfig) {
+		if character.PseudoStats.InFrontOfTarget {
+			config.DamageMultiplier *= spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Average()
+		}
+	}
+
 	// Flame Wrath
 	// https://www.wowhead.com/forever/item=11809/flame-wrath
 	//
@@ -705,11 +741,7 @@ func init() {
 	// 16559's second effect casts 16560, the tooltip's Fire Shield, on the wearer. The generated damage
 	// spell does not follow it, so each proc puts it on here for its duration, a later proc refreshing
 	// it (EV-0136). It raises Fire resistance and deals its damage shield's amount to each attacker
-	// that strikes the wearer.
-	//
-	// TODO: in Cat and Bear Form only the white swing rolls 16559 (EV-0151), while the generated weapon proc hears
-	// every landed melee hit, Maul and the form's other attacks included. Whether a form keeps every chance-on-hit
-	// weapon to the white swing is not settled.
+	// that strikes the wearer. A druid's form attacks roll it as any other melee hit does (R-0056).
 	shared.DamageProcExtras[11809] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Trigger()
 		shield := character.RegisterAura(spelldata.AuraConfig(row, spelldata.Label("Flame Wrath Fire Shield")))
@@ -805,10 +837,7 @@ func init() {
 
 		chillRow := spelldata.MustFind(1298414)
 		chill := chillRow.DamageEffect()
-		chillConfig := spelldata.SpellConfig(&character.Unit, chillRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc())
-		if chillRow.IsAProc() {
-			chillConfig.Flags |= core.SpellFlagProc
-		}
+		chillConfig := spelldata.SpellConfig(&character.Unit, chillRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc(), spelldata.Triggered())
 		var chillOutcome core.OutcomeApplier
 		chillConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, chill.DirectAmount(sim), chillOutcome))
@@ -926,6 +955,23 @@ func creatureFamilyMultiplier(target *core.Unit, multiplier float64, families ..
 		return multiplier
 	}
 	return 1
+}
+
+// Narrows the trigger to landings on an enemy of the wearer's harmful spells: spell damage hits, and
+// spells with no proc mask whose DefenseType is magic and whose school is not Physical, such as the
+// curses, Hex of Weakness and Counterspell. Physical taunts, shouts and roars, spells fired as a proc
+// and spells an item casts are not harmful spells of the wearer's. It runs before any condition the
+// trigger already has (EV-0025, EV-0219).
+func harmfulSpells(character *core.Character, trigger *core.ProcTrigger) {
+	condition := trigger.ExtraCondition
+	trigger.ProcMask = core.ProcMaskUnknown
+	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+		harmful := spell.ProcMask.Matches(core.ProcMaskSpellDamage) ||
+			(spell.ProcMask == core.ProcMaskEmpty && spell.DefenseType == core.DefenseTypeMagic &&
+				spell.SpellSchool != core.SpellSchoolPhysical && !spell.Flags.Matches(core.SpellFlagPassiveSpell) &&
+				spell.ActionID.ItemID == 0)
+		return harmful && character.IsOpponent(result.Target) && (condition == nil || condition(sim, spell, result))
+	}
 }
 
 // The row's procs per minute, priced on the cast time of the cast that launched the hit, at least the

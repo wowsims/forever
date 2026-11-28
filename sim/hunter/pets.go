@@ -64,9 +64,8 @@ type HunterPet struct {
 	family      generatedPetFamily
 
 	// What the pet casts in melee range, and what it casts to close the distance when it is not.
-	abilities  []*core.Spell
-	closers    []*core.Spell
-	savageRend *core.Spell
+	abilities []*core.Spell
+	closers   []*core.Spell
 
 	summonAttackPower float64 // The attack power and health inherited at the summon, kept while the pet is out.
 	summonHealth      float64
@@ -94,7 +93,7 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 			return hp.keepSummonStats(inherit(ownerStats))
 		},
 		EnabledOnStart: true,
-		// Rapid Fire's melee haste reaches the pet this way; the owner's ranged haste does not.
+		// Rapid Fire's melee haste reaches the pet this way; the owner's ranged haste does not reach its swing.
 		HasDynamicMeleeSpeedInheritance: true,
 	})
 
@@ -112,6 +111,24 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 
 	hunter.AddPet(hp)
 	return hp
+}
+
+// A ranged haste aura of the hunter's (A_MOD_RANGED_HASTE: Quick Shots, Rapid Fire, Berserking) speeds the pet's
+// focus regeneration by its haste while it lasts. The quiver's haste does not (EV-0072).
+func (hunter *Hunter) speedPetFocusWith(aura *core.Aura, multiplier float64) {
+	if hunter.Pet == nil {
+		return
+	}
+	aura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
+		hunter.Pet.MultiplyFocusRegenSpeed(multiplier)
+	})
+	aura.ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
+		hunter.Pet.MultiplyFocusRegenSpeed(1 / multiplier)
+	})
+}
+
+func rangedHasteOf(row *spelldata.Spell) float64 {
+	return 1 + row.Effect(dbcenums.A_MOD_RANGED_HASTE, 0).Percent()
 }
 
 // Hunter Pet Scaling (415429) states every inherited stat without an amount, the server pricing
@@ -266,8 +283,8 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 		return
 	}
 
-	// Autocast decides in 0.8 s steps, two of them after a cast, and picks evenly among what it can
-	// cast; Savage Rend goes out only about one time in nine that it could (EV-0187).
+	// Autocast decides in 0.8 s steps, and every ability's 1.5 s global cooldown puts the next cast two of
+	// them after the last; it picks evenly among what it can cast (EV-0187).
 	if sim.CurrentTime >= hp.nextAutocast {
 		hp.nextAutocast = sim.CurrentTime + petAutocastStep
 		if hp.castRandomReady(sim, target) {
@@ -282,17 +299,9 @@ const petAutocastStep = 800 * time.Millisecond
 func (hp *HunterPet) castRandomReady(sim *core.Simulation, target *core.Unit) bool {
 	var ready []*core.Spell
 	for _, spell := range hp.abilities {
-		if !spell.CanCast(sim, target) {
-			continue
+		if spell.CanCast(sim, target) {
+			ready = append(ready, spell)
 		}
-		if spell == hp.savageRend {
-			if sim.RandomFloat("Pet Savage Rend") < 0.113 {
-				spell.Cast(sim, target)
-				return true
-			}
-			continue
-		}
-		ready = append(ready, spell)
 	}
 	if len(ready) == 0 {
 		return false
@@ -340,19 +349,18 @@ func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 	default:
 		return
 	}
-	if rank.Name == "Savage Rend" {
-		hp.savageRend = spell
-	}
 	hp.abilities = append(hp.abilities, spell)
 }
 
 // The row's config for a spell of the pet's: out of the owner's rotation, and cast only while the
-// pet is up.
+// pet is up. Autocast holds a row that reaches more than one enemy (Savage Rend, Swipe, Mine!) while
+// only one enemy is up (EV-0187).
 func (hp *HunterPet) spellConfig(rank *spelldata.Spell, opts ...spelldata.SpellOpt) core.SpellConfig {
 	config := spelldata.SpellConfig(&hp.Unit, rank, opts...)
 	config.Flags &^= core.SpellFlagAPL
+	cleave := rank.MaxTargets > 1
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
-		return hp.IsEnabled()
+		return hp.IsEnabled() && (!cleave || len(sim.Encounter.ActiveTargetUnits) > 1)
 	}
 	return config
 }
@@ -483,10 +491,28 @@ func (hp *HunterPet) registerDustCloud(rank *spelldata.Spell) *core.Spell {
 		return buffs.NewSpellDataDustCloudAura(target, true, 0)
 	})
 
+	// Autocast casts it only onto an enemy without the pet's Dust Cloud: its own target, or else another enemy
+	// (EV-0187).
+	bare := func(sim *core.Simulation, target *core.Unit) *core.Unit {
+		if !auras.Get(target).IsActive() {
+			return target
+		}
+		for _, enemy := range sim.Encounter.ActiveTargetUnits {
+			if !auras.Get(enemy).IsActive() {
+				return enemy
+			}
+		}
+		return nil
+	}
+
 	config := hp.spellConfig(rank)
+	enabled := config.ExtraCastCondition
+	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
+		return enabled(sim, target) && bare(sim, target) != nil
+	}
 	// The row states one stack, and the armor follows the stacks.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		aura := auras.Get(target)
+		aura := auras.Get(bare(sim, target))
 		aura.Activate(sim)
 		aura.AddStack(sim)
 	}

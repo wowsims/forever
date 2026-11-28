@@ -445,10 +445,7 @@ func (pet *WarlockPet) registerDemonicBrand() {
 	if pet.summon == proto.WarlockOptions_Imp {
 		brandRow, schoolDamage = spelldata.MustFind(1293698), stats.FireDamage
 	}
-	brandConfig := spelldata.SpellConfig(&pet.Unit, brandRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
-	if brandRow.IsAProc() {
-		brandConfig.Flags |= core.SpellFlagProc
-	}
+	brandConfig := spelldata.SpellConfig(&pet.Unit, brandRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered())
 	brandHit := pet.RegisterSpell(brandConfig)
 	// Both rows state Always Hit: the brand's hit rolls only its crit and partial resists (EV-0201).
 	brandOutcome := brandHit.OutcomeMagicHitAndCrit

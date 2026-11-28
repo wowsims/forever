@@ -245,10 +245,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 944.40798
-  tps: 690.39117
-  dtps: 8.0003
-  hps: 20.75694
+  dps: 940.05601
+  tps: 687.59048
+  dtps: 8.532
+  hps: 20.79083
  }
 }
 dps_results: {
@@ -515,10 +515,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 931.79935
-  tps: 682.50397
-  dtps: 8.44461
-  hps: 20.87556
+  dps: 932.24801
+  tps: 684.97158
+  dtps: 7.64537
+  hps: 20.85861
  }
 }
 dps_results: {
@@ -605,17 +605,17 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 925.91686
-  tps: 678.38622
-  dtps: 8.44461
-  hps: 20.87556
+  dps: 925.37102
+  tps: 679.55143
+  dtps: 7.6259
+  hps: 20.82472
  }
 }
 dps_results: {
  key: "TestEnhancement-AllItems-EnchantWeapon-Insight-8216"
  value: {
   dps: 921.44277
-  tps: 674.81322
+  tps: 674.81552
   dtps: 8.48402
   hps: 20.87556
  }
@@ -636,6 +636,15 @@ dps_results: {
   tps: 675.65257
   dtps: 8.44461
   hps: 20.87556
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-EnchantWeapon-Lifestealing-1898"
+ value: {
+  dps: 929.15586
+  tps: 679.72132
+  dtps: 8.36281
+  hps: 20.75694
  }
 }
 dps_results: {
@@ -1397,10 +1406,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-SeepingWillow-12969"
  value: {
-  dps: 911.0355
-  tps: 667.83753
-  dtps: 7.74974
-  hps: 22.50222
+  dps: 914.95531
+  tps: 670.5567
+  dtps: 7.67087
+  hps: 22.43444
  }
 }
 dps_results: {
@@ -1442,10 +1451,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-ShimmeringPlatinumWarhammer-15418"
  value: {
-  dps: 928.03939
-  tps: 681.27488
-  dtps: 7.76406
-  hps: 25.29806
+  dps: 928.37379
+  tps: 681.40191
+  dtps: 8.3862
+  hps: 25.26417
  }
 }
 dps_results: {

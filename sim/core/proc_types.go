@@ -175,7 +175,10 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	} else if word&procFlagAnyDirectDealt != 0 {
 		info.Callback |= CallbackOnSpellHitDealt
 
-		if word&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 {
+		// A spell landing for no damage, a debuff or a dot's application, reaches a mask of spell bits
+		// alone. A mask that pairs the harmful-spell bit with a melee or ranged bit needs damage
+		// (EV-0021, EV-0226).
+		if word&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 && word&procFlagAnyAttackDealt == 0 {
 			info.RequireDamageDealt = false
 		}
 	}

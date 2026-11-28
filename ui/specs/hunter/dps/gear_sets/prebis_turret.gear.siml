@@ -2,17 +2,17 @@ siml 1
 
 head       black_dragonscale_helm + lesser_arcane_amalgamation_1508
 neck       pendant_of_celerity + necklace_agility
-shoulder   darkspear_epaulets
+shoulder   bone_golem_shoulders
 back       cape_of_the_black_baron + cloak_agility
 chest      dawn_armor + chest_greater_stats
 wrist      beastmasters_bindings_ilvl65 + bracer_agility_7656
 hands      devilsaur_gauntlets + gloves_greater_agility
 waist      rangers_belt
 legs       devilsaur_leggings + lesser_arcane_amalgamation_1508
-feet       windreaver_greaves + boots_greater_agility
+feet       windreaver_greaves + boots_minor_speed
 finger1    cutthroats_signet
-finger2    tarnished_elven_ring
+finger2    don_julios_band
 trinket1   blackhands_breadth
 trinket2   heart_of_wyrmthalak
 main_hand  legionite_glaive + enchant_2h_weapon_agility
-ranged     bloodseeker + saf_t_ultra_precision_scope
+ranged     bloodseeker + sniper_scope

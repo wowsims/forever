@@ -222,38 +222,23 @@ func (warlock *Warlock) applyMasterSummoner() {
 
 // --- Tier 4 ---
 
-// Effect 2 shortens Soul Fire's cooldown. Against a target below 35% health (effect 3), Shadow Bolt and Searing
-// Pain deal more damage (effect 4), and a cast of either that lands grants Decimation (440873): for 10 sec
-// Soul Fire casts faster and, by the buff's A_NO_REAGENT_USE, takes no Soul Shard. The buff sits on the warlock,
-// so a cast at a low target carries its Soul Fire bonus to any other target. The buff's row states no damage, so
-// the damage bonus counts per target.
+// Effect 2 shortens Soul Fire's cooldown, and effect 4 raises Shadow Bolt's and Searing Pain's damage. The tooltip
+// ties the damage bonus to a target below 35% health, but the row states no condition, and in game the bonus counts
+// at any target health (EV-0232). A cast of either that lands on a target below effect 3's health percent grants
+// Decimation (440873): for 10 sec Soul Fire casts faster and, by the buff's A_NO_REAGENT_USE, takes no Soul Shard.
+// The buff sits on the warlock, so a cast at a low target carries its Soul Fire bonus to any other target.
 func (warlock *Warlock) applyDecimation() {
 	if warlock.Talents.Decimation == 0 {
 		return
 	}
 
 	rank := spellData.Decimation.Rank(warlock.Talents.Decimation)
-	spelldata.ParseStatic(&warlock.Character, rank, spelldata.Effects(2))
+	spelldata.ParseStatic(&warlock.Character, rank, spelldata.Effects(2, 4))
 
-	// The execute bonus counts on each target from the moment that target is below effect 3's health percent,
-	// read when the damage is. The sim tracks a target's health as its execute phase, so only a 35% threshold
-	// can be read.
+	// The sim tracks a target's health as its execute phase, so only a 35% threshold can be read.
 	if threshold := rank.EffectN(3).BaseValue(); threshold != 35 {
 		panic(fmt.Sprintf("Decimation %d: effect 3 states a %.0f%% health threshold, but only the 35%% execute phase is tracked", rank.ID, threshold))
 	}
-	executeBonus := rank.EffectN(4)
-	executeMult := 1 + executeBonus.Percent()
-	againstExecute := func(_ *core.Simulation, spell *core.Spell, attackTable *core.AttackTable) float64 {
-		if attackTable.Defender.IsExecutePhase35() && spell.MatchesFlags(executeBonus.ClassFlags) {
-			return executeMult
-		}
-		return 1
-	}
-	warlock.Env.RegisterPostFinalizeEffect(func() {
-		for _, target := range warlock.Env.Encounter.AllTargetUnits {
-			core.EnableDamageDoneByCaster(DDBC_Decimation, DDBC_Total, warlock.AttackTables[target.UnitIndex], againstExecute)
-		}
-	})
 
 	// The buff's row states the 2/2 value, -40%; the talent's effect 1 prices the rank (-20% at 1/2), so the
 	// buff takes the row's duration and Soul Fire's flags, and the rank's value.
@@ -273,7 +258,7 @@ func (warlock *Warlock) applyDecimation() {
 		Name:           "Decimation - Trigger",
 		Callback:       core.CallbackOnCastResult,
 		Outcome:        core.OutcomeLanded,
-		ClassFlags:     executeBonus.ClassFlags,
+		ClassFlags:     rank.EffectN(4).ClassFlags,
 		ClassSpellMask: WarlockSpellShadowBolt | WarlockSpellSearingPain,
 		// The buff comes in the same batch as the cast (EV-0082).
 		TriggerImmediately: true,

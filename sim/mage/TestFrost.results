@@ -68,6 +68,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 777.01626
+  tps: 718.96001
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-AnkhofLife-1713"
  value: {
   dps: 842.8719
@@ -133,8 +140,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 822.56415
-  tps: 761.50817
+  dps: 823.27294
+  tps: 762.12898
  }
 }
 dps_results: {
@@ -407,8 +414,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 862.79362
-  tps: 796.11189
+  dps: 885.60022
+  tps: 822.54152
  }
 }
 dps_results: {
@@ -484,8 +491,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 841.96257
-  tps: 777.36395
+  dps: 864.03279
+  tps: 802.201
  }
 }
 dps_results: {
@@ -504,6 +511,13 @@ dps_results: {
 }
 dps_results: {
  key: "TestFrost-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 825.50723
+  tps: 762.55415
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-EnchantWeapon-Lifestealing-1898"
  value: {
   dps: 825.50723
   tps: 762.55415

@@ -5,7 +5,8 @@
 OUT_DIR := dist/forever
 # Windows won't launch an extensionless binary -- air just pops a file-association prompt.
 BIN_EXT := $(shell go env GOEXE)
-ASSETS_INPUT := $(shell find assets/ -type f)
+# assets/icons is gitignored and copied whole by the .dirstamp recipe below.
+ASSETS_INPUT := $(shell find assets/ -type f -not -path 'assets/icons/*')
 ASSETS := $(patsubst assets/%,$(OUT_DIR)/assets/%,$(ASSETS_INPUT))
 # Recursive wildcard function. Needs to be '=' instead of ':=' because of recursion.
 rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
@@ -18,12 +19,17 @@ GIT_DIR := $(shell git rev-parse --git-dir 2>/dev/null)
 AUTO_GEN_FILES_TS := ui/sim/player/classes/capabilities_auto_gen.ts ui/sim/bulk/constants_auto_gen.ts ui/sim/wasm/bulk_sim/constants_auto_gen.ts ui/sim/proto/sim_tables_auto_gen.ts ui/sim/wasm/stat_weights_constants_auto_gen.ts
 AUTO_GEN_FILES_TS_DEPS := sim/core/base_stats.go sim/core/constants.go sim/core/bulk/candidates.go sim/core/bulk/statistics.go sim/core/consumes_imbues.go sim/core/database.go sim/core/itemfit/itemfit.go sim/core/statweight.go tools/database/gen_character_constants_ts.go tools/database/gen_bulksim_constants.ts.go tools/database/gen_sim_tables_ts.go tools/database/gen_stat_weight_constants_ts.go sim/core/proto/api.pb.go
 
+# The icons `make icons` decoded, if any, are copied whole when this recipe runs; a newer manifest.json from a
+# later `make icons` reruns it.
 $(OUT_DIR)/.dirstamp: \
   $(OUT_DIR)/lib.wasm.gz \
   $(OUT_DIR)/siml_names.json \
   ui/generated/proto/api.ts \
   $(ASSETS) \
+  $(wildcard assets/icons/manifest.json) \
   $(OUT_DIR)/bundle/.dirstamp
+	rm -rf $(OUT_DIR)/assets/icons
+	if [ -d assets/icons ]; then cp -r assets/icons $(OUT_DIR)/assets/; fi
 	touch $@
 
 $(OUT_DIR)/bundle/.dirstamp: \
@@ -308,6 +314,12 @@ db:
 	go run ./tools/database/gen_spelldata $(SPELLDATA_FLAGS)
 	@echo "Running DBC generation tool"
 	go run tools/database/gen_db/*.go -outDir=./assets -gen=db $(GEN_DB_FLAGS)
+
+# Decodes the icon of every item, enchant, consumable and spell the database names from the game files into the
+# gitignored assets/icons, which the build copies beside the site. Reads the current build off Blizzard's CDN.
+.PHONY: icons
+icons: sim/core/proto/api.pb.go
+	go run ./tools/icons
 
 # Regenerates sim/<class>/spell_data_auto_gen.go from tools/database/wowsims.db, so it
 # runs after `make db` and from the repo root.

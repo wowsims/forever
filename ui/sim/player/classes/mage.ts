@@ -19,7 +19,7 @@ export class Mage extends PlayerClass<Class.ClassMage> {
 	static rangedWeaponTypes = getClassRangedWeaponTypes(Mage.classID);
 
 	readonly classID = Mage.classID;
-	readonly friendlyName = Mage.name;
+	readonly friendlyName = Mage.friendlyName;
 	readonly hexColor = Mage.hexColor;
 	readonly specs = Mage.specs;
 	readonly races = Mage.races;

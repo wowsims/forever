@@ -78,6 +78,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Alcor'sSunrazor-14555"
+ value: {
+  dps: 745.21392
+  tps: 532.15165
+  dtps: 6.59051
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-AnkhofLife-1713"
  value: {
   dps: 815.60571
@@ -152,9 +160,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 780.16559
-  tps: 557.04277
-  dtps: 6.01752
+  dps: 779.57653
+  tps: 556.63043
+  dtps: 6.2403
  }
 }
 dps_results: {
@@ -192,9 +200,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-Bolt'sChargedEyeball-280032"
  value: {
-  dps: 821.24448
-  tps: 589.44124
-  dtps: 9.06337
+  dps: 822.70113
+  tps: 589.82505
+  dtps: 9.70011
  }
 }
 dps_results: {
@@ -425,9 +433,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 823.32613
-  tps: 587.72233
-  dtps: 7.85609
+  dps: 823.38411
+  tps: 591.8562
+  dtps: 4.75142
  }
 }
 dps_results: {
@@ -513,9 +521,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 805.59866
-  tps: 575.31311
-  dtps: 7.85609
+  dps: 805.64823
+  tps: 578.60435
+  dtps: 4.35464
  }
 }
 dps_results: {
@@ -536,6 +544,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 792.16412
+  tps: 565.90893
+  dtps: 7.85609
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantWeapon-Lifestealing-1898"
  value: {
   dps: 792.16412
   tps: 565.90893
