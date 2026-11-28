@@ -12,7 +12,7 @@ import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { Fragment, useId } from 'react';
 import { useStore } from 'zustand';
 
-import { itemVersusChips, namesVersus, type VersusChip, versusEffectFactor, versusEffectValues, VERSUS_TONES } from '../../model/versus_state';
+import { itemVersusChips, namesVersus, VERSUS_TONES, type VersusChip, versusEffectFactor, versusEffectValues } from '../../model/versus_state';
 
 const chipName = (chip: VersusChip) =>
 	chip.kind === 'mobType' ? translateMobType(chip.value) : chip.kind === 'family' ? translateCreatureFamily(chip.value) : translateAreaType(chip.value);

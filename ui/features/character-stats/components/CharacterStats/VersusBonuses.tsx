@@ -2,12 +2,12 @@ import {
 	areaState,
 	familyState,
 	mobTypeState,
+	VERSUS_TONES,
 	type VersusChip,
 	versusEffectFactor,
 	versusEffectValues,
 	versusFactorText,
 	type VersusMatch,
-	VERSUS_TONES,
 } from '@features/gear/model/versus_state';
 import type { MobTypeBonusSource, PlayerStats, VersusEffect } from '@generated/proto/api';
 import type { AreaType, Stat, Target } from '@generated/proto/common';
@@ -142,7 +142,12 @@ const GroupRows = ({ group }: { group: VersusGroup }) => (
 			<TableHeaderCell scope="rowgroup" colSpan={2} wrap className="ui-character-stats-label text-left font-semibold">
 				<span className="flex items-center justify-between gap-2">
 					{group.label}
-					<Pill tone={VERSUS_TONES[group.match.state]} size="xs" rounded="xs" className="shrink-0 whitespace-nowrap" testId="character-stats-versus-state">
+					<Pill
+						tone={VERSUS_TONES[group.match.state]}
+						size="xs"
+						rounded="xs"
+						className="shrink-0 whitespace-nowrap"
+						testId="character-stats-versus-state">
 						{stateText(group)}
 					</Pill>
 				</span>
