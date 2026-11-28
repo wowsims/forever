@@ -2,7 +2,7 @@ import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as OtherInputs from '@features/settings/model/other_inputs';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ItemSlot, ItemSpec, ItemSwap, PseudoStat, Spec, Stat, TristateEffect } from '@generated/proto/common';
+import { ItemSlot, PseudoStat, Spec, Stat, TristateEffect } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
@@ -23,7 +23,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 	warnings: [],
 	displayWeaponSkillGroups: [WeaponSkillGroup.FeralCombat],
 
-	epRatios: [0.4860504938346992, 0, 0, 0.0, 0.1726976328525934, 0],
+	epRatios: [0.4860504938346992, 0, 0, 0, 0.1726976328525934, 0],
 	// All stats for which EP should be calculated.
 	epStats: [
 		Stat.StatStamina,
@@ -72,11 +72,11 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		],
 	),
 
+	defaultBuild: Presets.DefaultBuild,
+
 	defaults: {
-		gear: Presets.Level60Gear.gear,
-		itemSwap: ItemSwap.create({
-			items: Array.from({ length: 17 }, (_, slot) => ItemSpec.create(slot === ItemSlot.ItemSlotMainHand ? { id: 9449, enchant: 1900 } : {})),
-		}),
+		gear: Presets.BearGear.gear,
+
 		encounter: Presets.DefaultEncounter,
 		epWeights: Presets.DefaultEp,
 		statCaps: (() => {
@@ -89,7 +89,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		consumables: Presets.DefaultConsumables,
 		rotationType: APLRotationType.TypeAPL,
 		aplRotation: Presets.ROTATION_ADAPTIVE.rotation.rotation!,
-		talents: Presets.BearTalents.data,
+		talents: Presets.HybridTalents.data,
 		specOptions: Presets.DefaultOptions,
 		raidBuffs: RaidBuffs.create({
 			arcaneIntellect: true,
@@ -97,18 +97,24 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 			markOfTheWild: true,
 			powerWordFortitude: true,
 			shadowProtection: true,
-			strengthOfEarthTotem: 1,
-			graceOfAirTotem: 1,
+			strengthOfEarthTotem: 2,
+			graceOfAirTotem: 2,
 			windfuryTotem: true,
-			battleShout: 1, // Rank 6
+			battleShout: 1,
 		}),
-		partyBuffs: PartyBuffs.create({ devotionAura: true, manaSpringTotem: TristateEffect.TristateEffectRegular, retributionAura: true }),
-		individualBuffs: IndividualBuffs.create({ greaterBlessingOfKings: true, greaterBlessingOfMight: 1, thorns: true }),
+		partyBuffs: PartyBuffs.create({
+			devotionAura: true,
+			manaSpringTotem: TristateEffect.TristateEffectRegular,
+			retributionAura: true,
+		}),
+		individualBuffs: IndividualBuffs.create({
+			greaterBlessingOfKings: true,
+			greaterBlessingOfMight: 2,
+			thorns: true,
+		}),
 		debuffs: Debuffs.create({
 			judgementOfLight: true,
 			judgementOfWisdom: true,
-
-			faerieFire: false,
 			exposeArmor: true,
 			sunderArmor: true,
 			vindication: true,
@@ -143,9 +149,9 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 
 	presets: {
 		epWeights: [Presets.DefaultEpWeights, Presets.HybridEpWeights],
-		talents: [Presets.BearTalents, Presets.HybridTalents],
+		talents: [Presets.HybridTalents, Presets.BearTalents],
 		rotations: [Presets.ROTATION_ADAPTIVE],
-		gear: [Presets.Level60Gear],
+		gear: [Presets.BearGear, Presets.HybridGear, Presets.Level60Gear],
 		encounters: [Presets.DefaultEncounter],
 	},
 
