@@ -26,8 +26,7 @@ func addAreaStats(opts *proto.ScalingItemProperties, areaType proto.AreaType, st
 }
 
 // The stats a folded equip spell grants against creature types, one entry per mob type as the item's
-// own stats state them: Counterattack Lodestone 18537's 1318938 adds its attack power a second time
-// against Mechanical targets.
+// own stats state them.
 func addEquipSpellMobTypeStats(opts *proto.ScalingItemProperties, spellID int) {
 	for _, effect := range spelldata.MustFind(int32(spellID)).Effects {
 		granted := spelldata.VersusStats(effect.Aura)
@@ -95,14 +94,11 @@ func makeBaseProto(e *ItemEffect, statsSpellID int) *proto.ItemEffect {
 }
 
 // The internal cooldown of a proc. Most spells carry it on the trigger's SpellAuraOptions, but a
-// few leave that at zero and put it on the buff's spell category instead: Bulwark of Azzinoth's
-// armor buff sits in category 30 with a 60s CategoryRecoveryTime while its trigger has nothing.
+// few leave that at zero and put it on the buff's spell category instead.
 //
 // Only a buff that is a *separate* spell from the trigger counts. Where the two are the same spell
 // the recovery being read is that spell's own cast throttle rather than a gate on re-applying the
-// buff, and in TBC that is almost always the generic 1s bucket - category 99 holds 170 spells, 101
-// of them with exactly 1000, most of them quest-reward trinkets. Reading those as internal
-// cooldowns perturbs every fixture that equips one and states nothing the game does not already do.
+// buff.
 func procIcdMs(trigger Spell, buff Spell) int32 {
 	if trigger.ProcCategoryRecovery > 0 {
 		return trigger.ProcCategoryRecovery
@@ -131,9 +127,7 @@ func assignTrigger(e *ItemEffect, statsSpellID int, pe *proto.ItemEffect) {
 			IcdMs: procIcdMs(spTop, statsSP),
 		}
 		// The column is the roll only where it is one: 0 means the game files state no rate at all and
-		// 100 or more is its "fires on its own condition" sentinel. A weapon's rate then comes from
-		// the hand-kept WeaponProcs table, onto the effect; a row for a column that has become a roll is
-		// stale, and refused so the number does not outlive its reason.
+		// 100 or more is its "fires on its own condition" sentinel.
 		if ppm := overrides.WeaponProcPPM(int32(e.ParentItemID), int32(e.SpellID)); ppm > 0 {
 			if spTop.ProcChance > 0 && spTop.ProcChance < 100 {
 				panic(fmt.Sprintf("item %d's spell %d now states ProcChance %v, so its hand-supplied PPM is stale",
@@ -151,12 +145,7 @@ func assignTrigger(e *ItemEffect, statsSpellID int, pe *proto.ItemEffect) {
 	}
 
 	// Stacks are a property of the buff aura, not of how it is triggered, so this sits outside
-	// the switch: Pendant of the Violet Eye is an on-use whose buff, 35095 Enlightenment, has
-	// CumulativeAura 20, and assigning only on the chance-on-hit path skipped it entirely.
-	//
-	// The count lives on whichever spell carries the aura, usually the stats spell rather than
-	// the trigger - Blackened Naaru Sliver's trigger has none while its buff, 45041 Combat
-	// Insight, has 10.
+	// the switch. The count lives on whichever spell carries the aura.
 	maxCumulativeStacks := max(statsSP.MaxCumulativeStacks, spTop.MaxCumulativeStacks)
 	if maxCumulativeStacks > 0 {
 		pe.MaxCumulativeStacks = maxCumulativeStacks
@@ -164,9 +153,8 @@ func assignTrigger(e *ItemEffect, statsSpellID int, pe *proto.ItemEffect) {
 }
 
 // The stats an effect grants. A stacking effect grants nothing through the aura its trigger
-// applies - the stats it is named after live on the aura that accumulates - so an empty scaling
-// option is not the same as no stats, and no caller may read ScalingOptions directly to answer
-// this question.
+// applies, since its stats live on the aura that accumulates, so no caller may read ScalingOptions
+// directly to answer this question.
 func EffectStats(effect *proto.ItemEffect) map[int32]float64 {
 	if stats := effect.GetScalingOptions()[int32(0)].GetStats(); len(stats) > 0 {
 		return stats
@@ -176,12 +164,8 @@ func EffectStats(effect *proto.ItemEffect) map[int32]float64 {
 }
 
 // On a stacking effect the aura the trigger applies grants nothing itself, so its scaling options
-// resolve to an empty message. ScalingItemEffectProperties holds only a stats map, so such an entry
-// carries no information at all - drop the whole map rather than ship an empty entry per state.
-// Readers reach the map through GetStats(), which is nil-safe.
-//
-// A no-op when anything did resolve, which keeps this honest if an effect ever carries stats on
-// both the trigger aura and the aura it accumulates.
+// resolve to an empty message; drop the whole map rather than ship an empty entry per state. A no-op
+// when anything did resolve.
 func dropEmptyScalingOptions(pe *proto.ItemEffect) {
 	for _, opt := range pe.ScalingOptions {
 		if len(opt.GetStats()) > 0 {
@@ -200,8 +184,7 @@ func (e *ItemEffect) ToProto(itemLevel int) (*proto.ItemEffect, bool) {
 
 	pe.ScalingOptions[int32(0)] = buildItemEffectScalingProps(e.SpellID, itemLevel)
 
-	// The stats may live on the accumulating aura rather than on the one the trigger applies, in
-	// which case the effect is real even though the scaling options above resolved to nothing.
+	// The stats may live on the accumulating aura rather than on the one the trigger applies.
 	if stacking := buildStackingAura(e.SpellID, statsSpellID, itemLevel); stacking != nil {
 		stacking.Aura.ScalingOptions[int32(0)] = buildItemEffectScalingProps(int(stacking.Aura.BuffId), itemLevel)
 		applyStackingAura(pe, stacking)
@@ -228,8 +211,7 @@ func (w *chainWalker) resolveStatsSpell(spellID int) int {
 		}
 	}
 
-	// If we cant resolve the spell in the first loop, we follow proc triggers downwards. A proc that
-	// deals its own damage names no spell below it, so it is its own.
+	// A proc that deals its own damage names no spell below it, so it is its own.
 	for _, se := range effects {
 		if se.IsProcTrigger() && se.CastsItsTrigger() {
 			return w.resolveStatsSpell(se.EffectTriggerSpell)
@@ -244,12 +226,7 @@ func resolveTriggerType(topType, spellID int) int {
 	}
 
 	// Carrying A_PROC_TRIGGER_SPELL is not on its own a proc. The game files also use that aura to
-	// hang a permanent sub-aura off an equip effect: Leggings of Beast Mastery and Void Star
-	// Talisman grant pet stats that way, with no proc mask, no chance and no duration, and
-	// promoting them emitted a proc with no rate at all. Something has to say when it would fire.
-	//
-	// The chance-on-hit weapons are unaffected: the database types those CHANCE_ON_HIT itself, so
-	// they return above without being promoted here.
+	// hang a permanent sub-aura off an equip effect, with no proc mask, no chance and no duration.
 	sp := dbcInstance.Spells[spellID]
 	statesAProc := slices.ContainsFunc(sp.ProcTypeMask, func(bits int) bool { return bits != 0 }) || sp.ProcChance != 0
 	if !statesAProc {
@@ -284,8 +261,8 @@ func buildBaseStatScalingProps(spellID int, itemSpellID int) *proto.ScalingItemE
 			if se.HitsAnEnemy() {
 				continue
 			}
-			// TBC ANNI: Items can have "static" ItemEffects that don't have a duration.
-			// We need to parse these into stats just as is done for ItemSparse data.
+			// Items can have "static" ItemEffects that don't have a duration, parsed into stats just as
+			// ItemSparse data is.
 			if addEquipAuraStat(&total, se, float64(se.EffectBasePoints)) {
 				continue
 			}
@@ -321,9 +298,8 @@ func (w *chainWalker) collectStats(spellID, itemLevel int, total *stats.Stats) {
 			total.AddInplace(&s)
 		} else if se.EffectAura == dbcenums.A_PROC_TRIGGER_SPELL {
 			// Deliberately narrower than IsProcTrigger: descending through an
-			// A_PROC_TRIGGER_SPELL_WITH_VALUE would collect the triggered spell's own amounts,
-			// past the point where the caller can still override them with the value the
-			// trigger carries.
+			// A_PROC_TRIGGER_SPELL_WITH_VALUE would collect the triggered spell's own amounts, past the
+			// point where the caller can still override them with the value the trigger carries.
 			w.collectStats(se.EffectTriggerSpell, itemLevel, total)
 		}
 	}
@@ -391,11 +367,7 @@ func GetItemEffectForBuffID(itemID int, buffId int) *ItemEffect {
 
 // Walks the trigger chain below the given effects and returns the effect that triggers
 // spellIDToMatch, or nil. Effects are visited in index order and a branch that does not contain
-// the match no longer aborts the search of its siblings, which is what hid any buff reachable
-// only through a later effect.
-//
-// Takes the effects rather than a spell ID because that is what the call sites hold; everything
-// below the first level goes through the chain walker.
+// the match does not abort the search of its siblings.
 func GetSpellEffectRecursive(spellIDToMatch int, spellEffects map[int]SpellEffect) *SpellEffect {
 	w := newChainWalker()
 
@@ -493,8 +465,6 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 
 		dropEmptyScalingOptions(pe)
 
-		// Appended once per effect. Inside the loop above it appended the same pointer once
-		// per scaling state, which only stays invisible while items carry a single state.
 		effects = append(effects, pe)
 	}
 
@@ -503,11 +473,9 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 }
 
 // An equip spell that only restates weapon skills or creature type stats the item's own stats already
-// state adds nothing in game. Seal of the Dawn 13209 states +78 Attack Power against Undead as item stat 128
-// and again as equip spell 23930, melee and ranged attack power against Undead, and its tooltip shows one +78
-// (EV-0111). The stat gives the bonus and the spell leaves the item: no database entry, no registration and no
-// missing effect. A spell that does more stays, and so does one on an item whose stats state no such bonus,
-// unless it raises weapon skills alone (foldEquipWeaponSkills).
+// state adds nothing in game; Seal of the Dawn's tooltip shows one +78 (EV-0111). The stat gives the bonus
+// and the spell leaves the item. A spell that does more stays, and so does one on an item whose stats state
+// no such bonus, unless it raises weapon skills alone (foldEquipWeaponSkills).
 func (d *DBC) dropRestatedItemStats() {
 	for itemID, effects := range d.ItemEffectsByParentID {
 		item := d.Items[itemID]

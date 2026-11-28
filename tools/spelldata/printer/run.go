@@ -32,10 +32,9 @@ type options struct {
 
 const usage = "usage: go run ./tools/spelldata <id | name> [-all] [-json] | -family <class>/<Family> | -expr <call> [-package <class>] | -config <SpellConfig call | core.SpellModConfig literal> [-package <class>] | -hover <file> <line>:<column> | -lsp | -dump <dir>"
 
-// The flags are taken in any position: `11574 -json` is how a caller writes it, and the stdlib flag
-// package stops reading flags at the first positional argument. The ones that take a value read it as
-// the next argument or after an `=`. An editor's language client may add its own transport flag after
-// -lsp, such as --stdio.
+// The flags are taken in any position: the stdlib flag package stops reading flags at the first
+// positional argument. The ones that take a value read it as the next argument or after an `=`. An
+// editor's language client may add its own transport flag after -lsp, such as --stdio.
 func parseArgs(args []string) (options, error) {
 	var opts options
 	var positional []string
@@ -161,8 +160,7 @@ func Run(args []string, out io.Writer) error {
 	return nil
 }
 
-// A ladder as a whole: its rank index, then the highest rank in full, which is the rank most callers
-// are after and the one a bare Highest() reaches.
+// A ladder as a whole: its rank index, then the highest rank in full.
 func runFamily(out io.Writer, opts options) error {
 	family, err := findFamily(ladderFamilies(), opts.arg, opts.pkg)
 	if err != nil {

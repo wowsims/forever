@@ -10,8 +10,7 @@ type ItemDamageTable struct {
 // A weapon flagged REDUCED_CASTER_DPS, or carrying a random suffix whose bonus list has an
 // ITEM_BONUS_REDUCED_CASTER_DPS row, deals a fixed share of its damage table in game, while the
 // game files' caster tables match the regular ones. The shares reproduce the in-game damage range of
-// the flagged weapons, QualityModifier included (EV-0097, EV-0110); 29/39 of the two-hand table is 29/30 of the
-// one-hand one.
+// the flagged weapons (EV-0097, EV-0110).
 const (
 	casterOneHandDpsShare = 2.0 / 3.0
 	casterTwoHandDpsShare = 29.0 / 39.0

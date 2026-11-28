@@ -317,8 +317,7 @@ func RangedRatingPercents(mask int, rating float64) map[proto.PseudoStat]float64
 }
 
 // Adds what an equip spell states that no stat index carries, and reports whether it added to each of
-// the two: to outStats the defense skill and flat block value - 24148 (Presence of Might) states
-// A_MOD_SKILL 7 on the Defense skill line and A_MOD_BLOCK_VALUE_FLAT 15 - and to pseudoStats, indexed by
+// the two: to outStats the defense skill and flat block value, and to pseudoStats, indexed by
 // proto.PseudoStat and skipped where nil, the percents for hit, crit, block, dodge, parry and attack and
 // cast speed. Only auras on the wearer count: Atiesh's 28142 is a party aura and reaches the sim as a
 // raid buff. A spell EquipSpellFolds leaves to run time adds nothing. A FoldRanged effect adds to the

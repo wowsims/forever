@@ -1,7 +1,6 @@
 // Fetch-and-cache for .dbd definitions: fetch from WoWDBDefs master into a
-// gitignored cache directory with a 24h-mtime freshness rule. The .dbd files
-// themselves are CC BY-SA 4.0 DATA and are deliberately cached, never
-// vendored.
+// gitignored cache directory. The .dbd files themselves are CC BY-SA 4.0 DATA
+// and are deliberately cached, never vendored.
 
 package dbd
 
@@ -16,11 +15,11 @@ import (
 
 const dbdURLFormat = "https://raw.githubusercontent.com/wowdev/WoWDBDefs/master/definitions/%s.dbd"
 
-// httpClient bounds the fetch so a stalled connection cannot hang make db
-// indefinitely; the fallback to a cached copy handles the timeout.
+// Bounds the fetch so a stalled connection cannot hang make db indefinitely;
+// the fallback to a cached copy handles the timeout.
 var httpClient = &http.Client{Timeout: 60 * time.Second}
 
-// FetchCached returns the path to a cached .dbd for tableName under cacheDir,
+// Returns the path to a cached .dbd for tableName under cacheDir,
 // fetching from WoWDBDefs when the cached copy is absent or older than 24h.
 // On a failed refresh of an existing copy, the stale copy is used; a missing
 // copy that cannot be fetched is fatal.

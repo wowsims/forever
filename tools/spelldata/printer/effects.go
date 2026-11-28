@@ -536,8 +536,8 @@ func coefficients(e *spelldata.Effect) string {
 	return join(share(e.Coeff(), "spell power"), share(e.APCoeff(), "attack power"))
 }
 
-// A coefficient of exactly 1 is the game files' filler - 2,112 of the store's effects carry it, weapon
-// effects and shapeshifts among them - so it is left to the literal rather than stated as a share.
+// A coefficient of exactly 1 is the game files' filler (2,112 of the store's effects carry it), so it
+// is left to the literal rather than stated as a share.
 func share(coeff float64, of string) string {
 	if coeff == 0 || coeff == 1 {
 		return ""
@@ -606,8 +606,7 @@ func literal(e *spelldata.Effect, pos int) string {
 		}
 	}
 	// EffectIndex is the game files' own numbering and matches the position on all but 46 of the
-	// store's rows, so it is stated only where the two disagree and EffectN(pos) is not
-	// EffectIndex.
+	// store's rows, so it is stated only where the two disagree.
 	if int(e.Index) != pos-1 {
 		add("index=%d", e.Index)
 	}
@@ -631,7 +630,7 @@ func ticks(s *spelldata.Spell, e *spelldata.Effect) string {
 }
 
 // The unit or area the effect reaches. The game files state two implicit targets, and a pair naming a
-// place and then a unit - Whirlwind's [22,15] - is worded by the unit.
+// place and then a unit (Whirlwind's [22,15]) is worded by the unit.
 func targetPhrase(e *spelldata.Effect) string {
 	first, second := implicitTargets[e.Target[0]], implicitTargets[e.Target[1]]
 

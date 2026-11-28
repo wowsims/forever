@@ -99,9 +99,8 @@ func MapBonusStatIndexToStat(index int) (proto.Stat, bool) {
 	case ITEM_MOD_EXTRA_ARMOR: // The only bonus armor an item gives; its QualityModifier gives none (R-0052).
 		return proto.Stat_StatBonusArmor, true
 
-	// Forever moved the five resistances out of Item.Resistances_* and onto the item
-	// stat array, which is why the schema no longer carries those columns. Index 53
-	// (Holy Resistance) has no proto.Stat counterpart and stays unmapped.
+	// The five resistances sit on the item stat array. Index 53 (Holy Resistance) has no
+	// proto.Stat counterpart and stays unmapped.
 	case ITEM_MOD_FIRE_RESISTANCE:
 		return proto.Stat_StatFireResistance, true
 	case ITEM_MOD_FROST_RESISTANCE:
@@ -113,8 +112,7 @@ func MapBonusStatIndexToStat(index int) (proto.Stat, bool) {
 	case ITEM_MOD_ARCANE_RESISTANCE:
 		return proto.Stat_StatArcaneResistance, true
 
-	// The school-damage block. 83 is vanilla's "+N Weapon Damage"; StatPhysicalDamage
-	// is slightly broader (sim/core/spell_result.go adds it to every physical spell,
+	// 83 is "+N Weapon Damage"; StatPhysicalDamage is slightly broader (every physical spell,
 	// not swings only), but the magnitudes involved are single digits.
 	case ITEM_MOD_WEAPON_DAMAGE:
 		return proto.Stat_StatPhysicalDamage, true
@@ -141,9 +139,7 @@ func MapBonusStatIndexToStat(index int) (proto.Stat, bool) {
 	}
 }
 
-// allResistanceStats is what ItemModType 124 ("All Resistances") expands to. Measured in game
-// (EV-0113): 22197 Heavy Obsidian Belt and 22198 Jagged Obsidian Shield both read "+5 All
-// Resistances", and 12252 Staff of Protection spells out "+6 Arcane/Fire/Nature/Frost/Shadow".
+// What ItemModType 124 ("All Resistances") expands to (EV-0113).
 var allResistanceStats = []proto.Stat{
 	proto.Stat_StatArcaneResistance,
 	proto.Stat_StatFireResistance,
@@ -152,7 +148,7 @@ var allResistanceStats = []proto.Stat{
 	proto.Stat_StatShadowResistance,
 }
 
-// spellPowerStats is what ItemModType 45 expands to: 7655 Enchant Bracer - Spell Power reads
+// What ItemModType 45 expands to: 7655 Enchant Bracer - Spell Power reads
 // "+12 Spell Power" for 45 = 12, damage and healing alike. Healing items state their extra
 // healing as a separate 41 on top of it (Atiesh 22631: 45 and 41).
 var spellPowerStats = []proto.Stat{
@@ -169,9 +165,9 @@ var attackPowerStats = []proto.Stat{
 }
 var spellDamageStats = []proto.Stat{proto.Stat_StatSpellDamage} // Spell damage against a creature type is damage alone, as A_MOD_FLAT_SPELL_DAMAGE_VERSUS is.
 
-// MapBonusStatIndexToStats is MapBonusStatIndexToStat for callers that have to cope with
-// one index granting several stats. Every index maps to exactly one stat except 38, 45 and 124.
-// An enchant row whose argument is wrong is corrected before it gets here (enchantEffectArgFixes).
+// For callers that have to cope with one index granting several stats. Every index maps to exactly
+// one stat except 38, 45 and 124. An enchant row whose argument is wrong is corrected before it gets
+// here (enchantEffectArgFixes).
 func MapBonusStatIndexToStats(index int) ([]proto.Stat, bool) {
 	switch index {
 	case ITEM_MOD_ATTACK_POWER:

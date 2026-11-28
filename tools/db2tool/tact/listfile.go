@@ -18,8 +18,7 @@ const defaultListfileURL = "https://github.com/wowdev/wow-listfile/releases/late
 
 // headClient bounds the freshness probe; downloadClient bounds connect and
 // response-header time but NOT the transfer, since the listfile is ~150 MB and
-// a slow-but-progressing download must not be cut off. Without these a stalled
-// connection would hang make db indefinitely.
+// a slow-but-progressing download must not be cut off.
 var (
 	headClient     = &http.Client{Timeout: 30 * time.Second}
 	downloadClient = &http.Client{Transport: &http.Transport{
@@ -40,8 +39,7 @@ type Listfile struct {
 }
 
 // Refresh ensures the listfile exists and is current. It never deletes a
-// usable existing file on network failure — the extractor (via the static
-// FDID map) and gen_db's icon map can still run offline.
+// usable existing file on network failure.
 func (l *Listfile) Refresh() error {
 	url := l.URL
 	if url == "" {
@@ -57,8 +55,6 @@ func (l *Listfile) Refresh() error {
 				return nil // up to date
 			}
 		}
-		// Stale or check failed: attempt a re-download, but keep the existing
-		// file if that fails.
 		if err := downloadFile(url, l.Path); err != nil {
 			fmt.Fprintf(os.Stderr, "db2tool: listfile refresh failed (%v), using existing %s\n", err, l.Path)
 		}

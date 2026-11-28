@@ -17,12 +17,10 @@ import (
 
 // The spells the sim can reach from gear without anything naming them first: every spell an item, an
 // enchant or a set bonus casts. With the spells the nine class files are built from, they are the
-// store's roots, and what those spells trigger is reached from there by reachableSpells. They are kept
-// apart from the class roots: they are the items spell data group and the universe the proc audit
-// asks its question over, and which query a root came from cannot be recovered from a merged list.
+// store's roots. They are kept apart from the class roots: they are the items spell data group and the
+// universe the proc audit asks its question over.
 //
-// The hand-kept extra spells are not here: they are added while the store is rendered, so that adding
-// one and forgetting to regenerate fails the regeneration check instead of passing it - see
+// The hand-kept extra spells are not here: they are added while the store is rendered; see
 // withExtraIDs.
 func gearRoots(db *sql.DB, t *spellTables) (gear []int32, err error) {
 	for _, source := range []struct {
@@ -50,8 +48,8 @@ func gearRoots(db *sql.DB, t *spellTables) (gear []int32, err error) {
 }
 
 // Set by gen_spelldata -everyClassSpell: roots the store at every spell of a class family as well,
-// for an export of the game files' class spells rather than a store the sim is built against. The
-// export renders no override, area bonus or hand trigger, so it states what the game files state.
+// for an export of the game files' class spells. The export renders no override, area bonus or hand
+// trigger, so it states what the game files state.
 var EveryClassSpell bool
 
 // Selects nothing unless EveryClassSpell is set.
@@ -63,13 +61,12 @@ func everyClassSpellQuery() string {
 }
 
 // The spells a rank reads its numbers off by name. A rank that states no amount of its own keeps it
-// on a same-name sibling - Frenzied Regeneration's heal is on 22845 - so the store carries those
+// on a same-name sibling (Frenzied Regeneration's heal is on 22845), so the store carries those
 // too: same name, same rank subtext, a shared class bit, and taught by a skill line rather than
 // merely existing.
 //
 // One pass over everything already reached is enough: the relation is the name and subtext, so a
-// sibling's siblings are the ones already in hand. The siblings come back by the spell they are
-// siblings of, so one query serves every spell data group's reach.
+// sibling's siblings are the ones already in hand.
 func siblingSpells(db *sql.DB, ids []int32) (map[int32][]int32, error) {
 	list := make([]string, len(ids))
 	for i, id := range ids {
@@ -122,8 +119,7 @@ func withExtraIDs(t *spellTables, roots []int32) ([]int32, error) {
 }
 
 // Every spell the buff manifest names. The generated buffs read their numbers off these rows, so they
-// are roots the way the extra spells are, and added at the same point for the same reason: a
-// manifest row added without a regeneration fails the check.
+// are roots the way the extra spells are.
 func buffManifestIDs() []int32 {
 	var ids []int32
 	for _, spec := range buffmanifest.All() {
@@ -161,12 +157,11 @@ func namedIDs(t *spellTables, lists ...[]int32) []int32 {
 // The gear and consumables gen_db ships, which is where the item procs the sim registers come from.
 // Each half is the predicate gen_db itself selects with: SimItemFilter for LoadAndWriteRawItems and
 // ConsumableItemFilter for LoadAndWriteConsumables. Both halves let the allowlists through, as gen_db
-// does: Hand of Justice and the raid consumables are shipped by id rather than by predicate.
+// does.
 //
-// The predicate runs over Item left-joined to ItemSparse alone, without the inner joins to
-// ItemClass, RandPropPoints and the armour tables that gen_db's own query carries, so this selects
-// at least the items gen_db ships and possibly a few more. Extra rows only add spells to the store,
-// which is the safe direction: a missing one is a spell the sim cannot read.
+// The predicate runs over Item left-joined to ItemSparse alone, without the inner joins that gen_db's
+// own query carries, so this selects at least the items gen_db ships and possibly a few more. Extra
+// rows only add spells to the store, which is the safe direction.
 func itemEffectSpellQuery() string {
 	return `
 		SELECT DISTINCT ie.SpellID
@@ -180,10 +175,8 @@ func itemEffectSpellQuery() string {
 			OR i.ID IN (` + allowListedItemIDs() + `))`
 }
 
-// The items gen_db ships by id: ItemAllowList bypasses the gear filter and catalogueConsumableIDs
-// are added to the consumable query. Hand of Justice and Skullflame Shield have no ItemSparse row in
-// this build, which is why the join to it above is a left one: an allowlisted item is taken by id,
-// whatever the sparse table says about it.
+// The items gen_db ships by id. Hand of Justice and Skullflame Shield have no ItemSparse row in this
+// build, which is why the join to it above is a left one.
 func allowListedItemIDs() string {
 	ids := append(slices.Collect(maps.Keys(ItemAllowList)), catalogueConsumableIDs()...)
 	slices.Sort(ids)
@@ -195,16 +188,14 @@ func allowListedItemIDs() string {
 	return strings.Join(list, ", ")
 }
 
-// An enchant states the spell it applies in the EffectArg of the effect that applies it, which is
-// what LoadAndWriteRawEnchants reads as its spell id: effect 1 and effect 3 are the two that name a
-// spell.
+// An enchant states the spell it applies in the EffectArg of the effect that applies it.
 var enchantSpellQuery = enchantSlotsCTE + fmt.Sprintf(`
 	SELECT DISTINCT SpellID FROM slots WHERE Effect IN (%d, %d) AND SpellID > 0`,
 	dbc.ITEM_ENCHANTMENT_COMBAT_SPELL, dbc.ITEM_ENCHANTMENT_EQUIP_SPELL)
 
 // Every spell the roots reach: what an effect triggers, what an actionbar override swaps in, what a
 // hand link names, and what a tooltip's $<id> token points at. A spell the sim registers reads its
-// numbers off those, so the store carries them all rather than the roots alone.
+// numbers off those, so the store carries them all.
 func reachableSpells(t *spellTables, roots []int32) []int32 {
 	seen := map[int32]bool{}
 	queue := make([]int32, 0, len(roots))

@@ -33,9 +33,7 @@ func testData() []byte {
 }
 
 // ReadUInt32's shift math requires 32-numBits-(pos&7) >= 0, i.e. numBits <= 25
-// for an arbitrary bit offset. The decoder only ever calls it with small widths
-// (pallet indices of cm.B bits, and 8 for ReadCString), so that is the range
-// worth pinning.
+// for an arbitrary bit offset.
 func TestReadUInt32AllOffsetsAndWidths(t *testing.T) {
 	data := testData()
 	for pos := range 64 {

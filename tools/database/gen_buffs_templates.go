@@ -1,8 +1,8 @@
 package database
 
 // The two generated sim/core/buffs files. A row the generator could not express keeps
-// its place as a commented shell naming the reason, the same idiom the on-use
-// effects file uses, so a reader of the generated file sees every manifest row.
+// its place as a commented shell naming the reason, so a reader of the generated file
+// sees every manifest row.
 
 const tmplStrBuffRows = `
 {{- range .SharedCategories}}

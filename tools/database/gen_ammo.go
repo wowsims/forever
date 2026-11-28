@@ -13,13 +13,13 @@ import (
 	"github.com/wowsims/forever/tools/database/dbc"
 )
 
-// The hunter's arrows and quivers, from the client's items: every Projectile - Arrow and Quiver -
+// The hunter's arrows and quivers, from the game files' items: every Projectile - Arrow and Quiver -
 // Quiver item the item generator would not throw out, by the DEPRECATED flag or the name deny-list.
 // Nothing hand-maintained.
 //
-// An arrow is the damage per second it adds, which the item row does not state: the client reads it
+// An arrow is the damage per second it adds, which the item row does not state: the game reads it
 // off ItemDamageAmmo by the arrow's item level and quality, and its tooltip rounds that down to the
-// half point - Thorium Headed Arrow's 17.71 reads "Adds 17.5 damage per second", Ice Threaded
+// half point: Thorium Headed Arrow's 17.71 reads "Adds 17.5 damage per second", Ice Threaded
 // Arrow's 16.79 reads 16.5, Rough Arrow's 1.82 reads 1.5.
 //
 // A quiver is the ranged attack speed its equip spell's A_MOD_RANGED_HASTE_QUIVER effect states.
@@ -135,7 +135,7 @@ func discoverQuivers(db *sql.DB) ([]ammoItem, []string, error) {
 }
 
 // The item as the tables name it, or false for an item the item generator throws out or that has no
-// Go identifier - the latter reported in skipped.
+// Go identifier, the latter reported in skipped.
 func ammoItemOf(id int32, name string, flags int64, skipped *[]string) (ammoItem, bool) {
 	if dbc.ItemStaticFlags0(flags)&dbc.DEPRECATED != 0 {
 		return ammoItem{}, false

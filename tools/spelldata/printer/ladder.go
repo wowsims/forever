@@ -48,7 +48,7 @@ var (
 )
 
 // The ladder calls that reach this id, in package and field order. A file that does not parse states
-// no ladder and answers nothing - another session editing a class package must not stop the
+// no ladder and answers nothing: another session editing a class package must not stop the
 // printer.
 func ladderRefs(id int32) []string {
 	loadLadders.Do(scanLadders)
@@ -162,8 +162,7 @@ func buildLadder(build func() spelldata.Ladder) (ladder spelldata.Ladder, err er
 }
 
 // How a class file names each of the ladder's ids. A rank below the top is named by its own id rather
-// than by position, which is what a reader holding that id is looking for; a talent's ranks are one
-// spell, named by rank number.
+// than by position; a talent's ranks are one spell, named by rank number.
 func (f *ladderFamily) refs() map[int32]string {
 	if f.talent {
 		return map[int32]string{f.ids[0]: fmt.Sprintf("Rank(n), n up to %d", f.ladder.Len())}

@@ -9,7 +9,7 @@ import (
 )
 
 // A temporary enchant's stat slot naming a school's spell penetration pierces that school by the
-// slot's points, whichever slot it sits in; an enchant with none pierces nothing.
+// slot's points, whichever slot it sits in.
 func TestEnchantPiercingReadsTheSchoolSlot(t *testing.T) {
 	stat := dbc.ITEM_ENCHANTMENT_STAT
 	for _, tc := range []struct {

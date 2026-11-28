@@ -28,8 +28,8 @@ type Build struct {
 	root     *rootTable
 }
 
-// eKeyStore hands back the raw BLTE bytes behind an encoding key; the local
-// CASC archives and the CDN are the two implementations.
+// Hands back the raw BLTE bytes behind an encoding key; the local CASC
+// archives and the CDN are the two implementations.
 type eKeyStore interface {
 	readEKey(eKey []byte) ([]byte, error)
 }
@@ -64,8 +64,8 @@ func Open(baseDir, product string) (*Build, error) {
 	return load(entry, buildNumber, buildConfig, store)
 }
 
-// load reads the encoding and root files the build config names out of
-// store, after which OpenFileByFDID works.
+// Reads the encoding and root files the build config names out of store,
+// after which OpenFileByFDID works.
 func load(entry AvailableBuild, buildNumber uint32, buildConfig map[string][]string, store eKeyStore) (*Build, error) {
 	b := &Build{
 		Entry:       entry,
@@ -123,8 +123,8 @@ func (b *Build) openEKey(eKey []byte, decodedSize uint64) ([]byte, error) {
 	return blteDecode(raw, decodedSize, b.Keys)
 }
 
-// OpenFileByCKey resolves a content key through encoding and opens the first
-// encoding key locally.
+// Resolves a content key through encoding and opens the first encoding key
+// locally.
 func (b *Build) OpenFileByCKey(cKey []byte) ([]byte, error) {
 	eKey, decodedSize, ok := b.encoding.findContentKey(cKey)
 	if !ok {

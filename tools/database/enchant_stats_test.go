@@ -68,8 +68,7 @@ func equipDefenseRating(t *testing.T, spellID int) float64 {
 }
 
 // Which stats each slot lands on: spell power as spell damage and healing, an armor kit's resistance
-// slot as bonus armor, an equip spell's defense skill as defense rating, its block value and its
-// Stamina as themselves, and its mana as Mana.
+// slot as bonus armor and an equip spell's defense skill as defense rating.
 func TestEnchantStats(t *testing.T) {
 	withDBCInputs(t)
 

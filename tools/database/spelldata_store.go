@@ -18,12 +18,10 @@ import (
 // The mirror is not what keeps a generated file that does not compile from stopping the generator
 // that rewrites it: this package imports the store for the item-proc routing in gen_effects.go, so
 // a store that does not build takes gen_spelldata down with it. What keeps one out of the tree is
-// the overlay gate in spelldata_write.go, which writes nothing until the sim compiles against the
-// rendered files.
+// the overlay gate in spelldata_write.go.
 //
-// Every value is the game files' own column, in the game files' units - the conversions live in the
-// store's accessors - and the float fields are kept as the DB states them so the emitted number is
-// the one the tooltip resolves from in game.
+// Every value is the game files' own column, in the game files' units, and the float fields are kept
+// as the DB states them so the emitted number is the one the tooltip resolves from in game.
 type storeSpell struct {
 	ID   int32
 	Name string
@@ -88,9 +86,9 @@ type storeSpell struct {
 	Labels []int16
 	RefIDs []int32
 
-	// Read off Spell.Description_lang by spelldata_hints.go rather than out of a column: the
-	// tooltip's wording is what says whether ProcChance is a roll at all, which effect holds it, and
-	// whether the damage is split among the targets.
+	// Read off Spell.Description_lang by spelldata_hints.go: the tooltip's wording is what says
+	// whether ProcChance is a roll at all, which effect holds it, and whether the damage is split
+	// among the targets.
 	ProcChanceSource storeProcChanceSource
 	ProcChanceEffect int8
 	ProcHint         core.ProcHint
@@ -282,8 +280,8 @@ func newSpellTables() *spellTables {
 	}
 }
 
-// A spell's rows exist once per difficulty on a few hundred spells - 29213 caps 20 targets at
-// difficulty 0 and 10 at 186 - and difficulty 0 is the one the sim plays.
+// A spell's rows exist once per difficulty on a few hundred spells, and difficulty 0 is the one the
+// sim plays.
 func loadSpellTables(db *sql.DB) (*spellTables, error) {
 	t := newSpellTables()
 	for _, load := range []func(*sql.DB) error{
@@ -359,9 +357,6 @@ func (t *spellTables) row(id int32) storeSpell {
 	// nothing, since the same bit is a different spell in each family. The family is carried only
 	// where the effect states a mask, because Matches needs an overlapping mask word as well and a
 	// family on its own can never produce one.
-	//
-	// The spell's levels go onto every effect for the same reason the family does: the amount an
-	// effect scales to is priced from them, and the effect is what the caller holds.
 	s.Effects = make([]storeEffect, len(t.Effects[id]))
 	copy(s.Effects, t.Effects[id])
 	for i := range s.Effects {
@@ -752,9 +747,8 @@ const enchantSlotsCTE = `
 		UNION ALL SELECT ID, Effect_2, EffectPointsMin_2, EffectArg_2 FROM SpellItemEnchantment)`
 
 // The equip spells (Effect 3) of each SpellItemEnchantment row that answer a hit, with the
-// E_ENCHANT_ITEM spell granting the enchant. Several spells can grant one enchant - a recipe
-// re-taught by a later expansion - and several enchants can share an equip spell; the lowest grant
-// is the one kept, as enchantGrantEffects keeps it.
+// E_ENCHANT_ITEM spell granting the enchant. Several spells can grant one enchant and several
+// enchants can share an equip spell; the lowest grant is the one kept, as enchantGrantEffects keeps it.
 func (t *spellTables) loadEnchantGrants(db *sql.DB) error {
 	auras := make([]string, len(dbc.EnchantProcAuras))
 	for i, aura := range dbc.EnchantProcAuras {

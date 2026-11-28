@@ -154,11 +154,9 @@ func (effect *SpellEffect) CastsItsTrigger() bool {
 	return true
 }
 
-// The aura types capable of resolving to stats. resolveStatsSpell walks a trigger chain looking for
-// one of these to decide which spell an item's stats are read off, so anything ParseStatEffect
-// learns to resolve has to be listed here as well or the chain walk stops short of it. The reverse
-// need not hold: A_MOD_TARGET_RESISTANCE ends the walk on a spell ParseStatEffect then declines,
-// which is the existing behaviour.
+// The aura types capable of resolving to stats. Anything ParseStatEffect learns to resolve has to be
+// listed here as well or the chain walk stops short of it. The reverse need not hold:
+// A_MOD_TARGET_RESISTANCE ends the walk on a spell ParseStatEffect then declines.
 var statAuraTypes = map[EffectAuraType]bool{
 	dbcenums.A_MOD_STAT:                true,
 	dbcenums.A_MOD_RATING:              true,

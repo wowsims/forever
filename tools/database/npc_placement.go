@@ -89,12 +89,11 @@ func (p *NpcPlacement) inAreaTable(zone int32) bool {
 
 // The zone of a QuestieDB NPC, given the instances whose quests ask for its kill. The NPC belongs to an instance when a
 // DungeonEncounter there has its name or one of those quests is filed there. It keeps its zone when that names more
-// than one instance (Balnazzar is a Stratholme and a Scarlet Enclave encounter), names one with no zone to move to, or
-// when it already sits in a dungeon or raid. It moves from a zone AreaTable lacks (BRD's 1585) or from a world zone on
-// the continent the map's CosmeticParentMapID names (City of Dalaran's bosses in Alterac Mountains), and from no other
-// zone. That keeps open-world NPCs named as a Season of Discovery encounter (the Emerald dragons, Azuregos, Kazzak)
-// and Highland Horror in the world. An NPC with no zone joins a dungeon with the Forever dungeon difficulty only,
-// never a raid, nor a map without that difficulty.
+// than one instance, names one with no zone to move to, or when it already sits in a dungeon or raid. It moves from a
+// zone AreaTable lacks or from a world zone on the continent the map's CosmeticParentMapID names (City of Dalaran's
+// bosses in Alterac Mountains), and from no other zone. That keeps open-world NPCs named as a Season of Discovery
+// encounter and Highland Horror in the world. An NPC with no zone joins a dungeon with the Forever dungeon difficulty
+// only, never a raid, nor a map without that difficulty.
 func (p *NpcPlacement) zone(name string, zone int32, questMaps []int32) int32 {
 	signal := map[int32]bool{}
 	for _, maps := range [][]int32{questMaps, p.encounters[name]} {

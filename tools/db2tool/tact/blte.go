@@ -3,7 +3,7 @@
 // Copyright (c) 2024 Martin Benjamins. MIT License — see tools/db2tool/NOTICES.md.
 //
 // 'E' (encrypted) chunks are Salsa20-decrypted when the KeyStore holds the
-// chunk's key and left zero-filled otherwise — exactly what the WDC layer's
+// chunk's key and left zero-filled otherwise, exactly what the WDC layer's
 // encrypted-section skip expects. 'F' never occurs.
 
 package tact
@@ -16,8 +16,8 @@ import (
 	"io"
 )
 
-// blteDecode decodes a BLTE blob. totalDecompSize may be 0 (computed from
-// chunk infos for multi-chunk files; required for single-chunk non-'N').
+// Decodes a BLTE blob. totalDecompSize may be 0 (computed from chunk infos
+// for multi-chunk files; required for single-chunk non-'N').
 func blteDecode(data []byte, totalDecompSize uint64, keys *KeyStore) ([]byte, error) {
 	if len(data) < 8 || data[0] != 'B' || data[1] != 'L' || data[2] != 'T' || data[3] != 'E' {
 		return nil, fmt.Errorf("invalid BLTE header")

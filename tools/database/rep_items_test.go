@@ -1,7 +1,6 @@
 package database
 
 // Runs the rep item query on a fixture shaped like the game files, holding only the columns it reads.
-// The factions are made up: each one's race mask names the races of the case it tests.
 
 import (
 	"database/sql"

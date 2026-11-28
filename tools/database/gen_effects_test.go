@@ -14,8 +14,7 @@ import (
 	"github.com/wowsims/forever/tools/database/overrides"
 )
 
-// A chance-on-hit item whose spell is a heal over time on the wearer routes to the heal shape. Reforged
-// Spear has no rate, and while the game files state none for it stays commented out.
+// A chance-on-hit item whose spell is a heal over time on the wearer routes to the heal shape.
 func TestChanceOnHitHotRoutesAsAHeal(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -59,8 +58,7 @@ func TestChanceOnHitHotRoutesAsAHeal(t *testing.T) {
 // What a weapon's chance-on-hit parse must answer. A rate from a weapon rate override, or one the
 // trigger's row states, registers it unlisted. With neither it is refused for the missing rate alone
 // and listed as missing. A row's 100 or 101 is no rate on a weapon proc: the game casts the spell off
-// the hit without consulting the row. Answers the refusal reasons to expect, or false after reporting
-// a parse that answered otherwise.
+// the hit without consulting the row.
 func rateOutcome(t *testing.T, itemID int, spellID int32, got EffectParseResult) ([]string, bool) {
 	t.Helper()
 	row := spelldata.Find(spellID)
@@ -77,8 +75,7 @@ func rateOutcome(t *testing.T, itemID int, spellID int32, got EffectParseResult)
 	return nil, false
 }
 
-// A chance-on-hit spell that grants extra attacks routes to the extra-attack shape: Flurry Axe 871's
-// 18797 grants the wearer extra attacks, at the override's rate, so it registers.
+// A chance-on-hit spell that grants extra attacks routes to the extra-attack shape: Flurry Axe 871's 18797.
 func TestChanceOnHitExtraAttackRoutes(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -99,9 +96,7 @@ func TestChanceOnHitExtraAttackRoutes(t *testing.T) {
 }
 
 // A chance-on-hit spell dealing damage over time alone routes to the damage shape, cast through its own
-// row. An item the weapon rate overrides give a rate registers on it; any other is refused for the
-// missing rate alone, while the game files state none, and listed as missing. The same rows at a rate
-// on the item register.
+// row. The same rows at a rate on the item register.
 func TestChanceOnHitDamageOverTimeRoutesAsDamage(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -148,8 +143,7 @@ func TestChanceOnHitDamageOverTimeRoutesAsDamage(t *testing.T) {
 
 // A damage spell behind a trigger the game casts only on a condition is not found from the spell that
 // holds the condition. Blade of Hanna's 1325535 stacks 1325509 on each swing, and 1325509 casts Perfected
-// Form 1325508 only at 30 stacks, so neither routes to a proc, while 1325508 still resolves its own
-// damage. 1325508's removal of 1325509 is no link back to it.
+// Form 1325508 only at 30 stacks.
 func TestDamageBehindAStackCountRoutesNoProc(t *testing.T) {
 	withDBCInputs(t)
 	dbc.GetDBC()
@@ -171,7 +165,7 @@ func TestDamageBehindAStackCountRoutesNoProc(t *testing.T) {
 
 // A trigger's ProcChance column reaches the item's proc only where it is a roll, below 100: Green Whelp
 // Armor 7375's 9160 rolls its column, while Storm Gauntlets 12632's 16615 states the 100 or more that
-// fires on its own condition and leaves the proc stating no chance.
+// fires on its own condition.
 func TestItemProcCarriesOnlyARolledChance(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -232,10 +226,8 @@ func TestWeaponsSharingATriggerKeepTheirOwnRate(t *testing.T) {
 }
 
 // A hand-written item's proc effect has no rate where no weapon rate or spell rate override covers it and its
-// row states none. Iceblade Hacker's chance-on-hit 1298416 states no chance, so it has a rate only under its
-// own item, which carries a weapon rate for it. Moonshadow Stave's equip proc 1300435 states procs per
-// minute and Ironfoe's equip proc 1301046 a chance, and an equip spell that is no proc, such as 1291060's
-// Enrage rage, never counts though it states no rate.
+// row states none. An equip spell that is no proc, such as 1291060's Enrage rage, never counts though it
+// states no rate.
 func TestHandProcStatesNoRateReadsTheRowsAndOverrides(t *testing.T) {
 	const noRateItem = 1
 	if overrides.WeaponProcPPM(13952, 1298416) == 0 {
@@ -267,7 +259,7 @@ func TestHandProcStatesNoRateReadsTheRowsAndOverrides(t *testing.T) {
 
 // Every hand-kept weapon rate names an effect the game files hang on that item for that spell, and
 // the database writes the rate onto the item: a mistyped id would otherwise leave the weapon refused
-// as stating no rate, with the rate sitting unread.
+// as stating no rate.
 func TestWeaponProcRowsNameAnItemEffect(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -388,8 +380,7 @@ func TestOnUseSpeedBuffRoutesAsASpeedBuff(t *testing.T) {
 
 // An on-use whose spell keeps an A_PERIODIC_TRIGGER_SPELL aura on the wearer, casting a row that deals
 // damage in an area or cone, registers as periodic damage, every period of the aura for the spell's
-// duration: Thunderbrew's Boot Flask's 12257 casts the cone 12278 and leaves its E_TRIGGER_SPELL of
-// Strong Alcohol 11009 out; Cloak of Fire's 18364 casts the area 18374.
+// duration.
 func TestOnUsePeriodicTriggerDamageRoutesAsPeriodicDamage(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -437,10 +428,8 @@ func TestOnUsePeriodicTriggerDamageRoutesAsPeriodicDamage(t *testing.T) {
 }
 
 // An on-use whose spell applies a hit or crit percent, which no item stat holds, registers as an
-// aura: Gri'lek's Charm of Valor's 24498 is spell crit alone, and Weakness Analyzer's 1291101 drops at
-// the first crit, a charge the hits its row names spend. The spell modifiers, the threat and the damage
-// shield an on-use states route the same way, and a movement slow beside an enemy attack speed slow is
-// left out of what it models: Cold Basilisk Eye's 1139.
+// aura. The spell modifiers, the threat and the damage shield an on-use states route the same way, and
+// a movement slow beside an enemy attack speed slow is left out of what it models.
 func TestOnUsePercentBuffRoutesAsAnAura(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -492,9 +481,8 @@ func TestOnUsePercentBuffRoutesAsAnAura(t *testing.T) {
 
 // Glyph of Deflection 23040's 28773 states its block value as A_MOD_BLOCK_VALUE_FLAT, which the item
 // effect carries as a stat and the flat on-use grants. Blazing Emblem 2802's 13744 absorbs Fire beside
-// its Fire resistance, so it registers as an absorb carrying the resistance, and is not listed as
-// missing. Heart of the Scale 13164's 17275 states a damage shield beside its Fire resistance, so it
-// registers as an aura carrying both.
+// its Fire resistance, so it registers as an absorb carrying the resistance. Heart of the Scale 13164's
+// 17275 states a damage shield beside its Fire resistance, so it registers as an aura carrying both.
 func TestOnUseStatBuffWithWhatItsBuffStatesBeside(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -580,9 +568,8 @@ func TestSecondProcOfAnItemIsRefused(t *testing.T) {
 }
 
 // Aegis of Preservation 19345 registers its 500 armor with the heal on every hit taken, 23781, that
-// its buff 23780 carries, and lists nothing as not simulated. The same buff firing a spell that heals
-// no one, Sulfuras's Fireball 21162 for the test, lists the proc with the reason and the item as
-// missing an effect.
+// its buff 23780 carries. The same buff firing a spell that heals no one, Sulfuras's Fireball 21162
+// for the test, lists the proc with the reason and the item as missing an effect.
 func TestOnUseStatBuffCarriesItsHealProc(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -621,8 +608,7 @@ func TestOnUseStatBuffCarriesItsHealProc(t *testing.T) {
 
 // A trigger restricted to one named ability is a shape no ProcTypeMask states, so the wording is the
 // only evidence there is. The rows below are the game files' own, raw and rendered: the store reads
-// the raw description and the item generator the rendered tooltip, and both go through this
-// matcher.
+// the raw description and the item generator the rendered tooltip, and both go through this matcher.
 func TestNamedAbilityWording(t *testing.T) {
 	for _, tc := range []struct {
 		named bool
@@ -711,8 +697,7 @@ func TestProcTooltipHintsNameTheBlock(t *testing.T) {
 
 // An enchant whose equip spell names a melee weapon subset registers the spell as an equip aura, kept
 // up while the enchant is worn. 430391 (Hit Weapon +2) states A_MOD_HIT_CHANCE on the melee weapons
-// but not spears, which no enchant stat can hold; its row is freed of its area group for the test. An
-// enchant that already registers a proc lists it.
+// but not spears, which no enchant stat can hold. An enchant that already registers a proc lists it.
 func TestWeaponScopedEnchantRegistersAnEquipAura(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()

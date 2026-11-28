@@ -2,7 +2,7 @@ package database
 
 // Rebuilds sim/core/dbcenums/forms_auto_gen.go from the SpellShapeshiftForm rows committed in
 // assets/db_inputs/spell_store_inputs.json and asserts the committed file is what comes out. No
-// game files database and no build tag, the same as the store's own regeneration check.
+// game files database and no build tag.
 
 import (
 	"testing"

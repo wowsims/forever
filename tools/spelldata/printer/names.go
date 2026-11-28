@@ -45,9 +45,7 @@ func setBits(mask uint64, name func(bit uint64) (string, bool)) []string {
 	return out
 }
 
-// The repository the tool is reading, found by walking up from the working directory. The extension
-// spawns the tool with the folder holding go.mod as its working directory, and `go run` is normally
-// typed there too.
+// The repository the tool is reading, found by walking up from the working directory.
 func moduleRoot() (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -66,7 +64,7 @@ func moduleRoot() (string, error) {
 }
 
 // One ImplicitTarget value: what the effect reaches, and whether the value names a place rather than
-// a unit. A pair of a place and a unit - Whirlwind's [22,15] - is worded by the unit.
+// a unit. A pair of a place and a unit is worded by the unit.
 type implicitTarget struct {
 	phrase string
 	place  bool

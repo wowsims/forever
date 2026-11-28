@@ -117,8 +117,7 @@ func main() {
 	}
 
 	// The extractions below only read the (post-override) database and write
-	// disjoint files, so they run concurrently; everything after the Wait
-	// consumes their results.
+	// disjoint files, so they run concurrently.
 	var (
 		consumables     []dbc.Consumable
 		dropSources     map[int][]*proto.DropSource
@@ -669,11 +668,10 @@ func getSpellIdsFromTalentJson(infile *string) []int32 {
 
 var talentTreesDir string
 
-// rotationTalentsString is the talent string GetAllRotationSpellIds registers each spec
-// with, purely to reach the rotation spells whose icons the database needs: every talent of
-// the class at its maximum, built from the same tree JSON the UI reads. An unmodelled talent
-// returns rather than panics, so a maxed build registers every ability a talent grants; an
-// ability that is itself still a stub panics, which CreateTempAgent reports and skips.
+// The talent string GetAllRotationSpellIds registers each spec with, to reach the rotation
+// spells whose icons the database needs: every talent of the class at its maximum. An
+// unmodelled talent returns rather than panics, so a maxed build registers every ability a
+// talent grants.
 func rotationTalentsString(class string) string {
 	return database.MaxedTalentsString(loadTalentTrees(fmt.Sprintf("%s/%s.json", talentTreesDir, class)))
 }
@@ -705,8 +703,7 @@ func GetAllTalentSpellIds(inputsDir *string) map[string][]int32 {
 
 // Returns nil rather than dying when the spec cannot be built. Every class has abilities
 // still stubbed as panic("To be implemented"), and building an agent runs its registrars,
-// so a stubbed spec takes the whole database build down with it. The rotation spell ids
-// this feeds are a UI convenience; a spec that cannot start simply contributes none.
+// so a stubbed spec takes the whole database build down with it.
 func CreateTempAgent(r *proto.Raid) (agent core.Agent) {
 	defer func() {
 		if err := recover(); err != nil {

@@ -244,9 +244,8 @@ func (item *Item) GetHP5(itemLevel int) int32 {
 
 // Caster weapons carry spell power that no stat slot states, worked out from the first column of the
 // item level budget with the allocations of the "of Magic" and "of Healing" bonus lists: 20000 spell
-// power, or on a healing weapon 37600 healing (1.88 times the spell power) and a third of that as spell
-// damage, each rounded down. It adds to the weapon's own stats; the rule reproduces the in-game tooltip
-// of every weapon with one of the two flags (EV-0112).
+// power, or on a healing weapon 37600 healing and a third of that as spell damage. It adds to the
+// weapon's own stats; the rule reproduces the in-game tooltip (EV-0112).
 const (
 	casterSpellPowerAllocation   = 20000
 	casterHealingPowerAllocation = 37600
@@ -353,7 +352,7 @@ func (item *Item) ApproximateScaleCoeff(currIlvl int, newIlvl int) float64 {
 	return 1.0 / math.Pow(1.15, diff/15.0)
 }
 
-// GetArmorValue computes base armor from the item level tables, since the game files carry no armor
+// Computes base armor from the item level tables, since the game files carry no armor
 // value on the item: ItemArmorShield by quality for a shield, otherwise ItemArmorTotal for the armor
 // type, scaled by ItemArmorQuality and the slot's ArmorLocation modifier. A robe takes the chest row.
 func (item *Item) GetArmorValue(itemLevel int) int {

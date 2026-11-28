@@ -12,11 +12,9 @@ import (
 	"github.com/wowsims/forever/tools/database/overrides"
 )
 
-// Writes the hand-supplied values onto the rows before they are rendered, so the sim reads one
-// number per field instead of a game files number a call site patches. Every failure below stops the
-// whole generation: a row the game files have since caught up with, or one that names a spell the
-// store does not carry, is a number that has stopped being true and has to be looked at rather than
-// written.
+// Writes the hand-supplied values onto the rows before they are rendered. Every failure below stops
+// the whole generation: a row the game files have since caught up with, or one that names a spell
+// the store does not carry, is a number that has stopped being true.
 func applyOverrides(rows []storeSpell, list []overrides.Override) error {
 	byID := map[int32]*storeSpell{}
 	for i := range rows {
@@ -292,9 +290,9 @@ func applyVersusBonuses(rows []storeSpell, list []overrides.VersusBonus) error {
 }
 
 // The effects whose base points can carry a tooltip's factor: a value-only effect, or a trigger, whose
-// points the spell it casts does not read (Breath of Fire's 12257 and Ancient Power's 1318159). A
-// trigger's points can also be any other tooltip number (1330855's 112), so only a value-only effect
-// counts as a row stating a factor of its own.
+// points the spell it casts does not read (Breath of Fire's 12257). A trigger's points can also be
+// any other tooltip number (1330855's 112), so only a value-only effect counts as a row stating a
+// factor of its own.
 func holdsVersusFactor(e *storeEffect) bool {
 	return valueOnly(e) || e.Type == dbcenums.E_TRIGGER_SPELL ||
 		e.Type == dbcenums.E_APPLY_AURA && e.Aura == dbcenums.A_PROC_TRIGGER_SPELL

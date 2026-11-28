@@ -10,16 +10,10 @@ import (
 )
 
 // A chance-on-hit spell whose aura lands on the enemy routes to the debuff shape, never to a stat buff
-// on the wearer, even where the effect entry resolves stats from it:
-//   - Frostguard 12797's Chilled 16927 slows melee beside a movement slow.
-//   - Dark Iron Sunderer 11607's Cleave Armor 15280 takes armor, resolved as negative Armor.
-//   - Bleakwood Hew 12769's Bleakwood Curse 16871 takes every magic resistance, stacking.
-//   - Annihilator 12798's Armor Shatter 16928 takes armor, stacking.
-//
-// The Lobotomizer 19324's Brain Damage 1290950 deals damage beside its cast slow and routes to the
-// damage shape, whose spell carries the debuff. It and Frostguard take their rate from an override, so
-// both register; the others have none, and while the game files state no rate for their chance on hit
-// they stay commented out. Mug O' Hurt 4090's Dazed 13496 slows movement alone and stays skipped.
+// on the wearer, even where the effect entry resolves stats from it: Dark Iron Sunderer 11607's Cleave
+// Armor 15280 takes armor, resolved as negative Armor. The Lobotomizer 19324's Brain Damage 1290950
+// deals damage beside its cast slow and routes to the damage shape, whose spell carries the debuff.
+// Mug O' Hurt 4090's Dazed 13496 slows movement alone and stays skipped.
 func TestChanceOnHitDebuffsRoute(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()

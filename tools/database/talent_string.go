@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-// MaxedTalentsString is the talents string with every talent at its maximum, in the form the UI
-// parses (ui/sim/talents/talents_string.ts, serializeTalentsString): one digit per talent in tree
+// The talents string with every talent at its maximum, in the form the UI parses
+// (ui/sim/talents/talents_string.ts, serializeTalentsString): one digit per talent in tree
 // order, trees joined by "-", trailing zeros and dashes dropped.
 func MaxedTalentsString(tabs []TalentTabConfig) string {
 	trees := make([]string, 0, len(tabs))

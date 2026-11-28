@@ -59,9 +59,8 @@ func exprMarkdown(result *exprResult, hover chainHover, links bool) string {
 		}
 	}
 
-	// Only show the rank selector when the cursor is actually on the
-	// rank parameter itself. Expressions which resolve through rank still
-	// use the selected virtual rank, but do not show the selector again.
+	// Expressions which resolve through rank still use the selected virtual rank, but do not show the
+	// selector again.
 	showRankSelector := hover.rank != nil &&
 		hover.name == hover.rank.parameter
 
@@ -109,10 +108,9 @@ func exprMarkdown(result *exprResult, hover chainHover, links bool) string {
 		}
 	}
 
-	// Accessors on a Ladder.Each virtual rank should render only the
-	// resolved spell/rank heading and the value under the cursor.
-	// The full spell card and evaluation trail are redundant here.
-	// Another name bound to a row or an effect renders in full, as any bound name does.
+	// Accessors on a Ladder.Each virtual rank should render only the resolved spell/rank heading and
+	// the value under the cursor. Another name bound to a row or an effect renders in full, as any
+	// bound name does.
 	if hover.rank != nil && hover.parameter != nil && len(hover.chain.segments) > 0 &&
 		(hover.name == "" || hover.name == hover.rank.parameter || result.kind == kindValue) {
 		fmt.Fprintf(&md, "### %s\n\n", c.heading())

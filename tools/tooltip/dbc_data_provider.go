@@ -302,9 +302,8 @@ func (d DBCTooltipDataProvider) GetDescriptionVariableString(spellId int64) stri
 	return spellEntry.Variables
 }
 
-// effectEnd returns one end of the range the sim rolls for an effect at the character's level. An
-// effect the spell store does not carry reads its base points at both ends, whatever variance it
-// states.
+// One end of the range the sim rolls for an effect at the character's level. An effect the spell
+// store does not carry reads its base points at both ends, whatever variance it states.
 func (d DBCTooltipDataProvider) effectEnd(spellId int64, effectIdx int64, end func(*spelldata.Effect) float64) float64 {
 	if effect := spelldata.Find(int32(spellId)).EffectAtIndex(uint8(effectIdx)); effect != spelldata.NilEffect {
 		return end(effect)
@@ -378,7 +377,7 @@ func (d DBCTooltipDataProvider) GetSpellDuration(spellId int64) time.Duration {
 }
 
 // The tooltips are rendered for no character, so an effect's amount is the one its row states, with no
-// spell power on top: Arcane Detonation 23722 deals 200.
+// spell power on top.
 func (d DBCTooltipDataProvider) GetSpellDamage() float64 {
 	return 0
 }

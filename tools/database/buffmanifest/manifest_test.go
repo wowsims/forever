@@ -50,7 +50,7 @@ func TestResolvableRowsNameASpell(t *testing.T) {
 }
 
 // The settings input shows a rank select's first state as its icon and the second as its badge, and
-// offers each state once. The first state is the row's own spell, the rank SpellID pins.
+// offers each state once.
 func TestRankSelectsHaveTwoDistinctStatesOpeningOnTheRowsSpell(t *testing.T) {
 	for _, row := range All() {
 		if len(row.Ranks) == 0 {
@@ -126,10 +126,9 @@ func TestFieldNamesRoundTrip(t *testing.T) {
 	}
 }
 
-// proto/buffs.proto is rendered from this manifest, so this test is not an independent oracle for
-// the field set: it catches a hand edit to the committed proto drifting from the manifest, and
-// nothing more. What the numbers and types are checked against is tools/database's
-// TestBuffFilesRegenerateFromTheCommittedInputs: the committed file is what the manifest renders.
+// proto/buffs.proto is rendered from this manifest, so this test catches a hand edit to the
+// committed proto drifting from the manifest, and nothing more. What the numbers and types are
+// checked against is tools/database's TestBuffFilesRegenerateFromTheCommittedInputs.
 func TestBuffsMatchProto(t *testing.T) {
 	messages := map[string]BuffScope{
 		"RaidBuffs":       ScopeRaid,

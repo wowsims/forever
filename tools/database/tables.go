@@ -21,8 +21,6 @@ import (
 )
 
 // Loading tables
-// Below is the definition and loading of tables
-//
 
 // Raw Item Data
 
@@ -102,9 +100,7 @@ func ScanRawItemData(rows *sql.Rows) (dbc.Item, error) {
 }
 
 // The gear the sim ships: weapons, armour and relics of a quality the game hands out, at or below
-// the level the sim plays. RequiredLevel 0 means "no level requirement", so <= keeps those. Written
-// here rather than at the call site because the spell data store selects the item procs it carries
-// through the same predicate.
+// the level the sim plays. RequiredLevel 0 means "no level requirement", so <= keeps those.
 func SimItemFilter(maxLevel int32) string {
 	return fmt.Sprintf("s.OverallQualityId != 7 AND s.OverallQualityId != 0 AND (i.ClassID = 2 OR i.ClassID = 4 OR (i.ClassID = 7 AND i.InventoryType = 12)) AND s.Display_lang != '' AND s.RequiredLevel <= %d AND (s.ID != 34219 AND s.Display_lang NOT LIKE '%%Test%%' AND s.Display_lang NOT LIKE 'QA%%' AND s.Display_lang != 'unused')", maxLevel)
 }
@@ -190,9 +186,9 @@ func LoadAndWriteRawItems(dbHelper *DBHelper, filter string, inputsDir string) (
 }
 
 // The class mask of each soulbound item the game files leave open to every class while only class
-// spells create it, such as the warlock's Firestone and the mage's mana gems: the creating spells'
-// SkillLineAbility class bits, ORed. A soulbound item never leaves the character who made it. A
-// tradable one (Healthstone, Conjured Water, Blinding Powder) stays open to every class.
+// spells create it, such as the warlock's Firestone: the creating spells' SkillLineAbility class
+// bits, ORed. A soulbound item never leaves the character who made it. A tradable one (Healthstone)
+// stays open to every class.
 func LoadCreatorClassMasks(dbHelper *DBHelper) (map[int]int, error) {
 	type creator struct{ itemID, classMask int }
 	creators, err := LoadRows(dbHelper.db, fmt.Sprintf(`
@@ -609,8 +605,7 @@ func LoadAndWriteRawEnchants(dbHelper *DBHelper, inputsDir string) ([]dbc.Enchan
 }
 
 // RandPropPoints
-// TBC ANNI: This table exists and contains data, so removing it seems bad, BUT item stats do not match MoP+.
-// Stats come from two places - ItemSparse inside of StatModifier, and ItemEffect as Static (effectDuration = -1) and Proc/On-Use (effectDuration > 0)
+// Stats come from two places: ItemSparse inside of StatModifier, and ItemEffect as Static (effectDuration = -1) and Proc/On-Use (effectDuration > 0)
 type RandPropAllocationRow struct {
 	Ilvl       int32
 	Allocation dbc.RandomPropAllocation
@@ -926,10 +921,9 @@ func notPlaceholderItemName(column string) string {
 // Consumable-class item but the permanent enhancements of subclass 6, which the enchant table
 // carries; the Trade Goods explosives; and any item whose on-use shares the explosives' category or
 // casts a temporary enchant (Effect 54, or the imbue Effect 360, as IsTemporaryEnchantEffect reads
-// it), whatever class the game files put it under: Crystal Charge 11566 is a Quest item and Lesser
-// Mana Oil 20747 an Enchanting trade good. The item has to state an on-use spell, and one that also
-// teaches a spell is an Engrave rune rather than a consumable. Test, QA, UNUSED, placeholder ([PH])
-// and deprecated ([DEP]) names are left out: UNUSED Flask of Merciless Pursuit 215126.
+// it), whatever class the game files put it under: Crystal Charge 11566 is a Quest item. The item
+// has to state an on-use spell, and one that also teaches a spell is an Engrave rune rather than a
+// consumable. Test, QA, UNUSED, placeholder ([PH]) and deprecated ([DEP]) names are left out.
 func ConsumableItemFilter() string {
 	onUse := func(condition string) string {
 		return fmt.Sprintf(`EXISTS (SELECT 1 FROM ItemXItemEffect cx JOIN ItemEffect ce ON ce.ID = cx.ItemEffectID
@@ -1256,20 +1250,18 @@ ORDER BY tb.Name_lang;
 
 // Trait-driven talent loading.
 //
-// The Forever game files keep the talent trees in the Trait* tables instead of
-// the legacy Talent/TalentTab pair. A tree is per class and holds all three
-// specs side by side on a pixel lattice, so the generator has to recover the
-// class, the tab and the grid coordinates that the picker and the protos still
-// expect. LoadTraitTalents does that and hands back the same RawTalent rows the
-// legacy loader produced, leaving everything downstream untouched.
+// The Forever game files keep the talent trees in the Trait* tables. A tree is
+// per class and holds all three specs side by side on a pixel lattice, so the
+// generator has to recover the class, the tab and the grid coordinates that the
+// picker and the protos expect.
 
-// traitGridPitch is the spacing between two neighbouring nodes in TraitNode
-// pixel coordinates. Both axes use it.
+// The spacing between two neighbouring nodes in TraitNode pixel coordinates.
+// Both axes use it.
 const traitGridPitch = 600
 
-// traitTabGap is the smallest horizontal distance that separates two spec
-// blocks inside a tree. Blocks sit at least 2200 apart while nodes inside a
-// block are 600 apart, so any gap above this splits tabs.
+// The smallest horizontal distance that separates two spec blocks inside a
+// tree. Blocks sit at least 2200 apart while nodes inside a block are 600
+// apart, so any gap above this splits tabs.
 const traitTabGap = 2 * traitGridPitch
 
 type traitNodeRow struct {
@@ -1328,24 +1320,24 @@ type traitTab struct {
 	Name       string
 }
 
-// traitGridPos is a node's place in the picker grid: which tab it belongs to
-// and its cell inside that tab.
+// A node's place in the picker grid: which tab it belongs to and its cell
+// inside that tab.
 type traitGridPos struct {
 	TabIdx int
 	Row    int
 	Col    int
 }
 
-// traitPlacedNode is a node with its grid cell and the pixel distance between
-// the node and the centre of that cell.
+// A node with its grid cell and the pixel distance between the node and the
+// centre of that cell.
 type traitPlacedNode struct {
 	Node     traitNodeRow
 	Pos      traitGridPos
 	Residual int
 }
 
-// filterTraitCandidates keeps a single node per key, preferring the one closest
-// to its grid cell, and reports every node it drops.
+// Keeps a single node per key, preferring the one closest to its grid cell, and
+// reports every node it drops.
 func filterTraitCandidates(candidates []traitPlacedNode, key func(traitPlacedNode) any, onDrop func(loser, winner traitPlacedNode)) []traitPlacedNode {
 	winners := map[any]traitPlacedNode{}
 	for _, candidate := range candidates {
@@ -1371,11 +1363,11 @@ func filterTraitCandidates(candidates []traitPlacedNode, key func(traitPlacedNod
 	return kept
 }
 
-// selectTraitTrees picks one tree per class. The class comes from the class
-// mask on the SkillLineAbility rows of the tree's spells (the mask is 0 for
-// spells shared across classes, so the non-zero majority wins). Several trees
-// can carry the same class - the game files keep stale drafts around - so the tree
-// with the most nodes is taken as the live one.
+// Picks one tree per class. The class comes from the class mask on the
+// SkillLineAbility rows of the tree's spells (the mask is 0 for spells shared
+// across classes, so the non-zero majority wins). Several trees can carry the
+// same class (the game files keep stale drafts around), so the tree with the
+// most nodes is taken as the live one.
 func selectTraitTrees(dbHelper *DBHelper) (map[int]int, error) {
 	votes, err := LoadRows(dbHelper.db, `
 SELECT tn.TraitTreeID, sla.ClassMask, COUNT(DISTINCT tn.ID)
@@ -1426,12 +1418,10 @@ ORDER BY tn.TraitTreeID, sla.ClassMask
 	return live, nil
 }
 
-// parkedTraitNodes names the nodes the game files park off their tree's canvas. A retired talent
-// stays in its tree with one coordinate ten times a lattice one - Lightning Reflexes 1091/104982 at
-// PosX 102800, Improved Serpent Sting 1091/105003 at PosY 39300, Holy Specialization 1114/105865 at
-// PosY 21300 - while the talent that replaced it, if any, sits on the lattice. A node is parked when a
-// coordinate is off the lattice and a tenth of it lands back on it, so a node placed by hand is never
-// one.
+// The nodes the game files park off their tree's canvas. A retired talent stays in its tree with one
+// coordinate ten times a lattice one (Lightning Reflexes 1091/104982 at PosX 102800), while the
+// talent that replaced it, if any, sits on the lattice. A node is parked when a coordinate is off the
+// lattice and a tenth of it lands back on it, so a node placed by hand is never one.
 func parkedTraitNodes(db *sql.DB) (map[int]bool, error) {
 	nodes, err := LoadRows(db, `SELECT TraitTreeID, ID, PosX, PosY FROM TraitNode`,
 		func(rows *sql.Rows) (traitNodeRow, error) {
@@ -1495,8 +1485,8 @@ func abs(value int) int {
 	return value
 }
 
-// LoadTraitTalents reads the class trees out of the Trait* tables and returns
-// them as RawTalent rows, so the proto/json generators keep working unchanged.
+// Reads the class trees out of the Trait* tables and returns them as RawTalent
+// rows.
 func LoadTraitTalents(dbHelper *DBHelper) ([]RawTalent, error) {
 	live, err := selectTraitTrees(dbHelper)
 	if err != nil {
@@ -1561,9 +1551,9 @@ ORDER BY x.TraitNodeID, sl.DisplayName_lang
 	}
 
 	// TraitEdge.Type is the game files' gating kind: 2 makes the left node sufficient for the right,
-	// 3 makes it required, and 0 only draws a line. Reading every row as a prerequisite turned
-	// those drawn-only links into hard gates -- six node pairs carry one in each direction, and two
-	// nodes cannot each gate the other.
+	// 3 makes it required, and 0 only draws a line. Reading every row as a prerequisite turns those
+	// drawn-only links into hard gates: six node pairs carry one in each direction, and two nodes
+	// cannot each gate the other.
 	edges, err := LoadRows(dbHelper.db, `SELECT LeftTraitNodeID, RightTraitNodeID FROM TraitEdge WHERE Type IN (2, 3) ORDER BY RightTraitNodeID, LeftTraitNodeID`,
 		func(rows *sql.Rows) (traitEdge, error) {
 			var e traitEdge
@@ -1584,10 +1574,9 @@ ORDER BY x.TraitNodeID, sl.DisplayName_lang
 		return nil, fmt.Errorf("error loading talent tabs: %w", err)
 	}
 	tabBackground := map[[2]int]int{}
-	// TalentTab.Name_lang is the label the talent frame shows ("Elemental", "Shadow").
+	// TalentTab.Name_lang is the label the talent frame shows ("Elemental").
 	// SkillLine.DisplayName_lang, which the block's majority vote yields, is the skill
-	// line behind it ("Elemental Combat", "Shadow Magic"). Prefer the frame label and
-	// fall back to the skill line where no tab row matches.
+	// line behind it ("Elemental Combat").
 	tabLabel := map[[2]int]string{}
 	for _, t := range tabs {
 		tabBackground[[2]int{t.ClassMask, t.OrderIndex}] = t.ID
@@ -1622,7 +1611,7 @@ ORDER BY x.TraitNodeID, sl.DisplayName_lang
 	}
 
 	// Three pairs are joined by a sufficient edge in each direction, which the single-parent model
-	// below reads as each node requiring the other -- a cycle leaving both unreachable. Collapse
+	// below reads as each node requiring the other: a cycle leaving both unreachable. Collapse
 	// such a pair onto the half that runs down the tree.
 	hasEdge := map[[2]int]bool{}
 	for _, e := range edges {
@@ -1736,11 +1725,9 @@ ORDER BY x.TraitNodeID, sl.DisplayName_lang
 			candidates = append(candidates, candidate)
 		}
 
-		// A tree can hold a talent twice, and two nodes can land on the same
-		// cell when one of them is authored off the lattice. The first breaks protoc, which rejects the
-		// repeated field name, the second breaks the picker, which rejects
-		// duplicate locations, so the node sitting closest to its cell wins and
-		// the other one is dropped.
+		// A tree can hold a talent twice, and two nodes can land on the same cell when one of them is
+		// authored off the lattice. The first breaks protoc, which rejects the repeated field name, the
+		// second breaks the picker, which rejects duplicate locations.
 		candidates = filterTraitCandidates(candidates, func(p traitPlacedNode) any { return p.Node.SpellID },
 			func(loser, winner traitPlacedNode) {
 				fmt.Fprintf(os.Stderr, "[traits] tree %d node %d (%s at %d/%d): skipped, spell %d is already used by node %d\n",
@@ -2400,8 +2387,8 @@ func LoadItemUpgradePath(dbHelper *DBHelper) (upgradePath map[int][]int, err err
 	return upgradePath, nil
 }
 
-// tabDisplayName prefers the talent frame's own label for a tree, falling back to the
-// skill-line name derived from the block's spells when no TalentTab row matches.
+// Prefers the talent frame's own label for a tree, falling back to the skill-line name
+// derived from the block's spells when no TalentTab row matches.
 func tabDisplayName(labels map[[2]int]string, classMask, tabIdx int, fallback string) string {
 	if name, ok := labels[[2]int{classMask, tabIdx}]; ok && name != "" {
 		return name
@@ -2411,8 +2398,8 @@ func tabDisplayName(labels map[[2]int]string, classMask, tabIdx int, fallback st
 
 // The raid map of each raid zone. A raid zone is the zone a Map with InstanceType 2 names in AreaTableID, or an area
 // whose ContinentID is such a Map. The first path finds each vanilla raid, Onyxia's Lair included, whose ContinentID
-// is Kalimdor. The second adds the raids' sub-areas, such as Zul'Gurub's and Ruins of Ahn'Qiraj's, and the raid maps
-// that leave AreaTableID 0.
+// is Kalimdor. The second adds the raids' sub-areas, such as Zul'Gurub's, and the raid maps that leave
+// AreaTableID 0.
 func LoadRaidZoneMaps(dbHelper *DBHelper) (map[int32]int32, error) {
 	return loadIDMap(dbHelper, `
 		SELECT at.ID, Map.ID FROM AreaTable AS at

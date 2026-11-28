@@ -1,8 +1,8 @@
 package database
 
 // The override table is hand-kept data with a rule per field: the generator has to refuse a value
-// the game files have started stating themselves, and a table nobody can regenerate is a table nobody
-// trusts. These run the merge on synthetic rows, so they need no game files database.
+// the game files have started stating themselves. These run the merge on synthetic rows, so they need
+// no game files database.
 
 import (
 	"slices"
@@ -303,8 +303,7 @@ func TestShippedOverridesAreWellFormed(t *testing.T) {
 }
 
 // A hand trigger goes into the store while its spell's effects leave the link unstated, and is
-// refused once one of them triggers the linked spell itself. Each case runs over every shipped
-// entry, with only the first entry's spell stating the link in the stale case.
+// refused once one of them triggers the linked spell itself.
 func TestAHandTriggerTheGameFilesStateIsStale(t *testing.T) {
 	link := overrides.HandTriggers[0]
 	tablesWith := func(trigger int32) (*spellTables, map[int32]bool) {
@@ -527,8 +526,6 @@ func TestShippedVersusBonusesAreWellFormed(t *testing.T) {
 	}
 }
 
-// Of two sets sharing a name, the lower set id's pieces of a type the higher set has go and the higher's stay; the
-// lower set's piece of a type the higher set lacks stays and joins the higher set with its classes, and a set alone
 // A piece a set's ItemSet row lists is dropped where the set ships a piece of that slot the row does not list. A
 // listed piece with no unlisted one in its slot stays, as do a set with only listed pieces and an ItemAllowList item.
 func TestListedSetPieceIsDroppedBesideAnUnlistedOne(t *testing.T) {
@@ -565,6 +562,8 @@ func TestListedSetPieceIsDroppedBesideAnUnlistedOne(t *testing.T) {
 	}
 }
 
+// Of two sets sharing a name, the lower set id's pieces of a type the higher set has go and the higher's stay; the
+// lower set's piece of a type the higher set lacks stays and joins the higher set with its classes, and a set alone
 // under its name, an item with no set and an ItemAllowList item of the lower set stay.
 func TestLowerSameNameSetIsDropped(t *testing.T) {
 	var allowed int32

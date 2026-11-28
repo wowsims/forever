@@ -14,8 +14,8 @@ import (
 	"strings"
 )
 
-// cascIndex is one parsed .idx bucket file (v7: 9-byte key prefixes, 5-byte
-// packed archive/offset, 4-byte size).
+// One parsed .idx bucket file (v7: 9-byte key prefixes, 5-byte packed
+// archive/offset, 4-byte size).
 type cascIndex struct {
 	entrySizeBytes   int
 	entryOffsetBytes int
@@ -56,13 +56,13 @@ func loadCascIndex(path string) (*cascIndex, error) {
 	return idx, nil
 }
 
-// getIndexInfo returns (archiveOffset, size, archiveIndex) for an eKey, with
-// the 30-byte per-entry storage frame already skipped (offset+30, size-30),
-// or (-1,-1,-1) when absent.
+// Returns (archiveOffset, size, archiveIndex) for an eKey, with the 30-byte
+// per-entry storage frame already skipped (offset+30, size-30), or (-1,-1,-1)
+// when absent.
 //
 // Deviation from upstream, in the safe direction: TACTSharp reports a miss
 // whenever lower_bound lands on entry 0 even if it matches; this port accepts
-// a genuine entry-0 match (upstream silently falls back to the CDN there —
+// a genuine entry-0 match (upstream silently falls back to the CDN there;
 // this pure-local port has no fallback to hide behind).
 func (idx *cascIndex) getIndexInfo(eKey []byte) (int64, int, int) {
 	needle := eKey[:idx.entryKeyBytes]
@@ -99,8 +99,8 @@ type cascStore struct {
 	buckets map[byte]*cascIndex
 }
 
-// openCascStore loads the highest-version .idx per bucket from
-// <BaseDir>/Data/data (CDN.LoadCASCIndices).
+// Loads the highest-version .idx per bucket from <BaseDir>/Data/data
+// (CDN.LoadCASCIndices).
 func openCascStore(baseDir string) (*cascStore, error) {
 	dataDir := filepath.Join(baseDir, "Data", "data")
 	entries, err := os.ReadDir(dataDir)
@@ -144,15 +144,15 @@ func openCascStore(baseDir string) (*cascStore, error) {
 	return store, nil
 }
 
-// bucketForEKey ports CDN.TryGetLocalFile's bucket selection: XOR of the
-// first 9 eKey bytes, then fold nibbles.
+// Ports CDN.TryGetLocalFile's bucket selection: XOR of the first 9 eKey
+// bytes, then fold nibbles.
 func bucketForEKey(eKey []byte) byte {
 	i := eKey[0] ^ eKey[1] ^ eKey[2] ^ eKey[3] ^ eKey[4] ^ eKey[5] ^ eKey[6] ^ eKey[7] ^ eKey[8]
 	return (i & 0xf) ^ (i >> 4)
 }
 
-// readEKey returns the raw (BLTE-encoded) bytes for an eKey from the local
-// archives, or an error when the key is not locally resident.
+// Returns the raw (BLTE-encoded) bytes for an eKey from the local archives,
+// or an error when the key is not locally resident.
 func (s *cascStore) readEKey(eKey []byte) ([]byte, error) {
 	idx, ok := s.buckets[bucketForEKey(eKey)]
 	if !ok {

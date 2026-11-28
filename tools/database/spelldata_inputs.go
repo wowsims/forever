@@ -11,8 +11,8 @@ import (
 )
 
 // The game files rows sim/core/spelldata is built from, captured next to the generated store so
-// that the store can be rebuilt - and checked - without the game files database, which is
-// gitignored and comes from a local WoW install.
+// that the store can be rebuilt and checked without the game files database, which is gitignored
+// and comes from a local WoW install.
 //
 // Raw game files rows, copied as the loaders in spelldata_store.go read them:
 //
@@ -24,24 +24,20 @@ import (
 //   - the spell granting the enchant of each enchant equip spell in the store, with that spell's
 //     description: the equip spell ships none of its own.
 //   - the chance the enchantments state for each enchant combat spell in the store.
-//   - every SpellShapeshiftForm row, whole, since renderFormsFile reads it on its own rather than
-//     through the store's ids.
+//   - every SpellShapeshiftForm row, whole.
 //
 // Derived, and captured all the same because re-deriving it needs tables the store does not otherwise
 // read: the root ids. They come from the item, enchant and set-bonus tables, from the ladder and tree
 // spells the class files are built from, and from the sibling-by-name rule, and they are captured
-// wholesale - so a change to how a root is found shows up only once the store is regenerated.
+// wholesale, so a change to how a root is found shows up only once the store is regenerated.
 //
 // Everything else is left to be re-derived from the above: the closure, the hand links, the talent
 // curves, the tooltip hints, the overrides and the rows themselves. That is what makes the
-// regeneration a check on the generator rather than a copy of its answer. The hand-kept extra spells
-// are added while rendering for the same reason - adding one without regenerating renders a row the
-// committed store does not carry, and the check fails.
+// regeneration a check on the generator rather than a copy of its answer.
 
-// Beside the game files extraction rather than in it: assets/db_inputs/dbc is gitignored, being
-// tens of megabytes rebuilt by `make db`, and this file has to be committed for the check to run
-// without a database. Gzipped like the extraction's files, and named the same way, since it is read
-// back the same way.
+// Beside the game files extraction rather than in it: assets/db_inputs/dbc is gitignored, and this
+// file has to be committed for the check to run without a database. Gzipped like the extraction's
+// files, and named the same way, since it is read back the same way.
 const spellStoreInputsPath = "assets/db_inputs/spell_store_inputs.json"
 
 type storeInputs struct {
@@ -50,9 +46,8 @@ type storeInputs struct {
 
 	Roots []int32
 
-	// The roots that came from the item, enchant and set-bonus tables alone. The store is rendered
-	// from Roots, which holds these and the class ladder both; this subset is what the proc audit
-	// asks its question over, and no reading of a row says which query reached it.
+	// The roots that came from the item, enchant and set-bonus tables alone. This subset is what the
+	// proc audit asks its question over.
 	ItemRoots []int32
 
 	// The talent nodes of every class tree in the order storeCurves reads them, since the first
@@ -89,8 +84,7 @@ func (in *storeInputs) tables() *spellTables {
 	return &t
 }
 
-// The rows of the store's own ids, and every name in the build. Restricting the rest to those ids is
-// what keeps the file to the size of the store rather than the size of the game files.
+// The rows of the store's own ids, and every name in the build.
 func captureStoreInputs(t *spellTables, roots []int32, ids []int32,
 	nodes []traitNode, points map[int32]map[int32]map[int32]float64) *storeInputs {
 	in := &storeInputs{
@@ -134,7 +128,7 @@ func captureStoreInputs(t *spellTables, roots []int32, ids []int32,
 }
 
 // A row is kept only where the game files state one: the absence of a SpellLevels row is itself a
-// reading - no level scaling - so writing a zero row in its place would change what the store says.
+// reading (no level scaling), so writing a zero row in its place would change what the store says.
 func keepValue[V any](into map[int32]V, id int32, from map[int32]V) {
 	if v, ok := from[id]; ok {
 		into[id] = v
@@ -166,10 +160,9 @@ func writeStoreInputs(in *storeInputs) error {
 	return nil
 }
 
-// Whether the committed capture is the one the database gives today. Compared as the encoded bytes
-// rather than through the decoded values, since a map is written in key order and a slice the game
-// files state as empty decodes as nil - neither of which the rendered store can tell apart, but
-// both of which a comparison of the values would trip over.
+// Whether the committed capture is the one the database gives today. Compared as the encoded bytes,
+// since a map is written in key order and a slice the game files state as empty decodes as nil, both
+// of which a comparison of the values would trip over.
 func storeInputsAreCurrent(fresh *storeInputs) (bool, error) {
 	committed, err := dbc.ReadGzipFile(spellStoreInputsPath)
 	if os.IsNotExist(err) {

@@ -18,9 +18,8 @@ import (
 )
 
 // The generated half of sim/core/spelldata: every spell the sim can reach, with its effects and
-// power costs, and the talent curves a trait talent's ranks are priced from. The hand-written half
-// of the package states the contract this file writes to - see the comment on store.go - and the
-// init below is what installs the data, since package variables are set before any init runs.
+// power costs, and the talent curves a trait talent's ranks are priced from. The init below is what
+// installs the data, since package variables are set before any init runs.
 func renderStoreFile(rows []storeSpell, curves map[int32][][]float64, hand map[int32][]overrides.HandTrigger,
 	namer *rankEnumNamer) ([]byte, error) {
 	var b strings.Builder
@@ -111,8 +110,7 @@ var storeTypes = map[reflect.Type]reflect.Type{
 	reflect.TypeFor[storeReagent](): reflect.TypeFor[spelldata.Reagent](),
 }
 
-// The exported fields a row states, as "Name: value". A list of rows (the effects, the powers, the
-// reagents) is left to formatStoreRow, which writes it under the row.
+// The exported fields a row states, as "Name: value". A list of rows is left to formatStoreRow.
 func storeFields(row reflect.Value, namer *rankEnumNamer) string {
 	store := storeTypes[row.Type()]
 	var parts []string
@@ -204,7 +202,7 @@ func num32(f float64) string {
 }
 
 // The store's data, ready to write: the rows and the curves. Everything is rendered before anything
-// is written, the way the class files are.
+// is written.
 func loadStoreInputs(db *sql.DB, classRoots map[string][]int32, trees map[int]int, version string, push int32) (*storeInputs, error) {
 	tables, err := loadSpellTables(db)
 	if err != nil {
@@ -219,9 +217,9 @@ func loadStoreInputs(db *sql.DB, classRoots map[string][]int32, trees map[int]in
 	maps.Copy(groupRoots, classRoots)
 
 	// The extra spells are captured as rows but not as roots: the rendering adds them again from
-	// overrides.ExtraSpells, so what is captured has to be everything that rendering will reach - or an extra
-	// id would render as a row with a name and nothing else, whether or not the store was
-	// regenerated - while the roots stay what the game files alone say they are.
+	// overrides.ExtraSpells, so what is captured has to be everything that rendering will reach, or an
+	// extra id would render as a row with a name and nothing else. The roots stay what the game files
+	// alone say they are.
 	//
 	// The spells a rank reads a number off by name are roots of their own: nothing inside the closure
 	// points at them, so they are asked for once everything else has been reached.
@@ -316,9 +314,8 @@ func renderStore(in *storeInputs, namer *rankEnumNamer) ([]byte, error) {
 
 // The trigger edges the server-side handlers make and the data does not state, by the spell
 // that casts them, where the store carries both ends. The store merges them into Drivers() and
-// Triggered() beside the edges its effects state. An entry without a reason is refused, the way an
-// extra spell is, and so is one the game files have caught up with: an effect of the spell triggers
-// the other itself.
+// Triggered(). An entry without a reason is refused, and so is one the game files have caught up
+// with.
 func storeHandTriggers(tables *spellTables, inStore map[int32]bool) (map[int32][]overrides.HandTrigger, error) {
 	hand := map[int32][]overrides.HandTrigger{}
 	for _, link := range overrides.HandTriggers {
@@ -338,15 +335,14 @@ func storeHandTriggers(tables *spellTables, inStore map[int32]bool) (map[int32][
 
 // A trait talent is one spell whose per-rank numbers sit on the tree's curves. The store indexes
 // them by the position EffectN counts by rather than by the game files' EffectIndex, which has gaps,
-// and a position the tree prices no curve for repeats the spell's own base value: Ladder.Talent
-// wants one value per rank on every position up to the last one the tree prices.
+// and a position the tree prices no curve for repeats the spell's own base value.
 //
 // Every node of every class tree is read, not only the ones the class files turned into ladders: a
 // talent the class file could not name is still a spell the sim can register by id.
 //
 // A node of one rank has no ladder to state, and its single priced value goes onto the effect's base
-// points instead: that is the number the class table states for it, and writing it into the row
-// rather than into a curve is what makes Find(id) and Talent(id, 1).Rank(1) agree about it.
+// points instead: writing it into the row rather than into a curve is what makes Find(id) and
+// Talent(id, 1).Rank(1) agree about it.
 func storeCurves(t *spellTables, nodes []traitNode, points map[int32]map[int32]map[int32]float64,
 	inStore map[int32]bool) map[int32][][]float64 {
 	curves := map[int32][][]float64{}
@@ -362,9 +358,9 @@ func storeCurves(t *spellTables, nodes []traitNode, points map[int32]map[int32]m
 
 		// The class generator takes the tree's numbers only where the tree states more ranks than the
 		// skill line's own ladder does, so a one-rank node whose spell a skill line teaches is
-		// described by its own rows and not by the tree: Ice Block, Last Stand and Relentless Strikes
-		// are priced by a node and state the game files' base all the same. A node no skill line
-		// teaches - a talent Forever added, like Thousand Cuts - has nothing else describing it.
+		// described by its own rows and not by the tree: Ice Block is priced by a node and states the
+		// game files' base all the same. A node no skill line teaches, a talent Forever added, has
+		// nothing else describing it.
 		if node.MaxRanks == 1 && node.TaughtBySkillLine {
 			continue
 		}
@@ -382,9 +378,8 @@ func storeCurves(t *spellTables, nodes []traitNode, points map[int32]map[int32]m
 		}
 
 		// Two definitions can price the same spell. traitNodes leaves out the retired twins the
-		// game files park off the canvas (see parkedTraitNodes); for any other pair the lowest
-		// definition id within the first tree by id is the one kept, which is what the class
-		// tables generate from, and a disagreement is named on stderr rather than resolved silently.
+		// game files park off the canvas; for any other pair the lowest definition id within the
+		// first tree by id is the one kept, which is what the class tables generate from.
 		if seen, ok := pricedBy[node.SpellID]; ok {
 			if !slices.EqualFunc(pricedRows[node.SpellID], rows, slices.Equal) {
 				fmt.Fprintf(progress,
@@ -412,9 +407,9 @@ func bakeRank(effects []storeEffect, rows [][]float64) {
 	}
 }
 
-// Every class tree's nodes in the order the curves are read in - tree by tree, lowest id first, so
-// that the first definition to price a spell is the same one whether the points come from the
-// database or from the committed inputs - and the points each definition states.
+// Every class tree's nodes, tree by tree, lowest id first, and the points each definition states.
+// The order makes the first definition to price a spell the same one whether the points come from
+// the database or from the committed inputs.
 func traitPoints(db *sql.DB, trees map[int]int) ([]traitNode, map[int32]map[int32]map[int32]float64, error) {
 	var all []traitNode
 	points := map[int32]map[int32]map[int32]float64{}
@@ -449,15 +444,13 @@ func traitPoints(db *sql.DB, trees map[int]int) ([]traitNode, map[int32]map[int3
 }
 
 // One talent node: the definition its curves hang off, the spell it grants and the rank cap the game
-// enforces. A one-rank node states no ladder, and its single value is baked into the spell's base
-// points by storeCurves rather than kept as a curve of one.
+// enforces.
 type traitNode struct {
 	DefinitionID int32
 	SpellID      int32
 	MaxRanks     int32
 
-	// Whether a skill line teaches the spell, which is what says the tree is not the only thing
-	// describing it - see storeCurves.
+	// Whether a skill line teaches the spell, which says the tree is not the only thing describing it.
 	TaughtBySkillLine bool
 
 	TreeID int    // the order the curves are read in, kept when a partial update merges two builds' nodes

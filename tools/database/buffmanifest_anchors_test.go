@@ -1,10 +1,9 @@
 package database
 
-// The manifest pins the spell each buff reads, so generation needs no game files database. What pinned
-// it is the rank resolution below, which reads SkillLineAbility, SkillLine and the rune enchantments -
-// tables the store does not capture - so this is where a new game build is checked against the
-// pins, and against the names and owners the generator reads off them. Skips without
-// tools/database/wowsims.db.
+// The manifest pins the spell each buff reads, so generation needs no game files database. The rank
+// resolution below reads SkillLineAbility, SkillLine and the rune enchantments, tables the store does
+// not capture, so this is where a new game build is checked against the pins, and against the names
+// and owners the generator reads off them.
 
 import (
 	"database/sql"
@@ -54,7 +53,7 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 	fields := map[string]bool{}
 	for _, row := range resolveCommittedBuffs(t) {
 		fields[row.Field] = true
-		// A row without a castable family - an item's aura, an elixir's debuff - is pinned by hand.
+		// A row without a castable family (an item's aura) is pinned by hand.
 		if row.Name == "" {
 			continue
 		}
@@ -190,8 +189,8 @@ func anchorCandidates(db *sql.DB, name string, classMask int32) ([]buffCandidate
 
 // The rank the player ends up with. A family with rank subtexts is ordered by them, each rank
 // narrowed to its lowest acquire method, since Forever re-issues single ranks as granted copies of a
-// trained ability. A family without one - Blessing of Kings, Innervate - is ordered by
-// SupercedesSpell, where the spell no other row supersedes is the last one learnt.
+// trained ability. A family without one is ordered by SupercedesSpell, where the spell no other row
+// supersedes is the last one learnt.
 func topRank(cands []buffCandidate, classMask int32) buffCandidate {
 	var owned []buffCandidate
 	for _, c := range cands {
@@ -232,9 +231,9 @@ func topRank(cands []buffCandidate, classMask int32) buffCandidate {
 }
 
 // The aura of a totem or of a dummy passive, which the game files only tie to the cast by name. The
-// rank subtext of the cast picks the matching rank; where neither carries one - Leader of the Pack
-// is 17007 and 24932, both rankless - the spell that applies a party or raid aura is the one other
-// players see, unless it only procs the buff, the way Windfury Totem's 10612 procs 10610.
+// rank subtext of the cast picks the matching rank; where neither carries one, the spell that applies
+// a party or raid aura is the one other players see, unless it only procs the buff, the way Windfury
+// Totem's 10612 procs 10610.
 func auraFamilyMember(db *sql.DB, name string, subtext string) (int32, error) {
 	type auraCandidate struct {
 		SpellID int32

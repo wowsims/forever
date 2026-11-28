@@ -342,10 +342,8 @@ type SimpleSpellValue struct {
 type SpellEntryRef struct {
 	EffectColumn string
 	EffectIndex  int64
-	// HasIndex records whether the token actually carried a digit. A bare token
-	// such as Wrack's "$t" means effect 1, but $r without an index means the
-	// spell's range rather than an effect radius, so the two cases have to be
-	// told apart rather than both leaning on EffectIndex == 0.
+	// Whether the token carried a digit. A bare token means effect 1, but $r without an index means
+	// the spell's range rather than an effect radius, so the two cases have to be told apart.
 	HasIndex bool
 }
 
@@ -467,7 +465,6 @@ func (f *Function) Eval(ctx *TooltipContext) float64 {
 }
 
 // Short ternaryies like $lowner:owners are hard to lex vers $low=
-// So some magic here..
 //
 // $gmal:female
 // $lsingular:plural <- seems to be based on last compuated element
@@ -548,7 +545,6 @@ func (s ShortTernary) String(ctx *TooltipContext) string {
 	// Some spells have short hands as $89808lspell:spells
 	// The only way I could make sense of the 'l' operator is a ref to the last computed value
 	// so spells that are not this do not make sense. We ignore them
-	// We will get this as $\d*[l|g]\w+: cleanup a bit.
 
 	match := ternParser.FindStringSubmatch(s.Type)
 	t := match[2]
@@ -659,7 +655,6 @@ func (s SimpleSpellValue) Eval(ctx *TooltipContext) float64 {
 		return float64(ctx.DataProvider.GetSpellDuration(s.getSpellId(ctx))) / float64(time.Second)
 	case "w":
 		// This does not properly evaluate in game for Spell Descriptions. In theory it seems to refer to the specific extra values of a buff
-		// i.E. the actual stamina buffed by a priester to display it correctly in game
 		// So for Buff Tooltip rendering we want to treat at probably the same as scaled effect value
 		fallthrough
 	case "s":
@@ -828,9 +823,6 @@ func (t TooltipAST) String(ctx *TooltipContext) string {
 			if len(tooltip) > 0 && !val.isPunctuation() {
 				lastChar := tooltip[len(tooltip)-1:]
 
-				// for now do not render a space after + or -
-				// might want to change lexing behaviour in root context
-				// later on if we find unaccaptable inconsistencies
 				if lastChar != "+" && lastChar != "-" {
 					tooltip += " "
 				}

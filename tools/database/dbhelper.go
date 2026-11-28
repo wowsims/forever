@@ -108,9 +108,8 @@ func RunOverrides(dbHelper *DBHelper, overridesFolder string) error {
 	return nil
 }
 
-// tableExists reports whether the extracted game files database carries a table.
-// Which tables a build ships varies between game builds, so loaders for optional
-// data check before querying instead of failing the whole generation run.
+// Reports whether the extracted game files database carries a table. Which tables a build
+// ships varies between game builds.
 func (helper *DBHelper) tableExists(name string) bool {
 	var found string
 	err := helper.db.QueryRow(

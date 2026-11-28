@@ -52,11 +52,9 @@ var IgnoreSpellEffectBySpellEffectType = map[dbc.SpellEffectType][]int{
 // Spells that are flavour rather than mechanics, keyed by spell ID so that reporting them as
 // missing effects can be suppressed without hiding anything real.
 //
-// Keyed per spell on purpose. The obvious shortcut - treat an effect made only of A_DUMMY auras
-// as noise, which is what MoP does - does not hold in TBC, where A_DUMMY is how a whole class of
-// real item effects is encoded: every relic, idol, libram and totem bonus, plus Zandalarian Hero
-// Medallion, Thick Obsidian Breastplate and Ashtongue Talisman of Zeal. That rule removed 48
-// entries here and only a handful of them were noise.
+// Keyed per spell on purpose. The shortcut, treating an effect made only of A_DUMMY auras as noise,
+// does not hold: A_DUMMY is how a whole class of real item effects is encoded, every relic, idol,
+// libram and totem bonus.
 var IgnoreMissingEffectBySpellID = map[int]string{
 	16372:   "Seal of Ascension - no tooltip and no mechanic",
 	1298517: "Book of the Dead - a dummy aura with no tooltip; whatever it does in game, the skeleton's measured numbers hold it (EV-0217)",
@@ -83,9 +81,8 @@ var EffectFloorExemptions = map[int32]string{
 var OtherItemIdsToFetch = []string{}
 var ConsumableOverrides = []*proto.Consumable{}
 
-// Each Atiesh comes from its own class's quest, and nothing in the game files ties a staff to a class:
-// AllowableClass is -1 on all four, and no spell creates them. The class follows the party aura each
-// one carries.
+// Each Atiesh comes from its own class's quest, and nothing in the game files ties a staff to a class.
+// The class follows the party aura each one carries.
 var ItemOverrides = []*proto.UIItem{
 	{
 		Id:             22589, // Atiesh, Greatstaff of the Guardian: party spell crit
@@ -106,8 +103,8 @@ var ItemOverrides = []*proto.UIItem{
 }
 
 // Each Naxxramas tier 3 armor piece comes from its own class's quest, and the game files open every
-// one to every class: AllowableClass is 32767, or 1535 on Dreadnaught's and most of Bonescythe's. Only
-// the set's ring names the class, so each piece of the set takes it. Keyed by item set id.
+// one to every class. Only the set's ring names the class, so each piece of the set takes it. Keyed by
+// item set id.
 var ItemSetClasses = map[int32]proto.Class{
 	521: proto.Class_ClassDruid,   // Dreamwalker Raiment
 	523: proto.Class_ClassWarrior, // Dreadnaught's Battlegear
@@ -139,7 +136,7 @@ func ApplyItemSetClasses(db *WowDatabase) {
 // Where two sets with items share a name, a piece of the lower set id ships only when the higher set has no piece of
 // its type, and then joins the higher set and takes the classes its pieces allow; an ItemAllowList item stays. The
 // Classic pieces allow every class, while their quests and the reissued pieces name one. In game a reissued piece counts
-// toward its own set and takes that row's bonuses, never the Classic set's (EV-0144).
+// toward its own set (EV-0144).
 func DropLowerSameNameSets(db *WowDatabase) {
 	highest := map[string]int32{}
 	for _, item := range db.Items {
@@ -182,8 +179,7 @@ func DropLowerSameNameSets(db *WowDatabase) {
 
 // Where a set ships a piece its ItemSet row does not list, a piece the row does list for that slot is dropped. The row
 // of each reissued dungeon set 2 lists eight pieces no player wears, beside the pieces players wear, which carry the
-// set's id and are not on its list (EV-0144). A set whose row lists the pieces it ships loses nothing, so this drops
-// nothing once the game files list the worn pieces.
+// set's id and are not on its list (EV-0144).
 func DropListedSetPiecesBesideUnlistedOnes(db *WowDatabase, listed map[int32]bool) {
 	type setPiece struct {
 		set      int32
@@ -1144,8 +1140,7 @@ var ConsumableDenyList = []int32{
 }
 
 // Consumables the game files do not type as elixirs or scrolls whose stats count with the elixirs' all
-// the same, each stat at the strongest amount among them (R-0054). The generator sets their
-// counts_with_elixirs, which the sim and the settings read.
+// the same (R-0054). The generator sets their counts_with_elixirs.
 var ConsumablesCountWithElixirs = []int32{
 	5206,  // Bogling Root
 	12451, // Juju Power
@@ -1391,8 +1386,8 @@ var EnchantAllowList = []int32{
 // Note: ItemId, SpellId and Name are part of the enchant DB key, so they must
 // match the generated enchant or the override is added as a separate entry.
 var EnchantOverrides = []*proto.UIEnchant{
-	// The head/leg resistance kits grant their stats through an equip spell that no
-	// longer exists in the game files, so they have to be filled in by hand.
+	// The head/leg resistance kits grant their stats through an equip spell the game
+	// files lack, so they have to be filled in by hand.
 	{EffectId: 2681, ItemId: 22635, SpellId: 28162, Name: "Savage Guard", Stats: stats.Stats{stats.NatureResistance: 10}.ToProtoArray()},
 	{EffectId: 2682, ItemId: 22636, SpellId: 28164, Name: "Ice Guard", Stats: stats.Stats{stats.FrostResistance: 10}.ToProtoArray()},
 	{EffectId: 2683, ItemId: 22638, SpellId: 28166, Name: "Shadow Guard", Stats: stats.Stats{stats.ShadowResistance: 10}.ToProtoArray()},

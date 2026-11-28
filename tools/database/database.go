@@ -340,9 +340,8 @@ func ReadDatabaseFromJson(jsonStr string) *WowDatabase {
 func (db *WowDatabase) WriteBinaryAndJson(binFilePath, jsonFilePath string) {
 	jsonBytes := db.toJsonBytes()
 	// The JSON covers every UIDatabase field, so unchanged JSON means unchanged
-	// contents — worth skipping because the binary's proto encoding is not
-	// byte-stable and would otherwise churn on every run. A missing binary must
-	// still be regenerated, though, so check for it before skipping.
+	// contents, worth skipping because the binary's proto encoding is not
+	// byte-stable and would otherwise churn on every run.
 	if existing, err := os.ReadFile(jsonFilePath); err == nil && bytes.Equal(existing, jsonBytes) {
 		if _, err := os.Stat(binFilePath); err == nil {
 			log.Printf("No changes detected, skipping write of %s and %s", binFilePath, jsonFilePath)

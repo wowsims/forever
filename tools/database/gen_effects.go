@@ -117,13 +117,13 @@ type Entry struct {
 	ProcInfo  ProcInfo
 	Supported bool
 	// What adds a stack while the window is open, for the trinkets whose effect carries a
-	// separate accumulating aura. Nil for everything else.
+	// separate accumulating aura.
 	StackProcInfo *ProcInfo
 	// Set for an on-use whose window accumulates a separate aura, which needs the stacking
-	// helper rather than the flat one. Carries what that helper cannot read from the database.
+	// helper. Carries what that helper cannot read from the database.
 	StackingOnUse *StackingOnUse
 	// Set for effects an ignore list deliberately excludes. These emit a comment only, so that
-	// skipping them is visible in the generated file rather than silent.
+	// skipping them is visible in the generated file.
 	Skipped bool
 	// Set when the proc is resolved from the game files' own rows at run time, which is every proc
 	// but the two shapes that need more than the rows state: a window that accumulates a second
@@ -133,8 +133,8 @@ type Entry struct {
 	NotSimulated string
 }
 
-// The literals a stacking on-use needs in the generated call. Everything else - stacks,
-// per-stack stats, which aura is which - the helper reads from the database at runtime.
+// The literals a stacking on-use needs in the generated call. Everything else the helper reads from
+// the database at runtime.
 type StackingOnUse struct {
 	Name       string
 	CooldownMs int32
@@ -409,8 +409,7 @@ func (r *ProcRouting) requireABuffDuration() {
 	}
 }
 
-// What the rows resolve to, as the sim's own constants, so the generated file states the reading
-// rather than leaving it to be looked up.
+// What the rows resolve to, as the sim's own constants, so the generated file states the reading.
 func procSummary(triggerSpellID int, trigger *spelldata.Spell, buffSpellID int, itemPPM float64) string {
 	if trigger == spelldata.Nil {
 		return fmt.Sprintf("trigger %d is not in the store", triggerSpellID)
@@ -535,8 +534,7 @@ func GenerateEffectsFile(groups []*Group, outFile string, templateString string)
 
 	hasStacking := false
 	// A registration resolved from the game files' rows names no core constant, so a file whose live
-	// entries are all of that shape must not import core: gen_db links the sim, and an unused import
-	// in a file it just wrote breaks the build the next run needs.
+	// entries are all of that shape must not import core.
 	usesCore := false
 	// And nothing at all is imported by a file whose every entry is commented out.
 	hasLive := false
@@ -588,8 +586,7 @@ func sameProcRows(a *Entry, b *Entry) bool {
 }
 
 // A total order over entries. Sorting on the item or enchant ID alone is not one: an item with
-// two effects yields two entries sharing that ID, and sort.Slice is not stable, so their order
-// in the generated file flipped between runs.
+// two effects yields two entries sharing that ID, and sort.Slice is not stable.
 func entryOrder(a *Entry, b *Entry) bool {
 	if a.Variants[0].ID != b.Variants[0].ID {
 		return a.Variants[0].ID < b.Variants[0].ID
@@ -667,7 +664,7 @@ type KnownRates struct {
 var evidenceID = regexp.MustCompile(`^EV-\d{4}(, EV-\d{4})*$`)
 
 // The origin a rate's Source names, or "" for one measured on Forever, which needs no notice. A rate's Source
-// must be an evidence id, a carry-over ("vanilla-carryover" or "tbc-carryover") or "observed"; any other is an error.
+// must be an evidence id, a carry-over or "observed"; any other is an error.
 func rateOrigin(source string) (string, error) {
 	switch {
 	case evidenceID.MatchString(source):
@@ -1112,8 +1109,7 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	// The rates of generated gear whose procs register: the rates on its database effects, and the rates its
 	// rows state where its registrations read the rows. A row's rate fills in a proc whose effect states
 	// none, as an override on a column of 0, 100 or 101 does; a proc that no row rate fills, or one more
-	// than register, leaves the gear with no rate to state. The fill matches by count, not by spell. A chance on
-	// an effect takes chanceStatus.
+	// than register, leaves the gear with no rate to state. The fill matches by count, not by spell.
 	gearRates := func(effects []*proto.ItemEffect, live LiveProcs, rowRates []KnownRate, chanceStatus proto.ProcRateStatus) []KnownRate {
 		if !live.RowBuilt {
 			rowRates = nil
@@ -1729,11 +1725,8 @@ func enchantRegisters(groupMapProc map[string]Group, effectID int32) bool {
 // The E_ENCHANT_ITEM effect that grants each enchant, by enchant ID. Only that effect names an
 // enchant in its first misc value; any other effect's misc value is a school, a stat or a power.
 //
-// Several spells can grant the same enchant -- an enchant that was re-taught
-// by a later expansion's recipe has one spell per version, up to five here.
-// Map iteration order is randomized, so keep the lowest spell ID rather than
-// letting whichever one is visited last win and churn the generated file. The store's
-// loadEnchantGrants keeps the same one.
+// Several spells can grant the same enchant. Map iteration order is randomized, so keep the lowest
+// spell ID. The store's loadEnchantGrants keeps the same one.
 func enchantGrantEffects(effects map[int]dbc.SpellEffect) map[int]*dbc.SpellEffect {
 	grants := map[int]*dbc.SpellEffect{}
 	for _, effect := range effects {
@@ -1854,10 +1847,7 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 
 		for _, itemEffect := range parsed.ItemEffects {
 			if !hand && !ItemEffectIsSupported(instance, int(itemEffect.BuffId)) {
-				// Commented into the generated file rather than dropped. These are deliberately
-				// out of scope - summons, teleports, created items - but an item whose only
-				// effect is skipped otherwise vanished with no trace, while a sibling marker
-				// aura on the same item got reported as missing instead.
+				// Commented into the generated file rather than dropped. These are deliberately out of scope.
 				skippedGroup := groupMapProc
 				if itemEffect.GetOnUse() != nil {
 					skippedGroup = groupMapOnUse
@@ -2071,20 +2061,14 @@ func TryParseProcEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect, inst
 			entry.StackProcInfo = buildStackProcInfo(itemEffect, instance, renderedTooltip)
 
 			// entry.Supported speaks only for the trigger that opens the window, so the stack side
-			// has to be refused separately. Without this the template omits StackCallback,
-			// attachStackTrigger early-returns on the empty callback and the stat aura activates at
-			// zero stacks with no duration of its own - a trinket whose window opens and never gains
-			// a stack, worth nothing and reported as implemented. The on-use path refuses the same
-			// shape further down.
+			// has to be refused separately. Without this the template omits StackCallback and the
+			// stat aura activates at zero stacks with no duration of its own.
 			if itemEffect.StackingAura != nil && itemEffect.GetStackProc() != nil && entry.StackProcInfo == nil {
 				entry.Supported = false
 			}
 
 			// A stat-buff proc carries its two spell ids and nothing else: what it hears, how often
-			// and for how long are the rows' to say, at run time, through the same decision this
-			// reads here - and that decision is the whole of it, rather than the tooltip reading
-			// BuildProcInfo does for the shapes below. The two that need more than the rows state
-			// stay where they are: a window accumulating a second aura, and an effect with no stats.
+			// and for how long are the rows' to say, at run time.
 			grantsStats := len(dbc.EffectStats(itemEffect)) > 0
 			if itemEffect.StackingAura == nil && grantsStats {
 				entry.Proc = routeItemProc(parsed, itemEffect)
@@ -2096,8 +2080,7 @@ func TryParseProcEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect, inst
 
 			// An effect that resolves no stats may still deal flat damage, heal or shield the wearer,
 			// debuff the enemy it lands on, or apply auras the stat path cannot state, each a shape of
-			// its own rather than a reason to refuse: there is no buff, so the proc casts the spell the
-			// game files hang below its trigger, read from that spell's own row.
+			// its own: the proc casts the spell the game files hang below its trigger.
 			if !grantsStats {
 				shape, spellID := pickNoStatShape(int(itemEffect.BuffId), itemEffect.BuffId)
 				if shape == ShapeStats && appliesAnItemAura(spelldata.Find(itemEffect.BuffId)) {
@@ -2119,8 +2102,7 @@ func TryParseProcEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect, inst
 					SpellID: int(itemEffect.BuffId),
 				})
 
-				// A proc the rows themselves refuse is emitted with the reason they gave, so the
-				// generated file says why rather than leaving a shapeless commented block behind.
+				// A proc the rows themselves refuse is emitted with the reason they gave.
 				if entry.Proc != nil && !entry.Proc.Supported() {
 					grp.Entries = append(grp.Entries, &entry)
 					groupMapProc["Procs"] = grp
@@ -2178,9 +2160,8 @@ func TryParseEquipAuraEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect,
 		return EffectParseResultInvalid
 	}
 
-	// A proc effect (Stoneform Shoulders' 1298230 on entering combat, Force of Will's 15594 when struck)
-	// keeps nothing up while worn: its buff is the proc's, for its own duration, and the proc parser
-	// reads it.
+	// A proc effect (Stoneform Shoulders' 1298230 on entering combat) keeps nothing up while worn: its
+	// buff is the proc's, for its own duration, and the proc parser reads it.
 	effect := dbc.GetItemEffectForBuffID(int(parsed.Id), int(itemEffect.BuffId))
 	if itemEffect.GetProc() != nil || effect == nil || effect.TriggerType != dbc.ITEM_SPELLTRIGGER_ON_EQUIP {
 		return EffectParseResultInvalid
@@ -2297,8 +2278,7 @@ func statOnUseLeftOut(buffID int32, instance *dbc.DBC) string {
 
 // Whether a stat on-use's buff also states a shield that a shape can carry with its stats: a damage
 // shield the item aura shape attaches (Heart of the Scale's 17275 deals 20 Fire to melee attackers
-// beside its Fire resistance), or an absorb the absorb shape holds the stats on (Blazing Emblem's 13744
-// absorbs 465 Fire beside its 33 Fire resistance).
+// beside its Fire resistance), or an absorb the absorb shape holds the stats on.
 func shieldsWithItsStats(parsed *proto.UIItem, itemEffect *proto.ItemEffect, instance *dbc.DBC) bool {
 	if itemEffect.StackingAura != nil {
 		return false
@@ -2350,7 +2330,7 @@ func parseOnUseSpell(parsed *proto.UIItem, itemEffect *proto.ItemEffect, instanc
 
 // The spell an on-use casts, read from the store the way the sim reads it: damage on the enemy it is
 // used on, a heal, an absorb, mana, rage or energy for the wearer, or a buff raising the wearer's
-// speeds. What else the row does - a root, a stun - is left out, and the summary names it.
+// speeds. What else the row does is left out, and the summary names it.
 func routeOnUse(parsed *proto.UIItem, itemEffect *proto.ItemEffect, instance *dbc.DBC) *ProcRouting {
 	return routeOnUseSpell(int(parsed.Id), itemEffect.BuffId, instance)
 }
@@ -2529,11 +2509,11 @@ func (r *ProcRouting) ProcConstructor() string {
 // The auras the item aura shape is emitted for: the damage, healing, cost, armor, health, stat and threat
 // multipliers, the flat damage taken, the hit, crit, block, dodge and parry percents, skill points, and the
 // attack power, spell damage and damage done against a creature type. The percents reach the item stats
-// only through an equip spell that folds; an on-use or a weapon-scoped equip spell applies them as an aura.
-// An equip spell that only restates a weapon skill or creature type stat the item's own stats state leaves
-// the item (dropRestatedItemStats), and one that raises only weapon skills the item's stats do not state
-// becomes the item's weapon skill (foldEquipWeaponSkills). An equip spell whose stats fold into the item
-// (EquipSpellFolds) carries its bonus against a creature type into the item's mob type stats
+// only through an equip spell that folds; an on-use or a weapon-scoped equip spell applies them as an
+// aura. An equip spell that only restates a weapon skill or creature type stat the item's own stats state
+// leaves the item (dropRestatedItemStats), and one that raises only weapon skills the item's stats do not
+// state becomes the item's weapon skill (foldEquipWeaponSkills). An equip spell whose stats fold into the
+// item (EquipSpellFolds) carries its bonus against a creature type into the item's mob type stats
 // (addEquipSpellMobTypeStats).
 var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
@@ -2831,11 +2811,9 @@ func ParseTooltipForMissingEffect(parsed *proto.UIItem, itemEffect *proto.ItemEf
 		groupMap[groupMapName] = grp
 	}
 
-	// Flavour auras carry no mechanic worth implementing and only add noise to the
-	// report. Suppressing the report only, never the group entry: those
-	// Supported: false entries take part in the variant grouping that decides whether
-	// a whole variant set is emitted live or commented, so dropping one can flip a
-	// real registration.
+	// Flavour auras carry no mechanic worth implementing. Suppressing the report only, never the group
+	// entry: those Supported: false entries take part in the variant grouping, so dropping one can flip
+	// a real registration.
 	if _, ignored := IgnoreMissingEffectBySpellID[int(itemEffect.BuffId)]; ignored {
 		return
 	}
@@ -2848,12 +2826,11 @@ func ParseTooltipForMissingEffect(parsed *proto.UIItem, itemEffect *proto.ItemEf
 }
 
 // A critical strike named as the trigger. The first clause reads the wording that puts something
-// after the crit ("critical strikes have a", "critical hits grant"), which is why the character
-// after it may not open "by", "for" or "chance" - those three are how a tooltip states a magnitude
-// instead. The second reads the trigger stated from the caster's side, "your critical strikes",
-// where the plural is what separates it from the magnitudes: those all read "critical strike
-// chance", "critical strike damage" or "critical strike rating", in the singular. Some tooltips
-// capitalize the term ("Your Critical Strikes with direct damage spells").
+// after the crit ("critical strikes have a"), which is why the character after it may not open "by",
+// "for" or "chance": those three are how a tooltip states a magnitude instead. The second reads the
+// trigger stated from the caster's side, "your critical strikes", where the plural is what separates
+// it from the magnitudes: those all read "critical strike chance", "critical strike damage" or
+// "critical strike rating", in the singular. Some tooltips capitalize the term.
 var critMatcher = regexp.MustCompile(`critical ([^\s]+|damage,?)( chance)? [^fbc]|[Yy]our [a-z ]{0,20}[Cc]ritical [Ss]trikes`)
 var pureHealMatcher = regexp.MustCompile(`healing spells`)
 
@@ -2872,14 +2849,15 @@ var hasGenericMatcher = regexp.MustCompile(`a spell`)
 var outcomeConditionMatcher = regexp.MustCompile(`(?i)when .{0,60}?(is|are) resisted|((each|every) time|when|whenever) you (dodge|parry)|after a (dodge|parry)`)
 
 // The wearer blocking, named as the trigger: "every time you block", "after a block" on the
-// Battlegear of Wrath parry (23548) and "Chance on block" on Krol'dok Resolve (1324298). The decoder gives the listener the block off the row, while a
-// dodge or a parry taken stays the caller's, so the block is its own hint. A clause naming a dodge or
-// a parry beside the block would read as the block alone; no row words one that way.
+// Battlegear of Wrath parry (23548) and "Chance on block" on Krol'dok Resolve (1324298). The decoder
+// gives the listener the block off the row, while a dodge or a parry taken stays the caller's, so the
+// block is its own hint. A clause naming a dodge or a parry beside the block would read as the block
+// alone; no row words one that way.
 var blockConditionMatcher = regexp.MustCompile(`(?i)((each|every) time|when|whenever) you block|after a block|\bon (a )?block\b`)
 
 // The wearer's own attack dodged or parried, named as the trigger: Recovery's "when you are Parried
-// or Dodged". The same words also state a magnitude - "reduces the chance for your attacks to be
-// dodged or parried" - so only the condition clause counts.
+// or Dodged". The same words also state a magnitude ("reduces the chance for your attacks to be
+// dodged or parried"), so only the condition clause counts.
 var attackAvoidedMatcher = regexp.MustCompile(`(?i)((each|every) time|when|whenever) (you are|your (melee )?attacks? (is|are)) (dodged|parried)((,? or|,) (dodged|parried))*`)
 var attackDodgedMatcher = regexp.MustCompile(`(?i)dodged`)
 var attackParriedMatcher = regexp.MustCompile(`(?i)parried`)
@@ -2909,8 +2887,8 @@ var statedChanceMatcher = regexp.MustCompile(`(?i)chance (to|of|when|on)|has a c
 var procTriggerClauseMatcher = regexp.MustCompile(`(?i)melee|ranged|attack|swing|strike|cast|spell|whenever|each time|on hit|block|weapon|damage\b`)
 
 // A chance that is the magnitude rather than the rate: "increases the critical effect chance of your
-// Lesser Healing Wave", "grants increased chance to Block", "Chance to trigger Overload increased by
-// an additional 5%". The word the effect modifies sits within a clause of the chance either way.
+// Lesser Healing Wave", "Chance to trigger Overload increased by an additional 5%". The word the
+// effect modifies sits within a clause of the chance either way.
 var increasedChanceMatcher = regexp.MustCompile(`(?i)increase[sd]?[^.]{0,40}?chance|chance[^.]{0,30}?increase[sd]?`)
 
 // "Has a chance" states the rate even in a sentence that also states a magnitude: Argent Defender's
@@ -2948,14 +2926,11 @@ func tooltipStatesAnUnknownRate(description string) bool {
 // "each time you cast a spell", "chance on successful spellcast", "chance on spell cast".
 var castTriggerMatcher = regexp.MustCompile(`(?i)you cast|on spell ?cast|spellcast`)
 
-// A trigger clause restricted to one named ability: "Your Shock spells", "Your Moonfire ability",
-// "Your casts of Greater Heal", "Your Shadow Bolt has", "When you cast Flash of Light". The capital
-// is what carries the meaning - an unrestricted trigger reads "your spell critical strikes" or
-// "each time you cast a spell", with nothing capitalized to name.
-// The game files write a conditional list where the item shows one name - Eternal Power's "Your casts
-// of $?s2060[Greater Heal]..." - so the "casts of" clause reads the possessive alone and leaves what
-// follows to the tooltip renderer. The other two clauses need the capital: "when you cast a spell"
-// and "your melee attacks have" name no ability.
+// A trigger clause restricted to one named ability: "Your Moonfire ability", "Your casts of Greater
+// Heal", "When you cast Flash of Light". The game files write a conditional list where the item shows
+// one name (Eternal Power's "Your casts of $?s2060[Greater Heal]..."), so the "casts of" clause reads
+// the possessive alone and leaves what follows to the tooltip renderer. The other two clauses need the
+// capital: "when you cast a spell" and "your melee attacks have" name no ability.
 var namedAbilityMatcher = regexp.MustCompile(`[Yy]our [A-Z][A-Za-z']*( [A-Z][A-Za-z']*)* (spell|spells|ability|abilities|has|have)` +
 	`|[Yy]our casts of` +
 	`|[Ww]hen you cast [A-Z]`)
@@ -3095,26 +3070,25 @@ func buildSpellProcInfo(procSpell *dbc.Spell, tooltip string, itemType proto.Ite
 	// A spell-family filter the generated proc cannot reproduce. Two sources of evidence for the
 	// same thing: the spell names a family in SpellClassMask, or its tooltip names one. On item
 	// procs TBC stores the mask as either nil or all-zero and keeps the real filter server-side,
-	// so for those the tooltip is the only evidence there is - "Your Shock spells", "Your Moonfire
-	// ability". Generating one anyway would proc it off every spell instead of that one.
+	// so for those the tooltip is the only evidence there is. Generating one anyway would proc it off
+	// every spell instead of that one.
 	if slices.ContainsFunc(procSpell.SpellClassMask, func(mask int) bool { return mask != 0 }) ||
 		namedAbilityMatcher.MatchString(tooltip) {
 		return info, false
 	}
 
-	// An outcome the game files do not record. ProcTypeMask has no dodge, parry, block or resist bit -
-	// TrinityCore keeps those in a HitMask of its own - so a tooltip stating one as the trigger
-	// condition is the only evidence there is. Eye of Magtheridon fires on a resisted spell, and
-	// without this it generates as a 100%-per-cast buff. Crit is deliberately not in here: it is the
-	// one outcome the generated shape can express, and critMatcher below assigns it.
+	// An outcome the game files do not record. ProcTypeMask has no dodge, parry, block or resist bit,
+	// so a tooltip stating one as the trigger condition is the only evidence there is. Eye of
+	// Magtheridon fires on a resisted spell, and without this it generates as a 100%-per-cast buff.
+	// Crit is deliberately not in here: it is the one outcome the generated shape can express, and
+	// critMatcher below assigns it.
 	if outcomeConditionMatcher.MatchString(tooltip) || blockConditionMatcher.MatchString(tooltip) {
 		return info, false
 	}
 
 	// A buff the game spends by charges rather than by time: World Breaker's 900 crit rating is
 	// consumed by the next two melee hits, which is ProcCharges 2 on 36111. The generated shape
-	// knows only durations, so it would hold the buff for the whole window instead. On-use effects
-	// are unaffected - their charges are uses of the item, and they do not come through here.
+	// knows only durations, so it would hold the buff for the whole window instead.
 	if procSpell.ProcCharges > 0 {
 		return info, false
 	}
@@ -3163,11 +3137,7 @@ func buildSpellProcInfo(procSpell *dbc.Spell, tooltip string, itemType proto.Ite
 	}
 
 	// A trigger with no callback never fires, and factory_ProcStatBonusEffect returns early on
-	// exactly that, so such an effect cannot be generated. The test used to also require an
-	// empty Outcome and ProcMask, which it can never have: when requiresOutcome is true the
-	// Outcome is set a few lines up, and when it is false the whole term is false, so nothing
-	// was ever refused here and empty-callback effects were emitted as live registrations that
-	// silently did nothing.
+	// exactly that, so such an effect cannot be generated.
 	return info, info.Callback != core.CallbackEmpty
 }
 

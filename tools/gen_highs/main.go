@@ -4,11 +4,9 @@
 // ui/worker/highs_names_gen.go, which maps emscripten's symbolic import/export names to the
 // single-letter names the wasm actually uses.
 //
-// That map is why this tool exists. The npm package is built with
-// -sMINIFY_WASM_IMPORTS_AND_EXPORTS, so highs.wasm imports "a"."f" and exports "y" rather than
-// __syscall_openat and _Highs_run. Which letter means what changes with every upstream build, so
-// the Go wazero host (sim/core/reforge_optimizer/highswasm.go) cannot hardcode them; it looks
-// them up by symbolic name through the generated map instead.
+// The npm package is built with -sMINIFY_WASM_IMPORTS_AND_EXPORTS, so highs.wasm imports
+// "a"."f" and exports "y" rather than __syscall_openat and _Highs_run. Which letter means what
+// changes with every upstream build.
 //
 // Run via `make update-highs` after changing the pinned `highs` version in package.json.
 package main
@@ -140,7 +138,7 @@ var (
 	assignExportsPattern = regexp.MustCompile(`function assignWasmExports\([^)]*\)\s*\{([^}]*)\}`)
 	// _Highs_run=Module["_Highs_run"]=wasmExports["y"] — the leading identifier is the symbol.
 	exportStatementPattern = regexp.MustCompile(`^([A-Za-z_$][\w$]*)\s*=.*wasmExports\["([^"]+)"\]$`)
-	// initRuntime(){...;wasmExports["v"]();...} — the __wasm_call_ctors export, which
+	// initRuntime(){...;wasmExports["v"]();...}: the __wasm_call_ctors export, which
 	// assignWasmExports does not list.
 	callCtorsPattern = regexp.MustCompile(`function initRuntime\(\)\s*\{[^}]*?wasmExports\["([^"]+)"\]\(\)`)
 )

@@ -17,12 +17,9 @@ import (
 // 32, optionally followed by a description.
 const defaultKeyFileURL = "https://raw.githubusercontent.com/wowdev/TACTKeys/master/WoW.txt"
 
-// KeyStore holds TACT keys by their 64-bit lookup name — the value a BLTE
+// KeyStore holds TACT keys by their 64-bit lookup name, the value a BLTE
 // 'E' chunk and a WDC5 section header both carry to say which key they
-// need. Keys reach it from three places: the game files' own TactKey.db2,
-// TACTKEY hotfix records the server pushed into DBCache.bin, and the
-// community list. It also remembers every name a chunk asked for and did
-// not find, so the extractor can say what is still locked.
+// need. It also remembers every name a chunk asked for and did not find.
 type KeyStore struct {
 	keys    map[uint64][16]byte
 	mu      sync.Mutex // Guards missing, which decryption writes while several files may be opening at once.

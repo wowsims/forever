@@ -10,9 +10,8 @@ import (
 	"strings"
 )
 
-// ListfilePath is where tools/db2tool caches the community listfile. It maps
-// file data ids to game paths and is a second output contract of the extractor,
-// alongside wowsims.db.
+// Where tools/db2tool caches the community listfile. It maps file data ids to
+// game paths and is a second output contract of the extractor, alongside wowsims.db.
 const ListfilePath = "./tools/db2tool/listfile.csv"
 
 func LoadArtTexturePaths(filePath string) (map[int]string, error) {

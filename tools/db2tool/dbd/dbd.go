@@ -130,7 +130,7 @@ func ReadFile(path string, validate bool) (DBDefinition, error) {
 	return def, nil
 }
 
-// Read parses a .dbd definition stream. It is a line-for-line transcription
+// Parses a .dbd definition stream. It is a line-for-line transcription
 // of the upstream reader (deliberately faithful even where behavior is
 // quirky).
 func Read(r io.Reader, validate bool) (DBDefinition, error) {
@@ -392,8 +392,8 @@ func Read(r io.Reader, validate bool) (DBDefinition, error) {
 	}, nil
 }
 
-// runValidation is the optional validation pass: warnings go to stderr, hard
-// violations become errors. It also removes column definitions never used by
+// The optional validation pass: warnings go to stderr, hard violations become
+// errors. It also removes column definitions never used by
 // any version block, as upstream does.
 func runValidation(columnDefinitions map[string]ColumnDefinition, versionDefinitions []VersionDefinitions) error {
 	for name := range columnDefinitions {
@@ -487,7 +487,7 @@ func runValidation(columnDefinitions map[string]ColumnDefinition, versionDefinit
 	return nil
 }
 
-// readLines splits raw file bytes into lines: \r\n, \r, and \n all terminate
+// Splits raw file bytes into lines: \r\n, \r, and \n all terminate
 // a line, a terminator at EOF does not produce a trailing empty line, and a
 // leading UTF-8 BOM is stripped.
 func readLines(raw []byte) []string {

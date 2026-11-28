@@ -5,10 +5,7 @@ import (
 	"testing"
 )
 
-// A .dbd covering every construct the 72 configured tables actually use:
-// plain/foreign-key/unverified columns, all five types, $id$ / $noninline,id$ /
-// $relation$ annotations, signed and unsigned <size> suffixes, [n] arrays,
-// LAYOUT + single builds + a build range, and a COMMENT.
+// A .dbd covering every construct the 72 configured tables actually use.
 const sampleDBD = `COLUMNS
 int ID
 int<Item::ID> ItemID

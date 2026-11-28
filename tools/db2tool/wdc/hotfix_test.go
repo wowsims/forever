@@ -11,9 +11,7 @@ import (
 )
 
 // The two table hashes ApplyHotfixes special-cases are known constants, so they
-// pin the SStrHash port without needing any game files data. A DBCache record is
-// matched to a table by comparing this hash against the WDC5 header's
-// TableHash, so a wrong hash silently drops every hotfix for a table.
+// pin the SStrHash port without needing any game files data.
 func TestSStrHashKnownTableHashes(t *testing.T) {
 	cases := map[string]uint32{
 		"TACTKEY":       0xDF2F53CF,
@@ -290,10 +288,8 @@ func TestApplyHotfixesCarryGuard(t *testing.T) {
 	}
 }
 
-// The WoW install is often reached through a symlink (the checked-in BaseDir
-// pointing into a wine prefix). WalkDir does not descend into a symlinked
-// root, so without resolving it first the scan finds nothing and the run is
-// silently hotfix-free.
+// WalkDir does not descend into a symlinked root, so without resolving it
+// first the scan finds nothing.
 func TestLoadHotfixCachesFollowsSymlinkedRoots(t *testing.T) {
 	dir := t.TempDir()
 	install := filepath.Join(dir, "install")

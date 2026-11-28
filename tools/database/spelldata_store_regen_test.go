@@ -5,10 +5,9 @@ package database
 // hand-edited or stale store fails here. No game files database and no build tag: this is the one gate
 // over the store that CI can run, since tools/database/wowsims.db is gitignored.
 //
-// It re-runs everything the generator derives - the closure over triggers, overrides and tooltip
-// references, the hand links, the talent curves, the tooltip hints, the overrides and the emitter -
-// against rows it did not derive. A change to any of those fails until the store is regenerated with
-// `go run ./tools/database/gen_spelldata`, which rewrites both files together.
+// It re-runs everything the generator derives against rows it did not derive. A change to any of
+// those fails until the store is regenerated with `go run ./tools/database/gen_spelldata`, which
+// rewrites both files together.
 
 import (
 	"bufio"
@@ -20,8 +19,7 @@ import (
 	"testing"
 )
 
-// The generator reads its paths from the repository root - the captured inputs, and the proc audit's
-// list beside this file - and a test runs in its own package's directory.
+// The generator reads its paths from the repository root, and a test runs in its own package's directory.
 const repositoryRoot = "../.."
 
 func TestStoreRegeneratesFromTheCommittedInputs(t *testing.T) {

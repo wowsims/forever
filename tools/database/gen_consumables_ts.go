@@ -32,8 +32,8 @@ func consumableTSName(name string) string {
 	return out.String()
 }
 
-// Writes one named export per consumable db.json ships, carrying its item id, which the presets name
-// consumables by. Names shared by several items all take their item id.
+// Writes one named export per consumable db.json ships, carrying its item id. Names shared by
+// several items all take their item id.
 func GenerateConsumablesTSFile(db *WowDatabase) error {
 	ids := slices.Sorted(maps.Keys(db.Consumables))
 

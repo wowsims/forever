@@ -11,13 +11,9 @@ import (
 )
 
 // Walks the chain of spells reachable through SpellEffect.EffectTriggerSpell, visiting each
-// spell at most once.
-//
-// The traversal policy differs per caller - some examine a whole level before descending, some
-// interleave, some fall back to siblings - so each keeps its own recursion. What they share, and
-// what used to be re-implemented per caller, is this: proc chains can loop back on themselves,
-// and the effects of a spell have to be read in index order or any traversal that stops at the
-// first match becomes non-deterministic across runs.
+// spell at most once, since proc chains can loop back on themselves. The effects of a spell have to
+// be read in index order or any traversal that stops at the first match becomes non-deterministic
+// across runs.
 type chainWalker struct {
 	visited map[int]bool
 }
@@ -27,8 +23,7 @@ func newChainWalker() *chainWalker {
 }
 
 // Returns spellID's effects in index order the first time spellID is reached, and nil on every
-// later visit so a cyclic chain terminates. Callers treat that the same way they treat a spell
-// with no effects.
+// later visit so a cyclic chain terminates.
 func (w *chainWalker) effects(spellID int) []SpellEffect {
 	if w.visited[spellID] {
 		return nil
@@ -37,11 +32,9 @@ func (w *chainWalker) effects(spellID int) []SpellEffect {
 	return dbcInstance.SpellEffectsInOrder(spellID)
 }
 
-// A container aura and the stat aura it accumulates, with what makes a stack land.
-//
-// The stat aura is itself a proto.ItemEffect: it has a buff, a duration, a stack cap and scaled
-// stats, which is exactly that shape. The container is reported separately because the window's
-// duration and its proc flags belong to it rather than to the stat aura.
+// A container aura and the stat aura it accumulates, with what makes a stack land. The container is
+// reported separately because the window's duration and its proc flags belong to it rather than to
+// the stat aura.
 type stackingAura struct {
 	Aura        *proto.ItemEffect
 	ContainerID int
@@ -53,22 +46,18 @@ type stackingAura struct {
 
 // Resolves the stacking shape reachable from an item effect's spell, or nil when there is none.
 //
-// For example: Blackened Naaru Sliver is the canonical case: the item's effect triggers 45040 Battle Trance,
-// a 20s aura that grants nothing, which in turn triggers 45041 Combat Insight - 10 stacks of
-// attack power with no duration of its own, because in game it drops when the window ends.
-// resolveStatsSpell walks straight past the container to reach the stats, so the container has
-// to be recovered by walking the chain a second time.
+// Blackened Naaru Sliver is the canonical case: the item's effect triggers a 20s aura that grants
+// nothing, which in turn triggers 10 stacks of attack power with no duration of its own, because in
+// game it drops when the window ends. resolveStatsSpell walks straight past the container to reach
+// the stats, so the container has to be recovered by walking the chain a second time.
 func buildStackingAura(rootSpellID, statsSpellID, itemLevel int) *stackingAura {
 	containerID := newChainWalker().findStackingContainer(rootSpellID, statsSpellID)
 	if containerID == 0 {
 		return nil
 	}
 
-	// The aura the edge leads to is not always the one holding the stats.
-	//
-	// For Example: Zandalarian Hero Badge triggers a script marker with no effects at all and
-	// name the real aura only in the container's description text, so fall back to that
-	// when the edge resolves nothing worth having.
+	// The aura the edge leads to is not always the one holding the stats: Zandalarian Hero Badge
+	// names the real aura only in the container's description text.
 	statAuraID := statsSpellID
 	if len(collectStats(statAuraID, itemLevel).ToProtoMap()) == 0 {
 		if referenced := referencedStatAura(containerID, itemLevel); referenced != 0 {
@@ -78,25 +67,19 @@ func buildStackingAura(rootSpellID, statsSpellID, itemLevel int) *stackingAura {
 
 	statAura := dbcInstance.Spells[statAuraID]
 	if statAura.MaxCumulativeStacks < 2 {
-		// One stack is not a stacking trinket. Syphon of the Nathrezim reaches here with a leech
-		// effect that happens to sit behind a window aura.
+		// One stack is not a stacking trinket.
 		return nil
 	}
 
-	// Petrified Scarab is the case that ends here: its container triggers a script marker with no
-	// effects and writes its numbers into the tooltip as literals, so nothing in the data names
-	// the aura that actually carries the stats. Returning nil leaves the effect with no stats,
-	// which sends it to the missing-effects report to be implemented by hand rather than guessed
-	// at.
+	// Petrified Scarab ends here: nothing in the data names the aura that actually carries the stats,
+	// and nil sends the effect to the missing-effects report to be implemented by hand.
 	if len(collectStats(statAuraID, itemLevel).ToProtoMap()) == 0 {
 		return nil
 	}
 
-	// A container with ProcChance above 100 is the "rate lives somewhere else" sentinel - Badge of
-	// the Swarmguard reads 101 and really procs at 10 PPM. That number is not in the spell data, so
-	// it comes from the hand-supplied rates the spell store reads, keyed by the container's own
-	// spell. With no rate there the stack trigger would have none at all - worse than not generating
-	// it, so abandon and let the effect reach the missing-effects report.
+	// A container with ProcChance above 100 is the "rate lives somewhere else" sentinel: the rate
+	// comes from the hand-supplied rates keyed by the container's own spell, and with none there the
+	// effect goes to the missing-effects report.
 	container := dbcInstance.Spells[containerID]
 	proc := &proto.ProcEffect{IcdMs: procIcdMs(container, dbcInstance.Spells[statAuraID])}
 	switch {
@@ -128,23 +111,17 @@ func buildStackingAura(rootSpellID, statsSpellID, itemLevel int) *stackingAura {
 // ID, which keeps the plain $s1 / $t1 / $d tokens out.
 var descriptionSpellRef = regexp.MustCompile(`\$(\d{4,7})[a-zA-Z]`)
 
-// Trinkets that start full and lose a stack per event say so in prose and nowhere else - the
+// Trinkets that start full and lose a stack per event say so in prose and nowhere else: the
 // decrement is server script, with no effect or flag behind it.
 var stacksDecay = regexp.MustCompile(`(?i)(bonus|this) is reduced by`)
 
-// Resolves the stat aura a container names only in its description text.
-//
-// Returns 0 when the description references nothing that resolves to stats, which is the
-// overwhelming majority. A description can mention spells for all sorts of reasons, so the one
-// that actually carries stats is the one being looked for.
+// Resolves the stat aura a container names only in its description text, or 0 when the description
+// references nothing that resolves to stats.
 func referencedStatAura(containerSpellID int, itemLevel int) int {
 	// Mining the English description is the only link there is, so an ambiguous one has to be
-	// visible rather than silently resolved by ordering: a reworded or hotfixed description that
-	// happens to name another stat-resolving spell first would otherwise write the wrong buff ID
-	// and the wrong stats into the database with no diagnostic at all.
+	// visible rather than silently resolved by ordering.
 	chosen := 0
-	// Counted per distinct spell: one aura referenced as both $24575m1 and $24575m2 is one
-	// candidate, not two.
+	// Counted per distinct spell: one aura referenced as both $24575m1 and $24575m2 is one candidate.
 	resolved := map[int]bool{}
 
 	for _, match := range descriptionSpellRef.FindAllStringSubmatch(dbcInstance.Spells[containerSpellID].Description, -1) {

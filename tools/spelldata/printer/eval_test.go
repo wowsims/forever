@@ -14,8 +14,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The ladder a class file states under `<package>/<field>`, built the way the printer builds it, so
-// an expected value is read off the same rank the printer reads.
+// The ladder a class file states under `<package>/<field>`, built the way the printer builds it.
 func ladderOf(t *testing.T, key string) spelldata.Ladder {
 	t.Helper()
 	family := ladderFamilies()[key]
@@ -145,8 +144,7 @@ func TestExprValue(t *testing.T) {
 	}
 }
 
-// The accessors that read something off the effect the chain stopped on, which is what a reader holding
-// an effect wants next.
+// The accessors that read something off the effect the chain stopped on.
 func TestExprEffectAccessors(t *testing.T) {
 	got := evalJSON(t, "spellData.Execute.Highest().EffectN(1)")
 

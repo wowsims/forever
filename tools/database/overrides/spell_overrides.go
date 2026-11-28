@@ -1,7 +1,6 @@
 // Package overrides holds the numbers the spelldata store carries that the game files do
 // not state. Each row names the spell, the field, the value and where the value comes from, and the
-// generator refuses to run when the game files start stating one themselves - a value kept by hand
-// after the data grew a column for it is a wrong number nobody would notice.
+// generator refuses to run when the game files start stating one themselves.
 //
 // A leaf package on purpose: tools/database imports it, it imports nothing back, and the folder it
 // shares with the SQL overrides is read for *.sql alone.
@@ -200,8 +199,7 @@ var AreaBonuses = []AreaBonus{
 }
 
 // A factor a row deals, restores or procs against some targets, which only its tooltip names ("Deals
-// $s2 times as much damage to Plants", "Attacks against Dwarves are $s2 times as likely to activate
-// this effect"). A target of any of the mob types or families counts.
+// $s2 times as much damage to Plants"). A target of any of the mob types or families counts.
 type VersusBonus struct {
 	SpellID     int32
 	EffectIndex uint8   // The effect whose base points are the factor: the tooltip's $s<index+1>.
@@ -454,8 +452,7 @@ var VersusBonuses = []VersusBonus{
 // The procs whose rate the game files keep outside the spell data and that belong to the spell
 // rather than to one weapon: a chance-on-hit weapon's rate is its own and lives in WeaponProcs. The
 // ProcChance column reads the 100 or 101 sentinel, which the store would otherwise take for "fires
-// on every hit", or the spell has no proc row at all. Each row's Source says where its number came
-// from.
+// on every hit", or the spell has no proc row at all.
 var Spells = []Override{
 	{
 		SpellID: 23686,
@@ -543,7 +540,6 @@ var Spells = []Override{
 	},
 
 	// Seal of Light procs 15 a minute and Judgement of Light rolls a flat 50% (EV-0017, EV-0018, EV-0212).
-	// Neither fires on a dodge, a parry or a miss.
 	{
 		SpellID: 20165,
 		Field:   PPM,
@@ -572,8 +568,7 @@ var Spells = []Override{
 		Reason:  "Seal of Light Rank 4: the measured rate, not a per-swing share of 15 per minute",
 		Source:  "EV-0212",
 	},
-	// Seal of Wisdom procs at Seal of Light's rate on every rank; for Rank 2 the pooled reports fit 15
-	// (EV-0018, EV-0212).
+	// Seal of Wisdom procs at Seal of Light's rate on every rank (EV-0018, EV-0212).
 	{
 		SpellID: 20166,
 		Field:   PPM,
@@ -658,8 +653,8 @@ var Spells = []Override{
 		Reason:  "Zealot Plate: 5% on each landed melee swing taken outside the 15 s cooldown; column reads 100, tooltip says 'When struck in combat, has a chance'",
 		Source:  "EV-0115",
 	},
-	// Fitted from logs on landed melee hits taken that deal damage; the owner rules 0.5 from the pooled
-	// fit (EV-0126). The "observed" Source keeps the gear tab's notice up until more wearers validate it.
+	// The owner rules 0.5 from the pooled fit (EV-0126). The "observed" Source keeps the gear tab's notice
+	// up until more wearers validate it.
 	{
 		SpellID: 17350,
 		Field:   PPM,
@@ -668,9 +663,8 @@ var Spells = []Override{
 		Source:  "observed",
 	},
 
-	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 1 to 6 and Thunder Clap
-	// Ranks 1 to 6 were measured; Rend Rank 7 carries the same share until a log at its level says
-	// otherwise (EV-0019, EV-0048, EV-0203).
+	// Attack Power shares measured against the sheet's Attack Power (EV-0019, EV-0048, EV-0203). Rend
+	// Rank 7 carries the same share until a log at its level says otherwise.
 	{
 		SpellID: 772,
 		Field:   APCoefPeriodic,
@@ -1079,7 +1073,7 @@ var Spells = []Override{
 	},
 
 	// Revenge's Attack Power share, the $APR its tooltip states: 0.225 in Defensive Stance is the stance's
-	// own 10%, which stays out of these values. Ranks 1 to 5 fit 0.25 in later logs (EV-0048, EV-0203); logs on Ranks 1
+	// own 10%, which stays out of these values. Ranks 1 to 5 fit 0.25 (EV-0048, EV-0203); logs on Ranks 1
 	// and 2 taken before that tooltip fit 0.28 (EV-0049).
 	{
 		SpellID: 6572,
@@ -1163,8 +1157,7 @@ var Spells = []Override{
 	},
 
 	// Heroic Strike and Cleave add flat threat beyond their damage, and none with Attack Power (EV-0042).
-	// The bonus is multiplied by the stance with the damage, and Cleave splits it between the targets it
-	// hits. Heroic Strike Ranks 1 to 4's measured bonuses fit no single share per spell level (EV-0043);
+	// Heroic Strike Ranks 1 to 4's measured bonuses fit no single share per spell level (EV-0043);
 	// Ranks 5 and 6 measure Rank 4's 2.5 a level (EV-0048, EV-0174), Rank 8 measures 145 (EV-0050), and
 	// Ranks 7 and 9 carry 2.5 a level. Cleave's measured Ranks 1 and 2 fit 1.5 a level (EV-0042,
 	// EV-0045), and Ranks 3, 4 and 5 measure 62, 80 and 100 (EV-0050). Each rank's bonus is a whole

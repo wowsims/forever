@@ -5,8 +5,7 @@
 // The writer uses zombiezen.com/go/sqlite (the same pure-Go modernc engine
 // gen_db reads with, minus database/sql) because its prepared statements are
 // persistent: the modernc database/sql driver re-parses the SQL text on every
-// Exec, which made the wide per-row upserts dominate the whole extraction
-// (~40s of a ~42s run; prepare-once brings that to ~7s).
+// Exec.
 package sqlite
 
 import (
@@ -19,19 +18,17 @@ import (
 	"zombiezen.com/go/sqlite/sqlitex"
 )
 
-// TableDef pairs a table name with its parsed definition and the version
-// block selected for the current build (the caller selects once and both
-// schema and inserts use the same block).
+// Pairs a table name with its parsed definition and the version block
+// selected for the current build.
 type TableDef struct {
 	Name    string
 	Def     dbd.DBDefinition
 	Version dbd.VersionDefinitions
 }
 
-// Open deletes any pre-existing database file — every run starts from an
-// empty file, which is what makes post-patch re-runs and db/ptrdb
-// alternation correct — and opens a fresh connection with
-// PRAGMA foreign_keys = ON.
+// Deletes any pre-existing database file (every run starts from an empty
+// file, which is what makes post-patch re-runs and db/ptrdb alternation
+// correct) and opens a fresh connection with PRAGMA foreign_keys = ON.
 //
 // The journal and sync pragmas trade durability for speed: the file is a
 // regenerated build artifact, so a run that dies mid-write is repaired by the
@@ -59,8 +56,7 @@ func Open(path string) (*sqlite.Conn, error) {
 	return conn, nil
 }
 
-// CreateTables emits the schema for every table, in order, inside one
-// transaction.
+// Emits the schema for every table, in order, inside one transaction.
 func CreateTables(conn *sqlite.Conn, tables []TableDef) (err error) {
 	endFn, err := sqlitex.ImmediateTransaction(conn)
 	if err != nil {

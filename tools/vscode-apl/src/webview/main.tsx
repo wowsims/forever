@@ -151,8 +151,7 @@ function SimDetails() {
 	);
 }
 
-// The lint findings for the file, which rows show as markers: all of them, and those under each path, its own and
-// those of anything nested in it.
+// The lint findings for the file: all of them, and those under each path, its own and those of anything nested in it.
 interface Findings {
 	all: Finding[];
 	under: Map<string, Finding[]>;
@@ -757,7 +756,6 @@ function App({ db, fileName, rotation, readOnly, cursor, send }: AppProps) {
 	const variables = useMemo(() => (Array.isArray(rotation.valueVariables) ? rotation.valueVariables : []), [rotation]);
 
 	// Every edit of the panel: open rows follow it, and it is made on the panel's rotation and sent to the extension.
-	// Nothing is sent while the panel is read-only.
 	const edit = useCallback(
 		(...edits: AplEdit[]) => {
 			if (readOnly || edits.length === 0) return false;

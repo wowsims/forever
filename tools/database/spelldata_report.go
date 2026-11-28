@@ -10,11 +10,8 @@ import (
 
 // What a run changes against the committed inputs, one block per spell data group it takes: the game
 // build it moves from and to, the counts, and every spell added, changed or removed, a changed one with
-// the tables whose rows differ. A full regeneration takes every group, so it reports every group.
-//
-// A row belongs to the group that places it: its racials tag or class family, else the first taken group
-// that reaches it. A changed row that a group the run does not take also reaches is printed as a shared
-// row, since that group's code reads the new row too.
+// the tables whose rows differ. A changed row that a group the run does not take also reaches is printed
+// as a shared row, since that group's code reads the new row too.
 func changeReport(old, fresh *storeInputs, only SpellDataGroups, version string) []string {
 	if old.SpellDataGroupRoots == nil {
 		adopted, _, err := adoptSpellDataGroups(old, fresh)

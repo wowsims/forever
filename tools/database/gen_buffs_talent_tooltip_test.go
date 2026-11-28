@@ -18,8 +18,7 @@ func TestTalentPricedByItsTooltip(t *testing.T) {
 	t.Fatal("no vindication row")
 }
 
-// Dark Inspiration's own tooltip shows its talent's amount, which the buff's row states at full rank:
-// each rank is its share of the node's ranks.
+// Dark Inspiration's own tooltip shows its talent's amount: each rank is its share of the node's ranks.
 func TestTalentPricedByTheBuffsTooltip(t *testing.T) {
 	for _, row := range resolveCommittedBuffs(t) {
 		if row.Field != "dark_inspiration" {

@@ -2,8 +2,7 @@ package database
 
 // Resolves tools/database/buffmanifest against the spell store's captured game files
 // rows and renders sim/core/buffs/buffs_auto_gen.go and
-// sim/core/buffs/debuffs_auto_gen.go from the result, in the same pass that
-// renders the store.
+// sim/core/buffs/debuffs_auto_gen.go from the result.
 //
 // The manifest names the spell each proto field reads, and the generated file
 // states it as a buffs.Meta: which of its effects are which stats, what they are
@@ -49,8 +48,7 @@ type ResolvedBuff struct {
 	Kind buffmanifest.BuffKind
 
 	// Name is the game files' name for the spell the player learns, and AuraName the aura's where the
-	// manifest names a cast beside it. Both are "" for a spell no class family files, which is also
-	// when Owner is the manifest's rather than the family's.
+	// manifest names a cast beside it. Both are "" for a spell no class family files.
 	Name     string
 	AuraName string
 	Owner    proto.Class
@@ -61,8 +59,7 @@ type ResolvedBuff struct {
 	CooldownMs  int32 // 0 when the game files state none; read from the cast
 	Totem       bool  // the cast summons into a totem slot, so the owner's true pets stand under it too
 
-	// Spell is the row the store carries for SpellID, built from the same
-	// captured game files rows the store is rendered from.
+	// The row the store carries for SpellID.
 	Spell *spelldata.Spell
 	// ScopeSpell is the row whose targeting states who the aura reaches: Spell, or the group spell a
 	// raid input stands for.
@@ -87,15 +84,13 @@ type ResolvedBuff struct {
 	TalentRanks          int32
 	TalentScalesDuration bool
 
-	// TalentSpellID is the spell of the trait node that prices the improvement,
-	// which is the icon the UI shows for the improved state. TalentPosition is
+	// The spell of the trait node that prices the improvement. TalentPosition is
 	// the effect of that spell the improvement is read from, counted the way
 	// EffectN counts.
 	TalentSpellID  int32
 	TalentPosition int32
-	// TalentDivisor prices a row whose talent states its effect only in its tooltip, as
-	// ${$m1/-N*$<SpellID>m1}: rank m1 of N is worth m1/N of every amount the spell attaches. A row
-	// whose own tooltip shows the talent's $<Talent>s1 takes the node's ranks as N. 0 for a talent
+	// Prices a row whose talent states its effect only in its tooltip, as ${$m1/-N*$<SpellID>m1}. A
+	// row whose own tooltip shows the talent's $<Talent>s1 takes the node's ranks as N. 0 for a talent
 	// priced by a spell modifier.
 	TalentDivisor int32
 
@@ -183,7 +178,7 @@ func resolveBuff(t *spellTables, nodes []traitNode, spec buffmanifest.Row) (Reso
 // The spell's name, its row and duration, and the cooldown of a buff other
 // players cast on their own: the shared timer the sim hands the next source is
 // the cast's cooldown, and a totem's aura states neither how long the totem
-// stands nor when the next one may be dropped. Mana Tide is that row - 1325257
+// stands nor when the next one may be dropped. Mana Tide is that row: 1325257
 // carries the mana, the cast 1325256 the 13 seconds and the 5 minutes.
 func loadBuffSpell(t *spellTables, row *ResolvedBuff) error {
 	if row.SpellID = row.BuffSpec.SpellID; row.SpellID == 0 {
@@ -291,10 +286,8 @@ func nameBuff(t *spellTables, row *ResolvedBuff) error {
 // behaviour is a driver's is written whatever the parse attaches, a damage
 // shield needs its shield, and every other kind needs an amount.
 func parseBuff(row *ResolvedBuff) {
-	// The value a debuff states per combo point is 0 on the spell itself. The
-	// raid config is one debuff that is simply on the target, which is the
-	// finisher at full combo points; a caster spending fewer of them takes its
-	// own value through a driver.
+	// The value a debuff states per combo point is 0 on the spell itself. The raid config is the
+	// finisher at full combo points; a caster spending fewer of them takes its own value through a driver.
 	if row.Scope == buffmanifest.ScopeDebuff {
 		row.FullComboPoints = slices.ContainsFunc(row.Spell.Effects, func(e spelldata.Effect) bool {
 			return e.PointsPerResource != 0 && e.Average() == 0
@@ -302,8 +295,7 @@ func parseBuff(row *ResolvedBuff) {
 	}
 
 	// An aura the row states at 0 beside the buff attaches nothing but an
-	// aura, so the parse leaves it out: the healing-taken row every paladin
-	// aura carries is one.
+	// aura, so the parse leaves it out.
 	for _, applied := range spelldata.DryRun(row.Spell, row.parseOptions()...).Applied {
 		e := applied.Effect
 		if e.BasePoints == 0 && e.PointsPerResource == 0 && !slices.Contains(row.SkipAuraTypes, e.Aura) {
@@ -502,8 +494,8 @@ var groupInputSpells = map[string]int32{
 	"shadow_protection":    27683,
 }
 
-// Who the game files say the aura reaches. The manifest wins - the sim's scopes are
-// a UI grouping as much as a game fact - but a disagreement is worth printing.
+// Who the game files say the aura reaches. The manifest wins (the sim's scopes are
+// a UI grouping as much as a game fact), but a disagreement is worth printing.
 func validateScope(row *ResolvedBuff) {
 	scope, known := clientScope(*row)
 	if !known {
@@ -543,8 +535,7 @@ func clientScope(row ResolvedBuff) (buffmanifest.BuffScope, bool) {
 }
 
 // The repository root, found by walking up from the working directory until
-// go.mod appears. The generator runs from the root and the regeneration test
-// from tools/database, and both have to reach sim/core/buffs.
+// go.mod appears.
 func repoRoot() (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -772,8 +763,7 @@ func renderRow(row ResolvedBuff) buffRow {
 		out.Kind = row.Kind.String()
 	}
 
-	// A row whose amounts are worth one item each takes the number of them, so
-	// that a party with three of the same staff gets three times the aura.
+	// A row whose amounts are worth one item each takes the number of them.
 	if row.Kind == buffmanifest.KindItemCount {
 		out.ExtraParams = ", count float64"
 	}

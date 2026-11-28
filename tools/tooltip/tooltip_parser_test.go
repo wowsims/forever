@@ -62,8 +62,7 @@ func Test_WhenUppercaseProcChanceGiven_ThenRenderTheChance(t *testing.T) {
 	)
 }
 
-// A reference into another spell renders the amount that spell's row states, with no spell power on
-// top, though the damage carries a spell power coefficient.
+// A reference into another spell renders the amount that spell's row states, with no spell power on top.
 func Test_WhenOtherSpellsDamageReferenced_ThenRenderItsStatedAmount(t *testing.T) {
 	provider := fixtureProvider(
 		fixtureRow{spell: dbc.Spell{ID: 101, Duration: 10000}},
@@ -78,8 +77,7 @@ func Test_WhenOtherSpellsDamageReferenced_ThenRenderItsStatedAmount(t *testing.T
 	)
 }
 
-// A computed value is unsigned like a plain one, since the tooltip writes its own words for a reduction:
-// -30 tenths of rage as "reduced by $/10;s1" reads 3.0.
+// A computed value is unsigned like a plain one, since the tooltip writes its own words for a reduction.
 func Test_WhenNegativeValueComputed_ThenRenderItUnsigned(t *testing.T) {
 	provider := fixtureProvider(fixtureRow{
 		spell:   dbc.Spell{ID: 101},

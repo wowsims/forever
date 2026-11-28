@@ -103,9 +103,8 @@ func TestRankStateMustAttachWhatTheRowAttaches(t *testing.T) {
 // Every raid and individual row names the group it reaches, so each is checked two ways: that the
 // game files agree with the scope, and that they state a group at all. A party or debuff row the
 // game files state nothing for is exempt, because its scope is then the sim's grouping rather than
-// a game fact: the buff Windfury's proc lands on its wielder, a debuff the game files reach by the
-// area around its caster. A raid input that reads the single-target spell is checked on its group
-// spell.
+// a game fact: the buff Windfury's proc lands on its wielder. A raid input that reads the
+// single-target spell is checked on its group spell.
 func TestScopeMatchesTheGameFilesTargeting(t *testing.T) {
 	for _, row := range resolveCommittedBuffs(t) {
 		if row.SpellID == 0 {
@@ -171,8 +170,7 @@ func TestGroupInputsAttachWhatTheirGroupSpellAttaches(t *testing.T) {
 }
 
 // The amount the settings dim a scroll or an elixir by is the one the sim's raid input applies, at the
-// talent points 0 the apply block passes. A new row that overwrites the elixirs needs its Value
-// function listed.
+// talent points 0 the apply block passes.
 func TestOverwritingBuffAmountsAreWhatTheRaidInputApplies(t *testing.T) {
 	wants := map[string]func(int32) float64{
 		"arcane_intellect":     buffs.ArcaneIntellectValue,
@@ -205,8 +203,7 @@ func TestOverwritingBuffAmountsAreWhatTheRaidInputApplies(t *testing.T) {
 	}
 }
 
-// What the parse attaches for a row, by the kind it attaches as. Leader of the
-// Pack and Moonkin Aura state all crit, physical and spell.
+// What the parse attaches for a row, by the kind it attaches as.
 //
 // Expose Armor states nothing on the effect itself: its armor is per combo
 // point, and the raid config's debuff is the five-point finisher.
@@ -274,11 +271,9 @@ func talentNodeRanks(t *testing.T, talent int32) int32 {
 }
 
 // What a pinned row competes under, as (stats, own aura). A resistance source
-// that has no exclusivity beyond the school itself keeps no category of its own,
-// which is how every totem, Aspect of the Wild and Shadow Protection read; a
-// paladin aura also holds its own slot. Armor is not a school, so Devotion Aura
-// has only the slot. Furious Howl holds a category of its own, and the attack
-// power reductions bid in Demoralizing Shout's.
+// that has no exclusivity beyond the school itself keeps no category of its own;
+// a paladin aura also holds its own slot. Armor is not a school, so Devotion Aura
+// has only the slot.
 var pinnedCategories = map[string]string{
 	"frost_resistance_totem": "",
 	"aspect_of_the_wild":     "",

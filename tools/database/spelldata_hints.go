@@ -10,23 +10,19 @@ import (
 )
 
 // What the tooltip says about a proc that its columns cannot, baked onto the row at generation.
-// Spell.Description_lang is generator input only - the store carries the reading, never the text -
-// so the sim reads a decided shape instead of re-parsing English at runtime.
+// Spell.Description_lang is generator input only: the store carries the reading, never the text.
 //
-// The four shapes are the ones docs/spell_data/procs.md names: the column is the
-// roll, an effect's value is the roll, the column is a sentinel for "fires on its own condition",
-// or nothing states a rate at all and an override owes one.
+// The four shapes are the ones docs/spell_data/procs.md names.
 
 // The tooltip's own name for SpellAuraOptions.ProcChance. A chance stated as "$<id>h" is another
 // spell's column and cannot match, since the id sits between the $ and the h. The chance is
-// sometimes scaled - "${$h/2}% chance" - which still says the column is where it comes from.
+// sometimes scaled ("${$h/2}% chance"), which still says the column is where it comes from.
 var tooltipOwnChance = regexp.MustCompile(`\$h`)
 
 // A chance stated as an effect's value: "a $m2% chance to generate Rage". The word has to follow
 // the token, because the same token is how a tooltip states a magnitude: Flurry's "$m1% melee
-// attack speed" and Deep Wounds' "$m1% of your weapon's average damage" are the no-roll shape, and
-// reading either as a chance turns an aura that always fires into a percentage. The digit is the
-// game files' EffectIndex plus one.
+// attack speed" is the no-roll shape, and reading it as a chance turns an aura that always fires
+// into a percentage. The digit is the game files' EffectIndex plus one.
 var tooltipEffectChance = regexp.MustCompile(`\$[ms]([123])%\s+chance`)
 
 // Damage divided among the targets hit, which the server knows per spell and no column states:
@@ -52,8 +48,7 @@ func applyTooltipHints(t *spellTables, s *storeSpell) {
 }
 
 // What an enchant's grant states about the equip spell it hangs on a hit. The grant describes the
-// enchant rather than the spell's mask, so only what no mask can state is read off it: a named
-// ability, an outcome the mask has no bit for, a block, the wearer's attack dodged or parried, and
+// enchant rather than the spell's mask, so only what no mask can state is read off it, and
 // whether a column of 100 is a rate the rows do not carry. Which hits feed the proc stays the mask's
 // to say.
 func applyEnchantGrantHints(grant string, s *storeSpell) {
@@ -89,13 +84,10 @@ func procChanceSource(description string, ownChance bool, s *storeSpell) (storeP
 		return procChanceColumn, 0
 	}
 
-	// A tooltip names several effects - Shield Specialization states "$s1% block" and "$m2% chance
-	// to generate rage" - so the one the chance is on is the one carrying the proc aura, not the
-	// first one the text mentions.
-	//
-	// The tooltip counts by the game files' EffectIndex and the store by position, which differ on the
-	// 46 rows whose indices have gaps. The position is what is emitted, since EffectN is how the
-	// sim reads the effect back.
+	// A tooltip names several effects, so the one the chance is on is the one carrying the proc aura,
+	// not the first one the text mentions. The tooltip counts by the game files' EffectIndex and the
+	// store by position. The position is what is emitted, since EffectN is how the sim reads the
+	// effect back.
 	for _, m := range tooltipEffectChance.FindAllStringSubmatch(description, -1) {
 		index := uint8(m[1][0]-'0') - 1
 		if position, ok := s.effectPosition(index); ok && isProcEffect(&s.Effects[position]) {
@@ -108,8 +100,7 @@ func procChanceSource(description string, ownChance bool, s *storeSpell) (storeP
 	//
 	// Except where the tooltip says the effect only happens sometimes. A proc whose text reads
 	// "Chance to strike your ranged target" next to a column of 100 is the same convention as the
-	// 101 sentinel - the rate lives outside the spell data - so it is a rate somebody owes rather
-	// than a proc on every hit.
+	// 101 sentinel, so it is a rate somebody owes rather than a proc on every hit.
 	if s.ProcChance == 100 || s.ProcChance == 101 {
 		if s.triggersAProc() && tooltipStatesAnUnknownRate(description) {
 			return procChancePPM, 0
@@ -127,7 +118,7 @@ func procChanceSource(description string, ownChance bool, s *storeSpell) (storeP
 }
 
 // An effect a tooltip can state a chance for: the trigger auras, and the dummy the server hangs a
-// hand-written proc off - Furor's and Unbridled Wrath's chances both sit on one.
+// hand-written proc off.
 func isProcEffect(e *storeEffect) bool {
 	return e.Aura.IsProcTrigger() || e.Aura == dbcenums.A_DUMMY
 }

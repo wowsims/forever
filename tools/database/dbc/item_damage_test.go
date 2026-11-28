@@ -100,10 +100,8 @@ func TestWeaponDPSIsZeroWhenSourceTableIsMissing(t *testing.T) {
 	}
 }
 
-// The level 60 rare budget's first column is 100 and its one-hand weapon column 50. A healing weapon
-// adds 3.76 healing and a third of that as spell damage per point of the first column, rounded down;
-// a spell power weapon 2 spell power per point; both on top of the weapon's own stats. Reduced damage
-// alone adds none.
+// A healing weapon adds 3.76 healing and a third of that as spell damage per point of the first
+// column, rounded down; a spell power weapon 2 spell power per point.
 func TestCasterWeaponSpellPower(t *testing.T) {
 	once.Do(func() {})
 	previous := dbcInstance
@@ -194,8 +192,7 @@ func TestCreatureTypeAndHP5Stats(t *testing.T) {
 	}
 }
 
-// An armor item's bonus armor is its extra armor stat alone: its QualityModifier adds none, with the stat
-// beside it or without (R-0052).
+// An armor item's bonus armor is its extra armor stat alone (R-0052).
 func TestBonusArmorFromExtraArmorStatOnly(t *testing.T) {
 	once.Do(func() {})
 	previous := dbcInstance

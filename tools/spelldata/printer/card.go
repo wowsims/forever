@@ -26,9 +26,9 @@ type field struct {
 	Value string `json:"value"`
 }
 
-// One effect as both readings: what it does in words, and the game files' own columns, which is what a
-// developer checks the words against. Human is "unrecognised shape" on an effect no branch covers,
-// and the literal is then all there is to read. Read marks the effect a chain read.
+// One effect as both readings: what it does in words, and the game files' own columns. Human is
+// "unrecognised shape" on an effect no branch covers, and the literal is then all there is to read.
+// Read marks the effect a chain read.
 type Line struct {
 	Human   string `json:"human"`
 	Literal string `json:"literal"`

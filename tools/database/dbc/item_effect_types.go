@@ -56,12 +56,10 @@ var tooltipTargetNames = []struct {
 	{name: "serpentine", family: proto.CreatureFamily_CreatureFamilySerpentine},
 }
 
-// The words a tooltip puts before the creatures an effect counts against: "damage to Plants",
-// "tripled against Undead", "when fighting Undead and Demons", "if there is an elemental nearby".
+// The words a tooltip puts before the creatures an effect counts against.
 var tooltipTargetLead = regexp.MustCompile(`\b(?:against|damage to|when fighting|versus|there is an?|if attacking an?)\s+`)
 
-// A sentence that opens with the creatures: "Trolls and Orcs take 2 times as much damage",
-// "Undead that strike you are 3 times as likely to trigger this effect".
+// A sentence that opens with the creatures: "Trolls and Orcs take 2 times as much damage".
 var tooltipTargetSentence = regexp.MustCompile(`(?:^|[.!]\s+)`)
 var tooltipTargetVerb = regexp.MustCompile(`^(?:targets |enemies )?(?:take|that strike)\b`)
 var tooltipTargetSkip = regexp.MustCompile(`^(?:(?:all|the|and|or)\b|,)\s*`)
@@ -120,11 +118,11 @@ func tooltipTargets(tooltip string) (mobTypes []proto.MobType, families []proto.
 }
 
 // The terrain areas, mob types and creature groups an item's effects and stats state a bonus in or
-// against, which the gear picker filters by: the areas a spell requires or is stronger in, the mob types
-// a versus aura or a creature type stat counts against. A tooltip states the rest, the creature groups
-// among them, which no row holds (tooltipTargets). Every item effect counts, whatever triggers it, with
-// each spell its trigger chain reaches. A spell that requires a single zone names no terrain area, and
-// one that can only hit a mob type (TargetCreatureType: a stun, a charm) states no bonus against it.
+// against: the areas a spell requires or is stronger in, the mob types a versus aura or a creature type
+// stat counts against. A tooltip states the rest, the creature groups among them, which no row holds
+// (tooltipTargets). Every item effect counts, whatever triggers it, with each spell its trigger chain
+// reaches. A spell that requires a single zone names no terrain area, and one that can only hit a mob
+// type (TargetCreatureType: a stun, a charm) states no bonus against it.
 func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.CreatureFamily) {
 	var areaTypes []proto.AreaType
 	var mobTypes []proto.MobType

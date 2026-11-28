@@ -199,9 +199,8 @@ func TestRawEnchantLvl(t *testing.T) {
 	}
 }
 
-// Two recipes of one effect id stay with their own slots. A scroll casts the spell and teaches nothing, a recipe with
-// no ItemSparse row or in the Season of Discovery range does not count, so a scroll named as the enchant's own item
-// can still have a recipe elsewhere, and an enchant can have none.
+// Two recipes of one effect id stay with their own slots. A scroll casts the spell and teaches
+// nothing, and a recipe with no ItemSparse row or in the Season of Discovery range does not count.
 func TestRawEnchantRecipeItems(t *testing.T) {
 	byKey := rawEnchantsByKey(loadRawEnchantFixture(t))
 
