@@ -328,7 +328,7 @@ func TestGeneratedCurseOfRecklessnessAndFaerieFireDoNotStack(t *testing.T) {
 		})
 }
 
-// Armor Shatter and Puncture Armor share Faerie Fire's armor reduction slot (EV-0147).
+// Armor reduction slot in EV-0147.
 func TestGeneratedSwingProcDebuffsShareFaerieFiresSlot(t *testing.T) {
 	for _, debuff := range swingProcDebuffs {
 		t.Run(debuff.name, func(t *testing.T) {
@@ -755,8 +755,7 @@ func swingProcDebuffRaid(debuff swingProcDebuff, db *proto.SimDatabase) *proto.R
 	}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, debuff.debuffs)
 }
 
-// The landed hits a minute a main-hand wielder makes beside its swings (EV-0147) and the share of its
-// proc's strikes the target dodges (EV-0152), as the driver models them.
+// Wielder hits in EV-0147. Strike dodges in EV-0152.
 const wielderOtherHitsPerMinute = 48
 const wielderStrikeDodgeChance = 0.065
 

@@ -19,14 +19,14 @@ const ThreatPerRageGained = 5
 const DamageTakenRageFactor = 2.5
 
 // Damage of a school other than physical, and every periodic tick, grants twice a physical melee auto
-// attack's rage (EV-0052). Every other physical direct hit (Shoot, a ranged auto attack) grants twice that
-// rule too, read on the damage left after armor and the block (EV-0118), and after damage taken
-// multipliers and flat damage taken bonuses, before absorbs.
+// attack's rage on the same damage (EV-0052). Every other physical direct hit (Shoot, a ranged auto
+// attack) grants twice that rule too, read on the damage left after armor and the block (EV-0118), and
+// after damage taken multipliers and flat damage taken bonuses, before absorbs.
 // TODO: Ingame test needed -- the logs behind EV-0118 hold no absorbed special and no attacker above level 40, so
 // whether an absorb takes rage off and whether the landed reading keeps the (1 - A) of higher attackers is not measured.
 const SpellDamageTakenRageMultiplier = 2.0
 
-// A by the attacker's level, measured (EV-0048, EV-0034, EV-0035, EV-0050). The 40% at 63 is the top of
+// Assumed armor in EV-0048, EV-0034, EV-0035, EV-0050. The 40% at 63 is the top of
 // the 20% to 40% range the game build's notes give; no log covers 60-63. Attackers that use mana or energy
 // give about half this rage in game (EV-0048, EV-0052). The sim gives every attacker the full amount,
 // since a target has no power type.
@@ -68,7 +68,7 @@ const (
 	BaseRageHitFactor     = 3.46
 	TwoHandRageHitFactor  = 4.5
 	TwoHandRageMultiplier = TwoHandRageHitFactor / BaseRageHitFactor
-	// A critical auto attack adds this share of its whole rage (EV-0053, EV-0037). The game files' Rule
+	// Crit rage in EV-0053, EV-0037. The game files' Rule
 	// of Rage (DND) 1322574 states 100; the spell store does not carry it.
 	CritRageBonus = 1.0
 )
@@ -106,7 +106,7 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 		if !result.Landed() {
 			return
 		}
-		// A hit blocked in full grants none.
+		// A full block grants none.
 		if result.BlockedInFull() {
 			return
 		}

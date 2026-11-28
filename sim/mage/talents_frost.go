@@ -162,7 +162,7 @@ func (mage *Mage) registerIceBlock() {
 
 // "Increases the critical strike chance of all your spells against Frozen targets by 50%."
 //
-// Fingers of Frost's charges give Blizzard's ticks no crit (EV-0029). They are the only way a target is
+// Fingers of Frost's charges give Blizzard's ticks no bonus (EV-0029). They are the only way a target is
 // Frozen here, so the ticks are left out, and Flamestrike's ground ticks with them.
 func (mage *Mage) registerShatter() {
 	if mage.Talents.Shatter == 0 {
@@ -212,9 +212,8 @@ func (mage *Mage) registerFingersOfFrost() {
 	// Counts the grants, so a spend can tell whether charges were granted after it was cast.
 	var grants int
 
-	// Every rotation damage spell spends a charge, except a channel and the granting cast (EV-0030). It goes
-	// a spell batch after the cast: a spell queued in that batch spends the same charge, and a grant inside
-	// that batch leaves the charges full.
+	// Charge spending in EV-0030. The charge goes a spell batch after the cast: a spell queued in that
+	// batch spends the same charge, and a grant inside that batch leaves the charges full.
 	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
 		if spell == grantedBy {
 			grantedBy = nil

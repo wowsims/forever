@@ -8,7 +8,7 @@ import (
 
 // A channel on the caster: each second it fires Hellfire Effect at every enemy nearby, and burns the caster
 // for the same, spell power included. Every effect of the cast's row targets the caster, so the cast lands
-// on no enemy. Judgement of Wisdom never hears it (EV-0116).
+// on no enemy. Cast listeners in EV-0116.
 func (warlock *Warlock) registerHellfire() {
 	rankedSpell := spellData.Hellfire.ByID(11684)
 	channelTick := rankedSpell.PeriodicEffect()
@@ -35,8 +35,8 @@ func (warlock *Warlock) registerHellfire() {
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = WarlockSpellHellfire
 
-	// The burn takes the caster's Fire damage done modifiers and crits (EV-0229). Versus bonuses and the
-	// target's debuffs stay out, since the caster is the one burned.
+	// Burn modifiers and crits in EV-0229. Versus bonuses and the target's debuffs stay out, since the
+	// caster is the one burned.
 	// TODO: The burn on the caster is taken as health lost, not as Fire damage its resistance could reduce.
 	burnTable := core.NewAttackTable(&warlock.Unit, &warlock.Unit)
 	config.Dot = spelldata.DotConfig(rankedSpell, channelTick)

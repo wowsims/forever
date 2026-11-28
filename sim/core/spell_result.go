@@ -402,8 +402,7 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 
 	result.Damage *= attackerMultiplier
 	afterAttackMods := result.Damage
-	// The target's flat physical damage taken lands before its armor. The reductions in this field together
-	// take at most half of the hit (EV-0154). A periodic tick takes none of this field (EV-0154).
+	// The target's flat physical damage taken lands before its armor. Flat damage taken cap in EV-0154.
 	// The flat ranged and spell amounts land in applyTargetModifiers, after armor and outside this cap.
 	// TODO: The cap is read on white swings and melee specials (EV-0154); read it on a ranged hit under twice the reduction.
 	if !isPeriodic && spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.Flags.Matches(SpellFlagIgnoreTargetModifiers) {
@@ -459,7 +458,7 @@ func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(spell.Unit.AttackTables[target.UnitIndex], false)
 	baseDamage *= spell.VersusBonus.Against(target)
-	// The caster's flat physical damage bonus (EV-0196).
+	// Flat physical damage bonus in EV-0196.
 	if spell.BonusCoefficient > 0 {
 		baseDamage += spell.BonusCoefficient * spell.BonusDamage(attackTable)
 	} else if spell.Flags.Matches(SpellFlagPhysicalSchoolDamage) {

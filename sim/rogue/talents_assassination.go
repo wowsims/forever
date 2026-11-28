@@ -193,12 +193,12 @@ func (rogue *Rogue) registerMutilate() {
 		return
 	}
 
-	// Both strikes take the poison bonus from the target's poisons at the cast (EV-0223).
+	// Poison bonus timing in EV-0223.
 	var poisoned bool
 	rogue.MutilateMH = rogue.newMutilateHitSpell(true, &poisoned)
 	rogue.MutilateOH = rogue.newMutilateHitSpell(false, &poisoned)
 
-	// Each hand rolls once from its own strike (EV-0155).
+	// Proc rolls in EV-0155.
 	config := spelldata.SpellConfig(&rogue.Unit, mutilateCastRank, spelldata.Melee(core.ProcMaskEmpty))
 	pointGen := mutilateCastRank.EnergizeEffect().Average()
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {

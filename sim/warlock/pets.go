@@ -44,10 +44,10 @@ type petModel struct {
 // A demon's own health, armor and weapon are shares of the creature values for its level.
 // TODO: The shares are not yet read at 60 (EV-0075, EV-0076).
 //
-// The Sayaad's average swing before attack power (EV-0075).
+// Average swing in EV-0075.
 var sayaadSwingAverage = 0.698 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps * 2
 
-// The Voidwalker's average swing before attack power and the halving (EV-0076).
+// Average swing in EV-0076.
 var voidwalkerSwingAverage = 0.494 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps * 2
 
 // The sheet gives no crit from Agility or Intellect, and the Felhunter has no armor of its own.
@@ -99,7 +99,7 @@ var petModels = map[proto.WarlockOptions_Summon]petModel{
 		meleeMin:             sayaadSwingAverage * (1 - 0.215),
 		meleeMax:             sayaadSwingAverage * (1 + 0.215),
 		swingSpeed:           2,
-		// No multiplier of the Sayaad's own (EV-0077).
+		// Damage multiplier in EV-0077.
 		damageMod: 1,
 	},
 	proto.WarlockOptions_Felhunter: {
@@ -132,7 +132,7 @@ func meleeDemonStats(baseHealth float64) stats.Stats {
 // What a demon takes from the warlock. Warlock Pet Scaling (416189) names the stats it inherits but states
 // no amounts, so the shares are hand-kept. The pet model sheet gives Stamina and Intellect a share of 0, yet
 // its totals give every demon more health and ~10,870 more mana than its own stats, all from the warlock.
-// Health is 2 a point of the warlock's Stamina, from the Nov 3 patch notes. Regen shares (EV-0080).
+// Health is 2 a point of the warlock's Stamina, from the Nov 3 patch notes. Regen shares in EV-0080.
 // TODO: Ingame test needed: confirm on live that demons gain 2 health a point of the warlock's Stamina.
 // TODO: The regen shares are read at one level only (EV-0080), and the Felhunter's not at all. The warlock's share of
 // mana; resistances and haste.
@@ -144,12 +144,12 @@ func (warlock *Warlock) petStatInheritance(mp5PerOwnerIntellect float64) core.Pe
 		return stats.Stats{
 			stats.Health: ownerStats[stats.Stamina] * 2,
 			stats.MP5:    ownerStats[stats.Intellect] * mp5PerOwnerIntellect,
-			// Demon Armor included (EV-0078).
+			// Armor share in EV-0078.
 			// TODO: In game a demon's armor is fixed at the summon (EV-0078), while its attack power and
 			// spell damage follow the warlock's.
 			stats.Armor:       ownerStats[stats.Armor] * 0.35,
 			stats.AttackPower: spellDamage * 0.17,
-			// A tenth (EV-0079).
+			// Spell damage share in EV-0079.
 			// TODO: Measured on the Sayaad only (EV-0079).
 			stats.SpellDamage: spellDamage * 0.10,
 
@@ -429,7 +429,7 @@ func (pet *WarlockPet) registerDemonicBrand() {
 	}
 	brandConfig := spelldata.SpellConfig(&pet.Unit, brandRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered())
 	brandHit := pet.RegisterSpell(brandConfig)
-	// Both rows state Always Hit. The brand's hit rolls only its crit and partial resists (EV-0201).
+	// Both rows state Always Hit. Brand outcome in EV-0201.
 	brandOutcome := brandHit.OutcomeMagicHitAndCrit
 	if brandRow.AlwaysHits() {
 		brandOutcome = brandHit.OutcomeMagicCrit

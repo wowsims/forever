@@ -675,7 +675,7 @@ func registerSpellDataDamageProc(cfg SpellDataProc) {
 func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, damage *spelldata.Spell) {
 	character := agent.GetCharacter()
 	config := spellDataProcListener(character, cfg, source, trigger)
-	// A listener with no ICD waits out its spell's own cooldown (EV-0145). A row that deals its damage
+	// Spell cooldown in EV-0145. A row that deals its damage
 	// as the listener's own aura casts nothing.
 	if config.ICD == 0 && damage.ProcDamageEffect().Aura != dbcenums.A_PROC_TRIGGER_DAMAGE {
 		config.ICD = damage.Cooldown()
@@ -719,7 +719,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	alwaysHits := damage.AlwaysHits()
 	effect := damage.ProcDamageEffect()
 	// A proc's hit on the magic defense type is a spell hit, so a listener on spell damage that hears
-	// procs hears it. A row with no defense type of its own rolls no such listener (EV-0149, EV-0161).
+	// procs hears it. Defense types in EV-0149, EV-0161.
 	if asProc && damage.DefenseTypeCore() == core.DefenseTypeMagic {
 		config.ProcMask = core.ProcMaskSpellDamage
 	}

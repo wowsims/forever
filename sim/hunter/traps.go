@@ -8,8 +8,8 @@ import (
 )
 
 // The rows state no attack power share. In game Explosive Trap's initial hit takes 10% of ranged
-// attack power (EV-0068). TODO: In-game testing required for Immolation Trap, which the
-// Forever notes give the same 10% over its whole duration, split evenly over the ticks and read at
+// attack power and its ticks take none (EV-0068). TODO: In-game testing required for Immolation Trap,
+// which the Forever notes give the same 10% over its whole duration, split evenly over the ticks and read at
 // each tick.
 const trapTotalAPShare = 0.10
 
@@ -18,7 +18,7 @@ const trapTotalAPShare = 0.10
 // on a target within this radius once armed.
 const trapTriggerRadius = 5
 
-// The game files carry no arming delay either. Arming time and target checks (EV-0218).
+// The game files carry no arming delay either. Arming and target checks in EV-0218.
 const trapArmingDelay = 800 * time.Millisecond
 const trapCheckInterval = 400 * time.Millisecond
 const trapLateCheckChance = 0.24

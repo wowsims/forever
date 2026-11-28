@@ -172,8 +172,8 @@ func (shaman *Shaman) OnEncounterStart(sim *core.Simulation) {
 	shaman.startShieldProcPeriodicAction(sim)
 }
 
-// The chance is the talent's ranked dummy, 10/20/30 (the logs fit rank 3, EV-0137); the effect's base
-// points, 30, are what the talent's ranks replace.
+// The chance is the talent's ranked dummy; the effect's base points, 30, are what the talent's ranks
+// replace. Rank fit in EV-0137.
 func (shaman *Shaman) GetOverloadChance() float64 {
 	return spellData.LightningOverload.FractionAt(shaman.Talents.LightningOverload)
 }

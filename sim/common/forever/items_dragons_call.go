@@ -11,13 +11,13 @@ import (
 // The Emerald Dragon Whelp 8776 that Dragon's Call's 13049 summons is level 57 whatever its owner's level.
 // Armor is the creature armor at ExpectedStatMod 1's share in the game files, 0.51. It never crits (EV-0021).
 //
-// The 2.0 s swing (EV-0021). Its 0.73 is ExpectedStatMod 1's share. That row is inferred from the whelp's
+// Swing damage in EV-0021. Its 0.73 is ExpectedStatMod 1's share. That row is inferred from the whelp's
 // armor matching its 0.51. A smaller share plus the whelp's in-game attack power fits as well, so the log
 // does not tell the two apart.
 //
-// Glancing blows by the target's defense and level (EV-0021).
+// Glancing blows in EV-0021.
 //
-// Acid Spit 9591's timing, and a spit's hardcast holds the swing (EV-0021).
+// Spit timing in EV-0021. A spit's hardcast holds the swing.
 var emeraldDragonWhelp = shared.GuardianCreature{
 	Name:   "Emerald Dragon Whelp",
 	Level:  57,

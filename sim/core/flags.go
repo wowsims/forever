@@ -196,7 +196,7 @@ const (
 	SpellFlagApplyArmorReduction                            // Its periodic physical damage meets the target's whole armor; spelldata.SpellConfig sets it from the row (EV-0194).
 	SpellFlagNoActiveDefense                                // The physical hit roll skips dodge, parry and block.
 	SpellFlagIncludeTargetBonusDamage                       // Spell benefits from Gift of Arthas and Hemorrhage.
-	SpellFlagBinary                                         // The hit roll resists it in full at the target's average resist, and a landed one takes no partial resist; a physical one is blocked whole. spelldata.SpellConfig sets it from the row.
+	SpellFlagBinary                                         // The hit roll resists it in full at the target's average resist, and a landed one takes no partial resist; a physical one is fully blocked. spelldata.SpellConfig sets it from the row.
 	SpellFlagChanneled                                      // Spell is channeled
 	SpellFlagDisease                                        // Spell is categorized as disease
 	SpellFlagPoison                                         // Spell is categorized as poison

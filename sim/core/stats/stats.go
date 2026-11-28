@@ -551,7 +551,7 @@ type PseudoStats struct {
 	MHWeaponSkill      float64                                         // Bonus skill for whatever weapon the main hand holds, on top of its WeaponSkills entry.
 	OHWeaponSkill      float64                                         // Bonus skill for whatever weapon the off hand holds, on top of its WeaponSkills entry.
 	FeralCombatSkill   float64
-	FeralCombatEnabled bool // While set the unit swings its form's paw: FeralCombatSkill replaces the weapon's skill. A weapon proc's strike off that swing rolls none (R-0040).
+	FeralCombatEnabled bool // While set the unit swings its form's paw: FeralCombatSkill replaces the weapon's skill. A weapon proc's strike off that swing rolls no weapon proc (R-0040).
 
 	ThreatMultiplier       float64            // Modulates the threat generated. Affected by things like salv.
 	SchoolThreatMultiplier [SchoolLen]float64 // The threat of one spell school, on top of ThreatMultiplier.

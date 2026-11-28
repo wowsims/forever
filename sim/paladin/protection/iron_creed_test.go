@@ -9,7 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// Iron Creed's damage reduction comes from making a Holy Strike, whether or not it lands (EV-0057).
+// Avoided strikes in EV-0057.
 func TestIronCreedFromAnyHolyStrike(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Class:         proto.Class_ClassPaladin,

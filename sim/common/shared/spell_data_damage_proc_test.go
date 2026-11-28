@@ -320,7 +320,7 @@ func TestWeaponProcStrikeRollsOnlyTheMainHandWeapon(t *testing.T) {
 	}
 }
 
-// A strike a main-hand white swing cast rolls its weapon once more (EV-0145).
+// Weapon rolls in EV-0145.
 func TestWeaponProcStrikeAWhiteSwingCastRollsItsWeaponOnce(t *testing.T) {
 	const weaponID int32 = 991616
 	const batches = 5
@@ -347,7 +347,7 @@ func TestWeaponProcStrikeAWhiteSwingCastRollsItsWeaponOnce(t *testing.T) {
 	}
 }
 
-// What cast the strike decides whether it rolls its weapon again (EV-0145).
+// Weapon rolls in EV-0145.
 func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
@@ -400,7 +400,7 @@ func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) 
 	}
 }
 
-// A strike whose row states a cooldown of its own is not cast again while it runs (EV-0145).
+// Strike cooldown in EV-0145.
 func TestWeaponProcStrikeOnItsOwnCooldownIsNotCastAgain(t *testing.T) {
 	const weaponID int32 = 991718
 	const cooldown = 3 * time.Second

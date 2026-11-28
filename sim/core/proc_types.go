@@ -88,7 +88,7 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	info := ProcTypeInfo{RequireDamageDealt: true}
 	word := mask[0]
 
-	// A Windfury Totem hit counts as a main-hand melee swing (EV-0136).
+	// Counted swings in EV-0136.
 	if word&dbcenums.PROC_FLAG_DEAL_MELEE_SWING != 0 {
 		info.ProcMask |= ProcMaskMeleeWhiteHit
 		info.HearsCountedSwings = true
@@ -155,10 +155,8 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 		castWord&^(dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL|dbcenums.PROC_FLAG_DEAL_HELPFUL_SPELL) == 0
 
 	// Whether the cast itself is the trigger. A mask of only the harmful-spell bit does not care
-	// whether the spell landed. Any other spell-bit mask is a cast on the tooltip's word alone. The
-	// two items that pin that down, Memento of Tyrande and Band of the Eternal Restorer, disagree
-	// (EV-0094). What separates them is that the first names the cast as the trigger and the second
-	// does not.
+	// whether the spell landed. Any other spell-bit mask is a cast on the tooltip's word alone. Cast
+	// triggers in EV-0094.
 	castOnly := spellCastMask && (castWord == dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL || hint.Matches(ProcHintCastTrigger))
 
 	// A tooltip naming an outcome is the exception to all of it: a crit is only known once the
@@ -169,8 +167,7 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	} else if word&procFlagAnyDirectDealt != 0 {
 		info.Callback |= CallbackOnSpellHitDealt
 
-		// A spell landing for no damage reaches a mask of spell bits alone. A mask that pairs the
-		// harmful-spell bit with a melee or ranged bit needs damage (EV-0021, EV-0226).
+		// Damage requirement in EV-0021, EV-0226.
 		if word&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 && word&procFlagAnyAttackDealt == 0 {
 			info.RequireDamageDealt = false
 		}

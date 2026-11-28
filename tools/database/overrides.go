@@ -135,8 +135,8 @@ func ApplyItemSetClasses(db *WowDatabase) {
 
 // Where two sets with items share a name, a piece of the lower set id ships only when the higher set has no piece of
 // its type, and then joins the higher set and takes the classes its pieces allow; an ItemAllowList item stays. The
-// Classic pieces allow every class, while their quests and the reissued pieces name one. In game a reissued piece counts
-// toward its own set (EV-0144).
+// Classic pieces allow every class, while their quests and the reissued pieces name one.
+// Reissued set pieces in EV-0144.
 func DropLowerSameNameSets(db *WowDatabase) {
 	highest := map[string]int32{}
 	for _, item := range db.Items {
@@ -177,8 +177,8 @@ func DropLowerSameNameSets(db *WowDatabase) {
 	}
 }
 
-// Where a set ships a piece its ItemSet row does not list, a piece the row does list for that slot is dropped. The
-// reissued dungeon set 2 rows list pieces no player wears (EV-0144).
+// Where a set ships a piece its ItemSet row does not list, a piece the row does list for that slot is dropped.
+// Reissued set pieces in EV-0144.
 func DropListedSetPiecesBesideUnlistedOnes(db *WowDatabase, listed map[int32]bool) {
 	type setPiece struct {
 		set      int32
@@ -1138,8 +1138,8 @@ var ConsumableDenyList = []int32{
 	289087, // Elixir of Endless Opportunity
 }
 
-// Consumables the game files do not type as elixirs or scrolls whose stats count with the elixirs' all
-// the same (R-0054). The generator sets their counts_with_elixirs.
+// Consumables the game files do not type as elixirs or scrolls. Elixir stacking in R-0054. The
+// generator sets their counts_with_elixirs.
 var ConsumablesCountWithElixirs = []int32{
 	5206,  // Bogling Root
 	12451, // Juju Power

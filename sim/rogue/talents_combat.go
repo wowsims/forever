@@ -98,7 +98,7 @@ func (rogue *Rogue) registerRiposte() {
 		return
 	}
 
-	// Only Riposte's cast spends the window (EV-0099).
+	// Window spending in EV-0099.
 	window := rogue.RegisterAura(spelldata.AuraConfig(riposteWindow))
 
 	trigger := spelldata.ProcTrigger(&rogue.Character, spellData.DefensiveState.Highest(),
@@ -271,7 +271,7 @@ func (rogue *Rogue) registerHackAndSlash() {
 		}
 	}
 
-	// A Windfury Totem hit rolls it (EV-0002) at a main-hand hit's chance (EV-0128).
+	// Totem hit rolls in EV-0002, EV-0128.
 	var extraAttack *core.Spell
 	swordAura := rogue.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Hack and Slash (Axe/Sword)",

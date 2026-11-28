@@ -23,7 +23,7 @@ func (druid *Druid) registerPoised() {
 	buff := druid.RegisterAura(config)
 	spelldata.ParseEffects(&druid.Character, buff, buffRow)
 	// Cower carries no proc mask in the sim, so the decoded melee mask would never hear it and the
-	// discount would carry over to the next ability. In game an avoided cast spends it too (EV-0035).
+	// discount would carry over to the next ability. Avoided casts in EV-0035.
 	spelldata.AttachChargeSpender(&druid.Character, buff, buffRow, "Poised - Spend",
 		func(_ *core.Character, trigger *core.ProcTrigger) {
 			trigger.ProcMask = core.ProcMaskUnknown

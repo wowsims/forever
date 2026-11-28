@@ -86,11 +86,10 @@ type ProcTrigger struct {
 // of a magic item proc, never casts them. They also skip an ability that is no weapon hit: one whose
 // row requires a shield (SpellEquippedItems), which strikes with the shield, and one whose DefenseType
 // is magic or none. Auto attacks are exempt, since a wand's shots carry magic DefenseType and cast them.
-// No chance-on-hit effect or combat enchant hears Shield Slam, Shield Bash or Thunder Clap (EV-0021).
-// A special with no DefenseType is no weapon hit either (EV-0007). Aura procs
+// Shield hits in EV-0021. Specials with no DefenseType in EV-0007. Aura procs
 // (Aura::IsProcTriggeredOnEvent) skip triggered spells that lack Not a Proc, unless the listener
 // carries Can Proc From Procs. Auto attacks, extra attacks included, carry neither flag and so are
-// always eligible. A dot's tick reaches them whatever laid the dot (EV-0226).
+// always eligible. Dot ticks in EV-0226.
 func (config *ProcTrigger) canProcFrom(spell *Spell, tick bool) bool {
 	if config.IsWeaponProc {
 		if !spell.ProcMask.Matches(ProcMaskMeleeOrRanged) || spell.Flags.Matches(SpellFlagSuppressWeaponProcs) {

@@ -66,8 +66,7 @@ func TestRandomSuffixEquipSpellDodge(t *testing.T) {
 	}
 }
 
-// A bonus list with an ITEM_BONUS_REDUCED_CASTER_DPS row marks its suffix, and a weapon offering one
-// carries the damage it deals with it (EV-0110).
+// Reduced caster damage in EV-0110.
 func TestReducedCasterDpsSuffixDamage(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()

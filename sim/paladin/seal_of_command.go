@@ -21,7 +21,7 @@ import (
 // sits on the spell its dummy names, one rank above the proc on the family's triggered ladder, which
 // the proc spell 20424 heads with no rank subtext. 7 procs per minute is the Classic sim's number.
 //
-// The weapon percent applies to spell power too (EV-0061). The taken Holy bonuses add after it.
+// Spell power share in EV-0061. The taken Holy bonuses add after the percent.
 func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfCommand.Rank(rank.RankNumber())
 	judgeDamageRank := spellData.SealOfCommandTriggered.ByID(int32(judgeRank.EffectN(1).BaseValue()))
@@ -34,9 +34,8 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgementConfig.ClassFlags = judgeDamageRank.ClassFlags
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
-	// The dummy lands on the enemy before the damage it names. Weapon procs roll once on a landed
-	// judgement (EV-0155), aura procs once too (EV-0156). The row's flags leave the suppress bits off a
-	// dummy, so they are set here.
+	// The dummy lands on the enemy before the damage it names. Proc rolls in EV-0155, EV-0156. The
+	// row's flags leave the suppress bits off a dummy, so they are set here.
 	dummyConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial),
 		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs), spelldata.Triggered())
 	if judgeRank.SuppressesWeaponProcs() {

@@ -416,7 +416,7 @@ func TestFeralheartRaimentRestoresEnergyOverTimeOnSwings(t *testing.T) {
 	}
 }
 
-// A druid's 27784 ticks in a bear form come back with Cat Form (EV-0144).
+// Bear form energy in EV-0144.
 func TestFeralheartRaimentEnergyInABearFormComesBackWithCatForm(t *testing.T) {
 	energy := spelldata.MustFind(27784)
 	tick := energy.ProcEnergizeEffect()
@@ -516,8 +516,8 @@ func wildheartBear(t *testing.T) (*core.Simulation, *druid.Druid) {
 	return bearFromRequest(t, req)
 }
 
-// Wildheart Raiment's 5-piece 450608 rolls nothing on a shapeshift, Shifting Power or Frenzied Regeneration;
-// Faerie Fire restores the mana at the cast-time rate in a bear form (EV-0144).
+// Wildheart Raiment's 5-piece 450608.
+// Which casts roll in EV-0144.
 func TestWildheartRaimentShapeshiftsFrenziedRegenerationAndShiftingPowerRollNothing(t *testing.T) {
 	sim, bear := wildheartBear(t)
 	wearer := &bear.Character

@@ -473,9 +473,9 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 }
 
 // An equip spell that only restates weapon skills or creature type stats the item's own stats already
-// state adds nothing in game; Seal of the Dawn's tooltip shows one +78 (EV-0111). The stat gives the bonus
-// and the spell leaves the item. A spell that does more stays, and so does one on an item whose stats state
-// no such bonus, unless it raises weapon skills alone (foldEquipWeaponSkills).
+// state adds nothing in game. Restated stats in EV-0111. The stat gives the bonus and the spell leaves
+// the item. A spell that does more stays, and so does one on an item whose stats state no such bonus,
+// unless it raises weapon skills alone (foldEquipWeaponSkills).
 func (d *DBC) dropRestatedItemStats() {
 	for itemID, effects := range d.ItemEffectsByParentID {
 		item := d.Items[itemID]

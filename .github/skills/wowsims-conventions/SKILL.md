@@ -68,6 +68,8 @@ These apply to every file and every piece of GitHub text, in Go and TypeScript a
   never "cast bar" or a bare "bar" that means one.
 - **Windfury's extra attacks are hits.** A Windfury Weapon hit, a Windfury Totem hit, Windfury hits; never
   strikes. Identifiers keep theirs (`windfuryTotemStrike`).
+- **"Full block".** A block that takes all of a hit's damage is a full block, and the hit is fully blocked: "full
+  blocks still fire it". Never "a block that leaves no damage" or "blocked in full".
 
 ## Plain prose
 

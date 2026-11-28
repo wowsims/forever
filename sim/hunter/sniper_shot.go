@@ -18,8 +18,7 @@ func (hunter *Hunter) registerSniperShot() {
 	spelldata.ParseEffects(&hunter.Character, buff, sniperShotRank)
 
 	// One charge per Shot the range mod names. The row's proc flags hear every ranged hit, Sniper
-	// Shot's own among them, so the listener takes the mod's class flags. The charge goes at the
-	// Shot's cast result, a miss included (EV-0198).
+	// Shot's own among them, so the listener takes the mod's class flags. Charge spending in EV-0198.
 	spelldata.AttachChargeSpender(&hunter.Character, buff, sniperShotRank, "Sniper Shot - Spend",
 		func(_ *core.Character, trigger *core.ProcTrigger) {
 			trigger.Callback = core.CallbackOnCastResult

@@ -125,7 +125,7 @@ func (shaman *Shaman) imbueProcManager(imbue proto.ShamanImbue, ppm float64, cha
 	return &dpm
 }
 
-// Each Windfury Weapon hit is 439440, a main-hand ability (EV-0012).
+// Imbue hit type in EV-0012.
 func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 	// Elemental Weapons raises effect 1, which the parse would read as damage.
 	attackPower := windfuryWeaponAttack.EffectN(1).Average() * shaman.windfuryWeaponMultiplier

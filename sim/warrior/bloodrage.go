@@ -11,7 +11,7 @@ var bloodrageOverTime = bloodrageRank.EffectN(2).Trigger()
 var bloodrageOverTimeTick = bloodrageOverTime.PeriodicEffect()
 
 func (warrior *Warrior) registerBloodrage() {
-	// The instant rage's threat (EV-0044).
+	// Threat per rage in EV-0044.
 	// TODO: Ingame test needed -- whether a threat buff scales the instant rage's threat.
 	instantRageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: bloodrageRank.ID})
 	instantRageMetrics.UnscaledThreat = true

@@ -162,7 +162,7 @@ func consecrationTicks(t *testing.T, setup func(*core.Simulation, *core.Characte
 	return damage, landed
 }
 
-// Consecration's marked tick takes Judgement of the Crusader (EV-0143).
+// Marked tick bonuses in EV-0143.
 func TestConsecrationMarkedTickTakesJudgementOfTheCrusaderAfterDoneMultipliers(t *testing.T) {
 	coefficient := paladin.ConsecrationRankMap.Highest().Refs()[0].EffectN(2).Coeff()
 	if coefficient == 0 {

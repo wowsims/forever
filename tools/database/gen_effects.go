@@ -3118,7 +3118,7 @@ func buildSpellProcInfo(procSpell *dbc.Spell, tooltip string, itemType proto.Ite
 	}
 
 	// Proc-ness is a flag on the listener, not a hit kind in the mask: a poison's or an imbue's hit is
-	// spell damage. Only a listener that can proc from procs hears it (EV-0226).
+	// spell damage. Proc listeners in EV-0226.
 	info.CanProcFromProcs = procSpell.CanProcFromProcs()
 	info.HonoursWeaponProcSuppression = procSpell.IsWeaponProcAura()
 

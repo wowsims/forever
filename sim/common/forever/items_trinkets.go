@@ -265,7 +265,8 @@ func init() {
 		}
 		ancientPower := character.RegisterSpell(config)
 
-		// Thunder Clap never rolls it (EV-0131). An area spell rolls it once per target, which is unmeasured.
+		// Which spells roll in EV-0131.
+		// An area spell rolls it once per target, which is unmeasured.
 		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			ancientPower.Cast(sim, result.Target)
 		}, func(character *core.Character, trigger *core.ProcTrigger) {
@@ -286,7 +287,8 @@ func init() {
 	//
 	// Harmful spell casts and attacks against Furbolg have a chance to deal 105 Nature damage.
 	//
-	// The procs per minute, and the owner's ruling on spell hits (EV-0136).
+	// PPM measurement in EV-0136.
+	// Spell hit pricing in EV-0136.
 	// Its on-use, Irresistible Scent 1296664, charms the target, which the sim does not model.
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1318323, BuffSpellID: 1318324,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
@@ -341,7 +343,7 @@ func init() {
 	//
 	// The cloud puts 1300240 on every enemy active at the use and none that comes later. It is a ground
 	// effect, so the debuff always lands and each tick rolls its own spell hit and crit.
-	// One tick fewer than the cloud has periods (EV-0191).
+	// Tick count in EV-0191.
 	core.NewItemEffect(10455, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		cloud := spelldata.MustFind(12766)
@@ -535,8 +537,7 @@ func init() {
 	//
 	// The row's lone harmful-spell bit decodes to a cast, so the listener is moved to landed spell hits
 	// by hand. Misses are undetermined, so only landed spells roll.
-	// 1318931 rolls once for each enemy a harmful spell lands on. The 8% is the row's ProcChance, which an
-	// override sets (EV-0115).
+	// Proc chance measurement in EV-0115.
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			trigger.Callback = core.CallbackOnSpellHitDealt

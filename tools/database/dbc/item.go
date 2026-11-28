@@ -245,7 +245,7 @@ func (item *Item) GetHP5(itemLevel int) int32 {
 // Caster weapons carry spell power that no stat slot states, worked out from the first column of the
 // item level budget with the allocations of the "of Magic" and "of Healing" bonus lists: 20000 spell
 // power, or on a healing weapon 37600 healing and a third of that as spell damage. It adds to the
-// weapon's own stats. The rule reproduces the in-game tooltip (EV-0112).
+// weapon's own stats. Caster weapon power in EV-0112.
 const (
 	casterSpellPowerAllocation   = 20000
 	casterHealingPowerAllocation = 37600

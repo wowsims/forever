@@ -17,7 +17,7 @@ type WeaponProc struct {
 // adds back a weapon whose row was dropped needs the row restored from git history, or the database tests that name
 // the item fail the Update Items run.
 var WeaponProcs = []WeaponProc{
-	// Measured in end-game dungeon logs (EV-0003).
+	// PPM measurement in EV-0003.
 	{
 		ItemID:  10750,
 		SpellID: 1300356,
@@ -130,7 +130,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Lightcrest Hammer: no proc row",
 		Source:  "EV-0003",
 	},
-	// Measured the same way in combat logs of levelling players (EV-0022).
+	// PPM measurement in EV-0022.
 	{
 		ItemID:  9478,
 		SpellID: 1292573,
@@ -166,7 +166,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Rock on Stick: no proc row; measured on main-hand hits without extra attacks or haste",
 		Source:  "EV-0050",
 	},
-	// Measured the same way (EV-0024).
+	// PPM measurement in EV-0024.
 	{
 		ItemID:  287005,
 		SpellID: 1324687,
@@ -174,7 +174,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Sword of Dismemberment: no proc row",
 		Source:  "EV-0024",
 	},
-	// Measured on isolated hits (EV-0003, EV-0022, EV-0119).
+	// PPM measurement in EV-0003, EV-0022, EV-0119.
 	{
 		ItemID:  6220,
 		SpellID: 1292152,
@@ -245,7 +245,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Bigger Rock on Bigger Stick: no proc row",
 		Source:  "EV-0022",
 	},
-	// Measured on a cat druid's white swings (EV-0122).
+	// PPM measurement in EV-0122.
 	{
 		ItemID:  274963,
 		SpellID: 1295744,
@@ -253,7 +253,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Rot-Covered Harpoon: column reads 101",
 		Source:  "EV-0122",
 	},
-	// Measured on the landed hits each trigger hears (EV-0136).
+	// PPM measurement in EV-0136.
 	{
 		ItemID:  754,
 		SpellID: 13519,
@@ -305,7 +305,8 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Julie's Dagger: column reads 100; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
-	// Measured on every hit the class census finds rolling the weapon (EV-0136, EV-0153, EV-0155).
+	// PPM measurement in EV-0136, EV-0153.
+	// Rolling hits in EV-0155.
 	{
 		ItemID:  1481,
 		SpellID: 1292158,
@@ -461,7 +462,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Satyr's Lash: no proc row; shares the trigger with Black Malice; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
-	// Measured by EV-0153's method (EV-0126, EV-0132, EV-0136).
+	// PPM measurement in EV-0126, EV-0132, EV-0136.
 	{
 		ItemID:  809,
 		SpellID: 17504,
@@ -553,7 +554,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Pyromancer's Baton: column reads 101",
 		Source:  "EV-0136",
 	},
-	// Measured the same way, paladins included: their rolls are EV-0155's and EV-0156's (EV-0179).
+	// PPM measurement in EV-0179.
 	{
 		ItemID:  14541,
 		SpellID: 18652,
@@ -561,7 +562,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Barovian Family Sword: column reads 101",
 		Source:  "EV-0179",
 	},
-	// Measured by EV-0153's method, paladins left out (EV-0125).
+	// PPM measurement in EV-0125.
 	{
 		ItemID:  12592,
 		SpellID: 16602,
@@ -569,7 +570,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blackblade of Shahram: no proc row",
 		Source:  "EV-0125",
 	},
-	// Measured by EV-0153's method (EV-0186).
+	// PPM measurement in EV-0186.
 	{
 		ItemID:  10623,
 		SpellID: 13439,
@@ -577,7 +578,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Winter's Bite: column reads 101; Hammer of the Northern Wind casts the same spell",
 		Source:  "EV-0186",
 	},
-	// Measured by EV-0153's method (EV-0136, EV-0221).
+	// PPM measurement in EV-0136, EV-0221.
 	{
 		ItemID:  12590,
 		SpellID: 16551,
@@ -599,7 +600,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Alcor's Sunrazor: no proc row",
 		Source:  "EV-0221",
 	},
-	// Measured by EV-0153's method (EV-0121, EV-0136, EV-0146, EV-0150, EV-0153, EV-0177, EV-0183).
+	// PPM measurement in EV-0121, EV-0136, EV-0146, EV-0150, EV-0153, EV-0177, EV-0183.
 	{
 		ItemID:  811,
 		SpellID: 18104,
@@ -873,7 +874,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Axe of Inevitable Ruin: no proc row",
 		Source:  "EV-0136",
 	},
-	// Measured the same way (EV-0136).
+	// PPM measurement in EV-0136.
 	{
 		ItemID:  274293,
 		SpellID: 1293714,
@@ -1325,7 +1326,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Puncturing Spear: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
-	// Measured on the reports from 2026-11-12 to 2026-11-18 (EV-0136).
+	// PPM measurement in EV-0136.
 	{
 		ItemID:  11809,
 		SpellID: 16559,
@@ -1333,7 +1334,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Flame Wrath: no proc row",
 		Source:  "EV-0136",
 	},
-	// Measured on the reports from 2026-11-13 to 2026-11-22 (EV-0175).
+	// PPM measurement in EV-0175.
 	{
 		ItemID:  6622,
 		SpellID: 8191,
@@ -1341,7 +1342,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Sword of Zeal: no proc row",
 		Source:  "EV-0175",
 	},
-	// Measured in a level 57 warrior's combat log (EV-0021).
+	// PPM measurement in EV-0021.
 	{
 		ItemID:  10847,
 		SpellID: 13049,
@@ -1349,7 +1350,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Dragon's Call: no proc row; measured on landed main-hand hits outside the 45 s cooldown",
 		Source:  "EV-0021",
 	},
-	// Measured on main-hand white swings (EV-0145).
+	// PPM measurement in EV-0145.
 	{
 		ItemID:  12469,
 		SpellID: 10370,

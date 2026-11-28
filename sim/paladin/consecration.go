@@ -35,7 +35,8 @@ func (paladin *Paladin) registerConsecrationMark() {
 // The ground ticks once a period after the cast, none at the cast. Each tick rolls spell hit and crit
 // on its own, though no row in the ladder states Periodic Can Crit.
 //
-// A tick is a proc and periodic damage (EV-0226).
+// A tick is a proc and periodic damage, so neither a listener on spell hits nor one on periodic damage
+// that cannot proc from procs hears it (EV-0226).
 // TODO: Ingame test needed -- whether a periodic listener that can proc from procs hears a tick. The sim lets it.
 func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	tickSpell := spellData.ConsecrationTriggered.Rank(n)
@@ -73,7 +74,7 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		NumberOfTicks:    numberOfTicks,
 		TickLength:       tickLength,
 		BonusCoefficient: tick.Coeff(),
-		// The marked enemies take the bonus and its coefficient in the same hit (EV-0143).
+		// Bonus on marked enemies in EV-0143.
 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
 			markTargets(sim, dot.RemainingDuration(sim))
 			coefficient := dot.BonusCoefficient
@@ -95,9 +96,9 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 	config.ClassSpellMask = SpellMaskConsecration
 	config.RelatedDotSpell = pulse
 
-	// The cast lands on each enemy in the area as a spell of its own. A harmful-spell proc rolls once for
-	// each enemy (EV-0115). The landing rolls hit, but the ground is laid whether it lands or not, and
-	// the roll counts nothing, so the row's Miss % is the ticks' own.
+	// The cast lands on each enemy in the area as a spell of its own. Proc rolls per enemy in EV-0115.
+	// The landing rolls hit, but the ground is laid whether it lands or not, and the roll counts
+	// nothing, so the row's Miss % is the ticks' own.
 	landing := paladin.RegisterSpell(spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage),
 		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))
 

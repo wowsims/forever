@@ -18,8 +18,8 @@ const (
 	deathMarkCapPerPoint    = 245.0
 )
 
-// The mark stores a share of the physical damage (EV-0192). The stored damage already carries every
-// modifier and the target's armor, so the payout takes neither again.
+// Stored damage in EV-0192. The stored damage already carries every modifier and the target's armor, so
+// the payout takes neither again.
 func (rogue *Rogue) registerDeathMark() {
 	if !rogue.Talents.DeathMark {
 		return

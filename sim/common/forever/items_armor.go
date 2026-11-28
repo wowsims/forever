@@ -29,7 +29,7 @@ func init() {
 		}
 		charge := character.RegisterSpell(config)
 
-		// The block is the tooltip's, and a block that leaves no damage still fires it.
+		// The block is the tooltip's, and full blocks still fire it.
 		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(22618), func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 			charge.Cast(sim, spell.Unit)
 		})
@@ -324,7 +324,7 @@ func init() {
 	// than once every 15 sec.
 	//
 	// The item's effect names Zealotry 1294666, the mana gain, so the stat-bonus route cannot build it.
-	// The row's ProcChance as an override sets it (EV-0115).
+	// Proc chance measurement in EV-0115.
 	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 1294668},
 		[]shared.ItemVariant{
 			{ItemID: 274651, ItemName: "Zealot Plate"},
@@ -336,7 +336,7 @@ func init() {
 	// Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that
 	// strike you are 2 times as likely to activate this effect.
 	//
-	// The procs per minute and the versus bonus (EV-0126).
+	// Rate and versus bonus in EV-0126.
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17350, BuffSpellID: 17351,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			row := spelldata.MustFind(17350)

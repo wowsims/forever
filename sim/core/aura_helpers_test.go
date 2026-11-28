@@ -73,7 +73,7 @@ func TestProcTriggerClassSpellsOnly(t *testing.T) {
 	}
 }
 
-// A listener that cannot proc from procs skips a proc's hits but hears a dot's ticks (EV-0226).
+// Dot ticks in EV-0226.
 func TestProcTriggerHearsAProcsTicksButNotItsHits(t *testing.T) {
 	proc := &Spell{Flags: SpellFlagProc}
 	castTicks := &Spell{Flags: SpellFlagProc | SpellFlagTicksAreCasts}

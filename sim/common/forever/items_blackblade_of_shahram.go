@@ -12,7 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Shahram 10718's six spells, picked by these weights (EV-0125).
+// Spell weights in EV-0125.
 var shahramPicks = []struct {
 	spellID  int32
 	weight   float64
@@ -26,7 +26,7 @@ var shahramPicks = []struct {
 	{16601, 2, registerFistOfShahram},
 }
 
-// When Shahram begins his hardcast after the summon (EV-0125).
+// Hardcast start in EV-0125.
 const shahramCastStartMin = 1030 * time.Millisecond
 const shahramCastStartMax = 1830 * time.Millisecond
 
@@ -40,7 +40,8 @@ func init() {
 	//
 	// Chance on hit: Summons the infernal spirit of Shahram.
 	//
-	// Measured rate (EV-0125). The sim summons no Shahram: each proc picks one of his spells.
+	// PPM measurement in EV-0125.
+	// The sim summons no Shahram: each proc picks one of his spells.
 	newEntryRateItemEffect(12592, 16602, func(character *core.Character, ppm float64) {
 		type pickedSpell struct {
 			spell    *core.Spell
@@ -98,7 +99,7 @@ func shahramSpellConfig(character *core.Character, row *spelldata.Spell) core.Sp
 	return config
 }
 
-// Flames of Shahram 16596 can crit (EV-0125).
+// Crit rolls in EV-0125.
 func registerFlamesOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16596)
 	damage := row.DamageEffect()
@@ -110,7 +111,7 @@ func registerFlamesOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(config)
 }
 
-// Each stack fades the row's duration after its own landing (EV-0125).
+// Stack fades in EV-0125.
 func registerWillOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16598)
 	effect := row.EffectN(1)
@@ -195,7 +196,7 @@ func registerMightOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(config)
 }
 
-// Restores mana to the wearer's party (EV-0125). Its heal is left out.
+// Mana targets in EV-0125. Its heal is left out.
 func registerBlessingOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16599)
 	mana := row.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)

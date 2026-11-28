@@ -510,7 +510,7 @@ func (spell *Spell) outcomeEnemyMeleeWhite(sim *Simulation, result *SpellResult,
 	}
 }
 
-// An enemy's spell that always lands. A target that can block spells blocks it (EV-0228).
+// An enemy's spell that always lands. Spell blocks in EV-0228.
 func (spell *Spell) OutcomeEnemySpellHit(sim *Simulation, result *SpellResult, attackTable *AttackTable) {
 	if result.Target.PseudoStats.CanBlockSpells {
 		chance := 0.0

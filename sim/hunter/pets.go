@@ -29,7 +29,7 @@ var petAttackSpeeds = map[proto.HunterOptions_PetAttackSpeed]spelldata.Ladder{
 	proto.HunterOptions_FasterAttackVII: spellData.FasterAttackVII,
 }
 
-// A tamed pet's own attack power (EV-0070).
+// Pet base stats in EV-0070.
 // TODO: Health is one reading (EV-0070). The creature health is kept until a second reading at another
 // Stamina.
 var petBaseStats = stats.Stats{
@@ -40,7 +40,7 @@ var petBaseStats = stats.Stats{
 
 var petAttackPower = 0.3 * 14 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps
 
-// The pet's swing before attack power (EV-0071).
+// Swing before attack power in EV-0071.
 var petSwingAverage = (core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps - petAttackPower/14) * 2
 
 var petSwing = core.Weapon{
@@ -106,7 +106,7 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	return hp
 }
 
-// A ranged haste aura of the hunter's speeds the pet's focus regeneration (EV-0072).
+// Focus regeneration haste in EV-0072.
 func (hunter *Hunter) speedPetFocusWith(aura *core.Aura, multiplier float64) {
 	if hunter.Pet == nil {
 		return
@@ -163,7 +163,7 @@ func inheritedHit(ownerStats stats.Stats) float64 {
 	return max(0, ownerStats[stats.PhysicalHitPercent]+ownerStats[stats.RangedHitPercent])
 }
 
-// The attack power and health the pet takes at the summon stay (EV-0072). The rest follows the owner.
+// Summon stat snapshot in EV-0072.
 func (hp *HunterPet) keepSummonStats(inherited stats.Stats) stats.Stats {
 	// The summon: Enable snapshots the owner before it marks the pet enabled.
 	if !hp.IsEnabled() {
@@ -267,7 +267,7 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 		return
 	}
 
-	// Autocast decides in 0.8 s steps; it picks evenly among what it can cast (EV-0187).
+	// Autocast steps and picks in EV-0187.
 	if sim.CurrentTime >= hp.nextAutocast {
 		hp.nextAutocast = sim.CurrentTime + petAutocastStep
 		if hp.castRandomReady(sim, target) {
@@ -335,7 +335,7 @@ func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 	hp.abilities = append(hp.abilities, spell)
 }
 
-// Autocast holds a row that reaches more than one enemy while only one enemy is up (EV-0187).
+// Area autocast in EV-0187.
 func (hp *HunterPet) spellConfig(rank *spelldata.Spell, opts ...spelldata.SpellOpt) core.SpellConfig {
 	config := spelldata.SpellConfig(&hp.Unit, rank, opts...)
 	config.Flags &^= core.SpellFlagAPL
@@ -472,7 +472,7 @@ func (hp *HunterPet) registerDustCloud(rank *spelldata.Spell) *core.Spell {
 		return buffs.NewSpellDataDustCloudAura(target, true, 0)
 	})
 
-	// Autocast casts it only onto an enemy without the pet's Dust Cloud (EV-0187).
+	// Autocast targets in EV-0187.
 	bare := func(sim *core.Simulation, target *core.Unit) *core.Unit {
 		if !auras.Get(target).IsActive() {
 			return target

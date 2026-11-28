@@ -283,7 +283,9 @@ var (
 )
 
 // The energize proc of Wildheart Raiment and of the Feralheart Raiment reissue; the dummy effect's 5 is
-// no chance. Its procs per minute and the spells that roll nothing (EV-0144).
+// no chance.
+// PPM measurement in EV-0144.
+// Which casts roll in EV-0144.
 func wildheartEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		character := agent.GetCharacter()
@@ -308,7 +310,8 @@ func wildheartEnergize(name string) core.ApplySetBonus {
 	}
 }
 
-// The energy listener: which swings roll it and how 27784 ticks (EV-0144).
+// The energy listener.
+// Swings and ticks in EV-0144.
 // TODO: The manager reads the main hand's speed when it is built, so a druid that shifts between Cat Form
 // and a bear form keeps the paw of the form it started in.
 func attachWildheartSwingEnergy(character *core.Character, setBonusAura *core.Aura, name string) {
@@ -341,8 +344,8 @@ func attachWildheartSwingEnergy(character *core.Character, setBonusAura *core.Au
 	setBonusAura.AttachProcTrigger(trigger)
 }
 
-// The rage listener: a melee ability taken rolls nothing (EV-0144), though the row names it. The rage
-// fills the bar only while rage is the current one, since a shift into a bear form empties the bar.
+// The rage listener: a melee ability taken never rolls the proc, though the row names it (EV-0144). The
+// rage fills the bar only while rage is the current one, since a shift into a bear form empties the bar.
 func attachWildheartStruckRage(character *core.Character, setBonusAura *core.Aura, name string) {
 	if !character.HasRageBar() {
 		return
@@ -425,8 +428,8 @@ var ItemSetBeaststalkerArmor = core.NewItemSet(core.ItemSet{
 // Dungeon Set 1
 // https://www.wowhead.com/forever/item-set=187/the-elements
 //
-// The procs per minute of the 5-piece bonus (EV-0144). The 4-piece bonus disarms an attacker when
-// struck, which a boss fight does not test.
+// PPM measurement in EV-0144.
+// The 4-piece bonus disarms an attacker when struck, which a boss fight does not test.
 var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 	ID:    187,
 	Name:  "The Elements",
@@ -442,8 +445,8 @@ var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 // Dungeon Set 1
 // https://www.wowhead.com/forever/item-set=188/lightforge-armor
 //
-// The procs per minute of the 5-piece bonus (EV-0144). The 4-piece bonus silences a caster when struck
-// by a spell, which a boss fight does not test.
+// PPM measurement in EV-0144.
+// The 4-piece bonus silences a caster when struck by a spell, which a boss fight does not test.
 var ItemSetLightforgeArmor = core.NewItemSet(core.ItemSet{
 	ID:    188,
 	Name:  "Lightforge Armor",
@@ -526,8 +529,9 @@ var (
 	rogueArmorEnergy     = spelldata.MustFind(27788) // the energy it restores
 )
 
-// The energy proc of the two rogue dungeon sets: its rate (EV-0144), and a Windfury Totem hit rolls it as
-// a main-hand swing (EV-0136).
+// The energy proc of the two rogue dungeon sets.
+// PPM measurement in EV-0144.
+// A Windfury Totem hit rolls it as a main-hand swing (EV-0136).
 func rogueArmorEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		character := agent.GetCharacter()
@@ -590,8 +594,9 @@ var ItemSetBeastmasterArmorReissue = core.NewItemSet(core.ItemSet{
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// The 4-piece bonus is Lightforge Armor's 5-piece proc (450625), at its procs per minute (EV-0144). The
-// 5-piece bonus silences a caster when struck by a spell, which a boss fight does not test.
+// PPM measurement in EV-0144.
+// The 4-piece bonus is Lightforge Armor's 5-piece proc (450625). The 5-piece bonus silences a caster when
+// struck by a spell, which a boss fight does not test.
 var ItemSetSoulforgeArmorReissue = core.NewItemSet(core.ItemSet{
 	ID:    1673,
 	Name:  "Soulforge Armor",
@@ -606,8 +611,9 @@ var ItemSetSoulforgeArmorReissue = core.NewItemSet(core.ItemSet{
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// The 4-piece bonus is The Elements' 5-piece proc (450626), at its procs per minute (EV-0144). The
-// 5-piece bonus disarms an attacker when struck, which a boss fight does not test.
+// PPM measurement in EV-0144.
+// The 4-piece bonus is The Elements' 5-piece proc (450626). The 5-piece bonus disarms an attacker when
+// struck, which a boss fight does not test.
 var ItemSetTheFiveThundersReissue = core.NewItemSet(core.ItemSet{
 	ID:    1679,
 	Name:  "The Five Thunders",
@@ -622,9 +628,9 @@ var ItemSetTheFiveThundersReissue = core.NewItemSet(core.ItemSet{
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// The 4-piece bonus is Battlegear of Valor's 5-piece proc (450587) at Valor's rate (EV-0144). The
-// 3-piece bonus restores health over time and the 5-piece bonus removes a disarm when struck, neither
-// of which has a place in the sim.
+// PPM measurement in EV-0144.
+// The 4-piece bonus is Battlegear of Valor's 5-piece proc (450587). The 3-piece bonus restores health over
+// time and the 5-piece bonus removes a disarm when struck, neither of which has a place in the sim.
 var ItemSetBattlegearOfHeroismReissue = core.NewItemSet(core.ItemSet{
 	ID:    1778,
 	Name:  "Battlegear of Heroism",
@@ -666,8 +672,9 @@ var (
 // (4) Set: Chance on block to heal for 18. Healing is doubled in Strongholds and Cities.
 // (5) Set: Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.
 //
-// Which blocks heal and which hits taken add a stack (EV-0160). The 5-piece buff also makes the wearer
-// larger and turns them into an ogre at 20 stacks, which has no place in the sim.
+// Heals and stacks in EV-0160.
+// The 5-piece buff also makes the wearer larger and turns them into an ogre at 20 stacks, which has no
+// place in the sim.
 var ItemSetKroldokBattlegear = core.NewItemSet(core.ItemSet{
 	ID:   2135,
 	Name: "Krol'dok Battlegear",
@@ -760,7 +767,7 @@ var ItemSetDefiasLeather = core.NewItemSet(core.ItemSet{
 func deviousStrike(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	config := procSpellConfigAs(character, deviousStrikeBleed, spelldata.Melee(core.ProcMaskEmpty))
-	// The bleed's ticks ignore armor (EV-0194).
+	// Armor on ticks in EV-0194.
 	config.Flags &^= core.SpellFlagTenthResistance | core.SpellFlagApplyArmorReduction
 	config.Dot = spelldata.DotConfig(deviousStrikeBleed, deviousStrikeBleed.PeriodicDamageEffect())
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -793,7 +800,7 @@ var (
 // (4) Set: Taking damage has a 15% chance to grant Enraging Light for 10s, causing your melee attacks to
 // deal 20 Holy damage. Deals 3 times as much damage to Undead.
 //
-// Every landed melee swing or ability casts 1293675 (EV-0173).
+// Triggering hits in EV-0173.
 var ItemSetChainOfTheScarletCrusade = core.NewItemSet(core.ItemSet{
 	ID:   163,
 	Name: "Chain of the Scarlet Crusade",
@@ -977,7 +984,8 @@ var (
 	roarOfTheCrowd     = spelldata.MustFind(1301124) // 4pc: Roar of the Crowd, the haste it puts up
 )
 
-// The chance a landed melee hit rolls; the row states none (EV-0166).
+// Proc chance measurement in EV-0166.
+// The row states none.
 const roarOfTheCrowdChance = 0.072
 
 // https://www.wowhead.com/forever/item-set=1/the-gladiator
@@ -985,9 +993,9 @@ const roarOfTheCrowdChance = 0.072
 // (4) Set: Chance on hit to gain 5% attack speed for 10s. Attacks while no allies are within 20 yds are 2
 // times as likely to activate this effect.
 //
-// Every landed melee hit rolls the chance (EV-0166). The wearer always has an ally within 20 yd, so the
-// chance never doubles. The 2-piece bonus lowers the hit chance of Fear effects, which has no place in the
-// sim.
+// Which hits roll in EV-0166.
+// The wearer always has an ally within 20 yd, so the chance never doubles. The 2-piece bonus lowers the
+// hit chance of Fear effects, which has no place in the sim.
 var ItemSetTheGladiator = core.NewItemSet(core.ItemSet{
 	ID:   1,
 	Name: "The Gladiator",
@@ -1018,7 +1026,8 @@ var (
 	windfuryWeaponStrike = spelldata.MustFind(439440)  // Windfury Weapon hit
 )
 
-// The chance a landed swing rolls; the row states none (EV-0167).
+// Proc chance measurement in EV-0167.
+// The row states none.
 const bloodmailChance = 0.107
 
 // https://www.wowhead.com/forever/item-set=123/bloodmail-regalia
@@ -1026,7 +1035,7 @@ const bloodmailChance = 0.107
 // (3) Set: Grants your melee attacks a chance to wound the target, causing them to Bleed for 70 damage over
 // 10s.
 //
-// Which hits roll the chance (EV-0167).
+// Which hits roll in EV-0167.
 var ItemSetBloodmailRegalia = core.NewItemSet(core.ItemSet{
 	ID:   123,
 	Name: "Bloodmail Regalia",
@@ -1069,14 +1078,16 @@ var (
 	necropileDrain     = spelldata.MustFind(1299735) // 3pc: Necropile Drain, the leech it casts
 )
 
-// The chance a landed harmful spell rolls; the row states none (EV-0168).
+// Proc chance measurement in EV-0168.
+// The row states none.
 const necropileDrainChance = 0.139
 
 // https://www.wowhead.com/forever/item-set=122/necropile-raiment
 //
 // (3) Set: Harmful spell casts have a chance to steal 28 life from the target enemy.
 //
-// Which landings roll the chance (EV-0168). The row's 10 ms cooldown lets an area spell proc it once.
+// Which landings roll in EV-0168.
+// The row's 10 ms cooldown lets an area spell proc it once.
 var ItemSetNecropileRaiment = core.NewItemSet(core.ItemSet{
 	ID:   122,
 	Name: "Necropile Raiment",
@@ -1140,7 +1151,7 @@ var (
 // This Mana Regeneration is doubled in Strongholds and Cities.
 // (5) Set: Chance on damaging spell to summon an Arcane elemental to aid you in combat.
 //
-// Each landed damaging spell rolls each bonus, priced on the cast's time (EV-0169).
+// PPM measurement in EV-0169.
 var ItemSetVioletSorcerersVestments = core.NewItemSet(core.ItemSet{
 	ID:   2134,
 	Name: "Violet Sorcerer's Vestments",
@@ -1201,7 +1212,7 @@ var (
 // (5) Set: Melee attacks have a chance to increase your Critical Strike chance by 2% for 20s. This effect is
 // doubled in swamps.
 //
-// Off-hand swings proc it as often (EV-0170).
+// The row names the main hand alone, but off-hand swings proc it as often (EV-0170).
 var ItemSetDefiasEnforcersGarb = core.NewItemSet(core.ItemSet{
 	ID:   2136,
 	Name: "Defias Enforcer's Garb",

@@ -163,8 +163,8 @@ func (shaman *Shaman) applyElementalFocus() {
 		return spell.SpellSchool.Matches(core.SpellSchoolFire | core.SpellSchoolFrost | core.SpellSchoolNature)
 	}
 
-	// A Lightning Overload's launch rolls once too (EV-0137). No cast listener hears an overload, so
-	// its launch calls the trigger's cast listener.
+	// Overload rolls in EV-0137. No cast listener hears an overload, so its launch calls the trigger's
+	// cast listener.
 	triggerAura := shaman.MakeProcTriggerAura(trigger)
 	shaman.OnSpellRegistered(func(spell *core.Spell) {
 		if !spell.Matches(SpellMaskOverload) {

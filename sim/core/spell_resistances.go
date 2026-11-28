@@ -38,7 +38,8 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 	}
 
 	averageResist := attackTable.Defender.averageResist(spell, attackTable.Attacker, isPeriodic)
-	// A binary spell that lands takes no partial resist but still rolls its Spell Piercing bonus (EV-0142).
+	// A binary spell that lands takes no partial resist but still rolls its Spell Piercing bonus, unless
+	// the spell is flagged SpellFlagNoPartialResist (EV-0142).
 	if averageResist == 0 || averageResist > 0 && spell.Flags.Matches(SpellFlagBinary) {
 		return 1, OutcomeEmpty
 	}
@@ -65,7 +66,7 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 	return 1 - share, partialResistOutcome(share)
 }
 
-// A partial resist never takes more than 75% of a hit (EV-0142).
+// Partial resist cap in EV-0142.
 func resistedShare(tenths int) float64 {
 	return min(0.1*float64(tenths), 0.75)
 }
@@ -113,8 +114,7 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 		averageResist = 0
 	}
 
-	// A periodic tick rolls its partial resist against a tenth of the share and takes no Spell Piercing
-	// bonus. A tick at the full share takes the bonus in full (EV-0092, EV-0142).
+	// Tick resistance in EV-0092, EV-0142.
 	// TODO: In-game testing required: whether piercing still lowers a positive resistance on a tick at a
 	// tenth; the sim lets it.
 	if isPeriodic && !spell.Flags.Matches(SpellFlagFullResistanceTicks) ||

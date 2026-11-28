@@ -117,7 +117,7 @@ func (warrior *Warrior) registerDeepWounds() {
 	tick := deepWoundsBleed.EffectN(1)
 
 	// No spelldata.Proc(): that marks the spell passive, and the metrics aggregator counts no cast for a
-	// passive spell. The caster's damage bonuses never scale the ticks (EV-0139).
+	// passive spell. Attacker modifiers in EV-0139.
 	config := spelldata.SpellConfig(&warrior.Unit, deepWoundsBleed,
 		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagIgnoreResists|core.SpellFlagProc|core.SpellFlagIgnoreAttackerModifiers)) // 12162 and 412609 lack Not a Proc.
 	config.ProcMask = core.ProcMaskEmpty
@@ -156,11 +156,11 @@ func (warrior *Warrior) registerDeepWounds() {
 
 	warrior.DeepWounds = warrior.RegisterSpell(config)
 
-	// A crit on the magic hit table, Thunder Clap's, starts no bleed (EV-0139).
+	// Bleed starting crits in EV-0139.
 	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.DeepWounds.Rank(warrior.Talents.DeepWounds),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			// The share of the critting hand's average weapon damage, without Attack Power (EV-0139).
+			// Application amount in EV-0139.
 			weapon := core.Ternary(spell.IsOH() && !spell.IsMH(), warrior.AutoAttacks.OH(), warrior.AutoAttacks.MH())
 			application = weapon.AverageDamage() * share
 			warrior.DeepWounds.Cast(sim, result.Target)
@@ -249,8 +249,7 @@ func (warrior *Warrior) registerBloodthrill() {
 
 	talent := spellData.Bloodthrill.Rank(warrior.Talents.Bloodthrill)
 
-	// Main-hand white swings, Heroic Strike and Cleave proc it (EV-0056). The white swings include extra
-	// attacks.
+	// Hits that proc in EV-0056. Main-hand white swings include extra attacks.
 	trigger := spelldata.ProcTrigger(&warrior.Character, talent,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.OverpowerAura.Activate(sim)
@@ -318,9 +317,8 @@ func (warrior *Warrior) registerWeaponmaster() {
 	}
 
 	// 1290261 states no proc flags at all, so the shape, the mask and the rate's effect are the caller's.
-	// Sweeping Strikes' hits never roll it; every landed Whirlwind strike does (EV-0054). Cleave rolls it
-	// once a cast, on its first landed hit; no log measures Cleave. A Windfury Totem hit rolls it as a
-	// white swing does (EV-0002). Swings other procs grant (Hand of Justice) bring one as well.
+	// Hits that roll in EV-0002, EV-0054. Cleave rolls it once a cast, on its first landed hit; no log
+	// measures Cleave. Swings other procs grant (Hand of Justice) bring one as well.
 	firstCleaveHit, resetFirstCleaveHit := core.OncePerCast()
 	firstWhirlwindGrant, resetFirstWhirlwindGrant := core.OncePerCast()
 	swordTrigger := core.ProcTrigger{
@@ -424,9 +422,10 @@ func (warrior *Warrior) registerSweepingStrikes() {
 	actionID := core.ActionID{SpellID: sweepingStrikesHitID}
 
 	var copyDamage float64
-	// The copy takes the attacker's damage bonuses again, except one that needs a weapon (EV-0182). The
-	// logs measure Enrage and Two-Handed Weapon Specialization; that every other bonus follows the same
-	// rule, Death Wish among them, is an owner decision.
+	// The copy takes the hit's damage with the attacker's damage bonuses already in it, and those bonuses
+	// apply to it again, except one that needs a weapon equipped (EV-0182). The logs measure Enrage and
+	// Two-Handed Weapon Specialization; that every other bonus follows the same rule, Death Wish among
+	// them, is an owner decision.
 	twoHandSpec := 1.0
 	var twoHandSpecWeapon core.EquipRequirement
 	if warrior.Talents.TwoHandedWeaponSpecialization > 0 {
@@ -434,7 +433,7 @@ func (warrior *Warrior) registerSweepingStrikes() {
 		twoHandSpec = 1 + row.EffectN(1).Percent()
 		twoHandSpecWeapon = core.EquipRequirement{SubclassMask: row.EquipSubclass, InvTypeMask: row.EquipInvType, Hand: spelldata.RequiredHand(row)}
 	}
-	// No chance-on-hit effect or combat enchant hears the copied hit (EV-0007). Equip procs still hear it;
+	// Proc listeners in EV-0007. Equip procs still hear the copied hit;
 	// no log measures them on 12723.
 	hitSpell := warrior.RegisterSpell(core.SpellConfig{
 		ActionID:    actionID,
@@ -470,7 +469,7 @@ func (warrior *Warrior) registerSweepingStrikes() {
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			baseDamage := spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
-			// Never avoided, and rolls a crit of its own (EV-0213).
+			// Strike outcome in EV-0213.
 			// TODO: Ingame test needed: whether the strike an Execute brings below 20% rolls a crit too; the
 			// logs measure the Whirlwind ones.
 			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialCritOnly)
@@ -483,8 +482,8 @@ func (warrior *Warrior) registerSweepingStrikes() {
 				return
 			}
 
-			// Whirlwind brings its one strike through CastNormalizedSweepingStrikesAttack: one hit and one
-			// charge a cast (EV-0054).
+			// Whirlwind brings its one strike through CastNormalizedSweepingStrikesAttack.
+			// Hits and charges in EV-0054.
 			// TODO: Whirlwind's off-hand strike also brings off-hand strikes of Sweeping Strikes (462890 in
 			// game), each spending a charge, and the sim casts none; how many a cast brings is open (EV-0216).
 			if spell == hitSpell || spell == warrior.SweepingStrikesNormalizedAttack || spellData.ThunderClap.Contains(spell) || spellData.Whirlwind.Contains(spell) {

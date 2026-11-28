@@ -8,7 +8,7 @@ import (
 
 var thunderClapRank = spellData.ThunderClap.Highest()
 
-// The Attack Power share is 0.07 (EV-0019, EV-0048, EV-0203).
+// Attack power share in EV-0019, EV-0048, EV-0203.
 var thunderClapBaseDamage = thunderClapRank.DamageEffect().Average()
 var thunderClapAPCoeff = thunderClapRank.DamageEffect().APCoeff()
 var thunderClapSlow = thunderClapRank.EffectN(2).BaseValue()
@@ -37,13 +37,13 @@ func (warrior *Warrior) registerThunderClap() {
 	})
 
 	// Physical but Magic in SpellCategories: it rolls on the spell hit table and crits on spell crit
-	// chance for 1.5x. Without Totem of Wrath it never crits (EV-0055). A magic hit spends no Sweeping
+	// chance for 1.5x. Spell crits in EV-0055. A magic hit spends no Sweeping
 	// Strikes charge. Its ranged mask reaches equip procs that hear ranged abilities.
 	config := spelldata.SpellConfig(&warrior.Unit, thunderClapRank,
 		spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskRangedSpecial
 	config.DamageMultiplier = 1
-	// Threat is 1 times the damage with no flat bonus (EV-0048, EV-0220).
+	// Threat multiplier in EV-0048, EV-0220.
 	config.ThreatMultiplier = 1
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

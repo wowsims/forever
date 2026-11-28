@@ -8,7 +8,7 @@ import (
 func (druid *Druid) registerRakeSpell() {
 	rank := spellData.Rake.Highest()
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
-	// The initial hit is not reduced by armor in game (EV-0038). The ticks are periodic physical damage,
+	// Initial hit armor in EV-0038. The ticks are periodic physical damage,
 	// which core keeps out of armor anyway.
 	config.Flags |= core.SpellFlagIgnoreResists
 	hit := rank.DamageEffect()

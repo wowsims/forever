@@ -61,10 +61,11 @@ func (druid *Druid) applyThickHide() {
 		return
 	}
 	row := spellData.ThickHide.Rank(druid.Talents.ThickHide)
+	// Effect 2 prices armor as the level times its base points.
 	// Effect 1 / 100 is base armor per point of defense skill beyond five times the level, which is the
 	// defense the gear and buffs add (one rating is one skill point). Both are base armor, which the bear
 	// forms scale.
-	// Ranks 1 and 2 follow the level times the base points (EV-0039).
+	// Level armor in EV-0039.
 	bonus := float64(druid.level()) * row.EffectN(2).BaseValue()
 	perDefense := row.EffectN(1).BaseValue() / 100 / core.DefenseRatingPerDefenseLevel
 	for _, form := range []struct {
@@ -141,8 +142,8 @@ func (druid *Druid) applyBloodFrenzy() {
 			}
 			return
 		}
-		// Blood Frenzy 2/2 in Bear Form restores rage on every non-periodic crit (EV-0032). The cat's extra
-		// combo point on a non-periodic builder crit is the tooltip, not an effect on the row.
+		// Bear rage in EV-0032. The cat's extra combo point on a non-periodic builder crit is the tooltip,
+		// not an effect on the row.
 		if druid.InForm(Cat) && druid.isComboBuilder(spell) && sim.Proc(comboChance, "Blood Frenzy Combo Point") {
 			druid.AddComboPoints(sim, result.Target, 1, combo)
 		}

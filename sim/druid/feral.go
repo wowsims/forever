@@ -14,7 +14,7 @@ func (druid *Druid) rendAndTearMultiplier(target *core.Unit) float64 {
 	if druid.Talents.RendAndTear == 0 || !druid.targetIsBleeding(target) {
 		return 1
 	}
-	// Melee special attacks and bleed ticks against a bleeding target (EV-0038).
+	// Attacks the talent raises in EV-0038.
 	return 1 + spellData.RendAndTear.Rank(druid.Talents.RendAndTear).EffectN(1).Percent()
 }
 
@@ -67,7 +67,7 @@ func (druid *Druid) BehindTarget() bool {
 	return !druid.PseudoStats.InFrontOfTarget && !druid.CannotShredTarget
 }
 
-// Whether the target is bleeding: any caster's bleed is up on it (EV-0034).
+// Whether the target is bleeding. Bleeds that count in EV-0034.
 func (druid *Druid) targetIsBleeding(target *core.Unit) bool {
 	if target.BleedImmune {
 		return false

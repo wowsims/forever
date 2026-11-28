@@ -99,8 +99,7 @@ func paladinWearingAgainst(t *testing.T, worn map[proto.ItemSlot]int32, encounte
 	return sim, pal, pal.CurrentTarget
 }
 
-// A landed Judgement of Command rolls a weapon proc once (EV-0155), on its damage. A listener that is
-// no weapon proc hears the damage alone (EV-0156). A judgement that misses rolls none of them.
+// Proc rolls in EV-0155, EV-0156.
 func TestJudgementOfCommandRollsAWeaponProcOnce(t *testing.T) {
 	const casts = 50
 	for _, c := range []struct {
@@ -196,7 +195,7 @@ func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
 	}
 }
 
-// A white swing that crits adds its Vengeance stack after the hits it procs (EV-0224).
+// Stack timing in EV-0224.
 func TestSealOfRighteousnessHitIsPricedOnVengeanceBeforeTheCrit(t *testing.T) {
 	// The damage of the Seal of Righteousness hit a white swing procs under Vengeance at the stacks
 	// given. The seal's hit never crits, so it adds no stack of its own and the amounts compare.
@@ -272,7 +271,7 @@ func TestSealOfRighteousnessHitIsPricedOnVengeanceBeforeTheCrit(t *testing.T) {
 	}
 }
 
-// A Consecration cast rolls Draconic Infused Emblem once for each enemy (EV-0115).
+// Rolls per enemy in EV-0115.
 func TestConsecrationCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	encounter := core.MakeSingleTargetEncounter(0)
@@ -325,7 +324,7 @@ func TestConsecrationCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	}
 }
 
-// An Undead paladin's Consecration cast sets off no Touch of the Grave (EV-0115).
+// Landing procs in EV-0115.
 func TestConsecrationCastSetsOffNoTouchOfTheGrave(t *testing.T) {
 	const casts = 100
 	for _, enemies := range []int{1, 5} {
@@ -370,8 +369,7 @@ func TestConsecrationCastSetsOffNoTouchOfTheGrave(t *testing.T) {
 	}
 }
 
-// Bolt's Charged Eyeball hears neither Consecration's cast nor its ticks. A white hit that lands still
-// casts the shock (EV-0226).
+// Proc listeners in EV-0226.
 func TestConsecrationSetsOffNoBoltsChargedEyeball(t *testing.T) {
 	const casts, swings, enemies = 500, 400, 3
 	encounter := core.MakeSingleTargetEncounter(0)
@@ -419,7 +417,7 @@ func TestConsecrationSetsOffNoBoltsChargedEyeball(t *testing.T) {
 	}
 }
 
-// A Consecration tick that crits gives no Vengeance. A white swing that crits gives it (EV-0226).
+// Crits that give stacks in EV-0226.
 func TestConsecrationCritGivesNoVengeance(t *testing.T) {
 	sim, pal, target := paladinWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotMainHand: 21395})
 	vengeance := pal.GetAuraByID(core.ActionID{SpellID: 20050})

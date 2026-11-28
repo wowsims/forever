@@ -19,7 +19,7 @@ import { bonusStatClass, bonusTone } from './utils/stat_display';
 /** The weapons whose speed the effective-weapon-speed tooltip row is meaningful for. */
 const HUNTER_RANGED_TYPES = [RangedWeaponType.RangedWeaponTypeBow, RangedWeaponType.RangedWeaponTypeCrossbow, RangedWeaponType.RangedWeaponTypeGun];
 
-/** Spell Piercing beyond the target's resistance gives no bonus while it makes a share under 1%: under 6 at level 60 (EV-0142). */
+/** Spell Piercing beyond the target's resistance gives no bonus while it makes a share under 1% of piercing + 8L + 19: under 6 at level 60 (EV-0142). */
 const MIN_SPELL_PIERCING = 6;
 
 export interface StatRowViewProps {

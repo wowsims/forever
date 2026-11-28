@@ -29,7 +29,7 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	procConfig.Flags &^= core.SpellFlagHelpful // The row's first effect is the block chance on the paladin.
 	procConfig.BonusCoefficient = damageEffect.Coeff()
 	procConfig.ThreatMultiplier = 1.2 // The tooltip's 20% additional threat.
-	// A block's damage never crits (EV-0189). Its row states no Can't Crit.
+	// Crits on block damage in EV-0189. Its row states no Can't Crit.
 	procConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHit)
 	}
@@ -53,8 +53,8 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 
 	// Shieldsworn: a Holy Strike that lands with a shield deals the shield's damage and spends no charge.
 	// The game casts that hit as 456544, a spell of its own at spell level 30 with no base points of its
-	// own, so the amount is the active rank's. It crits at the spell crit chance for 1.5 times (EV-0189).
-	// Revelation rolls on it at that spell level's share (EV-0161).
+	// own, so the amount is the active rank's. Strike crits in EV-0189.
+	// Proc rolls in EV-0161.
 	if paladin.Talents.Shieldsworn {
 		if paladin.shieldswornStrike == nil {
 			strike := spellData.ShieldswornTriggered.ByID(shieldswornStrikeID)

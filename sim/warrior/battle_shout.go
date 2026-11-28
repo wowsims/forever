@@ -65,7 +65,7 @@ func (warrior *Warrior) registerBattleShoutRank(rank *spelldata.Spell) {
 	config := spelldata.SpellConfig(&warrior.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty
 	config.ThreatMultiplier = 1
-	// No rank carries a threat effect. Every rank measured in game makes no threat (EV-0043, EV-0220).
+	// No rank carries a threat effect. Shout threat in EV-0043, EV-0220.
 	config.FlatThreatBonus = 0
 
 	config.ExtraCastCondition = func(sim *core.Simulation, _ *core.Unit) bool {

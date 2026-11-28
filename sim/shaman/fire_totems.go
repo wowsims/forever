@@ -20,7 +20,7 @@ var fireNovaDamageRank = spellData.FireNovaTriggered.Highest()
 
 // A fire totem's own attack: the totem's, not the caster's, so it lands no proc of the caster's.
 // It reports as the totem's spell tagged 1, so the results show the totem and its hits as one row.
-// A Dwarf's or Troll's beast bonus does not reach it. Nor does the shaman's Spell Piercing (EV-0142).
+// A Dwarf's or Troll's beast bonus does not reach it. Spell Piercing in EV-0142.
 func (shaman *Shaman) newTotemAttackConfig(totem *spelldata.Spell, rank *spelldata.Spell) core.SpellConfig {
 	// TODO: In-game testing required: the logs measured totems only on mobs with no resistance in the
 	// school, so whether the shaman's Spell Piercing still lowers a positive resistance for a totem's
@@ -56,7 +56,7 @@ func (shaman *Shaman) registerFireTotem(rank *spelldata.Spell, mask int64, perio
 	return shaman.RegisterSpell(config)
 }
 
-// The totem waits after each cast ends (EV-0011).
+// Attack period in EV-0011.
 var searingTotemPeriod = searingAttackRank.CastTime() + 225*time.Millisecond
 
 func (shaman *Shaman) registerSearingTotemSpell() {
@@ -98,8 +98,8 @@ func (shaman *Shaman) registerMagmaTotemSpell() {
 		},
 	})
 
-	// A totem that stands its full time also pulses at the moment it ends (EV-0181). The aura's expiry
-	// cancels the pulse that falls due at the same time, so that last pulse is cast here.
+	// Pulse at the end in EV-0181. The aura's expiry cancels the pulse that falls due at the same time,
+	// so that last pulse is cast here.
 	shaman.MagmaTotem.RelatedSelfBuff.ApplyOnExpire(func(aura *core.Aura, sim *core.Simulation) {
 		if sim.CurrentTime == shaman.TotemExpirations[FireTotem] && (sim.CurrentTime-aura.StartedAt())%period == 0 {
 			pulse.Cast(sim, shaman.CurrentTarget)

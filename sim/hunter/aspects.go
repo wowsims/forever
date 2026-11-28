@@ -107,7 +107,7 @@ func (hunter *Hunter) registerDeadlyAspects(hawkAuras []*core.Aura) {
 		},
 		spelldata.Chance(spellData.DeadlyAspects.EffectAt(2).FractionAt(rank)))
 	beast.Name = "Deadly Aspects - Quick Strikes"
-	// A Windfury Totem hit rolls it as a swing does (EV-0136).
+	// Totem hit rolls in EV-0136.
 	beast.ProcMask = core.ProcMaskMeleeWhiteHit
 	hunter.AspectOfTheBeastAura.AttachProcTrigger(beast)
 }

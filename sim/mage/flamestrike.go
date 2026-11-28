@@ -17,8 +17,7 @@ func (mage *Mage) registerFlamestrikeSpells() {
 // the cast's id with tag 1, so its damage is the DoT line under Flamestrike's header. The burn carries
 // the same id and registers first, so a lookup of that id finds the spell that holds the area dot.
 //
-// A tick rolls its partial resist against a tenth of the target's share (EV-0028), and takes no Spell
-// Piercing bonus (EV-0142).
+// Tick partial resists in EV-0028. Spell Piercing in EV-0142.
 func (mage *Mage) registerFlamestrikeSpell(rank int32, castRank *spelldata.Spell) {
 	tickRank := spellData.FlamestrikeTriggered.Rank(rank)
 	cannotCrit := tickRank.CannotCrit()

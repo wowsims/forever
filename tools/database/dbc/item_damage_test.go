@@ -192,7 +192,7 @@ func TestCreatureTypeAndHP5Stats(t *testing.T) {
 	}
 }
 
-// An armor item's bonus armor is its extra armor stat alone (R-0052).
+// Bonus armor in R-0052.
 func TestBonusArmorFromExtraArmorStatOnly(t *testing.T) {
 	once.Do(func() {})
 	previous := dbcInstance

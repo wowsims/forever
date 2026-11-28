@@ -42,12 +42,28 @@ nothing is left, the comment goes.
 
 | Comment                                  | What stays                                                      |
 | ---------------------------------------- | --------------------------------------------------------------- |
-| Cites an `EV-` or `R-` id                | A few words naming the rule, then the id, on one line           |
+| Cites an `EV-` or `R-` id                | One short sentence naming the rule, then the id, on one line    |
 | Hand-written item, set or enchant effect | Name, link, tooltip, then the id line; one more line for a trap |
 | Doc comment on a function or type        | One or two lines: what it is for and the rule it implements     |
 | Inside a function body                   | One line; two when a trap needs its reason                      |
 | Struct field, const, table row           | One trailing line                                               |
 | Test                                     | One line: what the case pins and the row it reads               |
+
+An id comment takes one of three shapes:
+
+- A rate or a chance whose only source is a measurement gets a fixed label and nothing else:
+  `// PPM measurement in EV-0130.` or `// Proc chance measurement in EV-0115.`
+- Where the code under the comment shows the case (a test that casts the spell and asserts the result, a map that
+  lists the spells, a name that says what the branch is), the comment points to the file by topic and does not retell
+  the finding: `// Charge spending in EV-0149.` The topic is two to four words. "Moonfire spends the charge too
+  (EV-0149)" over a test that casts Moonfire says nothing the test does not.
+- Where the code does not show it (what the bare ids in a literal are, a trap, a limiting case), the comment is one
+  whole sentence with the id in parentheses. It names its subject and gives every verb its object, so a reader holding
+  only the comment and the code can tell what rolls, what is spent and on what. `// Heals that roll nothing
+  (EV-0149).` has lost the proc it is about, and `// Spells the buff row does not name (EV-0149).` has lost what those
+  spells do.
+
+When unsure between the last two, point.
 
 A comment whose ids back different facts gets one clause for each id. A trap or a rule no cited file states adds a
 line to any of these sizes, and nothing else does.
@@ -65,7 +81,7 @@ needs moves to a `docs/rulings/` file instead (`wowsims-evidence`).
 // Chance on hit: Drains target for 21 Shadow damage every 1 sec and transfers it to the caster.
 // Lasts for 10 sec.
 //
-// Measured rate (EV-0121).
+// PPM measurement in EV-0121.
 ```
 
 Before the cut, five lines under the tooltip said which hand's swings roll the proc, that Windfury Totem hits do, that

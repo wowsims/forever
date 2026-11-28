@@ -699,8 +699,8 @@ var Debuffs = []BuffSpec{
 	},
 	// The state is the weapon one wielder procs it with: 1 Bashguuder and 2 Rivenspike land 17315,
 	// 3 Vibroblade its own 1293005. The target dodges some of the strikes the proc casts. In game it
-	// never lands while Curse of Recklessness or Faerie Fire is on the target (EV-0147). It is weaker than either even at full stacks, so bidding in their
-	// slot gives the target the same armor.
+	// never lands while Curse of Recklessness or Faerie Fire is on the target (EV-0147). It is weaker
+	// than either even at full stacks, so bidding in their slot gives the target the same armor.
 	{
 		Field:    "puncture_armor",
 		SpellID:  17315,

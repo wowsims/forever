@@ -131,8 +131,8 @@ func (shaman *Shaman) applyFlurry() {
 
 	// The row has no roll and the crit is the condition, read off the result here because the same
 	// listener has to see the swings that spend a charge. Any melee crit sets three charges. 16257's
-	// proc flags name swings alone. A Windfury Weapon hit spends one too (EV-0010). A white swing in
-	// the instant of a gain spends none.
+	// proc flags name swings alone. Charge spending in EV-0010. A white swing in the instant of a gain
+	// spends none.
 	var gainedByImbue bool
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.Flurry.Rank(shaman.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -261,9 +261,9 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	consumes := maelstromWeaponBuff.EffectN(1).ClassFlags
 
 	// Maelstrom Ready! (408501) goes up as the stacks reach five and comes off with them or at the
-	// next Chain Lightning (EV-0180). Its row, a dummy with one charge and no duration, is in the game
-	// files but not in the spell store, so the aura is built here. The Healing Wave and Lesser Healing Wave
-	// that also take it off are not in the sim.
+	// next Chain Lightning. Kept charges in EV-0180. Its row, a dummy with one charge and no duration,
+	// is in the game files but not in the spell store, so the aura is built here. The Healing Wave and
+	// Lesser Healing Wave that also take it off are not in the sim.
 	readyAura := shaman.RegisterAura(core.Aura{
 		Label:    "Maelstrom Ready!",
 		ActionID: core.ActionID{SpellID: 408501},
@@ -301,8 +301,7 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	shaman.maelstromWeaponAura, shaman.maelstromReadyAura = maelstromAura, readyAura
 
 	// The row's chance column is the "no roll" 100; the tooltip prices the chance per hit on the main
-	// hand's speed, so the rate per minute is effect 2. A Windfury Totem hit never procs it (EV-0009),
-	// though a Windfury Weapon hit, whose row differs only in the class mask, does.
+	// hand's speed, so the rate per minute is effect 2. Totem hit procs in EV-0009.
 	trigger := spelldata.ProcTrigger(&shaman.Character, rank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			maelstromAura.Activate(sim)

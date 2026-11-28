@@ -90,7 +90,7 @@ func (paladin *Paladin) applyRedoubt() {
 		redoubt.SetStacks(sim, redoubt.MaxStacks)
 	})
 	trigger.Name = "Redoubt - Trigger" + paladin.Label
-	// Every melee swing and melee ability aimed at the paladin rolls (EV-0022). The tooltip says "damaging".
+	// Rolls on attacks taken in EV-0022. The tooltip says "damaging".
 	trigger.Outcome = core.OutcomeEmpty
 	trigger.RequireDamageDealt = false
 	paladin.MakeProcTriggerAura(trigger)
@@ -224,7 +224,7 @@ func (paladin *Paladin) applyReckoning() {
 		Handler:    gain,
 	})
 
-	// A Windfury Totem hit spends the stored charges but swings no copy (EV-0136).
+	// Charge spending in EV-0136.
 	var extraAttack *core.Spell
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Reckoning - Swing" + paladin.Label,
@@ -283,8 +283,8 @@ func (paladin *Paladin) applyIronCreed() {
 		MenuGroup: menuPaladinTank,
 	}).AttachMultiplicativePseudoStatBuff(&paladin.PseudoStats.DamageTakenMultiplier, multiplier)
 
-	// The row hears any melee special and names its ability only in the tooltip. A Holy Strike that
-	// misses or is avoided still grants the reduction (EV-0057).
+	// The row hears any melee special and names its ability only in the tooltip.
+	// Avoided strikes in EV-0057.
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.IronCreed.Rank(paladin.Talents.IronCreed), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		ironCreed.Activate(sim)
 	})
@@ -303,9 +303,8 @@ func (paladin *Paladin) applyIronCreed() {
 // without consuming their charges or triggering their cooldowns, and allowing you to Block spells
 // for 6 sec.
 //
-// The spell block comes with every strike (EV-0022). It is the triggered row's A_ALLOW_BLOCKING_SPELLS,
-// which the parser has no kind for. A blocked spell is a block to Holy Shield, Reckoning and Shield
-// Specialization (EV-0228).
+// Spell block uptime in EV-0022. The spell block is the triggered row's A_ALLOW_BLOCKING_SPELLS, which
+// the parser has no kind for. Blocked spells in EV-0228.
 func (paladin *Paladin) applyShieldsworn() {
 	if !paladin.Talents.Shieldsworn {
 		return

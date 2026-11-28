@@ -70,7 +70,7 @@ type tsBuffRegistryEntry struct {
 	OwnerClass string // "" when the manifest names no owning class
 }
 
-// A raid buff that overwrites the elixirs and scrolls granting as much of its stats (R-0054).
+// Elixir overwrites in R-0054.
 type tsOverwritingBuffEntry struct {
 	Const string
 	Stats []tsStatAmount

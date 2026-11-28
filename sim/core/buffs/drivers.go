@@ -226,9 +226,9 @@ var windfuryTotemHoldsOver = []string{
 	FlametongueTotemCategory,
 }
 
-// It deals the main hand's weapon damage, after a Shank too (EV-0230). Rank 3 adds attack power and
-// ranks 1 and 2 add none (EV-0002). The sim stands rank 3 only. It counts as a main-hand swing
-// (EV-0136). A landed one grants the rage a main-hand swing does (EV-0138).
+// The Windfury Totem hit deals the main hand's weapon damage, after a Shank too (EV-0230). Rank 3 adds
+// attack power and ranks 1 and 2 add none (EV-0002). The sim stands rank 3 only. Swing counting
+// in EV-0136. Swing rage in EV-0138.
 func newWindfuryTotemStrike(char *core.Character) *core.Spell {
 	attackPower := WindfuryTotemPriority()
 	config := spelldata.SpellConfig(&char.Unit, windfuryTotemStrike,
@@ -251,11 +251,11 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	}
 	strike := newWindfuryTotemStrike(char)
 
-	// A rogue's Shank rolls the totem (EV-0155). The row's mask names both hands; off-hand swings never
-	// roll it (EV-0008), and neither does Mutilate's off-hand strike (EV-0155). The sim holds
-	// Whirlwind's off-hand strike to the same rule (no log measures it). Ranged attacks
-	// and spells never roll it, and neither does the hit of a proc without Not a Proc, since the row
-	// lacks Can Proc From Procs. An auto attack, another proc's extra swing included, always rolls it.
+	// Off-hand hits in EV-0155. The row's mask names both hands; off-hand swings never roll the totem
+	// (EV-0008). The sim holds Whirlwind's off-hand strike to the same rule (no log measures it).
+	// Ranged attacks and spells never roll it, and neither does the hit of a proc without Not a Proc,
+	// since the row lacks Can Proc From Procs. An auto attack, another proc's extra swing included,
+	// always rolls it.
 	// The proc rolls off the hit's cast result, and the Windfury Totem hit follows once that hit has
 	// been dealt, in the same instant. It requires a main hand, but it lands inside the 100 ms cooldown
 	// its proc has just started, so it never rolls.
@@ -272,9 +272,9 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	trigger.Duration = core.NeverExpires
 	trigger.Callback = core.CallbackOnCastResult
 	trigger.TriggerImmediately = true
-	// Triggered hits with Not a Proc roll it as abilities do (EV-0002).
+	// Triggered hits with Not a Proc roll the totem as abilities do (EV-0002).
 	// A hit with no defense type is no melee attack and never rolls it.
-	// An off-hand special rolls it only when a rotation casts it (EV-0155 for Shank).
+	// Off-hand specials in EV-0155.
 	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		return spell.DefenseType != core.DefenseTypeNone &&
 			(spell.IsMH() || spell.Flags.Matches(core.SpellFlagAPL))
@@ -521,7 +521,7 @@ func playerWields(raid *proto.Raid, itemIDs ...int32) bool {
 	return slices.ContainsFunc(items, func(item *proto.ItemSpec) bool { return slices.Contains(itemIDs, item.GetId()) })
 }
 
-// The landed hits a minute a main-hand wielder makes beside its own swings (EV-0147).
+// Wielder hits in EV-0147.
 const wielderOtherHitsPerMinute = 48
 
 // The share of its proc's strikes a wielder's target dodges, whatever the target's level. The wielder
@@ -531,8 +531,7 @@ const wielderStrikeDodgeChance = 0.065
 // A weapon's proc debuff from one main-hand wielder. Every target the raid's debuffs land on has a
 // wielder of its own, and the player wielding the weapon stacks the same aura. The wielder lands its
 // swings at the item's base speed and wielderOtherHitsPerMinute more hits, each rolling the item's
-// procs per minute, which refreshes the aura and adds a stack up to its max. A row on the melee hit
-// table is cast as a strike (R-0040).
+// procs per minute, which refreshes the aura and adds a stack up to its max. Proc strikes in R-0040.
 func rollWielderHits(aura *core.Aura, itemID int32) {
 	item := core.GetItemByID(itemID)
 	if item == nil {

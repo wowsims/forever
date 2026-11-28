@@ -90,8 +90,7 @@ func (mage *Mage) registerMagicAbsorption() {
 
 // "Gives you a 10% chance of entering a Clearcasting state after any damage spell hits a target. The
 // Clearcasting state reduces the mana cost of your next damage spell by 100%."
-// Chance split evenly across an Arcane Missiles channel's rolls (EV-0098). The missile's row carries
-// Not a Proc, so the listener hears it.
+// Chance split in EV-0098. The missile's row carries Not a Proc, so the listener hears it.
 func (mage *Mage) registerArcaneConcentration() {
 	if mage.Talents.ArcaneConcentration == 0 {
 		return
@@ -145,8 +144,9 @@ func (mage *Mage) registerArcaneConcentration() {
 
 	talentAura := mage.MakeProcTriggerAura(trigger)
 
-	// A Blizzard cast rolls once as the channel starts (EV-0116). Its landing deals no damage, which the
-	// hit trigger does not hear. The buff comes a spell batch later, after the cast has spent Clearcasting.
+	// A Blizzard cast rolls once as the channel starts, however many enemies stand in the area (EV-0116).
+	// Its landing deals no damage, which the hit trigger does not hear, so this trigger rolls at the
+	// cast. The buff comes a spell batch later, after the cast has spent Clearcasting.
 	// TODO: In game a cast gains the buff more often than one roll at the talent's chance gives, in a
 	// window at the cast and a second one 5 to 40 ms later, and has gained it twice and inside a second
 	// of an earlier gain; this roll shares the hit trigger's cooldown (EV-0116).

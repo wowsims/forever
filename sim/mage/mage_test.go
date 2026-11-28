@@ -253,7 +253,7 @@ func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 	}
 }
 
-// The missiles of the Arcane Missiles channel are hits (EV-0142).
+// Missile partial resists in EV-0142.
 func TestArcaneMissilesMeetTheTargetsFullResistance(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
 	target := mage.CurrentTarget
@@ -375,7 +375,7 @@ func TestBlizzardCastRollsArcaneConcentrationOncePerCast(t *testing.T) {
 	}
 }
 
-// A Blizzard cast rolls Draconic Infused Emblem 22268 once for each enemy (EV-0115).
+// Rolls per enemy in EV-0115.
 func TestBlizzardCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)
@@ -426,7 +426,7 @@ func TestBlizzardCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	}
 }
 
-// A Flamestrike ground tick rolls Revelation once however many enemies it lands on (EV-0149).
+// Rolls per tick in EV-0149.
 func TestFlamestrikeGroundTickRollsRevelationOnce(t *testing.T) {
 	const ticks, manyTargets = 1500, 8
 	one, many := flamestrikeTickRevelations(t, 1, ticks), flamestrikeTickRevelations(t, manyTargets, ticks)
@@ -519,7 +519,7 @@ func TestRevelationCritsTheDirectHitOfFireballPyroblastAndFrostfireBolt(t *testi
 	}
 }
 
-// Revelation's charge goes to the first missile launched after it comes (EV-0149).
+// Charge spending in EV-0149.
 func TestArcaneMissilesGiveRevelationsChargeToTheNextMissileLaunched(t *testing.T) {
 	for _, critsInFlight := range []bool{false, true} {
 		sim, mage, buff := newRevelationMage(t, ArcaneTalents, 1)

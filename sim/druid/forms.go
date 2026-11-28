@@ -105,8 +105,7 @@ func (druid *Druid) feralWeapon(swingSpeed float64) core.Weapon {
 	return paw
 }
 
-// A bear's auto attack takes the two-hander rage factor whatever it holds (EV-0037). No druid row states a
-// rage multiplier of its own.
+// Bear rage factor in EV-0037. No druid row states a rage multiplier of its own.
 const BearRageIsTwoHanded = true
 
 func (druid *Druid) GetBearWeapon() core.Weapon {
@@ -150,7 +149,7 @@ func (druid *Druid) RegisterBearFormAura() {
 func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.Spell, kind DruidForm, starting bool) *core.Aura {
 	aura := druid.registerFormAura(form, starting)
 	aura.AttachStatDependency(druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1))
-	// The forms' health is flat and follows the level (EV-0037).
+	// Form health in EV-0037.
 	// TODO: Ingame research needed -- effect 4 of Bear Form and Dire Bear Form is aura 668, which core
 	// does not name.
 	spelldata.ParseEffects(&druid.Character, aura, passive)
@@ -276,8 +275,7 @@ func (druid *Druid) rememberCatEnergy(sim *core.Simulation, energy float64) {
 	druid.furorLeftCatAt = sim.CurrentTime
 }
 
-// A bear form stops energy regeneration and keeps the pool. Energy gained in the form, Nature's Bounty's
-// ticks, comes back with Cat Form (EV-0144).
+// A bear form stops energy regeneration and keeps the pool. Bear form energy in EV-0144.
 func (druid *Druid) pauseCatEnergy(sim *core.Simulation) {
 	if !druid.HasEnergyBar() || druid.Env.MeasuringStats {
 		return
@@ -304,13 +302,13 @@ func (druid *Druid) setEnergy(sim *core.Simulation, energy float64) {
 
 // The tooltip's rule, priced with $m2: the energy left in Cat Form, with what the bar gained in a bear
 // form, plus ${10*($m2/100)} for each second spent outside Bear Form or Dire Bear Form, up to
-// ${100*($m2/100)}. In game 0/5 and 5/5 follow it (EV-0037).
+// ${100*($m2/100)}. Talent ranks in EV-0037.
 func (druid *Druid) restoreCatEnergy(sim *core.Simulation) {
 	if !druid.HasEnergyBar() || druid.Env.MeasuringStats {
 		return
 	}
 	// Only the starting Cat Form finds nothing stored, and it keeps the pull's bar: the cat was in Cat Form
-	// before the pull. In game every entry takes Furor's share (EV-0037).
+	// before the pull. Share on entry in EV-0037.
 	// TODO: Ingame research needed -- what death does to the stored energy.
 	if !druid.furorStoredValid {
 		return

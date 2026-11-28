@@ -16,8 +16,7 @@ func (mage *Mage) registerArcaneBlastRank(_ int32, rank *spelldata.Spell) {
 	config := spelldata.SpellConfig(&mage.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = MageSpellArcaneBlast
 
-	// The cast adds its Arcane Charge before its damage. The cost reads the charges held before the
-	// cast (EV-0190).
+	// The cast adds its Arcane Charge before its damage. Charge timing in EV-0190.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		if !mage.ArcaneChargesAura.IsActive() {
 			mage.ArcaneChargesAura.Activate(sim)

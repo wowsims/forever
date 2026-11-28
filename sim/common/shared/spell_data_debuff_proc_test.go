@@ -491,7 +491,7 @@ func TestAnEnemyAuraIsNeverAWearerBuff(t *testing.T) {
 	}
 }
 
-// Lacerations 10370 and Puncture Armor 17315 each cast their row as a main-hand strike (EV-0145).
+// Debuff strikes in EV-0145.
 func TestMeleeDebuffWeaponProcRollsItsOwnHit(t *testing.T) {
 	const punctureArmor int32 = 17315
 	for _, tc := range []struct {

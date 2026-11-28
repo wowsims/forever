@@ -15,7 +15,7 @@ func (warrior *Warrior) registerDemoralizingShout() {
 		return buffs.NewSpellDataDemoralizingShoutAura(target, true, 0)
 	})
 
-	// The row's threat effect is what the logs read (EV-0220).
+	// Shout threat in EV-0220.
 	config := spelldata.SpellConfig(&warrior.Unit, demoralizingShoutRank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty
 	config.ThreatMultiplier = 1

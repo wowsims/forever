@@ -24,7 +24,7 @@ var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4
 // The seal's second effect names its judgement (the row has no effect at the game files' index 1).
 // The per-hit value is the judgement dummy's second effect; the tooltip divides it by 87 and by 25,
 // value/100 * speed at speeds 1.15 and 4.0. The damage spells carry no spell power coefficient and the
-// dummy's is not read. Measured hand factors and coefficients (EV-0059).
+// dummy's is not read. Hand factors and coefficients in EV-0059.
 func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfRighteousness.ByID(int32(rank.EffectN(2).BaseValue()))
 	judgeDamage := judgeRank.DamageEffect()

@@ -28,8 +28,8 @@ func (mage *Mage) registerBlizzardRank(rank int32, castRank *spelldata.Spell) {
 	}
 	tickSpell := mage.RegisterSpell(tickConfig)
 
-	// The cast lands on every enemy in the area as the channel starts. Arcane Concentration rolls at the
-	// cast itself (EV-0116).
+	// The cast lands on every enemy in the area as the channel starts.
+	// Cast rolls in EV-0116.
 	land := spelldata.RegisterAreaCastLanding(&mage.Unit, castRank)
 
 	config := spelldata.SpellConfig(&mage.Unit, castRank, spelldata.Magic(core.ProcMaskSpellDamage))

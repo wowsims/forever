@@ -75,7 +75,7 @@ func TestRevelationReachesHolyLight(t *testing.T) {
 	}
 }
 
-// Judgement of Light's heal rolls nothing for Revelation, and Seal of Light's heal rolls it (EV-0149).
+// Heal rolls in EV-0149.
 func TestRevelationHearsSealOfLightsHealAndNotJudgementOfLights(t *testing.T) {
 	gear := core.GetGearSet("../../../ui/specs/paladin/holy/gear_sets", "default").GearSet
 	gear.Items[proto.ItemSlot_ItemSlotMainHand].Enchant = 8217

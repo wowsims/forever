@@ -195,7 +195,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 	if target.Level == 0 {
 		target.Level = defaultRaidBossLevel
 	}
-	// A raid boss cannot be stunned (EV-0088).
+	// Stun immunity in EV-0088.
 	target.StunImmune = target.Level >= defaultRaidBossLevel
 
 	// Default Crit chance for NPCs depends only on their level relative to the level of their

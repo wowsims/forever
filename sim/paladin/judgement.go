@@ -13,8 +13,8 @@ import (
 func (paladin *Paladin) registerJudgement() {
 	paladin.Judgement = paladin.RegisterSpell(paladin.judgementConfig(spellData.Judgement.Highest(), SpellMaskJudgement))
 
-	// A white swing that lands refreshes the judgement debuffs (EV-0117). Holy Strike refreshes them
-	// only through Sacred Arbiter's own trigger.
+	// Debuff refreshes in EV-0117. Holy Strike refreshes the judgement debuffs only through Sacred
+	// Arbiter's own trigger.
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Judgement Refresh" + paladin.Label,
 		Callback:           core.CallbackOnSpellHitDealt,
@@ -29,8 +29,7 @@ func (paladin *Paladin) registerJudgement() {
 }
 
 // A cast that unleashes the active seal's judgement, the one Judgement and Swift Judgement share. A
-// cast listener hears this cast and the judgement it unleashes. A listener that rolls on spell casts
-// takes this one (EV-0144).
+// cast listener hears this cast and the judgement it unleashes. Cast rolls in EV-0144.
 func (paladin *Paladin) judgementConfig(rank *spelldata.Spell, classMask int64) core.SpellConfig {
 	config := spelldata.SpellConfig(&paladin.Unit, rank,
 		spelldata.Flags(core.SpellFlagAPL|core.SpellFlagPassiveSpell))

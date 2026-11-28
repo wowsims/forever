@@ -366,7 +366,7 @@ func TestEarlyDemiseFollowsTheCastsTarget(t *testing.T) {
 	}
 }
 
-// Starshards' ticks roll their partial resist against the target's whole average resist (EV-0142).
+// Tick partial resists in EV-0142.
 func TestStarshardsTicksMeetTheTargetsFullResistance(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Duration = 3600
@@ -426,7 +426,7 @@ func TestStarshardsTicksMeetTheTargetsFullResistance(t *testing.T) {
 	}
 }
 
-// Penance's heal bolts crit with Revelation's charge up and leave it (EV-0149).
+// Charge spending in EV-0149.
 func TestPenanceHealsCritAndLeaveRevelationsCharge(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Duration = 3600

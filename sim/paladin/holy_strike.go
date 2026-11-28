@@ -16,7 +16,7 @@ var HolyStrikeRankMap = spellData.HolyStrike
 // second effect, and the percentage scales the flat part too.
 //
 // The spell power coefficient sits on the flat effect, but the paladin's own spell power goes
-// through the weapon percent. No spell damage against the target's creature type (EV-0189).
+// through the weapon percent. Creature type damage in EV-0189.
 // Judgement of the Crusader is taken at the full coefficient after the done multipliers.
 func (paladin *Paladin) registerHolyStrike(_ int32, rank *spelldata.Spell) {
 	coefficient := rank.DamageEffect().Coeff()

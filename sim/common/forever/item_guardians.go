@@ -12,7 +12,7 @@ var GuardianCreatures = map[int32]shared.GuardianCreature{
 }
 
 // Book of the Dead 13353: "Summons a Skeleton that will protect you for 1min."
-// The skeleton's health, armor and swing (EV-0217).
+// Health, armor and swing in EV-0217.
 var summonedSkeleton = shared.GuardianCreature{
 	Name:   "Summoned Skeleton",
 	Health: 1.0,

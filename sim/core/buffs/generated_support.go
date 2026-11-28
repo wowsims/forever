@@ -45,12 +45,12 @@ func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64
 }
 
 // A damage shield's hit takes the wearer's spell power at its coefficient and the wearer's done
-// multipliers. The flat school bonus on the unit it strikes adds nothing (EV-0066).
+// multipliers. Flat school bonus in EV-0066.
 //
 // A Physical shield's reflection is no attack: it lands whole, with no armor reducing it and no roll
 // missing it. A magic shield keeps the spell hit roll and the target's resistance.
 //
-// A hit the block takes whole reflects nothing (EV-0050).
+// Blocked hits in EV-0050.
 func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, school core.SpellSchool, damage float64,
 	bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) core.ProcTrigger {
 	physical := school.Matches(core.SpellSchoolPhysical)

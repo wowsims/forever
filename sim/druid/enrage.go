@@ -7,8 +7,9 @@ import (
 )
 
 // The tooltip's "reduces base armor by 27% in Bear Form and 16% in Dire Bear Form". The row carries the
-// penalty as effect 4, an A_DUMMY with no value. Bear Form's share of the armor (EV-0032, EV-0109) and
-// Dire Bear Form's (EV-0034). Thick Hide's armor stays whole, as no measured druid had it.
+// penalty as effect 4, an A_DUMMY with no value. In Bear Form the game takes 27% of the item armor, the
+// items' bonus armor and the Agility armor (EV-0032, EV-0109). Dire Bear Form takes its 16% from the same
+// share (EV-0034). Thick Hide's armor stays whole, as no measured druid had it.
 const (
 	enrageBearArmorScale     = 0.73
 	enrageDireBearArmorScale = 0.84

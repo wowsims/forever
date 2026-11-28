@@ -139,8 +139,7 @@ func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
 
 var noSacredArbiterTalents = "050250002-501-15233011200301351" // The Unsealed Wrath build with Sacred Arbiter's point in Deflection.
 
-// A landed white swing refreshes Judgement of the Crusader (EV-0117). Holy Strike leaves it running
-// down unless Sacred Arbiter is taken.
+// Debuff refreshes in EV-0117.
 func TestJudgementDebuffRefreshesOnWhiteSwingsAndWindfuryTotemsStrike(t *testing.T) {
 	for _, build := range []struct {
 		name          string
