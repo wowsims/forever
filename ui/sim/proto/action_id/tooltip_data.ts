@@ -1,26 +1,16 @@
 import type { EquippedItem } from '../equipped_item';
-import type { Gear } from '../gear';
-import type { WowheadTooltipItemParams, WowheadTooltipSpellParams } from '../wowhead';
-import { ActionId } from './index';
+import { hasItemTooltip, hasSpellTooltip, itemTooltipAnchor, spellTooltipAnchor } from '../tooltips';
+import type { ActionId } from './index';
 
-export function actionIdWowheadTooltipData(
-	actionId: ActionId,
-	params?: Omit<WowheadTooltipItemParams, 'itemId'> | Omit<WowheadTooltipSpellParams, 'spellId'>,
-): Promise<string> {
-	return actionId.itemId
-		? ActionId.makeItemTooltipData(actionId.itemId, params)
-		: ActionId.makeSpellTooltipData(actionId.spellIdTooltipOverride || actionId.spellId, params);
+/** The tooltip props for an action's anchor: the item's or spell's own tooltip, or none for one the tooltips do not hold. */
+export async function actionIdTooltipProps(actionId: ActionId, options: { useBuffAura?: boolean } = {}): Promise<Record<string, string>> {
+	if (actionId.itemId) return (await hasItemTooltip(actionId.itemId)) ? itemTooltipAnchor(actionId.itemId, { randomSuffix: actionId.randomSuffixId }) : {};
+	const spellId = actionId.spellIdTooltipOverride || actionId.spellId;
+	return spellId && (await hasSpellTooltip(spellId)) ? spellTooltipAnchor(spellId, { buff: options.useBuffAura }) : {};
 }
 
-export function equippedItemWowheadTooltipData(gear: Gear, equippedItem: EquippedItem): Promise<string> {
-	const enchantIds = [equippedItem.enchant?.effectId].filter((id): id is number => id !== undefined);
-	return actionIdWowheadTooltipData(equippedItem.asActionId(), {
-		itemLevel: Number(equippedItem.ilvl),
-		enchantIds: enchantIds,
-		randomEnchantmentId: equippedItem.randomSuffix?.id,
-		setPieceIds: gear
-			.asArray()
-			.filter(ei => ei != null)
-			.map(ei => ei!.item.id),
-	});
+/** The tooltip props for an equipped item's anchor, with the suffix and enchant it carries. */
+export async function equippedItemTooltipProps(equippedItem: EquippedItem): Promise<Record<string, string>> {
+	if (!(await hasItemTooltip(equippedItem.id))) return {};
+	return itemTooltipAnchor(equippedItem.id, { randomSuffix: equippedItem.randomSuffix?.id, enchant: equippedItem.enchant?.effectId });
 }

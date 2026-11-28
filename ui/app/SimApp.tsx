@@ -1,6 +1,7 @@
 import { OnboardingProvider } from '@features/onboarding';
 import { EpWeightsDialog } from '@features/stat-weights/components/EpWeightsDialog';
 import { OpenEpWeightsContext } from '@features/stat-weights/hooks/useEpWeightsDialog';
+import { SpellTooltipHost } from '@features/tooltips';
 import type { Spec } from '@generated/proto/common';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
@@ -61,6 +62,7 @@ export const SimApp = <SpecType extends Spec>({ player, def }: SimAppProps<SpecT
 								<CrashReportDialog opener={simUI.crashReport} />
 								<EpWeightsDialog open={epWeightsOpen} onOpenChange={setEpWeightsOpen} settings={simUI.statWeightActionSettings} />
 								<SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} host={simUI} />
+								<SpellTooltipHost />
 							</>
 						)}
 					</OpenEpWeightsContext>

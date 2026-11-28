@@ -5,7 +5,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { RotationRowIcon } from './RotationRowIcon';
 
 const tooltipData = vi.hoisted(() => vi.fn(() => Promise.resolve('spell=1')));
-vi.mock('@sim/proto/action_id/tooltip_data', () => ({ actionIdWowheadTooltipData: tooltipData }));
+vi.mock('@sim/proto/action_id/tooltip_data', () => ({
+	actionIdTooltipProps: (...args: Parameters<typeof tooltipData>) => tooltipData(...args).then((url: string) => ({ 'data-wowhead': url })),
+}));
 
 const mount = (tooltip?: 'spell' | 'buffAura') =>
 	render(<RotationRowIcon actionId={actionId('Fireball')} tooltip={tooltip} />).container.querySelector<HTMLAnchorElement>(

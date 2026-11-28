@@ -172,3 +172,14 @@ func (character *Character) GetPseudoStatsProto() []float64 {
 	character.sheetAvoidance().Gate(pseudoStats)
 	return pseudoStats
 }
+
+// The damage multiplier of every school, in proto.SpellSchool order, and the healing one. A spell of several
+// schools takes the multiplier of the school MultiplierSchool picks.
+func (character *Character) doneMultipliersProto() *proto.DoneMultipliers {
+	damage := make([]float64, len(proto.SpellSchool_name))
+	for i := range damage {
+		school := SpellSchoolFromProto(proto.SpellSchool(i)).SchoolIndex()
+		damage[i] = character.PseudoStats.DamageDealtMultiplier * character.PseudoStats.SchoolDamageDealtMultiplier[school]
+	}
+	return &proto.DoneMultipliers{Damage: damage, Healing: character.PseudoStats.HealingDealtMultiplier}
+}

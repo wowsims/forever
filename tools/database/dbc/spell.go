@@ -43,9 +43,12 @@ type Spell struct {
 	ChannelInterruptFlags []int
 	ShapeshiftMask        []int
 	Description           string
+	AuraDescription       string // The buff's text, which the aura shows on the target.
+	Subtext               string // The rank or kind under the name, such as "Rank 5" or "Talent".
 	Variables             string
 	MaxCumulativeStacks   int32
 	MaxTargets            int32
+	MaxTargetLevel        int32 // SpellTargetRestrictions.MaxTargetLevel: the highest level of target the spell affects.
 	RequiredAreasID       int32
 	IconPath              string
 }

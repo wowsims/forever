@@ -5,8 +5,8 @@ export interface WowheadIconProps extends WowheadAnchorProps {
 	/** A `div` takes the look, the label and the dataset, and none of the anchor's props. */
 	as?: 'a' | 'div';
 	iconUrl?: string;
-	/** The `data-wowhead` tooltip attributes, spread onto the element. */
-	wowhead?: Record<string, string>;
+	/** The tooltip attributes, `data-wowhead` or the site's own spell tooltip's, spread onto the element. */
+	wowhead?: Record<string, string | undefined>;
 	label?: string;
 }
 

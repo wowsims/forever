@@ -9,7 +9,10 @@ import type { GearChangeIconViewProps } from './GearChangeIcon';
 
 vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => ({ iconUrl: 'icon.png', name: 'Item', href: 'https://wowhead/item', ready: true }) }));
 vi.mock('@sim/hooks/useWowheadDataset', () => ({ useWowheadDataset: () => ({}) }));
-vi.mock('@sim/proto/action_id/tooltip_data', () => ({ equippedItemWowheadTooltipData: () => Promise.resolve('') }));
+vi.mock('@sim/proto/action_id/tooltip_data', () => ({
+	equippedItemTooltipProps: () => Promise.resolve({ 'data-wowhead': '' }),
+	actionIdTooltipProps: () => Promise.resolve({ 'data-wowhead': '' }),
+}));
 
 const { GearChangeIcon, GearChangeIconView } = await import('./GearChangeIcon');
 const { enchantChanged } = await import('./utils');

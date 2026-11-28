@@ -754,6 +754,16 @@ message PlayerStats {
 	// The factors the worn items' spells deal or restore against the mob types and creature families their
 	// tooltips name, one entry for each item.
 	repeated VersusEffect versus_effects = 16;
+	// The factors on all the damage and healing the player deals after talents, buffs and consumables, which the
+	// spell tooltips work into their numbers.
+	DoneMultipliers done_multipliers = 17;
+	// The form or stance the player starts the fight in, by its id in the game files; 0 for none.
+	int32 shapeshift_form = 18;
+}
+// The factors on the damage and healing a unit deals, against any target.
+message DoneMultipliers {
+	repeated double damage = 1; // By SpellSchool: the damage done multiplier times the school's own.
+	double healing = 2;
 }
 // What the player has against a target of one mob type alone.
 message MobTypeBonus {

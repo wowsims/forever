@@ -2,7 +2,7 @@ import { actionIdHref } from '@sim/hooks/useActionId';
 import { useActionIds, useResolvedActionIds } from '@sim/hooks/useActionIds';
 import { useResolvedIcon } from '@sim/hooks/useResolvedIcon';
 import type { ActionId } from '@sim/proto/action_id';
-import { actionIdWowheadTooltipData } from '@sim/proto/action_id/tooltip_data';
+import { actionIdTooltipProps } from '@sim/proto/action_id/tooltip_data';
 import { IconEnumPicker } from '@ui-kit/IconEnumPicker';
 import { useState } from 'react';
 
@@ -18,8 +18,7 @@ export interface ConnectedIconEnumPickerProps<ModObject, T> {
 	testId?: string;
 }
 
-const buffDataset = (actionId: ActionId) =>
-	actionIdWowheadTooltipData(actionId, { useBuffAura: true }).then(url => (url ? { 'data-wowhead': url } : undefined));
+const buffDataset = (actionId: ActionId) => actionIdTooltipProps(actionId, { useBuffAura: true });
 
 export const ConnectedIconEnumPicker = <ModObject, T>({ modObject, config, testId }: ConnectedIconEnumPickerProps<ModObject, T>) => {
 	const { value, setValue, disabled, revision, frameProps } = useConnectedField(modObject, config);

@@ -14,6 +14,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	assetsdb "github.com/wowsims/forever/assets/database"
 	"github.com/wowsims/forever/sim"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -28,9 +29,10 @@ import (
 // go run ./tools/database/gen_db -outDir=assets -gen=atlasloot
 // go run ./tools/database/gen_db -outDir=assets -gen=questie
 // go run ./tools/database/gen_db -outDir=assets -gen=db
+// go run ./tools/database/gen_db -outDir=assets -gen=tooltips
 
 var outDir = flag.String("outDir", "assets", "Path to output directory for writing generated .go files.")
-var genAsset = flag.String("gen", "", "Asset to generate. Valid values are 'db', 'atlasloot', 'questie' and 'go-to-ts'")
+var genAsset = flag.String("gen", "", "Asset to generate. Valid values are 'db', 'tooltips', 'atlasloot', 'questie' and 'go-to-ts'")
 var dbPath = flag.String("dbPath", "./tools/database/wowsims.db", "Location of the wowsims.db file produced by tools/db2tool")
 var classes = flag.String("classes", "", "Write the talent files of these classes only (comma-separated package names, all or none, as gen_spelldata -classes); the item database is always written")
 
@@ -88,6 +90,20 @@ func main() {
 		questieDB, questieQuests := database.ReadQuestieData(placement)
 		questieDB.WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
 		database.WriteQuestieQuests(fmt.Sprintf("%s/questie_quests.json", inputsDir), questieQuests)
+		return
+	} else if *genAsset == "tooltips" {
+		// The spell tooltips alone, which -gen=db writes too: the parser reads the spells, their effects and the
+		// enchants from the game files database the overrides have run on.
+		helper, err := database.NewDBHelper()
+		if err != nil {
+			log.Fatalf("failed to initialize database: %v", err)
+		}
+		defer helper.Close()
+		if err := database.RunOverrides(helper, "tools/database/overrides"); err != nil {
+			log.Fatalf("failed to run overrides: %v", err)
+		}
+		writeDBCInputs(helper, inputsDir)
+		writeTooltips(helper, dbc.GetDBC(), dbDir, inputsDir, assetsdb.Load()) // db.bin and leftover_db.bin together
 		return
 	} else if *genAsset != "db" {
 		panic("Invalid gen value")
@@ -364,6 +380,50 @@ func main() {
 	applyRepSources(db, factionNames)
 	db.WriteBinaryAndJson(fmt.Sprintf("%s/db.bin", dbDir), fmt.Sprintf("%s/db.json", dbDir))
 	database.UpdateItemFirstSeen(fmt.Sprintf("%s/item_first_seen.json", dbDir), db.Items, time.Now().Unix())
+	writeTooltips(helper, instance, dbDir, inputsDir, db.ToUIProto(), leftovers.ToUIProto())
+}
+
+func writeTooltips(helper *database.DBHelper, instance *dbc.DBC, dbDir string, inputsDir string, databases ...*proto.UIDatabase) {
+	talents, err := database.LoadTalents(helper)
+	if err != nil {
+		log.Fatalf("failed to load the talents: %v", err)
+	}
+	treeTalents := map[int32]int32{}
+	for _, class := range []string{"druid", "hunter", "mage", "paladin", "priest", "rogue", "shaman", "warlock", "warrior"} {
+		for _, tree := range loadTalentTrees(fmt.Sprintf("%s/%s.json", talentTreesDir, class)) {
+			for _, talent := range tree.Talents {
+				treeTalents[int32(talent.SpellID)] = int32(talent.MaxPoints)
+			}
+		}
+	}
+	if err := database.WriteTooltips(fmt.Sprintf("%s/tooltips.json", dbDir), helper, instance, treeTalents, talents, databases...); err != nil {
+		log.Fatalf("failed to write the spell tooltips: %v", err)
+	}
+}
+
+// The game files tables dbc.GetDBC reads, written under inputsDir/dbc.
+func writeDBCInputs(helper *database.DBHelper, inputsDir string) {
+	var g errgroup.Group
+	g.Go(func() error { _, err := database.LoadAndWriteRawRandomSuffixes(helper, inputsDir); return err })
+	g.Go(func() error {
+		_, err := database.LoadAndWriteRawItems(helper, database.SimItemFilter(core.CharacterLevel), inputsDir)
+		return err
+	})
+	g.Go(func() error { _, err := database.LoadAndWriteRandomPropAllocations(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteRawEnchants(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteRawSpellEffects(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteItemDamageTables(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteItemArmorTotal(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteItemArmorQuality(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteItemArmorShield(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteArmorLocation(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteItemEffects(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteItemSetSpells(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteSpells(helper, inputsDir); return err })
+	g.Go(func() error { _, err := database.LoadAndWriteConsumables(helper, inputsDir); return err })
+	if err := g.Wait(); err != nil {
+		log.Fatalf("failed to write the game files tables: %v", err)
+	}
 }
 
 // Drop sources from NPCs that are not in Forever although their zone is.

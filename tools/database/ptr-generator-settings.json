@@ -95,6 +95,8 @@
 		"ExpectedStat",
 		"ExpectedStatMod",
 		"SpellCastTimes",
-		"SpellCastingRequirements"
+		"SpellCastingRequirements",
+		"SpellTotems",
+		"TotemCategory"
 	]
 }

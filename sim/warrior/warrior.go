@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
 )
@@ -111,6 +112,7 @@ func (warrior *Warrior) Initialize() {
 	warrior.registerVictoryRush()
 
 	warrior.registerStances()
+	warrior.ShapeshiftForm = warrior.defaultStanceForm()
 	warrior.registerBattleShout()
 	warrior.registerDemoralizingShout()
 	warrior.registerChallengingShout()
@@ -122,14 +124,22 @@ func (warrior *Warrior) Reset(_ *core.Simulation) {
 	warrior.curQueuedAutoSpell = nil
 	warrior.pendingQueue = nil
 
+	if form := warrior.defaultStanceForm(); form != 0 {
+		warrior.ShapeshiftForm = form
+	}
+}
+
+// The form of the stance the warrior starts each fight in, which the character sheet states too; 0 for none.
+func (warrior *Warrior) defaultStanceForm() dbcenums.ShapeshiftForm {
 	switch warrior.DefaultStance {
 	case proto.WarriorStance_WarriorStanceBattle:
-		warrior.ShapeshiftForm = battleStanceRank.ShapeshiftForm()
+		return battleStanceRank.ShapeshiftForm()
 	case proto.WarriorStance_WarriorStanceDefensive:
-		warrior.ShapeshiftForm = defensiveStanceRank.ShapeshiftForm()
+		return defensiveStanceRank.ShapeshiftForm()
 	case proto.WarriorStance_WarriorStanceBerserker:
-		warrior.ShapeshiftForm = berserkerStanceRank.ShapeshiftForm()
+		return berserkerStanceRank.ShapeshiftForm()
 	}
+	return 0
 }
 
 func (warrior *Warrior) OnEncounterStart(sim *core.Simulation) {}

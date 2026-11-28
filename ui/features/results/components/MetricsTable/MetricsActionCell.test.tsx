@@ -10,9 +10,9 @@ const wowhead = vi.hoisted(() => ({ calls: [] as Array<unknown> }));
 
 vi.mock('@sim/hooks/useActionId', () => ({ useActionId: () => resolved.state }));
 vi.mock('@sim/proto/action_id/tooltip_data', () => ({
-	actionIdWowheadTooltipData: (...args: Array<unknown>) => {
+	actionIdTooltipProps: (...args: Array<unknown>) => {
 		wowhead.calls.push(args);
-		return Promise.resolve('spell=34026');
+		return Promise.resolve({ 'data-wowhead': 'spell=34026' });
 	},
 }));
 

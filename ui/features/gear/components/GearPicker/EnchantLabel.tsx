@@ -1,6 +1,6 @@
 import type { UIEnchant as Enchant } from '@generated/proto/ui';
-import { useActionIdWowheadDataset } from '@sim/hooks/useActionIdWowheadDataset';
 import { ActionId } from '@sim/proto/action_id';
+import { enchantTooltipAnchor } from '@sim/proto/tooltips';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import { useMemo } from 'react';
 
@@ -22,14 +22,21 @@ export const EnchantLabel = ({ className, testId, enchant, onActivate, tooltipId
 		[enchant],
 	);
 
-	const wowheadProps = useActionIdWowheadDataset(actionId);
+	const tooltip = useMemo(() => (enchant ? enchantTooltipAnchor(enchant) : {}), [enchant]);
 
 	const href = actionId ? (actionId.spellId ? ActionId.makeSpellUrl(actionId.spellId) : ActionId.makeItemUrl(actionId.itemId)) : undefined;
 
 	if (!enchant) return null;
 
 	return (
-		<WowheadAnchor className={className} testId={testId} href={href} onActivate={onActivate} data-tooltip-id={tooltipId} {...wowheadProps}>
+		// A label that opens the quick enchant list on hover keeps it; the enchant's own tooltip shows on the others.
+		<WowheadAnchor
+			className={className}
+			testId={testId}
+			href={href}
+			onActivate={onActivate}
+			{...tooltip}
+			data-tooltip-id={tooltipId ?? tooltip['data-tooltip-id']}>
 			{description}
 		</WowheadAnchor>
 	);

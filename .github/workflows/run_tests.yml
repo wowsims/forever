@@ -331,12 +331,12 @@ jobs:
                   git rev-parse --verify --quiet HEAD^2 > /dev/null || { echo "HEAD is not the pull request's merge commit"; exit 1; }
                   go run ./sim/siml/cmd/simlnames -base HEAD^1
 
-            # The buff manifest, the proto emitter and the buff generator's render and
-            # TS tests need no game files database, and the database is not in the repo, so
-            # the tests that do need it skip. One shard runs them.
+            # The buff manifest, the proto emitter, the buff generator's render and TS tests and
+            # the tooltip compiler's tests need no game files database, and the database is not in
+            # the repo, so the tests that do need it skip. One shard runs them.
             - name: Test the buff generator
               if: matrix.shard == 0
-              run: go test ./tools/database/... ./tools/gen_buffs_proto/...
+              run: go test ./tools/database/... ./tools/gen_buffs_proto/... ./tools/tooltip/...
 
             # The tools that read and sim SIML files, wowsimcli's check of the files under ui/specs among them, and
             # sim/siml built without the with_db tag, which holds no name table. The test that the table keeps its
