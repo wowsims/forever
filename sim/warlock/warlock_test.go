@@ -713,16 +713,10 @@ func TestExpectedDotTickCountsItsCrits(t *testing.T) {
 	}
 }
 
-// While Wrack is channelled on a target, this warlock's Corruption, Siphon Life and Bane of Agony there also tick on
-// the half points of their period from their application: each half point from the instant the channel starts up
-// to the instant it ends, the start included and the end left out. Their own ticks and their expiry stay, and every
-// tick deals in full;
-// Bane of Agony's ramp follows the time since it landed, a tick on a third's end taking the lower third, and each
-// Siphon Life tick heals the warlock for its damage. The custom metric wrack holds the half-point ticks' damage,
-// each tick's in full. The warlock's effect on another target and a second warlock's on the channelled target tick
-// as they do without Wrack. The windows are in seconds from the effect's application, shaped like channels logged
-// in game, and one with no end runs the channel out: one started on a half point ticks it at once, one ending on a
-// half point leaves it, and a recast at the instant one ends ticks that point once. Siphon Life is the 14th affliction talent, Wrack the 17th.
+// Wrack's half points on the warlock's Corruption, Siphon Life and Bane of Agony, each tick in full, Agony's ramp and
+// Siphon Life's heal included, and the metric wrack holding their damage (EV-0085). Another target's effects and a
+// second warlock's tick as without Wrack. Windows are in seconds from the application; one with no end runs out.
+// Siphon Life is the 14th affliction talent, Wrack the 17th.
 func TestWrackTicksTheHalfPointsOfTheWarlocksDots(t *testing.T) {
 	type window struct{ from, to float64 }
 	corruption := func(w *Warlock) *core.Spell { return w.Corruption }

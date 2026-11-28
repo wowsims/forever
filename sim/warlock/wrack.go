@@ -9,15 +9,9 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
-// While the channel is on the target, this warlock's Corruption, Siphon Life and Bane of Agony there tick every
-// period / (1 + the row's dummy percent), on the grid of their expiry less whole periods. At half the period each
-// normal tick stays, and the half points between them tick too: each one from the instant the channel starts up to
-// the instant it ends, the start included and the end left out. A channel that starts on a half point ticks it at
-// once, and a recast at the instant a channel ends ticks that point once. A half point ticks after everything else
-// due at its instant, so a channel ending or starting there is settled first. Every tick is full, and the effect's
-// own ticks and expiry stay as they are. An effect applied while the channel runs keeps its normal period, since
-// casting it ends the channel. In game a half point ticks when the channel is up at its instant, and a 6 s channel
-// lined up on the grid ticks one of the two half points at its edges, as one off the grid does (EV-0085).
+// While the channel is on the target, the half points of this warlock's Corruption, Siphon Life and Bane of Agony
+// there tick too, in full, from the channel's start up to its end, the end left out (EV-0085). A half point runs at
+// the lowest priority, so a channel starting, ending or recast at its instant is settled first.
 func (warlock *Warlock) registerWrackSpell() {
 	rankedSpell := spellData.Wrack.ByID(1316697)
 	wrackTick := rankedSpell.PeriodicEffect()
@@ -26,9 +20,8 @@ func (warlock *Warlock) registerWrackSpell() {
 	config := warlock.soulSiphonChannelConfig(rankedSpell, wrackTick, nil)
 	config.ClassSpellMask = WarlockSpellWrack
 
-	// The half points are the points of the channel's period that are not the effect's own ticks, which holds while
-	// the channel's period divides the normal one. The effects register after this talent, so the check runs as
-	// the channel starts: a row that breaks it panics on the first channel.
+	// The channel's period must divide the effect's. The effects register after this talent, so the check runs at
+	// the first channel.
 	fastPeriod := func(dot *core.Dot) time.Duration {
 		normal := dot.TickPeriod()
 		fast := time.Duration(float64(normal) / speedup).Round(time.Millisecond)
@@ -85,9 +78,7 @@ func (warlock *Warlock) registerWrackSpell() {
 
 	warlock.Wrack = warlock.RegisterSpell(config)
 
-	// A tick of these effects off their normal grid, on a half point only the channel's period gives, is wholly
-	// Wrack's: it records its damage on its spell under the key wrack. A tick on the normal grid records nothing,
-	// nor does one before the pull, as its damage is not counted either.
+	// A tick off the effect's own grid is Wrack's and records its damage under the key wrack; none before the pull.
 	core.MakePermanent(warlock.RegisterAura(core.Aura{
 		Label: "Wrack Contribution",
 		OnPeriodicDamageDealt: func(_ *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
