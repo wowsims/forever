@@ -2,24 +2,16 @@ package warlock
 
 import (
 	"fmt"
-	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
-// While the channel is on the target, this warlock's Corruption, Siphon Life and Bane of Agony there tick every
-// period / (1 + the row's dummy percent), at their application plus whole periods (retimeOnGrid). At half
-// the period each normal tick stays, and the half points between them tick too: each one from the instant the
-// channel starts up to the instant it ends, both included. A channel that starts on a half point ticks it at once,
-// and a recast at the instant the channel ends ticks that point once. Every tick is full and the expiry stays;
-// starting or ending the channel moves no tick. An effect applied while the channel runs keeps its normal period,
-// since casting it ends the channel.
-// The start is measured (EV-0085).
-// TODO: Ingame test needed: the end is not measured (EV-0085). The logs' 0.05 s steps cannot split a channel
-// ending close to a half point. End Wrack within 0.05 s before and after a half point,
-// many times each, and count the ticks there.
+// While the channel is on the target, the half points of this warlock's Corruption, Siphon Life and Bane of Agony
+// there tick too, in full, from the channel's start up to its end. In game a channel lined up on the grid ticks one
+// of its two edge points, the start's and the end's about as often (EV-0085); here it is always the start's. A half
+// point runs at the lowest priority, so a channel starting, ending or recast at its instant is settled first.
 func (warlock *Warlock) registerWrackSpell() {
 	rankedSpell := spellData.Wrack.ByID(1316697)
 	wrackTick := rankedSpell.PeriodicEffect()
@@ -28,84 +20,75 @@ func (warlock *Warlock) registerWrackSpell() {
 	config := warlock.soulSiphonChannelConfig(rankedSpell, wrackTick, nil)
 	config.ClassSpellMask = WarlockSpellWrack
 
-	// The listener below takes a tick on the effect's application plus whole normal periods for a normal one, which
-	// holds while the channel's period divides the normal one. The effects register after this talent, so the check
-	// runs as the channel starts: a row that breaks it panics on the first channel.
+	// The half period under the channel must divide the effect's own. The effects register after this talent, so the
+	// check runs when a channel first starts over each effect.
 	fastPeriod := func(dot *core.Dot) time.Duration {
-		normal := dot.CalcTickPeriod()
+		normal := dot.TickPeriod()
 		fast := time.Duration(float64(normal) / speedup).Round(time.Millisecond)
 		if normal%fast != 0 {
 			panic(fmt.Sprintf("Wrack ticks %s every %v, which does not divide its period of %v", dot.Spell.ActionID, fast, normal))
 		}
 		return fast
 	}
-	// When each effect was last re-timed, cleared each iteration as the clock starts over.
-	retimedAt := map[*core.Dot]time.Duration{}
+	// Each effect's next half point under the channel, cleared each iteration as the clock starts over.
+	pending := map[*core.Dot]*core.PendingAction{}
+	var halfPointDot *core.Dot // the effect whose half point is ticking
 	warlock.RegisterResetEffect(func(_ *core.Simulation) {
-		clear(retimedAt)
+		clear(pending)
 	})
+	// Queues the effect's half point that lies points half periods before its expiry, or the one after it when that
+	// point is one of the effect's own ticks.
+	var queueHalfPoint func(sim *core.Simulation, channel *core.Aura, dot *core.Dot, points time.Duration)
+	queueHalfPoint = func(sim *core.Simulation, channel *core.Aura, dot *core.Dot, points time.Duration) {
+		fast, expiresAt := fastPeriod(dot), dot.ExpiresAt()
+		if (points*fast)%dot.TickPeriod() == 0 {
+			points--
+		}
+		if points <= 0 {
+			return
+		}
+		pa := &core.PendingAction{NextActionAt: expiresAt - points*fast, Priority: core.ActionPriorityLow}
+		pa.OnAction = func(sim *core.Simulation) {
+			delete(pending, dot)
+			if !channel.IsActive() || !dot.IsActive() || dot.ExpiresAt() != expiresAt {
+				return
+			}
+			halfPointDot = dot
+			dot.TickOnce(sim)
+			halfPointDot = nil
+			if channel.IsActive() && dot.IsActive() {
+				queueHalfPoint(sim, channel, dot, points-1)
+			}
+		}
+		pending[dot] = pa
+		sim.AddPendingAction(pa)
+	}
 	config.Dot.Aura.OnGain = func(aura *core.Aura, sim *core.Simulation) {
 		for _, spell := range warlock.afflictionDots {
-			dot := spell.Dot(aura.Unit)
-			retimeOnGrid(sim, dot, fastPeriod(dot), retimedAt)
+			if dot := spell.Dot(aura.Unit); dot.IsActive() {
+				queueHalfPoint(sim, aura, dot, (dot.ExpiresAt()-sim.CurrentTime)/fastPeriod(dot))
+			}
 		}
 	}
 	config.Dot.Aura.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
 		for _, spell := range warlock.afflictionDots {
 			dot := spell.Dot(aura.Unit)
-			retimeOnGrid(sim, dot, dot.CalcTickPeriod(), retimedAt)
+			if pa := pending[dot]; pa != nil {
+				pa.Cancel(sim)
+				delete(pending, dot)
+			}
 		}
 	}
 
 	warlock.Wrack = warlock.RegisterSpell(config)
 
-	// A tick of these effects off their normal grid, on a half point only the channel's period gives, is wholly
-	// Wrack's: it records its damage on its spell under the key wrack. A tick on the normal grid records nothing,
-	// nor does one before the pull, as its damage is not counted either.
+	// A half point's tick records its damage on its spell under the key wrack; none before the pull.
 	core.MakePermanent(warlock.RegisterAura(core.Aura{
 		Label: "Wrack Contribution",
 		OnPeriodicDamageDealt: func(_ *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			if sim.CurrentTime < 0 || !slices.Contains(warlock.afflictionDots, spell) {
-				return
-			}
-			if dot := spell.Dot(result.Target); (sim.CurrentTime-dot.StartedAt())%dot.CalcTickPeriod() != 0 {
+			if dot := halfPointDot; dot != nil && sim.CurrentTime >= 0 && spell == dot.Spell && result.Target == dot.Unit {
 				spell.RecordCustomMetric(result.Target, "wrack", result.Damage)
 			}
 		},
 	}))
-}
-
-// Ticks a running effect every period from now on, at its expiry less whole periods, so its last tick lands on the
-// expiry in full. Apply puts the expiry on the effect's normal ticks, so a period that divides the normal one keeps
-// them and adds the points between, and the normal period again puts the effect back on them. RestoreState drops the
-// queued tick and queues the next one anew, so a tick due now deals here, once: also one whose action the sim has
-// already taken off the queue, as when the channel runs out at the instant of the tick. A point only the new period
-// has ticks here at once, unless the effect was re-timed at this instant before (retimedAt): a re-timing leaves no
-// point at its instant unticked, so a channel recast at the instant one ends does not tick that point again. A point
-// already passed does not tick, and an effect that is not up is left alone. The call must not come from inside the
-// effect's own tick, where the tick queues the next one a second time: Wrack's channel starts and ends from its
-// aura's gain and expiry, never from inside a tick of these effects.
-func retimeOnGrid(sim *core.Simulation, dot *core.Dot, period time.Duration, retimedAt map[*core.Dot]time.Duration) {
-	if !dot.IsActive() || period == dot.TickPeriod() {
-		return
-	}
-	state := dot.SaveState(sim)
-	untilExpiry := state.RemainingDuration
-	lastAt, retimed := retimedAt[dot]
-	retimedAt[dot] = sim.CurrentTime
-	newPointNow := untilExpiry%period == 0 && untilExpiry%state.TickPeriod != 0 && !(retimed && lastAt == sim.CurrentTime)
-	tickNow := state.NextTickIn == 0 || newPointNow
-
-	state.TickPeriod = period
-	state.TicksRemaining = int32((untilExpiry + period - 1) / period)
-	state.NextTickIn = untilExpiry - time.Duration(state.TicksRemaining-1)*period
-	if tickNow {
-		// Counted before it deals, as the effect's own tick does; the next tick is already after now, so an
-		// expiry the tick brings about finds none due.
-		state.TicksDone++
-	}
-	dot.RestoreState(state, sim)
-	if tickNow {
-		dot.TickOnce(sim)
-	}
 }
