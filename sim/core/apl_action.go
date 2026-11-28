@@ -174,15 +174,22 @@ func (rot *APLRotation) newAPLAction(config *proto.APLAction) *APLAction {
 		return nil
 	}
 
+	validationStart := len(rot.curValidations)
 	impl := rot.newAPLActionImpl(config)
-	if impl == nil {
-		// Don't create an action with a nil implementation
+	if impl == nil && len(rot.curValidations) == validationStart {
 		return nil
 	}
 
 	condition := rot.coerceTo(rot.newAPLValue(config.Condition), proto.APLValueType_ValueTypeBool)
-	if config.Condition != nil && config.Condition.Value != nil && condition == nil {
+	if impl != nil && config.Condition != nil && config.Condition.Value != nil && condition == nil {
 		rot.ValidationMessage(proto.LogLevel_Warning, "Condition could not be resolved and will be treated as always true. Add an 'Aura Known' check if this action should be skipped when the aura is absent.")
+	}
+
+	if value, constant := constantAPLBool(condition); constant && !value {
+		rot.discardInactiveWarnings(validationStart)
+	}
+	if impl == nil {
+		return nil
 	}
 
 	// If condition is const false, this action can never fire — prune it.

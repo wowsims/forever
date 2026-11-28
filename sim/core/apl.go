@@ -73,6 +73,7 @@ type APLRotation struct {
 
 	// Validation warnings that occur during proto parsing.
 	// We return these back to the user for display in the UI.
+	availabilityWarnings    map[*proto.APLValidation]bool
 	curValidations          []*proto.APLValidation
 	prepullValidations      [][]*proto.APLValidation
 	priorityListValidations [][]*proto.APLValidation
@@ -120,6 +121,26 @@ func (rot *APLRotation) ValidationMessageByUUID(uuid *proto.UUID, log_level prot
 			Validation: formatted_message,
 		})
 	}
+}
+
+// Availability failures are quiet only inside branches that cannot use the entry.
+func (rot *APLRotation) unavailable(message string, vals ...any) {
+	validation := &proto.APLValidation{LogLevel: proto.LogLevel_Warning, Validation: fmt.Sprintf(message, vals...)}
+	rot.curValidations = append(rot.curValidations, validation)
+	if rot.availabilityWarnings == nil {
+		rot.availabilityWarnings = make(map[*proto.APLValidation]bool)
+	}
+	rot.availabilityWarnings[validation] = true
+}
+
+func (rot *APLRotation) discardInactiveWarnings(start int) {
+	rot.curValidations = append(rot.curValidations[:start], slices.DeleteFunc(rot.curValidations[start:], func(v *proto.APLValidation) bool {
+		if !rot.availabilityWarnings[v] {
+			return false
+		}
+		delete(rot.availabilityWarnings, v)
+		return true
+	})...)
 }
 
 // Invokes the fn function, and attributes all warnings generated during its invocation
@@ -347,6 +368,7 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 
 	rotation.assignEntryPaths(config)
 
+	rotation.availabilityWarnings = nil
 	return rotation
 }
 
@@ -888,12 +910,16 @@ func (rot *APLRotation) newAPLActionWithGroupVars(config *proto.APLAction, group
 		return nil
 	}
 
+	validationStart := len(rot.curValidations)
 	condition := rot.coerceTo(rot.newAPLValueWithContext(config.Condition, groupVars), proto.APLValueType_ValueTypeBool)
 	if config.Condition != nil && config.Condition.Value != nil && condition == nil {
 		rot.ValidationMessage(proto.LogLevel_Warning, "Condition could not be resolved and will be treated as always true. Add an 'Aura Known' check if this action should be skipped when the aura is absent.")
 	}
 
 	impl := rot.newAPLActionImpl(config)
+	if value, constant := constantAPLBool(condition); constant && !value {
+		rot.discardInactiveWarnings(validationStart)
+	}
 	if impl == nil {
 		return nil
 	}

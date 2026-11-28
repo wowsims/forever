@@ -17,9 +17,6 @@ func (rot *APLRotation) newValueTalentIsKnown(config *proto.APLValueTalentIsKnow
 	rank := max(config.TalentId.Rank, 1)
 
 	known := rot.talentRank(spellID) >= rank
-	if !known {
-		rot.ValidationMessage(proto.LogLevel_Warning, "%s does not know talent %s (Rank %d)", rot.unit.Label, ActionID{SpellID: spellID}, rank)
-	}
 
 	return rot.newValueConst(&proto.APLValueConst{
 		Val: Ternary(known, "true", "false"),
@@ -39,9 +36,6 @@ func (rot *APLRotation) newValueTalentRank(config *proto.APLValueTalentRank, _ *
 
 	talentID := ActionID{SpellID: config.TalentId.GetSpellId()}
 	rank := rot.talentRank(talentID.SpellID)
-	if rank == 0 {
-		rot.ValidationMessage(proto.LogLevel_Warning, "%s does not know talent %s", rot.unit.Label, talentID)
-	}
 
 	return &APLValueTalentRank{
 		talentID: talentID,

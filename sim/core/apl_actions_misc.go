@@ -189,7 +189,7 @@ func (rot *APLRotation) newActionActivateAllStatBuffProcAuras(config *proto.APLA
 	})
 
 	if !character.ItemSwap.IsEnabled() && config.SwapSet != proto.APLActionItemSwap_Main {
-		rot.ValidationMessage(proto.LogLevel_Warning, "No swap set configured in Settings.")
+		rot.unavailable("No swap set configured in Settings.")
 		return nil
 	} else if len(allProcAuras) == 0 {
 		rot.ValidationMessage(proto.LogLevel_Warning, "There are no proc items buffing the specified stat type(s) for the specified item set.")
@@ -272,7 +272,7 @@ func (rot *APLRotation) newActionItemSwap(config *proto.APLActionItemSwap) APLAc
 	character := rot.unit.Env.Raid.GetPlayerFromUnit(rot.unit).GetCharacter()
 	if !character.ItemSwap.IsEnabled() {
 		if config.SwapSet != proto.APLActionItemSwap_Main {
-			rot.ValidationMessage(proto.LogLevel_Warning, "No swap set configured in Settings.")
+			rot.unavailable("No swap set configured in Settings.")
 		}
 		return nil
 	}

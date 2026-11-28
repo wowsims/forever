@@ -21,7 +21,7 @@ func (rot *APLRotation) newValueActiveItemSwapSet(config *proto.APLValueActiveIt
 	character := rot.unit.Env.Raid.GetPlayerFromUnit(rot.unit).GetCharacter()
 	if !character.ItemSwap.IsEnabled() {
 		if config.SwapSet != proto.APLActionItemSwap_Main {
-			rot.ValidationMessage(proto.LogLevel_Warning, "No swap set configured in Settings.")
+			rot.unavailable("No swap set configured in Settings.")
 		}
 		return nil
 	}

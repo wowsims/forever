@@ -172,7 +172,7 @@ func (rot *APLRotation) GetAPLAura(sourceUnit UnitReference, auraId *proto.Actio
 
 	aura := NewAuraReference(sourceUnit, auraId)
 	if aura.Get() == nil {
-		rot.ValidationMessage(proto.LogLevel_Warning, "No aura found on %s for: %s", resolvedSourceUnit.Label, ProtoToActionID(auraId))
+		rot.unavailable("No aura found on %s for: %s", resolvedSourceUnit.Label, ProtoToActionID(auraId))
 	}
 	return aura
 }
@@ -185,7 +185,7 @@ func (rot *APLRotation) GetAPLICDAura(sourceUnit UnitReference, auraId *proto.Ac
 
 	aura := NewIcdAuraReference(sourceUnit, auraId)
 	if aura.Get() == nil {
-		rot.ValidationMessage(proto.LogLevel_Warning, "No aura found on %s for: %s", resolvedSourceUnit.Label, ProtoToActionID(auraId))
+		rot.unavailable("No aura found on %s for: %s", resolvedSourceUnit.Label, ProtoToActionID(auraId))
 	}
 	return aura
 }
@@ -203,6 +203,10 @@ func (rot *APLRotation) GetAPLItemProcAuras(statTypesToMatch []stats.Stat, minIc
 }
 
 func (rot *APLRotation) GetAPLSpell(spellId *proto.ActionID) *Spell {
+	return rot.getAPLSpell(spellId, true)
+}
+
+func (rot *APLRotation) getAPLSpell(spellId *proto.ActionID, warn bool) *Spell {
 	if spellId == nil {
 		return nil
 	}
@@ -215,7 +219,9 @@ func (rot *APLRotation) GetAPLSpell(spellId *proto.ActionID) *Spell {
 	}
 	if potionID, isPlaceholder := placeholderPotionID(consumables, actionID.OtherID); isPlaceholder {
 		if potionID == 0 {
-			rot.ValidationMessage(proto.LogLevel_Warning, "%s picks no potion for %s", rot.unit.Label, actionID)
+			if warn {
+				rot.unavailable("%s picks no potion for %s", rot.unit.Label, actionID)
+			}
 			return nil
 		}
 		for _, s := range rot.unit.Spellbook {
@@ -240,8 +246,8 @@ func (rot *APLRotation) GetAPLSpell(spellId *proto.ActionID) *Spell {
 		}
 	}
 
-	if spell == nil {
-		rot.ValidationMessage(proto.LogLevel_Warning, "%s does not know spell %s", rot.unit.Label, actionID)
+	if spell == nil && warn {
+		rot.unavailable("%s does not know spell %s", rot.unit.Label, actionID)
 	}
 	return spell
 }
@@ -258,7 +264,7 @@ func (rot *APLRotation) GetTargetAPLSpell(spellId *proto.ActionID, targetUnit Un
 	spell := target.GetSpell(actionID)
 
 	if spell == nil {
-		rot.ValidationMessage(proto.LogLevel_Warning, "%s does not know spell %s", target.Label, actionID)
+		rot.unavailable("%s does not know spell %s", target.Label, actionID)
 	}
 	return spell
 }

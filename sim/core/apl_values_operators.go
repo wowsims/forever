@@ -955,7 +955,24 @@ func (rot *APLRotation) newValueMin(config *proto.APLValueMin, _ *proto.UUID, gr
 	}
 }
 
+// Variable references keep their runtime cache even when the referenced value is constant.
+func constantAPLBool(value APLValue) (bool, bool) {
+	for {
+		ref, ok := value.(*APLValueVariableRef)
+		if !ok {
+			break
+		}
+		value = ref.resolved
+	}
+	constant, ok := value.(*APLValueConst)
+	if !ok || constant.valType != proto.APLValueType_ValueTypeBool {
+		return false, false
+	}
+	return constant.boolVal, true
+}
+
 func (rot *APLRotation) newValueAnd(config *proto.APLValueAnd, _ *proto.UUID, groupVariables map[string]*proto.APLValue) APLValue {
+	validationStart := len(rot.curValidations)
 	vals := MapSlice(config.Vals, func(val *proto.APLValue) APLValue {
 		return rot.coerceTo(rot.newAPLValueWithContext(val, groupVariables), proto.APLValueType_ValueTypeBool)
 	})
@@ -969,6 +986,7 @@ func (rot *APLRotation) newValueAnd(config *proto.APLValueAnd, _ *proto.UUID, gr
 					rot.orphanValue(other)
 				}
 			}
+			rot.discardInactiveWarnings(validationStart)
 			return constVal
 		}
 	}
@@ -986,6 +1004,7 @@ func (rot *APLRotation) newValueAnd(config *proto.APLValueAnd, _ *proto.UUID, gr
 }
 
 func (rot *APLRotation) newValueOr(config *proto.APLValueOr, _ *proto.UUID, groupVariables map[string]*proto.APLValue) APLValue {
+	validationStart := len(rot.curValidations)
 	vals := MapSlice(config.Vals, func(val *proto.APLValue) APLValue {
 		return rot.coerceTo(rot.newAPLValueWithContext(val, groupVariables), proto.APLValueType_ValueTypeBool)
 	})
@@ -993,6 +1012,9 @@ func (rot *APLRotation) newValueOr(config *proto.APLValueOr, _ *proto.UUID, grou
 	if len(vals) == 0 {
 		return nil
 	} else if len(vals) == 1 {
+		if value, constant := constantAPLBool(vals[0]); constant && value {
+			rot.discardInactiveWarnings(validationStart)
+		}
 		return vals[0]
 	}
 	// Short-circuit: if any child is const true, the whole Or is true.
@@ -1004,6 +1026,7 @@ func (rot *APLRotation) newValueOr(config *proto.APLValueOr, _ *proto.UUID, grou
 					rot.orphanValue(other)
 				}
 			}
+			rot.discardInactiveWarnings(validationStart)
 			return constVal
 		}
 	}

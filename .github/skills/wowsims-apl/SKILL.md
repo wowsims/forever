@@ -62,8 +62,10 @@ A value or action reaches the rotation and the kind picker in five places, all i
   Time To Target's energy are not inner values (`GetInnerValues`), so a placeholder there is neither found nor filled.
 - **A group's variables override value variables only in the conditions of its own actions**, not in their values
   or inside a sequence (`reResolveVariableRefs`).
-- **`Spell Is Known`, `Aura Is Known` and `Talent Is Known` fold to a constant at parse.** A constant false condition
-  prunes the line, a constant true one is no condition (`newAPLAction`).
+- **`Spell Is Known`, `Aura Is Known` and `Talent Is Known` fold to a constant at parse.** Availability queries
+  return false, or rank zero, without warning when the spell, aura or talent is absent. A constant false condition
+  prunes the line, a constant true one is no condition (`newAPLAction`). Branches already folded to a constant suppress
+  availability warnings from entries they cannot use; other warnings and errors remain visible. An unguarded missing cast still warns.
 - **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID that does not set
   `HideFromAPL` (`metadata` in `sim/core/unit.go`). A hand-written row names only a spell the picker lists, with the tag
   the picker gives: `GetAPLSpell` falls back to the unflagged spell with that id and tag and the sim casts it. Heroic

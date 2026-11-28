@@ -282,3 +282,49 @@ func TestManualCastsCountTheMovesTheRotationStarts(t *testing.T) {
 		t.Errorf("a MoveDuration from standing: ManualCasts = %d, Casts = %d, want 2 and 3", got.ManualCasts, got.Casts)
 	}
 }
+
+func TestAPLUnavailableEntriesKeepOnlyReachableWarnings(t *testing.T) {
+	missing := ActionID{SpellID: testMissingAuraID}.ToProto()
+	known := &proto.APLValue{Value: &proto.APLValue_SpellIsKnown{SpellIsKnown: &proto.APLValueSpellIsKnown{SpellId: missing}}}
+	ready := &proto.APLValue{Value: &proto.APLValue_SpellIsReady{SpellIsReady: &proto.APLValueSpellIsReady{SpellId: missing}}}
+	for _, tc := range []struct {
+		name                    string
+		spell                   *proto.ActionID
+		condition               *proto.APLValue
+		wantAction, wantWarning bool
+	}{
+		{"unguarded missing cast", missing, nil, false, true},
+		{"guarded missing cast", missing, known, false, false},
+		{"false guard around a missing readiness check", fakeRendActionID.ToProto(), andValue(known, ready), false, false},
+		{"true alternative to a missing readiness check", fakeRendActionID.ToProto(), orValue(&proto.APLValue{Value: &proto.APLValue_Not{Not: &proto.APLValueNot{Val: known}}}, ready), true, false},
+		{"unguarded missing readiness check", fakeRendActionID.ToProto(), ready, true, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			_, _, rot := setupFakeRageRotation()
+			rot.curValidations = nil
+			action := rot.newAPLAction(&proto.APLAction{Condition: tc.condition, Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: tc.spell}}})
+			if (action != nil) != tc.wantAction || (len(rot.curValidations) > 0) != tc.wantWarning {
+				t.Fatalf("action present=%t, validations=%v", action != nil, rot.curValidations)
+			}
+		})
+	}
+	_, _, rot := setupFakeRageRotation()
+	badVariable := &proto.APLValue{Uuid: &proto.UUID{Value: "missing-variable"}, Value: &proto.APLValue_VariableRef{VariableRef: &proto.APLValueVariableRef{Name: "missing"}}}
+	rot.newAPLAction(&proto.APLAction{Condition: andValue(known, badVariable), Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: fakeRendActionID.ToProto()}}})
+	badComparison := &proto.APLValue{Uuid: &proto.UUID{Value: "invalid-comparison"}, Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{Op: proto.APLValueCompare_OpLt, Lhs: constValue("true"), Rhs: constValue("false")}}}
+	rot.newAPLAction(&proto.APLAction{Condition: andValue(known, badComparison), Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: fakeRendActionID.ToProto()}}})
+	var errors, warnings int
+	for _, validations := range rot.uuidValidations {
+		for _, v := range validations {
+			if v.LogLevel == proto.LogLevel_Error {
+				errors++
+			}
+			if v.LogLevel == proto.LogLevel_Warning {
+				warnings++
+			}
+		}
+	}
+	if errors == 0 || warnings == 0 {
+		t.Fatal("an inactive branch lost a variable error or a comparison warning")
+	}
+}
