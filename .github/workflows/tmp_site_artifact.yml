@@ -1,0 +1,70 @@
+# TEMPORARY: proves the site artifact paths on this pull request without deploying. Removed before ready.
+name: TMP site artifact
+on:
+    pull_request:
+jobs:
+    tests:
+        uses: ./.github/workflows/run_tests.yml
+        permissions:
+            contents: read
+            pull-requests: write
+        with:
+            site-artifact: true
+            wasm-opt: true
+            icons: true
+
+    deploy-path:
+        needs: tests
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@v5
+              with:
+                  persist-credentials: false
+                  fetch-depth: 0
+                  filter: blob:none
+            - uses: actions/download-artifact@v8
+              with:
+                  name: site
+                  path: dist/forever
+            - name: Check the site
+              run: |
+                  set -x
+                  test -f dist/forever/index.html
+                  test -f dist/forever/lib.wasm.gz
+                  test -f dist/forever/.dirstamp
+                  test -f dist/forever/assets/icons/manifest.json
+                  ls dist/forever | head -50
+                  du -sh dist/forever
+                  cat dist/forever/version.json
+                  grep -q '"${{ github.event.pull_request.head.sha }}"' dist/forever/version.json
+                  git merge-base --is-ancestor HEAD^1 HEAD
+
+    release-path:
+        needs: tests
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@v5
+              with:
+                  persist-credentials: false
+            - uses: actions/setup-go@v6
+              with:
+                  go-version: 1.27.x
+            - uses: ./.github/actions/setup-protoc
+            - run: go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12
+            - uses: actions/download-artifact@v8
+              with:
+                  name: site
+                  path: dist/forever
+            - name: Copy the site into binary_dist
+              run: |
+                  make -o dist/forever/.dirstamp sim/core/proto/api.pb.go binary_dist binary_dist/dist.go 2>&1 | tee make.log
+                  test -f binary_dist/forever/index.html
+                  ! grep -qE "webassembly|vite" make.log
+            - name: Build the binaries GoReleaser builds
+              run: |
+                  CGO_ENABLED=0 go build -o /dev/null ./sim/web
+                  CGO_ENABLED=0 go build -tags with_db -o /dev/null ./cmd/wowsimcli
