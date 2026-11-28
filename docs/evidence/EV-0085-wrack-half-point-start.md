@@ -63,14 +63,14 @@ Each Corruption, Siphon Life and Bane of Agony instance with no refresh is put o
 
 Half points near an edge with no other channel edge near the point, by where the point lies relative to the edge:
 
-| Half point              | Ticked, near a start  | Ticked, near an end  |
-| ----------------------- | --------------------- | -------------------- |
-| 0.16 s or more before   | 0 of 3,372            | 3,442 of 3,475       |
-| 0.04 to 0.02 s before   | 30 of 541             | 349 of 355           |
-| under 0.02 s before     | 517 of 1,771          | 511 of 700           |
-| under 0.02 s after      | 2,184 of 2,663        | 112 of 798           |
-| 0.02 to 0.04 s after    | 4,800 of 4,816        | 2 of 935             |
-| 0.16 s or more after    | 5,077 of 5,101        | 0 of 2,440           |
+| Half point            | Ticked, near a start | Ticked, near an end |
+| --------------------- | -------------------- | ------------------- |
+| 0.16 s or more before | 0 of 3,372           | 3,442 of 3,475      |
+| 0.04 to 0.02 s before | 30 of 541            | 349 of 355          |
+| under 0.02 s before   | 517 of 1,771         | 511 of 700          |
+| under 0.02 s after    | 2,184 of 2,663       | 112 of 798          |
+| 0.02 to 0.04 s after  | 4,800 of 4,816       | 2 of 935            |
+| 0.16 s or more after  | 5,077 of 5,101       | 0 of 2,440          |
 
 A half point ticks when the channel is on the target at its instant, at the start and at the end alike: either way the share passes one half within 5 ms before the logged edge, and within 0.02 s the share follows the spread of the effects' own ticks. No tick logged after the channel's removal, and 413 logged in the same millisecond as it; 569 logged in the same millisecond as the channel's start. A channel that lands a few hundredths of a second after a half point ticks it only where the point fell due in that same instant.
 
