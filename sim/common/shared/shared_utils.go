@@ -1,7 +1,6 @@
 package shared
 
 import (
-	"cmp"
 	"fmt"
 	"slices"
 	"time"
@@ -623,10 +622,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// on the trigger while the buff it applies states none.
 	if stacks := max(buff.MaxStack, trigger.MaxStack); stacks > 0 {
 		// A stacking buff's bonus against creature types, and its speed, would need adding per stack.
-		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool {
-			versus := spelldata.VersusAura(e.Aura)
-			return len(versus.Stats) > 0
-		}) {
+		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool { return len(spelldata.VersusAura(e.Aura).Stats) > 0 }) {
 			panic(fmt.Sprintf("%s (%d): a stacking proc grants stats against creature types, which only a single buff carries", cfg.Name, cfg.ItemID))
 		}
 		if len(buff.SpeedEffects()) > 0 {
@@ -644,7 +640,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	procAura := character.NewTemporaryStatsAuraWrapped(aura.Label, aura.ActionID, buffStats, aura.Duration, func(config *core.Aura) {
 		config.MaxStacks = aura.MaxStacks
 	})
-	attachVersusStats(procAura.Aura, buff, cfg.effectSource().itemID())
+	attachVersusStats(procAura.Aura, buff, cfg.effectSource().versusSource(buff))
 	// The item effect entry carries the buff's stats alone; its speed auras come from the row
 	// (Ragehammer's Enrage 12686 states attack power and melee attack speed).
 	procAura.AttachHastePseudoStats(buff.SpeedPseudoStats())
@@ -653,13 +649,11 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 
 // The stats the buff grants against some creature types, which the item effect entry leaves out:
 // Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin. The combat
-// log names the item for them, or the buff for an enchant's (item 0).
-func attachVersusStats(aura *core.Aura, buff *spelldata.Spell, itemID int32) {
-	versusSource := cmp.Or(core.ActionID{ItemID: itemID}, core.ActionID{SpellID: buff.ID})
+// log names the item for them, or the buff for an enchant's.
+func attachVersusStats(aura *core.Aura, buff *spelldata.Spell, source core.ActionID) {
 	for _, effect := range buff.Effects {
-		versus := spelldata.VersusAura(effect.Aura)
-		if bonus := versus.Bonus(effect.Average()); bonus != (stats.Stats{}) {
-			aura.AttachMobTypeBonusStats(versusSource, bonus, spelldata.MobTypes(effect.Misc)...)
+		if bonus := spelldata.VersusAura(effect.Aura).Bonus(effect.Average()); bonus != (stats.Stats{}) {
+			aura.AttachMobTypeBonusStats(source, bonus, spelldata.MobTypes(effect.Misc)...)
 		}
 	}
 }
@@ -822,6 +816,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	}
 
 	single := make(core.SpellResultSlice, 1)
+	creatureTypes := damage.TargetCreatureTypes()
 	onLanding := bothAfter(debuffOnLanding(character, damage), leechOnLanding(character, damage, effect))
 	periodic := damage.PeriodicDamageEffect()
 	if periodic == spelldata.NilEffect {
@@ -829,7 +824,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			bind(spell)
 			if multiTarget {
-				dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, hitOutcome), onLanding)
+				dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, creatureTypes, damage, effect, hitOutcome), onLanding)
 				return
 			}
 			single[0] = spell.CalcDamage(sim, target, effect.DirectAmount(sim), hitOutcome)
@@ -855,7 +850,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 		bind(spell)
 		switch {
 		case areaHit:
-			dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, hitOutcome), after)
+			dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, creatureTypes, damage, effect, hitOutcome), after)
 			return
 		case areaDot:
 			rolls = rolls[:0]
@@ -998,8 +993,7 @@ func applyDotIfLanded(area bool) afterDealt {
 // the enemies outside them: they take no roll, so Stratholme Holy Water's 17291 burns only the Undead
 // in its area (EV-0231), and count toward neither a split, the row's MaxTargets nor the AoE cap
 // (R-0058).
-func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
-	types := row.TargetCreatureTypes()
+func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, types core.VersusTargets, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
 	if types.IsEmpty() {
 		return calcMultiTargetDamageOnAll(sim, spell, target, row, effect, outcome)
 	}

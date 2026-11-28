@@ -5,8 +5,9 @@ import {
 	type VersusChip,
 	versusEffectFactor,
 	versusEffectValues,
+	versusFactorText,
 	type VersusMatch,
-	type VersusState,
+	VERSUS_TONES,
 } from '@features/gear/model/versus_state';
 import type { MobTypeBonusSource, PlayerStats, VersusEffect } from '@generated/proto/api';
 import type { AreaType, Stat, Target } from '@generated/proto/common';
@@ -20,7 +21,7 @@ import { signedStatAmount } from '@sim/proto/stats';
 import { AccordionItem } from '@ui-kit/Accordion';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
-import { Pill, type PillTone } from '@ui-kit/Pill';
+import { Pill } from '@ui-kit/Pill';
 import { Table, TableCell, TableHeaderCell, TableRow } from '@ui-kit/Table';
 import { WowheadIcon } from '@ui-kit/WowheadIcon';
 import clsx from 'clsx';
@@ -53,9 +54,6 @@ interface VersusGroup {
 	lines: Array<VersusLine>;
 }
 
-// The gear chips' tones, so a group reads the same as its items' chips.
-const TONES: Record<VersusState, PillTone> = { on: 'positive', partial: 'warning', off: 'neutral' };
-
 const stateText = ({ match, area }: VersusGroup) =>
 	match.state === 'partial'
 		? i18n.t('sidebar.character_stats.versus.state_partial', { matched: match.matched, total: match.total })
@@ -66,9 +64,7 @@ const statEntries = (stats: { [key: number]: number }): Array<[Stat, number]> =>
 const areaStatLines = (stats: { [key: number]: number }): Array<VersusLine> =>
 	statEntries(stats).map(([stat, value]) => ({ key: `stat-${stat}`, label: translateStat(stat), values: [signedStatAmount(stat, value)] }));
 
-// Worded and rounded as versusEffectFactor words an item's factor.
-const factorValues = (key: string, multiplier: number): Array<string> =>
-	Math.abs(multiplier - 1) < 1e-9 ? [] : [i18n.t(`sidebar.character_stats.versus.${key}`, { factor: Number(multiplier.toFixed(2)) })];
+const factorValues = (key: string, multiplier: number): Array<string> => (Math.abs(multiplier - 1) < 1e-9 ? [] : [versusFactorText(key, multiplier)]);
 
 const sourceLines = (sources: Array<MobTypeBonusSource>): Array<VersusLine> =>
 	sources.map(source => {
@@ -146,7 +142,7 @@ const GroupRows = ({ group }: { group: VersusGroup }) => (
 			<TableHeaderCell scope="rowgroup" colSpan={2} wrap className="ui-character-stats-label text-left font-semibold">
 				<span className="flex items-center justify-between gap-2">
 					{group.label}
-					<Pill tone={TONES[group.match.state]} size="xs" rounded="xs" className="shrink-0 whitespace-nowrap" testId="character-stats-versus-state">
+					<Pill tone={VERSUS_TONES[group.match.state]} size="xs" rounded="xs" className="shrink-0 whitespace-nowrap" testId="character-stats-versus-state">
 						{stateText(group)}
 					</Pill>
 				</span>

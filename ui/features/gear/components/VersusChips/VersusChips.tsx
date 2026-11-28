@@ -7,14 +7,12 @@ import { useSim } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
 import { signedStatAmount } from '@sim/proto/stats';
 import { targetMobType } from '@sim/proto/target';
-import { Pill, type PillTone } from '@ui-kit/Pill';
+import { Pill } from '@ui-kit/Pill';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { Fragment, useId } from 'react';
 import { useStore } from 'zustand';
 
-import { itemVersusChips, namesVersus, type VersusChip, versusEffectFactor, versusEffectValues, type VersusState } from '../../model/versus_state';
-
-const TONES: Record<VersusState, PillTone> = { on: 'positive', partial: 'warning', off: 'neutral' };
+import { itemVersusChips, namesVersus, type VersusChip, versusEffectFactor, versusEffectValues, VERSUS_TONES } from '../../model/versus_state';
 
 const chipName = (chip: VersusChip) =>
 	chip.kind === 'mobType' ? translateMobType(chip.value) : chip.kind === 'family' ? translateCreatureFamily(chip.value) : translateAreaType(chip.value);
@@ -81,7 +79,7 @@ export const VersusChipsView = ({ item, targets, areaTypes, versusEffects }: Ver
 				return (
 					<Fragment key={`${chip.kind}-${chip.value}`}>
 						<Pill
-							tone={TONES[chip.state]}
+							tone={VERSUS_TONES[chip.state]}
 							size="xs"
 							rounded="xs"
 							tabIndex={0}

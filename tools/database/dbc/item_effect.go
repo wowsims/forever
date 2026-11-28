@@ -45,10 +45,7 @@ func addEquipSpellMobTypeStats(opts *proto.ScalingItemProperties, spellID int) {
 
 // Whether every effect of the spell is a stat against creature types.
 func GrantsOnlyVersusStats(row *spelldata.Spell) bool {
-	return len(row.Effects) > 0 && !slices.ContainsFunc(row.Effects, func(e spelldata.Effect) bool {
-		versus := spelldata.VersusAura(e.Aura)
-		return len(versus.Stats) == 0
-	})
+	return len(row.Effects) > 0 && !slices.ContainsFunc(row.Effects, func(e spelldata.Effect) bool { return len(spelldata.VersusAura(e.Aura).Stats) == 0 })
 }
 
 // ItemEffect represents an item effect in the game.

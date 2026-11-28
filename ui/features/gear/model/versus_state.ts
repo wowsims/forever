@@ -3,9 +3,12 @@ import { type AreaType, CreatureFamily, MobType, type Target } from '@generated/
 import type { UIItem } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { targetMobType } from '@sim/proto/target';
+import type { PillTone } from '@ui-kit/Pill';
 
 /** `partial` when some targets match and others do not; an area is only ever `on` or `off`. */
 export type VersusState = 'on' | 'partial' | 'off';
+
+export const VERSUS_TONES: Record<VersusState, PillTone> = { on: 'positive', partial: 'warning', off: 'neutral' };
 
 export interface VersusMatch {
 	state: VersusState;
@@ -60,8 +63,8 @@ const EFFECT_KEYS: Record<VersusEffectKind, string> = {
 	[VersusEffectKind.VersusEffectKindHitsNeeded]: 'effect_hits_needed',
 };
 
-export const versusEffectFactor = (effect: VersusEffect): string =>
-	i18n.t(`sidebar.character_stats.versus.${EFFECT_KEYS[effect.kind]}`, {
-		factor: Number(effect.multiplier.toFixed(2)),
-		amount: Number(effect.amount.toFixed(2)),
-	});
+/** A factor worded by its `sidebar.character_stats.versus` key, rounded to two decimals. */
+export const versusFactorText = (key: string, multiplier: number, amount = 0): string =>
+	i18n.t(`sidebar.character_stats.versus.${key}`, { factor: Number(multiplier.toFixed(2)), amount: Number(amount.toFixed(2)) });
+
+export const versusEffectFactor = (effect: VersusEffect): string => versusFactorText(EFFECT_KEYS[effect.kind], effect.multiplier, effect.amount);
