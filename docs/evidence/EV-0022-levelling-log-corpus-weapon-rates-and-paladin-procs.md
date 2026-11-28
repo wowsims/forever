@@ -59,8 +59,8 @@ Their white swings roll at the weapon's rate. Combat enchants on those hits are 
 | Touch of the Grave cooldown                                                          | 57 players, 707 drains, none closer than 14.99 s                                                     |
 
 Inside a dungeon Seal of Fury's shield scales by expected creature health at a base level over the mob's level, the dungeon's
-lowest mob level being the base in five dungeons (Scarlet Monastery's base 30 on two players, the other four on one
-each). Against mobs of the paladin's own level it stays flat, 118 of 118, three cases on two players.
+lowest mob level being the base in five dungeons: Scarlet Monastery, base 30 on two players, and Shadowfang Keep, the
+Stockade, Gnomeregan and Ruins of Lordaeron on one player each, their base levels not recorded. Against mobs of the paladin's own level it stays flat, 118 of 118, three cases on two players.
 
 The sim reproduces two of these readings. Redoubt rolls after 41 of 410 dodged, parried or missed boss swings, where the
 sim before the change gave it no roll (0 of 444). Shieldsworn's spell block comes with 409 of 409 dodged or missed

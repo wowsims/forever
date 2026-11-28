@@ -57,11 +57,8 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 
-	// The shield is this share of the hit in the open world (EV-0022). The sim gives every target that
-	// share. Inside a dungeon the game scales it by the creature health the game files expect at a base
-	// level over the one at the mob's level, where the base is the dungeon's lowest mob level in
-	// Shadowfang Keep, the Stockade, Gnomeregan, Scarlet Monastery and Ruins of Lordaeron. The sim's
-	// targets carry no base level, so it models none of that.
+	// Shield share and dungeon scaling in EV-0022. The sim's targets carry no base level, so every target
+	// gets the open world's flat share.
 	shieldShare := rank.EffectN(2).Percent()
 	var pendingShield float64
 	shield := paladin.NewDamageAbsorptionAura(core.AbsorptionAuraConfig{

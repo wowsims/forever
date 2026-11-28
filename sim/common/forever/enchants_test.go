@@ -770,7 +770,7 @@ func TestRevelationRollsNothingWhenAnEventsFirstResultCrits(t *testing.T) {
 	}
 }
 
-// A copy of a spell that shares its spell id rolls apart from it (EV-0149).
+// Lightning Overload's copy rolls apart from its bolt (EV-0149); the sim registers it under the bolt's id.
 func TestRevelationRollsACopyApartFromTheSpellItCopies(t *testing.T) {
 	const casts = 600
 	sim, character := revelationWearer(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}})

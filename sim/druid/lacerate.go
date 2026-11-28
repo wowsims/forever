@@ -28,8 +28,8 @@ func (druid *Druid) registerLacerateSpell() {
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.AverageAt(druid.level())*float64(dot.GetStacks())*druid.rendAndTearMultiplier(target), rank.TickOutcome(dot))
 	}
 	// The hit is its own row. Natural Instinct's mask covers its class flags as well as the rank's, so
-	// the hit's crits and the ticks' crits both take the talent's crit damage. Its weapon percent is not
-	// what lands; the rank's $s2 is.
+	// the hit's crits and the ticks' crits both take the talent's crit damage (EV-0033). Its weapon
+	// percent is not what lands; the rank's $s2 is.
 	hitConfig := spelldata.SpellConfig(&druid.Unit, spelldata.MustFind(lacerateHitSpellID),
 		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	hitConfig.ThreatMultiplier = lacerateThreatMultiplier
