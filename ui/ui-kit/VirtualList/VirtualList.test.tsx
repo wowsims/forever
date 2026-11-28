@@ -1,6 +1,6 @@
 import { act, render, within } from '@testing-library/react';
 import { useRef } from 'react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { VirtualList } from './VirtualList';
 
@@ -44,6 +44,10 @@ const scrollTo = async (element: HTMLElement, top: number) => {
 const rows = (container: HTMLElement) => within(container).queryAllByTestId('virtual-list-row');
 
 describe('VirtualList', () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+	});
+
 	it('reserves the full scroll height while rendering only a window of rows', () => {
 		const { container } = renderList(1000);
 
@@ -164,5 +168,45 @@ describe('VirtualList', () => {
 				expect(row.style.transform).toBe(`translateY(${Number(row.dataset.index) * ROW_HEIGHT}px)`);
 			}
 		});
+	});
+
+	// A measured row reports its own height, and the rows after it move down by what it adds over the estimate. The
+	// virtualiser reads `offsetHeight` on a row's first render and then trusts its ResizeObserver, which happy-dom answers
+	// with 0 for every box, so the observer is stubbed out and the first measurement stands.
+	it('lays measured rows out at the heights they render at', () => {
+		vi.stubGlobal(
+			'ResizeObserver',
+			class {
+				observe() {}
+				unobserve() {}
+				disconnect() {}
+			},
+		);
+		const tall = (row: Element) => (Number((row as HTMLElement).dataset.index) % 2 === 0 ? 2 * ROW_HEIGHT : ROW_HEIGHT);
+		vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (this: HTMLElement) {
+			return this.dataset.testid === 'virtual-list-row' ? tall(this) : 0;
+		});
+		const element = scroller();
+		const { container } = render(
+			<VirtualList measured count={4} rowHeight={ROW_HEIGHT} getScrollElement={() => element} renderRow={index => <span>row {index}</span>} />,
+			{ container: element },
+		);
+
+		const rendered = rows(container);
+		expect(rendered.every(row => row.style.height === '')).toBe(true);
+		expect(rendered.map(row => row.style.transform)).toEqual(['translateY(0px)', 'translateY(40px)', 'translateY(60px)', 'translateY(100px)']);
+		expect(within(container).getByTestId('virtual-list').style.height).toBe('120px');
+	});
+
+	// happy-dom measures every row at 0, as a browser does a row inside a hidden panel.
+	it('keeps the estimate for a measured row that measures 0, as one in a hidden panel does', () => {
+		const element = scroller();
+		const { container } = render(
+			<VirtualList measured count={2000} rowHeight={ROW_HEIGHT} getScrollElement={() => element} renderRow={index => <span>row {index}</span>} />,
+			{ container: element },
+		);
+
+		expect(rows(container).length).toBeLessThan(50);
+		expect(within(container).getByTestId('virtual-list').style.height).toBe(`${2000 * ROW_HEIGHT}px`);
 	});
 });

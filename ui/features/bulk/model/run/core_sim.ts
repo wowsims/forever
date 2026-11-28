@@ -14,6 +14,7 @@ export interface CoreBulkSimContext {
 
 export interface CoreBulkSimResult {
 	referenceDpsMetrics: DistributionMetrics;
+	/** The top results in the sim's rank order, then every culled row, which carries its `culledStage` and no rank. */
 	topGearResults: TopGearResult[];
 	/** Iterations per displayed result, from the last stage that ran; 0 when none did. */
 	iterations: number;
@@ -64,6 +65,17 @@ export async function runCoreBulkSim(
 			backendRank,
 			pairedErrorToNextResult: topResult.pairedErrorToNextResult,
 			pairedErrorToBaseline: topResult.pairedErrorToBaseline,
+			pairedDpsDiffToBaseline: topResult.pairedDpsDiffToBaseline,
+		}));
+	// Unranked: each culled row is paired against the baseline of the stage that culled it, and against no other row.
+	const culledGearResults = result.culledResults
+		.filter(culled => culled.gear && culled.dpsMetrics)
+		.map(culled => ({
+			gear: context.simUI.sim.db.lookupEquipmentSpec(culled.gear!),
+			dpsMetrics: cleanBulkDpsMetrics(culled.dpsMetrics!),
+			culledStage: culled.culledStage,
+			pairedErrorToBaseline: culled.pairedErrorToBaseline,
+			pairedDpsDiffToBaseline: culled.pairedDpsDiffToBaseline,
 		}));
 
 	context.debugOptimisationRound('core bulk sim complete', {
@@ -78,7 +90,7 @@ export async function runCoreBulkSim(
 
 	return {
 		referenceDpsMetrics: result.baseline.dpsMetrics,
-		topGearResults,
+		topGearResults: [...topGearResults, ...culledGearResults],
 		iterations: result.stageMetrics.at(-1)?.iterations ?? 0,
 		metrics: getCoreBulkSimTrackingMetrics(result),
 	};

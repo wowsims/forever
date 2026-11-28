@@ -36,6 +36,26 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
+export const MediumIcon: Story = {
+	args: {
+		icon: (
+			<ItemCellIcon ilvl="66" size="md">
+				<a className="ui-item-picker-icon size-full" style={{ backgroundImage: `url('${ICON}')` }} />
+			</ItemCellIcon>
+		),
+	},
+};
+
+export const SmallIcon: Story = {
+	args: {
+		icon: (
+			<ItemCellIcon ilvl="66" size="sm">
+				<a className="ui-item-picker-icon size-full" style={{ backgroundImage: `url('${ICON}')` }} />
+			</ItemCellIcon>
+		),
+	},
+};
+
 export const WithLabels: Story = {
 	args: {
 		labels: (

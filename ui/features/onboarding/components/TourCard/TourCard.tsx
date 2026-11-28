@@ -3,6 +3,7 @@ import i18n from '@i18n/config';
 import { Button } from '@ui-kit/Button';
 import { FieldContext } from '@ui-kit/Field/context/FieldContext';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
+import { Meter } from '@ui-kit/Meter';
 import { type KeyboardEventHandler, type ReactNode, useRef } from 'react';
 
 import { RING_PADDING } from '../../model/placement';
@@ -96,11 +97,7 @@ export const TourCard = ({ kind, title, body, media, position, total, anchor, on
 							<BasePopover.Description className="mb-0 text-sm leading-relaxed text-muted" data-testid="tour-card-body">
 								{body}
 							</BasePopover.Description>
-							{kind === 'step' && total > 0 && (
-								<div className="h-1 overflow-hidden bg-surface" aria-hidden="true">
-									<div className="h-full bg-primary" style={{ width: `${(position / total) * 100}%` }} />
-								</div>
-							)}
+							{kind === 'step' && total > 0 && <Meter value={position} max={total} size="xs" />}
 							<div className="flex items-center gap-2" data-testid="tour-card-actions">
 								{kind !== 'finish' && (
 									<BasePopover.Close render={<Button variant="link" className="mr-auto" />} data-testid="tour-card-skip">

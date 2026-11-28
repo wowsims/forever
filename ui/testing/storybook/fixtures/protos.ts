@@ -1,5 +1,5 @@
 import { APLRotation, APLRotation_Type } from '@generated/proto/apl';
-import { ActionID, EquipmentSpec, HandType, ItemQuality, ItemSlot, ItemSpec, ItemType, WeaponType } from '@generated/proto/common';
+import { ActionID, EquipmentSpec, HandType, ItemQuality, ItemSlot, ItemSpec, ItemType, ScalingItemProperties, WeaponType } from '@generated/proto/common';
 import { UIEnchant, UIItem } from '@generated/proto/ui';
 
 // Ids and icons are real rows of the Forever item database, so a story that loads tooltips shows the
@@ -17,8 +17,9 @@ export const makeEquipmentSpec = (
 	return EquipmentSpec.create({ items: Array.from({ length }, (_, slot) => ItemSpec.create(items[slot as ItemSlot])) });
 };
 
-export const makeUIItem = (overrides: Partial<UIItem> = {}): UIItem =>
-	UIItem.create({
+/** Thunderfury, with the base scaling entry the database gives every item, at the item's own item level. */
+export const makeUIItem = (overrides: Partial<UIItem> = {}): UIItem => {
+	const item = UIItem.create({
 		id: 19019,
 		name: 'Thunderfury, Blessed Blade of the Windseeker',
 		icon: 'inv_sword_39',
@@ -34,6 +35,9 @@ export const makeUIItem = (overrides: Partial<UIItem> = {}): UIItem =>
 		unique: true,
 		...overrides,
 	});
+	item.scalingOptions = { 0: ScalingItemProperties.create({ ilvl: item.ilvl }), ...item.scalingOptions };
+	return item;
+};
 
 export const makeUIEnchant = (overrides: Partial<UIEnchant> = {}): UIEnchant =>
 	UIEnchant.create({

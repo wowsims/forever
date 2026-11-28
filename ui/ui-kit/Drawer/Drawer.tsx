@@ -21,10 +21,24 @@ export interface DrawerProps {
 	/** Positions the portalled popup, since it does not share a containing block with its anchor. */
 	style?: CSSProperties;
 	children?: ReactNode;
+	/** Keeps the popup's content mounted while closed, for content that lives on between openings or that something renders into. */
+	keepMounted?: boolean;
 	testId?: string;
 }
 
-export const Drawer = ({ trigger, open, onOpenChange, ignoreOutsidePress, modal = true, side, className, style, children, testId }: DrawerProps) => {
+export const Drawer = ({
+	trigger,
+	open,
+	onOpenChange,
+	ignoreOutsidePress,
+	modal = true,
+	side,
+	className,
+	style,
+	children,
+	keepMounted,
+	testId,
+}: DrawerProps) => {
 	const portalContainer = usePortalContainer();
 	return (
 		<BaseDrawer.Root
@@ -41,7 +55,7 @@ export const Drawer = ({ trigger, open, onOpenChange, ignoreOutsidePress, modal 
 			<BaseDrawer.Trigger render={trigger} />
 			{/* Out of any Field the trigger sits in, so the drawer's controls take no size from that field. */}
 			<FieldContext.Provider value={null}>
-				<BaseDrawer.Portal container={portalContainer ?? undefined}>
+				<BaseDrawer.Portal container={portalContainer ?? undefined} keepMounted={keepMounted}>
 					<BaseDrawer.Viewport className="contents">
 						<BaseDrawer.Popup className={clsx('ui-drawer', className)} style={style} data-side={side} data-testid={testId ?? 'sim-drawer-popup'}>
 							{children}

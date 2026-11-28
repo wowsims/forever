@@ -16,7 +16,7 @@ export const BulkPickerGroups = () => {
 	const addTooltipId = useId();
 
 	return (
-		<div className="grid grid-cols-1 grid-rows-auto gap-4 sm:grid-cols-2 xl:grid-cols-3" data-testid="bulk-gear-combo">
+		<div className="grid grid-cols-1 grid-rows-auto gap-6 sm:grid-cols-2 xl:grid-cols-3" data-testid="bulk-gear-combo">
 			{Array.from(pickerGroups).map(([bulkSlot, entries]) => (
 				<BulkItemPickerGroup
 					key={bulkSlot}

@@ -146,7 +146,7 @@ describe('Dialog', () => {
 		expect(screen.getAllByTestId('sim-dialog-viewport').filter(el => el.getAttribute('data-elevated') === 'true')).toHaveLength(1);
 	});
 
-	it('leaves a nested dialog without one when it is not elevated', () => {
+	it('draws a backdrop of its own for a nested dialog even when it is not elevated', () => {
 		render(
 			<Dialog open onOpenChange={() => {}} title="Outer">
 				<Dialog open onOpenChange={() => {}} title="Working">
@@ -155,7 +155,7 @@ describe('Dialog', () => {
 			</Dialog>,
 		);
 
-		expect(screen.getAllByTestId('sim-dialog-backdrop').filter(el => el.getAttribute('data-elevated') === 'true')).toHaveLength(0);
+		expect(screen.getAllByTestId('sim-dialog-backdrop').filter(el => el.getAttribute('data-elevated') === 'true')).toHaveLength(1);
 	});
 
 	it('closes only the innermost of two nested dialogs on Escape, and the outer one on a second Escape', () => {

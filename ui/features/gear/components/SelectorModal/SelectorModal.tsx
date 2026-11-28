@@ -5,7 +5,6 @@ import { translateSlotName } from '@i18n/localization';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
 import { sanitizeId } from '@sim/utils/format';
-import { mod } from '@sim/utils/math';
 import { Dialog } from '@ui-kit/Dialog';
 import { HelpText } from '@ui-kit/FormControl';
 import { Notice } from '@ui-kit/Notice';
@@ -15,6 +14,7 @@ import { type KeyboardEvent, type ReactNode, useCallback, useEffect, useMemo, us
 
 import type { SelectorModalState } from '../../hooks/useSelectorModal';
 import { ALL_ITEM_SLOTS, createGearData } from '../../model/gear_data';
+import { railStep } from '../../model/rail';
 import { resolveSelectedTab } from '../../model/tab_eligibility';
 import { getTranslatedTabLabel, SelectorModalTabs } from '../../types';
 import { ItemList } from './ItemList';
@@ -170,11 +170,10 @@ export const SelectorModal = ({ state, id = DEFAULT_MODAL_ID, rail = true }: Sel
 	const onRailKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
 		// `open` too: Base UI keeps the popup mounted through its closing transition.
 		if (!rail || !open || slot === null) return;
-		if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
-		const index = ALL_ITEM_SLOTS.indexOf(slot);
-		if (index < 0) return;
+		const next = railStep(ALL_ITEM_SLOTS, slot, event.key);
+		if (next === null) return;
 		event.preventDefault();
-		openSlot(ALL_ITEM_SLOTS[mod(index + (event.key === 'ArrowUp' ? -1 : 1), ALL_ITEM_SLOTS.length)]);
+		openSlot(next);
 	};
 
 	return (

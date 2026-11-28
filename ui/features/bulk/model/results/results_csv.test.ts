@@ -1,3 +1,4 @@
+import { BulkSimStage } from '@generated/proto/api';
 import { APLRotation } from '@generated/proto/apl';
 import { ItemSlot } from '@generated/proto/common';
 import { SavedSettings } from '@generated/proto/ui';
@@ -8,6 +9,7 @@ import type { Gear } from '@sim/proto/gear';
 import { Stats } from '@sim/proto/stats';
 import { stDevToConf95 } from '@sim/utils/math';
 import { CURRENT_ROTATION_SETUP, CURRENT_SETTINGS_SETUP, CURRENT_TALENT_SETUP } from '@testing/storybook/fixtures/bulk-compare';
+import { dropsResultsFixture } from '@testing/storybook/fixtures/bulk-drops';
 import { describe, expect, it } from 'vitest';
 
 import { bulkResultsCsv } from './results_csv';
@@ -94,6 +96,17 @@ describe('bulkResultsCsv', () => {
 
 		expect(upgrade.split(',').slice(5, 9)).toEqual(['1036.125', String(stDevToConf95(10, 100)), '36.125', '3.6125']);
 		expect(current.split(',').slice(7, 9)).toEqual(['0', '0']);
+	});
+
+	it('leaves the margin empty on a row culled before the finalist set', () => {
+		const base = entry('', true, 1100);
+		const culled = { ...result(UPGRADE, 990, 10), culledStage: BulkSimStage.BulkSimStageMedium };
+		const withCulled: BulkEncounterResults = { ...base, results: { ...base.results, chains: [...base.results.chains, [culled]] } };
+
+		const [, upgrade, , culledRow] = lines(bulkResultsCsv([withCulled]));
+
+		expect(upgrade.split(',')[6]).toBe(String(stDevToConf95(10, 100)));
+		expect(culledRow.split(',').slice(5, 8)).toEqual(['990', '', '-10']);
 	});
 
 	it('takes each difference from the best set when the batch did not sim the current setup, and still marks the rows wearing the current gear', () => {
@@ -253,5 +266,43 @@ describe('bulkResultsCsv', () => {
 			['bulk_tab.results.current', '', '', 'bulk_tab.results.current_rotation', '', ''],
 			['bulk_tab.results.current', '', '', 'bulk_tab.results.current_rotation', '', ''],
 		]);
+	});
+
+	describe('in Drops', () => {
+		const { dropsResults } = dropsResultsFixture();
+		const reiver = () =>
+			lines(bulkResultsCsv(dropsResults, { drops: true }))
+				.find(line => line.includes('Band 2101') && line.includes('2005'))!
+				.split(',');
+
+		it('takes the diff from the paired difference to the current gear, not from the averages', () => {
+			// Reiver Claws averages 749 against 750 and pairs +3.
+			expect(reiver().slice(7, 9)).toEqual(['3', String((3 / 750) * 100)]);
+			expect(
+				lines(bulkResultsCsv(dropsResults))
+					.find(line => line.includes('2005'))!
+					.split(',')[7],
+			).toBe('-1');
+		});
+
+		it('ranks the rows after the current gear’s without a rank on its own row, as the pane does', () => {
+			const rows = lines(bulkResultsCsv(dropsResults, { drops: true }))
+				.slice(1)
+				.map(row => row.split(','));
+			const current = rows.filter(row => row[4] === 'yes');
+
+			expect(current.map(row => row[3])).toEqual(['']);
+			expect(rows.map(row => row[3]).filter(Boolean)).toEqual(rows.slice(1).map((_, i) => String(i + 1)));
+		});
+
+		it('takes the margin at the row’s own iteration count and leaves a culled row’s empty', () => {
+			const rows = dropsResults[0].results.chains.flat();
+			const felstriker = rows[0];
+			felstriker.dpsMetrics = { ...felstriker.dpsMetrics, aggregatorData: { n: 2500, sumSq: 0 } };
+			const csv = lines(bulkResultsCsv(dropsResults, { drops: true }));
+
+			expect(csv[1].split(',')[6]).toBe(String(stDevToConf95(100, 2500)));
+			expect(reiver()[6]).toBe('');
+		});
 	});
 });

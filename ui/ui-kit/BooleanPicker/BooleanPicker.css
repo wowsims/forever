@@ -27,11 +27,20 @@
 			@apply text-sm;
 		}
 
+		&[data-compact] {
+			@apply size-4;
+
+			> .ui-boolean-picker-indicator {
+				@apply text-2xs;
+			}
+		}
+
 		&:focus-visible {
 			@apply border-input-focus-border shadow-focus-checkbox outline-none;
 		}
 
-		&[data-checked] {
+		&[data-checked],
+		&[data-indeterminate] {
 			@apply border-primary bg-primary;
 		}
 
@@ -46,7 +55,8 @@
 
 		&[aria-invalid='true'],
 		&[aria-invalid='true']:focus-visible,
-		&[aria-invalid='true'][data-checked] {
+		&[aria-invalid='true'][data-checked],
+		&[aria-invalid='true'][data-indeterminate] {
 			@apply border-danger;
 		}
 	}

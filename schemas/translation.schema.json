@@ -4572,10 +4572,29 @@
 			"additionalProperties": false,
 			"required": ["title", "copy_button", "reset_button", "saved_talents", "points_remaining"]
 		},
+		"sim_sides": {
+			"type": "object",
+			"properties": {
+				"label": {
+					"type": "string"
+				},
+				"single": {
+					"type": "string"
+				},
+				"upgrades": {
+					"type": "string"
+				}
+			},
+			"additionalProperties": false,
+			"required": ["label", "single", "upgrades"]
+		},
 		"bulk_tab": {
 			"type": "object",
 			"properties": {
 				"title": {
+					"type": "string"
+				},
+				"modes_label": {
 					"type": "string"
 				},
 				"download_native": {
@@ -4610,6 +4629,19 @@
 							"additionalProperties": false,
 							"required": ["label", "description"]
 						},
+						"drops": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "description"]
+						},
 						"builds": {
 							"type": "object",
 							"properties": {
@@ -4625,7 +4657,375 @@
 						}
 					},
 					"additionalProperties": false,
-					"required": ["gear", "builds"]
+					"required": ["gear", "drops", "builds"]
+				},
+				"drops": {
+					"type": "object",
+					"properties": {
+						"sources": {
+							"type": "object",
+							"properties": {
+								"categories": {
+									"type": "object",
+									"properties": {
+										"drop_dungeon": {
+											"type": "string"
+										},
+										"drop_raid": {
+											"type": "string"
+										},
+										"drop_world": {
+											"type": "string"
+										},
+										"quest": {
+											"type": "string"
+										},
+										"crafted": {
+											"type": "string"
+										},
+										"rep": {
+											"type": "string"
+										},
+										"soldBy": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["drop_dungeon", "drop_raid", "drop_world", "quest", "crafted", "rep", "soldBy"]
+								},
+								"other_quests": {
+									"type": "string"
+								},
+								"other_vendors": {
+									"type": "string"
+								},
+								"world_drop": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["categories", "other_quests", "other_vendors", "world_drop"]
+						},
+						"items": {
+							"type": "object",
+							"properties": {
+								"tags": {
+									"type": "object",
+									"properties": {
+										"mh": {
+											"type": "string"
+										},
+										"oh": {
+											"type": "string"
+										},
+										"2h": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["mh", "oh", "2h"]
+								},
+								"worn": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["tags", "worn"]
+						},
+						"setup": {
+							"type": "object",
+							"properties": {
+								"sources_title": {
+									"type": "string"
+								},
+								"items_title": {
+									"type": "string"
+								},
+								"quick_picks": {
+									"type": "object",
+									"properties": {
+										"endgame_dungeons": {
+											"type": "string"
+										},
+										"clear": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["endgame_dungeons", "clear"]
+								},
+								"by_slot": {
+									"type": "string"
+								},
+								"all_of": {
+									"type": "string"
+								},
+								"by_source": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								},
+								"choose_items": {
+									"type": "string"
+								},
+								"items_ticked": {
+									"type": "string"
+								},
+								"hidden_ticked_one": {
+									"type": "string"
+								},
+								"hidden_ticked_other": {
+									"type": "string"
+								},
+								"all": {
+									"type": "string"
+								},
+								"select_all": {
+									"type": "string"
+								},
+								"clear_selection": {
+									"type": "string"
+								},
+								"no_match": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": [
+								"sources_title",
+								"items_title",
+								"quick_picks",
+								"by_slot",
+								"all_of",
+								"by_source",
+								"empty",
+								"choose_items",
+								"items_ticked",
+								"hidden_ticked_one",
+								"hidden_ticked_other",
+								"all",
+								"select_all",
+								"clear_selection",
+								"no_match"
+							]
+						},
+						"results": {
+							"type": "object",
+							"properties": {
+								"current_gear": {
+									"type": "string"
+								},
+								"best_drop": {
+									"type": "string"
+								},
+								"farm_first": {
+									"type": "string"
+								},
+								"farm_first_upgrades_one": {
+									"type": "string"
+								},
+								"farm_first_upgrades_other": {
+									"type": "string"
+								},
+								"no_upgrade": {
+									"type": "string"
+								},
+								"view": {
+									"type": "object",
+									"properties": {
+										"bosses": {
+											"type": "string"
+										},
+										"items": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["bosses", "items"]
+								},
+								"upgrades_one": {
+									"type": "string"
+								},
+								"upgrades_other": {
+									"type": "string"
+								},
+								"view_label": {
+									"type": "string"
+								},
+								"best": {
+									"type": "string"
+								},
+								"worn": {
+									"type": "string"
+								},
+								"filtered_by": {
+									"type": "string"
+								},
+								"clear_filter": {
+									"type": "string"
+								},
+								"low_precision": {
+									"type": "string"
+								},
+								"boe": {
+									"type": "string"
+								},
+								"boe_tooltip": {
+									"type": "string"
+								},
+								"equip_item": {
+									"type": "string"
+								},
+								"low_precision_tooltip": {
+									"type": "string"
+								},
+								"run_simulation": {
+									"type": "string"
+								},
+								"next_upgrade_title": {
+									"type": "string"
+								},
+								"next_upgrade_note": {
+									"type": "string"
+								},
+								"order_label": {
+									"type": "string"
+								},
+								"order": {
+									"type": "object",
+									"properties": {
+										"recommended": {
+											"type": "string"
+										},
+										"gain": {
+											"type": "string"
+										},
+										"upgrades": {
+											"type": "string"
+										},
+										"zone": {
+											"type": "string"
+										},
+										"combined": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["recommended", "gain", "upgrades", "zone", "combined"]
+								},
+								"run_again": {
+									"type": "string"
+								},
+								"combined_gain": {
+									"type": "string"
+								},
+								"combined_help": {
+									"type": "string"
+								},
+								"combined_tooltip": {
+									"type": "string"
+								},
+								"combined_items": {
+									"type": "string"
+								},
+								"combined_left_out": {
+									"type": "string"
+								},
+								"combined_partial": {
+									"type": "string"
+								},
+								"combined_unproven": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": [
+								"current_gear",
+								"best_drop",
+								"farm_first",
+								"farm_first_upgrades_one",
+								"farm_first_upgrades_other",
+								"no_upgrade",
+								"view",
+								"upgrades_one",
+								"upgrades_other",
+								"view_label",
+								"best",
+								"worn",
+								"filtered_by",
+								"clear_filter",
+								"low_precision",
+								"boe",
+								"boe_tooltip",
+								"equip_item",
+								"low_precision_tooltip",
+								"run_simulation",
+								"next_upgrade_title",
+								"next_upgrade_note",
+								"order_label",
+								"order",
+								"run_again",
+								"combined_gain",
+								"combined_help",
+								"combined_tooltip",
+								"combined_items",
+								"combined_left_out",
+								"combined_partial"
+							]
+						},
+						"run": {
+							"type": "object",
+							"properties": {
+								"items_picked": {
+									"type": "string"
+								},
+								"candidates": {
+									"type": "string"
+								},
+								"notes": {
+									"type": "object",
+									"properties": {
+										"one_change": {
+											"type": "string"
+										},
+										"slots": {
+											"type": "string"
+										},
+										"hands": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["one_change", "slots", "hands"]
+								},
+								"two_hander_skipped_one": {
+									"type": "string"
+								},
+								"two_hander_skipped_other": {
+									"type": "string"
+								},
+								"combined_gain": {
+									"type": "string"
+								},
+								"combined_gain_tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": [
+								"items_picked",
+								"candidates",
+								"notes",
+								"two_hander_skipped_one",
+								"two_hander_skipped_other",
+								"combined_gain",
+								"combined_gain_tooltip"
+							]
+						}
+					},
+					"additionalProperties": false,
+					"required": ["sources", "items", "setup", "results", "run"]
 				},
 				"builds": {
 					"type": "object",
@@ -4755,10 +5155,16 @@
 						},
 						"simulate_batch": {
 							"type": "string"
+						},
+						"simulate_drops": {
+							"type": "string"
+						},
+						"simulate_builds": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["import_bags", "import_favorites", "clear_items", "simulate_batch"]
+					"required": ["import_bags", "import_favorites", "clear_items", "simulate_batch", "simulate_drops", "simulate_builds"]
 				},
 				"search": {
 					"type": "object",
@@ -4838,6 +5244,31 @@
 							},
 							"additionalProperties": false,
 							"required": ["label", "tooltip", "all"]
+						},
+						"batch_encounter": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								},
+								"current": {
+									"type": "string"
+								},
+								"edit": {
+									"type": "string"
+								},
+								"edit_title": {
+									"type": "string"
+								},
+								"edit_note": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip", "current", "edit", "edit_title", "edit_note"]
 						},
 						"groups": {
 							"type": "object",
@@ -5115,6 +5546,7 @@
 						"total_iterations",
 						"total_iterations_tooltip",
 						"top_results",
+						"batch_encounter",
 						"groups",
 						"encounters",
 						"talents",
@@ -5178,6 +5610,9 @@
 						},
 						"step_progress": {
 							"type": "string"
+						},
+						"combined_gain_rounds": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -5197,7 +5632,8 @@
 						"done",
 						"running",
 						"pending",
-						"step_progress"
+						"step_progress",
+						"combined_gain_rounds"
 					]
 				},
 				"notifications": {
@@ -5421,9 +5857,11 @@
 			"additionalProperties": false,
 			"required": [
 				"title",
+				"modes_label",
 				"download_native",
 				"tabs",
 				"modes",
+				"drops",
 				"builds",
 				"actions",
 				"search",
@@ -13095,6 +13533,7 @@
 		"gear_tab",
 		"settings_tab",
 		"talents_tab",
+		"sim_sides",
 		"bulk_tab",
 		"rotation_tab",
 		"results_tab",

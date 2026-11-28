@@ -1,4 +1,4 @@
-import { DistributionMetrics } from '@generated/proto/api';
+import { type BulkSimStage, DistributionMetrics } from '@generated/proto/api';
 import type { APLRotation } from '@generated/proto/apl';
 import type { Encounter, UnitStats } from '@generated/proto/common';
 import type { SavedSettings } from '@generated/proto/ui';
@@ -21,6 +21,10 @@ export interface TopGearResult {
 	backendRank?: number;
 	pairedErrorToNextResult?: number;
 	pairedErrorToBaseline?: number;
+	/** The mean paired DPS difference to the baseline `pairedErrorToBaseline` pairs with, which may be an earlier stage's than the shown one. */
+	pairedDpsDiffToBaseline?: number;
+	/** Set only on a row the sim culled before the finalist stage: the stage it last ran in, whose numbers it carries. */
+	culledStage?: BulkSimStage;
 }
 
 /** A gear set and the talents, rotation and settings it ran with. Only rows from the reference request carry the backend rank and paired errors. */
@@ -111,6 +115,10 @@ export interface BulkSimOverrides {
 	candidates?: readonly Gear[];
 	/** How many results the sim ranks and returns; 5 when absent, every candidate at 0. A cap that covers every candidate skips culling. */
 	topResults?: number;
+	/** Culls each stage against the baseline and returns the culled candidates in culledResults; the sim reads no topResults then. */
+	cullToBaseline?: boolean;
+	/** The high stage's minimum iterations, raised to this count, with no finalist stage after it; absent keeps both as planned. */
+	minIterations?: number;
 }
 
 export interface BulkEncounterResults {
@@ -121,6 +129,20 @@ export interface BulkEncounterResults {
 	duration: number;
 	durationVariation: number | null;
 	results: BulkResults;
+}
+
+/** One Drops source card's upgrades simmed together as one gear set, in a request of its own. */
+export interface BulkDropsCombined {
+	/** The items the set wears, best gain first. */
+	itemIds: readonly number[];
+	/** The card's upgrades a slot or Unique-Equipped conflict kept out of the set. */
+	leftOutIds: readonly number[];
+	/** The set's paired DPS difference to that request's own baseline. */
+	gain: number;
+	/** The gain's 95% confidence margin from its paired error; 0 on a row the sim could not pair. */
+	margin: number;
+	/** That baseline's average DPS. */
+	baselineDps: number;
 }
 
 export interface BulkSimRoundConfig {

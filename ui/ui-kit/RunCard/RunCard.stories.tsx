@@ -150,7 +150,7 @@ export const Running: Story = {
 export const Batch: Story = {
 	args: {
 		controls: undefined,
-		action: <Button className="w-full">Simulate Batch</Button>,
+		action: <Button className="w-full">Find best gear</Button>,
 		children: (
 			<dl className="mb-0 grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2">
 				<dt className="font-normal">Combinations</dt>

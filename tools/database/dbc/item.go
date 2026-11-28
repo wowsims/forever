@@ -74,6 +74,7 @@ func (item *Item) ToScaledUIItem(itemLevel int) *proto.UIItem {
 		LimitCategory:       int32(item.LimitCategory),
 		ReqLvl:              int32(item.RequiredLevel),
 		QualityModifier:     item.GetWeaponQualityModifier(),
+		BindType:            bindTypeOf(item.Bonding),
 	}
 
 	item.ParseItemFlags(uiItem)
@@ -535,4 +536,13 @@ func (item *Item) GetSpellSchool() proto.SpellSchool {
 		return proto.SpellSchool_SpellSchoolPhysical
 	}
 	return damageTypeSchools[item.DamageType]
+}
+
+// The game files number bindings past BIND_QUEST too, unused or bound to an account; none of them is a binding the
+// sim or the gear picker reads, so they stay unset as no binding.
+func bindTypeOf(bonding int) proto.BindType {
+	if bonding < BIND_NONE || bonding > BIND_QUEST {
+		return proto.BindType_BindTypeNone
+	}
+	return proto.BindType(bonding)
 }

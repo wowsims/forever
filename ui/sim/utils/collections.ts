@@ -93,6 +93,13 @@ export function bucket<T>(arr: Array<T>, toString: (val: T) => string): Record<s
 	return buckets;
 }
 
+// Appends value to the list under key, starting the list on first use.
+export const pushTo = <K, V>(map: Map<K, V[]>, key: K, value: V) => {
+	const list = map.get(key);
+	if (list) list.push(value);
+	else map.set(key, [value]);
+};
+
 export function getEnumValues<E>(enumType: any): Array<E> {
 	return Object.keys(enumType)
 		.filter(key => !isNaN(Number(enumType[key])))

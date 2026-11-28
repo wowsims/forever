@@ -4,11 +4,13 @@ import { bulkState, patchBulkState, storeBulkTopResults } from '@sim/settings/bu
 import type { BulkMode, BulkSlice } from '@sim/state/sim_store';
 import { BULK_SIM_DEFAULT_TOP_RESULTS } from '@sim/wasm/bulk_sim/constants_auto_gen';
 
-import { bulkRunsBuilds } from '../mode';
+import { bulkRunMode } from '../mode';
 
-/** How many results a batch ranks per encounter; 0 is All. With power tools off Gear ranks 5, whatever is stored. */
+/** How many results a batch ranks per encounter; 0 is All. Drops ranks 5, whatever is stored. With power tools off Gear ranks 5, whatever is stored. */
 export const bulkTopResults = (powerTools: boolean, slice: Pick<BulkSlice, 'mode' | 'gearTopResults' | 'buildsTopResults'>): number => {
-	if (bulkRunsBuilds(powerTools, slice.mode)) return slice.buildsTopResults;
+	const runMode = bulkRunMode(powerTools, slice.mode);
+	if (runMode === 'drops') return BULK_SIM_DEFAULT_TOP_RESULTS;
+	if (runMode === 'builds') return slice.buildsTopResults;
 	return powerTools ? slice.gearTopResults : BULK_SIM_DEFAULT_TOP_RESULTS;
 };
 

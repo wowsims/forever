@@ -22,6 +22,20 @@ func shouldUseSingleStageBulkSim(candidateCount int, topResults int) bool {
 	return getBulkSimOptimisationIterationsUpperBound(candidateCount, topResults) >= bulkSimSingleStageIterations(candidateCount)
 }
 
+// Under cull_to_baseline the stages plan for the default top results, so neither top_results nor all_results is read.
+func resolveBulkSimTopResults(request *proto.BulkSimRequest, candidateCount int) int {
+	if request.CullToBaseline {
+		return BulkSimDefaultTopResults
+	}
+	if request.AllResults {
+		return candidateCount
+	}
+	if request.TopResults <= 0 {
+		return BulkSimDefaultTopResults
+	}
+	return int(request.TopResults)
+}
+
 func getBulkSimOptimisationIterationsUpperBound(candidateCount int, topResults int) int64 {
 	remainingCandidates := candidateCount
 	var iterations int64

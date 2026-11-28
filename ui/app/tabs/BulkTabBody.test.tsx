@@ -9,7 +9,17 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
+import { UpgradesSlotsProvider, useUpgradesSlotRefs } from '../UpgradesSlots';
 import { BulkTabActionsView, type BulkTabActionsViewProps, BulkTabBody } from './BulkTabBody';
+
+// The shell's Upgrades run panel slot, which the Upgrades tab body portals its settings into.
+const SlotPanel = () => <div ref={useUpgradesSlotRefs().panel} data-testid="upgrades-slot-panel" />;
+const UpgradesPanelSlot = ({ children }: { children: ReactNode }) => (
+	<UpgradesSlotsProvider>
+		<SlotPanel />
+		{children}
+	</UpgradesSlotsProvider>
+);
 
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 vi.mock('@sim/hooks/useSimReady', () => ({ useSimReady: () => false }));
@@ -18,6 +28,8 @@ vi.mock('@features/bulk/context/BulkBuildsContext', () => ({ BulkBuildsProvider:
 vi.mock('@features/bulk/components/BulkItemSearch', () => ({ BulkItemSearch: () => null }));
 vi.mock('@features/bulk/components/BulkPickerGroups', () => ({ BulkPickerGroups: () => null }));
 vi.mock('@features/bulk/components/BulkProgress', () => ({ BulkProgressDialog: () => null }));
+vi.mock('@features/bulk/components/DropsResults', () => ({ DropsResults: () => <div data-testid="drops-results-stub" /> }));
+vi.mock('@features/bulk/components/DropsSetup', () => ({ DropsSetup: () => <div data-testid="drops-setup-stub" /> }));
 vi.mock('@features/bulk/components/BulkSettings', () => ({ BulkSettings: () => <div data-testid="bulk-settings-stub" /> }));
 vi.mock('@features/bulk/components/BulkResults/BulkResultRow', () => ({
 	BulkResultRow: ({ result }: { result: TopGearResult }) => <div data-testid="row" data-avg={result.dpsMetrics.avg} />,
@@ -103,7 +115,9 @@ describe('BulkTabBody', () => {
 		const host = { player, sim: player.sim } as never;
 		render(
 			<SimHostProvider host={host}>
-				<BulkTabBody />
+				<UpgradesPanelSlot>
+					<BulkTabBody />
+				</UpgradesPanelSlot>
 			</SimHostProvider>,
 		);
 		return player;
@@ -123,18 +137,24 @@ describe('BulkTabBody', () => {
 	const isShown = (element: Element) => !element.closest('[hidden], [inert]');
 	const THREE = [entry('', [180, 5], 1100, true), entry('Patchwerk', [300, 30], 1036.5), entry('Council', [90, 10], 1250)];
 
-	it('shows the batch settings inside the Setup pane and no encounter list', () => {
+	it('shows the batch settings in the sidebar slot, outside both panes, and no encounter list', () => {
 		mount(null);
 
-		expect(paneOf(settings()).id).toBe('bulkSetupTab');
-		expect(isShown(settings())).toBe(true);
+		expect(screen.getByTestId('upgrades-slot-panel').contains(settings())).toBe(true);
+		expect(settings().closest('[data-testid="tab-pane"]')).toBeNull();
 		expect(sidebar()).toBeNull();
+	});
+
+	it('keeps the batch settings in the sidebar slot on the Results pane', () => {
+		mount(THREE);
+
+		expect(paneOf(sidebar()!).id).toBe('bulkResultsTab');
+		expect(screen.getByTestId('upgrades-slot-panel').contains(settings())).toBe(true);
 	});
 
 	it('lists one row per finished encounter inside the Results pane, current first, with the best DPS and its gain', () => {
 		mount(THREE);
 
-		expect(isShown(settings())).toBe(false);
 		expect(paneOf(sidebar()!).id).toBe('bulkResultsTab');
 		expect(isShown(sidebar()!)).toBe(true);
 		expect(sidebarRows().map(row => row.textContent)).toEqual([
@@ -197,7 +217,6 @@ describe('BulkTabBody', () => {
 
 		expect(isShown(screen.getByText('bulk_tab.results.run_simulation'))).toBe(true);
 		expect(sidebar()).toBeNull();
-		expect(isShown(settings())).toBe(false);
 
 		act(() => patchBulkState(player, { buildsStarted: true, buildsResults: [entry('', [180, 5], 1500, true)] }));
 
@@ -217,13 +236,11 @@ describe('BulkTabBody', () => {
 
 		switchMode(player, 'builds');
 
-		expect(isShown(settings())).toBe(true);
 		expect(isShown(sidebar()!)).toBe(false);
 
 		act(() => patchBulkState(player, { buildsResults: null }));
 		act(() => patchBulkState(player, { buildsResults: THREE.slice() }));
 
-		expect(isShown(settings())).toBe(false);
 		expect(isShown(sidebar()!)).toBe(true);
 	});
 
@@ -234,16 +251,14 @@ describe('BulkTabBody', () => {
 		expect(sidebarRows()).toHaveLength(1);
 		expect(within(sidebar()!).getByTestId('bulk-results-export-csv')).toBeTruthy();
 		expect(within(sidebar()!).queryByText('bulk_tab.compare.button')).toBeNull();
-		expect(isShown(settings())).toBe(false);
 		expect(shownBest()).toBe('1100');
 	});
 
-	it('shows the settings again, and hides the encounter list, when Setup is picked', () => {
+	it('hides the encounter list when Setup is picked', () => {
 		mount(THREE);
 
 		fireEvent.click(screen.getByRole('tab', { name: 'bulk_tab.tabs.setup' }));
 
-		expect(isShown(settings())).toBe(true);
 		expect(isShown(sidebar()!)).toBe(false);
 	});
 
@@ -277,5 +292,42 @@ describe('BulkTabBody', () => {
 		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
 
 		expect(compareButton()).not.toBeNull();
+	});
+
+	it('shows the Drops setup in place of the item picker in Drops', () => {
+		const player = mount(null);
+		expect(screen.getByTestId('bulk-gear-actions')).toBeTruthy();
+		expect(screen.queryByTestId('drops-setup-stub')).toBeNull();
+
+		act(() => patchBulkState(player, { mode: 'drops' }));
+
+		expect(isShown(screen.getByTestId('drops-setup-stub'))).toBe(true);
+		expect(paneOf(screen.getByTestId('drops-setup-stub')).id).toBe('bulkSetupTab');
+		expect(screen.queryByTestId('bulk-gear-actions')).toBeNull();
+	});
+
+	it('shows the Drops results without the encounters sidebar in Drops, Gear’s results untouched', () => {
+		const player = mount(THREE);
+		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
+		expect(screen.queryByTestId('drops-results-stub')).toBeNull();
+		expect(screen.getAllByTestId('row')).toHaveLength(2);
+
+		act(() =>
+			patchBulkState(player, {
+				mode: 'drops',
+				dropsStarted: true,
+				dropsResults: [entry('', [180, 5], 1300, true), entry('Patchwerk', [300, 30], 1200)],
+			}),
+		);
+
+		expect(isShown(screen.getByTestId('drops-results-stub'))).toBe(true);
+		expect(paneOf(screen.getByTestId('drops-results-stub')).id).toBe('bulkResultsTab');
+		expect(screen.queryAllByTestId('row')).toHaveLength(0);
+		expect(sidebar()).toBeNull();
+
+		act(() => patchBulkState(player, { mode: 'gear' }));
+
+		expect(screen.queryByTestId('drops-results-stub')).toBeNull();
+		expect(shownBest()).toBe('1100');
 	});
 });

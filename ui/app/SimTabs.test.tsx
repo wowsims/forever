@@ -162,7 +162,7 @@ describe('SimTabs', () => {
 	});
 
 	it('reads declarations out of a conditional group, so an entry list can be gated', () => {
-		renderTabs(['gear-tab'], <>{makeTab('bulk-tab', 1, [])}</>);
-		expect(tabs().map(el => el.textContent)).toEqual(['gear-tab', 'bulk-tab']);
+		renderTabs(['gear-tab'], <>{makeTab('talents-tab', 1, [])}</>);
+		expect(tabs().map(el => el.textContent)).toEqual(['gear-tab', 'talents-tab']);
 	});
 });

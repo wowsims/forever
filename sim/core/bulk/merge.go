@@ -109,6 +109,34 @@ func bulkSimCandidateResultToProto(result *BulkSimCandidateResult) *proto.BulkGe
 	}
 }
 
+// Appends every high-stage result outside the finalists at its high-stage numbers, by mean, high to low. Each row pairs
+// with the high stage's baseline: the finalist stage's baseline carries more values and no longer pairs with it.
+func appendBulkSimNonFinalists(rows []*proto.BulkGearResult, finalists, highResults []*BulkSimCandidateResult, highBaseline *BulkSimCandidateResult) []*proto.BulkGearResult {
+	isFinalist := make(map[int32]bool, len(finalists))
+	for _, finalist := range finalists {
+		isFinalist[finalist.Candidate.Index] = true
+	}
+	nonFinalists := make([]*BulkSimCandidateResult, 0, len(highResults))
+	for _, result := range highResults {
+		if result != nil && result.DpsMetrics != nil && !isFinalist[result.Candidate.Index] {
+			nonFinalists = append(nonFinalists, result)
+		}
+	}
+	sortBulkSimResultsByDps(nonFinalists)
+
+	for idx, result := range nonFinalists {
+		row := bulkSimCandidateResultToProto(result)
+		if idx+1 < len(nonFinalists) {
+			if pairedError, ok := bulkSimPairedDpsError(nonFinalists[idx+1].DpsMetrics, result.DpsMetrics); ok {
+				row.PairedErrorToNextResult = pairedError
+			}
+		}
+		setBulkSimPairedToBaseline(row, result.DpsMetrics, highBaseline.DpsMetrics)
+		rows = append(rows, row)
+	}
+	return rows
+}
+
 func cleanBulkSimDpsMetrics(metrics *proto.DistributionMetrics) *proto.DistributionMetrics {
 	if metrics == nil {
 		return nil

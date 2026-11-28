@@ -2,15 +2,28 @@ import type { Player } from '@sim/player/player';
 import { patchBulkState, storeBulkMode } from '@sim/settings/bulk_settings';
 import type { BulkMode, BulkSlice } from '@sim/state/sim_store';
 
-// The one gate on Builds mode: with power tools off the batch runs in Gear mode whatever is stored.
-export const bulkRunsBuilds = (powerTools: boolean, mode: BulkMode): boolean => powerTools && mode === 'builds';
+// The mode a batch runs in. With power tools off a stored Builds runs as Gear; Drops is no power tool and stays.
+export const bulkRunMode = (powerTools: boolean, mode: BulkMode): BulkMode => (mode === 'builds' && !powerTools ? 'gear' : mode);
 
-export const bulkModeResults = (builds: boolean, slice: Pick<BulkSlice, 'gearResults' | 'buildsResults'>) => (builds ? slice.buildsResults : slice.gearResults);
+export const bulkRunsBuilds = (powerTools: boolean, mode: BulkMode): boolean => bulkRunMode(powerTools, mode) === 'builds';
 
-export const bulkModeStarted = (builds: boolean, slice: Pick<BulkSlice, 'gearStarted' | 'buildsStarted'>) => (builds ? slice.buildsStarted : slice.gearStarted);
+export const bulkRunsDrops = (powerTools: boolean, mode: BulkMode): boolean => bulkRunMode(powerTools, mode) === 'drops';
 
-// No `settings` bump: the mode changes neither the combination count nor the stored BulkSettings.
+// Builds is offered only with power tools on.
+export const bulkMenuModes = (powerTools: boolean): readonly BulkMode[] => (powerTools ? ['gear', 'drops', 'builds'] : ['gear', 'drops']);
+
+export const bulkModeResults = (runMode: BulkMode, slice: Pick<BulkSlice, 'gearResults' | 'dropsResults' | 'buildsResults'>) => {
+	if (runMode === 'drops') return slice.dropsResults;
+	return runMode === 'builds' ? slice.buildsResults : slice.gearResults;
+};
+
+export const bulkModeStarted = (runMode: BulkMode, slice: Pick<BulkSlice, 'gearStarted' | 'dropsStarted' | 'buildsStarted'>) => {
+	if (runMode === 'drops') return slice.dropsStarted;
+	return runMode === 'builds' ? slice.buildsStarted : slice.gearStarted;
+};
+
+// Bumps `settings`: Drops counts from its own sources, exclusions and enchant preset pool, so a mode switch recounts.
 export const setBulkMode = (player: Player<any>, mode: BulkMode) => {
-	patchBulkState(player, { mode });
+	patchBulkState(player, { mode }, ['settings']);
 	storeBulkMode(player, mode);
 };

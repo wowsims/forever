@@ -20,10 +20,11 @@ import { BulkSimItemSlot } from '@sim/bulk/constants_auto_gen';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { PlayerSpecs } from '@sim/player/specs';
+import type { PresetEncounter } from '@sim/presets/types';
 import { Gear } from '@sim/proto/gear';
 import { getGearIdentityKey } from '@sim/proto/items';
 import { Stats } from '@sim/proto/stats';
-import { bulkState, loadStoredBulkTopResults, patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
+import { bulkState, loadStoredBatchEncounter, loadStoredBulkTopResults, patchBulkState, seedBulkSettings } from '@sim/settings/bulk_settings';
 import { type BulkMode, createSimStore, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { memoryEnv } from '@testing/sim/memory_env';
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
@@ -62,6 +63,11 @@ vi.mock('@sim/bulk/utils', async () => {
 	return { ...actual, getBulkPlayerCanDualWield: () => true, getBulkFreezeWeaponTypes: () => [] };
 });
 vi.mock('../../model/run/run', () => ({ runBulkBatch: vi.fn() }));
+// The Drops pick comes off the database and the live gear, which the stub host has none of; the card reads only the count.
+const drops = vi.hoisted(() => ({ picked: [] as number[] }));
+vi.mock('../../hooks/useDropsSetup', () => ({
+	useDropsSetup: () => ({ list: { items: drops.picked.map(id => ({ item: { id }, included: true, worn: false })) } }),
+}));
 // The stub host has none of the raid and player getters the live settings are read from.
 vi.mock('@features/settings/hooks/useCurrentSettings', () => ({ useCurrentSettings: () => null }));
 // Passing the web limit takes some hundred candidates in one run, so the warning case sets a limit of its own.
@@ -162,6 +168,9 @@ interface MountOptions {
 	buildEnchantPresets?: string[];
 	encounters?: BulkEncounterRef[];
 	buildBundles?: boolean;
+	encounterPresets?: PresetEncounter[];
+	savedEncounters?: Record<string, unknown>;
+	batchEncounter?: BulkEncounterRef;
 }
 
 const lookupEquipmentSpec = (spec: EquipmentSpec) => KNOWN_GEAR.find(known => getGearIdentityKey(known.asSpec()) === getGearIdentityKey(spec)) ?? new Gear({});
@@ -175,8 +184,12 @@ const mount = ({
 	buildEnchantPresets = [],
 	encounters = [CURRENT_ENCOUNTER_REF],
 	buildBundles = false,
+	encounterPresets = [],
+	savedEncounters = SAVED.encounters,
+	batchEncounter = BulkEncounterRef.create(),
 }: MountOptions = {}) => {
 	for (const [kind, key] of Object.entries(KEYS)) localStorage.setItem(key, JSON.stringify(SAVED[kind as keyof typeof KEYS]));
+	localStorage.setItem(KEYS.encounters, JSON.stringify(savedEncounters));
 	const store = createSimStore();
 	patchSlice(store, 'encounter', { duration: 180, durationVariation: 5, targets: [Target.create()] });
 	patchSlice(store, 'ui', { showPowerTools: powerTools });
@@ -215,13 +228,14 @@ const mount = ({
 		enchantPresets: [enchantPreset('Agility', [CLOAK_AGILITY.effectId]), enchantPreset('Cloaks', [CLOAK_AGILITY.effectId, CLOAK_ARMOR.effectId])],
 		buildEnchantPresets,
 		encounters,
+		batchEncounter,
 	});
 	const host = {
 		player,
 		sim: player.sim,
 		reforger,
 		reforgeOptions: null,
-		individualConfig: { presets: PRESETS },
+		individualConfig: { presets: { ...PRESETS, encounters: encounterPresets } },
 		getStorageKey: (key: string) => `test-${key}`,
 		getSavedGearStorageKey: () => KEYS.gear,
 		getSavedEncounterStorageKey: () => KEYS.encounters,
@@ -257,11 +271,15 @@ const runsCount = () => text('bulk-runs-count');
 const simulate = () => screen.getByTestId('bulk-settings-btn') as HTMLButtonElement;
 const topResultsInput = () => within(screen.getByTestId('bulk-top-results')).getByRole('textbox') as HTMLInputElement;
 const allCheckbox = () => within(screen.getByTestId('bulk-top-results')).getByRole('checkbox');
+const batchBlock = () => screen.getByTestId('bulk-batch-encounter');
+const batchPick = (container: HTMLElement) => container.querySelector('#bulk-batch-encounter-pick')!;
+const PATCHWERK_PRESET = { name: 'Patchwerk', encounter: Encounter.create({ duration: 300, targets: [Target.create()] }) };
 const isAll = () => allCheckbox().getAttribute('aria-checked') === 'true';
 
 beforeEach(() => {
 	localStorage.clear();
 	limits.iterations = null;
+	drops.picked = [];
 	init.ready = true;
 });
 
@@ -489,6 +507,50 @@ describe('BulkSettings', () => {
 		expect(bulkState(player).bundles).toEqual([raid]);
 	});
 
+	it('starts on Current encounter and stores the empty ref when Current is picked back', async () => {
+		const { player, container, pick } = mount({ encounterPresets: [PATCHWERK_PRESET] });
+		expect(batchPick(container).textContent).toBe('Current encounter');
+		await pick('bulk-batch-encounter-pick', 1);
+		expect(loadStoredBatchEncounter(player)).toEqual(BulkEncounterRef.create({ name: 'Patchwerk', preset: true }));
+		await pick('bulk-batch-encounter-pick', 0);
+		expect(loadStoredBatchEncounter(player)).toEqual(BulkEncounterRef.create());
+	});
+
+	it('lists the preset encounters, then the saved ones, and stores the one picked with its summary under it', async () => {
+		const { player, container, pick } = mount({
+			encounterPresets: [PATCHWERK_PRESET],
+			batchEncounter: BulkEncounterRef.create({ name: 'Patchwerk', preset: true }),
+		});
+		const [, label] = await pick('bulk-batch-encounter-pick', 2);
+		expect(label).toBe('Council');
+		expect(bulkState(player).batchEncounter).toEqual(COUNCIL);
+		const summaryId = batchPick(container).getAttribute('aria-describedby')!;
+		expect(document.getElementById(summaryId)!.textContent).toContain('1:30');
+	});
+
+	it('reads a pick whose saved encounter is gone as Current encounter, and leaves it stored', () => {
+		const { player, container } = mount({ batchEncounter: BulkEncounterRef.create({ name: 'Gone' }) });
+		expect(batchPick(container).textContent).toBe('Current encounter');
+		expect(bulkState(player).batchEncounter).toEqual(BulkEncounterRef.create({ name: 'Gone' }));
+	});
+
+	it('offers Current encounter alone with no preset or saved encounter to pick', async () => {
+		const { container } = mount({ savedEncounters: {} });
+		const trigger = batchPick(container) as HTMLButtonElement;
+		expect(trigger.disabled).toBe(false);
+		expect(trigger.textContent).toBe('Current encounter');
+		await userEvent.click(trigger);
+		expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual(['Current encounter']);
+	});
+
+	it('shows the batch encounter in Gear mode, a stored Builds mode with power tools off included, and not in Builds', () => {
+		mount({ mode: 'builds', powerTools: false });
+		expect(batchBlock()).toBeTruthy();
+		cleanup();
+		mount({ mode: 'builds' });
+		expect(screen.queryByTestId('bulk-batch-encounter')).toBeNull();
+	});
+
 	it('offers the top results only with power tools on, Gear at 5 and Builds at All', () => {
 		mount({ powerTools: false });
 		expect(screen.queryByTestId('bulk-top-results')).toBeNull();
@@ -586,10 +648,13 @@ const renderSettings = (props: Partial<BulkSettingsViewProps> = {}) => {
 	const { container } = render(
 		<BulkSettingsView
 			topResults={null}
+			batchEncounter={null}
 			combinationsCount={<span data-testid="count" />}
+			summary={{ label: 'Combinations', value: 1, pending: false }}
 			canRun
 			openGroups={['freezes']}
-			groups
+			groups="all"
+			runLabel="Find best gear"
 			enchants={null}
 			frozenItems={[RING_VIEW]}
 			weaponFreeze={null}
@@ -632,5 +697,71 @@ describe('BulkSettingsView', () => {
 
 		expect(onFrozenWeaponSlotChange).toHaveBeenCalledWith(ItemSlot.ItemSlotMainHand);
 		expect(screen.getByTestId('weapon-types')).toBeTruthy();
+	});
+});
+
+describe('BulkSettings in Drops mode', () => {
+	it('shows the Drops run card with Find next drop, the enchant group alone and no Top results', () => {
+		const { groups } = mount({ mode: 'drops' });
+
+		expect(groups()).toEqual(['bulk-settings-group-enchants-trigger']);
+		expect(screen.queryByTestId('bulk-top-results')).toBeNull();
+		expect(screen.getByTestId('bulk-batch-encounter')).toBeTruthy();
+		expect(simulate().textContent).toBe('Find next drop');
+	});
+
+	it('lists the picked items, the candidates and the minimum iterations', () => {
+		drops.picked = [1, 2, 3];
+		mount({ mode: 'drops', combinations: 5 });
+
+		expect(text('drops-run-picked')).toBe('3');
+		expect(text('drops-run-candidates')).toBe('5');
+		expect(screen.queryByTestId('drops-run-variants')).toBeNull();
+		expect(text('bulk-total-iterations')).toBe('60,000');
+		expect(screen.getAllByTestId('drops-run-note')).toHaveLength(3);
+	});
+
+	it('keeps Find next drop off with nothing picked, whatever the count', () => {
+		const { player } = mount({ mode: 'drops', combinations: 0 });
+
+		expect(simulate().disabled).toBe(true);
+
+		act(() => patchBulkState(player, { combinations: 1 }));
+		expect(simulate().disabled).toBe(true);
+	});
+
+	it('turns Find next drop on once an item is picked and counted', () => {
+		drops.picked = [7];
+		const { player } = mount({ mode: 'drops', combinations: 0 });
+
+		expect(simulate().disabled).toBe(true);
+
+		act(() => patchBulkState(player, { combinations: 1 }));
+		expect(simulate().disabled).toBe(false);
+	});
+
+	it('warns past the iterations limit with power tools off and gates on it with them on', () => {
+		limits.iterations = 50000;
+		drops.picked = [7];
+		const { player } = mount({ mode: 'drops', combinations: 5, powerTools: false });
+
+		expect(screen.getByTestId('bulk-total-iterations').querySelector('[data-testid="warning"]')).not.toBeNull();
+		expect(simulate().disabled).toBe(false);
+
+		act(() => patchSlice(player.sim.store, 'ui', { showPowerTools: true }));
+
+		expect(simulate().disabled).toBe(true);
+	});
+
+	it('ticks an enchant preset in Drops that Gear shows ticked too', async () => {
+		const { player, openGroup } = mount({ mode: 'drops' });
+		openGroup('enchants');
+		const agility = () => within(screen.getByTestId('bulk-enchant-presets')).getAllByRole('checkbox')[0];
+
+		await userEvent.click(agility());
+
+		expect(bulkState(player).enchantPresets.find(preset => preset.name === 'Agility')!.checked).toBe(true);
+		act(() => patchBulkState(player, { mode: 'gear' }));
+		expect(agility().getAttribute('aria-checked')).toBe('true');
 	});
 });

@@ -45,6 +45,7 @@
 @import '../ui-kit/Spinner/Spinner.css';
 @import '../ui-kit/Skeleton/Skeleton.css';
 @import '../ui-kit/Table/Table.css';
+@import '../ui-kit/VirtualList/VirtualList.css';
 @import '../ui-kit/hooks/useStickyToolbar.css';
 @import '../ui-kit/SimLinkContent/SimLinkContent.css';
 @import '../ui-kit/ContentBlock/ContentBlock.css';

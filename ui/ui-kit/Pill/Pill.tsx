@@ -10,11 +10,20 @@ export interface PillProps extends ComponentPropsWithoutRef<'span'> {
 	tone?: PillTone;
 	size?: PillSize;
 	rounded?: PillRounded;
+	/** A count: one number centred in a pill at least as wide as it is tall. */
+	count?: boolean;
 	testId?: string;
 }
 
-export const Pill = ({ tone = 'neutral', size = 'sm', rounded = 'full', className, testId = 'pill', children, ...props }: PillProps) => (
-	<span className={clsx('ui-pill', className)} data-tone={tone} data-rounded={rounded} data-size={size} data-testid={testId} {...props}>
+export const Pill = ({ tone = 'neutral', size = 'sm', rounded = 'full', count, className, testId = 'pill', children, ...props }: PillProps) => (
+	<span
+		className={clsx('ui-pill', className)}
+		data-tone={tone}
+		data-rounded={rounded}
+		data-size={size}
+		data-count={count ? '' : undefined}
+		data-testid={testId}
+		{...props}>
 		{children}
 	</span>
 );

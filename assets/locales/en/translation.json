@@ -1271,8 +1271,14 @@
 		},
 		"points_remaining": "Points Remaining"
 	},
+	"sim_sides": {
+		"label": "Single sim or upgrades",
+		"single": "Single sim",
+		"upgrades": "Upgrades"
+	},
 	"bulk_tab": {
-		"title": "Batch",
+		"title": "Upgrades",
+		"modes_label": "What to look for",
 		"download_native": "Download the local sim for faster results.",
 		"tabs": {
 			"setup": "Setup",
@@ -1283,9 +1289,113 @@
 				"label": "Gear",
 				"description": "Best gear for your current talents and encounter"
 			},
+			"drops": {
+				"label": "Drops",
+				"description": "Which drop to farm next"
+			},
 			"builds": {
 				"label": "Builds",
 				"description": "Best gear and talents across encounters"
+			}
+		},
+		"drops": {
+			"sources": {
+				"categories": {
+					"drop_dungeon": "Dungeons",
+					"drop_raid": "Raids",
+					"drop_world": "World drops",
+					"quest": "Quest rewards",
+					"crafted": "Crafted",
+					"rep": "Reputation",
+					"soldBy": "Vendors"
+				},
+				"other_quests": "Other quests",
+				"other_vendors": "Other vendors",
+				"world_drop": "Anywhere"
+			},
+			"setup": {
+				"sources_title": "Sources",
+				"items_title": "Items to sim",
+				"quick_picks": {
+					"endgame_dungeons": "Endgame dungeons",
+					"clear": "Clear"
+				},
+				"by_slot": "By slot",
+				"by_source": "By source",
+				"empty": "Tick a source to list its items.",
+				"choose_items": "Choose items…",
+				"items_ticked": "{{ticked}} of {{total}} items ticked",
+				"hidden_ticked_one": "{{count}} ticked item hidden by filters",
+				"hidden_ticked_other": "{{count}} ticked items hidden by filters",
+				"all": "All",
+				"all_of": "All {{name}}",
+				"select_all": "Select all",
+				"clear_selection": "Clear selection",
+				"no_match": "No item matches the search and filters."
+			},
+			"items": {
+				"tags": {
+					"mh": "MH",
+					"oh": "OH",
+					"2h": "2H"
+				},
+				"worn": "Equipped"
+			},
+			"results": {
+				"current_gear": "Current gear",
+				"best_drop": "Best drop",
+				"farm_first": "Farm first",
+				"farm_first_upgrades_one": "{{count}} of {{total}} drops is an upgrade",
+				"farm_first_upgrades_other": "{{count}} of {{total}} drops are upgrades",
+				"no_upgrade": "No upgrade",
+				"view_label": "View",
+				"view": {
+					"bosses": "Bosses",
+					"items": "Items"
+				},
+				"upgrades_one": "upgrade",
+				"upgrades_other": "upgrades",
+				"best": "Best",
+				"worn": "Equipped",
+				"filtered_by": "Source:",
+				"clear_filter": "Clear the source filter",
+				"low_precision": "Ruled out early",
+				"boe": "BoE",
+				"boe_tooltip": "Binds when equipped: it can be traded until worn, so you can buy it instead of farming it.",
+				"equip_item": "Equip {{name}}",
+				"low_precision_tooltip": "Clearly below your current gear, so the run stopped simming it before the final stage. Its DPS comes from fewer iterations and shows no ±.",
+				"run_simulation": "Run a Drops simulation to view results",
+				"next_upgrade_title": "Next upgrades only",
+				"next_upgrade_note": "Each item was simmed on its own against what you wear now. Once you equip one, run Drops again to see what comes next. Your long-term goals, like a set bonus, might still point somewhere else.",
+				"order_label": "Order by",
+				"order": {
+					"recommended": "Recommended",
+					"gain": "Biggest upgrade",
+					"upgrades": "Most upgrades",
+					"zone": "Zone",
+					"combined": "Combined gain"
+				},
+				"run_again": "Run Drops again",
+				"combined_gain": "Combined gain",
+				"combined_help": "About the combined gain",
+				"combined_tooltip": "The DPS gain from wearing this source's marked upgrades together, simmed as one gear set. Drops are not guaranteed, so you may get only some of them.",
+				"combined_items": "In the set: {{items}}",
+				"combined_left_out": "Left out, as they cannot be worn with the set: {{items}}",
+				"combined_partial": "{{included}} of {{total}} upgrades",
+				"combined_unproven": "Within the sim's error of your current gear, so the gain is not proven."
+			},
+			"run": {
+				"items_picked": "Items picked",
+				"candidates": "Candidates",
+				"notes": {
+					"one_change": "Each candidate adds one new item to your worn gear.",
+					"slots": "A ring or trinket is tried in both slots, as Unique-Equipped allows.",
+					"hands": "A one-hander is tried in each hand it fits, and a two-hander replaces both."
+				},
+				"two_hander_skipped_one": "{{count}} one-hander or off-hand item skipped: you wear a two-hander.",
+				"two_hander_skipped_other": "{{count}} one-handers and off-hand items skipped: you wear a two-hander.",
+				"combined_gain": "Calculate combined gain",
+				"combined_gain_tooltip": "Runs an additional simulation for the total upgrade gain of a drop source, for example one boss with several upgrades."
 			}
 		},
 		"builds": {
@@ -1324,7 +1434,9 @@
 			"import_bags": "Import From Bags",
 			"import_favorites": "Import Favorites",
 			"clear_items": "Clear Items",
-			"simulate_batch": "Simulate Batch"
+			"simulate_batch": "Find best gear",
+			"simulate_drops": "Find next drop",
+			"simulate_builds": "Compare builds"
 		},
 		"search": {
 			"title": "Item Search",
@@ -1347,6 +1459,14 @@
 				"label": "Top results",
 				"tooltip": "How many results each encounter ranks. The batch drops a result early once it cannot reach them. With All, every result gets its full iterations.",
 				"all": "All"
+			},
+			"batch_encounter": {
+				"label": "Encounter",
+				"tooltip": "Runs on a preset or saved encounter and leaves the single sim's encounter as it is. Current encounter is the single sim's. Builds runs the encounters ticked in its Encounters column.",
+				"current": "Current encounter",
+				"edit": "Edit encounter",
+				"edit_title": "Edit encounter",
+				"edit_note": "This edits the Current encounter, which the single sim uses too. Save it under a name to keep it in the list."
 			},
 			"groups": {
 				"enchants": "Enchants",
@@ -1441,7 +1561,8 @@
 			"done": "Done",
 			"running": "Running",
 			"pending": "Pending",
-			"step_progress": "Run progress: {{encounter}}, {{talents}}"
+			"step_progress": "Run progress: {{encounter}}, {{talents}}",
+			"combined_gain_rounds": "Simming each source's upgrades together"
 		},
 		"notifications": {
 			"bulk_sim_cancelled": "Bulk sim cancelled.",
@@ -1466,7 +1587,7 @@
 		"results": {
 			"run_simulation": "Run a simulation to view results",
 			"equip_button": "Equip",
-			"gear_equipped": "Batch gear equipped!",
+			"gear_equipped": "Gear equipped.",
 			"build_equipped": "Batch build equipped!",
 			"gear_unchanged": "No gear changes",
 			"current_gear": "Current gear",

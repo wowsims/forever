@@ -24,7 +24,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 
 import type { BulkSimItemSlot } from '../bulk/constants_auto_gen';
-import type { BulkEncounterResults, BulkPickerEntry } from '../bulk/types';
+import type { BulkDropsCombined, BulkEncounterResults, BulkPickerEntry } from '../bulk/types';
 import { ENCOUNTER_DEFAULTS } from '../constants/encounter';
 import { CURRENT_PHASE } from '../constants/other';
 import type { EquippedItem } from '../proto/equipped_item';
@@ -222,8 +222,16 @@ export interface StatSweepSlice {
 	v: { settings: number };
 }
 
-// Gear runs the current encounter and talents alone; Builds runs the ticked bundles on the ticked encounters.
-export type BulkMode = 'gear' | 'builds';
+// Gear runs the current encounter and talents alone; Drops runs each picked item from the ticked sources on its own, kept
+// when it beats the worn gear; Builds runs the ticked bundles on the ticked encounters.
+export type BulkMode = 'gear' | 'drops' | 'builds';
+
+// Drops lists its results by the sources the items drop from, or by the items.
+export type BulkDropsView = 'bosses' | 'items';
+
+// How the Bosses view orders its cards; `combined` reads the Combined gain and is offered only with it.
+export const BULK_DROPS_ORDERS = ['recommended', 'gain', 'upgrades', 'zone', 'combined'] as const;
+export type BulkDropsOrder = (typeof BULK_DROPS_ORDERS)[number];
 
 // Bulk (batch) sim tab, one slice per player. The autosave and the combination
 // count react to the `v` counters, never to the entry: the run fields are
@@ -244,7 +252,19 @@ export interface BulkSlice {
 	currentBundleChecked: boolean;
 	// The checked encounters Builds mode runs, in list order; the current one, read live, is checked by its empty-name ref.
 	encounters: readonly BulkEncounterRef[];
-	// Picked in the top navigation; Builds counts only with power tools on.
+	// Gear and Drops run on this encounter in place of the Encounter tab's; the empty ref and a ref whose encounter is gone read as Current encounter.
+	batchEncounter: BulkEncounterRef;
+	// The leaf keys of the sources Drops has ticked, sorted. A key stays when the tree does not list its node.
+	dropsSources: readonly string[];
+	// The ids of the items under the ticked sources that Drops has unticked, sorted.
+	dropsExcluded: readonly number[];
+	dropsView: BulkDropsView;
+	dropsOrder: BulkDropsOrder;
+	// What the Drops items dialog shows, never what runs; null until set, which reads as the class's defaults.
+	dropsFilters: DatabaseFilters | null;
+	// Whether a Drops run sims each source card's upgrades together once the single items are done.
+	dropsCombinedGain: boolean;
+	// Picked in the top navigation; Drops is no power tool, Builds counts only with power tools on.
 	mode: BulkMode;
 	// How many results each mode ranks per encounter while power tools are on; 0 is All. Without power tools Gear ranks 5.
 	gearTopResults: number;
@@ -256,13 +276,21 @@ export interface BulkSlice {
 	isRunning: boolean;
 	// Whether each mode has started a run. Each mode keeps its own, and the Results pane shows those of the mode the batch runs in.
 	gearStarted: boolean;
+	dropsStarted: boolean;
 	buildsStarted: boolean;
 	// One per finished encounter of each mode's last run, the current one first.
 	gearResults: readonly BulkEncounterResults[] | null;
+	dropsResults: readonly BulkEncounterResults[] | null;
 	buildsResults: readonly BulkEncounterResults[] | null;
 	// The gear the last batch started from. The set-bonus feasibility check judges against it, not
 	// against the candidate gear a run swaps in and out of the player.
 	runGear: Gear | null;
+	// The ticked leaf keys the last Drops run started with; its boss cards group by these, not by the tree as it is now.
+	dropsRunSources: readonly string[];
+	// The side the last Drops run started on; its item lookup filters by it, not by the race as it is now.
+	dropsRunFaction: Faction;
+	// The last Drops run's combined sets by source card key; null when the run simmed none.
+	dropsCombined: ReadonlyMap<string, BulkDropsCombined> | null;
 	v: { settings: number; items: number };
 }
 

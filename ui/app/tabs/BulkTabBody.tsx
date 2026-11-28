@@ -8,6 +8,8 @@ import { BulkProgressDialog } from '@features/bulk/components/BulkProgress';
 import { BulkResults } from '@features/bulk/components/BulkResults';
 import { BulkResultsCsvButton } from '@features/bulk/components/BulkResultsCsvButton';
 import { BulkSettings } from '@features/bulk/components/BulkSettings';
+import { DropsResults } from '@features/bulk/components/DropsResults';
+import { DropsSetup } from '@features/bulk/components/DropsSetup';
 import { BulkBuildsProvider } from '@features/bulk/context/BulkBuildsContext';
 import { useBulkMode } from '@features/bulk/hooks/useBulkMode';
 import { useBulkResults } from '@features/bulk/hooks/useBulkResults';
@@ -28,6 +30,9 @@ import { Icon } from '@ui-kit/Icon';
 import { TabNav, TabPanel, TabPanels } from '@ui-kit/TabNav';
 import { TabPanelColumns } from '@ui-kit/TabPanelColumns';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+
+import { useUpgradesSlots } from '../UpgradesSlots';
 
 const PANES = [
 	{ id: 'bulkSetupTab', labelKey: 'bulk_tab.tabs.setup' },
@@ -74,34 +79,38 @@ export const BulkTabBody = () => {
 	const activateTab = useActivateTab();
 	const results = useBulkResults();
 	const isRunning = useBulkState(slice => slice.isRunning);
-	const { builds } = useBulkMode();
+	const { builds, drops, runMode } = useBulkMode();
 
 	const [activeId, setActiveId] = useState<BulkPaneId>('bulkSetupTab');
 	const [importOpen, setImportOpen] = useState(false);
 	const [selectedEncounter, selectEncounter] = useBulkResultSelection();
 	const selector = useSelectorModalState();
-	const resultsMode = useRef(builds);
+	const slots = useUpgradesSlots();
+	const resultsMode = useRef(runMode);
 	// Starting a run clears its mode's results and drops back to setup; finishing one opens the results. Switching modes
 	// swaps the results shown and keeps the pane.
 	useEffect(() => {
-		if (resultsMode.current !== builds) {
-			resultsMode.current = builds;
+		if (resultsMode.current !== runMode) {
+			resultsMode.current = runMode;
 			return;
 		}
 		setActiveId(results ? 'bulkResultsTab' : 'bulkSetupTab');
-	}, [results, builds]);
+	}, [results, runMode]);
 
 	return (
 		<OpenSelectorModalContext value={selector.openTab}>
-			<Tabs.Root className="w-full pt-2" data-testid="bulk-tab-tabs" value={activeId} onValueChange={next => setActiveId(next as BulkPaneId)}>
-				<TabNav tabs={PANES.map(pane => ({ id: pane.id, label: i18n.t(pane.labelKey) }))} />
-				<TabPanels>
-					<TabPanel value="bulkSetupTab">
-						<TabPanelColumns.Root fullWidth>
-							<BulkBuildsProvider>
+			<BulkBuildsProvider>
+				{slots.panel && createPortal(<BulkSettings dock={slots.action ? slots : null} />, slots.panel)}
+				<Tabs.Root className="w-full pt-2" data-testid="bulk-tab-tabs" value={activeId} onValueChange={next => setActiveId(next as BulkPaneId)}>
+					<TabNav tabs={PANES.map(pane => ({ id: pane.id, label: i18n.t(pane.labelKey) }))} />
+					<TabPanels>
+						<TabPanel value="bulkSetupTab">
+							<TabPanelColumns.Root fullWidth>
 								<TabPanelColumns.Left variant="auto-columns">
 									{builds ? (
 										<BulkBuildsColumns />
+									) : drops ? (
+										<DropsSetup />
 									) : (
 										<>
 											<BulkTabActionsView
@@ -120,31 +129,31 @@ export const BulkTabBody = () => {
 										</>
 									)}
 								</TabPanelColumns.Left>
-								<BulkSettings />
-							</BulkBuildsProvider>
-						</TabPanelColumns.Root>
-					</TabPanel>
-					<TabPanel value="bulkResultsTab">
-						<TabPanelColumns.Root fullWidth>
-							<TabPanelColumns.Left variant="stacked">
-								<BulkResults onActivateTab={activateTab} selected={selectedEncounter} />
-							</TabPanelColumns.Left>
-							{results && results.length > 0 && (
-								<BulkEncounterResults
-									selected={selectedEncounter}
-									onSelect={selectEncounter}
-									footer={
-										<div className="flex flex-wrap gap-2">
-											<BulkResultsCsvButton />
-											{results.length > 1 && <BulkCompareButton />}
-										</div>
-									}
-								/>
-							)}
-						</TabPanelColumns.Root>
-					</TabPanel>
-				</TabPanels>
-			</Tabs.Root>
+							</TabPanelColumns.Root>
+						</TabPanel>
+						<TabPanel value="bulkResultsTab">
+							<TabPanelColumns.Root fullWidth>
+								<TabPanelColumns.Left variant="stacked">
+									{drops ? <DropsResults /> : <BulkResults onActivateTab={activateTab} selected={selectedEncounter} />}
+								</TabPanelColumns.Left>
+								{/* A Drops run has one encounter, so its pane carries the export itself. */}
+								{!drops && results && results.length > 0 && (
+									<BulkEncounterResults
+										selected={selectedEncounter}
+										onSelect={selectEncounter}
+										footer={
+											<div className="flex flex-wrap gap-2">
+												<BulkResultsCsvButton />
+												{results.length > 1 && <BulkCompareButton />}
+											</div>
+										}
+									/>
+								)}
+							</TabPanelColumns.Root>
+						</TabPanel>
+					</TabPanels>
+				</Tabs.Root>
+			</BulkBuildsProvider>
 			{importOpen && <BulkGearImporterDialog open onOpenChange={setImportOpen} />}
 			<SelectorModal state={selector} id="bulk-selector-modal" rail={false} />
 			{isRunning && <BulkProgressDialog />}

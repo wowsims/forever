@@ -27,14 +27,14 @@ import { matchesSearch } from '../../model/item_search';
 import { defaultSortBy, ItemListSortBy, slotSortsByEP, sortItemIdxs } from '../../model/item_sort';
 import { type ItemDataFields, type ItemListType, SelectorModalTabs } from '../../types';
 import { FiltersMenu } from '../FiltersMenu';
+import { FiltersButton } from '../FiltersMenu/FiltersButton';
 import { ItemListHeaderRow } from './ItemListHeaderRow';
 import { ItemListRow } from './ItemListRow';
 import { removeButtonLabel, type SelectorTab } from './utils';
 
 const ROW_HEIGHT = 56;
 const ROW_CLASS = clsx(
-	'relative flex items-center gap-4 bg-gray-900 p-2',
-	'hover:bg-gray-800 data-[stripe=even]:not-hover:bg-table-odd data-[stripe=odd]:not-hover:bg-table-even',
+	'relative flex items-center gap-4 p-2',
 	'[&_[data-active]_.ui-selector-modal-list-item-icon]:outline-2 [&_[data-active]_.ui-selector-modal-list-item-icon]:outline-success',
 );
 
@@ -92,11 +92,7 @@ export const ItemListToolbarView = ({
 			/>
 			{filtersMenu !== undefined && (
 				<>
-					<Button data-testid="selector-modal-filters-button" onClick={onOpenFilters}>
-						{activeFilters > 0
-							? i18n.t('gear_tab.gear_picker.filters_button_active', { active: activeFilters })
-							: i18n.t('gear_tab.gear_picker.filters_button')}
-					</Button>
+					<FiltersButton active={activeFilters} onClick={onOpenFilters} testId="selector-modal-filters-button" />
 					{filtersMenu}
 				</>
 			)}
@@ -274,6 +270,7 @@ export const ItemList = ({ tab, slot, itemSlots, equippedItem }: ItemListProps) 
 					count={itemsToDisplay.length}
 					rowHeight={ROW_HEIGHT}
 					getScrollElement={() => listRef.current}
+					striped
 					rowClassName={() => ROW_CLASS}
 					renderRow={index => {
 						const row = itemData[itemsToDisplay[index]];

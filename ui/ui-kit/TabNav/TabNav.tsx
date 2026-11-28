@@ -20,7 +20,7 @@ export interface TabNavProps {
 	tabs: Array<TabNavTab>;
 	className?: string;
 	variant?: 'nav-tabs' | 'sim';
-	/** The `sim` variant's edge of the page: `bottom` spreads the tabs across the bar and marks the open one along its top. */
+	/** The `sim` variant's edge of the page: `bottom` spreads the tabs across the bar and marks the open one with a thicker underline. */
 	placement?: 'top' | 'bottom';
 	tabItemClassName?: string;
 	bordered?: boolean;

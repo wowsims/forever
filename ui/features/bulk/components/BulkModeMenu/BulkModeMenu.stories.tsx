@@ -8,17 +8,19 @@ import { BulkModeMenuView } from './BulkModeMenu';
 
 interface BulkModeMenuFrameProps {
 	label: string;
+	modes: readonly BulkMode[];
+	current: BulkMode;
 	onPick: (mode: BulkMode) => void;
 }
 
 // The batch tab in a sim tab strip, the way the top navigation places it.
-const BulkModeMenuFrame = ({ label, onPick }: BulkModeMenuFrameProps) => (
+const BulkModeMenuFrame = ({ label, modes, current, onPick }: BulkModeMenuFrameProps) => (
 	<Tabs.Root defaultValue="gear-tab">
 		<TabNav
 			variant="sim"
 			tabs={[
 				{ id: 'gear-tab', label: 'Gear' },
-				{ id: 'bulk-tab', label, renderTab: tab => <BulkModeMenuView tab={tab} onPick={onPick} /> },
+				{ id: 'bulk-tab', label, renderTab: tab => <BulkModeMenuView tab={tab} modes={modes} current={current} onPick={onPick} /> },
 			]}
 		/>
 	</Tabs.Root>
@@ -29,7 +31,7 @@ const meta = {
 	component: BulkModeMenuFrame,
 	subcomponents: { BulkModeMenuView },
 	tags: ['autodocs'],
-	args: { label: 'Batch', onPick: fn() },
+	args: { label: 'Batch', modes: ['gear', 'drops', 'builds'], current: 'drops', onPick: fn() },
 } satisfies Meta<typeof BulkModeMenuFrame>;
 
 export default meta;
@@ -42,7 +44,22 @@ export const Open: Story = {
 		await userEvent.hover(within(canvasElement).getByRole('tab', { name: 'Batch' }));
 		const body = within(canvasElement.ownerDocument.body);
 		await body.findByTestId('bulk-mode-gear');
-		await userEvent.click(body.getByTestId('bulk-mode-builds'));
-		await expect(args.onPick).toHaveBeenCalledWith('builds');
+		await expect(body.getAllByRole('menuitem').map(item => item.getAttribute('data-testid'))).toEqual([
+			'bulk-mode-gear',
+			'bulk-mode-drops',
+			'bulk-mode-builds',
+		]);
+		await userEvent.click(body.getByTestId('bulk-mode-drops'));
+		await expect(args.onPick).toHaveBeenCalledWith('drops');
+	},
+};
+
+export const WithoutPowerTools: Story = {
+	args: { modes: ['gear', 'drops'] },
+	play: async ({ canvasElement }) => {
+		await userEvent.hover(within(canvasElement).getByRole('tab', { name: 'Batch' }));
+		const body = within(canvasElement.ownerDocument.body);
+		await body.findByTestId('bulk-mode-gear');
+		await expect(body.getAllByRole('menuitem').map(item => item.getAttribute('data-testid'))).toEqual(['bulk-mode-gear', 'bulk-mode-drops']);
 	},
 };

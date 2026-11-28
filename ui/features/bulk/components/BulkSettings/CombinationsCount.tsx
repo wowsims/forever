@@ -1,13 +1,7 @@
 import i18n from '@i18n/config';
 import { useSim } from '@sim/context/SimHostContext';
 import { formatToNumber } from '@sim/utils/format';
-import { Button } from '@ui-kit/Button';
-import { Icon } from '@ui-kit/Icon';
 import { Spinner } from '@ui-kit/Spinner';
-import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
-import { TooltipButton } from '@ui-kit/TooltipButton';
-import clsx from 'clsx';
-import { useId } from 'react';
 
 import { useBulkMode } from '../../hooks/useBulkMode';
 import { useBulkState } from '../../hooks/useBulkState';
@@ -15,6 +9,7 @@ import type { BulkBuildsCount } from '../../model/builds/builds';
 import { bulkIterationsLimit } from '../../model/run/limits';
 import { bulkTopResults } from '../../model/run/top_results';
 import { bulkGearIterations } from '../../model/selectors';
+import { TotalIterations } from '../TotalIterations';
 
 type CombinationsCountBuilds = Pick<BulkBuildsCount, 'setups' | 'bundles' | 'encounters' | 'runs' | 'builds' | 'totalIterations' | 'largestRequestIterations'>;
 
@@ -51,7 +46,6 @@ export const CombinationsCountView = ({
 	builds,
 	error,
 }: CombinationsCountViewProps) => {
-	const tooltipId = useId();
 	const countPending = builds ? !ready : pending;
 	// A Builds batch sends its runs one at a time, so the limit is per run.
 	const overLimit = builds ? builds.largestRequestIterations > iterationsLimit : !pending && iterations > iterationsLimit;
@@ -64,57 +58,31 @@ export const CombinationsCountView = ({
 				<>
 					<dt className="font-normal">{i18n.t('bulk_tab.settings.gear_setups')}</dt>
 					<dd className="mb-0 text-right font-bold tabular-nums" data-testid="bulk-gear-setups">
-						{countPending ? <Spinner size="sm" /> : formatToNumber(builds.setups)}
+						{countPending ? <Spinner size="xs" /> : formatToNumber(builds.setups)}
 					</dd>
 				</>
 			) : (
 				<>
 					<dt className="font-normal">{i18n.t('bulk_tab.settings.combinations')}</dt>
 					<dd className="mb-0 text-right font-bold tabular-nums" data-testid="bulk-combinations">
-						{pending ? <Spinner size="sm" /> : formatToNumber(combinations)}
+						{pending ? <Spinner size="xs" /> : formatToNumber(combinations)}
 					</dd>
 				</>
 			)}
 			{builds && builds.setups > 0 && (
 				<>
-					<dt className="font-normal" data-testid="bulk-runs-label">
+					<dt className="self-start font-normal" data-testid="bulk-runs-label">
 						{i18n.t('bulk_tab.settings.runs.builds', {
 							bundles: i18n.t('bulk_tab.settings.runs.bundles', { count: builds.bundles }),
 							encounters: i18n.t('bulk_tab.settings.runs.encounters', { count: builds.encounters }),
 						})}
 					</dt>
-					<dd className="mb-0 text-right font-bold tabular-nums" data-testid="bulk-runs-count">
+					<dd className="mb-0 self-start text-right font-bold tabular-nums" data-testid="bulk-runs-count">
 						{i18n.t('bulk_tab.settings.runs.total', { count: builds.runs, runs: formatToNumber(builds.runs) })}
 					</dd>
 				</>
 			)}
-			<dt className="flex items-center gap-1 font-normal">
-				{i18n.t('bulk_tab.settings.total_iterations')}
-				<TooltipButton
-					tooltip={i18n.t('bulk_tab.settings.total_iterations_tooltip')}
-					label={i18n.t('common.help')}
-					testId="bulk-total-iterations-help"
-				/>
-			</dt>
-			<dd
-				className={clsx('mb-0 flex items-center justify-end gap-2 font-bold tabular-nums', overLimit && 'text-danger')}
-				data-testid="bulk-total-iterations"
-				data-over-limit={overLimit ? '' : undefined}>
-				{overLimit && (
-					<>
-						<Button
-							variant="unstyled"
-							aria-label={warningText}
-							className="text-link-warning"
-							data-testid="warning"
-							{...tooltipAnchorProps(tooltipId)}>
-							<Icon name="triangle-exclamation" />
-						</Button>
-						<Tooltip id={tooltipId} place="left" content={warningText} />
-					</>
-				)}
-				{countPending ? <Spinner size="sm" /> : formatToNumber(builds ? builds.totalIterations : iterations)}
-			</dd>
+			<TotalIterations pending={countPending} iterations={builds ? builds.totalIterations : iterations} overLimit={overLimit} warningText={warningText} />
 			{builds && !countPending && builds.runs === 0 && (
 				<dd className="col-span-2 mb-0 text-sm text-gray-400" data-testid="bulk-runs-hint">
 					{untickedColumns(builds).map(column => (

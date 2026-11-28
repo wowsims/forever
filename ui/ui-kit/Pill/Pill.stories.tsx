@@ -14,6 +14,7 @@ const meta = {
 		tone: { control: 'select', options: TONES },
 		size: { control: 'select', options: SIZES },
 		rounded: { control: 'select', options: ['full', 'xs'] },
+		count: { control: 'boolean' },
 	},
 } satisfies Meta<typeof Pill>;
 
@@ -36,6 +37,19 @@ export const Tones: Story = {
 
 export const Squared: Story = {
 	args: { rounded: 'xs' },
+};
+
+// A one-digit count is as wide as it is tall; a longer one grows.
+export const Count: Story = {
+	render: args => (
+		<div className="flex items-center gap-2">
+			{[3, 12, 148].map(count => (
+				<Pill key={count} {...args} size="xs" count>
+					{count}
+				</Pill>
+			))}
+		</div>
+	),
 };
 
 export const Matrix: Story = {

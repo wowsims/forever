@@ -37,7 +37,7 @@ describe('CombinationsCountView', () => {
 		renderCount();
 		const help = screen.getByTestId('bulk-total-iterations-help');
 
-		expect(help.parentElement!.textContent).toBe('bulk_tab.settings.total_iterations');
+		expect(help.closest('dt')!.textContent).toBe('bulk_tab.settings.total_iterations');
 		fireEvent.focus(help);
 		expect(await screen.findByText('bulk_tab.settings.total_iterations_tooltip')).toBeTruthy();
 	});

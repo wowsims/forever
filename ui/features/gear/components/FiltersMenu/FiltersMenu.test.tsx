@@ -304,6 +304,30 @@ describe('FiltersMenuView', () => {
 		expect(viewSections().slice(3)).toEqual(['gear_tab.gear_picker.ranged_weapon_type', 'gear_tab.gear_picker.ranged_weapon_speed']);
 	});
 
+	it('shows only the rows it is handed, the armor, weapon and ranged ones together', () => {
+		renderView({
+			slot: undefined,
+			rows: ['ilvl', 'stats', 'bonus', 'armor', 'weapons', 'ranged'],
+			itemStats: [Stat.StatStrength],
+			mobTypes: [MobType.MobTypeUndead],
+		});
+
+		expect(viewSections()).toEqual([
+			'gear_tab.gear_picker.filters.general',
+			'gear_tab.gear_picker.filters.stats.title',
+			'gear_tab.gear_picker.filters.bonus.title',
+			'gear_tab.gear_picker.armor_type',
+			'gear_tab.gear_picker.weapon_type',
+			'gear_tab.gear_picker.weapon_speed',
+			'gear_tab.gear_picker.ranged_weapon_type',
+			'gear_tab.gear_picker.ranged_weapon_speed',
+		]);
+		expect(input('filters-min-ilvl')).not.toBeNull();
+		expect(input('filters-required-level')).toBeNull();
+		expect(input('filters-newly-discovered')).toBeNull();
+		expect(screen.queryByText('gear_tab.gear_picker.filters.faction_restrictions')).toBeNull();
+	});
+
 	// One type is no choice at all, so the section is not worth the space.
 	it.each([
 		['armor', { armorTypes: [ArmorType.ArmorTypePlate] }],

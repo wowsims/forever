@@ -557,6 +557,13 @@ describe('Sim.runBulkSim', () => {
 		]);
 	});
 
+	it('sends cullToBaseline only when the overrides ask for it', async () => {
+		const sim = makeEmptyBulkSim();
+		await sim.runBulkSim(() => {}, BulkSettings.create());
+		await sim.runBulkSim(() => {}, BulkSettings.create(), undefined, { cullToBaseline: true });
+		expect(mocks.bulkSimAsync.mock.calls.map(call => call[0].cullToBaseline)).toEqual([false, true]);
+	});
+
 	it('sends an override encounter whole and leaves the live encounter as it is', async () => {
 		const sim = makeEmptyBulkSim();
 		const live = sim.encounter.toProto();

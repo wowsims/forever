@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import { DEFINITIONS } from './definitions';
+import { DisclosureChevron } from './DisclosureChevron';
 import { Icon } from './Icon';
 import type { IconSize, IconStyle } from './types';
 
@@ -67,6 +68,16 @@ export const FixedWidth: Story = {
 					<code className="text-ui">{name}</code>
 				</div>
 			))}
+		</div>
+	),
+};
+
+// A disclosure row's chevron: right while closed, down while open.
+export const Disclosure: Story = {
+	render: () => (
+		<div className="flex items-center gap-4">
+			<DisclosureChevron open={false} />
+			<DisclosureChevron open />
 		</div>
 	),
 };

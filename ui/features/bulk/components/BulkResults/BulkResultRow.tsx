@@ -1,20 +1,13 @@
-import { GearChangeIcon } from '@features/gear/components/GearChangeIcon';
-import { ItemDetailCell } from '@features/gear/components/ItemCell';
-import { ResultReferenceDiff } from '@features/results/components/ResultMetricList';
-import { ResultMetricValue } from '@features/results/components/ResultMetricValue';
-import { ItemSpec } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import type { BulkRankedResult, BulkResults } from '@sim/bulk/types';
-import { getBulkPlayerCanDualWield } from '@sim/bulk/utils';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import type { TalentsConfig } from '@sim/talents/config';
 import { classTalentsConfig } from '@sim/talents/factory';
-import { type DeltaText, formatDeltaText, formatSignificance, formatToNumber } from '@sim/utils/format';
+import { type DeltaText, formatDeltaText, formatSignificance } from '@sim/utils/format';
 import { stDevToConf95, zTest } from '@sim/utils/math';
 import { Button } from '@ui-kit/Button';
 import { Pill } from '@ui-kit/Pill';
-import { toastManager } from '@ui-kit/Toast';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import clsx from 'clsx';
 import { type ReactNode, useId } from 'react';
@@ -23,13 +16,13 @@ import { gearSetupLabel } from '../../model/builds/gear_setups';
 import { rotationLabel } from '../../model/builds/rotations';
 import { settingsLabel } from '../../model/builds/settings_entries';
 import { talentsLabel } from '../../model/builds/talents';
-import { getSwappableItemSlotPair, itemSpecPairsEqualUnordered } from '../../model/gear/swappable_slots';
 import { changedEnchantLabels } from '../../model/results/compare';
-import { formatBulkDps } from '../../model/results/format';
-import { type BulkEquipped, bulkResultKey, equipBulkResult } from '../../model/results/results';
+import { bulkResultKey, equipAndAnnounce } from '../../model/results/results';
+import { BulkDpsCell } from '../BulkDpsCell';
 import { BulkEnchantsDiffer } from '../BulkEnchantsDiffer';
 import { BulkSetupLabel, type BulkSetupLabels, BulkSetupLines, bulkSetupText } from '../BulkSetupLabel';
 import { BulkTalentsGrid, bulkTalentsText } from '../BulkTalentsGrid';
+import { BulkResultSlots } from './BulkResultSlots';
 
 export interface BulkResultRowViewProps {
 	showDamage: boolean;
@@ -56,8 +49,10 @@ export interface BulkResultRowViewProps {
 	bundle?: string | null;
 	/** The current gear with other talents, rotation or settings: says so in place of the gear cells. */
 	gearUnchanged?: boolean;
-	/** A tie group follows this row: its own border separates them, so the row draws no separator or padding. */
-	beforeGroup?: boolean;
+	/** A row stopped before the final stage: a note before its Equip button, with the reason in its tooltip. */
+	lowPrecision?: { note: string; tooltip: string };
+	/** Data attributes for the row's root; a `data-testid` among them replaces the row's own. */
+	rootDataAttributes?: Record<string, string>;
 	onEquip: () => void;
 	children: ReactNode;
 }
@@ -81,40 +76,31 @@ export const BulkResultRowView = ({
 	settings = null,
 	bundle = null,
 	gearUnchanged = false,
-	beforeGroup = false,
+	lowPrecision,
+	rootDataAttributes,
 	onEquip,
 	children,
 }: BulkResultRowViewProps) => {
-	const marginTooltipId = useId();
-	const deltaTooltipId = useId();
 	const talentsTooltipId = useId();
 	const bundleTooltipId = useId();
+	const lowPrecisionTooltipId = useId();
 	const parts: BulkSetupLabels = { gear: gearSetup, talents: talents?.label ?? null, rotation: rotation?.label ?? null, settings: settings?.label ?? null };
 
 	return (
 		<div
-			className={clsx(
-				'flex items-center gap-4 not-last:not-only:mb-6 max-md:flex-wrap',
-				!beforeGroup && 'not-last:not-only:border-b not-last:not-only:border-b-border not-last:not-only:pb-6',
-			)}
-			data-testid="bulk-sim-result-root">
+			className="flex items-center gap-4 not-last:not-only:mb-6 not-last:not-only:border-b not-last:not-only:border-b-border not-last:not-only:pb-6 max-md:flex-wrap"
+			data-testid="bulk-sim-result-root"
+			{...rootDataAttributes}>
 			{/* Wide enough for "9,999.99 DPS(±1)" and its pill on one line each, so every row's gear starts at the same x. */}
 			<div className="w-52 shrink-0" data-testid="results-sim">
 				{showDamage && (
-					<div className="flex flex-col items-start gap-2 text-left font-bold" data-testid="results-sim-dps">
-						{isBase && <span className="text-sm font-normal">{i18n.t('bulk_tab.results.current_gear')}</span>}
-						<div>
-							<ResultMetricValue
-								average={formatBulkDps(avg)}
-								unit={i18n.t('sidebar.results.metrics.dps.label')}
-								margin={plusMinus > 0 ? formatToNumber(plusMinus, { maximumFractionDigits: 0 }) : undefined}
-								marginTooltipId={marginTooltipId}
-							/>
-						</div>
-						{!isBase && !isReference && <ResultReferenceDiff diff={{ ...delta, significance }} tooltipId={deltaTooltipId} hideLabel />}
-						<Tooltip id={marginTooltipId} content={i18n.t('bulk_tab.results.margin_of_error')} />
-						<Tooltip id={deltaTooltipId} />
-					</div>
+					<BulkDpsCell
+						testId="results-sim-dps"
+						label={isBase ? i18n.t('bulk_tab.results.current_gear') : undefined}
+						avg={avg}
+						plusMinus={plusMinus}
+						diff={isBase || isReference ? null : { ...delta, significance }}
+					/>
 				)}
 			</div>
 			<div className="flex min-w-0 flex-1 flex-wrap gap-1 max-md:order-last max-md:basis-full" data-testid="bulk-gear-combo">
@@ -184,7 +170,15 @@ export const BulkResultRowView = ({
 					children
 				)}
 			</div>
-			<div className="ml-auto flex shrink-0 justify-end">
+			<div className="ml-auto flex shrink-0 items-center justify-end gap-4">
+				{lowPrecision && (
+					<>
+						<span className="text-xs text-warning" data-testid="bulk-result-low-precision" {...tooltipAnchorProps(lowPrecisionTooltipId)}>
+							{lowPrecision.note}
+						</span>
+						<Tooltip id={lowPrecisionTooltipId} content={lowPrecision.tooltip} />
+					</>
+				)}
 				<Button className={clsx(isBase && 'hidden')} data-testid="bulk-equip-btn" data-hidden={isBase ? '' : undefined} onClick={onEquip}>
 					{i18n.t('bulk_tab.results.equip_button')}
 				</Button>
@@ -193,23 +187,13 @@ export const BulkResultRowView = ({
 	);
 };
 
-const equippedToast = (equipped: BulkEquipped): string => {
-	switch (equipped) {
-		case 'build':
-			return i18n.t('bulk_tab.results.build_equipped');
-		case 'gear':
-			return i18n.t('bulk_tab.results.gear_equipped');
-	}
-};
-
 export interface BulkResultRowProps {
 	result: BulkRankedResult;
 	results: BulkResults;
-	beforeGroup?: boolean;
 	onActivateTab: (id: string) => void;
 }
 
-export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: BulkResultRowProps) => {
+export const BulkResultRow = ({ result, results, onActivateTab }: BulkResultRowProps) => {
 	const host = useSimHost();
 	const { damage: showDamage } = useDisplayMetrics(host.sim);
 	const { originalGearResults: baseResult, currentGear, iterations } = results;
@@ -225,9 +209,6 @@ export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: B
 	const test = zTest(iterations, result.dpsMetrics.avg, result.dpsMetrics.stdev, iterations, baseResult.dpsMetrics.avg, baseResult.dpsMetrics.stdev);
 	const delta = formatDeltaText(baseResult.dpsMetrics.avg, result.dpsMetrics.avg, 2, undefined, !test.isDiff, true);
 
-	const canDualWield = getBulkPlayerCanDualWield(host.player);
-	const resultAsSpec = result.gear.asSpec();
-	const originalEquipmentSpec = currentGear.asSpec();
 	// Gear-mode rows carry no settings; a Builds row names all four parts of its build, shared with every other row or not.
 	const builds = result.settings !== null;
 
@@ -255,46 +236,8 @@ export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: B
 			settings={result.settings ? { label: settingsLabel(result.settings) } : null}
 			bundle={result.gearSetup?.bundle ?? null}
 			gearUnchanged={gearUnchanged}
-			beforeGroup={beforeGroup}
-			onEquip={() => {
-				const equipped = equipBulkResult(host, result);
-				onActivateTab('gear-tab');
-				toastManager.add({ variant: 'success', body: equippedToast(equipped) });
-			}}>
-			{!isBaseResult &&
-				resultAsSpec.items.map((spec, idx) => {
-					const swappableItemSlotPair = getSwappableItemSlotPair(idx, canDualWield);
-					const itemChanged = swappableItemSlotPair
-						? !itemSpecPairsEqualUnordered(resultAsSpec.items, originalEquipmentSpec.items, swappableItemSlotPair)
-						: !ItemSpec.equals(spec, originalEquipmentSpec.items[idx]);
-
-					// Three display states per slot:
-					// 1. Unchanged -  slots stay empty
-					// 2. Same - Item with a different enchant shows the compact change icon (enchant marker);
-					// 3. New - The item appearing at all already says the slot changed.
-					if (itemChanged && spec.id !== 0 && spec.id === originalEquipmentSpec.items[idx]?.id) {
-						return (
-							<div key={idx} className="ui-bulk-result-item ui-bulk-item-cell" data-testid="bulk-result-item">
-								<GearChangeIcon
-									slot={idx}
-									item={host.sim.db.lookupItemSpec(spec) ?? undefined}
-									previousItem={currentGear.getEquippedItem(idx) ?? undefined}
-									showEnchant
-								/>
-							</div>
-						);
-					}
-
-					return (
-						<ItemDetailCell
-							key={idx}
-							testId="bulk-result-item"
-							className="ui-bulk-result-item ui-bulk-item-cell mb-0 p-0 [&_.ui-item-picker-labels-container]:hidden"
-							slot={idx}
-							item={itemChanged && spec.id !== 0 ? host.sim.db.lookupItemSpec(spec) : null}
-						/>
-					);
-				})}
+			onEquip={() => equipAndAnnounce(host, result, onActivateTab)}>
+			{!isBaseResult && <BulkResultSlots gear={result.gear} currentGear={currentGear} />}
 		</BulkResultRowView>
 	);
 };

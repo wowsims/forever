@@ -5,9 +5,8 @@ import { isCastCompleted } from '@sim/proto/combat_log';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { SearchField } from '@ui-kit/TextField';
 import { ToolbarButton } from '@ui-kit/Toolbar';
-import { findScrollParent } from '@ui-kit/utils/dom';
-import { useScrollMargin, VirtualList } from '@ui-kit/VirtualList';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useScrollMargin, useScrollParent, VirtualList } from '@ui-kit/VirtualList';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useSimResult } from '../../hooks/useSimResult';
@@ -75,12 +74,12 @@ export const LogRunner = ({ active }: LogRunnerProps) => {
 	const [groups, setGroups] = useState<Array<IdentifiedSearchGroup>>([]);
 	const [showDebug, setShowDebug] = useState(false);
 	const [measured, setMeasured] = useState<Measured>(UNMEASURED);
-	// `null` until the list is in the document. In this app it resolves to `.sim-ui`, the one element
-	// above the pane with `overflow-y: auto`; `window` is the fallback for a page that scrolls itself.
-	const [scroller, setScroller] = useState<HTMLElement | Window | null>(null);
 
 	const listRef = useRef<HTMLDivElement>(null);
 
+	// Resolves to `.sim-ui`, the one element above the pane with `overflow-y: auto`. The walk skips
+	// the `log-runner-scroll` box, which hides vertical overflow and only carries a long line's sideways overflow.
+	const scroller = useScrollParent(listRef);
 	const scrollMargin = useScrollMargin(listRef, scroller, stickySlot?.parentElement ?? null);
 
 	useEffect(() => {
@@ -107,15 +106,6 @@ export const LogRunner = ({ active }: LogRunnerProps) => {
 	logsRef.current = logs;
 	const [exportOpen, setExportOpen] = useState(false);
 	const exportData = useCallback(() => combinedLogText(logsRef.current), []);
-
-	useLayoutEffect(() => {
-		const list = listRef.current;
-		if (!list) return;
-		// `findScrollParent` skips an `overflow: hidden` ancestor, which is what `.log-runner-scroll`
-		// is on the vertical axis — it only carries the sideways overflow of a long line. What it
-		// finds here is `.sim-ui`; `window` is the fallback for a page that scrolls itself.
-		setScroller(findScrollParent(list) ?? window);
-	}, []);
 
 	const needsMeasure = logs.length > 0 && measured.for !== result;
 	const listWidth = measured.for === result ? measured.width : 0;

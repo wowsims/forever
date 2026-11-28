@@ -37,6 +37,11 @@ func createSelectedItem(option bulkSimCandidateOption) core.Item {
 	})
 }
 
+// Unique-Equipped: two copies of a unique item, or two items of one limit category, cannot be worn together.
+func excludesEachOther(item core.Item, other core.Item) bool {
+	return (item.Unique && item.ID == other.ID) || (item.LimitCategory != 0 && item.LimitCategory == other.LimitCategory)
+}
+
 func canEquipItem(item core.Item, playerClass proto.Class, playerSpec proto.Spec, slot proto.ItemSlot) bool {
 	if item.Type == proto.ItemType_ItemTypeFinger || item.Type == proto.ItemType_ItemTypeTrinket {
 		return true

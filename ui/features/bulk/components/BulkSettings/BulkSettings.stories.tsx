@@ -1,10 +1,13 @@
 import { EnchantPresetsView } from '@features/enchant-presets/components/EnchantPresets/EnchantPresets';
 import { ItemSlot } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { batchEncounterProps } from '@testing/storybook/fixtures/bulk-builds';
 import { StoryBoolean } from '@testing/storybook/fixtures/settings_reforge_bulk';
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
+import { BatchEncounterView } from '../BatchEncounter';
+import { DropsRunCountView } from '../DropsRunCount';
 import { BulkSettingsView, type BulkSettingsViewProps } from './BulkSettings';
 import { BulkTopResultsFieldView } from './BulkTopResultsField';
 import { CombinationsCountView } from './CombinationsCount';
@@ -53,12 +56,15 @@ const meta = {
 	render: args => <StatefulBulkSettings {...args} />,
 	args: {
 		topResults: null,
+		batchEncounter: <BatchEncounterView {...batchEncounterProps()} />,
 		combinationsCount: <CombinationsCountView pending={false} ready combinations={48} iterations={96000} iterationsLimit={1000000} builds={null} />,
 		canRun: true,
 		onRun: fn(),
 		openGroups: ['freezes'],
 		onOpenGroupsChange: fn(),
-		groups: true,
+		groups: 'all',
+		runLabel: 'Find best gear',
+		summary: { label: 'Combinations', value: 48, pending: false },
 		enchants: (
 			<EnchantPresetsView
 				presets={[
@@ -81,6 +87,7 @@ const meta = {
 	},
 	argTypes: {
 		topResults: { control: false },
+		batchEncounter: { control: false },
 		combinationsCount: { control: false },
 		enchants: { control: false },
 		frozenItems: { control: false },
@@ -102,7 +109,8 @@ export const PowerTools: Story = { args: { topResults: <BulkTopResultsFieldView 
 export const Builds: Story = {
 	args: {
 		topResults: <BulkTopResultsFieldView value={0} max={5000} onChange={fn()} />,
-		groups: false,
+		groups: 'none',
+		batchEncounter: null,
 		combinationsCount: (
 			<CombinationsCountView
 				pending={false}
@@ -111,6 +119,28 @@ export const Builds: Story = {
 				iterations={0}
 				iterationsLimit={1000000}
 				builds={{ setups: 6, bundles: 3, encounters: 2, runs: 6, builds: 12, totalIterations: 240000, largestRequestIterations: 60000 }}
+			/>
+		),
+	},
+};
+
+export const Drops: Story = {
+	args: {
+		groups: 'enchants',
+		runLabel: 'Find next drop',
+		openGroups: ['enchants'],
+		combinationsCount: (
+			<DropsRunCountView
+				pending={false}
+				ready
+				picked={12}
+				twoHanderSkipped={0}
+				candidates={19}
+				iterations={380000}
+				iterationsLimit={1000000}
+				error={null}
+				combinedGain={false}
+				onCombinedGainChange={fn()}
 			/>
 		),
 	},

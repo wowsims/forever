@@ -2,7 +2,7 @@ import i18n from '@i18n/config';
 import type { StatSweepMetric } from '@sim/state/sim_store';
 import { Button } from '@ui-kit/Button';
 import { ContentBlock } from '@ui-kit/ContentBlock';
-import { Icon } from '@ui-kit/Icon';
+import { DisclosureChevron, Icon } from '@ui-kit/Icon';
 import { Pill } from '@ui-kit/Pill';
 import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import clsx from 'clsx';
@@ -126,7 +126,7 @@ const BatchRow = ({ batch, open, onOpenChange, onOverlayChange, onDelete, dateFo
 				data-batch-id={batch.id}
 				{...tooltipAnchorProps(statsTooltipId)}>
 				<span className="col-span-2 min-w-0 truncate">{title}</span>
-				<Icon name="chevron-down" fixedWidth className={clsx('col-start-5 transition-transform duration-150', !open && '-rotate-90')} />
+				<DisclosureChevron open={open} className="col-start-5" />
 				<RunDetails createdAt={first.createdAt} metric={first.metric} dateFormat={dateFormat} />
 			</Button>
 			<span className="relative z-10 col-span-2 col-start-3 row-start-1 flex items-center gap-x-2">

@@ -1,4 +1,4 @@
-import { DistributionMetrics } from '@generated/proto/api';
+import { BulkGearResult, BulkSimRequest, DistributionMetrics } from '@generated/proto/api';
 
 import { Z_95 } from '../../utils/math';
 import {
@@ -8,6 +8,7 @@ import {
 	BULK_SIM_PAIRED_INTERVAL_CONSERVATISM,
 	BULK_SIM_SURVIVOR_SOFT_CAP_MULTIPLIER,
 } from './constants_auto_gen';
+import { bulkSimCandidateResultToProto } from './merge';
 import { getBulkSimStageMaxSurvivors } from './stage';
 import { ConcurrentBulkSimCandidate, ConcurrentBulkSimCandidateResult, ConcurrentBulkSimStageConfig } from './types';
 
@@ -75,7 +76,14 @@ export const topBulkSimResults = (results: ConcurrentBulkSimCandidateResult[], l
 // leader. Returns undefined when the two runs cannot be paired; zero is a valid result -
 // it means the candidate trailed the leader by the same amount every iteration, which is
 // the strongest evidence pairing can give.
-export const bulkSimPairedDpsError = (metrics: DistributionMetrics | undefined, bestMetrics: DistributionMetrics | undefined): number | undefined => {
+export const bulkSimPairedDpsError = (metrics: DistributionMetrics | undefined, bestMetrics: DistributionMetrics | undefined): number | undefined =>
+	bulkSimPairedDpsDifference(metrics, bestMetrics)?.error;
+
+// The mean per-iteration difference (metrics - bestMetrics) and its standard error; undefined when the runs cannot be paired.
+export const bulkSimPairedDpsDifference = (
+	metrics: DistributionMetrics | undefined,
+	bestMetrics: DistributionMetrics | undefined,
+): { difference: number; error: number } | undefined => {
 	const values = metrics?.allValues;
 	const bestValues = bestMetrics?.allValues;
 	if (!values || !bestValues || values.length === 0 || values.length !== bestValues.length) return undefined;
@@ -89,7 +97,15 @@ export const bulkSimPairedDpsError = (metrics: DistributionMetrics | undefined, 
 	}
 	const count = values.length;
 	const mean = sum / count;
-	return Math.sqrt(Math.max(0, sumSq / count - mean * mean) / count);
+	return { difference: mean, error: Math.sqrt(Math.max(0, sumSq / count - mean * mean) / count) };
+};
+
+// Sets the row's paired difference and error to the baseline; both stay 0 when the two cannot be paired.
+export const setBulkSimPairedToBaseline = (row: BulkGearResult, metrics: DistributionMetrics | undefined, baselineMetrics: DistributionMetrics | undefined) => {
+	const paired = bulkSimPairedDpsDifference(metrics, baselineMetrics);
+	if (!paired) return;
+	row.pairedDpsDiffToBaseline = paired.difference;
+	row.pairedErrorToBaseline = paired.error;
 };
 
 // Decides whether a candidate is far enough behind the cutoff candidate
@@ -175,6 +191,71 @@ export const selectBulkSimSurvivors = (
 	}
 
 	return survivors.map(result => result.candidate);
+};
+
+// A candidate that cannot be paired with the baseline is never below it.
+const bulkSimCandidateIsBelowBaseline = (metrics: DistributionMetrics, baselineMetrics: DistributionMetrics | undefined): boolean => {
+	const pairedError = bulkSimPairedDpsError(metrics, baselineMetrics);
+	if (pairedError === undefined || !baselineMetrics) return false;
+	return baselineMetrics.avg - metrics.avg > Z_95 * pairedError;
+};
+
+// Under cullToBaseline, drops the candidates clearly below the baseline, runs the top-results cull on the rest, and returns
+// every dropped candidate as a culled row, mirroring cullBulkSimStage in sim/core/bulk/statistics.go. Each row's paired
+// error is taken against this stage's baseline: a later stage's baseline carries more values and no longer pairs with it.
+export const cullBulkSimStage = (
+	request: BulkSimRequest,
+	results: ConcurrentBulkSimCandidateResult[],
+	baseline: ConcurrentBulkSimCandidateResult,
+	iterations: number,
+	config: ConcurrentBulkSimStageConfig,
+	originalCandidateCount: number,
+	topResults: number,
+): { survivors: ConcurrentBulkSimCandidate[]; culled: BulkGearResult[] } => {
+	if (!request.cullToBaseline) {
+		return { survivors: selectBulkSimSurvivors(results, baseline, iterations, config, originalCandidateCount, topResults), culled: [] };
+	}
+
+	const above = results.filter(result => result.dpsMetrics && !bulkSimCandidateIsBelowBaseline(result.dpsMetrics, baseline.dpsMetrics));
+	const survivors = selectBulkSimSurvivors(above, baseline, iterations, config, originalCandidateCount, topResults);
+
+	const survived = new Set(survivors.map(survivor => survivor.index));
+	const culled = results.flatMap(result => {
+		if (survived.has(result.candidate.index)) return [];
+		const row = bulkSimCandidateResultToProto(result);
+		if (!row) return [];
+		row.culledStage = config.stage;
+		setBulkSimPairedToBaseline(row, result.dpsMetrics, baseline.dpsMetrics);
+		return [row];
+	});
+	return { survivors, culled };
+};
+
+// Appends every high-stage result outside the finalists at its high-stage numbers, by mean, high to low, mirroring
+// appendBulkSimNonFinalists in sim/core/bulk/merge.go. Each row pairs with the high stage's baseline: the finalist stage's
+// baseline carries more values and no longer pairs with it.
+export const appendBulkSimNonFinalists = (
+	rows: BulkGearResult[],
+	finalists: ConcurrentBulkSimCandidateResult[],
+	highResults: ConcurrentBulkSimCandidateResult[],
+	highBaseline: ConcurrentBulkSimCandidateResult,
+): BulkGearResult[] => {
+	const isFinalist = new Set(finalists.map(finalist => finalist.candidate.index));
+	const nonFinalists = topBulkSimResults(
+		highResults.filter(result => !isFinalist.has(result.candidate.index)),
+		highResults.length,
+	);
+
+	nonFinalists.forEach((result, idx) => {
+		const row = bulkSimCandidateResultToProto(result);
+		if (!row) return;
+		if (idx + 1 < nonFinalists.length) {
+			row.pairedErrorToNextResult = bulkSimPairedDpsError(nonFinalists[idx + 1].dpsMetrics, result.dpsMetrics) ?? 0;
+		}
+		setBulkSimPairedToBaseline(row, result.dpsMetrics, highBaseline.dpsMetrics);
+		rows.push(row);
+	});
+	return rows;
 };
 
 // Whether any adjacent pair in the DPS-sorted finalist list is still statistically

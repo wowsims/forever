@@ -37,5 +37,9 @@
 		&[data-size='md'] {
 			@apply px-2 text-base;
 		}
+
+		&[data-count] {
+			@apply min-w-[1lh] justify-center;
+		}
 	}
 }

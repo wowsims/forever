@@ -38,9 +38,11 @@ import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { makeUIEnchant } from '@testing/storybook/fixtures/protos';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import english from '../../../assets/locales/en/translation.json';
+import { UpgradesSlotsProvider, useUpgradesSlotRefs } from '../UpgradesSlots';
 import { BulkTabBody } from './BulkTabBody';
 
 // No i18n mock: the columns show the real copy, and the test setup loads no locale, so this suite loads the English one.
@@ -53,6 +55,15 @@ afterAll(() => {
 
 // Until the sim is ready no gear set is listed; `setReady` lands it.
 const init = vi.hoisted(() => ({ ready: true, listeners: new Set<() => void>() }));
+// The shell's Upgrades run panel slot, which the Upgrades tab body portals its settings into.
+const SlotPanel = () => <div ref={useUpgradesSlotRefs().panel} data-testid="upgrades-slot-panel" />;
+const UpgradesPanelSlot = ({ children }: { children: ReactNode }) => (
+	<UpgradesSlotsProvider>
+		<SlotPanel />
+		{children}
+	</UpgradesSlotsProvider>
+);
+
 vi.mock('@sim/hooks/useSimReady', async () => {
 	const { useSyncExternalStore } = await import('react');
 	const subscribe = (listener: () => void) => {
@@ -224,7 +235,9 @@ const mount = ({
 	} as never;
 	render(
 		<SimHostProvider host={host}>
-			<BulkTabBody />
+			<UpgradesPanelSlot>
+				<BulkTabBody />
+			</UpgradesPanelSlot>
 		</SimHostProvider>,
 	);
 	return player;

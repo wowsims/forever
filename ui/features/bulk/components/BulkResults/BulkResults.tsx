@@ -4,8 +4,8 @@ import { useBulkMode } from '../../hooks/useBulkMode';
 import { useBulkResults } from '../../hooks/useBulkResults';
 import { useBulkState } from '../../hooks/useBulkState';
 import { bulkModeStarted } from '../../model/mode';
+import { BulkRankingList } from '../BulkRankingList';
 import { BulkResultRow } from './BulkResultRow';
-import { BulkResultTieGroup } from './BulkResultTieGroup';
 
 export interface BulkResultsProps {
 	onActivateTab: (id: string) => void;
@@ -14,9 +14,9 @@ export interface BulkResultsProps {
 }
 
 export const BulkResults = ({ onActivateTab, selected }: BulkResultsProps) => {
-	const { builds } = useBulkMode();
+	const { runMode } = useBulkMode();
 	const results = useBulkResults();
-	const started = useBulkState(slice => bulkModeStarted(builds, slice));
+	const started = useBulkState(slice => bulkModeStarted(runMode, slice));
 
 	if (!results) {
 		// Starting a run empties the pane, so the invitation to run one does not come back.
@@ -25,24 +25,10 @@ export const BulkResults = ({ onActivateTab, selected }: BulkResultsProps) => {
 
 	const shown = results[selected].results;
 	return (
-		<div>
-			{shown.chains.map((chain, chainIdx) =>
-				chain.length > 1 ? (
-					<BulkResultTieGroup key={chainIdx}>
-						{chain.map((result, idx) => (
-							<BulkResultRow key={idx} result={result} results={shown} onActivateTab={onActivateTab} />
-						))}
-					</BulkResultTieGroup>
-				) : (
-					<BulkResultRow
-						key={chainIdx}
-						result={chain[0]}
-						results={shown}
-						beforeGroup={(shown.chains[chainIdx + 1]?.length ?? 0) > 1}
-						onActivateTab={onActivateTab}
-					/>
-				),
-			)}
-		</div>
+		<BulkRankingList
+			key={`${runMode}:${selected}`}
+			chains={shown.chains}
+			renderRow={result => <BulkResultRow result={result} results={shown} onActivateTab={onActivateTab} />}
+		/>
 	);
 };

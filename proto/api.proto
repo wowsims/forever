@@ -519,6 +519,13 @@ message BulkSimRequest {
 	reserved 7;
 	reserved "reforge_request";
 	BulkSettings bulk_settings = 8;
+	// Each culling stage drops the candidates clearly below the baseline (paired test at BulkSimZ95), runs the top-results
+	// cull on the rest when more stay than the stage's max survivors, and returns the dropped ones in culled_results.
+	// top_results and all_results are not read then.
+	bool cull_to_baseline = 9;
+	// Raises the high stage's minimum iterations to this count and skips the finalist stage, so every candidate and the
+	// baseline end at the same count, the one the caller asked for. 0 keeps the stage's own minimum and the finalist stage.
+	int32 min_iterations = 10;
 }
 
 // RPC ReforgeOptimize
@@ -955,6 +962,11 @@ message BulkSettings {
 
 	// Enchants to cross with the candidate items, per slot. Finger1 serves both fingers.
 	repeated BulkEnchantSlotOptions enchants = 8;
+
+	// Each candidate is the worn gear with one item from items put on: a ring or trinket in either slot, a weapon in
+	// either hand, where the other worn weapon may change hands. Enchants pool onto that item only, and the freeze
+	// fields are not read.
+	bool single_change = 9;
 }
 
 message BulkEnchantSlotOptions {
@@ -975,6 +987,8 @@ message BulkSimResult {
 	repeated BulkSimStageMetrics stage_metrics = 4;
 	BulkSimTimings timings = 5;
 	ErrorOutcome error = 6;
+	// Under cull_to_baseline, every culled candidate with the dps_metrics and paired_error_to_baseline of the stage that culled it.
+	repeated BulkGearResult culled_results = 7;
 }
 
 message BulkGearResult {
@@ -987,6 +1001,11 @@ message BulkGearResult {
 	double paired_error_to_next_result = 4;
 	// Same, vs the baseline (currently equipped) gear.
 	double paired_error_to_baseline = 5;
+	// The stage a culled_results row last ran in; unset on top results.
+	BulkSimStage culled_stage = 6;
+	// The mean per-iteration DPS difference (this result - baseline) against the same baseline
+	// paired_error_to_baseline pairs with. 0 when the runs could not be paired.
+	double paired_dps_diff_to_baseline = 7;
 }
 
 message BulkSimStageMetrics {

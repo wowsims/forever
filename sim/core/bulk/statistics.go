@@ -92,6 +92,48 @@ func selectBulkSimSurvivors(results []*BulkSimCandidateResult, baseline *BulkSim
 	return bulkSimResultsToCandidates(survivors)
 }
 
+// A candidate that cannot be paired with the baseline is never below it.
+func bulkSimCandidateIsBelowBaseline(metrics *proto.DistributionMetrics, baselineMetrics *proto.DistributionMetrics) bool {
+	pairedError, ok := bulkSimPairedDpsError(metrics, baselineMetrics)
+	if !ok {
+		return false
+	}
+	return baselineMetrics.Avg-metrics.Avg > BulkSimZ95*pairedError
+}
+
+// Under cull_to_baseline, drops the candidates clearly below the baseline, runs the top-results cull on the rest, and
+// returns every dropped candidate as a culled row. Each row's paired error is taken against this stage's baseline: a
+// later stage's baseline carries more values and no longer pairs with it.
+func cullBulkSimStage(request *proto.BulkSimRequest, results []*BulkSimCandidateResult, baseline *BulkSimCandidateResult, iterations int32, config BulkSimStageConfig, originalCandidateCount int, topResults int) ([]BulkSimCandidate, []*proto.BulkGearResult) {
+	if !request.CullToBaseline {
+		return selectBulkSimSurvivors(results, baseline, iterations, config, originalCandidateCount, topResults), nil
+	}
+
+	above := make([]*BulkSimCandidateResult, 0, len(results))
+	for _, result := range results {
+		if result != nil && result.DpsMetrics != nil && !bulkSimCandidateIsBelowBaseline(result.DpsMetrics, baseline.DpsMetrics) {
+			above = append(above, result)
+		}
+	}
+	survivors := selectBulkSimSurvivors(above, baseline, iterations, config, originalCandidateCount, topResults)
+
+	survived := make(map[int32]bool, len(survivors))
+	for _, survivor := range survivors {
+		survived[survivor.Index] = true
+	}
+	var culled []*proto.BulkGearResult
+	for _, result := range results {
+		if result == nil || survived[result.Candidate.Index] {
+			continue
+		}
+		row := bulkSimCandidateResultToProto(result)
+		row.CulledStage = config.Stage
+		setBulkSimPairedToBaseline(row, result.DpsMetrics, baseline.DpsMetrics)
+		culled = append(culled, row)
+	}
+	return survivors, culled
+}
+
 // The candidate a stage culls against. At BulkSimDefaultTopResults or fewer, every stage culls against the leader, the
 // baseline included. Above it, every stage culls against the last shown candidate, the topResults-th best by mean: one
 // that cannot reach it cannot be shown.
@@ -155,12 +197,18 @@ func bulkSimUnresolvedFinalistPair(sortedFinalists []*BulkSimCandidateResult) bo
 }
 
 func bulkSimPairedDpsError(metrics *proto.DistributionMetrics, bestMetrics *proto.DistributionMetrics) (float64, bool) {
+	_, pairedError, ok := bulkSimPairedDpsDifference(metrics, bestMetrics)
+	return pairedError, ok
+}
+
+// The mean per-iteration difference (metrics - bestMetrics) and its standard error; false when the runs cannot be paired.
+func bulkSimPairedDpsDifference(metrics *proto.DistributionMetrics, bestMetrics *proto.DistributionMetrics) (float64, float64, bool) {
 	if metrics == nil || bestMetrics == nil {
-		return 0, false
+		return 0, 0, false
 	}
 	values, bestValues := metrics.AllValues, bestMetrics.AllValues
 	if len(values) == 0 || len(values) != len(bestValues) {
-		return 0, false
+		return 0, 0, false
 	}
 
 	var sum, sumSq float64
@@ -172,7 +220,15 @@ func bulkSimPairedDpsError(metrics *proto.DistributionMetrics, bestMetrics *prot
 	count := float64(len(values))
 	mean := sum / count
 	variance := math.Max(0, sumSq/count-mean*mean)
-	return math.Sqrt(variance / count), true
+	return mean, math.Sqrt(variance / count), true
+}
+
+// Sets the row's paired difference and error to the baseline; both stay 0 when the two cannot be paired.
+func setBulkSimPairedToBaseline(row *proto.BulkGearResult, metrics *proto.DistributionMetrics, baselineMetrics *proto.DistributionMetrics) {
+	if difference, pairedError, ok := bulkSimPairedDpsDifference(metrics, baselineMetrics); ok {
+		row.PairedDpsDiffToBaseline = difference
+		row.PairedErrorToBaseline = pairedError
+	}
 }
 
 func bulkSimDpsError(metrics *proto.DistributionMetrics, iterations int32) float64 {

@@ -1,0 +1,241 @@
+import { Faction, HandType, ItemSlot, ItemType } from '@generated/proto/common';
+import { type UIItem, UIItem_FactionRestriction, type UIItemSource } from '@generated/proto/ui';
+import { type BulkSimItemSlot, getBulkItemSlotFromSlot, getBulkPlayerCanDualWield } from '@sim/bulk/utils';
+import { Player } from '@sim/player/player';
+import type { PlayerSpec } from '@sim/player/player_spec';
+import type { Gear } from '@sim/proto/gear';
+import { canEquipItem, getEligibleItemSlots } from '@sim/proto/items';
+import { pushTo } from '@sim/utils/collections';
+
+import { dropCategory, type DropsNames, type DropsSourceLabel, dropsSourceLabel, type DropsSourceNode } from './sources';
+
+export interface DropsItemContext {
+	playerSpec: PlayerSpec<any>;
+	canDualWield: boolean;
+	phase: number;
+	faction: Faction;
+	wornIds: ReadonlySet<number>;
+}
+
+export const wornIdSet = (gear: Gear): Set<number> => new Set(gear.asArray().flatMap(equipped => (equipped ? [equipped.id] : [])));
+
+export const dropsItemContext = (player: Player<any>): DropsItemContext => ({
+	playerSpec: player.getPlayerSpec(),
+	canDualWield: getBulkPlayerCanDualWield(player),
+	phase: player.sim.getPhase(),
+	faction: player.getFaction(),
+	wornIds: wornIdSet(player.getGear()),
+});
+
+export const dropsPhaseItems = (items: readonly UIItem[], phase: number): UIItem[] => items.filter(item => item.phase <= phase);
+
+const opensTo = (side: Faction, faction: Faction) => side === Faction.Unknown || side === faction;
+
+const sourceOpensTo = (source: UIItemSource, faction: Faction): boolean => {
+	switch (source.source.oneofKind) {
+		case 'quest':
+			return opensTo(source.source.quest.faction, faction);
+		case 'soldBy':
+			return opensTo(source.source.soldBy.faction, faction);
+		case 'rep':
+			return opensTo(source.source.rep.factionId, faction);
+		default:
+			return true;
+	}
+};
+
+/** An item kept for `faction` carries only the sources open to it; an item left with none is dropped. */
+export const dropsFactionItems = (items: readonly UIItem[], faction: Faction): UIItem[] => {
+	const closed = faction === Faction.Horde ? UIItem_FactionRestriction.ALLIANCE_ONLY : UIItem_FactionRestriction.HORDE_ONLY;
+	const kept: UIItem[] = [];
+	for (const item of items) {
+		if (faction !== Faction.Unknown && item.factionRestriction === closed) continue;
+		const sources = item.sources.filter(source => sourceOpensTo(source, faction));
+		if (sources.length === 0) continue;
+		kept.push(sources.length === item.sources.length ? item : { ...item, sources });
+	}
+	return kept;
+};
+
+// Drops lists what a level-60 character still wears; a dungeon's level is its loot's highest required level.
+export const DROPS_MIN_LEVEL = 45;
+
+/** The level of each dungeon zone: the highest `Player.requiredLevelOf` among all its drops. */
+export const dropsDungeonLevels = (items: readonly UIItem[]): Map<number, number> => {
+	const levels = new Map<number, number>();
+	for (const item of items) {
+		for (const { source } of item.sources) {
+			if (source.oneofKind !== 'drop' || dropCategory(source.drop.difficulty) !== 'drop_dungeon') continue;
+			levels.set(source.drop.zoneId, Math.max(levels.get(source.drop.zoneId) ?? 0, Player.requiredLevelOf(item)));
+		}
+	}
+	return levels;
+};
+
+/**
+ * Every raid drop, the drops of a dungeon at `DROPS_MIN_LEVEL` or above, and any other source only on an item that needs
+ * that level; an item left with no source is dropped. `levels` is `dropsDungeonLevels` of the whole database.
+ */
+export const dropsLevelItems = (items: readonly UIItem[], levels: ReadonlyMap<number, number>): UIItem[] => {
+	const kept: UIItem[] = [];
+	for (const item of items) {
+		const needsLevel = Player.requiredLevelOf(item) >= DROPS_MIN_LEVEL;
+		const sources = item.sources.filter(({ source }) => {
+			if (source.oneofKind !== 'drop') return needsLevel;
+			switch (dropCategory(source.drop.difficulty)) {
+				case 'drop_raid':
+					return true;
+				case 'drop_dungeon':
+					return levels.get(source.drop.zoneId)! >= DROPS_MIN_LEVEL;
+				default:
+					return needsLevel;
+			}
+		});
+		if (sources.length === 0) continue;
+		kept.push(sources.length === item.sources.length ? item : { ...item, sources });
+	}
+	return kept;
+};
+
+/** The items that fit a gear slot and that the class can equip; a random-suffix item is left out. */
+export const dropsUsableItems = (items: readonly UIItem[], playerSpec: PlayerSpec<any>): UIItem[] =>
+	items.filter(item => getEligibleItemSlots(item).length > 0 && canEquipItem(item, playerSpec, undefined) && item.randomSuffixOptions.length === 0);
+
+export type DropsSlotTag = 'mh' | 'oh' | '2h';
+
+export interface DropsItem {
+	item: UIItem;
+	/** The item's ticked leaf keys. */
+	sourceKeys: readonly string[];
+	worn: boolean;
+	/** Not unticked by the user; a worn item is never sent whatever this says. */
+	included: boolean;
+	tags: readonly DropsSlotTag[];
+	bulkSlot: BulkSimItemSlot;
+}
+
+export interface DropsItemList {
+	items: readonly DropsItem[];
+}
+
+const tagsOf = (item: UIItem, canDualWield: boolean): DropsSlotTag[] => {
+	switch (item.type) {
+		case ItemType.ItemTypeWeapon:
+			switch (item.handType) {
+				case HandType.HandTypeTwoHand:
+					return ['2h'];
+				case HandType.HandTypeOffHand:
+					return ['oh'];
+				case HandType.HandTypeMainHand:
+					return ['mh'];
+				default:
+					return canDualWield ? ['mh', 'oh'] : ['mh'];
+			}
+		default:
+			return [];
+	}
+};
+
+const byName = (a: UIItem, b: UIItem) => a.name.localeCompare(b.name);
+
+/** The listed `items` with a ticked source; `sourceKeysOf` gives an item's `dropsItemSourceKeys`. */
+export const dropsItemList = (
+	items: readonly UIItem[],
+	ticked: ReadonlySet<string>,
+	excluded: ReadonlySet<number>,
+	context: DropsItemContext,
+	sourceKeysOf: (item: UIItem) => readonly string[],
+): DropsItemList => {
+	const listed: DropsItem[] = [];
+	for (const item of items) {
+		const sourceKeys = sourceKeysOf(item).filter(key => ticked.has(key));
+		if (sourceKeys.length === 0) continue;
+		listed.push({
+			item,
+			sourceKeys,
+			worn: context.wornIds.has(item.id),
+			included: !excluded.has(item.id),
+			tags: tagsOf(item, context.canDualWield),
+			bulkSlot: getBulkItemSlotFromSlot(getEligibleItemSlots(item)[0], context.canDualWield),
+		});
+	}
+	listed.sort((a, b) => byName(a.item, b.item));
+	return { items: listed };
+};
+
+export const dropsPickedItemIds = (list: DropsItemList): number[] =>
+	list.items
+		.filter(entry => entry.included && !entry.worn)
+		.map(entry => entry.item.id)
+		.sort((a, b) => a - b);
+
+/**
+ * The picked items a worn two-hander skips, 0 under any other main hand. An item goes in each slot it fits that the class
+ * can equip it in, as `single_change` places it, and under a worn two-hander only a two-hander makes a candidate: any
+ * other item in either hand would leave the other hand empty.
+ */
+export const dropsTwoHanderSkipped = (list: DropsItemList, gear: Gear, playerSpec: PlayerSpec<any>): number => {
+	if (gear.getEquippedItem(ItemSlot.ItemSlotMainHand)?.item.handType !== HandType.HandTypeTwoHand) return 0;
+	return list.items.filter(({ item, included, worn }) => {
+		if (!included || worn || item.handType === HandType.HandTypeTwoHand) return false;
+		const slots = getEligibleItemSlots(item).filter(slot => canEquipItem(item, playerSpec, slot));
+		return slots.includes(ItemSlot.ItemSlotMainHand) || slots.includes(ItemSlot.ItemSlotOffHand);
+	}).length;
+};
+
+export const dropsItemsBySlot = (list: DropsItemList): Array<{ slot: BulkSimItemSlot; items: DropsItem[] }> => {
+	const bySlot = new Map<BulkSimItemSlot, DropsItem[]>();
+	for (const entry of list.items) pushTo(bySlot, entry.bulkSlot, entry);
+	return [...bySlot].map(([slot, items]) => ({ slot, items })).sort((a, b) => a.slot - b.slot);
+};
+
+interface DropsSourceLeaf {
+	key: string;
+	label: DropsSourceLabel;
+	items: DropsItem[];
+}
+
+/** One group per source key the list reaches, in the order `tree`, the Sources tree the list was picked from, lists its leaves. */
+const dropsItemsBySource = (list: DropsItemList, tree: readonly DropsSourceNode[], names: DropsNames): DropsSourceLeaf[] => {
+	const bySource = new Map<string, DropsItem[]>();
+	for (const entry of list.items) {
+		for (const key of entry.sourceKeys) pushTo(bySource, key, entry);
+	}
+	return tree
+		.flatMap(node => node.leafKeys)
+		.filter(key => bySource.has(key))
+		.map(key => ({ key, label: dropsSourceLabel(key, names), items: bySource.get(key)! }));
+};
+
+export interface DropsSourceParent {
+	key: string;
+	label: string;
+	/** The items of every leaf below, each once, in the list's order. */
+	items: DropsItem[];
+	leaves: DropsSourceLeaf[];
+}
+
+/**
+ * The source groups under the tree nodes that hold them, a dungeon over its bosses or a category over its zones, in the
+ * tree's order. A node with leaves and deeper nodes both is a parent of its leaves alone.
+ */
+export const dropsItemsBySourceParent = (list: DropsItemList, tree: readonly DropsSourceNode[], names: DropsNames): DropsSourceParent[] => {
+	const leaves = new Map(dropsItemsBySource(list, tree, names).map(leaf => [leaf.key, leaf]));
+	const parents: DropsSourceParent[] = [];
+	const walk = (node: DropsSourceNode) => {
+		const held = node.children.flatMap(child => (child.children.length === 0 && leaves.has(child.key) ? [leaves.get(child.key)!] : []));
+		if (held.length > 0) {
+			const ids = new Set(held.flatMap(leaf => leaf.items.map(entry => entry.item.id)));
+			parents.push({ key: node.key, label: node.label, items: list.items.filter(entry => ids.has(entry.item.id)), leaves: held });
+		}
+		for (const child of node.children) if (child.children.length > 0) walk(child);
+	};
+	tree.forEach(walk);
+	return parents;
+};
+
+/** The ticked and the listed items, the worn ones left out of both. */
+export const dropsTickCount = (items: readonly DropsItem[]): { ticked: number; total: number } => {
+	const pickable = items.filter(entry => !entry.worn);
+	return { ticked: pickable.filter(entry => entry.included).length, total: pickable.length };
+};
