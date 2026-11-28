@@ -2,10 +2,8 @@ import type { DatabaseFilters } from '@generated/proto/ui';
 import { Sim } from '@sim/sim';
 
 /**
- * How many filters stand off their default and so narrow the item list: one for each of the area, mob type and
- * creature group picks, the stat picks, the newly discovered flag, each level bound that is set, a source left
- * unticked and a raid left unticked. A filter counts once however many picks or unticked boxes it holds. The armor
- * and weapon type lists, whose defaults follow the class, are not counted.
+ * How many filters stand off their default and so narrow the item list. The armor and weapon type lists, whose
+ * defaults follow the class, are not counted.
  */
 export const activeFilterCount = (filters: DatabaseFilters): number =>
 	[

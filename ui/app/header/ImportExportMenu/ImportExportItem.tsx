@@ -7,6 +7,5 @@ export interface ImportExportItemProps {
 	dialog: ComponentType<ImportExportDialogProps>;
 }
 
-// A declaration, never rendered: `ImportExportMenu` reads these props off its children and splits
-// them between the dropdown items and the dialogs it mounts outside the popup.
+// A declaration, never rendered: `ImportExportMenu` reads these props off its children.
 export const ImportExportItem = (_props: ImportExportItemProps): null => null;

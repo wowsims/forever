@@ -9,8 +9,7 @@ import * as Generated from './buffs_debuffs_auto_gen';
 import { IconPickerStatOption, inDisplayOrder, statOptionGroup } from './stat_options';
 
 // Every buff the game files resolve to a spell has its input generated from the manifest;
-// the rows below are the ones it cannot produce, and the registries at the end of this file
-// interleave the two. Buffs whose whole effect bids in one exclusive category in the sim, so that
+// the rows below are the ones it cannot produce. Buffs whose whole effect bids in one exclusive category in the sim, so that
 // only the strongest applies, share a group.
 export * from './buffs_debuffs_auto_gen';
 

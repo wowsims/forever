@@ -1,11 +1,6 @@
-// The load order is a contract: defaults, then localStorage, then the hash, and
-// autosave subscribed last. The localStorage key is built by the caller and the
-// browser surface comes in through the sim's `Env` adapter (state/env.ts).
-//
 // Load order is a contract; do not reorder:
-//   defaults → saved localStorage settings → URL-hash link import (partial
-//   imports keep the rest) → clear hash → default player name → subscribe
-//   autosave LAST (so initialization doesn't re-store) → stat-weight and stat
+//   defaults → saved localStorage settings → URL-hash link import → clear hash
+//   → default player name → subscribe autosave LAST → stat-weight and stat
 //   sweep settings.
 import { IndividualSimSettings } from '@generated/proto/ui';
 
@@ -24,8 +19,7 @@ const AUTOSAVE_DEBOUNCE_MS = 300;
 // across all sims.
 export const SHARED_SAVED_ENCOUNTER_STORAGE_KEY = 'sharedData__savedEncounter__';
 
-// The pieces of the sim UI the load sequence drives. toProto/fromProto are the
-// (wrapper) envelope serializers; applyDefaults stays UI-owned.
+// The pieces of the sim UI the load sequence drives.
 export interface IndividualSettingsHost {
 	applyDefaults(): void;
 	toProto(exportCategories?: Array<SimSettingCategories>): IndividualSimSettings;
@@ -61,8 +55,8 @@ export function loadIndividualSettings(
 			}
 
 			// Loading from link needs to happen after loading saved settings, so that partial link imports
-			// (e.g. rotation only) include the previous settings for other categories. The saved stat filters
-			// stay, whatever the link carries.
+			// include the previous settings for other categories. The saved stat filters stay, whatever the
+			// link carries.
 			try {
 				const urlParseResults = opts.player.sim.linkedSettings;
 				if (urlParseResults) {
@@ -77,7 +71,7 @@ export function loadIndividualSettings(
 
 			// This needs to go last so it doesn't re-store things as they are initialized.
 			// Debounced: serializing + storing the full settings on every keystroke
-			// cost ~50 ms per APL edit. A pending write is flushed on page hide.
+			// cost ~50 ms per APL edit.
 			opts.autosaveSubscribe(schedulePersist);
 
 			opts.statWeightSettings.load();

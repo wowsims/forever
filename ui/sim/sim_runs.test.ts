@@ -44,8 +44,7 @@ describe('SimRuns', () => {
 		expect(state(SimRunKind.IndividualSim)).toEqual({ isRunning: false, isAborting: false });
 	});
 
-	// The flag is written before the pre-run abort is awaited, so a rejecting abort has to clear it
-	// or the kind stays flagged running with nothing left to clear it.
+	// The flag is written before the pre-run abort is awaited, so a rejecting abort has to clear it.
 	it('clears the flag when the pre-run abort rejects', async () => {
 		abortType.mockRejectedValueOnce(new Error('worker gone'));
 		const run = vi.fn();
@@ -126,8 +125,7 @@ describe('SimRuns', () => {
 		expect(other).toEqual([1, 2]);
 	});
 
-	// The flag has to be readable before `start` returns, because an injected `flushSync` cannot
-	// help a write that happens a microtask later.
+	// The flag has to be readable before `start` returns.
 	it('flags the kind synchronously, through the injected flush', async () => {
 		const flushed: Array<string> = [];
 		runs.setFlush(write => {

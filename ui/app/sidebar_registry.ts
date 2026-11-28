@@ -3,7 +3,7 @@ import type { MouseEvent, ReactNode } from 'react';
 interface SidebarEntryBase {
 	id: string;
 	// Entries sort by `order` and the sort is stable, so entries that leave it unset keep the
-	// sequence they were registered in — which is the order the sidebar was appended in before.
+	// sequence they were registered in.
 	order?: number;
 }
 

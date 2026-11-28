@@ -22,8 +22,7 @@ export const TalentPicker = <TalentsProto,>({ config, points, canAdd, broken, al
 	const rootRef = useRef<HTMLAnchorElement>(null);
 	const definitionId = config.definitionId ?? 0;
 	// The icon lookup leaves the rank out, so spending a point does not re-seed it and blank the
-	// cell for a frame -- a talent is one spell with one icon. Only the wowhead link carries the
-	// rank, and that needs no lookup at all.
+	// cell for a frame.
 	const { iconUrl } = useActionId(ActionId.fromTalent(config.spellId, 1, definitionId));
 	const href = ActionId.makeSpellUrl(config.spellId, Math.max(points, 1), definitionId);
 	const isFull = points >= config.maxPoints;
@@ -31,7 +30,6 @@ export const TalentPicker = <TalentsProto,>({ config, points, canAdd, broken, al
 	const spend = () => onSetPoints(points + 1);
 	const unspend = () => onSetPoints(points - 1);
 	const clear = () => onSetPoints(0);
-	// A tap cycles rather than selects: past the last rank it wraps back to nothing (talents_picker.tsx:410-414).
 	// A tap on a broken talent clears it, since it cannot take another point.
 	const cycle = () => onSetPoints(broken || points + 1 > config.maxPoints ? 0 : points + 1);
 

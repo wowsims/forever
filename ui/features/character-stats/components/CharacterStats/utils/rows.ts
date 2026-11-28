@@ -76,7 +76,7 @@ export const buildRows = (player: Player<any>, statList: Array<UnitStat>): RowLa
 			}
 		}
 
-		// The tank readouts hang off the defensive block, in the order the sheet has always shown them.
+		// The tank readouts hang off the defensive block.
 		if (key === 'defense' && showCritImmunity) {
 			rows.push(
 				{ kind: 'miss', id: `${key}-miss` },

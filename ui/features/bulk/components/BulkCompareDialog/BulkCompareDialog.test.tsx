@@ -4,10 +4,6 @@
 // The fixture, in display order: Council (1:30) ranks S1 1,030, S2 1,020, S3 990; Patchwerk (5:00) S2 1,100, S4 1,090,
 // S5 1,080; Ragnaros (10:00) S6 12,500, S1 1,150, S2 1,120. The current gear does 1,000 in each, and every result
 // spreads ±10 a fight.
-//
-// The Builds fixture runs two encounters, the current one (3:00) and Patchwerk (5:00). The first ranks Raid (helm 2) with
-// Arms, Opener and Healer, then a setup of the current gear set (helm 3) with the current talents, rotation and settings;
-// Patchwerk ranks Raid with the current ones.
 import { DistributionMetrics } from '@generated/proto/api';
 import { APLRotation } from '@generated/proto/apl';
 import { ItemSlot, ItemType } from '@generated/proto/common';

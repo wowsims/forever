@@ -24,8 +24,6 @@ import DestroGearJson from './gear_sets/destro.gear.json';
 import SmRuinGearJson from './gear_sets/sm_ruin.gear.json';
 
 // Preset options for this spec.
-// Eventually we will import these values for the raid sim too, so its good to
-// keep them in a separate file.
 
 // One gear set per build. Each build file holds a copy of its set, which applying the build equips; spec.test.ts
 // checks the copies match.

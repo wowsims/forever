@@ -93,7 +93,7 @@ export const runConcurrentBulkSim = async (
 	// for how many are left: the survivors were themselves selected by the same noisy
 	// metric, so recomputing the correction on the shrinking set would weaken it exactly
 	// as the decisions become final. Iteration targeting deliberately keeps using the
-	// current stage's count - driving it from the original count inflates the final
+	// current stage's count; driving it from the original count inflates the final
 	// stage's iterations (measured +17.6%) without changing which gear set wins.
 	const originalCandidateCount = candidates.length;
 	for (const stageConfig of bulkSimStageConfigs) {

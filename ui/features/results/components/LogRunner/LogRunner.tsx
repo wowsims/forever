@@ -75,8 +75,7 @@ export const LogRunner = ({ active }: LogRunnerProps) => {
 	const [groups, setGroups] = useState<Array<IdentifiedSearchGroup>>([]);
 	const [showDebug, setShowDebug] = useState(false);
 	const [measured, setMeasured] = useState<Measured>(UNMEASURED);
-	// `null` until the list is in the document. In this app it resolves to `.sim-ui`, the one element
-	// above the pane with `overflow-y: auto`; `window` is the fallback for a page that scrolls itself.
+	// `null` until the list is in the document. In this app it resolves to `.sim-ui`.
 	const [scroller, setScroller] = useState<HTMLElement | Window | null>(null);
 
 	const listRef = useRef<HTMLDivElement>(null);
@@ -89,8 +88,8 @@ export const LogRunner = ({ active }: LogRunnerProps) => {
 
 	const result = seen?.result ?? null;
 
-	// Keyed on the result rather than on `seen`, so picking a target — which re-emits the same run
-	// under a new filter — does not trigger re-indexing.
+	// Keyed on the result rather than on `seen`, so picking a target, which re-emits the same run
+	// under a new filter, does not trigger re-indexing.
 	const logs = useMemo(() => (result ? result.logs.filter(log => !isCastCompleted(log)) : []), [result]);
 	const logIndex = useMemo(() => (logs.length ? new LogIndex(logs, index => logs[index].raw.includes(DEBUG_MARKER)) : null), [logs]);
 	const suggestions = logIndex?.suggestions() ?? EMPTY_SUGGESTIONS;
@@ -112,8 +111,7 @@ export const LogRunner = ({ active }: LogRunnerProps) => {
 		const list = listRef.current;
 		if (!list) return;
 		// `findScrollParent` skips an `overflow: hidden` ancestor, which is what `.log-runner-scroll`
-		// is on the vertical axis — it only carries the sideways overflow of a long line. What it
-		// finds here is `.sim-ui`; `window` is the fallback for a page that scrolls itself.
+		// is on the vertical axis.
 		setScroller(findScrollParent(list) ?? window);
 	}, []);
 
@@ -121,11 +119,8 @@ export const LogRunner = ({ active }: LogRunnerProps) => {
 	const listWidth = measured.for === result ? measured.width : 0;
 	const rowHeight = measured.for === result ? measured.rowHeight : ESTIMATED_ROW_HEIGHT;
 
-	// Positioned out of flow, so it inherits the list's fonts without widening it. Both numbers come
-	// off the same row.
-	//
-	// `offsetHeight`, the integer, is used deliberately, not by oversight. The fractional box is the
-	// more accurate number and was tried: it puts the two lists at different offsets for the same
+	// Positioned out of flow, so it inherits the list's fonts without widening it. `offsetHeight`, the
+	// integer, is deliberate: the fractional box puts the two lists at different offsets for the same
 	// scroll position, since one of them rounds and this is the list it has to line up with.
 	const measureRow = useCallback(
 		(element: HTMLDivElement | null) => {
@@ -136,8 +131,7 @@ export const LogRunner = ({ active }: LogRunnerProps) => {
 		[result],
 	);
 
-	// A line never wraps, so a row wider than its own box means the list is too narrow. Reported per
-	// row on mount, since `@tanstack/react-virtual` has no built-in width-repair hook.
+	// A line never wraps, so a row wider than its own box means the list is too narrow.
 	const growToFit = useCallback((width: number) => {
 		setMeasured(current => (width > current.width ? { ...current, width } : current));
 	}, []);

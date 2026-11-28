@@ -376,9 +376,8 @@ export const PLAYER_HEADER_ROW: HeaderRow = {
 export const TARGET_SEPARATOR_ROW: SeparatorRow = { kind: 'separator', key: 'separator:target', section: 'target', height: ROW_HEIGHTS.separator };
 
 /**
- * Thirty seconds of the warrior's player section: Mortal Strike on a six-second cycle, Heroic Strike
- * queued between, a Deep Wounds tick after each Mortal Strike, the rage bar and the GCD strip. No aura
- * rows, since an aura row's Wowhead tooltip asks the spell database whether the spell has a buff.
+ * Thirty seconds of the warrior's player section. No aura rows, since an aura row's Wowhead tooltip
+ * asks the spell database whether the spell has a buff.
  */
 export const warriorRotationModel = (): RotationModel => {
 	const mortalStrikes = [0, 6, 12, 18, 24];

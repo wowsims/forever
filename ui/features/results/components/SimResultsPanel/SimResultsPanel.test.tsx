@@ -1,8 +1,5 @@
-// The two halves this panel is built on, and one race that only a unit test can reach.
-//
-// Progress renders once per tick from the store's progress listener. A browser-level check waits for
-// text to appear, so it passes on tick two and can never see that tick one's numbers were dropped —
-// that gap is what the "same commit" case below covers.
+// A browser-level check waits for text to appear, so it passes on tick two and can never see that
+// tick one's numbers were dropped; that gap is what the "same commit" case below covers.
 import { ProgressMetrics } from '@generated/proto/api';
 import { formatToNumber } from '@sim/utils/format';
 import { renderWithHost } from '@testing/react';
@@ -17,15 +14,13 @@ import { SimResultsPanel } from './SimResultsPanel';
 
 vi.mock('@sim/state/subscriptions', async () => mockSubscriptions());
 
-// The summary needs a whole SimResult; SimResultSummary.test.tsx is where it is asserted. What is
-// under test here is that the content zone renders it and nothing else.
+// The summary needs a whole SimResult; SimResultSummary.test.tsx is where it is asserted.
 vi.mock('./SimResultSummary', () => ({ SimResultSummary: () => <div data-testid="sim-result-summary-root" /> }));
 
 const progress = (dps: number, hps: number, completed: number, total: number, presimRunning = false) =>
 	ProgressMetrics.create({ dps, hps, completedIterations: completed, totalIterations: total, presimRunning });
 
-// The sim reports ready a microtask after mount, and every case here is a loaded sim, so the mount
-// is not finished until that has landed.
+// The sim reports ready a microtask after mount, so the mount is not finished until that has landed.
 const mount = async (panel: ResultsPanelStore, disabled = false, results: SimResultsManager | null = null, simDisabled = disabled) => {
 	const commits = vi.fn();
 	const view = renderWithHost(
@@ -101,7 +96,7 @@ describe('SimResultsPanel', () => {
 		const { view } = await mount(panel);
 		act(() => panel.setPending());
 
-		// One call, carrying both the stage change and the first numbers — the shape every transport
+		// One call, carrying both the stage change and the first numbers, the shape every transport
 		// delivers. Mutation check: drop `SimProgress`'s `latestProgress` read and this reads empty.
 		act(() => panel.setProgress(progress(1234.5678, 22.5, 10, 1000)));
 
@@ -150,9 +145,8 @@ describe('SimResultsPanel', () => {
 
 	it('commits the stage before the caller returns, so a same-task read sees it', async () => {
 		const { view } = await mount(panel);
-		// The read happens inside the same batch as the write, like the run action's own click
-		// handler reading the DOM back before its first await. Without `flushSync` in the store the
-		// commit would wait for the end of the batch and this would read the stage it replaced.
+		// Without `flushSync` in the store the commit would wait for the end of the batch and this would
+		// read the stage it replaced.
 		let pendingOnReturn = false;
 		act(() => {
 			panel.setPending();

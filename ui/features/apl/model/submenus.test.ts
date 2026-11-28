@@ -72,7 +72,7 @@ describe('option tree', () => {
 	});
 
 	// The pet case. A *string* segment is always a category name, so a value segment can only be
-	// exercised with non-string values — which is what every real caller has.
+	// exercised with non-string values.
 	type Ref = { type: number };
 	const byType = (a: Ref, b: Ref) => a.type === b.type;
 	const self: PathOption<Ref> = { value: { type: 1 }, label: 'Self' };

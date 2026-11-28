@@ -6,8 +6,8 @@ import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
-// The picker is tested where it lives. What is under test here is that it is the navbar's first
-// child, because the strip's `margin-left: auto` is what pushes the tabs to the other end.
+// What is under test here is that the picker is the navbar's first child, because the strip's
+// `margin-left: auto` is what pushes the tabs to the other end.
 vi.mock('@features/apl/components/RotationTypePicker', () => ({
 	RotationTypePicker: ({ testId }: { testId?: string }) => <div data-testid={testId} />,
 }));

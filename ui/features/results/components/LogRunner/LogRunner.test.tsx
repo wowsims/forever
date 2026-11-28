@@ -76,7 +76,7 @@ const LOGS = [
 ];
 
 // Scoped to the list: the hidden width measurer renders a row of its own, and in a DOM that reports
-// every box as 0x0 it never gets its answer and so never unmounts.
+// every box as 0x0 it never unmounts.
 const rows = (container: HTMLElement) =>
 	[...container.querySelectorAll('[data-testid="virtual-list-row"] [data-testid="log-event"]')].map(row => row.textContent);
 
@@ -133,9 +133,7 @@ describe('LogRunner', () => {
 		expect(rows(container)).toEqual(['[2.00] Warrior casts Cleave']);
 	});
 
-	// A tall blank pane reads as broken rather than as filtered. Scoped to a run that produced lines:
-	// before the first one the pane is empty because there is nothing to show yet, not because the
-	// search excluded everything.
+	// A tall blank pane reads as broken rather than as filtered.
 	it('says why the list is empty when a search matches nothing, and only once a run has landed', async () => {
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 		const { container, rerender } = mount();
@@ -180,13 +178,12 @@ describe('LogRunner', () => {
 		fireEvent.click([...container.querySelectorAll<HTMLButtonElement>('[data-testid="log-floating-action-bar-controls"] button')][0]);
 
 		// Three lines, not the two the list shows: the search and the debug toggle are the list's alone.
-		// The cast-completed line is gone from both — that filter is on `logs`.
+		// The cast-completed line is gone from both: that filter is on `logs`.
 		expect(document.querySelector<HTMLTextAreaElement>('[data-testid="exporter"] [data-testid="exporter-textarea"]')!.value.split('\n')).toHaveLength(3);
 	});
 
 	// The list shares a scroller with the rest of the pane, and `.log-runner-scroll` is not it: that
-	// element hides its vertical overflow and only carries the sideways overflow of a long line. The
-	// walk has to skip it and keep going, which is exactly what `findScrollParent` does.
+	// element hides its vertical overflow. The walk has to skip it and keep going.
 	it('hands the list the nearest scrolling ancestor, skipping the overflow-hidden one', () => {
 		const outer = document.createElement('div');
 		outer.className = 'sim-ui';
@@ -211,8 +208,8 @@ describe('LogRunner', () => {
 		const rootScrollIntoView = vi.fn();
 		const listScrollIntoView = vi.fn();
 
-		// happy-dom leaves every box at 0x0 and every `offsetParent` null, which is also what a closed
-		// tab looks like — so an open one has to be described on the element itself.
+		// happy-dom leaves every box at 0x0 and every `offsetParent` null, as a closed tab does, so an
+		// open one has to be described on the element itself.
 		const placeList = (container: HTMLElement, offsetParent: HTMLElement | null, listTop = -500) => {
 			const list = container.querySelector<HTMLElement>('[data-testid="log-runner-list"]')!;
 			Object.defineProperty(list, 'offsetParent', { value: offsetParent, configurable: true });

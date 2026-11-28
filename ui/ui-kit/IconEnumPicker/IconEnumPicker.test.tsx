@@ -142,8 +142,7 @@ describe('IconEnumPicker', () => {
 	it('takes the button’s icon, href and active class from the selected value', () => {
 		const { set } = mount();
 
-		// The zero value carries neither an icon nor an iconUrl nor a colour, so there is no image and
-		// no link. React refuses to render a `javascript:` URL, so the button carries no `href` at all.
+		// React refuses to render a `javascript:` URL, so the button carries no `href` at all.
 		expect(iconOf(button())).toBe('');
 		expect(button().hasAttribute('href')).toBe(false);
 		expect(button().hasAttribute('data-active')).toBe(false);

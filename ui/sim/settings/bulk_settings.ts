@@ -1,6 +1,5 @@
 // The bulk tab's store slice and its persisted settings blob, so the UI neither writes the
-// store directly nor owns a localStorage key. Everything is derived from the player: the slice
-// is `bulk[player.storeKey]` and the key is the player's spec prefix.
+// store directly nor owns a localStorage key.
 import { BulkSettings as BulkSettingsProto } from '@generated/proto/api';
 import { ItemSlot } from '@generated/proto/common';
 import {
@@ -95,7 +94,7 @@ export const loadStoredBulkSettings = (player: Player<any>): BulkSettingsProto |
 };
 
 // A batch's item list can outgrow the storage quota; drop the key rather than leave a
-// half-written blob behind, matching what the pre-React bulk tab did.
+// half-written blob behind.
 export const storeBulkSettings = (player: Player<any>, settings: BulkSettingsProto) => {
 	const { storage } = player.sim.env;
 	const key = specStorageKey(player.getPlayerSpec(), BULK_SETTINGS_STORAGE_KEY);
@@ -132,7 +131,7 @@ export const storeBulkEncounters = (player: Player<any>, value: BulkEncounterSel
 	storeProto(player, BULK_ENCOUNTERS_STORAGE_KEY, BulkEncounterSelection, value);
 
 // Null when nothing is stored and when the blob does not parse: an empty message would read as All for both modes. A
-// negative value loads as its mode's default, 5 for Gear and All for Builds.
+// negative value loads as its mode's default.
 export const loadStoredBulkTopResults = (player: Player<any>): BulkTopResults | null => {
 	const stored = player.sim.env.storage.getItem(specStorageKey(player.getPlayerSpec(), BULK_TOP_RESULTS_STORAGE_KEY));
 	if (stored == null) return null;

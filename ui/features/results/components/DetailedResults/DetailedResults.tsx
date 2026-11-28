@@ -222,10 +222,8 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 			if (currentSimResult.current == null) {
 				resultsEmitter.emit(null);
 			} else {
-				// A run with fewer targets than the last one drops the selection, and it happens here
-				// rather than in the filter: the emit below is what every metrics table reads, and a
-				// component-level effect would let one render through pointing at a target this
-				// result does not have.
+				// A run with fewer targets than the last one drops the selection here: a component-level
+				// effect would let one render through pointing at a target this result does not have.
 				if (!hasTarget(currentSimResult.current, targetRef.current)) {
 					targetRef.current = ALL_UNITS;
 					emittedTarget.current = ALL_UNITS;

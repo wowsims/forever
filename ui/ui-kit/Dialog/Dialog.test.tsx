@@ -20,10 +20,7 @@ describe('Dialog', () => {
 		expect(within(popup).getByTestId('sim-dialog-body').textContent).toBe('contents');
 	});
 
-	// The default portal target is `<body>`, which is outside `.sim-ui` and so outside the spec theme
-	// — measured in a browser, a `.btn-primary` in a body-portaled dialog is Bootstrap's
-	// rgb(13, 110, 253) while the same markup under `.sim-ui` is the warrior brown rgb(199, 156, 110).
-	// The portal container from context is how a consumer keeps the theme; that its geometry is unaffected was measured too.
+	// The default portal target is `<body>`, which is outside `.sim-ui` and so outside the spec theme.
 	it('portals into the container from context', () => {
 		const host = document.createElement('div');
 		host.className = 'sim-ui';
@@ -130,9 +127,7 @@ describe('Dialog', () => {
 	});
 
 	// Base UI suppresses the backdrop of a *nested* dialog, so this only reproduces with one dialog
-	// inside another — a standalone elevated dialog gets a backdrop either way and proves nothing.
-	// Without it the inner dialog has nothing to dim the outer one with, and no z-index can help
-	// because there is no element to raise.
+	// inside another.
 	it('gives a dialog nested inside another its own raised backdrop', () => {
 		render(
 			<Dialog open onOpenChange={() => {}} title="Outer">

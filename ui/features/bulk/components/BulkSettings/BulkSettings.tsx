@@ -159,8 +159,7 @@ const BulkSettingsContainer = ({ builds }: { builds: BulkBuildsCount | null }) =
 	const gear = usePlayerStore('gear');
 	const [openGroups, setOpenGroups] = useBulkSettingsGroups();
 
-	// Clearing a frozen item whose slot no longer holds it writes to the store; that is not safe
-	// during render, so it runs in an effect after render instead.
+	// Clearing a frozen item whose slot no longer holds it writes to the store; that is not safe during render.
 	useEffect(() => {
 		for (const pair of FROZEN_PAIRS) {
 			const frozenItem = frozenItems.get(pair.bulkSlot);

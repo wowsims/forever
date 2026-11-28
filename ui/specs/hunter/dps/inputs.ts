@@ -14,8 +14,8 @@ import { HunterSpecs } from '@sim/proto/spec_types';
 import type { CustomSection } from '@sim/spec_config';
 import { getEnumValues } from '@sim/utils/collections';
 
-// The arrows the client's items describe, as the Ammo enum lists them: each value is the arrow's item
-// id, so the icon and the hover tooltip come from the item. Every ranged weapon is taken to fire them.
+// The arrows, as the Ammo enum lists them: each value is the arrow's item id, so the icon and the
+// hover tooltip come from the item. Every ranged weapon is taken to fire them.
 export const AmmoInput = <SpecType extends HunterSpecs>() =>
 	InputHelpers.makeClassOptionsEnumIconInput<SpecType, HunterOptions_Ammo>({
 		fieldName: 'ammo',
@@ -30,8 +30,8 @@ export const AmmoInput = <SpecType extends HunterSpecs>() =>
 		],
 	});
 
-// The quivers the client's items describe, one a ranged attack speed, listed from the QuiverBonus
-// enum the way AmmoInput lists the arrows.
+// The quivers, one a ranged attack speed, listed from the QuiverBonus enum the way AmmoInput lists
+// the arrows.
 export const QuiverInput = <SpecType extends HunterSpecs>() =>
 	InputHelpers.makeClassOptionsEnumIconInput<SpecType, HunterOptions_QuiverBonus>({
 		fieldName: 'quiverBonus',
@@ -93,8 +93,7 @@ export const PetTypeInput = <SpecType extends HunterSpecs>() =>
 	});
 
 // The Faster Attack or Slower Attack passive a tamed Cat carries on top of the 2 s swing. No other
-// family has one, so the picker shows for a Cat alone. Every rank shares one icon, so the rank is
-// written on it.
+// family has one. Every rank shares one icon, so the rank is written on it.
 export const PetAttackSpeed = <SpecType extends HunterSpecs>() =>
 	InputHelpers.makeClassOptionsEnumIconInput<SpecType, HunterOptions_PetAttackSpeed>({
 		fieldName: 'petAttackSpeed',
@@ -188,8 +187,7 @@ export const PetUptime = () =>
 		percent: true,
 	});
 
-// The pet's own settings block: the family and what the tamed creature carries, as a grid of
-// labelled icon pickers, with the uptime under them.
+// The pet's own settings block.
 export const PetSection: CustomSection<Spec.SpecHunter> = {
 	id: 'hunter-pet-settings',
 	title: i18n.t('settings_tab.other.pet_section.title'),

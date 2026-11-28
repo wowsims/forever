@@ -20,9 +20,8 @@ export const newBulkSimStageCarryOver = (stageResult: ConcurrentBulkSimStageResu
 	return { iterations: stageResult.iterations, baseline: stageResult.baseline, byCandidate };
 };
 
-// Reports whether every candidate has carried metrics. A partial carry-over would
-// need per-candidate iteration counts, so the stage falls back to running the full
-// count for everyone instead.
+// Whether every candidate has carried metrics. A partial carry-over would need per-candidate
+// iteration counts, so the stage falls back to running the full count for everyone instead.
 export const bulkSimCarryOverCovers = (carry: ConcurrentBulkSimStageCarryOver | undefined, candidates: ConcurrentBulkSimCandidate[]): boolean =>
 	!!carry && candidates.every(candidate => carry.byCandidate.has(candidate.index));
 

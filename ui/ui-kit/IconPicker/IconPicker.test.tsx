@@ -191,7 +191,7 @@ describe('IconPicker', () => {
 	});
 
 	// A quadstate icon carries two proto fields, and the second badge is the only affordance that a
-	// fourth state exists — so both badges stay visible in opposite corners and only `active` moves.
+	// fourth state exists.
 	it('keeps both improved anchors visible, marking only the ones the value has reached', () => {
 		const { set } = mount({ states: 4, improvedIcon, improvedIcon2, initial: 3 });
 		const [, improved1, improved2] = allAnchors();

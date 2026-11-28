@@ -35,9 +35,8 @@ export interface KeptInput<ModObject, T> {
 
 export interface OverwrittenInput<ModObject, T> {
 	// Badges the swatch or trigger with the tooltip it returns for the value: a selection another selection overwrites.
-	// Undefined while nothing overwrites it. The swatch dims too unless `partly`, while the selection still adds
-	// something. An icon-enum picker asks it of the value it shows and, while its menu is open, of each option, as if
-	// that option were selected in place of the value.
+	// The swatch dims too unless `partly`, while the selection still adds something. An icon-enum picker asks it, while
+	// its menu is open, of each option, as if that option were selected in place of the value.
 	overwritten?: (obj: ModObject, value: T) => { tooltip: string; partly: boolean } | undefined;
 }
 
@@ -61,24 +60,19 @@ export const keptTooltipOf = <ModObject, T>(config: KeptInput<ModObject, T>, obj
 export interface InputConfig<ModObject, T, V = T> extends InputFrame<ModObject> {
 	defaultValue?: T;
 
-	// The input's change source: given the mod object, returns a subscribe
-	// function (see state/subscriptions.ts). Omit for inputs that are re-synced
+	// The input's change source. Omit for inputs that are re-synced
 	// by their parent (nested APL pickers, UI-local toggles).
 	storeSubscribe?: (obj: ModObject) => StoreSubscribe;
 
-	// The same change source named as data: the store field(s) this input reads,
-	// resolved against the sim host (see hooks/useStoreField.ts). `storeSubscribe`
-	// wins where a config carries both.
+	// The same change source named as data: the store field(s) this input reads.
+	// `storeSubscribe` wins where a config carries both.
 	storeField?: StoreField | ReadonlyArray<StoreField>;
 
-	// Get and set the mapped value. `getValue` is re-read on a notification, not on a render, so it
-	// must read the model off `obj` — a value the surrounding render already holds goes straight to
-	// the kit picker's `value` and `onChange` instead.
+	// `getValue` is re-read on a notification, not on a render, so it must read the model off `obj`.
 	getValue: (obj: ModObject) => T;
 	setValue: (obj: ModObject, newValue: T) => void;
 
-	// Convert between source value and input value types. In most cases this is not needed
-	// because source and input use the same type. These functions must be set if T != V.
+	// Convert between source value and input value types. These functions must be set if T != V.
 	sourceToValue?: (src: T) => V;
 	valueToSource?: (val: V) => T;
 }

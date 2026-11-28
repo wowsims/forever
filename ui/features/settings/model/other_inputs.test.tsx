@@ -41,7 +41,7 @@ const mount = () => {
 const input = () => screen.getByRole('textbox') as HTMLInputElement;
 
 // A real `change` Event, not `fireEvent`, because the picker reads the native value the user
-// typed — and going around `fireEvent` goes around act too. The commit notifies the source, which
+// typed, and going around `fireEvent` goes around act too. The commit notifies the source, which
 // re-renders the picker, so the dispatch is wrapped rather than the assertions that follow it.
 const commit = (text: string) => {
 	input().value = text;
@@ -73,8 +73,7 @@ describe('DistanceFromTarget', () => {
 	});
 });
 
-// The number only means something on a tank that has the aura ticked, and it lives on the party's
-// buffs so the sim reads it next to the aura itself.
+// The number only means something on a tank that has the aura ticked.
 describe('RetributionAuraSpellPower', () => {
 	const fakePlayer = (isTankSpec: boolean, retributionAura: boolean) => {
 		let buffs = { retributionAura, retributionAuraSpellPower: 0 } as any;

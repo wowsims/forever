@@ -67,9 +67,8 @@ interface BulkEncounterRow extends BulkEncounterEntry {
 	duplicateOf: string | null;
 }
 
-// Every entry in list order, each checked by its stored ref. One that sims the same as the current encounter while that
-// is checked, or as an earlier checked row, names it, cannot run, and keeps its stored checked state, so it is back once
-// the other row changes.
+// Every entry in list order. One that sims the same as the current encounter while that is checked, or as an earlier
+// checked row, names it, cannot run, and keeps its stored checked state, so it is back once the other row changes.
 export const bulkEncounterList = (current: Encounter, entries: readonly BulkEncounterEntry[], checked: readonly BulkEncounterRef[]): BulkEncounterRow[] => {
 	const picked = new Map<string, string>(currentEncounterChecked(checked) ? [[encounterContentKey(current), t('current')]] : []);
 	return entries.map(entry => {

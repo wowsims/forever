@@ -44,7 +44,7 @@ const usePlan = (): BulkBuildsPlan => {
 	const profession2 = usePlayerStore('profession2');
 
 	// Kept while the enchant picks stay, so an edit to the live talents, rotation or settings or a ticked encounter builds
-	// no gear setup again: a plan builds only the gear sets the last plan did not hold.
+	// no gear setup again.
 	const setupsOf = useMemo(
 		() => bulkGearSetSetups(player, bulkEnchantPickRuns(enchantPickEntries, checkedEnchantPicks)),
 		[player, enchantPickEntries, checkedEnchantPicks],

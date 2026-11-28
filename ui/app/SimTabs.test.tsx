@@ -123,8 +123,8 @@ describe('SimTabs', () => {
 		expect(tab('gear-tab').getAttribute('aria-selected')).toBe('false');
 	});
 
-	// Arrow/Home/End navigation is Base UI's composite, and it does not drive under happy-dom — the
-	// keys land but the roving focus never moves, so this file cannot assert the sequence.
+	// Arrow/Home/End navigation is Base UI's composite, and it does not drive under happy-dom, so this
+	// file cannot assert the sequence.
 
 	it('activates by identifier, which is how the bulk results renderer returns to the gear tab', async () => {
 		renderTabs(['gear-tab', 'settings-tab']);

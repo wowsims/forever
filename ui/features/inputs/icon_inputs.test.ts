@@ -5,7 +5,7 @@ import type { makeMultistatePartyBuffInput, makeTristateDebuffInput, makeTristat
 type ConfigOf<F extends (...args: any) => any> = Parameters<F>[0];
 
 // `faction` is read off the player's race, and these factories' mod object is the party or the raid,
-// which has no player to read it off. Accepting it would only ever drop it silently.
+// which has no player to read it off.
 describe('icon input configs', () => {
 	it('offers faction only where the mod object is the player', () => {
 		expectTypeOf<ConfigOf<typeof makeTristateRaidBuffInput>>().toHaveProperty('faction');

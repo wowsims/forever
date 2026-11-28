@@ -10,11 +10,7 @@ import { statsTableColumns } from '../../../features/stat-weights/model/stats_ta
 
 export const STAT_WEIGHT_STATS = [Stat.StatStrength, Stat.StatAgility, Stat.StatAttackPower, Stat.StatCritRating].map(stat => UnitStat.fromStat(stat));
 
-/**
- * A finished run for a Strength-referenced melee spec: Strength 2.4 DPS per point, Agility 1.9,
- * Attack Power 1.0 and Crit 3.1 per rating point, each ±5%. EP is the DPS weight over Strength's; the healing
- * and threat metrics carry half the weights and the same EP.
- */
+/** A finished run for a Strength-referenced melee spec. */
 export const makeStatWeightsResult = (): StatWeightsResult => {
 	const result = emptyStatWeightsResult();
 	const weights: Array<[UnitStat, number]> = STAT_WEIGHT_STATS.map((stat, index) => [stat, [2.4, 1.9, 1, 3.1][index]]);

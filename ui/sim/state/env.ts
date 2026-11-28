@@ -1,9 +1,6 @@
-// The browser surface the domain layer is allowed to touch, as an injected
-// adapter instead of ambient globals. `ui/sim/**` is lint-banned from
-// `window` / `document` / `localStorage` / `location` / `navigator`; anything
-// here that needs one of those takes an `Env` (reachable from any facade as
-// `sim.env`). The browser implementation lives in `ui/app/browser_env.ts`,
-// test harnesses pass an in-memory one.
+// The browser surface the domain layer is allowed to touch. `ui/sim/**` is
+// lint-banned from `window` / `document` / `localStorage` / `location` /
+// `navigator`; anything here that needs one of those takes an `Env`.
 export interface Env {
 	// Persistent key/value store (browser: window.localStorage).
 	storage: Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;

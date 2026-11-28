@@ -9,8 +9,7 @@ const BLOCK_RE = /@theme\s+static(\s+inline)?\s*\{([\s\S]*?)\n\}/g;
 export const VAR_RE = /^\s*(--[a-z0-9-]+):\s*([\s\S]+?);\s*$/gm;
 
 /** Resolves a token's raw value to its rendered px length at the given root font size: a `--spacing(n)`
- * step is `n` times a quarter of the root (Tailwind's `--spacing` is `0.25rem`), an `Nrem` length is `N`
- * times the root, and an `Npx` length is its own number; anything else has no resolved length. */
+ * step is `n` times a quarter of the root (Tailwind's `--spacing` is `0.25rem`). */
 export const resolvePxValue = (value: string, rootFontSizePx: number): number | null => {
 	const spacing = value.match(/^--spacing\(([\d.-]+)\)$/);
 	if (spacing) return Math.round(Number(spacing[1]) * rootFontSizePx * 0.25 * 1000) / 1000;

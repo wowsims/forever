@@ -59,8 +59,7 @@ export const ConsumeRow = ({ name, configs, children }: ConsumeRowProps) => {
 	const shown = useStoreSubscribe(useStoreField(CONSUMABLE_PICKER_FIELDS)!, () => configs.some(config => rowConfigShown(config, player)));
 
 	// Hide, never unmount: a hidden ConnectedIconEnumPicker is what zeroes the field it is bound to
-	// when the player can no longer use it, and restores the value if they can again. Returning
-	// null here skips that effect entirely, so a stale selection survives in the proto.
+	// when the player can no longer use it, and restores the value if they can again.
 	return (
 		<ConsumeRowView label={i18n.t(`settings_tab.consumables.${name}.title`)} hidden={!shown} nowrap={name === 'elixirs'}>
 			{children}

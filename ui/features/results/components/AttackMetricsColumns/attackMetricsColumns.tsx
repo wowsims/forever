@@ -53,15 +53,9 @@ export interface RateColumnConfig {
 /**
  * The column shapes the damage, damage-taken and healing tables share.
  *
- * Parameterises the **column set, its order and each column's bindings** — the caller writes its own
- * array and hands every builder the metric fields, the header key and the tooltip ids it wants. Fixes
- * only **how one named shape renders**: the Name cell's markup, the primary cell's bar and its two
- * class tokens, the `value (tick)` pair, and the rate column's `text-success` data cells.
- *
- * The three consumers already disagree on order (damage puts Crit % before Miss %, dtps after it) and
- * healing shares four of its twelve columns, so a builder keyed on a table *kind* would have been
- * bypassed. A column shape none of these covers is written inline with `createMetricsColumnHelper` and
- * dropped into the same array — adding an entry, never forking the markup.
+ * The caller writes its own array and hands every builder the metric fields, the header key and the
+ * tooltip ids it wants; a builder fixes only how one named shape renders. A column shape none of these
+ * covers is written inline with `createMetricsColumnHelper` and dropped into the same array.
  */
 export const attackMetricsColumns = {
 	name: () =>

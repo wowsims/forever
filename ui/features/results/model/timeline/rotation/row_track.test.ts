@@ -5,7 +5,7 @@ import type { ContentRow, RowItem } from './types';
 
 const span = (start: number, end: number) => ({ kind: 'aura', start, end }) as RowItem;
 
-// [0,1] [2,3] [4,20] [5,6] [7,8] — the third is long enough to still be on screen when the ones
+// [0,1] [2,3] [4,20] [5,6] [7,8]: the third is long enough to still be on screen when the ones
 // after it are not, which is what `maxRightUpTo` exists to find.
 const ITEMS = [span(0, 1), span(2, 3), span(4, 20), span(5, 6), span(7, 8)];
 const row = { items: ITEMS, maxRightUpTo: [1, 3, 20, 20, 20] } as ContentRow;

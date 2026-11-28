@@ -172,7 +172,7 @@ export interface StatSweepStatRun {
  * it. One such repeat can be a step too small to change any roll, so the stat stops going up after two in a row: the step
  * before the first repeat is the capped step, and the steps above the second are skipped, with `onSkip` told how many.
  * The steps below 0 always all run. `measure` hears each step with the count of steps run before it and whether a first
- * pass would make that step the second repeat, and `onUpdate` hears the run after each step.
+ * pass would make that step the second repeat.
  */
 export async function runSweepStat(
 	steps: readonly StatSweepStep[],

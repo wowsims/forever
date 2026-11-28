@@ -30,7 +30,7 @@ export interface SimWarning {
 
 // The slice of the sim host (app/individual_sim_ui.tsx) that features reach for.
 // Features must not name the host itself (see ui/README.md dependency
-// direction); `SimHostObject` implements these.
+// direction).
 export interface SimHost {
 	readonly sim: Sim;
 	readonly rootElem: HTMLElement;
@@ -67,8 +67,7 @@ export interface IndividualSimHost<SpecType extends Spec> extends SimHost {
 }
 
 // `instanceof SimHostObject` is not available to features (the host lives
-// in app/); narrow structurally instead. With the raid sim gone every host is an
-// individual one, but features still must not name it.
+// in app/); narrow structurally instead.
 export function isIndividualSimHost(simUI: SimHost): simUI is IndividualSimHost<any> {
 	return 'player' in simUI;
 }

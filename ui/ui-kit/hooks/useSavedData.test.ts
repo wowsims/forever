@@ -41,8 +41,7 @@ describe('useSavedData', () => {
 		]);
 	});
 
-	// One unreadable entry is the common case after a schema change; losing the whole slot to it
-	// would throw away every other saved set the user has.
+	// One unreadable entry is the common case after a schema change.
 	it('skips an entry the codec rejects and keeps the rest', () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		store({ good: { value: 1 }, bad: { value: 'nope' } });
@@ -54,7 +53,7 @@ describe('useSavedData', () => {
 	});
 
 	// The container guard is what makes this quiet: without it the array's indices walk into the
-	// codec one by one and each rejection warns, so a stale key would spam the console on every read.
+	// codec one by one and each rejection warns.
 	it('reports nothing, and warns nothing, for a key holding valid JSON of the wrong shape', () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		store(['raid', 'solo']);
@@ -84,8 +83,7 @@ describe('useSavedData', () => {
 		expect(read()).toEqual({ raid: { value: 9 }, solo: { value: 2 } });
 	});
 
-	// A save that rebuilt the record from `entries` would drop everything the codec rejected, so a
-	// single stale entry would be deleted by the user's next unrelated save.
+	// A save that rebuilt the record from `entries` would drop everything the codec rejected.
 	it('keeps an unreadable entry when something else is saved', () => {
 		vi.spyOn(console, 'warn').mockImplementation(() => {});
 		store({ stale: { value: 'nope' }, raid: { value: 1 } });

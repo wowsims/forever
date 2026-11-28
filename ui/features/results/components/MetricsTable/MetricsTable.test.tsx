@@ -20,7 +20,7 @@ interface Metric {
 const helper = createMetricsColumnHelper<Metric>();
 
 // The Name cell's text is deliberately the reverse of its model name's order, so a sort that read
-// the rendered cell — as `TableSorter` did — orders these three the other way round.
+// the rendered cell orders these three the other way round.
 const RENDERED_NAME: Record<string, string> = { Alpha: 'zzz', Beta: 'mmm', Charlie: 'aaa' };
 
 const columns = helper.columns([
@@ -192,7 +192,7 @@ describe('MetricsTable', () => {
 		expect(column(container, 1, parents)).toEqual(['10', '30', '70']);
 		expect(table(container).rows.filter(row => row.hasAttribute('data-child'))).toHaveLength(0);
 
-		// A new result is a new array, and every parent comes back open — as rebuilding the body did.
+		// A new result is a new array, and every parent comes back open.
 		// `autoResetExpanded` runs in a microtask after the row model rebuilds, hence the flush.
 		rerender(<MetricsTable rootTestId="test-metrics-root" columns={columns} rows={buildRows()} sortColumnId="value" hasResult={true} />);
 		await act(async () => {});

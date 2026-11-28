@@ -4,7 +4,7 @@ import type { Env } from '@sim/state/env';
 import { notifyStorageWrite } from '@ui-kit/hooks/useTypedLocalStorage';
 
 // The model layer writes through here, so announcing each write is what lets a React reader of the
-// same key see it. Without this the two doors into localStorage keep separate views of it.
+// same key see it.
 const notifyingStorage: Env['storage'] = {
 	getItem: key => window.localStorage.getItem(key),
 	setItem: (key, value) => {

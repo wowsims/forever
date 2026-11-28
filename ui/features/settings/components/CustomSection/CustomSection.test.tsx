@@ -3,8 +3,8 @@ import type { CustomSection as CustomSectionConfig } from '@sim/spec_config';
 import { act, render } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// The real source selects from a zustand store on `player.sim`; this file is about what the section
-// does with the answer, so the source is stubbed and driven directly.
+// The real source selects from a zustand store on `player.sim`; the source is stubbed and driven
+// directly.
 const source = vi.hoisted(() => {
 	const listeners = new Set<() => void>();
 	return { listeners, notify: () => listeners.forEach(listener => listener()) };

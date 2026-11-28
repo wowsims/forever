@@ -1,5 +1,5 @@
-// The SIML importer loads what the sim reads from the text into a host that records what it is given: which
-// categories, and the settings they come from. The sim's reading itself is tested in Go (sim/siml/api_test.go).
+// The SIML importer loads what the sim reads from the text into a host that records what it is given.
+// The sim's reading itself is tested in Go (sim/siml/api_test.go).
 import { Player } from '@generated/proto/api';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { ConsumesSpec, Cooldowns, EquipmentSpec, ItemSpec, Spec } from '@generated/proto/common';
@@ -33,8 +33,7 @@ vi.mock('@ui-kit/Toast', async importOriginal => ({
 }));
 
 const fromProto = vi.fn<(settings: IndividualSimSettings, categories: Array<SimSettingCategories>) => void>();
-// A page with nothing of its own, so what the importer loads is what the text holds. The cooldowns are read before
-// a rotation loads and set after it.
+// A page with nothing of its own, so what the importer loads is what the text holds.
 const toProto = () => IndividualSimSettings.create({ player: Player.create() });
 const cooldowns = { getSimpleCooldowns: () => Cooldowns.create(), setSimpleCooldowns: vi.fn() };
 const hostFor = (spec: Spec) => fakeHost({ player: { getSpec: () => spec, ...cooldowns }, toProto, fromProto });

@@ -116,8 +116,7 @@ describe('Field', () => {
 		expect(await screen.findByText('Seconds of human reaction time')).toBeTruthy();
 	});
 
-	// `labelTooltip` is typed `string | ReactElement`, so the guard is only reachable from
-	// an untyped caller — which is what the cast stands in for.
+	// `labelTooltip` is typed `string | ReactElement`, so the guard is only reachable from an untyped caller.
 	it('warns instead of silently dropping a tooltip it cannot render', () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		field({ labelTooltip: (() => 'from a function') as unknown as string });
@@ -127,8 +126,7 @@ describe('Field', () => {
 	});
 
 	// Base UI merges a forwarded ref with its own, so this pins that the merge honours a cleanup the
-	// ref callback returns instead of discarding it — without which anything a caller attaches to the
-	// root would be attached again on every re-render and never released.
+	// ref callback returns.
 	it('forwards a ref to the root, once, and runs the cleanup it returns on unmount', () => {
 		const attached: Array<Element> = [];
 		const detach = vi.fn();

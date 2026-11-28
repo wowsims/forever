@@ -35,8 +35,7 @@ export const EP_UNIT_STATS: UnitStat[] = UnitStat.getAll().filter(stat => {
 
 /**
  * The spec's EP pseudo stats with a weapon skill row for each hand whose weapon DPS it weighs and that holds a weapon,
- * when it shows melee weapon skill. A feral spec shows none, as its forms ignore weapon skill, and a hunter weighs no
- * melee weapon DPS. A hand with no weapon gets no row, as stat weights skip it and it would read 0.
+ * when it shows melee weapon skill. A hand with no weapon gets no row, as stat weights skip it and it would read 0.
  */
 export const withWeaponSkillEpPseudoStats = (
 	epPseudoStats: PseudoStat[],
@@ -54,8 +53,7 @@ export const isEpStat = (stat: UnitStat, { epStats, epPseudoStats }: EpStatSet):
 
 export const epFilterScope = (statSet: EpStatSet): StatFilterScope => ({
 	defaults: EP_UNIT_STATS.filter(stat => isEpStat(stat, statSet)),
-	// Every supported Stat, but only the pseudo-stats the spec weights: a row's Current EP cell writes straight into the
-	// player's EP weights, so an off-spec pseudo-stat row (Main Hand DPS on a caster) would let one entry skew
-	// every item and enchant EP in the gear picker.
+	// Only the pseudo-stats the spec weights: a row's Current EP cell writes straight into the player's EP weights, so an
+	// off-spec pseudo-stat row would let one entry skew every item and enchant EP in the gear picker.
 	universe: EP_UNIT_STATS.filter(stat => stat.isStat() || isEpStat(stat, statSet)),
 });

@@ -6,11 +6,9 @@ import type { ReactElement, ReactNode } from 'react';
 import { StrictMode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// The shell is stubbed on purpose. What is under test is the construct-once gate, not the shell —
-// and constructing the real one would need a Database and a worker.
+// The shell is stubbed; constructing the real one would need a Database and a worker.
 const constructions: Array<{ root: HTMLElement }> = [];
-// Read off `dom.root` inside the constructor, which runs before the render that hands the shell its
-// host — the only way to prove the header and `main` it names are the ones still in the document later.
+// Read off `dom.root` inside the constructor, which runs before the render that hands the shell its host.
 const constructedHeaders: Array<Element | null> = [];
 const constructedMains: Array<Element | null> = [];
 vi.mock('./individual_sim_ui', async () => {
@@ -24,8 +22,7 @@ vi.mock('./individual_sim_ui', async () => {
 			readonly disabled = false;
 			readonly simDisabled = false;
 			readonly individualConfig = { displayStats: [], epReferenceStat: 0 };
-			// The sidebar panel is React now; the shell only owns the store it drives and the registry
-			// the warnings zone reads.
+			// The shell only owns the store it drives and the registry the warnings zone reads.
 			readonly resultsPanel = {} as never;
 			readonly warnings = {} as never;
 			readonly raidSimResultsManager = {} as never;
@@ -39,9 +36,8 @@ vi.mock('./individual_sim_ui', async () => {
 	};
 });
 
-// The six real panes need a Database and a worker; what is under test is that a pane renders as an
-// ordinary child of the shell's main column, so the stub wraps one fake tab through the real `SimTabs`
-// — mirroring the real delegation on `host`, so the host's arrival is the same defs-appear transition.
+// The six real panes need a Database and a worker. The stub wraps one fake tab through the real `SimTabs`,
+// mirroring the real delegation on `host`, so the host's arrival is the same defs-appear transition.
 vi.mock('./SimTabsSection', async () => {
 	const { createElement } = await import('react');
 	const { SimTabDef } = await import('./SimTabDef');
@@ -80,15 +76,14 @@ vi.mock('./SettingsDialog', () => ({ SettingsDialog: () => <div className="setti
 // Needs the real spec registry to list every class; what is under test here is the shell's gate.
 vi.mock('./header/SimTitleDropdown', () => ({ SimTitleDropdown: () => <div className="sim-title-dropdown-root" /> }));
 
-// The toolbar asks a local sim host whether it is outdated, and happy-dom's hostname is localhost,
-// so it takes that branch. Left in flight, the request is aborted at teardown and the rejection is
-// printed; refused outright it takes the toolbar's own `.catch(noop)`, which is the real path.
+// The toolbar asks a local sim host whether it is outdated, and happy-dom's hostname is localhost. Left
+// in flight, the request is aborted at teardown and the rejection is printed.
 vi.stubGlobal('fetch', () => Promise.reject(new Error('no sim host')));
 
 const { SimApp } = await import('./SimApp');
 
-// The shell reads the metric toggles off a real store — `subscribeUiField` selects from it — and the
-// spec's shape decides the `sim-type--*` class, so both have to be genuine rather than empty casts.
+// The shell reads the metric toggles off a real store and the spec's shape decides the `sim-type--*` class,
+// so both have to be genuine.
 const sim = {
 	store: createSimStore(),
 	env: memoryEnv(),
@@ -101,8 +96,7 @@ const sim = {
 	// The shell renders the iterations picker itself, so this stub is its source too, not just the host's.
 	getIterations: () => 3000,
 };
-// `launch` is real because the shell derives the known-issues list from it — a launched spec earns
-// no status notice, so the toolbar's link ships hidden.
+// `launch` is real because the shell derives the known-issues list from it.
 const spec = {
 	isHealingSpec: false,
 	isTankSpec: false,
@@ -134,9 +128,8 @@ describe('SimApp', () => {
 	});
 
 	it('still constructs once under StrictMode, whose effects run twice', async () => {
-		// This is the whole reason the gate exists. Constructing the shell subscribes autosave with no
-		// unsubscribe and queues work on sim.waitForInit(), so a second construction cannot be undone
-		// by a cleanup function — it has to not happen.
+		// Constructing the shell subscribes autosave with no unsubscribe and queues work on
+		// sim.waitForInit(), so a second construction cannot be undone by a cleanup function.
 		const { container } = await mount(
 			<StrictMode>
 				<SimApp player={player} def={def} />
@@ -168,9 +161,8 @@ describe('SimApp', () => {
 		expect(document.querySelectorAll('.character-stats-root')).toHaveLength(1);
 	});
 
-	// The failure this guards against is silent: React re-renders when `simUI` is set, and if the
-	// skeleton were recreated in that second render, every element the shell imperatively filled
-	// during construction would be discarded with the old nodes.
+	// React re-renders when `simUI` is set, and if the skeleton were recreated in that second render,
+	// every element the shell imperatively filled during construction would be discarded with the old nodes.
 	it('keeps the same skeleton nodes when the constructed shell arrives', async () => {
 		const { container } = await mount(<SimApp player={player} def={def} />);
 		const dom = constructions[0];

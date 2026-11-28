@@ -9,8 +9,7 @@ export const amountHeader = (): Array<string | undefined> => [undefined, i18n.t(
 
 /**
  * Crushing blows land only on the player, so the damage-taken table is the one breakdown that shows
- * them. Every other such outcome — the `resisted*` family, blocked crits — applies to both
- * directions and needs no flag.
+ * them. Every other such outcome applies to both directions and needs no flag.
  */
 export interface AttackBreakdownOptions {
 	crush?: boolean;

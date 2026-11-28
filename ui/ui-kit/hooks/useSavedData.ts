@@ -53,8 +53,8 @@ export const savedDataEntries = <T>(value: unknown, codec: SavedDataCodec<T>): A
 	return parsed;
 };
 
-// One saved-data slot: `Record<name, toJson(data)>` under one key, which is the shape every
-// `SavedDataManager` has always written. Only the key and the codec vary between slots.
+// One saved-data slot: `Record<name, toJson(data)>` under one key. Only the key and the codec vary
+// between slots.
 export const useSavedData = <T>(key: string, codec: SavedDataCodec<T>): UseSavedDataResult<T> => {
 	const [stored, setStored] = useTypedLocalStorage<StoredRecord>(key, parseStoredRecord);
 	// Held in a ref so a caller may pass the proto inline without churning every callback below.
@@ -66,8 +66,8 @@ export const useSavedData = <T>(key: string, codec: SavedDataCodec<T>): UseSaved
 	const entries = useMemo(() => savedDataEntries(stored, codecRef.current), [stored]);
 	const storedNames = useMemo(() => Object.keys(stored ?? {}), [stored]);
 	// Every write patches the stored record rather than rebuilding it from `entries`, which would
-	// silently drop every entry the codec rejected the moment the user saves anything else. The ref moves with each
-	// write, so several in one handler keep one another's entries.
+	// drop every entry the codec rejected. The ref moves with each write, so several in one handler
+	// keep one another's entries.
 	const write = useCallback(
 		(patch: (record: StoredRecord) => StoredRecord) => {
 			const next = patch(storedRef.current ?? {});

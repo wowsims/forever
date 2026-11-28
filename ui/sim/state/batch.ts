@@ -1,10 +1,8 @@
 // Store-level batching for direct store subscribers.
 //
-// While a batch is open (depth > 0), listeners registered through
-// subscribeGated() are deferred; when the outermost batch closes each pending
-// listener fires once, seeing final state. Because subscribeWithSelector only
-// invokes a listener when its selected value changed, this yields exactly one
-// fire per changed field per batch, with no EventIDs.
+// While a batch is open, listeners registered through subscribeGated() are
+// deferred; when the outermost batch closes each pending listener fires once,
+// seeing final state.
 //
 // No imports here on purpose: this module sits at the bottom of the graph.
 

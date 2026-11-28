@@ -58,8 +58,6 @@ describe('ItemPickerCell', () => {
 		expect(anchors(container).map(element => element.dataset.whtticon)).toEqual(['false', 'false']);
 	});
 
-	// The defect: a tooltip request for the item that was in the slot a moment ago must not land
-	// on the cell after the slot moved on.
 	it('drops a tooltip that resolved after the equipped item changed', async () => {
 		const { container, equip } = setup();
 

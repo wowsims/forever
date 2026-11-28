@@ -15,7 +15,7 @@ import {
 } from './input_helpers';
 
 // The factories are generic over the message they write into, so a synthetic one keeps these tests
-// off the live buff protos: a numeric level plus a boolean flag.
+// off the live buff protos.
 type Message = { level: number; flag: boolean };
 
 const stub: StoreSubscribe = () => () => {};
@@ -35,8 +35,6 @@ const tristate = (extra: { showWhen?: (modObj: Message) => boolean } = {}) =>
 	);
 
 describe('makeTristateIconInput', () => {
-	// Every tristate and multistate buff factory routes through makeNumberIconInput, so a predicate it
-	// drops takes the faction gate on all of them with it.
 	it('keeps showWhen, which the picker hides on', () => {
 		const player = { level: 0, flag: false } as unknown as Player<any>;
 		const seen: Message[] = [];
@@ -49,7 +47,7 @@ describe('makeTristateIconInput', () => {
 });
 
 // The picker is handed the player, while a buff config is written against the party or raid it
-// reaches through, so every predicate has to be mapped on the way out or it can never fire.
+// reaches through.
 describe('makeBooleanIconInput', () => {
 	type Party = { buffs: Message; leaderPresent: boolean };
 
@@ -82,7 +80,7 @@ describe('makeBooleanIconInput', () => {
 });
 
 // A spec-level icon input's label and its tooltip are rendered only by its Field, so a factory that
-// drops either leaves no type error behind — the picker simply comes out unlabelled.
+// drops either leaves no type error behind.
 describe('icon input factories', () => {
 	const label = 'Primary option';
 	const labelTooltip = 'What the primary option controls.';
@@ -97,8 +95,7 @@ describe('icon input factories', () => {
 		makeRotationEnumIconInput: () => makeRotationEnumIconInput<any, number>({ ...frameProps, fieldName: 'primary' as never, values: [] }),
 	};
 
-	// react-tooltip resolves anchors document-wide by id, so two pickers sharing one leaves every
-	// labelled icon input on a tab showing all of its neighbours' tooltips at once.
+	// react-tooltip resolves anchors document-wide by id.
 	it('gives each picker a tooltip of its own', async () => {
 		const other = makeClassOptionsEnumIconInput<any, number>({
 			label: 'Secondary option',

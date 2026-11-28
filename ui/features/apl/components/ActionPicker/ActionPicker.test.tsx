@@ -78,9 +78,8 @@ describe('ActionPicker', () => {
 		expect(document.querySelector('[data-testid="apl-picker-builder-root"]')).not.toBeNull();
 	});
 
-	// The action half of the value/action cycle: ActionPicker -> FieldGroup -> AplField ->
-	// ActionFieldList -> ActionPicker (again), for a sequence's own action list. Importing
-	// ActionPicker cold, first, after a module registry reset is what makes the cycle observable.
+	// The action half of the value/action cycle. Importing ActionPicker cold, first, after a module
+	// registry reset is what makes the cycle observable.
 	it('resolves the action tree’s own module cycle when ActionPicker is imported cold, first', async () => {
 		vi.resetModules();
 		setup(

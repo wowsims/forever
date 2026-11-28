@@ -157,8 +157,8 @@ describe('SavedEpWeights', () => {
 			expect(chipNamed('Raiding').hasAttribute('data-active')).toBe(true);
 		});
 
-		// The only part of this that can lose data, and no gate covers it: an entry saved under the old
-		// storage key has to keep loading. Every stat, not just the one the rest of these tests carry.
+		// The only part of this that can lose data: an entry saved under the old
+		// storage key has to keep loading.
 		it('reads a set stored under the key the vanilla manager wrote', async () => {
 			window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ Raiding: MIXED_JSON }));
 			await renderManager();

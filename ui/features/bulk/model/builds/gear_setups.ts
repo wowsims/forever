@@ -77,8 +77,7 @@ export const bulkGearSetups = (player: Player<any>, gearSets: readonly BulkGearS
 	);
 };
 
-// Without Enchanting the request drops the ring enchants, so setups that become equal run as the first of them. Each
-// keeps the gear it holds as `ownGear`.
+// Without Enchanting the request drops the ring enchants, so setups that become equal run as the first of them.
 export const gearSetupsSentWith = (setups: readonly BulkGearSetup[], isEnchanter: boolean): BulkGearSetup[] =>
 	firstOfEachKey(isEnchanter ? setups : setups.map(setup => ({ ...setup, gear: setup.gear.withoutEnchanting(), ownGear: setup.gear })));
 

@@ -22,21 +22,18 @@ const SimActiveTabContext = createContext<string | null>(null);
 /** The open tab's id, apart from the list so that a tab change re-renders only what follows it. */
 export const useActiveSimTab = () => use(SimActiveTabContext);
 
-// `Tabs.Root` is the one React ancestor the strip, the panels and the sidebar's tab links all need; the
-// shell renders it around the whole sim container, so a pane is a plain child of `main`. It mounts with no
-// `defs` at all (before a host exists) and keeps mounting through every later render — swapping it out for a
-// plain fragment on the render `defs` first arrives would remount the sidebar, the header and `main`.
+// `Tabs.Root` mounts with no `defs` at all (before a host exists) and keeps mounting through every later
+// render: swapping it out for a plain fragment on the render `defs` first arrives would remount the sidebar,
+// the header and `main`.
 export const SimTabs = ({ defs, children }: SimTabsProps) => {
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const tabs = useMemo(() => childProps<SimTabDefProps>(defs), [defs]);
-	// The first tab is the one open on load, and an id no tab carries falls back to it. `null`, not
-	// `undefined`, so `Tabs.Root` is controlled from its first render (with no tabs yet) rather than
-	// flipping from uncontrolled once one exists.
+	// `null`, not `undefined`, so `Tabs.Root` is controlled from its first render (with no tabs yet).
 	const value = tabs.find(tab => tab.id === activeId)?.id ?? tabs[0]?.id ?? null;
 
 	// Base UI fires `onValueChange` for a user interaction only, so a pane opening a sibling tab
 	// reports the page view through here instead. Stable, so a shell re-render unrelated to the tabs
-	// (the sticky header toggling) does not re-render every mounted pane through `TabActivationContext`.
+	// does not re-render every mounted pane through `TabActivationContext`.
 	const activate = useCallback(
 		(id: string) => {
 			setActiveId(id);

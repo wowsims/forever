@@ -291,8 +291,7 @@ describe('ConnectedIconEnumPicker', () => {
 		const options = new Options();
 		options.value = 2;
 		options.visible = false;
-		// Store/restore is driven by the source subscription, so it never runs during construction, and
-		// the revision guard keeps StrictMode's second mount render from reading as a transition.
+		// The revision guard keeps StrictMode's second mount render from reading as a transition.
 		render(
 			<StrictMode>
 				<ConnectedIconEnumPicker modObject={options} config={configFor({ showWhen: (obj: Options) => obj.visible })} />
@@ -369,8 +368,7 @@ describe('ConnectedIconEnumPicker', () => {
 	});
 });
 
-// Asserted directly because a caller outside the component depends on it: a `.consumes-row` hides
-// when every picker in it is hidden, and it has only the configs to ask.
+// A `.consumes-row` hides when every picker in it is hidden, and it has only the configs to ask.
 describe('iconEnumPickerShown', () => {
 	const options = new Options();
 

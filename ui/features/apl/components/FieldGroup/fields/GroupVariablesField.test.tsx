@@ -26,9 +26,8 @@ let parentValue: { groupName?: string; variables: Array<any> };
 /** `groupName` names a group in `rotation.groups`; the referenced group defines the placeholders. */
 const setup = (opts: { groupName?: string; placeholders?: Array<string>; existingVariables?: Array<any>; variableNames?: Array<string> } = {}) => {
 	source.listeners.clear();
-	// Built as a plain object, not `APLRotation.create(...)`: `placeholderAction`'s `action.value`
-	// shape is what `visitObjects`/`isPlaceholder` (see placeholders.test.ts) walk, and `.create()`
-	// only knows the real `APLAction` field set — it would drop the fixture's `value` key.
+	// Built as a plain object, not `APLRotation.create(...)`: `.create()` only knows the real
+	// `APLAction` field set and would drop the fixture's `value` key.
 	const rotation = {
 		groups: opts.placeholders ? [{ name: 'g1', actions: opts.placeholders.map(placeholderAction), variables: [] }] : [],
 		valueVariables: (opts.variableNames || []).map(name => ({ name })),
@@ -167,9 +166,8 @@ describe('GroupVariablesField', () => {
 	});
 });
 
-// The reference outlives what it points at: deleting a group, or renaming one, leaves a reference
-// naming nothing, and a selected group can hold an existing variableRef assignment while declaring
-// no placeholder for it. None of those may cost the user the assignments they typed.
+// The reference outlives what it points at; none of these cases may cost the user the
+// assignments they typed.
 describe('GroupVariablesField — nothing to derive from', () => {
 	const assigned = () => ({
 		name: 'TargetDemonOrUndead',

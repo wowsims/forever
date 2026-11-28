@@ -44,8 +44,7 @@ describe('ActionLink', () => {
 		expect(anchor(container).getAttribute('rel')).toBe('noopener noreferrer');
 	});
 
-	// The anchor, not the icon, is what Wowhead's script reads; the tooltip it draws is appended to
-	// <body>, which is why a row inside the virtual list's transform is safe to hold one.
+	// The anchor, not the icon, is what Wowhead's script reads.
 	it('writes the resolved tooltip onto the anchor', async () => {
 		const { container } = render(<ActionLink actionId={actionId()} />);
 

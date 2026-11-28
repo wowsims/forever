@@ -10,9 +10,8 @@ import { addBulkItem, updateBulkItem } from './items';
 import { pickerEntryAt } from './picker_groups';
 
 /**
- * The selector modal's seam for a batch entry: equipping writes back into the batch instead of onto
- * the player, and the item is read out of the group each time, so a modal left open on an entry
- * that has just been replaced shows the replacement.
+ * The selector modal's seam for a batch entry. The item is read out of the group each time, so a
+ * modal left open on an entry that has just been replaced shows the replacement.
  */
 export const createBulkGearData = (player: Player<any>, bulkSlot: BulkSimItemSlot, index: number): GearData => {
 	const changeEvent = new Emitter<void>();

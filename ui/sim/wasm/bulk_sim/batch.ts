@@ -117,7 +117,7 @@ export const runBulkSimCandidateBatchOnWorkers = async (
 	};
 
 	// One scratch request shared by all queue tasks: each task mutates and serializes it in
-	// one synchronous window, so tasks never observe each other's mutations.
+	// one synchronous window.
 	const scratchRequest = RaidSimRequest.clone(request.baseRequest!);
 	const candidateQueue = queue<ConcurrentBulkSimCandidateTask, Error>(async ({ candidate, idx }) => {
 		if (signals.abort.isTriggered()) return;

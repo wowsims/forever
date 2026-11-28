@@ -17,7 +17,7 @@ const EMPTY: SortedInts = [];
 type TypeFilter = { kinds: ReadonlyArray<LogKind> } | { effect: DamageEffect } | { debug: true };
 
 // One row per token the Type filter offers. The dropdown lists these keys and matchType reads the
-// same rows, so a token cannot be offered without a matcher, or matched without being offered.
+// same rows.
 //
 // damage/heal/shield select an effect, not a kind: the 'damage' kind tags every damage-dealt line,
 // heals and shields included, so routing them through the kind index would make type:damage and
@@ -400,7 +400,7 @@ export class LogIndex {
 			case 'outcome':
 				return this.outcomeIndex.get(value as Outcome) ?? EMPTY;
 			// Picked from the index's own key set, so the lookup is the whole match: a substring
-			// scan also matched every longer name containing this one ("Target 1" hit "Target 10").
+			// scan would also match every longer name containing this one ("Target 1" hits "Target 10").
 			case 'spell':
 				return this.spellIndex.get(value) ?? EMPTY;
 			case 'source':

@@ -38,8 +38,7 @@ const result = (gear: Gear, avg: number, talents = CURRENT_TALENT_SETUP): BulkRa
 	settings: null,
 });
 
-// An encounter ranking the sets with the given helm ids at the given DPS, and the current gear at 1000, best first, all
-// with the current talents.
+// An encounter ranking the sets with the given helm ids at the given DPS.
 const encounter = (name: string, duration: number, ranked: Array<[number, number]>): BulkEncounterResults => {
 	const base = result(CURRENT, 1000);
 	const results = [...ranked.map(([id, avg]) => result(compareGearSet(id), avg)), base].sort((a, b) => b.dpsMetrics.avg - a.dpsMetrics.avg);
@@ -52,8 +51,7 @@ const encounter = (name: string, duration: number, ranked: Array<[number, number
 	};
 };
 
-// Run order Patchwerk, Council, Ragnaros; display order Council, Patchwerk, Ragnaros. Helm 2 ranks in
-// every encounter, helm 3 in Council and Ragnaros, the rest in one each.
+// Run order Patchwerk, Council, Ragnaros; display order Council, Patchwerk, Ragnaros.
 export const BULK_COMPARE_ENTRIES: BulkEncounterResults[] = [
 	encounter('Patchwerk', 300, [
 		[2, 1100],
@@ -79,8 +77,7 @@ const buildResult = (gearSet: string, id: number, avg: number, talents = CURRENT
 	settings: CURRENT_SETTINGS_SETUP,
 });
 
-// An encounter as a Builds batch with the Current bundle unticked stores it: no current gear's row, the sets best first,
-// the best the reference.
+// An encounter as a Builds batch with the Current bundle unticked stores it.
 const bestEncounter = (name: string, duration: number, ranked: BulkRankedResult[]): BulkEncounterResults => {
 	const results = [...ranked].sort((a, b) => b.dpsMetrics.avg - a.dpsMetrics.avg);
 	return {
@@ -98,8 +95,7 @@ const bestEncounter = (name: string, duration: number, ranked: BulkRankedResult[
 	};
 };
 
-// Three bundles over three encounters with the Current bundle unticked; display order Council, Patchwerk, Ragnaros. Fury
-// is best in Patchwerk and Ragnaros, Arms in Council, and Raid ranks only in Patchwerk and Council.
+// Three bundles over three encounters with the Current bundle unticked; display order Council, Patchwerk, Ragnaros.
 export const BULK_COMPARE_BEST_ENTRIES: BulkEncounterResults[] = [
 	bestEncounter('Patchwerk', 300, [
 		buildResult('Pre-BiS (Fury)', 2, 1100),

@@ -10,8 +10,8 @@ export interface SimRunState {
 	abort: () => Promise<void>;
 }
 
-// Observe or stop any kind of run, from anywhere. Deliberately returns no `start`: a run can only
-// be begun through the named hook that knows its arguments.
+// Deliberately returns no `start`: a run can only be begun through the named hook that knows
+// its arguments.
 export const useSimRun = (kind: SimRunKind): SimRunState => {
 	const sim = useSim();
 	const subscribe = subscribeRunState(sim, kind);

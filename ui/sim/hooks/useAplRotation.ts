@@ -7,8 +7,7 @@ import { usePlayer } from '../context/SimHostContext';
 /**
  * The rotation is the one player field with no value in the store: it lives on `Player.aplRotation`
  * and the editor mutates it in place, so its identity never changes and Zustand has nothing to
- * compare. The slice's `rotation` counter is the only change signal — hence a selector rather than a
- * returned object, so the result is stable across renders that are not rotation changes.
+ * compare. The slice's `rotation` counter is the only change signal.
  */
 export const useAplRotation = <T>(select: (rotation: APLRotation) => T): T => {
 	const player = usePlayer();

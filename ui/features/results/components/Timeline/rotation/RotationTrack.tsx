@@ -46,8 +46,7 @@ const NO_BAND: TrackBand = { left: 0, right: 0 };
 /**
  * The virtualizer is shown a scrollport `VERTICAL_PADDING_PX` taller on each edge than the real one,
  * which is how a pixel padding is expressed to something whose own `overscan` counts rows. The top
- * edge rides on `scrollMargin` — starting the measurements that much further down is the same as
- * reading the scroll offset that much earlier — and this carries the bottom.
+ * edge rides on `scrollMargin`, and this carries the bottom.
  *
  * The height is re-read rather than taken from the rect handed in, because `observeElementRect`
  * rounds the border box to whole pixels while row offsets are exact sums of `ROW_HEIGHTS`, so half a
@@ -101,9 +100,8 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 	const scrollsWithWindow = scrollport !== null && !(scrollport instanceof HTMLElement);
 
 	// Hiding a row must not empty the content, even for one commit: the browser clamps scrollTop
-	// against a document momentarily a whole rotation shorter,
-	// and the height comes back with the scroll where the clamp left it — an 1105px jump against a
-	// real change of one row's 32px. The virtualizer re-measures inside the render the toggle causes,
+	// against a document momentarily a whole rotation shorter, and the height comes back with the
+	// scroll where the clamp left it. The virtualizer re-measures inside the render the toggle causes,
 	// off a scroll offset and a scrollport rect that nothing has invalidated, so the spacers carry
 	// the full height across it.
 	const virtualizer = useVirtualizer<HTMLElement, HTMLElement>({
@@ -129,15 +127,12 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 		...band,
 	};
 
-	// Written during the render that reads it, because `nextFrame` is idempotent: handed back the
-	// frame it just produced, `sameFrame` returns it unchanged, so a repeated render cannot churn the
-	// item arrays the rows are memoized on.
+	// Written during the render that reads it, because `nextFrame` is idempotent: a repeated render
+	// cannot churn the item arrays the rows are memoized on.
 	const frameRef = useRef<RotationFrame>(EMPTY_FRAME);
-	// The rotation's own scroller measures zero while the chart view holds the pane hidden, and that
-	// is the one state its geometry cannot be re-read in. A frame already windowed against this order
-	// stays — emptying it would hand the shared scroller a shorter document to clamp against on the
-	// way back — but a rebuild landing while hidden brings an order nothing has been measured for,
-	// and that one waits for the pane to come back.
+	// The rotation's own scroller measures zero while the chart view holds the pane hidden. A frame
+	// already windowed against this order stays, as emptying it would hand the shared scroller a
+	// shorter document to clamp against; a rebuild landing while hidden waits for the pane to come back.
 	const held = frameRef.current.order === order ? frameRef.current : EMPTY_FRAME;
 	const frame = measurable ? nextFrame(frameRef.current, rowWindow, pps, order, rowFor) : held;
 	frameRef.current = frame;
@@ -161,9 +156,8 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 		});
 	}, []);
 
-	// Both widths follow --label-w — the corner is exactly that wide, the ruler takes the rest — so
-	// they only move on a resize or a relabel. Reading them per frame put a layout flush between the
-	// row window's writes and the ruler's read, twice per frame that the window moved.
+	// Both widths follow --label-w, so they only move on a resize or a relabel. Reading them per frame
+	// puts a layout flush between the row window's writes and the ruler's read.
 	const measureWidths = useCallback(() => {
 		labelWidth.current = cornerRef.current?.offsetWidth ?? 0;
 		rulerWidth.current = rulerViewportRef.current?.clientWidth ?? 0;
@@ -178,7 +172,7 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 	// laid out yet would cache the wrong scrollport. A non-`visible` overflow on either axis makes an
 	// element a scrollport for both, so the first ancestor that clips vertically is the one the rows
 	// are windowed against; the timeline's own scroller carries only the horizontal axis. Nothing
-	// listens to it for scroll here — that axis is the virtualizer's, and it subscribes itself.
+	// listens to it for scroll here: that axis is the virtualizer's, and it subscribes itself.
 	const attachOuter = useCallback(() => {
 		const root = rootRef.current;
 		if (attached.current || !root?.isConnected) return;
@@ -205,16 +199,14 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 		const clientWidth = scroller.clientWidth;
 		setPps(zoom.pps);
 		setMeasurable(clientWidth > 0);
-		// A zero-width scroller is a frame that cannot be measured — a collapsed pane, a hidden tab —
-		// so leave both measurements where the last real frame left them rather than empty the list.
+		// A zero-width scroller is a frame that cannot be measured, so leave both measurements where the
+		// last real frame left them rather than empty the list.
 		if (clientWidth) {
 			const next = trackBand(scrollLeft, clientWidth, labelWidth.current);
 			setBand(prev => (prev.left === next.left && prev.right === next.right ? prev : next));
 			const outerElement = outer.current;
-			// Where the rows begin inside the scrollport that moves them, in that scrollport's own
-			// content coordinates. Scrolling leaves it invariant, so it only moves when the layout
-			// above the rows does, which is what makes it safe to read on the horizontal axis' frame
-			// rather than on the vertical one the virtualizer owns.
+			// Where the rows begin in the scrollport's own content coordinates. Scrolling leaves it
+			// invariant, which is what makes it safe to read on the horizontal axis' frame.
 			const contentStart =
 				content.getBoundingClientRect().top + (outerElement ? outerElement.scrollTop - outerElement.getBoundingClientRect().top : window.scrollY);
 			setScrollMargin(contentStart + VERTICAL_PADDING_PX);
@@ -357,9 +349,7 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 	}, [model]);
 
 	// Measured off a copy of the widest label rather than assumed: the lg breakpoint that hides
-	// `.rotation-label-text` applies inside the pane, so the measurer has to live there too. It is
-	// mounted for the one frame the measurement takes and gone again, so the pane's resting DOM
-	// carries no measurer.
+	// `.rotation-label-text` applies inside the pane, so the measurer has to live there too.
 	const measureInput = `${longestLabel}|${paneWidth}`;
 	const [measureFor, setMeasureFor] = useState<string | null>(null);
 	const [seenMeasureInput, setSeenMeasureInput] = useState(measureInput);
@@ -392,8 +382,7 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 	}, []);
 	const onShowAll = useCallback(() => setHidden(prev => (prev.size ? NO_HIDDEN : prev)), []);
 
-	// One delegated handler rather than a listener per item: the track holds hundreds of them, and
-	// which one the pointer is over is a question the DOM can already answer.
+	// One delegated handler rather than a listener per item: the track holds hundreds of them.
 	const onItemOver = (event: ReactMouseEvent<HTMLDivElement>) => {
 		const element = (event.target as Element).closest<HTMLElement>('[data-item-index]');
 		const rowKey = element?.closest<HTMLElement>('[data-row-key]')?.dataset.rowKey;
@@ -407,9 +396,8 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 		else moveTip(event.clientX, bottom);
 	};
 
-	// Opens the entry that launched the cast, as long as the rotation is still the one that ran and the tooltip
-	// can place the entry in it. The entry resolves in the player's rotation, which then holds the run's rows,
-	// because the editor matches its rows by identity. A pan's click never arrives: `onClickCapture` stops it first.
+	// Opens the entry that launched the cast. The entry resolves in the player's rotation, which then holds the run's
+	// rows, because the editor matches its rows by identity. A pan's click never arrives: `onClickCapture` stops it first.
 	const simPlayer = usePlayer();
 	const activateTab = useActivateTab();
 	const onItemClick = (event: ReactMouseEvent<HTMLDivElement>) => {

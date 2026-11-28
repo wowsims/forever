@@ -6,10 +6,8 @@ import { useWideLayout } from './useWideLayout';
 export const StickyHeaderContext = createContext<HTMLElement | null>(null);
 
 /**
- * A `position: sticky` toolbar that reports whether it is currently pinned, as `.stuck`.
- *
- * Parameterises the element type and takes the header from `StickyHeaderContext`; fixes the
- * observer — the toolbar has stuck exactly when it no longer fits whole under that header.
+ * A `position: sticky` toolbar that reports whether it is currently pinned, as `.stuck`: it has
+ * stuck exactly when it no longer fits whole under the header from `StickyHeaderContext`.
  */
 export const useStickyToolbar = <T extends HTMLElement>() => {
 	const header = useContext(StickyHeaderContext);

@@ -48,8 +48,7 @@ export interface InputSection {
 }
 
 // An extra settings-tab section, declared as data. Core renders it (see
-// `SettingsTab.buildCustomSettingsSections`) with the same ContentBlock and
-// picker construction path the standard sections use — a spec never builds DOM.
+// `SettingsTab.buildCustomSettingsSections`); a spec never builds DOM.
 export interface CustomSection<SpecType extends Spec> {
 	// Stable identifier. Doubles as the ContentBlock css class when `className`
 	// is not given.
@@ -61,8 +60,7 @@ export interface CustomSection<SpecType extends Spec> {
 	description?: string;
 	// Css class for the section's ContentBlock; this is what stylesheets hook on.
 	className?: string;
-	// Hides the whole section when this evaluates to false, mirroring `showWhen`
-	// on an individual input.
+	// Hides the whole section when this evaluates to false.
 	when?: (player: Player<SpecType>) => boolean;
 	// Icon pickers, rendered into a group container above `inputs`.
 	iconInputs?: Array<IconInputs.IconInputConfig<Player<SpecType>, any>>;
@@ -112,7 +110,6 @@ export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConf
 	overwriteDisplayStats?: (player: Player<SpecType>) => StatWrites;
 
 	// This can be used as a shorthand for setting "defaults".
-	// Useful for when the defaults should be the same as the preset build options
 	defaultBuild?: PresetBuild;
 	defaults: {
 		gear: EquipmentSpec;
@@ -124,17 +121,14 @@ export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConf
 		/**
 		 * Allows specification of soft cap breakpoints for one or more stats.
 		 *
-		 * @remarks
-		 * These function differently from the hard caps taken from the sim UI in a few ways:
+		 * The specified breakpoints are lower priority than hard caps, and evaluated only after
+		 * the hard cap constraints have been solved first.
 		 *
-		 * Firstly, the specified breakpoints are lower priority than hard caps, and
-		 * evaluated only after the hard cap constraints have been solved first.
-		 *
-		 * Secondly, these constraints are evaluated in the order specified by the configuration
-		 * Array rather than all at once. So once the hard caps have been respected, the
-		 * closest breakpoint for the *first* listed soft capped stat is optimized against
-		 * while ignoring any others. Then the solution is used to identify the closest
-		 * breakpoint for the second listed stat (if present), etc.
+		 * These constraints are evaluated in the order specified by the configuration Array rather
+		 * than all at once. So once the hard caps have been respected, the closest breakpoint for
+		 * the *first* listed soft capped stat is optimized against while ignoring any others. Then
+		 * the solution is used to identify the closest breakpoint for the second listed stat (if
+		 * present), etc.
 		 */
 		softCapBreakpoints?: StatCap[];
 		breakpointLimits?: Stats;
@@ -170,13 +164,12 @@ export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConf
 	rotationInputs?: InputSection;
 	rotationIconInputs?: Array<IconInputs.IconInputConfig<Player<SpecType>, any>>;
 	// Hides the Cooldowns block on the simple rotation tab. Set it where the spec's
-	// `simpleRotation` generator ignores its `Cooldowns` argument, so the picker cannot
-	// affect the generated APL and would only mislead.
+	// `simpleRotation` generator ignores its `Cooldowns` argument.
 	hideSimpleCooldowns?: boolean;
 	includeBuffDebuffInputs: Array<any>;
 	excludeBuffDebuffInputs: Array<any>;
 	otherInputs: InputSection;
-	// Currently, many classes don't support item swapping, and only in certain slots.
+	// Many classes don't support item swapping, and only in certain slots.
 	// So enable it only where it is supported.
 	itemSwapSlots?: Array<ItemSlot>;
 
@@ -197,16 +190,14 @@ export interface IndividualSimUIConfig<SpecType extends Spec> extends PlayerConf
 	};
 }
 
-// A setting whose value is derived from other settings (e.g. Monk stance from
-// talents, DK AMS intake from the encounter). `apply` runs once at startup and
-// again whenever `subscribe`'s source fires.
+// A setting whose value is derived from other settings. `apply` runs once at
+// startup and again whenever `subscribe`'s source fires.
 export interface DerivedSetting<SpecType extends Spec> {
 	subscribe: (player: Player<SpecType>, sim: Sim) => StoreSubscribe;
 	apply: (player: Player<SpecType>, sim: Sim) => void;
 }
 
-// The behaviour slots a spec declares on top of its config data. All optional:
-// a spec that needs none of them declares none.
+// The behaviour slots a spec declares on top of its config data.
 export interface SpecBehaviors<SpecType extends Spec> {
 	// Wires the Reforge Optimizer. A function form receives the sim host, for
 	// options that need to call back into it.
@@ -233,9 +224,8 @@ export function defineSpec<SpecType extends Spec>(def: SpecDefinition<SpecType>)
 
 // Removes dev-only gearsets from the gear presets and from the builds, dropping a
 // build left empty. The default gear stays only when it equals a production gearset
-// the spec lists, so a default taken from an unlisted preset is cleared as well.
-// Equal by value, as a spec's defaults.siml reads its gear into a message of its own.
-// `ui/app/spec_entry.tsx` applies it outside the dev server and the previews.
+// the spec lists. Equal by value, as a spec's defaults.siml reads its gear into a
+// message of its own.
 export function withoutDevOnlyGear<SpecType extends Spec>(def: SpecDefinition<SpecType>): SpecDefinition<SpecType> {
 	const gear = def.presets.gear.filter(preset => !preset.devOnly);
 	const builds = def.presets.builds

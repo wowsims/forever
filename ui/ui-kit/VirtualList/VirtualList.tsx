@@ -5,13 +5,11 @@ import { WINDOW_SCROLLER } from './window_scroller';
 
 export interface VirtualListProps {
 	count: number;
-	// Every row is exactly this tall. Rows are never measured — dynamic measurement would re-render
+	// Every row is exactly this tall. Rows are never measured: dynamic measurement would re-render
 	// on every row that reports a different height, which is an easy infinite loop.
 	rowHeight?: number;
 	// The element that scrolls. May be an ancestor the list shares with other content, or `window`
-	// when the list scrolls with the page. Returning `window` switches the list into window mode, so
-	// a caller resolving its scroller with `findScrollParent` may report either without knowing which
-	// it will be until the list is in the document.
+	// when the list scrolls with the page. Returning `window` switches the list into window mode.
 	getScrollElement: () => HTMLElement | Window | null;
 	// Pixels of a shared scroller above the first row: a sticky header, a filter bar. In window
 	// mode this is the list's own offset down the document.

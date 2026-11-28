@@ -50,10 +50,6 @@ interface FieldBase {
 
 /**
  * A field descriptor resolved to the picker shape the view has to build.
- *
- * The descriptor types collapse to thirteen kinds: the fixed-enum types are one
- * `enum`, the three alias descriptors (`minIcd`, `reactionTime`, `useDotBaseValue`) are a `number`
- * and two `boolean`s, and `variableName`/`groupName` are one `rotationName` over two sources.
  */
 export type AplFieldSpec =
 	| (FieldBase & { kind: 'boolean' })
@@ -207,8 +203,7 @@ const newAplValue = () => APLValue.create({ uuid: { value: randomUUID() } });
  * Resolves one DOM-free descriptor to the picker shape, its label and its unset-field default.
  *
  * One quirk is preserved rather than corrected, because the rotations users have saved were
- * built against it: **`booleanFieldConfig`'s `label` argument wins over `options.label`**, because
- * it is assigned after the options object is spread. No caller passes both, but that is the rule.
+ * built against it: **`booleanFieldConfig`'s `label` argument wins over `options.label`**.
  */
 export const resolveField = (descriptor: APLFieldDescriptor, player: Player<any>): AplFieldSpec => {
 	const options = 'options' in descriptor ? descriptor.options : undefined;
@@ -312,9 +307,8 @@ export const resolveField = (descriptor: APLFieldDescriptor, player: Player<any>
 			return { ...base, kind: 'value', field: descriptor.field, newValue: newAplValue };
 		case 'valueList':
 			return { kind: 'valueList', field: descriptor.field, newValue: () => [] };
-		// `actionFieldConfig` mints an `APLValue`, not an `APLAction`, for an unset inner action. Only
-		// `schedule.innerAction` uses it and the message is replaced the moment a kind is picked, so the
-		// mismatch never reaches the sim — it is left as it is.
+		// `actionFieldConfig` mints an `APLValue`, not an `APLAction`, for an unset inner action. The
+		// message is replaced the moment a kind is picked, so the mismatch never reaches the sim.
 		case 'action':
 			return { kind: 'action', field: descriptor.field, newValue: newAplValue };
 		case 'actionList':

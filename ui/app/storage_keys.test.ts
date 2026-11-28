@@ -13,8 +13,7 @@ import { describe, expect, it } from 'vitest';
 import { PRESET_FILTER_STORAGE_KEY } from './storage_keys';
 
 // The keys every saved set in a user's browser is filed under, spelled out for one spec. A key that
-// changes name here loses every saved set the user has under the old one, and nothing else in the
-// suite would notice.
+// changes name here loses every saved set the user has under the old one.
 const EXPECTED_KEYS = {
 	getSettingsStorageKey: '__forever_balance_druid__currentSettings__',
 	getSavedGearStorageKey: '__forever_balance_druid__savedGear__',

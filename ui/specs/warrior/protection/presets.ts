@@ -20,21 +20,11 @@ export const ROTATION_DEFAULT = PresetUtils.makePresetAPLRotation('Generic', Gen
 
 // Dungeon and world drops, quest rewards, the warrior's dungeon tier set, crafted items whose reagents include no raid
 // materials and vendor items; no reputation, PvP or Silithus rewards, except one exalted PvP faction, Alterac Valley.
-// Built for threat at the cost of more damage taken. Ironfoe drops in Blackrock Depths, Battleborn Armbraces,
-// Handcrafted Mastersmith Leggings and Heart of Wyrmthalak in Blackrock Spire, and Satyr's Bow in Dire Maul; Mark of
-// Fordring is the reward for In Dreams. The Immovable Object and Don Julio's Band are sold by the Alterac Valley
-// quartermasters, Howler's Furs, Cutthroat's Signet and Adaptive Combat Assistant by the Undermine Trader in
-// Stranglethorn Vale, and the Breastplate and Gauntlets of Heroism by the Battlegear of Heroism vendors in Orgrimmar
-// and Ironforge. Spaulders of Containment, Girdle of Extracted Answers and Furbolg Berserker's Boots have no source in
-// the item database.
+// Built for threat at the cost of more damage taken.
 export const PreBiSOffensiveGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSOffensiveGearJson, { group: 'Offensive' });
 
 // The same sources, built to take less damage at a small cost in threat; its defense stays far below the 140 that
-// makes a level 63 boss unable to crit. Ironfoe drops in Blackrock Depths and Handcrafted Mastersmith Leggings in
-// Blackrock Spire; Royal Seal of Eldre'Thalas is the reward for Codex of Defense in Dire Maul. The Immovable Object and
-// Don Julio's Band are sold by the Alterac Valley quartermasters, Stalwart Cloak, Valiant's Waistguard, Cutthroat's
-// Signet and Adaptive Combat Assistant by the Undermine Trader, and the Heroism pieces by the Battlegear of Heroism
-// vendors in Orgrimmar and Ironforge. Horn of Ve'han and Furbolg Berserker's Boots have no source in the item database.
+// makes a level 63 boss unable to crit.
 export const PreBiSBalancedGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSBalancedGearJson, { group: 'Balanced' });
 
 export const OffensiveTalents = PresetUtils.makePresetTalents('Offensive', SavedTalents.create({ talentsString: '3-0505000501-050032120331021351' }));

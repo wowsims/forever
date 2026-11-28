@@ -42,8 +42,7 @@ export const bulkSimStageConfigs: ConcurrentBulkSimStageConfig[] = BULK_SIM_STAG
 export const bulkSimFinalistStageConfig: ConcurrentBulkSimStageConfig = { stage: BulkSimStage.BulkSimStageFinalist, targetErrorPct: 0 };
 
 // Scales the survivor cap for large candidate sets, mirroring
-// getBulkSimStageMaxSurvivors in sim/core/bulk/stage.go. Returns undefined for
-// uncapped stages. The stage's cap is at least the run's top results.
+// getBulkSimStageMaxSurvivors in sim/core/bulk/stage.go.
 export const getBulkSimStageMaxSurvivors = (config: ConcurrentBulkSimStageConfig, candidateCount: number, topResults: number): number | undefined => {
 	if (config.maxSurvivors === undefined) return undefined;
 	const maxSurvivors = Math.max(config.maxSurvivors, topResults);
@@ -81,9 +80,7 @@ const getBulkSimStageIterations = (config: ConcurrentBulkSimStageConfig, baselin
 };
 
 // Runs `iterations` of the baseline gear at `seedOffset` and folds the result into
-// `carried` (undefined when there is nothing carried yet). Progress is reported as
-// completedSimsBase sims done plus this segment's iterations on top of
-// completedIterationsBase. An errored segment is returned as-is for the caller to check.
+// `carried` (undefined when there is nothing carried yet).
 const runBulkSimBaselineSegment = async (
 	request: BulkSimRequest,
 	carried: ConcurrentBulkSimCandidateResult | undefined,
@@ -344,11 +341,9 @@ export const runConcurrentBulkSimStage = async (
 		iterations,
 	);
 	baseline = adaptedStage.baseline;
-	// Only a rerun produces a fresh array; every other path returns the one passed in, so
-	// the common case would copy every element onto itself. Replace in place (the callers
-	// below hold this reference) by assignment rather than a spread: the low stage runs on
-	// the full candidate list, and one argument per candidate throws RangeError past the
-	// engine's argument limit.
+	// Only a rerun produces a fresh array. Replace in place (the callers below hold this
+	// reference) by assignment rather than a spread: one argument per candidate throws
+	// RangeError past the engine's argument limit.
 	if (adaptedStage.results !== results) {
 		for (let i = 0; i < adaptedStage.results.length; i++) {
 			results[i] = adaptedStage.results[i];
@@ -371,7 +366,7 @@ export const runConcurrentBulkSimStage = async (
 // displayed top results (and the baseline) until every adjacent pair of the final ranking is
 // statistically separated or the extra-iteration budget is spent, so near-ties do not flip
 // order between runs with different seeds. When the stage runs, the returned results are the
-// refined, DPS-sorted finalists - they ARE the displayed set.
+// refined, DPS-sorted finalists.
 export const runConcurrentBulkSimFinalistStage = async (
 	request: BulkSimRequest,
 	baseline: ConcurrentBulkSimCandidateResult,
@@ -384,9 +379,8 @@ export const runConcurrentBulkSimFinalistStage = async (
 	let finalists = topBulkSimResults(results, topResults);
 	if (finalists.length < 2 || !baseline.dpsMetrics) return { baseline, results };
 
-	// Total iterations run so far comes from the paired value arrays themselves, which also
-	// makes the lockstep precondition explicit: every finalist and the baseline must carry
-	// the same number of per-iteration values or pairing (and this stage) cannot help.
+	// Every finalist and the baseline must carry the same number of per-iteration values or
+	// pairing (and this stage) cannot help.
 	const iterations = baseline.dpsMetrics.allValues.length;
 	if (iterations === 0 || finalists.some(finalist => (finalist.dpsMetrics?.allValues.length ?? 0) !== iterations)) {
 		return { baseline, results };

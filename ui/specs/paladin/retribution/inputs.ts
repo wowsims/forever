@@ -46,8 +46,7 @@ const TWIST_STACKS: Record<Twist, { own: number; righteousness: number }> = {
 	[PaladinSealTwist.SealTwistFury]: { own: 1, righteousness: 3 },
 };
 
-// The twist the picker shows under Unsealed Wrath: Seal of Fury when picked, otherwise Seal of Command when it is
-// talented, and none without it.
+// The twist the picker shows under Unsealed Wrath.
 const playerTwist = (player: Player<Spec.SpecRetributionPaladin>): PaladinSealTwist =>
 	player.getSimpleRotation().uwTwist === PaladinSealTwist.SealTwistFury
 		? PaladinSealTwist.SealTwistFury
@@ -65,8 +64,8 @@ export const furyStacks = (rotation: RetributionPaladin_Rotation): number => ech
 // reads as Seal of Command's.
 export const righteousnessStacks = (rotation: RetributionPaladin_Rotation, twistsFury: boolean): number =>
 	echoStacks(rotation.uwSorStacks, TWIST_STACKS[twistsFury ? PaladinSealTwist.SealTwistFury : PaladinSealTwist.SealTwistCommand].righteousness);
-// Seal of Righteousness without Seal of Command talented, whatever is picked. With the talent, the picked seal, or with
-// none picked Seal of Command, which sims highest with a slow two-hander for Holy Shock too.
+// With the talent, the picked seal, or with none picked Seal of Command, which sims highest with a slow two-hander for
+// Holy Shock too.
 export const chosenSeal = (rotation: RetributionPaladin_Rotation, sealOfCommand: boolean): PaladinSeal => {
 	if (!sealOfCommand) return PaladinSeal.SealOfRighteousness;
 	return rotation.seal === PaladinSeal.SealUnknown ? PaladinSeal.SealOfCommand : rotation.seal;
@@ -129,8 +128,7 @@ export const RotationIconInputs = [
 		// The twist follows the Seal of Command talent.
 		storeField: ROTATION_AND_TALENTS,
 		getValue: playerTwist,
-		// Picking another twist starts it from its own Echo stacks. No twist clears the Echo of Righteousness stacks,
-		// so the twist that follows it starts from its own.
+		// No twist clears the Echo of Righteousness stacks, so the twist that follows it starts from its own.
 		setValue: (player: Player<Spec.SpecRetributionPaladin>, newValue: PaladinSealTwist) => {
 			if (newValue === playerTwist(player)) return;
 			const rotation = player.getSimpleRotation();

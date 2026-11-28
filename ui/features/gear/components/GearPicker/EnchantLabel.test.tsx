@@ -23,8 +23,6 @@ describe('EnchantLabel', () => {
 		await waitFor(() => expect(anchor(container).dataset.wowhead).toBe('spell=10'));
 	});
 
-	// The defect: a tooltip request for the enchant that was in the slot a moment ago must not
-	// land on the label after the slot moved on.
 	it('drops a tooltip that resolved after the enchant changed', async () => {
 		const { container, rerender } = render(<EnchantLabel className="item-picker-enchant" enchant={enchant(1)} />);
 

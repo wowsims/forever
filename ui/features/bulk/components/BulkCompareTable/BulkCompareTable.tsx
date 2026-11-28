@@ -125,8 +125,7 @@ const BundleName = ({ id, name, parts }: { id: string; name: string; parts: Bulk
 	</>
 );
 
-// Each encounter tints on its own scale, so the ends name what a tint means. The strip holds only the tints from the
-// lowest any cell takes to the highest, so a side no cell reaches is left out.
+// Each encounter tints on its own scale, so the ends name what a tint means.
 const Legend = ({ lowTint, highTint }: BulkCompareTableLegend) => (
 	<div className="flex flex-wrap items-center gap-2 text-xs text-muted">
 		{t(lowTint < 0 ? 'table_legend_loss' : 'table_legend_none')}
@@ -151,9 +150,8 @@ export const BulkCompareTable = ({ columns, rows, legend, builds, againstBest = 
 		<div className="flex min-h-0 min-w-0 flex-col gap-4">
 			<p className="mb-0 text-sm">{t(againstBest ? 'table_caption_best' : 'table_caption')}</p>
 			<div className="@container relative min-h-0 min-w-0 overflow-auto">
-				{/* A fixed layout gives the set column its width and shares the rest equally among the encounters. Below md
-				every column takes a third of the scroller's width, so two encounters show next to the set column and the rest
-				scroll sideways. */}
+				{/* Below md every column takes a third of the scroller's width, so two encounters show next to the set column
+				and the rest scroll sideways. */}
 				<Table
 					variant="plain"
 					dense

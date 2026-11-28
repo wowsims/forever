@@ -12,8 +12,7 @@ import { Movement } from './Movement';
 const state = vi.hoisted(() => ({ result: null as SimResultData | null }));
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => state.result }));
 
-// One player `p` at raid index 0, 12 yd out at the start, with a cat and a ranged weapon of the given type; `logs` is
-// the run's log as the sim prints it.
+// One player `p` with a cat and a ranged weapon of the given type.
 const runOf = async (text: string, ranged = RangedWeaponType.RangedWeaponTypeBow): Promise<SimResultData> => {
 	const logs = await parseAll(RaidSimResult.create({ logs: text.trim().replace(/^\s+/gm, '') }));
 	const of = (pet: boolean) => logs.filter((log: CombatLog) => log.source && log.source.isPet === pet);

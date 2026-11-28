@@ -4,7 +4,7 @@ export type LocalStorageParser<T> = (value: unknown) => T | undefined;
 
 /**
  * The raw string per key, shared by every hook instance. `useSyncExternalStore` needs a snapshot that
- * is stable between notifications and a string is; parsing sits above it, keyed on that string.
+ * is stable between notifications and a string is.
  */
 const raw = new Map<string, string | null>();
 const listeners = new Map<string, Set<() => void>>();
@@ -25,9 +25,8 @@ const refresh = (key: string) => {
 };
 
 /**
- * The other door into the same storage: `Env.storage` writes from the model layer (the settings
- * envelope, stat weights, bulk settings) land here too, so a React reader of that key sees them.
- * `ui/app/browser_env.ts` is what routes them through.
+ * The other door into the same storage: `Env.storage` writes from the model layer land here too, so
+ * a React reader of that key sees them.
  */
 export const notifyStorageWrite = (key: string) => refresh(key);
 
@@ -55,8 +54,8 @@ const subscribeTo = (key: string) => (notify: () => void) => {
 	};
 };
 
-// While nobody is subscribed nothing is keeping the cache honest — storage can move underneath it — so
-// the cached string is only trusted once a listener exists to refresh it.
+// While nobody is subscribed storage can move underneath the cache, so the cached string is only
+// trusted once a listener exists to refresh it.
 const snapshotOf = (key: string) => () => {
 	if (!listeners.has(key) || !raw.has(key)) raw.set(key, readKey(key));
 	return raw.get(key) ?? null;
@@ -83,7 +82,7 @@ export const useTypedLocalStorage = <T>(key: string, parse: LocalStorageParser<T
 	}, [stored]);
 
 	// Both writes refresh unconditionally: when storage is blocked nothing was written, and re-reading
-	// is what leaves every reader on the old value rather than on a value only this tab believes in.
+	// is what leaves every reader on the old value.
 	const set = useCallback(
 		(next: T) => {
 			let written = true;

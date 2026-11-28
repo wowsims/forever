@@ -138,10 +138,9 @@ describe('StringField', () => {
 		});
 
 		// The field listens for the native `change` event, not React's onChange (which is the input
-		// event) and not onBlur. Both alternatives look equivalent and are not: typing would commit per
-		// keystroke, and onBlur is a delegated listener that never fires when the close path detaches
-		// the node, which is what happens to the bonus-stat popover on Escape. Only half of that is
-		// reachable under happy-dom; this covers that half.
+		// event) and not onBlur: typing would commit per keystroke, and onBlur is a delegated listener
+		// that never fires when the close path detaches the node. Only half of that is reachable under
+		// happy-dom.
 		it('does not commit while the field is being typed into, only on the native change event', () => {
 			render(<Harness initial="abc" />);
 

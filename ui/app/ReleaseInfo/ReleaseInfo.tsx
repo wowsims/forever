@@ -12,8 +12,7 @@ export interface ReleaseInfoProps {
 	className?: string;
 }
 
-// The game build, the build date and the commit of the running page; the game build and the commit are
-// left out when the build could not read them. The caller sets the text size and colour.
+// The game build, the build date and the commit of the running page.
 export const ReleaseInfo = ({ gameVersion = BUILD_INFO.gameVersion, withCommit = true, className }: ReleaseInfoProps) => (
 	<p className={clsx('m-0', className)}>
 		{joinParts([

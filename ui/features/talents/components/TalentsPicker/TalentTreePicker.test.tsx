@@ -7,8 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { buildTalentGraph } from '../../model/tree_graph';
 import { TalentTreePicker } from './TalentTreePicker';
 
-// The icon comes from the database, which no unit test has; echoing the id back is what lets the
-// icon cases see what was asked for, and recording the ranks shows what the lookup was keyed on.
+// The icon comes from the database, which no unit test has.
 const { lookedUpRanks } = vi.hoisted(() => ({ lookedUpRanks: [] as Array<number | undefined> }));
 
 vi.mock('@sim/hooks/useActionId', () => ({
@@ -232,8 +231,6 @@ describe('TalentTreePicker mouse', () => {
 });
 
 describe('TalentTreePicker touch', () => {
-	// The touch handlers are native listeners rather than React props precisely so this holds: React
-	// attaches touchstart passively, where preventDefault is a no-op.
 	it('prevents the default on touchstart, which a passive React listener could not', () => {
 		tree('');
 		const start = createEvent.touchStart(talents()[0]);

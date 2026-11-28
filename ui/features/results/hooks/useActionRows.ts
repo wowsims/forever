@@ -11,8 +11,7 @@ const NO_ROWS: Array<MetricRow<ActionMetrics>> = [];
 
 /**
  * The last result and the rows an action table builds from it, ranks grouped as the toolbar has it.
- * `groupsOf` and `shouldCollapse` must be stable, such as module-level functions, or the rows rebuild on
- * every render. Without `shouldCollapse`, a pet's single action still sits under the pet.
+ * `groupsOf` and `shouldCollapse` must be stable, or the rows rebuild on every render. Without `shouldCollapse`, a pet's single action still sits under the pet.
  */
 export const useActionRows = (
 	groupsOf: (resultData: SimResultData) => Array<Array<ActionMetrics>>,

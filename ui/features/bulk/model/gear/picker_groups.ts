@@ -25,8 +25,8 @@ const canStackTwoCopies = (bulkSlot: BulkSimItemSlot, item: EquippedItem): boole
 
 // True when the slot already holds as many copies of this exact item as can be worn.
 // Items sharing a limit category are NOT rejected: only one of them can be worn at a time, but
-// listing several is how you compare them (Evil Eye of Galakras ships six ilvl tiers, all
-// category 326), and the candidate generator drops the conflicting pairings itself.
+// listing several is how you compare them, and the candidate generator drops the conflicting
+// pairings itself.
 const isDuplicateOfExisting = (bulkSlot: BulkSimItemSlot, entries: readonly BulkPickerEntry[], item: EquippedItem): boolean => {
 	const maxCopies = canStackTwoCopies(bulkSlot, item) ? 2 : 1;
 	return entries.filter(entry => entry.item.id === item.id).length >= maxCopies;
@@ -37,7 +37,7 @@ const isDuplicateOfExisting = (bulkSlot: BulkSimItemSlot, entries: readonly Bulk
  *
  * An equipped item is already part of every candidate, so a batch entry for the same item adds
  * nothing and renders as a phantom duplicate. Mirrors the backend, which drops the user-added
- * copy in initSelectedItems — except where equipped + added is what makes a same-item-in-both-
+ * copy in initSelectedItems, except where equipped + added is what makes a same-item-in-both-
  * slots combo possible.
  */
 export const redundantAddedIndices = (bulkSlot: BulkSimItemSlot, entries: readonly BulkPickerEntry[], equippedItem: EquippedItem): number[] =>
@@ -53,8 +53,7 @@ export const removePickerEntry = (entries: readonly BulkPickerEntry[], index: nu
  * One slot group's entries with `item` at `index`, in render order, or `'duplicate'`.
  *
  * Equipped entries are unshifted and user entries pushed: the equipped pair ends up reversed
- * against slot order, and the batch's own items follow in index order. Adding an equipped entry
- * also drops the batch entries it makes redundant.
+ * against slot order, and the batch's own items follow in index order.
  */
 export const addPickerEntry = (
 	bulkSlot: BulkSimItemSlot,
@@ -63,7 +62,7 @@ export const addPickerEntry = (
 	item: EquippedItem,
 ): readonly BulkPickerEntry[] | 'duplicate' => {
 	// Equipped entries (index < 0) report what is worn rather than offering a choice, so they
-	// always render — the guard must never hide one. They evict redundant batch entries instead.
+	// always render; the guard must never hide one. They evict redundant batch entries instead.
 	if (index < 0) {
 		const redundant = redundantAddedIndices(bulkSlot, entries, item);
 		return [{ index, item }, ...removePickerEntry(entries, index).filter(entry => !redundant.includes(entry.index))];

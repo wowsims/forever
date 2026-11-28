@@ -117,8 +117,8 @@ const makePresetEpWeightHelper = (name: string, epWeights: Stats, options?: Pres
 	};
 };
 
-// JSON shape for an EP preset read from a file. Enum keys are stored as names (e.g. "StatCritRating") so
-// they stay stable across proto regenerations. No spec reads one: spec EP weights are TS literals in presets.ts.
+// JSON shape for an EP preset read from a file. Enum keys are stored as names so they stay stable across
+// proto regenerations.
 export type PresetEpWeightsJson = {
 	name: string;
 	stats?: Partial<Record<keyof typeof Stat, number>>;
@@ -219,7 +219,7 @@ export const makePresetItemSwapGearHelper = (name: string, itemSwap: ItemSwap): 
 };
 
 // Whether the settings set the spec's options. A SIML `settings:` section always does (sim/siml/SPEC.md §5.1), so
-// without them a file states none of the player's settings, as a build of only gear, talents and a rotation.
+// without them a file states none of the player's settings.
 const hasSpecOptions = ({ spec }: PlayerProto) =>
 	spec.oneofKind !== undefined && (spec as unknown as Record<string, { options?: unknown }>)[spec.oneofKind].options !== undefined;
 
@@ -251,8 +251,8 @@ const makePresetSettingsHelper = (name: string, spec: Spec, simSettings: Individ
 		};
 
 		// proto3 cannot tell an absent scalar from a zero one, so a JSON that never mentions these
-		// timings parses to 0 for both. Leaving the field out here is what lets `applyBuild` keep a
-		// `typeof === 'number'` guard and so still honour a hand-written preset that means 0.
+		// timings parses to 0 for both. Leaving the field out here lets `applyBuild` still honour a
+		// hand-written preset that means 0.
 		// A build that states its reaction states its top with it, so a fixed reaction over a ranged default stays fixed.
 		if (simSettings.player.reactionTimeMs) {
 			settings.playerOptions.reactionTimeMs = simSettings.player.reactionTimeMs;

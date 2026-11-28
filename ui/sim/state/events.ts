@@ -1,11 +1,9 @@
-// Minimal event emitter for things that *happen* (not state): no EventIDs, no
-// freezing. State change notification belongs to the store; this is only for
-// genuine events (sim results, crashes, UI-local signals).
+// Minimal event emitter for things that *happen* (not state). State change
+// notification belongs to the store.
 export class Emitter<T = void> {
 	private listeners: Array<(value: T) => void> = [];
 
-	// Arrow property so `emitter.on` can be passed around unbound (e.g. as a
-	// picker's storeSubscribe source).
+	// Arrow property so `emitter.on` can be passed around unbound.
 	readonly on = (listener: (value: T) => void): (() => void) => {
 		this.listeners.push(listener);
 		return () => this.off(listener);

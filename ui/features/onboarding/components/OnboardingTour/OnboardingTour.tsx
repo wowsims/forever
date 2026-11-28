@@ -45,8 +45,8 @@ const missingHere = (candidate: TourStep<never>, from: TourStep<never>): boolean
 
 const viewport = () => ({ width: window.innerWidth, height: window.innerHeight });
 
-// A control that moves its own value or selection with the arrow keys: a field, a select, a slider, a
-// tab list, a menu. An arrow pressed in one of them is the page's, not the tour's.
+// A control that moves its own value or selection with the arrow keys. An arrow pressed in one of them
+// is the page's.
 const ARROW_KEY_CONTROLS =
 	'input, textarea, select, [contenteditable=""], [contenteditable="true"], [role="tablist"], [role="listbox"], [role="menu"], [role="menubar"], [role="radiogroup"], [role="slider"], [role="grid"], [role="tree"]';
 const takesArrowKeys = (target: EventTarget | null): boolean => target instanceof Element && !!target.closest(ARROW_KEY_CONTROLS);
@@ -60,7 +60,7 @@ const scroller = (element: Element): Element | null => {
 };
 
 // At once: a smooth scroll is cut short when a tab's pane re-renders. A part taller than most of the page
-// goes near the top rather than the middle, where its start would be lost, with room left for a sticky header.
+// goes near the top, with room left for a sticky header.
 const bringIntoView = (element: Element) => {
 	const tall = element.getBoundingClientRect().height > window.innerHeight * 0.7;
 	element.scrollIntoView({ block: tall ? 'start' : 'center', inline: 'nearest' });
@@ -76,8 +76,8 @@ const bringIntoView = (element: Element) => {
  * control the page uses the arrows in has the focus.
  */
 export const OnboardingTour = <S extends TourStep<never>>({ steps, text, prepare, simulation, onEnd }: OnboardingTourProps<S>) => {
-	// By id: the steps change under the tour (a result appears once the player has run the sim). When the
-	// current one drops out, the tour stays where it was in the list.
+	// By id: the steps change under the tour. When the current one drops out, the tour stays where it was
+	// in the list.
 	const [current, setCurrent] = useState({ id: steps[0].id, index: 0, direction: 1 as 1 | -1 });
 	const found = steps.findIndex(entry => entry.id === current.id);
 	const index = found >= 0 ? found : Math.min(current.index, steps.length - 1);
@@ -101,7 +101,7 @@ export const OnboardingTour = <S extends TourStep<never>>({ steps, text, prepare
 	const leave = () => finish(kind === 'finish' ? 'done' : 'skipped');
 	const go = (delta: 1 | -1) => {
 		// An optional step on the tab already open is passed over at once when the page lacks its part: a run of
-		// them (the results tabs a run has nothing for) would otherwise each wait out its short look.
+		// them would otherwise each wait out its short look.
 		let to = index + delta;
 		const skipped: string[] = [];
 		while (steps[to] && missingHere(steps[to], step)) {

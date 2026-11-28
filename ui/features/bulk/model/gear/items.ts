@@ -14,17 +14,15 @@ import { addPickerEntry, pickerEntryAt, redundantAddedIndices, removePickerEntry
 type PickerGroups = Map<BulkSimItemSlot, readonly BulkPickerEntry[]>;
 
 // Return whether or not the slot is considered secondary and the item should be grouped
-// This includes items in the Finger2 or Trinket2 slots, or OffHand for dual-wield specs
 const isSecondaryBulkSlot = (slot: ItemSlot, playerCanDualWield: boolean) =>
 	isSecondaryItemSlot(slot) || (playerCanDualWield && slot === ItemSlot.ItemSlotOffHand);
 
 const lookupItem = (player: Player<any>, item: ItemSpec): EquippedItem | null => player.sim.db.lookupItemSpec(item)?.withDynamicStats() ?? null;
 
 /**
- * The bulk slots an item can be batched into, one entry each. Finger1/Finger2 - and both hands
- * for a dual-wielder - share a bulk slot, so dedupe on the bulk slot instead of skipping the
- * secondary physical slot: an off-hand-only item has no other eligible slot, and skipping it
- * dropped shields and off-hand weapons from the batch entirely.
+ * The bulk slots an item can be batched into, one entry each. Finger1/Finger2, and both hands
+ * for a dual-wielder, share a bulk slot, so dedupe on the bulk slot instead of skipping the
+ * secondary physical slot: an off-hand-only item has no other eligible slot.
  */
 const eligibleBulkSlots = (player: Player<any>, equippedItem: EquippedItem, playerCanDualWield: boolean): BulkSimItemSlot[] => {
 	const bulkSlots: BulkSimItemSlot[] = [];

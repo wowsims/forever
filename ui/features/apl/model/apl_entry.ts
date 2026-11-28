@@ -8,8 +8,8 @@ import { MAX_PARTY_SIZE } from '@sim/raid/party';
 export interface AplRun {
 	readonly rotation: APLRotation;
 	/**
-	 * Asked when a tooltip shows or a cast is clicked, so an edit in the Rotation tab compares nothing. It reads the
-	 * store unsubscribed, which holds because both happen in the Results tab, where the rotation cannot change.
+	 * Asked when a tooltip shows or a cast is clicked. It reads the store unsubscribed, which holds because both
+	 * happen in the Results tab, where the rotation cannot change.
 	 */
 	readonly changedSinceRun: () => boolean;
 }

@@ -1,6 +1,5 @@
-// The topline metric list, as data. One model, two renderers: the sidebar panel draws it as a
-// column of `.results-metric` divs, the three detailed-results panes draw it as a one-row table.
-// Neither layout lives here — both are `components/ResultMetricList`, picked by its `layout` prop.
+// The topline metric list, as data. Neither layout lives here: both are
+// `components/ResultMetricList`.
 import { Spec } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { Rogue } from '@sim/player/classes/rogue';
@@ -32,8 +31,7 @@ export type ToplineMetricsOptions = {
 const NO_MANA_CLASSES = [Rogue, Warrior];
 
 // The two specs whose topline drops Time-to-OOM and HPS. The list is narrower than the set of
-// tank specs: a protection warrior and a feral bear both tank, but only the bear's sheet drops
-// the mana rows.
+// tank specs.
 const TANK_SPECS = [Spec.SpecFeralBearDruid, Spec.SpecProtectionPaladin];
 
 const column = (

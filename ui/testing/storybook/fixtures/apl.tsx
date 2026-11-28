@@ -13,9 +13,8 @@ import { makeAplRotation } from './protos';
 const touchRotation = (host: IndividualSimHost<any>) => patchKeyed(host.sim.store, 'players', host.player.storeKey, {}, ['rotation']);
 
 /**
- * `makePlayer` from `@testing/apl/player`, on a store with a seeded player slice: a rotation write
- * bumps the slice's `rotation` version, so the pickers subscribed to it re-read and a story stays
- * editable.
+ * `makePlayer` on a store with a seeded player slice: a rotation write bumps the slice's `rotation`
+ * version, so the pickers subscribed to it re-read and a story stays editable.
  */
 export const makeAplStoryPlayer = (rotation: APLRotation = makeAplRotation()): AplTestPlayer => {
 	const host = makeStubHost();

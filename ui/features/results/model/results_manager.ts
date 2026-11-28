@@ -16,9 +16,8 @@ export type SimResultsData = {
 	swapped: boolean;
 };
 
-// The run the sidebar shows and the run it is compared against. Events (results arrived / reference
-// set or swapped), not state, so the two emitters stay separate: a swap changes both and notifies
-// each once.
+// The run the sidebar shows and the run it is compared against. The two emitters stay separate: a
+// swap changes both and notifies each once.
 export class SimResultsManager {
 	readonly currentChangeEmitter = new Emitter<void>();
 	readonly referenceChangeEmitter = new Emitter<void>();
@@ -80,7 +79,7 @@ export class SimResultsManager {
 			this.referenceData = currentData;
 
 			// Restored before `setSimResult`, which rebuilds `currentData` from the sim's settings as
-			// they are now — so the raid and encounter have to be back first.
+			// they are.
 			this.sim.raid.fromProto(referenceData.raidProto);
 			this.sim.encounter.fromProto(referenceData.encounterProto);
 			const wasSwapped = this.swapped;

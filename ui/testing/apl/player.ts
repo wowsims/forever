@@ -5,7 +5,7 @@ import { createSimStore } from '@sim/state/sim_store';
  * A player stub with just the surface the APL pickers touch.
  *
  * The kind tables call `includeIf(player, …)` for all ~200 kinds, and those reach for the class,
- * the spec, the raid and the encounter — so a stub has to answer all of them or the option list
+ * the spec, the raid and the encounter, so a stub has to answer all of them or the option list
  * throws before anything renders.
  */
 export interface AplTestPlayer {

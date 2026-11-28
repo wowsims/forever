@@ -38,7 +38,7 @@ export const ItemPickerCell = ({ slot, ready, align }: ItemPickerCellProps) => {
 	);
 
 	// The list reads the store inside `Tooltip`'s children, which react-tooltip does not build until
-	// the tooltip first opens — that is what keeps a `filters` subscriber per slot off the pane.
+	// the tooltip first opens: that is what keeps a `filters` subscriber per slot off the pane.
 	const quickSwapTooltip =
 		!item || !ready ? null : (
 			<Tooltip

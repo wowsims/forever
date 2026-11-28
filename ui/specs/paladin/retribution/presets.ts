@@ -89,8 +89,7 @@ export const UnsealedWrathEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
-// A build that keeps the page's simple rotation, which picks the Default or the Holy Shock APL from the talents. Item
-// swap is the build's itemSwap, on with it and off without.
+// A build that keeps the page's simple rotation, which picks the Default or the Holy Shock APL from the talents.
 const build = (name: string, json: any, options: PresetUtils.PresetBuildOptions): PresetUtils.PresetBuild =>
 	PresetUtils.makePresetBuildFromSiml(name, Spec.SpecRetributionPaladin, json, { rotationType: APLRotationType.TypeSimple, ...options });
 

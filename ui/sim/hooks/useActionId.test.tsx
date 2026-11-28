@@ -91,7 +91,7 @@ describe('useActionId', () => {
 	});
 
 	// ActionId.fromItemId is (itemId, tag?, randomSuffixId?), and the random suffix is its
-	// url-bearing field: the href is derived before any fill, and re-derived when the id changes.
+	// url-bearing field.
 	it('knows the href without filling, and re-derives it when the random suffix changes', () => {
 		deferFill();
 		const { container, rerender } = render(<Probe actionId={ActionId.fromItemId(7, 0, 111)} />);

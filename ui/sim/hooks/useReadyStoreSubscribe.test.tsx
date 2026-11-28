@@ -13,8 +13,8 @@ const source = () => {
 };
 
 describe('useReadyStoreSubscribe', () => {
-	// The defect this exists for: `useSyncExternalStore` calls the snapshot on the first render, so a
-	// read that dereferences `sim.db` throws long before any `useSimReady` gate turns true.
+	// `useSyncExternalStore` calls the snapshot on the first render, long before any
+	// `useSimReady` gate turns true.
 	it('never calls the read while not ready', () => {
 		const { subscribe } = source();
 		const read = vi.fn(() => 'value');
@@ -33,8 +33,7 @@ describe('useReadyStoreSubscribe', () => {
 		expect(size()).toBe(0);
 	});
 
-	// Gating the read alone would leave the cached `null` in place: `useStoreSubscribe` only re-reads
-	// when the subscription identity changes, so `ready` has to be part of it.
+	// Gating the read alone would leave the cached `null` in place.
 	it('drops the cached null and reads once ready flips', () => {
 		const { subscribe } = source();
 		const read = vi.fn(() => 'value');

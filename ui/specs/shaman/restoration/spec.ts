@@ -56,8 +56,7 @@ export default defineSpec<Spec.SpecRestorationShaman>({
 	// Buff and Debuff inputs to include/exclude, overriding the EP-based defaults.
 	// Stamina is not an EP stat for healers, but the buff still belongs in the stats panel.
 	includeBuffDebuffInputs: [BuffDebuffInputs.PowerWordFortitude],
-	// Nothing is simulated, so buffs that only matter inside an encounter (damage, cooldowns,
-	// mana returns over a fight) would only mislead.
+	// Nothing is simulated, so buffs that only matter inside an encounter would only mislead.
 	excludeBuffDebuffInputs: [BuffDebuffInputs.Thorns, BuffDebuffInputs.Innervate, BuffDebuffInputs.PowerInfusion, BuffDebuffInputs.ManaTideTotem],
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {

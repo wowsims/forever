@@ -43,8 +43,7 @@ function castOutcome(castLog: CastLog): CastOutcome {
 		case 'dodge':
 		case 'parry':
 			return 'miss';
-		// A blocked crit (`critical-block`) reads as partial rather than crit, the same as a plain
-		// block or glance.
+		// A blocked crit (`critical-block`) reads as partial rather than crit.
 		case 'block':
 		case 'glance':
 		case 'critical-block':
@@ -340,9 +339,8 @@ export function buildRotationModel({ player, targets, duration, showGcd }: Build
 	const playerCastKeys = new Set(playerCastsByAbility.map(casts => casts[0].actionId!.equalityKeyIgnoringTag()));
 	const buffsToShow = buffsById.filter(auraUptimeLogs => {
 		const actionId = auraUptimeLogs[0].actionId;
-		// The aura-as-resource test does not depend on the cast, but it sat inside the per-cast
-		// scan, so with no player casts at all it never ran. Kept that way here: this is a
-		// performance change, and correcting it would move rows.
+		// The aura-as-resource test does not depend on the cast, but with no player casts at all it
+		// never runs. Kept that way here: correcting it would move rows.
 		if (!actionId || playerCastKeys.size === 0) return true;
 		const mapped = buffAuraToSpellIdMap[actionId.spellId] ?? actionId;
 		return !playerCastKeys.has(mapped.equalityKeyIgnoringTag()) && !auraAsResourceKeys.has(actionId.equalityKey());

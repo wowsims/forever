@@ -8,9 +8,8 @@ const ROW_HEIGHT = 20;
 const VIEWPORT = 200;
 const OVERSCAN = 10;
 
-// happy-dom reports every element as 0x0, so the virtualiser would render an empty window.
-// `virtual-core`'s `getRect` reads `offsetWidth`/`offsetHeight` — not `getBoundingClientRect` — so
-// those are the two properties a test has to answer.
+// happy-dom reports every element as 0x0. `virtual-core`'s `getRect` reads `offsetWidth`/`offsetHeight`,
+// so those are the two properties a test has to answer.
 const scroller = () => {
 	const element = document.createElement('div');
 	Object.defineProperty(element, 'offsetHeight', { value: VIEWPORT, configurable: true });
@@ -54,10 +53,8 @@ describe('VirtualList', () => {
 		expect(rows(container).map(row => Number(row.dataset.index))).toEqual([...Array(VIEWPORT / ROW_HEIGHT + OVERSCAN).keys()]);
 	});
 
-	// The reason this component exists in this shape: rows are absolutely positioned, so a row's
-	// position among its siblings is its position in the *window*, not in the list. At the top of the
-	// list the two happen to agree, so this scrolls first — otherwise the assertion cannot tell an
-	// index-based stripe from a sibling-based one, and a mutation swapping them passes.
+	// Rows are absolutely positioned, so a row's position among its siblings is its position in the
+	// *window*, not in the list. At the top of the list the two happen to agree, so this scrolls first.
 	it('stripes from the absolute index, not the sibling position', async () => {
 		const { container, element } = renderList(1000);
 		await scrollTo(element, 15 * ROW_HEIGHT);
@@ -114,9 +111,8 @@ describe('VirtualList', () => {
 		expect(rows(container)).toHaveLength(0);
 	});
 
-	// A list whose nearest scrolling ancestor is the page reports `window`, and the virtualiser then
-	// has to read `window.scrollY` and `window.innerHeight` instead of an element's scrollTop and box.
-	// Without the window observers a scroll of the page is never heard.
+	// A list whose nearest scrolling ancestor is the page reports `window`. Without the window observers
+	// a scroll of the page is never heard.
 	describe('window mode', () => {
 		const renderWindowList = (scrollMargin = 0) =>
 			render(
@@ -139,8 +135,7 @@ describe('VirtualList', () => {
 		it('measures the viewport off window.innerHeight', () => {
 			const { container } = renderWindowList();
 
-			// An element scroller reports 0x0 in happy-dom, which is why every other case here stubs
-			// its box; `window.innerHeight` is real, so window mode needs no stub.
+			// `window.innerHeight` is real, so window mode needs no stub.
 			expect(rows(container).length).toBe(Math.ceil(window.innerHeight / ROW_HEIGHT) + OVERSCAN);
 			expect(Number(rows(container)[0].dataset.index)).toBe(0);
 		});

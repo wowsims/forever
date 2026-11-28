@@ -8,14 +8,12 @@ import { WarlockSpecs } from '@sim/proto/spec_types';
 import type { CustomSection } from '@sim/spec_config';
 
 // Configuration for spec-specific UI elements on the settings tab.
-// These don't need to be in a separate file but it keeps things cleaner.
 
 type DemonField = 'summon' | 'sacrificedDemon';
 
 // Settles the demon out and the demon sacrificed against each other and the talents, with `pick` (the
 // value just chosen in one of the two pickers) winning over the other, and otherwise the rules the sim
 // settles them by:
-//   - Without Demonic Sacrifice, nothing is sacrificed.
 //   - Without Demonic Pact, any sacrifice leaves no demon out.
 //   - With it, resummoning the sacrificed demon cancels the effect, so the demon stays out.
 export const settleDemons = <SpecType extends WarlockSpecs>(player: Player<SpecType>, pick?: { field: DemonField; value: Summon }) => {
@@ -114,7 +112,7 @@ export const CursesSection: CustomSection<Spec.SpecWarlock> = {
 	id: 'assigned-curse-settings',
 	title: i18n.t('settings_tab.other.warlock_assigned_curse.title'),
 	description: i18n.t('settings_tab.other.warlock_assigned_curse.description'),
-	// Agony and Doom are Banes now, cast directly rather than as the assigned curse. The ids are the
+	// Agony and Doom are Banes, cast directly rather than as the assigned curse. The ids are the
 	// ranks the sim casts (curse_of_elements.go, curse_of_recklessness.go, curse_of_weakness.go).
 	iconInputs: [
 		makeCursePicker<Spec.SpecWarlock>(WarlockOptions_CurseOptions.Elements, 1311680),

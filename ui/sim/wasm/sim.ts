@@ -238,12 +238,10 @@ interface QueuedSim {
 
 /**
  * Runs the sims, each split across the workers as runConcurrentSim splits it, as one queue of splits: a worker that hands
- * back a split takes the next one, of the same sim or the next, so no worker waits for the slowest split of a sim. Each
- * worker of the pool, as many as it has when the queue starts, takes its own splits one at a time, so no worker runs two
- * at once: a worker running two holds every call to it, an abort included, until one of them ends. When the pool shrinks
- * meanwhile, the splits of a worker it dropped go to the least busy one. Each sim's split results go to its onResult
- * uncombined, for a caller that reads only part of a result to put that part together itself. Returns the first error,
- * preferring a failure to the aborts it sets off.
+ * back a split takes the next one, of the same sim or the next. Each worker of the pool, as many as it has when the queue
+ * starts, takes its own splits one at a time: a worker running two holds every call to it, an abort included, until one
+ * of them ends. When the pool shrinks meanwhile, the splits of a worker it dropped go to the least busy one. Each sim's
+ * split results go to its onResult uncombined. Returns the first error, preferring a failure to the aborts it sets off.
  */
 export const runConcurrentSimQueue = async (sims: QueuedSim[], workerPool: WorkerPool, signals: SimSignals): Promise<ErrorOutcome | undefined> => {
 	const splitCount = workerPool.getNumWorkers();

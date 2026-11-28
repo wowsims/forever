@@ -88,9 +88,7 @@ const makeEnv = (): Env => ({
 	onPageHide: () => () => {},
 });
 
-// A stand-in for the request `makeRaidSimRequest` builds: every option the merged call acts on is
-// read back off the request or the player, so stubbing it keeps the assertions on the option
-// handling rather than on proto assembly.
+// A stand-in for the request `makeRaidSimRequest` builds.
 const makeRequest = (iterations: number, profession = Profession.ProfessionUnknown) =>
 	RaidSimRequest.create({
 		raid: { parties: [{ players: [{ profession1: profession }] }] },
@@ -267,8 +265,7 @@ describe('Sim.updateCharacterStats', () => {
 		mocks.computeStats.mockReset();
 	});
 
-	// The hazard: both calls build a request from current state, and whichever reply lands last
-	// writes. Without a guard the older one can land last and overwrite the newer stats.
+	// Without a guard the older reply can land last and overwrite the newer stats.
 	it('discards a reply that a newer recompute has already superseded', async () => {
 		const sim = makeStatsSim();
 		const player = { setCurrentStats: vi.fn(), updateMetadata: vi.fn(async () => false) };

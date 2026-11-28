@@ -5,9 +5,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { watchTargetDummies } from './target_dummies';
 
-// The rule reads four things off the player and writes one on the raid. A real `Player` needs a
-// registered spec, a `Database` and a `Sim`; what it needs *here* is a store the subscription can
-// select from, which is a slice with a version tuple in it.
+// A real `Player` needs a registered spec, a `Database` and a `Sim`; what it needs *here* is a store
+// the subscription can select from.
 const STORE_KEY = 0;
 
 let store: ReturnType<typeof createSimStore>;
@@ -39,9 +38,8 @@ beforeEach(() => {
 });
 
 describe('watchTargetDummies', () => {
-	// The one that matters. A count restored from localStorage or pasted in from another spec's
-	// link is stale on arrival; nothing changes the player afterwards, so only the apply at arm
-	// time zeroes it, and every sim until then ships the extra allies.
+	// A count restored from localStorage or pasted in from another spec's link is stale on arrival;
+	// only the apply at arm time zeroes it.
 	it('zeroes a stale count when it is armed', () => {
 		watchTargetDummies(makePlayer(), sim);
 		expect(dummies).toBe(0);

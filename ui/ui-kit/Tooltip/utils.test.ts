@@ -15,8 +15,7 @@ describe('tooltipAnchorProps', () => {
 		});
 	});
 
-	// An anchor pointing at a tooltip with nothing to say still opens an empty one, so those pickers
-	// drop the attribute entirely rather than passing an id with no content.
+	// An anchor pointing at a tooltip with nothing to say still opens an empty one.
 	it('emits nothing for a value with no tooltip', () => {
 		expect(tooltipAnchorProps(undefined)).toEqual({});
 		expect(tooltipAnchorProps(undefined, undefined)).toEqual({});

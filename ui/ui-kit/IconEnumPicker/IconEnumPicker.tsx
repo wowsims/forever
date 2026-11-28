@@ -72,8 +72,8 @@ export const IconEnumPicker = <T,>({
 				keptTooltip,
 				overwrittenTooltip,
 				overwrittenPartly,
-				// The value's text sits on the swatch, the way IconPicker's counter does: with one icon
-				// shared by every rank, the text is what tells the ranks apart.
+				// The value's text sits on the swatch: with one icon shared by every rank, the text is what
+				// tells the ranks apart.
 				text: selectedHidden ? undefined : selected?.text,
 				className: clsx('transition-none', !rooted && className),
 				testId: testId ?? 'icon-enum-picker-root',

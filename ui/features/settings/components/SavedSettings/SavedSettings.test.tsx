@@ -144,7 +144,7 @@ describe('SavedSettings', () => {
 		});
 
 		// The item-swap preset holds the settings read when the presets are built, without spec options. A later race
-		// change drops it from active, a spec option toggle does not, and loading it hands over no spec options.
+		// change drops it from active, a spec option toggle does not.
 		it("bakes the item-swap preset's settings at build time without spec options, which loading it leaves alone", async () => {
 			const swapSettings = (race: Race, startingRage: number) =>
 				SavedSettingsProto.create({ race, enableItemSwap: true, itemSwap: ItemSwap.create(), spec: rageSpec(startingRage) });

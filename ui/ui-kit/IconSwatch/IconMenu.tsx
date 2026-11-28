@@ -24,7 +24,7 @@ export const IconMenu = ({ trigger, side, onOpenChange, className, portalProps, 
 			surface="none"
 			triggerRender={<IconSwatch {...trigger} />}
 			// No href on the swatch leaves an anchor that is not focusable; `nativeButton: false` gives it the button role and a tab stop.
-			// A swatch with a wowhead href is still a link. Base UI hands `onActivate` on to the swatch, which cancels the click, and its own click handler toggles the menu: a tap, which never hovers, opens the menu rather than the link.
+			// Base UI hands `onActivate` on to the swatch, which cancels the click, and its own click handler toggles the menu: a tap, which never hovers, opens the menu rather than the link.
 			// The trigger's own disabled swatch dims and blocks its clicks; this also stops Base UI opening the menu from the trigger or a click relayed onto it.
 			triggerProps={{ nativeButton: false, openOnHover: true, delay: 0, onActivate: () => {}, disabled: trigger.disabled }}
 			side={side}

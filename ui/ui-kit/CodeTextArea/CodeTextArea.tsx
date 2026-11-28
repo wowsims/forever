@@ -28,9 +28,7 @@ export const CodeTextArea = ({ value, onChange, className, testId, ...props }: C
 	const frame = useRef<HTMLDivElement>(null);
 	const input = useRef<HTMLTextAreaElement>(null);
 
-	// The cursor offset, read only while the box has focus: setting a textarea's value moves its selection to the end,
-	// so an export would open on its last line, and a value written while the box is blurred would move the cursor from
-	// where it was left.
+	// The cursor offset, read only while the box has focus: setting a textarea's value moves its selection to the end.
 	const [cursor, setCursor] = useState(0);
 	const readCursor = useCallback(() => {
 		const element = input.current;
@@ -48,8 +46,7 @@ export const CodeTextArea = ({ value, onChange, className, testId, ...props }: C
 		style.setProperty('--ui-code-scrollbar-y', `${element.offsetWidth - element.clientWidth}px`);
 	}, []);
 
-	// A value written from outside fires no input event, so the scrollbars are read again after each one, and the cursor
-	// too while the box has focus.
+	// A value written from outside fires no input event, so the scrollbars are read again after each one.
 	useLayoutEffect(() => {
 		if (document.activeElement === input.current) readCursor();
 		place();
@@ -67,8 +64,7 @@ export const CodeTextArea = ({ value, onChange, className, testId, ...props }: C
 		const before = value.slice(0, offset);
 		return { line: countLines(before), column: offset - before.lastIndexOf('\n') };
 	}, [value, cursor]);
-	// The numbers follow the line count only, and the cursor's number is drawn over its dim one, so a cursor move leaves a
-	// long file's gutter text alone.
+	// The cursor's number is drawn over its dim one, so a cursor move leaves a long file's gutter text alone.
 	const numbers = useMemo(() => Array.from({ length: lineCount }, (_, i) => i + 1).join('\n'), [lineCount]);
 
 	return (

@@ -1,9 +1,6 @@
-// Does a React binding need state/batch.ts's gate?
-//
-// The gate exists for direct, non-React store subscribers: a batch() defers their listeners so a
-// multi-slice write notifies once with final state. React has its own coalescing, so whether a
-// React binding needs `subscribeGated` is a question to settle by measurement. This is that
-// measurement, over three bindings of the same store:
+// Does a React binding need state/batch.ts's gate? The gate exists for direct, non-React store
+// subscribers: a batch() defers their listeners so a multi-slice write notifies once with final
+// state. This is that measurement, over three bindings of the same store:
 //
 //   gated    — useStoreSubscribe over a subscribeGated source (what every component uses)
 //   ungated  — useStoreSubscribe over a raw store.subscribe source
@@ -152,10 +149,8 @@ describe('the gate at the React level (whether a binding needs it)', () => {
 	});
 });
 
-// Player.dispose() defers deleteKeyed to a timeout precisely because a subscriber can outlive the
-// slice it selects. subscribeWithSelector runs EVERY registered selector on EVERY setState, so the
-// `?.` in `s.players[key]?.v[field]` is load-bearing regardless of binding; the question is whether
-// a render can also observe the gap.
+// A subscriber can outlive the slice it selects. subscribeWithSelector runs EVERY registered selector
+// on EVERY setState, so the `?.` in `s.players[key]?.v[field]` is load-bearing regardless of binding.
 describe('a slice deleted under a mounted subscriber', () => {
 	const KEY = 1;
 	const seed = (store: SimStore) => seedKeyed(store, 'players', KEY, { name: 'before', v: zeroVersions(PLAYER_FIELDS) } as unknown as PlayerSlice);
@@ -207,14 +202,12 @@ describe('a slice deleted under a mounted subscriber', () => {
 			ungated: renders.ungated - baseline.ungated,
 			useStore: renders.useStore - baseline.useStore,
 		}).toEqual({ gated: 1, ungated: 1, useStore: 1 });
-		// One render each — and one read of the missing slice each. The gap is observable in the
-		// render body, so a facade getter that would throw on a missing slice needs the same care
-		// under every binding; `?.` is not decoration.
+		// The gap is observable in the render body, so a facade getter that would throw on a missing
+		// slice needs the same care under every binding.
 		expect(readMisses).toEqual({ gated: 1, ungated: 1, useStore: 1 });
 		// The one place the bindings differ. subscribeWithSelector evaluates a source's selector
 		// exactly once per setState; zustand's useStore rebuilds getSnapshot every render, so React
-		// re-reads it several times per change (4 at react 19.2.8 / zustand 5.0.15). Cheap for a
-		// counter, but a selector that allocates — the array subscribeAll folds — pays it each time.
+		// re-reads it several times per change (4 at react 19.2.8 / zustand 5.0.15).
 		expect(selectorMisses.gated).toBe(1);
 		expect(selectorMisses.ungated).toBe(1);
 		expect(selectorMisses.useStore).toBeGreaterThan(1);
@@ -222,9 +215,6 @@ describe('a slice deleted under a mounted subscriber', () => {
 	});
 });
 
-// The gate question is settled above; this is the other half of "should the hook still exist".
-// useStore selects a notification key and the component derives from the facade in its render body,
-// so the derivation is tied to renders. useStoreSubscribe ties it to notifications instead.
 describe('what the snapshot cache buys', () => {
 	it('ties the facade read to notifications, not to renders — and so does useStore + useMemo', () => {
 		const store = createSimStore();
@@ -282,11 +272,8 @@ describe('what the snapshot cache buys', () => {
 		}
 		expect(extraReads).toEqual({ subscribe: 0, useStore: 5, useStoreMemo: 0 });
 
-		// And so the value a downstream useMemo/memo() sees is stable across those five renders —
-		// under the hook, and equally under useStore once the derivation hangs off the key rather
-		// than the render. Only the bare render-body read churns. (Mount itself reads twice under
-		// useStoreSubscribe: subscribing marks the snapshot stale, so React's post-subscribe
-		// consistency check re-reads.)
+		// Mount itself reads twice under useStoreSubscribe: subscribing marks the snapshot stale, so
+		// React's post-subscribe consistency check re-reads.
 		expect(new Set(seenBy.subscribe.slice(-5)).size).toBe(1);
 		expect(new Set(seenBy.useStore.slice(-5)).size).toBe(5);
 		expect(new Set(seenBy.useStoreMemo.slice(-5)).size).toBe(1);

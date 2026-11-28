@@ -201,8 +201,8 @@ export const ItemList = ({ tab, slot, itemSlots, equippedItem }: ItemListProps) 
 		return sortItemIdxs(idxs, itemData, { sortBy, sortDirection, computeEP, isFavourited });
 		// `filters` is named here even though the body never reads it: `player.filterItemData` and
 		// `player.filterEnchantData` reach `sim.getFilters()` internally, so a filter change has to
-		// rebuild this. The lint calls it unnecessary; deleting it leaves correctness resting on
-		// `isFavourited` happening to close over `filters` too. `race` is named for the same reason:
+		// rebuild this. Deleting it leaves correctness resting on `isFavourited` happening to close
+		// over `filters` too. `race` is named for the same reason:
 		// the faction filter follows the race unless the user picked a faction.
 		// oxlint-disable-next-line react-hooks/exhaustive-deps
 	}, [itemData, player, sim, slot, itemSlots, equippedItem, label, phase, search, sortBy, sortDirection, computeEP, isFavourited, filters, race]);

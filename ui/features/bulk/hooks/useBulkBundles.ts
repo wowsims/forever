@@ -20,9 +20,8 @@ import { useBulkState } from './useBulkState';
 
 const NO_GEAR_SETS: BulkGearSetEntry[] = [];
 
-// The same sources the batch resolves when it starts: the spec's presets, the user's saved gear sets, talents, rotations
-// and settings, and the live gear, talents, rotation and settings the Current bundle runs. The gear sets are looked up
-// in the database, so there are none until the sim is ready.
+// The same sources the batch resolves when it starts. The gear sets are looked up in the database, so there are none
+// until the sim is ready.
 export const useBulkBundles = (): {
 	ready: boolean;
 	current: CurrentBundle;

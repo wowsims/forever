@@ -47,8 +47,7 @@ const row = ({
 
 const gainLabel = (gainPct: number) => `${gainPct > 0 ? '+' : ''}${gainPct.toFixed(2)}%`;
 
-// The table's props, each column's cells tinted on that column's scale from its lowest gain to its highest, 0 included,
-// as the dialog builds them; `currentDps` is the current gear's DPS in each column.
+// The table's props as the dialog builds them; `currentDps` is the current gear's DPS in each column.
 const tableArgs = (columns: BulkCompareTableColumn[], currentDps: number[], rows: StoryRow[]): BulkCompareTableProps => {
 	const scales = columns.map((_, index): GainScale => {
 		const gains = rows.flatMap(line => line.cells[index]?.gainPct ?? []);
@@ -82,8 +81,7 @@ const COLUMNS = [
 
 const CURRENT_DPS = [1203, 980, 1010, 870, 776, 769, 760, 1100];
 
-// S1 wins most encounters; S2 is missing from two; S3 ranks only twice; S4 loses everywhere it ranks. The current gear
-// is best in Default, where every set ranked does worse.
+// S1 wins most encounters; S2 is missing from two; S3 ranks only twice; S4 loses everywhere it ranks.
 const ROWS = [
 	row({ key: 'current', label: 'Current', gear: 'Current gear', cells: COLUMNS.map((_, index) => cell(0, index === 3)) }),
 	row({
@@ -132,9 +130,7 @@ const GAIN_ROWS = [
 ];
 
 // A Builds batch over three encounters: each set names its gear setup in place of the items it changes, then its talents,
-// rotation and settings. S1 is P1 Fury with an enchant preset's cloak enchant, and S3 and S4 are two setups of the
-// current gear set, so each counts the enchants that differ from its gear set's own and lists them on hover. S2's bundle
-// is named, so the name stands for its parts, which its tooltip lists.
+// rotation and settings. S2's bundle is named, so the name stands for its parts, which its tooltip lists.
 const BUILD_COLUMNS = [
 	{ label: 'Short fight', length: '1:30' },
 	{ label: 'Current', length: '3:00' },

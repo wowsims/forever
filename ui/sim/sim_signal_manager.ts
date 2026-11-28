@@ -24,9 +24,8 @@ class TriggerSignal {
 	/**
 	 * Register an abort callback.
 	 * @returns A function that removes the callback again. Callers that register per
-	 * request against long-lived signals (a bulk run registers one per candidate) must
-	 * call it when the request settles, or the list grows for the life of the run and a
-	 * cancel fans out to every request that finished long ago.
+	 * request against long-lived signals must call it when the request settles, or the
+	 * list grows for the life of the run.
 	 */
 	onTrigger(cb: () => Promise<void>): () => void {
 		this.callbacks.push(cb);

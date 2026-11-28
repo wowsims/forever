@@ -36,9 +36,8 @@ interface CheckRowProps {
 	testId?: string;
 }
 
-// The summary shows as the label's hover tooltip, the disabled reason in its place on a disabled row, right of the label,
-// whose box stays in the tab order and shows the reason on focus too. The sr-only copies of the summary, the duplicate note and the reason
-// describe the checkbox for screen readers, which the tooltip does not reach.
+// The sr-only copies of the summary, the duplicate note and the reason describe the checkbox for screen readers, which
+// the tooltip does not reach.
 const CheckRow = ({ id, label, summary, checked, duplicate = false, duplicateText, disabledReason, onChange, testId }: CheckRowProps) => (
 	<>
 		<BooleanPicker

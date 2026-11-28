@@ -143,7 +143,7 @@ export const ratingsByPercentKey = (universe: ReadonlyArray<UnitStat>): Map<stri
 
 /**
  * The groups a stat filter popover lists for `universe`, each with only its stats in it, Other last and empty groups left
- * out. A rating stat is left out where a percent with its short name is in the universe, as that percent's row stands for it.
+ * out.
  */
 export const filterGroupsOf = (universe: ReadonlyArray<UnitStat>): Array<{ key: FilterGroupKey | 'other'; stats: ReadonlyArray<UnitStat> }> => {
 	const inUniverse = new Set(universe.map(stat => stat.getKey()));

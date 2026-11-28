@@ -1,6 +1,4 @@
-// The loading state of the sheet. The crit-cap row is the last row of the Physical group for this
-// display-stat list, so it is the last row either way; what is pinned here is that it skeletons
-// with its siblings instead of reading as settled while the stats are still in flight.
+// The crit-cap row is the last row of the Physical group for this display-stat list, so it is the last row either way.
 import { PlayerStats } from '@generated/proto/api';
 import { AreaType, Class, MobType, PseudoStat, Race, Stat, Target, WeaponSkill } from '@generated/proto/common';
 import { DatabaseFilters } from '@generated/proto/ui';
@@ -90,17 +88,13 @@ const renderStats = (settled: boolean, player: Record<string, unknown> = {}) =>
 		},
 	});
 
-// The tank trio is appended to the Defense group, so that group has to be populated for the
-// rows to exist at all.
+// The tank trio is appended to the Defense group, so that group has to be populated for the rows to exist.
 const TANK_DISPLAY_STATS = [...DISPLAY_STATS, UnitStat.fromStat(Stat.StatDefenseRating), UnitStat.fromPseudoStat(PseudoStat.PseudoStatDodgePercent)];
 
 const MISS_INFO = { base: 5, defense: 2, debuffs: 0, total: 7 };
 const AVOIDANCE_INFO = { miss: 7, dodge: 18, parry: 14, block: 25, total: 64, shear: 57 };
 const CRIT_IMMUNITY_INFO = { total: 5.6, delta: 0, defense: 4.6, talents: 1 };
 
-// The tank sheet adds three rows the DPS sheet has no equivalent for -- miss, avoidance and
-// crit immunity -- appended to the Defense group. What is pinned here is that they skeleton with
-// every other row rather than reading as settled while the stats are still in flight.
 const renderTankStats = (settled: boolean) =>
 	renderSheet({
 		displayStats: TANK_DISPLAY_STATS,
@@ -458,8 +452,7 @@ const openVersusGroups = async (view: ReturnType<typeof renderVersus>) => {
 	});
 };
 
-// The test setup loads no locale, so an interpolated heading or factor reads as its bare key; the English
-// strings are what show which target a heading names and which factor a line carries.
+// The test setup loads no locale, so an interpolated heading or factor reads as its bare key.
 describe('CharacterStats bonuses against a kind of target', () => {
 	beforeAll(() => {
 		i18n.addResourceBundle('en', 'translation', english, true, true);

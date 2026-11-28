@@ -3,8 +3,6 @@ import { renameAPLReference } from '@sim/proto/apl_utils';
 
 /**
  * Depth-first walk over a proto message's own object graph, `visit` first.
- *
- * Returning `true` from `visit` stops the walk.
  */
 const visitObjects = (node: unknown, visit: (obj: any) => boolean | void): boolean => {
 	if (!node || typeof node !== 'object') return false;
@@ -33,10 +31,8 @@ export const placeholderNames = (group: APLGroup | undefined): Array<string> => 
 
 /**
  * Renames a placeholder inside its own group, and re-points every group reference that passes a
- * variable of that name to the group.
- *
- * Scoped to the one group deliberately: two groups may each define a placeholder called `target`
- * and they are unrelated.
+ * variable of that name to the group. Scoped to the one group deliberately: two groups may each
+ * define a placeholder called `target` and they are unrelated.
  */
 export const renamePlaceholder = (rotation: APLRotation, group: APLGroup, oldName: string, newName: string) => {
 	renameAPLReference(group, { type: 'placeholder', oldName, newName });

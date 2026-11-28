@@ -20,7 +20,6 @@ export class WarningsRegistry {
 
 	// A fresh array per call, so a React consumer must read it through
 	// useStoreSubscribe's snapshot cache rather than useSyncExternalStore.
-	// A warning's action goes on its last line.
 	readonly getContents = (): Array<SimWarningLine> =>
 		this.warnings.flatMap(({ getContent, action }) => {
 			const lines = [getContent()].flat().filter(content => content !== '');

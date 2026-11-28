@@ -214,9 +214,8 @@ export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: B
 	const { damage: showDamage } = useDisplayMetrics(host.sim);
 	const { originalGearResults: baseResult, currentGear, iterations } = results;
 
-	// Displayed per-row uncertainty (95% CI of the mean). Deliberately the UNPAIRED error:
-	// it describes this row's own mean; tie grouping uses the much tighter paired error of
-	// the difference between rows — both are correct, they answer different questions.
+	// Deliberately the UNPAIRED error: it describes this row's own mean; tie grouping uses the much tighter paired error of
+	// the difference between rows.
 	const plusMinusDps = stDevToConf95(result.dpsMetrics.stdev, iterations);
 	const isReference = bulkResultKey(result) === bulkResultKey(baseResult);
 	const isBaseResult = isReference && results.referenceIsCurrent;
@@ -268,10 +267,8 @@ export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: B
 						? !itemSpecPairsEqualUnordered(resultAsSpec.items, originalEquipmentSpec.items, swappableItemSlotPair)
 						: !ItemSpec.equals(spec, originalEquipmentSpec.items[idx]);
 
-					// Three display states per slot:
-					// 1. Unchanged -  slots stay empty
-					// 2. Same - Item with a different enchant shows the compact change icon (enchant marker);
-					// 3. New - The item appearing at all already says the slot changed.
+					// Same: Item with a different enchant shows the compact change icon (enchant marker);
+					// New: The item appearing at all already says the slot changed.
 					if (itemChanged && spec.id !== 0 && spec.id === originalEquipmentSpec.items[idx]?.id) {
 						return (
 							<div key={idx} className="ui-bulk-result-item ui-bulk-item-cell" data-testid="bulk-result-item">

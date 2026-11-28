@@ -6,6 +6,6 @@ import { subscribePlayerField } from '@sim/state/subscriptions';
  *
  * It is not optional. `useStoreSubscribe` only re-reads `getValue` when its source notifies, so a
  * bound leaf handed a config without a `storeSubscribe` renders once and then freezes at that
- * value — silently, with no error and no visual cue.
+ * value.
  */
 export const rotationSource = (player: Player<any>) => subscribePlayerField(player, 'rotation');

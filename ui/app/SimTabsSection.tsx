@@ -22,8 +22,7 @@ export interface SimTabsSectionProps {
 const renderBulkTab = (tab: ReactElement) => <BulkModeMenu tab={tab} />;
 
 // The pane list is built once per host, so `SimTabsPanels` keeps the same elements (and every
-// `keepMounted` pane's state) across a shell re-render that has nothing to do with the tabs — the
-// sticky header toggling, most often.
+// `keepMounted` pane's state) across a shell re-render that has nothing to do with the tabs.
 export const SimTabsSection = ({ host, children }: SimTabsSectionProps) => {
 	const defs = useMemo(
 		() =>
@@ -72,7 +71,6 @@ export const SimTabsSection = ({ host, children }: SimTabsSectionProps) => {
 	);
 
 	// Always `SimTabs`, even with no `defs` yet: switching element types here on the render the host
-	// arrives would remount `children` (the header and `main`), taking the sticky header's observer
-	// and `StickyHeaderContext` down with the old nodes.
+	// arrives would remount `children` (the header and `main`).
 	return <SimTabs defs={defs}>{children}</SimTabs>;
 };

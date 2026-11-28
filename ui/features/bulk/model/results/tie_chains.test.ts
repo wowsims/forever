@@ -23,8 +23,7 @@ describe('buildTieChains', () => {
 	});
 
 	it('takes the tighter paired error against the baseline when the backend supplied one', () => {
-		// Unpaired, these two are indistinguishable; the paired error of 1 says the difference is
-		// real, and the pair involving the baseline is exactly where it applies.
+		// Unpaired, these two are indistinguishable; the paired error of 1 says the difference is real.
 		const baseline = result(1000, 500);
 		const candidate = result(1010, 500, { backendRank: 0, pairedErrorToBaseline: 1 });
 		expect(shape(buildTieChains([candidate, baseline], baseline, 100))).toEqual([[1010], [1000]]);
@@ -34,7 +33,7 @@ describe('buildTieChains', () => {
 		const adjacent = [result(1010, 500, { backendRank: 0, pairedErrorToNextResult: 1 }), result(1000, 500, { backendRank: 1 })];
 		expect(shape(buildTieChains(adjacent, null, 100))).toEqual([[1010], [1000]]);
 
-		// Same numbers, but the backend ranked them two apart — the paired error does not describe
+		// Same numbers, but the backend ranked them two apart; the paired error does not describe
 		// this pair, so the unpaired test answers and calls them tied.
 		const separated = [result(1010, 500, { backendRank: 0, pairedErrorToNextResult: 1 }), result(1000, 500, { backendRank: 2 })];
 		expect(shape(buildTieChains(separated, null, 100))).toEqual([[1010, 1000]]);

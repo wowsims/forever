@@ -10,6 +10,5 @@ export interface SimTabDefProps {
 	children: ReactNode;
 }
 
-// A declaration, never rendered: `SimTabs` reads these props off its children and hands them to
-// `SimTabsStrip` (the tab) and `SimTabsPanels` (the panel), which render wherever the shell places them.
+// A declaration, never rendered: `SimTabs` reads these props off its children.
 export const SimTabDef = (_props: SimTabDefProps): null => null;

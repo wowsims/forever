@@ -1,10 +1,6 @@
-// The prerequisite graph and the arrow geometry, derived from a class's talent config.
-//
 // A tree is ONE css grid and every talent is placed by gridRow/gridColumn, because a
 // prerequisite arrow is itself a grid item spanning from the parent's cell to the child's. The
-// span/direction arithmetic below is a transcription of ui/core/talents/talents_picker.tsx:308-336;
-// the z-index ladder (root 20, child parent-2, arrow parent-1) is :242-250, and it exists so a
-// deeper chain paints under the one above it.
+// z-index ladder exists so a deeper chain paints under the one above it.
 
 import type { TalentConfig, TalentLocation, TalentsConfig, TalentTreeConfig } from '@sim/talents/config';
 import { locationKey } from '@sim/talents/config';

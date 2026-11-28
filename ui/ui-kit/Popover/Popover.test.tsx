@@ -125,8 +125,7 @@ describe('Popover', () => {
 		expect(onOpenChange).toHaveBeenCalledWith(false);
 	});
 
-	// The bug class this pins: a popup whose portal node outlives the React tree that opened it. The
-	// portal is a body child no ancestor unmount reaches, so nothing but Base UI's own cleanup removes it.
+	// The portal is a body child no ancestor unmount reaches, so nothing but Base UI's own cleanup removes it.
 	it.each([
 		['', false],
 		[' from a container', true],

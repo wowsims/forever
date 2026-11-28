@@ -7,8 +7,7 @@ const CURSOR_OFFSET = 12;
 /**
  * Places a hover tooltip near a point in client coordinates, flipping and clamping so it stays whole
  * inside the viewport. Written as custom properties rather than `left`/`top` so the stylesheet keeps
- * the units — and anchored to the viewport rather than to an element, which is what keeps a tooltip
- * out of the scroller it is drawn over.
+ * the units, and anchored to the viewport, which keeps a tooltip out of the scroller it is drawn over.
  */
 const placeTooltip = (host: HTMLElement | null, anchorX: number, anchorY: number) => {
 	if (!host) return;
@@ -39,8 +38,7 @@ export interface HoverTooltip<T> {
 
 /**
  * A tooltip anchored to a point rather than to an element: what the timeline's chart and its rotation
- * both need, because neither anchor is a stable element — one is a caret on a canvas, the other is one
- * of hundreds of bars that come and go as the window moves. `owner` is the element whose items open it.
+ * both need, because neither anchor is a stable element. `owner` is the element whose items open it.
  */
 export const useHoverTooltip = <T>(owner: RefObject<HTMLElement | null>): HoverTooltip<T> => {
 	const ref = useRef<HTMLDivElement>(null);

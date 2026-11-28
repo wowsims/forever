@@ -13,8 +13,8 @@ interface ImporterOptions {
 export interface ImporterDefinition extends ImporterOptions {
 	/**
 	 * Throw to report a problem; the shell shows it as the error toast, or an `ImportProblems` as a list under the
-	 * text. `fileName` is the name of the file the text was uploaded from, and none for pasted text. `signal` is
-	 * aborted when the dialog closes before the import ends, after which an import that waits on a read loads nothing.
+	 * text. `fileName` is none for pasted text. `signal` is aborted when the dialog closes before the import ends,
+	 * after which an import that waits on a read loads nothing.
 	 */
 	onImport: (host: IndividualSimHost<any>, data: string, fileName?: string, signal?: AbortSignal) => Promise<void>;
 	preview?: undefined;
@@ -23,8 +23,8 @@ export interface ImporterDefinition extends ImporterOptions {
 /** A step between the text and the import: the dialog shows what the text holds, and Import acts on what it shows. */
 export interface ImporterPreview<P> {
 	/**
-	 * Reads the text whenever it changes, so the identity has to hold between renders. Throw to refuse the text, which the
-	 * shell reports as it does for `onImport`. `signal` is aborted once the text moves on or the dialog closes.
+	 * Reads the text whenever it changes, so the identity has to hold between renders. Throw to refuse the text.
+	 * `signal` is aborted once the text moves on or the dialog closes.
 	 */
 	parse: (host: IndividualSimHost<any>, data: string, signal: AbortSignal) => Promise<P>;
 	/** Shown under the text. `change` replaces the preview, for one the user can edit. */

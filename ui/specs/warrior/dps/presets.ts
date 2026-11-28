@@ -65,10 +65,7 @@ const ARMS_PRESET_OPTIONS = {
 };
 
 // Dungeon and world drops, quest rewards, vendor items and crafted items whose reagents include no raid
-// materials; no raid, raid quest, reputation or PvP rewards, except Alterac Valley's: Don Julio's Band, which its
-// quartermasters sell, and Bloodseeker, a quest reward. Furbolg Berserker's Boots have no known source. The cloak, the
-// belt and the first ring are sold by the Undermine Trader in Stranglethorn Vale. The Devilsaur Gauntlets and Leggings make the two-piece set. Persuader and Flurry Axe beat Ironfoe in
-// either hand up to two targets; Flurry Axe, the off hand, is a world-drop epic.
+// materials; no raid, raid quest, reputation or PvP rewards, except Alterac Valley's.
 export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, FURY_PRESET_OPTIONS);
 
 // The Fury build for fights of 60 to 300 s.
@@ -104,8 +101,7 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 );
 
 // The Fury 2H set with Blackhand's Breadth in place of Hand of Justice and the Strength necklace enchant in place of
-// Agility. Destiny, the weapon, has no known source, and its Strength proc rate comes from logs (EV-0132). It beats
-// Arcanite Champion, the Blacksmithing craft, by 4 to 5 %.
+// Agility. Destiny's Strength proc rate comes from logs (EV-0132).
 export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, ARMS_PRESET_OPTIONS);
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the
@@ -149,9 +145,8 @@ const FURY_2H_PRESET_OPTIONS = {
 	},
 };
 
-// The Pre-BiS Fury sources with Destiny in place of the dual-wield pair. Don Julio's Band and Bloodseeker are Alterac
-// Valley rewards. Destiny has no known source; its Strength proc rate comes from logs (EV-0132). Hand of Justice beats
-// Blackhand's Breadth on fights of 180 s and longer; Blackhand's Breadth wins up to 120 s.
+// The Pre-BiS Fury sources with Destiny in place of the dual-wield pair. Destiny's Strength proc rate comes from logs
+// (EV-0132).
 export const PreBiSFury2HGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFury2HGearJson, FURY_2H_PRESET_OPTIONS);
 
 // The Fury build for a two-hander: Two-Handed Weapon Specialization, Blood Craze, a Gore Drinker point and a fifth
@@ -183,9 +178,7 @@ export const PreBiSFury2HEpWeights = PresetUtils.makePresetEpWeights(
 // Blackhand's Breadth has no self buff for Multiple CD Usages, so its two lines there time the end of the fight with
 // Remaining Time and, with Recklessness on, keep the mark from running under it.
 export const FURY_DEFAULT_ROTATION = PresetUtils.makePresetAPLRotation('Fury', DefaultFuryApl);
-// The Fury rotation with a two-hander's thresholds: Heroic Strike from 70 rage and Cleave from 30, Hamstring without
-// the Delay Check and on up to two targets, Overpower swaps up to 70 rage and Rend swaps up to 30 on any number of
-// targets.
+// The Fury rotation with a two-hander's thresholds.
 export const FURY_2H_ROTATION = PresetUtils.makePresetAPLRotation('Fury 2H', DefaultFury2HApl);
 export const ARMS_DEFAULT_ROTATION = PresetUtils.makePresetAPLRotation('Arms', DefaultArmsApl);
 

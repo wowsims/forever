@@ -70,16 +70,13 @@ const emitBulkSimStageProgress = (
 	);
 };
 
-// Binds the parts of a stage's progress reporting that never change between emits, so
-// call sites pass only what actually moves. Stage totals are only known after the
-// baseline probe, so a stage uses one emitter for the probe and another for the rest.
+// Binds the parts of a stage's progress reporting that never change between emits.
 export type BulkSimStageProgressEmitter = {
 	report: (completedSims: number, completedIterations: number, dps: number) => void;
 };
 
 // Throttled to the same 100ms window the Go backend uses (bulk.BulkSimProgressThrottle):
 // unthrottled per-candidate emits each allocate a ProgressMetrics and force a DOM rerender.
-// A report that completes the stage always emits.
 const BULK_SIM_PROGRESS_THROTTLE_MS = 100;
 
 export const makeBulkSimStageProgressEmitter = (

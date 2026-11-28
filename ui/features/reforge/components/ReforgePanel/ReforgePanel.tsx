@@ -92,8 +92,8 @@ export const ReforgePanel = ({ model, options }: ReforgePanelProps) => {
 	const onReforgeError = useCallback(
 		(error: unknown) => {
 			if (isDevMode()) console.log(error);
-			// The gear is left as the optimizer set it, exactly as the vanilla panel does; only the
-			// derived stats are recomputed from the gear the run started with.
+			// The gear is left as the optimizer set it; only the derived stats are recomputed from the
+			// gear the run started with.
 			if (model.previousGear) void model.updateGear(model.previousGear);
 			trackEvent({ action: 'settings', category: 'reforging', label: 'suggest_error', value: String(error) });
 

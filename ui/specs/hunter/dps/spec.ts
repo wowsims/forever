@@ -171,8 +171,7 @@ export default defineSpec<Spec.SpecHunter>({
 		return APLRotation.fromJson(Presets.PlaystyleAPLs[twoHander ? Playstyle.Weave : Playstyle.Turret]);
 	},
 
-	// The playstyle picks the priority list, and each toggle sets the list's variable of the same spell. A rank toggle
-	// turned on casts the book rank in place of the trainer's top rank.
+	// A rank toggle turned on casts the book rank in place of the trainer's top rank.
 	simpleRotation: (_player: Player<Spec.SpecHunter>, simple: SpecRotation<Spec.SpecHunter>, cooldowns: Cooldowns): APLRotation => {
 		const actions = AplUtils.simpleCooldownActions(cooldowns);
 		const hawksAtRange = simple.playstyle === Playstyle.Turret && simple.useHawk;

@@ -86,7 +86,7 @@ export const Menu = ({
 	const portalContainer = usePortalContainer();
 	// Base UI focuses a hover-opened popup and, with `highlightItemOnHover`, the item under the pointer. Both are script
 	// focus, which Chrome paints as `:focus-visible` until the page has had a mouse focus, so the menu shows focus rings
-	// under the mouse. The pointer highlight is `:hover` in Menu.css instead, and the popup itself draws no outline.
+	// under the mouse. The pointer highlight is `:hover` in Menu.css instead.
 	// The popup leaves any Field the trigger sits in, so its controls take no size from that field.
 	const popup = (
 		<FieldContext.Provider value={null}>

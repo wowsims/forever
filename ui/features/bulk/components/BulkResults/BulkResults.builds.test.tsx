@@ -1,9 +1,5 @@
 // The Results pane over a real Sim and Player, with the real rows, for one finished Builds encounter. No i18n mock: with
 // no locale loaded every string is its key.
-//
-// The encounter ranks Raid (helm 2, +20 strength) at 1,100, with the current talents, rotation and settings or the build
-// a case passes, then the current gear set with a helm enchant it does not wear at 1,050, then the current gear as
-// equipped at 1,000; those two run under the settings the case passes.
 import { DistributionMetrics } from '@generated/proto/api';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { ItemSlot, Race, Stat } from '@generated/proto/common';

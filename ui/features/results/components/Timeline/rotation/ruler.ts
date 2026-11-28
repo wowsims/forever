@@ -6,8 +6,7 @@ export interface RulerFrame {
 	scrollLeft: number;
 	pps: number;
 	duration: number;
-	// Measured by the view on resize. Reading it here instead would flush layout every frame,
-	// right after the row window has written to the DOM.
+	// Measured by the view on resize. Reading it here instead would flush layout every frame.
 	width: number;
 }
 
@@ -93,8 +92,8 @@ export class Ruler {
 	draw({ scrollLeft, pps, duration, width }: RulerFrame) {
 		if (width <= 0) return;
 
-		// A vertical page scroll leaves every tick where it was, and that is now the common case:
-		// the page owns vertical scrolling, so the frame runs far more often than the ruler moves.
+		// A vertical page scroll leaves every tick where it was, and the page owns vertical scrolling,
+		// so the frame runs far more often than the ruler moves.
 		if (scrollLeft === this.lastScrollLeft && pps === this.lastPps && duration === this.lastDuration && width === this.lastWidth) return;
 		this.lastScrollLeft = scrollLeft;
 		this.lastPps = pps;

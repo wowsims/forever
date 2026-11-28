@@ -8,8 +8,8 @@ import { describe, expect, it } from 'vitest';
 import * as BuffDebuffInputs from './buffs_debuffs';
 import { isMultiIconOption, type RenderableStatOptions } from './stat_options';
 
-// The three registries interleave the generated rows with the hand-written ones. These sequences are
-// the settings tab's layout, so a diff here is a UI change and wants a reason, not a re-snapshot.
+// These sequences are the settings tab's layout, so a diff here is a UI change and wants a reason,
+// not a re-snapshot.
 describe('the buff registries', () => {
 	// A group reads as its label followed by its members' labels.
 	const labelsOf = (options: ReadonlyArray<RenderableStatOptions>) =>
@@ -114,8 +114,7 @@ describe('the buff registries', () => {
 		expect(groupWith(BuffDebuffInputs.DEBUFFS_CONFIG, BuffDebuffInputs.SunderArmor)?.stats).toEqual([Stat.StatAttackPower]);
 	});
 
-	// Off, Rank 6, Rank 7 from Manual of Battle Shout VII, and Rank 7 from a warrior wearing three pieces of
-	// Battlegear of Wrath: the manual's icon lights from the second state on, the set spell 23563's on the third.
+	// The manual's icon lights from the second state on, the set spell 23563's on the third.
 	it('offers Battle Shout as one four-state icon whose improved icons are the manual and the set', () => {
 		expect(BuffDebuffInputs.BattleShout.states).toBe(4);
 		expect(BuffDebuffInputs.BattleShout.improvedId?.equals(ActionId.fromItemId(21298))).toBe(true);

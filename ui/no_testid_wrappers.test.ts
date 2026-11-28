@@ -25,8 +25,8 @@ function walk(dir: string, out: string[]): void {
 	}
 }
 
-// A whole-line comment (`//`, `*`, `/*`) is blanked before scanning, so a mention of a tag name in
-// prose never counts as a hit; every real hit here is an element in JSX.
+// A whole-line comment is blanked before scanning, so a mention of a tag name in prose never
+// counts as a hit.
 function blankCommentLines(text: string): string {
 	return text
 		.split('\n')
@@ -40,10 +40,8 @@ function lineOf(text: string, index: number): number {
 	return line;
 }
 
-// Finds the end of the opening tag starting at `start` (the `<` of `<div`, `<span` or `<section`),
-// tracking brace and string depth so a `data-testid={toggle.testId}` expression or a quoted `>`
-// inside an attribute value never ends the tag early. Returns the index just past the tag's `>`,
-// and the raw attribute text between the tag name and that `>`.
+// Finds the end of the opening tag starting at `start`, tracking brace and string depth so an
+// expression or a quoted `>` inside an attribute value never ends the tag early.
 function readTag(text: string, start: number): { end: number; attrs: string } | null {
 	const nameMatch = /^<(div|span|section)/.exec(text.slice(start));
 	if (!nameMatch) return null;
@@ -84,8 +82,7 @@ export interface TestidWrapperHit {
 }
 
 // An opening tag whose only attributes are `data-testid` and, optionally, `key` exists only to
-// carry the test id: tests must find it by role, label or text, or the test id must move onto the
-// element that actually carries the identity.
+// carry the test id.
 function isTestidOnly(attrs: string): boolean {
 	const tokens = attrs.trim().length === 0 ? [] : attrs.trim().split(/\s+(?=[\w-]+=)/);
 	if (tokens.length === 0) return false;

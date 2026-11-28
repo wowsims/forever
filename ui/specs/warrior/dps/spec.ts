@@ -169,7 +169,7 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		const rotation = withSpellIds(preset.rotation.rotation!, bookRanks);
 
 		// With this group shown (for Arms, with Stance Dance as well), the racials group casts Elune's Light only while
-		// Recklessness is down, more than 15 s remain, and either more than 195 s or at most 30 s remain.
+		// Recklessness is down.
 		const recklessnessAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action.action.groupReference.groupName === 'Recklessness ON/OFF',
 		);
@@ -180,8 +180,7 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		);
 		if (stanceDanceAction) stanceDanceAction.hide = !useStanceDance;
 
-		// Help stacks to 5 and leaves the rest to the raid, restacking once the debuff falls off even with no raid Sunder;
-		// Maintain also refreshes; None casts none. Stacking and refreshing stay separate groups so the option can split them.
+		// Help stacks to 5 and leaves the rest to the raid; Maintain also refreshes.
 		const sunderArmorAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action?.action.groupReference.groupName === 'Sunder Armor',
 		);
@@ -202,8 +201,7 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		);
 		if (rendWeaveAction) rendWeaveAction.hide = !useRend;
 
-		// Hamstring is woven for Windfury procs only while Windfury Totem is known: Fury below Overpower weaving, Arms above
-		// Execute. It runs on a single target only, since on more targets the rage goes to Cleave and Whirlwind instead.
+		// Hamstring is woven for Windfury procs only while Windfury Totem is known.
 		const hamstringWeaveAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action?.action.groupReference.groupName === 'Hamstring Weave ON/OFF',
 		);

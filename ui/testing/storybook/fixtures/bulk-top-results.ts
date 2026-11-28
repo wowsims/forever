@@ -6,7 +6,7 @@ import { type BulkMode, createSimStore, patchSlice } from '@sim/state/sim_store'
 import { memoryEnv } from '@testing/sim/memory_env';
 
 // A host over a real store with power tools on and the batch in `mode` at `topResults` (0 is All), for the Top results
-// control. Its picks are stored in memory.
+// control.
 export const makeBulkTopResultsHost = (mode: BulkMode, topResults: number): IndividualSimHost<any> => {
 	const player = {
 		sim: { store: createSimStore(), env: memoryEnv(), isNative: false },

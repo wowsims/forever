@@ -63,8 +63,8 @@ export const IDS_TO_GROUP_FOR_ROTATION: Array<number> = [
 	16387, // Shaman - Flametongue Totem (the totem and its strikes)
 ];
 
-// An aura left off the timeline while another aura, which is up over the same time, has its row; keyed by
-// equalityKey, with the key of that other aura. It keeps a row of its own when that aura never shows up.
+// An aura left off the timeline while another aura, which is up over the same time, has its row. It
+// keeps a row of its own when that aura never shows up.
 const AURAS_SHOWN_BY = new Map<string, string>([
 	// The raid's Windfury Totem standing, shown by its raid aura, which rolls the proc while the totem holds the category.
 	[ActionId.fromSpellId(10614, 0, -1).equalityKey(), ActionId.fromSpellId(10612, 0, -1).equalityKey()],

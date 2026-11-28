@@ -5,13 +5,7 @@ import type { ReactElement } from 'react';
 
 /**
  * One subscription source for a Saved* panel test. `vi.mock` is hoisted above the imports, so the
- * factory reaches it lazily:
- *
- * ```ts
- * vi.mock('@sim/state/subscriptions', async () =>
- * 	(await import('@testing/sim/subscriptions')).mockSubscriptions((await import('@testing/saved_panel')).source.subscribe),
- * );
- * ```
+ * factory reaches it lazily.
  */
 const listeners = new Set<() => void>();
 export const source = {

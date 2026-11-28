@@ -92,10 +92,10 @@ export class Party {
 			this.writeComposition();
 		});
 
-		// Discard detection: a player displaced by a replacement is disposed
-		// unless it gets re-placed somewhere (a move/swap) before the current
-		// task finishes. Removals (newPlayer == null) never dispose — the move
-		// path removes from the old slot first and re-places immediately.
+		// A player displaced by a replacement is disposed unless it gets
+		// re-placed somewhere before the current task finishes. Removals never
+		// dispose: the move path removes from the old slot first and re-places
+		// immediately.
 		if (displaced) {
 			queueMicrotask(() => {
 				if (displaced.getParty() == null && !displaced.isDisposed()) {

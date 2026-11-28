@@ -1,9 +1,8 @@
 // What this pins is the split the dialog is built on: the stage is dialog state and everything that
 // moves with a worker message is state local to `HandleProgressBar`, so a tick renders that leaf and not the
 // `keepMounted` dialog that outlives every run. The measured rate is ~10 progress callbacks a second
-// on wasm (sim/core/sim.go:336 throttles each sim to one report per 100 ms, and
-// ui/sim/wasm/sim.ts:118 decimates by worker count) and ~2/s on the native host, which is why the
-// bar renders per message instead of coalescing across frames.
+// on wasm and ~2/s on the native host, which is why the bar renders per message instead of coalescing
+// across frames.
 import i18n from '@i18n/config';
 import { formatDurationSeconds } from '@sim/utils/format';
 import { act, fireEvent, render, screen } from '@testing-library/react';
@@ -89,8 +88,7 @@ describe('ProgressTrackerDialog', () => {
 		expect(barFill().style.width).toBe('');
 	});
 
-	// Sim progress bypasses the store. The bound is one commit of this leaf per batch of ticks — the
-	// dialog around it never re-renders.
+	// Sim progress bypasses the store.
 	it('renders once for a hundred progress ticks in one batch, and shows the last of them', () => {
 		const { commits } = renderDialog();
 		const atMount = commits.mock.calls.length;

@@ -4,9 +4,8 @@ type HighsLoader = typeof import('highs').default;
 type Highs = Awaited<ReturnType<HighsLoader>>;
 
 // highs's own solution type is a union whose every member allows Status: 'Infeasible', so it
-// cannot be narrowed to the variants that carry Primal. Read the columns through this structural
-// type instead; a variable missing from the result is already an error on the Go side (see
-// sim/core/reforge_optimizer/highs_js.go).
+// cannot be narrowed to the variants that carry Primal. A variable missing from the result is
+// already an error on the Go side (see sim/core/reforge_optimizer/highs_js.go).
 type HighsSolutionColumns = Record<string, { Primal: number }>;
 
 type SimRequestAsync = (data: Uint8Array, progress: (result: Uint8Array) => void, id: string) => Uint8Array;
@@ -92,7 +91,7 @@ declare global {
 }
 
 // The name table SIML is read and written with, fetched and handed to the sim on the first SIML request: lib.wasm
-// holds none of its own. A load that fails is tried again on the next request.
+// holds none of its own.
 let simlNamesLoad: Promise<void> | null = null;
 const loadSimlNames = (): Promise<void> =>
 	(simlNamesLoad ??= (async () => {
@@ -155,9 +154,7 @@ const go = new Go();
 let inst: WebAssembly.Instance | null = null;
 
 // The sim module is fetched and compiled ONCE on the main thread and shared with every
-// wasm worker as a compiled WebAssembly.Module (structured clone) - spawning N workers
-// costs one download and one compile instead of N of each. See getSharedWasmModule in
-// ui/core/worker_pool.ts.
+// wasm worker (see getSharedWasmModule).
 const requestWasmModule = (): Promise<WebAssembly.Module> =>
 	new Promise(resolve => {
 		const onModule = ({ data }: MessageEvent<{ msg: string; module?: WebAssembly.Module }>) => {

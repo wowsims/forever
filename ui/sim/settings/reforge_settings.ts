@@ -1,9 +1,7 @@
-// Persisted gear-optimizer settings, extracted from the ReforgeOptimizer
-// component (ui/features/reforge/components/ReforgePanel) so the state surface is UI-free.
+// Persisted gear-optimizer settings.
 // There is no item reforging: "reforge" is only the optimizer's name.
 // Values live in the sim store (`reforge[player.storeKey]`) with per-field
 // version counters; this class is the facade over that slice.
-// Serialization lands in IndividualSimSettings.reforgeSettings.
 import { ReforgeSettings as ReforgeSettingsProto } from '@generated/proto/api';
 import { ItemSlot, Stat } from '@generated/proto/common';
 
@@ -149,21 +147,19 @@ export class ReforgeSettings {
 		}
 	}
 
-	// A preset build carries a *partial* ReforgeSettings — vanilla's type was literally
-	// `Partial<ReforgeSettings>` — so each field is applied only when the preset actually
-	// sets it, and anything it leaves out keeps the value `applyDefaults()` gave it.
-	// `fromProto` is the deserialization path and replaces every field, which resets the
-	// spec's soft-cap breakpoints, stat caps and frozen slots to proto zero values.
+	// A preset build carries a *partial* ReforgeSettings, so each field is applied only when the
+	// preset actually sets it, and anything it leaves out keeps the value `applyDefaults()` gave it.
+	// `fromProto` replaces every field, which resets the spec's soft-cap breakpoints, stat caps and
+	// frozen slots to proto zero values.
 	applyPreset(proto: ReforgeSettingsProto) {
 		batch(() => {
 			if (proto.useCustomEpValues) this.setUseCustomEPValues(proto.useCustomEpValues);
 			if (proto.statCaps) this.setStatCaps(Stats.fromProto(proto.statCaps));
 			if (proto.useSoftCapBreakpoints) this.setUseSoftCapBreakpoints(proto.useSoftCapBreakpoints);
 			if (proto.freezeItemSlots) this.setFreezeItemSlots(proto.freezeItemSlots);
-			// `.length`, not truthiness. Vanilla's presets were plain `Partial<ReforgeSettings>`
-			// literals where an unset repeated field is `undefined`; these are real protos, and
-			// protobuf-ts `create()` seeds every repeated field to `[]`, which is truthy — so a bare
-			// guard here empties the slots a user pinned in the optimizer on every preset click.
+			// `.length`, not truthiness: protobuf-ts `create()` seeds every repeated field to `[]`, which
+			// is truthy, so a bare guard here empties the slots a user pinned in the optimizer on every
+			// preset click.
 			if (proto.frozenItemSlots.length) this.setFrozenItemSlots(proto.frozenItemSlots);
 			if (proto.breakpointLimits) this.setBreakpointLimits(Stats.fromProto(proto.breakpointLimits));
 			if (proto.useEnchantPresets) this.setUseEnchantPresets(proto.useEnchantPresets);

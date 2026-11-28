@@ -12,9 +12,7 @@ import { useDrStickySlot } from './context/DrStickySlotContext';
 import type { DetailedResultsViewProps } from './DetailedResults';
 import type { DetailedResultsTabConfig } from './utils';
 
-// The picker is `ResultsFilter`'s test to cover; what this pane owns is the selection, so the filter is
-// reduced to a button that reports one. Everything else in the module — `ALL_UNITS`, `hasTarget`,
-// `simResultFilter` — is the real thing.
+// What this pane owns is the selection, so the filter is reduced to a button that reports one.
 vi.mock('../ResultsFilter', async importOriginal => ({
 	...(await importOriginal<typeof import('../ResultsFilter')>()),
 	ResultsFilter: ({ target, onTargetChange }: { target: number; onTargetChange: (target: number) => void }) => (
@@ -29,8 +27,7 @@ vi.mock('@sim/proto/sim_result', async importOriginal => ({
 	SimResult: { fromProto: () => Promise.resolve({ getTargets: () => Array.from({ length: run.targets }, (_, index) => ({ index })) }) },
 }));
 
-// Every pane below is React now, so they are prop readers rather than islands: what this pane owes
-// each is `active`, which is what their own deferral is built on.
+// What this pane owes each pane below is `active`, which is what their own deferral is built on.
 const panes = vi.hoisted(() => ({ log: [] as Array<boolean>, timeline: [] as Array<boolean>, movement: [] as Array<boolean> }));
 vi.mock('../LogRunner', () => ({
 	LogRunner: ({ active }: { active: boolean }) => {
@@ -174,7 +171,6 @@ describe('DetailedResults', () => {
 		expect(container.querySelector('[data-testid="dr-root"]')!.hasAttribute('data-no-results')).toBe(false);
 	});
 
-	// What `onTabShown` was to an island, `active` is to every pane that defers its work.
 	it.each([
 		['log', 'logTab'],
 		['timeline', 'timelineTab'],

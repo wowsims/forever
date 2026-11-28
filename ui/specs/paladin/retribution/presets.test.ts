@@ -1,5 +1,4 @@
-// The Retribution builds load what their .siml files state: the Holy Shock build turns item swap on with its swap set,
-// the Unsealed Wrath build turns it off, and neither moves "in front of target".
+// The Retribution builds load what their .siml files state.
 import { isBuildActive } from '@app/preset_build_state';
 import { applyBuild } from '@features/settings/model/apply_build';
 import { ItemSlot, Spec } from '@generated/proto/common';

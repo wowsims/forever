@@ -111,7 +111,7 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 
 	const simDisplayMetrics = useDisplayMetrics(sim);
 	// A gear planner never computes weights, so none of the computed columns apply: only the
-	// editable Current EP column is left (and the calculate button below is dropped).
+	// editable Current EP column is left.
 	const editOnly = !!host.simDisabled;
 	const displayMetrics = useMemo(() => (editOnly ? { damage: false, healing: false, threat: false } : simDisplayMetrics), [editOnly, simDisplayMetrics]);
 	const { threat: showThreatMetrics } = displayMetrics;

@@ -48,9 +48,8 @@ type SpecStats = Pick<IndividualSimUIConfig<any>, 'displayStats' | 'epStats' | '
 // A listed config forces that one option on or off, so a spec can drop a single buff that shares its
 // stat tag with buffs it wants to keep, e.g. Mana Tide but not Mana Spring.
 //
-// The defaults are the displayed stats (a pseudo-stat by its root rating), the EP stats and the stats the spec
-// includes. The universe is every stat tagged on the options, once and in stat order, less the excluded stats: a
-// toggle for one of those could never take effect.
+// The universe is every stat tagged on the options, less the excluded stats: a toggle for one of those could never
+// take effect.
 export const statOptionScope = (options: ReadonlyArray<PickerStatOptions>, config: SpecStats): StatFilterScope => {
 	const displayed = config.displayStats.filter(us => us.hasRootStat()).map(us => us.getRootStat());
 	const included = config.includeBuffDebuffInputs.filter((entry): entry is Stat => typeof entry === 'number');
@@ -64,8 +63,7 @@ export const statOptionScope = (options: ReadonlyArray<PickerStatOptions>, confi
 	};
 };
 
-// Buffs the sim lets only one of apply, offered as one multi icon under a label for what they give. A registry names
-// the group by its members' configs; inDisplayOrder resolves them to the prebuilt rows.
+// Buffs the sim lets only one of apply, offered as one multi icon under a label for what they give.
 export interface StatOptionGroup {
 	groupLabel: string;
 	configs: ReadonlyArray<IconPickerStatOption['config']>;

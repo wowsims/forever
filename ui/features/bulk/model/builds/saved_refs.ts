@@ -28,7 +28,7 @@ export const keyedOnce = <T extends object>(key: (value: T) => string): ((value:
 };
 
 // The record a Saved panel writes under `key`, read leniently so an entry with fields the protos no longer list still
-// loads, as the Saved Encounters and Saved Rotations panels read theirs.
+// loads.
 export const storedSavedData = <T extends object>(
 	host: IndividualSimHost<any>,
 	key: string,

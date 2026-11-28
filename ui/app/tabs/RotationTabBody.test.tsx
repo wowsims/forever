@@ -43,7 +43,7 @@ describe('RotationTabBody simple pane', () => {
 	});
 
 	// DPS warrior's `simpleRotation` generator never reads its Cooldowns argument, so the picker
-	// could not affect the APL it builds. Vanilla hid the block with a per-spec SCSS rule.
+	// could not affect the APL it builds.
 	it('hides it for a spec that opts out, even with cooldowns available', () => {
 		expect(cooldownBlock(setup(true).container)).toBeNull();
 	});

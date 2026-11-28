@@ -121,10 +121,7 @@ export const actionMetric = (name: string, overrides: Record<string, unknown> = 
 export const petActionMetric = (name: string, overrides: Record<string, unknown> = {}) =>
 	actionMetric(name, { unit: { isPet: true, petActionId: null }, ...overrides });
 
-/**
- * `ActionMetrics.merge` as the first metric with the named fields summed. The real one builds an
- * ActionMetrics out of protos; a parent row only needs to be a row.
- */
+/** `ActionMetrics.merge` as the first metric with the named fields summed. */
 export const mockActionMetricsMerge = (...summed: Array<string>) =>
 	vi.spyOn(ActionMetrics, 'merge').mockImplementation(((metrics: Array<Record<string, number>>) => ({
 		...metrics[0],

@@ -1,6 +1,4 @@
-// DOM-free half of the gear optimizer: settings access, EP / soft-cap math and the solve itself
-// (cache lookup, sim request, abort). The rendering half lives in ../components/ReforgePanel and
-// owns every button, tooltip, toast and modal.
+// DOM-free half of the gear optimizer. The rendering half lives in ../components/ReforgePanel.
 //
 // There is no item reforging: "reforge" is only the optimizer's name.
 import { enchantPresetPool } from '@features/enchant-presets/model/enchant_presets';
@@ -25,7 +23,7 @@ import { buildEnchantOptions, classifyEnchantSlots, type EnchantSlot, type Skipp
 import { applyBreakpointLimits, clearSoftCappedStats, toRelativeSoftCaps } from './utils';
 
 // Handed to the option callbacks below so a spec config can reach the optimizer and
-// its own defaults without closing over the sim UI instance.
+// its own defaults.
 export type ReforgeOptimizerContext = {
 	player: Player<any>;
 	reforger: ReforgeOptimizerModel;
@@ -38,13 +36,10 @@ export type ReforgeOptimizerOptions = {
 	// Allows you to enable breakpoint limits for Treshold type caps
 	enableBreakpointLimits?: boolean;
 	// Allows you to modify the stats before they are returned for the calculations
-	// For example: Adding class specific Glyphs/Talents that are not added by the backend
 	updateGearStatsModifier?: (baseStats: Stats) => Stats;
 	// Allows you to get alternate default EPs
-	// For example for Fury where you have SMF and TG EPs
 	getEPDefaults?: (player: Player<any>, ctx: ReforgeOptimizerContext) => Stats;
 	// Allows you to modify default softCaps
-	// For example you wish to add breakpoints for Berserking if enabled
 	updateSoftCaps?: (softCaps: StatCap[], player: Player<any>, ctx: ReforgeOptimizerContext) => StatCap[];
 	// Allows you to specifiy additional information for the soft cap tooltips
 	additionalSoftCapTooltipInformation?: StatTooltipContent;
@@ -72,10 +67,7 @@ export interface ReforgeOptimizerModel {
 	readonly statCaps: Stats;
 	readonly processedStatCaps: Stats;
 	setUseSoftCapBreakpoints(newValue: boolean): void;
-	/**
-	 * The slots whose enchant the optimizer leaves alone: those whose item can take a proc enchant the sim
-	 * implements (see classifyEnchantSlots), and with the enchant presets on, those no checked preset lists.
-	 */
+	/** The slots whose enchant the optimizer leaves alone (see classifyEnchantSlots). */
 	getSkippedEnchantSlots(gear: Gear): SkippedEnchantSlot[];
 	optimizeReforges(gear?: Gear): Promise<Gear>;
 	abortReforgeOptimization(): Promise<void>;
@@ -126,8 +118,7 @@ export const createReforgeOptimizer = (sim: Sim, player: Player<any>, options: R
 
 	const processedStatCaps = () => (isAllowedToOverrideStatCaps() ? settings.statCaps : clearSoftCappedStats(settings.statCaps, softCapsConfigWithLimits()));
 
-	// The skipped list the panel shows and the solve's enchant options share one classification, rebuilt only when
-	// the gear, Enchanting, the frozen slots or the enchant presets change.
+	// The skipped list the panel shows and the solve's enchant options share one classification.
 	let enchantSlotsMemo: { key: unknown[]; slots: EnchantSlot[] } | null = null;
 	const enchantSlots = (gear: Gear): EnchantSlot[] => {
 		const frozenSlots = settings.freezeItemSlots ? [...settings.frozenItemSlots] : [];
@@ -165,7 +156,7 @@ export const createReforgeOptimizer = (sim: Sim, player: Player<any>, options: R
 			// THE cache-key contract for the 14-day optimizer cache. `makeReforgeConfigRequestFields` declares
 			// exactly which player/request state a solve depends on; when a new field that affects solve
 			// output is added to Player or ReforgeOptimizeRequest, it must be reflected there or stale
-			// results are served silently - and an irrelevant field left in busts every user's cache on
+			// results are served silently, and an irrelevant field left in busts every user's cache on
 			// unrelated changes. Raid and gear are excluded: those are separate components of the key.
 			reforgeRequest: ReforgeOptimizeRequest.create({ ...makeReforgeConfigRequestFields(config) }),
 			raidBuffs: sim.raid.getBuffs(),
@@ -173,8 +164,7 @@ export const createReforgeOptimizer = (sim: Sim, player: Player<any>, options: R
 			debuffs: sim.raid.getDebuffs(),
 		});
 		const frozenItemSlots = config.settings.freezeItemSlots && config.settings.frozenItemSlots.length ? config.settings.frozenItemSlots : undefined;
-		// The frozen slots are part of the gear key: the optimizer leaves a frozen slot alone, so
-		// the optimized gear depends on which slots are frozen.
+		// The frozen slots are part of the gear key: the optimized gear depends on which slots are frozen.
 		const cacheKey = ReforgeGearCache.getKey(getReforgeCacheGearKey(previousGear.asSpec(), frozenItemSlots), configHash);
 		const cachedGear = await cache.get(cacheKey);
 		if (cachedGear) {

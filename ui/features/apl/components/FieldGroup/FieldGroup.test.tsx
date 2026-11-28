@@ -51,8 +51,7 @@ describe('FieldGroup', () => {
 		).toEqual([true, true, true]);
 	});
 
-	// `getValue` writes: an unset proto field is filled in with the spec's default before it is read
-	// back, which is what makes a freshly picked kind show anything at all.
+	// `getValue` writes, which is what makes a freshly picked kind show anything at all.
 	it('fills an unset field with the spec default on the first read', () => {
 		setup({});
 		mount([numberFieldConfig('count', false)]);
@@ -71,7 +70,7 @@ describe('FieldGroup', () => {
 	});
 
 	// `useStoreSubscribe` only re-reads `getValue` when its source notifies, so a field config
-	// without a `storeSubscribe` renders once and then never again — silently.
+	// without a `storeSubscribe` renders once and then never again.
 	it('re-reads a field when the rotation notifies', () => {
 		setup({ text: 'a' });
 		mount([stringFieldConfig('text')]);

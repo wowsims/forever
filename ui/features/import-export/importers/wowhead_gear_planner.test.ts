@@ -1,6 +1,5 @@
-// The gear-planner hash is Wowhead's own format. Nothing about it is readable, so the test that
-// means anything is a round trip: the *exporter* beside it carries an independent writer, and every
-// field the importer hands on has to come back out of the link the exporter built.
+// The gear-planner hash is Wowhead's own format, so the test is a round trip: every field the
+// importer hands on has to come back out of the link the exporter built.
 import { Class, ItemSlot, ItemSpec, Race } from '@generated/proto/common';
 import { WOWHEAD_DOMAIN } from '@sim/proto/wowhead';
 import { fakeHost } from '@testing/sim/fake_host';
@@ -99,8 +98,7 @@ describe('the Wowhead gear planner link', () => {
 		expect(parsed.equipmentSpec?.items).toEqual([ItemSpec.create({ id: 29011, enchant: 28910, randomSuffix: -5 })]);
 	});
 
-	// A Wowhead link can carry gem ids, three bytes each, after an item: they are skipped, and the
-	// item after them still parses.
+	// A Wowhead link can carry gem ids, three bytes each, after an item.
 	it('skips the gem ids an item carries', async () => {
 		const id3 = (id: number, high = 0) => [high | (id >> 16), (id >> 8) & 255, id & 255];
 		const enchantOffset = 128;

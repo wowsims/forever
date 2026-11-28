@@ -44,8 +44,8 @@ describe('useTypedLocalStorage', () => {
 		expect(result.current[0]).toEqual({ name: 'raiding', count: 4 });
 	});
 
-	// The reason this hook does not lean on react-use's `useLocalStorage`: that one is `useState`-backed
-	// per instance, so two mounted readers of one key drift apart until something remounts them.
+	// Why this hook does not lean on react-use's `useLocalStorage`: that one is `useState`-backed per
+	// instance, so two mounted readers of one key drift apart.
 	it('a live second instance sees the first one write, with no remount', () => {
 		const first = renderHook(() => useTypedLocalStorage<Shape>(KEY, parseShape));
 		const second = renderHook(() => useTypedLocalStorage<Shape>(KEY, parseShape));

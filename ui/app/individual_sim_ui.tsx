@@ -302,7 +302,7 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 	fromProto(settings: IndividualSimSettings, includeCategories?: Array<SimSettingCategories>) {
 		// A gear planner hides the encounter settings, so the default target applied by `applyDefaults`
 		// stays whatever the saved settings or the link carried: stats and the gear optimizer always
-		// have a full environment to build, without a second ComputeStats to put it back.
+		// have a full environment to build.
 		if (!this.simDisabled) {
 			applyIndividualSimSettings(this.serializationContext(), settings, includeCategories);
 			return;

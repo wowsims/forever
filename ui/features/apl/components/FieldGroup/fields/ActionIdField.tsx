@@ -52,8 +52,7 @@ export const ActionIdField = ({ player, config, actionIdSet, unitRefField, defau
 
 	const defaultRef = useMemo(() => UnitReference.create({ type: defaultUnitRef == 'self' ? UnitType.Self : UnitType.CurrentTarget }), [defaultUnitRef]);
 
-	// One subscription for both reads: the referenced unit can change with the rotation, and its
-	// metadata can change on its own.
+	// The referenced unit can change with the rotation, and its metadata can change on its own.
 	const { isPrepull, changeSource } = useApl();
 	const subscribe = useMemo(() => subscribeAll([changeSource(player), subscribeUnitMetadata(player.sim)]), [player, changeSource]);
 	const view = useStoreSubscribe(subscribe, () => ({
@@ -61,8 +60,7 @@ export const ActionIdField = ({ player, config, actionIdSet, unitRefField, defau
 		source: config.getValue(player),
 	}));
 
-	// Metadata is mutated in place, so its identity does not move when it gains a spell. This counter
-	// is what forces the refetch off the notification instead.
+	// Metadata is mutated in place; this counter is what forces the refetch off the notification.
 	const metadataEpoch = useUnitMetadataVersion(player.sim);
 
 	const [available, setAvailable] = useState<Array<PathOption<ActionId>>>([]);
@@ -74,8 +72,8 @@ export const ActionIdField = ({ player, config, actionIdSet, unitRefField, defau
 			if (!live) return;
 			setAvailable(
 				values
-					// An entry the sim only accepts in the other list is not offered at all, so no user
-					// action can build a rotation out of one; see `ActionIdOption.listScope`.
+					// An entry the sim only accepts in the other list is not offered; see
+					// `ActionIdOption.listScope`.
 					.filter(value => !value.listScope || value.listScope === (isPrepull ? 'prepull' : 'priority'))
 					.map(value => ({
 						value: value.value,
@@ -126,9 +124,8 @@ export const ActionIdField = ({ player, config, actionIdSet, unitRefField, defau
 	const boundConfig = {
 		...config,
 		sourceToValue: (source: ActionID) => (source ? ActionId.fromProto(source) : ActionId.fromEmpty()),
-		// A field the user never filled in has no selection, and the kind-swap pre-fill reads the old
-		// kind's fields regardless — so an absent value hands back the empty proto the field spec
-		// mints rather than throwing.
+		// The kind-swap pre-fill reads the old kind's fields regardless, so an absent value hands back
+		// the empty proto the field spec mints rather than throwing.
 		valueToSource: (value: ActionId | undefined) => (value ? value.toProto() : ActionID.create()),
 	};
 

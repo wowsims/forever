@@ -28,8 +28,8 @@ const shortLabel = (number: number) => t('short_set', { number });
 const gainLabel = (gainPct: number) => formatToPercent(gainPct, { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'exceptZero' });
 
 // The rank and DPS with the fight-to-fight spread, the ± the sim results card shows, then the gain over the reference:
-// the current gear, or the encounter's best set when the batch did not sim the current setup. The current gear's own
-// cells (rank null) carry neither rank nor gain. The percentage is the cell's own, of the reference's DPS.
+// the current gear, or the encounter's best set when the batch did not sim the current setup. The percentage is the
+// cell's own, of the reference's DPS.
 const cellTooltip = ({ result, rank, gainPct }: MatrixCell, entry: BulkEncounterResults): string => {
 	const base = entry.results.originalGearResults.dpsMetrics;
 	const { avg, stdev } = result.dpsMetrics;
