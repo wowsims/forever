@@ -249,8 +249,8 @@ func (warrior *Warrior) registerBloodthrill() {
 
 	talent := spellData.Bloodthrill.Rank(warrior.Talents.Bloodthrill)
 
-	// Main-hand white swings, extra attacks included, and the on-next-swing Heroic Strike and Cleave
-	// proc it on a target with the warrior's Rend (EV-0056).
+	// Main-hand white swings, Heroic Strike and Cleave proc it (EV-0056). The white swings include extra
+	// attacks.
 	trigger := spelldata.ProcTrigger(&warrior.Character, talent,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.OverpowerAura.Activate(sim)
@@ -318,10 +318,9 @@ func (warrior *Warrior) registerWeaponmaster() {
 	}
 
 	// 1290261 states no proc flags at all, so the shape, the mask and the rate's effect are the caller's.
-	// Sweeping Strikes' hits never roll it; every landed Whirlwind strike with a sword does, one extra
-	// attack a cast at most (EV-0054). Cleave rolls it once a cast, on its first landed hit; no log
-	// measures Cleave. A Windfury Totem hit rolls it as a white swing does (EV-0002). Swings other procs
-	// grant (Hand of Justice) bring one as well.
+	// Sweeping Strikes' hits never roll it; every landed Whirlwind strike does (EV-0054). Cleave rolls it
+	// once a cast, on its first landed hit; no log measures Cleave. A Windfury Totem hit rolls it as a
+	// white swing does (EV-0002). Swings other procs grant (Hand of Justice) bring one as well.
 	firstCleaveHit, resetFirstCleaveHit := core.OncePerCast()
 	firstWhirlwindGrant, resetFirstWhirlwindGrant := core.OncePerCast()
 	swordTrigger := core.ProcTrigger{
@@ -425,10 +424,9 @@ func (warrior *Warrior) registerSweepingStrikes() {
 	actionID := core.ActionID{SpellID: sweepingStrikesHitID}
 
 	var copyDamage float64
-	// The copy takes the hit's damage with the attacker's damage bonuses already in it, and those bonuses
-	// apply to it again, except one that needs a weapon equipped, so Two-Handed Weapon Specialization
-	// counts once (EV-0182). The logs measure Enrage and Two-Handed Weapon Specialization; that every
-	// other bonus follows the same rule, Death Wish among them, is an owner decision.
+	// The copy takes the attacker's damage bonuses again, except one that needs a weapon (EV-0182). The
+	// logs measure Enrage and Two-Handed Weapon Specialization; that every other bonus follows the same
+	// rule, Death Wish among them, is an owner decision.
 	twoHandSpec := 1.0
 	var twoHandSpecWeapon core.EquipRequirement
 	if warrior.Talents.TwoHandedWeaponSpecialization > 0 {

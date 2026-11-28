@@ -177,9 +177,8 @@ func DropLowerSameNameSets(db *WowDatabase) {
 	}
 }
 
-// Where a set ships a piece its ItemSet row does not list, a piece the row does list for that slot is dropped. The row
-// of each reissued dungeon set 2 lists eight pieces no player wears, beside the pieces players wear, which carry the
-// set's id and are not on its list (EV-0144).
+// Where a set ships a piece its ItemSet row does not list, a piece the row does list for that slot is dropped. The
+// reissued dungeon set 2 rows list pieces no player wears (EV-0144).
 func DropListedSetPiecesBesideUnlistedOnes(db *WowDatabase, listed map[int32]bool) {
 	type setPiece struct {
 		set      int32

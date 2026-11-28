@@ -320,8 +320,7 @@ func TestWeaponProcStrikeRollsOnlyTheMainHandWeapon(t *testing.T) {
 	}
 }
 
-// A strike a main-hand white swing cast rolls its weapon once more, and the strike that roll casts
-// rolls nothing (EV-0145).
+// A strike a main-hand white swing cast rolls its weapon once more (EV-0145).
 func TestWeaponProcStrikeAWhiteSwingCastRollsItsWeaponOnce(t *testing.T) {
 	const weaponID int32 = 991616
 	const batches = 5

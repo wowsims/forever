@@ -20,8 +20,8 @@ const DamageTakenRageFactor = 2.5
 
 // Damage of a school other than physical, and every periodic tick, grants twice a physical melee auto
 // attack's rage (EV-0052). Every other physical direct hit (Shoot, a ranged auto attack) grants twice that
-// rule too, read on the damage left after armor, damage taken multipliers, flat damage taken bonuses and
-// the block, before absorbs (EV-0118).
+// rule too, read on the damage left after armor and the block (EV-0118), and after damage taken
+// multipliers and flat damage taken bonuses, before absorbs.
 // TODO: Ingame test needed -- the logs behind EV-0118 hold no absorbed special and no attacker above level 40, so
 // whether an absorb takes rage off and whether the landed reading keeps the (1 - A) of higher attackers is not measured.
 const SpellDamageTakenRageMultiplier = 2.0
@@ -68,9 +68,8 @@ const (
 	BaseRageHitFactor     = 3.46
 	TwoHandRageHitFactor  = 4.5
 	TwoHandRageMultiplier = TwoHandRageHitFactor / BaseRageHitFactor
-	// A critical auto attack adds this share of its whole rage, the two-hand multiplier and the off-hand
-	// halving included, for every rage user (EV-0053, EV-0037). The game files' Rule of Rage (DND)
-	// 1322574 states 100; the spell store does not carry it.
+	// A critical auto attack adds this share of its whole rage (EV-0053, EV-0037). The game files' Rule
+	// of Rage (DND) 1322574 states 100; the spell store does not carry it.
 	CritRageBonus = 1.0
 )
 

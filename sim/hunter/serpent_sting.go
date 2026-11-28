@@ -9,7 +9,7 @@ import (
 var serpentStingTrainerRank = spellData.SerpentSting.ByID(13555)
 var serpentStingBookRank = spellData.SerpentSting.ByID(25295)
 
-// In game each tick takes 5% of ranged attack power, read at each tick (EV-0068).
+// In game each tick takes 5% of ranged attack power (EV-0068).
 const serpentStingTickAPShare = 0.05
 
 func (hunter *Hunter) registerSerpentSting() {

@@ -99,8 +99,8 @@ func paladinWearingAgainst(t *testing.T, worn map[proto.ItemSlot]int32, encounte
 	return sim, pal, pal.CurrentTarget
 }
 
-// A landed Judgement of Command rolls a weapon proc once, on its damage (EV-0155). A listener that is
-// no weapon proc hears the damage alone, and a judgement that misses rolls none of them (EV-0156).
+// A landed Judgement of Command rolls a weapon proc once (EV-0155), on its damage. A listener that is
+// no weapon proc hears the damage alone (EV-0156). A judgement that misses rolls none of them.
 func TestJudgementOfCommandRollsAWeaponProcOnce(t *testing.T) {
 	const casts = 50
 	for _, c := range []struct {
@@ -272,7 +272,7 @@ func TestSealOfRighteousnessHitIsPricedOnVengeanceBeforeTheCrit(t *testing.T) {
 	}
 }
 
-// A Consecration cast rolls Draconic Infused Emblem once for each enemy, and its ticks roll none (EV-0115).
+// A Consecration cast rolls Draconic Infused Emblem once for each enemy (EV-0115).
 func TestConsecrationCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	encounter := core.MakeSingleTargetEncounter(0)

@@ -156,8 +156,8 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	// The damage the unit deals and takes, by school mask. A row that names ranged weapons alone is a
 	// mod on the attacks made with them; one that names a melee weapon holds while it is equipped. A
 	// melee weapon's row of every school is one multiplier. Any other gives its Physical as a school
-	// multiplier and every other school the percent on its melee-defense spells only, whether the mask
-	// names that school or leaves it out (EV-0064, EV-0022). A row whose aura reaches beyond its weapon
+	// multiplier and every other school the percent on its melee-defense spells only (EV-0064, EV-0022),
+	// whether the mask names that school or leaves it out. A row whose aura reaches beyond its weapon
 	// (WeaponDamageSchools) gives every school of its mask as a school multiplier, and the
 	// schools past the mask the percent on their melee-defense spells.
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE: func(p *parser, e *Effect, v float64) *attachment {

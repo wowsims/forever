@@ -150,7 +150,7 @@ func (druid *Druid) RegisterBearFormAura() {
 func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.Spell, kind DruidForm, starting bool) *core.Aura {
 	aura := druid.registerFormAura(form, starting)
 	aura.AttachStatDependency(druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1))
-	// The forms' health is flat and follows the level as their passives' rows state (EV-0037).
+	// The forms' health is flat and follows the level (EV-0037).
 	// TODO: Ingame research needed -- effect 4 of Bear Form and Dire Bear Form is aura 668, which core
 	// does not name.
 	spelldata.ParseEffects(&druid.Character, aura, passive)
@@ -276,7 +276,7 @@ func (druid *Druid) rememberCatEnergy(sim *core.Simulation, energy float64) {
 	druid.furorLeftCatAt = sim.CurrentTime
 }
 
-// A bear form stops energy regeneration and keeps the pool: energy gained in the form, Nature's Bounty's
+// A bear form stops energy regeneration and keeps the pool. Energy gained in the form, Nature's Bounty's
 // ticks, comes back with Cat Form (EV-0144).
 func (druid *Druid) pauseCatEnergy(sim *core.Simulation) {
 	if !druid.HasEnergyBar() || druid.Env.MeasuringStats {

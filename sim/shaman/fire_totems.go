@@ -20,7 +20,7 @@ var fireNovaDamageRank = spellData.FireNovaTriggered.Highest()
 
 // A fire totem's own attack: the totem's, not the caster's, so it lands no proc of the caster's.
 // It reports as the totem's spell tagged 1, so the results show the totem and its hits as one row.
-// A Dwarf's or Troll's beast bonus does not reach it, nor does the shaman's Spell Piercing (EV-0142).
+// A Dwarf's or Troll's beast bonus does not reach it. Nor does the shaman's Spell Piercing (EV-0142).
 func (shaman *Shaman) newTotemAttackConfig(totem *spelldata.Spell, rank *spelldata.Spell) core.SpellConfig {
 	// TODO: In-game testing required: the logs measured totems only on mobs with no resistance in the
 	// school, so whether the shaman's Spell Piercing still lowers a positive resistance for a totem's
@@ -56,8 +56,7 @@ func (shaman *Shaman) registerFireTotem(rank *spelldata.Spell, mask int64, perio
 	return shaman.RegisterSpell(config)
 }
 
-// The totem waits 0.225 s after each cast ends before it starts the next while it keeps its
-// target (EV-0011).
+// The totem waits after each cast ends (EV-0011).
 var searingTotemPeriod = searingAttackRank.CastTime() + 225*time.Millisecond
 
 func (shaman *Shaman) registerSearingTotemSpell() {

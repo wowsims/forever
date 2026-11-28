@@ -16,7 +16,7 @@ func (mage *Mage) registerIceLanceSpell() {
 // Frost damage to one enemy, raised by effect 2's percentage ("Deals $s2% increased damage to Frozen
 // targets", 300) while the target is frozen.
 //
-// The damage effect states no spell power coefficient; the store carries one measured in game as an
+// The damage effect states no spell power coefficient. The store carries one measured in game as an
 // override (tools/database/overrides, EV-0171). Effects 3 (20) and 4 (5) are server-side scripts the
 // tooltip does not name, and are not modelled.
 func (mage *Mage) registerIceLanceRank(_ int32, rank *spelldata.Spell) {

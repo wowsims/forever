@@ -286,8 +286,7 @@ func init() {
 	//
 	// Harmful spell casts and attacks against Furbolg have a chance to deal 105 Nature damage.
 	//
-	// 1318323 rolls the procs per minute an override puts on the row; a spell hit rolls on the main-hand
-	// weapon's speed by the owner's ruling (EV-0136).
+	// The procs per minute, and the owner's ruling on spell hits (EV-0136).
 	// Its on-use, Irresistible Scent 1296664, charms the target, which the sim does not model.
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1318323, BuffSpellID: 1318324,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
@@ -342,7 +341,7 @@ func init() {
 	//
 	// The cloud puts 1300240 on every enemy active at the use and none that comes later. It is a ground
 	// effect, so the debuff always lands and each tick rolls its own spell hit and crit.
-	// One tick fewer than the cloud has periods, with no spell power (EV-0191).
+	// One tick fewer than the cloud has periods (EV-0191).
 	core.NewItemEffect(10455, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		cloud := spelldata.MustFind(12766)

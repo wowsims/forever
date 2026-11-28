@@ -42,7 +42,7 @@ func applySpellDataDebuffProc(agent core.Agent, cfg SpellDataProc, source effect
 	source.registerTrigger(character, config)
 }
 
-// Whether a weapon proc casts its debuff row as a strike, as Mutilator's Lacerations 10370 does (EV-0145).
+// Whether a weapon proc casts its debuff row as a strike (EV-0145).
 func debuffStrikes(cfg SpellDataProc, row *spelldata.Spell) bool {
 	if !cfg.IsWeaponProc {
 		return false
@@ -82,7 +82,7 @@ func applyDebuff(sim *core.Simulation, aura *core.Aura) {
 
 // Proc debuffs that bid in a raid debuff's category though no raid debuff reads their row. Vibroblade's
 // Puncture Armor 1293005 is here for when its wielder proc is registered, which no item does yet. In
-// game it never lands while Curse of Recklessness or Faerie Fire is on the target (EV-0147); it is weaker
+// game it never lands while Curse of Recklessness or Faerie Fire is on the target (EV-0147). It is weaker
 // than either, so bidding in their slot gives the target the same armor. Bashguuder and Rivenspike's
 // 17315 is the raid's Puncture Armor row, whose player copy bids there already.
 var debuffProcCategories = map[int32]string{

@@ -25,7 +25,7 @@ func (warlock *Warlock) registerRainOfFire() {
 	}
 	wave := warlock.RegisterSpell(waveConfig)
 
-	// The cast lands on every enemy in the area as the channel starts, so Judgement of Wisdom on each
+	// The cast lands on every enemy in the area as the channel starts. Judgement of Wisdom on each
 	// enemy there rolls once (EV-0116).
 	land := spelldata.RegisterAreaCastLanding(&warlock.Unit, rankedSpell)
 

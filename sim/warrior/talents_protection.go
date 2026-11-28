@@ -76,8 +76,8 @@ func (warrior *Warrior) registerShieldSpecialization() {
 func (warrior *Warrior) registerRageOnAvoid(driver *spelldata.Spell, energize *spelldata.Spell, outcome core.HitOutcome, extra core.ProcExtraCondition) {
 	rage := energize.EnergizeEffect().Tenths()
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: energize.ID})
-	// In game this rage makes 5 threat a rage in Battle and Defensive Stance alike, and Defiance does not
-	// scale it (EV-0045).
+	// This rage makes 5 threat a rage in Battle and Defensive Stance alike (EV-0045). Defiance does not
+	// scale it.
 	// TODO: Ingame test needed -- whether a threat buff scales it.
 	rageMetrics.UnscaledThreat = true
 

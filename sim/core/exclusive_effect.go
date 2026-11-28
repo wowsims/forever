@@ -13,7 +13,7 @@ const (
 	ResistanceCategoryShadow = "ResistanceShadow"
 )
 
-// The categories the elixirs and the scrolls bid in: each stat counts only the strongest one (R-0054).
+// The categories the elixirs and the scrolls bid in (R-0054).
 const (
 	ElixirStatCategory = "ElixirStat"
 	ElixirCritCategory = "ElixirCrit"

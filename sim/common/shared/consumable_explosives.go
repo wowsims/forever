@@ -94,9 +94,8 @@ func cloudDamageSpell(character *core.Character, itemID int32, row, cloud, damag
 // An explosive used from the bar: the damage its on-use spell deals, on the item's cooldown and the
 // category cooldown every explosive shares.
 //
-// Throwing one leaves the melee swing timer running, and starting the cast drops the attack queued
-// for the next swing (EV-0088). A bomb or grenade whose row's mechanic is stun is a stun as a whole:
-// a stun-immune target is immune to its damage too.
+// Throwing one leaves the melee swing timer running (EV-0088). A bomb or grenade whose row's mechanic
+// is stun is a stun as a whole: a stun-immune target is immune to its damage too.
 func NewSpellDataExplosive(itemID int32) {
 	core.NewSpellDataConsumableEffect(itemID, func(agent core.Agent) {
 		character := agent.GetCharacter()

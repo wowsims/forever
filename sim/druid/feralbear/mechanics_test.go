@@ -638,7 +638,7 @@ func TestEnrageReducesItemBonusAndAgilityArmor(t *testing.T) {
 	}
 }
 
-// Thick Hide's level part is the level times the rank, not the game files' per-level formula (EV-0039).
+// Thick Hide's level part is the level times the rank (EV-0039).
 // Dire Bear Form scales it by 360%, 4.6 times in all.
 func TestThickHideArmorIsLevelTimesRank(t *testing.T) {
 	armorAt := func(rank int) float64 {

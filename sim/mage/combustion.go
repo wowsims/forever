@@ -38,9 +38,9 @@ func (mage *Mage) registerCombustionSpell() {
 		mage.UpdateMajorCooldowns()
 	}
 
-	// An area spell's hits count one by one, Flamestrike's ground ticks among them (EV-0197). Periodic
-	// damage never reaches OnSpellHitDealt, so DoT ticks and Ignite neither stack nor spend. The row
-	// cannot proc from procs, so an item's Fire proc does neither.
+	// An area spell's hits count one by one (EV-0197). Periodic damage never reaches OnSpellHitDealt,
+	// so DoT ticks and Ignite neither stack nor spend. The row cannot proc from procs, so an item's Fire
+	// proc does neither.
 	chargesConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if !spell.ProcMask.Matches(core.ProcMaskSpellDamage) || !spell.SpellSchool.Matches(core.SpellSchoolFire) || !result.Landed() ||
 			spell.Flags.Matches(core.SpellFlagProc) {

@@ -225,7 +225,7 @@ func (shaman *Shaman) applyCallOfThunder() {
 
 var lightningMasteryRank = spellData.LightningMastery.Highest()
 
-// The row states one charge and casts that would spend it, but no cast spends it (EV-0137).
+// The row states one charge and casts that would spend it. No cast spends it (EV-0137).
 func (shaman *Shaman) applyLightningMastery() {
 	if !shaman.Talents.LightningMastery {
 		return

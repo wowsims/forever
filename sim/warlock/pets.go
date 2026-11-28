@@ -429,7 +429,7 @@ func (pet *WarlockPet) registerDemonicBrand() {
 	}
 	brandConfig := spelldata.SpellConfig(&pet.Unit, brandRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered())
 	brandHit := pet.RegisterSpell(brandConfig)
-	// Both rows state Always Hit: the brand's hit rolls only its crit and partial resists (EV-0201).
+	// Both rows state Always Hit. The brand's hit rolls only its crit and partial resists (EV-0201).
 	brandOutcome := brandHit.OutcomeMagicHitAndCrit
 	if brandRow.AlwaysHits() {
 		brandOutcome = brandHit.OutcomeMagicCrit

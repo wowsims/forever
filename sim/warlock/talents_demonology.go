@@ -214,7 +214,7 @@ func (warlock *Warlock) applyMasterSummoner() {
 
 // --- Tier 4 ---
 
-// The tooltip ties the damage bonus to a target below 35% health, but in game the bonus counts at any target
+// The tooltip ties the damage bonus to a target below 35% health. In game the bonus counts at any target
 // health (EV-0232).
 // The buff sits on the warlock, so a cast at a low target carries its Soul Fire bonus to any other target.
 func (warlock *Warlock) applyDecimation() {
@@ -285,8 +285,8 @@ func (warlock *Warlock) applyFelDomination() {
 }
 
 // Searing Pain brands the target; the demon's next attacks against it each consume a charge (pets.go).
-// The brand row has no charges of its own; the ladder's effect 2 gives them: the brand lands with 6 at 3/3,
-// though the tooltip reads 3 (EV-0083).
+// The brand row has no charges of its own; the ladder's effect 2 gives them. The brand lands
+// with 6 at 3/3 (EV-0083).
 func (warlock *Warlock) applyDemonicBrand() {
 	if warlock.Talents.DemonicBrand == 0 {
 		return

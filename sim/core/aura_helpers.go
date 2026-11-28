@@ -74,8 +74,8 @@ type ProcTrigger struct {
 	// (SpellItemEnchantment.Effect 1, e.g. Mongoose, Crusader, poisons, imbues).
 	// The game casts these off every melee or ranged hit that lacks SpellFlagSuppressWeaponProcs,
 	// whether or not that hit was itself a proc, so SpellFlagProc and CanProcFromProcs are ignored.
-	// A weapon proc's own strike is such a hit unless its cast carries the flag, which a melee strike
-	// does where anything but a main-hand white swing of the weapon cast it (R-0040).
+	// A weapon proc's melee strike carries the flag unless a main-hand white swing of the weapon
+	// cast it (R-0040).
 	// Which hand's hits qualify is still the DPM's or ProcMask's job.
 	IsWeaponProc bool
 }
@@ -86,13 +86,11 @@ type ProcTrigger struct {
 // of a magic item proc, never casts them. They also skip an ability that is no weapon hit: one whose
 // row requires a shield (SpellEquippedItems), which strikes with the shield, and one whose DefenseType
 // is magic or none. Auto attacks are exempt, since a wand's shots carry magic DefenseType and cast them.
-// No chance-on-hit effect or combat enchant hears Shield Slam, Shield Bash or Thunder Clap, while an
-// equip proc hears Shield Slam (EV-0021). A special with no DefenseType, such as Sweeping Strikes'
-// copied hit 12723, is no weapon hit either (EV-0007). Aura procs (Aura::IsProcTriggeredOnEvent) skip
-// triggered spells that lack Not a Proc, unless the listener carries Can Proc From Procs. Auto attacks,
-// extra attacks included, carry neither flag and so are always eligible. A dot's tick is no cast, so it
-// reaches them whatever laid the dot; a tick that is the hit of a spell the aura casts
-// (SpellFlagTicksAreCasts) is a cast like any other (EV-0226).
+// No chance-on-hit effect or combat enchant hears Shield Slam, Shield Bash or Thunder Clap (EV-0021).
+// A special with no DefenseType is no weapon hit either (EV-0007). Aura procs
+// (Aura::IsProcTriggeredOnEvent) skip triggered spells that lack Not a Proc, unless the listener
+// carries Can Proc From Procs. Auto attacks, extra attacks included, carry neither flag and so are
+// always eligible. A dot's tick reaches them whatever laid the dot (EV-0226).
 func (config *ProcTrigger) canProcFrom(spell *Spell, tick bool) bool {
 	if config.IsWeaponProc {
 		if !spell.ProcMask.Matches(ProcMaskMeleeOrRanged) || spell.Flags.Matches(SpellFlagSuppressWeaponProcs) {

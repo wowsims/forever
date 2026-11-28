@@ -1309,7 +1309,7 @@ func TestRainOfFireCastReturnsJudgementOfWisdomManaFromEachEnemy(t *testing.T) {
 	}
 }
 
-// A Rain of Fire cast rolls Draconic Infused Emblem 22268 once for each enemy, and its waves roll none (EV-0115).
+// A Rain of Fire cast rolls Draconic Infused Emblem 22268 once for each enemy (EV-0115).
 func TestRainOfFireCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	player := warlockPlayer("Warlock", "", &proto.WarlockOptions{})
@@ -1405,8 +1405,7 @@ func TestChannelCastsDrainNoTouchOfTheGrave(t *testing.T) {
 	}
 }
 
-// Hellfire's burn on the caster takes the caster's Fire damage done modifiers and crits for the channel's crit
-// damage, which Ruin raises (EV-0229).
+// Hellfire's burn on the caster takes the caster's Fire damage done modifiers and crits (EV-0229).
 func TestHellfireBurnTakesFireModifiersAndCrits(t *testing.T) {
 	burnRatios := func(talents string) (modified float64, crit float64) {
 		sim, warlock := newWarlockSim(talents, &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))

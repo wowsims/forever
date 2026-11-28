@@ -216,8 +216,8 @@ func (guardian *Guardian) reach() float64 {
 	return guardian.cast.EffectiveMaxRange()
 }
 
-// A guardian casts its spell, a hardcast, only standing within its range (R-0055). One with no spell only swings, so
-// its rotation sleeps for as long as it can be up once it stands in melee range.
+// A guardian casts only standing within its range (R-0055). One with no spell only swings, so its rotation
+// sleeps for as long as it can be up once it stands in melee range.
 func (guardian *Guardian) ExecuteCustomRotation(sim *core.Simulation) {
 	canCast := guardian.cast != nil && sim.CurrentTime >= guardian.nextCastAt && !guardian.Moving && guardian.cast.InRange()
 	switch reach := guardian.reach(); {

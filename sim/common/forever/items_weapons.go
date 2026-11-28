@@ -186,7 +186,7 @@ func init() {
 	// for 10s.
 	//
 	// 1309550 states no odds: Wax or Wane, one in two (EV-0163). Waxing Moon takes a magic proc's spell
-	// damage mask (R-0051), which R-0051 leaves open for a hand-written item spell.
+	// damage mask, which R-0051 leaves open for a hand-written item spell.
 	core.NewItemEffect(280080, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		waxRow := spelldata.MustFind(1319378)
@@ -321,7 +321,7 @@ func init() {
 	//
 	// Chance on hit: Knocks target silly for 2 sec and increases Strength by 53 for 20 sec.
 	//
-	// No effect of 17500 casts 17499, so the generator cannot pair them (EV-0150). The sim leaves the
+	// No effect of 17500 casts 17499 (EV-0150), so the generator cannot pair them. The sim leaves the
 	// stun out.
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17500, BuffSpellID: 17499, IsWeaponProc: true},
 		[]shared.ItemVariant{
@@ -333,8 +333,8 @@ func init() {
 	//
 	// Chance on hit: All attacks are guaranteed to land and will be critical strikes for the next 3s.
 	//
-	// The Windfury Totem hit the proccing hit sets off rolls under it, and it lasts a batch window past
-	// 3 s (EV-0225). An extra swing that hit sets off rolls under it too; that swing is not measured.
+	// The Windfury Totem hit the proccing hit sets off rolls under it (EV-0225). An extra swing that hit
+	// sets off rolls under it too; that swing is not measured.
 	shared.ProcTriggerExtras[12590] = func(trigger *core.ProcTrigger) {
 		trigger.TriggerImmediately = true
 	}
@@ -365,7 +365,7 @@ func init() {
 	//
 	// Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.
 	//
-	// Rate on cast time; each proc is Shadow or Arcane, one in two (EV-0115).
+	// Rate on cast time (EV-0115).
 	core.NewItemEffect(22458, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300435)
@@ -463,7 +463,7 @@ func init() {
 	// Attacks have a chance to grant 2 extra attacks on your next swing. Attacks against Orcs are 2 times
 	// as likely to activate this effect.
 	//
-	// The row's ProcChance is the chance against Orcs, half of it against other targets (EV-0119).
+	// The row's ProcChance is the chance against Orcs. Half of it against other targets (EV-0119).
 	core.NewItemEffect(11684, func(agent core.Agent) {
 		registerExtraAttackVersus(agent.GetCharacter(), 11684, "Ironfoe", 1301046)
 	})
@@ -577,7 +577,7 @@ func init() {
 	// Chance on hit: Deals 49 Shadow damage every 1.0 sec for 5s. All damage done is then transferred to
 	// the caster.
 	//
-	// No hit roll, and each tick heals the amount the drain's row states (EV-0179).
+	// Each tick heals the amount the drain's row states (EV-0179).
 	// TODO: the heal crits several times as often as the tick in the logs (EV-0179), and the sim rolls both
 	// on the wearer's spell crit. Measure which chance each rolls.
 	shared.DamageProcExtras[14541] = func(character *core.Character, config *core.SpellConfig) {
@@ -689,8 +689,8 @@ func init() {
 	// Chance on hit: Shoots a ring of fire dealing 154 Fire damage to all nearby enemies, and envelops
 	// the caster with a Fire Shield for 15s.
 	//
-	// The generated spell does not cast 16559's second effect, so each proc puts the shield on here
-	// (EV-0136). A druid's form attacks roll it as any other melee hit does (R-0056).
+	// The generated spell does not cast 16559's second effect. Each proc puts the shield on here (EV-0136).
+	// A druid's form attacks roll it (R-0056).
 	shared.DamageProcExtras[11809] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Trigger()
 		shield := character.RegisterAura(spelldata.AuraConfig(row, spelldata.Label("Flame Wrath Fire Shield")))
@@ -738,7 +738,7 @@ func init() {
 	// Chance on hit: Deal 294 Physical damage and stun for 1.5s. Trolls take 2 times as much damage
 	// and stun duration.
 	//
-	// The stun rolls its own hit, so an avoided strike stuns too (EV-0136).
+	// The stun rolls its own hit. An avoided strike stuns too (EV-0136).
 	shared.DamageProcExtras[9477] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(1294340)
 		label := fmt.Sprintf("%s %d", row.Name, row.ID)
@@ -828,7 +828,7 @@ func init() {
 	//
 	// Chance on hit to restore 65 mana.
 	//
-	// Rate on wand shots; the mana is that of 1302350, which 1302348 fires, not the tooltip's 65 (EV-0136).
+	// Rate on wand shots; the mana is not the tooltip's 65 (EV-0136).
 	newEntryRateItemEffect(18483, 1302350, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(1302348)
 		handler := shared.FiredSpellHandler(character, core.ActionID{ItemID: 18483}, row)
@@ -895,8 +895,7 @@ func creatureFamilyMultiplier(target *core.Unit, multiplier float64, families ..
 	return 1
 }
 
-// Narrows the trigger to the wearer's harmful spells landing on an enemy: spell damage hits, and magic
-// spells with no proc mask whose school is not Physical, such as the curses (EV-0025, EV-0219).
+// Narrows the trigger to the wearer's harmful spells landing on an enemy (EV-0025, EV-0219).
 func harmfulSpells(character *core.Character, trigger *core.ProcTrigger) {
 	condition := trigger.ExtraCondition
 	trigger.ProcMask = core.ProcMaskUnknown
@@ -909,7 +908,7 @@ func harmfulSpells(character *core.Character, trigger *core.ProcTrigger) {
 	}
 }
 
-// The row's procs per minute on the cast time behind each landed hit, at least 1.5 s (EV-0025, EV-0219).
+// The row's procs per minute on the cast time behind each landed hit (EV-0025, EV-0219).
 // The cast time is read where the cast deals its result, a missile's at cast end, so one still in flight
 // keeps it when the next cast of the spell starts. The chance depends on the hit, so Chance(1) leaves
 // core no roll and the condition draws it after the cooldown check and before the cooldown starts.

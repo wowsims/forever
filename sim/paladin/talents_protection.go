@@ -90,8 +90,7 @@ func (paladin *Paladin) applyRedoubt() {
 		redoubt.SetStacks(sim, redoubt.MaxStacks)
 	})
 	trigger.Name = "Redoubt - Trigger" + paladin.Label
-	// Every melee swing and melee ability aimed at the paladin rolls, whatever it resolves to, although
-	// the tooltip says "damaging" (EV-0022).
+	// Every melee swing and melee ability aimed at the paladin rolls (EV-0022). The tooltip says "damaging".
 	trigger.Outcome = core.OutcomeEmpty
 	trigger.RequireDamageDealt = false
 	paladin.MakeProcTriggerAura(trigger)
@@ -225,7 +224,7 @@ func (paladin *Paladin) applyReckoning() {
 		Handler:    gain,
 	})
 
-	// A Windfury Totem hit, landed or avoided, spends the stored charges but swings no copy (EV-0136).
+	// A Windfury Totem hit spends the stored charges but swings no copy (EV-0136).
 	var extraAttack *core.Spell
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Reckoning - Swing" + paladin.Label,
@@ -304,9 +303,9 @@ func (paladin *Paladin) applyIronCreed() {
 // without consuming their charges or triggering their cooldowns, and allowing you to Block spells
 // for 6 sec.
 //
-// The spell block comes with every strike made with a shield, an avoided one too (EV-0022). It is
-// the triggered row's A_ALLOW_BLOCKING_SPELLS, which the parser has no kind for. A blocked spell is
-// a block to Holy Shield, Reckoning and Shield Specialization (EV-0228).
+// The spell block comes with every strike (EV-0022). It is the triggered row's A_ALLOW_BLOCKING_SPELLS,
+// which the parser has no kind for. A blocked spell is a block to Holy Shield, Reckoning and Shield
+// Specialization (EV-0228).
 func (paladin *Paladin) applyShieldsworn() {
 	if !paladin.Talents.Shieldsworn {
 		return

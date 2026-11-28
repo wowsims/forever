@@ -209,8 +209,8 @@ func NewSpellDataJudgementOfWisdomAuraRank(target *core.Unit, rank JudgementRank
 
 // Whoever lands a hit the row's proc flags name on the judged target rolls the row's chance to regain
 // the rank's mana. A miss, dodge or parry rolls nothing, and neither do periodic ticks or damage
-// shields. A landed hit that deals no damage still rolls, so Serpent Sting's application reaches the
-// judgement (R-0005): the trigger leaves out the damage requirement the decode gives every row.
+// shields. A landed hit that deals no damage still rolls: the trigger leaves out the damage
+// requirement the decode gives every row. Serpent Sting's application reaches the judgement (R-0005).
 func AttachJudgementOfWisdomMana(aura *core.Aura, rank JudgementRank) *core.Aura {
 	actionID := core.ActionID{SpellID: rank.SpellID}
 	mana := rank.Value

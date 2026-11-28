@@ -83,8 +83,8 @@ func (paladin *Paladin) applyConviction() {
 // Vindication - Gives your damaging melee attacks a chance to reduce the target's Attack Power by
 // 68/136/204 for 30 sec.
 //
-// The game files state no rate. In game it is 5 procs a minute on the weapon's speed (EV-0062). The
-// row's proc mask also hears melee specials, which roll the same chance (EV-0156).
+// The game files state no rate. In game it is 5 procs a minute (EV-0062). Melee specials roll the
+// same chance (EV-0156); the row's proc mask also hears them.
 const vindicationPPM = 5
 
 func (paladin *Paladin) applyVindication() {
@@ -125,8 +125,7 @@ func (paladin *Paladin) applyVindication() {
 // Judgement fires no on-cast callbacks, so the trigger hears the judgement the seal unleashes: one
 // per Judgement, and it refunds whether or not that judgement lands.
 //
-// The refund is a share of the seal's base cost, and the seal's percent cost cut goes on top of it
-// instead of coming off (EV-0063).
+// The refund and the seal's percent cost cut (EV-0063).
 func (paladin *Paladin) applySanctifiedJudgement() {
 	if paladin.Talents.SanctifiedJudgement == 0 {
 		return
@@ -198,8 +197,7 @@ func (paladin *Paladin) applyPursuitOfJustice() {
 // Sacred Arbiter - Increases the damage of your Holy Strike ability by 20% and causes it to refresh
 // all Judgement effects on the target.
 //
-// The trigger follows the tooltip. In game a Holy Strike under the talent writes no refresh line in
-// the combat log (EV-0117).
+// The trigger follows the tooltip. In game a Holy Strike under the talent writes no refresh line (EV-0117).
 // TODO: Ingame test needed: whether Holy Strike under Sacred Arbiter extends the judgement debuffs without a refresh line.
 func (paladin *Paladin) applySacredArbiter() {
 	if !paladin.Talents.SacredArbiter {
@@ -302,8 +300,7 @@ func (paladin *Paladin) applyChampionOfTheLight() {
 // times. Landing an attack with a different Seal consumes all stacks, giving the stored Seal its
 // normal chance to activate once per stack.
 //
-// In game the talent needs a weapon equipped, so swapping the main-hand weapon takes it off for a
-// moment, and every Echo goes with it (EV-0065).
+// Swapping the main-hand weapon takes every Echo off (EV-0065).
 func (paladin *Paladin) applyUnsealedWrath() {
 	if !paladin.Talents.UnsealedWrath {
 		return
@@ -369,7 +366,7 @@ func (paladin *Paladin) applyUnsealedWrath() {
 	// stores nor spends a copy.
 	trigger.Outcome = core.OutcomeLanded
 	trigger.TriggerImmediately = true
-	// A Windfury Totem hit stores no copy, though the row hears melee swings (EV-0136).
+	// A Windfury Totem hit stores no copy (EV-0136).
 	trigger.HearsCountedSwings = false
 	paladin.MakeProcTriggerAura(trigger)
 }

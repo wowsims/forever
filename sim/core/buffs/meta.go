@@ -229,8 +229,8 @@ func newDamageShield(unit *core.Unit, m *Meta, isPlayer bool, talentPoints int32
 
 // Retribution Aura and Thorns scale with their caster's spell power in Forever even though their
 // game files rows carry no coefficient. The coefficient is the 1.5 s cast-time floor over 3.5, the
-// AoE divisor because the shield hits every attacker, and the 0.42 penalty for the aura effect: 6% of
-// spell power (EV-0067).
+// AoE divisor because the shield hits every attacker, and the 0.42 penalty for the aura effect. The
+// coefficient is 6% of spell power (EV-0067).
 const DamageShieldSpellPowerCoefficient = 1.5 / 3.5 / 3 * 0.42
 
 // A damage shield that scales with its caster's spell power. The player's copy reads its own spell

@@ -76,9 +76,9 @@ func (at *AttackTable) GetBinaryHitChance(spell *Spell) float64 {
 
 // The average share of a spell's damage the target resists, R / (R + 8L + 19) for the caster's level L,
 // with the caster's Spell Piercing taken off R unless the spell is flagged SpellFlagNoSpellPiercing.
-// Piercing beyond the resistance makes the share negative, and the roll pays it out as bonus damage; a
-// negative share under 1% pays nothing (EV-0142). The target's own resistance stops at 0, so a debuff
-// that lowers it below 0 adds nothing. A target above the caster's level resists no more for its level.
+// Piercing beyond the resistance makes the share negative, and the roll pays it out as bonus damage
+// (EV-0142). The target's own resistance stops at 0, so a debuff that lowers it below 0 adds nothing. A
+// target above the caster's level resists no more for its level.
 func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) float64 {
 	// Holy has no resistance, so a spell with Holy among its schools meets none and takes no piercing.
 	if spell.SchoolIndex <= stats.SchoolIndexPhysical || spell.SpellSchool.Matches(SpellSchoolHoly) {

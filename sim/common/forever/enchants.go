@@ -25,7 +25,7 @@ var revelationBuffs = map[proto.Class]int32{
 	proto.Class_ClassPaladin: 1323419,
 }
 
-// Spells the class's buff row does not name whose cast spends the charge and crits on its direct hit (EV-0149).
+// Spells the class's buff row does not name (EV-0149).
 var revelationDirectHits = map[proto.Class]core.ClassFlags{
 	proto.Class_ClassMage:    {Family: 3, Mask: [4]uint32{0x400001, 0x1000}}, // Fireball, Pyroblast, Frostfire Bolt
 	proto.Class_ClassWarlock: {Family: 5, Mask: [4]uint32{0x4}},              // Immolate
@@ -33,8 +33,7 @@ var revelationDirectHits = map[proto.Class]core.ClassFlags{
 	proto.Class_ClassShaman:  {Family: 11, Mask: [4]uint32{0x10000000}},      // Flame Shock
 }
 
-// Heals that roll nothing for Revelation: Judgement of Light's at each rank, where the rows show no cause
-// (EV-0149), and Vampiric Embrace's party heal 15290.
+// Heals that roll nothing: Judgement of Light's (EV-0149) and Vampiric Embrace's party heal 15290.
 var revelationSkippedHeals = []int32{20267, 20341, 20342, 20343, 15290}
 
 // Penance's heal bolt crits with the charge up and leaves it (EV-0149).
@@ -66,7 +65,7 @@ func init() {
 	// EffectID: 803, Proc SpellID: 13897
 	// Permanently enchant a melee weapon to often strike for 40 additional fire damage.
 	// https://www.wowhead.com/forever/spell=13898
-	// The game files state no rate; the enchant's effect entry carries its procs per minute (EV-0130).
+	// The enchant's procs per minute (EV-0130).
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{
 		Name:           "Enchant Weapon - Fiery Weapon",
 		EnchantID:      803,
@@ -79,7 +78,7 @@ func init() {
 	// EffectID: 1898, Proc SpellID: 20004
 	// Permanently enchant a melee weapon to often steal life from the enemy and give it to the wielder.
 	// https://www.wowhead.com/forever/spell=20032
-	// The game files state no rate; the enchant's effect entry carries its procs per minute (EV-0228).
+	// The enchant's procs per minute (EV-0228).
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{
 		Name:           "Enchant Weapon - Lifestealing",
 		EnchantID:      1898,
@@ -304,8 +303,7 @@ func init() {
 		spelldata.ParseEffects(character, buff, row)
 		character.ItemSwap.RegisterWeaponEnchantBuff(buff, 8217)
 
-		// A completed cast the buff reaches spends the charge; an attack crits and keeps it, and a
-		// channel leaves it to its ticks (EV-0028, EV-0149).
+		// A completed cast the buff reaches spends the charge (EV-0028, EV-0149).
 		// TODO: Holy Shock's and Light's Vigil's heals crit on every cast here, and mostly not in the logs (EV-0149).
 		// TODO: A charge gained during Volley or Penance's heal is spent as the channel ends (R-0048).
 		isAttack := func(spell *core.Spell) bool {
@@ -329,7 +327,7 @@ func init() {
 			buff.RemoveStack(sim)
 		}
 
-		// A channel whose ticks cast a spell of their own spends the charge on its first crit tick (EV-0149).
+		// The first crit tick spends the charge (EV-0149).
 		firstTickHit, _ := core.OncePerCast()
 		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
 			Name:               "Revelation Charge - Channel Tick",
@@ -347,7 +345,7 @@ func init() {
 			Handler: spendCharge,
 		})
 
-		// A channel whose ticks are its own periodic damage spends the charge on its first tick (EV-0149).
+		// A channel's first periodic tick spends the charge (EV-0149).
 		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
 			Name:       "Revelation Charge - Periodic Channel Tick",
 			Callback:   core.CallbackOnPeriodicDamageDealt | core.CallbackOnPeriodicHealDealt,
@@ -390,12 +388,11 @@ func init() {
 		trigger.Name = "Enchant Weapon - Revelation"
 		trigger.Outcome = core.OutcomeLanded
 		trigger.RequireDamageDealt = true
-		// A melee or ranged attack rolls nothing, and a spell far under the wearer's level rolls a share
-		// of the chance (EV-0149). A spell the store has no row for, such as an item's spell registered
-		// under its item id, reads level 0 and keeps none.
+		// A spell far under the wearer's level rolls a share of the chance (EV-0149). A spell the store
+		// has no row for, such as an item's spell registered under its item id, reads level 0 and keeps none.
 		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
 		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
-		// A hit event rolls once, on its first result; a spell and its copy roll apart (EV-0149).
+		// A hit event rolls once (EV-0149).
 		shares := map[*core.Spell]float64{}
 		var lastSpell *core.Spell
 		var lastAt time.Duration

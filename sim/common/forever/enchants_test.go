@@ -344,8 +344,8 @@ func chargeRevelation(sim *core.Simulation, buff *core.Aura) {
 	buff.SetStacks(sim, buff.MaxStacks)
 }
 
-// Enchant Weapon - Revelation 8217 gives a druid its class's buff 1323400. Moonfire, which the mask does
-// not name, crits on its direct hit and spends the charge too (EV-0149).
+// Enchant Weapon - Revelation 8217 gives a druid its class's buff 1323400.
+// Moonfire spends the charge too (EV-0149).
 func TestRevelationGrantsTheWearersClassBuff(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
@@ -413,7 +413,7 @@ func TestRevelationGrantsTheWearersClassBuff(t *testing.T) {
 	}
 }
 
-// A channel whose ticks cast a spell of their own spends the charge on its first tick (EV-0149).
+// A channel spends the charge on its first tick (EV-0149).
 func TestRevelationChannelSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	sim, character := revelationWearerFacing(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}}, 3)
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
@@ -460,8 +460,7 @@ func TestRevelationChannelSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	}
 }
 
-// A channel whose ticks are its own periodic damage spends the charge on its first tick; the same dot
-// cast with no channel leaves it (EV-0149).
+// A channel's first periodic tick spends the charge (EV-0149); the same dot cast with no channel leaves it.
 func TestRevelationChannelOfPeriodicTicksSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
@@ -500,7 +499,7 @@ func TestRevelationChannelOfPeriodicTicksSpendsTheChargeOnItsFirstTick(t *testin
 	}
 }
 
-// A ranged attack rolls nothing, and a shot the mask names crits and leaves the charge (EV-0149).
+// A ranged attack rolls nothing (EV-0149). A shot the mask names crits and leaves the charge.
 func TestRevelationHearsNoRangedAttack(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassHunter, &proto.Player_Hunter{Hunter: &proto.Hunter{}})
 	hunter := sim.Raid.Parties[0].Players[0].(*testHunter)
@@ -555,7 +554,7 @@ func TestRevelationRollsOnAnItemsMagicProc(t *testing.T) {
 	}
 }
 
-// An item's heal rolls Revelation too: Krol'dok Battlegear's 4-piece Krol'dok Resolve 1324296 (EV-0149).
+// An item's heal rolls Revelation too (EV-0149).
 func TestRevelationRollsOnAnItemsHeal(t *testing.T) {
 	equipment := setPieces(kroldokPieces(4))
 	equipment.Items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: 2244, Enchant: revelationEnchant}
@@ -588,8 +587,7 @@ func revelationProcsOnBlocks(t *testing.T, sim *core.Simulation, character *core
 	return procs
 }
 
-// A mage's buff 1248808 spends its charge as the cast it reaches completes, and a channel's first missile
-// spends it (EV-0149).
+// A mage's buff spends its charge as the cast completes (EV-0149).
 func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, 3)
 	mage := sim.Raid.Parties[0].Players[0].(*testMage)
@@ -705,7 +703,7 @@ func TestRevelationRollsOncePerHitEvent(t *testing.T) {
 	}
 }
 
-// Enchant Weapon - Insight 8216 rolls once per cast however many targets it reaches (EV-0229).
+// Enchant Weapon - Insight 8216 rolls once per cast (EV-0229).
 func TestInsightRollsOncePerCast(t *testing.T) {
 	const casts, enemies = 600, 5
 	sim, character := enchantWearerFacing(t, 8216, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, enemies)

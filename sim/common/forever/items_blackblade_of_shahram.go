@@ -12,7 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Shahram 10718 casts one of his six spells, picked by these weights (EV-0125).
+// Shahram 10718's six spells, picked by these weights (EV-0125).
 var shahramPicks = []struct {
 	spellID  int32
 	weight   float64
@@ -98,7 +98,7 @@ func shahramSpellConfig(character *core.Character, row *spelldata.Spell) core.Sp
 	return config
 }
 
-// Flames of Shahram 16596 burns every enemy around Shahram, and can crit (EV-0125).
+// Flames of Shahram 16596 can crit (EV-0125).
 func registerFlamesOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16596)
 	damage := row.DamageEffect()
@@ -195,8 +195,7 @@ func registerMightOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(config)
 }
 
-// Restores mana to each player of the wearer's party, never to a pet; two Blessings tick side by
-// side (EV-0125). Its heal is left out.
+// Restores mana to the wearer's party (EV-0125). Its heal is left out.
 func registerBlessingOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16599)
 	mana := row.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)
@@ -229,9 +228,8 @@ func registerBlessingOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(config)
 }
 
-// Two Fists run side by side, each on its own timer (EV-0125), and their speed counts once, an owner
-// ruling. Every copy lasts the row's duration, so one aura refreshed by each Fist holds the same speed
-// for the same time.
+// Two Fists run side by side (EV-0125), and their speed counts once, an owner ruling. Every copy lasts
+// the row's duration, so one aura refreshed by each Fist holds the same speed for the same time.
 func registerFistOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16601)
 	aura := character.RegisterAura(spelldata.AuraConfig(row))

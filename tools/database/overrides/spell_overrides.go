@@ -539,7 +539,7 @@ var Spells = []Override{
 		Source:  "EV-0171",
 	},
 
-	// Seal of Light procs 15 a minute and Judgement of Light rolls a flat 50% (EV-0017, EV-0018, EV-0212).
+	// Seal of Light and Judgement of Light (EV-0017, EV-0018, EV-0212).
 	{
 		SpellID: 20165,
 		Field:   PPM,
@@ -568,7 +568,7 @@ var Spells = []Override{
 		Reason:  "Seal of Light Rank 4: the measured rate, not a per-swing share of 15 per minute",
 		Source:  "EV-0212",
 	},
-	// Seal of Wisdom procs at Seal of Light's rate on every rank (EV-0018, EV-0212).
+	// Seal of Wisdom (EV-0018, EV-0212).
 	{
 		SpellID: 20166,
 		Field:   PPM,
@@ -1073,8 +1073,8 @@ var Spells = []Override{
 	},
 
 	// Revenge's Attack Power share, the $APR its tooltip states: 0.225 in Defensive Stance is the stance's
-	// own 10%, which stays out of these values. Ranks 1 to 5 fit 0.25 (EV-0048, EV-0203); logs on Ranks 1
-	// and 2 taken before that tooltip fit 0.28 (EV-0049).
+	// own 10%, which stays out of these values. Ranks 1 to 5 fit 0.25 (EV-0048, EV-0203); logs taken
+	// before that tooltip fit 0.28 (EV-0049).
 	{
 		SpellID: 6572,
 		Field:   APCoefDirect,
@@ -1158,10 +1158,10 @@ var Spells = []Override{
 
 	// Heroic Strike and Cleave add flat threat beyond their damage, and none with Attack Power (EV-0042).
 	// Heroic Strike Ranks 1 to 4's measured bonuses fit no single share per spell level (EV-0043);
-	// Ranks 5 and 6 measure Rank 4's 2.5 a level (EV-0048, EV-0174), Rank 8 measures 145 (EV-0050), and
-	// Ranks 7 and 9 carry 2.5 a level. Cleave's measured Ranks 1 and 2 fit 1.5 a level (EV-0042,
-	// EV-0045), and Ranks 3, 4 and 5 measure 62, 80 and 100 (EV-0050). Each rank's bonus is a whole
-	// number: a measured bonus rounds to the nearest one, and each share times its spell level is whole.
+	// Ranks 5 and 6 (EV-0048, EV-0174) and 8 (EV-0050) are measured, and Ranks 7 and 9 carry 2.5 a level.
+	// Cleave's Ranks 1 and 2 fit 1.5 a level (EV-0042, EV-0045), and Ranks 3, 4 and 5 are measured
+	// (EV-0050). Each rank's bonus is a whole number: a measured bonus rounds to the nearest one, and
+	// each share times its spell level is whole.
 	{
 		SpellID: 78,
 		Field:   FlatThreat,
@@ -1261,8 +1261,7 @@ var Spells = []Override{
 		Source:  "EV-0050",
 	},
 
-	// Slam adds flat threat beyond its damage, times the stance: Rank 1's 30 at spell level 20, carried
-	// as 1.5 a level to every rank and to the instant ranks Improved Slam swaps in (EV-0004).
+	// Slam adds flat threat beyond its damage, times the stance (EV-0004).
 	{
 		SpellID: 1240193,
 		Field:   ThreatPerSpellLevel,
@@ -1334,8 +1333,8 @@ var Spells = []Override{
 		Source:  "EV-0004",
 	},
 
-	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too (EV-0004,
-	// EV-0050). Every rank's flat is measured, rounded to the nearest whole number.
+	// Shield Slam adds flat threat beyond its damage, once on a crit too (EV-0004, EV-0050). Every
+	// rank's flat is measured, rounded to the nearest whole number.
 	{
 		SpellID: 23922,
 		Field:   FlatThreat,

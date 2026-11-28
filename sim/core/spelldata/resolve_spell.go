@@ -474,9 +474,8 @@ func applyCost(config *core.SpellConfig, s *Spell) {
 	}
 }
 
-// The landing an area channel's cast makes on every enemy as the channel starts: the cast's dummy as a
-// hit with no damage, which a listener on the enemy hears and a listener that needs damage does not
-// (EV-0116, EV-0219).
+// The landing an area channel's cast makes on every enemy as the channel starts, which a listener on
+// the enemy hears (EV-0116, EV-0219). A listener that needs damage does not.
 func RegisterAreaCastLanding(unit *core.Unit, cast *Spell) func(sim *core.Simulation) {
 	landing := unit.RegisterSpell(SpellConfig(unit, cast, Magic(core.ProcMaskSpellDamage), Proc(), Tag(1),
 		Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))

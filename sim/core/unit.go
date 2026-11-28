@@ -621,7 +621,7 @@ func (unit *Unit) Armor() float64 {
 	return unit.PseudoStats.ArmorMultiplier * unit.stats[stats.Armor]
 }
 
-// A block takes off a whole number: in game every partial block takes the sheet's block value (EV-0045).
+// In game every partial block takes the sheet's block value (EV-0045).
 func (unit *Unit) BlockDamageReduction() float64 {
 	return math.Floor(max(0, unit.stats[stats.Strength]*unit.PseudoStats.BlockValuePerStrength-1) + unit.stats[stats.BlockValue]*unit.PseudoStats.BlockValueMultiplier)
 }

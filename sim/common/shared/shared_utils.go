@@ -690,8 +690,7 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 	source.registerTrigger(character, config)
 }
 
-// The handler followed by the row's own gain into the wearer's mana, rage or energy, where the row
-// states one on its caster: it comes with every proc (EV-0108).
+// The handler followed by the row's own gain: it comes with every proc (EV-0108).
 func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
 	gain := row.EnergizeEffect()
 	if gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
@@ -709,7 +708,7 @@ func withProcEnergize(character *core.Character, row *spelldata.Spell, handler c
 
 // The spell the proc casts, as its row states it, and a proc's spell: out of the rotation and not a
 // cast of its own, its hits reaching the damage listeners as a proc's do. A row that states Always Hit
-// rolls no miss, dodge or parry, and crits the way damage to its own caster does (EV-0164).
+// rolls no miss, dodge or parry (EV-0164). It crits the way damage to its own caster does.
 func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell, asProc bool) core.SpellConfig {
 	config := spelldata.SpellConfig(&character.Unit, damage, damageShape(damage), castBy(asProc))
 
@@ -1338,8 +1337,8 @@ func NewSpellDataHealOnUse(itemID int32) {
 	})
 }
 
-// An on-use item whose spell shields the wearer with an A_SCHOOL_ABSORB aura. The stats the item's
-// effect entry states beside the absorb go with the shield (EV-0100).
+// An on-use item whose spell shields the wearer with an A_SCHOOL_ABSORB aura. The stats beside the
+// absorb go with the shield (EV-0100).
 func NewSpellDataAbsorbOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeSurvival, func(character *core.Character, absorb *spelldata.Spell) core.SpellConfig {
 		config := spellDataAbsorbSpell(character, absorb, itemID, false)

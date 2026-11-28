@@ -166,7 +166,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Rock on Stick: no proc row; measured on main-hand hits without extra attacks or haste",
 		Source:  "EV-0050",
 	},
-	// Measured the same way in reports of dungeons below the end game (EV-0024).
+	// Measured the same way (EV-0024).
 	{
 		ItemID:  287005,
 		SpellID: 1324687,
@@ -174,7 +174,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Sword of Dismemberment: no proc row",
 		Source:  "EV-0024",
 	},
-	// Measured on isolated hits in end-game and levelling dungeon reports (EV-0003, EV-0022, EV-0119).
+	// Measured on isolated hits (EV-0003, EV-0022, EV-0119).
 	{
 		ItemID:  6220,
 		SpellID: 1292152,
@@ -245,7 +245,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Bigger Rock on Bigger Stick: no proc row",
 		Source:  "EV-0022",
 	},
-	// Measured on a cat druid's white swings, priced on the 1.0 s paw (EV-0122).
+	// Measured on a cat druid's white swings (EV-0122).
 	{
 		ItemID:  274963,
 		SpellID: 1295744,
@@ -253,7 +253,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Rot-Covered Harpoon: column reads 101",
 		Source:  "EV-0122",
 	},
-	// Measured on the landed hits each trigger hears, each priced on its weapon's base speed (EV-0136).
+	// Measured on the landed hits each trigger hears (EV-0136).
 	{
 		ItemID:  754,
 		SpellID: 13519,
@@ -1252,8 +1252,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Seeping Willow: column reads 101; a log fit not yet validated (EV-0003)",
 		Source:  "observed",
 	},
-	// Fitted the same way from wearers of one class, no lone-unit rate to check it, too wide an interval, or older
-	// and newer reports that read apart, to call final (EV-0183, EV-0186).
+	// Fitted the same way, not final (EV-0183, EV-0186).
 	{
 		ItemID:  10626,
 		SpellID: 12686,

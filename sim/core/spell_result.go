@@ -459,7 +459,7 @@ func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(spell.Unit.AttackTables[target.UnitIndex], false)
 	baseDamage *= spell.VersusBonus.Against(target)
-	// The caster's flat physical damage bonus, at the row's coefficient on a school-damage row (EV-0196).
+	// The caster's flat physical damage bonus (EV-0196).
 	if spell.BonusCoefficient > 0 {
 		baseDamage += spell.BonusCoefficient * spell.BonusDamage(attackTable)
 	} else if spell.Flags.Matches(SpellFlagPhysicalSchoolDamage) {

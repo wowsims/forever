@@ -282,9 +282,8 @@ var (
 	wildHeartBuff    = spelldata.MustFind(1302707) // 4pc: the movement speed it gives
 )
 
-// The energize proc of Wildheart Raiment and of the Feralheart Raiment reissue, at the procs per minute
-// an override puts on the row; the dummy effect's 5 is no chance (EV-0144). A shapeshift, a spell whose
-// row spends rage or energy and Shifting Power roll nothing (EV-0144).
+// The energize proc of Wildheart Raiment and of the Feralheart Raiment reissue; the dummy effect's 5 is
+// no chance. Its procs per minute and the spells that roll nothing (EV-0144).
 func wildheartEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		character := agent.GetCharacter()
@@ -309,8 +308,7 @@ func wildheartEnergize(name string) core.ApplySetBonus {
 	}
 }
 
-// The energy listener: which swings roll it and how 27784 ticks; in caster form a tick is left out
-// (EV-0144).
+// The energy listener: which swings roll it and how 27784 ticks (EV-0144).
 // TODO: The manager reads the main hand's speed when it is built, so a druid that shifts between Cat Form
 // and a bear form keeps the paw of the form it started in.
 func attachWildheartSwingEnergy(character *core.Character, setBonusAura *core.Aura, name string) {
@@ -343,7 +341,7 @@ func attachWildheartSwingEnergy(character *core.Character, setBonusAura *core.Au
 	setBonusAura.AttachProcTrigger(trigger)
 }
 
-// The rage listener: a melee ability taken rolls nothing, though the row names it (EV-0144). The rage
+// The rage listener: a melee ability taken rolls nothing (EV-0144), though the row names it. The rage
 // fills the bar only while rage is the current one, since a shift into a bear form empties the bar.
 func attachWildheartStruckRage(character *core.Character, setBonusAura *core.Aura, name string) {
 	if !character.HasRageBar() {
@@ -427,8 +425,8 @@ var ItemSetBeaststalkerArmor = core.NewItemSet(core.ItemSet{
 // Dungeon Set 1
 // https://www.wowhead.com/forever/item-set=187/the-elements
 //
-// The 5-piece bonus (450626) buffs spell damage and healing at the procs per minute an override puts on
-// its row (EV-0144). The 4-piece bonus disarms an attacker when struck, which a boss fight does not test.
+// The procs per minute of the 5-piece bonus (EV-0144). The 4-piece bonus disarms an attacker when
+// struck, which a boss fight does not test.
 var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 	ID:    187,
 	Name:  "The Elements",
@@ -444,9 +442,8 @@ var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 // Dungeon Set 1
 // https://www.wowhead.com/forever/item-set=188/lightforge-armor
 //
-// The 5-piece bonus (450625) buffs spell damage and healing at the procs per minute an override puts on
-// its row (EV-0144). The 4-piece bonus silences a caster when struck by a spell, which a boss fight does
-// not test.
+// The procs per minute of the 5-piece bonus (EV-0144). The 4-piece bonus silences a caster when struck
+// by a spell, which a boss fight does not test.
 var ItemSetLightforgeArmor = core.NewItemSet(core.ItemSet{
 	ID:    188,
 	Name:  "Lightforge Armor",
@@ -510,7 +507,7 @@ func warriorsResolve(name string) core.ApplySetBonus {
 // Dungeon Set 2, Season of Discovery reissue
 // https://www.wowhead.com/forever/item-set=1667/feralheart-raiment
 //
-// The four groups of pieces, all under this id, count toward the same bonuses (EV-0144).
+// The four groups of pieces count toward the same bonuses (EV-0144).
 var ItemSetFeralheartRaimentReissue = core.NewItemSet(core.ItemSet{
 	ID:    1667,
 	Name:  "Feralheart Raiment",
@@ -593,9 +590,8 @@ var ItemSetBeastmasterArmorReissue = core.NewItemSet(core.ItemSet{
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// The 4-piece bonus is Lightforge Armor's 5-piece proc (450625), at the procs per minute an override
-// puts on its row (EV-0144). The 5-piece bonus silences a caster when struck by a spell, which a boss
-// fight does not test.
+// The 4-piece bonus is Lightforge Armor's 5-piece proc (450625), at its procs per minute (EV-0144). The
+// 5-piece bonus silences a caster when struck by a spell, which a boss fight does not test.
 var ItemSetSoulforgeArmorReissue = core.NewItemSet(core.ItemSet{
 	ID:    1673,
 	Name:  "Soulforge Armor",
@@ -610,8 +606,8 @@ var ItemSetSoulforgeArmorReissue = core.NewItemSet(core.ItemSet{
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// The 4-piece bonus is The Elements' 5-piece proc (450626), at the procs per minute an override puts on
-// its row (EV-0144). The 5-piece bonus disarms an attacker when struck, which a boss fight does not test.
+// The 4-piece bonus is The Elements' 5-piece proc (450626), at its procs per minute (EV-0144). The
+// 5-piece bonus disarms an attacker when struck, which a boss fight does not test.
 var ItemSetTheFiveThundersReissue = core.NewItemSet(core.ItemSet{
 	ID:    1679,
 	Name:  "The Five Thunders",
@@ -764,7 +760,7 @@ var ItemSetDefiasLeather = core.NewItemSet(core.ItemSet{
 func deviousStrike(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	config := procSpellConfigAs(character, deviousStrikeBleed, spelldata.Melee(core.ProcMaskEmpty))
-	// The bleed's ticks ignore armor, although its row's attributes name a tenth of it (EV-0194).
+	// The bleed's ticks ignore armor (EV-0194).
 	config.Flags &^= core.SpellFlagTenthResistance | core.SpellFlagApplyArmorReduction
 	config.Dot = spelldata.DotConfig(deviousStrikeBleed, deviousStrikeBleed.PeriodicDamageEffect())
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -797,7 +793,7 @@ var (
 // (4) Set: Taking damage has a 15% chance to grant Enraging Light for 10s, causing your melee attacks to
 // deal 20 Holy damage. Deals 3 times as much damage to Undead.
 //
-// While 1293673 is up, every landed melee swing or ability casts 1293675 at its target (EV-0173).
+// Every landed melee swing or ability casts 1293675 (EV-0173).
 var ItemSetChainOfTheScarletCrusade = core.NewItemSet(core.ItemSet{
 	ID:   163,
 	Name: "Chain of the Scarlet Crusade",
@@ -1144,8 +1140,7 @@ var (
 // This Mana Regeneration is doubled in Strongholds and Cities.
 // (5) Set: Chance on damaging spell to summon an Arcane elemental to aid you in combat.
 //
-// Each landed damaging spell rolls each bonus once for every target it hits, priced on the cast's time
-// (EV-0169).
+// Each landed damaging spell rolls each bonus, priced on the cast's time (EV-0169).
 var ItemSetVioletSorcerersVestments = core.NewItemSet(core.ItemSet{
 	ID:   2134,
 	Name: "Violet Sorcerer's Vestments",
@@ -1206,7 +1201,7 @@ var (
 // (5) Set: Melee attacks have a chance to increase your Critical Strike chance by 2% for 20s. This effect is
 // doubled in swamps.
 //
-// The row names the main hand alone, but off-hand swings proc it as often (EV-0170).
+// Off-hand swings proc it as often (EV-0170).
 var ItemSetDefiasEnforcersGarb = core.NewItemSet(core.ItemSet{
 	ID:   2136,
 	Name: "Defias Enforcer's Garb",

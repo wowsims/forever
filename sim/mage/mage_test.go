@@ -253,8 +253,7 @@ func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 	}
 }
 
-// The missiles of the Arcane Missiles channel are hits, so each rolls its partial resist against the
-// target's whole average resist (EV-0142).
+// The missiles of the Arcane Missiles channel are hits (EV-0142).
 func TestArcaneMissilesMeetTheTargetsFullResistance(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
 	target := mage.CurrentTarget
@@ -376,7 +375,7 @@ func TestBlizzardCastRollsArcaneConcentrationOncePerCast(t *testing.T) {
 	}
 }
 
-// A Blizzard cast rolls Draconic Infused Emblem 22268 once for each enemy, and its ticks roll none (EV-0115).
+// A Blizzard cast rolls Draconic Infused Emblem 22268 once for each enemy (EV-0115).
 func TestBlizzardCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)
@@ -520,8 +519,7 @@ func TestRevelationCritsTheDirectHitOfFireballPyroblastAndFrostfireBolt(t *testi
 	}
 }
 
-// Each Arcane Missiles missile rolls its crit as it launches, and Revelation's charge goes to the first
-// missile launched after it comes (EV-0149).
+// Revelation's charge goes to the first missile launched after it comes (EV-0149).
 func TestArcaneMissilesGiveRevelationsChargeToTheNextMissileLaunched(t *testing.T) {
 	for _, critsInFlight := range []bool{false, true} {
 		sim, mage, buff := newRevelationMage(t, ArcaneTalents, 1)

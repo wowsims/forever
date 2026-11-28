@@ -246,8 +246,8 @@ func TestWeaknessAnalyzerDropsOnTheFirstCrit(t *testing.T) {
 	}
 }
 
-// A crit that lands while a channel runs spends Weakness Analyzer's charge as it lands; the buff names
-// no spells, so the channel keeps nothing for its end (EV-0162).
+// A crit that lands while a channel runs spends Weakness Analyzer's charge (EV-0162). The buff names
+// no spells, so the channel keeps nothing for its end.
 func TestWeaknessAnalyzerDropsOnACritInsideAChannel(t *testing.T) {
 	const itemID int32 = 992707
 	withAuraItem(itemID, proto.ItemType_ItemTypeTrinket, testOnUse(analyzingWeaknesses, 90000, 1141, 20000))

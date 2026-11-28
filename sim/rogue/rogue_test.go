@@ -1200,7 +1200,7 @@ func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
 	grant()
 }
 
-// Bolt's Charged Eyeball hears no hit of Instant Poison, a proc, but it hears Deadly Poison's ticks (EV-0226).
+// Bolt's Charged Eyeball hears no hit of Instant Poison, but it hears Deadly Poison's ticks (EV-0226).
 func TestBoltsChargedEyeballHearsPoisonTicksButNotPoisonHits(t *testing.T) {
 	const rolls = 300
 	sim, rogue, target := newRogueWearingWith(t, map[proto.ItemSlot]int32{

@@ -29,8 +29,7 @@ var petAttackSpeeds = map[proto.HunterOptions_PetAttackSpeed]spelldata.Ladder{
 	proto.HunterOptions_FasterAttackVII: spellData.FasterAttackVII,
 }
 
-// A tamed pet's own attack power is 30% of the creature dps as attack power, 14 a point of dps, with
-// nothing from Strength (EV-0070).
+// A tamed pet's own attack power (EV-0070).
 // TODO: Health is one reading (EV-0070). The creature health is kept until a second reading at another
 // Stamina.
 var petBaseStats = stats.Stats{
@@ -41,9 +40,7 @@ var petBaseStats = stats.Stats{
 
 var petAttackPower = 0.3 * 14 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps
 
-// The creature dps is the pet's auto attack damage with its own attack power in it, so the swing before
-// attack power is the creature dps less that attack power over 14 (EV-0071), over the 2.0 s, spanning 20%
-// either side.
+// The pet's swing before attack power (EV-0071).
 var petSwingAverage = (core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps - petAttackPower/14) * 2
 
 var petSwing = core.Weapon{
@@ -109,8 +106,7 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	return hp
 }
 
-// A ranged haste aura of the hunter's speeds the pet's focus regeneration by its haste while it lasts
-// (EV-0072).
+// A ranged haste aura of the hunter's speeds the pet's focus regeneration (EV-0072).
 func (hunter *Hunter) speedPetFocusWith(aura *core.Aura, multiplier float64) {
 	if hunter.Pet == nil {
 		return
@@ -167,8 +163,7 @@ func inheritedHit(ownerStats stats.Stats) float64 {
 	return max(0, ownerStats[stats.PhysicalHitPercent]+ownerStats[stats.RangedHitPercent])
 }
 
-// The attack power and health the pet takes at the summon stay until it is dismissed; the rest follows
-// the owner (EV-0072).
+// The attack power and health the pet takes at the summon stay (EV-0072). The rest follows the owner.
 func (hp *HunterPet) keepSummonStats(inherited stats.Stats) stats.Stats {
 	// The summon: Enable snapshots the owner before it marks the pet enabled.
 	if !hp.IsEnabled() {

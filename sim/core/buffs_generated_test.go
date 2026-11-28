@@ -477,7 +477,7 @@ func measureGeneratedBuffStats(char *core.Character) {
 	char.SetStats(char.SortAndApplyStatDependencies(char.GetStats()).FloorGameStats())
 }
 
-// Grace of Air stands for the fight and stacks with Windfury Totem (EV-0102).
+// Grace of Air stands for the fight. It stacks with Windfury Totem (EV-0102).
 func TestGeneratedGraceOfAirStacksWithWindfuryTotem(t *testing.T) {
 	standing := core.NewGeneratedBuffTestCharacter()
 	core.ApplyBuffEffects(standing,

@@ -166,7 +166,7 @@ func (hunter *Hunter) registerStriderKick() {
 
 	config := spelldata.SpellConfig(&hunter.Unit, striderKickRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
-	// The speed comes with a kick that misses, is dodged or is parried too (EV-0206).
+	// The speed comes with a kick that misses too (EV-0206).
 	speed := hunter.RegisterAura(spelldata.AuraConfig(striderKickRank))
 	speed.NewActiveMovementSpeedEffect(striderKickRank.EffectN(3).Percent())
 

@@ -324,8 +324,7 @@ func init() {
 	// than once every 15 sec.
 	//
 	// The item's effect names Zealotry 1294666, the mana gain, so the stat-bonus route cannot build it.
-	// Each landed melee swing taken outside the cooldown rolls the row's ProcChance as an override sets
-	// it (EV-0115).
+	// The row's ProcChance as an override sets it (EV-0115).
 	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 1294668},
 		[]shared.ItemVariant{
 			{ItemID: 274651, ItemName: "Zealot Plate"},
@@ -337,8 +336,7 @@ func init() {
 	// Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that
 	// strike you are 2 times as likely to activate this effect.
 	//
-	// The procs per minute an override puts on the row are priced on the attacker's time between its own
-	// swings at the hit; the row's versus bonus is the tooltip's "2 times" when an Undead strikes (EV-0126).
+	// The procs per minute and the versus bonus (EV-0126).
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17350, BuffSpellID: 17351,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			row := spelldata.MustFind(17350)

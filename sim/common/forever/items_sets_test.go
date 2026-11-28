@@ -416,7 +416,7 @@ func TestFeralheartRaimentRestoresEnergyOverTimeOnSwings(t *testing.T) {
 	}
 }
 
-// A druid's 27784 ticks in a bear form come back with Cat Form; in caster form they are left out (EV-0144).
+// A druid's 27784 ticks in a bear form come back with Cat Form (EV-0144).
 func TestFeralheartRaimentEnergyInABearFormComesBackWithCatForm(t *testing.T) {
 	energy := spelldata.MustFind(27784)
 	tick := energy.ProcEnergizeEffect()

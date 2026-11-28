@@ -69,9 +69,9 @@ func TestProcTriggerEligibility(t *testing.T) {
 	}
 }
 
-// Suppress Caster Procs keeps a spell's hits, ticks and heals from every proc trigger the caster hears
-// them with (EV-0165), and its cast from every trigger on casts. Suppress Target Procs keeps its hits and
-// ticks from every one the target hears them with.
+// Suppress Caster Procs keeps a spell's hits (EV-0165), ticks and heals from every proc trigger the
+// caster hears them with, and its cast from every trigger on casts. Suppress Target Procs keeps its hits
+// and ticks from every one the target hears them with.
 func TestSuppressedProcsSkipTheirSide(t *testing.T) {
 	hooks := []struct {
 		name     string

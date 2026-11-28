@@ -786,7 +786,7 @@ func TestMagmaTotemPulsesAsItEnds(t *testing.T) {
 	}
 }
 
-// Lightning Shield's orb is a proc's spell hit, which Revelation, able to proc from procs, hears (EV-0149, R-0051).
+// Lightning Shield's orb is a proc's spell hit (R-0051), which Revelation hears (EV-0149).
 func TestLightningShieldOrbRollsRevelation(t *testing.T) {
 	const hits = 300
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)

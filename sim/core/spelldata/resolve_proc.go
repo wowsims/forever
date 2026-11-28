@@ -18,7 +18,7 @@ type ProcOpt func(*core.Character, *core.ProcTrigger)
 // the ones counted wherever the trigger sits.
 //
 // The trigger's internal cooldown is the proc category's recovery alone. On a proc trigger row,
-// RecoveryTime is a cooldown on casting the aura, which an item or enchant never casts: the shield
+// RecoveryTime is a cooldown on casting the aura, which an item or enchant never casts. The shield
 // spikes proc on every block in game (EV-0047, EV-0148). A damage shield is no proc trigger and
 // keeps its RecoveryTime as the wait between two reflections (DamageShieldLockout).
 //
@@ -63,9 +63,8 @@ func ProcTrigger(character *core.Character, s *Spell, handler core.ProcHandler, 
 
 	settleProcRate(character, s, &trigger)
 
-	// A row that fires on every main-hand hit with no roll hears every one that lands, damage or not:
-	// Sunder Armor, Rend's application, Concussion Blow and Disarm cast Iceblade Hacker's and Dreadfrost
-	// Saber's Frost (EV-0195).
+	// A row that fires on every main-hand hit with no roll hears every one that lands, damage or not
+	// (EV-0195).
 	// TODO: Ingame test needed -- whether Death Mark, which lands for no damage and suppresses weapon procs,
 	// casts these rows' Frost. The sim lets it.
 	if s.ProcFlags[1]&dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY != 0 && trigger.DPM == nil && trigger.ProcChance >= 1 {

@@ -379,7 +379,7 @@ func TestHurricaneCastRollsOmenPerTarget(t *testing.T) {
 	}
 }
 
-// A Hurricane cast rolls Draconic Infused Emblem 22268 once per enemy, its ticks none (EV-0115).
+// A Hurricane cast rolls Draconic Infused Emblem 22268 once per enemy (EV-0115).
 func TestHurricaneCastRollsDraconicInfusedEmblemPerEnemy(t *testing.T) {
 	const casts, enemies = 2000, 5
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket1+1)

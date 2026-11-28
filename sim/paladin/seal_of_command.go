@@ -21,7 +21,7 @@ import (
 // sits on the spell its dummy names, one rank above the proc on the family's triggered ladder, which
 // the proc spell 20424 heads with no rank subtext. 7 procs per minute is the Classic sim's number.
 //
-// The weapon percent applies to spell power too (EV-0061); the taken Holy bonuses add after it.
+// The weapon percent applies to spell power too (EV-0061). The taken Holy bonuses add after it.
 func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfCommand.Rank(rank.RankNumber())
 	judgeDamageRank := spellData.SealOfCommandTriggered.ByID(int32(judgeRank.EffectN(1).BaseValue()))

@@ -67,13 +67,13 @@ func (warrior *Warrior) registerUnbridledWrath() {
 	}
 
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: unbridledWrathRank.ID})
-	// In game this rage makes 5 threat a rage that neither Defensive Stance nor Defiance scales (EV-0174).
+	// Neither Defensive Stance nor Defiance scales this rage's threat (EV-0174).
 	// TODO: Ingame test needed -- Battle and Berserker Stance, and whether a threat buff scales it.
 	rageMetrics.UnscaledThreat = true
 
-	// Landed white swings roll it, Windfury Totem hits among them (EV-0136), and so do Heroic Strike and
-	// each target a Cleave hits (EV-0148, EV-0138). No other ability rolls it; Shield Slam, Revenge,
-	// Thunder Clap, Retaliation, Victory Rush, Shield Bash and Whirlwind are measured (EV-0148, EV-0138).
+	// White swings roll it, Windfury Totem hits among them (EV-0136), and so do Heroic Strike and each
+	// target a Cleave hits (EV-0148, EV-0138). No other ability rolls it; Shield Slam, Revenge, Thunder
+	// Clap, Retaliation, Victory Rush, Shield Bash and Whirlwind are measured (EV-0148, EV-0138).
 	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.UnbridledWrath.Rank(warrior.Talents.UnbridledWrath),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -133,9 +133,9 @@ func (warrior *Warrior) registerEnrage() {
 
 	warrior.EnrageAura.NewExclusiveEffect("Enrage", true, core.ExclusiveEffect{Priority: spellData.Enrage.ValueAt(warrior.Talents.Enrage)})
 
-	// A landed spell hit of any school but physical rolls 25%, though the game files state 30% for it
-	// too (EV-0050). A swing rolls the row's rate whatever its school. Chance(1) leaves core no roll of
-	// its own, so the one draw is made here. Only a hit that deals damage rolls it (EV-0123).
+	// A spell hit of any school but physical rolls 25%, though the game files state 30% (EV-0050). A
+	// swing rolls the row's rate whatever its school. Chance(1) leaves core no roll of its own, so the one
+	// draw is made here. Only a hit that deals damage rolls it (EV-0123).
 	row := spellData.Enrage.Rank(warrior.Talents.Enrage)
 	trigger := spelldata.ProcTrigger(&warrior.Character, row,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -165,10 +165,9 @@ func (warrior *Warrior) registerFlurry() {
 	flurryAura := warrior.RegisterAura(spelldata.AuraConfig(flurryBuff)).
 		AttachMultiplyMeleeSpeed(spellData.Flurry.MultiplierAt(warrior.Talents.Flurry))
 
-	// Every white swing, an extra attack's among them, uses a charge whatever its outcome (EV-0140). A
-	// Windfury Totem hit uses none, and a Heroic Strike or Cleave uses one charge per cast (EV-0138).
-	// Whirlwind's off-hand strike uses no charge (EV-0054). A Heroic Strike or Cleave that crits ends
-	// with all the charges (EV-0138).
+	// A white swing uses a charge whatever its outcome (EV-0140). A Windfury Totem hit uses none
+	// (EV-0138). Whirlwind's off-hand strike uses no charge (EV-0054). A Heroic Strike or Cleave that
+	// crits ends with all the charges (EV-0138).
 	firstHit, resetFirstHit := core.OncePerCast()
 	warrior.RegisterResetEffect(func(_ *core.Simulation) {
 		resetFirstHit()
@@ -233,8 +232,8 @@ func (warrior *Warrior) registerGoreDrinker() {
 	buffConfig.MaxStacks = charges
 	warrior.GoreDrinkerAura = warrior.RegisterAura(buffConfig)
 
-	// Every landed strike of Whirlwind and Cleave spends a charge and heals once (EV-0054), so the buff
-	// builds its own spender: spelldata.AttachChargeSpender spends one charge a cast.
+	// Every landed strike of Whirlwind and Cleave spends a charge (EV-0054). spelldata.AttachChargeSpender
+	// spends one charge a cast, so the buff builds its own spender.
 	//
 	// TODO: Ingame test needed: a melee hit that deals no damage spends no charge.
 	consume := spelldata.ProcTrigger(&warrior.Character, goreDrinkerBuff,
@@ -368,8 +367,8 @@ func (warrior *Warrior) registerRecklessSwings() {
 
 	aura := warrior.RegisterAura(spelldata.AuraConfig(recklessSwingsRank))
 
-	// Each melee swing spends a charge for its rage, Windfury Totem hits among them (EV-0136). Of the
-	// melee abilities only Heroic Strike and Cleave spend one, once per cast (EV-0138).
+	// Each melee swing spends a charge, Windfury Totem hits among them (EV-0136). Of the melee
+	// abilities only Heroic Strike and Cleave spend one (EV-0138).
 	firstAbilityHit, resetFirstAbilityHit := core.OncePerCast()
 	aura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
 		resetFirstAbilityHit()

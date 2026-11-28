@@ -12,7 +12,7 @@ var TalentTreeSizes = [3]int{16, 16, 18}
 
 var autoShotRank = spellData.AutoShot.Highest()
 
-// In game Multi-Shot and Aimed Shot hit 9 harder than the rows' normalised weapon damage (EV-0068).
+// In game Multi-Shot and Aimed Shot hit 9 harder (EV-0068).
 // TODO: In-game testing required: whether the 9 is flat or grows with ranged attack power, and whether Sniper Shot,
 // which no log has shown, takes it too.
 const normalizedShotBonus = 9

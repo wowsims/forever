@@ -131,8 +131,8 @@ func (shaman *Shaman) applyFlurry() {
 
 	// The row has no roll and the crit is the condition, read off the result here because the same
 	// listener has to see the swings that spend a charge. Any melee crit sets three charges. 16257's
-	// proc flags name swings alone, but a Windfury Weapon hit spends one too (EV-0010). A white swing
-	// in the instant of a gain spends none.
+	// proc flags name swings alone. A Windfury Weapon hit spends one too (EV-0010). A white swing in
+	// the instant of a gain spends none.
 	var gainedByImbue bool
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.Flurry.Rank(shaman.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {

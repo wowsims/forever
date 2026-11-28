@@ -32,21 +32,18 @@ func (hawk *HawkPet) ExecuteCustomRotation(sim *core.Simulation) {
 	hawk.WaitUntil(sim, sim.CurrentTime+hawkSummon.Duration())
 }
 
-// What a hawk is, read off combat logs (EV-0074, EV-0073). The row that scales a hawk (1293586) is not
-// in the store, so the swing below is fitted to those logs (EV-0073).
+// What a hawk is, read off combat logs (EV-0074, EV-0073). The swing below is fitted to those logs
+// (EV-0073).
 var hawkBaseStats = stats.Stats{
 	stats.Health: 0.05 * core.CreatureHealthMaxLevel,
 }
 
-// The attack power a hawk takes its 80% of is the owner's ranged attack power and what the main-hand
-// weapon adds to it in game, 14 a point of its dps; the ranged weapon and the off hand add nothing,
-// and with no main-hand weapon it adds 7 (EV-0073).
+// The attack power a hawk takes its 80% of (EV-0073).
 const hawkOwnerAPPerMainHandDPS = 14.0
 const hawkOwnerUnarmedWeaponAP = 7.0
 
-// A swing before armor is 0.153 of the creature dps over the 2.5 s at level 60, spanning 0.22 either side,
-// and 60 attack power a point of dps (EV-0073). Both were read with Unleashed Fury 5/5 and Focused
-// Fire 2/2, which reach the hawks, so the swing here is before them.
+// A swing before armor and the attack power a point of dps (EV-0073). Both were read with Unleashed
+// Fury 5/5 and Focused Fire 2/2, which reach the hawks, so the swing here is before them.
 var hawkLogDamageMultiplier = spellData.UnleashedFury.MultiplierAt(5) * spellData.FocusedFire.MultiplierAt(2)
 var hawkSwingAverage = 0.153 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps * 2.5 / hawkLogDamageMultiplier
 
