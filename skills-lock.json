@@ -80,7 +80,7 @@
     "wowsims-spell-store": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "4ca7eefc43a263da1fd1f187c467506e06ab8cfbbec8760e0db3abfe202f4ff7"
+      "computedHash": "e8e6170f76ca7cd749a0b3f859e024aaede99fb6b09c020d9990ebf3b298740e"
     },
     "wowsims-spells": {
       "source": "./.github/skills",
@@ -95,7 +95,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "2667bb64f90be10883fbf47937c2d5f64ced20f3c5380aa48654a3d231ce6f60"
+      "computedHash": "2ea40d4193ad9c29744d36bc604ef5d8781031aa846663fe0036da17246aeaa4"
     }
   }
 }
