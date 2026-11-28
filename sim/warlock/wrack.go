@@ -16,11 +16,8 @@ import (
 // once, and a recast at the instant a channel ends ticks that point once. A half point ticks after everything else
 // due at its instant, so a channel ending or starting there is settled first. Every tick is full, and the effect's
 // own ticks and expiry stay as they are. An effect applied while the channel runs keeps its normal period, since
-// casting it ends the channel. The start is measured (EV-0085).
-// TODO: Ingame test needed: the end is not measured (EV-0085). The logs' 0.05 s steps cannot split a channel
-// ending close to a half point. End Wrack within 0.05 s before and after a half point, many times each, and count
-// the ticks there. The sim leaves the end out so that a channel covers as many half points wherever it sits on the
-// grid: with both ends included, a channel lined up on the grid ticks one more than any other.
+// casting it ends the channel. In game a half point ticks when the channel is up at its instant, and a 6 s channel
+// lined up on the grid ticks one of the two half points at its edges, as one off the grid does (EV-0085).
 func (warlock *Warlock) registerWrackSpell() {
 	rankedSpell := spellData.Wrack.ByID(1316697)
 	wrackTick := rankedSpell.PeriodicEffect()

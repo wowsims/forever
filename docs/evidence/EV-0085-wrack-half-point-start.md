@@ -1,10 +1,11 @@
 # EV-0085: Wrack ticks the half points of a dot from the channel's start
 
-- Claim: while Wrack is channelled the half points of an effect's tick grid tick too, from the instant the channel starts, and a channel that lands up to 0.05 s after a half point may still tick it.
+- Claim: while Wrack is channelled the half points of an effect's tick grid tick too: a half point ticks when the channel is on the target at its instant, from the channel's start up to its end, and a 6 s channel lined up on the grid ticks one of the two half points at its edges.
 - Sources: combat logs, two samples: two logs of one Affliction warlock (36 effects with Wrack channelled on their target, 329 ticks), and two more logs of another warlock and three others (270 effects, timed to about 0.05 s); report codes not recorded
 - Game build: not recorded
 - Date: not recorded
 - Pull request: #953
+- Later count: the start of a channel, the end of a channel and a channel lined up on the grid, §Count of the 2026-11-13 to 2026-11-27 reports
 
 ## The grid
 
@@ -12,29 +13,19 @@ An effect ticks on a grid set by when it landed: Corruption and Siphon Life ever
 
 ## The start of a channel
 
-In the second sample a half point ticked in 56 of 57 cases when the channel landed before it, in 6 of 10 when it landed up to 0.05 s after, and in 0 of 29 beyond that. Wrack cast one global cooldown after Siphon Life ticked its 1.5 s half point in 13 of 16 openers. In a chained opener, Siphon Life then Wrack 1.29 s later, just ahead of the 1.5 s half point, the half point ticked: ticks at 1.46, 3.03, 4.47 and 5.94 s, and the target died at 7.23 s. The first sample read a half point ticking whenever the channel landed up to 0.03 s after it; the second, larger sample's 0.05 s margin stands.
+- Count: §Count of the 2026-11-13 to 2026-11-27 reports
 
-Half points near a channel's start, by where the channel landed relative to the half point:
-
-| Landed                | Ticked   |
-| --------------------- | -------- |
-| 0.05 s or more before | 40 of 40 |
-| under 0.05 s before   | 16 of 17 |
-| under 0.05 s after    | 6 of 10  |
-| 0.05 s or more after  | 0 of 29  |
+Wrack cast one global cooldown after Siphon Life ticked its 1.5 s half point in 13 of 16 openers. In a chained opener, Siphon Life then Wrack 1.29 s later, just ahead of the 1.5 s half point, the half point ticked: ticks at 1.46, 3.03, 4.47 and 5.94 s, and the target died at 7.23 s.
 
 A channel that starts more than half a period after the effect's last tick does not tick at once: 24 of 25 such starts waited for the next point, and the one that ticked started 0.045 s before a half point.
 
 ## The end of a channel
 
-The end of a channel on a half point is not measured. Within 0.05 s either side it ticked about half the time, and the logs' 0.05 s steps cannot split it.
+- Count: §Count of the 2026-11-13 to 2026-11-27 reports
 
-| Ended                 | Ticked   |
-| --------------------- | -------- |
-| 0.05 s or more before | 1 of 22  |
-| under 0.05 s before   | 2 of 7   |
-| under 0.05 s after    | 4 of 8   |
-| 0.05 s or more after  | 20 of 20 |
+## A channel lined up on the grid
+
+- Count: §Count of the 2026-11-13 to 2026-11-27 reports
 
 ## Four candidate rules
 
@@ -60,3 +51,27 @@ A logged Corruption with Wrack channelled from 3.20 s to 5.94 s after it landed 
 ## Open
 
 Three things are not modelled and not settled: 20 channels ended near 4.5 s with a full Wrack tick logged at their removal, with no cast or death at that moment; an effect applied during a channel; and a sped-up Bane of Agony or Siphon Life running out.
+
+## Count of the 2026-11-13 to 2026-11-27 reports
+
+- Sources: Warcraft Logs, 387 Forever reports with 391 warlocks who channelled Wrack, every warlock stream fetched for the proc-rate sweeps; report codes in the count's `records.json`, kept outside the repository with its scripts
+- Game build: 1.60.1.70938 to 1.60.1.71139 and the hotfixes between, pooled
+- Date: 2026-11-13 17:05 to 2026-11-27 04:07 UTC
+- Pull request: not recorded
+
+Each Corruption, Siphon Life and Bane of Agony instance with no refresh is put on the grid of its application as logged (its applydebuff), and each half point within 0.3 s of a Wrack channel's start or end on the same target is checked for a tick within 0.15 s of it that is not one of the effect's own ticks. Timestamps are in milliseconds. The effects' own ticks log a median 4 ms after their grid point (5th to 95th percentile −10 to +17 ms, 183,187 ticks), so a point's instant is known to about that.
+
+Half points near an edge with no other channel edge near the point, by where the point lies relative to the edge:
+
+| Half point              | Ticked, near a start  | Ticked, near an end  |
+| ----------------------- | --------------------- | -------------------- |
+| 0.16 s or more before   | 0 of 3,372            | 3,442 of 3,475       |
+| 0.04 to 0.02 s before   | 30 of 541             | 349 of 355           |
+| under 0.02 s before     | 517 of 1,771          | 511 of 700           |
+| under 0.02 s after      | 2,184 of 2,663        | 112 of 798           |
+| 0.02 to 0.04 s after    | 4,800 of 4,816        | 2 of 935             |
+| 0.16 s or more after    | 5,077 of 5,101        | 0 of 2,440           |
+
+A half point ticks when the channel is on the target at its instant, at the start and at the end alike: either way the share passes one half within 5 ms before the logged edge, and within 0.02 s the share follows the spread of the effects' own ticks. No tick logged after the channel's removal, and 413 logged in the same millisecond as it; 569 logged in the same millisecond as the channel's start. A channel that lands a few hundredths of a second after a half point ticks it only where the point fell due in that same instant.
+
+Of 309 full channels (5.99 to 6.01 s) that started within 0.01 s of a Corruption or Siphon Life half point, with both edge points away from any other channel's edge and the effect up past the channel's end, 285 ticked exactly one of their two edge points, 22 both and 2 neither: 1.07 edge points on average, so 2.07 half points a channel. Bane of Agony's 108 such channels ticked one edge point in 104, both in 4.
