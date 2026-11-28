@@ -83,9 +83,9 @@ func (hunter *Hunter) registerCarefulAim() {
 
 var rapidKillingBuff = spellData.RapidKillingTriggered.Highest()
 
-// Effect 2 is the damage bonus 415407 gives the next Shot, where the buff row states a flat 20, so
-// the row is scaled by the ranks taken. A credited kill grants the buff, and the tooltip also grants
-// it when the enemy dies with the hunter's Serpent Sting on it, which the row's proc flags do not
+// Effect 2 is the damage bonus 415407 gives the next Shot, where the buff spell states a flat 20, so
+// the amount is scaled by the ranks taken. A credited kill grants the buff, and the tooltip also grants
+// it when the enemy dies with the hunter's Serpent Sting on it, which the buff's proc flags do not
 // state; a stung enemy grants it once, whether or not the raid gets the kill.
 //
 // The Shots its damage mod names use its one charge at the cast's result, a miss included.
@@ -152,10 +152,10 @@ func (hunter *Hunter) registerImprovedArcaneShot() {
 	spelldata.ParseStatic(&hunter.Character, spellData.ImprovedArcaneShot.Rank(hunter.Talents.ImprovedArcaneShot))
 }
 
-// Effect 2 is a dummy restating the bonus. The row states a stack of one, which would keep the
+// Effect 2 is a dummy restating the bonus. The spell states a stack of one, which would keep the
 // parse off a pseudo-stat multiplier. With a pet out the server takes the 20% back off both units,
 // so the hunter nets 1 and the pet, which never had it, is divided by 1.2: a level 30 Cat at 1.3 s
-// and 152 attack power reads 36-48 against the model's 43.7-57.8, where the hidden pet row's flat
+// and 152 attack power reads 36-48 against the model's 43.7-57.8, where the hidden pet spell's flat
 // -20 (415372) would read 35-46.
 func (hunter *Hunter) registerLoneWolf() {
 	if !hunter.Talents.LoneWolf {
@@ -185,7 +185,7 @@ func (hunter *Hunter) registerRapidRecuperation() {
 		return
 	}
 
-	// The buff row states a flat 50; the talent's effects set the share, see gainRapidRecuperation.
+	// The buff spell states a flat 50; the talent's effects set the share, see gainRapidRecuperation.
 	rank := spellData.RapidRecuperation.Rank(hunter.Talents.RapidRecuperation)
 	hit := rank.EffectN(1).Percent()
 	hunter.rapidRecuperationSpend = rank.EffectN(2).Percent()

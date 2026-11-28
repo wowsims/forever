@@ -13,7 +13,7 @@ func (warrior *Warrior) registerCharge() {
 	rank := core.Ternary(warrior.Talents.Vanguard, vanguardChargeRank, chargeRank)
 	actionID := core.ActionID{SpellID: chargeRank.ID}
 	metrics := warrior.NewRageMetrics(actionID)
-	metrics.NoThreat = rank.GeneratesNoThreat() // The rage makes no threat where the row carries ATTR_EX_1_NO_THREAT.
+	metrics.NoThreat = rank.GeneratesNoThreat() // The rage makes no threat where the spell carries ATTR_EX_1_NO_THREAT.
 
 	chargeRage := rank.EnergizeEffect().Tenths() + spellData.ImprovedCharge.TenthsAt(warrior.Talents.ImprovedCharge)
 

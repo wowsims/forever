@@ -35,9 +35,9 @@ copy, and the lockfile records each skill's hash.
 | ----------------------------- | ----------------------------------------------------------------------------------------------- |
 | `wowsims-conventions`         | How comments, docs, commits and PR text are written; "game files", not "client"; banned terms   |
 | `wowsims-comments`            | How much of a comment stays: what one may hold, sizes, cutting long ones down to their EV- id   |
-| `wowsims-spells`              | The map: which spell data skill to read, where things live, when the sim and the row disagree   |
+| `wowsims-spells`              | The map: which spell data skill to read, where things live, when sim and game files disagree    |
 | `wowsims-spell-store`         | Reading the spell store: ladders, ranks, effects, hand reads and resolvers                      |
-| `wowsims-abilities-auras`     | Building abilities, auras, dots, talents and buffs from their rows                              |
+| `wowsims-abilities-auras`     | Building abilities, auras, dots, talents and buffs from the game files                          |
 | `wowsims-procs`               | Proc triggers: chances, PPM, ICDs, charges, item, enchant and set procs                         |
 | `wowsims-consumables-items`   | Items, enchants and consumables in the database, and the effects registered for them            |
 | `wowsims-db-pipeline`         | Regenerating the store and the database, overrides, hotfixes, a database behind master          |
@@ -45,7 +45,7 @@ copy, and the lockfile records each skill's hash.
 | `wowsims-apl`                 | Rotations (APL): preset lines, timing, values, why a cast never fires                           |
 | `wowsims-testing`             | Proving Go work: the CI gates, .results files, what a test asserts, runtime proofs              |
 | `wowsims-spec-implementation` | Picking up a `[Spec]` tracking issue and porting a class                                        |
-| `wowsims-review`              | Reviewing a spell change, your own before committing or a pull request, against the rows        |
+| `wowsims-review`              | Reviewing a spell change, your own before committing or a pull request, against the game files  |
 | `wowsims-evidence`            | Recording a log count, an in-game check or an owner ruling: EV- and R- files, what to ask first |
 | `wowsims-ui`                  | The frontend under `ui/`                                                                        |
 | `wowsims-siml`                | SIML rotations, gear sets and setups: syntax, every action and value, CLI, language server      |

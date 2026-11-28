@@ -41,7 +41,7 @@ func (shaman *Shaman) registerEnhancementTalents() {
 	shaman.applyRageOfTheFarseer()
 }
 
-// The row requires a melee weapon, so the crit is a mod on what the equipped weapon allows.
+// The spell requires a melee weapon, so the crit is a mod on what the equipped weapon allows.
 func (shaman *Shaman) applyThunderingStrikes() {
 	if shaman.Talents.ThunderingStrikes == 0 {
 		return
@@ -82,7 +82,7 @@ func (shaman *Shaman) applyElementalWeapons() {
 	rank := spellData.ElementalWeapons.Rank(shaman.Talents.ElementalWeapons)
 
 	// Effect 2 is the Flametongue and Frostbrand damage. Effects 1 and 3 raise effect 1 of Rockbiter
-	// Weapon (Passive) and Windfury Weapon, which is attack power on both rows; the parse would read
+	// Weapon (Passive) and Windfury Weapon, which is attack power on both spells; the parse would read
 	// them as damage, so the imbues read them instead.
 	spelldata.ParseStatic(&shaman.Character, rank, spelldata.Effects(2))
 
@@ -90,7 +90,7 @@ func (shaman *Shaman) applyElementalWeapons() {
 	shaman.windfuryWeaponMultiplier = 1 + rank.EffectN(3).Percent()
 }
 
-// The cost reduction is permanent; the row states no proc.
+// The cost reduction is permanent; the game files state no proc.
 func (shaman *Shaman) applyShamanisticFocus() {
 	if !shaman.Talents.ShamanisticFocus {
 		return
@@ -129,7 +129,7 @@ func (shaman *Shaman) applyFlurry() {
 		Duration: flurryBuff.ICD(),
 	}
 
-	// The row has no roll and the crit is the condition, read off the result here because the same
+	// The spell has no roll and the crit is the condition, read off the result here because the same
 	// listener has to see the swings that use a charge. Any melee crit sets three charges. 16257's
 	// proc flags name swings alone. Charge use in EV-0010. A white swing in the instant the charges
 	// are gained uses none.
@@ -219,8 +219,8 @@ func (shaman *Shaman) applyImprovedStormstrike() {
 		},
 	})
 
-	// The row hears melee attacks taken; the dodge or parry is the outcome, which no ProcTypeMask
-	// has a bit for. The generator reads the row's chance off effect 1, where the tooltip names $m2.
+	// The spell hears melee attacks taken; the dodge or parry is the outcome, which no ProcTypeMask
+	// has a bit for. The generator reads the spell's chance off effect 1, where the tooltip names $m2.
 	trigger := spelldata.ProcTrigger(&shaman.Character, rank,
 		func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			if shaman.Stormstrike != nil {

@@ -101,7 +101,7 @@ func TestOnUseAuraCooldownTypeFollowsTheWearersBuff(t *testing.T) {
 	}
 }
 
-// What the wearer's damage shield, the spell under its row's id with tag 2, has dealt to the attacker,
+// What the wearer's damage shield, the spell under its id with tag 2, has dealt to the attacker,
 // once the handlers the hits queued have run.
 func shieldDamage(t *testing.T, sim *core.Simulation, wearer *auraTester, row int32, attacker *auraTester) float64 {
 	t.Helper()
@@ -121,7 +121,7 @@ func newShieldSim(items map[proto.ItemSlot]int32) (*core.Simulation, *auraTester
 	return sim, wearer, attacker
 }
 
-// Worn, Essence of the Pure Flame deals its row's Fire back to each melee attacker, and nothing back
+// Worn, Essence of the Pure Flame deals its Fire back to each melee attacker, and nothing back
 // for a spell.
 func TestEquipDamageShieldDealsItsAmountBackToAMeleeAttacker(t *testing.T) {
 	const itemID int32 = 992702
@@ -144,7 +144,7 @@ func TestEquipDamageShieldDealsItsAmountBackToAMeleeAttacker(t *testing.T) {
 	}
 }
 
-// Used, Fetish of Chitinous Spikes deals its row's Nature back to each melee attacker for the row's
+// Used, Fetish of Chitinous Spikes deals its Nature back to each melee attacker for the spell's
 // duration.
 func TestOnUseDamageShieldLastsTheRowsDuration(t *testing.T) {
 	const itemID int32 = 992703
@@ -179,7 +179,7 @@ func TestOnUseDamageShieldLastsTheRowsDuration(t *testing.T) {
 	}
 }
 
-// Cold Basilisk Eye slows the enemy's attacks by the row's share for the row's duration; its movement
+// Cold Basilisk Eye slows the enemy's attacks by the spell's share for the spell's duration; its movement
 // slow changes nothing the sim runs.
 func TestColdBasiliskEyeSlowsTheEnemysAttacks(t *testing.T) {
 	const itemID int32 = 992704
@@ -210,7 +210,7 @@ func TestColdBasiliskEyeSlowsTheEnemysAttacks(t *testing.T) {
 	}
 }
 
-// Weakness Analyzer adds its row's crit until the wearer's first crit, which uses its one charge: a
+// Weakness Analyzer adds its crit until the wearer's first crit, which uses its one charge: a
 // hit that does not crit leaves it up.
 func TestWeaknessAnalyzerDropsOnTheFirstCrit(t *testing.T) {
 	const itemID int32 = 992705

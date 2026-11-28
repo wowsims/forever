@@ -8,7 +8,7 @@ import (
 
 var hurricaneRank = spellData.Hurricane.Highest()
 
-// The damage each second is its own row, which the channel casts on every tick.
+// The damage each second is its own spell, which the channel casts on every tick.
 var hurricaneTickRank = spellData.HurricaneTriggered.Highest()
 var hurricaneTickDamage = hurricaneTickRank.DamageEffect()
 

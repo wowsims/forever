@@ -82,12 +82,12 @@ func (shaman *Shaman) applyElementalDevastation() {
 		return
 	}
 
-	// The crit is the talent's own ladder, which is what the tooltip of 30160 reads; the buff row
+	// The crit is the talent's own ladder, which is what the tooltip of 30160 reads; the buff spell
 	// states a flat 3.
 	critAura := shaman.RegisterAura(spelldata.AuraConfig(elementalDevastationBuff)).
 		AttachStatBuff(stats.PhysicalCritPercent, shaman.ElementalDevastationCritPercent())
 
-	// The row hears harmful spells with no roll, and the tooltip makes the crit the outcome.
+	// The spell hears harmful spells with no roll, and the tooltip makes the crit the outcome.
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.ElementalDevastation.Rank(shaman.Talents.ElementalDevastation),
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			critAura.Activate(sim)
@@ -154,7 +154,7 @@ func (shaman *Shaman) applyElementalFocus() {
 			clearcastingAura.Activate(sim)
 		})
 	trigger.Name = "Elemental Focus - Trigger"
-	// The tooltip's "after casting" is one roll per cast, a miss included. The row's helpful-spell
+	// The tooltip's "after casting" is one roll per cast, a miss included. The spell's helpful-spell
 	// bit adds heals, which the tooltip's damage spells leave out.
 	trigger.Callback = core.CallbackOnCastComplete
 	trigger.ProcMask &^= core.ProcMaskSpellHealing
@@ -200,7 +200,7 @@ func (shaman *Shaman) applyEyeOfTheStorm() {
 	spelldata.ParseStatic(&shaman.Character, spellData.EyeOfTheStorm.Rank(shaman.Talents.EyeOfTheStorm))
 }
 
-// The range the row states reaches the spells' range checks only. Effect 3 is a dummy.
+// The range the spell states reaches the spells' range checks only. Effect 3 is a dummy.
 func (shaman *Shaman) applyElementalReach() {
 	if shaman.Talents.ElementalReach == 0 {
 		return
@@ -215,7 +215,7 @@ func (shaman *Shaman) applyElementalFury() {
 	spelldata.ParseStatic(&shaman.Character, spellData.ElementalFury.Rank(shaman.Talents.ElementalFury))
 }
 
-// The crit reaches the overloads too, whose rows carry Lightning Bolt's and Chain Lightning's class flags.
+// The crit reaches the overloads too, whose spells carry Lightning Bolt's and Chain Lightning's class flags.
 func (shaman *Shaman) applyCallOfThunder() {
 	if !shaman.Talents.CallOfThunder {
 		return
@@ -225,7 +225,7 @@ func (shaman *Shaman) applyCallOfThunder() {
 
 var lightningMasteryRank = spellData.LightningMastery.Highest()
 
-// The row states one charge and casts that would use it. No cast uses it (EV-0137).
+// The spell states one charge and casts that would use it. No cast uses it (EV-0137).
 func (shaman *Shaman) applyLightningMastery() {
 	if !shaman.Talents.LightningMastery {
 		return

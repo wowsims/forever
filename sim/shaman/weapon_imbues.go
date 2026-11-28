@@ -141,7 +141,7 @@ func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 }
 
 // 439431 rolls off a main-hand melee hit's cast result, and the Windfury hits follow once that hit has
-// been dealt, in the same instant. The row hears abilities, the Windfury hits among them, but they land inside
+// been dealt, in the same instant. The spell hears abilities, the Windfury hits among them, but they land inside
 // the 1.5 s the proc has just started, so they never roll.
 func (shaman *Shaman) RegisterWindfuryImbue() {
 	strike := shaman.newWindfuryImbueSpell()
@@ -221,7 +221,7 @@ func (shaman *Shaman) RegisterFrostbrandImbue() {
 }
 
 // Enchant 1664 puts 16313 on the main hand as an equip aura: the attack power, and the threat Spirit
-// Weapons gives effect 2, which the row states as 0.
+// Weapons gives effect 2, which the game files state as 0.
 func (shaman *Shaman) RegisterRockbiterImbue() {
 	// Elemental Weapons raises effect 1, which the parse would read as damage.
 	attackPower := rockbiterWeaponPassive.EffectN(1).Average() * shaman.rockbiterWeaponMultiplier

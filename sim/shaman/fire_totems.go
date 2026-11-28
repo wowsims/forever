@@ -108,7 +108,7 @@ func (shaman *Shaman) registerMagmaTotemSpell() {
 }
 
 // "Instantly inflicts $408428s1 fire damage to enemies within $408428a1 yd of your active Fire totem."
-// The cast deals nothing itself: it casts the Fire Nova row of its own rank, 408428, which hits.
+// The cast deals nothing itself: it casts the Fire Nova spell of its own rank, 408428, which hits.
 // The hit lacks Not a Proc, so only listeners that can proc from procs hear it. It reports as the
 // cast's spell tagged 1, so the results show the cast and its hits as one row. The cast deals no
 // damage and the damage table leaves it out, so the hit holds the casts and the cast time: it is not

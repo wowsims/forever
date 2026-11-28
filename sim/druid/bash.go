@@ -5,7 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The row rolls a melee hit and refunds on a miss; the stun lands only on a hit.
+// The spell rolls a melee hit and refunds on a miss; the stun lands only on a hit.
 func (druid *Druid) registerBashSpell() {
 	rank := spellData.Bash.Highest()
 	stuns := druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {

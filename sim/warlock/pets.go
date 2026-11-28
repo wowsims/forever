@@ -296,7 +296,7 @@ func (pet *WarlockPet) Initialize() {
 		pet.registerDemonicBrand()
 	}
 
-	// Summoning Disorientation, for its row's 6 sec. A summon cast in less, under Fel Domination or Master
+	// Summoning Disorientation, for its 6 sec. A summon cast in less, under Fel Domination or Master
 	// Summoner, dismisses the demon before it runs out.
 	disorientation := spelldata.AuraConfig(spelldata.MustFind(1249755))
 	pet.summonStun = pet.RegisterStunAura(disorientation.Label, disorientation.ActionID, disorientation.Duration)
@@ -394,7 +394,7 @@ func (pet *WarlockPet) registerFirebolt() {
 
 // --- Succubus ---
 
-// The 12s cooldown is the row's category cooldown, which SpellConfig reads.
+// The 12s cooldown is the spell's category cooldown, which SpellConfig reads.
 func (pet *WarlockPet) registerLashOfPain() {
 	rankedSpell := spellData.LashOfPain.ByID(11780)
 	lashHit := rankedSpell.DamageEffect()
@@ -414,11 +414,11 @@ func (pet *WarlockPet) registerLashOfPain() {
 // --- Demonic Brand ---
 
 // Each of the demon's hits on a target the warlock branded consumes a charge and deals the brand's damage.
-// The rows state no amount; their description variables do: ((level - 26) * 1.5 + 14 to 17 + 0.078 * the
-// warlock's spell power of the row's school), times the demon's damage multipliers. The demon's own
+// The game files state no amount; their description variables do: ((level - 26) * 1.5 + 14 to 17 + 0.078 * the
+// warlock's spell power of the spell's school), times the demon's damage multipliers. The demon's own
 // multipliers apply them: Master Demonologist, Unholy Power, Soul Link and the base damage modifier. The 1
-// Physical damage row (1293699), a threat marker, is left out.
-// TODO: The base damage modifier and Soul Link may not reach the brand in game, since the rows' multiplier
+// Physical damage spell (1293699), a threat marker, is left out.
+// TODO: The base damage modifier and Soul Link may not reach the brand in game, since the spells' multiplier
 // names only the pet's and the school's.
 func (pet *WarlockPet) registerDemonicBrand() {
 	warlock := pet.owner
@@ -429,7 +429,7 @@ func (pet *WarlockPet) registerDemonicBrand() {
 	}
 	brandConfig := spelldata.SpellConfig(&pet.Unit, brandRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered())
 	brandHit := pet.RegisterSpell(brandConfig)
-	// Both rows state Always Hit. Brand outcome in EV-0201.
+	// The game files state Always Hit for both. Brand outcome in EV-0201.
 	brandOutcome := brandHit.OutcomeMagicHitAndCrit
 	if brandRow.AlwaysHits() {
 		brandOutcome = brandHit.OutcomeMagicCrit

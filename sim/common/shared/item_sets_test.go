@@ -8,12 +8,12 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// A proc trigger row registers when its rate is stated and the spell it fires deals damage at once, fills
-// the wearer's bar or puts auras on the wearer alone; any other row goes to the parse.
+// A proc trigger spell registers when its rate is stated and the spell it fires deals damage at once, fills
+// the wearer's bar or puts auras on the wearer alone; any other spell goes to the parse.
 func TestSetBonusUnsupportedReadsProcRowsOffTheirListenerAndFiredSpell(t *testing.T) {
 	for _, c := range []struct {
 		row  int32
-		want string // A reason the row has to carry, or "" for none at all.
+		want string // A reason the spell has to carry, or "" for none at all.
 	}{
 		{18979, ""},   // Stormshroud Armor 2: 10% on melee hits, 18980's Nature damage
 		{23863, ""},   // Stormshroud Armor 3: 3% on melee hits, 23864's energy

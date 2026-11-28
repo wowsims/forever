@@ -15,7 +15,7 @@ func (druid *Druid) registerFaerieFireSpell() {
 	// The timer must exist before the form passive adds its recovery time.
 	config.Cast.CD = core.Cooldown{Timer: druid.NewTimer(), Duration: spellData.CatFormTriggered.Highest().EffectN(4).TimeValue()}
 	// Cost, cooldown and GCD in cat or bear come from the form passive's spell mods.
-	// The row's E_THREAT effect states 0. Threat by form in EV-0034, EV-0037.
+	// The spell's E_THREAT effect states 0. Threat by form in EV-0034, EV-0037.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.FlatThreatBonus = core.TernaryFloat64(druid.InForm(Bear), 2*float64(druid.level()), 0)
 		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)

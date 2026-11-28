@@ -376,7 +376,7 @@ func (d DBCTooltipDataProvider) GetSpellDuration(spellId int64) time.Duration {
 	return time.Duration(spell.Duration) * time.Millisecond
 }
 
-// The tooltips are rendered for no character, so an effect's amount is the one its row states, with no
+// The tooltips are rendered for no character, so an effect's amount is the one its spell states, with no
 // spell power on top.
 func (d DBCTooltipDataProvider) GetSpellDamage() float64 {
 	return 0

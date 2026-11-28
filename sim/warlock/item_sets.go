@@ -8,7 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The rows ItemSetSpell names for each set's thresholds. None of them is a warlock class spell, so the
+// The spells ItemSetSpell names for each set's thresholds. None of them is a warlock class spell, so the
 // generated table carries no reference to them.
 var (
 	pvpSpellDamage    = spelldata.MustFind(14047)   // spell damage
@@ -35,14 +35,14 @@ var sixPieceSlots = []proto.ItemSlot{
 	proto.ItemSlot_ItemSlotFeet,
 }
 
-// A bonus that is the row's parse and nothing else.
+// A bonus that is the spell's parse and nothing else.
 func parsedSetBonus(row *spelldata.Spell) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		spelldata.ParseEffects(agent.GetCharacter(), setBonusAura, row)
 	}
 }
 
-// The PvP sets share their three rows; the sets differ only in the piece counts they grant them at.
+// The PvP sets share their three spells; the sets differ only in the piece counts they grant them at.
 func pvpSetBonuses(spellDamageAt, immolateAt, staminaAt int32) map[int32]core.ApplySetBonus {
 	return map[int32]core.ApplySetBonus{
 		spellDamageAt: parsedSetBonus(pvpSpellDamage),

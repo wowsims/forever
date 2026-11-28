@@ -73,14 +73,14 @@ SPELLDATA_REPORT=1 go test --tags=with_db ./sim/<class>/ -run <Test> -count=1 -v
 `SpellMisc` query shows the rest, such as "not usable in combat" (word 0, `0x10000000`). The Wowhead Forever
 tooltip shows the values scaled to level, which the `$s1`-style tooltip text does not. Read the subject skill's
 `references/` folder (`rulings.md`, or the traps file where there is none; `wowsims-spells` names the subject skills),
-before judging a number the row does not decide.
+before judging a number the game files do not decide.
 
 Then make three comparisons for each spell:
 
-1. **Every literal against the row.** A number the row states is a finding: the fix reads the accessor. A
-   number the row does not state is an override in `tools/database/overrides/spell_overrides.go` where one of
-   its kinds fits (an attack power coefficient is `APCoefDirect` or `APCoefPeriodic`), so the generator refuses
-   it once the game files catch up; otherwise a literal with its reason and a `// TODO:` on the line.
+1. **Every literal against the game files.** A number the game files state is a finding: the fix reads the
+   accessor. A number the game files do not state is an override in `tools/database/overrides/spell_overrides.go`
+   where one of its kinds fits (an attack power coefficient is `APCoefDirect` or `APCoefPeriodic`), so the generator
+   refuses it once the game files catch up; otherwise a literal with its reason and a `// TODO:` on the line.
 2. **Every hand-built piece against the resolver.** A `core.SpellConfig`, aura, dot, `OnTick` or proc trigger
    written by hand is compared with what `SpellConfig`, `AuraConfig`, `DotConfig`, `ParseEffects` or
    `ProcTrigger` build from the row. Where they agree, the hand code goes. Where they differ, the tooltip
@@ -107,8 +107,8 @@ The first eight have a section in `references/defects.md`.
 - **Whose state.** Check a multi-target effect reads each hit target, a tag counts only this caster's auras and a
   missing map key is not 0; `wowsims-core-mechanics` `## Whose state`.
 - **What the gear tab states.** Check that a hand-written item, enchant or set proc whose code now rolls something
-  its rows do not state has a row in `tools/database/overrides/gear_proc_rates.go`, and that no row there is stale;
-  `wowsims-procs` `## Measuring a rate`.
+  the game files do not state has a row in `tools/database/overrides/gear_proc_rates.go`, and that no row there is
+  stale; `wowsims-procs` `## Measuring a rate`.
 - **What a preset line sees.** Check that a line reading something the running cast's landing changes
   carries `not(Spell Is Casting(X))` (`wowsims-apl` `## Timing`), and that its cast counts were judged as
   `wowsims-apl` `## Presets` says.

@@ -194,7 +194,7 @@ func (mage *Mage) registerImprovedConeOfCold() {
 // "Gives your Chill effects a 15% chance to grant you the Fingers of Frost effect, which treats your
 // next 2 spells cast as if the target were Frozen. Lasts 15 sec."
 //
-// The buff's row (400669) names only Deep Freeze, which is not in Forever, so what "as if Frozen" reaches
+// The buff spell (400669) names only Deep Freeze, which is not in Forever, so what "as if Frozen" reaches
 // is the tooltip's: every spell reading isFrozen, Shatter and Ice Lance.
 func (mage *Mage) registerFingersOfFrost() {
 	if mage.Talents.FingersOfFrost == 0 {

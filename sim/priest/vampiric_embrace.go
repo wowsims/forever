@@ -15,7 +15,7 @@ func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 	})
 
 	// The party heal 15290 the debuff casts, a heal with no base of its own on the caster's party.
-	// TODO: Read the heal off row 15290 once the store carries it.
+	// TODO: Read the heal off spell 15290 once the store carries it.
 	heal := priest.RegisterSpell(core.SpellConfig{
 		ActionID:         core.ActionID{SpellID: 15290},
 		SpellSchool:      core.SpellSchoolShadow,
@@ -29,7 +29,7 @@ func (priest *Priest) registerVampiricEmbrace(_ int32, rank *spelldata.Spell) {
 	priest.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Vampiric Embrace Heal",
 		Callback:           core.CallbackOnSpellHitDealt | core.CallbackOnPeriodicDamageDealt,
-		ClassSpellMask:     PriestShadowSpells, // The tooltip's "Shadow spell damage you deal"; the row's listener names no spells.
+		ClassSpellMask:     PriestShadowSpells, // The tooltip's "Shadow spell damage you deal"; the talent's listener names no spells.
 		RequireDamageDealt: true,
 		CanProcFromProcs:   true,
 		ExtraCondition: func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {

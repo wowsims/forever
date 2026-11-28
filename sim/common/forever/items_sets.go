@@ -101,7 +101,7 @@ var ItemSetBlessedPlate = core.NewItemSet(core.ItemSet{
 	},
 })
 
-// The rows the dungeon sets share.
+// The spells the dungeon sets share.
 var (
 	dungeonResistances = spelldata.MustFind(18679)  // 2pc: +8 all resistances
 	dungeonSpellDamage = spelldata.MustFind(9346)   // Dungeon Set 1 3pc: +18 spell damage
@@ -123,7 +123,7 @@ func suddenInsightMana(proc *spelldata.Spell, name string) core.ApplySetBonus {
 		manaMetrics := character.NewManaMetrics(core.ActionID{SpellID: dungeonSuddenMana.ID})
 		mana := dungeonSuddenMana.EnergizeEffect().Average()
 
-		// The rate is the proc chance column with no cooldown, rolled on whatever the row's mask hears.
+		// The rate is the proc chance column with no cooldown, rolled on whatever the spell's mask hears.
 		trigger := spelldata.ProcTrigger(character, proc,
 			func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 				character.AddMana(sim, mana, manaMetrics)
@@ -226,7 +226,7 @@ func dreadmistDarkReward(name string) core.ApplySetBonus {
 		heal := dreadmistHeal.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, dreadmistHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
-		// The row states no defense type, and a heal crits for the magic multiplier.
+		// The game files state no defense type, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealHealing(sim, target, heal.DirectAmount(sim), spell.OutcomeHealingCrit)
@@ -344,7 +344,7 @@ func attachWildheartSwingEnergy(character *core.Character, setBonusAura *core.Au
 	setBonusAura.AttachProcTrigger(trigger)
 }
 
-// The rage listener: a melee ability taken never rolls the proc, though the row names it (EV-0144). The
+// The rage listener: a melee ability taken never rolls the proc, though the game files name it (EV-0144). The
 // rage fills the bar only while rage is the current one: a druid's in a bear form alone, since a shift
 // into a bear form empties the bar.
 func attachWildheartStruckRage(character *core.Character, setBonusAura *core.Aura, name string) {
@@ -372,7 +372,7 @@ func attachWildheartStruckRage(character *core.Character, setBonusAura *core.Aur
 
 // Wild Heart, Wildheart Raiment's 4-piece and the Feralheart Raiment reissue's 5-piece: when struck in
 // combat, has a 5% chance to increase your movement speed by 10% for 8 sec. Can only occur once every
-// 60 sec. A landed hit taken rolls the row's chance outside its cooldown (EV-0144). The spell parse
+// 60 sec. A landed hit taken rolls the spell's chance outside its cooldown (EV-0144). The spell parse
 // leaves the buff's speed aura out, so the buff multiplies the movement speed itself.
 func wildHeart(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
@@ -489,7 +489,7 @@ func warriorsResolve(name string) core.ApplySetBonus {
 		heal := warriorsResolveHeal.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, warriorsResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
-		// The row states no defense type, and a heal crits for the magic multiplier.
+		// The game files state no defense type, and a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealHealing(sim, target, heal.DirectAmount(sim), spell.OutcomeHealingCrit)
@@ -733,7 +733,7 @@ var furbolgTeachings = spelldata.MustFind(1294087)
 // chance to increase your Intellect by 20 for 15s.
 //
 // No effect of 1294087 casts the healing half, Wisdom of the Timbermaw 1294070, so a heal procs nothing;
-// that row also states Strength where the tooltip says Intellect.
+// that spell also states Strength where the tooltip says Intellect.
 var ItemSetTeachingsOfTheFurbolgs = core.NewItemSet(core.ItemSet{
 	ID:    2071,
 	Name:  "Teachings of the Furbolgs",
@@ -830,7 +830,7 @@ func enragingLight(agent core.Agent, setBonusAura *core.Aura) {
 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), outcome)
 	}
 	light := character.RegisterSpell(config)
-	// The row states Always Hit: the damage never misses and can still crit.
+	// The game files state Always Hit: the damage never misses and can still crit.
 	outcome = light.OutcomeMagicHitAndCrit
 	if enragedLight.AlwaysHits() {
 		outcome = light.OutcomeMagicCrit
@@ -898,7 +898,7 @@ var ItemSetRotmendersRaiment = core.NewItemSet(core.ItemSet{
 		3: shared.ParsedSetBonus(spelldata.MustFind(9106)),  // +10 Intellect
 		// TODO: Ingame test needed -- whether any cast that leaves mana below 15% triggers it.
 		4: siphonTheGraveMana,
-		// TODO: 5pc (1321587) heals over time off a heal, at a rate its row does not state.
+		// TODO: 5pc (1321587) heals over time off a heal, at a rate the game files do not state.
 	},
 })
 
@@ -943,7 +943,7 @@ var (
 //
 // (2) Set: Chance on Hit: Immobilizes the target and lowers their armor by 100 for 10s.
 //
-// The root has no place in the sim. The armor is the row's own debuff in no armor category, so it stacks
+// The root has no place in the sim. The armor is the spell's own debuff in no armor category, so it stacks
 // with every armor debuff the raid puts up.
 var ItemSetSpidersKiss = core.NewItemSet(core.ItemSet{
 	ID:    65,
@@ -975,7 +975,7 @@ var ItemSetPartnersInCrime = core.NewItemSet(core.ItemSet{
 	Name:  "Partners in Crime",
 	Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2},
 	Bonuses: map[int32]core.ApplySetBonus{
-		// TODO: 1317039 also puts Angry 1317040 up on a melee swing or ability. Its row states no rate, and
+		// TODO: 1317039 also puts Angry 1317040 up on a melee swing or ability. The game files state no rate, and
 		// the rate is being measured.
 		2: shared.ParsedSetBonus(spelldata.MustFind(1317038)), // +22 Strength
 	},
@@ -987,7 +987,7 @@ var (
 )
 
 // Proc chance measurement in EV-0166.
-// The row states no chance.
+// The game files state no chance.
 const roarOfTheCrowdChance = 0.072
 
 // https://www.wowhead.com/forever/item-set=1/the-gladiator
@@ -1029,7 +1029,7 @@ var (
 )
 
 // Proc chance measurement in EV-0167.
-// The row states no chance.
+// The game files state no chance.
 const bloodmailChance = 0.107
 
 // https://www.wowhead.com/forever/item-set=123/bloodmail-regalia
@@ -1081,7 +1081,7 @@ var (
 )
 
 // Proc chance measurement in EV-0168.
-// The row states no chance.
+// The game files state no chance.
 const necropileDrainChance = 0.139
 
 // https://www.wowhead.com/forever/item-set=122/necropile-raiment
@@ -1089,7 +1089,7 @@ const necropileDrainChance = 0.139
 // (3) Set: Harmful spell casts have a chance to steal 28 life from the target enemy.
 //
 // Which landings roll in EV-0168.
-// The row's 10 ms cooldown lets an area spell proc it once.
+// The spell's 10 ms cooldown lets an area spell proc it once.
 var ItemSetNecropileRaiment = core.NewItemSet(core.ItemSet{
 	ID:   122,
 	Name: "Necropile Raiment",
@@ -1132,7 +1132,7 @@ func landedHits(mask core.ProcMask) spelldata.ProcOpt {
 	}
 }
 
-// The row's amount, or in the tooltip's area the amount its second effect states.
+// The spell's amount, or in the tooltip's area the amount its second effect states.
 func secondEffectInArea(character *core.Character, row *spelldata.Spell, area proto.AreaType) spelldata.ParseOpt {
 	if !character.Env.Encounter.InArea(area) {
 		return spelldata.Count(1)
@@ -1214,7 +1214,7 @@ var (
 // (5) Set: Melee attacks have a chance to increase your Critical Strike chance by 2% for 20s. This effect is
 // doubled in swamps.
 //
-// The row names the main hand alone, but off-hand swings proc it as often (EV-0170).
+// The game files name the main hand alone, but off-hand swings proc it as often (EV-0170).
 var ItemSetDefiasEnforcersGarb = core.NewItemSet(core.ItemSet{
 	ID:   2136,
 	Name: "Defias Enforcer's Garb",

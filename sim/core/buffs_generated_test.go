@@ -20,7 +20,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// Each rank of the raid's shout is worth what its own row states, and three pieces of Battlegear of Wrath
+// Each rank of the raid's shout is worth what its own spell states, and three pieces of Battlegear of Wrath
 // add the set's bonus to what the copy applies and bids.
 func TestRaidBattleShoutAppliesItsState(t *testing.T) {
 	off := core.NewGeneratedBuffTestCharacter()
@@ -1283,7 +1283,7 @@ func TestThornsCarriesTheBuffsSpellPower(t *testing.T) {
 }
 
 // The druid's own copy reads the caster's Nature spell power when it deals the hit, so it ignores
-// the stated spell power and bids the row's damage alone.
+// the stated spell power and bids the spell's damage alone.
 func TestThornsPlayerCopyScalesWithTheCastersSpellPower(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 

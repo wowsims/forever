@@ -180,7 +180,7 @@ func (warrior *Warrior) registerShieldSlam() {
 		return
 	}
 
-	// A main-hand special, though the row requires the shield: the main-hand weapon skill sets its miss
+	// A main-hand special, though the spell requires the shield: the main-hand weapon skill sets its miss
 	// and parry.
 	config := spelldata.SpellConfig(&warrior.Unit, shieldSlamRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
@@ -212,7 +212,7 @@ func (warrior *Warrior) registerMasterOfDefense() {
 
 	talent := spellData.MasterOfDefense.Rank(warrior.Talents.MasterOfDefense)
 
-	// A shield has to be equipped, which the row does not state.
+	// A shield has to be equipped, which the game files do not state.
 	warrior.registerRageOnAvoid(talent, talent.EffectN(1).Trigger(), core.OutcomeDodge|core.OutcomeParry,
 		func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
 			return warrior.PseudoStats.CanBlock
@@ -265,7 +265,7 @@ func (warrior *Warrior) registerBastion() {
 		return
 	}
 
-	// The parse never scopes to the shield the row states, so it is the caller's condition, re-read on
+	// The parse never scopes to the shield the spell states, so it is the caller's condition, re-read on
 	// an off-hand swap.
 	parsed := spelldata.ParseStatic(&warrior.Character, spellData.Bastion.Rank(warrior.Talents.Bastion),
 		spelldata.Conditional(func() bool { return warrior.PseudoStats.CanBlock }))

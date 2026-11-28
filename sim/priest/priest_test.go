@@ -188,7 +188,7 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 	}
 
 	t.Run("each death grants once at the full rank", func(t *testing.T) {
-		// Spirit Tap 5/5, where the row's chance is certain, and Vampiric Embrace in the Shadow tree.
+		// Spirit Tap 5/5, where the talent's chance is certain, and Vampiric Embrace in the Shadow tree.
 		sim, priest, buff := newSim(t, "--00500000001", 5)
 		target := sim.Encounter.AllTargets[0]
 		grants := 0
@@ -259,7 +259,7 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 	})
 }
 
-// Vampiric Embrace heals each party member the row's share of the priest's Shadow damage, and the priest that
+// Vampiric Embrace heals each party member the spell's share of the priest's Shadow damage, and the priest that
 // share raised by the second effect's percent.
 func TestVampiricEmbraceHealsThePriestMoreThanTheParty(t *testing.T) {
 	priestPlayer := func(name, talents string) *proto.Player {

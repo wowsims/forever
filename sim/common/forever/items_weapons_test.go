@@ -150,7 +150,7 @@ func expectWeaponRate(t *testing.T, sim *core.Simulation, proc *core.Aura, mask 
 	}
 }
 
-// The ticks a damage over time runs for, as the row's duration over its period.
+// The ticks a damage over time runs for, as the spell's duration over its period.
 func rowTickCount(row *spelldata.Spell, tick *spelldata.Effect) int32 {
 	return int32(row.Duration() / tick.Period())
 }
@@ -265,7 +265,7 @@ func TestRavagerChannelsBladestormOverEveryEnemy(t *testing.T) {
 	}
 }
 
-// Heartseeking Crossbow 13040's 29626 strikes the target with Shadowbolt 29640 for its row's roll.
+// Heartseeking Crossbow 13040's 29626 strikes the target with Shadowbolt 29640 for its spell's roll.
 func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 	if core.GetItemByID(13040) == nil {
 		t.Skip("item 13040 is not in the live game files; this runs again once they hold it")
@@ -430,8 +430,8 @@ func TestDemonforkDrainsTheTargetIntoTheWearer(t *testing.T) {
 }
 
 // Barovian Family Sword 14541 casts Siphon Health 18652, and the drain goes on a target above the
-// wearer's level with no hit roll. Each tick casts the heal the drain's row links to on the wearer, for
-// the amount the drain's row states whatever the tick dealt.
+// wearer's level with no hit roll. Each tick casts the heal the drain links to on the wearer, for
+// the amount the drain states whatever the tick dealt.
 func TestBarovianFamilySwordHealsTheWearerWithEveryTick(t *testing.T) {
 	sim, character := itemWearerAgainst(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(14541, 0)},
 		&proto.Target{Name: "target", Level: 63})
@@ -604,8 +604,8 @@ func TestFelstrikerCoversTheExtraHitsOfTheSwingThatProcsIt(t *testing.T) {
 	}
 }
 
-// Ragehammer 10626 procs Enrage 12686, whose row states attack power and melee attack speed; the item
-// effect entry carries only the attack power, and the speed comes from the row.
+// Ragehammer 10626 procs Enrage 12686, whose spell states attack power and melee attack speed; the item
+// effect entry carries only the attack power, and the speed comes from the spell.
 func TestRagehammerEnrageRaisesAttackPowerAndMeleeSpeed(t *testing.T) {
 	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(10626, 0)})
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -756,7 +756,7 @@ func landCastHits(t *testing.T, sim *core.Simulation, character *core.Character,
 }
 
 // Lands 6000 hits of an instant cast and 6000 of a cast twice castTimeFloor long and checks the procs
-// counted against castTimeChance for the row.
+// counted against castTimeChance for the spell.
 func checkCastTimeRate(t *testing.T, sim *core.Simulation, character *core.Character, rowID int32, procs func() int32) {
 	t.Helper()
 	spell := fireSpell(&character.Unit)
@@ -815,7 +815,7 @@ func TestBladeOfEternalDarknessPricesAnInstantLongCastOnTheFloor(t *testing.T) {
 	}
 }
 
-// Each enemy an area spell lands on rolls Blade of Eternal Darkness 17780, and the row's cooldown lets
+// Each enemy an area spell lands on rolls Blade of Eternal Darkness 17780, and the spell's cooldown lets
 // one landing proc it once.
 func TestBladeOfEternalDarknessRollsEachEnemyOfALandingOnce(t *testing.T) {
 	const enemies = 5
@@ -1037,7 +1037,7 @@ func TestBladeOfEternalDarknessRestoresManaWithEachProc(t *testing.T) {
 	}
 }
 
-// Moonshadow Stave 22458 rolls 1300435 on each landed harmful spell at the row's procs per minute on the
+// Moonshadow Stave 22458 rolls 1300435 on each landed harmful spell at the spell's procs per minute on the
 // cast time of the spell's cast. Each proc casts Shadow 1300437 or Arcane 1300438, one in two each.
 func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	const hurricaneTick, flamestrikeTick = 1278759, 1279990
@@ -1123,8 +1123,8 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	}
 }
 
-// Kindling Stave 11750 rolls 1300781 on each landed harmful spell at the row's procs per minute on the
-// cast time of the spell's cast. A spell whose row states no defense type never rolls it, such as the
+// Kindling Stave 11750 rolls 1300781 on each landed harmful spell at the spell's procs per minute on the
+// cast time of the spell's cast. A spell the game files state no defense type for never rolls it, such as the
 // landing that starts Arcane Missiles' channel. Each proc casts 1300782 at the enemy hit.
 func TestKindlingStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	const hurricaneTick, flamestrikeTick, flamestrikeCast = 1278759, 1279990, 10216
@@ -1190,7 +1190,7 @@ func TestKindlingStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	}
 }
 
-// Kindling Stave 11750's 1300782 deals its row's factor at its second effect times as much to a Plant,
+// Kindling Stave 11750's 1300782 deals its spell's factor at its second effect times as much to a Plant,
 // and the wearer's stats sheet lists the factor against Plants.
 func TestKindlingStaveDealsItsFactorToPlants(t *testing.T) {
 	factor := spelldata.MustFind(1300782).EffectAtIndex(1).BaseValue()
@@ -1261,7 +1261,7 @@ func TestThunderfuryProcsAtItsEntryRate(t *testing.T) {
 }
 
 // Dragon's Call 10847 casts 13049 off any landed main-hand hit, an application that deals no damage
-// included, and no hit rolls during the row's category cooldown, which starts at the proc.
+// included, and no hit rolls during the spell's category cooldown, which starts at the proc.
 func TestDragonsCallCastsOnLandedHitsOutsideItsCooldown(t *testing.T) {
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 10847, 1)
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -1317,7 +1317,7 @@ func emeraldDragonWhelp(character *core.Character) *core.Pet {
 	return nil
 }
 
-// Dragon's Call's 13049 summons the Emerald Dragon Whelp on the enemy for the row's duration, and the
+// Dragon's Call's 13049 summons the Emerald Dragon Whelp on the enemy for the spell's duration, and the
 // whelp swings and casts Acid Spit 9591 while it is up.
 func TestDragonsCallSummonsTheWhelpForTheRowsDuration(t *testing.T) {
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 10847, 1)
@@ -1347,7 +1347,7 @@ func TestDragonsCallSummonsTheWhelpForTheRowsDuration(t *testing.T) {
 }
 
 // Acid Spit 9591 states its base points as a percent of the creature auto attack dps for the caster's
-// level, the whelp's own 57. Its hits roll the row's variance, so their mean sits at that amount.
+// level, the whelp's own 57. Its hits roll the spell's variance, so their mean sits at that amount.
 func TestAcidSpitDealsItsPercentOfTheCreatureDpsAtTheWhelpsLevel(t *testing.T) {
 	// Long enough for 100 summons a cooldown apart.
 	sim, character := weaponWearerFor(t, proto.Class_ClassWarrior, 10847, 1, 5000)
@@ -1393,7 +1393,7 @@ func TestDragonsCallInTheSwapSetOwnsTheWhelp(t *testing.T) {
 var shahramSpellIDs = []int32{16596, 16597, 16598, 16599, 16600, 16601}
 
 // Blackblade of Shahram 12592 casts 16602 off main-hand hits. Each summon lands one of Shahram's
-// spells, none of them before its row's hardcast has run.
+// spells, none of them before its hardcast has run.
 func TestBlackbladeOfShahramLandsOneSpellPerSummonAfterItsHardcast(t *testing.T) {
 	sim, character := weaponWearerFor(t, proto.Class_ClassShaman, 12592, 1, 6000)
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -1489,7 +1489,7 @@ func TestFlamesOfShahramBurnsEveryEnemy(t *testing.T) {
 		}
 	}
 
-	// With no spell hit or spell crit, some casts miss and the rest hit within the row's range.
+	// With no spell hit or spell crit, some casts miss and the rest hit within the spell's range.
 	plain, _ := burn(stats.Stats{})
 	for i, metrics := range plain {
 		if metrics.Misses == 0 || metrics.Hits+metrics.Crits+metrics.Misses != casts {
@@ -1503,7 +1503,7 @@ func TestFlamesOfShahramBurnsEveryEnemy(t *testing.T) {
 	}
 }
 
-// Fist of Shahram 16601 raises the wearer's melee attack speed by the row's percent for the row's
+// Fist of Shahram 16601 raises the wearer's melee attack speed by the spell's percent for the spell's
 // duration. A second Fist while one is up adds no more speed and holds it until the second fades.
 func TestFistOfShahramRaisesTheWearersMeleeSpeed(t *testing.T) {
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 1)
@@ -1542,7 +1542,7 @@ func TestFistOfShahramRaisesTheWearersMeleeSpeed(t *testing.T) {
 }
 
 // The Will of Shahram 16598 aura on a wearer whose auto attacks are off, and a check that its stacks,
-// and the row's stats once per stack, are what a moment of the test expects.
+// and the spell's stats once per stack, are what a moment of the test expects.
 func willOfShahramWearer(t *testing.T) (*core.Simulation, *core.Character, *core.Spell, *core.Aura, func(string, int32)) {
 	t.Helper()
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 1)
@@ -1569,7 +1569,7 @@ func willOfShahramWearer(t *testing.T) (*core.Simulation, *core.Character, *core
 	return sim, character, character.GetSpell(core.ActionID{SpellID: 16598}), aura, expect
 }
 
-// Each Will of Shahram 16598 adds a stack worth the row's stats to one aura. Each stack fades on its
+// Each Will of Shahram 16598 adds a stack worth the spell's stats to one aura. Each stack fades on its
 // own timer, the aura stays up while any stack does, and its remaining time is the latest stack's.
 func TestWillOfShahramStacksAndFadeOneByOne(t *testing.T) {
 	sim, character, will, aura, expect := willOfShahramWearer(t)
@@ -1646,7 +1646,7 @@ func TestWillOfShahramReplacesTheOldestStackWhenAllAreUp(t *testing.T) {
 	expect("past the second stack's duration", full-1)
 }
 
-// Curse of Shahram 16597 slows the attacks of every enemy by the row's share for the row's duration.
+// Curse of Shahram 16597 slows the attacks of every enemy by the spell's share for the spell's duration.
 func TestCurseOfShahramSlowsEveryEnemysAttacks(t *testing.T) {
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 2)
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -1673,7 +1673,7 @@ func TestCurseOfShahramSlowsEveryEnemysAttacks(t *testing.T) {
 	expect("past the row's duration", 1)
 }
 
-// Might of Shahram 16600 stuns every enemy for the row's duration, and a stun-immune enemy not at all.
+// Might of Shahram 16600 stuns every enemy for the spell's duration, and a stun-immune enemy not at all.
 func TestMightOfShahramStunsEveryEnemyThatCanBeStunned(t *testing.T) {
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 2)
 	character.AutoAttacks.CancelAutoSwing(sim)
@@ -1697,7 +1697,7 @@ func TestMightOfShahramStunsEveryEnemyThatCanBeStunned(t *testing.T) {
 	}
 }
 
-// Blessing of Shahram 16599 restores the row's mana each period for the row's duration, and two
+// Blessing of Shahram 16599 restores the spell's mana each period for the spell's duration, and two
 // Blessings tick side by side.
 func TestBlessingOfShahramRestoresManaForEachBlessing(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassPaladin, proto.ItemSlot_ItemSlotMainHand, 12592)
@@ -1874,7 +1874,7 @@ func TestIronfoeIsLikelierAgainstOrcs(t *testing.T) {
 }
 
 // Blade of Hanna 2801 adds a stack of Improving Form 1325509 on each main-hand swing. Only the swing
-// that brings the stacks to the count the row names casts Perfected Form 1325508.
+// that brings the stacks to the count the spell names casts Perfected Form 1325508.
 func TestBladeOfHannaPerfectsItsFormAtThirtyStacks(t *testing.T) {
 	if core.GetItemByID(2801) == nil {
 		t.Skip("item 2801 is not in the live game files; this runs again once they hold it")
@@ -2003,7 +2003,7 @@ func TestClaymoreOfTwoMoonsWaxesOrWanesOnEachProc(t *testing.T) {
 }
 
 // White Obsidian Wand 274425 rolls 1294058 on a caster's wand shots and on nothing else, and Shoot
-// leaves it up. The next spell of a school the row names that pays mana uses it; a free cast keeps it.
+// leaves it up. The next spell of a school the spell names that pays mana uses it; a free cast keeps it.
 func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T) {
 	sim, wearer := priestWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotRanged: 274425})
 	character := &wearer.Character
@@ -2275,8 +2275,8 @@ func TestSulthrazeTheLasherLashesOnceAfterItsDuration(t *testing.T) {
 }
 
 // Pendulum of Doom 9425's Fatal Wound 10373, Diabolic Skiver 9475's Fatal Wound 18206, Blackhand
-// Doomsaw 12583's Fatal Wound 16549 and Gut Ripper 2164's Wound 18107 deal the percent their row
-// states more to a target below the health percent their row states, from that phase's start.
+// Doomsaw 12583's Fatal Wound 16549 and Gut Ripper 2164's Wound 18107 deal the percent their spell
+// states more to a target below the health percent their spell states, from that phase's start.
 func TestFatalWoundDealsMoreBelowTheExecuteHealth(t *testing.T) {
 	for _, item := range []struct {
 		itemID, spellID int32
@@ -2375,7 +2375,7 @@ func castDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit) floa
 	return spell.SpellMetrics[target.UnitIndex].TotalDamage - before
 }
 
-// The factor each item's row states against its tooltip's creatures, read through the row's versus
+// The factor each item's spell states against its tooltip's creatures, read through the spell's versus
 // bonus, and Sul'thraze the Lasher 9372's Shadow Lash 1294431 against Trolls, which its Rage of
 // Sul'thraze 1294430 states and leaves its own hit without.
 func TestProcSpellsDealTheirVersusFactor(t *testing.T) {
@@ -2470,7 +2470,7 @@ func TestGahzrillaFangGrowsWithStaticElectricity(t *testing.T) {
 }
 
 // The Chief's Enforcer 9477's proc casts 1294340 at the target with each strike, which stuns it for
-// the row's duration even when the strike misses. A stun-immune target takes no stun.
+// the spell's duration even when the strike misses. A stun-immune target takes no stun.
 func TestTheChiefsEnforcerStunsWhetherOrNotTheStrikeLands(t *testing.T) {
 	row := spelldata.MustFind(1294340)
 	label := fmt.Sprintf("%s %d", row.Name, row.ID)

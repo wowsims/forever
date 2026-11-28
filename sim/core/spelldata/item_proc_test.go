@@ -50,7 +50,7 @@ func TestItemProcUnsupported(t *testing.T) {
 }
 
 // A proc that deals its amount off its own trigger carries it on the A_PROC_TRIGGER_DAMAGE aura: that
-// aura is the proc's damage effect, and the row's RecoveryTime gives the listener no cooldown.
+// aura is the proc's damage effect, and the spell's RecoveryTime gives the listener no cooldown.
 func TestProcTriggerDamageAuraIsTheProcsDamageEffect(t *testing.T) {
 	withRows(t, procRows())
 
@@ -76,8 +76,8 @@ func TestProcTriggerDamageAuraIsTheProcsDamageEffect(t *testing.T) {
 	}
 }
 
-// The sim refuses to register a proc whose row states no callback, and the audit has to see the same
-// rows that way.
+// The sim refuses to register a proc whose spell states no callback, and the audit has to see the same
+// spells that way.
 func TestItemProcUnsupportedCoversTheRegistrationsOwnRefusal(t *testing.T) {
 	withRows(t, procRows())
 

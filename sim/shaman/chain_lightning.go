@@ -11,7 +11,7 @@ func (shaman *Shaman) registerChainLightningSpell() {
 	shaman.registerWithOverloads(chainLightningRanks, chainLightningOverloadRanks, shaman.newChainLightningSpellConfig)
 }
 
-// The cast, with the overload it may trigger; the overload itself, from its own row, where overload is
+// The cast, with the overload it may trigger; the overload itself, from its own spell, where overload is
 // nil. Both jump alike, so an overload reaches as many targets as the cast, starting on the target that
 // triggered it.
 func (shaman *Shaman) newChainLightningSpellConfig(row *spelldata.Spell, overload *core.Spell) core.SpellConfig {

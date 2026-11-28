@@ -13,7 +13,7 @@ var shieldBashRank = spellData.ShieldBash.Highest()
 const shieldBashThreatMultiplier = 1.5
 
 func (warrior *Warrior) registerShieldBash() {
-	// A main-hand special, though the row requires the shield: the main-hand weapon skill sets its miss
+	// A main-hand special, though the spell requires the shield: the main-hand weapon skill sets its miss
 	// and parry.
 	config := spelldata.SpellConfig(&warrior.Unit, shieldBashRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ThreatMultiplier = shieldBashThreatMultiplier

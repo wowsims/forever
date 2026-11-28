@@ -8,7 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// A spell built from its row ticks through all, a tenth or none of the target's armor as the row's
+// A spell built from the game files ticks through all, a tenth or none of the target's armor as its
 // attributes say.
 func TestPeriodicPhysicalRowsMeetTheArmorTheirAttributesName(t *testing.T) {
 	sim := newAuraSim(shaman("Wearer", nil))

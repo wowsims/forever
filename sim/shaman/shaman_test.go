@@ -43,7 +43,7 @@ func enhancementRaid(talents string) *proto.Raid {
 	return core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{})
 }
 
-// A totem's trainer rank grants its own row's amount and takes the book rank's slot, and the book rank takes it back.
+// A totem's trainer rank grants its own amount and takes the book rank's slot, and the book rank takes it back.
 func TestTrainerTotemRanksBesideBookRanks(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       enhancementRaid(enhancementTalents),
@@ -132,7 +132,7 @@ func TestMeleeCritCapCountsElementalDevastation(t *testing.T) {
 
 }
 
-// Fire Nova's hits are a spell the cast triggers, and the row lacks Not a Proc, so Elemental
+// Fire Nova's hits are a spell the cast triggers, and the spell lacks Not a Proc, so Elemental
 // Devastation, which cannot proc from procs, never hears their crits.
 func TestFireNovaHitsAreProcs(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
@@ -340,7 +340,7 @@ func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
 	}, 1, true)
 }
 
-// Totemic Recall takes down the shaman's standing totems and returns the row's share of their base
+// Totemic Recall takes down the shaman's standing totems and returns the spell's share of their base
 // mana costs.
 func TestTotemicRecallReturnsAShareOfTheStandingTotemsBaseCosts(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
@@ -624,7 +624,7 @@ func shamanWearingSpecs(t *testing.T, encounter *proto.Encounter, items []*proto
 }
 
 // Gift of the Gathering Storm's 3-piece bonus multiplies the share of the damage each Chain Lightning
-// jump keeps by its row's percent.
+// jump keeps by its percent.
 func TestGiftOfTheGatheringStormRaisesEachChainLightningJump(t *testing.T) {
 	const bonusRow, chainRank = 26123, 10605
 	multiplier := 1 + spelldata.MustFind(bonusRow).EffectN(1).Percent()
@@ -674,7 +674,7 @@ func TestGiftOfTheGatheringStormRaisesEachChainLightningJump(t *testing.T) {
 }
 
 // Stormcaller's Garb's 3-piece bonus grants Stormcaller's Wrath off the spells its tooltip names, and
-// never off Fire Nova, another harmful shaman spell the row's listener would hear on its own.
+// never off Fire Nova, another harmful shaman spell the buff's listener would hear on its own.
 func TestStormcallersGarbProcsOnlyOffTheSpellsItsTooltipNames(t *testing.T) {
 	const boltRank, chainRank, wrathRow = 15208, 10605, 26121
 	sim, sham := shamanWearing(t, core.MakeSingleTargetEncounter(0), map[proto.ItemSlot]int32{
@@ -726,7 +726,7 @@ func TestStormcallersGarbProcsOnlyOffTheSpellsItsTooltipNames(t *testing.T) {
 	}
 }
 
-// The Earthshatterer's 8-piece bonus gives the shaman its row's mana per 5 sec while Lightning Shield is up.
+// The Earthshatterer's 8-piece bonus gives the shaman its mana per 5 sec while Lightning Shield is up.
 func TestEarthshattererGivesManaWhileLightningShieldIsUp(t *testing.T) {
 	want := spelldata.MustFind(28820).EffectN(1).BaseValue()
 	if want <= 0 {

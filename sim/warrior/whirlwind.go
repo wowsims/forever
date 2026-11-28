@@ -21,7 +21,7 @@ func (warrior *Warrior) registerWhirlwind() {
 		result.Threat = spell.ThreatFromDamage(sim, result.Outcome, result.Damage, spell.Unit.AttackTables[result.Target.UnitIndex])
 	}
 
-	// The row states only the one weapon damage effect, so the off-hand strike is a sub-spell on it.
+	// The spell states only the one weapon damage effect, so the off-hand strike is a sub-spell on it.
 	ohConfig := spelldata.SpellConfig(&warrior.Unit, whirlwindRank,
 		spelldata.Melee(core.ProcMaskMeleeOHSpecial), spelldata.Proc())
 	ohConfig.ActionID = ohConfig.ActionID.WithHand(proto.ItemSlot_ItemSlotOffHand)

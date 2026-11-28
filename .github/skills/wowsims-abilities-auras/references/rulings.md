@@ -5,8 +5,8 @@ request that settled it and its evidence. This index lists the ones this skill o
 
 ## Rolls and outcomes
 
-- **R-0001** Always Hit on a triggered row stops only that row's own roll: `docs/rulings/R-0001-always-hit-triggered-row-own-roll.md`
-- **R-0002** A special can be dodged, parried or blocked only when its row lacks No Active Defense: `docs/rulings/R-0002-special-dodge-follows-no-active-defense.md`
+- **R-0001** Always Hit on a triggered spell stops only that spell's own roll: `docs/rulings/R-0001-always-hit-triggered-row-own-roll.md`
+- **R-0002** A special can be dodged, parried or blocked only when it lacks No Active Defense: `docs/rulings/R-0002-special-dodge-follows-no-active-defense.md`
 - **R-0003** A spell with magic DefenseType and no Always Hit rolls a magic hit even without damage: `docs/rulings/R-0003-magic-defense-spell-rolls-hit.md`
 - **R-0004** Intercept's stun is its own spell and level plus 3 targets are immune to it: `docs/rulings/R-0004-intercept-stun-own-spell-immunity.md`
 - **R-0005** Consecration ticks every second and Serpent Sting is a full ranged ability: `docs/rulings/R-0005-consecration-ticks-serpent-sting-ranged.md`
@@ -16,9 +16,9 @@ request that settled it and its evidence. This index lists the ones this skill o
 ## Reading the row
 
 - **R-0008** A talent's trait curve applies with the sign the game files state: `docs/rulings/R-0008-talent-curve-sign-follows-game-files.md`
-- **R-0009** Seal of Righteousness keeps hand coefficients over the rows' zero: `docs/rulings/R-0009-seal-of-righteousness-tooltip-coefficients.md`
+- **R-0009** Seal of Righteousness keeps hand coefficients over the game files' zero: `docs/rulings/R-0009-seal-of-righteousness-tooltip-coefficients.md`
 - **R-0010** Shield Bash and Shield Slam register as main-hand melee specials: `docs/rulings/R-0010-shield-specials-main-hand-special.md`
-- **R-0011** A hand-built melee or ranged special states its row's DefenseType: `docs/rulings/R-0011-hand-built-special-states-defensetype.md`
+- **R-0011** A hand-built melee or ranged special states its DefenseType: `docs/rulings/R-0011-hand-built-special-states-defensetype.md`
 
 ## Registering
 

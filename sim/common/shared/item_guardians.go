@@ -71,7 +71,7 @@ type Guardian struct {
 	walkEnd    time.Duration
 }
 
-// Builds the guardians an item summons with the item's owner: as many as the summon's row brings at once.
+// Builds the guardians an item summons with the item's owner: as many as the summon brings at once.
 // Where more can be up than one summon brings, each piece carrying one registers its own under its own name.
 func RegisterItemGuardian(itemID int32, summon *spelldata.Spell, creature GuardianCreature) {
 	count := summonCount(summon)
@@ -107,12 +107,12 @@ func NewGuardianOnUse(itemID int32, summonID int32, creatures map[int32]Guardian
 	})
 }
 
-// How many creatures one cast of the summon's row puts up: its base points, one where the row states none.
+// How many creatures one cast of the summon puts up: its base points, one where it states none.
 func summonCount(summon *spelldata.Spell) int {
 	return max(1, int(summon.SummonEffect().BasePoints))
 }
 
-// The spots beside the caster a summon's row can put its creature on.
+// The spots beside the caster a summon can put its creature on.
 var casterSummonSpots = []dbcenums.ImplicitTarget{
 	dbcenums.TARGET_DEST_CASTER, dbcenums.TARGET_DEST_CASTER_SUMMON, dbcenums.TARGET_DEST_CASTER_UNK_36,
 	dbcenums.TARGET_DEST_CASTER_FRONT_RIGHT, dbcenums.TARGET_DEST_CASTER_BACK_RIGHT, dbcenums.TARGET_DEST_CASTER_BACK_LEFT,
@@ -121,7 +121,7 @@ var casterSummonSpots = []dbcenums.ImplicitTarget{
 	dbcenums.TARGET_DEST_CASTER_RADIUS,
 }
 
-// A summon appears where its row puts it (R-0055).
+// A summon appears where its spell puts it (R-0055).
 func summonsBesideCaster(summon *spelldata.Spell) bool {
 	return slices.Contains(casterSummonSpots, summon.SummonEffect().Target[0])
 }
@@ -239,7 +239,7 @@ func (guardian *Guardian) ExecuteCustomRotation(sim *core.Simulation) {
 	}
 }
 
-// The guardians the character owns for a summon's row, in the order it built them.
+// The guardians the character owns for a summon, in the order it built them.
 func Guardians(character *core.Character, summon *spelldata.Spell) []*Guardian {
 	var guardians []*Guardian
 	for _, pet := range character.PetAgents {
@@ -250,8 +250,8 @@ func Guardians(character *core.Character, summon *spelldata.Spell) []*Guardian {
 	return guardians
 }
 
-// Puts up as many guardians as the summon's row brings against the target for the row's duration. A summon takes the
-// guardians that are not up first, then the first ones.
+// Puts up as many guardians as the summon brings against the target for the spell's duration. A summon takes
+// the guardians that are not up first, then the first ones.
 func SummonGuardians(sim *core.Simulation, guardians []*Guardian, target *core.Unit) {
 	if len(guardians) == 0 {
 		return

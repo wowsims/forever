@@ -84,7 +84,7 @@ type ProcTrigger struct {
 // matched. Weapon procs (Player::CastItemCombatSpell) hear only melee and ranged hits, and of those
 // skip the spells with Suppress Weapon Procs; a hit with no melee or ranged mask, such as the damage
 // of a magic item proc, never casts them. They also skip an ability that is no weapon hit: one whose
-// row requires a shield (SpellEquippedItems), which strikes with the shield, and one whose DefenseType
+// spell requires a shield (SpellEquippedItems), which strikes with the shield, and one whose DefenseType
 // is magic or none. Auto attacks are exempt, since a wand's shots carry magic DefenseType and cast them.
 // Shield hits in EV-0021. Specials with no DefenseType in EV-0007. Aura procs
 // (Aura::IsProcTriggeredOnEvent) skip triggered spells that lack Not a Proc, unless the listener

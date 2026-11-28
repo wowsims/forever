@@ -8,7 +8,7 @@ import (
 // The weapon hit every Lacerate rank casts by script; the store carries it as an extra spell.
 const lacerateHitSpellID = 414647
 
-// The tooltip's "Causes a high amount of threat", which the rows state no effect for. In game the hit
+// The tooltip's "Causes a high amount of threat", which the game files state no effect for. In game the hit
 // and the ticks each threaten for this multiple of their damage (EV-0034, EV-0037).
 const lacerateThreatMultiplier = 10.0 / 3
 
@@ -22,12 +22,12 @@ func (druid *Druid) registerLacerateSpell() {
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ThreatMultiplier = lacerateThreatMultiplier
 	config.Dot = spelldata.DotConfig(rank, tick)
-	// Each application stacks the bleed, so a tick is the row's amount per stack.
+	// Each application stacks the bleed, so a tick is the spell's amount per stack.
 	// The bleed gains no attack power (EV-0040).
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.AverageAt(druid.level())*float64(dot.GetStacks())*druid.rendAndTearMultiplier(target), rank.TickOutcome(dot))
 	}
-	// The hit is its own row. Natural Instinct's mask covers its class flags as well as the rank's, so
+	// The hit is its own spell. Natural Instinct's mask covers its class flags as well as the rank's, so
 	// the hit's crits and the ticks' crits both take the talent's crit damage (EV-0033). Its weapon
 	// percent is not what lands; the rank's $s2 is.
 	hitConfig := spelldata.SpellConfig(&druid.Unit, spelldata.MustFind(lacerateHitSpellID),
@@ -36,7 +36,7 @@ func (druid *Druid) registerLacerateSpell() {
 	hit := druid.RegisterSpell(hitConfig)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		// The rank's cast is what misses, is dodged, parried or immune (EV-0033). The hit rolls block and
-		// crit, and its row's No Active Defense takes block out, so it only rolls crit.
+		// crit, and its No Active Defense takes block out, so it only rolls crit.
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHitNoHitCounter)
 		if !result.Landed() {
 			spell.DealOutcome(sim, result)

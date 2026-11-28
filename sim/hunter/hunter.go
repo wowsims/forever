@@ -95,9 +95,9 @@ func NewHunter(character *core.Character, options *proto.Player, hunterOptions *
 		AutoSwingMelee:  true,
 	})
 
-	// Auto Shot is row 75; its class flags put the auto inside the talents that name it.
+	// Auto Shot is spell 75; its class flags put the auto inside the talents that name it.
 	rangedConfig := hunter.AutoAttacks.RangedConfig()
-	rangedConfig.MinRange = core.MinRangedRange // the row's 8 yd, counted from both units' reach
+	rangedConfig.MinRange = core.MinRangedRange // the spell's 8 yd, counted from both units' reach
 	rangedConfig.MaxRange = float64(autoShotRank.MaxRange)
 	rangedConfig.MissileSpeed = float64(autoShotRank.Speed)
 	rangedConfig.ClassFlags = autoShotRank.ClassFlags

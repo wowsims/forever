@@ -7,7 +7,7 @@ import (
 
 func (priest *Priest) registerShadowguard(_ int32, rank *spelldata.Spell) {
 	// The buff's trigger is a dummy and its own effect states a larger amount (116 at rank 6) than the
-	// tooltip, which prices the strike off the rank's triggered row (96). The tooltip's row is dealt.
+	// tooltip, which prices the strike off the rank's triggered spell (96). The tooltip's amount is dealt.
 	strikeRank := rank.Refs()[0]
 	strikeDamage := strikeRank.DamageEffect()
 

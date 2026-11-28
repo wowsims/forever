@@ -26,7 +26,7 @@ func (warlock *Warlock) registerDeathCoil() {
 		})
 	}
 
-	// Calculate expected damage from the row's average hit
+	// Calculate expected damage from the spell's average hit
 	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
 		return spell.CalcDamage(sim, target, deathCoilHit.Average(), spell.OutcomeExpectedMagicCrit)
 	}

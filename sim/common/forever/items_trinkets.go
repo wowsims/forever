@@ -105,9 +105,9 @@ func init() {
 		})
 	})
 
-	// Each of the four buffs below takes its trigger and duration from the on-use row; the stacks are a
-	// second, scripted row. Where the spell store lacks that row, the count and the amount a stack carries
-	// are stated here with the row they come from.
+	// Each of the four buffs below takes its trigger and duration from the on-use spell; the stacks are a
+	// second, scripted spell. Where the spell store lacks that row, the count and the amount a stack carries
+	// are stated here with the spell they come from.
 
 	// Zandalarian Hero Badge: 2000 armor and 30 defense, less 200 armor and 3 defense for each melee
 	// or ranged hit taken.
@@ -133,8 +133,8 @@ func init() {
 	})
 
 	// Zandalarian Hero Charm: 204 spell damage and 408 healing, less 17 and 34 for each spell cast.
-	// Unstable Power 24659: 17 spell damage and 34 healing a stack, 12 stacks. The on-use row states
-	// no trigger; the stacks' row states its ProcTypeMask, whose melee and ranged bits the tooltip's
+	// Unstable Power 24659: 17 spell damage and 34 healing a stack, 12 stacks. The on-use spell states
+	// no trigger; the stacks' spell states its ProcTypeMask, whose melee and ranged bits the tooltip's
 	// "every time you cast a spell" leaves out, so the trigger is a damage or healing spell's cast.
 	core.NewItemEffect(19950, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -165,7 +165,7 @@ func init() {
 
 	// Everlook Delivery Bot: 1295271 marks the target, and once as many spells or attacks as its first
 	// two effects bound have landed on it, 1295633 deals its Fire damage to it and the mark goes. The
-	// tooltip halves both bounds in Snowy areas, which the row names no area for.
+	// tooltip halves both bounds in Snowy areas, which the game files name no area for.
 	core.NewItemEffect(274760, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		markRow := spelldata.MustFind(1295271)
@@ -230,7 +230,7 @@ func init() {
 		heal := row.HealEffect()
 
 		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
-		// The row states no defense type; a heal crits for the magic multiplier.
+		// The game files state no defense type; a heal crits for the magic multiplier.
 		config.DefenseType = core.DefenseTypeMagic
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealHealing(sim, target, heal.DirectAmount(sim), spell.OutcomeHealingCrit)
@@ -412,7 +412,7 @@ func init() {
 	// damage for 15s.
 	//
 	// The tooltip names the wearer's class's heal: Greater Heal, Healing Touch, Healing Wave or Holy
-	// Light. 1249118's row names none of them, so the heals are matched by their ranks.
+	// Light. 1249118 names none of them, so the heals are matched by their ranks.
 	core.NewItemEffect(249473, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		buffRow := spelldata.MustFind(1249119)
@@ -535,7 +535,7 @@ func init() {
 	// Chance on harmful spellcast to increase your spell damage and healing by up to 35 for 10 sec.
 	// This spell damage increase is doubled against Dragonkin.
 	//
-	// The row's lone harmful-spell bit decodes to a cast, so the listener is moved to landed spell hits
+	// The spell's lone harmful-spell bit decodes to a cast, so the listener is moved to landed spell hits
 	// by hand. Misses are undetermined, so only landed spells roll.
 	// Proc chance measurement in EV-0115.
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930,
@@ -558,7 +558,7 @@ var eternalPowerHeals = []spelldata.Ladder{
 	spelldata.Ranked(635, 639, 647, 1026, 1042, 3472, 10328, 10329, 25292),              // Holy Light
 }
 
-// A buff that goes on with all its stacks, each worth perStack, for the row's duration, and loses one
+// A buff that goes on with all its stacks, each worth perStack, for the spell's duration, and loses one
 // each time the trigger fires while it is up.
 func registerCountdownOnUse(character *core.Character, itemID int32, row *spelldata.Spell, stacks int32, perStack stats.Stats,
 	cdType core.CooldownType, trigger core.ProcTrigger) {
@@ -583,7 +583,7 @@ func registerCountdownOnUse(character *core.Character, itemID int32, row *spelld
 	})
 }
 
-// Half the row's chance in an encounter in none of the areas, whose doubled chance the column states.
+// Half the spell's chance in an encounter in none of the areas, whose doubled chance the column states.
 func halvedOutside(areas ...proto.AreaType) spelldata.ProcOpt {
 	return func(character *core.Character, trigger *core.ProcTrigger) {
 		if !slices.ContainsFunc(areas, character.Env.Encounter.InArea) {

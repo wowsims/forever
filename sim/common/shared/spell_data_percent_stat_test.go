@@ -168,7 +168,7 @@ func TestShieldEnchantBuffDropsWithItsShield(t *testing.T) {
 	}
 }
 
-// Insight 8216's rows on a weapon enchant: trigger 1248758's buff 1299796 multiplies Spirit for its
+// Insight 8216's spells on a weapon enchant: trigger 1248758's buff 1299796 multiplies Spirit for its
 // duration, on top of whatever Spirit the caster gains while it is up.
 func TestInsightMultipliesSpirit(t *testing.T) {
 	trigger, buff := spelldata.MustFind(1248758), spelldata.MustFind(1299796)

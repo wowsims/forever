@@ -111,7 +111,7 @@ Each also comes in an `At` form taking a level (`AverageAt(level)`, `RollAt(sim,
 pinning an in-game tooltip at a lower level and for `ParseEffects`' level option.
 
 `AverageAt(level)` folds the amount: the base points plus `EffectRealPointsPerLevel` for each level
-between the spell's `BaseLevel` and the caster's, stopped at `MaxLevel` where the row states one.
+between the spell's `BaseLevel` and the caster's, stopped at `MaxLevel` where the spell states one.
 `BaseLevel` equals `SpellLevel` on most ranks. Where it does not (Vindication's debuff states 0 and
 1), the in-game amount counts from `BaseLevel`. The arithmetic is float32 on purpose: the game files'
 per-level gain is a float32 widened into the database, and folding it in float64 moves six rows off
@@ -140,9 +140,9 @@ The base-point ends are rounded to a whole number, a base end on a half rounding
 per-level gain is then added to both ends, and `Min` is rounded down and `Max` rounded up, in float32
 for the same reason; an effect that does not roll answers its floored amount at both. For a
 spell-school hit or a heal those are the ends the game files state, not
-where a cast lands. `Roll` rolls the base points where the row states a spread and answers the average
+where a cast lands. `Roll` rolls the base points where the spell states a spread and answers the average
 where it does not; `DirectAmount` answers the average where core rolls the whole amount and `Roll`
-otherwise, so a call site that serves physical and spell-school rows alike never has to ask which it
+otherwise, so a call site that serves physical spells and spell-school ones alike never has to ask which it
 holds.
 
 ## Attributes, edges and class flags
@@ -157,7 +157,7 @@ on: `IsPassive`, `IsChanneled`, `RefundsOnMiss` with `MissRefund()` (the 0.8 a
 |                     |                                                                                                        |
 | ------------------- | ------------------------------------------------------------------------------------------------------ |
 | `effect.Trigger()`  | the spell `EffectTriggerSpell` names                                                                   |
-| `spell.Triggered()` | every spell the row's effects fire, deduped, in effect order                                           |
+| `spell.Triggered()` | every spell its effects fire, deduped, in effect order                                                 |
 | `spell.Drivers()`   | the spells whose effects fire this one, and the ones whose actionbar override replaces a spell with it |
 | `spell.Refs()`      | the spells the tooltip names (`$12880d`, `$12966n`), in the order it names them                        |
 
@@ -169,7 +169,7 @@ reference.
 `Spell.ClassFlags` is `SpellClassSet` with `SpellClassMask_0..3`: the family a spell files under and
 its bit in it. `Effect.ClassFlags` is the same for `EffectSpellClassMask`, which is the set of spells a
 modifier effect reaches, and `spell.AffectedBy(effect)` asks whether this spell is one of them.
-`core.SpellConfig.ClassFlags` carries the row's own flags, and those put a registered spell inside the
+`core.SpellConfig.ClassFlags` carries the spell's own flags, and those put a registered spell inside the
 talents that name it.
 
 Class flags name the spells a modifier reaches, not one ability each: Mortal Strike and Bloodthirst
@@ -195,10 +195,10 @@ as one spell whose per-rank numbers live in a curve. Each rank is that spell wit
 the effects the curve covers; an effect the curve has no row for keeps the spell's own base value. Both
 `MustFind` every id, so a family that loses a spell fails at startup rather than registering nothing.
 
-The curve's value keeps the sign the game files state, also where the row's base points and the tooltip
-state the opposite. Iron Will 12962's first mechanic duration mod (effect 0: row -15, curve 3/6/9/12/15)
+The curve's value keeps the sign the game files state, also where the spell's base points and the tooltip
+state the opposite. Iron Will 12962's first mechanic duration mod (effect 0: spell -15, curve 3/6/9/12/15)
 lengthens that mechanic's duration by 15% at 5/5, where the tooltip says the talent reduces Stun and
-Fear. Its second effect has no curve row and keeps the row's -15.
+Fear. Its second effect has no curve row and keeps the spell's -15.
 
 |                                          |                                                                                         |
 | ---------------------------------------- | --------------------------------------------------------------------------------------- |

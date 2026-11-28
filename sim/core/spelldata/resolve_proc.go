@@ -8,16 +8,16 @@ import (
 )
 
 // An addition to the resolved trigger for what the game files do not state, which on a proc is the
-// rate: a row that states none needs one of PPM, ChanceFrom or Chance.
+// rate: a spell that states none needs one of PPM, ChanceFrom or Chance.
 type ProcOpt func(*core.Character, *core.ProcTrigger)
 
 // What the game files state about a proc, as the fields core registers a listener through: what it
-// hears (ProcTypeMask through the decoder, with the row's tooltip hint), how often it fires, its
-// ICD and the attribute-driven gates. The row's own class flags go on the trigger too,
-// so a SPELLMOD_CHANCE_OF_SUCCESS that names the row reaches its roll, and the character's mods are
+// hears (ProcTypeMask through the decoder, with the spell's tooltip hint), how often it fires, its
+// ICD and the attribute-driven gates. The spell's own class flags go on the trigger too,
+// so a SPELLMOD_CHANCE_OF_SUCCESS that names the spell reaches its roll, and the character's mods are
 // the ones counted wherever the trigger sits.
 //
-// The trigger's ICD is the proc category's recovery alone. On a proc trigger row,
+// The trigger's ICD is the proc category's recovery alone. On a proc trigger spell,
 // RecoveryTime is a cooldown on casting the aura, which an item or enchant never casts. Proc
 // cooldowns in EV-0047, EV-0148. A damage shield is no proc trigger and keeps its RecoveryTime as the
 // wait between two reflections (DamageShieldLockout).
@@ -55,17 +55,17 @@ func ProcTrigger(character *core.Character, s *Spell, handler core.ProcHandler, 
 
 	fillProcChance(s, &trigger)
 
-	// The row first and the caller's options on top, so an option sees the mask the row decoded to
-	// and can override a rate the row states wrongly or not at all.
+	// The spell first and the caller's options on top, so an option sees the mask it decoded to
+	// and can override a rate the game files state wrongly or not at all.
 	for _, opt := range opts {
 		opt(character, &trigger)
 	}
 
 	settleProcRate(character, s, &trigger)
 
-	// No-roll main-hand rows, such as Iceblade Hacker's and Dreadfrost Saber's Frost, in EV-0195.
+	// No-roll main-hand spells, such as Iceblade Hacker's and Dreadfrost Saber's Frost, in EV-0195.
 	// TODO: Ingame test needed -- whether Death Mark, which lands for no damage and suppresses weapon procs,
-	// casts these rows' Frost. The sim lets it.
+	// casts these spells' Frost. The sim lets it.
 	if s.ProcFlags[1]&dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY != 0 && trigger.DPM == nil && trigger.ProcChance >= 1 {
 		trigger.RequireDamageDealt = false
 	}
@@ -98,10 +98,10 @@ func ChanceFrom(e *Effect) ProcOpt {
 	return Chance(e.Percent())
 }
 
-// A weapon proc's listener, which no row states: the game casts a "Chance on hit" effect and a
+// A weapon proc's listener, which the game files do not state: the game casts a "Chance on hit" effect and a
 // combat enchant off every eligible weapon hit, so the trigger hears them all and the weapon it
 // sits on decides which ones count. A hit that lands is enough, so a special that deals no damage,
-// such as Sunder Armor, rolls it too. The outcome stays what the row's tooltip hint read, and the
+// such as Sunder Armor, rolls it too. The outcome stays what the spell's tooltip hint read, and the
 // aura-side proc-ness attribute goes: a weapon proc ignores proc-ness by its own rule. A rate option
 // that reads the mask has to come after this one.
 func WeaponProc() ProcOpt {
@@ -117,7 +117,7 @@ func WeaponProc() ProcOpt {
 	}
 }
 
-// A rate the caller states outright, which replaces whatever the row said, manager included.
+// A rate the caller states outright, which replaces whatever the spell said, manager included.
 func Chance(chance float64) ProcOpt {
 	return func(_ *core.Character, trigger *core.ProcTrigger) {
 		trigger.ProcChance = chance
@@ -195,7 +195,7 @@ func (s *Spell) StatedChance() float64 {
 		// 101 is the game files' "fires on its own condition" sentinel next to a real 100.
 		return min(float64(s.ProcChance)/100, 1)
 	case ProcChanceEffectN:
-		// The position the roll is stated at can be past the effects the row carries.
+		// The position the roll is stated at can be past the effects the spell carries.
 		return s.EffectN(int(s.ProcChanceEffect)).Percent()
 	case ProcChanceAlways:
 		return 1
@@ -222,7 +222,7 @@ func ItemProcChance(s *Spell) ProcOpt {
 	}
 }
 
-// A row whose rate is procs per minute states no roll: that rate is a manager, and settleProcRate
+// A spell whose rate is procs per minute states no roll: that rate is a manager, and settleProcRate
 // builds it once the options have had their say about the mask it measures hits on.
 func fillProcChance(s *Spell, trigger *core.ProcTrigger) {
 	if s.RPPM > 0 {
@@ -232,14 +232,14 @@ func fillProcChance(s *Spell, trigger *core.ProcTrigger) {
 }
 
 // The rate the trigger ends up with. An override-supplied procs-per-minute rate wins over every
-// column (the rows that carry one are the rows whose stated chance the tooltip contradicts), but
+// column (the spells that carry one are the ones whose stated chance the tooltip contradicts), but
 // it is measured against the mask the trigger *ends* on: an option that narrows or blanks the
 // mask would otherwise be handed a manager counting hits the listener no longer hears.
 //
 // A trigger left with neither a chance nor a manager fires on every qualifying hit, which is never
-// what a row with no stated rate means.
+// what a spell with no stated rate means.
 //
-// A rated trigger hears no death. In game a death rolls the row's plain chance, which a rated row
+// A rated trigger hears no death. In game a death rolls the spell's plain chance, which a rated spell
 // leaves at 0, and a death has no proc mask a manager could measure.
 func settleProcRate(character *core.Character, s *Spell, trigger *core.ProcTrigger) {
 	if trigger.ProcChance == 0 && trigger.DPM == nil {

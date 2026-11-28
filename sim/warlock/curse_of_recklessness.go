@@ -7,7 +7,7 @@ import (
 )
 
 // The debuff is this warlock's own copy of the one the raid option builds. Its category keeps it from
-// stacking with another warlock's copy or a raid one. The row's dummy +90 attack power for the target and
+// stacking with another warlock's copy or a raid one. The spell's dummy +90 attack power for the target and
 // its fear immunity are left out, as the raid debuff leaves them out.
 func (warlock *Warlock) registerCurseOfRecklessness() {
 	rankedSpell := spellData.CurseOfRecklessness.ByID(11717)

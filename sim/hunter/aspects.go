@@ -24,7 +24,7 @@ func (hunter *Hunter) registerAspects() {
 	hunter.registerDeadlyAspects(hawkAuras)
 }
 
-// One aspect at a time: a permanent self-buff the row's effects parse onto, and the spell that swaps
+// One aspect at a time: a permanent self-buff the spell's effects parse onto, and the spell that swaps
 // to it.
 func (hunter *Hunter) registerAspect(row *spelldata.Spell) *core.Aura {
 	aura := hunter.RegisterAura(spelldata.AuraConfig(row, spelldata.Label(row.RankedName())))
@@ -69,9 +69,9 @@ func (hunter *Hunter) registerAspectOfTheCheetah() {
 	aura.AttachProcTrigger(daze)
 }
 
-// The chance the aspects' own procs fire with: the Hawk and Beast rows state the trigger and no rate,
+// The chance the aspects' own procs fire with: the Hawk and Beast spells state the trigger and no rate,
 // and the talent adds SPELLMOD_CHANCE_OF_SUCCESS to each, which the parse has no row for. The tooltip
-// names Auto Shot and melee auto attacks where the rows hear every ranged and melee hit, so each mask
+// names Auto Shot and melee auto attacks where the spells hear every ranged and melee hit, so each mask
 // is narrowed to the white hits by hand.
 func (hunter *Hunter) registerDeadlyAspects(hawkAuras []*core.Aura) {
 	rank := hunter.Talents.DeadlyAspects

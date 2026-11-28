@@ -8,12 +8,12 @@ import (
 
 var volleyRank = spellData.Volley.Highest()
 
-// A wave's damage is its own row, the one the cast row's tooltip names.
+// A wave's damage is its own spell, the one the cast spell's tooltip names.
 var volleyWaveRank = volleyRank.Refs()[0]
 
-// A ground channel: each tick of the cast row's A_PERIODIC_DUMMY casts the wave row at every enemy,
+// A ground channel: each tick of the cast spell's A_PERIODIC_DUMMY casts the wave spell at every enemy,
 // the first a tick after the cast. Cast speed shortens the ticks and ranged haste does not. A wave
-// takes the ranged attack power share the cast row's first effect states as a spell power
+// takes the ranged attack power share the cast spell's first effect states as a spell power
 // coefficient. In game the missile's flight delays the channel's aura but not the waves (EV-0068),
 // so the channel starts at the cast.
 func (hunter *Hunter) registerVolley() {
@@ -31,7 +31,7 @@ func (hunter *Hunter) registerVolley() {
 	config := spelldata.SpellConfig(&hunter.Unit, volleyRank, spelldata.Melee(core.ProcMaskEmpty))
 	config.Dot = spelldata.DotConfig(volleyRank, volleyRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0))
 	config.Dot.IsAOE = true
-	// Cast speed shortens the ticks and the channel with them; the wave count stays the row's.
+	// Cast speed shortens the ticks and the channel with them; the wave count stays the spell's.
 	config.Dot.AffectedByCastSpeed = true
 	config.Dot.HasteReducesDuration = true
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, _ *core.Dot) {

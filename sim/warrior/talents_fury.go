@@ -46,7 +46,7 @@ func (warrior *Warrior) registerBoomingVoice() {
 		return
 	}
 
-	// The shout radius has no sim kind, so only the rage cost comes off the row.
+	// The shout radius has no sim kind, so only the rage cost comes off the spell.
 	spelldata.ParseStatic(&warrior.Character, spellData.BoomingVoice.Rank(warrior.Talents.BoomingVoice))
 }
 
@@ -122,7 +122,7 @@ func (warrior *Warrior) registerEnrage() {
 
 	warrior.EnrageAura = warrior.GetOrRegisterAura(spelldata.AuraConfig(enrageBuff))
 
-	// The sim's only Enrage buff row states a flat 10; the percentage per rank is the talent's own
+	// The sim's only Enrage buff spell states a flat 10; the percentage per rank is the talent's own
 	// ladder, which is what 12317's tooltip reads as $m1%.
 	warrior.EnrageAura.AttachMultiplicativePseudoStatBuff(
 		&warrior.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical],
@@ -131,8 +131,8 @@ func (warrior *Warrior) registerEnrage() {
 
 	warrior.EnrageAura.NewExclusiveEffect("Enrage", true, core.ExclusiveEffect{Priority: spellData.Enrage.ValueAt(warrior.Talents.Enrage)})
 
-	// Proc chance measurement in EV-0050. The game files state the row's 30% for a spell hit of any
-	// school but physical as well. A swing rolls the row's rate whatever its school. Chance(1) leaves
+	// Proc chance measurement in EV-0050. The game files state 30% for a spell hit of any
+	// school but physical as well. A swing rolls the spell's rate whatever its school. Chance(1) leaves
 	// core no roll of its own, so the one draw is made here. Damaging hits in EV-0123.
 	row := spellData.Enrage.Rank(warrior.Talents.Enrage)
 	trigger := spelldata.ProcTrigger(&warrior.Character, row,
@@ -159,7 +159,7 @@ func (warrior *Warrior) registerFlurry() {
 		return
 	}
 
-	// The haste is the talent's 10% per point; the buff row's flat 30% does not apply.
+	// The haste is the talent's 10% per point; the buff's flat 30% does not apply.
 	flurryAura := warrior.RegisterAura(spelldata.AuraConfig(flurryBuff)).
 		AttachMultiplyMeleeSpeed(spellData.Flurry.MultiplierAt(warrior.Talents.Flurry))
 
@@ -213,7 +213,7 @@ func (warrior *Warrior) registerGoreDrinker() {
 	charges := int32(spellData.GoreDrinker.EffectAt(1).ValueAt(warrior.Talents.GoreDrinker))
 	healthFraction := spellData.GoreDrinker.EffectAt(2).FractionAt(warrior.Talents.GoreDrinker)
 
-	// The heal row states no amount: the buff's trigger carries it as a value, which is the talent's
+	// The heal spell states no amount: the buff's trigger carries it as a value, which is the talent's
 	// share of maximum health.
 	healConfig := spelldata.SpellConfig(&warrior.Unit, goreDrinkerHeal, spelldata.Proc())
 	healConfig.ProcMask = core.ProcMaskSpellHealing
@@ -358,7 +358,7 @@ func (warrior *Warrior) registerRecklessSwings() {
 
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: recklessSwingsEnergize.ID})
 	rage := recklessSwingsEnergize.EnergizeEffect().Tenths()
-	// The row's cost is a share of base health, which applyCost leaves to the caller, as on Bloodrage.
+	// The spell's cost is a share of base health, which applyCost leaves to the caller, as on Bloodrage.
 	healthCost := warrior.BaseHealth() * float64(recklessSwingsRank.Power(dbcenums.POWER_HEALTH).CostPct) / 100
 
 	aura := warrior.RegisterAura(spelldata.AuraConfig(recklessSwingsRank))
@@ -404,7 +404,7 @@ func (warrior *Warrior) registerImprovedWhirlwind() {
 		return
 	}
 
-	// The cooldown comes off the row; the damage to the closest enemy is the dummy whirlwind.go reads.
+	// The cooldown comes off the spell; the damage to the closest enemy is the dummy whirlwind.go reads.
 	spelldata.ParseStatic(&warrior.Character, spellData.ImprovedWhirlwind.Rank(warrior.Talents.ImprovedWhirlwind))
 }
 
@@ -418,7 +418,7 @@ func (warrior *Warrior) registerDeathWish() {
 	deathWishAura := warrior.RegisterAura(spelldata.AuraConfig(deathWishRank))
 	spelldata.ParseEffects(&warrior.Character, deathWishAura, deathWishRank)
 
-	// Grants immunity to Fear effects, which the row states as A_MECHANIC_IMMUNITY and the parse
+	// Grants immunity to Fear effects, which the spell states as A_MECHANIC_IMMUNITY and the parse
 	// skips.
 	deathWishAura.AttachFearImmunity()
 

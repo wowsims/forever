@@ -6,7 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The summons the APL casts, each by its own row.
+// The summons the APL casts, each by its own spell.
 func (warlock *Warlock) registerSummons() {
 	warlock.SummonImp = warlock.registerSummon(spellData.SummonImp.Highest(), warlock.Imp)
 	warlock.SummonVoidwalker = warlock.registerSummon(spellData.SummonVoidwalker.Highest(), warlock.Voidwalker)

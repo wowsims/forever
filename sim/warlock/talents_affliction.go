@@ -57,7 +57,7 @@ func (warlock *Warlock) applyImprovedCorruption() {
 
 // --- Tier 2 ---
 
-// Grim Reach raises the range of the Affliction spells by 10/20%, read from its row.
+// Grim Reach raises the range of the Affliction spells by 10/20%, read from the talent.
 func (warlock *Warlock) applyGrimReach() {
 	if warlock.Talents.GrimReach == 0 {
 		return
@@ -66,8 +66,8 @@ func (warlock *Warlock) applyGrimReach() {
 	spelldata.ParseStatic(&warlock.Character, spellData.GrimReach.Rank(warlock.Talents.GrimReach))
 }
 
-// Soul Harvest's talent row states no proc, so the trigger is the kill Drain Soul's PROC_FLAG_KILL hears:
-// the raid's kill roll decides it. The buff row states the 2/2 value; the talent's dummies price it at each
+// Soul Harvest's talent states no proc, so the trigger is the kill Drain Soul's PROC_FLAG_KILL hears:
+// the raid's kill roll decides it. The buff spell states the 2/2 value; the talent's dummies price it at each
 // rank.
 func (warlock *Warlock) applySoulHarvest() {
 	if warlock.Talents.SoulHarvest == 0 {
@@ -166,7 +166,7 @@ func (warlock *Warlock) applyPandemic() {
 
 // --- Tier 4 ---
 
-// The class flags also name Lash of Pain, which the Succubus casts, so the row is parsed on the Succubus too.
+// The class flags also name Lash of Pain, which the Succubus casts, so the spell is parsed on the Succubus too.
 func (warlock *Warlock) applyMalevolence() {
 	if warlock.Talents.Malevolence == 0 {
 		return
@@ -201,7 +201,7 @@ func (warlock *Warlock) applyNightfall() {
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warlock.NightfallProcAura.Activate(sim)
 		})
-	// The talent row names no spells, so the triggering ones are gathered from their own rows.
+	// The talent names no spells, so the triggering ones are gathered from their own spells.
 	trigger.ClassFlags = combineClassFlags(
 		spellData.Corruption.Highest().ClassFlags,
 		spellData.DrainSoul.Highest().ClassFlags,
@@ -253,7 +253,7 @@ func (warlock *Warlock) soulSiphonChannelConfig(rankedSpell *spelldata.Spell, ti
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 
 	// Multiplier timing in EV-0205.
-	// TODO: Confirm in game whether spell haste shortens the ticks; the rows carry no haste attribute, so
+	// TODO: Confirm in game whether spell haste shortens the ticks; the spells carry no haste attribute, so
 	// neither AffectedByCastSpeed nor HasteReducesDuration is set.
 	config.Dot = spelldata.DotConfig(rankedSpell, tick)
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {

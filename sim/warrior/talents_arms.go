@@ -405,7 +405,7 @@ func (warrior *Warrior) registerImprovedSlam() {
 		return
 	}
 
-	// The row's five rank-swap effects have no sim kind and are reported as skipped.
+	// The spell's five rank-swap effects have no sim kind and are reported as skipped.
 	spelldata.ParseStatic(&warrior.Character, spellData.ImprovedSlam.Rank(warrior.Talents.ImprovedSlam))
 }
 

@@ -19,14 +19,14 @@ var manaSpringTotemRank = spellData.ManaSpringTotem.Highest()
 var flametongueTotemRank = spellData.FlametongueTotem.Highest()
 var frostResistanceTotemRank = spellData.FrostResistanceTotem.Highest()
 
-// A totem's cast: the row's cost, GCD and cooldown, and nothing it hits.
+// A totem's cast: the spell's cost, GCD and cooldown, and nothing it hits.
 func (shaman *Shaman) newTotemSpellConfig(rank *spelldata.Spell) core.SpellConfig {
 	config := spelldata.SpellConfig(&shaman.Unit, rank, spelldata.Flags(core.SpellFlagAPL|SpellFlagShamanSpell|SpellFlagInstant))
 	config.ProcMask = core.ProcMaskEmpty
 	return config
 }
 
-// Stands a totem in its element's slot for the totem row's duration, taking down the one there.
+// Stands a totem in its element's slot for the totem spell's duration, taking down the one there.
 func (shaman *Shaman) dropTotem(sim *core.Simulation, slot int, totem *core.Spell, duration time.Duration) {
 	aura := totem.RelatedSelfBuff
 	if current := shaman.TotemSpells[slot]; current != nil && current.RelatedSelfBuff != aura {
@@ -39,7 +39,7 @@ func (shaman *Shaman) dropTotem(sim *core.Simulation, slot int, totem *core.Spel
 
 var totemicRecallRank = spellData.TotemicRecall.Highest()
 
-// Takes down every totem the shaman has standing and returns the row's share of their base mana
+// Takes down every totem the shaman has standing and returns the spell's share of their base mana
 // costs, the costs before any talent lowers them.
 func (shaman *Shaman) registerTotemicRecallSpell() {
 	share := totemicRecallRank.EffectN(1).Percent()
@@ -106,7 +106,7 @@ func (shaman *Shaman) registerWeaponTotem(rank *spelldata.Spell, slot int, categ
 	return shaman.RegisterSpell(config)
 }
 
-// The rows already carry Improved Weapon Totems, so nothing applies the talent.
+// The totem spells already carry Improved Weapon Totems, so nothing applies the talent.
 func (shaman *Shaman) registerWindfuryTotemSpell() {
 	shaman.WindfuryTotem = shaman.registerWeaponTotem(windfuryTotemRank, AirTotem, buffs.WindfuryTotemCategory,
 		buffs.WindfuryTotemPriority(), buffs.NewWindfuryTotemProcTrigger(&shaman.Character))
@@ -120,7 +120,7 @@ func (shaman *Shaman) registerFlametongueTotemSpell() {
 }
 
 func (shaman *Shaman) registerStrengthOfEarthTotemSpell() {
-	// The rows already carry Enhancing Totems, so nothing applies the talent.
+	// The totem spells already carry Enhancing Totems, so nothing applies the talent.
 	for _, rank := range strengthOfEarthTotemRanks {
 		shaman.registerBuffTotem(rank, EarthTotem,
 			buffs.NewSpellDataStrengthOfEarthTotemRankAura(&shaman.Unit, spellData.StrengthOfEarthTotemTriggered.Rank(rank.RankNumber())))

@@ -5,11 +5,11 @@ description: 'Use when WoWSims Forever Go code builds an ability, aura, dot, tal
 
 # wowsims-abilities-auras
 
-The resolvers build an ability, an aura, a dot or a talent's modifiers from the row, and the caller adds only what no
-row states: `ApplyEffects`, the proc mask, a condition the game files lack. The rule this skill exists for: never
-restate the row in code. A stance check, a duration or a per-rank literal typed beside a resolver agrees with the row
-until the data moves, and then it is wrong with nothing to say so. The rulings the code follows are in
-`references/rulings.md`. Text here follows `wowsims-conventions`; the pages below hold the detail.
+The resolvers build an ability, an aura, a dot or a talent's modifiers from the row, and the caller adds only what the
+game files do not state: `ApplyEffects`, the proc mask, a condition the game files lack. The rule this skill exists
+for: never restate the game files in code. A stance check, a duration or a per-rank literal typed beside a resolver
+agrees with the game files until the data moves, and then it is wrong with nothing to say so. The rulings the code
+follows are in `references/rulings.md`. Text here follows `wowsims-conventions`; the pages below hold the detail.
 
 ## Where things live
 
@@ -44,18 +44,18 @@ The options, the fields the row fills and the three shapes a registration takes 
 
 - **`CastRequirement` is never restated in `ExtraCastCondition`.** `SpellConfig` fills the form, stance, caster aura,
   weapon, shield, creature type and out-of-combat state, and core refuses the cast. `ExtraCastCondition` holds only
-  what no row forbids; a refusal the row does not state is a defect too. An aura that lifts a requirement sets
-  `CastRequirement.CasterForm` on gain and clears it on expiry. Cases:
+  what the game files do not forbid; a refusal the game files do not state is a defect too. An aura that lifts a
+  requirement sets `CastRequirement.CasterForm` on gain and clears it on expiry. Cases:
   `.github/skills/wowsims-review/references/defects.md` §What the row forbids.
 - **A sub-second GCD is named twice.** `Cast.GCDTime` floors a GCD at `core.GCDMin`, one second, unless the cast sets
   `GCDMin`, so a spell with a shorter GCD sets both `GCD` and `GCDMin`.
 - **`Magic()` already sets the row's `DirectVariance`.** Code registered through it passes `Average()` or
   `DirectAmount` to the damage call, never `Roll(sim)`, or the damage spreads twice (PR #267).
-- **A cast row plus a bolt row casts the bolt as its own spell.** On Penance, hit and crit talents name the bolt row's
-  class flags and the cost talent names the cast row's.
+- **A cast spell plus a bolt spell casts the bolt as its own spell.** On Penance, hit and crit talents name the bolt's
+  class flags and the cost talent names the cast's.
 - **Shadowform (form 28) is a stance in the game files** (`stanceForms` bit 27), and its tooltip bars only healing
   spells.
-- Which row's Always Hit bit a cast reads is the first ruling under §Rolls and outcomes in `references/rulings.md`.
+- Which spell's Always Hit bit a cast reads is the first ruling under §Rolls and outcomes in `references/rulings.md`.
 
 ## An aura or dot
 
@@ -103,11 +103,11 @@ The manifest, the kinds, the apply order and the drivers are in `buffs-and-debuf
   `sim/core/buffs/`, a class cast behind a listed buff or the game files re-audits it. A box is ticked once the
   raid-input aura works with no stub or TODO left; a class cast's own TODO (threat) does not hold it open.
 
-## When the sim and the row disagree
+## When the sim and the game files disagree
 
 The decision rule is in `wowsims-spells`, `## When a sim number disagrees with the game files`; apply it one spell at a
 time and leave the outcome at the call site. Flurry is the case: talent 12319's tooltip names its own ladder as the
-haste ("$m1% for your next $12966n swings"), so the sim reads that ladder over buff row 12966's flat 30, and the
+haste ("$m1% for your next $12966n swings"), so the sim reads that ladder over buff 12966's flat 30, and the
 comment in `sim/warrior/talents_fury.go` quotes the wording.
 
 ## Keeping this skill true

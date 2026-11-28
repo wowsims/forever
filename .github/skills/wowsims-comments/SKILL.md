@@ -16,8 +16,8 @@ open every cited `docs/evidence/` and `docs/rulings/` file, its Claim line first
 A sentence stays when it is:
 
 - a trap: code that looks wrong and is right, an order that matters, a value a reader would "fix"
-- where a number comes from, when the code states it as a literal: the row, the effect, the tooltip variable
-- a game rule the code implements that no row, evidence file or ruling states
+- where a number comes from, when the code states it as a literal: the spell, the effect, the tooltip variable
+- a game rule the code implements that the game files, the evidence files and the rulings do not state
 - a `TODO:` and what it waits for
 - an `EV-` or `R-` id. Every id a file cites before the pass, it cites after
 
@@ -25,7 +25,7 @@ A sentence goes when it is:
 
 - the next lines in words: "the aura's duration is the row's" over `Duration: row.Duration`
 - what the cited file states: which hits roll, the rate, the cases the logs settled, counts, an example item
-- what the row states and the code reads from the store; the editor hover shows the row
+- what the game files state and the code reads from the store; the editor hover shows it
 - what the code does not do, unless a reader would add it back
 - the approach not taken: "attached to the window rather than registered as its own aura"
 - what a callee does, or how a caller uses the function

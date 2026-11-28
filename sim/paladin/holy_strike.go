@@ -12,7 +12,7 @@ var HolyStrikeRankMap = spellData.HolyStrike
 //
 // An instant strike that causes 50% weapon damage plus an additional 97 to 121 as Holy damage.
 //
-// The row states the flat part as its normalized-weapon-damage effect and the percentage as a
+// The spell states the flat part as its normalized-weapon-damage effect and the percentage as a
 // second effect, and the percentage scales the flat part too.
 //
 // The spell power coefficient sits on the flat effect, but the paladin's own spell power goes

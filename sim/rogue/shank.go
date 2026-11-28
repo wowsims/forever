@@ -9,7 +9,7 @@ var shankRank = spellData.Shank.Highest()
 var venomBuff = spellData.VenomTriggered.Highest()
 var bootKnifePoints = spellData.BootKnifeTriggered.Highest()
 
-// Shank's row adds no combo point, so it is no builder and Seal Fate does not hear it. Venom timing in EV-0222.
+// Shank adds no combo point, so it is no builder and Seal Fate does not hear it. Venom timing in EV-0222.
 func (rogue *Rogue) registerShank() {
 	config := spelldata.SpellConfig(&rogue.Unit, shankRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
 	config.DamageMultiplier = shankRank.DamageEffect().Percent()
@@ -24,7 +24,7 @@ func (rogue *Rogue) registerShank() {
 		spelldata.ParseEffects(&rogue.Character, venomAura, venomBuff)
 	}
 
-	// Boot Knife's proc row names no class flags, so a trigger built from it would hear every melee special, while its
+	// Boot Knife's proc names no class flags, so a trigger built from it would hear every melee special, while its
 	// tooltip gives the points to Shank alone.
 	bootKnifeChance := spellData.BootKnife.EffectAt(1).FractionAt(rogue.Talents.BootKnife)
 	var bootKnifeMetrics *core.ResourceMetrics

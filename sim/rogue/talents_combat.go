@@ -89,7 +89,7 @@ func (rogue *Rogue) registerPrecision() {
 
 var riposteRank = spellData.Riposte.Highest()
 
-// The window a parry opens. The row requires caster aura state 1 and names no aura, so this is the aura the
+// The window a parry opens. The spell requires caster aura state 1 and names no aura, so this is the aura the
 // rogue's own passive (16092) fires, and Riposte's tooltip narrows it to a parry.
 var riposteWindow = spellData.DefensiveStateTriggered.Highest()
 
@@ -110,7 +110,7 @@ func (rogue *Rogue) registerRiposte() {
 	trigger.RequireDamageDealt = false
 	rogue.MakeProcTriggerAura(trigger)
 
-	// Off the GCD: the row's 1 s recovery on category 133 is a category cooldown, not a global one, and Riposte
+	// Off the GCD: the spell's 1 s recovery on category 133 is a category cooldown, not a global one, and Riposte
 	// fires in the same instant as Sinister Strike.
 	config := spelldata.SpellConfig(&rogue.Unit, riposteRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ClassSpellMask = RogueSpellRiposte

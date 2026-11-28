@@ -46,7 +46,7 @@ var emeraldDragonWhelp = shared.GuardianCreature{
 }
 
 // The base points are a percent of the creature dps for the caster's level (EV-0021), which is what the
-// row's creature level scaling attribute (0x80000 on Attributes 0) means.
+// spell's creature level scaling attribute (0x80000 on Attributes 0) means.
 // The whelp's mana pays for more spits than a summon lasts, so the cast takes no cost.
 func acidSpit(whelp *shared.Guardian) core.SpellConfig {
 	row := spelldata.MustFind(9591)

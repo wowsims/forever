@@ -193,10 +193,10 @@ const (
 	SpellFlagIgnoreResists            SpellFlag = 1 << iota // skip spell resist/armor
 	SpellFlagIgnoreTargetModifiers                          // skip target damage modifiers
 	SpellFlagIgnoreAttackerModifiers                        // skip attacker damage modifiers
-	SpellFlagApplyArmorReduction                            // Its periodic physical damage meets the target's whole armor; spelldata.SpellConfig sets it from the row (EV-0194).
+	SpellFlagApplyArmorReduction                            // Its periodic physical damage meets the target's whole armor; spelldata.SpellConfig sets it from the spell (EV-0194).
 	SpellFlagNoActiveDefense                                // The physical hit roll skips dodge, parry and block.
 	SpellFlagIncludeTargetBonusDamage                       // Spell benefits from Gift of Arthas and Hemorrhage.
-	SpellFlagBinary                                         // The hit roll resists it in full at the target's average resist, and a landed one takes no partial resist; a physical one is fully blocked. spelldata.SpellConfig sets it from the row.
+	SpellFlagBinary                                         // The hit roll resists it in full at the target's average resist, and a landed one takes no partial resist; a physical one is fully blocked. spelldata.SpellConfig sets it from the spell.
 	SpellFlagChanneled                                      // Spell is channeled
 	SpellFlagDisease                                        // Spell is categorized as disease
 	SpellFlagPoison                                         // Spell is categorized as poison
@@ -226,7 +226,7 @@ const (
 	SpellFlagSwapped                                        // Indicates that this spell is not useable because it is from a currently swapped item
 	SpellFlagCastWhileIncapacitated                         // Allows the cast while the unit is incapacitated, e.g. Berserker Rage breaking a Fear.
 	SpellFlagFullResistanceTicks                            // Its ticks meet the target's full resistance, as direct hits do (EV-0142).
-	SpellFlagTenthResistance                                // Its hits roll their partial resist against a tenth of the target's average resist and take no Spell Piercing bonus, e.g. Flamestrike's ground ticks. Its periodic physical damage meets a tenth of the target's armor (EV-0194), after armor penetration. spelldata.SpellConfig sets it from the row, and SpellFlagApplyArmorReduction wins.
+	SpellFlagTenthResistance                                // Its hits roll their partial resist against a tenth of the target's average resist and take no Spell Piercing bonus, e.g. Flamestrike's ground ticks. Its periodic physical damage meets a tenth of the target's armor (EV-0194), after armor penetration. spelldata.SpellConfig sets it from the spell, and SpellFlagApplyArmorReduction wins.
 	SpellFlagNoPartialResist                                // The spell's hits never lose damage to a partial resist and gain no Spell Piercing bonus, binary or not (EV-0142).
 	SpellFlagNoSpellPiercing                                // The caster's Spell Piercing does not reach its hits (EV-0142).
 	SpellFlagPushback                                       // Damage taken while hardcasting pushes the cast back: SpellInterrupts.InterruptFlags 0x2.
@@ -235,11 +235,11 @@ const (
 	SpellFlagBleed                                          // A bleed: the whole cast misses a bleed-immune target, and its Dot does not land there.
 	SpellFlagStun                                           // The spell's mechanic is stun (SpellCategories.Mechanic 12): the whole cast misses a stun-immune target.
 	SpellFlagMovesToTarget                                  // The cast moves the caster toward its target, e.g. Charge or Blink. Not enforced, just a signal for the APL validation.
-	SpellFlagPhysicalSchoolDamage                           // A physical row that deals school damage: it takes the caster's flat physical damage bonus at its BonusCoefficient, where a weapon strike takes it whole.
+	SpellFlagPhysicalSchoolDamage                           // A physical spell that deals school damage: it takes the caster's flat physical damage bonus at its BonusCoefficient, where a weapon strike takes it whole.
 	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) and the caster's spell damage against the target's creature type (EV-0141) add nothing to the spell's hits: a damage shield.
 	SpellFlagNoDamageVersus                                 // The caster's damage against a creature type (aura 168, e.g. Beast Slaying) adds nothing to the spell's hits, though its other damage done multipliers apply: a totem's attack.
 	SpellFlagCountsAsSwing                                  // Its hits count as main-hand melee swings: landed ones grant rage as an auto attack's do, and a listener with HearsCountedSwings hears them, e.g. a Windfury Totem hit.
-	SpellFlagTicksAreCasts                                  // Its ticks are the hits of a spell its aura casts each period, so they reach a listener as casts do (EV-0226). spelldata.SpellConfig sets it from the row.
+	SpellFlagTicksAreCasts                                  // Its ticks are the hits of a spell its aura casts each period, so they reach a listener as casts do (EV-0226). spelldata.SpellConfig sets it from the spell.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1

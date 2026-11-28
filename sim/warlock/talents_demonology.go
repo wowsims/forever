@@ -72,7 +72,7 @@ func (warlock *Warlock) applyDemonicEmbrace() {
 	spelldata.ParseStatic(&warlock.Character, spellData.DemonicEmbrace.Rank(warlock.Talents.DemonicEmbrace), spelldata.Effects(1))
 }
 
-// The row's modifier names no spell the sim registers, so it is the pet's own damage multiplier.
+// The spell's modifier names no spell the sim registers, so it is the pet's own damage multiplier.
 func (warlock *Warlock) applyUnholyPower() {
 	if warlock.Talents.UnholyPower == 0 {
 		return
@@ -231,7 +231,7 @@ func (warlock *Warlock) applyDecimation() {
 		panic(fmt.Sprintf("Decimation %d: effect 3 states a %.0f%% health threshold, but only the 35%% execute phase is tracked", rank.ID, threshold))
 	}
 
-	// The buff's row states the 2/2 value; the talent's effect 1 prices the rank, so the buff takes the
+	// The buff spell states the 2/2 value; the talent's effect 1 prices the rank, so the buff takes the
 	// rank's value.
 	decimationRow := spellData.DecimationTriggered.ByID(440873)
 	decimationAura := warlock.RegisterAura(spelldata.AuraConfig(decimationRow)).AttachSpellMod(core.SpellModConfig{
@@ -286,7 +286,7 @@ func (warlock *Warlock) applyFelDomination() {
 }
 
 // Searing Pain brands the target; the demon's next attacks against it each consume a charge (pets.go).
-// The brand row has no charges of its own; the ladder's effect 2 gives them. Charge count in EV-0083.
+// The brand spell has no charges of its own; the ladder's effect 2 gives them. Charge count in EV-0083.
 func (warlock *Warlock) applyDemonicBrand() {
 	if warlock.Talents.DemonicBrand == 0 {
 		return
@@ -350,7 +350,7 @@ func (warlock *Warlock) applySoulLink() {
 }
 
 // While a demon is out, the warlock and the demon gain spell damage of up to the rank's share of the
-// warlock's level. The row's value is a dummy only the tooltip reads.
+// warlock's level. The spell's value is a dummy only the tooltip reads.
 func (warlock *Warlock) applyDemonicKnowledge() {
 	if warlock.Talents.DemonicKnowledge == 0 {
 		return

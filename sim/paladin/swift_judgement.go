@@ -7,7 +7,7 @@ package paladin
 // Seals for Judgement effect. Does not share a cooldown with your Judgement ability.
 func (paladin *Paladin) registerSwiftJudgement() {
 	config := paladin.judgementConfig(spellData.SwiftJudgement.Highest(), SpellMaskSwiftJudgement)
-	// Free and off the global cooldown, so the row leaves the cast empty.
+	// Free and off the global cooldown, so the spell leaves the cast empty.
 	config.Cast.DefaultCast.NonEmpty = true
 
 	paladin.RegisterSpell(config)

@@ -61,7 +61,7 @@ func (got speeds) differ(want speeds) bool {
 	return math.Abs(got.melee-want.melee) > 1e-9 || math.Abs(got.ranged-want.ranged) > 1e-9 || math.Abs(got.cast-want.cast) > 1e-9
 }
 
-// Using the item multiplies the wearer's speeds by the ones its row states for the row's duration, on
+// Using the item multiplies the wearer's speeds by the ones its spell states for the spell's duration, on
 // one aura.
 func TestOnUseSpeedBuffMultipliesTheWearersSpeedsForItsDuration(t *testing.T) {
 	haste := func(spellID int32, aura dbcenums.EffectAuraType) float64 {

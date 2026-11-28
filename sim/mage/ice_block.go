@@ -13,7 +13,7 @@ var iceBlockRank = spellData.IceBlock.Highest()
 // "You become encased in a block of ice, protecting you from all physical attacks and spells for 10
 // sec, but during that time you cannot attack, move, or cast spells."
 //
-// The row's stun (effect 1) is core's stun aura; its two school immunities (effects 2 and 3, every
+// The spell's stun (effect 1) is core's stun aura; its two school immunities (effects 2 and 3, every
 // school between them) zero the damage taken while it is up. Being core's stun, its duration also
 // takes the mage's StunDurationMultiplier, which nothing a mage wears changes.
 func (mage *Mage) registerIceBlockSpell() {

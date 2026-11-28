@@ -34,7 +34,7 @@ func (warlock *Warlock) registerImmolateRank(rankedSpell *spelldata.Spell) *core
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = WarlockSpellImmolate
 
-	// Tick the row's average, rolling only the crit: the hit was rolled when the dot landed
+	// Tick the spell's average, rolling only the crit: the hit was rolled when the dot landed
 	config.Dot = spelldata.DotConfig(rankedSpell, immolateTick)
 	config.Dot.Aura.Tag = immolateTag
 	config.Dot.OnTick = spelldata.PeriodicDamageTick(immolateTick, rankedSpell.TickOutcome)
@@ -47,7 +47,7 @@ func (warlock *Warlock) registerImmolateRank(rankedSpell *spelldata.Spell) *core
 		}
 	}
 
-	// Calculate expected damage from the row's average hit and tick
+	// Calculate expected damage from the spell's average hit and tick
 	config.ExpectedInitialDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
 		return spell.CalcDamage(sim, target, immolateHit.Average(), spell.OutcomeExpectedMagicCrit)
 	}

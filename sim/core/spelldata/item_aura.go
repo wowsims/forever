@@ -35,7 +35,7 @@ func (e *Effect) AuraTarget() AuraTarget {
 	return auraTargets[e.Target[0]]
 }
 
-// The positions, counted from 1 the way Effects counts, of the row's aura effects that land on the
+// The positions, counted from 1 the way Effects counts, of the spell's aura effects that land on the
 // target.
 func EffectsOn(s *Spell, target AuraTarget) []int32 {
 	var positions []int32
@@ -69,7 +69,7 @@ func EquipAuraRow(s *Spell) *Spell {
 // attacks.
 var itemAuraIgnored = []dbcenums.EffectAuraType{dbcenums.A_MOD_DECREASE_SPEED}
 
-// The positions of the row's aura effects on the target that an item's aura shape parses: the ones
+// The positions of the spell's aura effects on the target that an item's aura shape parses: the ones
 // EffectsOn names, less the auras it leaves out and, on the wearer, the damage shields it attaches
 // beside the parse.
 func ItemAuraParsedOn(s *Spell, target AuraTarget) []int32 {
@@ -79,7 +79,7 @@ func ItemAuraParsedOn(s *Spell, target AuraTarget) []int32 {
 	})
 }
 
-// The damage shields the row puts on the wearer, which an item's aura shape attaches to the wearer's
+// The damage shields the spell puts on the wearer, which an item's aura shape attaches to the wearer's
 // aura rather than parsing.
 func ItemAuraDamageShields(s *Spell) []*Effect {
 	var shields []*Effect
@@ -91,7 +91,7 @@ func ItemAuraDamageShields(s *Spell) []*Effect {
 	return shields
 }
 
-// The physical hits a row's damage shield answers: the ones its proc flags name, or every one where
+// The physical hits a spell's damage shield answers: the ones its proc flags name, or every one where
 // it states none. Retricutioner's 435901 names the melee swings and abilities taken, so a ranged shot
 // is not reflected. The flags say which hits reach the shield and nothing about a roll: a shield
 // answers each of them.
@@ -102,8 +102,8 @@ func DamageShieldHits(s *Spell) core.ProcMask {
 	return core.DecodeProcTypeMask(s.ProcFlags, s.ProcHint).ProcMask
 }
 
-// The time a row's damage shield waits between two reflections: its ICD, or the cooldown
-// the row states where it has none. Retricutioner's 435901 states 5 s, so a second melee hit inside
+// The time a spell's damage shield waits between two reflections: its ICD, or the cooldown
+// the spell states where it has none. Retricutioner's 435901 states 5 s, so a second melee hit inside
 // them is not reflected.
 func DamageShieldLockout(s *Spell) time.Duration {
 	if s.ICDMs > 0 {
@@ -116,7 +116,7 @@ func DamageShieldLockout(s *Spell) time.Duration {
 // aura, one landing on a unit the shape does not reach, and one the parser skips on the unit it lands
 // on; and a row restricted to an area group that names no area type. Empty means every effect of the
 // row is attached or left out on purpose. An equipped row is parsed the way ParseStatic parses it, onto
-// the wearer and its pets; any other is an aura applied for the row's duration.
+// the wearer and its pets; any other is an aura applied for the spell's duration.
 //
 // The parser answers by parsing: each target's effects are parsed onto a character of its own that
 // nothing else reads, so the generator and the sim make the same decision.

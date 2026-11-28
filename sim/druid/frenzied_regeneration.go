@@ -5,8 +5,8 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The tooltip's "up to 10 Rage per second". The row states only the health each point of rage heals,
-// as effect 1's $s1 percent; its periodic trigger names no spell, and the heal row 22845 states 0.
+// The tooltip's "up to 10 Rage per second". The game files state only the health each point of rage heals,
+// as effect 1's $s1 percent; its periodic trigger names no spell, and the heal spell 22845 states 0.
 const frenziedRegenerationRagePerTick = 10.0
 
 func (druid *Druid) registerFrenziedRegenerationSpell() {

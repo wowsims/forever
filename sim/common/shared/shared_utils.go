@@ -371,7 +371,7 @@ func NewProcStatBonusEffect(config ProcStatBonusEffect) {
 //							Procs read from the spell data
 ///////////////////////////////////////////////////////////////////////////
 
-// An item or enchant proc as the game files' own rows state it: the listener, rate and ICD from the
+// An item or enchant proc as the game files state it: the listener, rate and ICD from the
 // spell carrying the proc, the buff's duration and stacks from the spell it applies, and only the
 // stats from the item's effect entry, where the sim's item level scaling lives.
 type SpellDataProc struct {
@@ -384,19 +384,19 @@ type SpellDataProc struct {
 	// The spell the item effect names: the one carrying the proc flags, the chance and the ICD.
 	TriggerSpellID int32
 	// The buff the proc applies, where the game files make it a spell of its own. Zero where the
-	// trigger's own row is the buff.
+	// trigger itself is the buff.
 	BuffSpellID int32
 
 	// A "Chance on hit" item effect or a combat enchant. The game casts those off the hit itself
-	// without consulting a proc mask, so the row states no listener and the shape is stated here.
+	// without consulting a proc mask, so the game files state no listener and the shape is stated here.
 	IsWeaponProc bool
 
-	// A rate option in place of the one the item's entry and the trigger's row give, for a rate priced on
+	// A rate option in place of the one the item's entry and the trigger give, for a rate priced on
 	// something neither states. It may reshape the listener.
 	Rate spelldata.ProcOpt
 }
 
-// What an item adds to the spell its NewSpellDataDamageProc proc casts where the rows leave it to a
+// What an item adds to the spell its NewSpellDataDamageProc proc casts where the spells leave it to a
 // script, by item id, given the spell's config before it registers: Pendulum of Doom's execute bonus.
 // Hand-written code fills it from init, so the item's effect stays generated.
 var DamageProcExtras = map[int32]func(character *core.Character, config *core.SpellConfig){}
@@ -409,7 +409,7 @@ var ProcTriggerExtras = map[int32]func(trigger *core.ProcTrigger){}
 // The same for an enchant's generated proc, by enchant id, given the wearer: Insight rolls once per cast.
 var EnchantProcTriggerExtras = map[int32]func(character *core.Character, trigger *core.ProcTrigger){}
 
-// How much longer than its rows state the buff of an item's generated proc lasts, by item id:
+// How much longer than its spells state the buff of an item's generated proc lasts, by item id:
 // Felstriker's buff counts its 3 s from the spell batch its proc would land in.
 var ProcBuffDurationExtras = map[int32]time.Duration{}
 
@@ -443,7 +443,7 @@ func forEachSpellDataVariant(cfg SpellDataProc, variants []ItemVariant, register
 	}
 }
 
-// An aura the row applies to an enemy is NewSpellDataDebuffProc's to build, so it is left unregistered.
+// An aura the spell applies to an enemy is NewSpellDataDebuffProc's to build, so it is left unregistered.
 func registerSpellDataProc(cfg SpellDataProc) {
 	registerSpellDataRowProc(cfg, (*spelldata.Spell).AppliesAnAuraToAnEnemy, func(agent core.Agent, source effectSource, trigger *spelldata.Spell, buff *spelldata.Spell) {
 		applySpellDataProc(agent, cfg, source, trigger, buff)
@@ -483,7 +483,7 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 	character.AddStatProcBuff(source.id, procAura, source.isEnchant, eligibleSlots)
 }
 
-// The listener the trigger's row describes, without the handler, plus the item's own name and action,
+// The listener the trigger describes, without the handler, plus the item's own name and action,
 // which key the rolls and the metrics, and the rate the item's effect entry states.
 func spellDataProcListener(character *core.Character, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell) core.ProcTrigger {
 	rate := cfg.Rate
@@ -504,7 +504,8 @@ func spellDataProcListener(character *core.Character, cfg SpellDataProc, source 
 	return config
 }
 
-// A weapon proc's listener, which no row states; anything else keeps the one its row decodes to.
+// A weapon proc's listener, which the game files do not state; anything else keeps the one its spell
+// decodes to.
 func weaponProcShape(cfg SpellDataProc) spelldata.ProcOpt {
 	if !cfg.IsWeaponProc {
 		return func(*core.Character, *core.ProcTrigger) {}
@@ -512,7 +513,7 @@ func weaponProcShape(cfg SpellDataProc) spelldata.ProcOpt {
 	return spelldata.WeaponProc()
 }
 
-// The rate for a proc the game files state none for. No row carries a SpellProcsPerMinuteID, so an
+// The rate for a proc the game files state none for. No spell carries a SpellProcsPerMinuteID, so an
 // item's rate comes from its effect entry, or from the store where an override put one. Only the
 // effect knows which weapon or enchant slot the rate has to be measured against.
 func spellDataProcRate(source effectSource, row *spelldata.Spell, proc *proto.ProcEffect) spelldata.ProcOpt {
@@ -581,7 +582,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 
 	buffStats := stats.FromProtoMap(effect.GetScalingOptions()[int32(0)].GetStats())
 
-	// The count sits on whichever row carries the aura, and the item effect entry takes the higher, as
+	// The count sits on whichever spell carries the aura, and the item effect entry takes the higher, as
 	// this does: Idol of the Huntress keeps its 200 on the trigger.
 	if stacks := max(buff.MaxStack, trigger.MaxStack); stacks > 0 {
 		// A stacking buff's bonus against creature types, and its speed, would need adding per stack.
@@ -603,7 +604,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 		config.MaxStacks = aura.MaxStacks
 	})
 	attachVersusStats(procAura.Aura, buff)
-	// The item effect entry carries the buff's stats alone; its speed auras come from the row
+	// The item effect entry carries the buff's stats alone; its speed auras come from the spell
 	// (Ragehammer's Enrage 12686 states attack power and melee attack speed).
 	procAura.AttachHastePseudoStats(buff.SpeedPseudoStats())
 	return procAura
@@ -619,8 +620,8 @@ func attachVersusStats(aura *core.Aura, buff *spelldata.Spell) {
 	}
 }
 
-// How long the buff lasts: the buff's row, else the trigger's, the fallback the item effect entry
-// applies as well. Core refuses to activate an aura of no duration mid-fight, so rows that state none
+// How long the buff lasts: the buff's, else the trigger's, the fallback the item effect entry
+// applies as well. Core refuses to activate an aura of no duration mid-fight, so spells that state none
 // are refused here, where the message can name what to look at.
 func procBuffDuration(cfg SpellDataProc, trigger *spelldata.Spell, buff *spelldata.Spell) time.Duration {
 	var extra time.Duration
@@ -640,8 +641,8 @@ func procBuffDuration(cfg SpellDataProc, trigger *spelldata.Spell, buff *spellda
 		cfg.Name, cfg.effectSource().id, trigger.ID, buff.ID))
 }
 
-// What uses a charge: the hits the buff's own row states. A buff whose row states no listener or no
-// rate keeps its charges and runs out its duration. Where the buff is the trigger, the row's flags are
+// What uses a charge: the hits the buff's own spell states. A buff whose spell states no listener or no
+// rate keeps its charges and runs out its duration. Where the buff is the trigger, the spell's flags are
 // the ones that granted it, so a spender built from them would take a charge on the hit that handed
 // them over.
 func attachChargeSpender(character *core.Character, cfg SpellDataProc, trigger *spelldata.Spell, buff *spelldata.Spell, procAura *core.StatBuffAura) {
@@ -652,7 +653,7 @@ func attachChargeSpender(character *core.Character, cfg SpellDataProc, trigger *
 	spelldata.AttachChargeSpender(character, procAura.Aura, buff, cfg.Name+" Charge")
 }
 
-// Whether a trigger can be built from this row, on the conditions spelldata.ProcTrigger panics on.
+// Whether a trigger can be built from this spell, on the conditions spelldata.ProcTrigger panics on.
 func statesATrigger(s *spelldata.Spell) bool {
 	decoded := core.DecodeProcTypeMask(s.ProcFlags, s.ProcHint)
 	if decoded.Callback == core.CallbackEmpty {
@@ -676,7 +677,7 @@ func registerSpellDataDamageProc(cfg SpellDataProc) {
 func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, damage *spelldata.Spell) {
 	character := agent.GetCharacter()
 	config := spellDataProcListener(character, cfg, source, trigger)
-	// Spell cooldown in EV-0145. A row that deals its damage as the listener's own aura casts nothing.
+	// Spell cooldown in EV-0145. A spell that deals its damage as the listener's own aura casts nothing.
 	if config.ICD == 0 && damage.ProcDamageEffect().Aura != dbcenums.A_PROC_TRIGGER_DAMAGE {
 		config.ICD = damage.Cooldown()
 	}
@@ -690,7 +691,7 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 	source.registerTrigger(character, config)
 }
 
-// The handler followed by the row's own gain of mana, rage or energy on its caster, which comes with
+// The handler followed by the spell's own gain of mana, rage or energy on its caster, which comes with
 // every proc (EV-0108).
 func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
 	gain := row.EnergizeEffect()
@@ -707,8 +708,8 @@ func withProcEnergize(character *core.Character, row *spelldata.Spell, handler c
 	}
 }
 
-// The spell the proc casts, as its row states it. It is a proc's spell: out of the rotation and not a
-// cast of its own, and its hits reach the damage listeners as a proc's do. A row that states Always Hit
+// The spell the proc casts, as the spell states it. It is a proc's spell: out of the rotation and not a
+// cast of its own, and its hits reach the damage listeners as a proc's do. A spell that states Always Hit
 // rolls no miss, dodge or parry (EV-0164), and crits the way damage to its own caster does.
 func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell, asProc bool) core.SpellConfig {
 	config := spelldata.SpellConfig(&character.Unit, damage, damageShape(damage), castBy(asProc))
@@ -725,7 +726,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 		config.ProcMask = core.ProcMaskSpellDamage
 	}
 	config.DirectVariance = effect.DirectVariance()
-	// A split row rolls once for every target it reaches (calcMultiTargetDamage), not once a hit.
+	// A split spell rolls once for every target it reaches (calcMultiTargetDamage), not once a hit.
 	if damage.SplitsDamage {
 		config.DirectVariance = 0
 	}
@@ -762,7 +763,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 		return config
 	}
 
-	// The damage over time lands only with the hit that applies it: the direct hit where the row deals
+	// The damage over time lands only with the hit that applies it: the direct hit where the spell deals
 	// one, else a no-crit roll on the spell's defense type. The hit and the damage over time each reach
 	// an area where their own effect covers one, and an enemy only the damage over time reaches rolls
 	// its own application.
@@ -916,7 +917,7 @@ func applyDotIfLanded(area bool) afterDealt {
 }
 
 // The damage of an effect that reaches more than its target, without the enemies outside the
-// creature types the row names, which still take their rolls and count toward a split and the AoE cap.
+// creature types the spell names, which still take their rolls and count toward a split and the AoE cap.
 func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
 	results := calcMultiTargetDamageOnAll(sim, spell, target, row, effect, outcome)
 	if row.TargetCreatureType == 0 {
@@ -932,7 +933,7 @@ func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core
 	})
 }
 
-// The damage of an effect that reaches more than its target, dealt as a batch. A split row rolls once
+// The damage of an effect that reaches more than its target, dealt as a batch. A split spell rolls once
 // and divides the roll evenly among the targets it reaches. Otherwise each target rolls its own, and an
 // uncapped area takes the encounter's AoE cap.
 func calcMultiTargetDamageOnAll(sim *core.Simulation, spell *core.Spell, target *core.Unit, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
@@ -970,7 +971,7 @@ func calcMultiTargetDamageOnAll(sim *core.Simulation, spell *core.Spell, target 
 	})
 }
 
-// Which multipliers and metrics bucket the damage belongs in. The row's defense type decides, since
+// Which multipliers and metrics bucket the damage belongs in. The spell's defense type decides, since
 // that is what picks its hit table: a physical proc is a melee one whatever cast it in.
 func damageShape(damage *spelldata.Spell) spelldata.SpellOpt {
 	if damageDefenseType(damage.DefenseTypeCore(), damage.SpellSchool(), false) == core.DefenseTypeMelee {
@@ -1117,8 +1118,8 @@ func registerSpellDataSelfProc(cfg SpellDataProc, spellConfig func(*core.Charact
 	})
 }
 
-// A proc read from its trigger's row and the row it applies, BuffSpellID's or the trigger's own. A
-// listener with no callback never fires, and the row says so before any character exists.
+// A proc read from its trigger and the spell it applies, BuffSpellID's or the trigger's own. A
+// listener with no callback never fires, and the spell says so before any character exists.
 func registerSpellDataRowProc(cfg SpellDataProc, refuses func(row *spelldata.Spell) bool,
 	apply func(agent core.Agent, source effectSource, trigger *spelldata.Spell, row *spelldata.Spell)) {
 	source := cfg.effectSource()
@@ -1160,11 +1161,11 @@ func applySpellDataSelfProc(agent core.Agent, cfg SpellDataProc, source effectSo
 	source.registerTrigger(character, config)
 }
 
-// The heal the proc casts, as its row states it, or a heal over time where the row's heal is a
+// The heal the proc casts, as the spell states it, or a heal over time where the heal is a
 // periodic aura.
 func spellDataProcHealSpell(character *core.Character, heal *spelldata.Spell, asProc bool) core.SpellConfig {
 	config := spelldata.SpellConfig(&character.Unit, heal, spelldata.Magic(core.ProcMaskSpellHealing), castBy(asProc))
-	// A heal crits for the magic multiplier whatever the row files it under: 1248759 states no
+	// A heal crits for the magic multiplier whatever the spell files it under: 1248759 states no
 	// defense type at all.
 	config.DefenseType = core.DefenseTypeMagic
 
@@ -1248,7 +1249,7 @@ func NewSimpleStatActive(itemID int32) {
 	})
 }
 
-// The proc a stat buff's row carries beside its stats, live while the buff is up: Aegis of
+// The proc a stat buff carries beside its stats, live while the buff is up: Aegis of
 // Preservation's 23780 heals the wearer on each melee or ranged hit taken.
 func attachCarriedProc(character *core.Character, buff *core.Aura, row *spelldata.Spell) {
 	if len(CarriedProcUnsupported(row)) > 0 {
@@ -1283,7 +1284,7 @@ func CarriedProcUnsupported(row *spelldata.Spell) []string {
 	return spelldata.ItemProcUnsupportedWithRate(row, false, 0, 0)
 }
 
-// An on-use item whose spell deals damage to its target: the direct damage its row rolls, the damage
+// An on-use item whose spell deals damage to its target: the direct damage its spell rolls, the damage
 // over time it applies, or both.
 func NewSpellDataDamageOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, damage *spelldata.Spell) core.SpellConfig {
@@ -1298,8 +1299,8 @@ func spellDataOnUseDamageSpell(character *core.Character, damage *spelldata.Spel
 	return spellDataProcDamageSpell(character, damage, false)
 }
 
-// An on-use item whose spell keeps an A_PERIODIC_TRIGGER_SPELL aura on the wearer, which casts the row
-// it triggers every period. The label carries the item, since two items may apply the same row.
+// An on-use item whose spell keeps an A_PERIODIC_TRIGGER_SPELL aura on the wearer, which casts the spell
+// it triggers every period. The label carries the item, since two items may apply the same spell.
 func NewSpellDataPeriodicDamageOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, row *spelldata.Spell) core.SpellConfig {
 		periodic := row.FirstAura(dbcenums.A_PERIODIC_TRIGGER_SPELL)
@@ -1322,7 +1323,7 @@ func NewSpellDataPeriodicDamageOnUse(itemID int32) {
 }
 
 // An on-use item whose spell heals the wearer, at once or over time, and with the heal restores the
-// resource its row's energize effect states: Major Recombobulator's 23064 restores mana too.
+// resource its spell's energize effect states: Major Recombobulator's 23064 restores mana too.
 func NewSpellDataHealOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeSurvival, func(character *core.Character, heal *spelldata.Spell) core.SpellConfig {
 		config := spellDataProcHealSpell(character, heal, false)
@@ -1357,7 +1358,7 @@ func NewSpellDataAbsorbOnUse(itemID int32) {
 	})
 }
 
-// The resource the absorb's row restores every period while its shield holds: Mark of the Dragon
+// The resource the absorb restores every period while its shield holds: Mark of the Dragon
 // Lord's 17252 restores mana every period until the shield is used up or runs out.
 func attachShieldEnergize(character *core.Character, shield *core.Aura, absorb *spelldata.Spell, itemID int32) {
 	gain := absorb.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)
@@ -1374,8 +1375,8 @@ func attachShieldEnergize(character *core.Character, shield *core.Aura, absorb *
 	})
 }
 
-// The shield the row applies to the caster. A second cast replaces the shield left. The label carries
-// the item or enchant, since two of them may apply the same row.
+// The shield the spell applies to the caster. A second cast replaces the shield left. The label carries
+// the item or enchant, since two of them may apply the same spell.
 func spellDataAbsorbSpell(character *core.Character, absorb *spelldata.Spell, sourceID int32, asProc bool) core.SpellConfig {
 	effect := absorb.AbsorbEffect()
 	schools := core.SpellSchool(effect.Misc)
@@ -1412,8 +1413,8 @@ func spellDataAbsorbSpell(character *core.Character, absorb *spelldata.Spell, so
 }
 
 // Absorbs whose tooltip states damage dealt when the shield is gone before its duration ends, keyed by
-// the absorb with the spell dealing it. No row field states the condition, so each is listed: Adaptive
-// Combat Assistant's 1291097 deals 1291099's damage "if this shield expires before" its duration.
+// the absorb with the spell dealing it. No field in the game files states the condition, so each is
+// listed: Adaptive Combat Assistant's 1291097 deals 1291099's damage "if this shield expires before" its duration.
 var absorbBreakDamage = map[int32]int32{
 	1291097: 1291099,
 }
@@ -1424,7 +1425,7 @@ func AbsorbBreakDamage(absorb *spelldata.Spell) (int32, bool) {
 	return id, ok
 }
 
-// The spells dealing damage that an absorb's row triggers or its tooltip references. The shield deals
+// The spells dealing damage that an absorb triggers or its tooltip references. The shield deals
 // only the one AbsorbBreakDamage names; any other is damage the absorb shape does not model.
 func AbsorbLinkedDamage(absorb *spelldata.Spell) []int32 {
 	linked := slices.Clone(absorb.RefIDs)
@@ -1445,8 +1446,8 @@ func AbsorbLinkedDamage(absorb *spelldata.Spell) []int32 {
 	return damage
 }
 
-// An on-use item whose spell raises the wearer's melee, ranged or cast speed. Every speed the row
-// states is on one aura, up for the row's duration.
+// An on-use item whose spell raises the wearer's melee, ranged or cast speed. Every speed the spell
+// states is on one aura, up for the spell's duration.
 func NewSpellDataSpeedOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, spellDataOnUseSpeedSpell)
 }
@@ -1471,7 +1472,7 @@ func castBy(asProc bool) spelldata.SpellOpt {
 }
 
 // The game casts a proc's spell off the hit that caused it: no global cooldown, cost or cast time, and
-// a proc unless the row says it is not.
+// a proc unless the spell says it is not.
 func procSpell(config *core.SpellConfig, row *spelldata.Spell) {
 	spelldata.Proc()(config, row)
 	spelldata.Triggered()(config, row)
@@ -1485,15 +1486,15 @@ func itemUseSpell(config *core.SpellConfig, _ *spelldata.Spell) {
 	config.FocusCost = core.FocusCostOptions{}
 }
 
-// The spell a proc of the same row would cast, used from the item instead, on the item's cooldowns
-// with the cast time and global cooldown the row states. The player casts it, so it is not a proc.
+// The spell a proc of the same spell would cast, used from the item instead, on the item's cooldowns
+// with the cast time and global cooldown the spell states. The player casts it, so it is not a proc.
 func registerSpellDataOnUse(itemID int32, cdType core.CooldownType, spellConfig func(*core.Character, *spelldata.Spell) core.SpellConfig) {
 	registerSpellDataOnUseCooldown(itemID, func(character *core.Character, row *spelldata.Spell) (core.SpellConfig, core.MajorCooldown, bool) {
 		return spellConfig(character, row), core.MajorCooldown{Type: cdType}, true
 	})
 }
 
-// The same, where the row decides the cooldown the manager files the spell under and when it uses it,
+// The same, where the spell decides the cooldown the manager files the spell under and when it uses it,
 // or that the character has nothing to use it for.
 func registerSpellDataOnUseCooldown(itemID int32, onUse func(*core.Character, *spelldata.Spell) (core.SpellConfig, core.MajorCooldown, bool)) {
 	source := effectSource{id: itemID}
@@ -1533,7 +1534,7 @@ func onUseEffectsFor(itemID int32) []*proto.ItemEffect {
 	return onUseEffects
 }
 
-// The item effect's own cooldown and the category cooldown it shares, whatever the spell's row states.
+// The item effect's own cooldown and the category cooldown it shares, whatever the spell states.
 func OnUseCast(character *core.Character, itemEffect *proto.ItemEffect) core.CastConfig {
 	cast := core.CastConfig{SharedCD: sharedCooldown(character, itemEffect)}
 	if cooldownMs := itemEffect.GetOnUse().CooldownMs; cooldownMs > 0 {

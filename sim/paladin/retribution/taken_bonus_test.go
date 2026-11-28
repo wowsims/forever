@@ -142,7 +142,7 @@ func consecrationTicks(t *testing.T, setup func(*core.Simulation, *core.Characte
 	if spell == nil {
 		t.Fatal("Consecration is not registered")
 	}
-	// The ticks are the pulse row's spell, which holds the ground.
+	// The ticks are the pulse spell, which holds the ground.
 	ticks := spell.RelatedDotSpell
 	if ticks == nil {
 		t.Fatal("Consecration has no spell for its ticks")

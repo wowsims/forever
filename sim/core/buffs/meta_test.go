@@ -96,7 +96,7 @@ func talentScaled(amount float64, mod *spelldata.Effect) float64 {
 	}
 }
 
-// The row's first effect that applies this aura, whatever the effect's type: a party aura states the
+// The spell's first effect that applies this aura, whatever the effect's type: a party aura states the
 // same aura as one on the caster alone.
 func firstAura(t *testing.T, s *spelldata.Spell, aura dbcenums.EffectAuraType) *spelldata.Effect {
 	t.Helper()
@@ -148,7 +148,7 @@ func TestMetaReadsTheDurationAndCooldown(t *testing.T) {
 }
 
 // A raid aura that is a damage shield and a healing-taken row of 0, as Retribution Aura is. Its value
-// is the damage the shield deals, whatever else the row states: the parse would attach the 0 as a
+// is the damage the shield deals, whatever else the spell states: the parse would attach the 0 as a
 // multiplier of 1.
 func TestMetaValueOfADamageShieldIsItsDamage(t *testing.T) {
 	aura := &spelldata.Spell{Effects: []spelldata.Effect{
@@ -177,8 +177,8 @@ func TestVindicationRankReadsLikeItsTooltip(t *testing.T) {
 	}
 }
 
-// Each state puts up the external copy of its own row, worth what that row states and bidding in the
-// row's category. Off puts up nothing, and a state past the last reads as the last.
+// Each state puts up the external copy of its own spell, worth what that spell states and bidding in
+// its category. Off puts up nothing, and a state past the last reads as the last.
 func TestRankSelectStatesGrantTheirOwnRows(t *testing.T) {
 	stated := func(aura dbcenums.EffectAuraType) func(*testing.T, *spelldata.Spell) float64 {
 		return func(t *testing.T, s *spelldata.Spell) float64 { return rowAmount(t, firstAura(t, s, aura)) }
@@ -249,7 +249,7 @@ func TestRankSelectStatesGrantTheirOwnRows(t *testing.T) {
 	}
 }
 
-// A priest's prayer reads its own row and duration, and bids against the raid's copy of its stat, so
+// A priest's prayer reads its own spell and duration, and bids against the raid's copy of its stat, so
 // the two count once.
 func TestPrayerCountsOnceWithTheRaidsCopy(t *testing.T) {
 	cases := []struct {
@@ -287,7 +287,7 @@ func TestPrayerCountsOnceWithTheRaidsCopy(t *testing.T) {
 	}
 }
 
-// A totem state stands on a true pet where its row lets a pet carry one, and a state whose row says
+// A totem state stands on a true pet where its spell lets a pet carry one, and a state whose spell says
 // only a player can carry it stays off the pet.
 func TestRankSelectTotemStateOnATruePet(t *testing.T) {
 	petCarries := func(state *Meta) bool {

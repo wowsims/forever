@@ -143,8 +143,8 @@ func statsAdded(unit *core.Unit, add map[stats.Stat]float64) map[string]float64 
 	return statsDiff(before, unit.SortAndApplyStatDependencies(unit.GetStats().Add(added)))
 }
 
-// The amount the row's effect states, read past the parse so that a parse that drops the effect or
-// flips its sign shows. A row worth 0 would let either pass, so the test stops there.
+// The amount the spell's effect states, read past the parse so that a parse that drops the effect or
+// flips its sign shows. An effect worth 0 would let either pass, so the test stops there.
 func rowAmount(t *testing.T, e *spelldata.Effect) float64 {
 	t.Helper()
 	v := e.Average()
@@ -154,7 +154,7 @@ func rowAmount(t *testing.T, e *spelldata.Effect) float64 {
 	return v
 }
 
-// The row's armor effect: a resistance on the physical school, or an armor aura no armor modifier scales.
+// The spell's armor effect: a resistance on the physical school, or an armor aura no armor modifier scales.
 func armorEffect(t *testing.T, s *spelldata.Spell) *spelldata.Effect {
 	t.Helper()
 	for i := range s.Effects {

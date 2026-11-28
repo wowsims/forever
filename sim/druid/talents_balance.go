@@ -37,7 +37,7 @@ func (druid *Druid) registerBalanceTalents() {
 	// Moonkin Form implemented in forms.go
 }
 
-// The cast time of Wrath and Starfire, whose class flags the cast time row names, and Wrath's mana cost.
+// The cast time of Wrath and Starfire, whose class flags the cast time effect names, and Wrath's mana cost.
 func (druid *Druid) applyStarlightWrath() {
 	druid.parseTalent(druid.Talents.StarlightWrath, spellData.StarlightWrath)
 }

@@ -111,7 +111,7 @@ func stepFor(sim *core.Simulation, d time.Duration) {
 	}
 }
 
-// Soul Fire takes the Soul Shard its row states, and none while Decimation's buff (440873) is up.
+// Soul Fire takes the Soul Shard its spell states, and none while Decimation's buff (440873) is up.
 func TestSoulFireShardAndDecimation(t *testing.T) {
 	sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{SoulShards: 1}, core.MakeSingleTargetEncounter(0))
 	target := sim.Encounter.AllTargetUnits[0]
@@ -692,7 +692,7 @@ func TestTrainerRanksBesideBookRanks(t *testing.T) {
 	}
 }
 
-// A dot whose row marks Periodic Can Crit expects its tick with the crit share in it, as the tick
+// A dot whose spell marks Periodic Can Crit expects its tick with the crit share in it, as the tick
 // itself rolls it: more spell crit raises what Corruption's tick is expected to deal.
 func TestExpectedDotTickCountsItsCrits(t *testing.T) {
 	sim, warlock := newWarlockSim("", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
@@ -1250,7 +1250,7 @@ func TestSoulSiphonCountsCorruptionSiphonLifeAndAgony(t *testing.T) {
 }
 
 // Hellfire Effect and the Rain of Fire wave are cast by their channels, so Judgement of Wisdom on the target
-// hears their hits only when the hit's row is flagged Not a Proc or the judgement's row can proc from procs.
+// hears their hits only when the hit's spell is flagged Not a Proc or the judgement's spell can proc from procs.
 func TestChannelEffectsReturnJudgementOfWisdomManaAsTheirRowsAllow(t *testing.T) {
 	raid := core.SinglePlayerRaidProto(warlockPlayer("Warlock", "", &proto.WarlockOptions{}), &proto.PartyBuffs{}, &proto.RaidBuffs{},
 		&proto.Debuffs{JudgementOfWisdom: true})

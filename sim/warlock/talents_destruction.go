@@ -41,7 +41,7 @@ func (warlock *Warlock) registerDestructionTalents() {
 
 // --- Tier 1 ---
 
-// TODO: Not implemented, as it does not affect sims for now: the row raises range only.
+// TODO: Not implemented, as it does not affect sims for now: the spell raises range only.
 func (warlock *Warlock) applyDestructiveReach() {
 	if warlock.Talents.DestructiveReach == 0 {
 		return
@@ -49,7 +49,7 @@ func (warlock *Warlock) applyDestructiveReach() {
 }
 
 // Shadow Bolt crits leave Shadow Vulnerability (17794) on the target. It has no charges, so another crit
-// refreshes it. The row states rank 1; the talent prices the rank.
+// refreshes it. The spell states rank 1; the talent prices the rank.
 func (warlock *Warlock) applyImprovedShadowBolt() {
 	if warlock.Talents.ImprovedShadowBolt == 0 {
 		return
@@ -74,7 +74,7 @@ func (warlock *Warlock) applyImprovedShadowBolt() {
 		func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			warlock.ShadowVulnerabilityAuras.Get(result.Target).Activate(sim)
 		})
-	// The talent row names no spells: the tooltip's are Shadow Bolt crits.
+	// The talent names no spells: the tooltip's are Shadow Bolt crits.
 	trigger.ClassFlags = spellData.ShadowBolt.Highest().ClassFlags
 	trigger.Outcome = core.OutcomeCrit
 	warlock.MakeProcTriggerAura(trigger)
@@ -164,7 +164,7 @@ func (warlock *Warlock) applyConflagrate() {
 
 // --- Tier 5 ---
 
-// TODO: Not implemented, as it does not affect sims for now: the row stuns (18093).
+// TODO: Not implemented, as it does not affect sims for now: the spell stuns (18093).
 func (warlock *Warlock) applyPyroclasm() {
 	if warlock.Talents.Pyroclasm == 0 {
 		return
@@ -190,7 +190,7 @@ func (warlock *Warlock) applyFireAndBrimstone() {
 
 // --- Tier 6 ---
 
-// The row's effects are dummies the tooltip reads.
+// The spell's effects are dummies the tooltip reads.
 func (warlock *Warlock) applyShadowAndFlame() {
 	if warlock.Talents.ShadowAndFlame == 0 {
 		return
@@ -210,7 +210,7 @@ func (warlock *Warlock) applyShadowAndFlame() {
 		},
 	})
 
-	// The talent's effects 3 and 4 price the buffs at each rank; the buff rows' own 10% does not apply.
+	// The talent's effects 3 and 4 price the buffs at each rank; the buff spells' own 10% does not apply.
 	buffOnHit := func(buffRow *spelldata.Spell, amount *spelldata.Effect, hitBy spelldata.Ladder) {
 		buff := warlock.RegisterAura(spelldata.AuraConfig(buffRow))
 		priced := *buffRow

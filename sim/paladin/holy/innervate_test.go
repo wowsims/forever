@@ -44,7 +44,7 @@ func runFor(sim *core.Simulation, d time.Duration) {
 }
 
 // Innervate lets all of the spirit regen continue while casting and multiplies the spirit regen and
-// the gear's MP5 by its row's mana regen factor, whatever share Reverence already lets through.
+// the gear's MP5 by its mana regen factor, whatever share Reverence already lets through.
 func TestInnervateMultipliesTheFullRegen(t *testing.T) {
 	factor := core.MultiplierFromPercent(spelldata.MustFind(29166).Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue())
 	for _, c := range []struct {

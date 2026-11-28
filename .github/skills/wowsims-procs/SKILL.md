@@ -5,7 +5,7 @@ description: 'Use when WoWSims Forever Go code builds or fixes a proc: calling s
 
 # wowsims-procs
 
-A proc is a listener the row describes: which hits it hears, how often it fires and how long it rests.
+A proc is a listener the game files describe: which hits it hears, how often it fires and how long it rests.
 `spelldata.ProcTrigger` builds all of that from the row, and the caller adds the name, the handler and only what the
 game files leave out. The rule this skill exists for: the `ProcChance` column is not a chance until
 `ProcChanceSource` says so, and a listener typed by hand around it fires on the wrong hits, or on every hit. The
@@ -35,7 +35,7 @@ the detail.
 | registering an item, enchant or set proc                                               | `docs/spell_data/procs.md` §Item and enchant procs                                      |
 | deciding a weapon proc's mask, an unstated rate, or a charge used by a channel         | `references/rulings.md`                                                                 |
 | the review case behind a rule below: a typed ICD, a look-alike effect, a cast listener | `.github/skills/wowsims-review/references/defects.md` §The wrong rank, the wrong effect |
-| the review case behind a charged row with no spender                                   | `.github/skills/wowsims-review/references/defects.md` §What a cast uses, and when       |
+| the review case behind a charged buff with no spender                                  | `.github/skills/wowsims-review/references/defects.md` §What a cast uses, and when       |
 
 ## Building a trigger from a row
 
@@ -43,11 +43,11 @@ What `ProcTrigger` fills and the Enrage example are in `procs.md`. What the page
 
 - **Register it one of two ways**, name set first (see Traps): `unit.MakeProcTriggerAura(trigger)` gives it an aura
   of its own, up all fight; `buff.AttachProcTriggerCallback(&unit, trigger)` hears hits only while that buff is up.
-- **The ICD is the row's** (`s.ICD()`); an ICD typed by hand where the row states one is a defect.
-- **A row with charges needs a spender.** `ProcCharges` becomes the buff's `MaxStacks` through `AuraConfig`, and
+- **The ICD is the spell's** (`s.ICD()`); an ICD typed by hand where the game files state one is a defect.
+- **A buff with charges needs a spender.** `ProcCharges` becomes the buff's `MaxStacks` through `AuraConfig`, and
   nothing takes a stack off until `spelldata.AttachChargeSpender(character, buff, row, name)` is attached. It uses
   one charge per cast however many targets the cast hits (`core.OncePerCast`), and a channel's once at its end when
-  the row names its spells by class flags; a row that names none is used by the first hit it hears, mid-channel too. An
+  the buff names its spells by class flags; one that names none is used by the first hit it hears, mid-channel too. An
   option's `ExtraCondition` narrows the spells that use it (Revelation turns melee and ranged attacks away); a charge
   gained during a running channel its class flags name is still kept for that channel's end. Without a spender one proc pays for every cast
   in the buff's duration.
@@ -64,13 +64,14 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
 
 - **A `ProcMask` set on the returned trigger narrows the listener but not a manager already built.**
 - **A cast listener on a proc that depends on the hit is a defect**: a dodged or missed cast still procs, for the
-  reason in `wowsims-core-mechanics` `## Cast order`. `ProcTrigger` on the rank decodes the hit listener the row states.
+  reason in `wowsims-core-mechanics` `## Cast order`. `ProcTrigger` on the rank decodes the hit listener the game
+  files state.
 - **Read the chance off the effect the tooltip names**, never a look-alike effect whose ladder happens to fit.
 - **A weapon proc never hears an ability that requires a shield or has magic or no DefenseType.** Core keeps an
   item's chance-on-hit effects and combat enchants from hearing Shield Slam, Shield Bash, Thunder Clap and Sweeping
   Strikes' copied hit 12723. Equip procs still hear them, and auto attacks are exempt, so a wand's shots cast weapon
   procs. The rulings are in `references/rulings.md`.
-- **A Windfury Totem hit is a main-hand swing to a row's melee swing bit** (`HearsCountedSwings`, EV-0136), though
+- **A Windfury Totem hit is a main-hand swing to a spell's melee swing bit** (`HearsCountedSwings`, EV-0136), though
   its mask is a main-hand special's. A `core.ProcTrigger` typed by hand on white hits does not hear it until it sets
   that field, and a handler that tells swings apart by mask checks `core.SpellFlagCountsAsSwing` too.
   `docs/spell_data/procs.md` §The decoder and the tooltip hints has the rule and its exceptions.
@@ -92,13 +93,13 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 `wowsims-consumables-items`.
 
 - **A rate the game files lack**: `wowsims-db-pipeline` `## Overrides`.
-- **A row that deals, restores or procs N times as much against some creatures** names them only in its tooltip; its
-  row id, effect index and the mob types or creature families go in `overrides.VersusBonuses`
+- **A spell that deals, restores or procs N times as much against some creatures** names them only in its tooltip; its
+  spell id, effect index and the mob types or creature families go in `overrides.VersusBonuses`
   (`tools/database/overrides/spell_overrides.go`, `docs/spell_data/overrides.md`), or the spell deals 1× and the
-  sheet's Bonus group leaves the item out. A factor no effect states is that row's `Multiplier`. A hand-written effect
-  sets `SpellConfig.VersusBonus` through `shared.ItemVersusBonus` on the row. A proc that is N times as likely against
-  them (Hand of Justice, Ironfoe, Argent Defender) takes the bonus with `VersusEffectKindProcChance` and passes
-  its `Against` to `NewTargetScaledChanceManager` or `NewAttackerSwingPPMManager` as the scale.
+  sheet's Bonus group leaves the item out. A factor no effect states is the override's `Multiplier`. A hand-written
+  effect sets `SpellConfig.VersusBonus` through `shared.ItemVersusBonus` on the spell. A proc that is N times as
+  likely against them (Hand of Justice, Ironfoe, Argent Defender) takes the bonus with `VersusEffectKindProcChance`
+  and passes its `Against` to `NewTargetScaledChanceManager` or `NewAttackerSwingPPMManager` as the scale.
 
 ## Measuring a rate
 
@@ -124,7 +125,7 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   `EnchantProcs` rate for its spell, else the spell's rate override, else the row's procs per minute or chance. A
   piece whose rows disagree or state none shows no rate, and so does one whose tooltip prints the chance as a fraction
   of the column (`${$h/2}%`, The Lion Horn of Stormwind).
-- **Hand-written code that rolls something its rows do not state takes a row** in
+- **Hand-written code that rolls something the game files do not state takes a row** in
   `tools/database/overrides/gear_proc_rates.go`: code that scales the chance by target (Ironfoe), halves it by area,
   adds a flat chance, prices spell hits on their cast time (Highborne Research Tablet) or splits the procs (Bolt's
   Charged Eyeball). A row with no `Kind`
@@ -150,8 +151,8 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 
 ## Traps
 
-- **A trigger named after its row never hears anything when the buff shares that name.** `ProcTrigger` names the
-  trigger after the row, and `MakeProcTriggerAura` registers through `GetOrRegisterAura`, which hands back the
+- **A trigger named after its spell never hears anything when the buff shares that name.** `ProcTrigger` names the
+  trigger after the spell, and `MakeProcTriggerAura` registers through `GetOrRegisterAura`, which hands back the
   `AuraConfig` buff of the same label and drops the listener. Set `trigger.Name = "<X> - Trigger"` (PR #140). A death
   listener loses its kill or death the same way, so Rapid Killing (`sim/hunter/talents_marksmanship.go`) and Spirit
   Tap (`sim/priest/talents_shadow.go`) name their triggers.
@@ -173,7 +174,7 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   Blizzard's tick and Consecration's pulses do. A spell built on the player's own cast row leaves it off.
 - **A dot's tick is no cast, but a tick its aura casts is.** A listener that cannot proc from procs hears every dot's
   ticks, a proc's dot's included (Deadly Poison, Wound, Immolation Trap). It does not hear a tick that is the hit of
-  a spell the aura casts each period: a Treat As Periodic row (`ATTR_EX_3_TREAT_AS_PERIODIC`, Consecration's pulses),
+  a spell the aura casts each period: a Treat As Periodic spell (`ATTR_EX_3_TREAT_AS_PERIODIC`, Consecration's pulses),
   or a periodic dummy or trigger with no periodic damage of its own (Ignite, Deep Wounds) (EV-0226).
   `spelldata.SpellConfig` sets `SpellFlagTicksAreCasts` from the row. Such a spell holds the dot, carries the proc
   flag and deals through `CalcPeriodicDamage` (`sim/paladin/consecration.go`). Whether a periodic listener that can

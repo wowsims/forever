@@ -10,14 +10,14 @@ import (
 
 // What the generator states about one manifest row: the spell the aura reads, how the sim names it
 // and what it bids in. Which effects are which stats, what they are worth and how they stack is read
-// off the row at runtime by spelldata.ParseEffects, with the options Options answers.
+// off the spell at runtime by spelldata.ParseEffects, with the options Options answers.
 type Meta struct {
 	// The buff's name in the UI. The aura's label adds " (Player)" or " (External)".
 	Label string
-	// The row the aura's numbers are read from.
+	// The spell the aura's numbers are read from.
 	Spell *spelldata.Spell
-	// The cast, for a row whose aura states no duration of its own and whose cooldown is the cast's.
-	// Nil where the spell's own row times the buff.
+	// The cast, for a spell whose aura states no duration of its own and whose cooldown is the cast's.
+	// Nil where the spell itself times the buff.
 	Cast *spelldata.Spell
 
 	// The aura's own exclusive category, which is also its Tag; "" for none.
@@ -132,7 +132,7 @@ func (m *Meta) actionID(isPlayer bool) core.ActionID {
 }
 
 // The aura a generated buff registers on a player: labelled and tagged by label and actionID, with
-// Tag set to the category, MaxStacks the row's own stacks (not its charges), the external copy in
+// Tag set to the category, MaxStacks the spell's own stacks (not its charges), the external copy in
 // CharacterBuildPhaseBuffs, and the effects read by spelldata.ParseEffects with Options plus
 // SchoolResistances, and where Category is set, Exclusive(Category, true) for a single-aura one or
 // ExclusivePerStat(Category) for any other, plus Overwrites(ElixirCategory) where that is set. Only
@@ -227,8 +227,8 @@ func newDamageShield(unit *core.Unit, m *Meta, isPlayer bool, talentPoints int32
 	return aura
 }
 
-// Retribution Aura and Thorns scale with their caster's spell power in Forever even though their
-// game files rows carry no coefficient. The coefficient is the 1.5 s cast-time floor over 3.5, the
+// Retribution Aura and Thorns scale with their caster's spell power in Forever even though the
+// game files state no coefficient for them. The coefficient is the 1.5 s cast-time floor over 3.5, the
 // AoE divisor because the shield hits every attacker, and the 0.42 penalty for the aura effect.
 // Spell power scaling in EV-0067.
 const DamageShieldSpellPowerCoefficient = 1.5 / 3.5 / 3 * 0.42

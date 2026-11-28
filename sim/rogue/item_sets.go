@@ -6,7 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The rows ItemSetSpell names for each set's thresholds.
+// The spells ItemSetSpell names for each set's thresholds.
 var (
 	bonescytheHeadRush = spelldata.MustFind(28812) // 4pc: Head Rush, the proc
 	bonescytheThreat   = spelldata.MustFind(28811) // 6pc: less threat
@@ -33,7 +33,7 @@ const bonescytheStrikes = RogueSpellBackstab | RogueSpellSinisterStrike | RogueS
 
 // "Your Backstab, Sinister Strike, and Hemorrhage critical hits cause you to regain 5 energy."
 //
-// The row hears every landed melee ability, and its class flags name Eviscerate, Shank and Mutilate too. The
+// The spell hears every landed melee ability, and its class flags name Eviscerate, Shank and Mutilate too. The
 // tooltip's three spells and its crit are set here.
 func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 	rogue := agent.(RogueAgent).GetRogue()

@@ -7,7 +7,7 @@ import (
 )
 
 // A factor a spell deals or restores against a target of any of the mob types or creature families,
-// once however many of them the target is. The game files state the factor on a row and name the
+// once however many of them the target is. The game files state the factor on a spell and name the
 // targets only in its tooltip.
 type VersusBonus struct {
 	Multiplier float64

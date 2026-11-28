@@ -7,7 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The rows state no attack power share. In game Explosive Trap's initial hit takes 10% of ranged
+// The game files state no attack power share. In game Explosive Trap's initial hit takes 10% of ranged
 // attack power and its ticks take none (EV-0068). TODO: In-game testing required for Immolation Trap,
 // which the Forever notes give the same 10% over its whole duration, split evenly over the ticks and read at
 // each tick.
@@ -68,7 +68,7 @@ func (hunter *Hunter) registerImmolationTrap() {
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 
-	// The trap casts the debuff where it lies, so the row's 10 yd range from the hunter does not
+	// The trap casts the debuff where it lies, so the spell's 10 yd range from the hunter does not
 	// limit it.
 	config.MaxRange = 0
 

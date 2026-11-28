@@ -111,7 +111,7 @@ func testUnit() *core.Unit {
 	return &core.Unit{}
 }
 
-// A row flagged Fixed Travel Time states its flight time in seconds as its Speed, so its missile has no
+// A spell flagged Fixed Travel Time states its flight time in seconds as its Speed, so its missile has no
 // speed and flies that long at any distance, unless its MinDuration is longer.
 func TestAFixedTravelTimeRowFliesForItsSpeedInSeconds(t *testing.T) {
 	var fixed [17]uint32
@@ -264,7 +264,7 @@ func TestSpellConfigEnergyAndFocusCosts(t *testing.T) {
 	}
 }
 
-// A spell the row states no cost for leaves every cost option empty.
+// A spell that states no cost leaves every cost option empty.
 func TestSpellConfigWithoutAPowerRow(t *testing.T) {
 	withRows(t, resolverRows())
 	config := SpellConfig(testUnit(), Find(300))
@@ -361,7 +361,7 @@ func TestSpellConfigGCDGate(t *testing.T) {
 }
 
 // A cast that uses a resource without a GCD or a cast time reads as a cast rather than as the empty
-// one core takes for a proc, whether the row states the cost flat or as a share of the bar.
+// one core takes for a proc, whether the spell states the cost flat or as a share of the bar.
 func TestSpellConfigMarksACostedOffGCDCastNonEmpty(t *testing.T) {
 	withRows(t, resolverRows())
 
@@ -376,7 +376,7 @@ func TestSpellConfigMarksACostedOffGCDCastNonEmpty(t *testing.T) {
 	}
 }
 
-// Haste shortens a cast and its GCD by school, not by the hit table the row files the spell under:
+// Haste shortens a cast and its GCD by school, not by the hit table the spell is filed under:
 // the game files' shouts are physical spells with the magic defense type.
 func TestSpellConfigIgnoreHasteFollowsTheSchool(t *testing.T) {
 	withRows(t, resolverRows())
@@ -419,7 +419,7 @@ func TestSpellConfigFlagsFromTheRow(t *testing.T) {
 	}
 }
 
-// A magic damage row on the magic hit table is binary when it carries, beside the damage, an aura
+// A magic damage spell on the magic hit table is binary when it carries, beside the damage, an aura
 // other than a dummy on an enemy, an interrupt, or a dummy, script, energize or area trigger effect
 // on any target.
 func TestSpellConfigBinaryFromTheRow(t *testing.T) {
@@ -461,8 +461,8 @@ func TestSpellConfigBinaryFromTheRow(t *testing.T) {
 	}
 }
 
-// A row with Suppress Weapon Procs, Suppress Caster Procs or Suppress Target Procs resolves to the matching
-// flag when one of its effects acts itself. A row of dummies and casts of other spells keeps none of them.
+// A spell with Suppress Weapon Procs, Suppress Caster Procs or Suppress Target Procs resolves to the matching
+// flag when one of its effects acts itself. A spell of dummies and casts of other spells keeps none of them.
 func TestSpellConfigSuppressProcFlagsFromTheRow(t *testing.T) {
 	enemy := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_TARGET_ENEMY, 0}
 	damage := Effect{Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100, Target: enemy}
@@ -599,7 +599,7 @@ func TestSpellConfigNoThreatRow(t *testing.T) {
 	}
 }
 
-// Area damage drops the row's range to the target: around the caster it reaches its radius, as a
+// Area damage drops the spell's range to the target: around the caster it reaches its radius, as a
 // cast and not as a proc, and around the point the triggering spell chose it reaches anywhere.
 func TestSpellConfigAreaAroundACasterOrPointReachesItsRadiusOrAnywhere(t *testing.T) {
 	for _, tc := range []struct {
@@ -624,7 +624,7 @@ func TestSpellConfigAreaAroundACasterOrPointReachesItsRadiusOrAnywhere(t *testin
 	}
 }
 
-// The rows' own areas: a cast centred on the caster or a cone from it reaches its radius. A proc of
+// The spells' own areas: a cast centred on the caster or a cone from it reaches its radius. A proc of
 // one has no range.
 func TestSpellConfigReachOfTheGameFilesAreas(t *testing.T) {
 	withGeneratedStore(t)
@@ -653,7 +653,7 @@ func TestSpellConfigReachOfTheGameFilesAreas(t *testing.T) {
 	}
 
 	t.Run("a cone on a row with a range of its own", func(t *testing.T) {
-		forkedLightning := Find(11828) // a 45 yd cone on a row stating 30 yd
+		forkedLightning := Find(11828) // a 45 yd cone on a spell stating 30 yd
 		if forkedLightning == Nil {
 			t.Skip("spell 11828 is not in the store; this case runs again once the live game files hold it")
 		}

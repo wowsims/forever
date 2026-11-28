@@ -36,7 +36,7 @@ func init() {
 	})
 }
 
-// A heal of 100 under the class flags of the row it stands in for, costing nothing so the refund
+// A heal of 100 under the class flags of the spell it stands in for, costing nothing so the refund
 // alone moves the mana.
 func flatHeal(id core.ActionID, rowID int32) core.SpellConfig {
 	return core.SpellConfig{

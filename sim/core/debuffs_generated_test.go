@@ -31,7 +31,7 @@ func rowEffect(t *testing.T, spellID int32, aura dbcenums.EffectAuraType) *spell
 	return nil
 }
 
-// The amount the row's first effect applying aura states at the sim's character level.
+// The amount the spell's first effect applying aura states at the sim's character level.
 func rowAmount(t *testing.T, spellID int32, aura dbcenums.EffectAuraType) float64 {
 	t.Helper()
 	amount := rowEffect(t, spellID, aura).Average()
@@ -41,7 +41,7 @@ func rowAmount(t *testing.T, spellID int32, aura dbcenums.EffectAuraType) float6
 	return amount
 }
 
-// The amount the row's armor effect states at the sim's character level. The game files state armor
+// The amount the spell's armor effect states at the sim's character level. The game files state armor
 // either as a resistance on the physical school or as an armor aura that no armor modifier scales.
 func armorAmount(t *testing.T, spellID int32) float64 {
 	t.Helper()
@@ -58,7 +58,7 @@ func armorAmount(t *testing.T, spellID int32) float64 {
 	return 0
 }
 
-// How long the row states its aura lasts.
+// How long the spell states its aura lasts.
 func rowDuration(t *testing.T, spellID int32) time.Duration {
 	t.Helper()
 	duration := spelldata.MustFind(spellID).Duration()
@@ -628,7 +628,7 @@ func TestGeneratedVindicationKeepsItsRangedAttackPowerUnderDemoralizingShout(t *
 	if vindication == nil || shout == nil || !vindication.IsActive() || !shout.IsActive() {
 		t.Fatalf("the target has %v, want Vindication and the shout both on it", targetAuraLabels(target))
 	}
-	// The talent prices Vindication, so its amount is the generated reader's and not a row's.
+	// The talent prices Vindication, so its amount is the generated reader's and not a spell's.
 	full := buffs.VindicationValue(0)
 	if full >= 0 {
 		t.Fatalf("the raid's Vindication is worth %v, want an attack power reduction", full)
@@ -653,7 +653,7 @@ func TestGeneratedCurseOfWeaknessStacksWithDemoralizingShout(t *testing.T) {
 	}
 }
 
-// The game files state Dust Cloud as a stacking row, so the raid's copy takes its stacks from a
+// The game files state Dust Cloud as a stacking spell, so the raid's copy takes its stacks from a
 // driver: without one, the amount would follow zero stacks and apply nothing.
 func TestGeneratedDustCloudTakesItsStackFromTheDriver(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
@@ -693,7 +693,7 @@ func TestGeneratedScorpidStingAndInsectSwarmDoNotStack(t *testing.T) {
 		})
 }
 
-// The raid's Armor Shatter is worth the row's armor once per stack, up to the stacks the row allows.
+// The raid's Armor Shatter is worth the spell's armor once per stack, up to the stacks it allows.
 func TestGeneratedArmorShatterPricesEveryStack(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 	base := target.GetStats()[stats.ArmorNoMods]
@@ -761,7 +761,7 @@ const wielderOtherHitsPerMinute = 48
 const wielderStrikeDodgeChance = 0.065
 
 // The raid's copy of a weapon proc debuff is one main-hand wielder's proc, rolled on its swings and its
-// other landed hits. A row on the melee hit table is a strike: the target dodges its share of them,
+// other landed hits. A spell on the melee hit table is a strike: the target dodges its share of them,
 // and one that lands off a swing rolls once more.
 func TestGeneratedSwingProcDebuffsLandAtTheWeaponsRate(t *testing.T) {
 	const iterations, seconds = 10000, 300
@@ -809,7 +809,7 @@ func stepChecking(sim *core.Simulation, until time.Duration, check func()) {
 	}
 }
 
-// The raid's Puncture Armor adds one stack a landing, up to the row's max, and falls off when no
+// The raid's Puncture Armor adds one stack a landing, up to the spell's max, and falls off when no
 // swing lands it for its duration. While the raid's debuffs are disabled no swing lands it.
 func TestGeneratedPunctureArmorStacksAndFallsOff(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{

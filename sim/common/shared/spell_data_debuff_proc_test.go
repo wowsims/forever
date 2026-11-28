@@ -30,7 +30,7 @@ func slowedSpeed(t *testing.T, e *spelldata.Effect) float64 {
 	return 1 / (1 - e.Average()/100)
 }
 
-// A weapon proc whose row states no rate of its own is refused for the missing rate until the item's rate
+// A weapon proc whose spell states no rate of its own is refused for the missing rate until the item's rate
 // answers it.
 func TestSlowProcRowsStateNoRate(t *testing.T) {
 	for _, row := range []*spelldata.Spell{
@@ -105,8 +105,8 @@ func expectSpeeds(t *testing.T, when string, target *core.Unit, melee float64, c
 	}
 }
 
-// Frostguard's Chilled 16927: a hit slows the target's attacks by the row's share; a second hit halfway
-// through runs the slow for the row's duration from then rather than slowing it twice.
+// Frostguard's Chilled 16927: a hit slows the target's attacks by the spell's share; a second hit halfway
+// through runs the slow for the spell's duration from then rather than slowing it twice.
 func TestFrostguardSlowsTheTargetsMeleeAttacks(t *testing.T) {
 	editRow(t, frostguardChilled, alwaysProcs)
 	row := spelldata.MustFind(frostguardChilled)
@@ -149,8 +149,8 @@ func TestFrostguardsSlowSharesThunderClapsSlot(t *testing.T) {
 	expectSpeeds(t, "past the proc's duration", target, thunderClap, 1)
 }
 
-// The Lobotomizer's Brain Damage 1290950: a landed hit slows the target's casts by the row's share for
-// the row's duration and deals the damage.
+// The Lobotomizer's Brain Damage 1290950: a landed hit slows the target's casts by the spell's share for
+// the spell's duration and deals the damage.
 func TestLobotomizerDamagesAndSlowsTheTargetsCasts(t *testing.T) {
 	editRow(t, lobotomizerBrainDamage, alwaysProcs)
 	row := spelldata.MustFind(lobotomizerBrainDamage)
@@ -186,8 +186,8 @@ func TestLobotomizersSlowSharesSlowsSlot(t *testing.T) {
 	expectSpeeds(t, "after the proc", target, 1, min(1/1.5, brainDamage))
 }
 
-// Annihilator's Armor Shatter 16928: each proc takes the row's armor off the target up to its stack count
-// and leaves the wearer's armor untouched; a further proc keeps the full stacks and runs the row's
+// Annihilator's Armor Shatter 16928: each proc takes the spell's armor off the target up to its stack count
+// and leaves the wearer's armor untouched; a further proc keeps the full stacks and runs the spell's
 // duration from itself.
 func TestAnnihilatorShattersTheTargetsArmor(t *testing.T) {
 	const armorShatter int32 = 16928
@@ -239,7 +239,7 @@ func newRaidWielderSim(t *testing.T, weaponID, debuff int32, debuffs *proto.Debu
 		s.RPPM = 0
 	})
 	if !core.HasItemEffect(weaponID) {
-		// The item's own procs per minute would replace the row's chance the edit gives it.
+		// The item's own procs per minute would replace the spell's chance the edit gives it.
 		registerSpellDataDebuffProc(SpellDataProc{Name: "Test Wielder", ItemID: weaponID, TriggerSpellID: debuff,
 			BuffSpellID: debuff, IsWeaponProc: true, Rate: func(*core.Character, *core.ProcTrigger) {}})
 	}
@@ -333,7 +333,7 @@ func TestWielderStacksTheRaidsWeaponDebuff(t *testing.T) {
 	}
 }
 
-// Vibroblade's Puncture Armor 1293005 is another row than the 17315 Bashguuder's proc lands, so the
+// Vibroblade's Puncture Armor 1293005 is another spell than the 17315 Bashguuder's proc lands, so the
 // raid's copy stays the raid's and the wielder's procs land their own beside it.
 func TestBashguuderBidsBesideTheRaidsVibroblade(t *testing.T) {
 	sim, caster, target := newRaidWielderSim(t, 13204, 17315, &proto.Debuffs{PunctureArmor: 3})
@@ -481,7 +481,7 @@ func TestEyeOfInfluenceLowersTheTargetsAttackPower(t *testing.T) {
 	}
 }
 
-// A row whose aura lands on an enemy is never registered as a buff on the wearer.
+// A spell whose aura lands on an enemy is never registered as a buff on the wearer.
 func TestAnEnemyAuraIsNeverAWearerBuff(t *testing.T) {
 	withTestItems(991407)
 	registerSpellDataProc(SpellDataProc{Name: "Test Annihilator", ItemID: 991407, TriggerSpellID: 16928,

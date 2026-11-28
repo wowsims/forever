@@ -9,7 +9,7 @@ var earthShockRanks = castableRanks(spellData.EarthShock)
 var flameShockRanks = castableRanks(spellData.FlameShock)
 var frostShockRanks = castableRanks(spellData.FrostShock)
 
-// The three shocks share category 19, so the row's category cooldown is one timer for all of them.
+// The three shocks share category 19, so the spell's category cooldown is one timer for all of them.
 func (shaman *Shaman) newShockSpellConfig(rank *spelldata.Spell) core.SpellConfig {
 	return spelldata.SpellConfig(&shaman.Unit, rank,
 		spelldata.Magic(core.ProcMaskSpellDamage),

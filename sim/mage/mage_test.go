@@ -308,8 +308,8 @@ func TestFlamestrikeGroundTickProcsClearcastingOnce(t *testing.T) {
 	}
 }
 
-// A Blizzard tick is cast by the channel, so it rolls Arcane Concentration only when the tick's row is
-// flagged Not a Proc or the talent's row can proc from procs.
+// A Blizzard tick is cast by the channel, so it rolls Arcane Concentration only when the tick's spell is
+// flagged Not a Proc or the talent can proc from procs.
 func TestBlizzardTickRollsArcaneConcentrationAsTheRowsAllow(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
 	var tick *core.Spell

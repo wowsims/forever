@@ -429,7 +429,7 @@ func TestRiposteCastsOffTheGCDAndSpendsItsWindow(t *testing.T) {
 	}
 }
 
-// Setup hears the current target's attacks only, and a dodge of one adds the row's point at the rank's chance.
+// Setup hears the current target's attacks only, and a dodge of one adds the spell's point at the rank's chance.
 func TestSetupAddsAPointOnTheCurrentTargetsDodgedSwings(t *testing.T) {
 	const dodges = 150
 	perProc := int32(setupTriggered.ProcEnergizeEffect().BaseValue())
@@ -548,7 +548,7 @@ const venomFlashOfSteelTalents = "00530321201301-323303000201232105"
 // Boot Knife 5/5, under 30 Subtlety points.
 const bootKnifeTalents = "--32520303130100115"
 
-// Shank is never avoided, restores its row's energy plus Flash of Steel's, cools down for its row's time less Flash
+// Shank is never avoided, restores its energy plus Flash of Steel's, cools down for its time less Flash
 // of Steel's, puts Venom up with that talent, and adds Boot Knife's points at 5/5, where the rank's chance is 100%.
 func TestShankFollowsItsTalents(t *testing.T) {
 	for _, c := range []struct {
@@ -1061,8 +1061,8 @@ func newRogueWearingWith(t *testing.T, worn map[proto.ItemSlot]int32, consumes *
 	return sim, rogue, target
 }
 
-// Bonescythe Armor's 4-piece bonus: a crit of Sinister Strike or Backstab regains the energy of the spell its row
-// casts, while a crit of Shank, which the row's class flags also name, regains none.
+// Bonescythe Armor's 4-piece bonus: a crit of Sinister Strike or Backstab regains the energy of the spell it
+// casts, while a crit of Shank, which the spell's class flags also name, regains none.
 func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 	sim, rogue, target := newRogueWearing(t, map[proto.ItemSlot]int32{
 		proto.ItemSlot_ItemSlotHead:     22478, // Bonescythe Helmet
@@ -1084,7 +1084,7 @@ func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 		return &proto.ResourceMetrics{}
 	}
 
-	// Strikes once and runs the sim past the row's cooldown and the spell batch window, so the next strike can proc.
+	// Strikes once and runs the sim past the spell's cooldown and the spell batch window, so the next strike can proc.
 	strike := func(spell *core.Spell) (crit bool, procs int32) {
 		t.Helper()
 		crits, before := spell.SpellMetrics[target.UnitIndex].Crits, regained().Events
@@ -1124,7 +1124,7 @@ func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 }
 
 // Bonescythe Armor's 8-piece bonus: a landed Eviscerate grants Revealed Flaw 28815 at 28814's chance per combo point
-// it used. Its charge raises the crit of Sinister Strike and Backstab and leaves Shank's, which the row's class flags
+// it used. Its charge raises the crit of Sinister Strike and Backstab and leaves Shank's, which the spell's class flags
 // also name, alone. 28815's cooldown does not hold a second grant back.
 func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
 	sim, rogue, target := newRogueWearing(t, map[proto.ItemSlot]int32{

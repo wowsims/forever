@@ -178,7 +178,7 @@ func GrantsCrit(row *spelldata.Spell) bool {
 	return slices.ContainsFunc(consumableBuffs(row), func(s *spelldata.Spell) bool { return len(critEffects(s)) > 0 })
 }
 
-// The positions, counted from 1, of the row's crit chance effects on the user.
+// The positions, counted from 1, of the spell's crit chance effects on the user.
 func critEffects(s *spelldata.Spell) []int32 {
 	var positions []int32
 	for i := range s.Effects {

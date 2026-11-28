@@ -9,7 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// One rank of a paladin aura: the spell the caster used and the number its row states. Retribution
+// One rank of a paladin aura: the spell the caster used and the number it states. Retribution
 // Aura's damage shield deals Value; every other aura reads its amount off the spell. The paladin
 // registers an aura per rank; each joins the same categories as the generated party-buff copy, which
 // is the top rank.
@@ -64,14 +64,14 @@ func NewSpellDataRetributionAuraRank(char *core.Character, isPlayer bool, rank P
 		externalSpellPower)
 }
 
-// One rank of a judgement debuff: the spell the target shows and the number its row states. The
+// One rank of a judgement debuff: the spell the target shows and the number it states. The
 // paladin registers a rank per row; the debuff panel applies the max rank, carried by the *MaxRank
 // values with Rank 0.
 type JudgementRank struct {
 	SpellID int32
 	Rank    int32
 	Value   float64
-	HealID  int32 // Judgement of Light's heal, whose row states the amount.
+	HealID  int32 // Judgement of Light's heal, which states the amount.
 }
 
 var (
@@ -103,8 +103,8 @@ const (
 // Judgement effects on the target" can find them.
 const JudgementAuraTag = "JudgementAura"
 
-// The chance a judgement's row states for the heal or mana it grants attackers. The game files keep
-// it outside the spell data, so it is an override, and a row with none would otherwise fire on every
+// The chance a judgement states for the heal or mana it grants attackers. The game files keep
+// it outside the spell data, so it is an override, and a judgement with none would otherwise fire on every
 // hit.
 func judgementProcChance(spellID int32) float64 {
 	chance := spelldata.MustFind(spellID).StatedChance()
@@ -160,7 +160,7 @@ func NewSpellDataJudgementOfLightAuraRank(target *core.Unit, caster *core.Unit, 
 	}), caster, rank)
 }
 
-// Whoever lands a damaging melee hit on the judged target rolls the row's chance to be healed for
+// Whoever lands a damaging melee hit on the judged target rolls the judgement's chance to be healed for
 // the rank's amount. The caster's proc chance mods, e.g. Improved Judgement of Light, raise that
 // chance; the raid's copy has no caster. The heal is the attacker's own spell, so its threat goes to
 // the attacker.
@@ -207,10 +207,11 @@ func NewSpellDataJudgementOfWisdomAuraRank(target *core.Unit, rank JudgementRank
 	}), rank)
 }
 
-// Whoever lands a hit the row's proc flags name on the judged target rolls the row's chance to regain
-// the rank's mana. A miss, dodge or parry never rolls the chance, and neither do periodic ticks or
-// damage shields. A landed hit that deals no damage still rolls: the trigger leaves out the damage
-// requirement the decode gives every row. Serpent Sting's application reaches the judgement (R-0005).
+// Whoever lands a hit the judgement's proc flags name on the judged target rolls the judgement's
+// chance to regain the rank's mana. A miss, dodge or parry never rolls the chance, and neither do
+// periodic ticks or damage shields. A landed hit that deals no damage still rolls: the trigger leaves
+// out the damage requirement the decode gives every row. Serpent Sting's application reaches the
+// judgement (R-0005).
 func AttachJudgementOfWisdomMana(aura *core.Aura, rank JudgementRank) *core.Aura {
 	actionID := core.ActionID{SpellID: rank.SpellID}
 	mana := rank.Value

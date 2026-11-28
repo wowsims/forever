@@ -930,8 +930,8 @@ func TestFieryWeaponRollsOnTheHandThatCarriesIt(t *testing.T) {
 }
 
 // Enchant Chest - Retricutioner 7223 keeps 435901's damage shield up while the enchant is worn, read
-// from the generated registrations: the row's amount lands whole on the attacker of a melee hit taken,
-// once per the row's cooldown.
+// from the generated registrations: the spell's amount lands whole on the attacker of a melee hit taken,
+// once per the spell's cooldown.
 func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
 	sim, character := itemSpecWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, &proto.ItemSpec{Id: 8245, Enchant: 7223})
 	withoutSpellCrit(sim, character)
@@ -986,7 +986,7 @@ func TestLesserBeastslayerAddsDamageAgainstBeasts(t *testing.T) {
 }
 
 // Enchant 2H Weapon - Grand Arcanist 7941 puts up 1231138, whose spell power rides on the buff while
-// its E_ENERGIZE restores the row's mana with each proc.
+// its E_ENERGIZE restores the spell's mana with each proc.
 func TestGrandArcanistRestoresItsBuffsManaWithEachProc(t *testing.T) {
 	gain := spelldata.MustFind(1231138).EnergizeEffect()
 	if gain == spelldata.NilEffect || gain.Max() <= 0 {

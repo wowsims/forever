@@ -11,7 +11,7 @@ func (mage *Mage) registerBlizzardSpell() {
 	mage.registerBlizzardRank(spellData.Blizzard.Len(), spellData.Blizzard.Highest())
 }
 
-// Each tick casts the same rank of spellData.BlizzardTriggered. The cast's row names no tick spell,
+// Each tick casts the same rank of spellData.BlizzardTriggered. The cast names no tick spell,
 // only an area trigger, so the two pair by rank.
 func (mage *Mage) registerBlizzardRank(rank int32, castRank *spelldata.Spell) {
 	tickRank := spellData.BlizzardTriggered.Rank(rank)

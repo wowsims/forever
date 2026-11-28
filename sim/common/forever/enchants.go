@@ -45,7 +45,7 @@ func revelationLevelShare(wearerLevel int32, spellLevel int32) float64 {
 	return max(0, min(1, float64(spellLevel+32-wearerLevel)/20))
 }
 
-// The buff's row with the given class flags added to the spells its crit modifier names, which are
+// The buff spell with the given class flags added to the spells its crit modifier names, which are
 // the spells its charge is used by.
 func revelationSpentBy(row *spelldata.Spell, flags core.ClassFlags) *spelldata.Spell {
 	widened := *row
@@ -292,7 +292,7 @@ func init() {
 	// Enchant Weapon - Revelation
 	// EffectID: 8217, Proc SpellID: 1248806
 	// The proc spell names no buff: each class with spells to crit has a Revelation of its own, and the
-	// wearer gets its class's, with that row's class flags and charge. The game files state no rate; the
+	// wearer gets its class's, with that spell's class flags and charge. The game files state no rate; the
 	// enchant's effect entry carries the chance.
 	core.NewEnchantEffect(8217, func(agent core.Agent) {
 		character := agent.GetCharacter()

@@ -99,7 +99,7 @@ func stepTo(t *testing.T, sim *core.Simulation, until time.Duration) {
 	}
 }
 
-// A rank whose cast puts the row's periodic on the target, with the row's direct damage first where it
+// A rank whose cast puts the spell's periodic on the target, with its direct damage first where it
 // states one.
 func registerTargetDot(c *core.Character, id int32) *core.Spell {
 	row := spelldata.MustFind(id)

@@ -10,7 +10,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The auras a row puts on the wearer, on each of its pets and on an enemy. The enemy's is the row's own
+// The auras a spell puts on the wearer, on each of its pets and on an enemy. The enemy's is the spell's own
 // aura, one per enemy, shared by every character that applies it, so the first to register it parses it
 // and the multiplier reaches every attacker's hits once.
 type spellDataAuras struct {
@@ -120,7 +120,7 @@ func registerSpellDataAuraProc(cfg SpellDataProc) {
 	})
 }
 
-// An item or enchant whose equip spell applies auras: the row's auras on the wearer and on each
+// An item or enchant whose equip spell applies auras: the spell's auras on the wearer and on each
 // summoned pet for as long as the item or the enchant is worn. An equip spell that only re-applies
 // another aura on a period is read as that aura. The generator emits no equip spell that states spell
 // modifiers: each class registers its own through this constructor.
@@ -172,7 +172,7 @@ func registerSpellDataEquipAura(cfg SpellDataProc) {
 }
 
 // An on-use item whose spell applies auras: the wearer's buff, its pets' and the debuff on the enemy
-// it is used on, for the row's duration. One that lowers the wearer's threat is never used on its own:
+// it is used on, for the spell's duration. One that lowers the wearer's threat is never used on its own:
 // the sim gains nothing from less threat and a tank loses by it.
 func NewSpellDataAuraOnUse(itemID int32) {
 	registerSpellDataOnUseCooldown(itemID, func(character *core.Character, row *spelldata.Spell) (core.SpellConfig, core.MajorCooldown, bool) {
@@ -203,7 +203,7 @@ func lowersThreat(row *spelldata.Spell) bool {
 	return false
 }
 
-// A buff the game limits by charges starts with its full count, and the hits its row names use them.
+// A buff the game limits by charges starts with its full count, and the hits its spell names use them.
 func spellDataOnUseAuraSpell(character *core.Character, row *spelldata.Spell, auras *spellDataAuras) core.SpellConfig {
 	charged := auras.wearer != nil && SpendsItsCharges(row)
 	if charged {
@@ -222,8 +222,8 @@ func spellDataOnUseAuraSpell(character *core.Character, row *spelldata.Spell, au
 	}
 }
 
-// Whether a buff on the wearer drops after its ProcCharges are used, and its row names the hits that
-// use them. A row stating more than one stack as well is read as a stacking one, whose charges the
+// Whether a buff on the wearer drops after its ProcCharges are used, and its spell names the hits that
+// use them. A spell stating more than one stack as well is read as a stacking one, whose charges the
 // aura cannot keep apart from its stacks.
 func SpendsItsCharges(row *spelldata.Spell) bool {
 	return row.ProcCharges > 0 && row.MaxStack <= 1 && len(spelldata.EffectsOn(row, spelldata.AuraOnWearer)) > 0 &&

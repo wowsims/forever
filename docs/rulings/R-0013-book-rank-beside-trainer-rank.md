@@ -18,6 +18,6 @@ and 25361, Grace of Air Totem 10627 and 25359 (one totem to a slot), and shaman 
 and druid presets do the same: Frostbolt 10181 and 25304, Fireball 10151 and 25306, Arcane Missiles 10212 and 25345,
 Frost Ward 10177 and 28609, Backstab 11281 and 25300, Feint 11303 and 25302, Eviscerate 11300 and 31016, Ferocious Bite
 22829 and 31018. A plain SIML name is the trainer's rank and a book rank takes a suffix, which
-`sim/core/spelldata/book_ranks.go` decides, since a book rank's game files row states it like a trained one. Multi-Shot
+`sim/core/spelldata/book_ranks.go` decides, since the game files state a book rank like a trained one. Multi-Shot
 has the one rank, 2643, so its Guide teaches nothing here. The raid's `battle_shout` has four states (off, Rank 6, Rank
 7, Rank 7 with the tier 2 set; no Rank 6 with the set), and the warrior's own copies are labelled by rank.

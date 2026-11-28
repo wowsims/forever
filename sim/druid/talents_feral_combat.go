@@ -143,7 +143,7 @@ func (druid *Druid) applyBloodFrenzy() {
 			return
 		}
 		// Bear rage in EV-0032. The cat's extra combo point on a non-periodic builder crit is the tooltip,
-		// not an effect on the row.
+		// not an effect on the spell.
 		if druid.InForm(Cat) && druid.isComboBuilder(spell) && sim.Proc(comboChance, "Blood Frenzy Combo Point") {
 			druid.AddComboPoints(sim, result.Target, 1, combo)
 		}
@@ -158,7 +158,7 @@ func (druid *Druid) applyNaturalReaction() {
 	row := spellData.NaturalReaction.Rank(druid.Talents.NaturalReaction)
 	rageSpell := spellData.NaturalReactionTriggered.Highest()
 	metrics := druid.NewRageMetrics(core.ActionID{SpellID: rageSpell.ID})
-	// The proc mask names every hit taken and has no dodge bit, so the row's trigger listens to landed
+	// The proc mask names every hit taken and has no dodge bit, so the spell's trigger listens to landed
 	// hits; the tooltip's "each time you dodge" is the outcome.
 	trigger := spelldata.ProcTrigger(&druid.Character, row, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		if druid.InForm(Bear) {

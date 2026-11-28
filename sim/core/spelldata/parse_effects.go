@@ -57,7 +57,7 @@ func SkipEffects(idx ...int32) ParseOpt {
 	}
 }
 
-// No effect of these auras is read, wherever the row states it.
+// No effect of these auras is read, wherever the spell states it.
 func SkipAuras(auras ...dbcenums.EffectAuraType) ParseOpt {
 	return func(o *parseOptions) {
 		o.skipAuras = append(o.skipAuras, auras...)
@@ -72,7 +72,7 @@ func Conditional(fn func() bool) ParseOpt {
 	}
 }
 
-// The values do not follow the aura's stacks, which is what a row that states charges rather than
+// The values do not follow the aura's stacks, which is what a spell that states charges rather than
 // cumulative stacks means.
 func IgnoreStacks() ParseOpt {
 	return func(o *parseOptions) {
@@ -128,7 +128,7 @@ func Count(n float64) ParseOpt {
 	}
 }
 
-// The row sits on the weapon in this hand, so a hit, crit or rating aura bound to a matching weapon
+// The spell sits on the weapon in this hand, so a hit, crit or rating aura bound to a matching weapon
 // reaches that hand's attacks alone and holds while that hand holds one. An aura this hand cannot
 // carry is skipped.
 func OnHand(hand core.ProcMask) ParseOpt {
@@ -195,8 +195,8 @@ func FromCaster(caster *core.Unit, index, total int) ParseOpt {
 	}
 }
 
-// The character sheet shows the row's SPELLMOD_RESIST_MISS_CHANCE hit in these schools' hit, from the
-// talents stage on. The row names its spells by class flags, which carry no school, so the caller states
+// The character sheet shows the spell's SPELLMOD_RESIST_MISS_CHANCE hit in these schools' hit, from the
+// talents stage on. The talent names its spells by class flags, which carry no school, so the caller states
 // the schools its tooltip names, for a talent that reaches the class's main spells of them: Shadow Focus
 // takes core.SpellSchoolShadow. The spells the mod reaches stay the ones the class flags name.
 func ShowAsSchoolHit(schools core.SpellSchool) ParseOpt {
@@ -205,7 +205,7 @@ func ShowAsSchoolHit(schools core.SpellSchool) ParseOpt {
 	}
 }
 
-// The row's mana regen percent (A_MOD_POWER_REGEN_PERCENT on mana) is Innervate's multiplier on the
+// The spell's mana regen percent (A_MOD_POWER_REGEN_PERCENT on mana) is Innervate's multiplier on the
 // unit's mana regen, where the parse otherwise reads it as a Spirit regen multiplier.
 func AllManaRegen() ParseOpt {
 	return func(o *parseOptions) {
@@ -222,7 +222,7 @@ type Applied struct {
 	Value  float64
 }
 
-// An aura effect the parse left out, and its position on the row, counted from 1 the way EffectN
+// An aura effect the parse left out, and its position on the spell, counted from 1 the way EffectN
 // counts. Reason says why, where the row that refused the effect states one.
 type SkippedEffect struct {
 	*Effect
@@ -248,8 +248,8 @@ type Parsed struct {
 	live []*attachment
 }
 
-// Everything the row's aura effects say, attached to an aura: the mods, stat buffs and pseudo-stat
-// multipliers follow the aura's gain and expiry, and their values follow its stacks where the row
+// Everything the spell's aura effects say, attached to an aura: the mods, stat buffs and pseudo-stat
+// multipliers follow the aura's gain and expiry, and their values follow its stacks where the spell
 // states cumulative ones.
 //
 // The effects act on the aura's own unit, and the character is that unit's, for the few rows whose
@@ -267,7 +267,7 @@ func ParseEffects(character *core.Character, aura *core.Aura, s *Spell, opts ...
 	return parse(aura.Unit, character, aura, s, opts, false)
 }
 
-// Everything the row's aura effects say, applied to the character now: a talent or a passive, which
+// Everything the spell's aura effects say, applied to the character now: a talent or a passive, which
 // the game files state as an aura the unit is never without.
 func ParseStatic(character *core.Character, s *Spell, opts ...ParseOpt) *Parsed {
 	if character == nil {
@@ -276,7 +276,7 @@ func ParseStatic(character *core.Character, s *Spell, opts ...ParseOpt) *Parsed 
 	return parse(&character.Unit, character, nil, s, opts, false)
 }
 
-// What ParseEffects would attach and skip for the row, with nothing registered anywhere. The aura sits
+// What ParseEffects would attach and skip for the spell, with nothing registered anywhere. The aura sits
 // on a unit with no character, so the rows that act through a character are skipped. The amounts are
 // priced at core.CharacterLevel unless Level says otherwise.
 func DryRun(s *Spell, opts ...ParseOpt) *Parsed {

@@ -8,7 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The rows ItemSetSpell names for each set's thresholds, and the buffs and debuffs those rows grant.
+// The spells ItemSetSpell names for each set's thresholds, and the buffs and debuffs those spells grant.
 // None of them is a mage class spell, so the generated table carries no reference to them.
 var (
 	frostfireEvocation     = spelldata.MustFind(28763) // 2pc: Evocation cooldown 60 s shorter
@@ -33,7 +33,7 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 
 			// A_MOD_DAMAGE_TAKEN: every caster's spells take it. "Up to $s1" is spell damage against the
 			// target, which each spell takes at its own coefficient, so it is not parsed into the flat
-			// damage taken. The row's one charge is used by the next spell that hits the target.
+			// damage taken. The spell's one charge is used by the next spell that hits the target.
 			taken := frostfireVulnDebuff.EffectN(1)
 			var takenSchools []stats.SchoolIndex
 			for school := core.SpellSchoolHoly; school <= core.SpellSchoolArcane; school <<= 1 {
@@ -103,7 +103,7 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 				}
 			})
 
-			// The row uses its one charge on the cast, but the sim reckons threat when a hit
+			// The spell uses its one charge on the cast, but the sim reckons threat when a hit
 			// deals, which a spell in flight does after its cast completes: the buff goes on the
 			// next damage spell's hit.
 			consume := spelldata.ProcTrigger(character, frostfireNotThereBuff,
@@ -209,7 +209,7 @@ var ItemSetEnigmaVestments = core.NewItemSet(core.ItemSet{
 			answer := mage.RegisterAura(spelldata.AuraConfig(enigmaAnswer))
 			spelldata.ParseEffects(&mage.Character, answer, enigmaAnswer)
 
-			// The row fires on every harmful spell, which decodes to the cast; its tooltip names
+			// The spell fires on every harmful spell, which decodes to the cast; its tooltip names
 			// a resisted spell, an outcome the mask has no bit for and one only the hit knows. A
 			// resisted spell deals nothing, so the listener does not ask for damage.
 			trigger := spelldata.ProcTrigger(&mage.Character, enigmaResistProc,
@@ -290,7 +290,7 @@ var ItemSetNetherwindRegalia = core.NewItemSet(core.ItemSet{
 
 			// The rate is effect 1's chance. The proc effect states no class flags, so the three
 			// spells the tooltip names are matched by rank.
-			// TODO: the row states a 10 s cooldown beside no proc cooldown; whether it gates the
+			// TODO: the game files state a 10 s cooldown beside no proc cooldown; whether it gates the
 			// proc waits on a log.
 			trigger := spelldata.ProcTrigger(&mage.Character, netherwindFocusProc,
 				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {

@@ -251,10 +251,10 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	}
 	strike := newWindfuryTotemStrike(char)
 
-	// Off-hand hits in EV-0155. The row's mask names both hands; off-hand swings never roll the totem
+	// Off-hand hits in EV-0155. The spell's mask names both hands; off-hand swings never roll the totem
 	// (EV-0008). The sim holds Whirlwind's off-hand strike to the same rule (no log measures it).
 	// Ranged attacks and spells never roll it, and neither does the hit of a proc without Not a Proc,
-	// since the row lacks Can Proc From Procs. An auto attack, another proc's extra swing included,
+	// since the spell lacks Can Proc From Procs. An auto attack, another proc's extra swing included,
 	// always rolls it.
 	// The proc rolls off the hit's cast result, and the Windfury Totem hit follows once that hit has
 	// been dealt, in the same instant. It requires a main hand, but it lands inside the 100 ms cooldown
@@ -481,7 +481,7 @@ func raidHasClass(raid *proto.Raid, class proto.Class) bool {
 const annihilatorItemID = 12798
 
 // The weapon each state of the raid's Puncture Armor names, from 1, and the debuff its proc lands:
-// Bashguuder and Rivenspike land the row's 17315, Vibroblade its own 1293005.
+// Bashguuder and Rivenspike land 17315, Vibroblade its own 1293005.
 var punctureArmorWeapons = []struct {
 	itemID int32
 	meta   *Meta
@@ -500,7 +500,7 @@ func driveArmorShatter(target *core.Unit, _ *proto.Debuffs, raid *proto.Raid) {
 // Bashguuder and Rivenspike both land 17315, so with the player wielding either, the raid's copy of
 // either is the player's own, which the player's procs stack and refresh. Vibroblade's copy
 // stays the raid's: its 1293005 shares the label, so a player copy of it would take the 17315 procs
-// on a row they do not land.
+// on a spell they do not land.
 func drivePunctureArmor(target *core.Unit, debuffs *proto.Debuffs, raid *proto.Raid) {
 	weapon := punctureArmorWeapons[min(int(debuffs.PunctureArmor), len(punctureArmorWeapons))-1]
 	isPlayer := weapon.meta == punctureArmorMeta && playerWields(raid, 13204, 13286)
@@ -592,7 +592,7 @@ func holdMaxStacks(aura *core.Aura) {
 
 var thunderfuryCycloneSpell = spelldata.MustFind(27648)
 
-// The resistance aura is the row's; the triggered slow is an aura of its own in the attack-speed
+// The resistance aura is the spell's; the triggered slow is an aura of its own in the attack-speed
 // category, so the strongest slow on the target wins without touching the resistance.
 func driveThunderfury(target *core.Unit, _ *proto.Debuffs, _ *proto.Raid) {
 	core.MakePermanent(NewSpellDataThunderfuryAura(target, false, 0))

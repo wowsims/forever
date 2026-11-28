@@ -83,7 +83,7 @@ func init() {
 
 	// Idol of Shifting Tides
 	//
-	// Reduces the mana cost of your shapeshifts by 40. The cut comes off the row's cost before
+	// Reduces the mana cost of your shapeshifts by 40. The cut comes off the spell's cost before
 	// the percent cost mods.
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1270470},
 		[]shared.ItemVariant{

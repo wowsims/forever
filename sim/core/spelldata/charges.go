@@ -5,9 +5,9 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
-// Attaches to a charged buff the listener that uses its charges, as the buff's row states it, and
+// Attaches to a charged buff the listener that uses its charges, as the buff spell states it, and
 // returns that listener. A cast uses one charge however many targets it hits. The spells that
-// use one are the ones the row's proc effect names; a row whose proc effect names none states them
+// use one are the ones the buff's proc effect names; a buff whose proc effect names none states them
 // on its spell modifiers instead, and the charge goes to the spells the buff modifies. An option that
 // sets the trigger to CallbackOnCastComplete uses the charge as the cast completes, once its hits
 // have rolled, so no spell landing after it takes the charge.
@@ -15,11 +15,11 @@ import (
 // channel. A charge gained while a channel the class flags name is running is still kept for that
 // channel's end.
 //
-// A channel is one cast for a buff whose row names its spells by class flags: the charge stays up for
+// A channel is one cast for a buff that names its spells by class flags: the charge stays up for
 // every tick and every target, and is used when the channel ends. A channel the buff's class flags
 // name uses it once the channel has started, even when its cast lands nothing itself. A listener on
 // the cast counts a channeled cast as the channel only while the channel runs, so one that starts none
-// uses the charge like any other cast. A tick that is a proc the row cannot proc from is not heard,
+// uses the charge like any other cast. A tick that is a proc the buff cannot proc from is not heard,
 // so a channel of such ticks the class flags do not name leaves the charge up. Wand Shoot is no such
 // channel: each shot uses a charge like any hit, and so do other hits while wanding. Charge use
 // in EV-0162.

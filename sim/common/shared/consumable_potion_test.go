@@ -647,7 +647,7 @@ func TestCausticSmogPotionPoisonsEveryEnemyInTheCloud(t *testing.T) {
 	}
 }
 
-// Dragonfire Potion's 1252554 reaches as far as the cone's radius. The row states Fixed Travel Time,
+// Dragonfire Potion's 1252554 reaches as far as the cone's radius. The game files state Fixed Travel Time,
 // so the fire lands its Speed in seconds after use from any distance.
 func TestDragonfirePotionBurnsEveryEnemyInItsCone(t *testing.T) {
 	row := spelldata.MustFind(1252554)

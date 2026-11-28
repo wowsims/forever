@@ -873,7 +873,7 @@ func TestDeepWoundsTicksIgnoreTheWarriorsDamageBonuses(t *testing.T) {
 	}
 }
 
-// Death Wish takes the global cooldown its row states and does not hold the rotation beyond it, so
+// Death Wish takes the global cooldown its spell states and does not hold the rotation beyond it, so
 // an off-GCD ability can follow it at once.
 func TestDeathWishLeavesTheRotationFree(t *testing.T) {
 	sim, warrior := orcWarriorSim(t, "p1_fury", furyTalents)
@@ -1412,7 +1412,7 @@ func TestRageThreatFollowsItsSource(t *testing.T) {
 	}
 }
 
-// Reckless Swings and Bloodrage each cost their row's share of base health, booked under their own
+// Reckless Swings and Bloodrage each cost their share of base health, booked under their own
 // action and not as damage taken.
 func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
 	sim, war := orcWarriorSim(t, "p1_fury", recklessSwingsTalents)
@@ -1611,7 +1611,7 @@ func TestSwordSpecializationSwingIsLostWhenItsTargetDies(t *testing.T) {
 	}
 }
 
-// Victory Rush heals on its own row, and its heal makes ThreatPerHealingDone threat for each point of
+// Victory Rush heals on its own spell, and its heal makes ThreatPerHealingDone threat for each point of
 // health it restores, overheal left out, times the warrior's threat multiplier.
 func TestVictoryRushHealMakesThreat(t *testing.T) {
 	sim, war, target := shieldTestSim(t)

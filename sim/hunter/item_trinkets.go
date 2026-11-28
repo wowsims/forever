@@ -24,7 +24,7 @@ func init() {
 	// Infuses you with Arcane energy, causing your next Arcane Shot fired within 10s to detonate at
 	// the target. The Arcane Detonation will deal 200 damage to enemies near the target.
 	//
-	// The buff's row fires the detonation on any ranged or spell hit and names no spell; the
+	// The buff spell fires the detonation on any ranged or spell hit and names no spell; the
 	// tooltip's Arcane Shot is the condition.
 	core.NewItemEffect(19336, func(agent core.Agent) {
 		character := agent.GetCharacter()

@@ -19,7 +19,7 @@ var battleStancePassive = spellData.BattleStancePassive.Highest()
 var defensiveStancePassive = spellData.DefensiveStancePassive.Highest()
 var berserkerStancePassive = spellData.BerserkerStancePassive.Highest()
 
-// The three stance rows share category 47, so their 1 s category cooldown runs off one timer.
+// The three stance spells share category 47, so their 1 s category cooldown runs off one timer.
 func (warrior *Warrior) makeStanceSpell(rank *spelldata.Spell, aura *core.Aura) *core.Spell {
 	form := rank.ShapeshiftForm()
 	rageMetrics := warrior.NewRageMetrics(aura.ActionID)
@@ -76,7 +76,7 @@ func (warrior *Warrior) registerDefensiveStanceAura() *core.Aura {
 	spelldata.ParseEffects(&warrior.Character, aura, defensiveStancePassive)
 
 	if warrior.Talents.Defiance > 0 {
-		// The stance the talent's threat applies in is the aura it hangs on. The row states the shield,
+		// The stance the talent's threat applies in is the aura it hangs on. The spell states the shield,
 		// but the parse never scopes to a shield, so it is the caller's condition.
 		defiance := spelldata.ParseEffects(&warrior.Character, aura,
 			spellData.Defiance.Rank(warrior.Talents.Defiance),
@@ -97,7 +97,7 @@ func (warrior *Warrior) registerBerserkerStanceAura() *core.Aura {
 	config.BuildPhase = core.Ternary(warrior.DefaultStance == proto.WarriorStance_WarriorStanceBerserker, core.CharacterBuildPhaseBuffs, core.CharacterBuildPhaseNone)
 
 	aura := warrior.RegisterAura(config)
-	// The row's fourth effect is an attack power percentage of 0, which has no sim kind and nothing
+	// The spell's fourth effect is an attack power percentage of 0, which has no sim kind and nothing
 	// to apply either way.
 	spelldata.ParseEffects(&warrior.Character, aura, berserkerStancePassive)
 

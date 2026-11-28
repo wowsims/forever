@@ -85,7 +85,7 @@ func TestBuffAuraRows(t *testing.T) {
 	}
 }
 
-// The rage a warrior's own row ticks is not mana, and a buff row that ticks nothing has no rate.
+// The rage a warrior's own spell ticks is not mana, and a buff spell that ticks nothing has no rate.
 func TestBuffManaTicksAreManaOnly(t *testing.T) {
 	rage := buffRow(7010, Effect{Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_ENERGIZE,
 		Misc: int32(dbcenums.POWER_RAGE), BasePoints: 10, PeriodMs: 1000})

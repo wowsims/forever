@@ -6,8 +6,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Converts the row's amount + Spirit of health into as much mana, 1:1, with Improved Life Tap and Demonheart
-// Raiment's 5pc each raising the mana alone. Improved Life Tap's row is a dummy only this formula reads,
+// Converts the spell's amount + Spirit of health into as much mana, 1:1, with Improved Life Tap and Demonheart
+// Raiment's 5pc each raising the mana alone. Improved Life Tap's effect is a dummy only this formula reads,
 // so the talent is read here.
 func (warlock *Warlock) registerLifeTap() {
 	rankedSpell := spellData.LifeTap.ByID(11689)

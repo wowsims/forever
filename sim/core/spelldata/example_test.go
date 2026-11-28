@@ -72,7 +72,7 @@ func ExampleSpellConfig() {
 	// 0.407
 }
 
-// The aura's duration and stack count are the row's. Lightning Shield states charges rather than
+// The aura's duration and stack count are the spell's. Lightning Shield states charges rather than
 // cumulative stacks, and the sim keeps both in one field.
 func ExampleAuraConfig() {
 	aura := AuraConfig(MustFind(324))

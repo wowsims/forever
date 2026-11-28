@@ -14,7 +14,7 @@ import (
 type SpellOpt func(*core.SpellConfig, *Spell)
 
 // SpellCategories.StartRecoveryCategory of the global cooldown. It is the only category the store
-// carries, so a row outside it uses no GCD.
+// carries, so a spell outside it uses no GCD.
 const globalCooldownCategory int16 = 133
 
 // ImplicitTarget_0 values that name a friendly unit.
@@ -80,7 +80,7 @@ func (e *Effect) HitsAroundTheCaster() bool {
 // What the game files state about a spell, as the fields core registers it through.
 //
 // The unit is needed for the cooldown timers. MaxTargets has no SpellConfig field; a caller that
-// needs the row's cap reads s.MaxTargets itself.
+// needs the spell's cap reads s.MaxTargets itself.
 func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	config := core.SpellConfig{
 		ActionID:    core.ActionID{SpellID: s.ID},
@@ -99,17 +99,17 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 		CastRequirement: s.CastRequirement(),
 	}
 	applyCost(&config, s)
-	// A row with Fixed Travel Time flies for its Speed in seconds at any distance.
+	// A spell with Fixed Travel Time flies for its Speed in seconds at any distance.
 	if s.FixedTravelTime() {
 		config.MissileSpeed = 0
 		config.MissileMinDuration = max(config.MissileMinDuration, core.DurationFromSeconds(float64(s.Speed)))
 	}
-	// A bow, gun or crossbow shot's minimum range is the row's 8 yd counted from both units' combat
+	// A bow, gun or crossbow shot's minimum range is the spell's 8 yd counted from both units' combat
 	// reach, which is core.MinRangedRange in the sim's distance.
 	if s.MinRange != 0 && s.EquipClass == dbcenums.ITEM_CLASS_WEAPON && s.EquipSubclass&(dbcenums.ITEM_SUBCLASS_BIT_WEAPON_BOW|dbcenums.ITEM_SUBCLASS_BIT_WEAPON_GUNS|dbcenums.ITEM_SUBCLASS_BIT_WEAPON_CROSSBOW) != 0 {
 		config.MinRange = core.MinRangedRange
 	}
-	// The row's range is to the caster's target; damage around the point the triggering spell chose
+	// The spell's range is to the caster's target; damage around the point the triggering spell chose
 	// reaches anywhere.
 	damage := s.DamageEffect()
 	if damage.HitsAnArea() && damage.Target[0] == dbcenums.TARGET_DEST_DEST {
@@ -128,20 +128,20 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	if s.AppliesBleed() {
 		config.Flags |= core.SpellFlagBleed
 	}
-	// A physical row that deals school damage takes the flat physical damage bonus at its coefficient.
+	// A physical spell that deals school damage takes the flat physical damage bonus at its coefficient.
 	if damage.Type == dbcenums.E_SCHOOL_DAMAGE && s.SpellSchool() == core.SpellSchoolPhysical {
 		config.BonusCoefficient = damage.Coeff()
 		config.Flags |= core.SpellFlagPhysicalSchoolDamage
 	}
 
-	// The row first, the caller's options on top, so an option sees what the row filled; the reach is
+	// The spell first, the caller's options on top, so an option sees what the spell filled; the reach is
 	// settled after the options.
 	for _, opt := range opts {
 		opt(&config, s)
 	}
 	// An area centred on the caster, or a cone from it, reaches only the enemies inside it: a cast
 	// reaches the radius, and a proc or tick has no range. Damage centred on the caster does so even
-	// where the row states a range; a cone, or an area on another effect, does so only where the row
+	// where the spell states a range; a cone, or an area on another effect, does so only where it
 	// states none.
 	if radius, ok := casterAreaRadius(s); ok && (config.MaxRange == 0 || damage.HitsAroundTheCaster()) {
 		config.MaxRange = core.TernaryFloat64(config.Flags.Matches(core.SpellFlagPassiveSpell), 0, float64(radius))
@@ -149,8 +149,8 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	return config
 }
 
-// The largest radius of the row's areas centred on the caster or cones from it, and whether it has
-// one. A row with none takes the row its A_PERIODIC_TRIGGER_SPELL aura on the caster fires: Hellfire's
+// The largest radius of the spell's areas centred on the caster or cones from it, and whether it has
+// one. A spell with none takes the spell its A_PERIODIC_TRIGGER_SPELL aura on the caster fires: Hellfire's
 // channel fires Hellfire Effect, 10 yd around the warlock, every second.
 func casterAreaRadius(s *Spell) (float32, bool) {
 	if r, ok := ownCasterAreaRadius(s); ok {
@@ -188,7 +188,7 @@ func Melee(mask core.ProcMask) SpellOpt {
 	}
 }
 
-// The same for a spell that scales with spell power, whose share of it and whose roll the row states
+// The same for a spell that scales with spell power, whose share of it and whose roll the spell states
 // on the effect that deals the damage, or heals where the spell has no damaging effect.
 func Magic(mask core.ProcMask) SpellOpt {
 	return func(config *core.SpellConfig, s *Spell) {
@@ -228,7 +228,7 @@ func Proc() SpellOpt {
 }
 
 // A spell the game triggers off a hit or an aura (a channel's tick) is a proc, which only a listener
-// that can proc from procs hears, unless its row carries Not A Proc.
+// that can proc from procs hears, unless it carries Not A Proc.
 func Triggered() SpellOpt {
 	return func(config *core.SpellConfig, s *Spell) {
 		if s.IsAProc() {
@@ -390,7 +390,7 @@ func rowFlags(s *Spell) core.SpellFlag {
 	return flags
 }
 
-// The cast time and global cooldown the row states and whether haste shortens them, without the
+// The cast time and global cooldown the spell states and whether haste shortens them, without the
 // cooldowns.
 func Cast(s *Spell) core.CastConfig {
 	// Haste shortens a cast and the GCD it uses, which is the school's business rather than the hit
@@ -433,9 +433,9 @@ func categoryTimer(unit *core.Unit, s *Spell) *core.Timer {
 	return unit.CategoryTimer(int32(s.Category))
 }
 
-// The cost out of the first bar the row states, and NonEmpty where the cast would otherwise read as
+// The cost out of the first bar the spell states, and NonEmpty where the cast would otherwise read as
 // an empty one. It is not what keeps core's "Empty DefaultCast with a cost" panic away: core fills
-// DefaultCast.Cost from the resolved cost before it tests for an empty cast. A row that uses
+// DefaultCast.Cost from the resolved cost before it tests for an empty cast. A spell that uses
 // nothing is left empty on purpose, so a passive or a proc spell keeps the cast path core gives those.
 //
 // Only the first bar: the sim has one cost per spell, so the caller uses the rest itself. A bar

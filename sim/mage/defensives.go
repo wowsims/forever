@@ -22,7 +22,7 @@ func (mage *Mage) registerDefensiveSpells() {
 }
 
 // "Absorbs ${$s1+($SPFR*0.1)*($11189s3/100+1)} Frost damage". The spell power share is the
-// tooltip's, since the row states no coefficient, and Frost Warding's effect 3 raises the whole absorb.
+// tooltip's, since the game files state no coefficient, and Frost Warding's effect 3 raises the whole absorb.
 func (mage *Mage) registerFrostWardSpell(rank *spelldata.Spell) {
 	warding := 1 + spellData.FrostWarding.EffectAt(3).FractionAt(mage.Talents.FrostWarding)
 	base := rank.EffectN(1).Average()
@@ -32,7 +32,7 @@ func (mage *Mage) registerFrostWardSpell(rank *spelldata.Spell) {
 	}, nil)
 }
 
-// An absorb shield on the row's effect 1, which takes only the school its misc names. The wards'
+// An absorb shield on the spell's effect 1, which takes only the school its misc names. The wards'
 // effect 2 is the reflect or negate Improved Fire Ward and Frost Warding give a chance to, which needs
 // an enemy casting at the mage, so it is not modelled.
 func (mage *Mage) registerWardSpell(rank *spelldata.Spell, absorbAt func() float64, onAbsorbed core.OnDamageAbsorbedCallback) *core.DamageAbsorptionAura {

@@ -24,7 +24,7 @@ func (warlock *Warlock) registerCurseOfWeakness() {
 		// Amplify Curse's first effect is SPELLMOD_ALL_EFFECTS +50% naming this curse.
 		ampWeakness := spellData.AmplifyCurse.ByID(18288).EffectN(1)
 
-		// The same row, built the way the shared debuff is, with Amplify Curse's +50% parsed onto it.
+		// The same spell, built the way the shared debuff is, with Amplify Curse's +50% parsed onto it.
 		warlock.CurseOfWeaknessAmpAuras = warlock.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 			aura := target.GetOrRegisterAura(core.Aura{
 				Label:    rankedSpell.RankedLabel(&warlock.Unit) + " (Amplified)",

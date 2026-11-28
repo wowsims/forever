@@ -11,7 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// Seal of Light heals on a landed melee hit at the row's procs per minute on the main hand's speed.
+// Seal of Light heals on a landed melee hit at the spell's procs per minute on the main hand's speed.
 func TestSealOfLightHealsAtTheRowsRate(t *testing.T) {
 	player := &proto.Player{
 		Name:          "Seal of Light",

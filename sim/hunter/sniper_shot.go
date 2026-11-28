@@ -12,12 +12,12 @@ func (hunter *Hunter) registerSniperShot() {
 		return
 	}
 
-	// The buff is the row's own aura: the range its second effect adds to the Shots its class flags
+	// The buff is the spell's own aura: the range its second effect adds to the Shots its class flags
 	// name, Auto Shot among them. Sniper Shot is not one of them.
 	buff := hunter.RegisterAura(spelldata.AuraConfig(sniperShotRank))
 	spelldata.ParseEffects(&hunter.Character, buff, sniperShotRank)
 
-	// One charge per Shot the range mod names. The row's proc flags hear every ranged hit, Sniper
+	// One charge per Shot the range mod names. The spell's proc flags hear every ranged hit, Sniper
 	// Shot's own among them, so the listener takes the mod's class flags. Charge use in EV-0198.
 	spelldata.AttachChargeSpender(&hunter.Character, buff, sniperShotRank, "Sniper Shot - Spend",
 		func(_ *core.Character, trigger *core.ProcTrigger) {

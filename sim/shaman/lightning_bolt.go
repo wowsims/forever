@@ -11,7 +11,7 @@ func (shaman *Shaman) registerLightningBoltSpell() {
 	shaman.registerWithOverloads(lightningBoltRanks, lightningBoltOverloadRanks, shaman.newLightningBoltSpellConfig)
 }
 
-// The cast, with the overload it may trigger; the overload itself, from its own row, where overload is nil.
+// The cast, with the overload it may trigger; the overload itself, from its own spell, where overload is nil.
 func (shaman *Shaman) newLightningBoltSpellConfig(row *spelldata.Spell, overload *core.Spell) core.SpellConfig {
 	config, damage := shaman.newElectricSpellConfig(row, overload == nil)
 	config.ClassSpellMask = SpellMaskLightningBolt

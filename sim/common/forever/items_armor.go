@@ -68,7 +68,7 @@ func init() {
 	//
 	// Spells and attacks against Swine deal 2 Nature damage.
 	//
-	// The rows deal the Nature damage to any target; the tooltip limits it to Swine. The tooltip reads
+	// The spells deal the Nature damage to any target; the tooltip limits it to Swine. The tooltip reads
 	// its amount from Cursed Murloc Eye's 1292675; the damage dealt is 1293782's own.
 	core.NewItemEffect(10760, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -97,7 +97,7 @@ func init() {
 	//
 	// Smite your target for 112 Holy damage. Damage is tripled against Undead.
 	//
-	// The row states no power coefficient, so tripling the amount triples the hit. Its defense type is
+	// The game files state no power coefficient, so tripling the amount triples the hit. Its defense type is
 	// ranged, so it rolls on the ranged hit table.
 	core.NewItemEffect(867, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -105,7 +105,7 @@ func init() {
 		damage := row.DamageEffect()
 
 		config := procSpellConfig(character, row)
-		// The tooltip's tripling, which no row states, is an override on 1325229.
+		// The tooltip's tripling, which the game files do not state, is an override on 1325229.
 		config.VersusBonus = shared.ItemVersusBonus(character, 867, proto.VersusEffectKind_VersusEffectKindDamage, row)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeRangedHitAndCrit)
@@ -353,7 +353,7 @@ func init() {
 // Forever.
 // const depletedEyeOfInfluenceChance = 0 // TODO: waiting for PPM data
 
-// The spell an item proc casts, as its row states it.
+// The spell an item proc casts, as the spell states it.
 func procSpellConfig(character *core.Character, row *spelldata.Spell) core.SpellConfig {
 	return procSpellConfigAs(character, row, spelldata.Magic(core.ProcMaskEmpty))
 }

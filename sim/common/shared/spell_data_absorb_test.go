@@ -30,7 +30,7 @@ func withoutSpread(t *testing.T, spellID int32) {
 	editRow(t, spellID, func(s *spelldata.Spell) { s.Effects[0].Variance = 0 })
 }
 
-// The amount the row's absorb effect shields for, once its spread is gone.
+// The amount the spell's absorb effect shields for, once its spread is gone.
 func physicalAbsorb(t *testing.T, spellID int32) float64 {
 	t.Helper()
 	withoutSpread(t, spellID)
@@ -60,7 +60,7 @@ func absorbAura(t *testing.T, caster *testCaster, row int32, sourceID int32) *co
 	return aura
 }
 
-// The shield takes the row's amount off the physical damage the wearer takes. A fire hit is not absorbed.
+// The shield takes the spell's amount off the physical damage the wearer takes. A fire hit is not absorbed.
 func TestOnUseAbsorbTakesPhysicalDamageOffItsShield(t *testing.T) {
 	const itemID int32 = 991201
 	amount := physicalAbsorb(t, resolutionSpell)
@@ -92,7 +92,7 @@ func TestOnUseAbsorbTakesPhysicalDamageOffItsShield(t *testing.T) {
 	}
 }
 
-// Unused, the shield drops at the end of the row's duration and absorbs nothing after.
+// Unused, the shield drops at the end of the spell's duration and absorbs nothing after.
 func TestOnUseAbsorbExpiresWithItsRow(t *testing.T) {
 	const itemID int32 = 991202
 	physicalAbsorb(t, resolutionSpell)
@@ -144,7 +144,7 @@ func TestOnUseAbsorbRunsOnTheItemsCooldownAndCategory(t *testing.T) {
 	}
 }
 
-// With the row's spread the shield rolls within its effect's ends.
+// With the spell's spread the shield rolls within its effect's ends.
 func TestOnUseAbsorbRollsTheRowsSpread(t *testing.T) {
 	const itemID int32 = 991205
 	effect := spelldata.MustFind(resolutionSpell).AbsorbEffect()
@@ -291,7 +291,7 @@ func TestItemProcRollsTheColumnOverAnEffectsChance(t *testing.T) {
 	}
 }
 
-// An on-use shield whose row also restores mana every period does so while the shield holds, and stops
+// An on-use shield whose spell also restores mana every period does so while the shield holds, and stops
 // once the shield is used up: Mark of the Dragon Lord's 17252 on a test trinket.
 func TestOnUseShieldRestoresManaWhileItHolds(t *testing.T) {
 	const itemID int32 = 992901

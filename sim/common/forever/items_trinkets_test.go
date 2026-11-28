@@ -228,7 +228,7 @@ func meleeSwing(unit *core.Unit) *core.Spell {
 	return &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, SpellSchool: core.SpellSchoolPhysical, Unit: unit}
 }
 
-// The damage shield spell a row registers on the character, and the amount the row deals per hit.
+// The damage shield spell a spell registers on the character, and the amount the spell deals per hit.
 func damageShield(t *testing.T, character *core.Character, rowID int32) (*core.Spell, float64) {
 	t.Helper()
 	var amount float64
@@ -287,7 +287,7 @@ func dealHit(t *testing.T, sim *core.Simulation, character *core.Character, spel
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 }
 
-// The buff the item's use put up, checked to carry all of at least 2 stacks or charges for the row's
+// The buff the item's use put up, checked to carry all of at least 2 stacks or charges for the spell's
 // duration.
 func countdownBuff(t *testing.T, character *core.Character, spellID int32) (*core.Aura, int32) {
 	t.Helper()
@@ -330,7 +330,7 @@ func fullAmounts(character *core.Character, before stats.Stats, of ...stats.Stat
 
 // Chained Essence of Eranikus 10455 puts 1300240 on every enemy at its use. Each enemy takes the
 // periodic's amount whatever the wearer's spell power, one tick fewer than 12766's duration holds
-// periods, and a Troll takes the row's factor on every tick.
+// periods, and a Troll takes the spell's factor on every tick.
 func TestChainedEssenceOfEranikusTicksOnEveryEnemy(t *testing.T) {
 	sim, character := itemWearerAgainst(t, proto.Class_ClassPriest, equipping(proto.ItemSlot_ItemSlotTrinket1, &proto.ItemSpec{Id: 10455}),
 		&proto.Target{Name: "target", Level: 60},
@@ -528,7 +528,7 @@ func TestZandalarianHeroCharmLosesPowerPerSpellCast(t *testing.T) {
 	expectCountdown(t, "after a melee cast", character, before, full, stacks, 1)
 }
 
-// Petrified Scarab 21685 adds to every resistance on 26463's stacks for the row's duration, one
+// Petrified Scarab 21685 adds to every resistance on 26463's stacks for the spell's duration, one
 // stack's share less for each hostile spell that lands; a melee hit taken does not count.
 func TestPetrifiedScarabLosesResistancePerSpellTaken(t *testing.T) {
 	sim, character := trinketWarrior(t, 21685)
@@ -552,7 +552,7 @@ func TestPetrifiedScarabLosesResistancePerSpellTaken(t *testing.T) {
 }
 
 // Everlook Delivery Bot 274760 marks the target with 1295271; once as many spells or attacks as the
-// mark's first two effects bound have landed on it, 1295633 deals its row's Fire to it. In a Snowy
+// mark's first two effects bound have landed on it, 1295633 deals its Fire to it. In a Snowy
 // area both bounds are halved.
 func TestEverlookDeliveryBotDeliversAfterItsCount(t *testing.T) {
 	t.Run("anywhere", func(t *testing.T) { checkEverlookDelivery(t, 1) })
@@ -646,7 +646,7 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 	}
 }
 
-// Highborne Research Tablet 260205's 1318159 rolls its row's procs per minute on the main hand's
+// Highborne Research Tablet 260205's 1318159 rolls its spell's procs per minute on the main hand's
 // speed for a landed main-hand hit that deals damage. A ranged special with no ranged weapon behind
 // it rolls on the main hand's speed too, Thunder Clap excepted, which never rolls it.
 func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
@@ -693,7 +693,7 @@ func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
 	}
 }
 
-// Highborne Research Tablet 260205 prices an instant spell hit at its row's procs per minute on 1.5 s,
+// Highborne Research Tablet 260205 prices an instant spell hit at its spell's procs per minute on 1.5 s,
 // whatever the weapon in the main hand, for a caster who never swings and for a warrior who does.
 func TestHighborneResearchTabletPricesSpellsOnCastTime(t *testing.T) {
 	const slow, fast = 810, 776
@@ -835,7 +835,7 @@ func tabletMissileCaster(seed int64) (*core.Simulation, *core.Character) {
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// Scented Runewood Brooch 269741's 1318323 rolls its row's procs per minute on the main hand's speed
+// Scented Runewood Brooch 269741's 1318323 rolls its spell's procs per minute on the main hand's speed
 // for a landed main-hand swing and a landed spell hit alike, and casts 1318324 on the target, but only
 // when the target is a Furbolg.
 func TestScentedRunewoodBroochProcsOnlyAgainstFurbolg(t *testing.T) {
@@ -886,7 +886,7 @@ func TestScentedRunewoodBroochProcsOnlyAgainstFurbolg(t *testing.T) {
 	}
 }
 
-// Scented Runewood Brooch 269741 rolls its row's procs per minute on a caster's spell hits at the
+// Scented Runewood Brooch 269741 rolls its spell's procs per minute on a caster's spell hits at the
 // main-hand weapon's speed though the caster never swings it.
 func TestScentedRunewoodBroochProcsOnACastersSpellsOnTheMainHandsSpeed(t *testing.T) {
 	const slow, fast = 810, 776
@@ -1015,7 +1015,7 @@ func editSpellRow(t *testing.T, id int32, edit func(*spelldata.Spell)) *spelldat
 }
 
 // A warrior wearing the extra attack item, who swings only when the test deals a hit. The returned
-// func counts the procs of the extra attack the row's first effect grants.
+// func counts the procs of the extra attack the spell's first effect grants.
 func extraAttackWearer(t *testing.T, itemID int32, rowID int32) (*core.Simulation, *core.Character, func() int32) {
 	t.Helper()
 	var sim *core.Simulation
@@ -1036,7 +1036,7 @@ func extraAttackWearer(t *testing.T, itemID int32, rowID int32) (*core.Simulatio
 	return sim, character, func() int32 { return extraAttack.SpellMetrics[enemy.UnitIndex].Casts / perProc }
 }
 
-// Checks registerExtraAttackVersus's rule for an item: on a target of the family it rolls the row's
+// Checks registerExtraAttackVersus's rule for an item: on a target of the family it rolls the spell's
 // column, on any other target the column divided by the factor, and states that chance against its
 // current target.
 func expectExtraAttackVersus(t *testing.T, itemID int32, name string, rowID int32, family proto.CreatureFamily) {
@@ -1113,7 +1113,7 @@ func TestHandOfJusticeRestsForItsRowsCooldown(t *testing.T) {
 	}
 }
 
-// Mark of the Chosen 17774 puts up 21970 for its row's duration on a melee, ranged or harmful spell
+// Mark of the Chosen 17774 puts up 21970 for its spell's duration on a melee, ranged or harmful spell
 // hit taken, and a heal taken never does. After a proc of any kind every hit rests for 21969's
 // cooldown.
 func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
@@ -1221,7 +1221,7 @@ func TestLionHornOfStormwindDoublesItsChanceInStrongholdsAndCities(t *testing.T)
 	}
 }
 
-// Draconic Infused Emblem 22268's 1318931 rolls its row's chance on every landed harmful spell hit,
+// Draconic Infused Emblem 22268's 1318931 rolls its spell's chance on every landed harmful spell hit,
 // one that deals no damage and a magic spell with no proc mask, as a curse is, too, and on nothing
 // else.
 func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {

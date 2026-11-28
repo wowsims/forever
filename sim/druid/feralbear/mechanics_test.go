@@ -353,7 +353,7 @@ func TestSwipeDoesNotScaleWithAttackPower(t *testing.T) {
 		t.Fatal("swipe never hit")
 	}
 	perHit := hits.TotalDamage / float64(hits.Hits)
-	// The row's damage is 83. Attack power on a bear is far larger than the gap this allows.
+	// The spell's damage is 83. Attack power on a bear is far larger than the gap this allows.
 	if perHit < 40 || perHit > 160 {
 		t.Errorf("swipe hit for %.1f, want the row's damage without attack power", perHit)
 	}
@@ -377,7 +377,7 @@ func TestBearSwingRageTakesTheTwoHandFactor(t *testing.T) {
 	}
 }
 
-// Bear Form (Passive2) 21178 raises threat by its row's amount while a bear form is up, and only then.
+// Bear Form (Passive2) 21178 raises threat by its amount while a bear form is up, and only then.
 func TestBearFormsRaiseThreatByTheirPassive(t *testing.T) {
 	want := 1 + spelldata.MustFind(21178).EffectN(1).Percent()
 	sim, bear := newBear(t)

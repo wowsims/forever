@@ -230,7 +230,7 @@ func registerBlessingOfShahram(character *core.Character) *core.Spell {
 }
 
 // Two Fists run side by side (EV-0125), and their speed counts once, an owner ruling. Every copy lasts
-// the row's duration, so the newest fades last and one aura refreshed by each Fist holds the same
+// the spell's duration, so the newest fades last and one aura refreshed by each Fist holds the same
 // speed for the same time.
 func registerFistOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16601)

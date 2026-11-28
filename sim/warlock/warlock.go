@@ -258,7 +258,7 @@ const (
 // Scales a result already calculated and keeps its threat in step with the damage, which the calculation
 // set from the damage before the scaling.
 //
-// Landed warlock dots tested hit once, when applied, so a tick rolls only the crit the row's Periodic
+// Landed warlock dots tested hit once, when applied, so a tick rolls only the crit the spell's Periodic
 // Can Crit allows (EV-0084). Area effects that tick, Hellfire
 // and Rain of Fire, roll hit on every tick.
 func scaleResult(sim *core.Simulation, spell *core.Spell, result *core.SpellResult, multiplier float64) {

@@ -16,14 +16,14 @@ func (paladin *Paladin) registerHolyShock() {
 	HolyShockRankMap.Each(paladin.registerHolyShockRank)
 }
 
-// One of the rank's two spells off the cast row, with the effect row's id, defense type, class
+// One of the rank's two spells off the cast spell, with the effect spell's id, defense type, class
 // flags, spell power coefficient and roll.
 func (paladin *Paladin) holyShockConfig(rank *spelldata.Spell, id int32, row *spelldata.Spell, effect *spelldata.Effect, mask core.ProcMask) core.SpellConfig {
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(mask))
 	config.ActionID = core.ActionID{SpellID: id}
 	config.DefenseType = row.DefenseTypeCore()
 	config.ClassFlags = row.ClassFlags
-	// Magic reads the coefficient and the roll off the cast row, which states neither.
+	// Magic reads the coefficient and the roll off the cast spell, which states neither.
 	config.BonusCoefficient = effect.Coeff()
 	config.DirectVariance = effect.DirectVariance()
 	return config

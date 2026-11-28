@@ -15,7 +15,7 @@ func (warlock *Warlock) registerSiphonLifeSpell() {
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = WarlockSpellSiphonLife
 
-	// Tick the row's average, rolling only the crit the row allows, and heal for the damage dealt
+	// Tick the spell's average, rolling only the crit the spell allows, and heal for the damage dealt
 	config.Dot = spelldata.DotConfig(rankedSpell, siphonLifeTick)
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, siphonLifeTick.Average(), rankedSpell.TickOutcome(dot))
@@ -33,7 +33,7 @@ func (warlock *Warlock) registerSiphonLifeSpell() {
 		spell.DealOutcome(sim, result)
 	}
 
-	// Calculate expected damage from the row's average tick
+	// Calculate expected damage from the spell's average tick
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
 		return spell.CalcPeriodicDamage(sim, target, siphonLifeTick.Average(), rankedSpell.ExpectedMagicTickOutcome(spell))
 	}

@@ -25,7 +25,7 @@ func (rogue *Rogue) registerBackstabRank(rank *spelldata.Spell) {
 		return !rogue.PseudoStats.InFrontOfTarget && rogue.HasDagger(core.MainHand)
 	}
 
-	// The row lacks No Active Defense, so the target can dodge it; from behind it is never parried or blocked.
+	// The spell lacks No Active Defense, so the target can dodge it; from behind it is never parried or blocked.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
 		baseDamage := backstabBaseDamage +

@@ -51,8 +51,8 @@ func (rogue *Rogue) registerCoupDeGrace() {
 
 var remorselessRank = spellData.RemorselessAttacksTriggered.Highest()
 
-// The talent row hears the killing blow, and a credited kill grants Remorseless. The buff row states a flat
-// 40% crit where the talent's effect 1 is 20/40% by rank, so the row is scaled by the ranks taken.
+// The talent hears the killing blow, and a credited kill grants Remorseless. The buff spell states a flat
+// 40% crit where the talent's effect 1 is 20/40% by rank, so the amount is scaled by the ranks taken.
 func (rogue *Rogue) registerRemorselessAttacks() {
 	if rogue.Talents.RemorselessAttacks == 0 {
 		return

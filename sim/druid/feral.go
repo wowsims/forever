@@ -18,7 +18,7 @@ func (druid *Druid) rendAndTearMultiplier(target *core.Unit) float64 {
 	return 1 + spellData.RendAndTear.Rank(druid.Talents.RendAndTear).EffectN(1).Percent()
 }
 
-// The row's weapon strike on the main-hand swing.
+// The spell's weapon strike on the main-hand swing.
 func (druid *Druid) weaponSpecialDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, rank *spelldata.Spell) float64 {
 	weapon := spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
 	return rank.WeaponStrike(sim, spell, weapon, 0) * druid.rendAndTearMultiplier(target)
@@ -32,7 +32,7 @@ func (druid *Druid) awardComboPoints(sim *core.Simulation, target *core.Unit, sp
 	druid.AddComboPoints(sim, target, int32(e.BaseValue()), spell.ComboPointMetrics())
 }
 
-// Uses every combo point. The row's combo-point cost is the minimum the cast requires; the
+// Uses every combo point. The spell's combo-point cost is the minimum the cast requires; the
 // per-resource damage is priced on the points actually used.
 func (druid *Druid) spendComboPoints(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 	if druid.ComboPoints(target) > 0 {
@@ -50,7 +50,7 @@ func (druid *Druid) requiresComboPoints(rank *spelldata.Spell) core.CanCastCondi
 	}
 }
 
-// Issues the row's miss refund, which SpellConfig set on the cost, when the hit did not land.
+// Issues the spell's miss refund, which SpellConfig set on the cost, when the hit did not land.
 func (druid *Druid) refundOnMiss(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 	if !result.Landed() {
 		spell.IssueRefund(sim)
@@ -107,7 +107,7 @@ func (druid *Druid) registerProwlBreakingCasts() {
 	})
 }
 
-// The row of the spell an item casts when used: a consumable's first on-use, or a worn item's, such
+// The spell an item casts when used: a consumable's first on-use, or a worn item's, such
 // as a trinket.
 func itemOnUseRow(itemID int32) *spelldata.Spell {
 	if effects := core.GetConsumableByID(itemID).OnUseEffects(); len(effects) > 0 {

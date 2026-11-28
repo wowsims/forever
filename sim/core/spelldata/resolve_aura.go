@@ -12,7 +12,7 @@ type AuraOpt func(*core.Aura)
 
 // What the game files state about a spell's aura.
 //
-// A row that states no duration resolves to one of 0, which core refuses to activate: such an aura
+// A spell that states no duration resolves to one of 0, which core refuses to activate: such an aura
 // needs Permanent() or a duration of the caller's.
 func AuraConfig(s *Spell, opts ...AuraOpt) core.Aura {
 	aura := core.Aura{
@@ -52,7 +52,7 @@ func RankLabel(s *Spell, owner *core.Unit) AuraOpt {
 	return Label(s.RankedLabel(owner))
 }
 
-// An aura that is up for the whole iteration, whatever duration the row states.
+// An aura that is up for the whole iteration, whatever duration the spell states.
 func Permanent() AuraOpt {
 	return func(aura *core.Aura) {
 		core.MakePermanent(aura)
@@ -60,13 +60,13 @@ func Permanent() AuraOpt {
 }
 
 // What the game files state about a periodic effect of a spell, as the dot core registers. The
-// ticks are the row's duration over the effect's period. The default OnTick deals one roll of the
+// ticks are the spell's duration over the effect's period. The default OnTick deals one roll of the
 // effect at the caster's level (its Average where it states no spread), on the stats and multipliers
 // in force at the tick. OnSnapshot is nil.
 //
 // The tick rolls no hit (TickOutcome): a dot's hit is rolled once, by the cast or proc that applies it.
 //
-// A ranked row's dot joins the rank group of its name with the row's rank, so a caster keeps one rank
+// A ranked spell's dot joins the rank group of its name with its rank, so a caster keeps one rank
 // of it on a unit, and its aura carries the ranked name unless an option labels it. A lower rank's
 // periodic stays off while a higher rank is up.
 func DotConfig(s *Spell, e *Effect, opts ...AuraOpt) core.DotConfig {

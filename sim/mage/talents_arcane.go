@@ -42,7 +42,7 @@ func (mage *Mage) registerArcaneTalents() {
 	mage.registerArcanePowerTalent()
 }
 
-// Wand damage, +13% / +25%: the wand's shots are the mage's only ranged autos. The row's school mask
+// Wand damage, +13% / +25%: the wand's shots are the mage's only ranged autos. The talent's school mask
 // (126) leaves out physical wands.
 func (mage *Mage) registerWandSpecialization() {
 	if mage.Talents.WandSpecialization == 0 {
@@ -90,7 +90,7 @@ func (mage *Mage) registerMagicAbsorption() {
 
 // "Gives you a 10% chance of entering a Clearcasting state after any damage spell hits a target. The
 // Clearcasting state reduces the mana cost of your next damage spell by 100%."
-// Chance split in EV-0098. The missile's row carries Not a Proc, so the listener hears it.
+// Chance split in EV-0098. The missile carries Not a Proc, so the listener hears it.
 func (mage *Mage) registerArcaneConcentration() {
 	if mage.Talents.ArcaneConcentration == 0 {
 		return
@@ -112,7 +112,7 @@ func (mage *Mage) registerArcaneConcentration() {
 		aura.Deactivate(sim)
 	}
 	mage.ClearCasting = mage.RegisterAura(config)
-	// The row's -1000% cost makes the cost 0 whatever other cost mods are up.
+	// The spell's -1000% cost makes the cost 0 whatever other cost mods are up.
 	spelldata.ParseEffects(&mage.Character, mage.ClearCasting, clearcastingRank)
 
 	trigger := spelldata.ProcTrigger(&mage.Character, spellData.ArcaneConcentration.Rank(mage.Talents.ArcaneConcentration),
@@ -122,7 +122,7 @@ func (mage *Mage) registerArcaneConcentration() {
 	trigger.Name = "Arcane Concentration - Trigger"
 	trigger.ProcMask = core.ProcMaskSpellDamage
 	// An area spell, or one Flamestrike tick, rolls once however many targets it lands on. A Blizzard
-	// tick is a proc the talent's row cannot proc from, so it never rolls.
+	// tick is a proc the talent cannot proc from, so it never rolls.
 	// The condition runs just before the roll, so the first target to reach it takes the roll.
 	var rolledSpell *core.Spell
 	var rolledAt time.Duration
@@ -275,7 +275,7 @@ func (mage *Mage) registerMissileBarrage() {
 
 	// Missiles every 0.5 sec (effect 2) and the mana cost (effect 3). The sim counts a DoT's
 	// duration as its ticks times their length, so the halved tick alone halves the channel and the
-	// row's -50% duration (effect 1) is not applied again. Effect 2 is an A_DUMMY the server scripts,
+	// spell's -50% duration (effect 1) is not applied again. Effect 2 is an A_DUMMY the server scripts,
 	// so it applies here under effect 1's flags.
 	buffAura.AttachSpellMod(core.SpellModConfig{
 		Kind:       core.SpellMod_DotTickLength_Flat,

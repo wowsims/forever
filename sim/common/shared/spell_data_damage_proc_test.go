@@ -122,7 +122,7 @@ const (
 	lacerations   int32 = 10370
 )
 
-// A neck whose listener is built as a weapon enchant's or an oil's, counting the row's strikes it hears.
+// A neck whose listener is built as a weapon enchant's or an oil's, counting the spell's strikes it hears.
 func strikeListenerNeck(neckID int32, name string, row int32, heard *int) *proto.ItemSpec {
 	withAuraItem(neckID, proto.ItemType_ItemTypeNeck)
 	core.NewItemEffect(neckID, func(agent core.Agent) {
@@ -468,7 +468,7 @@ func TestWeaponProcStrikeChainAppliesEachLandedBleed(t *testing.T) {
 	}
 }
 
-// A test one-hander carrying the row in the off hand. The plain one in the main hand keeps it there: a
+// A test one-hander carrying the spell in the off hand. The plain one in the main hand keeps it there: a
 // one-hander equipped with the main hand empty goes to the main hand.
 func newOffHandProcSim(t *testing.T, weaponID, row int32, neck *proto.ItemSpec) (*core.Simulation, *testCaster, *core.Unit) {
 	t.Helper()
@@ -614,7 +614,7 @@ func TestKillingBlowDamageProcHitsTheNextTarget(t *testing.T) {
 }
 
 // Blaze 16898 deals Fire every period and nothing up front: the damage proc puts the damage over time on
-// the target the swing hit, and it ticks the row's duration over its period.
+// the target the swing hit, and it ticks the spell's duration over its period.
 func TestWeaponProcDealingDamageOverTimeAloneAppliesIt(t *testing.T) {
 	const weaponID, blaze int32 = 991605, 16898
 	editRow(t, blaze, alwaysProcs)
@@ -640,7 +640,7 @@ func TestWeaponProcDealingDamageOverTimeAloneAppliesIt(t *testing.T) {
 	}
 }
 
-// Engulfing Shadows 27860 deals Shadow damage and restores mana to its caster: the wearer gains the row's
+// Engulfing Shadows 27860 deals Shadow damage and restores mana to its caster: the wearer gains the spell's
 // mana with the proc, whether the damage lands or misses.
 func TestDamageProcRestoresTheWearersManaLandedOrNot(t *testing.T) {
 	const trinketID, engulfingShadows int32 = 991632, 27860

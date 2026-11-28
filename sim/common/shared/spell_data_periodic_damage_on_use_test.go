@@ -11,8 +11,8 @@ import (
 )
 
 // Thunderbrew's Boot Flask 744's on-use 12257 and Cloak of Fire 14134's 18364 each keep an aura on the
-// wearer for the row's duration that casts the spell it triggers every period. Each tick deals the
-// triggered row's amount to all three targets.
+// wearer for the spell's duration that casts the spell it triggers every period. Each tick deals the
+// triggered spell's amount to all three targets.
 func TestPeriodicDamageOnUseTicksOnEveryTarget(t *testing.T) {
 	for _, tc := range []struct {
 		name     string

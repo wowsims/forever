@@ -7,7 +7,7 @@ import (
 )
 
 // A channel on the caster: each second it fires Hellfire Effect at every enemy nearby, and burns the caster
-// for the same, spell power included. Every effect of the cast's row targets the caster, so the cast lands
+// for the same, spell power included. Every effect of the cast spell targets the caster, so the cast lands
 // on no enemy. Cast listeners in EV-0116.
 func (warlock *Warlock) registerHellfire() {
 	rankedSpell := spellData.Hellfire.ByID(11684)

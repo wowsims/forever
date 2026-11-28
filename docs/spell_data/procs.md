@@ -25,10 +25,10 @@ warrior.MakeProcTriggerAura(trigger)
 `spelldata.ProcTrigger(character, row, handler, opts...)` fills the listener the row describes: the
 name and action id, the `Callback`, `ProcMask`, `Outcome` and `RequireDamageDealt` the decoder reads
 out of `ProcTypeMask`, the ICD, `CanProcFromProcs` and `ClassSpellsOnly` from the
-attributes, the class mask the proc effect names, and the rate the source above points at. A row that
+attributes, the class mask the proc effect names, and the rate the source above points at. A spell that
 is a weapon proc aura also excludes the hits of spells flagged Suppress Weapon Procs.
 
-A row that states the main-hand-only bit (word 1, `0x20`) and fires on every hit, with no roll and no manager once the
+A spell that states the main-hand-only bit (word 1, `0x20`) and fires on every hit, with no roll and no manager once the
 rate settles, has `RequireDamageDealt` cleared, so it hears a landed main-hand special that deals no damage (EV-0195).
 
 The trigger carries the class flags of the spell that procs as `ProcSpellClassFlags`. Those flags are
@@ -67,7 +67,7 @@ already running keeps its length.
 | `WeaponProc()`      | the listener of a chance-on-hit effect or combat enchant: every landed weapon hit, the weapon deciding which                                                                  |
 | `ItemProcChance(s)` | an item or enchant proc rolls the column where it contradicts the effect's chance (Uther's Light 8397)                                                                        |
 
-A trigger that ends with neither a chance nor a manager panics and names the spell, because a row with
+A trigger that ends with neither a chance nor a manager panics and names the spell, because a spell with
 no stated rate never means a listener that fires on every qualifying hit. A procs-per-minute rate with
 no proc mask to measure it on panics for the same reason. On a weapon proc, the weapon decides which
 hits count.
@@ -78,7 +78,7 @@ hits count.
 `Callback`, a `ProcMask`, an `Outcome` and `RequireDamageDealt`, and names the bits it does not model
 in `Unsupported`. `RequireDamageDealt` defaults to **true**, and a listener that fires on a dodge, a
 parry, a miss or a block needs it false. Where the tooltip named that outcome, the row carries
-`ProcHintOutcomeTaken` or `ProcHintBlocked` and the decoder has already cleared the flag. A row whose
+`ProcHintOutcomeTaken` or `ProcHintBlocked` and the decoder has already cleared the flag. A spell whose
 wording yielded no hint, such as the Battlegear of Wrath consume 23547, has to be cleared by hand. Which
 outcome it is stays the caller's, except the block, since no `ProcTypeMask` has a bit for any of them.
 
@@ -86,7 +86,7 @@ The melee swing bit (`PROC_FLAG_DEAL_MELEE_SWING`, 0x4) also sets `HearsCountedS
 `spelldata.ProcTrigger` copies onto the trigger: a hit flagged `SpellFlagCountsAsSwing`, which is
 a Windfury Totem hit, reaches a listener whose mask would not hear it as a main-hand auto attack,
 and a procs-per-minute manager prices it on the main hand's speed (EV-0136). `WeaponProc()` clears it,
-since a weapon proc hears the Windfury hit by its own rule. A caller whose row hears swings but not the
+since a weapon proc hears the Windfury hit by its own rule. A caller whose spell hears swings but not the
 Windfury hit clears it by hand, as Unsealed Wrath does (`sim/paladin/talents_retribution.go`). A
 `core.ProcTrigger` typed by hand hears the Windfury hit only if it sets the field, as Reckoning's use does.
 
@@ -110,8 +110,8 @@ state, and that narrower listener is deliberate.
 Two bits name a death. `PROC_FLAG_KILL` (word 0, 0x2) decodes to `CallbackOnKill`: the
 owner's side landed the killing blow, which the kill roll in `Target.Die` decides. `PROC_FLAG_2_TARGET_DIES`
 (word 1, 0x1) decodes to `CallbackOnTargetDies`: an enemy died, with no roll. In game the two are separate
-events, so a row carrying both fires twice on a credited kill unless its ICD stops the second. The one
-such row in the game files is Lunar Idol 419288, on an item Forever does not ship. `PROC_FLAG_DEATH`, the wearer dying, stays unsupported.
+events, so a spell carrying both fires twice on a credited kill unless its ICD stops the second. The one
+such spell in the game files is Lunar Idol 419288, on an item Forever does not ship. `PROC_FLAG_DEATH`, the wearer dying, stays unsupported.
 
 `PROC_FLAG_2_CAST_SUCCESSFUL` (word 1, 0x4) decodes to `CallbackOnCastComplete` with no outcome and no
 damage requirement: the cast itself is the trigger, whatever it lands on. Rotmender's Raiment's 1321560
@@ -120,13 +120,13 @@ is that shape.
 A death listener gets a nil spell and a result whose `Target` is the dying enemy, so every condition and
 handler a death can reach checks the spell before reading it. `Die` runs the listeners before it disables
 the target, but a handler without `TriggerImmediately` runs one `SpellBatchWindow` later, when the dead
-target's auras have expired. A row that asks for an aura on the dying target ("an enemy afflicted by your
+target's auras have expired. A spell that asks for an aura on the dying target ("an enemy afflicted by your
 Vampiric Embrace dies") checks it in `ExtraCondition`, which runs inside `Die`. A proc whose damage or
 debuff a death casts goes to the current target while it is up and is not the one dying, else to the next
 target still up, and casts nothing when none is left (`procDamageTarget`). A rated trigger hears no
-death: in game a death rolls the row's plain chance, which a rated row leaves at 0, so
+death: in game a death rolls the spell's plain chance, which a rated spell leaves at 0, so
 `spelldata.ProcTrigger` drops the death callbacks wherever it ends with a procs-per-minute manager, the
-row's or the caller's. A rated row that hears deaths alone is refused by `ItemProcUnsupportedWithRate`.
+spell's or the caller's. A rated spell that hears deaths alone is refused by `ItemProcUnsupportedWithRate`.
 
 A class mask naming **another class's** family is dropped. An item every class can wear states the
 filter of the one class it was written for. On anyone else that mask matches nothing, so obeying it
@@ -141,13 +141,13 @@ for no class, carry no evidence and are left alone.
 - **Shield Specialization** (`sim/warrior/talents_protection.go`) is the effect ladder: the column
   reads 100 and the roll is effect 2. Its tooltip names the block, which the row carries as
   `ProcHintBlocked`.
-- **Flurry** (`sim/warrior/talents_fury.go`) is the no-roll shape: the row states "always" and the
-  crit is the condition. The buff row supplies the duration and the three charges through
+- **Flurry** (`sim/warrior/talents_fury.go`) is the no-roll shape: the talent states "always" and the
+  crit is the condition. The buff spell supplies the duration and the three charges through
   `AuraConfig`, the haste comes off the talent's ladder, and the mask stays the caller's because the
-  row's reaches ranged and spell hits while the tooltip says melee. Where the row and the tooltip
+  talent's reaches ranged and spell hits while the tooltip says melee. Where the game files and the tooltip
   disagree on a number (12966's flat 30 against the ladder's 25 at five points), the decision is
   written at the call site.
-- **Lightning Shield** 324 is the same no-roll shape on a row nothing ports yet: 100 in the column,
+- **Lightning Shield** 324 is the same no-roll shape on a spell nothing ports yet: 100 in the column,
   three charges, a 3.5 second ICD, and its damage spell reachable only as a tooltip
   reference while its effect triggers the dispatcher every rank shares.
 
@@ -164,38 +164,38 @@ shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 7711, BuffSpe
 
 `NewSpellDataProc` is the same for a proc whose buff is an aura, and `NewSpellDataHealProc`,
 `NewSpellDataAbsorbProc`, `NewSpellDataDebuffProc` and `NewSpellDataExtraAttackProc` are the heal,
-absorb, debuff and extra-attack shapes. The trigger's row supplies what the
-listener hears, how often it fires and its ICD. The buff's row supplies how long the buff
+absorb, debuff and extra-attack shapes. The trigger spell supplies what the
+listener hears, how often it fires and its ICD. The buff spell supplies how long the buff
 lasts and how it stacks. Only the stats come from the item's effect entry, where the sim's item level
-scaling lives. `IsWeaponProc` states the one shape no row describes: the game
+scaling lives. `IsWeaponProc` states the one shape the game files do not describe: the game
 casts a chance-on-hit effect off the weapon's hit without consulting a proc mask, and there the 100/101
-sentinel is never a rate. An ability whose row requires a shield (Shield Slam, Shield Bash), has magic
+sentinel is never a rate. An ability that requires a shield (Shield Slam, Shield Bash), has magic
 DefenseType (Thunder Clap) or has none (Sweeping Strikes' copied hit 12723) reaches equip procs and no
 chance-on-hit effect or combat enchant; auto attacks are exempt, so a wand's shots still cast them.
 
-The damage shape also takes a row that deals its damage through `E_HEALTH_LEECH`. The hit rolls the
-table of the row's defense type and takes armor or resistance like any other, and the wearer gains the
+The damage shape also takes a spell that deals its damage through `E_HEALTH_LEECH`. The hit rolls the
+table of the spell's defense type and takes armor or resistance like any other, and the wearer gains the
 effect's `Amplitude` share of the damage dealt as health. Maw of Min'loth's Fatal Bite 1295065 drains
 the attacker for 40 Physical on the melee table.
 
-The damage shape (`applySpellDataDamageProc`) gives its listener the `RecoveryTime` of the row it casts as the ICD
-where the trigger's row states none, since the spell cannot be cast again while it runs, and no hit that lands
+The damage shape (`applySpellDataDamageProc`) gives its listener the `RecoveryTime` of the spell it casts as the ICD
+where the trigger spell states none, since the spell cannot be cast again while it runs, and no hit that lands
 inside that time casts it. Toofbreaker 286430's Toofbreak 1320269 states 100 ms, so it brings no second strike and
-rolls on no Windfury Totem hit or ability that lands with the swing that cast it (EV-0145). A row that deals its
+rolls on no Windfury Totem hit or ability that lands with the swing that cast it (EV-0145). A spell that deals its
 damage as an `A_PROC_TRIGGER_DAMAGE` aura casts nothing and takes none: the shield spikes state 5 s and answer every
 block.
 
-A weapon's debuff or aura proc whose row is on the melee or ranged hit table casts that row as a strike
+A weapon's debuff or aura proc whose spell is on the melee or ranged hit table casts that spell as a strike
 that deals no damage (`attachDebuffStrike`). The debuff goes on only where the strike's own roll lands,
 and the strike is heard as a weapon's strike is (R-0040). Mutilator 12469's Lacerations 10370 and
-Puncture Armor 17315 are the cases. A row on the magic table or on none goes on with the proc, and the
+Puncture Armor 17315 are the cases. A spell on the magic table or on none goes on with the proc, and the
 wearer's and the pets' auras of an aura proc go up whatever the strike rolls.
 
-A damage row that also states an `E_ENERGIZE` on its caster puts that gain into the wearer's mana, rage
+A damage spell that also states an `E_ENERGIZE` on its caster puts that gain into the wearer's mana, rage
 or energy with every proc, whether the damage lands or not, since the gain's target is the caster
 (`withProcEnergize`). Engulfing Shadows 27860 deals 112 Shadow and restores 104 mana.
 
-A rate priced on something neither the item's entry nor the trigger's row states comes in through
+A rate priced on something neither the item's entry nor the trigger spell states comes in through
 `SpellDataProc.Rate`, which replaces the rate those give and may reshape the listener. Blade of Eternal Darkness 17780 is the
 case (`castTimePPM` in `sim/common/forever/items_weapons.go`): each landed harmful spell, one that
 deals no damage included, rolls 21978's procs per minute on the cast time of the cast that launched it,
@@ -206,7 +206,7 @@ manager on the main hand's speed would price every hit on the 1.5 s dagger. Scen
 weapon hits on their weapons and its spell hits on the main-hand weapon's speed, read at the roll, for a
 caster who never swings too.
 
-A set bonus proc whose row hears melee swings and spell casts at procs per minute gets a listener for each
+A set bonus proc whose spell hears melee swings and spell casts at procs per minute gets a listener for each
 (`attachSetBonusProc` in `sim/common/shared/item_sets.go`). The swings roll the rate on their weapon's
 speed. A cast rolls it once on the time it took, at least 1.5 s (`shared.SpellCastPPMTrigger`), and a
 spell's hit or a heal's landing rolls nothing. The casts that roll are those of a damaging or healing
@@ -234,7 +234,7 @@ such a buff by item id; Felstriker's lasts one spell batch window past its 3 s, 
 
 An effect entry carries flat stats only, so a buff the game files state as a percentage of a stat
 (`A_MOD_PERCENT_STAT`, misc the stat index, -1 all five) has none, and the generator routes it as auras:
-`NewSpellDataAuraProc` parses the buff's row, whose multiplier works through a dynamic stat dependency
+`NewSpellDataAuraProc` parses the buff spell, whose multiplier works through a dynamic stat dependency
 and reports what it adds and removes to the temporary stats listeners. Insight 8216's 1299796 doubles
 Spirit for 10 s. The aura proc registers the wearer's buff with the item swap, so an enchant's buff
 drops with its weapon or shield. Where the buff moves stats, it also registers with the stat-proc APL

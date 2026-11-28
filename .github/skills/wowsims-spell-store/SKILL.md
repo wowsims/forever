@@ -63,8 +63,8 @@ is in `docs/spell_data/reading-by-hand.md`.
 ## Hand reads and resolvers
 
 The resolvers (`SpellConfig`, `AuraConfig`, `DotConfig`, `ParseStatic`, `ParseEffects`, `ProcTrigger`) fill what the
-row states and nothing else. A hand read builds `core.SpellConfig` field by field from the row (PR #42). Which way a
-file goes is read off the file, so match the file you touch:
+game files state and nothing else. A hand read builds `core.SpellConfig` field by field from the row (PR #42). Which
+way a file goes is read off the file, so match the file you touch:
 `grep -l 'spelldata.SpellConfig\|spelldata.Parse' sim/<class>/*.go`.
 Every class folder has files on the resolvers, and a resolver-built spell still reads some values by hand
 (Consecration's ticks). The priest builds through the resolvers, not hand reads (PR #246).
@@ -82,8 +82,9 @@ states each field a resolver call fills and the step that filled it.
 ## Traps
 
 - **`Highest()` is the ladder's last entry, not its top rank**, and a database update that appends rows moves it; read
-  a triggered row off the cast's top rank with `Trigger()` or `Refs()`. The ladder readers: `docs/spell_data/store.md`;
-  the case: `.github/skills/wowsims-review/references/defects.md` §The wrong rank, the wrong effect.
+  a triggered spell off the cast's top rank with `Trigger()` or `Refs()`. The ladder readers:
+  `docs/spell_data/store.md`; the case: `.github/skills/wowsims-review/references/defects.md` §The wrong rank, the
+  wrong effect.
 - **A hand read of `Misc` gets the wrong stat** on an `A_MOD_TOTAL_STAT_PERCENTAGE` effect;
   `Effect.TotalStatPercentStats()` reads it. The case: Heart of the Wild in the same `defects.md` section.
 

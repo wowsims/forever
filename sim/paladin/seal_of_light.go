@@ -50,7 +50,7 @@ func (paladin *Paladin) registerSealOfLight(_ int32, rank *spelldata.Spell) {
 	}
 	procSpell := paladin.RegisterSpell(procConfig)
 
-	// The row hears melee swings and abilities; its rate is an override.
+	// The spell hears melee swings and abilities; its rate is an override.
 	trigger := spelldata.ProcTrigger(&paladin.Character, rank, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		procSpell.Cast(sim, &paladin.Unit)
 	})

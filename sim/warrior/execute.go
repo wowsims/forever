@@ -7,7 +7,7 @@ import (
 
 var executeRank = spellData.Execute.Highest()
 
-// TODO: The dummy effect carries the base damage, and no finder picks it out: the row states no
+// TODO: The dummy effect carries the base damage, and no finder picks it out: the game files state no
 // damage effect, and both of its effects share the aura and misc values Effect() selects on.
 var executeBaseDamage = executeRank.EffectN(1).Average()
 

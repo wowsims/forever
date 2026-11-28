@@ -82,7 +82,7 @@ func (mage *Mage) registerIgnite() {
 	config.ClassSpellMask = MageSpellIgnite
 
 	config.Dot = spelldata.DotConfig(igniteDot, igniteDot.EffectN(1))
-	// The stacks show the damage per tick, which an APL can read; the row's 1 is the rolling cap.
+	// The stacks show the damage per tick, which an APL can read; the spell's 1 is the rolling cap.
 	config.Dot.Aura.MaxStacks = math.MaxInt32
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, dot.SnapshotBaseDamage, dot.OutcomeTick)

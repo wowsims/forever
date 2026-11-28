@@ -112,7 +112,7 @@ func damageInRange(metrics core.SpellMetrics, effect *spelldata.Effect) bool {
 }
 
 // Zealot Plate 274651's 1294668 restores 1294666's mana when a melee swing taken lands, then rests for
-// the row's cooldown.
+// the spell's cooldown.
 func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
 	editSpellRow(t, 1294668, func(s *spelldata.Spell) {
 		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
@@ -153,9 +153,9 @@ func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
 	}
 }
 
-// Argent Defender 13243's 17350 rolls the row's procs per minute priced on the attacker's time between its
+// Argent Defender 13243's 17350 rolls the spell's procs per minute priced on the attacker's time between its
 // own swings, a dual wielder's two hands together, and doubled when an Undead strikes. The test's copy of the
-// row has no ICD and a higher rate, so the cases differ clearly.
+// spell has no ICD and a higher rate, so the cases differ clearly.
 func TestArgentDefenderPricesTheAttackersSwings(t *testing.T) {
 	const ppm = 6
 	row := editSpellRow(t, 17350, func(s *spelldata.Spell) { s.ICDMs, s.RPPM = 0, ppm })
@@ -208,7 +208,7 @@ func TestArgentDefenderPricesTheAttackersSwings(t *testing.T) {
 }
 
 // Argent Defender 13243 raises the block chance by 17351's amount when a melee hit taken lands and
-// deals damage, then rests for 17350's cooldown. The test's copy of the row has a rate that procs on
+// deals damage, then rests for 17350's cooldown. The test's copy of the spell has a rate that procs on
 // every hit from the 2 s attacker.
 func TestArgentDefenderRaisesBlockAndRests(t *testing.T) {
 	editSpellRow(t, 17350, func(s *spelldata.Spell) { s.RPPM = 60 })
@@ -376,7 +376,7 @@ func TestGlovesOfHolyMightTripleDamageAgainstUndead(t *testing.T) {
 }
 
 // Thick Obsidian Breastplate 22196's 27539 has a chance, on a spell hit taken, to shield the wearer
-// against that spell's school with the Fire row 27533's absorb roll. A Physical spell, which has no
+// against that spell's school with the Fire spell 27533's absorb roll. A Physical spell, which has no
 // shield, does not start 27539's ICD.
 func TestThickObsidianBreastplateShieldsTheSchoolHit(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, 22196)
@@ -489,7 +489,7 @@ func TestDemonForgedBreastplateDrainsTheAttacker(t *testing.T) {
 }
 
 // Maw of Min'loth 274608's 1295064 has a chance, on a melee hit taken, to cast 1295065 on the attacker,
-// read from the generated registrations: the row's E_HEALTH_LEECH amount on the melee table, reduced
+// read from the generated registrations: the spell's E_HEALTH_LEECH amount on the melee table, reduced
 // by the attacker's armor.
 func TestMawOfMinlothLeechesTheAttacker(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotOffHand, 274608)
@@ -593,9 +593,9 @@ func TestArathiLeatherBonusesActivateAtTheirPieceCounts(t *testing.T) {
 	}
 }
 
-// A row that deals its damage off its own trigger, read from the generated registrations: the
+// A spell that deals its damage off its own trigger, read from the generated registrations: the
 // A_PROC_TRIGGER_DAMAGE roll lands on the attacker of every melee hit the wearer blocks, whatever
-// RecoveryTime the row states. Aegis of the Scarlet Commander 7726's 1293539 is Holy and rolls on the
+// RecoveryTime the spell states. Aegis of the Scarlet Commander 7726's 1293539 is Holy and rolls on the
 // spell table.
 func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
 	for _, tc := range []struct {

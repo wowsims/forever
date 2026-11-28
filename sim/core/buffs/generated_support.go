@@ -36,9 +36,9 @@ func NewDamageShield(unit *core.Unit, label string, actionID core.ActionID, dura
 }
 
 // The same damage shield on an aura that already exists, live while the aura is up: an item's buff
-// whose row states a damage shield beside its other effects. The spell that deals the damage takes
+// whose spell states a damage shield beside its other effects. The spell that deals the damage takes
 // the aura's action id with its tag raised by 2. hits narrows the physical hits the shield answers to
-// the ones the row's proc flags name; ProcMaskUnknown answers every one. lockout is the time the
+// the ones the spell's proc flags name; ProcMaskUnknown answers every one. lockout is the time the
 // shield waits between two reflections; 0 answers every hit.
 func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64, bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) {
 	aura.AttachProcTrigger(damageShieldTrigger(aura.Unit, aura.Label, aura.ActionID, school, damage, bonusCoefficient, hits, lockout))

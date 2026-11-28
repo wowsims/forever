@@ -11,7 +11,7 @@ func (warrior *Warrior) registerRecklessness() {
 	aura := warrior.RegisterAura(spelldata.AuraConfig(recklessnessRank))
 	spelldata.ParseEffects(&warrior.Character, aura, recklessnessRank)
 
-	// Grants immunity to Fear effects, which the row states as A_MECHANIC_IMMUNITY and the parse
+	// Grants immunity to Fear effects, which the spell states as A_MECHANIC_IMMUNITY and the parse
 	// skips.
 	aura.AttachFearImmunity()
 

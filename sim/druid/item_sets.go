@@ -39,7 +39,7 @@ var ItemSetGrovekeeperEclipse = core.NewItemSet(core.ItemSet{
 		2: parsedSetBonus(spelldata.MustFind(1300940)), // +1% hit
 		4: func(_ core.Agent, setBonusAura *core.Aura) {
 			// The parse table reads A_MOD_DAMAGE_DONE_CREATURE as physical and spell damage; this
-			// bonus keeps the spell damage alone, its amount and creature type mask read off the row.
+			// bonus keeps the spell damage alone, its amount and creature type mask read off the bonus spell.
 			row := spelldata.MustFind(1301073)
 			setBonusAura.
 				AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: row.EffectN(1).BaseValue()}, spelldata.MobTypes(row.EffectN(1).Misc)...).

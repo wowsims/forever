@@ -12,7 +12,7 @@ var ConsecrationRankMap = spellData.Consecration
 
 // The mark the ground lays on the first enemies inside it: the bonus tick's dummy, and Consecrated
 // Ground's Holy damage from caster mod, whose points the server sets from the talent.
-// The area trigger keeps it up while the ground stands, so it outlives the last tick by the row's
+// The area trigger keeps it up while the ground stands, so it outlives the last tick by the spell's
 // 0.6 sec.
 func (paladin *Paladin) registerConsecrationMark() {
 	mark := spellData.ConsecratedGroundTriggered.Highest()
@@ -33,7 +33,7 @@ func (paladin *Paladin) registerConsecrationMark() {
 // area. The first 4 enemies who enter the area will take an additional 216 damage over 8 sec.
 //
 // The ground ticks once a period after the cast, none at the cast. Each tick rolls spell hit and crit
-// on its own, though no row in the ladder states Periodic Can Crit.
+// on its own, though no spell in the ladder states Periodic Can Crit.
 //
 // A tick is a proc and periodic damage, so neither a listener on spell hits nor one on periodic damage
 // that cannot proc from procs hears it (EV-0226).
@@ -98,7 +98,7 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 
 	// The cast lands on each enemy in the area as a spell of its own. Proc rolls per enemy in EV-0115.
 	// The landing rolls hit, but the ground is laid whether it lands or not, and the roll counts
-	// nothing, so the row's Miss % is the ticks' own.
+	// nothing, so the spell's Miss % is the ticks' own.
 	landing := paladin.RegisterSpell(spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage),
 		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))
 

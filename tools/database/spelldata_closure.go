@@ -240,7 +240,7 @@ func spellEdges(t *spellTables, id int32) []int32 {
 	return append(next, t.referencedIDs(id)...)
 }
 
-// The spells a server-side handler casts off this one, which no game files row states.
+// The spells a server-side handler casts off this one, which the game files do not state.
 func handTriggered(id int32) []int32 {
 	var ids []int32
 	for _, link := range overrides.HandTriggers {

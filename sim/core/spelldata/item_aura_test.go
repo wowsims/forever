@@ -80,7 +80,7 @@ func TestItemAuraParsedOnLeavesOutShieldsAndMovement(t *testing.T) {
 	}
 }
 
-// A shield row stating proc flags answers the hits they name; one stating none answers every hit.
+// A shield spell stating proc flags answers the hits they name; one stating none answers every hit.
 func TestDamageShieldHitsFollowTheRowsProcFlags(t *testing.T) {
 	melee := Spell{ID: 7801, ProcFlags: [2]uint32{dbcenums.PROC_FLAG_TAKE_MELEE_SWING | dbcenums.PROC_FLAG_TAKE_MELEE_ABILITY}}
 	if got := DamageShieldHits(&melee); got != core.ProcMaskMeleeWhiteHit|core.ProcMaskMeleeSpecial {
@@ -91,7 +91,7 @@ func TestDamageShieldHitsFollowTheRowsProcFlags(t *testing.T) {
 	}
 }
 
-// A shield row's lockout is its ICD, the cooldown it states where it has none, and
+// A shield spell's lockout is its ICD, the cooldown it states where it has none, and
 // nothing where it states neither.
 func TestDamageShieldLockoutFollowsTheRowsCooldowns(t *testing.T) {
 	for name, tc := range map[string]struct {

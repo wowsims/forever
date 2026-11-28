@@ -30,7 +30,7 @@ func TestPaladinHealsMakeQuarterHealingThreat(t *testing.T) {
 	for name, id := range map[string]int32{
 		"Holy Light":     paladin.HolyLightRankMap.Highest().ID,
 		"Flash of Light": paladin.FlashOfLightRankMap.Highest().ID,
-		// The heal is its own spell, registered under the heal row's id.
+		// The heal is its own spell, registered under the heal spell's id.
 		"Holy Shock": paladin.HolyShockRankMap.Highest().Refs()[1].ID,
 	} {
 		heal := pally.GetSpell(core.ActionID{SpellID: id})

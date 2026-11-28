@@ -20,7 +20,7 @@ const ReasonPPMHearsNoWeaponHits = "a procs-per-minute rate hears no weapon hits
 // was written for and names nothing the sim can reproduce.
 //
 // itemPPM is the procs-per-minute rate a weapon's item effect states, which answers a trigger whose
-// row states none; 0 where the item states no rate.
+// spell states none; 0 where the item states no rate.
 //
 // lockedFamily is the class family of a relic, an idol, libram or totem one class alone wields: a
 // class mask under that family is the relic's own lock on its spells, which the listener reads the way
@@ -65,7 +65,7 @@ func itemProcUnsupported(trigger *Spell, isWeaponProc bool, isEnchant bool, item
 		unsupported = append(unsupported, fmt.Sprintf("ProcTypeMask %s", bits))
 	}
 
-	// A weapon proc hears the hits of whatever carries it, which is the one shape the row states no
+	// A weapon proc hears the hits of whatever carries it, which is the one shape the game files state no
 	// listener for: the game casts a chance-on-hit effect and a combat enchant off the hit itself.
 	if isWeaponProc {
 		if itemPPM == 0 && !weaponProcRateStated(trigger) {
@@ -107,7 +107,7 @@ func namesASpellOfItsFamily(flags core.ClassFlags) bool {
 
 // The same for a weapon proc, where the game files' 100 and 101 are no answer. Those mean "fires
 // whenever its own condition is met", and a chance-on-hit effect has no condition: the game casts it
-// off the weapon's hit without consulting the row at all. Arcanite Champion, Annihilator and the
+// off the weapon's hit without consulting the spell at all. Arcanite Champion, Annihilator and the
 // combat enchants all read 101, and every one of them is a rate the spell data does not carry.
 func weaponProcRateStated(s *Spell) bool {
 	if s.ProcChanceSource == ProcChanceAlways {
@@ -117,8 +117,8 @@ func weaponProcRateStated(s *Spell) bool {
 	return procRateStated(s)
 }
 
-// Whether the row states a rate the trigger can be built from at all: a roll of its own, or the
-// procs-per-minute an override wrote onto it. A row stating neither would fire on every hit, which
+// Whether the spell states a rate the trigger can be built from at all: a roll of its own, or the
+// procs-per-minute an override wrote onto it. A spell stating neither would fire on every hit, which
 // is never what the game files mean.
 func procRateStated(s *Spell) bool {
 	return s.RPPM > 0 || s.StatedChance() != 0

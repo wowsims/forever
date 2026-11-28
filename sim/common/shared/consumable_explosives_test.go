@@ -129,7 +129,7 @@ func TestSapperDamagesEveryEnemyAndTheThrower(t *testing.T) {
 	}
 }
 
-// An area explosive whose row names the creature types it hits damages the enemies of those types in
+// An area explosive whose spell names the creature types it hits damages the enemies of those types in
 // its area and no other (17291).
 func TestAnAreaExplosiveHitsOnlyTheCreatureTypesItsRowNames(t *testing.T) {
 	row := spelldata.MustFind(17291)
@@ -157,7 +157,7 @@ func TestAnAreaExplosiveHitsOnlyTheCreatureTypesItsRowNames(t *testing.T) {
 	}
 }
 
-// An explosive whose damage lands on an area around the thrower and whose row states no range reaches
+// An explosive whose damage lands on an area around the thrower and whose spell states no range reaches
 // as far as the area's radius (13241).
 func TestAnExplosiveAroundTheThrowerReachesOnlyItsRadius(t *testing.T) {
 	row := spelldata.MustFind(13241)
@@ -199,7 +199,7 @@ func TestExplosivesShareTheirCategoryCooldown(t *testing.T) {
 }
 
 // A copy of 23000 flying at 14 yards a second: from 14 yards the dynamite lands 1 s after the cast its
-// row states completes.
+// spell states completes.
 func TestDynamiteLandsAfterItsCastAndFlight(t *testing.T) {
 	editRow(t, 23000, func(s *spelldata.Spell) { s.Speed = 14 })
 	cast := spelldata.MustFind(23000).CastTime()

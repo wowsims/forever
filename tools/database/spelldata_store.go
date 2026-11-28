@@ -50,7 +50,7 @@ type storeSpell struct {
 	ProcFlags   [2]uint32
 	ICDMs       int32
 
-	// Procs per minute, which no game files row states: it is here only when an override supplies it.
+	// Procs per minute, which the game files do not state: it is here only when an override supplies it.
 	RPPM float64
 
 	// A flat threat bonus for a spell the game files state no E_THREAT effect on, from an override.

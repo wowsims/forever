@@ -293,7 +293,7 @@ func plausibleProcs(procs int32, rolls int, chance float64) bool {
 	return procs > 0 && math.Abs(float64(procs)-mean) <= 4*math.Sqrt(mean*(1-chance))
 }
 
-// The spell a proc row fires.
+// The spell a proc spell fires.
 func firedSpell(procRow int32) *spelldata.Spell {
 	return spelldata.MustFind(procRow).FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).Trigger()
 }
@@ -338,7 +338,7 @@ func takeHit(t *testing.T, sim *core.Simulation, caster *testCaster) {
 	stepPast(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 }
 
-// A proc row stating one A_PROC_TRIGGER_SPELL is built where the spell it fires restores mana to the
+// A proc spell stating one A_PROC_TRIGGER_SPELL is built where the spell it fires restores mana to the
 // wearer or changes one of the wearer's category cooldowns, and refused where that spell does neither.
 func TestFiredSpellUnsupported(t *testing.T) {
 	const gainID, cooldownID, damageID int32 = 1306613, 1306610, 1293421

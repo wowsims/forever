@@ -34,7 +34,7 @@ var waterShieldRank = spellData.WaterShield.Highest()
 var waterShieldMana = spellData.WaterShieldTriggered.Highest()
 
 // The talent teaches Water Shield: three globes, one of which a hit taken or one of the shaman's spell
-// crits uses. The row hears both on one mask, but its tooltip asks for a crit only of the shaman's own
+// crits uses. The spell hears both on one mask, but its tooltip asks for a crit only of the shaman's own
 // spells, so the two are separate triggers sharing the globes and the cooldown.
 func (shaman *Shaman) registerWaterShieldSpell() func(sim *core.Simulation) {
 	if !shaman.Talents.WaterShield {
@@ -102,7 +102,7 @@ func (shaman *Shaman) registerLightningShieldSpell() func(sim *core.Simulation, 
 	orbConfig.ClassSpellMask = SpellMaskLightningShield
 	damage := lightningShieldOrb.DamageEffect()
 	orbConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		// The row cannot crit.
+		// The spell cannot crit.
 		spell.CalcAndDealDamage(sim, target, damage.Average(), spell.OutcomeMagicHit)
 	}
 	orb := shaman.RegisterSpell(orbConfig)

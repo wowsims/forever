@@ -20,7 +20,7 @@ var manaGems = []struct {
 	{5514, "Mana Agate", spellData.ConjureManaAgateTriggered.Highest()},
 }
 
-// The cooldown the gems share: their items' on-use category, not the Replenish Mana rows' 60 sec
+// The cooldown the gems share: their items' on-use category, not the Replenish Mana spells' 60 sec
 // category 30. Every gem's item states the same category, so the first gem the consumables catalogue
 // carries sets it for all four; Mana Agate is not in the catalogue.
 func (mage *Mage) manaGemCooldown() core.Cooldown {

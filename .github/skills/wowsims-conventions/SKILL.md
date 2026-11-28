@@ -73,7 +73,12 @@ These apply to every file and every piece of GitHub text, in Go and TypeScript a
 - **"Use", never "spend".** A cast, hit or tick uses a charge, a stack, a buff or a resource: "the next cast uses the
   charge". "Spent" stays where it means time or talent points ("time spent out of mana"). Identifiers keep theirs
   (`AttachChargeSpender`).
-- **"ICD".** An internal cooldown is an ICD: "the row has no ICD".
+- **"ICD".** An internal cooldown is an ICD: "the spell has no ICD".
+- **"The spell's" and "the game files state"; "row" for a table's rows only.** A property of a spell is the spell's:
+  "every copy lasts the spell's duration", not "the row's duration". Where the source matters (a value the data lacks,
+  one the sim does not follow, a disagreement with a tooltip or a log), name the game files: "the game files state no
+  chance". "Row" stays for a literal row: an override row, a row of a named game table, a row the spell store code
+  builds or looks up, a row of a test table or of a list in the UI.
 
 ## Plain prose
 

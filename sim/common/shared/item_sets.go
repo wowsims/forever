@@ -11,7 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// A bonus whose rows the parse states whole. A row's spell modifiers name its class's spells by class
+// A bonus whose spells the parse states whole. A spell's modifiers name its class's spells by class
 // flags, so on another class they reach nothing.
 func ParsedSetBonus(rows ...*spelldata.Spell) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
@@ -27,7 +27,7 @@ func ParsedSetBonus(rows ...*spelldata.Spell) core.ApplySetBonus {
 	}
 }
 
-// What a set bonus proc fires, read off the spell its row names.
+// What a set bonus proc fires, read off the spell it names.
 type setBonusProcShape uint8
 
 const (
@@ -37,7 +37,7 @@ const (
 	setBonusProcAuras                      // auras on the wearer for the spell's duration
 )
 
-// A row whose one effect triggers another spell off the row's own proc flags.
+// A spell whose one effect triggers another spell off its own proc flags.
 func IsSetBonusProc(row *spelldata.Spell) bool {
 	return len(row.Effects) == 1 && row.Effects[0].Aura == dbcenums.A_PROC_TRIGGER_SPELL && row.FiredSpell() != spelldata.Nil
 }
@@ -55,9 +55,9 @@ func shapeOfSetBonusProc(row *spelldata.Spell) setBonusProcShape {
 	return setBonusProcUnbuilt
 }
 
-// Why a generated set cannot register the row, or nil where it can. A proc row of a class family whose
+// Why a generated set cannot register the spell, or nil where it can. A proc spell of a class family whose
 // proc effect names none of the family's spells is refused: the spells its tooltip names are not in the
-// row, so its listener would hear every spell (Symbols of Unending Life's 26107 refunds on finishing
+// spell, so its listener would hear every spell (Symbols of Unending Life's 26107 refunds on finishing
 // moves that miss).
 func SetBonusUnsupported(row *spelldata.Spell) []string {
 	if !IsSetBonusProc(row) {
@@ -84,9 +84,9 @@ func SetBonusUnsupported(row *spelldata.Spell) []string {
 	return unsupported
 }
 
-// The proc of a row IsSetBonusProc names, kept to the set bonus aura. A row whose tooltip names the cast
+// The proc of a spell IsSetBonusProc names, kept to the set bonus aura. A spell whose tooltip names the cast
 // as a trigger and that hears melee swings and spells at procs per minute gets a listener for each. The
-// pair shares no cooldown, and no such row states one.
+// pair shares no cooldown, and no such spell states one.
 func attachSetBonusProc(character *core.Character, setBonusAura *core.Aura, row *spelldata.Spell) {
 	fired := row.FiredSpell()
 	castsRollTheRate := false
@@ -123,7 +123,7 @@ func attachSetBonusProc(character *core.Character, setBonusAura *core.Aura, row 
 	}
 }
 
-// A listener for the row's procs per minute on spell casts. A cast of a damaging or healing spell rolls
+// A listener for the spell's procs per minute on spell casts. A cast of a damaging or healing spell rolls
 // once, and so does any other cast whose spell costs mana. Any other cast never rolls (EV-0144). The
 // chance depends on the cast, so Chance(1) leaves core no roll of its own and the condition draws it.
 func SpellCastPPMTrigger(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcTrigger {
@@ -153,14 +153,14 @@ func costsMana(spell *core.Spell) bool {
 	return ok
 }
 
-// Whether a cast that took castTime procs the row's procs per minute: the rate on that time, at least
+// Whether a cast that took castTime procs the spell's procs per minute: the rate on that time, at least
 // the global cooldown's 1.5 s. The character's proc chance mods for flags raise it.
 func RollCastTimePPM(sim *core.Simulation, character *core.Character, row *spelldata.Spell, flags core.ClassFlags, castTime time.Duration) bool {
 	chance := core.CastTimePPMChance(float64(row.RPPM), castTime)
 	return sim.Proc(character.ModifiedProcChance(flags, chance), row.Name)
 }
 
-// A set gen_db registers from the game files, each piece count's bonus parsed from its rows. A set
+// A set gen_db registers from the game files, each piece count's bonus parsed from its spells. A set
 // written by hand under the same id keeps it off.
 func NewParsedItemSet(id int32, name string, slots []proto.ItemSlot, bonuses map[int32][]int32) {
 	NewParsedProfessionItemSet(id, name, proto.Profession_ProfessionUnknown, slots, bonuses)

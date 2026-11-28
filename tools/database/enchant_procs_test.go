@@ -166,8 +166,8 @@ func TestEnchantProcRoutingTakesAPPMOverride(t *testing.T) {
 	}
 }
 
-// Insight's effect entry resolves no flat stats, so the slot applies its buff 1299796 as auras, whose
-// row multiplies Spirit.
+// Insight's effect entry resolves no flat stats, so the slot applies its buff 1299796, which
+// multiplies Spirit, as auras.
 func TestEnchantPercentStatBuffIsTheAppliedSpell(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()

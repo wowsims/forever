@@ -15,7 +15,7 @@ import (
 	"github.com/wowsims/forever/sim/druid"
 )
 
-// A dodged bite gives back its row's miss refund of the base energy and keeps the extra energy and the
+// A dodged bite gives back the spell's miss refund of the base energy and keeps the extra energy and the
 // combo points.
 func TestBiteDodgeRefundsAndKeepsExtraEnergyAndComboPoints(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
@@ -200,7 +200,7 @@ func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
 	}
 }
 
-// A missed Pounce stuns nothing, awards no combo point, rolls no bleed and gives back its row's miss
+// A missed Pounce stuns nothing, awards no combo point, rolls no bleed and gives back the spell's miss
 // refund of the cost.
 func TestMissedPounceRefundsAndAppliesNothing(t *testing.T) {
 	sim, cat := newCat(t, "", nil)

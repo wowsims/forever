@@ -13,7 +13,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Barov Peasant Caller's 18307 summons servants 11637. The tests pin the row, so a game build that changes
+// Barov Peasant Caller's 18307 summons servants 11637. The tests pin the spell, so a game build that changes
 // it leaves them as they are.
 const (
 	servantSummon   int32 = 18307

@@ -62,7 +62,7 @@ func Test_WhenUppercaseProcChanceGiven_ThenRenderTheChance(t *testing.T) {
 	)
 }
 
-// A reference into another spell renders the amount that spell's row states, with no spell power on top.
+// A reference into another spell renders the amount that spell states, with no spell power on top.
 func Test_WhenOtherSpellsDamageReferenced_ThenRenderItsStatedAmount(t *testing.T) {
 	provider := fixtureProvider(
 		fixtureRow{spell: dbc.Spell{ID: 101, Duration: 10000}},

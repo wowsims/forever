@@ -131,7 +131,7 @@ func (shaman *Shaman) applyNaturesSwiftness() {
 		return
 	}
 
-	// The row's mod makes the spells it reaches instant, and the next one cast uses the charge.
+	// The spell's mod makes the spells it reaches instant, and the next one cast uses the charge.
 	consumes := naturesSwiftnessRank.EffectN(1).ClassFlags
 
 	config := spelldata.AuraConfig(naturesSwiftnessRank)

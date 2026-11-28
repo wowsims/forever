@@ -7,7 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The damage spell each rank fires on a hit; no row triggers them and none is on a skill line, so the
+// The damage spell each rank fires on a hit; no spell triggers them and none is on a skill line, so the
 // store carries no row for them and the proc is built by hand. Rank 1 (21084) fires 25741 ("Rank 1.5"); 25742
 // ("Rank 1") is the starter seal 20154's.
 var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
@@ -21,7 +21,7 @@ var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4
 //
 // Unleashing this Seal's energy will cause 187 to 203 Holy damage to an enemy.
 //
-// The seal's second effect names its judgement (the row has no effect at the game files' index 1).
+// The seal's second effect names its judgement (the spell has no effect at the game files' index 1).
 // The per-hit value is the judgement dummy's second effect; the tooltip renders it over 87 and over
 // 25, which is value/100 times swing speed at speeds 1.15 and 4.0. The damage spells carry no spell
 // power coefficient and the dummy's is not read. Hand factors and coefficients in EV-0059.
@@ -49,7 +49,7 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		DefenseType: core.DefenseTypeMelee,
 		ProcMask:    core.ProcMaskMeleeMHSpecial,
 		// The damage spells are procs, so auras without Can Proc From Procs never hear them. They
-		// carry no Suppress Weapon Procs, unlike their TBC rows: a "Chance on hit" weapon effect
+		// carry no Suppress Weapon Procs, unlike their TBC spells: a "Chance on hit" weapon effect
 		// rolls on the seal's hit as well as on the swing, and the game shows both procs landing.
 		Flags:          core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagProc,
 		ClassSpellMask: SpellMaskSealOfRighteousnessProc,

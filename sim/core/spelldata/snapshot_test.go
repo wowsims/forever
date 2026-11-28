@@ -269,7 +269,7 @@ func TestGeneratedLightningShield(t *testing.T) {
 	}
 }
 
-// Stolen Power's companion row requires Forest and Grassland; Staff of Westfall's group is a single zone.
+// Stolen Power's companion spell requires Forest and Grassland; Staff of Westfall's group is a single zone.
 func TestGeneratedRequiredAreas(t *testing.T) {
 	withGeneratedStore(t)
 
@@ -302,7 +302,7 @@ func TestGeneratedAreaBonus(t *testing.T) {
 	}
 }
 
-// Versus bonuses come from the override table: a factor on one of the row's effects, or one of the
+// Versus bonuses come from the override table: a factor on one of the spell's effects, or one of the
 // override's own.
 func TestGeneratedVersusBonus(t *testing.T) {
 	withGeneratedStore(t)
@@ -391,7 +391,7 @@ func TestGeneratedOverrideRow(t *testing.T) {
 	}
 }
 
-// Frostbolt and Slam state the flag that pushes the cast back, and Slam's row also carries the
+// Frostbolt and Slam state the flag that pushes the cast back, and Slam also carries the
 // attribute that keeps it from being pushed back. EZ-Thro Bronze Mortar states neither.
 func TestGeneratedInterruptFlags(t *testing.T) {
 	withGeneratedStore(t)

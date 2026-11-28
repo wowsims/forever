@@ -56,10 +56,10 @@ func (priest *Priest) applyBlackout() {}
 
 // Gives you a X% chance to increase your Spirit by Y% for 15 sec after killing a non-trivial target or when an enemy afflicted by your Vampiric Embrace dies.
 // For the duration, 50% of your Mana regeneration will continue while casting.
-// The row hears the killing blow, and every target in the sim counts as non-trivial. The tooltip also grants the
-// buff when the enemy dies with the priest's Vampiric Embrace on it, which the row's proc flags do not state. An
+// The talent hears the killing blow, and every target in the sim counts as non-trivial. The tooltip also grants the
+// buff when the enemy dies with the priest's Vampiric Embrace on it, which the talent's proc flags do not state. An
 // afflicted enemy always grants it, once, whether or not the raid gets the kill; any other killing blow rolls the
-// row's chance.
+// talent's chance.
 func (priest *Priest) applySpiritTap() {
 	if priest.Talents.SpiritTap == 0 {
 		return
@@ -138,7 +138,7 @@ func (priest *Priest) applyMindFlay() {
 func (priest *Priest) applyImprovedMindFlay() {}
 
 // Your Mind Blast and fully channeled Mind Flay causes Dark Inspiration, increasing yours and your party's Spirit by X% for 10 sec.
-// The buff's row targets the caster's party (target 20). The sim buffs the party's players, the priest
+// The buff spell targets the caster's party (target 20). The sim buffs the party's players, the priest
 // among them, and not their pets. Each player carries one copy per priest, and only the strongest applies,
 // the party buff from the settings included.
 func (priest *Priest) applyDarkInspiration() {

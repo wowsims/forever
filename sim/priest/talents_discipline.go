@@ -82,7 +82,7 @@ func (priest *Priest) attachPowerInLightMarker(config *core.SpellConfig) {
 	}
 }
 
-// Wand damage, +13% / +25%: the wand's shots are the priest's only ranged autos. The row's school mask
+// Wand damage, +13% / +25%: the wand's shots are the priest's only ranged autos. The talent's school mask
 // (126) leaves out physical wands.
 func (priest *Priest) applyWandSpecialization() {
 	if priest.Talents.WandSpecialization == 0 {

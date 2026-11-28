@@ -70,7 +70,7 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 	})
 }
 
-// The on-use row's E_TRIGGER_SPELL effects whose spell puts auras on the wearer.
+// The on-use spell's E_TRIGGER_SPELL effects whose spell puts auras on the wearer.
 func WearerAuraTriggers(row *spelldata.Spell) []*spelldata.Effect {
 	var triggers []*spelldata.Effect
 	for i := range row.Effects {
@@ -143,7 +143,7 @@ func EnergizesABar(power dbcenums.PowerType) bool {
 	return false
 }
 
-// An item or enchant proc whose trigger's row fires a spell that restores the wearer's mana, rage or
+// An item or enchant proc whose trigger fires a spell that restores the wearer's mana, rage or
 // energy, read off the trigger alone the way FiredSpellUnsupported reads it.
 func NewSpellDataEnergizeProc(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataEnergizeProc)
@@ -166,7 +166,7 @@ func registerSpellDataEnergizeProc(cfg SpellDataProc) {
 	})
 }
 
-// Why the spell a proc row fires cannot be built, or nil where it can: the row states no effect
+// Why the spell a proc fires cannot be built, or nil where it can: the proc states no effect
 // beside its proc, and the spell it fires (FiredSpell) puts mana, rage or energy into the wearer's
 // bar at once or changes the cooldown of one of the wearer's spell categories.
 func FiredSpellUnsupported(row *spelldata.Spell) []string {
@@ -197,7 +197,7 @@ func FiredSpellUnsupported(row *spelldata.Spell) []string {
 	return unsupported
 }
 
-// What the spell a proc row fires does, or nil where the wearer has no bar its gain fills. A
+// What the spell a proc fires does, or nil where the wearer has no bar its gain fills. A
 // cooldown change moves the whole category's timer, which is where a spell whose only recovery is
 // its category's keeps its cooldown; the game files state a reduction as a negative time, Spark's
 // 1306610 -100000.

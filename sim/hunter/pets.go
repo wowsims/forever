@@ -303,7 +303,7 @@ func (hp *HunterPet) castFirstReady(sim *core.Simulation, target *core.Unit, spe
 	return false
 }
 
-// An ability by its row's name in the game files. A name not here stays unregistered: Cower, Growl and
+// An ability by its name in the game files. A name not here stays unregistered: Cower, Growl and
 // Shell Shield change nothing the sim measures, and Prowl's 40% slower walk in from the hunter costs
 // more than its +50% first attack gains.
 func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
@@ -346,7 +346,7 @@ func (hp *HunterPet) spellConfig(rank *spelldata.Spell, opts ...spelldata.SpellO
 	return config
 }
 
-// The proc mask and metrics a damaging row wants: a physical row is a melee special, any other a
+// The proc mask and metrics a damaging spell wants: a physical spell is a melee special, any other a
 // spell of its school.
 func schoolOpt(rank *spelldata.Spell) spelldata.SpellOpt {
 	if rank.SpellSchool() == core.SpellSchoolPhysical {
@@ -355,7 +355,7 @@ func schoolOpt(rank *spelldata.Spell) spelldata.SpellOpt {
 	return spelldata.Magic(core.ProcMaskSpellDamage)
 }
 
-// How the row's application is rolled: a landed-or-not roll on the row's defense type.
+// How the spell's application is rolled: a landed-or-not roll on the spell's defense type.
 func hitOutcome(spell *core.Spell, rank *spelldata.Spell) core.OutcomeApplier {
 	switch rank.DefenseTypeCore() {
 	case core.DefenseTypeMagic:
@@ -379,7 +379,7 @@ func hitAndCritOutcome(spell *core.Spell, rank *spelldata.Spell) core.OutcomeApp
 }
 
 // How many enemies the damage reaches: a chain states its count, an area around the pet takes the
-// row's cap, anything else hits the target alone.
+// spell's cap, anything else hits the target alone.
 func targetsOf(rank *spelldata.Spell, damage *spelldata.Effect) int32 {
 	if damage.ChainTargets > 0 {
 		return int32(damage.ChainTargets)
@@ -390,8 +390,8 @@ func targetsOf(rank *spelldata.Spell, damage *spelldata.Effect) int32 {
 	return 1
 }
 
-// A direct hit, on one enemy or several, with the row's roll. onCast runs after the damage whatever
-// it did, for a row whose second effect is not the hit's.
+// A direct hit, on one enemy or several, with the spell's roll. onCast runs after the damage whatever
+// it did, for a spell whose second effect is not the hit's.
 func (hp *HunterPet) registerStrike(rank *spelldata.Spell, onCast func(sim *core.Simulation, target *core.Unit)) *core.Spell {
 	damage := rank.DamageEffect()
 	targets := targetsOf(rank, damage)
@@ -427,7 +427,7 @@ func (hp *HunterPet) registerDemoralizingScreech(rank *spelldata.Spell) *core.Sp
 	return spell
 }
 
-// A periodic effect the row's roll puts on the enemy.
+// A periodic effect the spell's roll puts on the enemy.
 func (hp *HunterPet) registerDot(rank *spelldata.Spell) *core.Spell {
 	config := hp.spellConfig(rank, schoolOpt(rank))
 	config.Dot = spelldata.DotConfig(rank, rank.PeriodicEffect())
@@ -442,7 +442,7 @@ func (hp *HunterPet) registerDot(rank *spelldata.Spell) *core.Spell {
 }
 
 // The same, stacking: each application refreshes the poison and adds a stack, and a tick deals the
-// row's amount once per stack.
+// spell's amount once per stack.
 func (hp *HunterPet) registerScorpidPoison(rank *spelldata.Spell) *core.Spell {
 	tick := rank.PeriodicEffect()
 
@@ -490,7 +490,7 @@ func (hp *HunterPet) registerDustCloud(rank *spelldata.Spell) *core.Spell {
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
 		return enabled(sim, target) && bare(sim, target) != nil
 	}
-	// The row states one stack, and the armor follows the stacks.
+	// The spell states one stack, and the armor follows the stacks.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		aura := auras.Get(bare(sim, target))
 		aura.Activate(sim)
@@ -503,7 +503,7 @@ func (hp *HunterPet) registerDustCloud(rank *spelldata.Spell) *core.Spell {
 // Attack power for the raid, every player and pet of any party, priced at the pet's level. A guardian
 // gets none, as with totems, and the logs carry no buff on a guardian (EV-0199).
 // A second hunter's wolf shares the aura the first registered on each unit.
-// TODO: the row reaches only the raid within 15 yd of the pet, which the sim leaves out, and in the logs
+// TODO: the spell reaches only the raid within 15 yd of the pet, which the sim leaves out, and in the logs
 // the hunter gets about half the howls (EV-0199).
 func (hp *HunterPet) registerFuriousHowl(rank *spelldata.Spell) *core.Spell {
 	auras := hp.NewAllyAuraArray(func(unit *core.Unit) *core.Aura {
@@ -526,7 +526,7 @@ func (hp *HunterPet) registerFuriousHowl(rank *spelldata.Spell) *core.Spell {
 	return hp.RegisterSpell(config)
 }
 
-// The pet runs to the enemy at three times its speed, and its next swing or ability takes the row's
+// The pet runs to the enemy at three times its speed, and its next swing or ability takes the spell's
 // attack power. The stun the charge triggers changes nothing the sim measures.
 func (hp *HunterPet) registerCharge(rank *spelldata.Spell) *core.Spell {
 	buff := hp.RegisterAura(spelldata.AuraConfig(rank))
@@ -546,7 +546,7 @@ func (hp *HunterPet) registerCharge(rank *spelldata.Spell) *core.Spell {
 	return hp.RegisterSpell(config)
 }
 
-// A buff on the pet whose effects the row states.
+// A buff on the pet whose effects the spell states.
 func (hp *HunterPet) registerSelfBuff(rank *spelldata.Spell) *core.Spell {
 	aura := hp.RegisterAura(spelldata.AuraConfig(rank))
 	spelldata.ParseEffects(&hp.Character, aura, rank)
@@ -558,7 +558,7 @@ func (hp *HunterPet) registerSelfBuff(rank *spelldata.Spell) *core.Spell {
 	return hp.RegisterSpell(config)
 }
 
-// Dash and Dive: the pet's movement speed for the row's duration.
+// Dash and Dive: the pet's movement speed for the spell's duration.
 func (hp *HunterPet) registerSprint(rank *spelldata.Spell) *core.Spell {
 	aura := hp.RegisterAura(spelldata.AuraConfig(rank))
 	aura.NewActiveMovementSpeedEffect(rank.EffectN(1).Percent())

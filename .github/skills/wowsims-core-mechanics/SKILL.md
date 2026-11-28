@@ -5,10 +5,10 @@ description: "Use when WoWSims Forever Go code depends on what sim/core does aro
 
 # wowsims-core-mechanics
 
-A row says what a spell is; `sim/core` decides when its effects run, what the cast uses, which targets it reaches and
-whose state it reads, so a spell that matches its row can still be wrong here. The rule this skill exists for: a claim
-about core's timing (an order, a use, a refund) is proven at runtime, never by reading the call order alone. The
-rulings the code follows are in `references/rulings.md`; text here follows `wowsims-conventions`.
+The game files say what a spell is; `sim/core` decides when its effects run, what the cast uses, which targets it
+reaches and whose state it reads, so a spell that matches the game files can still be wrong here. The rule this
+skill exists for: a claim about core's timing (an order, a use, a refund) is proven at runtime, never by reading the
+call order alone. The rulings the code follows are in `references/rulings.md`; text here follows `wowsims-conventions`.
 
 ## Where things live
 
@@ -30,7 +30,7 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 | You are…                                                                     | Open                                                                        |
 | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | asking what the rotation sees at a hardcast end                              | `docs/rotation.md`, then `wowsims-apl`                                      |
-| deciding a hit, roll, regen, OOM or pet rule the row leaves open             | `references/rulings.md`                                                     |
+| deciding a hit, roll, regen, OOM or pet rule the game files leave open       | `references/rulings.md`                                                     |
 | chasing a trap: an item swap, weapon reach, `GainHealth`, pets, a proto bool | `references/traps.md`                                                       |
 | looking for the review case behind a section below                           | `.github/skills/wowsims-review/references/defects.md`, the matching section |
 
@@ -49,7 +49,7 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 
 - **Core uses the cost at the cast; a refund is the spell's own call.** `spell.IssueRefund(sim)` gives back the cost's
   `Refund` share and a mana cost refunds nothing (`mana.go`). `SpellConfig` sets the share from the row's `MissRefund()`
-  (0.8 where the row flags Discount Power On Miss), the default unless verified spell-specific behaviour differs.
+  (0.8 where the spell flags Discount Power On Miss), the default unless verified spell-specific behaviour differs.
 - **Combo points are not part of the cost.** The spell uses them through `SpendComboPoints` (`energy.go`), each
   resource on its own: a failed Ferocious Bite gets 80% of its base cost back and keeps its points and its extra
   energy. The points sit on one unit: a gain on another unit drops them (used on the gain's metrics), a target swap
@@ -64,8 +64,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   scale with stacks or combo points reads them.
 - **Crit damage** is `(base × CritMultiplierPct × CritDamageMultiplier × table − 1) × (CritMultiplierAdditive + 1) + 1`
   (`spell.go`).
-- **Periodic physical damage meets the armor its row's attributes name** (EV-0194). `SpellConfig` reads them: none
-  where the row sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
+- **Periodic physical damage meets the armor its attributes name** (EV-0194). `SpellConfig` reads them: none
+  where the spell sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
   leaves where it sets only Attributes[0] 0x40000 (`SpellFlagTenthResistance`, the weapons' Rends), and the whole armor
   where it sets neither (`SpellFlagApplyArmorReduction`, Wound). A periodic spell built by hand with no row ignores
   armor, and one that pays out damage that already met armor (Death Mark, Lacerating Strikes) sets
@@ -109,7 +109,7 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **`MakePermanent` sets `NeverExpires` and re-activates the aura in its `OnReset`** (`aura_helpers.go`); an aura with
   duration 0 panics on activation (`aura.go`).
 - **A dot tick rolls its amount, not its hit** (`docs/spell_data/auras-and-dots.md`); a spell whose ticks roll hit
-  passes `Spell.OutcomeTickMagicHitAndCrit` or `Dot.OutcomeTickMagicHit`. Always Hit on a triggered row:
+  passes `Spell.OutcomeTickMagicHitAndCrit` or `Dot.OutcomeTickMagicHit`. Always Hit on a triggered spell:
   `.github/skills/wowsims-abilities-auras/references/rulings.md`.
 - **`Dot.Apply` on an active dot deactivates and reactivates it, so its tick timer restarts** (`dot.go`). A stack that
   keeps the tick grid calls `Dot.Refresh` and then sets the stacks: `SetStacks` in Lacerate, `AddStack` in Deadly
@@ -157,8 +157,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target` or the cast's
   target, never the encounter's first target. Each target keeps only the times it reaches 35% and 20%, at the
   encounter's execute proportions of the fight, and 25% two thirds of the way between them (`resetExecutePhases`);
-  `IsBelowExecuteHealth` reads any of the three. An enemy has no health bar to read. A buff row a
-  target's phase grants sits on the caster and carries to another target (Decimation's 440873); a bonus whose rows
+  `IsBelowExecuteHealth` reads any of the three. An enemy has no health bar to read. A buff a
+  target's phase grants sits on the caster and carries to another target (Decimation's 440873); a bonus whose spells
   state no buff counts per target (Quietus, Early Demise).
 - **Fights are time-based**: there is no health-based fight length, and no damage taken moves a target's execute
   phases.

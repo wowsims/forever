@@ -61,7 +61,7 @@ registrations.
 - **A new parse row ships consumables.** `Effect.ParsedAura()` turns true for every misc value of a newly parsed
   aura, and routing reads that as supported, so the next regeneration can add imbues and stat auras nobody chose.
   A set bonus goes live the same way. Diff the generated consumables and `item_sets_auto_gen.go`, and check each new
-  one against its row.
+  one against the game files.
 
 ## Conditions are data
 
@@ -119,7 +119,7 @@ is registered. Items and enchants work differently:
   `sim/common/forever/items_weapons.go`, its creature in `sim/common/forever/items_dragons_call.go`, and the Violet
   Sorcerer's Vestments elemental in `sim/common/forever/items_sets.go`. A summon that is no guardian (a companion, a
   sign, an area effect) goes in `overrides.NotGuardianSummons` with its reason; a totem stays out by its summon slot.
-  Where the creature comes up, beside its owner to walk in or on the enemy, follows the summon's row (R-0055).
+  Where the creature comes up, beside its owner to walk in or on the enemy, follows the summon spell (R-0055).
 - **The folder follows who can use the item**, as `references/rulings.md` states. A class test binary registers only
   its own package, so a shared set left in a class folder never reaches the other classes' AllItems suites;
   `TestGearSetsHoldOnlyTheirClassItems` in `sim/item_class_allowlist_test.go` fails a preset wearing another class's
@@ -155,7 +155,7 @@ is registered. Items and enchants work differently:
 - **Zero means none on item scalars.** `ScalingItemProperties.unrounded_dps` is 0 for an item with no weapon table
   row and is read into `core.Item.UnroundedDPS` as it stands; the rule for every proto field is
   `wowsims-core-mechanics` `## Protos`.
-- **An explosive with a cast costs a tank its avoidance, and one whose row states a stun misses a raid boss.** Dodge,
+- **An explosive with a cast costs a tank its avoidance, and one with a stun misses a raid boss.** Dodge,
   parry and block are zero for the whole hardcast (`HardcastAvoidanceAura`), and a bomb or grenade with a stun misses a
   level 63 target in full, damage included (`missesImmune` in `sim/core/spell_result.go`). Dynamite and sapper charges
   state no stun and hit it.

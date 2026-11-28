@@ -443,7 +443,7 @@ func TestParseEffectsFollowsTheAuraAndItsStacks(t *testing.T) {
 	}
 }
 
-// A row that states charges rather than cumulative stacks is worth its value once, however many
+// A spell that states charges rather than cumulative stacks is worth its value once, however many
 // charges the aura carries.
 func TestParseEffectsChargesAreNotStacks(t *testing.T) {
 	withRows(t, parseRows())
@@ -1125,7 +1125,7 @@ func TestParseStaticFlatDamageTakenBySchool(t *testing.T) {
 }
 
 // Target resistance by a mask of some schools lands on the per-school piercing of each school it names,
-// its size whichever sign the row states, and leaves SpellPiercing and the other schools alone.
+// its size whichever sign the spell states, and leaves SpellPiercing and the other schools alone.
 func TestParseStaticSchoolSpellPiercing(t *testing.T) {
 	withRows(t, parseRows())
 

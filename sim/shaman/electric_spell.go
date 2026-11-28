@@ -5,7 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The rows Lightning Overload casts, one for each rank of Lightning Bolt and of Chain Lightning, in rank
+// The spells Lightning Overload casts, one for each rank of Lightning Bolt and of Chain Lightning, in rank
 // order. No effect of the game files names them.
 var lightningBoltOverloadRanks = spelldata.Ranked(408439, 408440, 408441, 408442, 408443, 408472, 408473, 408474, 408475, 408477)
 var chainLightningOverloadRanks = spelldata.Ranked(408479, 408481, 408482, 408484)
@@ -13,7 +13,7 @@ var chainLightningOverloadRanks = spelldata.Ranked(408479, 408481, 408482, 40848
 // The tag the results label an overload by.
 const CastTagLightningOverload int32 = 6
 
-// Each rank, with the overload row of the same rank number as the copy Lightning Overload casts.
+// Each rank, with the overload spell of the same rank number as the copy Lightning Overload casts.
 func (shaman *Shaman) registerWithOverloads(ranks, overloads spelldata.Ladder, newConfig func(row *spelldata.Spell, overload *core.Spell) core.SpellConfig) {
 	ranks.Each(func(_ int32, rank *spelldata.Spell) {
 		overloadConfig := newConfig(overloads.Rank(rank.RankNumber()), nil)
@@ -24,7 +24,7 @@ func (shaman *Shaman) registerWithOverloads(ranks, overloads spelldata.Ladder, n
 }
 
 // Lightning Bolt and Chain Lightning, and the copy of either that Lightning Overload casts, with the
-// average damage of one hit. The copy's row lacks Not a Proc, so only listeners that can proc from
+// average damage of one hit. The copy lacks Not a Proc, so only listeners that can proc from
 // procs hear its hits.
 func (shaman *Shaman) newElectricSpellConfig(row *spelldata.Spell, isOverload bool) (core.SpellConfig, float64) {
 	opts := []spelldata.SpellOpt{

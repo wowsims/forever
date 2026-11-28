@@ -6,7 +6,7 @@
 - Pull request: #352, #1088
 - Evidence: EV-0145
 
-A weapon proc whose row has melee or ranged DefenseType is a special hit, whether the row deals a direct hit, applies
+A weapon proc with melee or ranged DefenseType is a special hit, whether it deals a direct hit, applies
 damage over time alone or applies a debuff alone. It rolls the hit table of its DefenseType, and what it applies lands
 only where that roll does.
 
@@ -16,7 +16,7 @@ seal's strike, a Windfury Totem hit, an off-hand hit, the paw's swing of a druid
 another strike. A strike a white swing cast therefore rolls its weapon once more, and the strike that roll casts rolls
 nothing.
 
-A strike whose row states a cooldown of its own is not cast again while it runs. It brings no second, and a hit that
+A strike with a cooldown of its own is not cast again while it runs. It brings no second, and a hit that
 lands inside the cooldown casts none either, a Windfury Totem hit off the same swing included: Toofbreak 1320269
 states 100 ms.
 

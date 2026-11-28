@@ -27,7 +27,7 @@ type liveProc struct {
 
 	requireDamageComponent bool
 
-	// The rate the registration fired at: chance where the row fires on its own condition, the row's
+	// The rate the registration fired at: chance where the spell fires on its own condition, its
 	// ProcChance column where it rolls that. A procs-per-minute rate is a manager and no roll, which
 	// is what ppm says.
 	chance      float64

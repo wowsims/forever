@@ -62,7 +62,7 @@ func ConsumableDamages(row *spelldata.Spell) bool {
 	return row.DamagesAnEnemy()
 }
 
-// The spell a consumable that damages enemies registers: its cloud's, or the damage its own row deals.
+// The spell a consumable that damages enemies registers: its cloud's, or the damage its own spell deals.
 func consumableDamageSpell(character *core.Character, itemID int32, row *spelldata.Spell) core.SpellConfig {
 	if cloud, damage := DamageCloudOf(row); cloud != spelldata.Nil {
 		return cloudDamageSpell(character, itemID, row, cloud, damage)
@@ -94,7 +94,7 @@ func cloudDamageSpell(character *core.Character, itemID int32, row, cloud, damag
 // An explosive used from the bar: the damage its on-use spell deals, on the item's cooldown and the
 // category cooldown every explosive shares.
 //
-// Throwing one leaves the melee swing timer running (EV-0088). A bomb or grenade whose row's mechanic
+// Throwing one leaves the melee swing timer running (EV-0088). A bomb or grenade whose spell's mechanic
 // is stun is a stun as a whole: a stun-immune target is immune to its damage too.
 func NewSpellDataExplosive(itemID int32) {
 	core.NewSpellDataConsumableEffect(itemID, func(agent core.Agent) {
@@ -163,7 +163,7 @@ func registerCasterDamageSpell(character *core.Character, config core.SpellConfi
 }
 
 // Damage a spell deals to its own caster always lands; it can still crit, on the crit of its defense
-// type, unless the row says it cannot.
+// type, unless the spell says it cannot.
 func casterDamageOutcome(spell *core.Spell, cannotCrit bool) core.OutcomeApplier {
 	switch {
 	case cannotCrit:

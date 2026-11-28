@@ -13,7 +13,7 @@ const SealCategory = "PaladinSeal"
 
 // A white swing, with a Windfury Totem hit as one more swing: what Seal of Command, Seal of Fury
 // and Seal of Righteousness fire off (EV-0002), and what refreshes the judgement debuffs (EV-0117).
-// Seal of Light and Seal of Wisdom hear melee abilities through their rows, the Windfury Totem hit among them.
+// Seal of Light and Seal of Wisdom hear melee abilities through their spells, the Windfury Totem hit among them.
 const swingMask = core.ProcMaskMeleeWhiteHit | core.ProcMaskMeleeMHSpecial
 
 func hearsSwing(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
@@ -61,7 +61,7 @@ type sealEcho struct {
 	seal *sealConfig
 }
 
-// The seals' rows as the game files state them. Seal of Command is a talent and registers from
+// The seal spells as the game files state them. Seal of Command is a talent and registers from
 // registerTalentSpells.
 var (
 	SealOfRighteousnessRankMap = spellData.SealOfRighteousness
@@ -87,7 +87,7 @@ func (paladin *Paladin) makeSealExclusive(aura *core.Aura) *core.Aura {
 	return aura
 }
 
-// The castable seal spell: instant, on the GCD, priced as the row says.
+// The castable seal spell: instant, on the GCD, priced as the spell says.
 func (paladin *Paladin) registerSealSpell(cfg *sealConfig) *core.Spell {
 	config := spelldata.SpellConfig(&paladin.Unit, cfg.rank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty

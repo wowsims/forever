@@ -135,7 +135,7 @@ func TestCritForCasterReachesTheNamedSpells(t *testing.T) {
 	}
 }
 
-// A row that states a damage effect and a crit effect holds one slot, and each handler answers for
+// A spell that states a damage effect and a crit effect holds one slot, and each handler answers for
 // its own effects.
 func TestFromCasterEffectsShareTheParsesSlot(t *testing.T) {
 	sim := &core.Simulation{}

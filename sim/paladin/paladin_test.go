@@ -15,7 +15,7 @@ import (
 	"github.com/wowsims/forever/sim/paladin/retribution"
 )
 
-// A neck no game files row holds, whose effect gives its wearer the listeners below.
+// A neck the game files do not hold, whose effect gives its wearer the listeners below.
 const listenerNeck int32 = 9_990_001
 
 // How often each kind of listener heard a main-hand melee ability, counted by the neck's wearer.
@@ -139,7 +139,7 @@ func TestJudgementOfCommandRollsAWeaponProcOnce(t *testing.T) {
 	}
 }
 
-// Battlegear of Eternal Justice's 3-piece bonus restores the mana of its spell 26975 on its row's
+// Battlegear of Eternal Justice's 3-piece bonus restores the mana of its spell 26975 on its
 // share of Judgement casts, once a cast at most.
 func TestBattlegearOfEternalJusticeRestoresManaOnJudgement(t *testing.T) {
 	gain := spelldata.MustFind(26975).EnergizeEffect().BaseValue()

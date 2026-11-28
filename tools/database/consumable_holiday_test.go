@@ -36,8 +36,8 @@ func TestAConsumableTakesItsHoliday(t *testing.T) {
 	}
 }
 
-// Nutritious Food hands the amount of its periodic trigger to Well Fed, whose own row states
-// another.
+// Nutritious Food hands the amount of its periodic trigger to Well Fed, which states another
+// of its own.
 func TestNutritiousFoodListsTheAmountItHandsWellFed(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()

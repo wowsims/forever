@@ -138,7 +138,7 @@ func TestParseScopedRangedHitBonus(t *testing.T) {
 	r.checkNoStats(t, stats.PhysicalHitPercent, stats.SpellHitPercent)
 }
 
-// 23584: the warrior's off-hand hit, named by ATTR_EX_3_REQ_OFF_HAND on a row of the warrior's family.
+// 23584: the warrior's off-hand hit, named by ATTR_EX_3_REQ_OFF_HAND on a spell of the warrior's family.
 func TestParseScopedDualWieldSpecialization(t *testing.T) {
 	row := &Spell{ID: 23584, Name: "Dual Wield Specialization", EquipClass: 2, EquipSubclass: 41105,
 		ClassFlags: core.ClassFlags{Family: 4},
@@ -179,7 +179,7 @@ func TestParseScopedOffHandInventoryType(t *testing.T) {
 	r.check(t, bonusHit, 0, 2, 0, 0)
 }
 
-// 13705: the row's melee weapons bind its melee hit, and its spell hit is every spell's while one is
+// 13705: the spell's melee weapons bind its melee hit, and its spell hit is every spell's while one is
 // equipped.
 func TestParseScopedPrecision(t *testing.T) {
 	r := parseScoped(t, &Spell{ID: 13705, Name: "Precision", EquipClass: 2, EquipSubclass: 173555,
@@ -250,7 +250,7 @@ func TestParseCritPctWithAMeleeWeaponHoldsWhileEquipped(t *testing.T) {
 	}
 }
 
-// Under a per-stat category each crit stat of the row bids alone and follows its own bid.
+// Under a per-stat category each crit stat of the spell bids alone and follows its own bid.
 func TestParseCritPctWhileEquippedBidsPerStat(t *testing.T) {
 	row := &Spell{ID: 16255, Name: "Thundering Strikes", EquipClass: 2, EquipSubclass: 173555,
 		Effects: []Effect{casterAura(dbcenums.A_MOD_CRIT_PCT, 1)}}
@@ -353,7 +353,7 @@ func TestParseStaticRangedOnlyRatingKinds(t *testing.T) {
 	}
 }
 
-// A row that names no weapon keeps its channel stat, and so does a row whose weapon is the one the
+// A spell that names no weapon keeps its channel stat, and so does a spell whose weapon is the one the
 // caster needs to cast it at an enemy.
 func TestParseUnscopedHitKeepsTheStat(t *testing.T) {
 	withRows(t, parseRows())

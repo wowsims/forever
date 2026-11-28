@@ -38,7 +38,7 @@ trainer row or chain from one does; id range and skill line prove nothing, `Acqu
 trainer row, and a live ability has a real learn level or a trait entry. Wowhead Forever's sources and stats
 on SoD- and Classic-range items are inherited, not observed in Forever, so a page proves nothing; a new
 Forever id, `envChange.status == "new"` or a Forever-range effect spell shows an item is live, and tooltip
-stats with no game files row stay unconfirmed.
+stats the game files do not state stay unconfirmed.
 
 ## Traps in the checklist
 
@@ -160,7 +160,7 @@ change, dump each constructed row against the literal it replaced, field by fiel
 finds the bugs.
 
 **Run the `wowsims-review` pass over your own diff before committing**, ideally from a fresh agent: every
-number and hand-built config against its row and tooltip, the rules the rows cannot show, and every
+number and hand-built config against the game files and its tooltip, the rules the game files cannot show, and every
 finding verified before it is fixed. The PR body carries its "checked, not findings" and "hand numbers
 that stay" lists.
 

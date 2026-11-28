@@ -177,8 +177,8 @@ func TestWeaponProcHearsALandedHitThatDealsNoDamage(t *testing.T) {
 	}
 }
 
-// A row that fires on every main-hand hit hears a landed hit that deals no damage. A rolled
-// main-hand row and an every-hit row without the main-hand bit still need damage.
+// A spell that fires on every main-hand hit hears a landed hit that deals no damage. A rolled
+// main-hand spell and an every-hit spell without the main-hand bit still need damage.
 func TestEveryHitMainHandRowHearsALandedHitThatDealsNoDamage(t *testing.T) {
 	withRows(t, procRows())
 
@@ -192,7 +192,7 @@ func TestEveryHitMainHandRowHearsALandedHitThatDealsNoDamage(t *testing.T) {
 	}
 }
 
-// A listener built from a row's melee swing bit hears a hit flagged as a counted swing, a Windfury
+// A listener built from a spell's melee swing bit hears a hit flagged as a counted swing, a Windfury
 // Totem hit, and still no other main-hand special.
 func TestSwingBitHearsCountedSwings(t *testing.T) {
 	withRows(t, procRows())
@@ -257,7 +257,7 @@ func TestProcTriggerChanceBySource(t *testing.T) {
 	}
 }
 
-// A row that states no rate has to be given one rather than firing on every hit.
+// A spell that states no rate has to be given one rather than firing on every hit.
 func TestProcTriggerUnstatedRatePanics(t *testing.T) {
 	withRows(t, procRows())
 
@@ -278,7 +278,7 @@ func TestProcTriggerRateOptions(t *testing.T) {
 		t.Errorf("PPM() left a chance of %v behind, which would gate the manager", ppm.ProcChance)
 	}
 
-	// The options run after the fill, so they win over whatever the row stated.
+	// The options run after the fill, so they win over whatever the spell stated.
 	if got := ProcTrigger(character, Find(2000), noopHandler, Chance(0.25)).ProcChance; got != 0.25 {
 		t.Errorf("chance = %v, want the caller's 25%%", got)
 	}
@@ -324,7 +324,7 @@ func TestProcTriggerRateFollowsTheOptionsMask(t *testing.T) {
 	}
 }
 
-// A weapon proc's mask comes from the weapon rather than from the row, so the caller supplies the
+// A weapon proc's mask comes from the weapon rather than from the spell, so the caller supplies the
 // manager and the rate check is satisfied by it.
 func TestProcTriggerMasklessRateFromTheCaller(t *testing.T) {
 	withRows(t, procRows())
@@ -339,8 +339,8 @@ func TestProcTriggerMasklessRateFromTheCaller(t *testing.T) {
 	}
 }
 
-// A death rolls the row's plain chance, which a rated trigger does not keep, so a row hearing hits and
-// killing blows keeps the kill only where it states a chance: a rate from the row or the caller drops it.
+// A death rolls the spell's plain chance, which a rated trigger does not keep, so a spell hearing hits and
+// killing blows keeps the kill only where it states a chance: a rate from the spell or the caller drops it.
 func TestRatedTriggerHearsNoDeath(t *testing.T) {
 	rows := procRows()
 	for i := range rows {
@@ -382,7 +382,7 @@ func TestProcTriggerBuildsPastUnsupportedBitsAndHints(t *testing.T) {
 }
 
 // A class mask is a filter inside one family, so a mask from another family names no spell the
-// character can cast. The row is Dreadnaught's 8pc 28845.
+// character can cast. The spell is Dreadnaught's 8pc 28845.
 func TestProcTriggerDropsAClassMaskOfAnotherFamily(t *testing.T) {
 	withRows(t, procRows())
 
@@ -443,7 +443,7 @@ func TestClassSpellFamilies(t *testing.T) {
 	}
 }
 
-// A trigger carries its row's own class flags, which is what a SPELLMOD_CHANCE_OF_SUCCESS names:
+// A trigger carries its spell's own class flags, which is what a SPELLMOD_CHANCE_OF_SUCCESS names:
 // Improved Poisons 14113 raises the chance Instant Poison 8680 rolls, and Moonkin Form 24858 the
 // chance of Omen of Clarity 16864 while the form is up.
 func TestAProcChanceModReachesTheTriggerBuiltFromTheRowItNames(t *testing.T) {

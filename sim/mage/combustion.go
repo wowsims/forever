@@ -31,7 +31,7 @@ func (mage *Mage) registerCombustionSpell() {
 		buffAura.SetStacks(sim, 1)
 	}
 
-	// The row is Disabled While Active (Attr0 0x2000000): the cooldown starts when the effect ends.
+	// The spell is Disabled While Active (Attr0 0x2000000): the cooldown starts when the effect ends.
 	chargesConfig.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
 		buffAura.Deactivate(sim)
 		combustionSpell.CD.Use(sim)
@@ -39,7 +39,7 @@ func (mage *Mage) registerCombustionSpell() {
 	}
 
 	// Area hits in EV-0197. Periodic damage never reaches OnSpellHitDealt, so DoT ticks and Ignite
-	// neither add a stack nor use a charge. The row cannot proc from procs, so an item's Fire proc
+	// neither add a stack nor use a charge. The spell cannot proc from procs, so an item's Fire proc
 	// does neither.
 	chargesConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if !spell.ProcMask.Matches(core.ProcMaskSpellDamage) || !spell.SpellSchool.Matches(core.SpellSchoolFire) || !result.Landed() ||

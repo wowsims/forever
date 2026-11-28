@@ -526,7 +526,7 @@ func TestWolfsheadAddsShiftingPowerEnergyAndEnrageRage(t *testing.T) {
 	if !cat.Enrage.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("enrage did not cast")
 	}
-	// The row's 10 instant rage, raised by half.
+	// The spell's 10 instant rage, raised by half.
 	if got := cat.CurrentRage(); got != 15 {
 		t.Errorf("rage after enrage with wolfshead = %v, want 15", got)
 	}
@@ -718,7 +718,7 @@ func TestPoisedLowersTheFirstCatAbilityOnly(t *testing.T) {
 }
 
 // A missed, dodged or parried Claw uses Poised as a landed one does, and pays the lowered cost less the
-// row's miss refund.
+// spell's miss refund.
 func TestAvoidedClawSpendsPoised(t *testing.T) {
 	for _, c := range []struct {
 		avoid string

@@ -56,9 +56,9 @@ func TestChanceOnHitHotRoutesAsAHeal(t *testing.T) {
 }
 
 // What a weapon's chance-on-hit parse must answer. A rate from a weapon rate override, or one the
-// trigger's row states, registers it unlisted. With neither it is refused for the missing rate alone
-// and listed as missing. A row's 100 or 101 is no rate on a weapon proc: the game casts the spell off
-// the hit without consulting the row.
+// trigger spell states, registers it unlisted. With neither it is refused for the missing rate alone
+// and listed as missing. A column of 100 or 101 is no rate on a weapon proc: the game casts the spell
+// off the hit without consulting it.
 func rateOutcome(t *testing.T, itemID int, spellID int32, got EffectParseResult) ([]string, bool) {
 	t.Helper()
 	row := spelldata.Find(spellID)
@@ -335,7 +335,7 @@ func TestOnUseRoutesFromTheSpellItCasts(t *testing.T) {
 }
 
 // An on-use whose spell raises the wearer's speeds registers as a speed buff, every speed effect of
-// its row modelled. Manual Crowd Pummeler is below core.MinEffectItemLevel and registers through its
+// its spell modelled. Manual Crowd Pummeler is below core.MinEffectItemLevel and registers through its
 // EffectFloorExemptions entry.
 func TestOnUseSpeedBuffRoutesAsASpeedBuff(t *testing.T) {
 	withDBCInputs(t)
@@ -378,7 +378,7 @@ func TestOnUseSpeedBuffRoutesAsASpeedBuff(t *testing.T) {
 	}
 }
 
-// An on-use whose spell keeps an A_PERIODIC_TRIGGER_SPELL aura on the wearer, casting a row that deals
+// An on-use whose spell keeps an A_PERIODIC_TRIGGER_SPELL aura on the wearer, casting one that deals
 // damage in an area or cone, registers as periodic damage, every period of the aura for the spell's
 // duration.
 func TestOnUsePeriodicTriggerDamageRoutesAsPeriodicDamage(t *testing.T) {

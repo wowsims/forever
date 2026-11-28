@@ -120,7 +120,7 @@ func TemporaryEnchantEquipSpellProcs(row *spelldata.Spell) bool {
 	return row.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL) != spelldata.NilEffect
 }
 
-// An equip spell that procs, built from its row, listening while a weapon carrying the enchant is
+// An equip spell that procs, built from the game files, listening while a weapon carrying the enchant is
 // equipped. A listener on the wearer's own hits hears the hands carrying the enchant alone; one on
 // the hits the wearer takes hears every one of them.
 func registerTemporaryEnchantProc(character *core.Character, consumable core.Consumable, row *spelldata.Spell, slots []proto.ItemSlot) {

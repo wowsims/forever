@@ -42,7 +42,7 @@ func implementedByHand(itemID int32) bool {
 	return core.HasItemEffect(itemID) || slices.Contains(core.AlchStoneItemIDs, itemID)
 }
 
-// Whether an item's effect is a proc: a chance-on-hit entry, or an equip spell whose row has proc flags.
+// Whether an item's effect is a proc: a chance-on-hit entry, or an equip spell with proc flags.
 func isItemProcEffect(effect dbc.ItemEffect) bool {
 	return effect.TriggerType == dbc.ITEM_SPELLTRIGGER_CHANCE_ON_HIT ||
 		effect.TriggerType == dbc.ITEM_SPELLTRIGGER_ON_EQUIP && spelldata.Find(int32(effect.SpellID)).ProcFlags != [2]uint32{}
@@ -145,10 +145,10 @@ type StackingOnUse struct {
 // generator writes and the listener the sim builds come from the same reading.
 type ProcRouting struct {
 	TriggerSpellID int
-	// Zero where the trigger's own row is the buff.
+	// Zero where the trigger spell is itself the buff.
 	BuffSpellID int
 	// A "Chance on hit" item effect or a combat enchant, cast by the game off every eligible weapon
-	// hit whatever the row's proc flags say.
+	// hit whatever the spell's proc flags say.
 	IsWeaponProc bool
 	// A weapon's own procs-per-minute rate, stated on its item effect; zero where the rows state one.
 	ItemPPM float64
@@ -217,7 +217,7 @@ func (r *ProcRouting) Reason() string {
 
 // The rows behind an item effect, by the two ids the sim will look up: the spell carrying the proc
 // and the spell it applies. A weapon's own procs-per-minute rate, stated on its item effect, answers
-// a trigger whose row states none; lockedFamily is the class family a relic locks its trigger to, 0
+// a trigger spell that states none; lockedFamily is the class family a relic locks its trigger to, 0
 // on any other item.
 func routeProc(triggerSpellID int, buffSpellID int, isWeaponProc bool, itemPPM float64, lockedFamily int32) *ProcRouting {
 	routing := &ProcRouting{TriggerSpellID: triggerSpellID, IsWeaponProc: isWeaponProc, ItemPPM: itemPPM}
@@ -286,7 +286,7 @@ func extraAttackUnsupported(row *spelldata.Spell) []string {
 	return unsupported
 }
 
-// A row dealing damage over time alone has to tick on an enemy: Blood Talon's Rend 13318 bleeds the
+// A spell dealing damage over time alone has to tick on an enemy: Blood Talon's Rend 13318 bleeds the
 // target every 3 s for 30 s.
 func damageUnsupported(damage *spelldata.Spell) []string {
 	periodic := damage.PeriodicDamageEffect()
@@ -391,7 +391,7 @@ func absorbs(s *spelldata.Spell) bool {
 }
 
 // The buff the proc applies has to last for something: an aura of no duration is one the sim
-// refuses to activate, and the game files state it on either row.
+// refuses to activate, and the game files state it on either spell.
 func (r *ProcRouting) requireABuffDuration() {
 	trigger := spelldata.Find(int32(r.TriggerSpellID))
 	buff := trigger
@@ -766,7 +766,7 @@ func shippedRateInputs(instance *dbc.DBC, db *WowDatabase) rateInputs {
 		in.Missing["enchant"][id] = true
 	}
 	// The rate varies by target type where the tooltip prints the chance as a fraction of the column
-	// (${$h/2}%): the row's chance is the full effect against the bonus target type, so the gear states no
+	// (${$h/2}%): the spell's chance is the full effect against the bonus target type, so the gear states no
 	// single rate.
 	scaled := func(spellID int) bool {
 		return strings.Contains(instance.Spells[spellID].Description, "$h/")
@@ -2330,7 +2330,7 @@ func parseOnUseSpell(parsed *proto.UIItem, itemEffect *proto.ItemEffect, instanc
 
 // The spell an on-use casts, read from the store the way the sim reads it: damage on the enemy it is
 // used on, a heal, an absorb, mana, rage or energy for the wearer, or a buff raising the wearer's
-// speeds. What else the row does is left out, and the summary names it.
+// speeds. What else the spell does is left out, and the summary names it.
 func routeOnUse(parsed *proto.UIItem, itemEffect *proto.ItemEffect, instance *dbc.DBC) *ProcRouting {
 	return routeOnUseSpell(int(parsed.Id), itemEffect.BuffId, instance)
 }
@@ -2362,12 +2362,12 @@ func routeOnUseSpell(itemID int, buffID int32, instance *dbc.DBC) *ProcRouting {
 		}
 	case heal != spelldata.NilEffect:
 		routing.Shape = ShapeHeal
-		// NewSpellDataHealOnUse restores the resource the row's energize states with the heal.
+		// NewSpellDataHealOnUse restores the resource the spell's energize states with the heal.
 		routing.Summary = onUseSummary(s, heal, s.EnergizeEffect())
 		routing.Unsupported = append(routing.Unsupported, healTargetUnsupported(s, dbcenums.TARGET_UNIT_TARGET_ALLY)...)
 	case absorb != spelldata.NilEffect:
 		routing.Shape = ShapeAbsorb
-		// NewSpellDataAbsorbOnUse restores the row's periodic energize while the shield holds.
+		// NewSpellDataAbsorbOnUse restores the spell's periodic energize while the shield holds.
 		routing.Summary = onUseSummary(s, append([]*spelldata.Effect{absorb, s.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)}, statsBesideTheAbsorb(instance, s)...)...)
 		routing.Unsupported = append(routing.Unsupported, absorbUnsupported(s)...)
 	case energize != spelldata.NilEffect:
@@ -2405,15 +2405,15 @@ func routeOnUseSpell(itemID int, buffID int32, instance *dbc.DBC) *ProcRouting {
 	return routing
 }
 
-// Whether the row's A_PERIODIC_TRIGGER_SPELL casts a row that deals damage: Thunderbrew's Boot Flask's
+// Whether the spell's A_PERIODIC_TRIGGER_SPELL casts a spell that deals damage: Thunderbrew's Boot Flask's
 // 12257 casts 12278, 75 Fire to the enemies in front of the wearer, every 1 s for 5 s.
 func triggersDamagePeriodically(s *spelldata.Spell) bool {
 	periodic := s.FirstAura(dbcenums.A_PERIODIC_TRIGGER_SPELL)
 	return periodic != spelldata.NilEffect && spelldata.Find(periodic.TriggerID).DamageEffect() != spelldata.NilEffect
 }
 
-// The aura ticks on the wearer, and the row it casts deals an amount to every enemy in an area or cone,
-// which the shape casts at the current target: a single-target row would leave it unclear which enemy
+// The aura ticks on the wearer, and the spell it casts deals an amount to every enemy in an area or cone,
+// which the shape casts at the current target: a single-target spell would leave it unclear which enemy
 // a tick picks.
 func periodicDamageUnsupported(s *spelldata.Spell, periodic *spelldata.Effect) []string {
 	unsupported := append(wearerTarget("periodic aura", periodic), tickUnsupported("damage", s, periodic)...)
@@ -2427,7 +2427,7 @@ func periodicDamageUnsupported(s *spelldata.Spell, periodic *spelldata.Effect) [
 	return unsupported
 }
 
-// The row's effects whose amounts the item's effect entry carries as stats, which the absorb on-use
+// The spell's effects whose amounts the item's effect entry carries as stats, which the absorb on-use
 // grants for as long as its shield holds.
 func statsBesideTheAbsorb(instance *dbc.DBC, s *spelldata.Spell) []*spelldata.Effect {
 	var effects []*spelldata.Effect
@@ -2447,7 +2447,7 @@ func castsOnUse(itemID int, spellID int, instance *dbc.DBC) bool {
 	})
 }
 
-// The row's factor against some targets where its effect does nothing else, an E_NONE or E_DUMMY: the
+// The spell's factor against some targets where its effect does nothing else, an E_NONE or E_DUMMY: the
 // damage on-use builders apply it (shared.ItemVersusBonus). Breath of Fire's 12257 states its factor
 // on the E_TRIGGER_SPELL that casts Strong Alcohol, which stays not simulated.
 func versusFactorModelled(s *spelldata.Spell) []*spelldata.Effect {
@@ -2542,7 +2542,7 @@ var itemAuraKinds = []dbcenums.EffectAuraType{
 }
 
 // The auras an item's or an enchant's equip spell is emitted as an aura for, beside itemAuraKinds: a
-// damage shield kept up while it is worn. A proc's damage shield row is left out: its proc flags state
+// damage shield kept up while it is worn. A proc's damage shield spell is left out: its proc flags state
 // when the shield deals damage, which the proc shapes would read as when it is applied.
 var equipAuraKinds = append(slices.Clone(itemAuraKinds), dbcenums.A_DAMAGE_SHIELD)
 
@@ -2771,8 +2771,8 @@ func effectKind(typ dbcenums.SpellEffectType, aura dbcenums.EffectAuraType) stri
 	return typ.String()
 }
 
-// "Often", "sometimes" and "occasionally" are how a tooltip says its proc has a rate the rows do not
-// carry. "No more often than" states a cooldown instead.
+// "Often", "sometimes" and "occasionally" are how a tooltip says its proc has a rate the game files do not
+// state. "No more often than" states a cooldown instead.
 var rateWordMatcher = regexp.MustCompile(`(?i)\b(often|sometimes|occasionally)\b`)
 var cooldownWordingMatcher = regexp.MustCompile(`(?i)more often than`)
 
@@ -2843,8 +2843,8 @@ var hasGenericMatcher = regexp.MustCompile(`a spell`)
 // A trigger condition stated as an attack outcome the mask has no bit for. Deliberately matches the
 // condition clause rather than the words themselves: "increases your dodge rating" is a stat on
 // hundreds of items, while "when one of your spells is resisted" is a trigger. "After you dodge" is
-// not in here because the only rows wording it that way are Counterattack's, where it gates the
-// button rather than a proc. A miss is not in here either: the one row naming one, 456394, means its
+// not in here because the only spells wording it that way are Counterattack's, where it gates the
+// button rather than a proc. A miss is not in here either: the one spell naming one, 456394, means its
 // own attack missing rather than an attack on it.
 var outcomeConditionMatcher = regexp.MustCompile(`(?i)when .{0,60}?(is|are) resisted|((each|every) time|when|whenever) you (dodge|parry)|after a (dodge|parry)`)
 
@@ -2852,7 +2852,7 @@ var outcomeConditionMatcher = regexp.MustCompile(`(?i)when .{0,60}?(is|are) resi
 // Battlegear of Wrath parry (23548) and "Chance on block" on Krol'dok Resolve (1324298). The decoder
 // gives the listener the block off the row, while a dodge or a parry taken stays the caller's, so the
 // block is its own hint. A clause naming a dodge or a parry beside the block would read as the block
-// alone; no row words one that way.
+// alone; no spell words one that way.
 var blockConditionMatcher = regexp.MustCompile(`(?i)((each|every) time|when|whenever) you block|after a block|\bon (a )?block\b`)
 
 // The wearer's own attack dodged or parried, named as the trigger: Recovery's "when you are Parried

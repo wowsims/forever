@@ -9,7 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The row's damage spell used from a test trinket against the given number of targets, run until its
+// The damage spell used from a test trinket against the given number of targets, run until its
 // cast has finished, and what it dealt to each target.
 func dealtPerTarget(t *testing.T, itemID int32, spellID int32, targetCount int) []float64 {
 	t.Helper()
@@ -116,7 +116,7 @@ func TestSingleTargetDamageHitsOnlyItsTarget(t *testing.T) {
 	}
 }
 
-// The ticks of the row's damage over time each target took once the use and the whole damage over
+// The ticks of the spell's damage over time each target took once the use and the whole damage over
 // time ran out, from a test trinket against the given number of targets.
 func ticksPerTarget(t *testing.T, itemID int32, spellID int32, targetCount int) []int32 {
 	t.Helper()
@@ -149,8 +149,8 @@ func TestAreaDamageOverTimeGoesOnEveryEnemyTheHitLandsOn(t *testing.T) {
 	}
 }
 
-// An area damage over time with no hit reaches every enemy in its area up to the row's MaxTargets. A
-// copy of 435968 that keeps only its damage over time and caps its targets stands in for the rows that
+// An area damage over time with no hit reaches every enemy in its area up to the spell's MaxTargets. A
+// copy of 435968 that keeps only its damage over time and caps its targets stands in for the spells that
 // state one.
 func TestAreaDamageOverTimeWithoutAHitStopsAtTheRowsMaxTargets(t *testing.T) {
 	editRow(t, 435968, func(s *spelldata.Spell) {
@@ -172,7 +172,7 @@ func TestAreaDamageOverTimeWithoutAHitStopsAtTheRowsMaxTargets(t *testing.T) {
 	}
 }
 
-// Chain Lightning 21179 jumps to its chain targets, each keeping the row's share of the damage the one
+// Chain Lightning 21179 jumps to its chain targets, each keeping the spell's share of the damage the one
 // before it took. A copy without its variance makes the jumps exact.
 func TestChainDamageJumpsToItsChainTargets(t *testing.T) {
 	editRow(t, 21179, func(s *spelldata.Spell) {

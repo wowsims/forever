@@ -42,7 +42,7 @@ func applySpellDataDebuffProc(agent core.Agent, cfg SpellDataProc, source effect
 	source.registerTrigger(character, config)
 }
 
-// Whether a weapon proc casts its debuff row as a strike (EV-0145).
+// Whether a weapon proc casts its debuff spell as a strike (EV-0145).
 func debuffStrikes(cfg SpellDataProc, row *spelldata.Spell) bool {
 	if !cfg.IsWeaponProc {
 		return false
@@ -51,7 +51,7 @@ func debuffStrikes(cfg SpellDataProc, row *spelldata.Spell) bool {
 	return defenseType == core.DefenseTypeMelee || defenseType == core.DefenseTypeRanged
 }
 
-// Sets the trigger to cast the row as a strike that deals no damage: one roll on the row's hit table,
+// Sets the trigger to cast the spell as a strike that deals no damage: one roll on the spell's hit table,
 // without a crit. The strike carries a weapon strike's mask, so it is heard as one (R-0040).
 func attachDebuffStrike(character *core.Character, trigger *core.ProcTrigger, row *spelldata.Spell, debuffs core.AuraArray) {
 	config := spelldata.SpellConfig(&character.Unit, row, damageShape(row), castBy(true))
@@ -72,7 +72,7 @@ func attachDebuffStrike(character *core.Character, trigger *core.ProcTrigger, ro
 	outcome = GetOutcome(attachProcDamage(character, trigger, config), application)
 }
 
-// A re-application refreshes the duration and, on a row that stacks, adds a stack up to its count.
+// A re-application refreshes the duration and, on a spell that stacks, adds a stack up to its count.
 func applyDebuff(sim *core.Simulation, aura *core.Aura) {
 	aura.Activate(sim)
 	if aura.MaxStacks > 0 {
@@ -80,18 +80,18 @@ func applyDebuff(sim *core.Simulation, aura *core.Aura) {
 	}
 }
 
-// Proc debuffs that bid in a raid debuff's category though no raid debuff reads their row. Vibroblade's
+// Proc debuffs that bid in a raid debuff's category though no raid debuff reads their spell. Vibroblade's
 // Puncture Armor 1293005 is here for when its wielder proc is registered, which no item does yet. In
 // game it never lands while Curse of Recklessness or Faerie Fire is on the target (EV-0147). It is weaker
 // than either, so bidding in their slot gives the target the same armor. Bashguuder and Rivenspike's
-// 17315 is the raid's Puncture Armor row, whose player copy bids there already.
+// 17315 is the raid's Puncture Armor spell, whose player copy bids there already.
 var debuffProcCategories = map[int32]string{
 	1293005: buffs.FaerieFireCategory,
 }
 
-// The row's debuff on each enemy, carrying the effects at the given positions. The aura is the row's,
-// so every character applying the row refreshes one debuff on the target, and the first to register it
-// parses it. A row a raid debuff reads is that debuff's player copy instead, or is the raid's copy where
+// The spell's debuff on each enemy, carrying the effects at the given positions. The aura is the spell's,
+// so every character applying the spell refreshes one debuff on the target, and the first to register it
+// parses it. A spell a raid debuff reads is that debuff's player copy instead, or is the raid's copy where
 // the raid's driver makes it the player's own.
 func EnemyDebuffAuras(character *core.Character, row *spelldata.Spell, duration time.Duration, effects []int32) core.AuraArray {
 	config := spelldata.AuraConfig(row, spelldata.Label(fmt.Sprintf("%s %d", row.Name, row.ID)))
@@ -132,7 +132,7 @@ func EnemyDebuffAuras(character *core.Character, row *spelldata.Spell, duration 
 	})
 }
 
-// The debuff a proc's damage spell puts on each enemy its hit lands on, or nil where the row states
+// The debuff a proc's damage spell puts on each enemy its hit lands on, or nil where the spell states
 // none. A spell that deals only damage over time has no hit, and its target takes the debuff with it.
 func debuffOnLanding(character *core.Character, row *spelldata.Spell) afterDealt {
 	effects := row.DebuffEffects()

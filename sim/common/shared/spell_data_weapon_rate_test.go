@@ -44,7 +44,7 @@ func TestWeaponProcRateComesFromTheItemEffect(t *testing.T) {
 	}
 }
 
-// A weapon whose trigger's row states a flat chance in its column, and whose effect entry states no
+// A weapon whose trigger states a flat chance in its column, and whose effect entry states no
 // procs-per-minute rate, rolls that chance on the hits of the hand that carries it and on no other's.
 func TestFlatChanceWeaponProcRollsOnItsOwnHand(t *testing.T) {
 	const flatID, plainID, trigger int32 = 992611, 992612, forgingStrike

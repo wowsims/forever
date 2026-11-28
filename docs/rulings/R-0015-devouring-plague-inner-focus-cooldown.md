@@ -6,4 +6,4 @@
 - Evidence: pending
 
 Devouring Plague is learnable by every race, and Inner Focus restarts its cooldown when the buff is used up (`OnExpire`
-calls `CD.Use`) though the row has no cooldown-on-event bit.
+calls `CD.Use`) though the game files state no cooldown-on-event bit.

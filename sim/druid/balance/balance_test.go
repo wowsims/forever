@@ -344,7 +344,7 @@ func TestHurricaneTicksRollNoOmenAndGrantNoNaturesGrace(t *testing.T) {
 }
 
 // A Hurricane tick is cast by the channel, so it is a proc, heard only by listeners that can proc from
-// procs, unless its row is flagged Not a Proc.
+// procs, unless the spell is flagged Not a Proc.
 func TestHurricaneTickIsAProcAsItsRowStates(t *testing.T) {
 	_, druid := newBalanceDruid(t, 1, 0)
 	tick := druid.Hurricane.RelatedDotSpell

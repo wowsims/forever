@@ -121,7 +121,7 @@ func TestHunterPets(t *testing.T) {
 	}))
 }
 
-// Auto Shot needs the bow, gun or crossbow its row names: a thrown weapon in the ranged slot fires
+// Auto Shot needs the bow, gun or crossbow its spell names: a thrown weapon in the ranged slot fires
 // none and starts no windup.
 func TestAutoShotNeedsABowGunOrCrossbow(t *testing.T) {
 	const thrown = 20814 // Master's Throwing Dagger
@@ -378,7 +378,7 @@ func TestLaceratingStrikesReplacesTheBleedOnTheNextBite(t *testing.T) {
 	}
 }
 
-// Strider Kick's 30% speed lasts the row's 3 seconds, and a walk that outlasts it ends where it was
+// Strider Kick's 30% speed lasts the spell's 3 seconds, and a walk that outlasts it ends where it was
 // going.
 func TestStriderKickSpeedRunsOutMidWalk(t *testing.T) {
 	player := &proto.Player{
@@ -434,7 +434,7 @@ func TestStriderKickSpeedRunsOutMidWalk(t *testing.T) {
 // The run speed, in yards a second, of a hunter with nothing but Enchant Boots - Minor Speed raising it.
 var minorSpeedRun = 7 * (1 + spelldata.MustFind(13889).EffectN(1).Percent())
 
-// Enchant Boots - Minor Speed, the boots enchant Forever offers, runs the hunter faster by its row's share.
+// Enchant Boots - Minor Speed, the boots enchant Forever offers, runs the hunter faster by its share.
 func TestMinorSpeedBootsRunFaster(t *testing.T) {
 	gear := core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave").GearSet
 	gear = googleProto.Clone(gear).(*proto.EquipmentSpec)

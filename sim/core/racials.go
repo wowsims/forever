@@ -288,7 +288,7 @@ func applyCommand(character *Character) {
 }
 
 // Beast Slaying 20557, Big Game Hunter 1259721 and Elemental Insight 1259707 state one effect, aura 168:
-// 5% damage against the creature type. Their rows carry no aura 547, the critical damage half that
+// 5% damage against the creature type. They state no aura 547, the critical damage half that
 // Humanoid Slaying 19151 states.
 func applyDamageVersus(character *Character, mobType proto.MobType) {
 	character.Env.RegisterPostFinalizeEffect(func() {
@@ -307,8 +307,8 @@ func applyExpansiveMind(character *Character) {
 	}
 }
 
-// One class's Eureka! row: the class mask and the fraction of its idx0 SPELLMOD_COST, idx1
-// SPELLMOD_DAMAGE and idx2 SPELLMOD_DOT, zero where the row states no SPELLMOD_DOT, and the row's
+// One class's Eureka! spell: the class mask and the fraction of its idx0 SPELLMOD_COST, idx1
+// SPELLMOD_DAMAGE and idx2 SPELLMOD_DOT, zero where the spell states no SPELLMOD_DOT, and its
 // duration and cooldown.
 type EurekaMods struct {
 	CostFlags, DamageFlags, ChannelFlags ClassFlags
@@ -325,8 +325,8 @@ func RegisterEurekaMods(read func(spellID int32) EurekaMods) {
 }
 
 // Eureka! scopes its mods to each class's abilities by the game files' class masks, for as long as
-// the buff is up: idx0 of each row names the spells whose cost it lowers, idx1 the ones whose direct
-// damage it raises, and idx2, on the warlock and priest rows only, the channels whose ticks it raises.
+// the buff is up: idx0 of each spell names the spells whose cost it lowers, idx1 the ones whose direct
+// damage it raises, and idx2, on the warlock and priest spells only, the channels whose ticks it raises.
 // Other periodic damage takes no bonus. A tick takes the bonus when Eureka! is up as it lands, so a
 // channel started before the buff gains it and one running past its end loses it.
 // TODO: Ingame test needed: whether a channel still running when the buff runs out keeps the bonus to
@@ -408,7 +408,7 @@ func applyEureka(character *Character) {
 }
 
 // The drain takes no downrank scaling from a low-level trigger and no Shadow modifiers. Its amount (5%
-// of max health), chance and 15 s cooldown are the row's values, typed in here; the logs agree with
+// of max health), chance and 15 s cooldown are the game files' values, typed in here; the logs agree with
 // the cooldown (EV-0022).
 func applyTouchOfTheGrave(character *Character) {
 	auraID, procChance := int32(1260201), 0.3

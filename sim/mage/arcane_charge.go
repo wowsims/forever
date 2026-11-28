@@ -36,6 +36,6 @@ func (mage *Mage) registerArcaneCharges() {
 
 	mage.ArcaneChargesAura = core.BlockPrepull(mage.RegisterAura(config))
 
-	// Arcane Blast's cost, per stack, on the row's own mask.
+	// Arcane Blast's cost, per stack, on the spell's own mask.
 	spelldata.ParseEffects(&mage.Character, mage.ArcaneChargesAura, arcaneChargesRank, spelldata.Effects(2))
 }

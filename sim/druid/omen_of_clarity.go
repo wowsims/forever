@@ -31,7 +31,7 @@ func (druid *Druid) registerOmenOfClarity() {
 	// ICD starts.
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		// The 15 October development notes take Faerie Fire cast in Cat, Bear or Dire Bear Form off
-		// Omen of Clarity. No row states it.
+		// Omen of Clarity. The game files state none.
 		if spellData.FaerieFire.Contains(spell) && druid.InForm(Cat|Bear|DireBear) {
 			return false
 		}
@@ -52,7 +52,7 @@ func (druid *Druid) registerOmenOfClarity() {
 	// casts neither; a shapeshift rolls nothing. The buff comes a spell batch later, after the cast has
 	// paid its cost or used Clearcasting, so a proc never makes its own cast free.
 	//
-	// Core gives every trigger a cooldown of its own, and the row's proc mask hears no helpful cast, so
+	// Core gives every trigger a cooldown of its own, and the spell's proc mask hears no helpful cast, so
 	// this trigger gates on and starts the hit trigger's cooldown itself.
 	icd := druid.OmenOfClarityAura.Icd
 	druid.OmenOfClarityAura.AttachProcTrigger(core.ProcTrigger{

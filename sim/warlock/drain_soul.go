@@ -5,9 +5,9 @@ import (
 )
 
 // Effect 1 (A_CHANNEL_DEATH_ITEM) returns a Soul Shard when the target dies with the channel on it,
-// whoever lands the killing blow. The row's PROC_FLAG_KILL at 0% chance grants nothing itself; Soul
+// whoever lands the killing blow. The spell's PROC_FLAG_KILL at 0% chance grants nothing itself; Soul
 // Harvest reads that kill.
-// TODO: The tooltip's chance of a Soul Shard from a target Drain Soul damages has no row behind it and is not modelled.
+// TODO: The tooltip's chance of a Soul Shard from a target Drain Soul damages has nothing in the game files behind it and is not modelled.
 func (warlock *Warlock) registerDrainSoul() {
 	rankedSpell := spellData.DrainSoul.ByID(11675)
 	drainSoulTick := rankedSpell.PeriodicEffect()

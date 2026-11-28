@@ -11,9 +11,9 @@ func (mage *Mage) registerFlamestrikeSpells() {
 	mage.registerFlamestrikeSpell(spellData.Flamestrike.Len(), spellData.Flamestrike.Highest())
 }
 
-// The cast's row names no tick spell, only an area trigger, so the cast and
+// The cast names no tick spell, only an area trigger, so the cast and
 // spellData.FlamestrikeTriggered pair by rank. The burn (MageSpellFlamestrikeDot) is the ground effect
-// on the cast's row. The tick spell keeps its row's class flags, rank and coefficient but reports under
+// on the cast. The tick spell keeps its class flags, rank and coefficient but reports under
 // the cast's id with tag 1, so its damage is the DoT line under Flamestrike's header. The burn carries
 // the same id and registers first, so a lookup of that id finds the spell that holds the area dot.
 //

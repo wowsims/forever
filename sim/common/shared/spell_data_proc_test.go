@@ -49,7 +49,7 @@ func TestSpellDataProcRegistersEveryVariant(t *testing.T) {
 	}
 }
 
-// A row that names no hits the sim hears would register a listener that can never fire. 1249119 is
+// A spell that names no hits the sim hears would register a listener that can never fire. 1249119 is
 // the buff half of the pair above, here stripped of any proc flags and hint.
 func TestSpellDataProcSkipsARowWithNoListener(t *testing.T) {
 	withTestItems(990003)
@@ -80,7 +80,7 @@ func TestSpellDataProcRegistersAnEnchant(t *testing.T) {
 	}
 }
 
-// A row pair in the shape the charge rules read: a trigger that grants the buff and a buff that
+// A spell pair in the shape the charge rules read: a trigger that grants the buff and a buff that
 // states its charges and what uses them.
 func chargeRows() (*spelldata.Spell, *spelldata.Spell) {
 	trigger := &spelldata.Spell{
@@ -101,7 +101,7 @@ func chargeAura() *core.StatBuffAura {
 	return &core.StatBuffAura{Aura: &core.Aura{Label: "Charge Buff Proc"}}
 }
 
-// A buff that is its own trigger hears the hits that granted it, so a spender read off that row
+// A buff that is its own trigger hears the hits that granted it, so a spender read off that spell
 // would take a charge back on the hit that handed it over.
 func TestSpellDataProcChargeSpenderNeedsABuffOfItsOwn(t *testing.T) {
 	trigger, buff := chargeRows()
@@ -119,7 +119,7 @@ func TestSpellDataProcChargeSpenderNeedsABuffOfItsOwn(t *testing.T) {
 	}
 }
 
-// The rows a trigger cannot be built from are the rows spelldata.ProcTrigger panics on, and asking
+// The spells a trigger cannot be built from are the spells spelldata.ProcTrigger panics on, and asking
 // first is the only thing between a charge spender and that panic.
 func TestSpellDataProcStatesATrigger(t *testing.T) {
 	_, buff := chargeRows()
@@ -127,7 +127,7 @@ func TestSpellDataProcStatesATrigger(t *testing.T) {
 		t.Error("a row stating both a listener and a chance was refused")
 	}
 
-	// Damage of any kind names a listener without naming a hit kind, so this row hears something and
+	// Damage of any kind names a listener without naming a hit kind, so this spell hears something and
 	// still has no mask a procs-per-minute rate could be measured against.
 	maskless := *buff
 	maskless.ProcFlags = [2]uint32{0: dbcenums.PROC_FLAG_TAKE_ANY_DAMAGE}
@@ -216,7 +216,7 @@ func auraByLabel(character *core.Character, label string) *core.Aura {
 	return nil
 }
 
-// The whole registration on a character: the buff as the rows describe it, the listener that applies
+// The whole registration on a character: the buff as the game files describe it, the listener that applies
 // it, and the ICD handed to the buff for the APL values that ask after it.
 func TestSpellDataProcAppliesToACharacter(t *testing.T) {
 	const itemID int32 = 990201
@@ -271,7 +271,7 @@ func TestSpellDataProcAppliesToACharacter(t *testing.T) {
 	}
 }
 
-// A damage proc has no buff at all: the row it names is a spell that deals damage. What it does not
+// A damage proc has no buff at all: what it names is a spell that deals damage. What it does not
 // state is that the game casts it off a hit, which is the GCD, the cost and the cast time this has to
 // strip.
 func TestSpellDataDamageProcAppliesToACharacter(t *testing.T) {
@@ -508,7 +508,7 @@ func TestWeaponProcsIgnoreShieldAndMagicDefenseSpecials(t *testing.T) {
 	}
 }
 
-// A PPM override on a rate-less enchant proc's row clears its refusal, and the registration measures
+// A PPM override on a rate-less enchant proc's spell clears its refusal, and the registration measures
 // the rate on the enchanted weapon's hits. An equip aura that hears only spells never rolls, which is
 // the refusal its rate gets.
 func TestSpellDataProcTakesAPPMOverride(t *testing.T) {

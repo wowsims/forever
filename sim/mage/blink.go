@@ -13,7 +13,7 @@ var blinkRank = spellData.Blink.Highest()
 // Blink
 // https://www.wowhead.com/forever/spell=1953
 //
-// The leap's radius is how far the mage moves toward the target. The move takes the row's duration.
+// The leap's radius is how far the mage moves toward the target. The move takes the spell's duration.
 // From closer than the radius the mage passes through the target and lands the rest of the way past
 // it. The sim has no facing, so that move is a straight walk to where the mage lands, and only its
 // end point is right.

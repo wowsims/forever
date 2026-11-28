@@ -275,8 +275,8 @@ func registerSpellDataConsumable(itemID int32) {
 	})
 }
 
-// The item's own cooldown and the category cooldown it shares. -1 on the item's row, and a category
-// of 0, defer to the spell's row: the Spellblasting potions 250932-250937 state neither.
+// The item's own cooldown and the category cooldown it shares. -1 on the item's effect, and a category
+// of 0, defer to the spell: the Spellblasting potions 250932-250937 state neither.
 type consumableCooldowns struct {
 	cooldownMs, category, categoryMs int32
 }
@@ -303,7 +303,7 @@ func (c consumableCooldowns) longest() time.Duration {
 	return core.DurationFromMillis(max(c.cooldownMs, c.categoryMs, 0))
 }
 
-// The cast the spell's row states, on the item's cooldown and the category cooldown it shares.
+// The cast the spell states, on the item's cooldown and the category cooldown it shares.
 func consumableCast(character *core.Character, itemEffect *proto.ItemEffect, row *spelldata.Spell) core.CastConfig {
 	c := consumableCooldownsOf(itemEffect, row)
 	cast := spelldata.Cast(row)
@@ -316,7 +316,7 @@ func consumableCast(character *core.Character, itemEffect *proto.ItemEffect, row
 	return cast
 }
 
-// One gain of mana, rage or energy, at once or every period of the row's duration.
+// One gain of mana, rage or energy, at once or every period of the spell's duration.
 type consumableGain struct {
 	power dbcenums.PowerType
 	apply func(*core.Simulation)

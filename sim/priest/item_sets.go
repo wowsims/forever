@@ -8,7 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// A bonus whose row the parse states whole, exposed to the APL under the row's id.
+// A bonus whose spell the parse states whole, exposed to the APL under the spell's id.
 func parsedSetBonus(id int32) core.ApplySetBonus {
 	row := spelldata.MustFind(id)
 	return func(agent core.Agent, setBonusAura *core.Aura) {

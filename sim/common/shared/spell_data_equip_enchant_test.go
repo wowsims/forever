@@ -33,7 +33,7 @@ func init() {
 const hitWeapon int32 = 430391
 
 // A weapon enchant whose equip spell is weapon-scoped gives its aura's hit to the attacks made with the
-// hand the enchant is on, while that hand holds a weapon its row names.
+// hand the enchant is on, while that hand holds a weapon its spell names.
 func TestWeaponScopedEnchantReachesTheWeaponItNames(t *testing.T) {
 	const swordID, daggerID, enchantID int32 = 990981, 990982, 990983
 

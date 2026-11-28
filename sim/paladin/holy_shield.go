@@ -22,14 +22,14 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 	blockPercent := rank.Effect(dbcenums.A_MOD_BLOCK_PERCENT, 0).BaseValue()
 	charges := int32(rank.ProcCharges)
 
-	// The per-block damage has no row of its own: it is the shield's own proc-trigger-damage effect.
+	// The per-block damage has no spell of its own: it is the shield's own proc-trigger-damage effect.
 	procConfig := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc(),
 		spelldata.Tag(2))
 	procConfig.ClassSpellMask = SpellMaskHolyShieldProc
-	procConfig.Flags &^= core.SpellFlagHelpful // The row's first effect is the block chance on the paladin.
+	procConfig.Flags &^= core.SpellFlagHelpful // The spell's first effect is the block chance on the paladin.
 	procConfig.BonusCoefficient = damageEffect.Coeff()
 	procConfig.ThreatMultiplier = 1.2 // The tooltip's 20% additional threat.
-	// Crits on block damage in EV-0189. Its row states no Can't Crit.
+	// Crits on block damage in EV-0189. The game files state no Can't Crit for it.
 	procConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHit)
 	}
@@ -84,7 +84,7 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 		holyShieldAura.AttachMultiplicativePseudoStatBuff(&paladin.PseudoStats.BlockValueMultiplier, paladin.holyShieldBlockValueMultiplier)
 	}
 
-	// The row requires a shield, which the cast requirement checks.
+	// The spell requires a shield, which the cast requirement checks.
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskEmpty
 	config.ClassSpellMask = SpellMaskHolyShield

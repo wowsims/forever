@@ -34,7 +34,7 @@ var ItemSetStormcallersGarb = core.NewItemSet(core.ItemSet{
 		// Your Lightning Bolt, Chain Lightning, and Shock spells have a 20% chance to grant up to 50
 		// Nature damage to spells for 8s.
 		// The proc effect names class family 11 and none of its spells, so the listener keeps to the
-		// spells the tooltip names; the copies Lightning Overload casts are not among them. The row
+		// spells the tooltip names; the copies Lightning Overload casts are not among them. The spell
 		// hears harmful spells, which the decode reads as the cast, so a Chain Lightning rolls once
 		// however many targets it hits.
 		// TODO: Ingame test needed -- whether only Lightning Bolt, Chain Lightning and the shocks roll it,

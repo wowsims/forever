@@ -101,7 +101,7 @@ func discoverPetFamilies(db *sql.DB, ladders []rankLadder, triggered map[string]
 			}
 			f.Passive = id
 		case name == hunterPetScaling, passive:
-			// Shared by every family, and stated by the server rather than the rows.
+			// Shared by every family, and stated by the server rather than the game files.
 		case subtext == "" || rankSubtext.MatchString(subtext):
 			abilities[family] = append(abilities[family], abilityRow{name, id})
 		}

@@ -20,7 +20,7 @@ func init() {
 	// Chance on hit: Attack all nearby enemies, dealing weapon damage plus 5 every 3 sec for 9 sec, and
 	// reducing your own movement speed by 80%.
 	//
-	// The row is a channel: for its 9 s the wearer swings no auto attack and casts nothing. Each tick's
+	// The spell is a channel: for its 9 s the wearer swings no auto attack and casts nothing. Each tick's
 	// strike rolls the other weapon procs but not Bladestorm.
 	newEntryRateItemEffect(7717, 9632, func(character *core.Character, ppm float64) {
 		strikeRow := spelldata.MustFind(9633)
@@ -68,7 +68,7 @@ func init() {
 	//
 	// Chance on hit: Next spell cast within 4 sec will cast instantly.
 	//
-	// The sim states the row's +100000% cast speed as no cast time, so the global cooldown stays whole.
+	// The sim states the spell's +100000% cast speed as no cast time, so the global cooldown stays whole.
 	newEntryRateItemEffect(2243, 18803, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(18803)
 
@@ -110,8 +110,8 @@ func init() {
 	//
 	// The game files state no rate for 13049; the item's chance-on-hit entry carries the one measured on
 	// the sword's speed. Any landed hit rolls it, Rend's and Concussion Blow's applications included. The
-	// row's category cooldown starts at the proc, and no hit rolls while it runs. The cast summons the
-	// Emerald Dragon Whelp 8776 its E_SUMMON names, on the hit enemy, for the row's duration.
+	// spell's category cooldown starts at the proc, and no hit rolls while it runs. The cast summons the
+	// Emerald Dragon Whelp 8776 its E_SUMMON names, on the hit enemy, for the spell's duration.
 	shared.RegisterItemGuardian(10847, spelldata.MustFind(13049), emeraldDragonWhelp)
 	newEntryRateItemEffect(10847, 13049, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(13049)
@@ -145,7 +145,7 @@ func init() {
 	// inflicting 490 Physical damage to your current target and increasing all your stats by 20 for
 	// 20 sec.
 	//
-	// No row states a cooldown.
+	// The game files state no cooldown.
 	core.NewItemEffect(2801, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		stackRow := spelldata.MustFind(1325509)
@@ -602,7 +602,7 @@ func init() {
 			panic(fmt.Sprintf("Barovian Family Sword: %d links to %d spells, want its heal alone", row.ID, len(linked)))
 		}
 		healConfig := procSpellConfigAs(character, linked[0], spelldata.Magic(core.ProcMaskSpellHealing))
-		// The heal's row states no defense type, and a heal crits for the magic multiplier.
+		// The game files state no defense type for the heal, and a heal crits for the magic multiplier.
 		healConfig.DefenseType = core.DefenseTypeMagic
 		healConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealHealing(sim, target, drain.Roll(sim), spell.OutcomeHealingCrit)
@@ -722,8 +722,8 @@ func init() {
 	// times as much damage to Aquatic enemies.
 	//
 	// Stack use in EV-0136.
-	// TODO: Static Electricity builds while the wearer moves, at a rate no row states and the logs do
-	// not settle in time between stacks; measure how far the wearer moves for a stack. Until then the
+	// TODO: Static Electricity builds while the wearer moves, at a rate the game files do not
+	// state and the logs do not settle in time between stacks; measure how far the wearer moves for a stack. Until then the
 	// sim gives no stacks.
 	shared.DamageProcExtras[9467] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(1294477)
