@@ -34,6 +34,7 @@ copy, and the lockfile records each skill's hash.
 | Skill                         | Use it for                                                                                      |
 | ----------------------------- | ----------------------------------------------------------------------------------------------- |
 | `wowsims-conventions`         | How comments, docs, commits and PR text are written; "game files", not "client"; banned terms   |
+| `wowsims-comments`            | How much of a comment stays: what one may hold, sizes, cutting long ones down to their EV- id   |
 | `wowsims-spells`              | The map: which spell data skill to read, where things live, when the sim and the row disagree   |
 | `wowsims-spell-store`         | Reading the spell store: ladders, ranks, effects, hand reads and resolvers                      |
 | `wowsims-abilities-auras`     | Building abilities, auras, dots, talents and buffs from their rows                              |

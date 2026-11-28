@@ -56,6 +56,8 @@ constants that no generator reads.
   built each iteration that never changes is built at registration.
 - **Text.** Every comment, doc line, test message, commit message and PR text the change adds or rewrites is
   read against `wowsims-conventions`, its plain-prose pass included.
+- **A comment that says more than it may.** Each comment the change adds or rewrites is held to `wowsims-comments`:
+  a sentence the code below or a cited `EV-` or `R-` file already states is a finding, and so is one over its size.
 
 ## 3. Each spell against its row
 
