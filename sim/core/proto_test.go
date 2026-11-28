@@ -58,8 +58,6 @@ func TestProtoVersioning(t *testing.T) {
 		}
 	}
 
-	// Next, determine the value of the current_version_number custom option
-	// for the ProtoVersion message.
 	newVersionNumber := GetCurrentProtoVersion()
 
 	// Compare this to the currently deployed version number, which is written to a text file
@@ -77,8 +75,7 @@ func TestProtoVersioning(t *testing.T) {
 	}
 
 	// If the above checks passed, then read in the actual results file for this test, which
-	// stores the local (pre-deployment) value of the version number. If necessary, force the
-	// developer to run make update-tests to keep this file in sync with proto/common.proto .
+	// stores the local (pre-deployment) value of the version number.
 	// This results file will be automatically copied into .deployedprotoversion as part of
 	// the build-and-deploy workflow.
 	localVersionNumber, err := readExpectedProtoVersion("TestProtoVersioning.results", false)

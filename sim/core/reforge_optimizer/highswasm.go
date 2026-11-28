@@ -62,12 +62,11 @@ type highsWasmRuntime struct {
 	highsSetDoubleOption     api.Function
 	highsSetStringOption     api.Function
 	highsGetModelStatus      api.Function
-	// stackAlloc is emscripten's __emscripten_stack_alloc. The npm build exports no malloc, so
-	// this is the only allocator available for the C strings the Highs_* entry points take.
+	// The npm build exports no malloc, so this is the only allocator available for the C strings the
+	// Highs_* entry points take.
 	stackAlloc api.Function
-	// stackSave and stackRestore are emscripten's _emscripten_stack_get_current and
-	// __emscripten_stack_restore. Nothing frees a stackAlloc, so each solve brackets its
-	// allocations between these two the way emscripten's own ccall does.
+	// Nothing frees a stackAlloc, so each solve brackets its allocations between these two the way
+	// emscripten's own ccall does.
 	stackSave    api.Function
 	stackRestore api.Function
 }
@@ -80,10 +79,8 @@ type highsWasmFile struct {
 	position int64
 }
 
-// runHiGHSLP runs the given CPLEX LP text through the pooled HiGHS wasm runtime. It returns the
-// per-variable primal values (indexed by x{i}), the HiGHS model status, and any error. A terminal
-// non-optimal status (e.g. infeasible) is returned as a status with nil values rather than an
-// error, so the caller can map it onto the solution status.
+// Runs the given CPLEX LP text through the pooled HiGHS wasm runtime. A terminal non-optimal status
+// is returned as a status with nil values rather than an error.
 func runHiGHSLP(lpString string, numVars int, timeout time.Duration, mipRelGap float64) ([]float64, int32, error) {
 	wasmRuntime, err := acquireHiGHSWasmRuntime()
 	if err != nil {
@@ -133,8 +130,8 @@ func runHiGHSLP(lpString string, numVars int, timeout time.Duration, mipRelGap f
 	if err := wasmRuntime.setStringOption(highs, "presolve", "on"); err != nil {
 		return nil, 0, err
 	}
-	// HiGHS rejects a non-positive time_limit; skip it (run unbounded) rather than erroring when the
-	// caller's budget is already spent.
+	// HiGHS rejects a non-positive time_limit; skip it (run unbounded) when the caller's budget is
+	// already spent.
 	if secs := timeout.Seconds(); secs > 0 {
 		if err := wasmRuntime.setDoubleOption(highs, "time_limit", secs); err != nil {
 			return nil, 0, err
@@ -183,9 +180,8 @@ func runHiGHSLP(lpString string, numVars int, timeout time.Duration, mipRelGap f
 	return solution, modelStatus, nil
 }
 
-// WarmUp eagerly compiles the embedded HiGHS WASM module, instantiates a runtime, runs its
-// startup and solves a trivial LP, so the one-time compile cost is paid at process start
-// instead of stalling the first optimize request.
+// Solves a trivial LP so the one-time compile cost is paid at process start instead of stalling the
+// first optimize request.
 func WarmUp() error {
 	const trivialLP = "Maximize\n obj: 1 x0\nBinary\n x0\nEnd"
 	_, _, err := runHiGHSLP(trivialLP, 1, 5*time.Second, 0)
@@ -255,8 +251,7 @@ func newHiGHSWasmRuntime() (*highsWasmRuntime, error) {
 		return nil, fmt.Errorf("HiGHS wasm export %s is not memory", worker.HighsWASMMemoryExport)
 	}
 
-	// Every name below is emscripten's symbolic one; highsExportedFunc translates it through the
-	// generated map to whatever letter this build of highs.wasm actually exports it under.
+	// Every name below is emscripten's symbolic one; highsExportedFunc translates it.
 	var lookupErr error
 	lookup := func(symbol string) api.Function {
 		fn, err := highsExportedFunc(instance, symbol)
@@ -283,9 +278,8 @@ func newHiGHSWasmRuntime() (*highsWasmRuntime, error) {
 	return runtime, nil
 }
 
-// highsExportedFunc resolves an emscripten export symbol to the function highs.wasm exports it
-// under. The npm build minifies its export names, so the mapping comes from the generated
-// ui/worker/highs_names_gen.go rather than being spelled out here.
+// Resolves an emscripten export symbol to the function highs.wasm exports it under. The npm build
+// minifies its export names, so the mapping comes from the generated ui/worker/highs_names_gen.go.
 func highsExportedFunc(instance api.Module, symbol string) (api.Function, error) {
 	minified, ok := worker.HighsWASMExports[symbol]
 	if !ok {
@@ -324,16 +318,12 @@ func getHiGHSWasmModule() (*highsWasmModule, error) {
 	return highsWasmModuleValue, highsWasmModuleErr
 }
 
-// highsWasmHostFuncs is the emscripten runtime HiGHS expects to be given, keyed by emscripten's
-// symbolic import name. The npm build minifies the names highs.wasm actually imports, so
-// instantiateHiGHSWasmHostModule translates through the generated ui/worker/highs_names_gen.go
-// rather than hardcoding letters that change with every upstream build.
+// The emscripten runtime HiGHS expects to be given, keyed by emscripten's symbolic import name. The npm
+// build minifies the names highs.wasm actually imports, so instantiateHiGHSWasmHostModule translates
+// through the generated ui/worker/highs_names_gen.go.
 //
 // The handlers use wazero's stack-based (GoModuleFunction) dispatch rather than reflection-based
-// WithFunc. HiGHS calls these imports (file I/O, clock, heap growth) many times per solve;
-// reflection dispatch boxed every argument via reflect.New/reflect.Value.Call, which dominated
-// allocations in bulk reforge runs. The stack convention passes params as a []uint64 and writes
-// results back in place, eliminating that per-call reflection.
+// WithFunc. HiGHS calls these imports (file I/O, clock, heap growth) many times per solve.
 var highsWasmHostFuncs = map[string]api.GoModuleFunc{
 	"___cxa_throw": func(context.Context, api.Module, []uint64) {
 		panic("HiGHS wasm exception handling import was called")
@@ -347,8 +337,7 @@ var highsWasmHostFuncs = map[string]api.GoModuleFunc{
 	},
 	"_emscripten_get_now":  highsWasmNowMillis,
 	"_emscripten_date_now": highsWasmNowMillis,
-	// fcntl64 and ioctl only ever reach the in-memory files below, where every operation is a
-	// no-op, so report success without inspecting the request.
+	// fcntl64 and ioctl only ever reach the in-memory files below, where every operation is a no-op.
 	"___syscall_fcntl64": highsWasmReturnZero,
 	"___syscall_ioctl":   highsWasmReturnZero,
 	// HiGHS never sets a timer or reads the local timezone in a way that reaches the solution
@@ -393,9 +382,9 @@ func highsWasmReturnZero(_ context.Context, _ api.Module, stack []uint64) {
 	stack[0] = 0
 }
 
-// instantiateHiGHSWasmHostModule registers highsWasmHostFuncs under the minified names and
-// signatures the embedded highs.wasm imports. An upstream build that adds an import fails here,
-// naming the symbol, rather than at solve time.
+// Registers highsWasmHostFuncs under the minified names and signatures the embedded highs.wasm
+// imports. An upstream build that adds an import fails here, naming the symbol, rather than at solve
+// time.
 func instantiateHiGHSWasmHostModule(ctx context.Context, runtime wazero.Runtime) error {
 	builder := runtime.NewHostModuleBuilder(worker.HighsWASMImportModule)
 	for _, wasmImport := range worker.HighsWASMImports {

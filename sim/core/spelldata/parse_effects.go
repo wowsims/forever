@@ -185,12 +185,10 @@ func SchoolResistances() ParseOpt {
 }
 
 // The unit that put the aura on the unit it sits on, for the rows that reach only that caster's
-// attacks on it: Shadow Weaving's shadow damage, Hemorrhage's Rupture, Winter's Chill's crit. Those
-// rows share one slot, index out of total, in the caster's attack table against the aura's unit:
-// every damage row multiplies into its DamageDoneByCasterExtraMultiplier handler and every crit row
-// adds into its CritChanceByCasterBonus handler, each enabled while any of its rows is up. The class
-// numbers its slots the way it numbers its AttachDDBC calls, one per parse. Without a caster those
-// rows are skipped.
+// attacks on it: Shadow Weaving's shadow damage. Those rows share one slot, index out of total, in the
+// caster's attack table against the aura's unit: every damage row multiplies into its
+// DamageDoneByCasterExtraMultiplier handler and every crit row adds into its CritChanceByCasterBonus
+// handler, each enabled while any of its rows is up. Without a caster those rows are skipped.
 func FromCaster(caster *core.Unit, index, total int) ParseOpt {
 	return func(o *parseOptions) {
 		o.casterSlot = &casterSlot{caster: caster, index: index, total: total}
@@ -215,9 +213,9 @@ func AllManaRegen() ParseOpt {
 	}
 }
 
-// One attachment the parse made, or one part of an attachment that has parts, for a log or a test: the
-// effect it came from, the sim kind it became and the value it carries in the sim's own units. A time
-// value is stated in milliseconds, and a multiplier as the factor itself.
+// One attachment the parse made, or one part of an attachment that has parts: the effect it came from,
+// the sim kind it became and the value it carries in the sim's own units. A time value is stated in
+// milliseconds, and a multiplier as the factor itself.
 type Applied struct {
 	Effect *Effect
 	Kind   string
@@ -255,8 +253,8 @@ type Parsed struct {
 // states cumulative ones.
 //
 // The effects act on the aura's own unit, and the character is that unit's, for the few rows whose
-// helper lives on a character rather than on a unit. An aura on a unit with no character of its own -
-// a debuff on an enemy - takes a nil character and has those rows skipped and reported.
+// helper lives on a character rather than on a unit. An aura on a unit with no character of its own,
+// a debuff on an enemy, takes a nil character and has those rows skipped and reported.
 //
 // An aura that is already up when it is parsed is caught up the way core's Attach helpers catch one
 // up, except for the rows that need a Simulation to act: the haste and energy regen multipliers stay
@@ -278,10 +276,9 @@ func ParseStatic(character *core.Character, s *Spell, opts ...ParseOpt) *Parsed 
 	return parse(&character.Unit, character, nil, s, opts, false)
 }
 
-// What ParseEffects would attach and skip for the row, with nothing registered anywhere: the answer a
-// generator reads before it writes the call. The aura sits on a unit with no character, so the rows
-// that act through a character are skipped. The amounts are priced at core.CharacterLevel unless
-// Level says otherwise.
+// What ParseEffects would attach and skip for the row, with nothing registered anywhere. The aura sits
+// on a unit with no character, so the rows that act through a character are skipped. The amounts are
+// priced at core.CharacterLevel unless Level says otherwise.
 func DryRun(s *Spell, opts ...ParseOpt) *Parsed {
 	return parse(&core.Unit{Level: core.CharacterLevel}, nil, nil, s, opts, true)
 }
@@ -317,8 +314,7 @@ func parse(unit *core.Unit, character *core.Character, aura *core.Aura, s *Spell
 	}
 
 	// The amount is the caster's, so a debuff on an enemy is still priced at the character's level
-	// and not at the level of the unit it sits on. Without a character the FromCaster unit is the
-	// caster, and without either there is only the unit.
+	// and not at the level of the unit it sits on.
 	level := unit.Level
 	if character != nil {
 		level = character.Level

@@ -173,7 +173,6 @@ func (unit *Unit) ReactToEvent(sim *Simulation, randomizeReactionTime bool, addR
 }
 
 // Call this to stop the GCD loop for a unit.
-// This is mostly used for pets that get summoned / expire.
 func (unit *Unit) CancelGCDTimer(sim *Simulation) {
 	if unit.rotationAction == nil {
 		return
@@ -182,9 +181,8 @@ func (unit *Unit) CancelGCDTimer(sim *Simulation) {
 	unit.rotationAction.Cancel(sim)
 }
 
-// Interrupt cancels any cast, channel or queued spell in progress, e.g. when the
-// unit gets crowd controlled. Does not touch the GCD; callers that also want to
-// lock the rotation should call ExtendGCDUntil afterwards.
+// Cancels any cast, channel or queued spell in progress, e.g. when the unit gets crowd controlled.
+// Does not touch the GCD.
 func (unit *Unit) Interrupt(sim *Simulation) {
 	if unit.IsChanneling() {
 		dot := unit.ChanneledDot

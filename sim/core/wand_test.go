@@ -8,9 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// A wand-like Shoot: one 100 damage shot per 2 s wand speed, for as long as the fight lasts. Like
-// RegisterShoot's Shoot it is hasted by cast speed and refused while moving; unlike it, it ignores
-// resists, so every shot deals exactly 100.
+// A wand-like Shoot: one 100 damage shot per 2 s wand speed, for as long as the fight lasts.
 func fakeShoot(char *Character, shots *[]time.Duration) *Spell {
 	spell := char.RegisterSpell(SpellConfig{
 		ActionID:         ActionID{SpellID: 5019},

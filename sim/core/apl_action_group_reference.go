@@ -234,8 +234,8 @@ func (action *APLActionGroupReference) replacePlaceholders(value APLValue, varia
 	// Check if this value is a placeholder
 	if placeholder, ok := value.(*APLValueVariablePlaceholder); ok {
 		if replacement, ok := variables[placeholder.name]; ok {
-			// Create a new value from the replacement. One that is empty or does not resolve keeps the
-			// placeholder, which reads zero, so what holds it still has a value.
+			// A replacement that is empty or does not resolve keeps the placeholder, which reads zero,
+			// so what holds it still has a value.
 			if filled := rot.newAPLValue(replacement); filled != nil {
 				return filled
 			}
@@ -257,8 +257,8 @@ func (action *APLActionGroupReference) replacePlaceholders(value APLValue, varia
 			}
 		}
 
-		// If any inner values were replaced, we need to create a new value object. A Math one is checked as its
-		// constructor checks it, and one that fails keeps the placeholders, which read zero.
+		// A Math one is checked as its constructor checks it, and one that fails keeps the placeholders,
+		// which read zero.
 		if anyReplaced {
 			// Handle specific value types that need special treatment
 			switch v := value.(type) {

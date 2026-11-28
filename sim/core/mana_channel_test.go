@@ -32,8 +32,7 @@ func paidSpellConfig(id int32, castTime time.Duration) SpellConfig {
 	return config
 }
 
-// The warrior gets a mana bar of 10000 with 10 mana per second of spirit regen, none of which goes on
-// while casting; register adds the spell under test.
+// The warrior gets a mana bar with spirit regen, none of which goes on while casting.
 func newManaTickTest(register func(char *Character) *Spell) *channelTest {
 	return newChannelTest(func(ct *channelTest, char *Character) *Spell {
 		char.manaBar.unit = &char.Unit

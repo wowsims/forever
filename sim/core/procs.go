@@ -153,9 +153,9 @@ func (character *Character) NewLegacyPPMManager(ppm float64, procMask ProcMask) 
 }
 
 // A procs-per-minute rate for weapon hits beside the same rate for spell hits, each spell hit priced
-// on the cast time of the cast that dealt it and never under the 1.5 s global cooldown, so an instant
-// or a channel prices at 1.5 s. The cast time is read at the cast's result, so a missile still in
-// flight keeps it when the next cast of the spell starts. The weapon hits NewLegacyPPMManager measures
+// on the cast time of the cast that dealt it and never under the 1.5 s global cooldown. The cast time
+// is read at the cast's result, so a missile still in flight keeps it when the next cast of the spell
+// starts. The weapon hits NewLegacyPPMManager measures
 // keep its speeds: a swing's, and with no auto attack the wand's for a ranged hit. Every other hit of
 // the mask except a ranged auto attack rolls the rate on the main-hand weapon's own speed, read at the
 // roll, whether or not the character swings it: a spell on the ranged hit table with no ranged swing

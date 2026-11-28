@@ -298,7 +298,7 @@ func fillMessages(m protoreflect.Message, depth int) {
 
 // Variants of the spec's options, each with every number of them at 1: one with nothing else changed, and one
 // for each value a bool or enum field can take besides its default. Those are the options that register more, such
-// as the warrior's use_battle_shout or the hunter's pet_type, which needs a pet_uptime above 0.
+// as the hunter's pet_type, which needs a pet_uptime above 0.
 func optionVariants(info siml.SpecInfo) []optionVariant {
 	var numbers, changes []optionVariant
 	var walk func(path []protoreflect.FieldDescriptor, md protoreflect.MessageDescriptor, depth int)

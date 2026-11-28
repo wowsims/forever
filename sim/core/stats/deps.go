@@ -107,11 +107,6 @@ func (dep *StatDependency) UpdateValue(newAmount float64) {
 }
 
 // Manages dependencies between stats.
-//
-// Some examples:
-// Increases your AP by 30% of your Int
-// Increases agility by X%
-// Reduces armor by 50%
 type StatDependencyManager struct {
 	deps      []*StatDependency
 	finalized bool
@@ -307,8 +302,8 @@ func (sdm *StatDependencyManager) SortAndApplyStatDependencies(s Stats) Stats {
 	return sdm.ApplyStatDependencies(s)
 }
 
-// GetStatDependencyCoeff returns the combined linear coefficient for how much of dst
-// is gained per unit of src from all currently-enabled dependencies.
+// The combined linear coefficient for how much of dst is gained per unit of src from all
+// currently-enabled dependencies.
 func (sdm *StatDependencyManager) GetStatDependencyCoeff(src, dst Stat) float64 {
 	for _, dep := range sdm.deps {
 		if dep.enabled && dep.src == src && dep.dst == dst {

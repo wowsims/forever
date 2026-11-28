@@ -7,8 +7,7 @@ import (
 )
 
 // The taken bits that name a direct hit arriving on the character. The two helpful takes are out
-// because the sim models neither - one comes back as unsupported, the other is ignored - and the
-// any-damage take has a rule of its own below.
+// because the sim models neither, and the any-damage take has a rule of its own below.
 const procFlagAnyDirectTaken = dbcenums.PROC_FLAG_TAKE_MELEE_SWING |
 	dbcenums.PROC_FLAG_TAKE_MELEE_ABILITY |
 	dbcenums.PROC_FLAG_TAKE_RANGED_ATTACK |
@@ -31,8 +30,7 @@ const procFlagAnyDirectDealt = procFlagAnyAttackDealt | dbcenums.PROC_FLAG_DEAL_
 type ProcHint uint16
 
 const (
-	// The tooltip names the cast itself as the trigger: "each time you cast a spell", "chance on
-	// spell cast".
+	// The tooltip names the cast itself as the trigger: "each time you cast a spell".
 	ProcHintCastTrigger ProcHint = 1 << iota
 	// The tooltip names a critical strike as the trigger.
 	ProcHintCrit
@@ -42,7 +40,7 @@ const (
 	ProcHintHeals
 	// The tooltip restricts the trigger to healing spells.
 	ProcHintPureHeal
-	// The trigger clause names one ability: "Your Shock spells", "Your Moonfire ability".
+	// The trigger clause names one ability: "Your Moonfire ability".
 	ProcHintNamedAbility
 	// The trigger clause states an attack outcome the mask has no bit for: a resist, a dodge or a
 	// parry.
@@ -53,10 +51,10 @@ const (
 	// The same for the wearer's own attack being parried.
 	ProcHintAttackParried
 	// The trigger clause restricts the proc to spells with a damage component: "your damaging
-	// spells", "your next 5 damage or healing spells".
+	// spells".
 	ProcHintDamage
-	// The trigger clause names the wearer blocking: "every time you block", "after a block". A
-	// blocked hit is an outcome the listener can be given, so the decoder names it.
+	// The trigger clause names the wearer blocking: "every time you block". A blocked hit is an
+	// outcome the listener can be given, so the decoder names it.
 	ProcHintBlocked
 )
 
@@ -142,7 +140,7 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	}
 
 	// Damage of any kind, however it arrived, which is both of the taken callbacks. The bit names
-	// damage rather than a hit, so a landed hit dealing none does not count - the default this
+	// damage rather than a hit, so a landed hit dealing none does not count: the default this
 	// decode starts from, and no game files mask pairs this bit with one that clears it.
 	if word&dbcenums.PROC_FLAG_TAKE_ANY_DAMAGE != 0 {
 		info.Callback |= CallbackOnSpellHitTaken | CallbackOnPeriodicDamageTaken
@@ -150,7 +148,7 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 
 	// The damage-class-none bit beside the magic one names the same casts a second way and says
 	// nothing about the trigger, so the cast question is asked of the mask without it: 0x11000 is
-	// the same shape as 0x10000, which is what unsupportedProcFlags says of that bit too.
+	// the same shape as 0x10000.
 	castWord := word &^ dbcenums.PROC_FLAG_DEAL_HARMFUL_ABILITY
 
 	// A mask made of nothing but the spell-cast bits, one of them at least.
@@ -159,12 +157,9 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 
 	// Whether the cast itself is the trigger. A mask of only the harmful-spell bit does not care
 	// whether the spell landed. Any other spell-bit mask is a cast on the tooltip's word alone. The
-	// two items that pin that down disagree despite carrying the identical mask: Memento of Tyrande
-	// procs off resists, while Band of the Eternal Restorer does not proc on a miss or a
-	// full resist (EV-0094). What separates them is that the first names the cast as the trigger and the
-	// second does not, so for that pair the tooltip decides. The helpful bit alone is the same
-	// shape: Idol of Longevity's 28847 refunds mana "each time you cast Healing Touch", while Holy
-	// Power 28789 carries the bit with no cast tooltip and states no trigger at all.
+	// two items that pin that down, Memento of Tyrande and Band of the Eternal Restorer, disagree
+	// despite carrying the identical mask (EV-0094). What separates them is that the first names the
+	// cast as the trigger and the second does not.
 	castOnly := spellCastMask && (castWord == dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL || hint.Matches(ProcHintCastTrigger))
 
 	// A tooltip naming an outcome is the exception to all of it: a crit is only known once the
@@ -175,9 +170,8 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	} else if word&procFlagAnyDirectDealt != 0 {
 		info.Callback |= CallbackOnSpellHitDealt
 
-		// A spell landing for no damage, a debuff or a dot's application, reaches a mask of spell bits
-		// alone. A mask that pairs the harmful-spell bit with a melee or ranged bit needs damage
-		// (EV-0021, EV-0226).
+		// A spell landing for no damage reaches a mask of spell bits alone. A mask that pairs the
+		// harmful-spell bit with a melee or ranged bit needs damage (EV-0021, EV-0226).
 		if word&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 && word&procFlagAnyAttackDealt == 0 {
 			info.RequireDamageDealt = false
 		}
@@ -224,8 +218,7 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	}
 
 	// A mask naming one hand hears that hand's melee hits only. The bit restricts melee and
-	// nothing else: a mask pairing it with a spell or ranged bit keeps those hits, so this drops
-	// the other hand's melee bits rather than intersecting the whole proc mask. Naming both hands
+	// nothing else: a mask pairing it with a spell or ranged bit keeps those hits. Naming both hands
 	// is the same as naming neither, so only a mask with exactly one of the two restricts
 	// anything.
 	switch word & (dbcenums.PROC_FLAG_MAIN_HAND_WEAPON_SWING | dbcenums.PROC_FLAG_OFF_HAND_WEAPON_SWING) {
@@ -238,7 +231,7 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 		info.ProcMask &= ^ProcMaskMeleeOH
 	}
 
-	// An avoidance outcome - a dodge, a parry, a miss, a full block or a resist - is a hit that
+	// An avoidance outcome (a dodge, a parry, a miss, a full block or a resist) is a hit that
 	// landed on nothing, so a listener whose trigger is one hears a hit that dealt no damage.
 	// Which of them it is stays the caller's, except a block, which the hint below names: no
 	// ProcTypeMask has a bit for any of them.

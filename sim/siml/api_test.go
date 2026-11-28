@@ -113,8 +113,7 @@ func TestPrintRequestUnknownSection(t *testing.T) {
 	}
 }
 
-// A literal run as long as a file may be reads without a stack of its own length (SPEC.md §2 reads a compound
-// duration as any number of number-and-unit pairs).
+// A literal run as long as a file may be reads without a stack of its own length (SPEC.md §2).
 func TestParseRequestReadsALongLiteralRun(t *testing.T) {
 	text := "siml 1\nspec hunter\n\nvar $x = " + strings.Repeat("1s", maxSourceSize/4) + "\n"
 	r := ParseRequest(&proto.SimlParseRequest{Path: "x.apl.siml", Text: text}, readNames(t, "names.json"))

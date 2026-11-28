@@ -17,14 +17,12 @@ import (
 //
 // A channel is one cast for a buff whose row names its spells by class flags: the charge stays up for
 // every tick and every target, and is spent when the channel ends. A channel the buff's class flags
-// name spends it once the channel has started, even when its cast lands nothing itself, and so does
-// one already running when the charge comes. A listener on the cast counts a channeled cast as the
-// channel only while the channel runs, so one that starts none spends the charge like any other cast.
-// A tick that is a proc the row cannot proc from is not heard, so a channel of such ticks the class
-// flags do not name leaves the charge up. Wand Shoot is no such channel: each shot spends a charge
-// like any hit, and so do other hits while wanding. A buff whose row names no spells keeps nothing for
-// a channel: the first hit it hears spends the charge as it lands, a channel's missile included
-// (EV-0162).
+// name spends it once the channel has started, even when its cast lands nothing itself. A listener on
+// the cast counts a channeled cast as the channel only while the channel runs, so one that starts none
+// spends the charge like any other cast. A tick that is a proc the row cannot proc from is not heard,
+// so a channel of such ticks the class flags do not name leaves the charge up. Wand Shoot is no such
+// channel: each shot spends a charge like any hit, and so do other hits while wanding. A buff whose
+// row names no spells keeps nothing for a channel (EV-0162).
 // TODO: For a buff that names its spells, a tick that lands after its channel ends, a missile still in
 // flight, misses the charge. For one that names none, a missile in flight when a crit spends the charge
 // keeps the crit it rolled with the buff up.

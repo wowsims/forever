@@ -22,8 +22,8 @@ func (fw *FakeRageWarrior) registerFakeHeal() {
 	})
 }
 
-// Only the health a heal restores makes threat, half a point per point healed, split evenly between
-// the enemies in combat: a 300 heal on a unit missing 100 makes 50 threat, 25 on each of two targets.
+// Only the health a heal restores makes threat, half a point per point healed, split evenly between the
+// enemies in combat.
 func TestHealThreatCountsTheHealthRestoredSplitBetweenTargets(t *testing.T) {
 	request := fakeRageSimRequest()
 	request.Encounter.Targets = append(request.Encounter.Targets,

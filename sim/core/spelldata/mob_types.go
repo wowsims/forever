@@ -43,7 +43,7 @@ var creatureTypeMobTypes = [...]proto.MobType{
 }
 
 // The mob types a creature type mask names, as the versus auras' misc value and
-// TargetCreatureType state it: 4 is Demon, 32 Undead.
+// TargetCreatureType state it.
 func MobTypes(mask int32) []proto.MobType {
 	var out []proto.MobType
 	for creatureType, mobType := range creatureTypeMobTypes {

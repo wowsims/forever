@@ -50,8 +50,7 @@ func TestItemProcUnsupported(t *testing.T) {
 }
 
 // A proc that deals its amount off its own trigger carries it on the A_PROC_TRIGGER_DAMAGE aura: that
-// aura is the proc's damage effect, rolled by half its variance either side, 20 to 30 on 25 ± 0.4,
-// and the row's RecoveryTime gives the listener no cooldown. The row's own damage effect stays empty.
+// aura is the proc's damage effect, and the row's RecoveryTime gives the listener no cooldown.
 func TestProcTriggerDamageAuraIsTheProcsDamageEffect(t *testing.T) {
 	withRows(t, procRows())
 
@@ -78,7 +77,7 @@ func TestProcTriggerDamageAuraIsTheProcsDamageEffect(t *testing.T) {
 }
 
 // The sim refuses to register a proc whose row states no callback, and the audit has to see the same
-// rows that way or the two would drift apart silently.
+// rows that way.
 func TestItemProcUnsupportedCoversTheRegistrationsOwnRefusal(t *testing.T) {
 	withRows(t, procRows())
 
@@ -94,8 +93,7 @@ func TestItemProcUnsupportedCoversTheRegistrationsOwnRefusal(t *testing.T) {
 }
 
 // A relic's trigger under its class's family keeps its mask as the relic's lock where the mask names a
-// spell of the family in the store; under another family, on an item of no relic type, or naming no
-// spell of its family, the mask is refused.
+// spell of the family in the store.
 func TestRelicProcKeepsItsClassMask(t *testing.T) {
 	withRows(t, append(procRows(), Spell{ID: 2993, Name: "Family Spell", ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{32}}}))
 	row := Spell{ID: 2990, ProcChance: 10, ProcChanceSource: ProcChanceColumn,

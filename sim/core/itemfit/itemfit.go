@@ -24,7 +24,7 @@ type Enchant struct {
 }
 
 // The slots of each item type but the weapon, whose slots its hand type gives. gen_db -gen=go-to-ts writes it to the
-// UI as ITEM_TYPE_TO_SLOTS, read by getEligibleItemSlots in ui/sim/proto/items.ts.
+// UI as ITEM_TYPE_TO_SLOTS.
 var TypeSlots = map[proto.ItemType][]proto.ItemSlot{
 	proto.ItemType_ItemTypeUnknown:  {},
 	proto.ItemType_ItemTypeHead:     {proto.ItemSlot_ItemSlotHead},

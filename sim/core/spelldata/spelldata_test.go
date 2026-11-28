@@ -10,10 +10,8 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
-// Rows in the shape the game files state them, standing in for the generated store: a ranked
-// direct-damage spell with a slow on it and the two ranks above it, a proc aura that fires a
-// triggered spell, the spell it fires, and two carrying the fractional EffectBasePointsF about one
-// effect in 55 has. Ids ascend, as the generated slice's do.
+// Rows in the shape the game files state them, standing in for the generated store. Ids ascend, as
+// the generated slice's do.
 func fixture() []Spell {
 	return []Spell{
 		{

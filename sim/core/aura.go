@@ -19,12 +19,10 @@ type OnExpire func(aura *Aura, sim *Simulation)
 type OnStacksChange func(aura *Aura, sim *Simulation, oldStacks int32, newStacks int32)
 type OnEncounterStart func(aura *Aura, sim *Simulation)
 
-// Callback for after a spell hits the target and after damage is calculated. Use it for proc effects
-// or anything that comes from the final result of the spell.
+// Callback for after a spell hits the target and after damage is calculated.
 type OnSpellHit func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult)
 
-// OnPeriodicDamage is called when dots tick, after damage is calculated. Use it for proc effects
-// or anything that comes from the final result of a tick.
+// Called when dots tick, after damage is calculated.
 type OnPeriodicDamage func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult)
 
 // Callback for an enemy target's death, while its auras are still on it.
@@ -721,7 +719,6 @@ func (aura *Aura) Activate(sim *Simulation) {
 		panic("Aura with 0 duration")
 	}
 
-	// Activate exclusive effects.
 	// If there is already an active aura stronger than this one, then this one
 	// will be blocked.
 	for i, ee := range aura.ExclusiveEffects {
@@ -1259,9 +1256,9 @@ func (auras AuraArray) ApplyOnExpire(onExpire OnExpire) {
 	}
 }
 
-// An aura on every unit allied to the caster, for raid-targeted buffs such as Battle Shout and the
-// prayers. An in-sim cast of a party or raid area aura (paladin auras, shaman totems) reaches only the
-// caster; the party and raid buff settings stand in for the others.
+// An aura on every unit allied to the caster, for raid-targeted buffs. An in-sim cast of a party or
+// raid area aura (paladin auras, shaman totems) reaches only the caster; the party and raid buff
+// settings stand in for the others.
 func (caster *Unit) NewAllyAuraArray(makeAura func(*Unit) *Aura) AuraArray {
 	auras := make([]*Aura, len(caster.Env.AllUnits))
 	for _, target := range caster.Env.AllUnits {

@@ -16,11 +16,8 @@ type highsJSSolution struct {
 	Error  string             `json:"error"`
 }
 
-// runHiGHSLP runs the given CPLEX LP text through the browser's highs.wasm via the
-// __wowsimsSolveHiGHSLP bridge the host page exposes. Returns per-variable primal values (indexed
-// by x{i}), the HiGHS model status, and any error.
-// WarmUp is a no-op on js/wasm: the browser compiles the HiGHS solver lazily, and there is no
-// embedded module to precompile here.
+// A no-op on js/wasm: the browser compiles the HiGHS solver lazily, and there is no embedded module to
+// precompile here.
 func WarmUp() error { return nil }
 
 func runHiGHSLP(lpString string, numVars int, timeout time.Duration, mipRelGap float64) ([]float64, int32, error) {

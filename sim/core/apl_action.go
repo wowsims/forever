@@ -185,7 +185,6 @@ func (rot *APLRotation) newAPLAction(config *proto.APLAction) *APLAction {
 		rot.ValidationMessage(proto.LogLevel_Warning, "Condition could not be resolved and will be treated as always true. Add an 'Aura Known' check if this action should be skipped when the aura is absent.")
 	}
 
-	// If condition is const false, this action can never fire — prune it.
 	// Track the impl so its spells are still removed from MCD auto-casting.
 	if condition != nil {
 		if constVal, ok := condition.(*APLValueConst); ok && constVal.valType == proto.APLValueType_ValueTypeBool {

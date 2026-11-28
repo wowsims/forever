@@ -220,8 +220,8 @@ func TestOptimizeValuesSchoolHitPerPercent(t *testing.T) {
 }
 
 // An enchant's ArmorNoMods is worth its own weight per point, with no scale, and its Armor the Armor
-// weight. A fixture neck triples the armor from items and then doubles the armor, a percent armor
-// modifier, which leaves the ArmorNoMods whole in the cap space's armor as it does on the sheet.
+// weight. A percent armor modifier leaves the ArmorNoMods whole in the cap space's armor as it does on
+// the sheet.
 func TestOptimizeValuesArmorNoModsAtItsOwnWeight(t *testing.T) {
 	const armor = 120
 	values := func(stat proto.Stat) []float64 {

@@ -76,8 +76,7 @@ func TestItemEffectAppliesOnlyToAllowedClasses(t *testing.T) {
 	}
 }
 
-// The test generator's item filter drops an item its class may not use, as it drops an armor or
-// weapon type the class cannot wear.
+// The test generator's item filter drops an item its class may not use.
 func TestItemFilterDropsItemsTheClassMayNotUse(t *testing.T) {
 	paladinOnly := Item{ID: 990811, Type: proto.ItemType_ItemTypeTrinket, ClassAllowlist: []proto.Class{proto.Class_ClassPaladin}}
 	anyClass := Item{ID: 990812, Type: proto.ItemType_ItemTypeTrinket}

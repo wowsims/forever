@@ -67,10 +67,9 @@ func missingLines(a, b []byte, prefix string) []string {
 	return out
 }
 
-// The committed file is in the generator's form, and a regeneration gives every entry of it back as it is: the
-// name, its meaning and its spec lists, and the items listed as internal cooldown triggers. What the sim and the
-// database give beyond the table is only reported, since a database update or a class change adds names without
-// changing what is committed until make siml-names regenerates the table.
+// The committed file is in the generator's form, and a regeneration gives every entry of it back as it is. What
+// the sim and the database give beyond the table is only reported, since a database update or a class change adds
+// names without changing what is committed until make siml-names regenerates the table.
 func TestTableKeepsItsEntries(t *testing.T) {
 	old, data, c := committedTable(t)
 	if got := old.Encode(); !bytes.Equal(got, data) {

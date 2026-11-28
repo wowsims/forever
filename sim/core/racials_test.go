@@ -310,9 +310,8 @@ func TestGnomeEurekaReadsEachClassRow(t *testing.T) {
 	}
 }
 
-// Eureka!'s idx2 raises the ticks of a warlock channel its mask names that land while the buff is up,
-// on a channel started before the buff and on one that runs on past its end. A periodic spell that is
-// not a channel takes no bonus, on the mask or off it.
+// Eureka!'s idx2 raises the ticks of a warlock channel its mask names that land while the buff is up.
+// A periodic spell that is not a channel takes no bonus, on the mask or off it.
 func TestGnomeWarlockEurekaChannel(t *testing.T) {
 	sim, fw := setupFakeWarlockSim(proto.Race_RaceGnome, &proto.IndividualBuffs{})
 	target := fw.CurrentTarget
@@ -400,9 +399,8 @@ func TestHitAndCritDamageRacials(t *testing.T) {
 	}
 }
 
-// Ruthless raises the crit of every spell and attack whatever the character holds, bare hands
-// included. An undead and an orc have no crit racial, so at the same attributes they hold the crit
-// without it.
+// Ruthless raises the crit of every spell and attack, bare hands included. An undead and an orc have no
+// crit racial.
 func TestRuthlessNeedsNoWeapon(t *testing.T) {
 	for _, tc := range []struct {
 		race proto.Race
@@ -470,10 +468,8 @@ func TestSkyborneRacials(t *testing.T) {
 	}
 }
 
-// Read Leyline and Skysight each hold a plain cast and a tag 1 cast for an Attuned or Charged
-// character, on one cooldown: the plain one lasts 15 s at half the tagged one's bonus, and the aura
-// takes its bonus back off when it expires. An activation with no cast takes the plain bonus, also
-// after a tagged cast.
+// Read Leyline and Skysight each hold a plain cast and a tag 1 cast on one cooldown. An activation with
+// no cast takes the plain bonus, also after a tagged cast.
 func TestSkyborneCastsShareACooldown(t *testing.T) {
 	for _, tc := range []struct {
 		race    proto.Race

@@ -49,8 +49,7 @@ func TestEquipTestItemTakesTheWornSlot(t *testing.T) {
 	}
 }
 
-// The AllItems filter admits a weapon only where the class can wear it: the weapon type, two hands
-// where the type allows them, and the ranged type; a filter with no class keeps every weapon.
+// The AllItems filter admits a weapon only where the class can wear it.
 func TestItemFilterKeepsOutTheWeaponsTheClassCannotWear(t *testing.T) {
 	weapon := func(weaponType proto.WeaponType, hand proto.HandType) Item {
 		return Item{Type: proto.ItemType_ItemTypeWeapon, WeaponType: weaponType, HandType: hand}

@@ -34,7 +34,7 @@ type Meta struct {
 	Talent               spelldata.Ladder
 	TalentEffect         int32
 	TalentScalesDuration bool
-	// TalentDivisor prices the buff at talentPoints/TalentDivisor of the spell's amount, for a talent
+	// Prices the buff at talentPoints/TalentDivisor of the spell's amount, for a talent
 	// a tooltip prices by rank; 0 for a talent priced by a spell modifier.
 	TalentDivisor int32
 
@@ -111,8 +111,7 @@ func (m *Meta) atRank(rank *spelldata.Spell) *Meta {
 	return m.atState(rank, m.Label+" "+rank.Rank)
 }
 
-// The row on another spell under the label given, bidding in the row's categories. A priest's prayer
-// reads its own spell this way against the raid's input of its stat.
+// The row on another spell under the label given, bidding in the row's categories.
 func (m *Meta) atState(spell *spelldata.Spell, label string) *Meta {
 	state := *m
 	state.Label = label
@@ -229,10 +228,9 @@ func newDamageShield(unit *core.Unit, m *Meta, isPlayer bool, talentPoints int32
 }
 
 // Retribution Aura and Thorns scale with their caster's spell power in Forever even though their
-// game files rows carry no coefficient (every rank states EffectBonusCoefficient 0, and the damage
-// still moves with spell power in game). The coefficient is the 1.5 s cast-time floor over 3.5, the
+// game files rows carry no coefficient. The coefficient is the 1.5 s cast-time floor over 3.5, the
 // AoE divisor because the shield hits every attacker, and the 0.42 penalty for the aura effect: 6% of
-// spell power, the ratio Blizzard states for Retribution Aura and the one measured for Thorns (EV-0067).
+// spell power (EV-0067).
 const DamageShieldSpellPowerCoefficient = 1.5 / 3.5 / 3 * 0.42
 
 // A damage shield that scales with its caster's spell power. The player's copy reads its own spell

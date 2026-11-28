@@ -13,8 +13,7 @@ type casterSlot struct {
 	damageOn, critOn bool
 }
 
-// One effect in the slot: whether it is up, what it is worth at its current level and the spells it
-// reaches.
+// One effect in the slot.
 type casterPart struct {
 	up      bool
 	worth   float64

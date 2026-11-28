@@ -44,8 +44,8 @@ import (
 // |                         |          | later row is only reached when that action cannot run, so it never runs.                          |
 //
 // The parser reports undefined-group, undefined-sequence, undefined-variable and duplicate-variable too (SPEC.md §7.5),
-// by the same rules and with the same severities, so that the editor, which shows the parser's where both find one,
-// shows the same either way. These checks also find the references raw JSON holds, which the parser does not read.
+// by the same rules and with the same severities, so that the editor shows the same either way. These checks also find
+// the references raw JSON holds, which the parser does not read.
 //
 // Hidden rows: the sim parses none of them, so every check skips them except the references. A hidden row's references
 // are still checked and still count as uses, since unhiding the row brings them back (a hidden group reference is how
@@ -441,8 +441,7 @@ func constNumber(val string) (float64, bool) {
 	return n, err == nil
 }
 
-// ConstSeconds is a const value's number as the sim reads it, a duration in seconds; false when the sim reads it as a
-// string.
+// A const value's number as the sim reads it, a duration in seconds; false when the sim reads it as a string.
 func ConstSeconds(val string) (float64, bool) { return constNumber(val) }
 
 // A const value's text, a missing val being ""; false when value is no const.
@@ -704,8 +703,8 @@ func Lint(r *proto.APLRotation) []Finding {
 	for _, ref := range c.variableRefs {
 		referencedVariables[ref.name] = true
 	}
-	// Whether group g's variables or a reference to it set name. The sim reads a group row's references as the value
-	// variables' and lets these replace one only where a value variable of the name exists.
+	// The sim reads a group row's references as the value variables' and lets these replace one only where a value
+	// variable of the name exists.
 	groupSets := func(g int, name string) bool {
 		return slices.ContainsFunc(groups[g].list("variables"), func(v lintObject) bool { return v.value("name") == name }) ||
 			slices.ContainsFunc(c.groupReferences, func(ref groupRefSite) bool {
@@ -883,10 +882,7 @@ func lintConditions(c *collected, report lintReport) {
 }
 
 // A row is shadowed when an earlier live row of the same list takes the same action, with no condition or the same
-// one: the later row is only reached when that action cannot run, and then it cannot either. Prepull rows each run at
-// their own time, and stateful actions keep a state per row, so neither is compared. Earlier rows are kept by their
-// list, kind and action, with the first that always runs and the first for each condition, so each row is looked up
-// once.
+// one. Prepull rows each run at their own time, and stateful actions keep a state per row, so neither is compared.
 func lintShadowed(c *collected, report lintReport) {
 	type earlier struct {
 		always     int            // The first row that runs whenever it is reached, or -1.

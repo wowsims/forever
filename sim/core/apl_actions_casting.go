@@ -522,9 +522,8 @@ func (rot *APLRotation) newActionCastAllStatBuffCooldowns(config *proto.APLActio
 	}
 
 	unit.Env.RegisterPostFinalizeEffect(func() {
-		// This needs to happen after the rotation is finalized so that
-		// all manually casted MCDs are removed from the cooldown list
-		// before it is filtered for the desired buff types.
+		// After the rotation is finalized, so that all manually casted MCDs are removed from the
+		// cooldown list before it is filtered for the desired buff types.
 		actionImpl.processMajorCooldowns()
 	})
 
@@ -541,10 +540,8 @@ func (action *APLActionCastAllStatBuffCooldowns) processMajorCooldowns() {
 	})
 
 	action.character.Env.RegisterPostFinalizeEffect(func() {
-		// We again need a delayed evaluation here so that other instances of
-		// this action within the rotation can assemble their spell lists
-		// before the filtered spells are irreversibly removed from the MCD
-		// manager.
+		// Delayed so that other instances of this action within the rotation can assemble their
+		// spell lists before the filtered spells are irreversibly removed from the MCD manager.
 		for _, buffSpell := range matchingSpells {
 			action.character.removeInitialMajorCooldown(buffSpell.ActionID)
 		}

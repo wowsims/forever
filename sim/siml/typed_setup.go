@@ -51,7 +51,7 @@ type typedFile struct {
 }
 
 // How use lines are read (SPEC.md §9): through open, with the chain of files being read for cycles, or refused by a
-// host that reads no other files. A nil *uses does not follow them: format and the printer read one file's text.
+// host that reads no other files. A nil *uses does not follow them.
 type uses struct {
 	refused bool
 	path    string // The file being read, which the paths of its use lines are read against.
@@ -295,8 +295,7 @@ func (f *typedFile) writesAPLEntries() bool {
 	return false
 }
 
-// Whether the file writes a rotation row. A file with none holds defs and variables for the files that use it, so a
-// def no line of its own calls is no warning there.
+// Whether the file writes a rotation row. A file with none holds defs and variables for the files that use it.
 func (f *typedFile) writesRows() bool {
 	return slices.ContainsFunc(f.tree.statements, func(s stmt) bool { _, ok := s.(*rowStmt); return ok })
 }

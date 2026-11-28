@@ -153,8 +153,7 @@ func TestNamesItemsEnchantsSuffixes(t *testing.T) {
 	}
 }
 
-// An effect a two-hand and a one-hand weapon row share prints with the one-hand row's name in either hand, since that
-// row fits the one-handed Assassination Blade and a two-hander alike.
+// An effect a two-hand and a one-hand weapon row share prints with the one-hand row's name in either hand.
 func TestEnchantNameFitsEitherWeapon(t *testing.T) {
 	names := &Names{
 		Items: map[string]int32{"assassination_blade": 13036, "heartseeker": 12783},

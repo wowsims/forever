@@ -29,8 +29,7 @@ func mergeBulkSimCandidateResults(result *BulkSimCandidateResult, additionalResu
 
 // Combines metrics from two independent sim runs for the same gear set.
 // AggregatorData carries the sample count and sum of squares needed to
-// recompute the weighted mean/stdev after adaptive extra iterations are
-// appended.
+// recompute the weighted mean/stdev.
 func mergeBulkSimDistributionMetrics(metrics *proto.DistributionMetrics, additionalMetrics *proto.DistributionMetrics) *proto.DistributionMetrics {
 	if metrics == nil {
 		return additionalMetrics

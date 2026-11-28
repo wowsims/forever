@@ -13,9 +13,7 @@ func SlowAura(target *core.Unit) *core.Aura {
 func castSlowReductionAura(target *core.Unit, label string, spellID int32, multiplier float64, duration time.Duration) *core.Aura {
 	aura := target.GetOrRegisterAura(core.Aura{Label: label, ActionID: core.ActionID{SpellID: spellID}, Duration: duration})
 	aura.NewExclusiveEffect("CastSpdReduction", false, core.ExclusiveEffect{
-		// How far from 1 the applied factor is, which is the scale every member
-		// of the category bids on: a 33% slow outbids a 20% one. The factor is
-		// 1/multiplier, so a caller stating 1.5 is a 33.3% slow.
+		// How far from 1 the applied factor is, which is the scale every member of the category bids on.
 		Priority: 1 - 1/multiplier,
 		OnGain: func(ee *core.ExclusiveEffect, sim *core.Simulation) {
 			ee.Aura.Unit.MultiplyCastSpeed(sim, 1/multiplier)
@@ -48,9 +46,7 @@ var AtkSpeedReductionCategory = core.ExclusiveStatCategory(ThunderClapCategory, 
 
 func AtkSpeedReductionEffect(aura *core.Aura, speedMultiplier float64) *core.ExclusiveEffect {
 	return aura.NewExclusiveEffect(AtkSpeedReductionCategory, false, core.ExclusiveEffect{
-		// How far from 1 the applied factor is, which is the scale every member
-		// of the category bids on: a 20% slow outbids a 10% one. The factor is
-		// 1/speedMultiplier, so a helper stating 1.2 is a 16.67% slow.
+		// How far from 1 the applied factor is, which is the scale every member of the category bids on.
 		Priority: 1 - 1/speedMultiplier,
 		OnGain: func(ee *core.ExclusiveEffect, sim *core.Simulation) {
 			ee.Aura.Unit.MultiplyAttackSpeed(sim, 1/speedMultiplier)

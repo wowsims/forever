@@ -76,8 +76,7 @@ var (
 	}
 )
 
-// Sets f in m to a typical value: its last enum value, a set ActionID, the current target, a duration, an item id,
-// some entries of an indexed array, and a message with each of its fields set; two of them in a list.
+// Sets f in m to a typical value; two of them in a list.
 func setSample(t *testing.T, ix *schemaIndex, m protoreflect.Message, f *field, depth int) {
 	one := func() protoreflect.Value {
 		switch f.Printed {

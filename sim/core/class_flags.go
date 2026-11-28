@@ -16,7 +16,7 @@ var ClassSpellFamilies = map[proto.Class]int32{
 	proto.Class_ClassShaman:  11,
 }
 
-// ClassFlags is the game files' SpellClassOptions: the family (SpellClassSet) and the four
+// The game files' SpellClassOptions: the family (SpellClassSet) and the four
 // 32-bit words of SpellClassMask. A talent effect carries the same shape (EffectSpellClassMask)
 // naming the spells it modifies.
 type ClassFlags struct {

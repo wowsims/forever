@@ -84,8 +84,7 @@ type reforgeOptimizer struct {
 
 	// The baseline's build-phase stat dependency manager (ComputeStatDependencies). It resolves every
 	// stat conversion the sim models, and resolveStatDelta reads it for each LP variable's cap-space
-	// coefficients (the FULL dependency graph), apart from the EP-calibrated objective coefficients
-	// applyReforgeStat produces.
+	// coefficients.
 	statDeps *stats.StatDependencyManager
 	sheet    core.SheetAvoidance
 
@@ -119,8 +118,6 @@ func newReforgeOptimizer(request *proto.ReforgeOptimizeRequest, signals simsigna
 		return o, nil
 	}
 
-	// The baseline's environment build yields both its FinalStats and its finalized
-	// StatDependencyManager.
 	baseResult, baseSDM, sheet := computeReforgeStatsAndDeps(&proto.ComputeStatsRequest{Raid: request.Raid})
 	if baseResult.ErrorResult != "" {
 		return nil, errors.New(baseResult.ErrorResult)

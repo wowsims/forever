@@ -10,8 +10,7 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
-// A multidot counts active targets only: with the first target dotted and the second disabled, the second dot
-// goes to the third, and a limit of one dot stops at the first.
+// A multidot counts active targets only.
 func TestMultidotsCountActiveTargetsOnly(t *testing.T) {
 	const dotID = 910105
 	var spell *Spell
@@ -46,8 +45,7 @@ func TestMultidotsCountActiveTargetsOnly(t *testing.T) {
 }
 
 // A Strict Multidot on two targets dots both in one chain, unless a condition on its entry, or on a
-// group reference it sits under at any depth, turns false before the second dot. An outer Sequence's
-// condition only decides whether the sequence starts.
+// group reference it sits under at any depth, turns false before the second dot.
 func TestStrictMultidotStopsWhenItsConditionTurnsFalse(t *testing.T) {
 	const dotID = 910104
 	firstSecond := &proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{

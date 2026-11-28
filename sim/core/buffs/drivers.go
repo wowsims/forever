@@ -22,15 +22,13 @@ import (
 // debuffs and the raid. The driver reads its own field out of the message, and
 // any other field it needs: Flametongue Totem does nothing under Windfury Totem.
 
-// Three pieces of Battlegear of Wrath are worth 30 more attack power on Battle
-// Shout: item set 218's ItemSetSpell at three pieces is 23563, which adds a flat
+// Battlegear of Wrath: item set 218's ItemSetSpell at three pieces is 23563, which adds a flat
 // 30 to every effect of the Battle Shout family.
 var BattleShoutT2Bonus = spelldata.MustFind(23563).EffectN(1).BaseValue()
 
 // The raid's Battle Shout is the external caster's copy, which chains behind
-// the player's own shout rather than being up from the start. Its state is the
-// shout that warrior casts: 1 the trainer's Rank 6, 2 Rank 7 from Manual of
-// Battle Shout VII, 3 Rank 7 with the set on.
+// the player's own shout. Its state is the shout that warrior casts: 1 the
+// trainer's Rank 6, 2 Rank 7 from Manual of Battle Shout VII, 3 Rank 7 with the set on.
 func driveBattleShout(char *core.Character, raid *proto.RaidBuffs) {
 	rank := core.Ternary(raid.BattleShout == 1, battleShoutSpell, battleShoutBookRank)
 	aura := NewSpellDataBattleShoutRankAura(&char.Unit, false, rank)
@@ -126,8 +124,7 @@ func applyFixedUptimeAura(aura *core.Aura, uptime float64, tickLength time.Durat
 }
 
 // A druid innervates a character who is nearly out of mana, so that every other
-// mana cooldown is spent first. The row's auras raise the mana regen while it
-// is up, and the mana bar credits what they add to the aura's metrics.
+// mana cooldown is spent first.
 func driveInnervates(char *core.Character, individual *proto.IndividualBuffs) {
 	aura := NewSpellDataInnervatesAura(&char.Unit, false, 0)
 
@@ -197,9 +194,7 @@ func IsWindfuryTotemStrike(spell *core.Spell) bool {
 // The totem's summon, which names the totem aura in the metrics.
 var windfuryTotemCast = spelldata.MustFind(10614)
 
-// The totem hands the proc out as its raid aura, whose row states the chance,
-// what it hears and its 100 ms cooldown. The driver keeps the Windfury Totem hit the
-// proc lands, and the totem aura that holds the category.
+// The driver keeps the Windfury Totem hit the proc lands, and the totem aura that holds the category.
 func driveWindfuryTotem(char *core.Character, _ *proto.RaidBuffs) {
 	inheritWeaponTotem(char, windfuryTotemSpell, standWindfuryTotem)
 }
@@ -226,19 +221,15 @@ const windfuryTotemTriggerLabel = "Windfury Totem Trigger"
 
 // Windfury Totem does not stack with Flametongue Totem: while it stands, it
 // outbids Flametongue Totem's proc, whoever stands each totem. Grace of Air
-// Totem stacks with it as of 1.60.1.70425.
+// Totem stacks with it (EV-0102).
 var windfuryTotemHoldsOver = []string{
 	FlametongueTotemCategory,
 }
 
-// The Windfury Totem hit's row is the Windfury Weapon hit's (439440) in every column but the
-// class mask: weapon damage on the target, Not a Proc, main hand required. It
-// deals the main hand's weapon damage with the raid aura's attack power added,
-// after a Shank too (EV-0230), on the weapon special's table of miss, dodge, parry and crit, never a
-// glancing blow, and it is reduced by armor as a white hit is. Rank 3 adds
-// attack power and ranks 1 and 2 add none (EV-0002); the sim stands rank 3
-// only. It counts as a main-hand swing for the procs that hear melee swings
-// (EV-0136). A landed one grants the rage a main-hand swing does (EV-0138).
+// It deals the main hand's weapon damage with the raid aura's attack power added, after a Shank too
+// (EV-0230). Rank 3 adds attack power and ranks 1 and 2 add none (EV-0002); the sim stands rank 3
+// only. It counts as a main-hand swing for the procs that hear melee swings (EV-0136). A landed one
+// grants the rage a main-hand swing does (EV-0138).
 func newWindfuryTotemStrike(char *core.Character) *core.Spell {
 	attackPower := WindfuryTotemPriority()
 	config := spelldata.SpellConfig(&char.Unit, windfuryTotemStrike,
@@ -261,22 +252,15 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	}
 	strike := newWindfuryTotemStrike(char)
 
-	// The totem rolls on what the raid aura's row hears: a main-hand melee
-	// swing or melee ability that lands, whether or not it deals damage, and
-	// an off-hand ability the character casts itself, a rogue's Shank
-	// (EV-0155). The row's mask names both hands, and the tooltip's main-hand
-	// rule is the server's for the rest: off-hand swings never roll it
-	// (EV-0008), and neither does Mutilate's off-hand strike (EV-0155); the
-	// sim holds Whirlwind's off-hand strike to the same rule (no log measures
-	// it). Ranged attacks and spells never roll it, and neither does the hit of
-	// a proc without Not a Proc, since the row lacks Can Proc From Procs. Holy
-	// Strike, Stormstrike, Shred, Rake, Ferocious Bite, Claw and bear Swipe roll
-	// it, and triggered spells never: Seal of Fury, poisons, Consecration ticks
-	// (EV-0008). An auto attack, another proc's extra swing included, always
-	// rolls it. The proc rolls off the hit's cast result, and the Windfury Totem
-	// hit follows once that hit has been dealt, in the same instant. It requires
-	// a main hand, but it lands inside the 100 ms cooldown its proc has just
-	// started, so it never rolls.
+	// The totem rolls on an off-hand ability the character casts itself, a rogue's Shank (EV-0155).
+	// The row's mask names both hands, and the tooltip's main-hand rule is the server's for the rest:
+	// off-hand swings never roll it (EV-0008), and neither does Mutilate's off-hand strike (EV-0155);
+	// the sim holds Whirlwind's off-hand strike to the same rule (no log measures it). Ranged attacks
+	// and spells never roll it, and neither does the hit of a proc without Not a Proc, since the row
+	// lacks Can Proc From Procs. An auto attack, another proc's extra swing included, always rolls it.
+	// The proc rolls off the hit's cast result, and the Windfury Totem hit follows once that hit has
+	// been dealt, in the same instant. It requires a main hand, but it lands inside the 100 ms cooldown
+	// its proc has just started, so it never rolls.
 	trigger := spelldata.ProcTrigger(char, windfuryTotemSpell, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 		target := result.Target
 		sim.RunAfterCurrentEvent(func(sim *core.Simulation) {
@@ -290,10 +274,8 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	trigger.Duration = core.NeverExpires
 	trigger.Callback = core.CallbackOnCastResult
 	trigger.TriggerImmediately = true
-	// Triggered hits with Not a Proc roll it as abilities do: Windfury Weapon
-	// hits, Seal of Command, Judgement of Command and Retaliation (EV-0002).
-	// A hit with no defense type is no melee attack and never rolls it:
-	// Sweeping Strikes' copied hit 12723. Its normalized hit 26654 rolls it once.
+	// Triggered hits with Not a Proc roll it as abilities do (EV-0002).
+	// A hit with no defense type is no melee attack and never rolls it.
 	// An off-hand special rolls it only when a rotation casts it, never as
 	// another spell's strike (EV-0155 for Shank).
 	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
@@ -348,11 +330,8 @@ func FlametongueTotemDamage(weaponSpeed float64) float64 {
 	return flametongueTotemProc.EffectN(1).BaseValue() * weaponSpeed / 100
 }
 
-// The totem hands its proc out as the raid aura 15036, whose row hears auto
-// attacks at 100%. Every main-hand auto attack that lands adds fire damage
-// priced by the weapon's speed.
-//
-// The two totems do not stack: under both, Windfury Totem's proc holds and
+// Every main-hand auto attack that lands adds fire damage priced by the
+// weapon's speed. The two totems do not stack: under both, Windfury Totem's proc holds and
 // Flametongue Totem does nothing.
 func driveFlametongueTotem(char *core.Character, raid *proto.RaidBuffs) {
 	if raid.WindfuryTotem {
@@ -545,23 +524,19 @@ func playerWields(raid *proto.Raid, itemIDs ...int32) bool {
 	return slices.ContainsFunc(items, func(item *proto.ItemSpec) bool { return slices.Contains(itemIDs, item.GetId()) })
 }
 
-// The landed hits a minute a main-hand wielder makes beside its own swings: specials, Windfury hits
-// and Whirlwind, each of which rolls the weapon's proc (EV-0147).
+// The landed hits a minute a main-hand wielder makes beside its own swings (EV-0147).
 const wielderOtherHitsPerMinute = 48
 
-// The share of its proc's strikes a wielder's target dodges, whatever the target's level: the hit table's
-// dodge for an attacker behind a target three levels above it, with no weapon skill past its level's. The
-// wielder has the hit its strikes need to never miss, as the sim's pre-BiS Fury warrior has (EV-0152).
+// The share of its proc's strikes a wielder's target dodges, whatever the target's level. The wielder
+// has the hit its strikes need to never miss (EV-0152).
 const wielderStrikeDodgeChance = 0.065
 
 // A weapon's proc debuff from one main-hand wielder. Every target the raid's debuffs land on has a
 // wielder of its own, and the player wielding the weapon stacks the same aura. The wielder lands its
 // swings at the item's base speed and wielderOtherHitsPerMinute more hits, each rolling the item's
-// procs per minute, a chance of PPM × speed / 60, which refreshes the aura and adds a stack up to its
-// max. A row on the melee hit table is cast as a strike, as the player's proc casts it (R-0040): the
-// target dodges wielderStrikeDodgeChance of them, and one that lands off a swing rolls the proc once
-// more. A landing of the raid's debuffs (Target.ApplyRaidDebuffsAt) starts the rolls over, and a roll
-// on a target with the raid's debuffs disabled lands nothing.
+// procs per minute, which refreshes the aura and adds a stack up to its max. A row on the melee hit
+// table is cast as a strike, as the player's proc casts it (R-0040): the target dodges
+// wielderStrikeDodgeChance of them, and one that lands off a swing rolls the proc once more.
 func rollWielderHits(aura *core.Aura, itemID int32) {
 	item := core.GetItemByID(itemID)
 	if item == nil {

@@ -7,11 +7,10 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// A cast corresponds to any action which causes the in-game castbar to be
-// shown, and activates the GCD. Note that a cast can also be instant, i.e.
+// A cast corresponds to any action which activates the GCD. Note that a cast can also be instant, i.e.
 // the effects are applied immediately even though the GCD is still activated.
 
-// Callback for when a cast is finished, i.e. when the in-game castbar reaches full.
+// Callback for when a cast is finished.
 type OnCastComplete func(aura *Aura, sim *Simulation, spell *Spell)
 
 type Hardcast struct {
@@ -437,8 +436,6 @@ func (spell *Spell) makeCastFuncAutosOrProcs() CastSuccessFunc {
 }
 
 // Procs a spell, circumventing all checks, cooldowns, gcd's and so on
-// Simply logging the cast and applying the effect
-// Can be used for spells that proc off other spells and are the same spell id
 func (spell *Spell) Proc(sim *Simulation, target *Unit) {
 	if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
 		spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)%s",

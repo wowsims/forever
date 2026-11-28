@@ -44,8 +44,7 @@ func TestAverageResistIgnoresTargetLevel(t *testing.T) {
 }
 
 // Spell Piercing beyond the target's resistance is a negative average resist, which the roll pays out
-// as bonus damage in 10% steps, with an outcome carrying the negative percent. A hit at a tenth of the
-// share takes no bonus, and one at the full share takes it whole.
+// as bonus damage in 10% steps, with an outcome carrying the negative percent.
 func TestSpellPiercingBeyondResistanceAddsDamage(t *testing.T) {
 	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
 	attacker.stats[stats.SpellPiercing] = 15
@@ -130,8 +129,7 @@ func TestSpellPiercingUnderAOnePercentShareGivesNoBonus(t *testing.T) {
 	}
 }
 
-// A spell flagged SpellFlagNoSpellPiercing takes none of the caster's Spell Piercing: it gets no bonus
-// where the target has no resistance and meets the whole resistance where it has some.
+// A spell flagged SpellFlagNoSpellPiercing takes none of the caster's Spell Piercing.
 func TestSpellFlaggedNoSpellPiercingMeetsTheWholeResistance(t *testing.T) {
 	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
 	attacker.stats[stats.SpellPiercing] = 15

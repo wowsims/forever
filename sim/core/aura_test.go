@@ -2,9 +2,8 @@ package core
 
 import "testing"
 
-// A hit's callbacks run over the auras that were listening when it landed. An extra attack that
-// lands inside the first hit's callbacks, and drops an aura there, does not make a later aura run
-// twice for either hit.
+// An extra attack that lands inside the first hit's callbacks, and drops an aura there, does not make
+// a later aura run twice for either hit.
 func TestOnSpellHitDealtRunsEachAuraOncePerHit(t *testing.T) {
 	sim := &Simulation{}
 	unit := &Unit{auraTracker: newAuraTracker()}

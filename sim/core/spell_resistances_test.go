@@ -74,8 +74,8 @@ func TestMultiSchoolSpellMeetsItsLowestResistance(t *testing.T) {
 	}
 }
 
-// Against 150 resistance a plain spell is often partially resisted. A binary spell's hits and ticks never
-// are once it lands, nor is a spell flagged SpellFlagNoPartialResist. Spell Piercing beyond the
+// A binary spell's hits and ticks are never partially resisted once it lands, nor is a spell flagged
+// SpellFlagNoPartialResist. Spell Piercing beyond the
 // resistance gives a binary spell's hits and full-share ticks the bonus, and its tenth-share ticks and a
 // spell flagged SpellFlagNoPartialResist none.
 func TestBinaryAndNoPartialResistKeepTheWholeHit(t *testing.T) {

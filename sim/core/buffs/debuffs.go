@@ -19,9 +19,8 @@ func applyDebuffs(target *core.Unit, debuffs *proto.Debuffs, raid *proto.Raid) {
 	}
 }
 
-// The player's copy of the generated debuff that reads the spell, or nil where none does. An item
-// proc whose debuff is a raid debuff lands this copy, which bids in the raid debuff's category, and
-// stacks the raid's own where its driver made that the player's copy.
+// The player's copy of the generated debuff that reads the spell, or nil where none does. It bids in
+// the raid debuff's category, and stacks the raid's own where its driver made that the player's copy.
 func NewSpellDataDebuffAuraBySpell(target *core.Unit, spellID int32) *core.Aura {
 	m := debuffMetas[spellID]
 	if m == nil {

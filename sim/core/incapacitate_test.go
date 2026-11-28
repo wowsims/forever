@@ -111,9 +111,8 @@ func setupFakeFearSim() (*Simulation, *FakeFearWarrior) {
 	return sim, sim.Raid.Parties[0].Players[0].(*FakeFearWarrior)
 }
 
-// Being feared holds swings back, it does not restart the swing timer, so a
-// swing that was already due lands as soon as the Fear ends -- however it ends --
-// and one that was not yet due keeps the progress it had.
+// Being feared holds swings back, it does not restart the swing timer, so a swing that was already
+// due lands as soon as the Fear ends and one that was not yet due keeps the progress it had.
 func TestFearPausesSwingTimerWithoutResetting(t *testing.T) {
 	t.Run("holds due swings and leaves later ones alone", func(t *testing.T) {
 		sim, fw := setupFakeFearSim()
@@ -149,9 +148,7 @@ func TestFearPausesSwingTimerWithoutResetting(t *testing.T) {
 		fw.Unit.BreakFear(sim)
 
 		// The swing timer kept running underneath, so the swing that came due
-		// during the Fear lands as soon as it breaks. Holding it to the end of a
-		// Fear that is no longer there would cost swings the unit had earned,
-		// and restarting it from the break would cost even more.
+		// during the Fear lands as soon as it breaks.
 		if aa.mh.swingAt != breakAt {
 			t.Fatalf("MH swing: expected it released at the break (%v), got %v", breakAt, aa.mh.swingAt)
 		}

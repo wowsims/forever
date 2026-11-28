@@ -114,8 +114,7 @@ func bulkSimCullingCutoff(results []*BulkSimCandidateResult, baseline *BulkSimCa
 // The marginal cull test compares the sum of both candidates' half-widths, which is
 // sqrt(2) wider than the standard error of the difference it is really testing. Keeping
 // that factor when switching to the paired estimate means pairing only removes the
-// variance the shared seeds already cancel - it does not additionally tighten the
-// interval.
+// variance the shared seeds already cancel.
 const BulkSimPairedIntervalConservatism = math.Sqrt2
 
 // Decides whether a candidate is far enough behind the cutoff candidate
@@ -135,9 +134,8 @@ func bulkSimCandidateIsCulled(metrics *proto.DistributionMetrics, bestMetrics *p
 	return candidateUpperBound < bestLowerBound
 }
 
-// BulkSimZ95 is the two-sided 95% z threshold. gen_db -gen=go-to-ts writes it to the UI as
-// BULK_SIM_Z95, which Z_95 and zTest in ui/sim/utils/math.ts read, so backend separation decisions
-// and frontend display agree on what counts as "different".
+// The two-sided 95% z threshold. gen_db -gen=go-to-ts writes it to the UI as BULK_SIM_Z95, so
+// backend separation decisions and frontend display agree on what counts as "different".
 const BulkSimZ95 = 1.96
 
 func bulkSimUnresolvedFinalistPair(sortedFinalists []*BulkSimCandidateResult) bool {

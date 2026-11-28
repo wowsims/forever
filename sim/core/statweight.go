@@ -391,7 +391,6 @@ func calcStatWeights(swcr *proto.StatWeightsCalcRequest) (*StatWeightsResult, *p
 		result.StepAbove.AddStat(stat, modHigh)
 
 		// Check for hard caps. Hard caps will have results identical to the baseline because RNG is fixed.
-		// When we find a hard-capped stat, just skip it (will return 0).
 		if matchesBaseline(high) {
 			continue
 		}

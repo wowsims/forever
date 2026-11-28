@@ -214,7 +214,7 @@ func RaidBenchmark(b *testing.B, rsr *proto.RaidSimRequest) {
 	}
 }
 
-// CharacterBenchmark sims a suite config's default setup against one target. The seed is fixed,
+// Sims a suite config's default setup against one target. The seed is fixed,
 // so the reported dps only moves when a change alters results.
 func CharacterBenchmark(b *testing.B, config CharacterSuiteConfig) {
 	_, raid := config.defaultPlayerAndRaid()
@@ -249,10 +249,8 @@ func readSIMLPreset(path string) *siml.File {
 	return f
 }
 
-// The gear sets and encounter builds were removed with the rest of the TBC presets, so a
-// missing file is now an expected state rather than a broken checkout. log.Fatalf killed
-// the whole process and took the test output with it; returning an empty combo lets the
-// suite run and report a normal failure instead.
+// A missing file is an expected state. Returning an empty combo lets the suite run and
+// report a normal failure.
 func GetAplRotation(dir string, file string) RotationCombo {
 	if f := readSIMLPreset(dir + "/" + file + ".apl.siml"); f != nil {
 		return RotationCombo{Label: file, Rotation: f.Rotation()}

@@ -6,8 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 )
 
-// The reason given for a proc whose rows state no rate, which the generator also gives where the
-// rows' rate is a sentinel its tooltip contradicts.
+// The reason given for a proc whose rows state no rate.
 const ReasonStatesNoRate = "states no rate"
 
 const ReasonPPMHearsNoWeaponHits = "a procs-per-minute rate hears no weapon hits in this mask"
@@ -16,14 +15,9 @@ const ReasonPPMHearsNoWeaponHits = "a procs-per-minute rate hears no weapon hits
 // per shape. An empty answer means the rows state enough to build the listener the game files
 // describe.
 //
-// The one decision, for the generator that writes the registrations and for the sim that resolves
-// them: both read this row, so a proc the generator emits is one the sim can build, and a proc it
-// comments out is one nothing would have heard correctly.
-//
 // A class's own spell states a class mask to narrow its listener to spells the caster really casts;
 // an item is worn by every class, so a class mask on its trigger is the filter of the one class it
-// was written for and names nothing the sim can reproduce. An item proc therefore has no character
-// to weigh the mask against.
+// was written for and names nothing the sim can reproduce.
 //
 // itemPPM is the procs-per-minute rate a weapon's item effect states, which answers a trigger whose
 // row states none; 0 where the item states no rate.

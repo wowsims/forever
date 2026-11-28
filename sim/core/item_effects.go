@@ -29,14 +29,12 @@ func HasEnchantEffect(id int32) bool {
 
 // Registers an ApplyEffect function which will be called before the Sim
 // starts, for any Agent that is wearing the item.
-// missingItemEffects collects the items an effect was registered for that the game files
-// do not ship, so the count can be reported rather than silently swallowed.
+// The items an effect was registered for that the game files do not ship, so the count can be reported.
 var missingItemEffects []int32
 
 var missingEnchantEffects []int32
 
-// MissingItemEffects reports the item ids whose effects were skipped because the loaded
-// database has no such item.
+// The item ids whose effects were skipped because the loaded database has no such item.
 func MissingItemEffects() []int32 { return missingItemEffects }
 
 // MissingEnchantEffects reports the enchant effect ids skipped for the same reason.
@@ -45,10 +43,9 @@ func MissingEnchantEffects() []int32 { return missingEnchantEffects }
 func NewItemEffect(id int32, itemEffect ApplyEffect) {
 	if WITH_DB {
 		if GetItemByID(id) == nil {
-			// Forever's item set is a subset of TBC's, so some items these effects were
-			// written for are not in the game files. Skipping keeps the implementation
-			// around for the day an item comes back, where panicking would stop the sim
-			// from starting and deleting the code would lose work that is still correct.
+			// Some items these effects were written for are not in the game files. Skipping keeps
+			// the implementation around for the day an item comes back, where panicking would stop
+			// the sim from starting.
 			missingItemEffects = append(missingItemEffects, id)
 			return
 		}
@@ -80,10 +77,9 @@ func NewEnchantEffect(id int32, enchantEffect ApplyEffect) {
 
 var itemPets = map[int32][]func(owner *Character) PetAgent{}
 
-// Registers the pets an item's effect summons, such as the creatures a proc calls forth, one builder for
-// each pet that can be up at once. A pet must be added while its owner is constructed, before the item
-// effects run, so the owner builds them then: once for an item it wears or carries in its item swap set,
-// if its class can use the item. The item's effect finds the pets among the owner's PetAgents.
+// Registers the pets an item's effect summons, one builder for each pet that can be up at once. A pet
+// must be added while its owner is constructed, before the item effects run, so the owner builds them
+// then: once for an item it wears or carries in its item swap set, if its class can use the item.
 func NewItemPet(id int32, newPets ...func(owner *Character) PetAgent) {
 	if _, ok := itemPets[id]; ok {
 		panic(fmt.Sprintf("Cannot add multiple pets for one item: %d", id))

@@ -38,9 +38,7 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 	}
 
 	averageResist := attackTable.Defender.averageResist(spell, attackTable.Attacker, isPeriodic)
-	// A binary spell's hit roll takes its whole resist, so one that lands loses no damage to a partial
-	// resist, while Spell Piercing beyond the target's resistance still rolls its bonus on the hit unless
-	// the spell is flagged SpellFlagNoPartialResist (EV-0142).
+	// A binary spell that lands takes no partial resist but still rolls its Spell Piercing bonus (EV-0142).
 	if averageResist == 0 || averageResist > 0 && spell.Flags.Matches(SpellFlagBinary) {
 		return 1, OutcomeEmpty
 	}
@@ -67,8 +65,7 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 	return 1 - share, partialResistOutcome(share)
 }
 
-// A partial resist never takes more than 75% of a hit: the roll's 80, 90 and 100% steps land on 75%
-// (EV-0142).
+// A partial resist never takes more than 75% of a hit (EV-0142).
 func resistedShare(tenths int) float64 {
 	return min(0.1*float64(tenths), 0.75)
 }
@@ -104,9 +101,8 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 		}
 		resistance = min(resistance, schoolResistance)
 	}
-	// TODO: 8L + 19 is a fit to Spell Piercing logs and to mobs casting at players of known resistance
-	// (EV-0091). ExpectedStat's ArmorConstant × 0.088 fits them nearly as well; a level 60 log tells the
-	// two apart only with a large sample of direct hits.
+	// TODO: 8L + 19 is a fit (EV-0091). ExpectedStat's ArmorConstant × 0.088 fits nearly as well; a level
+	// 60 log tells the two apart only with a large sample of direct hits.
 	resistanceConstant := 8*float64(attacker.Level) + 19
 	averageResist := resistance / (math.Abs(resistance) + resistanceConstant)
 
@@ -117,9 +113,8 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 		averageResist = 0
 	}
 
-	// A periodic tick, a hybrid's or a channel's included, rolls its partial resist against a tenth of the
-	// share, as do the hits of a spell flagged for it, and takes no Spell Piercing bonus. A tick at the
-	// full share takes the bonus in full (EV-0092, EV-0142).
+	// A periodic tick rolls its partial resist against a tenth of the share and takes no Spell Piercing
+	// bonus. A tick at the full share takes the bonus in full (EV-0092, EV-0142).
 	// TODO: In-game testing required: whether piercing still lowers a positive resistance on a tick at a
 	// tenth; the sim lets it.
 	if isPeriodic && !spell.Flags.Matches(SpellFlagFullResistanceTicks) ||

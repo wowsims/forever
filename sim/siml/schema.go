@@ -38,8 +38,7 @@ func GrammarWords() (Words, error) {
 	return w, nil
 }
 
-// Every name and form SPEC.md §8 derives from the protos, with forms.json folded in. loadIndex builds its lookups from
-// it.
+// Every name and form SPEC.md §8 derives from the protos, with forms.json folded in.
 type schema struct {
 	Keywords []string
 	Heads    []string
@@ -632,7 +631,7 @@ func isNumber(k protoreflect.Kind) bool {
 }
 
 // Whether id, an ActionID field of a message named msg, keeps its rank: a talent_is_known talent above rank 1, whose
-// rank is the points the test needs. A name reads back with its entry's rank, so the printer writes such an id raw.
+// rank is the points the test needs.
 func keepsTalentRank(msg protoreflect.FullName, id *proto.ActionID) bool {
 	return msg == talentIsKnownMessage && id.GetRank() > 1
 }

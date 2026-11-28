@@ -60,16 +60,14 @@ type raidSimResultCombiner struct {
 	Debug    bool
 	Combined *proto.RaidSimResult
 
-	// Per-unit lookup indexes for the combined result. Without these, matching an
-	// incoming action/resource against the combined unit is a linear scan that
-	// renders every proto.ActionID to text, which dominates the merge cost.
+	// Per-unit lookup indexes for the combined result. Without these, matching is a linear
+	// scan that renders every proto.ActionID to text, which dominates the merge cost.
 	actionIndexByUnit   map[*proto.UnitMetrics]map[actionMetricsKey]*proto.ActionMetrics
 	resourceIndexByUnit map[*proto.UnitMetrics]map[resourceMetricsKey]*proto.ResourceMetrics
 }
 
-// actionIDKey is a comparable stand-in for proto.ActionID.String(). kind
-// distinguishes the oneof case so a zero-valued id in one case can never alias
-// an unset id in another.
+// A comparable stand-in for proto.ActionID.String(). kind distinguishes the oneof
+// case so a zero-valued id in one case can never alias an unset id in another.
 type actionIDKey struct {
 	kind uint8
 	id   int32
@@ -150,9 +148,8 @@ func (rsrc *raidSimResultCombiner) newPartyMetrics(baseParty *proto.PartyMetrics
 	return newPm
 }
 
-// CombineDistributionMetrics folds `add` into `base` with the given weight, recomputing the
-// stdev from the accumulated aggregator data on the last call. Exported so the bulk sim can
-// merge stage segments through the same maths the concurrent-sim combiner uses.
+// Folds `add` into `base` with the given weight, recomputing the stdev from the accumulated
+// aggregator data on the last call.
 func CombineDistributionMetrics(base *proto.DistributionMetrics, add *proto.DistributionMetrics, isLast bool, weight float64) {
 	base.Avg += add.Avg * weight
 

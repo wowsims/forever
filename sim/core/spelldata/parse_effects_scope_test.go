@@ -274,8 +274,7 @@ func TestParseCritPctWhileEquippedBidsPerStat(t *testing.T) {
 	}
 }
 
-// The crit follows the melee weapon through item swaps, as a talent and on an aura alike, and the
-// aura's crit holds only while the aura is up.
+// The crit follows the melee weapon through item swaps, as a talent and on an aura alike.
 func TestParseCritPctFollowsTheMeleeWeapon(t *testing.T) {
 	row := &Spell{ID: 16255, Name: "Thundering Strikes", EquipClass: 2, EquipSubclass: 173555,
 		Effects: []Effect{casterAura(dbcenums.A_MOD_CRIT_PCT, 1)}}

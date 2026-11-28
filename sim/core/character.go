@@ -829,9 +829,8 @@ func (character *Character) GetMatchingItemProcAuras(statTypesToMatch []stats.St
 	})
 }
 
-// Uses proto reflection to set fields in a talents proto (e.g. MageTalents,
-// WarriorTalents) based on a talentsStr. The character keeps every talent with points in it, which
-// TalentRank and the unit metadata read.
+// Uses proto reflection to set fields in a talents proto based on a talentsStr. The character
+// keeps every talent with points in it.
 //
 // A digit above the talent's talent_max_rank is capped there, and any digit above 0 takes a
 // one-point talent: a string saved before a tree was reworked can put five points where the talent

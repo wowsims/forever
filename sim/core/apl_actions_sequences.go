@@ -277,8 +277,7 @@ func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction
 
 		return nextAction
 	} else if !action.unit.CanQueueSpell(sim) && action.unit.QueuedSpell != nil {
-		// The spell was already queued at this timestep; modify it to advance the sequence when it executes
-		// and return nil to wait for the GCD to become ready.
+		// The spell was already queued at this timestep; modify it to advance the sequence when it executes.
 		queueAction := action.unit.QueuedSpell.queueAction
 		action.hookQueueAction(queueAction)
 		if !action.unit.QueuedSpell.afterHardcast {
@@ -322,7 +321,7 @@ func (action *APLActionStrictSequence) cooldownAheadOfStep(sim *Simulation) *APL
 	return nil
 }
 
-// hookQueueAction makes the queued spell's action advance this sequence when it fires.
+// Makes the queued spell's action advance this sequence when it fires.
 // Must stay idempotent: the rotation can be re-evaluated within a timestep, and a second
 // wrapper would advance twice and strand a stale hook on the queue action, which is reused
 // for later unrelated spells. The wrapper unhooks itself first, so any callback that manages

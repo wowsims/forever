@@ -35,8 +35,7 @@ const rangedInvTypes int32 = dbcenums.INVTYPE_BIT_RANGED | dbcenums.INVTYPE_BIT_
 // subclass only, and hold while equipped otherwise. A_MOD_RATING is per weapon where the row names
 // one, and on ranged attacks where its mask holds ranged bits alone. A_MOD_SPELL_HIT_CHANCE and
 // A_MOD_THREAT reach no attack in particular, so they hold while equipped wherever the row names a
-// weapon: Precision 13705's spell hit and Two-Handed Weapon Specialization 20111's threat go with the
-// weapon the same way their melee hit and damage do.
+// weapon.
 func WeaponScope(s *Spell, e *Effect) (WeaponRule, core.SpellModConfig) {
 	if !WeaponBindable(e.Aura) {
 		return WeaponRuleNone, core.SpellModConfig{}
@@ -83,9 +82,7 @@ func RangedBitsOnly(mask int32) bool {
 	return mask&dbcenums.RATING_MOD_MASK_RANGED != 0 && mask&^dbcenums.RATING_MOD_MASK_RANGED == 0
 }
 
-// The ratings a scoped A_MOD_RATING mask names, its ranged bits read as the rating they belong to. The
-// aura parse turns the hit and crit among them into mods, and the item fold turns the hit, crit and
-// haste of a mask of ranged bits alone into the ranged percents.
+// The ratings a scoped A_MOD_RATING mask names, its ranged bits read as the rating they belong to.
 func ScopedRatingStats(mask int32) []stats.Stat {
 	return RatingStats(mask | (mask&dbcenums.RATING_MOD_MASK_RANGED)>>1)
 }

@@ -283,7 +283,7 @@ func (spell *Spell) SpellHitChance(target *Unit) float64 {
 	hitPercent := spell.Unit.stats[stats.SpellHitPercent] + spell.BonusHitPercent
 	// The bonus stats' school hit stands in for a school hit talent, which names its spells by class
 	// flags, so it only reaches spells that carry a ClassSpellMask or class flags. A spell of several
-	// schools takes the hit of each, such as Frostfire Bolt's Fire and Frost.
+	// schools takes the hit of each.
 	if spell.ClassSpellMask != 0 || !spell.ClassFlags.IsZero() {
 		for _, school := range singleSchools {
 			if spell.SpellSchool.Matches(school) {
@@ -300,9 +300,7 @@ func (spell *Spell) SpellChanceToMiss(attackTable *AttackTable) float64 {
 // The spell miss chance with the given level-based miss in place of the attack table's, e.g. a wand hand's.
 func (spell *Spell) spellChanceToMiss(attackTable *AttackTable, baseMissChance float64) float64 {
 	// hitChance = baseLevelHit * (1 - averageResist) + spellHitBonus, with no miss floor:
-	// Forever has no 1% minimum miss.
-	// The level-based hit is reduced by the resistance roll first, then the spell hit
-	// bonus is added afterwards, which is why spell hit above the level-based miss
+	// Forever has no 1% minimum miss. This is why spell hit above the level-based miss
 	// counteracts resistance for binary spells.
 	baseHitChance := 1 - baseMissChance
 	if spell.Flags.Matches(SpellFlagBinary) {
@@ -404,10 +402,8 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 
 	result.Damage *= attackerMultiplier
 	afterAttackMods := result.Damage
-	// The target's flat physical damage taken lands before its armor: Gift of Arthas adds 8 times the
-	// share of a swing that gets through, and Force of Will takes its 51 off the same way. The reductions
-	// in this field together take at most half of the hit (EV-0154). A periodic tick takes none of this field:
-	// a bonus on an enemy, whether the tick meets the target's armor or not, or a reduction on a player (EV-0154).
+	// The target's flat physical damage taken lands before its armor. The reductions in this field together
+	// take at most half of the hit (EV-0154). A periodic tick takes none of this field (EV-0154).
 	// The flat ranged and spell amounts land in applyTargetModifiers, after armor and outside this cap.
 	// TODO: The cap is read on white swings and melee specials (EV-0154); read it on a ranged hit under twice the reduction.
 	if !isPeriodic && spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.Flags.Matches(SpellFlagIgnoreTargetModifiers) {
@@ -463,8 +459,7 @@ func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(spell.Unit.AttackTables[target.UnitIndex], false)
 	baseDamage *= spell.VersusBonus.Against(target)
-	// A weapon strike takes the caster's flat physical damage bonus whole, before armor; a physical row
-	// that deals school damage takes it at the row's coefficient (EV-0196).
+	// The caster's flat physical damage bonus, at the row's coefficient on a school-damage row (EV-0196).
 	if spell.BonusCoefficient > 0 {
 		baseDamage += spell.BonusCoefficient * spell.BonusDamage(attackTable)
 	} else if spell.Flags.Matches(SpellFlagPhysicalSchoolDamage) {
@@ -641,8 +636,7 @@ func (spell *Spell) DealPeriodicDamage(sim *Simulation, result *SpellResult) {
 }
 
 // Fires the caster's OnCastResult for a direct result, once per result. A missile deals it at its cast;
-// any other direct result as it is dealt. A tick or a heal never deals it, and a proc that comes off
-// the cast's hit roll listens here (CallbackOnCastResult with TriggerImmediately).
+// any other direct result as it is dealt. A tick or a heal never deals it.
 func (spell *Spell) DealCastResult(sim *Simulation, result *SpellResult) {
 	if result.castResultDealt {
 		return

@@ -11,7 +11,7 @@ const StunAuraTag = "Stun"
 // does and so shares the Stunned flag with the stun kind.
 const ReducedAvoidanceAuraTag = "Reduced Avoidance"
 
-// incapacitateKind holds the parts that differ between crowd control effects.
+// The parts that differ between crowd control effects.
 // Everything else (aura skeleton, immunity handling, breaking) is shared.
 type incapacitateKind struct {
 	tag string
@@ -24,10 +24,9 @@ type incapacitateKind struct {
 	durationMultiplier func(unit *Unit) float64
 }
 
-// Several effects can own the same PseudoStats flag at once: two fears, a fear
-// overlapping a stun, or a stun landing while a tank is hardcasting. Writing the
-// flags absolutely lets whichever effect ends first clear a flag the others
-// still need, so they are derived from whatever is active instead.
+// Several effects can own the same PseudoStats flag at once. Writing the flags absolutely lets
+// whichever effect ends first clear a flag the others still need, so they are derived from whatever
+// is active instead.
 func (unit *Unit) refreshIncapacitateState() {
 	feared := unit.HasActiveAuraWithTag(FearAuraTag)
 	stunned := unit.HasActiveAuraWithTag(StunAuraTag)

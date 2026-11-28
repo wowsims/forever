@@ -14,7 +14,7 @@ import (
 type SpellOpt func(*core.SpellConfig, *Spell)
 
 // SpellCategories.StartRecoveryCategory of the global cooldown. It is the only category the store
-// carries - 1763 rows state 133 and the rest state nothing - so a row outside it spends no GCD.
+// carries, so a row outside it spends no GCD.
 const globalCooldownCategory int16 = 133
 
 // ImplicitTarget_0 values that name a friendly unit.
@@ -77,13 +77,10 @@ func (e *Effect) HitsAroundTheCaster() bool {
 	return e.HitsAnArea() && slices.Contains(casterCentres, e.Target[0])
 }
 
-// What the game files state about a spell, as the fields core registers it through. The caller adds
-// the proc mask, ApplyEffects and anything the game files do not carry to the returned value before
-// handing it to RegisterSpell: the resolver fills the row's own fields and nothing else.
+// What the game files state about a spell, as the fields core registers it through.
 //
-// The unit is needed for the cooldown timers, so a config is built where the sim has a character,
-// not at package init. MaxTargets has no SpellConfig field; a caller that needs the row's cap reads
-// s.MaxTargets itself.
+// The unit is needed for the cooldown timers. MaxTargets has no SpellConfig field; a caller that
+// needs the row's cap reads s.MaxTargets itself.
 func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	config := core.SpellConfig{
 		ActionID:    core.ActionID{SpellID: s.ID},
@@ -102,8 +99,7 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 		CastRequirement: s.CastRequirement(),
 	}
 	applyCost(&config, s)
-	// A row with Fixed Travel Time flies for its Speed in seconds at any distance: Dragonfire Potion's
-	// 1252554 lands 1 sec after use.
+	// A row with Fixed Travel Time flies for its Speed in seconds at any distance.
 	if s.FixedTravelTime() {
 		config.MissileSpeed = 0
 		config.MissileMinDuration = max(config.MissileMinDuration, core.DurationFromSeconds(float64(s.Speed)))
@@ -145,8 +141,8 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	}
 	// An area centred on the caster, or a cone from it, reaches only the enemies inside it: a cast
 	// reaches the radius, and a proc or tick has no range. Damage centred on the caster does so even
-	// where the row states a range (Flamestrike's 18818 states 30 and reaches its 10 yd radius); a cone,
-	// or an area on another effect, does so only where the row states none.
+	// where the row states a range; a cone, or an area on another effect, does so only where the row
+	// states none.
 	if radius, ok := casterAreaRadius(s); ok && (config.MaxRange == 0 || damage.HitsAroundTheCaster()) {
 		config.MaxRange = core.TernaryFloat64(config.Flags.Matches(core.SpellFlagPassiveSpell), 0, float64(radius))
 	}
@@ -213,11 +209,9 @@ func threatMultiplier(s *Spell) float64 {
 }
 
 // A spell another spell or an aura casts: it is out of the rotation Melee and Magic put it in, it
-// does not feed on-cast effects, and it has no cast, cost, cooldown, cast requirement or flat threat of its own even when it shares
-// the row of the ability that casts it, the way the warrior's Blood Craze heal and Whirlwind's
-// off-hand strike are registered. Its damage and healing are still measured, its casts are not: the
-// metrics aggregator counts no cast for a passive spell, so a sub-spell whose casts the sim reports -
-// the warrior's Deep Wounds and Retaliation's counterattack - sets the flags itself instead.
+// does not feed on-cast effects, and it has no cast, cost, cooldown, cast requirement or flat threat
+// of its own even when it shares the row of the ability that casts it. Its damage and healing are
+// still measured, its casts are not: the metrics aggregator counts no cast for a passive spell.
 func Proc() SpellOpt {
 	return func(config *core.SpellConfig, _ *Spell) {
 		config.Flags |= core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete
@@ -233,9 +227,8 @@ func Proc() SpellOpt {
 	}
 }
 
-// A spell the game triggers off a hit or an aura (a channel's tick, a wave, an item's bolt, a poison's hit) is a proc,
-// which only a listener that can proc from procs hears, unless its row carries Not A Proc. A spell built on the
-// player's own cast row takes no Triggered().
+// A spell the game triggers off a hit or an aura (a channel's tick) is a proc, which only a listener
+// that can proc from procs hears, unless its row carries Not A Proc.
 func Triggered() SpellOpt {
 	return func(config *core.SpellConfig, s *Spell) {
 		if s.IsAProc() {
@@ -251,11 +244,7 @@ func Flags(flags core.SpellFlag) SpellOpt {
 	}
 }
 
-// RemoveFlags clears specific flags from the configuration that should not be present.
-//
-// Ex: ArcaneMissilesTickSpell is NotAProc so you cant use Proc() SpellOpt, so it ends up being castable through APL
-//
-// Usage: spelldata.RemoveFlags(core.SpellFlagAPL)
+// Clears specific flags from the configuration that should not be present.
 func RemoveFlags(flags core.SpellFlag) SpellOpt {
 	return func(config *core.SpellConfig, _ *Spell) {
 		config.Flags &^= flags
@@ -342,8 +331,7 @@ func amountEffect(s *Spell) *Effect {
 }
 
 // Spell.NameSubtext_lang, which is "Rank 4" on a ranked spell and a word like "Passive" or
-// "Shapeshift" on a handful of others. A spell the game files show no rank on answers 0, which is what
-// the APL UI reads as "this spell has no ranks".
+// "Shapeshift" on a handful of others. A spell the game files show no rank on answers 0.
 func rankOf(s *Spell) int32 {
 	digits, ranked := strings.CutPrefix(s.Rank, "Rank ")
 	if !ranked {
@@ -356,8 +344,7 @@ func rankOf(s *Spell) int32 {
 	return int32(rank)
 }
 
-// The flags the row's attributes, targets and effects state. Everything else is the caller's: a flag
-// the game files do not carry is not invented here.
+// The flags the row's attributes, targets and effects state.
 func rowFlags(s *Spell) core.SpellFlag {
 	var flags core.SpellFlag
 	if s.IsPassive() {
@@ -404,7 +391,7 @@ func rowFlags(s *Spell) core.SpellFlag {
 }
 
 // The cast time and global cooldown the row states and whether haste shortens them, without the
-// cooldowns: for a caller that runs the spell on cooldowns of its own.
+// cooldowns.
 func Cast(s *Spell) core.CastConfig {
 	// Haste shortens a cast and the GCD it spends, which is the school's business rather than the hit
 	// table's: the shouts, Taunt, Piercing Howl and Thunder Clap are physical spells the game files
@@ -447,15 +434,13 @@ func categoryTimer(unit *core.Unit, s *Spell) *core.Timer {
 }
 
 // The cost out of the first bar the row states, and NonEmpty where the cast would otherwise read as
-// an empty one, which is what a hand-written config sets on an off-GCD ability that spends a
-// resource. It is not what keeps core's "Empty DefaultCast with a cost" panic away: core fills
+// an empty one. It is not what keeps core's "Empty DefaultCast with a cost" panic away: core fills
 // DefaultCast.Cost from the resolved cost before it tests for an empty cast. A row that spends
 // nothing is left empty on purpose, so a passive or a proc spell keeps the cast path core gives those.
 //
-// Only the first bar: 45 rows state a second one - 44 of them combo points beside energy - and the
-// sim has one cost per spell, so the caller spends the rest itself. A bar the sim does not model,
-// which is the game files' -2 health on Bloodrage, resolves to no cost at all and leaves the cast
-// as it found it rather than declaring a cost the spell does not take.
+// Only the first bar: the sim has one cost per spell, so the caller spends the rest itself. A bar
+// the sim does not model, which is the game files' -2 health on Bloodrage, resolves to no cost at
+// all and leaves the cast as it found it.
 func applyCost(config *core.SpellConfig, s *Spell) {
 	if len(s.Powers) == 0 {
 		return
@@ -490,8 +475,8 @@ func applyCost(config *core.SpellConfig, s *Spell) {
 }
 
 // The landing an area channel's cast makes on every enemy as the channel starts: the cast's dummy as a
-// hit with no damage, which a listener on the enemy hears and a listener that needs damage does not. It
-// reports under the cast's id with tag 1 and records no metrics or log lines (EV-0116, EV-0219).
+// hit with no damage, which a listener on the enemy hears and a listener that needs damage does not
+// (EV-0116, EV-0219).
 func RegisterAreaCastLanding(unit *core.Unit, cast *Spell) func(sim *core.Simulation) {
 	landing := unit.RegisterSpell(SpellConfig(unit, cast, Magic(core.ProcMaskSpellDamage), Proc(), Tag(1),
 		Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))

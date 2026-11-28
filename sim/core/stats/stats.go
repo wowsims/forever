@@ -243,11 +243,8 @@ func FromProtoArray(values []float64) Stats {
 }
 
 // Runs FromProtoArray() on the stats array embedded in the UnitStats message, but additionally imports any
-// PseudoStats that we want to model as proper Stats in the back-end. This allows us to include only essential
-// basic properties in database stats arrays, while still letting the back-end Stat enum include derived
-// properties when it is computationally convenient to do so (such as for automatically applying stat
-// dependencies). Make sure to update this function if you add any back-end Stat entries that are modeled as
-// PseudoStats in the front-end.
+// PseudoStats that we want to model as proper Stats in the back-end. Make sure to update this function if you
+// add any back-end Stat entries that are modeled as PseudoStats in the front-end.
 func FromUnitStatsProto(unitStatsMessage *proto.UnitStats) Stats {
 	return FromProtoArray(unitStatsMessage.Stats).Add(FromPseudoStatsProto(unitStatsMessage.PseudoStats))
 }

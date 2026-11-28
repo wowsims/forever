@@ -26,7 +26,7 @@ func newBulkSimStageCarryOver(stageResult BulkSimStageResult) *bulkSimStageCarry
 	}
 }
 
-// covers reports whether every candidate has carried metrics. A partial carry-over
+// Reports whether every candidate has carried metrics. A partial carry-over
 // would need per-candidate iteration counts, so the stage falls back to running the
 // full count for everyone instead.
 func (carry *bulkSimStageCarryOver) covers(candidates []BulkSimCandidate) bool {

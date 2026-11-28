@@ -31,9 +31,8 @@ func (action *APLActionChangeTarget) Reset(sim *Simulation) {
 }
 func (action *APLActionChangeTarget) IsReady(sim *Simulation) bool {
 	// Prevent infinite loops by only allowing this action to be performed once at each timestamp.
-	// A change to the unit already targeted is not ready, so a line that returns to the main target
-	// needs no check that another unit is targeted. Inside a sequence such a step is ready and does
-	// nothing, so the sequence goes on.
+	// A change to the unit already targeted is not ready; inside a sequence such a step is ready and
+	// does nothing, so the sequence goes on.
 	if action.lastExecutedAt == sim.CurrentTime {
 		return false
 	}

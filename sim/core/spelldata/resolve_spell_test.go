@@ -12,8 +12,7 @@ import (
 // The category two of the rows below share, as SpellCategories.Category states it.
 const testCategory int16 = 971
 
-// Rows in the shapes the resolvers have to answer for: the four power bars, the three cooldown
-// shapes, and the attributes and targets the flags come from.
+// Rows in the shapes the resolvers have to answer for.
 func resolverRows() []Spell {
 	return []Spell{
 		{
@@ -420,10 +419,9 @@ func TestSpellConfigFlagsFromTheRow(t *testing.T) {
 	}
 }
 
-// A magic damage row on the magic hit table is binary when it carries, beside the damage, an aura other
-// than a dummy on an enemy, an interrupt, or a dummy, script, energize or area trigger effect on any
-// target. A dummy aura on the enemy, an aura on the caster, E_NONE, a row with no damage, a physical row
-// and a row on another hit table are not.
+// A magic damage row on the magic hit table is binary when it carries, beside the damage, an aura
+// other than a dummy on an enemy, an interrupt, or a dummy, script, energize or area trigger effect
+// on any target.
 func TestSpellConfigBinaryFromTheRow(t *testing.T) {
 	enemy := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_TARGET_ENEMY, 0}
 	caster := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER, 0}
@@ -464,8 +462,7 @@ func TestSpellConfigBinaryFromTheRow(t *testing.T) {
 }
 
 // A row with Suppress Weapon Procs, Suppress Caster Procs or Suppress Target Procs resolves to the matching
-// flag when one of its effects acts itself. A row of dummies and casts of other spells keeps none of them,
-// since the sim spell built from it deals the damage of the spell it triggers, as Execute's dummy does.
+// flag when one of its effects acts itself. A row of dummies and casts of other spells keeps none of them.
 func TestSpellConfigSuppressProcFlagsFromTheRow(t *testing.T) {
 	enemy := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_TARGET_ENEMY, 0}
 	damage := Effect{Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100, Target: enemy}
@@ -627,10 +624,8 @@ func TestSpellConfigAreaAroundACasterOrPointReachesItsRadiusOrAnywhere(t *testin
 	}
 }
 
-// The rows' own areas: a cast centred on the caster or a cone from it reaches its radius, from
-// whichever radius slot the row states it in, even where the row states a range, and through the row
-// its periodic trigger aura fires. A proc of one has no range, and a DEST_DEST area, a cone on a row
-// with a range of its own and a spell with no area keep what they had.
+// The rows' own areas: a cast centred on the caster or a cone from it reaches its radius. A proc of
+// one has no range.
 func TestSpellConfigReachOfTheGameFilesAreas(t *testing.T) {
 	withGeneratedStore(t)
 
@@ -702,8 +697,7 @@ func TestSpellConfigProcFlagsAndTag(t *testing.T) {
 	}
 }
 
-// Melee and Magic put a spell in the rotation, and Proc takes the sub-spell they resolve back out of
-// it: the flags the warrior's own proc sub-spells carry today.
+// Melee and Magic put a spell in the rotation, and Proc takes the sub-spell they resolve back out of it.
 func TestSpellConfigProcLeavesTheRotation(t *testing.T) {
 	withRows(t, resolverRows())
 	config := SpellConfig(testUnit(), Find(100), Melee(core.ProcMaskMeleeMHSpecial), Proc())
@@ -714,9 +708,8 @@ func TestSpellConfigProcLeavesTheRotation(t *testing.T) {
 	}
 }
 
-// SpellEquippedItems and the not-in-combat attribute go into the cast requirement: Spearing Strike
-// 1310222's two-handers in the main hand, Shield Bash 1672's shield, Charge 11578's out of combat.
-// Armor that is not a shield asks nothing of a cast.
+// SpellEquippedItems and the not-in-combat attribute go into the cast requirement. Armor that is not
+// a shield asks nothing of a cast.
 func TestSpellConfigCastRequirementFromEquipment(t *testing.T) {
 	twoHanders := int32(dbcenums.ITEM_SUBCLASS_BIT_WEAPON_2H_AXE | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_MACE_2H |
 		dbcenums.ITEM_SUBCLASS_BIT_WEAPON_POLEARM | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_SWORD_2H | dbcenums.ITEM_SUBCLASS_BIT_WEAPON_STAFF)

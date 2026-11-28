@@ -148,7 +148,6 @@ func (character *Character) RegisterWeaponChangeCallback(callback func(*Simulati
 }
 
 // Helper for handling Item Effects that use the itemID to toggle the aura on and off
-// This will also get the eligible slots for the item
 func (swap *ItemSwap) RegisterProc(itemID int32, aura *Aura) {
 	slots := swap.EligibleSlotsForItem(itemID)
 	swap.RegisterProcWithSlots(itemID, aura, slots)
@@ -453,8 +452,6 @@ func (swap *ItemSwap) swapItem(sim *Simulation, slot proto.ItemSlot, isPrepull b
 			character.AutoAttacks.SetMH(character.WeaponFromMainHand())
 		}
 	case proto.ItemSlot_ItemSlotOffHand:
-		// OH slot handling is more involved because we need to dynamically toggle the OH weapon attack on/off
-		// depending on the updated DW status after the swap.
 		if character.AutoAttacks.AutoSwingMelee {
 			weapon := character.WeaponFromOffHand()
 			character.AutoAttacks.SetOH(weapon)

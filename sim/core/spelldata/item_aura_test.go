@@ -61,8 +61,8 @@ func itemAuraRows() []Spell {
 	)
 }
 
-// A damage shield on the wearer is attached beside the parse and a movement slow is left out, so
-// neither is parsed and neither refuses the row; a damage shield on a pet is parsed, and refused.
+// A damage shield on the wearer is attached beside the parse and a movement slow is left out; a
+// damage shield on a pet is parsed.
 func TestItemAuraParsedOnLeavesOutShieldsAndMovement(t *testing.T) {
 	withRows(t, itemAuraRows())
 

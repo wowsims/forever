@@ -88,8 +88,7 @@ func (generator *bulkSimCandidateGenerator) buildCandidates() []*proto.BulkGearC
 	rawCombinations := generator.rawCombinationsCount()
 	table := generator.newCombinationTable()
 	// Never reserve the whole raw space: it is an unbounded product over the bulk slots,
-	// so a few extra selections take it past anything that can be allocated for. Append
-	// grows geometrically from here anyway.
+	// so a few extra selections take it past anything that can be allocated for.
 	candidates := make([]*proto.BulkGearCandidate, 0, min(rawCombinations, maxBulkCandidatePreallocation))
 	for comboIdx := range rawCombinations {
 		candidates = append(candidates, &proto.BulkGearCandidate{
@@ -146,8 +145,7 @@ func (generator *bulkSimCandidateGenerator) initSelectedItems() error {
 		}
 		selectedFingerprint := buildItemSpecFingerprintKey(selectedItem)
 		if equippedCounts[selectedFingerprint] > 0 {
-			// Items filling a pair of slots stack: 1 equipped + 1 added = 2 total, enabling
-			// same-item combos like [Sp,Sp] or two Rings of Ancient Knowledge. For single-slot
+			// Items filling a pair of slots stack: 1 equipped + 1 added = 2 total. For single-slot
 			// items a user-added duplicate of an equipped item is redundant.
 			baseItem := core.GetItemByID(selectedItem.GetId())
 			if baseItem == nil || !canStackTwoCopies(*baseItem, generator.playerCanDualWield) {
@@ -172,8 +170,7 @@ func (generator *bulkSimCandidateGenerator) initSelectedItems() error {
 
 		// Several physical slots can share one bulk slot (Finger1/Finger2, and both hands for a
 		// dual-wielder), so dedupe on the bulk slot rather than skipping the secondary physical
-		// slot: an off-hand-only item has no other eligible slot, and skipping it dropped the
-		// item from the batch entirely.
+		// slot: an off-hand-only item has no other eligible slot.
 		addedBulkSlots := make(map[BulkSimItemSlot]struct{}, 2)
 		for _, slot := range core.EligibleSlotsForItem(&option.item) {
 			if !canEquipItem(option.item, generator.playerClass, generator.playerSpec, slot) {
@@ -213,8 +210,8 @@ func (generator *bulkSimCandidateGenerator) initSelectedItems() error {
 	return nil
 }
 
-// Whether both of an item's slots can hold it at once, which is what makes a same-item combo (two
-// identical rings, or one weapon in each hand) a valid input.
+// Whether both of an item's slots can hold it at once, which is what makes a same-item combo a
+// valid input.
 func canStackTwoCopies(item core.Item, playerCanDualWield bool) bool {
 	if item.Unique || item.LimitCategory != 0 {
 		return false
@@ -281,8 +278,6 @@ func (generator *bulkSimCandidateGenerator) initGroupedSlotPairs() {
 		} else {
 			pairs = make([][2]bulkSimCandidateOption, 0, len(options)*(len(options)-1)/2)
 			for i := range options {
-				// Wearing two copies of the same item is a valid input, but only when two copies
-				// were actually selected.
 				twoCopies := generator.hasTwoCopies(options[i], options[i].item)
 				if twoCopies {
 					pairs = append(pairs, [2]bulkSimCandidateOption{options[i], options[i]})
@@ -308,7 +303,7 @@ func (generator *bulkSimCandidateGenerator) initGroupedSlotPairs() {
 
 // The raw combination space is a plain product over the bulk slots and nothing bounds it.
 // The product is clamped only to keep it inside the int32 result fields and out of
-// overflow - never to refuse the request.
+// overflow, never to refuse the request.
 const maxBulkRawCombinations = math.MaxInt32
 const maxBulkCandidatePreallocation = 1 << 16
 

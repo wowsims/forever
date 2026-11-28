@@ -27,14 +27,11 @@ type bulkSimCandidateBatchConfig struct {
 }
 
 // Runs `iterations` for every candidate across `concurrency` workers, folding in any
-// carried-over metrics, and returns the collected results. Both the initial stage pass
-// and the adaptive extra-iteration passes go through here so their queueing, progress
-// accounting, abort handling and merging cannot drift apart.
+// carried-over metrics, and returns the collected results.
 func runBulkSimCandidateBatch(request *proto.BulkSimRequest, candidates []BulkSimCandidate, config BulkSimStageConfig, batch bulkSimCandidateBatchConfig, signals simsignals.Signals) []*BulkSimCandidateResult {
 	jobs := make(chan bulkSimStageTask, len(candidates))
-	// Results are written by position rather than collected from a channel: the slots
-	// are disjoint, so no synchronisation is needed and the output order is the
-	// candidate order instead of the completion order.
+	// Results are written by position: the slots are disjoint, so no synchronisation is needed
+	// and the output order is the candidate order instead of the completion order.
 	resultsByPosition := make([]*BulkSimCandidateResult, len(candidates))
 	progressTracker := &BulkSimStageProgressTracker{
 		emitter:                             batch.emitter,
@@ -83,8 +80,7 @@ func runBulkSimCandidateBatch(request *proto.BulkSimRequest, candidates []BulkSi
 	})
 }
 
-// Runs one gear set start to finish with no progress reporting, for the paths that just
-// need a number (the baseline of a run with no candidates).
+// Runs one gear set start to finish with no progress reporting.
 func runSingleBulkSim(request *proto.BulkSimRequest, candidate BulkSimCandidate, iterations int32, signals simsignals.Signals) *BulkSimCandidateResult {
 	return runSingleBulkSimCandidate(request, candidate, iterations, 0, signals, false, nil)
 }

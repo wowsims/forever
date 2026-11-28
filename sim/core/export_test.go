@@ -54,8 +54,7 @@ func (category *ExclusiveCategory) Effects() []*ExclusiveEffect {
 	return category.effects
 }
 
-// Narrows the loaded consumables to these ids until the returned function restores the rest, for a
-// test that runs the sim on the consumables a browser request carries.
+// Narrows the loaded consumables to these ids until the returned function restores the rest.
 func KeepOnlyConsumables(ids []int32) (restore func()) {
 	dbMu.Lock()
 	defer dbMu.Unlock()
@@ -73,8 +72,7 @@ func KeepOnlyConsumables(ids []int32) (restore func()) {
 	}
 }
 
-// Narrows the loaded items to these ids until the returned function restores the rest, for a test
-// that runs the sim on the items a browser request carries.
+// Narrows the loaded items to these ids until the returned function restores the rest.
 func KeepOnlyItems(ids []int32) (restore func()) {
 	dbMu.Lock()
 	defer dbMu.Unlock()

@@ -6,8 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// A rank counts as known when the player holds it or a higher one, so a condition on rank 3 still
-// holds for a build with 5 points.
+// A rank counts as known when the player holds it or a higher one.
 func (rot *APLRotation) newValueTalentIsKnown(config *proto.APLValueTalentIsKnown, uuid *proto.UUID) APLValue {
 	if config.TalentId == nil {
 		return nil

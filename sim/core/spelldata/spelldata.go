@@ -1,12 +1,10 @@
 // Package spelldata is the game files' spell rows as the sim reads them: one Spell per spell ID, with
 // its effects and power costs, and accessors that turn the game files' units into core's.
 //
-// Values are stored in the units the game files state them in - a percentage is the integer 16,
-// rage is on a 0-1000 bar, times are milliseconds - and the conversion happens in the accessors, so
-// a row always matches what the DBC says.
+// Values are stored in the units the game files state them in, and the conversion happens in the
+// accessors, so a row always matches what the DBC says.
 //
-// Every accessor answers on the zero value, so Nil and NilEffect are safe to chain: an unknown spell
-// reads as zeroes rather than crashing the registration that asked for it.
+// Every accessor answers on the zero value, so Nil and NilEffect are safe to chain.
 //
 // sim/core must never import this package: tools/database imports core, and a cycle there would stop
 // the generator that writes this package's data.
@@ -73,8 +71,7 @@ type Spell struct {
 
 	// SpellAuraOptions.ProcChance as the game files state it, which is not always a roll: 100 and 101
 	// both read as "fires on its own condition". It is the chance only where ProcChanceSource is
-	// ProcChanceColumn; under any other source the column means nothing and the source says where
-	// the rate is.
+	// ProcChanceColumn.
 	ProcChance uint8
 
 	// SpellAuraOptions.ProcCharges: how many times the aura acts before it drops. Zero is unlimited.
@@ -86,7 +83,7 @@ type Spell struct {
 	// SpellAuraOptions.ProcCategoryRecovery: the internal cooldown between two procs, in ms.
 	ICDMs int32
 
-	// Procs per minute. The game files carry none - SpellProcsPerMinuteID is 0 on every row - so
+	// Procs per minute. The game files carry none (SpellProcsPerMinuteID is 0 on every row), so
 	// this is zero unless an override fills it.
 	RPPM float32
 
@@ -132,7 +129,7 @@ type Spell struct {
 	MaxTargets int16
 
 	// SpellTargetRestrictions.TargetCreatureType: the creature types the spell can hit, as a mask of
-	// 1 << (CreatureType - 1), so 4 is demons and 256 mechanicals. Zero is any.
+	// 1 << (CreatureType - 1), so 4 is demons. Zero is any.
 	TargetCreatureType int32
 
 	// SpellCastingRequirements.RequiredAreasID. Zero is anywhere.
@@ -236,8 +233,7 @@ type Effect struct {
 	RadiusMin, RadiusMax float32
 
 	// EffectMiscValue_0/_1. What they mean is the aura's business: a stat for A_MOD_STAT, a stat
-	// mask in the second for A_MOD_TOTAL_STAT_PERCENTAGE (TotalStatPercentStats reads it), a school
-	// mask for A_MOD_DAMAGE_DONE, a modifier op for A_ADD_PCT_MODIFIER.
+	// mask in the second for A_MOD_TOTAL_STAT_PERCENTAGE (TotalStatPercentStats reads it).
 	Misc, Misc2 int32
 
 	// EffectSpellClassMask_0..3 with the owning spell's family: the spells this effect modifies.

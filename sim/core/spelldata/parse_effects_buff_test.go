@@ -416,8 +416,7 @@ func TestExclusivePerStat(t *testing.T) {
 }
 
 // The raid buff overwrites the elixir and the scroll of its stat, of which only the stronger counts, in
-// any order they come up: it counts by its own category, and its bid in the elixirs' category only
-// keeps a weaker elixir or scroll from counting. One that outbids it counts beside it.
+// any order they come up. One that outbids it counts beside it.
 func TestOverwrites(t *testing.T) {
 	type auras struct{ raid, elixir, scroll *core.Aura }
 	setUp := func(raid, elixir, scroll float64) (*core.Character, auras) {
@@ -471,8 +470,8 @@ func TestOverwrites(t *testing.T) {
 	}
 }
 
-// Two copies of the raid buff at the same amount, such as a priest's own prayer beside the raid's,
-// count it once in any order, and the one left up counts it once the other goes.
+// Two copies of the raid buff at the same amount count it once in any order, and the one left up
+// counts it once the other goes.
 func TestOverwritesTwoEqualCopies(t *testing.T) {
 	setUp := func() (*core.Character, []*core.Aura) {
 		character := buffTestWarrior()

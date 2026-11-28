@@ -38,8 +38,7 @@ func enchantSlotKey(slot proto.ItemSlot) string {
 // The static enchants that fit each listed, unfrozen, occupied slot, in slot then effect id order.
 // The fitting row gives the stats, since an effect id can carry rows for different items. Makes the
 // gear the baseline: a slot with candidates loses its enchant when that is a static row fitting the
-// item. Any other enchant (Minor Speed, a proc, one with no fitting row) stays, so a slot with no
-// pick keeps it.
+// item. Any other enchant stays, so a slot with no pick keeps it.
 func (o *reforgeOptimizer) enchantCandidates(gear *proto.EquipmentSpec) []enchantCandidate {
 	options := slices.Clone(o.request.GetEnchantOptions())
 	slices.SortFunc(options, func(a, b *proto.BulkEnchantSlotOptions) int { return cmp.Compare(a.GetSlot(), b.GetSlot()) })

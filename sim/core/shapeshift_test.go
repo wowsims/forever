@@ -117,7 +117,7 @@ func TestCastRequirementCasterAura(t *testing.T) {
 }
 
 // A hand the requirement names must hold a matching weapon, both where it names both; with no hand
-// named any weapon slot will do. A shield is the off hand's, and nil equipment meets nothing.
+// named any weapon slot will do.
 func TestCastRequirementEquipment(t *testing.T) {
 	twoHandedAxe := Item{WeaponType: proto.WeaponType_WeaponTypeAxe, HandType: proto.HandType_HandTypeTwoHand}
 	oneHandedAxe := Item{WeaponType: proto.WeaponType_WeaponTypeAxe, HandType: proto.HandType_HandTypeOneHand}

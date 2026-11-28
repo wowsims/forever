@@ -639,8 +639,6 @@ const (
 	SpellMod_Range_Flat
 
 	// Will add / subtract % amount from the range multiplier. +10% = 0.1
-	// Only spells registered with a range constraint check their range at all, so the mod is inert
-	// on the others.
 	// Uses: FloatValue
 	SpellMod_Range_Pct
 
@@ -1375,7 +1373,7 @@ func modBuffMaxStacksFlat(spell *Spell, value int32, claim func(*Aura) bool) {
 }
 
 // Both loops above skip an aura at 0 stacks, so a mod that took one there could not give them back
-// when it is removed. Refusing it keeps apply and remove symmetric, the way applyModChargesFlat does.
+// when it is removed. Refusing it keeps apply and remove symmetric.
 func addBuffMaxStacks(aura *Aura, value int32) int32 {
 	stacks := aura.MaxStacks + value
 	if stacks <= 0 {
@@ -1459,8 +1457,8 @@ func removePushbackProtectionPercent(mod *SpellMod, spell *Spell) {
 
 // The chance a proc trigger with these class flags of its own rolls, once the unit's active proc
 // chance mods that name them are counted: the flat points are added first and the percentage
-// multiplies the sum. A trigger that states no class flags of its own is named by no mod, and a
-// chance no mod names comes back unchanged. A pet counts its owner's mods with its own.
+// multiplies the sum. A trigger that states no class flags of its own is named by no mod. A pet
+// counts its owner's mods with its own.
 func (unit *Unit) ModifiedProcChance(flags ClassFlags, chance float64) float64 {
 	if flags.IsZero() {
 		return chance

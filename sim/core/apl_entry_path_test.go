@@ -10,9 +10,8 @@ import (
 )
 
 // Every action of an APL rotation names the entry it was built from by the config's own positions: hidden
-// rows count, a group segment names the group's place in the config rather than the sim's copy of it, a
-// group another group references adds a segment of its own, and a step keeps its place when an earlier
-// step fails to build. Auto and custom rotations name no entry path.
+// rows count, a group segment names the group's place in the config rather than the sim's copy of it, and a
+// step keeps its place when an earlier step fails to build.
 func TestAPLEntryPathsFollowConfigPositions(t *testing.T) {
 	const dotID, unknownID = 910105, 910106
 	refTo := func(name string) *proto.APLAction {
@@ -179,8 +178,7 @@ func wantEntryPaths(t *testing.T, name string, got []string, suffixes ...string)
 	}
 }
 
-// A cast the rotation starts ends its Casting line with the path of the entry that started it, after the
-// text the line has always had.
+// A cast the rotation starts ends its Casting line with the path of the entry that started it.
 func TestRotationCastLogsItsEntryPath(t *testing.T) {
 	var nuke *Spell
 	hidden := &proto.APLListItem{Action: aplCast(910110), Hide: true}
@@ -240,8 +238,8 @@ func TestQueuedCastCarriesTheEntryPathThatQueuedIt(t *testing.T) {
 		wantEntryPaths(t, "the queued nuke", lt.casting(nuke), ") APL: priority 2")
 	})
 
-	// The nuke at the pull starts the GCD; the second spell's entries, priority 2 and then 3, press it 100 ms
-	// apart from 1.2 s and queue it for the GCD end at 1.5 s, with the rotation's own look held back past it.
+	// The nuke at the pull starts the GCD; the second spell's entries queue it for the GCD end at 1.5 s,
+	// with the rotation's own look held back past it.
 	inQueueWindow := func(entries int) (*entryPathTest, *Spell) {
 		var second *Spell
 		lt := newEntryPathTest(func(char *Character) {

@@ -10,8 +10,7 @@ import (
 // aura by and the callbacks it acts through.
 type AuraOpt func(*core.Aura)
 
-// What the game files state about a spell's aura. The caller adds the callbacks and anything the
-// game files do not carry to the returned value before registering it.
+// What the game files state about a spell's aura.
 //
 // A row that states no duration resolves to one of 0, which core refuses to activate: such an aura
 // needs Permanent() or a duration of the caller's.
@@ -63,18 +62,13 @@ func Permanent() AuraOpt {
 // What the game files state about a periodic effect of a spell, as the dot core registers. The
 // ticks are the row's duration over the effect's period. The default OnTick deals one roll of the
 // effect at the caster's level (its Average where it states no spread), on the stats and multipliers
-// in force at the tick; a caller replaces OnTick for a heal or a value the game files do not state.
-// OnSnapshot is nil.
+// in force at the tick. OnSnapshot is nil.
 //
-// The tick rolls no hit (TickOutcome): a dot's hit is rolled once, by the cast or proc that applies
-// it, so a caller whose application rolls none rolls it there.
-//
-// The aura's duration is the row's, which core recomputes from the ticks on every application.
+// The tick rolls no hit (TickOutcome): a dot's hit is rolled once, by the cast or proc that applies it.
 //
 // A ranked row's dot joins the rank group of its name with the row's rank, so a caster keeps one rank
 // of it on a unit, and its aura carries the ranked name unless an option labels it. A lower rank's
-// periodic stays off while a higher rank is up; the row's CastRequirement decides whether the cast
-// itself is refused.
+// periodic stays off while a higher rank is up.
 func DotConfig(s *Spell, e *Effect, opts ...AuraOpt) core.DotConfig {
 	if e.PeriodMs <= 0 {
 		panic(fmt.Sprintf("spelldata: effect %d of spell %d (%s) states no tick period",

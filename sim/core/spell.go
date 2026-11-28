@@ -393,9 +393,8 @@ func (unit *Unit) RegisterSpell(config SpellConfig) *Spell {
 		spell.ApplyEffects = func(*Simulation, *Unit, *Spell) {}
 	}
 
-	// Apply range constraints if requested. This is done after generating the castFn
-	// for performance reasons, so that auto-attacks can be managed separately during
-	// movement actions rather than constantly polling range checks.
+	// Done after generating the castFn for performance reasons, so that auto-attacks can be
+	// managed separately during movement actions rather than constantly polling range checks.
 	if (config.MinRange != 0) || (config.MaxRange != 0) {
 		spell.MinRange = config.MinRange
 		spell.MaxRange = config.MaxRange
@@ -888,9 +887,7 @@ func (spell *Spell) applyEffects(sim *Simulation, target *Unit) {
 	spell.SpellMetrics[target.UnitIndex].Casts++
 	spell.casts++
 
-	// Not sure if we want to split this flag into its own?
-	// Both are used to optimize away unneccesery calls and 99%
-	// of the time are gonna be used together. For now just in one
+	// Both are used to optimize away unneccesery calls and 99% of the time are gonna be used together.
 	if !spell.Flags.Matches(SpellFlagNoOnCastComplete) {
 		spell.Unit.OnApplyEffects(sim, target, spell)
 	}
@@ -910,8 +907,7 @@ func (spell *Spell) ApplyAOEThreatIgnoreMultipliers(threatAmount float64) {
 }
 
 // Threat no single enemy draws, such as a heal's or a resource gain's, split between the targets in
-// combat at the time. Before the pull no target is in combat, so it makes none, as damage before the
-// pull does: rage gained before the pull makes no threat in game (EV-0044).
+// combat at the time. Before the pull it makes none: rage gained before the pull makes no threat (EV-0044).
 func (spell *Spell) ApplySplitThreat(sim *Simulation, threat float64) {
 	if sim.CurrentTime < 0 {
 		return
@@ -955,7 +951,7 @@ func (spell *Spell) ExpectedTickDamageFromCurrentSnapshot(sim *Simulation, targe
 // talents on the attack table, SpellMod_CritMultiplier_Pct) scale that base; additive
 // ones (Ruin, Impale, SpellMod_CritMultiplier_Flat) scale only the bonus part above 100%.
 // Aura 163 (aura 50 for healing) multiplies PseudoStats.CritDamageMultiplier, so 2% gives 204% melee
-// and 153% spell crits, and Vengeance 5/5 on top gives (1.53 - 1) × 2 + 1 = 206%.
+// and 153% spell crits.
 // https://web.archive.org/web/20081014064638/http://elitistjerks.com/f31/t12595-relentless_earthstorm_diamond_-_melee_only/p4/
 func (spell *Spell) CritDamageMultiplier(at *AttackTable) float64 {
 	var base float64

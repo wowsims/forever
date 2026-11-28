@@ -13,22 +13,20 @@ type ProcOpt func(*core.Character, *core.ProcTrigger)
 
 // What the game files state about a proc, as the fields core registers a listener through: what it
 // hears (ProcTypeMask through the decoder, with the row's tooltip hint), how often it fires, its
-// internal cooldown and the attribute-driven gates. The caller adds what the row does not carry -
-// the name and action the sim keys the effect by, the buff the handler applies - to the returned
-// value before handing it to MakeProcTriggerAura. The row's own class flags go on the trigger too,
+// internal cooldown and the attribute-driven gates. The row's own class flags go on the trigger too,
 // so a SPELLMOD_CHANCE_OF_SUCCESS that names the row reaches its roll, and the character's mods are
 // the ones counted wherever the trigger sits.
 //
 // The trigger's internal cooldown is the proc category's recovery alone. On a proc trigger row,
 // RecoveryTime is a cooldown on casting the aura, which an item or enchant never casts: the shield
-// spikes state 5 s there and proc on every block in game (EV-0047, EV-0148). A damage shield is no proc trigger and
+// spikes proc on every block in game (EV-0047, EV-0148). A damage shield is no proc trigger and
 // keeps its RecoveryTime as the wait between two reflections (DamageShieldLockout).
 //
 // ProcCharges is not a property of the trigger: it is how many times the buff acts before it drops,
 // which AuraConfig reads as the aura's MaxStacks.
 //
 // The character is needed for the procs-per-minute managers, which are bound to the weapon carrying
-// them, so a trigger is built where the sim has a character rather than at package init.
+// them.
 func ProcTrigger(character *core.Character, s *Spell, handler core.ProcHandler, opts ...ProcOpt) core.ProcTrigger {
 	decoded := core.DecodeProcTypeMask(s.ProcFlags, s.ProcHint)
 
@@ -67,8 +65,7 @@ func ProcTrigger(character *core.Character, s *Spell, handler core.ProcHandler, 
 
 	// A row that fires on every main-hand hit with no roll hears every one that lands, damage or not:
 	// Sunder Armor, Rend's application, Concussion Blow and Disarm cast Iceblade Hacker's and Dreadfrost
-	// Saber's Frost. A rolled row, and a row without the main-hand bit, still needs damage: Hand of
-	// Justice, Ironfoe and Force Imbued Gauntlets do not proc on those (EV-0195).
+	// Saber's Frost (EV-0195).
 	// TODO: Ingame test needed -- whether Death Mark, which lands for no damage and suppresses weapon procs,
 	// casts these rows' Frost. The sim lets it.
 	if s.ProcFlags[1]&dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY != 0 && trigger.DPM == nil && trigger.ProcChance >= 1 {
@@ -89,8 +86,8 @@ func PPM(ppm float64) ProcOpt {
 	}
 }
 
-// A hand-supplied rate on the main hand's speed as Seal of the Crusader leaves it, through
-// core.NewWeaponSpeedPPMManager. Like PPM, it reads the trigger's proc mask.
+// A hand-supplied rate on the main hand's speed as Seal of the Crusader leaves it. Like PPM, it
+// reads the trigger's proc mask.
 func WeaponSpeedPPM(ppm float64) ProcOpt {
 	return func(character *core.Character, trigger *core.ProcTrigger) {
 		trigger.ProcChance = 0
@@ -156,8 +153,7 @@ func rowClassFlags(s *Spell) core.ClassFlags {
 }
 
 // Whether an effect of this aura kind is the proc whose class mask narrows the listener: a trigger, a
-// copied trigger or a dummy the server scripts. The ProcClassMask override writes onto the same
-// effects.
+// copied trigger or a dummy the server scripts.
 func CarriesProcClassMask(aura dbcenums.EffectAuraType) bool {
 	return aura.IsProcTrigger() || aura == dbcenums.A_PROC_TRIGGER_SPELL_COPY || aura == dbcenums.A_DUMMY
 }
@@ -165,14 +161,13 @@ func CarriesProcClassMask(aura dbcenums.EffectAuraType) bool {
 // Whether the mask names spells of a family this character's class never casts, which is how an
 // item shared by every class states the filter of the one class it was written for: Dreadnaught's
 // 8pc 28845 names family 5, the warlock's, and on a warrior that mask matches nothing and silences
-// the listener rather than narrowing it. A class the game files state no family for - and the empty
-// mask every non-class spell carries - is no evidence of anything, so both are left alone.
+// the listener. A class the game files state no family for, and the empty
+// mask every non-class spell carries, is no evidence of anything, so both are left alone.
 //
 // Only another class's family counts. The game files put the potions under family 13 and a good deal
 // of generic content under 0 or 1, and a mask in one of those names spells every class can use, so
 // dropping it would silence a listener the wearer really does hear. With no character there is no
-// class to read the mask against, which ParseEffects answers the same way: the rows that need one
-// are left out rather than guessed at.
+// class to read the mask against.
 func othersFamily(character *core.Character, flags core.ClassFlags) bool {
 	if character == nil {
 		return false
@@ -239,10 +234,9 @@ func fillProcChance(s *Spell, trigger *core.ProcTrigger) {
 }
 
 // The rate the trigger ends up with. An override-supplied procs-per-minute rate wins over every
-// column - the rows that carry one are the rows whose stated chance the tooltip contradicts - but it
-// is measured against the mask the trigger *ends* on rather than the one the row decoded to: an
-// option that narrows or blanks the mask, as a weapon proc's shape does, would otherwise be handed a
-// manager counting hits the listener no longer hears.
+// column (the rows that carry one are the rows whose stated chance the tooltip contradicts), but
+// it is measured against the mask the trigger *ends* on: an option that narrows or blanks the
+// mask would otherwise be handed a manager counting hits the listener no longer hears.
 //
 // A trigger left with neither a chance nor a manager fires on every qualifying hit, which is never
 // what a row with no stated rate means.

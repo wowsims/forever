@@ -323,9 +323,8 @@ func TestDecodeProcTypeMask(t *testing.T) {
 	}
 }
 
-// A trigger built the way spelldata.ProcTrigger builds one from a row: the decoded listener, a stated
-// chance of 1. The kill bit fires on a credited death alone, the target-dies bit on every death, and a
-// mask carrying both fires once for each.
+// The kill bit fires on a credited death alone, the target-dies bit on every death, and a mask carrying
+// both fires once for each.
 func TestDecodedDeathFlagsFireOnDie(t *testing.T) {
 	for _, tc := range []struct {
 		name                 string

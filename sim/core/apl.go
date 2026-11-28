@@ -87,8 +87,7 @@ type APLRotation struct {
 }
 
 // Called with every action a sim that RunSimWithAPLHook runs executes: a row, a group reference's row and then the
-// row it ran from the group, and the actions inside a row. Tools that read a rotation's choices pass one, and find
-// the rows among the actions with APLRotation.RowPaths.
+// row it ran from the group, and the actions inside a row.
 type APLActionHook func(sim *Simulation, action *APLAction)
 
 type APLGroup struct {
@@ -723,9 +722,8 @@ func (apl *APLRotation) isMajorCooldown(sim *Simulation, action *APLAction) bool
 	return false
 }
 
-// HasBlockingControllingAction reports whether the rotation is currently parked
-// in a controlling action that has set the rotation timer to a specific wake
-// time and must not be cut short by reaction-time-based shrinks (Wait, WaitUntil).
+// Whether the rotation is currently parked in a controlling action that has set the rotation timer
+// to a specific wake time and must not be cut short by reaction-time-based shrinks (Wait, WaitUntil).
 // Cooperative controllers like StrictSequence return false.
 func (apl *APLRotation) HasBlockingControllingAction() bool {
 	if apl == nil || len(apl.controllingActions) == 0 {
@@ -945,9 +943,8 @@ func (rot *APLRotation) reResolveVariableRefs(value APLValue, groupVars map[stri
 	return value
 }
 
-// orphanValue collects a value and all its descendants into orphanedValues
-// so they still get Finalize() called even though they've been removed from
-// the active APL tree by compile-time constant folding.
+// Collects a value and all its descendants into orphanedValues so they still get Finalize() called
+// even though they've been removed from the active APL tree by compile-time constant folding.
 func (rot *APLRotation) orphanValue(value APLValue) {
 	if value == nil {
 		return

@@ -13,8 +13,7 @@ import (
 )
 
 // The generated rows whose first amount is not the number the game files state, at every talent point
-// they price: mana over a tick period read as MP5, a percentage read as a multiplier or a pseudo-stat,
-// a talent's share of the amount, and a finisher's per-combo-point amount at full combo points.
+// they price.
 func TestGeneratedRowsReadInTheSimsUnits(t *testing.T) {
 	mp5 := func(s *spelldata.Spell) func(*testing.T, int32) float64 {
 		return func(t *testing.T, _ int32) float64 {
@@ -111,8 +110,7 @@ func firstAura(t *testing.T, s *spelldata.Spell, aura dbcenums.EffectAuraType) *
 }
 
 // The game files state a permanent aura as -1 and one with no duration of its own, a totem's, as 0:
-// both never expire. A row with no duration that names its cast lasts as long as the cast, and a
-// driven buff waits the longer of the cast's own and its category's cooldown.
+// both never expire.
 func TestMetaReadsTheDurationAndCooldown(t *testing.T) {
 	durations := []struct {
 		name string
@@ -290,7 +288,7 @@ func TestPrayerCountsOnceWithTheRaidsCopy(t *testing.T) {
 }
 
 // A totem state stands on a true pet where its row lets a pet carry one, and a state whose row says
-// only a player can carry it stays off the pet. The row copy clears that attribute.
+// only a player can carry it stays off the pet.
 func TestRankSelectTotemStateOnATruePet(t *testing.T) {
 	petCarries := func(state *Meta) bool {
 		owner := core.NewCharacter(&core.Party{Raid: &core.Raid{}}, 0, &proto.Player{

@@ -56,9 +56,6 @@ type manaBar struct {
 	costBlocked  bool // The current rotation pass skipped a spell for its mana cost.
 }
 
-// EnableManaBar will setup caster stat dependencies (int->mana and int->spellcrit)
-// as well as enable the mana gain action to regenerate mana.
-// It will then enable mana gain metrics for reporting.
 func (character *Character) EnableManaBar() {
 	character.EnableManaBarWithModifier()
 	character.Unit.SetCurrentPowerBar(ManaBar)
@@ -182,9 +179,8 @@ func (unit *Unit) SpiritManaRegenPerSecond() float64 {
 }
 
 // Innervate multiplies Spirit regen and the MP5 from gear and other buffs, but a periodic energize aura
-// (Blessing of Wisdom, Mana Spring) ticks its own amount under it (EV-0114). Taking Innervate's surplus
-// on that share back off keeps a factor of 1 bit-exact. Skyborne Energized's multiplier scales all
-// of it.
+// ticks its own amount under it (EV-0114). Taking Innervate's surplus on that share back off keeps a
+// factor of 1 bit-exact. Skyborne Energized's multiplier scales all of it.
 func (unit *Unit) multipliedManaRegen(spiritRegen float64, innervate float64) float64 {
 	return ((unit.MP5ManaRegenPerSecond()+spiritRegen)*innervate - unit.PseudoStats.EnergizeMP5/5.0*(innervate-1)) * unit.manaRegenMultiplier
 }
@@ -259,7 +255,7 @@ func (unit *Unit) ManaRegenBoost(aura *Aura) *ManaRegenBoost {
 
 	// The fields may change before the aura counts as up (an exclusive category applies them first) or
 	// after, so listing and unlisting the boost credits the regen so far under the old split and then
-	// recomputes it. While the boost is listed with its factors at 1, it takes nothing.
+	// recomputes it.
 	aura.ApplyOnGain(func(_ *Aura, sim *Simulation) {
 		unit.creditManaRegen(sim)
 		unit.activeManaRegenBoosts = append(unit.activeManaRegenBoosts, boost)

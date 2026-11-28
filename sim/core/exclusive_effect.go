@@ -13,10 +13,7 @@ const (
 	ResistanceCategoryShadow = "ResistanceShadow"
 )
 
-// The categories the elixirs, the scrolls and the consumables that count with them bid in: each stat
-// counts only the strongest one's amount, and the crit only one elixir's. A raid buff whose manifest row
-// names an ElixirCategory bids its stats there as well without counting (spelldata.Overwrites), so a
-// consumable that grants no more adds nothing under it (R-0054).
+// The categories the elixirs and the scrolls bid in: each stat counts only the strongest one (R-0054).
 const (
 	ElixirStatCategory = "ElixirStat"
 	ElixirCritCategory = "ElixirCrit"
@@ -214,12 +211,10 @@ func (ee *ExclusiveEffect) SetPriority(sim *Simulation, newPrio float64) {
 	} else if curActiveEffect != ee && newActiveEffect != ee {
 		ee.Priority = newPrio
 	} else if curActiveEffect == ee {
-		// This effect is currently active but will be deactivated now.
 		// Update prio after transition so it deactivates with the correct value.
 		ee.Category.SetActive(sim, newActiveEffect)
 		ee.Priority = newPrio
 	} else {
-		// This effect is currently not active but will be activated now.
 		// Update prio before transition so it activates with the correct value.
 		ee.Priority = newPrio
 		ee.Category.SetActive(sim, newActiveEffect)

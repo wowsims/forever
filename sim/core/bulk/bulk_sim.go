@@ -114,7 +114,7 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 	// not for how many are left: the survivors were themselves selected by the same
 	// noisy metric, so recomputing the correction on the shrinking set would weaken
 	// it exactly as the decisions become final. Iteration targeting deliberately
-	// keeps using the current stage's count - driving it from the original count
+	// keeps using the current stage's count: driving it from the original count
 	// inflates the final stage's iterations (measured +17.6%) without changing which
 	// gear set wins.
 	originalCandidateCount := len(candidates)
@@ -194,9 +194,8 @@ func runBulkSim(request *proto.BulkSimRequest, progress chan *proto.ProgressMetr
 	top := topBulkSimResults(latestResults, topResults)
 	for idx, candidateResult := range top {
 		protoResult := bulkSimCandidateResultToProto(candidateResult)
-		// Paired errors for the ranking display: candidates share seed sequences, so the
-		// uncertainty of a DPS *difference* is the paired standard error - far tighter than
-		// what the per-result stdev suggests. Computed here, before AllValues are stripped.
+		// Paired errors for the ranking display: candidates share seed sequences, so the uncertainty
+		// of a DPS *difference* is the paired standard error. Computed here, before AllValues are stripped.
 		if idx+1 < len(top) {
 			if pairedError, ok := bulkSimPairedDpsError(top[idx+1].DpsMetrics, candidateResult.DpsMetrics); ok {
 				protoResult.PairedErrorToNextResult = pairedError
