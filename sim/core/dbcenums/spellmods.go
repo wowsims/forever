@@ -45,7 +45,7 @@ const (
 	SPELLMOD_JUMP_DISTANCE             SpellModOp = 35
 	SPELLMOD_AREATRIGGER_MAX_SUMMONS   SpellModOp = 36
 	SPELLMOD_MAX_AURA_STACKS           SpellModOp = 37 // maximum aura stacks
-	SPELLMOD_PROC_COOLDOWN             SpellModOp = 38 // internal cooldown between procs
+	SPELLMOD_PROC_COOLDOWN             SpellModOp = 38 // ICD between procs
 	SPELLMOD_COST3                     SpellModOp = 39
 	SPELLMOD_MAX_TARGETS               SpellModOp = 40 // maximum targets
 )

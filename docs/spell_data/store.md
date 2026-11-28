@@ -28,7 +28,7 @@ exist for tests and debugging; a sim names its spells by id.
 To read an id in hand-written code without grepping the table, run `go run ./tools/spelldata 11574`. It
 prints the row's header and one line per effect, each worded and then followed by the game files' own
 columns. The header names the school, the times and the cost, the stances by name, the weapon or slot
-the row requires, the range, the target cap, the stacks and charges, the internal cooldown, the
+the row requires, the range, the target cap, the stacks and charges, the ICD, the
 attributes `attributes.go` exposes, the proc's rate and flags, the spells the tooltip references and
 the row's labels. The title line names the ladder through which a class file reaches the id (`warrior
 spellData.Rend.Highest()`), scanned out of `sim/*/spell_data_auto_gen.go`. For a class the generator
@@ -39,7 +39,7 @@ also reads a pick followed by the store's own accessors: `-expr
 'spellData.Execute.Highest().EffectN(1).Average()'` answers the value, the doc comment that accessor
 carries and the row, with the effect it read marked `(read)`.
 
-The worded line states each number in the unit the sim spends it in, written as the accessor that reads
+The worded line states each number in the unit the sim uses it in, written as the accessor that reads
 it: a plain amount is `Average()` and a range is `Min`/`Max`, a percentage is `Percent()`, rage is
 `Tenths()`, a time is `TimeValue()`, and a share of spell or attack power is `Coeff()`/`APCoeff()`. A
 dummy line states the row's number and says nothing about its meaning; it is the one shape that always

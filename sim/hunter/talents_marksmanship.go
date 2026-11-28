@@ -88,7 +88,7 @@ var rapidKillingBuff = spellData.RapidKillingTriggered.Highest()
 // it when the enemy dies with the hunter's Serpent Sting on it, which the row's proc flags do not
 // state; a stung enemy grants it once, whether or not the raid gets the kill.
 //
-// The Shots its damage mod names spend its one charge at the cast's result, a miss included.
+// The Shots its damage mod names use its one charge at the cast's result, a miss included.
 func (hunter *Hunter) registerRapidKilling() {
 	if hunter.Talents.RapidKilling == 0 {
 		return
@@ -213,7 +213,7 @@ func (hunter *Hunter) registerRapidRecuperation() {
 }
 
 // Puts Rapid Recuperation up at the share its source grants: effect 1 for a Serpent Sting hit and
-// effect 2 for spending Rapid Killing.
+// effect 2 for using Rapid Killing.
 func (hunter *Hunter) gainRapidRecuperation(sim *core.Simulation, share float64) {
 	if hunter.rapidRecuperationAura == nil {
 		return

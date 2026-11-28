@@ -663,7 +663,7 @@ const (
 	// Uses: FloatValue
 	SpellMod_GlobalCooldown_Pct
 
-	// Scales the internal cooldown of the proc triggers whose own class flags the mod names: -50% = -0.5
+	// Scales the ICD of the proc triggers whose own class flags the mod names: -50% = -0.5
 	// halves it. A cooldown already running keeps its length. It changes no spell.
 	// Uses FloatValue
 	SpellMod_ProcCooldown_Pct
@@ -1481,7 +1481,7 @@ func (unit *Unit) ModifiedProcChance(flags ClassFlags, chance float64) float64 {
 	return (chance + flat/100) * (1 + pct)
 }
 
-// The internal cooldown a proc trigger with these class flags of its own starts, once the unit's
+// The ICD a proc trigger with these class flags of its own starts, once the unit's
 // active proc cooldown mods that name them are counted, the same way as ModifiedProcChance.
 func (unit *Unit) ModifiedProcCooldown(flags ClassFlags, icd time.Duration) time.Duration {
 	if flags.IsZero() {

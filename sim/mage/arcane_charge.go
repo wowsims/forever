@@ -9,7 +9,7 @@ import (
 
 // Arcane Charges, the buff Arcane Blast stacks (400573): "you gain 12% of your Intellect as Spell
 // Damage and the mana cost of Arcane Blast is increased by 100%". Up to 4 stacks, lasting 18 sec
-// from the first; nothing spends them.
+// from the first; nothing uses them.
 var arcaneChargesRank = spellData.ArcaneBlastTriggered.Highest()
 
 // The spell damage per charge, as a share of Intellect (effect 1, every magic school).

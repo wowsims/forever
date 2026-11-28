@@ -58,7 +58,7 @@ func TestMonocatStaysInCatForm(t *testing.T) {
 	}
 }
 
-// Without Predatory Discipline, Ferocious Bite spends the combo points only once a Rip would not tick out.
+// Without Predatory Discipline, Ferocious Bite uses the combo points only once a Rip would not tick out.
 func TestMonocatBitesOnlyAtTheEnd(t *testing.T) {
 	request := catPowershiftRequest(withFeralDigit(powershiftTalents, 12, '0'), defaultCatRotation(), false)
 	request.SimOptions.Debug = true

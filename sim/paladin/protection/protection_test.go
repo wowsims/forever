@@ -63,7 +63,7 @@ func protectionSuite() core.CharacterSuiteConfig {
 	}
 }
 
-// A Windfury Totem hit, landed or avoided, spends Reckoning's stored charges but swings none of them.
+// A Windfury Totem hit, landed or avoided, uses Reckoning's stored charges but swings none of them.
 func TestWindfuryTotemsStrikeSpendsReckoningWithNoSwing(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Class:         proto.Class_ClassPaladin,

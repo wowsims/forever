@@ -260,7 +260,7 @@ func (warlock *Warlock) applyDecimation() {
 	})
 }
 
-// The next summon casts 5.5 sec faster (effect 1) for half the mana (effect 2), and spends the buff.
+// The next summon casts 5.5 sec faster (effect 1) for half the mana (effect 2), and uses the buff.
 func (warlock *Warlock) applyFelDomination() {
 	if !warlock.Talents.FelDomination {
 		return

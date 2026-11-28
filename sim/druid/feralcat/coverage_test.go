@@ -36,7 +36,7 @@ func (g castsGen) GetTest(i int) (string, *proto.ComputeStatsRequest, *proto.Sta
 }
 
 func catCoverageRequest(opener int32) *proto.RaidSimRequest {
-	// The opener while prowling, and nothing else while prowling so an auto-replace does not spend the
+	// The opener while prowling, and nothing else while prowling so an auto-replace does not use the
 	// stealth. The form spells sit under the builders.
 	prowling := auraUp(9913)
 	return coverageRequest(false, &proto.APLRotation{
@@ -55,7 +55,7 @@ func catCoverageRequest(opener int32) *proto.RaidSimRequest {
 			castWhen(22829, and(not(prowling), timeBetween("0.6", "0.8"))),
 			castWhen(9896, and(not(prowling), timeAtLeast("0.8"))),
 			castWhen(9850, and(not(prowling), or(timeBelow("0.2"), timeAtLeast("0.6")))),
-			// A late shift into dire bear spends the mana needed to shift back, so the form
+			// A late shift into dire bear uses the mana needed to shift back, so the form
 			// spells only run while claw still owns the fight, and only with the mana for both.
 			castWhen(9634, and(not(prowling), not(auraUp(9634)), timeBelow("0.2"), cmp(proto.APLValueCompare_OpGe,
 				&proto.APLValue{Value: &proto.APLValue_CurrentMana{CurrentMana: &proto.APLValueCurrentMana{}}},

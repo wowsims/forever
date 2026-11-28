@@ -146,7 +146,7 @@ func (mage *Mage) registerArcaneConcentration() {
 
 	// A Blizzard cast rolls once as the channel starts, however many enemies stand in the area (EV-0116).
 	// Its landing deals no damage, which the hit trigger does not hear, so this trigger rolls at the
-	// cast. The buff comes a spell batch later, after the cast has spent Clearcasting.
+	// cast. The buff comes a spell batch later, after the cast has used Clearcasting.
 	// TODO: In game a cast gains the buff more often than one roll at the talent's chance gives, in a
 	// window at the cast and a second one 5 to 40 ms later, and has gained it twice and inside a second
 	// of an earlier gain; this roll shares the hit trigger's cooldown (EV-0116).

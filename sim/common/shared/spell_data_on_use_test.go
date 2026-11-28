@@ -371,7 +371,7 @@ func TestOnUseCastsForTheCastTimeItsRowStates(t *testing.T) {
 	}
 }
 
-// A copy of the heal of 9163 stating a 1.5 s global cooldown spends it on use.
+// A copy of the heal of 9163 stating a 1.5 s global cooldown uses it when cast.
 func TestOnUseSpendsTheGlobalCooldownItsRowStates(t *testing.T) {
 	const itemID int32 = 991020
 	editRow(t, 9163, func(s *spelldata.Spell) { s.GCDMs = 1500 })

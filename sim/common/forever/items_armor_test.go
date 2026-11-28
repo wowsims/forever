@@ -155,7 +155,7 @@ func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
 
 // Argent Defender 13243's 17350 rolls the row's procs per minute priced on the attacker's time between its
 // own swings, a dual wielder's two hands together, and doubled when an Undead strikes. The test's copy of the
-// row has no internal cooldown and a higher rate, so the cases differ clearly.
+// row has no ICD and a higher rate, so the cases differ clearly.
 func TestArgentDefenderPricesTheAttackersSwings(t *testing.T) {
 	const ppm = 6
 	row := editSpellRow(t, 17350, func(s *spelldata.Spell) { s.ICDMs, s.RPPM = 0, ppm })
@@ -377,7 +377,7 @@ func TestGlovesOfHolyMightTripleDamageAgainstUndead(t *testing.T) {
 
 // Thick Obsidian Breastplate 22196's 27539 has a chance, on a spell hit taken, to shield the wearer
 // against that spell's school with the Fire row 27533's absorb roll. A Physical spell, which has no
-// shield, does not start 27539's internal cooldown.
+// shield, does not start 27539's ICD.
 func TestThickObsidianBreastplateShieldsTheSchoolHit(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, 22196)
 	enemy := sim.Encounter.ActiveTargetUnits[0]
@@ -648,7 +648,7 @@ func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
 }
 
 // Stoneform Shoulders 13955 put up 1298231's flat Physical damage taken at the encounter start, and the
-// first Physical hit taken that deals damage spends it.
+// first Physical hit taken that deals damage uses it.
 func TestStoneformShouldersReduceOnlyTheNextPhysicalHit(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotShoulder, 13955)
 	reduction := spelldata.MustFind(1298231).EffectN(1).BasePoints

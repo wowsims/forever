@@ -34,7 +34,7 @@ type reagentWaiver struct {
 	flags core.ClassFlags
 }
 
-// The cast needs and spends the Soul Shards its row states as reagents. Wraps the config's
+// The cast needs and uses the Soul Shards its row states as reagents. Wraps the config's
 // ExtraCastCondition and ApplyEffects, so it is called after both are set.
 func (warlock *Warlock) useReagents(config *core.SpellConfig, row *spelldata.Spell) {
 	shards := row.ReagentCount(soulShardItemID)

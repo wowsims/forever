@@ -207,13 +207,13 @@ func (mage *Mage) registerFingersOfFrost() {
 	config := spelldata.AuraConfig(spellData.FingersOfFrostTriggered.Highest())
 	config.MaxStacks = charges
 
-	// A cast that granted the charges from inside its own effects, which spends none of them.
+	// A cast that granted the charges from inside its own effects, which uses none of them.
 	var grantedBy *core.Spell
-	// Counts the grants, so a spend can tell whether charges were granted after it was cast.
+	// Counts the grants, so a use can tell whether charges were granted after it was cast.
 	var grants int
 
-	// Charge spending in EV-0030. The charge goes a spell batch after the cast: a spell queued in that
-	// batch spends the same charge, and a grant inside that batch leaves the charges full.
+	// Charge use in EV-0030. The charge goes a spell batch after the cast: a spell queued in that
+	// batch uses the same charge, and a grant inside that batch leaves the charges full.
 	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
 		if spell == grantedBy {
 			grantedBy = nil
@@ -233,8 +233,8 @@ func (mage *Mage) registerFingersOfFrost() {
 			sim.AddPendingAction(pa)
 		}
 	}
-	// Each Arcane Missiles missile that lands spends a charge, and a miss keeps it. The charge goes on
-	// the cast result, so the roll that read the target as Frozen spends it, whatever the travel time.
+	// Each Arcane Missiles missile that lands uses a charge, and a miss keeps it. The charge goes on
+	// the cast result, so the roll that read the target as Frozen uses it, whatever the travel time.
 	config.OnCastResult = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if spell.Matches(MageSpellArcaneMissilesTick) && result.Landed() {
 			aura.RemoveStack(sim)
@@ -245,7 +245,7 @@ func (mage *Mage) registerFingersOfFrost() {
 
 	grant := func(atCast bool) core.ProcHandler {
 		return func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-			// Charges granted inside a rotation spell's own cast spend none on it.
+			// Charges granted inside a rotation spell's own cast use none on it.
 			if spell.Flags.Matches(core.SpellFlagAPL) && (atCast || spell.MissileSpeed == 0) {
 				grantedBy = spell
 			}
@@ -365,7 +365,7 @@ func (mage *Mage) wintersChillCoefficient(target *core.Unit) float64 {
 	return float64(stacks) * spellData.WintersChillTriggered.Highest().EffectN(2).Percent()
 }
 
-// Cone of Cold spends every stack on a target it lands on.
+// Cone of Cold uses every stack on a target it lands on.
 func (mage *Mage) consumeWintersChill(sim *core.Simulation, target *core.Unit) {
 	mage.WintersChillAuras.Get(target).Deactivate(sim)
 }

@@ -66,7 +66,7 @@ func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
 			trigger.ClassSpellMask = bonescytheStrikes
 		})
 
-	// Eviscerate spends its combo points before its hit is dealt, so they are read as it applies.
+	// Eviscerate uses its combo points before its hit is dealt, so they are read as it applies.
 	var comboPoints int32
 	eviscerate := bonescytheFlaw.EffectN(1).ClassFlags
 	setBonusAura.AttachProcTrigger(core.ProcTrigger{

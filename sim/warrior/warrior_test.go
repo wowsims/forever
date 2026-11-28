@@ -481,7 +481,7 @@ func TestWarriorSunderStacksTheRaidsSunder(t *testing.T) {
 	}
 }
 
-// A Retaliation counterattack is a main-hand special, so it spends no Flurry charge: a crit sets
+// A Retaliation counterattack is a main-hand special, so it uses no Flurry charge: a crit sets
 // the charges to three, and anything else leaves the two the buff holds.
 func TestRetaliationCounterattackSpendsNoFlurryCharge(t *testing.T) {
 	sim, warrior := orcWarriorSim(t, "p1_fury", furyTalents)
@@ -1221,7 +1221,7 @@ func stepPastBatch(t *testing.T, sim *core.Simulation) {
 }
 
 // Victorious State hears the killing blow: a credited kill lets Victory Rush be cast, a death the
-// raid gets no kill for does not, and Victory Rush spends the buff.
+// raid gets no kill for does not, and Victory Rush uses the buff.
 func TestAKillingBlowEnablesVictoryRush(t *testing.T) {
 	sim, war, unit := newWindowSim(t)
 	target := sim.Encounter.AllTargets[0]
@@ -1339,7 +1339,7 @@ func TestExplosiveDropsTheCleavePressInsideTheQueueDelay(t *testing.T) {
 // rage make ThreatPerRageGained threat per rage without the warrior's threat multiplier, Bloodrage's
 // rage over time makes it times the multiplier, and rage gained before the pull makes none.
 func TestRageThreatFollowsItsSource(t *testing.T) {
-	// No rotation: AddRage wakes the rotation, and the default one spends the rage at once.
+	// No rotation: AddRage wakes the rotation, and the default one uses the rage at once.
 	player := &proto.Player{
 		Name:          "Rage Threat",
 		Race:          proto.Race_RaceOrc,
@@ -1656,7 +1656,7 @@ func TestVictoryRushHealMakesThreat(t *testing.T) {
 	}
 }
 
-// The block that spends Shield Block's last charge leaves the aura up to the end of its spell batch:
+// The block that uses Shield Block's last charge leaves the aura up to the end of its spell batch:
 // another attack in that batch meets the raised block chance, one in a later batch does not.
 func TestShieldBlockLastChargeCoversItsBatch(t *testing.T) {
 	const shieldBlockID = 2565
@@ -1761,8 +1761,8 @@ func TestShieldSlamAddsTwiceTheBlockValue(t *testing.T) {
 	}
 }
 
-// An Execute that misses, is dodged or is parried spends none of the rage above its cost and refunds
-// nothing; a landed one spends all of it. The casts skip the cost, so only the extra rage moves.
+// An Execute that misses, is dodged or is parried uses none of the rage above its cost and refunds
+// nothing; a landed one uses all of it. The casts skip the cost, so only the extra rage moves.
 func TestExecuteSpendsItsExtraRageOnlyWhenItLands(t *testing.T) {
 	const executeID = 20662 // The top rank.
 	for _, c := range []struct {
@@ -1843,7 +1843,7 @@ func TestExecuteCastAttackRollsWindfuryTotem(t *testing.T) {
 }
 
 // Sweeping Strikes gives a landed Whirlwind one strike for one charge, against two targets or more.
-// Thunder Clap spends no charge and brings no strike, and Whirlwind against a single target spends none.
+// Thunder Clap uses no charge and brings no strike, and Whirlwind against a single target uses none.
 func TestSweepingStrikesSpendsOneChargeAWhirlwindAndNoneAThunderClap(t *testing.T) {
 	const thunderClapID = 11581 // The top rank.
 	whirlwindID := core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)
@@ -1911,7 +1911,7 @@ func TestSweepingStrikesSpendsOneChargeAWhirlwindAndNoneAThunderClap(t *testing.
 	}
 }
 
-// Every landed strike of Whirlwind and Cleave spends a Gore Drinker charge and heals once, until the
+// Every landed strike of Whirlwind and Cleave uses a Gore Drinker charge and heals once, until the
 // charges run out.
 func TestGoreDrinkerSpendsOneChargePerLandedStrike(t *testing.T) {
 	const goreDrinkerHeal = 1323968

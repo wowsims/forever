@@ -304,7 +304,7 @@ func TestRaimentsOfConvictionAddSpellDamageAgainstUndead(t *testing.T) {
 }
 
 // Arcane Infused Gem 19336 grants Arcane Infused 23721. A landed Aimed Shot leaves it; the next landed
-// Arcane Shot fires Arcane Detonation 23722 at every target and spends it.
+// Arcane Shot fires Arcane Detonation 23722 at every target and uses it.
 func TestArcaneInfusedGemDetonatesOnTheNextArcaneShot(t *testing.T) {
 	const gem = 19336
 	infused, damage := spelldata.MustFind(23721), spelldata.MustFind(23722).DamageEffect()

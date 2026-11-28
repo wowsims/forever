@@ -35,7 +35,7 @@ describe('LogLine', () => {
 		);
 	});
 
-	// The raw values already moved the right way, so a spend flips the difference back to positive.
+	// The raw values already moved the right way, so a resource use flips the difference back to positive.
 	it('signs a resource line by whether it was spent, and names health losses differently', () => {
 		const resource = { kind: 'resource', resourceType: ResourceType.ResourceTypeRage, valueBefore: 100, valueAfter: 70, total: 100 };
 		expect(text(line({ ...resource, isSpend: true }))).toContain('Spent');

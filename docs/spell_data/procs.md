@@ -24,7 +24,7 @@ warrior.MakeProcTriggerAura(trigger)
 
 `spelldata.ProcTrigger(character, row, handler, opts...)` fills the listener the row describes: the
 name and action id, the `Callback`, `ProcMask`, `Outcome` and `RequireDamageDealt` the decoder reads
-out of `ProcTypeMask`, the internal cooldown, `CanProcFromProcs` and `ClassSpellsOnly` from the
+out of `ProcTypeMask`, the ICD, `CanProcFromProcs` and `ClassSpellsOnly` from the
 attributes, the class mask the proc effect names, and the rate the source above points at. A row that
 is a weapon proc aura also excludes the hits of spells flagged Suppress Weapon Procs.
 
@@ -54,7 +54,7 @@ hold, so the pet's trigger sets `ProcSpellClassFlags` from the talent's effect m
 row attaches.
 
 A `SPELLMOD_PROC_COOLDOWN` names its procs the same way and parses to `SpellMod_ProcCooldown_Pct`,
-which scales the internal cooldown a proc starts: Moonkin Form 24858 takes Omen of Clarity 16864's
+which scales the ICD a proc starts: Moonkin Form 24858 takes Omen of Clarity 16864's
 10 s to 5 s while the form is up. The length is read each time a proc starts the cooldown, so one
 already running keeps its length.
 
@@ -88,7 +88,7 @@ a Windfury Totem hit, reaches a listener whose mask would not hear it as a main-
 and a procs-per-minute manager prices it on the main hand's speed (EV-0136). `WeaponProc()` clears it,
 since a weapon proc hears the Windfury hit by its own rule. A caller whose row hears swings but not the
 Windfury hit clears it by hand, as Unsealed Wrath does (`sim/paladin/talents_retribution.go`). A
-`core.ProcTrigger` typed by hand hears the Windfury hit only if it sets the field, as Reckoning's spend does.
+`core.ProcTrigger` typed by hand hears the Windfury hit only if it sets the field, as Reckoning's use does.
 
 The mask states which hits reach the listener; it cannot state the condition around them, so the
 generator reads that off the tooltip into `core.ProcHint`:
@@ -148,7 +148,7 @@ for no class, carry no evidence and are left alone.
   disagree on a number (12966's flat 30 against the ladder's 25 at five points), the decision is
   written at the call site.
 - **Lightning Shield** 324 is the same no-roll shape on a row nothing ports yet: 100 in the column,
-  three charges, a 3.5 second internal cooldown, and its damage spell reachable only as a tooltip
+  three charges, a 3.5 second ICD, and its damage spell reachable only as a tooltip
   reference while its effect triggers the dispatcher every rank shares.
 
 ## Item and enchant procs
@@ -165,7 +165,7 @@ shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 7711, BuffSpe
 `NewSpellDataProc` is the same for a proc whose buff is an aura, and `NewSpellDataHealProc`,
 `NewSpellDataAbsorbProc`, `NewSpellDataDebuffProc` and `NewSpellDataExtraAttackProc` are the heal,
 absorb, debuff and extra-attack shapes. The trigger's row supplies what the
-listener hears, how often it fires and its internal cooldown. The buff's row supplies how long the buff
+listener hears, how often it fires and its ICD. The buff's row supplies how long the buff
 lasts and how it stacks. Only the stats come from the item's effect entry, where the sim's item level
 scaling lives. `IsWeaponProc` states the one shape no row describes: the game
 casts a chance-on-hit effect off the weapon's hit without consulting a proc mask, and there the 100/101
@@ -178,8 +178,8 @@ table of the row's defense type and takes armor or resistance like any other, an
 effect's `Amplitude` share of the damage dealt as health. Maw of Min'loth's Fatal Bite 1295065 drains
 the attacker for 40 Physical on the melee table.
 
-The damage shape (`applySpellDataDamageProc`) gives its listener the `RecoveryTime` of the row it casts as the internal
-cooldown where the trigger's row states none, since the spell cannot be cast again while it runs, and no hit that lands
+The damage shape (`applySpellDataDamageProc`) gives its listener the `RecoveryTime` of the row it casts as the ICD
+where the trigger's row states none, since the spell cannot be cast again while it runs, and no hit that lands
 inside that time casts it. Toofbreaker 286430's Toofbreak 1320269 states 100 ms, so it brings no second strike and
 rolls on no Windfury Totem hit or ability that lands with the swing that cast it (EV-0145). A row that deals its
 damage as an `A_PROC_TRIGGER_DAMAGE` aura casts nothing and takes none: the shield spikes state 5 s and answer every

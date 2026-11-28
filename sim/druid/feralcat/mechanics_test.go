@@ -717,7 +717,7 @@ func TestPoisedLowersTheFirstCatAbilityOnly(t *testing.T) {
 	}
 }
 
-// A missed, dodged or parried Claw spends Poised as a landed one does, and pays the lowered cost less the
+// A missed, dodged or parried Claw uses Poised as a landed one does, and pays the lowered cost less the
 // row's miss refund.
 func TestAvoidedClawSpendsPoised(t *testing.T) {
 	for _, c := range []struct {

@@ -76,7 +76,7 @@ func TestWindfuryWeaponStrikesNeverProcFlametongueTotemOrGlance(t *testing.T) {
 	}
 }
 
-// A main-hand swing spends a Flurry charge whatever its outcome, and so does a Windfury Weapon hit.
+// A main-hand swing uses a Flurry charge whatever its outcome, and so does a Windfury Weapon hit.
 func TestFlurrySpendsOnSwingsAndWindfuryStrikes(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	player.TalentsString = enhancementTalents
@@ -102,7 +102,7 @@ func TestFlurrySpendsOnSwingsAndWindfuryStrikes(t *testing.T) {
 		trigger.OnSpellHitDealt(trigger, sim, spell, &core.SpellResult{Target: target, Outcome: outcome, Damage: 100})
 	}
 
-	// Each case starts a second after the last, past the cooldown between charges spent, and hits a
+	// Each case starts a second after the last, past the cooldown between charges used, and hits a
 	// moment after the full charges are set.
 	expect := func(name string, spell *core.Spell, outcome core.HitOutcome, spends bool) {
 		t.Helper()

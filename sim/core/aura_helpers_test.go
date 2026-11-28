@@ -102,7 +102,7 @@ func TestProcTriggerHearsAProcsTicksButNotItsHits(t *testing.T) {
 	}
 }
 
-// A proc cooldown mod scales the internal cooldown a proc starts on the triggers whose own class flags
+// A proc cooldown mod scales the ICD a proc starts on the triggers whose own class flags
 // it names, and leaves every other trigger and every proc chance alone.
 func TestProcCooldownModScalesTheICDsItNames(t *testing.T) {
 	omen := ClassFlags{Family: 7, Mask: [4]uint32{3: 0x40000}}

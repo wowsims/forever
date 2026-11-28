@@ -182,7 +182,7 @@ func init() {
 		})
 		trigger.Name = "Thick Obsidian Breastplate"
 		trigger.ActionID = core.ActionID{ItemID: 22196}
-		// A Physical spell has no shield, and does not spend the chance or the cooldown.
+		// A Physical spell has no shield, and does not use the chance or the cooldown.
 		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 			return shieldFor(spell) != nil
 		}

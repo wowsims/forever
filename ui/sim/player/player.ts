@@ -134,7 +134,7 @@ const sourceTicked = (itemSrc: ItemSource, filters: DatabaseFilters, untickedRai
 export class UnitMetadata {
 	private name: string;
 	private auras: Array<AuraStats>;
-	// Internal cooldown triggers with no aura of their own; only icd_is_ready finds them.
+	// ICD triggers with no aura of their own; only icd_is_ready finds them.
 	private icdAuras: Array<AuraStats>;
 	private spells: Array<SpellStats>;
 	private talents: Array<ActionId>;

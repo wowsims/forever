@@ -13,7 +13,7 @@ func (warrior *Warrior) registerShieldBlock() {
 	spelldata.ParseEffects(&warrior.Character, aura, shieldBlockRank)
 
 	// Last charge timing in EV-0047, EV-0004.
-	// Holy Shield spends charges on blocks as Shield Block does but is not measured, and it ends at its last
+	// Holy Shield uses charges on blocks as Shield Block does but is not measured, and it ends at its last
 	// block, not at the end of that block's spell batch.
 	lastChargeSpent := false
 	batchEnd := &core.PendingAction{
@@ -36,7 +36,7 @@ func (warrior *Warrior) registerShieldBlock() {
 		dropBatchEnd(sim)
 	})
 
-	// The block that spends a charge is an outcome no proc mask states, and a full block deals no damage,
+	// The block that uses a charge is an outcome no proc mask states, and a full block deals no damage,
 	// so both of those are the caller's.
 	trigger := spelldata.ProcTrigger(&warrior.Character, shieldBlockRank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {

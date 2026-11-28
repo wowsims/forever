@@ -37,8 +37,8 @@ func (hunter *Hunter) registerMongooseBite() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := mongooseBiteRank.WeaponStrike(sim, spell, hunter.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
 		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
-		// A bite spends Expose Prey when both windows are up (EV-0206). The dodge window lasts as long as the bite's
-		// cooldown, so whether the bite spends it too changes nothing.
+		// A bite uses Expose Prey when both windows are up (EV-0206). The dodge window lasts as long as the bite's
+		// cooldown, so whether the bite uses it too changes nothing.
 		hunter.MongooseBiteAura.Deactivate(sim)
 		exposePrey.Deactivate(sim)
 	}

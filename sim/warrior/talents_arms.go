@@ -485,7 +485,7 @@ func (warrior *Warrior) registerSweepingStrikes() {
 			// Whirlwind brings its one strike through CastNormalizedSweepingStrikesAttack.
 			// Hits and charges in EV-0054.
 			// TODO: Whirlwind's off-hand strike also brings off-hand strikes of Sweeping Strikes (462890 in
-			// game), each spending a charge, and the sim casts none; how many a cast brings is open (EV-0216).
+			// game), each using a charge, and the sim casts none; how many a cast brings is open (EV-0216).
 			if spell == hitSpell || spell == warrior.SweepingStrikesNormalizedAttack || spellData.ThunderClap.Contains(spell) || spellData.Whirlwind.Contains(spell) {
 				return
 			}

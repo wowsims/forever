@@ -33,7 +33,7 @@ function auraNamespaceOf(type: string | undefined): 'aura' | 'pet_aura' | 'targe
 // What an ActionID field offers, in the namespace the parser reads its name in (SPEC.md §7.2): an aura id among the
 // auras of the unit the field's JSON names (the player's with none), a boss spell's id among the target's spells, and
 // any other id among the spec's spells, with the items with a use where the site's set takes one. An aura known only as
-// an internal cooldown trigger is offered in the ICD kinds alone, a talent's own spell in the talent kinds, which take
+// an ICD trigger is offered in the ICD kinds alone, a talent's own spell in the talent kinds, which take
 // nothing else, a spell known only as a talent there alone, and the spell an action casts, its spellId, among the
 // spells the spec lets a rotation cast (SPEC.md §7.4). Each prints as its name.
 export function offeredFor(
@@ -46,7 +46,7 @@ export function offeredFor(
 	if (field.name === 'auraId') {
 		const ns = auraNamespaceOf(isObject(unit) && typeof unit.type === 'string' ? unit.type : undefined);
 		const list = ns === 'pet_aura' ? petAuras : ns === 'target_aura' ? targetAuras : auras;
-		// Only the ICD kinds, whose set is icd_auras, find an aura by its internal cooldown trigger too.
+		// Only the ICD kinds, whose set is icd_auras, find an aura by its ICD trigger too.
 		return field.set === 'icd_auras' ? list : list.filter(entry => !entry.icdOnly);
 	}
 	if (field.kind.startsWith('bossSpell')) return targetSpells;

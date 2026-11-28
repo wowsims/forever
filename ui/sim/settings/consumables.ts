@@ -241,7 +241,7 @@ export function consumableAllowed(consumable: Consumable, user: ConsumableUser):
 }
 
 // Whether the consumable does something for these stats: a stat among them, a percent among them, a
-// resource they spend, or, for a consumable that grants none of these, an effect of another kind.
+// resource they use, or, for a consumable that grants none of these, an effect of another kind.
 function isConsumableRelevant(consumable: Consumable, db: SpellEffectSource, stats: Set<Stat>, pseudoStats: Set<PseudoStat>): boolean {
 	const { grantedStats, grantedPseudoStats, restores } = factsOf(consumable, db);
 	if (

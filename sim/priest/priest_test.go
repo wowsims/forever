@@ -426,7 +426,7 @@ func TestStarshardsTicksMeetTheTargetsFullResistance(t *testing.T) {
 	}
 }
 
-// Charge spending in EV-0149.
+// Charge use in EV-0149.
 func TestPenanceHealsCritAndLeaveRevelationsCharge(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Duration = 3600

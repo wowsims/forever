@@ -203,7 +203,7 @@ func lowersThreat(row *spelldata.Spell) bool {
 	return false
 }
 
-// A buff the game spends by charges starts with its full count, and the hits its row names spend them.
+// A buff the game limits by charges starts with its full count, and the hits its row names use them.
 func spellDataOnUseAuraSpell(character *core.Character, row *spelldata.Spell, auras *spellDataAuras) core.SpellConfig {
 	charged := auras.wearer != nil && SpendsItsCharges(row)
 	if charged {
@@ -222,8 +222,8 @@ func spellDataOnUseAuraSpell(character *core.Character, row *spelldata.Spell, au
 	}
 }
 
-// Whether a buff on the wearer drops after its ProcCharges are spent, and its row names the hits that
-// spend them. A row stating more than one stack as well is read as a stacking one, whose charges the
+// Whether a buff on the wearer drops after its ProcCharges are used, and its row names the hits that
+// use them. A row stating more than one stack as well is read as a stacking one, whose charges the
 // aura cannot keep apart from its stacks.
 func SpendsItsCharges(row *spelldata.Spell) bool {
 	return row.ProcCharges > 0 && row.MaxStack <= 1 && len(spelldata.EffectsOn(row, spelldata.AuraOnWearer)) > 0 &&

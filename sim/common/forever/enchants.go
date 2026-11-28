@@ -37,7 +37,7 @@ var revelationDirectHits = map[proto.Class]core.ClassFlags{
 // Embrace's party heal 15290.
 var revelationSkippedHeals = []int32{20267, 20341, 20342, 20343, 15290}
 
-// Charge spending in EV-0149.
+// Charge use in EV-0149.
 var revelationPenanceHeal = core.ClassFlags{Family: 6, Mask: [4]uint32{0, 0x10000}}
 
 // Level share in EV-0149.
@@ -46,7 +46,7 @@ func revelationLevelShare(wearerLevel int32, spellLevel int32) float64 {
 }
 
 // The buff's row with the given class flags added to the spells its crit modifier names, which are
-// the spells its charge is spent by.
+// the spells its charge is used by.
 func revelationSpentBy(row *spelldata.Spell, flags core.ClassFlags) *spelldata.Spell {
 	widened := *row
 	widened.Effects = slices.Clone(row.Effects)
@@ -306,9 +306,9 @@ func init() {
 		spelldata.ParseEffects(character, buff, row)
 		character.ItemSwap.RegisterWeaponEnchantBuff(buff, 8217)
 
-		// Charge spending in EV-0028, EV-0149.
+		// Charge use in EV-0028, EV-0149.
 		// TODO: Holy Shock's and Light's Vigil's heals crit on every cast here, and mostly not in the logs (EV-0149).
-		// TODO: A charge gained during Volley or Penance's heal is spent as the channel ends (R-0048).
+		// TODO: A charge gained during Volley or Penance's heal is used as the channel ends (R-0048).
 		isAttack := func(spell *core.Spell) bool {
 			return spell.DefenseType == core.DefenseTypeMelee || spell.DefenseType == core.DefenseTypeRanged
 		}
@@ -361,7 +361,7 @@ func init() {
 			Handler: spendCharge,
 		})
 
-		// The direct hit of a spell in revelationDirectHits crits for the one cast that spends the charge.
+		// The direct hit of a spell in revelationDirectHits crits for the one cast that uses the charge.
 		if critsDirectHits {
 			crit := row.Effect(dbcenums.A_ADD_FLAT_MODIFIER, int32(dbcenums.SPELLMOD_CRITICAL_CHANCE)).BaseValue()
 			var critting *core.Spell

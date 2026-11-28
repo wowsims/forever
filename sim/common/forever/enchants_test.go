@@ -344,7 +344,7 @@ func chargeRevelation(sim *core.Simulation, buff *core.Aura) {
 	buff.SetStacks(sim, buff.MaxStacks)
 }
 
-// Enchant Weapon - Revelation 8217 gives a druid its class's buff 1323400. Charge spending in EV-0149.
+// Enchant Weapon - Revelation 8217 gives a druid its class's buff 1323400. Charge use in EV-0149.
 func TestRevelationGrantsTheWearersClassBuff(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
@@ -412,7 +412,7 @@ func TestRevelationGrantsTheWearersClassBuff(t *testing.T) {
 	}
 }
 
-// A channel spends the charge on its first tick (EV-0149).
+// A channel uses the charge on its first tick (EV-0149).
 func TestRevelationChannelSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	sim, character := revelationWearerFacing(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}}, 3)
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
@@ -459,7 +459,7 @@ func TestRevelationChannelSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	}
 }
 
-// A channel's first periodic tick spends the charge (EV-0149); the same dot cast with no channel leaves it.
+// A channel's first periodic tick uses the charge (EV-0149); the same dot cast with no channel leaves it.
 func TestRevelationChannelOfPeriodicTicksSpendsTheChargeOnItsFirstTick(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
@@ -587,7 +587,7 @@ func revelationProcsOnBlocks(t *testing.T, sim *core.Simulation, character *core
 	return procs
 }
 
-// A mage's buff spends its charge as the cast completes (EV-0149).
+// A mage's buff uses its charge as the cast completes (EV-0149).
 func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, 3)
 	mage := sim.Raid.Parties[0].Players[0].(*testMage)
@@ -842,7 +842,7 @@ func TestRevelationRollsNothingOffASpellFarUnderTheWearer(t *testing.T) {
 	}
 }
 
-// The mage's buff 1248808 does not name Fireball. Its cast spends the charge all the same and its direct
+// The mage's buff 1248808 does not name Fireball. Its cast uses the charge all the same and its direct
 // hit crits (EV-0149).
 func TestRevelationCritsTheDirectHitOfASpellItsRowDoesNotName(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}})

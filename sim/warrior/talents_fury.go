@@ -163,7 +163,7 @@ func (warrior *Warrior) registerFlurry() {
 	flurryAura := warrior.RegisterAura(spelldata.AuraConfig(flurryBuff)).
 		AttachMultiplyMeleeSpeed(spellData.Flurry.MultiplierAt(warrior.Talents.Flurry))
 
-	// Charge spending in EV-0054, EV-0138, EV-0140.
+	// Charge use in EV-0054, EV-0138, EV-0140.
 	firstHit, resetFirstHit := core.OncePerCast()
 	warrior.RegisterResetEffect(func(_ *core.Simulation) {
 		resetFirstHit()
@@ -228,10 +228,10 @@ func (warrior *Warrior) registerGoreDrinker() {
 	buffConfig.MaxStacks = charges
 	warrior.GoreDrinkerAura = warrior.RegisterAura(buffConfig)
 
-	// Charge spending in EV-0054. spelldata.AttachChargeSpender
-	// spends one charge a cast, so the buff builds its own spender.
+	// Charge use in EV-0054. spelldata.AttachChargeSpender
+	// uses one charge a cast, so the buff builds its own spender.
 	//
-	// TODO: Ingame test needed: a melee hit that deals no damage spends no charge.
+	// TODO: Ingame test needed: a melee hit that deals no damage uses no charge.
 	consume := spelldata.ProcTrigger(&warrior.Character, goreDrinkerBuff,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			// The hits of one spell batch each queue a handler, which can outnumber the charges left.
@@ -363,7 +363,7 @@ func (warrior *Warrior) registerRecklessSwings() {
 
 	aura := warrior.RegisterAura(spelldata.AuraConfig(recklessSwingsRank))
 
-	// Charge spending in EV-0136, EV-0138.
+	// Charge use in EV-0136, EV-0138.
 	firstAbilityHit, resetFirstAbilityHit := core.OncePerCast()
 	aura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
 		resetFirstAbilityHit()

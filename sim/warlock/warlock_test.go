@@ -226,7 +226,7 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 }
 
 // Bane of Agony's base ramps in thirds while each tick reads the spell power of the moment, with its share
-// unramped, and Amplify Curse (talent 9) raises the whole tick for the whole of the Bane it landed with, spent or
+// unramped, and Amplify Curse (talent 9) raises the whole tick for the whole of the Bane it landed with, used or
 // not. The last tick clears the dot's snapshot base as the dot ends, so the test reads the first 11.
 func TestBaneOfAgonyTicksFollowSpellPower(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
@@ -281,7 +281,7 @@ func TestBaneOfAgonyTicksFollowSpellPower(t *testing.T) {
 	}
 }
 
-// A Bane of Agony that lands spends Amplify Curse, and one that misses leaves it up. The tooltip names the Bane, but
+// A Bane of Agony that lands uses Amplify Curse, and one that misses leaves it up. The tooltip names the Bane, but
 // neither of Amplify Curse's class masks in the game files does.
 func TestBaneOfAgonySpendsAmplifyCurseWhenItLands(t *testing.T) {
 	sim, warlock := newWarlockSim("000000001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))

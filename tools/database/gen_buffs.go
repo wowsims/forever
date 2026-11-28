@@ -287,7 +287,7 @@ func nameBuff(t *spellTables, row *ResolvedBuff) error {
 // shield needs its shield, and every other kind needs an amount.
 func parseBuff(row *ResolvedBuff) {
 	// The value a debuff states per combo point is 0 on the spell itself. The raid config is the
-	// finisher at full combo points; a caster spending fewer of them takes its own value through a driver.
+	// finisher at full combo points; a caster using fewer of them takes its own value through a driver.
 	if row.Scope == buffmanifest.ScopeDebuff {
 		row.FullComboPoints = slices.ContainsFunc(row.Spell.Effects, func(e spelldata.Effect) bool {
 			return e.PointsPerResource != 0 && e.Average() == 0

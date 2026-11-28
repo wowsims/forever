@@ -112,7 +112,7 @@ func ScaledByRanks(ranks, divisor int32) ParseOpt {
 	}
 }
 
-// The finisher at full combo points: an effect the game files state per combo point spent is worth
+// The finisher at full combo points: an effect the game files state per combo point used is worth
 // five of them. A parse without it skips an effect whose amount is its per-point value alone.
 func FullComboPoints() ParseOpt {
 	return func(o *parseOptions) {

@@ -512,7 +512,7 @@ func init() {
 	//
 	// PPM measurement in EV-0119.
 	// A free cast keeps the charge, as does one the reduction brings to 0.
-	// The listener is hand-written: spelldata.AttachChargeSpender on cast complete would spend the
+	// The listener is hand-written: spelldata.AttachChargeSpender on cast complete would use the
 	// charge on Shoot.
 	newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
 		if !character.HasManaBar() {
@@ -721,7 +721,7 @@ func init() {
 	// Chance on hit: Deal 84 Nature damage, increased by 2% per stack of Static Electricity. Deals 2
 	// times as much damage to Aquatic enemies.
 	//
-	// Stack spending in EV-0136.
+	// Stack use in EV-0136.
 	// TODO: Static Electricity builds while the wearer moves, at a rate no row states and the logs do
 	// not settle in time between stacks; measure how far the wearer moves for a stack. Until then the
 	// sim gives no stacks.

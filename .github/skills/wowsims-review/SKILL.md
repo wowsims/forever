@@ -94,8 +94,8 @@ The first eight have a section in `references/defects.md`.
 
 - **Core's order.** Check whether an `OnCastComplete` handler sees the cast that procced it, proven at runtime;
   the mechanic is in `wowsims-core-mechanics` `## Cast order`.
-- **What a cast spends, and when.** Check combo points, energy and the miss refund one by one, and that a
-  one-charge buff goes with the cast it modifies; `wowsims-core-mechanics` `## What a cast spends`.
+- **What a cast uses, and when.** Check combo points, energy and the miss refund one by one, and that a
+  one-charge buff goes with the cast it modifies; `wowsims-core-mechanics` `## What a cast uses`.
 - **What scales.** Check a tick against stacks and combo points, `PointsPerResource` and a flat weapon bonus;
   `wowsims-core-mechanics` `## What scales`.
 - **How many targets.** Check that an area effect hits every enemy and an "up to" count is the total;

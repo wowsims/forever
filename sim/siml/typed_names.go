@@ -161,7 +161,7 @@ func (t *typer) notCastable(name string) string {
 	return message
 }
 
-// Whether the kind finds an aura by its internal cooldown trigger too, as the sim's GetIcdAuraByID does.
+// Whether the kind finds an aura by its ICD trigger too, as the sim's GetIcdAuraByID does.
 func (s kindScope) readsICD() bool {
 	if s.kind == nil {
 		return false

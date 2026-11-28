@@ -1393,7 +1393,7 @@ func TestGeneratedInnervatesTakeTurnsBetweenTheirSources(t *testing.T) {
 		t.Fatal("no spell stands for the external innervates")
 	}
 
-	// What the sim asks before it spends one of the sources.
+	// What the sim asks before it uses one of the sources.
 	ready := func() bool {
 		return spell.CD.Timer.IsReady(sim) && spell.ExtraCastCondition(sim, &char.Unit)
 	}

@@ -23,7 +23,7 @@ func (shaman *Shaman) newLightningBoltSpellConfig(row *spelldata.Spell, overload
 		result := spell.CalcDamage(sim, target, damage, spell.OutcomeMagicHitAndCrit)
 		spell.DealCastResult(sim, result)
 
-		// The bolt lands before its overload is priced, so a debuff charge the bolt spends does
+		// The bolt lands before its overload is priced, so a debuff charge the bolt uses does
 		// not also raise the overload. DealDamage disposes the result, so Landed is read first.
 		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
 			landed := result.Landed()

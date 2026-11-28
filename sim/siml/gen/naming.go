@@ -313,7 +313,7 @@ func (u *updater) registeredBy() {
 }
 
 // e with its spec lists written from what the builds register: registeredBy, of its specs those whose builds list
-// the aura only as an internal cooldown trigger (icdOnlyBy) and those whose builds list the spell only as a talent
+// the aura only as an ICD trigger (icdOnlyBy) and those whose builds list the spell only as a talent
 // (talentOnlyBy); and for a spell no build registers castable, uncastable, which a talent no build casts is too.
 func (u *updater) withSpecs(class proto.Class, ns siml.Namespace, e siml.SpellName) siml.SpellName {
 	id := Identity{e.SpellID, e.Tag}
@@ -638,7 +638,7 @@ func enchantCandidate(row EnchantRow) candidate {
 // Adds an entry for every effect id and slots of the database's enchant rows that the table does not name. Rows
 // of one effect id that fit the same slots share one entry, named by the first of them; preference among new
 // entries is the lowest effect id, and no qualifier is readable.
-// The items whose effect a spec knows only as an internal cooldown trigger, written again from what the builds list.
+// The items whose effect a spec knows only as an ICD trigger, written again from what the builds list.
 func (u *updater) icdItems() {
 	u.t.ICDOnlyItems = map[string][]string{}
 	for name, id := range u.t.Items {

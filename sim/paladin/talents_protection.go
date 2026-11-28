@@ -190,7 +190,7 @@ func (paladin *Paladin) applySacredDuty() {
 
 // Reckoning - Gives you a 8/16/24/32/40% chance after Blocking and a 20/40/60/80/100% chance after
 // receiving a non-periodic critical strike to gain an extra attack. Stores up to 4 extra attacks, which
-// the next main-hand swing spends. Cannot occur from Blocks more than once every 1.5 sec.
+// the next main-hand swing uses. Cannot occur from Blocks more than once every 1.5 sec.
 func (paladin *Paladin) applyReckoning() {
 	if paladin.Talents.Reckoning == 0 {
 		return
@@ -224,7 +224,7 @@ func (paladin *Paladin) applyReckoning() {
 		Handler:    gain,
 	})
 
-	// Charge spending in EV-0136.
+	// Charge use in EV-0136.
 	var extraAttack *core.Spell
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Reckoning - Swing" + paladin.Label,

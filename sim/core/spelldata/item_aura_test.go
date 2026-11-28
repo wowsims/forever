@@ -91,7 +91,7 @@ func TestDamageShieldHitsFollowTheRowsProcFlags(t *testing.T) {
 	}
 }
 
-// A shield row's lockout is its internal cooldown, the cooldown it states where it has none, and
+// A shield row's lockout is its ICD, the cooldown it states where it has none, and
 // nothing where it states neither.
 func TestDamageShieldLockoutFollowsTheRowsCooldowns(t *testing.T) {
 	for name, tc := range map[string]struct {

@@ -14,7 +14,7 @@ import (
 type SpellOpt func(*core.SpellConfig, *Spell)
 
 // SpellCategories.StartRecoveryCategory of the global cooldown. It is the only category the store
-// carries, so a row outside it spends no GCD.
+// carries, so a row outside it uses no GCD.
 const globalCooldownCategory int16 = 133
 
 // ImplicitTarget_0 values that name a friendly unit.
@@ -393,7 +393,7 @@ func rowFlags(s *Spell) core.SpellFlag {
 // The cast time and global cooldown the row states and whether haste shortens them, without the
 // cooldowns.
 func Cast(s *Spell) core.CastConfig {
-	// Haste shortens a cast and the GCD it spends, which is the school's business rather than the hit
+	// Haste shortens a cast and the GCD it uses, which is the school's business rather than the hit
 	// table's: the shouts, Taunt, Piercing Howl and Thunder Clap are physical spells the game files
 	// put under the magic defense type, and they ignore haste like every other ability.
 	cast := core.CastConfig{
@@ -435,10 +435,10 @@ func categoryTimer(unit *core.Unit, s *Spell) *core.Timer {
 
 // The cost out of the first bar the row states, and NonEmpty where the cast would otherwise read as
 // an empty one. It is not what keeps core's "Empty DefaultCast with a cost" panic away: core fills
-// DefaultCast.Cost from the resolved cost before it tests for an empty cast. A row that spends
+// DefaultCast.Cost from the resolved cost before it tests for an empty cast. A row that uses
 // nothing is left empty on purpose, so a passive or a proc spell keeps the cast path core gives those.
 //
-// Only the first bar: the sim has one cost per spell, so the caller spends the rest itself. A bar
+// Only the first bar: the sim has one cost per spell, so the caller uses the rest itself. A bar
 // the sim does not model, which is the game files' -2 health on Bloodrage, resolves to no cost at
 // all and leaves the cast as it found it.
 func applyCost(config *core.SpellConfig, s *Spell) {

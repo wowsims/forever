@@ -39,7 +39,7 @@ func (mage *Mage) registerCombustionSpell() {
 	}
 
 	// Area hits in EV-0197. Periodic damage never reaches OnSpellHitDealt, so DoT ticks and Ignite
-	// neither add a stack nor spend a charge. The row cannot proc from procs, so an item's Fire proc
+	// neither add a stack nor use a charge. The row cannot proc from procs, so an item's Fire proc
 	// does neither.
 	chargesConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if !spell.ProcMask.Matches(core.ProcMaskSpellDamage) || !spell.SpellSchool.Matches(core.SpellSchoolFire) || !result.Landed() ||

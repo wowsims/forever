@@ -1834,7 +1834,7 @@ func TestSpinalReaperRestoresPowerOnAKillingBlow(t *testing.T) {
 			}
 			target := sim.Encounter.AllTargets[0]
 			spent := character.NewManaMetrics(core.ActionID{SpellID: 993105})
-			// The power the death gives. Mana is spent first, which leaves room for the gain and holds
+			// The power the death gives. Mana is used first, which leaves room for the gain and holds
 			// off the regen for the moment the gain is measured.
 			gainOn := func(killShare float64) float64 {
 				if character.HasManaBar() {
@@ -2003,7 +2003,7 @@ func TestClaymoreOfTwoMoonsWaxesOrWanesOnEachProc(t *testing.T) {
 }
 
 // White Obsidian Wand 274425 rolls 1294058 on a caster's wand shots and on nothing else, and Shoot
-// leaves it up. The next spell of a school the row names that pays mana spends it; a free cast keeps it.
+// leaves it up. The next spell of a school the row names that pays mana uses it; a free cast keeps it.
 func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T) {
 	sim, wearer := priestWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotRanged: 274425})
 	character := &wearer.Character
@@ -2442,7 +2442,7 @@ func TestProcSpellsDealTheirVersusFactor(t *testing.T) {
 }
 
 // Gahz'rilla Fang 9467's 3742 deals the percent Static Electricity 1294477 states more for each
-// stack on the wearer, and spends all of them but one.
+// stack on the wearer, and uses all of them but one.
 func TestGahzrillaFangGrowsWithStaticElectricity(t *testing.T) {
 	sim, character := procWeaponWearer(t, 9467, "Gahz'rilla Fang - Gahz'rilla Fang", &proto.Target{Name: "target", Level: 60}, 0, 0)
 	enemy := character.CurrentTarget

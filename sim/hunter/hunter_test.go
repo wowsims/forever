@@ -790,8 +790,8 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	ExtraIds: []int32{10646, 10310},
 }
 
-// A Shot the range modifier names spends a Sniper Shot charge at its cast, a miss included; Serpent Sting,
-// which it does not name, spends none.
+// A Shot the range modifier names uses a Sniper Shot charge at its cast, a miss included; Serpent Sting,
+// which it does not name, uses none.
 func TestSniperShotChargeGoesAtTheShotsCast(t *testing.T) {
 	sim, hunter := newTalentSim(DefaultMMTalents, proto.HunterOptions_PetNone)
 	target := hunter.CurrentTarget

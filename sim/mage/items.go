@@ -33,7 +33,7 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 
 			// A_MOD_DAMAGE_TAKEN: every caster's spells take it. "Up to $s1" is spell damage against the
 			// target, which each spell takes at its own coefficient, so it is not parsed into the flat
-			// damage taken. The row's one charge is spent by the next spell that hits the target.
+			// damage taken. The row's one charge is used by the next spell that hits the target.
 			taken := frostfireVulnDebuff.EffectN(1)
 			var takenSchools []stats.SchoolIndex
 			for school := core.SpellSchoolHoly; school <= core.SpellSchoolArcane; school <<= 1 {
@@ -103,7 +103,7 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 				}
 			})
 
-			// The row spends its one charge on the cast, but the sim reckons threat when a hit
+			// The row uses its one charge on the cast, but the sim reckons threat when a hit
 			// deals, which a spell in flight does after its cast completes: the buff goes on the
 			// next damage spell's hit.
 			consume := spelldata.ProcTrigger(character, frostfireNotThereBuff,
@@ -272,7 +272,7 @@ var ItemSetNetherwindRegalia = core.NewItemSet(core.ItemSet{
 		8: func(agent core.Agent, setBonusAura *core.Aura) {
 			mage := agent.(MageAgent).GetMage()
 
-			// The spells the buff makes instant, which are also the ones whose cast spends it.
+			// The spells the buff makes instant, which are also the ones whose cast uses it.
 			instant := netherwindFocusBuff.EffectN(1).ClassFlags
 
 			buff := mage.RegisterAura(spelldata.AuraConfig(netherwindFocusBuff))

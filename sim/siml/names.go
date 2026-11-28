@@ -52,7 +52,7 @@ func (ns Namespace) SpellLike() bool {
 type SpellName struct {
 	SpellID, Tag, Rank int32
 	RegisteredBy       []string // The specs that register it, by Player spec field name in byte order; empty when no build does.
-	ICDOnlyBy          []string // The specs of RegisteredBy that know the aura only as an internal cooldown trigger, which only the ICD kinds find.
+	ICDOnlyBy          []string // The specs of RegisteredBy that know the aura only as an ICD trigger, which only the ICD kinds find.
 	TalentOnlyBy       []string // The specs of RegisteredBy that know the spell only as a talent, which only the talent kinds find.
 	Uncastable         bool     // A spell no build lets a rotation cast (the sim's APL flag), as an inner spell.
 }
@@ -73,7 +73,7 @@ type Names struct {
 	Items    map[string]int32
 	Enchants map[string]EnchantName
 	Suffixes map[string]int32
-	// The specs that know an item's effect only as an internal cooldown trigger, which only the ICD kinds find, by
+	// The specs that know an item's effect only as an ICD trigger, which only the ICD kinds find, by
 	// the item's name.
 	ICDOnlyItems map[string][]string
 

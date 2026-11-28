@@ -196,7 +196,7 @@ func TestManaRegenAccruesEveryTick(t *testing.T) {
 	ct.wantManaAt(t, checks...)
 }
 
-// A spend at 1.25 s opens the five-second rule there: the regen up to the spend counts in full, none
+// Using mana at 1.25 s opens the five-second rule there: the regen up to the use counts in full, none
 // accrues up to 6.25 s, and the full regen resumes at 6.25 s.
 func TestFiveSecondRuleCountsFromTheSpend(t *testing.T) {
 	ct := newManaTickTest(func(char *Character) *Spell { return char.RegisterSpell(paidSpellConfig(910302, 0)) })

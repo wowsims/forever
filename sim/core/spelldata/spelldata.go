@@ -80,7 +80,7 @@ type Spell struct {
 	// SpellAuraOptions.ProcTypeMask_0/_1, decoded by the dbcenums.PROC_FLAG_ names.
 	ProcFlags [2]uint32
 
-	// SpellAuraOptions.ProcCategoryRecovery: the internal cooldown between two procs, in ms.
+	// SpellAuraOptions.ProcCategoryRecovery: the ICD between two procs, in ms.
 	ICDMs int32
 
 	// Procs per minute. The game files carry none (SpellProcsPerMinuteID is 0 on every row), so
@@ -249,7 +249,7 @@ type Effect struct {
 	// EffectMechanic.
 	Mechanic dbcenums.Mechanic
 
-	// EffectPointsPerResource: what the amount gains per point of the resource spent.
+	// EffectPointsPerResource: what the amount gains per point of the resource used.
 	PointsPerResource float32
 
 	// ImplicitTarget_0/_1.

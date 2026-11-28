@@ -50,7 +50,7 @@ func ExampleSpell_EffectN() {
 	// true
 }
 
-// A cost is answered in the units the sim spends, and the school mask is core's own.
+// A cost is answered in the units the sim uses, and the school mask is core's own.
 func ExampleSpell_PowerCost() {
 	frostbolt := MustFind(116)
 	fmt.Println(frostbolt.PowerCost(0), frostbolt.SpellSchool() == core.SpellSchoolFrost, frostbolt.CastTime())

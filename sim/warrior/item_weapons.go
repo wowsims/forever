@@ -14,7 +14,7 @@ func init() {
 	// strike.
 	//
 	// 418509's dummy effect is the crit chance the next attack gets. The game files state no buff for it,
-	// so the buff lasts until a melee or ranged attack spends it, landed or not.
+	// so the buff lasts until a melee or ranged attack uses it, landed or not.
 	core.NewItemEffect(208222, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(418509)

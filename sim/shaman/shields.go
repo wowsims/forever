@@ -7,7 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// One shield is up at a time, so the shield proc rate option spends a charge of whichever it is.
+// One shield is up at a time, so the shield proc rate option uses a charge of whichever it is.
 func (shaman *Shaman) registerShieldsSpells() {
 	spendWaterShield := shaman.registerWaterShieldSpell()
 	spendLightningShield := shaman.registerLightningShieldSpell()
@@ -34,7 +34,7 @@ var waterShieldRank = spellData.WaterShield.Highest()
 var waterShieldMana = spellData.WaterShieldTriggered.Highest()
 
 // The talent teaches Water Shield: three globes, one of which a hit taken or one of the shaman's spell
-// crits spends. The row hears both on one mask, but its tooltip asks for a crit only of the shaman's own
+// crits uses. The row hears both on one mask, but its tooltip asks for a crit only of the shaman's own
 // spells, so the two are separate triggers sharing the globes and the cooldown.
 func (shaman *Shaman) registerWaterShieldSpell() func(sim *core.Simulation) {
 	if !shaman.Talents.WaterShield {
@@ -95,7 +95,7 @@ var lightningShieldRank = spellData.LightningShield.Highest()
 // The shield's effect 1 fires 26545, a dummy, and the orb its tooltip names deals the damage.
 var lightningShieldOrb = lightningShieldRank.Refs()[0]
 
-// 10432 holds three charges, and a hit taken spends one to strike the attacker with the orb.
+// 10432 holds three charges, and a hit taken uses one to strike the attacker with the orb.
 func (shaman *Shaman) registerLightningShieldSpell() func(sim *core.Simulation, attacker *core.Unit) {
 	orbConfig := spelldata.SpellConfig(&shaman.Unit, lightningShieldOrb,
 		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Triggered(), spelldata.Flags(SpellFlagShamanSpell))

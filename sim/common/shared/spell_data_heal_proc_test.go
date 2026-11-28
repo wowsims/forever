@@ -55,7 +55,7 @@ func swingHealed(sim *core.Simulation, caster *testCaster, outcome core.HitOutco
 
 // A stat buff carrying a proc is built where the proc fires a heal on the wearer, and refused where it
 // fires nothing the store carries, a spell that heals no one, a heal on someone else, a heal over time
-// with no period, or where the buff spends charges.
+// with no period, or where the buff uses charges.
 func TestCarriedProcUnsupported(t *testing.T) {
 	const healID, damageID, allyHealID int32 = 23781, 21162, 1248759
 	onWearer := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER}

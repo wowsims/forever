@@ -70,6 +70,10 @@ These apply to every file and every piece of GitHub text, in Go and TypeScript a
   strikes. Identifiers keep theirs (`windfuryTotemStrike`).
 - **"Full block".** A block that takes all of a hit's damage is a full block, and the hit is fully blocked: "full
   blocks still fire it". Never "a block that leaves no damage" or "blocked in full".
+- **"Use", never "spend".** A cast, hit or tick uses a charge, a stack, a buff or a resource: "the next cast uses the
+  charge". "Spent" stays where it means time or talent points ("time spent out of mana"). Identifiers keep theirs
+  (`AttachChargeSpender`).
+- **"ICD".** An internal cooldown is an ICD: "the row has no ICD".
 
 ## Plain prose
 

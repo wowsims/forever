@@ -162,7 +162,7 @@ func (priest *Priest) applyInnerFocus() {
 	var innerFocusSpell *core.Spell
 
 	auraConfig := spelldata.AuraConfig(innerFocusRank)
-	// The cooldown starts again once the buff is spent or runs out.
+	// The cooldown starts again once the buff is used or runs out.
 	auraConfig.OnExpire = func(_ *core.Aura, sim *core.Simulation) {
 		innerFocusSpell.CD.Use(sim)
 	}

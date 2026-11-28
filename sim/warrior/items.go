@@ -81,7 +81,7 @@ var ItemSetBattlegearOfWrath = core.NewItemSet(core.ItemSet{
 			buff := warrior.RegisterAura(spelldata.AuraConfig(wrathDiscountBuff))
 			spelldata.ParseEffects(&warrior.Character, buff, wrathDiscountBuff)
 
-			// The discount is spent at cast, so the buff goes when an ability is cast rather than
+			// The discount is used at cast, so the buff goes when an ability is cast rather than
 			// when one lands, which is what the row's proc flags state.
 			buff.AttachProcTrigger(core.ProcTrigger{
 				Name:               "Warrior's Wrath - Consume",
@@ -110,7 +110,7 @@ var ItemSetBattlegearOfWrath = core.NewItemSet(core.ItemSet{
 				spelldata.Label("Battlegear of Wrath Parry")))
 			spelldata.ParseEffects(&warrior.Character, parry, wrathParryBuff)
 
-			// The attack that spends the buff is the one it parries, which is an outcome no proc
+			// The attack that uses the buff is the one it parries, which is an outcome no proc
 			// mask states and one that deals no damage. 23547 ships no tooltip, so there is nothing
 			// for the row to have read that from and both of its defaults go here.
 			consume := spelldata.ProcTrigger(&warrior.Character, wrathParryBuff,

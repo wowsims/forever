@@ -92,7 +92,7 @@ type actionID struct {
 type registeredName struct {
 	Name       string   `json:"name"`
 	ID         actionID `json:"id"`
-	ICDOnly    bool     `json:"icdOnly,omitempty"`    // Known only as an internal cooldown trigger, which only the ICD kinds find.
+	ICDOnly    bool     `json:"icdOnly,omitempty"`    // Known only as an ICD trigger, which only the ICD kinds find.
 	TalentOnly bool     `json:"talentOnly,omitempty"` // Known only as a talent, which only the talent kinds find.
 	Talent     bool     `json:"talent,omitempty"`     // A talent's own spell, the one thing the talent kinds read.
 	Uncastable bool     `json:"uncastable,omitempty"` // A spell no build of the spec lets a rotation cast (the sim's APL flag).

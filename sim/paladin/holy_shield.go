@@ -51,7 +51,7 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 		},
 	}).AttachStatBuff(stats.BlockPercent, blockPercent)
 
-	// Shieldsworn: a Holy Strike that lands with a shield deals the shield's damage and spends no charge.
+	// Shieldsworn: a Holy Strike that lands with a shield deals the shield's damage and uses no charge.
 	// The game casts that hit as 456544, a spell of its own at spell level 30 with no base points of its
 	// own, so the amount is the active rank's. Strike crits in EV-0189.
 	// Proc rolls in EV-0161.

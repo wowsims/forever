@@ -13,11 +13,11 @@ type ProcOpt func(*core.Character, *core.ProcTrigger)
 
 // What the game files state about a proc, as the fields core registers a listener through: what it
 // hears (ProcTypeMask through the decoder, with the row's tooltip hint), how often it fires, its
-// internal cooldown and the attribute-driven gates. The row's own class flags go on the trigger too,
+// ICD and the attribute-driven gates. The row's own class flags go on the trigger too,
 // so a SPELLMOD_CHANCE_OF_SUCCESS that names the row reaches its roll, and the character's mods are
 // the ones counted wherever the trigger sits.
 //
-// The trigger's internal cooldown is the proc category's recovery alone. On a proc trigger row,
+// The trigger's ICD is the proc category's recovery alone. On a proc trigger row,
 // RecoveryTime is a cooldown on casting the aura, which an item or enchant never casts. Proc
 // cooldowns in EV-0047, EV-0148. A damage shield is no proc trigger and keeps its RecoveryTime as the
 // wait between two reflections (DamageShieldLockout).

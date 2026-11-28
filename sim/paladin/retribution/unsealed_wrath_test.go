@@ -205,7 +205,7 @@ func TestJudgementDebuffRefreshesOnWhiteSwingsAndWindfuryTotemsStrike(t *testing
 	}
 }
 
-// A Windfury Totem hit neither stores nor spends an Echo, though the seals hear it as a white swing.
+// A Windfury Totem hit neither stores nor uses an Echo, though the seals hear it as a white swing.
 func TestUnsealedWrathStoresNoCopyFromWindfuryTotemsStrike(t *testing.T) {
 	sim, pal, swing, _ := unsealedWrathPaladinWith(t, UnsealedWrathTalents, &proto.RaidBuffs{WindfuryTotem: true})
 	strike := pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
@@ -276,7 +276,7 @@ func TestUnsealedWrathStoresNoCopyFromASwingInsideItsProcCooldown(t *testing.T) 
 	}
 }
 
-// A hit that lands under another seal spends every stored copy, each one a Seal of Righteousness hit
+// A hit that lands under another seal uses every stored copy, each one a Seal of Righteousness hit
 // tagged with Echo of Righteousness, and stores a copy of the new seal.
 func TestUnsealedWrathSpendsTheStoredCopiesUnderAnotherSeal(t *testing.T) {
 	sim, pal, swing, righteousnessHits := unsealedWrathPaladin(t)
@@ -303,7 +303,7 @@ func TestUnsealedWrathSpendsTheStoredCopiesUnderAnotherSeal(t *testing.T) {
 	}
 }
 
-// Swapping the main-hand weapon drops every Echo, so a hit under another seal afterwards spends no
+// Swapping the main-hand weapon drops every Echo, so a hit under another seal afterwards uses no
 // stored copy.
 func TestUnsealedWrathDropsTheEchoesOnAMainHandSwap(t *testing.T) {
 	sim, pal, swing, righteousnessHits := unsealedWrathPaladin(t)
@@ -333,7 +333,7 @@ func TestUnsealedWrathDropsTheEchoesOnAMainHandSwap(t *testing.T) {
 	}
 }
 
-// Seal of Light and Seal of Wisdom are stored as well, and each spent copy of Seal of Wisdom rolls the
+// Seal of Light and Seal of Wisdom are stored as well, and each used copy of Seal of Wisdom rolls the
 // seal's own chance to restore mana.
 func TestUnsealedWrathStoresLightAndWisdom(t *testing.T) {
 	sim, pal, swing, _ := unsealedWrathPaladin(t)
@@ -371,7 +371,7 @@ func TestUnsealedWrathStoresLightAndWisdom(t *testing.T) {
 		}
 		return casts
 	}
-	// Only the hit under Seal of Righteousness is counted, so every restore is a spent copy's.
+	// Only the hit under Seal of Righteousness is counted, so every restore is a used copy's.
 	const spends = 100
 	var restores int32
 	for i := range spends {

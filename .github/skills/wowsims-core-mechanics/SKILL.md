@@ -5,9 +5,9 @@ description: "Use when WoWSims Forever Go code depends on what sim/core does aro
 
 # wowsims-core-mechanics
 
-A row says what a spell is; `sim/core` decides when its effects run, what the cast spends, which targets it reaches and
+A row says what a spell is; `sim/core` decides when its effects run, what the cast uses, which targets it reaches and
 whose state it reads, so a spell that matches its row can still be wrong here. The rule this skill exists for: a claim
-about core's timing (an order, a spend, a refund) is proven at runtime, never by reading the call order alone. The
+about core's timing (an order, a use, a refund) is proven at runtime, never by reading the call order alone. The
 rulings the code follows are in `references/rulings.md`; text here follows `wowsims-conventions`.
 
 ## Where things live
@@ -45,17 +45,17 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **`CallbackOnCastComplete` carries no result**, so `Outcome` and `RequireDamageDealt` are never read and no manager
   rolls (`aura_helpers.go`). A proc off the cast's hit roll uses `CallbackOnCastResult` (`spell_result.go`). Prove an order at runtime: `wowsims-testing` `## Proving a claim at runtime`.
 
-## What a cast spends
+## What a cast uses
 
-- **Core spends the cost at the cast; a refund is the spell's own call.** `spell.IssueRefund(sim)` gives back the cost's
+- **Core uses the cost at the cast; a refund is the spell's own call.** `spell.IssueRefund(sim)` gives back the cost's
   `Refund` share and a mana cost refunds nothing (`mana.go`). `SpellConfig` sets the share from the row's `MissRefund()`
   (0.8 where the row flags Discount Power On Miss), the default unless verified spell-specific behaviour differs.
-- **Combo points are not part of the cost.** The spell spends them through `SpendComboPoints` (`energy.go`), each
+- **Combo points are not part of the cost.** The spell uses them through `SpendComboPoints` (`energy.go`), each
   resource on its own: a failed Ferocious Bite gets 80% of its base cost back and keeps its points and its extra
-  energy. The points sit on one unit: a gain on another unit drops them (spent on the gain's metrics), a target swap
+  energy. The points sit on one unit: a gain on another unit drops them (used on the gain's metrics), a target swap
   alone keeps them, and finishers and Current Combo Points read the points on their cast or given target.
-- **A one-charge buff is spent by the cast it modifies**; the spender is `wowsims-procs`. A spell's own charges
-  (`MaxCharges`) are spent by `ConsumeCharge` and refuse the cast at zero.
+- **A one-charge buff is used by the cast it modifies**; the spender is `wowsims-procs`. A spell's own charges
+  (`MaxCharges`) are used by `ConsumeCharge` and refuse the cast at zero.
 
 ## What scales
 

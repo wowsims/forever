@@ -465,7 +465,7 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 	listener := spellDataProcListener(character, cfg, source, trigger)
 	listener.Handler = withProcEnergize(character, buff, spellDataProcHandler(buff, procAura))
 
-	// Where the trigger states no internal cooldown, the buff's category recovery stands in, the
+	// Where the trigger states no ICD, the buff's category recovery stands in, the
 	// fallback the database layer applies. Where buff and trigger are one spell, the category
 	// recovery is that spell's own cast throttle, so it is no gate on re-applying the buff.
 	if listener.ICD == 0 && buff.ID != trigger.ID {
@@ -568,7 +568,7 @@ func spellDataProcHandler(buff *spelldata.Spell, procAura *core.StatBuffAura) co
 }
 
 // The buff the proc applies. Its one count field holds either of two things: CumulativeAura stacks
-// that each add their own stats, or the ProcCharges of one buff at full stats that the game spends by uses.
+// that each add their own stats, or the ProcCharges of one buff at full stats that the game counts down by use.
 func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *spelldata.Spell, buff *spelldata.Spell, effect *proto.ItemEffect) *core.StatBuffAura {
 	// A window trinket resolves no stats on the aura its trigger applies, so it needs the window
 	// machinery in factory_StatBonusEffect.
@@ -640,7 +640,7 @@ func procBuffDuration(cfg SpellDataProc, trigger *spelldata.Spell, buff *spellda
 		cfg.Name, cfg.effectSource().id, trigger.ID, buff.ID))
 }
 
-// What spends a charge: the hits the buff's own row states. A buff whose row states no listener or no
+// What uses a charge: the hits the buff's own row states. A buff whose row states no listener or no
 // rate keeps its charges and runs out its duration. Where the buff is the trigger, the row's flags are
 // the ones that granted it, so a spender built from them would take a charge on the hit that handed
 // them over.

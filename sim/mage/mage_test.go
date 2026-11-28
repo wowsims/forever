@@ -131,7 +131,7 @@ func TestBookRanksBesideTrainerRanks(t *testing.T) {
 	}
 }
 
-// An Arcane Missiles that Missile Barrage pays for keeps Clearcasting up; one it does not pay for spends it.
+// An Arcane Missiles that Missile Barrage pays for keeps Clearcasting up; one it does not pay for uses it.
 func TestMissileBarrageArcaneMissilesKeepsClearcasting(t *testing.T) {
 	for _, withBarrage := range []bool{true, false} {
 		sim, mage := newMageSim(ArcaneTalents)
@@ -342,7 +342,7 @@ func TestBlizzardTickRollsArcaneConcentrationAsTheRowsAllow(t *testing.T) {
 }
 
 // A Blizzard cast rolls Arcane Concentration once as the channel starts, however many enemies stand in the
-// area, after it spends Clearcasting, so a cast that spends the buff can come out with a new one.
+// area, after it uses Clearcasting, so a cast that uses the buff can come out with a new one.
 func TestBlizzardCastRollsArcaneConcentrationOncePerCast(t *testing.T) {
 	const casts = 400
 	regainsAgainst := func(targets int) (regains int) {
@@ -437,7 +437,7 @@ func TestFlamestrikeGroundTickRollsRevelationOnce(t *testing.T) {
 	}
 }
 
-// With Clearcasting and Revelation up, Flamestrike's ground ticks spend neither and take no crit from
+// With Clearcasting and Revelation up, Flamestrike's ground ticks use neither and take no crit from
 // Revelation, while the cast they come from takes the crit.
 func TestFlamestrikeGroundTickKeepsClearcastingAndRevelation(t *testing.T) {
 	sim, mage, buff := newRevelationMage(t, ArcaneTalents, 3)
@@ -477,7 +477,7 @@ func TestFlamestrikeGroundTickKeepsClearcastingAndRevelation(t *testing.T) {
 }
 
 // Fireball, Pyroblast and Frostfire Bolt have a periodic part and Revelation's mage buff does not name them.
-// Each spends the charge as its cast completes and crits on its direct hit (EV-0149).
+// Each uses the charge as its cast completes and crits on its direct hit (EV-0149).
 func TestRevelationCritsTheDirectHitOfFireballPyroblastAndFrostfireBolt(t *testing.T) {
 	for _, test := range []struct {
 		name    string
@@ -496,7 +496,7 @@ func TestRevelationCritsTheDirectHitOfFireballPyroblastAndFrostfireBolt(t *testi
 		}
 		metrics := &spell.SpellMetrics[target.UnitIndex]
 
-		// A cast that misses spends the charge too, so cast until one lands.
+		// A cast that misses uses the charge too, so cast until one lands.
 		for tries := 0; metrics.Hits+metrics.Crits == 0; tries++ {
 			if tries == 10 {
 				t.Fatalf("%s missed 10 times", test.name)
@@ -519,7 +519,7 @@ func TestRevelationCritsTheDirectHitOfFireballPyroblastAndFrostfireBolt(t *testi
 	}
 }
 
-// Charge spending in EV-0149.
+// Charge use in EV-0149.
 func TestArcaneMissilesGiveRevelationsChargeToTheNextMissileLaunched(t *testing.T) {
 	for _, critsInFlight := range []bool{false, true} {
 		sim, mage, buff := newRevelationMage(t, ArcaneTalents, 1)
@@ -879,7 +879,7 @@ func TestFrostfireBoltTicksTakeTheSpellPiercingBonus(t *testing.T) {
 	}
 }
 
-// Each enemy a Flamestrike ground tick lands on adds a stack of Combustion's crit, and each crit spends one of
+// Each enemy a Flamestrike ground tick lands on adds a stack of Combustion's crit, and each crit uses one of
 // its charges.
 func TestCombustionCountsEachFlamestrikeTickHit(t *testing.T) {
 	sim, mage := newMageSimAgainst(FireTalents, longEncounter(3))

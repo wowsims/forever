@@ -156,7 +156,7 @@ for another race's racial or an untaken talent.
 - **`Aura Is Inactive` with reaction time is the refresh check** for an aura the rotation keeps up:
   `not(Aura Is Active)` with reaction time reads a fresh landing as inactive and recasts (`APLValueAuraIsInactive`).
 - **`Aura Num Stacks` with reaction time returns the previous stacks for a full reaction time after any change**, the
-  player's own spend included, so a stack-gated line can re-cast right after its own cast; add an `Aura Is Active`
+  player's own use included, so a stack-gated line can re-cast right after its own cast; add an `Aura Is Active`
   check without reaction time (`APLValueAuraNumStacks`).
 - **A prepull Do At is read once, when the rotation is built** (`newAPLRotation` in `sim/core/apl.go`), at the start
   distance and before any prepull buff, so a `Spell Travel Time` there is the travel from the start distance, even

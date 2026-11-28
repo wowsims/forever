@@ -117,7 +117,7 @@ export function threatDataset(unit: UnitMetrics, seriesId: string, borderColor: 
 }
 
 // The largest value the resource is declared or observed to hold over the fight. The first group is
-// no scale: mana spent before the pull leaves it below the maximum.
+// no scale: mana used before the pull leaves it below the maximum.
 function largestResourceValue(logs: Array<ResourceGroupLog>): number {
 	let max = 0;
 	for (const log of logs) max = Math.max(max, log.maxValue, log.valueBefore, log.valueAfter);

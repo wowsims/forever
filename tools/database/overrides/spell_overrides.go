@@ -61,7 +61,7 @@ const (
 	// override on the same spell.
 	ThreatPerSpellLevel
 
-	// The internal cooldown between two procs in milliseconds, onto Spell.ICDMs. Fails when the game
+	// The ICD between two procs in milliseconds, onto Spell.ICDMs. Fails when the game
 	// files state a SpellAuraOptions.ProcCategoryRecovery.
 	ICDMs
 

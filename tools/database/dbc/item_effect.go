@@ -93,7 +93,7 @@ func makeBaseProto(e *ItemEffect, statsSpellID int) *proto.ItemEffect {
 	return base
 }
 
-// The internal cooldown of a proc. Most spells carry it on the trigger's SpellAuraOptions, but a
+// The ICD of a proc. Most spells carry it on the trigger's SpellAuraOptions, but a
 // few leave that at zero and put it on the buff's spell category instead.
 //
 // Only a buff that is a *separate* spell from the trigger counts. Where the two are the same spell

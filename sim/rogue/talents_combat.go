@@ -98,7 +98,7 @@ func (rogue *Rogue) registerRiposte() {
 		return
 	}
 
-	// Window spending in EV-0099.
+	// Window use in EV-0099.
 	window := rogue.RegisterAura(spelldata.AuraConfig(riposteWindow))
 
 	trigger := spelldata.ProcTrigger(&rogue.Character, spellData.DefensiveState.Highest(),

@@ -126,11 +126,11 @@ func (warlock *Warlock) registerAmplifyCurse() {
 	rankedSpell := spellData.AmplifyCurse.ByID(18288)
 	warlock.AmplifyCurseMultiplier = 1 + rankedSpell.EffectN(1).Percent()
 
-	// The curses the tooltip names spend it. Effect 1 names Curse of Weakness and effect 2 Curse of Exhaustion;
+	// The curses the tooltip names use it. Effect 1 names Curse of Weakness and effect 2 Curse of Exhaustion;
 	// Bane of Agony is in neither class mask in the game files, so it is matched by its own spell mask.
 	ampWeakness, ampExhaustion := rankedSpell.EffectN(1).ClassFlags, rankedSpell.EffectN(2).ClassFlags
 
-	// Charge spending in EV-0200.
+	// Charge use in EV-0200.
 	auraConfig := spelldata.AuraConfig(rankedSpell)
 	auraConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if !result.Landed() {
@@ -183,7 +183,7 @@ func (warlock *Warlock) applyNightfall() {
 	}
 
 	shadowTrance := spellData.NightfallTriggered.ByID(17941)
-	// Effect 1 names the spells it makes instant, which are the ones that spend it.
+	// Effect 1 names the spells it makes instant, which are the ones that use it.
 	instant := shadowTrance.EffectN(1).ClassFlags
 
 	auraConfig := spelldata.AuraConfig(shadowTrance)

@@ -973,7 +973,7 @@ func TestDormantHeartOfTheMountainAnswersTheFourHeals(t *testing.T) {
 }
 
 // Vigilance Charm 18370's Vigilant 1302264 goes up with its dodge and its charges, and each attack the
-// wearer dodges spends one.
+// wearer dodges uses one.
 func TestVigilanceCharmSpendsAChargePerDodge(t *testing.T) {
 	sim, character := trinketWarrior(t, 18370)
 	before := character.GetStats()

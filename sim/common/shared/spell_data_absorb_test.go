@@ -206,7 +206,7 @@ func TestOnUseAbsorbCarriesTheStatsItsEffectStates(t *testing.T) {
 }
 
 // Enchant Chest - Absorption 8220: its equip aura 1249072 rolls a chance on a melee hit taken, at most
-// once per its internal cooldown, and casts 1249073, A_SCHOOL_ABSORB of Physical until used up.
+// once per its ICD, and casts 1249073, A_SCHOOL_ABSORB of Physical until used up.
 func TestAbsorbProcShieldsTheWearerOnAMeleeHitTaken(t *testing.T) {
 	const chestID, enchantID int32 = 991206, 991207
 	const trigger, absorb int32 = 1249072, 1249073

@@ -53,7 +53,7 @@ func (shaman *Shaman) newChainLightningSpellConfig(row *spelldata.Spell, overloa
 		}
 
 		// The overloads are priced once every hit of the cast has landed, so a debuff charge one of
-		// those hits spends, such as Stormstrike's, does not also raise an overload that jumps there.
+		// those hits uses, such as Stormstrike's, does not also raise an overload that jumps there.
 		for _, overloadTarget := range overloadTargets {
 			overload.Cast(sim, overloadTarget)
 		}

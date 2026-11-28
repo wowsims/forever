@@ -271,7 +271,7 @@ func (paladin *Paladin) applyVengeance() {
 
 	// The stack a crit adds comes after every proc of that same hit: the stack queues behind them from
 	// its own deferred handler. A critical swing's Seal of Righteousness or Seal of Fury hit is priced
-	// on the stacks from before the crit (EV-0224); Seal of Command, a spent Echo and Judgement of
+	// on the stacks from before the crit (EV-0224); Seal of Command, a used Echo and Judgement of
 	// Light's heal follow the same order unmeasured.
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.Vengeance.Rank(paladin.Talents.Vengeance), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		sim.RunAfterCurrentEvent(func(sim *core.Simulation) {
@@ -363,7 +363,7 @@ func (paladin *Paladin) applyUnsealedWrath() {
 	trigger.Name = "Unsealed Wrath" + paladin.Label
 	// The row's proc cooldown is shorter than any swing timer, so it turns away only a swing dealt in
 	// the instant of another, which is an extra attack such as Hand of Justice's: that one neither
-	// stores nor spends a copy.
+	// stores nor uses a copy.
 	trigger.Outcome = core.OutcomeLanded
 	trigger.TriggerImmediately = true
 	// A Windfury Totem hit stores no copy (EV-0136).

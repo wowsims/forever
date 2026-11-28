@@ -32,8 +32,8 @@ func (druid *Druid) awardComboPoints(sim *core.Simulation, target *core.Unit, sp
 	druid.AddComboPoints(sim, target, int32(e.BaseValue()), spell.ComboPointMetrics())
 }
 
-// Spends every combo point. The row's combo-point cost is the minimum the cast requires; the
-// per-resource damage is priced on the points actually spent.
+// Uses every combo point. The row's combo-point cost is the minimum the cast requires; the
+// per-resource damage is priced on the points actually used.
 func (druid *Druid) spendComboPoints(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 	if druid.ComboPoints(target) > 0 {
 		druid.SpendComboPoints(sim, target, spell.ComboPointMetrics())

@@ -348,7 +348,7 @@ func TestSpellConfigBothCooldowns(t *testing.T) {
 	}
 }
 
-// Only the game files' global cooldown category spends the GCD.
+// Only the game files' global cooldown category uses the GCD.
 func TestSpellConfigGCDGate(t *testing.T) {
 	withRows(t, resolverRows())
 
@@ -360,7 +360,7 @@ func TestSpellConfigGCDGate(t *testing.T) {
 	}
 }
 
-// A cast that spends a resource without a GCD or a cast time reads as a cast rather than as the empty
+// A cast that uses a resource without a GCD or a cast time reads as a cast rather than as the empty
 // one core takes for a proc, whether the row states the cost flat or as a share of the bar.
 func TestSpellConfigMarksACostedOffGCDCastNonEmpty(t *testing.T) {
 	withRows(t, resolverRows())

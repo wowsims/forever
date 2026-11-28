@@ -53,7 +53,7 @@ func TestBiteLandedSpendsExtraEnergyAndComboPoints(t *testing.T) {
 	}
 }
 
-// The trainer's top rank and the book rank of Ferocious Bite each register, and either spends the extra energy and
+// The trainer's top rank and the book rank of Ferocious Bite each register, and either uses the extra energy and
 // the combo points when it lands.
 func TestBothBiteRanksSpendExtraEnergyAndComboPoints(t *testing.T) {
 	for _, id := range []int32{22829, 31018} {

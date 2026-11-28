@@ -15,7 +15,7 @@ type pendingRefresh struct {
 	cost float64
 }
 
-// The energy the cat can spend now without delaying a coming Rip or Rake refresh. Taking the refreshes in
+// The energy the cat can use now without delaying a coming Rip or Rake refresh. Taking the refreshes in
 // time order, the energy regenerated before each one pays for it; what regeneration cannot cover has to be
 // kept from now.
 func (druid *Druid) excessEnergy(sim *core.Simulation) float64 {

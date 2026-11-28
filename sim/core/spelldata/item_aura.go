@@ -102,7 +102,7 @@ func DamageShieldHits(s *Spell) core.ProcMask {
 	return core.DecodeProcTypeMask(s.ProcFlags, s.ProcHint).ProcMask
 }
 
-// The time a row's damage shield waits between two reflections: its internal cooldown, or the cooldown
+// The time a row's damage shield waits between two reflections: its ICD, or the cooldown
 // the row states where it has none. Retricutioner's 435901 states 5 s, so a second melee hit inside
 // them is not reflected.
 func DamageShieldLockout(s *Spell) time.Duration {

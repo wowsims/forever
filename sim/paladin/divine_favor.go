@@ -15,8 +15,8 @@ func (paladin *Paladin) registerDivineFavor() {
 
 	divineFavorAura := paladin.RegisterAura(spelldata.AuraConfig(rank, spelldata.Label("Divine Favor"+paladin.Label)))
 	spelldata.ParseEffects(&paladin.Character, divineFavorAura, rank)
-	// The cast spends the charge whether or not it lands, so a resisted Holy Shock, or one a Light's
-	// Vigil turns into its strike, spends it too.
+	// The cast uses the charge whether or not it lands, so a resisted Holy Shock, or one a Light's
+	// Vigil turns into its strike, uses it too.
 	spelldata.AttachChargeSpender(&paladin.Character, divineFavorAura, rank, "Divine Favor Charge"+paladin.Label,
 		func(_ *core.Character, trigger *core.ProcTrigger) {
 			trigger.Callback = core.CallbackOnApplyEffects

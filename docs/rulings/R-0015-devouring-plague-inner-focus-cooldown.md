@@ -5,5 +5,5 @@
 - Pull request: #246
 - Evidence: pending
 
-Devouring Plague is learnable by every race, and Inner Focus restarts its cooldown when the buff is spent (`OnExpire`
+Devouring Plague is learnable by every race, and Inner Focus restarts its cooldown when the buff is used up (`OnExpire`
 calls `CD.Use`) though the row has no cooldown-on-event bit.

@@ -33,7 +33,7 @@ until the next regeneration at most:
 | `SPCoefDirect`                    | a spell power coefficient the direct effect does not state                            | the game files state one on that effect  |
 | `ProcChancePct`                   | a whole percentage onto `Spell.ProcChance`                                            | the tooltip states a chance of its own   |
 | `DurationMs`                      | an aura duration                                                                      | the game files state a `SpellDuration`   |
-| `ICDMs`                           | the internal cooldown between two procs, onto `Spell.ICDMs`                           | the row states a `ProcCategoryRecovery`  |
+| `ICDMs`                           | the ICD between two procs, onto `Spell.ICDMs`                                         | the row states a `ProcCategoryRecovery`  |
 | `StatMask`                        | the stats of an `A_MOD_TOTAL_STAT_PERCENTAGE` effect, onto its second misc value      | the effect states either misc value      |
 | `Hint`                            | the `ProcHint` bits the tooltip's wording did not yield                               | -                                        |
 | `ProcClassMask`                   | the proc effect's class mask word, where the game files' names no spell of the family | the effect states the same word          |

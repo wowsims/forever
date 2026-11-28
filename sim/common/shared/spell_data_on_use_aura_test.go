@@ -27,7 +27,7 @@ const (
 	// enemy.
 	coldEye int32 = 1139
 
-	// Weakness Analyzer 272438's on-use: 1291101, A_MOD_CRIT_PCT on the wearer, with a charge spent by a
+	// Weakness Analyzer 272438's on-use: 1291101, A_MOD_CRIT_PCT on the wearer, with a charge used by a
 	// non-periodic crit.
 	analyzingWeaknesses int32 = 1291101
 
@@ -210,7 +210,7 @@ func TestColdBasiliskEyeSlowsTheEnemysAttacks(t *testing.T) {
 	}
 }
 
-// Weakness Analyzer adds its row's crit until the wearer's first crit, which spends its one charge: a
+// Weakness Analyzer adds its row's crit until the wearer's first crit, which uses its one charge: a
 // hit that does not crit leaves it up.
 func TestWeaknessAnalyzerDropsOnTheFirstCrit(t *testing.T) {
 	const itemID int32 = 992705
@@ -246,7 +246,7 @@ func TestWeaknessAnalyzerDropsOnTheFirstCrit(t *testing.T) {
 	}
 }
 
-// Charge spending in EV-0162. The buff names no spells, so a channel does not hold the charge for
+// Charge use in EV-0162. The buff names no spells, so a channel does not hold the charge for
 // its end.
 func TestWeaknessAnalyzerDropsOnACritInsideAChannel(t *testing.T) {
 	const itemID int32 = 992707

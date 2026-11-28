@@ -405,7 +405,7 @@ func (mb *manaBar) claimChannelPayment(dot *Dot) bool {
 }
 
 // Returns how long the unit waits for its regen to reach desiredMana, up to the tick that credits it,
-// assuming it spends no mana in the meantime. The regen runs at the casting rate for the rest of the
+// assuming it uses no mana in the meantime. The regen runs at the casting rate for the rest of the
 // five-second rule window or of a paid channel, whichever ends later, and at the full rate after it.
 func (unit *Unit) TimeUntilManaRegen(sim *Simulation, desiredMana float64) time.Duration {
 	manaNeeded := desiredMana - unit.CurrentMana()

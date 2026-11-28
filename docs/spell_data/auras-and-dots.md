@@ -37,7 +37,7 @@ ticking on its own schedule and expires on time.
 - A row whose only effect that does something is the periodic (Shadow Word: Pain, Renew, Corruption,
   Rend, and Rip and Rupture, whose dummy effects do nothing by themselves) sets
   `NotUnderHigherRank` in its `CastRequirement`: the lower rank is refused at the cast check with "a
-  more powerful spell is active", so `CanCast` answers false and the cast spends no cost, global
+  more powerful spell is active", so `CanCast` answers false and the cast uses no cost, global
   cooldown, cast time or cooldown. The check reads the dot the cast applies, `Spell.Dot(target)`,
   which follows RelatedDotSpell, else the caster's self periodic. A rank registered with `Proc()` has
   no cast requirement: it casts, and `Dot.Apply` skips its periodic.

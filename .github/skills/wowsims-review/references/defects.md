@@ -67,12 +67,12 @@ reads the row. The cases name the row and the numbers, so each one can be checke
 - **`CallbackOnCastComplete` has no result** (`aura_helpers.go`), so `Outcome: OutcomeLanded` on such a
   trigger is never consulted.
 
-## What a cast spends, and when
+## What a cast uses, and when
 
-- **Ferocious Bite** spent all its extra energy when it missed or was dodged or parried. In game a failed
-  Bite keeps its extra energy and its combo points, so both are spent inside `result.Landed()`, and gets 80%
+- **Ferocious Bite** used all its extra energy when it missed or was dodged or parried. In game a failed
+  Bite keeps its extra energy and its combo points, so both are used inside `result.Landed()`, and gets 80%
   of its base cost back, as its row's Discount Power On Miss states (EV-0031). The runtime regressions check that a dodged 5-point Bite keeps its 5 points and its extra
-  energy and gets the row's refund, and that a landed one spends both.
+  energy and gets the row's refund, and that a landed one uses both.
 - **Cutthroat 462707** carries one charge, and nothing consumed it, so one proc allowed every Ambush the
   energy paid for in its 10 s.
 
@@ -111,7 +111,7 @@ reads the row. The cases name the row and the numbers, so each one can be checke
 ## Hooks
 
 - **Maul in Cat Form:** the cat spec registered Maul but never set `ReplaceMHSwing`, so a queued Maul never
-  swung, spent no rage, and its queue aura then refused every later queue.
+  swung, used no rage, and its queue aura then refused every later queue.
 - **`BreakStealth` missing** from Hemorrhage, Slice and Dice and Venom, unlike every other attack, so a cast
   out of Vanish left the rogue with no auto attacks.
 - **Prowl broken twice on leaving Cat Form:** `forms.go` and `prowl.go` both hooked the form's expiry. The
@@ -155,7 +155,7 @@ git diff origin/master...HEAD -U0 -- sim/ tools/database/overrides/gear_proc_rat
 ## Silent no-ops and orphans
 
 - **Enrage 5229** lost its armor penalty ("reduces base armor by 27% in Bear Form and 16% in Dire Bear
-  Form"), and **Frenzied Regeneration 22842** registered an aura that spends no rage and heals nothing, both
+  Form"), and **Frenzied Regeneration 22842** registered an aura that uses no rage and heals nothing, both
   with no `// TODO:`.
 - **Soul Harvesting and Fel Concentration** had their stubs deleted, so points in them did nothing and the
   markers were gone.

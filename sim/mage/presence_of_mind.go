@@ -19,7 +19,7 @@ func (mage *Mage) registerPresenceOfMindSpell() {
 
 	config := spelldata.AuraConfig(presenceOfMindRank)
 
-	// The row is Disabled While Active (Attr0 0x2000000): the cooldown starts when the charge is spent.
+	// The row is Disabled While Active (Attr0 0x2000000): the cooldown starts when the charge is used.
 	config.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
 		pomSpell.CD.Use(sim)
 		mage.UpdateMajorCooldowns()

@@ -122,7 +122,7 @@ X.Rank(rank).EffectN(1).Average()   // not X.EffectAt(1).ValueAt(rank)
 **A dot ticks on current stats, so there is no `OnSnapshot`.** `OnTick` reads the effect's own
 `Average` straight into `CalcAndDealPeriodicDamage` (or `CalcAndDealPeriodicHealing`) every time it
 fires, on whatever stats and multipliers are in force then. An input the cast fixes, such as combo
-points about to be spent or a stack about to be consumed, is read where the cast reads it. It is kept
+points about to be used or a stack about to be consumed, is read where the cast reads it. It is kept
 in a variable the `OnTick` closure captures and never re-read at the tick. A finisher reads its combo
 points in `ApplyEffects`, before `SpendComboPoints` runs them to zero; by the time `OnTick` runs, the
 count is gone. The tick itself is a package-level read of the row, as in `sim/druid/rip.go`:

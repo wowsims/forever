@@ -153,7 +153,7 @@ func (hunter *Hunter) registerBestialSwiftness() {
 
 var intimidationRank = spellData.Intimidation.Highest()
 
-// The pet's next attack crits, effect 2, and spends the row's one charge.
+// The pet's next attack crits, effect 2, and uses the row's one charge.
 func (hunter *Hunter) registerIntimidation() {
 	if !hunter.Talents.Intimidation || hunter.Pet == nil {
 		return

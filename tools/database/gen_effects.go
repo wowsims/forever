@@ -3086,7 +3086,7 @@ func buildSpellProcInfo(procSpell *dbc.Spell, tooltip string, itemType proto.Ite
 		return info, false
 	}
 
-	// A buff the game spends by charges rather than by time: World Breaker's 900 crit rating is
+	// A buff the game uses up by charges rather than by time: World Breaker's 900 crit rating is
 	// consumed by the next two melee hits, which is ProcCharges 2 on 36111. The generated shape
 	// knows only durations, so it would hold the buff for the whole window instead.
 	if procSpell.ProcCharges > 0 {

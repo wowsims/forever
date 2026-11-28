@@ -106,7 +106,7 @@ func (druid *Druid) applyOvergrowth() {
 var naturesGraceBuff = spellData.NaturesGraceTriggered.Highest()
 
 // A non-periodic spell crit grants cast speed and a shorter global cooldown for 3 seconds. Nothing
-// spends the buff, and a global cooldown under it takes both the cast speed and the 10% cut (1.227 s).
+// uses the buff, and a global cooldown under it takes both the cast speed and the 10% cut (1.227 s).
 func (druid *Druid) applyNaturesGrace() {
 	if !druid.Talents.NaturesGrace {
 		return
@@ -154,7 +154,7 @@ func (druid *Druid) applyEclipse() {
 		Kind:       core.SpellMod_CastTime_Flat,
 		TimeValue:  rank.EffectN(2).TimeValue(),
 	})
-	// Every Starfire cast spends a charge, a missed one included.
+	// Every Starfire cast uses a charge, a missed one included.
 	aura.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
 		if spellData.Starfire.Contains(spell) {
 			aura.RemoveStack(sim)

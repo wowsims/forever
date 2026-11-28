@@ -41,7 +41,7 @@ comment goes.
 What is left reads as whole sentences in plain words. Dropping clauses leaves half a sentence more often than not:
 "The row copy rests no cooldown and carries a higher rate, so the cases sit far apart" is what remained of a sentence
 about a test's edited row. Reword what stays until a reader who has never seen the file can follow it: "The test's
-copy of the row has no internal cooldown and a higher rate, so the cases differ clearly." Every "it", "the copy" and
+copy of the row has no ICD and a higher rate, so the cases differ clearly." Every "it", "the copy" and
 "the charge" has its referent in the comment or in the line of code under it.
 
 ## Sizes
@@ -61,11 +61,11 @@ An id comment takes one of three shapes:
   `// PPM measurement in EV-0130.` or `// Proc chance measurement in EV-0115.`
 - Where the code under the comment shows the case (a test that casts the spell and asserts the result, a map that
   lists the spells, a name that says what the branch is), the comment points to the file by topic and does not retell
-  the finding: `// Charge spending in EV-0149.` The topic is two to four words. "Moonfire spends the charge too
+  the finding: `// Charge use in EV-0149.` The topic is two to four words. "Moonfire uses the charge too
   (EV-0149)" over a test that casts Moonfire says nothing the test does not.
 - Where the code does not show it (what the bare ids in a literal are, a trap, a limiting case), the comment is one
   whole sentence with the id in parentheses. It names its subject and gives every verb its object, so a reader holding
-  only the comment and the code can tell what rolls, what is spent and on what. `// Heals that roll nothing
+  only the comment and the code can tell what rolls, what is used and on what. `// Heals that roll nothing
   (EV-0149).` has lost the proc it is about, and `// Spells the buff row does not name (EV-0149).` has lost what those
   spells do.
 

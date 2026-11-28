@@ -81,7 +81,7 @@ func TestSpellDataProcRegistersAnEnchant(t *testing.T) {
 }
 
 // A row pair in the shape the charge rules read: a trigger that grants the buff and a buff that
-// states its charges and what spends them.
+// states its charges and what uses them.
 func chargeRows() (*spelldata.Spell, *spelldata.Spell) {
 	trigger := &spelldata.Spell{
 		ID: 990100, Name: "Charge Trigger", DurationMs: 12000, ProcChance: 100,
@@ -217,7 +217,7 @@ func auraByLabel(character *core.Character, label string) *core.Aura {
 }
 
 // The whole registration on a character: the buff as the rows describe it, the listener that applies
-// it, and the internal cooldown handed to the buff for the APL values that ask after it.
+// it, and the ICD handed to the buff for the APL values that ask after it.
 func TestSpellDataProcAppliesToACharacter(t *testing.T) {
 	const itemID int32 = 990201
 

@@ -1,6 +1,6 @@
 ---
 name: wowsims-procs
-description: 'Use when WoWSims Forever Go code builds or fixes a proc: calling spelldata.ProcTrigger or its ProcOpts (PPM, Chance, WeaponProc), reading ProcChanceSource or a ProcChance of 100 or 101, reading what DecodeProcTypeMask made of a row, porting a proc-chance talent, taking an ICD from the row, spending a charged buff, or wiring an item, enchant, set, extra-attack or weapon-totem proc. Use it too when a trigger never fires, a bleed tick procs nothing, a hand trigger fires on every hit or on a dodge, the build panics with "states no proc chance", Windfury or an oil hears the wrong hits, a charge outlives the cast that should spend it, or a measured rate disagrees with the tooltip. Reading a row is wowsims-spell-store; the buff a proc applies is wowsims-abilities-auras; when a handler runs is wowsims-core-mechanics; item effect routing is wowsims-consumables-items; the proc audit is wowsims-db-pipeline; tests that prove a rate are wowsims-testing; the map of spell skills is wowsims-spells.'
+description: 'Use when WoWSims Forever Go code builds or fixes a proc: calling spelldata.ProcTrigger or its ProcOpts (PPM, Chance, WeaponProc), reading ProcChanceSource or a ProcChance of 100 or 101, reading what DecodeProcTypeMask made of a row, porting a proc-chance talent, taking an ICD from the row, using a charged buff, or wiring an item, enchant, set, extra-attack or weapon-totem proc. Use it too when a trigger never fires, a bleed tick procs nothing, a hand trigger fires on every hit or on a dodge, the build panics with "states no proc chance", Windfury or an oil hears the wrong hits, a charge outlives the cast that should use it, or a measured rate disagrees with the tooltip. Reading a row is wowsims-spell-store; the buff a proc applies is wowsims-abilities-auras; when a handler runs is wowsims-core-mechanics; item effect routing is wowsims-consumables-items; the proc audit is wowsims-db-pipeline; tests that prove a rate are wowsims-testing; the map of spell skills is wowsims-spells.'
 ---
 
 # wowsims-procs
@@ -17,7 +17,7 @@ the detail.
 | Path                                        | What it is                                                                     |
 | ------------------------------------------- | ------------------------------------------------------------------------------ |
 | `sim/core/spelldata/resolve_proc.go`        | `ProcTrigger`, its `ProcOpt`s, `StatedChance`                                  |
-| `sim/core/spelldata/charges.go`             | `AttachChargeSpender`, the listener that spends a charged buff                 |
+| `sim/core/spelldata/charges.go`             | `AttachChargeSpender`, the listener that uses a charged buff                   |
 | `sim/core/spelldata/item_proc.go`           | `ItemProcUnsupportedWithRate`: whether an item's rows say enough to build      |
 | `sim/core/proc_types.go`                    | `DecodeProcTypeMask` and the `ProcHint` bits                                   |
 | `sim/core/aura_helpers.go`                  | `core.ProcTrigger`, `MakeProcTriggerAura`, the roll, the ICD, `OncePerCast`    |
@@ -33,9 +33,9 @@ the detail.
 | porting a proc-chance or proc-cooldown talent, a pet's or a target-side trigger        | `docs/spell_data/procs.md`, the paragraphs on `ProcSpellClassFlags`                     |
 | reading what the decoder made of a row, or a tooltip hint                              | `docs/spell_data/procs.md` §The decoder and the tooltip hints                           |
 | registering an item, enchant or set proc                                               | `docs/spell_data/procs.md` §Item and enchant procs                                      |
-| deciding a weapon proc's mask, an unstated rate, or a charge spent by a channel        | `references/rulings.md`                                                                 |
+| deciding a weapon proc's mask, an unstated rate, or a charge used by a channel         | `references/rulings.md`                                                                 |
 | the review case behind a rule below: a typed ICD, a look-alike effect, a cast listener | `.github/skills/wowsims-review/references/defects.md` §The wrong rank, the wrong effect |
-| the review case behind a charged row with no spender                                   | `.github/skills/wowsims-review/references/defects.md` §What a cast spends, and when     |
+| the review case behind a charged row with no spender                                   | `.github/skills/wowsims-review/references/defects.md` §What a cast uses, and when       |
 
 ## Building a trigger from a row
 
@@ -45,10 +45,10 @@ What `ProcTrigger` fills and the Enrage example are in `procs.md`. What the page
   of its own, up all fight; `buff.AttachProcTriggerCallback(&unit, trigger)` hears hits only while that buff is up.
 - **The ICD is the row's** (`s.ICD()`); an ICD typed by hand where the row states one is a defect.
 - **A row with charges needs a spender.** `ProcCharges` becomes the buff's `MaxStacks` through `AuraConfig`, and
-  nothing takes a stack off until `spelldata.AttachChargeSpender(character, buff, row, name)` is attached. It spends
+  nothing takes a stack off until `spelldata.AttachChargeSpender(character, buff, row, name)` is attached. It uses
   one charge per cast however many targets the cast hits (`core.OncePerCast`), and a channel's once at its end when
-  the row names its spells by class flags; a row that names none is spent by the first hit it hears, mid-channel too. An
-  option's `ExtraCondition` narrows the spells that spend it (Revelation turns melee and ranged attacks away); a charge
+  the row names its spells by class flags; a row that names none is used by the first hit it hears, mid-channel too. An
+  option's `ExtraCondition` narrows the spells that use it (Revelation turns melee and ranged attacks away); a charge
   gained during a running channel its class flags name is still kept for that channel's end. Without a spender one proc pays for every cast
   in the buff's duration.
 - **An extra attack goes through `unit.ExtraAttackProc(&trigger, tagSpellID, count)`.** It sets `TriggerImmediately`

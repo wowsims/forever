@@ -97,7 +97,7 @@ func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, 
 // What a driver decides about a buff other players cast on this one: how many
 // of them take turns, how long each waits before casting again, whether the
 // cooldown is worth a mana, a damage or a survival slot, and when the sim
-// should spend it.
+// should use it.
 type generatedExternalCD struct {
 	NumSources     int32
 	Cooldown       time.Duration

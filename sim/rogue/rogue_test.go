@@ -213,7 +213,7 @@ func TestRemorselessAttacksCritsTheStrikeAfterAKill(t *testing.T) {
 	}
 }
 
-// A miss, dodge or parry of the strike spends Remorseless as a landed one does.
+// A miss, dodge or parry of the strike uses Remorseless as a landed one does.
 func TestRemorselessAttacksSpendsOnAvoidedStrikesAndCritsLandedOnes(t *testing.T) {
 	sim, rogue := newTwoTargetSim("01")
 	target := sim.Encounter.AllTargetUnits[1]
@@ -347,7 +347,7 @@ func TestRiposteWindowOpensOnParriedSwings(t *testing.T) {
 	}
 }
 
-// A finisher spends the combo points on its cast target and is refused at a unit that holds none.
+// A finisher uses the combo points on its cast target and is refused at a unit that holds none.
 func TestFinisherNeedsComboPointsOnItsTarget(t *testing.T) {
 	sim, rogue, targets := newTankSim(t, "")
 	holder, other := targets[0], targets[1]
@@ -370,7 +370,7 @@ func TestFinisherNeedsComboPointsOnItsTarget(t *testing.T) {
 	}
 }
 
-// A Rupture on a second target leaves the first target's ticks at the points the first cast spent.
+// A Rupture on a second target leaves the first target's ticks at the points the first cast used.
 func TestRuptureTicksKeepTheirOwnCastsPoints(t *testing.T) {
 	sim, rogue, targets := newTankSim(t, "")
 	first, second := targets[0], targets[1]
@@ -404,7 +404,7 @@ func TestRuptureTicksKeepTheirOwnCastsPoints(t *testing.T) {
 	}
 }
 
-// Riposte is off the GCD, and only its own cast spends the window: a Sinister Strike leaves it up.
+// Riposte is off the GCD, and only its own cast uses the window: a Sinister Strike leaves it up.
 func TestRiposteCastsOffTheGCDAndSpendsItsWindow(t *testing.T) {
 	sim, rogue, targets := newTankSim(t, tankTalents)
 	window := auraOf(t, rogue, riposteWindow.ID)
@@ -1124,7 +1124,7 @@ func TestBonescytheHeadRushRegainsEnergyOnTheTooltipsCrits(t *testing.T) {
 }
 
 // Bonescythe Armor's 8-piece bonus: a landed Eviscerate grants Revealed Flaw 28815 at 28814's chance per combo point
-// it spent. Its charge raises the crit of Sinister Strike and Backstab and leaves Shank's, which the row's class flags
+// it used. Its charge raises the crit of Sinister Strike and Backstab and leaves Shank's, which the row's class flags
 // also name, alone. 28815's cooldown does not hold a second grant back.
 func TestBonescytheRevealedFlawFollowsEviscerate(t *testing.T) {
 	sim, rogue, target := newRogueWearing(t, map[proto.ItemSlot]int32{

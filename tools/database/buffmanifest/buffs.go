@@ -545,7 +545,7 @@ var Debuffs = []BuffSpec{
 		},
 	},
 	// The -450 armor is per combo point, so the raid config's debuff is the five-point finisher. A
-	// rogue spending fewer needs a driver that prices the aura, and there is none.
+	// rogue using fewer needs a driver that prices the aura, and there is none.
 	{
 		Field:    "expose_armor",
 		SpellID:  11198,

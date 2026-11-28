@@ -364,7 +364,7 @@ export const runConcurrentBulkSimStage = async (
 
 // Mirrors runBulkSimFinalistStage in sim/core/bulk/stage.go: adds lockstep iterations to the
 // displayed top results (and the baseline) until every adjacent pair of the final ranking is
-// statistically separated or the extra-iteration budget is spent, so near-ties do not flip
+// statistically separated or the extra-iteration budget is used up, so near-ties do not flip
 // order between runs with different seeds. When the stage runs, the returned results are the
 // refined, DPS-sorted finalists.
 export const runConcurrentBulkSimFinalistStage = async (

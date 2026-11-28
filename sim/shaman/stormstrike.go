@@ -15,7 +15,7 @@ const (
 )
 
 // Effect 2 raises the shaman's own Lightning Bolt, Chain Lightning and Earth Shock against the target
-// for its one charge, which the next of them to hit spends.
+// for its one charge, which the next of them to hit uses.
 func (shaman *Shaman) stormstrikeDebuffAura(target *core.Unit) *core.Aura {
 	consumes := stormstrikeRank.EffectN(2).ClassFlags
 

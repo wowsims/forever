@@ -9,7 +9,7 @@ var poisedPassive = spelldata.MustFind(1328825)
 var poisedBuff = poisedPassive.Refs()[0]
 
 // Every fight starts out of combat at full energy, the buff's condition, so the buff is up from the start
-// until the first ability spends it.
+// until the first ability uses it.
 func (rogue *Rogue) registerPoised() {
 	aura := rogue.RegisterAura(spelldata.AuraConfig(poisedBuff))
 	spelldata.ParseEffects(&rogue.Character, aura, poisedBuff)

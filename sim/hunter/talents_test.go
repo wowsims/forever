@@ -91,7 +91,7 @@ func TestBestialSwiftnessSpeedsThePetUnderDash(t *testing.T) {
 	assertSpeed(t, "a dashing Bestial Swiftness pet", pet.GetMovementSpeed(), 8*(1+spellData.DashTriggered.Highest().EffectN(1).Percent()))
 }
 
-// Intimidation's 100% crit stays on the pet until an attack of its spends the charge.
+// Intimidation's 100% crit stays on the pet until an attack of its uses the charge.
 func TestIntimidationCritsThePetsNextAttack(t *testing.T) {
 	sim, hunter := newTalentSim("0000000000001", proto.HunterOptions_Wolf)
 	pet := hunter.Pet

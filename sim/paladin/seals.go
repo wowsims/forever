@@ -29,7 +29,7 @@ type sealConfig struct {
 	judgement *core.Spell
 
 	// Unsealed Wrath: the Echo that stores this seal (0 for the seals none stores), and what one
-	// stored copy does to the target when it is spent, with the seal's own chance (nil where the
+	// stored copy does to the target when it is used, with the seal's own chance (nil where the
 	// seal's effect has no place in the sim).
 	echoID int32
 	echo   func(sim *core.Simulation, target *core.Unit)
@@ -45,7 +45,7 @@ const (
 	echoOfWisdomID        = 1328206
 )
 
-// Unsealed Wrath: the copy of a seal's hit that a spent Echo casts.
+// Unsealed Wrath: the copy of a seal's hit that a used Echo casts.
 func (paladin *Paladin) registerEchoHit(config core.SpellConfig, echoID int32) *core.Spell {
 	if !paladin.Talents.UnsealedWrath {
 		return nil

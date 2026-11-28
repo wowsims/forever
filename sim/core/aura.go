@@ -51,7 +51,7 @@ type Aura struct {
 	MenuGroup   string // A manual APL menu group, rotation_tab.apl.submenus keys joined by dots (spell.cat.stealth).
 	HideFromAPL bool   // Left out of the APL's aura pickers and the SIML names; the aura still runs.
 
-	Icd *Cooldown           // The internal cooldown if any
+	Icd *Cooldown           // The ICD if any
 	Dpm *DynamicProcManager // Dynamic Proc manager for proc trigger auras if any
 
 	Duration time.Duration // Duration of aura, upon being applied.

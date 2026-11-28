@@ -131,7 +131,7 @@ func TestDotRankHigherReplacesLower(t *testing.T) {
 	}
 }
 
-// Shadow Word: Pain's only effect is the periodic, so its lower rank is refused before it spends
+// Shadow Word: Pain's only effect is the periodic, so its lower rank is refused before it uses
 // anything wherever the dot lives; a rank registered with Proc() has no cast requirement and casts,
 // with its periodic skipped.
 func TestDotRankLowerPureRankUnderHigher(t *testing.T) {

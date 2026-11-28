@@ -266,7 +266,7 @@ func TestTotemAttacksTakeNoCreatureTypeBonus(t *testing.T) {
 	}
 }
 
-// Water Shield's tooltip: a hit taken or one of the shaman's spell crits spends a globe for 2% of
+// Water Shield's tooltip: a hit taken or one of the shaman's spell crits uses a globe for 2% of
 // maximum mana, one globe every few seconds.
 func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
 	player := &proto.Player{
@@ -307,7 +307,7 @@ func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
 			}
 		}
 	}
-	// Regen over a batch window is a fraction of a globe, so a spent globe is told apart by the
+	// Regen over a batch window is a fraction of a globe, so a used globe is told apart by the
 	// mana it adds.
 	expect := func(when string, hit func(), globes int32, spends bool) {
 		t.Helper()
@@ -486,7 +486,7 @@ func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
 		launch(sim, target, spell)
 		gainedAtLaunch = clearcasting.IsActive()
 	}
-	// Earth Shock's own roll can refresh the charge it spends, so one spend over the loop is enough.
+	// Earth Shock's own roll can refresh the charge it uses, so one use over the loop is enough.
 	earthShock := sham.EarthShock[len(sham.EarthShock)-1]
 	kept, spent := 0, false
 	for range launches {
@@ -571,7 +571,7 @@ func TestMaelstromWeaponAtFiveStacksKeepsClearcasting(t *testing.T) {
 		t.Errorf("after a Chain Lightning with Maelstrom Ready! up: Clearcasting up %v, Maelstrom Ready! up %v, %d stacks; want true, false, %d",
 			clearcasting.IsActive(), ready.IsActive(), maelstrom.GetStacks(), maelstrom.MaxStacks)
 	}
-	// The next Chain Lightning spends the charge; its own roll can refresh it, so one spend is enough.
+	// The next Chain Lightning uses the charge; its own roll can refresh it, so one use is enough.
 	spent := false
 	for range 100 {
 		clearcasting.Activate(sim)
