@@ -1071,6 +1071,7 @@ func (unit *Unit) doneIteration(sim *Simulation) {
 	unit.Hardcast = Hardcast{}
 
 	unit.manaBar.doneIteration(sim)
+	unit.energyBar.doneIteration(sim)
 
 	unit.auraTracker.doneIteration(sim)
 	for _, spell := range unit.Spellbook {

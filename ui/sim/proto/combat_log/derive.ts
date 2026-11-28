@@ -138,8 +138,8 @@ const REGEN_TICK = 0.1;
 const logTime = (seconds: number): number => Number(seconds.toFixed(2));
 
 // A regen line as one step per tick of its stretch. Each step but the last shows the regen up to its
-// tick, capped by the mana after the whole gain, which is max mana when the cap cut the gain. The last
-// step, at the stretch's end or at the line's own time if that comes first, shows the mana after it.
+// tick, capped by the value after the whole gain, which is the bar's maximum when the cap cut the gain.
+// The last step, at the stretch's end or at the line's own time if that comes first, shows the value after it.
 function regenSteps(log: ResourceLog, regen: RegenStretch): Array<ResourceLog> {
 	const steps: Array<ResourceLog> = [];
 	let valueBefore = log.valueBefore;

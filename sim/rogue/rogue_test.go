@@ -292,6 +292,7 @@ func newTankSim(t *testing.T, talents string) (*core.Simulation, *Rogue, []*core
 // Steps the sim until the rogue's GCD is ready.
 func waitForGCD(t *testing.T, sim *core.Simulation, rogue *Rogue) {
 	t.Helper()
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: rogue.GCD.ReadyAt(), OnAction: func(*core.Simulation) {}})
 	for !rogue.GCD.IsReady(sim) {
 		if sim.Step() {
 			t.Fatal("the sim ended while the GCD was running")
@@ -303,6 +304,7 @@ func waitForGCD(t *testing.T, sim *core.Simulation, rogue *Rogue) {
 func passBatchWindow(t *testing.T, sim *core.Simulation) {
 	t.Helper()
 	until := sim.CurrentTime + core.SpellBatchWindow
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: until + 1, OnAction: func(*core.Simulation) {}})
 	for sim.CurrentTime <= until {
 		if sim.Step() {
 			t.Fatal("the sim ended inside the batch window")
@@ -468,6 +470,7 @@ func TestSetupAddsAPointOnTheCurrentTargetsDodgedSwings(t *testing.T) {
 				}
 
 				until := sim.CurrentTime + icd
+				sim.AddPendingAction(&core.PendingAction{NextActionAt: until + 1, OnAction: func(*core.Simulation) {}})
 				for sim.CurrentTime <= until {
 					if sim.Step() {
 						t.Fatal("the sim ended between two dodges")

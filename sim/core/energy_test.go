@@ -62,13 +62,20 @@ func TestEnergyRegenTicksEveryTenthOfASecond(t *testing.T) {
 	sim := &Simulation{}
 
 	character.energyBar.currentEnergy = 0
+	character.energyBar.sim = sim
+	character.energyBar.nextEnergyTick = time.Second / 10
 	for tick := 1; tick <= 10; tick++ {
-		sim.CurrentTime = character.energyBar.RunTask(sim)
-		if want := time.Duration(tick) * time.Second / 10; sim.CurrentTime != want {
-			t.Fatalf("tick %d scheduled at %v, want %v", tick, sim.CurrentTime, want)
+		at := time.Duration(tick) * time.Second / 10
+		sim.CurrentTime = at - 1
+		if got := character.CurrentEnergy(); got != float64(tick-1) {
+			t.Fatalf("just before tick %d: %v energy, want %d", tick, got, tick-1)
 		}
+		sim.CurrentTime = at
 		if got := character.CurrentEnergy(); got != float64(tick) {
-			t.Fatalf("after tick %d: %v energy, want %d", tick, got, tick)
+			t.Fatalf("at tick %d: %v energy, want %d", tick, got, tick)
 		}
+	}
+	if got := character.NextEnergyTickAt(); got != 11*time.Second/10 {
+		t.Errorf("next tick at %v, want %v", got, 11*time.Second/10)
 	}
 }

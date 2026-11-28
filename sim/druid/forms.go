@@ -172,7 +172,7 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 		druid.AutoAttacks.SetReplaceMHSwing(nil)
 		druid.cancelMaulQueue(sim)
 		if druid.HasEnergyBar() && !druid.Env.MeasuringStats {
-			druid.EnergyPerTick = druid.furorEnergyPerTick
+			druid.SetEnergyPerTick(druid.furorEnergyPerTick)
 			druid.rememberCatEnergy(sim, druid.CurrentEnergy())
 		}
 		druid.SetFeralCombat(false)
@@ -293,7 +293,7 @@ func (druid *Druid) pauseCatEnergy(sim *core.Simulation) {
 	druid.rememberCatEnergy(sim, energy)
 	druid.setEnergy(sim, energy)
 	druid.furorEnergyPerTick = druid.EnergyPerTick
-	druid.EnergyPerTick = 0
+	druid.SetEnergyPerTick(0)
 }
 
 // Moves the bar to energy, through Furor's metrics.

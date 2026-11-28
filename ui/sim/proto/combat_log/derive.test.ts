@@ -161,4 +161,18 @@ describe('buildResourceGroups', () => {
 			[1.37, 917],
 		]);
 	});
+
+	// An energy read at 1.3 credits the three ticks from 1.05 to 1.25, of which max energy lets two through.
+	it('gives an energy stretch a step per tick, capped at max energy', async () => {
+		const line =
+			'[1.30] [Player (#1)] Gained 3.000 energy from {OtherID: 5} (98.000 --> 100.000) of 100 total, ' +
+			'regenerating from 0.950000s to 1.250000s in 3 ticks from 1.050000s.';
+		const groups = buildResourceGroups(await parseAll(RaidSimResult.create({ logs: line })))[ResourceType.ResourceTypeEnergy];
+
+		expect(groups.map(group => [group.timestamp, Number(group.valueAfter.toFixed(3))])).toEqual([
+			[1.05, 99],
+			[1.15, 100],
+			[1.25, 100],
+		]);
+	});
 });

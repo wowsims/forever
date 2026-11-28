@@ -16,11 +16,12 @@ type energyBar struct {
 	maxComboPoints   int32
 	comboPoints      int32
 	comboPointTarget *Unit
-	nextEnergyTick   time.Duration
+	nextEnergyTick   time.Duration // The first tick not yet credited.
+	sim              *Simulation   // The sim whose clock the ticks follow; nil while the bar does not regenerate.
 
 	// Time between Energy ticks.
 	EnergyTickDuration time.Duration
-	EnergyPerTick      float64
+	EnergyPerTick      float64 // Changed through SetEnergyPerTick, which credits the ticks before the change.
 
 	// Scales the total Energy regen from ticks.
 	energyRegenMultiplier float64
@@ -63,6 +64,7 @@ func (unit *Unit) HasEnergyBar() bool {
 }
 
 func (eb *energyBar) CurrentEnergy() float64 {
+	eb.creditEnergyTicks()
 	return eb.currentEnergy
 }
 
@@ -71,6 +73,7 @@ func (eb *energyBar) MaximumEnergy() float64 {
 }
 
 func (eb *energyBar) NextEnergyTickAt() time.Duration {
+	eb.creditEnergyTicks()
 	return eb.nextEnergyTick
 }
 
@@ -80,10 +83,12 @@ func (eb *energyBar) MultiplyEnergyRegenSpeed(sim *Simulation, multiplier float6
 }
 
 func (eb *energyBar) TimeToNextEnergyTick(sim *Simulation) time.Duration {
+	eb.creditEnergyTicks()
 	return max(eb.nextEnergyTick-sim.CurrentTime, 0)
 }
 
 func (eb *energyBar) TimeToTargetEnergy(sim *Simulation, targetEnergy float64) time.Duration {
+	eb.creditEnergyTicks()
 	if eb.currentEnergy >= targetEnergy {
 		return time.Duration(0)
 	}
@@ -107,6 +112,7 @@ func (eb *energyBar) AddEnergy(sim *Simulation, amount float64, metrics *Resourc
 	if amount < 0 {
 		panic("Trying to add negative energy!")
 	}
+	eb.creditEnergyTicks()
 
 	newEnergy := min(eb.currentEnergy+amount, eb.maxEnergy)
 	metrics.AddEvent(amount, newEnergy-eb.currentEnergy)
@@ -122,6 +128,7 @@ func (eb *energyBar) SpendEnergy(sim *Simulation, amount float64, metrics *Resou
 	if amount < 0 {
 		panic("Trying to spend negative energy!")
 	}
+	eb.creditEnergyTicks()
 
 	newEnergy := eb.currentEnergy - amount
 	metrics.AddEvent(-amount, -amount)
@@ -153,6 +160,7 @@ func (eb *energyBar) MaxComboPoints() int32 {
 }
 
 func (eb *energyBar) IsReset(sim *Simulation) bool {
+	eb.creditEnergyTicks()
 	return (eb.nextEnergyTick != 0) && (eb.nextEnergyTick-sim.CurrentTime <= eb.EnergyTickDuration)
 }
 
@@ -170,12 +178,14 @@ func (eb *energyBar) ResetEnergyTick(sim *Simulation) {
 	partialTickAmount := eb.EnergyPerTick * eb.energyRegenMultiplier * (float64(timeSinceLastTick) / float64(eb.EnergyTickDuration))
 	eb.AddEnergy(sim, partialTickAmount, eb.regenMetrics)
 	eb.nextEnergyTick = sim.CurrentTime + eb.EnergyTickDuration
-	sim.RescheduleTask(eb.nextEnergyTick)
 }
 
 // Sets the most energy the bar holds. A raised maximum grants no energy; energy above a lowered one is
 // lost and counted against the metrics. Without a Simulation there is no energy yet to lose.
 func (eb *energyBar) SetMaximumEnergy(sim *Simulation, maxEnergy float64, metrics *ResourceMetrics) {
+	if sim != nil {
+		eb.creditEnergyTicks()
+	}
 	eb.maxEnergy = maxEnergy
 
 	if sim != nil && eb.currentEnergy > maxEnergy {
@@ -262,14 +272,48 @@ func (eb *energyBar) spendComboPointsInternal(sim *Simulation, target *Unit, poi
 	eb.comboPoints = newComboPoints
 }
 
-func (eb *energyBar) RunTask(sim *Simulation) time.Duration {
-	if sim.CurrentTime < eb.nextEnergyTick {
-		return eb.nextEnergyTick
-	}
+// Sets the energy each tick gives, after the ticks before now are credited at the old amount.
+func (eb *energyBar) SetEnergyPerTick(energyPerTick float64) {
+	eb.creditEnergyTicks()
+	eb.EnergyPerTick = energyPerTick
+}
 
-	eb.AddEnergy(sim, eb.EnergyPerTick*eb.energyRegenMultiplier, eb.regenMetrics)
-	eb.nextEnergyTick = sim.CurrentTime + eb.EnergyTickDuration
-	return eb.nextEnergyTick
+// A tick is a point in time, not an event: a read or a change of the energy credits the ticks at or
+// before it first. During the sim's reset the clock still reads 0 while the ticks start at the prepull, so
+// none are due yet.
+func (eb *energyBar) creditEnergyTicks() {
+	if eb.sim != nil && !eb.sim.isResetting {
+		eb.creditEnergyTicksUntil(eb.sim.CurrentTime)
+	}
+}
+
+// Credits the ticks up to until as one gain, capped at max energy once, with each tick an event of the
+// regen metrics. The log line names the ticks, so the timeline can show the energy at each of them.
+func (eb *energyBar) creditEnergyTicksUntil(until time.Duration) {
+	if eb.nextEnergyTick > until {
+		return
+	}
+	sim := eb.sim
+	ticks := (until-eb.nextEnergyTick)/eb.EnergyTickDuration + 1
+	first := eb.nextEnergyTick
+	eb.nextEnergyTick += ticks * eb.EnergyTickDuration
+
+	amount := float64(ticks) * eb.EnergyPerTick * eb.energyRegenMultiplier
+	newEnergy := min(eb.currentEnergy+amount, eb.maxEnergy)
+	eb.regenMetrics.addEvents(int32(ticks), amount, newEnergy-eb.currentEnergy)
+	if sim.Log != nil {
+		last := first + (ticks-1)*eb.EnergyTickDuration
+		eb.unit.Log(sim, "Gained %0.3f energy from %s (%0.3f --> %0.3f) of %0.0f total, regenerating from %0.6fs to %0.6fs in %d ticks from %0.6fs.",
+			amount, eb.regenMetrics.ActionID, eb.currentEnergy, newEnergy, eb.maxEnergy, (first - eb.EnergyTickDuration).Seconds(), last.Seconds(), ticks, first.Seconds())
+	}
+	eb.currentEnergy = newEnergy
+}
+
+// Credits the ticks the fight held; a fight cut short by its targets dying ends before the sim's duration.
+func (eb *energyBar) doneIteration(sim *Simulation) {
+	if eb.sim != nil {
+		eb.creditEnergyTicksUntil(min(sim.CurrentTime, sim.endOfCombatDuration))
+	}
 }
 
 func (eb *energyBar) ResetComboPoints(sim *Simulation, target *Unit, comboPointsToKeep int32) {
@@ -301,14 +345,13 @@ func (eb *energyBar) enable(sim *Simulation, startAt time.Duration) {
 		return
 	}
 
-	sim.AddTask(eb)
+	eb.sim = sim
 	eb.nextEnergyTick = startAt + time.Duration(sim.RandomFloat("Energy Tick")*float64(eb.EnergyTickDuration))
-	sim.RescheduleTask(eb.nextEnergyTick)
 }
 
 func (eb *energyBar) disable(sim *Simulation) {
+	eb.creditEnergyTicks()
 	eb.nextEnergyTick = NeverExpires
-	sim.RemoveTask(eb)
 }
 
 type EnergyCostOptions struct {
