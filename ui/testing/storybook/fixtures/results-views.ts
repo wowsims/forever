@@ -28,10 +28,10 @@ import {
 import type { ResultMetric } from '@features/results/model/topline_metrics';
 import { toplineResultMetrics } from '@features/results/model/topline_metrics';
 import { ActionMetrics as ActionMetricsProto, ResourceMetrics as ResourceMetricsProto } from '@generated/proto/api';
-import { ActionID, ItemSlot, OtherAction, SpellSchool } from '@generated/proto/common';
+import { ActionID, ItemSlot, MobType, OtherAction, SpellSchool, Stat } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import { type ActionId, resourceTypeToIcon } from '@sim/proto/action_id';
-import type { AuraUptimeLog, CastLog, DamageLog, DpsLog, ResourceGroupLog, ResourceLog, ThreatLogGroup } from '@sim/proto/combat_log';
+import type { AuraUptimeLog, CastLog, DamageLog, DpsLog, ResourceGroupLog, ResourceLog, ThreatLogGroup, VersusLog } from '@sim/proto/combat_log';
 import { Entity } from '@sim/proto/combat_log';
 import { ActionMetrics, SimResult } from '@sim/proto/sim_result';
 import { wowheadIconUrl } from '@sim/proto/wowhead';
@@ -158,6 +158,16 @@ export const DEEP_WOUNDS = spellActionId('Deep Wounds', 12721, 'ability_backstab
 export const BLOODRAGE = spellActionId('Bloodrage', 2687, 'ability_racial_bloodrage');
 export const FLURRY = spellActionId('Flurry', 12970, 'ability_ghoulfrenzy');
 export const BATTLE_SHOUT = spellActionId('Battle Shout', 25289, 'ability_warrior_battleshout');
+
+export const SLAYER_RING = spellActionId('Slayer Ring', 12345, 'inv_jewelry_ring_03');
+
+export const UNDEAD_VERSUS: VersusLog = {
+	mobType: MobType.MobTypeUndead,
+	sources: [
+		{ actionId: SLAYER_RING, effect: { kind: 'damage', multiplier: 1.05 } },
+		{ actionId: SLAYER_RING, effect: { kind: 'stat', stat: Stat.StatAttackPower, amount: 78 } },
+	],
+};
 
 export const LOG_SUGGESTIONS: SuggestionSource = {
 	spells: [MORTAL_STRIKE, HEROIC_STRIKE, DEEP_WOUNDS].map(action => action.name),

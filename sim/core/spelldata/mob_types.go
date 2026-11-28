@@ -1,29 +1,59 @@
 package spelldata
 
 import (
+	"slices"
+
+	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The stats each versus aura grants against the creature types its misc value masks. Flat damage done
-// against them reaches every school: Beastslayer 7784 adds its 2 to weapon hits and spells alike.
-var versusStats = map[dbcenums.EffectAuraType][]stats.Stat{
-	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS:  {stats.AttackPower},
-	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS: {stats.RangedAttackPower},
-	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS:   {stats.SpellDamage},
-	dbcenums.A_MOD_DAMAGE_DONE_CREATURE:       {stats.PhysicalDamage, stats.SpellDamage},
+// The stats a versus aura gives at the effect's amount against the creature types its misc value masks.
+type VersusAuraEffect struct {
+	Stats []stats.Stat
 }
 
-// The stats a versus aura grants; none when the aura is no versus aura.
-func VersusStats(aura dbcenums.EffectAuraType) []stats.Stat {
-	return versusStats[aura]
+// Every versus aura and the stats it gives; the damage and crit damage multipliers give none. Flat
+// damage done against creature types reaches every school: Beastslayer 7784 adds its 2 to weapon hits
+// and spells alike.
+var versusAuras = map[dbcenums.EffectAuraType]VersusAuraEffect{
+	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS:  {Stats: []stats.Stat{stats.AttackPower}},
+	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS: {Stats: []stats.Stat{stats.RangedAttackPower}},
+	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS:   {Stats: []stats.Stat{stats.SpellDamage}},
+	dbcenums.A_MOD_DAMAGE_DONE_CREATURE:       {Stats: []stats.Stat{stats.PhysicalDamage, stats.SpellDamage}},
+	dbcenums.A_MOD_DAMAGE_DONE_VERSUS:         {},
+	dbcenums.A_MOD_CRIT_PERCENT_VERSUS:        {},
 }
 
-// Each stat a versus aura grants, at the amount; none when the aura is no versus aura.
-func VersusBonus(aura dbcenums.EffectAuraType, amount float64) stats.Stats {
+// The stats the aura gives against the creature types its misc value masks; none for a multiplier or
+// an aura that is no versus aura.
+func VersusAura(aura dbcenums.EffectAuraType) VersusAuraEffect {
+	return versusAuras[aura]
+}
+
+// Whether the aura gives anything against the creature types its misc value masks.
+func IsVersusAura(aura dbcenums.EffectAuraType) bool {
+	_, ok := versusAuras[aura]
+	return ok
+}
+
+// The versus auras that grant stats, in aura order.
+func VersusStatAuras() []dbcenums.EffectAuraType {
+	var auras []dbcenums.EffectAuraType
+	for aura, versus := range versusAuras {
+		if len(versus.Stats) > 0 {
+			auras = append(auras, aura)
+		}
+	}
+	slices.Sort(auras)
+	return auras
+}
+
+// Each stat the aura grants, at the amount; none for a multiplier.
+func (v VersusAuraEffect) Bonus(amount float64) stats.Stats {
 	var bonus stats.Stats
-	for _, stat := range versusStats[aura] {
+	for _, stat := range v.Stats {
 		bonus[stat] = amount
 	}
 	return bonus
@@ -52,4 +82,14 @@ func MobTypes(mask int32) []proto.MobType {
 		}
 	}
 	return out
+}
+
+// The targets a creature type mask names, as MobTypes decodes it.
+func TargetCreatures(mask int32) core.VersusTargets {
+	return core.VersusTargets{MobTypes: MobTypes(mask)}
+}
+
+// The targets the row's TargetCreatureType limits it to, none where it states no limit.
+func (s *Spell) TargetCreatureTypes() core.VersusTargets {
+	return TargetCreatures(s.TargetCreatureType)
 }

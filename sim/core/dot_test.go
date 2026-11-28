@@ -258,6 +258,35 @@ func TestDotSnapshotSpellDamage(t *testing.T) {
 	expectDotTickDamage(t, sim, fa.Dot, 300) // (100 + 100) * 1.5
 }
 
+// A snapshot dot takes its spell's VersusBonus on the base damage before the spell power joins it, as
+// CalcPeriodicDamage does, and only against the targets the bonus names.
+func TestDotSnapshotTakesTheSpellsVersusBonus(t *testing.T) {
+	for _, c := range []struct {
+		name    string
+		mobType proto.MobType
+		tick    float64
+		base    float64
+	}{
+		{"named", proto.MobType_MobTypeDemon, 600, 300},  // (100 * 3 + 100) * 1.5
+		{"other", proto.MobType_MobTypeUndead, 300, 100}, // (100 + 100) * 1.5
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim := SetupFakeSim()
+			fa := sim.Raid.Parties[0].Players[0].(*FakeAgent)
+			fa.Spell.VersusBonus = &VersusBonus{VersusTargets: VersusTargets{MobTypes: []proto.MobType{c.mobType}}, Multiplier: 3}
+			fa.GetCharacter().AddStatDynamic(sim, stats.SpellDamage, 100)
+
+			fa.Dot.Apply(sim)
+			expectDotTickDamage(t, sim, fa.Dot, c.tick)
+
+			fa.Dot.SnapshotPhysical(fa.Dot.Unit, 100)
+			if fa.Dot.SnapshotBaseDamage != c.base {
+				t.Errorf("SnapshotPhysical takes a base of %v, want %v", fa.Dot.SnapshotBaseDamage, c.base)
+			}
+		})
+	}
+}
+
 func TestDotSnapshotSpellMultiplier(t *testing.T) {
 	sim := SetupFakeSim()
 	fa := sim.Raid.Parties[0].Players[0].(*FakeAgent)

@@ -29,17 +29,22 @@ func addAreaStats(opts *proto.ScalingItemProperties, areaType proto.AreaType, st
 // own stats state them.
 func addEquipSpellMobTypeStats(opts *proto.ScalingItemProperties, spellID int) {
 	for _, effect := range spelldata.MustFind(int32(spellID)).Effects {
-		granted := spelldata.VersusStats(effect.Aura)
-		if len(granted) == 0 {
+		versus := spelldata.VersusAura(effect.Aura)
+		if len(versus.Stats) == 0 {
 			continue
 		}
 		for _, mobType := range spelldata.MobTypes(effect.Misc) {
 			bonus := mobTypeEntryStats(&opts.MobTypeStats, mobType)
-			for _, stat := range granted {
+			for _, stat := range versus.Stats {
 				bonus[int32(stat)] += effect.Average()
 			}
 		}
 	}
+}
+
+// Whether every effect of the spell is a stat against creature types.
+func GrantsOnlyVersusStats(row *spelldata.Spell) bool {
+	return len(row.Effects) > 0 && !slices.ContainsFunc(row.Effects, func(e spelldata.Effect) bool { return len(spelldata.VersusAura(e.Aura).Stats) == 0 })
 }
 
 // ItemEffect represents an item effect in the game.
@@ -426,6 +431,12 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 			equipPseudoStats := make([]float64, stats.PseudoStatsLen)
 			addedStats, addedPseudoStats := AddEquipSpellStats(&equipStats, equipPseudoStats, baseEff.SpellID)
 
+			// One that grants only stats against creature types folds into the item's mob type stats alone:
+			// Seal of the Dawn 13209's 23930, +78 Attack Power against Undead.
+			if EquipSpellFolds(baseEff.SpellID) && GrantsOnlyVersusStats(spelldata.Find(int32(baseEff.SpellID))) {
+				addEquipSpellMobTypeStats(parsed.ScalingOptions[0], baseEff.SpellID)
+				continue
+			}
 			if EquipSpellFolds(baseEff.SpellID) && (len(props.Stats) > 0 || addedStats || addedPseudoStats) {
 				if areaType := spelldata.AreaTypeOfGroup(dbcInstance.Spells[baseEff.SpellID].RequiredAreasID); areaType != proto.AreaType_AreaTypeUnknown {
 					addAreaStats(parsed.ScalingOptions[0], areaType, equipStats.ToProtoMap())
@@ -473,8 +484,8 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 }
 
 // An equip spell that only restates weapon skills or creature type stats the item's own stats already
-// state adds nothing in game. Restated stats in EV-0111. The stat gives the bonus and the spell leaves
-// the item. A spell that does more stays, and so does one on an item whose stats state no such bonus,
+// state adds nothing in game: an item's tooltip shows such a bonus once (EV-0111). The stat gives the bonus
+// and the spell leaves the item: no database entry, no registration and no missing effect. A spell that does more stays, and so does one on an item whose stats state no such bonus,
 // unless it raises weapon skills alone (foldEquipWeaponSkills).
 func (d *DBC) dropRestatedItemStats() {
 	for itemID, effects := range d.ItemEffectsByParentID {
@@ -599,7 +610,8 @@ func restatedBonuses(effect SpellEffect) []statedBonus {
 		return nil
 	}
 	var bonuses []statedBonus
-	for _, stat := range spelldata.VersusStats(effect.EffectAura) {
+	versus := spelldata.VersusAura(effect.EffectAura)
+	for _, stat := range versus.Stats {
 		for _, mobType := range spelldata.MobTypes(misc) {
 			bonuses = append(bonuses, statedBonus{mobType: mobType, stat: proto.Stat(stat)})
 		}

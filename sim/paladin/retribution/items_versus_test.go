@@ -64,11 +64,8 @@ func TestJusticeBattlegearFourPieceGrantsAttackPowerAgainstUndead(t *testing.T) 
 	})
 	table := character.AttackTables[character.CurrentTarget.UnitIndex]
 
-	if got, want := table.MobTypeBonusStats[proto.MobType_MobTypeUndead], (stats.Stats{stats.AttackPower: spelldata.MustFind(1301084).EffectN(1).Average()}); got != want {
+	if got, want := table.VersusStats, (stats.Stats{stats.AttackPower: spelldata.MustFind(1301084).EffectN(1).Average()}); got != want {
 		t.Errorf("the bonus against Undead is %v, want %v", got, want)
-	}
-	if got := table.MobTypeBonusStats[proto.MobType_MobTypeDemon]; got != (stats.Stats{}) {
-		t.Errorf("the bonus against Demons is %v, want none", got)
 	}
 }
 
@@ -156,7 +153,7 @@ func TestHolyStrikeAndSealOfFuryTakeNoSpellDamageAgainstTheTargetsType(t *testin
 			damage := func(general, versus float64) float64 {
 				damage, _ := twentyCasts(t, spellWithMask(mask), func(sim *core.Simulation, character *core.Character, _ *core.Spell) {
 					character.AddStatDynamic(sim, stats.SpellDamage, general)
-					character.AddMobTypeBonusStats(stats.Stats{stats.SpellDamage: versus}, proto.MobType_MobTypeUndead)
+					character.AddMobTypeBonusStats(core.ActionID{SpellID: 1}, stats.Stats{stats.SpellDamage: versus}, proto.MobType_MobTypeUndead)
 				})
 				return damage
 			}

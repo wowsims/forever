@@ -21,7 +21,8 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 			return core.SpellConfig{}, core.MajorCooldown{}, false
 		}
 
-		area, _ := row.AreaBonus(&character.Env.Encounter)
+		amountBonus, _ := row.AreaBonus()
+		area := character.RegisterArea(core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindRestore, amountBonus)
 		amount := func(sim *core.Simulation) float64 {
 			return barAmount(power, effect.Roll(sim)*area)
 		}
@@ -121,6 +122,15 @@ func energizedBarOf(character *core.Character, power dbcenums.PowerType, actionI
 // One roll of the effect's gain into the bar its misc value names, metered under the action, or false
 // where there is no effect or the character has no such bar.
 func effectGain(character *core.Character, gain *spelldata.Effect, actionID core.ActionID) (func(*core.Simulation), bool) {
+	restore, ok := scaledEffectGain(character, gain, actionID)
+	if !ok {
+		return nil, false
+	}
+	return func(sim *core.Simulation) { restore(sim, 1) }, true
+}
+
+// The same, the roll multiplied by a factor.
+func scaledEffectGain(character *core.Character, gain *spelldata.Effect, actionID core.ActionID) (func(*core.Simulation, float64), bool) {
 	if gain == spelldata.NilEffect {
 		return nil, false
 	}
@@ -129,8 +139,8 @@ func effectGain(character *core.Character, gain *spelldata.Effect, actionID core
 	if !ok {
 		return nil, false
 	}
-	return func(sim *core.Simulation) {
-		bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+	return func(sim *core.Simulation, factor float64) {
+		bar.add(sim, barAmount(power, gain.Roll(sim)*factor), bar.metrics)
 	}, true
 }
 
@@ -159,7 +169,7 @@ func registerSpellDataEnergizeProc(cfg SpellDataProc) {
 			return
 		}
 		// Kept for the stats sheet only once the wearer has the bar the gain fills.
-		versus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindRestore, trigger)
+		versus = RegisterVersus(character, source.versusSource(trigger), proto.VersusEffectKind_VersusEffectKindRestore, trigger)
 		config := spellDataProcListener(character, cfg, source, trigger)
 		config.Handler = handler
 		source.registerTrigger(character, config)

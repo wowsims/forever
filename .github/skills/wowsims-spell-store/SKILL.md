@@ -87,6 +87,10 @@ states each field a resolver call fills and the step that filled it.
   wrong effect.
 - **A hand read of `Misc` gets the wrong stat** on an `A_MOD_TOTAL_STAT_PERCENTAGE` effect;
   `Effect.TotalStatPercentStats()` reads it. The case: Heart of the Wild in the same `defects.md` section.
+- **A versus aura reads its stats off `spelldata.VersusAura`** (`sim/core/spelldata/mob_types.go`), the one table of
+  the aura types that act against the creature types a misc value masks and the stats each gives. The parse, the
+  item and consumable generators and the proc builders all read it, so a new versus aura type is one entry there.
+  `spelldata.MobTypes(misc)` reads the mask.
 
 The traps in the rows themselves (ladders keyed by name, granted copies, talent curves, summons, Wowhead's numbers
 against the row) are in `references/row-traps.md`.

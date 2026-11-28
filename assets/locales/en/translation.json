@@ -710,6 +710,18 @@
 				"few": "rd",
 				"other": "th"
 			}
+		},
+		"versus": {
+			"partial": "{{name}} {{matched}}/{{total}}",
+			"target": "{{name}} (Target {{number}})",
+			"active_targets_one": "Active: target is {{targets}}",
+			"active_targets_other": "Active on all targets ({{count}})",
+			"active_some": "Active on {{matched}} of {{total}} targets",
+			"inactive_targets_one": "Inactive: target is {{targets}}",
+			"inactive_targets_other": "Inactive: targets are {{targets}}",
+			"no_targets": "Inactive: the encounter has no targets",
+			"active_area": "Active: the encounter is in a {{area}} area",
+			"inactive_area": "Inactive: the encounter is not in a {{area}} area"
 		}
 	},
 	"settings_tab": {
@@ -2741,6 +2753,7 @@
 					"threat": "Threat"
 				},
 				"show_gcd": "Show GCD",
+				"show_versus": "Show versus bonuses",
 				"chart_options": {
 					"time_axis": "Time (s)",
 					"waiting_for_data": "Waiting for data...",
@@ -2796,7 +2809,18 @@
 					}
 				},
 				"delay_tooltip": "Auto delayed by {{delay}}, was ready at {{readyAt}}",
-				"gcd_tooltip": "{{spell}} — {{gcd}}s GCD ({{start}}s → {{end}}s)"
+				"gcd_tooltip": "{{spell}} — {{gcd}}s GCD ({{start}}s → {{end}}s)",
+				"versus": {
+					"header": "Versus {{target}}",
+					"tag_family": "{{target}} ({{family}})",
+					"damage": "×{{multiplier}} damage",
+					"crit": "×{{multiplier}} crit damage",
+					"base": "×{{multiplier}} base damage",
+					"crit_chance": "{{amount}}% crit chance",
+					"proc_chance": "×{{multiplier}} proc chance",
+					"proc_only": "Procs only against these",
+					"stat": "{{amount}} {{stat}}"
+				}
 			},
 			"movement": {
 				"note": "Shows the same single iteration as the timeline. Distances are to the target, and each unit has a bearing of its own so the circles stay apart.",
@@ -3717,14 +3741,27 @@
 			"spell_piercing_too_low": "Spell Piercing first cancels the target's resistance. You need at least {{min}} beyond that before it adds bonus damage.",
 			"weapon_skill": "Weapon Skill",
 			"versus": {
-				"title": "Bonus",
+				"title": "Versus bonuses",
 				"in_area": "In {{area}}",
 				"against": "Against {{target}}",
-				"damage": "Damage",
-				"crit_damage": "Critical Strike Damage",
+				"stat": "{{amount}} {{stat}}",
 				"effect_damage": "×{{factor}} damage",
+				"effect_crit_damage": "×{{factor}} crit damage",
 				"effect_restore": "×{{factor}} restored",
-				"effect_proc_chance": "×{{factor}} proc chance"
+				"effect_proc_chance": "×{{factor}} proc chance",
+				"effect_crit_chance": "×{{factor}} crit chance",
+				"effect_proc_only": "Procs only against these",
+				"effect_duration": "×{{factor}} duration",
+				"effect_amount": "×{{factor}} effect",
+				"effect_flat_heal": "heals {{amount}} (flat)",
+				"effect_hits_needed": "Procs after half the hits",
+				"state_on": "All targets",
+				"state_partial": "{{matched}}/{{total}} targets",
+				"state_off": "No target",
+				"state_area_on": "In area",
+				"state_area_off": "Not in area",
+				"inactive_one": "{{count}} inactive bonus",
+				"inactive_other": "{{count}} inactive bonuses"
 			},
 			"tooltip": {
 				"base": "Base:",

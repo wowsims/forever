@@ -23,6 +23,7 @@ import type { StoreField } from '../hooks/useStoreField';
 import type { Player, SpecConfigData } from '../player/player';
 import type { EquippedItem } from '../proto/equipped_item';
 import { Stats, type StatSets, type UnitStat, unitStatsOf } from '../proto/stats';
+import { targetMobType } from '../proto/target';
 import { memoLast } from '../utils/misc';
 
 export enum ConsumableSlot {
@@ -321,11 +322,10 @@ export interface ConsumableOrder {
 	mobType: MobType | undefined;
 }
 
-export const consumableOrderOf = (player: Player<any>): ConsumableOrder => ({
-	weights: player.getEpWeights(),
-	playerClass: player.getClass(),
-	mobType: player.sim.encounter.getTarget(0)?.mobType,
-});
+export const consumableOrderOf = (player: Player<any>): ConsumableOrder => {
+	const target = player.sim.encounter.getTarget(0);
+	return { weights: player.getEpWeights(), playerClass: player.getClass(), mobType: target && targetMobType(target) };
+};
 
 // The store fields consumableOrderOf reads.
 export const CONSUMABLE_ORDER_FIELDS: ReadonlyArray<StoreField> = ['epWeights', 'encounter:targets'];

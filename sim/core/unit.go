@@ -181,6 +181,7 @@ type Unit struct {
 
 	AttackTables                 []*AttackTable
 	mobTypeBonuses               map[proto.MobType]*mobTypeBonus
+	versusSources                []*versusSource
 	DynamicDamageTakenModifiers  []DynamicDamageTakenModifier
 	DynamicHealingTakenModifiers []DynamicHealingTakenModifier
 	Blockhandler                 func(sim *Simulation, spell *Spell, result *SpellResult)
@@ -262,7 +263,7 @@ func (unit *Unit) getSpellDamageValueImpl(spell *Spell, _ *Unit) float64 {
 }
 
 func (unit *Unit) getAttackPowerValueImpl(spell *Spell, target *Unit) float64 {
-	return unit.GetStat(stats.AttackPower) + target.PseudoStats.BonusAttackPower + spell.Unit.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.AttackPower]
+	return unit.GetStat(stats.AttackPower) + target.PseudoStats.BonusAttackPower + spell.VersusStat(target, stats.AttackPower)
 }
 
 // Units can be disabled for several reasons:

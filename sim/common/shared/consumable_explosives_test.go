@@ -157,8 +157,36 @@ func TestAnAreaExplosiveHitsOnlyTheCreatureTypesItsRowNames(t *testing.T) {
 	}
 }
 
-// An explosive whose damage lands on an area around the thrower and whose spell states no range reaches
-// as far as the area's radius (13241).
+// The enemies outside an area explosive's creature types do not count toward the AoE cap: 17291 deals
+// its whole roll to the one Undead among 40 targets, not half of it (R-0058).
+func TestAnAreaExplosivesCapCountsOnlyTheCreatureTypesItsRowNames(t *testing.T) {
+	row := spelldata.MustFind(17291)
+	effect := row.DamageEffect()
+	named := spelldata.MobTypes(row.TargetCreatureType)
+	if len(named) == 0 || !effect.HitsAnArea() || row.MaxTargets != 0 || row.SplitsDamage {
+		t.Fatalf("17291 names creature types %v over an uncapped area %v without a split, nothing to check", named, effect.HitsAnArea())
+	}
+	sim, caster := newExplosiveSim(t, &proto.ConsumesSpec{ExtraIds: []int32{testHolyWaterID}}, proto.Profession_ProfessionUnknown, 40)
+	hit := sim.Encounter.ActiveTargetUnits[3]
+	hit.MobType = named[0]
+	water := onUseSpell(t, caster, testHolyWaterID)
+	if !water.Cast(sim, sim.Encounter.ActiveTargetUnits[0]) {
+		t.Fatalf("the holy water could not be used")
+	}
+	sim.Step()
+
+	if got, low, high := water.SpellMetrics[hit.UnitIndex].TotalDamage, effect.Min(), effect.Max(); got < low || got > high {
+		t.Errorf("the %v enemy took %v, want one whole roll of %v to %v", named[0], got, low, high)
+	}
+	for _, other := range sim.Encounter.ActiveTargetUnits {
+		if got := water.SpellMetrics[other.UnitIndex].TotalDamage; other != hit && got != 0 {
+			t.Errorf("target %d of mob type %v took %v, want none", other.UnitIndex, other.MobType, got)
+		}
+	}
+}
+
+// An explosive whose damage lands on an area around the thrower and whose row states no range reaches
+// as far as the area's radius: 13241 is usable from its 10 yd and not a yard past it.
 func TestAnExplosiveAroundTheThrowerReachesOnlyItsRadius(t *testing.T) {
 	row := spelldata.MustFind(13241)
 	effect := row.DamageEffect()

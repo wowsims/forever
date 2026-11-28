@@ -314,6 +314,7 @@ func (dot *Dot) durationExtendInternal(sim *Simulation, extendBy time.Duration, 
 // the tick is simply an extra tick.
 func (dot *Dot) TickOnce(sim *Simulation) {
 	if dot.onTick != nil {
+		dot.Spell.versusRead = 0 // A tick names the versus stats it reads itself.
 		dot.onTick(sim, dot.Unit, dot)
 	}
 }

@@ -195,6 +195,19 @@ describe('Timeline', () => {
 		expect(lastAplRun()?.rotation.priorityList).toHaveLength(1);
 	});
 
+	it('shows the versus marks by default, and hides them without building the rotation again', () => {
+		const view = mount(true);
+		emit(resultFor('a', 'p1'), view.again);
+		const plot = () => view.container.querySelector('[data-testid="rotation-plot"]');
+		expect(plot()?.getAttribute('data-versus')).toBe('shown');
+
+		act(() => {
+			fireEvent.click(within(view.container).getByRole('checkbox', { name: 'results_tab.details.timeline.show_versus' }));
+		});
+		expect(plot()?.getAttribute('data-versus')).toBe('hidden');
+		expect(state.built).toBe(1);
+	});
+
 	it('mounts only the pane that is showing', () => {
 		const view = mount(true);
 		expect(view.container.querySelector('[data-testid="dps-resources-plot"]')).toBeNull();

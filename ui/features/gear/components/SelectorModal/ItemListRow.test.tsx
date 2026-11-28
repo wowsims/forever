@@ -52,6 +52,10 @@ vi.mock('../GearPicker/ItemNoticeIcon', () => ({
 	),
 }));
 
+vi.mock('../VersusChips', () => ({
+	VersusChips: ({ item }: { item: Pick<Item, 'id'> }) => <div data-testid="versus-chips-marker" data-item-id={item.id} />,
+}));
+
 const { ItemListRow, ItemListRowView } = await import('./ItemListRow');
 type ItemListRowProps = Parameters<typeof ItemListRow>[0];
 
@@ -130,6 +134,13 @@ describe('ItemListRow', () => {
 		expect(renderRow({ label: SelectorModalTabs.RandomSuffixes }).container.querySelector(sourceCell)).toBeNull();
 	});
 
+	it('hands the versus chips the item on the items tab alone', () => {
+		const chips = '[data-testid="versus-chips-marker"]';
+		expect(renderRow({ label: SelectorModalTabs.Items }).container.querySelector(chips)?.getAttribute('data-item-id')).toBe('1');
+		expect(renderRow({ label: SelectorModalTabs.Enchants }).container.querySelector(chips)).toBeNull();
+		expect(renderRow({ label: SelectorModalTabs.RandomSuffixes }).container.querySelector(chips)).toBeNull();
+	});
+
 	it.each([
 		['items', SelectorModalTabs.Items],
 		['enchants', SelectorModalTabs.Enchants],
@@ -149,6 +160,15 @@ describe('ItemListRow', () => {
 
 		expect(marker?.getAttribute('data-item-id')).toBe('16252');
 		expect(marker?.getAttribute('data-source-count')).toBe('1');
+	});
+
+	it('shows an item row the sources of the item itself', () => {
+		const item = { id: 7, ilvl: 0, sources: [{}, {}] } as unknown as Item;
+		const { container } = renderRow({ label: SelectorModalTabs.Items, itemData: makeItemData({ id: 7, item: item as unknown as ItemListType }) });
+		const marker = container.querySelector('[data-testid="item-source-marker"]');
+
+		expect(marker?.getAttribute('data-item-id')).toBe('7');
+		expect(marker?.getAttribute('data-source-count')).toBe('2');
 	});
 
 	// Suffix ids and item ids share one number space, so a suffix id read as an item id finds another item's notice.

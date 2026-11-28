@@ -198,8 +198,9 @@ var AreaBonuses = []AreaBonus{
 	},
 }
 
-// A factor a spell deals, restores or procs against some targets, which only its tooltip names ("Deals
-// $s2 times as much damage to Plants"). A target of any of the mob types or families counts.
+// A factor a row deals, restores, procs or adds against some targets, which only its tooltip names ("Deals
+// $s2 times as much damage to Plants", "Attacks against Dwarves are $s2 times as likely to activate
+// this effect"). A target of any of the mob types or families counts.
 type VersusBonus struct {
 	SpellID     int32
 	EffectIndex uint8   // The effect whose base points are the factor: the tooltip's $s<index+1>.
@@ -446,6 +447,13 @@ var VersusBonuses = []VersusBonus{
 		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
 		Reason:      "Cloud of Chained Essence (Chained Essence of Eranikus): 'Deals $1300240s2 times as much damage to Trolls'",
 		Source:      "tooltip",
+	},
+	{
+		SpellID:    1318944,
+		Multiplier: 2,
+		Families:   []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc, proto.CreatureFamily_CreatureFamilyOgre},
+		Reason:     "Blackhand's Breadth: 'This effect is doubled against Orcs and Ogres' on its crit chance; neither 1318944 nor 1318945 states the 2",
+		Source:     "tooltip",
 	},
 }
 

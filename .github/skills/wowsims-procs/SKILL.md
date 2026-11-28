@@ -96,10 +96,13 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 - **A spell that deals, restores or procs N times as much against some creatures** names them only in its tooltip; its
   spell id, effect index and the mob types or creature families go in `overrides.VersusBonuses`
   (`tools/database/overrides/spell_overrides.go`, `docs/spell_data/overrides.md`), or the spell deals 1× and the
-  sheet's Bonus group leaves the item out. A factor no effect states is the override's `Multiplier`. A hand-written
-  effect sets `SpellConfig.VersusBonus` through `shared.ItemVersusBonus` on the spell. A proc that is N times as
-  likely against them (Hand of Justice, Ironfoe, Argent Defender) takes the bonus with `VersusEffectKindProcChance`
-  and passes its `Against` to `NewTargetScaledChanceManager` or `NewAttackerSwingPPMManager` as the scale.
+  stats sheet's Versus bonuses group leaves the item out. A factor no effect states is that row's `Multiplier`. A hand-written effect
+  sets `SpellConfig.VersusBonus` through `shared.RegisterVersus` on the row. A proc that is N times as likely against
+  them (Hand of Justice, Ironfoe, Argent Defender) takes the bonus with `VersusEffectKindProcChance` and passes
+  its `Against` to `NewTargetScaledChanceManager` or `NewAttackerSwingPPMManager` as the scale. The generated
+  damage, energize and on-use builders read a `VersusBonuses` row on the row they build from as a factor on the damage
+  or the restore, so a "times as likely" row comes with a hand-written effect.
+  `go run ./tools/spelldata <id>` prints the versus and area overrides on `versus` and `area` lines.
 
 ## Measuring a rate
 

@@ -502,3 +502,27 @@ func TestScopedRatingLines(t *testing.T) {
 		}
 	}
 }
+
+// The overrides the rows carry, read through the accessors the sim reads them with.
+func TestOverridePhrases(t *testing.T) {
+	cases := []struct {
+		name         string
+		id           int32
+		versus, area string
+	}{
+		{"a factor read from an effect", 27656, "x3 (effect 2) against CreatureFamilyOrc", ""},
+		{"an area bonus", 1249113, "", "x2 (duration x1) in area groups 9203"},
+		{"neither", 11574, "", ""},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			s := spelldata.MustFind(c.id)
+			if got := versusPhrase(s); got != c.versus {
+				t.Errorf("versus = %q, want %q", got, c.versus)
+			}
+			if got := areaPhrase(s); got != c.area {
+				t.Errorf("area = %q, want %q", got, c.area)
+			}
+		})
+	}
+}

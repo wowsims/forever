@@ -1,0 +1,1 @@
+export { VersusTag } from './VersusTag';

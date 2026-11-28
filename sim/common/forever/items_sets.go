@@ -674,9 +674,11 @@ var (
 // (4) Set: Chance on block to heal for 18. Healing is doubled in Strongholds and Cities.
 // (5) Set: Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.
 //
-// Heals and stacks in EV-0160.
-// The 5-piece buff also makes the wearer larger and turns them into an ogre at 20 stacks, which has no
-// place in the sim.
+// Every blocked melee or ranged hit heals, a block that leaves no damage too, at most once a second. The
+// heal rolls around 18, and in Strongholds and Cities it is the flat 44 of the heal's second effect, which
+// the stats sheet lists (EV-0160). Every landed melee or ranged hit taken adds a stack and refreshes the
+// buff, at most once every 3 s. The 5-piece buff also makes the wearer larger and turns them into an ogre at
+// 20 stacks, which has no place in the sim (EV-0160).
 var ItemSetKroldokBattlegear = core.NewItemSet(core.ItemSet{
 	ID:   2135,
 	Name: "Krol'dok Battlegear",
@@ -694,8 +696,9 @@ func kroldokResolve(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	config := spelldata.SpellConfig(&character.Unit, kroldokResolveHeal, spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(), spelldata.Triggered())
 	amount := kroldokResolveHeal.HealEffect().DirectAmount
-	if character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
-		stronghold := kroldokResolveHeal.EffectN(2).BasePoints
+	strongholds := core.AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}}
+	stronghold := kroldokResolveHeal.EffectN(2).BasePoints
+	if character.RegisterAreaAmount(core.ActionID{SpellID: kroldokResolveProc.ID}, strongholds, stronghold) {
 		amount = func(*core.Simulation) float64 { return stronghold }
 		config.DirectVariance = 0
 	}
@@ -822,9 +825,7 @@ func enragingLight(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	damage := enragedLight.DamageEffect()
 	config := procSpellConfigAs(character, enragedLight, spelldata.Magic(core.ProcMaskSpellDamage))
-	if versus, ok := enragingLightProc.VersusBonus(); ok {
-		config.VersusBonus = &versus
-	}
+	config.VersusBonus = shared.RegisterVersus(character, core.ActionID{SpellID: enragingLightProc.ID}, proto.VersusEffectKind_VersusEffectKindDamage, enragingLightProc)
 	var outcome core.OutcomeApplier
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), outcome)
@@ -908,7 +909,8 @@ func siphonTheGraveMana(agent core.Agent, setBonusAura *core.Aura) {
 		return
 	}
 	tick := siphonTheGrave.ProcEnergizeEffect()
-	area, _ := siphonTheGrave.AreaBonus(&character.Env.Encounter)
+	amountBonus, _ := siphonTheGrave.AreaBonus()
+	area := character.RegisterArea(core.ActionID{SpellID: siphonTheGraveProc.ID}, proto.VersusEffectKind_VersusEffectKindRestore, amountBonus)
 	mana := tick.Average() * area
 	metrics := character.NewManaMetrics(core.ActionID{SpellID: siphonTheGrave.ID})
 
@@ -1132,12 +1134,12 @@ func landedHits(mask core.ProcMask) spelldata.ProcOpt {
 	}
 }
 
-// The spell's amount, or in the tooltip's area the amount its second effect states.
-func secondEffectInArea(character *core.Character, row *spelldata.Spell, area proto.AreaType) spelldata.ParseOpt {
-	if !character.Env.Encounter.InArea(area) {
-		return spelldata.Count(1)
-	}
-	return spelldata.Count(row.EffectN(2).BaseValue() / row.EffectN(1).BaseValue())
+// The row's amount, or in the tooltip's area the amount its second effect states, as Krol'dok Battlegear's
+// heal reads its own: Violet Meditation's 30 and Defias Juggernaut's 4 are twice the first effect's. The
+// set bonus keeps the factor on the stats sheet.
+func secondEffectInArea(character *core.Character, bonus *spelldata.Spell, row *spelldata.Spell, area proto.AreaType) spelldata.ParseOpt {
+	return spelldata.Count(character.RegisterArea(core.ActionID{SpellID: bonus.ID}, proto.VersusEffectKind_VersusEffectKindEffect,
+		core.AreaBonus{AreaTargets: core.AreaTargets{Areas: []proto.AreaType{area}}, Multiplier: row.EffectN(2).BaseValue() / row.EffectN(1).BaseValue()}))
 }
 
 var (
@@ -1175,7 +1177,7 @@ func violetMeditationRegen(agent core.Agent, setBonusAura *core.Aura) {
 	}
 	buff := character.RegisterAura(spelldata.AuraConfig(violetMeditation))
 	spelldata.ParseEffects(character, buff, violetMeditation,
-		secondEffectInArea(character, violetMeditation, proto.AreaType_AreaTypeStrongholdsCities))
+		secondEffectInArea(character, violetMeditationProc, violetMeditation, proto.AreaType_AreaTypeStrongholdsCities))
 
 	trigger := spelldata.ProcTrigger(character, violetMeditationProc, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		buff.Activate(sim)
@@ -1232,7 +1234,7 @@ func defiasJuggernautCrit(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	buff := character.RegisterAura(spelldata.AuraConfig(defiasJuggernaut))
 	spelldata.ParseEffects(character, buff, defiasJuggernaut,
-		secondEffectInArea(character, defiasJuggernaut, proto.AreaType_AreaTypeSwamp))
+		secondEffectInArea(character, defiasJuggernautProc, defiasJuggernaut, proto.AreaType_AreaTypeSwamp))
 
 	// The mask goes in before the rate, so the procs per minute are priced on either hand's swings.
 	trigger := spelldata.ProcTrigger(character, defiasJuggernautProc, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {

@@ -5,6 +5,8 @@ package forever_test
 import (
 	"fmt"
 	"math"
+	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -75,7 +77,7 @@ func itemWearerIn(t *testing.T, class proto.Class, equipment *proto.EquipmentSpe
 		&proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180, AreaTypes: areas})
 }
 
-func itemWearerInEncounter(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec, encounter *proto.Encounter) (*core.Simulation, *core.Character) {
+func itemWearerInEncounter(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec, encounter *proto.Encounter, playerOpts ...func(*proto.Player)) (*core.Simulation, *core.Character) {
 	t.Helper()
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceHuman,
@@ -83,6 +85,9 @@ func itemWearerInEncounter(t *testing.T, class proto.Class, equipment *proto.Equ
 		Consumables: &proto.ConsumesSpec{},
 		Buffs:       &proto.IndividualBuffs{},
 		Rotation:    &proto.APLRotation{},
+	}
+	for _, opt := range playerOpts {
+		opt(player)
 	}
 	switch class {
 	case proto.Class_ClassPaladin:
@@ -298,7 +303,7 @@ func TestBlackGraspOfTheDestroyerRestoresManaPerHit(t *testing.T) {
 }
 
 // Swine Fists 10760's 1293783 casts 1293782's Nature damage on a hit against a Swine, and nothing on
-// a hit against a creature of another family.
+// a hit against a creature of another family. The combat log names the item on the damage.
 func TestSwineFistsDealDamageOnlyToSwine(t *testing.T) {
 	if spelldata.MustFind(1293782).DamageEffect().Average() <= 0 {
 		t.Fatal("1293782 states no damage")
@@ -328,14 +333,25 @@ func TestSwineFistsDealDamageOnlyToSwine(t *testing.T) {
 	character := sim.Raid.Parties[0].Players[0].GetCharacter()
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
 	swine, aquatic := sim.Encounter.ActiveTargetUnits[0], sim.Encounter.ActiveTargetUnits[1]
+	playerStats := &proto.PlayerStats{}
+	character.FillPlayerStats(playerStats)
+	if sheet := playerStats.VersusEffects; len(sheet) != 1 || sheet[0].ItemId != 10760 || sheet[0].Kind != proto.VersusEffectKind_VersusEffectKindProcOnly ||
+		!slices.Equal(sheet[0].CreatureFamilies, []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilySwine}) {
+		t.Errorf("the stats sheet lists %v, want the proc against Swine only", sheet)
+	}
 	damage := character.GetSpell(core.ActionID{SpellID: 1293782})
 	if damage == nil {
 		t.Fatal("10760 registers no damage spell")
 	}
 
-	for _, target := range []*core.Unit{swine, aquatic} {
-		character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
-		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	lines := damageLines(sim, func() {
+		for _, target := range []*core.Unit{swine, aquatic} {
+			character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
+			stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+		}
+	})
+	if want := ") [Versus Beast (Swine): {ItemID: 10760} proc only]"; len(lines) != 1 || !strings.HasSuffix(lines[0], want) {
+		t.Errorf("the hits log %q, want one damage line ending with %q", lines, want)
 	}
 	if got := damage.SpellMetrics[swine.UnitIndex]; got.Casts != 1 || got.TotalDamage <= 0 {
 		t.Errorf("a hit on the Swine cast the damage %d times for %v, want once for some damage", got.Casts, got.TotalDamage)

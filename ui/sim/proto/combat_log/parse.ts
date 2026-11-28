@@ -1,5 +1,5 @@
 import { RaidSimResult } from '@generated/proto/api';
-import type { SpellSchool } from '@generated/proto/common';
+import { CreatureFamily, MobType, type SpellSchool, Stat } from '@generated/proto/common';
 
 import { ActionId } from '../action_id';
 import { stringToResourceType } from '../names';
@@ -27,12 +27,20 @@ import {
 	ResourceLog,
 	SpellQueuedLog,
 	StatChangeLog,
+	VersusLog,
+	VersusLogEffect,
 } from './types';
 
 // Preamble patterns, hoisted so parseAll does not allocate a fresh RegExp per line.
 const TIMESTAMP_PREFIX_REGEX = /(\[[0-9.-]+\]) (\[[0-9a-zA-Z\s\-()#]+\])?(.*)/;
 const SPELL_SCHOOL_REGEX = / \(SpellSchool: (-?[0-9]+)\)/;
 const THREAT_REGEX = / \(Threat: (-?[0-9]+\.[0-9]+)\)/;
+const VERSUS_TAG_REGEX = / \[Versus (\w+)(?: \((\w+)\))?: (.*)\]\s*$/;
+const VERSUS_ENTRY_REGEX = /^(\{[^}]*\}) (.+)$/;
+const VERSUS_MULTIPLIER_REGEX = /^x(\d+(?:\.\d+)?)(?: (crit|base|proc chance))?$/;
+const VERSUS_CRIT_CHANCE_REGEX = /^([+-]\d+(?:\.\d+)?)% crit chance$/;
+const VERSUS_STAT_REGEX = /^([+-]\d+(?:\.\d+)?) (\w+)$/;
+const VERSUS_MULTIPLIER_KIND = { crit: 'crit', base: 'base', 'proc chance': 'proc_chance' } as const;
 const TIMESTAMP_REGEX = /\[(-?[0-9]+\.[0-9]+)\]\w*(.*)/;
 
 // Groups: 1 = timestamp, 2 = entity bracket, 3 = the rest.
@@ -119,6 +127,44 @@ function newLog(
 	return { kind: 'plain', raw, logIndex, timestamp, source, target, actionId: null, actionIdAsString: null, spellSchool, threat, activeAuras: [] };
 }
 
+function parseVersusEffect(text: string): VersusLogEffect | null {
+	const multiplier = VERSUS_MULTIPLIER_REGEX.exec(text);
+	if (multiplier) {
+		const kind = multiplier[2] ? VERSUS_MULTIPLIER_KIND[multiplier[2] as keyof typeof VERSUS_MULTIPLIER_KIND] : 'damage';
+		return { kind, multiplier: parseFloat(multiplier[1]) };
+	}
+	const critChance = VERSUS_CRIT_CHANCE_REGEX.exec(text);
+	if (critChance) return { kind: 'crit_chance', amount: parseFloat(critChance[1]) };
+	if (text === 'proc only') return { kind: 'proc_only' };
+	const stat = VERSUS_STAT_REGEX.exec(text);
+	const statId = stat ? (Stat[`Stat${stat[2]}` as keyof typeof Stat] as Stat | undefined) : undefined;
+	if (stat && statId !== undefined) return { kind: 'stat', stat: statId, amount: parseFloat(stat[1]) };
+	return null;
+}
+
+type PendingVersus = {
+	mobType: MobType;
+	creatureFamily?: CreatureFamily;
+	entries: Array<{ key: string; effect: VersusLogEffect }>;
+};
+
+// Reads the " [Versus Undead (Beast): {ItemID: 1} x1.05; ...]" tag at the end of a damage line. An entry
+// that does not read is dropped, a header that does not read drops the tag.
+function parseVersusTag(raw: string, requestId: (logString: string) => string): PendingVersus | null {
+	const tag = VERSUS_TAG_REGEX.exec(raw);
+	if (!tag) return null;
+	const mobType = MobType[`MobType${tag[1]}` as keyof typeof MobType] as MobType | undefined;
+	if (mobType === undefined) return null;
+	const creatureFamily = tag[2] ? (CreatureFamily[`CreatureFamily${tag[2]}` as keyof typeof CreatureFamily] as CreatureFamily | undefined) : undefined;
+	const entries: PendingVersus['entries'] = [];
+	for (const part of tag[3].split('; ')) {
+		const entry = VERSUS_ENTRY_REGEX.exec(part);
+		const effect = entry ? parseVersusEffect(entry[2]) : null;
+		if (entry && effect) entries.push({ key: requestId(entry[1]), effect });
+	}
+	return entries.length > 0 ? { mobType, creatureFamily, entries } : null;
+}
+
 function buildDamageLog(log: PendingLog, match: RegExpExecArray): DamageLog {
 	const out = log as Mutable<DamageLog>;
 	out.kind = 'damage';
@@ -128,6 +174,8 @@ function buildDamageLog(log: PendingLog, match: RegExpExecArray): DamageLog {
 	const resist = RESIST_BY_TOKEN[match[14]] ?? 0;
 	out.resist = resist && match[13].includes('Pierced') ? (-resist as PartialResist) : resist;
 	out.tick = Boolean(match[2]) && match[2].includes('tick');
+	// Always assigned, like the other kinds' optional fields, so the key exists either way.
+	out.versus = undefined;
 	return out;
 }
 
@@ -386,10 +434,12 @@ const LOG_MATCHERS: Array<LogMatcher> = [
 	},
 ];
 
+const DAMAGE_MATCHER = LOG_MATCHERS[0];
+
 type MatchedLine = { matcher: LogMatcher; match: RegExpExecArray };
 type PendingLog = Mutable<Omit<BaseLog, 'kind'>> & { kind: LogKind };
 // `key` is the line's action, '' for a line that names none.
-type PendingEntry = { log: PendingLog; matcher: LogMatcher | null; match: RegExpExecArray | null; key: string };
+type PendingEntry = { log: PendingLog; matcher: LogMatcher | null; match: RegExpExecArray | null; key: string; versus?: PendingVersus };
 type ActionIdRequest = { logString: string; playerIndex: number | undefined };
 
 // The dispatch is only equivalent to trying every pattern in order if each guard literal is
@@ -434,6 +484,11 @@ export async function parseAll(result: RaidSimResult): Promise<Array<ParsedLog>>
 	// distinct ones while classifying, resolve them in one batch, then build every log
 	// synchronously.
 	const distinctIds = new Map<string, ActionIdRequest>();
+	const requestId = (playerIndex: number | undefined, logString: string): string => {
+		const key = `${playerIndex ?? -1}|${logString}`;
+		if (!distinctIds.has(key)) distinctIds.set(key, { logString, playerIndex });
+		return key;
+	};
 
 	for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
 		let line = lines[lineIndex];
@@ -478,11 +533,11 @@ export async function parseAll(result: RaidSimResult): Promise<Array<ParsedLog>>
 		}
 		// Keep the key: the build pass needs it, and recomputing it there means a second
 		// idString() call and a second string per matched line.
-		const logString = matched.matcher.idString(matched.match);
-		const key = `${source?.index ?? -1}|${logString}`;
+		const key = requestId(source?.index, matched.matcher.idString(matched.match));
 		pending[lineIndex] = { log, ...matched, key };
-		if (!distinctIds.has(key)) {
-			distinctIds.set(key, { logString, playerIndex: source?.index });
+		if (matched.matcher === DAMAGE_MATCHER && raw.includes(' [Versus ')) {
+			const versus = parseVersusTag(raw, logString => requestId(source?.index, logString));
+			if (versus) pending[lineIndex].versus = versus;
 		}
 	}
 
@@ -502,7 +557,15 @@ export async function parseAll(result: RaidSimResult): Promise<Array<ParsedLog>>
 		const actionId = entry.key ? actionIds.get(entry.key)! : null;
 		entry.log.actionId = actionId;
 		entry.log.actionIdAsString = computeActionIdAsString(actionId);
-		return entry.matcher ? entry.matcher.build(entry.log, entry.match!) : buildPlainLog(entry.log);
+		const built = entry.matcher ? entry.matcher.build(entry.log, entry.match!) : buildPlainLog(entry.log);
+		if (entry.versus && built.kind === 'damage') {
+			(built as Mutable<DamageLog>).versus = {
+				mobType: entry.versus.mobType,
+				creatureFamily: entry.versus.creatureFamily,
+				sources: entry.versus.entries.map(({ key, effect }) => ({ actionId: actionIds.get(key)!, effect })),
+			} satisfies VersusLog;
+		}
+		return built;
 	});
 
 	await Promise.all(

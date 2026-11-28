@@ -71,7 +71,7 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 		weaponDamage := spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
 		baseDamage := (weaponDamage + coefficient*spell.SpellDamage(target)) * weaponPercent
 
-		baseDamage += coefficient * spell.Unit.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.SpellDamage]
+		baseDamage += coefficient * spell.VersusStat(target, stats.SpellDamage)
 
 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 		dealAfterBatch(sim, spell, result)

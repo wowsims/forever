@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"maps"
 	"math"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -656,8 +657,47 @@ func kroldokPieces(n int) map[proto.ItemSlot]int32 {
 	return pieces
 }
 
-// Krol'dok Battlegear's 4-piece 1324298 casts 1324296's heal on a blocked melee or ranged hit and on no
-// other hit; in Strongholds and Cities the heal is the flat amount of its second effect.
+// A set bonus the character wears lists its factor and its stats against a mob type on the stats sheet,
+// with the set in the item swap set as well, and one only the item swap set completes lists neither:
+// Chain of the Scarlet Crusade's 3-piece 18074, attack power against Undead, and its 4-piece 1293674,
+// Enraging Light's factor against them.
+func TestSetBonusOnlyTheItemSwapSetCompletesListsNothingOnTheSheet(t *testing.T) {
+	pieces := map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotChest: 10328, proto.ItemSlot_ItemSlotWaist: 10329, proto.ItemSlot_ItemSlotLegs: 10330,
+		proto.ItemSlot_ItemSlotHands: 10331,
+	}
+	attackPower, enragingLight := core.ActionID{SpellID: 18074}, core.ActionID{SpellID: 1293674}
+	// The sources the sheet lists a stat or a factor under.
+	listed := func(worn, swapped map[proto.ItemSlot]int32) []core.ActionID {
+		_, character := itemWearerInEncounter(t, proto.Class_ClassWarrior, setPieces(worn),
+			&proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180}, func(player *proto.Player) {
+				player.EnableItemSwap = true
+				player.ItemSwap = &proto.ItemSwap{Items: setPieces(swapped).Items}
+			})
+		playerStats := &proto.PlayerStats{}
+		character.FillPlayerStats(playerStats)
+		var sources []core.ActionID
+		for _, bonus := range playerStats.MobTypeBonuses {
+			for _, source := range bonus.Sources {
+				sources = append(sources, core.ProtoToActionID(source.ActionId))
+			}
+		}
+		for _, effect := range playerStats.VersusEffects {
+			sources = append(sources, core.ProtoToActionID(effect.Source))
+		}
+		return sources
+	}
+	if got, want := listed(pieces, pieces), []core.ActionID{attackPower, enragingLight}; !slices.Equal(got, want) {
+		t.Errorf("with the four pieces worn the stats sheet lists %v, want %v", got, want)
+	}
+	if got := listed(nil, pieces); len(got) != 0 {
+		t.Errorf("with the four pieces only in the item swap set the stats sheet lists %v, want none", got)
+	}
+}
+
+// Krol'dok Battlegear's 4-piece 1324298 casts 1324296's heal on the wearer on a blocked melee or ranged
+// hit, one the block leaves no damage too, and on no other hit; it then rests the row's cooldown. The heal
+// rolls the row's spread, and in Strongholds and Cities is the flat amount of its second effect.
 func TestKroldokBattlegearHealsOnBlocks(t *testing.T) {
 	proc, healRow := spelldata.MustFind(1324298), spelldata.MustFind(1324296)
 	heal, stronghold := healRow.HealEffect(), healRow.EffectN(2).BasePoints
@@ -836,8 +876,9 @@ func TestDefiasLeatherBleedsOnlyFromBehind(t *testing.T) {
 }
 
 // Chain of the Scarlet Crusade's 4-piece 1293674 puts 1293673 up off a hit taken. While it is up every
-// landed melee hit, and no spell hit, casts 1293675, which deals 1293674's first effect times as much to
-// an Undead target.
+// landed melee hit, and no spell hit, casts 1293675's Holy damage at the target, which deals 1293674's
+// first effect times as much to an Undead target. The wearer's stats sheet lists the factor under
+// 1293674.
 func TestChainOfTheScarletCrusadeLightsMeleeHits(t *testing.T) {
 	factor := spelldata.MustFind(1293674).EffectN(1).BaseValue()
 	if factor <= 1 {
@@ -882,6 +923,15 @@ func TestChainOfTheScarletCrusadeLightsMeleeHits(t *testing.T) {
 	plain, undead := dealt[proto.MobType_MobTypeUnknown], dealt[proto.MobType_MobTypeUndead]
 	if plain <= 0 || math.Abs(undead/plain-factor) > 1e-6 {
 		t.Errorf("1293675 dealt %v to an Undead target and %v to another, want the row's %v times", undead, plain, factor)
+	}
+
+	_, warrior := itemWearerFacing(t, proto.Class_ClassWarrior, setPieces(pieces), proto.MobType_MobTypeUnknown)
+	playerStats := &proto.PlayerStats{}
+	warrior.FillPlayerStats(playerStats)
+	if sheet := playerStats.VersusEffects; len(sheet) != 1 || core.ProtoToActionID(sheet[0].Source) != (core.ActionID{SpellID: 1293674}) ||
+		sheet[0].Kind != proto.VersusEffectKind_VersusEffectKindDamage || sheet[0].Multiplier != factor ||
+		!slices.Equal(sheet[0].MobTypes, []proto.MobType{proto.MobType_MobTypeUndead}) {
+		t.Errorf("the stats sheet lists %v, want 1293674's factor of %v against Undead", sheet, factor)
 	}
 }
 

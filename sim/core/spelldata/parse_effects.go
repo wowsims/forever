@@ -1,6 +1,7 @@
 package spelldata
 
 import (
+	"cmp"
 	"fmt"
 	"math"
 	"os"
@@ -42,6 +43,8 @@ type parseOptions struct {
 	showAsSchoolHit core.SpellSchool
 
 	allManaRegen bool
+
+	itemID int32
 }
 
 // Only these effects, counted from 1 by position the way EffectN counts.
@@ -213,9 +216,17 @@ func AllManaRegen() ParseOpt {
 	}
 }
 
-// One attachment the parse made, or one part of an attachment that has parts: the effect it came from,
-// the sim kind it became and the value it carries in the sim's own units. A time value is stated in
-// milliseconds, and a multiplier as the factor itself.
+// The row is the effect of this item, which the combat log names for the row's bonuses against mob
+// types where it would name the row's own spell. Item 0 keeps the spell.
+func ForItem(itemID int32) ParseOpt {
+	return func(o *parseOptions) {
+		o.itemID = itemID
+	}
+}
+
+// One attachment the parse made, or one part of an attachment that has parts, for a log or a test: the
+// effect it came from, the sim kind it became and the value it carries in the sim's own units. A time
+// value is stated in milliseconds, and a multiplier as the factor itself.
 type Applied struct {
 	Effect *Effect
 	Kind   string
@@ -308,6 +319,7 @@ func parse(unit *core.Unit, character *core.Character, aura *core.Aura, s *Spell
 		casterSlot:      o.casterSlot,
 		showAsSchoolHit: o.showAsSchoolHit,
 		allManaRegen:    o.allManaRegen,
+		versusSource:    cmp.Or(core.ActionID{ItemID: o.itemID}, core.ActionID{SpellID: s.ID}),
 	}
 	if o.casterSlot != nil {
 		o.casterSlot.target = unit

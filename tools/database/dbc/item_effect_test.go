@@ -6,6 +6,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	googleProto "google.golang.org/protobuf/proto"
 )
 
@@ -169,6 +170,46 @@ func TestEquipSpellRaisingOnlyWeaponSkillsFoldsIntoTheItem(t *testing.T) {
 	item := d.Items[foldedID]
 	if got := item.GetWeaponSkills(item.ItemLevel); !slices.EqualFunc(got, []*proto.WeaponSkillValue{fist}, protoEqual) {
 		t.Errorf("the database entry's weapon skills are %v, want %v", got, fist)
+	}
+}
+
+// An equip spell that grants only stats against creature types leaves the item's effects for its mob type
+// stats, at the amounts its row states. An equip spell with no stats and no such bonus stays an effect.
+func TestEquipSpellGrantingOnlyVersusStatsFoldsIntoMobTypeStats(t *testing.T) {
+	once.Do(func() {})
+	previous := dbcInstance
+	dbcInstance = NewDBC()
+	t.Cleanup(func() { dbcInstance = previous })
+	const sealOfTheDawn, runeOfTheDawn, lessThreat = 23930, 24198, 1298501
+	seal, rune := spelldata.MustFind(sealOfTheDawn), spelldata.MustFind(runeOfTheDawn)
+	undead := []proto.MobType{proto.MobType_MobTypeUndead}
+	for _, tc := range []struct {
+		name    string
+		spellID int
+		want    []*proto.MobTypeStats
+	}{
+		{"Seal of the Dawn's attack power", sealOfTheDawn, []*proto.MobTypeStats{{MobTypes: undead, Stats: map[int32]float64{
+			int32(proto.Stat_StatAttackPower):       seal.EffectN(1).Average(),
+			int32(proto.Stat_StatRangedAttackPower): seal.EffectN(2).Average(),
+		}}}},
+		{"Rune of the Dawn's spell damage", runeOfTheDawn, []*proto.MobTypeStats{{MobTypes: undead, Stats: map[int32]float64{
+			int32(proto.Stat_StatSpellDamage): rune.EffectN(1).Average(),
+		}}}},
+		{"a threat reduction", lessThreat, nil},
+	} {
+		const itemID = 10
+		dbcInstance.ItemEffectsByParentID[itemID] = []ItemEffect{{SpellID: tc.spellID, TriggerType: ITEM_SPELLTRIGGER_ON_EQUIP, ParentItemID: itemID}}
+		parsed := &proto.UIItem{Id: itemID, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {Stats: map[int32]float64{}}}}
+		effects := MergeItemEffectsForAllStates(parsed)
+		if folds := len(effects) == 0; folds != (tc.want != nil) {
+			t.Errorf("%s: the equip spell leaves the item's effects %v, want %v", tc.name, folds, tc.want != nil)
+		}
+		if got := parsed.ScalingOptions[0].MobTypeStats; !slices.EqualFunc(got, tc.want, func(a, b *proto.MobTypeStats) bool { return googleProto.Equal(a, b) }) {
+			t.Errorf("%s: the item's mob type stats are %v, want %v", tc.name, got, tc.want)
+		}
+		if got := parsed.ScalingOptions[0].Stats; len(got) != 0 {
+			t.Errorf("%s: the item's stats are %v, want none", tc.name, got)
+		}
 	}
 }
 

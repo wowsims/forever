@@ -60,9 +60,45 @@ func headerFields(s *spelldata.Spell) []field {
 		add("charges", strconv.Itoa(int(s.ProcCharges)))
 	}
 	add("icd", seconds(s.ICDMs))
+	add("versus", versusPhrase(s))
+	add("area", areaPhrase(s))
 	add("attrs", attributeList(s))
 	add("labels", labelList(s))
 	return out
+}
+
+// The override's factor against its targets: the factor and the effect it is read from, then the
+// mob types and creature families it reaches.
+func versusPhrase(s *spelldata.Spell) string {
+	bonus, ok := s.VersusBonus()
+	if !ok {
+		return ""
+	}
+	var targets []string
+	for _, mobType := range bonus.MobTypes {
+		targets = append(targets, mobType.String())
+	}
+	for _, family := range bonus.Families {
+		targets = append(targets, family.String())
+	}
+	factor := "x" + number(bonus.Multiplier)
+	if s.VersusMultiplier == 0 {
+		factor += fmt.Sprintf(" (effect %d)", s.VersusEffectIndex+1)
+	}
+	return factor + " against " + strings.Join(targets, ", ")
+}
+
+// The override's amount and duration factors in the areas it names.
+func areaPhrase(s *spelldata.Spell) string {
+	if len(s.AreaBonusGroups) == 0 {
+		return ""
+	}
+	groups := make([]string, len(s.AreaBonusGroups))
+	for i, group := range s.AreaBonusGroups {
+		groups[i] = strconv.Itoa(int(group))
+	}
+	return fmt.Sprintf("x%s (duration x%s) in area groups %s",
+		number(float64(s.AreaMultiplier)), number(float64(s.AreaDurationMultiplier)), strings.Join(groups, ", "))
 }
 
 // SpellPower states either a flat amount out of the bar or a share of the caster's base.

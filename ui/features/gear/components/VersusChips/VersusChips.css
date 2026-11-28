@@ -1,0 +1,7 @@
+@layer components {
+	.ui-versus-chip {
+		&[data-state='off'] {
+			@apply line-through;
+		}
+	}
+}

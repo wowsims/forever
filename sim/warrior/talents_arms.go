@@ -225,12 +225,10 @@ func (warrior *Warrior) registerSpearingStrike() {
 	}
 
 	config := spelldata.SpellConfig(&warrior.Unit, spearingStrikeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.VersusBonus = &core.VersusBonus{Multiplier: spearingStrikeGiantMultiplier, MobTypes: []proto.MobType{proto.MobType_MobTypeGiant, proto.MobType_MobTypeDragonkin}}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := spearingStrikeWeaponShare * spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
-		if target.MobType == proto.MobType_MobTypeGiant || target.MobType == proto.MobType_MobTypeDragonkin {
-			baseDamage *= spearingStrikeGiantMultiplier
-		}
 
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 

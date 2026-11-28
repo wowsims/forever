@@ -1631,14 +1631,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 868.01946
-  tps: 787.25175
-  dtps: 4.59457
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-Satyr'sLash-17752"
  value: {
   dps: 776.15059
@@ -1648,14 +1640,6 @@ dps_results: {
 }
 dps_results: {
  key: "TestElemental-AllItems-ScentedRunewoodBrooch-269741"
- value: {
-  dps: 868.01946
-  tps: 787.25175
-  dtps: 4.59457
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-SealoftheDawn-13209"
  value: {
   dps: 868.01946
   tps: 787.25175

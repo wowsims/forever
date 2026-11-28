@@ -1,0 +1,70 @@
+import { type VersusEffect, VersusEffectKind } from '@generated/proto/api';
+import { type AreaType, CreatureFamily, MobType, type Target } from '@generated/proto/common';
+import type { UIItem } from '@generated/proto/ui';
+import i18n from '@i18n/config';
+import { targetMobType } from '@sim/proto/target';
+import type { PillTone } from '@ui-kit/Pill';
+
+/** `partial` when some targets match and others do not; an area is only ever `on` or `off`. */
+export type VersusState = 'on' | 'partial' | 'off';
+
+export const VERSUS_TONES: Record<VersusState, PillTone> = { on: 'positive', partial: 'warning', off: 'neutral' };
+
+export interface VersusMatch {
+	state: VersusState;
+	matched: number;
+	total: number;
+}
+
+export interface VersusChip extends VersusMatch {
+	kind: 'mobType' | 'family' | 'area';
+	/** The `MobType`, `CreatureFamily` or `AreaType`, by `kind`. */
+	value: number;
+}
+
+// Zero matched is `off` whatever the total, so an encounter with no targets reads as `off`.
+const countMatch = (matched: number, total: number): VersusMatch => ({
+	state: matched === 0 ? 'off' : matched === total ? 'on' : 'partial',
+	matched,
+	total,
+});
+
+/** A target of `MobTypeUnknown` with no family of a mob type never matches. */
+export const mobTypeState = (mobType: MobType, targets: ReadonlyArray<Target>): VersusMatch =>
+	countMatch(mobType === MobType.MobTypeUnknown ? 0 : targets.filter(target => targetMobType(target) === mobType).length, targets.length);
+
+/** Matches on the target's family alone, as the sim does; a target of `CreatureFamilyUnknown` never matches. */
+export const familyState = (family: CreatureFamily, targets: ReadonlyArray<Target>): VersusMatch =>
+	countMatch(family === CreatureFamily.CreatureFamilyUnknown ? 0 : targets.filter(target => target.creatureFamily === family).length, targets.length);
+
+export const areaState = (areaType: AreaType, areaTypes: ReadonlyArray<AreaType>): VersusMatch => countMatch(areaTypes.includes(areaType) ? 1 : 0, 1);
+
+export const namesVersus = (item: UIItem): boolean => item.mobTypes.length > 0 || item.creatureFamilies.length > 0 || item.areaTypes.length > 0;
+
+export const itemVersusChips = (item: UIItem, targets: ReadonlyArray<Target>, areaTypes: ReadonlyArray<AreaType>): Array<VersusChip> => [
+	...item.mobTypes.map(value => ({ kind: 'mobType' as const, value, ...mobTypeState(value, targets) })),
+	...item.creatureFamilies.map(value => ({ kind: 'family' as const, value, ...familyState(value, targets) })),
+	...item.areaTypes.map(value => ({ kind: 'area' as const, value, ...areaState(value, areaTypes) })),
+];
+
+/** The mob types, creature families or area types the effect names, by `kind`. */
+export const versusEffectValues = (effect: VersusEffect, kind: VersusChip['kind']): ReadonlyArray<number> =>
+	kind === 'mobType' ? effect.mobTypes : kind === 'family' ? effect.creatureFamilies : effect.areaTypes;
+
+const EFFECT_KEYS: Record<VersusEffectKind, string> = {
+	[VersusEffectKind.VersusEffectKindDamage]: 'effect_damage',
+	[VersusEffectKind.VersusEffectKindRestore]: 'effect_restore',
+	[VersusEffectKind.VersusEffectKindProcChance]: 'effect_proc_chance',
+	[VersusEffectKind.VersusEffectKindCritChance]: 'effect_crit_chance',
+	[VersusEffectKind.VersusEffectKindProcOnly]: 'effect_proc_only',
+	[VersusEffectKind.VersusEffectKindDuration]: 'effect_duration',
+	[VersusEffectKind.VersusEffectKindEffect]: 'effect_amount',
+	[VersusEffectKind.VersusEffectKindFlatHeal]: 'effect_flat_heal',
+	[VersusEffectKind.VersusEffectKindHitsNeeded]: 'effect_hits_needed',
+};
+
+/** A factor worded by its `sidebar.character_stats.versus` key, rounded to two decimals. */
+export const versusFactorText = (key: string, multiplier: number, amount = 0): string =>
+	i18n.t(`sidebar.character_stats.versus.${key}`, { factor: Number(multiplier.toFixed(2)), amount: Number(amount.toFixed(2)) });
+
+export const versusEffectFactor = (effect: VersusEffect): string => versusFactorText(EFFECT_KEYS[effect.kind], effect.multiplier, effect.amount);

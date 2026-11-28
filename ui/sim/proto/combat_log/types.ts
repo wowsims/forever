@@ -1,4 +1,4 @@
-import type { SpellSchool } from '@generated/proto/common';
+import type { CreatureFamily, MobType, SpellSchool, Stat } from '@generated/proto/common';
 import type { ResourceType } from '@generated/proto/spell';
 
 import type { ActionId } from '../action_id';
@@ -130,6 +130,26 @@ export interface PlainLog extends BaseLog {
 	readonly kind: 'plain';
 }
 
+// One effect of a versus source on a hit, as versusLogTag (sim/core/attack_table_helpers.go) prints it.
+export type VersusLogEffect =
+	| { readonly kind: 'damage' | 'crit' | 'base' | 'proc_chance'; readonly multiplier: number }
+	| { readonly kind: 'crit_chance'; readonly amount: number }
+	| { readonly kind: 'proc_only' }
+	| { readonly kind: 'stat'; readonly stat: Stat; readonly amount: number };
+
+export interface VersusLogSource {
+	readonly actionId: ActionId;
+	readonly effect: VersusLogEffect;
+}
+
+// The versus bonuses a landed hit took against its target.
+export interface VersusLog {
+	readonly mobType: MobType;
+	// Only when an entry matched the target by its creature family.
+	readonly creatureFamily?: CreatureFamily;
+	readonly sources: ReadonlyArray<VersusLogSource>;
+}
+
 export interface DamageLog extends BaseLog {
 	readonly kind: 'damage';
 	readonly outcome: Outcome;
@@ -142,6 +162,8 @@ export interface DamageLog extends BaseLog {
 	// Periodic damage. Orthogonal to `outcome` — a tick can crit, and the display only says
 	// "Tick" when the outcome is a plain hit.
 	readonly tick: boolean;
+	// Absent when the hit took no versus bonus.
+	readonly versus?: VersusLog;
 }
 
 export interface ResourceLog extends BaseLog {

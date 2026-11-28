@@ -619,21 +619,21 @@ func ProtoToEquipment(es *proto.EquipmentSpec) Equipment {
 	return NewEquipmentSet(ProtoToEquipmentSpec(es))
 }
 
-// The stats the item adds in an area of any of the types, which Stats leaves out.
-func (item *Item) areaStats(areaTypes []proto.AreaType) stats.Stats {
+// The stats the item adds in the encounter's areas, which Stats leaves out.
+func (item *Item) areaStats(encounter *Encounter) stats.Stats {
 	var sum stats.Stats
 	for _, areaStats := range item.ScalingOptions[0].GetAreaStats() {
-		if slices.Contains(areaTypes, areaStats.AreaType) {
+		if encounter.InArea(areaStats.AreaType) {
 			sum = sum.Add(stats.FromProtoMap(areaStats.Stats))
 		}
 	}
 	return sum
 }
 
-func (equipment *Equipment) areaStats(areaTypes []proto.AreaType) stats.Stats {
+func (equipment *Equipment) areaStats(encounter *Encounter) stats.Stats {
 	var sum stats.Stats
 	for i := range equipment {
-		sum = sum.Add(equipment[i].areaStats(areaTypes))
+		sum = sum.Add(equipment[i].areaStats(encounter))
 	}
 	return sum
 }

@@ -4,6 +4,7 @@ import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import type { DamageLog } from '@sim/proto/combat_log';
 
 import { DamageResult } from '../../DamageResult';
+import { VersusSources } from '../../VersusSources';
 
 export interface TickTooltipProps {
 	log: DamageLog;
@@ -23,6 +24,7 @@ export const TickTooltip = ({ log }: TickTooltipProps) => {
 					({log.threat.toFixed(1)} {i18n.t('results_tab.details.timeline.tooltips.threat')})
 				</span>
 			)}
+			<VersusSources logs={[log]} />
 		</div>
 	);
 };

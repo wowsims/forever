@@ -1,0 +1,1 @@
+export { VersusChips } from './VersusChips';

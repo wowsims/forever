@@ -1729,15 +1729,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralBear-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 526.38713
-  tps: 2640.72107
-  dtps: 395.61739
-  hps: 85.62528
- }
-}
-dps_results: {
  key: "TestFeralBear-AllItems-Satyr'sLash-17752"
  value: {
   dps: 446.0922
@@ -1748,15 +1739,6 @@ dps_results: {
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ScentedRunewoodBrooch-269741"
- value: {
-  dps: 526.38713
-  tps: 2640.72107
-  dtps: 395.61739
-  hps: 85.62528
- }
-}
-dps_results: {
- key: "TestFeralBear-AllItems-SealoftheDawn-13209"
  value: {
   dps: 526.38713
   tps: 2640.72107

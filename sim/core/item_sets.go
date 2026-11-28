@@ -236,7 +236,7 @@ func (character *Character) applyItemSetBonusEffects(agent Agent) {
 				continue
 			}
 			setBonusAura := character.makeSetBonusStatusAura(unequippedSetBonus.Name, unequippedSetBonus.NumPieces, unequippedSetBonus.Slots, false)
-			unequippedSetBonus.BonusEffect(agent, setBonusAura)
+			character.registerSwapOnly(func() { unequippedSetBonus.BonusEffect(agent, setBonusAura) })
 		}
 	}
 }

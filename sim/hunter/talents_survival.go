@@ -1,8 +1,6 @@
 package hunter
 
 import (
-	"slices"
-
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -52,24 +50,25 @@ var trackCreatureSpells = []spelldata.Ladder{
 // mechanical one, which no Track names, gets no bonus.
 func (hunter *Hunter) registerTracking() {
 	mult := spellData.ImprovedTracking.MultiplierAt(hunter.Talents.ImprovedTracking)
+	versusSource := core.ActionID{SpellID: spellData.ImprovedTracking.Highest().ID}
 	for _, track := range trackCreatureSpells {
 		row := track.Highest()
-		mobTypes := spelldata.MobTypes(row.EffectN(2).Misc)
+		targets := spelldata.TargetCreatures(row.EffectN(2).Misc)
 
 		aura := hunter.RegisterAura(spelldata.AuraConfig(row))
 		aura.NewExclusiveEffect("Tracking", true, core.ExclusiveEffect{})
 		if mult != 1 {
 			aura.OnGain = func(_ *core.Aura, _ *core.Simulation) {
-				hunter.MultiplyDamageVersus(mult, mobTypes...)
+				hunter.MultiplyDamageVersus(versusSource, mult, targets.MobTypes...)
 			}
 			aura.OnExpire = func(_ *core.Aura, _ *core.Simulation) {
-				hunter.MultiplyDamageVersus(1/mult, mobTypes...)
+				hunter.MultiplyDamageVersus(versusSource, 1/mult, targets.MobTypes...)
 			}
 		}
 
 		config := spelldata.SpellConfig(&hunter.Unit, row, spelldata.Flags(core.SpellFlagAPL))
 		config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
-			return !aura.IsActive() && slices.Contains(mobTypes, hunter.CurrentTarget.MobType)
+			return !aura.IsActive() && targets.Matches(hunter.CurrentTarget)
 		}
 		config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
 			aura.Activate(sim)

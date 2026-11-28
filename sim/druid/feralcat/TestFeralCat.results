@@ -1486,14 +1486,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralCat-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 794.16608
-  tps: 589.87459
-  hps: 45.98722
- }
-}
-dps_results: {
  key: "TestFeralCat-AllItems-Satyr'sLash-17752"
  value: {
   dps: 721.16359
@@ -1503,14 +1495,6 @@ dps_results: {
 }
 dps_results: {
  key: "TestFeralCat-AllItems-ScentedRunewoodBrooch-269741"
- value: {
-  dps: 794.16608
-  tps: 589.87459
-  hps: 45.98722
- }
-}
-dps_results: {
- key: "TestFeralCat-AllItems-SealoftheDawn-13209"
  value: {
   dps: 794.16608
   tps: 589.87459

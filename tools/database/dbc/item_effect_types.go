@@ -5,19 +5,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
-
-// The auras whose misc value is a creature type mask.
-var versusAuras = []EffectAuraType{
-	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS,
-	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS,
-	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS,
-	dbcenums.A_MOD_DAMAGE_DONE_VERSUS,
-	dbcenums.A_MOD_CRIT_PERCENT_VERSUS,
-}
 
 // What a spell tooltip calls the creatures an effect counts against, each also read with a plural s.
 // A name that holds another comes first, so "Earth Elementals" is no Elemental.
@@ -97,6 +87,49 @@ func tooltipNameRun(rest string) (mobTypes []proto.MobType, families []proto.Cre
 	}
 }
 
+// What a spell tooltip calls each terrain area: "in Strongholds and Cities", "in Wasteland and Haunted
+// areas", "in swamps".
+var tooltipAreaNames = map[string]proto.AreaType{
+	"forest":      proto.AreaType_AreaTypeForestGrassland,
+	"grassland":   proto.AreaType_AreaTypeForestGrassland,
+	"mountainous": proto.AreaType_AreaTypeMountainous,
+	"snowy":       proto.AreaType_AreaTypeSnowy,
+	"desert":      proto.AreaType_AreaTypeDesert,
+	"marsh":       proto.AreaType_AreaTypeSwamp,
+	"swamp":       proto.AreaType_AreaTypeSwamp,
+	"swamps":      proto.AreaType_AreaTypeSwamp,
+	"wasteland":   proto.AreaType_AreaTypeWasteland,
+	"haunted":     proto.AreaType_AreaTypeHaunted,
+	"cavernous":   proto.AreaType_AreaTypeCavernous,
+	"underground": proto.AreaType_AreaTypeCavernous,
+	"volcanic":    proto.AreaType_AreaTypeVolcanic,
+	"strongholds": proto.AreaType_AreaTypeStrongholdsCities,
+	"cities":      proto.AreaType_AreaTypeStrongholdsCities,
+}
+
+// "in" and the words after it joined by "and", "or" and commas.
+var tooltipAreaRun = regexp.MustCompile(`\bin ([a-z]+(?:(?:,| and| or) [a-z]+)*)`)
+var tooltipAreaWord = regexp.MustCompile(`[a-z]+`)
+
+// The terrain areas a tooltip names an effect in: "This effect is doubled in Snowy areas". The run of
+// area names after "in" ends at the first other word, so "in melee" names none.
+func tooltipAreas(tooltip string) []proto.AreaType {
+	var areaTypes []proto.AreaType
+	for _, run := range tooltipAreaRun.FindAllStringSubmatch(strings.ToLower(tooltip), -1) {
+		for _, word := range tooltipAreaWord.FindAllString(run[1], -1) {
+			if word == "and" || word == "or" {
+				continue
+			}
+			areaType, ok := tooltipAreaNames[word]
+			if !ok {
+				break
+			}
+			areaTypes = append(areaTypes, areaType)
+		}
+	}
+	return areaTypes
+}
+
 // The mob types and creature groups a tooltip states a bonus against: the names after a lead, and
 // the names that open a sentence about what they take or do. "Only works against Beasts" limits an
 // effect and states no bonus, so it names none.
@@ -118,12 +151,14 @@ func tooltipTargets(tooltip string) (mobTypes []proto.MobType, families []proto.
 }
 
 // The terrain areas, mob types and creature groups an item's effects and stats state a bonus in or
-// against: the areas a spell requires or is stronger in, the mob types a versus aura or a creature type
-// stat counts against. A tooltip states the rest, the creature groups among them, which no row holds
-// (tooltipTargets). Every item effect counts, whatever triggers it, with each spell its trigger chain
-// reaches. A spell that requires a single zone names no terrain area, and one that can only hit a mob
-// type (TargetCreatureType: a stun, a charm) states no bonus against it.
-func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.CreatureFamily) {
+// against, which the gear picker filters by: the areas a spell requires or is stronger in, the mob types
+// a versus aura or a creature type stat counts against. A tooltip states the rest, which no row holds: the
+// creature groups (tooltipTargets), and the areas (tooltipAreas) only of an effect the sim models by hand,
+// as only hand-written code reads a tooltip's area: the item's own effects where modelledItem is set, and
+// the set bonuses modelledSetBonus names by their piece count. Every item effect counts, whatever triggers
+// it, with each spell its trigger chain reaches. A spell that requires a single zone names no terrain
+// area, and one that can only hit a mob type (TargetCreatureType: a stun, a charm) states no bonus against it.
+func ItemEffectTypes(itemID int32, modelledItem bool, modelledSetBonus func(pieces int32) bool) ([]proto.AreaType, []proto.MobType, []proto.CreatureFamily) {
 	var areaTypes []proto.AreaType
 	var mobTypes []proto.MobType
 	var families []proto.CreatureFamily
@@ -146,12 +181,15 @@ func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.C
 		for _, group := range spelldata.Find(int32(spellID)).AreaBonusGroups {
 			addArea(group)
 		}
+		if modelledItem {
+			areaTypes = append(areaTypes, tooltipAreas(spell.Description)...)
+		}
 		tooltipMobs, tooltipFamilies := tooltipTargets(spell.Description)
 		mobTypes = append(mobTypes, tooltipMobs...)
 		families = append(families, tooltipFamilies...)
 
 		for _, effect := range effects {
-			if slices.Contains(versusAuras, effect.EffectAura) && len(effect.EffectMiscValues) > 0 {
+			if spelldata.IsVersusAura(effect.EffectAura) && len(effect.EffectMiscValues) > 0 {
 				mobTypes = append(mobTypes, spelldata.MobTypes(int32(effect.EffectMiscValues[0]))...)
 			}
 			if effect.EffectTriggerSpell != 0 {
@@ -161,6 +199,11 @@ func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.C
 	}
 	for _, itemEffect := range dbcInstance.ItemEffectsByParentID[int(itemID)] {
 		visit(itemEffect.SpellID)
+	}
+	for _, setSpell := range dbcInstance.ItemSetSpells[dbcInstance.Items[int(itemID)].ItemSetId] {
+		if modelledSetBonus(int32(setSpell.Threshold)) {
+			areaTypes = append(areaTypes, tooltipAreas(dbcInstance.Spells[setSpell.SpellID].Description)...)
+		}
 	}
 	for _, stat := range dbcInstance.Items[int(itemID)].BonusStat {
 		if versus, ok := mobTypeStatByBonusStat[stat]; ok {

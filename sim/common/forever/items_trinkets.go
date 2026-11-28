@@ -13,6 +13,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
+var furbolgs = core.VersusTargets{Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyFurbolg}}
+
 func init() {
 	// Jom Gabbar
 	// Use: Increases attack power by 65 and an additional 65 every 2 sec. Lasts 20 sec. (2 Min Cooldown)
@@ -170,10 +172,10 @@ func init() {
 		character := agent.GetCharacter()
 		markRow := spelldata.MustFind(1295271)
 		deliveryRow := spelldata.MustFind(1295633)
-		fewest, most := int32(markRow.EffectN(1).BaseValue()), int32(markRow.EffectN(2).BaseValue())
-		if character.Env.Encounter.InArea(proto.AreaType_AreaTypeSnowy) {
-			fewest, most = fewest/2, most/2
-		}
+		// Each bound is halved and rounded down, which the sheet lists as half the hits a delivery needs.
+		divisor := int32(character.RegisterArea(core.ActionID{ItemID: 274760}, proto.VersusEffectKind_VersusEffectKindHitsNeeded,
+			core.AreaBonus{AreaTargets: core.AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeSnowy}}, Multiplier: 2}))
+		fewest, most := int32(markRow.EffectN(1).BaseValue())/divisor, int32(markRow.EffectN(2).BaseValue())/divisor
 
 		deliveryConfig := spelldata.SpellConfig(&character.Unit, deliveryRow, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc(), spelldata.Triggered())
 		damage := deliveryRow.DamageEffect()
@@ -223,9 +225,8 @@ func init() {
 	// Sometimes heals bearer of 158 to 238 damage when damaging an enemy in melee. This effect occurs
 	// twice as often in Strongholds and Cities.
 	newEntryRateItemEffect(19287, 23682, func(character *core.Character, ppm float64) {
-		if character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
-			ppm *= 2
-		}
+		ppm *= character.RegisterArea(core.ActionID{ItemID: 19287}, proto.VersusEffectKind_VersusEffectKindProcChance,
+			core.AreaBonus{AreaTargets: core.AreaTargets{Areas: []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}}, Multiplier: 2})
 		row := spelldata.MustFind(23682)
 		heal := row.HealEffect()
 
@@ -259,7 +260,7 @@ func init() {
 		damage := row.DamageEffect()
 
 		config := procSpellConfig(character, row)
-		config.VersusBonus = shared.ItemVersusBonus(character, 260205, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
+		config.VersusBonus = shared.RegisterVersus(character, core.ActionID{ItemID: 260205}, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
@@ -294,13 +295,14 @@ func init() {
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			trigger.ProcChance = 0
 			trigger.DPM = character.NewLegacyPPMManagerWithMainHandSpells(float64(spelldata.MustFind(1318323).RPPM), trigger.ProcMask)
-			trigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
-				return result.Target.CreatureFamily == proto.CreatureFamily_CreatureFamilyFurbolg
-			}
+			shared.OnlyAgainst(furbolgs)(character, trigger)
 		}},
 		[]shared.ItemVariant{
 			{ItemID: 269741, ItemName: "Scented Runewood Brooch"},
 		})
+	shared.DamageProcExtras[269741] = func(character *core.Character, config *core.SpellConfig) {
+		config.VersusProc = character.RegisterVersusProc(core.ActionID{ItemID: 269741}, furbolgs)
+	}
 
 	// Blackhand's Breadth
 	// https://www.wowhead.com/forever/item=13965/blackhands-breadth
@@ -308,24 +310,26 @@ func init() {
 	// Use: Marks your target, increasing your Critical Strike chance against them by 5% for 20 sec. This
 	// effect is doubled against Orcs and Ogres.
 	//
-	// The doubling is the tooltip's alone: the equip dummy 1318945 states no amount.
+	// 1318944's A_MOD_CRIT_CHANCE_FOR_CASTER raises the crit chance of the wearer's attacks and spells
+	// against the marked target, and no one else's. The doubling is the tooltip's alone, so an override
+	// puts it on 1318944: the equip dummy 1318945 states no amount.
 	core.NewItemEffect(13965, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1318944)
 		crit := row.EffectN(1).BaseValue()
+		versusSource := core.ActionID{ItemID: 13965}
+		orcsAndOgres := shared.RegisterVersus(character, versusSource, proto.VersusEffectKind_VersusEffectKindCritChance, row)
 
 		marks := character.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-			var bonus float64
 			return target.RegisterAura(core.Aura{
 				Label:    fmt.Sprintf("%s %s", row.Name, character.Label),
 				ActionID: core.ActionID{SpellID: row.ID},
 				Duration: row.Duration(),
 				OnGain: func(aura *core.Aura, _ *core.Simulation) {
-					bonus = crit * creatureFamilyMultiplier(aura.Unit, 2, proto.CreatureFamily_CreatureFamilyOrc, proto.CreatureFamily_CreatureFamilyOgre)
-					character.AttackTables[aura.Unit.UnitIndex].BonusCritPercent += bonus
+					character.AddCritChanceVersus(versusSource, aura.Unit, crit, orcsAndOgres)
 				},
 				OnExpire: func(aura *core.Aura, _ *core.Simulation) {
-					character.AttackTables[aura.Unit.UnitIndex].BonusCritPercent -= bonus
+					character.AddCritChanceVersus(versusSource, aura.Unit, -crit, orcsAndOgres)
 				},
 			})
 		})
@@ -352,7 +356,7 @@ func init() {
 
 		config := procSpellConfig(character, row)
 		config.DefenseType = core.DefenseTypeMagic
-		config.VersusBonus = shared.ItemVersusBonus(character, 10455, proto.VersusEffectKind_VersusEffectKindDamage, row)
+		config.VersusBonus = shared.RegisterVersus(character, core.ActionID{ItemID: 10455}, proto.VersusEffectKind_VersusEffectKindDamage, row)
 		config.Dot = core.DotConfig{
 			Aura:             spelldata.AuraConfig(row),
 			TickLength:       tick.Period(),
@@ -388,7 +392,7 @@ func init() {
 		damage := row.DamageEffect()
 
 		config := procSpellConfig(character, row)
-		config.VersusBonus = shared.ItemVersusBonus(character, 280032, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
+		config.VersusBonus = shared.RegisterVersus(character, core.ActionID{ItemID: 280032}, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
@@ -486,11 +490,11 @@ func init() {
 	// chance is doubled in Strongholds and Cities.
 	//
 	// The tooltip states the chance as ${$h/2}%: 20847's ProcChance is the chance doubled in Strongholds
-	// and Cities, so by the owner's ruling an encounter there rolls the whole column and any other
-	// encounter half of it. The sim fixes the encounter's area for the run, so the chance is fixed when
-	// the trigger is built.
+	// and Cities, so an encounter there rolls the whole column and any other encounter half of it
+	// (R-0057). The sim fixes the encounter's area for the run, so the chance is fixed when the trigger
+	// is built.
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 20847, BuffSpellID: 18946,
-		Rate: halvedOutside(proto.AreaType_AreaTypeStrongholdsCities)},
+		Rate: halvedOutside(14557, proto.AreaType_AreaTypeStrongholdsCities)},
 		[]shared.ItemVariant{
 			{ItemID: 14557, ItemName: "The Lion Horn of Stormwind"},
 		})
@@ -502,10 +506,9 @@ func init() {
 	// doubled in Wasteland and Haunted areas.
 	//
 	// 8397's ProcChance is the chance doubled in Wasteland and Haunted areas, its first effect the 2%, so
-	// an encounter there rolls the whole column and any other encounter half of it, as The Lion Horn of
-	// Stormwind does.
+	// an encounter there rolls the whole column and any other encounter half of it (R-0057).
 	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 8397, BuffSpellID: 10368,
-		Rate: halvedOutside(proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted)},
+		Rate: halvedOutside(11302, proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted)},
 		[]shared.ItemVariant{
 			{ItemID: 11302, ItemName: "Uther's Strength"},
 		})
@@ -516,12 +519,13 @@ func init() {
 	// Use: Increase your agility by 33 for 30 sec. If there is an elemental nearby, gain an additional 33.
 	//
 	// 1315878's second effect is the additional Agility. By the owner's ruling an elemental is nearby
-	// when any enemy in the encounter is one: an Elemental, or of the Earth or Fire Elemental family.
+	// when any enemy in the encounter is an Elemental, an Earth or Fire Elemental among them.
+	elementals := core.VersusTargets{MobTypes: []proto.MobType{proto.MobType_MobTypeElemental}}
 	core.NewItemEffect(280071, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1315878)
 		agility := row.EffectN(1).BaseValue()
-		if slices.ContainsFunc(character.Env.Encounter.AllTargetUnits, isElemental) {
+		if elementals.AnyIn(character.Env.Encounter.AllTargetUnits) {
 			agility += row.EffectN(2).BaseValue()
 		}
 		onUse := itemOnUseEffect(280071)
@@ -583,20 +587,13 @@ func registerCountdownOnUse(character *core.Character, itemID int32, row *spelld
 	})
 }
 
-// Half the spell's chance in an encounter in none of the areas, whose doubled chance the column states.
-func halvedOutside(areas ...proto.AreaType) spelldata.ProcOpt {
+// Half the row's chance in an encounter in none of the areas, whose doubled chance the column states
+// (R-0057). The item keeps the doubling on the stats sheet.
+func halvedOutside(itemID int32, areas ...proto.AreaType) spelldata.ProcOpt {
 	return func(character *core.Character, trigger *core.ProcTrigger) {
-		if !slices.ContainsFunc(areas, character.Env.Encounter.InArea) {
-			trigger.ProcChance /= 2
-		}
+		trigger.ProcChance *= character.RegisterArea(core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindProcChance,
+			core.AreaBonus{AreaTargets: core.AreaTargets{Areas: areas}, Multiplier: 2}) / 2
 	}
-}
-
-// Whether the enemy is an elemental: of the Elemental type, or of an elemental family.
-func isElemental(target *core.Unit) bool {
-	return target.MobType == proto.MobType_MobTypeElemental ||
-		target.CreatureFamily == proto.CreatureFamily_CreatureFamilyEarthElemental ||
-		target.CreatureFamily == proto.CreatureFamily_CreatureFamilyFireElemental
 }
 
 // The item's on-use effect; an item with none panics.

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { castRotationRow, DEEP_WOUNDS, rotationTrackStyle, tickRowItem } from '@testing/storybook/fixtures/results-views';
+import { castRotationRow, damageLog, DEEP_WOUNDS, rotationTrackStyle, tickRowItem, UNDEAD_VERSUS } from '@testing/storybook/fixtures/results-views';
 
 import { TickItem } from './TickItem';
 
@@ -24,3 +24,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const OneTick: Story = {};
+
+export const VersusMark: Story = {
+	args: { item: { ...tickRowItem(2), log: damageLog(2, 325.5, { actionId: DEEP_WOUNDS, tick: true, versus: UNDEAD_VERSUS }) } },
+};

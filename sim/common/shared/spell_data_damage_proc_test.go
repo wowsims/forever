@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"slices"
 	"testing"
 	"time"
 
@@ -79,6 +80,45 @@ func TestItemDamageProcCritsReachListenersThatHearProcs(t *testing.T) {
 				t.Errorf("the listener without it heard %d crits, want none", heard[false])
 			}
 		})
+	}
+}
+
+// An enchant's damage proc whose trigger states a factor against some targets, The Chief's Enforcer's
+// 1294339 against Trolls, lists the factor on the stats sheet under the trigger's spell: the enchant's
+// own id names no spell. With an item swap set it lists the factor while the worn weapon carries the
+// enchant, and nothing while only the item swap set's weapon does.
+func TestEnchantDamageProcListsItsVersusFactorByItsSpell(t *testing.T) {
+	const swordID, enchantID, strike int32 = 991690, 991691, 1294339
+	want, ok := spelldata.MustFind(strike).VersusBonus()
+	if !ok {
+		t.Fatalf("%d states no versus factor", strike)
+	}
+	core.AddToDatabase(&proto.SimDatabase{
+		Items:    []*proto.SimItem{testOneHander(swordID)},
+		Enchants: []*proto.SimEnchant{{EffectId: enchantID, Name: "Test Strike Enchant", Type: proto.ItemType_ItemTypeWeapon}},
+	})
+	registerSpellDataDamageProc(SpellDataProc{Name: "Test Strike Enchant", EnchantID: enchantID, TriggerSpellID: strike,
+		BuffSpellID: strike, IsWeaponProc: true, Rate: spelldata.Chance(1)})
+
+	_, caster := newWielderSim(testHands(&proto.ItemSpec{Id: swordID, Enchant: enchantID}, &proto.ItemSpec{}))
+	playerStats := &proto.PlayerStats{}
+	caster.FillPlayerStats(playerStats)
+	if sheet := playerStats.VersusEffects; len(sheet) != 1 || core.ProtoToActionID(sheet[0].Source) != (core.ActionID{SpellID: strike}) ||
+		sheet[0].ItemId != 0 || sheet[0].Multiplier != want.Multiplier || !slices.Equal(sheet[0].CreatureFamilies, want.Families) {
+		t.Errorf("the stats sheet lists %v, want %d's factor of %v against %v", sheet, strike, want.Multiplier, want.Families)
+	}
+
+	plain, enchanted := testHands(&proto.ItemSpec{Id: swordID}, &proto.ItemSpec{}), testHands(&proto.ItemSpec{Id: swordID, Enchant: enchantID}, &proto.ItemSpec{})
+	swapSheet := func(worn []*proto.ItemSpec) []*proto.VersusEffect {
+		playerStats := &proto.PlayerStats{}
+		newTestCasterSim(worn, enchanted).Raid.Parties[0].Players[0].GetCharacter().FillPlayerStats(playerStats)
+		return playerStats.VersusEffects
+	}
+	if sheet := swapSheet(enchanted); len(sheet) != 1 || core.ProtoToActionID(sheet[0].Source) != (core.ActionID{SpellID: strike}) {
+		t.Errorf("with the enchant on the worn weapon and the item swap set's the stats sheet lists %v, want %d's factor", sheet, strike)
+	}
+	if sheet := swapSheet(plain); len(sheet) != 0 {
+		t.Errorf("with the enchant only on the item swap set's weapon the stats sheet lists %v, want none", sheet)
 	}
 }
 
@@ -640,8 +680,67 @@ func TestWeaponProcDealingDamageOverTimeAloneAppliesIt(t *testing.T) {
 	}
 }
 
-// Engulfing Shadows 27860 deals Shadow damage and restores mana to its caster: the wearer gains the spell's
-// mana with the proc, whether the damage lands or misses.
+// A damage proc's restore takes its trigger's factor against the hit's target, kept for the stats sheet
+// as a restore under the item: 27860's mana off a 7711 that states three times as much against Plants,
+// an override no row carries, set on the store's row for the test.
+func TestDamageProcRestoresTheTriggersFactorAgainstItsTargets(t *testing.T) {
+	const trinketID, engulfingShadows int32 = 991633, 27860
+	trigger := spelldata.MustFind(7711)
+	if len(trigger.VersusMobTypes) > 0 || len(trigger.VersusFamilies) > 0 {
+		t.Fatalf("7711 states a factor against %v and %v already, nothing to set", trigger.VersusMobTypes, trigger.VersusFamilies)
+	}
+	trigger.VersusFamilies, trigger.VersusMultiplier = []int32{int32(proto.CreatureFamily_CreatureFamilyPlant)}, 3
+	t.Cleanup(func() { trigger.VersusFamilies, trigger.VersusMultiplier = nil, 0 })
+	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: trinketID, Name: "Test Plant Shadows",
+		Type: proto.ItemType_ItemTypeTrinket, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}}}})
+	registerSpellDataDamageProc(SpellDataProc{Name: "Test Plant Shadows", ItemID: trinketID,
+		TriggerSpellID: 7711, BuffSpellID: engulfingShadows})
+	mana := spelldata.MustFind(engulfingShadows).EnergizeEffect().Average()
+	needAmount(t, "27860's mana", mana)
+
+	for _, tc := range []struct {
+		family proto.CreatureFamily
+		want   float64
+	}{
+		{proto.CreatureFamily_CreatureFamilyPlant, 3 * mana},
+		{proto.CreatureFamily_CreatureFamilyUnknown, mana},
+	} {
+		t.Run(tc.family.String(), func(t *testing.T) {
+			items := testHands(&proto.ItemSpec{}, &proto.ItemSpec{})
+			items[proto.ItemSlot_ItemSlotTrinket1] = &proto.ItemSpec{Id: trinketID}
+			sim := newTestCasterSimAgainst(items, nil, 1, func(player *proto.Player) {
+				player.Class, player.Race, player.Spec = proto.Class_ClassMage, proto.Race_RaceGnome, &proto.Player_Mage{}
+			})
+			caster := sim.Raid.Parties[0].Players[0].(*testCaster)
+			target := sim.Encounter.ActiveTargetUnits[0]
+			target.CreatureFamily = tc.family
+
+			landMainHandSwing(sim, caster, target)
+			settleChains(t, sim)
+
+			var gain float64
+			for _, r := range caster.Metrics.ToProto().Resources {
+				if r.Id.GetSpellId() == engulfingShadows {
+					gain = r.Gain
+				}
+			}
+			if gain != tc.want {
+				t.Errorf("the proc restored %v mana, want %v", gain, tc.want)
+			}
+			playerStats := &proto.PlayerStats{}
+			caster.FillPlayerStats(playerStats)
+			if !slices.ContainsFunc(playerStats.VersusEffects, func(effect *proto.VersusEffect) bool {
+				return effect.ItemId == trinketID && effect.Kind == proto.VersusEffectKind_VersusEffectKindRestore && effect.Multiplier == 3
+			}) {
+				t.Errorf("the stats sheet lists %v, want the item's x3 restore", playerStats.VersusEffects)
+			}
+		})
+	}
+}
+
+// Engulfing Shadows 27860 deals Shadow damage to the enemy and restores mana to its caster, cast here
+// off Blazefury Medallion 17111's 7711 on each melee hit. The wearer gains the row's mana with the
+// proc, whether the damage lands or misses.
 func TestDamageProcRestoresTheWearersManaLandedOrNot(t *testing.T) {
 	const trinketID, engulfingShadows int32 = 991632, 27860
 	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: trinketID, Name: "Test Engulfing Shadows",
