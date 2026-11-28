@@ -11,7 +11,7 @@ export interface AplInput<T> extends InputState<T> {
 }
 
 /**
- * `useInput` for a picker inside the APL tree, filling in the two things none of them is given:
+ * `useInput` for a picker inside the APL tree, filling in the two things no such picker is given:
  *
  * - **the rotation as the change source**, or inside a list row that row's `rowSource`. Without it
  *   `useStoreSubscribe` never re-reads and the picker freezes at its first render.

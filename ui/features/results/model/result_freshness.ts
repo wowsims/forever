@@ -13,8 +13,8 @@ const PLAYER_INPUT_FIELDS = PLAYER_FIELDS.filter(field => !NON_INPUT_FIELDS.incl
 
 // What an individual sim request is built from. The encounter and raid slices are replace-on-write,
 // so their references stand in for their contents. Gear compares by content, so a swap that is undone
-// reads fresh again; the other player fields compare by version counter. The sim slice reaches the request only as the iteration count and the
-// seed, which change the precision and the sample, not the answer.
+// reads fresh again; the other player fields compare by version counter. The sim slice reaches the request only as
+// the iteration count and the seed, which change the precision and the sample, not the answer.
 export function resultInputsKey(s: SimState): Array<unknown> {
 	const key: Array<unknown> = [s.encounter, s.raid];
 	for (const [storeKey, player] of Object.entries(s.players)) {

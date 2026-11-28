@@ -344,8 +344,7 @@ func chargeRevelation(sim *core.Simulation, buff *core.Aura) {
 	buff.SetStacks(sim, buff.MaxStacks)
 }
 
-// Enchant Weapon - Revelation 8217 gives a druid its class's buff 1323400.
-// Moonfire spends the charge too (EV-0149).
+// Enchant Weapon - Revelation 8217 gives a druid its class's buff 1323400. Charge spending in EV-0149.
 func TestRevelationGrantsTheWearersClassBuff(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
@@ -499,7 +498,8 @@ func TestRevelationChannelOfPeriodicTicksSpendsTheChargeOnItsFirstTick(t *testin
 	}
 }
 
-// A ranged attack rolls nothing (EV-0149). A shot the mask names crits and leaves the charge.
+// A ranged attack never rolls Revelation (EV-0149). With the buff up, a shot the mask names crits and
+// leaves the charge.
 func TestRevelationHearsNoRangedAttack(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassHunter, &proto.Player_Hunter{Hunter: &proto.Hunter{}})
 	hunter := sim.Raid.Parties[0].Players[0].(*testHunter)
@@ -733,7 +733,7 @@ func TestInsightRollsOncePerCast(t *testing.T) {
 	}
 }
 
-// The first result of a hit event is its one chance (EV-0149).
+// The first result of a hit event is its one chance to proc Revelation (EV-0149).
 func TestRevelationRollsNothingWhenAnEventsFirstResultCrits(t *testing.T) {
 	const casts, enemies = 600, 5
 	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, enemies)
@@ -770,7 +770,7 @@ func TestRevelationRollsNothingWhenAnEventsFirstResultCrits(t *testing.T) {
 	}
 }
 
-// Lightning Overload's copy rolls apart from its bolt (EV-0149); the sim registers it under the bolt's id.
+// A copy registered under its spell's id rolls apart from the spell, as Lightning Overload's does (EV-0149).
 func TestRevelationRollsACopyApartFromTheSpellItCopies(t *testing.T) {
 	const casts = 600
 	sim, character := revelationWearer(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}})
@@ -816,7 +816,7 @@ func TestRevelationDruidSpendsTheChargeAtTheCast(t *testing.T) {
 	}
 }
 
-// A spell far under the wearer's level rolls nothing (EV-0149).
+// A spell far under the wearer's level never procs Revelation (EV-0149).
 func TestRevelationRollsNothingOffASpellFarUnderTheWearer(t *testing.T) {
 	sim, character := revelationWearer(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}})
 	if low, high := spelldata.MustFind(116).SpellLevel, spelldata.MustFind(10199).SpellLevel; int32(low)+32 > character.Level || int32(high)+12 < character.Level {

@@ -94,7 +94,7 @@ func (warlock *Warlock) applyImprovedVoidwalker() {
 	}
 }
 
-// The parse skips both effects, so they are applied here.
+// The parse skips Fel Vitality's two effects, so they are applied here.
 func (warlock *Warlock) applyFelVitality() {
 	if warlock.Talents.FelVitality == 0 {
 		return
@@ -162,7 +162,7 @@ func (warlock *Warlock) applyDemonicSacrifice() {
 		spelldata.ParseEffects(&warlock.Character, aura, effectRow)
 		warlock.DemonicSacrificeAuras[summon] = aura
 
-		// Fel Energy's A_OBS_MOD_POWER, which the parse skips.
+		// The parse skips Fel Energy's A_OBS_MOD_POWER.
 		if summon == proto.WarlockOptions_Voidwalker {
 			restore := effectRow.EffectN(1)
 			manaMetrics := warlock.NewManaMetrics(core.ActionID{SpellID: effectRow.ID})
@@ -215,7 +215,8 @@ func (warlock *Warlock) applyMasterSummoner() {
 // --- Tier 4 ---
 
 // The tooltip ties effect 4's damage bonus to a target below 35% health, but in game the bonus counts
-// at any target health (EV-0232).
+// at any target health (EV-0232). A Shadow Bolt or Searing Pain that lands on a target below effect 3's
+// health percent grants Decimation (440873), a Soul Fire buff.
 // The buff sits on the warlock, so a cast at a low target carries its Soul Fire bonus to any other target.
 func (warlock *Warlock) applyDecimation() {
 	if warlock.Talents.Decimation == 0 {

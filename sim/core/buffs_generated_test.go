@@ -20,7 +20,8 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// Each rank is worth what its own row states, and the set adds its bonus to what the copy applies and bids.
+// Each rank of the raid's shout is worth what its own row states, and three pieces of Battlegear of Wrath
+// add the set's bonus to what the copy applies and bids.
 func TestRaidBattleShoutAppliesItsState(t *testing.T) {
 	off := core.NewGeneratedBuffTestCharacter()
 	core.ApplyBuffEffects(off, &proto.RaidBuffs{BattleShout: 0}, &proto.PartyBuffs{}, &proto.IndividualBuffs{})
@@ -103,10 +104,10 @@ func battleShoutSetBonus(t *testing.T) float64 {
 	return rowAmount(t, 23563, dbcenums.A_ADD_FLAT_MODIFIER)
 }
 
-// Both copies are worth the same attack power, and both are equally long, so the tie goes to whichever
-// the build phase activates last. ExclusiveEffect.Activate only turns a newcomer away when the
-// incumbent's remaining duration is longer than the newcomer's, so the player's copy takes the category
-// and the external one is deactivated.
+// A warrior's own Battle Shout and the external one are worth the same attack power and are equally
+// long, so the tie goes to whichever the build phase activates last. ExclusiveEffect.Activate only
+// turns a newcomer away when the incumbent's remaining duration is longer than the newcomer's, so the
+// player's copy takes the category and the external one is deactivated.
 func TestPlayerBattleShoutTakesTheCategoryOnATie(t *testing.T) {
 	char := core.NewGeneratedBuffTestCharacter()
 

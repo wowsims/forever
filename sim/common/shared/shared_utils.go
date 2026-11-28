@@ -465,7 +465,8 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 	listener := spellDataProcListener(character, cfg, source, trigger)
 	listener.Handler = withProcEnergize(character, buff, spellDataProcHandler(buff, procAura))
 
-	// The fallback the database layer applies. Where buff and trigger are one spell, the category
+	// Where the trigger states no internal cooldown, the buff's category recovery stands in, the
+	// fallback the database layer applies. Where buff and trigger are one spell, the category
 	// recovery is that spell's own cast throttle, so it is no gate on re-applying the buff.
 	if listener.ICD == 0 && buff.ID != trigger.ID {
 		listener.ICD = buff.CategoryCooldown()
@@ -675,8 +676,7 @@ func registerSpellDataDamageProc(cfg SpellDataProc) {
 func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, damage *spelldata.Spell) {
 	character := agent.GetCharacter()
 	config := spellDataProcListener(character, cfg, source, trigger)
-	// Spell cooldown in EV-0145. A row that deals its damage
-	// as the listener's own aura casts nothing.
+	// Spell cooldown in EV-0145. A row that deals its damage as the listener's own aura casts nothing.
 	if config.ICD == 0 && damage.ProcDamageEffect().Aura != dbcenums.A_PROC_TRIGGER_DAMAGE {
 		config.ICD = damage.Cooldown()
 	}
@@ -690,7 +690,8 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 	source.registerTrigger(character, config)
 }
 
-// The handler followed by the row's own gain: it comes with every proc (EV-0108).
+// The handler followed by the row's own gain of mana, rage or energy on its caster, which comes with
+// every proc (EV-0108).
 func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
 	gain := row.EnergizeEffect()
 	if gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
@@ -706,9 +707,9 @@ func withProcEnergize(character *core.Character, row *spelldata.Spell, handler c
 	}
 }
 
-// The spell the proc casts, as its row states it, and a proc's spell: out of the rotation and not a
-// cast of its own, its hits reaching the damage listeners as a proc's do. A row that states Always Hit
-// rolls no miss, dodge or parry (EV-0164). It crits the way damage to its own caster does.
+// The spell the proc casts, as its row states it. It is a proc's spell: out of the rotation and not a
+// cast of its own, and its hits reach the damage listeners as a proc's do. A row that states Always Hit
+// rolls no miss, dodge or parry (EV-0164), and crits the way damage to its own caster does.
 func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell, asProc bool) core.SpellConfig {
 	config := spelldata.SpellConfig(&character.Unit, damage, damageShape(damage), castBy(asProc))
 
@@ -980,8 +981,9 @@ func damageShape(damage *spelldata.Spell) spelldata.SpellOpt {
 }
 
 // What a proc's damage lands on, for both damage constructors. A melee strike rolls weapon procs only
-// where a main-hand white swing of the weapon cast it (R-0040, EV-0145). A strike asked for while the
-// first is still casting goes one spell batch later.
+// where a main-hand white swing of the weapon cast it (R-0040, EV-0145), and such a strike rolls its
+// weapon once more. The strike that roll asks for comes while the first is still casting, so it goes
+// one spell batch later.
 func procDamageHandler(character *core.Character, damageSpell *core.Spell, callback core.AuraCallback) core.ProcHandler {
 	meleeStrike := damageSpell.ProcMask.Matches(core.ProcMaskMeleeMHSpecial)
 	casting := false
@@ -1571,7 +1573,8 @@ type StackingStatBonusCD struct {
 }
 
 // Where the stacks live. A database-resolved stacking trinket keeps them on the nested aura, always
-// bounded by the window whatever the config asks; a flat trinket states all of it on the effect.
+// bounded by the window whatever the config asks; a flat trinket states the count and the per-stack
+// stats on the effect.
 type stackingStats struct {
 	actionID      core.ActionID
 	maxStacks     int32

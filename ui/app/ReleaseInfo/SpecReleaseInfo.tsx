@@ -25,8 +25,8 @@ const changed = (change: Change) =>
 	joinParts([i18n.t('common.release_info.changed', { date: change.date }), <CommitLink key="commit" commit={change.commit} />]);
 
 // The page's release, under the sidebar's stats: the game build of the spell data the spec reads and the
-// build date. The details open on click, tap or Enter rather than on hover, so a touch screen can open
-// them too.
+// build date. The info button beside it opens the details on click, tap or Enter rather than on hover,
+// so a touch screen can open them too.
 export const SpecReleaseInfo = ({ spec, className }: SpecReleaseInfoProps) => {
 	const id = useId();
 	const release = specRelease(spec.simLink);

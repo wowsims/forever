@@ -48,8 +48,8 @@ func (warlock *Warlock) applyDestructiveReach() {
 	}
 }
 
-// Shadow Vulnerability (17794) has no charges, so another crit refreshes it. The row states rank 1; the
-// talent prices the rank.
+// Shadow Bolt crits leave Shadow Vulnerability (17794) on the target. It has no charges, so another crit
+// refreshes it. The row states rank 1; the talent prices the rank.
 func (warlock *Warlock) applyImprovedShadowBolt() {
 	if warlock.Talents.ImprovedShadowBolt == 0 {
 		return

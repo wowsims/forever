@@ -16,9 +16,9 @@ const repoRoot = "../../.."
 
 const updateHiGHSHint = "run `make update-highs` and commit the result"
 
-// That ui/worker/highs.wasm and ui/worker/highs_names_gen.go were generated from the `highs` version
-// package.json pins. Bumping the pin without regenerating leaves the Go host looking up minified names
-// from the wrong build.
+// Checks that ui/worker/highs.wasm and ui/worker/highs_names_gen.go were generated from the `highs`
+// version package.json pins. Bumping the pin without regenerating leaves the Go host looking up
+// minified names from the wrong build.
 func TestHiGHSArtifactsMatchPinnedVersion(t *testing.T) {
 	pinned := pinnedHiGHSVersion(t)
 

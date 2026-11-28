@@ -30,8 +30,8 @@ func init() {
 	)
 }
 
-// A stand-in which counts how often each is used. Thrown as a GCD starts, the explosive comes ready
-// 0.8 s into a later one.
+// A stand-in which counts how often each of its spells is used. Thrown as a GCD starts, its explosive
+// comes ready 0.8 s into a later one.
 type fakeCooldownMage struct {
 	Character
 	casts map[int32]int

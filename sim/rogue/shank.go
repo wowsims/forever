@@ -9,7 +9,7 @@ var shankRank = spellData.Shank.Highest()
 var venomBuff = spellData.VenomTriggered.Highest()
 var bootKnifePoints = spellData.BootKnifeTriggered.Highest()
 
-// Its row adds no combo point, so it is no builder and Seal Fate does not hear it. Buff timing in EV-0222.
+// Shank's row adds no combo point, so it is no builder and Seal Fate does not hear it. Venom timing in EV-0222.
 func (rogue *Rogue) registerShank() {
 	config := spelldata.SpellConfig(&rogue.Unit, shankRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
 	config.DamageMultiplier = shankRank.DamageEffect().Percent()

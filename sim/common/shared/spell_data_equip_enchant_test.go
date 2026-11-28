@@ -32,7 +32,7 @@ func init() {
 // Hit Weapon +2, 430391: A_MOD_HIT_CHANCE on the wearer, restricted to melee weapons.
 const hitWeapon int32 = 430391
 
-// A weapon enchant whose equip spell is weapon-scoped: the aura's hit reaches the attacks made with the
+// A weapon enchant whose equip spell is weapon-scoped gives its aura's hit to the attacks made with the
 // hand the enchant is on, while that hand holds a weapon its row names.
 func TestWeaponScopedEnchantReachesTheWeaponItNames(t *testing.T) {
 	const swordID, daggerID, enchantID int32 = 990981, 990982, 990983

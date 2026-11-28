@@ -267,8 +267,8 @@ export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: B
 						? !itemSpecPairsEqualUnordered(resultAsSpec.items, originalEquipmentSpec.items, swappableItemSlotPair)
 						: !ItemSpec.equals(spec, originalEquipmentSpec.items[idx]);
 
-					// Same: Item with a different enchant shows the compact change icon (enchant marker);
-					// New: The item appearing at all already says the slot changed.
+					// The same item with a different enchant shows the compact change icon (enchant marker); a new
+					// item appearing at all already says the slot changed.
 					if (itemChanged && spec.id !== 0 && spec.id === originalEquipmentSpec.items[idx]?.id) {
 						return (
 							<div key={idx} className="ui-bulk-result-item ui-bulk-item-cell" data-testid="bulk-result-item">

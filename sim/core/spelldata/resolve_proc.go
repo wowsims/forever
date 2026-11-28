@@ -63,7 +63,7 @@ func ProcTrigger(character *core.Character, s *Spell, handler core.ProcHandler, 
 
 	settleProcRate(character, s, &trigger)
 
-	// No-roll main-hand rows in EV-0195.
+	// No-roll main-hand rows, such as Iceblade Hacker's and Dreadfrost Saber's Frost, in EV-0195.
 	// TODO: Ingame test needed -- whether Death Mark, which lands for no damage and suppresses weapon procs,
 	// casts these rows' Frost. The sim lets it.
 	if s.ProcFlags[1]&dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY != 0 && trigger.DPM == nil && trigger.ProcChance >= 1 {
@@ -159,8 +159,8 @@ func CarriesProcClassMask(aura dbcenums.EffectAuraType) bool {
 // Whether the mask names spells of a family this character's class never casts, which is how an
 // item shared by every class states the filter of the one class it was written for: Dreadnaught's
 // 8pc 28845 names family 5, the warlock's, and on a warrior that mask matches nothing and silences
-// the listener. A class the game files state no family for, and the empty
-// mask every non-class spell carries, is no evidence of anything, so both are left alone.
+// the listener. A class the game files state no family for, and the empty mask every non-class spell
+// carries, is no evidence of anything, so both are left alone.
 //
 // Only another class's family counts. The game files put the potions under family 13 and a good deal
 // of generic content under 0 or 1, and a mask in one of those names spells every class can use, so

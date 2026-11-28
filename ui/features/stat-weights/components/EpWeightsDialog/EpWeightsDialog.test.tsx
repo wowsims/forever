@@ -356,7 +356,7 @@ describe('EpWeightsDialog', () => {
 		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
 	});
 
-	// No Calculate button, no computed columns, no Update column, no reference picker.
+	// A gear planner gets no Calculate button, no computed columns, no Update column and no reference picker.
 	it('gives a gear planner only the editable Current EP column', () => {
 		host.simDisabled = true;
 		host.sim.showThreatMetrics = true;

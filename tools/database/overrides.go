@@ -1138,8 +1138,8 @@ var ConsumableDenyList = []int32{
 	289087, // Elixir of Endless Opportunity
 }
 
-// Consumables the game files do not type as elixirs or scrolls. Elixir stacking in R-0054. The
-// generator sets their counts_with_elixirs.
+// Consumables the game files do not type as elixirs or scrolls whose stats count with the elixirs'
+// all the same (R-0054). The generator sets their counts_with_elixirs.
 var ConsumablesCountWithElixirs = []int32{
 	5206,  // Bogling Root
 	12451, // Juju Power

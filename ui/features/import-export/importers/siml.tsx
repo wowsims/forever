@@ -16,7 +16,7 @@ import { SIML_ROTATION_FILE, SIML_SETUP_FILE } from '../exporters/siml';
 import { located, parseSiml, specField } from '../siml_client';
 import { type ImporterDefinition, ImportProblems } from './types';
 
-// The messages each field of which is a setting of its own. Any other message is one setting.
+// The messages whose every field is a setting of its own. Any other message is one setting.
 const BY_FIELD: ReadonlySet<IMessageType<any>> = new Set([IndividualSimSettings, PlayerProto, SimSettings]);
 
 /**

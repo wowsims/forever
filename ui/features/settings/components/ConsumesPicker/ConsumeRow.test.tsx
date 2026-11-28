@@ -65,7 +65,7 @@ describe('ConsumeRow', () => {
 		expect(screen.getByRole('group', { name: 'settings_tab.consumables.engineering.title' })).toBe(screen.getByTestId('consumes-row'));
 	});
 
-	// Unmounting instead would strand a selection the player can no longer use.
+	// Unmounting the row instead of hiding it would strand a selection the player can no longer use.
 	it('hides the row when every picker in it is hidden, without unmounting it, and shows it again', () => {
 		const options = new Options();
 		const rowElem = row(options, [configFor(opts => opts.engineer), configFor(opts => opts.engineer)]);

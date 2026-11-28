@@ -233,8 +233,8 @@ func (mage *Mage) registerFingersOfFrost() {
 			sim.AddPendingAction(pa)
 		}
 	}
-	// Each Arcane Missiles missile that lands spends a charge, and a miss keeps it. It goes on the cast
-	// result, so the roll that read the target as Frozen spends it, whatever the travel time.
+	// Each Arcane Missiles missile that lands spends a charge, and a miss keeps it. The charge goes on
+	// the cast result, so the roll that read the target as Frozen spends it, whatever the travel time.
 	config.OnCastResult = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if spell.Matches(MageSpellArcaneMissilesTick) && result.Landed() {
 			aura.RemoveStack(sim)

@@ -102,8 +102,8 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 		}
 		resistance = min(resistance, schoolResistance)
 	}
-	// TODO: 8L + 19 is a fit (EV-0091). ExpectedStat's ArmorConstant × 0.088 fits nearly as well; a level
-	// 60 log tells the two apart only with a large sample of direct hits.
+	// TODO: 8L + 19 is a fit to the logs (EV-0091). ExpectedStat's ArmorConstant × 0.088 fits them nearly
+	// as well; a level 60 log tells the two apart only with a large sample of direct hits.
 	resistanceConstant := 8*float64(attacker.Level) + 19
 	averageResist := resistance / (math.Abs(resistance) + resistanceConstant)
 

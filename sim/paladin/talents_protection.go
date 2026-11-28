@@ -90,7 +90,7 @@ func (paladin *Paladin) applyRedoubt() {
 		redoubt.SetStacks(sim, redoubt.MaxStacks)
 	})
 	trigger.Name = "Redoubt - Trigger" + paladin.Label
-	// Rolls on attacks taken in EV-0022. The tooltip says "damaging".
+	// Rolls on attacks taken in EV-0022, though the tooltip says "damaging".
 	trigger.Outcome = core.OutcomeEmpty
 	trigger.RequireDamageDealt = false
 	paladin.MakeProcTriggerAura(trigger)

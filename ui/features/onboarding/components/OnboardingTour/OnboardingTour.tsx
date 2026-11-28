@@ -46,7 +46,7 @@ const missingHere = (candidate: TourStep<never>, from: TourStep<never>): boolean
 const viewport = () => ({ width: window.innerWidth, height: window.innerHeight });
 
 // A control that moves its own value or selection with the arrow keys. An arrow pressed in one of them
-// is the page's.
+// belongs to the page, not the tour.
 const ARROW_KEY_CONTROLS =
 	'input, textarea, select, [contenteditable=""], [contenteditable="true"], [role="tablist"], [role="listbox"], [role="menu"], [role="menubar"], [role="radiogroup"], [role="slider"], [role="grid"], [role="tree"]';
 const takesArrowKeys = (target: EventTarget | null): boolean => target instanceof Element && !!target.closest(ARROW_KEY_CONTROLS);

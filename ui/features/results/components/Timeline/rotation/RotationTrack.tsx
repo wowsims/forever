@@ -396,8 +396,9 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 		else moveTip(event.clientX, bottom);
 	};
 
-	// Opens the entry that launched the cast. The entry resolves in the player's rotation, which then holds the run's
-	// rows, because the editor matches its rows by identity. A pan's click never arrives: `onClickCapture` stops it first.
+	// Opens the entry that launched the cast, as long as the rotation is still the one that ran. The entry resolves in
+	// the player's rotation, which then holds the run's rows, because the editor matches its rows by identity. A pan's
+	// click never arrives: `onClickCapture` stops it first.
 	const simPlayer = usePlayer();
 	const activateTab = useActivateTab();
 	const onItemClick = (event: ReactMouseEvent<HTMLDivElement>) => {

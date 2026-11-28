@@ -531,7 +531,7 @@ const wielderStrikeDodgeChance = 0.065
 // A weapon's proc debuff from one main-hand wielder. Every target the raid's debuffs land on has a
 // wielder of its own, and the player wielding the weapon stacks the same aura. The wielder lands its
 // swings at the item's base speed and wielderOtherHitsPerMinute more hits, each rolling the item's
-// procs per minute, which refreshes the aura and adds a stack up to its max. Proc strikes in R-0040.
+// procs per minute; a proc refreshes the aura and adds a stack up to its max. Proc strikes in R-0040.
 func rollWielderHits(aura *core.Aura, itemID int32) {
 	item := core.GetItemByID(itemID)
 	if item == nil {

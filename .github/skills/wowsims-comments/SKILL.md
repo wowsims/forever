@@ -34,9 +34,15 @@ A sentence goes when it is:
 - a restatement of the paragraph above it
 - history and comparisons with another game version, which `wowsims-conventions` already bars
 
-A cut comment says less and never something else: no new fact, no stronger claim, no reworded rule. An id stays on
-the clause its file attests; a cut that moves it onto a neighbouring claim makes that claim look measured. When
-nothing is left, the comment goes.
+A cut comment says less and never something else: no new fact and no stronger claim. An id stays on the clause its
+file attests; a cut that moves it onto a neighbouring claim makes that claim look measured. When nothing is left, the
+comment goes.
+
+What is left reads as whole sentences in plain words. Dropping clauses leaves half a sentence more often than not:
+"The row copy rests no cooldown and carries a higher rate, so the cases sit far apart" is what remained of a sentence
+about a test's edited row. Reword what stays until a reader who has never seen the file can follow it: "The test's
+copy of the row has no internal cooldown and a higher rate, so the cases differ clearly." Every "it", "the copy" and
+"the charge" has its referent in the comment or in the line of code under it.
 
 ## Sizes
 

@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { Leg, MovementRun } from '../../model/movement/movement';
 import { MovementView } from './Movement';
 
-// A melee weave at 7 yd per second. The cat runs in at the pull and stays in melee range.
+// A melee weave, walked at 7 yd per second. The cat runs in at the pull and stays in melee range.
 const walk = (start: number, from: number, to: number): Leg => ({ start, end: start + Math.abs(to - from) / 7, from, to });
 
 const weaveLegs: Array<Leg> = [walk(-19, 12, 25), walk(-2, 25, 12)];

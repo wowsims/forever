@@ -41,7 +41,7 @@ var buffAuraTable = map[dbcenums.EffectAuraType]row{
 	},
 }
 
-// The options every raid buff and debuff is parsed with: a mana regen percent is read as Innervate's
+// The options every raid buff and debuff is parsed with. A mana regen percent is read as Innervate's
 // multiplier on the mana regen where allManaRegen says so.
 func RaidBuffOptions(skip []dbcenums.EffectAuraType, fullComboPoints, allManaRegen bool) []ParseOpt {
 	opts := []ParseOpt{Level(core.CharacterLevel), BuffAuras()}

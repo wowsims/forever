@@ -300,8 +300,8 @@ func (spell *Spell) SpellChanceToMiss(attackTable *AttackTable) float64 {
 // The spell miss chance with the given level-based miss in place of the attack table's, e.g. a wand hand's.
 func (spell *Spell) spellChanceToMiss(attackTable *AttackTable, baseMissChance float64) float64 {
 	// hitChance = baseLevelHit * (1 - averageResist) + spellHitBonus, with no miss floor:
-	// Forever has no 1% minimum miss. This is why spell hit above the level-based miss
-	// counteracts resistance for binary spells.
+	// Forever has no 1% minimum miss. The spell hit bonus is added after the resistance roll, which
+	// is why spell hit above the level-based miss counteracts resistance for binary spells.
 	baseHitChance := 1 - baseMissChance
 	if spell.Flags.Matches(SpellFlagBinary) {
 		baseHitChance *= attackTable.GetBinaryHitChance(spell)

@@ -191,7 +191,7 @@ func (priest *Priest) applyHolyBinding() {
 	talent := spellData.HolyBinding.Rank(1)
 	share := talent.EffectN(1).Percent()
 
-	// The heal's row states a placeholder of 1. The heal lacks Not a Proc. The share already carries
+	// The heal's row states a placeholder amount of 1. The heal lacks Not a Proc. The share already carries
 	// the caster's healing mods, so only the priest's own healing taken mods apply to it.
 	selfHeal := priest.RegisterSpell(spelldata.SpellConfig(&priest.Unit, spelldata.MustFind(1328570),
 		spelldata.Magic(core.ProcMaskSpellHealing), spelldata.Proc(),

@@ -877,8 +877,9 @@ func TestEngulfingShadowsTakesNoSpellPiercingBonus(t *testing.T) {
 	}
 }
 
-// A landed harmful spell rolls Blade of Eternal Darkness 17780 whether or not it deals damage. Each is
-// dealt at an hour-long cast, a chance that cannot fail, as core deals a cast's result before its hit.
+// A landed harmful spell rolls Blade of Eternal Darkness 17780 whether or not it deals damage. Each
+// test event is dealt at an hour-long cast, a chance that cannot fail, as core deals a cast's result
+// before its hit.
 func TestBladeOfEternalDarknessRollsLandedHarmfulSpellsOnly(t *testing.T) {
 	for _, event := range []struct {
 		name string
@@ -982,7 +983,7 @@ func boedPriest(t *testing.T) (*core.Simulation, *priest.Priest, *core.Spell) {
 }
 
 // Hex of Weakness 9035, Shadow Word: Pain 589 and Holy Fire 14914 each roll Blade of Eternal Darkness
-// 17780 once a landing at the chance of their cast time; the ticks roll nothing.
+// 17780 once a landing at the chance of their cast time; the ticks never roll it.
 func TestBladeOfEternalDarknessRollsEachLandingOfAHexOrDamageOverTimeOnce(t *testing.T) {
 	for _, id := range []int32{9035, 589, 14914} {
 		t.Run(fmt.Sprint(id), func(t *testing.T) {

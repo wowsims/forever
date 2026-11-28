@@ -503,7 +503,7 @@ func TestOffHandWeaponProcStrikeAppliesItsBleed(t *testing.T) {
 }
 
 // Forging Strike in the off hand, given a missile speed: its own weapon and a main-hand weapon proc hear
-// the landing no more than they would an instant strike.
+// the strike's landing after its flight no more than they would an instant strike.
 func TestOffHandWeaponProcStrikeInFlightIsHeardByNoWeaponProc(t *testing.T) {
 	const weaponID, neckID int32 = 991618, 991619
 	editRow(t, forgingStrike, func(s *spelldata.Spell) {

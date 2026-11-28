@@ -14,7 +14,7 @@ func (hunter *Hunter) registerRaptorStrike() {
 	// The APL queues it through the tag 1 spell below; the next swing casts it.
 	config.Flags &^= core.SpellFlagAPL
 
-	// Crit damage in EV-0134. Its spell mod adds the share once; this adds the rest.
+	// Crit damage in EV-0134. Predator's Edge's spell mod adds the share once; this adds the rest.
 	if rank := hunter.Talents.PredatorsEdge; rank > 0 {
 		share := spellData.PredatorsEdge.Rank(rank).EffectN(1).Percent()
 		config.CritMultiplierAdditive += share * (1 + share)

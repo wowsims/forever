@@ -1,4 +1,5 @@
-// The crit-cap row is the last row of the Physical group for this display-stat list, so it is the last row either way.
+// The crit-cap row is the last row of the Physical group for this display-stat list, so it is the last row while the
+// stats are in flight and once they settle.
 import { PlayerStats } from '@generated/proto/api';
 import { AreaType, Class, MobType, PseudoStat, Race, Stat, Target, WeaponSkill } from '@generated/proto/common';
 import { DatabaseFilters } from '@generated/proto/ui';

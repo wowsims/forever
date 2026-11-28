@@ -36,9 +36,9 @@ func (warrior *Warrior) registerThunderClap() {
 		return aura
 	})
 
-	// Physical but Magic in SpellCategories: it rolls on the spell hit table and crits on spell crit
-	// chance for 1.5x. Spell crits in EV-0055. A magic hit spends no Sweeping
-	// Strikes charge. Its ranged mask reaches equip procs that hear ranged abilities.
+	// Thunder Clap is Physical but Magic in SpellCategories: it rolls on the spell hit table and crits on
+	// spell crit chance for 1.5x. Spell crits in EV-0055. A magic hit spends no Sweeping Strikes charge.
+	// Its ranged mask reaches equip procs that hear ranged abilities.
 	config := spelldata.SpellConfig(&warrior.Unit, thunderClapRank,
 		spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskRangedSpecial

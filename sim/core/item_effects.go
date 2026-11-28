@@ -29,7 +29,8 @@ func HasEnchantEffect(id int32) bool {
 
 // Registers an ApplyEffect function which will be called before the Sim
 // starts, for any Agent that is wearing the item.
-// The items an effect was registered for that the game files do not ship, so the count can be reported.
+// Collects the items an effect was registered for that the game files do not ship, so the count can
+// be reported.
 var missingItemEffects []int32
 
 var missingEnchantEffects []int32

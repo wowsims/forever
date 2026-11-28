@@ -124,7 +124,7 @@ func attachSetBonusProc(character *core.Character, setBonusAura *core.Aura, row 
 }
 
 // A listener for the row's procs per minute on spell casts. A cast of a damaging or healing spell rolls
-// once, and so does any other cast whose spell costs mana. Any other cast rolls nothing (EV-0144). The
+// once, and so does any other cast whose spell costs mana. Any other cast never rolls (EV-0144). The
 // chance depends on the cast, so Chance(1) leaves core no roll of its own and the condition draws it.
 func SpellCastPPMTrigger(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcTrigger {
 	trigger := spelldata.ProcTrigger(character, row, handler, spelldata.Chance(1))

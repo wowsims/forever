@@ -292,7 +292,7 @@ export const registerSetBonusNotices = (db: Database) => {
 		rates.set(setId, (rates.get(setId) ?? new Map<number, ProcRate>()).set(pieces, rate));
 	}
 
-	// By set id, then by piece count: what each bonus leaves out.
+	// By set id, then by piece count: the notices of what each bonus leaves out.
 	const setBonusNotices = new Map<number, Map<number, ReactNode[]>>();
 	addSetBonusNotices(setBonusNotices, MISSING_SET_BONUSES, tooltips => <NotYetImplementedBonus tooltips={tooltips} />);
 	addSetBonusNotices(setBonusNotices, PARTLY_IMPLEMENTED_SET_BONUSES, text => <PartlyImplementedBonus text={text} />);

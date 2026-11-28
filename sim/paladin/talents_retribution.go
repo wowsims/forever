@@ -125,7 +125,7 @@ func (paladin *Paladin) applyVindication() {
 // Judgement fires no on-cast callbacks, so the trigger hears the judgement the seal unleashes: one
 // per Judgement, and it refunds whether or not that judgement lands.
 //
-// The refund and the seal's percent cost cut (EV-0063).
+// Refund and the seal's percent cost cut in EV-0063.
 func (paladin *Paladin) applySanctifiedJudgement() {
 	if paladin.Talents.SanctifiedJudgement == 0 {
 		return

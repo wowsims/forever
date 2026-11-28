@@ -51,7 +51,7 @@ describe('FieldGroup', () => {
 		).toEqual([true, true, true]);
 	});
 
-	// `getValue` writes, which is what makes a freshly picked kind show anything at all.
+	// `getValue` writes the spec's default, which is what makes a freshly picked kind show anything at all.
 	it('fills an unset field with the spec default on the first read', () => {
 		setup({});
 		mount([numberFieldConfig('count', false)]);

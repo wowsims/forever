@@ -75,7 +75,7 @@ func stoneCrit(t *testing.T) float64 {
 	return crit
 }
 
-// Elemental Sharpening Stone 18262's 22755: each weapon carries its own copy, and the crit reaches the
+// Each weapon carries its own copy of Elemental Sharpening Stone 18262's 22755, and its crit reaches the
 // attacks made with the hand the stone is on, and no other attack.
 func TestElementalSharpeningStoneCritReachesItsOwnHand(t *testing.T) {
 	_, bare := stonedWarrior(t, &proto.ConsumesSpec{}, nil)

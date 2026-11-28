@@ -100,7 +100,8 @@ var DefaultRangedWeaponTypes = []proto.RangedWeaponType{
 	proto.RangedWeaponType_RangedWeaponTypeIdol,
 }
 
-// Someone else still spends the cast and the cooldown; without Dreamstate the caster gains none of the mana.
+// Innervate on someone else still spends the cast and the cooldown; without Dreamstate the caster gains
+// none of the mana.
 func TestGiftedInnervateCastsWithoutTheMana(t *testing.T) {
 	for _, c := range []struct {
 		name     string

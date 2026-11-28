@@ -183,7 +183,7 @@ describe('LogRunner', () => {
 	});
 
 	// The list shares a scroller with the rest of the pane, and `.log-runner-scroll` is not it: that
-	// element hides its vertical overflow. The walk has to skip it and keep going.
+	// element hides its vertical overflow. The walk up the ancestors has to skip it and keep going.
 	it('hands the list the nearest scrolling ancestor, skipping the overflow-hidden one', () => {
 		const outer = document.createElement('div');
 		outer.className = 'sim-ui';

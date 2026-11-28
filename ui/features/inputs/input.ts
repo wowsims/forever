@@ -35,8 +35,8 @@ export interface KeptInput<ModObject, T> {
 
 export interface OverwrittenInput<ModObject, T> {
 	// Badges the swatch or trigger with the tooltip it returns for the value: a selection another selection overwrites.
-	// The swatch dims too unless `partly`, while the selection still adds something. An icon-enum picker asks it, while
-	// its menu is open, of each option, as if that option were selected in place of the value.
+	// The swatch dims too unless `partly`, while the selection still adds something. An icon-enum picker asks it of the
+	// value it shows and, while its menu is open, of each option, as if that option were selected in place of the value.
 	overwritten?: (obj: ModObject, value: T) => { tooltip: string; partly: boolean } | undefined;
 }
 

@@ -251,7 +251,8 @@ func newHiGHSWasmRuntime() (*highsWasmRuntime, error) {
 		return nil, fmt.Errorf("HiGHS wasm export %s is not memory", worker.HighsWASMMemoryExport)
 	}
 
-	// Every name below is emscripten's symbolic one; highsExportedFunc translates it.
+	// Every name below is emscripten's symbolic one; highsExportedFunc translates it to the name
+	// this build of highs.wasm exports it under.
 	var lookupErr error
 	lookup := func(symbol string) api.Function {
 		fn, err := highsExportedFunc(instance, symbol)

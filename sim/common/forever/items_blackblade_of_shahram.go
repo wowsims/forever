@@ -123,8 +123,8 @@ func registerWillOfShahram(character *core.Character) *core.Spell {
 	config.MaxStacks = shahramWillMaxStacks
 	aura := core.MakeStackingAura(character, core.StackingStatAura{Aura: config, BonusPerStack: perStack})
 
-	// When each stack fades, oldest first. A fade drops every stack due by then, so the action of a
-	// stack already replaced or expired drops nothing.
+	// When each stack fades, oldest first. Each fade is a pending action that drops every stack due by
+	// then, so the fade of a stack already replaced or expired drops nothing.
 	var fades []time.Duration
 	aura.ApplyOnReset(func(_ *core.Aura, _ *core.Simulation) {
 		fades = fades[:0]
@@ -230,7 +230,8 @@ func registerBlessingOfShahram(character *core.Character) *core.Spell {
 }
 
 // Two Fists run side by side (EV-0125), and their speed counts once, an owner ruling. Every copy lasts
-// the row's duration, so one aura refreshed by each Fist holds the same speed for the same time.
+// the row's duration, so the newest fades last and one aura refreshed by each Fist holds the same
+// speed for the same time.
 func registerFistOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16601)
 	aura := character.RegisterAura(spelldata.AuraConfig(row))

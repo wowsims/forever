@@ -393,8 +393,9 @@ func (unit *Unit) RegisterSpell(config SpellConfig) *Spell {
 		spell.ApplyEffects = func(*Simulation, *Unit, *Spell) {}
 	}
 
-	// Done after generating the castFn for performance reasons, so that auto-attacks can be
-	// managed separately during movement actions rather than constantly polling range checks.
+	// Range constraints are applied after generating the castFn for performance reasons, so that
+	// auto-attacks can be managed separately during movement actions rather than constantly
+	// polling range checks.
 	if (config.MinRange != 0) || (config.MaxRange != 0) {
 		spell.MinRange = config.MinRange
 		spell.MaxRange = config.MaxRange
@@ -887,7 +888,8 @@ func (spell *Spell) applyEffects(sim *Simulation, target *Unit) {
 	spell.SpellMetrics[target.UnitIndex].Casts++
 	spell.casts++
 
-	// Both are used to optimize away unneccesery calls and 99% of the time are gonna be used together.
+	// The flag is not split in two: both uses optimize away unnecessary calls and 99% of the time go
+	// together.
 	if !spell.Flags.Matches(SpellFlagNoOnCastComplete) {
 		spell.Unit.OnApplyEffects(sim, target, spell)
 	}

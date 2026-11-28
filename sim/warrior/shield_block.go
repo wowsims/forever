@@ -13,7 +13,8 @@ func (warrior *Warrior) registerShieldBlock() {
 	spelldata.ParseEffects(&warrior.Character, aura, shieldBlockRank)
 
 	// Last charge timing in EV-0047, EV-0004.
-	// Holy Shield spends charges on blocks the same way but is not measured, and it still ends at its last block.
+	// Holy Shield spends charges on blocks as Shield Block does but is not measured, and it ends at its last
+	// block, not at the end of that block's spell batch.
 	lastChargeSpent := false
 	batchEnd := &core.PendingAction{
 		Priority: core.ActionPriorityDOT,

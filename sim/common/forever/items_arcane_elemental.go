@@ -15,7 +15,7 @@ var arcaneElemental = shared.GuardianCreature{
 }
 
 // Elementals up at once in EV-0169.
-// Two pieces carry one each, since every piece is worn when the 5-piece bonus is.
+// Two pieces carry one elemental each, since every piece is worn when the 5-piece bonus is.
 func init() {
 	for i, itemID := range []int32{273044, 273051} { // Violet Sorcerer's Robes, Violet Sorcerer's Mantle
 		elemental := arcaneElemental

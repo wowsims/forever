@@ -78,8 +78,8 @@ export class SimResultsManager {
 		batch(() => {
 			this.referenceData = currentData;
 
-			// Restored before `setSimResult`, which rebuilds `currentData` from the sim's settings as
-			// they are.
+			// Restored before `setSimResult`, which rebuilds `currentData` from the sim's current
+			// settings.
 			this.sim.raid.fromProto(referenceData.raidProto);
 			this.sim.encounter.fromProto(referenceData.encounterProto);
 			const wasSwapped = this.swapped;

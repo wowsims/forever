@@ -40,8 +40,8 @@ func (shaman *Shaman) newChainLightningSpellConfig(row *spelldata.Spell, overloa
 			spell.DamageMultiplier *= bounce
 		}
 
-		// Overload rolls in EV-0137. The tooltip of 408438 states one chance for both spells. An overload
-		// rolls none of its own. DealDamage disposes the result, so Landed is read first.
+		// Overload rolls in EV-0137. The tooltip of 408438 states one chance for both spells. An
+		// overload rolls no overload of its own. DealDamage disposes the result, so Landed is read first.
 		var overloadTargets []*core.Unit
 		for _, result := range results {
 			landed, hitTarget := result.Landed(), result.Target

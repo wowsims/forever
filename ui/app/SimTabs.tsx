@@ -28,7 +28,7 @@ export const useActiveSimTab = () => use(SimActiveTabContext);
 export const SimTabs = ({ defs, children }: SimTabsProps) => {
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const tabs = useMemo(() => childProps<SimTabDefProps>(defs), [defs]);
-	// `null`, not `undefined`, so `Tabs.Root` is controlled from its first render (with no tabs yet).
+	// The value is `null`, not `undefined`, so `Tabs.Root` is controlled from its first render (with no tabs yet).
 	const value = tabs.find(tab => tab.id === activeId)?.id ?? tabs[0]?.id ?? null;
 
 	// Base UI fires `onValueChange` for a user interaction only, so a pane opening a sibling tab

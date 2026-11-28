@@ -68,7 +68,8 @@ func rowDuration(t *testing.T, spellID int32) time.Duration {
 	return duration
 }
 
-// A stat amount at the sim's character level, in float32 the way the game files state the gain.
+// A stat amount at the sim's character level, with the per-level gain in float32 the way the game
+// files state it.
 func levelScaledFloor(e *spelldata.Effect) float64 {
 	level := int32(core.CharacterLevel)
 	if e.MaxLevel > 0 {

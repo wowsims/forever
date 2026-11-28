@@ -169,7 +169,7 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		const rotation = withSpellIds(preset.rotation.rotation!, bookRanks);
 
 		// With this group shown (for Arms, with Stance Dance as well), the racials group casts Elune's Light only while
-		// Recklessness is down.
+		// Recklessness is down, more than 15 s remain, and either more than 195 s or at most 30 s remain.
 		const recklessnessAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action.action.groupReference.groupName === 'Recklessness ON/OFF',
 		);
@@ -180,7 +180,7 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		);
 		if (stanceDanceAction) stanceDanceAction.hide = !useStanceDance;
 
-		// Help stacks to 5 and leaves the rest to the raid; Maintain also refreshes.
+		// The Help option stacks to 5 and leaves the rest to the raid; Maintain also refreshes.
 		const sunderArmorAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action?.action.groupReference.groupName === 'Sunder Armor',
 		);

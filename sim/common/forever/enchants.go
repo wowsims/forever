@@ -33,7 +33,8 @@ var revelationDirectHits = map[proto.Class]core.ClassFlags{
 	proto.Class_ClassShaman:  {Family: 11, Mask: [4]uint32{0x10000000}},      // Flame Shock
 }
 
-// Judgement of Light's ranks (EV-0149) and Vampiric Embrace's party heal 15290.
+// Heals that never roll Revelation's chance: Judgement of Light's at each rank (EV-0149), and Vampiric
+// Embrace's party heal 15290.
 var revelationSkippedHeals = []int32{20267, 20341, 20342, 20343, 15290}
 
 // Charge spending in EV-0149.
@@ -224,8 +225,9 @@ func init() {
 			},
 		})
 
-		// The 25 s lockout is the Equip aura 46662's proc recovery; the combat half has none in the DBC,
-		// so the two halves share one.
+		// Enchant 3273 has two halves that both cast 46579, a combat spell and the Equip aura 46662. The
+		// 25 s lockout is 46662's proc recovery; the combat half has none in the game files, so the two
+		// halves share one.
 		// The roll and the lockout are taken in ExtraCondition: the handler runs a batch window later,
 		// and hits landing on the same timestamp would all pass a lockout consumed there.
 		lockout := core.Cooldown{
@@ -391,7 +393,7 @@ func init() {
 		trigger.RequireDamageDealt = true
 		// Level share in EV-0149.
 		// A spell the store has no row for, such as an item's spell registered under its item id, reads
-		// level 0 and keeps none.
+		// level 0 and keeps no share of the chance.
 		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
 		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
 		// Hit event rolls in EV-0149. The roll is keyed by spell, not by spell id, because the sim registers

@@ -219,7 +219,7 @@ const (
 	SpellFlagCanCastWhileMoving                             // Allows the cast to be casted while moving
 	SpellFlagPassiveSpell                                   // Indicates this spell is applied/cast as a result of another spell
 	SpellFlagSuppressWeaponProcs                            // The Suppress Weapon Procs attribute (Attributes[4] 0x800000): weapon procs, and auras marked "aura is weapon proc", ignore this spell's hits.
-	SpellFlagSuppressCasterProcs                            // The Suppress Caster Procs attribute (Attributes[3] 0x10000): no ProcTrigger on the caster hears the spell's hits (EV-0165), cast completing, ticks or heals, which still land in full. No listener the sim builds can proc from suppressed spells (Attributes[7], [12]), so those attributes are not read.
+	SpellFlagSuppressCasterProcs                            // The Suppress Caster Procs attribute (Attributes[3] 0x10000): no ProcTrigger on the caster hears the spell's cast completing, ticks, heals or hits (EV-0165), which still land in full. No listener the sim builds can proc from suppressed spells (Attributes[7], [12]), so those attributes are not read.
 	SpellFlagSuppressTargetProcs                            // The Suppress Target Procs attribute (Attributes[3] 0x20000): no ProcTrigger on the target hears the spell's hits or ticks, which still land in full.
 	SpellFlagProc                                           // Not a DBC attribute. The spell is cast by an aura or item effect and lacks Not a Proc (Attributes[3] 0x200), so aura procs only hear its hits when they can proc from procs. Weapon procs do not care.
 	SpellFlagSupressDoTApply                                // If present this spell will not apply dots (Used for DTR dot supression)

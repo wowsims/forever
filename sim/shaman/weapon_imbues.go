@@ -125,7 +125,7 @@ func (shaman *Shaman) imbueProcManager(imbue proto.ShamanImbue, ppm float64, cha
 	return &dpm
 }
 
-// Imbue hit type in EV-0012.
+// Windfury Weapon hit type in EV-0012.
 func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 	// Elemental Weapons raises effect 1, which the parse would read as damage.
 	attackPower := windfuryWeaponAttack.EffectN(1).Average() * shaman.windfuryWeaponMultiplier
@@ -140,8 +140,8 @@ func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 	return shaman.RegisterSpell(config)
 }
 
-// 439431 rolls off the hit's cast result, and the Windfury hits follow once that hit has been dealt,
-// in the same instant. The row hears abilities, the Windfury hits among them, but they land inside
+// 439431 rolls off a main-hand melee hit's cast result, and the Windfury hits follow once that hit has
+// been dealt, in the same instant. The row hears abilities, the Windfury hits among them, but they land inside
 // the 1.5 s the proc has just started, so they never roll.
 func (shaman *Shaman) RegisterWindfuryImbue() {
 	strike := shaman.newWindfuryImbueSpell()

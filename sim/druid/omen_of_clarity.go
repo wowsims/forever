@@ -47,10 +47,10 @@ func (druid *Druid) registerOmenOfClarity() {
 	}
 	druid.OmenOfClarityAura = druid.MakeProcTriggerAura(trigger)
 
-	// Hurricane and the helpful buffs Thorns and Innervate roll it at the cast, on the same chance and
-	// cooldown. Mark of the Wild and Nature's Grasp roll as those do, and the sim casts neither; a
-	// shapeshift rolls nothing. The buff comes a spell batch later, after the cast has paid its cost or
-	// spent Clearcasting, so a proc never makes its own cast free.
+	// Hurricane and, in Moonkin Form only, the helpful buffs Thorns and Innervate roll it at the cast, on
+	// the same chance and cooldown. Mark of the Wild and Nature's Grasp roll as those do, and the sim
+	// casts neither; a shapeshift rolls nothing. The buff comes a spell batch later, after the cast has
+	// paid its cost or spent Clearcasting, so a proc never makes its own cast free.
 	//
 	// Core gives every trigger a cooldown of its own, and the row's proc mask hears no helpful cast, so
 	// this trigger gates on and starts the hit trigger's cooldown itself.

@@ -230,7 +230,7 @@ func getBulkSimStageMaxSurvivors(config BulkSimStageConfig, candidateCount int, 
 
 // Adds lockstep iterations to the displayed top results (and the baseline) until every adjacent
 // pair of the final ranking is statistically separated or the extra-iteration budget is spent.
-// Without it, the order of near-tied top results flips between runs with different seeds.
+// Without this stage, the order of near-tied top results flips between runs with different seeds.
 //
 // When the stage runs, the returned results are the refined, DPS-sorted finalists.
 func runBulkSimFinalistStage(request *proto.BulkSimRequest, baseline *BulkSimCandidateResult, results []*BulkSimCandidateResult, topResults int, progress chan *proto.ProgressMetrics, signals simsignals.Signals) (*BulkSimCandidateResult, []*BulkSimCandidateResult, *proto.BulkSimStageMetrics) {

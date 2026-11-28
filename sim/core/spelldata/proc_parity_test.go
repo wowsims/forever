@@ -1,5 +1,6 @@
 // What the item procs the sim registered before it read them off the rows resolve to. The table holds
-// the registrations sim/common/forever/stat_bonus_procs_auto_gen.go carried, transcribed by hand.
+// fifteen of the sixteen registrations sim/common/forever/stat_bonus_procs_auto_gen.go carried,
+// transcribed by hand.
 // Every field is what that generated call stated, except a rolled chance and the cooldown, which are
 // the trigger row's own.
 

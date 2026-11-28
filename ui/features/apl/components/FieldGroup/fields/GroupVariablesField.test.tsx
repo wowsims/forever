@@ -166,8 +166,8 @@ describe('GroupVariablesField', () => {
 	});
 });
 
-// The reference outlives what it points at; none of these cases may cost the user the
-// assignments they typed.
+// The reference outlives what it points at: a deleted or renamed group, or a group declaring no
+// placeholder for an assignment, may not cost the user the assignments they typed.
 describe('GroupVariablesField — nothing to derive from', () => {
 	const assigned = () => ({
 		name: 'TargetDemonOrUndead',

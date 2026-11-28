@@ -246,8 +246,8 @@ func TestWeaknessAnalyzerDropsOnTheFirstCrit(t *testing.T) {
 	}
 }
 
-// Charge spending in EV-0162. The buff names
-// no spells, so the channel keeps nothing for its end.
+// Charge spending in EV-0162. The buff names no spells, so a channel does not hold the charge for
+// its end.
 func TestWeaknessAnalyzerDropsOnACritInsideAChannel(t *testing.T) {
 	const itemID int32 = 992707
 	withAuraItem(itemID, proto.ItemType_ItemTypeTrinket, testOnUse(analyzingWeaknesses, 90000, 1141, 20000))

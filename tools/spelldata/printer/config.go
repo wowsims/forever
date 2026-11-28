@@ -154,8 +154,8 @@ func evalDeclaredExpr(expr ast.Expr, declarations map[string]declaration, pkg st
 	}
 
 	if virtual != nil {
-		// Preserve the virtual parameter as the root of the expression, also for
-		// aliases whose declaration eventually resolves through rank.
+		// Preserve the virtual parameter as the root of the expression, both for "rank"
+		// itself and for aliases whose declaration eventually resolves through rank.
 		resolved, err := resolveToVirtual(c, declarations, virtual.parameter, trace)
 		if err != nil {
 			return nil, nil, err

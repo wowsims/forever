@@ -8,8 +8,9 @@ const INLINE_KINDS: ReadonlySet<AplFieldSpec['kind']> = new Set(['boolean', 'num
 /**
  * The binding one field of a kind's impl message gets.
  *
- * `getValue` is a mutation on a read path and it stays one, because the whole tree is built on
- * reading the live proto rather than a copy of it.
+ * `getValue` fills an unset field with the spec's default before reading it back. That is a mutation
+ * on a read path and it stays one, because the whole tree is built on reading the live proto rather
+ * than a copy of it.
  */
 export const fieldInputConfig = (
 	spec: AplFieldSpec,

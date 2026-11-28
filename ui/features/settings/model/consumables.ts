@@ -295,7 +295,8 @@ function lostTo(amounts: Map<string, number>, rivals: ReadonlyArray<{ other: Gra
 
 const tying = (rivals: ReadonlyArray<Grants>) => rivals.map(other => ({ other, ties: true }));
 
-// Elixir stacking in R-0054. The picks are set aside one at a time, those granting the fewest stats and
+// Elixir stacking in R-0054. A pick is set aside when the other picks and the raid buffs grant as much of
+// everything it grants. The picks are set aside one at a time, those granting the fewest stats and
 // percents first and, among those, the one later in the spec's lists first, so of two that grant the same
 // only one is. One granting nothing the picker can read is never set aside. A pick left loses to a raid
 // buff of an equal amount, and to a pick of an equal amount earlier in the lists.

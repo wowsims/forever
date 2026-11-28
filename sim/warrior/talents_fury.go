@@ -131,9 +131,9 @@ func (warrior *Warrior) registerEnrage() {
 
 	warrior.EnrageAura.NewExclusiveEffect("Enrage", true, core.ExclusiveEffect{Priority: spellData.Enrage.ValueAt(warrior.Talents.Enrage)})
 
-	// Proc chance measurement in EV-0050. The game files state 30% for a spell hit of any school but
-	// physical too. A swing rolls the row's rate whatever its school. Chance(1) leaves core no roll of its
-	// own, so the one draw is made here. Damaging hits in EV-0123.
+	// Proc chance measurement in EV-0050. The game files state the row's 30% for a spell hit of any
+	// school but physical as well. A swing rolls the row's rate whatever its school. Chance(1) leaves
+	// core no roll of its own, so the one draw is made here. Damaging hits in EV-0123.
 	row := spellData.Enrage.Rank(warrior.Talents.Enrage)
 	trigger := spelldata.ProcTrigger(&warrior.Character, row,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {

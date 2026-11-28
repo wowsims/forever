@@ -77,8 +77,8 @@ func TestShadowPriest(t *testing.T) {
 }
 
 // The priest's own Prayer of Fortitude bids in the raid buff's category. Arcane Intellect lifts the
-// priest's mana pool above the cost. The priest's copy, put up anyway as another priest's cast would,
-// adds nothing.
+// priest's mana pool above the cast's cost. With the raid buff up, the cast is turned away, and the
+// priest's copy, put up anyway as another priest's cast would, adds nothing.
 func TestPrayerOfFortitudeCountsOnceWithTheRaidBuff(t *testing.T) {
 	rank := spellData.PrayerOfFortitude.Highest()
 	rowStamina := rank.EffectN(1).BaseValue()

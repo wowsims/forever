@@ -1,5 +1,5 @@
-// A browser-level check waits for text to appear, so it passes on tick two and can never see that
-// tick one's numbers were dropped; that gap is what the "same commit" case below covers.
+// Progress renders once per tick. A browser-level check waits for text to appear, so it passes on
+// tick two and can never see that tick one's numbers were dropped; that gap is what the "same commit" case below covers.
 import { ProgressMetrics } from '@generated/proto/api';
 import { formatToNumber } from '@sim/utils/format';
 import { renderWithHost } from '@testing/react';

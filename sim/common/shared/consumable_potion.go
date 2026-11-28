@@ -18,7 +18,7 @@ const alchemistsStoneSpellID int32 = 17619
 // A consumable whose on-use spell the potion builder runs on the user, or whose damage it deals to
 // enemies, on the item's cooldown and the category it shares. A potion is a major cooldown only while
 // the consumes pick it for an APL potion placeholder, the other potions are the rotation's; a conjured
-// item is one only while it is the spec's chosen one; any other whenever the spec names it.
+// item is one only while it is the spec's chosen one; any other is one whenever the spec names it.
 func NewSpellDataOnUseConsumable(itemID int32) {
 	registerSpellDataConsumable(itemID)
 }

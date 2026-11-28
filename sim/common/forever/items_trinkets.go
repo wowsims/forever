@@ -266,7 +266,7 @@ func init() {
 		ancientPower := character.RegisterSpell(config)
 
 		// Which spells roll in EV-0131.
-		// An area spell rolls it once per target, which is unmeasured.
+		// An area spell rolls the proc once per target, which is unmeasured.
 		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			ancientPower.Cast(sim, result.Target)
 		}, func(character *core.Character, trigger *core.ProcTrigger) {

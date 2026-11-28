@@ -1,6 +1,6 @@
 // Does a React binding need state/batch.ts's gate? The gate exists for direct, non-React store
 // subscribers: a batch() defers their listeners so a multi-slice write notifies once with final
-// state. This is that measurement, over three bindings of the same store:
+// state. This file settles the question by measurement, over three bindings of the same store:
 //
 //   gated    — useStoreSubscribe over a subscribeGated source (what every component uses)
 //   ungated  — useStoreSubscribe over a raw store.subscribe source

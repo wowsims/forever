@@ -179,8 +179,8 @@ func (unit *Unit) SpiritManaRegenPerSecond() float64 {
 }
 
 // Innervate multiplies Spirit regen and MP5, but a periodic energize aura ticks its own amount under
-// it (EV-0114). Taking Innervate's surplus on that share back off keeps a
-// factor of 1 bit-exact. Skyborne Energized's multiplier scales all of it.
+// it (EV-0114). Taking Innervate's surplus on that share back off keeps a factor of 1 bit-exact.
+// Skyborne Energized's multiplier scales all of it.
 func (unit *Unit) multipliedManaRegen(spiritRegen float64, innervate float64) float64 {
 	return ((unit.MP5ManaRegenPerSecond()+spiritRegen)*innervate - unit.PseudoStats.EnergizeMP5/5.0*(innervate-1)) * unit.manaRegenMultiplier
 }

@@ -66,8 +66,9 @@ func (warlock *Warlock) applyGrimReach() {
 	spelldata.ParseStatic(&warlock.Character, spellData.GrimReach.Rank(warlock.Talents.GrimReach))
 }
 
-// The talent row states no proc, so the trigger is the kill Drain Soul's PROC_FLAG_KILL hears: the raid's
-// kill roll decides it. The buff row states the 2/2 value; the talent's dummies price it at each rank.
+// Soul Harvest's talent row states no proc, so the trigger is the kill Drain Soul's PROC_FLAG_KILL hears:
+// the raid's kill roll decides it. The buff row states the 2/2 value; the talent's dummies price it at each
+// rank.
 func (warlock *Warlock) applySoulHarvest() {
 	if warlock.Talents.SoulHarvest == 0 {
 		return

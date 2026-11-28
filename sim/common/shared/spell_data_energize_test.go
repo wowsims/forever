@@ -110,8 +110,8 @@ func gainedFrom(caster *testCaster, itemID int32) (float64, int32) {
 	return 0, 0
 }
 
-// Renataki's Charm of Trickery 19954 casts 24532, E_ENERGIZE into energy, in a category the test's lasso
-// shares.
+// Renataki's Charm of Trickery 19954 casts 24532, E_ENERGIZE into energy. The test's on-use shares its
+// cooldown category with the test's lasso.
 func TestOnUseEnergizeRestoresARoguesEnergy(t *testing.T) {
 	const charmID, lassoID int32 = 991301, 991302
 	sim, rogue := newBarSim(t, testRogue(),

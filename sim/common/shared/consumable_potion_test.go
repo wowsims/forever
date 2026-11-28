@@ -514,8 +514,8 @@ func TestConsumableUnsupportedNamesWhatStopsIt(t *testing.T) {
 	}
 }
 
-// Caustic Smog Potion's cloud has to state how long it lasts, and its damage has to state Always Hit,
-// since the cloud rolls none.
+// A damage cloud, here Caustic Smog Potion's, has to state how long it lasts, and its damage has to
+// state Always Hit, since the cloud rolls no hit.
 func TestADamageCloudNamesWhatStopsIt(t *testing.T) {
 	cloud, damage := DamageCloudOf(spelldata.MustFind(1252525))
 	if cloud.ID != 1252526 || damage.ID != 1252543 {

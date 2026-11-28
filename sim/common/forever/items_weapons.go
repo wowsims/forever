@@ -185,7 +185,7 @@ func init() {
 	// Equip: Your attacks have a chance to Wax, dealing 189 Arcane damage or Wane, granting 40 Strength
 	// for 10s.
 	//
-	// 1309550 states no odds.
+	// 1309550 states neither spell's odds.
 	// Outcome odds in EV-0163.
 	// Waxing Moon takes a magic proc's spell damage mask, which R-0051 leaves open for a hand-written item
 	// spell.
@@ -324,8 +324,8 @@ func init() {
 	//
 	// Chance on hit: Knocks target silly for 2 sec and increases Strength by 53 for 20 sec.
 	//
-	// No effect of 17500 casts 17499 (EV-0150), so the generator cannot pair them. The sim leaves the
-	// stun out.
+	// Surge of Strength 17499 goes up on the wearer with every proc (EV-0150), but no effect of 17500
+	// casts it, so the generator cannot pair them. The sim leaves the stun out.
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17500, BuffSpellID: 17499, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13393, ItemName: "Malown's Slam"},
@@ -479,8 +479,8 @@ func init() {
 	// Chance on hit: Wounds the target for 42 damage. Naga are Stunned for 2 sec.
 	//
 	// PPM measurement in EV-0136.
-	// Missed shots in EV-0206. It rolls and strikes at the shot's release, physical on
-	// the melee table. The sim leaves the stun on Naga out.
+	// Missed shots in EV-0206. The proc rolls on the shot's cast result at its release, and Pierce Heart
+	// 1292647 strikes then, physical on the melee table. The sim leaves the stun on Naga out.
 	newEntryRateItemEffect(3078, 1292647, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(1292647)
 		damage := row.DamageEffect()
@@ -512,7 +512,8 @@ func init() {
 	//
 	// PPM measurement in EV-0119.
 	// A free cast keeps the charge, as does one the reduction brings to 0.
-	// spelldata.AttachChargeSpender on cast complete would spend it on Shoot.
+	// The listener is hand-written: spelldata.AttachChargeSpender on cast complete would spend the
+	// charge on Shoot.
 	newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
 		if !character.HasManaBar() {
 			return
@@ -555,8 +556,8 @@ func init() {
 	// Chance on hit: Lash the enemy with the rage of Sul'thraze, reducing their attack power by 180 for
 	// 15s and dealing 159 Shadow damage. After 5s, the target suffers an additional 159 Shadow damage.
 	//
-	// Overlapping procs in EV-0136. The Trolls factor 1294430 states is the
-	// Lash's alone, so the Rage hands its versus bonus over.
+	// Overlapping procs in EV-0136. The Trolls factor Rage of Sul'thraze 1294430 states is Shadow Lash
+	// 1294431's alone, so the Rage hands its versus bonus over.
 	shared.DamageProcExtras[9372] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(4).Trigger()
 		lashConfig := procSpellConfig(character, row)

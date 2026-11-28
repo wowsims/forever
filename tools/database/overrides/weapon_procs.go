@@ -296,7 +296,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Waveslicer: no proc row",
 		Source:  "EV-0136",
 	},
-	// Fitted the same way, not final (EV-0136). The "observed" Source keeps the gear tab's notice up until more
+	// The rate is a log fit, not yet final (EV-0136). The "observed" Source keeps the gear tab's notice up until more
 	// wearers validate it.
 	{
 		ItemID:  6660,
@@ -405,7 +405,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Toofbreaker: no proc row",
 		Source:  "EV-0136",
 	},
-	// Fitted the same way, not final (EV-0132, EV-0136, EV-0153).
+	// The rate is a log fit, not yet final (EV-0132, EV-0136, EV-0153).
 	{
 		ItemID:  647,
 		SpellID: 17152,
@@ -882,7 +882,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Spellsever Crossbow: no proc row",
 		Source:  "EV-0136",
 	},
-	// Fitted the same way, not final (EV-0120, EV-0136, EV-0146, EV-0153, EV-0157, EV-0177, EV-0178, EV-0183,
+	// The rate is a log fit, not yet final (EV-0120, EV-0136, EV-0146, EV-0153, EV-0157, EV-0177, EV-0178, EV-0183,
 	// EV-0209).
 	{
 		ItemID:  810,
@@ -1220,7 +1220,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Darkmist Dirk: column reads 101; a log fit not yet validated (EV-0183)",
 		Source:  "observed",
 	},
-	// Fitted the same way, not final (EV-0177).
+	// The rate is a log fit, not yet final (EV-0177).
 	{
 		ItemID:  19324,
 		SpellID: 1290950,
@@ -1228,8 +1228,8 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "The Lobotomizer: column reads 101; a log fit not yet validated (EV-0177)",
 		Source:  "observed",
 	},
-	// Fitted the same way, paladins included: their rolls are EV-0155's and EV-0156's. Too few wearers and too
-	// wide an interval to call final (EV-0184).
+	// The rate is a log fit with paladins included: their rolls are EV-0155's and EV-0156's. Too few
+	// wearers and too wide an interval to call final (EV-0184).
 	{
 		ItemID:  12794,
 		SpellID: 16921,
@@ -1253,7 +1253,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Seeping Willow: column reads 101; a log fit not yet validated (EV-0003)",
 		Source:  "observed",
 	},
-	// Fitted the same way, not final (EV-0183, EV-0186).
+	// The rate is a log fit, not yet final (EV-0183, EV-0186).
 	{
 		ItemID:  10626,
 		SpellID: 12686,
@@ -1275,7 +1275,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Whipfang's Skinsearer: no proc row; a log fit not yet validated (EV-0186)",
 		Source:  "observed",
 	},
-	// Fitted the same way, not final (EV-0136, EV-0177, EV-0183, EV-0221).
+	// The rate is a log fit, not yet final (EV-0136, EV-0177, EV-0183, EV-0221).
 	{
 		ItemID:  2163,
 		SpellID: 18138,
@@ -1304,7 +1304,7 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Electrified Dagger: no proc row; a log fit not yet validated (EV-0183)",
 		Source:  "observed",
 	},
-	// Fitted the same way, not final (EV-0136).
+	// The rate is a log fit, not yet final (EV-0136).
 	{
 		ItemID:  1726,
 		SpellID: 16401,

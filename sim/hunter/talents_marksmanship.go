@@ -84,9 +84,9 @@ func (hunter *Hunter) registerCarefulAim() {
 var rapidKillingBuff = spellData.RapidKillingTriggered.Highest()
 
 // Effect 2 is the damage bonus 415407 gives the next Shot, where the buff row states a flat 20, so
-// the row is scaled by the ranks taken. The tooltip also grants it when the enemy dies with the
-// hunter's Serpent Sting on it, which the row's proc flags do not state; a stung enemy grants it
-// once, whether or not the raid gets the kill.
+// the row is scaled by the ranks taken. A credited kill grants the buff, and the tooltip also grants
+// it when the enemy dies with the hunter's Serpent Sting on it, which the row's proc flags do not
+// state; a stung enemy grants it once, whether or not the raid gets the kill.
 //
 // The Shots its damage mod names spend its one charge at the cast's result, a miss included.
 func (hunter *Hunter) registerRapidKilling() {

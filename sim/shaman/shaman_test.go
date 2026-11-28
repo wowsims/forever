@@ -637,7 +637,8 @@ func TestGiftOfTheGatheringStormRaisesEachChainLightningJump(t *testing.T) {
 		proto.ItemSlot_ItemSlotMainHand: 21398,
 	}
 
-	// Both sims draw the same rolls, so the jumps' share alone sets them apart.
+	// The sims with the bonus up and taken down draw the same rolls, so the jumps' share alone sets them
+	// apart.
 	dealt := func(bonusUp bool) [3]float64 {
 		t.Helper()
 		encounter := core.MakeSingleTargetEncounter(0)

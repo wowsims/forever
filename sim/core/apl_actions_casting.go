@@ -522,7 +522,7 @@ func (rot *APLRotation) newActionCastAllStatBuffCooldowns(config *proto.APLActio
 	}
 
 	unit.Env.RegisterPostFinalizeEffect(func() {
-		// After the rotation is finalized, so that all manually casted MCDs are removed from the
+		// Runs after the rotation is finalized, so that all manually casted MCDs are removed from the
 		// cooldown list before it is filtered for the desired buff types.
 		actionImpl.processMajorCooldowns()
 	})

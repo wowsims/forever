@@ -540,7 +540,6 @@ var Spells = []Override{
 	},
 
 	// PPM measurement in EV-0017, EV-0018, EV-0212.
-	// Proc chance measurement in EV-0017, EV-0018, EV-0212.
 	{
 		SpellID: 20165,
 		Field:   PPM,
@@ -591,6 +590,7 @@ var Spells = []Override{
 		Reason:  "Seal of Wisdom Rank 3: the measured rate, not a per-swing share of 15 per minute",
 		Source:  "EV-0212",
 	},
+	// Proc chance measurement in EV-0017, EV-0018, EV-0212.
 	{
 		SpellID: 20185,
 		Field:   ProcChancePct,

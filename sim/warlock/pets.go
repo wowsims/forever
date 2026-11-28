@@ -159,7 +159,7 @@ func (warlock *Warlock) petStatInheritance(mp5PerOwnerIntellect float64) core.Pe
 			stats.PhysicalHitPercent: ownerStats[stats.SpellHitPercent] * 8 / 17,
 			stats.SpellHitPercent:    ownerStats[stats.SpellHitPercent],
 
-			// The warlock's spell crit as melee and spell crit, with no crit of its own:
+			// A demon takes the warlock's spell crit as its melee and spell crit, with no crit of its own:
 			// https://github.com/ClassicWoWCommunity/forever-bugs/issues/331#issuecomment-6160342081
 			// TODO: Not live yet: in game a demon still has its own crit (EV-0081). Verify in game once the
 			// change ships.

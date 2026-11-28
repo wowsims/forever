@@ -68,8 +68,8 @@ const (
 	BaseRageHitFactor     = 3.46
 	TwoHandRageHitFactor  = 4.5
 	TwoHandRageMultiplier = TwoHandRageHitFactor / BaseRageHitFactor
-	// Crit rage in EV-0053, EV-0037. The game files' Rule
-	// of Rage (DND) 1322574 states 100; the spell store does not carry it.
+	// Crit rage in EV-0053, EV-0037. The game files' Rule of Rage (DND) 1322574 states 100; the
+	// spell store does not carry it.
 	CritRageBonus = 1.0
 )
 

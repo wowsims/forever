@@ -21,13 +21,14 @@ import (
 // sits on the spell its dummy names, one rank above the proc on the family's triggered ladder, which
 // the proc spell 20424 heads with no rank subtext. 7 procs per minute is the Classic sim's number.
 //
-// Spell power share in EV-0061. The taken Holy bonuses add after the percent.
+// Spell power share in EV-0061. The Holy damage the target takes extra is added after the percent.
 func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfCommand.Rank(rank.RankNumber())
 	judgeDamageRank := spellData.SealOfCommandTriggered.ByID(int32(judgeRank.EffectN(1).BaseValue()))
 	judgeDamage := judgeDamageRank.DamageEffect()
 
-	// Melee in SpellCategories with No Active Defense: the melee table, never dodged, parried or blocked.
+	// Melee in SpellCategories with No Active Defense: hit and crit on the melee table, never dodged,
+	// parried or blocked.
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfCommand
 	// The dummy states no class flags; modifiers find the judgement by the damage spell's.
@@ -60,8 +61,9 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	procEffect := procRank.EffectN(1)
 	weaponPercent := procEffect.Percent() * spellData.ImprovedSeals.MultiplierAt(paladin.Talents.ImprovedSeals)
 	coefficient := procEffect.Coeff()
-	// 20424 carries Not a Proc: an ability hit to every listener, weapon procs included. No BonusCoefficient:
-	// spell power goes through the weapon percent; core adds the taken Holy damage at the full coefficient.
+	// 20424 carries Not a Proc: an ability hit to every listener, weapon procs included. No
+	// BonusCoefficient: spell power goes through the weapon percent, and core adds the Holy damage the
+	// target takes extra at the full coefficient.
 	procConfig := spelldata.SpellConfig(&paladin.Unit, procRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	procConfig.ClassSpellMask = SpellMaskSealOfCommandProc
 	procConfig.TakenBonusCoefficient = coefficient

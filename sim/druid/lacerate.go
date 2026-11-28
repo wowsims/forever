@@ -9,7 +9,7 @@ import (
 const lacerateHitSpellID = 414647
 
 // The tooltip's "Causes a high amount of threat", which the rows state no effect for. In game the hit
-// and the ticks each threaten (EV-0034, EV-0037).
+// and the ticks each threaten for this multiple of their damage (EV-0034, EV-0037).
 const lacerateThreatMultiplier = 10.0 / 3
 
 func (druid *Druid) registerLacerateSpell() {

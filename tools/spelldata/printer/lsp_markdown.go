@@ -59,8 +59,8 @@ func exprMarkdown(result *exprResult, hover chainHover, links bool) string {
 		}
 	}
 
-	// Expressions which resolve through rank still use the selected virtual rank, but do not show the
-	// selector again.
+	// Expressions which resolve through rank use the selected virtual rank but show no rank
+	// selector.
 	showRankSelector := hover.rank != nil &&
 		hover.name == hover.rank.parameter
 

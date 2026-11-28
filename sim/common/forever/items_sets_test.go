@@ -209,9 +209,9 @@ func wantCastTimeRate(t *testing.T, name string, rowID int32, castTime time.Dura
 	wantRate(t, fmt.Sprintf("%s: casts of %v", name, castTime), casts, castTimeChance(t, rowID, castTime), procs)
 }
 
-// Each row hears melee swings and spell casts at its procs per minute: a landed white swing rolls the rate
-// on its weapon's speed, a spell cast on the time it took; a cast that costs nothing or only rage, and a
-// melee ability, roll nothing.
+// The set rows 450625 and 450626 each hear melee swings and spell casts at their procs per minute: a
+// landed white swing rolls the rate on its weapon's speed, a spell cast on the time it took; a cast that
+// costs nothing or only rage, and a melee ability, never roll it.
 func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.T) {
 	for _, tc := range []struct {
 		name   string
@@ -373,7 +373,8 @@ func wantRate(t *testing.T, what string, rolls int, chance, procs float64) {
 }
 
 // The Feralheart Raiment reissue's 4-piece 450608 restores 27784's ticks as energy off a landed white swing
-// at the row's procs per minute. The row copy's rate is raised so a thousand swings tell the rate apart.
+// at the row's procs per minute. The test's copy of the row has a higher rate, so a thousand swings tell
+// the rate apart.
 func TestFeralheartRaimentRestoresEnergyOverTimeOnSwings(t *testing.T) {
 	row := editSpellRow(t, 450608, func(s *spelldata.Spell) { s.RPPM *= 12 })
 	energy := spelldata.MustFind(27784)
@@ -457,7 +458,7 @@ func TestFeralheartRaimentEnergyInABearFormComesBackWithCatForm(t *testing.T) {
 }
 
 // The 4-piece's proc 450608 also restores 27783's rage on a landed melee swing taken, and only to a bear. The
-// row copy's rate is raised so a thousand hits tell the rate apart.
+// test's copy of the row has a higher rate, so a thousand hits tell the rate apart.
 func TestFeralheartRaimentRestoresRageWhenStruck(t *testing.T) {
 	row := editSpellRow(t, 450608, func(s *spelldata.Spell) { s.RPPM *= 18 })
 	rage := spelldata.MustFind(27783).EffectN(1).Tenths()
@@ -516,8 +517,7 @@ func wildheartBear(t *testing.T) (*core.Simulation, *druid.Druid) {
 	return bearFromRequest(t, req)
 }
 
-// Wildheart Raiment's 5-piece 450608.
-// Which casts roll in EV-0144.
+// The casts that roll Wildheart Raiment's 5-piece 450608 are in EV-0144.
 func TestWildheartRaimentShapeshiftsFrenziedRegenerationAndShiftingPowerRollNothing(t *testing.T) {
 	sim, bear := wildheartBear(t)
 	wearer := &bear.Character
@@ -544,7 +544,7 @@ func TestWildheartRaimentShapeshiftsFrenziedRegenerationAndShiftingPowerRollNoth
 }
 
 // Wild Heart 1302708 raises movement speed by 1302707's percent off a landed hit taken, and then rests for
-// the row's cooldown. The row copy procs on every hit.
+// the row's cooldown. The test's copy of the row procs on every hit.
 func TestWildHeartSpeedsTheWearerWhenStruck(t *testing.T) {
 	row := editSpellRow(t, 1302708, func(s *spelldata.Spell) { s.ProcChance = 100 })
 	buffRow := spelldata.MustFind(1302707)
@@ -1165,7 +1165,7 @@ func TestVioletSorcerersVestmentsRegenOnEachTargetALandingHits(t *testing.T) {
 }
 
 // Violet Sorcerer's Vestments' 5-piece 1324323 casts 1324322 off a landed damaging spell, never off a melee
-// hit, and then rests the row's cooldown; a summon while one is up brings the other.
+// hit, and then rests the row's cooldown; a summon while an Arcane Elemental is up brings the other one.
 func TestVioletSorcerersVestmentsSummonTheArcaneElemental(t *testing.T) {
 	proc, call := spelldata.MustFind(1324323), spelldata.MustFind(1324322)
 	sim, paladin := itemWearerWithEquipment(t, proto.Class_ClassPaladin, setPieces(violetPieces))

@@ -555,8 +555,8 @@ func ProtoToEquipmentSpec(es *proto.EquipmentSpec) EquipmentSpec {
 }
 
 func NewItem(itemSpec ItemSpec) Item {
-	// Held across the whole function rather than reacquired per lookup; nothing in here
-	// takes dbMu again.
+	// The lock is held across the whole function rather than reacquired per lookup; nothing
+	// in here takes dbMu again.
 	dbMu.RLock()
 	defer dbMu.RUnlock()
 

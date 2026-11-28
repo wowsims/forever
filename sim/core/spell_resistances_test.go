@@ -75,9 +75,8 @@ func TestMultiSchoolSpellMeetsItsLowestResistance(t *testing.T) {
 }
 
 // A binary spell's hits and ticks are never partially resisted once it lands, nor is a spell flagged
-// SpellFlagNoPartialResist. Spell Piercing beyond the
-// resistance gives a binary spell's hits and full-share ticks the bonus, and its tenth-share ticks and a
-// spell flagged SpellFlagNoPartialResist none.
+// SpellFlagNoPartialResist. Spell Piercing beyond the resistance gives a binary spell's hits and
+// full-share ticks the bonus, and its tenth-share ticks and a spell flagged SpellFlagNoPartialResist none.
 func TestBinaryAndNoPartialResistKeepTheWholeHit(t *testing.T) {
 	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
 	defender := &Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}

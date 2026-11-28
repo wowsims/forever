@@ -76,8 +76,8 @@ const CURRENT: CurrentBundle = {
 	settings: LIVE_SETTINGS,
 };
 
-// "Live copy" wearing the current gear, the talents "Live" holding the current string, the saved rotation "Live list"
-// holding the current list and a saved "Live settings" entry that sims as the current settings.
+// Among these parts, "Live copy" wears the current gear, the talents "Live" hold the current string, the saved rotation
+// "Live list" holds the current list and the saved "Live settings" entry sims as the current settings.
 const PARTS: BulkBundleParts = {
 	gearSets: bulkGearSetEntries(
 		[

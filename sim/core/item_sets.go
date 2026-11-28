@@ -91,7 +91,7 @@ func NewItemSet(set ItemSet) *ItemSet {
 	return &set
 }
 
-// Sets whose items the game files do not ship, so the count can be reported.
+// Collects the sets whose items the game files do not ship, so the count can be reported.
 var missingItemSets []string
 
 // The set names skipped because the loaded database holds none of their items.

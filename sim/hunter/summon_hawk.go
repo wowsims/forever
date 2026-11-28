@@ -38,12 +38,14 @@ var hawkBaseStats = stats.Stats{
 	stats.Health: 0.05 * core.CreatureHealthMaxLevel,
 }
 
-// The attack power a hawk takes its 80% of (EV-0073).
+// The attack power a hawk takes its 80% of is the owner's ranged attack power and what the main-hand
+// weapon adds to it (EV-0073).
 const hawkOwnerAPPerMainHandDPS = 14.0
 const hawkOwnerUnarmedWeaponAP = 7.0
 
-// A swing before armor and the attack power a point of dps (EV-0073). Both were read with Unleashed
-// Fury 5/5 and Focused Fire 2/2, which reach the hawks, so the swing here is before them.
+// The swing before armor and the attack power a point of dps are fitted (EV-0073), as the game files
+// state neither. Both were read with Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks,
+// so the swing here is before them.
 var hawkLogDamageMultiplier = spellData.UnleashedFury.MultiplierAt(5) * spellData.FocusedFire.MultiplierAt(2)
 var hawkSwingAverage = 0.153 * core.CreatureStatsByLevel[core.CharacterLevel].AutoAttackDps * 2.5 / hawkLogDamageMultiplier
 
@@ -55,10 +57,10 @@ var hawkSwing = core.Weapon{
 	MaxRange:          core.MaxMeleeRange,
 }
 
-// A hawk's swing follows its owner's ranged speed while
-// it is up, a quiver's and Quick Shots' included; Berserking's attack speed does not reach it in
-// game. Its crit is the tamed pet's, the higher of the owner's melee and ranged crit (inheritedCrit)
-// with none from Agility. Its melee hit and expertise are the tamed pet's (EV-0074).
+// A hawk's swing follows its owner's ranged speed while it is up, a quiver's and Quick Shots'
+// included; Berserking's attack speed does not reach it in game. Its crit is the tamed pet's, the
+// higher of the owner's melee and ranged crit (inheritedCrit) with none from Agility. Its melee hit and
+// expertise are the tamed pet's (EV-0074).
 func (hunter *Hunter) newHawks() []*HawkPet {
 	if !hunter.Talents.SummonHawk {
 		return nil

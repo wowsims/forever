@@ -865,8 +865,8 @@ export class Player<SpecType extends Spec> {
 		let debuffStats = new Stats();
 		const debuffs = this.sim.raid.getDebuffs();
 
-		// Spell 14325, which HuntersMarkValue in sim/core/debuffs_auto_gen.go states. Nothing
-		// exports it to TypeScript, so this is the second place to change;
+		// The value is spell 14325's, which HuntersMarkValue in sim/core/debuffs_auto_gen.go states.
+		// Nothing exports that value to TypeScript, so this is the second place to change;
 		// TestHuntersMarkOnTheCharacterSheetMatchesTheSim holds the two together.
 		if (debuffs.huntersMark) {
 			debuffStats = debuffStats.addStat(Stat.StatRangedAttackPower, 143);

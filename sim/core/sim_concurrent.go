@@ -60,8 +60,9 @@ type raidSimResultCombiner struct {
 	Debug    bool
 	Combined *proto.RaidSimResult
 
-	// Per-unit lookup indexes for the combined result. Without these, matching is a linear
-	// scan that renders every proto.ActionID to text, which dominates the merge cost.
+	// Per-unit lookup indexes for the combined result. Without these, matching an incoming action
+	// or resource against the combined unit is a linear scan that renders every proto.ActionID to
+	// text, which dominates the merge cost.
 	actionIndexByUnit   map[*proto.UnitMetrics]map[actionMetricsKey]*proto.ActionMetrics
 	resourceIndexByUnit map[*proto.UnitMetrics]map[resourceMetricsKey]*proto.ResourceMetrics
 }

@@ -15,8 +15,8 @@ var blinkRank = spellData.Blink.Highest()
 //
 // The leap's radius is how far the mage moves toward the target. The move takes the row's duration.
 // From closer than the radius the mage passes through the target and lands the rest of the way past
-// it. The sim has no facing, so that move is a straight walk to where
-// the mage lands, and only its end point is right.
+// it. The sim has no facing, so that move is a straight walk to where the mage lands, and only its
+// end point is right.
 func (mage *Mage) registerBlinkSpell() {
 	leap := float64(blinkRank.FindEffect(dbcenums.E_LEAP, 0, 0).RadiusMax)
 	aura := mage.RegisterAura(spelldata.AuraConfig(blinkRank))

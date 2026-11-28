@@ -10,9 +10,9 @@ import (
 )
 
 // Flasks of Natural Accuracy 274273, Aggression 274274, Precision 274275 and Swiftness 274276. The
-// second effect, an A_DUMMY, is the bonus the spell's text grants in Mount Hyjal, Hyjal Summit and the
-// Barrow Deeps, where the sim takes every fight to be; the auras after it name what the bonus is and
-// state 0 themselves.
+// second effect of each spell, an A_DUMMY, is the bonus the spell's text grants in Mount Hyjal, Hyjal
+// Summit and the Barrow Deeps, where the sim takes every fight to be; the auras after it name what the
+// bonus is and state 0 themselves.
 var NaturalFlasks = []int32{274273, 274274, 274275, 274276}
 
 func init() {

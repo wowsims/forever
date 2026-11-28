@@ -1,5 +1,5 @@
-// The topline metric list, as data. Neither layout lives here: both are
-// `components/ResultMetricList`.
+// The topline metric list, as data. Both layouts that draw it, the sidebar's column and the detailed
+// results' one-row table, live in `components/ResultMetricList`.
 import { Spec } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { Rogue } from '@sim/player/classes/rogue';

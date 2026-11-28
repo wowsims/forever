@@ -116,8 +116,8 @@ func (warrior *Warrior) registerDeepWounds() {
 	share := spellData.DeepWounds.FractionAt(warrior.Talents.DeepWounds)
 	tick := deepWoundsBleed.EffectN(1)
 
-	// No spelldata.Proc(): that marks the spell passive, and the metrics aggregator counts no cast for a
-	// passive spell. Attacker modifiers in EV-0139.
+	// The bleed does not take spelldata.Proc(): that marks the spell passive, and the metrics aggregator
+	// counts no cast for a passive spell. Attacker modifiers in EV-0139.
 	config := spelldata.SpellConfig(&warrior.Unit, deepWoundsBleed,
 		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagIgnoreResists|core.SpellFlagProc|core.SpellFlagIgnoreAttackerModifiers)) // 12162 and 412609 lack Not a Proc.
 	config.ProcMask = core.ProcMaskEmpty
@@ -299,7 +299,7 @@ func (warrior *Warrior) registerWeaponmaster() {
 		core.MakePermanent(critAura)
 	}
 
-	// Its armor ignore reaches every attack. A mace in each hand ignores the share once.
+	// The Mace/Staff aura's armor ignore reaches every attack. A mace in each hand ignores the share once.
 	armorIgnore := spellData.Weaponmaster.EffectAt(2).FractionAt(rank)
 	armorIgnoreAura := warrior.RegisterAura(core.Aura{
 		Label:    "Weaponmaster (Mace/Staff)",
@@ -318,7 +318,7 @@ func (warrior *Warrior) registerWeaponmaster() {
 
 	// 1290261 states no proc flags at all, so the shape, the mask and the rate's effect are the caller's.
 	// Hits that roll in EV-0002, EV-0054. Cleave rolls it once a cast, on its first landed hit; no log
-	// measures Cleave. Swings other procs grant (Hand of Justice) bring one as well.
+	// measures Cleave. Swings other procs grant (Hand of Justice) roll it as well.
 	firstCleaveHit, resetFirstCleaveHit := core.OncePerCast()
 	firstWhirlwindGrant, resetFirstWhirlwindGrant := core.OncePerCast()
 	swordTrigger := core.ProcTrigger{

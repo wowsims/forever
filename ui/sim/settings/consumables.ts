@@ -162,8 +162,8 @@ type EnchantRelevanceSpec = Pick<SpecConfigData<any>, 'epStats' | 'epPseudoStats
 
 const enchantRelevanceCache = new WeakMap<EnchantRelevanceSpec, StatSets>();
 
-// The consumables' rule on the stats the spec weighs. Enchants are weighed by the spec's EP stats alone, not by its
-// consumableStats.
+// Whether an enchant counts under the consumables' rule on the stats the spec weighs. Enchants are weighed by the
+// spec's EP stats alone, not by its consumableStats.
 export function isEnchantRelevantFor(enchant: Enchant, specConfig: EnchantRelevanceSpec): boolean {
 	const grantedStats: Stat[] = enchant.stats.flatMap((value, stat) => (value ? [stat] : []));
 	if (enchant.weaponDamage) grantedStats.push(Stat.StatPhysicalDamage);

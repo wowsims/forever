@@ -64,8 +64,8 @@ export const furyStacks = (rotation: RetributionPaladin_Rotation): number => ech
 // reads as Seal of Command's.
 export const righteousnessStacks = (rotation: RetributionPaladin_Rotation, twistsFury: boolean): number =>
 	echoStacks(rotation.uwSorStacks, TWIST_STACKS[twistsFury ? PaladinSealTwist.SealTwistFury : PaladinSealTwist.SealTwistCommand].righteousness);
-// With the talent, the picked seal, or with none picked Seal of Command, which sims highest with a slow two-hander for
-// Holy Shock too.
+// With Seal of Command talented, the seal is the picked one, or Seal of Command when none is picked, which sims highest
+// with a slow two-hander for Holy Shock too.
 export const chosenSeal = (rotation: RetributionPaladin_Rotation, sealOfCommand: boolean): PaladinSeal => {
 	if (!sealOfCommand) return PaladinSeal.SealOfRighteousness;
 	return rotation.seal === PaladinSeal.SealUnknown ? PaladinSeal.SealOfCommand : rotation.seal;
@@ -128,7 +128,7 @@ export const RotationIconInputs = [
 		// The twist follows the Seal of Command talent.
 		storeField: ROTATION_AND_TALENTS,
 		getValue: playerTwist,
-		// No twist clears the Echo of Righteousness stacks, so the twist that follows it starts from its own.
+		// Picking no twist clears the Echo of Righteousness stacks, so the twist picked after it starts from its own.
 		setValue: (player: Player<Spec.SpecRetributionPaladin>, newValue: PaladinSealTwist) => {
 			if (newValue === playerTwist(player)) return;
 			const rotation = player.getSimpleRotation();

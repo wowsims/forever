@@ -32,8 +32,8 @@ type options struct {
 
 const usage = "usage: go run ./tools/spelldata <id | name> [-all] [-json] | -family <class>/<Family> | -expr <call> [-package <class>] | -config <SpellConfig call | core.SpellModConfig literal> [-package <class>] | -hover <file> <line>:<column> | -lsp | -dump <dir>"
 
-// The flags are taken in any position: the stdlib flag package stops reading flags at the first
-// positional argument. The ones that take a value read it as the next argument or after an `=`. An
+// The flags are taken in any position, which the stdlib flag package does not do: it stops reading
+// flags at the first positional argument. The ones that take a value read it as the next argument or after an `=`. An
 // editor's language client may add its own transport flag after -lsp, such as --stdio.
 func parseArgs(args []string) (options, error) {
 	var opts options

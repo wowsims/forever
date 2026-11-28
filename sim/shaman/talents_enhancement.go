@@ -131,8 +131,8 @@ func (shaman *Shaman) applyFlurry() {
 
 	// The row has no roll and the crit is the condition, read off the result here because the same
 	// listener has to see the swings that spend a charge. Any melee crit sets three charges. 16257's
-	// proc flags name swings alone. Charge spending in EV-0010. A white swing in the instant of a gain
-	// spends none.
+	// proc flags name swings alone. Charge spending in EV-0010. A white swing in the instant the charges
+	// are gained spends none.
 	var gainedByImbue bool
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.Flurry.Rank(shaman.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -261,9 +261,9 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	consumes := maelstromWeaponBuff.EffectN(1).ClassFlags
 
 	// Maelstrom Ready! (408501) goes up as the stacks reach five and comes off with them or at the
-	// next Chain Lightning. Kept charges in EV-0180. Its row, a dummy with one charge and no duration,
-	// is in the game files but not in the spell store, so the aura is built here. The Healing Wave and
-	// Lesser Healing Wave that also take it off are not in the sim.
+	// next Chain Lightning. Clearcasting kept in EV-0180. Maelstrom Ready!'s row, a dummy with one charge
+	// and no duration, is in the game files but not in the spell store, so the aura is built here. The
+	// Healing Wave and Lesser Healing Wave that also take it off are not in the sim.
 	readyAura := shaman.RegisterAura(core.Aura{
 		Label:    "Maelstrom Ready!",
 		ActionID: core.ActionID{SpellID: 408501},

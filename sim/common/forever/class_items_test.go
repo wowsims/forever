@@ -347,7 +347,8 @@ func TestArcaneInfusedGemDetonatesOnTheNextArcaneShot(t *testing.T) {
 	}
 }
 
-// Renataki's Charm of Beasts 19953 resets the shots' cooldowns, only worth using while a shot is cooling down.
+// Renataki's Charm of Beasts 19953 resets the shots' cooldowns, and is only worth using while a shot
+// is cooling down.
 func TestRenatakisCharmOfBeastsResetsTheShots(t *testing.T) {
 	const charm = 19953
 	sim, hunter := hunterTrinketWearer(t, charm)
@@ -371,7 +372,8 @@ func TestRenatakisCharmOfBeastsResetsTheShots(t *testing.T) {
 	}
 }
 
-// Old Guard Retaliator 208222's 418509 hears a killing blow, and the next attack gets the crit chance.
+// Old Guard Retaliator 208222's 418509 hears a killing blow, and the next attack gets the crit chance
+// its dummy effect states.
 func TestOldGuardRetaliatorCritsTheAttackAfterAKill(t *testing.T) {
 	sim, warrior := modWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotMainHand, 208222)
 	target := sim.Encounter.AllTargets[0]

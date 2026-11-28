@@ -125,11 +125,12 @@ var ItemSetCryptstalkerArmor = core.NewItemSet(core.ItemSet{
 	},
 })
 
-// The 4-piece's equip spell 28756 casts 28757 on the pet every 3 s, and 28758 is a 4 s pet area aura.
-// With no pet there is nothing to cast on, and the 3 s recast keeps the 4 s aura from ever falling off,
-// so both carry it exactly while the pet is out. The pet's amount sits on its own aura, so inheritance
-// never copies it; the hunter's amount reaches the pet inside the 10% of the hunter's attack power it
-// inherits. ParseEffects reads no pet area aura, so the stats attach by hand.
+// The 4-piece's equip spell 28756 casts 28757 on the pet every 3 s, and 28758, a 4 s pet area aura,
+// gives the hunter and the pet its attack power and ranged attack power. With no pet there is nothing
+// to cast on, and the 3 s recast keeps the 4 s aura from ever falling off, so both carry it exactly
+// while the pet is out. The pet's amount sits on its own aura, so inheritance never copies it; the
+// hunter's amount reaches the pet inside the 10% of the hunter's attack power it inherits.
+// ParseEffects reads no pet area aura, so the stats attach by hand.
 func applyStalkersAlly(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	bonus := stats.Stats{

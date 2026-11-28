@@ -61,8 +61,8 @@ func (warrior *Warrior) registerCleave() {
 }
 
 // Heroic Strike and Cleave go off on the next main-hand swing (ON_NEXT_SWING in the game files): the next
-// swing, extra attacks included, casts it in the swing's place, and a swing the rage no longer covers drops
-// the queue.
+// swing, extra attacks included, casts the queued attack in the swing's place, and a swing the rage no
+// longer covers drops the queue.
 func (warrior *Warrior) makeQueueSpellsAndAura(srcSpell *core.Spell) {
 	queueAura := warrior.RegisterAura(core.Aura{
 		Label:    "HS/Cleave Queue Aura-" + srcSpell.ActionID.String(),

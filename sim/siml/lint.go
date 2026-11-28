@@ -703,8 +703,8 @@ func Lint(r *proto.APLRotation) []Finding {
 	for _, ref := range c.variableRefs {
 		referencedVariables[ref.name] = true
 	}
-	// The sim reads a group row's references as the value variables' and lets these replace one only where a value
-	// variable of the name exists.
+	// The sim reads a group row's references as the value variables' and lets the group's variables, or a
+	// reference's, replace one only where a value variable of the name exists.
 	groupSets := func(g int, name string) bool {
 		return slices.ContainsFunc(groups[g].list("variables"), func(v lintObject) bool { return v.value("name") == name }) ||
 			slices.ContainsFunc(c.groupReferences, func(ref groupRefSite) bool {

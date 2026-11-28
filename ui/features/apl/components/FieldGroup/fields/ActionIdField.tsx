@@ -124,8 +124,8 @@ export const ActionIdField = ({ player, config, actionIdSet, unitRefField, defau
 	const boundConfig = {
 		...config,
 		sourceToValue: (source: ActionID) => (source ? ActionId.fromProto(source) : ActionId.fromEmpty()),
-		// The kind-swap pre-fill reads the old kind's fields regardless, so an absent value hands back
-		// the empty proto the field spec mints rather than throwing.
+		// The kind-swap pre-fill reads the old kind's fields even where the user never filled one in, so
+		// an absent value hands back the empty proto the field spec mints rather than throwing.
 		valueToSource: (value: ActionId | undefined) => (value ? value.toProto() : ActionID.create()),
 	};
 

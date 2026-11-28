@@ -257,8 +257,8 @@ func (action *APLActionGroupReference) replacePlaceholders(value APLValue, varia
 			}
 		}
 
-		// A Math one is checked as its constructor checks it, and one that fails keeps the placeholders,
-		// which read zero.
+		// A rebuilt Math value is checked as its constructor checks it, and one that fails keeps the
+		// placeholders, which read zero.
 		if anyReplaced {
 			// Handle specific value types that need special treatment
 			switch v := value.(type) {

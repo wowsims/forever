@@ -143,7 +143,8 @@ func (t *Table) DecodeRows(def dbd.DBDefinition, version dbd.VersionDefinitions,
 		// Cloning the source row's decoded values is only equivalent to
 		// upstream's re-decode-with-the-destination-id while no column is
 		// COMMON-compressed: a common value is looked up BY ROW ID (getFieldRaw),
-		// so a copy row would wrongly inherit the source id's value. No table has both.
+		// so a copy row would wrongly inherit the source id's value. No table has both a copy
+		// table and a COMMON-compressed column.
 		for i := range t.ColumnMeta {
 			if t.ColumnMeta[i].CompressionType == compressionCommon {
 				return nil, fmt.Errorf("table has both a copy table and a COMMON-compressed column (field %d) — copy rows would resolve common data by the source id; decode copy rows per destination id instead", i)

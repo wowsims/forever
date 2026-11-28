@@ -29,8 +29,8 @@ func TestProcDamageWithoutAMissileSpeedDoesNotAllocate(t *testing.T) {
 	}
 }
 
-// A proc's missile, Linken's Boomerang 15712: the flight allocates the pending arrival, not a copy of
-// the results.
+// The flight of a proc's missile, Linken's Boomerang 15712, allocates the pending arrival, not a copy
+// of the results.
 func TestProcDamageMissileAllocatesOnlyItsFlight(t *testing.T) {
 	neck, _ := listeningNeck(991132, core.CallbackOnSpellHitDealt, 15712)
 	sim, caster := newOnUseSimAgainst(t, NewSpellDataDamageOnUse, map[int32]*proto.ItemEffect{}, neck, 1)

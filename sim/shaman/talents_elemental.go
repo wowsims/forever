@@ -142,7 +142,7 @@ func (shaman *Shaman) applyElementalFocus() {
 	clearcastingAura := shaman.RegisterAura(config)
 	spelldata.ParseEffects(&shaman.Character, clearcastingAura, clearcastingBuff)
 
-	// The tooltip limits it to Fire, Frost and Nature damage spells.
+	// The tooltip limits Elemental Focus to Fire, Frost and Nature damage spells.
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.ElementalFocus.Highest(),
 		func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 			procSpellID, procTime = spell.SpellID, sim.CurrentTime

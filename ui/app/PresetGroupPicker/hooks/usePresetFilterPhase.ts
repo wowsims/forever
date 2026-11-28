@@ -26,8 +26,8 @@ export const phasesOf = (items: ReadonlyArray<Phased>): Array<Phase> =>
 	[...new Set(items.map(item => item.phase).filter((phase): phase is Phase => phase !== undefined))].sort((a, b) => a - b);
 
 /**
- * The phase tab the grouped pickers are filtered by. Written only when a phase is actually chosen,
- * so a default page load leaves the key absent.
+ * The phase tab the grouped pickers are filtered by. Written to the spec's `__presetFilters__` key
+ * only when a phase is actually chosen, so a default page load leaves that key absent.
  */
 export const usePresetFilterPhase = (items: ReadonlyArray<Phased>): PresetFilterPhase => {
 	const host = useSimHost();

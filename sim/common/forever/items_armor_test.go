@@ -29,9 +29,10 @@ func init() {
 	})
 }
 
-// A character wearing one item, against a level 60 target: the warrior stand-in, with a rogue the
-// stand-in registered as the rogue, which shoots its ranged weapon, and with a druid or a shaman the
-// healer stand-ins of items_relics_test.go.
+// A character wearing one item, against a level 60 target: the warrior stand-in, with a paladin the
+// stand-in registered as the holy paladin, which has a mana bar, with a rogue the stand-in registered
+// as the rogue, which shoots its ranged weapon, and with a druid or a shaman the healer stand-ins of
+// items_relics_test.go.
 func itemWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, itemID int32) (*core.Simulation, *core.Character) {
 	t.Helper()
 	return itemSpecWearer(t, class, slot, &proto.ItemSpec{Id: itemID})
@@ -110,7 +111,8 @@ func damageInRange(metrics core.SpellMetrics, effect *spelldata.Effect) bool {
 	return metrics.Crits == 0 && metrics.TotalDamage >= casts*effect.Min() && metrics.TotalDamage <= casts*effect.Max()
 }
 
-// Zealot Plate 274651's 1294668 restores 1294666's mana when a melee swing taken lands, then rests.
+// Zealot Plate 274651's 1294668 restores 1294666's mana when a melee swing taken lands, then rests for
+// the row's cooldown.
 func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
 	editSpellRow(t, 1294668, func(s *spelldata.Spell) {
 		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
@@ -206,8 +208,8 @@ func TestArgentDefenderPricesTheAttackersSwings(t *testing.T) {
 }
 
 // Argent Defender 13243 raises the block chance by 17351's amount when a melee hit taken lands and
-// deals damage, then rests for 17350's cooldown. The row copy's rate procs on every hit from the 2 s
-// attacker.
+// deals damage, then rests for 17350's cooldown. The test's copy of the row has a rate that procs on
+// every hit from the 2 s attacker.
 func TestArgentDefenderRaisesBlockAndRests(t *testing.T) {
 	editSpellRow(t, 17350, func(s *spelldata.Spell) { s.RPPM = 60 })
 	block := float64(spelldata.MustFind(17351).EffectN(1).BasePoints)
@@ -375,7 +377,7 @@ func TestGlovesOfHolyMightTripleDamageAgainstUndead(t *testing.T) {
 
 // Thick Obsidian Breastplate 22196's 27539 has a chance, on a spell hit taken, to shield the wearer
 // against that spell's school with the Fire row 27533's absorb roll. A Physical spell, which has no
-// shield, does not spend the internal cooldown.
+// shield, does not start 27539's internal cooldown.
 func TestThickObsidianBreastplateShieldsTheSchoolHit(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, 22196)
 	enemy := sim.Encounter.ActiveTargetUnits[0]

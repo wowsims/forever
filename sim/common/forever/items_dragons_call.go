@@ -11,9 +11,9 @@ import (
 // The Emerald Dragon Whelp 8776 that Dragon's Call's 13049 summons is level 57 whatever its owner's level.
 // Armor is the creature armor at ExpectedStatMod 1's share in the game files, 0.51. It never crits (EV-0021).
 //
-// Swing damage in EV-0021. Its 0.73 is ExpectedStatMod 1's share. That row is inferred from the whelp's
-// armor matching its 0.51. A smaller share plus the whelp's in-game attack power fits as well, so the log
-// does not tell the two apart.
+// Swing damage in EV-0021. The swing's 0.73 is ExpectedStatMod 1's share, a row inferred from the
+// whelp's armor matching that row's 0.51. A smaller share plus the whelp's in-game attack power fits
+// as well, so the log does not tell the two apart.
 //
 // Glancing blows in EV-0021.
 //
@@ -47,7 +47,7 @@ var emeraldDragonWhelp = shared.GuardianCreature{
 
 // The base points are a percent of the creature dps for the caster's level (EV-0021), which is what the
 // row's creature level scaling attribute (0x80000 on Attributes 0) means.
-// Its mana pays for more spits than a summon lasts, so the cast takes no cost.
+// The whelp's mana pays for more spits than a summon lasts, so the cast takes no cost.
 func acidSpit(whelp *shared.Guardian) core.SpellConfig {
 	row := spelldata.MustFind(9591)
 	baseDamage := row.DamageEffect().Percent() * whelp.CreatureStats().AutoAttackDps

@@ -37,7 +37,7 @@ interface CheckRowProps {
 }
 
 // The sr-only copies of the summary, the duplicate note and the reason describe the checkbox for screen readers, which
-// the tooltip does not reach.
+// the label's tooltip does not reach.
 const CheckRow = ({ id, label, summary, checked, duplicate = false, duplicateText, disabledReason, onChange, testId }: CheckRowProps) => (
 	<>
 		<BooleanPicker

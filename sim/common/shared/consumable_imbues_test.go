@@ -279,8 +279,8 @@ func TestTemporaryEnchantCombatSpellRegistersAWeaponProc(t *testing.T) {
 	}
 }
 
-// Scroll of Imbue Manablade's enchant 8715 names 1308913, firing 1306613's mana; Scroll of Imbue
-// Spark's 8707 names 1307644, firing 1306610's reduction of one category's cooldown.
+// Scroll of Imbue Manablade's enchant 8715 names 1308913, which fires 1306613's mana gain; Scroll of
+// Imbue Spark's 8707 names 1307644, which fires 1306610's reduction of one category's cooldown.
 const (
 	manabladeProc int32 = 1308913
 	sparkProc     int32 = 1307644

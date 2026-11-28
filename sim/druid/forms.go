@@ -308,7 +308,7 @@ func (druid *Druid) restoreCatEnergy(sim *core.Simulation) {
 		return
 	}
 	// Only the starting Cat Form finds nothing stored, and it keeps the pull's bar: the cat was in Cat Form
-	// before the pull. Share on entry in EV-0037.
+	// before the pull. Furor's share on every entry in EV-0037.
 	// TODO: Ingame research needed -- what death does to the stored energy.
 	if !druid.furorStoredValid {
 		return

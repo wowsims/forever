@@ -49,7 +49,7 @@ var trackCreatureSpells = []spelldata.Ladder{
 
 // One tracking at a time: a permanent self-buff, and the spell that swaps to it. Improved Tracking
 // raises effect 2, A_MOD_DAMAGE_DONE_VERSUS the tracked creature type; a target of no type or a
-// mechanical one, which no Track names, gets none.
+// mechanical one, which no Track names, gets no bonus.
 func (hunter *Hunter) registerTracking() {
 	mult := spellData.ImprovedTracking.MultiplierAt(hunter.Talents.ImprovedTracking)
 	for _, track := range trackCreatureSpells {
@@ -144,8 +144,8 @@ func (hunter *Hunter) registerResourcefulness() {
 	hunter.MakeProcTriggerAura(trigger)
 }
 
-// The sim registers only the Immolation and Explosive Trap placements, and their shared category
-// cooldown shortens with them.
+// The cooldown mod matches every trap's placement spell; the sim registers only the Immolation and
+// Explosive Trap placements, and their shared category cooldown shortens with them.
 func (hunter *Hunter) registerSurvivalistsDiscipline() {
 	if hunter.Talents.SurvivalistsDiscipline == 0 {
 		return

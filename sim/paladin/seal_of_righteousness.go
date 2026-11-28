@@ -8,7 +8,7 @@ import (
 )
 
 // The damage spell each rank fires on a hit; no row triggers them and none is on a skill line, so the
-// store has none and the proc is built by hand. Rank 1 (21084) fires 25741 ("Rank 1.5"); 25742
+// store carries no row for them and the proc is built by hand. Rank 1 (21084) fires 25741 ("Rank 1.5"); 25742
 // ("Rank 1") is the starter seal 20154's.
 var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
 
@@ -22,16 +22,17 @@ var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4
 // Unleashing this Seal's energy will cause 187 to 203 Holy damage to an enemy.
 //
 // The seal's second effect names its judgement (the row has no effect at the game files' index 1).
-// The per-hit value is the judgement dummy's second effect; the tooltip divides it by 87 and by 25,
-// value/100 * speed at speeds 1.15 and 4.0. The damage spells carry no spell power coefficient and the
-// dummy's is not read. Hand factors and coefficients in EV-0059.
+// The per-hit value is the judgement dummy's second effect; the tooltip renders it over 87 and over
+// 25, which is value/100 times swing speed at speeds 1.15 and 4.0. The damage spells carry no spell
+// power coefficient and the dummy's is not read. Hand factors and coefficients in EV-0059.
 func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfRighteousness.ByID(int32(rank.EffectN(2).BaseValue()))
 	judgeDamage := judgeRank.DamageEffect()
 	perHit := judgeRank.EffectN(2)
 
-	// Ranged in SpellCategories with No Active Defense: the ranged table and hit chance, never blocked, and
-	// a ranged attack to every proc that listens for one.
+	// Ranged in SpellCategories with No Active Defense: the judgement rolls hit and crit on the ranged
+	// table with the paladin's ranged hit chance, is never blocked, and is a ranged attack to every proc
+	// that listens for one.
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfRighteousness
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()

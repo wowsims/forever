@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { watchTargetDummies } from './target_dummies';
 
-// A real `Player` needs a registered spec, a `Database` and a `Sim`; what it needs *here* is a store
+// A real `Player` needs a registered spec, a `Database` and a `Sim`; what this test needs is a store
 // the subscription can select from.
 const STORE_KEY = 0;
 

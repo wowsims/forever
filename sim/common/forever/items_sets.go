@@ -283,7 +283,7 @@ var (
 )
 
 // The energize proc of Wildheart Raiment and of the Feralheart Raiment reissue; the dummy effect's 5 is
-// no chance.
+// not a chance.
 // PPM measurement in EV-0144.
 // Which casts roll in EV-0144.
 func wildheartEnergize(name string) core.ApplySetBonus {
@@ -345,7 +345,8 @@ func attachWildheartSwingEnergy(character *core.Character, setBonusAura *core.Au
 }
 
 // The rage listener: a melee ability taken never rolls the proc, though the row names it (EV-0144). The
-// rage fills the bar only while rage is the current one, since a shift into a bear form empties the bar.
+// rage fills the bar only while rage is the current one: a druid's in a bear form alone, since a shift
+// into a bear form empties the bar.
 func attachWildheartStruckRage(character *core.Character, setBonusAura *core.Aura, name string) {
 	if !character.HasRageBar() {
 		return
@@ -510,7 +511,8 @@ func warriorsResolve(name string) core.ApplySetBonus {
 // Dungeon Set 2, Season of Discovery reissue
 // https://www.wowhead.com/forever/item-set=1667/feralheart-raiment
 //
-// The four groups of pieces count toward the same bonuses (EV-0144).
+// Pieces of the set's four groups (caster, healer, melee and tank) count toward the same bonuses
+// (EV-0144).
 var ItemSetFeralheartRaimentReissue = core.NewItemSet(core.ItemSet{
 	ID:    1667,
 	Name:  "Feralheart Raiment",
@@ -985,7 +987,7 @@ var (
 )
 
 // Proc chance measurement in EV-0166.
-// The row states none.
+// The row states no chance.
 const roarOfTheCrowdChance = 0.072
 
 // https://www.wowhead.com/forever/item-set=1/the-gladiator
@@ -1027,7 +1029,7 @@ var (
 )
 
 // Proc chance measurement in EV-0167.
-// The row states none.
+// The row states no chance.
 const bloodmailChance = 0.107
 
 // https://www.wowhead.com/forever/item-set=123/bloodmail-regalia
@@ -1079,7 +1081,7 @@ var (
 )
 
 // Proc chance measurement in EV-0168.
-// The row states none.
+// The row states no chance.
 const necropileDrainChance = 0.139
 
 // https://www.wowhead.com/forever/item-set=122/necropile-raiment

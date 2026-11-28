@@ -49,8 +49,8 @@ func applyBonescytheHeadRush(agent core.Agent, setBonusAura *core.Aura) {
 // "Your Eviscerate has a chance per combo point to reveal a flaw in your opponent's armor, granting a 100%
 // critical hit chance for your next Backstab, Sinister Strike, or Hemorrhage."
 //
-// 28815's cooldown does not limit the roll. The buff's class flags name Shank, Mutilate and the Season of Discovery
-// strikes too; the crit and the charge are the tooltip's three here.
+// 28815's cooldown does not limit Eviscerate's roll for the buff. The buff's class flags name Shank, Mutilate and
+// the Season of Discovery strikes too; here its crit and its charge cover the tooltip's three spells alone.
 func applyBonescytheRevealedFlaw(agent core.Agent, setBonusAura *core.Aura) {
 	rogue := agent.(RogueAgent).GetRogue()
 	buff := rogue.RegisterAura(spelldata.AuraConfig(revealedFlaw)).AttachSpellMod(core.SpellModConfig{
