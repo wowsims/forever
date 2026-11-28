@@ -216,8 +216,8 @@ func AllManaRegen() ParseOpt {
 	}
 }
 
-// The row is the effect of this item, which the combat log names for the row's bonuses against mob
-// types where it would name the row's own spell. Item 0 keeps the spell.
+// The spell is the effect of this item, which the combat log names for the spell's bonuses against mob
+// types in place of the spell. Item 0 keeps the spell.
 func ForItem(itemID int32) ParseOpt {
 	return func(o *parseOptions) {
 		o.itemID = itemID

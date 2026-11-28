@@ -258,8 +258,8 @@ func TestDotSnapshotSpellDamage(t *testing.T) {
 	expectDotTickDamage(t, sim, fa.Dot, 300) // (100 + 100) * 1.5
 }
 
-// A snapshot dot takes its spell's VersusBonus on the base damage before the spell power joins it, as
-// CalcPeriodicDamage does, and only against the targets the bonus names.
+// A snapshot dot takes its spell's VersusBonus on the base damage before the spell power joins it, and
+// only against the targets the bonus names.
 func TestDotSnapshotTakesTheSpellsVersusBonus(t *testing.T) {
 	for _, c := range []struct {
 		name    string

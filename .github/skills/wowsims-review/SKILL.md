@@ -107,7 +107,7 @@ The first eight have a section in `references/defects.md`.
 - **Whose state.** Check a multi-target effect reads each hit target, a tag counts only this caster's auras and a
   missing map key is not 0; `wowsims-core-mechanics` `## Whose state`.
 - **What the gear tab states.** Check that a hand-written item, enchant or set proc whose code now rolls something
-  its rows do not state has a row in `tools/database/overrides/gear_proc_rates.go`, and that no row there is stale;
+  the game files do not state has a row in `tools/database/overrides/gear_proc_rates.go`, and that no row there is stale;
   `wowsims-procs` `## Measuring a rate`.
 - **Versus effects.** Check that a hand-coded versus effect registers through `RegisterVersus`, `RegisterVersusProc`
   or `shared.RegisterVersus` and an area factor through `RegisterArea` or `RegisterAreaAmount`, a tooltip "times as

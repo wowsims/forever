@@ -674,11 +674,9 @@ var (
 // (4) Set: Chance on block to heal for 18. Healing is doubled in Strongholds and Cities.
 // (5) Set: Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.
 //
-// Every blocked melee or ranged hit heals, a block that leaves no damage too, at most once a second. The
-// heal rolls around 18, and in Strongholds and Cities it is the flat 44 of the heal's second effect, which
-// the stats sheet lists (EV-0160). Every landed melee or ranged hit taken adds a stack and refreshes the
-// buff, at most once every 3 s. The 5-piece buff also makes the wearer larger and turns them into an ogre at
-// 20 stacks, which has no place in the sim (EV-0160).
+// Heals and stacks in EV-0160.
+// The 5-piece buff also makes the wearer larger and turns them into an ogre at 20 stacks, which has no
+// place in the sim.
 var ItemSetKroldokBattlegear = core.NewItemSet(core.ItemSet{
 	ID:   2135,
 	Name: "Krol'dok Battlegear",
@@ -1134,9 +1132,8 @@ func landedHits(mask core.ProcMask) spelldata.ProcOpt {
 	}
 }
 
-// The row's amount, or in the tooltip's area the amount its second effect states, as Krol'dok Battlegear's
-// heal reads its own: Violet Meditation's 30 and Defias Juggernaut's 4 are twice the first effect's. The
-// set bonus keeps the factor on the stats sheet.
+// The spell's amount, or in the tooltip's area the amount its second effect states. The set bonus keeps the
+// factor on the stats sheet.
 func secondEffectInArea(character *core.Character, bonus *spelldata.Spell, row *spelldata.Spell, area proto.AreaType) spelldata.ParseOpt {
 	return spelldata.Count(character.RegisterArea(core.ActionID{SpellID: bonus.ID}, proto.VersusEffectKind_VersusEffectKindEffect,
 		core.AreaBonus{AreaTargets: core.AreaTargets{Areas: []proto.AreaType{area}}, Multiplier: row.EffectN(2).BaseValue() / row.EffectN(1).BaseValue()}))

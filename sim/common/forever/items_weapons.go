@@ -905,11 +905,7 @@ func registerExtraAttackVersus(character *core.Character, itemID int32, name str
 	character.ItemSwap.RegisterProc(itemID, aura)
 }
 
-// Narrows the trigger to landings on an enemy of the wearer's harmful spells: spell damage hits, and
-// spells with no proc mask whose DefenseType is magic and whose school is not Physical, such as the
-// curses, Hex of Weakness and Counterspell. Physical taunts, shouts and roars, spells fired as a proc
-// and spells an item casts are not harmful spells of the wearer's. It runs before any condition the
-// trigger already has (EV-0025, EV-0219).
+// Narrows the trigger to the wearer's harmful spells landing on an enemy (EV-0025, EV-0219).
 func harmfulSpells(character *core.Character, trigger *core.ProcTrigger) {
 	condition := trigger.ExtraCondition
 	trigger.ProcMask = core.ProcMaskUnknown

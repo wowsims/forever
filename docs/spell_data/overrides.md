@@ -88,7 +88,7 @@ in Volcanic areas" on Molten Fury). A row names the AreaGroup ids (any one of th
 on the effect's amounts and the factor on its duration. These go onto `Spell.AreaBonusGroups`,
 `AreaMultiplier` and `AreaDurationMultiplier`. `row.AreaBonus()` reads them as two `core.AreaBonus`
 values, which `character.RegisterArea` turns into the factors in the encounter and lists on the stats
-sheet. The override is stale once the row states a `RequiredAreasID` of its own. The on-use stat actives that `shared.NewSimpleStatActive` registers and the on-use resource gains
+sheet. The override is stale once the spell states a `RequiredAreasID` of its own. The on-use stat actives that `shared.NewSimpleStatActive` registers and the on-use resource gains
 `shared.NewSpellDataEnergizeOnUse` registers read it; a proc chance the tooltip says is doubled has no
 reader yet.
 
@@ -100,7 +100,7 @@ of its own where no effect states one (Gloves of Holy Might's tripling). These g
 `Spell.VersusEffectIndex`, `VersusMultiplier`, `VersusMobTypes` and `VersusFamilies`, and
 `row.VersusBonus()` reads them; `shared.RegisterVersus` hands it to a spell and the stats sheet. The
 generator refuses a row whose effect no longer holds a factor above 1 on an `E_NONE`, `E_DUMMY`,
-`A_DUMMY` or trigger effect, and a `Multiplier` once the row states a factor above 1 on an `E_NONE`, `E_DUMMY` or
+`A_DUMMY` or trigger effect, and a `Multiplier` once the game files state a factor above 1 on an `E_NONE`, `E_DUMMY` or
 `A_DUMMY` effect.
 
 A consumable's spells take these overrides like any other spell's; the lists that add, remove or

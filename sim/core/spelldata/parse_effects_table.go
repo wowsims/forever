@@ -96,7 +96,7 @@ type parser struct {
 	// AllManaRegen: a mana regen percent is Innervate's multiplier on the mana regen.
 	allManaRegen bool
 
-	// The item or spell the combat log names for the row's bonuses against mob types (ForItem).
+	// The item or spell the combat log names for the spell's bonuses against mob types (ForItem).
 	versusSource core.ActionID
 }
 

@@ -71,14 +71,14 @@ call order alone. The rulings the code follows are in `references/rulings.md`; t
   reads attack power once, on its first target, passes the stat and the damage a point of it adds (`core.StatRead`)
   to `CalcCleaveDamageReading` or `CalcAoeDamageReading`. Each target's hit then takes its own versus share of the
   stat, and its tag names the stat only when that share is not 0 (Whirlwind, Thunder Clap, Cleave, Multi-Shot,
-  Ravager's Bladestorm). The weapon helpers' `PerAttackPower` forms (`sim/core/attack.go`) and a row's
+  Ravager's Bladestorm). The weapon helpers' `PerAttackPower` forms (`sim/core/attack.go`) and a spell's
   `WeaponPercent` give the damage per point. The other area and cleave iterations (`CalcAoeDamage`,
   `CalcCleaveDamage` and their deal and periodic forms) hand the marks read before them to every target's result.
   The attack power a target grants its attackers (`BonusAttackPower`, and `BonusRangedAttackPower` from Hunter's
   Mark) still comes from the first target alone. A formula that adds a versus
   stat by hand reads it through `spell.VersusStat` (Seal of Command), not the attack table. A read outside the damage
   stays off the tag: threat's attack power share, an expected-damage value, and a read before the cast or tick. An
-  item's versus bonus is named by the item when its row is parsed with `spelldata.ForItem`.
+  item's versus bonus is named by the item when its spell is parsed with `spelldata.ForItem`.
 - **Spell power read by hand takes no spell damage against the target's creature type.** `BonusDamage`, which a spell's
   or dot's `BonusCoefficient` adds, takes it, and `MeleeAttackPower(target)` and `RangedAttackPower(target)` take the
   attack power; `spell.SpellDamage(target)` leaves it out. A formula that multiplies `spell.SpellDamage(target)` itself
@@ -94,7 +94,7 @@ call order alone. The rulings the code follows are in `references/rulings.md`; t
   fires only, or more often, against some targets sets `VersusProc` ("x3 proc chance", "proc only"). The header names
   the target's family when an entry matched it by its family. A versus factor on something other than damage, such as
   a stun's duration or a restore, and a cast allowed only on some targets, get no tag. Which targets an effect names is
-  a `core.VersusTargets` (`Matches`, `AnyIn`): a row's `TargetCreatureTypes()`, a mask's `spelldata.TargetCreatures`,
+  a `core.VersusTargets` (`Matches`, `AnyIn`): a spell's `TargetCreatureTypes()`, a mask's `spelldata.TargetCreatures`,
   and `shared.OnlyAgainst` for a proc that fires only on hits against them. A target of a creature family and no mob
   type of its own counts as the family's mob type in every versus check (`creatureFamilyMobTypes` in
   `sim/core/versus.go`, which `NewTarget` reads; `gen_db -gen=go-to-ts` copies it for the UI's `targetMobType` in
@@ -110,13 +110,13 @@ call order alone. The rulings the code follows are in `references/rulings.md`; t
 - **An area factor goes through `character.RegisterArea`** (`sim/core/area.go`) with a `core.AreaBonus` (the
   `AreaTargets` and the factor) and a `VersusEffectKind` (`Effect` for stats, regeneration or a heal). It returns the
   factor in the encounter, 1 outside its areas, since the areas are fixed for the run, and lists it on the stats sheet
-  under its area in every encounter. A row's `overrides.AreaBonuses` entry reads as `spelldata.Spell.AreaBonus()`. A
+  under its area in every encounter. A spell's `overrides.AreaBonuses` entry reads as `spelldata.Spell.AreaBonus()`. A
   rule on top of the factor stays at its site (Everlook Delivery Bot's halved counts rounded down, listed as
   `HitsNeeded`). A flat amount in
   the areas goes through `character.RegisterAreaAmount`, which lists the amount and returns whether the encounter is
   in them (Krol'dok Battlegear's `FlatHeal`); a check with nothing to list is `AreaTargets.In` or `Encounter.InArea`.
-- **Periodic physical damage meets the armor its row's attributes name** (EV-0194). `SpellConfig` reads them: none
-  where the row sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
+- **Periodic physical damage meets the armor its attributes name** (EV-0194). `SpellConfig` reads them: none
+  where the spell sets Attributes[6] 0x200000 (Garrote, Rip, the warrior's Rend), a tenth of what armor penetration
   leaves where it sets only Attributes[0] 0x40000 (`SpellFlagTenthResistance`, the weapons' Rends), and the whole armor
   where it sets neither (`SpellFlagApplyArmorReduction`, Wound). A periodic spell built by hand with no row ignores
   armor, and one that pays out damage that already met armor (Death Mark, Lacerating Strikes) sets

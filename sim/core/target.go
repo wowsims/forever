@@ -99,8 +99,8 @@ func (encounter *Encounter) updateAOECapMultiplier() {
 	encounter.aoeCapMultiplier = AOECapMultiplierOf(len(encounter.ActiveTargets))
 }
 
-// The share of its damage an uncapped area deals each of the targets it reaches: all of it up to 20
-// targets, 20 / targets past them. With no target the division gives +Inf, which the min keeps at 1.
+// The share of its damage an uncapped area deals each of the targets it reaches. With no target the
+// division gives +Inf, which the min keeps at 1.
 func AOECapMultiplierOf(targets int) float64 {
 	return min(20/float64(targets), 1)
 }

@@ -129,7 +129,7 @@ func effectGain(character *core.Character, gain *spelldata.Effect, actionID core
 	return func(sim *core.Simulation) { restore(sim, 1) }, true
 }
 
-// The same, the roll multiplied by a factor.
+// One roll of the effect's gain, multiplied by a factor, into the bar its misc value names.
 func scaledEffectGain(character *core.Character, gain *spelldata.Effect, actionID core.ActionID) (func(*core.Simulation, float64), bool) {
 	if gain == spelldata.NilEffect {
 		return nil, false

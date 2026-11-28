@@ -5,9 +5,9 @@
 - Pull request: #1213
 - Evidence: EV-0231
 
-A multi-target effect whose row names creature types (TargetCreatureType) reaches only the enemies of those types. An
-enemy of another type takes no roll, and it never counts toward the split of a row that splits its damage, toward the
-row's MaxTargets or toward the AoE cap: the effect divides, caps and scales over the enemies of its types alone.
+A multi-target effect whose spell names creature types (TargetCreatureType) reaches only the enemies of those types. An
+enemy of another type takes no roll, and it never counts toward the split of a spell that splits its damage, toward the
+spell's MaxTargets or toward the AoE cap: the effect divides, caps and scales over the enemies of its types alone.
 Stratholme Holy Water's 17291 names Undead, so among 40 targets with one Undead it deals that one its whole roll.
 
 EV-0231 shows the no-roll part: 17291 logs no event of any kind on an enemy that is not Undead. The split and cap part

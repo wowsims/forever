@@ -198,7 +198,7 @@ var AreaBonuses = []AreaBonus{
 	},
 }
 
-// A factor a row deals, restores, procs or adds against some targets, which only its tooltip names ("Deals
+// A factor a spell deals, restores, procs or adds against some targets, which only its tooltip names ("Deals
 // $s2 times as much damage to Plants", "Attacks against Dwarves are $s2 times as likely to activate
 // this effect"). A target of any of the mob types or families counts.
 type VersusBonus struct {

@@ -604,15 +604,14 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 		config.MaxStacks = aura.MaxStacks
 	})
 	attachVersusStats(procAura.Aura, buff, cfg.effectSource().versusSource(buff))
-	// The item effect entry carries the buff's stats alone; its speed auras come from the row
+	// The item effect entry carries the buff's stats alone; its speed auras come from the spell
 	// (Ragehammer's Enrage 12686 states attack power and melee attack speed).
 	procAura.AttachHastePseudoStats(buff.SpeedPseudoStats())
 	return procAura
 }
 
 // The stats the buff grants against some creature types, which the item effect entry leaves out:
-// Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin. The combat
-// log names the item for them, or the buff for an enchant's.
+// Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin.
 func attachVersusStats(aura *core.Aura, buff *spelldata.Spell, source core.ActionID) {
 	for _, effect := range buff.Effects {
 		if bonus := spelldata.VersusAura(effect.Aura).Bonus(effect.Average()); bonus != (stats.Stats{}) {
@@ -688,18 +687,15 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 		extra(character, &damageConfig)
 	}
 	attachProcDamage(character, &config, damageConfig)
-	// The restore takes the trigger's factor against the hit's target, as an energize proc's does.
+	// The restore takes the trigger's factor against the hit's target.
 	config.Handler = withProcEnergize(character, damage, config.Handler, func() *core.VersusBonus {
 		return RegisterVersus(character, source.versusSource(trigger), proto.VersusEffectKind_VersusEffectKindRestore, trigger)
 	})
 	source.registerTrigger(character, config)
 }
 
-// The handler followed by the row's own gain into the wearer's mana, rage or energy, where the row
-// states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana, and
-// Righteous Fire 1231138 raises spell power and restores mana. The gain targets the caster, so it comes
-// with every proc whether the damage lands or not, a full resist included (EV-0108). Where register is
-// set, it registers the factor the gain takes against the hit's target, once the row has a gain.
+// The handler followed by the spell's own gain of mana, rage or energy on its caster, which comes with
+// every proc (EV-0108).
 func withProcEnergize(character *core.Character, row *spelldata.Spell, handler core.ProcHandler, register func() *core.VersusBonus) core.ProcHandler {
 	gain := row.EnergizeEffect()
 	if gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
@@ -933,10 +929,8 @@ func applyDotIfLanded(area bool) afterDealt {
 	}
 }
 
-// The damage of an effect that reaches more than its target. A row that names creature types skips
-// the enemies outside them: they take no roll, so Stratholme Holy Water's 17291 burns only the Undead
-// in its area (EV-0231), and count toward neither a split, the row's MaxTargets nor the AoE cap
-// (R-0058).
+// The damage of an effect that reaches more than its target. The enemies outside the creature types the
+// spell names take no roll (EV-0231) and count toward no split, MaxTargets or AoE cap (R-0058).
 func calcMultiTargetDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, types core.VersusTargets, row *spelldata.Spell, effect *spelldata.Effect, outcome core.OutcomeApplier) core.SpellResultSlice {
 	if types.IsEmpty() {
 		return calcMultiTargetDamageOnAll(sim, spell, target, row, effect, outcome)
@@ -1604,7 +1598,7 @@ func OnUseCast(character *core.Character, itemEffect *proto.ItemEffect) core.Cas
 	return cast
 }
 
-// The on-use buff's stats and duration, scaled by its area bonus, which the item keeps on the stats sheet.
+// The on-use buff's stats and duration, scaled by its area bonus.
 func onUseStatBuff(character *core.Character, itemID int32, itemEffect *proto.ItemEffect) (stats.Stats, time.Duration) {
 	amountBonus, durationBonus := spelldata.Find(itemEffect.BuffId).AreaBonus()
 	source := core.ActionID{ItemID: itemID}

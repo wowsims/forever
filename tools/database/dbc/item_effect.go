@@ -431,8 +431,8 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 			equipPseudoStats := make([]float64, stats.PseudoStatsLen)
 			addedStats, addedPseudoStats := AddEquipSpellStats(&equipStats, equipPseudoStats, baseEff.SpellID)
 
-			// One that grants only stats against creature types folds into the item's mob type stats alone:
-			// Seal of the Dawn 13209's 23930, +78 Attack Power against Undead.
+			// An equip spell that grants only stats against creature types folds into the item's mob type
+			// stats alone.
 			if EquipSpellFolds(baseEff.SpellID) && GrantsOnlyVersusStats(spelldata.Find(int32(baseEff.SpellID))) {
 				addEquipSpellMobTypeStats(parsed.ScalingOptions[0], baseEff.SpellID)
 				continue
@@ -484,8 +484,8 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 }
 
 // An equip spell that only restates weapon skills or creature type stats the item's own stats already
-// state adds nothing in game: an item's tooltip shows such a bonus once (EV-0111). The stat gives the bonus
-// and the spell leaves the item: no database entry, no registration and no missing effect. A spell that does more stays, and so does one on an item whose stats state no such bonus,
+// state adds nothing in game. Restated stats in EV-0111. The stat gives the bonus and the spell leaves
+// the item. A spell that does more stays, and so does one on an item whose stats state no such bonus,
 // unless it raises weapon skills alone (foldEquipWeaponSkills).
 func (d *DBC) dropRestatedItemStats() {
 	for itemID, effects := range d.ItemEffectsByParentID {

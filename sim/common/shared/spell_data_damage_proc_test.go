@@ -83,10 +83,9 @@ func TestItemDamageProcCritsReachListenersThatHearProcs(t *testing.T) {
 	}
 }
 
-// An enchant's damage proc whose trigger states a factor against some targets, The Chief's Enforcer's
-// 1294339 against Trolls, lists the factor on the stats sheet under the trigger's spell: the enchant's
-// own id names no spell. With an item swap set it lists the factor while the worn weapon carries the
-// enchant, and nothing while only the item swap set's weapon does.
+// An enchant's damage proc lists its trigger's factor on the stats sheet under the trigger's spell, The
+// Chief's Enforcer's 1294339 against Trolls, and lists nothing while only the item swap set's weapon
+// carries the enchant.
 func TestEnchantDamageProcListsItsVersusFactorByItsSpell(t *testing.T) {
 	const swordID, enchantID, strike int32 = 991690, 991691, 1294339
 	want, ok := spelldata.MustFind(strike).VersusBonus()
@@ -680,9 +679,9 @@ func TestWeaponProcDealingDamageOverTimeAloneAppliesIt(t *testing.T) {
 	}
 }
 
-// A damage proc's restore takes its trigger's factor against the hit's target, kept for the stats sheet
-// as a restore under the item: 27860's mana off a 7711 that states three times as much against Plants,
-// an override no row carries, set on the store's row for the test.
+// A damage proc's restore takes its trigger's factor against the hit's target, and the stats sheet lists
+// it as a restore under the item. The test gives the store's 7711 a factor of three against Plants, which
+// no override row carries, for 27860's mana.
 func TestDamageProcRestoresTheTriggersFactorAgainstItsTargets(t *testing.T) {
 	const trinketID, engulfingShadows int32 = 991633, 27860
 	trigger := spelldata.MustFind(7711)
@@ -739,7 +738,7 @@ func TestDamageProcRestoresTheTriggersFactorAgainstItsTargets(t *testing.T) {
 }
 
 // Engulfing Shadows 27860 deals Shadow damage to the enemy and restores mana to its caster, cast here
-// off Blazefury Medallion 17111's 7711 on each melee hit. The wearer gains the row's mana with the
+// off Blazefury Medallion 17111's 7711 on each melee hit. The wearer gains the spell's mana with the
 // proc, whether the damage lands or misses.
 func TestDamageProcRestoresTheWearersManaLandedOrNot(t *testing.T) {
 	const trinketID, engulfingShadows int32 = 991632, 27860

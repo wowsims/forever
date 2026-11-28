@@ -2015,10 +2015,8 @@ func versusCleaveSim(t *testing.T, mobTypes []proto.MobType, humanoidAttackPower
 }
 
 // Whirlwind, Thunder Clap and Cleave read attack power once, on their first target, and each target's
-// hit takes its own attack power against its mob type: a Beast beside a Humanoid takes none of the
-// Humanoid's, and a Humanoid beside the Beast the read was made on takes its own. With the same seed, the
-// Humanoid second takes the same damage after a Beast as after another Humanoid, which pins the damage
-// each point adds.
+// hit takes its own attack power against its mob type. With the same seed, a Humanoid second takes the
+// same damage after a Beast as after another Humanoid, which pins the damage each point adds.
 func TestCleavesTakeEachTargetsOwnVersusAttackPower(t *testing.T) {
 	humanoid, beast := proto.MobType_MobTypeHumanoid, proto.MobType_MobTypeBeast
 	for _, c := range []struct {

@@ -154,10 +154,9 @@ func tooltipTargets(tooltip string) (mobTypes []proto.MobType, families []proto.
 // against, which the gear picker filters by: the areas a spell requires or is stronger in, the mob types
 // a versus aura or a creature type stat counts against. A tooltip states the rest, which no row holds: the
 // creature groups (tooltipTargets), and the areas (tooltipAreas) only of an effect the sim models by hand,
-// as only hand-written code reads a tooltip's area: the item's own effects where modelledItem is set, and
-// the set bonuses modelledSetBonus names by their piece count. Every item effect counts, whatever triggers
-// it, with each spell its trigger chain reaches. A spell that requires a single zone names no terrain
-// area, and one that can only hit a mob type (TargetCreatureType: a stun, a charm) states no bonus against it.
+// since only hand-written code reads a tooltip's area. Every item effect counts, whatever triggers it, with
+// each spell its trigger chain reaches. A spell that requires a single zone names no terrain area, and one
+// that can only hit a mob type (TargetCreatureType: a stun, a charm) states no bonus against it.
 func ItemEffectTypes(itemID int32, modelledItem bool, modelledSetBonus func(pieces int32) bool) ([]proto.AreaType, []proto.MobType, []proto.CreatureFamily) {
 	var areaTypes []proto.AreaType
 	var mobTypes []proto.MobType

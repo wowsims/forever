@@ -2452,7 +2452,7 @@ func castsOnUse(itemID int, spellID int, instance *dbc.DBC) bool {
 	})
 }
 
-// The row's factor against some targets where its effect does nothing else, an E_NONE or E_DUMMY: the
+// The spell's factor against some targets where its effect does nothing else, an E_NONE or E_DUMMY: the
 // damage on-use builders apply it (shared.RegisterVersus). Breath of Fire's 12257 states its factor
 // on the E_TRIGGER_SPELL that casts Strong Alcohol, which stays not simulated.
 func versusFactorModelled(s *spelldata.Spell) []*spelldata.Effect {

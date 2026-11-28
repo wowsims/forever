@@ -817,9 +817,8 @@ func TestSniperShotChargeGoesAtTheShotsCast(t *testing.T) {
 }
 
 // Multi-Shot reads ranged attack power once, on its first target, and each target's hit takes its own
-// ranged attack power against its mob type: a Beast beside a Humanoid takes none of the Humanoid's, and
-// a Humanoid beside the Beast the read was made on takes its own. With the same seed, the Humanoid second
-// takes the same damage after a Beast as after another Humanoid, which pins the damage each point adds.
+// ranged attack power against its mob type. With the same seed, a Humanoid second takes the same damage
+// after a Beast as after another Humanoid, which pins the damage each point adds.
 func TestMultiShotTakesEachTargetsOwnVersusRangedAttackPower(t *testing.T) {
 	humanoid, beast := proto.MobType_MobTypeHumanoid, proto.MobType_MobTypeBeast
 	damage := func(mobTypes []proto.MobType, humanoidRangedAttackPower float64) []float64 {

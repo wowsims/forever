@@ -58,11 +58,9 @@ func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck in
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// Seal of the Dawn 13209 and Rune of the Dawn 19812 fold equip spells 23930 and 24198, which grant only
-// their bonus against Undead, into their mob type stats. Counterattack Lodestone 18537 and Royal Seal of
-// Eldre'Thalas 18467 fold equip spells 1318938 and 1318479 into their stats, the bonus against Mechanical
-// and Demon targets with them. The sim adds each bonus once, to the attack table of a target of that mob
-// type alone.
+// Seal of the Dawn 13209, Rune of the Dawn 19812, Counterattack Lodestone 18537 and Royal Seal of
+// Eldre'Thalas 18467 fold their equip spells' bonus against a mob type into their stats, and the sim adds
+// each bonus once, to the attack table of a target of that mob type alone.
 func TestTrinketsGrantTheirBonusAgainstTheirMobTypeAlone(t *testing.T) {
 	seal, rune := spelldata.MustFind(23930), spelldata.MustFind(24198)
 	lodestone, royalSeal := spelldata.MustFind(1318938), spelldata.MustFind(1318479)
@@ -859,8 +857,7 @@ func tabletMissileCaster(seed int64) (*core.Simulation, *core.Character) {
 
 // Scented Runewood Brooch 269741's 1318323 rolls its spell's procs per minute on the main hand's speed
 // for a landed main-hand swing and a landed spell hit alike, and casts 1318324 on the target, but only
-// when the target is a Furbolg. A hit on any other target never casts it. The combat log names the item
-// on the damage.
+// when the target is a Furbolg. The combat log names the item on the damage.
 func TestScentedRunewoodBroochProcsOnlyAgainstFurbolg(t *testing.T) {
 	sim, character := trinketWarriorWielding(t, 269741, 810, 0)
 	proc := character.GetAura("Scented Runewood Brooch")
@@ -1382,7 +1379,7 @@ func TestAreaFactorsListUnderTheirSourceOnTheSheet(t *testing.T) {
 	}
 }
 
-// Draconic Infused Emblem 22268's 1318931 rolls its row's chance on every landed harmful spell hit,
+// Draconic Infused Emblem 22268's 1318931 rolls the spell's chance on every landed harmful spell hit,
 // one that deals no damage and a magic spell with no proc mask, as a curse is, too, and on nothing
 // else.
 func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {

@@ -174,7 +174,7 @@ func TestEquipSpellRaisingOnlyWeaponSkillsFoldsIntoTheItem(t *testing.T) {
 }
 
 // An equip spell that grants only stats against creature types leaves the item's effects for its mob type
-// stats, at the amounts its row states. An equip spell with no stats and no such bonus stays an effect.
+// stats, at the amounts the spell states. An equip spell with no stats and no such bonus stays an effect.
 func TestEquipSpellGrantingOnlyVersusStatsFoldsIntoMobTypeStats(t *testing.T) {
 	once.Do(func() {})
 	previous := dbcInstance

@@ -7,10 +7,9 @@ import (
 )
 
 // The mob type each creature family belongs to. A target of a family and no mob type of its own counts
-// as the family's mob type in every versus check: a Fire Elemental with none is an Elemental. A target's
-// own mob type stays its only one, so an undead Troll stays Undead. Aquatic spans Beasts, Elementals and
-// Humanoids and Serpentine Beasts and Humanoids, so neither gives one. make go-to-ts writes the UI's copy
-// (CREATURE_FAMILY_MOB_TYPES) from this table.
+// as the family's mob type in every versus check, and a target's own mob type stays its only one.
+// Aquatic spans Beasts, Elementals and Humanoids, and Serpentine Beasts and Humanoids, so neither gives
+// one. make go-to-ts writes the UI's copy (CREATURE_FAMILY_MOB_TYPES) from this table.
 var creatureFamilyMobTypes = [...]proto.MobType{
 	proto.CreatureFamily_CreatureFamilyUnknown:        proto.MobType_MobTypeUnknown,
 	proto.CreatureFamily_CreatureFamilyNaga:           proto.MobType_MobTypeHumanoid,
@@ -63,8 +62,8 @@ func (targets VersusTargets) AnyIn(units []*Unit) bool {
 }
 
 // A factor a spell deals or restores against a target of any of the mob types or creature families,
-// once however many of them the target is. The game files state the factor on a row and name the
-// targets only in its tooltip.
+// once however many of them the target is. The spell states the factor, and only its tooltip names the
+// targets.
 type VersusBonus struct {
 	VersusTargets
 	Multiplier float64
@@ -91,8 +90,7 @@ type VersusProc struct {
 }
 
 // The factor a source's spell deals, restores or adds against the mob types and families, kept for the
-// stats sheet under the source: an item, or the spell of a set bonus or an enchant. A damage spell
-// applies it as its SpellConfig.VersusBonus; any other amount is multiplied by Against at the call site.
+// stats sheet under the source: an item, or the spell of a set bonus or an enchant.
 func (character *Character) RegisterVersus(source ActionID, kind proto.VersusEffectKind, bonus VersusBonus) *VersusBonus {
 	character.versusEffects = append(character.versusEffects, &proto.VersusEffect{Source: source.ToProto(), Kind: kind,
 		MobTypes: bonus.MobTypes, CreatureFamilies: bonus.Families, Multiplier: bonus.Multiplier})

@@ -310,9 +310,8 @@ func init() {
 	// Use: Marks your target, increasing your Critical Strike chance against them by 5% for 20 sec. This
 	// effect is doubled against Orcs and Ogres.
 	//
-	// 1318944's A_MOD_CRIT_CHANCE_FOR_CASTER raises the crit chance of the wearer's attacks and spells
-	// against the marked target, and no one else's. The doubling is the tooltip's alone, so an override
-	// puts it on 1318944: the equip dummy 1318945 states no amount.
+	// The doubling is the tooltip's alone, so an override puts it on 1318944: the equip dummy 1318945
+	// states no amount.
 	core.NewItemEffect(13965, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1318944)
@@ -490,9 +489,7 @@ func init() {
 	// chance is doubled in Strongholds and Cities.
 	//
 	// The tooltip states the chance as ${$h/2}%: 20847's ProcChance is the chance doubled in Strongholds
-	// and Cities, so an encounter there rolls the whole column and any other encounter half of it
-	// (R-0057). The sim fixes the encounter's area for the run, so the chance is fixed when the trigger
-	// is built.
+	// and Cities, and any other encounter rolls half of it (R-0057).
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 20847, BuffSpellID: 18946,
 		Rate: halvedOutside(14557, proto.AreaType_AreaTypeStrongholdsCities)},
 		[]shared.ItemVariant{
@@ -506,7 +503,7 @@ func init() {
 	// doubled in Wasteland and Haunted areas.
 	//
 	// 8397's ProcChance is the chance doubled in Wasteland and Haunted areas, its first effect the 2%, so
-	// an encounter there rolls the whole column and any other encounter half of it (R-0057).
+	// any other encounter rolls half of it (R-0057).
 	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 8397, BuffSpellID: 10368,
 		Rate: halvedOutside(11302, proto.AreaType_AreaTypeWasteland, proto.AreaType_AreaTypeHaunted)},
 		[]shared.ItemVariant{
@@ -587,8 +584,7 @@ func registerCountdownOnUse(character *core.Character, itemID int32, row *spelld
 	})
 }
 
-// Half the row's chance in an encounter in none of the areas, whose doubled chance the column states
-// (R-0057). The item keeps the doubling on the stats sheet.
+// Half the spell's chance in an encounter in none of the areas (R-0057).
 func halvedOutside(itemID int32, areas ...proto.AreaType) spelldata.ProcOpt {
 	return func(character *core.Character, trigger *core.ProcTrigger) {
 		trigger.ProcChance *= character.RegisterArea(core.ActionID{ItemID: itemID}, proto.VersusEffectKind_VersusEffectKindProcChance,
